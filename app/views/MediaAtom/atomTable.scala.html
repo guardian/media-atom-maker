@@ -1,0 +1,27 @@
+@import com.gu.contentatom.thrift._
+@(atom: Atom)
+@defining(atom.data.asInstanceOf[AtomData.Media].media) { mediaAtom =>
+        <h1>Atom Data</h1>
+        <table id="atom-data">
+            <tr><td class="label">ID</td><td>@atom.id</td></tr>
+            <tr><td class="label">Atom type</td><td>@atom.atomType</td></tr>
+            <tr><td class="label">activeVersion</td><td>@mediaAtom.activeVersion</td></tr>
+        </table>
+        <h1>Assets</h1>
+        <table id="assets">
+            <tr>
+                <td class="label">type</td>
+                <td class="label">id</td>
+                <td class="label">platform</td>
+                <td class="label">version</td>
+            </tr>
+            @for(asset <- mediaAtom.assets) {
+                          <tr>
+                              <td>@asset.assetType</td>
+                              <td>@asset.id</td>
+                              <td>@asset.platform</td>
+                              <td>@asset.version</td>
+                          </tr>
+            }
+        </table>
+}

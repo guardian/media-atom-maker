@@ -1,3 +1,6 @@
 GET     /       controllers.MainApp.index()
 
-POST    /show   controllers.MainApp.show()
+GET     /show   controllers.MainApp.show(uri)
+
+#static assets
+GET  /assets/*file        controllers.Assets.at(path="/public", file)
