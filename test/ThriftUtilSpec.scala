@@ -53,6 +53,14 @@ class ThriftUtilSpec extends FunSpec
       t.parseMediaAtom should matchPattern { case Right(MediaAtom(Nil, _, _)) => }
     }
 
+    it("should create multiple assets with multiple uri params") {
+      val t = new ThriftUtil(Map("uri" -> List(youtubeUrl, youtubeUrl)))
+      inside(t.parseMediaAtom) {
+        case Right(MediaAtom(assets, _, _)) =>
+          assets should have length 2
+      }
+    }
+
     withParamsIt("should correctly generate atom",
                  "uri" -> youtubeUrl) { t =>
       inside(t.parseRequest) {

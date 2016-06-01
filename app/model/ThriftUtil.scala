@@ -45,8 +45,15 @@ class ThriftUtil(params: Map[String, Seq[String]]) {
 
   def parseAssets: ThriftResult[List[Asset]] =
     (params.get("uri").map { uris =>
-      parseAsset(uris.head).right.map(_ :: Nil)
-    }) getOrElse Right(Nil)
+       uris.foldLeft(Right(Nil): ThriftResult[List[Asset]]) { (assetsEither, uri) =>
+         for {
+           assets <- assetsEither.right
+           asset <- parseAsset(uri).right
+         } yield {
+           asset :: assets
+         }
+       }
+     }) getOrElse Right(Nil)
 
   def parseMediaAtom: ThriftResult[MediaAtom] =
     for(assets <- parseAssets.right) yield MediaAtom(
