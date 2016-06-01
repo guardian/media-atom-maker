@@ -1,6 +1,8 @@
-GET     /       controllers.MainApp.index()
+GET     /               controllers.MainApp.index()
 
-GET     /show   controllers.MainApp.show(uri)
+GET     /atom/:id       controllers.MainApp.getMediaAtom(id)
+
+POST    /atom           controllers.MainApp.createContentAtom
 
 #static assets
-GET  /assets/*file        controllers.Assets.at(path="/public", file)
+GET  /assets/*file      controllers.Assets.at(path="/public", file)

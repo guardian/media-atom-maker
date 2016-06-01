@@ -51,7 +51,7 @@ class ThriftUtil(params: Map[String, String]) {
 
   def parseRequest: ThriftResult[Atom] =
     for(mediaAtom <- parseMediaAtom.right) yield Atom(
-      id = randomUUID().toString,
+      id = params.get("id").getOrElse(randomUUID().toString),
       atomType = AtomType.Media,
       labels = Nil,
       defaultHtml = "<div></div>",
