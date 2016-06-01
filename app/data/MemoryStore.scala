@@ -1,6 +1,7 @@
 package data
 
 import com.gu.contentatom.thrift.Atom
+import com.gu.contentatom.thrift.atom.media.MediaAtom
 import javax.inject.Singleton
 
 @Singleton
@@ -19,5 +20,4 @@ class MemoryStore extends DataStore {
 
   def updateMediaAtom(atom: Atom, currentVersion: Long) = dataStore.synchronized {
   }
-
 }

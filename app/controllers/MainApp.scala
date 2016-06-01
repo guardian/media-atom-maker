@@ -34,4 +34,8 @@ class MainApp @Inject() (dataStore: DataStore) extends Controller {
       case Left(err) => InternalServerError(s"could not parse atom data: $err\n")
     }
   }
+
+  def updateContentAtom = Action(ThriftUtil.bodyParser) { implicit req =>
+    NotFound("unimplemented")
+  }
 }
