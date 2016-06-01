@@ -1,36 +1,39 @@
 package model
 
 import com.gu.contentatom.thrift._
+import atom.media._
 import java.util.UUID.randomUUID
-import com.gu.contentatom.thrift.atom.media._
 import play.api.mvc.{ BodyParser, BodyParsers }
 import scala.concurrent.ExecutionContext
 
 class ThriftUtil(params: Map[String, String]) {
   import ThriftUtil.ThriftResult
 
-  val youtube = "https?://www.youtube.com/watch?v=([^&]?)".r
+  val youtube = "https?://www.youtube.com/watch\\?v=([^&]+)".r
 
   def getParam(paramName: String): ThriftResult[String] =
     params.get(paramName).toRight(s"Missing parameter $paramName")
 
-  def parsePlatform(uri: String): ThriftResult[Platform] = uri match {
-    case youtube(_) => Right(Platform.Youtube)
-    case _ => Left(s"Unrecognised platform in uri ($uri)")
+  def parsePlatform: ThriftResult[Platform] = getParam("uri").right flatMap { uri =>
+    uri match {
+      case youtube(_) => Right(Platform.Youtube)
+      case _ => Left(s"Unrecognised platform in uri ($uri)")
+    }
   }
 
-  def parseId(uri: String): ThriftResult[String] = uri match {
-    case youtube(id) => Right(id)
-    case _ => Left(s"couldn't extract id from uri ($uri)")
+  def parseId: ThriftResult[String] = getParam("uri").right flatMap { uri =>
+    uri match {
+      case youtube(id) => Right(id)
+      case _ => Left(s"couldn't extract id from uri ($uri)")
+    }
   }
 
   def parseVersion: Long = params.get("version").map(_.toLong).getOrElse(1L)
 
   def parseAsset: ThriftResult[Asset] =
     for {
-      uri <- getParam("uri").right
-      id <- parseId(uri).right
-      platform <- parsePlatform(uri).right
+      id <- parseId.right
+      platform <- parsePlatform.right
     } yield Asset(
       id = id,
       assetType = AssetType.Video,
