@@ -41,7 +41,7 @@ class ThriftUtil(params: Map[String, String]) {
       platform = platform
     )
 
-  def parseMediaAtom(params: Map[String, String]): ThriftResult[MediaAtom] = {
+  def parseMediaAtom: ThriftResult[MediaAtom] = {
     for(asset <- parseAsset.right) yield MediaAtom(
       assets = List(asset),
       activeVersion = parseVersion,
@@ -50,7 +50,7 @@ class ThriftUtil(params: Map[String, String]) {
   }
 
   def parseRequest: ThriftResult[Atom] =
-    for(mediaAtom <- parseMediaAtom(params).right) yield Atom(
+    for(mediaAtom <- parseMediaAtom.right) yield Atom(
       id = randomUUID().toString,
       atomType = AtomType.Media,
       labels = Nil,
