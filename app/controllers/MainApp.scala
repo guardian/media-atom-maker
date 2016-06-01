@@ -1,7 +1,8 @@
 package controllers
 
 import play.api.mvc._
-import model.ThriftUtil.parseRequest
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import model.ThriftUtil
 
 class MainApp extends Controller {
 
@@ -11,8 +12,8 @@ class MainApp extends Controller {
 
   // takes a configured URL object and shows how it would look as a content atom
 
-  def show = Action(BodyParsers.parse.urlFormEncoded) { implicit req =>
-    parseRequest(req.body.mapValues(_.head)) match {
+  def show = Action(ThriftUtil.bodyParser) { implicit req =>
+    req.body match {
       case Right(atom) => Ok(atom.toString)
       case Left(err) => InternalServerError(s"could not parse atom data: $err\n")
     }
