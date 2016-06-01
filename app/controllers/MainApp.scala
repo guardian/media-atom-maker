@@ -13,8 +13,8 @@ class MainApp extends Controller {
 
   def show = Action(BodyParsers.parse.urlFormEncoded) { implicit req =>
     parseRequest(req.body.mapValues(_.head)) match {
-      case Some(atom) => Ok(atom.toString)
-      case None => InternalServerError("could not parse atom data\n")
+      case Right(atom) => Ok(atom.toString)
+      case Left(err) => InternalServerError(s"could not parse atom data: $err\n")
     }
   }
 }
