@@ -8,22 +8,27 @@ class ThriftUtilSpec extends FunSpec
     with Matchers
     with Inside {
 
-  def withParamsIt(testName: String, params: (String, String)*)(f: (ThriftUtil) => Unit) =
+  def withParamsIt(testName: String, singleParams: (String, String)*)
+                  (f: (ThriftUtil) => Unit) = {
+    val params = singleParams.map {
+      case (name, value) => name -> List(value)
+    }
     it(testName) { f(new ThriftUtil(Map(params: _*))) }
+  }
 
   describe("ThriftUtil") {
 
     val youtubeId  =  "7H9Z4sn8csA"
     val youtubeUrl = s"https://www.youtube.com/watch?v=${youtubeId}"
 
-    withParamsIt("should result in error if uri param missing") { t =>
+    withParamsIt("should result in error if uri param is invalid",
+                 "uri" -> "gobbldeygook") { t =>
       assert(t.parseRequest.isLeft)
     }
 
-    withParamsIt("should correctly identify youtube platform and find id",
-                 "uri" -> youtubeUrl) { t =>
-      t.parsePlatform should matchPattern { case Right(Platform.Youtube) => }
-      t.parseId should matchPattern { case Right(`youtubeId`) => }
+    withParamsIt("should correctly identify youtube platform and find id") { t =>
+      t.parsePlatform(youtubeUrl) should matchPattern { case Right(Platform.Youtube) => }
+      t.parseId(youtubeUrl) should matchPattern { case Right(`youtubeId`) => }
     }
 
     withParamsIt("should use default version of 1") { t =>
@@ -42,6 +47,10 @@ class ThriftUtilSpec extends FunSpec
           assets should have length 1
           assets.head should equal(Asset(AssetType.Video, 1L, youtubeId, Platform.Youtube))
       }
+    }
+
+    withParamsIt("should create empty assets without uri") { t =>
+      t.parseMediaAtom should matchPattern { case Right(MediaAtom(Nil, _, _)) => }
     }
 
     withParamsIt("should correctly generate atom",
