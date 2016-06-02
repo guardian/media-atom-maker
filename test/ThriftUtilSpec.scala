@@ -8,62 +8,46 @@ class ThriftUtilSpec extends FunSpec
     with Matchers
     with Inside {
 
-  def withParamsIt(testName: String, singleParams: (String, String)*)
-                  (f: (ThriftUtil) => Unit) = {
-    val params = singleParams.map {
-      case (name, value) => name -> List(value)
-    }
-    it(testName) { f(new ThriftUtil(Map(params: _*))) }
-  }
-
   describe("ThriftUtil") {
+
+    import ThriftUtil._
+
+    def makeParams(params: (String, String)*): Map[String, Seq[String]] =
+      (params.map { case (k,v) => (k, List(v)) }).toMap
 
     val youtubeId  =  "7H9Z4sn8csA"
     val youtubeUrl = s"https://www.youtube.com/watch?v=${youtubeId}"
 
-    withParamsIt("should result in error if uri param is invalid",
-                 "uri" -> "gobbldeygook") { t =>
-      assert(t.parseRequest.isLeft)
+    it("should result in error if uri param is invalid") {
+      assert(parseRequest(makeParams("uri" -> "gobbldeygook")).isLeft)
     }
 
-    withParamsIt("should correctly identify youtube platform and find id") { t =>
-      t.parsePlatform(youtubeUrl) should matchPattern { case Right(Platform.Youtube) => }
-      t.parseId(youtubeUrl) should matchPattern { case Right(`youtubeId`) => }
+    it("should correctly identify youtube platform and find id") {
+      parsePlatform(youtubeUrl) should matchPattern { case Right(Platform.Youtube) => }
+      parseId(youtubeUrl) should matchPattern { case Right(`youtubeId`) => }
     }
 
-    withParamsIt("should use default version of 1") { t =>
-      t.parseVersion should equal(1L)
-    }
-
-    withParamsIt("should allow overriding of version",
-                 "version" -> "123") { t =>
-      t.parseVersion should equal(123L)
-    }
-
-    withParamsIt("should correctly generate media atom data",
-                 "uri" -> youtubeUrl) { t =>
-      inside(t.parseMediaAtom) {
+    it("should correctly generate media atom data") {
+      inside(parseMediaAtom(makeParams("uri" -> youtubeUrl))) {
         case Right(MediaAtom(assets, 1L, None)) =>
           assets should have length 1
           assets.head should equal(Asset(AssetType.Video, 1L, youtubeId, Platform.Youtube))
       }
     }
 
-    withParamsIt("should create empty assets without uri") { t =>
-      t.parseMediaAtom should matchPattern { case Right(MediaAtom(Nil, _, _)) => }
+    it("should create empty assets without uri") {
+      parseMediaAtom(Map.empty) should matchPattern { case Right(MediaAtom(Nil, _, _)) => }
     }
 
     it("should create multiple assets with multiple uri params") {
-      val t = new ThriftUtil(Map("uri" -> List(youtubeUrl, youtubeUrl)))
-      inside(t.parseMediaAtom) {
+      inside(parseMediaAtom(Map("uri" -> List(youtubeUrl, youtubeUrl)))) {
         case Right(MediaAtom(assets, _, _)) =>
           assets should have length 2
       }
     }
 
-    withParamsIt("should correctly generate atom",
-                 "uri" -> youtubeUrl) { t =>
-      inside(t.parseRequest) {
+    it("should correctly generate atom") {
+      inside(parseRequest(makeParams("uri" -> youtubeUrl))) {
         case Right(atom) =>
           inside(atom) {
             case Atom(_, AtomType.Media, Nil, "<div></div>", _, changeDetails, None) =>
