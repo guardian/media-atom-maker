@@ -3,18 +3,15 @@ package model
 import com.gu.contentatom.thrift._
 import atom.media._
 import java.util.UUID.randomUUID
-import play.api.mvc.{ BodyParser, BodyParsers }
-import scala.collection.mutable.ListBuffer
+import play.api.mvc.{ ActionBuilder, BodyParser, BodyParsers }
 import scala.concurrent.ExecutionContext
 
-class ThriftUtil(params: Map[String, Seq[String]]) {
-  import ThriftUtil.ThriftResult
+object ThriftUtil {
+  type ThriftResult[A] = Either[String, A]
 
   val youtube = "https?://www.youtube.com/watch\\?v=([^&]+)".r
 
-  private lazy val uri = params.get("uri")
-
-  def getSingleParam(name: String): Option[String] =
+  def getSingleParam(params: Map[String, Seq[String]], name: String): Option[String] =
     params.get(name).flatMap(_.headOption)
 
   def parsePlatform(uri: String): ThriftResult[Platform] =
@@ -29,42 +26,46 @@ class ThriftUtil(params: Map[String, Seq[String]]) {
       case _ => Left(s"couldn't extract id from uri ($uri)")
     }
 
-  def parseVersion: Long =
-    getSingleParam("version").map(_.toLong).getOrElse(1L)
-
-  def parseAsset(uri: String): ThriftResult[Asset] =
+  def parseAsset(uri: String, version: Long): ThriftResult[Asset] =
     for {
       id <- parseId(uri).right
       platform <- parsePlatform(uri).right
     } yield Asset(
       id = id,
       assetType = AssetType.Video,
-      version = params.get("version").flatMap(_.headOption).getOrElse("1").toLong,
+      version = version,
       platform = platform
     )
 
-  def parseAssets: ThriftResult[List[Asset]] =
-    (params.get("uri").map { uris =>
-       uris.foldLeft(Right(Nil): ThriftResult[List[Asset]]) { (assetsEither, uri) =>
-         for {
-           assets <- assetsEither.right
-           asset <- parseAsset(uri).right
-         } yield {
-           asset :: assets
-         }
-       }
-     }) getOrElse Right(Nil)
+  def parseAssets(uris: Seq[String], version: Long): ThriftResult[List[Asset]] =
+    uris.foldLeft(Right(Nil): ThriftResult[List[Asset]]) { (assetsEither, uri) =>
+      for {
+        assets <- assetsEither.right
+        asset <- parseAsset(uri, version).right
+      } yield {
+        asset :: assets
+      }
+    }
 
-  def parseMediaAtom: ThriftResult[MediaAtom] =
-    for(assets <- parseAssets.right) yield MediaAtom(
+  def parseMediaAtom(params: Map[String, Seq[String]]): ThriftResult[MediaAtom] = {
+    val version = params.get("version").map(_.head.toLong).getOrElse(1L)
+    for {
+      assets <- parseAssets(
+        params.get("uri").getOrElse(Nil),
+        version
+      ).right
+    } yield MediaAtom(
       assets = assets,
-      activeVersion = parseVersion,
+      activeVersion = version,
       plutoProjectId = None
     )
+  }
 
-  def parseRequest: ThriftResult[Atom] =
-    for(mediaAtom <- parseMediaAtom.right) yield Atom(
-      id = getSingleParam("id").getOrElse(randomUUID().toString),
+  def parseRequest(params: Map[String, Seq[String]]): ThriftResult[Atom] = {
+    val id = getSingleParam(params,"id").getOrElse(randomUUID().toString)
+
+    for(mediaAtom <- parseMediaAtom(params).right) yield Atom(
+      id = id,
       atomType = AtomType.Media,
       labels = Nil,
       defaultHtml = "<div></div>",
@@ -73,13 +74,22 @@ class ThriftUtil(params: Map[String, Seq[String]]) {
         None, None, None, 1L
       )
     )
-}
+  }
 
-object ThriftUtil {
-  type ThriftResult[A] = Either[String, A]
+  def getSingleRequiredParam(params: Map[String, Seq[String]], name: String): ThriftResult[String] =
+    getSingleParam(params, name).toRight(s"Missing param ${name}")
 
   def bodyParser(implicit ec: ExecutionContext): BodyParser[ThriftResult[Atom]] =
     BodyParsers.parse.urlFormEncoded map { urlParams =>
-      new ThriftUtil(urlParams).parseRequest
+      parseRequest(urlParams)
+    }
+
+  def assetBodyParser(implicit ec: ExecutionContext): BodyParser[ThriftResult[Asset]] =
+    BodyParsers.parse.urlFormEncoded map { urlParams =>
+      for {
+        uri <- getSingleRequiredParam(urlParams, "uri").right
+        version <- getSingleRequiredParam(urlParams, "version").right
+        asset <- parseAsset(uri, version.toLong).right
+      } yield asset
     }
 }
