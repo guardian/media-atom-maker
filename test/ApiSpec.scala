@@ -37,5 +37,9 @@ class ApiSpec extends PlaySpec
       val result = api.getMediaAtom("1").apply(req)
       status(result) mustEqual OK
     }
+    "return NotFound for missing atom" in {
+      val result = api.getMediaAtom("xyzzy").apply(FakeRequest(GET, "/atom/xyzzy"))
+      status(result) mustEqual NOT_FOUND
+    }
   }
 }

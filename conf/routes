@@ -1,6 +1,6 @@
 GET     /               controllers.MainApp.index()
 
-GET     /atom/:id       controllers.MainApp.getMediaAtom(id)
+GET     /api/atom/:id   controllers.Api.getMediaAtom(id)
 
 POST    /atom           controllers.MainApp.createContentAtom
 

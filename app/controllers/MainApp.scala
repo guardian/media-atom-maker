@@ -2,6 +2,7 @@ package controllers
 
 import com.gu.contentatom.thrift.{ Atom, AtomData }
 import javax.inject._
+import play.api.libs.json.Json
 import play.api.mvc._
 import model.ThriftUtil
 import ThriftUtil.ThriftResult
@@ -24,7 +25,7 @@ class MainApp @Inject() (dataStore: DataStore) extends Controller {
     }
 
   def index = Action {
-    Ok("hello")
+    Ok("ok")
   }
 
   // takes a configured URL object and shows how it would look as a content atom
