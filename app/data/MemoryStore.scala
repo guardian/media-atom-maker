@@ -1,11 +1,15 @@
 package data
 
 import com.gu.contentatom.thrift.Atom
-import com.gu.contentatom.thrift.atom.media.MediaAtom
 import javax.inject.Singleton
 
 @Singleton
 class MemoryStore extends DataStore {
+
+  def this(initial: Map[String, Atom] = Map.empty) = {
+    this()
+    dataStore ++= initial
+  }
 
   private val dataStore = collection.mutable.Map[String, Atom]()
 

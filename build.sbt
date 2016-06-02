@@ -8,7 +8,7 @@ lazy val contentAtomVersion = "1.0.1"
 
 libraryDependencies ++= Seq(
   "com.gu" %% "content-atom-model" % contentAtomVersion,
-  "org.scalatest" %% "scalatest" % "2.2.6" % "test"
+  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % "test"
 )
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
