@@ -6,10 +6,6 @@ dependencies:
   override:
     - sbt update
 
-# checkout:
-#   post:
-#     - ./configure-build.sh
-
 test:
   override:
     - sbt test
