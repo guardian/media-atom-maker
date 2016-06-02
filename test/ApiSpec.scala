@@ -1,8 +1,9 @@
 package test
 
+import play.api.libs.json._
 import com.gu.contentatom.thrift._
 import com.gu.contentatom.thrift.atom.media._
-import controllers.MainApp
+import controllers.Api
 import org.scalatestplus.play._
 import play.api.test._
 import play.api.http.HttpVerbs
@@ -29,16 +30,20 @@ class ApiSpec extends PlaySpec
     )
   )
 
-  val api = new MainApp(dataStore)
+  val api = new Api(dataStore)
 
   "api" should {
     "return a media atom" in {
-      val req = FakeRequest(GET, "/atom/1")
-      val result = api.getMediaAtom("1").apply(req)
+      val result = api.getMediaAtom("1").apply(FakeRequest())
       status(result) mustEqual OK
+      val json = contentAsJson(result)
+      (json \ "id").as[String] mustEqual "1"
+      (json \ "data" \ "assets").as[List[JsValue]] must have size 0
+
     }
     "return NotFound for missing atom" in {
-      val result = api.getMediaAtom("xyzzy").apply(FakeRequest(GET, "/atom/xyzzy"))
+      val result = api.getMediaAtom("xyzzy").apply(FakeRequest())
+
       status(result) mustEqual NOT_FOUND
     }
   }
