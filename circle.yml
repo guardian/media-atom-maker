@@ -2,18 +2,21 @@ machine:
   java:
     version: oraclejdk8
 
+dependencies:
+  override:
+    - sbt update
+
 # checkout:
 #   post:
 #     - ./configure-build.sh
 
-# test:
-#   override:
-#     - sbt "project prole" test
-#     - sbt "project archiver" test
-#     - sbt "project datastore" test
+test:
+  override:
+    - sbt test
 
 # deployment:
 #   riffraff_upload:
 #     branch: /.*/
 #     commands:
 #       - sbt riffRaffUpload
+
