@@ -18,6 +18,7 @@ class MemoryStore extends DataStore {
       dataStore(atom.id) = atom
   }
 
-  def updateMediaAtom(atom: Atom, currentVersion: Long) = dataStore.synchronized {
+  def updateMediaAtom(atom: Atom) = dataStore.synchronized {
+    throw VersionConflictError
   }
 }

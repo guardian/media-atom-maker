@@ -1,11 +1,12 @@
 package controllers
 
+import com.gu.contentatom.thrift.{ Atom, AtomData }
 import javax.inject._
 import play.api.mvc._
 import model.ThriftUtil
 import ThriftUtil.ThriftResult
 import views.html.MediaAtom._
-import data.DataStore
+import data._
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 class MainApp @Inject() (dataStore: DataStore) extends Controller {
@@ -50,7 +51,23 @@ class MainApp @Inject() (dataStore: DataStore) extends Controller {
   }
 
   def addAsset(atomId: String) = thriftResultAction(ThriftUtil.assetBodyParser) { implicit req =>
-    val asset = req.body
-    Ok(s"would add asset to $atomId")
+    dataStore.getMediaAtom(atomId) match {
+      case Some(atom @ Atom(_, _, _, _, data @ AtomData.Media(ma), _, _)) =>
+        val assets = ma.assets
+        val newAtom = atom.copy(
+          data = data.copy(
+            media = ma.copy(
+              activeVersion = ma.activeVersion + 1, assets = assets
+            )
+          )
+        )
+        try {
+          dataStore.updateMediaAtom(atom)
+          Ok(s"updated atom $atomId")
+        } catch {
+          case VersionConflictError => InternalServerError("version on server is later than update")
+        }
+      case None => NotFound(s"atom not found $atomId")
+    }
   }
 }

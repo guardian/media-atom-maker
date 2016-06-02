@@ -19,5 +19,5 @@ trait DataStore {
   /* this will only allow the update if the version in atom is later
    * than the version stored in the database, otherwise it will report
    * it as a version conflict error */
-  def updateMediaAtom(atom: Atom, currentVersion: Long): Unit
+  def updateMediaAtom(atom: Atom): Unit
 }
