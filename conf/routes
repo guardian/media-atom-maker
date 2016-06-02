@@ -4,5 +4,7 @@ GET     /atom/:id       controllers.MainApp.getMediaAtom(id)
 
 POST    /atom           controllers.MainApp.createContentAtom
 
+POST    /atom/:id/asset controllers.MainApp.addAsset(id)
+
 #static assets
 GET  /assets/*file      controllers.Assets.at(path="/public", file)

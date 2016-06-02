@@ -38,4 +38,11 @@ class MainApp @Inject() (dataStore: DataStore) extends Controller {
   def updateContentAtom = Action(ThriftUtil.bodyParser) { implicit req =>
     NotFound("unimplemented")
   }
+
+  def addAsset(atomId: String) = Action(ThriftUtil.assetBodyParser) { implicit req =>
+    req.body match {
+      case Right(asset) => Ok(s"would add asset to $atomId")
+      case Left(err) => InternalServerError
+    }
+  }
 }
