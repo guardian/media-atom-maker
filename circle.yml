@@ -5,21 +5,12 @@ machine:
 dependencies:
   override:
     - sbt update
-
-test:
-  override:
-    - sbt test
-
-dependencies:
   cache_directories:
     - "project/project/target/resolution-cache"
     - "project/project/target/streams"
     - "project/target/resolution-cache"
     - "project/target/streams"
 
-# deployment:
-#   riffraff_upload:
-#     branch: /.*/
-#     commands:
-#       - sbt riffRaffUpload
-
+test:
+  override:
+    - sbt test
