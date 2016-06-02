@@ -3,7 +3,7 @@ package model
 import com.gu.contentatom.thrift._
 import atom.media._
 import java.util.UUID.randomUUID
-import play.api.mvc.{ ActionBuilder, BodyParser, BodyParsers }
+import play.api.mvc.{ BodyParser, BodyParsers }
 import scala.concurrent.ExecutionContext
 
 object ThriftUtil {
