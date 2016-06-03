@@ -3,6 +3,7 @@ package controllers
 import com.gu.contentatom.thrift.atom.quiz.Asset
 import com.gu.contentatom.thrift.{ Atom, AtomData }
 import javax.inject._
+import java.util.UUID
 import play.api.libs.json._
 import play.api.mvc._
 import model.ThriftUtil
@@ -12,22 +13,7 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 import data.JsonConversions._
 
-class Api @Inject() (dataStore: DataStore) extends Controller {
-
-  /* if the creation of the thrift data from the request fails, reply
-   * with the error. Otherwise delegate to `success`, which can avoid
-   * error checking and deal with the thrift object directly. */
-
-  def thriftResultAction[A](bodyParser: BodyParser[ThriftResult[A]])(success: Request[A] => Result):
-      Action[ThriftResult[A]] =
-    Action(bodyParser) { implicit req =>
-      req.body match {
-        case Right(data) => success(Request(req, data)) // create new request with parsed body
-        case Left(err) => InternalServerError(jsonError(err))
-      }
-    }
-
-  def jsonError(msg: String): JsObject = JsObject(Seq("error" -> JsString(msg)))
+class Api @Inject() (dataStore: DataStore) extends AtomController {
 
   // takes a configured URL object and shows how it would look as a content atom
 
@@ -38,21 +24,21 @@ class Api @Inject() (dataStore: DataStore) extends Controller {
     }
   }
 
-  // def createContentAtom = thriftResultAction(ThriftUtil.bodyParser) { implicit req =>
-  //   val atom = req.body
-  //   try {
-  //     dataStore.createMediaAtom(atom)
-  //     Created(atom.id).withHeaders("Location" -> s"/atom/${atom.id}")
-  //   } catch {
-  //     case data.IDConflictError => Conflict(s"${atom.id} already exists")
-  //   }
-  // }
+  def createMediaAtom = thriftResultAction(atomBodyParser) { implicit req =>
+      val atom = req.body
+      try {
+        dataStore.createMediaAtom(atom)
+        Created(Json.toJson(atom)).withHeaders("Location" -> s"/atom/${atom.id}")
+      } catch {
+        case data.IDConflictError => Conflict(s"${atom.id} already exists")
+      }
+    }
 
   // def updateContentAtom = Action(ThriftUtil.bodyParser) { implicit req =>
   //   NotFound("unimplemented")
   // }
 
-  def addAsset(atomId: String) = thriftResultAction(ThriftUtil.assetBodyParser) { implicit req =>
+  def addAsset(atomId: String) = thriftResultAction(assetBodyParser) { implicit req =>
     val newAsset = req.body
     dataStore.getMediaAtom(atomId) match {
       case Some(atom) =>

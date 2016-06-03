@@ -1,10 +1,9 @@
-GET     /               controllers.MainApp.index()
+GET     /                       controllers.MainApp.index()
+GET     /atom/:id               controllers.MainApp.getMediaAtom(id)
 
-GET     /api/atom/:id   controllers.Api.getMediaAtom(id)
-
-POST    /atom           controllers.MainApp.createContentAtom
-
-POST    /api/atom/:id/asset controllers.Api.addAsset(id)
+GET     /api/atom/:id           controllers.Api.getMediaAtom(id)
+POST    /api/atom               controllers.Api.createMediaAtom()
+POST    /api/atom/:id/asset     controllers.Api.addAsset(id)
 
 #static assets
-GET  /assets/*file      controllers.Assets.at(path="/public", file)
+GET  /assets/*file              controllers.Assets.at(path="/public", file)

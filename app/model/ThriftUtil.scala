@@ -85,7 +85,7 @@ object ThriftUtil {
   def getSingleRequiredParam(params: Map[String, Seq[String]], name: String): ThriftResult[String] =
     getSingleParam(params, name).toRight(s"Missing param ${name}")
 
-  def bodyParser(implicit ec: ExecutionContext): BodyParser[ThriftResult[Atom]] =
+  def atomBodyParser(implicit ec: ExecutionContext): BodyParser[ThriftResult[Atom]] =
     BodyParsers.parse.urlFormEncoded map { urlParams =>
       parseRequest(urlParams)
     }
