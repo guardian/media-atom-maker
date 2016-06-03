@@ -3,6 +3,8 @@ package data
 import com.gu.contentatom.thrift.Atom
 import javax.inject.Singleton
 
+import model.ThriftUtil._
+
 @Singleton
 class MemoryStore extends DataStore {
 
@@ -22,7 +24,13 @@ class MemoryStore extends DataStore {
       dataStore(atom.id) = atom
   }
 
-  def updateMediaAtom(atom: Atom) = dataStore.synchronized {
-    throw VersionConflictError
+  def updateMediaAtom(newAtom: Atom) = dataStore.synchronized {
+    getMediaAtom(newAtom.id) match {
+      case Some(oldAtom) =>
+        if(oldAtom.mediaData.activeVersion >= newAtom.mediaData.activeVersion)
+          throw VersionConflictError
+        dataStore(newAtom.id) = newAtom
+      case None => throw IDNotFound
+    }
   }
 }

@@ -9,6 +9,12 @@ import scala.concurrent.ExecutionContext
 object ThriftUtil {
   type ThriftResult[A] = Either[String, A]
 
+  implicit class AtomDataWithType(a: Atom) {
+    def dataAs[D <: AtomData : Manifest]: D = a.data.asInstanceOf[D]
+
+    def mediaData = dataAs[AtomData.Media].media
+  }
+
   val youtube = "https?://www.youtube.com/watch\\?v=([^&]+)".r
 
   def getSingleParam(params: Map[String, Seq[String]], name: String): Option[String] =
