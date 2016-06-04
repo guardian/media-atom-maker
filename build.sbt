@@ -6,9 +6,16 @@ version := "1.0.0-SNAPSHOT"
 
 lazy val contentAtomVersion = "1.0.1"
 
+lazy val AwsSdkVersion = "1.10.74"
+
 libraryDependencies ++= Seq(
   "com.gu" %% "content-atom-model" % contentAtomVersion,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % "test"
+  "com.amazonaws" % "aws-java-sdk-kinesis" % AwsSdkVersion,
+  "org.apache.thrift" % "libthrift" % "0.9.2",
+  "com.twitter" %% "scrooge-core" % "4.2.0",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.7.0",
+  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % "test",
+  "org.mockito" % "mockito-core" % "1.10.19" % "test"
 )
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)

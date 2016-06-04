@@ -1,19 +1,21 @@
 package controllers
 
+import com.gu.contentatom.thrift.{ ContentAtomEvent, EventType }
 import com.gu.contentatom.thrift.atom.quiz.Asset
 import com.gu.contentatom.thrift.{ Atom, AtomData }
 import javax.inject._
-import java.util.UUID
+import java.util.{ Date, UUID }
 import play.api.libs.json._
 import play.api.mvc._
 import model.ThriftUtil
 import ThriftUtil._
 import data._
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import scala.util.{ Success, Failure }
 
 import data.JsonConversions._
 
-class Api @Inject() (dataStore: DataStore) extends AtomController {
+class Api @Inject() (dataStore: DataStore, publisher: AtomPublisher) extends AtomController {
 
   // takes a configured URL object and shows how it would look as a content atom
 
@@ -33,10 +35,6 @@ class Api @Inject() (dataStore: DataStore) extends AtomController {
         case data.IDConflictError => Conflict(s"${atom.id} already exists")
       }
     }
-
-  // def updateContentAtom = Action(ThriftUtil.bodyParser) { implicit req =>
-  //   NotFound("unimplemented")
-  // }
 
   def addAsset(atomId: String) = thriftResultAction(assetBodyParser) { implicit req =>
     val newAsset = req.body
@@ -59,6 +57,20 @@ class Api @Inject() (dataStore: DataStore) extends AtomController {
           case VersionConflictError => InternalServerError("version on server is later than update")
         }
       case None => NotFound(s"atom not found $atomId")
+    }
+  }
+
+  def now() = (new Date()).getTime()
+
+  def publishAtom(atomId: String) = Action { implicit req =>
+    dataStore.getMediaAtom(atomId) match {
+      case Some(atom) =>
+        val event = ContentAtomEvent(atom, EventType.Update, now())
+        publisher.publishAtomEvent(event) match {
+          case Success(_)  => NoContent
+          case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
+        }
+      case None => NotFound(jsonError(s"No such atom $atomId"))
     }
   }
 }

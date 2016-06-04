@@ -1,5 +1,7 @@
 package test
 
+import data.AtomPublisher
+import org.scalatest.mock.MockitoSugar
 import play.api.libs.json._
 import com.gu.contentatom.thrift._
 import com.gu.contentatom.thrift.atom.media._
@@ -15,7 +17,8 @@ import org.scalatest.AppendedClues
 class ApiSpec extends PlaySpec
     with OneAppPerSuite
     with AppendedClues
-    with HttpVerbs {
+    with HttpVerbs
+    with MockitoSugar {
 
   implicit lazy val materializer = app.materializer
 
@@ -38,7 +41,9 @@ class ApiSpec extends PlaySpec
   val youtubeId  =  "7H9Z4sn8csA"
   val youtubeUrl = s"https://www.youtube.com/watch?v=${youtubeId}"
 
-  val api = new Api(dataStore)
+  val mockPublisher = mock[AtomPublisher]
+
+  val api = new Api(dataStore, mockPublisher)
 
   "api" should {
     "return a media atom" in {
