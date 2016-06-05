@@ -15,7 +15,7 @@ import scala.util.{ Success, Failure }
 
 import data.JsonConversions._
 
-class Api @Inject() (dataStore: DataStore, publisher: AtomPublisher) extends AtomController {
+class Api @Inject() (val dataStore: DataStore, val publisher: AtomPublisher) extends AtomController {
 
   // takes a configured URL object and shows how it would look as a content atom
 
