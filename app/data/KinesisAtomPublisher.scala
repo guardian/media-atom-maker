@@ -7,17 +7,19 @@ import javax.inject.{ Inject, Singleton }
 import play.api.Configuration
 import scala.util.Try
 
-class KinesisAtomPublisher @Inject() (config: Configuration)
+class KinesisAtomPublisher (val streamName: String, val kinesis: AmazonKinesisClient)
     extends AtomPublisher
     with ThriftSerializer[ContentAtomEvent] {
 
-  lazy val kinesis: AmazonKinesisClient = new AmazonKinesisClient()
-  val streamName = config.getString("kinesis.streamName").get
+  @Inject() def this(config: Configuration) = this(
+    config.getString("kinesis.streamName").get,
+    new AmazonKinesisClient()
+  )
 
   def makeParititionKey(event: ContentAtomEvent): String = event.atom.atomType.name
 
-  def publishAtomEvent(event: ContentAtomEvent) = Try {
-    val data = serializeEvent(event)
-    kinesis.putRecord(streamName, data, makeParititionKey(event))
-  }
+  def publishAtomEvent(event: ContentAtomEvent): Try[Unit] = Try {
+      val data = serializeEvent(event)
+      kinesis.putRecord(streamName, data, makeParititionKey(event))
+    }
 }

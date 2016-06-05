@@ -5,8 +5,6 @@ import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import org.mockito.Matchers._
 import play.api.libs.json._
-import com.gu.contentatom.thrift._
-import com.gu.contentatom.thrift.atom.media._
 import controllers.Api
 import org.scalatestplus.play._
 import play.api.test._
@@ -17,6 +15,8 @@ import model.ThriftUtil._
 import org.scalatest.AppendedClues
 import scala.util.{ Success, Failure }
 
+import TestData._
+
 class ApiSpec extends PlaySpec
     with OneAppPerSuite
     with AppendedClues
@@ -24,18 +24,6 @@ class ApiSpec extends PlaySpec
     with MockitoSugar {
 
   implicit lazy val materializer = app.materializer
-
-  val testAtom = Atom(
-    id = "1",
-    atomType = AtomType.Media,
-    defaultHtml = "<div></div>",
-    data = AtomData.Media(
-      MediaAtom(
-        activeVersion = 1L
-      )
-    ),
-    contentChangeDetails = ContentChangeDetails(revision = 1)
-  )
 
   val dataStore = new MemoryStore(Map("1" -> testAtom))
 
