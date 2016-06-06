@@ -16,6 +16,7 @@ libraryDependencies ++= Seq(
   "com.twitter"                %% "scrooge-core"         % scroogeVersion,
   "com.twitter"                %% "scrooge-serializer"   % scroogeVersion,
   "com.gu"                     %% "scanamo"              % "0.5.0",
+  "com.typesafe.scala-logging" %% "scala-logging"        % "3.4.0",
   "org.typelevel"              %% "cats-core"            % "0.6.0", // for interacting with scanamo
   "com.fasterxml.jackson.core" % "jackson-databind"      % "2.7.0",
   "org.scalatestplus.play"     %% "scalatestplus-play"   % "1.5.0"   % "test",
