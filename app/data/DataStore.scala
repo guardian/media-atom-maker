@@ -10,7 +10,8 @@ case object IDNotFound extends DataStoreError("Atom ID not in datastore")
 case object VersionConflictError
     extends DataStoreError("Update has earlier version than data store")
 
-@ImplementedBy(classOf[MemoryStore])
+//@ImplementedBy(classOf[MemoryStore])
+@ImplementedBy(classOf[DynamoDataStore])
 trait DataStore {
   def getMediaAtom(id: String): Option[Atom]
 

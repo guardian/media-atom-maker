@@ -12,7 +12,7 @@ class KinesisAtomPublisher (val streamName: String, val kinesis: AmazonKinesisCl
     with ThriftSerializer[ContentAtomEvent] {
 
   @Inject() def this(config: Configuration) = this(
-    config.getString("kinesis.streamName").get,
+    config.getString("aws.kinesis.streamName").get,
     new AmazonKinesisClient()
   )
 
