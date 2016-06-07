@@ -49,6 +49,7 @@ class Api @Inject() (val dataStore: DataStore, val publisher: AtomPublisher) ext
           ),
           data = data.copy(
             media = ma.copy(
+              activeVersion = newAsset.version,
               assets = newAsset +: assets
             )
           )
