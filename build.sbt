@@ -12,7 +12,7 @@ libraryDependencies ++= Seq(
   "com.gu"                     %% "content-atom-model"   % contentAtomVersion,
   "com.amazonaws"              % "aws-java-sdk-kinesis"  % AwsSdkVersion,
   "com.amazonaws"              % "aws-java-sdk-dynamodb" % AwsSdkVersion,
-  "org.apache.thrift"          % "libthrift"             % "0.9.2",
+  "org.apache.thrift"          % "libthrift"             % "0.9.3",
   "com.twitter"                %% "scrooge-core"         % scroogeVersion,
   "com.twitter"                %% "scrooge-serializer"   % scroogeVersion,
   "com.gu"                     %% "scanamo"              % "0.5.0",
