@@ -1,7 +1,7 @@
 window.AtomUtil = (function() {
   var ret = {};
 
-  function handleError(xhr) {
+  function handleError(xhr, err) {
     alert(err + ":" + xhr.responseJSON.error);
   }
 
@@ -25,6 +25,18 @@ window.AtomUtil = (function() {
       error:   handleError
     });
   }
+
+  ret.createAtom = function() {
+    $.ajax({
+      method: "POST",
+      url: "/api/atom",
+      contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+      success: function(data, status, xhr) {
+        window.location = xhr.getResponseHeader("Location");
+      },
+      error: handleError
+    });
+  };
 
   return ret;
 

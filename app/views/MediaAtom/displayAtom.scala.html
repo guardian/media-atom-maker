@@ -12,8 +12,11 @@
         <link rel="stylesheet" href="/assets/stylesheets/atom-data.css">
     </head>
     <body>
-        @atomTable(atom)
-        @publishUI(atom.id)
-        @addAssetForm(atom.id, atom.mediaData.activeVersion + 1)
+        <p>
+            <a href="/atoms">Back</a>
+        </p>
+       @atomTable(atom)
+       @publishUI(atom.id)
+       @addAssetForm(atom.id, atom.mediaData.activeVersion + (if(atom.mediaData.assets.length == 0) 0 else 1))
     </body>
 </html>

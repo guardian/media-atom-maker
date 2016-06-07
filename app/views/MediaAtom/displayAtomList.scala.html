@@ -2,10 +2,16 @@
 @(atoms: TraversableOnce[Atom])
 <html>
     <head>
+        <script
+	     src="http://code.jquery.com/jquery-2.2.4.min.js"
+	     integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+	     crossorigin="anonymous"></script>
+        <script src="/assets/javascript/atom.js"></script>
         <title>Media Atoms</title>
         <link rel="stylesheet" href="/assets/stylesheets/atom-data.css">
     </head>
     <body>
+        @createAtomUI()
         @atomListTable(atoms)
     </body>
 </html>
