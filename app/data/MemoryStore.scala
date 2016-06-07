@@ -33,4 +33,7 @@ class MemoryStore extends DataStore {
       case None => throw IDNotFound
     }
   }
+
+  def listAtoms = dataStore.values
+
 }

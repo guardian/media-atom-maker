@@ -21,4 +21,7 @@ trait DataStore {
    * than the version stored in the database, otherwise it will report
    * it as a version conflict error */
   def updateMediaAtom(newAtom: Atom): Unit
+
+  def listAtoms: TraversableOnce[Atom]
+
 }

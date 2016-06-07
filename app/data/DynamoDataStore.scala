@@ -71,6 +71,5 @@ class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String) extends D
     }
   }
 
-//??? //getMediaAtom
-
+  def listAtoms = Nil
 }

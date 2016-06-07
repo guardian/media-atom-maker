@@ -76,4 +76,9 @@ class Api @Inject() (val dataStore: DataStore, val publisher: AtomPublisher) ext
       case None => NotFound(jsonError(s"No such atom $atomId"))
     }
   }
+
+  // TODO -> this needs to handle paging
+  def listAtoms = Action { implicit req =>
+    Ok(Json.toJson(dataStore.listAtoms.toList))
+  }
 }
