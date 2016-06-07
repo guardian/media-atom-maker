@@ -28,7 +28,7 @@ class MemoryStore extends DataStore {
     getMediaAtom(newAtom.id) match {
       case Some(oldAtom) =>
         if(oldAtom.mediaData.activeVersion >= newAtom.mediaData.activeVersion)
-          throw VersionConflictError
+          throw new VersionConflictError(newAtom.mediaData.activeVersion)
         dataStore(newAtom.id) = newAtom
       case None => throw IDNotFound
     }

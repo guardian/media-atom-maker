@@ -7,8 +7,8 @@ sealed abstract class DataStoreError(val msg: String) extends Exception(msg)
 
 case object IDConflictError extends DataStoreError("Atom ID already exists")
 case object IDNotFound extends DataStoreError("Atom ID not in datastore")
-case object VersionConflictError
-    extends DataStoreError("Update has earlier version than data store")
+case class VersionConflictError(requestVer: Long)
+    extends DataStoreError(s"Update has version $requestVer, which is earlier or equal to data store version")
 
 //@ImplementedBy(classOf[MemoryStore])
 @ImplementedBy(classOf[DynamoDataStore])

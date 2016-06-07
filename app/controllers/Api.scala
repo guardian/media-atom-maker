@@ -44,9 +44,12 @@ class Api @Inject() (val dataStore: DataStore, val publisher: AtomPublisher) ext
         val ma = data.media
         val assets = ma.assets
         val newAtom = atom.copy(
+          contentChangeDetails = atom.contentChangeDetails.copy(
+            revision = atom.contentChangeDetails.revision + 1
+          ),
           data = data.copy(
             media = ma.copy(
-              activeVersion = ma.activeVersion + 1, assets = newAsset +: assets
+              assets = newAsset +: assets
             )
           )
         )
@@ -54,7 +57,7 @@ class Api @Inject() (val dataStore: DataStore, val publisher: AtomPublisher) ext
           dataStore.updateMediaAtom(newAtom)
           Created(s"updated atom $atomId")
         } catch {
-          case VersionConflictError => InternalServerError("version on server is later than update")
+          case err: VersionConflictError => InternalServerError(err.msg)
         }
       case None => NotFound(s"atom not found $atomId")
     }

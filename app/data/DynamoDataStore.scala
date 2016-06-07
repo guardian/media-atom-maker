@@ -22,9 +22,7 @@ class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String) extends D
 
   object AtomRow {
     def apply(atom: Atom): AtomRow = AtomRow(
-      atom.id,
-      atom.mediaData.activeVersion,
-      atomSerializer.toString(atom)
+      atom.id, atom.contentChangeDetails.revision, atomSerializer.toString(atom)
     )
   }
 
@@ -64,6 +62,15 @@ class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String) extends D
     else
       put(atom)
 
-  def updateMediaAtom(newAtom: Atom): Unit = ??? //getMediaAtom
+  def updateMediaAtom(newAtom: Atom): Unit = {
+    val validationCheck = KeyIs('version, LT, newAtom.contentChangeDetails.revision)
+    Scanamo.exec(dynamo)(Table[Atom](tableName).given(validationCheck).put(newAtom)) match {
+      case Xor.Left(_: com.amazonaws.services.dynamodbv2.model.ConditionalCheckFailedException) =>
+        throw new VersionConflictError(newAtom.mediaData.activeVersion)
+      case _ => ()
+    }
+  }
+
+//??? //getMediaAtom
 
 }
