@@ -18,11 +18,15 @@ class MainApp @Inject() (dataStore: DataStore) extends AtomController {
 
   // takes a configured URL object and shows how it would look as a content atom
 
-  def getMediaAtom(id: String) = Action { implicit req =>
+  def getAtom(id: String) = Action { implicit req =>
     dataStore.getMediaAtom(id) match {
       case Some(atom) => Ok(displayAtom(atom))
       case None => NotFound(s"no atom with id $id found")
     }
+  }
+
+  def listAtoms = Action { implicit req =>
+    Ok(displayAtomList(dataStore.listAtoms))
   }
 
 }

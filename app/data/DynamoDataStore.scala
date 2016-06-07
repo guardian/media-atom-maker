@@ -44,8 +44,8 @@ class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String) extends D
     DynamoFormat.xmap(rowToAtom _)(AtomRow.apply _)(DynamoFormat[AtomRow]) // <- just saving a new implicit here
 
   // useful shortcuts
-  private val get = Scanamo.get[Atom](dynamo)(tableName) _
-  private val put = Scanamo.put[Atom](dynamo)(tableName) _
+  private val get  = Scanamo.get[Atom](dynamo)(tableName) _
+  private val put  = Scanamo.put[Atom ](dynamo)(tableName) _
 
   val atomsTbl = Table[Atom](tableName)
 
@@ -71,5 +71,10 @@ class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String) extends D
     }
   }
 
-  def listAtoms = Nil
+  def listAtoms: TraversableOnce[Atom] = {
+    Scanamo.scan[Atom](dynamo)(tableName) map {
+      case Xor.Right(atom) => atom
+      case Xor.Left(err) => throw DataError(DynamoReadError.describe(err))
+    }
+  }
 }

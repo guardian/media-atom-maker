@@ -1,4 +1,5 @@
 @import com.gu.contentatom.thrift._
+@import model.ThriftUtil.AtomDataWithType
 @(atom: Atom)
 <html>
     <head>
@@ -7,5 +8,6 @@
     </head>
     <body>
         @atomTable(atom)
+        @addAtomForm(atom.id, atom.mediaData.activeVersion + 1)
     </body>
 </html>

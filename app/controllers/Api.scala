@@ -80,6 +80,10 @@ class Api @Inject() (val dataStore: DataStore, val publisher: AtomPublisher) ext
 
   // TODO -> this needs to handle paging
   def listAtoms = Action { implicit req =>
-    Ok(Json.toJson(dataStore.listAtoms.toList))
+    try {
+      Ok(Json.toJson(dataStore.listAtoms.toList))
+    } catch {
+      case err: DataStoreError => InternalServerError(jsonError(err.msg))
+    }
   }
 }
