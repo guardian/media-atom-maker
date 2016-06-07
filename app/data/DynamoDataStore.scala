@@ -12,7 +12,7 @@ import cats.data.Xor
 import model.ThriftUtil._
 
 class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String) extends DataStore {
-  @Inject() def this(aws: util.AWS) = this(aws.dynamoDB, aws.dynamoTableName)
+  @Inject() def this(awsConfig: util.AWSConfig) = this(awsConfig.dynamoDB, awsConfig.dynamoTableName)
 
   case class AtomRow(
     id: String,

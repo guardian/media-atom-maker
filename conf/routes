@@ -5,5 +5,7 @@ GET     /api/atom/:id           controllers.Api.getMediaAtom(id)
 POST    /api/atom               controllers.Api.createMediaAtom()
 POST    /api/atom/:id/asset     controllers.Api.addAsset(id)
 
+POST    /api/atom/:id/publish   controllers.Api.publishAtom(id)
+
 #static assets
 GET  /assets/*file              controllers.Assets.at(path="/public", file)

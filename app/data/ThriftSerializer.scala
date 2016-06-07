@@ -9,10 +9,13 @@ import java.nio.ByteBuffer
 
 trait ThriftSerializer[T <: ThriftStruct] {
 
+  lazy val compressionByte = 0
+
   def serializeEvent(event: T): ByteBuffer = {
     val out = new ByteArrayOutputStream()
     val transport = new TIOStreamTransport(out)
     val protocol = new TCompactProtocol(transport)
+    out.write(compressionByte)
     event.write(protocol)
     ByteBuffer.wrap(out.toByteArray())
   }

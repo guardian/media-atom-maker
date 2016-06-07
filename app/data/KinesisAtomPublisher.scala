@@ -17,10 +17,7 @@ class KinesisAtomPublisher (val streamName: String, val kinesis: AmazonKinesisCl
 
   private def awsClient = new AmazonKinesisClient
 
-  @Inject() def this(config: Configuration) = this(
-    config.getString("aws.kinesis.streamName").get,
-    KinesisAtomPublisher.clientFromConfig(config)
-  )
+  @Inject() def this(awsConfig: util.AWSConfig) = this(awsConfig.kinesisStreamName, awsConfig.kinesisClient)
 
   def makeParititionKey(event: ContentAtomEvent): String = event.atom.atomType.name
 
@@ -28,11 +25,4 @@ class KinesisAtomPublisher (val streamName: String, val kinesis: AmazonKinesisCl
       val data = serializeEvent(event)
       kinesis.putRecord(streamName, data, makeParititionKey(event))
     }
-}
-
-object KinesisAtomPublisher {
-  def clientFromConfig(config: Configuration): AmazonKinesisClient = {
-    val cred = config.getString("aws.profile").map(new ProfileCredentialsProvider(_)).get
-    new AmazonKinesisClient(cred)
-  }
 }
