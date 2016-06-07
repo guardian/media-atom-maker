@@ -1,16 +1,32 @@
 package data
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
+import com.gu.scanamo.error.{ DynamoReadError, TypeCoercionError }
 import javax.inject.Inject
 import com.gu.contentatom.thrift.Atom
 import com.gu.scanamo.{ Scanamo, DynamoFormat, Table }
-import com.gu.scanamo.error.{ DynamoReadError, MissingProperty }
 import com.gu.scanamo.query._
 import com.twitter.scrooge.CompactThriftSerializer
 import cats.data.Xor
 
+import model.ThriftUtil._
+
 class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String) extends DataStore {
   @Inject() def this(aws: util.AWS) = this(aws.dynamoDB, aws.dynamoTableName)
+
+  case class AtomRow(
+    id: String,
+    version: Long,
+    atom: String // atom data serialized by thrift
+  )
+
+  object AtomRow {
+    def apply(atom: Atom): AtomRow = AtomRow(
+      atom.id,
+      atom.mediaData.activeVersion,
+      atomSerializer.toString(atom)
+    )
+  }
 
   // you can't use BinaryThriftStructSerializer from crooge-serializer
   // if Thrift is greater than 0.9.0 as they use a method that has
@@ -20,17 +36,14 @@ class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String) extends D
 
   private val atomSerializer = CompactThriftSerializer(Atom)
 
-  private def atomToMap(atom: Atom): Map[String, String] = Map(
-    "id" -> atom.id,
-    "atom" -> atomSerializer.toString(atom)
-  )
-
-  private def mapToAtom(map: Map[String, String]): Xor[DynamoReadError, Atom] = map.get("atom") match {
-    case Some(atomData) => Xor.right(atomSerializer.fromString(atomData))
-    case None => Xor.left(MissingProperty)
+  private def rowToAtom(row: AtomRow): Xor[DynamoReadError, Atom] = try {
+    Xor.Right(atomSerializer.fromString(row.atom))
+  } catch {
+    case err: org.apache.thrift.TException => Xor.Left(TypeCoercionError(err))
   }
 
-  implicit val dynamoFormat: DynamoFormat[Atom] = DynamoFormat.xmap(mapToAtom _)(atomToMap _)
+  implicit val dynamoFormat: DynamoFormat[Atom] =
+    DynamoFormat.xmap(rowToAtom _)(AtomRow.apply _)(DynamoFormat[AtomRow]) // <- just saving a new implicit here
 
   // useful shortcuts
   private val get = Scanamo.get[Atom](dynamo)(tableName) _
@@ -51,6 +64,6 @@ class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String) extends D
     else
       put(atom)
 
-  def updateMediaAtom(newAtom: Atom): Unit = ???
+  def updateMediaAtom(newAtom: Atom): Unit = ??? //getMediaAtom
 
 }
