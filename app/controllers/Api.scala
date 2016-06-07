@@ -17,6 +17,8 @@ import data.JsonConversions._
 
 class Api @Inject() (val dataStore: DataStore, val publisher: AtomPublisher) extends AtomController {
 
+  private def atomUrl(id: String) = s"/atom/$id"
+
   // takes a configured URL object and shows how it would look as a content atom
 
   def getMediaAtom(id: String) = Action { implicit req =>
@@ -30,7 +32,7 @@ class Api @Inject() (val dataStore: DataStore, val publisher: AtomPublisher) ext
       val atom = req.body
       try {
         dataStore.createMediaAtom(atom)
-        Created(Json.toJson(atom)).withHeaders("Location" -> s"/atom/${atom.id}")
+        Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
       } catch {
         case data.IDConflictError => Conflict(s"${atom.id} already exists")
       }
@@ -56,7 +58,7 @@ class Api @Inject() (val dataStore: DataStore, val publisher: AtomPublisher) ext
         )
         try {
           dataStore.updateMediaAtom(newAtom)
-          Created(s"updated atom $atomId")
+          Created(s"updated atom $atomId").withHeaders("Location" -> atomUrl(atom.id))
         } catch {
           case err: VersionConflictError => InternalServerError(err.msg)
         }

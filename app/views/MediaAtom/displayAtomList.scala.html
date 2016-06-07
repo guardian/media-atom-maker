@@ -1,0 +1,11 @@
+@import com.gu.contentatom.thrift._
+@(atoms: TraversableOnce[Atom])
+<html>
+    <head>
+        <title>Media Atoms</title>
+        <link rel="stylesheet" href="/assets/stylesheets/atom-data.css">
+    </head>
+    <body>
+        @atomListTable(atoms)
+    </body>
+</html>

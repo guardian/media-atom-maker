@@ -1,0 +1,19 @@
+@import com.gu.contentatom.thrift._
+@import model.ThriftUtil.AtomDataWithType
+@(atoms: TraversableOnce[Atom])
+        <table id="atoms">
+            <tr>
+                <td class="label">id</td>
+                <td class="label">type</td>
+                <td class="label">revision</td>
+                <td class="label">mediaAssets</td>
+            </tr>
+            @for(atom <- atoms) {
+                          <tr>
+                              <td><a href="/atom/@atom.id">@atom.id</a></td>
+                              <td>@atom.atomType.name</td>
+                              <td>@atom.contentChangeDetails.revision</td>
+                              <td>@atom.mediaData.assets.length</td>
+                          </tr>
+            }
+        </table>

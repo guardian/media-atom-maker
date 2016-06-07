@@ -1,0 +1,11 @@
+@(atomId: String, defaultVersion: Long)
+<div id="addAtom">
+    <form method="" action="">
+        <label for="url">URL:</label>
+        <input id="urlInput" type="text" name="uri" width="100"></input>
+        <input id="versionInput" type="text" value="@defaultVersion" name="version"/>
+        <input id="addAssetButton" type="button"
+               onClick="AtomUtil.addAsset(@atomId)"
+               value="Add asset"/>
+    </form>
+</div>
