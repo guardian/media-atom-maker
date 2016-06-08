@@ -1,5 +1,6 @@
 @import com.gu.contentatom.thrift._
 @import model.ThriftUtil.AtomDataWithType
+@import util.MediaAtomUtil._
 @(atom: Atom)
 <html>
     <head>
@@ -15,8 +16,9 @@
         <p>
             <a href="/atoms">Back</a>
         </p>
-       @atomTable(atom)
-       @publishUI(atom.id)
-       @addAssetForm(atom.id, atom.mediaData.activeVersion + (if(atom.mediaData.assets.length == 0) 0 else 1))
+        @atomTable(atom)
+        @publishUI(atom.id)
+        @addAssetForm(atom.id, atom.mediaData.activeVersion + (if(atom.mediaData.assets.length == 0) 0 else 1))
+        @latestAsset(atom.mediaData).map(asset => embedAsset(asset))
     </body>
 </html>
