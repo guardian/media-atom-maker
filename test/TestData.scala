@@ -11,7 +11,21 @@ object TestData {
     defaultHtml = "<div></div>",
     data = AtomData.Media(
       MediaAtom(
-        activeVersion = 1L
+        activeVersion = 2L,
+        assets = List(
+          Asset(
+            assetType = AssetType.Video,
+            version = 1L,
+            id = "xyzzy",
+            platform = Platform.Youtube
+          ),
+          Asset(
+            assetType = AssetType.Video,
+            version = 2L,
+            id = "fizzbuzz",
+            platform = Platform.Youtube
+          )
+        )
       )
     ),
     contentChangeDetails = ContentChangeDetails(revision = 1)

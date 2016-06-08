@@ -52,7 +52,7 @@ class ApiSpec extends PlaySpec
       status(result) mustEqual OK
       val json = contentAsJson(result)
                               (json \ "id").as[String] mustEqual "1"
-        (json \ "data" \ "assets").as[List[JsValue]] must have size 0
+        (json \ "data" \ "assets").as[List[JsValue]] must have size 2
 
     }
     "return NotFound for missing atom" in withApi() { api =>
@@ -60,7 +60,7 @@ class ApiSpec extends PlaySpec
       status(result) mustEqual NOT_FOUND
     }
     "return not found when adding asset to a non-existant atom" in withApi() { api =>
-      val req = FakeRequest().withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "1")
+      val req = FakeRequest().withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "3")
       val result = call(api.addAsset("xyzzy"), req)
       status(result) mustEqual NOT_FOUND
     }
@@ -70,7 +70,7 @@ class ApiSpec extends PlaySpec
         val req = FakeRequest().withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "1")
         val result = call(api.addAsset("1"), req)
         withClue(s"(body: [${contentAsString(result)}])") { status(result) mustEqual CREATED }
-        dataStore.getMediaAtom("1").value.mediaData.assets must have size 1
+        dataStore.getMediaAtom("1").value.mediaData.assets must have size 3
       }
     }
     "create an atom" in {
@@ -98,6 +98,25 @@ class ApiSpec extends PlaySpec
         val result = call(api.listAtoms(), FakeRequest())
         status(result) mustEqual OK
         contentAsJson(result).as[List[JsValue]] must have size 2
+      }
+    }
+    "should change version of atom" in {
+      val dataStore = initialDataStore
+      withApi(dataStore = dataStore) { api =>
+        // before...
+        dataStore.getMediaAtom("1").value.mediaData.activeVersion mustEqual 2L
+        val result = call(api.revertAtom("1", 1L), FakeRequest())
+        status(result) mustEqual OK
+        // after ...
+        dataStore.getMediaAtom("1").value.mediaData.activeVersion mustEqual 1L
+      }
+    }
+    "should complain if revert to version without asset" in {
+      val dataStore = initialDataStore
+      withApi(dataStore = dataStore) { api =>
+        // before...
+        val result = call(api.revertAtom("1", 10L), FakeRequest())
+        status(result) mustEqual INTERNAL_SERVER_ERROR
       }
     }
   }
