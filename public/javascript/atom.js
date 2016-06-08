@@ -38,6 +38,18 @@ window.AtomUtil = (function() {
     });
   };
 
+  ret.revertAtom = function(atomId, version) {
+    $.ajax({
+      method: "POST",
+      url: "/api/atom/" + atomId + "/revert/" + version,
+      contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+      success: function(data, status, xhr) {
+        window.location = "/atom/" + atomId;
+      },
+      error: handleError
+    });
+  };
+
   return ret;
 
 })()
