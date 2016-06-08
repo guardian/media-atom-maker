@@ -13,6 +13,18 @@ object ThriftUtil {
     def dataAs[D <: AtomData : Manifest]: D = a.data.asInstanceOf[D]
 
     def mediaData = dataAs[AtomData.Media].media
+
+    def updateDataAs[D <: AtomData : Manifest](f: D => D): Atom = a.copy(data = f(a.dataAs[D]))
+
+    def updateMediaData(f: MediaAtom => MediaAtom) =
+      updateDataAs[AtomData.Media](atomData => atomData.copy(media = f(atomData.media)))
+
+    def withRevision(f: Long => Long): Atom = a.copy(
+      contentChangeDetails = a.contentChangeDetails.copy(
+        revision = f(a.contentChangeDetails.revision)
+      )
+    )
+    def withRevision(newRevision: Long): Atom = withRevision(_ => newRevision)
   }
 
   val youtube = "https?://www.youtube.com/watch\\?v=([^&]+)".r

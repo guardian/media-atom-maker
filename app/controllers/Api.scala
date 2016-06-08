@@ -45,10 +45,7 @@ class Api @Inject() (val dataStore: DataStore, val publisher: AtomPublisher) ext
         val data = atom.dataAs[AtomData.Media]
         val ma = data.media
         val assets = ma.assets
-        val newAtom = atom.copy(
-          contentChangeDetails = atom.contentChangeDetails.copy(
-            revision = atom.contentChangeDetails.revision + 1
-          ),
+        val newAtom = atom.withRevision(_ + 1).copy(
           data = data.copy(
             media = ma.copy(
               activeVersion = newAsset.version,
@@ -77,6 +74,21 @@ class Api @Inject() (val dataStore: DataStore, val publisher: AtomPublisher) ext
           case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
         }
       case None => NotFound(jsonError(s"No such atom $atomId"))
+    }
+  }
+
+  def revertAtom(atomId: String, version: Long) = Action { implicit req =>
+    dataStore.getMediaAtom(atomId) match {
+      case Some(atom) =>
+        if(!atom.mediaData.assets.exists(_.version == version)) {
+          InternalServerError(jsonError(s"no asset is listed for version $version"))
+        } else {
+          dataStore.updateMediaAtom(
+            atom.withRevision(_ + 1).updateMediaData { media => media.copy(activeVersion = version) }
+          )
+          Ok(s"updated to $version")
+        }
+      case None => NotFound(s"atom not found $atomId")
     }
   }
 
