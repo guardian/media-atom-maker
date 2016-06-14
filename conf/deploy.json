@@ -2,11 +2,9 @@
   "stack": "media-atom-maker",
   "packages": {
     "media-atom-maker": {
-      "type": "aws-s3",
+      "type": "autoscaling",
       "data": {
         "bucket": "media-atom-maker-dist",
-        "prefixStack": true,
-        "cacheControl": "max-age=60",
         "publicReadAcl": false
       }
     }
@@ -16,7 +14,7 @@
       "depends": ["deploy"]
     },
     "deploy": {
-      "actionsBeforeApp": ["media-atom-maker.uploadStaticFiles"]
+      "actionsBeforeApp": ["media-atom-maker.uploadArtifacts"]
     }
   }
 }
