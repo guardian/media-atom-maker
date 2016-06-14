@@ -4,7 +4,7 @@
     "media-atom-maker": {
       "type": "aws-s3",
       "data": {
-        "bucket": "media-atom-dist",
+        "bucket": "media-atom-maker-dist",
         "cacheControl": "max-age=60"
       }
     }
