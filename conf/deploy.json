@@ -1,6 +1,6 @@
 {
-  "stack": "flexible",
-  "defaultStacks": ["editorial-tools"],
+  "stack": "media-atom-maker",
+  "defaultStacks": ["flexible"],
   "packages": {
     "media-atom-maker": {
       "type": "autoscaling",
