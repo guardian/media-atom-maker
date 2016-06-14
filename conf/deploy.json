@@ -5,6 +5,7 @@
       "type": "aws-s3",
       "data": {
         "bucket": "media-atom-dist",
+        "cacheControl": "max-age=60"
       }
     }
   },
