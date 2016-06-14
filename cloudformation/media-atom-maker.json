@@ -53,7 +53,9 @@
                       " || true\n"
                     ]
                   ]
-                }
+                },
+                "aws s3 cp 's3://media-atom-maker-dist/conf/media-atom-maker.", { "Ref" : "Stage" }, ".application.conf' ", "/home/flexible/media-atom-maker/conf/application.conf\n",
+                "systemctl start media-atom-maker\n"
               ]
             ]
           }
@@ -146,6 +148,65 @@
             "Ref": "DistributionRole"
           }
         ]
+      }
+    }
+    "LoadBalancerSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "application load balancer",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "80",
+            "ToPort": "80",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "443",
+            "ToPort": "443",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      }
+    },
+    "MediaAtomMakerLoadBalancer": {
+      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties": {
+        "CrossZone": true,
+        "AvailabilityZones": {
+          "Fn::GetAZs": ""
+        },
+        "SecurityGroups": [
+          {
+            "Fn::GetAtt": [
+              "LoadBalancerSecurityGroup",
+              "GroupId"
+            ]
+          }
+        ],
+        "Listeners": [
+          {
+            "LoadBalancerPort": "80",
+            "InstancePort": "9000",
+            "Protocol": "HTTP"
+          },
+          {
+            "LoadBalancerPort": "443",
+            "InstancePort": "9000",
+            "Protocol": "HTTPS",
+            "SSLCertificateId": {
+              "Ref": "SSLCertificateId"
+            }
+          }
+        ],
+        "HealthCheck": {
+          "Target": "HTTP:9000/healthcheck",
+          "HealthyThreshold": "2",
+          "UnhealthyThreshold": "2",
+          "Interval": "10",
+          "Timeout": "5"
+        }
       }
     }
   }
