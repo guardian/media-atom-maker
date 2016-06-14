@@ -23,4 +23,25 @@ libraryDependencies ++= Seq(
   "org.mockito"                % "mockito-core"          % "1.10.19" % "test"
 )
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala)
+lazy val appDistSettings = Seq(
+    packageName in Universal := name.value,
+    riffRaffPackageType := (packageZipTarball in Universal).value,
+    riffRaffBuildIdentifier := Option(System.getenv("CIRCLE_BUILD_NUM")).getOrElse("dev"),
+    riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
+    riffRaffUploadManifestBucket := Option("riffraff-builds"),
+    riffRaffArtifactPublishPath := name.value,
+    riffRaffPackageName := s"editorial-tools:${name.value}",
+    riffRaffManifestProjectName := riffRaffPackageName.value,
+    riffRaffArtifactResources := Seq(
+      riffRaffPackageType.value -> s"packages/${name.value}/${name.value}.tgz",
+      baseDirectory.value / "conf" / "deploy.json" -> "deploy.json"
+    ),
+    artifactName in Universal := { (sv: ScalaVersion, module: ModuleID, artifact: Artifact) =>
+      artifact.name + "." + artifact.extension
+    },
+    riffRaffManifestBranch := Option(System.getenv("CIRCLE_BRANCH")).getOrElse("dev")
+  )
+
+lazy val root = (project in file("."))
+  .enablePlugins(PlayScala, RiffRaffArtifact, UniversalPlugin)
+  .settings(appDistSettings)

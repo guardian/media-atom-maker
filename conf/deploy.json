@@ -1,0 +1,19 @@
+{
+  "stack": "media-atom-maker",
+  "packages": {
+    "media-atom-maker": {
+      "type": "aws-s3",
+      "data": {
+        "bucket": "media-atom-dist",
+      }
+    }
+  },
+  "recipes": {
+    "default": {
+      "depends": ["deploy"]
+    },
+    "deploy": {
+      "actionsBeforeApp": ["media-atom-maker.uploadStaticFiles"]
+    }
+  }
+}

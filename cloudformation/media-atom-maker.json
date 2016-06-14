@@ -1,0 +1,152 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "AtomKinesisStreamName": {
+      "Type": "String",
+      "Description": "Kinesis stream which the content atom events should be published to"
+    },
+    "AMI": {
+      "Type": "String"
+    },
+    "Stage": {
+      "Type": "String",
+      "AllowedValues": [
+        "PROD",
+        "CODE"
+      ]
+    },
+    "GithubTeamName": {
+      "Description": "Github team name, used for giving ssh access to members of the team.",
+      "Type": "String",
+      "Default": "Editorial-Tools-SSHAccess"
+    }
+  },
+  "Resources": {
+    "MediaMakerInstance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "InstanceType": "m3.medium",
+        "ImageId": {
+          "Ref": "AMI"
+        },
+        "IamInstanceProfile": {
+          "Ref": "MediaMakerInstanceProfile"
+        },
+        "KeyName": "proberts-testing",
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash -ev\n",
+                "apt-get -y update\n",
+                "apt-get -y upgrade\n",
+                "/opt/features/native-packager/install.sh -b media-maker-dist -a media-atom-maker -t tgz\n",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "/opt/features/ssh-keys/initialise-keys-and-cron-job.sh -l -b github-team-keys -t ",
+                      {
+                        "Ref": "GithubTeamName"
+                      },
+                      " || true\n"
+                    ]
+                  ]
+                }
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "MediaMakerInstanceProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Path": "/",
+        "Roles": [
+          {
+            "Ref": "DistributionRole"
+          }
+        ]
+      }
+    },
+    "DistributionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path": "/",
+        "Policies": [
+          {
+            "PolicyName": "root",
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:GetObject"
+                  ],
+                  "Resource": [
+                    "arn:aws:s3:::media-atom-maker-dist/*"
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "ec2:DescribeTags"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "GetTeamKeysPolicy": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "GetTeamKeysPolicy",
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:GetObject"
+              ],
+              "Resource": [
+                "arn:aws:s3:::github-team-keys/*"
+              ]
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:ListBucket"
+              ],
+              "Resource": "arn:aws:s3:::github-team-keys"
+            }
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "DistributionRole"
+          }
+        ]
+      }
+    }
+  }
+}
