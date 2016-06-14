@@ -5,7 +5,8 @@
       "type": "aws-s3",
       "data": {
         "bucket": "media-atom-maker-dist",
-        "cacheControl": "max-age=60"
+        "cacheControl": "max-age=60",
+        "publicReadAcl": false
       }
     }
   },
