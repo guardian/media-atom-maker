@@ -4,6 +4,7 @@ import com.amazonaws.regions.{Region, Regions}
 import com.amazonaws.services.kinesis.AmazonKinesisClient
 import play.api.Configuration
 import javax.inject.{ Singleton, Inject }
+import com.amazonaws.auth.{ AWSCredentialsProviderChain, InstanceProfileCredentialsProvider }
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient 
 
@@ -16,11 +17,16 @@ class AWSConfig @Inject() (config: Configuration) {
     Region.getRegion(r)
   }
 
-  lazy val credProfile = config.getString("aws.profile").get
+  lazy val credProviders = Seq(
+    config.getString("aws.profile").map(new ProfileCredentialsProvider(_)),
+    Some(new InstanceProfileCredentialsProvider)
+  )
+
+  lazy val credProvider = new AWSCredentialsProviderChain(credProviders.flatten: _*)
 
   lazy val dynamoDB = region.createClient(
     classOf[AmazonDynamoDBClient],
-    new ProfileCredentialsProvider(credProfile),
+    credProvider,
     null
   )
 
@@ -30,7 +36,7 @@ class AWSConfig @Inject() (config: Configuration) {
 
   lazy val kinesisClient = region.createClient(
     classOf[AmazonKinesisClient],
-    new ProfileCredentialsProvider(credProfile),
+    credProvider,
     null
   )
 }
