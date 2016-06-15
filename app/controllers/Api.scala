@@ -15,7 +15,9 @@ import scala.util.{ Success, Failure }
 
 import data.JsonConversions._
 
-class Api @Inject() (val dataStore: DataStore, val publisher: AtomPublisher) extends AtomController {
+class Api @Inject() (val dataStore: DataStore, val publisher: AtomPublisher)
+    extends AtomController
+    with model.MediaAtomImplicits {
 
   private def atomUrl(id: String) = s"/atom/$id"
 
@@ -42,17 +44,14 @@ class Api @Inject() (val dataStore: DataStore, val publisher: AtomPublisher) ext
     val newAsset = req.body
     dataStore.getMediaAtom(atomId) match {
       case Some(atom) =>
-        val data = atom.dataAs[AtomData.Media]
-        val ma = data.media
+        val ma = atom.tdata
         val assets = ma.assets
-        val newAtom = atom.copy(
-          data = data.copy(
-            media = ma.copy(
-              activeVersion = newAsset.version,
-              assets = newAsset +: assets
-            )
-          )
-        ).withRevision(_ + 1).updatedDefaultHtml[AtomData.Media]
+        val newAtom = atom
+          .withData(ma.copy(
+                      activeVersion = newAsset.version,
+                      assets = newAsset +: assets
+                    ))
+          .withRevision(_ + 1)
 
         try {
           dataStore.updateMediaAtom(newAtom)
@@ -81,11 +80,13 @@ class Api @Inject() (val dataStore: DataStore, val publisher: AtomPublisher) ext
   def revertAtom(atomId: String, version: Long) = Action { implicit req =>
     dataStore.getMediaAtom(atomId) match {
       case Some(atom) =>
-        if(!atom.mediaData.assets.exists(_.version == version)) {
+        if(!atom.tdata.assets.exists(_.version == version)) {
           InternalServerError(jsonError(s"no asset is listed for version $version"))
         } else {
           dataStore.updateMediaAtom(
-            atom.withRevision(_ + 1).updateMediaData { media => media.copy(activeVersion = version) }
+            atom
+              .withRevision(_ + 1)
+              .updateData { media => media.copy(activeVersion = version) }
           )
           Ok(s"updated to $version")
         }

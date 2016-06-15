@@ -6,7 +6,8 @@ import javax.inject.Singleton
 import model.ThriftUtil._
 
 @Singleton
-class MemoryStore extends DataStore {
+class MemoryStore extends DataStore
+    with model.MediaAtomImplicits {
 
   def this(initial: Map[String, Atom] = Map.empty) = {
     this()
@@ -28,7 +29,7 @@ class MemoryStore extends DataStore {
     getMediaAtom(newAtom.id) match {
       case Some(oldAtom) =>
         if(oldAtom.contentChangeDetails.revision >= newAtom.contentChangeDetails.revision)
-          throw new VersionConflictError(newAtom.mediaData.activeVersion)
+          throw new VersionConflictError(newAtom.tdata.activeVersion)
         dataStore(newAtom.id) = newAtom
       case None => throw IDNotFound
     }

@@ -11,7 +11,9 @@ import cats.data.Xor
 
 import model.ThriftUtil._
 
-class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String) extends DataStore {
+class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String)
+    extends DataStore
+    with model.MediaAtomImplicits {
   @Inject() def this(awsConfig: util.AWSConfig) = this(awsConfig.dynamoDB, awsConfig.dynamoTableName)
 
   case class AtomRow(
@@ -66,7 +68,7 @@ class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String) extends D
     val validationCheck = KeyIs('version, LT, newAtom.contentChangeDetails.revision)
     Scanamo.exec(dynamo)(Table[Atom](tableName).given(validationCheck).put(newAtom)) match {
       case Xor.Left(_: com.amazonaws.services.dynamodbv2.model.ConditionalCheckFailedException) =>
-        throw new VersionConflictError(newAtom.mediaData.activeVersion)
+        throw new VersionConflictError(newAtom.tdata.activeVersion)
       case _ => ()
     }
   }

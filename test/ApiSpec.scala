@@ -11,7 +11,7 @@ import play.api.test._
 import play.api.http.HttpVerbs
 import play.api.test.Helpers._
 import data.MemoryStore
-import model.ThriftUtil._
+//import model.ThriftUtil._
 import org.scalatest.AppendedClues
 import scala.util.{ Success, Failure }
 
@@ -21,7 +21,8 @@ class ApiSpec extends PlaySpec
     with OneAppPerSuite
     with AppendedClues
     with HttpVerbs
-    with MockitoSugar {
+    with MockitoSugar
+    with model.MediaAtomImplicits {
 
   implicit lazy val materializer = app.materializer
 
@@ -70,7 +71,7 @@ class ApiSpec extends PlaySpec
         val req = FakeRequest().withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "1")
         val result = call(api.addAsset("1"), req)
         withClue(s"(body: [${contentAsString(result)}])") { status(result) mustEqual CREATED }
-        dataStore.getMediaAtom("1").value.mediaData.assets must have size 3
+        dataStore.getMediaAtom("1").value.tdata.assets must have size 3
       }
     }
     "create an atom" in {
@@ -104,11 +105,11 @@ class ApiSpec extends PlaySpec
       val dataStore = initialDataStore
       withApi(dataStore = dataStore) { api =>
         // before...
-        dataStore.getMediaAtom("1").value.mediaData.activeVersion mustEqual 2L
+        dataStore.getMediaAtom("1").value.tdata.activeVersion mustEqual 2L
         val result = call(api.revertAtom("1", 1L), FakeRequest())
         status(result) mustEqual OK
         // after ...
-        dataStore.getMediaAtom("1").value.mediaData.activeVersion mustEqual 1L
+        dataStore.getMediaAtom("1").value.tdata.activeVersion mustEqual 1L
       }
     }
     "should complain if revert to version without asset" in {
