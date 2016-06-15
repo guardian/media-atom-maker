@@ -1,7 +1,7 @@
 package controllers
 
 import com.gu.contentatom.thrift.{ ContentAtomEvent, EventType }
-import com.gu.contentatom.thrift.atom.quiz.Asset
+import com.gu.contentatom.thrift.atom.media.Asset
 import com.gu.contentatom.thrift.{ Atom, AtomData }
 import javax.inject._
 import java.util.{ Date, UUID }
@@ -45,14 +45,15 @@ class Api @Inject() (val dataStore: DataStore, val publisher: AtomPublisher) ext
         val data = atom.dataAs[AtomData.Media]
         val ma = data.media
         val assets = ma.assets
-        val newAtom = atom.withRevision(_ + 1).copy(
+        val newAtom = atom.copy(
           data = data.copy(
             media = ma.copy(
               activeVersion = newAsset.version,
               assets = newAsset +: assets
             )
           )
-        )
+        ).withRevision(_ + 1).updatedDefaultHtml[AtomData.Media]
+
         try {
           dataStore.updateMediaAtom(newAtom)
           Created(s"updated atom $atomId").withHeaders("Location" -> atomUrl(atom.id))

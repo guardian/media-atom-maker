@@ -9,6 +9,18 @@ import scala.concurrent.ExecutionContext
 object ThriftUtil {
   type ThriftResult[A] = Either[String, A]
 
+  trait DefaultHTMLGenerator[D <: AtomData] {
+    def makeDefaultHtml(data: D): String
+  }
+
+  implicit val mediaAtomDefaultHtml = new DefaultHTMLGenerator[AtomData.Media] {
+    def makeDefaultHtml(data: AtomData.Media) = {
+      data.media.assets
+        .map(asset => views.html.MediaAtom.embedAsset(asset))
+        .mkString("\n")
+    }
+  }
+
   implicit class AtomDataWithType(a: Atom) {
     def dataAs[D <: AtomData : Manifest]: D = a.data.asInstanceOf[D]
 
@@ -25,6 +37,9 @@ object ThriftUtil {
       )
     )
     def withRevision(newRevision: Long): Atom = withRevision(_ => newRevision)
+
+    def updatedDefaultHtml[D <: AtomData : Manifest](implicit htmlMaker: DefaultHTMLGenerator[D]): Atom =
+      a.copy(defaultHtml = htmlMaker.makeDefaultHtml(dataAs[D]))
   }
 
   val youtube = "https?://www.youtube.com/watch\\?v=([^&]+)".r
@@ -82,16 +97,18 @@ object ThriftUtil {
   def parseRequest(params: Map[String, Seq[String]]): ThriftResult[Atom] = {
     val id = getSingleParam(params,"id").getOrElse(randomUUID().toString)
 
-    for(mediaAtom <- parseMediaAtom(params).right) yield Atom(
-      id = id,
-      atomType = AtomType.Media,
-      labels = Nil,
-      defaultHtml = "<div></div>",
-      data = AtomData.Media(mediaAtom),
-      contentChangeDetails = ContentChangeDetails(
-        None, None, None, 1L
+    for(mediaAtom <- parseMediaAtom(params).right) yield {
+      Atom(
+        id = id,
+        atomType = AtomType.Media,
+        labels = Nil,
+        defaultHtml = "",
+        data = AtomData.Media(mediaAtom),
+        contentChangeDetails = ContentChangeDetails(
+          None, None, None, 1L
+        )
       )
-    )
+    }
   }
 
   def getSingleRequiredParam(params: Map[String, Seq[String]], name: String): ThriftResult[String] =
