@@ -32,6 +32,11 @@
       "Description": "Github team name, used for giving ssh access to members of the team.",
       "Type": "String",
       "Default": "Editorial-Tools-SSHAccess"
+    },
+    "KinesisStreamPrefix": {
+      "Description": "Kinesis stream name prefix",
+      "Type": "String",
+      "Default": "content-atom-events"
     }
   },
   "Resources": {
@@ -318,44 +323,13 @@
         "PolicyDocument": {
           "Statement": [
             {
-              "Action": [
-                "dynamodb:*"
-              ],
+              "Action": [ "dynamodb:*" ],
               "Effect": "Allow",
               "Resource": {
-                "Fn::Join": [
-                  ":",
-                  [
-                    "arn:aws:dynamodb",
-                    {
-                      "Ref": "AWS::Region"
-                    },
-                    {
-                      "Ref": "AWS::AccountId"
-                    },
-                    {
-                      "Fn::Join": [
-                        "",
-                        [
-                          "table/",
-                          {
-                            "Fn::Join": [
-                              "-",
-                              [
-                                {
-                                  "Ref": "DynamoDBTablePrefix"
-                                },
-                                {
-                                  "Ref": "Stage"
-                                }
-                              ]
+                "Fn::Join": [":", ["arn:aws:dynamodb", {"Ref": "AWS::Region"}, {"Ref": "AWS::AccountId"},
+                                   {"Fn::Join": ["", ["table/", {"Fn::Join": ["-", [{"Ref": "DynamoDBTablePrefix"}, {"Ref": "Stage"}]]}]]}
+                                  ]
                             ]
-                          }
-                        ]
-                      ]
-                    }
-                  ]
-                ]
               }
             }
           ]
@@ -365,6 +339,31 @@
             "Ref": "DistributionRole"
           }
         ]
+      }
+    },
+    "MediaAtomMakerKinesisPolicy": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "MediaAtomMakerKinesisPolicy",
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [ "kinesis:PutRecord", "kinesis:PutRecords", "kinesis:DescribeStream" ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [":", [
+                  "arn:aws:kinesis",
+                  {"Ref": "AWS::Region"},
+                  {"Ref": "AWS::AccountId"},
+                  {"Fn::Join": ["", ["stream/",
+                                     {"Fn::Join": ["-", [{"Ref": "KinesisStreamPrefix"}, "*", {"Ref": "Stage"}]]}
+                                    ]]}
+                ]]
+              }
+            }
+          ]
+        },
+        "Roles": [ { "Ref": "DistributionRole" } ]
       }
     }
   }
