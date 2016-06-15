@@ -15,7 +15,7 @@
       "depends": ["deploy"]
     },
     "deploy": {
-      "actionsBeforeApp": ["media-atom-maker.uploadArtifacts"]
+      "actionsBeforeApp": ["media-atom-maker.uploadArtifacts", "media-atom-maker.deploy"]
     }
   }
 }
