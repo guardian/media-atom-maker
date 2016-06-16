@@ -7,6 +7,8 @@ import java.util.UUID.randomUUID
 import play.api.mvc.{ BodyParser, BodyParsers }
 import scala.concurrent.ExecutionContext
 
+import util.atom.MediaAtomImplicits._
+
 object ThriftUtil {
   type ThriftResult[A] = Either[String, A]
 
@@ -75,7 +77,7 @@ object ThriftUtil {
         contentChangeDetails = ContentChangeDetails(
           None, None, None, 1L
         )
-      )
+      ).updateDefaultHtml
     }
   }
 

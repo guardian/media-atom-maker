@@ -4,6 +4,9 @@ import data.{ AtomPublisher, DataStore }
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import org.mockito.Matchers._
+
+import util.atom.MediaAtomImplicits
+
 import play.api.libs.json._
 import controllers.Api
 import org.scalatestplus.play._
@@ -11,7 +14,7 @@ import play.api.test._
 import play.api.http.HttpVerbs
 import play.api.test.Helpers._
 import data.MemoryStore
-//import model.ThriftUtil._
+
 import org.scalatest.AppendedClues
 import scala.util.{ Success, Failure }
 
@@ -22,7 +25,7 @@ class ApiSpec extends PlaySpec
     with AppendedClues
     with HttpVerbs
     with MockitoSugar
-    with model.MediaAtomImplicits {
+    with MediaAtomImplicits {
 
   implicit lazy val materializer = app.materializer
 

@@ -3,6 +3,7 @@ package model
 import com.gu.contentatom.thrift._
 import atom.media._
 import org.scalatest.{ FunSpec, Matchers, Inside }
+import scala.xml.{ Text, XML }
 
 class ThriftUtilSpec extends FunSpec
     with Matchers
@@ -50,9 +51,12 @@ class ThriftUtilSpec extends FunSpec
       inside(parseRequest(makeParams("uri" -> youtubeUrl))) {
         case Right(atom) =>
           inside(atom) {
-            case Atom(_, AtomType.Media, Nil, "<div></div>", _, changeDetails, None) =>
+            case Atom(_, AtomType.Media, Nil, defaultHtml, _, changeDetails, None) =>
               changeDetails should matchPattern {
                 case ContentChangeDetails(None, None, None, 1L) =>
+              }
+              XML.loadString(defaultHtml) should matchPattern {
+                case <iframe>{_}</iframe> =>
               }
           }
       }
