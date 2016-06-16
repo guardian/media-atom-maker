@@ -3,6 +3,9 @@ package controllers
 import com.gu.contentatom.thrift.{ ContentAtomEvent, EventType }
 import com.gu.contentatom.thrift.atom.media.Asset
 import com.gu.contentatom.thrift.{ Atom, AtomData }
+
+import util.atom.MediaAtomImplicits
+
 import javax.inject._
 import java.util.{ Date, UUID }
 import play.api.libs.json._
@@ -17,7 +20,7 @@ import data.JsonConversions._
 
 class Api @Inject() (val dataStore: DataStore, val publisher: AtomPublisher)
     extends AtomController
-    with model.MediaAtomImplicits {
+    with MediaAtomImplicits {
 
   private def atomUrl(id: String) = s"/atom/$id"
 
@@ -31,14 +34,14 @@ class Api @Inject() (val dataStore: DataStore, val publisher: AtomPublisher)
   }
 
   def createMediaAtom = thriftResultAction(atomBodyParser) { implicit req =>
-      val atom = req.body
-      try {
-        dataStore.createMediaAtom(atom)
-        Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
-      } catch {
-        case data.IDConflictError => Conflict(s"${atom.id} already exists")
-      }
+    val atom = req.body
+    try {
+      dataStore.createMediaAtom(atom)
+      Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
+    } catch {
+      case data.IDConflictError => Conflict(s"${atom.id} already exists")
     }
+  }
 
   def addAsset(atomId: String) = thriftResultAction(assetBodyParser) { implicit req =>
     val newAsset = req.body

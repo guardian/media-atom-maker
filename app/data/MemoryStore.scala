@@ -3,11 +3,11 @@ package data
 import com.gu.contentatom.thrift.Atom
 import javax.inject.Singleton
 
-import model.ThriftUtil._
+import util.atom.MediaAtomImplicits
 
 @Singleton
 class MemoryStore extends DataStore
-    with model.MediaAtomImplicits {
+    with MediaAtomImplicits {
 
   def this(initial: Map[String, Atom] = Map.empty) = {
     this()

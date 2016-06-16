@@ -1,5 +1,7 @@
 package data
 
+import util.atom.MediaAtomImplicits
+
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.gu.scanamo.error.{ DynamoReadError, TypeCoercionError }
 import javax.inject.Inject
@@ -9,11 +11,9 @@ import com.gu.scanamo.query._
 import com.twitter.scrooge.CompactThriftSerializer
 import cats.data.Xor
 
-import model.ThriftUtil._
-
 class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String)
     extends DataStore
-    with model.MediaAtomImplicits {
+    with MediaAtomImplicits {
   @Inject() def this(awsConfig: util.AWSConfig) = this(awsConfig.dynamoDB, awsConfig.dynamoTableName)
 
   case class AtomRow(
