@@ -1,6 +1,6 @@
 @import com.gu.contentatom.thrift.atom.media.Asset
 @(asset: Asset)
-<div class="assetEmbed">
-    <p class="assetCaption">Asset for <a href="https://www.youtube.com/watch?v=@asset.id">video version @asset.version</a>:</p>
-    <iframe width="420" height="315" src="https://www.youtube.com/embed/@asset.id" frameborder="0" allowfullscreen></iframe>
-</div>
+<iframe width="420" height="315"
+        src="https://www.youtube.com/embed/@asset.id" frameborder="0"
+        allowfullscreen>
+</iframe>

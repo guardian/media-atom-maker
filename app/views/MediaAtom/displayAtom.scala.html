@@ -19,6 +19,6 @@
         @atomTable(atom)
         @publishUI(atom.id)
         @addAssetForm(atom.id, atom.tdata.activeVersion + (if(atom.tdata.assets.length == 0) 0 else 1))
-        @latestAsset(atom.tdata).map(asset => embedAsset(asset))
+        @showDefaultHtml(atom)
     </body>
 </html>
