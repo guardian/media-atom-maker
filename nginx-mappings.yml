@@ -1,0 +1,4 @@
+name: media-atom-maker
+mappings:
+  - prefix: media-atom-maker
+    port: 9001
