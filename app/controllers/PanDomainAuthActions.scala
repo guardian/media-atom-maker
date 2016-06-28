@@ -1,7 +1,7 @@
 package controllers
 
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.auth.{ AWSCredentialsProviderChain, BasicAWSCredentials, _ }
+import com.amazonaws.auth._
 import com.gu.pandomainauth.action.AuthActions
 import com.gu.pandomainauth.model.AuthenticatedUser
 import play.api.Configuration
@@ -18,7 +18,8 @@ class PanDomainAuthActions @Inject() (
 
   override lazy val awsCredentialsProvider: AWSCredentialsProvider =
     new AWSCredentialsProviderChain(
-      new ProfileCredentialsProvider(conf.getString("panda.awsCredsProfile").get)
+      new ProfileCredentialsProvider(conf.getString("panda.awsCredsProfile").getOrElse("panda")),
+      new InstanceProfileCredentialsProvider
     )
 
   override def validateUser(authedUser: AuthenticatedUser): Boolean = {

@@ -1,370 +1,386 @@
 {
-  "AWSTemplateFormatVersion": "2010-09-09",
-  "Parameters": {
-    "GuardianIP": {
-      "Description": "Ip range for the office",
-      "Type": "String",
-      "Default": "77.91.248.0/21"
-    },
-    "DynamoDBTablePrefix": {
-      "Description": "DynamoDB Table prefix",
-      "Type": "String",
-      "Default": "media-atom-maker"
-    },
-    "SSLCertificateId": {
-      "Description": "ARN of the SSL certificate",
-      "Type": "String"
-    },
-    "KeyName": {
-      "Type": "String"
-    },
-    "AMI": {
-      "Type": "String"
-    },
-    "Stage": {
-      "Type": "String",
-      "AllowedValues": [
-        "PROD",
-        "CODE"
-      ]
-    },
-    "GithubTeamName": {
-      "Description": "Github team name, used for giving ssh access to members of the team.",
-      "Type": "String",
-      "Default": "Editorial-Tools-SSHAccess"
-    },
-    "KinesisStreamPrefix": {
-      "Description": "Kinesis stream name prefix",
-      "Type": "String",
-      "Default": "content-atom-events"
-    }
-  },
-  "Resources": {
-    "MediaMakerInstanceProfile": {
-      "Type": "AWS::IAM::InstanceProfile",
-      "Properties": {
-        "Path": "/",
-        "Roles": [
-          {
-            "Ref": "DistributionRole"
-          }
-        ]
-      }
-    },
-    "SSHSecurityGroup": {
-      "Type": "AWS::EC2::SecurityGroup",
-      "Properties": {
-        "GroupDescription": "Allow SSH access from the office",
-        "SecurityGroupIngress": [
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "22",
-            "ToPort": "22",
-            "CidrIp": {
-              "Ref": "GuardianIP"
-            }
-          }
-        ]
-      }
-    },
-    "DistributionRole": {
-      "Type": "AWS::IAM::Role",
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Principal": {
-                "Service": [
-                  "ec2.amazonaws.com"
-                ]
-              },
-              "Action": [
-                "sts:AssumeRole"
-              ]
-            }
-          ]
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+        "GuardianIP": {
+            "Description": "Ip range for the office",
+            "Type": "String",
+            "Default": "77.91.248.0/21"
         },
-        "Path": "/",
-        "Policies": [
-          {
-            "PolicyName": "root",
-            "PolicyDocument": {
-              "Statement": [
-                {
-                  "Effect": "Allow",
-                  "Action": [
-                    "s3:GetObject"
-                  ],
-                  "Resource": [
-                    "arn:aws:s3:::media-atom-maker-dist/*"
-                  ]
-                },
-                {
-                  "Effect": "Allow",
-                  "Action": [
-                    "ec2:DescribeTags"
-                  ],
-                  "Resource": "*"
-                }
-              ]
-            }
-          }
-        ]
-      }
-    },
-    "GetTeamKeysPolicy": {
-      "Type": "AWS::IAM::Policy",
-      "Properties": {
-        "PolicyName": "GetTeamKeysPolicy",
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Action": [
-                "s3:GetObject"
-              ],
-              "Resource": [
-                "arn:aws:s3:::github-team-keys/*"
-              ]
-            },
-            {
-              "Effect": "Allow",
-              "Action": [
-                "s3:ListBucket"
-              ],
-              "Resource": "arn:aws:s3:::github-team-keys"
-            }
-          ]
+        "DynamoDBTablePrefix": {
+            "Description": "DynamoDB Table prefix",
+            "Type": "String",
+            "Default": "media-atom-maker"
         },
-        "Roles": [
-          {
-            "Ref": "DistributionRole"
-          }
-        ]
-      }
-    },
-    "LoadBalancerSecurityGroup": {
-      "Type": "AWS::EC2::SecurityGroup",
-      "Properties": {
-        "GroupDescription": "application load balancer",
-        "SecurityGroupIngress": [
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "80",
-            "ToPort": "80",
-            "CidrIp": "0.0.0.0/0"
-          },
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "443",
-            "ToPort": "443",
-            "CidrIp": "0.0.0.0/0"
-          }
-        ]
-      }
-    },
-    "AppServerSecurityGroup": {
-      "Type": "AWS::EC2::SecurityGroup",
-      "Properties": {
-        "GroupDescription": "Application servers",
-        "SecurityGroupIngress": [
-          {
-            "IpProtocol": "tcp",
-            "FromPort": 9000,
-            "ToPort": 9000,
-            "SourceSecurityGroupName": {
-              "Ref": "LoadBalancerSecurityGroup"
-            }
-          }
-        ]
-      }
-    },
-    "MediaAtomMakerLoadBalancer": {
-      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
-      "Properties": {
-        "CrossZone": true,
-        "AvailabilityZones": {
-          "Fn::GetAZs": ""
+        "SSLCertificateId": {
+            "Description": "ARN of the SSL certificate",
+            "Type": "String"
         },
-        "SecurityGroups": [
-          {
-            "Fn::GetAtt": [
-              "LoadBalancerSecurityGroup",
-              "GroupId"
-            ]
-          }
-        ],
-        "Listeners": [
-          {
-            "LoadBalancerPort": "80",
-            "InstancePort": "9000",
-            "Protocol": "HTTP"
-          },
-          {
-            "LoadBalancerPort": "443",
-            "InstancePort": "9000",
-            "Protocol": "HTTPS",
-            "SSLCertificateId": {
-              "Ref": "SSLCertificateId"
-            }
-          }
-        ]
-      }
-    },
-    "MediaAtomLaunchConfig": {
-      "Type": "AWS::AutoScaling::LaunchConfiguration",
-      "Properties": {
         "KeyName": {
-          "Ref": "KeyName"
+            "Type": "String"
         },
-        "ImageId": {
-          "Ref": "AMI"
+        "AMI": {
+            "Type": "String"
         },
-        "SecurityGroups": [
-          {
-            "Fn::GetAtt": [
-              "AppServerSecurityGroup",
-              "GroupId"
+        "Stage": {
+            "Type": "String",
+            "AllowedValues": [
+                "PROD",
+                "CODE"
             ]
-          },
-          {
-            "Fn::GetAtt": [
-              "SSHSecurityGroup",
-              "GroupId"
-            ]
-          }
-        ],
-        "InstanceType": "m3.medium",
-        "IamInstanceProfile": {
-          "Ref": "MediaMakerInstanceProfile"
         },
-        "UserData": {
-          "Fn::Base64": {
-            "Fn::Join": [
-              "",
-              [
-                "#!/bin/bash -ev\n",
-                "apt-get -y update\n",
-                "apt-get -y upgrade\n",
-                "/opt/features/native-packager/install.sh -b media-atom-maker-dist -a media-atom-maker -t tgz\n",
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "/opt/features/ssh-keys/initialise-keys-and-cron-job.sh -l -b github-team-keys -t ",
-                      {
-                        "Ref": "GithubTeamName"
-                      },
-                      " || true\n"
-                    ]
-                  ]
-                },
-                "aws s3 cp 's3://media-atom-maker-dist/conf/media-atom-maker.",
-                {
-                  "Ref": "Stage"
-                },
-                ".application.conf' ",
-                "/home/flexible/media-atom-maker/conf/application.conf\n",
-                "systemctl start media-atom-maker\n"
-              ]
-            ]
-          }
+        "GithubTeamName": {
+            "Description": "Github team name, used for giving ssh access to members of the team.",
+            "Type": "String",
+            "Default": "Editorial-Tools-SSHAccess"
+        },
+        "KinesisStreamPrefix": {
+            "Description": "Kinesis stream name prefix",
+            "Type": "String",
+            "Default": "content-atom-events"
         }
-      }
     },
-    "MediaAtomAutoscalingGroup": {
-      "Type": "AWS::AutoScaling::AutoScalingGroup",
-      "Properties": {
-        "AvailabilityZones": [
-          "eu-west-1c",
-          "eu-west-1a",
-          "eu-west-1b"
-        ],
-        "LaunchConfigurationName": {
-          "Ref": "MediaAtomLaunchConfig"
+    "Resources": {
+        "MediaMakerInstanceProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Path": "/",
+                "Roles": [
+                    {
+                        "Ref": "DistributionRole"
+                    }
+                ]
+            }
         },
-        "MinSize": 1,
-        "MaxSize": 2,
-        "DesiredCapacity": 1,
-        "Cooldown": "180",
-        "HealthCheckType": "ELB",
-        "HealthCheckGracePeriod": 300,
-        "LoadBalancerNames": [
-          {
-            "Ref": "MediaAtomMakerLoadBalancer"
-          }
-        ],
-        "Tags": [
-          {
-            "Key": "Stage",
-            "Value": {
-              "Ref": "Stage"
-            },
-            "PropagateAtLaunch": "true"
-          },
-          {
-            "Key": "Stack",
-            "Value": "flexible",
-            "PropagateAtLaunch": "true"
-          },
-          {
-            "Key": "App",
-            "Value": "media-atom-maker",
-            "PropagateAtLaunch": "true"
-          }
-        ]
-      }
-    },
-    "DynamoDBTablePolicy": {
-      "Type": "AWS::IAM::Policy",
-      "Properties": {
-        "PolicyName": "MediaAtomMakerDynamoDBPolicy",
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": [ "dynamodb:*" ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::Join": [":", ["arn:aws:dynamodb", {"Ref": "AWS::Region"}, {"Ref": "AWS::AccountId"},
-                                   {"Fn::Join": ["", ["table/", {"Fn::Join": ["-", [{"Ref": "DynamoDBTablePrefix"}, {"Ref": "Stage"}]]}]]}
-                                  ]
+        "SSHSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Allow SSH access from the office",
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "22",
+                        "ToPort": "22",
+                        "CidrIp": {
+                            "Ref": "GuardianIP"
+                        }
+                    }
+                ]
+            }
+        },
+        "DistributionRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "ec2.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
                             ]
-              }
+                        }
+                    ]
+                },
+                "Path": "/",
+                "Policies": [
+                    {
+                        "PolicyName": "root",
+                        "PolicyDocument": {
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "s3:GetObject"
+                                    ],
+                                    "Resource": [
+                                        "arn:aws:s3:::media-atom-maker-dist/*"
+                                    ]
+                                },
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "ec2:DescribeTags"
+                                    ],
+                                    "Resource": "*"
+                                }
+                            ]
+                        }
+                    }
+                ]
             }
-          ]
         },
-        "Roles": [
-          {
-            "Ref": "DistributionRole"
-          }
-        ]
-      }
-    },
-    "MediaAtomMakerKinesisPolicy": {
-      "Type": "AWS::IAM::Policy",
-      "Properties": {
-        "PolicyName": "MediaAtomMakerKinesisPolicy",
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": [ "kinesis:PutRecord", "kinesis:PutRecords", "kinesis:DescribeStream" ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::Join": [":", [
-                  "arn:aws:kinesis",
-                  {"Ref": "AWS::Region"},
-                  {"Ref": "AWS::AccountId"},
-                  {"Fn::Join": ["", ["stream/",
-                                     {"Fn::Join": ["-", [{"Ref": "KinesisStreamPrefix"}, "*", {"Ref": "Stage"}]]}
-                                    ]]}
-                ]]
-              }
+        "GetTeamKeysPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "GetTeamKeysPolicy",
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "s3:GetObject"
+                            ],
+                            "Resource": [
+                                "arn:aws:s3:::github-team-keys/*"
+                            ]
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "s3:ListBucket"
+                            ],
+                            "Resource": "arn:aws:s3:::github-team-keys"
+                        }
+                    ]
+                },
+                "Roles": [
+                    {
+                        "Ref": "DistributionRole"
+                    }
+                ]
             }
-          ]
         },
-        "Roles": [ { "Ref": "DistributionRole" } ]
-      }
+        "LoadBalancerSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "application load balancer",
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "80",
+                        "ToPort": "80",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "443",
+                        "ToPort": "443",
+                        "CidrIp": "0.0.0.0/0"
+                    }
+                ]
+            }
+        },
+        "AppServerSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Application servers",
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 9000,
+                        "ToPort": 9000,
+                        "SourceSecurityGroupName": {
+                            "Ref": "LoadBalancerSecurityGroup"
+                        }
+                    }
+                ]
+            }
+        },
+        "MediaAtomMakerLoadBalancer": {
+            "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+            "Properties": {
+                "CrossZone": true,
+                "AvailabilityZones": {
+                    "Fn::GetAZs": ""
+                },
+                "SecurityGroups": [
+                    {
+                        "Fn::GetAtt": [
+                            "LoadBalancerSecurityGroup",
+                            "GroupId"
+                        ]
+                    }
+                ],
+                "Listeners": [
+                    {
+                        "LoadBalancerPort": "80",
+                        "InstancePort": "9000",
+                        "Protocol": "HTTP"
+                    },
+                    {
+                        "LoadBalancerPort": "443",
+                        "InstancePort": "9000",
+                        "Protocol": "HTTPS",
+                        "SSLCertificateId": {
+                            "Ref": "SSLCertificateId"
+                        }
+                    }
+                ]
+            }
+        },
+        "MediaAtomLaunchConfig": {
+            "Type": "AWS::AutoScaling::LaunchConfiguration",
+            "Properties": {
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "ImageId": {
+                    "Ref": "AMI"
+                },
+                "SecurityGroups": [
+                    {
+                        "Fn::GetAtt": [
+                            "AppServerSecurityGroup",
+                            "GroupId"
+                        ]
+                    },
+                    {
+                        "Fn::GetAtt": [
+                            "SSHSecurityGroup",
+                            "GroupId"
+                        ]
+                    }
+                ],
+                "InstanceType": "m3.medium",
+                "IamInstanceProfile": {
+                    "Ref": "MediaMakerInstanceProfile"
+                },
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash -ev\n",
+                                "apt-get -y update\n",
+                                "apt-get -y upgrade\n",
+                                "/opt/features/native-packager/install.sh -b media-atom-maker-dist -a media-atom-maker -t tgz\n",
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            "/opt/features/ssh-keys/initialise-keys-and-cron-job.sh -l -b github-team-keys -t ",
+                                            {
+                                                "Ref": "GithubTeamName"
+                                            },
+                                            " || true\n"
+                                        ]
+                                    ]
+                                },
+                                "aws s3 cp 's3://media-atom-maker-dist/conf/media-atom-maker.",
+                                {
+                                    "Ref": "Stage"
+                                },
+                                ".application.conf' ",
+                                "/home/flexible/media-atom-maker/conf/application.conf\n",
+                                "systemctl start media-atom-maker\n"
+                            ]
+                        ]
+                    }
+                }
+            }
+        },
+        "MediaAtomAutoscalingGroup": {
+            "Type": "AWS::AutoScaling::AutoScalingGroup",
+            "Properties": {
+                "AvailabilityZones": [
+                    "eu-west-1c",
+                    "eu-west-1a",
+                    "eu-west-1b"
+                ],
+                "LaunchConfigurationName": {
+                    "Ref": "MediaAtomLaunchConfig"
+                },
+                "MinSize": 1,
+                "MaxSize": 2,
+                "DesiredCapacity": 1,
+                "Cooldown": "180",
+                "HealthCheckType": "ELB",
+                "HealthCheckGracePeriod": 300,
+                "LoadBalancerNames": [
+                    {
+                        "Ref": "MediaAtomMakerLoadBalancer"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Stage",
+                        "Value": {
+                            "Ref": "Stage"
+                        },
+                        "PropagateAtLaunch": "true"
+                    },
+                    {
+                        "Key": "Stack",
+                        "Value": "flexible",
+                        "PropagateAtLaunch": "true"
+                    },
+                    {
+                        "Key": "App",
+                        "Value": "media-atom-maker",
+                        "PropagateAtLaunch": "true"
+                    }
+                ]
+            }
+        },
+        "DynamoDBTablePolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "MediaAtomMakerDynamoDBPolicy",
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [ "dynamodb:*" ],
+                            "Effect": "Allow",
+                            "Resource": {
+                                "Fn::Join": [":", ["arn:aws:dynamodb", {"Ref": "AWS::Region"}, {"Ref": "AWS::AccountId"},
+                                                   {"Fn::Join": ["", ["table/", {"Fn::Join": ["-", [{"Ref": "DynamoDBTablePrefix"}, {"Ref": "Stage"}]]}]]}
+                                                  ]
+                                            ]
+                            }
+                        }
+                    ]
+                },
+                "Roles": [
+                    {
+                        "Ref": "DistributionRole"
+                    }
+                ]
+            }
+        },
+        "PanDomainPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "PanDomainPolicy",
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": ["s3:GetObject"],
+                            "Resource": ["arn:aws:s3:::pan-domain-auth-settings/*"]
+                        }
+                    ]
+                },
+                "Roles": [{"Ref": "DistributionRole"}]
+            }
+        },
+        "MediaAtomMakerKinesisPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "MediaAtomMakerKinesisPolicy",
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [ "kinesis:PutRecord", "kinesis:PutRecords", "kinesis:DescribeStream" ],
+                            "Effect": "Allow",
+                            "Resource": {
+                                "Fn::Join": [":", [
+                                    "arn:aws:kinesis",
+                                    {"Ref": "AWS::Region"},
+                                    {"Ref": "AWS::AccountId"},
+                                    {"Fn::Join": ["", ["stream/",
+                                                       {"Fn::Join": ["-", [{"Ref": "KinesisStreamPrefix"}, "*", {"Ref": "Stage"}]]}
+                                                      ]]}
+                                ]]
+                            }
+                        }
+                    ]
+                },
+                "Roles": [ { "Ref": "DistributionRole" } ]
+            }
+        }
     }
-  }
 }
