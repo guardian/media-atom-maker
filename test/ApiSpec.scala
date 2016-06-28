@@ -4,6 +4,7 @@ import data.{ AtomPublisher, DataStore }
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import org.mockito.Matchers._
+import play.api.mvc.{ AnyContent, Cookie, Request }
 
 import util.atom.MediaAtomImplicits
 
@@ -18,10 +19,14 @@ import data.MemoryStore
 import org.scalatest.AppendedClues
 import scala.util.{ Success, Failure }
 
+import com.gu.pandomainauth.model._
+
+import java.util.Date
+
 import TestData._
 
-class ApiSpec extends PlaySpec
-    with OneAppPerSuite
+class ApiSpec
+    extends MediaAtomSuite
     with AppendedClues
     with HttpVerbs
     with MockitoSugar
@@ -46,13 +51,25 @@ class ApiSpec extends PlaySpec
     p
   }
 
+  def testUser: AuthenticatedUser = AuthenticatedUser(
+    user = User("Homer", "Simpson", "homer.simpson@guardian.co.uk", None),
+    authenticatingSystem = "test",
+    authenticatedIn = Set("test"),
+    expires = new Date().getTime + oneHour,
+    multiFactor = true
+  )
+
+  def requestWithCookies(api: Api, user: AuthenticatedUser = testUser) =
+    FakeRequest().withCookies(api.authActions.generateCookies(testUser): _*)
+
   def withApi(dataStore: DataStore = initialDataStore,
-              publisher: AtomPublisher = defaultMockPublisher)(block: Api => Unit) =
-    block(new Api(dataStore, publisher))
+              publisher: AtomPublisher = defaultMockPublisher)
+             (block: Api => Unit) =
+    block(getApi(dataStore, publisher))
 
   "api" should {
     "return a media atom" in withApi() { api =>
-      val result = api.getMediaAtom("1").apply(FakeRequest())
+      val result = api.getMediaAtom("1").apply(requestWithCookies(api))
       status(result) mustEqual OK
       val json = contentAsJson(result)
                               (json \ "id").as[String] mustEqual "1"
@@ -60,18 +77,18 @@ class ApiSpec extends PlaySpec
 
     }
     "return NotFound for missing atom" in withApi() { api =>
-      val result = api.getMediaAtom("xyzzy").apply(FakeRequest())
+      val result = api.getMediaAtom("xyzzy").apply(requestWithCookies(api))
       status(result) mustEqual NOT_FOUND
     }
     "return not found when adding asset to a non-existant atom" in withApi() { api =>
-      val req = FakeRequest().withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "3")
+      val req = requestWithCookies(api).withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "3")
       val result = call(api.addAsset("xyzzy"), req)
       status(result) mustEqual NOT_FOUND
     }
     "add an asset to an atom" in {
       val dataStore = initialDataStore
       withApi(dataStore = dataStore) { api =>
-        val req = FakeRequest().withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "1")
+        val req = requestWithCookies(api).withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "1")
         val result = call(api.addAsset("1"), req)
         withClue(s"(body: [${contentAsString(result)}])") { status(result) mustEqual CREATED }
         dataStore.getMediaAtom("1").value.tdata.assets must have size 3
@@ -80,7 +97,7 @@ class ApiSpec extends PlaySpec
     "create an atom" in {
       val dataStore = initialDataStore
       withApi(dataStore = dataStore) { api =>
-        val req = FakeRequest().withFormUrlEncodedBody("id" -> "2")
+        val req = requestWithCookies(api).withFormUrlEncodedBody("id" -> "2")
         val result = call(api.createMediaAtom(), req)
         withClue(s"(body: [${contentAsString(result)}])") { status(result) mustEqual CREATED  }
         val createdAtom = dataStore.getMediaAtom("2").value
@@ -88,18 +105,18 @@ class ApiSpec extends PlaySpec
       }
     }
     "call out to publisher to publish an atom" in withApi() { api =>
-      val result = call(api.publishAtom("1"), FakeRequest())
+      val result = call(api.publishAtom("1"), requestWithCookies(api))
       status(result) mustEqual NO_CONTENT
     }
     "call report failure if publisher fails" in withApi(publisher = failingMockPublisher) { api =>
-      val result = call(api.publishAtom("1"), FakeRequest())
+      val result = call(api.publishAtom("1"), requestWithCookies(api))
       status(result) mustEqual INTERNAL_SERVER_ERROR
     }
     "should list atoms" in {
       val dataStore = initialDataStore
       dataStore.createMediaAtom(testAtom.copy(id = "2"))
       withApi(dataStore = dataStore) { api =>
-        val result = call(api.listAtoms(), FakeRequest())
+        val result = call(api.listAtoms(), requestWithCookies(api))
         status(result) mustEqual OK
         contentAsJson(result).as[List[JsValue]] must have size 2
       }
@@ -109,7 +126,7 @@ class ApiSpec extends PlaySpec
       withApi(dataStore = dataStore) { api =>
         // before...
         dataStore.getMediaAtom("1").value.tdata.activeVersion mustEqual 2L
-        val result = call(api.revertAtom("1", 1L), FakeRequest())
+        val result = call(api.revertAtom("1", 1L), requestWithCookies(api))
         status(result) mustEqual OK
         // after ...
         dataStore.getMediaAtom("1").value.tdata.activeVersion mustEqual 1L
@@ -119,7 +136,7 @@ class ApiSpec extends PlaySpec
       val dataStore = initialDataStore
       withApi(dataStore = dataStore) { api =>
         // before...
-        val result = call(api.revertAtom("1", 10L), FakeRequest())
+        val result = call(api.revertAtom("1", 10L), requestWithCookies(api))
         status(result) mustEqual INTERNAL_SERVER_ERROR
       }
     }
