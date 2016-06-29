@@ -45,6 +45,9 @@ Outputs:
   EditsDynamoTable:
     Value:
       Ref: "MediaAtomsDynamoTable"
-  HostKeys:
-      Value:
-        Ref: "HostKeys"
+  AwsId:
+    Value:
+      Ref: "HostKeys"
+  AwsSecret:
+    Value:
+      Fn::GetAtt: ["HostKeys", "SecretAccessKey"]
