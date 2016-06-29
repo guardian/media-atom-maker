@@ -23,7 +23,6 @@ class MainApp @Inject() (dataStore: DataStore,
   import authActions.{ AuthAction, processGoogleCallback }
 
   def healthcheck = Action {
-    println(com.gu.pandomainauth.PublicSettings.bucketName)
     Ok("ok")
   }
 
