@@ -38,7 +38,9 @@ class MainApp @Inject() (dataStore: DataStore,
   }
 
   def listAtoms = AuthAction { implicit req =>
-    Ok(displayAtomList(dataStore.listAtoms))
+    dataStore.listAtoms.fold(
+      err => InternalServerError(err.msg),
+      atoms => Ok(displayAtomList(atoms.toList))
+    )
   }
-
 }
