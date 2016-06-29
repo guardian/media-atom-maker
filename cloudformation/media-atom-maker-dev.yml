@@ -19,13 +19,7 @@ Resources:
                 Resource:
                   - Fn::Join:
                     - ""
-                    -
-                      - "arn:aws:dynamodb:"
-                      - Ref: "AWS::Region"
-                      - ":"
-                      - Ref: "AWS::AccountId"
-                      - ":table/"
-                      - "Ref" : "MediaAtomsDynamoTable"
+                    - ["arn:aws:dynamodb:", {Ref: "AWS::Region"}, ":", {Ref: "AWS::AccountId"}, ":table/", {Ref: "MediaAtomsDynamoTable"}]
   MediaAtomUser:
     Type: "AWS::IAM::User"
     Properties:
