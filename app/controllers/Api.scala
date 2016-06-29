@@ -3,6 +3,9 @@ package controllers
 import com.gu.contentatom.thrift.{ ContentAtomEvent, EventType }
 import com.gu.contentatom.thrift.atom.media.Asset
 import com.gu.contentatom.thrift.{ Atom, AtomData }
+import com.gu.pandomainauth.action.AuthActions
+
+import play.api.Configuration
 
 import util.atom.MediaAtomImplicits
 
@@ -18,15 +21,20 @@ import scala.util.{ Success, Failure }
 
 import data.JsonConversions._
 
-class Api @Inject() (val dataStore: DataStore, val publisher: AtomPublisher)
+class Api @Inject() (val dataStore: DataStore,
+                     val publisher: AtomPublisher,
+                     val conf: Configuration,
+                     val authActions: AuthActions)
     extends AtomController
     with MediaAtomImplicits {
+
+  import authActions.{APIAuthAction, AuthAction}
 
   private def atomUrl(id: String) = s"/atom/$id"
 
   // takes a configured URL object and shows how it would look as a content atom
 
-  def getMediaAtom(id: String) = Action { implicit req =>
+  def getMediaAtom(id: String) = APIAuthAction { implicit req =>
     dataStore.getMediaAtom(id) match {
       case Some(atom) => Ok(Json.toJson(atom))
       case None => NotFound(jsonError(s"no atom with id $id found"))
@@ -68,7 +76,7 @@ class Api @Inject() (val dataStore: DataStore, val publisher: AtomPublisher)
 
   def now() = (new Date()).getTime()
 
-  def publishAtom(atomId: String) = Action { implicit req =>
+  def publishAtom(atomId: String) = APIAuthAction { implicit req =>
     dataStore.getMediaAtom(atomId) match {
       case Some(atom) =>
         val event = ContentAtomEvent(atom, EventType.Update, now())
@@ -80,7 +88,7 @@ class Api @Inject() (val dataStore: DataStore, val publisher: AtomPublisher)
     }
   }
 
-  def revertAtom(atomId: String, version: Long) = Action { implicit req =>
+  def revertAtom(atomId: String, version: Long) = APIAuthAction { implicit req =>
     dataStore.getMediaAtom(atomId) match {
       case Some(atom) =>
         if(!atom.tdata.assets.exists(_.version == version)) {
@@ -98,7 +106,7 @@ class Api @Inject() (val dataStore: DataStore, val publisher: AtomPublisher)
   }
 
   // TODO -> this needs to handle paging
-  def listAtoms = Action { implicit req =>
+  def listAtoms = APIAuthAction { implicit req =>
     try {
       Ok(Json.toJson(dataStore.listAtoms.toList))
     } catch {

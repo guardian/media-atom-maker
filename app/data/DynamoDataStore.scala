@@ -49,8 +49,6 @@ class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String)
   private val get  = Scanamo.get[Atom](dynamo)(tableName) _
   private val put  = Scanamo.put[Atom ](dynamo)(tableName) _
 
-  val atomsTbl = Table[Atom](tableName)
-
   // this should probably return an Either so we can report an error,
   // e.g. if the atom exists, but it can't be deseralised
   def getMediaAtom(id: String): Option[Atom] = get(UniqueKey(KeyEquals('id, id))) match {
