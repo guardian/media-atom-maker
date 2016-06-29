@@ -1,0 +1,8 @@
+# Cloud formation for Media Atom Maker
+
+# Dev
+You can convert the the YAML for the dev stack by using [a Yaml converter](https://github.com/guardian/yaml-to-json).
+
+    > ./create-dev-stack.sh <USERNAME> [AWS_PROFILE]
+
+If you don't have IAM / CreateStack permissions on your local AWS account, you will have to upload the JSON manually.
