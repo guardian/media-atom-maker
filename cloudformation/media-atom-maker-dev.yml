@@ -51,3 +51,6 @@ Outputs:
   EditsDynamoTable:
     Value:
       Ref: "MediaAtomsDynamoTable"
+  HostKeys:
+      Value:
+        Ref: "HostKeys"
