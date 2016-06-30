@@ -23,8 +23,6 @@ class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String)
   sealed trait DynamoResult
   implicit class DynamoPutResult(res: PutItemResult) extends DynamoResult
 
-  type Result = DynamoResult
-
   case class AtomRow(
     id: String,
     version: Long,

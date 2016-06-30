@@ -10,8 +10,6 @@ import util.atom.MediaAtomImplicits
 class MemoryStore extends DataStore
     with MediaAtomImplicits {
 
-  type Result = Unit
-
   def this(initial: Map[String, Atom] = Map.empty) = {
     this()
     dataStore ++= initial
