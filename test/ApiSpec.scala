@@ -1,6 +1,7 @@
 package test
 
-import data.{ AtomPublisher, DataStore }
+import cats.data.Xor
+import data.{ AtomPublisher, DataStore, VersionConflictError }
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import org.mockito.Matchers._
@@ -85,6 +86,21 @@ class ApiSpec
       val result = call(api.addAsset("xyzzy"), req)
       status(result) mustEqual NOT_FOUND
     }
+
+    "complain when catching simultaenous update from datastore" in {
+      val mockDataStore = mock[DataStore]
+      when(mockDataStore.getMediaAtom(any())).thenReturn(Some(testAtom))
+      when(mockDataStore.updateMediaAtom(any())).thenReturn(Xor.Left(VersionConflictError(1)))
+      withApi(dataStore = mockDataStore) { api =>
+        val req = requestWithCookies(api)
+          .withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "1")
+        val result = call(api.addAsset("1"), req)
+
+        status(result) mustEqual INTERNAL_SERVER_ERROR
+        verify(mockDataStore).updateMediaAtom(any())
+      }
+    }
+
     "add an asset to an atom" in {
       val dataStore = initialDataStore
       withApi(dataStore = dataStore) { api =>

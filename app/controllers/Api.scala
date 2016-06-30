@@ -43,12 +43,14 @@ class Api @Inject() (val dataStore: DataStore,
 
   def createMediaAtom = thriftResultAction(atomBodyParser) { implicit req =>
     val atom = req.body
-    try {
-      dataStore.createMediaAtom(atom)
-      Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
-    } catch {
-      case data.IDConflictError => Conflict(s"${atom.id} already exists")
-    }
+    dataStore.createMediaAtom(atom).fold(
+      { case data.IDConflictError =>
+        Conflict(s"${atom.id} already exists")
+        case _ => InternalServerError("Unknown error")
+      },
+      _ => Created(Json.toJson(atom))
+        .withHeaders("Location" -> atomUrl(atom.id))
+    )
   }
 
   def addAsset(atomId: String) = thriftResultAction(assetBodyParser) { implicit req =>
@@ -64,12 +66,10 @@ class Api @Inject() (val dataStore: DataStore,
                     ))
           .withRevision(_ + 1)
 
-        try {
-          dataStore.updateMediaAtom(newAtom)
-          Created(s"updated atom $atomId").withHeaders("Location" -> atomUrl(atom.id))
-        } catch {
-          case err: VersionConflictError => InternalServerError(err.msg)
-        }
+        dataStore.updateMediaAtom(newAtom).fold(
+          err => InternalServerError(err.msg),
+          _ => Created(s"updated atom $atomId").withHeaders("Location" -> atomUrl(atom.id))
+        )
       case None => NotFound(s"atom not found $atomId")
     }
   }
@@ -107,10 +107,9 @@ class Api @Inject() (val dataStore: DataStore,
 
   // TODO -> this needs to handle paging
   def listAtoms = APIAuthAction { implicit req =>
-    try {
-      Ok(Json.toJson(dataStore.listAtoms.toList))
-    } catch {
-      case err: DataStoreError => InternalServerError(jsonError(err.msg))
-    }
+    dataStore.listAtoms.fold(
+      err =>   InternalServerError(jsonError(err.msg)),
+      atoms => Ok(Json.toJson(atoms.toList))
+    )
   }
 }

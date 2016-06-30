@@ -1,5 +1,6 @@
 package data
 
+import cats.data.Xor
 import com.gu.contentatom.thrift.Atom
 import javax.inject.Singleton
 
@@ -19,22 +20,26 @@ class MemoryStore extends DataStore
   def getMediaAtom(id: String) = dataStore.get(id)
 
   def createMediaAtom(atom: Atom) = dataStore.synchronized {
-    if(dataStore.get(atom.id).isDefined)
-      throw IDConflictError
-    else
-      dataStore(atom.id) = atom
+    if(dataStore.get(atom.id).isDefined) {
+      fail(IDConflictError)
+    } else {
+      succeed(dataStore(atom.id) = atom)
+    }
   }
 
   def updateMediaAtom(newAtom: Atom) = dataStore.synchronized {
     getMediaAtom(newAtom.id) match {
       case Some(oldAtom) =>
-        if(oldAtom.contentChangeDetails.revision >= newAtom.contentChangeDetails.revision)
-          throw new VersionConflictError(newAtom.tdata.activeVersion)
-        dataStore(newAtom.id) = newAtom
-      case None => throw IDNotFound
+        if(oldAtom.contentChangeDetails.revision >=
+             newAtom.contentChangeDetails.revision) {
+          fail(VersionConflictError(newAtom.tdata.activeVersion))
+        } else {
+          succeed(dataStore(newAtom.id) = newAtom)
+        }
+      case None => fail(IDNotFound)
     }
   }
 
-  def listAtoms = dataStore.values
+  def listAtoms = Xor.right(dataStore.values)
 
 }

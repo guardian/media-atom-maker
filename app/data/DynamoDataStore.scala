@@ -1,5 +1,6 @@
 package data
 
+import com.amazonaws.services.dynamodbv2.model.PutItemResult
 import util.atom.MediaAtomImplicits
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
@@ -10,11 +11,17 @@ import com.gu.scanamo.{ Scanamo, DynamoFormat, Table }
 import com.gu.scanamo.query._
 import com.twitter.scrooge.CompactThriftSerializer
 import cats.data.Xor
+import cats.implicits._
+
+import com.amazonaws.services.dynamodbv2.model.ConditionalCheckFailedException
 
 class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String)
     extends DataStore
     with MediaAtomImplicits {
   @Inject() def this(awsConfig: util.AWSConfig) = this(awsConfig.dynamoDB, awsConfig.dynamoTableName)
+
+  sealed trait DynamoResult
+  implicit class DynamoPutResult(res: PutItemResult) extends DynamoResult
 
   case class AtomRow(
     id: String,
@@ -56,25 +63,21 @@ class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String)
     case _ => None
   }
 
-  def createMediaAtom(atom: Atom): Unit =
+  def createMediaAtom(atom: Atom) =
     if(get(UniqueKey(KeyEquals('id, atom.id))).isDefined)
-      throw IDConflictError
+      fail(IDConflictError)
     else
-      put(atom)
+      succeed(put(atom))
 
-  def updateMediaAtom(newAtom: Atom): Unit = {
+  def updateMediaAtom(newAtom: Atom) = {
     val validationCheck = KeyIs('version, LT, newAtom.contentChangeDetails.revision)
-    Scanamo.exec(dynamo)(Table[Atom](tableName).given(validationCheck).put(newAtom)) match {
-      case Xor.Left(_: com.amazonaws.services.dynamodbv2.model.ConditionalCheckFailedException) =>
-        throw new VersionConflictError(newAtom.tdata.activeVersion)
-      case _ => ()
-    }
+    val res = (Scanamo.exec(dynamo)(Table[Atom](tableName).given(validationCheck).put(newAtom)))
+    res.map(_ => ())
+      .leftMap(_ => VersionConflictError(newAtom.tdata.activeVersion))
   }
 
-  def listAtoms: TraversableOnce[Atom] = {
-    Scanamo.scan[Atom](dynamo)(tableName) map {
-      case Xor.Right(atom) => atom
-      case Xor.Left(err) => throw DataError(DynamoReadError.describe(err))
+  def listAtoms: DataStoreResult[TraversableOnce[Atom]] =
+    Scanamo.scan[Atom](dynamo)(tableName).sequenceU.leftMap {
+      _ => ReadError
     }
-  }
 }
