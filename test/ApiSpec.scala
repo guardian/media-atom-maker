@@ -8,24 +8,16 @@ import org.mockito.ArgumentCaptor
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import org.mockito.Matchers._
-import play.api.mvc.{ AnyContent, Cookie, Request }
 
 import util.atom.MediaAtomImplicits
 
 import play.api.libs.json._
-import controllers.Api
-import org.scalatestplus.play._
-import play.api.test._
 import play.api.http.HttpVerbs
 import play.api.test.Helpers._
 import data.MemoryStore
 
 import org.scalatest.AppendedClues
 import scala.util.{ Success, Failure }
-
-import com.gu.pandomainauth.model._
-
-import java.util.Date
 
 import TestData._
 

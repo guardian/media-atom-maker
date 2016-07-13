@@ -8,10 +8,9 @@ import play.api.libs.ws.WSClient
 import com.gu.atom.publish.AtomPublisher
 import com.gu.pandomainauth.model.{ AuthenticatedUser, User }
 import java.util.Date
-import org.scalatest.{ TestData => ScalaTestData }
 import play.api.inject.guice.{ GuiceApplicationBuilder, GuiceableModule, GuiceableModuleConversions }
 
-import org.scalatestplus.play.{ PlaySpec, OneAppPerTest }
+import org.scalatestplus.play.PlaySpec
 
 import com.gu.pandomainauth.action.AuthActions
 
@@ -39,8 +38,6 @@ trait MediaAtomSuite extends PlaySpec with GuiceableModuleConversions {
   def initialPublisher = mock[AtomPublisher]
 
   private def ibind[A : ClassTag](a: A): Binding[A] = bind[A] toInstance a
-
-  private def ibind[A : ClassTag](aOpt: Option[A]): Option[Binding[_]] = aOpt.map(a => ibind(a))
 
   case class AtomTestConf(
     dataStore: DataStore = initialDataStore,
