@@ -1,11 +1,11 @@
-package data
+package com.gu.atom.publish
+
+import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer
 
 import com.twitter.scrooge.ThriftStruct
 import org.apache.thrift.protocol.TCompactProtocol
 import org.apache.thrift.transport.TIOStreamTransport
-import java.io.ByteArrayOutputStream
-
-import java.nio.ByteBuffer
 
 trait ThriftSerializer[T <: ThriftStruct] {
 

@@ -11,7 +11,7 @@ lazy val pandaVer           = "0.3.0"
 
 libraryDependencies ++= Seq(
   "com.gu"                     %% "content-atom-model"           % contentAtomVersion,
-  "com.amazonaws"              %  "aws-java-sdk-kinesis"         % AwsSdkVersion,
+
   "com.amazonaws"              %  "aws-java-sdk-dynamodb"        % AwsSdkVersion,
   "org.apache.thrift"          %  "libthrift"                    % "0.9.3",
   "com.twitter"                %% "scrooge-core"                 % scroogeVersion,
@@ -48,6 +48,11 @@ lazy val appDistSettings = Seq(
     riffRaffManifestBranch := Option(System.getenv("CIRCLE_BRANCH")).getOrElse("dev")
   )
 
+
+lazy val atomPublisher = (project in file("./atom-publisher-lib"))
+
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, RiffRaffArtifact, UniversalPlugin)
   .settings(appDistSettings)
+  .dependsOn(atomPublisher)
+
