@@ -1,5 +1,6 @@
 package controllers
 
+import com.gu.atom.publish.AtomPublisher
 import com.gu.contentatom.thrift.{ ContentAtomEvent, EventType }
 import com.gu.contentatom.thrift.atom.media.Asset
 import com.gu.contentatom.thrift.{ Atom, AtomData }

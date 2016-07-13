@@ -1,7 +1,8 @@
 package test
 
 import cats.data.Xor
-import data.{ AtomPublisher, DataStore, VersionConflictError }
+import com.gu.atom.publish.AtomPublisher
+import data.{ DataStore, VersionConflictError }
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import org.mockito.Matchers._

@@ -1,23 +1,18 @@
-package data
+package com.gu.atom.publish
 
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.gu.contentatom.thrift.ContentAtomEvent
-
 import com.amazonaws.services.kinesis.AmazonKinesisClient
-import javax.inject.{ Inject, Singleton }
-import play.api.Configuration
+
+
 import scala.util.Try
 
 class KinesisAtomPublisher (val streamName: String, val kinesis: AmazonKinesisClient)
     extends AtomPublisher
     with ThriftSerializer[ContentAtomEvent]
-    with com.typesafe.scalalogging.LazyLogging {
+    with com.typesafe.scalalogging.LazyLogging
+{
 
   logger.info(s"KinsisAtomPublisher started with streamName $streamName")
-
-  private def awsClient = new AmazonKinesisClient
-
-  @Inject() def this(awsConfig: util.AWSConfig) = this(awsConfig.kinesisStreamName, awsConfig.kinesisClient)
 
   def makeParititionKey(event: ContentAtomEvent): String = event.atom.atomType.name
 

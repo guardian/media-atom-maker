@@ -1,6 +1,7 @@
 package test
 
 import com.google.inject.AbstractModule
+import com.gu.atom.publish.AtomPublisher
 import play.api.Configuration
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.WSClient
