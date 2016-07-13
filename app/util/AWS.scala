@@ -32,7 +32,7 @@ class AWSConfig @Inject() (config: Configuration) {
 
   lazy val dynamoTableName = config.getString("aws.dynamo.tableName").get
 
-  lazy val kinesisStreamName = config.getString("aws.kinesis.streamName").get
+  lazy val liveKinesisStreamName = config.getString("aws.kinesis.streamName").get
   lazy val previewKinesisStreamName = config.getString("aws.kinesis.previewStreamName").get
 
   lazy val kinesisClient = region.createClient(
