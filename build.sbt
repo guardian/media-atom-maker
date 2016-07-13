@@ -55,4 +55,5 @@ lazy val root = (project in file("."))
   .enablePlugins(PlayScala, RiffRaffArtifact, UniversalPlugin)
   .settings(appDistSettings)
   .dependsOn(atomPublisher)
-
+  .aggregate(atomPublisher)
+  .settings(aggregate := false, aggregate in Test := true)

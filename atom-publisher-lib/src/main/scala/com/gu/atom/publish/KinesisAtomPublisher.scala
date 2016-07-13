@@ -3,13 +3,14 @@ package com.gu.atom.publish
 import com.gu.contentatom.thrift.ContentAtomEvent
 import com.amazonaws.services.kinesis.AmazonKinesisClient
 
+import com.typesafe.scalalogging.LazyLogging
 
 import scala.util.Try
 
 class KinesisAtomPublisher (val streamName: String, val kinesis: AmazonKinesisClient)
     extends AtomPublisher
     with ThriftSerializer[ContentAtomEvent]
-    with com.typesafe.scalalogging.LazyLogging
+    with LazyLogging
 {
 
   logger.info(s"KinsisAtomPublisher started with streamName $streamName")

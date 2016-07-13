@@ -30,7 +30,7 @@ class Api @Inject() (val dataStore: DataStore,
     extends AtomController
     with MediaAtomImplicits {
 
-  import authActions.{APIAuthAction, AuthAction}
+  import authActions.APIAuthAction
 
   private def atomUrl(id: String) = s"/atom/$id"
 

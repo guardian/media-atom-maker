@@ -4,22 +4,15 @@ package test
 // settings to use it's own test key (which is not used for anything
 // else and so does not need to be kept secure
 
-import com.gu.pandomainauth.PanDomainAuth
-import data._
+import akka.actor.{ Actor, Props }
+import controllers.PanDomainAuthActions
 
 import play.api.Configuration
+import play.api.inject.ApplicationLifecycle
 import play.api.libs.ws.WSClient
 
 import javax.inject.Inject
 
-import com.gu.pandomainauth.model.PanDomainAuthSettings
-
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
-
-import akka.actor.{Props, Actor, ActorSystem}
-import akka.agent.Agent
-
-import com.gu.pandomainauth.action.AuthActions
 import com.gu.pandomainauth.model.AuthenticatedUser
 import play.api.libs.ws.WSClient
 
@@ -31,10 +24,13 @@ class DummyActor extends Actor {
   }
 }
 
-class TestPandaAuth @Inject() (val wsClient: WSClient) extends AuthActions {
+class TestPandaAuth @Inject() (
+  wsClient: WSClient, conf: Configuration,
+  applicationLifeCycle: ApplicationLifecycle)
+    extends PanDomainAuthActions (wsClient, conf, applicationLifeCycle) {
 
-  def authCallbackUrl = ""
-  def validateUser(user: AuthenticatedUser) = true
+  override def authCallbackUrl = ""
+  override def validateUser(user: AuthenticatedUser) = true
 
   override lazy val domainSettingsRefreshActor =
     actorSystem.actorOf(Props[DummyActor])
@@ -48,13 +44,6 @@ class TestPandaAuth @Inject() (val wsClient: WSClient) extends AuthActions {
     )
   }
 
-  val domain = "test"
-  def system = "test"
+  override lazy val domain = "test"
+  override lazy val system = "test"
 }
-
-// class TestApiController @Inject() (dataStore: DataStore,
-//                          publisher: AtomPublisher,
-//                          conf: Configuration,
-//                          wsClient: WSClient)
-//     extends controllers.Api(dataStore, publisher, conf, wsClient)
-//     with TestPandaAuth
