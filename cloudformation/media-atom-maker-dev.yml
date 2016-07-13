@@ -5,6 +5,14 @@ Parameters:
     Description: "DynamoDB Table prefix"
     Type: "String"
     Default: "media-atom-maker"
+  KinesisPreviewPrefix:
+    Description: "Preview kinesis prefix"
+    Type: "String"
+    Default: "media-atom-maker-preview"
+  KinesisLivePrefix:
+    Description: "Live kinesis prefix"
+    Type: "String"
+    Default: "media-atom-maker-live"
 Resources:
   MediaAtomGroup:
     Type: "AWS::IAM::Group"
@@ -29,6 +37,14 @@ Resources:
     Type: "AWS::IAM::AccessKey"
     Properties:
       UserName: {"Ref": "MediaAtomUser"}
+  MediaAtomPreviewKinesisStream:
+    Type: "AWS::Kinesis::Stream"
+    Properties:
+      ShardCount: 1
+  MediaAtomLiveKinesisStream:
+    Type: "AWS::Kinesis::Stream"
+    Properties:
+      ShardCount: 1
   MediaAtomsDynamoTable:
     Type: "AWS::DynamoDB::Table"
     Properties:
