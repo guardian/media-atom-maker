@@ -59,6 +59,8 @@ object TestData {
     )
   )
 
+  def testAtomEvents = testAtoms.map(testAtomEvent _)
+
   val testAtom = testAtoms.head
 
   def testAtomEvent(atom: Atom = testAtom) =
