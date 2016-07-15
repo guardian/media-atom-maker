@@ -54,7 +54,7 @@ class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String)
 
   // useful shortcuts
   private val get  = Scanamo.get[Atom](dynamo)(tableName) _
-  private val put  = Scanamo.put[Atom ](dynamo)(tableName) _
+  private val put  = Scanamo.put[Atom](dynamo)(tableName) _
 
   // this should probably return an Either so we can report an error,
   // e.g. if the atom exists, but it can't be deseralised
@@ -76,8 +76,10 @@ class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String)
       .leftMap(_ => VersionConflictError(newAtom.tdata.activeVersion))
   }
 
-  def listAtoms: DataStoreResult[TraversableOnce[Atom]] =
+  private def findAtoms: DataStoreResult[List[Atom]] =
     Scanamo.scan[Atom](dynamo)(tableName).sequenceU.leftMap {
       _ => ReadError
     }
+
+  def listAtoms: DataStoreResult[Iterator[Atom]] = findAtoms.rightMap(_.iterator)
 }
