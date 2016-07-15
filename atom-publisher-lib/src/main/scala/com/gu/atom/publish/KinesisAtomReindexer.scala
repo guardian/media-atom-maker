@@ -17,8 +17,7 @@ class KinesisAtomReindexer(
       def execute(implicit ec: ExecutionContext) = Future {
         atomEventsToReindex foreach { atomEvent =>
           println(s"PMR putting record (${completedCount})")
-          //kinesis.putRecord(streamName, serializeEvent(atomEvent), makeParititionKey(atomEvent))
-          Thread.sleep(1000)
+          kinesis.putRecord(streamName, serializeEvent(atomEvent), makeParititionKey(atomEvent))
           _completedCount += 1
         }
         println(s"PMR complete (${completedCount})")
