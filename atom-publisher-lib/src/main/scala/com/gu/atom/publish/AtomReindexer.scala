@@ -15,12 +15,11 @@ abstract class AtomReindexJob(atomEvents: Iterator[ContentAtomEvent], val expect
   def isComplete = _isComplete
   def completedCount: Int = _completedCount
 
-  def execute: Future[Int]
+  def execute(implicit ec: ExecutionContext): Future[Int]
 }
 
 trait AtomReindexer {
 
-  def startReindexJob(atomsToReindex: Iterator[ContentAtomEvent], expectedSize: Int)
-                     (implicit ec: ExecutionContext): AtomReindexJob
+  def startReindexJob(atomsToReindex: Iterator[ContentAtomEvent], expectedSize: Int): AtomReindexJob
 
 }

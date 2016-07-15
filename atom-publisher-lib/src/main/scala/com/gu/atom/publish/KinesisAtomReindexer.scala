@@ -12,13 +12,16 @@ class KinesisAtomReindexer(
 
   def makeParititionKey(event: ContentAtomEvent): String = event.atom.atomType.name
 
-  def startReindexJob(atomEventsToReindex: Iterator[ContentAtomEvent], expectedSize: Int)(implicit ec: ExecutionContext) =
+  def startReindexJob(atomEventsToReindex: Iterator[ContentAtomEvent], expectedSize: Int) =
     new AtomReindexJob(atomEventsToReindex, expectedSize) {
-      def execute = Future {
+      def execute(implicit ec: ExecutionContext) = Future {
         atomEventsToReindex foreach { atomEvent =>
-          kinesis.putRecord(streamName, serializeEvent(atomEvent), makeParititionKey(atomEvent))
+          println(s"PMR putting record (${completedCount})")
+          //kinesis.putRecord(streamName, serializeEvent(atomEvent), makeParititionKey(atomEvent))
+          Thread.sleep(1000)
           _completedCount += 1
         }
+        println(s"PMR complete (${completedCount})")
         _isComplete = true
         _completedCount
       }
