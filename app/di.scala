@@ -1,7 +1,7 @@
 import com.google.inject.AbstractModule
-import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
+import com.gu.atom.publish._
 import com.gu.pandomainauth.action.AuthActions
-import data.{PreviewAtomPublisherProvider, LiveAtomPublisherProvider}
+import data._
 
 class Module extends AbstractModule {
   def configure() = {
@@ -13,5 +13,9 @@ class Module extends AbstractModule {
 
     bind(classOf[PreviewAtomPublisher])
       .toProvider(classOf[PreviewAtomPublisherProvider])
+
+    bind(classOf[AtomReindexer])
+      .toProvider(classOf[AtomReindexerProvider])
+
   }
 }
