@@ -1,7 +1,6 @@
-package data
+package com.gu.atom.data
 
 import cats.data.Xor
-import com.google.inject.ImplementedBy
 import com.gu.contentatom.thrift.Atom
 
 sealed abstract class DataStoreError(val msg: String) extends Exception(msg)
@@ -14,8 +13,6 @@ case class  DataError(info: String) extends DataStoreError(info)
 case class  VersionConflictError(requestVer: Long)
     extends DataStoreError(s"Update has version $requestVer, which is earlier or equal to data store version")
 
-//@ImplementedBy(classOf[MemoryStore])
-@ImplementedBy(classOf[DynamoDataStore])
 trait DataStore {
 
   type DataStoreResult[R] = Xor[DataStoreError, R]

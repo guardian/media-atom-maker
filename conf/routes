@@ -13,8 +13,8 @@ POST    /api/atom/:id/publish           controllers.Api.publishAtom(id)
 
 # reindex
 
-POST    /reindex                        controllers.ReindexController.newReindexJob()
-GET     /reindex                        controllers.ReindexController.reindexJobStatus()
+POST    /reindex                        com.gu.atom.play.ReindexController.newReindexJob()
+GET     /reindex                        com.gu.atom.play.ReindexController.reindexJobStatus()
 
 #static assets
 GET  /assets/*file                      controllers.Assets.at(path="/public", file)

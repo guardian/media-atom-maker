@@ -10,6 +10,7 @@ import model.ThriftUtil
 import ThriftUtil.ThriftResult
 import views.html.MediaAtom._
 import data._
+import com.gu.atom.data._
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.ws.WSClient
 import play.api.Logger

@@ -10,7 +10,7 @@ import org.scalatestplus.play.{ PlaySpec, OneAppPerSuite }
 
 import com.gu.pandomainauth.action.AuthActions
 
-import data._
+import com.gu.atom.data._
 
 import controllers.Api
 
