@@ -4,6 +4,8 @@ import cats.data.Xor
 import com.google.inject.ImplementedBy
 import com.gu.contentatom.thrift.Atom
 
+import com.typesafe.scalalogging.LazyLogging
+
 sealed abstract class DataStoreError(val msg: String) extends Exception(msg)
 
 case object IDConflictError extends DataStoreError("Atom ID already exists")

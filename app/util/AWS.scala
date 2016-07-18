@@ -6,7 +6,7 @@ import play.api.Configuration
 import javax.inject.{ Singleton, Inject }
 import com.amazonaws.auth.{ AWSCredentialsProviderChain, InstanceProfileCredentialsProvider }
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 
 
 @Singleton
@@ -32,7 +32,8 @@ class AWSConfig @Inject() (config: Configuration) {
 
   lazy val dynamoTableName = config.getString("aws.dynamo.tableName").get
 
-  lazy val kinesisStreamName = config.getString("aws.kinesis.streamName").get
+  lazy val liveKinesisStreamName = config.getString("aws.kinesis.liveStreamName").get
+  lazy val previewKinesisStreamName = config.getString("aws.kinesis.previewStreamName").get
 
   lazy val kinesisReindexStreamName = config.getString("aws.kinesis.reindexStreamName").get
 
