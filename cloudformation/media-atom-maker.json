@@ -15,9 +15,6 @@
             "Description": "ARN of the SSL certificate",
             "Type": "String"
         },
-        "KeyName": {
-            "Type": "String"
-        },
         "AMI": {
             "Type": "String"
         },
@@ -215,9 +212,6 @@
         "MediaAtomLaunchConfig": {
             "Type": "AWS::AutoScaling::LaunchConfiguration",
             "Properties": {
-                "KeyName": {
-                    "Ref": "KeyName"
-                },
                 "ImageId": {
                     "Ref": "AMI"
                 },
