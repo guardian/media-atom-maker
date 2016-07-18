@@ -35,6 +35,8 @@ class AWSConfig @Inject() (config: Configuration) {
   lazy val liveKinesisStreamName = config.getString("aws.kinesis.liveStreamName").get
   lazy val previewKinesisStreamName = config.getString("aws.kinesis.previewStreamName").get
 
+  lazy val kinesisReindexStreamName = config.getString("aws.kinesis.reindexStreamName").get
+
   lazy val kinesisClient = region.createClient(
     classOf[AmazonKinesisClient],
     credProvider,
