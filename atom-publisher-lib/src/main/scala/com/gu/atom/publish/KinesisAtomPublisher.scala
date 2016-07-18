@@ -21,3 +21,11 @@ class KinesisAtomPublisher (val streamName: String, val kinesis: AmazonKinesisCl
       kinesis.putRecord(streamName, data, makeParititionKey(event))
     }
 }
+
+class PreviewKinesisAtomPublisher(override val streamName: String,
+                                  override val kinesis: AmazonKinesisClient)
+  extends KinesisAtomPublisher(streamName, kinesis) with PreviewAtomPublisher
+
+class LiveKinesisAtomPublisher(override val streamName: String,
+                                  override val kinesis: AmazonKinesisClient)
+  extends KinesisAtomPublisher(streamName, kinesis) with LiveAtomPublisher

@@ -1,8 +1,10 @@
 package test
 
 import cats.data.Xor
-import com.gu.atom.publish.AtomPublisher
+import com.gu.atom.publish.{PreviewAtomPublisher, LiveAtomPublisher}
+import com.gu.contentatom.thrift.ContentAtomEvent
 import data.{ DataStore, VersionConflictError }
+import org.mockito.ArgumentCaptor
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import org.mockito.Matchers._
@@ -41,14 +43,20 @@ class ApiSpec
   val youtubeId  =  "7H9Z4sn8csA"
   val youtubeUrl = s"https://www.youtube.com/watch?v=${youtubeId}"
 
-  def defaultMockPublisher: AtomPublisher = {
-    val p = mock[AtomPublisher]
+  def defaultMockPublisher: LiveAtomPublisher = {
+    val p = mock[LiveAtomPublisher]
     when(p.publishAtomEvent(any())).thenReturn(Success(()))
     p
   }
 
-  def failingMockPublisher: AtomPublisher = {
-    val p = mock[AtomPublisher]
+  def defaultPreviewMockPublisher: PreviewAtomPublisher = {
+    val p = mock[PreviewAtomPublisher]
+    when(p.publishAtomEvent(any())).thenReturn(Success(()))
+    p
+  }
+
+  def failingMockPublisher: LiveAtomPublisher = {
+    val p = mock[LiveAtomPublisher]
     when(p.publishAtomEvent(any())).thenReturn(Failure(new Exception("failure")))
     p
   }
@@ -65,9 +73,10 @@ class ApiSpec
     FakeRequest().withCookies(api.authActions.generateCookies(testUser): _*)
 
   def withApi(dataStore: DataStore = initialDataStore,
-              publisher: AtomPublisher = defaultMockPublisher)
+              livePublisher: LiveAtomPublisher = defaultMockPublisher,
+               previewPublisher: PreviewAtomPublisher = defaultPreviewMockPublisher)
              (block: Api => Unit) =
-    block(getApi(dataStore, publisher))
+    block(getApi(dataStore, livePublisher, previewPublisher))
 
   "api" should {
     "return a media atom" in withApi() { api =>
@@ -121,11 +130,38 @@ class ApiSpec
         createdAtom.id mustEqual "2"
       }
     }
-    "call out to publisher to publish an atom" in withApi() { api =>
+    "call out to live publisher to publish an atom" in withApi() { api =>
       val result = call(api.publishAtom("1"), requestWithCookies(api))
       status(result) mustEqual NO_CONTENT
     }
-    "call report failure if publisher fails" in withApi(publisher = failingMockPublisher) { api =>
+
+
+
+    "call out to preview publisher when adding an asset" in {
+      val mockPublisherPreview = defaultPreviewMockPublisher
+      withApi(previewPublisher = mockPublisherPreview) { api =>
+
+        val eventCaptor = ArgumentCaptor.forClass(classOf[ContentAtomEvent])
+
+        val dataStore = initialDataStore
+        val atom = dataStore.getMediaAtom("1").value
+        val req = requestWithCookies(api)
+          .withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "1")
+
+        val result = call(api.addAsset("1"), req)
+        status(result) mustEqual CREATED
+
+
+        verify(mockPublisherPreview).publishAtomEvent(eventCaptor.capture())
+        val event = eventCaptor.getValue()
+
+        event.atom.tdata.assets.length mustEqual 3
+
+
+      }
+    }
+
+    "call report failure if publisher fails" in withApi(livePublisher = failingMockPublisher) { api =>
       val result = call(api.publishAtom("1"), requestWithCookies(api))
       status(result) mustEqual INTERNAL_SERVER_ERROR
     }
