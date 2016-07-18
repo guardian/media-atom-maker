@@ -26,24 +26,6 @@ class KinesisAtomReindexerSpec
     with ScalaFutures
     with MockitoSugar {
 
-  //     extends TestKit(ActorSystem("KinesisAtomReindexerSpec"))
-  //     with ImplicitSender
-  
-
-
-  //   val ec = scala.concurrent.ExecutionContext.Implicits.global
-
-  //   type FixtureParam = ActorRef
-
-  //   def withFixture(test: OneArgTest) = {
-  //     val actorRef = system.actorOf(Props(classOf[KinesisAtomActor], "test", kinesis, ec))
-  //     super.withFixture(test.toNoArgTest(actorRef))
-  //   }
-
-  //   override def afterAll = {
-  //     shutdown(system)
-  //   }
-
   describe("Kinesis Atom Reindexer") {
     it("should call putRecords() for each atom") {
       val kinesis = mock[AmazonKinesisClient]
