@@ -2,7 +2,9 @@ package test
 
 import cats.data.Xor
 import com.gu.atom.publish.{PreviewAtomPublisher, LiveAtomPublisher}
+import com.gu.contentatom.thrift.ContentAtomEvent
 import data.{ DataStore, VersionConflictError }
+import org.mockito.ArgumentCaptor
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import org.mockito.Matchers._
@@ -133,13 +135,30 @@ class ApiSpec
       status(result) mustEqual NO_CONTENT
     }
 
-    "call out to preview publisher when adding an asset" in withApi() { api =>
-      val dataStore = initialDataStore
-      val atom = dataStore.getMediaAtom("1").value
-      val req = requestWithCookies(api)
-        .withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "1")
-      val result = call(api.addAsset("1"), req)
-      status(result) mustEqual CREATED
+
+
+    "call out to preview publisher when adding an asset" in {
+      val mockPublisherPreview = defaultPreviewMockPublisher
+      withApi(previewPublisher = mockPublisherPreview) { api =>
+
+        val eventCaptor = ArgumentCaptor.forClass(classOf[ContentAtomEvent])
+
+        val dataStore = initialDataStore
+        val atom = dataStore.getMediaAtom("1").value
+        val req = requestWithCookies(api)
+          .withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "1")
+
+        val result = call(api.addAsset("1"), req)
+        status(result) mustEqual CREATED
+
+
+        verify(mockPublisherPreview).publishAtomEvent(eventCaptor.capture())
+        val event = eventCaptor.getValue()
+
+        event.atom.tdata.assets.length mustEqual 3
+
+
+      }
     }
 
     "call report failure if publisher fails" in withApi(livePublisher = failingMockPublisher) { api =>

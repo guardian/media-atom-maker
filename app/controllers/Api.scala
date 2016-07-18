@@ -82,7 +82,7 @@ class Api @Inject() (val dataStore: DataStore,
           err => InternalServerError(err.msg),
           _ => {
             
-            val event = ContentAtomEvent(atom, EventType.Update, now())
+            val event = ContentAtomEvent(newAtom, EventType.Update, now())
 
             previewPublisher.publishAtomEvent(event) match {
               case Success(_)  => Created(s"updated atom $atomId").withHeaders("Location" -> atomUrl(atom.id))
