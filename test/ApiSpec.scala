@@ -31,6 +31,8 @@ class ApiSpec
 //  implicit lazy val materializer = app.materializer
 
   override def initialDataStore = new MemoryStore(Map("1" -> testAtom))
+  override def initialLivePublisher = defaultMockPublisher
+  override def initialPreviewPublisher = defaultPreviewMockPublisher
 
   val youtubeId  =  "7H9Z4sn8csA"
   val youtubeUrl = s"https://www.youtube.com/watch?v=${youtubeId}"
@@ -101,42 +103,40 @@ class ApiSpec
       withClue(s"(body: [${contentAsString(result)}])") { status(result) mustEqual CREATED  }
       val createdAtom = conf.dataStore.getMediaAtom("2").value
       createdAtom.id mustEqual "2"
+
     }
-    "call out to live publisher to publish an atom" in withApi() { api =>
-      val result = call(api.publishAtom("1"), requestWithCookies(api))
+
+    "call out to live publisher to publish an atom" in AtomTestConf() { implicit conf =>
+      val result = call(api.publishAtom("1"), requestWithCookies)
       status(result) mustEqual NO_CONTENT
     }
 
+    "call out to preview publisher when adding an asset" in
+    AtomTestConf() { implicit conf =>
+      val mockPublisherPreview = conf.previewPublisher
+      val eventCaptor = ArgumentCaptor.forClass(classOf[ContentAtomEvent])
+
+      val dataStore = conf.dataStore
+      val atom = dataStore.getMediaAtom("1").value
+      val req = requestWithCookies
+        .withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "1")
+
+      val result = call(api.addAsset("1"), req)
+      status(result) mustEqual CREATED
 
 
-    "call out to preview publisher when adding an asset" in {
-      val mockPublisherPreview = defaultPreviewMockPublisher
-      withApi(previewPublisher = mockPublisherPreview) { api =>
+      verify(mockPublisherPreview).publishAtomEvent(eventCaptor.capture())
+      val event = eventCaptor.getValue()
 
-        val eventCaptor = ArgumentCaptor.forClass(classOf[ContentAtomEvent])
-
-        val dataStore = initialDataStore
-        val atom = dataStore.getMediaAtom("1").value
-        val req = requestWithCookies(api)
-          .withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "1")
-
-        val result = call(api.addAsset("1"), req)
-        status(result) mustEqual CREATED
-
-
-        verify(mockPublisherPreview).publishAtomEvent(eventCaptor.capture())
-        val event = eventCaptor.getValue()
-
-        event.atom.tdata.assets.length mustEqual 3
-
-
-      }
+      event.atom.tdata.assets.length mustEqual 3
     }
 
-    "call report failure if publisher fails" in withApi(livePublisher = failingMockPublisher) { api =>
-      val result = call(api.publishAtom("1"), requestWithCookies(api))
+    "call report failure if publisher fails" in
+    AtomTestConf(livePublisher = failingMockPublisher) { implicit conf =>
+      val result = call(api.publishAtom("1"), requestWithCookies)
       status(result) mustEqual INTERNAL_SERVER_ERROR
     }
+
     "should list atoms" in AtomTestConf() { implicit conf =>
       conf.dataStore.createMediaAtom(testAtom.copy(id = "2"))
       val result = call(api.listAtoms(), requestWithCookies)

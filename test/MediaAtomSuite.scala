@@ -35,18 +35,21 @@ trait MediaAtomSuite extends PlaySpec with GuiceableModuleConversions {
   )
 
   def initialDataStore = mock[DataStore]
-  def initialPublisher = mock[AtomPublisher]
+  def initialLivePublisher = mock[LiveAtomPublisher]
+  def initialPreviewPublisher = mock[PreviewAtomPublisher]
 
   private def ibind[A : ClassTag](a: A): Binding[A] = bind[A] toInstance a
 
   case class AtomTestConf(
     dataStore: DataStore = initialDataStore,
-    publisher: AtomPublisher = initialPublisher,
+    livePublisher: LiveAtomPublisher = initialLivePublisher,
+    previewPublisher: PreviewAtomPublisher = initialPreviewPublisher,
     shutDownHook: AtomTestConf => Unit = _.app.stop) {
 
     private def makeOverrides: GuiceableModule = Seq(
       ibind(dataStore),
-      ibind(publisher)
+      ibind(livePublisher),
+      ibind(previewPublisher)
     )
 
     lazy val guicer = new GuiceApplicationBuilder()
