@@ -32,6 +32,6 @@ trait DataStore {
    * it as a version conflict error */
   def updateMediaAtom(newAtom: Atom): DataStoreResult[Unit]
 
-  def listAtoms: DataStoreResult[TraversableOnce[Atom]]
+  def listAtoms: DataStoreResult[Iterator[Atom]]
 
 }

@@ -40,6 +40,6 @@ class MemoryStore extends DataStore
     }
   }
 
-  def listAtoms = Xor.right(dataStore.values)
+  def listAtoms = Xor.right(dataStore.values.iterator)
 
 }

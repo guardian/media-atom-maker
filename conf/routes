@@ -11,5 +11,10 @@ POST    /api/atom/:id/revert/:version   controllers.Api.revertAtom(id, version: 
 
 POST    /api/atom/:id/publish           controllers.Api.publishAtom(id)
 
+# reindex
+
+POST    /reindex                        controllers.ReindexController.newReindexJob()
+GET     /reindex                        controllers.ReindexController.reindexJobStatus()
+
 #static assets
 GET  /assets/*file                      controllers.Assets.at(path="/public", file)
