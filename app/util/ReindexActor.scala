@@ -8,7 +8,7 @@ import com.gu.contentatom.thrift.ContentAtomEvent
 /*
  * In here we find the Actor that is responsible for initialising,
  * monitoring, and finishing the reindex job.
- * 
+ *
  * The controller will send it messages to get a status update and so on.
  */
 
