@@ -11,11 +11,9 @@ import org.scalatest.{ FunSpecLike, Matchers }
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
-import org.mockito.Matchers._
+import org.mockito.Matchers.{ eq => meq, _ }
 
 // import akka.testkit.TestKit
-
-// //import com.gu.atom.publish.KinesisAtomActor._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -37,7 +35,7 @@ class KinesisAtomReindexerSpec
         completedCount should equal(expectedCount)
         job.completedCount should equal(expectedCount)
         job.isComplete should equal(true)
-        verify(kinesis, times(expectedCount)).putRecord(any())
+        verify(kinesis, times(expectedCount)).putRecord(meq("testStream"), any(), meq("Media"))
       }
     }
   }
