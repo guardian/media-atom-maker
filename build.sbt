@@ -51,6 +51,8 @@ lazy val appDistSettings = Seq(
 
 lazy val atomPublisher = (project in file("./atom-publisher-lib"))
 
+lazy val atomManagerPlay = (project in file("./atom-manager-play-lib"))
+
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, RiffRaffArtifact, UniversalPlugin)
   .settings(appDistSettings)
