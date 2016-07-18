@@ -1,6 +1,6 @@
 package controllers
 
-import com.gu.atom.publish.AtomPublisher
+import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import com.gu.contentatom.thrift.{ ContentAtomEvent, EventType }
 import com.gu.pandomainauth.action.AuthActions
 
@@ -20,13 +20,14 @@ import java.util.Date
 import data.JsonConversions._
 
 class Api @Inject() (val dataStore: DataStore,
-                     val publisher: AtomPublisher,
+                     val livePublisher: LiveAtomPublisher,
+                     val previewPublisher: PreviewAtomPublisher,
                      val conf: Configuration,
                      val authActions: AuthActions)
     extends AtomController
     with MediaAtomImplicits {
 
-  import authActions.{APIAuthAction, AuthAction}
+  import authActions.APIAuthAction
 
   private def atomUrl(id: String) = s"/atom/$id"
 
@@ -46,13 +47,23 @@ class Api @Inject() (val dataStore: DataStore,
         Conflict(s"${atom.id} already exists")
         case _ => InternalServerError("Unknown error")
       },
-      _ => Created(Json.toJson(atom))
-        .withHeaders("Location" -> atomUrl(atom.id))
+      _ => {
+        val event = ContentAtomEvent(atom, EventType.Update, now())
+
+        previewPublisher.publishAtomEvent(event) match {
+          case Success(_)  => NoContent
+          case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
+        }
+
+        Created(Json.toJson(atom))
+          .withHeaders("Location" -> atomUrl(atom.id))
+      }
     )
   }
 
   def addAsset(atomId: String) = thriftResultAction(assetBodyParser) { implicit req =>
     val newAsset = req.body
+
     dataStore.getMediaAtom(atomId) match {
       case Some(atom) =>
         val ma = atom.tdata
@@ -66,7 +77,16 @@ class Api @Inject() (val dataStore: DataStore,
 
         dataStore.updateMediaAtom(newAtom).fold(
           err => InternalServerError(err.msg),
-          _ => Created(s"updated atom $atomId").withHeaders("Location" -> atomUrl(atom.id))
+          _ => {
+            
+            val event = ContentAtomEvent(newAtom, EventType.Update, now())
+
+            previewPublisher.publishAtomEvent(event) match {
+              case Success(_)  => Created(s"updated atom $atomId").withHeaders("Location" -> atomUrl(atom.id))
+              case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
+
+            }
+          }
         )
       case None => NotFound(s"atom not found $atomId")
     }
@@ -78,7 +98,7 @@ class Api @Inject() (val dataStore: DataStore,
     dataStore.getMediaAtom(atomId) match {
       case Some(atom) =>
         val event = ContentAtomEvent(atom, EventType.Update, now())
-        publisher.publishAtomEvent(event) match {
+        livePublisher.publishAtomEvent(event) match {
           case Success(_)  => NoContent
           case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
         }

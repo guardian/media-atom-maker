@@ -57,5 +57,7 @@ lazy val atomManagerPlay = (project in file("./atom-manager-play-lib"))
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, RiffRaffArtifact, UniversalPlugin)
   .settings(appDistSettings)
+  .dependsOn(atomPublisher)
   .dependsOn(atomManagerPlay)
-
+  .aggregate(atomPublisher)
+  .settings(aggregate := false, aggregate in Test := true)

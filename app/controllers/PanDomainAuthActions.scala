@@ -5,16 +5,29 @@ import com.amazonaws.auth._
 import com.gu.pandomainauth.action.AuthActions
 import com.gu.pandomainauth.model.AuthenticatedUser
 import play.api.Configuration
-import play.api.mvc._
+import scala.concurrent.Future
+
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 import javax.inject.{ Inject, Singleton }
-
+import play.api.inject.ApplicationLifecycle
 import play.api.libs.ws.WSClient
+
+import com.typesafe.scalalogging.LazyLogging
 
 @Singleton
 class PanDomainAuthActions @Inject() (
-  val wsClient:WSClient, val conf: Configuration
-) extends AuthActions {
+  val wsClient:WSClient, val conf: Configuration,
+  applicationLifeCycle: ApplicationLifecycle
+) extends AuthActions
+    with LazyLogging {
+
+  applicationLifeCycle.addStopHook {
+    () => Future {
+      shutdown
+      wsClient.close()
+    }
+  }
 
   override lazy val awsCredentialsProvider: AWSCredentialsProvider =
     new AWSCredentialsProviderChain(
