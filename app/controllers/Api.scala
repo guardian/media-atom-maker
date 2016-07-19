@@ -2,8 +2,6 @@ package controllers
 
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import com.gu.contentatom.thrift.{ ContentAtomEvent, EventType }
-import com.gu.contentatom.thrift.atom.media.Asset
-import com.gu.contentatom.thrift.{ Atom, AtomData }
 import com.gu.pandomainauth.action.AuthActions
 
 import play.api.Configuration
@@ -11,14 +9,13 @@ import play.api.Configuration
 import util.atom.MediaAtomImplicits
 
 import javax.inject._
-import java.util.{ Date, UUID }
 import play.api.libs.json._
-import play.api.mvc._
 import model.ThriftUtil
 import ThriftUtil._
-import data._
+import com.gu.atom.data._
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import scala.util.{ Success, Failure }
+import java.util.Date
 
 import data.JsonConversions._
 
@@ -46,7 +43,7 @@ class Api @Inject() (val dataStore: DataStore,
   def createMediaAtom = thriftResultAction(atomBodyParser) { implicit req =>
     val atom = req.body
     dataStore.createMediaAtom(atom).fold(
-      { case data.IDConflictError =>
+      { case IDConflictError =>
         Conflict(s"${atom.id} already exists")
         case _ => InternalServerError("Unknown error")
       },

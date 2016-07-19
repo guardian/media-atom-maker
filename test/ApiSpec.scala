@@ -1,9 +1,11 @@
 package test
 
+import controllers.Api
+
 import cats.data.Xor
 import com.gu.atom.publish.{PreviewAtomPublisher, LiveAtomPublisher}
 import com.gu.contentatom.thrift.ContentAtomEvent
-import data.{ DataStore, VersionConflictError }
+import com.gu.atom.data.{ DataStore, VersionConflictError }
 import org.mockito.ArgumentCaptor
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
@@ -16,23 +18,26 @@ import play.api.http.HttpVerbs
 import play.api.test.Helpers._
 import data.MemoryStore
 
+import com.gu.atom.play.test.AtomSuite
+
 import org.scalatest.AppendedClues
 import scala.util.{ Success, Failure }
 
 import TestData._
 
 class ApiSpec
-    extends MediaAtomSuite
+    extends AtomSuite
+    with AuthTests
     with AppendedClues
     with HttpVerbs
     with MockitoSugar
     with MediaAtomImplicits {
 
-//  implicit lazy val materializer = app.materializer
-
   override def initialDataStore = new MemoryStore(Map("1" -> testAtom))
   override def initialLivePublisher = defaultMockPublisher
   override def initialPreviewPublisher = defaultPreviewMockPublisher
+
+  def api(implicit atomConf: AtomTestConf) = atomConf.iget[Api]
 
   val youtubeId  =  "7H9Z4sn8csA"
   val youtubeUrl = s"https://www.youtube.com/watch?v=${youtubeId}"

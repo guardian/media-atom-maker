@@ -1,4 +1,4 @@
-scalaVersion := "2.11.8"
+scalaVersion in ThisBuild := "2.11.8"
 
 name := "media-atom-maker"
 
@@ -53,9 +53,12 @@ lazy val appDistSettings = Seq(
 
 lazy val atomPublisher = (project in file("./atom-publisher-lib"))
 
+lazy val atomManagerPlay = (project in file("./atom-manager-play-lib"))
+  .dependsOn(atomPublisher % "test->test;compile->compile")
+
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, RiffRaffArtifact, UniversalPlugin)
   .settings(appDistSettings)
-  .dependsOn(atomPublisher)
-  .aggregate(atomPublisher)
+  .dependsOn(atomPublisher, atomManagerPlay % "test->test;compile->compile")
+  .aggregate(atomPublisher, atomManagerPlay)
   .settings(aggregate := false, aggregate in Test := true)

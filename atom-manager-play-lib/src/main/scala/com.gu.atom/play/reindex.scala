@@ -1,26 +1,95 @@
-package controllers
+package com.gu.atom.play
 
 import akka.actor.{ ActorSystem, Props }
-import com.gu.atom.publish.AtomReindexer
+import com.gu.atom.publish._
 import com.gu.contentatom.thrift.{ ContentAtomEvent, EventType }
 import play.api.Configuration
 
 import play.api.mvc._
 import javax.inject.Inject
 
-import data._
-import util._
+import com.gu.atom.data._
 
 import javax.inject.Singleton
 
+import akka.actor.Actor
 import akka.pattern.ask
 import akka.util.Timeout
 import scala.concurrent.duration._
-import util.ReindexActor._
 import java.util.Date
 import scala.concurrent.Future
 
-import play.api.libs.json.{ util => _, _ } // util shadows our package util
+import play.api.libs.json._
+
+import ReindexActor._
+
+/*
+ * In here we find the Actor that is responsible for initialising,
+ * monitoring, and finishing the reindex job.
+ *
+ * The controller will send it messages to get a status update and so on.
+ */
+
+class ReindexActor(reindexer: AtomReindexer) extends Actor {
+  implicit val ec = context.dispatcher
+
+  /* this is the initial, idle state. In this state we will accept new jobs */
+  def idleState(lastJob: Option[AtomReindexJob]): Receive = {
+    case CreateJob(atoms, expectedSize) =>
+      val job = reindexer.startReindexJob(atoms, expectedSize)
+      context.become(inProgressState(job))
+      job.execute.onComplete {
+        case _ => context.become(idleState(Some(job)), true)
+      }
+      sender ! RSuccess
+
+    case GetStatus =>
+      sender ! lastJob.map(statusReply _)
+  }
+
+  def inProgressState(job: AtomReindexJob): Receive = {
+    case CreateJob(_, _) =>
+      sender ! RFailure("in progress")
+    case GetStatus =>
+      sender ! Some(statusReply(job))
+  }
+
+  /* start off in idle state with no record of a previous job */
+  def receive = idleState(None)
+
+}
+
+/* the messages that we will send and recieve */
+object ReindexActor {
+  /* requests */
+  case class CreateJob(atoms: Iterator[ContentAtomEvent], expectedSize: Int)
+  case object GetStatus
+
+  /* responses */
+  case object RSuccess
+  case class RFailure(reason: String)
+
+  /* matches response expected by CAPI */
+  object StatusType extends Enumeration {
+    val inProgress = Value("in progress")
+    val failed     = Value("failed")
+    val completed  = Value("completed")
+    val cancelled  = Value("cancelled")
+  }
+
+  case class JobStatus(
+    status: StatusType.Value,
+    documentsIndexed: Int,
+    documentsExpected: Int
+  )
+
+  def statusReply(job: AtomReindexJob): JobStatus =
+    JobStatus(
+      if(job.isComplete) StatusType.completed else StatusType.inProgress,
+      job.completedCount,
+      job.expectedSize
+    )
+}
 
 @Singleton
 class ReindexController @Inject() (dataStore: DataStore,

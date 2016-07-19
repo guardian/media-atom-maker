@@ -4,6 +4,8 @@ import cats.data.Xor
 import com.gu.contentatom.thrift.Atom
 import javax.inject.Singleton
 
+import com.gu.atom.data._
+
 import util.atom.MediaAtomImplicits
 
 @Singleton

@@ -16,6 +16,5 @@ class Module extends AbstractModule {
 
     bind(classOf[AtomReindexer])
       .toProvider(classOf[AtomReindexerProvider])
-
   }
 }

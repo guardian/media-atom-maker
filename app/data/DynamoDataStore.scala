@@ -13,6 +13,8 @@ import com.twitter.scrooge.CompactThriftSerializer
 import cats.data.Xor
 import cats.implicits._
 
+import com.gu.atom.data._
+
 import com.amazonaws.services.dynamodbv2.model.ConditionalCheckFailedException
 
 class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String)
