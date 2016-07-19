@@ -9,7 +9,6 @@ import play.api.mvc._
 import javax.inject.Inject
 
 import com.gu.atom.data._
-// import util._
 
 import javax.inject.Singleton
 
@@ -20,7 +19,7 @@ import scala.concurrent.duration._
 import java.util.Date
 import scala.concurrent.Future
 
-import play.api.libs.json._ // util shadows our package util
+import play.api.libs.json._
 
 import ReindexActor._
 
