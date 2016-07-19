@@ -12,6 +12,8 @@ import com.twitter.scrooge.CompactThriftSerializer
 import cats.data.Xor
 import cats.implicits._
 
+import com.gu.scanamo.scrooge.ScroogeDynamoFormat._
+
 import com.gu.atom.data._
 
 import com.amazonaws.services.dynamodbv2.model.ConditionalCheckFailedException
@@ -22,34 +24,7 @@ class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String)
   sealed trait DynamoResult
   implicit class DynamoPutResult(res: PutItemResult) extends DynamoResult
 
-  case class AtomRow(
-    id: String,
-    version: Long,
-    atom: String // atom data serialized by thrift
-  )
-
-  object AtomRow {
-    def apply(atom: Atom): AtomRow = AtomRow(
-      atom.id, atom.contentChangeDetails.revision, atomSerializer.toString(atom)
-    )
-  }
-
-  // you can't use BinaryThriftStructSerializer from crooge-serializer
-  // if Thrift is greater than 0.9.0 as they use a method that has
-  // been removed (see https://github.com/twitter/scrooge/issues/203)
-  // Also the JsonThriftserializer is one way only (it doesn't store
-  // the Thrift type data because it uses the TSimpleJsonProtocol)
-
-  private val atomSerializer = CompactThriftSerializer(Atom)
-
-  private def rowToAtom(row: AtomRow): Xor[DynamoReadError, Atom] = try {
-    Xor.Right(atomSerializer.fromString(row.atom))
-  } catch {
-    case err: org.apache.thrift.TException => Xor.Left(TypeCoercionError(err))
-  }
-
-  implicit val dynamoFormat: DynamoFormat[Atom] =
-    DynamoFormat.xmap(rowToAtom _)(AtomRow.apply _)(DynamoFormat[AtomRow]) // <- just saving a new implicit here
+  implicit def seqFormat[A](implicit f: DynamoFormat[List[A]]): DynamoFormat[Seq[A]] = DynamoFormat.xmap(l => Xor.right(l.toSeq))(_.toList)
 
   // useful shortcuts
   private val get  = Scanamo.get[Atom](dynamo)(tableName) _
