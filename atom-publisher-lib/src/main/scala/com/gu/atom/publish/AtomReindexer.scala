@@ -13,6 +13,13 @@ abstract class AtomReindexJob(atomEvents: Iterator[ContentAtomEvent], val expect
   def execute(implicit ec: ExecutionContext): Future[Int]
 }
 
+object AtomReindexJob {
+  // mostly used for testing
+  def empty: AtomReindexJob = new AtomReindexJob(Iterator.empty, 0) {
+    def execute(implicit ec: ExecutionContext) = Future.successful(0)
+  }
+}
+
 trait AtomReindexer {
 
   def startReindexJob(atomsToReindex: Iterator[ContentAtomEvent], expectedSize: Int): AtomReindexJob

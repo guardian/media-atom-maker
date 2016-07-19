@@ -15,12 +15,7 @@ case class  DataError(info: String) extends DataStoreError(info)
 case class  VersionConflictError(requestVer: Long)
     extends DataStoreError(s"Update has version $requestVer, which is earlier or equal to data store version")
 
-trait DataStore {
-
-  type DataStoreResult[R] = Xor[DataStoreError, R]
-
-  def fail(error: DataStoreError): DataStoreResult[Nothing] = Xor.left(error)
-  def succeed[R](result: => R): DataStoreResult[R] = Xor.right(result)
+trait DataStore extends DataStoreResult {
 
   def getMediaAtom(id: String): Option[Atom]
 
@@ -34,3 +29,12 @@ trait DataStore {
   def listAtoms: DataStoreResult[Iterator[Atom]]
 
 }
+
+trait DataStoreResult {
+  type DataStoreResult[R] = Xor[DataStoreError, R]
+
+  def fail(error: DataStoreError): DataStoreResult[Nothing] = Xor.left(error)
+  def succeed[R](result: => R): DataStoreResult[R] = Xor.right(result)
+}
+
+object DataStoreResult extends DataStoreResult

@@ -1,5 +1,8 @@
 package com.gu.atom.play.test
 
+import cats.data.Xor
+import com.gu.atom.publish.test.TestData
+
 import scala.collection.mutable.{ Map => MMap }
 
 import com.google.inject.AbstractModule
@@ -16,25 +19,40 @@ import org.scalatestplus.play.PlaySpec
 
 import com.gu.atom.data._
 
-//import controllers.Api
-
 import play.api.inject.{ bind, Binding }
-//import play.api.test.FakeRequest
 import scala.reflect.ClassTag
+
+import org.mockito.Mockito._
+import org.mockito.Matchers._
 
 import org.scalatest.mock.MockitoSugar.mock
 
 trait AtomSuite extends PlaySpec with GuiceableModuleConversions {
 
-  def initialDataStore = mock[DataStore]
+  def dataStoreMockWithTestData = {
+    val m = mock[DataStore]
+    when(m.getMediaAtom(any())).thenReturn(Some(TestData.testAtoms.head))
+    when(m.listAtoms).thenReturn(DataStoreResult.succeed(TestData.testAtoms.iterator))
+    m
+  }
+
+  def initialDataStore = dataStoreMockWithTestData
   def initialLivePublisher = mock[LiveAtomPublisher]
   def initialPreviewPublisher = mock[PreviewAtomPublisher]
 
   def customOverrides: Seq[Binding[_]] = Seq.empty
+  def customConfig: Map[String, Any] = Map.empty
 
   protected def ibind[A : ClassTag](a: A): Binding[A] = bind[A] toInstance a
   // bind to a simple mock
-  protected def mbind[A <: AnyRef : ClassTag : Manifest] = ibind[A](mock[A])
+  protected def mbind[A <: AnyRef : ClassTag : Manifest](modifier: A => Any):
+      Binding[A] = {
+    val mockA = mock[A]
+    modifier(mockA)
+    ibind[A](mockA)
+  }
+  protected def mbind[A <: AnyRef : ClassTag : Manifest]: Binding[A] =
+    mbind[A]((a: A) => ())
 
   case class AtomTestConf(
     dataStore: DataStore = initialDataStore,
@@ -49,14 +67,12 @@ trait AtomSuite extends PlaySpec with GuiceableModuleConversions {
     ) ++ customOverrides
 
     lazy val guicer = new GuiceApplicationBuilder()
-//      .overrides()
+      .configure(customConfig)
       .overrides(makeOverrides)
 
     lazy val app = guicer.build()
 
     def iget[A](implicit c: ClassTag[A]): A = app.injector.instanceOf[A]
-
-//    lazy val api = app.injector.instanceOf(classOf[Api])
 
     def shutdown = shutDownHook(this)
 
