@@ -94,7 +94,7 @@
                                         "s3:GetObject"
                                     ],
                                     "Resource": [
-                                        "arn:aws:s3:::media-atom-maker-dist/*"
+                                        "arn:aws:s3:::atom-maker-dist/*"
                                     ]
                                 },
                                 {
@@ -241,7 +241,7 @@
                                 "#!/bin/bash -ev\n",
                                 "apt-get -y update\n",
                                 "apt-get -y upgrade\n",
-                                "/opt/features/native-packager/install.sh -b media-atom-maker-dist -a media-atom-maker -t tgz\n",
+                                "/opt/features/native-packager/install.sh -b atom-maker-dist -a media-atom-maker -t tgz\n",
                                 {
                                     "Fn::Join": [
                                         "",
@@ -254,12 +254,12 @@
                                         ]
                                     ]
                                 },
-                                "aws s3 cp 's3://media-atom-maker-dist/conf/media-atom-maker.",
+                                "aws s3 cp 's3://atom-maker-dist/conf/media-atom-maker.",
                                 {
                                     "Ref": "Stage"
                                 },
                                 ".application.conf' ",
-                                "/home/flexible/media-atom-maker/conf/application.conf\n",
+                                "/home/media-service/media-atom-maker/conf/application.conf\n",
                                 "systemctl start media-atom-maker\n"
                             ]
                         ]
@@ -299,7 +299,7 @@
                     },
                     {
                         "Key": "Stack",
-                        "Value": "flexible",
+                        "Value": "media-service",
                         "PropagateAtLaunch": "true"
                     },
                     {
