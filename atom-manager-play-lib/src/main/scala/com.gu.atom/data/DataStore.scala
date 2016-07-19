@@ -17,14 +17,14 @@ case class  VersionConflictError(requestVer: Long)
 
 trait DataStore extends DataStoreResult {
 
-  def getMediaAtom(id: String): Option[Atom]
+  def getAtom(id: String): Option[Atom]
 
-  def createMediaAtom(atom: Atom): DataStoreResult[Unit]
+  def createAtom(atom: Atom): DataStoreResult[Unit]
 
   /* this will only allow the update if the version in atom is later
    * than the version stored in the database, otherwise it will report
    * it as a version conflict error */
-  def updateMediaAtom(newAtom: Atom): DataStoreResult[Unit]
+  def updateAtom(newAtom: Atom): DataStoreResult[Unit]
 
   def listAtoms: DataStoreResult[Iterator[Atom]]
 

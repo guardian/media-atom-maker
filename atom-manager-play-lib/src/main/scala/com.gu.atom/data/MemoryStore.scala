@@ -6,11 +6,8 @@ import javax.inject.Singleton
 
 import com.gu.atom.data._
 
-import util.atom.MediaAtomImplicits
-
 @Singleton
-class MemoryStore extends DataStore
-    with MediaAtomImplicits {
+class MemoryStore extends DataStore {
 
   def this(initial: Map[String, Atom] = Map.empty) = {
     this()
@@ -19,9 +16,9 @@ class MemoryStore extends DataStore
 
   private val dataStore = collection.mutable.Map[String, Atom]()
 
-  def getMediaAtom(id: String) = dataStore.get(id)
+  def getAtom(id: String) = dataStore.get(id)
 
-  def createMediaAtom(atom: Atom) = dataStore.synchronized {
+  def createAtom(atom: Atom) = dataStore.synchronized {
     if(dataStore.get(atom.id).isDefined) {
       fail(IDConflictError)
     } else {
@@ -29,12 +26,12 @@ class MemoryStore extends DataStore
     }
   }
 
-  def updateMediaAtom(newAtom: Atom) = dataStore.synchronized {
-    getMediaAtom(newAtom.id) match {
+  def updateAtom(newAtom: Atom) = dataStore.synchronized {
+    getAtom(newAtom.id) match {
       case Some(oldAtom) =>
         if(oldAtom.contentChangeDetails.revision >=
              newAtom.contentChangeDetails.revision) {
-          fail(VersionConflictError(newAtom.tdata.activeVersion))
+          fail(VersionConflictError(newAtom.contentChangeDetails.revision))
         } else {
           succeed(dataStore(newAtom.id) = newAtom)
         }

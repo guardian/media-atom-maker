@@ -34,7 +34,7 @@ class Api @Inject() (val dataStore: DataStore,
   // takes a configured URL object and shows how it would look as a content atom
 
   def getMediaAtom(id: String) = APIAuthAction { implicit req =>
-    dataStore.getMediaAtom(id) match {
+    dataStore.getAtom(id) match {
       case Some(atom) => Ok(Json.toJson(atom))
       case None => NotFound(jsonError(s"no atom with id $id found"))
     }
@@ -42,7 +42,7 @@ class Api @Inject() (val dataStore: DataStore,
 
   def createMediaAtom = thriftResultAction(atomBodyParser) { implicit req =>
     val atom = req.body
-    dataStore.createMediaAtom(atom).fold(
+    dataStore.createAtom(atom).fold(
       { case IDConflictError =>
         Conflict(s"${atom.id} already exists")
         case _ => InternalServerError("Unknown error")
@@ -64,7 +64,7 @@ class Api @Inject() (val dataStore: DataStore,
   def addAsset(atomId: String) = thriftResultAction(assetBodyParser) { implicit req =>
     val newAsset = req.body
 
-    dataStore.getMediaAtom(atomId) match {
+    dataStore.getAtom(atomId) match {
       case Some(atom) =>
         val ma = atom.tdata
         val assets = ma.assets
@@ -75,7 +75,7 @@ class Api @Inject() (val dataStore: DataStore,
                     ))
           .withRevision(_ + 1)
 
-        dataStore.updateMediaAtom(newAtom).fold(
+        dataStore.updateAtom(newAtom).fold(
           err => InternalServerError(err.msg),
           _ => {
             
@@ -95,7 +95,7 @@ class Api @Inject() (val dataStore: DataStore,
   def now() = (new Date()).getTime()
 
   def publishAtom(atomId: String) = APIAuthAction { implicit req =>
-    dataStore.getMediaAtom(atomId) match {
+    dataStore.getAtom(atomId) match {
       case Some(atom) =>
         val event = ContentAtomEvent(atom, EventType.Update, now())
         livePublisher.publishAtomEvent(event) match {
@@ -107,12 +107,12 @@ class Api @Inject() (val dataStore: DataStore,
   }
 
   def revertAtom(atomId: String, version: Long) = APIAuthAction { implicit req =>
-    dataStore.getMediaAtom(atomId) match {
+    dataStore.getAtom(atomId) match {
       case Some(atom) =>
         if(!atom.tdata.assets.exists(_.version == version)) {
           InternalServerError(jsonError(s"no asset is listed for version $version"))
         } else {
-          dataStore.updateMediaAtom(
+          dataStore.updateAtom(
             atom
               .withRevision(_ + 1)
               .updateData { media => media.copy(activeVersion = version) }

@@ -1,7 +1,6 @@
 package data
 
 import com.amazonaws.services.dynamodbv2.model.PutItemResult
-import util.atom.MediaAtomImplicits
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.gu.scanamo.error.{ DynamoReadError, TypeCoercionError }
@@ -18,9 +17,7 @@ import com.gu.atom.data._
 import com.amazonaws.services.dynamodbv2.model.ConditionalCheckFailedException
 
 class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String)
-    extends DataStore
-    with MediaAtomImplicits {
-  @Inject() def this(awsConfig: util.AWSConfig) = this(awsConfig.dynamoDB, awsConfig.dynamoTableName)
+    extends DataStore {
 
   sealed trait DynamoResult
   implicit class DynamoPutResult(res: PutItemResult) extends DynamoResult
@@ -60,22 +57,22 @@ class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String)
 
   // this should probably return an Either so we can report an error,
   // e.g. if the atom exists, but it can't be deseralised
-  def getMediaAtom(id: String): Option[Atom] = get(UniqueKey(KeyEquals('id, id))) match {
+  def getAtom(id: String): Option[Atom] = get(UniqueKey(KeyEquals('id, id))) match {
     case Some(Xor.Right(atom)) => Some(atom)
     case _ => None
   }
 
-  def createMediaAtom(atom: Atom) =
+  def createAtom(atom: Atom) =
     if(get(UniqueKey(KeyEquals('id, atom.id))).isDefined)
       fail(IDConflictError)
     else
       succeed(put(atom))
 
-  def updateMediaAtom(newAtom: Atom) = {
+  def updateAtom(newAtom: Atom) = {
     val validationCheck = KeyIs('version, LT, newAtom.contentChangeDetails.revision)
     val res = (Scanamo.exec(dynamo)(Table[Atom](tableName).given(validationCheck).put(newAtom)))
     res.map(_ => ())
-      .leftMap(_ => VersionConflictError(newAtom.tdata.activeVersion))
+      .leftMap(_ => VersionConflictError(newAtom.contentChangeDetails.revision))
   }
 
   private def findAtoms: DataStoreResult[List[Atom]] =
