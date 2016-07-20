@@ -38,6 +38,7 @@
         "ContentAtomArn": {
             "Description": "ARN of Content Atom kinesis stream Cross Account role",
             "Type": "String"
+        }
     },
     "Resources": {
         "MediaMakerInstanceProfile": {
@@ -200,6 +201,13 @@
                         ]
                     }
                 ],
+                "HealthCheck": {
+                    "HealthyThreshold": "2",
+                    "Interval": "30",
+                    "Target": "HTTP:9000/healthcheck",
+                    "Timeout": "5",
+                    "UnhealthyThreshold": "2"
+                },
                 "Listeners": [
                     {
                         "LoadBalancerPort": "80",
