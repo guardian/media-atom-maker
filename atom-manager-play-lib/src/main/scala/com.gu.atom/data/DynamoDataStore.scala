@@ -1,22 +1,18 @@
 package data
 
-import com.amazonaws.services.dynamodbv2.model.PutItemResult
-
+import com.amazonaws.services.dynamodbv2.model.{ PutItemResult, AttributeValue }
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
-import com.gu.scanamo.error.{ DynamoReadError, TypeCoercionError }
-import javax.inject.Inject
-import com.gu.contentatom.thrift.Atom
+import com.gu.contentatom.thrift.{ Atom, AtomData, Flags }
 import com.gu.scanamo.{ Scanamo, DynamoFormat, Table }
 import com.gu.scanamo.query._
-import com.twitter.scrooge.CompactThriftSerializer
 import cats.data.Xor
 import cats.implicits._
 
+import DynamoFormat._
 import com.gu.scanamo.scrooge.ScroogeDynamoFormat._
 
 import com.gu.atom.data._
 
-import com.amazonaws.services.dynamodbv2.model.ConditionalCheckFailedException
 
 class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String)
     extends DataStore {
@@ -24,7 +20,11 @@ class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String)
   sealed trait DynamoResult
   implicit class DynamoPutResult(res: PutItemResult) extends DynamoResult
 
-  implicit def seqFormat[A](implicit f: DynamoFormat[List[A]]): DynamoFormat[Seq[A]] = DynamoFormat.xmap(l => Xor.right(l.toSeq))(_.toList)
+
+  // implicit val adf = new DynamoFormat[AtomData] {
+  //   def read(av: AttributeValue) = ???
+  //   def write(data: AtomData) = ???
+  // }
 
   // useful shortcuts
   private val get  = Scanamo.get[Atom](dynamo)(tableName) _
