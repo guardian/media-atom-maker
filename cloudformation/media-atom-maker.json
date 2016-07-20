@@ -326,6 +326,28 @@
                 ]
             }
         },
+        "MediaAtomsDynamoTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+                "AttributeDefinitions": [
+                    {
+                        "AttributeName": "id",
+                        "AttributeType": "S"
+                    }
+                ],
+                "KeySchema": [
+                    {
+                        "AttributeName": "id",
+                        "KeyType": "HASH"
+                    }
+                ],
+                "ProvisionedThroughput": {
+                    "ReadCapacityUnits": "10",
+                    "WriteCapacityUnits": "5"
+                },
+                "TableName": "media-atom-maker-CODE"
+            }
+        },
         "DynamoDBTablePolicy": {
             "Type": "AWS::IAM::Policy",
             "Properties": {
