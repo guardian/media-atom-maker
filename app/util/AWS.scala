@@ -1,10 +1,11 @@
 package util
 
+import com.amazonaws.auth.{ STSAssumeRoleSessionCredentialsProvider, AWSCredentialsProviderChain }
 import com.amazonaws.regions.{Region, Regions}
 import com.amazonaws.services.kinesis.AmazonKinesisClient
 import play.api.Configuration
 import javax.inject.{ Singleton, Inject }
-import com.amazonaws.auth.{ AWSCredentialsProviderChain, InstanceProfileCredentialsProvider }
+import com.amazonaws.auth._
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 
@@ -24,6 +25,15 @@ class AWSConfig @Inject() (config: Configuration) {
 
   lazy val credProvider = new AWSCredentialsProviderChain(credProviders.flatten: _*)
 
+  lazy val sessionId: String = "session" + Math.random()
+
+  lazy val kinesisArn = config.getString("aws.kinesis.streamArn").getOrElse("")
+
+  lazy val atomsCredProvider = new AWSCredentialsProviderChain(
+    new ProfileCredentialsProvider("composer"),
+    new STSAssumeRoleSessionCredentialsProvider(credProvider, kinesisArn, sessionId)
+  )
+
   lazy val dynamoDB = region.createClient(
     classOf[AmazonDynamoDBClient],
     credProvider,
@@ -37,9 +47,13 @@ class AWSConfig @Inject() (config: Configuration) {
 
   lazy val kinesisReindexStreamName = config.getString("aws.kinesis.reindexStreamName").get
 
-  lazy val kinesisClient = region.createClient(
+  lazy val kinesisClient = getKinesisClient(credProvider)
+
+  lazy val atomsKinesisClient = getKinesisClient(atomsCredProvider)
+
+  private def getKinesisClient(credentialsProvider: AWSCredentialsProviderChain) = region.createClient(
     classOf[AmazonKinesisClient],
-    credProvider,
+    credentialsProvider,
     null
   )
 }

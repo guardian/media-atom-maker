@@ -7,10 +7,10 @@ import util.AWSConfig
 
 class LiveAtomPublisherProvider @Inject() (awsConfig: AWSConfig)
   extends Provider[LiveAtomPublisher] {
-    def get() = new LiveKinesisAtomPublisher(awsConfig.liveKinesisStreamName, awsConfig.kinesisClient)
+    def get() = new LiveKinesisAtomPublisher(awsConfig.liveKinesisStreamName, awsConfig.atomsKinesisClient)
 }
 
 class PreviewAtomPublisherProvider @Inject() (awsConfig: AWSConfig)
   extends Provider[PreviewAtomPublisher] {
-    def get() = new PreviewKinesisAtomPublisher(awsConfig.previewKinesisStreamName, awsConfig.kinesisClient)
+    def get() = new PreviewKinesisAtomPublisher(awsConfig.previewKinesisStreamName, awsConfig.atomsKinesisClient)
 }
