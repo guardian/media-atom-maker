@@ -40,7 +40,7 @@ lazy val appDistSettings = Seq(
     riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
     riffRaffUploadManifestBucket := Option("riffraff-builds"),
     riffRaffArtifactPublishPath := name.value,
-    riffRaffPackageName := s"editorial-tools:${name.value}",
+    riffRaffPackageName := s"media-service:${name.value}",
     riffRaffManifestProjectName := riffRaffPackageName.value,
     riffRaffArtifactResources := Seq(
       riffRaffPackageType.value -> s"packages/${name.value}/${name.value}.tgz",
