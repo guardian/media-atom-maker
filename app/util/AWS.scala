@@ -47,9 +47,12 @@ class AWSConfig @Inject() (config: Configuration) {
 
   lazy val kinesisReindexStreamName = config.getString("aws.kinesis.reindexStreamName").get
 
-  lazy val kinesisClient = getKinesisClient(credProvider)
+  lazy val stage = config.getString("stage").getOrElse("DEV")
 
-  lazy val atomsKinesisClient = getKinesisClient(atomsCredProvider)
+  lazy val kinesisClient = if (stage == "DEV")
+    getKinesisClient(credProvider)
+  else
+    getKinesisClient(atomsCredProvider)
 
   private def getKinesisClient(credentialsProvider: AWSCredentialsProviderChain) = region.createClient(
     classOf[AmazonKinesisClient],
