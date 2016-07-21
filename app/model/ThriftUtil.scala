@@ -1,13 +1,13 @@
 package model
 
-import com.gu.contentatom.thrift._
-import atom.media._
-
 import java.util.UUID.randomUUID
-import play.api.mvc.{ BodyParser, BodyParsers }
-import scala.concurrent.ExecutionContext
 
+import com.gu.contentatom.thrift._
+import com.gu.contentatom.thrift.atom.media._
+import play.api.mvc.{BodyParser, BodyParsers}
 import util.atom.MediaAtomImplicits._
+
+import scala.concurrent.ExecutionContext
 
 object ThriftUtil {
   type ThriftResult[A] = Either[String, A]
@@ -52,6 +52,16 @@ object ThriftUtil {
 
   def parseMediaAtom(params: Map[String, Seq[String]]): ThriftResult[MediaAtom] = {
     val version = params.get("version").map(_.head.toLong).getOrElse(1L)
+    val title = params.get("title").map(_.head) getOrElse "unknown"
+    val category = params.get("category").map(_.head) match {
+      case Some("documentary") => Category.Documentary
+      case Some("explainer") => Category.Explainer
+      case Some("feature") => Category.Feature
+      case Some("hosted") => Category.Hosted
+      case _ => Category.News
+    }
+    val duration = params.get("duration").map(_.head.toLong)
+    val source = params.get("source").map(_.head)
     for {
       assets <- parseAssets(
         params.get("uri").getOrElse(Nil),
@@ -59,8 +69,12 @@ object ThriftUtil {
       ).right
     } yield MediaAtom(
       assets = assets,
-      activeVersion = version,
-      plutoProjectId = None
+      activeVersion = Some(version),
+      title,
+      category,
+      plutoProjectId = None,
+      duration,
+      source
     )
   }
 
