@@ -35,6 +35,9 @@
             "Type": "String"
         }
     },
+    "Conditions": {
+        "CreateCodeResources" : {"Fn::Equals" : [{"Ref" : "Stage"}, "CODE"]}
+    },
     "Resources": {
         "MediaMakerInstanceProfile": {
             "Type": "AWS::IAM::InstanceProfile",
@@ -272,9 +275,12 @@
                                 ".application.conf' ",
                                 "/home/media-service/media-atom-maker/conf/application.conf\n",
 
-                                "cat >> /home/media-service/media-atom-maker/conf/application.conf<<'EOF'\n",
-                                "aws.dynamo.tableName=", { "Ref": "MediaAtomsDynamoTable" }, "\n",
-                                "EOF\n",
+                                "stage=", { "Ref": "Stage"}, "\n",
+                                "if [ $stage = \"CODE\" ]; then\n",
+                                    "cat >> /home/media-service/media-atom-maker/conf/application.conf<<'EOF'\n",
+                                    "aws.dynamo.tableName=", { "Ref": "MediaAtomsDynamoTableCode" }, "\n",
+                                    "EOF\n",
+                                "fi\n",
 
                                 "systemctl start media-atom-maker\n"
                             ]
@@ -326,8 +332,9 @@
                 ]
             }
         },
-        "MediaAtomsDynamoTable": {
+        "MediaAtomsDynamoTableCode": {
             "Type": "AWS::DynamoDB::Table",
+            "Condition": "CreateCodeResources",
             "Properties": {
                 "AttributeDefinitions": [
                     {
@@ -342,13 +349,14 @@
                     }
                 ],
                 "ProvisionedThroughput": {
-                    "ReadCapacityUnits": "10",
+                    "ReadCapacityUnits": "5",
                     "WriteCapacityUnits": "5"
                 }
             }
         },
         "DynamoDBTablePolicy": {
             "Type": "AWS::IAM::Policy",
+            "Condition": "CreateCodeResources",
             "Properties": {
                 "PolicyName": "MediaAtomMakerDynamoDBPolicy",
                 "PolicyDocument": {
@@ -357,7 +365,8 @@
                             "Action": [ "dynamodb:*" ],
                             "Effect": "Allow",
                             "Resource": {
-                                "Fn::Join": ["", ["arn:aws:dynamodb:", {"Ref": "AWS::Region"}, ":", {"Ref": "AWS::AccountId"}, ":table/", {"Ref": "MediaAtomsDynamoTable"} ] ] }
+                                "Fn::Join": ["", ["arn:aws:dynamodb:", {"Ref": "AWS::Region"}, ":", {"Ref": "AWS::AccountId"}, ":table/", {"Ref": "MediaAtomsDynamoTableCode"} ] ]
+                            }
                         }
                     ]
                 },
