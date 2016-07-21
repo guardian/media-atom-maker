@@ -33,6 +33,11 @@
         "ContentAtomArn": {
             "Description": "ARN of Content Atom kinesis stream Cross Account role",
             "Type": "String"
+        },
+        "MediaAtomMakerProd": {
+            "Description": "Prod dynamo table",
+            "Type": "String",
+            "Default": "media-atom-maker-PROD"
         }
     },
     "Conditions": {
@@ -356,7 +361,6 @@
         },
         "DynamoDBTablePolicy": {
             "Type": "AWS::IAM::Policy",
-            "Condition": "CreateCodeResources",
             "Properties": {
                 "PolicyName": "MediaAtomMakerDynamoDBPolicy",
                 "PolicyDocument": {
@@ -365,7 +369,11 @@
                             "Action": [ "dynamodb:*" ],
                             "Effect": "Allow",
                             "Resource": {
-                                "Fn::Join": ["", ["arn:aws:dynamodb:", {"Ref": "AWS::Region"}, ":", {"Ref": "AWS::AccountId"}, ":table/", {"Ref": "MediaAtomsDynamoTableCode"} ] ]
+                                "Fn::If" : [
+                                    "CreatedCodeResources",
+                                    "Fn::Join": ["", ["arn:aws:dynamodb:", {"Ref": "AWS::Region"}, ":", {"Ref": "AWS::AccountId"}, ":table/", {"Ref": "MediaAtomsDynamoTableCode"} ] ],
+                                    "Fn::Join": ["", ["arn:aws:dynamodb:", {"Ref": "AWS::Region"}, ":", {"Ref": "AWS::AccountId"}, ":table/", {"Ref": "MediaAtomMakerProd"} ] ]
+                                ]
                             }
                         }
                     ]
