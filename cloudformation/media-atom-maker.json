@@ -6,11 +6,6 @@
             "Type": "String",
             "Default": "77.91.248.0/21"
         },
-        "DynamoDBTablePrefix": {
-            "Description": "DynamoDB Table prefix",
-            "Type": "String",
-            "Default": "media-atom-maker"
-        },
         "SSLCertificateId": {
             "Description": "ARN of the SSL certificate",
             "Type": "String"
@@ -276,6 +271,11 @@
                                 },
                                 ".application.conf' ",
                                 "/home/media-service/media-atom-maker/conf/application.conf\n",
+
+                                "cat >> /home/media-service/media-atom-maker/conf/application.conf<<'EOF'\n",
+                                "aws.dynamo.tableName=", { "Ref": "MediaAtomsDynamoTable" }, "\n",
+                                "EOF\n",
+
                                 "systemctl start media-atom-maker\n"
                             ]
                         ]
@@ -344,8 +344,7 @@
                 "ProvisionedThroughput": {
                     "ReadCapacityUnits": "10",
                     "WriteCapacityUnits": "5"
-                },
-                "TableName": "media-atom-maker-CODE"
+                }
             }
         },
         "DynamoDBTablePolicy": {
@@ -358,11 +357,7 @@
                             "Action": [ "dynamodb:*" ],
                             "Effect": "Allow",
                             "Resource": {
-                                "Fn::Join": [":", ["arn:aws:dynamodb", {"Ref": "AWS::Region"}, {"Ref": "AWS::AccountId"},
-                                                   {"Fn::Join": ["", ["table/", {"Fn::Join": ["-", [{"Ref": "DynamoDBTablePrefix"}, {"Ref": "Stage"}]]}]]}
-                                                  ]
-                                            ]
-                            }
+                                "Fn::Join": ["", ["arn:aws:dynamodb:", {"Ref": "AWS::Region"}, ":", {"Ref": "AWS::AccountId"}, ":table/", {"Ref": "MediaAtomsDynamoTable"} ] ] }
                         }
                     ]
                 },
