@@ -33,7 +33,7 @@ object ThriftUtil {
       case _ => Left(s"couldn't extract id from uri ($uri)")
     }
 
-  def parseAsset(uri: String, version: Long): ThriftResult[Asset] =
+  def parseAsset(uri: String, mimeType: Option[String], version: Long): ThriftResult[Asset] =
     for {
       id <- parseId(uri).right
       platform <- parsePlatform(uri).right
@@ -41,14 +41,15 @@ object ThriftUtil {
       id = id,
       assetType = AssetType.Video,
       version = version,
-      platform = platform
+      platform = platform,
+      mimeType = mimeType
     )
 
   def parseAssets(uris: Seq[String], version: Long): ThriftResult[List[Asset]] =
     uris.foldLeft(Right(Nil): ThriftResult[List[Asset]]) { (assetsEither, uri) =>
       for {
         assets <- assetsEither.right
-        asset <- parseAsset(uri, version).right
+        asset <- parseAsset(uri, mimeType = None, version).right
       } yield {
         asset :: assets
       }
@@ -109,10 +110,14 @@ object ThriftUtil {
 
   def assetBodyParser(implicit ec: ExecutionContext): BodyParser[ThriftResult[Asset]] =
     BodyParsers.parse.urlFormEncoded map { urlParams =>
+
+      def opt(s: String): Option[String] = if (s.isEmpty) None else Some(s)
+
       for {
         uri <- getSingleRequiredParam(urlParams, "uri").right
+        mimeType <- getSingleRequiredParam(urlParams, "mimetype").right
         version <- getSingleRequiredParam(urlParams, "version").right
-        asset <- parseAsset(uri, version.toLong).right
+        asset <- parseAsset(uri, opt(mimeType), version.toLong).right
       } yield asset
     }
 }
