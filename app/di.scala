@@ -1,4 +1,5 @@
 import com.google.inject.AbstractModule
+import com.gu.atom.data.DataStore
 import com.gu.atom.publish._
 import com.gu.pandomainauth.action.AuthActions
 import data._
@@ -7,6 +8,9 @@ class Module extends AbstractModule {
   def configure() = {
     bind(classOf[AuthActions])
       .to(classOf[controllers.PanDomainAuthActions])
+
+    bind(classOf[DataStore])
+    .to(classOf[DynamoDataStore])
 
     bind(classOf[LiveAtomPublisher])
     .toProvider(classOf[LiveAtomPublisherProvider])
