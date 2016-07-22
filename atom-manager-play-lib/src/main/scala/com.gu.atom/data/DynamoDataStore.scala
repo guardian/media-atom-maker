@@ -1,6 +1,6 @@
-package data
+package com.gu.atom.data
 
-import com.amazonaws.services.dynamodbv2.model.{ PutItemResult, AttributeValue }
+import com.amazonaws.services.dynamodbv2.model.PutItemResult
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.gu.contentatom.thrift.{ Atom, AtomData, Flags }
 import com.gu.scanamo.{ Scanamo, DynamoFormat, Table }
@@ -9,6 +9,7 @@ import cats.data.Xor
 import cats.implicits._
 
 import DynamoFormat._
+import AtomDynamoFormats._
 import com.gu.scanamo.scrooge.ScroogeDynamoFormat._
 
 import com.gu.atom.data._
@@ -20,11 +21,7 @@ class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String)
   sealed trait DynamoResult
   implicit class DynamoPutResult(res: PutItemResult) extends DynamoResult
 
-
-  // implicit val adf = new DynamoFormat[AtomData] {
-  //   def read(av: AttributeValue) = ???
-  //   def write(data: AtomData) = ???
-  // }
+//val x = implicitly[DynamoFormat[Flags]]
 
   // useful shortcuts
   private val get  = Scanamo.get[Atom](dynamo)(tableName) _

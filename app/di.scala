@@ -1,5 +1,5 @@
 import com.google.inject.AbstractModule
-import com.gu.atom.data.DataStore
+import com.gu.atom.data.{ DynamoDataStore, DataStore }
 import com.gu.atom.publish._
 import com.gu.pandomainauth.action.AuthActions
 import data._
