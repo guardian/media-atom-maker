@@ -1,5 +1,6 @@
 package model
 
+import java.net.URI
 import java.util.UUID.randomUUID
 
 import com.gu.contentatom.thrift._
@@ -8,6 +9,7 @@ import play.api.mvc.{BodyParser, BodyParsers}
 import util.atom.MediaAtomImplicits._
 
 import scala.concurrent.ExecutionContext
+import scala.util.Try
 
 object ThriftUtil {
   type ThriftResult[A] = Either[String, A]
@@ -26,6 +28,7 @@ object ThriftUtil {
   def parseId(uri: String): ThriftResult[String] =
     uri match {
       case youtube(id) => Right(id)
+      case Url(url) => Right(url)
       case _ => Left(s"couldn't extract id from uri ($uri)")
     }
 
@@ -111,4 +114,13 @@ object ThriftUtil {
         asset <- parseAsset(uri, version.toLong).right
       } yield asset
     }
+}
+
+object Url {
+
+  def unapply(s: String): Option[String] = {
+    Try(new URI(s)).filter { uri =>
+      uri.isAbsolute && uri.getScheme == "https"
+    }.map(_.toASCIIString).toOption
+  }
 }
