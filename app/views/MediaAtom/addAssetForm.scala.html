@@ -1,11 +1,33 @@
 @(atomId: String, defaultVersion: Long)
 <div id="addAtom">
     <form method="" action="">
-        <label for="url">URL:</label>
-        <input id="urlInput" type="text" name="uri" width="100"></input>
-        <input id="versionInput" type="text" value="@defaultVersion" name="version"/>
-        <input id="addAssetButton" type="button"
-               onClick="AtomUtil.addAsset('@atomId')"
-               value="Add asset"/>
+        <table style="width:100%">
+            <tr>
+                <td><label for="urlInput">URL:</label></td>
+                <td><input id="urlInput" type="text" name="uri" width="100" style="width:100%"></input></td>
+            </tr>
+            <tr>
+                <td><label for="mimeTypeInput">Mime type:</label></td>
+                <td>
+                    <select id="mimeTypeInput" name="mimetype">
+                        <option value="" selected="selected">N/A</option>
+                        <option value="video/mp4">video/mp4</option>
+                        <option value="video/webm">video/webm</option>
+                        <option value="video/ogg">video/ogg</option>
+                        <option value="video/m3u8">video/m3u8</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="versionInput">Version:</label></td>
+                <td><input id="versionInput" type="text" value="@defaultVersion" name="version"/></td>
+            </tr>
+            <tr>
+                <td />
+                <td>
+                    <input id="addAssetButton" type="button" onClick="AtomUtil.addAsset('@atomId')" value="Add asset"/>
+                </td>
+            </tr>
+        </table>
     </form>
 </div>

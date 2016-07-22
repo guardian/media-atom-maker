@@ -7,15 +7,16 @@ window.AtomUtil = (function() {
 
   ret.addAsset = function(atomId) {
     var uri = $("#urlInput").val();
-    var version = $("#versionInput").val()
+    var mimeType = $("#mimeTypeInput").val();
+    var version = $("#versionInput").val();
     $.ajax({
       method: "POST",
       url: "/api/atom/" + atomId + "/asset",
-      data: { uri: uri, version: version },
+      data: {uri: uri, mimetype: mimeType, version: version},
       success: function() { window.location.reload(); },
       error: handleError
     });
-  }
+  };
 
   ret.publishAtom = function(atomId) {
     $.ajax({
@@ -24,7 +25,7 @@ window.AtomUtil = (function() {
       success: function() { alert("Published"); },
       error:   handleError
     });
-  }
+  };
 
   ret.createAtom = function() {
     $.ajax({
@@ -43,7 +44,7 @@ window.AtomUtil = (function() {
       method: "POST",
       url: "/api/atom/" + atomId + "/revert/" + version,
       contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-      success: function(data, status, xhr) {
+      success: function () {
         window.location = "/atom/" + atomId;
       },
       error: handleError
@@ -52,7 +53,7 @@ window.AtomUtil = (function() {
 
   return ret;
 
-})()
+})();
 
 // INIT bits
 $(function () {
