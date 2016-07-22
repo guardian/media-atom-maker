@@ -9,7 +9,6 @@ import com.amazonaws.auth._
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 
-
 @Singleton
 class AWSConfig @Inject() (config: Configuration) {
 
@@ -48,9 +47,9 @@ class AWSConfig @Inject() (config: Configuration) {
   lazy val kinesisReindexStreamName = config.getString("aws.kinesis.reindexStreamName").get
 
   lazy val stage = config.getString("stage").getOrElse("DEV")
-  lazy val readFromComposerAccount = config.getString("readFromComposer").getOrElse("false")
+  lazy val readFromComposerAccount = config.getBoolean("readFromComposer").getOrElse(false)
 
-  lazy val kinesisClient = if (stage != "DEV" || readFromComposerAccount == "true")
+  lazy val kinesisClient = if (stage != "DEV" || readFromComposerAccount)
     getKinesisClient(atomsCredProvider)
   else
     getKinesisClient(credProvider)
