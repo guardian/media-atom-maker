@@ -27,11 +27,11 @@ class AWSConfig @Inject() (config: Configuration) {
 
   lazy val sessionId: String = "session" + Math.random()
 
-  lazy val kinesisArn = config.getString("aws.kinesis.streamArn").getOrElse("")
+  lazy val stsRoleToAssume = config.getString("aws.kinesis.stsRoleToAssume").getOrElse("")
 
   lazy val atomsCredProvider = new AWSCredentialsProviderChain(
     new ProfileCredentialsProvider("composer"),
-    new STSAssumeRoleSessionCredentialsProvider(credProvider, kinesisArn, sessionId)
+    new STSAssumeRoleSessionCredentialsProvider(credProvider, stsRoleToAssume, sessionId)
   )
 
   lazy val dynamoDB = region.createClient(
