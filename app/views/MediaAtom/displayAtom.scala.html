@@ -1,6 +1,5 @@
-@import com.gu.contentatom.thrift.Atom
+@import com.gu.contentatom.thrift._
 @import util.atom.MediaAtomImplicits._
-@import views.html.MediaAtom.{addAssetForm, atomTable, publishUI, showDefaultHtml}
 @(atom: Atom)
 <html>
     <head>
@@ -18,7 +17,7 @@
         </p>
         @atomTable(atom)
         @publishUI(atom.id)
-        @addAssetForm(atom.id, atom.tdata.activeVersion.map(_ + (if(atom.tdata.assets.length == 0) 0 else 1)) getOrElse 1)
+        @addAssetForm(atom.id, atom.tdata.activeVersion.map(_ + (if(atom.tdata.assets.isEmpty) 0 else 1)) getOrElse 1)
         @showDefaultHtml(atom)
     </body>
 </html>
