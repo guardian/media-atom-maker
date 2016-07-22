@@ -70,7 +70,7 @@ class Api @Inject() (val dataStore: DataStore,
         val assets = ma.assets
         val newAtom = atom
           .withData(ma.copy(
-                      activeVersion = newAsset.version,
+                      activeVersion = Some(newAsset.version),
                       assets = newAsset +: assets
                     ))
           .withRevision(_ + 1)
@@ -115,7 +115,7 @@ class Api @Inject() (val dataStore: DataStore,
           dataStore.updateMediaAtom(
             atom
               .withRevision(_ + 1)
-              .updateData { media => media.copy(activeVersion = version) }
+              .updateData { media => media.copy(activeVersion = Some(version)) }
           )
           Ok(s"updated to $version")
         }

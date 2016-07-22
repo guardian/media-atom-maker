@@ -1,4 +1,4 @@
-@import com.gu.contentatom.thrift._
+@import com.gu.contentatom.thrift.Atom
 @import util.atom.MediaAtomImplicits._
 @(atom: Atom)
         <h1>Atom Data</h1>
@@ -15,7 +15,7 @@
                 <td class="label">platform</td>
                 <td class="label">version</td>
             </tr>
-            @for(asset <- atom.tdata.assets; activeclass = if(asset.version == atom.tdata.activeVersion) "-active" else "") {
+            @for(asset <- atom.tdata.assets; activeclass = if(atom.tdata.activeVersion.contains(asset.version)) "-active" else "") {
                           <tr class="assetRow@activeclass" onClick="AtomUtil.revertAtom('@atom.id', '@asset.version')">
                               <td>@asset.assetType</td>
                               <td>@asset.id</td>

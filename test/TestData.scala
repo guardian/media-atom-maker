@@ -1,8 +1,9 @@
 package test
 
-import com.gu.contentatom.thrift.{ ContentAtomEvent, _ }
-import com.gu.contentatom.thrift.atom.media._
 import java.util.Date
+
+import com.gu.contentatom.thrift.atom.media._
+import com.gu.contentatom.thrift.{ContentAtomEvent, _}
 
 object TestData {
   val testAtom = Atom(
@@ -11,7 +12,7 @@ object TestData {
     defaultHtml = "<div></div>",
     data = AtomData.Media(
       MediaAtom(
-        activeVersion = 2L,
+        activeVersion = Some(2L),
         assets = List(
           Asset(
             assetType = AssetType.Video,
@@ -25,7 +26,12 @@ object TestData {
             id = "fizzbuzz",
             platform = Platform.Youtube
           )
-        )
+        ),
+        title = "title",
+        category = Category.News,
+        plutoProjectId = None,
+        duration = None,
+        source = None
       )
     ),
     contentChangeDetails = ContentChangeDetails(revision = 1)
