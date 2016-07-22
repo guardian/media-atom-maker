@@ -22,6 +22,7 @@ object ThriftUtil {
   def parsePlatform(uri: String): ThriftResult[Platform] =
     uri match {
       case youtube(_) => Right(Platform.Youtube)
+      case Url(_) => Right(Platform.Url)
       case _ => Left(s"Unrecognised platform in uri ($uri)")
     }
 
