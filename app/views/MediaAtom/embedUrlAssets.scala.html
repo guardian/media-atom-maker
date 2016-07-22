@@ -1,0 +1,9 @@
+@import com.gu.contentatom.thrift.atom.media.Asset
+@(assets: Seq[Asset])
+
+@* TODO poster *@
+<video controls="controls">
+    @for(asset <- assets) {
+        <source type="@{asset.mimeType}" src="@{asset.id}">
+    }
+</video>
