@@ -1,7 +1,7 @@
 package util.atom
 
 import com.gu.contentatom.thrift._
-import atom.media._
+import com.gu.contentatom.thrift.atom.media._
 
 trait AtomDataTyper[D] {
   def getData(a: Atom): D
@@ -34,9 +34,9 @@ trait MediaAtomImplicits extends AtomImplicits[MediaAtom] {
     def makeDefaultHtml(a: Atom) = {
       val data = getData(a)
       data.assets
-        .find(_.version == data.activeVersion)
-        .map(asset => views.html.MediaAtom.embedAsset(asset).toString)
-        .getOrElse(s"<div></div>")
+      .find(asset => data.activeVersion.contains(asset.version))
+      .map(asset => views.html.MediaAtom.embedAsset(asset).toString)
+      .getOrElse("<div></div>")
     }
   }
 }
