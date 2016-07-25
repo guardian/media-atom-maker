@@ -34,14 +34,10 @@
             "Description": "ARN of Content Atom kinesis stream Cross Account role",
             "Type": "String"
         },
-        "MediaAtomMakerProd": {
-            "Description": "Prod dynamo table",
-            "Type": "String",
-            "Default": "media-atom-maker-PROD"
+        "AtomMakerTable": {
+            "Description": "Name of the media atom dynamo table",
+            "Type": "String"
         }
-    },
-    "Conditions": {
-        "CreateCodeResources" : {"Fn::Equals" : [{"Ref" : "Stage"}, "CODE"]}
     },
     "Resources": {
         "MediaMakerInstanceProfile": {
@@ -279,13 +275,9 @@
                                 },
                                 ".application.conf' ",
                                 "/home/media-service/media-atom-maker/conf/application.conf\n",
-
-                                "stage=", { "Ref": "Stage"}, "\n",
-                                "if [ $stage = \"CODE\" ]; then\n",
-                                    "cat >> /home/media-service/media-atom-maker/conf/application.conf<<'EOF'\n",
-                                    "aws.dynamo.tableName=", { "Ref": "MediaAtomsDynamoTableCode" }, "\n",
-                                    "EOF\n",
-                                "fi\n",
+                                "cat >> /home/media-service/media-atom-maker/conf/application.conf<<'EOF'\n",
+                                "aws.dynamo.tableName=", { "Ref": "AtomMakerTable" }, "\n",
+                                "EOF\n",
 
                                 "systemctl start media-atom-maker\n"
                             ]
@@ -337,28 +329,6 @@
                 ]
             }
         },
-        "MediaAtomsDynamoTableCode": {
-            "Type": "AWS::DynamoDB::Table",
-            "Condition": "CreateCodeResources",
-            "Properties": {
-                "AttributeDefinitions": [
-                    {
-                        "AttributeName": "id",
-                        "AttributeType": "S"
-                    }
-                ],
-                "KeySchema": [
-                    {
-                        "AttributeName": "id",
-                        "KeyType": "HASH"
-                    }
-                ],
-                "ProvisionedThroughput": {
-                    "ReadCapacityUnits": "5",
-                    "WriteCapacityUnits": "5"
-                }
-            }
-        },
         "DynamoDBTablePolicy": {
             "Type": "AWS::IAM::Policy",
             "Properties": {
@@ -369,11 +339,7 @@
                             "Action": [ "dynamodb:*" ],
                             "Effect": "Allow",
                             "Resource": {
-                                "Fn::If" : [
-                                    "CreatedCodeResources",
-                                    "Fn::Join": ["", ["arn:aws:dynamodb:", {"Ref": "AWS::Region"}, ":", {"Ref": "AWS::AccountId"}, ":table/", {"Ref": "MediaAtomsDynamoTableCode"} ] ],
-                                    "Fn::Join": ["", ["arn:aws:dynamodb:", {"Ref": "AWS::Region"}, ":", {"Ref": "AWS::AccountId"}, ":table/", {"Ref": "MediaAtomMakerProd"} ] ]
-                                ]
+                                "Fn::Join": ["", ["arn:aws:dynamodb:", {"Ref": "AWS::Region"}, ":", {"Ref": "AWS::AccountId"}, ":table/", {"Ref": "AtomMakerTable"} ] ]
                             }
                         }
                     ]
