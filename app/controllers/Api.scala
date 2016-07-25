@@ -1,23 +1,20 @@
 package controllers
 
-import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
-import com.gu.contentatom.thrift.{ ContentAtomEvent, EventType }
-import com.gu.pandomainauth.action.AuthActions
-
-import play.api.Configuration
-
-import util.atom.MediaAtomImplicits
-
-import javax.inject._
-import play.api.libs.json._
-import model.ThriftUtil
-import ThriftUtil._
-import com.gu.atom.data._
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import scala.util.{ Success, Failure }
 import java.util.Date
+import javax.inject._
 
+import com.gu.atom.data._
+import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
+import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
+import com.gu.pandomainauth.action.AuthActions
 import data.JsonConversions._
+import model.ThriftUtil._
+import play.api.Configuration
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import util.atom.MediaAtomImplicits
+import play.api.libs.json._
+
+import scala.util.{Failure, Success}
 
 class Api @Inject() (val dataStore: DataStore,
                      val livePublisher: LiveAtomPublisher,
@@ -61,6 +58,47 @@ class Api @Inject() (val dataStore: DataStore,
     )
   }
 
+  def updateMediaAtom(atomId: String) = thriftResultAction(atomBodyParser) { implicit req =>
+    val updatedData = req.body.tdata
+    dataStore.getMediaAtom(atomId) match {
+      case Some(atom) =>
+        val newVersion = {
+          val maxVersion = {
+            val activeVersion = atom.tdata.activeVersion
+            val assetVersions = atom.tdata.assets.map(_.version)
+            val versions = activeVersion.map(assetVersions.+:(_)) getOrElse assetVersions
+            if (versions.isEmpty) 0
+            else versions.max
+          }
+          maxVersion + 1
+        }
+        val newAtom = atom
+                      .withRevision(newVersion)
+                      .updateData { media =>
+                        media.copy(
+                          activeVersion = Some(newVersion),
+                          title = updatedData.title,
+                          category = updatedData.category,
+                          duration = updatedData.duration
+                        )
+                      }
+        dataStore.updateMediaAtom(newAtom).fold(
+          err => InternalServerError(err.msg),
+          _ => {
+            val event = ContentAtomEvent(newAtom, EventType.Update, now())
+
+            previewPublisher.publishAtomEvent(event) match {
+              case Success(_) => NoContent
+              case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
+            }
+
+            Created(s"Updated atom $atomId").withHeaders("Location" -> atomUrl(atom.id))
+          }
+        )
+      case None => NotFound(s"atom not found $atomId")
+    }
+  }
+
   def addAsset(atomId: String) = thriftResultAction(assetBodyParser) { implicit req =>
     val newAsset = req.body
 
@@ -82,10 +120,11 @@ class Api @Inject() (val dataStore: DataStore,
             val event = ContentAtomEvent(newAtom, EventType.Update, now())
 
             previewPublisher.publishAtomEvent(event) match {
-              case Success(_)  => Created(s"updated atom $atomId").withHeaders("Location" -> atomUrl(atom.id))
+              case Success(_)  => NoContent
               case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
-
             }
+
+            Created(s"updated atom $atomId").withHeaders("Location" -> atomUrl(atom.id))
           }
         )
       case None => NotFound(s"atom not found $atomId")

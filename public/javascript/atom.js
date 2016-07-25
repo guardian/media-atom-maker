@@ -28,11 +28,30 @@ window.AtomUtil = (function() {
   };
 
   ret.createAtom = function() {
+    var title = $("#titleInput").val();
+    var category = $("#categoryInput").val();
+    var duration = $("#durationInput").val();
     $.ajax({
       method: "POST",
       url: "/api/atom",
       contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+      data: {title: title, category: category, duration: duration},
       success: function(data, status, xhr) {
+        window.location = xhr.getResponseHeader("Location");
+      },
+      error: handleError
+    });
+  };
+
+  ret.updateAtom = function (atomId) {
+    var title = $("#titleInput").val();
+    var category = $("#categoryInput").val();
+    var duration = $("#durationInput").val();
+    $.ajax({
+      method: "POST",
+      url: "/api/atom/" + atomId,
+      data: {title: title, category: category, duration: duration},
+      success: function (data, status, xhr) {
         window.location = xhr.getResponseHeader("Location");
       },
       error: handleError

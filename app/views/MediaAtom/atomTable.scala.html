@@ -1,31 +1,25 @@
 @import com.gu.contentatom.thrift._
 @import util.atom.MediaAtomImplicits._
+@import views.html.MediaAtom.atomData
 @(atom: Atom)
-        <h1>Atom Data</h1>
-        <table id="atom-data">
-            <tr><td class="label">ID</td><td>@atom.id</td></tr>
-            <tr><td class="label">Atom type</td><td>@atom.atomType</td></tr>
-            <tr><td class="label">Title</td><td>@atom.tdata.title</td></tr>
-            <tr><td class="label">Category</td><td>@atom.tdata.category</td></tr>
-            <tr><td class="label">Duration</td><td>@atom.tdata.duration</td></tr>
-            <tr><td class="label">Active version</td><td>@atom.tdata.activeVersion</td></tr>
-        </table>
-        <h1>Assets</h1>
-        <table id="assets">
-            <tr>
-                <td class="label">Type</td>
-                <td class="label">ID</td>
-                <td class="label">Platform</td>
-                <td class="label">Version</td>
-                <td class="label">Mime type</td>
-            </tr>
-            @for(asset <- atom.tdata.assets; activeclass = if(atom.tdata.activeVersion.contains(asset.version)) "-active" else "") {
-                          <tr class="assetRow@activeclass" onClick="AtomUtil.revertAtom('@atom.id', '@asset.version')">
-                              <td>@asset.assetType</td>
-                              <td>@asset.id</td>
-                              <td>@asset.platform</td>
-                              <td>@asset.version</td>
-                              <td>@asset.mimeType.getOrElse("N/A")</td>
-                          </tr>
-            }
-        </table>
+
+@atomData(Some(atom))
+<h1>Assets</h1>
+<table id="assets">
+    <tr>
+        <td class="label">Type</td>
+        <td class="label">ID</td>
+        <td class="label">Platform</td>
+        <td class="label">Version</td>
+        <td class="label">Mime type</td>
+    </tr>
+    @for(asset <- atom.tdata.assets; activeclass = if(atom.tdata.activeVersion.contains(asset.version)) "-active" else "") {
+                  <tr class="assetRow@activeclass" onClick="AtomUtil.revertAtom('@atom.id', '@asset.version')">
+                      <td>@asset.assetType</td>
+                      <td>@asset.id</td>
+                      <td>@asset.platform</td>
+                      <td>@asset.version</td>
+                      <td>@asset.mimeType.getOrElse("N/A")</td>
+                  </tr>
+    }
+</table>
