@@ -49,8 +49,10 @@ lazy val appDistSettings = Seq(
 
 lazy val atomPublisher = (project in file("./atom-publisher-lib"))
 
+lazy val atomManagerMacros = (project in file("./atom-manager-macros"))
+
 lazy val atomManagerPlay = (project in file("./atom-manager-play-lib"))
-  .dependsOn(atomPublisher % "test->test;compile->compile")
+  .dependsOn(atomPublisher % "test->test;compile->compile", atomManagerMacros)
 
 lazy val root = (project in file("."))
   .settings(javaOptions += "-Dhttp.port=9001")

@@ -8,20 +8,22 @@ import com.gu.scanamo.query._
 import cats.data.Xor
 import cats.implicits._
 
+import com.twitter.scrooge.ThriftStruct
+
 import DynamoFormat._
 import AtomDynamoFormats._
 import com.gu.scanamo.scrooge.ScroogeDynamoFormat._
 
+import AtomData._
+
 import com.gu.atom.data._
 
-
-class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String)
+class DynamoDataStore[D <: ThriftStruct](dynamo: AmazonDynamoDBClient, tableName: String)
     extends DataStore {
 
   sealed trait DynamoResult
   implicit class DynamoPutResult(res: PutItemResult) extends DynamoResult
 
-//val x = implicitly[DynamoFormat[Flags]]
 
   // useful shortcuts
   private val get  = Scanamo.get[Atom](dynamo)(tableName) _
