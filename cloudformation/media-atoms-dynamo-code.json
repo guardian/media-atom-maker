@@ -1,0 +1,35 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+        "AtomMakerCodeTable": {
+            "Description": "Code dynamo table",
+            "Type": "String",
+            "Default": "media-atom-maker-CODE"
+        }
+    },
+    "Resources": {
+        "MediaAtomMakerCode": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+                "TableName": { "Ref": "AtomMakerCodeTable" },
+                "AttributeDefinitions": [
+                    {
+                        "AttributeName": "id",
+                        "AttributeType": "S"
+                    }
+                ],
+                "KeySchema": [
+                    {
+                        "AttributeName": "id",
+                        "KeyType": "HASH"
+                    }
+                ],
+                "ProvisionedThroughput": {
+                    "ReadCapacityUnits": "5",
+                    "WriteCapacityUnits": "5"
+                }
+            }
+        }
+    }
+}
+
