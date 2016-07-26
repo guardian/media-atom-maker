@@ -24,10 +24,11 @@ class DynamoDataStore[D <: ThriftStruct](dynamo: AmazonDynamoDBClient, tableName
   sealed trait DynamoResult
   implicit class DynamoPutResult(res: PutItemResult) extends DynamoResult
 
+  val f: DynamoFormat[AtomData] = DynamoFormat[AtomData]
 
   // useful shortcuts
-  private val get  = Scanamo.get[Atom](dynamo)(tableName) _
-  private val put  = Scanamo.put[Atom](dynamo)(tableName) _
+  private val get  = ??? //Scanamo.get[Atom](dynamo)(tableName) _
+  private val put  = ??? //Scanamo.put[Atom](dynamo)(tableName) _
 
   // this should probably return an Either so we can report an error,
   // e.g. if the atom exists, but it can't be deseralised

@@ -28,9 +28,7 @@ class AtomDynamoFormatsMacros(val c: Context) {
   def atomData = {
     val atomDataTpe = c.weakTypeOf[AtomData].typeSymbol.asClass
     atomDataTpe.typeSignature // https://issues.scala-lang.org/browse/SI-7046
-
     require(atomDataTpe.isSealed && !atomDataTpe.knownDirectSubclasses.isEmpty)
-
     val cases = atomDataTpe.knownDirectSubclasses map { cl =>
       val argType = cl.asType
         .asClass.primaryConstructor
