@@ -15,6 +15,7 @@ libraryDependencies ++= Seq(
   "com.gu"                     %% "content-atom-model"           % contentAtomVersion,
 
   "com.amazonaws"              %  "aws-java-sdk-dynamodb"        % AwsSdkVersion,
+  "com.amazonaws"              % "aws-java-sdk"                  % "1.10.69",
   "org.apache.thrift"          %  "libthrift"                    % "0.9.3",
   "com.twitter"                %% "scrooge-core"                 % scroogeVersion,
   "com.twitter"                %% "scrooge-serializer"           % scroogeVersion,
@@ -29,6 +30,7 @@ libraryDependencies ++= Seq(
   "org.scalatestplus.play"     %% "scalatestplus-play"           % "1.5.0"   % "test",
   "org.mockito"                %  "mockito-core"                 % "1.10.19" % "test",
   "org.scala-lang.modules"     %% "scala-xml"                    % "1.0.5"   % "test"
+
 )
 
 lazy val appDistSettings = Seq(
@@ -38,7 +40,7 @@ lazy val appDistSettings = Seq(
     riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
     riffRaffUploadManifestBucket := Option("riffraff-builds"),
     riffRaffArtifactPublishPath := name.value,
-    riffRaffPackageName := s"editorial-tools:${name.value}",
+    riffRaffPackageName := s"media-service:${name.value}",
     riffRaffManifestProjectName := riffRaffPackageName.value,
     riffRaffArtifactResources := Seq(
       riffRaffPackageType.value -> s"packages/${name.value}/${name.value}.tgz",
