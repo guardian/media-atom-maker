@@ -4,8 +4,6 @@ name := "media-atom-maker"
 
 organization in ThisBuild := "com.gu"
 
-version := "1.0.0-SNAPSHOT"
-
 lazy val contentAtomVersion = "2.2.0"
 lazy val scroogeVersion     = "4.2.0"
 lazy val AwsSdkVersion      = "1.10.74"
