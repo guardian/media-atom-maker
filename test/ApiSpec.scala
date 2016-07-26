@@ -72,7 +72,7 @@ class ApiSpec
       }
 
     "return not found when adding asset to a non-existant atom" in AtomTestConf() { implicit conf =>
-      val req = requestWithCookies.withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "3")
+      val req = requestWithCookies.withFormUrlEncodedBody("uri" -> youtubeUrl, "mimetype" -> "", "version" -> "3")
       val result = call(api.addAsset("xyzzy"), req)
       status(result) mustEqual NOT_FOUND
     }
@@ -83,7 +83,7 @@ class ApiSpec
       when(mockDataStore.getMediaAtom(any())).thenReturn(Some(testAtom))
       when(mockDataStore.updateMediaAtom(any())).thenReturn(Xor.Left(VersionConflictError(Some(1))))
       val req = requestWithCookies
-        .withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "1")
+                .withFormUrlEncodedBody("uri" -> youtubeUrl, "mimetype" -> "", "version" -> "1")
       val result = call(api.addAsset("1"), req)
 
       status(result) mustEqual INTERNAL_SERVER_ERROR
@@ -91,7 +91,7 @@ class ApiSpec
     }
 
     "add an asset to an atom" in AtomTestConf() { implicit conf =>
-      val req = requestWithCookies.withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "1")
+      val req = requestWithCookies.withFormUrlEncodedBody("uri" -> youtubeUrl, "mimetype" -> "", "version" -> "1")
       val result = call(api.addAsset("1"), req)
       withClue(s"(body: [${contentAsString(result)}])") { status(result) mustEqual CREATED }
       conf.dataStore.getMediaAtom("1").value.tdata.assets must have size 3
@@ -119,7 +119,7 @@ class ApiSpec
       val dataStore = conf.dataStore
       val atom = dataStore.getMediaAtom("1").value
       val req = requestWithCookies
-        .withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "1")
+                .withFormUrlEncodedBody("uri" -> youtubeUrl, "mimetype" -> "", "version" -> "1")
 
       val result = call(api.addAsset("1"), req)
       status(result) mustEqual CREATED
