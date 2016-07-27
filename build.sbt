@@ -15,6 +15,8 @@ libraryDependencies ++= Seq(
   "org.apache.thrift"          %  "libthrift"                    % "0.9.3",
   "com.twitter"                %% "scrooge-core"                 % scroogeVersion,
   "com.twitter"                %% "scrooge-serializer"           % scroogeVersion,
+  "com.gu"                 %% "scanamo"               % "0.6.1-SNAPSHOT",
+  "com.gu"                 %% "scanamo-scrooge"       % "0.1.2-SNAPSHOT",
   "com.typesafe.scala-logging" %% "scala-logging"                % "3.4.0",
   "org.typelevel"              %% "cats-core"                    % "0.6.0", // for interacting with scanamo
   "com.fasterxml.jackson.core" %  "jackson-databind"             % "2.7.0",
@@ -49,10 +51,8 @@ lazy val appDistSettings = Seq(
 
 lazy val atomPublisher = (project in file("./atom-publisher-lib"))
 
-lazy val atomManagerMacros = (project in file("./atom-manager-macros"))
-
 lazy val atomManagerPlay = (project in file("./atom-manager-play-lib"))
-  .dependsOn(atomPublisher % "test->test;compile->compile", atomManagerMacros)
+  .dependsOn(atomPublisher % "test->test;compile->compile")
 
 lazy val root = (project in file("."))
   .settings(javaOptions += "-Dhttp.port=9001")

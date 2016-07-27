@@ -7,28 +7,29 @@ import com.gu.scanamo.{ Scanamo, DynamoFormat, Table }
 import com.gu.scanamo.query._
 import cats.data.Xor
 import cats.implicits._
-
+import scala.reflect.ClassTag
 import com.twitter.scrooge.ThriftStruct
 
 import DynamoFormat._
-import AtomDynamoFormats._
 import com.gu.scanamo.scrooge.ScroogeDynamoFormat._
 
 import AtomData._
 
 import com.gu.atom.data._
 
-class DynamoDataStore[D <: ThriftStruct](dynamo: AmazonDynamoDBClient, tableName: String)
-    extends DataStore {
+abstract class DynamoDataStore[D : ClassTag : DynamoFormat]
+  (dynamo: AmazonDynamoDBClient, tableName: String)
+    extends DataStore
+    with AtomDynamoFormats[D] {
 
   sealed trait DynamoResult
   implicit class DynamoPutResult(res: PutItemResult) extends DynamoResult
 
-  val f: DynamoFormat[AtomData] = DynamoFormat[AtomData]
+//implicit val fmt = DynamoFormat[Seq[com.gu.contentatom.thrift.atom.media.Asset]]
 
   // useful shortcuts
-  private val get  = ??? //Scanamo.get[Atom](dynamo)(tableName) _
-  private val put  = ??? //Scanamo.put[Atom](dynamo)(tableName) _
+  private val get  = Scanamo.get[Atom](dynamo)(tableName) _
+  private val put  = Scanamo.put[Atom](dynamo)(tableName) _
 
   // this should probably return an Either so we can report an error,
   // e.g. if the atom exists, but it can't be deseralised

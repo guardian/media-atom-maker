@@ -2,7 +2,9 @@ lazy val contentAtomVersion = "1.0.1"
 
 lazy val playVersion = "2.5.3"
 
-lazy val AwsSdkVersion = "1.10.74"
+// keep this to the same level as sanamo otherwise we will evict the
+// only version of the library that scanamo will work with
+lazy val AwsSdkVersion = "1.11.8"
 
 name := "atom-manager-play"
 
