@@ -59,7 +59,6 @@ lazy val atomManagerPlay = (project in file("./atom-manager-play-lib"))
   .dependsOn(atomPublisher % "test->test;compile->compile")
 
 lazy val root = (project in file("."))
-  .settings(javaOptions += "-Dhttp.port=9001")
   .enablePlugins(PlayScala, RiffRaffArtifact, UniversalPlugin)
   .settings(appDistSettings)
   .dependsOn(atomPublisher, atomManagerPlay % "test->test;compile->compile")
