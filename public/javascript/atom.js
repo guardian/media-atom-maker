@@ -31,11 +31,12 @@ window.AtomUtil = (function() {
     var title = $("#titleInput").val();
     var category = $("#categoryInput").val();
     var duration = $("#durationInput").val();
+    var posterUrl = $("#posterInput").val();
     $.ajax({
       method: "POST",
       url: "/api/atom",
       contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-      data: {title: title, category: category, duration: duration},
+      data: {title: title, category: category, duration: duration, posterUrl: posterUrl},
       success: function(data, status, xhr) {
         window.location = xhr.getResponseHeader("Location");
       },
@@ -47,10 +48,11 @@ window.AtomUtil = (function() {
     var title = $("#titleInput").val();
     var category = $("#categoryInput").val();
     var duration = $("#durationInput").val();
+    var posterUrl = $("#posterInput").val();
     $.ajax({
       method: "POST",
       url: "/api/atom/" + atomId,
-      data: {title: title, category: category, duration: duration},
+      data: {title: title, category: category, duration: duration, posterUrl: posterUrl},
       success: function (data, status, xhr) {
         window.location = xhr.getResponseHeader("Location");
       },

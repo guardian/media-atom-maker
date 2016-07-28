@@ -67,6 +67,7 @@ object ThriftUtil {
     }
     val duration = params.get("duration").map(_.head.toLong)
     val source = params.get("source").map(_.head)
+    val posterUrl = params.get("posterUrl").map(_.head)
     for {
       assets <- parseAssets(
         params.get("uri").getOrElse(Nil),
@@ -79,7 +80,8 @@ object ThriftUtil {
       category,
       plutoProjectId = None,
       duration,
-      source
+      source,
+      posterUrl
     )
   }
 
