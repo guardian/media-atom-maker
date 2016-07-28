@@ -13,6 +13,8 @@ libraryDependencies ++= Seq(
   "com.gu"                     %% "content-atom-model"   % contentAtomVersion,
   "com.amazonaws"              %  "aws-java-sdk-kinesis" % AwsSdkVersion,
   "com.typesafe.scala-logging" %% "scala-logging"        % "3.4.0",
+  "com.gu"                     %% "scanamo"              % "0.6.1-SNAPSHOT",
+  "com.gu"                     %% "scanamo-scrooge"      % "0.1.2-SNAPSHOT",
   "com.twitter"                %% "scrooge-serializer"   % scroogeVersion,
   "com.twitter"                %% "scrooge-core"         % scroogeVersion,
   "com.typesafe.akka"          %% "akka-actor"           % akkaVersion,

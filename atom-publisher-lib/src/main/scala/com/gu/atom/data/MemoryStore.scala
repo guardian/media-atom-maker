@@ -2,11 +2,9 @@ package data
 
 import cats.data.Xor
 import com.gu.contentatom.thrift.Atom
-import javax.inject.Singleton
 
 import com.gu.atom.data._
 
-@Singleton
 class MemoryStore extends DataStore {
 
   def this(initial: Map[String, Atom] = Map.empty) = {
