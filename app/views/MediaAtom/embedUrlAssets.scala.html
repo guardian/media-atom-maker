@@ -1,9 +1,5 @@
-@import com.gu.contentatom.thrift.atom.media.Asset
-@(assets: Seq[Asset])
+@(atom: com.gu.contentatom.thrift.atom.media.MediaAtom)
 
-@* TODO poster *@
-<video controls="controls">
-    @for(asset <- assets) {
-        <source type="@{asset.mimeType}" src="@{asset.id}">
-    }
+<video controls="controls" poster="@{atom.posterUrl}">
+    @for(asset <- atom.assets) {<source type="@{asset.mimeType}" src="@{asset.id}" />}
 </video>
