@@ -19,13 +19,3 @@ class MediaAtomDataStoreProvider @Inject() (awsConfig: AWSConfig)
     def toAtomData(data: MediaAtom) = AtomData.Media(data)
   }
 }
-
-//object MediaAtomDataStoreHolder {
-
-  //implicit val fmt = DynamoFormat[Seq[com.gu.contentatom.thrift.atom.media.Asset]]
-
-  // class MediaAtomDataStore @Inject() (awsConfig: AWSConfig)
-  //     extends DynamoDataStore[MediaAtom](awsConfig.dynamoDB, awsConfig.dynamoTableName)
-  // with MediaAtomDynamoFormats
-
-//}

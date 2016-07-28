@@ -39,7 +39,7 @@ trait AtomDynamoFormats[A] {
     }
 }
 
-// ready made implementations of the above types for different atom types
+// ready-made implementations of the above types for different atom types
 
 trait MediaAtomDynamoFormats extends AtomDynamoFormats[MediaAtom] {
 
