@@ -39,6 +39,8 @@ trait AtomDynamoFormats[A] {
     }
 }
 
+// ready made implementations of the above types for different atom types
+
 trait MediaAtomDynamoFormats extends AtomDynamoFormats[MediaAtom] {
 
   def fromAtomData = { case AtomData.Media(data) => data }
@@ -47,32 +49,3 @@ trait MediaAtomDynamoFormats extends AtomDynamoFormats[MediaAtom] {
 }
 
 object MediaAtomDynamoFormats extends MediaAtomDynamoFormats
-
-// object AtomDynamoFormats {
-//   implicit def atomDataDynamoFormat: DynamoFormat[AtomData] =
-//     macro AtomDynamoFormatsMacros.atomData
-// }
-
-// class AtomDynamoFormatsMacros(val c: Context) {
-//   import c.universe._
-
-//   def atomData = {
-//     val atomDataTpe = c.weakTypeOf[AtomData].typeSymbol.asClass
-//     atomDataTpe.typeSignature // https://issues.scala-lang.org/browse/SI-7046
-//     require(atomDataTpe.isSealed && !atomDataTpe.knownDirectSubclasses.isEmpty)
-//     val cases = atomDataTpe.knownDirectSubclasses map { cl =>
-//       val argType = cl.asType
-//         .asClass.primaryConstructor
-//         .asMethod.paramLists.head.head
-//         .typeSignature.dealias
-//       cq"""${cl.name.toTermName}(data: $argType) => DynamoFormat[$argType].write(data)"""
-//     }
-//     q"""new DynamoFormat[AtomData] {
-//       def read(av: _root_.com.amazonaws.services.dynamodbv2.model.AttributeValue) = ???
-//       def write(data: AtomData) = data match {
-//         case ..${cases}
-//       }
-//     }"""
-//   }
-
-// }

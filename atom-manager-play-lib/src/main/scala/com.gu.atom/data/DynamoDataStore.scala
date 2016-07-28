@@ -25,8 +25,6 @@ abstract class DynamoDataStore[D : ClassTag : DynamoFormat]
   sealed trait DynamoResult
   implicit class DynamoPutResult(res: PutItemResult) extends DynamoResult
 
-//implicit val fmt = DynamoFormat[Seq[com.gu.contentatom.thrift.atom.media.Asset]]
-
   // useful shortcuts
   private val get  = Scanamo.get[Atom](dynamo)(tableName) _
   private val put  = Scanamo.put[Atom](dynamo)(tableName) _
