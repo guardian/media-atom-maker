@@ -79,7 +79,8 @@ class Api @Inject() (val dataStore: DataStore,
                           activeVersion = Some(newVersion),
                           title = updatedData.title,
                           category = updatedData.category,
-                          duration = updatedData.duration
+                          duration = updatedData.duration,
+                          posterUrl = updatedData.posterUrl
                         )
                       }
         dataStore.updateAtom(newAtom).fold(

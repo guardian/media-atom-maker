@@ -31,7 +31,8 @@ object TestData {
         category = Category.News,
         plutoProjectId = None,
         duration = None,
-        source = None
+        source = None,
+        posterUrl = None
       )
     ),
     contentChangeDetails = ContentChangeDetails(revision = 1)

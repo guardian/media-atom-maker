@@ -29,7 +29,13 @@ object TestData {
               id = "fizzbuzz",
               platform = Platform.Youtube
             )
-          )
+          ),
+          title = "title",
+          category = Category.News,
+          plutoProjectId = None,
+          duration = None,
+          source = None,
+          posterUrl = None
         )
       ),
       contentChangeDetails = ContentChangeDetails(revision = 1)
@@ -43,6 +49,7 @@ object TestData {
           activeVersion = None,
           title = "Test atom 2",
           category = Category.News,
+          activeVersion = Some(1L),
           assets = List(
             Asset(
               assetType = AssetType.Video,
@@ -56,7 +63,13 @@ object TestData {
               id = "afkdljlwe",
               platform = Platform.Youtube
             )
-          )
+          ),
+          title = "title",
+          category = Category.News,
+          plutoProjectId = None,
+          duration = None,
+          source = None,
+          posterUrl = None
         )
       ),
       contentChangeDetails = ContentChangeDetails(revision = 1)

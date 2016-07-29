@@ -5,6 +5,7 @@ import com.gu.atom.data.{DataStore, VersionConflictError}
 import com.gu.atom.play.test.AtomSuite
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import com.gu.contentatom.thrift.ContentAtomEvent
+import com.gu.contentatom.thrift.atom.media.Category.{Hosted, News}
 import controllers.Api
 import data.MemoryStore
 import org.mockito.ArgumentCaptor
@@ -105,6 +106,49 @@ class ApiSpec
       val createdAtom = conf.dataStore.getAtom("2").value
       createdAtom.id mustEqual "2"
 
+    }
+
+    "create an atom with default values" in AtomTestConf() { implicit conf =>
+      val req = requestWithCookies.withFormUrlEncodedBody("id" -> "3")
+
+      val result = call(api.createMediaAtom(), req)
+      withClue(s"(body: [${contentAsString(result)}])") {
+        status(result) mustEqual CREATED
+      }
+      val createdAtom = conf.dataStore.getMediaAtom("3").value
+
+      createdAtom.id mustEqual "3"
+      val mediaAtom = createdAtom.tdata
+      mediaAtom.activeVersion mustEqual Some(1)
+      mediaAtom.title mustEqual "unknown"
+      mediaAtom.category mustEqual News
+      mediaAtom.duration mustEqual None
+      mediaAtom.posterUrl mustEqual None
+    }
+
+    "create an atom with specified values" in AtomTestConf() { implicit conf =>
+      val req = requestWithCookies
+                .withFormUrlEncodedBody(
+                  "id" -> "4",
+                  "title" -> "testing123",
+                  "category" -> "hosted",
+                  "duration" -> "34",
+                  "posterUrl" -> "https://abc/def.jpg"
+                )
+
+      val result = call(api.createMediaAtom(), req)
+      withClue(s"(body: [${contentAsString(result)}])") {
+        status(result) mustEqual CREATED
+      }
+      val createdAtom = conf.dataStore.getMediaAtom("4").value
+
+      createdAtom.id mustEqual "4"
+      val mediaAtom = createdAtom.tdata
+      mediaAtom.activeVersion mustEqual Some(1)
+      mediaAtom.title mustEqual "testing123"
+      mediaAtom.category mustEqual Hosted
+      mediaAtom.duration mustEqual Some(34)
+      mediaAtom.posterUrl mustEqual Some("https://abc/def.jpg")
     }
 
     "call out to live publisher to publish an atom" in AtomTestConf() { implicit conf =>
