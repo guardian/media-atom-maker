@@ -37,7 +37,7 @@ trait MediaAtomImplicits extends AtomImplicits[MediaAtom] {
       val data = getData(a)
       val activeAssets = data.assets filter (asset => data.activeVersion.contains(asset.version))
       if (activeAssets.nonEmpty && activeAssets.forall(_.platform == Url)) {
-        views.html.MediaAtom.embedUrlAssets(activeAssets).toString
+        views.html.MediaAtom.embedUrlAssets(data).toString
       } else {
         activeAssets.headOption match {
           case Some(activeAsset) if activeAsset.platform == Youtube =>

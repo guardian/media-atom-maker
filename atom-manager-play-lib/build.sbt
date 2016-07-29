@@ -1,4 +1,4 @@
-lazy val contentAtomVersion = "1.0.1"
+lazy val contentAtomVersion = "2.4.0"
 
 lazy val playVersion = "2.5.3"
 
