@@ -67,7 +67,10 @@ object ThriftUtil {
     }
     val duration = params.get("duration").map(_.head.toLong)
     val source = params.get("source").map(_.head)
-    val posterUrl = params.get("posterUrl").map(_.head).map(parseId).flatMap(_.right.toOption)
+    val posterUrl = params.get("posterUrl").map(_.head).flatMap {
+      case Url(url) => Some(url)
+      case _ => None
+    }
     for {
       assets <- parseAssets(params.get("uri").getOrElse(Nil), version).right
     } yield MediaAtom(
