@@ -15,7 +15,6 @@ object TestData {
         MediaAtom(
           activeVersion = Some(2L),
           title = "Test atom 1",
-          category = Category.Feature,
           assets = List(
             Asset(
               assetType = AssetType.Video,
@@ -30,7 +29,6 @@ object TestData {
               platform = Platform.Youtube
             )
           ),
-          title = "title",
           category = Category.News,
           plutoProjectId = None,
           duration = None,
@@ -48,8 +46,6 @@ object TestData {
         MediaAtom(
           activeVersion = None,
           title = "Test atom 2",
-          category = Category.News,
-          activeVersion = Some(1L),
           assets = List(
             Asset(
               assetType = AssetType.Video,
@@ -64,8 +60,7 @@ object TestData {
               platform = Platform.Youtube
             )
           ),
-          title = "title",
-          category = Category.News,
+          category = Category.Feature,
           plutoProjectId = None,
           duration = None,
           source = None,

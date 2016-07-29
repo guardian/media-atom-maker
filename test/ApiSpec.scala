@@ -115,7 +115,7 @@ class ApiSpec
       withClue(s"(body: [${contentAsString(result)}])") {
         status(result) mustEqual CREATED
       }
-      val createdAtom = conf.dataStore.getMediaAtom("3").value
+      val createdAtom = conf.dataStore.getAtom("3").value
 
       createdAtom.id mustEqual "3"
       val mediaAtom = createdAtom.tdata
@@ -140,7 +140,7 @@ class ApiSpec
       withClue(s"(body: [${contentAsString(result)}])") {
         status(result) mustEqual CREATED
       }
-      val createdAtom = conf.dataStore.getMediaAtom("4").value
+      val createdAtom = conf.dataStore.getAtom("4").value
 
       createdAtom.id mustEqual "4"
       val mediaAtom = createdAtom.tdata
