@@ -1,3 +1,5 @@
+import BuildVars._
+
 scalaVersion in ThisBuild := "2.11.8"
 
 name := "media-atom-maker"
@@ -6,11 +8,6 @@ organization in ThisBuild := "com.gu"
 
 version := "1.0.0-SNAPSHOT"
 
-lazy val contentAtomVersion = "2.2.0"
-
-lazy val scroogeVersion     = "4.2.0"
-lazy val pandaVer           = "0.3.0"
-
 libraryDependencies ++= Seq(
   "com.gu"                     %% "content-atom-model"           % contentAtomVersion,
   "org.apache.thrift"          %  "libthrift"                    % "0.9.3",
@@ -18,7 +15,8 @@ libraryDependencies ++= Seq(
   "com.twitter"                %% "scrooge-serializer"           % scroogeVersion,
   "com.gu"                 %% "scanamo"               % "0.6.1-SNAPSHOT",
   "com.gu"                 %% "scanamo-scrooge"       % "0.1.2-SNAPSHOT",
-  "com.typesafe.scala-logging" %% "scala-logging"                % "3.4.0",
+  "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
+    "com.typesafe.scala-logging" %% "scala-logging"                % "3.4.0",
   "org.typelevel"              %% "cats-core"                    % "0.6.0", // for interacting with scanamo
   "com.fasterxml.jackson.core" %  "jackson-databind"             % "2.7.0",
   "com.gu"                     %% "pan-domain-auth-play_2-5"     % pandaVer,

@@ -13,7 +13,9 @@ object TestData {
       defaultHtml = "<div></div>",
       data = AtomData.Media(
         MediaAtom(
-          activeVersion = 2L,
+          activeVersion = Some(2L),
+          title = "Test atom 1",
+          category = Category.Feature,
           assets = List(
             Asset(
               assetType = AssetType.Video,
@@ -38,7 +40,9 @@ object TestData {
       defaultHtml = "<div></div>",
       data = AtomData.Media(
         MediaAtom(
-          activeVersion = 1L,
+          activeVersion = None,
+          title = "Test atom 2",
+          category = Category.News,
           assets = List(
             Asset(
               assetType = AssetType.Video,

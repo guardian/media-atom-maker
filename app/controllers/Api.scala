@@ -60,7 +60,7 @@ class Api @Inject() (val dataStore: DataStore,
 
   def updateMediaAtom(atomId: String) = thriftResultAction(atomBodyParser) { implicit req =>
     val updatedData = req.body.tdata
-    dataStore.getMediaAtom(atomId) match {
+    dataStore.getAtom(atomId) match {
       case Some(atom) =>
         val newVersion = {
           val maxVersion = {
@@ -82,7 +82,7 @@ class Api @Inject() (val dataStore: DataStore,
                           duration = updatedData.duration
                         )
                       }
-        dataStore.updateMediaAtom(newAtom).fold(
+        dataStore.updateAtom(newAtom).fold(
           err => InternalServerError(err.msg),
           _ => {
             val event = ContentAtomEvent(newAtom, EventType.Update, now())

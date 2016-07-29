@@ -82,7 +82,6 @@ class ApiSpec
       val mockDataStore = conf.dataStore
       when(mockDataStore.getAtom(any())).thenReturn(Some(testAtom))
       when(mockDataStore.updateAtom(any())).thenReturn(Xor.Left(VersionConflictError(1)))
-      when(mockDataStore.updateAtom(any())).thenReturn(Xor.Left(VersionConflictError(Some(1))))
 
       val req = requestWithCookies
                 .withFormUrlEncodedBody("uri" -> youtubeUrl, "mimetype" -> "", "version" -> "1")
