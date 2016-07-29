@@ -4,7 +4,7 @@ name := "atom-publisher-lib"
 
 version := "1.0.0-SNAPSHOT"
 
-lazy val contentAtomVersion = "1.0.1"
+lazy val contentAtomVersion = "2.3.0"
 lazy val scroogeVersion     = "4.2.0"
 lazy val AwsSdkVersion      = "1.11.8"
 lazy val akkaVersion        = "2.4.8"

@@ -6,7 +6,7 @@ organization in ThisBuild := "com.gu"
 
 version := "1.0.0-SNAPSHOT"
 
-lazy val contentAtomVersion = "1.0.1"
+lazy val contentAtomVersion = "2.3.0"
 lazy val scroogeVersion     = "4.2.0"
 lazy val pandaVer           = "0.3.0"
 
