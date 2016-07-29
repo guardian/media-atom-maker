@@ -16,9 +16,9 @@
             <a href="/atoms">Back</a>
         </p>
         @atomTable(atom)
+        @updateAtomUI(atom.id)
         @publishUI(atom.id)
         @addAssetForm(atom.id, atom.tdata.activeVersion.map(_ + (if(atom.tdata.assets.isEmpty) 0 else 1)) getOrElse 1)
         @showDefaultHtml(atom)
-        @updateAtomUI(atom.id)
     </body>
 </html>
