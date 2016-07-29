@@ -6,7 +6,8 @@ organization in ThisBuild := "com.gu"
 
 version := "1.0.0-SNAPSHOT"
 
-lazy val contentAtomVersion = "2.3.0"
+lazy val contentAtomVersion = "2.2.0"
+
 lazy val scroogeVersion     = "4.2.0"
 lazy val pandaVer           = "0.3.0"
 
@@ -27,6 +28,7 @@ libraryDependencies ++= Seq(
   "org.scalatestplus.play"     %% "scalatestplus-play"           % "1.5.0"   % "test",
   "org.mockito"                %  "mockito-core"                 % "1.10.19" % "test",
   "org.scala-lang.modules"     %% "scala-xml"                    % "1.0.5"   % "test"
+
 )
 
 lazy val appDistSettings = Seq(
@@ -36,7 +38,7 @@ lazy val appDistSettings = Seq(
     riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
     riffRaffUploadManifestBucket := Option("riffraff-builds"),
     riffRaffArtifactPublishPath := name.value,
-    riffRaffPackageName := s"editorial-tools:${name.value}",
+    riffRaffPackageName := s"media-service:${name.value}",
     riffRaffManifestProjectName := riffRaffPackageName.value,
     riffRaffArtifactResources := Seq(
       riffRaffPackageType.value -> s"packages/${name.value}/${name.value}.tgz",
@@ -55,7 +57,6 @@ lazy val atomManagerPlay = (project in file("./atom-manager-play-lib"))
   .dependsOn(atomPublisher % "test->test;compile->compile")
 
 lazy val root = (project in file("."))
-  .settings(javaOptions += "-Dhttp.port=9001")
   .enablePlugins(PlayScala, RiffRaffArtifact, UniversalPlugin)
   .settings(appDistSettings)
   .dependsOn(atomPublisher, atomManagerPlay % "test->test;compile->compile")

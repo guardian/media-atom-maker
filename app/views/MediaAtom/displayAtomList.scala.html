@@ -1,5 +1,9 @@
-@import com.gu.contentatom.thrift._
+@import com.gu.contentatom.thrift.Atom
+@import views.html.MediaAtom.atomData
+@import views.html.MediaAtom.atomListTable
+@import views.html.MediaAtom.createAtomUI
 @(atoms: TraversableOnce[Atom])
+
 <html>
     <head>
         <script
@@ -11,6 +15,7 @@
         <link rel="stylesheet" href="/assets/stylesheets/atom-data.css">
     </head>
     <body>
+        @atomData()
         @createAtomUI()
         @atomListTable(atoms)
     </body>

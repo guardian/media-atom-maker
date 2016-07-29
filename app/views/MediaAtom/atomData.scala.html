@@ -1,0 +1,35 @@
+@import com.gu.contentatom.thrift.Atom
+@import com.gu.contentatom.thrift.atom.media._
+@import util.atom.MediaAtomImplicits._
+@(atom: Option[Atom] = None)
+
+@selectedOn(condition: Boolean) = {
+    @if(condition){selected="selected"}
+}
+
+<h1>Atom Data</h1>
+<table id="atom-data">
+    <tr><td class="label">ID</td><td>@{atom.map(_.id)}</td></tr>
+    <tr><td class="label">Atom type</td><td>@{atom.map(_.atomType)}</td></tr>
+    <tr>
+        <td class="label">Title</td>
+        <td><input id="titleInput" type="text" name="title" value="@{atom.map(_.tdata.title)}" width="100" /></td>
+    </tr>
+    <tr>
+        <td class="label">Category</td>
+        <td>
+            <select id="categoryInput" name="category">
+                <option value="news" @selectedOn(atom.isEmpty || atom.exists(_.tdata.category == Category.News))>News</option>
+                <option value="documentary" @selectedOn(atom.exists(_.tdata.category == Category.Documentary))>Documentary</option>
+                <option value="explainer" @selectedOn(atom.exists(_.tdata.category == Category.Explainer))>Explainer</option>
+                <option value="feature" @selectedOn(atom.exists(_.tdata.category == Category.Feature))>Feature</option>
+                <option value="hosted" @selectedOn(atom.exists(_.tdata.category == Category.Hosted))>Hosted</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td class="label">Duration (s)</td>
+        <td><input id="durationInput" type="text" name="duration" value="@{atom.map(_.tdata.duration)}" width="100" /></td>
+    </tr>
+    <tr><td class="label">Active version</td><td>@{atom.map(_.tdata.activeVersion)}</td></tr>
+</table>

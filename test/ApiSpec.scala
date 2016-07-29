@@ -1,29 +1,24 @@
 package test
 
-import controllers.Api
-
 import cats.data.Xor
-import com.gu.atom.publish.{PreviewAtomPublisher, LiveAtomPublisher}
-import com.gu.contentatom.thrift.ContentAtomEvent
-import com.gu.atom.data.{ DataStore, VersionConflictError }
-import org.mockito.ArgumentCaptor
-import org.scalatest.mock.MockitoSugar
-import org.mockito.Mockito._
-import org.mockito.Matchers._
-
-import util.atom.MediaAtomImplicits
-
-import play.api.libs.json._
-import play.api.http.HttpVerbs
-import play.api.test.Helpers._
-import data.MemoryStore
-
+import com.gu.atom.data.{DataStore, VersionConflictError}
 import com.gu.atom.play.test.AtomSuite
-
+import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
+import com.gu.contentatom.thrift.ContentAtomEvent
+import controllers.Api
+import data.MemoryStore
+import org.mockito.ArgumentCaptor
+import org.mockito.Matchers._
+import org.mockito.Mockito._
 import org.scalatest.AppendedClues
-import scala.util.{ Success, Failure }
+import org.scalatest.mock.MockitoSugar
+import play.api.http.HttpVerbs
+import util.atom.MediaAtomImplicits
+import play.api.libs.json._
+import play.api.test.Helpers._
+import test.TestData._
 
-import TestData._
+import scala.util.{Failure, Success}
 
 class ApiSpec
     extends AtomSuite
@@ -77,7 +72,7 @@ class ApiSpec
       }
 
     "return not found when adding asset to a non-existant atom" in AtomTestConf() { implicit conf =>
-      val req = requestWithCookies.withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "3")
+      val req = requestWithCookies.withFormUrlEncodedBody("uri" -> youtubeUrl, "mimetype" -> "", "version" -> "3")
       val result = call(api.addAsset("xyzzy"), req)
       status(result) mustEqual NOT_FOUND
     }
@@ -87,8 +82,10 @@ class ApiSpec
       val mockDataStore = conf.dataStore
       when(mockDataStore.getAtom(any())).thenReturn(Some(testAtom))
       when(mockDataStore.updateAtom(any())).thenReturn(Xor.Left(VersionConflictError(1)))
+      when(mockDataStore.updateAtom(any())).thenReturn(Xor.Left(VersionConflictError(Some(1))))
+
       val req = requestWithCookies
-        .withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "1")
+                .withFormUrlEncodedBody("uri" -> youtubeUrl, "mimetype" -> "", "version" -> "1")
       val result = call(api.addAsset("1"), req)
 
       status(result) mustEqual INTERNAL_SERVER_ERROR
@@ -96,7 +93,7 @@ class ApiSpec
     }
 
     "add an asset to an atom" in AtomTestConf() { implicit conf =>
-      val req = requestWithCookies.withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "1")
+      val req = requestWithCookies.withFormUrlEncodedBody("uri" -> youtubeUrl, "mimetype" -> "", "version" -> "1")
       val result = call(api.addAsset("1"), req)
       withClue(s"(body: [${contentAsString(result)}])") { status(result) mustEqual CREATED }
       conf.dataStore.getAtom("1").value.tdata.assets must have size 3
@@ -124,7 +121,7 @@ class ApiSpec
       val dataStore = conf.dataStore
       val atom = dataStore.getAtom("1").value
       val req = requestWithCookies
-        .withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "1")
+                .withFormUrlEncodedBody("uri" -> youtubeUrl, "mimetype" -> "", "version" -> "1")
 
       val result = call(api.addAsset("1"), req)
       status(result) mustEqual CREATED
@@ -142,21 +139,21 @@ class ApiSpec
       status(result) mustEqual INTERNAL_SERVER_ERROR
     }
 
-    "should list atoms" in AtomTestConf() { implicit conf =>
+    "list atoms" in AtomTestConf() { implicit conf =>
       conf.dataStore.createAtom(testAtom.copy(id = "2"))
       val result = call(api.listAtoms(), requestWithCookies)
       status(result) mustEqual OK
       contentAsJson(result).as[List[JsValue]] must have size 2
     }
-    "should change version of atom" in AtomTestConf() { implicit conf =>
+    "change version of atom" in AtomTestConf() { implicit conf =>
       // before...
-      conf.dataStore.getAtom("1").value.tdata.activeVersion mustEqual 2L
+      conf.dataStore.getAtom("1").value.tdata.activeVersion mustEqual Some(2L)
       val result = call(api.revertAtom("1", 1L), requestWithCookies)
       status(result) mustEqual OK
       // after ...
-      conf.dataStore.getAtom("1").value.tdata.activeVersion mustEqual 1L
+      conf.dataStore.getAtom("1").value.tdata.activeVersion mustEqual Some(1L)
     }
-    "should complain if revert to version without asset" in
+    "complain if revert to version without asset" in
     AtomTestConf() { implicit conf =>
       // before...
       val result = call(api.revertAtom("1", 10L), requestWithCookies)

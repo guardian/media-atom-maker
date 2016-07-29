@@ -17,7 +17,8 @@
         </p>
         @atomTable(atom)
         @publishUI(atom.id)
-        @addAssetForm(atom.id, atom.tdata.activeVersion + (if(atom.tdata.assets.length == 0) 0 else 1))
+        @addAssetForm(atom.id, atom.tdata.activeVersion.map(_ + (if(atom.tdata.assets.isEmpty) 0 else 1)) getOrElse 1)
         @showDefaultHtml(atom)
+        @updateAtomUI(atom.id)
     </body>
 </html>

@@ -1,11 +1,11 @@
 {
   "stack": "media-atom-maker",
-  "defaultStacks": ["flexible"],
+  "defaultStacks": ["media-service"],
   "packages": {
     "media-atom-maker": {
       "type": "autoscaling",
       "data": {
-        "bucket": "media-atom-maker-dist",
+        "bucket": "atom-maker-dist",
         "publicReadAcl": false
       }
     }

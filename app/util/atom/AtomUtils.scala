@@ -1,7 +1,8 @@
 package util.atom
 
 import com.gu.contentatom.thrift._
-import atom.media._
+import com.gu.contentatom.thrift.atom.media.Platform.{Url, Youtube}
+import com.gu.contentatom.thrift.atom.media._
 
 trait AtomDataTyper[D] {
   def getData(a: Atom): D
@@ -31,12 +32,19 @@ trait MediaAtomImplicits extends AtomImplicits[MediaAtom] {
     def getData(a: Atom) = a.data.asInstanceOf[AtomData.Media].media
     def setData(a: Atom, newData: MediaAtom) =
       a.copy(data = a.data.asInstanceOf[AtomData.Media].copy(media = newData))
-    def makeDefaultHtml(a: Atom) = {
+
+    def makeDefaultHtml(a: Atom): String = {
       val data = getData(a)
-      data.assets
-        .find(_.version == data.activeVersion)
-        .map(asset => views.html.MediaAtom.embedAsset(asset).toString)
-        .getOrElse(s"<div></div>")
+      val activeAssets = data.assets filter (asset => data.activeVersion.contains(asset.version))
+      if (activeAssets.nonEmpty && activeAssets.forall(_.platform == Url)) {
+        views.html.MediaAtom.embedUrlAssets(activeAssets).toString
+      } else {
+        activeAssets.headOption match {
+          case Some(activeAsset) if activeAsset.platform == Youtube =>
+            views.html.MediaAtom.embedYoutubeAsset(activeAsset).toString
+          case _ => "<div></div>"
+        }
+      }
     }
   }
 }

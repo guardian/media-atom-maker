@@ -12,7 +12,7 @@ case object IDNotFound extends DataStoreError("Atom ID not in datastore")
 case object ReadError extends DataStoreError("Read error")
 
 case class  DataError(info: String) extends DataStoreError(info)
-case class  VersionConflictError(requestVer: Long)
+case class  VersionConflictError(requestVer: Option[Long])
     extends DataStoreError(s"Update has version $requestVer, which is earlier or equal to data store version")
 
 trait DataStore extends DataStoreResult {
