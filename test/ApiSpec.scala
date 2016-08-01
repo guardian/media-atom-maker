@@ -81,28 +81,29 @@ class ApiSpec
     "complain when catching simultaenous update from datastore" in
     AtomTestConf(dataStore = mock[DataStore]) { implicit conf =>
       val mockDataStore = conf.dataStore
-      when(mockDataStore.getMediaAtom(any())).thenReturn(Some(testAtom))
-      when(mockDataStore.updateMediaAtom(any())).thenReturn(Xor.Left(VersionConflictError(Some(1))))
+      when(mockDataStore.getAtom(any())).thenReturn(Some(testAtom))
+      when(mockDataStore.updateAtom(any())).thenReturn(Xor.Left(VersionConflictError(1)))
+
       val req = requestWithCookies
                 .withFormUrlEncodedBody("uri" -> youtubeUrl, "mimetype" -> "", "version" -> "1")
       val result = call(api.addAsset("1"), req)
 
       status(result) mustEqual INTERNAL_SERVER_ERROR
-      verify(mockDataStore).updateMediaAtom(any())
+      verify(mockDataStore).updateAtom(any())
     }
 
     "add an asset to an atom" in AtomTestConf() { implicit conf =>
       val req = requestWithCookies.withFormUrlEncodedBody("uri" -> youtubeUrl, "mimetype" -> "", "version" -> "1")
       val result = call(api.addAsset("1"), req)
       withClue(s"(body: [${contentAsString(result)}])") { status(result) mustEqual CREATED }
-      conf.dataStore.getMediaAtom("1").value.tdata.assets must have size 3
+      conf.dataStore.getAtom("1").value.tdata.assets must have size 3
     }
 
     "create an atom" in AtomTestConf() { implicit conf =>
       val req = requestWithCookies.withFormUrlEncodedBody("id" -> "2")
       val result = call(api.createMediaAtom(), req)
       withClue(s"(body: [${contentAsString(result)}])") { status(result) mustEqual CREATED  }
-      val createdAtom = conf.dataStore.getMediaAtom("2").value
+      val createdAtom = conf.dataStore.getAtom("2").value
       createdAtom.id mustEqual "2"
 
     }
@@ -114,7 +115,7 @@ class ApiSpec
       withClue(s"(body: [${contentAsString(result)}])") {
         status(result) mustEqual CREATED
       }
-      val createdAtom = conf.dataStore.getMediaAtom("3").value
+      val createdAtom = conf.dataStore.getAtom("3").value
 
       createdAtom.id mustEqual "3"
       val mediaAtom = createdAtom.tdata
@@ -139,7 +140,7 @@ class ApiSpec
       withClue(s"(body: [${contentAsString(result)}])") {
         status(result) mustEqual CREATED
       }
-      val createdAtom = conf.dataStore.getMediaAtom("4").value
+      val createdAtom = conf.dataStore.getAtom("4").value
 
       createdAtom.id mustEqual "4"
       val mediaAtom = createdAtom.tdata
@@ -161,7 +162,7 @@ class ApiSpec
       val eventCaptor = ArgumentCaptor.forClass(classOf[ContentAtomEvent])
 
       val dataStore = conf.dataStore
-      val atom = dataStore.getMediaAtom("1").value
+      val atom = dataStore.getAtom("1").value
       val req = requestWithCookies
                 .withFormUrlEncodedBody("uri" -> youtubeUrl, "mimetype" -> "", "version" -> "1")
 
@@ -182,18 +183,18 @@ class ApiSpec
     }
 
     "list atoms" in AtomTestConf() { implicit conf =>
-      conf.dataStore.createMediaAtom(testAtom.copy(id = "2"))
+      conf.dataStore.createAtom(testAtom.copy(id = "2"))
       val result = call(api.listAtoms(), requestWithCookies)
       status(result) mustEqual OK
       contentAsJson(result).as[List[JsValue]] must have size 2
     }
     "change version of atom" in AtomTestConf() { implicit conf =>
       // before...
-      conf.dataStore.getMediaAtom("1").value.tdata.activeVersion mustEqual Some(2L)
+      conf.dataStore.getAtom("1").value.tdata.activeVersion mustEqual Some(2L)
       val result = call(api.revertAtom("1", 1L), requestWithCookies)
       status(result) mustEqual OK
       // after ...
-      conf.dataStore.getMediaAtom("1").value.tdata.activeVersion mustEqual Some(1L)
+      conf.dataStore.getAtom("1").value.tdata.activeVersion mustEqual Some(1L)
     }
     "complain if revert to version without asset" in
     AtomTestConf() { implicit conf =>

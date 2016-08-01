@@ -1,3 +1,5 @@
+import BuildVars._
+
 scalaVersion in ThisBuild := "2.11.8"
 
 name := "media-atom-maker"
@@ -6,20 +8,12 @@ organization in ThisBuild := "com.gu"
 
 version := "1.0.0-SNAPSHOT"
 
-lazy val contentAtomVersion = "2.4.0"
-lazy val scroogeVersion     = "4.2.0"
-lazy val AwsSdkVersion      = "1.11.21"
-lazy val pandaVer           = "0.4.0"
-
 libraryDependencies ++= Seq(
   "com.gu"                     %% "content-atom-model"           % contentAtomVersion,
-
-  "com.amazonaws"              %  "aws-java-sdk-dynamodb"        % AwsSdkVersion,
-  "com.amazonaws"              %  "aws-java-sdk"                 % AwsSdkVersion,
   "org.apache.thrift"          %  "libthrift"                    % "0.9.3",
   "com.twitter"                %% "scrooge-core"                 % scroogeVersion,
   "com.twitter"                %% "scrooge-serializer"           % scroogeVersion,
-  "com.gu"                     %% "scanamo"                      % "0.6.0",
+  "com.amazonaws"              % "aws-java-sdk-sts"              % awsVersion,
   "com.typesafe.scala-logging" %% "scala-logging"                % "3.4.0",
   "org.typelevel"              %% "cats-core"                    % "0.6.0", // for interacting with scanamo
   "com.fasterxml.jackson.core" %  "jackson-databind"             % "2.7.0",
@@ -30,8 +24,7 @@ libraryDependencies ++= Seq(
   "org.scalatestplus.play"     %% "scalatestplus-play"           % "1.5.0"   % "test",
   "org.mockito"                %  "mockito-core"                 % "1.10.19" % "test",
   "org.scala-lang.modules"     %% "scala-xml"                    % "1.0.5"   % "test"
-
-)
+) ++ scanamoDeps
 
 lazy val appDistSettings = Seq(
     packageName in Universal := name.value,
