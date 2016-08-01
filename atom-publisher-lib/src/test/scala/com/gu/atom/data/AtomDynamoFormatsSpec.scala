@@ -13,6 +13,7 @@ import com.gu.scanamo.scrooge.ScroogeDynamoFormat
 import AtomData._
 import ScroogeDynamoFormat._
 import DynamoFormat._
+import ScanamoUtil._
 
 class AtomDynamoFormatsSpec extends FunSpec with Matchers {
   //implicit val shortFmt = DynamoFormat.xmap[Short, Int](i => Xor.Right(i.toShort))(_.toInt)

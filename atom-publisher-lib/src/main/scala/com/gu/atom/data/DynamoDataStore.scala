@@ -1,5 +1,7 @@
 package com.gu.atom.data
 
+import com.amazonaws.services.dynamodbv2.model.AttributeValue
+
 import com.amazonaws.services.dynamodbv2.model.PutItemResult
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.gu.contentatom.thrift.{ Atom, AtomData, Flags }
@@ -16,6 +18,8 @@ import com.gu.scanamo.scrooge.ScroogeDynamoFormat._
 import AtomData._
 
 import com.gu.atom.data._
+
+import ScanamoUtil._
 
 abstract class DynamoDataStore[D : ClassTag : DynamoFormat]
   (dynamo: AmazonDynamoDBClient, tableName: String)

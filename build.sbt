@@ -13,8 +13,6 @@ libraryDependencies ++= Seq(
   "org.apache.thrift"          %  "libthrift"                    % "0.9.3",
   "com.twitter"                %% "scrooge-core"                 % scroogeVersion,
   "com.twitter"                %% "scrooge-serializer"           % scroogeVersion,
-  "com.gu"                     %% "scanamo"                      % "0.6.1-SNAPSHOT",
-  "com.gu"                     %% "scanamo-scrooge"              % "0.1.2-SNAPSHOT",
   "com.amazonaws"              % "aws-java-sdk-sts"              % awsVersion,
   "com.typesafe.scala-logging" %% "scala-logging"                % "3.4.0",
   "org.typelevel"              %% "cats-core"                    % "0.6.0", // for interacting with scanamo
@@ -26,7 +24,7 @@ libraryDependencies ++= Seq(
   "org.scalatestplus.play"     %% "scalatestplus-play"           % "1.5.0"   % "test",
   "org.mockito"                %  "mockito-core"                 % "1.10.19" % "test",
   "org.scala-lang.modules"     %% "scala-xml"                    % "1.0.5"   % "test"
-)
+) ++ scanamoDeps
 
 lazy val appDistSettings = Seq(
     packageName in Universal := name.value,

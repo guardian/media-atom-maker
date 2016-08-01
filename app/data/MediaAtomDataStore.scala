@@ -12,6 +12,8 @@ import scala.reflect.classTag
 
 import DynamoFormat._
 
+import ScanamoUtil._
+
 class MediaAtomDataStoreProvider @Inject() (awsConfig: AWSConfig)
     extends Provider[DataStore] {
   def get = new DynamoDataStore[MediaAtom](awsConfig.dynamoDB, awsConfig.dynamoTableName) {
