@@ -1,13 +1,13 @@
 package util
 
+import com.amazonaws.auth.{ STSAssumeRoleSessionCredentialsProvider, AWSCredentialsProviderChain }
 import com.amazonaws.regions.{Region, Regions}
 import com.amazonaws.services.kinesis.AmazonKinesisClient
 import play.api.Configuration
 import javax.inject.{ Singleton, Inject }
-import com.amazonaws.auth.{ AWSCredentialsProviderChain, InstanceProfileCredentialsProvider }
+import com.amazonaws.auth._
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
-
 
 @Singleton
 class AWSConfig @Inject() (config: Configuration) {
@@ -24,6 +24,15 @@ class AWSConfig @Inject() (config: Configuration) {
 
   lazy val credProvider = new AWSCredentialsProviderChain(credProviders.flatten: _*)
 
+  lazy val sessionId: String = "session" + Math.random()
+
+  lazy val stsRoleToAssume = config.getString("aws.kinesis.stsRoleToAssume").getOrElse("")
+
+  lazy val atomsCredProvider = new AWSCredentialsProviderChain(
+    new ProfileCredentialsProvider("composer"),
+    new STSAssumeRoleSessionCredentialsProvider(credProvider, stsRoleToAssume, sessionId)
+  )
+
   lazy val dynamoDB = region.createClient(
     classOf[AmazonDynamoDBClient],
     credProvider,
@@ -37,9 +46,17 @@ class AWSConfig @Inject() (config: Configuration) {
 
   lazy val kinesisReindexStreamName = config.getString("aws.kinesis.reindexStreamName").get
 
-  lazy val kinesisClient = region.createClient(
+  lazy val stage = config.getString("stage").getOrElse("DEV")
+  lazy val readFromComposerAccount = config.getBoolean("readFromComposer").getOrElse(false)
+
+  lazy val kinesisClient = if (stage != "DEV" || readFromComposerAccount)
+    getKinesisClient(atomsCredProvider)
+  else
+    getKinesisClient(credProvider)
+
+  private def getKinesisClient(credentialsProvider: AWSCredentialsProviderChain) = region.createClient(
     classOf[AmazonKinesisClient],
-    credProvider,
+    credentialsProvider,
     null
   )
 }

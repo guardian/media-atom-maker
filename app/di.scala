@@ -1,5 +1,5 @@
 import com.google.inject.AbstractModule
-import com.gu.atom.data.DataStore
+import com.gu.atom.data.{ MediaAtomDataStoreProvider, DataStore }
 import com.gu.atom.publish._
 import com.gu.pandomainauth.action.AuthActions
 import data._
@@ -10,7 +10,7 @@ class Module extends AbstractModule {
       .to(classOf[controllers.PanDomainAuthActions])
 
     bind(classOf[DataStore])
-    .to(classOf[DynamoDataStore])
+    .toProvider(classOf[MediaAtomDataStoreProvider])
 
     bind(classOf[LiveAtomPublisher])
     .toProvider(classOf[LiveAtomPublisherProvider])

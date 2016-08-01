@@ -32,7 +32,7 @@ class MainApp @Inject() (dataStore: DataStore,
   }
 
   def getAtom(id: String) = AuthAction { implicit req =>
-    dataStore.getMediaAtom(id) match {
+    dataStore.getAtom(id) match {
       case Some(atom) => Ok(displayAtom(atom))
       case None => NotFound(s"no atom with id $id found")
     }

@@ -1,5 +1,6 @@
 package model
 
+import java.net.URI
 import java.util.UUID.randomUUID
 
 import com.gu.contentatom.thrift._
@@ -8,6 +9,7 @@ import play.api.mvc.{BodyParser, BodyParsers}
 import util.atom.MediaAtomImplicits._
 
 import scala.concurrent.ExecutionContext
+import scala.util.Try
 
 object ThriftUtil {
   type ThriftResult[A] = Either[String, A]
@@ -20,16 +22,18 @@ object ThriftUtil {
   def parsePlatform(uri: String): ThriftResult[Platform] =
     uri match {
       case youtube(_) => Right(Platform.Youtube)
+      case Url(_) => Right(Platform.Url)
       case _ => Left(s"Unrecognised platform in uri ($uri)")
     }
 
   def parseId(uri: String): ThriftResult[String] =
     uri match {
       case youtube(id) => Right(id)
+      case Url(url) => Right(url)
       case _ => Left(s"couldn't extract id from uri ($uri)")
     }
 
-  def parseAsset(uri: String, version: Long): ThriftResult[Asset] =
+  def parseAsset(uri: String, mimeType: Option[String], version: Long): ThriftResult[Asset] =
     for {
       id <- parseId(uri).right
       platform <- parsePlatform(uri).right
@@ -37,14 +41,15 @@ object ThriftUtil {
       id = id,
       assetType = AssetType.Video,
       version = version,
-      platform = platform
+      platform = platform,
+      mimeType = mimeType
     )
 
   def parseAssets(uris: Seq[String], version: Long): ThriftResult[List[Asset]] =
     uris.foldLeft(Right(Nil): ThriftResult[List[Asset]]) { (assetsEither, uri) =>
       for {
         assets <- assetsEither.right
-        asset <- parseAsset(uri, version).right
+        asset <- parseAsset(uri, mimeType = None, version).right
       } yield {
         asset :: assets
       }
@@ -62,11 +67,12 @@ object ThriftUtil {
     }
     val duration = params.get("duration").map(_.head.toLong)
     val source = params.get("source").map(_.head)
+    val posterUrl = params.get("posterUrl").map(_.head).flatMap {
+      case Url(url) => Some(url)
+      case _ => None
+    }
     for {
-      assets <- parseAssets(
-        params.get("uri").getOrElse(Nil),
-        version
-      ).right
+      assets <- parseAssets(params.get("uri").getOrElse(Nil), version).right
     } yield MediaAtom(
       assets = assets,
       activeVersion = Some(version),
@@ -74,7 +80,8 @@ object ThriftUtil {
       category,
       plutoProjectId = None,
       duration,
-      source
+      source,
+      posterUrl
     )
   }
 
@@ -105,10 +112,23 @@ object ThriftUtil {
 
   def assetBodyParser(implicit ec: ExecutionContext): BodyParser[ThriftResult[Asset]] =
     BodyParsers.parse.urlFormEncoded map { urlParams =>
+
+      def opt(s: String): Option[String] = if (s.isEmpty) None else Some(s)
+
       for {
         uri <- getSingleRequiredParam(urlParams, "uri").right
+        mimeType <- getSingleRequiredParam(urlParams, "mimetype").right
         version <- getSingleRequiredParam(urlParams, "version").right
-        asset <- parseAsset(uri, version.toLong).right
+        asset <- parseAsset(uri, opt(mimeType), version.toLong).right
       } yield asset
     }
+}
+
+object Url {
+
+  def unapply(s: String): Option[String] = {
+    Try(new URI(s)).filter { uri =>
+      uri.isAbsolute && uri.getScheme == "https"
+    }.map(_.toASCIIString).toOption
+  }
 }

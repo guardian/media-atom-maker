@@ -1,22 +1,17 @@
+import BuildVars._
+
 scalaVersion in ThisBuild := "2.11.8"
 
 name := "media-atom-maker"
 
 organization in ThisBuild := "com.gu"
 
-lazy val contentAtomVersion = "2.2.0"
-lazy val scroogeVersion     = "4.2.0"
-lazy val AwsSdkVersion      = "1.10.74"
-lazy val pandaVer           = "0.3.0"
-
 libraryDependencies ++= Seq(
   "com.gu"                     %% "content-atom-model"           % contentAtomVersion,
-
-  "com.amazonaws"              %  "aws-java-sdk-dynamodb"        % AwsSdkVersion,
   "org.apache.thrift"          %  "libthrift"                    % "0.9.3",
   "com.twitter"                %% "scrooge-core"                 % scroogeVersion,
   "com.twitter"                %% "scrooge-serializer"           % scroogeVersion,
-  "com.gu"                     %% "scanamo"                      % "0.5.0",
+  "com.amazonaws"              % "aws-java-sdk-sts"              % awsVersion,
   "com.typesafe.scala-logging" %% "scala-logging"                % "3.4.0",
   "org.typelevel"              %% "cats-core"                    % "0.6.0", // for interacting with scanamo
   "com.fasterxml.jackson.core" %  "jackson-databind"             % "2.7.0",
@@ -27,7 +22,7 @@ libraryDependencies ++= Seq(
   "org.scalatestplus.play"     %% "scalatestplus-play"           % "1.5.0"   % "test",
   "org.mockito"                %  "mockito-core"                 % "1.10.19" % "test",
   "org.scala-lang.modules"     %% "scala-xml"                    % "1.0.5"   % "test"
-)
+) ++ scanamoDeps
 
 lazy val appDistSettings = Seq(
     packageName in Universal := name.value,
@@ -36,7 +31,7 @@ lazy val appDistSettings = Seq(
     riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
     riffRaffUploadManifestBucket := Option("riffraff-builds"),
     riffRaffArtifactPublishPath := name.value,
-    riffRaffPackageName := s"editorial-tools:${name.value}",
+    riffRaffPackageName := s"media-service:${name.value}",
     riffRaffManifestProjectName := riffRaffPackageName.value,
     riffRaffArtifactResources := Seq(
       riffRaffPackageType.value -> s"packages/${name.value}/${name.value}.tgz",
@@ -49,13 +44,12 @@ lazy val appDistSettings = Seq(
   )
 
 
-lazy val atomPublisher = (project in file("./atom-publisher-lib"))
+lazy val atomPublisher = project in file("./atom-publisher-lib")
 
 lazy val atomManagerPlay = (project in file("./atom-manager-play-lib"))
   .dependsOn(atomPublisher % "test->test;compile->compile")
 
 lazy val root = (project in file("."))
-  .settings(javaOptions += "-Dhttp.port=9001")
   .enablePlugins(PlayScala, RiffRaffArtifact, UniversalPlugin)
   .settings(appDistSettings)
   .dependsOn(atomPublisher, atomManagerPlay % "test->test;compile->compile")

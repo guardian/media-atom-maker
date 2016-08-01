@@ -1,3 +1,4 @@
+import BuildVars._
 import com.typesafe.sbt.SbtPgp.autoImportImpl._
 import sbtrelease._
 
@@ -5,7 +6,6 @@ import ReleaseStateTransformations._
 
 
 Sonatype.sonatypeSettings
-
 
 name := "atom-publisher-lib"
 
@@ -43,14 +43,9 @@ releaseProcess := Seq[ReleaseStep](
 )
 
 
-lazy val contentAtomVersion = "1.0.1"
-lazy val scroogeVersion     = "4.2.0"
-lazy val AwsSdkVersion      = "1.10.74"
-lazy val akkaVersion        = "2.4.8"
-
 libraryDependencies ++= Seq(
   "com.gu"                     %% "content-atom-model"   % contentAtomVersion,
-  "com.amazonaws"              %  "aws-java-sdk-kinesis" % AwsSdkVersion,
+  "com.amazonaws"              %  "aws-java-sdk-kinesis" % awsVersion,
   "com.typesafe.scala-logging" %% "scala-logging"        % "3.4.0",
   "com.twitter"                %% "scrooge-serializer"   % scroogeVersion,
   "com.twitter"                %% "scrooge-core"         % scroogeVersion,
@@ -58,4 +53,4 @@ libraryDependencies ++= Seq(
   "org.mockito"                %  "mockito-core"         % "1.10.19"   % "test",
   "org.scalatest"              %% "scalatest"            % "2.2.6"     % "test",
   "com.typesafe.akka"          %% "akka-testkit"         % akkaVersion % "test"
-)
+) ++  scanamoDeps

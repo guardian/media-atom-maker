@@ -13,7 +13,8 @@ object TestData {
       defaultHtml = "<div></div>",
       data = AtomData.Media(
         MediaAtom(
-          activeVersion = 2L,
+          activeVersion = Some(2L),
+          title = "Test atom 1",
           assets = List(
             Asset(
               assetType = AssetType.Video,
@@ -27,7 +28,12 @@ object TestData {
               id = "fizzbuzz",
               platform = Platform.Youtube
             )
-          )
+          ),
+          category = Category.News,
+          plutoProjectId = None,
+          duration = None,
+          source = None,
+          posterUrl = None
         )
       ),
       contentChangeDetails = ContentChangeDetails(revision = 1)
@@ -38,7 +44,8 @@ object TestData {
       defaultHtml = "<div></div>",
       data = AtomData.Media(
         MediaAtom(
-          activeVersion = 1L,
+          activeVersion = None,
+          title = "Test atom 2",
           assets = List(
             Asset(
               assetType = AssetType.Video,
@@ -52,7 +59,12 @@ object TestData {
               id = "afkdljlwe",
               platform = Platform.Youtube
             )
-          )
+          ),
+          category = Category.Feature,
+          plutoProjectId = None,
+          duration = None,
+          source = None,
+          posterUrl = None
         )
       ),
       contentChangeDetails = ContentChangeDetails(revision = 1)
