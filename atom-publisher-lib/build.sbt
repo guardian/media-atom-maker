@@ -14,6 +14,12 @@ scalaVersion := "2.11.8"
 scmInfo := Some(ScmInfo(url("https://github.com/guardian/media-atom-maker"),
   "scm:git:git@github.com:guardian/media-atom-maker.git"))
 
+// for testing dynamodb access
+dynamoDBLocalDownloadDir := file(".dynamodb-local")
+startDynamoDBLocal <<= startDynamoDBLocal.dependsOn(compile in Test)
+test in Test <<= (test in Test).dependsOn(startDynamoDBLocal)
+testOptions in Test <+= dynamoDBLocalTestCleanup
+
 pomExtra := (
   <url>https://github.com/guardian/media-atom-maker</url>
     <developers>
