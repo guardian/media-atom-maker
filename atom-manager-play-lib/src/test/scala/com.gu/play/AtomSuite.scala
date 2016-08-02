@@ -1,7 +1,7 @@
 package com.gu.atom.play.test
 
 import cats.data.Xor
-import com.gu.atom.publish.test.TestData
+import com.gu.atom.TestData
 
 import scala.collection.mutable.{ Map => MMap }
 

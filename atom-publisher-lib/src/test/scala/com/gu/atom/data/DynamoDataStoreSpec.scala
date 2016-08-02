@@ -10,6 +10,8 @@ import com.gu.scanamo.DynamoFormat._
 import com.gu.scanamo.scrooge.ScroogeDynamoFormat._
 import ScanamoUtil._
 
+import com.gu.atom.util.AtomImplicitsGeneral
+
 import cats.data.Xor
 
 import com.gu.atom.TestData._
@@ -18,7 +20,8 @@ class DynamoDataStoreSpec
     extends fixture.FunSpec
     with Matchers
     with OptionValues
-    with BeforeAndAfterAll {
+    with BeforeAndAfterAll
+    with AtomImplicitsGeneral {
   val tableName = "atom-test-table"
 
   type FixtureParam = DynamoDataStore[MediaAtom]
@@ -38,7 +41,10 @@ class DynamoDataStoreSpec
     }
 
     it("should update the atom") { dataStore =>
-      val updated = testAtom.copy(defaultHtml = "<div>updated</div>")
+      val updated = testAtom
+        .copy(defaultHtml = "<div>updated</div>")
+        .bumpRevision
+
       dataStore.updateAtom(updated) should equal(Xor.Right())
       dataStore.getAtom(testAtom.id).value should equal(updated)
     }

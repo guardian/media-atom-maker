@@ -1,8 +1,6 @@
 package com.gu.atom.data
 
-import com.amazonaws.services.dynamodbv2.model.AttributeValue
-
-import com.amazonaws.services.dynamodbv2.model.PutItemResult
+import com.amazonaws.services.dynamodbv2.model.{ AttributeValue, PutItemResult }
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.gu.contentatom.thrift.{ Atom, AtomData, Flags }
 import com.gu.scanamo.{ Scanamo, DynamoFormat, Table }
@@ -47,7 +45,9 @@ abstract class DynamoDataStore[D : ClassTag : DynamoFormat]
       succeed(put(atom))
 
   def updateAtom(newAtom: Atom) = {
-    val validationCheck = KeyIs('version, LT, newAtom.contentChangeDetails.revision)
+    val validationCheck = NestedKeyIs(
+      List('contentChangeDetails, 'revision), LT, newAtom.contentChangeDetails.revision
+    )
     val res = (Scanamo.exec(dynamo)(Table[Atom](tableName).given(validationCheck).put(newAtom)))
     res.map(_ => ())
       .leftMap(_ => VersionConflictError(newAtom.contentChangeDetails.revision))
