@@ -1,4 +1,4 @@
-package com.gu.atom.publish.test
+package com.gu.atom
 
 import java.util.Date
 

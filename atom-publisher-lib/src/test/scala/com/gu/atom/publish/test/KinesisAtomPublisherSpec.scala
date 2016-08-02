@@ -8,7 +8,7 @@ import com.amazonaws.services.kinesis.AmazonKinesisClient
 import org.mockito.Matchers.{eq => argEq, _}
 import org.scalatest.{FunSpec, Matchers}
 import org.scalatest.mock.MockitoSugar
-import TestData._
+import com.gu.atom.TestData._
 import org.mockito.Mockito._
 
 
