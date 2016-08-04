@@ -1,5 +1,6 @@
 package com.gu.atom.play
 
+import cats.data.Xor
 import com.gu.atom.data._
 import com.gu.atom.publish._
 import com.gu.contentatom.thrift._
@@ -19,9 +20,18 @@ trait AtomAPIActions extends Controller {
   def publishAtom(atomId: String) = Action { implicit req =>
     dataStore.getAtom(atomId) match {
       case Some(atom) =>
-        val event = ContentAtomEvent(atom, EventType.Update, (new Date()).getTime())
+        val updatedAtom = atom.copy(
+          contentChangeDetails = atom.contentChangeDetails.copy(
+            published = Some(ChangeRecord((new Date()).getTime(), None))
+          )
+        )
+        val event = ContentAtomEvent(updatedAtom, EventType.Update, (new Date()).getTime())
         livePublisher.publishAtomEvent(event) match {
-          case Success(_)  => NoContent
+          case Success(_)  =>
+            dataStore.updateAtom(updatedAtom) match {
+              case Xor.Right(_) => NoContent
+              case Xor.Left(err) => ???
+            }
           case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
         }
       case None => NotFound(jsonError(s"No such atom $atomId"))
