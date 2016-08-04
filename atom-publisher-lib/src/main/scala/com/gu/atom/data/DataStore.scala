@@ -27,7 +27,6 @@ trait DataStore extends DataStoreResult {
   def updateAtom(newAtom: Atom): DataStoreResult[Unit]
 
   def listAtoms: DataStoreResult[Iterator[Atom]]
-
 }
 
 trait DataStoreResult {

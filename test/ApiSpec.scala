@@ -19,8 +19,6 @@ import play.api.libs.json._
 import play.api.test.Helpers._
 import test.TestData._
 
-import scala.util.{Failure, Success}
-
 class ApiSpec
     extends AtomSuite
     with AuthTests
@@ -37,24 +35,6 @@ class ApiSpec
 
   val youtubeId  =  "7H9Z4sn8csA"
   val youtubeUrl = s"https://www.youtube.com/watch?v=${youtubeId}"
-
-  def defaultMockPublisher: LiveAtomPublisher = {
-    val p = mock[LiveAtomPublisher]
-    when(p.publishAtomEvent(any())).thenReturn(Success(()))
-    p
-  }
-
-  def defaultPreviewMockPublisher: PreviewAtomPublisher = {
-    val p = mock[PreviewAtomPublisher]
-    when(p.publishAtomEvent(any())).thenReturn(Success(()))
-    p
-  }
-
-  def failingMockPublisher: LiveAtomPublisher = {
-    val p = mock[LiveAtomPublisher]
-    when(p.publishAtomEvent(any())).thenReturn(Failure(new Exception("failure")))
-    p
-  }
 
   "api" should {
 
@@ -149,11 +129,6 @@ class ApiSpec
       mediaAtom.category mustEqual Hosted
       mediaAtom.duration mustEqual Some(34)
       mediaAtom.posterUrl mustEqual Some("https://abc/def.jpg")
-    }
-
-    "call out to live publisher to publish an atom" in AtomTestConf() { implicit conf =>
-      val result = call(api.publishAtom("1"), requestWithCookies)
-      status(result) mustEqual NO_CONTENT
     }
 
     "call out to preview publisher when adding an asset" in
