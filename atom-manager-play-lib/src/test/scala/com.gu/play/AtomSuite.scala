@@ -23,7 +23,7 @@ import play.api.inject.{ bind, Binding }
 import scala.reflect.ClassTag
 
 import org.mockito.Mockito._
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers._
 
 import org.scalatest.mock.MockitoSugar.mock
 

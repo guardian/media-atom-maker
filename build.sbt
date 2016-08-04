@@ -20,7 +20,7 @@ libraryDependencies ++= Seq(
   "com.gu"                     %% "pan-domain-auth-verification" % pandaVer,
   "com.gu"                     %% "pan-domain-auth-core"         % pandaVer,
   "org.scalatestplus.play"     %% "scalatestplus-play"           % "1.5.0"   % "test",
-  "org.mockito"                %  "mockito-core"                 % "1.10.19" % "test",
+  "org.mockito"                %  "mockito-core"                 % mockitoVersion % "test",
   "org.scala-lang.modules"     %% "scala-xml"                    % "1.0.5"   % "test"
 ) ++ scanamoDeps
 

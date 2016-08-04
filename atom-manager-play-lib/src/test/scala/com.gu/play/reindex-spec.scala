@@ -1,10 +1,11 @@
 package com.gu.atom.play.test
 
+import org.mockito.ArgumentMatchers._
+
 import com.gu.atom.play.ReindexController
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import org.mockito.Mockito._
-import org.mockito.Matchers._
 import org.scalatest.mock.MockitoSugar.mock
 import com.gu.atom.publish._
 

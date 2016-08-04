@@ -9,7 +9,7 @@ import com.gu.contentatom.thrift.atom.media.Category.{Hosted, News}
 import controllers.Api
 import data.MemoryStore
 import org.mockito.ArgumentCaptor
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalatest.AppendedClues
 import org.scalatest.mock.MockitoSugar
