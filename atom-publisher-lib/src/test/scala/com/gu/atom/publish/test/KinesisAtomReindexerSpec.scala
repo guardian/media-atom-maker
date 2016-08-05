@@ -13,7 +13,7 @@ import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import org.mockito.Matchers.{ eq => meq, _ }
 
-// import akka.testkit.TestKit
+import com.gu.atom.TestData
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._

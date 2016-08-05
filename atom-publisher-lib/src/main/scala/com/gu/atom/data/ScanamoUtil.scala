@@ -1,5 +1,8 @@
 package com.gu.atom.data
 
+import com.gu.scanamo.query._
+import com.gu.scanamo.request.RequestCondition
+
 import com.gu.scanamo.DynamoFormat
 import DynamoFormat.xmap
 
@@ -24,4 +27,23 @@ object ScanamoUtil {
 
   implicit val flagsFormat = xmap[Flags, Option[Boolean]](o => Xor.right(Flags.apply(o)))(f => Flags.unapply(f).get)
 
+  // joins keys with a document separator to dig into MultipleValue keys
+  case class NestedKeyIs[V : DynamoFormat](keys: List[Symbol], operator: DynamoOperator, v: V)
+
+  implicit def nestedKeyIsCondition[V : DynamoFormat] = new ConditionExpression[NestedKeyIs[V]] {
+    def apply(nested: NestedKeyIs[V])(condition: Option[RequestCondition]): RequestCondition = {
+      val keys = nested.keys.zipWithIndex.map {
+        case (k, i) => s"condition$i"
+      }
+
+      val placeHolders = keys.map("#" + _)
+      val conditionName = placeHolders.mkString(".")
+      val valueName = ":" + keys.mkString("_")
+      RequestCondition(
+        s"$conditionName ${nested.operator.op} $valueName",
+        placeHolders.zip(nested.keys.map(_.name)).toMap,
+        Some(Map(valueName -> DynamoFormat[V].write(nested.v)))
+      )
+    }
+  }
 }
