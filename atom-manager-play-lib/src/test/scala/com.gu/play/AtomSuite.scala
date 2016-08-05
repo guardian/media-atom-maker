@@ -1,5 +1,6 @@
 package com.gu.atom.play.test
 
+import scala.util.{Failure, Success}
 import cats.data.Xor
 import com.gu.atom.TestData
 
@@ -23,7 +24,7 @@ import play.api.inject.{ bind, Binding }
 import scala.reflect.ClassTag
 
 import org.mockito.Mockito._
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers._
 
 import org.scalatest.mock.MockitoSugar.mock
 
@@ -34,6 +35,24 @@ trait AtomSuite extends PlaySpec with GuiceableModuleConversions {
     when(m.getAtom(any())).thenReturn(Some(TestData.testAtoms.head))
     when(m.listAtoms).thenReturn(DataStoreResult.succeed(TestData.testAtoms.iterator))
     m
+  }
+
+  def defaultMockPublisher: LiveAtomPublisher = {
+    val p = mock[LiveAtomPublisher]
+    when(p.publishAtomEvent(any())).thenReturn(Success(()))
+    p
+  }
+
+  def defaultPreviewMockPublisher: PreviewAtomPublisher = {
+    val p = mock[PreviewAtomPublisher]
+    when(p.publishAtomEvent(any())).thenReturn(Success(()))
+    p
+  }
+
+  def failingMockPublisher: LiveAtomPublisher = {
+    val p = mock[LiveAtomPublisher]
+    when(p.publishAtomEvent(any())).thenReturn(Failure(new Exception("failure")))
+    p
   }
 
   def initialDataStore = dataStoreMockWithTestData

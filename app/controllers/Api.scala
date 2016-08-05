@@ -14,6 +14,8 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
 
+import com.gu.atom.play._
+
 import scala.util.{Failure, Success}
 
 class Api @Inject() (val dataStore: DataStore,
@@ -22,7 +24,8 @@ class Api @Inject() (val dataStore: DataStore,
                      val conf: Configuration,
                      val authActions: AuthActions)
     extends AtomController
-    with MediaAtomImplicits {
+    with MediaAtomImplicits
+    with AtomAPIActions {
 
   import authActions.APIAuthAction
 
@@ -133,18 +136,6 @@ class Api @Inject() (val dataStore: DataStore,
   }
 
   def now() = (new Date()).getTime()
-
-  def publishAtom(atomId: String) = APIAuthAction { implicit req =>
-    dataStore.getAtom(atomId) match {
-      case Some(atom) =>
-        val event = ContentAtomEvent(atom, EventType.Update, now())
-        livePublisher.publishAtomEvent(event) match {
-          case Success(_)  => NoContent
-          case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
-        }
-      case None => NotFound(jsonError(s"No such atom $atomId"))
-    }
-  }
 
   def revertAtom(atomId: String, version: Long) = APIAuthAction { implicit req =>
     dataStore.getAtom(atomId) match {

@@ -5,7 +5,9 @@ import java.nio.ByteBuffer
 import com.gu.atom.publish.KinesisAtomPublisher
 
 import com.amazonaws.services.kinesis.AmazonKinesisClient
-import org.mockito.Matchers.{eq => argEq, _}
+
+import org.mockito.ArgumentMatchers.{eq => argEq, _}
+
 import org.scalatest.{FunSpec, Matchers}
 import org.scalatest.mock.MockitoSugar
 import com.gu.atom.TestData._

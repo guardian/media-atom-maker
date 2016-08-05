@@ -11,7 +11,8 @@ import org.scalatest.{ FunSpecLike, Matchers }
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
-import org.mockito.Matchers.{ eq => meq, _ }
+
+import org.mockito.ArgumentMatchers.{ eq => meq, _ }
 
 import com.gu.atom.TestData
 

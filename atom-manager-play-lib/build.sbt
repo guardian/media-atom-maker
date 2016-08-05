@@ -14,6 +14,6 @@ libraryDependencies ++= Seq(
   "org.typelevel"          %% "cats-core"             % "0.6.0",
   "org.scalatestplus.play" %% "scalatestplus-play"    % "1.5.0"   % "test",
   "com.amazonaws"          %  "aws-java-sdk-dynamodb" % awsVersion,
-  "org.mockito"            %  "mockito-core"          % "1.10.19" % "test"
+  "org.mockito"            %  "mockito-core"          % mockitoVersion % "test"
     //"com.typesafe.play" %% "play-ws" % playVersion
 )
