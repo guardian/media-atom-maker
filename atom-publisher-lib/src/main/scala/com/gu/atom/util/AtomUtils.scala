@@ -39,3 +39,5 @@ trait AtomImplicits[D] {
 trait AtomImplicitsGeneral extends AtomImplicits[AtomData] {
   val dataTyper = AtomDataTyper.general
 }
+
+object AtomImplicitsGeneral extends AtomImplicitsGeneral
