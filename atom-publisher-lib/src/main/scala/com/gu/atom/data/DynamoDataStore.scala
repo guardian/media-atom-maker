@@ -20,7 +20,7 @@ import com.gu.atom.data._
 import ScanamoUtil._
 
 abstract class DynamoDataStore[D : ClassTag : DynamoFormat]
-  (dynamo: AmazonDynamoDBClient, tableName: String)
+  (dynamo: AmazonDynamoDBClient, tableName: String, publishedTableName: String)
     extends DataStore
     with AtomDynamoFormats[D] {
 
@@ -29,6 +29,7 @@ abstract class DynamoDataStore[D : ClassTag : DynamoFormat]
 
   // useful shortcuts
   private val get  = Scanamo.get[Atom](dynamo)(tableName) _
+  private val getPublished  = Scanamo.get[Atom](dynamo)(publishedTableName) _
   private val put  = Scanamo.put[Atom](dynamo)(tableName) _
 
   // this should probably return an Either so we can report an error,
@@ -38,8 +39,13 @@ abstract class DynamoDataStore[D : ClassTag : DynamoFormat]
     case _ => None
   }
 
+  def getPublishedAtom(id: String): Option[Atom] = getPublished(UniqueKey(KeyEquals('id, id))) match {
+    case Some(Xor.Right(atom)) => Some(atom)
+    case _ => None
+  }
+
   def createAtom(atom: Atom) =
-    if(get(UniqueKey(KeyEquals('id, atom.id))).isDefined)
+    if (get(UniqueKey(KeyEquals('id, atom.id))).isDefined)
       fail(IDConflictError)
     else
       succeed(put(atom))
@@ -52,6 +58,9 @@ abstract class DynamoDataStore[D : ClassTag : DynamoFormat]
     res.map(_ => ())
       .leftMap(_ => VersionConflictError(newAtom.contentChangeDetails.revision))
   }
+
+  def updatePublishedAtom(newAtom: Atom) =
+    succeed((Scanamo.exec(dynamo)(Table[Atom](publishedTableName).put(newAtom))))
 
   private def findAtoms: DataStoreResult[List[Atom]] =
     Scanamo.scan[Atom](dynamo)(tableName).sequenceU.leftMap {
