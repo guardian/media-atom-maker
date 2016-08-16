@@ -1,0 +1,32 @@
+@import com.gu.contentatom.thrift.Atom
+
+@(atom: Atom, publishedAtom: Option[Atom])
+
+@atom.contentChangeDetails.lastModified
+<div>
+    @publishedAtom match {
+      case Some(atom) => {
+
+        <div>
+            <input type="button"
+               onClick="AtomUtil.displayPublishInformation()"
+               id="displayPublish"
+               value="Display published atom information">
+            </input>
+            <input type="button"
+               onClick="AtomUtil.hidePublishInformation()"
+               id="hidePublish"
+               value="Hide published atom information">
+            </input>
+        </div>
+
+        <div id="publishInfo">
+
+            <h1>Published Atom</h1>
+            <div>@atomTable(atom)</div>
+        </div>
+    }
+    case None => {
+        <div>This atom has not yet been published</div>
+    }}
+</div>
