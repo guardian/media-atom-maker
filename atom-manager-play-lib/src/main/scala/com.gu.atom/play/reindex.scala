@@ -1,8 +1,8 @@
 package com.gu.atom.play
 
-import akka.actor.{ ActorSystem, Props }
+import akka.actor.{ActorRef, ActorSystem, Props, Actor}
 import com.gu.atom.publish._
-import com.gu.contentatom.thrift.{ ContentAtomEvent, EventType }
+import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
 import play.api.Configuration
 
 import play.api.mvc._
@@ -11,8 +11,6 @@ import javax.inject.Inject
 import com.gu.atom.data._
 
 import javax.inject.Singleton
-
-import akka.actor.Actor
 import akka.pattern.ask
 import akka.util.Timeout
 import scala.concurrent.duration._
@@ -101,7 +99,8 @@ class ReindexController @Inject() (dataStore: DataStore,
 
   implicit val ec = system.dispatcher
 
-  val reindexActor = system.actorOf(Props(classOf[ReindexActor], reindexer))
+  val previewReindexActor = system.actorOf(Props(classOf[ReindexActor], reindexer))
+  val publishedReindexActor = system.actorOf(Props(classOf[ReindexActor], reindexer))
 
   implicit val timeout = Timeout(5.seconds)
 
@@ -118,31 +117,38 @@ class ReindexController @Inject() (dataStore: DataStore,
     }
   }
 
-  def newReindexJob = ApiKeyAction.async { implicit req =>
-    dataStore.listAtoms.fold(
+  def newPreviewReindexJob = getNewReindexJob(dataStore.listAtoms, previewReindexActor)
+  def newPublishedReindexJob = getNewReindexJob(dataStore.listPublishedAtoms, publishedReindexActor)
 
-      { err =>
-        Future.successful(InternalServerError(err.toString))
-      },
+  def previewReindexJobStatus = getReindexJobStatus(previewReindexActor)
+  def publishedReindexJobStatus = getReindexJobStatus(publishedReindexActor)
 
-      { atoms =>
-        val events = atoms.map(atom => ContentAtomEvent(atom, EventType.Update, now())).toList
-        (reindexActor ? CreateJob(events.iterator, events.size)) map {
-          case RSuccess      => Ok("")
-          case RFailure(msg) => InternalServerError(s"could't create job: $msg")
-          case _ => InternalServerError("unknown error")
-        }
-      }
-
-    )
-  }
-
-  def reindexJobStatus = ApiKeyAction.async { implicit req =>
-    (reindexActor ? GetStatus) map {
+  private def getReindexJobStatus(actor: ActorRef) =  ApiKeyAction.async { implicit req =>
+    (actor ? GetStatus) map {
       case None => NotFound("")
       case Some(job: JobStatus) => Ok(Json.toJson(job))
       case _ => InternalServerError("unknown-error")
     }
   }
+
+  private def getNewReindexJob(getAtoms: dataStore.DataStoreResult[Iterator[Atom]], actor: ActorRef) =
+    ApiKeyAction.async { implicit req =>
+      getAtoms.fold(
+
+        { err =>
+          Future.successful(InternalServerError(err.toString))
+        },
+
+        { atoms =>
+          val events = atoms.map(atom => ContentAtomEvent(atom, EventType.Update, now())).toList
+          (actor ? CreateJob(events.iterator, events.size)) map {
+            case RSuccess      => Ok("")
+            case RFailure(msg) => InternalServerError(s"could't create job: $msg")
+            case _ => InternalServerError("unknown error")
+          }
+        }
+
+      )
+    }
 
 }

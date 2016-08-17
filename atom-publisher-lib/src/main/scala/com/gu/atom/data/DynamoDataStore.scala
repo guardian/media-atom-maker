@@ -62,10 +62,12 @@ abstract class DynamoDataStore[D : ClassTag : DynamoFormat]
   def updatePublishedAtom(newAtom: Atom) =
     succeed((Scanamo.exec(dynamo)(Table[Atom](publishedTableName).put(newAtom))))
 
-  private def findAtoms: DataStoreResult[List[Atom]] =
+  private def findAtoms(tableName: String): DataStoreResult[List[Atom]] =
     Scanamo.scan[Atom](dynamo)(tableName).sequenceU.leftMap {
       _ => ReadError
     }
 
-  def listAtoms: DataStoreResult[Iterator[Atom]] = findAtoms.rightMap(_.iterator)
+  def listAtoms: DataStoreResult[Iterator[Atom]] = findAtoms(tableName).rightMap(_.iterator)
+
+  def listPublishedAtoms: DataStoreResult[Iterator[Atom]] = findAtoms(publishedTableName).rightMap(_.iterator)
 }
