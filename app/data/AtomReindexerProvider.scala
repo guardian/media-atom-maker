@@ -8,13 +8,13 @@ import util.AWSConfig
 class PreviewAtomReindexerProvider @Inject() (awsConfig: AWSConfig)
     extends Provider[PreviewAtomReindexer] {
   def get() = new PreviewKinesisAtomReindexer(
-    awsConfig.kinesisReindexStreamName, awsConfig.kinesisClient
+    awsConfig.previewKinesisReindexStreamName, awsConfig.kinesisClient
   )
 }
 
 class PublishedAtomReindexerProvider @Inject() (awsConfig: AWSConfig)
   extends Provider[PublishedAtomReindexer] {
   def get() = new PublishedKinesisAtomReindexer(
-    awsConfig.kinesisReindexStreamName, awsConfig.kinesisClient
+    awsConfig.publishedKinesisReindexStreamName, awsConfig.kinesisClient
   )
 }
