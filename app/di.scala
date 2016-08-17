@@ -18,7 +18,10 @@ class Module extends AbstractModule {
     bind(classOf[PreviewAtomPublisher])
       .toProvider(classOf[PreviewAtomPublisherProvider])
 
-    bind(classOf[AtomReindexer])
-      .toProvider(classOf[AtomReindexerProvider])
+    bind(classOf[PreviewAtomReindexer])
+      .toProvider(classOf[PreviewAtomReindexerProvider])
+
+    bind(classOf[PublishedAtomReindexer])
+      .toProvider(classOf[PublishedAtomReindexerProvider])
   }
 }
