@@ -16,8 +16,6 @@ class MemoryStore extends DataStore {
 
   def getAtom(id: String) = dataStore.get(id)
 
-  def getPublishedAtom(id: String) = dataStore.get(id)
-
   def createAtom(atom: Atom) = dataStore.synchronized {
     if(dataStore.get(atom.id).isDefined) {
       fail(IDConflictError)
@@ -39,20 +37,8 @@ class MemoryStore extends DataStore {
     }
   }
 
-  def updatePublishedAtom(newAtom: Atom) = dataStore.synchronized {
-    getPublishedAtom(newAtom.id) match {
-      case Some(oldAtom) =>
-        if(oldAtom.contentChangeDetails.revision >=
-          newAtom.contentChangeDetails.revision) {
-          fail(VersionConflictError(newAtom.contentChangeDetails.revision))
-        } else {
-          succeed(dataStore(newAtom.id) = newAtom)
-        }
-      case None => fail(IDNotFound)
-    }
-  }
-
   def listAtoms = Xor.right(dataStore.values.iterator)
-
-  def listPublishedAtoms = Xor.right(dataStore.values.iterator)
 }
+
+class PreviewMemoryStore(initial: Map[String, Atom]) extends MemoryStore(initial) with PreviewDataStore
+class PublishedMemoryStore(initial: Map[String, Atom]) extends MemoryStore(initial) with PublishedDataStore

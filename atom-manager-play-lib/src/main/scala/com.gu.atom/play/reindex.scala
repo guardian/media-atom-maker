@@ -90,7 +90,9 @@ object ReindexActor {
 }
 
 @Singleton
-class ReindexController @Inject() (dataStore: DataStore,
+class ReindexController @Inject() (
+                                   previewDataStore: PreviewDataStore,
+                                   publishedDataStore: PublishedDataStore,
                                    previewReindexer: PreviewAtomReindexer,
                                    publishedReindexer: PublishedAtomReindexer,
                                    config: Configuration,
@@ -118,8 +120,8 @@ class ReindexController @Inject() (dataStore: DataStore,
     }
   }
 
-  def newPreviewReindexJob = getNewReindexJob(dataStore.listAtoms, previewReindexActor)
-  def newPublishedReindexJob = getNewReindexJob(dataStore.listPublishedAtoms, publishedReindexActor)
+  def newPreviewReindexJob = getNewReindexJob(previewDataStore.listAtoms, previewReindexActor)
+  def newPublishedReindexJob = getNewReindexJob(publishedDataStore.listAtoms, publishedReindexActor)
 
   def previewReindexJobStatus = getReindexJobStatus(previewReindexActor)
   def publishedReindexJobStatus = getReindexJobStatus(publishedReindexActor)
@@ -132,7 +134,7 @@ class ReindexController @Inject() (dataStore: DataStore,
     }
   }
 
-  private def getNewReindexJob(getAtoms: dataStore.DataStoreResult[Iterator[Atom]], actor: ActorRef) =
+  private def getNewReindexJob(getAtoms: previewDataStore.DataStoreResult[Iterator[Atom]], actor: ActorRef) =
     ApiKeyAction.async { implicit req =>
       getAtoms.fold(
 

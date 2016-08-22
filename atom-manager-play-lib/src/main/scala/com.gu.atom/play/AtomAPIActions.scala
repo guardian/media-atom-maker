@@ -15,34 +15,22 @@ trait AtomAPIActions extends Controller {
 
   val livePublisher: LiveAtomPublisher
   val previewPublisher: PreviewAtomPublisher
-  val dataStore: DataStore
+  val previewDataStore: PreviewDataStore
+  val publishedDataStore: PublishedDataStore
 
   private def jsonError(msg: String): JsObject = JsObject(Seq("error" -> JsString(msg)))
 
   def publishAtom(atomId: String) = Action { implicit req =>
-    dataStore.getPublishedAtom(atomId) match {
+
+    previewDataStore.getAtom(atomId) match {
       case Some(atom) => {
         val updatedAtom = atom.copy(
-          contentChangeDetails = atom.contentChangeDetails.copy(
-            published = Some(ChangeRecord((new Date()).getTime(), None))
-          )
-        ).bumpRevision
+          contentChangeDetails = atom.contentChangeDetails.copy(published = Some(ChangeRecord((new Date()).getTime(), None)))
+        ).withRevision(1)
+
         saveAtom(updatedAtom)
       }
-      case None =>
-
-        // The atom has not yet published and needs to be saved in the published
-        // table for the first time
-        dataStore.getAtom(atomId) match {
-          case Some(atom) => {
-            val updatedAtom = atom.copy(
-              contentChangeDetails = atom.contentChangeDetails.copy(published = Some(ChangeRecord((new Date()).getTime(), None)))
-            ).withRevision(1)
-
-            saveAtom(updatedAtom)
-          }
-          case None => NotFound(jsonError(s"No such atom $atomId"))
-        }
+      case None => NotFound(jsonError(s"No such atom $atomId"))
     }
   }
 
@@ -50,7 +38,7 @@ trait AtomAPIActions extends Controller {
     val event = ContentAtomEvent(updatedAtom, EventType.Update, (new Date()).getTime())
     livePublisher.publishAtomEvent(event) match {
       case Success(_) =>
-        dataStore.updatePublishedAtom(updatedAtom) match {
+        publishedDataStore.updateAtom(updatedAtom) match {
           case Xor.Right(_) => NoContent
           case Xor.Left(err) => InternalServerError(
             jsonError(s"could not update after publish: ${err.toString}")

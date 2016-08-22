@@ -30,8 +30,17 @@ import org.scalatest.mock.MockitoSugar.mock
 
 trait AtomSuite extends PlaySpec with GuiceableModuleConversions {
 
-  def dataStoreMockWithTestData = {
-    val m = mock[DataStore]
+  def dataStore = mock[DataStore]
+
+  def previewDataStoreMockWithTestData = {
+    val m = mock[PreviewDataStore]
+    when(m.getAtom(any())).thenReturn(Some(TestData.testAtoms.head))
+    when(m.listAtoms).thenReturn(DataStoreResult.succeed(TestData.testAtoms.iterator))
+    m
+  }
+
+  def publishedDataStoreMockWithTestData = {
+    val m = mock[PublishedDataStore]
     when(m.getAtom(any())).thenReturn(Some(TestData.testAtoms.head))
     when(m.listAtoms).thenReturn(DataStoreResult.succeed(TestData.testAtoms.iterator))
     m
@@ -55,7 +64,8 @@ trait AtomSuite extends PlaySpec with GuiceableModuleConversions {
     p
   }
 
-  def initialDataStore = dataStoreMockWithTestData
+  def initialPreviewDataStore = previewDataStoreMockWithTestData
+  def initialPublishedDataStore = publishedDataStoreMockWithTestData
   def initialLivePublisher = mock[LiveAtomPublisher]
   def initialPreviewPublisher = mock[PreviewAtomPublisher]
 
@@ -74,13 +84,16 @@ trait AtomSuite extends PlaySpec with GuiceableModuleConversions {
     mbind[A]((a: A) => ())
 
   case class AtomTestConf(
-    dataStore: DataStore = initialDataStore,
+    previewDataStore: PreviewDataStore = initialPreviewDataStore,
+    publishedDataStore: PublishedDataStore = initialPublishedDataStore,
     livePublisher: LiveAtomPublisher = initialLivePublisher,
     previewPublisher: PreviewAtomPublisher = initialPreviewPublisher,
     shutDownHook: AtomTestConf => Unit = _.app.stop) {
 
     private def makeOverrides: GuiceableModule = Seq(
       ibind(dataStore),
+      ibind(previewDataStore),
+      ibind(publishedDataStore),
       ibind(livePublisher),
       ibind(previewPublisher)
     ) ++ customOverrides

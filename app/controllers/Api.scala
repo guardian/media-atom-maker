@@ -18,7 +18,8 @@ import com.gu.atom.play._
 
 import scala.util.{Failure, Success}
 
-class Api @Inject() (val dataStore: DataStore,
+class Api @Inject() (val previewDataStore: PreviewDataStore,
+                     val publishedDataStore: PublishedDataStore,
                      val livePublisher: LiveAtomPublisher,
                      val previewPublisher: PreviewAtomPublisher,
                      val conf: Configuration,
@@ -34,7 +35,7 @@ class Api @Inject() (val dataStore: DataStore,
   // takes a configured URL object and shows how it would look as a content atom
 
   def getMediaAtom(id: String) = APIAuthAction { implicit req =>
-    dataStore.getAtom(id) match {
+    previewDataStore.getAtom(id) match {
       case Some(atom) => Ok(Json.toJson(atom))
       case None => NotFound(jsonError(s"no atom with id $id found"))
     }
@@ -42,7 +43,7 @@ class Api @Inject() (val dataStore: DataStore,
 
   def createMediaAtom = thriftResultAction(atomBodyParser) { implicit req =>
     val atom = req.body
-    dataStore.createAtom(atom).fold(
+    previewDataStore.createAtom(atom).fold(
       { case IDConflictError =>
         Conflict(s"${atom.id} already exists")
         case _ => InternalServerError("Unknown error")
@@ -63,7 +64,7 @@ class Api @Inject() (val dataStore: DataStore,
 
   def updateMediaAtom(atomId: String) = thriftResultAction(atomBodyParser) { implicit req =>
     val updatedData = req.body.tdata
-    dataStore.getAtom(atomId) match {
+    previewDataStore.getAtom(atomId) match {
       case Some(atom) =>
         val newVersion = {
           val maxVersion = {
@@ -86,7 +87,7 @@ class Api @Inject() (val dataStore: DataStore,
                           posterUrl = updatedData.posterUrl
                         )
                       }
-        dataStore.updateAtom(newAtom).fold(
+        previewDataStore.updateAtom(newAtom).fold(
           err => InternalServerError(err.msg),
           _ => {
             val event = ContentAtomEvent(newAtom, EventType.Update, now())
@@ -106,7 +107,7 @@ class Api @Inject() (val dataStore: DataStore,
   def addAsset(atomId: String) = thriftResultAction(assetBodyParser) { implicit req =>
     val newAsset = req.body
 
-    dataStore.getAtom(atomId) match {
+    previewDataStore.getAtom(atomId) match {
       case Some(atom) =>
         val ma = atom.tdata
         val assets = ma.assets
@@ -117,7 +118,7 @@ class Api @Inject() (val dataStore: DataStore,
                     ))
           .withRevision(_ + 1)
 
-        dataStore.updateAtom(newAtom).fold(
+        previewDataStore.updateAtom(newAtom).fold(
           err => InternalServerError(err.msg),
           _ => {
             
@@ -138,12 +139,12 @@ class Api @Inject() (val dataStore: DataStore,
   def now() = (new Date()).getTime()
 
   def revertAtom(atomId: String, version: Long) = APIAuthAction { implicit req =>
-    dataStore.getAtom(atomId) match {
+    previewDataStore.getAtom(atomId) match {
       case Some(atom) =>
         if(!atom.tdata.assets.exists(_.version == version)) {
           InternalServerError(jsonError(s"no asset is listed for version $version"))
         } else {
-          dataStore.updateAtom(
+          previewDataStore.updateAtom(
             atom
               .withRevision(_ + 1)
               .updateData { media => media.copy(activeVersion = Some(version)) }
@@ -156,7 +157,7 @@ class Api @Inject() (val dataStore: DataStore,
 
   // TODO -> this needs to handle paging
   def listAtoms = APIAuthAction { implicit req =>
-    dataStore.listAtoms.fold(
+    previewDataStore.listAtoms.fold(
       err =>   InternalServerError(jsonError(err.msg)),
       atoms => Ok(Json.toJson(atoms.toList))
     )

@@ -20,7 +20,7 @@ import com.gu.atom.data._
 import ScanamoUtil._
 
 abstract class DynamoDataStore[D : ClassTag : DynamoFormat]
-  (dynamo: AmazonDynamoDBClient, tableName: String, publishedTableName: String)
+  (dynamo: AmazonDynamoDBClient, tableName: String)
     extends DataStore
     with AtomDynamoFormats[D] {
 
@@ -29,17 +29,11 @@ abstract class DynamoDataStore[D : ClassTag : DynamoFormat]
 
   // useful shortcuts
   private val get  = Scanamo.get[Atom](dynamo)(tableName) _
-  private val getPublished  = Scanamo.get[Atom](dynamo)(publishedTableName) _
   private val put  = Scanamo.put[Atom](dynamo)(tableName) _
 
   // this should probably return an Either so we can report an error,
   // e.g. if the atom exists, but it can't be deseralised
   def getAtom(id: String): Option[Atom] = get(UniqueKey(KeyEquals('id, id))) match {
-    case Some(Xor.Right(atom)) => Some(atom)
-    case _ => None
-  }
-
-  def getPublishedAtom(id: String): Option[Atom] = getPublished(UniqueKey(KeyEquals('id, id))) match {
     case Some(Xor.Right(atom)) => Some(atom)
     case _ => None
   }
@@ -50,6 +44,20 @@ abstract class DynamoDataStore[D : ClassTag : DynamoFormat]
     else
       succeed(put(atom))
 
+
+  private def findAtoms(tableName: String): DataStoreResult[List[Atom]] =
+    Scanamo.scan[Atom](dynamo)(tableName).sequenceU.leftMap {
+      _ => ReadError
+    }
+
+  def listAtoms: DataStoreResult[Iterator[Atom]] = findAtoms(tableName).rightMap(_.iterator)
+}
+
+abstract class PreviewDynamoDataStore[D : ClassTag : DynamoFormat]
+(dynamo: AmazonDynamoDBClient, tableName: String)
+  extends DynamoDataStore[D](dynamo, tableName)
+  with PreviewDataStore {
+
   def updateAtom(newAtom: Atom) = {
     val validationCheck = NestedKeyIs(
       List('contentChangeDetails, 'revision), LT, newAtom.contentChangeDetails.revision
@@ -59,15 +67,13 @@ abstract class DynamoDataStore[D : ClassTag : DynamoFormat]
       .leftMap(_ => VersionConflictError(newAtom.contentChangeDetails.revision))
   }
 
-  def updatePublishedAtom(newAtom: Atom) =
-    succeed((Scanamo.exec(dynamo)(Table[Atom](publishedTableName).put(newAtom))))
+}
 
-  private def findAtoms(tableName: String): DataStoreResult[List[Atom]] =
-    Scanamo.scan[Atom](dynamo)(tableName).sequenceU.leftMap {
-      _ => ReadError
-    }
+abstract class PublishedDynamoDataStore[D : ClassTag : DynamoFormat]
+(dynamo: AmazonDynamoDBClient, tableName: String)
+  extends DynamoDataStore[D](dynamo, tableName)
+  with PublishedDataStore {
 
-  def listAtoms: DataStoreResult[Iterator[Atom]] = findAtoms(tableName).rightMap(_.iterator)
-
-  def listPublishedAtoms: DataStoreResult[Iterator[Atom]] = findAtoms(publishedTableName).rightMap(_.iterator)
+  def updateAtom(newAtom: Atom) =
+    succeed((Scanamo.exec(dynamo)(Table[Atom](tableName).put(newAtom))))
 }

@@ -14,11 +14,19 @@ import DynamoFormat._
 
 import ScanamoUtil._
 
-class MediaAtomDataStoreProvider @Inject() (awsConfig: AWSConfig)
-    extends Provider[DataStore] {
-  def get = new DynamoDataStore[MediaAtom](awsConfig.dynamoDB, awsConfig.dynamoTableName,
-    awsConfig.publishedDynamoTableName) {
+class PublishedMediaAtomDataStoreProvider @Inject() (awsConfig: AWSConfig)
+    extends Provider[PublishedDataStore] {
+  def get = new PublishedDynamoDataStore[MediaAtom](awsConfig.dynamoDB, awsConfig.publishedDynamoTableName) {
     def fromAtomData = { case AtomData.Media(data) => data }
     def toAtomData(data: MediaAtom) = AtomData.Media(data)
   }
 }
+
+class PreviewMediaAtomDataStoreProvider @Inject() (awsConfig: AWSConfig)
+  extends Provider[PreviewDataStore] {
+  def get = new PreviewDynamoDataStore[MediaAtom](awsConfig.dynamoDB, awsConfig.dynamoTableName) {
+    def fromAtomData = { case AtomData.Media(data) => data }
+    def toAtomData(data: MediaAtom) = AtomData.Media(data)
+  }
+}
+
