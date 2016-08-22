@@ -5,6 +5,11 @@
             "Description": "Code dynamo table",
             "Type": "String",
             "Default": "media-atom-maker-CODE"
+        },
+        "PublishedAtomMakerCodeTable": {
+            "Description": "Published code dynamo table",
+            "Type": "String",
+            "Default": "published-media-atom-maker-CODE"
         }
     },
     "Resources": {
@@ -12,6 +17,28 @@
             "Type": "AWS::DynamoDB::Table",
             "Properties": {
                 "TableName": { "Ref": "AtomMakerCodeTable" },
+                "AttributeDefinitions": [
+                    {
+                        "AttributeName": "id",
+                        "AttributeType": "S"
+                    }
+                ],
+                "KeySchema": [
+                    {
+                        "AttributeName": "id",
+                        "KeyType": "HASH"
+                    }
+                ],
+                "ProvisionedThroughput": {
+                    "ReadCapacityUnits": "5",
+                    "WriteCapacityUnits": "5"
+                }
+            }
+        },
+        "PublishedMediaAtomMakerCode": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+                "TableName": { "Ref": "PublishedAtomMakerCodeTable" },
                 "AttributeDefinitions": [
                     {
                         "AttributeName": "id",

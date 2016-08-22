@@ -47,6 +47,10 @@
         "AtomMakerTable": {
             "Description": "Name of the media atom dynamo table",
             "Type": "String"
+        },
+        "PublishedAtomMakerTable": {
+            "Description": "Name of the published media atom dynamo table",
+            "Type": "String"
         }
     },
     "Resources": {
@@ -307,6 +311,7 @@
                                 "/home/media-service/media-atom-maker/conf/application.conf\n",
                                 "cat >> /home/media-service/media-atom-maker/conf/application.conf<<'EOF'\n",
                                 "aws.dynamo.tableName=", { "Ref": "AtomMakerTable" }, "\n",
+                                "aws.dynamo.publishedTableName=", { "Ref": "PublishedAtomMakerTable" }, "\n",
                                 "EOF\n",
 
                                 "systemctl start media-atom-maker\n"
@@ -374,6 +379,13 @@
                             "Effect": "Allow",
                             "Resource": {
                                 "Fn::Join": ["", ["arn:aws:dynamodb:", {"Ref": "AWS::Region"}, ":", {"Ref": "AWS::AccountId"}, ":table/", {"Ref": "AtomMakerTable"} ] ]
+                            }
+                        },
+                        {
+                            "Action": [ "dynamodb:*" ],
+                            "Effect": "Allow",
+                            "Resource": {
+                                "Fn::Join": ["", ["arn:aws:dynamodb:", {"Ref": "AWS::Region"}, ":", {"Ref": "AWS::AccountId"}, ":table/", {"Ref": "PublishedAtomMakerTable"} ] ]
                             }
                         }
                     ]
