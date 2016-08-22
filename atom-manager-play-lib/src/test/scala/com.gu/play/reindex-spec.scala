@@ -16,23 +16,34 @@ class ReindexSpec extends AtomSuite {
   val reindexApiKey = "xyzzy"
 
   override def customOverrides = {
-    val mockReindexer = mock[AtomReindexer]
-    super.customOverrides :+ mbind[AtomReindexer] { (r: AtomReindexer) =>
+
+    super.customOverrides :+ mbind[PublishedAtomReindexer] { (r: AtomReindexer) =>
+      when(r.startReindexJob(any(), any())).thenReturn(AtomReindexJob.empty)
+    } :+ mbind[PreviewAtomReindexer] { (r: AtomReindexer) =>
       when(r.startReindexJob(any(), any())).thenReturn(AtomReindexJob.empty)
     }
+
   }
   override def customConfig = super.customConfig + ("reindexApiKey" -> reindexApiKey)
 
-  "reindex api" should {
+  "preview reindex api" should {
     "deny access without api key or with incorrect key" in AtomTestConf() { implicit conf =>
-      (status(reindexCtrl.newReindexJob().apply(FakeRequest()))
+      (status(reindexCtrl.newPreviewReindexJob().apply(FakeRequest()))
          mustEqual UNAUTHORIZED)
 
-      (status(reindexCtrl.newReindexJob().apply(FakeRequest("GET", s"/?api=jafklsj")))
+      (status(reindexCtrl.newPreviewReindexJob().apply(FakeRequest("GET", s"/?api=jafklsj")))
          mustEqual UNAUTHORIZED)
     }
+  }
 
-//    "deny access
+  "publish reindex api" should {
+    "deny access without api key or with incorrect key" in AtomTestConf() { implicit conf =>
+      (status(reindexCtrl.newPublishedReindexJob().apply(FakeRequest()))
+        mustEqual UNAUTHORIZED)
+
+      (status(reindexCtrl.newPublishedReindexJob().apply(FakeRequest("GET", s"/?api=jafklsj")))
+        mustEqual UNAUTHORIZED)
+    }
   }
 
 }

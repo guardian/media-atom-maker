@@ -91,7 +91,8 @@ object ReindexActor {
 
 @Singleton
 class ReindexController @Inject() (dataStore: DataStore,
-                                   reindexer: AtomReindexer,
+                                   previewReindexer: PreviewAtomReindexer,
+                                   publishedReindexer: PublishedAtomReindexer,
                                    config: Configuration,
                                    system: ActorSystem) extends Controller {
 
@@ -99,8 +100,8 @@ class ReindexController @Inject() (dataStore: DataStore,
 
   implicit val ec = system.dispatcher
 
-  val previewReindexActor = system.actorOf(Props(classOf[ReindexActor], reindexer))
-  val publishedReindexActor = system.actorOf(Props(classOf[ReindexActor], reindexer))
+  val previewReindexActor = system.actorOf(Props(classOf[ReindexActor], previewReindexer))
+  val publishedReindexActor = system.actorOf(Props(classOf[ReindexActor], publishedReindexer))
 
   implicit val timeout = Timeout(5.seconds)
 

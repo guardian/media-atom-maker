@@ -1,5 +1,6 @@
 package com.gu.atom.play.test
 
+import com.gu.atom.TestData
 import com.gu.contentatom.thrift._
 import org.mockito.Mockito._
 import org.mockito.ArgumentCaptor
@@ -18,6 +19,8 @@ class AtomAPIActionsSpec extends AtomSuite with Inside {
   override def initialDataStore = {
     val m = dataStoreMockWithTestData
     when(m.updateAtom(any())).thenReturn(Xor.Right(()))
+    when(m.getPublishedAtom(any())).thenReturn(Some(TestData.testAtoms.head))
+    when(m.updatePublishedAtom(any())).thenReturn(Xor.Right(()))
     m
   }
 
@@ -32,15 +35,18 @@ class AtomAPIActionsSpec extends AtomSuite with Inside {
       val result = call(apiActions.publishAtom("1"), FakeRequest())
       status(result) mustEqual NO_CONTENT
     }
+
     "update publish time for atom" in AtomTestConf() { implicit conf =>
       val startTime = (new Date()).getTime()
       val atomCaptor = ArgumentCaptor.forClass(classOf[Atom])
       val result = call(apiActions.publishAtom("1"), FakeRequest())
       status(result) mustEqual NO_CONTENT
-      verify(conf.dataStore).updateAtom(atomCaptor.capture())
+      verify(conf.dataStore).updatePublishedAtom(atomCaptor.capture())
+
       inside(atomCaptor.getValue()) {
         case Atom("1", _, _, _, _, changeDetails, _) =>
           changeDetails.published.value.date must be >= startTime
+
       }
     }
   }

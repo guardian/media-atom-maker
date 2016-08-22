@@ -23,11 +23,12 @@ class DynamoDataStoreSpec
     with BeforeAndAfterAll
     with AtomImplicitsGeneral {
   val tableName = "atom-test-table"
+  val publishedTableName = "published-atom-test-table"
 
   type FixtureParam = DynamoDataStore[MediaAtom]
 
   def withFixture(test: OneArgTest) = {
-    val db = new DynamoDataStore[MediaAtom](LocalDynamoDB.client, tableName) with MediaAtomDynamoFormats
+    val db = new DynamoDataStore[MediaAtom](LocalDynamoDB.client, tableName, publishedTableName) with MediaAtomDynamoFormats
     super.withFixture(test.toNoArgTest(db))
   }
 
@@ -48,10 +49,16 @@ class DynamoDataStoreSpec
       dataStore.updateAtom(updated) should equal(Xor.Right())
       dataStore.getAtom(testAtom.id).value should equal(updated)
     }
+
+    it("should save a published atom") { dataStore =>
+      dataStore.updatePublishedAtom(testAtom) should equal(Xor.Right())
+      dataStore.getPublishedAtom(testAtom.id).value should equal(testAtom)
+    }
   }
 
   override def beforeAll() = {
     val client = LocalDynamoDB.client
     LocalDynamoDB.createTable(client)(tableName)('id -> S)
+    LocalDynamoDB.createTable(client)(publishedTableName)('id -> S)
   }
 }
