@@ -22,11 +22,16 @@ trait AtomAPIActions extends Controller {
 
   def publishAtom(atomId: String) = Action { implicit req =>
 
+    val revisionNumber = publishedDataStore.getAtom(atomId) match {
+      case Some(atom) => atom.contentChangeDetails.revision + 1
+      case None => 1
+    }
+
     previewDataStore.getAtom(atomId) match {
       case Some(atom) => {
         val updatedAtom = atom.copy(
           contentChangeDetails = atom.contentChangeDetails.copy(published = Some(ChangeRecord((new Date()).getTime(), None)))
-        ).withRevision(1)
+        ).withRevision(revisionNumber)
 
         saveAtom(updatedAtom)
       }
