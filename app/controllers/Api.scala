@@ -76,7 +76,7 @@ class Api @Inject() (val dataStore: DataStore,
           maxVersion + 1
         }
         val newAtom = atom
-                      .withRevision(newVersion)
+                      .withRevision(_ + 1)
                       .updateData { media =>
                         media.copy(
                           activeVersion = Some(newVersion),
