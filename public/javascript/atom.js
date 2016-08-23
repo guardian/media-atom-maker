@@ -2,7 +2,7 @@ window.AtomUtil = (function() {
   var ret = {};
 
   function handleError(xhr, err) {
-    alert(err + ":" + xhr.responseJSON.error);
+    alert(err + ": " + xhr.responseText);
   }
 
   ret.addAsset = function(atomId) {
