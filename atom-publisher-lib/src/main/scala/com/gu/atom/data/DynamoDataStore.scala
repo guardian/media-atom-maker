@@ -39,10 +39,24 @@ abstract class DynamoDataStore[D : ClassTag : DynamoFormat]
   }
 
   def createAtom(atom: Atom) =
-    if(get(UniqueKey(KeyEquals('id, atom.id))).isDefined)
+    if (get(UniqueKey(KeyEquals('id, atom.id))).isDefined)
       fail(IDConflictError)
     else
       succeed(put(atom))
+
+
+  private def findAtoms(tableName: String): DataStoreResult[List[Atom]] =
+    Scanamo.scan[Atom](dynamo)(tableName).sequenceU.leftMap {
+      _ => ReadError
+    }
+
+  def listAtoms: DataStoreResult[Iterator[Atom]] = findAtoms(tableName).rightMap(_.iterator)
+}
+
+abstract class PreviewDynamoDataStore[D : ClassTag : DynamoFormat]
+(dynamo: AmazonDynamoDBClient, tableName: String)
+  extends DynamoDataStore[D](dynamo, tableName)
+  with PreviewDataStore {
 
   def updateAtom(newAtom: Atom) = {
     val validationCheck = NestedKeyIs(
@@ -53,10 +67,13 @@ abstract class DynamoDataStore[D : ClassTag : DynamoFormat]
       .leftMap(_ => VersionConflictError(newAtom.contentChangeDetails.revision))
   }
 
-  private def findAtoms: DataStoreResult[List[Atom]] =
-    Scanamo.scan[Atom](dynamo)(tableName).sequenceU.leftMap {
-      _ => ReadError
-    }
+}
 
-  def listAtoms: DataStoreResult[Iterator[Atom]] = findAtoms.rightMap(_.iterator)
+abstract class PublishedDynamoDataStore[D : ClassTag : DynamoFormat]
+(dynamo: AmazonDynamoDBClient, tableName: String)
+  extends DynamoDataStore[D](dynamo, tableName)
+  with PublishedDataStore {
+
+  def updateAtom(newAtom: Atom) =
+    succeed((Scanamo.exec(dynamo)(Table[Atom](tableName).put(newAtom))))
 }

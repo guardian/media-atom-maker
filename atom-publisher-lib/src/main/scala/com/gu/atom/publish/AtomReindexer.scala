@@ -25,3 +25,6 @@ trait AtomReindexer {
   def startReindexJob(atomsToReindex: Iterator[ContentAtomEvent], expectedSize: Int): AtomReindexJob
 
 }
+
+trait PreviewAtomReindexer extends AtomReindexer
+trait PublishedAtomReindexer extends AtomReindexer

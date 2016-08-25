@@ -23,35 +23,50 @@ class DynamoDataStoreSpec
     with BeforeAndAfterAll
     with AtomImplicitsGeneral {
   val tableName = "atom-test-table"
+  val publishedTableName = "published-atom-test-table"
 
-  type FixtureParam = DynamoDataStore[MediaAtom]
+  case class DataStores(preview: PreviewDynamoDataStore[MediaAtom],
+                        published: PublishedDynamoDataStore[MediaAtom])
+
+  type FixtureParam = DataStores
 
   def withFixture(test: OneArgTest) = {
-    val db = new DynamoDataStore[MediaAtom](LocalDynamoDB.client, tableName) with MediaAtomDynamoFormats
-    super.withFixture(test.toNoArgTest(db))
+    val previewDb = new PreviewDynamoDataStore[MediaAtom](LocalDynamoDB.client, tableName) with MediaAtomDynamoFormats
+    val publishedDb = new PublishedDynamoDataStore[MediaAtom](LocalDynamoDB.client, tableName) with MediaAtomDynamoFormats
+    super.withFixture(test.toNoArgTest(DataStores(previewDb, publishedDb)))
   }
 
   describe("DynamoDataStore") {
-    it("should create a new atom") { dataStore =>
-      dataStore.createAtom(testAtom) should equal(Xor.Right())
+    it("should create a new atom") { dataStores =>
+      dataStores.preview.createAtom(testAtom) should equal(Xor.Right())
     }
 
-    it("should return the atom") { dataStore =>
-      dataStore.getAtom(testAtom.id).value should equal(testAtom)
+    it("should return the atom") { dataStores =>
+      dataStores.preview.getAtom(testAtom.id).value should equal(testAtom)
     }
 
-    it("should update the atom") { dataStore =>
+    it("should update the atom") { dataStores =>
       val updated = testAtom
         .copy(defaultHtml = "<div>updated</div>")
         .bumpRevision
 
-      dataStore.updateAtom(updated) should equal(Xor.Right())
-      dataStore.getAtom(testAtom.id).value should equal(updated)
+      dataStores.preview.updateAtom(updated) should equal(Xor.Right())
+      dataStores.preview.getAtom(testAtom.id).value should equal(updated)
+    }
+
+    it("should update a published atom") { dataStores =>
+      val updated = testAtom
+        .copy()
+        .withRevision(1)
+
+      dataStores.published.updateAtom(updated) should equal(Xor.Right())
+      dataStores.published.getAtom(testAtom.id).value should equal(updated)
     }
   }
 
   override def beforeAll() = {
     val client = LocalDynamoDB.client
     LocalDynamoDB.createTable(client)(tableName)('id -> S)
+    LocalDynamoDB.createTable(client)(publishedTableName)('id -> S)
   }
 }

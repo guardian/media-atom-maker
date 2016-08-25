@@ -24,9 +24,10 @@ trait DataStore extends DataStoreResult {
   /* this will only allow the update if the version in atom is later
    * than the version stored in the database, otherwise it will report
    * it as a version conflict error */
-  def updateAtom(newAtom: Atom): DataStoreResult[Unit]
 
   def listAtoms: DataStoreResult[Iterator[Atom]]
+
+  def updateAtom(newAtom: Atom): DataStoreResult[Unit]
 }
 
 trait DataStoreResult {
@@ -37,3 +38,7 @@ trait DataStoreResult {
 }
 
 object DataStoreResult extends DataStoreResult
+
+trait PreviewDataStore extends DataStore
+
+trait PublishedDataStore extends DataStore

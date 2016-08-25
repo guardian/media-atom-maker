@@ -38,5 +38,7 @@ class MemoryStore extends DataStore {
   }
 
   def listAtoms = Xor.right(dataStore.values.iterator)
-
 }
+
+class PreviewMemoryStore(initial: Map[String, Atom]) extends MemoryStore(initial) with PreviewDataStore
+class PublishedMemoryStore(initial: Map[String, Atom]) extends MemoryStore(initial) with PublishedDataStore

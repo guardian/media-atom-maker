@@ -15,7 +15,8 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.ws.WSClient
 import play.api.Logger
 
-class MainApp @Inject() (dataStore: DataStore,
+class MainApp @Inject() (previewDataStore: PreviewDataStore,
+                         publishedDataStore: PublishedDataStore,
                          val wsClient: WSClient,
                          val conf: Configuration,
                          val authActions: AuthActions)
@@ -32,14 +33,14 @@ class MainApp @Inject() (dataStore: DataStore,
   }
 
   def getAtom(id: String) = AuthAction { implicit req =>
-    dataStore.getAtom(id) match {
-      case Some(atom) => Ok(displayAtom(atom))
-      case None => NotFound(s"no atom with id $id found")
+    (previewDataStore.getAtom(id), publishedDataStore.getAtom(id)) match {
+      case (Some(atom), publishedAtom) => Ok(displayAtom(atom, publishedAtom))
+      case (None, _) => NotFound(s"no atom with id $id found")
     }
   }
 
   def listAtoms = AuthAction { implicit req =>
-    dataStore.listAtoms.fold(
+    previewDataStore.listAtoms.fold(
       err => InternalServerError(err.msg),
       atoms => Ok(displayAtomList(atoms.toList))
     )

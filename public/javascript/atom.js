@@ -5,6 +5,18 @@ window.AtomUtil = (function() {
     alert(err + ": " + xhr.responseText);
   }
 
+  ret.hidePublishInformation = function() {
+    $("#publishInfo").hide();
+    $("#hidePublish").hide();
+    $("#displayPublish").show()
+  };
+
+  ret.displayPublishInformation = function() {
+    $("#publishInfo").show();
+    $("#hidePublish").show();
+    $("#displayPublish").hide();
+  };
+
   ret.addAsset = function(atomId) {
     var uri = $("#urlInput").val();
     var mimeType = $("#mimeTypeInput").val();
@@ -78,4 +90,6 @@ window.AtomUtil = (function() {
 
 // INIT bits
 $(function () {
+    $("#hidePublish").hide();
+    $("#publishInfo").hide();
 });

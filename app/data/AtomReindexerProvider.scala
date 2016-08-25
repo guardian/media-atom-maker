@@ -2,12 +2,19 @@ package data
 
 import javax.inject.{Inject, Provider}
 
-import com.gu.atom.publish.{ KinesisAtomReindexer, AtomReindexer }
+import com.gu.atom.publish.{PublishedKinesisAtomReindexer, PublishedAtomReindexer, PreviewKinesisAtomReindexer, PreviewAtomReindexer}
 import util.AWSConfig
 
-class AtomReindexerProvider @Inject() (awsConfig: AWSConfig)
-    extends Provider[AtomReindexer] {
-  def get() = new KinesisAtomReindexer(
-    awsConfig.kinesisReindexStreamName, awsConfig.kinesisClient
+class PreviewAtomReindexerProvider @Inject() (awsConfig: AWSConfig)
+    extends Provider[PreviewAtomReindexer] {
+  def get() = new PreviewKinesisAtomReindexer(
+    awsConfig.previewKinesisReindexStreamName, awsConfig.kinesisClient
+  )
+}
+
+class PublishedAtomReindexerProvider @Inject() (awsConfig: AWSConfig)
+  extends Provider[PublishedAtomReindexer] {
+  def get() = new PublishedKinesisAtomReindexer(
+    awsConfig.publishedKinesisReindexStreamName, awsConfig.kinesisClient
   )
 }

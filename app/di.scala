@@ -1,5 +1,5 @@
 import com.google.inject.AbstractModule
-import com.gu.atom.data.{ MediaAtomDataStoreProvider, DataStore }
+import com.gu.atom.data._
 import com.gu.atom.publish._
 import com.gu.pandomainauth.action.AuthActions
 import data._
@@ -9,8 +9,11 @@ class Module extends AbstractModule {
     bind(classOf[AuthActions])
       .to(classOf[controllers.PanDomainAuthActions])
 
-    bind(classOf[DataStore])
-    .toProvider(classOf[MediaAtomDataStoreProvider])
+    bind(classOf[PublishedDataStore])
+    .toProvider(classOf[PublishedMediaAtomDataStoreProvider])
+
+    bind(classOf[PreviewDataStore])
+      .toProvider(classOf[PreviewMediaAtomDataStoreProvider])
 
     bind(classOf[LiveAtomPublisher])
     .toProvider(classOf[LiveAtomPublisherProvider])
@@ -18,7 +21,10 @@ class Module extends AbstractModule {
     bind(classOf[PreviewAtomPublisher])
       .toProvider(classOf[PreviewAtomPublisherProvider])
 
-    bind(classOf[AtomReindexer])
-      .toProvider(classOf[AtomReindexerProvider])
+    bind(classOf[PreviewAtomReindexer])
+      .toProvider(classOf[PreviewAtomReindexerProvider])
+
+    bind(classOf[PublishedAtomReindexer])
+      .toProvider(classOf[PublishedAtomReindexerProvider])
   }
 }

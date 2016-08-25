@@ -40,11 +40,13 @@ class AWSConfig @Inject() (config: Configuration) {
   )
 
   lazy val dynamoTableName = config.getString("aws.dynamo.tableName").get
+  lazy val publishedDynamoTableName = config.getString("aws.dynamo.publishedTableName").get
 
   lazy val liveKinesisStreamName = config.getString("aws.kinesis.liveStreamName").get
   lazy val previewKinesisStreamName = config.getString("aws.kinesis.previewStreamName").get
 
-  lazy val kinesisReindexStreamName = config.getString("aws.kinesis.reindexStreamName").get
+  lazy val previewKinesisReindexStreamName = config.getString("aws.kinesis.previewReindexStreamName").get
+  lazy val publishedKinesisReindexStreamName = config.getString("aws.kinesis.publishedReindexStreamName").get
 
   lazy val stage = config.getString("stage").getOrElse("DEV")
   lazy val readFromComposerAccount = config.getBoolean("readFromComposer").getOrElse(false)

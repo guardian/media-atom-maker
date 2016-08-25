@@ -24,4 +24,13 @@ class KinesisAtomReindexer(
       }
     }
 }
+
+class PreviewKinesisAtomReindexer( val streamName: String,
+                                   val kinesis: AmazonKinesisClient)
+  extends KinesisAtomReindexer(streamName, kinesis) with PreviewAtomReindexer
+
+class PublishedKinesisAtomReindexer( val streamName: String,
+                                     val kinesis: AmazonKinesisClient)
+  extends KinesisAtomReindexer(streamName, kinesis) with PublishedAtomReindexer
+
  

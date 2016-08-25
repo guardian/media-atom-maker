@@ -15,30 +15,41 @@ trait AtomAPIActions extends Controller {
 
   val livePublisher: LiveAtomPublisher
   val previewPublisher: PreviewAtomPublisher
-  val dataStore: DataStore
+  val previewDataStore: PreviewDataStore
+  val publishedDataStore: PublishedDataStore
 
   private def jsonError(msg: String): JsObject = JsObject(Seq("error" -> JsString(msg)))
 
   def publishAtom(atomId: String) = Action { implicit req =>
-    dataStore.getAtom(atomId) match {
-      case Some(atom) =>
+
+    val revisionNumber = publishedDataStore.getAtom(atomId) match {
+      case Some(atom) => atom.contentChangeDetails.revision + 1
+      case None => 1
+    }
+
+    previewDataStore.getAtom(atomId) match {
+      case Some(atom) => {
         val updatedAtom = atom.copy(
-          contentChangeDetails = atom.contentChangeDetails.copy(
-            published = Some(ChangeRecord((new Date()).getTime(), None))
-          )
-        ).bumpRevision
-        val event = ContentAtomEvent(updatedAtom, EventType.Update, (new Date()).getTime())
-        livePublisher.publishAtomEvent(event) match {
-          case Success(_)  =>
-            dataStore.updateAtom(updatedAtom) match {
-              case Xor.Right(_)  => NoContent
-              case Xor.Left(err) => InternalServerError(
-                jsonError(s"could not update after publish: ${err.toString}")
-              )
-            }
-          case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
-        }
+          contentChangeDetails = atom.contentChangeDetails.copy(published = Some(ChangeRecord((new Date()).getTime(), None)))
+        ).withRevision(revisionNumber)
+
+        savePublishedAtom(updatedAtom)
+      }
       case None => NotFound(jsonError(s"No such atom $atomId"))
+    }
+  }
+
+  private def savePublishedAtom(updatedAtom: Atom) = {
+    val event = ContentAtomEvent(updatedAtom, EventType.Update, (new Date()).getTime())
+    livePublisher.publishAtomEvent(event) match {
+      case Success(_) =>
+        publishedDataStore.updateAtom(updatedAtom) match {
+          case Xor.Right(_) => NoContent
+          case Xor.Left(err) => InternalServerError(
+            jsonError(s"could not update after publish: ${err.toString}")
+          )
+        }
+      case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
     }
   }
 }
