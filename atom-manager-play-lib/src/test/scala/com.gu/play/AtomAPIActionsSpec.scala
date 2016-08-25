@@ -35,7 +35,8 @@ class AtomAPIActionsSpec extends AtomSuite with Inside {
     "update publish time for atom" in AtomTestConf() { implicit conf =>
       val startTime = (new Date()).getTime()
       val atomCaptor = ArgumentCaptor.forClass(classOf[Atom])
-      call(apiActions.publishAtom("1"), FakeRequest())
+      val result = call(apiActions.publishAtom("1"), FakeRequest())
+      status(result) mustEqual NO_CONTENT
       verify(conf.dataStore).updateAtom(atomCaptor.capture())
       inside(atomCaptor.getValue()) {
         case Atom("1", _, _, _, _, changeDetails, _) =>
