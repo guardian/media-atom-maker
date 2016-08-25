@@ -33,13 +33,13 @@ trait AtomAPIActions extends Controller {
           contentChangeDetails = atom.contentChangeDetails.copy(published = Some(ChangeRecord((new Date()).getTime(), None)))
         ).withRevision(revisionNumber)
 
-        saveAtom(updatedAtom)
+        savePublishedAtom(updatedAtom)
       }
       case None => NotFound(jsonError(s"No such atom $atomId"))
     }
   }
 
-  private def saveAtom(updatedAtom: Atom) = {
+  private def savePublishedAtom(updatedAtom: Atom) = {
     val event = ContentAtomEvent(updatedAtom, EventType.Update, (new Date()).getTime())
     livePublisher.publishAtomEvent(event) match {
       case Success(_) =>
