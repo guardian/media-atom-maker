@@ -25,21 +25,24 @@ class DynamoDataStoreSpec
   val tableName = "atom-test-table"
   val publishedTableName = "published-atom-test-table"
 
-  type FixtureParam = (PreviewDynamoDataStore[MediaAtom], PublishedDynamoDataStore[MediaAtom])
+  case class DataStores(preview: PreviewDynamoDataStore[MediaAtom],
+                        published: PublishedDynamoDataStore[MediaAtom])
+
+  type FixtureParam = DataStores
 
   def withFixture(test: OneArgTest) = {
     val previewDb = new PreviewDynamoDataStore[MediaAtom](LocalDynamoDB.client, tableName) with MediaAtomDynamoFormats
     val publishedDb = new PublishedDynamoDataStore[MediaAtom](LocalDynamoDB.client, tableName) with MediaAtomDynamoFormats
-    super.withFixture(test.toNoArgTest((previewDb, publishedDb)))
+    super.withFixture(test.toNoArgTest(DataStores(previewDb, publishedDb)))
   }
 
   describe("DynamoDataStore") {
     it("should create a new atom") { dataStores =>
-      dataStores._1.createAtom(testAtom) should equal(Xor.Right())
+      dataStores.preview.createAtom(testAtom) should equal(Xor.Right())
     }
 
     it("should return the atom") { dataStores =>
-      dataStores._1.getAtom(testAtom.id).value should equal(testAtom)
+      dataStores.preview.getAtom(testAtom.id).value should equal(testAtom)
     }
 
     it("should update the atom") { dataStores =>
@@ -47,8 +50,8 @@ class DynamoDataStoreSpec
         .copy(defaultHtml = "<div>updated</div>")
         .bumpRevision
 
-      dataStores._1.updateAtom(updated) should equal(Xor.Right())
-      dataStores._1.getAtom(testAtom.id).value should equal(updated)
+      dataStores.preview.updateAtom(updated) should equal(Xor.Right())
+      dataStores.preview.getAtom(testAtom.id).value should equal(updated)
     }
 
     it("should update a published atom") { dataStores =>
@@ -56,8 +59,8 @@ class DynamoDataStoreSpec
         .copy()
         .withRevision(1)
 
-      dataStores._2.updateAtom(updated) should equal(Xor.Right())
-      dataStores._2.getAtom(testAtom.id).value should equal(updated)
+      dataStores.published.updateAtom(updated) should equal(Xor.Right())
+      dataStores.published.getAtom(testAtom.id).value should equal(updated)
     }
   }
 
