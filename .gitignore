@@ -4,3 +4,4 @@ logs
 target/
 .dynamodb-local
 .public/minified
+node_modules

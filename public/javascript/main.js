@@ -1,8 +1,6 @@
 var mediaAtomApp = angular.module('mediaAtomApp', ['ngRoute'])
 .config(['$routeProvider', function($routeProvider, $locationProvider) {
 
-    console.log('hello from main!');
-
     return $routeProvider.when('/', {
         templateUrl: '/assets/javascript/atom-list/atom-list.html',
         controller: 'AtomListCtrl'
