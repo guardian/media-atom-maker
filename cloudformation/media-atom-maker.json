@@ -20,6 +20,16 @@
                 "CODE"
             ]
         },
+        "Stack": {
+            "Description": "Stack name",
+            "Type": "String",
+            "Default": "media-service"
+        },
+        "App": {
+            "Description": "App name",
+            "Type": "String",
+            "Default": "media-atom-maker"
+        },
         "GithubTeamName": {
             "Description": "Github team name, used for giving ssh access to members of the team.",
             "Type": "String",
@@ -221,6 +231,26 @@
                             "Ref": "SSLCertificateId"
                         }
                     }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Stage",
+                        "Value": {
+                            "Ref": "Stage"
+                        }
+                    },
+                    {
+                        "Key": "Stack",
+                        "Value": {
+                            "Ref": "Stack"
+                        }
+                    },
+                    {
+                        "Key": "App",
+                        "Value": {
+                            "Ref": "App"
+                        }
+                    }
                 ]
             }
         },
@@ -318,12 +348,16 @@
                     },
                     {
                         "Key": "Stack",
-                        "Value": "media-service",
+                        "Value": {
+                            "Ref": "Stack"
+                        },
                         "PropagateAtLaunch": "true"
                     },
                     {
                         "Key": "App",
-                        "Value": "media-atom-maker",
+                        "Value": {
+                            "Ref": "App"
+                        },
                         "PropagateAtLaunch": "true"
                     }
                 ]
