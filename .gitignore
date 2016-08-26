@@ -3,5 +3,5 @@ logs
 .idea/
 target/
 .dynamodb-local
-.public/minified
+public/minified
 node_modules
