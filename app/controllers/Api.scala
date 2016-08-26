@@ -129,7 +129,7 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
               case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
             }
 
-            Created(s"updated atom $atomId").withHeaders("Location" -> atomUrl(atom.id))
+            Ok(Json.toJson(newAtom))
           }
         )
       case None => NotFound(s"atom not found $atomId")
