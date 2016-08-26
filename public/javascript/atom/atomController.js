@@ -86,11 +86,14 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
     }
 
     function parseAtomFromResponse(atomResponse) {
+
         return {
             title: atomResponse.data.title,
             category: atomResponse.data.category,
             duration: atomResponse.data.duration,
-            activeVersion: atomResponse.data.activeVersion
+            activeVersion: atomResponse.data.activeVersion,
+            defaultHtml: atomResponse.defaultHtml,
+            trustedHtml: $sce.trustAsHtml(atomResponse.defaultHtml)
         };
     }
 

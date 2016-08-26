@@ -67,4 +67,11 @@
 
     <button class="btn btn-primary" ng-disabled="addingAsset || !atomAssetForm.$valid" ng-click="addAsset()">Add Asset</button>
 
+    <h1>Default HTML</h1>
+
+    <div ng-bind-html="atom.trustedHtml" class="defaultHtmlPreview"></div>
+    <div class="defaultHtmlSource">
+        <pre>{{ atom.defaultHtml }}</pre>
+    </div>
+
 </div>
