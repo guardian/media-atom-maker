@@ -2,7 +2,7 @@ var mediaAtomApp = angular.module('mediaAtomApp');
 
 mediaAtomApp.controller('AtomListCtrl', ['$scope', '$http', '$httpParamSerializer', function($scope, $http, $httpParamSerializer) {
 
-    $scope.newAtom = {};
+    $scope.atom = {};
     $scope.mediaAtoms = [];
     $scope.alerts = [];
 
@@ -11,7 +11,7 @@ mediaAtomApp.controller('AtomListCtrl', ['$scope', '$http', '$httpParamSerialize
         $scope.savingAtom = true;
 
         return $http.post('/api/atom',
-                $httpParamSerializer($scope.newAtom), {
+                $httpParamSerializer($scope.atom), {
                     headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
                 })
         .success(function(atom) {
