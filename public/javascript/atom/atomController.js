@@ -1,6 +1,6 @@
 var mediaAtomApp = angular.module('mediaAtomApp');
 
-mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpParamSerializer', function($scope, $http, $routeParams, $httpParamSerializer) {
+mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpParamSerializer', '$sce', function($scope, $http, $routeParams, $httpParamSerializer, $sce) {
 
     $scope.atom = {}
     $scope.assets = {}
