@@ -47,9 +47,10 @@
 
     <h2>Add a new asset</h2>
     <form name="atomAssetForm">
-        <div class="form-group" ng-class="{'has-error': !newAsset.uri}">
+        <div class="form-group" ng-class="{'has-error': atomAssetForm.urlField.$invalid}">
             <label for="assetUrl">Url:</label>
-            <input type="text" class="form-control" id="assetUrl" valid-youtube-url placeholder="url" required ng-model="newAsset.uri">
+            <input type="text" class="form-control" id="assetUrl" name="urlField" valid-youtube-url placeholder="url" required ng-model="newAsset.uri">
+            <div ng-show="newAsset.uri && atomAssetForm.urlField.$invalid" class="alert alert-danger">Url must be a valid youtube url</div>
         </div>
         <div class="form-group">
             <label for="assetMimeType">Mime Type:</label>
@@ -61,7 +62,7 @@
                 <option value="video/m3u8">video/m3u8</option>
             </select>
         </div>
-        <div class="form-group" ng-class="{'has-error': !newAsset.version}"></div>
+        <div class="form-group" ng-class="{'has-error': !newAsset.version}">
             <label for="assetVersion">Version:</label>
             <input type="text" class="form-control" id="assetUrl" required ng-model="newAsset.version">
         </div>

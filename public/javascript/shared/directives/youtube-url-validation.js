@@ -10,7 +10,7 @@ angular.module('mediaAtomApp').directive('validYoutubeUrl', function() {
                     ctrl.$setValidity('youtubeValidator', true);
                 }
                 else {
-                    ctrl.$setValidity('uppercaseValidator', false);
+                    ctrl.$setValidity('youtubeValidator', false);
                 }
                 return ngModelValue;
             }
