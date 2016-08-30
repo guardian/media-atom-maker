@@ -9,6 +9,7 @@ gulp.src(['./public/javascript/**/app.js', './public/javascript/**/*.js'])
     .pipe(sourcemaps.init({loadMaps: true}))
     .pipe(concat('javascripts.js'))
     .pipe(ngAnnotate())
+    .on('error', swallowError)
     .pipe(uglify())
     .pipe(sourcemaps.write())
     .pipe(gulp.dest('./public/minified'))
@@ -20,3 +21,8 @@ gulp.task('watch', function () {
 
 gulp.task('default', ['js']);
 
+function swallowError(error) {
+    console.log(error.toString())
+
+    this.emit('end');
+}
