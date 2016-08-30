@@ -75,8 +75,10 @@ class ApiSpec
     "add an asset to an atom" in AtomTestConf() { implicit conf =>
       val req = requestWithCookies.withFormUrlEncodedBody("uri" -> youtubeUrl, "mimetype" -> "", "version" -> "1")
       val result = call(api.addAsset("1"), req)
-      withClue(s"(body: [${contentAsString(result)}])") { status(result) mustEqual CREATED }
-      conf.previewDataStore.getAtom("1").value.tdata.assets must have size 3
+      withClue(s"(body: [${contentAsString(result)}])") { status(result) mustEqual OK }
+      val json = contentAsJson(result)
+      (json \ "data" \ "assets").as[List[JsValue]] must have size 3
+      conf.previewDataStore.getAtom("1").value.tdata.assets must  have size 3
     }
 
     "create an atom" in AtomTestConf() { implicit conf =>
@@ -142,7 +144,7 @@ class ApiSpec
                 .withFormUrlEncodedBody("uri" -> youtubeUrl, "mimetype" -> "", "version" -> "1")
 
       val result = call(api.addAsset("1"), req)
-      status(result) mustEqual CREATED
+      status(result) mustEqual OK
 
 
       verify(mockPublisherPreview).publishAtomEvent(eventCaptor.capture())
