@@ -58,5 +58,6 @@ div.defaultHtmlSource {
 }
 
 div#publishInfo {
-  background: lightgrey;
-  }
+  border: 1px solid black;
+  padding: 4px;
+}

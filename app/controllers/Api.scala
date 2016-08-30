@@ -41,6 +41,13 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
     }
   }
 
+  def getPublishedMediaAtom(id: String) = APIAuthAction { implicit req =>
+    publishedDataStore.getAtom(id) match {
+      case Some(atom) => Ok(Json.toJson(atom))
+      case None => Ok("not published")
+    }
+  }
+
   def createMediaAtom = thriftResultAction(atomBodyParser) { implicit req =>
     val atom = req.body
     previewDataStore.createAtom(atom).fold(

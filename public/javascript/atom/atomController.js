@@ -1,11 +1,26 @@
 var mediaAtomApp = angular.module('mediaAtomApp');
 
-mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpParamSerializer', '$sce', function($scope, $http, $routeParams, $httpParamSerializer, $sce) {
+mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpParamSerializer', '$sce', '$q', function($scope, $http, $routeParams, $httpParamSerializer, $sce, $q) {
 
-    $scope.atom = {}
-    $scope.assets = {}
+    $scope.atom = {};
+    $scope.publishedNotPreview = false;
+    $scope.publishedAtom = null;
+    $scope.assets = {};
     $scope.newAsset = {};
     $scope.alerts = [];
+    $scope.showPublishedAtom = false;
+
+    $scope.$watch('atom', function() {
+        setPublishedNotPreview();
+    }, true);
+
+    $scope.$watch('publishedAtom', function() {
+        setPublishedNotPreview();
+    }, true);
+
+    function setPublishedNotPreview() {
+        $scope.publishedNotPreview = !angular.equals($scope.atom, $scope.publishedAtom);
+    }
 
     $scope.saveAtom = function() {
         $scope.savingAtom = true;
@@ -29,6 +44,7 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
         $scope.publishing = true;
         return $http.post('/api/atom/'+$routeParams.id+'/publish')
         .success(function() {
+            $scope.publishedAtom = JSON.parse(JSON.stringify($scope.atom));
             $scope.publishing = false;
             addAlert('Published successfully', 'success');
             return;
@@ -84,17 +100,23 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
         });
     };
 
-    function getAtom(id) {
-        return $http.get('/api/atom/'+id)
-        .success(function(response) {
-            $scope.atom = parseAtomFromResponse(response);
-            $scope.assets = response.data.assets;
-            $scope.newAsset.version = response.data.assets.length > 1 ? response.data.activeVersion + 1 : response.data.activeVersion;
+    function getPreviewAndPublishedAtoms(id) {
+        return $q.all([$http.get('/api/atom/'+id), $http.get('/api/published-atom/'+id)])
+        .then(function(responses) {
+
+            var previewResponse = responses[0].data;
+            var publishedResponse = responses[1].data;
+            $scope.atom = parseAtomFromResponse(previewResponse);
+            $scope.assets = previewResponse.data.assets;
+            $scope.newAsset.version = $scope.assets.length > 1 ? previewResponse.data.activeVersion + 1 : previewResponse.data.activeVersion;
+
+            if (publishedResponse === 'not published') {
+                $scope.publishedAtom = null;
+            } else {
+                $scope.publishedAtom = parseAtomFromResponse(publishedResponse);
+            }
+
             return;
-        })
-        .error(function(err) {
-            $scope.atom = null;
-            addAlert(err.error, 'danger');
         });
     }
 
@@ -105,10 +127,11 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
             category: atomResponse.data.category,
             duration: atomResponse.data.duration,
             activeVersion: atomResponse.data.activeVersion,
+            assets: atomResponse.data.assets,
             defaultHtml: atomResponse.defaultHtml,
             trustedHtml: $sce.trustAsHtml(atomResponse.defaultHtml)
         };
     }
 
-    getAtom($routeParams.id)
+    getPreviewAndPublishedAtoms($routeParams.id)
 }]);

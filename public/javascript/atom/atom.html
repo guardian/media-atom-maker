@@ -76,4 +76,18 @@
         <pre>{{ atom.defaultHtml }}</pre>
     </div>
 
+    <div id=publishInfo>
+        <h1>Published Atom Infromation</h1>
+
+        <div ng-if="!publishedAtom">
+            This atom has not yet been published
+        </div>
+        <div ng-if="publishedAtom && !publishedNotPreview">
+            The published atom is equal to the current preview atom
+        </div>
+        <div ng-if="publishedNotPreview">
+            <button class="btn btn-primary" ng-click="showPublishedAtom = !showPublishedAtom">{{ showPublishedAtom && 'Hide' || 'Show' }} published atom </button>
+            <div ng-if="showPublishedAtom" ng-include="'assets/javascript/atom/published-atom-detail.html'"></div>
+        </div>
+    </div>
 </div>
