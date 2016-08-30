@@ -52,6 +52,7 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
         .success(function(response) {
             $scope.addingAsset = false;
             $scope.assets = response.data.assets;
+            $scope.atom = parseAtomFromResponse(response);
             $scope.newAsset = { version: response.data.activeVersion + 1 };
             return;
         })
@@ -66,8 +67,8 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
         return $http.post('/api/atom/' + $routeParams.id + "/revert/" + version, {
             headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
         })
-        .success(function() {
-            $scope.atom.activeVersion = version;
+        .success(function(response) {
+            $scope.atom = parseAtomFromResponse(response);
             return;
         })
         .error(function(err) {

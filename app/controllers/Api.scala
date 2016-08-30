@@ -97,7 +97,7 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
               case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
             }
 
-            Created(s"Updated atom $atomId").withHeaders("Location" -> atomUrl(atom.id))
+            Ok(Json.toJson(atom))
           }
         )
       case None => NotFound(s"atom not found $atomId")
@@ -144,12 +144,12 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
         if(!atom.tdata.assets.exists(_.version == version)) {
           InternalServerError(jsonError(s"no asset is listed for version $version"))
         } else {
-          previewDataStore.updateAtom(
-            atom
-              .withRevision(_ + 1)
-              .updateData { media => media.copy(activeVersion = Some(version)) }
-          )
-          Ok(s"updated to $version")
+          val newAtom = atom
+            .withRevision(_ + 1)
+            .updateData { media => media.copy(activeVersion = Some(version)) }
+
+          previewDataStore.updateAtom(newAtom)
+          Ok(Json.toJson(newAtom))
         }
       case None => NotFound(s"atom not found $atomId")
     }
