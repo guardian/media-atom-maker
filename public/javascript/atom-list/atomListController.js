@@ -4,6 +4,7 @@ mediaAtomApp.controller('AtomListCtrl', ['$scope', '$http', '$httpParamSerialize
 
     $scope.newAtom = {};
     $scope.mediaAtoms = [];
+    $scope.alerts = [];
 
     $scope.saveAtom = function() {
 
@@ -19,7 +20,8 @@ mediaAtomApp.controller('AtomListCtrl', ['$scope', '$http', '$httpParamSerialize
             return;
         })
         .error(function(err) {
-            alert(err.error);
+            addAlert(err);
+            return;
         });
     }
 
@@ -31,12 +33,18 @@ mediaAtomApp.controller('AtomListCtrl', ['$scope', '$http', '$httpParamSerialize
         })
         .error(function(err) {
             $scope.mediaAtoms = null;
-             alert(err);
+             addAlert(err.error);
              return;
         });
     };
 
-    getAtoms();
+    addAlert = function(message) {
+        $scope.alerts.push({
+            msg: message,
+            type: 'danger'
+        });
+    };
 
+    getAtoms();
 
 }]);

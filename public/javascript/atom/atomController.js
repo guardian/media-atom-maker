@@ -5,6 +5,7 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
     $scope.atom = {}
     $scope.assets = {}
     $scope.newAsset = {};
+    $scope.alerts = [];
 
     $scope.saveAtom = function() {
         $scope.savingAtom = true;
@@ -19,7 +20,8 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
         })
         .error(function(err) {
             $scope.saving = false;
-            alert(err);
+            addAlert(err, 'danger');
+            return;
         });
     };
 
@@ -28,12 +30,12 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
         return $http.post('/api/atom/'+$routeParams.id+'/publish')
         .success(function() {
             $scope.publishing = false;
-            alert('Published successfully');
+            addAlert('Published successfully', 'success');
             return;
         })
         .error(function(err) {
             $scope.publishing = false;
-            alert(err.error);
+            addAlert(err, 'danger');
             return;
         });
     };
@@ -55,7 +57,8 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
         })
         .error(function(err) {
             $scope.addingAsset = false;
-            alert(err);
+            addAlert(err, 'danger');
+            return;
         });
     };
 
@@ -65,9 +68,18 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
         })
         .success(function() {
             $scope.atom.activeVersion = version;
+            return;
         })
         .error(function(err) {
-            alert(err);
+            addAlert(err, 'danger');
+            return;
+        });
+    };
+
+    addAlert = function(message, type) {
+        $scope.alerts.push({
+            msg: message,
+            type: type
         });
     };
 
@@ -81,7 +93,7 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
         })
         .error(function(err) {
             $scope.atom = null;
-            alert(err);
+            addAlert(err.error, 'danger');
         });
     }
 

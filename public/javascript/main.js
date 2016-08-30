@@ -1,4 +1,4 @@
-var mediaAtomApp = angular.module('mediaAtomApp', ['ngRoute'])
+var mediaAtomApp = angular.module('mediaAtomApp', ['ngRoute', 'ui.bootstrap'])
 .config(['$routeProvider', function($routeProvider, $locationProvider) {
 
     return $routeProvider.when('/', {
