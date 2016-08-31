@@ -127,6 +127,7 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
             category: atomResponse.data.category,
             duration: atomResponse.data.duration,
             activeVersion: atomResponse.data.activeVersion,
+            posterUrl: atomResponse.data.posterUrl,
             assets: atomResponse.data.assets,
             defaultHtml: atomResponse.defaultHtml,
             trustedHtml: $sce.trustAsHtml(atomResponse.defaultHtml)

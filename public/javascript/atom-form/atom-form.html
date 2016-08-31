@@ -19,7 +19,19 @@
     </div>
     <div class="form-group">
         <label for="atomPoster">Poster:</label>
-        <input type="text" class="form-control" id="atomPoster" placeholder="poster" ng-model="newatom.poster">
+        <input
+            type="text"
+            class="form-control"
+            ng-class="{'has-error': atomForm.posterUrlField.$invalid}"
+            id="atomPoster"
+            name="posterUrlField"
+            valid-poster-url
+            placeholder="poster"
+            ng-model="atom.posterUrl"
+        >
+        <div ng-show="atomForm.posterUrlField.$invalid" class="alert alert-danger">
+            Poster url must be an absolute url with https scheme
+        </div>
     </div>
 </form>
 <button id="saveAtom" class="btn btn-primary" ng-click="saveAtom()" ng-disabled="!atomForm.$valid || savingAtom">Save atom</button>
