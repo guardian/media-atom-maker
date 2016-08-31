@@ -12,6 +12,10 @@ td.label {
     font-weight: bold;
 }
 
+button#saveAtom {
+    margin-bottom: 3px;
+}
+
 div#addAtom {
     width: 100%;
     max-width: 600px;
