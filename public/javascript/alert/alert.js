@@ -13,6 +13,6 @@ mediaAtomApp.directive('mediaAlerts', function() {
                 $scope.alerts.splice(index, 1);
             };
         }],
-        templateUrl: 'assets/javascript/shared/directives/alert.html'
+        templateUrl: 'assets/javascript/alert/alert.html'
     };
 });
