@@ -1,0 +1,25 @@
+<h2>Add a new asset</h2>
+<form name="atomAssetForm">
+    <div class="form-group" ng-class="{'has-error': atomAssetForm.urlField.$invalid}">
+        <label for="assetUrl">Url:</label>
+        <input type="text" class="form-control" id="assetUrl" name="urlField" valid-youtube-url placeholder="url" required ng-model="newAsset.uri">
+        <div ng-show="newAsset.uri && atomAssetForm.urlField.$invalid" class="alert alert-danger">Url must be a valid youtube url</div>
+    </div>
+    <div class="form-group">
+        <label for="assetMimeType">Mime Type:</label>
+        <select class="form-control" id="assetMimeType" ng-model="newAsset.mimetype">
+            <option value="" selected="selected">N/A</option>
+            <option value="video/mp4">video/mp4</option>
+            <option value="video/webm">video/webm</option>
+            <option value="video/ogg">video/ogg</option>
+            <option value="video/m3u8">video/m3u8</option>
+        </select>
+    </div>
+    <div class="form-group" ng-class="{'has-error': !newAsset.version}">
+        <label for="assetVersion">Version:</label>
+        <input type="text" class="form-control" id="assetUrl" required ng-model="newAsset.version">
+    </div>
+</form>
+<button class="btn btn-primary" ng-disabled="addingAsset || !atomAssetForm.$valid" ng-click="addAsset()">Add Asset</button>
+
+
