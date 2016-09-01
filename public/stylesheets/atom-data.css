@@ -12,7 +12,7 @@ td.label {
     font-weight: bold;
 }
 
-button#saveAtom {
+button.paddedButton {
     margin-bottom: 3px;
 }
 
@@ -58,12 +58,14 @@ div.defaultHtmlSource {
     border: 1px dashed black;
     padding: 10px;
     margin: 10px 0;
-    max-width: 70%;
 }
 
-div#publishInfo {
-  border: 1px solid black;
-  padding: 4px;
+h1.atom-section {
+    font-size: 28px;
+}
+
+h2.asset-detail {
+    font-size: 20px;
 }
 
 .form-control.disabled::-webkit-input-placeholder {

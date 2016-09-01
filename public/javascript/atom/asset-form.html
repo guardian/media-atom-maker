@@ -1,4 +1,4 @@
-<h2>Add a new asset</h2>
+<h2 class="asset-detail">Add a new asset</h2>
 <form name="atomAssetForm">
     <div class="form-group" ng-class="{'has-error': atomAssetForm.urlField.$invalid}">
         <label for="assetUrl">Url:</label>
@@ -20,6 +20,6 @@
         <input type="text" class="form-control" id="assetUrl" required ng-model="newAsset.version">
     </div>
 </form>
-<button class="btn btn-primary" ng-disabled="addingAsset || !atomAssetForm.$valid" ng-click="addAsset()">Add Asset</button>
+<button class="btn btn-primary paddedButton" ng-disabled="addingAsset || !atomAssetForm.$valid" ng-click="addAsset()">Add Asset</button>
 
 

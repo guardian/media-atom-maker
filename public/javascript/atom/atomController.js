@@ -10,6 +10,7 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
     $scope.alerts = [];
     $scope.showPublishedAtom = false;
     $scope.embedLink = '/atom/media/' + $routeParams.id;
+    $scope.createNewAsset = false;
 
     $scope.$watch('atom', function() {
         setPublishedNotPreview();
@@ -71,6 +72,7 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
             $scope.assets = response.data.assets;
             $scope.atom = parseAtomFromResponse(response);
             $scope.newAsset = { version: response.data.activeVersion + 1 };
+            $scope.createNewAsset = false;
             return;
         })
         .error(function(err) {

@@ -7,7 +7,6 @@
     @if(condition){selected="selected"}
 }
 
-<h1>Atom Data</h1>
 <table id="atom-data">
     <tr><td class="label">ID</td><td>@{atom.map(_.id).getOrElse("[Will be generated]")}</td></tr>
     <tr><td class="label">Atom type</td><td>Media</td></tr>
