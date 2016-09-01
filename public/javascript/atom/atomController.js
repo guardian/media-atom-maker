@@ -9,6 +9,7 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
     $scope.newAsset = {};
     $scope.alerts = [];
     $scope.showPublishedAtom = false;
+    $scope.embedLink = '/atom/media/' + $routeParams.id;
 
     $scope.$watch('atom', function() {
         setPublishedNotPreview();

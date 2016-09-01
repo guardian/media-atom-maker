@@ -1,20 +1,29 @@
 <a class="btn btn-secondary" href='#/'>Back to atoms page</a>
 
 <div class="container">
-    <h1>Atom Data</h1>
-
     <media-alerts alerts=alerts></media-alerts>
-    <div ng-include="'assets/javascript/atom-form/atom-form.html'"></div>
-    <button class="btn btn-success" ng-disabled="publishing" ng-click="publish()">Publish Atom</button>
+    <div>
+        <h1>Atom Data</h1>
 
-    <h1>Asset management</h1>
+        <div class="form-group">
+            <label for="embedLink">Embed link:</label>
+            <input type="text" class="form-control disabled" id="embedLink" placeholder="{{embedLink}}" readonly>
+        </div>
 
-    <div class="form-group">
-        <label for="assetVersion">Current active version:</label>
-        <div type="text" class="form-control" id="assetVersion">{{atom.activeVersion}}</div>
+        <div ng-include="'assets/javascript/atom-form/atom-form.html'"></div>
+        <button class="btn btn-success" ng-disabled="publishing" ng-click="publish()">Publish Atom</button>
     </div>
-    <div ng-include="'assets/javascript/atom/asset-list.html'"></div>
-    <div ng-include="'assets/javascript/atom/asset-form.html'"></div>
+
+    <div>
+        <h1>Asset management</h1>
+
+        <div class="form-group">
+            <label for="assetVersion">Current active version:</label>
+            <div type="text" class="form-control" id="assetVersion">{{atom.activeVersion}}</div>
+        </div>
+        <div ng-include="'assets/javascript/atom/asset-list.html'"></div>
+        <div ng-include="'assets/javascript/atom/asset-form.html'"></div>
+    </div>
 
     <h1>Default HTML</h1>
 

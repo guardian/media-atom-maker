@@ -65,3 +65,15 @@ div#publishInfo {
   border: 1px solid black;
   padding: 4px;
 }
+
+.form-control.disabled::-webkit-input-placeholder {
+    color: black;
+}
+.form-control.disabled::-moz-placeholder {
+   color: black;
+}
+
+.form-control.disabled::-ms-input-placeholder {
+   color: black;
+}
+
