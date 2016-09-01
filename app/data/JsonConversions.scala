@@ -29,7 +29,8 @@ object JsonConversions {
     (__ \ "title").write[String] and
     (__ \ "category").write[Category] and
     (__ \ "plutoProjectId").writeNullable[String] and
-    (__ \ "duration").writeNullable[Long]
+    (__ \ "duration").writeNullable[Long] and
+    (__ \ "posterUrl").writeNullable[String]
     ) { mediaAtom: MediaAtom =>
     (
       mediaAtom.assets,
@@ -37,7 +38,8 @@ object JsonConversions {
       mediaAtom.title,
       mediaAtom.category,
       mediaAtom.plutoProjectId,
-      mediaAtom.duration
+      mediaAtom.duration,
+      mediaAtom.posterUrl
       )
   }
 
