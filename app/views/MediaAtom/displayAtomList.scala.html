@@ -1,9 +1,3 @@
-@import com.gu.contentatom.thrift.Atom
-@import views.html.MediaAtom.atomData
-@import views.html.MediaAtom.atomListTable
-@import views.html.MediaAtom.createAtomUI
-@(atoms: TraversableOnce[Atom])
-
 <html ng-app="mediaAtomApp">
     <head>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
@@ -13,8 +7,6 @@
 	     src="https://code.jquery.com/jquery-2.2.4.min.js"
 	     integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
 	     crossorigin="anonymous"></script>
-        <script src="/assets/javascript/atom.js"></script>
-        <script src="/assets/javascript/main.js"></script>
         <title>Media Atoms</title>
         <script src="/assets/minified/javascripts.js"></script>
         <link rel="stylesheet" href="/assets/stylesheets/atom-data.css">
@@ -22,8 +14,5 @@
     </head>
     <body>
         <div data-ng-view></div>
-        @atomData()
-        @createAtomUI()
-        @atomListTable(atoms)
     </body>
 </html>
