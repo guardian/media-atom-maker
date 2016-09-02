@@ -38,14 +38,3 @@ h2.asset-detail {
     font-size: 20px;
 }
 
-.form-control.disabled::-webkit-input-placeholder {
-    color: black;
-}
-.form-control.disabled::-moz-placeholder {
-   color: black;
-}
-
-.form-control.disabled::-ms-input-placeholder {
-   color: black;
-}
-

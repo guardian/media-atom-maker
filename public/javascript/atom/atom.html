@@ -13,7 +13,7 @@
 
             <div class="form-group">
                 <label for="embedLink">Embed link:</label>
-                <input type="text" class="form-control disabled" id="embedLink" placeholder="{{embedLink}}" readonly>
+                <input type="text" class="form-control" id="embedLink" ng-model="embedLink" readonly>
             </div>
 
             <div ng-include="'assets/javascript/atom-form/atom-form.html'"></div>
@@ -33,7 +33,7 @@
 
             <div class="form-group">
                 <label for="assetVersion">Current active version:</label>
-                <input type="text" class="form-control disabled" id="assetVersion" placeholder="{{atom.activeVersion}}" readonly>
+                <input type="text" class="form-control" id="assetVersion" ng-model="atom.activeVersion" readonly>
             </div>
             <asset-list
                 allow-edit=true
