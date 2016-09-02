@@ -20,10 +20,6 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
         setPublishedNotPreview();
     }, true);
 
-    function setPublishedNotPreview() {
-        $scope.publishedNotPreview = !angular.equals($scope.atom, $scope.publishedAtom);
-    }
-
     $scope.saveAtom = function() {
         $scope.savingAtom = true;
         return $http.post('/api/atom/'+$routeParams.id,
@@ -100,12 +96,17 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
         addAlert('You cannot change the version of a published atom', 'danger');
     };
 
-    addAlert = function(message, type) {
+    function addAlert(message, type) {
         $scope.alerts.push({
             msg: message,
             type: type
         });
     };
+
+    function setPublishedNotPreview() {
+        $scope.publishedNotPreview = !angular.equals($scope.atom, $scope.publishedAtom);
+    }
+
 
     function getPreviewAndPublishedAtoms(id) {
         return $q.all([$http.get('/api/atom/'+id), $http.get('/api/published-atom/'+id)])
