@@ -3,7 +3,7 @@
     <div class="form-group" ng-class="{'has-error': atomAssetForm.urlField.$invalid}">
         <label for="assetUrl">Url:</label>
         <input type="text" class="form-control" id="assetUrl" name="urlField" valid-youtube-url placeholder="url" required ng-model="newAsset.uri">
-        <div ng-show="newAsset.uri && atomAssetForm.urlField.$invalid" class="alert alert-danger">Url must be a valid youtube url</div>
+        <div ng-show="atomAssetForm.urlField.$invalid" class="form-text text-muted">Url must be a valid youtube url</div>
     </div>
     <div class="form-group">
         <label for="assetMimeType">Mime Type:</label>
@@ -21,5 +21,3 @@
     </div>
 </form>
 <button class="btn btn-primary paddedButton" ng-disabled="addingAsset || !atomAssetForm.$valid" ng-click="addAsset()">Add Asset</button>
-
-
