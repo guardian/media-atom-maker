@@ -12,6 +12,7 @@ import model.ThriftUtil._
 import play.api.Configuration
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import util.atom.MediaAtomImplicits
+import util.AWSConfig
 import play.api.libs.json._
 
 import com.gu.atom.play._
@@ -23,6 +24,7 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
                      val livePublisher: LiveAtomPublisher,
                      val previewPublisher: PreviewAtomPublisher,
                      val conf: Configuration,
+                     val awsConfig: AWSConfig,
                      val authActions: AuthActions)
     extends AtomController
     with MediaAtomImplicits
@@ -168,5 +170,13 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
       err =>   InternalServerError(jsonError(err.msg)),
       atoms => Ok(Json.toJson(atoms.toList))
     )
+  }
+
+  def getConfigValues = APIAuthAction { implicit req =>
+
+    val stage = awsConfig.stage
+
+    Ok(Json.toJson(Map("stage" -> stage)))
+
   }
 }

@@ -1,6 +1,6 @@
 var mediaAtomApp = angular.module('mediaAtomApp');
 
-mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpParamSerializer', '$sce', '$q', function($scope, $http, $routeParams, $httpParamSerializer, $sce, $q) {
+mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpParamSerializer', '$sce', '$q', 'appConfig', function($scope, $http, $routeParams, $httpParamSerializer, $sce, $q, appConfig) {
 
     $scope.atom = {};
     $scope.publishedNotPreview = false;
@@ -19,6 +19,10 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
     $scope.$watch('publishedAtom', function() {
         setPublishedNotPreview();
     }, true);
+
+    $scope.$watchGroup(['config', 'publishedAtom'], function() {
+        setCapiLink();
+    });
 
     $scope.saveAtom = function() {
         $scope.savingAtom = true;
@@ -96,6 +100,30 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
         addAlert('You cannot change the version of a published atom', 'danger');
     };
 
+    function getConfig() {
+        return $http.get('/api/config-values')
+        .then(function(response) {
+            $scope.config = response.data;
+        });
+    }
+
+    function setCapiLink() {
+        if ($scope.config && $scope.config.stage === 'PROD') {
+            if ($scope.publishedAtom) {
+                $scope.linkToCapi = appConfig.prodLiveUrl + $scope.embedLink + appConfig.capiApiKey;
+            } else {
+                $scope.linkToCapi = appConfig.prodPreviewUrl + $scope.embedLink + appConfig.capiApiKey;
+            }
+        } else {
+            if ($scope.publishedAtom) {
+                $scope.linkToCapi = appConfig.codeLiveUrl + $scope.embedLink + appConfig.capiApiKey;
+            } else {
+                $scope.linkToCapi = appConfig.codePreviewUrl + $scope.embedLink + appConfig.capiApiKey;
+
+            }
+        }
+    }
+
     function addAlert(message, type) {
         $scope.alerts.push({
             msg: message,
@@ -106,7 +134,6 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
     function setPublishedNotPreview() {
         $scope.publishedNotPreview = !angular.equals($scope.atom, $scope.publishedAtom);
     }
-
 
     function getPreviewAndPublishedAtoms(id) {
         return $q.all([$http.get('/api/atom/'+id), $http.get('/api/published-atom/'+id)])
@@ -142,5 +169,6 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
         };
     }
 
-    getPreviewAndPublishedAtoms($routeParams.id)
+    getPreviewAndPublishedAtoms($routeParams.id);
+    getConfig();
 }]);

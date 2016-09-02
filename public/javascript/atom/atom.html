@@ -13,7 +13,15 @@
 
             <div class="form-group">
                 <label for="embedLink">Embed link:</label>
-                <input type="text" class="form-control" id="embedLink" ng-model="embedLink" readonly>
+                <a
+                    href="{{linkToCapi}}"
+                    type="text"
+                    class="form-control"
+                    id="embedLink"
+                    readonly
+                >
+                    {{embedLink}}
+                </a>
             </div>
 
             <div ng-include="'assets/javascript/atom-form/atom-form.html'"></div>
