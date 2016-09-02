@@ -12,7 +12,7 @@ gulp.src(['./public/javascript/**/app.js', './public/javascript/**/*.js'])
     .on('error', swallowError)
     .pipe(uglify())
     .pipe(sourcemaps.write())
-    .pipe(gulp.dest('./public/minified'))
+    .pipe(gulp.dest('./public/dist'))
 })
 
 gulp.task('watch', function () {
