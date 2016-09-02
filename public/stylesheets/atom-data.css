@@ -38,3 +38,7 @@ h2.asset-detail {
     font-size: 20px;
 }
 
+.asset-data {
+    border-right: solid lightgrey 1px;
+}
+
