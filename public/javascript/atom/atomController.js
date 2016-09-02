@@ -8,9 +8,9 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
     $scope.assets = {};
     $scope.newAsset = {};
     $scope.alerts = [];
-    $scope.showPublishedAtom = false;
     $scope.embedLink = '/atom/media/' + $routeParams.id;
     $scope.createNewAsset = false;
+    $scope.showPreviewAtom = true;
 
     $scope.$watch('atom', function() {
         setPublishedNotPreview();
@@ -94,6 +94,10 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
             addAlert(err, 'danger');
             return;
         });
+    };
+
+    $scope.preventPublishedVersionRevert = function() {
+        addAlert('You cannot change the version of a published atom', 'danger');
     };
 
     addAlert = function(message, type) {

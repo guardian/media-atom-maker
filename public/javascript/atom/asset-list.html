@@ -11,10 +11,10 @@
         <tr
                 ng-repeat="asset in assets"
                 ng-init="currentAsset=asset"
-                ng-click="revertVersion(currentAsset.version)"
+                ng-click="revertVersion({ version: currentAsset.version })"
                 ng-class="{
-                'assetRow-active' : currentAsset.version === atom.activeVersion,
-                'assetRow' : currentAsset.version !== atom.activeVersion
+                    'assetRow-active' : currentAsset.version === activeVersion,
+                    'assetRow' : allowEdit
                 }"
                 >
                 <td>{{asset.assetType}}</td>
@@ -29,4 +29,3 @@
 <div ng-if="assets.length === 0">
     You have not yet added any assets to this atom
 </div>
-

@@ -16,7 +16,7 @@ button.paddedButton {
     margin-bottom: 3px;
 }
 
-tr.assetRow, tr.assetRow-active {
+tr.assetRow {
     cursor: pointer;
 }
 tr.assetRow-active {

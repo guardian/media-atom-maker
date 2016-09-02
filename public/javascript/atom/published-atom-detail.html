@@ -1,35 +1,34 @@
-<table class="table table-striped table-bordered">
-    <tbody>
-        <tr>
-            <td>Title</td>
-            <td>{{ publishedAtom.title }}</td>
-        </tr>
-        <tr>
-            <td>Category</td>
-            <td>{{ publishedAtom.category }}</td>
-        </tr>
-        <tr>
-            <td>Duration</td>
-            <td>{{ publishedAtom.duration }}</td>
-        </tr>
-        <tr>
-            <td>Poster</td>
-            <td>{{ publishedAtom.poster }}</td>
-        </tr>
-        <tr>
-            <td>Active version</td>
-            <td>{{ publishedAtom.activeVersion }}</td>
-        </tr>
-        <tr>
-            <td>Assets</td>
-            <td>
-                <ol>
-                    <li ng-repeat="asset in publishedAtom.assets">id: {{asset.id}}</li>
-                </ol>
-            </td>
-        </tr>
-    </tbody>
-</table>
+<div class="form-group">
+    <label for="atomTitle">Title:</label>
+    <input type="text" class="form-control" id="atomTitle" ng-model="publishedAtom.title" required readonly>
+</div>
+<div class="form-group">
+    <label for="atomCategory">Category:</label>
+    <input type="text" class="form-control" id="atomCategory" ng-model="publishedAtom.category" required readonly>
+</div>
+<div class="form-group">
+    <label for="atomDuration">Duration (in seconds):</label>
+    <input class="form-control" id="atomDuration" ng-model="publishedAtom.duration" readonly>
+</div>
+<div class="form-group">
+    <label for="atomPoster">Poster:</label>
+    <input class="form-control" id="atomPoster" ng-model="publishedAtom.posterUrl" readonly>
+</div>
+
+<h3>Published Atom Assets</h3>
+<asset-list
+    ng-if="publishedAtom.assets.length > 0"
+    allow-edit=false
+    assets=publishedAtom.assets
+    active-version=publishedAtom.activeVersion
+    revert-version=preventPublishedVersionRevert()
+></asset-list>
+<div ng-if="publisedAtom.assets.length > 0">
+
+</div>
+<div ng-if="publishedAtom.assets.length === 0">
+    The published version of this atom does not have any assets
+</div>
 <h3>Published atom default html</h3>
 
 <div ng-bind-html="publishedAtom.trustedHtml" class="defaultHtmlPreview"></div>
