@@ -6,8 +6,6 @@ lazy val AwsSdkVersion = "1.11.8"
 
 name := "atom-manager-play"
 
-version := "1.0.0-SNAPSHOT"
-
 libraryDependencies ++= Seq(
   "com.typesafe.play"      %% "play"                  % playVersion,
   "com.gu"                 %% "content-atom-model"    % contentAtomVersion,
