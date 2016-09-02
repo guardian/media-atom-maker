@@ -11,9 +11,9 @@ mediaAtomApp.controller('AtomListCtrl', ['$scope', '$http', '$httpParamSerialize
         $scope.savingAtom = true;
 
         return $http.post('/api/atom',
-                $httpParamSerializer($scope.atom), {
-                    headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
-                })
+            $httpParamSerializer($scope.atom), {
+                headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+        })
         .success(function(atom) {
             $scope.savingAtom = false;
             $scope.mediaAtoms.push(atom);
