@@ -1,22 +1,18 @@
-@import com.gu.contentatom.thrift.Atom
-@import views.html.MediaAtom.atomData
-@import views.html.MediaAtom.atomListTable
-@import views.html.MediaAtom.createAtomUI
-@(atoms: TraversableOnce[Atom])
-
-<html>
+<html ng-app="mediaAtomApp">
     <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular-route.js"></script>
+        <script src="//angular-ui.github.io/bootstrap/ui-bootstrap-tpls-2.0.1.js"></script>
         <script
 	     src="https://code.jquery.com/jquery-2.2.4.min.js"
 	     integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
 	     crossorigin="anonymous"></script>
-        <script src="/assets/javascript/atom.js"></script>
         <title>Media Atoms</title>
+        <script src="/assets/dist/javascripts.js"></script>
         <link rel="stylesheet" href="/assets/stylesheets/atom-data.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     </head>
     <body>
-        @atomData()
-        @createAtomUI()
-        @atomListTable(atoms)
+        <div data-ng-view></div>
     </body>
 </html>

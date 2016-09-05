@@ -32,17 +32,10 @@ class MainApp @Inject() (previewDataStore: PreviewDataStore,
     processGoogleCallback()
   }
 
-  def getAtom(id: String) = AuthAction { implicit req =>
-    (previewDataStore.getAtom(id), publishedDataStore.getAtom(id)) match {
-      case (Some(atom), publishedAtom) => Ok(displayAtom(atom, publishedAtom))
-      case (None, _) => NotFound(s"no atom with id $id found")
-    }
-  }
-
   def listAtoms = AuthAction { implicit req =>
     previewDataStore.listAtoms.fold(
       err => InternalServerError(err.msg),
-      atoms => Ok(displayAtomList(atoms.toList))
+      atoms => Ok(displayAtomList())
     )
   }
 }

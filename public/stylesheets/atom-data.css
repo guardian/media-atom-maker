@@ -12,37 +12,11 @@ td.label {
     font-weight: bold;
 }
 
-div#addAtom {
-    width: 100%;
-    max-width: 600px;
-    margin: 10px;
-    padding: 20px;
-    border: 1px dotted black;
+button.paddedButton {
+    margin-bottom: 3px;
 }
 
-div#addAtom form {
-    padding: 0;
-    margin: 0;
-}
-
-div#addAtom label {
-    display: inline-block;
-    width: 10%;
-    background-color: lightblue;
-    padding: 5px;
-}
-
-div#addAtom input[name="uri"] {
-    display: inline-block;
-    width: 60%;
-}
-
-div#addAtom input[name="version"] {
-    display: inline-block;
-    width: 10%;
-}
-
-tr.assetRow, tr.assetRow-active {
+tr.assetRow {
     cursor: pointer;
 }
 tr.assetRow-active {
@@ -54,9 +28,17 @@ div.defaultHtmlSource {
     border: 1px dashed black;
     padding: 10px;
     margin: 10px 0;
-    max-width: 70%;
 }
 
-div#publishInfo {
-  background: lightgrey;
-  }
+h1.atom-section {
+    font-size: 28px;
+}
+
+h2.asset-detail {
+    font-size: 20px;
+}
+
+.asset-data {
+    border-right: solid lightgrey 1px;
+}
+

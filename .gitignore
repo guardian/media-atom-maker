@@ -3,3 +3,5 @@ logs
 .idea/
 target/
 .dynamodb-local
+public/dist
+node_modules

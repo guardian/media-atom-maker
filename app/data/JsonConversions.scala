@@ -80,8 +80,10 @@ object JsonConversions {
       (__ \ "type").write[AtomType] and
       (__ \ "labels").write[Seq[String]] and
       (__ \ "defaultHtml").write[String] and
-      (__ \ "data").write[AtomData]
+      (__ \ "data").write[AtomData] and
+      (__ \ "contentChangeDetails").write[ContentChangeDetails]
+
   ) { atom: Atom =>
-    (atom.id, atom.atomType, atom.labels, atom.defaultHtml, atom.data)
+    (atom.id, atom.atomType, atom.labels, atom.defaultHtml, atom.data, atom.contentChangeDetails)
   }
 }

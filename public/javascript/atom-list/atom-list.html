@@ -1,0 +1,31 @@
+<div class="container">
+    <h1>Atom Data</h1>
+    <media-alerts alerts=alerts></media-alerts>
+
+    <h2>Create New Atom</h2>
+    <div ng-include="'assets/javascript/atom-form/atom-form.html'"></div>
+    <div ng-if="mediaAtoms.length > 0">
+        <h2>Existing atoms</h2>
+        <table class="table table-striped table-bordered">
+            <tr>
+                <td class="label">atom name</td>
+                <td class="label">type</td>
+                <td class="label">revision</td>
+                <td class="label">mediaAssets</td>
+            </tr>
+            <tr ng-repeat="atom in mediaAtoms">
+                <td><a href="#/atom/{{atom.id}}">
+                        <span ng-if="!atom.data.title">{{atom.id}}</span>
+                        <span ng-if="atom.data.title">{{atom.data.title}}</span>
+                    </a>
+                </td>
+                <td>{{atom.type}}</td>
+                <td>{{atom.contentChangeDetails.revision}}</td>
+                <td>{{atom.data.assets.length}}</td>
+            </tr>
+        </table>
+    </div>
+    <div ng-if="mediaAtoms.length === 0">
+        No media atoms created yet
+    </div>
+</div>

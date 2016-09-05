@@ -12,6 +12,7 @@ import model.ThriftUtil._
 import play.api.Configuration
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import util.atom.MediaAtomImplicits
+import util.AWSConfig
 import play.api.libs.json._
 
 import com.gu.atom.play._
@@ -23,6 +24,7 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
                      val livePublisher: LiveAtomPublisher,
                      val previewPublisher: PreviewAtomPublisher,
                      val conf: Configuration,
+                     val awsConfig: AWSConfig,
                      val authActions: AuthActions)
     extends AtomController
     with MediaAtomImplicits
@@ -38,6 +40,13 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
     previewDataStore.getAtom(id) match {
       case Some(atom) => Ok(Json.toJson(atom))
       case None => NotFound(jsonError(s"no atom with id $id found"))
+    }
+  }
+
+  def getPublishedMediaAtom(id: String) = APIAuthAction { implicit req =>
+    publishedDataStore.getAtom(id) match {
+      case Some(atom) => Ok(Json.toJson(atom))
+      case None => Ok("not published")
     }
   }
 
@@ -97,7 +106,7 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
               case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
             }
 
-            Created(s"Updated atom $atomId").withHeaders("Location" -> atomUrl(atom.id))
+            Ok(Json.toJson(atom))
           }
         )
       case None => NotFound(s"atom not found $atomId")
@@ -129,7 +138,7 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
               case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
             }
 
-            Created(s"updated atom $atomId").withHeaders("Location" -> atomUrl(atom.id))
+            Ok(Json.toJson(newAtom))
           }
         )
       case None => NotFound(s"atom not found $atomId")
@@ -144,12 +153,12 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
         if(!atom.tdata.assets.exists(_.version == version)) {
           InternalServerError(jsonError(s"no asset is listed for version $version"))
         } else {
-          previewDataStore.updateAtom(
-            atom
-              .withRevision(_ + 1)
-              .updateData { media => media.copy(activeVersion = Some(version)) }
-          )
-          Ok(s"updated to $version")
+          val newAtom = atom
+            .withRevision(_ + 1)
+            .updateData { media => media.copy(activeVersion = Some(version)) }
+
+          previewDataStore.updateAtom(newAtom)
+          Ok(Json.toJson(newAtom))
         }
       case None => NotFound(s"atom not found $atomId")
     }
@@ -161,5 +170,13 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
       err =>   InternalServerError(jsonError(err.msg)),
       atoms => Ok(Json.toJson(atoms.toList))
     )
+  }
+
+  def getConfigValues = APIAuthAction { implicit req =>
+
+    val stage = awsConfig.stage
+
+    Ok(Json.toJson(Map("stage" -> stage)))
+
   }
 }

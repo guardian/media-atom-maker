@@ -1,0 +1,76 @@
+<a class="btn btn-secondary" href='#/'>Back to atoms page</a>
+
+<ul class="nav nav-tabs">
+    <li ng-class="{'active': showPreviewAtom}"><a ng-click="showPreviewAtom=true">Preview Atom</a></li>
+    <li ng-class="{'active': !showPreviewAtom}"><a ng-click="showPreviewAtom=false">Published Atom</a></li>
+</ul>
+
+<div>
+    <media-alerts alerts=alerts></media-alerts>
+    <div ng-if="showPreviewAtom">
+        <div class="col-md-6 asset-data">
+            <h1 class="atom-section" id="section">Atom Data</h1>
+
+            <div class="form-group">
+                <label for="embedLink">Embed link:</label>
+                <a
+                    href="{{linkToCapi}}"
+                    type="text"
+                    class="form-control"
+                    id="embedLink"
+                    readonly
+                >
+                    {{embedLink}}
+                </a>
+            </div>
+
+            <div ng-include="'assets/javascript/atom-form/atom-form.html'"></div>
+            <button class="btn btn-success" ng-disabled="publishing" ng-click="publish()">Publish Atom</button>
+
+            <h1 class="atom-section">Default Atom HTML</h1>
+
+            <div ng-bind-html="atom.trustedHtml" class="defaultHtmlPreview"></div>
+            <div class="defaultHtmlSource">
+                <pre>{{ atom.defaultHtml }}</pre>
+            </div>
+
+        </div>
+
+        <div class="col-md-6">
+            <h1 class="atom-section">Asset management</h1>
+
+            <div class="form-group">
+                <label for="assetVersion">Current active version:</label>
+                <input type="text" class="form-control" id="assetVersion" ng-model="atom.activeVersion" readonly>
+            </div>
+            <asset-list
+                allow-edit=true
+                assets=assets
+                active-version=atom.activeVersion
+                revert-version=revertVersion(version)
+            ></asset-list>
+            <div ng-if="createNewAsset" ng-include="'assets/javascript/atom/asset-form.html'"></div>
+            <button
+                class="btn"
+                ng-class="{'btn-primary': !createNewAsset, 'btn-secondary': createNewAsset}"
+                ng-click="createNewAsset = !createNewAsset"
+            >
+                {{ createNewAsset && 'Cancel' || 'Add new asset' }}
+            </button>
+        </div>
+    </div>
+
+    <div ng-if="!showPreviewAtom" class="container">
+        <h1 class="atom-section">Published Atom Infromation</h1>
+
+        <div ng-if="!publishedAtom">
+            This atom has not yet been published
+        </div>
+        <div ng-if="publishedAtom && !publishedNotPreview">
+            The published atom is equal to the current preview atom
+        </div>
+        <div ng-if="publishedAtom && publishedNotPreview">
+            <div ng-include="'assets/javascript/atom/published-atom-detail.html'"></div>
+        </div>
+    </div>
+</div>
