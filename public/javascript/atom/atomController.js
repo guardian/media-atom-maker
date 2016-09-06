@@ -100,6 +100,34 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
         addAlert('You cannot change the version of a published atom', 'danger');
     };
 
+    $scope.validateVersion = function(form) {
+
+        // If the uri has not been set yet, we cannot validate the version
+        if (!$scope.newAsset.uri) {
+            form.versionField.$setValidity('required', true);
+        } else {
+
+            var platform;
+
+            if (/https:\/\/www.youtube.com\/watch\?v=/.test($scope.newAsset.uri)) {
+                platform = 'Youtube';
+
+            } else if (/https:\/\//.test($scope.newAsset.uri)) {
+                platform = 'Url';
+            }
+
+            if ($scope.assets.some(function(asset) {
+                    return asset.platform === platform && asset.version === $scope.newAsset.version;
+            }) ) {
+                form.versionField.$setValidity('required', false);
+            }
+            else {
+                form.versionField.$setValidity('required', true);
+            }
+
+        }
+    }
+
     function getConfig() {
         return $http.get('/api/config-values')
         .then(function(response) {
