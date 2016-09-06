@@ -65,7 +65,7 @@ class ApiSpec
       when(mockDataStore.updateAtom(any())).thenReturn(Xor.Left(VersionConflictError(1)))
 
       val req = requestWithCookies
-                .withFormUrlEncodedBody("uri" -> youtubeUrl, "mimetype" -> "", "version" -> "1")
+                .withFormUrlEncodedBody("uri" -> youtubeUrl, "mimetype" -> "", "version" -> "4")
       val result = call(api.addAsset("1"), req)
 
       status(result) mustEqual INTERNAL_SERVER_ERROR
@@ -73,7 +73,7 @@ class ApiSpec
     }
 
     "add an asset to an atom" in AtomTestConf() { implicit conf =>
-      val req = requestWithCookies.withFormUrlEncodedBody("uri" -> youtubeUrl, "mimetype" -> "", "version" -> "1")
+      val req = requestWithCookies.withFormUrlEncodedBody("uri" -> youtubeUrl, "mimetype" -> "", "version" -> "5")
       val result = call(api.addAsset("1"), req)
       withClue(s"(body: [${contentAsString(result)}])") { status(result) mustEqual OK }
       val json = contentAsJson(result)
@@ -141,7 +141,7 @@ class ApiSpec
       val dataStore = conf.previewDataStore
       val atom = dataStore.getAtom("1").value
       val req = requestWithCookies
-                .withFormUrlEncodedBody("uri" -> youtubeUrl, "mimetype" -> "", "version" -> "1")
+                .withFormUrlEncodedBody("uri" -> youtubeUrl, "mimetype" -> "", "version" -> "6")
 
       val result = call(api.addAsset("1"), req)
       status(result) mustEqual OK
