@@ -1,6 +1,6 @@
 var mediaAtomApp = angular.module('mediaAtomApp');
 
-mediaAtomApp.controller('AtomListCtrl', ['$scope', '$http', '$httpParamSerializer', function($scope, $http, $httpParamSerializer) {
+mediaAtomApp.controller('AtomListCtrl', ['$scope', '$http', '$httpParamSerializer', '$location', function($scope, $http, $httpParamSerializer, $location) {
 
     $scope.atom = {};
     $scope.mediaAtoms = [];
@@ -16,7 +16,7 @@ mediaAtomApp.controller('AtomListCtrl', ['$scope', '$http', '$httpParamSerialize
         })
         .success(function(atom) {
             $scope.savingAtom = false;
-            $scope.mediaAtoms.push(atom);
+            $location.path('/atom/' + atom.id);
             return;
         })
         .error(function(err) {
