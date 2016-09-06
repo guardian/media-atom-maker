@@ -120,27 +120,34 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
       case Some(atom) =>
         val ma = atom.tdata
         val assets = ma.assets
-        val newAtom = atom
-          .withData(ma.copy(
-                      activeVersion = Some(newAsset.version),
-                      assets = newAsset +: assets
-                    ))
-          .withRevision(_ + 1)
 
-        previewDataStore.updateAtom(newAtom).fold(
-          err => InternalServerError(err.msg),
-          _ => {
-            
-            val event = ContentAtomEvent(newAtom, EventType.Update, now())
+        if (assets.exists(asset => {
+          asset.version == newAsset.version && asset.platform == newAsset.platform
+        })) {
+          InternalServerError("could not add asset to atom: version conflict")
+        } else {
+          val newAtom = atom
+            .withData(ma.copy(
+              activeVersion = Some(newAsset.version),
+              assets = newAsset +: assets
+            ))
+            .withRevision(_ + 1)
 
-            previewPublisher.publishAtomEvent(event) match {
-              case Success(_)  => NoContent
-              case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
+          previewDataStore.updateAtom(newAtom).fold(
+            err => InternalServerError(err.msg),
+            _ => {
+
+              val event = ContentAtomEvent(newAtom, EventType.Update, now())
+
+              previewPublisher.publishAtomEvent(event) match {
+                case Success(_) => NoContent
+                case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
+              }
+
+              Ok(Json.toJson(newAtom))
             }
-
-            Ok(Json.toJson(newAtom))
-          }
-        )
+          )
+        }
       case None => NotFound(s"atom not found $atomId")
     }
   }
