@@ -122,7 +122,7 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
         val assets = ma.assets
 
         if (assets.exists(asset => {
-          asset.version == newAsset.version && asset.platform == newAsset.platform
+          asset.version == newAsset.version && asset.mimeType == newAsset.mimeType
         })) {
           InternalServerError("could not add asset to atom: version conflict")
         } else {

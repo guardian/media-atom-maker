@@ -2,12 +2,12 @@
 <form name="atomAssetForm">
     <div class="form-group" ng-class="{'has-error': atomAssetForm.urlField.$invalid}">
         <label for="assetUrl">Url:</label>
-        <input type="text" class="form-control" id="assetUrl" name="urlField" ng-change="validateVersion(atomAssetForm)" valid-youtube-url placeholder="url" required ng-model="newAsset.uri">
+        <input type="text" class="form-control" id="assetUrl" name="urlField" valid-youtube-url placeholder="url" required ng-model="newAsset.uri">
         <div ng-show="atomAssetForm.urlField.$invalid" class="form-text text-muted">Url must be a valid youtube url</div>
     </div>
     <div class="form-group">
         <label for="assetMimeType">Mime Type:</label>
-        <select class="form-control" id="assetMimeType" ng-model="newAsset.mimetype">
+        <select class="form-control" id="assetMimeType" ng-change="validateVersion(atomAssetForm)" ng-model="newAsset.mimetype">
             <option value="" selected="selected">N/A</option>
             <option value="video/mp4">video/mp4</option>
             <option value="video/webm">video/webm</option>
@@ -18,6 +18,6 @@
     <div class="form-group" ng-class="{'has-error': atomAssetForm.versionField.$invalid}">
         <label for="assetVersion">Version:</label>
         <input type="number" class="form-control" id="assetVersion" name="versionField" required ng-change="validateVersion(atomAssetForm)" ng-model="newAsset.version"> </div>
-        <div ng-show="atomAssetForm.versionField.$invalid" class="form-text text-muted">The asset version cannot match the version of another asset on the same platform</div>
+        <div ng-show="newAsset.version && atomAssetForm.versionField.$invalid" class="form-text text-muted">The asset version cannot match the version of another asset with the same mimetype</div>
 </form>
 <button class="btn btn-primary paddedButton" ng-disabled="addingAsset || !atomAssetForm.$valid" ng-click="addAsset()">Add Asset</button>
