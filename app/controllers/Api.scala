@@ -75,21 +75,14 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
     val updatedData = req.body.tdata
     previewDataStore.getAtom(atomId) match {
       case Some(atom) =>
-        val newVersion = {
-          val maxVersion = {
-            val activeVersion = atom.tdata.activeVersion
-            val assetVersions = atom.tdata.assets.map(_.version)
-            val versions = activeVersion.map(assetVersions.+:(_)) getOrElse assetVersions
-            if (versions.isEmpty) 0
-            else versions.max
-          }
-          maxVersion + 1
-        }
+
+        val activeVersion = atom.tdata.activeVersion.getOrElse(atom.tdata.assets.map(_.version).max)
+
         val newAtom = atom
                       .withRevision(_ + 1)
                       .updateData { media =>
                         media.copy(
-                          activeVersion = Some(newVersion),
+                          activeVersion = Some(activeVersion),
                           title = updatedData.title,
                           category = updatedData.category,
                           duration = updatedData.duration,
