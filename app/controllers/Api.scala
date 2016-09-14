@@ -76,7 +76,10 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
     previewDataStore.getAtom(atomId) match {
       case Some(atom) =>
 
-        val activeVersion = atom.tdata.activeVersion.getOrElse(atom.tdata.assets.map(_.version).max)
+        val activeVersion = atom.tdata.activeVersion getOrElse {
+          val versions = atom.tdata.assets.map(_.version)
+          if (versions.isEmpty) 1 else versions.max
+        }
 
         val newAtom = atom
                       .withRevision(_ + 1)
