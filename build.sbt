@@ -44,7 +44,8 @@ lazy val appDistSettings = Seq(
   )
 
 
-lazy val atomPublisher = project in file("./atom-publisher-lib")
+lazy val atomPublisher = (project in file("./atom-publisher-lib"))
+  .settings(publishArtifact in Test := true)
 
 lazy val atomManagerPlay = (project in file("./atom-manager-play-lib"))
   .settings(publishArtifact in Test := true)
