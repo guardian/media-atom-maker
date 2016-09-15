@@ -1,5 +1,5 @@
-@(atom: com.gu.contentatom.thrift.atom.media.MediaAtom)
+@(atom: com.gu.contentatom.thrift.atom.media.MediaAtom, activeAssets: Seq[com.gu.contentatom.thrift.atom.media.Asset])
 
 <video controls="controls" poster="@{atom.posterUrl}">
-    @for(asset <- atom.assets) {<source type="@{asset.mimeType}" src="@{asset.id}" />}
+    @for(asset <- activeAssets) {<source type="@{asset.mimeType}" src="@{asset.id}" />}
 </video>
