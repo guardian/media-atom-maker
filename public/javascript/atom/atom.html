@@ -11,7 +11,8 @@
         <div class="col-md-6 asset-data">
             <h1 class="atom-section" id="section">Atom Data</h1>
 
-            <label for="embedLink">Embed link:</label>
+            <label ng-if="!publishedAtom" for="embedLink">Link to capi:</label>
+            <label ng-if="publishedAtom" for="embedLink">Embed link:</label>
             <div id="embed-link">
                 <a
                     href="{{linkToCapi}}"
@@ -21,6 +22,7 @@
                     {{embedLink}}
                 </a>
             </div>
+            <div ng-if="!publishedAtom" class=small>Because this atom has not yet been published, the capi link cannot be embedded to composer</div>
 
             <div ng-include="'assets/javascript/atom-form/atom-form.html'"></div>
             <button class="btn btn-success" ng-disabled="publishing" ng-click="publish()">Publish Atom</button>
