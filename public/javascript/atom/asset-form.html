@@ -7,7 +7,7 @@
     </div>
     <div class="form-group">
         <label for="assetMimeType">Mime Type:</label>
-        <select class="form-control" id="assetMimeType" ng-model="newAsset.mimetype">
+        <select class="form-control" id="assetMimeType" ng-change="validateVersion(atomAssetForm)" ng-model="newAsset.mimetype">
             <option value="" selected="selected">N/A</option>
             <option value="video/mp4">video/mp4</option>
             <option value="video/webm">video/webm</option>
@@ -15,9 +15,9 @@
             <option value="video/m3u8">video/m3u8</option>
         </select>
     </div>
-    <div class="form-group" ng-class="{'has-error': !newAsset.version}">
+    <div class="form-group" ng-class="{'has-error': atomAssetForm.versionField.$invalid}">
         <label for="assetVersion">Version:</label>
-        <input type="text" class="form-control" id="assetUrl" required ng-model="newAsset.version">
-    </div>
+        <input type="number" class="form-control" id="assetVersion" name="versionField" required ng-change="validateVersion(atomAssetForm)" ng-model="newAsset.version"> </div>
+        <div ng-show="newAsset.version && atomAssetForm.versionField.$invalid" class="form-text text-muted">The asset version cannot match the version of another asset with the same mimetype</div>
 </form>
 <button class="btn btn-primary paddedButton" ng-disabled="addingAsset || !atomAssetForm.$valid" ng-click="addAsset()">Add Asset</button>

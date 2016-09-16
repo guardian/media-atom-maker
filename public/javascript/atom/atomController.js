@@ -100,6 +100,19 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
         addAlert('You cannot change the version of a published atom', 'danger');
     };
 
+    $scope.validateVersion = function(form) {
+
+        if ($scope.assets.some(function(asset) {
+            return asset.mimeType === $scope.newAsset.mimetype && asset.version === $scope.newAsset.version;
+        }) ) {
+            form.versionField.$setValidity('required', false);
+        }
+        else {
+            form.versionField.$setValidity('required', true);
+        }
+
+    }
+
     function getConfig() {
         return $http.get('/api/config-values')
         .then(function(response) {
