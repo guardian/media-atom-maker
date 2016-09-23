@@ -15,7 +15,7 @@ aws cloudformation create-stack --stack-name media-atom-maker-DEV-${USERNAME}  \
     --region eu-west-1
 
 if [ $? -ne 0 ]; then
-    echo "Seems you don't have the correct credentials, try uploading the YML manualy via the console"
+    echo "Seems you don't have the correct credentials, try uploading the YML manually via the console"
 else
     echo "Stack media-atom-maker-DEV-${USERNAME} has been created."
 fi
