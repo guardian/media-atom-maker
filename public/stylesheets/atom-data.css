@@ -7,10 +7,6 @@ td {
     border: 1px solid black;
 }
 
-td.label {
-    background-color: lightblue;
-    font-weight: bold;
-}
 
 button.paddedButton {
     margin-bottom: 3px;

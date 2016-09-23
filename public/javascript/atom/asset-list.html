@@ -1,13 +1,15 @@
 <div ng-if="assets.length > 0">
     <h2 class="asset-detail">Assets</h2>
     <table class="table table-bordered">
+        <thead>
         <tr>
-            <td class="label">Type</td>
-            <td class="label">ID</td>
-            <td class="label">Platform</td>
-            <td class="label">Version</td>
-            <td class="label">Mime type</td>
+            <th>Type</th>
+            <th>ID</th>
+            <th>Platform</th>
+            <th>Version</th>
+            <th>Mime type</th>
         </tr>
+        </thead>
         <tr
                 ng-repeat="asset in assets"
                 ng-init="currentAsset=asset"
