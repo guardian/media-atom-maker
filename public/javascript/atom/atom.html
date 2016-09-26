@@ -23,7 +23,7 @@
         </div>
             <label ng-if="publishedAtom" for="embedUrl">Embed URL:</label>
             <div id="embed-url" ng-if="publishedAtom && !publishedNotPreview">
-                <textarea class="form-control embed-url" rows="1" readonly id="embedUrl">{{embedUrl}}</textarea>
+                <textarea class="form-control embed-url" rows="2" readonly id="embedUrl">{{embedUrl}}</textarea>
             </div>
             <div ng-if="!publishedAtom" class=small>Because this atom has not yet been published, the capi link cannot be embedded to composer</div>
 
