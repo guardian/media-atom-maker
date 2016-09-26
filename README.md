@@ -12,7 +12,7 @@ so follow the instructions [here](https://github.com/guardian/dev-nginx#nginx-de
 0. Make sure you have `gulp` installed
 0. Run `npm install`
 0. Generate javascript files by running `gulp`. You can watch changes to javascript by running `gulp watch`
-0. Start up the Play app.
+0. `./sbt run`
 0. Test everything is working: https://media-atom-maker.local.dev-gutools.co.uk/atoms
 
 ## Publishing to CODE kinesis stream
