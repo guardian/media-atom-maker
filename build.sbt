@@ -19,6 +19,10 @@ libraryDependencies ++= Seq(
   ws, // for panda
   "com.gu"                     %% "pan-domain-auth-verification" % pandaVer,
   "com.gu"                     %% "pan-domain-auth-core"         % pandaVer,
+  "com.gu"                     %% "atom-publisher-lib"           % "0.1.3",
+  "com.gu"                     %% "atom-publisher-lib"           % "0.1.3" % "test" classifier "tests",
+  "com.gu"                     %% "atom-manager-play"            % "0.1.3",
+  "com.gu"                     %% "atom-manager-play"            % "0.1.3" % "test" classifier "tests",
   "org.scalatestplus.play"     %% "scalatestplus-play"           % "1.5.0"   % "test",
   "org.mockito"                %  "mockito-core"                 % mockitoVersion % "test",
   "org.scala-lang.modules"     %% "scala-xml"                    % "1.0.5"   % "test"
@@ -43,17 +47,6 @@ lazy val appDistSettings = Seq(
     riffRaffManifestBranch := Option(System.getenv("CIRCLE_BRANCH")).getOrElse("dev")
   )
 
-
-lazy val atomPublisher = (project in file("./atom-publisher-lib"))
-  .settings(publishArtifact in Test := true)
-
-lazy val atomManagerPlay = (project in file("./atom-manager-play-lib"))
-  .settings(publishArtifact in Test := true)
-  .dependsOn(atomPublisher % "test->test;compile->compile")
-
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, RiffRaffArtifact, UniversalPlugin)
   .settings(appDistSettings)
-  .dependsOn(atomPublisher, atomManagerPlay % "test->test;compile->compile")
-  .aggregate(atomPublisher, atomManagerPlay)
-  .settings(aggregate := false, aggregate in Test := true)

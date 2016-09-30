@@ -1,5 +1,5 @@
 # media-atom-maker
-This app has two functions: it is a simple Play app for editing media atoms,
+This app is a simple Play app for editing media atoms,
 and it's a publisher that pushes media atoms into a Kinesis stream.
 
 ## Setting up dev environment
