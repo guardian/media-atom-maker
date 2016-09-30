@@ -19,10 +19,10 @@ libraryDependencies ++= Seq(
   ws, // for panda
   "com.gu"                     %% "pan-domain-auth-verification" % pandaVer,
   "com.gu"                     %% "pan-domain-auth-core"         % pandaVer,
-  "com.gu"                     %% "atom-publisher-lib"           % "0.1.0",
-  "com.gu"                     %% "atom-publisher-lib"           % "0.1.0" % "test" classifier "tests",
-  "com.gu"                     %% "atom-manager-play"            % "0.1.0",
-  "com.gu"                     %% "atom-manager-play"            % "0.1.0" % "test" classifier "tests",
+  "com.gu"                     %% "atom-publisher-lib"           % "0.1.3",
+  "com.gu"                     %% "atom-publisher-lib"           % "0.1.3" % "test" classifier "tests",
+  "com.gu"                     %% "atom-manager-play"            % "0.1.3",
+  "com.gu"                     %% "atom-manager-play"            % "0.1.3" % "test" classifier "tests",
   "org.scalatestplus.play"     %% "scalatestplus-play"           % "1.5.0"   % "test",
   "org.mockito"                %  "mockito-core"                 % mockitoVersion % "test",
   "org.scala-lang.modules"     %% "scala-xml"                    % "1.0.5"   % "test"
