@@ -5,3 +5,6 @@ target/
 .dynamodb-local
 public/dist
 node_modules
+jspm_packages
+.DS_Store
+build.js*
