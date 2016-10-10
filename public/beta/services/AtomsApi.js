@@ -5,3 +5,9 @@ export function getAtoms() {
     url: '/api/atoms'
   });
 }
+
+export function getAtom(atomId) {
+  return pandaReqwest({
+    url: '/api/atom/' + atomId
+  });
+}

@@ -26,3 +26,4 @@ GET  /assets/*file                      controllers.Assets.at(path="/public", fi
 #beta react frontend
 GET  /beta                              controllers.BetaApp.index(id = "")
 GET  /beta/atoms                        controllers.BetaApp.index(id = "")
+GET  /beta/atoms/:id                    controllers.BetaApp.index(id)
