@@ -5,8 +5,9 @@ machine:
 dependencies:
   pre:
     - npm install -g gulp
-    - npm install --only=dev
+    - npm install
     - gulp js
+    - npm run build
   override:
     - sbt update
   cache_directories:
