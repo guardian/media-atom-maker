@@ -5,3 +5,5 @@ target/
 .dynamodb-local
 public/dist
 node_modules
+.DS_Store
+public/video-ui/build

@@ -2,3 +2,6 @@ name: media-atom-maker
 mappings:
   - prefix: media-atom-maker
     port: 9001
+  - prefix: media-atom-maker-assets
+    port: 9002
+    websocket: /sockjs-node

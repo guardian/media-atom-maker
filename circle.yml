@@ -1,12 +1,15 @@
 machine:
   java:
     version: oraclejdk8
+  node:
+    version: 5.2.0
 
 dependencies:
   pre:
     - npm install -g gulp
-    - npm install --only=dev
+    - npm install
     - gulp js
+    - npm run build
   override:
     - sbt update
   cache_directories:
