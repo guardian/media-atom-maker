@@ -6,4 +6,4 @@ target/
 public/dist
 node_modules
 .DS_Store
-build/
+public/video-ui/build
