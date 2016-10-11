@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 npm run build-dev &
-sbt run
+sbt run -Dhttp.port=9001
