@@ -8,9 +8,9 @@ import ReactApp from './components/ReactApp';
 
 
 export default [
-  <Route path='/beta' component={ReactApp}>
-    <Route path='/beta/atoms'       component={Atoms} />
-    <Route path='/beta/atoms/:id'   component={AtomEdit} />
+  <Route path='/video' component={ReactApp}>
+    <Route path='/video/atoms'       component={Atoms} />
+    <Route path='/video/atoms/:id'   component={AtomEdit} />
     <IndexRoute                     component={Atoms} />
   </Route>
 ];

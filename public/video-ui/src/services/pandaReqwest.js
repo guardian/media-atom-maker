@@ -1,6 +1,6 @@
 import Reqwest from 'reqwest';
 import Q from 'q';
-import {reEstablishSession} from 'panda-session';
+import {reEstablishSession} from 'babel?presets[]=es2015!panda-session';
 
 export function pandaReqwest(reqwestBody) {
   return Q.Promise(function(resolve, reject) {

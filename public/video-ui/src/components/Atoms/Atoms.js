@@ -38,7 +38,7 @@ export default class Atoms extends React.Component {
 
   renderListItems() {
     return (
-        this.state.atoms.map((atom) => <li key={atom.id}><Link to={'/beta/atoms/' + atom.id}>{atom.data.title}</Link>, {atom.type}, {atom.contentChangeDetails.revision}, {atom.data.assets.length}</li>)
+        this.state.atoms.map((atom) => <li key={atom.id}><Link to={'/video/atoms/' + atom.id}>{atom.data.title}</Link>, {atom.type}, {atom.contentChangeDetails.revision}, {atom.data.assets.length}</li>)
     );
   }
 

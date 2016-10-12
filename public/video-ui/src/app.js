@@ -1,9 +1,12 @@
 import React from 'react';
 import { render } from 'react-dom';
-import {Main} from './components/Main/Main';
-
-import '../styles/index.scss';
+import {Router, browserHistory} from 'react-router';
+import routes from './routes';
 
 const element = document.getElementById('react-mount');
 
-render(<Main />, element);
+render(
+    <Router
+        routes={routes}
+        history={browserHistory} />
+    , element);
