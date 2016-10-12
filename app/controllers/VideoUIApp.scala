@@ -9,7 +9,7 @@ import com.gu.pandomainauth.action.AuthActions
 class VideoUIApp @Inject() (val authActions: AuthActions)
   extends AtomController {
 
-  import authActions.{ AuthAction }
+  import authActions.AuthAction
 
   def index(id: String = "") = Action {
 
