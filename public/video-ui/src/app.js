@@ -3,7 +3,7 @@ import { render } from 'react-dom';
 import {Router, browserHistory} from 'react-router';
 import routes from './routes';
 
-import '../styles/index.scss';
+import '../styles/main.scss';
 
 const element = document.getElementById('react-mount');
 

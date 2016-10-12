@@ -1,0 +1,85 @@
+// -----------------------------------------------------------------------------
+// This file contains all application-wide Sass variables.
+// -----------------------------------------------------------------------------
+
+
+/// Regular font family
+/// $type List
+$text-font-stack: 'Guardian Agate Sans', Arial, sans-serif !default;
+$title-font-stack: 'Guardian Egyptian Text', Georgia, serif;
+
+/**
+ * COLOURS
+ *
+ * Wherever a grayscale colour is used, please use one of the many colour
+ * steps defined as variables below.
+ */
+
+/*
+Grayscale colour palette
+As per: https://docs.google.com/a/guardian.co.uk/file/d/0B6htkhydcF-aV1lUUEhyYTBuRGM/edit
+*/
+$color100Grey: #F6F6F6; // hsl(59,0%,96%)
+$color150Grey: #F1F1F1; // hsl(59,0%,94%)
+$color200Grey: #EDEDED; // hsl(59,0%,92%)
+$color300Grey: #DCDCDC; // hsl(59,0%,86%)
+$color400Grey: #BDBDBD; // hsl(59,0%,74%)
+$color500Grey: #898984; // hsl(59,3%,53%)
+$color600Grey: #767676; // hsl(59,0%,46%)
+$color650Grey: #333333; // hsl(59,0%,20%)
+$color700Grey: #2B2B29; // hsl(59,4%,16%)
+
+
+/*
+Generic colours
+*/
+$slightDangerColor: #ca870c;
+$dangerColor: #ed5935;
+$mortalDangerColor: #bc250c;
+$placeholderColor: $color500Grey;
+$cBlueLink: #005689;
+$cBlue: #148ad2;
+$cBlue00: #002c59;
+$cBlue6d: #6d8ea3;
+$cGrey700: #333333;
+$cRedB5: #b51800;
+$cRedE3: #e31f26;
+$cYellow: #ffbc01;
+$cGreen1c: #1c6326;
+$cGreen33: #33a22b;
+$cWhite: #FFFFFF;
+
+/*
+Background colours
+*/
+$bodyBgColor: $color650Grey;
+$greyBgColor: $color200Grey;
+$darkGreyBgColor: $color300Grey;
+
+// These colours should be abstracted into the colour palette (above) if a
+// pattern emerges later down the line
+$btnBgColor: $color500Grey;
+$btnDisabledBgColor: $color300Grey;
+$btnActiveBgColor: #00ADEE;
+$btnDeepCtaHoverBgColor: #47af37;
+$btnLightBgColor: $color400Grey;
+
+/*
+Border colours
+*/
+$greyBorderColor: $color300Grey;
+$darkGreyBorderColor: $color500Grey;
+
+/*
+Text colours
+*/
+$textColor: $cWhite;
+$anchorColor: $cBlueLink;
+$brandColor: #004a83;
+$darkBrandColor: #003C6A;
+$lightBrandColor: lighten($brandColor, 60);
+
+
+// Sizes
+$toolbarHeight: 50px;
+$standard-padding: 10px;

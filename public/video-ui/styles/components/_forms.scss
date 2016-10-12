@@ -1,0 +1,104 @@
+// -----------------------------------------------------------------------------
+// This file contains styles for all form elements
+// -----------------------------------------------------------------------------
+
+.form {
+  display: block;
+}
+
+.form__row {
+  margin-bottom: 20px;
+}
+
+.form__field {
+  background-color: $cWhite;
+  padding: 11px;
+  border: 1px solid #dcdcdc;
+  width: 100%;
+
+  &:not(:last-child) {
+    margin-bottom: 10px;
+  }
+
+  &:focus {
+    border-color: $brandColor;
+    outline: none;
+  }
+
+  // Because select elements are THE WORST
+  &--select {
+    // background: url(../images/arrow.png) $cWhite no-repeat right 10px center;
+    padding-right: 40px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    border-radius: 0;
+    text-indent: .01px;
+    text-overflow: '';
+  }
+
+}
+
+.form__label {
+  display: block;
+  font-size: 13px;
+  font-weight: bold;
+  margin: 0 0 5px;
+}
+
+.form-checkbox {
+  padding: 12px 35px;
+  font-size: 13px;
+  position: relative;
+  display: inline-block;
+  border: 1px solid $greyBorderColor;
+
+  &:after, &:before {
+    color: $cWhite;
+    width: 50%;
+    height: 100%;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &:after {
+    content: 'No';
+    right: 0;
+    background: $color600Grey;
+  }
+
+  &:before {
+    content: 'Yes';
+    left: 0;
+    background: #47af37;
+  }
+
+  &__toggle {
+    display: block;
+    width: 50%;
+    height: 100%;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0;
+    z-index: 1;
+    background: $cWhite;
+
+    &:hover {
+      background-color: $color200Grey;
+    }
+  }
+
+  &__input {
+    visibility: hidden;
+    &:checked + .form-checkbox__toggle {
+      right: 0;
+      left: auto;
+    }
+  }
+}

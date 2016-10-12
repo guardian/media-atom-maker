@@ -1,0 +1,80 @@
+/* -------------------------------------- */
+/* Basic table styles                     */
+/* -------------------------------------- */
+
+.table {
+  width: 100%;
+  margin: 0 auto;
+
+  &__table {
+    width: 100%;
+    text-align: left;
+    background: $cWhite;
+  }
+
+  &__header {
+    padding: 5px;
+  }
+
+  &__header, &__item {
+    padding: 10px;
+  }
+
+  &__item {
+    padding: 0 5px;
+    text-align: left;
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  &__row {
+    background-color: $color100Grey;
+    border: {
+      bottom: 1px solid $color200Grey;
+      left: 5px solid $color300Grey;
+      right: 5px solid $color300Grey;
+    };
+
+    &:hover {
+      border: {
+        left: 5px solid $color150Grey;
+        right: 5px solid $color150Grey;
+      };
+      background-color: $color150Grey;
+    }
+
+    &--highlight {
+      background: $lightBrandColor;
+      border: {
+        left: 5px solid $brandColor;
+        right: 5px solid $brandColor;
+      }
+    }
+  }
+
+  &__header-row {
+    background-color: $color200Grey;
+    border: {
+      left: 5px solid $color200Grey;
+      right: 5px solid $color200Grey;
+    };
+    color: $color700Grey;
+    text-align: left;
+    font-size: 13px;
+    font-weight: bold;
+  }
+
+  &__link {
+    font-weight: bold;
+    text-decoration: none;
+    color: $cBlueLink;
+    cursor: pointer;
+    padding: 5px 0;
+    display: block;
+    width: 100%;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
