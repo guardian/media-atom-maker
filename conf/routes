@@ -23,6 +23,9 @@ GET     /reindex-publish                com.gu.atom.play.ReindexController.publi
 #static assets
 GET  /assets/*file                      controllers.Assets.versioned(path="/public", file)
 
+# Auth
+GET  /reauth                            controllers.VideoUIApp.reauth
+
 #video specific react frontend
 GET /video                              controllers.VideoUIApp.index(id = "")
 GET /video/atoms                        controllers.VideoUIApp.index(id = "")

@@ -2,10 +2,14 @@ package controllers
 
 import play.api.mvc._
 import javax.inject._
+
 import com.gu.pandomainauth.action.AuthActions
+
 
 class VideoUIApp @Inject() (val authActions: AuthActions)
   extends AtomController {
+
+  import authActions.{ AuthAction }
 
   def index(id: String = "") = Action {
 
@@ -17,6 +21,10 @@ class VideoUIApp @Inject() (val authActions: AuthActions)
     }
 
     Ok(views.html.VideoUIApp.app("Media Atom Maker", jsLocation))
+  }
+
+  def reauth = AuthAction {
+    Ok("auth ok")
   }
 
 }
