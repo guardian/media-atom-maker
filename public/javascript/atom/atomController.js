@@ -124,15 +124,18 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
         if ($scope.config && $scope.config.stage === 'PROD') {
             if ($scope.publishedAtom) {
                 $scope.linkToCapi = appConfig.prodLiveUrl + $scope.embedLink + appConfig.capiApiKey;
+                $scope.embedUrl = appConfig.prodLiveUrl + $scope.embedLink;
             } else {
                 $scope.linkToCapi = appConfig.prodPreviewUrl + $scope.embedLink + appConfig.capiApiKey;
+                $scope.embedUrl = appConfig.prodPreviewUrl + $scope.embedLink;
             }
         } else {
             if ($scope.publishedAtom) {
                 $scope.linkToCapi = appConfig.codeLiveUrl + $scope.embedLink + appConfig.capiApiKey;
+                $scope.embedUrl = appConfig.codeLiveUrl + $scope.embedLink;
             } else {
                 $scope.linkToCapi = appConfig.codePreviewUrl + $scope.embedLink + appConfig.capiApiKey;
-
+                $scope.embedUrl = appConfig.codePreviewUrl + $scope.embedLink;
             }
         }
     }

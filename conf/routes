@@ -21,9 +21,9 @@ GET     /reindex-preview                com.gu.atom.play.ReindexController.previ
 GET     /reindex-publish                com.gu.atom.play.ReindexController.publishedReindexJobStatus()
 
 #static assets
-GET  /assets/*file                      controllers.Assets.at(path="/public", file)
+GET  /assets/*file                      controllers.Assets.versioned(path="/public", file)
 
-#beta react frontend
-GET  /beta                              controllers.BetaApp.index(id = "")
-GET  /beta/atoms                        controllers.BetaApp.index(id = "")
-GET  /beta/atoms/:id                    controllers.BetaApp.index(id)
+#video specific react frontend
+GET /video                              controllers.VideoUIApp.index()
+GET /video/atoms                        controllers.VideoUIApp.index()
+GET /video/atoms/:id                    controllers.VideoUIApp.index(id)

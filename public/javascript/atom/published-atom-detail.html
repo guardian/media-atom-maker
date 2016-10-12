@@ -2,6 +2,12 @@
     <label for="atomTitle">Title:</label>
     <input type="text" class="form-control" id="atomTitle" ng-model="publishedAtom.title" required readonly>
 </div>
+
+<div class="form-group">
+<label for="embedUrl">Embed URL:</label>
+    <textarea class="form-control embed-url" rows="1" readonly id="embedUrl">{{embedUrl}}</textarea>
+</div>
+
 <div class="form-group">
     <label for="atomCategory">Category:</label>
     <input type="text" class="form-control" id="atomCategory" ng-model="publishedAtom.category" required readonly>
