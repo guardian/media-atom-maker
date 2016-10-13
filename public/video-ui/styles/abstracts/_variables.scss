@@ -25,9 +25,9 @@ $color200Grey: #EDEDED; // hsl(59,0%,92%)
 $color300Grey: #DCDCDC; // hsl(59,0%,86%)
 $color400Grey: #BDBDBD; // hsl(59,0%,74%)
 $color500Grey: #898984; // hsl(59,3%,53%)
-$color600Grey: #767676; // hsl(59,0%,46%)
-$color650Grey: #333333; // hsl(59,0%,20%)
-$color700Grey: #2B2B29; // hsl(59,4%,16%)
+$color600Grey: #666666; // hsl(59,0%,46%)
+$color650Grey: #393939; // hsl(59,0%,20%)
+$color700Grey: #333333; // hsl(59,0%,20%)
 
 
 /*
@@ -52,7 +52,7 @@ $cWhite: #FFFFFF;
 /*
 Background colours
 */
-$bodyBgColor: $color650Grey;
+$bodyBgColor: $color700Grey;
 $greyBgColor: $color200Grey;
 $darkGreyBgColor: $color300Grey;
 
@@ -67,13 +67,13 @@ $btnLightBgColor: $color400Grey;
 /*
 Border colours
 */
-$greyBorderColor: $color300Grey;
-$darkGreyBorderColor: $color500Grey;
+$greyBorderColor: $color600Grey;
+$darkGreyBorderColor: $color650Grey;
 
 /*
 Text colours
 */
-$textColor: $cWhite;
+$textColor: $color400Grey;
 $anchorColor: $cBlueLink;
 $brandColor: #004a83;
 $darkBrandColor: #003C6A;

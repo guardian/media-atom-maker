@@ -1,5 +1,6 @@
 import React from 'react';
 import {Link} from 'react-router';
+import AtomItem from './AtomItem';
 
 import {getAtoms} from '../../services/AtomsApi'
 
@@ -28,17 +29,17 @@ export default class Atoms extends React.Component {
   renderList() {
     if(this.state.atoms.length) {
       return (
-          <ul>
+          <ul className="grid__list">
             {this.renderListItems()}
           </ul>)
     } else {
-        return (<p>No atoms found</p>)
+        return (<p className="grid__message">No atoms found</p>)
     }
   }
 
   renderListItems() {
     return (
-        this.state.atoms.map((atom) => <li key={atom.id}><Link to={'/video/atoms/' + atom.id}>{atom.data.title}</Link>, {atom.type}, {atom.contentChangeDetails.revision}, {atom.data.assets.length}</li>)
+        this.state.atoms.map((atom) => <AtomItem key={atom.id} atom={atom} />)
     );
   }
 
@@ -46,8 +47,7 @@ export default class Atoms extends React.Component {
   render() {
     return (
         <div>
-          <h1>Atoms</h1>
-          <div>
+          <div className="grid">
             {this.renderList()}
           </div>
         </div>
