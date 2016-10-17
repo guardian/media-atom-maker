@@ -1,15 +1,6 @@
 import React from 'react';
 
-class VideoEdit extends React.Component {
-
-  constructor(props){
-    super(props);
-    this.state = {
-      video: {
-        fields: {}
-      }
-    };
-  }
+class Video extends React.Component {
 
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
@@ -17,6 +8,7 @@ class VideoEdit extends React.Component {
 
   render() {
     const video = this.props.video && this.props.params.id === this.props.video.id ? this.props.video : undefined;
+
     if (!video) {
       return <div>Loading... </div>;
     }
@@ -51,5 +43,5 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(VideoEdit);
+export default connect(mapStateToProps, mapDispatchToProps)(Video);
 
