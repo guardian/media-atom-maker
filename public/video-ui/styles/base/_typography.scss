@@ -1,12 +1,12 @@
 /**
- * Basic typography style for copy text
+ * Basic typography styles
  */
 body {
   color: $textColor;
   font: normal 14px / 1.4 $text-font-stack;
 }
 
-h1, h2, h3, h4, h5, h6, .preview__title, .preview__score {
+h1, h2, h3, h4, h5, h6 {
   font-family: $title-font-stack;
   font-weight: normal;
   font-style: normal;
@@ -23,4 +23,21 @@ h2 {
 
 h3 {
   font-size: 20px;
+}
+
+a {
+  color: inherit;
+}
+
+
+// Less generic styles
+
+.link {
+  color: $anchorColor;
+  text-decoration: none;
+  font-weight: bold;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
