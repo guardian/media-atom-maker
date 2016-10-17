@@ -1,17 +1,13 @@
 package controllers
 
-import play.api.mvc._
 import javax.inject._
-
 import com.gu.pandomainauth.action.AuthActions
-
 
 class VideoUIApp @Inject() (val authActions: AuthActions)
   extends AtomController {
 
   import authActions.AuthAction
-
-  def index(id: String = "") = Action {
+  def index(id: String = "") = AuthAction { req =>
 
     val jsFileName = "video-ui/build/app.js"
 
