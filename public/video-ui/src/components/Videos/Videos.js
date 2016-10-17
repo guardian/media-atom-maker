@@ -1,31 +1,31 @@
 import React, {PropTypes} from 'react';
 import {Link} from 'react-router';
-import AtomItem from './AtomItem';
+import VideoItem from './VideoItem';
 
-class Atoms extends React.Component {
+class Videos extends React.Component {
 
   static propTypes = {
-    atoms: PropTypes.array.isRequired,
+    video: PropTypes.array.isRequired,
   }
 
   componentDidMount() {
-    this.props.atomActions.getAtoms();
+    this.props.videoActions.getVideos();
   }
 
   renderList() {
-    if(this.props.atoms.length) {
+    if(this.props.videos.length) {
       return (
           <ul className="grid__list">
             {this.renderListItems()}
           </ul>)
     } else {
-        return (<p className="grid__message">No atoms found</p>)
+        return (<p className="grid__message">No videos found</p>)
     }
   }
 
   renderListItems() {
     return (
-        this.props.atoms.map((atom) => <AtomItem key={atom.id} atom={atom} />)
+        this.props.videos.map((video) => <VideoItem key={video.id} video={video} />)
     );
   }
 
@@ -45,18 +45,18 @@ class Atoms extends React.Component {
 //REDUX CONNECTIONS
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as getAtoms from '../../actions/AtomActions/getAtoms';
+import * as getVideos from '../../actions/VideoActions/getVideos';
 
 function mapStateToProps(state) {
   return {
-    atoms: state.atoms
+    videos: state.videos
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    atomActions: bindActionCreators(Object.assign({}, getAtoms), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, getVideos), dispatch)
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Atoms);
+export default connect(mapStateToProps, mapDispatchToProps)(Videos);

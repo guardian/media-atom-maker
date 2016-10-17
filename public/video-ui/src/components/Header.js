@@ -11,7 +11,7 @@ export default class Header extends React.Component {
         <header className="topbar">
 
           <div className="topbar__container">
-            <Link to="/video/atoms" className="topbar__home-link" title="Home">
+            <Link to="/video/videos" className="topbar__home-link" title="Home">
               Home
             </Link>
           </div>
@@ -19,7 +19,7 @@ export default class Header extends React.Component {
           <div className="topbar__container">
 
             <nav className="topbar__nav">
-              <Link activeClassName="topbar__nav-link--active" className="topbar__nav-link" to="#">Create new atom</Link>
+              <Link activeClassName="topbar__nav-link--active" className="topbar__nav-link" to="#">Create new video</Link>
             </nav>
 
           </div>

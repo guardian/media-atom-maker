@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
-import atoms from './atomsReducer';
+import videos from './videosReducer';
 
 
 export default combineReducers({
-  atoms
+  videos
 });

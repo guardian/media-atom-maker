@@ -1,13 +1,13 @@
 import {pandaReqwest} from './pandaReqwest';
 
-export function fetchAtoms() {
+export function fetchVideos() {
   return pandaReqwest({
     url: '/api/atoms'
   });
 }
 
-export function fetchAtom(atomId) {
+export function fetchVideo(videoId) {
   return pandaReqwest({
-    url: '/api/atom/' + atomId
+    url: '/api/atom/' + videoId
   });
 }
