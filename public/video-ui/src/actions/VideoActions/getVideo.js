@@ -1,4 +1,4 @@
-import {fetchVideo} from '../../services/VideosApi';
+import VideosApi from '../../services/VideosApi';
 
 function requestVideo(id) {
   return {
@@ -28,7 +28,7 @@ function errorRecievingVideo(error) {
 export function getVideo(id) {
   return dispatch => {
     dispatch(requestVideo(id));
-    return fetchVideo(id)
+    return VideosApi.fetchVideo(id)
         .catch(error => dispatch(errorRecievingVideo(error)))
         .then(res => {
           dispatch(recieveVideo(res));
