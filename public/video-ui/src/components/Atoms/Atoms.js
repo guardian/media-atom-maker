@@ -1,33 +1,19 @@
-import React from 'react';
+import React, {PropTypes} from 'react';
 import {Link} from 'react-router';
 import AtomItem from './AtomItem';
 
-import {getAtoms} from '../../services/AtomsApi'
+class Atoms extends React.Component {
 
-export default class Atoms extends React.Component {
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      atoms: []
-    };
+  static propTypes = {
+    atoms: PropTypes.array.isRequired,
   }
 
   componentDidMount() {
-    this.populateAtoms()
-  }
-
-  populateAtoms() {
-    getAtoms().then((atoms) => {
-      this.setState({
-        atoms: atoms
-      });
-    });
+    this.props.atomActions.getAtoms();
   }
 
   renderList() {
-    if(this.state.atoms.length) {
+    if(this.props.atoms.length) {
       return (
           <ul className="grid__list">
             {this.renderListItems()}
@@ -39,7 +25,7 @@ export default class Atoms extends React.Component {
 
   renderListItems() {
     return (
-        this.state.atoms.map((atom) => <AtomItem key={atom.id} atom={atom} />)
+        this.props.atoms.map((atom) => <AtomItem key={atom.id} atom={atom} />)
     );
   }
 
@@ -54,3 +40,23 @@ export default class Atoms extends React.Component {
     )
   }
 }
+
+
+//REDUX CONNECTIONS
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as getAtoms from '../../actions/AtomActions/getAtoms';
+
+function mapStateToProps(state) {
+  return {
+    atoms: state.atoms
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    atomActions: bindActionCreators(Object.assign({}, getAtoms), dispatch)
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Atoms);
