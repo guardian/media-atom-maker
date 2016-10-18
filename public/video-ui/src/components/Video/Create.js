@@ -22,9 +22,11 @@ class VideoCreate extends React.Component {
 
   render () {
     return (
-      <div>
-        <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo} />
-        <SaveButton onSaveClick={this.createVideo} />
+      <div className="container">
+        <form className="form">
+          <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo} />
+          <SaveButton onSaveClick={this.createVideo} />
+        </form>
       </div>
     );
   }
