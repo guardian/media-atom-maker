@@ -18,7 +18,7 @@ function recieveVideo(video) {
 
 function errorRecievingVideo(error) {
   return {
-    type:       'VIDEO_ERROR',
+    type:       'SHOW_ERROR',
     message:    'Could not get video',
     error:      error,
     receivedAt: Date.now()
