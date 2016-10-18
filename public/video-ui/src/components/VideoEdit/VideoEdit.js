@@ -15,11 +15,9 @@ export default class VideoEdit extends React.Component {
     }
 
     return (
-        <div>
-          <div>
-            <VideoTitleEdit {...this.props}/>
-          </div>
-        </div>
+      <div>
+        <VideoTitleEdit {...this.props}/>
+      </div>
     );
   }
 }
