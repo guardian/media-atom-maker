@@ -1,5 +1,6 @@
 import React from 'react';
 import VideoTitleEdit from './formComponents/VideoTitle';
+import VideoCategorySelect from './formComponents/VideoCategory';
 
 
 export default class VideoEdit extends React.Component {
@@ -14,14 +15,11 @@ export default class VideoEdit extends React.Component {
       return false;
     }
 
-    if (this.props.video.data) {
-      return (
-          <form className="form">
-            <VideoTitleEdit {...this.props}/>
-          </form>
-      );
-    } else {
-      return false;
-    }
+    return (
+        <div>
+          <VideoTitleEdit {...this.props}/>
+          <VideoCategorySelect {...this.props}/>
+        </div>
+    );
   }
 }
