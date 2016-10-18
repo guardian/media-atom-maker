@@ -25,7 +25,7 @@ class VideoDisplay extends React.Component {
 
     return (
         <div>
-          <VideoEdit videoEditable={this.props.videoEditable} video={this.props.video || {}} updateVideo={this.updateVideo} />
+          <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo} />
           <SaveButton onSaveClick={this.saveVideo} />
         </div>
     );

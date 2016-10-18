@@ -19,7 +19,7 @@ class VideoCreate extends React.Component {
   render () {
     return (
       <div>
-        <VideoEdit videoEditable='true' video={this.props.video || {}} updateVideo={this.updateVideo} />
+        <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo} />
         <SaveButton onSaveClick={this.createVideo} />
       </div>
     );
