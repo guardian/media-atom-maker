@@ -1,6 +1,7 @@
 import React from 'react';
 import VideoTitleEdit from './formComponents/VideoTitle';
 import VideoCategorySelect from './formComponents/VideoCategory';
+import VideoPosterImageEdit from './formComponents/VideoPosterImage';
 
 
 export default class VideoEdit extends React.Component {
@@ -19,6 +20,7 @@ export default class VideoEdit extends React.Component {
         <div>
           <VideoTitleEdit {...this.props}/>
           <VideoCategorySelect {...this.props}/>
+          <VideoPosterImageEdit {...this.props}/>
         </div>
     );
   }
