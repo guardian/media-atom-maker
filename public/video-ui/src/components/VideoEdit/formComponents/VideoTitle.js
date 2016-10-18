@@ -7,11 +7,11 @@ export default class VideoTitleEdit extends React.Component {
   }
 
 
-  onUpdateTitle(e) {
+  onUpdateTitle = (e) => {
     this.props.updateVideo(Object.assign({}, this.props.video, {
       title: e.target.value
     }));
-  }
+  };
 
   render () {
     if (!this.props.video) {
@@ -22,7 +22,7 @@ export default class VideoTitleEdit extends React.Component {
     return (
         <div className="form__row">
           <label className="form__label">Title</label>
-          <input className="form__field" type="text" value={this.props.video.data.title || ""} onChange={this.onUpdateTitle.bind(this)} disabled={!this.props.videoEditable}/>
+          <input className="form__field" type="text" value={this.props.video.title || ""} onChange={this.onUpdateTitle} disabled={!this.props.videoEditable}/>
         </div>
     );
   }

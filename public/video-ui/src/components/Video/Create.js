@@ -1,6 +1,6 @@
 import React from 'react';
 import VideoEdit from '../VideoEdit/VideoEdit';
-import VideoSave from '../VideoEdit/VideoSave';
+import SaveButton from '../utils/SaveButton';
 
 class VideoCreate extends React.Component {
 
@@ -17,14 +17,12 @@ class VideoCreate extends React.Component {
   };
 
   render () {
-
     return (
       <div>
         <VideoEdit videoEditable='true' video={this.props.video || {}} updateVideo={this.updateVideo} />
-        <VideoSave video={this.props.video} />
+        <SaveButton onSaveClick={this.createVideo} />
       </div>
     );
-
   }
 }
 
