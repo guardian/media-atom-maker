@@ -10,6 +10,9 @@ export default function video(state = null, action) {
     case 'VIDEO_UPDATE_REQUEST':
       return action.video;
 
+    case 'VIDEO_POPULATE_BLANK':
+      return action.video;
+
     default:
       return state;
   }

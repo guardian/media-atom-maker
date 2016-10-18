@@ -1,6 +1,12 @@
 import { browserHistory } from 'react-router';
 import VideosApi from '../../services/VideosApi';
 
+const BLANK_VIDEO = {
+  data: {
+    title: '',
+    category: ''
+  }
+};
 
 function requestVideoCreate() {
   return {
@@ -35,5 +41,15 @@ export function createVideo(video) {
     return VideosApi.createVideo(video)
         .then(res => dispatch(recieveVideoCreate(res)))
         .fail(error => dispatch(errorVideoCreate(error)));
+  };
+}
+
+export function populateEmptyVideo() {
+  return {
+    type:        'VIDEO_POPULATE_BLANK',
+    video:       Object.assign({}, BLANK_VIDEO, {
+      type: 'media'
+    }),
+    receivedAt:  Date.now()
   };
 }

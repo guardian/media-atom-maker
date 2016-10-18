@@ -14,10 +14,14 @@ export default class VideoEdit extends React.Component {
       return false;
     }
 
-    return (
-      <div>
-        <VideoTitleEdit {...this.props}/>
-      </div>
-    );
+    if (this.props.video.data) {
+      return (
+          <form className="form">
+            <VideoTitleEdit {...this.props}/>
+          </form>
+      );
+    } else {
+      return false;
+    }
   }
 }

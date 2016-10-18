@@ -22,7 +22,7 @@ export default class VideoTitleEdit extends React.Component {
     return (
         <div className="form__row">
           <label className="form__label">Title</label>
-          <input className="form__field" type="text" value={this.props.video.title || this.props.video.data.title || ''} onChange={this.onUpdateTitle} />
+          <input className="form__field" type="text" value={this.props.video.data.title || ''} onChange={this.onUpdateTitle} />
         </div>
     );
   }

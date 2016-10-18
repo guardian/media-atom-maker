@@ -8,6 +8,10 @@ class VideoCreate extends React.Component {
     super(props);
   }
 
+  componentDidMount() {
+    this.props.videoActions.populateEmptyVideo();
+  }
+
   createVideo = () => {
     this.props.videoActions.createVideo(this.props.video);
   };
