@@ -1,16 +1,17 @@
 import React from 'react';
-import {Route, IndexRoute} from 'react-router';
+import {Router, Route, IndexRoute, browserHistory, IndexRedirect} from 'react-router';
 
-import Atoms from './components/Atoms/Atoms';
-import AtomEdit from './components/AtomEdit/AtomEdit';
-
+import Videos from './components/Videos/Videos';
+import Video from './components/Video/Video';
 import ReactApp from './components/ReactApp';
 
 
-export default [
-  <Route path='/video' component={ReactApp}>
-    <Route path='/video/atoms'       component={Atoms} />
-    <Route path='/video/atoms/:id'   component={AtomEdit} />
-    <IndexRoute                     component={Atoms} />
-  </Route>
-];
+export const routes = (
+  <Router history={browserHistory}>
+    <Route path="/video" component={ReactApp}>
+      <IndexRedirect to="/video/videos" />
+      <Route path="/video/videos" component={Videos} />
+      <Route path="/video/videos/:id" component={Video} />
+    </Route>
+  </Router>
+);

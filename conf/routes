@@ -28,5 +28,5 @@ GET  /reauth                            controllers.VideoUIApp.reauth
 
 #video specific react frontend
 GET /video                              controllers.VideoUIApp.index(id = "")
-GET /video/atoms                        controllers.VideoUIApp.index(id = "")
-GET /video/atoms/:id                    controllers.VideoUIApp.index(id)
+GET /video/videos                       controllers.VideoUIApp.index(id = "")
+GET /video/videos/:id                   controllers.VideoUIApp.index(id)
