@@ -19,7 +19,7 @@ export default class Header extends React.Component {
           <div className="topbar__container">
 
             <nav className="topbar__nav">
-              <Link activeClassName="topbar__nav-link--active" className="topbar__nav-link" to="#">Create new video</Link>
+              <Link activeClassName="topbar__nav-link--active" className="topbar__nav-link" to="/video/videos/create">Create new video</Link>
             </nav>
 
           </div>
