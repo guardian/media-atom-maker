@@ -20,7 +20,6 @@ function recieveVideoCreate(video, refreshSections) {
   return {
     type: 'VIDEO_CREATE_RECEIVE',
     video: video,
-    refreshSections: refreshSections,
     receivedAt: Date.now()
   };
 
