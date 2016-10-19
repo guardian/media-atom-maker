@@ -18,10 +18,11 @@ export default class VideoPosterImageEdit extends React.Component {
   };
 
   render () {
+    console.log(this.props);
     return (
         <div className="form__row">
           <label className="form__label">Poster image</label>
-          <input className="form__field" type="text" value={this.props.video.data.poster || ''} onChange={this.onUpdatePosterImage} />
+          <input className="form__field" type="text" value={this.props.video.data.poster || ""} onChange={this.onUpdatePosterImage} />
         </div>
     );
   }

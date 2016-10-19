@@ -18,6 +18,7 @@ export default class VideoTitleEdit extends React.Component {
   };
 
   render () {
+    console.log(this.props);
     if (!this.props.video) {
       console.log('VideoEdit loaded without video provided');
       return false;
@@ -26,7 +27,7 @@ export default class VideoTitleEdit extends React.Component {
     return (
         <div className="form__row">
           <label className="form__label">Title</label>
-          <input className="form__field" type="text" value={this.props.video.data.title || ''} onChange={this.onUpdateTitle} />
+          <input {...this.props.input} className="form__field" type="text" value={this.props.video.data.title || ""} onChange={this.onUpdateTitle} />
         </div>
     );
   }

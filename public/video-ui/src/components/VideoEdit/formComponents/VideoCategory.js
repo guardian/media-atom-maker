@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {videoCategories} from '../../../constants/videoCategories';
+import { videoCategories } from '../../../constants/videoCategories';
 
 export default class VideoCategorySelect extends React.Component {
 
@@ -22,7 +22,7 @@ export default class VideoCategorySelect extends React.Component {
     return (
       <div className="form__row">
         <label className="form__label">Category</label>
-        <select className="form__field form__field--select" value={this.props.video.data.category || ''} onChange={this.updateVideoCategory}>
+        <select {...this.props.input} className="form__field form__field--select" value={this.props.video.data.category || ""} onChange={this.updateVideoCategory}>
           <option value=''></option>
           {videoCategories.map(function(category) {
             return (
