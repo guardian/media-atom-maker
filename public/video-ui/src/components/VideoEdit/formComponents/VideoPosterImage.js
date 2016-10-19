@@ -9,7 +9,7 @@ export default class VideoPosterImageEdit extends React.Component {
 
   onUpdatePosterImage = (e) => {
     let newData = Object.assign({}, this.props.video.data, {
-      poster: e.target.poster
+      posterUrl: e.target.posterUrl
     });
 
     this.props.updateVideo(Object.assign({}, this.props.video, {
@@ -18,11 +18,10 @@ export default class VideoPosterImageEdit extends React.Component {
   };
 
   render () {
-    console.log(this.props);
     return (
         <div className="form__row">
           <label className="form__label">Poster image</label>
-          <input className="form__field" type="text" value={this.props.video.data.poster || ""} onChange={this.onUpdatePosterImage} />
+          <input className="form__field" type="text" value={this.props.video.data.posterUrl || ""} onChange={this.onUpdatePosterImage} />
         </div>
     );
   }

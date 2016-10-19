@@ -27,7 +27,6 @@ class VideoDisplay extends React.Component {
         <div className="container">
           <form className="form">
             <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo} />
-            {/*<SyncValidationForm />*/}
             <SaveButton onSaveClick={this.saveVideo} />
           </form>
         </div>
