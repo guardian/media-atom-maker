@@ -9,19 +9,15 @@ export default class VideoEdit extends React.Component {
   }
 
   render () {
-    if (!this.props.video) {
+    if (!this.props.video || !this.props.video.data) {
       console.log('VideoEdit loaded without video provided');
       return false;
     }
 
-    if (this.props.video.data) {
-      return (
-          <form className="form">
-            <VideoTitleEdit {...this.props}/>
-          </form>
-      );
-    } else {
-      return false;
-    }
+    return (
+        <form className="form">
+          <VideoTitleEdit {...this.props}/>
+        </form>
+    );
   }
 }
