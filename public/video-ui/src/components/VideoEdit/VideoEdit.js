@@ -2,9 +2,8 @@ import React from 'react';
 import VideoTitleEdit from './formComponents/VideoTitle';
 import VideoCategorySelect from './formComponents/VideoCategory';
 import VideoPosterImageEdit from './formComponents/VideoPosterImage';
-import videoEditValidation from '../../constants/videoEditValidation';
+import validate from '../../constants/videoEditValidation';
 import { Field, reduxForm } from 'redux-form';
-
 
 const VideoEdit = (props) => {
   return (
@@ -17,6 +16,6 @@ const VideoEdit = (props) => {
 }
 
 export default reduxForm({
-  form: 'syncValidation',
-  videoEditValidation
+  form: 'VideoEdit',
+  validate
 })(VideoEdit)

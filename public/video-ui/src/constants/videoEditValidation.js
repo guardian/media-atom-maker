@@ -1,7 +1,7 @@
-const videoEditValidation = (values) => {
+const validate = (values) => {
   const errors = {};
   if (!values.title) {
-    errors.username = 'Required'
+    errors.title = 'Required'
   }
   if (!values.category) {
     errors.category = 'Required'
@@ -12,4 +12,4 @@ const videoEditValidation = (values) => {
   return errors
 };
 
-export default videoEditValidation;
+export default validate;
