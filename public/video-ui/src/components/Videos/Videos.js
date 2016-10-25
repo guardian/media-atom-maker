@@ -5,7 +5,7 @@ import VideoItem from './VideoItem';
 class Videos extends React.Component {
 
   static propTypes = {
-    video: PropTypes.array.isRequired,
+    videos: PropTypes.array.isRequired,
   }
 
   componentDidMount() {
