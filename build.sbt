@@ -11,18 +11,18 @@ libraryDependencies ++= Seq(
   "org.apache.thrift"          %  "libthrift"                    % "0.9.3",
   "com.twitter"                %% "scrooge-core"                 % scroogeVersion,
   "com.twitter"                %% "scrooge-serializer"           % scroogeVersion,
-  "com.amazonaws"              % "aws-java-sdk-sts"              % awsVersion,
+  "com.amazonaws"              %  "aws-java-sdk-sts"             % awsVersion,
   "com.typesafe.scala-logging" %% "scala-logging"                % "3.4.0",
-  "org.typelevel"              %% "cats-core"                    % "0.6.0", // for interacting with scanamo
+  "org.typelevel"              %% "cats-core"                    % "0.7.0", // for interacting with scanamo
   "com.fasterxml.jackson.core" %  "jackson-databind"             % "2.7.0",
   "com.gu"                     %% "pan-domain-auth-play_2-5"     % pandaVer,
   ws, // for panda
   "com.gu"                     %% "pan-domain-auth-verification" % pandaVer,
   "com.gu"                     %% "pan-domain-auth-core"         % pandaVer,
-  "com.gu"                     %% "atom-publisher-lib"           % "0.1.3",
-  "com.gu"                     %% "atom-publisher-lib"           % "0.1.3" % "test" classifier "tests",
-  "com.gu"                     %% "atom-manager-play"            % "0.1.3",
-  "com.gu"                     %% "atom-manager-play"            % "0.1.3" % "test" classifier "tests",
+  "com.gu"                     %% "atom-publisher-lib"           % atomMakerVersion,
+  "com.gu"                     %% "atom-publisher-lib"           % atomMakerVersion % "test" classifier "tests",
+  "com.gu"                     %% "atom-manager-play"            % atomMakerVersion,
+  "com.gu"                     %% "atom-manager-play"            % atomMakerVersion % "test" classifier "tests",
   "org.scalatestplus.play"     %% "scalatestplus-play"           % "1.5.0"   % "test",
   "org.mockito"                %  "mockito-core"                 % mockitoVersion % "test",
   "org.scala-lang.modules"     %% "scala-xml"                    % "1.0.5"   % "test"

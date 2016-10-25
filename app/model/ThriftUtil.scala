@@ -55,6 +55,16 @@ object ThriftUtil {
       }
     }
 
+  def parseMetadata(metadata: String): Metadata = {
+    println(metadata)
+    Metadata(
+      tags = None,
+      categoryId = None,
+      license = None,
+      commentsEnabled = None,
+      channelId = None)
+  }
+
   def parseMediaAtom(params: Map[String, Seq[String]]): ThriftResult[MediaAtom] = {
     val version = params.get("version").map(_.head.toLong).getOrElse(1L)
     val title = params.get("title").map(_.head) getOrElse "unknown"
@@ -65,6 +75,7 @@ object ThriftUtil {
       case Some("hosted") => Category.Hosted
       case _ => Category.News
     }
+    val description = params.get("description").map(_.head)
     val duration = params.get("duration").map(_.head.toLong)
     val source = params.get("source").map(_.head)
     val posterUrl = params.get("posterUrl").map(_.head).flatMap {
@@ -72,7 +83,8 @@ object ThriftUtil {
       case _ => None
     }
     for {
-      assets <- parseAssets(params.get("uri").getOrElse(Nil), version).right
+      assets <- parseAssets(params.getOrElse("uri", Nil), version).right
+      metadata <- parseMetadata(params.get("metadata").map(_.head).getOrElse(""))
     } yield MediaAtom(
       assets = assets,
       activeVersion = Some(version),
@@ -81,7 +93,9 @@ object ThriftUtil {
       plutoProjectId = None,
       duration,
       source,
-      posterUrl
+      posterUrl,
+      description,
+      metadata
     )
   }
 
