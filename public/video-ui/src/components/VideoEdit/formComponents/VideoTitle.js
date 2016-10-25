@@ -27,7 +27,7 @@ export default class VideoTitleEdit extends React.Component {
         <div className="form__row">
           <label className="form__label">Title</label>
           <input { ...this.props.input} className="form__field" type="text" value={this.props.video.data.title || ""} onChange={this.onUpdateTitle} />
-          {this.props.meta.touched && (this.props.meta.error && <span>{this.props.meta.error}</span>)}
+          {this.props.meta.touched && this.props.meta.error ? <p className="form__message form__message--error">{this.props.meta.error}</p> : ""}
         </div>
     );
   }

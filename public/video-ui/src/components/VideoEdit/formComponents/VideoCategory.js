@@ -30,6 +30,7 @@ export default class VideoCategorySelect extends React.Component {
             );
           })}
         </select>
+        {this.props.meta.touched && this.props.meta.error ? <p className="form__message form__message--error">{this.props.meta.error}</p> : ""}
       </div>
     );
   }
