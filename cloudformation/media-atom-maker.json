@@ -53,6 +53,23 @@
             "Type": "String"
         }
     },
+    "Mappings": {
+        "StageMap": {
+            "PROD": {
+                "MinSize": 1,
+                "MaxSize": 2,
+                "DesiredCapacity": 1,
+                "InstanceType": "t2.medium"
+            },
+            "CODE": {
+                "MinSize": 1,
+                "MaxSize": 2,
+                "DesiredCapacity": 1,
+                "InstanceType": "t2.small"
+            }
+        }
+    },
+    
     "Resources": {
         "MediaMakerInstanceProfile": {
             "Type": "AWS::IAM::InstanceProfile",
@@ -278,7 +295,7 @@
                         ]
                     }
                 ],
-                "InstanceType": "m3.medium",
+                "InstanceType": { "Fn::FindInMap": [ "StageMap", {"Ref": "Stage"}, "InstanceType"]},
                 "IamInstanceProfile": {
                     "Ref": "MediaMakerInstanceProfile"
                 },
@@ -332,9 +349,9 @@
                 "LaunchConfigurationName": {
                     "Ref": "MediaAtomLaunchConfig"
                 },
-                "MinSize": 1,
-                "MaxSize": 2,
-                "DesiredCapacity": 1,
+                "MinSize": { "Fn::FindInMap": [ "StageMap", {"Ref": "Stage"}, "MinSize"]},
+                "MaxSize": { "Fn::FindInMap": [ "StageMap", {"Ref": "Stage"}, "MaxSize"]},,
+                "DesiredCapacity": { "Fn::FindInMap": [ "StageMap", {"Ref": "Stage"}, "DesiredCapacity"]},
                 "Cooldown": "180",
                 "HealthCheckType": "ELB",
                 "HealthCheckGracePeriod": 300,
