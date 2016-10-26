@@ -19,10 +19,12 @@ export default class VideoCategorySelect extends React.Component {
   };
 
   render () {
+    const hasError = this.props.meta.touched && this.props.meta.error;
+
     return (
       <div className="form__row">
         <label className="form__label">Category</label>
-        <select {...this.props.input} className="form__field form__field--select" value={this.props.video.data.category || ''} onChange={this.updateVideoCategory}>
+        <select {...this.props.input} className={"form__field form__field--select " + (hasError ? "form__field--error" : "") } value={this.props.video.data.category || ''} onChange={this.updateVideoCategory}>
           <option value=''></option>
           {videoCategories.map(function(category) {
             return (
@@ -30,7 +32,7 @@ export default class VideoCategorySelect extends React.Component {
             );
           })}
         </select>
-        {this.props.meta.touched && this.props.meta.error ? <p className="form__message form__message--error">{this.props.meta.error}</p> : ""}
+        {hasError ? <p className="form__message form__message--error">{this.props.meta.error}</p> : ""}
       </div>
     );
   }
