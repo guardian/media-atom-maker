@@ -32,12 +32,14 @@ object TestData {
         plutoProjectId = None,
         duration = None,
         source = None,
-        posterUrl = None
+        posterUrl = None,
+        description = None,
+        metadata = None
       )
     ),
     contentChangeDetails = ContentChangeDetails(revision = 1)
   )
 
   def testAtomEvent(atom: Atom = testAtom) =
-    ContentAtomEvent(testAtom, EventType.Update, (new Date()).getTime())
+    ContentAtomEvent(testAtom, EventType.Update, new Date().getTime)
 }

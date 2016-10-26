@@ -89,7 +89,9 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
                           title = updatedData.title,
                           category = updatedData.category,
                           duration = updatedData.duration,
-                          posterUrl = updatedData.posterUrl
+                          posterUrl = updatedData.posterUrl,
+                          description = updatedData.description,
+                          metadata = updatedData.metadata
                         )
                       }
         previewDataStore.updateAtom(newAtom).fold(

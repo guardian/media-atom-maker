@@ -55,14 +55,16 @@ object ThriftUtil {
       }
     }
 
-  def parseMetadata(metadata: String): Metadata = {
-    println(metadata)
-    Metadata(
-      tags = None,
-      categoryId = None,
-      license = None,
-      commentsEnabled = None,
-      channelId = None)
+  def parseMetadata(metadata: Seq[String]): ThriftResult[Option[Metadata]] = {
+    metadata.headOption match {
+      case Some(meta) => Right(Some(Metadata(
+        tags = Some(Seq("tag")),
+        categoryId = Some("catId"),
+        license = Some("license"),
+        commentsEnabled = Some(true),
+        channelId = Some("channelId"))))
+      case None => Right(None)
+    }
   }
 
   def parseMediaAtom(params: Map[String, Seq[String]]): ThriftResult[MediaAtom] = {
@@ -84,18 +86,18 @@ object ThriftUtil {
     }
     for {
       assets <- parseAssets(params.getOrElse("uri", Nil), version).right
-      metadata <- parseMetadata(params.get("metadata").map(_.head).getOrElse(""))
+      metadata <- parseMetadata(params.getOrElse("metadata", Nil)).right
     } yield MediaAtom(
       assets = assets,
       activeVersion = Some(version),
-      title,
-      category,
+      title = title,
+      category = category,
       plutoProjectId = None,
-      duration,
-      source,
-      posterUrl,
-      description,
-      metadata
+      duration = duration,
+      source = source,
+      posterUrl = posterUrl,
+      description = description,
+      metadata = metadata
     )
   }
 
@@ -117,7 +119,7 @@ object ThriftUtil {
   }
 
   def getSingleRequiredParam(params: Map[String, Seq[String]], name: String): ThriftResult[String] =
-    getSingleParam(params, name).toRight(s"Missing param ${name}")
+    getSingleParam(params, name).toRight(s"Missing param $name")
 
   def atomBodyParser(implicit ec: ExecutionContext): BodyParser[ThriftResult[Atom]] =
     BodyParsers.parse.urlFormEncoded map { urlParams =>
