@@ -4,6 +4,10 @@ import SaveButton from '../utils/SaveButton';
 
 class VideoDisplay extends React.Component {
 
+  state = {
+    editable: false
+  };
+
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
   }
@@ -16,6 +20,18 @@ class VideoDisplay extends React.Component {
     this.props.videoActions.updateVideo(video);
   };
 
+  enableEditing = () => {
+    this.setState({
+      editable: true
+    });
+  };
+
+  disableEditing = () => {
+    this.setState({
+      editable: false
+    });
+  };
+
   render() {
     const video = this.props.video && this.props.params.id === this.props.video.id ? this.props.video : undefined;
 
@@ -23,14 +39,25 @@ class VideoDisplay extends React.Component {
       return <div className="container">Loading... </div>;
     }
 
-    return (
+    if(this.state.editable) {
+      return (
+          <div className="container">
+            <form className="form">
+              <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo}/>
+              <SaveButton onSaveClick={this.saveVideo}/>
+            </form>
+          </div>
+      )
+    } else {
+      return (
         <div className="container">
-          <form className="form">
-            <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo} />
-            <SaveButton onSaveClick={this.saveVideo} />
-          </form>
+          <p>{this.props.video.data.title}</p>
+          <p>{this.props.video.data.category}</p>
+          <p>{this.props.video.data.posterUrl}</p>
+          <button className="btn" type="button" onClick={this.enableEditing}>Edit</button>
         </div>
-    );
+      )
+    }
   }
 }
 

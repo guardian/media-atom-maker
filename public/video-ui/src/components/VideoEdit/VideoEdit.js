@@ -6,14 +6,14 @@ import validate from '../../constants/videoEditValidation';
 import { Field, reduxForm } from 'redux-form';
 
 const VideoEdit = (props) => {
-  return (
-      <div>
-        <Field name="title" type="text" component={VideoTitleEdit} {...props} />
-        <Field name="category" type="text" component={VideoCategorySelect} {...props} />
-        <Field name="poster" type="text" component={VideoPosterImageEdit} {...props} />
-      </div>
-  )
-}
+    return (
+        <div>
+          <Field name="title" type="text" component={VideoTitleEdit} {...props} />
+          <Field name="category" type="text" component={VideoCategorySelect} {...props} />
+          <Field name="posterUrl" type="text" component={VideoPosterImageEdit} {...props} />
+        </div>
+    )
+};
 
 export default reduxForm({
   form: 'VideoEdit',
