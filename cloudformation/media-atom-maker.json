@@ -350,7 +350,7 @@
                     "Ref": "MediaAtomLaunchConfig"
                 },
                 "MinSize": { "Fn::FindInMap": [ "StageMap", {"Ref": "Stage"}, "MinSize"]},
-                "MaxSize": { "Fn::FindInMap": [ "StageMap", {"Ref": "Stage"}, "MaxSize"]},,
+                "MaxSize": { "Fn::FindInMap": [ "StageMap", {"Ref": "Stage"}, "MaxSize"]},
                 "DesiredCapacity": { "Fn::FindInMap": [ "StageMap", {"Ref": "Stage"}, "DesiredCapacity"]},
                 "Cooldown": "180",
                 "HealthCheckType": "ELB",
