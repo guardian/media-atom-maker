@@ -4,6 +4,10 @@ import SaveButton from '../utils/SaveButton';
 
 class VideoDisplay extends React.Component {
 
+  state = {
+    editable: false
+  };
+
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
   }
@@ -16,19 +20,33 @@ class VideoDisplay extends React.Component {
     this.props.videoActions.updateVideo(video);
   };
 
+  enableEditing = () => {
+    this.setState({
+      editable: true
+    });
+  };
+
+  disableEditing = () => {
+    this.setState({
+      editable: false
+    });
+  };
+
   render() {
     const video = this.props.video && this.props.params.id === this.props.video.id ? this.props.video : undefined;
 
     if (!video) {
-      return <div>Loading... </div>;
+      return <div className="container">Loading... </div>;
     }
-
+    
     return (
-        <div>
-          <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo} />
-          <SaveButton onSaveClick={this.saveVideo} />
-        </div>
-    );
+      <div className="container">
+        <form className="form">
+          <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo}/>
+          <SaveButton onSaveClick={this.saveVideo}/>
+        </form>
+      </div>
+    )
   }
 }
 
@@ -37,6 +55,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getVideo from '../../actions/VideoActions/getVideo';
 import * as saveVideo from '../../actions/VideoActions/saveVideo';
+import * as updateVideo from '../../actions/VideoActions/updateVideo';
 
 function mapStateToProps(state) {
   return {
@@ -46,7 +65,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo), dispatch)
   };
 }
 
