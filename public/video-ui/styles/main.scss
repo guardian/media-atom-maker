@@ -16,11 +16,15 @@
   'base/helpers';
 
 // 4. Layout-related sections
-@import 'layout/topbar',
-        'layout/grid';
+@import
+  'layout/topbar',
+  'layout/grid',
+  'layout/video';
 
 // 5. Components
 @import
   'components/buttons',
   'components/forms',
-  'components/tables';
+  'components/tables',
+  'components/details-list',
+  'components/asset-list';
