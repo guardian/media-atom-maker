@@ -64,7 +64,7 @@ class ThriftUtilSpec extends FunSpec
     }
 
     it("should correctly generate media atom with metadata") {
-      inside(parseMediaAtom(makeParams("uri" -> youtubeUrl, "metadata" -> "someMetadata"))) {
+      inside(parseMediaAtom(makeParams("uri" -> youtubeUrl, "metadata" -> "{\"channelId\":\"channel id\",\"commentsEnabled\":true}"))) {
         case Right(MediaAtom(assets, Some(1L), "unknown", Category.News, None, None, None, None, None, metadata)) =>
           metadata should matchPattern { case Some(Metadata(_, _, _, _, _)) => }
       }

@@ -7,6 +7,8 @@ import com.gu.contentatom.thrift._
 import com.gu.contentatom.thrift.atom.media._
 import play.api.mvc.{BodyParser, BodyParsers}
 import util.atom.MediaAtomImplicits._
+import data.JsonConversions._
+import play.api.libs.json._
 
 import scala.concurrent.ExecutionContext
 import scala.util.Try
@@ -57,12 +59,16 @@ object ThriftUtil {
 
   def parseMetadata(metadata: Seq[String]): ThriftResult[Option[Metadata]] = {
     metadata.headOption match {
-      case Some(meta) => Right(Some(Metadata(
-        tags = Some(Seq("tag")),
-        categoryId = Some("catId"),
-        license = Some("license"),
-        commentsEnabled = Some(true),
-        channelId = Some("channelId"))))
+      case Some(meta) =>
+        Json.parse(meta).validate[Metadata] match {
+          case JsSuccess(data, _) => Right(Some(Metadata(
+            tags = data.tags,
+            categoryId = data.categoryId,
+            license = data.license,
+            commentsEnabled = data.commentsEnabled,
+            channelId = data.channelId)))
+          case JsError(error) => Left(s"Couldn't parse Json for metadata $meta - $error")
+        }
       case None => Right(None)
     }
   }

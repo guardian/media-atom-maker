@@ -30,10 +30,22 @@ object JsonConversions {
     (__ \ "commentsEnabled").writeNullable[Boolean] and
     (__ \ "channelId").writeNullable[String]
   ) { metadata: Metadata =>
-    metadata match {
-      case Metadata(tags, categoryId, license, commentsEnabled, channelId) => (tags, categoryId, license, commentsEnabled, channelId)
-    }
+      (
+        metadata.tags,
+        metadata.categoryId,
+        metadata.license,
+        metadata.commentsEnabled,
+        metadata.channelId
+        )
   }
+
+  implicit val mediaMetadataRead: Reads[Metadata] = (
+    (__ \ "tags").readNullable[Seq[String]] and
+    (__ \ "categoryId").readNullable[String] and
+    (__ \ "license").readNullable[String] and
+    (__ \ "commentsEnabled").readNullable[Boolean] and
+    (__ \ "channelId").readNullable[String]
+  )(Metadata.apply _)
 
   implicit val atomDataMedia = (
     (__ \ "assets").write[Seq[Asset]] and
