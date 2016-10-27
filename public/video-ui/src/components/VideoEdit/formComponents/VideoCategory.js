@@ -4,10 +4,6 @@ import { videoCategories } from '../../../constants/videoCategories';
 
 export default class VideoCategorySelect extends React.Component {
 
-  constructor(props) {
-    super(props);
-  }
-
   updateVideoCategory = (e) => {
     let newData = Object.assign({}, this.props.video.data, {
       category: e.target.value

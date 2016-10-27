@@ -38,26 +38,15 @@ class VideoDisplay extends React.Component {
     if (!video) {
       return <div className="container">Loading... </div>;
     }
-
-    if(this.state.editable) {
-      return (
-          <div className="container">
-            <form className="form">
-              <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo}/>
-              <SaveButton onSaveClick={this.saveVideo}/>
-            </form>
-          </div>
-      )
-    } else {
-      return (
-        <div className="container">
-          <p>{this.props.video.data.title}</p>
-          <p>{this.props.video.data.category}</p>
-          <p>{this.props.video.data.posterUrl}</p>
-          <button className="btn" type="button" onClick={this.enableEditing}>Edit</button>
-        </div>
-      )
-    }
+    
+    return (
+      <div className="container">
+        <form className="form">
+          <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo}/>
+          <SaveButton onSaveClick={this.saveVideo}/>
+        </form>
+      </div>
+    )
   }
 }
 
