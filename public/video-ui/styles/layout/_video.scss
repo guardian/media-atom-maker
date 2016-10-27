@@ -1,0 +1,34 @@
+.video {
+  width: 100%;
+  display: flex;
+  height: calc(100vh - #{$toolbarHeight});
+  align-items: stretch;
+}
+
+.video__sidebar {
+  height: 100%;
+
+  &__group {
+    padding: 10px;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid $color600Grey;
+    }
+  }
+}
+
+.video-preview {
+  flex-grow: 1;
+  height: 100%;
+  align-content: center;
+}
+
+.video-assets {
+  width: 200px;
+  border-right: 1px solid $color600Grey;
+}
+
+.video-details {
+  width: 300px;
+  border-left: 1px solid $color600Grey;
+}

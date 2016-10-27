@@ -1,5 +1,7 @@
 import React from 'react';
 import VideoEdit from '../VideoEdit/VideoEdit';
+import VideoAssets from '../VideoAssets/VideoAssets';
+import VideoDetails from '../VideoDetails/VideoDetails';
 import SaveButton from '../utils/SaveButton';
 
 class VideoDisplay extends React.Component {
@@ -41,20 +43,27 @@ class VideoDisplay extends React.Component {
 
     if(this.state.editable) {
       return (
-          <div className="container">
-            <form className="form">
-              <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo}/>
-              <SaveButton onSaveClick={this.saveVideo}/>
-            </form>
+          <div className="video">
+            <VideoAssets video={this.props.video || {}} />
+            <div className="video-preview">
+              CONTAINER
+            </div>
+            <div className="video__sidebar video-details">
+              <form className="form">
+                <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo}/>
+                <SaveButton onSaveClick={this.saveVideo}/>
+              </form>
+            </div>
           </div>
       )
     } else {
       return (
-        <div className="container">
-          <p>{this.props.video.data.title}</p>
-          <p>{this.props.video.data.category}</p>
-          <p>{this.props.video.data.posterUrl}</p>
-          <button className="btn" type="button" onClick={this.enableEditing}>Edit</button>
+        <div className="video">
+          <VideoAssets video={this.props.video || {}} />
+          <div className="video-preview">
+            CONTAINER
+          </div>
+          <VideoDetails video={this.props.video || {}} enableEditing={this.enableEditing} />
         </div>
       )
     }

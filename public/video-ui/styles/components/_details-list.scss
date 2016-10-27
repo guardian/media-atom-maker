@@ -1,0 +1,17 @@
+.details-list {
+  display: flex;
+  flex-flow: wrap;
+
+  &__title {
+    font-weight: bold;
+    flex-basis: 40%;
+    margin-bottom: 10px;
+  }
+
+  &__field {
+    color: $cWhite;
+    flex-basis: 60%;
+    margin: 0 0 10px;
+    padding: 0;
+  }
+}
