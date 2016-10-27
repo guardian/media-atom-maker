@@ -2,6 +2,7 @@ import React from 'react';
 import VideoEdit from '../VideoEdit/VideoEdit';
 import VideoAssets from '../VideoAssets/VideoAssets';
 import VideoDetails from '../VideoDetails/VideoDetails';
+import VideoPreview from '../VideoPreview/VideoPreview';
 import SaveButton from '../utils/SaveButton';
 
 class VideoDisplay extends React.Component {
@@ -28,12 +29,6 @@ class VideoDisplay extends React.Component {
     });
   };
 
-  disableEditing = () => {
-    this.setState({
-      editable: false
-    });
-  };
-
   render() {
     const video = this.props.video && this.props.params.id === this.props.video.id ? this.props.video : undefined;
 
@@ -45,9 +40,9 @@ class VideoDisplay extends React.Component {
       return (
           <div className="video">
             <VideoAssets video={this.props.video || {}} />
-            <div className="video-preview">
-              CONTAINER
-            </div>
+
+            <VideoPreview video={this.props.video || {}} />
+
             <div className="video__sidebar video-details">
               <form className="form">
                 <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo}/>
@@ -60,9 +55,9 @@ class VideoDisplay extends React.Component {
       return (
         <div className="video">
           <VideoAssets video={this.props.video || {}} />
-          <div className="video-preview">
-            CONTAINER
-          </div>
+
+          <VideoPreview video={this.props.video || {}} />
+
           <VideoDetails video={this.props.video || {}} enableEditing={this.enableEditing} />
         </div>
       )
