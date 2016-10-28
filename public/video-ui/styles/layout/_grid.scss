@@ -12,6 +12,7 @@
 
 .grid__list {
   display: flex;
+  flex-wrap: wrap;
   width: 100%;
   list-style: none;
   padding: 0;
@@ -19,18 +20,29 @@
 }
 
 .grid__item {
-  width: 33%;
-  margin: 5px;
-  background: $color650Grey;
+  flex-basis: 25%;
+  padding: 5px;
 }
 
 .grid__link {
   display: block;
   width: 100%;
   height: 100%;
-  border: 5px solid transparent;
+  padding: 5px;
+  background: $color650Grey;
   
   &:hover {
-    border-color: $cBlueLink;
+    background: lighten($color650Grey, 5);
+  }
+}
+
+.grid__image {
+  width: 100%;
+  min-height: 100px;
+  background: $color600Grey;
+
+  & img {
+    width: 100%;
+    display: block;
   }
 }
