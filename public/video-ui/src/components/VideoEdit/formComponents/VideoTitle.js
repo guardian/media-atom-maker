@@ -2,11 +2,6 @@ import React from 'react';
 
 export default class VideoTitleEdit extends React.Component {
 
-  constructor(props) {
-    super(props);
-  }
-
-
   onUpdateTitle = (e) => {
     let newData = Object.assign({}, this.props.video.data, {
       title: e.target.value
