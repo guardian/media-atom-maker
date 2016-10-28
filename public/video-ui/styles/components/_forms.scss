@@ -13,7 +13,7 @@
 .form__field {
   background-color: $cWhite;
   padding: 11px;
-  border: 1px solid #dcdcdc;
+  border: 1px solid $color300Grey;
   width: 100%;
 
   &:not(:last-child) {
@@ -36,6 +36,10 @@
     text-overflow: '';
   }
 
+  &--error {
+    border-color: $dangerColor;
+  }
+
 }
 
 .form__label {
@@ -43,6 +47,15 @@
   font-size: 13px;
   font-weight: bold;
   margin: 0 0 5px;
+}
+
+.form__message {
+  font-size: 13px;
+  margin: 0;
+
+  &--error {
+    color: $dangerColor;
+  }
 }
 
 .form-checkbox {

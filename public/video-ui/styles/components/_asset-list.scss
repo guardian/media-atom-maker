@@ -1,0 +1,33 @@
+.asset-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  &__item {
+    margin: 10px;
+    padding: 10px;
+    border-bottom: 1px solid $color600Grey;
+    position: relative;
+
+    &--active {
+      border: 2px solid $brandColor;
+
+      &:before {
+        display: block;
+        content: "Current";
+        color: $cWhite;
+        background: $brandColor;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 2px;
+      }
+    }
+  }
+
+  &__video {
+    width: 100%;
+    border: 0;
+  }
+}

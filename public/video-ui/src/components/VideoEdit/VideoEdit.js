@@ -1,23 +1,21 @@
 import React from 'react';
 import VideoTitleEdit from './formComponents/VideoTitle';
+import VideoCategorySelect from './formComponents/VideoCategory';
+import VideoPosterImageEdit from './formComponents/VideoPosterImage';
+import validate from '../../constants/videoEditValidation';
+import { Field, reduxForm } from 'redux-form';
 
-
-export default class VideoEdit extends React.Component {
-
-  constructor(props) {
-    super(props);
-  }
-
-  render () {
-    if (!this.props.video || !this.props.video.data) {
-      console.log('VideoEdit loaded without video provided');
-      return false;
-    }
-
+const VideoEdit = (props) => {
     return (
-        <form className="form">
-          <VideoTitleEdit {...this.props}/>
-        </form>
-    );
-  }
-}
+        <div>
+          <Field name="title" type="text" component={VideoTitleEdit} {...props} />
+          <Field name="category" type="text" component={VideoCategorySelect} {...props} />
+          <Field name="posterUrl" type="text" component={VideoPosterImageEdit} {...props} />
+        </div>
+    )
+};
+
+export default reduxForm({
+  form: 'VideoEdit',
+  validate
+})(VideoEdit)
