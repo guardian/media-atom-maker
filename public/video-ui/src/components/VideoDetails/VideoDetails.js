@@ -27,6 +27,13 @@ export default class VideoDetails extends React.Component {
 
               <dt className="details-list__title">Version</dt>
               <dd className="details-list__field">{this.props.video.data.activeVersion}</dd>
+
+              <dt className="details-list__title">CAPI link</dt>
+              <dd className="details-list__field">
+                <a href={'https://preview.content.code.dev-guardianapis.com/atom/media/' + this.props.video.id + '?api-key=test'}>
+                  /atom/media/{this.props.video.id}
+                </a>
+              </dd>
             </dl>
             {this.props.enableEditing ? <button className="btn" type="button" onClick={this.props.enableEditing}>Edit</button> : ''}
           </div>

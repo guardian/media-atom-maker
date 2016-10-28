@@ -11,9 +11,11 @@
 }
 
 .form__field {
-  background-color: $cWhite;
-  padding: 11px;
-  border: 1px solid $color300Grey;
+  background-color: $color650Grey;
+  color: $cWhite;
+  padding: 5px;
+  font-size: 12px;
+  border: 1px solid $color500Grey;
   width: 100%;
 
   &:not(:last-child) {
@@ -21,8 +23,21 @@
   }
 
   &:focus {
-    border-color: $brandColor;
+    border-color: $color400Grey;
     outline: none;
+  }
+
+  // Placeholder styling, separated because if one selector is invalid, the browser will ignore the rest
+  ::-webkit-input-placeholder {
+    color: $textColor;
+  }
+
+  ::-moz-placeholder {  /* Firefox 19+ */
+    color: $textColor;
+  }
+
+  :-ms-input-placeholder {
+    color: $textColor;
   }
 
   // Because select elements are THE WORST
