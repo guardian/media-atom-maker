@@ -20,9 +20,8 @@ export default {
   createVideo: (video) => {
     return pandaReqwest({
       url: '/api/atom',
-      contentType: 'application/x-www-form-urlencoded',
       method: 'post',
-      data: video
+      data: video.data
     })
   },
 
@@ -30,8 +29,7 @@ export default {
     return pandaReqwest({
       url: '/api/atom/' + videoId,
       method: 'post',
-      contentType: 'application/json',
-      data: JSON.stringify(video)
+      data: video.data
     })
   }
 
