@@ -23,6 +23,30 @@ object JsonConversions {
     }
   }
 
+  implicit val mediaMetadata = (
+    (__ \ "tags").writeNullable[Seq[String]] and
+    (__ \ "categoryId").writeNullable[String] and
+    (__ \ "license").writeNullable[String] and
+    (__ \ "commentsEnabled").writeNullable[Boolean] and
+    (__ \ "channelId").writeNullable[String]
+  ) { metadata: Metadata =>
+      (
+        metadata.tags,
+        metadata.categoryId,
+        metadata.license,
+        metadata.commentsEnabled,
+        metadata.channelId
+        )
+  }
+
+  implicit val mediaMetadataRead: Reads[Metadata] = (
+    (__ \ "tags").readNullable[Seq[String]] and
+    (__ \ "categoryId").readNullable[String] and
+    (__ \ "license").readNullable[String] and
+    (__ \ "commentsEnabled").readNullable[Boolean] and
+    (__ \ "channelId").readNullable[String]
+  )(Metadata.apply _)
+
   implicit val atomDataMedia = (
     (__ \ "assets").write[Seq[Asset]] and
     (__ \ "activeVersion").writeNullable[Long] and
@@ -30,7 +54,9 @@ object JsonConversions {
     (__ \ "category").write[Category] and
     (__ \ "plutoProjectId").writeNullable[String] and
     (__ \ "duration").writeNullable[Long] and
-    (__ \ "posterUrl").writeNullable[String]
+    (__ \ "posterUrl").writeNullable[String] and
+    (__ \ "description").writeNullable[String] and
+    (__ \ "metadata").writeNullable[Metadata]
     ) { mediaAtom: MediaAtom =>
     (
       mediaAtom.assets,
@@ -39,7 +65,9 @@ object JsonConversions {
       mediaAtom.category,
       mediaAtom.plutoProjectId,
       mediaAtom.duration,
-      mediaAtom.posterUrl
+      mediaAtom.posterUrl,
+      mediaAtom.description,
+      mediaAtom.metadata
       )
   }
 

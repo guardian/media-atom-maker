@@ -7,6 +7,8 @@ import com.gu.contentatom.thrift._
 import com.gu.contentatom.thrift.atom.media._
 import play.api.mvc.{BodyParser, BodyParsers}
 import util.atom.MediaAtomImplicits._
+import data.JsonConversions._
+import play.api.libs.json._
 
 import scala.concurrent.ExecutionContext
 import scala.util.Try
@@ -55,6 +57,22 @@ object ThriftUtil {
       }
     }
 
+  def parseMetadata(metadata: Seq[String]): ThriftResult[Option[Metadata]] = {
+    metadata.headOption match {
+      case Some(meta) =>
+        Json.parse(meta).validate[Metadata] match {
+          case JsSuccess(data, _) => Right(Some(Metadata(
+            tags = data.tags,
+            categoryId = data.categoryId,
+            license = data.license,
+            commentsEnabled = data.commentsEnabled,
+            channelId = data.channelId)))
+          case JsError(error) => Left(s"Couldn't parse Json for metadata $meta - $error")
+        }
+      case None => Right(None)
+    }
+  }
+
   def parseMediaAtom(params: Map[String, Seq[String]]): ThriftResult[MediaAtom] = {
     val version = params.get("version").map(_.head.toLong).getOrElse(1L)
     val title = params.get("title").map(_.head) getOrElse "unknown"
@@ -65,6 +83,7 @@ object ThriftUtil {
       case Some("hosted") => Category.Hosted
       case _ => Category.News
     }
+    val description = params.get("description").map(_.head)
     val duration = params.get("duration").map(_.head.toLong)
     val source = params.get("source").map(_.head)
     val posterUrl = params.get("posterUrl").map(_.head).flatMap {
@@ -72,16 +91,19 @@ object ThriftUtil {
       case _ => None
     }
     for {
-      assets <- parseAssets(params.get("uri").getOrElse(Nil), version).right
+      assets <- parseAssets(params.getOrElse("uri", Nil), version).right
+      metadata <- parseMetadata(params.getOrElse("metadata", Nil)).right
     } yield MediaAtom(
       assets = assets,
       activeVersion = Some(version),
-      title,
-      category,
+      title = title,
+      category = category,
       plutoProjectId = None,
-      duration,
-      source,
-      posterUrl
+      duration = duration,
+      source = source,
+      posterUrl = posterUrl,
+      description = description,
+      metadata = metadata
     )
   }
 
@@ -103,7 +125,7 @@ object ThriftUtil {
   }
 
   def getSingleRequiredParam(params: Map[String, Seq[String]], name: String): ThriftResult[String] =
-    getSingleParam(params, name).toRight(s"Missing param ${name}")
+    getSingleParam(params, name).toRight(s"Missing param $name")
 
   def atomBodyParser(implicit ec: ExecutionContext): BodyParser[ThriftResult[Atom]] =
     BodyParsers.parse.urlFormEncoded map { urlParams =>

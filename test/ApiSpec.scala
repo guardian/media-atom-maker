@@ -38,19 +38,19 @@ class ApiSpec
 
   "api" should {
 
-      "return a media atom" in AtomTestConf() { implicit conf =>
-        val result = api.getMediaAtom("1").apply(requestWithCookies)
-        status(result) mustEqual OK
-        val json = contentAsJson(result)
-                                (json \ "id").as[String] mustEqual "1"
-          (json \ "data" \ "assets").as[List[JsValue]] must have size 2
+    "return a media atom" in AtomTestConf() { implicit conf =>
+      val result = api.getMediaAtom("1").apply(requestWithCookies)
+      status(result) mustEqual OK
+      val json = contentAsJson(result)
+                              (json \ "id").as[String] mustEqual "1"
+        (json \ "data" \ "assets").as[List[JsValue]] must have size 2
 
-      }
+    }
 
-      "return NotFound for missing atom" in AtomTestConf() { implicit conf =>
-        val result = api.getMediaAtom("xyzzy").apply(requestWithCookies)
-        status(result) mustEqual NOT_FOUND
-      }
+    "return NotFound for missing atom" in AtomTestConf() { implicit conf =>
+      val result = api.getMediaAtom("xyzzy").apply(requestWithCookies)
+      status(result) mustEqual NOT_FOUND
+    }
 
     "return not found when adding asset to a non-existant atom" in AtomTestConf() { implicit conf =>
       val req = requestWithCookies.withFormUrlEncodedBody("uri" -> youtubeUrl, "mimetype" -> "", "version" -> "3")
@@ -148,7 +148,7 @@ class ApiSpec
 
 
       verify(mockPublisherPreview).publishAtomEvent(eventCaptor.capture())
-      val event = eventCaptor.getValue()
+      val event = eventCaptor.getValue
 
       event.atom.tdata.assets.length mustEqual 3
     }
@@ -165,6 +165,7 @@ class ApiSpec
       status(result) mustEqual OK
       contentAsJson(result).as[List[JsValue]] must have size 2
     }
+
     "change version of atom" in AtomTestConf() { implicit conf =>
       // before...
       conf.previewDataStore.getAtom("1").value.tdata.activeVersion mustEqual Some(2L)
@@ -173,6 +174,7 @@ class ApiSpec
       // after ...
       conf.previewDataStore.getAtom("1").value.tdata.activeVersion mustEqual Some(1L)
     }
+
     "complain if revert to version without asset" in
     AtomTestConf() { implicit conf =>
       // before...
