@@ -148,7 +148,7 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
     }
   }
 
-  def addMetadata(atomId: String) = APIHMACAuthAction(metadataBodyParser) { implicit req =>
+  def addMetadata(atomId: String) = thriftResultHMACAction(metadataBodyParser) { implicit req =>
     val metadata = req.body
 
     previewDataStore.getAtom(atomId) match {
@@ -180,6 +180,9 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
     }
   }
 
+  def test() = APIHMACAuthAction {
+    Ok()
+  }
 
   def now() = new Date().getTime
 

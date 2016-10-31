@@ -14,6 +14,8 @@ POST    /api/atom/:id/revert/:version   controllers.Api.revertAtom(id, version: 
 
 POST    /api/atom/:id/publish           controllers.Api.publishAtom(id)
 
+GET     /api/test   controllers.Api.test()
+
 # reindex
 
 POST    /reindex-preview                com.gu.atom.play.ReindexController.newPreviewReindexJob()

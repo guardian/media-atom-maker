@@ -1,6 +1,7 @@
 package controllers
 
 import com.gu.contentatom.thrift.{ Atom, AtomData }
+import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.action.AuthActions
 import javax.inject._
 import play.api.Configuration
@@ -15,11 +16,12 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.ws.WSClient
 import play.api.Logger
 
+
 class MainApp @Inject() (previewDataStore: PreviewDataStore,
                          publishedDataStore: PublishedDataStore,
                          val wsClient: WSClient,
                          val conf: Configuration,
-                         val authActions: AuthActions)
+                         val authActions: HMACAuthActions)
     extends AtomController {
 
   import authActions.{ AuthAction, processGoogleCallback }

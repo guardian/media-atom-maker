@@ -1,9 +1,10 @@
 package controllers
 
 import javax.inject._
+import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.action.AuthActions
 
-class VideoUIApp @Inject() (val authActions: AuthActions)
+class VideoUIApp @Inject() (val authActions: HMACAuthActions)
   extends AtomController {
 
   import authActions.AuthAction
