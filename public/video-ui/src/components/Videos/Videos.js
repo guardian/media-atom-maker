@@ -23,9 +23,15 @@ class Videos extends React.Component {
     }
   }
 
+  searchFilter = (value) => {
+    const title = value.data.title.toLowerCase();
+    const searchTerm = this.props.searchTerm.toLowerCase();
+    return title.includes(searchTerm);
+  }
+
   renderListItems() {
     return (
-        this.props.videos.map((video) => <VideoItem key={video.id} video={video} />)
+        this.props.videos.filter(this.searchFilter).map((video) => <VideoItem key={video.id} video={video} />)
     );
   }
 
@@ -49,7 +55,8 @@ import * as getVideos from '../../actions/VideoActions/getVideos';
 
 function mapStateToProps(state) {
   return {
-    videos: state.videos
+    videos: state.videos,
+    searchTerm: state.searchTerm
   };
 }
 
