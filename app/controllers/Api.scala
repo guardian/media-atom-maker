@@ -14,6 +14,7 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import util.atom.MediaAtomImplicits
 import util.AWSConfig
 import play.api.libs.json._
+import com.gu.pandahmac.HMACAuthActions
 
 import com.gu.atom.play._
 
@@ -25,12 +26,12 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
                      val previewPublisher: PreviewAtomPublisher,
                      val conf: Configuration,
                      val awsConfig: AWSConfig,
-                     val authActions: AuthActions)
+                     val authActions: HMACAuthActions)
     extends AtomController
     with MediaAtomImplicits
     with AtomAPIActions {
 
-  import authActions.APIAuthAction
+  import authActions.{ APIAuthAction, APIHMACAuthAction }
 
   private def atomUrl(id: String) = s"/atom/$id"
 
@@ -147,7 +148,7 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
     }
   }
 
-  def addMetadata(atomId: String) = thriftResultAction(metadataBodyParser) { implicit req =>
+  def addMetadata(atomId: String) = APIHMACAuthAction(metadataBodyParser) { implicit req =>
     val metadata = req.body
 
     previewDataStore.getAtom(atomId) match {

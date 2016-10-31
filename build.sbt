@@ -6,6 +6,8 @@ name := "media-atom-maker"
 
 organization in ThisBuild := "com.gu"
 
+resolvers += "Guardian Bintray" at "https://dl.bintray.com/guardian/editorial-tools"
+
 libraryDependencies ++= Seq(
   "com.gu"                     %% "content-atom-model"           % contentAtomVersion,
   "org.apache.thrift"          %  "libthrift"                    % "0.9.3",
@@ -23,6 +25,7 @@ libraryDependencies ++= Seq(
   "com.gu"                     %% "atom-publisher-lib"           % atomMakerVersion % "test" classifier "tests",
   "com.gu"                     %% "atom-manager-play"            % atomMakerVersion,
   "com.gu"                     %% "atom-manager-play"            % atomMakerVersion % "test" classifier "tests",
+  "com.gu"                     %% "panda-hmac"                   % "1.1.0",
   "org.scalatestplus.play"     %% "scalatestplus-play"           % "1.5.0"   % "test",
   "org.mockito"                %  "mockito-core"                 % mockitoVersion % "test",
   "org.scala-lang.modules"     %% "scala-xml"                    % "1.0.5"   % "test"

@@ -2,6 +2,7 @@ package controllers
 
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth._
+import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.action.AuthActions
 import com.gu.pandomainauth.model.AuthenticatedUser
 import play.api.Configuration
@@ -19,7 +20,7 @@ import com.typesafe.scalalogging.LazyLogging
 class PanDomainAuthActions @Inject() (
   val wsClient:WSClient, val conf: Configuration,
   applicationLifeCycle: ApplicationLifecycle
-) extends AuthActions
+) extends HMACAuthActions
     with LazyLogging {
 
   applicationLifeCycle.addStopHook {
@@ -44,4 +45,6 @@ class PanDomainAuthActions @Inject() (
 
   override lazy val domain: String = conf.getString("panda.domain").get
   override lazy val system: String = "media-atom-maker"
+
+  override def secret: String = "SECRET"
 }
