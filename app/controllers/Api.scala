@@ -181,7 +181,7 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
   }
 
   def test() = APIHMACAuthAction {
-    Ok()
+    Ok("all good scotty!")
   }
 
   def now() = new Date().getTime
