@@ -1,10 +1,15 @@
-@(title: String, jsFileLocation: String)
+@(title: String, jsFileLocation: String, clientConfigJson: String)
 
 @layout(title) {
     <div id="react-mount" class="main">
         <h1>Loading...</h1>
     </div>
 
+    <script type="application/json" id="config">
+        @Html(clientConfigJson)
+    </script>
+
     <script src="@jsFileLocation"></script>
+
 
 }
