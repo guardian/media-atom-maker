@@ -75,7 +75,6 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
     val updatedData = req.body.tdata
     previewDataStore.getAtom(atomId) match {
       case Some(atom) =>
-
         val activeVersion = atom.tdata.activeVersion getOrElse {
           val versions = atom.tdata.assets.map(_.version)
           if (versions.isEmpty) 1 else versions.max
