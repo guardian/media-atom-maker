@@ -7,7 +7,6 @@ export default class VideoSearch extends React.Component {
   }
 
   onSearch = (e) => {
-    console.log("Here");
     this.props.updateSearchTerm(e.target.value);
   };
 
