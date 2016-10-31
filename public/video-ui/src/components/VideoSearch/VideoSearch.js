@@ -14,7 +14,7 @@ export default class VideoSearch extends React.Component {
     return (
       <form className="form">
         <div className="form__row">
-          <input className="form__field" type="text" value={this.props.searchTerm || ''} onChange={this.onSearch} />
+          <input className="form__field" type="text" value={this.props.searchTerm || ''} onChange={this.onSearch} placeholder={"Search for videos..."} />
         </div>
       </form>
     )
