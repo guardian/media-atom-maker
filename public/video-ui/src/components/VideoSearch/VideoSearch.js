@@ -2,10 +2,6 @@ import React from 'react'
 
 export default class VideoSearch extends React.Component {
 
-  constructor(props) {
-    super(props)
-  }
-
   onSearch = (e) => {
     this.props.updateSearchTerm(e.target.value);
   };
