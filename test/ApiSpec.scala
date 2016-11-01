@@ -180,38 +180,6 @@ class ApiSpec
       val result = call(api.revertAtom("1", 10L), requestWithCookies)
       status(result) mustEqual INTERNAL_SERVER_ERROR
     }
-
-    "create metadata for atom" in AtomTestConf() { implicit conf =>
-      val atomReq = requestWithCookies
-        .withFormUrlEncodedBody(
-          "id" -> "5",
-          "title" -> "atom with metadata",
-          "category" -> "hosted",
-          "duration" -> "143",
-          "posterUrl" -> "https://abc/def.jpg"
-        )
-
-      val result = call(api.createMediaAtom(), atomReq)
-      withClue(s"(body: [${contentAsString(result)}])") {
-        status(result) mustEqual CREATED
-      }
-
-      val createdAtom = conf.previewDataStore.getAtom("5").value
-
-      val metadataReq = requestWithCookies
-        .withFormUrlEncodedBody(
-          "metadata" -> "{\"channelId\":\"channelId\",\"commentsEnabled\":true}"
-        )
-
-      val metadataResult = call(api.addMetadata(createdAtom.id), metadataReq)
-      withClue(s"(body: [${contentAsString(metadataResult)}])") {
-        status(metadataResult) mustEqual OK
-      }
-
-      val atomWithMetadata = conf.previewDataStore.getAtom("5").value
-      val atomMetadata = atomWithMetadata.tdata.metadata.value
-      atomMetadata.channelId mustEqual Some("channelId")
-      atomMetadata.commentsEnabled mustEqual Some(true)
-    }
+    
   }
 }

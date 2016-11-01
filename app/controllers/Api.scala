@@ -148,38 +148,6 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
     }
   }
 
-  def addMetadata(atomId: String) = thriftResultAction(metadataBodyParser) { implicit req =>
-    val metadata = req.body
-
-    previewDataStore.getAtom(atomId) match {
-      case Some(atom) =>
-        val ma = atom.tdata
-
-        val newAtom = atom
-          .withData(ma.copy(
-            metadata = metadata
-          ))
-          .withRevision(_ + 1)
-
-        previewDataStore.updateAtom(newAtom).fold(
-          err => InternalServerError(err.msg),
-          _ => {
-
-            val event = ContentAtomEvent(newAtom, EventType.Update, now())
-
-            previewPublisher.publishAtomEvent(event) match {
-              case Success(_) => NoContent
-              case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
-            }
-
-            Ok(Json.toJson(newAtom))
-          }
-        )
-
-      case None => NotFound(s"atom not found $atomId")
-    }
-  }
-
   def now() = new Date().getTime
 
   def revertAtom(atomId: String, version: Long) = APIAuthAction { implicit req =>
