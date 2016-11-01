@@ -3,7 +3,6 @@ package controllers
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth._
 import com.gu.pandahmac.HMACAuthActions
-import com.gu.pandomainauth.action.AuthActions
 import com.gu.pandomainauth.model.AuthenticatedUser
 import play.api.Configuration
 import scala.concurrent.Future

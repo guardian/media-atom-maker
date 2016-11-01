@@ -1,20 +1,13 @@
 package controllers
 
-import com.gu.contentatom.thrift.{ Atom, AtomData }
-import com.gu.pandahmac.HMACAuthActions
-import com.gu.pandomainauth.action.AuthActions
 import javax.inject._
-import play.api.Configuration
-import play.api.libs.json.Json
-import play.api.mvc._
-import model.ThriftUtil
-import ThriftUtil.ThriftResult
-import views.html.MediaAtom._
-import data._
+
 import com.gu.atom.data._
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import com.gu.pandahmac.HMACAuthActions
+import play.api.Configuration
 import play.api.libs.ws.WSClient
-import play.api.Logger
+import play.api.mvc._
+import views.html.MediaAtom._
 
 
 class MainApp @Inject() (previewDataStore: PreviewDataStore,
@@ -24,7 +17,7 @@ class MainApp @Inject() (previewDataStore: PreviewDataStore,
                          val authActions: HMACAuthActions)
     extends AtomController {
 
-  import authActions.{ AuthAction, processGoogleCallback }
+  import authActions.{AuthAction, processGoogleCallback}
 
   def healthcheck = Action {
     Ok("ok")

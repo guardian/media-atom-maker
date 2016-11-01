@@ -7,7 +7,6 @@ import com.gu.atom.data._
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.pandahmac.HMACAuthActions
-import com.gu.pandomainauth.action.AuthActions
 import data.JsonConversions._
 import model.ThriftUtil._
 import play.api.Configuration
