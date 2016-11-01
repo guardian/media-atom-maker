@@ -1,10 +1,8 @@
 import React from 'react';
 import {Link, IndexLink} from 'react-router';
+import VideoSearch from './VideoSearch/VideoSearch';
 
 export default class Header extends React.Component {
-  constructor(props) {
-    super(props);
-  }
 
   render () {
     return (
@@ -16,8 +14,9 @@ export default class Header extends React.Component {
             </Link>
           </div>
 
-          <div className="topbar__container">
+          <VideoSearch {...this.props}/>
 
+          <div className="topbar__container">
             <nav className="topbar__nav">
               <Link activeClassName="topbar__nav-link--active" className="topbar__nav-link" to="/video/videos/create">Create new video</Link>
             </nav>
