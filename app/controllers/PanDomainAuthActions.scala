@@ -46,5 +46,5 @@ class PanDomainAuthActions @Inject() (
   override lazy val domain: String = conf.getString("panda.domain").get
   override lazy val system: String = "media-atom-maker"
 
-  override def secret: String = "SECRET"
+  override def secret: String = conf.getString("secret").get
 }

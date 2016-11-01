@@ -25,13 +25,17 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
 
   import authActions.{APIAuthAction, APIHMACAuthAction}
 
+/*
   def createMediaAtom = APIHMACAuthAction { implicit req =>
     Ok
   }
-
   def updateMediaAtom(atomId: String) = APIHMACAuthAction { implicit req =>
     Ok
   }
+  def addMetadata(atomId: String) = APIHMACAuthAction { implicit req =>
+    Ok
+  }
+*/
 
   def addAsset(atomId: String) = APIHMACAuthAction { implicit req =>
     req.body.asJson.map { json =>
@@ -51,7 +55,5 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
     }
   }
 
-  def addMetadata(atomId: String) = APIHMACAuthAction { implicit req =>
-    Ok
-  }
+
 }
