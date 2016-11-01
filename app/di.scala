@@ -1,7 +1,6 @@
 import com.google.inject.AbstractModule
 import com.gu.atom.data._
 import com.gu.atom.publish._
-import com.gu.pandomainauth.action.AuthActions
 import data._
 import com.gu.pandahmac.HMACAuthActions
 
