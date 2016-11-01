@@ -35,10 +35,8 @@ case class AddAssetCommand(atomId: String,
           AssetVersionConflict
         }
 
-        val newAsset = ThriftUtil.parseAsset(videoUri, mimeType, resolvedVersion) match {
-          case Left(_) => AssetParseFailed
-          case Right(a) => a
-        }
+        val newAsset = ThriftUtil.parseAsset(videoUri, mimeType, resolvedVersion)
+          .fold(err => AssetParseFailed, identity)
 
         val newAtom = atom
           .withData(mediaAtom.copy(

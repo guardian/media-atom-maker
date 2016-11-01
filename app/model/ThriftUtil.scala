@@ -144,14 +144,6 @@ object ThriftUtil {
         asset <- parseAsset(uri, opt(mimeType), version.toLong).right
       } yield asset
     }
-
-  def metadataBodyParser(implicit ec: ExecutionContext): BodyParser[ThriftResult[Option[Metadata]]] =
-    BodyParsers.parse.urlFormEncoded map { urlParams =>
-      for {
-        meta <- getSingleRequiredParam(urlParams, "metadata").right
-        metadata <- parseMetadata(Seq(meta)).right
-      } yield metadata
-    }
 }
 
 object Url {
