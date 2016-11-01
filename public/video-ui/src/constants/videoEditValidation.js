@@ -9,6 +9,9 @@ const validate = (values) => {
   if (!values.posterUrl) {
     errors.posterUrl = 'Required'
   }
+  if (!values.duration) {
+    errors.duration = 'Required'
+  }
   return errors
 };
 

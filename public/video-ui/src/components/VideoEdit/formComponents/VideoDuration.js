@@ -1,10 +1,10 @@
 import React from 'react';
 
-export default class VideoTitleEdit extends React.Component {
+export default class VideoDurationEdit extends React.Component {
 
-  onUpdateTitle = (e) => {
+  onUpdateDuration= (e) => {
     let newData = Object.assign({}, this.props.video.data, {
-      title: e.target.value
+      duration: e.target.value
     });
 
     this.props.updateVideo(Object.assign({}, this.props.video, {
@@ -22,8 +22,8 @@ export default class VideoTitleEdit extends React.Component {
 
     return (
         <div className="form__row">
-          <label className="form__label">Title</label>
-          <input { ...this.props.input} className={"form__field " + (hasError ? "form__field--error" : "")} type="text" value={this.props.video.data.title || ""} onChange={this.onUpdateTitle} />
+          <label className="form__label">Duration (in seconds)</label>
+          <input { ...this.props.input} className={"form__field " + (hasError ? "form__field--error" : "")} type="number" value={this.props.video.data.duration || ""} onChange={this.onUpdateDuration} />
           {hasError ? <p className="form__message form__message--error">{this.props.meta.error}</p> : ""}
         </div>
     );

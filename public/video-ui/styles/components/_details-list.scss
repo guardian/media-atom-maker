@@ -6,11 +6,15 @@
     font-weight: bold;
     flex-basis: 40%;
     margin-bottom: 10px;
+    padding-right: 5px;
   }
 
   &__field {
     color: $cWhite;
     flex-basis: 60%;
+    overflow: hidden;
+    word-wrap: inherit;
+    text-overflow: ellipsis;
     margin: 0 0 10px;
     padding: 0;
   }

@@ -2,11 +2,6 @@ import React from 'react';
 
 export default class VideoPosterImageEdit extends React.Component {
 
-  constructor(props) {
-    super(props);
-  }
-
-
   onUpdatePosterImage = (e) => {
     let newData = Object.assign({}, this.props.video.data, {
       posterUrl: e.target.value
