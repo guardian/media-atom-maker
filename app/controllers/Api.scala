@@ -6,6 +6,7 @@ import javax.inject._
 import com.gu.atom.data._
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
+import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.action.AuthActions
 import data.JsonConversions._
 import model.ThriftUtil._
@@ -14,7 +15,6 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import util.atom.MediaAtomImplicits
 import util.AWSConfig
 import play.api.libs.json._
-import com.gu.pandahmac.HMACAuthActions
 
 import com.gu.atom.play._
 
@@ -31,7 +31,7 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
     with MediaAtomImplicits
     with AtomAPIActions {
 
-  import authActions.{ APIAuthAction, APIHMACAuthAction }
+  import authActions.APIAuthAction
 
   private def atomUrl(id: String) = s"/atom/$id"
 

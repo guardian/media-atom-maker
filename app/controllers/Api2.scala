@@ -19,11 +19,10 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
                      val conf: Configuration,
                      val awsConfig: AWSConfig,
                      val authActions: HMACAuthActions)
-  extends AtomController
-    with MediaAtomImplicits
+  extends MediaAtomImplicits
     with AtomAPIActions {
 
-  import authActions.{APIAuthAction, APIHMACAuthAction}
+  import authActions.APIHMACAuthAction
 
 /*
   def createMediaAtom = APIHMACAuthAction { implicit req =>

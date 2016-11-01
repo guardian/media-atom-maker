@@ -34,7 +34,7 @@ class ApiSpec
   def api(implicit atomConf: AtomTestConf) = atomConf.iget[Api]
 
   val youtubeId  =  "7H9Z4sn8csA"
-  val youtubeUrl = s"https://www.youtube.com/watch?v=${youtubeId}"
+  val youtubeUrl = s"https://www.youtube.com/watch?v=$youtubeId"
 
   "api" should {
 
