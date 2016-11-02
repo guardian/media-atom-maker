@@ -6,7 +6,7 @@ import javax.inject._
 import com.gu.atom.data._
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
-import com.gu.pandomainauth.action.AuthActions
+import com.gu.pandahmac.HMACAuthActions
 import data.JsonConversions._
 import model.ThriftUtil._
 import play.api.Configuration
@@ -25,7 +25,7 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
                      val previewPublisher: PreviewAtomPublisher,
                      val conf: Configuration,
                      val awsConfig: AWSConfig,
-                     val authActions: AuthActions)
+                     val authActions: HMACAuthActions)
     extends AtomController
     with MediaAtomImplicits
     with AtomAPIActions {
@@ -147,7 +147,7 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
     }
   }
 
-  def now() = (new Date()).getTime()
+  def now() = new Date().getTime
 
   def revertAtom(atomId: String, version: Long) = APIAuthAction { implicit req =>
     previewDataStore.getAtom(atomId) match {
