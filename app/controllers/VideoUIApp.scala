@@ -1,12 +1,11 @@
 package controllers
 
 import javax.inject._
-
-import com.gu.pandomainauth.action.AuthActions
+import com.gu.pandahmac.HMACAuthActions
 import model.ClientConfig
 import play.api.libs.json.Json
 
-class VideoUIApp @Inject() (val authActions: AuthActions)
+class VideoUIApp @Inject() (val authActions: HMACAuthActions)
   extends AtomController {
 
   import authActions.AuthAction

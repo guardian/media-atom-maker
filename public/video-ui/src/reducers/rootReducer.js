@@ -3,7 +3,8 @@ import config from './configReducer';
 import error from './errorReducer';
 import video from './videoReducer';
 import videos from './videosReducer';
-import { reducer as form } from 'redux-form'
+import searchTerm from './searchTermReducer';
+import { reducer as form } from 'redux-form';
 
 
 export default combineReducers({
@@ -11,5 +12,6 @@ export default combineReducers({
   error,
   video,
   videos,
+  searchTerm,
   form
 });
