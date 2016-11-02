@@ -3,8 +3,8 @@ package test
 import com.gu.atom.play.test.AtomSuite
 
 import java.util.Date
+import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.model.{ AuthenticatedUser, User }
-import com.gu.pandomainauth.action.AuthActions
 import play.api.test.FakeRequest
 
 import play.api.inject.{ bind, Binding }
@@ -12,11 +12,11 @@ import play.api.inject.{ bind, Binding }
 trait AuthTests extends AtomSuite {
 
   override def customOverrides: Seq[Binding[_]] =
-    super.customOverrides :+ (bind(classOf[AuthActions]).to(classOf[TestPandaAuth]))
+    super.customOverrides :+ (bind(classOf[HMACAuthActions]).to(classOf[TestPandaAuth]))
 
   val authExpiary = 3600000L
 
-  def getAuthActions(implicit conf: AtomTestConf): AuthActions = conf.iget[AuthActions]
+  def getAuthActions(implicit conf: AtomTestConf): HMACAuthActions = conf.iget[HMACAuthActions]
 
   def testUser: AuthenticatedUser = AuthenticatedUser(
     user = User("Homer", "Simpson", "homer.simpson@guardian.co.uk", None),

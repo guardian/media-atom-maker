@@ -34,7 +34,7 @@ class ApiSpec
   def api(implicit atomConf: AtomTestConf) = atomConf.iget[Api]
 
   val youtubeId  =  "7H9Z4sn8csA"
-  val youtubeUrl = s"https://www.youtube.com/watch?v=${youtubeId}"
+  val youtubeUrl = s"https://www.youtube.com/watch?v=$youtubeId"
 
   "api" should {
 
@@ -175,11 +175,11 @@ class ApiSpec
       conf.previewDataStore.getAtom("1").value.tdata.activeVersion mustEqual Some(1L)
     }
 
-    "complain if revert to version without asset" in
-    AtomTestConf() { implicit conf =>
+    "complain if revert to version without asset" in AtomTestConf() { implicit conf =>
       // before...
       val result = call(api.revertAtom("1", 10L), requestWithCookies)
       status(result) mustEqual INTERNAL_SERVER_ERROR
     }
+    
   }
 }
