@@ -1,8 +1,23 @@
 import React, {PropTypes} from 'react';
 import {Link} from 'react-router';
 import VideoAssetItem from './VideoAssetItem';
+import VideoAssetAdd from '../VideoAssetAdd/VideoAssetAdd';
 
-export default class VideoAssets extends React.Component {
+class VideoAssets extends React.Component {
+
+  componentDidMount() {
+    this.props.videoActions.populateEmptyAsset();
+  }
+
+  state = {
+    showAssetForm: false
+  };
+
+  showAssetForm = () => {
+    this.setState({
+      showAssetForm: true
+    });
+  };
 
   renderList() {
       if(this.props.video.data.assets) {
@@ -27,7 +42,30 @@ export default class VideoAssets extends React.Component {
     return (
         <div className="video__sidebar video-assets">
           {this.renderList()}
+
+          {(this.state.showAssetForm ? <VideoAssetAdd {...this.props} /> : "")}
+
+          {(!this.state.showAssetForm ? <button type="button" onClick={this.showAssetForm}>Add new asset</button> : "")}
         </div>
     )
   }
 }
+
+//REDUX CONNECTIONS
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as createAsset from '../../actions/VideoActions/createAsset';
+
+function mapStateToProps(state) {
+  return {
+    asset: state.asset
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    videoActions: bindActionCreators(Object.assign({}, createAsset), dispatch)
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(VideoAssets);
