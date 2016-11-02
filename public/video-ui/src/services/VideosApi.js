@@ -25,6 +25,14 @@ export default {
     })
   },
 
+  createAsset: (asset, videoId) => {
+    return pandaReqwest({
+      url: '/api/atom/' + videoId + '/asset',
+      method: 'post',
+      data: asset
+    })
+  },
+
   saveVideo: (videoId, video) => {
     return pandaReqwest({
       url: '/api/atom/' + videoId,
