@@ -6,12 +6,9 @@ import React from 'react';
 export default class VideoAssetUrl extends React.Component {
 
   onUpdateAssetUrl = (e) => {
-    let newAssetData = Object.assign({}, this.props.asset, {
-      title: e.target.value
-    });
-
     this.props.updateAsset(Object.assign({}, this.props.asset, {
-      url: e.target.value
+      uri: e.target.value,
+      version: this.props.video.data.activeVersion + 1
     }));
   };
 
@@ -26,7 +23,7 @@ export default class VideoAssetUrl extends React.Component {
     return (
         <div className="form__row">
           <label className="form__label">Asset Url</label>
-          <input { ...this.props.input} className={"form__field " + (hasError ? "form__field--error" : "")} type="text" value={this.props.asset.id || ""} onChange={this.onUpdateAssetUrl} />
+          <input { ...this.props.input} className={"form__field " + (hasError ? "form__field--error" : "")} type="text" value={this.props.asset.uri || ""} onChange={this.onUpdateAssetUrl} />
           {hasError ? <p className="form__message form__message--error">{this.props.meta.error}</p> : ""}
         </div>
     );

@@ -14,8 +14,8 @@ function requestAssetCreate() {
   };
 }
 
-function recieveAssetCreate(asset, videoId) {
-  browserHistory.push('/video/videos/' + video.id + '/asset');
+function recieveAssetCreate(video) {
+  browserHistory.push('/video/videos/' + video.id );
   return {
     type: 'ASSET_CREATE_RECEIVE',
     asset: asset,
@@ -33,10 +33,10 @@ function errorAssetCreate(error) {
   };
 }
 
-export function createAsset(asset) {
+export function createAsset(asset, videoId) {
   return dispatch => {
     dispatch(requestAssetCreate());
-    return VideosApi.createAsset(asset)
+    return VideosApi.createAsset(asset, videoId)
         .then(res => dispatch(recieveAssetCreate(res)))
         .fail(error => dispatch(errorAssetCreate(error)));
   };

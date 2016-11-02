@@ -2,6 +2,7 @@ import React, {PropTypes} from 'react';
 import {Link} from 'react-router';
 import VideoAssetItem from './VideoAssetItem';
 import VideoAssetAdd from '../VideoAssetAdd/VideoAssetAdd';
+import SaveButton from '../utils/SaveButton';
 
 class VideoAssets extends React.Component {
 
@@ -17,6 +18,20 @@ class VideoAssets extends React.Component {
     this.setState({
       showAssetForm: true
     });
+  };
+
+  hideAssetForm = () => {
+    this.setState({
+      showAssetForm: false
+    });
+  };
+
+  createAsset = () => {
+    this.props.videoActions.createAsset(this.props.asset, this.props.video.id);
+  };
+
+  updateAsset = (asset) => {
+    this.props.videoActions.updateAsset(asset);
   };
 
   renderList() {
@@ -37,15 +52,29 @@ class VideoAssets extends React.Component {
     );
   }
 
+  renderAssetEdit() {
+    if (this.state.showAssetForm) {
+      return (
+        <form className="form">
+          <VideoAssetAdd updateAsset={this.updateAsset} {...this.props} />
+          <SaveButton onSaveClick={this.createAsset}/>
+          <button className="btn" type="button" onClick={this.hideAssetForm}>Cancel</button>
+        </form>
+      )
+    } else {
+      return (
+        <button className="btn" type="button" onClick={this.showAssetForm}>Add new asset</button>
+      )
+    }
+  }
+
 
   render() {
     return (
         <div className="video__sidebar video-assets">
+          {this.renderAssetEdit()}
           {this.renderList()}
 
-          {(this.state.showAssetForm ? <VideoAssetAdd {...this.props} /> : "")}
-
-          {(!this.state.showAssetForm ? <button type="button" onClick={this.showAssetForm}>Add new asset</button> : "")}
         </div>
     )
   }
@@ -55,6 +84,7 @@ class VideoAssets extends React.Component {
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as createAsset from '../../actions/VideoActions/createAsset';
+import * as updateAsset from '../../actions/VideoActions/updateAsset';
 
 function mapStateToProps(state) {
   return {
@@ -64,7 +94,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, createAsset), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, createAsset, updateAsset), dispatch)
   };
 }
 
