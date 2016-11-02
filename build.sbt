@@ -17,6 +17,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.scala-logging" %% "scala-logging"                % "3.4.0",
   "org.typelevel"              %% "cats-core"                    % "0.7.0", // for interacting with scanamo
   "com.fasterxml.jackson.core" %  "jackson-databind"             % "2.7.0",
+  "org.cvogt"                  %% "play-json-extensions"         % "0.6.0",
   "com.gu"                     %% "pan-domain-auth-play_2-5"     % pandaVer,
   ws, // for panda
   "com.gu"                     %% "pan-domain-auth-verification" % pandaVer,

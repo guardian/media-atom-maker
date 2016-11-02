@@ -1,5 +1,6 @@
 import React, {PropTypes} from 'react';
 import {Link} from 'react-router';
+import {getStore} from '../../util/storeAccessor';
 
 export default class VideoPreview extends React.Component {
 
@@ -11,10 +12,15 @@ export default class VideoPreview extends React.Component {
     }
   };
 
+  youtubeEmbedUrl = () => {
+    const store = getStore();
+    return store.getState().config.youtubeEmbedUrl;
+  };
+
   render() {
     return (
         <div className="video-preview">
-          <iframe className="asset-list__video" src={"https://www.youtube.com/embed/" + this.getActiveAssetId()}></iframe>
+          <iframe className="asset-list__video" src={this.youtubeEmbedUrl() + this.getActiveAssetId()}></iframe>
         </div>
     )
   }

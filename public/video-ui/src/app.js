@@ -3,6 +3,7 @@ import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 
 import configureStore from './util/configureStore';
+import {setStore} from './util/storeAccessor';
 import {routes} from './routes';
 
 import '../styles/main.scss';
@@ -21,6 +22,7 @@ function extractConfigFromPage() {
 const store = configureStore();
 const config = extractConfigFromPage();
 
+setStore(store);
 
 store.dispatch({
   type:       'CONFIG_RECEIVED',

@@ -2,6 +2,8 @@ package controllers
 
 import javax.inject._
 import com.gu.pandahmac.HMACAuthActions
+import model.ClientConfig
+import play.api.libs.json.Json
 
 class VideoUIApp @Inject() (val authActions: HMACAuthActions)
   extends AtomController {
@@ -16,7 +18,13 @@ class VideoUIApp @Inject() (val authActions: HMACAuthActions)
       case None => routes.Assets.versioned(jsFileName).toString
     }
 
-    Ok(views.html.VideoUIApp.app("Media Atom Maker", jsLocation))
+    val clientConfig = ClientConfig(
+      username = req.user.email,
+      youtubeEmbedUrl = "https://www.youtube.com/embed/",
+      reauthUrl = "/reauth"
+    )
+
+    Ok(views.html.VideoUIApp.app("Media Atom Maker", jsLocation, Json.toJson(clientConfig).toString()))
   }
 
   def reauth = AuthAction {
