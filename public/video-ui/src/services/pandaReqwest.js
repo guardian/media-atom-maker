@@ -1,6 +1,7 @@
 import Reqwest from 'reqwest';
 import Q from 'q';
 import {reEstablishSession} from 'babel?presets[]=es2015!panda-session';
+import {getStore} from '../util/storeAccessor';
 
 export function pandaReqwest(reqwestBody) {
   return Q.Promise(function(resolve, reject) {
@@ -10,7 +11,8 @@ export function pandaReqwest(reqwestBody) {
         })
         .fail(err => {
           if (err.status == 419) {
-            const reauthUrl = '/reauth';
+            const store = getStore();
+            var reauthUrl = store.getState().config.reauthUrl;
 
             reEstablishSession(reauthUrl, 5000).then(
                 res => {
