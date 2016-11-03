@@ -1,12 +1,6 @@
 import { browserHistory } from 'react-router';
 import VideosApi from '../../services/VideosApi';
-
-const BLANK_VIDEO = {
-  data: {
-    title: '',
-    category: ''
-  }
-};
+import {blankVideoData} from '../../constants/blankVideoData';
 
 function requestVideoCreate() {
   return {
@@ -46,7 +40,7 @@ export function createVideo(video) {
 export function populateEmptyVideo() {
   return {
     type:        'VIDEO_POPULATE_BLANK',
-    video:       Object.assign({}, BLANK_VIDEO, {
+    video:       Object.assign({}, blankVideoData, {
       type: 'media'
     }),
     receivedAt:  Date.now()
