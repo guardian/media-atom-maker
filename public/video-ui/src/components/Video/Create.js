@@ -1,6 +1,7 @@
 import React from 'react';
 import VideoEdit from '../VideoEdit/VideoEdit';
 import SaveButton from '../utils/SaveButton';
+import {blankVideoData} from '../../constants/blankVideoData';
 
 class VideoCreate extends React.Component {
 
@@ -24,7 +25,7 @@ class VideoCreate extends React.Component {
     return (
       <div className="container">
         <form className="form">
-          <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo} />
+          <VideoEdit video={this.props.video || blankVideoData} updateVideo={this.updateVideo} />
           <SaveButton onSaveClick={this.createVideo} />
         </form>
       </div>
