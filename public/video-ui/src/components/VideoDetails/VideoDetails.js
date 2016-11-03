@@ -36,6 +36,7 @@ export default class VideoDetails extends React.Component {
               </dd>
             </dl>
             {this.props.enableEditing ? <button className="btn" type="button" onClick={this.props.enableEditing}>Edit</button> : ''}
+            <button className="btn" onClick={this.props.onPublishVideo}>Publish video</button>
           </div>
         </div>
     )
