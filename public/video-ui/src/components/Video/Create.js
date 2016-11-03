@@ -21,10 +21,17 @@ class VideoCreate extends React.Component {
   };
 
   render () {
+    const defaultVideoData = {
+      data: {
+        title: '',
+        category: ''
+      }
+    }
+
     return (
       <div className="container">
         <form className="form">
-          <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo} />
+          <VideoEdit video={this.props.video || defaultVideoData} updateVideo={this.updateVideo} />
           <SaveButton onSaveClick={this.createVideo} />
         </form>
       </div>
