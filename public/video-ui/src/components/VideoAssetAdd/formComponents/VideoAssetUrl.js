@@ -6,9 +6,11 @@ import React from 'react';
 export default class VideoAssetUrl extends React.Component {
 
   onUpdateAssetUrl = (e) => {
+    const newVersion = this.props.video.data.activeVersion ? this.props.video.data.activeVersion + 1 : 0;
+
     this.props.updateAsset(Object.assign({}, this.props.asset, {
       uri: e.target.value,
-      version: this.props.video.data.activeVersion + 1
+      version: newVersion
     }));
   };
 
