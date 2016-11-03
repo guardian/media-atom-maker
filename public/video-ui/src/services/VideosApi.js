@@ -40,6 +40,13 @@ export default {
     })
   },
 
+  revertAsset: (version, videoId) => {
+    return pandaReqwest({
+      url: '/api/atom/' + videoId + '/revert/' + version,
+      method: 'post'
+    })
+  },
+
   saveVideo: (videoId, video) => {
     return pandaReqwest({
       url: '/api/atom/' + videoId,
