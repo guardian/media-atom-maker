@@ -17,6 +17,7 @@ class VideoDisplay extends React.Component {
 
   saveVideo = () => {
     this.props.videoActions.saveVideo(this.props.video);
+    this.disableEditing();
   };
 
   updateVideo = (video) => {
@@ -29,13 +30,19 @@ class VideoDisplay extends React.Component {
     });
   };
 
+  disableEditing = () => {
+    this.setState({
+      editable: false
+    });
+  };
+
   renderDetails = () => {
     if(this.state.editable) {
       return (
         <div className="video__sidebar video-details">
           <form className="form video__sidebar__group">
             <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo}/>
-            <SaveButton onSaveClick={this.saveVideo}/>
+            <SaveButton saveState={this.props.saveState} onSaveClick={this.saveVideo}/>
           </form>
         </div>
       )
@@ -72,7 +79,8 @@ import * as updateVideo from '../../actions/VideoActions/updateVideo';
 
 function mapStateToProps(state) {
   return {
-    video: state.video
+    video: state.video,
+    saveState: state.saveState
   };
 }
 
