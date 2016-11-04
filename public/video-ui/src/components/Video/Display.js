@@ -24,6 +24,10 @@ class VideoDisplay extends React.Component {
     this.props.videoActions.updateVideo(video);
   };
 
+  publishVideo = () => {
+    this.props.videoActions.publishVideo(this.props.video.id);
+  };
+
   enableEditing = () => {
     this.setState({
       editable: true
@@ -47,7 +51,9 @@ class VideoDisplay extends React.Component {
         </div>
       )
     } else {
-      return <VideoDetails video={this.props.video || {}} enableEditing={this.enableEditing} />
+      return (
+          <VideoDetails video={this.props.video || {}} enableEditing={this.enableEditing} onPublishVideo={this.publishVideo}/>
+      )
     }
   }
 
@@ -76,6 +82,7 @@ import { bindActionCreators } from 'redux';
 import * as getVideo from '../../actions/VideoActions/getVideo';
 import * as saveVideo from '../../actions/VideoActions/saveVideo';
 import * as updateVideo from '../../actions/VideoActions/updateVideo';
+import * as publishVideo from '../../actions/VideoActions/publishVideo';
 
 function mapStateToProps(state) {
   return {
@@ -86,7 +93,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, publishVideo), dispatch)
   };
 }
 
