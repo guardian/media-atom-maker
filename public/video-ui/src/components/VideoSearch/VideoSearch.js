@@ -8,10 +8,8 @@ export default class VideoSearch extends React.Component {
 
   render () {
     return (
-      <form className="form">
-        <div className="form__row">
-          <input className="form__field" type="text" value={this.props.searchTerm || ''} onChange={this.onSearch} placeholder={"Search for videos..."} />
-        </div>
+      <form className="form topbar__search">
+        <input className="form__field" type="search" value={this.props.searchTerm || ''} onChange={this.onSearch} placeholder={"Search for videos..."} />
       </form>
     )
   }

@@ -12,9 +12,9 @@ export default class Header extends React.Component {
             <Link to="/video/videos" className="topbar__home-link" title="Home">
               Home
             </Link>
-          </div>
 
-          <VideoSearch {...this.props}/>
+            <VideoSearch {...this.props}/>
+          </div>
 
           <div className="topbar__container">
             <nav className="topbar__nav">
