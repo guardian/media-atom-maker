@@ -18,7 +18,7 @@ function receiveAssetCreate(video) {
   browserHistory.push('/video/videos/' + video.id );
   return {
     type: 'ASSET_CREATE_RECEIVE',
-    asset: asset,
+    video: video,
     receivedAt: Date.now()
   };
 
