@@ -24,6 +24,10 @@ class VideoDisplay extends React.Component {
     this.props.videoActions.updateVideo(video);
   };
 
+  resetVideo = () => {
+    this.props.videoActions.getVideo(this.props.video.id);
+  };
+
   publishVideo = () => {
     this.props.videoActions.publishVideo(this.props.video.id);
   };
@@ -46,7 +50,7 @@ class VideoDisplay extends React.Component {
         <div className="video__sidebar video-details">
           <form className="form video__sidebar__group">
             <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo}/>
-            <SaveButton saveState={this.props.saveState} onSaveClick={this.saveVideo}/>
+            <SaveButton saveState={this.props.saveState} onSaveClick={this.saveVideo} onResetClick={this.resetVideo} />
           </form>
         </div>
       )
