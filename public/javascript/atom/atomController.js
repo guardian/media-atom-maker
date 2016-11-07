@@ -26,7 +26,7 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
 
     $scope.saveAtom = function() {
         $scope.savingAtom = true;
-        return $http.post('/api/atom/'+$routeParams.id,
+        return $http.put('/api/atom/'+$routeParams.id,
             $httpParamSerializer($scope.atom), {
             headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
         })
@@ -44,7 +44,7 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
 
     $scope.publish = function() {
         $scope.publishing = true;
-        return $http.post('/api/atom/'+$routeParams.id+'/publish')
+        return $http.put('/api/atom/'+$routeParams.id+'/publish')
         .success(function() {
             $scope.publishedAtom = JSON.parse(JSON.stringify($scope.atom));
             $scope.publishing = false;
@@ -63,7 +63,7 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
             $scope.newAsset.mimetype = "";
         }
         $scope.addingAsset = true;
-        return $http.post('/api/atom/' + $routeParams.id + '/asset',
+        return $http.put('/api/atom/' + $routeParams.id + '/asset',
                 $httpParamSerializer($scope.newAsset), {
                     headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
         })
@@ -83,7 +83,7 @@ mediaAtomApp.controller('AtomCtrl', ['$scope', '$http', '$routeParams', '$httpPa
     };
 
     $scope.revertVersion = function(version) {
-        return $http.post('/api/atom/' + $routeParams.id + "/revert/" + version, {
+        return $http.put('/api/atom/' + $routeParams.id + "/revert/" + version, {
             headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
         })
         .success(function(response) {

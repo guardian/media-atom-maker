@@ -28,7 +28,7 @@ export default {
   saveVideo: (videoId, video) => {
     return pandaReqwest({
       url: '/api/atom/' + videoId,
-      method: 'post',
+      method: 'put',
       data: video.data
     })
   }
