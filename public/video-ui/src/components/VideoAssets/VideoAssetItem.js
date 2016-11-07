@@ -9,12 +9,29 @@ export default class VideoAssetItem extends React.Component {
     return store.getState().config.youtubeEmbedUrl;
   };
 
+  revertAsset = () => {
+    this.props.revertAsset(this.props.asset.version);
+  };
+
+  renderAssetVersionButton = () => {
+    if(this.props.activeAsset !== this.props.asset.version) {
+      return (
+        <button type="button" className="btn" onClick={this.revertAsset}>
+          Set as current asset
+        </button>
+      )
+    } else {
+      return false;
+    }
+  };
+
   render() {
 
     return(
         <li className={"asset-list__item " + (this.props.activeAsset === this.props.asset.version ? "asset-list__item--active" : "")}>
           <iframe className="asset-list__video" src={this.youtubeEmbedUrl() + this.props.asset.id}></iframe>
           <p>Platform: {this.props.asset.platform}</p>
+          {this.renderAssetVersionButton()}
         </li>
     )
   }
