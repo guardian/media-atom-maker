@@ -11,6 +11,8 @@ import play.api.Configuration
 import util.AWSConfig
 import util.atom.MediaAtomImplicits
 import model.commands.CommandExceptions._
+import play.api.libs.json._
+import data.JsonConversions._
 
 class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
                      val publishedDataStore: PublishedDataStore,
@@ -20,21 +22,17 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
                      val awsConfig: AWSConfig,
                      val authActions: HMACAuthActions)
   extends MediaAtomImplicits
-    with AtomAPIActions {
+    with AtomAPIActions
+    with AtomController {
 
   import authActions.APIHMACAuthAction
 
-/*
-  def createMediaAtom = APIHMACAuthAction { implicit req =>
-    Ok
+  def getAtom(id: String) = APIHMACAuthAction {
+    previewDataStore.getAtom(id) match {
+      case Some(atom) => Ok(Json.toJson(atom))
+      case None => NotFound(jsonError(s"no atom with id $id found"))
+    }
   }
-  def updateMediaAtom(atomId: String) = APIHMACAuthAction { implicit req =>
-    Ok
-  }
-  def addMetadata(atomId: String) = APIHMACAuthAction { implicit req =>
-    Ok
-  }
-*/
 
   def addAsset(atomId: String) = APIHMACAuthAction { implicit req =>
     req.body.asJson.map { json =>
