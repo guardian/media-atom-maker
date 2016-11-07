@@ -1,7 +1,7 @@
 export default function asset(state = null, action) {
   switch (action.type) {
 
-    case 'ASSET_CREATE_RECIEVE':
+    case 'ASSET_CREATE_RECEIVE':
       return action.asset || false;
 
     case 'ASSET_UPDATE_REQUEST':

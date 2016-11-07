@@ -1,10 +1,10 @@
 export default function video(state = null, action) {
   switch (action.type) {
 
-    case 'VIDEO_GET_RECIEVE':
+    case 'VIDEO_GET_RECEIVE':
       return action.video || false;
 
-    case 'VIDEO_CREATE_RECIEVE':
+    case 'VIDEO_CREATE_RECEIVE':
       return action.video || false;
 
     case 'VIDEO_UPDATE_REQUEST':

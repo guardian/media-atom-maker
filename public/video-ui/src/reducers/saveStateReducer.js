@@ -6,6 +6,9 @@ export default function saveState(state = '', action) {
     case 'SHOW_ERROR':
       return saveStateVals.error;
 
+    case 'VIDEO_GET_REQUEST':
+      return saveStateVals.inprogress;
+
     case 'VIDEO_CREATE_REQUEST':
       return saveStateVals.inprogress;
 
@@ -17,6 +20,9 @@ export default function saveState(state = '', action) {
 
     case 'VIDEO_SAVE_REQUEST':
       return saveStateVals.inprogress;
+
+    case 'VIDEO_GET_RECEIVE':
+      return '';
 
     case 'VIDEO_PUBLISH_RECEIVE':
       return '';

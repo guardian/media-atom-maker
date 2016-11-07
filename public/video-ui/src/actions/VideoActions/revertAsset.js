@@ -8,7 +8,7 @@ function requestRevertAsset() {
   };
 }
 
-function recieveRevertAsset(video) {
+function receiveRevertAsset(video) {
   browserHistory.push('/video/videos/' + video.id);
   return {
     type: 'ASSET_REVERT_RECEIVE',
@@ -31,7 +31,7 @@ export function revertAsset(version, videoId) {
   return dispatch => {
     dispatch(requestRevertAsset());
     return VideosApi.revertAsset(version, videoId)
-        .then(res => dispatch(recieveRevertAsset(res)))
+        .then(res => dispatch(receiveRevertAsset(res)))
         .fail(error => dispatch(errorRevertAsset(error)));
   };
 }
