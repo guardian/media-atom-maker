@@ -5,6 +5,7 @@ import VideoPosterImageEdit from './formComponents/VideoPosterImage';
 import VideoDurationEdit from './formComponents/VideoDuration';
 import VideoDescriptionEdit from './formComponents/VideoDescription';
 import validate from '../../constants/videoEditValidation';
+import warn from '../../constants/videoEditWarnings';
 import { Field, reduxForm } from 'redux-form';
 
 const VideoEdit = (props) => {
@@ -21,5 +22,6 @@ const VideoEdit = (props) => {
 
 export default reduxForm({
   form: 'VideoEdit',
-  validate
+  validate,
+  warn
 })(VideoEdit)

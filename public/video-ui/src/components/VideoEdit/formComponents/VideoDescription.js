@@ -13,12 +13,14 @@ export default class VideoDescriptionEdit extends React.Component {
   };
 
   render () {
+    console.log(this.props.meta);
     if (!this.props.video) {
       console.log('VideoEdit loaded without video provided');
       return false;
     }
 
     const hasError = this.props.meta.touched && this.props.meta.error;
+    const hasWarning = this.props.meta.touched && this.props.meta.warning;
 
     return (
         <div className="form__row">
@@ -27,6 +29,7 @@ export default class VideoDescriptionEdit extends React.Component {
             {this.props.video.data.description}
           </textarea>
           {hasError ? <p className="form__message form__message--error">{this.props.meta.error}</p> : ""}
+          {hasWarning ? <p className="form__message form__message--error">{this.props.meta.warning}</p> : ""}
         </div>
     );
   }
