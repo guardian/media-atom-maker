@@ -1,6 +1,7 @@
 export const blankVideoData = {
   data: {
     title: '',
-    category: ''
+    category: '',
+    description: ''
   }
 };

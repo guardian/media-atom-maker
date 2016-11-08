@@ -16,6 +16,9 @@ export default class VideoDetails extends React.Component {
               <dt className="details-list__title">Title</dt>
               <dd className="details-list__field">{this.props.video.data.title}</dd>
 
+              <dt className="details-list__title">Description</dt>
+              <dd className="details-list__field">{this.props.video.data.description}</dd>
+
               <dt className="details-list__title">Category</dt>
               <dd className="details-list__field">{this.props.video.data.category}</dd>
 
