@@ -13,7 +13,6 @@ export default class VideoDescriptionEdit extends React.Component {
   };
 
   render () {
-    console.log(this.props.meta);
     if (!this.props.video) {
       console.log('VideoEdit loaded without video provided');
       return false;
