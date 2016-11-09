@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-if [ $# -ne 4 ]
+if [ $# -ne 7 ]
 then
-  echo "usage: $0 <STACK_NAME> <AWS_PROFILE> <PANDA_AWS_PROFILE> <DOMAIN>"
+  echo "usage: $0 <STACK_NAME> <AWS_PROFILE> <PANDA_AWS_PROFILE> <DOMAIN> <YOUTUBE_CLIENT_ID> <YOUTUBE_CLIENT_SECRET> <YOUTUBE_REFRESH_TOKEN>"
   exit 1
 fi
 
@@ -10,6 +10,9 @@ STACK_NAME=$1
 AWS_PROFILE=$2
 PANDA_AWS_PROFILE=$3
 DOMAIN=$4
+YOUTUBE_CLIENT_ID=$5
+YOUTUBE_CLIENT_SECRET=$6
+YOUTUBE_REFRESH_TOKEN=$7
 
 function get_resource() {
     aws cloudformation describe-stack-resources \
@@ -36,4 +39,7 @@ sed -e "s/{DOMAIN}/${DOMAIN}/g" \
     -e "s/{PUBLISHED_REINDEX_STREAM_NAME}/${PUBLISHED_REINDEX_STREAM_NAME}/g" \
     -e "s/{DYNAMO_TABLE}/${DYNAMO_TABLE}/g" \
     -e "s/{DYNAMO_PUBLISHED_TABLE}/${DYNAMO_PUBLISHED_TABLE}/g" \
+    -e "s/{YT_CLIENT_ID}/${YOUTUBE_CLIENT_ID}/g" \
+    -e "s/{YT_CLIENT_SECRET}/${YOUTUBE_CLIENT_SECRET}/g" \
+    -e "s/{YT_REFRESH_TOKEN}/${YOUTUBE_REFRESH_TOKEN}/g" \
     ../conf/reference.conf > ../conf/application.conf
