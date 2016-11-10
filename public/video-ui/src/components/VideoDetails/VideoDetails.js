@@ -33,7 +33,7 @@ export default class VideoDetails extends React.Component {
                 <a href={'https://preview.content.code.dev-guardianapis.com/atom/media/' + this.props.video.id + '?api-key=test'}>
                   /atom/media/{this.props.video.id}
                 </a>
-              </dd>
+              </dd>              
             </dl>
             {this.props.enableEditing ? <button className="btn" type="button" onClick={this.props.enableEditing}>Edit</button> : ''}
             <button className="btn" onClick={this.props.onPublishVideo}>Publish video</button>
