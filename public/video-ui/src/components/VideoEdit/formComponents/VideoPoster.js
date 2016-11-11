@@ -1,20 +1,36 @@
 import React from 'react';
 import GridImageSelect from '../../utils/GridImageSelect';
+import {parseImageFromGridCrop} from '../../../util/parseGridMetadata';
+import {findSmallestAsset} from '../../../util/imageHelpers';
 
 export default class VideoPosterImageEdit extends React.Component {
 
-  onUpdatePosterImage = (e) => {
-    
-    console.log(e);
+  onUpdatePosterImage = (cropData) => {
 
-    // let newData = Object.assign({}, this.props.video.data, {
-    //   posterUrl: e.target.value
-    // });
+    const image = parseImageFromGridCrop(cropData);
 
-    // this.props.updateVideo(Object.assign({}, this.props.video, {
-    //   data: newData
-    // }));
+    let newData = Object.assign({}, this.props.video.data, {
+      posterImage: image
+    });
+
+    this.props.updateVideo(Object.assign({}, this.props.video, {
+      data: newData
+    }));
   };
+
+  renderImage() {
+    if (!this.props.video.data.posterImage) {
+      return false;
+    }
+
+    const image = findSmallestAsset(this.props.video.data.posterImage.assets)
+
+    return (
+      <div className="form__image" >
+        <img src={image.url}/>
+      </div>
+    );
+  }
 
   render () {
     const hasError = this.props.meta.touched && this.props.meta.error;
@@ -22,10 +38,9 @@ export default class VideoPosterImageEdit extends React.Component {
     return (
         <div className="form__row">
           <label className="form__label">Poster image</label>
+          {this.renderImage()}
           <GridImageSelect onEmbed={this.onUpdatePosterImage}/>
         </div>
     );
   }
 }
-
-

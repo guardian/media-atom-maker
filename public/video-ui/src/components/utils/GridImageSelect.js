@@ -32,9 +32,6 @@ export default class GridEmbedder extends React.Component {
     }
 
     onMessage = (event) => {
-
-        console.log("message receiveD")
-
         if (event.origin !== GRID_URL) {
             console.log("didn't come from the grid");
             return;
@@ -52,11 +49,8 @@ export default class GridEmbedder extends React.Component {
             return;
         }
 
-        // const image = fetchImageData(data.image, data.crop.data);
-        console.log(data.image, data.crop.data)
         this.closeModal();
-
-        this.props.onEmbed(image);
+        this.props.onEmbed(data.crop.data);
     }
 
 
