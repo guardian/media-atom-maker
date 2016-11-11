@@ -33,8 +33,6 @@ export default class VideoPosterImageEdit extends React.Component {
   }
 
   render () {
-    const hasError = this.props.meta.touched && this.props.meta.error;
-
     return (
         <div className="form__row">
           <label className="form__label">Poster image</label>
