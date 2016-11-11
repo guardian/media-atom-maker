@@ -29,7 +29,9 @@ libraryDependencies ++= Seq(
   "com.gu"                     %% "panda-hmac"                   % "1.1.0",
   "org.scalatestplus.play"     %% "scalatestplus-play"           % "1.5.0"   % "test",
   "org.mockito"                %  "mockito-core"                 % mockitoVersion % "test",
-  "org.scala-lang.modules"     %% "scala-xml"                    % "1.0.5"   % "test"
+  "org.scala-lang.modules"     %% "scala-xml"                    % "1.0.5"   % "test",
+  "com.google.api-client"      %  "google-api-client"            % "1.22.0",
+  "com.google.apis"            % "google-api-services-youtube"   % "v3-rev178-1.22.0"
 ) ++ scanamoDeps
 
 lazy val appDistSettings = Seq(
