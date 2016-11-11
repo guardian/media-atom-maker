@@ -14,7 +14,8 @@ PUT     /api/atom/:id/revert/:version   controllers.Api.revertAtom(id, version: 
 PUT     /api/atom/:id/publish           controllers.Api.publishAtom(id)
 
 GET     /api2/atom/:id                  controllers.Api2.getAtom(id)
-PUT     /api2/atom/:id/asset            controllers.Api2.addAsset(id)
+PUT     /api2/atom/:id                  controllers.Api2.putAtom(id)
+POST    /api2/atom/:id/asset            controllers.Api2.addAsset(id)
 
 # reindex
 

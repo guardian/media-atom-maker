@@ -2,79 +2,28 @@ package data
 
 import com.gu.contentatom.thrift._
 import com.gu.contentatom.thrift.atom.media._
+import org.cvogt.play.json.Jsonx
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
 object JsonConversions {
 
   implicit val atomType = Writes[AtomType](at => JsString(at.name.toLowerCase))
+  implicit val atomTypeRead = Reads[AtomType](json => JsSuccess(AtomType.valueOf(json.as[String]).get))
 
   implicit val category = Writes[Category](category => JsString(category.name.toLowerCase))
+  implicit val categoryRead = Reads[Category](json => JsSuccess(Category.valueOf(json.as[String]).get))
 
-  implicit val mediaAsset = (
-    (__ \ "id").write[String] and
-    (__ \ "version").write[Long] and
-    (__ \ "platform").write[String] and
-    (__ \ "assetType").write[String] and
-    (__ \ "mimeType").writeNullable[String]
-  ) { asset: Asset =>
-    asset match {
-      case Asset(assetType, version, id, platform, mimeType) => (id, version, platform.name, assetType.name, mimeType)
-    }
-  }
-
-  implicit val mediaMetadata = (
-    (__ \ "tags").writeNullable[Seq[String]] and
-    (__ \ "categoryId").writeNullable[String] and
-    (__ \ "license").writeNullable[String] and
-    (__ \ "commentsEnabled").writeNullable[Boolean] and
-    (__ \ "channelId").writeNullable[String]
-  ) { metadata: Metadata =>
-      (
-        metadata.tags,
-        metadata.categoryId,
-        metadata.license,
-        metadata.commentsEnabled,
-        metadata.channelId
-        )
-  }
-
-  implicit val mediaMetadataRead: Reads[Metadata] = (
-    (__ \ "tags").readNullable[Seq[String]] and
-    (__ \ "categoryId").readNullable[String] and
-    (__ \ "license").readNullable[String] and
-    (__ \ "commentsEnabled").readNullable[Boolean] and
-    (__ \ "channelId").readNullable[String]
-  )(Metadata.apply _)
-
-  implicit val atomDataMedia = (
-    (__ \ "assets").write[Seq[Asset]] and
-    (__ \ "activeVersion").writeNullable[Long] and
-    (__ \ "title").write[String] and
-    (__ \ "category").write[Category] and
-    (__ \ "plutoProjectId").writeNullable[String] and
-    (__ \ "duration").writeNullable[Long] and
-    (__ \ "posterUrl").writeNullable[String] and
-    (__ \ "description").writeNullable[String] and
-    (__ \ "metadata").writeNullable[Metadata]
-    ) { mediaAtom: MediaAtom =>
-    (
-      mediaAtom.assets,
-      mediaAtom.activeVersion,
-      mediaAtom.title,
-      mediaAtom.category,
-      mediaAtom.plutoProjectId,
-      mediaAtom.duration,
-      mediaAtom.posterUrl,
-      mediaAtom.description,
-      mediaAtom.metadata
-      )
-  }
+  implicit val mediaAssetFormat = Jsonx.formatSealed[Asset]
+  implicit val mediaMetadataFormat = Jsonx.formatSealed[Metadata]
+  implicit val mediaDataFormat = Jsonx.formatSealed[AtomData.Media]
 
   implicit val atomData = Writes[AtomData] {
     case AtomData.Media(mediaAtom) => Json.toJson(mediaAtom)
     case _ => JsString("unknown")
   }
+
+
 
   implicit val userWrites = (
     (__ \ "email").write[String] and
@@ -102,6 +51,15 @@ object JsonConversions {
   }
 
   implicit val flagsWrites = Writes[Flags] { flags: Flags => Json.toJson(flags.suppressFurniture) }
+
+  implicit val atomRead: Reads[Atom] = (
+    (__ \ "id").readNullable[String] and
+    (__ \ "type").readNullable[AtomType] and
+    (__ \ "labels").readNullable[Seq[String]] and
+    (__ \ "defaultHtml").readNullable[String] and
+    (__ \ "data").readNullable[AtomData] and
+    (__ \ "contentChangeDetails").readNullable[ContentChangeDetails]
+    )(Atom)
 
   implicit val atomWrites: Writes[Atom] = (
     (__ \ "id").write[String] and
