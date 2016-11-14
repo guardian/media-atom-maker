@@ -9,7 +9,7 @@ export default class VideoPosterImageEdit extends React.Component {
 
     const image = parseImageFromGridCrop(cropData);
 
-    let newData = Object.assign({}, this.props.video.data, {
+    const newData = Object.assign({}, this.props.video.data, {
       posterImage: image
     });
 
