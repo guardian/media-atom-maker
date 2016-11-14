@@ -27,3 +27,38 @@ button {
     background: $color500Grey;
   }
 }
+
+.flag-btn {
+  @extend .btn;
+  width: 60px;
+  margin-right: 10px;
+}
+
+.on-btn {
+  @extend .flag-btn;
+  background: $cGreen1c;
+  &:hover:not(:disabled) {
+    background: $cGreen33;
+  }
+}
+
+.switch {
+    border-radius: 4px;
+    content: "";
+    background: white;
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-top: -3px;
+}
+
+.off-switch:before {
+  @extend .switch;
+  margin-right: 7px;
+}
+
+.on-switch:after {
+  @extend .switch;
+  margin-left: 7px;
+}

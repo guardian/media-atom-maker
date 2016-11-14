@@ -19,6 +19,10 @@ class VideoDisplay extends React.Component {
     this.props.videoActions.saveVideo(this.props.video);
   };
 
+  updateVideoFlags = (video) => {
+    this.props.videoActions.saveVideo(video);
+  };
+
   updateVideo = (video) => {
     this.props.videoActions.updateVideo(video);
   };
@@ -45,7 +49,7 @@ class VideoDisplay extends React.Component {
       )
     } else {
       return (
-          <VideoDetails video={this.props.video || {}} enableEditing={this.enableEditing} onPublishVideo={this.publishVideo}/>
+          <VideoDetails video={this.props.video || {}} enableEditing={this.enableEditing} onPublishVideo={this.publishVideo} updateVideoFlags={this.updateVideoFlags}/>
       )
     }
   }
@@ -90,4 +94,3 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(VideoDisplay);
-
