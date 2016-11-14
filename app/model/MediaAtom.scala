@@ -1,26 +1,17 @@
 package model
 
 import org.cvogt.play.json.Jsonx
-import org.joda.time.DateTime
 
 import com.gu.contentatom.thrift.{
 Atom => ThriftAtom,
 AtomType => ThriftAtomType,
-AtomData,
-User => ThriftUser,
-ContentChangeDetails => ThriftContentChangeDetails,
-ChangeRecord => ThriftChangeRecord
+AtomData
 }
 
 import com.gu.contentatom.thrift.atom.media.{
-Asset => ThriftAsset,
-AssetType => ThriftAssetType,
-Platform => ThriftPlatform,
 MediaAtom => ThriftMediaAtom,
-Category => ThriftCategory,
 Metadata => ThriftMetadata
 }
-import play.api.libs.json._
 
 import _root_.util.atom.MediaAtomImplicits
 
@@ -79,16 +70,6 @@ case class MediaAtom(
     "<div></div>"
   }
 }
-
-
-
-
-
-
-
-
-
-
 
 object MediaAtom {
   implicit val mediaAtomFormat = Jsonx.formatCaseClass[MediaAtom]
