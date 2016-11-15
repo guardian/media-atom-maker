@@ -3,7 +3,7 @@ import GridImageSelect from '../../utils/GridImageSelect';
 import {parseImageFromGridCrop} from '../../../util/parseGridMetadata';
 import {findSmallestAsset} from '../../../util/imageHelpers';
 
-export default class VideoPosterImageEdit extends React.Component {
+class VideoPosterImageEdit extends React.Component {
 
   onUpdatePosterImage = (cropData) => {
 
@@ -37,8 +37,23 @@ export default class VideoPosterImageEdit extends React.Component {
         <div className="form__row">
           <label className="form__label">Poster image</label>
           {this.renderImage()}
-          <GridImageSelect onEmbed={this.onUpdatePosterImage}/>
+          <GridImageSelect onEmbed={this.onUpdatePosterImage} gridUrl={this.props.config.gridUrl}/>
         </div>
     );
   }
 }
+
+
+//REDUX CONNECTIONS
+import { connect } from 'react-redux';
+
+function mapStateToProps(state) {
+  return {
+    config: state.config
+  };
+}
+
+export default connect(mapStateToProps)(VideoPosterImageEdit);
+
+
+

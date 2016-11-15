@@ -1,8 +1,6 @@
 import React from 'react';
 import Modal from './Modal';
 
-const GRID_URL = 'https://media.gutools.co.uk';
-
 export default class GridEmbedder extends React.Component {
 
     state = {
@@ -32,7 +30,7 @@ export default class GridEmbedder extends React.Component {
     }
 
     onMessage = (event) => {
-        if (event.origin !== GRID_URL) {
+        if (event.origin !== this.props.gridUrl) {
             console.log("didn't come from the grid");
             return;
         }
@@ -63,7 +61,7 @@ export default class GridEmbedder extends React.Component {
                 </div>
 
                 <Modal isOpen={this.state.modalOpen} dismiss={this.closeModal}>
-                    <iframe className="gridembedder__modal" src={GRID_URL}></iframe>
+                    <iframe className="gridembedder__modal" src={this.props.gridUrl}></iframe>
                 </Modal>
             </div>
         );
