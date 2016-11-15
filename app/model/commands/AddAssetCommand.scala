@@ -8,7 +8,7 @@ import com.gu.atom.publish.PreviewAtomPublisher
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.contentatom.thrift.atom.media.Asset
 import util.atom.MediaAtomImplicits
-import model.ThriftUtil
+import util.ThriftUtil
 
 import scala.util.{Failure, Success}
 

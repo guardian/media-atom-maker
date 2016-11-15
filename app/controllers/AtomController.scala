@@ -2,10 +2,8 @@ package controllers
 
 import com.gu.pandomainauth.action.AuthActions
 import play.api.mvc._
-
-import play.api.libs.json.{ JsObject, JsString }
-
-import model.ThriftUtil._
+import play.api.libs.json.{JsObject, JsString}
+import util.ThriftUtil.ThriftResult
 
 trait AtomController extends Controller {
 
