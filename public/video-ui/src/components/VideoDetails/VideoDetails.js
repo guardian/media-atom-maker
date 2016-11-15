@@ -37,7 +37,7 @@ export default class VideoDetails extends React.Component {
               <dd className="details-list__field">{this.props.video.data.duration}</dd>
 
               <dt className="details-list__title">Poster Image</dt>
-              <dd className="details-list__field">{this.renderPosterImage()}</dd>
+              {this.renderPosterImage()}
 
               <dt className="details-list__title">Version</dt>
               <dd className="details-list__field">{this.props.video.data.activeVersion}</dd>
