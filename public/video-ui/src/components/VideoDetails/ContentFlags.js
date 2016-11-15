@@ -16,11 +16,11 @@ export default class ContentFlags extends React.Component {
     return <button name="sensitive" value={value} className={classes} onClick={this.updateFlag.bind(this)}>{text}</button>
   }
 
-  renderSurpressRelatedContent() {
-    const classes = this.props.video.data.surpressRelatedContent ? "on-btn on-switch" : "flag-btn off-switch";
-    const text = this.props.video.data.surpressRelatedContent ? "On" : "Off";
-    const value = !!this.props.video.data.surpressRelatedContent;
-    return <button name="surpressRelatedContent" value={value} className={classes} onClick={this.updateFlag.bind(this)}>{text}</button>
+  renderSuppressRelatedContent() {
+    const classes = this.props.video.data.suppressRelatedContent ? "on-btn on-switch" : "flag-btn off-switch";
+    const text = this.props.video.data.suppressRelatedContent ? "On" : "Off";
+    const value = !!this.props.video.data.suppressRelatedContent;
+    return <button name="suppressRelatedContent" value={value} className={classes} onClick={this.updateFlag.bind(this)}>{text}</button>
   }
 
   renderBlockAds() {
@@ -64,10 +64,10 @@ export default class ContentFlags extends React.Component {
               <td className="details-list__field">This content involves active criminal proceedings.</td>
             </tr>
             <tr>
-              <td colSpan="2" className="details-list__title">Surpress related content</td>
+              <td colSpan="2" className="details-list__title">Suppress related content</td>
             </tr>
             <tr>
-              <td>{this.renderSurpressRelatedContent()}</td>
+              <td>{this.renderSuppressRelatedContent()}</td>
               <td className="details-list__field">Hides related Guardian content and removes from related content results.</td>
             </tr>
             <tr>

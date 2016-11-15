@@ -2,17 +2,18 @@ package controllers
 
 import javax.inject.Inject
 
-import com.gu.atom.data.{PublishedDataStore, PreviewDataStore}
+import com.gu.atom.data.{PreviewDataStore, PublishedDataStore}
 import com.gu.atom.play.AtomAPIActions
-import com.gu.atom.publish.{PreviewAtomPublisher, LiveAtomPublisher}
+import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import com.gu.pandahmac.HMACAuthActions
-import model.commands.AddAssetCommand
+import data.JsonConversions._
+import model.commands.CommandExceptions._
+import model.commands._
 import play.api.Configuration
 import util.AWSConfig
 import util.atom.MediaAtomImplicits
-import model.commands.CommandExceptions._
 import play.api.libs.json._
-import data.JsonConversions._
+import model.MediaAtom
 
 class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
                      val publishedDataStore: PublishedDataStore,
@@ -29,8 +30,23 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
 
   def getAtom(id: String) = APIHMACAuthAction {
     previewDataStore.getAtom(id) match {
-      case Some(atom) => Ok(Json.toJson(atom))
+      case Some(atom) => Ok(Json.toJson(MediaAtom.fromThrift(atom)))
       case None => NotFound(jsonError(s"no atom with id $id found"))
+    }
+  }
+
+  def putAtom(id: String) = APIHMACAuthAction { implicit req =>
+    req.body.asJson.map { json =>
+      try {
+        val atom = json.as[MediaAtom]
+        UpdateAtomCommand(id, atom).process()
+
+        Ok
+      } catch {
+        commandExceptionAsResult
+      }
+    }.getOrElse {
+      BadRequest("Could not read json")
     }
   }
 
