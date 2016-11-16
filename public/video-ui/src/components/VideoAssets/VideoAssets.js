@@ -75,10 +75,10 @@ class VideoAssets extends React.Component {
 
   render() {
     return (
-        <div className="video__sidebar video-assets">
-          {this.renderAssetEdit()}
+        <div className="video-assets">
+          <h2>All Assets</h2>
           {this.renderList()}
-
+          {this.renderAssetEdit()}
         </div>
     )
   }
