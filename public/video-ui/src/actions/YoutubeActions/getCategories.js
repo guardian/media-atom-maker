@@ -15,10 +15,20 @@ function receiveCategories(categories) {
   };
 }
 
+function errorReceivingCatetories(error) {
+  return {
+    type: 'SHOW_ERROR',
+    message: 'Could not get YouTube categories',
+    error: error,
+    receivedAt: Date.now()
+  }
+}
+
 export function getCategories() {
   return dispatch => {
     dispatch(requestCategories());
     return YoutubeApi.getCategories()
+      .catch(error => dispatch(errorReceivingCatetories(error)))
       .then(categories => dispatch(receiveCategories(categories)));
   };
 }
