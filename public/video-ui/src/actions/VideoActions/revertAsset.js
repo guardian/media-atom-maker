@@ -21,7 +21,7 @@ function receiveRevertAsset(video) {
 function errorRevertAsset(error) {
   return {
     type:       'SHOW_ERROR',
-    message:    'Could revert the asset',
+    message:    'Could not revert the asset',
     error:      error,
     receivedAt: Date.now()
   };
