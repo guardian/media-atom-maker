@@ -1,8 +1,8 @@
 import React from 'react';
 import VideoTitleEdit from './formComponents/VideoTitle';
 import VideoCategorySelect from './formComponents/VideoCategory';
-import VideoPosterImageEdit from './formComponents/VideoPosterImage';
 import VideoDurationEdit from './formComponents/VideoDuration';
+import VideoPosterEdit from './formComponents/VideoPoster';
 import VideoDescriptionEdit from './formComponents/VideoDescription';
 import VideoChannelIdEdit from './formComponents/VideoChannelId';
 import VideoCategoryIdEdit from './formComponents/VideoCategoryId';
@@ -18,8 +18,8 @@ const VideoEdit = (props) => {
         <div>
           <Field name="title" type="text" component={VideoTitleEdit} {...props} />
           <Field name="category" type="text" component={VideoCategorySelect} {...props} />
-          <Field name="posterUrl" type="text" component={VideoPosterImageEdit} {...props} />
           <Field name="duration" type="number" component={VideoDurationEdit} {...props} />
+          <Field name="posterImage" component={VideoPosterEdit} {...props} />
           <Field name="description" type="text" component={VideoDescriptionEdit} {...props} />
           <Field name="channelId" type="text" component={VideoChannelIdEdit} {...props} />
           <Field name="categoryId" type="text" component={VideoCategoryIdEdit} {...props} />

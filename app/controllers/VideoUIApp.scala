@@ -21,7 +21,8 @@ class VideoUIApp @Inject() (val authActions: HMACAuthActions)
     val clientConfig = ClientConfig(
       username = req.user.email,
       youtubeEmbedUrl = "https://www.youtube.com/embed/",
-      reauthUrl = "/reauth"
+      reauthUrl = "/reauth",
+      gridUrl = "https://media.gutools.co.uk"
     )
 
     Ok(views.html.VideoUIApp.app("Media Atom Maker", jsLocation, Json.toJson(clientConfig).toString()))
