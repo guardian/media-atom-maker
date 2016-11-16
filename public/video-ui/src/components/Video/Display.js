@@ -17,7 +17,9 @@ class VideoDisplay extends React.Component {
 
   saveVideo = () => {
     this.props.videoActions.saveVideo(this.props.video);
-    this.disableEditing();
+    this.setState({
+      editable: false
+    })
   };
 
   updateVideo = (video) => {
@@ -31,12 +33,6 @@ class VideoDisplay extends React.Component {
   enableEditing = () => {
     this.setState({
       editable: true
-    });
-  };
-
-  disableEditing = () => {
-    this.setState({
-      editable: false
     });
   };
 
@@ -86,8 +82,7 @@ import * as publishVideo from '../../actions/VideoActions/publishVideo';
 
 function mapStateToProps(state) {
   return {
-    video: state.video,
-    saveState: state.saveState
+    video: state.video
   };
 }
 

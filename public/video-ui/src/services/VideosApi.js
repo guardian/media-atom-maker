@@ -28,14 +28,14 @@ export default {
   publishVideo: (videoId) => {
     return pandaReqwest({
       url: '/api/atom/' + videoId + '/publish',
-      method: 'post'
+      method: 'put'
     })
   },
 
   createAsset: (asset, videoId) => {
     return pandaReqwest({
       url: '/api/atom/' + videoId + '/asset',
-      method: 'post',
+      method: 'put',
       data: asset
     })
   },
@@ -43,14 +43,14 @@ export default {
   revertAsset: (version, videoId) => {
     return pandaReqwest({
       url: '/api/atom/' + videoId + '/revert/' + version,
-      method: 'post'
+      method: 'put'
     })
   },
 
   saveVideo: (videoId, video) => {
     return pandaReqwest({
       url: '/api/atom/' + videoId,
-      method: 'post',
+      method: 'put',
       data: video.data
     })
   }
