@@ -7,7 +7,7 @@ export default {
     return pandaReqwest({
       url: '/api/atoms',
       method: 'get',
-      contentType: 'application/json'
+      contentType: 'application/json',
     });
   },
 
@@ -15,7 +15,7 @@ export default {
     return pandaReqwest({
       url: '/api2/atom/' + videoId,
       method: 'get',
-      contentType: 'application/json'
+      contentType: 'application/json',
     });
   },
 
@@ -38,6 +38,7 @@ export default {
     return pandaReqwest({
       url: '/api2/atom/' + videoId + '/asset',
       method: 'put',
+      contentType: 'application/json',
       data: asset
     })
   },
