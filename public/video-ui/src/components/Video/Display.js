@@ -62,11 +62,12 @@ class VideoDisplay extends React.Component {
 
     return (
         <div className="video">
-          <VideoAssets video={this.props.video || {}} />
-
-          <VideoPreview video={this.props.video || {}} />
-
           {this.renderDetails()}
+          <div className="video__main">
+            <VideoPreview video={this.props.video || {}} />
+            <VideoAssets video={this.props.video || {}} />
+          </div>
+
         </div>
     )
   }

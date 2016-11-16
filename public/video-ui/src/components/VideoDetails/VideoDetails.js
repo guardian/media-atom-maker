@@ -24,20 +24,14 @@ export default class VideoDetails extends React.Component {
           <div className="video__sidebar__group">
             <dl className="details-list">
 
-              <dt className="details-list__title">Atom ID</dt>
-              <dd className="details-list__field">{this.props.video.id}</dd>
-
               <dt className="details-list__title">Title</dt>
               <dd className="details-list__field">{this.props.video.title}</dd>
 
               <dt className="details-list__title">Category</dt>
               <dd className="details-list__field">{this.props.video.category}</dd>
 
-              <dt className="details-list__title">Duration (ms)</dt>
-              <dd className="details-list__field">{this.props.video.duration}</dd>
-
               <dt className="details-list__title">Poster Image</dt>
-              <dd className="details-list__field">{this.renderPosterImage()}</dd>
+              {this.renderPosterImage()}
 
               <dt className="details-list__title">Version</dt>
               <dd className="details-list__field">{this.props.video.activeVersion}</dd>

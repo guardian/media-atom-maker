@@ -4,9 +4,14 @@ import {getStore} from '../../util/storeAccessor';
 
 export default class VideoAssetItem extends React.Component {
 
-  youtubeEmbedUrl = () => {
+  youtubeThumbnailUrl = (assetId) => {
     const store = getStore();
-    return store.getState().config.youtubeEmbedUrl;
+    return store.getState().config.youtubeThumbnailUrl + assetId + "/0.jpg";
+  };
+
+  youtubeVideoUrl = (assetId) => {
+    const store = getStore();
+    return store.getState().config.youtubeEmbedUrl + assetId;
   };
 
   revertAsset = () => {
@@ -16,7 +21,7 @@ export default class VideoAssetItem extends React.Component {
   renderAssetVersionButton = () => {
     if(this.props.activeAsset !== this.props.asset.version) {
       return (
-        <button type="button" className="btn" onClick={this.revertAsset}>
+        <button type="button" className="btn asset-list__makecurrent" onClick={this.revertAsset}>
           Set as current asset
         </button>
       )
@@ -29,8 +34,11 @@ export default class VideoAssetItem extends React.Component {
 
     return(
         <li className={"asset-list__item " + (this.props.activeAsset === this.props.asset.version ? "asset-list__item--active" : "")}>
-          <iframe className="asset-list__video" src={this.youtubeEmbedUrl() + this.props.asset.id}></iframe>
-          <p>Platform: {this.props.asset.platform}</p>
+          <img className="asset-list__thumbnail" src={this.youtubeThumbnailUrl(this.props.asset.id)}></img>
+          <div className="asset-list__platform">
+            {this.props.asset.platform} -
+            <a target="_blank" href={this.youtubeVideoUrl(this.props.asset.id)}>{this.youtubeVideoUrl(this.props.asset.id)}</a>
+          </div>
           {this.renderAssetVersionButton()}
         </li>
     )
