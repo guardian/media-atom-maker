@@ -1,33 +1,48 @@
+$assetThumbnailHeight: 40px;
+
 .asset-list {
+
   list-style: none;
+  display: flex;
+  flex-direction: column;
   margin: 0;
   padding: 0;
 
   &__item {
-    margin: 10px;
-    padding: 10px;
-    border-bottom: 1px solid $color600Grey;
+    display: flex;
+    border: 1px solid $color400Grey;
+    border-bottom: none;
     position: relative;
+    padding: 5px;
+    width: 100%;
+    height: $assetThumbnailHeight + 10px;
+
+    &:last-child {
+      border-bottom: 1px solid $color400Grey;
+    }
 
     &--active {
-      border: 2px solid $brandColor;
-
-      &:before {
-        display: block;
-        content: "Current";
-        color: $cWhite;
-        background: $brandColor;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        padding: 2px;
-      }
+      border: 1px solid $brandColor;
     }
   }
 
-  &__video {
-    width: 100%;
+  &__thumbnail {
+    height: $assetThumbnailHeight;
     border: 0;
+    display: inline-block;
+  }
+
+  &__platform {
+    line-height: $assetThumbnailHeight;
+    display: inline-block;
+    vertical-align: top;
+    flex-grow: 1;
+    margin-left: 20px;
+  }
+
+  &__makecurrent {
+    display: inline-block;
+    vertical-align: top;
+
   }
 }
