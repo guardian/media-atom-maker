@@ -5,9 +5,9 @@ import {getStore} from '../../util/storeAccessor';
 export default class VideoPreview extends React.Component {
 
   getActiveAssetId = () => {
-    for(let i=0; i < this.props.video.data.assets.length; i++) {
-      if(this.props.video.data.activeVersion === this.props.video.data.assets[i].version) {
-        return this.props.video.data.assets[i].id;
+    for(let i=0; i < this.props.video.assets.length; i++) {
+      if(this.props.video.activeVersion === this.props.video.assets[i].version) {
+        return this.props.video.assets[i].id;
       }
     }
   };

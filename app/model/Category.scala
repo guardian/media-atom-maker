@@ -10,19 +10,19 @@ sealed trait Category {
 }
 
 object Category {
-  case object DOCUMENTARY extends Category { val name = "DOCUMENTARY" }
-  case object EXPLAINER extends Category { val name = "EXPLAINER" }
-  case object FEATURE extends Category { val name = "FEATURE" }
-  case object HOSTED extends Category { val name = "HOSTED" }
-  case object NEWS extends Category { val name = "NEWS" }
+  case object Documentary extends Category { val name = "Documentary" }
+  case object Explainer extends Category { val name = "Explainer" }
+  case object Feature extends Category { val name = "Feature" }
+  case object Hosted extends Category { val name = "Hosted" }
+  case object News extends Category { val name = "News" }
 
   val categoryReads = Reads[Category](json => {
     json.as[String] match {
-      case "DOCUMENTARY" => JsSuccess(DOCUMENTARY)
-      case "EXPLAINER" => JsSuccess(DOCUMENTARY)
-      case "FEATURE" => JsSuccess(FEATURE)
-      case "HOSTED" => JsSuccess(HOSTED)
-      case "NEWS" => JsSuccess(NEWS)
+      case "Documentary" => JsSuccess(Documentary)
+      case "Explainer" => JsSuccess(Documentary)
+      case "Feature" => JsSuccess(Feature)
+      case "Hosted" => JsSuccess(Hosted)
+      case "News" => JsSuccess(News)
     }
   })
 
@@ -32,7 +32,7 @@ object Category {
 
   implicit val categoryFormat = Format(categoryReads, categoryWrites)
 
-  private val types = List(DOCUMENTARY, EXPLAINER, FEATURE, HOSTED, NEWS)
+  private val types = List(Documentary, Explainer, Feature, Hosted, News)
 
   def fromThrift(cat: ThriftCategory) = types.find(_.name == cat.name).get
 }

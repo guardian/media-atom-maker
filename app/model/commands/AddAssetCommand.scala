@@ -7,8 +7,8 @@ import CommandExceptions._
 import com.gu.atom.publish.PreviewAtomPublisher
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.contentatom.thrift.atom.media.Asset
+import util.ThriftUtil
 import util.atom.MediaAtomImplicits
-import model.ThriftUtil
 
 import scala.util.{Failure, Success}
 

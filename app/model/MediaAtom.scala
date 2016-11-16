@@ -1,5 +1,6 @@
 package model
 
+import model.Platform.Youtube
 import org.cvogt.play.json.Jsonx
 
 import com.gu.contentatom.thrift.{
@@ -20,7 +21,7 @@ case class MediaAtom(
   // Atom wrapper fields
   id: String,
   labels: List[String],
-  changeDetails: ContentChangeDetails,
+  contentChangeDetails: ContentChangeDetails,
   // data field
   assets: List[Asset],
   activeVersion: Option[Long],
@@ -32,19 +33,19 @@ case class MediaAtom(
   posterUrl: Option[String],
   description: Option[String],
   // metadata
-  tags: Option[List[String]],
-  categoryId: Option[String],
+  tags: List[String],
+  categoryId: String,
   license: Option[String],
-  commentsEnabled: Option[Boolean],
-  channelId: Option[String]
-  ) extends MediaAtomImplicits {
+  channelId: String,
+  commentsEnabled: Boolean = false
+)  {
 
   def asThrift = ThriftAtom(
       id = id,
       atomType = ThriftAtomType.Media,
       labels = List(),
       defaultHtml = generateHtml(),
-      data = ThriftMediaAtom(
+      data = AtomData.Media(ThriftMediaAtom(
         assets = assets.map(_.asThrift),
         activeVersion = activeVersion,
         title = title,
@@ -55,32 +56,41 @@ case class MediaAtom(
         posterUrl = posterUrl,
         description = description,
         metadata = Some(ThriftMetadata(
-          tags = tags,
-          categoryId = categoryId,
+          tags = Some(tags),
+          categoryId = Some(categoryId),
           license = license,
-          commentsEnabled = commentsEnabled,
-          channelId = channelId
+          commentsEnabled = Some(commentsEnabled),
+          channelId = Some(channelId)
           ))
-        ).asInstanceOf[AtomData],
-      contentChangeDetails = changeDetails.asThrift,
+        )),
+      contentChangeDetails = contentChangeDetails.asThrift,
       flags = None
   )
 
   private def generateHtml(): String = {
-    "<div></div>"
+    val activeAssets = assets filter (asset => activeVersion.contains(asset.version))
+    if (activeAssets.nonEmpty && activeAssets.forall(_.platform == Platform.Url)) {
+      views.html.MediaAtom.embedUrlAssets2(posterUrl.getOrElse(""), activeAssets).toString
+    } else {
+      activeAssets.headOption match {
+        case Some(activeAsset) if activeAsset.platform == Platform.Youtube =>
+          views.html.MediaAtom.embedYoutubeAsset2(activeAsset).toString
+        case _ => "<div></div>"
+      }
+    }
   }
 }
 
-object MediaAtom {
+object MediaAtom extends MediaAtomImplicits {
   implicit val mediaAtomFormat = Jsonx.formatCaseClass[MediaAtom]
 
   def fromThrift(atom: ThriftAtom) = {
-    val data = atom.data.asInstanceOf[ThriftMediaAtom]
+    val data = atom.tdata
 
     MediaAtom(
       id = atom.id,
       labels = atom.labels.toList,
-      changeDetails = ContentChangeDetails.fromThrift(atom.contentChangeDetails),
+      contentChangeDetails = ContentChangeDetails.fromThrift(atom.contentChangeDetails),
       assets = data.assets.map(Asset.fromThrift).toList,
       activeVersion = data.activeVersion,
       title = data.title,
@@ -90,11 +100,11 @@ object MediaAtom {
       source = data.source,
       posterUrl = data.posterUrl,
       description = data.description,
-      tags = data.metadata.flatMap(_.tags.map(_.toList)),
-      categoryId = data.metadata.flatMap(_.categoryId),
+      tags = data.metadata.flatMap(_.tags.map(_.toList)).getOrElse(Nil),
+      categoryId = data.metadata.flatMap(_.categoryId).getOrElse("news"),
       license = data.metadata.flatMap(_.license),
-      commentsEnabled = data.metadata.flatMap(_.commentsEnabled),
-      channelId = data.metadata.flatMap(_.channelId)
+      commentsEnabled = data.metadata.flatMap(_.commentsEnabled).getOrElse(false),
+      channelId = data.metadata.flatMap(_.channelId).getOrElse("grauniad channel id")
     )
   }
 }

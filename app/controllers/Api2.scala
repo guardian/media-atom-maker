@@ -2,9 +2,11 @@ package controllers
 
 import javax.inject.Inject
 
-import com.gu.atom.data.{PreviewDataStore, PublishedDataStore}
+import _root_.util.ThriftUtil._
+import com.gu.atom.data.{IDConflictError, PreviewDataStore, PublishedDataStore}
 import com.gu.atom.play.AtomAPIActions
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
+import com.gu.contentatom.thrift.{EventType, ContentAtomEvent}
 import com.gu.pandahmac.HMACAuthActions
 import data.JsonConversions._
 import model.commands.CommandExceptions._
@@ -14,6 +16,8 @@ import util.AWSConfig
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
 import model.MediaAtom
+
+import scala.util.{Failure, Success}
 
 class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
                      val publishedDataStore: PublishedDataStore,
@@ -28,14 +32,36 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
 
   import authActions.APIHMACAuthAction
 
-  def getAtom(id: String) = APIHMACAuthAction {
+  def getMediaAtoms = APIHMACAuthAction {
+    previewDataStore.listAtoms.fold(
+      err =>   InternalServerError(jsonError(err.msg)),
+      atoms => Ok(Json.toJson(atoms.map(MediaAtom.fromThrift).toList))
+    )
+  }
+
+  def getMediaAtom(id: String) = APIHMACAuthAction {
     previewDataStore.getAtom(id) match {
       case Some(atom) => Ok(Json.toJson(MediaAtom.fromThrift(atom)))
       case None => NotFound(jsonError(s"no atom with id $id found"))
     }
   }
 
-  def putAtom(id: String) = APIHMACAuthAction { implicit req =>
+  def createMediaAtom = APIHMACAuthAction { implicit req =>
+    req.body.asJson.map { json =>
+      try {
+        val atom = CreateAtomCommand(json.as[CreateAtomCommandData]).process()
+        Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
+
+      } catch {
+        commandExceptionAsResult
+      }
+
+    }.getOrElse {
+      BadRequest("Could not read json")
+    }
+  }
+
+  def putMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
     req.body.asJson.map { json =>
       try {
         val atom = json.as[MediaAtom]
@@ -68,5 +94,5 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
     }
   }
 
-
+  private def atomUrl(id: String) = s"/atom/$id"
 }

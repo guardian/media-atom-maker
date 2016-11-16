@@ -39,7 +39,7 @@ class VideoAssets extends React.Component {
   };
 
   renderList() {
-      if(this.props.video.data.assets) {
+      if(this.props.video.assets) {
         return (
           <ul className="asset-list">
             {this.renderListItems()}
@@ -52,7 +52,7 @@ class VideoAssets extends React.Component {
 
   renderListItems() {
     return (
-        this.props.video.data.assets.map((asset, index) => <VideoAssetItem key={index} asset={asset} activeAsset={this.props.video.data.activeVersion} video={this.props.video} revertAsset={this.revertAsset} />)
+        this.props.video.assets.map((asset, index) => <VideoAssetItem key={index} asset={asset} activeAsset={this.props.video.activeVersion} video={this.props.video} revertAsset={this.revertAsset} />)
     );
   }
 

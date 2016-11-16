@@ -3,6 +3,7 @@ package model
 import com.gu.contentatom.thrift._
 import com.gu.contentatom.thrift.atom.media._
 import org.scalatest.{FunSpec, Inside, Matchers}
+import util.ThriftUtil
 
 import scala.xml.XML
 

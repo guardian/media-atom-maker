@@ -8,7 +8,7 @@ case class Asset(assetType: AssetType,
                  id: String,
                  platform: Platform,
                  mimeType: Option[String]) {
-  def asThrift = ThriftAsset.apply(AssetType.VIDEO.asThrift, version, id, platform.asThrift, mimeType)
+  def asThrift = ThriftAsset.apply(AssetType.Video.asThrift, version, id, platform.asThrift, mimeType)
 }
 
 object Asset {
