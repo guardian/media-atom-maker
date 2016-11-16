@@ -17,6 +17,9 @@ class VideoDisplay extends React.Component {
 
   saveVideo = () => {
     this.props.videoActions.saveVideo(this.props.video);
+    this.setState({
+      editable: false
+    })
   };
 
   updateVideo = (video) => {
@@ -90,4 +93,3 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(VideoDisplay);
-

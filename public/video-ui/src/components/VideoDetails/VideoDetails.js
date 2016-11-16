@@ -1,8 +1,22 @@
 import React, {PropTypes} from 'react';
-import {Link} from 'react-router';
+
+import {findSmallestAsset} from '../../util/imageHelpers';
 
 export default class VideoDetails extends React.Component {
 
+  renderPosterImage() {
+    if (!this.props.video.data.posterImage) {
+      return <dd className="details-list__field">No Image Selected</dd>
+    }
+
+    const image = findSmallestAsset(this.props.video.data.posterImage.assets)
+
+    return (
+       <dd className="details-list__field">
+         <img src={image.url}/>
+       </dd>
+    );
+  }
 
   render() {
     return (
@@ -22,8 +36,8 @@ export default class VideoDetails extends React.Component {
               <dt className="details-list__title">Duration (ms)</dt>
               <dd className="details-list__field">{this.props.video.duration}</dd>
 
-              <dt className="details-list__title">Poster Image URL</dt>
-              <dd className="details-list__field">{this.props.video.posterUrl}</dd>
+              <dt className="details-list__title">Poster Image</dt>
+              <dd className="details-list__field">{this.renderPosterImage()}</dd>
 
               <dt className="details-list__title">Version</dt>
               <dd className="details-list__field">{this.props.video.activeVersion}</dd>

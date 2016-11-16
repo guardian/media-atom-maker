@@ -19,6 +19,8 @@ GET     /api2/atoms/:id                 controllers.Api2.getMediaAtom(id)
 PUT     /api2/atoms/:id                 controllers.Api2.putMediaAtom(id)
 POST    /api2/atoms/:id/assets          controllers.Api2.addAsset(id)
 
+GET     /api/youtube/categories         controllers.YoutubeCategory.list()
+
 # reindex
 
 POST    /reindex-preview                com.gu.atom.play.ReindexController.newPreviewReindexJob()

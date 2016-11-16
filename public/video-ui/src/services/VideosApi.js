@@ -30,8 +30,7 @@ export default {
   publishVideo: (videoId) => {
     return pandaReqwest({
       url: '/api/atom/' + videoId + '/publish',
-      contentType: 'application/json',
-      method: 'post'
+      method: 'put'
     })
   },
 
@@ -47,7 +46,7 @@ export default {
   revertAsset: (version, videoId) => {
     return pandaReqwest({
       url: '/api/atom/' + videoId + '/revert/' + version,
-      method: 'post'
+      method: 'put'
     })
   },
 
