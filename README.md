@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/guardian/media-atom-maker.svg?style=svg)](https://circleci.com/gh/guardian/media-atom-maker)
+
 # media-atom-maker
 This app is a simple Play app for editing media atoms,
 and it's a publisher that pushes media atoms into a Kinesis stream.

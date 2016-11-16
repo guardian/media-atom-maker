@@ -17,7 +17,9 @@ class VideoDisplay extends React.Component {
 
   saveVideo = () => {
     this.props.videoActions.saveVideo(this.props.video);
-    this.disableEditing();
+    this.setState({
+      editable: false
+    })
   };
 
   updateVideo = (video) => {
@@ -35,12 +37,6 @@ class VideoDisplay extends React.Component {
   enableEditing = () => {
     this.setState({
       editable: true
-    });
-  };
-
-  disableEditing = () => {
-    this.setState({
-      editable: false
     });
   };
 
@@ -102,4 +98,3 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(VideoDisplay);
-
