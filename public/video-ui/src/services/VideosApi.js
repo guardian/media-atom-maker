@@ -29,7 +29,7 @@ export default {
 
   publishVideo: (videoId) => {
     return pandaReqwest({
-      url: '/api2/atom/' + videoId + '/publish',
+      url: '/api/atom/' + videoId + '/publish',
       contentType: 'application/json',
       method: 'post'
     })
