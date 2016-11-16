@@ -2,9 +2,7 @@ import React from 'react';
 
 class YoutubeCategorySelect extends React.Component {
 
-  hasCategories () {
-    return this.props.youtube.categories.length !== 0;
-  }
+  hasCategories = () => this.props.youtube.categories.length !== 0;
 
   componentWillMount() {
     if (! this.hasCategories()) {
