@@ -9,7 +9,7 @@ function requestRevertAsset(assetVersion) {
   };
 }
 
-function recieveRevertAsset(video) {
+function receiveRevertAsset(video) {
   browserHistory.push('/video/videos/' + video.id);
   return {
     type: 'ASSET_REVERT_RECEIVE',
@@ -22,7 +22,7 @@ function recieveRevertAsset(video) {
 function errorRevertAsset(error) {
   return {
     type:       'SHOW_ERROR',
-    message:    'Could not create video',
+    message:    'Could revert the asset',
     error:      error,
     receivedAt: Date.now()
   };
@@ -32,7 +32,7 @@ export function revertAsset(version, videoId) {
   return dispatch => {
     dispatch(requestRevertAsset(version));
     return VideosApi.revertAsset(version, videoId)
-        .then(res => dispatch(recieveRevertAsset(res)))
+        .then(res => dispatch(receiveRevertAsset(res)))
         .fail(error => dispatch(errorRevertAsset(error)));
   };
 }

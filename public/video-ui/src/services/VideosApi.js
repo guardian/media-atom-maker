@@ -6,14 +6,16 @@ export default {
   fetchVideos: () => {
     return pandaReqwest({
       url: '/api/atoms',
-      contentType: 'application/json'
+      method: 'get',
+      contentType: 'application/json',
     });
   },
 
   fetchVideo: (videoId) => {
     return pandaReqwest({
-      url: '/api/atom/' + videoId,
-      contentType: 'application/json'
+      url: '/api2/atom/' + videoId,
+      method: 'get',
+      contentType: 'application/json',
     });
   },
 
@@ -34,8 +36,9 @@ export default {
 
   createAsset: (asset, videoId) => {
     return pandaReqwest({
-      url: '/api/atom/' + videoId + '/asset',
+      url: '/api2/atom/' + videoId + '/asset',
       method: 'put',
+      contentType: 'application/json',
       data: asset
     })
   },
