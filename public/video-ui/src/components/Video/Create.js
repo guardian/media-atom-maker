@@ -5,10 +5,6 @@ import {blankVideoData} from '../../constants/blankVideoData';
 
 class VideoCreate extends React.Component {
 
-  constructor(props) {
-    super(props);
-  }
-
   componentDidMount() {
     this.props.videoActions.populateEmptyVideo();
   }
@@ -30,7 +26,7 @@ class VideoCreate extends React.Component {
       <div className="container">
         <form className="form">
           <VideoEdit video={this.props.video || blankVideoData} updateVideo={this.updateVideo} />
-          <SaveButton onSaveClick={this.createVideo} onResetClick={this.resetVideo} />
+          <SaveButton saveState={this.props.saveState} onSaveClick={this.createVideo} onResetClick={this.resetVideo} />
         </form>
       </div>
     );

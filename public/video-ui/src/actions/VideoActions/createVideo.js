@@ -9,7 +9,7 @@ function requestVideoCreate() {
   };
 }
 
-function recieveVideoCreate(video) {
+function receiveVideoCreate(video) {
   browserHistory.push('/video/videos/' + video.id);
   return {
     type: 'VIDEO_CREATE_RECEIVE',
@@ -32,7 +32,7 @@ export function createVideo(video) {
   return dispatch => {
     dispatch(requestVideoCreate());
     return VideosApi.createVideo(video)
-        .then(res => dispatch(recieveVideoCreate(res)))
+        .then(res => dispatch(receiveVideoCreate(res)))
         .fail(error => dispatch(errorVideoCreate(error)));
   };
 }

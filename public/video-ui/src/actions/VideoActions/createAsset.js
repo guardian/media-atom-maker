@@ -14,11 +14,11 @@ function requestAssetCreate() {
   };
 }
 
-function recieveAssetCreate(video) {
+function receiveAssetCreate(video) {
   browserHistory.push('/video/videos/' + video.id );
   return {
     type: 'ASSET_CREATE_RECEIVE',
-    asset: asset,
+    video: video,
     receivedAt: Date.now()
   };
 
@@ -37,7 +37,7 @@ export function createAsset(asset, videoId) {
   return dispatch => {
     dispatch(requestAssetCreate());
     return VideosApi.createAsset(asset, videoId)
-        .then(res => dispatch(recieveAssetCreate(res)))
+        .then(res => dispatch(receiveAssetCreate(res)))
         .fail(error => dispatch(errorAssetCreate(error)));
   };
 }
