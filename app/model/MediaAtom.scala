@@ -32,6 +32,7 @@ case class MediaAtom(
   source: Option[String],
   posterUrl: Option[String],
   description: Option[String],
+  posterImage: Option[Image],
   // metadata
   tags: List[String],
   categoryId: String,
@@ -55,6 +56,7 @@ case class MediaAtom(
         source = source,
         posterUrl = posterUrl,
         description = description,
+        posterImage = posterImage.map(_.asThrift),
         metadata = Some(ThriftMetadata(
           tags = Some(tags),
           categoryId = Some(categoryId),
@@ -99,6 +101,7 @@ object MediaAtom extends MediaAtomImplicits {
       duration = data.duration,
       source = data.source,
       posterUrl = data.posterUrl,
+      posterImage = data.posterImage.map(Image.fromThrift),
       description = data.description,
       tags = data.metadata.flatMap(_.tags.map(_.toList)).getOrElse(Nil),
       categoryId = data.metadata.flatMap(_.categoryId).getOrElse("news"),

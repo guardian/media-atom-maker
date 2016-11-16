@@ -5,11 +5,11 @@ import {findSmallestAsset} from '../../util/imageHelpers';
 export default class VideoDetails extends React.Component {
 
   renderPosterImage() {
-    if (!this.props.video.data.posterImage) {
+    if (!this.props.video.posterImage) {
       return <dd className="details-list__field">No Image Selected</dd>
     }
 
-    const image = findSmallestAsset(this.props.video.data.posterImage.assets)
+    const image = findSmallestAsset(this.props.video.posterImage.assets)
 
     return (
        <dd className="details-list__field">

@@ -55,7 +55,7 @@ export default {
       url: '/api2/atom/' + videoId,
       method: 'put',
       contentType: 'application/json',
-      data: video.data
+      data: video
     })
   }
 
