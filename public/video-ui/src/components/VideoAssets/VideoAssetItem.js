@@ -13,7 +13,7 @@ export default class VideoAssetItem extends React.Component {
     this.props.revertAsset(this.props.asset.version);
 
     // Update the activeAsset
-    let newData = Object.assign({}, this.props.video.data, {
+    const newData = Object.assign({}, this.props.video.data, {
       activeVersion: this.props.asset.version
     });
 
