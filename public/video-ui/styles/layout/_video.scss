@@ -29,16 +29,6 @@
 
   display: flex;
 
-  &::before {
-    content: ' ';
-    background: linear-gradient(90deg, $color400Grey, rgba(0,0,0,0));
-    display: block;
-    width: 5px;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
 }
 
 .video-preview {
