@@ -20,7 +20,11 @@ export default class VideoTitleEdit extends React.Component {
     }
 
     return (
-        <TextInput fieldName="Title" fieldValue={this.props.video.data.title} onUpdateTitle={this.onUpdateTitle} {...this.props} />
+        <TextInput
+          fieldName="Title"
+          fieldValue={this.props.video.data.title}
+          onUpdateField={this.onUpdateTitle}
+          {...this.props} />
     );
   }
 }

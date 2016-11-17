@@ -1,8 +1,9 @@
 import React from 'react';
+import TextInput from '../../FormFields/TextInput';
 
 export default class VideoDurationEdit extends React.Component {
 
-  onUpdateDuration= (e) => {
+  onUpdateDuration = (e) => {
     let newData = Object.assign({}, this.props.video.data, {
       duration: e.target.value
     });
@@ -18,14 +19,13 @@ export default class VideoDurationEdit extends React.Component {
       return false;
     }
 
-    const hasError = this.props.meta.touched && this.props.meta.error;
-
     return (
-        <div className="form__row">
-          <label className="form__label">Duration (in seconds)</label>
-          <input { ...this.props.input} className={"form__field " + (hasError ? "form__field--error" : "")} type="number" value={this.props.video.data.duration || ""} onChange={this.onUpdateDuration} />
-          {hasError ? <p className="form__message form__message--error">{this.props.meta.error}</p> : ""}
-        </div>
+        <TextInput
+          fieldName="Duration (in seconds)"
+          fieldValue={this.props.video.data.duration}
+          onUpdateField={this.onUpdateDuration}
+          inputType="number"
+          {...this.props} />
     );
   }
 }
