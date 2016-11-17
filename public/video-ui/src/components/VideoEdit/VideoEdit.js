@@ -19,10 +19,32 @@ const VideoEdit = (props) => {
               component={VideoTitleEdit}
               {...props} />
           </FormFieldSaveWrapper>
-          <Field name="category" type="text" component={VideoCategorySelect} {...props} />
-          <Field name="duration" type="number" component={VideoDurationEdit} {...props} />
+
+          <FormFieldSaveWrapper {...props}>
+            <Field
+              name="category"
+              type="select"
+              component={VideoCategorySelect}
+              {...props} />
+          </FormFieldSaveWrapper>
+
+          <FormFieldSaveWrapper {...props}>
+            <Field
+              name="duration"
+              type="number"
+              component={VideoDurationEdit}
+              {...props} />
+          </FormFieldSaveWrapper>
+
           <Field name="posterImage" component={VideoPosterEdit} {...props} />
-          <Field name="youtube-category" type="text" component={YoutubeCategorySelect} {...props} />
+
+          <FormFieldSaveWrapper {...props}>
+            <Field
+              name="youtube-category"
+              type="select"
+              component={YoutubeCategorySelect}
+              {...props} />
+          </FormFieldSaveWrapper>
         </div>
     )
 };
