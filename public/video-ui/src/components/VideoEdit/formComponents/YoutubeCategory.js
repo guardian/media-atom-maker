@@ -1,4 +1,5 @@
 import React from 'react';
+import SelectBox from '../../FormFields/SelectBox';
 
 class YoutubeCategorySelect extends React.Component {
 
@@ -36,19 +37,13 @@ class YoutubeCategorySelect extends React.Component {
     const hasError = this.props.meta.touched && this.props.meta.error;
 
     return (
-      <div className="form__row">
-        <label className="form__label">YouTube Category</label>
-        <select {...this.props.input}
-                className={"form__field form__field--select " + (hasError ? "form__field--error" : "") }
-                value={this.props.video.data.metadata.category || ''}
-                onChange={this.updateVideoCategory}>
-          <option value='' disabled>select a category...</option>
-          {this.props.youtube.categories.map(category => {
-              return (<option value={category.id} key={category.id}>{category.title}</option>);
-          })}
-        </select>
-        {hasError ? <p className="form__message form__message--error">{this.props.meta.error}</p> : ""}
-      </div>
+    <SelectBox
+      fieldName="YouTube Category"
+      fieldValue={this.props.video.data.category}
+      selectValues={this.props.youtube.categories}
+      onUpdateField={this.updateVideoCategory}
+      defaultOption="Select a category..."
+      {...this.props} />
     );
   }
 }
