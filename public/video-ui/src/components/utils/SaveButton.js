@@ -10,14 +10,34 @@ export default class SaveButton extends React.Component {
 
     return (
         <div className="save">
-          <button type="button" className={(this.props.saveState == saveStateVals.inprogress ? "btn--loading " : "") + "btn"} onClick={this.props.onSaveClick}>
-            <i className="i-tick-green"/>Save
-          </button>
-          <button type="button" className="btn" onClick={this.props.onResetClick}>
-            <i className="i-cross-red"/>Reset
-          </button>
+          {this.saveButton()}
+          {this.resetButton()}
         </div>
     );
+  };
+
+  saveButton = () => {
+    if(this.props.onSaveClick) {
+      return (
+        <button type="button" className={(this.props.saveState == saveStateVals.inprogress ? "btn--loading " : "") + "btn"} onClick={this.props.onSaveClick}>
+          <i className="i-tick-green"/>Save
+        </button>
+      )
+    } else {
+      return false;
+    }
+  };
+
+  resetButton = () => {
+    if(this.props.onResetClick) {
+      return (
+        <button type="button" className="btn" onClick={this.props.onResetClick}>
+          <i className="i-cross-red"/>Reset
+        </button>
+      )
+    } else {
+      return false;
+    }
   };
 
   render () {
