@@ -7,6 +7,7 @@ import scala.concurrent.{Future}
 
 case class ClientConfig(username: String,
                         youtubeEmbedUrl: String,
+                        youtubeThumbnailUrl: String,
                         reauthUrl: String,
                         gridUrl: String
                        )
