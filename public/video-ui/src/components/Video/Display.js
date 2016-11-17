@@ -3,7 +3,9 @@ import VideoEdit from '../VideoEdit/VideoEdit';
 import VideoAssets from '../VideoAssets/VideoAssets';
 import VideoDetails from '../VideoDetails/VideoDetails';
 import VideoPreview from '../VideoPreview/VideoPreview';
+import VideoUsages from '../VideoUsages/VideoUsages';
 import SaveButton from '../utils/SaveButton';
+
 
 class VideoDisplay extends React.Component {
 
@@ -64,10 +66,12 @@ class VideoDisplay extends React.Component {
         <div className="video">
           {this.renderDetails()}
           <div className="video__main">
-            <VideoPreview video={this.props.video || {}} />
-            <VideoAssets video={this.props.video || {}} />
+            <div className="video__main__header">
+              <VideoPreview video={this.props.video || {}} />
+              <VideoAssets video={this.props.video || {}} />
+            </div>
+            <VideoUsages video={this.props.video} />
           </div>
-
         </div>
     )
   }

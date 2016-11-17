@@ -27,8 +27,10 @@
   color: $color700Grey;
   padding: 20px 30px;
 
-  display: flex;
-
+  &__header {
+    display: flex;
+    margin-bottom: 20px;
+  }
 }
 
 .video-preview {

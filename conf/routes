@@ -35,3 +35,6 @@ GET  /reauth                            controllers.VideoUIApp.reauth
 GET /video                              controllers.VideoUIApp.index(id = "")
 GET /video/videos                       controllers.VideoUIApp.index(id = "")
 GET /video/videos/:id                   controllers.VideoUIApp.index(id)
+
+#Support
+GET /support/previewCapi/*path          controllers.Support.previewCapiProxy(path: String)
