@@ -2,6 +2,7 @@ package test
 
 import com.gu.atom.play.test.AtomSuite
 import controllers.YoutubeVideos
+import model.VideoLicense
 import org.joda.time.DateTime
 import org.scalatest.AppendedClues
 import org.scalatest.mock.MockitoSugar
@@ -23,8 +24,11 @@ class YoutubeVideosSpec extends AtomSuite
 
   "YoutubeVideos" should {
     "update assets in YouTube" in AtomTestConf() { implicit conf =>
-      val descriptionText = s"This is a new description: ${DateTime.now()}"
-      val metadataToUpdate = JsObject(Seq("description" -> JsString(descriptionText), "tags" -> JsArray(Seq(JsString("newTag")))))
+      val metadataToUpdate = JsObject(Seq(
+        "description" -> JsString(s"This is a new description: ${DateTime.now()}"),
+        "categoryId" -> JsString("1"),
+        "license" -> JsString(VideoLicense.Youtube),
+        "tags" -> JsArray(Seq(JsString("test"), JsString("video")))))
       val result = youtubeVideos.update(youtubeId).apply(requestWithCookies.withJsonBody(metadataToUpdate))
       status(result) mustEqual OK
     }

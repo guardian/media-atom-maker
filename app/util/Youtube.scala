@@ -6,7 +6,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.youtube.YouTube
-import com.google.api.services.youtube.model.{Video, VideoSnippet}
+import com.google.api.services.youtube.model.Video
 import model.YouTubeVideoCategory
 import play.api.Configuration
 import play.api.libs.json.JsValue
@@ -58,20 +58,22 @@ case class YouTubeVideoCategoryApi(config: YouTubeConfig) extends YouTubeBuilder
 }
 
 case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder {
-  def updateMetadata(id: String, metadata: JsValue): Option[Video] = {
-    val videosList = youtube.videos().list("snippet").setId(id).execute().getItems.asScala.toList
-    videosList.headOption match {
-      case Some(oldVideo) =>
-        val oldSnippet = oldVideo.getSnippet
-        val snippet = new VideoSnippet()
-        snippet.setTitle((metadata \ "title").asOpt[String].fold(oldSnippet.getTitle)(identity))
-        snippet.setCategoryId((metadata \ "categoryId").asOpt[String].fold(oldSnippet.getCategoryId)(identity))
-        snippet.setDescription((metadata \ "description").asOpt[String].fold(oldSnippet.getDescription)(identity))
+  def updateMetadata(id: String, metadata: JsValue): Option[Video] =
+      youtube.videos().list("snippet, status").setId(id).execute().getItems.asScala.toList.headOption match {
+      case Some(video) =>
+        val snippet = video.getSnippet
+        snippet.setTitle(snippet.getTitle)
+        snippet.setCategoryId((metadata \ "categoryId").asOpt[String].fold(snippet.getCategoryId)(identity))
+        snippet.setChannelId((metadata \ "channelId").asOpt[String].fold(snippet.getChannelId)(identity))
+        snippet.setDescription((metadata \ "description").asOpt[String].fold(snippet.getDescription)(identity))
+        snippet.setTags((metadata \ "tags").asOpt[List[String]].map(_.asJava).fold(snippet.getTags)(identity))
+        video.setSnippet(snippet)
 
-        oldVideo.setSnippet(snippet)
-        val result = youtube.videos().update("snippet", oldVideo).setOnBehalfOfContentOwner(onBehalfOfContentOwner).execute()
-        Some(result)
+        val status = video.getStatus
+        status.setLicense((metadata \ "license").asOpt[String].fold(status.getLicense)(identity))
+        video.setStatus(status)
+
+        Some(youtube.videos().update("snippet, status", video).setOnBehalfOfContentOwner(onBehalfOfContentOwner).execute())
       case _ => None
     }
-  }
 }
