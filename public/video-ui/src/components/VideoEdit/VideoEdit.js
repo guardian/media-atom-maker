@@ -10,14 +10,18 @@ import { Field, reduxForm } from 'redux-form';
 const VideoEdit = (props) => {
     return (
         <div>
-          <Field name="title" type="text" component={VideoTitleEdit} {...props} />
+
+          <FormFieldSaveWrapper {...props}>
+            <Field
+              name="title"
+              type="text"
+              component={VideoTitleEdit}
+              {...props} />
+          </FormFieldSaveWrapper>
           <Field name="category" type="text" component={VideoCategorySelect} {...props} />
           <Field name="duration" type="number" component={VideoDurationEdit} {...props} />
           <Field name="posterImage" component={VideoPosterEdit} {...props} />
 
-          <FormFieldSaveWrapper {...props}>
-            <Field name="title" type="text" component={VideoTitleEdit} {...props} />
-          </FormFieldSaveWrapper>
 
         </div>
     )

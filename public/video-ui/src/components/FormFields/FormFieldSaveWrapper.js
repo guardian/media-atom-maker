@@ -29,11 +29,14 @@ export default class FormFieldSaveWrapper extends React.Component {
     this.toggleEditing();
   };
 
+  fieldWithState = () => {
+    return React.cloneElement(this.props.children, {editable: this.state.editable});
+  };
+
   render() {
-    console.log(this.props);
     return (
       <div className="form__save-wrapper">
-        {this.props.children}
+        {this.fieldWithState()}
         {(this.state.editable ? "EDITING" : "NOT EDITING")}
 
         {(!this.state.editable ? <button type="button" className="btn" onClick={this.toggleEditing}>Edit</button>: '')}
