@@ -27,3 +27,13 @@ button {
     background: $color500Grey;
   }
 }
+
+.btn--loading {
+  background: {
+    image: url(/assets/video-ui/images/progress-spinner.gif);
+    position: right 5px center;
+    repeat: no-repeat;
+    size: 10px 10px;
+  };
+  padding-right: 20px;
+}

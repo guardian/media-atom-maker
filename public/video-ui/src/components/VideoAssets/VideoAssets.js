@@ -30,12 +30,12 @@ class VideoAssets extends React.Component {
     this.props.videoActions.createAsset(this.props.asset, this.props.video.id);
   };
 
-  updateAsset = (asset) => {
-    this.props.videoActions.updateAsset(asset);
-  };
-
   revertAsset = (version) => {
     this.props.videoActions.revertAsset(version, this.props.video.id);
+  };
+
+  updateVideo = (video) => {
+    this.props.videoActions.updateVideo(video);
   };
 
   renderList() {
@@ -52,7 +52,7 @@ class VideoAssets extends React.Component {
 
   renderListItems() {
     return (
-        this.props.video.data.assets.map((asset, index) => <VideoAssetItem key={index} asset={asset} activeAsset={this.props.video.data.activeVersion} video={this.props.video} revertAsset={this.revertAsset} />)
+        this.props.video.data.assets.map((asset, index) => <VideoAssetItem key={index} asset={asset} activeAsset={this.props.video.data.activeVersion} video={this.props.video} revertAsset={this.revertAsset} updateVideo={this.updateVideo} />)
     );
   }
 
@@ -88,7 +88,7 @@ class VideoAssets extends React.Component {
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as createAsset from '../../actions/VideoActions/createAsset';
-import * as updateAsset from '../../actions/VideoActions/updateAsset';
+import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as revertAsset from '../../actions/VideoActions/revertAsset';
 
 function mapStateToProps(state) {
@@ -100,7 +100,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, createAsset, updateAsset, revertAsset), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, createAsset, updateVideo, revertAsset), dispatch)
   };
 }
 

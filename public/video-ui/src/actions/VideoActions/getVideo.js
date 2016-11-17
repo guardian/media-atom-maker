@@ -8,15 +8,15 @@ function requestVideo(id) {
   };
 }
 
-function recieveVideo(video) {
+function receiveVideo(video) {
   return {
-    type:       'VIDEO_GET_RECIEVE',
+    type:       'VIDEO_GET_RECEIVE',
     video:      video,
     receivedAt: Date.now()
   };
 }
 
-function errorRecievingVideo(error) {
+function errorReceivingVideo(error) {
   return {
     type:       'SHOW_ERROR',
     message:    'Could not get video',
@@ -29,7 +29,7 @@ export function getVideo(id) {
   return dispatch => {
     dispatch(requestVideo(id));
     return VideosApi.fetchVideo(id)
-        .catch(error => dispatch(errorRecievingVideo(error)))
+        .catch(error => dispatch(errorReceivingVideo(error)))
         .then(res => {
 
           //TODO remove this once the API returns more structured data
@@ -37,7 +37,7 @@ export function getVideo(id) {
             res.data.metadata = {};
           }
 
-          dispatch(recieveVideo(res));
+          dispatch(receiveVideo(res));
         });
   };
 }

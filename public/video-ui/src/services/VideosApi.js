@@ -6,6 +6,7 @@ export default {
   fetchVideos: () => {
     return pandaReqwest({
       url: '/api/atoms',
+      method: 'get',
       contentType: 'application/json'
     });
   },
@@ -13,6 +14,7 @@ export default {
   fetchVideo: (videoId) => {
     return pandaReqwest({
       url: '/api/atom/' + videoId,
+      method: 'get',
       contentType: 'application/json'
     });
   },
