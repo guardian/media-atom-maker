@@ -5,6 +5,7 @@ import error from './errorReducer';
 import video from './videoReducer';
 import videos from './videosReducer';
 import searchTerm from './searchTermReducer';
+import youtube from './youtubeReducer';
 import { reducer as form } from 'redux-form';
 
 
@@ -15,5 +16,6 @@ export default combineReducers({
   video,
   videos,
   searchTerm,
+  youtube,
   form
 });
