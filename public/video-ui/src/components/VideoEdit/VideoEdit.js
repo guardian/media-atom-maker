@@ -4,6 +4,7 @@ import VideoCategorySelect from './formComponents/VideoCategory';
 import VideoDurationEdit from './formComponents/VideoDuration';
 import FormFieldSaveWrapper from '../FormFields/FormFieldSaveWrapper';
 import VideoPosterEdit from './formComponents/VideoPoster';
+import YoutubeCategorySelect from './formComponents/YoutubeCategory';
 import validate from '../../constants/videoEditValidation';
 import { Field, reduxForm } from 'redux-form';
 
@@ -21,8 +22,7 @@ const VideoEdit = (props) => {
           <Field name="category" type="text" component={VideoCategorySelect} {...props} />
           <Field name="duration" type="number" component={VideoDurationEdit} {...props} />
           <Field name="posterImage" component={VideoPosterEdit} {...props} />
-
-
+          <Field name="youtube-category" type="text" component={YoutubeCategorySelect} {...props} />
         </div>
     )
 };
