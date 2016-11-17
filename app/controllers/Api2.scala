@@ -5,12 +5,11 @@ import javax.inject.Inject
 import com.gu.atom.data.{PublishedDataStore, PreviewDataStore}
 import com.gu.atom.play.AtomAPIActions
 import com.gu.atom.publish.{PreviewAtomPublisher, LiveAtomPublisher}
-import com.gu.contentatom.thrift.atom.media.Platform
 import com.gu.pandahmac.HMACAuthActions
 import model.UpdatedMetadata
 import model.commands.{UpdateMetadataCommand, AddAssetCommand}
 import play.api.Configuration
-import _root_.util.{YouTubeConfig, YouTubeVideoUpdateApi, AWSConfig}
+import util.{YouTubeConfig, AWSConfig}
 import util.atom.MediaAtomImplicits
 import model.commands.CommandExceptions._
 import play.api.libs.json._

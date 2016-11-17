@@ -31,10 +31,8 @@ case class UpdateMetadataCommand(atomId: String,
         val activeAsset = mediaAtom.activeVersion.flatMap(activeVersion => assets.find(_.version == activeVersion))
 
         activeAsset match {
-          case Some(asset) =>
-
-            if(asset.platform == Platform.Youtube)
-              YouTubeVideoUpdateApi(youtubeConfig).updateMetadata(asset.id, metadata)
+          case Some(asset) if asset.platform == Platform.Youtube =>
+            YouTubeVideoUpdateApi(youtubeConfig).updateMetadata(asset.id, metadata)
 
             val newMetadata = mediaAtom.metadata.map(_.copy(
               tags = metadata.tags,
@@ -57,7 +55,7 @@ case class UpdateMetadataCommand(atomId: String,
                 }
               }
             )
-          case None => AssetNotFound
+          case None => NotYoutubeAsset
         }
       case None => AtomNotFound
     }
