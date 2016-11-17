@@ -7,9 +7,8 @@ import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.youtube.YouTube
 import com.google.api.services.youtube.model.Video
-import model.YouTubeVideoCategory
+import model.{UpdatedMetadata, YouTubeVideoCategory}
 import play.api.Configuration
-import play.api.libs.json.JsValue
 
 import scala.collection.JavaConverters._
 
@@ -58,19 +57,22 @@ case class YouTubeVideoCategoryApi(config: YouTubeConfig) extends YouTubeBuilder
 }
 
 case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder {
-  def updateMetadata(id: String, metadata: JsValue): Option[Video] =
-      youtube.videos().list("snippet, status").setId(id).execute().getItems.asScala.toList.headOption match {
+  def updateMetadata(id: String, metadata: UpdatedMetadata): Option[Video] =
+      youtube.videos()
+        .list("snippet, status")
+        .setId(id)
+        .execute()
+        .getItems.asScala.toList.headOption match {
       case Some(video) =>
         val snippet = video.getSnippet
         snippet.setTitle(snippet.getTitle)
-        snippet.setCategoryId((metadata \ "categoryId").asOpt[String].fold(snippet.getCategoryId)(identity))
-        snippet.setChannelId((metadata \ "channelId").asOpt[String].fold(snippet.getChannelId)(identity))
-        snippet.setDescription((metadata \ "description").asOpt[String].fold(snippet.getDescription)(identity))
-        snippet.setTags((metadata \ "tags").asOpt[List[String]].map(_.asJava).fold(snippet.getTags)(identity))
+        snippet.setCategoryId(metadata.categoryId.getOrElse(snippet.getCategoryId))
+        snippet.setDescription(metadata.description.getOrElse(snippet.getDescription))
+        snippet.setTags(metadata.tags.map(_.asJava).getOrElse(snippet.getTags))
         video.setSnippet(snippet)
 
         val status = video.getStatus
-        status.setLicense((metadata \ "license").asOpt[String].fold(status.getLicense)(identity))
+        status.setLicense(metadata.license.getOrElse(status.getLicense))
         video.setStatus(status)
 
         Some(youtube.videos().update("snippet, status", video).setOnBehalfOfContentOwner(onBehalfOfContentOwner).execute())
