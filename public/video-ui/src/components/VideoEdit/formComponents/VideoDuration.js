@@ -4,7 +4,7 @@ export default class VideoDurationEdit extends React.Component {
 
   onUpdateDuration= (e) => {
     let newData = Object.assign({}, this.props.video, {
-      duration: e.target.value
+      duration: Number(e.target.value)
     });
 
     this.props.updateVideo(newData);

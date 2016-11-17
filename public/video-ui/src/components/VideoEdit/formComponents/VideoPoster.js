@@ -25,7 +25,7 @@ class VideoPosterImageEdit extends React.Component {
 
     return (
       <div className="form__image" >
-        <img src={image.url}/>
+        <img src={image.file}/>
       </div>
     );
   }

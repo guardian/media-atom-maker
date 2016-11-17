@@ -30,7 +30,6 @@ case class MediaAtom(
   plutoProjectId: Option[String],
   duration: Option[Long],
   source: Option[String],
-  posterUrl: Option[String],
   description: Option[String],
   posterImage: Option[Image],
   // metadata
@@ -54,7 +53,7 @@ case class MediaAtom(
         plutoProjectId = plutoProjectId,
         duration = duration,
         source = source,
-        posterUrl = posterUrl,
+        posterUrl = posterImage.flatMap(_.master).map(_.file),
         description = description,
         posterImage = posterImage.map(_.asThrift),
         metadata = Some(ThriftMetadata(
@@ -72,7 +71,7 @@ case class MediaAtom(
   private def generateHtml(): String = {
     val activeAssets = assets filter (asset => activeVersion.contains(asset.version))
     if (activeAssets.nonEmpty && activeAssets.forall(_.platform == Platform.Url)) {
-      views.html.MediaAtom.embedUrlAssets2(posterUrl.getOrElse(""), activeAssets).toString
+      views.html.MediaAtom.embedUrlAssets2(posterImage.flatMap(_.master).map(_.file).getOrElse(""), activeAssets).toString
     } else {
       activeAssets.headOption match {
         case Some(activeAsset) if activeAsset.platform == Platform.Youtube =>
@@ -100,7 +99,6 @@ object MediaAtom extends MediaAtomImplicits {
       plutoProjectId = data.plutoProjectId,
       duration = data.duration,
       source = data.source,
-      posterUrl = data.posterUrl,
       posterImage = data.posterImage.map(Image.fromThrift),
       description = data.description,
       tags = data.metadata.flatMap(_.tags.map(_.toList)).getOrElse(Nil),

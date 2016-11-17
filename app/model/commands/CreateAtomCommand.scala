@@ -6,7 +6,7 @@ import java.util.UUID._
 import com.gu.atom.data.{PreviewDataStore, IDConflictError}
 import com.gu.atom.publish.PreviewAtomPublisher
 import com.gu.contentatom.thrift._
-import model.MediaAtom
+import model.{Image, MediaAtom}
 import model.commands.CommandExceptions._
 import org.cvogt.play.json.Jsonx
 
@@ -18,7 +18,7 @@ import com.gu.contentatom.thrift.atom.media.{MediaAtom => ThriftMediaAtom, Categ
 
 // Since the data store and publisher are injected rather than being objects we cannot serialize JSON directly into a
 // command so we'll use a small POD for easy JSONification
-case class CreateAtomCommandData(title: String, category: String, posterUrl: String, duration: Long)
+case class CreateAtomCommandData(title: String, category: String, posterImage: Image, duration: Long)
 
 object CreateAtomCommandData {
   implicit val createAtomCommandFormat = Jsonx.formatCaseClass[CreateAtomCommandData]
@@ -43,7 +43,7 @@ case class CreateAtomCommand(data: CreateAtomCommandData)
         category = ThriftCategory.valueOf(data.category).get,
         plutoProjectId = None,
         source = None,
-        posterUrl = Some(data.posterUrl),
+        posterImage= Some(data.posterImage.asThrift),
         duration = Some(data.duration),
         description = None,
         metadata = None

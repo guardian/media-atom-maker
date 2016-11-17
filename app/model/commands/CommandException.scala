@@ -11,6 +11,8 @@ object CommandExceptions extends Results {
   def AtomIdConflict = throw new CommandException("Atom ID conflict", 400)
   def AssetVersionConflict = throw new CommandException("Asset version conflict", 400)
   def AssetParseFailed = throw new CommandException("Failed to parse asset", 400)
+
+  def AtomUpdateFailed(err: String) = throw new CommandException(s"Failed to update atom: $err", 500)
   def AtomPublishFailed(err: String) = throw new CommandException(s"Failed to publish atom: $err", 500)
 
   // Add exceptions here as required
