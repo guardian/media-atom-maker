@@ -7,6 +7,7 @@ case class CommandException(msg: String, responseCode: Int) extends RuntimeExcep
 object CommandExceptions extends Results {
 
   def AtomNotFound = throw new CommandException("Atom not found", 404)
+  def NotYoutubeAsset = throw new CommandException("Asset is not a youtube video", 400)
   def AssetVersionConflict = throw new CommandException("Asset version conflict", 400)
   def AssetParseFailed = throw new CommandException("Failed to parse asset", 400)
 
