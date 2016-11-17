@@ -34,7 +34,8 @@ object TestData {
         source = None,
         posterUrl = None,
         description = None,
-        metadata = None
+        metadata = None,
+        posterImage = None
       )
     ),
     contentChangeDetails = ContentChangeDetails(revision = 1)
