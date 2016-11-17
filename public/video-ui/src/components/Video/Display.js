@@ -17,9 +17,6 @@ class VideoDisplay extends React.Component {
 
   saveVideo = () => {
     this.props.videoActions.saveVideo(this.props.video);
-    this.setState({
-      editable: false
-    })
   };
 
   updateVideo = (video) => {
@@ -32,6 +29,9 @@ class VideoDisplay extends React.Component {
 
   publishVideo = () => {
     this.props.videoActions.publishVideo(this.props.video.id);
+    this.setState({
+      editable: false
+    });
   };
 
   enableEditing = () => {
@@ -39,23 +39,6 @@ class VideoDisplay extends React.Component {
       editable: true
     });
   };
-
-  renderDetails = () => {
-    if(this.state.editable) {
-      return (
-        <div className="video__sidebar video-details">
-          <form className="form video__sidebar__group">
-            <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo}/>
-            <SaveButton saveState={this.props.saveState} onSaveClick={this.saveVideo} onResetClick={this.resetVideo} />
-          </form>
-        </div>
-      )
-    } else {
-      return (
-          <VideoDetails video={this.props.video || {}} enableEditing={this.enableEditing} onPublishVideo={this.publishVideo}/>
-      )
-    }
-  }
 
   render() {
     const video = this.props.video && this.props.params.id === this.props.video.id ? this.props.video : undefined;
@@ -66,7 +49,13 @@ class VideoDisplay extends React.Component {
 
     return (
         <div className="video">
-          {this.renderDetails()}
+
+          <div className="video__sidebar video-details">
+            <form className="form video__sidebar__group">
+              <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo} saveVideo={this.saveVideo} resetVideo={this.resetVideo} />
+            </form>
+          </div>
+
           <div className="video__main">
             <VideoPreview video={this.props.video || {}} />
             <VideoAssets video={this.props.video || {}} />
