@@ -2,11 +2,9 @@ package controllers
 
 import javax.inject.Inject
 
-import _root_.util.ThriftUtil._
-import com.gu.atom.data.{IDConflictError, PreviewDataStore, PublishedDataStore}
+import com.gu.atom.data.{PreviewDataStore, PublishedDataStore}
 import com.gu.atom.play.AtomAPIActions
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
-import com.gu.contentatom.thrift.{EventType, ContentAtomEvent}
 import com.gu.pandahmac.HMACAuthActions
 import data.JsonConversions._
 import model.commands.CommandExceptions._
@@ -17,8 +15,6 @@ import util.{YouTubeConfig, AWSConfig}
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
 import model.MediaAtom
-
-import scala.util.{Failure, Success}
 
 class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
                      val publishedDataStore: PublishedDataStore,
