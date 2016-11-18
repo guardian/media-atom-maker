@@ -1,9 +1,8 @@
 import React from 'react';
 import VideoEdit from '../VideoEdit/VideoEdit';
 import VideoAssets from '../VideoAssets/VideoAssets';
-import VideoDetails from '../VideoDetails/VideoDetails';
+import VideoPublishButton from '../VideoPublishButton/VideoPublishButton';
 import VideoPreview from '../VideoPreview/VideoPreview';
-import SaveButton from '../utils/SaveButton';
 
 class VideoDisplay extends React.Component {
 
@@ -53,6 +52,7 @@ class VideoDisplay extends React.Component {
           <div className="video__sidebar video-details">
             <form className="form video__sidebar__group">
               <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo} saveVideo={this.saveVideo} resetVideo={this.resetVideo} />
+              <VideoPublishButton video={this.props.video || {}} publishVideo={this.publishVideo} />
             </form>
           </div>
 
