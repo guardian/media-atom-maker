@@ -7,7 +7,7 @@ function requestVideoSave() {
   };
 }
 
-function recieveVideoSave(video) {
+function receiveVideoSave(video) {
   return {
     type:       'VIDEO_SAVE_RECEIVE',
     video:      video,
@@ -28,7 +28,7 @@ export function saveVideo(video) {
   return dispatch => {
     dispatch(requestVideoSave());
     return VideosApi.saveVideo(video.id, video)
-        .then(res => dispatch(recieveVideoSave(res)))
+        .then(res => dispatch(receiveVideoSave(res)))
         .fail(error => dispatch(errorVideoSave(error)));
   };
 }

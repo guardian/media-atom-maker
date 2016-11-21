@@ -9,6 +9,7 @@ object CommandExceptions extends Results {
   def UnknownFailure = throw new CommandException("Unknown internal server error", 500)
   def AtomNotFound = throw new CommandException("Atom not found", 404)
   def AtomIdConflict = throw new CommandException("Atom ID conflict", 400)
+  def NotYoutubeAsset = throw new CommandException("Asset is not a youtube video", 400)
   def AssetVersionConflict = throw new CommandException("Asset version conflict", 400)
   def AssetParseFailed = throw new CommandException("Failed to parse asset", 400)
 

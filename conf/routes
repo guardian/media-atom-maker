@@ -18,6 +18,7 @@ GET     /api2/atoms                     controllers.Api2.getMediaAtoms()
 GET     /api2/atoms/:id                 controllers.Api2.getMediaAtom(id)
 PUT     /api2/atoms/:id                 controllers.Api2.putMediaAtom(id)
 POST    /api2/atoms/:id/assets          controllers.Api2.addAsset(id)
+PUT     /api/atom/:id/updateMetadata    controllers.Api2.updateMetadata(id)
 
 GET     /api/youtube/categories         controllers.YoutubeCategory.list()
 
@@ -38,3 +39,6 @@ GET  /reauth                            controllers.VideoUIApp.reauth
 GET /video                              controllers.VideoUIApp.index(id = "")
 GET /video/videos                       controllers.VideoUIApp.index(id = "")
 GET /video/videos/:id                   controllers.VideoUIApp.index(id)
+
+#Support
+GET /support/previewCapi/*path          controllers.Support.previewCapiProxy(path: String)

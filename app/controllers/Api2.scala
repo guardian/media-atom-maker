@@ -11,8 +11,9 @@ import com.gu.pandahmac.HMACAuthActions
 import data.JsonConversions._
 import model.commands.CommandExceptions._
 import model.commands._
+import model.UpdatedMetadata
 import play.api.Configuration
-import util.AWSConfig
+import util.{YouTubeConfig, AWSConfig}
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
 import model.MediaAtom
@@ -25,7 +26,8 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
                      implicit val previewPublisher: PreviewAtomPublisher,
                      val conf: Configuration,
                      val awsConfig: AWSConfig,
-                     val authActions: HMACAuthActions)
+                     val authActions: HMACAuthActions,
+                     val youtubeConfig: YouTubeConfig)
   extends MediaAtomImplicits
     with AtomAPIActions
     with AtomController {
@@ -94,5 +96,23 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
     }
   }
 
+<<<<<<< HEAD
   private def atomUrl(id: String) = s"/atom/$id"
+=======
+  def updateMetadata(atomId: String) = APIHMACAuthAction { implicit req =>
+    req.body.asJson.map { json =>
+      json.validate[UpdatedMetadata] match {
+        case JsSuccess(metadata, _) =>
+          UpdateMetadataCommand(atomId, metadata).process()
+          Ok
+        case JsError(e) => BadRequest(s"Json doesn't contain the right fields. $e")
+      }
+
+    }.getOrElse {
+      BadRequest("Could not read json")
+    }
+    Ok
+  }
+
+>>>>>>> master
 }
