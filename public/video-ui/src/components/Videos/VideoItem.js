@@ -10,7 +10,7 @@ export default class VideoItem extends React.Component {
 
             <div className="grid__info">
               <div className="grid__image">
-                <img src="http://placehold.it/350x150?text=image" alt="image"/>
+                <img src={this.props.video.data.posterUrl || ''} alt={this.props.video.data.title}/>
               </div>
               <p>{this.props.video.data.title}</p>
               <p>Type: {this.props.video.type}</p>
