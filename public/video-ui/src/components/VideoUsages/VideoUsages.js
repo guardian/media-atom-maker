@@ -50,12 +50,6 @@ class VideoUsages extends React.Component {
 
   renderUsages() {
 
-    const fakeUsages = [
-      'technology/2016/oct/21/unlaunched-test-article',
-      'technology/2016/oct/14/testing-witness-embed',
-      'technology/2013/sep/18/ios-7-review-can-apple-hold-off-the-attack-of-the-giant-screens',
-    ];
-
     if (!this.state.usages) {
       return (<div>Fetching Usages...</div>)
     }
@@ -66,7 +60,7 @@ class VideoUsages extends React.Component {
 
     return (
       <ul className="usages__list">
-        {fakeUsages.map(this.renderUsage)}
+        {this.state.usages.map(this.renderUsage)}
       </ul>
     )
   }
