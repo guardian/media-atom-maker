@@ -34,6 +34,10 @@ class VideoDisplay extends React.Component {
     this.props.videoActions.publishVideo(this.props.video.id);
   };
 
+  selectVideo = () => {
+    window.parent.postMessage({atomId: this.props.video.id}, '*');
+  }
+
   enableEditing = () => {
     this.setState({
       editable: true
@@ -52,7 +56,13 @@ class VideoDisplay extends React.Component {
       )
     } else {
       return (
-          <VideoDetails video={this.props.video || {}} enableEditing={this.enableEditing} onPublishVideo={this.publishVideo}/>
+          <VideoDetails
+            video={this.props.video || {}}
+            enableEditing={this.enableEditing}
+            onPublishVideo={this.publishVideo}
+            showSelect={this.props.config.embeddedMode}
+            onSelectVideo={this.selectVideo}
+          />
       )
     }
   }
@@ -88,7 +98,8 @@ import * as publishVideo from '../../actions/VideoActions/publishVideo';
 function mapStateToProps(state) {
   return {
     video: state.video,
-    saveState: state.saveState
+    saveState: state.saveState,
+    config: state.config
   };
 }
 
