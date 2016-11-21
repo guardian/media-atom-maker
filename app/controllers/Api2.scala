@@ -96,9 +96,9 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
     }
   }
 
-<<<<<<< HEAD
+
   private def atomUrl(id: String) = s"/atom/$id"
-=======
+
   def updateMetadata(atomId: String) = APIHMACAuthAction { implicit req =>
     req.body.asJson.map { json =>
       json.validate[UpdatedMetadata] match {
@@ -113,6 +113,4 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
     }
     Ok
   }
-
->>>>>>> master
 }

@@ -34,7 +34,7 @@ case class MediaAtom(
   posterImage: Option[Image],
   // metadata
   tags: List[String],
-  categoryId: String,
+  youtubeCategoryId: Option[String],
   license: Option[String],
   channelId: String,
   commentsEnabled: Boolean = false
@@ -58,7 +58,7 @@ case class MediaAtom(
         posterImage = posterImage.map(_.asThrift),
         metadata = Some(ThriftMetadata(
           tags = Some(tags),
-          categoryId = Some(categoryId),
+          categoryId = youtubeCategoryId,
           license = license,
           commentsEnabled = Some(commentsEnabled),
           channelId = Some(channelId)
@@ -102,7 +102,7 @@ object MediaAtom extends MediaAtomImplicits {
       posterImage = data.posterImage.map(Image.fromThrift),
       description = data.description,
       tags = data.metadata.flatMap(_.tags.map(_.toList)).getOrElse(Nil),
-      categoryId = data.metadata.flatMap(_.categoryId).getOrElse("news"),
+      youtubeCategoryId = data.metadata.map(_.categoryId).getOrElse(Some("news")),
       license = data.metadata.flatMap(_.license),
       commentsEnabled = data.metadata.flatMap(_.commentsEnabled).getOrElse(false),
       channelId = data.metadata.flatMap(_.channelId).getOrElse("grauniad channel id")
