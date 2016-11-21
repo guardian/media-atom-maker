@@ -4,7 +4,6 @@ import VideoAssets from '../VideoAssets/VideoAssets';
 import VideoPublishButton from '../VideoPublishButton/VideoPublishButton';
 import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoUsages from '../VideoUsages/VideoUsages';
-import SaveButton from '../utils/SaveButton';
 
 class VideoDisplay extends React.Component {
 
@@ -38,6 +37,10 @@ class VideoDisplay extends React.Component {
     });
   };
 
+  selectVideo = () => {
+    window.parent.postMessage({atomId: this.props.video.id}, '*');
+  };
+
   enableEditing = () => {
     this.setState({
       editable: true
@@ -56,7 +59,15 @@ class VideoDisplay extends React.Component {
 
           <div className="video__sidebar video-details">
             <form className="form video__sidebar__group">
-              <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo} saveVideo={this.saveVideo} resetVideo={this.resetVideo} />
+
+              <VideoEdit
+                video={this.props.video || {}}
+                updateVideo={this.updateVideo}
+                saveVideo={this.saveVideo}
+                resetVideo={this.resetVideo}
+                showSelect={this.props.config.embeddedMode}
+                onSelectVideo={this.selectVideo} />
+
               <VideoPublishButton video={this.props.video || {}} publishVideo={this.publishVideo} />
             </form>
           </div>
@@ -83,7 +94,9 @@ import * as publishVideo from '../../actions/VideoActions/publishVideo';
 
 function mapStateToProps(state) {
   return {
-    video: state.video
+    video: state.video,
+    saveState: state.saveState,
+    config: state.config
   };
 }
 

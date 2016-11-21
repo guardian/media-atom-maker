@@ -80,6 +80,8 @@ const VideoEdit = (props) => {
               component={YoutubeCategorySelect}
               {...props} />
           </FormFieldSaveWrapper>
+
+          {props.showSelect ? <button className="btn" onClick={props.onSelectVideo}>Select this Atom</button> : false}
         </div>
       )
     }

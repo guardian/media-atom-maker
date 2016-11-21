@@ -9,3 +9,4 @@ node_modules
 public/video-ui/build
 yarn.lock
 conf/youtube-DEV.conf
+conf/capi-DEV.conf
