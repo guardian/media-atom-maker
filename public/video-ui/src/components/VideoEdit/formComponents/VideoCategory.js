@@ -20,7 +20,7 @@ export default class VideoCategorySelect extends React.Component {
         <SelectBox
           fieldName="Category"
           fieldValue={this.props.video.data.category}
-          selectValues={videoCategories}
+          selectValues={videoCategories || []}
           onUpdateField={this.updateVideoCategory}
           {...this.props} />
     );

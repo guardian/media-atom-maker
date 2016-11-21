@@ -40,7 +40,7 @@ class YoutubeCategorySelect extends React.Component {
     <SelectBox
       fieldName="YouTube Category"
       fieldValue={this.props.video.data.category}
-      selectValues={this.props.youtube.categories}
+      selectValues={this.props.youtube.categories || []}
       onUpdateField={this.updateVideoCategory}
       defaultOption="Select a category..."
       {...this.props} />

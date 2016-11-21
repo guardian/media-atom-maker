@@ -29,15 +29,15 @@ export function getVideo(id) {
   return dispatch => {
     dispatch(requestVideo(id));
     return VideosApi.fetchVideo(id)
-        .catch(error => dispatch(errorReceivingVideo(error)))
-        .then(res => {
+      .then(res => {
 
-          //TODO remove this once the API returns more structured data
-          if (! res.data.metadata) {
-            res.data.metadata = {};
-          }
+        //TODO remove this once the API returns more structured data
+        if (! res.data.metadata) {
+          res.data.metadata = {};
+        }
 
-          dispatch(receiveVideo(res));
-        });
+        dispatch(receiveVideo(res));
+      })
+      .catch(error => dispatch(errorReceivingVideo(error)));
   };
 }
