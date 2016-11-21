@@ -5,11 +5,46 @@ import VideoDurationEdit from './formComponents/VideoDuration';
 import FormFieldSaveWrapper from '../FormFields/FormFieldSaveWrapper';
 import VideoPosterEdit from './formComponents/VideoPoster';
 import YoutubeCategorySelect from './formComponents/YoutubeCategory';
+import SaveButton from '../utils/SaveButton';
 import validate from '../../constants/videoEditValidation';
 import { Field, reduxForm } from 'redux-form';
 
 const VideoEdit = (props) => {
-    return (
+
+    if (props.createMode) {
+
+      return (
+        <div>
+          <Field
+          name="title"
+          type="text"
+          component={VideoTitleEdit}
+          {...props} />
+
+          <Field
+            name="category"
+            type="select"
+            component={VideoCategorySelect}
+            {...props} />
+
+          <Field
+            name="duration"
+            type="number"
+            component={VideoDurationEdit}
+            {...props} />
+
+          <Field name="posterImage" component={VideoPosterEdit} {...props} />
+
+          <Field
+            name="youtube-category"
+            type="select"
+            component={YoutubeCategorySelect}
+            {...props} />
+          <SaveButton saveState={props.saveState} onSaveClick={props.saveVideo} onResetClick={props.resetVideo} />
+        </div>
+      )
+    } else {
+      return (
         <div>
 
           <FormFieldSaveWrapper {...props}>
@@ -46,7 +81,8 @@ const VideoEdit = (props) => {
               {...props} />
           </FormFieldSaveWrapper>
         </div>
-    )
+      )
+    }
 };
 
 export default reduxForm({
