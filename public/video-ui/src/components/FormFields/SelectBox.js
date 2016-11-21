@@ -8,7 +8,7 @@ export default class SelectBox extends React.Component {
 
       return (
         <div className="form__row">
-          <label className="form__label">{this.props.fieldLabel}</label>
+          <label className="form__label">{this.props.fieldName}</label>
           <select
             {...this.props.input}
             className={"form__field form__field--select " + (hasError ? "form__field--error" : "") }

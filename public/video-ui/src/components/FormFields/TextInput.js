@@ -8,7 +8,7 @@ export default class TextInput extends React.Component {
 
       return (
         <div className="form__row">
-          <label className="form__label">{this.props.fieldLabel}</label>
+          <label className="form__label">{this.props.fieldName}</label>
           <input
             { ...this.props.input}
             className={"form__field " + (hasError ? "form__field--error" : "")}

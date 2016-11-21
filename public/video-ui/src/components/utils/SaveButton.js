@@ -9,7 +9,7 @@ export default class SaveButton extends React.Component {
     }
 
     return (
-        <div className="save">
+        <div className="btn__group">
           {this.saveButton()}
           {this.resetButton()}
         </div>
