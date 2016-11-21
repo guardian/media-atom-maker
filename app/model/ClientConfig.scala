@@ -9,7 +9,8 @@ case class ClientConfig(username: String,
                         youtubeEmbedUrl: String,
                         youtubeThumbnailUrl: String,
                         reauthUrl: String,
-                        gridUrl: String
+                        gridUrl: String,
+                        capiProxyUrl: String
                        )
 
 object ClientConfig {

@@ -3,6 +3,8 @@ import VideoEdit from '../VideoEdit/VideoEdit';
 import VideoAssets from '../VideoAssets/VideoAssets';
 import VideoPublishButton from '../VideoPublishButton/VideoPublishButton';
 import VideoPreview from '../VideoPreview/VideoPreview';
+import VideoUsages from '../VideoUsages/VideoUsages';
+import SaveButton from '../utils/SaveButton';
 
 class VideoDisplay extends React.Component {
 
@@ -16,6 +18,9 @@ class VideoDisplay extends React.Component {
 
   saveVideo = () => {
     this.props.videoActions.saveVideo(this.props.video);
+    this.setState({
+      editable: false
+    })
   };
 
   updateVideo = (video) => {
@@ -57,10 +62,12 @@ class VideoDisplay extends React.Component {
           </div>
 
           <div className="video__main">
-            <VideoPreview video={this.props.video || {}} />
-            <VideoAssets video={this.props.video || {}} />
+            <div className="video__main__header">
+              <VideoPreview video={this.props.video || {}} />
+              <VideoAssets video={this.props.video || {}} />
+            </div>
+            <VideoUsages video={this.props.video} />
           </div>
-
         </div>
     )
   }
