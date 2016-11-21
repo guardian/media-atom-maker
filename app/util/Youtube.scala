@@ -7,7 +7,7 @@ import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.youtube.YouTube
 import com.google.api.services.youtube.model.Video
-import model.{UpdatedMetadata, YouTubeVideoCategory}
+import model.{UpdatedMetadata, YouTubeVideoCategory, YouTubeChannel}
 import play.api.Configuration
 
 import scala.collection.JavaConverters._
@@ -78,4 +78,16 @@ case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder {
         Some(youtube.videos().update("snippet, status", video).setOnBehalfOfContentOwner(onBehalfOfContentOwner).execute())
       case _ => None
     }
+}
+
+case class YouTubeChannelsApi(config: YouTubeConfig) extends YouTubeBuilder {
+  def fetchMyChannels(): List[YouTubeChannel] = {
+    val request = youtube.channels()
+      .list("snippet")
+      .setMaxResults(50L)
+      .setManagedByMe(true)
+      .setOnBehalfOfContentOwner(config.contentOwner)
+
+    request.execute().getItems.asScala.toList.map(YouTubeChannel.build).sortBy(_.name)
+  }
 }
