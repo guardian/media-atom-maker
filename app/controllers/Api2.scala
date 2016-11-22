@@ -120,7 +120,7 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
 
         val status: Unit = ActiveAssetCommand(atomId, videoId).process()
 
-        Ok("asset added")
+        Ok("made asset " + videoId + " active in atom " + atomId)
       } catch {
         commandExceptionAsResult
       }
