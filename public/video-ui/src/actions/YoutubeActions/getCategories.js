@@ -1,4 +1,4 @@
-import {getYoutubeCategories} from '../../services/YoutubeApi';
+import YoutubeApi from '../../services/YoutubeApi';
 
 function requestCategories() {
   return {
@@ -27,8 +27,8 @@ function errorReceivingCatetories(error) {
 export function getCategories() {
   return dispatch => {
     dispatch(requestCategories());
-    return getYoutubeCategories()
-      .catch(error => dispatch(errorReceivingCatetories(error)))
-      .then(categories => dispatch(receiveCategories(categories)));
+    return YoutubeApi.getCategories()
+      .then(categories => dispatch(receiveCategories(categories)))
+      .catch(error => dispatch(errorReceivingCatetories(error)));
   };
 }
