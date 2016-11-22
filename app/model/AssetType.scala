@@ -10,13 +10,13 @@ sealed trait AssetType {
 }
 
 object AssetType {
-  case object AUDIO extends AssetType { val name = "AUDIO" }
-  case object VIDEO extends AssetType { val name = "VIDEO" }
+  case object Audio extends AssetType { val name = "Audio" }
+  case object Video extends AssetType { val name = "Video" }
 
   val assetTypeReads = Reads[AssetType](json => {
     json.as[String] match {
-      case "AUDIO" => JsSuccess(AUDIO)
-      case "VIDEO" => JsSuccess(VIDEO)
+      case "Audio" => JsSuccess(Audio)
+      case "Video" => JsSuccess(Video)
     }
   })
 
@@ -26,7 +26,7 @@ object AssetType {
 
   implicit val assetTypeFormat = Format(assetTypeReads, assetTypeWrites)
 
-  private val types = List(AUDIO, VIDEO)
+  private val types = List(Audio, Video)
 
   def fromThrift(p: ThriftAssetType) = types.find(_.name == p.name).get
 }

@@ -1,14 +1,15 @@
 import { browserHistory } from 'react-router';
 import VideosApi from '../../services/VideosApi';
 
-function requestRevertAsset() {
+function requestRevertAsset(assetVersion) {
   return {
     type:       'ASSET_REVERT_REQUEST',
+    assetVersion: assetVersion,
     receivedAt: Date.now()
   };
 }
 
-function recieveRevertAsset(video) {
+function receiveRevertAsset(video) {
   browserHistory.push('/video/videos/' + video.id);
   return {
     type: 'ASSET_REVERT_RECEIVE',
@@ -21,7 +22,7 @@ function recieveRevertAsset(video) {
 function errorRevertAsset(error) {
   return {
     type:       'SHOW_ERROR',
-    message:    'Could not create video',
+    message:    'Could not revert the asset',
     error:      error,
     receivedAt: Date.now()
   };
@@ -29,9 +30,9 @@ function errorRevertAsset(error) {
 
 export function revertAsset(version, videoId) {
   return dispatch => {
-    dispatch(requestRevertAsset());
+    dispatch(requestRevertAsset(version));
     return VideosApi.revertAsset(version, videoId)
-        .then(res => dispatch(recieveRevertAsset(res)))
+        .then(res => dispatch(receiveRevertAsset(res)))
         .fail(error => dispatch(errorRevertAsset(error)));
   };
 }

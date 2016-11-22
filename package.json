@@ -33,6 +33,7 @@
   "dependencies": {
     "panda-session": "^0.1.6",
     "q": "^1.4.1",
+    "querystringify": "0.0.4",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
     "react-redux": "^4.4.5",

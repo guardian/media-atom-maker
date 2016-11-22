@@ -6,7 +6,7 @@ import { Field, reduxForm } from 'redux-form';
 const VideoAssetAdd = (props) => {
 
   return (
-      <div className="video__sidebar video__sidebar__group">
+      <div>
         <Field name="url" type="text" component={VideoAssetUrl} {...props} />
       </div>
   )

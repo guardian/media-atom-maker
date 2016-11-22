@@ -11,6 +11,7 @@ import model.MediaAtom
 
 import scala.util.{Failure, Success}
 
+import model.commands.CommandExceptions._
 case class UpdateAtomCommand(id: String, atom: MediaAtom)
                             (implicit previewDataStore: PreviewDataStore,
                              previewPublisher: PreviewAtomPublisher)
@@ -23,17 +24,17 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom)
     if (id != atom.id) {
       AtomIdConflict
     }
-
-    val thrift = atom.asThrift
+    val details = atom.contentChangeDetails.copy(revision = atom.contentChangeDetails.revision + 1)
+    val thrift = atom.copy(contentChangeDetails = details).asThrift
 
     previewDataStore.updateAtom(thrift).fold(
-      err => InternalServerError(err.msg),
+      err => AtomUpdateFailed(err.msg),
       _ => {
         val event = ContentAtomEvent(thrift, EventType.Update, new Date().getTime)
 
         previewPublisher.publishAtomEvent(event) match {
           case Success(_) => ()
-          case Failure(err) => InternalServerError(s"could not publish: ${err.toString}")
+          case Failure(err) => AtomPublishFailed(s"could not publish: ${err.toString}")
         }
       }
     )

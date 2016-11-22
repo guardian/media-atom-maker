@@ -3,6 +3,7 @@ package controllers
 import java.util.Date
 import javax.inject._
 
+import _root_.util.{ThriftUtil, AWSConfig}
 import com.gu.atom.data._
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}

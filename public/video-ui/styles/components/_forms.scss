@@ -10,9 +10,12 @@
   margin-bottom: 20px;
 }
 
-.form__field {
+.video__sidebar .form__field {
   background-color: $color650Grey;
   color: $cWhite;
+}
+
+.form__field {
   padding: 5px;
   font-size: 12px;
   border: 1px solid $color500Grey;
@@ -71,6 +74,11 @@
   &--error {
     color: $dangerColor;
   }
+}
+
+.form__image img {
+  max-width: 100%;
+  max-height: 150px;
 }
 
 .form-checkbox {

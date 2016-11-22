@@ -7,15 +7,15 @@ function requestVideos() {
   };
 }
 
-function recieveVideos(videos) {
+function receiveVideos(videos) {
   return {
-    type:       'VIDEOS_GET_RECIEVE',
+    type:       'VIDEOS_GET_RECEIVE',
     videos:     videos,
     receivedAt: Date.now()
   };
 }
 
-function errorRecievingVideos(error) {
+function errorReceivingVideos(error) {
   return {
     type:       'SHOW_ERROR',
     message:    'Could not get videos',
@@ -28,9 +28,9 @@ export function getVideos() {
   return dispatch => {
     dispatch(requestVideos());
     return VideosApi.fetchVideos()
-        .catch(error => dispatch(errorRecievingVideos(error)))
+        .catch(error => dispatch(errorReceivingVideos(error)))
         .then(res => {
-          dispatch(recieveVideos(res));
+          dispatch(receiveVideos(res));
         });
   };
 }

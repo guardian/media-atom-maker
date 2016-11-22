@@ -1,0 +1,5 @@
+@(posterUrl: String, activeAssets: Seq[model.Asset])
+
+<video controls="controls" poster="@{posterUrl}">
+    @for(asset <- activeAssets) {<source type="@{asset.mimeType}" src="@{asset.id}" />}
+</video>

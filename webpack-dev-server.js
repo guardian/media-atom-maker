@@ -16,6 +16,7 @@ var wpServer = new WebpackDevServer(webpack(wpConfig), {
   hot:          true,
   progress:     true,
   noInfo:       true,
+  clientLogLevel: "info",
   watchOptions: {
     aggregateTimeout: 300,
     poll:             1000

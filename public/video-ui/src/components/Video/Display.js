@@ -3,7 +3,9 @@ import VideoEdit from '../VideoEdit/VideoEdit';
 import VideoAssets from '../VideoAssets/VideoAssets';
 import VideoDetails from '../VideoDetails/VideoDetails';
 import VideoPreview from '../VideoPreview/VideoPreview';
+import VideoUsages from '../VideoUsages/VideoUsages';
 import SaveButton from '../utils/SaveButton';
+
 
 class VideoDisplay extends React.Component {
 
@@ -17,6 +19,9 @@ class VideoDisplay extends React.Component {
 
   saveVideo = () => {
     this.props.videoActions.saveVideo(this.props.video);
+    this.setState({
+      editable: false
+    })
   };
 
   updateVideoFlags = (video) => {
@@ -27,9 +32,17 @@ class VideoDisplay extends React.Component {
     this.props.videoActions.updateVideo(video);
   };
 
+  resetVideo = () => {
+    this.props.videoActions.getVideo(this.props.video.id);
+  };
+
   publishVideo = () => {
     this.props.videoActions.publishVideo(this.props.video.id);
   };
+
+  selectVideo = () => {
+    window.parent.postMessage({atomId: this.props.video.id}, '*');
+  }
 
   enableEditing = () => {
     this.setState({
@@ -43,13 +56,20 @@ class VideoDisplay extends React.Component {
         <div className="video__sidebar video-details">
           <form className="form video__sidebar__group">
             <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo}/>
-            <SaveButton onSaveClick={this.saveVideo}/>
+            <SaveButton saveState={this.props.saveState} onSaveClick={this.saveVideo} onResetClick={this.resetVideo} />
           </form>
         </div>
       )
     } else {
       return (
-          <VideoDetails video={this.props.video || {}} enableEditing={this.enableEditing} onPublishVideo={this.publishVideo} updateVideoFlags={this.updateVideoFlags}/>
+        <VideoDetails
+          video={this.props.video || {}}
+          enableEditing={this.enableEditing}
+          onPublishVideo={this.publishVideo}
+          updateVideoFlags={this.updateVideoFlags}
+          showSelect={this.props.config.embeddedMode}
+          onSelectVideo={this.selectVideo}
+        />
       )
     }
   }
@@ -63,11 +83,14 @@ class VideoDisplay extends React.Component {
 
     return (
         <div className="video">
-          <VideoAssets video={this.props.video || {}} />
-
-          <VideoPreview video={this.props.video || {}} />
-
           {this.renderDetails()}
+          <div className="video__main">
+            <div className="video__main__header">
+              <VideoPreview video={this.props.video || {}} />
+              <VideoAssets video={this.props.video || {}} />
+            </div>
+            <VideoUsages video={this.props.video} />
+          </div>
         </div>
     )
   }
@@ -83,7 +106,9 @@ import * as publishVideo from '../../actions/VideoActions/publishVideo';
 
 function mapStateToProps(state) {
   return {
-    video: state.video
+    video: state.video,
+    saveState: state.saveState,
+    config: state.config
   };
 }
 

@@ -7,8 +7,9 @@ import CommandExceptions._
 import com.gu.atom.publish.PreviewAtomPublisher
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.contentatom.thrift.atom.media.Asset
-import util.atom.MediaAtomImplicits
+import model.MediaAtom
 import util.ThriftUtil
+import util.atom.MediaAtomImplicits
 
 import scala.util.{Failure, Success}
 
@@ -21,9 +22,9 @@ case class AddAssetCommand(atomId: String,
     extends Command
     with MediaAtomImplicits {
 
-  type T = Unit
+  type T = MediaAtom
 
-  def process(): Unit = {
+  def process(): MediaAtom = {
     previewDataStore.getAtom(atomId) match {
       case Some(atom) =>
         val mediaAtom = atom.tdata
@@ -46,13 +47,13 @@ case class AddAssetCommand(atomId: String,
           .withRevision(_ + 1)
 
         previewDataStore.updateAtom(newAtom).fold(
-          err => InternalServerError(err.msg),
+          err => AtomUpdateFailed(err.msg),
           _ => {
             val event = ContentAtomEvent(newAtom, EventType.Update, new Date().getTime)
 
             previewPublisher.publishAtomEvent(event) match {
-              case Success(_) => ()
-              case Failure(err) => InternalServerError(s"could not publish: ${err.toString}")
+              case Success(_) => return MediaAtom.fromThrift(newAtom)
+              case Failure(err) => AtomPublishFailed(err.toString)
             }
           }
         )

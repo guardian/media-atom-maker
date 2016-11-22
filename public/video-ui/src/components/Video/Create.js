@@ -5,16 +5,16 @@ import {blankVideoData} from '../../constants/blankVideoData';
 
 class VideoCreate extends React.Component {
 
-  constructor(props) {
-    super(props);
-  }
-
   componentDidMount() {
     this.props.videoActions.populateEmptyVideo();
   }
 
   createVideo = () => {
     this.props.videoActions.createVideo(this.props.video);
+  };
+
+  resetVideo = () => {
+    this.props.videoActions.populateEmptyVideo();
   };
 
   updateVideo = (video) => {
@@ -26,7 +26,7 @@ class VideoCreate extends React.Component {
       <div className="container">
         <form className="form">
           <VideoEdit video={this.props.video || blankVideoData} updateVideo={this.updateVideo} />
-          <SaveButton onSaveClick={this.createVideo} />
+          <SaveButton saveState={this.props.saveState} onSaveClick={this.createVideo} onResetClick={this.resetVideo} />
         </form>
       </div>
     );
@@ -41,7 +41,8 @@ import * as updateVideo from '../../actions/VideoActions/updateVideo';
 
 function mapStateToProps(state) {
   return {
-    video: state.video
+    video: state.video,
+    saveState: state.saveState
   };
 }
 

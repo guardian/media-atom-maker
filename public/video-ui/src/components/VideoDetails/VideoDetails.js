@@ -1,8 +1,22 @@
 import React, {PropTypes} from 'react';
-import {Link} from 'react-router';
 import ContentFlags from './ContentFlags';
+import {findSmallestAsset} from '../../util/imageHelpers';
 
 export default class VideoDetails extends React.Component {
+
+  renderPosterImage() {
+    if (!this.props.video.posterImage) {
+      return <dd className="details-list__field">No Image Selected</dd>
+    }
+
+    const image = findSmallestAsset(this.props.video.posterImage.assets)
+
+    return (
+       <dd className="details-list__field">
+         <img src={image.url}/>
+       </dd>
+    );
+  }
 
   render() {
     return (
@@ -10,23 +24,17 @@ export default class VideoDetails extends React.Component {
           <div className="video__sidebar__group">
             <dl className="details-list">
 
-              <dt className="details-list__title">Atom ID</dt>
-              <dd className="details-list__field">{this.props.video.id}</dd>
-
               <dt className="details-list__title">Title</dt>
-              <dd className="details-list__field">{this.props.video.data.title}</dd>
+              <dd className="details-list__field">{this.props.video.title}</dd>
 
               <dt className="details-list__title">Category</dt>
-              <dd className="details-list__field">{this.props.video.data.category}</dd>
+              <dd className="details-list__field">{this.props.video.category}</dd>
 
-              <dt className="details-list__title">Duration (ms)</dt>
-              <dd className="details-list__field">{this.props.video.data.duration}</dd>
-
-              <dt className="details-list__title">Poster Image URL</dt>
-              <dd className="details-list__field">{this.props.video.data.posterUrl}</dd>
+              <dt className="details-list__title">Poster Image</dt>
+              {this.renderPosterImage()}
 
               <dt className="details-list__title">Version</dt>
-              <dd className="details-list__field">{this.props.video.data.activeVersion}</dd>
+              <dd className="details-list__field">{this.props.video.activeVersion}</dd>
 
               <dt className="details-list__title">CAPI link</dt>
               <dd className="details-list__field">
@@ -36,9 +44,9 @@ export default class VideoDetails extends React.Component {
               </dd>
             </dl>
             <ContentFlags video={this.props.video || {}} updateVideoFlags={this.props.updateVideoFlags} />
-
             {this.props.enableEditing ? <button className="btn" type="button" onClick={this.props.enableEditing}>Edit</button> : ''}
             <button className="btn" onClick={this.props.onPublishVideo}>Publish video</button>
+            {this.props.showSelect ? <button className="btn" onClick={this.props.onSelectVideo}>Select this Atom</button> : false}
           </div>
         </div>
     )

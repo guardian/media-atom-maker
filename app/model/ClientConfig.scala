@@ -7,7 +7,11 @@ import scala.concurrent.{Future}
 
 case class ClientConfig(username: String,
                         youtubeEmbedUrl: String,
-                        reauthUrl: String)
+                        youtubeThumbnailUrl: String,
+                        reauthUrl: String,
+                        gridUrl: String,
+                        capiProxyUrl: String
+                       )
 
 object ClientConfig {
   implicit val clientConfigFormat = Jsonx.formatCaseClass[ClientConfig]

@@ -30,16 +30,20 @@ class VideoAssets extends React.Component {
     this.props.videoActions.createAsset(this.props.asset, this.props.video.id);
   };
 
-  updateAsset = (asset) => {
-    this.props.videoActions.updateAsset(asset);
-  };
-
   revertAsset = (version) => {
     this.props.videoActions.revertAsset(version, this.props.video.id);
   };
 
+  updateVideo = (video) => {
+    this.props.videoActions.updateVideo(video);
+  };
+
+  updateAsset = (asset) => {
+    this.props.videoActions.updateAsset(asset);
+  }
+
   renderList() {
-      if(this.props.video.data.assets) {
+      if(this.props.video.assets) {
         return (
           <ul className="asset-list">
             {this.renderListItems()}
@@ -52,7 +56,7 @@ class VideoAssets extends React.Component {
 
   renderListItems() {
     return (
-        this.props.video.data.assets.map((asset, index) => <VideoAssetItem key={index} asset={asset} activeAsset={this.props.video.data.activeVersion} video={this.props.video} revertAsset={this.revertAsset} />)
+        this.props.video.assets.map((asset, index) => <VideoAssetItem key={index} asset={asset} activeAsset={this.props.video.activeVersion} video={this.props.video} revertAsset={this.revertAsset}  updateVideo={this.updateVideo}/>)
     );
   }
 
@@ -75,10 +79,10 @@ class VideoAssets extends React.Component {
 
   render() {
     return (
-        <div className="video__sidebar video-assets">
-          {this.renderAssetEdit()}
+        <div className="video-assets">
+          <h2>All Assets</h2>
           {this.renderList()}
-
+          {this.renderAssetEdit()}
         </div>
     )
   }
@@ -88,8 +92,9 @@ class VideoAssets extends React.Component {
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as createAsset from '../../actions/VideoActions/createAsset';
-import * as updateAsset from '../../actions/VideoActions/updateAsset';
+import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as revertAsset from '../../actions/VideoActions/revertAsset';
+import * as updateAsset from '../../actions/VideoActions/updateAsset';
 
 function mapStateToProps(state) {
   return {
@@ -100,7 +105,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, createAsset, updateAsset, revertAsset), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, createAsset, updateVideo, revertAsset, updateAsset), dispatch)
   };
 }
 

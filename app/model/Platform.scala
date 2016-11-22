@@ -9,19 +9,19 @@ sealed trait Platform {
 }
 
 object Platform {
-  case object YOUTUBE extends Platform { val name = "YOUTUBE" }
-  case object FACEBOOK extends Platform { val name = "FACEBOOK" }
-  case object DAILYMOTION extends Platform { val name = "DAILYMOTION" }
-  case object MAINSTREAM extends Platform { val name = "MAINSTREAM" }
-  case object URL extends Platform { val name = "URL" }
+  case object Youtube extends Platform { val name = "Youtube" }
+  case object Facebook extends Platform { val name = "Facebook" }
+  case object Dailymotion extends Platform { val name = "Dailymotion" }
+  case object Mainstream extends Platform { val name = "Mainstream" }
+  case object Url extends Platform { val name = "Url" }
 
   val platformReads = Reads[Platform](json => {
     json.as[String] match {
-      case "YOUTUBE" => JsSuccess(YOUTUBE)
-      case "FACEBOOK" => JsSuccess(FACEBOOK)
-      case "DAILYMOTION" => JsSuccess(DAILYMOTION)
-      case "MAINSTREAM" => JsSuccess(MAINSTREAM)
-      case "URL" => JsSuccess(URL)
+      case "Youtube" => JsSuccess(Youtube)
+      case "Facebook" => JsSuccess(Facebook)
+      case "Dailymotion" => JsSuccess(Dailymotion)
+      case "Mainstream" => JsSuccess(Mainstream)
+      case "Url" => JsSuccess(Url)
     }
   })
 
@@ -31,7 +31,7 @@ object Platform {
 
   implicit val platformFormat = Format(platformReads, platformWrites)
 
-  private val types = List(YOUTUBE, FACEBOOK, DAILYMOTION, MAINSTREAM, URL)
+  private val types = List(Youtube, Facebook, Dailymotion, Mainstream, Url)
 
   def fromThrift(p: ThriftPlatform) = types.find(_.name == p.name).get
 }

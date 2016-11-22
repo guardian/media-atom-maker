@@ -8,7 +8,7 @@ function requestVideoPublish() {
   };
 }
 
-function recieveVideoPublish() {
+function receiveVideoPublish() {
   return {
     type: 'VIDEO_PUBLISH_RECEIVE',
     receivedAt: Date.now()
@@ -28,7 +28,7 @@ export function publishVideo(video) {
   return dispatch => {
     dispatch(requestVideoPublish());
     return VideosApi.publishVideo(video)
-        .then(res => dispatch(recieveVideoPublish(res)))
+        .then(res => dispatch(receiveVideoPublish(res)))
         .fail(error => dispatch(errorVideoPublish(error)));
   };
 }
