@@ -36,7 +36,7 @@ case class MediaAtom(
   tags: List[String],
   youtubeCategoryId: Option[String],
   license: Option[String],
-  channelId: String,
+  channelId: Option[String],
   commentsEnabled: Boolean = false
 )  {
 
@@ -61,7 +61,7 @@ case class MediaAtom(
           categoryId = youtubeCategoryId,
           license = license,
           commentsEnabled = Some(commentsEnabled),
-          channelId = Some(channelId)
+          channelId = channelId
           ))
         )),
       contentChangeDetails = contentChangeDetails.asThrift,
@@ -105,7 +105,7 @@ object MediaAtom extends MediaAtomImplicits {
       youtubeCategoryId = data.metadata.map(_.categoryId).getOrElse(Some("news")),
       license = data.metadata.flatMap(_.license),
       commentsEnabled = data.metadata.flatMap(_.commentsEnabled).getOrElse(false),
-      channelId = data.metadata.flatMap(_.channelId).getOrElse("grauniad channel id")
+      channelId = data.metadata.flatMap(_.channelId)
     )
   }
 }
