@@ -41,7 +41,6 @@ case class AddAssetCommand(atomId: String,
 
         val newAtom = atom
           .withData(mediaAtom.copy(
-            activeVersion = Some(newAsset.version),
             assets = newAsset +: currentAssets
           ))
           .withRevision(_ + 1)
