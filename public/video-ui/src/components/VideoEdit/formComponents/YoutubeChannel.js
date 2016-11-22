@@ -11,17 +11,11 @@ class YoutubeChannelSelect extends React.Component {
   }
 
   updateVideoChannel = (e) => {
-    const newMetadata = Object.assign({}, this.props.video.data.metadata, {
+    const newId = Object.assign({}, this.props.video, {
       channelId: e.target.value
     });
 
-    const newData = Object.assign({}, this.props.video.data, {
-      metadata: newMetadata
-    });
-
-    this.props.updateVideo(Object.assign({}, this.props.video, {
-      data: newData
-    }));
+    this.props.updateVideo(newId);
   };
 
   render () {
@@ -40,7 +34,7 @@ class YoutubeChannelSelect extends React.Component {
         <label className="form__label">YouTube Channel</label>
         <select {...this.props.input}
                 className={"form__field form__field--select " + (hasError ? "form__field--error" : "") }
-                value={this.props.video.data.metadata.channelId || ''}
+                value={this.props.video.channelId || ''}
                 onChange={this.updateVideoChannel}>
           <option value='' disabled>select a channel...</option>
           {this.props.youtube.channels.map(channel => {
