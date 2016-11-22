@@ -20,6 +20,7 @@ class YouTubeConfig @Inject()(config: Configuration) {
   lazy val clientSecret = config.getString("youtube.clientSecret").getOrElse("")
   lazy val refreshToken = config.getString("youtube.refreshToken").getOrElse("")
   lazy val contentOwner = config.getString("youtube.contentOwner").getOrElse("")
+  lazy val allowedChannels = config.getStringList("youtube.allowedChannels")
 }
 
 trait YouTubeBuilder {
@@ -88,6 +89,12 @@ case class YouTubeChannelsApi(config: YouTubeConfig) extends YouTubeBuilder {
       .setManagedByMe(true)
       .setOnBehalfOfContentOwner(config.contentOwner)
 
-    request.execute().getItems.asScala.toList.map(YouTubeChannel.build).sortBy(_.name)
+    val allChannels = request.execute().getItems.asScala.toList.map(YouTubeChannel.build).sortBy(_.name)
+
+    config.allowedChannels match {
+      case None => allChannels
+      case Some(allowedList) => allChannels.filter(c => allowedList.contains(c.id))
+    }
+
   }
 }
