@@ -33,7 +33,7 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
             val mediaAtom = atom.tdata
             val atomAssets: Seq[Asset] = mediaAtom.assets
 
-            val newActiveAsset = atomAssets.find(asset => asset.id.split("v=")(1) == youtubeId).get
+            val newActiveAsset = atomAssets.find(asset => asset.id == youtubeId).get
 
             val newAtom = atom
               .withData(mediaAtom.copy(
