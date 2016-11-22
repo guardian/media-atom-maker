@@ -21,6 +21,7 @@ module.exports = {
     port:  port,
     addr:  addr,
     host:  host,
+    devServer: { inline: true },
     entry: {
         'assets/video-ui/build/app': [
             'webpack-dev-server/client?' + host,
