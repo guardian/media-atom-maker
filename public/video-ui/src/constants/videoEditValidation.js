@@ -6,8 +6,8 @@ const validate = (values) => {
   if (!values.category) {
     errors.category = 'Required'
   }
-  if (!values.posterUrl) {
-    errors.posterUrl = 'Required'
+  if (!values.posterImage) {
+    errors.posterImage = 'Required'
   }
   if (!values.duration) {
     errors.duration = 'Required'

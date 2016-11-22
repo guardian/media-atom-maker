@@ -2,18 +2,23 @@ package controllers
 
 import javax.inject.Inject
 
-import com.gu.atom.data.{PublishedDataStore, PreviewDataStore}
+import _root_.util.ThriftUtil._
+import com.gu.atom.data.{IDConflictError, PreviewDataStore, PublishedDataStore}
 import com.gu.atom.play.AtomAPIActions
-import com.gu.atom.publish.{PreviewAtomPublisher, LiveAtomPublisher}
+import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
+import com.gu.contentatom.thrift.{EventType, ContentAtomEvent}
 import com.gu.pandahmac.HMACAuthActions
+import data.JsonConversions._
+import model.commands.CommandExceptions._
+import model.commands._
 import model.UpdatedMetadata
-import model.commands.{UpdateMetadataCommand, AddAssetCommand}
 import play.api.Configuration
 import util.{YouTubeConfig, AWSConfig}
 import util.atom.MediaAtomImplicits
-import model.commands.CommandExceptions._
 import play.api.libs.json._
-import data.JsonConversions._
+import model.MediaAtom
+
+import scala.util.{Failure, Success}
 
 class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
                      val publishedDataStore: PublishedDataStore,
@@ -29,10 +34,47 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
 
   import authActions.APIHMACAuthAction
 
-  def getAtom(id: String) = APIHMACAuthAction {
+  def getMediaAtoms = APIHMACAuthAction {
+    previewDataStore.listAtoms.fold(
+      err =>   InternalServerError(jsonError(err.msg)),
+      atoms => Ok(Json.toJson(atoms.map(MediaAtom.fromThrift).toList))
+    )
+  }
+
+  def getMediaAtom(id: String) = APIHMACAuthAction {
     previewDataStore.getAtom(id) match {
-      case Some(atom) => Ok(Json.toJson(atom))
+      case Some(atom) => Ok(Json.toJson(MediaAtom.fromThrift(atom)))
       case None => NotFound(jsonError(s"no atom with id $id found"))
+    }
+  }
+
+  def createMediaAtom = APIHMACAuthAction { implicit req =>
+    req.body.asJson.map { json =>
+      try {
+        val atom = CreateAtomCommand(json.as[CreateAtomCommandData]).process()
+        Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
+
+      } catch {
+        commandExceptionAsResult
+      }
+
+    }.getOrElse {
+      BadRequest("Could not read json")
+    }
+  }
+
+  def putMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
+    req.body.asJson.map { json =>
+      try {
+        val atom = json.as[MediaAtom]
+        UpdateAtomCommand(id, atom).process()
+
+        Ok
+      } catch {
+        commandExceptionAsResult
+      }
+    }.getOrElse {
+      BadRequest("Could not read json")
     }
   }
 
@@ -43,9 +85,9 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
         val mimeType: Option[String] = (json \ "mimeType").asOpt[String]
         val version: Option[Long] = (json \ "version").asOpt[Long]
 
-        AddAssetCommand(atomId, videoId, version, mimeType).process()
+        val atom = AddAssetCommand(atomId, videoId, version, mimeType).process()
 
-        Ok
+        Ok(Json.toJson(atom))
       } catch {
         commandExceptionAsResult
       }
@@ -53,6 +95,9 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
       BadRequest("Could not read json")
     }
   }
+
+
+  private def atomUrl(id: String) = s"/atom/$id"
 
   def updateMetadata(atomId: String) = APIHMACAuthAction { implicit req =>
     req.body.asJson.map { json =>
@@ -68,5 +113,4 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
     }
     Ok
   }
-
 }

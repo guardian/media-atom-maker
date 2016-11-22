@@ -31,12 +31,6 @@ export function getVideo(id) {
     return VideosApi.fetchVideo(id)
         .catch(error => dispatch(errorReceivingVideo(error)))
         .then(res => {
-
-          //TODO remove this once the API returns more structured data
-          if (! res.data.metadata) {
-            res.data.metadata = {};
-          }
-
           dispatch(receiveVideo(res));
         });
   };

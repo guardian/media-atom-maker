@@ -15,10 +15,8 @@ export default function video(state = null, action) {
 
     case 'ASSET_REVERT_REQUEST':
       return Object.assign({}, state, {
-        data: Object.assign({}, state.data, {
-          activeVersion: action.assetVersion
-        })
-      })
+        activeVersion: action.assetVersion
+      });
 
     default:
       return state;
