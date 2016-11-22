@@ -11,12 +11,11 @@ import com.gu.pandahmac.HMACAuthActions
 import data.JsonConversions._
 import model.commands.CommandExceptions._
 import model.commands._
-import model.UpdatedMetadata
 import play.api.Configuration
 import util.{YouTubeConfig, AWSConfig}
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
-import model.MediaAtom
+import model.{UpdatedMetadata, MediaAtom}
 
 import scala.util.{Failure, Success}
 
@@ -112,5 +111,21 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
       BadRequest("Could not read json")
     }
     Ok
+  }
+
+  def setActiveAsset(atomId: String) = APIHMACAuthAction { implicit req =>
+    req.body.asJson.map { json =>
+      try {
+        val videoId = (json \ "youtubeId").as[String]
+
+        val status: Unit = ActiveAssetCommand(atomId, videoId).process()
+
+        Ok("asset added")
+      } catch {
+        commandExceptionAsResult
+      }
+    }.getOrElse {
+      BadRequest("Could not read json")
+    }
   }
 }
