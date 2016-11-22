@@ -3,11 +3,7 @@ package model
 import com.google.api.services.youtube.model.Channel
 import play.api.libs.json._
 
-case class YouTubeChannel(
-                           name: String,
-                           logo: String,
-                           id: String
-                          )
+case class YouTubeChannel(name: String, logo: String, id: String)
 
 object YouTubeChannel {
   implicit val reads: Reads[YouTubeChannel] = Json.reads[YouTubeChannel]
