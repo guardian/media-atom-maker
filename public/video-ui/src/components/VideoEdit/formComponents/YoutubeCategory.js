@@ -11,11 +11,11 @@ class YoutubeCategorySelect extends React.Component {
   }
 
   updateVideoCategory = (e) => {
-    const newVideo = Object.assign({}, this.props.video, {
+    const newId = Object.assign({}, this.props.video, {
       youtubeCategoryId: e.target.value}
     );
 
-    this.props.updateVideo(newVideo);
+    this.props.updateVideo(newId);
   };
 
   render () {

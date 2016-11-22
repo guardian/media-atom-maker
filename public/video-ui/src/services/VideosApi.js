@@ -37,7 +37,7 @@ export default {
 
   createAsset: (asset, videoId) => {
     return pandaReqwest({
-      url: '/api2/atoms/' + videoId + '/asset',
+      url: '/api2/atoms/' + videoId + '/assets',
       contentType: 'application/json',
       method: 'post',
       data: JSON.stringify(asset)

@@ -1,7 +1,7 @@
 export const videoCategories= [
-    'news',
-    'documentary',
-    'explainer',
-    'feature',
-    'hosted'
+    'News',
+    'Documentary',
+    'Explainer',
+    'Feature',
+    'Hosted'
 ];

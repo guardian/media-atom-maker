@@ -85,9 +85,9 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
         val mimeType: Option[String] = (json \ "mimeType").asOpt[String]
         val version: Option[Long] = (json \ "version").asOpt[Long]
 
-        AddAssetCommand(atomId, videoId, version, mimeType).process()
+        val atom = AddAssetCommand(atomId, videoId, version, mimeType).process()
 
-        Ok
+        Ok(Json.toJson(atom))
       } catch {
         commandExceptionAsResult
       }
