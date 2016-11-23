@@ -11,6 +11,10 @@ object JsonConversions {
 
   implicit val category = Writes[Category](category => JsString(category.name.toLowerCase))
 
+  implicit val privacyStatusWrites: Writes[PrivacyStatus] = Writes[PrivacyStatus](privacyStatus => JsString(privacyStatus.name.toLowerCase))
+
+  implicit val privacyStatusReads: Reads[PrivacyStatus] = __.read[PrivacyStatus]
+
   implicit val mediaAsset = (
     (__ \ "id").write[String] and
     (__ \ "version").write[Long] and
@@ -28,14 +32,16 @@ object JsonConversions {
     (__ \ "categoryId").writeNullable[String] and
     (__ \ "license").writeNullable[String] and
     (__ \ "commentsEnabled").writeNullable[Boolean] and
-    (__ \ "channelId").writeNullable[String]
+    (__ \ "channelId").writeNullable[String] and
+    (__ \ "privacyStatus").writeNullable[PrivacyStatus]
   ) { metadata: Metadata =>
       (
         metadata.tags,
         metadata.categoryId,
         metadata.license,
         metadata.commentsEnabled,
-        metadata.channelId
+        metadata.channelId,
+        metadata.privacyStatus
         )
   }
 
@@ -44,7 +50,8 @@ object JsonConversions {
     (__ \ "categoryId").readNullable[String] and
     (__ \ "license").readNullable[String] and
     (__ \ "commentsEnabled").readNullable[Boolean] and
-    (__ \ "channelId").readNullable[String]
+    (__ \ "channelId").readNullable[String] and
+    (__ \ "privacyStatus").readNullable[PrivacyStatus]
   )(Metadata.apply _)
 
   implicit val atomDataMedia = (
@@ -100,8 +107,6 @@ object JsonConversions {
       contentChangeDetails.revision
       )
   }
-
-  implicit val flagsWrites = Writes[Flags] { flags: Flags => Json.toJson(flags.suppressFurniture) }
 
   implicit val atomWrites: Writes[Atom] = (
     (__ \ "id").write[String] and

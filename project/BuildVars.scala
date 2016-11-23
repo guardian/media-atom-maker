@@ -2,7 +2,7 @@ import sbt._
 
 object BuildVars {
   lazy val awsVersion         = "1.11.48"
-  lazy val contentAtomVersion = "2.4.14"
+  lazy val contentAtomVersion = "2.4.17"
   lazy val scroogeVersion     = "4.2.0"
   lazy val pandaVer           = "0.3.0"
   lazy val mockitoVersion     = "2.0.97-beta"
