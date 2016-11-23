@@ -6,6 +6,7 @@ import FormFieldSaveWrapper from '../FormFields/FormFieldSaveWrapper';
 import VideoPosterEdit from './formComponents/VideoPoster';
 import YoutubeCategorySelect from './formComponents/YoutubeCategory';
 import YoutubeChannelSelect from './formComponents/YoutubeChannel';
+import PrivacyStatusSelect from './formComponents/PrivacyStatus';
 import validate from '../../constants/videoEditValidation';
 import { Field, reduxForm } from 'redux-form';
 
@@ -85,6 +86,13 @@ const VideoEdit = (props) => {
             <Field name="youtube-channel"
                    type="text"
                    component={YoutubeChannelSelect}
+                   {...props} />
+          </FormFieldSaveWrapper>
+
+          <FormFieldSaveWrapper {...props}>
+            <Field name="privacy-status"
+                   type="text"
+                   component={PrivacyStatusSelect}
                    {...props} />
           </FormFieldSaveWrapper>
 
