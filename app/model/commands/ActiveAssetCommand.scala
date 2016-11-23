@@ -33,25 +33,29 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
             val mediaAtom = atom.tdata
             val atomAssets: Seq[Asset] = mediaAtom.assets
 
-            val newActiveAsset = atomAssets.find(asset => asset.id == youtubeId).get
+             atomAssets.find(asset => asset.id == youtubeId) match {
+              case Some(newActiveAsset) => {
 
-            val newAtom = atom
-              .withData(mediaAtom.copy(
-                activeVersion = Some(newActiveAsset.version)
-              ))
-              .withRevision(_ + 1)
+                val newAtom = atom
+                  .withData(mediaAtom.copy(
+                    activeVersion = Some(newActiveAsset.version)
+                  ))
+                  .withRevision(_ + 1)
 
-            previewDataStore.updateAtom(newAtom).fold(
-              err => InternalServerError(err.msg),
-              _ => {
-                val event = ContentAtomEvent(newAtom, EventType.Update, new Date().getTime)
+                previewDataStore.updateAtom(newAtom).fold(
+                  err => InternalServerError(err.msg),
+                  _ => {
+                    val event = ContentAtomEvent(newAtom, EventType.Update, new Date().getTime)
 
-                previewPublisher.publishAtomEvent(event) match {
-                  case Success(_) => ()
-                  case Failure(err) => InternalServerError(s"could not publish: ${err.toString}")
-                }
+                    previewPublisher.publishAtomEvent(event) match {
+                      case Success(_) => ()
+                      case Failure(err) => InternalServerError(s"could not publish: ${err.toString}")
+                    }
+                  }
+                )
               }
-            )
+              case None => BadRequest(s"could not find asset with id: ${youtubeId}")
+            }
           case None => AtomNotFound
         }
       }
