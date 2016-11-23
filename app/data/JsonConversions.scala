@@ -11,9 +11,15 @@ object JsonConversions {
 
   implicit val category = Writes[Category](category => JsString(category.name.toLowerCase))
 
-  implicit val privacyStatusWrites: Writes[PrivacyStatus] = Writes[PrivacyStatus](privacyStatus => JsString(privacyStatus.name.toLowerCase))
+  implicit val privacyStatusWrites = Writes[PrivacyStatus](ps => JsString(ps.name.toLowerCase))
 
-  implicit val privacyStatusReads: Reads[PrivacyStatus] = __.read[PrivacyStatus]
+  implicit val privacyStatusReads = Reads[PrivacyStatus](json => {
+    json.as[String] match {
+      case "private" => JsSuccess(PrivacyStatus.Private)
+      case "unlisted" => JsSuccess(PrivacyStatus.Unlisted)
+      case "public" => JsSuccess(PrivacyStatus.Public)
+    }
+  })
 
   implicit val mediaAsset = (
     (__ \ "id").write[String] and
@@ -27,7 +33,7 @@ object JsonConversions {
     }
   }
 
-  implicit val mediaMetadata = (
+  implicit val mediaMetadata: Writes[Metadata] = (
     (__ \ "tags").writeNullable[Seq[String]] and
     (__ \ "categoryId").writeNullable[String] and
     (__ \ "license").writeNullable[String] and

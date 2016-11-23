@@ -6,7 +6,7 @@ object BuildVars {
   lazy val scroogeVersion     = "4.2.0"
   lazy val pandaVer           = "0.3.0"
   lazy val mockitoVersion     = "2.0.97-beta"
-  lazy val atomMakerVersion   = "0.1.4"
+  lazy val atomMakerVersion   = "0.1.6"
 
   lazy val scanamoDeps = Seq(
     "com.gu"                     %% "scanamo"              % "0.7.0",
