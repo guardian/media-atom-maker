@@ -12,7 +12,7 @@ import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.youtube.YouTube
 import com.google.api.services.youtube.model.Video
-import model.{UpdatedMetadata, YouTubeChannel, YouTubeVideoCategory}
+import model._
 import play.api.{Configuration, Logger}
 
 import scala.collection.JavaConverters._
@@ -85,17 +85,40 @@ case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder {
         protectAgainstMistakesInDev(video)
 
         val snippet = video.getSnippet
-        snippet.setTitle(snippet.getTitle)
-        snippet.setCategoryId(metadata.categoryId.getOrElse(snippet.getCategoryId))
-        snippet.setDescription(metadata.description.getOrElse(snippet.getDescription))
-        snippet.setTags(metadata.tags.map(_.asJava).getOrElse(snippet.getTags))
-        video.setSnippet(snippet)
-
         val status = video.getStatus
-        status.setLicense(metadata.license.getOrElse(status.getLicense))
+
+        metadata.categoryId match {
+          case Some(cat) => snippet.setCategoryId(cat)
+          case _ => None
+        }
+
+        metadata.description match {
+          case Some(desc) => snippet.setDescription(desc)
+          case _ => None
+        }
+
+        metadata.tags match {
+          case Some(t) => snippet.setTags(t.asJava)
+          case _ => None
+        }
+
+        metadata.license match {
+          case Some(l) => status.setLicense(l)
+          case _ => None
+        }
+
+        metadata.privacyStatus match {
+          case Some(ps) => status.setPrivacyStatus(ps.name)
+          case _ => None
+        }
+
+        video.setSnippet(snippet)
         video.setStatus(status)
 
-        Some(youtube.videos().update("snippet, status", video).setOnBehalfOfContentOwner(config.contentOwner).execute())
+        Some(youtube.videos()
+          .update("snippet, status", video)
+          .setOnBehalfOfContentOwner(config.contentOwner)
+          .execute())
       case _ => None
     }
 

@@ -35,7 +35,8 @@ case class UpdateMetadataCommand(atomId: String,
             val newMetadata = thriftMediaAtom.metadata.map(_.copy(
               tags = metadata.tags,
               categoryId = metadata.categoryId,
-              license = metadata.license))
+              license = metadata.license,
+              privacyStatus = metadata.privacyStatus.flatMap(_.asThrift)))
 
             val activeYTAssetDuration = YouTubeVideoInfoApi(youtubeConfig).getDuration(youtubeAsset.id)
 

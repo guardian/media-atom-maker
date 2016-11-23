@@ -6,23 +6,24 @@ import java.util.UUID._
 import com.gu.atom.data.{IDConflictError, PreviewDataStore}
 import com.gu.atom.publish.PreviewAtomPublisher
 import com.gu.contentatom.thrift._
-import model.{Image, MediaAtom}
+import model.{Image, MediaAtom, PrivacyStatus}
 import model.commands.CommandExceptions._
 import org.cvogt.play.json.Jsonx
 
 import scala.util.{Failure, Success}
 import com.gu.contentatom.thrift.{Atom => ThriftAtom}
-import com.gu.contentatom.thrift.atom.media.{Metadata => ThriftMetadata, Category => ThriftCategory, MediaAtom => ThriftMediaAtom}
+import com.gu.contentatom.thrift.atom.media.{Category => ThriftCategory, MediaAtom => ThriftMediaAtom, Metadata => ThriftMetadata, PrivacyStatus => ThriftPrivacyStatus}
 
 // Since the data store and publisher are injected rather than being objects we cannot serialize JSON directly into a
 // command so we'll use a small POD for easy JSONification
 case class CreateAtomCommandData(
   title: String,
-  category: String,
+  category: String, //TODO use Category model for stronger typing
   posterImage: Image,
   duration: Long,
   youtubeCategoryId: String,
-  channelId: String
+  channelId: String,
+  privacyStatus: PrivacyStatus
 )
 
 object CreateAtomCommandData {
@@ -53,7 +54,8 @@ case class CreateAtomCommand(data: CreateAtomCommandData)
         description = None,
         metadata = Some(ThriftMetadata(
           categoryId = Some(data.youtubeCategoryId),
-          channelId = Some(data.channelId)
+          channelId = Some(data.channelId),
+          privacyStatus = data.privacyStatus.asThrift
         ))
       )),
       contentChangeDetails = ContentChangeDetails(None, None, None, 1L)
