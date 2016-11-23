@@ -1,8 +1,9 @@
-package model
+package test
 
 import com.gu.contentatom.thrift._
 import com.gu.contentatom.thrift.atom.media._
 import org.scalatest.{FunSpec, Inside, Matchers}
+import util.ThriftUtil
 
 import scala.xml.XML
 
@@ -31,19 +32,19 @@ class ThriftUtilSpec extends FunSpec
 
     it("should correctly generate media atom data") {
       inside(parseMediaAtom(makeParams("uri" -> youtubeUrl))) {
-        case Right(MediaAtom(assets, Some(1L), "unknown", Category.News, None, None, None, None, None, None)) =>
+        case Right(MediaAtom(assets, Some(1L), "unknown", Category.News, None, None, None, None, None, None, None)) =>
           assets should have length 1
           assets.head should equal(Asset(AssetType.Video, 1L, youtubeId, Platform.Youtube))
       }
     }
 
     it("should create empty assets without uri") {
-      parseMediaAtom(Map.empty) should matchPattern { case Right(MediaAtom(Nil, _, _, _, _, _, _, _, _, _)) => }
+      parseMediaAtom(Map.empty) should matchPattern { case Right(MediaAtom(Nil, _, _, _, _, _, _, _, _, _, _)) => }
     }
 
     it("should create multiple assets with multiple uri params") {
       inside(parseMediaAtom(Map("uri" -> List(youtubeUrl, youtubeUrl)))) {
-        case Right(MediaAtom(assets, _, _, _, _, _, _, _, _, _)) =>
+        case Right(MediaAtom(assets, _, _, _, _, _, _, _, _, _, _)) =>
           assets should have length 2
       }
     }
@@ -65,7 +66,7 @@ class ThriftUtilSpec extends FunSpec
 
     it("should correctly generate media atom with metadata") {
       inside(parseMediaAtom(makeParams("uri" -> youtubeUrl, "metadata" -> "{\"channelId\":\"channelId\",\"commentsEnabled\":true}"))) {
-        case Right(MediaAtom(assets, Some(1L), "unknown", Category.News, None, None, None, None, None, metadata)) =>
+        case Right(MediaAtom(assets, Some(1L), "unknown", Category.News, None, None, None, None, None, metadata, None)) =>
           metadata should matchPattern { case Some(Metadata(_, _, _, Some(true), Some("channelId"))) => }
       }
     }

@@ -11,17 +11,11 @@ class YoutubeCategorySelect extends React.Component {
   }
 
   updateVideoCategory = (e) => {
-    const newMetadata = Object.assign({}, this.props.video.data.metadata, {
-      category: e.target.value}
+    const newId = Object.assign({}, this.props.video, {
+      youtubeCategoryId: e.target.value}
     );
 
-    const newData = Object.assign({}, this.props.video.data, {
-      metadata: newMetadata
-    });
-
-    this.props.updateVideo(Object.assign({}, this.props.video, {
-      data: newData
-    }));
+    this.props.updateVideo(newId);
   };
 
   render () {
@@ -40,7 +34,7 @@ class YoutubeCategorySelect extends React.Component {
         <label className="form__label">YouTube Category</label>
         <select {...this.props.input}
                 className={"form__field form__field--select " + (hasError ? "form__field--error" : "") }
-                value={this.props.video.data.metadata.category || ''}
+                value={this.props.video.youtubeCategoryId || ''}
                 onChange={this.updateVideoCategory}>
           <option value='' disabled>select a category...</option>
           {this.props.youtube.categories.map(category => {

@@ -14,7 +14,7 @@ function parseMimeType(mimeType) {
 
 function parseAsset(asset) {
   return {
-    url: asset.secureUrl,
+    file: asset.secureUrl,
     mimeType: parseMimeType(asset.mimeType),
     size: asset.size,
     dimensions: {

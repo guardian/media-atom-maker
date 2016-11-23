@@ -4,8 +4,9 @@ import com.gu.pandomainauth.action.AuthActions
 import play.api.mvc._
 
 import play.api.libs.json.{ JsObject, JsString }
+import util.ThriftUtil
 
-import model.ThriftUtil._
+import ThriftUtil._
 
 trait AtomController extends Controller {
 

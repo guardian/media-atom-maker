@@ -28,7 +28,7 @@ export function getCategories() {
   return dispatch => {
     dispatch(requestCategories());
     return YoutubeApi.getCategories()
-      .catch(error => dispatch(errorReceivingCatetories(error)))
-      .then(categories => dispatch(receiveCategories(categories)));
+      .then(categories => dispatch(receiveCategories(categories)))
+      .catch(error => dispatch(errorReceivingCatetories(error)));
   };
 }
