@@ -54,15 +54,25 @@ class KeywordPicker extends React.Component {
     )
   }
 
+  renderKeywords = () => {
+
+    if (!this.props.keywords || !this.props.keywords.length) {
+      return (
+        <span className="keywords__message">No Keywords</span>
+      )
+    }
+
+    return this.props.keywords.map(this.renderKeyword)
+  }
+
   render() {
 
-    const keywords = this.props.keywords ? this.props.keywords : [];
 
     return (
       <div className="keywords">
-        {keywords.map(this.renderKeyword)}
+        {this.renderKeywords()}
         <div className="keywords__add">
-          <input type="text" value={this.state.newKeywordText} onChange={this.updateNewKeywordText} />
+          <input type="text" className="form__field" value={this.state.newKeywordText} onChange={this.updateNewKeywordText} placeholder="Enter new keyword..." />
           <button disabled={!this.isValidKeyword()} className="keywords__add__button btn" onClick={this.addKeyword}>Add</button>
         </div>
       </div>

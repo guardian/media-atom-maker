@@ -11,10 +11,9 @@ class YoutubeKeywordsSelect extends React.Component {
 
   render() {
     return (
-      <div className="keyword-select">
-        <div className="">
-          <KeywordPicker keywords={this.props.video.tags} updateKeywords={this.updateKeywords}/>
-        </div>
+      <div className="form__row">
+        <label className="form__label">Keywords</label>
+        <KeywordPicker keywords={this.props.video.tags} updateKeywords={this.updateKeywords}/>
       </div>
     );
   }
