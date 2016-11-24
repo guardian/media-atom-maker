@@ -9,8 +9,7 @@ import com.gu.atom.publish.PreviewAtomPublisher
 import com.gu.contentatom.thrift.{EventType, ContentAtomEvent}
 import com.gu.contentatom.thrift.atom.media.Asset
 import util.atom.MediaAtomImplicits
-import util.{YouTubeConfig, YouTubeVideoStatusApi}
-
+import util.{YoutubeResponse, YouTubeConfig, YouTubeVideoStatusApi, SuccesfulYoutubeResponse, YoutubeException}
 
 case class ActiveAssetCommand(atomId: String, youtubeId: String)
                              (implicit previewDataStore: PreviewDataStore,
@@ -21,46 +20,65 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
 
   type T = Unit
 
+
+
+
+  def getVideoStatus(youtubeId: String): YoutubeResponse = {
+    try {
+      val status = YouTubeVideoStatusApi(youtubeConfig).get(youtubeId)
+      new SuccesfulYoutubeResponse(status)
+    }
+    catch {
+      case e: Throwable => new YoutubeException(e)
+    }
+  }
   def process(): Unit = {
 
-    val videoStatus = YouTubeVideoStatusApi(youtubeConfig).get(youtubeId)
+    val youtubeResponse = getVideoStatus(youtubeId)
 
-    videoStatus match {
-      case Some("succeeded") => {
+    youtubeResponse match {
+      case response: SuccesfulYoutubeResponse => {
 
-        previewDataStore.getAtom(atomId) match {
-          case Some(atom) =>
-            val mediaAtom = atom.tdata
-            val atomAssets: Seq[Asset] = mediaAtom.assets
+        val videoStatus = response.status
+        videoStatus match {
+          case Some("succeeded") => {
 
-             atomAssets.find(asset => asset.id == youtubeId) match {
-              case Some(newActiveAsset) => {
+            previewDataStore.getAtom(atomId) match {
+              case Some(atom) =>
+                val mediaAtom = atom.tdata
+                val atomAssets: Seq[Asset] = mediaAtom.assets
 
-                val newAtom = atom
-                  .withData(mediaAtom.copy(
-                    activeVersion = Some(newActiveAsset.version)
-                  ))
-                  .withRevision(_ + 1)
+                atomAssets.find(asset => asset.id == youtubeId) match {
+                  case Some(newActiveAsset) => {
 
-                previewDataStore.updateAtom(newAtom).fold(
-                  err => InternalServerError(err.msg),
-                  _ => {
-                    val event = ContentAtomEvent(newAtom, EventType.Update, new Date().getTime)
+                    val newAtom = atom
+                      .withData(mediaAtom.copy(
+                        activeVersion = Some(newActiveAsset.version)
+                      ))
+                      .withRevision(_ + 1)
 
-                    previewPublisher.publishAtomEvent(event) match {
-                      case Success(_) => ()
-                      case Failure(err) => InternalServerError(s"could not publish: ${err.toString}")
-                    }
+                    previewDataStore.updateAtom(newAtom).fold(
+                      err => InternalServerError(err.msg),
+                      _ => {
+                        val event = ContentAtomEvent(newAtom, EventType.Update, new Date().getTime)
+
+                        previewPublisher.publishAtomEvent(event) match {
+                          case Success(_) => ()
+                          case Failure(err) => InternalServerError(s"could not publish: ${err.toString}")
+                        }
+                      }
+                    )
                   }
-                )
-              }
-              case None => BadRequest(s"could not find asset with id: ${youtubeId}")
+                  case None => BadRequest(s"could not find asset with id: ${youtubeId}")
+                }
+              case None => AtomNotFound
             }
-          case None => AtomNotFound
+          }
+          case Some(_) => AssetEncodingInProcess
+          case None => NotYoutubeAsset
         }
       }
-      case Some(_) => AssetEncodingInProcess
-      case None => NotYoutubeAsset
+      case e: YoutubeException => BadRequest(e.toString())
     }
   }
 }
