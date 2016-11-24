@@ -93,6 +93,5 @@ case class YouTubeChannelsApi(config: YouTubeConfig) extends YouTubeBuilder {
       case None => allChannels
       case Some(allowedList) => allChannels.filter(c => allowedList.contains(c.id))
     }
-
   }
 }
