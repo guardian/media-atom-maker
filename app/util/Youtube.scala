@@ -101,11 +101,11 @@ case class YouTubeVideoStatusApi(config: YouTubeConfig) extends YouTubeBuilder {
     youtube.videos()
       .list("processingDetails")
       .setId(youtubeId)
-      .setOnBehalfOfContentOwner(onBehalfOfContentOwner)
+      .setOnBehalfOfContentOwner(config.contentOwner)
       .execute()
       .getItems.asScala.toList.headOption match {
       case Some(video) =>
-        Some(video.getProcessingDetails().getProcessingStatus)
+        Some(video.getProcessingDetails().getProcessingStatus())
       case None => None
     }
 }
