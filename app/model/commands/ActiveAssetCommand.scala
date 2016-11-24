@@ -44,7 +44,7 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
           case Some("succeeded") => {
 
             previewDataStore.getAtom(atomId) match {
-              case Some(atom) =>
+              case Some(atom) => {
                 val mediaAtom = atom.tdata
                 val atomAssets: Seq[Asset] = mediaAtom.assets
 
@@ -71,6 +71,7 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
                   }
                   case None => BadRequest(s"could not find asset with id: ${youtubeId}")
                 }
+              }
               case None => AtomNotFound
             }
           }
