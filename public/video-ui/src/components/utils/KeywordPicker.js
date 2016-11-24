@@ -39,16 +39,17 @@ class KeywordPicker extends React.Component {
     return true
   }
 
-  removeKeyword(keyword) {
+  removeKeyword = (keyword) => {
     const newKeywords = this.props.keywords.filter((k) => k !== keyword)
     this.props.updateKeywords(newKeywords)
   }
 
-  renderKeyword(keyword) {
+  renderKeyword = (keyword) => {
+
     return (
       <div className="keywords__item" key={keyword}>
         <div className="keyword__item__text">{keyword}</div>
-        <div className="keyword__item__remove" onClick={() => removeKeyword(keyword)}>x</div>
+        <div className="keyword__item__remove" onClick={this.removeKeyword.bind(this, keyword)}>X</div>
       </div>
     )
   }
@@ -62,7 +63,7 @@ class KeywordPicker extends React.Component {
         {keywords.map(this.renderKeyword)}
         <div className="keywords__add">
           <input type="text" value={this.state.newKeywordText} onChange={this.updateNewKeywordText} />
-          <button disabled={!this.isValidKeyword()} className="keywords__add__button" onClick={this.addKeyword}>Add</button>
+          <button disabled={!this.isValidKeyword()} className="keywords__add__button btn" onClick={this.addKeyword}>Add</button>
         </div>
       </div>
     );
