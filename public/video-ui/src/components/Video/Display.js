@@ -1,11 +1,9 @@
 import React from 'react';
 import VideoEdit from '../VideoEdit/VideoEdit';
 import VideoAssets from '../VideoAssets/VideoAssets';
-import VideoDetails from '../VideoDetails/VideoDetails';
+import VideoPublishButton from '../VideoPublishButton/VideoPublishButton';
 import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoUsages from '../VideoUsages/VideoUsages';
-import SaveButton from '../utils/SaveButton';
-
 
 class VideoDisplay extends React.Component {
 
@@ -34,40 +32,20 @@ class VideoDisplay extends React.Component {
 
   publishVideo = () => {
     this.props.videoActions.publishVideo(this.props.video.id);
+    this.setState({
+      editable: false
+    });
   };
 
   selectVideo = () => {
     window.parent.postMessage({atomId: this.props.video.id}, '*');
-  }
+  };
 
   enableEditing = () => {
     this.setState({
       editable: true
     });
   };
-
-  renderDetails = () => {
-    if(this.state.editable) {
-      return (
-        <div className="video__sidebar video-details">
-          <form className="form video__sidebar__group">
-            <VideoEdit video={this.props.video || {}} updateVideo={this.updateVideo}/>
-            <SaveButton saveState={this.props.saveState} onSaveClick={this.saveVideo} onResetClick={this.resetVideo} />
-          </form>
-        </div>
-      )
-    } else {
-      return (
-          <VideoDetails
-            video={this.props.video || {}}
-            enableEditing={this.enableEditing}
-            onPublishVideo={this.publishVideo}
-            showSelect={this.props.config.embeddedMode}
-            onSelectVideo={this.selectVideo}
-          />
-      )
-    }
-  }
 
   render() {
     const video = this.props.video && this.props.params.id === this.props.video.id ? this.props.video : undefined;
@@ -78,7 +56,22 @@ class VideoDisplay extends React.Component {
 
     return (
         <div className="video">
-          {this.renderDetails()}
+
+          <div className="video__sidebar video-details">
+            <form className="form video__sidebar__group">
+
+              <VideoEdit
+                video={this.props.video || {}}
+                updateVideo={this.updateVideo}
+                saveVideo={this.saveVideo}
+                resetVideo={this.resetVideo}
+                showSelect={this.props.config.embeddedMode}
+                onSelectVideo={this.selectVideo} />
+
+              <VideoPublishButton video={this.props.video || {}} publishVideo={this.publishVideo} />
+            </form>
+          </div>
+
           <div className="video__main">
             <div className="video__main__header">
               <VideoPreview video={this.props.video || {}} />

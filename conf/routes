@@ -19,7 +19,7 @@ GET     /api2/atoms/:id                 controllers.Api2.getMediaAtom(id)
 PUT     /api2/atoms/:id                 controllers.Api2.putMediaAtom(id)
 POST    /api2/atoms/:id/assets          controllers.Api2.addAsset(id)
 PUT     /api2/atom/:id/publish          controllers.Api2.publishMediaAtom(id)
-PUT     /api/atom/:id/updateMetadata    controllers.Api2.updateMetadata(id)
+PUT     /api/atom/:id/update-metadata    controllers.Api2.updateMetadata(id)
 
 GET     /api/youtube/categories         controllers.Youtube.listCategories()
 GET     /api/youtube/channels           controllers.Youtube.listChannels()

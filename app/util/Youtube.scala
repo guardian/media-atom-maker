@@ -47,8 +47,6 @@ trait YouTubeBuilder {
       .setApplicationName(config.appName)
       .build
   }
-
-  protected val onBehalfOfContentOwner = config.contentOwner
 }
 
 case class YouTubeVideoCategoryApi(config: YouTubeConfig) extends YouTubeBuilder {
@@ -80,7 +78,7 @@ case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder {
         status.setLicense(metadata.license.getOrElse(status.getLicense))
         video.setStatus(status)
 
-        Some(youtube.videos().update("snippet, status", video).setOnBehalfOfContentOwner(onBehalfOfContentOwner).execute())
+        Some(youtube.videos().update("snippet, status", video).setOnBehalfOfContentOwner(config.contentOwner).execute())
       case _ => None
     }
 
@@ -108,6 +106,5 @@ case class YouTubeChannelsApi(config: YouTubeConfig) extends YouTubeBuilder {
       case None => allChannels
       case Some(allowedList) => allChannels.filter(c => allowedList.contains(c.id))
     }
-
   }
 }

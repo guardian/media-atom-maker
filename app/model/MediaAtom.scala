@@ -104,7 +104,7 @@ object MediaAtom extends MediaAtomImplicits {
       posterImage = data.posterImage.map(Image.fromThrift),
       description = data.description,
       tags = data.metadata.flatMap(_.tags.map(_.toList)).getOrElse(Nil),
-      youtubeCategoryId = data.metadata.map(_.categoryId).getOrElse(Some("news")),
+      youtubeCategoryId = data.metadata.map(_.categoryId).getOrElse(None),
       license = data.metadata.flatMap(_.license),
       commentsEnabled = data.metadata.flatMap(_.commentsEnabled).getOrElse(false),
       channelId = data.metadata.flatMap(_.channelId)
