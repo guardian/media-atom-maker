@@ -7,6 +7,8 @@ import model.{UpdatedMetadata, ImageAsset, MediaAtom}
 import util.{YouTubeConfig, YouTubeVideoUpdateApi}
 import model.commands.CommandExceptions._
 
+import scala.util.control.NonFatal
+
 case class PublishAtomCommand(id: String)(implicit val previewDataStore: PreviewDataStore,
                                           val previewPublisher: PreviewAtomPublisher,
                                           val publishedDataStore: PublishedDataStore,
@@ -19,7 +21,11 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
         val atom = MediaAtom.fromThrift(a)
         val api = YouTubeVideoUpdateApi(youtubeConfig)
 
-        updateThumbnail(atom, api)
+        try {
+          updateThumbnail(atom, api)
+        } catch {
+          case NonFatal(e) => PosterImageUploadFailed(e.getMessage)
+        }
         api.updateMetadata(id, UpdatedMetadata(atom.description, Some(atom.tags), atom.youtubeCategoryId, atom.license))
         publishAtom(id)
 
