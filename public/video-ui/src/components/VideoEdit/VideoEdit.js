@@ -5,7 +5,7 @@ import VideoDurationEdit from './formComponents/VideoDuration';
 import FormFieldSaveWrapper from '../FormFields/FormFieldSaveWrapper';
 import VideoPosterEdit from './formComponents/VideoPoster';
 import YoutubeCategorySelect from './formComponents/YoutubeCategory';
-import SaveButton from '../utils/SaveButton';
+import YoutubeChannelSelect from './formComponents/YoutubeChannel';
 import validate from '../../constants/videoEditValidation';
 import { Field, reduxForm } from 'redux-form';
 
@@ -79,6 +79,13 @@ const VideoEdit = (props) => {
               type="select"
               component={YoutubeCategorySelect}
               {...props} />
+          </FormFieldSaveWrapper>
+
+          <FormFieldSaveWrapper {...props}>
+            <Field name="youtube-channel"
+                   type="text"
+                   component={YoutubeChannelSelect}
+                   {...props} />
           </FormFieldSaveWrapper>
 
           {props.showSelect ? <button className="btn" onClick={props.onSelectVideo}>Select this Atom</button> : false}

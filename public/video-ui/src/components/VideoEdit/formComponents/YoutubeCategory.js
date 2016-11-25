@@ -12,17 +12,11 @@ class YoutubeCategorySelect extends React.Component {
   }
 
   updateVideoCategory = (e) => {
-    const newMetadata = Object.assign({}, this.props.video.data.metadata, {
-      category: e.target.value}
+    const newId = Object.assign({}, this.props.video, {
+      youtubeCategoryId: e.target.value}
     );
 
-    const newData = Object.assign({}, this.props.video.data, {
-      metadata: newMetadata
-    });
-
-    this.props.updateVideo(Object.assign({}, this.props.video, {
-      data: newData
-    }));
+    this.props.updateVideo(newId);
   };
 
   render () {
@@ -39,7 +33,7 @@ class YoutubeCategorySelect extends React.Component {
     return (
     <SelectBox
       fieldName="YouTube Category"
-      fieldValue={this.props.video.data.category}
+      fieldValue={this.props.video.youtubeCategoryId}
       selectValues={this.props.youtube.categories || []}
       onUpdateField={this.updateVideoCategory}
       defaultOption="Select a category..."

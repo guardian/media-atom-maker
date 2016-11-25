@@ -9,25 +9,23 @@ class VideoPosterImageEdit extends React.Component {
 
     const image = parseImageFromGridCrop(cropData);
 
-    const newData = Object.assign({}, this.props.video.data, {
+    const newData = Object.assign({}, this.props.video, {
       posterImage: image
     });
 
-    this.props.updateVideo(Object.assign({}, this.props.video, {
-      data: newData
-    }));
+    this.props.updateVideo(newData);
   };
 
   renderImage() {
-    if (!this.props.video.data.posterImage) {
+    if (!this.props.video.posterImage) {
       return false;
     }
 
-    const image = findSmallestAsset(this.props.video.data.posterImage.assets)
+    const image = findSmallestAsset(this.props.video.posterImage.assets)
 
     return (
       <div className="form__image" >
-        <img src={image.url}/>
+        <img src={image.file}/>
       </div>
     );
   }

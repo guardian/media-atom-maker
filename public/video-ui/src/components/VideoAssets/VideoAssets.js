@@ -38,8 +38,12 @@ class VideoAssets extends React.Component {
     this.props.videoActions.updateVideo(video);
   };
 
+  updateAsset = (asset) => {
+    this.props.videoActions.updateAsset(asset);
+  }
+
   renderList() {
-      if(this.props.video.data.assets) {
+      if(this.props.video.assets) {
         return (
           <ul className="asset-list">
             {this.renderListItems()}
@@ -52,7 +56,7 @@ class VideoAssets extends React.Component {
 
   renderListItems() {
     return (
-        this.props.video.data.assets.map((asset, index) => <VideoAssetItem key={index} asset={asset} activeAsset={this.props.video.data.activeVersion} video={this.props.video} revertAsset={this.revertAsset} updateVideo={this.updateVideo} />)
+        this.props.video.assets.map((asset, index) => <VideoAssetItem key={index} asset={asset} activeAsset={this.props.video.activeVersion} video={this.props.video} revertAsset={this.revertAsset}  updateVideo={this.updateVideo}/>)
     );
   }
 
@@ -90,6 +94,7 @@ import { bindActionCreators } from 'redux';
 import * as createAsset from '../../actions/VideoActions/createAsset';
 import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as revertAsset from '../../actions/VideoActions/revertAsset';
+import * as updateAsset from '../../actions/VideoActions/updateAsset';
 
 function mapStateToProps(state) {
   return {
@@ -100,7 +105,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, createAsset, updateVideo, revertAsset), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, createAsset, updateVideo, revertAsset, updateAsset), dispatch)
   };
 }
 
