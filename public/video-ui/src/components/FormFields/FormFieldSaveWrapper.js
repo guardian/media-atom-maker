@@ -8,15 +8,9 @@ export default class FormFieldSaveWrapper extends React.Component {
   };
 
   toggleEditing = () => {
-    if(this.state.editable) {
-      this.setState({
-        editable: false
-      })
-    } else {
-      this.setState({
-        editable: true
-      })
-    }
+    this.setState({
+      editable: !this.state.editable
+    });
   };
 
   saveVideo = () => {
