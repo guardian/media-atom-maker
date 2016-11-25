@@ -11,17 +11,16 @@ import com.gu.pandahmac.HMACAuthActions
 import data.JsonConversions._
 import model.commands.CommandExceptions._
 import model.commands._
-import model.UpdatedMetadata
+import model.{ImageAsset, UpdatedMetadata, MediaAtom}
 import play.api.Configuration
-import util.{YouTubeConfig, AWSConfig}
+import _root_.util.{YouTubeVideoUpdateApi, YouTubeConfig, AWSConfig}
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
-import model.MediaAtom
 
 import scala.util.{Failure, Success}
 
 class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
-                     val publishedDataStore: PublishedDataStore,
+                     implicit val publishedDataStore: PublishedDataStore,
                      val livePublisher: LiveAtomPublisher,
                      implicit val previewPublisher: PreviewAtomPublisher,
                      val conf: Configuration,
@@ -45,6 +44,15 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
     previewDataStore.getAtom(id) match {
       case Some(atom) => Ok(Json.toJson(MediaAtom.fromThrift(atom)))
       case None => NotFound(jsonError(s"no atom with id $id found"))
+    }
+  }
+
+  def publishMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
+    try {
+      PublishAtomCommand(id).process()
+      Ok
+    } catch {
+      commandExceptionAsResult
     }
   }
 
