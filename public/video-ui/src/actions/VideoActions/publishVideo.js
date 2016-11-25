@@ -29,7 +29,7 @@ export function publishVideo(video) {
     dispatch(requestVideoPublish());
     return VideosApi.publishVideo(video)
         .then(res => dispatch(receiveVideoPublish(res)))
-        .fail(error => dispatch(errorVideoPublish(error)));
+        .catch(error => dispatch(errorVideoPublish(error)));
   };
 }
 
