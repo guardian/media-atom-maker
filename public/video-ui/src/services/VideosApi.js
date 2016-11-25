@@ -6,8 +6,7 @@ export default {
   fetchVideos: () => {
     return pandaReqwest({
       url: '/api2/atoms',
-      method: 'get',
-      contentType: 'application/json'
+      method: 'get'
     });
   },
 

@@ -27,7 +27,7 @@ class Videos extends React.Component {
     const title = value.title.toLowerCase();
     const searchTerm = this.props.searchTerm.toLowerCase();
     return title.includes(searchTerm);
-  }
+  };
 
   renderListItems() {
     return (this.props.videos.filter(this.searchFilter).map((video) => <VideoItem key={video.id} video={video} />));

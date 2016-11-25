@@ -63,6 +63,10 @@ button {
   margin-left: 7px;
 }
 
+.btn + .btn {
+  margin-left: 5px;
+}
+
 .btn--loading {
   background: {
     image: url(/assets/video-ui/images/progress-spinner.gif);
@@ -71,4 +75,10 @@ button {
     size: 10px 10px;
   };
   padding-right: 20px;
+}
+
+
+.btn__group {
+  display: flex;
+  width: 100%;
 }

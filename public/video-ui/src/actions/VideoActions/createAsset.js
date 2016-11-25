@@ -38,7 +38,7 @@ export function createAsset(asset, videoId) {
     dispatch(requestAssetCreate());
     return VideosApi.createAsset(asset, videoId)
         .then(res => dispatch(receiveAssetCreate(res)))
-        .fail(error => dispatch(errorAssetCreate(error)));
+        .catch(error => dispatch(errorAssetCreate(error)));
   };
 }
 

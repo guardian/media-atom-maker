@@ -29,6 +29,6 @@ export function saveVideo(video) {
     dispatch(requestVideoSave());
     return VideosApi.saveVideo(video.id, video)
         .then(res => dispatch(receiveVideoSave(res)))
-        .fail(error => dispatch(errorVideoSave(error)));
+        .catch(error => dispatch(errorVideoSave(error)));
   };
 }

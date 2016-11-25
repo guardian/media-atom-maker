@@ -33,6 +33,6 @@ export function revertAsset(version, videoId) {
     dispatch(requestRevertAsset(version));
     return VideosApi.revertAsset(version, videoId)
         .then(res => dispatch(receiveRevertAsset(res)))
-        .fail(error => dispatch(errorRevertAsset(error)));
+        .catch(error => dispatch(errorRevertAsset(error)));
   };
 }
