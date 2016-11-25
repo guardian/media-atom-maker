@@ -28,8 +28,6 @@ class YoutubeCategorySelect extends React.Component {
       );
     }
 
-    const hasError = this.props.meta.touched && this.props.meta.error;
-
     return (
     <SelectBox
       fieldName="YouTube Category"

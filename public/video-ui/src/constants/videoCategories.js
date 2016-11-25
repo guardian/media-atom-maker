@@ -1,18 +1,18 @@
 export const videoCategories= [
   {
     id: 'news',
-    title: 'News',
+    name: 'News',
   }, {
     id: 'documentary',
-    title: 'Documentary',
+    name: 'Documentary',
   }, {
     id: 'explainer',
-    title: 'Explainer'
+    name: 'Explainer'
   }, {
     id: 'feature',
-    title: 'Feature'
+    name: 'Feature'
   }, {
     id: 'hosted',
-    title: 'Hosted'
+    name: 'Hosted'
   }
 ];
