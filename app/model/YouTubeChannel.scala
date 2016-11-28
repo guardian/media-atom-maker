@@ -5,17 +5,17 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import java.net.URI
 
-case class YouTubeChannel(name: String, logo: URI, id: String)
+case class YouTubeChannel(title: String, logo: URI, id: String)
 
 object YouTubeChannel {
   implicit val reads: Reads[YouTubeChannel] = (
-    (__ \ "name").read[String] ~
+    (__ \ "title").read[String] ~
     (__ \ "logo").read[String].map(URI.create) ~
     (__ \ "id").read[String]
     )(YouTubeChannel.apply _)
 
   implicit val writes: Writes[YouTubeChannel] = (
-    (__ \ "name").write[String] ~
+    (__ \ "title").write[String] ~
     (__ \ "logo").write[String].contramap((_: URI).toString) ~
     (__ \ "id").write[String]
     )(unlift(YouTubeChannel.unapply))
@@ -23,7 +23,7 @@ object YouTubeChannel {
   def build(channel: Channel): YouTubeChannel = {
 
     YouTubeChannel(
-      name = channel.getSnippet().getTitle(),
+      title = channel.getSnippet().getTitle(),
       logo = URI.create(channel.getSnippet().getThumbnails().getDefault().getUrl()),
       id = channel.getId
     )

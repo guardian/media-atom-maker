@@ -87,7 +87,7 @@ case class YouTubeChannelsApi(config: YouTubeConfig) extends YouTubeBuilder {
       .setManagedByMe(true)
       .setOnBehalfOfContentOwner(config.contentOwner)
 
-    val allChannels = request.execute().getItems.asScala.toList.map(YouTubeChannel.build).sortBy(_.name)
+    val allChannels = request.execute().getItems.asScala.toList.map(YouTubeChannel.build).sortBy(_.title)
 
     config.allowedChannels match {
       case None => allChannels
