@@ -12,7 +12,7 @@ object CommandExceptions extends Results {
   def NotYoutubeAsset = throw new CommandException("Asset is not a youtube video", 400)
   def AssetVersionConflict = throw new CommandException("Asset version conflict", 400)
   def AssetParseFailed = throw new CommandException("Failed to parse asset", 400)
-  def AssetEncodingInProcess = throw new CommandException("Asset encoding in process", 400)
+  def AssetEncodingInProcess = throw new CommandException("Asset encoding in progress", 400)
 
   def AtomUpdateFailed(err: String) = throw new CommandException(s"Failed to update atom: $err", 500)
   def AtomPublishFailed(err: String) = throw new CommandException(s"Failed to publish atom: $err", 500)
