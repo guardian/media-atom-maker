@@ -42,6 +42,10 @@ class VideoDisplay extends React.Component {
     });
   };
 
+  pageCreate = () => {
+    this.props.videoActions.createPage(this.props.video.id, this.props.video.title);
+  };
+
   selectVideo = () => {
     window.parent.postMessage({atomId: this.props.video.id}, '*');
   };
@@ -76,6 +80,7 @@ class VideoDisplay extends React.Component {
                 resetVideo={this.resetVideo}
                 saveState={this.props.saveState}
                />
+              <VideoPublishButton video={this.props.video || {}} publishVideo={this.publishVideo} />
             </form>
           </div>
 
@@ -107,6 +112,7 @@ import * as getVideo from '../../actions/VideoActions/getVideo';
 import * as saveVideo from '../../actions/VideoActions/saveVideo';
 import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as publishVideo from '../../actions/VideoActions/publishVideo';
+import * as createPage from '../../actions/VideoActions/createPage';
 
 function mapStateToProps(state) {
   return {
@@ -118,7 +124,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, publishVideo), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, publishVideo, createPage), dispatch)
   };
 }
 

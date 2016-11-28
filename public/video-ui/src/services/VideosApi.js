@@ -59,6 +59,16 @@ export default {
       contentType: 'application/json',
       data: JSON.stringify(video)
     })
+  },
+
+  createVideoPage: (videoId, title) => {
+    return pandaReqwest({
+      url: 'https://composer.local.dev-gutools.co.uk/api/content?originatingSystem=composer&type=video&initialTitle='+title,
+      method: 'post',
+      contentType: 'application/json',
+      crossOrigin: true,
+      withCredentials: true,
+    })
   }
 
 }
