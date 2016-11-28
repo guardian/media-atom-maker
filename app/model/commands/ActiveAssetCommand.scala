@@ -51,16 +51,16 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
                 atomAssets.find(asset => asset.id == youtubeId) match {
                   case Some(newActiveAsset) => {
 
-                    val newAtom = atom
+                    val nextAtomRevision = atom
                       .withData(mediaAtom.copy(
                         activeVersion = Some(newActiveAsset.version)
                       ))
                       .withRevision(_ + 1)
 
-                    previewDataStore.updateAtom(newAtom).fold(
+                    previewDataStore.updateAtom(nextAtomRevision).fold(
                       err => InternalServerError(err.msg),
                       _ => {
-                        val event = ContentAtomEvent(newAtom, EventType.Update, new Date().getTime)
+                        val event = ContentAtomEvent(nextAtomRevision, EventType.Update, new Date().getTime)
 
                         previewPublisher.publishAtomEvent(event) match {
                           case Success(_) => ()
