@@ -7,7 +7,6 @@ import com.squareup.okhttp.{OkHttpClient, Credentials, Request}
 import java.util.concurrent.TimeUnit
 import play.api.Configuration
 
-
 class Support @Inject() (val authActions: HMACAuthActions,
                                   val conf: Configuration) extends AtomController {
 
@@ -33,15 +32,12 @@ class Support @Inject() (val authActions: HMACAuthActions,
     }
 
     resp match {
-      case None => {
+      case None =>
         InternalServerError("Could not construct CAPI request")
-      }
-      case Some(r) if r.code() == 200 => {
+      case Some(r) if r.code() == 200 =>
         Ok(r.body.string).as(JSON)
-      }
-      case Some(r) => {
+      case Some(r) =>
         BadRequest(s"CAPI returned status: ${r.code()}")
-      }
     }
   }
 }
