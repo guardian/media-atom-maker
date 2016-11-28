@@ -10,7 +10,7 @@ import data.JsonConversions._
 import model.commands.CommandExceptions._
 import model.commands._
 import play.api.Configuration
-import _root_.util.{ YouTubeConfig, AWSConfig}
+import util.{ YouTubeConfig, AWSConfig}
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
 import model.{UpdatedMetadata, MediaAtom}
