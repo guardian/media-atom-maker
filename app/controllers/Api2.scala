@@ -2,22 +2,18 @@ package controllers
 
 import javax.inject.Inject
 
-import _root_.util.ThriftUtil._
-import com.gu.atom.data.{IDConflictError, PreviewDataStore, PublishedDataStore}
+import com.gu.atom.data.{PreviewDataStore, PublishedDataStore}
 import com.gu.atom.play.AtomAPIActions
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
-import com.gu.contentatom.thrift.{EventType, ContentAtomEvent}
 import com.gu.pandahmac.HMACAuthActions
 import data.JsonConversions._
 import model.commands.CommandExceptions._
 import model.commands._
-import model.{ImageAsset, UpdatedMetadata, MediaAtom}
 import play.api.Configuration
-import _root_.util.{YouTubeVideoUpdateApi, YouTubeConfig, AWSConfig}
+import _root_.util.{ YouTubeConfig, AWSConfig}
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
-
-import scala.util.{Failure, Success}
+import model.{UpdatedMetadata, MediaAtom}
 
 class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
                      implicit val publishedDataStore: PublishedDataStore,
@@ -120,5 +116,21 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
       BadRequest("Could not read json")
     }
     Ok
+  }
+
+  def setActiveAsset(atomId: String) = APIHMACAuthAction { implicit req =>
+    req.body.asJson.map { json =>
+      try {
+        val videoId = (json \ "youtubeId").as[String]
+
+        val status: Unit = ActiveAssetCommand(atomId, videoId).process()
+
+        Ok("made asset " + videoId + " active in atom " + atomId)
+      } catch {
+        commandExceptionAsResult
+      }
+    }.getOrElse {
+      BadRequest("Could not read json")
+    }
   }
 }
