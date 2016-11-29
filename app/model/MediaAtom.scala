@@ -68,6 +68,8 @@ case class MediaAtom(
       flags = None
   )
 
+  def getActiveAsset = this.assets.find(_.version == this.activeVersion.get)
+
   private def generateHtml(): String = {
     val activeAssets = assets filter (asset => activeVersion.contains(asset.version))
     if (activeAssets.nonEmpty && activeAssets.forall(_.platform == Platform.Url)) {
