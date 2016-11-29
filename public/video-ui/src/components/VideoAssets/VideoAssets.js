@@ -69,18 +69,19 @@ class VideoAssets extends React.Component {
           <button className="btn" type="button" onClick={this.hideAssetForm}>Cancel</button>
         </form>
       )
-    } else {
-      return (
-        <button className="btn" type="button" onClick={this.showAssetForm}>Add new asset</button>
-      )
     }
+
+    return false;
   }
 
 
   render() {
     return (
         <div className="video-assets">
-          <h2>All Assets</h2>
+          <div className="section-header">
+            <h2 className="section-header__text">All Assets</h2>
+            <button className="btn section-header__btn" type="button" onClick={this.showAssetForm}>Add new asset</button>
+          </div>
           {this.renderList()}
           {this.renderAssetEdit()}
         </div>

@@ -150,13 +150,13 @@
   top: 0;
   cursor: pointer;
   font-size: 0;
-  background: url(/assets/video-ui/images/edit-icon.svg) $brandColor no-repeat center;
+  background: url(/assets/video-ui/images/edit-icon.svg) $darkBrandColor no-repeat center;
   background-size: 15px 15px;
   width: 20px;
   height: 20px;
   border-radius: 50%;
 
   &:hover {
-    background-color: $darkBrandColor;
+    background-color: $brandColor;
   }
 }

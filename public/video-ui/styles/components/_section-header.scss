@@ -1,0 +1,14 @@
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+
+  &__text {
+    margin: 0;
+  }
+
+  &__btn {
+    margin: 0;
+  }
+}
