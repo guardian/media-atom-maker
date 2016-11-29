@@ -6,7 +6,8 @@ import org.cvogt.play.json.Jsonx
 import com.gu.contentatom.thrift.{
 Atom => ThriftAtom,
 AtomType => ThriftAtomType,
-AtomData
+AtomData,
+Flags => ThriftFlags
 }
 
 import com.gu.contentatom.thrift.atom.media.{
@@ -37,8 +38,8 @@ case class MediaAtom(
   youtubeCategoryId: Option[String],
   license: Option[String],
   channelId: Option[String],
-  commentsEnabled: Boolean = false
-)  {
+  commentsEnabled: Boolean = false,
+  legallySensitive: Option[Boolean])  {
 
   def asThrift = ThriftAtom(
       id = id,
@@ -65,7 +66,10 @@ case class MediaAtom(
           ))
         )),
       contentChangeDetails = contentChangeDetails.asThrift,
-      flags = None
+      flags = Some(ThriftFlags(
+        suppressFurniture = None,
+        legallySensitive = legallySensitive
+      ))
   )
 
   private def generateHtml(): String = {
@@ -105,7 +109,8 @@ object MediaAtom extends MediaAtomImplicits {
       youtubeCategoryId = data.metadata.map(_.categoryId).getOrElse(None),
       license = data.metadata.flatMap(_.license),
       commentsEnabled = data.metadata.flatMap(_.commentsEnabled).getOrElse(false),
-      channelId = data.metadata.flatMap(_.channelId)
+      channelId = data.metadata.flatMap(_.channelId),
+      legallySensitive = atom.flags.flatMap(_.legallySensitive)
     )
   }
 }

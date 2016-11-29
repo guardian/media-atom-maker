@@ -1,8 +1,9 @@
 import VideosApi from '../../services/VideosApi';
 
-function requestVideoSave() {
+function requestVideoSave(video) {
   return {
     type:       'VIDEO_SAVE_REQUEST',
+    video:      video,
     receivedAt: Date.now()
   };
 }
@@ -26,7 +27,7 @@ function errorVideoSave(error) {
 
 export function saveVideo(video) {
   return dispatch => {
-    dispatch(requestVideoSave());
+    dispatch(requestVideoSave(video));
     return VideosApi.saveVideo(video.id, video)
         .then(res => dispatch(receiveVideoSave(res)))
         .catch(error => dispatch(errorVideoSave(error)));

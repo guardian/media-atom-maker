@@ -1,5 +1,4 @@
 import React, {PropTypes} from 'react';
-import ContentFlags from './ContentFlags';
 import {findSmallestAsset} from '../../util/imageHelpers';
 
 export default class VideoDetails extends React.Component {
@@ -43,7 +42,6 @@ export default class VideoDetails extends React.Component {
                 </a>
               </dd>
             </dl>
-            <ContentFlags video={this.props.video || {}} updateVideoFlags={this.props.updateVideoFlags} />
             {this.props.enableEditing ? <button className="btn" type="button" onClick={this.props.enableEditing}>Edit</button> : ''}
             <button className="btn" onClick={this.props.onPublishVideo}>Publish video</button>
             {this.props.showSelect ? <button className="btn" onClick={this.props.onSelectVideo}>Select this Atom</button> : false}
