@@ -1,8 +1,12 @@
 package util
 
+import java.io.BufferedInputStream
+import java.net.URL
 import javax.inject.{ Singleton, Inject }
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
+import com.google.api.client.googleapis.json.GoogleJsonResponseException
+import com.google.api.client.http.InputStreamContent
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.youtube.YouTube
@@ -77,6 +81,15 @@ case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder {
         Some(youtube.videos().update("snippet, status", video).setOnBehalfOfContentOwner(config.contentOwner).execute())
       case _ => None
     }
+
+  def updateThumbnail(id: String, thumbnailUrl: URL, mimeType: String): Unit = {
+    val content = new InputStreamContent(mimeType, new BufferedInputStream(thumbnailUrl.openStream()))
+    val set = youtube.thumbnails().set(id, content).setOnBehalfOfContentOwner(config.contentOwner)
+
+    // If we want some way of monitoring and resuming thumbnail uploads then we can change this to be `false`
+    set.getMediaHttpUploader.setDirectUploadEnabled(true)
+    set.execute()
+  }
 }
 
 case class YouTubeChannelsApi(config: YouTubeConfig) extends YouTubeBuilder {
