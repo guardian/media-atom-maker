@@ -3,7 +3,7 @@ package controllers
 import java.util.Date
 import javax.inject._
 
-import _root_.util.{ThriftUtil, AWSConfig}
+import util.{ThriftUtil, AWSConfig}
 import com.gu.atom.data._
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
@@ -13,7 +13,6 @@ import util.ThriftUtil._
 import play.api.Configuration
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import util.atom.MediaAtomImplicits
-import util.AWSConfig
 import play.api.libs.json._
 
 import com.gu.atom.play._

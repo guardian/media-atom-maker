@@ -6,7 +6,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.youtube.YouTube
-import com.google.api.services.youtube.model.Video
+import com.google.api.services.youtube.model.{VideoProcessingDetails, Video}
 import model.{UpdatedMetadata, YouTubeVideoCategory, YouTubeChannel}
 import play.api.Configuration
 
@@ -87,11 +87,25 @@ case class YouTubeChannelsApi(config: YouTubeConfig) extends YouTubeBuilder {
       .setManagedByMe(true)
       .setOnBehalfOfContentOwner(config.contentOwner)
 
-    val allChannels = request.execute().getItems.asScala.toList.map(YouTubeChannel.build).sortBy(_.name)
+    val allChannels = request.execute().getItems.asScala.toList.map(YouTubeChannel.build).sortBy(_.title)
 
     config.allowedChannels match {
       case None => allChannels
       case Some(allowedList) => allChannels.filter(c => allowedList.contains(c.id))
     }
   }
+}
+
+case class YouTubeVideoStatusApi(config: YouTubeConfig) extends YouTubeBuilder {
+  def get(youtubeId: String): Option[String] =
+    youtube.videos()
+      .list("processingDetails")
+      .setId(youtubeId)
+      .setOnBehalfOfContentOwner(config.contentOwner)
+      .execute()
+      .getItems.asScala.toList.headOption match {
+      case Some(video) =>
+        Some(video.getProcessingDetails().getProcessingStatus())
+      case None => None
+    }
 }
