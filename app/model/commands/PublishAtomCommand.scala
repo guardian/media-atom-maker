@@ -1,5 +1,7 @@
 package model.commands
 
+import java.net.URL
+
 import com.gu.atom.data.{PublishedDataStore, PreviewDataStore}
 import com.gu.atom.play.AtomAPIActions
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
@@ -48,6 +50,6 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
           .sortBy(_.size.get).head).get
     }
 
-    api.updateThumbnail(asset.id, img.file, img.mimeType.get)
+    api.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
   }
 }

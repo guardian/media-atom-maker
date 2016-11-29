@@ -82,8 +82,8 @@ case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder {
       case _ => None
     }
 
-  def updateThumbnail(id: String, thumbnailUrl: String, mimeType: String): Unit = {
-    val content = new InputStreamContent(mimeType, new BufferedInputStream(new URL(thumbnailUrl).openStream()))
+  def updateThumbnail(id: String, thumbnailUrl: URL, mimeType: String): Unit = {
+    val content = new InputStreamContent(mimeType, new BufferedInputStream(thumbnailUrl.openStream()))
     val set = youtube.thumbnails().set(id, content).setOnBehalfOfContentOwner(config.contentOwner)
 
     // If we want some way of monitoring and resuming thumbnail uploads then we can change this to be `false`
