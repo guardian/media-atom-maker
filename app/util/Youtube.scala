@@ -2,15 +2,15 @@ package util
 
 import java.io.BufferedInputStream
 import java.net.URL
+import java.time.Duration
 import javax.inject.{ Singleton, Inject }
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
-import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import com.google.api.client.http.InputStreamContent
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.youtube.YouTube
-import com.google.api.services.youtube.model.{VideoProcessingDetails, Video}
+import com.google.api.services.youtube.model.Video
 import model.{UpdatedMetadata, YouTubeVideoCategory, YouTubeChannel}
 import play.api.Configuration
 
@@ -112,16 +112,33 @@ case class YouTubeChannelsApi(config: YouTubeConfig) extends YouTubeBuilder {
   }
 }
 
-case class YouTubeVideoStatusApi(config: YouTubeConfig) extends YouTubeBuilder {
-  def get(youtubeId: String): Option[String] =
+case class YouTubeVideoInfoApi(config: YouTubeConfig) extends YouTubeBuilder {
+  def getProcessingStatus(youtubeId: String): Option[String] =
     youtube.videos()
       .list("processingDetails")
       .setId(youtubeId)
       .setOnBehalfOfContentOwner(config.contentOwner)
       .execute()
       .getItems.asScala.toList.headOption match {
-      case Some(video) =>
-        Some(video.getProcessingDetails().getProcessingStatus())
+      case Some(video) => Some(video.getProcessingDetails.getProcessingStatus)
       case None => None
     }
+
+  def getDuration(youtubeId: String): Option[Long] = {
+    youtube.videos()
+      .list("contentDetails")
+      .setId(youtubeId)
+      .setOnBehalfOfContentOwner(config.contentOwner)
+      .execute()
+      .getItems.asScala.toList.headOption match {
+      case Some(video) => {
+        // YouTube API returns duration is in ISO 8601 format
+        // https://developers.google.com/youtube/v3/docs/videos#contentDetails.duration
+        val iso8601Duration = video.getContentDetails.getDuration
+
+        Some(Duration.parse(iso8601Duration).toMillis / 1000) // seconds
+      }
+      case None => None
+    }
+  }
 }

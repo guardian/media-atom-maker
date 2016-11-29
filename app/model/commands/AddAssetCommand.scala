@@ -6,9 +6,9 @@ import com.gu.atom.data.PreviewDataStore
 import CommandExceptions._
 import com.gu.atom.publish.PreviewAtomPublisher
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
-import com.gu.contentatom.thrift.atom.media.Asset
+import com.gu.contentatom.thrift.atom.media.{Asset, Platform}
 import model.MediaAtom
-import util.ThriftUtil
+import util.{ThriftUtil, YouTubeConfig, YouTubeVideoInfoApi}
 import util.atom.MediaAtomImplicits
 
 import scala.util.{Failure, Success}
@@ -18,7 +18,8 @@ case class AddAssetCommand(atomId: String,
                            version: Option[Long],
                            mimeType: Option[String])
                           (implicit previewDataStore: PreviewDataStore,
-                           previewPublisher: PreviewAtomPublisher)
+                           previewPublisher: PreviewAtomPublisher,
+                           val youtubeConfig: YouTubeConfig)
     extends Command
     with MediaAtomImplicits {
 
@@ -39,9 +40,15 @@ case class AddAssetCommand(atomId: String,
         val newAsset = ThriftUtil.parseAsset(videoUri, mimeType, resolvedVersion)
           .fold(err => AssetParseFailed, identity)
 
+        val assetDuration = newAsset.platform match {
+          case Platform.Youtube => YouTubeVideoInfoApi(youtubeConfig).getDuration(newAsset.id)
+          case _ => None
+        }
+
         val newAtom = atom
           .withData(mediaAtom.copy(
-            assets = newAsset +: currentAssets
+            assets = newAsset +: currentAssets,
+            duration = assetDuration
           ))
           .withRevision(_ + 1)
 

@@ -7,7 +7,7 @@ import com.gu.atom.publish.PreviewAtomPublisher
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import model.{MediaAtom, UpdatedMetadata}
 import model.commands.CommandExceptions._
-import util.{YouTubeConfig, YouTubeVideoUpdateApi}
+import util.{YouTubeConfig, YouTubeVideoInfoApi, YouTubeVideoUpdateApi}
 import util.atom.MediaAtomImplicits
 
 import scala.util.{Failure, Success}
@@ -37,10 +37,12 @@ case class UpdateMetadataCommand(atomId: String,
               categoryId = metadata.categoryId,
               license = metadata.license))
 
+            val activeYTAssetDuration = YouTubeVideoInfoApi(youtubeConfig).getDuration(youtubeAsset.id)
+
             val newAtom = atom
               .withRevision(_ + 1)
               .updateData { media =>
-                media.copy(description = metadata.description, metadata = newMetadata)}
+                media.copy(description = metadata.description, metadata = newMetadata, duration = activeYTAssetDuration)}
 
             previewDataStore.updateAtom(newAtom).fold(
               err => InternalServerError(err.msg),

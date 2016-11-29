@@ -9,7 +9,7 @@ import com.gu.atom.publish.PreviewAtomPublisher
 import com.gu.contentatom.thrift.{EventType, ContentAtomEvent}
 import com.gu.contentatom.thrift.atom.media.Asset
 import util.atom.MediaAtomImplicits
-import util.{YoutubeResponse, YouTubeConfig, YouTubeVideoStatusApi, SuccesfulYoutubeResponse, YoutubeException}
+import util.{YoutubeResponse, YouTubeConfig, YouTubeVideoInfoApi, SuccesfulYoutubeResponse, YoutubeException}
 
 case class ActiveAssetCommand(atomId: String, youtubeId: String)
                              (implicit previewDataStore: PreviewDataStore,
@@ -25,7 +25,7 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
 
   def getVideoStatus(youtubeId: String): YoutubeResponse = {
     try {
-      val status = YouTubeVideoStatusApi(youtubeConfig).get(youtubeId)
+      val status = YouTubeVideoInfoApi(youtubeConfig).getProcessingStatus(youtubeId)
       new SuccesfulYoutubeResponse(status)
     }
     catch {
@@ -51,9 +51,12 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
                 atomAssets.find(asset => asset.id == youtubeId) match {
                   case Some(newActiveAsset) => {
 
+                    val ytAssetDuration = YouTubeVideoInfoApi(youtubeConfig).getDuration(newActiveAsset.id)
+
                     val nextAtomRevision = atom
                       .withData(mediaAtom.copy(
-                        activeVersion = Some(newActiveAsset.version)
+                        activeVersion = Some(newActiveAsset.version),
+                        duration = ytAssetDuration
                       ))
                       .withRevision(_ + 1)
 
