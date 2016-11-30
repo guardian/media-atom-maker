@@ -1,20 +1,9 @@
 package model
 
-import model.Platform.Youtube
+import com.gu.contentatom.thrift.atom.media.{MediaAtom => ThriftMediaAtom, Metadata => ThriftMetadata}
+import com.gu.contentatom.thrift.{AtomData, Atom => ThriftAtom, AtomType => ThriftAtomType}
 import org.cvogt.play.json.Jsonx
-
-import com.gu.contentatom.thrift.{
-Atom => ThriftAtom,
-AtomType => ThriftAtomType,
-AtomData
-}
-
-import com.gu.contentatom.thrift.atom.media.{
-MediaAtom => ThriftMediaAtom,
-Metadata => ThriftMetadata
-}
-
-import _root_.util.atom.MediaAtomImplicits
+import util.atom.MediaAtomImplicits
 
 // Note: This is *NOT* structured like the thrift representation
 case class MediaAtom(
@@ -37,7 +26,8 @@ case class MediaAtom(
   youtubeCategoryId: Option[String],
   license: Option[String],
   channelId: Option[String],
-  commentsEnabled: Boolean = false
+  commentsEnabled: Boolean = false,
+  privacyStatus: Option[PrivacyStatus]
 )  {
 
   def asThrift = ThriftAtom(
@@ -61,7 +51,8 @@ case class MediaAtom(
           categoryId = youtubeCategoryId,
           license = license,
           commentsEnabled = Some(commentsEnabled),
-          channelId = channelId
+          channelId = channelId,
+          privacyStatus = privacyStatus.map(_.asThrift)
           ))
         )),
       contentChangeDetails = contentChangeDetails.asThrift,
@@ -107,7 +98,8 @@ object MediaAtom extends MediaAtomImplicits {
       youtubeCategoryId = data.metadata.map(_.categoryId).getOrElse(None),
       license = data.metadata.flatMap(_.license),
       commentsEnabled = data.metadata.flatMap(_.commentsEnabled).getOrElse(false),
-      channelId = data.metadata.flatMap(_.channelId)
+      channelId = data.metadata.flatMap(_.channelId),
+      privacyStatus = data.metadata.flatMap(_.privacyStatus).map(PrivacyStatus.fromThrift)
     )
   }
 }
