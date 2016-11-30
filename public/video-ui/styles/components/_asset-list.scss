@@ -10,24 +10,18 @@ $assetThumbnailHeight: 40px;
 
   &__item {
     display: flex;
-    border: 1px solid $color400Grey;
-    border-bottom: none;
     position: relative;
+    align-items: center;
     padding: 5px;
     width: 100%;
-    height: $assetThumbnailHeight + 10px;
 
-    &:last-child {
-      border-bottom: 1px solid $color400Grey;
-    }
-
-    &--active {
-      border: 1px solid $brandColor;
+    &:not(:last-child) {
+      border-bottom: 1px solid $color600Grey;
     }
   }
 
   &__thumbnail {
-    height: $assetThumbnailHeight;
+    max-height: $assetThumbnailHeight;
     border: 0;
     display: inline-block;
   }
@@ -37,12 +31,17 @@ $assetThumbnailHeight: 40px;
     display: inline-block;
     vertical-align: top;
     flex-grow: 1;
-    margin-left: 20px;
+    margin: 0 10px 0 20px;
   }
 
   &__makecurrent {
     display: inline-block;
     vertical-align: top;
 
+  }
+
+  &__current {
+    text-align: center;
+    color: $brandColor;
   }
 }

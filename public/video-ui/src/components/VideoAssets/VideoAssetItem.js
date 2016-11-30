@@ -33,15 +33,17 @@ export default class VideoAssetItem extends React.Component {
         </button>
       )
     } else {
-      return false;
+      return (
+        <p className="asset-list__current">Current asset</p>
+      );
     }
   };
 
   render() {
 
     return(
-        <li className={"asset-list__item " + (this.props.activeAsset === this.props.asset.version ? "asset-list__item--active" : "")}>
-          <img className="asset-list__thumbnail" src={this.youtubeThumbnailUrl(this.props.asset.id)}></img>
+        <li className="asset-list__item">
+          <img className="asset-list__thumbnail" src={this.youtubeThumbnailUrl(this.props.asset.id)} />
           <div className="asset-list__platform">
             {this.props.asset.platform} -
             <a target="_blank" href={this.youtubeVideoUrl(this.props.asset.id)}>{this.youtubeVideoUrl(this.props.asset.id)}</a>

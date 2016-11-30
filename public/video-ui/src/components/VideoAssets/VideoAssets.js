@@ -65,8 +65,10 @@ class VideoAssets extends React.Component {
       return (
         <form className="form">
           <VideoAssetAdd updateAsset={this.updateAsset} {...this.props} />
-          <SaveButton onSaveClick={this.createAsset}/>
-          <button className="btn" type="button" onClick={this.hideAssetForm}>Cancel</button>
+          <div className="btn__group">
+            <button className="btn" type="button" onClick={this.createAsset}>Save</button>
+            <button className="btn" type="button" onClick={this.hideAssetForm}>Cancel</button>
+          </div>
         </form>
       )
     }
@@ -80,10 +82,10 @@ class VideoAssets extends React.Component {
         <div className="video-assets">
           <div className="section-header">
             <h2 className="section-header__text">All Assets</h2>
-            <button className="btn section-header__btn" type="button" onClick={this.showAssetForm}>Add new asset</button>
+            {!this.state.showAssetForm ? <button className="btn section-header__btn" type="button" onClick={this.showAssetForm}>Add new asset</button> : false}
           </div>
-          {this.renderList()}
           {this.renderAssetEdit()}
+          {this.renderList()}
         </div>
     )
   }
