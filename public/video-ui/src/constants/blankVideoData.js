@@ -1,4 +1,5 @@
 export const blankVideoData = {
     title: '',
-    category: ''
+    category: '',
+    privacyStatus: ''
 };
