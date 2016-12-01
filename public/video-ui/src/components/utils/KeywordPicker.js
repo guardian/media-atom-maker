@@ -13,12 +13,25 @@ class KeywordPicker extends React.Component {
   }
 
   addKeyword = () => {
+
+    if (!this.isValidKeyword()) {
+      console.log("Tried to add invalid keyword");
+      return;
+    }
+
     const oldKeywords = this.props.keywords ? this.props.keywords : [];
     const newKeywords = oldKeywords.concat([this.state.newKeywordText]);
     this.props.updateKeywords(newKeywords);
     this.setState({
       newKeywordText: ""
     });
+  }
+
+  onInputKeyDown = (e) => {
+     if (e.key === "Enter") {
+       e.preventDefault();
+       this.addKeyword();
+     }
   }
 
   isValidKeyword = () => {
@@ -49,7 +62,7 @@ class KeywordPicker extends React.Component {
     return (
       <div className="keywords__item" key={keyword}>
         <div className="keyword__item__text">{keyword}</div>
-        <div className="keyword__item__remove" onClick={this.removeKeyword.bind(this, keyword)}>X</div>
+        <button className="keyword__item__remove" onClick={this.removeKeyword.bind(this, keyword)}>X</button>
       </div>
     )
   }
@@ -67,12 +80,13 @@ class KeywordPicker extends React.Component {
 
   render() {
 
+    console.log(this.props)
 
     return (
       <div className="keywords">
         {this.renderKeywords()}
         <div className="keywords__add">
-          <input type="text" className="form__field" value={this.state.newKeywordText} onChange={this.updateNewKeywordText} placeholder="Enter new keyword..." />
+          <input type="text" className="form__field" value={this.state.newKeywordText} onChange={this.updateNewKeywordText} onKeyDown={this.onInputKeyDown} placeholder="Enter new keyword..." />
           <button disabled={!this.isValidKeyword()} className="keywords__add__button btn" onClick={this.addKeyword}>Add</button>
         </div>
       </div>
