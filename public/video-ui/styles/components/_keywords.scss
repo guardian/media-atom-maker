@@ -1,0 +1,59 @@
+.keywords {
+  border: 1px solid $color500Grey;
+  padding: 10px;
+}
+
+.keywords__item {
+  display: inline-block;
+  color: black;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  padding: 2px 4px;
+
+  border-radius: 3px;
+}
+
+.keyword__item__text {
+  display: inline-block;
+  background-color: $color400Grey;
+  border: 1px solid $color500Grey;
+
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+  padding: 0px 5px;
+
+  border-right-width: 0;
+}
+
+.keyword__item__remove {
+
+  cursor: pointer;
+  display: inline-block;
+  background-color: $color650Grey;
+  border: 1px solid $color500Grey;
+
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+  padding: 0px 5px;
+
+  border-left-width: 0;
+  color: $color400Grey;
+
+  .keywords__item:hover & {
+    color: white;
+  }
+}
+
+.keywords__message {
+  font-style: italic;
+}
+
+.keywords__add {
+  margin-top: 10px;
+  text-align:right;
+}
+
+.keywords__add__button {
+  display: inline-block;
+  padding: 5px 10px;
+}
