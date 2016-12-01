@@ -5,6 +5,7 @@ import VideoDurationEdit from './formComponents/VideoDuration';
 import FormFieldSaveWrapper from '../FormFields/FormFieldSaveWrapper';
 import VideoPosterEdit from './formComponents/VideoPoster';
 import YoutubeCategorySelect from './formComponents/YoutubeCategory';
+import YoutubeKeywordsSelect from './formComponents/YoutubeKeywords';
 import YoutubeChannelSelect from './formComponents/YoutubeChannel';
 import SaveButton from '../utils/SaveButton';
 import validate from '../../constants/videoEditValidation';
@@ -82,14 +83,9 @@ const VideoEdit = (props) => {
               {...props} />
           </FormFieldSaveWrapper>
 
-          <FormFieldSaveWrapper {...props}>
-            <Field name="youtube-channel"
-                   type="text"
-                   component={YoutubeChannelSelect}
-                   {...props} />
-          </FormFieldSaveWrapper>
+          <Field name="youtube-keywords" component={YoutubeKeywordsSelect} {...props} />
 
-          {props.showSelect ? <button className="btn" onClick={props.onSelectVideo}>Select this Atom</button> : false}
+        {props.showSelect ? <button className="btn" onClick={props.onSelectVideo}>Select this Atom</button> : false}
         </div>
       )
     }
