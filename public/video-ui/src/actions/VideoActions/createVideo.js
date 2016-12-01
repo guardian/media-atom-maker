@@ -33,7 +33,7 @@ export function createVideo(video) {
     dispatch(requestVideoCreate());
     return VideosApi.createVideo(video)
         .then(res => dispatch(receiveVideoCreate(res)))
-        .fail(error => dispatch(errorVideoCreate(error)));
+        .catch(error => dispatch(errorVideoCreate(error)));
   };
 }
 

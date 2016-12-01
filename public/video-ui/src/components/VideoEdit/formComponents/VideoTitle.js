@@ -1,4 +1,5 @@
 import React from 'react';
+import TextInput from '../../FormFields/TextInput';
 
 export default class VideoTitleEdit extends React.Component {
 
@@ -16,14 +17,12 @@ export default class VideoTitleEdit extends React.Component {
       return false;
     }
 
-    const hasError = this.props.meta.touched && this.props.meta.error;
-
     return (
-        <div className="form__row">
-          <label className="form__label">Title</label>
-          <input { ...this.props.input} className={"form__field " + (hasError ? "form__field--error" : "")} type="text" value={this.props.video.title || ""} onChange={this.onUpdateTitle} />
-          {hasError ? <p className="form__message form__message--error">{this.props.meta.error}</p> : ""}
-        </div>
+        <TextInput
+          fieldName="Title"
+          fieldValue={this.props.video.title}
+          onUpdateField={this.onUpdateTitle}
+          {...this.props} />
     );
   }
 }

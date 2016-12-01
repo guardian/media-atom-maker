@@ -7,7 +7,7 @@
 }
 
 .form__row {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .video__sidebar .form__field {
@@ -22,7 +22,7 @@
   width: 100%;
 
   &:not(:last-child) {
-    margin-bottom: 10px;
+    margin: 0 0 10px;
   }
 
   &:focus {
@@ -62,9 +62,9 @@
 
 .form__label {
   display: block;
-  font-size: 13px;
   font-weight: bold;
-  margin: 0 0 5px;
+  margin-bottom: 10px;
+  padding-right: 5px;
 }
 
 .form__message {
@@ -136,5 +136,27 @@
       right: 0;
       left: auto;
     }
+  }
+}
+
+.form__save-wrapper {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.form__edit-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  cursor: pointer;
+  font-size: 0;
+  background: url(/assets/video-ui/images/edit-icon.svg) $brandColor no-repeat center;
+  background-size: 15px 15px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+
+  &:hover {
+    background-color: $darkBrandColor;
   }
 }

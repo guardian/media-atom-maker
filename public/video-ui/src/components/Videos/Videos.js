@@ -5,11 +5,22 @@ import VideoItem from './VideoItem';
 class Videos extends React.Component {
 
   static propTypes = {
-    videos: PropTypes.array.isRequired,
-  }
+    videos: PropTypes.array.isRequired
+  };
 
   componentDidMount() {
     this.props.videoActions.getVideos();
+  }
+
+  componentWillReceiveProps(newProps) {
+    const oldSearch = this.props.searchTerm;
+    const newSearch = newProps.searchTerm;
+
+    if (oldSearch !== newSearch && newSearch !== "") {
+      this.props.videoActions.searchVideosWithQuery(newSearch);
+    } else if (newSearch === "" && oldSearch !== "") {
+      this.props.videoActions.getVideos();
+    }
   }
 
   renderList() {
@@ -23,16 +34,9 @@ class Videos extends React.Component {
     }
   }
 
-  searchFilter = (value) => {
-    const title = value.title.toLowerCase();
-    const searchTerm = this.props.searchTerm.toLowerCase();
-    return title.includes(searchTerm);
-  }
-
   renderListItems() {
-    return (this.props.videos.filter(this.searchFilter).map((video) => <VideoItem key={video.id} video={video} />));
+    return (this.props.videos.map((video) => <VideoItem key={video.id} video={video} />));
   }
-
 
   render() {
     return (

@@ -29,9 +29,9 @@ export function getVideo(id) {
   return dispatch => {
     dispatch(requestVideo(id));
     return VideosApi.fetchVideo(id)
-        .catch(error => dispatch(errorReceivingVideo(error)))
         .then(res => {
           dispatch(receiveVideo(res));
-        });
+        })
+        .catch(error => dispatch(errorReceivingVideo(error)));
   };
 }
