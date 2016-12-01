@@ -27,19 +27,12 @@ export default class ContentFlags extends React.Component {
   render(){
     return(
       <div>
-      <p className="details-list__title">Filters</p>
-        <table className="details-list">
-          <tbody className="details-list__flags">
-            <tr>
-              <td colSpan="2" className="details-list__title">Legally sensitive</td>
-            </tr>
-            <tr>
-              <td>{this.renderLegallySensitiveCheckbox()}</td>
-              <td className="details-list__field">This content involves active criminal proceedings.</td>
-            </tr>
-          </tbody>
-        </table>
-
+        <p className="details-list__title">Filters</p>
+        <p className="details-list__title">Legally sensitive</p>
+        <div className="details-list__labled-filter">
+          {this.renderLegallySensitiveCheckbox()}
+          <p className="details-list__field details-list__labled-filter__lable">This content involves active criminal proceedings.</p>
+        </div>
       </div>
     )
   }
