@@ -63,7 +63,7 @@ class VideoAssets extends React.Component {
   renderAssetEdit() {
     if (this.state.showAssetForm) {
       return (
-        <form className="form">
+        <form className="form baseline-margin--bottom">
           <VideoAssetAdd updateAsset={this.updateAsset} {...this.props} />
           <div className="btn__group">
             <button className="btn" type="button" onClick={this.createAsset}>Save</button>

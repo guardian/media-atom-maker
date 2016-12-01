@@ -18,6 +18,17 @@ $assetThumbnailHeight: 40px;
     &:not(:last-child) {
       border-bottom: 1px solid $color600Grey;
     }
+
+    &:hover {
+      background: $color650Grey;
+    }
+
+    &--current {
+      border: {
+        left: 5px solid $brandColor;
+        right: 5px solid $brandColor;
+      }
+    }
   }
 
   &__thumbnail {
