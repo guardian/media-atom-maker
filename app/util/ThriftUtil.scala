@@ -61,12 +61,7 @@ object ThriftUtil {
     metadata.headOption match {
       case Some(meta) =>
         Json.parse(meta).validate[Metadata] match {
-          case JsSuccess(data, _) => Right(Some(Metadata(
-            tags = data.tags,
-            categoryId = data.categoryId,
-            license = data.license,
-            commentsEnabled = data.commentsEnabled,
-            channelId = data.channelId)))
+          case JsSuccess(data, _) => Right(Some(data))
           case JsError(error) => Left(s"Couldn't parse Json for metadata $meta - $error")
         }
       case None => Right(None)

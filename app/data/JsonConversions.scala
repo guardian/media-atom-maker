@@ -11,6 +11,16 @@ object JsonConversions {
 
   implicit val category = Writes[Category](category => JsString(category.name.toLowerCase))
 
+  implicit val privacyStatusWrites = Writes[PrivacyStatus](ps => JsString(ps.name.toLowerCase))
+
+  implicit val privacyStatusReads = Reads[PrivacyStatus](json => {
+    json.as[String] match {
+      case "private" => JsSuccess(PrivacyStatus.Private)
+      case "unlisted" => JsSuccess(PrivacyStatus.Unlisted)
+      case "public" => JsSuccess(PrivacyStatus.Public)
+    }
+  })
+
   implicit val mediaAsset = (
     (__ \ "id").write[String] and
     (__ \ "version").write[Long] and
@@ -23,19 +33,21 @@ object JsonConversions {
     }
   }
 
-  implicit val mediaMetadata = (
+  implicit val mediaMetadata: Writes[Metadata] = (
     (__ \ "tags").writeNullable[Seq[String]] and
     (__ \ "categoryId").writeNullable[String] and
     (__ \ "license").writeNullable[String] and
     (__ \ "commentsEnabled").writeNullable[Boolean] and
-    (__ \ "channelId").writeNullable[String]
+    (__ \ "channelId").writeNullable[String] and
+    (__ \ "privacyStatus").writeNullable[PrivacyStatus]
   ) { metadata: Metadata =>
       (
         metadata.tags,
         metadata.categoryId,
         metadata.license,
         metadata.commentsEnabled,
-        metadata.channelId
+        metadata.channelId,
+        metadata.privacyStatus
         )
   }
 
@@ -44,7 +56,8 @@ object JsonConversions {
     (__ \ "categoryId").readNullable[String] and
     (__ \ "license").readNullable[String] and
     (__ \ "commentsEnabled").readNullable[Boolean] and
-    (__ \ "channelId").readNullable[String]
+    (__ \ "channelId").readNullable[String] and
+    (__ \ "privacyStatus").readNullable[PrivacyStatus]
   )(Metadata.apply _)
 
   implicit val atomDataMedia = (
@@ -101,15 +114,7 @@ object JsonConversions {
       )
   }
 
-  implicit val flagsWrites = (
-    (__ \ "suppressFurniture").writeNullable[Boolean] and
-    (__ \ "legallySensitive").writeNullable[Boolean]
-    ) {flags: Flags =>
-    (
-      flags.suppressFurniture,
-      flags.legallySensitive
-      )
-  }
+  implicit val flagsWrites = {flags: Flags => (__ \ "legallySensitive").writeNullable[Boolean]}
 
   implicit val atomWrites: Writes[Atom] = (
     (__ \ "id").write[String] and
