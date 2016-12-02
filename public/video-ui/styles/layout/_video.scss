@@ -23,8 +23,6 @@
 
 .video__main {
   flex-grow: 1;
-  background-color: $color100Grey;
-  color: $color700Grey;
   padding: 20px 30px;
 
   &__header {
@@ -34,7 +32,6 @@
 }
 
 .video-preview {
-
   vertical-align: top;
 
   position: relative;

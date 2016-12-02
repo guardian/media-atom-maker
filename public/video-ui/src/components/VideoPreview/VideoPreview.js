@@ -20,7 +20,7 @@ export default class VideoPreview extends React.Component {
   render() {
     return (
         <div className="video-preview">
-          <h1 className="video-preview__header">Preview</h1>
+          <h2 className="video-preview__header">Preview</h2>
           <iframe className="video-preview__video" src={this.youtubeEmbedUrl() + this.getActiveAssetId()}></iframe>
         </div>
     );
