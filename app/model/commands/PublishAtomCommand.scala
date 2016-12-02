@@ -23,11 +23,17 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
         val atom = MediaAtom.fromThrift(a)
         val api = YouTubeVideoUpdateApi(youtubeConfig)
 
-        try {
-          updateThumbnail(atom, api)
-        } catch {
-          case NonFatal(e) => PosterImageUploadFailed(e.getMessage)
+        MediaAtom.getActiveYouTubeAsset(atom) match {
+          case Some(_) => {
+            try {
+              updateThumbnail(atom, api)
+            } catch {
+              case NonFatal(e) => PosterImageUploadFailed(e.getMessage)
+            }
+          }
+          case None =>
         }
+
         api.updateMetadata(id, UpdatedMetadata(atom.description, Some(atom.tags), atom.youtubeCategoryId, atom.license))
         publishAtom(id)
 
