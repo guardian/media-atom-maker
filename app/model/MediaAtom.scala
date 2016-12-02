@@ -105,4 +105,14 @@ object MediaAtom extends MediaAtomImplicits {
       privacyStatus = data.metadata.flatMap(_.privacyStatus).flatMap(PrivacyStatus.fromThrift)
     )
   }
+
+  def getActiveYouTubeAsset(mediaAtom: MediaAtom): Option[Asset] = {
+    val assets = mediaAtom.assets
+    val activeAsset = mediaAtom.activeVersion.flatMap(activeVersion => assets.find(_.version == activeVersion))
+
+    activeAsset match {
+      case Some(asset) if asset.platform == Platform.Youtube => Some(asset)
+      case _ => None
+    }
+  }
 }

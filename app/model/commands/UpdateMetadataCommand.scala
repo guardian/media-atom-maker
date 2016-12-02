@@ -4,9 +4,8 @@ import java.util.Date
 
 import com.gu.atom.data.PreviewDataStore
 import com.gu.atom.publish.PreviewAtomPublisher
-import com.gu.contentatom.thrift.{EventType, ContentAtomEvent}
-import com.gu.contentatom.thrift.atom.media.Platform
-import model.UpdatedMetadata
+import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
+import model.{MediaAtom, UpdatedMetadata}
 import model.commands.CommandExceptions._
 import util.{YouTubeConfig, YouTubeVideoUpdateApi}
 import util.atom.MediaAtomImplicits
@@ -26,15 +25,14 @@ case class UpdateMetadataCommand(atomId: String,
   def process(): Unit = {
     previewDataStore.getAtom(atomId) match {
       case Some(atom) =>
-        val mediaAtom = atom.tdata
-        val assets = mediaAtom.assets
-        val activeAsset = mediaAtom.activeVersion.flatMap(activeVersion => assets.find(_.version == activeVersion))
+        val thriftMediaAtom = atom.tdata
+        val mediaAtom = MediaAtom.fromThrift(atom)
 
-        activeAsset match {
-          case Some(asset) if asset.platform == Platform.Youtube =>
-            YouTubeVideoUpdateApi(youtubeConfig).updateMetadata(asset.id, metadata)
+        MediaAtom.getActiveYouTubeAsset(mediaAtom) match {
+          case Some(youtubeAsset) =>
+            YouTubeVideoUpdateApi(youtubeConfig).updateMetadata(youtubeAsset.id, metadata)
 
-            val newMetadata = mediaAtom.metadata.map(_.copy(
+            val newMetadata = thriftMediaAtom.metadata.map(_.copy(
               tags = metadata.tags,
               categoryId = metadata.categoryId,
               license = metadata.license))
