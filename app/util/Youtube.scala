@@ -55,7 +55,10 @@ case class YouTubeVideoCategoryApi(config: YouTubeConfig) extends YouTubeBuilder
       .list("snippet")
       .setRegionCode("GB")
 
-    request.execute.getItems.asScala.toList.map(YouTubeVideoCategory.build).sortBy(_.title)
+    request.execute.getItems.asScala.toList
+      .filter(_.getSnippet.getAssignable)
+      .map(YouTubeVideoCategory.build)
+      .sortBy(_.title)
   }
 }
 
