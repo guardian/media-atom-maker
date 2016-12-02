@@ -4,6 +4,7 @@ import VideoAssets from '../VideoAssets/VideoAssets';
 import VideoPublishButton from '../VideoPublishButton/VideoPublishButton';
 import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoUsages from '../VideoUsages/VideoUsages';
+import ContentFlags from '../VideoEdit/ContentFlags';
 
 class VideoDisplay extends React.Component {
 
@@ -20,6 +21,10 @@ class VideoDisplay extends React.Component {
     this.setState({
       editable: false
     })
+  };
+
+  saveAndUpdateVideo = (video) => {
+    this.props.videoActions.saveVideo(video);
   };
 
   updateVideo = (video) => {
@@ -68,6 +73,7 @@ class VideoDisplay extends React.Component {
                 showSelect={this.props.config.embeddedMode}
                 onSelectVideo={this.selectVideo} />
 
+              <ContentFlags video={this.props.video || {}} saveAndUpdateVideo={this.saveAndUpdateVideo}/>
               <VideoPublishButton video={this.props.video || {}} publishVideo={this.publishVideo} />
             </form>
           </div>

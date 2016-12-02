@@ -1,7 +1,7 @@
 package model
 
 import com.gu.contentatom.thrift.atom.media.{MediaAtom => ThriftMediaAtom, Metadata => ThriftMetadata}
-import com.gu.contentatom.thrift.{AtomData, Atom => ThriftAtom, AtomType => ThriftAtomType}
+import com.gu.contentatom.thrift.{AtomData, Atom => ThriftAtom, AtomType => ThriftAtomType, Flags => ThriftFlags}
 import org.cvogt.play.json.Jsonx
 import util.atom.MediaAtomImplicits
 
@@ -27,8 +27,8 @@ case class MediaAtom(
   license: Option[String],
   channelId: Option[String],
   commentsEnabled: Boolean = false,
-  privacyStatus: Option[PrivacyStatus]
-)  {
+  legallySensitive: Option[Boolean],
+  privacyStatus: Option[PrivacyStatus]) {
 
   def asThrift = ThriftAtom(
       id = id,
@@ -56,7 +56,9 @@ case class MediaAtom(
           ))
         )),
       contentChangeDetails = contentChangeDetails.asThrift,
-      flags = None
+      flags = Some(ThriftFlags(
+        legallySensitive = legallySensitive
+      ))
   )
 
   def getActiveAsset = this.assets.find(_.version == this.activeVersion.get)
@@ -99,6 +101,7 @@ object MediaAtom extends MediaAtomImplicits {
       license = data.metadata.flatMap(_.license),
       commentsEnabled = data.metadata.flatMap(_.commentsEnabled).getOrElse(false),
       channelId = data.metadata.flatMap(_.channelId),
+      legallySensitive = atom.flags.flatMap(_.legallySensitive),
       privacyStatus = data.metadata.flatMap(_.privacyStatus).map(PrivacyStatus.fromThrift)
     )
   }

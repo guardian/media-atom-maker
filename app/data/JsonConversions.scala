@@ -114,6 +114,8 @@ object JsonConversions {
       )
   }
 
+  implicit val flagsWrites = {flags: Flags => (__ \ "legallySensitive").writeNullable[Boolean]}
+
   implicit val atomWrites: Writes[Atom] = (
     (__ \ "id").write[String] and
       (__ \ "type").write[AtomType] and
