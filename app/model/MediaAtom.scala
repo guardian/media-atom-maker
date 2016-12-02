@@ -52,7 +52,7 @@ case class MediaAtom(
           license = license,
           commentsEnabled = Some(commentsEnabled),
           channelId = channelId,
-          privacyStatus = privacyStatus.map(_.asThrift)
+          privacyStatus = privacyStatus.flatMap(_.asThrift)
           ))
         )),
       contentChangeDetails = contentChangeDetails.asThrift,
@@ -102,7 +102,7 @@ object MediaAtom extends MediaAtomImplicits {
       commentsEnabled = data.metadata.flatMap(_.commentsEnabled).getOrElse(false),
       channelId = data.metadata.flatMap(_.channelId),
       legallySensitive = atom.flags.flatMap(_.legallySensitive),
-      privacyStatus = data.metadata.flatMap(_.privacyStatus).map(PrivacyStatus.fromThrift)
+      privacyStatus = data.metadata.flatMap(_.privacyStatus).flatMap(PrivacyStatus.fromThrift)
     )
   }
 }
