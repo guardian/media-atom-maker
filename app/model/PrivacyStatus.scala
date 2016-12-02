@@ -5,7 +5,7 @@ import play.api.libs.json._
 
 sealed trait PrivacyStatus {
   def name: String
-  def asThrift = ThriftPrivacyStatus.valueOf(name).get
+  def asThrift = ThriftPrivacyStatus.valueOf(name)
 }
 
 
@@ -28,5 +28,5 @@ object PrivacyStatus {
 
   private val types = List(Private, Unlisted, Public)
 
-  def fromThrift(status: ThriftPrivacyStatus) = types.find(_.name == status.name).get
+  def fromThrift(status: ThriftPrivacyStatus): Option[PrivacyStatus] = types.find(_.name == status.name)
 }
