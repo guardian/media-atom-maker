@@ -24,7 +24,14 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom)
     if (id != atom.id) {
       AtomIdConflict
     }
-    val details = atom.contentChangeDetails.copy(revision = atom.contentChangeDetails.revision + 1)
+
+    val existingAtom = previewDataStore.getAtom(atom.id)
+
+    if (existingAtom.isEmpty) {
+      AtomNotFound
+    }
+
+    val details = atom.contentChangeDetails.copy(revision = existingAtom.get.contentChangeDetails.revision + 1)
     val thrift = atom.copy(contentChangeDetails = details).asThrift
 
     previewDataStore.updateAtom(thrift).fold(
