@@ -4,7 +4,7 @@ import KeywordPicker from '../../utils/KeywordPicker';
 class YoutubeKeywordsSelect extends React.Component {
 
   updateKeywords = (keywords) => {
-    this.props.updateVideo(Object.assign({}, this.props.video, {
+    this.props.saveAndUpdateVideo(Object.assign({}, this.props.video, {
       tags: keywords
     }));
   };

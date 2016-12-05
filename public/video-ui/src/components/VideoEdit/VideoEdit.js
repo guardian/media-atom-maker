@@ -42,6 +42,13 @@ const VideoEdit = (props) => {
             type="select"
             component={YoutubeCategorySelect}
             {...props} />
+
+          <Field
+            name="youtube-channel"
+            type="select"
+            component={YoutubeChannelSelect}
+            {...props} />
+            
           <SaveButton saveState={props.saveState} onSaveClick={props.saveVideo} onResetClick={props.resetVideo} />
         </div>
       )
@@ -62,6 +69,14 @@ const VideoEdit = (props) => {
               name="category"
               type="select"
               component={VideoCategorySelect}
+              {...props} />
+          </FormFieldSaveWrapper>
+
+          <FormFieldSaveWrapper {...props}>
+            <Field
+              name="youtube-channel"
+              type="select"
+              component={YoutubeChannelSelect}
               {...props} />
           </FormFieldSaveWrapper>
 
