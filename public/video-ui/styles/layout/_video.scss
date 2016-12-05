@@ -12,18 +12,18 @@
   max-height: 100%;
   overflow: auto;
 
-  &__group {
-    padding: 10px;
+  border-right: 1px solid $color600Grey;
 
-    &:not(:last-child) {
-      border-bottom: 1px solid $color600Grey;
-    }
-  }
 }
 
 .video__main {
   flex-grow: 1;
   padding: 20px 30px;
+
+  background-color: $color700Grey;
+
+  box-shadow: inset 2px 2px 4px $color800Grey;
+
 
   &__header {
     display: flex;

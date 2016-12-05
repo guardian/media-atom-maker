@@ -7,3 +7,8 @@ export function findSmallestAsset(assetsArray) {
     }
   });
 }
+
+export function findSmallestAssetAboveHeight(assetsArray, minSize) {
+  const usefulAssets = assetsArray.filter((asset) => asset.dimensions.height >= minSize)
+  return findSmallestAsset(usefulAssets);
+}
