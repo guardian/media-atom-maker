@@ -16,7 +16,6 @@ function receiveCategories(categories) {
 }
 
 function errorReceivingCategories(error) {
-  console.log(error)
   return {
     type: 'SHOW_ERROR',
     message: 'Could not get YouTube categories',
