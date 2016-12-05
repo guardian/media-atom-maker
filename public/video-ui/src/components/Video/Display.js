@@ -69,6 +69,7 @@ class VideoDisplay extends React.Component {
                 video={this.props.video || {}}
                 updateVideo={this.updateVideo}
                 saveVideo={this.saveVideo}
+                saveAndUpdateVideo={this.saveAndUpdateVideo}
                 resetVideo={this.resetVideo}
                 showSelect={this.props.config.embeddedMode}
                 onSelectVideo={this.selectVideo} />
