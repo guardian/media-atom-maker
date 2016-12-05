@@ -13,7 +13,7 @@ class VideoPosterImageEdit extends React.Component {
       posterImage: image
     });
 
-    this.props.updateVideo(newData);
+    this.props.saveAndUpdateVideo(newData);
   };
 
   renderImage() {
@@ -52,6 +52,3 @@ function mapStateToProps(state) {
 }
 
 export default connect(mapStateToProps)(VideoPosterImageEdit);
-
-
-
