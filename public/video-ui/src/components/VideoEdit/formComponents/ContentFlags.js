@@ -4,15 +4,13 @@ export default class ContentFlags extends React.Component {
 
   renderLegallySensitiveCheckbox() {
     return (
-      <div className="form-checkbox" >
+      <div>
         <input
           id="legallySensitive"
-          className="form-checkbox__input"
           type="checkbox"
-          checked={this.props.video.legallySensitive}
+          checked={this.props.video.legallySensitive || false}
           onChange={this.updateFlag.bind(this)}
         />
-        <label htmlFor="legallySensitive" className="form-checkbox__toggle"></label>
       </div>
     )
   }
@@ -27,7 +25,6 @@ export default class ContentFlags extends React.Component {
   render(){
     return(
       <div>
-        <p className="details-list__title">Filters</p>
         <p className="details-list__title">Legally sensitive</p>
         <div className="details-list__labeled-filter">
           {this.renderLegallySensitiveCheckbox()}

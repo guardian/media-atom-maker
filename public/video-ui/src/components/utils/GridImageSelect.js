@@ -57,7 +57,7 @@ export default class GridEmbedder extends React.Component {
         return (
             <div className="gridembedder">
                 <div className="gridembedder__button" onClick={this.toggleModal}>
-                    Add Image from Grid
+                    + Add Image from Grid
                 </div>
 
                 <Modal isOpen={this.state.modalOpen} dismiss={this.closeModal}>
