@@ -7,7 +7,7 @@ export default class VideoItem extends React.Component {
 
     if (this.props.video.activeVersion && this.props.video.assets.length) {
       const activeAssets = this.props.video.assets.filter((asset) => asset.version === this.props.video.activeVersion)
-      if (activeAssets.length !== -1) {
+      if (!activeAssets.length) {
         if (activeAssets[0] && activeAssets[0].platform) {
           return <span className="success">Active {activeAssets[0].platform} video</span>
         }
