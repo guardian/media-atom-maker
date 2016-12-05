@@ -1,6 +1,5 @@
 .grid {
   display: flex;
-
 }
 
 .grid__message {
@@ -11,38 +10,96 @@
 }
 
 .grid__list {
-  display: flex;
-  flex-wrap: wrap;
-  width: 100%;
   list-style: none;
-  padding: 0;
-  margin: 5px;
+  padding: 0 5%;
+
+  text-align: center;
 }
 
 .grid__item {
-  flex-basis: 25%;
-  padding: 5px;
+  display: inline-block;
+
+  position: relative;
+  border: 3px solid $color625Grey;
+
+  width: 300px;
+  height: 230px;
+
+  margin: 5px;
+
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .grid__link {
+
+  text-decoration: none;
+
+  cursor: pointer;
+
+  text-align: left;
   display: block;
   width: 100%;
   height: 100%;
-  padding: 5px;
   background: $color650Grey;
-  
-  &:hover {
-    background: lighten($color650Grey, 5);
-  }
 }
 
 .grid__image {
   width: 100%;
-  min-height: 100px;
-  background: $color600Grey;
+  height: 200px;
+
+
 
   & img {
     width: 100%;
     display: block;
   }
+}
+
+.grid__image__placeholder {
+  width: 100%;
+  height: 200px;
+  display: block;
+
+  text-decoration: none;
+
+  color: #666;
+
+  font-size: 40px;
+
+  text-align: center;
+  padding-top: 40px;
+
+}
+
+.grid__item__footer {
+
+  position: absolute;
+  bottom: 0;
+  left: 0;
+
+  width: 100%;
+  background-color: #222;
+  height: 70px;
+  padding: 5px 10px;
+
+  &:before {
+    content: " ";
+    position: absolute;
+    top: -6px;
+    left: 0;
+
+    height: 6px;
+    width: 100%;
+
+    background: linear-gradient(0deg, #111, transparent);
+  }
+}
+
+.grid__item__title {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 17px;
+  padding-top: 10px;
 }

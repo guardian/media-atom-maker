@@ -4,10 +4,12 @@ export default class SelectBox extends React.Component {
 
   renderField = () => {
     if(!this.props.editable) {
+      const matchingValues = this.props.selectValues.filter((fieldValue) => fieldValue.id.toString() === this.props.fieldValue.toString())
+      const displayValue = matchingValues.length ? matchingValues[0].title : this.props.fieldValue
       return (
         <div>
           <p className="details-list__title">{this.props.fieldName}</p>
-          <p className="details-list__field">{this.props.fieldValue}</p>
+          <p className="details-list__field">{displayValue}</p>
         </div>
       )
     }
