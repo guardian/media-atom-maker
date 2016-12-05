@@ -7,6 +7,7 @@ import VideoPosterEdit from './formComponents/VideoPoster';
 import YoutubeCategorySelect from './formComponents/YoutubeCategory';
 import YoutubeKeywordsSelect from './formComponents/YoutubeKeywords';
 import YoutubeChannelSelect from './formComponents/YoutubeChannel';
+import ContentFlags from './formComponents/ContentFlags';
 import SaveButton from '../utils/SaveButton';
 import validate from '../../constants/videoEditValidation';
 import { Field, reduxForm } from 'redux-form';
@@ -80,6 +81,9 @@ const VideoEdit = (props) => {
                 component={VideoDurationEdit}
                 {...props} />
             </FormFieldSaveWrapper>
+
+            <Field name="content-flags" component={ContentFlags} {...props} />
+
           </div>
 
           <div className="form__group">
