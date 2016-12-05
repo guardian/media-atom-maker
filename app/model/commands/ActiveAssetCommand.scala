@@ -1,6 +1,8 @@
 package model.commands
 
 import java.util.Date
+import model.MediaAtom
+
 import scala.util.{Failure, Success}
 import CommandExceptions._
 
@@ -18,7 +20,7 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
   extends Command
   with MediaAtomImplicits {
 
-  type T = Unit
+  type T = MediaAtom
 
 
 
@@ -32,7 +34,7 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
       case e: Throwable => new YoutubeException(e)
     }
   }
-  def process(): Unit = {
+  def process(): MediaAtom = {
 
     val youtubeResponse = getVideoStatus(youtubeId)
 
@@ -40,17 +42,22 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
       case response: SuccesfulYoutubeResponse => {
 
         val videoStatus = response.status
-        videoStatus match {
-          case Some("succeeded") => {
 
+        /** Processing status:
+        * failed – Video processing has failed.
+        * processing – Video is currently being processed.
+        * succeeded – Video has been successfully processed.
+        * terminated – Processing information is no longer available.
+        **/
+        videoStatus match {
+          case Some(status) if status == "succeeded" || status == "terminated" =>
             previewDataStore.getAtom(atomId) match {
-              case Some(atom) => {
+              case Some(atom) =>
                 val mediaAtom = atom.tdata
                 val atomAssets: Seq[Asset] = mediaAtom.assets
 
                 atomAssets.find(asset => asset.id == youtubeId) match {
-                  case Some(newActiveAsset) => {
-
+                  case Some(newActiveAsset) =>
                     val ytAssetDuration = YouTubeVideoInfoApi(youtubeConfig).getDuration(newActiveAsset.id)
 
                     val nextAtomRevision = atom
@@ -61,28 +68,24 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
                       .withRevision(_ + 1)
 
                     previewDataStore.updateAtom(nextAtomRevision).fold(
-                      err => InternalServerError(err.msg),
+                      err => AtomUpdateFailed(err.msg),
                       _ => {
                         val event = ContentAtomEvent(nextAtomRevision, EventType.Update, new Date().getTime)
-
                         previewPublisher.publishAtomEvent(event) match {
-                          case Success(_) => ()
-                          case Failure(err) => InternalServerError(s"could not publish: ${err.toString}")
+                          case Success(_) => MediaAtom.fromThrift(nextAtomRevision)
+                          case Failure(err) => AtomPublishFailed(s"could not publish: ${err.toString}")
                         }
                       }
                     )
-                  }
-                  case None => BadRequest(s"could not find asset with id: ${youtubeId}")
+                  case None => AssetNotFound(s"could not find asset with id: $youtubeId")
                 }
-              }
               case None => AtomNotFound
             }
-          }
           case Some(_) => AssetEncodingInProcess
           case None => NotYoutubeAsset
         }
       }
-      case e: YoutubeException => BadRequest(e.toString())
+      case e: YoutubeException => YoutubeException(e.exception.getMessage)
     }
   }
 }

@@ -37,8 +37,8 @@ class VideoAssets extends React.Component {
     this.props.videoActions.createAsset(this.props.asset, this.props.video.id);
   };
 
-  revertAsset = (version) => {
-    this.props.videoActions.revertAsset(version, this.props.video.id);
+  revertAsset = (videoId, version) => {
+    this.props.videoActions.revertAsset(this.props.video.id, videoId, version);
   };
 
   updateVideo = (video) => {

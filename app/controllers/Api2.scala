@@ -114,17 +114,14 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
     }.getOrElse {
       BadRequest("Could not read json")
     }
-    Ok
   }
 
   def setActiveAsset(atomId: String) = APIHMACAuthAction { implicit req =>
     req.body.asJson.map { json =>
       try {
         val videoId = (json \ "youtubeId").as[String]
-
-        val status: Unit = ActiveAssetCommand(atomId, videoId).process()
-
-        Ok("made asset " + videoId + " active in atom " + atomId)
+        val atom = ActiveAssetCommand(atomId, videoId).process()
+        Ok(Json.toJson(atom))
       } catch {
         commandExceptionAsResult
       }
