@@ -80,8 +80,6 @@ class KeywordPicker extends React.Component {
 
   render() {
 
-    console.log(this.props)
-
     return (
       <div className="keywords">
         {this.renderKeywords()}
