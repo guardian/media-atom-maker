@@ -1,14 +1,20 @@
 package model.commands
 
 import java.net.URL
+import java.util.Date
 
-import com.gu.atom.data.{PublishedDataStore, PreviewDataStore}
+import play.api.Logger
+
+import cats.data.Xor
+import com.gu.atom.data.{PreviewDataStore, PublishedDataStore}
 import com.gu.atom.play.AtomAPIActions
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
-import model.{UpdatedMetadata, ImageAsset, MediaAtom}
+import com.gu.contentatom.thrift.{ChangeRecord, ContentAtomEvent, EventType}
+import model.{ImageAsset, MediaAtom, UpdatedMetadata}
 import util.{YouTubeConfig, YouTubeVideoUpdateApi}
 import model.commands.CommandExceptions._
 
+import scala.util.{Failure, Success}
 import scala.util.control.NonFatal
 
 case class PublishAtomCommand(id: String)(implicit val previewDataStore: PreviewDataStore,
@@ -19,8 +25,8 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
   type T = Unit
   def process(): T = {
     previewDataStore.getAtom(id) match {
-      case Some(a) =>
-        val atom = MediaAtom.fromThrift(a)
+      case Some(thriftAtom) => {
+        val atom = MediaAtom.fromThrift(thriftAtom)
         val api = YouTubeVideoUpdateApi(youtubeConfig)
 
         MediaAtom.getActiveYouTubeAsset(atom) match {
@@ -28,15 +34,32 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
             try {
               updateThumbnail(atom, api)
             } catch {
-              case NonFatal(e) => PosterImageUploadFailed(e.getMessage)
+              case NonFatal(e) => {
+                Logger.error(s"Active YouTube asset found but could not be updated for atom: ${id}")
+                PosterImageUploadFailed(e.getMessage)
+              }
             }
           }
-          case None =>
+          case None => Logger.info(s"No active YouTube asset found for atom: ${id}")
         }
 
         api.updateMetadata(id, UpdatedMetadata(atom.description, Some(atom.tags), atom.youtubeCategoryId, atom.license))
-        publishAtom(id)
 
+        val updatedAtom = thriftAtom.copy(
+          contentChangeDetails = thriftAtom.contentChangeDetails.copy(published = Some(ChangeRecord((new Date()).getTime(), None)))
+        )
+
+        val event = ContentAtomEvent(updatedAtom, EventType.Update, (new Date()).getTime())
+
+        livePublisher.publishAtomEvent(event) match {
+          case Success(_) =>
+            publishedDataStore.updateAtom(updatedAtom) match {
+              case Xor.Right(_) => Logger.info(s"Successfully published atom: ${id}")
+              case Xor.Left(err) => AtomPublishFailed(s"Could not update published datastore after publish: ${err.toString}")
+            }
+          case Failure(err) => AtomPublishFailed(s"Could not publish atom (kinesis event failed): ${err.toString}")
+        }
+      }
       case None => AtomNotFound
     }
   }
@@ -57,5 +80,7 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
     }
 
     api.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
+
+    Logger.info(s"Updated YouTube thumbnail for atom: ${id}")
   }
 }
