@@ -26,7 +26,7 @@ export default class VideoAssetItem extends React.Component {
   };
 
   renderAssetVersionButton = () => {
-    if(this.props.activeAsset !== this.props.asset.version) {
+    if(!this.props.activeAsset) {
       return (
         <button type="button" className="btn asset-list__makecurrent" onClick={this.revertAsset}>
           Set as current asset
@@ -41,7 +41,7 @@ export default class VideoAssetItem extends React.Component {
 
   render() {
     return(
-        <li className={"asset-list__item " + (this.props.activeAsset === this.props.asset.version ? "asset-list__item--current" : false)}>
+        <li className={"asset-list__item " + (this.props.activeAsset ? "asset-list__item--current" : false)}>
           <img className="asset-list__thumbnail" src={this.youtubeThumbnailUrl(this.props.asset.id)} />
           <div className="asset-list__platform">
             {this.props.asset.platform} -

@@ -12,8 +12,10 @@ $assetThumbnailHeight: 40px;
     display: flex;
     position: relative;
     align-items: center;
-    padding: 5px;
+    padding: 5px 10px;
     width: 100%;
+    word-break: break-all;
+    background: $color800Grey;
 
     &:not(:last-child) {
       border-bottom: 1px solid $color600Grey;
@@ -48,11 +50,16 @@ $assetThumbnailHeight: 40px;
   &__makecurrent {
     display: inline-block;
     vertical-align: top;
-
+    flex-shrink: 0;
   }
 
   &__current {
     text-align: center;
-    color: $brandColor;
+    background: $brandColor;
+    color: $cWhite;
+    font-weight: bold;
+    border-radius: 2em;
+    padding: 3px 5px;
+    flex-shrink: 0;
   }
 }

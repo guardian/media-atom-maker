@@ -60,7 +60,7 @@
 .form__label {
   display: block;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   padding-right: 5px;
 }
 
@@ -80,7 +80,7 @@
 
 .form__image {
   background-color: $color700Grey;
-  padding: 10px 10px 0px 10px;
+  padding: 10px 10px 0 10px;
   border: $color650Grey;
   text-align: center;
 }
@@ -152,7 +152,7 @@
 
 .form__save-wrapper {
   position: relative;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
 .form__edit-btn {
