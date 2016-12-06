@@ -11,7 +11,8 @@ class VideoAssets extends React.Component {
   }
 
   state = {
-    showAssetForm: false
+    showAssetForm: false,
+    showAssetList: false
   };
 
   showAssetForm = () => {
@@ -23,6 +24,12 @@ class VideoAssets extends React.Component {
   hideAssetForm = () => {
     this.setState({
       showAssetForm: false
+    });
+  };
+
+  showAssetList = () => {
+    this.setState({
+      showAssetList: true
     });
   };
 
@@ -40,12 +47,13 @@ class VideoAssets extends React.Component {
 
   updateAsset = (asset) => {
     this.props.videoActions.updateAsset(asset);
-  }
+  };
 
   renderList() {
       if(this.props.video.assets) {
         return (
           <ul className="asset-list">
+            {this.renderCurrentItem()}
             {this.renderListItems()}
           </ul>
         )
@@ -54,11 +62,39 @@ class VideoAssets extends React.Component {
       }
   }
 
-  renderListItems() {
-    return (
-        this.props.video.assets.map((asset, index) => <VideoAssetItem key={index} asset={asset} activeAsset={this.props.video.activeVersion} video={this.props.video} revertAsset={this.revertAsset}  updateVideo={this.updateVideo}/>)
-    );
+  isCurrentAsset = (asset) => {
+    return asset.version === this.props.video.activeVersion;
+  };
+
+  renderCurrentItem() {
+    return this.props.video.assets.filter(this.isCurrentAsset).map((asset, index) => <VideoAssetItem key={index} asset={asset}
+                                                                                               activeAsset={this.isCurrentAsset(asset)}
+                                                                                               video={this.props.video}
+                                                                                               revertAsset={this.revertAsset}
+                                                                                               updateVideo={this.updateVideo}/>);
   }
+
+  renderListItems() {
+    if (this.state.showAssetList) {
+      return (
+        this.props.video.assets.map(this.mapListItems)
+      )
+    }
+
+    return false;
+  }
+
+  mapListItems = (asset, index) => {
+    if (!this.isCurrentAsset(asset)) {
+      return (
+        <VideoAssetItem key={index} asset={asset}
+                        activeAsset={this.isCurrentAsset(asset)}
+                        video={this.props.video}
+                        revertAsset={this.revertAsset}
+                        updateVideo={this.updateVideo}/>
+      )
+    }
+  };
 
   renderAssetEdit() {
     if (this.state.showAssetForm) {
@@ -81,11 +117,12 @@ class VideoAssets extends React.Component {
     return (
         <div className="video-assets">
           <div className="section-header">
-            <h2 className="section-header__text">All Assets</h2>
+            <h2 className="section-header__text">Assets</h2>
             {!this.state.showAssetForm ? <button className="btn section-header__btn" type="button" onClick={this.showAssetForm}>Add new asset</button> : false}
           </div>
           {this.renderAssetEdit()}
           {this.renderList()}
+          {!this.state.showAssetList ? <button className="video-assets__show-btn" type="button" onClick={this.showAssetList}>Show all assets</button> : false}
         </div>
     )
   }
