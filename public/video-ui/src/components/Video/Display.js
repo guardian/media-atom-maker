@@ -73,7 +73,9 @@ class VideoDisplay extends React.Component {
                 showSelect={this.props.config.embeddedMode}
                 onSelectVideo={this.selectVideo} />
 
-              <VideoPublishButton video={this.props.video || {}} publishVideo={this.publishVideo} />
+              <div className="form__group">
+                <VideoPublishButton video={this.props.video || {}} publishVideo={this.publishVideo} />
+              </div>
             </form>
           </div>
 
