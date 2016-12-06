@@ -45,8 +45,8 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
 
   def publishMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
     try {
-      PublishAtomCommand(id).process()
-      Ok
+      val updatedAtom = PublishAtomCommand(id).process()
+      Ok(Json.toJson(updatedAtom))
     } catch {
       commandExceptionAsResult
     }
@@ -71,9 +71,8 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
     req.body.asJson.map { json =>
       try {
         val atom = json.as[MediaAtom]
-        UpdateAtomCommand(id, atom).process()
-
-        Ok
+        val updatedAtom = UpdateAtomCommand(id, atom).process()
+        Ok(Json.toJson(updatedAtom))
       } catch {
         commandExceptionAsResult
       }
