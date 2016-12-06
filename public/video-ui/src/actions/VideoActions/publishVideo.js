@@ -1,16 +1,17 @@
-import { browserHistory } from 'react-router';
 import VideosApi from '../../services/VideosApi';
 
-function requestVideoPublish() {
+function requestVideoPublish(video) {
   return {
     type:       'VIDEO_PUBLISH_REQUEST',
+    video: video,
     receivedAt: Date.now()
   };
 }
 
-function receiveVideoPublish() {
+function receiveVideoPublish(video) {
   return {
     type: 'VIDEO_PUBLISH_RECEIVE',
+    video: video,
     receivedAt: Date.now()
   };
 }
@@ -26,10 +27,9 @@ function errorVideoPublish(error) {
 
 export function publishVideo(video) {
   return dispatch => {
-    dispatch(requestVideoPublish());
+    dispatch(requestVideoPublish(video));
     return VideosApi.publishVideo(video)
         .then(res => dispatch(receiveVideoPublish(res)))
         .catch(error => dispatch(errorVideoPublish(error)));
   };
 }
-

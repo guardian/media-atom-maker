@@ -36,7 +36,7 @@ export default class VideoPreview extends React.Component {
     }
 
     return  (
-      <iframe className="video-preview__video" src={this.youtubeEmbedUrl() + activeAsset.id} allowfullscreen></iframe>
+      <iframe className="video-preview__video" src={this.youtubeEmbedUrl() + activeAsset.id} allowFullScreen></iframe>
     )
   }
 
