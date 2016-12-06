@@ -9,7 +9,7 @@ import cats.data.Xor
 import com.gu.atom.data.{PreviewDataStore, PublishedDataStore}
 import com.gu.atom.play.AtomAPIActions
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
-import com.gu.contentatom.thrift.{ChangeRecord, ContentAtomEvent, EventType}
+import com.gu.contentatom.thrift.{ChangeRecord, ContentAtomEvent, EventType, Atom}
 import model.{ImageAsset, MediaAtom, UpdatedMetadata}
 import util.{YouTubeConfig, YouTubeVideoUpdateApi}
 import model.commands.CommandExceptions._
@@ -22,7 +22,8 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
                                           val publishedDataStore: PublishedDataStore,
                                           val livePublisher: LiveAtomPublisher,
                                           youtubeConfig: YouTubeConfig) extends Command with AtomAPIActions {
-  type T = Unit
+  type T = MediaAtom
+
   def process(): T = {
     previewDataStore.getAtom(id) match {
       case Some(thriftAtom) => {
@@ -45,22 +46,49 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
 
         api.updateMetadata(id, UpdatedMetadata(atom.description, Some(atom.tags), atom.youtubeCategoryId, atom.license))
 
+        val changeRecord = ChangeRecord((new Date()).getTime(), None) // Todo: User...
         val updatedAtom = thriftAtom.copy(
-          contentChangeDetails = thriftAtom.contentChangeDetails.copy(published = Some(ChangeRecord((new Date()).getTime(), None)))
+          contentChangeDetails = thriftAtom.contentChangeDetails.copy(
+            published = Some(changeRecord),
+            lastModified = Some(changeRecord),
+            revision = thriftAtom.contentChangeDetails.revision + 1
+          )
         )
 
-        val event = ContentAtomEvent(updatedAtom, EventType.Update, (new Date()).getTime())
+        publishAtomToPreviewAndLive(updatedAtom)
 
-        livePublisher.publishAtomEvent(event) match {
-          case Success(_) =>
-            publishedDataStore.updateAtom(updatedAtom) match {
-              case Xor.Right(_) => Logger.info(s"Successfully published atom: ${id}")
-              case Xor.Left(err) => AtomPublishFailed(s"Could not update published datastore after publish: ${err.toString}")
-            }
-          case Failure(err) => AtomPublishFailed(s"Could not publish atom (kinesis event failed): ${err.toString}")
-        }
       }
       case None => AtomNotFound
+    }
+  }
+
+  private def publishAtomToPreviewAndLive(atom: Atom): MediaAtom = {
+    val event = ContentAtomEvent(atom, EventType.Update, (new Date()).getTime())
+
+    previewPublisher.publishAtomEvent(event) match {
+      case Failure(err) => AtomPublishFailed(s"Could not publish atom (preview kinesis event failed): ${err.toString}")
+      case Success(_) => {
+        previewDataStore.updateAtom(atom) match {
+          case Xor.Right(_) => publishAtomToLive(atom)
+          case Xor.Left(err) => AtomPublishFailed(s"Could not update preview datastore before publish: ${err.toString}")
+        }
+      }
+    }
+  }
+
+  private def publishAtomToLive(atom: Atom): MediaAtom = {
+    val event = ContentAtomEvent(atom, EventType.Update, (new Date()).getTime())
+
+    livePublisher.publishAtomEvent(event) match {
+      case Success(_) =>
+        publishedDataStore.updateAtom(atom) match {
+          case Xor.Right(_) => {
+            Logger.info(s"Successfully published atom: ${id}")
+            MediaAtom.fromThrift(atom)
+          }
+          case Xor.Left(err) => AtomPublishFailed(s"Could not update published datastore after publish: ${err.toString}")
+        }
+      case Failure(err) => AtomPublishFailed(s"Could not publish atom (live kinesis event failed): ${err.toString}")
     }
   }
 
