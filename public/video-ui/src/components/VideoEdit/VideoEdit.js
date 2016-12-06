@@ -112,8 +112,6 @@ const VideoEdit = (props) => {
 
             <Field name="youtube-keywords" component={YoutubeKeywordsSelect} {...props} />
           </div>
-
-        {props.showSelect ? <button className="btn" onClick={props.onSelectVideo}>Select this Atom</button> : false}
         </div>
       )
     }
