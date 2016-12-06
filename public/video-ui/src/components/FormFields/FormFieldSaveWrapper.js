@@ -34,7 +34,7 @@ export default class FormFieldSaveWrapper extends React.Component {
 
         {(!this.state.editable ? <button type="button" className="form__edit-btn" onClick={this.toggleEditing}>Edit</button> : false)}
 
-        {(this.state.editable ? <SaveButton saveState={this.props.saveState} onSaveClick={this.saveVideo} onResetClick={this.resetVideo} /> : '' )}
+        {(this.state.editable ? <SaveButton saveState={this.props.saveState.saving} onSaveClick={this.saveVideo} onResetClick={this.resetVideo} /> : '' )}
       </div>
     )
   }

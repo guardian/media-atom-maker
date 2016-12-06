@@ -50,7 +50,7 @@ const VideoEdit = (props) => {
             component={YoutubeChannelSelect}
             {...props} />
 
-          <SaveButton saveState={props.saveState} onSaveClick={props.saveVideo} onResetClick={props.resetVideo} />
+          <SaveButton saveState={props.saveState.saving} onSaveClick={props.saveVideo} onResetClick={props.resetVideo} />
         </div>
       )
     } else {
