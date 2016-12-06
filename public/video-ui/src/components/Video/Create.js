@@ -26,8 +26,15 @@ class VideoCreate extends React.Component {
       <div className="container">
         <form className="form create-form">
           <h1>Create new video</h1>
-          <VideoEdit video={this.props.video || blankVideoData} updateVideo={this.updateVideo} saveAndUpdateVideo={this.updateVideo} createMode editable/>
-          <SaveButton saveState={this.props.saveState.saving} onSaveClick={this.createVideo} onResetClick={this.resetVideo} />
+          <VideoEdit
+            video={this.props.video || blankVideoData}
+            updateVideo={this.updateVideo}
+            saveAndUpdateVideo={this.updateVideo}
+            createMode
+            editable
+            saveState={this.props.saveState}
+          />
+          <SaveButton saveState={this.props.saveState} onSaveClick={this.createVideo} onResetClick={this.resetVideo} />
         </form>
       </div>
     );
