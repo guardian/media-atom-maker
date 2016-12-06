@@ -17,6 +17,7 @@ function receiveVideo(video) {
 }
 
 function errorReceivingVideo(error) {
+  console.error(error);
   return {
     type:       'SHOW_ERROR',
     message:    'Could not get video',

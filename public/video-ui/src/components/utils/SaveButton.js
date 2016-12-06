@@ -22,7 +22,7 @@ export default class SaveButton extends React.Component {
     }
 
     return (
-      <button type="button" className={(this.props.saveState == saveStateVals.inprogress ? "btn--loading " : "") + "btn"} onClick={this.props.onSaveClick}>
+      <button type="button" className={(this.props.saveState.saving == saveStateVals.inprogress ? "btn--loading " : "") + "btn"} onClick={this.props.onSaveClick}>
         <i className="i-tick-green"/>Save
       </button>
     )
@@ -33,7 +33,7 @@ export default class SaveButton extends React.Component {
     if(!this.props.onResetClick) {
       return false;
     }
-    
+
     return (
       <button type="button" className="btn" onClick={this.props.onResetClick}>
         <i className="i-cross-red"/>Reset
