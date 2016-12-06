@@ -1,4 +1,5 @@
 import {pandaReqwest} from './pandaReqwest';
+import {getStore} from '../util/storeAccessor';
 
 
 export default {
@@ -62,8 +63,10 @@ export default {
   },
 
   createVideoPage: (videoId, title) => {
+    const store = getStore();
+    const composerUrl = store.getState().config.composerUrl;
     return pandaReqwest({
-      url: 'https://composer.local.dev-gutools.co.uk/api/content?atomPoweredVideo=true&originatingSystem=composer&type=video&initialTitle='+title,
+      url: composerUrl + '/api/content?atomPoweredVideo=true&originatingSystem=composer&type=video&initialTitle='+title,
       method: 'post',
       contentType: 'application/json',
       crossOrigin: true,
@@ -72,8 +75,10 @@ export default {
   },
 
   addVideoToPage: (pageId, data) => {
+    const store = getStore();
+    const composerUrl = store.getState().config.composerUrl;
     return pandaReqwest({
-      url: 'https://composer.local.dev-gutools.co.uk/api/content/' + pageId + '/preview/mainblock',
+      url: composerUrl + '/api/content/' + pageId + '/preview/mainblock',
       method: 'post',
       contentType: 'application/json',
       crossOrigin: true,
