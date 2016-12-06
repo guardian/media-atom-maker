@@ -29,7 +29,7 @@ export default {
 
   publishVideo: (videoId) => {
     return pandaReqwest({
-      url: '/api2/atom/' + videoId + '/publish',
+      url: '/api/atom/' + videoId + '/publish',
       method: 'put'
     })
   },
@@ -63,12 +63,22 @@ export default {
 
   createVideoPage: (videoId, title) => {
     return pandaReqwest({
-      url: 'https://composer.local.dev-gutools.co.uk/api/content?originatingSystem=composer&type=video&initialTitle='+title,
+      url: 'https://composer.local.dev-gutools.co.uk/api/content?atomPoweredVideo=true&originatingSystem=composer&type=video&initialTitle='+title,
       method: 'post',
       contentType: 'application/json',
       crossOrigin: true,
       withCredentials: true,
-    })
-  }
+    });
+  },
 
+  addVideoToPage: (pageId, data) => {
+    return pandaReqwest({
+      url: 'https://composer.local.dev-gutools.co.uk/api/content/' + pageId + '/preview/mainblock',
+      method: 'post',
+      contentType: 'application/json',
+      crossOrigin: true,
+      withCredentials: true,
+      data: JSON.stringify(data)
+    });
+  }
 }

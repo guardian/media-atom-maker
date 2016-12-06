@@ -23,10 +23,6 @@ class VideoDisplay extends React.Component {
     })
   };
 
-  saveAndUpdateVideo = (video) => {
-    this.props.videoActions.saveVideo(video);
-  };
-
   updateVideo = (video) => {
     this.props.videoActions.updateVideo(video);
   };
@@ -43,7 +39,26 @@ class VideoDisplay extends React.Component {
   };
 
   pageCreate = () => {
-    this.props.videoActions.createPage(this.props.video.id, this.props.video.title);
+    const videoPage = {
+      elements: [
+        {
+          elementType: 'content-atom',
+          fields: {
+            id: this.props.video.id,
+            atomType: 'media',
+            required: 'true',
+            title: this.props.video.title,
+            published: 'Unable to get published state from atom',
+            isMandatory: 'true',
+            editorialLink: ''
+
+          },
+          assets: []
+        }
+      ]
+    };
+
+    this.props.videoActions.createPage(this.props.video.id, this.props.video.title, videoPage)
   };
 
   selectVideo = () => {
@@ -76,10 +91,10 @@ class VideoDisplay extends React.Component {
                 video={this.props.video || {}}
                 updateVideo={this.updateVideo}
                 saveVideo={this.saveVideo}
-                saveAndUpdateVideo={this.saveAndUpdateVideo}
                 resetVideo={this.resetVideo}
                 saveState={this.props.saveState}
                />
+
               <VideoPublishButton video={this.props.video || {}} publishVideo={this.publishVideo} />
             </form>
           </div>

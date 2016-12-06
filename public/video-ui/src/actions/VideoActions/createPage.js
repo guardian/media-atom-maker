@@ -1,21 +1,21 @@
 import VideosApi from '../../services/VideosApi';
 
-function requestVideo(id) {
+function requestVideoPageCreate(id) {
   return {
     type:       'VIDEO_PAGE_POST_REQUEST',
     receivedAt: Date.now()
   };
 }
 
-function receiveVideo(video) {
+function receiveVideoPageCreate(videoPage) {
   return {
-    type:       'VIDEO_PAGE_POST_RECEIVE',
-    video:      video,
-    receivedAt: Date.now()
+    type:           'VIDEO_PAGE_POST_RECEIVE',
+    videoPage:      videoPage,
+    receivedAt:     Date.now()
   };
 }
 
-function errorReceivingVideo(error) {
+function errorReceivingVideoPageCreate(error) {
   return {
     type:       'SHOW_ERROR',
     message:    'Could not create a video page',
@@ -24,13 +24,18 @@ function errorReceivingVideo(error) {
   };
 }
 
-export function createPage(id, title) {
+export function createPage(id, title, data) {
   return dispatch => {
-    dispatch(requestVideo());
+    dispatch(requestVideoPageCreate());
     return VideosApi.createVideoPage(id, title)
-        .catch(error => dispatch(errorReceivingVideo(error)))
-        .then(res => {
-          dispatch(receiveVideo(res));
-        });
+    .then(res => {
+      return VideosApi.addVideoToPage(res.data.id, data)
+    })
+    .catch(error => {
+      dispatch(errorReceivingVideoPageCreate(error))
+    })
+    .then(res => {
+      dispatch(receiveVideoPageCreate(res))
+    });
   };
 }
