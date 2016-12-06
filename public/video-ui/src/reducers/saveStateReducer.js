@@ -1,41 +1,56 @@
 import {saveStateVals} from '../constants/saveStateVals'
 
-export default function saveState(state = '', action) {
+export default function saveState(state = {
+  saving: false,
+  publishing: false
+}, action) {
 
   switch (action.type) {
-    case 'SHOW_ERROR':
-      return saveStateVals.error;
-
+    //Save States
     case 'VIDEO_GET_REQUEST':
-      return saveStateVals.inprogress;
-
+      return Object.assign({}, state, {
+        saving: saveStateVals.inprogress
+      })
     case 'VIDEO_CREATE_REQUEST':
-      return saveStateVals.inprogress;
-
-    case 'VIDEO_PUBLISH_REQUEST':
-      return saveStateVals.inprogress;
-
+      return Object.assign({}, state, {
+        saving: saveStateVals.inprogress
+      })
     case 'ASSET_REVERT_REQUEST':
-      return saveStateVals.inprogress;
-
+      return Object.assign({}, state, {
+        saving: saveStateVals.inprogress
+      })
     case 'VIDEO_SAVE_REQUEST':
-      return saveStateVals.inprogress;
-
+      return Object.assign({}, state, {
+        saving: saveStateVals.inprogress
+      })
     case 'VIDEO_GET_RECEIVE':
-      return '';
-
-    case 'VIDEO_PUBLISH_RECEIVE':
-      return '';
+      return Object.assign({}, state, {
+        saving: false
+      })
 
     case 'VIDEO_CREATE_RECEIVE':
-      return '';
-
+      return Object.assign({}, state, {
+        saving: false
+      })
     case 'ASSET_REVERT_RECEIVE':
-      return '';
-
+      return Object.assign({}, state, {
+        saving: false
+      })
     case 'VIDEO_SAVE_RECEIVE':
-      return '';
+      return Object.assign({}, state, {
+        saving: false
+      })
 
+    //Publish States
+
+    case 'VIDEO_PUBLISH_REQUEST':
+      return Object.assign({}, state, {
+        publishing: saveStateVals.inprogress
+      })
+    case 'VIDEO_PUBLISH_RECEIVE':
+      return Object.assign({}, state, {
+        publishing: false
+      })
     default:
       return state;
   }
