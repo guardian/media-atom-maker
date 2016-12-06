@@ -1,6 +1,6 @@
 import VideosApi from '../../services/VideosApi';
 
-function requestVideoPublish() {
+function requestVideoPublish(video) {
   return {
     type:       'VIDEO_PUBLISH_REQUEST',
     video: video,
@@ -33,4 +33,3 @@ export function publishVideo(video) {
         .catch(error => dispatch(errorVideoPublish(error)));
   };
 }
-
