@@ -11,6 +11,7 @@
   height: 100%;
   max-height: 100%;
   overflow: auto;
+  flex-shrink: 0;
 
   border-right: 1px solid $color600Grey;
 

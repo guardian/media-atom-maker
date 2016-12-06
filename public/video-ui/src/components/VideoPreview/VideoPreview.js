@@ -4,10 +4,15 @@ import {getStore} from '../../util/storeAccessor';
 
 export default class VideoPreview extends React.Component {
 
-  getActiveAssetId = () => {
+  getActiveAsset = () => {
+
+    if (!this.props.video.assets || !this.props.video.activeVersion) {
+      return false;
+    }
+
     for(let i=0; i < this.props.video.assets.length; i++) {
       if(this.props.video.activeVersion === this.props.video.assets[i].version) {
-        return this.props.video.assets[i].id;
+        return this.props.video.assets[i];
       }
     }
   };
@@ -17,11 +22,29 @@ export default class VideoPreview extends React.Component {
     return store.getState().config.youtubeEmbedUrl;
   };
 
+  renderPreview() {
+    const activeAsset = this.getActiveAsset();
+
+    if (!activeAsset) {
+      return (
+        <div className="video-preview__video">No Active Video</div>
+      )
+    }
+
+    if (activeAsset.platform !== "Youtube") {
+      <div className="video-preview__video">Unable to Preview</div>
+    }
+
+    return  (
+      <iframe className="video-preview__video" src={this.youtubeEmbedUrl() + activeAsset.id} fullscreen></iframe>
+    )
+  }
+
   render() {
     return (
         <div className="video-preview">
           <h2 className="video-preview__header">Preview</h2>
-          <iframe className="video-preview__video" src={this.youtubeEmbedUrl() + this.getActiveAssetId()}></iframe>
+          {this.renderPreview()}
         </div>
     );
   }
