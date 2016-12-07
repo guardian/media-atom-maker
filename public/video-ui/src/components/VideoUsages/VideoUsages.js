@@ -74,7 +74,6 @@ class VideoUsages extends React.Component {
 
     return (
       <div className="usages">
-        <h1>Usages</h1>
         {this.renderUsages()}
       </div>
     );
