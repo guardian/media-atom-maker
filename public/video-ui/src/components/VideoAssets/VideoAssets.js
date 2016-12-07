@@ -122,7 +122,8 @@ class VideoAssets extends React.Component {
           </div>
           {this.renderAssetEdit()}
           {this.renderList()}
-          {!this.state.showAssetList ? <button className="video-assets__show-btn" type="button" onClick={this.showAssetList}>Show all assets</button> : false}
+          {!this.props.video.assets.length ? <span>No assets found</span> : false}
+          {!this.state.showAssetList && this.props.video.assets.length ? <button className="video-assets__show-btn" type="button" onClick={this.showAssetList}>Show all assets</button> : false}
         </div>
     )
   }
