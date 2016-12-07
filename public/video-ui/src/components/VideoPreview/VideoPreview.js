@@ -43,7 +43,6 @@ export default class VideoPreview extends React.Component {
   render() {
     return (
         <div className="video-preview">
-          <h2 className="video-preview__header">Preview</h2>
           {this.renderPreview()}
         </div>
     );
