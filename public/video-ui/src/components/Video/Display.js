@@ -2,6 +2,7 @@ import React from 'react';
 import VideoEdit from '../VideoEdit/VideoEdit';
 import VideoAssets from '../VideoAssets/VideoAssets';
 import VideoPublishBar from '../VideoPublishBar/VideoPublishBar';
+import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoUsages from '../VideoUsages/VideoUsages';
 
@@ -61,6 +62,7 @@ class VideoDisplay extends React.Component {
     return (
       <div>
         <VideoPublishBar video={this.props.video} saveState={this.props.saveState} publishVideo={this.publishVideo} />
+        <VideoSelectBar onSelectVideo={this.selectVideo} embeddedMode={this.props.config.embeddedMode} />
 
         <div className="video">
           <div className="video__sidebar video-details">
@@ -72,8 +74,6 @@ class VideoDisplay extends React.Component {
                 saveVideo={this.saveVideo}
                 saveAndUpdateVideo={this.saveAndUpdateVideo}
                 resetVideo={this.resetVideo}
-                showSelect={this.props.config.embeddedMode}
-                onSelectVideo={this.selectVideo}
                 saveState={this.props.saveState}
                />
             </form>
@@ -81,10 +81,19 @@ class VideoDisplay extends React.Component {
 
           <div className="video__main">
             <div className="video__main__header">
-              <VideoPreview video={this.props.video || {}} />
-              <VideoUsages video={this.props.video} />
+              <div className="video__detailbox">
+                <span className="video__detailbox__header">Preview</span>
+                <VideoPreview video={this.props.video || {}} />
+              </div>
+              <div className="video__detailbox usages">
+                <span className="video__detailbox__header">Usages</span>
+                <VideoUsages video={this.props.video} />
+              </div>
             </div>
-            <VideoAssets video={this.props.video || {}} />
+            <div className="video__detailbox">
+              <span className="video__detailbox__header">Assets</span>
+              <VideoAssets video={this.props.video || {}} />
+            </div>
           </div>
         </div>
       </div>
