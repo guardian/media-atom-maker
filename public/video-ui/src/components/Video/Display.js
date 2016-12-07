@@ -2,6 +2,7 @@ import React from 'react';
 import VideoEdit from '../VideoEdit/VideoEdit';
 import VideoAssets from '../VideoAssets/VideoAssets';
 import VideoPublishBar from '../VideoPublishBar/VideoPublishBar';
+import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoUsages from '../VideoUsages/VideoUsages';
 
@@ -61,6 +62,7 @@ class VideoDisplay extends React.Component {
     return (
       <div>
         <VideoPublishBar video={this.props.video} saveState={this.props.saveState} publishVideo={this.publishVideo} />
+        <VideoSelectBar onSelectVideo={this.selectVideo} embeddedMode={this.props.config.embeddedMode} />
 
         <div className="video">
           <div className="video__sidebar video-details">
@@ -72,8 +74,6 @@ class VideoDisplay extends React.Component {
                 saveVideo={this.saveVideo}
                 saveAndUpdateVideo={this.saveAndUpdateVideo}
                 resetVideo={this.resetVideo}
-                showSelect={this.props.config.embeddedMode}
-                onSelectVideo={this.selectVideo}
                 saveState={this.props.saveState}
                />
             </form>

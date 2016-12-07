@@ -1,6 +1,8 @@
-.publish-bar {
+.bar {
   width: 100%;
   background-color: $cGreen32;
+  border-bottom: 1px solid darken($cGreen32, 9);
+
   padding: 5px;
   text-align: center;
 
@@ -17,4 +19,21 @@
   &__message {
     margin-right: 15px;
   }
+}
+
+.info-bar {
+  background-color: $cBlue32;
+  border-bottom: 1px solid darken($cBlue32, 10);
+}
+
+.error-bar {
+  display: block;
+
+  position: relative;
+
+  padding: 10px;
+
+  background-color: $cRedFF;
+  color: white;
+  text-align: center;
 }
