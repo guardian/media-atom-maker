@@ -33,12 +33,19 @@ class VideoAssets extends React.Component {
     });
   };
 
+  hideAssetList = () => {
+    this.setState({
+      showAssetList: false
+    });
+  };
+
   createAsset = () => {
     this.props.videoActions.createAsset(this.props.asset, this.props.video.id);
   };
 
   revertAsset = (version) => {
     this.props.videoActions.revertAsset(version, this.props.video.id);
+    this.hideAssetList();
   };
 
   updateVideo = (video) => {
