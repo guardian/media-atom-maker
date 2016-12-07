@@ -33,7 +33,7 @@
 
 .video-preview {
 
-  margin: 10px;
+  margin: 0 10px 10px;
   vertical-align: top;
 
   position: relative;
@@ -86,5 +86,9 @@
     text-transform: uppercase;
     padding: 10px;
     font-size: 17px;
+
+    &--with-btn {
+
+    }
   }
 }

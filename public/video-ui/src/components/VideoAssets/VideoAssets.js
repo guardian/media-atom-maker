@@ -106,7 +106,7 @@ class VideoAssets extends React.Component {
   renderAssetEdit() {
     if (this.state.showAssetForm) {
       return (
-        <form className="form baseline-margin--bottom">
+        <form className="form baseline-margin">
           <VideoAssetAdd updateAsset={this.updateAsset} {...this.props} />
           <div className="btn__group">
             <button className="btn" type="button" onClick={this.createAsset}>Save</button>
@@ -124,6 +124,7 @@ class VideoAssets extends React.Component {
     return (
         <div className="video-assets">
           <div className="section-header">
+            <span className="video__detailbox__header">Assets</span>
             {!this.state.showAssetForm ? <button className="btn section-header__btn" type="button" onClick={this.showAssetForm}>Add new asset</button> : false}
           </div>
           {this.renderAssetEdit()}
