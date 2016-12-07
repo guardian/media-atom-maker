@@ -7,10 +7,10 @@ function requestVideoPageCreate(id) {
   };
 }
 
-function receiveVideoPageCreate(videoPage) {
+function receiveVideoPageCreate(video) {
   return {
     type:           'VIDEO_PAGE_POST_RECEIVE',
-    videoPage:      videoPage,
+    video:          video,
     receivedAt:     Date.now()
   };
 }
@@ -24,18 +24,24 @@ function errorReceivingVideoPageCreate(error) {
   };
 }
 
-export function createPage(id, title, data) {
+export function createPage(id, title, data, video, composerUrl) {
+  let pageId;
   return dispatch => {
     dispatch(requestVideoPageCreate());
-    return VideosApi.createVideoPage(id, title)
+    return VideosApi.createVideoPage(id, title, composerUrl)
     .then(res => {
-      return VideosApi.addVideoToPage(res.data.id, data)
+      pageId = res.data.id;
+      return VideosApi.addVideoToPage(pageId, data, composerUrl)
+    })
+    .then(() => {
+      video.composerPageId = pageId;
+      return VideosApi.saveVideo(id, video)
+    })
+    .then(res => {
+      dispatch(receiveVideoPageCreate(video))
     })
     .catch(error => {
       dispatch(errorReceivingVideoPageCreate(error))
     })
-    .then(res => {
-      dispatch(receiveVideoPageCreate(res))
-    });
   };
 }

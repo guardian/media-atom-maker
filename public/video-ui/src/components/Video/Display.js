@@ -5,6 +5,8 @@ import VideoPublishBar from '../VideoPublishBar/VideoPublishBar';
 import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoUsages from '../VideoUsages/VideoUsages';
+import VideoPage from '../VideoPage/VideoPage';
+import {getStore} from '../../util/storeAccessor';
 
 class VideoDisplay extends React.Component {
 
@@ -23,6 +25,10 @@ class VideoDisplay extends React.Component {
     })
   };
 
+  saveAndUpdateVideo = (video) => {
+    this.props.videoActions.saveVideo(video);
+  };
+
   updateVideo = (video) => {
     this.props.videoActions.updateVideo(video);
   };
@@ -38,7 +44,15 @@ class VideoDisplay extends React.Component {
     });
   };
 
+  composerUrl = () => {
+    const store = getStore();
+    return store.getState().config.composerUrl;
+  };
+
   pageCreate = () => {
+
+    const composerUrl = this.composerUrl();
+
     const videoPage = {
       elements: [
         {
@@ -58,7 +72,7 @@ class VideoDisplay extends React.Component {
       ]
     };
 
-    this.props.videoActions.createPage(this.props.video.id, this.props.video.title, videoPage)
+    this.props.videoActions.createPage(this.props.video.id, this.props.video.title, videoPage, this.props.video, composerUrl)
   };
 
   selectVideo = () => {
@@ -91,11 +105,16 @@ class VideoDisplay extends React.Component {
                 video={this.props.video || {}}
                 updateVideo={this.updateVideo}
                 saveVideo={this.saveVideo}
+                saveAndUpdateVideo={this.saveAndUpdateVideo}
                 resetVideo={this.resetVideo}
                 saveState={this.props.saveState}
                />
 
-              <VideoPublishButton video={this.props.video || {}} publishVideo={this.publishVideo} />
+              <VideoPage
+                video={this.props.video || {}}
+                pageCreate={this.pageCreate}
+                composerUrl={this.composerUrl()} />
+
             </form>
           </div>
 

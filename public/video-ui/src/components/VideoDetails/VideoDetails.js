@@ -41,8 +41,6 @@ export default class VideoDetails extends React.Component {
                   /atom/media/{this.props.video.id}
                 </a>
               </dd>
-
-              <button className="btn" onClick={this.props.onPageCreate}>Create video page in composer</button>
             </dl>
             {this.props.enableEditing ? <button className="btn" type="button" onClick={this.props.enableEditing}>Edit</button> : ''}
             <button className="btn" onClick={this.props.onPublishVideo}>Publish video</button>

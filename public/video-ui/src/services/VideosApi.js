@@ -1,5 +1,4 @@
 import {pandaReqwest} from './pandaReqwest';
-import {getStore} from '../util/storeAccessor';
 
 
 export default {
@@ -30,7 +29,7 @@ export default {
 
   publishVideo: (videoId) => {
     return pandaReqwest({
-      url: '/api/atom/' + videoId + '/publish',
+      url: '/api2/atom/' + videoId + '/publish',
       method: 'put'
     })
   },
@@ -62,21 +61,17 @@ export default {
     })
   },
 
-  createVideoPage: (videoId, title) => {
-    const store = getStore();
-    const composerUrl = store.getState().config.composerUrl;
+  createVideoPage: (videoId, title, composerUrl) => {
     return pandaReqwest({
       url: composerUrl + '/api/content?atomPoweredVideo=true&originatingSystem=composer&type=video&initialTitle='+title,
       method: 'post',
       contentType: 'application/json',
       crossOrigin: true,
-      withCredentials: true,
+      withCredentials: true
     });
   },
 
-  addVideoToPage: (pageId, data) => {
-    const store = getStore();
-    const composerUrl = store.getState().config.composerUrl;
+  addVideoToPage: (pageId, data, composerUrl) => {
     return pandaReqwest({
       url: composerUrl + '/api/content/' + pageId + '/preview/mainblock',
       method: 'post',
