@@ -4,7 +4,7 @@ import javax.inject._
 
 import com.gu.pandahmac.HMACAuthActions
 import play.api.libs.json.Json
-import util.{YouTubeChannelsApi, YouTubeConfig, YouTubeVideoCategoryApi}
+import util._
 
 class Youtube @Inject() (val authActions: HMACAuthActions,
                                  val youtubeConfig: YouTubeConfig) extends AtomController {
