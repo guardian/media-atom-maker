@@ -13,6 +13,7 @@ object CommandExceptions extends Results {
   def AssetVersionConflict = throw new CommandException("Asset version conflict", 400)
   def AssetParseFailed = throw new CommandException("Failed to parse asset", 400)
   def AssetEncodingInProcess = throw new CommandException("Asset encoding in progress", 400)
+  def AssetNotFound = throw new CommandException("Asset not found", 404)
 
   def PosterImageUploadFailed(err: String) = throw new CommandException(s"Failed to update poster image (must be at least 1 image asset smaller than 2MB): $err", 400)
   def AtomUpdateFailed(err: String) = throw new CommandException(s"Failed to update atom: $err", 500)
