@@ -26,6 +26,10 @@ button {
   &:disabled {
     background: $color500Grey;
   }
+
+  &:focus {
+    outline: 1px solid $cWhite;
+  }
 }
 
 .btn + .btn {
