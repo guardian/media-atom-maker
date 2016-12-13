@@ -6,7 +6,6 @@ import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoUsages from '../VideoUsages/VideoUsages';
 import VideoPage from '../VideoPage/VideoPage';
-import {getStore} from '../../util/storeAccessor';
 
 class VideoDisplay extends React.Component {
 
@@ -44,37 +43,6 @@ class VideoDisplay extends React.Component {
     });
   };
 
-  composerUrl = () => {
-    const store = getStore();
-    return store.getState().config.composerUrl;
-  };
-
-  pageCreate = () => {
-
-    const composerUrl = this.composerUrl();
-
-    const videoPage = {
-      elements: [
-        {
-          elementType: 'content-atom',
-          fields: {
-            id: this.props.video.id,
-            atomType: 'media',
-            required: 'true',
-            title: this.props.video.title,
-            published: 'Unable to get published state from atom',
-            isMandatory: 'true',
-            editorialLink: ''
-
-          },
-          assets: []
-        }
-      ]
-    };
-
-    this.props.videoActions.createPage(this.props.video.id, this.props.video.title, videoPage, this.props.video, composerUrl)
-  };
-
   selectVideo = () => {
     window.parent.postMessage({atomId: this.props.video.id}, '*');
   };
@@ -109,12 +77,6 @@ class VideoDisplay extends React.Component {
                 resetVideo={this.resetVideo}
                 saveState={this.props.saveState}
                />
-
-              <VideoPage
-                video={this.props.video || {}}
-                pageCreate={this.pageCreate}
-                composerUrl={this.composerUrl()} />
-
             </form>
           </div>
 
@@ -126,7 +88,17 @@ class VideoDisplay extends React.Component {
               </div>
               <div className="video__detailbox usages">
                 <span className="video__detailbox__header">Usages</span>
-                <VideoUsages video={this.props.video} />
+                <VideoUsages
+                  video={this.props.video}
+                  fetchUsages={this.props.videoActions.getUsages}
+                  usages={this.props.usages[this.props.video.id] || []}/>
+              </div>
+              <div className="video__detailbox usages">
+                <span className="video__detailbox__header">Composer Pages</span>
+                <VideoPage
+                  video={this.props.video || {}}
+                  fetchUsages={this.props.videoActions.getUsages}
+                  usages={this.props.usages[this.props.video.id] || []}/>
               </div>
             </div>
             <div className="video__detailbox">
@@ -146,19 +118,20 @@ import * as getVideo from '../../actions/VideoActions/getVideo';
 import * as saveVideo from '../../actions/VideoActions/saveVideo';
 import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as publishVideo from '../../actions/VideoActions/publishVideo';
-import * as createPage from '../../actions/VideoActions/createPage';
+import * as videoUsages from '../../actions/VideoActions/videoUsages';
 
 function mapStateToProps(state) {
   return {
     video: state.video,
     saveState: state.saveState,
-    config: state.config
+    config: state.config,
+    usages: state.usage
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, publishVideo, createPage), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, publishVideo, videoUsages), dispatch)
   };
 }
 

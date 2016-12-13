@@ -1,12 +1,20 @@
 import {pandaReqwest} from './pandaReqwest';
 import {getStore} from '../util/storeAccessor';
 
-export function fetchUsages(videoId) {
+export function fetchComposerId(capiId) {
   const capiProxyUrl = getStore().getState().config.capiProxyUrl;
+  const url = capiProxyUrl + '/' + capiId + "?show-fields=all";
   return pandaReqwest({
-    url: capiProxyUrl + "/atom/media/" + videoId + "/usage",
+    url: capiProxyUrl + '/' + capiId + "?show-fields=all",
     method: 'get'
   })
+  .then(resp => {
+    if (resp.response.content && resp.response.content.fields&& resp.response.content.fields.internalComposerCode) {
+      return resp.response.content.fields.internalComposerCode;
+    }
+    return "";
+
+  });
 }
 
 export function searchText(query) {

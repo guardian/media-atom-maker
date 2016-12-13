@@ -8,6 +8,7 @@ import saveState from './saveStateReducer';
 import searchTerm from './searchTermReducer';
 import youtube from './youtubeReducer';
 import { reducer as form } from 'redux-form';
+import usage from './usageReducer';
 
 export default combineReducers({
   asset,
@@ -18,5 +19,6 @@ export default combineReducers({
   saveState,
   searchTerm,
   youtube,
-  form
+  form,
+  usage
 });

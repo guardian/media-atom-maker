@@ -31,9 +31,6 @@ export default function video(state = null, action) {
         activeVersion: action.assetVersion
       });
 
-    case 'VIDEO_PAGE_POST_RECEIVE':
-      return Object.assign({}, action.video);
-
     default:
       return state;
   }
