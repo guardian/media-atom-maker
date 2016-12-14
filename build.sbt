@@ -32,7 +32,8 @@ libraryDependencies ++= Seq(
   "org.scala-lang.modules"     %% "scala-xml"                    % "1.0.5"   % "test",
   "com.google.api-client"      %  "google-api-client"            % "1.22.0",
   "com.google.apis"            % "google-api-services-youtube"   % "v3-rev178-1.22.0",
-  "com.squareup.okhttp"        % "okhttp"                        % "2.4.0"
+  "com.squareup.okhttp"        % "okhttp"                        % "2.4.0",
+  cache
 
 ) ++ scanamoDeps
 
