@@ -108,7 +108,7 @@ case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder {
         }
 
         metadata.privacyStatus match {
-          case Some(ps) => status.setPrivacyStatus(ps.name)
+          case Some(ps) => status.setPrivacyStatus(ps.name.toLowerCase)
           case _ => None
         }
 
