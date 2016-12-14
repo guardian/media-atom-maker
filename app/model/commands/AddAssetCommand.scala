@@ -5,6 +5,7 @@ import java.util.Date
 import com.gu.atom.data.PreviewDataStore
 import CommandExceptions._
 import com.gu.atom.publish.PreviewAtomPublisher
+import com.gu.contentatom.thrift.atom.media.Category.Hosted
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.contentatom.thrift.atom.media.{Asset, Platform}
 import model.MediaAtom
@@ -60,7 +61,9 @@ case class AddAssetCommand(atomId: String,
         val newAsset = ThriftUtil.parseAsset(videoUri, mimeType, resolvedVersion)
           .fold(err => AssetParseFailed, identity)
 
-        validateYoutubeOwnership(newAsset)
+        if (mediaAtom.category != Hosted) {
+          validateYoutubeOwnership(newAsset)
+        }
 
         val assetDuration = getAssetDuration(newAsset)
 
