@@ -51,11 +51,11 @@ class VideoUsages extends React.Component {
   renderUsages() {
 
     if (!this.state.usages) {
-      return (<div>Fetching Usages...</div>)
+      return (<div className="baseline-margin">Fetching Usages...</div>)
     }
 
     if (!this.state.usages.length) {
-      return (<div>No usages found</div>)
+      return (<div className="baseline-margin">No usages found</div>)
     }
 
     return (
@@ -74,7 +74,6 @@ class VideoUsages extends React.Component {
 
     return (
       <div className="usages">
-        <h1>Usages</h1>
         {this.renderUsages()}
       </div>
     );

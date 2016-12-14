@@ -33,12 +33,19 @@ class VideoAssets extends React.Component {
     });
   };
 
+  hideAssetList = () => {
+    this.setState({
+      showAssetList: false
+    });
+  };
+
   createAsset = () => {
     this.props.videoActions.createAsset(this.props.asset, this.props.video.id);
   };
 
   revertAsset = (videoId, version) => {
     this.props.videoActions.revertAsset(this.props.video.id, videoId, version);
+    this.hideAssetList();
   };
 
   updateVideo = (video) => {
@@ -99,7 +106,7 @@ class VideoAssets extends React.Component {
   renderAssetEdit() {
     if (this.state.showAssetForm) {
       return (
-        <form className="form baseline-margin--bottom">
+        <form className="form baseline-margin">
           <VideoAssetAdd updateAsset={this.updateAsset} {...this.props} />
           <div className="btn__group">
             <button className="btn" type="button" onClick={this.createAsset}>Save</button>
@@ -117,12 +124,13 @@ class VideoAssets extends React.Component {
     return (
         <div className="video-assets">
           <div className="section-header">
-            <h2 className="section-header__text">Assets</h2>
+            <span className="video__detailbox__header">Assets</span>
             {!this.state.showAssetForm ? <button className="btn section-header__btn" type="button" onClick={this.showAssetForm}>Add new asset</button> : false}
           </div>
           {this.renderAssetEdit()}
           {this.renderList()}
-          {!this.state.showAssetList ? <button className="video-assets__show-btn" type="button" onClick={this.showAssetList}>Show all assets</button> : false}
+          {!this.props.video.assets.length ? <span>No assets found</span> : false}
+          {!this.state.showAssetList && this.props.video.assets.length ? <button className="video-assets__show-btn" type="button" onClick={this.showAssetList}>Show all assets</button> : false}
         </div>
     )
   }

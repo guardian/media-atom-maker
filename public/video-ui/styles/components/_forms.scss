@@ -42,7 +42,8 @@
 
   // Because select elements are THE WORST
   &--select {
-    // background: url(../images/arrow.png) $cWhite no-repeat right 10px center;
+    background: url(/assets/video-ui/images/arrow.png) $color650Grey no-repeat right 10px center;
+    background-size: 10px 10px;
     padding-right: 40px;
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -169,6 +170,10 @@
 
   &:hover {
     background-color: $brandColor;
+  }
+
+  &:focus {
+    border: 1px solid $cWhite;
   }
 }
 
