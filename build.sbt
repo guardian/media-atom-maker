@@ -34,6 +34,7 @@ libraryDependencies ++= Seq(
   "com.google.api-client"      %  "google-api-client"            % "1.22.0",
   "com.google.apis"            % "google-api-services-youtube"   % "v3-rev178-1.22.0",
   "com.squareup.okhttp"        % "okhttp"                        % "2.4.0",
+  cache,
   "net.logstash.logback"       % "logstash-logback-encoder"      % "4.8",
   "com.gu"                     % "kinesis-logback-appender"      % "1.3.0",
   "org.slf4j"                  % "slf4j-api"                     % "1.7.21",
