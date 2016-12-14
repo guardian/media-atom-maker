@@ -14,6 +14,7 @@ libraryDependencies ++= Seq(
   "com.twitter"                %% "scrooge-core"                 % scroogeVersion,
   "com.twitter"                %% "scrooge-serializer"           % scroogeVersion,
   "com.amazonaws"              %  "aws-java-sdk-sts"             % awsVersion,
+  "com.amazonaws"              %  "aws-java-sdk-ec2"             % awsVersion,
   "com.typesafe.scala-logging" %% "scala-logging"                % "3.4.0",
   "org.typelevel"              %% "cats-core"                    % "0.7.0", // for interacting with scanamo
   "com.fasterxml.jackson.core" %  "jackson-databind"             % "2.7.0",
@@ -32,7 +33,11 @@ libraryDependencies ++= Seq(
   "org.scala-lang.modules"     %% "scala-xml"                    % "1.0.5"   % "test",
   "com.google.api-client"      %  "google-api-client"            % "1.22.0",
   "com.google.apis"            % "google-api-services-youtube"   % "v3-rev178-1.22.0",
-  "com.squareup.okhttp"        % "okhttp"                        % "2.4.0"
+  "com.squareup.okhttp"        % "okhttp"                        % "2.4.0",
+  "net.logstash.logback"       % "logstash-logback-encoder"      % "4.8",
+  "com.gu"                     % "kinesis-logback-appender"      % "1.3.0",
+  "org.slf4j"                  % "slf4j-api"                     % "1.7.21",
+  "org.slf4j"                  % "jcl-over-slf4j"                % "1.7.21"
 
 ) ++ scanamoDeps
 
