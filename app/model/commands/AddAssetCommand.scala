@@ -2,6 +2,7 @@ package model.commands
 
 import java.util.Date
 
+import play.api.Logger
 import com.gu.atom.data.PreviewDataStore
 import CommandExceptions._
 import com.gu.atom.publish.PreviewAtomPublisher
@@ -47,6 +48,8 @@ case class AddAssetCommand(atomId: String,
   }
 
   def process(): MediaAtom = {
+
+    Logger.info(s"Adding asset videoUri $videoUri to $atomId")
     previewDataStore.getAtom(atomId) match {
       case Some(atom) =>
         val mediaAtom = atom.tdata
@@ -67,24 +70,16 @@ case class AddAssetCommand(atomId: String,
 
         val assetDuration = getAssetDuration(newAsset)
 
-        val newAtom = atom
+        val updatedAtom = atom
           .withData(mediaAtom.copy(
             assets = newAsset +: currentAssets,
             duration = assetDuration
           ))
-          .withRevision(_ + 1)
 
-        previewDataStore.updateAtom(newAtom).fold(
-          err => AtomUpdateFailed(err.msg),
-          _ => {
-            val event = ContentAtomEvent(newAtom, EventType.Update, new Date().getTime)
+        Logger.info(s"Constructed new atom $atomId, updating")
 
-            previewPublisher.publishAtomEvent(event) match {
-              case Success(_) => return MediaAtom.fromThrift(newAtom)
-              case Failure(err) => AtomPublishFailed(err.toString)
-            }
-          }
-        )
+        UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom)).process()
+
       case None => AtomNotFound
     }
   }

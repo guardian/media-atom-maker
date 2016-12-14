@@ -26,6 +26,7 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
 
   def process(): T = {
     previewDataStore.getAtom(id) match {
+      case None => AtomNotFound
       case Some(thriftAtom) => {
         val atom = MediaAtom.fromThrift(thriftAtom)
         val api = YouTubeVideoUpdateApi(youtubeConfig)
@@ -55,23 +56,10 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
           )
         )
 
-        publishAtomToPreviewAndLive(updatedAtom)
+        UpdateAtomCommand(id, MediaAtom.fromThrift(updatedAtom)).process()
 
-      }
-      case None => AtomNotFound
-    }
-  }
+        publishAtomToLive(updatedAtom)
 
-  private def publishAtomToPreviewAndLive(atom: Atom): MediaAtom = {
-    val event = ContentAtomEvent(atom, EventType.Update, (new Date()).getTime())
-
-    previewPublisher.publishAtomEvent(event) match {
-      case Failure(err) => AtomPublishFailed(s"Could not publish atom (preview kinesis event failed): ${err.toString}")
-      case Success(_) => {
-        previewDataStore.updateAtom(atom) match {
-          case Xor.Right(_) => publishAtomToLive(atom)
-          case Xor.Left(err) => AtomPublishFailed(s"Could not update preview datastore before publish: ${err.toString}")
-        }
       }
     }
   }
