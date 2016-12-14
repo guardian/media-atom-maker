@@ -10,7 +10,13 @@
             "Description": "Published code dynamo table",
             "Type": "String",
             "Default": "published-media-atom-maker-CODE"
+        },
+        "AuditAtomMakerCodeTable": {
+            "Description": "Code audit dynamo table",
+            "Type": "String",
+            "Default": "audit-media-atom-maker-CODE"
         }
+
     },
     "Resources": {
         "MediaAtomMakerCode": {
@@ -55,6 +61,50 @@
                     "ReadCapacityUnits": "5",
                     "WriteCapacityUnits": "5"
                 }
+            }
+        },
+        "AuditMediaAtomMakerCode": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+                "TableName": { "Ref": "AuditAtomMakerCodeTable" },
+                "AttributeDefinitions": [
+                    {
+                        "AttributeName": "atomId",
+                        "AttributeType": "S"
+                    }
+                ],
+                "KeySchema": [
+                    {
+                        "AttributeName": "atomId",
+                        "KeyType": "HASH"
+                    }
+                ],
+                "ProvisionedThroughput": {
+                    "ReadCapacityUnits": "5",
+                    "WriteCapacityUnits": "5"
+                },
+                "GlobalSecondaryIndexes": [
+                    {
+                        "IndexName": "operation-date-index",
+                        "KeySchema": [
+                            {
+                                "AttributeName": "operation",
+                                "KeyType": "HASH"
+                            },
+                            {
+                                "AttributeName": "date",
+                                "KeyType": "RANGE"
+                            }
+                        ],
+                        "Projection": {
+                            "ProjectionType": "ALL"
+                        },
+                        "ProvisionedThroughput" : {
+                            "ReadCapacityUnits" : "5",
+                            "WriteCapacityUnits" : "5"
+                        }
+                    }
+                ]
             }
         }
     }

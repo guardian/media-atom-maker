@@ -51,6 +51,8 @@ class AWSConfig @Inject() (config: Configuration) {
   lazy val stage = config.getString("stage").getOrElse("DEV")
   lazy val readFromComposerAccount = config.getBoolean("readFromComposer").getOrElse(false)
 
+  lazy val auditTableName = config.getString("aws.dynamo.auditTableName").get
+
   lazy val kinesisClient = if (stage != "DEV" || readFromComposerAccount)
     getKinesisClient(atomsCredProvider)
   else

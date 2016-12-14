@@ -10,6 +10,11 @@
             "Description": "Published prod dynamo table",
             "Type": "String",
             "Default": "published-media-atom-maker-PROD"
+        },
+        "AuditAtomMakerProdTable": {
+            "Description": "Prod audit dynamo table",
+            "Type": "String",
+            "Default": "audit-media-atom-maker-PROD"
         }
     },
     "Resources": {
@@ -55,6 +60,50 @@
                     "ReadCapacityUnits": "5",
                     "WriteCapacityUnits": "5"
                 }
+            }
+        },
+        "AuditMediaAtomMakerProd": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+                "TableName": { "Ref": "AuditAtomMakerProdTable" },
+                "AttributeDefinitions": [
+                    {
+                        "AttributeName": "atomId",
+                        "AttributeType": "S"
+                    }
+                ],
+                "KeySchema": [
+                    {
+                        "AttributeName": "atomId",
+                        "KeyType": "HASH"
+                    }
+                ],
+                "ProvisionedThroughput": {
+                    "ReadCapacityUnits": "5",
+                    "WriteCapacityUnits": "5"
+                },
+                "GlobalSecondaryIndexes": [
+                    {
+                        "IndexName": "operation-date-index",
+                        "KeySchema": [
+                            {
+                                "AttributeName": "operation",
+                                "KeyType": "HASH"
+                            },
+                            {
+                                "AttributeName": "date",
+                                "KeyType": "RANGE"
+                            }
+                        ],
+                        "Projection": {
+                            "ProjectionType": "ALL"
+                        },
+                        "ProvisionedThroughput" : {
+                            "ReadCapacityUnits" : "5",
+                            "WriteCapacityUnits" : "5"
+                        }
+                    }
+                ]
             }
         }
     }
