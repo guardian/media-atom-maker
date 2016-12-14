@@ -27,7 +27,7 @@ function receiveAssetCreate(video) {
 function errorAssetCreate(error) {
   return {
     type:       'SHOW_ERROR',
-    message:    'Could not create asset',
+    message:    `Could not create asset. ${error}`,
     error:      error,
     receivedAt: Date.now()
   };
@@ -38,7 +38,7 @@ export function createAsset(asset, videoId) {
     dispatch(requestAssetCreate());
     return VideosApi.createAsset(asset, videoId)
         .then(res => dispatch(receiveAssetCreate(res)))
-        .catch(error => dispatch(errorAssetCreate(error)));
+        .catch(error => dispatch(errorAssetCreate(error.response)));
   };
 }
 

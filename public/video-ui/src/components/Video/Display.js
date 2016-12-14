@@ -91,7 +91,6 @@ class VideoDisplay extends React.Component {
               </div>
             </div>
             <div className="video__detailbox">
-              <span className="video__detailbox__header">Assets</span>
               <VideoAssets video={this.props.video || {}} />
             </div>
           </div>

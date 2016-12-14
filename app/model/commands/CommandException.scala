@@ -20,6 +20,8 @@ object CommandExceptions extends Results {
   def AtomUpdateFailed(err: String) = throw new CommandException(s"Failed to update atom: $err", 500)
   def AtomPublishFailed(err: String) = throw new CommandException(s"Failed to publish atom: $err", 500)
 
+  def NotGuardianYoutubeVideo = throw new CommandException("YouTube video is not in the Guardian's account", 400)
+
   // Add exceptions here as required
   def commandExceptionAsResult: PartialFunction[Throwable, Result] = {
     case CommandException(msg, 400) => BadRequest(msg)

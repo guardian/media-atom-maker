@@ -30,12 +30,6 @@ const VideoEdit = (props) => {
             component={VideoCategorySelect}
             {...props} />
 
-          <Field
-            name="duration"
-            type="number"
-            component={VideoDurationEdit}
-            {...props} />
-
           <Field name="posterImage" component={VideoPosterEdit} {...props} />
 
           <Field
@@ -74,13 +68,11 @@ const VideoEdit = (props) => {
                 {...props} />
             </FormFieldSaveWrapper>
 
-            <FormFieldSaveWrapper {...props}>
-              <Field
-                name="duration"
-                type="number"
-                component={VideoDurationEdit}
-                {...props} />
-            </FormFieldSaveWrapper>
+            <Field
+              name="duration"
+              type="number"
+              component={VideoDurationEdit}
+              {...props} />
 
             <Field name="content-flags" component={ContentFlags} {...props} />
 
