@@ -1,5 +1,8 @@
 const validate = (values) => {
   const errors = {};
+  if (!values) {
+    return {};
+  }
   if (!values.title) {
     errors.title = 'Required'
   }
