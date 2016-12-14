@@ -5,6 +5,7 @@ import java.util.Date
 import com.gu.atom.data.PreviewDataStore
 import CommandExceptions._
 import com.gu.atom.publish.PreviewAtomPublisher
+import com.gu.contentatom.thrift.atom.media.Category.Hosted
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.contentatom.thrift.atom.media.{Asset, Platform}
 import model.MediaAtom
@@ -25,6 +26,26 @@ case class AddAssetCommand(atomId: String,
 
   type T = MediaAtom
 
+  private def validateYoutubeOwnership (asset: Asset) = {
+    asset.platform match {
+      case Platform.Youtube => {
+        val isMine = YouTubeVideoInfoApi(youtubeConfig).isMyVideo(asset.id)
+
+        if (! isMine) {
+          NotGuardianYoutubeVideo
+        }
+      }
+      case _ => None
+    }
+  }
+
+  private def getAssetDuration (asset: Asset): Option[Long] = {
+    asset.platform match {
+      case Platform.Youtube => YouTubeVideoInfoApi(youtubeConfig).getDuration(asset.id)
+      case _ => None
+    }
+  }
+
   def process(): MediaAtom = {
     previewDataStore.getAtom(atomId) match {
       case Some(atom) =>
@@ -40,10 +61,11 @@ case class AddAssetCommand(atomId: String,
         val newAsset = ThriftUtil.parseAsset(videoUri, mimeType, resolvedVersion)
           .fold(err => AssetParseFailed, identity)
 
-        val assetDuration = newAsset.platform match {
-          case Platform.Youtube => YouTubeVideoInfoApi(youtubeConfig).getDuration(newAsset.id)
-          case _ => None
+        if (mediaAtom.category != Hosted) {
+          validateYoutubeOwnership(newAsset)
         }
+
+        val assetDuration = getAssetDuration(newAsset)
 
         val newAtom = atom
           .withData(mediaAtom.copy(
