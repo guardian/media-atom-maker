@@ -31,16 +31,16 @@ export default class VideoPublishBar extends React.Component {
 
     if (this.videoIsCurrentlyPublishing()) {
       return (
-        <div className="publish-bar">
-          <span className="publish-bar__message">Publishing...</span>
+        <div className="bar">
+          <span className="bar__message">Publishing...</span>
         </div>
       );
     }
 
     return (
-      <div className="publish-bar">
-        <span className="publish-bar__message">This video atom has unpublished changes</span>
-        <button type="button" className="publish-bar__button" onClick={this.props.publishVideo}>Publish Changes Now</button>
+      <div className="bar">
+        <span className="bar__message">This video atom has unpublished changes</span>
+        <button type="button" className="bar__button" onClick={this.props.publishVideo}>Publish Changes Now</button>
       </div>
     )
   }

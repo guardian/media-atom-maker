@@ -19,7 +19,7 @@
 
 .video__main {
   flex-grow: 1;
-  padding: 20px 30px;
+  padding: 10px 15px;
 
   background-color: $color700Grey;
 
@@ -28,11 +28,12 @@
 
   &__header {
     display: flex;
-    margin-bottom: 20px;
   }
 }
 
 .video-preview {
+
+  margin: 0 10px 10px;
   vertical-align: top;
 
   position: relative;
@@ -61,6 +62,7 @@
     top: 1px solid $color600Grey;
     bottom: 1px solid $color600Grey;
   }
+  box-shadow: 3px 3px 3px $color700Grey;
 
   &:hover {
     background-color: $color650Grey;
@@ -69,4 +71,20 @@
 
 .video-details {
   width: 300px;
+}
+
+.video__detailbox {
+  margin: 10px;
+  background-color: $color650Grey;
+  border: 1px solid $color600Grey;
+  box-shadow: 2px 2px 4px $color800Grey;
+
+  &__header {
+    color: $color500Grey;
+    display: block;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 10px;
+    font-size: 17px;
+  }
 }

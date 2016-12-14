@@ -3,15 +3,16 @@ package util
 import java.io.BufferedInputStream
 import java.net.URL
 import java.time.Duration
-import javax.inject.{ Singleton, Inject }
+import javax.inject.{Inject, Singleton}
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
+import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import com.google.api.client.http.InputStreamContent
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.youtube.YouTube
 import com.google.api.services.youtube.model.Video
-import model.{UpdatedMetadata, YouTubeVideoCategory, YouTubeChannel}
+import model.{UpdatedMetadata, YouTubeChannel, YouTubeVideoCategory}
 import play.api.Configuration
 
 import scala.collection.JavaConverters._
@@ -113,24 +114,23 @@ case class YouTubeChannelsApi(config: YouTubeConfig) extends YouTubeBuilder {
 }
 
 case class YouTubeVideoInfoApi(config: YouTubeConfig) extends YouTubeBuilder {
-  def getProcessingStatus(youtubeId: String): Option[String] =
+  private def getVideo(youtubeId: String, part: String): Option[Video] = {
     youtube.videos()
-      .list("processingDetails")
+      .list(part)
       .setId(youtubeId)
       .setOnBehalfOfContentOwner(config.contentOwner)
       .execute()
-      .getItems.asScala.toList.headOption match {
+      .getItems.asScala.toList.headOption
+  }
+
+  def getProcessingStatus(youtubeId: String): Option[String] =
+    getVideo(youtubeId, "processingDetails") match {
       case Some(video) => Some(video.getProcessingDetails.getProcessingStatus)
       case None => None
     }
 
   def getDuration(youtubeId: String): Option[Long] = {
-    youtube.videos()
-      .list("contentDetails")
-      .setId(youtubeId)
-      .setOnBehalfOfContentOwner(config.contentOwner)
-      .execute()
-      .getItems.asScala.toList.headOption match {
+    getVideo(youtubeId, "contentDetails") match {
       case Some(video) => {
         // YouTube API returns duration is in ISO 8601 format
         // https://developers.google.com/youtube/v3/docs/videos#contentDetails.duration
@@ -139,6 +139,21 @@ case class YouTubeVideoInfoApi(config: YouTubeConfig) extends YouTubeBuilder {
         Some(Duration.parse(iso8601Duration).toMillis / 1000) // seconds
       }
       case None => None
+    }
+  }
+
+  def isMyVideo(youtubeId: String): Boolean = {
+    // HACK Listing `fileDetails` of a video requires authentication and an exception is thrown if not authorized,
+    // so we can say the video is not ours.
+    //
+    // A cleaner way to do this would be to check the channel id of the video is one of ours,
+    // however this involves an extra API call.
+    // TODO cache YouTube channels in a store and query against that.
+    try {
+      getVideo(youtubeId, "fileDetails").nonEmpty
+    }
+    catch {
+      case _: Throwable => false
     }
   }
 }
