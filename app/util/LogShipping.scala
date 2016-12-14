@@ -42,7 +42,7 @@ class LogShippingImpl @Inject() (val awsConfig: AWSConfig) extends LogShipping {
       appender.setStreamName(stream)
       appender.setContext(context)
       appender.setLayout(layout)
-
+      appender.setCredentialsProvider(awsConfig.atomsCredProvider)
       appender.start()
 
       rootLogger.addAppender(appender)
