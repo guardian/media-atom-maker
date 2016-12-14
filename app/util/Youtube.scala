@@ -13,7 +13,7 @@ import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.youtube.YouTube
 import com.google.api.services.youtube.model.Video
 import model.{UpdatedMetadata, YouTubeChannel, YouTubeVideoCategory}
-import play.api.Configuration
+import play.api.{Configuration, Logger}
 
 import scala.collection.JavaConverters._
 
@@ -64,13 +64,26 @@ case class YouTubeVideoCategoryApi(config: YouTubeConfig) extends YouTubeBuilder
 }
 
 case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder {
+  private def protectAgainstMistakesInDev(video: Video) = {
+    val videoChannelId = video.getSnippet.getChannelId
+
+    config.allowedChannels match {
+      case Some(allowedList) => {
+        if (!allowedList.contains(videoChannelId)) {
+          val msg = s"Failed to edit video ${video.getId} as its channel ($videoChannelId) isn't in config.youtube.allowedChannels"
+          Logger.info(msg)
+          throw new Exception(msg)
+        }
+      }
+      case None =>
+    }
+  }
+
   def updateMetadata(id: String, metadata: UpdatedMetadata): Option[Video] =
-      youtube.videos()
-        .list("snippet, status")
-        .setId(id)
-        .execute()
-        .getItems.asScala.toList.headOption match {
+    YouTubeVideoInfoApi(config).getVideo(id, "snippet, status") match {
       case Some(video) =>
+        protectAgainstMistakesInDev(video)
+
         val snippet = video.getSnippet
         snippet.setTitle(snippet.getTitle)
         snippet.setCategoryId(metadata.categoryId.getOrElse(snippet.getCategoryId))
@@ -86,13 +99,22 @@ case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder {
       case _ => None
     }
 
-  def updateThumbnail(id: String, thumbnailUrl: URL, mimeType: String): Unit = {
-    val content = new InputStreamContent(mimeType, new BufferedInputStream(thumbnailUrl.openStream()))
-    val set = youtube.thumbnails().set(id, content).setOnBehalfOfContentOwner(config.contentOwner)
+  def updateThumbnail(id: String, thumbnailUrl: URL, mimeType: String): Option[Video] = {
+    YouTubeVideoInfoApi(config).getVideo(id, "snippet") match {
+      case Some(video) => {
+        protectAgainstMistakesInDev(video)
 
-    // If we want some way of monitoring and resuming thumbnail uploads then we can change this to be `false`
-    set.getMediaHttpUploader.setDirectUploadEnabled(true)
-    set.execute()
+        val content = new InputStreamContent(mimeType, new BufferedInputStream(thumbnailUrl.openStream()))
+        val set = youtube.thumbnails().set(id, content).setOnBehalfOfContentOwner(config.contentOwner)
+
+        // If we want some way of monitoring and resuming thumbnail uploads then we can change this to be `false`
+        set.getMediaHttpUploader.setDirectUploadEnabled(true)
+        set.execute()
+
+        Some(video)
+      }
+      case _ => None
+    }
   }
 }
 
@@ -114,7 +136,7 @@ case class YouTubeChannelsApi(config: YouTubeConfig) extends YouTubeBuilder {
 }
 
 case class YouTubeVideoInfoApi(config: YouTubeConfig) extends YouTubeBuilder {
-  private def getVideo(youtubeId: String, part: String): Option[Video] = {
+  def getVideo(youtubeId: String, part: String): Option[Video] = {
     youtube.videos()
       .list(part)
       .setId(youtubeId)
