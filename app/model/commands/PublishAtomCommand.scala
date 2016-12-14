@@ -104,7 +104,10 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
       atom.posterImage.map(
         _.assets
           .filter(a => a.size.nonEmpty && a.size.get < MAX_SIZE)
-          .sortBy(_.size.get).head).get
+          .sortBy(_.size.get)
+          .reverse
+          .head
+      ).get
     }
 
     api.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
