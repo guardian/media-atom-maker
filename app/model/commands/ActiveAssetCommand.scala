@@ -77,7 +77,7 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
       }
       case e: YoutubeException => {
         Logger.error(e.toString)
-        UnknownFailure
+        YouTubeConnectionIssue
       }
     }
   }
