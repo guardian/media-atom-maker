@@ -38,12 +38,12 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
 
   def markAssetAsActive(): MediaAtom = {
     previewDataStore.getAtom(atomId) match {
-      case Some(atom) => {
+      case Some(atom) =>
         val mediaAtom = atom.tdata
         val atomAssets: Seq[Asset] = mediaAtom.assets
 
         atomAssets.find(asset => asset.id == youtubeId) match {
-          case Some(newActiveAsset) => {
+          case Some(newActiveAsset) =>
 
             val ytAssetDuration = YouTubeVideoInfoApi(youtubeConfig).getDuration(newActiveAsset.id)
 
@@ -56,10 +56,8 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
             UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom)).process()
             PublishAtomCommand(atomId).process()
 
-          }
           case None => AssetNotFound
         }
-      }
       case None => AtomNotFound
     }
   }
@@ -69,15 +67,21 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
     Logger.info(s"Marking YouTube asset $youtubeId as active")
 
     getVideoStatus(youtubeId) match {
-      case response: SuccesfulYoutubeResponse => {
+      case response: SuccesfulYoutubeResponse =>
         val videoStatus = response.status
-        videoStatus match {
-          case Some("succeeded") => markAssetAsActive()
 
+        /** Processing status:
+          * failed – Video processing has failed.
+          * processing – Video is currently being processed.
+          * succeeded – Video has been successfully processed.
+          * terminated – Processing information is no longer available.
+          **/
+        videoStatus match {
+          case Some(status) if status == "succeeded" || status == "terminated" => markAssetAsActive()
           case Some(_) => AssetEncodingInProcess
           case None => NotYoutubeAsset
         }
-      }
+
       case e: YoutubeException => {
         Logger.error(e.toString)
         YouTubeConnectionIssue
