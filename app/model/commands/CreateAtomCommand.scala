@@ -37,11 +37,16 @@ case class CreateAtomCommand(data: CreateAtomCommandData)
 
   def process() = {
 
+    val defaultHtml = data.posterImage.master match {
+      case Some(image) => s"""<img src="${image.file}">"""
+      case None => "<div></div>"
+    }
+
     val atom = ThriftAtom(
       id = randomUUID().toString,
       atomType = AtomType.Media,
       labels = Nil,
-      defaultHtml = "<div></div>", // No content set so empty div
+      defaultHtml = defaultHtml,
       data = AtomData.Media(ThriftMediaAtom(
         title = data.title,
         assets = Nil,
