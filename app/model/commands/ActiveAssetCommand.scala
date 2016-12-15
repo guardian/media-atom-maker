@@ -1,6 +1,8 @@
 package model.commands
 
 import java.util.Date
+import model.MediaAtom
+
 import scala.util.{Failure, Success}
 import CommandExceptions._
 
@@ -62,8 +64,8 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
     }
   }
 
-  def process(): T = {
 
+  def process(): T = {
     Logger.info(s"Marking YouTube asset $youtubeId as active")
 
     getVideoStatus(youtubeId) match {
@@ -71,6 +73,7 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
         val videoStatus = response.status
         videoStatus match {
           case Some("succeeded") => markAssetAsActive()
+
           case Some(_) => AssetEncodingInProcess
           case None => NotYoutubeAsset
         }
@@ -79,6 +82,7 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
         Logger.error(e.toString)
         YouTubeConnectionIssue
       }
+
     }
   }
 }

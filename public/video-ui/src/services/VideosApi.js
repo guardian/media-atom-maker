@@ -43,10 +43,12 @@ export default {
     })
   },
 
-  revertAsset: (version, videoId) => {
+  revertAsset: (atomId, videoId) => {
     return pandaReqwest({
-      url: '/api/atom/' + videoId + '/revert/' + version,
-      method: 'put'
+      url: '/api2/atom/' + atomId + '/asset-active',
+      contentType: 'application/json',
+      method: 'put',
+      data: JSON.stringify({youtubeId: videoId})
     })
   },
 

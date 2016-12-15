@@ -90,7 +90,6 @@ class KeywordPicker extends React.Component {
       </div>
     );
   }
-
 }
 
 export default KeywordPicker;
