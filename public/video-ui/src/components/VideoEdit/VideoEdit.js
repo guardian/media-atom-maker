@@ -86,13 +86,11 @@ const VideoEdit = (props) => {
           <div className="form__group">
             <div className="form__group__header">Youtube Metadata</div>
 
-            <FormFieldSaveWrapper {...props}>
-              <Field
-                name="youtube-channel"
-                type="select"
-                component={YoutubeChannelSelect}
-                {...props} />
-            </FormFieldSaveWrapper>
+            <Field
+              name="youtube-channel"
+              type="select"
+              component={YoutubeChannelSelect}
+              {...props} />
 
             <FormFieldSaveWrapper {...props}>
               <Field
