@@ -93,8 +93,7 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
         _.assets
           .filter(a => a.size.nonEmpty && a.size.get < MAX_SIZE)
           .sortBy(_.size.get)
-          .reverse
-          .head
+          .last
       ).get
     }
 
