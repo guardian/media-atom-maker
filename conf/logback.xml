@@ -23,7 +23,7 @@
 
   <logger name="play" level="INFO" />
   <logger name="application" level="DEBUG" />
-  <logger name="com.google.api.client.http.HttpTransport" level="WARN" />
+  <logger name="com.google.api.client.http.HttpTransport" level="CONFIG" />
 
   <root level="INFO">
     <appender-ref ref="LOGFILE"/>
