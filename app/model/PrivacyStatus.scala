@@ -10,15 +10,15 @@ sealed trait PrivacyStatus {
 
 
 object PrivacyStatus {
-  case object Private extends PrivacyStatus { val name = "private"}
-  case object Unlisted extends PrivacyStatus { val name = "unlisted"}
-  case object Public extends PrivacyStatus { val name = "public"}
+  case object Private extends PrivacyStatus { val name = "Private"}
+  case object Unlisted extends PrivacyStatus { val name = "Unlisted"}
+  case object Public extends PrivacyStatus { val name = "Public"}
 
   val reads: Reads[PrivacyStatus] = Reads[PrivacyStatus](json => {
     json.as[String] match {
-      case "private" => JsSuccess(Private)
-      case "unlisted" => JsSuccess(Unlisted)
-      case "public" => JsSuccess(Public)
+      case "Private" => JsSuccess(Private)
+      case "Unlisted" => JsSuccess(Unlisted)
+      case "Public" => JsSuccess(Public)
     }
   })
 

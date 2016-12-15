@@ -55,7 +55,9 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   def createMediaAtom = APIHMACAuthAction { implicit req =>
     req.body.asJson.map { json =>
       try {
-        val atom = CreateAtomCommand(json.as[CreateAtomCommandData]).process()
+        val request = json.as[CreateAtomCommandData]
+
+        val atom = CreateAtomCommand(request).process()
         Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
 
       } catch {
