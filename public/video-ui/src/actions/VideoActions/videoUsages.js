@@ -8,8 +8,9 @@ function requestVideoUsages(id) {
 }
 
 function receiveVideoUsages(usages, id) {
-  const usageObject = {};
-  usageObject[id] = usages.response.results;
+
+  const usageObject = {[id]: usages.response.results}
+
   return {
     type:           'VIDEO_USAGE_GET_RECEIVE',
     usages:         usageObject,
