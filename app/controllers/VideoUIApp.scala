@@ -19,10 +19,7 @@ class VideoUIApp @Inject() (val authActions: HMACAuthActions, awsConfig: AWSConf
       case None => routes.Assets.versioned(jsFileName).toString
     }
 
-    val composerUrl = awsConfig.stage match {
-      case "PROD" => "https://composer.gutools.co.uk"
-      case _      => "https://composer.code.dev-gutools.co.uk"
-    }
+    val composerUrl = awsConfig.composerUrl
 
     val clientConfig = ClientConfig(
       username = req.user.email,

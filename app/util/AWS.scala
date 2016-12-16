@@ -51,6 +51,8 @@ class AWSConfig @Inject() (config: Configuration) {
     null
   )
 
+  lazy val composerUrl = config.getString("flexible.url").get
+
   lazy val dynamoTableName = config.getString("aws.dynamo.tableName").get
   lazy val publishedDynamoTableName = config.getString("aws.dynamo.publishedTableName").get
 
