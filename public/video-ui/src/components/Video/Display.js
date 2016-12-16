@@ -5,6 +5,7 @@ import VideoPublishBar from '../VideoPublishBar/VideoPublishBar';
 import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoUsages from '../VideoUsages/VideoUsages';
+import VideoPage from '../VideoPage/VideoPage';
 
 class VideoDisplay extends React.Component {
 
@@ -87,7 +88,19 @@ class VideoDisplay extends React.Component {
               </div>
               <div className="video__detailbox usages">
                 <span className="video__detailbox__header">Usages</span>
-                <VideoUsages video={this.props.video} />
+                <VideoUsages
+                  video={this.props.video}
+                  fetchUsages={this.props.videoActions.getUsages}
+                  usages={this.props.usages[this.props.video.id] || []}/>
+              </div>
+              <div className="video__detailbox usages">
+                <span className="video__detailbox__header">Composer Pages</span>
+                <VideoPage
+                  video={this.props.video || {}}
+                  usages={this.props.usages[this.props.video.id] || []}
+                  composerPageWithUsage={this.props.composerPageWithUsage[this.props.video.id] || {}}
+                  createComposerPage={this.props.videoActions.createVideoPage}
+                />
               </div>
             </div>
             <div className="video__detailbox">
@@ -107,18 +120,22 @@ import * as getVideo from '../../actions/VideoActions/getVideo';
 import * as saveVideo from '../../actions/VideoActions/saveVideo';
 import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as publishVideo from '../../actions/VideoActions/publishVideo';
+import * as videoUsages from '../../actions/VideoActions/videoUsages';
+import * as videoPageCreate from '../../actions/VideoActions/videoPageCreate';
 
 function mapStateToProps(state) {
   return {
     video: state.video,
     saveState: state.saveState,
-    config: state.config
+    config: state.config,
+    usages: state.usage,
+    composerPageWithUsage: state.pageCreate
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, publishVideo), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, publishVideo, videoUsages, videoPageCreate), dispatch)
   };
 }
 
