@@ -1,7 +1,7 @@
-name: media-atom-maker
+name: video
 mappings:
-  - prefix: media-atom-maker
+  - prefix: video
     port: 9001
-  - prefix: media-atom-maker-assets
+  - prefix: video-assets
     port: 9002
     websocket: /sockjs-node

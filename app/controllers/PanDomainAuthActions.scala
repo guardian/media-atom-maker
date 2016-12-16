@@ -43,7 +43,7 @@ class PanDomainAuthActions @Inject() (
   override def authCallbackUrl: String = "https://" + conf.getString("host").get + "/oauthCallback"
 
   override lazy val domain: String = conf.getString("panda.domain").get
-  override lazy val system: String = "media-atom-maker"
+  override lazy val system: String = "video"
 
   override def secret: String = conf.getString("secret").get
 }

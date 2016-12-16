@@ -10,7 +10,7 @@ function requestVideoCreate() {
 }
 
 function receiveVideoCreate(video) {
-  browserHistory.push('/video/videos/' + video.id);
+  browserHistory.push('/videos/' + video.id);
   return {
     type: 'VIDEO_CREATE_RECEIVE',
     video: video,

@@ -15,7 +15,7 @@ function requestAssetCreate() {
 }
 
 function receiveAssetCreate(video) {
-  browserHistory.push('/video/videos/' + video.id );
+  browserHistory.push('/videos/' + video.id );
   return {
     type: 'ASSET_CREATE_RECEIVE',
     video: video,
