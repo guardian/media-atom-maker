@@ -98,7 +98,7 @@ class VideoDisplay extends React.Component {
                 <VideoPage
                   video={this.props.video || {}}
                   usages={this.props.usages[this.props.video.id] || []}
-                  composerId={this.props.composerId[this.props.video.id] || {}}
+                  composerPageWithUsage={this.props.composerPageWithUsage[this.props.video.id] || {}}
                   createComposerPage={this.props.videoActions.createVideoPage}
                 />
               </div>
@@ -129,7 +129,7 @@ function mapStateToProps(state) {
     saveState: state.saveState,
     config: state.config,
     usages: state.usage,
-    composerId: state.pageCreate
+    composerPageWithUsage: state.pageCreate
   };
 }
 

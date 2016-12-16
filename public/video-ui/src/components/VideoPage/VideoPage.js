@@ -74,10 +74,10 @@ export default class VideoPage extends React.Component {
     //If composerId exists, this means that this is the only composer page
     //that exists, it has just been created via media-atom-maker. It may not
     //yet be in capi, so we use this id to render it
-    if (this.props.composerId.composerId) {
+    if (this.props.composerPageWithUsage.composerId) {
       return (
         <ul className="detail__list">
-          {this.renderComposerLink(this.props.composerId)}
+          {this.renderComposerLink(this.props.composerPageWithUsage)}
         </ul>
       );
     }
