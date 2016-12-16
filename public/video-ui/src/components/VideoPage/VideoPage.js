@@ -1,6 +1,5 @@
 import React from 'react';
 import Q from 'q';
-import {createComposerPage} from '../../services/flexible.js';
 import {fetchComposerId} from '../../services/capi.js';
 
 import {getStore} from '../../util/storeAccessor';
@@ -8,7 +7,8 @@ import {getStore} from '../../util/storeAccessor';
 export default class VideoPage extends React.Component {
 
   state = {
-    composerIds: undefined
+    composerIds: undefined,
+    pageCreated: false
   }
 
   componentDidMount() {
@@ -26,6 +26,11 @@ export default class VideoPage extends React.Component {
     if (oldVideoId !== newVideoId || oldUsages !== newUsages) {
       this.getComposerIds(newProps.usages);
     }
+
+  }
+
+  getComposerUrl = () => {
+    return getStore().getState().config.composerUrl;
   }
 
   getComposerIds = (usages) => {
@@ -46,6 +51,10 @@ export default class VideoPage extends React.Component {
 
   pageCreate = () => {
 
+    this.setState({
+      pageCreated: true
+    });
+
     const videoPage = {
       elements: [
         {
@@ -64,15 +73,11 @@ export default class VideoPage extends React.Component {
         }
       ]
     };
-    return createComposerPage(this.props.video.id, this.props.video.title, videoPage)
-    .then(() => {
-      this.props.fetchUsages(this.props.video.id);
-    });
+    return this.props.createComposerPage(this.props.video.id, this.props.video.title, this.getComposerUrl(), videoPage);
   }
 
-  renderComposerLink(composerIdWithUsage) {
-
-    const composerUrl = getStore().getState().config.composerUrl;
+  renderComposerLink = (composerIdWithUsage) => {
+    const composerUrl = this.getComposerUrl();
 
     return (
       <li key={composerIdWithUsage.composerId} className="detail__list__item">
@@ -81,18 +86,42 @@ export default class VideoPage extends React.Component {
       );
   }
 
-
   render() {
-
-    if (this.state.composerIds && this.state.composerIds.length !== 0) {
+    //If composerId exists, this means that this is the only composer page
+    //that exists, it has just been created via media-atom-maker. It may not
+    //yet be in capi, so we use this id to render it
+    if (this.props.composerId.composerId) {
       return (
         <ul className="detail__list">
-          {this.state.composerIds.map(this.renderComposerLink)}
+          {this.renderComposerLink(this.props.composerId)}
         </ul>
       );
     }
 
-    return (<button type="button" className="btn page__add__button" onClick={this.pageCreate}>Create video page</button>);
+    //Else we are safe to get composer pages from composerIds list derived from usages
+    if (this.state.composerIds && this.state.composerIds.length > 0) {
+
+      return (
+        <ul className="detail__list">
+          {this.state.composerIds.map(id => {
+            return this.renderComposerLink(id);
+           })}
+        </ul>
+      );
+    }
+
+    //If there are no composer pages, display a button that allows for creating one
+    else {
+      return (
+        <button
+          type="button"
+          className="btn page__add__button"
+          disabled={this.state.pageCreated}
+          onClick={this.pageCreate}>
+          Create video page
+        </button>
+      );
+    }
   }
 }
 

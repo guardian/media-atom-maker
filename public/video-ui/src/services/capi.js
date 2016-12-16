@@ -9,7 +9,7 @@ export function fetchComposerId(capiId) {
     method: 'get'
   })
   .then(resp => {
-    if (resp.response.content && resp.response.content.fields&& resp.response.content.fields.internalComposerCode) {
+    if (resp.response.content && resp.response.content.fields && resp.response.content.fields.internalComposerCode) {
       return resp.response.content.fields.internalComposerCode;
     }
     return "";

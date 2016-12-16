@@ -9,6 +9,7 @@ import searchTerm from './searchTermReducer';
 import youtube from './youtubeReducer';
 import { reducer as form } from 'redux-form';
 import usage from './usageReducer';
+import pageCreate from './composerPageReducer';
 
 export default combineReducers({
   asset,
@@ -20,5 +21,6 @@ export default combineReducers({
   searchTerm,
   youtube,
   form,
-  usage
+  usage,
+  pageCreate
 });

@@ -97,8 +97,10 @@ class VideoDisplay extends React.Component {
                 <span className="video__detailbox__header">Composer Pages</span>
                 <VideoPage
                   video={this.props.video || {}}
-                  fetchUsages={this.props.videoActions.getUsages}
-                  usages={this.props.usages[this.props.video.id] || []}/>
+                  usages={this.props.usages[this.props.video.id] || []}
+                  composerId={this.props.composerId[this.props.video.id] || {}}
+                  createComposerPage={this.props.videoActions.createVideoPage}
+                />
               </div>
             </div>
             <div className="video__detailbox">
@@ -119,19 +121,21 @@ import * as saveVideo from '../../actions/VideoActions/saveVideo';
 import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as publishVideo from '../../actions/VideoActions/publishVideo';
 import * as videoUsages from '../../actions/VideoActions/videoUsages';
+import * as videoPageCreate from '../../actions/VideoActions/videoPageCreate';
 
 function mapStateToProps(state) {
   return {
     video: state.video,
     saveState: state.saveState,
     config: state.config,
-    usages: state.usage
+    usages: state.usage,
+    composerId: state.pageCreate
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, publishVideo, videoUsages), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, publishVideo, videoUsages, videoPageCreate), dispatch)
   };
 }
 

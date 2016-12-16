@@ -20,7 +20,7 @@ function receiveVideoUsages(usages, id) {
 function errorReceivingVideoUsages(error) {
   return {
     type:       'SHOW_ERROR',
-    message:    'Could not create a video page',
+    message:    'Could not get video usages',
     error:      error,
     receivedAt: Date.now()
   };

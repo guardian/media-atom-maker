@@ -68,5 +68,26 @@ export default {
       url: capiProxyUrl + "/atom/media/" + videoId + "/usage",
       method: 'get'
     })
+  },
+
+  createComposerPage(id, title, composerUrl) {
+    return pandaReqwest({
+      url: composerUrl + '/api/content?atomPoweredVideo=true&originatingSystem=composer&type=video&initialTitle='+title,
+      method: 'post',
+      contentType: 'application/json',
+      crossOrigin: true,
+      withCredentials: true
+    });
+  },
+
+  addVideoToComposerPage(pageId, data, composerUrl) {
+    return pandaReqwest({
+      url: composerUrl + '/api/content/' + pageId + '/preview/mainblock',
+      method: 'post',
+      contentType: 'application/json',
+      crossOrigin: true,
+      withCredentials: true,
+      data: JSON.stringify(data)
+    });
   }
 }
