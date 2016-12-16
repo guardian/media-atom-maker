@@ -1,7 +1,7 @@
 import React from 'react';
 import Q from 'q';
 import {fetchComposerId} from '../../services/capi.js';
-
+import {getVideoBlock} from '../../util/getVideoBlock';
 import {getStore} from '../../util/storeAccessor';
 
 export default class VideoPage extends React.Component {
@@ -55,24 +55,8 @@ export default class VideoPage extends React.Component {
       pageCreated: true
     });
 
-    const videoPage = {
-      elements: [
-        {
-          elementType: 'content-atom',
-          fields: {
-            id: this.props.video.id,
-            atomType: 'media',
-            required: 'true',
-            title: this.props.video.title,
-            published: 'Unable to get published state from atom',
-            isMandatory: 'true',
-            editorialLink: ''
+    const videoPage = getVideoBlock(this.props.video.id, this.props.video.title);
 
-          },
-          assets: []
-        }
-      ]
-    };
     return this.props.createComposerPage(this.props.video.id, this.props.video.title, this.getComposerUrl(), videoPage);
   }
 
