@@ -9,14 +9,20 @@ object CommandExceptions extends Results {
   def UnknownFailure = throw new CommandException("Unknown internal server error", 500)
   def AtomNotFound = throw new CommandException("Atom not found", 404)
   def AtomIdConflict = throw new CommandException("Atom ID conflict", 400)
+  def YouTubeConnectionIssue = throw new CommandException("Could not connect to YouTube", 500)
   def NotYoutubeAsset = throw new CommandException("Asset is not a youtube video", 400)
   def AssetVersionConflict = throw new CommandException("Asset version conflict", 400)
   def AssetParseFailed = throw new CommandException("Failed to parse asset", 400)
-  def AssetEncodingInProcess = throw new CommandException("Asset encoding in progress", 400)
+  def AssetEncodingInProcess = throw new CommandException("Asset encoding in process", 400) //This is a temporary fix to match the CDS message
+  def AssetNotFound = throw new CommandException("Asset not found", 404)
 
+  def AssetNotFound(assetId: String) = throw new CommandException(s"Asset with id $assetId not found", 404)
   def PosterImageUploadFailed(err: String) = throw new CommandException(s"Failed to update poster image (must be at least 1 image asset smaller than 2MB): $err", 400)
+  def YoutubeException(err: String) = throw new CommandException(s"Exception when trying to reach YouTube: $err", 400)
   def AtomUpdateFailed(err: String) = throw new CommandException(s"Failed to update atom: $err", 500)
   def AtomPublishFailed(err: String) = throw new CommandException(s"Failed to publish atom: $err", 500)
+
+  def NotGuardianYoutubeVideo = throw new CommandException("YouTube video is not in the Guardian's account", 400)
 
   // Add exceptions here as required
   def commandExceptionAsResult: PartialFunction[Throwable, Result] = {

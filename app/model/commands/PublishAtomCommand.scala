@@ -29,6 +29,7 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
 
   def process(): T = {
     previewDataStore.getAtom(id) match {
+      case None => AtomNotFound
       case Some(thriftAtom) => {
         val atom = MediaAtom.fromThrift(thriftAtom)
         val api = YouTubeVideoUpdateApi(youtubeConfig)
@@ -47,7 +48,7 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
           case None => Logger.info(s"No active YouTube asset found for atom: ${id}")
         }
 
-        api.updateMetadata(id, UpdatedMetadata(atom.description, Some(atom.tags), atom.youtubeCategoryId, atom.license))
+        api.updateMetadata(id, UpdatedMetadata(atom.description, Some(atom.tags), atom.youtubeCategoryId, atom.license, atom.privacyStatus))
 
         val changeRecord = ChangeRecord((new Date()).getTime(), None) // Todo: User...
         val updatedAtom = thriftAtom.copy(
@@ -59,22 +60,10 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
         )
 
         auditDataStore.auditPublish(id, username)
-        publishAtomToPreviewAndLive(updatedAtom)
-      }
-      case None => AtomNotFound
-    }
-  }
+        UpdateAtomCommand(id, MediaAtom.fromThrift(updatedAtom)).process()
 
-  private def publishAtomToPreviewAndLive(atom: Atom): MediaAtom = {
-    val event = ContentAtomEvent(atom, EventType.Update, (new Date()).getTime())
+        publishAtomToLive(updatedAtom)
 
-    previewPublisher.publishAtomEvent(event) match {
-      case Failure(err) => AtomPublishFailed(s"Could not publish atom (preview kinesis event failed): ${err.toString}")
-      case Success(_) => {
-        previewDataStore.updateAtom(atom) match {
-          case Xor.Right(_) => publishAtomToLive(atom)
-          case Xor.Left(err) => AtomPublishFailed(s"Could not update preview datastore before publish: ${err.toString}")
-        }
       }
     }
   }
@@ -107,7 +96,9 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
       atom.posterImage.map(
         _.assets
           .filter(a => a.size.nonEmpty && a.size.get < MAX_SIZE)
-          .sortBy(_.size.get).head).get
+          .sortBy(_.size.get)
+          .last
+      ).get
     }
 
     api.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)

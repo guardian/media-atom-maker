@@ -1,11 +1,24 @@
 package model
 
+import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-case class UpdatedMetadata(description: Option[String], tags: Option[List[String]], categoryId: Option[String], license: Option[String])
+case class UpdatedMetadata (
+  description: Option[String],
+  tags: Option[List[String]],
+  categoryId: Option[String],
+  license: Option[String],
+  privacyStatus: Option[PrivacyStatus]
+)
 
 object UpdatedMetadata {
-  implicit val metadataRead = Json.reads[UpdatedMetadata]
+  implicit val metadataRead: Reads[UpdatedMetadata] = (
+    (__ \ "description").readNullable[String] ~
+    (__ \ "tags").readNullable[List[String]] ~
+    (__ \ "categoryId").readNullable[String] ~
+    (__ \ "license").readNullable[String] ~
+    (__ \ "privacyStatus").readNullable[PrivacyStatus]
+  )(UpdatedMetadata.apply _)
 }
 
 // The license has only this 2 valid values. Update the thrift model?

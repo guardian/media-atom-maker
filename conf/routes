@@ -21,7 +21,7 @@ POST    /api2/atoms/:id/assets          controllers.Api2.addAsset(id)
 
 PUT     /api2/atom/:id/publish          controllers.Api2.publishMediaAtom(id)
 PUT     /api/atom/:id/update-metadata   controllers.Api2.updateMetadata(id)
-POST    /api2/atom/:id/asset-active     controllers.Api2.setActiveAsset(id)
+PUT     /api2/atom/:id/asset-active     controllers.Api2.setActiveAsset(id)
 
 GET     /api2/audits/:id                controllers.Api2.getAuditTrailForAtomId(id)
 

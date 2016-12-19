@@ -1,4 +1,5 @@
 import {pandaReqwest} from './pandaReqwest';
+import {getStore} from '../util/storeAccessor';
 
 
 export default {
@@ -43,10 +44,12 @@ export default {
     })
   },
 
-  revertAsset: (version, videoId) => {
+  revertAsset: (atomId, videoId) => {
     return pandaReqwest({
-      url: '/api/atom/' + videoId + '/revert/' + version,
-      method: 'put'
+      url: '/api2/atom/' + atomId + '/asset-active',
+      contentType: 'application/json',
+      method: 'put',
+      data: JSON.stringify({youtubeId: videoId})
     })
   },
 
@@ -64,5 +67,33 @@ export default {
       url: '/api2/audits/' + atomId,
       method: 'get'
     })
+
+  getVideoUsages: (videoId) => {
+    const capiProxyUrl = getStore().getState().config.capiProxyUrl;
+    return pandaReqwest({
+      url: capiProxyUrl + "/atom/media/" + videoId + "/usage",
+      method: 'get'
+    })
+  },
+
+  createComposerPage(id, title, composerUrl) {
+    return pandaReqwest({
+      url: composerUrl + '/api/content?atomPoweredVideo=true&originatingSystem=composer&type=video&initialTitle='+title,
+      method: 'post',
+      contentType: 'application/json',
+      crossOrigin: true,
+      withCredentials: true
+    });
+  },
+
+  addVideoToComposerPage(pageId, data, composerUrl) {
+    return pandaReqwest({
+      url: composerUrl + '/api/content/' + pageId + '/preview/mainblock',
+      method: 'post',
+      contentType: 'application/json',
+      crossOrigin: true,
+      withCredentials: true,
+      data: JSON.stringify(data)
+    });
   }
 }

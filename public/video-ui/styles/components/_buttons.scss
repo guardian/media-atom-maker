@@ -26,6 +26,10 @@ button {
   &:disabled {
     background: $color500Grey;
   }
+
+  &:focus {
+    outline: 1px solid $cWhite;
+  }
 }
 
 .btn + .btn {
@@ -46,4 +50,10 @@ button {
 .btn__group {
   display: flex;
   width: 100%;
+}
+
+.page__add__button {
+  padding: 5px 10px;
+  margin-left: 15px;
+  margin-top: 10px;
 }

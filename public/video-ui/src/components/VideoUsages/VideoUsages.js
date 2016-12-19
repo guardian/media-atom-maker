@@ -1,33 +1,10 @@
 import React from 'react';
-import {fetchUsages} from '../../services/capi';
 
 class VideoUsages extends React.Component {
 
-  state = {
-    usages: undefined
-  }
-
-  updateUsages(videoId) {
-
-    if (!videoId) {
-      return this.setState({
-        usages: undefined
-      });
-    }
-
-    fetchUsages(videoId).then((resp) => {
-
-      const usages = resp.response.results;
-
-      this.setState({
-        usages: usages
-      });
-    });
-  }
-
   componentDidMount() {
     if (this.props.video) {
-      this.updateUsages(this.props.video.id);
+      this.props.fetchUsages(this.props.video.id);
     }
   }
 
@@ -35,14 +12,14 @@ class VideoUsages extends React.Component {
     const oldVidId = this.props.video && this.props.video.id;
     const newVidId = newProps.video && newProps.video.id;
 
-    if (oldVidId === newVidId) {
+    if (oldVidId !== newVidId) {
       this.updateUsages(newVidId);
     }
   }
 
   renderUsage(usage) {
     return (
-      <li className="usages__list__item">
+      <li key={usage} className="detail__list__item">
         {usage}
       </li>
     )
@@ -50,30 +27,29 @@ class VideoUsages extends React.Component {
 
   renderUsages() {
 
-    if (!this.state.usages) {
-      return (<div>Fetching Usages...</div>)
+    if (!this.props.usages) {
+      return (<div className="baseline-margin">Fetching Usages...</div>)
     }
 
-    if (!this.state.usages.length) {
-      return (<div>No usages found</div>)
+    if (!this.props.usages.length) {
+      return (<div className="baseline-margin">No usages found</div>)
     }
 
     return (
-      <ul className="usages__list">
-        {this.state.usages.map(this.renderUsage)}
+      <ul className="detail__list">
+        {this.props.usages.map(this.renderUsage)}
       </ul>
     )
   }
 
   render() {
 
-
     if (!this.props.video) {
       return false;
     }
 
     return (
-      <div className="usages">
+      <div className="detail">
         {this.renderUsages()}
       </div>
     );

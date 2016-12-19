@@ -3,16 +3,17 @@ package util
 import java.io.BufferedInputStream
 import java.net.URL
 import java.time.Duration
-import javax.inject.{ Singleton, Inject }
+import javax.inject.{Inject, Singleton}
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
+import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import com.google.api.client.http.InputStreamContent
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.youtube.YouTube
 import com.google.api.services.youtube.model.Video
-import model.{UpdatedMetadata, YouTubeVideoCategory, YouTubeChannel}
-import play.api.Configuration
+import model._
+import play.api.{Configuration, Logger}
 
 import scala.collection.JavaConverters._
 
@@ -63,35 +64,80 @@ case class YouTubeVideoCategoryApi(config: YouTubeConfig) extends YouTubeBuilder
 }
 
 case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder {
-  def updateMetadata(id: String, metadata: UpdatedMetadata): Option[Video] =
-      youtube.videos()
-        .list("snippet, status")
-        .setId(id)
-        .execute()
-        .getItems.asScala.toList.headOption match {
-      case Some(video) =>
-        val snippet = video.getSnippet
-        snippet.setTitle(snippet.getTitle)
-        snippet.setCategoryId(metadata.categoryId.getOrElse(snippet.getCategoryId))
-        snippet.setDescription(metadata.description.getOrElse(snippet.getDescription))
-        snippet.setTags(metadata.tags.map(_.asJava).getOrElse(snippet.getTags))
-        video.setSnippet(snippet)
+  private def protectAgainstMistakesInDev(video: Video) = {
+    val videoChannelId = video.getSnippet.getChannelId
 
+    config.allowedChannels match {
+      case Some(allowedList) => {
+        if (!allowedList.contains(videoChannelId)) {
+          val msg = s"Failed to edit video ${video.getId} as its channel ($videoChannelId) isn't in config.youtube.allowedChannels"
+          Logger.info(msg)
+          throw new Exception(msg)
+        }
+      }
+      case None =>
+    }
+  }
+
+  def updateMetadata(id: String, metadata: UpdatedMetadata): Option[Video] =
+    YouTubeVideoInfoApi(config).getVideo(id, "snippet, status") match {
+      case Some(video) =>
+        protectAgainstMistakesInDev(video)
+
+        val snippet = video.getSnippet
         val status = video.getStatus
-        status.setLicense(metadata.license.getOrElse(status.getLicense))
+
+        metadata.categoryId match {
+          case Some(cat) => snippet.setCategoryId(cat)
+          case _ => None
+        }
+
+        metadata.description match {
+          case Some(desc) => snippet.setDescription(desc)
+          case _ => None
+        }
+
+        metadata.tags match {
+          case Some(t) => snippet.setTags(t.asJava)
+          case _ => None
+        }
+
+        metadata.license match {
+          case Some(l) => status.setLicense(l)
+          case _ => None
+        }
+
+        metadata.privacyStatus match {
+          case Some(ps) => status.setPrivacyStatus(ps.name.toLowerCase)
+          case _ => None
+        }
+
+        video.setSnippet(snippet)
         video.setStatus(status)
 
-        Some(youtube.videos().update("snippet, status", video).setOnBehalfOfContentOwner(config.contentOwner).execute())
+        Some(youtube.videos()
+          .update("snippet, status", video)
+          .setOnBehalfOfContentOwner(config.contentOwner)
+          .execute())
       case _ => None
     }
 
-  def updateThumbnail(id: String, thumbnailUrl: URL, mimeType: String): Unit = {
-    val content = new InputStreamContent(mimeType, new BufferedInputStream(thumbnailUrl.openStream()))
-    val set = youtube.thumbnails().set(id, content).setOnBehalfOfContentOwner(config.contentOwner)
+  def updateThumbnail(id: String, thumbnailUrl: URL, mimeType: String): Option[Video] = {
+    YouTubeVideoInfoApi(config).getVideo(id, "snippet") match {
+      case Some(video) => {
+        protectAgainstMistakesInDev(video)
 
-    // If we want some way of monitoring and resuming thumbnail uploads then we can change this to be `false`
-    set.getMediaHttpUploader.setDirectUploadEnabled(true)
-    set.execute()
+        val content = new InputStreamContent(mimeType, new BufferedInputStream(thumbnailUrl.openStream()))
+        val set = youtube.thumbnails().set(id, content).setOnBehalfOfContentOwner(config.contentOwner)
+
+        // If we want some way of monitoring and resuming thumbnail uploads then we can change this to be `false`
+        set.getMediaHttpUploader.setDirectUploadEnabled(true)
+        set.execute()
+
+        Some(video)
+      }
+      case _ => None
+    }
   }
 }
 
@@ -113,24 +159,23 @@ case class YouTubeChannelsApi(config: YouTubeConfig) extends YouTubeBuilder {
 }
 
 case class YouTubeVideoInfoApi(config: YouTubeConfig) extends YouTubeBuilder {
-  def getProcessingStatus(youtubeId: String): Option[String] =
+  def getVideo(youtubeId: String, part: String): Option[Video] = {
     youtube.videos()
-      .list("processingDetails")
+      .list(part)
       .setId(youtubeId)
       .setOnBehalfOfContentOwner(config.contentOwner)
       .execute()
-      .getItems.asScala.toList.headOption match {
+      .getItems.asScala.toList.headOption
+  }
+
+  def getProcessingStatus(youtubeId: String): Option[String] =
+    getVideo(youtubeId, "processingDetails") match {
       case Some(video) => Some(video.getProcessingDetails.getProcessingStatus)
       case None => None
     }
 
   def getDuration(youtubeId: String): Option[Long] = {
-    youtube.videos()
-      .list("contentDetails")
-      .setId(youtubeId)
-      .setOnBehalfOfContentOwner(config.contentOwner)
-      .execute()
-      .getItems.asScala.toList.headOption match {
+    getVideo(youtubeId, "contentDetails") match {
       case Some(video) => {
         // YouTube API returns duration is in ISO 8601 format
         // https://developers.google.com/youtube/v3/docs/videos#contentDetails.duration
@@ -139,6 +184,21 @@ case class YouTubeVideoInfoApi(config: YouTubeConfig) extends YouTubeBuilder {
         Some(Duration.parse(iso8601Duration).toMillis / 1000) // seconds
       }
       case None => None
+    }
+  }
+
+  def isMyVideo(youtubeId: String): Boolean = {
+    // HACK Listing `fileDetails` of a video requires authentication and an exception is thrown if not authorized,
+    // so we can say the video is not ours.
+    //
+    // A cleaner way to do this would be to check the channel id of the video is one of ours,
+    // however this involves an extra API call.
+    // TODO cache YouTube channels in a store and query against that.
+    try {
+      getVideo(youtubeId, "fileDetails").nonEmpty
+    }
+    catch {
+      case _: Throwable => false
     }
   }
 }

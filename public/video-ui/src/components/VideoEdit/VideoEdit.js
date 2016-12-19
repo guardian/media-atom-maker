@@ -7,6 +7,7 @@ import VideoPosterEdit from './formComponents/VideoPoster';
 import YoutubeCategorySelect from './formComponents/YoutubeCategory';
 import YoutubeKeywordsSelect from './formComponents/YoutubeKeywords';
 import YoutubeChannelSelect from './formComponents/YoutubeChannel';
+import PrivacyStatusSelect from './formComponents/PrivacyStatus';
 import ContentFlags from './formComponents/ContentFlags';
 import SaveButton from '../utils/SaveButton';
 import validate from '../../constants/videoEditValidation';
@@ -30,12 +31,6 @@ const VideoEdit = (props) => {
             component={VideoCategorySelect}
             {...props} />
 
-          <Field
-            name="duration"
-            type="number"
-            component={VideoDurationEdit}
-            {...props} />
-
           <Field name="posterImage" component={VideoPosterEdit} {...props} />
 
           <Field
@@ -49,6 +44,11 @@ const VideoEdit = (props) => {
             type="select"
             component={YoutubeChannelSelect}
             {...props} />
+
+          <Field name="privacy-status"
+                 type="text"
+                 component={PrivacyStatusSelect}
+                 {...props} />
 
           <SaveButton saveState={props.saveState.saving} onSaveClick={props.saveVideo} onResetClick={props.resetVideo} />
         </div>
@@ -74,13 +74,11 @@ const VideoEdit = (props) => {
                 {...props} />
             </FormFieldSaveWrapper>
 
-            <FormFieldSaveWrapper {...props}>
-              <Field
-                name="duration"
-                type="number"
-                component={VideoDurationEdit}
-                {...props} />
-            </FormFieldSaveWrapper>
+            <Field
+              name="duration"
+              type="number"
+              component={VideoDurationEdit}
+              {...props} />
 
             <Field name="content-flags" component={ContentFlags} {...props} />
 
@@ -94,13 +92,11 @@ const VideoEdit = (props) => {
           <div className="form__group">
             <div className="form__group__header">Youtube Metadata</div>
 
-            <FormFieldSaveWrapper {...props}>
-              <Field
-                name="youtube-channel"
-                type="select"
-                component={YoutubeChannelSelect}
-                {...props} />
-            </FormFieldSaveWrapper>
+            <Field
+              name="youtube-channel"
+              type="select"
+              component={YoutubeChannelSelect}
+              {...props} />
 
             <FormFieldSaveWrapper {...props}>
               <Field
@@ -108,6 +104,13 @@ const VideoEdit = (props) => {
                 type="select"
                 component={YoutubeCategorySelect}
                 {...props} />
+            </FormFieldSaveWrapper>
+
+            <FormFieldSaveWrapper {...props}>
+              <Field name="privacy-status"
+                     type="text"
+                     component={PrivacyStatusSelect}
+                     {...props} />
             </FormFieldSaveWrapper>
 
             <Field name="youtube-keywords" component={YoutubeKeywordsSelect} {...props} />

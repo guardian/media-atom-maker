@@ -8,13 +8,14 @@ import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import com.gu.pandahmac.HMACAuthActions
 import data.JsonConversions._
 import data.AuditDataStore
+import model.Category.Hosted
 import model.commands.CommandExceptions._
 import model.commands._
 import play.api.Configuration
-import util.{ YouTubeConfig, AWSConfig}
+import util.{AWSConfig, YouTubeConfig}
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
-import model.{UpdatedMetadata, MediaAtom}
+import model.{MediaAtom, UpdatedMetadata}
 
 class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
                      implicit val publishedDataStore: PublishedDataStore,
@@ -34,7 +35,16 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   def getMediaAtoms = APIHMACAuthAction {
     previewDataStore.listAtoms.fold(
       err =>   InternalServerError(jsonError(err.msg)),
-      atoms => Ok(Json.toJson(atoms.map(MediaAtom.fromThrift).toList))
+      atoms => {
+        // TODO add `Hosted` category.
+        // Although `Hosted` is a valid category, the APIs driving the React frontend perform authenticated calls to YT.
+        // These only work with content that we own. `Hosted` can have third-party assets so the API calls will fail.
+        // Add `Hosted` once the UI is smarter and removes features when category is `Hosted`.
+        val mediaAtoms = atoms.map(MediaAtom.fromThrift)
+          .toList
+          .filter(_.category != Hosted)
+        Ok(Json.toJson(mediaAtoms))
+      }
     )
   }
 
@@ -59,7 +69,9 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
     implicit val username = Option(req.user.email)
     req.body.asJson.map { json =>
       try {
-        val atom = CreateAtomCommand(json.as[CreateAtomCommandData]).process()
+        val request = json.as[CreateAtomCommandData]
+
+        val atom = CreateAtomCommand(request).process()
         Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
 
       } catch {
@@ -119,17 +131,14 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
     }.getOrElse {
       BadRequest("Could not read json")
     }
-    Ok
   }
 
   def setActiveAsset(atomId: String) = APIHMACAuthAction { implicit req =>
     req.body.asJson.map { json =>
       try {
         val videoId = (json \ "youtubeId").as[String]
-
-        val status: Unit = ActiveAssetCommand(atomId, videoId).process()
-
-        Ok("made asset " + videoId + " active in atom " + atomId)
+        val atom = ActiveAssetCommand(atomId, videoId).process()
+        Ok(Json.toJson(atom))
       } catch {
         commandExceptionAsResult
       }

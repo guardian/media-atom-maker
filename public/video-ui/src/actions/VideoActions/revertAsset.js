@@ -28,10 +28,10 @@ function errorRevertAsset(error) {
   };
 }
 
-export function revertAsset(version, videoId) {
+export function revertAsset(atomId, videoId, version) {
   return dispatch => {
     dispatch(requestRevertAsset(version));
-    return VideosApi.revertAsset(version, videoId)
+    return VideosApi.revertAsset(atomId, videoId)
         .then(res => dispatch(receiveRevertAsset(res)))
         .catch(error => dispatch(errorRevertAsset(error)));
   };

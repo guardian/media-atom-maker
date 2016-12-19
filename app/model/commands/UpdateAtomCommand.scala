@@ -26,7 +26,7 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom)
 
   type T = MediaAtom
 
-  def process() = {
+  def process(): T = {
     if (id != atom.id) {
       AtomIdConflict
     }

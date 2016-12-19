@@ -2,9 +2,11 @@ package model.commands
 
 import java.util.Date
 
+import play.api.Logger
 import com.gu.atom.data.PreviewDataStore
 import CommandExceptions._
 import com.gu.atom.publish.PreviewAtomPublisher
+import com.gu.contentatom.thrift.atom.media.Category.Hosted
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.contentatom.thrift.atom.media.{Asset, Platform}
 import model.MediaAtom
@@ -25,7 +27,29 @@ case class AddAssetCommand(atomId: String,
 
   type T = MediaAtom
 
+  private def validateYoutubeOwnership (asset: Asset) = {
+    asset.platform match {
+      case Platform.Youtube => {
+        val isMine = YouTubeVideoInfoApi(youtubeConfig).isMyVideo(asset.id)
+
+        if (! isMine) {
+          NotGuardianYoutubeVideo
+        }
+      }
+      case _ => None
+    }
+  }
+
+  private def getAssetDuration (asset: Asset): Option[Long] = {
+    asset.platform match {
+      case Platform.Youtube => YouTubeVideoInfoApi(youtubeConfig).getDuration(asset.id)
+      case _ => None
+    }
+  }
+
   def process(): MediaAtom = {
+
+    Logger.info(s"Adding asset videoUri $videoUri to $atomId")
     previewDataStore.getAtom(atomId) match {
       case Some(atom) =>
         val mediaAtom = atom.tdata
@@ -40,29 +64,22 @@ case class AddAssetCommand(atomId: String,
         val newAsset = ThriftUtil.parseAsset(videoUri, mimeType, resolvedVersion)
           .fold(err => AssetParseFailed, identity)
 
-        val assetDuration = newAsset.platform match {
-          case Platform.Youtube => YouTubeVideoInfoApi(youtubeConfig).getDuration(newAsset.id)
-          case _ => None
+        if (mediaAtom.category != Hosted) {
+          validateYoutubeOwnership(newAsset)
         }
 
-        val newAtom = atom
+        val assetDuration = getAssetDuration(newAsset)
+
+        val updatedAtom = atom
           .withData(mediaAtom.copy(
             assets = newAsset +: currentAssets,
             duration = assetDuration
           ))
-          .withRevision(_ + 1)
 
-        previewDataStore.updateAtom(newAtom).fold(
-          err => AtomUpdateFailed(err.msg),
-          _ => {
-            val event = ContentAtomEvent(newAtom, EventType.Update, new Date().getTime)
+        Logger.info(s"Constructed new atom $atomId, updating")
 
-            previewPublisher.publishAtomEvent(event) match {
-              case Success(_) => return MediaAtom.fromThrift(newAtom)
-              case Failure(err) => AtomPublishFailed(err.toString)
-            }
-          }
-        )
+        UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom)).process()
+
       case None => AtomNotFound
     }
   }

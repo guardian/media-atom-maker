@@ -35,26 +35,16 @@ case class UpdateMetadataCommand(atomId: String,
             val newMetadata = thriftMediaAtom.metadata.map(_.copy(
               tags = metadata.tags,
               categoryId = metadata.categoryId,
-              license = metadata.license))
+              license = metadata.license,
+              privacyStatus = metadata.privacyStatus.flatMap(_.asThrift)))
 
             val activeYTAssetDuration = YouTubeVideoInfoApi(youtubeConfig).getDuration(youtubeAsset.id)
 
-            val newAtom = atom
-              .withRevision(_ + 1)
-              .updateData { media =>
+            val updatedAtom = atom.updateData { media =>
                 media.copy(description = metadata.description, metadata = newMetadata, duration = activeYTAssetDuration)}
 
-            previewDataStore.updateAtom(newAtom).fold(
-              err => InternalServerError(err.msg),
-              _ => {
-                val event = ContentAtomEvent(newAtom, EventType.Update, new Date().getTime)
+            UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom)).process()
 
-                previewPublisher.publishAtomEvent(event) match {
-                  case Success(_) => ()
-                  case Failure(err) => InternalServerError(s"could not publish: ${err.toString}")
-                }
-              }
-            )
           case None => NotYoutubeAsset
         }
       case None => AtomNotFound

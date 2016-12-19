@@ -3,9 +3,15 @@ import com.gu.atom.data._
 import com.gu.atom.publish._
 import data._
 import com.gu.pandahmac.HMACAuthActions
+import util.{LogShipping, LogShippingImpl}
+
 
 class Module extends AbstractModule {
   def configure() = {
+
+    bind(classOf[LogShipping])
+      .to(classOf[LogShippingImpl]).asEagerSingleton()
+
     bind(classOf[HMACAuthActions])
       .to(classOf[controllers.PanDomainAuthActions])
 
