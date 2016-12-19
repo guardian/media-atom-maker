@@ -8,13 +8,19 @@ import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
 import model.commands.CommandExceptions._
 import util.atom.MediaAtomImplicits
 import model.{ChangeRecord, MediaAtom}
+import data.AuditDataStore
 
 import scala.util.{Failure, Success}
 import model.commands.CommandExceptions._
 import org.joda.time.DateTime
+import ai.x.diff.DiffShow
+import ai.x.diff.conversions._
+
 case class UpdateAtomCommand(id: String, atom: MediaAtom)
                             (implicit previewDataStore: PreviewDataStore,
-                             previewPublisher: PreviewAtomPublisher)
+                             previewPublisher: PreviewAtomPublisher,
+                             auditDataStore: AuditDataStore,
+                             username: Option[String])
     extends Command
     with MediaAtomImplicits {
 
@@ -25,16 +31,20 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom)
       AtomIdConflict
     }
 
-    val existingAtom = previewDataStore.getAtom(atom.id)
+    val oldAtom = previewDataStore.getAtom(atom.id)
 
-    if (existingAtom.isEmpty) {
+    if (oldAtom.isEmpty) {
       AtomNotFound
     }
+
+    val existingAtom = oldAtom.get
+
+    val diffString = auditDataStore.createDiffString(MediaAtom.fromThrift(existingAtom), atom)
 
     val changeRecord = ChangeRecord(DateTime.now(), None)
 
     val details = atom.contentChangeDetails.copy(
-      revision = existingAtom.get.contentChangeDetails.revision + 1,
+      revision = existingAtom.contentChangeDetails.revision + 1,
       lastModified = Some(changeRecord)
     )
     val thrift = atom.copy(contentChangeDetails = details).asThrift
@@ -45,7 +55,10 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom)
         val event = ContentAtomEvent(thrift, EventType.Update, new Date().getTime)
 
         previewPublisher.publishAtomEvent(event) match {
-          case Success(_) => MediaAtom.fromThrift(thrift)
+          case Success(_) => {
+            auditDataStore.auditUpdate(id, username, diffString)
+            MediaAtom.fromThrift(thrift)
+          }
           case Failure(err) => AtomPublishFailed(s"could not publish: ${err.toString}")
         }
       }

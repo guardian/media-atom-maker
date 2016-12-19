@@ -7,6 +7,7 @@ import com.gu.atom.play.AtomAPIActions
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import com.gu.pandahmac.HMACAuthActions
 import data.JsonConversions._
+import data.AuditDataStore
 import model.commands.CommandExceptions._
 import model.commands._
 import play.api.Configuration
@@ -22,7 +23,8 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
                      val conf: Configuration,
                      val awsConfig: AWSConfig,
                      val authActions: HMACAuthActions,
-                     val youtubeConfig: YouTubeConfig)
+                     val youtubeConfig: YouTubeConfig,
+                     implicit val auditDataStore: AuditDataStore)
   extends MediaAtomImplicits
     with AtomAPIActions
     with AtomController {
@@ -44,6 +46,7 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   }
 
   def publishMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
+    implicit val username = Option(req.user.email)
     try {
       val updatedAtom = PublishAtomCommand(id).process()
       Ok(Json.toJson(updatedAtom))
@@ -53,6 +56,7 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   }
 
   def createMediaAtom = APIHMACAuthAction { implicit req =>
+    implicit val username = Option(req.user.email)
     req.body.asJson.map { json =>
       try {
         val atom = CreateAtomCommand(json.as[CreateAtomCommandData]).process()
@@ -68,6 +72,7 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   }
 
   def putMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
+    implicit val username = Option(req.user.email)
     req.body.asJson.map { json =>
       try {
         val atom = json.as[MediaAtom]
@@ -131,5 +136,9 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
     }.getOrElse {
       BadRequest("Could not read json")
     }
+  }
+
+  def getAuditTrailForAtomId(id: String) = APIHMACAuthAction { implicit req =>
+    Ok(Json.toJson(auditDataStore.getAuditTrailForAtomId(id)))
   }
 }

@@ -26,5 +26,8 @@ class Module extends AbstractModule {
 
     bind(classOf[PublishedAtomReindexer])
       .toProvider(classOf[PublishedAtomReindexerProvider])
+
+    bind(classOf[AuditDataStore])
+      .toProvider(classOf[AuditDataStoreProvider])
   }
 }

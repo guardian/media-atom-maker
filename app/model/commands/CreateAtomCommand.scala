@@ -6,6 +6,7 @@ import java.util.UUID._
 import com.gu.atom.data.{IDConflictError, PreviewDataStore}
 import com.gu.atom.publish.PreviewAtomPublisher
 import com.gu.contentatom.thrift._
+import data.AuditDataStore
 import model.{Image, MediaAtom}
 import model.commands.CommandExceptions._
 import org.cvogt.play.json.Jsonx
@@ -31,7 +32,9 @@ object CreateAtomCommandData {
 
 case class CreateAtomCommand(data: CreateAtomCommandData)
                             (implicit previewDataStore: PreviewDataStore,
-                             previewPublisher: PreviewAtomPublisher) extends Command {
+                             previewPublisher: PreviewAtomPublisher,
+                             auditDataStore: AuditDataStore,
+                             username: Option[String]) extends Command {
   type T = MediaAtom
 
   def process() = {
@@ -58,6 +61,8 @@ case class CreateAtomCommand(data: CreateAtomCommandData)
       )),
       contentChangeDetails = ContentChangeDetails(None, None, None, 1L)
     )
+
+    auditDataStore.auditCreate(atom.id, username)
 
     previewDataStore.createAtom(atom).fold({
         case IDConflictError => AtomIdConflict

@@ -68,12 +68,18 @@ Resources:
       AttributeDefinitions:
         - AttributeName: "atomId"
           AttributeType: "S"
+        - AttributeName: "operation"
+          AttributeType: "S"
+        - AttributeName: "date"
+          AttributeType: "N"
       KeySchema:
         - AttributeName: "atomId"
           KeyType: "HASH"
+        - AttributeName: "date"
+          KeyType: "RANGE"
       ProvisionedThroughput:
-        - ReadCapacityUnits: "5"
-          WriteCapacityUnits: "5"
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
       GlobalSecondaryIndexes:
         -
           IndexName: "operation-date-index"

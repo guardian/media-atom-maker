@@ -41,6 +41,7 @@ class AWSConfig @Inject() (config: Configuration) {
 
   lazy val dynamoTableName = config.getString("aws.dynamo.tableName").get
   lazy val publishedDynamoTableName = config.getString("aws.dynamo.publishedTableName").get
+  lazy val auditDynamoTableName = config.getString("aws.dynamo.auditTableName").get
 
   lazy val liveKinesisStreamName = config.getString("aws.kinesis.liveStreamName").get
   lazy val previewKinesisStreamName = config.getString("aws.kinesis.previewStreamName").get
@@ -50,8 +51,6 @@ class AWSConfig @Inject() (config: Configuration) {
 
   lazy val stage = config.getString("stage").getOrElse("DEV")
   lazy val readFromComposerAccount = config.getBoolean("readFromComposer").getOrElse(false)
-
-  lazy val auditTableName = config.getString("aws.dynamo.auditTableName").get
 
   lazy val kinesisClient = if (stage != "DEV" || readFromComposerAccount)
     getKinesisClient(atomsCredProvider)

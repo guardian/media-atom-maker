@@ -13,6 +13,7 @@ import com.gu.contentatom.thrift.{ChangeRecord, ContentAtomEvent, EventType, Ato
 import model.{ImageAsset, MediaAtom, UpdatedMetadata}
 import util.{YouTubeConfig, YouTubeVideoUpdateApi}
 import model.commands.CommandExceptions._
+import data.AuditDataStore
 
 import scala.util.{Failure, Success}
 import scala.util.control.NonFatal
@@ -21,7 +22,9 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
                                           val previewPublisher: PreviewAtomPublisher,
                                           val publishedDataStore: PublishedDataStore,
                                           val livePublisher: LiveAtomPublisher,
-                                          youtubeConfig: YouTubeConfig) extends Command with AtomAPIActions {
+                                          auditDataStore: AuditDataStore,
+                                          youtubeConfig: YouTubeConfig,
+                                          username: Option[String]) extends Command with AtomAPIActions {
   type T = MediaAtom
 
   def process(): T = {
@@ -55,8 +58,8 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
           )
         )
 
+        auditDataStore.auditPublish(id, username)
         publishAtomToPreviewAndLive(updatedAtom)
-
       }
       case None => AtomNotFound
     }

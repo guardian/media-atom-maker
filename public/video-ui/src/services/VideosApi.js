@@ -57,6 +57,12 @@ export default {
       contentType: 'application/json',
       data: JSON.stringify(video)
     })
-  }
+  },
 
+  fetchAudits: (atomId) => {
+    return pandaReqwest({
+      url: '/api2/audits/' + atomId,
+      method: 'get'
+    })
+  }
 }

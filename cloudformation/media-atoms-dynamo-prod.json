@@ -70,13 +70,26 @@
                     {
                         "AttributeName": "atomId",
                         "AttributeType": "S"
+                    },
+                    {
+                        "AttributeName": "operation",
+                        "AttributeType": "S"
+                    },
+                    {
+                        "AttributeName": "date",
+                        "AttributeType": "N"
                     }
                 ],
                 "KeySchema": [
                     {
                         "AttributeName": "atomId",
                         "KeyType": "HASH"
+                    },
+                    {
+                        "AttributeName": "date",
+                        "KeyType": "RANGE"
                     }
+
                 ],
                 "ProvisionedThroughput": {
                     "ReadCapacityUnits": "5",
