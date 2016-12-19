@@ -122,6 +122,22 @@ case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder {
       case _ => None
     }
 
+  def setStatusToPrivate(id: String): Option[Video] =
+    YouTubeVideoInfoApi(config).getVideo(id, "status") match {
+      case Some(video) => {
+        protectAgainstMistakesInDev(video)
+
+        video.getStatus.setPrivacyStatus(PrivacyStatus.Private.name)
+        Some(youtube.videos()
+          .update("snippet, status", video)
+          .setOnBehalfOfContentOwner(config.contentOwner)
+          .execute())
+
+      }
+      case _ => None
+
+    }
+
   def updateThumbnail(id: String, thumbnailUrl: URL, mimeType: String): Option[Video] = {
     YouTubeVideoInfoApi(config).getVideo(id, "snippet") match {
       case Some(video) => {
