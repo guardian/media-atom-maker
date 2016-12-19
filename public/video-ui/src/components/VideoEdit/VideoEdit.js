@@ -5,6 +5,7 @@ import VideoDurationEdit from './formComponents/VideoDuration';
 import FormFieldSaveWrapper from '../FormFields/FormFieldSaveWrapper';
 import VideoPosterEdit from './formComponents/VideoPoster';
 import YoutubeCategorySelect from './formComponents/YoutubeCategory';
+import VideoExpiryEdit from './formComponents/VideoExpiry';
 import YoutubeKeywordsSelect from './formComponents/YoutubeKeywords';
 import YoutubeChannelSelect from './formComponents/YoutubeChannel';
 import PrivacyStatusSelect from './formComponents/PrivacyStatus';
@@ -51,7 +52,17 @@ const VideoEdit = (props) => {
             editable={props.editable} />
 
           <Field
-            name="youtubeChannel"
+            name="videoExpiry"
+            name="expiry"
+            type="select"
+            component={VideoExpiryEdit}
+            component={YoutubeCategorySelect}
+            video={props.video}
+            updateVideo={props.updateVideo}
+            editable={props.editable} />
+
+          <Field
+            name="youtube-channel"
             type="select"
             component={YoutubeChannelSelect}
             video={props.video}
@@ -101,6 +112,14 @@ const VideoEdit = (props) => {
                 video={props.video}
                 updateVideo={props.updateVideo}
                 editable={props.editable} />
+            </FormFieldSaveWrapper>
+
+            <FormFieldSaveWrapper {...props}>
+              <Field
+                name="expiry"
+                type="number"
+                component={VideoExpiryEdit}
+                {...props} />
             </FormFieldSaveWrapper>
 
             <Field
