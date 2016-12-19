@@ -2,6 +2,7 @@ package controllers
 
 import javax.inject.Inject
 
+import akka.actor.ActorSystem
 import com.gu.atom.data.{PreviewDataStore, PublishedDataStore}
 import com.gu.atom.play.AtomAPIActions
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
@@ -12,7 +13,8 @@ import model.Category.Hosted
 import model.commands.CommandExceptions._
 import model.commands._
 import play.api.Configuration
-import util.{AWSConfig, YouTubeConfig}
+import model.commands.CommandExceptions._
+import util.{ YouTubeConfig, AWSConfig, ExpiryPoller}
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
 import model.{MediaAtom, UpdatedMetadata}
@@ -25,14 +27,24 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
                      val awsConfig: AWSConfig,
                      val authActions: HMACAuthActions,
                      val youtubeConfig: YouTubeConfig,
-                     implicit val auditDataStore: AuditDataStore)
+                     implicit val auditDataStore: AuditDataStore,
+                     val expiryPoller: ExpiryPoller,
+                      val system: ActorSystem)
+
   extends MediaAtomImplicits
     with AtomAPIActions
     with AtomController {
 
   import authActions.APIHMACAuthAction
 
+  initialize()
+
+  def initialize() = {
+    expiryPoller.start(system.scheduler)
+  }
+
   def getMediaAtoms = APIHMACAuthAction {
+
     previewDataStore.listAtoms.fold(
       err =>   InternalServerError(jsonError(err.msg)),
       atoms => {

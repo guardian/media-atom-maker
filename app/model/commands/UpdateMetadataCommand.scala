@@ -41,7 +41,9 @@ case class UpdateMetadataCommand(atomId: String,
               tags = metadata.tags,
               categoryId = metadata.categoryId,
               license = metadata.license,
-              privacyStatus = metadata.privacyStatus.flatMap(_.asThrift)))
+              privacyStatus = metadata.privacyStatus.flatMap(_.asThrift),
+              expiryDate = metadata.expiryDate
+            ))
 
             val activeYTAssetDuration = YouTubeVideoInfoApi(youtubeConfig).getDuration(youtubeAsset.id)
 
