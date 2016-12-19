@@ -67,6 +67,7 @@ export default {
       url: '/api2/audits/' + atomId,
       method: 'get'
     })
+  },
 
   getVideoUsages: (videoId) => {
     const capiProxyUrl = getStore().getState().config.capiProxyUrl;

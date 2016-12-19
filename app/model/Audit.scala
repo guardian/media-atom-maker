@@ -5,6 +5,12 @@ import org.cvogt.play.json.Jsonx
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Json
 
+object Audit {
+  implicit val auditFormat = Jsonx.formatCaseClass[Audit]
+
+  def fromItem(item: Item) = Json.parse(item.toJSON).as[Audit]
+}
+
 case class Audit(
   atomId: String,
   operation: String,
@@ -13,10 +19,4 @@ case class Audit(
   user: String) {
 
   def toItem = Item.fromJSON(Json.toJson(this).toString())
-}
-
-object Audit {
-  implicit val auditFormat = Jsonx.formatCaseClass[Audit]
-
-  def fromItem(item: Item) = Json.parse(item.toJSON).as[Audit]
 }

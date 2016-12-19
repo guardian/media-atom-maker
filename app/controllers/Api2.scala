@@ -99,6 +99,7 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   }
 
   def addAsset(atomId: String) = APIHMACAuthAction { implicit req =>
+    implicit val username = Option(req.user.email)
     req.body.asJson.map { json =>
       try {
         val videoId = (json \ "uri").as[String]
@@ -120,6 +121,7 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   private def atomUrl(id: String) = s"/atom/$id"
 
   def updateMetadata(atomId: String) = APIHMACAuthAction { implicit req =>
+    implicit val username = Option(req.user.email)
     req.body.asJson.map { json =>
       json.validate[UpdatedMetadata] match {
         case JsSuccess(metadata, _) =>
@@ -134,6 +136,7 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   }
 
   def setActiveAsset(atomId: String) = APIHMACAuthAction { implicit req =>
+    implicit val username = Option(req.user.email)
     req.body.asJson.map { json =>
       try {
         val videoId = (json \ "youtubeId").as[String]

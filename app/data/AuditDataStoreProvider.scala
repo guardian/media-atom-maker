@@ -44,6 +44,7 @@ class AuditDataStore(client: AmazonDynamoDBClient, auditDynamoTableName: String)
       .replaceAll("\\[*[0-9]+m", "") // Clean out the silly console coloring stuff
       .split('\n')
       .map(_.trim())
+      .filter(line => !line.contains("ERROR")) // More silly stuff from diffing library
       .filter(line => interestingFields.exists(line.contains))
       .mkString(", ")
 
