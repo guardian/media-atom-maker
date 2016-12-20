@@ -14,6 +14,12 @@ class VideoDisplay extends React.Component {
     editable: false
   };
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.video != this.props.video) {
+      this.props.videoActions.getAudits(nextProps.video.id);
+    }
+  }
+
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
   }
@@ -22,7 +28,7 @@ class VideoDisplay extends React.Component {
     this.props.videoActions.saveVideo(this.props.video);
     this.setState({
       editable: false
-    })
+    });
   };
 
   saveAndUpdateVideo = (video) => {
@@ -110,7 +116,7 @@ class VideoDisplay extends React.Component {
 
             <div className="video__detailbox">
               <span className="video__detailbox__header">Atom Audit Trail</span>
-              <VideoAuditTrail video={this.props.video || {}} />
+              <VideoAuditTrail video={this.props.video || {}} audits={this.props.audits || []}/>
             </div>
           </div>
         </div>
@@ -128,6 +134,7 @@ import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as publishVideo from '../../actions/VideoActions/publishVideo';
 import * as videoUsages from '../../actions/VideoActions/videoUsages';
 import * as videoPageCreate from '../../actions/VideoActions/videoPageCreate';
+import * as getAudits from '../../actions/VideoActions/getAudits';
 
 function mapStateToProps(state) {
   return {
@@ -135,13 +142,14 @@ function mapStateToProps(state) {
     saveState: state.saveState,
     config: state.config,
     usages: state.usage,
-    composerPageWithUsage: state.pageCreate
+    composerPageWithUsage: state.pageCreate,
+    audits: state.audits
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, publishVideo, videoUsages, videoPageCreate), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, publishVideo, videoUsages, videoPageCreate, getAudits), dispatch)
   };
 }
 

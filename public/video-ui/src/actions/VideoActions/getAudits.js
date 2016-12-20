@@ -30,9 +30,7 @@ export function getAudits(id) {
   return dispatch => {
     dispatch(requestAudits(id));
     return VideosApi.fetchAudits(id)
-        .then(res => {
-          dispatch(receiveAudits(res));
-        })
+        .then(res => dispatch(receiveAudits(res)))
         .catch(error => dispatch(errorReceivingAudits(error)));
   };
 }
