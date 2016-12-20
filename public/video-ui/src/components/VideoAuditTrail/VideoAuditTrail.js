@@ -9,34 +9,68 @@ class VideoAuditTrail extends React.Component {
     }
   }
 
+  state = {
+    renderAll: false
+  };
+
+  showAll = () => {
+    this.setState({
+      renderAll: true
+    });
+  };
+
   renderAudit(audit) {
       const itemTime = moment(audit.date, 'x');
 
       return (
-        <tbody key={audit.date}>
-          <tr>
-            <td>{itemTime.format('HH:mm:ss DD/MM/YYYY')}</td>
-            <td>{audit.operation}</td>
-            <td>{audit.description}</td>
-            <td>{audit.user}</td>
-          </tr>
-        </tbody>);
+        <tr key={audit.date}>
+          <td>{itemTime.format('HH:mm:ss DD/MM/YYYY')}</td>
+          <td>{audit.operation}</td>
+          <td>{audit.description}</td>
+          <td>{audit.user}</td>
+        </tr>
+      );
+  }
+
+  renderList() {
+    const audits = this.props.audits.map(x => x).sort((a, b) => {
+      if (a.date < b.date) {
+        return 1;
+      }
+      if (a.date > b.date) {
+        return -1;
+      }
+      return 0;
+    });
+
+    if (this.state.renderAll) {
+      return (<tbody>{audits.map((a) => this.renderAudit(a))}</tbody>);
+    } else {
+      return (<tbody>{audits.slice(0, 5).map((a) => this.renderAudit(a))}</tbody>);
+    }
+  }
+
+  renderExpandButton() {
+      return (<button className="video-assets__show-btn" type="button" onClick={this.showAll}>Show all audits</button>);
   }
 
   render() {
     if (this.props.audits) {
       return (
-        <table className='table'>
-          <thead className='table__header'>
-            <tr className='table__header-row'>
-              <th>Date</th>
-              <th>Operation</th>
-              <th>Description</th>
-              <th>User</th>
-            </tr>
-          </thead>
-          {this.props.audits.map((a) => this.renderAudit(a))}
-        </table>
+        <div>
+          <table className='table'>
+            <thead className='table__header'>
+              <tr className='table__header-row'>
+                <th>Date</th>
+                <th>Operation</th>
+                <th>Description</th>
+                <th>User</th>
+              </tr>
+            </thead>
+            {this.renderList()}
+          </table>
+          {!this.state.renderAll && this.props.audits.length > 5 ? this.renderExpandButton() : false}
+        </div>
       );
     }
 
@@ -50,7 +84,6 @@ import { bindActionCreators } from 'redux';
 import * as getAudits from '../../actions/VideoActions/getAudits';
 
 function mapStateToProps(state) {
-  console.log(state);
   return {
     audits: state.audits
   };
