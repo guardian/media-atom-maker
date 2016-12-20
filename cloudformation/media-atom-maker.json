@@ -51,6 +51,10 @@
         "PublishedAtomMakerTable": {
             "Description": "Name of the published media atom dynamo table",
             "Type": "String"
+        },
+        "AuditTable": {
+            "Description": "Name of the audit dynamo table",
+            "Type": "String"
         }
     },
     "Mappings": {
@@ -69,7 +73,7 @@
             }
         }
     },
-    
+
     "Resources": {
         "MediaMakerInstanceProfile": {
             "Type": "AWS::IAM::InstanceProfile",
@@ -329,6 +333,7 @@
                                 "cat >> /home/media-service/media-atom-maker/conf/application.conf<<'EOF'\n",
                                 "aws.dynamo.tableName=", { "Ref": "AtomMakerTable" }, "\n",
                                 "aws.dynamo.publishedTableName=", { "Ref": "PublishedAtomMakerTable" }, "\n",
+                                "aws.dynamo.auditTableName=", { "Ref": "AuditTable" }, "\n",
                                 "EOF\n",
 
                                 "systemctl start media-atom-maker\n"
@@ -404,7 +409,15 @@
                             "Resource": {
                                 "Fn::Join": ["", ["arn:aws:dynamodb:", {"Ref": "AWS::Region"}, ":", {"Ref": "AWS::AccountId"}, ":table/", {"Ref": "PublishedAtomMakerTable"} ] ]
                             }
+                        },
+                        {
+                            "Action": [ "dynamodb:*" ],
+                            "Effect": "Allow",
+                            "Resource": {
+                                "Fn::Join": ["", ["arn:aws:dynamodb:", {"Ref": "AWS::Region"}, ":", {"Ref": "AWS::AccountId"}, ":table/", {"Ref": "AuditTable"} ] ]
+                            }
                         }
+
                     ]
                 },
                 "Roles": [
