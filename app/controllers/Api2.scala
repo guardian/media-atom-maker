@@ -6,6 +6,8 @@ import com.gu.atom.data.{PreviewDataStore, PublishedDataStore}
 import com.gu.atom.play.AtomAPIActions
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import com.gu.pandahmac.HMACAuthActions
+import data.JsonConversions._
+import data.AuditDataStore
 import model.Category.Hosted
 import model.commands.CommandExceptions._
 import model.commands._
@@ -22,7 +24,8 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
                      val conf: Configuration,
                      val awsConfig: AWSConfig,
                      val authActions: HMACAuthActions,
-                     val youtubeConfig: YouTubeConfig)
+                     val youtubeConfig: YouTubeConfig,
+                     implicit val auditDataStore: AuditDataStore)
   extends MediaAtomImplicits
     with AtomAPIActions
     with AtomController {
@@ -53,6 +56,7 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   }
 
   def publishMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
+    implicit val username = Option(req.user.email)
     try {
       val updatedAtom = PublishAtomCommand(id).process()
       Ok(Json.toJson(updatedAtom))
@@ -62,6 +66,7 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   }
 
   def createMediaAtom = APIHMACAuthAction { implicit req =>
+    implicit val username = Option(req.user.email)
     req.body.asJson.map { json =>
       try {
         val request = json.as[CreateAtomCommandData]
@@ -79,6 +84,7 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   }
 
   def putMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
+    implicit val username = Option(req.user.email)
     req.body.asJson.map { json =>
       try {
         val atom = json.as[MediaAtom]
@@ -93,6 +99,7 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   }
 
   def addAsset(atomId: String) = APIHMACAuthAction { implicit req =>
+    implicit val username = Option(req.user.email)
     req.body.asJson.map { json =>
       try {
         val videoId = (json \ "uri").as[String]
@@ -114,6 +121,7 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   private def atomUrl(id: String) = s"/atom/$id"
 
   def updateMetadata(atomId: String) = APIHMACAuthAction { implicit req =>
+    implicit val username = Option(req.user.email)
     req.body.asJson.map { json =>
       json.validate[UpdatedMetadata] match {
         case JsSuccess(metadata, _) =>
@@ -128,6 +136,7 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   }
 
   def setActiveAsset(atomId: String) = APIHMACAuthAction { implicit req =>
+    implicit val username = Option(req.user.email)
     req.body.asJson.map { json =>
       try {
         val videoId = (json \ "youtubeId").as[String]
@@ -139,5 +148,9 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
     }.getOrElse {
       BadRequest("Could not read json")
     }
+  }
+
+  def getAuditTrailForAtomId(id: String) = APIHMACAuthAction { implicit req =>
+    Ok(Json.toJson(auditDataStore.getAuditTrailForAtomId(id)))
   }
 }

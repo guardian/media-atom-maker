@@ -55,6 +55,7 @@ class AWSConfig @Inject() (config: Configuration) {
 
   lazy val dynamoTableName = config.getString("aws.dynamo.tableName").get
   lazy val publishedDynamoTableName = config.getString("aws.dynamo.publishedTableName").get
+  lazy val auditDynamoTableName = config.getString("aws.dynamo.auditTableName").get
 
   lazy val liveKinesisStreamName = config.getString("aws.kinesis.liveStreamName").get
   lazy val previewKinesisStreamName = config.getString("aws.kinesis.previewStreamName").get

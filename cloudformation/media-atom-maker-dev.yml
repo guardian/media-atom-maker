@@ -62,6 +62,39 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: "10"
         WriteCapacityUnits: "5"
+  AuditMediaAtomMakerDynamoTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "atomId"
+          AttributeType: "S"
+        - AttributeName: "operation"
+          AttributeType: "S"
+        - AttributeName: "date"
+          AttributeType: "N"
+      KeySchema:
+        - AttributeName: "atomId"
+          KeyType: "HASH"
+        - AttributeName: "date"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      GlobalSecondaryIndexes:
+        -
+          IndexName: "operation-date-index"
+          KeySchema:
+            -
+              AttributeName: "operation"
+              KeyType: "HASH"
+            -
+              AttributeName: "date"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: "ALL"
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
 Outputs:
   EditsDynamoTable:
     Value:
@@ -69,6 +102,9 @@ Outputs:
   PublishedDynamoTable:
     Value:
       Ref: "PublishedMediaAtomsDynamoTable"
+  AuditsDynamoTable:
+    Value:
+      Ref: "AuditMediaAtomMakerDynamoTable"
   AwsId:
     Value:
       Ref: "HostKeys"

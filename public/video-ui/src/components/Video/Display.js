@@ -5,6 +5,7 @@ import VideoPublishBar from '../VideoPublishBar/VideoPublishBar';
 import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoUsages from '../VideoUsages/VideoUsages';
+import VideoAuditTrail from '../VideoAuditTrail/VideoAuditTrail';
 import VideoPage from '../VideoPage/VideoPage';
 
 class VideoDisplay extends React.Component {
@@ -105,6 +106,11 @@ class VideoDisplay extends React.Component {
             </div>
             <div className="video__detailbox">
               <VideoAssets video={this.props.video || {}} />
+            </div>
+
+            <div className="video__detailbox">
+              <span className="video__detailbox__header">Atom Audit Trail</span>
+              <VideoAuditTrail video={this.props.video || {}} />
             </div>
           </div>
         </div>

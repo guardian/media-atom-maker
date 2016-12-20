@@ -9,6 +9,7 @@ import model.{MediaAtom, UpdatedMetadata}
 import model.commands.CommandExceptions._
 import util.{YouTubeConfig, YouTubeVideoInfoApi, YouTubeVideoUpdateApi}
 import util.atom.MediaAtomImplicits
+import data.AuditDataStore
 
 import scala.util.{Failure, Success}
 
@@ -16,7 +17,9 @@ case class UpdateMetadataCommand(atomId: String,
                                  metadata: UpdatedMetadata)
                                 (implicit previewDataStore: PreviewDataStore,
                                  previewPublisher: PreviewAtomPublisher,
-                                 val youtubeConfig: YouTubeConfig)
+                                 val youtubeConfig: YouTubeConfig,
+                                 auditDataStore: AuditDataStore,
+                                 username: Option[String])
     extends Command
     with MediaAtomImplicits {
 

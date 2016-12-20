@@ -12,6 +12,7 @@ import com.gu.contentatom.thrift.atom.media.{Asset, Platform}
 import model.MediaAtom
 import util.{ThriftUtil, YouTubeConfig, YouTubeVideoInfoApi}
 import util.atom.MediaAtomImplicits
+import data.AuditDataStore
 
 import scala.util.{Failure, Success}
 
@@ -21,7 +22,9 @@ case class AddAssetCommand(atomId: String,
                            mimeType: Option[String])
                           (implicit previewDataStore: PreviewDataStore,
                            previewPublisher: PreviewAtomPublisher,
-                           val youtubeConfig: YouTubeConfig)
+                           val youtubeConfig: YouTubeConfig,
+                           auditDataStore: AuditDataStore,
+                           username: Option[String])
     extends Command
     with MediaAtomImplicits {
 

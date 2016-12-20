@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
 import asset from './assetReducer';
+import audits from './auditReducer';
 import config from './configReducer';
 import error from './errorReducer';
 import video from './videoReducer';
@@ -13,6 +14,7 @@ import pageCreate from './composerPageReducer';
 
 export default combineReducers({
   asset,
+  audits,
   config,
   error,
   video,

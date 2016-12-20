@@ -62,6 +62,13 @@ export default {
     })
   },
 
+  fetchAudits: (atomId) => {
+    return pandaReqwest({
+      url: '/api2/audits/' + atomId,
+      method: 'get'
+    })
+  },
+
   getVideoUsages: (videoId) => {
     const capiProxyUrl = getStore().getState().config.capiProxyUrl;
     return pandaReqwest({

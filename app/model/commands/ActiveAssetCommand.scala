@@ -8,6 +8,7 @@ import CommandExceptions._
 
 import play.api.Logger
 
+import data.AuditDataStore
 import model.{MediaAtom}
 import com.gu.atom.data.{PreviewDataStore, PublishedDataStore}
 import com.gu.atom.publish.{PreviewAtomPublisher, LiveAtomPublisher}
@@ -20,7 +21,9 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
                               previewPublisher: PreviewAtomPublisher,
                               publishedDataStore: PublishedDataStore,
                               livePublisher: LiveAtomPublisher,
-                              val youtubeConfig: YouTubeConfig)
+                              val youtubeConfig: YouTubeConfig,
+                              auditDataStore: AuditDataStore,
+                              username: Option[String])
   extends Command
   with MediaAtomImplicits {
 
