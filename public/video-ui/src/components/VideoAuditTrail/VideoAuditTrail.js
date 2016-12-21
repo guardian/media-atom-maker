@@ -1,13 +1,7 @@
 import React, {PropTypes}  from 'react';
 import moment from 'moment';
 
-class VideoAuditTrail extends React.Component {
-
-  componentDidMount() {
-    if (this.props.video) {
-      this.props.videoActions.getAudits(this.props.video.id);
-    }
-  }
+export default class VideoAuditTrail extends React.Component {
 
   state = {
     renderAll: false
@@ -33,15 +27,7 @@ class VideoAuditTrail extends React.Component {
   }
 
   renderList() {
-    const audits = this.props.audits.map(x => x).sort((a, b) => {
-      if (a.date < b.date) {
-        return 1;
-      }
-      if (a.date > b.date) {
-        return -1;
-      }
-      return 0;
-    });
+    const audits = this.props.audits.map(x => x).sort((a, b) => b.date - a.date);
 
     if (this.state.renderAll) {
       return (<tbody>{audits.map((a) => this.renderAudit(a))}</tbody>);
@@ -77,22 +63,3 @@ class VideoAuditTrail extends React.Component {
     return (<div>Loading...</div>);
   }
 }
-
-//REDUX CONNECTIONS
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import * as getAudits from '../../actions/VideoActions/getAudits';
-
-function mapStateToProps(state) {
-  return {
-    audits: state.audits
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    videoActions: bindActionCreators(Object.assign({}, getAudits), dispatch)
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(VideoAuditTrail);
