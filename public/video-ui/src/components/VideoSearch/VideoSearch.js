@@ -1,4 +1,5 @@
 import React from 'react'
+import {saveStateVals} from '../../constants/saveStateVals';
 
 export default class VideoSearch extends React.Component {
 
@@ -6,10 +7,14 @@ export default class VideoSearch extends React.Component {
     this.props.updateSearchTerm(e.target.value);
   };
 
+  searchInProgress = () => {
+    return this.props.searching === saveStateVals.inprogress;
+  };
+
   render () {
     return (
       <form className="form topbar__search">
-        <input className="form__field" type="search" value={this.props.searchTerm || ''} onChange={this.onSearch} placeholder={"Search for videos..."} />
+        <input className={'form__field' + (this.searchInProgress() ? ' form__field--loading' : '')} type="search" value={this.props.searchTerm || ''} onChange={this.onSearch} placeholder={"Search for videos..."} />
       </form>
     )
   }

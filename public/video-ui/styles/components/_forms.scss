@@ -11,6 +11,7 @@
 }
 
 .form__field {
+  position: relative;
   padding: 5px;
   font-size: 12px;
   border: 1px solid $color500Grey;
@@ -54,6 +55,15 @@
 
   &--error {
     border-color: $dangerColor;
+  }
+
+  &--loading {
+    background: {
+      image: url(/assets/video-ui/images/progress-spinner.gif);
+      position: center right 10px;
+      repeat: no-repeat;
+      size: 16px 16px;
+    }
   }
 
 }
