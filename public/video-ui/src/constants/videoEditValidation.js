@@ -3,6 +3,7 @@ const validate = (values) => {
   if (!values) {
     return {};
   }
+  // Required fields
   if (!values.title) {
     errors.title = 'Required'
   }
@@ -14,6 +15,19 @@ const validate = (values) => {
   }
   if (!values.duration) {
     errors.duration = 'Required'
+  }
+  if(!values.youtubeCategory) {
+    errors.youtubeCategory = 'Required'
+  }
+  if(!values.youtubeChannel) {
+    errors.youtubeChannel = 'Required'
+  }
+  if(!values.privacyStatus) {
+    errors.privacyStatus = 'Required'
+  }
+  // Data errors
+  if (values.duration <= 0) {
+    errors.duration = 'The duration must be longer than 0 seconds'
   }
   return errors
 };

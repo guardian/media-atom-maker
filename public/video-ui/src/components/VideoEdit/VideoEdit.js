@@ -34,18 +34,18 @@ const VideoEdit = (props) => {
           <Field name="posterImage" component={VideoPosterEdit} {...props} />
 
           <Field
-            name="youtube-category"
+            name="youtubeCategory"
             type="select"
             component={YoutubeCategorySelect}
             {...props} />
 
           <Field
-            name="youtube-channel"
+            name="youtubeChannel"
             type="select"
             component={YoutubeChannelSelect}
             {...props} />
 
-          <Field name="privacy-status"
+          <Field name="privacyStatus"
                  type="text"
                  component={PrivacyStatusSelect}
                  {...props} />
@@ -92,22 +92,22 @@ const VideoEdit = (props) => {
           <div className="form__group">
             <div className="form__group__header">Youtube Metadata</div>
 
-            <Field
-              name="youtube-channel"
-              type="select"
-              component={YoutubeChannelSelect}
-              {...props} />
-
             <FormFieldSaveWrapper {...props}>
               <Field
-                name="youtube-category"
+                name="youtubeCategory"
                 type="select"
                 component={YoutubeCategorySelect}
                 {...props} />
             </FormFieldSaveWrapper>
 
+            <Field
+              name="youtubeChannel"
+              type="select"
+              component={YoutubeChannelSelect}
+              {...props} />
+
             <FormFieldSaveWrapper {...props}>
-              <Field name="privacy-status"
+              <Field name="privacyStatus"
                      type="text"
                      component={PrivacyStatusSelect}
                      {...props} />
