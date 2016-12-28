@@ -20,7 +20,10 @@ export default class PrivacyStatusSelect extends React.Component {
         fieldValue={this.props.video.privacyStatus}
         selectValues={privacyStates || []}
         onUpdateField={this.updatePrivacyStatus}
-        {...this.props} />
+        video={this.props.video}
+        editable={this.props.editable}
+        input={this.props.input}
+        meta={this.props.meta} />
     );
   }
 }
