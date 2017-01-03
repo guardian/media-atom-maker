@@ -2,11 +2,14 @@ package data
 
 import ai.x.diff.DiffShow
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
-import com.amazonaws.services.dynamodbv2.document.DynamoDB
-import javax.inject.{ Inject, Provider }
+import com.amazonaws.services.dynamodbv2.document.{DynamoDB, PutItemOutcome}
+import javax.inject.{Inject, Provider}
+
+import com.gu.pandomainauth.model.{User => PandaUser}
 import util.AWSConfig
 import org.joda.time.DateTime
-import model.{MediaAtom, Audit}
+import model.{Audit, MediaAtom}
+
 import scala.collection.JavaConversions._
 
 class AuditDataStoreProvider @Inject() (awsConfig: AWSConfig)
@@ -21,18 +24,25 @@ class AuditDataStore(client: AmazonDynamoDBClient, auditDynamoTableName: String)
     db.query("atomId", id).map(Audit.fromItem).toList
   }
 
-  def auditPublish(atomId: String, username: Option[String]) = {
-    val audit = Audit(atomId, "publish", None, DateTime.now().getMillis, username.getOrElse("unknown user"))
+  private def getUsername (user: PandaUser): String = {
+    user.email match {
+      case "" => user.firstName
+      case _ => user.email
+    }
+  }
+
+  def auditPublish(atomId: String, user: PandaUser): PutItemOutcome = {
+    val audit = Audit(atomId, "publish", None, DateTime.now().getMillis, getUsername(user))
     db.putItem(audit.toItem)
   }
 
-  def auditCreate(atomId: String, username: Option[String]) = {
-    val audit = Audit(atomId, "create", None, DateTime.now().getMillis, username.getOrElse("unknown user"))
+  def auditCreate(atomId: String, user: PandaUser) = {
+    val audit = Audit(atomId, "create", None, DateTime.now().getMillis, getUsername(user))
     db.putItem(audit.toItem)
   }
 
-  def auditUpdate(atomId: String, username: Option[String], description: String) = {
-    val audit = Audit(atomId, "update", Some(description), DateTime.now().getMillis, username.getOrElse("unknown user"))
+  def auditUpdate(atomId: String, user: PandaUser, description: String) = {
+    val audit = Audit(atomId, "update", Some(description), DateTime.now().getMillis, getUsername(user))
     db.putItem(audit.toItem)
   }
 

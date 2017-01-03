@@ -16,6 +16,8 @@ import com.gu.contentatom.thrift.atom.media.Asset
 import util.atom.MediaAtomImplicits
 import util.{YoutubeResponse, YouTubeConfig, YouTubeVideoInfoApi, SuccesfulYoutubeResponse, YoutubeException}
 
+import com.gu.pandomainauth.model.{User => PandaUser}
+
 case class ActiveAssetCommand(atomId: String, youtubeId: String)
                              (implicit previewDataStore: PreviewDataStore,
                               previewPublisher: PreviewAtomPublisher,
@@ -23,7 +25,7 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
                               livePublisher: LiveAtomPublisher,
                               val youtubeConfig: YouTubeConfig,
                               auditDataStore: AuditDataStore,
-                              username: Option[String])
+                              user: PandaUser)
   extends Command
   with MediaAtomImplicits {
 

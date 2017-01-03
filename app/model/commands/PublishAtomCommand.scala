@@ -18,13 +18,15 @@ import data.AuditDataStore
 import scala.util.{Failure, Success}
 import scala.util.control.NonFatal
 
+import com.gu.pandomainauth.model.{User => PandaUser}
+
 case class PublishAtomCommand(id: String)(implicit val previewDataStore: PreviewDataStore,
                                           val previewPublisher: PreviewAtomPublisher,
                                           val publishedDataStore: PublishedDataStore,
                                           val livePublisher: LiveAtomPublisher,
                                           auditDataStore: AuditDataStore,
                                           youtubeConfig: YouTubeConfig,
-                                          username: Option[String]) extends Command with AtomAPIActions {
+                                          user: PandaUser) extends Command with AtomAPIActions {
   type T = MediaAtom
 
   def process(): T = {
@@ -59,7 +61,7 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
           )
         )
 
-        auditDataStore.auditPublish(id, username)
+        auditDataStore.auditPublish(id, user)
         UpdateAtomCommand(id, MediaAtom.fromThrift(updatedAtom)).process()
 
         publishAtomToLive(updatedAtom)
