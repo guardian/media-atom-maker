@@ -170,7 +170,7 @@ const VideoEdit = (props) => {
             </FormFieldSaveWrapper>
 
             <Field
-              name="youtube-keywords"
+              name="youtubeKeywords"
               component={YoutubeKeywordsSelect}
               video={props.video}
               updateVideo={props.updateVideo}

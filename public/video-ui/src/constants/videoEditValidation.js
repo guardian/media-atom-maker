@@ -25,10 +25,6 @@ const validate = (values) => {
   if(!values.privacyStatus) {
     errors.privacyStatus = 'Required'
   }
-  // Data errors
-  if (values.duration <= 0) {
-    errors.duration = 'The duration must be longer than 0 seconds'
-  }
   return errors
 };
 
