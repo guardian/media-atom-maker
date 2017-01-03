@@ -28,6 +28,7 @@ PUBLISHED_REINDEX_STREAM_NAME=${LIVE_STREAM_NAME}
 
 DYNAMO_TABLE=$(get_resource "MediaAtomsDynamoTable")
 DYNAMO_PUBLISHED_TABLE=$(get_resource "PublishedMediaAtomsDynamoTable")
+DYNAMO_AUDIT_TABLE=$(get_resource "AuditMediaAtomMakerDynamoTable")
 
 sed -e "s/{DOMAIN}/${DOMAIN}/g" \
     -e "s/{PANDA_PROFILE}/${PANDA_AWS_PROFILE}/g" \
@@ -38,6 +39,7 @@ sed -e "s/{DOMAIN}/${DOMAIN}/g" \
     -e "s/{PUBLISHED_REINDEX_STREAM_NAME}/${PUBLISHED_REINDEX_STREAM_NAME}/g" \
     -e "s/{DYNAMO_TABLE}/${DYNAMO_TABLE}/g" \
     -e "s/{DYNAMO_PUBLISHED_TABLE}/${DYNAMO_PUBLISHED_TABLE}/g" \
+    -e "s/{DYNAMO_AUDIT_TABLE}/${DYNAMO_AUDIT_TABLE}/g" \
     ../conf/reference.conf > ../conf/application.conf
 
 aws s3 cp s3://atom-maker-dist/conf/youtube-DEV.conf ../conf/youtube-DEV.conf
