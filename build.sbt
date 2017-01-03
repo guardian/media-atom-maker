@@ -10,7 +10,6 @@ resolvers += "Guardian Bintray" at "https://dl.bintray.com/guardian/editorial-to
 
 libraryDependencies ++= Seq(
   "ai.x"                       %% "diff"                         % "1.2.0",
-  "com.gu"                     %% "content-atom-model"           % contentAtomVersion,
   "org.apache.thrift"          %  "libthrift"                    % "0.9.3",
   "com.twitter"                %% "scrooge-core"                 % scroogeVersion,
   "com.twitter"                %% "scrooge-serializer"           % scroogeVersion,
