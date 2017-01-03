@@ -3,6 +3,7 @@ package util
 import java.util.Date
 import javax.inject.Inject
 import akka.actor.Scheduler
+import data.AuditDataStore
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -19,7 +20,8 @@ case class ExpiryPoller @Inject () (
                         implicit val publishedDataStore: PublishedDataStore,
                         previewPublisher: PreviewAtomPublisher,
                         livePublisher: LiveAtomPublisher,
-                        youtubeConfig: YouTubeConfig
+                        youtubeConfig: YouTubeConfig,
+                        implicit val auditDataStore: AuditDataStore
                        ){
   def start(scheduler: Scheduler): Unit = {
 
@@ -30,6 +32,7 @@ case class ExpiryPoller @Inject () (
   def checkExpiryDates(): Unit = {
 
     val timeNow = new Date().getTime
+    implicit val username = Some("ExpiryPoller")
 
     previewDataStore.listAtoms.map(atoms => {
       atoms.foreach(thriftAtom => {
