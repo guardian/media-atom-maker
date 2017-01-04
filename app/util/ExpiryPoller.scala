@@ -10,7 +10,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import model.commands.{PublishAtomCommand, UpdateAtomCommand}
 import com.gu.atom.data.{PublishedDataStore, PreviewDataStore}
-
+import com.gu.pandomainauth.model.{User => PandaUser}
 
 case class ExpiryPoller @Inject () (
                         implicit val previewDataStore: PreviewDataStore,
@@ -29,7 +29,7 @@ case class ExpiryPoller @Inject () (
   def checkExpiryDates(): Unit = {
 
     val timeNow = new Date().getTime
-    implicit val username = Some("ExpiryPoller")
+    implicit val username = PandaUser("Expiry", "Poller", "digitalcms.dev@guardian.co.uk", None)
 
     previewDataStore.listAtoms.map(atoms => {
       atoms.foreach(atom => {
