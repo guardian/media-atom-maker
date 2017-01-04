@@ -10,7 +10,10 @@ export default React.createClass({
       startDate: date
     });
 
-    this.props.onUpdateField(date.valueOf());
+    if (date) {
+      return this.props.onUpdateField(date.valueOf());
+    }
+    return this.props.onUpdateField(null);
   },
 
   getInitialState() {
