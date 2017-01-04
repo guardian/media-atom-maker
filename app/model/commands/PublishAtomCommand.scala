@@ -50,8 +50,14 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
           case None => Logger.info(s"No active YouTube asset found for atom: ${id}")
         }
 
-        api.updateMetadata(id, UpdatedMetadata(atom.description, Some(atom.tags), atom.youtubeCategoryId, atom.license,
-          atom.privacyStatus, atom.expiryDate))
+        api.updateMetadata(id, UpdatedMetadata(
+          atom.description,
+          Some(atom.tags),
+          atom.youtubeCategoryId,
+          atom.license,
+          atom.privacyStatus,
+          atom.expiryDate,
+          atom.plutoProjectId))
 
         val changeRecord = ChangeRecord((new Date()).getTime(), None) // Todo: User...
         val updatedAtom = thriftAtom.copy(
