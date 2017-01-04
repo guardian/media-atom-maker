@@ -57,7 +57,6 @@ const VideoEdit = (props) => {
             name="expiry"
             type="select"
             component={VideoExpiryEdit}
-            component={YoutubeCategorySelect}
             video={props.video}
             updateVideo={props.updateVideo}
             editable={props.editable} />
@@ -120,7 +119,9 @@ const VideoEdit = (props) => {
                 name="expiry"
                 type="number"
                 component={VideoExpiryEdit}
-                {...props} />
+                video={props.video}
+                updateVideo={props.updateVideo}
+                editable={props.editable} />
             </FormFieldSaveWrapper>
 
             <Field
