@@ -73,6 +73,9 @@ class AWSConfig @Inject() (config: Configuration) {
   else
     getKinesisClient(credProvider)
 
+  lazy val expiryPollerName = "Expiry"
+  lazy val expiryPollerLastName = "Poller"
+
   private def getKinesisClient(credentialsProvider: AWSCredentialsProviderChain) = region.createClient(
     classOf[AmazonKinesisClient],
     credentialsProvider,

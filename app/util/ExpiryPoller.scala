@@ -18,7 +18,8 @@ case class ExpiryPoller @Inject () (
                         previewPublisher: PreviewAtomPublisher,
                         livePublisher: LiveAtomPublisher,
                         youtubeConfig: YouTubeConfig,
-                        implicit val auditDataStore: AuditDataStore
+                        implicit val auditDataStore: AuditDataStore,
+                        val awsConfig: AWSConfig
                        ){
   def start(scheduler: Scheduler): Unit = {
 
@@ -29,7 +30,8 @@ case class ExpiryPoller @Inject () (
   def checkExpiryDates(): Unit = {
 
     val timeNow = new Date().getTime
-    implicit val username = PandaUser("Expiry", "Poller", "digitalcms.dev@guardian.co.uk", None)
+    implicit val username = PandaUser(awsConfig.expiryPollerName,
+      awsConfig.expiryPollerLastName, "expiryPoller", None)
 
     previewDataStore.listAtoms.map(atoms => {
       atoms.foreach(atom => {
