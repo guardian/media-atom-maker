@@ -59,7 +59,7 @@ export default function saveState(state = {
       return Object.assign({}, state, {
         searching: saveStateVals.inprogress
       });
-    case 'blah':
+    case 'VIDEOS_SEARCH_RECEIVE':
       return Object.assign({}, state, {
         searching: false
       });
