@@ -13,9 +13,9 @@ export default class VideoSearch extends React.Component {
 
   render () {
     return (
-      <form className="form topbar__search">
+      <div className="form topbar__search">
         <input className={'form__field' + (this.searchInProgress() ? ' form__field--loading' : '')} type="search" value={this.props.searchTerm || ''} onChange={this.onSearch} placeholder={"Search for videos..."} />
-      </form>
+      </div>
     )
   }
 }
