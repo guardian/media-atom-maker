@@ -112,7 +112,7 @@ const VideoEdit = (props) => {
               editable={props.editable} />
 
             <Field
-              name="content-flags"
+              name="contentFlags"
               component={ContentFlags}
               video={props.video}
               updateVideo={props.updateVideo}
