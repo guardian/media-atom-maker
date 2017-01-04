@@ -14,7 +14,7 @@ class ReactApp extends React.Component {
   render() {
     return (
         <div className="wrap">
-          <Header updateSearchTerm={this.updateSearchTerm} searchTerm={this.props.searchTerm} />
+          <Header updateSearchTerm={this.updateSearchTerm} searchTerm={this.props.searchTerm} searching={this.props.saveState.searching} />
           {this.props.error ? <div className="error-bar">{this.props.error}</div> : false}
           <div>
             {this.props.children}
@@ -32,6 +32,7 @@ import * as updateSearchTerm from '../actions/SearchActions/updateSearchTerm';
 function mapStateToProps(state) {
   return {
     searchTerm: state.searchTerm,
+    saveState: state.saveState,
     error: state.error
   };
 }

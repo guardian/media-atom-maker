@@ -2,7 +2,8 @@ import {saveStateVals} from '../constants/saveStateVals'
 
 export default function saveState(state = {
   saving: false,
-  publishing: false
+  publishing: false,
+  searching: false
 }, action) {
 
   switch (action.type) {
@@ -46,11 +47,22 @@ export default function saveState(state = {
     case 'VIDEO_PUBLISH_REQUEST':
       return Object.assign({}, state, {
         publishing: saveStateVals.inprogress
-      })
+      });
     case 'VIDEO_PUBLISH_RECEIVE':
       return Object.assign({}, state, {
         publishing: false
-      })
+      });
+
+    // Searching states
+
+    case 'VIDEOS_SEARCH_REQUEST':
+      return Object.assign({}, state, {
+        searching: saveStateVals.inprogress
+      });
+    case 'VIDEOS_SEARCH_RECEIVE':
+      return Object.assign({}, state, {
+        searching: false
+      });
     default:
       return state;
   }

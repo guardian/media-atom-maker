@@ -16,6 +16,21 @@ function receiveVideos(videos) {
   };
 }
 
+function requestSearchVideos() {
+  return {
+    type:       'VIDEOS_SEARCH_REQUEST',
+    receivedAt: Date.now()
+  };
+}
+
+function receiveSearchVideos(videos) {
+  return {
+    type:       'VIDEOS_SEARCH_RECEIVE',
+    videos:     videos,
+    receivedAt: Date.now()
+  };
+}
+
 function errorReceivingVideos(error) {
   return {
     type:       'SHOW_ERROR',
@@ -38,9 +53,8 @@ export function getVideos() {
 
 export function searchVideosWithQuery(query) {
   return dispatch => {
-    dispatch(requestVideos());
+    dispatch(requestSearchVideos());
     return searchText(query)
-      .catch(error => dispatch(errorReceivingVideos(error)))
       .then(res => {
         const capiAtoms = res.response.results;
         const atoms = capiAtoms.map((capiAtom) => {
@@ -51,7 +65,8 @@ export function searchVideosWithQuery(query) {
             assets: capiAtom.data.media.assets
           }
         });
-        dispatch(receiveVideos(atoms));
-      });
+        dispatch(receiveSearchVideos(atoms));
+      })
+      .catch(error => dispatch(errorReceivingVideos(error)));
   };
 }
