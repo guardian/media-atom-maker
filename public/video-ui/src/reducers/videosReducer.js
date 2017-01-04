@@ -3,7 +3,8 @@ export default function videos(state = [], action) {
 
     case 'VIDEOS_GET_RECEIVE':
       return action.videos || [];
-
+    case 'VIDEOS_SEARCH_RECEIVE':
+      return action.videos || [];
     default:
       return state;
   }

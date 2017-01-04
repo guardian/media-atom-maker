@@ -9,7 +9,7 @@ class ReactApp extends React.Component {
 
   updateSearchTerm = (searchTerm) => {
     this.props.updateSearchTermActions.updateSearchTerm(searchTerm);
-  }
+  };
 
   render() {
     return (
