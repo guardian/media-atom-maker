@@ -9,10 +9,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import model.commands.{PublishAtomCommand, UpdateAtomCommand}
-import play.api.Logger
 import com.gu.atom.data.{PublishedDataStore, PreviewDataStore}
-import model.{PrivacyStatus, MediaAtom}
-import model.Platform.Youtube
 
 
 case class ExpiryPoller @Inject () (
@@ -35,46 +32,22 @@ case class ExpiryPoller @Inject () (
     implicit val username = Some("ExpiryPoller")
 
     previewDataStore.listAtoms.map(atoms => {
-      atoms.foreach(thriftAtom => {
+      atoms.foreach(atom => {
 
-        val atom: MediaAtom = MediaAtom.fromThrift(thriftAtom)
-        val atomId = atom.id
+        YouTubeVideoUpdateApi(youtubeConfig).updateStatusIfExpired(atom) match {
+          case Some(expiredAtom) => {
+            UpdateAtomCommand(expiredAtom.id, expiredAtom).process()
 
-        atom.expiryDate match {
-          case Some(date) => {
+            publishedDataStore.getAtom(expiredAtom.id) match {
 
-            if (date <= timeNow && atom.privacyStatus.get != PrivacyStatus.Private) {
+              case Some(atom) => PublishAtomCommand(expiredAtom.id).process()
+              case _ =>
 
-              atom.assets.foreach(asset => {
-                if (asset.platform == Youtube) {
-                  try {
-                    YouTubeVideoUpdateApi(youtubeConfig).setStatusToPrivate(asset.id)
-                    val updatedAtom: MediaAtom = atom.copy(privacyStatus=Some(PrivacyStatus.Private))
-
-                    UpdateAtomCommand(atomId, updatedAtom).process()
-
-                    publishedDataStore.getAtom(atomId) match {
-
-                      case Some(atom) => PublishAtomCommand(atomId).process()
-                      case _ =>
-
-                    }
-
-                    Logger.info(s"marked video status for video $asset.id in atom $atomId as private")
-                  }
-                  catch {
-                    case e: Throwable => Logger.warn(s"could not mark video status in $asset.id in atom $atomId private $e")
-                  }
-                }
-              })
             }
           }
           case _ =>
-
         }
       })
-
-
     })
   }
 }

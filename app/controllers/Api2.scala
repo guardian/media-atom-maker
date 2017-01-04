@@ -6,6 +6,7 @@ import akka.actor.ActorSystem
 import com.gu.atom.data.{PreviewDataStore, PublishedDataStore}
 import com.gu.atom.play.AtomAPIActions
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
+import com.gu.contentatom.thrift.Atom
 import com.gu.pandahmac.HMACAuthActions
 import data.JsonConversions._
 import data.AuditDataStore
@@ -14,7 +15,7 @@ import model.commands.CommandExceptions._
 import model.commands._
 import play.api.Configuration
 import model.commands.CommandExceptions._
-import util.{ YouTubeConfig, AWSConfig, ExpiryPoller}
+import _root_.util.{YouTubeVideoUpdateApi, YouTubeConfig, AWSConfig, ExpiryPoller}
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
 import model.{MediaAtom, UpdatedMetadata}
@@ -100,7 +101,13 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
     req.body.asJson.map { json =>
       try {
         val atom = json.as[MediaAtom]
-        val updatedAtom = UpdateAtomCommand(id, atom).process()
+        val thriftAtom = atom.asThrift
+        val newAtom = YouTubeVideoUpdateApi(youtubeConfig).updateStatusIfExpired(thriftAtom) match {
+          case Some(expiredAtom) => expiredAtom
+          case _ => atom
+        }
+
+        val updatedAtom = UpdateAtomCommand(id, newAtom).process()
         Ok(Json.toJson(updatedAtom))
       } catch {
         commandExceptionAsResult
