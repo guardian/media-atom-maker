@@ -22,7 +22,10 @@ export default class VideoTitleEdit extends React.Component {
           fieldName="Title"
           fieldValue={this.props.video.title}
           onUpdateField={this.onUpdateTitle}
-          {...this.props} />
+          video={this.props.video}
+          editable={this.props.editable}
+          input={this.props.input}
+          meta={this.props.meta} />
     );
   }
 }

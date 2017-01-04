@@ -23,32 +23,48 @@ const VideoEdit = (props) => {
           name="title"
           type="text"
           component={VideoTitleEdit}
-          {...props} />
+          video={props.video}
+          updateVideo={props.updateVideo}
+          editable={props.editable} />
 
           <Field
             name="category"
             type="select"
             component={VideoCategorySelect}
-            {...props} />
-
-          <Field name="posterImage" component={VideoPosterEdit} {...props} />
+            video={props.video}
+            updateVideo={props.updateVideo}
+            editable={props.editable} />
 
           <Field
-            name="youtube-category"
+            name="posterImage"
+            component={VideoPosterEdit}
+            video={props.video}
+            updateVideo={props.updateVideo}
+            editable={props.editable} />
+
+          <Field
+            name="youtubeCategory"
             type="select"
             component={YoutubeCategorySelect}
-            {...props} />
+            video={props.video}
+            updateVideo={props.updateVideo}
+            editable={props.editable} />
 
           <Field
-            name="youtube-channel"
+            name="youtubeChannel"
             type="select"
             component={YoutubeChannelSelect}
-            {...props} />
+            video={props.video}
+            updateVideo={props.updateVideo}
+            editable={props.editable} />
 
-          <Field name="privacy-status"
-                 type="text"
-                 component={PrivacyStatusSelect}
-                 {...props} />
+          <Field
+            name="privacyStatus"
+            type="text"
+            component={PrivacyStatusSelect}
+            video={props.video}
+            updateVideo={props.updateVideo}
+            editable={props.editable} />
 
           <SaveButton saveState={props.saveState.saving} onSaveClick={props.saveVideo} onResetClick={props.resetVideo} />
         </div>
@@ -58,62 +74,107 @@ const VideoEdit = (props) => {
         <div>
           <div className="form__group">
             <div className="form__group__header">Video Metadata</div>
-            <FormFieldSaveWrapper {...props}>
+            <FormFieldSaveWrapper
+              saveVideo={props.saveVideo}
+              resetVideo={props.resetVideo}
+              editable={props.editable}
+              saveState={props.saveState}>
               <Field
                 name="title"
                 type="text"
                 component={VideoTitleEdit}
-                {...props} />
+
+                video={props.video}
+                updateVideo={props.updateVideo}
+                editable={props.editable} />
             </FormFieldSaveWrapper>
 
-            <FormFieldSaveWrapper {...props}>
+            <FormFieldSaveWrapper
+              saveVideo={props.saveVideo}
+              resetVideo={props.resetVideo}
+              editable={props.editable}
+              saveState={props.saveState}>
               <Field
                 name="category"
                 type="select"
                 component={VideoCategorySelect}
-                {...props} />
+                video={props.video}
+                updateVideo={props.updateVideo}
+                editable={props.editable} />
             </FormFieldSaveWrapper>
 
             <Field
               name="duration"
               type="number"
               component={VideoDurationEdit}
-              {...props} />
+              video={props.video}
+              updateVideo={props.updateVideo}
+              editable={props.editable} />
 
-            <Field name="content-flags" component={ContentFlags} {...props} />
+            <Field
+              name="contentFlags"
+              component={ContentFlags}
+              video={props.video}
+              updateVideo={props.updateVideo}
+              editable={props.editable} />
 
           </div>
 
           <div className="form__group">
             <div className="form__group__header">Media</div>
-            <Field name="posterImage" component={VideoPosterEdit} {...props} />
+            <Field
+              name="posterImage"
+              component={VideoPosterEdit}
+              video={props.video}
+              updateVideo={props.updateVideo}
+              editable={props.editable} />
           </div>
 
           <div className="form__group">
             <div className="form__group__header">Youtube Metadata</div>
 
-            <Field
-              name="youtube-channel"
-              type="select"
-              component={YoutubeChannelSelect}
-              {...props} />
-
-            <FormFieldSaveWrapper {...props}>
+            <FormFieldSaveWrapper
+              saveVideo={props.saveVideo}
+              resetVideo={props.resetVideo}
+              editable={props.editable}
+              saveState={props.saveState}>
               <Field
-                name="youtube-category"
+                name="youtubeCategory"
                 type="select"
                 component={YoutubeCategorySelect}
-                {...props} />
+                video={props.video}
+                updateVideo={props.updateVideo}
+                editable={props.editable} />
             </FormFieldSaveWrapper>
 
-            <FormFieldSaveWrapper {...props}>
-              <Field name="privacy-status"
-                     type="text"
-                     component={PrivacyStatusSelect}
-                     {...props} />
+            <Field
+              name="youtubeChannel"
+              type="select"
+              component={YoutubeChannelSelect}
+              video={props.video}
+              updateVideo={props.updateVideo}
+              editable={props.editable} />
+
+            <FormFieldSaveWrapper
+              saveVideo={props.saveVideo}
+              resetVideo={props.resetVideo}
+              editable={props.editable}
+              saveState={props.saveState}>
+              <Field
+                name="privacyStatus"
+                type="text"
+                component={PrivacyStatusSelect}
+                video={props.video}
+                updateVideo={props.updateVideo}
+                editable={props.editable} />
             </FormFieldSaveWrapper>
 
-            <Field name="youtube-keywords" component={YoutubeKeywordsSelect} {...props} />
+            <Field
+              name="youtubeKeywords"
+              component={YoutubeKeywordsSelect}
+              video={props.video}
+              updateVideo={props.updateVideo}
+              editable={props.editable} />
           </div>
         </div>
       )

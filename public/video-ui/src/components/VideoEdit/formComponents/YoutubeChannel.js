@@ -35,7 +35,10 @@ class YoutubeChannelSelect extends React.Component {
         selectValues={this.props.youtube.channels || []}
         onUpdateField={this.updateVideoChannel}
         defaultOption="Select a channel..."
-        {...this.props} />
+        video={this.props.video}
+        editable={this.props.editable}
+        input={this.props.input}
+        meta={this.props.meta} />
     );
   }
 }

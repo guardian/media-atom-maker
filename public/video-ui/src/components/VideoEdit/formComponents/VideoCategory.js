@@ -19,7 +19,10 @@ export default class VideoCategorySelect extends React.Component {
           fieldValue={this.props.video.category}
           selectValues={videoCategories || []}
           onUpdateField={this.updateVideoCategory}
-          {...this.props} />
+          video={this.props.video}
+          editable={this.props.editable}
+          input={this.props.input}
+          meta={this.props.meta} />
     );
   }
 }

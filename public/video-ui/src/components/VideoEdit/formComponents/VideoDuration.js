@@ -23,7 +23,10 @@ export default class VideoDurationEdit extends React.Component {
           fieldValue={this.props.video.duration}
           onUpdateField={this.onUpdateDuration}
           inputType="number"
-          {...this.props} />
+          video={this.props.video}
+          editable={this.props.editable}
+          input={this.props.input}
+          meta={this.props.meta} />
     );
   }
 }

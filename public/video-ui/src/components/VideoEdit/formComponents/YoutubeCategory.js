@@ -35,7 +35,10 @@ class YoutubeCategorySelect extends React.Component {
       selectValues={this.props.youtube.categories || []}
       onUpdateField={this.updateVideoCategory}
       defaultOption="Select a category..."
-      {...this.props} />
+      video={this.props.video}
+      editable={this.props.editable}
+      input={this.props.input}
+      meta={this.props.meta} />
     );
   }
 }
