@@ -15,6 +15,8 @@ import scala.util.{Failure, Success}
 import com.gu.contentatom.thrift.{Atom => ThriftAtom}
 import com.gu.contentatom.thrift.atom.media.{Category => ThriftCategory, MediaAtom => ThriftMediaAtom, Metadata => ThriftMetadata, PrivacyStatus => ThriftPrivacyStatus}
 
+import com.gu.pandomainauth.model.{User => PandaUser}
+
 // Since the data store and publisher are injected rather than being objects we cannot serialize JSON directly into a
 // command so we'll use a small POD for easy JSONification
 case class CreateAtomCommandData(
@@ -35,7 +37,7 @@ case class CreateAtomCommand(data: CreateAtomCommandData)
                             (implicit previewDataStore: PreviewDataStore,
                              previewPublisher: PreviewAtomPublisher,
                              auditDataStore: AuditDataStore,
-                             username: Option[String]) extends Command {
+                             user: PandaUser) extends Command {
   type T = MediaAtom
 
   def process() = {
@@ -64,7 +66,7 @@ case class CreateAtomCommand(data: CreateAtomCommandData)
       contentChangeDetails = ContentChangeDetails(None, None, None, 1L)
     )
 
-    auditDataStore.auditCreate(atom.id, username)
+    auditDataStore.auditCreate(atom.id, user)
 
     previewDataStore.createAtom(atom).fold({
         case IDConflictError => AtomIdConflict

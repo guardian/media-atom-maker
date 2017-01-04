@@ -16,6 +16,8 @@ import data.AuditDataStore
 
 import scala.util.{Failure, Success}
 
+import com.gu.pandomainauth.model.{User => PandaUser}
+
 case class AddAssetCommand(atomId: String,
                            videoUri: String,
                            version: Option[Long],
@@ -24,7 +26,7 @@ case class AddAssetCommand(atomId: String,
                            previewPublisher: PreviewAtomPublisher,
                            val youtubeConfig: YouTubeConfig,
                            auditDataStore: AuditDataStore,
-                           username: Option[String])
+                           user: PandaUser)
     extends Command
     with MediaAtomImplicits {
 

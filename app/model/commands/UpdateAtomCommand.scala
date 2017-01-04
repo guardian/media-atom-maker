@@ -16,11 +16,13 @@ import org.joda.time.DateTime
 import ai.x.diff.DiffShow
 import ai.x.diff.conversions._
 
+import com.gu.pandomainauth.model.{User => PandaUser}
+
 case class UpdateAtomCommand(id: String, atom: MediaAtom)
                             (implicit previewDataStore: PreviewDataStore,
                              previewPublisher: PreviewAtomPublisher,
                              auditDataStore: AuditDataStore,
-                             username: Option[String])
+                             user: PandaUser)
     extends Command
     with MediaAtomImplicits {
 
@@ -56,7 +58,7 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom)
 
         previewPublisher.publishAtomEvent(event) match {
           case Success(_) => {
-            auditDataStore.auditUpdate(id, username, diffString)
+            auditDataStore.auditUpdate(id, user, diffString)
             MediaAtom.fromThrift(thrift)
           }
           case Failure(err) => AtomPublishFailed(s"could not publish: ${err.toString}")

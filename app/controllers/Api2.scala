@@ -56,7 +56,7 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   }
 
   def publishMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
-    implicit val username = Option(req.user.email)
+    implicit val user = req.user
     try {
       val updatedAtom = PublishAtomCommand(id).process()
       Ok(Json.toJson(updatedAtom))
@@ -66,7 +66,7 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   }
 
   def createMediaAtom = APIHMACAuthAction { implicit req =>
-    implicit val username = Option(req.user.email)
+    implicit val user = req.user
     req.body.asJson.map { json =>
       try {
         val request = json.as[CreateAtomCommandData]
@@ -84,7 +84,7 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   }
 
   def putMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
-    implicit val username = Option(req.user.email)
+    implicit val user = req.user
     req.body.asJson.map { json =>
       try {
         val atom = json.as[MediaAtom]
@@ -99,7 +99,8 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   }
 
   def addAsset(atomId: String) = APIHMACAuthAction { implicit req =>
-    implicit val username = Option(req.user.email)
+    implicit val user = req.user
+
     req.body.asJson.map { json =>
       try {
         val videoId = (json \ "uri").as[String]
@@ -121,7 +122,7 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   private def atomUrl(id: String) = s"/atom/$id"
 
   def updateMetadata(atomId: String) = APIHMACAuthAction { implicit req =>
-    implicit val username = Option(req.user.email)
+    implicit val user = req.user
     req.body.asJson.map { json =>
       json.validate[UpdatedMetadata] match {
         case JsSuccess(metadata, _) =>
@@ -136,7 +137,7 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   }
 
   def setActiveAsset(atomId: String) = APIHMACAuthAction { implicit req =>
-    implicit val username = Option(req.user.email)
+    implicit val user = req.user
     req.body.asJson.map { json =>
       try {
         val videoId = (json \ "youtubeId").as[String]
