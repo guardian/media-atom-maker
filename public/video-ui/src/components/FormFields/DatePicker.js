@@ -54,7 +54,8 @@ export default React.createClass({
           selected={this.state.startDate}
           onChange={this.handleChange}
           minDate={moment()}
-          />
+          className="form__field"
+        />
       </div>
     )
   },
