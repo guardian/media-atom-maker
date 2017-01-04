@@ -39,8 +39,8 @@ const VideoEdit = (props) => {
             name="posterImage"
             component={VideoPosterEdit}
             video={props.video}
-            updateVideo={props.updateVideo}
-            editable={props.editable} />
+            editable={props.editable}
+            saveAndUpdateVideo={props.saveAndUpdateVideo} />
 
           <Field
             name="youtubeCategory"
@@ -126,8 +126,8 @@ const VideoEdit = (props) => {
               name="posterImage"
               component={VideoPosterEdit}
               video={props.video}
-              updateVideo={props.updateVideo}
-              editable={props.editable} />
+              editable={props.editable}
+              saveAndUpdateVideo={props.saveAndUpdateVideo}/>
           </div>
 
           <div className="form__group">
