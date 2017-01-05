@@ -102,12 +102,11 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
       try {
         val atom = json.as[MediaAtom]
         val thriftAtom = atom.asThrift
-        val newAtom = YouTubeVideoUpdateApi(youtubeConfig).updateStatusIfExpired(thriftAtom) match {
+        val atomWithExpiryChecked = YouTubeVideoUpdateApi(youtubeConfig).updateStatusIfExpired(thriftAtom) match {
           case Some(expiredAtom) => expiredAtom
           case _ => atom
         }
-
-        val updatedAtom = UpdateAtomCommand(id, newAtom).process()
+        val updatedAtom = UpdateAtomCommand(id, atomWithExpiryChecked).process()
         Ok(Json.toJson(updatedAtom))
       } catch {
         commandExceptionAsResult
