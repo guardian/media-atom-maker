@@ -153,7 +153,7 @@ case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder {
 
   private def setStatusToPrivate(asset: Asset, atomId: String): Unit = {
     if (asset.platform == Youtube) {
-      YouTubeVideoInfoApi(config).getVideo(asset.id, "status") match {
+      YouTubeVideoInfoApi(config).getVideo(asset.id, "snippet,status") match {
         case Some(video) => {
           protectAgainstMistakesInDev(video)
 
