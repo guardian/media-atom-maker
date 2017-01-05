@@ -1,6 +1,5 @@
 import React, {PropTypes} from 'react';
 import VideoAssetUrl from './formComponents/VideoAssetUrl';
-import validate from '../../constants/videoAssetAddValidation';
 import { Field, reduxForm } from 'redux-form';
 
 const VideoAssetAdd = (props) => {
@@ -13,6 +12,5 @@ const VideoAssetAdd = (props) => {
 };
 
 export default reduxForm({
-  form: 'VideoAssetAdd',
-  validate
+  form: 'VideoAssetAdd'
 })(VideoAssetAdd)
