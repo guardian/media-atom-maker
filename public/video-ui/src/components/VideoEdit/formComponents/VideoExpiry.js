@@ -5,7 +5,7 @@ import DatePickerField from '../../FormFields/DatePicker';
 export default class VideoExpiryEdit extends React.Component {
 
   onUpdateExpiry = (newDate) => {
-    let newData = Object.assign({}, this.props.video, {
+    const newData = Object.assign({}, this.props.video, {
       expiryDate: newDate
     });
 
