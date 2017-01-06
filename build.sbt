@@ -38,7 +38,8 @@ libraryDependencies ++= Seq(
   "net.logstash.logback"       % "logstash-logback-encoder"      % "4.8",
   "com.gu"                     % "kinesis-logback-appender"      % "1.3.0",
   "org.slf4j"                  % "slf4j-api"                     % "1.7.21",
-  "org.slf4j"                  % "jcl-over-slf4j"                % "1.7.21"
+  "org.slf4j"                  % "jcl-over-slf4j"                % "1.7.21",
+  "com.gu"                     %% "content-atom-model"           %  "2.4.17"
 
 ) ++ scanamoDeps
 

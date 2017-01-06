@@ -3,8 +3,10 @@ import VideoTitleEdit from './formComponents/VideoTitle';
 import VideoCategorySelect from './formComponents/VideoCategory';
 import VideoDurationEdit from './formComponents/VideoDuration';
 import FormFieldSaveWrapper from '../FormFields/FormFieldSaveWrapper';
+import MaybeFormFieldSaveWrapper from '../FormFields/MaybeFormFieldSaveWrapper';
 import VideoPosterEdit from './formComponents/VideoPoster';
 import YoutubeCategorySelect from './formComponents/YoutubeCategory';
+import VideoExpiryEdit from './formComponents/VideoExpiry';
 import YoutubeKeywordsSelect from './formComponents/YoutubeKeywords';
 import YoutubeChannelSelect from './formComponents/YoutubeChannel';
 import PrivacyStatusSelect from './formComponents/PrivacyStatus';
@@ -51,7 +53,16 @@ const VideoEdit = (props) => {
             editable={props.editable} />
 
           <Field
-            name="youtubeChannel"
+            name="videoExpiry"
+            name="expiry"
+            type="select"
+            component={VideoExpiryEdit}
+            video={props.video}
+            updateVideo={props.updateVideo}
+            editable={props.editable} />
+
+          <Field
+            name="youtube-channel"
             type="select"
             component={YoutubeChannelSelect}
             video={props.video}
@@ -98,6 +109,16 @@ const VideoEdit = (props) => {
                 name="category"
                 type="select"
                 component={VideoCategorySelect}
+                video={props.video}
+                updateVideo={props.updateVideo}
+                editable={props.editable} />
+            </FormFieldSaveWrapper>
+
+            <FormFieldSaveWrapper {...props}>
+              <Field
+                name="expiry"
+                type="number"
+                component={VideoExpiryEdit}
                 video={props.video}
                 updateVideo={props.updateVideo}
                 editable={props.editable} />
@@ -155,19 +176,19 @@ const VideoEdit = (props) => {
               updateVideo={props.updateVideo}
               editable={props.editable} />
 
-            <FormFieldSaveWrapper
+            <MaybeFormFieldSaveWrapper
               saveVideo={props.saveVideo}
               resetVideo={props.resetVideo}
               editable={props.editable}
-              saveState={props.saveState}>
-              <Field
-                name="privacyStatus"
-                type="text"
-                component={PrivacyStatusSelect}
-                video={props.video}
-                updateVideo={props.updateVideo}
-                editable={props.editable} />
-            </FormFieldSaveWrapper>
+              saveState={props.saveState}
+              name={"privacyStatus"}
+              type={"text"}
+              component={PrivacyStatusSelect}
+              video={props.video}
+              updateVideo={props.updateVideo}
+              editable={props.editable}
+              disableEditing={props.disableStatusEditing}>
+            </MaybeFormFieldSaveWrapper>
 
             <Field
               name="youtubeKeywords"

@@ -3,6 +3,7 @@ package util
 import java.io.BufferedInputStream
 import java.net.URL
 import java.time.Duration
+import java.util.Date
 import javax.inject.{Inject, Singleton}
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
@@ -12,8 +13,11 @@ import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.youtube.YouTube
 import com.google.api.services.youtube.model.Video
+import com.gu.contentatom.thrift.Atom
+import model.Platform.Youtube
 import model._
 import play.api.{Configuration, Logger}
+import util.YouTubeVideoInfoApi
 
 import scala.collection.JavaConverters._
 
@@ -121,6 +125,56 @@ case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder {
           .execute())
       case _ => None
     }
+
+  def updateStatusIfExpired(thriftAtom: Atom): Option[MediaAtom] = {
+
+    val atom: MediaAtom = MediaAtom.fromThrift(thriftAtom)
+    val atomId = atom.id
+    val timeNow = new Date().getTime
+
+    atom.expiryDate match {
+      case Some(date) => {
+
+        if (date <= timeNow && atom.privacyStatus.get != PrivacyStatus.Private) {
+
+          atom.assets.foreach(asset => {
+            setStatusToPrivate(asset, atom.id)
+          })
+
+          val updatedAtom = atom.copy(privacyStatus = Some(PrivacyStatus.Private))
+          Some(updatedAtom)
+
+        } else None
+
+      }
+      case _ => None
+    }
+  }
+
+  private def setStatusToPrivate(asset: Asset, atomId: String): Unit = {
+    if (asset.platform == Youtube) {
+      YouTubeVideoInfoApi(config).getVideo(asset.id, "snippet,status") match {
+        case Some(video) => {
+          protectAgainstMistakesInDev(video)
+
+          video.getStatus.setPrivacyStatus(PrivacyStatus.Private.name)
+
+          try {
+            Some(youtube.videos()
+              .update("snippet, status", video)
+              .setOnBehalfOfContentOwner(config.contentOwner)
+              .execute())
+
+              Logger.info(s"marked video status for video $asset.id in atom $atomId as private")
+          }
+          catch {
+            case e: Throwable => Logger.warn(s"could not mark video status in $asset.id in atom $atomId private $e")
+          }
+        }
+        case _ =>
+      }
+    }
+  }
 
   def updateThumbnail(id: String, thumbnailUrl: URL, mimeType: String): Option[Video] = {
     YouTubeVideoInfoApi(config).getVideo(id, "snippet") match {

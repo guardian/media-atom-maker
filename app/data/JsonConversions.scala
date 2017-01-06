@@ -39,7 +39,9 @@ object JsonConversions {
     (__ \ "license").writeNullable[String] and
     (__ \ "commentsEnabled").writeNullable[Boolean] and
     (__ \ "channelId").writeNullable[String] and
-    (__ \ "privacyStatus").writeNullable[PrivacyStatus]
+    (__ \ "privacyStatus").writeNullable[PrivacyStatus] and
+    (__ \ "expiryDate").writeNullable[Long]
+
   ) { metadata: Metadata =>
       (
         metadata.tags,
@@ -47,7 +49,8 @@ object JsonConversions {
         metadata.license,
         metadata.commentsEnabled,
         metadata.channelId,
-        metadata.privacyStatus
+        metadata.privacyStatus,
+        metadata.expiryDate
         )
   }
 
@@ -57,7 +60,8 @@ object JsonConversions {
     (__ \ "license").readNullable[String] and
     (__ \ "commentsEnabled").readNullable[Boolean] and
     (__ \ "channelId").readNullable[String] and
-    (__ \ "privacyStatus").readNullable[PrivacyStatus]
+    (__ \ "privacyStatus").readNullable[PrivacyStatus] and
+    (__ \ "expiryDate").readNullable[Long]
   )(Metadata.apply _)
 
   implicit val atomDataMedia = (

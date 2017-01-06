@@ -60,6 +60,10 @@ class VideoDisplay extends React.Component {
     });
   };
 
+  cannotEditStatus = () => {
+    return this.props.video.expiryDate <= Date.now()
+  };
+
   render() {
     const video = this.props.video && this.props.params.id === this.props.video.id ? this.props.video : undefined;
 
@@ -83,6 +87,7 @@ class VideoDisplay extends React.Component {
                 saveAndUpdateVideo={this.saveAndUpdateVideo}
                 resetVideo={this.resetVideo}
                 saveState={this.props.saveState}
+                disableStatusEditing={this.cannotEditStatus()}
                />
             </form>
           </div>
