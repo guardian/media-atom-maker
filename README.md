@@ -9,12 +9,7 @@ publisher that pushes media atoms into a Kinesis stream.
    credentials if you want to be able to publish media atoms.
 0. You will need read access to S3 files in the `workflow` profile for panda
    auth to work.
-0. You must also have a region set in `~/.aws/config`:
-
-```ini
-  [profile media-service]
-  region = eu-west-1
-```
+0. You must also have a region set: `aws configure set region eu-west-1 --profile media-service`
 
 ## Setting up dev environment
 0. The project makes use of [panda
