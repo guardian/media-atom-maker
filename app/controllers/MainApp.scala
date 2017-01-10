@@ -23,6 +23,10 @@ class MainApp @Inject() (previewDataStore: PreviewDataStore,
     Ok("ok")
   }
 
+  def unhealthcheck = Action {
+    InternalServerError("this is a test")
+  }
+
   def oauthCallback = Action.async { implicit req =>
     processGoogleCallback()
   }

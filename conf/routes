@@ -1,4 +1,6 @@
 GET     /healthcheck                    controllers.MainApp.healthcheck()
+GET     /unhealthcheck                  controllers.MainApp.unhealthcheck()
+
 GET     /oauthCallback                  controllers.MainApp.oauthCallback()
 GET     /atoms                          controllers.MainApp.listAtoms()
 
