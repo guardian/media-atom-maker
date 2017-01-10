@@ -1,6 +1,17 @@
-<svg viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg">
-    <g>
-        <path d="M17,0C7.611,0,0,7.611,0,17s7.611,17,17,17s17-7.611,17-17S26.389,0,17,0z M17,31C9.268,31,3,24.732,3,17
-        C3,9.268,9.268,3,17,3c7.732,0,14,6.268,14,14C31,24.732,24.732,31,17,31z" fill="#FFFFFF"/>
-    </g>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="595.279px" height="595.28px" viewBox="0 126 595.279 595.28" enable-background="new 0 126 595.279 595.28"
+	 xml:space="preserve">
+<g>
+	<path fill="#FFBB00" d="M297.64,126C133.255,126,0,259.255,0,423.641c0,164.385,133.255,297.64,297.64,297.64
+		s297.64-133.255,297.64-297.64C595.28,259.255,462.025,126,297.64,126z"/>
+</g>
+<g>
+	<polygon fill="#161616" points="422.246,338.383 356.664,403.965 356.664,443.314 422.246,508.896 441.921,508.896 
+		441.921,338.383 	"/>
+	<polygon fill="#161616" points="153.36,358.058 153.36,489.222 179.592,515.455 330.431,515.455 330.431,331.824 179.592,331.824 	
+		"/>
+</g>
 </svg>
