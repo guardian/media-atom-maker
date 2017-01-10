@@ -39,8 +39,8 @@ export default class VideoPublishBar extends React.Component {
 
     return (
       <div className="bar">
-        <span className="bar__message">This video atom has unpublished changes</span>
-        <button type="button" className="bar__button" onClick={this.props.publishVideo}>Publish Changes Now</button>
+        <span className="bar__message">This video has unpublished changes</span>
+        <button type="button" className="bar__button" onClick={this.props.publishVideo}>Publish changes to Youtube</button>
       </div>
     )
   }
