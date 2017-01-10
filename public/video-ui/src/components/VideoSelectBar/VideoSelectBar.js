@@ -10,7 +10,6 @@ export default class VideoSelectBar extends React.Component {
 
     return (
       <div className="bar info-bar">
-        <span className="bar__message"></span>
         <button type="button" className="bar__button" onClick={this.props.onSelectVideo}>Select this Video</button>
       </div>
     )
