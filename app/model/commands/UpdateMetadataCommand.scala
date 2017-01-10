@@ -48,7 +48,13 @@ case class UpdateMetadataCommand(atomId: String,
             val activeYTAssetDuration = YouTubeVideoInfoApi(youtubeConfig).getDuration(youtubeAsset.id)
 
             val updatedAtom = atom.updateData { media =>
-                media.copy(description = metadata.description, metadata = newMetadata, duration = activeYTAssetDuration)}
+                media.copy(
+                  description = metadata.description,
+                  metadata = newMetadata,
+                  duration = activeYTAssetDuration,
+                  plutoProjectId = metadata.plutoId
+                )
+            }
 
             UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom)).process()
 

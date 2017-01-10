@@ -9,7 +9,8 @@ case class UpdatedMetadata (
   categoryId: Option[String],
   license: Option[String],
   privacyStatus: Option[PrivacyStatus],
-  expiryDate: Option[Long]
+  expiryDate: Option[Long],
+  plutoId: Option[String]
 )
 
 object UpdatedMetadata {
@@ -19,7 +20,8 @@ object UpdatedMetadata {
     (__ \ "categoryId").readNullable[String] ~
     (__ \ "license").readNullable[String] ~
     (__ \ "privacyStatus").readNullable[PrivacyStatus] ~
-    (__ \ "expiryDate").readNullable[Long]
+    (__ \ "expiryDate").readNullable[Long] ~
+    (__ \ "plutoId").readNullable[String]
   )(UpdatedMetadata.apply _)
 }
 
