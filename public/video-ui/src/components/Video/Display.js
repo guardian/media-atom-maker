@@ -73,13 +73,11 @@ class VideoDisplay extends React.Component {
 
     return (
       <div>
-        <VideoPublishBar video={this.props.video} saveState={this.props.saveState} publishVideo={this.publishVideo} />
         <VideoSelectBar onSelectVideo={this.selectVideo} embeddedMode={this.props.config.embeddedMode} />
 
         <div className="video">
           <div className="video__sidebar video-details">
             <form className="form video__sidebar__group">
-
               <VideoEdit
                 video={this.props.video || {}}
                 updateVideo={this.updateVideo}
@@ -89,6 +87,7 @@ class VideoDisplay extends React.Component {
                 saveState={this.props.saveState}
                 disableStatusEditing={this.cannotEditStatus()}
                />
+               <VideoPublishBar video={this.props.video} saveState={this.props.saveState} publishVideo={this.publishVideo} />
             </form>
           </div>
 
