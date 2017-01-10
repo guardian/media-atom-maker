@@ -55,6 +55,10 @@
         "AuditTable": {
             "Description": "Name of the audit dynamo table",
             "Type": "String"
+        },
+        "AlertWebhook": {
+          "Description": "Where CloudWatch alerts are sent",
+          "Type": "String"
         }
     },
     "Mappings": {
@@ -442,6 +446,36 @@
                 },
                 "Roles": [{"Ref": "DistributionRole"}]
             }
+        },
+        "AlertTopic": {
+          "Type": "AWS::SNS::Topic",
+          "Properties": {
+            "DisplayName": { "Fn::Join" : [ "-", [ { "Ref": "Stage" },"Alerts"]] },
+            "Subscription": [{
+              "Endpoint": { "Ref": "AlertWebhook" },
+              "Protocol": "https"
+            }]
+          }
+        },
+        "MediaAtomMaker5XXAlarm": {
+          "Type": "AWS::CloudWatch::Alarm",
+          "Properties": {
+            "AlarmDescription": "500 Error reported from media-atom-maker",
+            "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+            "Threshold": "1",
+            "Namespace": "AWS/ELB",
+            "MetricName": "HTTPCode_Backend_5XX",
+            "Dimensions": [
+              {
+                "Name": "LoadBalancerName",
+                "Value": { "Ref": "MediaAtomMakerLoadBalancer" }
+              }
+            ],
+            "Period": "300",
+            "EvaluationPeriods": "1",
+            "Statistic": "Sum",
+            "AlarmActions": [ { "Ref": "AlertTopic" } ]
+          }
         }
     }
 }
