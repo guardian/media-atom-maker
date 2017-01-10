@@ -59,10 +59,6 @@
         "AlertWebhook": {
           "Description": "Where CloudWatch alerts are sent",
           "Type": "String"
-        },
-        "AlertActive": {
-          "Description": "Whether to send CloudWatch alerts to the AlertWebhook",
-          "Type": "String"
         }
     },
     "Mappings": {
@@ -464,7 +460,6 @@
         "MediaAtomMaker5XXAlarm": {
           "Type": "AWS::CloudWatch::Alarm",
           "Properties": {
-            "ActionsEnabled": { "Ref": "AlertActive" },
             "AlarmDescription": "500 Error reported from media-atom-maker",
             "ComparisonOperator": "GreaterThanOrEqualToThreshold",
             "Threshold": "1",
