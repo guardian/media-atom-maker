@@ -18,6 +18,7 @@
   width: 100%;
   background-color: $color650Grey;
   color: $cWhite;
+  display: inline-block;
 
   &:not(:last-child) {
     margin: 0 0 10px;

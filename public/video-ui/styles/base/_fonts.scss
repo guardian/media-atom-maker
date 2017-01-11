@@ -31,3 +31,11 @@
   font-style: normal;
   font-stretch: normal;
 }
+
+@font-face {
+    font-family: 'Material Icons';
+    src: url("../fonts/MaterialIcons-Regular.woff2") format('woff2'),
+    url("../fonts/MaterialIcons-Regular.woff") format('woff');
+    font-style: normal;
+    font-weight: 400;
+}
