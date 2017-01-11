@@ -68,6 +68,11 @@ class AWSConfig @Inject() (config: Configuration) {
   lazy val stage = config.getString("stage").getOrElse("DEV")
   lazy val readFromComposerAccount = config.getBoolean("readFromComposer").getOrElse(false)
 
+  lazy val gridUrl = stage match {
+    case "PROD" => "https://media.gutools.co.uk"
+    case _ => "https://media.test.dev-gutools.co.uk"
+  }
+
   lazy val kinesisClient = if (stage != "DEV" || readFromComposerAccount)
     getKinesisClient(atomsCredProvider)
   else
