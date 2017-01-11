@@ -28,18 +28,20 @@ $topbarHeight: 50px;
   }
 }
 
+.topbar__nav {
+  border-left: 2px solid $greyBorderColor;
+  &:hover {
+    background: $color650Grey;
+  }
+}
+
 .topbar__nav-link {
   vertical-align: middle;
   line-height: $topbarHeight;
   display: inline-block;
-  border-left: 2px solid $greyBorderColor;
   height: $topbarHeight;
   padding: 0 10px;
   text-decoration: none;
-
-  &:hover {
-    background: $color650Grey;
-  }
 }
 
 
