@@ -17,6 +17,7 @@ import model.{MediaAtom, UpdatedMetadata}
 import play.api.Configuration
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
+import play.api.libs.functional.syntax._
 import play.api.mvc.{AnyContent, Result}
 
 class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
@@ -101,16 +102,11 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   def addAsset(atomId: String) = APIHMACAuthAction { implicit req =>
     implicit val user = req.user
 
-    implicit val readAssetCommand = new Reads[AddAssetCommand] {
-      override def reads(json: JsValue): JsResult[AddAssetCommand] = {
-        (json \ "uri").validate[String].map { videoId =>
-          val mimeType = (json \ "mimeType").asOpt[String]
-          val version = (json \ "version").asOpt[Long]
-
-          AddAssetCommand(atomId, videoId, version, mimeType)
-        }
-      }
-    }
+    implicit val readCommand: Reads[AddAssetCommand] = (
+      (JsPath \ "uri").read[String] and
+      (JsPath \ "version").readNullable[Long] and
+      (JsPath \ "mimeType").readNullable[String]
+    )(AddAssetCommand(atomId, _, _, _))
 
     parse(req) { command: AddAssetCommand =>
       val atom = command.process()
@@ -133,11 +129,8 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   def setActiveAsset(atomId: String) = APIHMACAuthAction { implicit req =>
     implicit val user = req.user
 
-    implicit val readActiveAssetCommand = new Reads[ActiveAssetCommand] {
-      override def reads(json: JsValue): JsResult[ActiveAssetCommand] = {
-        (json \ "youtubeId").validate[String].map(ActiveAssetCommand(atomId, _))
-      }
-    }
+    implicit val readCommand: Reads[ActiveAssetCommand] =
+      (JsPath \ "youtubeId").read[String].map(ActiveAssetCommand(atomId, _))
 
     parse(req) { command: ActiveAssetCommand =>
       val atom = command.process()
