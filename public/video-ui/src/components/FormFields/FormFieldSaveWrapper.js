@@ -32,7 +32,7 @@ export default class FormFieldSaveWrapper extends React.Component {
       <div className="form__save-wrapper">
         {this.fieldWithState()}
 
-        {(!this.state.editable ? <button type="button" className="form__edit-btn" onClick={this.toggleEditing}>Edit</button> : false)}
+        {(!this.state.editable ? <i className="icon icon__edit" onClick={this.toggleEditing}>edit</i> : false)}
 
         {(this.state.editable ? <SaveButton saveState={this.props.saveState} onSaveClick={this.saveVideo} onResetClick={this.resetVideo} /> : '' )}
       </div>
