@@ -56,9 +56,13 @@
             "Description": "Name of the audit dynamo table",
             "Type": "String"
         },
+        "AlertActive": {
+            "Description": "Whether to send CloudWatch alerts",
+            "Type": "String"
+        },
         "AlertWebhook": {
-          "Description": "Where CloudWatch alerts are sent",
-          "Type": "String"
+            "Description": "Where CloudWatch alerts are sent",
+            "Type": "String"
         }
     },
     "Mappings": {
@@ -448,34 +452,77 @@
             }
         },
         "AlertTopic": {
-          "Type": "AWS::SNS::Topic",
-          "Properties": {
-            "DisplayName": { "Fn::Join" : [ "-", [ { "Ref": "Stage" },"Alerts"]] },
-            "Subscription": [{
-              "Endpoint": { "Ref": "AlertWebhook" },
-              "Protocol": "https"
-            }]
-          }
+            "Type": "AWS::SNS::Topic",
+            "Properties": {
+                "DisplayName": { "Fn::Join" : [ "-", [ { "Ref": "Stage" },"Alerts"]] },
+                "Subscription": [{
+                  "Endpoint": { "Ref": "AlertWebhook" },
+                  "Protocol": "https"
+                }]
+            }
         },
         "MediaAtomMaker5XXAlarm": {
-          "Type": "AWS::CloudWatch::Alarm",
-          "Properties": {
-            "AlarmDescription": "500 Error reported from media-atom-maker",
-            "ComparisonOperator": "GreaterThanOrEqualToThreshold",
-            "Threshold": "1",
-            "Namespace": "AWS/ELB",
-            "MetricName": "HTTPCode_Backend_5XX",
-            "Dimensions": [
-              {
-                "Name": "LoadBalancerName",
-                "Value": { "Ref": "MediaAtomMakerLoadBalancer" }
-              }
-            ],
-            "Period": "300",
-            "EvaluationPeriods": "1",
-            "Statistic": "Sum",
-            "AlarmActions": [ { "Ref": "AlertTopic" } ]
-          }
+            "Type": "AWS::CloudWatch::Alarm",
+            "Properties": {
+                "ActionsEnabled": { "Ref": "AlertActive" },
+                "AlarmDescription": "500 Error reported from media-atom-maker",
+                "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+                "Threshold": "1",
+                "Namespace": "AWS/ELB",
+                "MetricName": "HTTPCode_Backend_5XX",
+                "Dimensions": [
+                    {
+                      "Name": "LoadBalancerName",
+                      "Value": { "Ref": "MediaAtomMakerLoadBalancer" }
+                    }
+                ],
+                "Period": "300",
+                "EvaluationPeriods": "1",
+                "Statistic": "Sum",
+                "AlarmActions": [ { "Ref": "AlertTopic" } ]
+            }
+        },
+        "MediaAtomMaker4XXAlarm": {
+            "Type": "AWS::CloudWatch::Alarm",
+            "Properties": {
+                "ActionsEnabled": { "Ref": "AlertActive" },
+                "AlarmDescription": "Repeated 4XX errors reported from media-atom-maker",
+                "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+                "Threshold": "15",
+                "Namespace": "AWS/ELB",
+                "MetricName": "HTTPCode_Backend_4XX",
+                "Dimensions": [
+                    {
+                      "Name": "LoadBalancerName",
+                      "Value": { "Ref": "MediaAtomMakerLoadBalancer" }
+                    }
+                ],
+                "Period": "300",
+                "EvaluationPeriods": "2",
+                "Statistic": "Sum",
+                "AlarmActions": [ { "Ref": "AlertTopic" } ]
+            }
+        },
+        "MediaAtomMakerLatency": {
+            "Type": "AWS::CloudWatch::Alarm",
+            "Properties": {
+                "ActionsEnabled": { "Ref": "AlertActive" },
+                "AlarmDescription": "Requests to media-atom-maker start taking on average more than 1 second",
+                "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+                "Threshold": "1",
+                "Namespace": "AWS/ELB",
+                "MetricName": "Latency",
+                "Dimensions": [
+                    {
+                      "Name": "LoadBalancerName",
+                      "Value": { "Ref": "MediaAtomMakerLoadBalancer" }
+                    }
+                ],
+                "Period": "300",
+                "EvaluationPeriods": "1",
+                "Statistic": "Average",
+                "AlarmActions": [ { "Ref": "AlertTopic" } ]
+            }
         }
     }
 }
