@@ -1,4 +1,4 @@
-.icn {
+.icon {
     font-family: 'Material Icons';
     font-weight: normal;
     font-style: normal;
@@ -22,14 +22,14 @@
     vertical-align: middle;
 }
 
-.icn__search-magnifier,
-.icn__add,
-.icn__edit {
+.icon__search-magnifier,
+.icon__add,
+.icon__edit {
   align-self: center;
   padding: 0 5px;
 }
 
-.icn__edit {
+.icon__edit {
   color: $color300Grey;
   background-color: $color600Grey;
   width: 25px;

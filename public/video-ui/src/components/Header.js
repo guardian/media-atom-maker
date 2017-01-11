@@ -18,7 +18,7 @@ export default class Header extends React.Component {
 
           <div className="topbar__container">
             <nav className="topbar__nav">
-              <i className="icn icn__add">add</i>
+              <i className="icon icon__add">add</i>
               <Link activeClassName="topbar__nav-link--active" className="topbar__nav-link" to="/video/videos/create">Create new video</Link>
             </nav>
 
