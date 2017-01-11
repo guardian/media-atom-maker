@@ -7,14 +7,11 @@
 
 .video__sidebar {
 
-  background-color: $color650Grey;
+  background-color: $color800Grey;
   height: 100%;
   max-height: 100%;
   overflow: auto;
   flex-shrink: 0;
-
-  border-right: 1px solid $color600Grey;
-
 }
 
 .video__main {
