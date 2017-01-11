@@ -476,6 +476,46 @@
             "Statistic": "Sum",
             "AlarmActions": [ { "Ref": "AlertTopic" } ]
           }
+        },
+        "MediaAtomMaker4XXAlarm": {
+          "Type": "AWS::CloudWatch::Alarm",
+          "Properties": {
+            "AlarmDescription": "Repeated 4XX errors reported from media-atom-maker",
+            "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+            "Threshold": "15",
+            "Namespace": "AWS/ELB",
+            "MetricName": "HTTPCode_Backend_4XX",
+            "Dimensions": [
+              {
+                "Name": "LoadBalancerName",
+                "Value": { "Ref": "MediaAtomMakerLoadBalancer" }
+              }
+            ],
+            "Period": "300",
+            "EvaluationPeriods": "2",
+            "Statistic": "Sum",
+            "AlarmActions": [ { "Ref": "AlertTopic" } ]
+          }
+        },
+        "MediaAtomMakerLatency": {
+          "Type": "AWS::CloudWatch::Alarm",
+          "Properties": {
+            "AlarmDescription": "Requests to media-atom-maker start taking on average more than 1 second",
+            "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+            "Threshold": "1",
+            "Namespace": "AWS/ELB",
+            "MetricName": "Latency",
+            "Dimensions": [
+              {
+                "Name": "LoadBalancerName",
+                "Value": { "Ref": "MediaAtomMakerLoadBalancer" }
+              }
+            ],
+            "Period": "300",
+            "EvaluationPeriods": "1",
+            "Statistic": "Average",
+            "AlarmActions": [ { "Ref": "AlertTopic" } ]
+          }
         }
     }
 }
