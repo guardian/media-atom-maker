@@ -21,7 +21,7 @@ export default class Header extends React.Component {
               <a className="topbar__nav-link"
                  target="_blank"
                  href="https://goo.gl/forms/0KoeGOW64584Bydm2">
-                Give us feedback?
+                Give feedback
               </a>
             </nav>
 
