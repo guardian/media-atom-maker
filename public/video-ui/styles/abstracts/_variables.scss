@@ -79,7 +79,7 @@ $darkGreyBorderColor: $color650Grey;
 Text colours
 */
 $brandColor: #ffbc01;
-$darkBrandColor: darken($brandColor, 2%);
+$darkBrandColor: darken($brandColor, 5);
 $lightBrandColor: lighten($brandColor, 60);
 $textColor: $color400Grey;
 $anchorColor: $cWhite;
