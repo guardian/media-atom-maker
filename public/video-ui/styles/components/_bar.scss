@@ -1,19 +1,20 @@
 .bar {
   width: 100%;
-  background-color: $cGreen32;
-  border-bottom: 1px solid darken($cGreen32, 9);
-
-  padding: 5px;
-  text-align: center;
-
+  padding: 15px;
+  text-align: left;
   font-size: 15px;
 
   &__button {
-    background-color: $color650Grey;
+    background-color: $brandColor;
     font-size: 12px;
-    padding: 5px 10px;
-    margin-bottom: 2px;
-    color: $color300Grey;
+    font-weight: bold;
+    padding: 10px;
+    margin:5px 0 2px;
+    color: $color800Grey;
+
+    &:hover {
+      background-color: darken($brandColor, 5%);
+    }
 
     &:focus {
       outline: 1px solid $cWhite;
@@ -21,7 +22,7 @@
   }
 
   &__message {
-    margin-right: 15px;
+    margin-left: 5px;
   }
 }
 
