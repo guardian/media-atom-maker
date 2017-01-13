@@ -22,9 +22,19 @@
   }
 
   &__image img {
-    width: 160px;
-    height: auto;
-    margin-right: 15px;
+      width: 160px;
+      height: auto;
+      margin-right: 15px;
+
+  }
+
+  &__image-placeholder {
+      background-color: $color800Grey;
+      width: 160px;
+      height: 90px;
+      text-align: center;
+      padding-top: 32px;
+      margin-right: 15px;
   }
 
   &__message {

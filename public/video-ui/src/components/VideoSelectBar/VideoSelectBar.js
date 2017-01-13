@@ -12,10 +12,13 @@ export default class VideoSelectBar extends React.Component {
       return  <img src={this.props.video.posterImage.master.file} alt={this.props.video.title}/>
     }
 
-    return <div className="grid__image__placeholder">No Image</div>
+    return <div className="bar__image-placeholder">No Image</div>
   }
 
   render() {
+    // if (!this.props.embeddedMode) {
+    //    return false;
+    // }
 
     return (
       <div className="bar info-bar">
