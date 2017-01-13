@@ -2,23 +2,23 @@ package controllers
 
 import javax.inject.Inject
 
+import _root_.util.{AWSConfig, ExpiryPoller, YouTubeConfig, YouTubeVideoUpdateApi}
 import akka.actor.ActorSystem
 import com.gu.atom.data.{PreviewDataStore, PublishedDataStore}
 import com.gu.atom.play.AtomAPIActions
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
-import com.gu.contentatom.thrift.Atom
 import com.gu.pandahmac.HMACAuthActions
-import data.JsonConversions._
+import com.gu.pandomainauth.action.UserRequest
 import data.AuditDataStore
 import model.Category.Hosted
 import model.commands.CommandExceptions._
 import model.commands._
+import model.{MediaAtom, UpdatedMetadata}
 import play.api.Configuration
-import model.commands.CommandExceptions._
-import _root_.util.{YouTubeVideoUpdateApi, YouTubeConfig, AWSConfig, ExpiryPoller}
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
-import model.{MediaAtom, UpdatedMetadata}
+import play.api.libs.functional.syntax._
+import play.api.mvc.{AnyContent, Result}
 
 class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
                      implicit val publishedDataStore: PublishedDataStore,
@@ -70,6 +70,7 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
 
   def publishMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
     implicit val user = req.user
+
     try {
       val updatedAtom = PublishAtomCommand(id).process()
       Ok(Json.toJson(updatedAtom))
@@ -80,59 +81,40 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
 
   def createMediaAtom = APIHMACAuthAction { implicit req =>
     implicit val user = req.user
-    req.body.asJson.map { json =>
-      try {
-        val request = json.as[CreateAtomCommandData]
 
-        val atom = CreateAtomCommand(request).process()
-        Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
-
-      } catch {
-        commandExceptionAsResult
-      }
-
-    }.getOrElse {
-      BadRequest("Could not read json")
+    parse(req) { command: CreateAtomCommandData =>
+      val atom = CreateAtomCommand(command).process()
+      Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
     }
   }
 
   def putMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
     implicit val user = req.user
-    req.body.asJson.map { json =>
-      try {
-        val atom = json.as[MediaAtom]
-        val thriftAtom = atom.asThrift
-        val atomWithExpiryChecked = YouTubeVideoUpdateApi(youtubeConfig).updateStatusIfExpired(thriftAtom) match {
-          case Some(expiredAtom) => expiredAtom
-          case _ => atom
-        }
-        val updatedAtom = UpdateAtomCommand(id, atomWithExpiryChecked).process()
-        Ok(Json.toJson(updatedAtom))
-      } catch {
-        commandExceptionAsResult
+
+    parse(req) { atom: MediaAtom =>
+      val thriftAtom = atom.asThrift
+      val atomWithExpiryChecked = YouTubeVideoUpdateApi(youtubeConfig).updateStatusIfExpired(thriftAtom) match {
+        case Some(expiredAtom) => expiredAtom
+        case _ => atom
       }
-    }.getOrElse {
-      BadRequest("Could not read json")
+
+      val updatedAtom = UpdateAtomCommand(id, atomWithExpiryChecked).process()
+      Ok(Json.toJson(updatedAtom))
     }
   }
 
   def addAsset(atomId: String) = APIHMACAuthAction { implicit req =>
     implicit val user = req.user
 
-    req.body.asJson.map { json =>
-      try {
-        val videoId = (json \ "uri").as[String]
-        val mimeType: Option[String] = (json \ "mimeType").asOpt[String]
-        val version: Option[Long] = (json \ "version").asOpt[Long]
+    implicit val readCommand: Reads[AddAssetCommand] = (
+      (JsPath \ "uri").read[String] and
+      (JsPath \ "version").readNullable[Long] and
+      (JsPath \ "mimeType").readNullable[String]
+    )(AddAssetCommand(atomId, _, _, _))
 
-        val atom = AddAssetCommand(atomId, videoId, version, mimeType).process()
-
-        Ok(Json.toJson(atom))
-      } catch {
-        commandExceptionAsResult
-      }
-    }.getOrElse {
-      BadRequest("Could not read json")
+    parse(req) { command: AddAssetCommand =>
+      val atom = command.process()
+      Ok(Json.toJson(atom))
     }
   }
 
@@ -141,35 +123,47 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
 
   def updateMetadata(atomId: String) = APIHMACAuthAction { implicit req =>
     implicit val user = req.user
-    req.body.asJson.map { json =>
-      json.validate[UpdatedMetadata] match {
-        case JsSuccess(metadata, _) =>
-          UpdateMetadataCommand(atomId, metadata).process()
-          Ok
-        case JsError(e) => BadRequest(s"Json doesn't contain the right fields. $e")
-      }
 
-    }.getOrElse {
-      BadRequest("Could not read json")
+    parse(req) { metadata: UpdatedMetadata =>
+      UpdateMetadataCommand(atomId, metadata).process()
+      Ok
     }
   }
 
   def setActiveAsset(atomId: String) = APIHMACAuthAction { implicit req =>
     implicit val user = req.user
-    req.body.asJson.map { json =>
-      try {
-        val videoId = (json \ "youtubeId").as[String]
-        val atom = ActiveAssetCommand(atomId, videoId).process()
-        Ok(Json.toJson(atom))
-      } catch {
-        commandExceptionAsResult
-      }
-    }.getOrElse {
-      BadRequest("Could not read json")
+
+    implicit val readCommand: Reads[ActiveAssetCommand] =
+      (JsPath \ "youtubeId").read[String].map(ActiveAssetCommand(atomId, _))
+
+    parse(req) { command: ActiveAssetCommand =>
+      val atom = command.process()
+      Ok(Json.toJson(atom))
     }
   }
 
   def getAuditTrailForAtomId(id: String) = APIHMACAuthAction { implicit req =>
     Ok(Json.toJson(auditDataStore.getAuditTrailForAtomId(id)))
+  }
+
+  private def parse[T](raw: UserRequest[AnyContent])(fn: T => Result)(implicit reads: Reads[T]): Result = try {
+    raw.body.asJson match {
+      case Some(rawJson) =>
+        rawJson.validate[T] match {
+          case JsSuccess(request, _) =>
+            fn(request)
+
+          case JsError(errors) =>
+            val errorsByPath = errors.flatMap { case(p, e) => e.map(p -> _) } // flatten
+            val msg = errorsByPath.map { case(p, e) => s"$p -> $e" }.mkString("\n")
+
+            BadRequest(msg)
+        }
+
+      case None =>
+        BadRequest("Unable to parse body as JSON")
+    }
+  } catch {
+    commandExceptionAsResult
   }
 }

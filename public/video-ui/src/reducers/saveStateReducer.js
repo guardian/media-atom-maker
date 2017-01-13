@@ -63,6 +63,14 @@ export default function saveState(state = {
       return Object.assign({}, state, {
         searching: false
       });
+
+    case 'SHOW_ERROR':
+      return Object.assign({}, state, {
+        searching: false,
+        saving: false,
+        publishing: false
+      });
+
     default:
       return state;
   }
