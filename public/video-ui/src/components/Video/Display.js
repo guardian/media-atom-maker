@@ -73,7 +73,7 @@ class VideoDisplay extends React.Component {
 
     return (
       <div>
-        <VideoSelectBar onSelectVideo={this.selectVideo} embeddedMode={this.props.config.embeddedMode} />
+        <VideoSelectBar video={video} onSelectVideo={this.selectVideo} embeddedMode={this.props.config.embeddedMode} />
 
         <div className="video">
           <div className="video__sidebar video-details">
