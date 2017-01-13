@@ -16,9 +16,9 @@ export default class VideoSelectBar extends React.Component {
   }
 
   render() {
-    // if (!this.props.embeddedMode) {
-    //    return false;
-    // }
+    if (!this.props.embeddedMode) {
+       return false;
+    }
 
     return (
       <div className="bar info-bar">
