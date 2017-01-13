@@ -71,8 +71,12 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   def publishMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
     implicit val user = req.user
 
-    val updatedAtom = PublishAtomCommand(id).process()
-    Ok(Json.toJson(updatedAtom))
+    try {
+      val updatedAtom = PublishAtomCommand(id).process()
+      Ok(Json.toJson(updatedAtom))
+    } catch {
+      commandExceptionAsResult
+    }
   }
 
   def createMediaAtom = APIHMACAuthAction { implicit req =>
