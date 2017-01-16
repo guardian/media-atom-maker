@@ -2,6 +2,7 @@ import React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import qs from 'querystringify';
+import Raven from 'raven-js';
 
 import configureStore from './util/configureStore';
 import {setStore} from './util/storeAccessor';
@@ -27,6 +28,9 @@ function isEmbeddedMode() {
 const store = configureStore();
 const config = extractConfigFromPage();
 
+// publish uncaught errors to sentry.io
+Raven.config(config.ravenUrl).install();
+
 setStore(store);
 
 store.dispatch({
@@ -36,7 +40,6 @@ store.dispatch({
   }),
   receivedAt: Date.now()
 });
-
 
 render(
     <Provider store={store}>

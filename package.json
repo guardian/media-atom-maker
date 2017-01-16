@@ -36,6 +36,7 @@
     "panda-session": "^0.1.6",
     "q": "^1.4.1",
     "querystringify": "0.0.4",
+    "raven-js": "^3.9.1",
     "react": "^15.3.2",
     "react-datepicker": "^0.39.0",
     "react-dom": "^15.3.2",

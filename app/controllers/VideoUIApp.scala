@@ -1,7 +1,9 @@
 package controllers
 
 import javax.inject._
+
 import com.gu.pandahmac.HMACAuthActions
+import com.typesafe.config.ConfigFactory
 import model.ClientConfig
 import play.api.libs.json.Json
 import util.AWSConfig
@@ -28,8 +30,8 @@ class VideoUIApp @Inject() (val authActions: HMACAuthActions, awsConfig: AWSConf
       reauthUrl = "/reauth",
       gridUrl = awsConfig.gridUrl,
       capiProxyUrl = "/support/previewCapi",
-      composerUrl = composerUrl
-
+      composerUrl = composerUrl,
+      ravenUrl = ConfigFactory.load().getString("raven.url")
     )
 
     Ok(views.html.VideoUIApp.app("Media Atom Maker", jsLocation, Json.toJson(clientConfig).toString()))

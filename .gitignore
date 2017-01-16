@@ -11,3 +11,4 @@ yarn.lock
 conf/youtube-DEV.conf
 conf/capi-DEV.conf
 conf/flexible-DEV.conf
+conf/sentry-DEV.conf

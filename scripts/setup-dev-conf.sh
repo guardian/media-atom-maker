@@ -45,6 +45,7 @@ sed -e "s/{DOMAIN}/${DOMAIN}/g" \
 aws s3 cp s3://atom-maker-dist/conf/youtube-DEV.conf ../conf/youtube-DEV.conf
 aws s3 cp s3://atom-maker-dist/conf/capi-DEV.conf ../conf/capi-DEV.conf
 aws s3 cp s3://atom-maker-dist/conf/flexible-DEV.conf ../conf/flexible-DEV.conf
+aws s3 cp s3://atom-maker-dist/conf/sentry-DEV.conf ../conf/sentry-DEV.conf
 
 # clean up after ourselves
 unset AWS_DEFAULT_PROFILE
