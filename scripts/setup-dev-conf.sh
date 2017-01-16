@@ -46,4 +46,5 @@ sed -e "s/{DOMAIN}/${DOMAIN}/g" \
 aws s3 cp s3://atom-maker-dist/conf/youtube-DEV.conf ../conf/youtube-DEV.conf --profile $MEDIA_AWS_PROFILE
 aws s3 cp s3://atom-maker-dist/conf/capi-DEV.conf ../conf/capi-DEV.conf --profile $MEDIA_AWS_PROFILE
 aws s3 cp s3://atom-maker-dist/conf/flexible-DEV.conf ../conf/flexible-DEV.conf --profile $MEDIA_AWS_PROFILE
+aws s3 cp s3://atom-maker-dist/conf/kinesis-DEV.conf ../conf/kinesis-DEV.conf --profile $MEDIA_AWS_PROFILE
 
