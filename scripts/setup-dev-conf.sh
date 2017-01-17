@@ -11,12 +11,13 @@ STACK_NAME=$1
 PANDA_AWS_PROFILE=$2
 DOMAIN=$3
 
-# always use the media-service account
-export AWS_DEFAULT_PROFILE=media-service
+# always use the media-service account and eu-west-1
+MEDIA_AWS_PROFILE=media-service
+REGION=eu-west-1
 
 function get_resource() {
     aws cloudformation describe-stack-resources \
-        --stack-name ${STACK_NAME} \
+        --stack-name ${STACK_NAME} --profile ${MEDIA_AWS_PROFILE} --region ${REGION} \
         | jq ".StackResources[] | select(.LogicalResourceId == \"$1\") | .PhysicalResourceId" | tr -d '"'
 }
 
@@ -32,7 +33,7 @@ DYNAMO_AUDIT_TABLE=$(get_resource "AuditMediaAtomMakerDynamoTable")
 
 sed -e "s/{DOMAIN}/${DOMAIN}/g" \
     -e "s/{PANDA_PROFILE}/${PANDA_AWS_PROFILE}/g" \
-    -e "s/{AWS_PROFILE}/${AWS_DEFAULT_PROFILE}/g" \
+    -e "s/{AWS_PROFILE}/${MEDIA_AWS_PROFILE}/g" \
     -e "s/{LIVE_STREAM_NAME}/${LIVE_STREAM_NAME}/g" \
     -e "s/{PREVIEW_STREAM_NAME}/${PREVIEW_STREAM_NAME}/g" \
     -e "s/{PREVIEW_REINDEX_STREAM_NAME}/${PREVIEW_REINDEX_STREAM_NAME}/g" \
@@ -42,9 +43,7 @@ sed -e "s/{DOMAIN}/${DOMAIN}/g" \
     -e "s/{DYNAMO_AUDIT_TABLE}/${DYNAMO_AUDIT_TABLE}/g" \
     ../conf/reference.conf > ../conf/application.conf
 
-aws s3 cp s3://atom-maker-dist/conf/youtube-DEV.conf ../conf/youtube-DEV.conf
-aws s3 cp s3://atom-maker-dist/conf/capi-DEV.conf ../conf/capi-DEV.conf
-aws s3 cp s3://atom-maker-dist/conf/flexible-DEV.conf ../conf/flexible-DEV.conf
+aws s3 cp s3://atom-maker-dist/conf/youtube-DEV.conf ../conf/youtube-DEV.conf --profile $MEDIA_AWS_PROFILE
+aws s3 cp s3://atom-maker-dist/conf/capi-DEV.conf ../conf/capi-DEV.conf --profile $MEDIA_AWS_PROFILE
+aws s3 cp s3://atom-maker-dist/conf/flexible-DEV.conf ../conf/flexible-DEV.conf --profile $MEDIA_AWS_PROFILE
 
-# clean up after ourselves
-unset AWS_DEFAULT_PROFILE

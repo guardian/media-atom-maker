@@ -9,7 +9,6 @@ publisher that pushes media atoms into a Kinesis stream.
    credentials if you want to be able to publish media atoms.
 0. You will need read access to S3 files in the `workflow` profile for panda
    auth to work.
-0. You must also have a region set: `aws configure set region eu-west-1 --profile media-service`
 
 ## Setting up dev environment
 0. The project makes use of [panda
@@ -18,11 +17,10 @@ publisher that pushes media atoms into a Kinesis stream.
    [here](https://github.com/guardian/dev-nginx#nginx-dev-setup) to set up
    nginx locally.
 0. The nginx bucket size should be `128`, up from the default of `64`. Edit `nginx.conf` and modify the `http` section to contain `server_names_hash_bucket_size 128;`
-0. Run `./scripts/setup-dev-conf` to generate an `application.conf` file.
-0. You need to pass to this script the name of the stack that you want to use
-   (usually this is the default media atom maker dev stack),
-   aws profile for panda (e.g. media-service) and the domain for the app
-   (local.dev-gutools.co.uk)
+0. Run `./scripts/setup-dev-conf` to generate an `application.conf` file. You need to pass to this script the name of the stack that you want to use
+   (usually this is the default `media-atom-maker-dev` stack),
+   aws profile for panda (e.g. `media-service`) and the domain for the app
+   (`local.dev-gutools.co.uk`)
 0. If you need your own dev-stack, you can create it by using the
    `media-atom-maker-dev.yml` template and by generating the `application.conf`
    file from the sample `reference.conf` file in the cloudformation folder
