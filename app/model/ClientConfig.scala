@@ -11,7 +11,8 @@ case class ClientConfig(username: String,
                         reauthUrl: String,
                         gridUrl: String,
                         capiProxyUrl: String,
-                        composerUrl: String
+                        composerUrl: String,
+                        ravenUrl: String
                        )
 
 object ClientConfig {
