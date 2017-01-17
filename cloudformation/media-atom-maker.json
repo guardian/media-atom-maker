@@ -74,9 +74,9 @@
                 "InstanceType": "t2.medium"
             },
             "CODE": {
-                "MinSize": 1,
-                "MaxSize": 2,
-                "DesiredCapacity": 1,
+                "MinSize": 3,
+                "MaxSize": 6,
+                "DesiredCapacity": 3,
                 "InstanceType": "t2.small"
             }
         }
@@ -523,6 +523,27 @@
                 "Statistic": "Average",
                 "AlarmActions": [ { "Ref": "AlertTopic" } ]
             }
+        },
+        "MediaAtomMakerUnhealthy": {
+          "Type": "AWS::CloudWatch::Alarm",
+          "Properties": {
+            "ActionsEnabled": { "Ref": "AlertActive" },
+            "AlarmDescription": "Unexpectedly unhealthy instances",
+            "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+            "Threshold": "1",
+            "Namespace": "AWS/ELB",
+            "MetricName": "UnHealthyHostCount",
+            "Dimensions": [
+              {
+                "Name": "LoadBalancerName",
+                "Value": { "Ref": "MediaAtomMakerLoadBalancer" }
+              }
+            ],
+            "Period": "300",
+            "EvaluationPeriods": "1",
+            "Statistic": "Average",
+            "AlarmActions": [ { "Ref": "AlertTopic" } ]
+          }
         }
     }
 }
