@@ -68,15 +68,15 @@
     "Mappings": {
         "StageMap": {
             "PROD": {
-                "MinSize": 1,
-                "MaxSize": 2,
-                "DesiredCapacity": 1,
-                "InstanceType": "t2.medium"
-            },
-            "CODE": {
                 "MinSize": 3,
                 "MaxSize": 6,
                 "DesiredCapacity": 3,
+                "InstanceType": "t2.medium"
+            },
+            "CODE": {
+                "MinSize": 1,
+                "MaxSize": 2,
+                "DesiredCapacity": 1,
                 "InstanceType": "t2.small"
             }
         }
