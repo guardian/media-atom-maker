@@ -540,7 +540,7 @@
               }
             ],
             "Period": "300",
-            "EvaluationPeriods": "1",
+            "EvaluationPeriods": "2",
             "Statistic": "Average",
             "AlarmActions": [ { "Ref": "AlertTopic" } ]
           }
