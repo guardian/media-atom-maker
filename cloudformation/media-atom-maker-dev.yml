@@ -30,14 +30,6 @@ Resources:
     Type: "AWS::IAM::AccessKey"
     Properties:
       UserName: {"Ref": "MediaAtomUser"}
-  MediaAtomPreviewKinesisStream:
-    Type: "AWS::Kinesis::Stream"
-    Properties:
-      ShardCount: 1
-  MediaAtomLiveKinesisStream:
-    Type: "AWS::Kinesis::Stream"
-    Properties:
-      ShardCount: 1
   MediaAtomsDynamoTable:
     Type: "AWS::DynamoDB::Table"
     Properties:
