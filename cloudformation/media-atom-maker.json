@@ -71,13 +71,15 @@
                 "MinSize": 3,
                 "MaxSize": 6,
                 "DesiredCapacity": 3,
-                "InstanceType": "t2.medium"
+                "InstanceType": "t2.medium",
+                "Domain": "media-atom-maker.gutools.co.uk"
             },
             "CODE": {
                 "MinSize": 1,
                 "MaxSize": 2,
                 "DesiredCapacity": 1,
-                "InstanceType": "t2.small"
+                "InstanceType": "t2.small",
+                "Domain": "media-atom-maker.code.dev-gutools.co.uk"
             }
         }
     },
@@ -524,26 +526,45 @@
                 "AlarmActions": [ { "Ref": "AlertTopic" } ]
             }
         },
-        "MediaAtomMakerUnhealthy": {
-          "Type": "AWS::CloudWatch::Alarm",
-          "Properties": {
-            "ActionsEnabled": { "Ref": "AlertActive" },
-            "AlarmDescription": "Unexpectedly unhealthy instances",
-            "ComparisonOperator": "GreaterThanOrEqualToThreshold",
-            "Threshold": "1",
-            "Namespace": "AWS/ELB",
-            "MetricName": "UnHealthyHostCount",
-            "Dimensions": [
-              {
-                "Name": "LoadBalancerName",
-                "Value": { "Ref": "MediaAtomMakerLoadBalancer" }
-              }
-            ],
-            "Period": "300",
-            "EvaluationPeriods": "2",
-            "Statistic": "Average",
-            "AlarmActions": [ { "Ref": "AlertTopic" } ]
-          }
+        "MediaAtomMakerPingVideos": {
+            "Type": "AWS::Route53::HealthCheck",
+            "Properties": {
+                "HealthCheckConfig": {
+                    "Port": 443,
+                    "Type": "HTTPS",
+                    "FullyQualifiedDomainName": { "Fn::FindInMap": ["StageMap", {"Ref": "Stage"}, "Domain"] },
+                    "ResourcePath": "/video/videos",
+                    "RequestInterval": "30",
+                    "FailureThreshold": "3"
+                },
+                "HealthCheckTags": [
+                    {
+                        "Key": "Name",
+                        "Value": { "Fn::Join": [ "", [ "https://", { "Fn::FindInMap": ["StageMap", {"Ref": "Stage"}, "Domain"] }, "/video/videos" ] ] }
+                    }
+                ]
+            }
+        },
+        "MediaAtomMakerVideosDown": {
+            "Type": "AWS::CloudWatch::Alarm",
+            "Properties": {
+                "ActionsEnabled": { "Ref": "AlertActive" },
+                "AlarmDescription": "Unable to get a response from the videos application",
+                "ComparisonOperator": "LessThanThreshold",
+                "Threshold": "1",
+                "Namespace": "AWS/Route53",
+                "MetricName": "HealthCheckStatus",
+                "Dimensions": [
+                    {
+                      "Name": "HealthCheckId",
+                      "Value": { "Ref": "MediaAtomMakerPingVideos" }
+                    }
+                ],
+                "Period": "60",
+                "EvaluationPeriods": "1",
+                "Statistic": "Minimum",
+                "AlarmActions": [ { "Ref": "AlertTopic" } ]
+            }
         }
     }
 }
