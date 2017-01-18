@@ -54,6 +54,7 @@ export function getVideos() {
 function adaptCapiAtom(atom) {
   const ret = {
     id: atom.id,
+    activeVersion: -1, // not known
     title: atom.data.media.title,
     contentChangeDetails: atom.contentChangeDetails,
     assets: atom.data.media.assets

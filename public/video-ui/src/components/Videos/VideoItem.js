@@ -4,17 +4,20 @@ import {Link} from 'react-router';
 export default class VideoItem extends React.Component {
 
   renderActiveAssetName() {
+    const activeVersion = this.props.video.activeVersion ? this.props.video.activeVersion : 0;
 
-    if (this.props.video.activeVersion && this.props.video.assets.length) {
-      const activeAssets = this.props.video.assets.filter((asset) => asset.version === this.props.video.activeVersion)
-      if (activeAssets.length) {
-        if (activeAssets[0] && activeAssets[0].platform) {
-          return <span className="success">Active {activeAssets[0].platform} video</span>
-        }
+    if(activeVersion === -1) {
+      // search results do not contain the version
+      return "";
+    } else {
+      const assets = this.props.video.assets.filter((asset) => asset.version === activeVersion);
+
+      if(assets.length && assets[0] && assets[0].platform) {
+        return <span className="success">Active {assets[0].platform} video</span>
+      } else {
+        return <span className="error">No Active Assets</span>
       }
     }
-
-    return <span className="error">No Active Assets</span>
   }
 
   renderItemImage() {
