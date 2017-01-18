@@ -63,5 +63,5 @@ lazy val appDistSettings = Seq(
   )
 
 lazy val root = (project in file("."))
-  .enablePlugins(PlayScala, SbtWeb, RiffRaffArtifact, UniversalPlugin)
+  .enablePlugins(PlayScala, SbtWeb, RiffRaffArtifact, UniversalPlugin, JDebPackaging)
   .settings(appDistSettings)
