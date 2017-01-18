@@ -51,22 +51,34 @@ export function getVideos() {
   };
 }
 
+function adaptCapiAtom(atom) {
+  const ret = {
+    id: atom.id,
+    activeVersion: -1, // not known
+    title: atom.data.media.title,
+    contentChangeDetails: atom.contentChangeDetails,
+    assets: atom.data.media.assets
+  };
+
+  if(atom.data.media.posterImage)
+    ret.posterImage = atom.data.media.posterImage;
+
+  return ret;
+}
+
 export function searchVideosWithQuery(query) {
   return dispatch => {
     dispatch(requestSearchVideos());
+
     return searchText(query)
       .then(res => {
         const capiAtoms = res.response.results;
-        const atoms = capiAtoms.map((capiAtom) => {
-          return {
-            id: capiAtom.id,
-            title: capiAtom.data.media.title,
-            contentChangeDetails: capiAtom.contentChangeDetails,
-            assets: capiAtom.data.media.assets
-          }
-        });
+        const atoms = capiAtoms.map(adaptCapiAtom);
+
         dispatch(receiveSearchVideos(atoms));
       })
-      .catch(error => dispatch(errorReceivingVideos(error)));
+      .catch(error => {
+        dispatch(errorReceivingVideos(error))
+      });
   };
 }
