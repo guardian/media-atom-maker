@@ -63,6 +63,10 @@
         "AlertWebhook": {
             "Description": "Where CloudWatch alerts are sent",
             "Type": "String"
+        },
+        "DomainToMonitor": {
+          "Description": "Domain name for the Route53 health check",
+          "Type": "String"
         }
     },
     "Mappings": {
@@ -71,15 +75,13 @@
                 "MinSize": 3,
                 "MaxSize": 6,
                 "DesiredCapacity": 3,
-                "InstanceType": "t2.medium",
-                "Domain": "media-atom-maker.gutools.co.uk"
+                "InstanceType": "t2.medium"
             },
             "CODE": {
                 "MinSize": 1,
                 "MaxSize": 2,
                 "DesiredCapacity": 1,
-                "InstanceType": "t2.small",
-                "Domain": "media-atom-maker.code.dev-gutools.co.uk"
+                "InstanceType": "t2.small"
             }
         }
     },
@@ -532,7 +534,7 @@
                 "HealthCheckConfig": {
                     "Port": 443,
                     "Type": "HTTPS",
-                    "FullyQualifiedDomainName": { "Fn::FindInMap": ["StageMap", {"Ref": "Stage"}, "Domain"] },
+                    "FullyQualifiedDomainName": { "Ref": "DomainToMonitor" },
                     "ResourcePath": "/video/videos",
                     "RequestInterval": "30",
                     "FailureThreshold": "3"
@@ -540,7 +542,7 @@
                 "HealthCheckTags": [
                     {
                         "Key": "Name",
-                        "Value": { "Fn::Join": [ "", [ "https://", { "Fn::FindInMap": ["StageMap", {"Ref": "Stage"}, "Domain"] }, "/video/videos" ] ] }
+                        "Value": { "Fn::Join": [ "", [ "https://", { "Ref": "DomainToMonitor" }, "/video/videos" ] ] }
                     }
                 ]
             }
