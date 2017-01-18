@@ -492,7 +492,7 @@
                 "ActionsEnabled": { "Ref": "AlertActive" },
                 "AlarmDescription": "Repeated 4XX errors reported from media-atom-maker",
                 "ComparisonOperator": "GreaterThanOrEqualToThreshold",
-                "Threshold": "15",
+                "Threshold": "30",
                 "Namespace": "AWS/ELB",
                 "MetricName": "HTTPCode_Backend_4XX",
                 "Dimensions": [
@@ -511,9 +511,9 @@
             "Type": "AWS::CloudWatch::Alarm",
             "Properties": {
                 "ActionsEnabled": { "Ref": "AlertActive" },
-                "AlarmDescription": "Requests to media-atom-maker start taking on average more than 1 second",
+                "AlarmDescription": "Requests to media-atom-maker start taking on average more than 3 seconds",
                 "ComparisonOperator": "GreaterThanOrEqualToThreshold",
-                "Threshold": "1",
+                "Threshold": "3",
                 "Namespace": "AWS/ELB",
                 "MetricName": "Latency",
                 "Dimensions": [
@@ -523,7 +523,7 @@
                     }
                 ],
                 "Period": "300",
-                "EvaluationPeriods": "1",
+                "EvaluationPeriods": "2",
                 "Statistic": "Average",
                 "AlarmActions": [ { "Ref": "AlertTopic" } ]
             }
