@@ -20,6 +20,14 @@ export default class VideoSelectBar extends React.Component {
 
   }
 
+  renderEmbedButton() {
+    return <button type="button" className="bar__button" onClick={this.props.onSelectVideo}>Select this Video</button>
+  }
+
+  renderCannotEmbedMessage() {
+    return <div>This atom cannot be embedded because it has not been published</div>
+  }
+
   render() {
     if (!this.props.embeddedMode) {
        return false;
@@ -31,7 +39,7 @@ export default class VideoSelectBar extends React.Component {
         <div className="bar__image">{this.renderItemImage()}</div>
         <div>
           <span className="grid__item__title">{this.props.video.title}</span>
-          <button type="button" className="bar__button" onClick={this.props.onSelectVideo}>Select this Video</button>
+          {this.renderEmbedButton()}
         </div>
         </div>
       )
@@ -41,7 +49,7 @@ export default class VideoSelectBar extends React.Component {
         <div className="bar__image">{this.renderItemImage()}</div>
         <div>
           <span className="grid__item__title">{this.props.video.title}</span>
-          <div>This atom has not been embedded because it has not been published</div>
+          {this.renderCannotEmbedMessage()}
         </div>
         </div>
       )

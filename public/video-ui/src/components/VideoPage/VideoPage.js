@@ -96,14 +96,21 @@ export default class VideoPage extends React.Component {
 
     //If there are no composer pages, display a button that allows for creating one
     else {
+
+      if (this.props.video && this.props.video.contentChangeDetails && this.props.video.contentChangeDetails.published) {
+        return (
+          <button
+            type="button"
+            className="btn page__add__button"
+            disabled={this.state.pageCreated}
+            onClick={this.pageCreate}>
+            Create video page
+          </button>
+        );
+      }
+
       return (
-        <button
-          type="button"
-          className="btn page__add__button"
-          disabled={this.state.pageCreated}
-          onClick={this.pageCreate}>
-          Create video page
-        </button>
+        <div>Publish this atom to enable the creation of composer pages</div>
       );
     }
   }
