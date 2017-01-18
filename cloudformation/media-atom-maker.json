@@ -63,6 +63,10 @@
         "AlertWebhook": {
             "Description": "Where CloudWatch alerts are sent",
             "Type": "String"
+        },
+        "DomainToMonitor": {
+          "Description": "Domain name for the Route53 health check",
+          "Type": "String"
         }
     },
     "Mappings": {
@@ -488,7 +492,7 @@
                 "ActionsEnabled": { "Ref": "AlertActive" },
                 "AlarmDescription": "Repeated 4XX errors reported from media-atom-maker",
                 "ComparisonOperator": "GreaterThanOrEqualToThreshold",
-                "Threshold": "15",
+                "Threshold": "30",
                 "Namespace": "AWS/ELB",
                 "MetricName": "HTTPCode_Backend_4XX",
                 "Dimensions": [
@@ -507,9 +511,9 @@
             "Type": "AWS::CloudWatch::Alarm",
             "Properties": {
                 "ActionsEnabled": { "Ref": "AlertActive" },
-                "AlarmDescription": "Requests to media-atom-maker start taking on average more than 1 second",
+                "AlarmDescription": "Requests to media-atom-maker start taking on average more than 3 seconds",
                 "ComparisonOperator": "GreaterThanOrEqualToThreshold",
-                "Threshold": "1",
+                "Threshold": "3",
                 "Namespace": "AWS/ELB",
                 "MetricName": "Latency",
                 "Dimensions": [
@@ -519,31 +523,50 @@
                     }
                 ],
                 "Period": "300",
-                "EvaluationPeriods": "1",
+                "EvaluationPeriods": "2",
                 "Statistic": "Average",
                 "AlarmActions": [ { "Ref": "AlertTopic" } ]
             }
         },
-        "MediaAtomMakerUnhealthy": {
-          "Type": "AWS::CloudWatch::Alarm",
-          "Properties": {
-            "ActionsEnabled": { "Ref": "AlertActive" },
-            "AlarmDescription": "Unexpectedly unhealthy instances",
-            "ComparisonOperator": "GreaterThanOrEqualToThreshold",
-            "Threshold": "1",
-            "Namespace": "AWS/ELB",
-            "MetricName": "UnHealthyHostCount",
-            "Dimensions": [
-              {
-                "Name": "LoadBalancerName",
-                "Value": { "Ref": "MediaAtomMakerLoadBalancer" }
-              }
-            ],
-            "Period": "300",
-            "EvaluationPeriods": "1",
-            "Statistic": "Average",
-            "AlarmActions": [ { "Ref": "AlertTopic" } ]
-          }
+        "MediaAtomMakerPingVideos": {
+            "Type": "AWS::Route53::HealthCheck",
+            "Properties": {
+                "HealthCheckConfig": {
+                    "Port": 443,
+                    "Type": "HTTPS",
+                    "FullyQualifiedDomainName": { "Ref": "DomainToMonitor" },
+                    "ResourcePath": "/video/videos",
+                    "RequestInterval": "30",
+                    "FailureThreshold": "3"
+                },
+                "HealthCheckTags": [
+                    {
+                        "Key": "Name",
+                        "Value": { "Fn::Join": [ "", [ "https://", { "Ref": "DomainToMonitor" }, "/video/videos" ] ] }
+                    }
+                ]
+            }
+        },
+        "MediaAtomMakerVideosDown": {
+            "Type": "AWS::CloudWatch::Alarm",
+            "Properties": {
+                "ActionsEnabled": { "Ref": "AlertActive" },
+                "AlarmDescription": "Unable to get a response from the videos application",
+                "ComparisonOperator": "LessThanThreshold",
+                "Threshold": "1",
+                "Namespace": "AWS/Route53",
+                "MetricName": "HealthCheckStatus",
+                "Dimensions": [
+                    {
+                      "Name": "HealthCheckId",
+                      "Value": { "Ref": "MediaAtomMakerPingVideos" }
+                    }
+                ],
+                "Period": "60",
+                "EvaluationPeriods": "1",
+                "Statistic": "Minimum",
+                "AlarmActions": [ { "Ref": "AlertTopic" } ]
+            }
         }
     }
 }
