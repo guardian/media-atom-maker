@@ -44,23 +44,34 @@ libraryDependencies ++= Seq(
 ) ++ scanamoDeps
 
 lazy val appDistSettings = Seq(
-    packageName in Universal := name.value,
-    riffRaffPackageType := (packageZipTarball in Universal).value,
+    riffRaffPackageType := (packageBin in Debian).value,
     riffRaffBuildIdentifier := Option(System.getenv("CIRCLE_BUILD_NUM")).getOrElse("dev"),
+    riffRaffManifestVcsUrl  := "git@github.com:guardian/media-atom-maker.git",
     riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
     riffRaffUploadManifestBucket := Option("riffraff-builds"),
     riffRaffArtifactPublishPath := name.value,
     riffRaffPackageName := s"media-service:${name.value}",
     riffRaffManifestProjectName := riffRaffPackageName.value,
     riffRaffArtifactResources := Seq(
+      baseDirectory.value / "conf" / "deploy.json" -> "deploy.json",
       riffRaffPackageType.value -> s"packages/${name.value}/${name.value}.tgz",
-      baseDirectory.value / "conf" / "deploy.json" -> "deploy.json"
+      riffRaffPackageType.value -> s"packages/${name.value}/${name.value}.deb"
     ),
+
     artifactName in Universal := { (sv: ScalaVersion, module: ModuleID, artifact: Artifact) =>
       artifact.name + "." + artifact.extension
     },
     riffRaffManifestBranch := Option(System.getenv("CIRCLE_BRANCH")).getOrElse("dev")
   )
+
+import com.typesafe.sbt.packager.archetypes.ServerLoader.Systemd
+serverLoading in Debian := Systemd
+
+debianPackageDependencies := Seq("openjdk-8-jre-headless")
+maintainer := "Digital CMS <digitalcms.dev@guardian.co.uk>"
+packageSummary := "media-atom-maker"
+packageDescription := """making media atoms"""
+
 
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, SbtWeb, RiffRaffArtifact, UniversalPlugin, JDebPackaging)
