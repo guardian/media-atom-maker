@@ -7,26 +7,24 @@ import {getStore} from '../../util/storeAccessor';
 export default class VideoPage extends React.Component {
 
   state = {
-    composerIds: undefined,
+    usages: undefined,
     pageCreated: false
   }
 
   componentDidMount() {
-    if (this.props.usages) {
-      this.getComposerIds(this.props.usages);
+    if (this.props.video) {
+      this.props.fetchUsages(this.props.video.id)
     }
   }
 
   componentWillReceiveProps(newProps) {
     const oldVideoId = this.props.video && this.props.video.id;
     const newVideoId = newProps.video && newProps.video.id;
-    const oldUsages = this.props.usages;
-    const newUsages = newProps.usages;
 
-    if (oldVideoId !== newVideoId || oldUsages !== newUsages) {
-      this.getComposerIds(newProps.usages);
+    if (oldVideoId !== newVideoId) {
+
+      this.props.fetchUsages(newVideoId);
     }
-
   }
 
   getComposerUrl = () => {
@@ -57,7 +55,7 @@ export default class VideoPage extends React.Component {
 
     const videoPage = getVideoBlock(this.props.video.id, this.props.video.title);
 
-    return this.props.createComposerPage(this.props.video.id, this.props.video.title, this.getComposerUrl(), videoPage);
+    return this.props.createComposerPage(this.props.video.id, this.props.video.title, this.getComposerUrl(), videoPage)
   }
 
   renderComposerLink = (composerIdWithUsage) => {
@@ -70,11 +68,30 @@ export default class VideoPage extends React.Component {
       );
   }
 
-  render() {
+  noExistingComposerPages = (composerUsages) => {
+    const noComposer = !((this.props.composerPageWithUsage && this.props.composerPageWithUsage.composerId) || (composerUsages && composerUsages.length > 0));
+
+    return !((this.props.composerPageWithUsage && this.props.composerPageWithUsage.composerId) || (composerUsages && composerUsages.length > 0));
+  }
+
+  renderCreateButton = () => {
+    return (
+      <button
+        type="button"
+        className="btn page__add__button"
+        disabled={this.state.pageCreated}
+        onClick={this.pageCreate}>
+        Create video page
+      </button>
+    );
+  }
+
+  renderComposerPages = () => {
+
     //If composerId exists, this means that this is the only composer page
     //that exists, it has just been created via media-atom-maker. It may not
     //yet be in capi, so we use this id to render it
-    if (this.props.composerPageWithUsage.composerId) {
+    if (this.props.composerPageWithUsage && this.props.composerPageWithUsage.composerId) {
       return (
         <ul className="detail__list">
           {this.renderComposerLink(this.props.composerPageWithUsage)}
@@ -83,13 +100,13 @@ export default class VideoPage extends React.Component {
     }
 
     //Else we are safe to get composer pages from composerIds list derived from usages
-    if (this.state.composerIds && this.state.composerIds.length > 0) {
+    const composerUsages = this.props.usages.composerIdsWithUsage;
+
+    if (composerUsages && composerUsages.length > 0) {
 
       return (
         <ul className="detail__list">
-          {this.state.composerIds.map(id => {
-            return this.renderComposerLink(id);
-           })}
+          {composerUsages.map(this.renderComposerLink)}
         </ul>
       );
     }
@@ -112,7 +129,51 @@ export default class VideoPage extends React.Component {
       return (
         <div>Publish this atom to enable the creation of composer pages</div>
       );
+    {this.renderCreateButton()}
+  }
+
+  renderUsage = (usage) => {
+    return (
+      <li key={usage} className="detail__list__item">
+        {usage}
+      </li>
+    )
+  }
+
+  renderUsages() {
+    return (
+      <ul className="detail__list">
+        {this.props.usages.usagesWithoutComposer.map(this.renderUsage)}
+      </ul>
+    )
+  }
+
+  arraysFetched() {
+    const fetched = this.props.usages && this.props.usages.usagesWithoutComposer !== undefined && this.props.usages.composerIdsWithUsage !== undefined;
+
+    return this.props.usages && this.props.usages.usagesWithoutComposer !== undefined && this.props.usages.composerIdsWithUsage !== undefined;
+  }
+
+  render() {
+
+    if (!this.arraysFetched()) {
+      return (<div className="baseline-margin">Fetching Usages...</div>)
+>>>>>>> composer usages and usages appear on the same page
     }
+
+    if (this.props.usages.usagesWithoutComposer.length === 0) {
+      if (this.noExistingComposerPages(this.props.usages.composerIdsWithUsage)) {
+        return (
+          <div>
+          {this.renderCreateButton()}
+          <div className="baseline-margin">No usages found</div>
+          </div>
+        );
+      }
+      return (<div>{this.renderComposerPages()}</div>)
+    }
+
+    return (<div>{this.renderUsages()} {this.renderComposerPages()}</div>)
   }
 }
 

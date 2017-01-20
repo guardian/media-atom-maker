@@ -5,9 +5,9 @@ export default function usage(state = {}, action) {
     case 'VIDEO_PAGE_CREATE_POST_RECEIVE':
       const videoId = action.newPage.videoId;
       if (state[videoId]) {
-        state[videoId].push(action.newPage.usage);
+        state[videoId].composerIdsWithUsage.push(action.newPage.usage);
       } else {
-        state[videoId] = [action.newPage.usage];
+        state[videoId].composerIdsWithUsage = [action.newPage.usage];
       }
       return state;
     default:

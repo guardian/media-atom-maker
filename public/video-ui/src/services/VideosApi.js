@@ -96,5 +96,21 @@ export default {
       withCredentials: true,
       data: JSON.stringify(data)
     });
-  }
+  },
+
+  fetchComposerId(capiId) {
+    const capiProxyUrl = getStore().getState().config.capiProxyUrl;
+    const url = capiProxyUrl + '/' + capiId + "?show-fields=all";
+    return pandaReqwest({
+      url: capiProxyUrl + '/' + capiId + "?show-fields=all",
+      method: 'get'
+    })
+    .then(resp => {
+      if (resp.response.content && resp.response.content.fields && resp.response.content.fields.internalComposerCode) {
+        return resp.response.content.fields.internalComposerCode;
+      }
+      return "";
+  });
+}
+
 }
