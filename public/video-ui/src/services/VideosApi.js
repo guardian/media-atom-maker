@@ -87,9 +87,9 @@ export default {
     });
   },
 
-  addVideoToComposerPage(pageId, data, composerUrl) {
-    // The composer client (whilst in draft) keeps both the preview and live data in sync so we must do the same
-    const requests = ['preview', 'live'].map((stage) => {
+  addVideoToComposerPage(pageId, previewData, composerUrl) {
+
+    function updateMainBlock(stage, data) {
       return pandaReqwest({
         url: `${composerUrl}/api/content/${pageId}/${stage}/mainblock`,
         method: 'post',
@@ -98,8 +98,12 @@ export default {
         withCredentials: true,
         data: JSON.stringify(data)
       });
-    });
+    }
 
-    return Promise.all(requests);
+    // The composer client (whilst in draft) keeps both the preview and live data in sync so we must do the same
+    updateMainBlock('preview', previewData).then((preview) => {
+      const liveData = preview.data.block;
+      return updateMainBlock('live', liveData);
+    });
   }
 }
