@@ -101,7 +101,7 @@ export default {
     }
 
     // The composer client (whilst in draft) keeps both the preview and live data in sync so we must do the same
-    updateMainBlock('preview', previewData).then((preview) => {
+    return updateMainBlock('preview', previewData).then((preview) => {
       const liveData = preview.data.block;
       return updateMainBlock('live', liveData);
     });
