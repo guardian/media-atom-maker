@@ -62,15 +62,19 @@ export default class VideoPage extends React.Component {
 
 
   renderCreateButton = () => {
-    return (
-      <button
-        type="button"
-        className="btn page__add__button"
-        disabled={this.state.pageCreated}
-        onClick={this.pageCreate}>
-        Create video page
-      </button>
-    );
+    if (this.props.video && this.props.video.contentChangeDetails && this.props.video.contentChangeDetails.published) {
+      return (
+        <button
+          type="button"
+          className="btn page__add__button"
+          disabled={this.state.pageCreated}
+          onClick={this.pageCreate}>
+          Create video page
+        </button>
+      );
+    }
+
+    return (<div>Publish this atom to enable the creation of composer pages</div>);
   }
 
   renderComposerPages = () => {
