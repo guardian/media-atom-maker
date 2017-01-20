@@ -1,6 +1,5 @@
 import React from 'react';
 import Q from 'q';
-import {fetchComposerId} from '../../services/capi.js';
 import {getVideoBlock} from '../../util/getVideoBlock';
 import {getStore} from '../../util/storeAccessor';
 
