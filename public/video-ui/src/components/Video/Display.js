@@ -5,7 +5,7 @@ import VideoPublishBar from '../VideoPublishBar/VideoPublishBar';
 import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoAuditTrail from '../VideoAuditTrail/VideoAuditTrail';
-import VideoPage from '../VideoPage/VideoPage';
+import VideoUsages from '../VideoUsages/VideoUsages';
 
 class VideoDisplay extends React.Component {
 
@@ -98,7 +98,7 @@ class VideoDisplay extends React.Component {
               </div>
               <div className="video__detailbox usages">
                 <span className="video__detailbox__header">Usages</span>
-                <VideoPage
+                <VideoUsages
                   video={this.props.video || {}}
                   fetchUsages={this.props.videoActions.getUsages}
                   usages={this.props.usages[this.props.video.id] || {}}
