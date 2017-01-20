@@ -1,17 +1,8 @@
 stacks: [media-service]
 regions: [eu-west-1]
-templates:
-  autoscaling:
+deployments:
+  media-atom-maker:
     type: autoscaling
-    app: usage
-    contentDirectory: media-atom-maker
+    actions: [uploadArtifacts, deploy]
     parameters:
       bucket: atom-maker-dist
-deployments:
-  upload:
-    template: autoscaling
-    actions: [uploadArtifacts]
-  deploy:
-    template: autoscaling
-    actions: [deploy]
-    dependencies: [upload]
