@@ -53,7 +53,7 @@ lazy val appDistSettings = Seq(
     riffRaffPackageName := s"media-service:${name.value}",
     riffRaffManifestProjectName := riffRaffPackageName.value,
     riffRaffArtifactResources := Seq(
-      baseDirectory.value / "conf" / "deploy.json" -> "deploy.json",
+      baseDirectory.value / "conf" / "riff-raff.yaml" -> "riff-raff.yaml",
       riffRaffPackageType.value -> s"packages/${name.value}/${name.value}.tgz",
       riffRaffPackageType.value -> s"packages/${name.value}/${name.value}.deb"
     ),
