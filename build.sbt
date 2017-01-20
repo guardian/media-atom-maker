@@ -44,7 +44,6 @@ libraryDependencies ++= Seq(
 ) ++ scanamoDeps
 
 lazy val appDistSettings = Seq(
-    riffRaffPackageType := (packageBin in Debian).value,
     riffRaffBuildIdentifier := Option(System.getenv("CIRCLE_BUILD_NUM")).getOrElse("dev"),
     riffRaffManifestVcsUrl  := "git@github.com:guardian/media-atom-maker.git",
     riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
@@ -54,8 +53,8 @@ lazy val appDistSettings = Seq(
     riffRaffManifestProjectName := riffRaffPackageName.value,
     riffRaffArtifactResources := Seq(
       baseDirectory.value / "conf" / "riff-raff.yaml" -> "riff-raff.yaml",
-      riffRaffPackageType.value -> s"packages/${name.value}/${name.value}.tgz",
-      riffRaffPackageType.value -> s"packages/${name.value}/${name.value}.deb"
+      (packageZipTarball in Universal).value -> s"${name.value}/${name.value}.tgz",
+      (packageBin in Debian).value -> s"${name.value}/${name.value}.deb"
     ),
 
     artifactName in Universal := { (sv: ScalaVersion, module: ModuleID, artifact: Artifact) =>
