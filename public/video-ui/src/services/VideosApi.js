@@ -88,13 +88,18 @@ export default {
   },
 
   addVideoToComposerPage(pageId, data, composerUrl) {
-    return pandaReqwest({
-      url: composerUrl + '/api/content/' + pageId + '/preview/mainblock',
-      method: 'post',
-      contentType: 'application/json',
-      crossOrigin: true,
-      withCredentials: true,
-      data: JSON.stringify(data)
+    // The composer client (whilst in draft) keeps both the preview and live data in sync so we must do the same
+    const requests = ['preview', 'live'].map((stage) => {
+      return pandaReqwest({
+        url: `${composerUrl}/api/content/${pageId}/${stage}/mainblock`,
+        method: 'post',
+        contentType: 'application/json',
+        crossOrigin: true,
+        withCredentials: true,
+        data: JSON.stringify(data)
+      });
     });
+
+    return Promise.all(requests);
   }
 }
