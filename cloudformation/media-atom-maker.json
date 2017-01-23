@@ -143,6 +143,15 @@
                                     ]
                                 },
                                 {
+                                  "Effect": "Allow",
+                                  "Action": [
+                                    "s3:GetObject"
+                                  ],
+                                  "Resource": [
+                                    "arn:aws:s3:::atom-maker-conf/*"
+                                  ]
+                                },
+                                {
                                     "Effect": "Allow",
                                     "Action": [
                                         "ec2:DescribeTags"
@@ -317,7 +326,7 @@
                             [
                                 "#!/bin/bash -ev\n",
 
-                                "aws s3 cp 's3://atom-maker-dist/conf/media-atom-maker.",
+                                "aws s3 cp 's3://atom-maker-conf/media-atom-maker.",
                                 {
                                     "Ref": "Stage"
                                 },

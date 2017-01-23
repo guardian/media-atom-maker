@@ -39,8 +39,8 @@ class VideoAssets extends React.Component {
     });
   };
 
-  createAsset = () => {
-    this.props.videoActions.createAsset(this.props.asset, this.props.video.id);
+  createAsset = (asset) => {
+    this.props.videoActions.createAsset(asset, this.props.video.id);
   };
 
   revertAsset = (videoId, version) => {
@@ -50,10 +50,6 @@ class VideoAssets extends React.Component {
 
   updateVideo = (video) => {
     this.props.videoActions.updateVideo(video);
-  };
-
-  updateAsset = (asset) => {
-    this.props.videoActions.updateAsset(asset);
   };
 
   renderList() {
@@ -107,11 +103,7 @@ class VideoAssets extends React.Component {
     if (this.state.showAssetForm) {
       return (
         <form className="form baseline-margin">
-          <VideoAssetAdd updateAsset={this.updateAsset} {...this.props} />
-          <div className="btn__group">
-            <button className="btn" type="button" onClick={this.createAsset}>Save</button>
-            <button className="btn" type="button" onClick={this.hideAssetForm}>Cancel</button>
-          </div>
+          <VideoAssetAdd createAsset={this.createAsset} hideAssetForm={this.hideAssetForm} {...this.props} />
         </form>
       )
     }
@@ -142,7 +134,6 @@ import { bindActionCreators } from 'redux';
 import * as createAsset from '../../actions/VideoActions/createAsset';
 import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as revertAsset from '../../actions/VideoActions/revertAsset';
-import * as updateAsset from '../../actions/VideoActions/updateAsset';
 
 function mapStateToProps(state) {
   return {
@@ -153,7 +144,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, createAsset, updateVideo, revertAsset, updateAsset), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, createAsset, updateVideo, revertAsset), dispatch)
   };
 }
 
