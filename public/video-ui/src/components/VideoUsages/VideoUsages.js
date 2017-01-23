@@ -6,7 +6,6 @@ import {getStore} from '../../util/storeAccessor';
 export default class VideoPage extends React.Component {
 
   state = {
-    usages: undefined,
     pageCreated: false
   }
 
