@@ -4,9 +4,8 @@ import VideoAssets from '../VideoAssets/VideoAssets';
 import VideoPublishBar from '../VideoPublishBar/VideoPublishBar';
 import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../VideoPreview/VideoPreview';
-import VideoUsages from '../VideoUsages/VideoUsages';
 import VideoAuditTrail from '../VideoAuditTrail/VideoAuditTrail';
-import VideoPage from '../VideoPage/VideoPage';
+import VideoUsages from '../VideoUsages/VideoUsages';
 
 class VideoDisplay extends React.Component {
 
@@ -100,15 +99,9 @@ class VideoDisplay extends React.Component {
               <div className="video__detailbox usages">
                 <span className="video__detailbox__header">Usages</span>
                 <VideoUsages
-                  video={this.props.video}
-                  fetchUsages={this.props.videoActions.getUsages}
-                  usages={this.props.usages[this.props.video.id] || []}/>
-              </div>
-              <div className="video__detailbox usages">
-                <span className="video__detailbox__header">Composer Pages</span>
-                <VideoPage
                   video={this.props.video || {}}
-                  usages={this.props.usages[this.props.video.id] || []}
+                  fetchUsages={this.props.videoActions.getUsages}
+                  usages={this.props.usages[this.props.video.id] || {}}
                   composerPageWithUsage={this.props.composerPageWithUsage[this.props.video.id] || {}}
                   createComposerPage={this.props.videoActions.createVideoPage}
                 />
