@@ -102,7 +102,11 @@ export default class VideoPage extends React.Component {
 
     //If there are no composer pages, display a button that allows for creating one
     else {
-      {this.renderCreateButton()}
+      return (
+        <div>
+          {this.renderCreateButton()}
+        </div>
+      );
     }
   }
 
