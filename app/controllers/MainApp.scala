@@ -4,11 +4,14 @@ import javax.inject._
 
 import com.gu.atom.data._
 import com.gu.pandahmac.HMACAuthActions
-import play.api.Configuration
+import com.gu.pandomainauth.service.GoogleAuthException
+import play.api.{Configuration, Logger}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import views.html.MediaAtom._
 
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class MainApp @Inject() (previewDataStore: PreviewDataStore,
                          publishedDataStore: PublishedDataStore,
@@ -24,7 +27,15 @@ class MainApp @Inject() (previewDataStore: PreviewDataStore,
   }
 
   def oauthCallback = Action.async { implicit req =>
-    processGoogleCallback()
+    try {
+      processGoogleCallback()
+    } catch {
+      case e: GoogleAuthException => {
+        val redirectTo = "https://" + conf.getString("host").get
+        Logger.info(s"Authentication failure. ${e.message}. Redirecting to $redirectTo")
+        Future(Redirect(redirectTo, MOVED_PERMANENTLY))
+      }
+    }
   }
 
   def listAtoms = AuthAction { implicit req =>
