@@ -1,8 +1,16 @@
 import React from 'react';
 import {Link, IndexLink} from 'react-router';
 import VideoSearch from './VideoSearch/VideoSearch';
+import {isVideoPublished} from '../util/isVideoPublished';
 
 export default class Header extends React.Component {
+
+  renderVideoPublishedInfo() {
+    if (isVideoPublished(this.props.video)) {
+      return <div>Live</div>
+    }
+    return <div>Draft</div>
+  }
 
   renderHomeAndSearch() {
     return (
@@ -34,9 +42,7 @@ export default class Header extends React.Component {
         <i className="icon icon__add">add</i>
         <Link activeClassName="topbar__nav-link--active" className="topbar__nav-link" to="/videos/create">Create new video</Link>
       </nav>
-
     );
-
   }
 
   render () {
@@ -59,6 +65,8 @@ export default class Header extends React.Component {
         <header className="topbar">
 
           {this.renderHomeAndSearch()}
+
+          {this.renderVideoPublishedInfo()}
 
           <div className="topbar__container">
             {this.renderFeedback()}
