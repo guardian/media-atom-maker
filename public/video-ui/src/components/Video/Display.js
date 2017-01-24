@@ -8,10 +8,6 @@ import VideoUsages from '../VideoUsages/VideoUsages';
 
 class VideoDisplay extends React.Component {
 
-  state = {
-    editable: false
-  };
-
   componentWillReceiveProps(nextProps) {
     if (nextProps.video != this.props.video) {
       this.props.videoActions.getAudits(nextProps.video.id);
@@ -24,9 +20,6 @@ class VideoDisplay extends React.Component {
 
   saveVideo = () => {
     this.props.videoActions.saveVideo(this.props.video);
-    this.setState({
-      editable: false
-    });
   };
 
   saveAndUpdateVideo = (video) => {

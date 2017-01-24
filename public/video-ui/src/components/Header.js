@@ -6,15 +6,8 @@ import VideoPublishBar from './VideoPublishBar/VideoPublishBar';
 
 export default class Header extends React.Component {
 
-  state = {
-    editable: false
-  };
-
   publishVideo = () => {
     this.props.publishVideo(this.props.video.id);
-    this.setState({
-      editable: false
-    });
   };
 
 
