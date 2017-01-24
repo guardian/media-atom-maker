@@ -18,7 +18,10 @@ class ReactApp extends React.Component {
   }
 
   componentWillReceiveProps() {
-    if (this.props.params.id && (!this.props.video || this.props.params.id !== this.props.video.id) && this.state.fetchedVideoFor !== this.props.params.id) {
+    if (this.props.params.id &&
+        (!this.props.video || this.props.params.id !== this.props.video.id) &&
+        this.state.fetchedVideoFor !== this.props.params.id
+      ) {
       this.props.appActions.getVideo(this.props.params.id);
       this.setState({
         fetchedVideoFor: this.props.params.id
@@ -33,7 +36,15 @@ class ReactApp extends React.Component {
   render() {
     return (
         <div className="wrap">
-          <Header updateSearchTerm={this.updateSearchTerm} searchTerm={this.props.searchTerm} searching={this.props.saveState.searching} video={this.props.video || {}} showPublishedState={this.props.params.id ? true : false}/>
+          <Header
+            updateSearchTerm={this.updateSearchTerm}
+            searchTerm={this.props.searchTerm}
+            searching={this.props.saveState.searching}
+            video={this.props.video || {}}
+            showPublishedState={this.props.params.id ? true : false}
+            publishVideo={this.props.appActions.publishVideo}
+            saveState={this.props.saveState}
+          />
           {this.props.error ? <div className="error-bar">{this.props.error}</div> : false}
           <div>
             {this.props.children}
@@ -48,6 +59,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as updateSearchTerm from '../actions/SearchActions/updateSearchTerm';
 import * as getVideo from '../actions/VideoActions/getVideo';
+import * as publishVideo from '../actions/VideoActions/publishVideo';
+import * as saveVideo from '../actions/VideoActions/saveVideo';
 
 function mapStateToProps(state) {
   return {
@@ -60,7 +73,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    appActions: bindActionCreators(Object.assign({}, updateSearchTerm, getVideo), dispatch)
+    appActions: bindActionCreators(Object.assign({}, updateSearchTerm, getVideo, publishVideo), dispatch)
   };
 }
 

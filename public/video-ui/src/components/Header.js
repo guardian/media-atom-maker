@@ -2,8 +2,21 @@ import React from 'react';
 import {Link, IndexLink} from 'react-router';
 import VideoSearch from './VideoSearch/VideoSearch';
 import {isVideoPublished} from '../util/isVideoPublished';
+import VideoPublishBar from './VideoPublishBar/VideoPublishBar';
 
 export default class Header extends React.Component {
+
+  state = {
+    editable: false
+  };
+
+  publishVideo = () => {
+    this.props.publishVideo(this.props.video.id);
+    this.setState({
+      editable: false
+    });
+  };
+
 
   renderVideoPublishedInfo() {
     if (isVideoPublished(this.props.video)) {
@@ -67,6 +80,7 @@ export default class Header extends React.Component {
           {this.renderHomeAndSearch()}
 
           {this.renderVideoPublishedInfo()}
+          <VideoPublishBar video={this.props.video} saveState={this.props.saveState} publishVideo={this.publishVideo} />
 
           <div className="topbar__container">
             {this.renderFeedback()}

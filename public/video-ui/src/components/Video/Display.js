@@ -1,7 +1,6 @@
 import React from 'react';
 import VideoEdit from '../VideoEdit/VideoEdit';
 import VideoAssets from '../VideoAssets/VideoAssets';
-import VideoPublishBar from '../VideoPublishBar/VideoPublishBar';
 import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoAuditTrail from '../VideoAuditTrail/VideoAuditTrail';
@@ -42,13 +41,6 @@ class VideoDisplay extends React.Component {
     this.props.videoActions.getVideo(this.props.video.id);
   };
 
-  publishVideo = () => {
-    this.props.videoActions.publishVideo(this.props.video.id);
-    this.setState({
-      editable: false
-    });
-  };
-
   selectVideo = () => {
     window.parent.postMessage({atomId: this.props.video.id}, '*');
   };
@@ -77,7 +69,6 @@ class VideoDisplay extends React.Component {
         <div className="video">
           <div className="video__sidebar video-details">
             <form className="form video__sidebar__group">
-            <VideoPublishBar video={this.props.video} saveState={this.props.saveState} publishVideo={this.publishVideo} />
               <VideoEdit
                 video={this.props.video || {}}
                 updateVideo={this.updateVideo}
@@ -128,7 +119,6 @@ import { bindActionCreators } from 'redux';
 import * as getVideo from '../../actions/VideoActions/getVideo';
 import * as saveVideo from '../../actions/VideoActions/saveVideo';
 import * as updateVideo from '../../actions/VideoActions/updateVideo';
-import * as publishVideo from '../../actions/VideoActions/publishVideo';
 import * as videoUsages from '../../actions/VideoActions/videoUsages';
 import * as videoPageCreate from '../../actions/VideoActions/videoPageCreate';
 import * as getAudits from '../../actions/VideoActions/getAudits';
@@ -146,7 +136,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, publishVideo, videoUsages, videoPageCreate, getAudits), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, videoUsages, videoPageCreate, getAudits), dispatch)
   };
 }
 
