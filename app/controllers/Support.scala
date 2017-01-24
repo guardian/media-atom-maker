@@ -43,7 +43,7 @@ class Support @Inject() (val authActions: HMACAuthActions,
     }
   }
 
-  def legacyVideosEndpointRedirect(path: String) = Action {
-    Redirect(s"/$path")
+  def legacyVideosEndpointRedirect(path: String) = Action { request =>
+    Redirect(s"/$path?${request.rawQueryString}")
   }
 }
