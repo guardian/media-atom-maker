@@ -20,9 +20,9 @@ export default class Header extends React.Component {
 
   renderVideoPublishedInfo() {
     if (isVideoPublished(this.props.video)) {
-      return <div>Live</div>
+      return <div className="publish__label label__live">Live</div>
     }
-    return <div>Draft</div>
+    return <div className="publish__label label__draft">Draft</div>
   }
 
   renderHomeAndSearch() {
