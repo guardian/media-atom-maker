@@ -4,14 +4,9 @@ import {saveStateVals} from '../../constants/saveStateVals';
 export default class VideoPublishBar extends React.Component {
 
   videoHasUnpublishedChanges() {
-    console.log('has unpub changes ?');
     const changeDetails = this.props.video.contentChangeDetails
     const lastModified = changeDetails.lastModified && changeDetails.lastModified.date
     const published = changeDetails.published && changeDetails.published.date
-    console.log('pub ', published);
-    console.log('last ', lastModified);
-    console.log('published ', published);
-    console.log(lastModified > published);
 
     if (!published || lastModified > published) {
       return true
@@ -52,7 +47,6 @@ export default class VideoPublishBar extends React.Component {
   }
 
   render() {
-    console.log('video in render ', this.props.video);
 
     if (!this.props.video || !this.props.video.contentChangeDetails) {
         return false;

@@ -14,6 +14,7 @@ import model.{ImageAsset, MediaAtom, UpdatedMetadata}
 import util.{YouTubeConfig, YouTubeVideoUpdateApi}
 import model.commands.CommandExceptions._
 import data.AuditDataStore
+import model._
 
 import scala.util.{Failure, Success}
 import scala.util.control.NonFatal
@@ -60,6 +61,8 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
           atom.plutoProjectId))
 
         val changeRecord = ChangeRecord((new Date()).getTime(), None) // Todo: User...
+        val changeRecordAsModel = model.ChangeRecord.fromThrift(changeRecord)
+
         val updatedAtom = thriftAtom.copy(
           contentChangeDetails = thriftAtom.contentChangeDetails.copy(
             published = Some(changeRecord),
@@ -69,7 +72,7 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
         )
 
         auditDataStore.auditPublish(id, user)
-        UpdateAtomCommand(id, MediaAtom.fromThrift(updatedAtom)).process()
+        UpdateAtomCommand(id, MediaAtom.fromThrift(updatedAtom), Some(changeRecordAsModel)).process()
 
         publishAtomToLive(updatedAtom)
 

@@ -18,7 +18,7 @@ import ai.x.diff.conversions._
 
 import com.gu.pandomainauth.model.{User => PandaUser}
 
-case class UpdateAtomCommand(id: String, atom: MediaAtom)
+case class UpdateAtomCommand(id: String, atom: MediaAtom, maybeChangeRecord: Option[ChangeRecord] = None)
                             (implicit previewDataStore: PreviewDataStore,
                              previewPublisher: PreviewAtomPublisher,
                              auditDataStore: AuditDataStore,
@@ -43,7 +43,12 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom)
 
     val diffString = auditDataStore.createDiffString(MediaAtom.fromThrift(existingAtom), atom)
 
-    val changeRecord = ChangeRecord(DateTime.now(), None)
+    //Publish atom command will pass its own change record to the update atom command
+    //to make sure that preview and publish atoms have the same change record
+    val changeRecord = maybeChangeRecord match {
+      case Some(changeRecord) => changeRecord
+      case None => ChangeRecord(DateTime.now(), None)
+    }
 
     val details = atom.contentChangeDetails.copy(
       revision = existingAtom.contentChangeDetails.revision + 1,

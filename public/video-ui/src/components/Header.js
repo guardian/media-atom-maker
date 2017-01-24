@@ -10,7 +10,6 @@ export default class Header extends React.Component {
     this.props.publishVideo(this.props.video.id);
   };
 
-
   renderVideoPublishedInfo() {
     if (isVideoPublished(this.props.video)) {
       return <div className="publish__label label__live">Live</div>
