@@ -1,0 +1,20 @@
+.publish__label {
+  width: 60px;
+  height: 30px;
+  margin-top: 10px;
+  color: $color800Grey;
+  border-radius: 25px;
+  text-align: center;
+  padding: 7px 10px;
+  font-family: $text-font-stack;
+  font-weight: bold;
+  font-size:12px;
+}
+
+.label__live {
+  background-color: $labelPublishedColor;
+}
+
+.label__draft {
+  background-color: $brandColor;
+}

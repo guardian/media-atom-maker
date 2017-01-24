@@ -62,3 +62,28 @@
   color: white;
   text-align: center;
 }
+
+.publish-bar {
+  font-size: 13px;
+  width: 60%;
+  padding: 0px;
+  flex-direction: row;
+}
+
+.publish-bar__button {
+  margin-top: 9px;
+
+  &:disabled {
+    background: $color500Grey;
+  }
+}
+
+.publish-bar__message {
+  padding: 14px;
+}
+
+.publish-bar__message__block {
+  margin-left: 10px;
+}
+
+
