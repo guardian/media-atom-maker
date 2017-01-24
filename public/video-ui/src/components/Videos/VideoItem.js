@@ -31,7 +31,7 @@ export default class VideoItem extends React.Component {
   render() {
     return(
         <li className="grid__item">
-          <Link className="grid__link" to={'/video/videos/' + this.props.video.id}>
+          <Link className="grid__link" to={'/videos/' + this.props.video.id}>
 
             <div className="grid__info">
               <div className="grid__image">
