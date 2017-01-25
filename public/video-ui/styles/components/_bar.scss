@@ -65,13 +65,10 @@
 
 .publish-bar {
   font-size: 13px;
-  width: 60%;
-  padding: 0px;
-  flex-direction: row;
+  flex-basis: 66%;
 }
 
 .publish-bar__button {
-  margin-top: 9px;
 
   &:disabled {
     background: $color500Grey;

@@ -1,5 +1,6 @@
 import React from 'react';
 import {saveStateVals} from '../../constants/saveStateVals';
+import {isVideoPublished} from '../../util/isVideoPublished';
 
 export default class VideoPublishBar extends React.Component {
 
@@ -46,6 +47,14 @@ export default class VideoPublishBar extends React.Component {
     );
   }
 
+  renderVideoPublishedInfo() {
+    if (isVideoPublished(this.props.video)) {
+      return <div className="publish__label label__live">Live</div>
+    }
+    return <div className="publish__label label__draft">Draft</div>
+  }
+
+
   render() {
 
     if (!this.props.video || !this.props.video.contentChangeDetails) {
@@ -54,7 +63,8 @@ export default class VideoPublishBar extends React.Component {
 
     if (this.videoIsCurrentlyPublishing()) {
       return (
-        <div className="bar publish-bar">
+        <div className="topbar__container publish-bar">
+          {this.renderVideoPublishedInfo()}
           {this.renderPublishButton()}
           {this.renderPublishMessage()}
         </div>
@@ -63,14 +73,16 @@ export default class VideoPublishBar extends React.Component {
 
     if (!this.videoHasUnpublishedChanges()) {
       return (
-        <div className="bar publish-bar">
+        <div className="topbar__container publish-bar">
+          {this.renderVideoPublishedInfo()}
           {this.renderPublishButton()}
         </div>
       );
     }
 
     return (
-      <div className="bar publish-bar">
+      <div className="topbar__container publish-bar">
+        {this.renderVideoPublishedInfo()}
         {this.renderPublishButton()}
         {this.renderUnpublishedNote()}
       </div>
