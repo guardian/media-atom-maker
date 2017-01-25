@@ -4,12 +4,11 @@ import java.net.URL
 import java.util.Date
 
 import play.api.Logger
-
 import cats.data.Xor
 import com.gu.atom.data.{PreviewDataStore, PublishedDataStore}
 import com.gu.atom.play.AtomAPIActions
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
-import com.gu.contentatom.thrift.{ChangeRecord, ContentAtomEvent, EventType, Atom}
+import com.gu.contentatom.thrift.{Atom, ChangeRecord, ContentAtomEvent, EventType}
 import model.{ImageAsset, MediaAtom, UpdatedMetadata}
 import util.{YouTubeConfig, YouTubeVideoUpdateApi}
 import model.commands.CommandExceptions._
@@ -17,8 +16,8 @@ import data.AuditDataStore
 
 import scala.util.{Failure, Success}
 import scala.util.control.NonFatal
-
 import com.gu.pandomainauth.model.{User => PandaUser}
+import model.Platform.Youtube
 
 case class PublishAtomCommand(id: String)(implicit val previewDataStore: PreviewDataStore,
                                           val previewPublisher: PreviewAtomPublisher,
@@ -71,8 +70,8 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
         auditDataStore.auditPublish(id, user)
         UpdateAtomCommand(id, MediaAtom.fromThrift(updatedAtom)).process()
 
+        setOldAssetsToPrivate(atom, api)
         publishAtomToLive(updatedAtom)
-
       }
     }
   }
@@ -113,5 +112,14 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
     api.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
 
     Logger.info(s"Updated YouTube thumbnail for atom: ${id}")
+  }
+
+  private def setOldAssetsToPrivate(atom: MediaAtom, api: YouTubeVideoUpdateApi): Unit = {
+    MediaAtom.getActiveYouTubeAsset(atom).foreach { activeAsset =>
+      atom.assets.collect {
+        case asset if asset.platform == Youtube && asset.id != activeAsset.id =>
+          api.setStatusToPrivate(asset.id, atom.id)
+      }
+    }
   }
 }
