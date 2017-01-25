@@ -35,7 +35,6 @@ case class UpdateMetadataCommand(atomId: String,
 
         MediaAtom.getActiveYouTubeAsset(mediaAtom) match {
           case Some(youtubeAsset) =>
-            YouTubeVideoUpdateApi(youtubeConfig).updateMetadata(youtubeAsset.id, metadata)
 
             val newMetadata = thriftMediaAtom.metadata.map(_.copy(
               tags = metadata.tags,
