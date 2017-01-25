@@ -87,14 +87,23 @@ export default {
     });
   },
 
-  addVideoToComposerPage(pageId, data, composerUrl) {
-    return pandaReqwest({
-      url: composerUrl + '/api/content/' + pageId + '/preview/mainblock',
-      method: 'post',
-      contentType: 'application/json',
-      crossOrigin: true,
-      withCredentials: true,
-      data: JSON.stringify(data)
+  addVideoToComposerPage(pageId, previewData, composerUrl) {
+
+    function updateMainBlock(stage, data) {
+      return pandaReqwest({
+        url: `${composerUrl}/api/content/${pageId}/${stage}/mainblock`,
+        method: 'post',
+        contentType: 'application/json',
+        crossOrigin: true,
+        withCredentials: true,
+        data: JSON.stringify(data)
+      });
+    }
+
+    // The composer client (whilst in draft) keeps both the preview and live data in sync so we must do the same
+    return updateMainBlock('preview', previewData).then((preview) => {
+      const liveData = preview.data.block;
+      return updateMainBlock('live', liveData);
     });
   },
 
