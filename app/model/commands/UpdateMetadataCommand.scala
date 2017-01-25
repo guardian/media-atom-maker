@@ -49,6 +49,7 @@ case class UpdateMetadataCommand(atomId: String,
 
             val updatedAtom = atom.updateData { media =>
                 media.copy(
+                  title = metadata.title,
                   description = metadata.description,
                   metadata = newMetadata,
                   duration = activeYTAssetDuration,

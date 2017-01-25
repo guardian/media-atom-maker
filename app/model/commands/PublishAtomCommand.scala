@@ -51,6 +51,7 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
         }
 
         api.updateMetadata(id, UpdatedMetadata(
+          atom.title,
           atom.description,
           Some(atom.tags),
           atom.youtubeCategoryId,
