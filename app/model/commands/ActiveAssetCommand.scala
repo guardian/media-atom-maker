@@ -2,6 +2,7 @@ package model.commands
 
 import java.util.Date
 import model.MediaAtom
+import org.joda.time.DateTime
 
 import scala.util.{Failure, Success}
 import CommandExceptions._
@@ -59,7 +60,6 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
               ))
 
             UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom)).process()
-            PublishAtomCommand(atomId).process()
 
           case None => AssetNotFound
         }
