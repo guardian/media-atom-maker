@@ -194,7 +194,7 @@ const VideoEdit = (props) => {
               name="youtubeKeywords"
               component={YoutubeKeywordsSelect}
               video={props.video}
-              updateVideo={props.updateVideo}
+              saveAndUpdateVideo={props.saveAndUpdateVideo}
               editable={props.editable} />
           </div>
         </div>
