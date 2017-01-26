@@ -345,17 +345,14 @@
                                         ]
                                     ]
                                 },
-                                "aws s3 cp 's3://atom-maker-conf/media-atom-maker.",
+                                "mkdir /etc/gu",
+                                "aws s3 cp 's3://atom-maker-conf/media-atom-maker/",
                                 {
-                                    "Ref": "Stage"
+                                  "Ref": "Stage"
                                 },
-                                ".application.conf' ",
-                                "/home/media-service/media-atom-maker/conf/application.conf\n",
-                                "cat >> /home/media-service/media-atom-maker/conf/application.conf<<'EOF'\n",
-                                "aws.dynamo.tableName=", { "Ref": "AtomMakerTable" }, "\n",
-                                "aws.dynamo.publishedTableName=", { "Ref": "PublishedAtomMakerTable" }, "\n",
-                                "aws.dynamo.auditTableName=", { "Ref": "AuditTable" }, "\n",
-                                "EOF\n",
+                                "/atom-maker.private.conf' /etc/gu",
+                                "chown media-service /etc/gu/atom-maker.private.conf'",
+                                "chmod 0600 /etc/gu/atom-maker.private.conf",
 
                                 "systemctl start media-atom-maker\n"
                             ]
