@@ -23,3 +23,5 @@ addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "1.1")
 // for creating test cases that use a local dynamodb
 
 addSbtPlugin("com.localytics" % "sbt-dynamodb" % "1.4.0")
+
+addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.6.1")

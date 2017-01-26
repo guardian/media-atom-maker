@@ -63,5 +63,16 @@ lazy val appDistSettings = Seq(
   )
 
 lazy val root = (project in file("."))
-  .enablePlugins(PlayScala, SbtWeb, RiffRaffArtifact, UniversalPlugin)
-  .settings(appDistSettings)
+  .enablePlugins(PlayScala, SbtWeb, RiffRaffArtifact, UniversalPlugin, BuildInfoPlugin)
+  .settings(
+    appDistSettings,
+    buildInfoKeys := Seq[BuildInfoKey](
+      name,
+      BuildInfoKey.constant("gitCommitId", Option(System.getenv("BUILD_VCS_NUMBER")) getOrElse(try {
+        "git rev-parse HEAD".!!.trim
+      } catch {
+        case e: Exception => "unknown"
+      }))
+    ),
+    buildInfoPackage := "app"
+  )

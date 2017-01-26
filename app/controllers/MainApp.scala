@@ -23,7 +23,7 @@ class MainApp @Inject() (previewDataStore: PreviewDataStore,
   import authActions.{AuthAction, processGoogleCallback}
 
   def healthcheck = Action {
-    Ok("ok")
+    Ok("ok " + app.BuildInfo.gitCommitId)
   }
 
   def oauthCallback = Action.async { implicit req =>
