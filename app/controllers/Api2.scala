@@ -14,7 +14,7 @@ import model.Category.Hosted
 import model.commands.CommandExceptions._
 import model.commands._
 import model.{MediaAtom, UpdatedMetadata}
-import play.api.Configuration
+import play.api.{Configuration, Logger}
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
@@ -157,10 +157,12 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
             val errorsByPath = errors.flatMap { case(p, e) => e.map(p -> _) } // flatten
             val msg = errorsByPath.map { case(p, e) => s"$p -> $e" }.mkString("\n")
 
+            Logger.info(s"Error parsing request: $msg - ${raw.body}")
             BadRequest(msg)
         }
 
       case None =>
+        Logger.info(s"Error parsing request: ${raw.body}")
         BadRequest("Unable to parse body as JSON")
     }
   } catch {
