@@ -24,12 +24,12 @@ function errorReceivingVideoPageCreate(error) {
   };
 }
 
-export function createVideoPage(id, title, composerUrl, data) {
+export function createVideoPage(id, metadata, composerUrl, data) {
   return dispatch => {
 
     dispatch(requestVideoPageCreate());
 
-    return VideosApi.createComposerPage(id, title, composerUrl)
+    return VideosApi.createComposerPage(id, metadata, composerUrl)
     .then(res => {
 
       const pageId = res.data.id;
