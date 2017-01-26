@@ -89,6 +89,11 @@ case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder {
         val snippet = video.getSnippet
         val status = video.getStatus
 
+        metadata.title match {
+          case Some(title) => snippet.setTitle(title)
+          case _ => None
+        }
+
         metadata.categoryId match {
           case Some(cat) => snippet.setCategoryId(cat)
           case _ => None

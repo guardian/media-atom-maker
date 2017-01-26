@@ -4,6 +4,7 @@ import java.util.Date
 import javax.inject.Inject
 import akka.actor.Scheduler
 import data.AuditDataStore
+import model.MediaAtom
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -38,13 +39,12 @@ case class ExpiryPoller @Inject () (
 
         YouTubeVideoUpdateApi(youtubeConfig).updateStatusIfExpired(atom) match {
           case Some(expiredAtom) => {
-            UpdateAtomCommand(expiredAtom.id, expiredAtom).process()
 
-            publishedDataStore.getAtom(expiredAtom.id) match {
-
-              case Some(atom) => PublishAtomCommand(expiredAtom.id).process()
-              case _ =>
-
+            val atomId = expiredAtom.id
+            
+            publishedDataStore.getAtom(atomId) match {
+              case Some(atom) => PublishAtomCommand(atomId).process()
+              case None => UpdateAtomCommand(expiredAtom.id, expiredAtom).process()
             }
           }
           case _ =>
