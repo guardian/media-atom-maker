@@ -345,14 +345,14 @@
                                         ]
                                     ]
                                 },
-                                "mkdir /etc/gu",
-                                "aws s3 cp 's3://atom-maker-conf/media-atom-maker/",
+                                "mkdir /etc/gu \n",
+                                "aws s3 cp 's3://atom-maker-conf/",
                                 {
                                   "Ref": "Stage"
                                 },
-                                "/atom-maker.private.conf' /etc/gu",
-                                "chown media-service /etc/gu/atom-maker.private.conf'",
-                                "chmod 0600 /etc/gu/atom-maker.private.conf",
+                                "/atom-maker.private.conf' /etc/gu\n",
+                                "chown media-service /etc/gu/atom-maker.private.conf'\n",
+                                "chmod 0600 /etc/gu/atom-maker.private.conf\n",
 
                                 "systemctl start media-atom-maker\n"
                             ]
