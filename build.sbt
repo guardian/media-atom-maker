@@ -54,7 +54,7 @@ lazy val appDistSettings = Seq(
     riffRaffManifestProjectName := riffRaffPackageName.value,
     riffRaffArtifactResources := Seq(
       riffRaffPackageType.value -> s"packages/${name.value}/${name.value}.tgz",
-      baseDirectory.value / "conf" / "deploy.json" -> "deploy.json"
+      baseDirectory.value / "conf" / "riff-raff.yaml" -> "riff-raff.yaml"
     ),
     artifactName in Universal := { (sv: ScalaVersion, module: ModuleID, artifact: Artifact) =>
       artifact.name + "." + artifact.extension
