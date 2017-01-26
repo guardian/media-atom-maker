@@ -30,11 +30,6 @@
             "Type": "String",
             "Default": "media-atom-maker"
         },
-        "GithubTeamName": {
-            "Description": "Github team name, used for giving ssh access to members of the team.",
-            "Type": "String",
-            "Default": "Editorial-Tools-SSHAccess"
-        },
         "KinesisStreamPrefix": {
             "Description": "Kinesis stream name prefix",
             "Type": "String",
@@ -330,21 +325,7 @@
                             "",
                             [
                                 "#!/bin/bash -ev\n",
-                                "apt-get -y update\n",
-                                "apt-get -y upgrade\n",
-                                "/opt/features/native-packager/install.sh -b atom-maker-dist -a media-atom-maker -t tgz\n",
-                                {
-                                    "Fn::Join": [
-                                        "",
-                                        [
-                                            "/opt/features/ssh-keys/initialise-keys-and-cron-job.sh -l -b github-team-keys -t ",
-                                            {
-                                                "Ref": "GithubTeamName"
-                                            },
-                                            " || true\n"
-                                        ]
-                                    ]
-                                },
+
                                 "aws s3 cp 's3://atom-maker-conf/media-atom-maker.",
                                 {
                                     "Ref": "Stage"
@@ -357,7 +338,9 @@
                                 "aws.dynamo.auditTableName=", { "Ref": "AuditTable" }, "\n",
                                 "EOF\n",
 
-                                "systemctl start media-atom-maker\n"
+                                "aws s3 cp s3://atom-maker-dist/media-service/", {"Ref":"Stage"}, "/media-atom-maker/media-atom-maker.deb /tmp",
+
+                                "dpkg -i /tmp/media-atom-maker.deb"
                             ]
                         ]
                     }
