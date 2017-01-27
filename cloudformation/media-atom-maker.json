@@ -332,7 +332,6 @@
                                 "#!/bin/bash -ev\n",
                                 "apt-get -y update\n",
                                 "apt-get -y upgrade\n",
-                                "/opt/features/native-packager/install.sh -b atom-maker-dist -a media-atom-maker -t tgz\n",
                                 {
                                     "Fn::Join": [
                                         "",
@@ -345,13 +344,15 @@
                                         ]
                                     ]
                                 },
+                                "/opt/features/native-packager/install.sh -b atom-maker-dist -a media-atom-maker -t tgz\n",
+
                                 "mkdir /etc/gu \n",
                                 "aws s3 cp 's3://atom-maker-conf/",
                                 {
                                   "Ref": "Stage"
                                 },
                                 "/atom-maker.private.conf' /etc/gu\n",
-                                "chown media-service /etc/gu/atom-maker.private.conf'\n",
+                                "chown media-service /etc/gu/atom-maker.private.conf\n",
                                 "chmod 0600 /etc/gu/atom-maker.private.conf\n",
 
                                 "systemctl start media-atom-maker\n"
