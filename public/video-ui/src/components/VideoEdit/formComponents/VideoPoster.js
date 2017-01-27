@@ -1,7 +1,7 @@
 import React from 'react';
 import GridImageSelect from '../../utils/GridImageSelect';
 import {parseImageFromGridCrop} from '../../../util/parseGridMetadata';
-import {findSmallestAssetAboveHeight} from '../../../util/imageHelpers';
+import {findSmallestAssetAboveWidth} from '../../../util/imageHelpers';
 
 class VideoPosterImageEdit extends React.Component {
 
@@ -21,7 +21,7 @@ class VideoPosterImageEdit extends React.Component {
       return false;
     }
 
-    const image = findSmallestAssetAboveHeight(this.props.video.posterImage.assets, 249)
+    const image = findSmallestAssetAboveWidth(this.props.video.posterImage.assets);
 
     return (
       <div className="form__image" >
