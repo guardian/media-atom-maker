@@ -10,9 +10,9 @@ import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import com.gu.contentatom.thrift.{Atom, ChangeRecord, ContentAtomEvent, EventType}
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.AuditDataStore
-import model.Platform.Youtube
-import model.commands.CommandExceptions._
 import model.{ImageAsset, MediaAtom, UpdatedMetadata}
+import CommandExceptions._
+import model.Platform.Youtube
 import util.{Logging, YouTubeConfig, YouTubeVideoUpdateApi}
 
 import scala.util.control.NonFatal
@@ -76,6 +76,8 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
         }
 
         val changeRecord = ChangeRecord((new Date()).getTime(), None) // Todo: User...
+        val changeRecordAsModel = model.ChangeRecord.fromThrift(changeRecord)
+
         val updatedAtom = thriftAtom.copy(
           contentChangeDetails = thriftAtom.contentChangeDetails.copy(
             published = Some(changeRecord),
@@ -87,7 +89,7 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
         log.info(s"Publishing atom $id")
 
         auditDataStore.auditPublish(id, user)
-        UpdateAtomCommand(id, MediaAtom.fromThrift(updatedAtom)).process()
+        UpdateAtomCommand(id, MediaAtom.fromThrift(updatedAtom), Some(changeRecordAsModel)).process()
 
         setOldAssetsToPrivate(atom, api)
         publishAtomToLive(updatedAtom)

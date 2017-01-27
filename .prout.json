@@ -1,0 +1,5 @@
+{
+  "checkpoints": {
+    "PROD": { "url": "https://video.gutools.co.uk/healthcheck", "overdue": "1H" }
+  }
+}
