@@ -1,5 +1,6 @@
 import React from 'react';
 import {Link} from 'react-router';
+import {findSmallestAssetAboveWidth} from '../../util/imageHelpers';
 
 export default class VideoItem extends React.Component {
 
@@ -22,7 +23,9 @@ export default class VideoItem extends React.Component {
 
   renderItemImage() {
     if (this.props.video.posterImage) {
-      return  <img src={this.props.video.posterImage.master.file} alt={this.props.video.title}/>
+      const image = findSmallestAssetAboveWidth(this.props.video.posterImage.assets);
+
+      return <img src={image.file} alt={this.props.video.title}/>;
     }
 
     return <div className="grid__image__placeholder">No Image</div>
