@@ -1,5 +1,6 @@
 import React from 'react';
 import {saveStateVals} from '../../constants/saveStateVals';
+import {isVideoPublished} from '../../util/isVideoPublished';
 
 export default class VideoSelectBar extends React.Component {
 
@@ -33,7 +34,7 @@ export default class VideoSelectBar extends React.Component {
        return false;
     }
 
-    if (this.isVideoPublished()) {
+    if (isVideoPublished(this.props.video)) {
       return (
         <div className="bar info-bar">
         <div className="bar__image">{this.renderItemImage()}</div>

@@ -62,3 +62,24 @@
   color: white;
   text-align: center;
 }
+
+.publish-bar {
+  font-size: 13px;
+  flex-basis: 66%;
+}
+
+.publish-bar__button {
+
+  &:disabled {
+    background: $color500Grey;
+  }
+}
+
+.publish-bar__message {
+  padding: 14px;
+}
+
+.publish-bar__message__block {
+  margin-left: 10px;
+}
+
