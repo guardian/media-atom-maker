@@ -7,6 +7,7 @@ import VideoAuditTrail from '../VideoAuditTrail/VideoAuditTrail';
 import VideoUsages from '../VideoUsages/VideoUsages';
 import VideoMetaData from '../VideoMetaData/VideoMetaData';
 import YoutubeMetaData from '../YoutubeMetaData/YoutubeMetaData';
+import VideoPoster from '../VideoPoster/VideoPoster';
 
 class VideoDisplay extends React.Component {
 
@@ -102,6 +103,14 @@ class VideoDisplay extends React.Component {
                   usages={this.props.usages[this.props.video.id] || {}}
                   composerPageWithUsage={this.props.composerPageWithUsage[this.props.video.id] || {}}
                   createComposerPage={this.props.videoActions.createVideoPage}
+                />
+              </div>
+              <div className="video__detailbox usages">
+                <span className="video__detailbox__header">Poster Image</span>
+                <VideoPoster
+                  video={this.props.video || {}}
+                  saveAndUpdateVideo={this.saveAndUpdateVideo}
+                  editable={this.state.editable}
                 />
               </div>
             </div>

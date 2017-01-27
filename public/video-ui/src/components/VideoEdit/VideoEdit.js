@@ -80,7 +80,7 @@ const VideoEdit = (props) => {
           <SaveButton saveState={props.saveState.saving} onSaveClick={props.saveVideo} onResetClick={props.resetVideo} />
         </div>
       )
-    };
+};
 
 export default reduxForm({
   form: 'VideoEdit',
