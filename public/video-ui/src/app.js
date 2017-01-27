@@ -29,7 +29,8 @@ const store = configureStore();
 const config = extractConfigFromPage();
 
 // publish uncaught errors to sentry.io
-Raven.config(config.ravenUrl).install();
+if(config.stage !== 'DEV')
+  Raven.config(config.ravenUrl).install();
 
 setStore(store);
 
