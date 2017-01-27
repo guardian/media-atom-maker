@@ -1,7 +1,17 @@
 import React, {PropTypes}  from 'react';
 import moment from 'moment';
 
-export default class VideoAuditTrail extends React.Component {
+class VideoAuditTrail extends React.Component {
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.video != this.props.video) {
+      this.props.videoActions.getAudits(nextProps.video.id);
+    }
+  }
+
+  componentWillMount() {
+    this.props.videoActions.getVideo(this.props.params.id);
+  }
 
   state = {
     renderAll: false
@@ -44,18 +54,23 @@ export default class VideoAuditTrail extends React.Component {
     if (this.props.audits) {
       return (
         <div>
-          <table className='table'>
-            <thead className='table__header'>
-              <tr className='table__header-row'>
-                <th>Date</th>
-                <th>Operation</th>
-                <th>Description</th>
-                <th>User</th>
-              </tr>
-            </thead>
-            {this.renderList()}
-          </table>
-          {!this.state.renderAll && this.props.audits.length > 5 ? this.renderExpandButton() : false}
+          <div className="video__detailbox">
+            <span className="video__detailbox__header">Atom Audit Trail</span>
+          </div>
+          <div>
+            <table className='table'>
+              <thead className='table__header'>
+                <tr className='table__header-row'>
+                  <th>Date</th>
+                  <th>Operation</th>
+                  <th>Description</th>
+                  <th>User</th>
+                </tr>
+              </thead>
+              {this.renderList()}
+            </table>
+            {!this.state.renderAll && this.props.audits.length > 5 ? this.renderExpandButton() : false}
+          </div>
         </div>
       );
     }
@@ -63,3 +78,22 @@ export default class VideoAuditTrail extends React.Component {
     return (<div>Loading...</div>);
   }
 }
+//REDUX CONNECTIONS
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as getVideo from '../../actions/VideoActions/getVideo';
+import * as getAudits from '../../actions/VideoActions/getAudits';
+
+function mapStateToProps(state) {
+  return {
+    video: state.video,
+    audits: state.audits
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    videoActions: bindActionCreators(Object.assign({}, getVideo, getAudits), dispatch)
+  };
+}
+export default connect(mapStateToProps, mapDispatchToProps)(VideoAuditTrail);

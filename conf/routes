@@ -50,6 +50,7 @@ GET /video/*path                        controllers.Support.legacyVideosEndpoint
 GET /                                   controllers.VideoUIApp.index(id = "")
 GET /videos                             controllers.VideoUIApp.index(id = "")
 GET /videos/:id                         controllers.VideoUIApp.index(id)
+GET /videos/:id/audit                   controllers.VideoUIApp.index(id)
 
 #Support
 GET /support/previewCapi/*path          controllers.Support.previewCapiProxy(path: String)

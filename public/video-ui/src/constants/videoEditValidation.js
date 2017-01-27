@@ -1,5 +1,4 @@
 const validate = (values) => {
-  console.log('validate values are ', values);
  const errors = {};
   if (!values) {
     return {};
