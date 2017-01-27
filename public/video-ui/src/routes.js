@@ -9,11 +9,11 @@ import ReactApp from './components/ReactApp';
 
 export const routes = (
   <Router history={browserHistory}>
-    <Route path="/video" component={ReactApp}>
-      <IndexRedirect to="/video/videos" />
-      <Route path="/video/videos" component={Videos} />
-      <Route path="/video/videos/create" component={VideoCreate} />
-      <Route path="/video/videos/:id" component={VideoDisplay} />
+    <Route path="/" component={ReactApp}>
+      <IndexRedirect to="/videos" />
+      <Route path="/videos" component={Videos} />
+      <Route path="/videos/create" component={VideoCreate} />
+      <Route path="/videos/:id" component={VideoDisplay} />
     </Route>
   </Router>
 );

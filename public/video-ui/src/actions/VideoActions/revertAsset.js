@@ -10,7 +10,7 @@ function requestRevertAsset(assetVersion) {
 }
 
 function receiveRevertAsset(video) {
-  browserHistory.push('/video/videos/' + video.id);
+  browserHistory.push('/videos/' + video.id);
   return {
     type: 'ASSET_REVERT_RECEIVE',
     video: video,

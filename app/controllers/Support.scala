@@ -6,6 +6,8 @@ import com.gu.pandahmac.HMACAuthActions
 import com.squareup.okhttp.{OkHttpClient, Credentials, Request}
 import java.util.concurrent.TimeUnit
 import play.api.Configuration
+import play.api.mvc.{Action}
+
 
 class Support @Inject() (val authActions: HMACAuthActions,
                                   val conf: Configuration) extends AtomController {
@@ -39,5 +41,9 @@ class Support @Inject() (val authActions: HMACAuthActions,
       case Some(r) =>
         BadRequest(s"CAPI returned status: ${r.code()}")
     }
+  }
+
+  def legacyVideosEndpointRedirect(path: String) = Action { request =>
+    Redirect(s"/$path?${request.rawQueryString}")
   }
 }

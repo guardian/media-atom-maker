@@ -1,0 +1,7 @@
+stacks: [media-service]
+regions: [eu-west-1]
+deployments:
+  media-atom-maker:
+    type: autoscaling
+    parameters:
+      bucket: atom-maker-dist
