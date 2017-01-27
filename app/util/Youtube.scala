@@ -65,7 +65,7 @@ case class YouTubeVideoCategoryApi(config: YouTubeConfig) extends YouTubeBuilder
   }
 }
 
-case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder {
+case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder with Logging {
   private def protectAgainstMistakesInDev(video: Video) = {
     val videoChannelId = video.getSnippet.getChannelId
 
@@ -122,6 +122,8 @@ case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder {
         video.setSnippet(snippet)
         video.setStatus(status)
 
+        log.info(s"Updating YouTube metadata for $id:\n${UpdatedMetadata.prettyToString(metadata)}")
+
         Some(youtube.videos()
           .update("snippet, status", video)
           .setOnBehalfOfContentOwner(config.contentOwner)
@@ -141,6 +143,7 @@ case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder {
         if (date <= timeNow && atom.privacyStatus.get != PrivacyStatus.Private) {
           atom.assets.collect {
             case asset if asset.platform == Youtube =>
+              log.info(s"Marking asset=${asset.id} atom=$atomId as private due to expiry")
               setStatusToPrivate(asset.id, atomId)
           }
 
@@ -167,10 +170,11 @@ case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder {
             .setOnBehalfOfContentOwner(config.contentOwner)
             .execute())
 
-          Logger.info(s"marked video status for video $id in atom $atomId as private")
+          log.info(s"marked asset=$id atom=$atomId as private")
         }
         catch {
-          case e: Throwable => Logger.warn(s"could not mark video status in $id in atom $atomId private $e")
+          case e: Throwable =>
+            log.warn(s"unable to mark asset=$id atom=$atomId as private", e)
         }
       }
       case _ =>

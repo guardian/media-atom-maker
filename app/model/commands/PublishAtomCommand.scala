@@ -3,21 +3,20 @@ package model.commands
 import java.net.URL
 import java.util.Date
 
-import play.api.Logger
 import cats.data.Xor
 import com.gu.atom.data.{PreviewDataStore, PublishedDataStore}
 import com.gu.atom.play.AtomAPIActions
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import com.gu.contentatom.thrift.{Atom, ChangeRecord, ContentAtomEvent, EventType}
-import model.{ImageAsset, MediaAtom, UpdatedMetadata}
-import util.{YouTubeConfig, YouTubeVideoUpdateApi}
-import model.commands.CommandExceptions._
-import data.AuditDataStore
-
-import scala.util.{Failure, Success}
-import scala.util.control.NonFatal
 import com.gu.pandomainauth.model.{User => PandaUser}
+import data.AuditDataStore
 import model.Platform.Youtube
+import model.commands.CommandExceptions._
+import model.{ImageAsset, MediaAtom, UpdatedMetadata}
+import util.{Logging, YouTubeConfig, YouTubeVideoUpdateApi}
+
+import scala.util.control.NonFatal
+import scala.util.{Failure, Success}
 
 case class PublishAtomCommand(id: String)(implicit val previewDataStore: PreviewDataStore,
                                           val previewPublisher: PreviewAtomPublisher,
@@ -25,28 +24,34 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
                                           val livePublisher: LiveAtomPublisher,
                                           auditDataStore: AuditDataStore,
                                           youtubeConfig: YouTubeConfig,
-                                          user: PandaUser) extends Command with AtomAPIActions {
+                                          user: PandaUser) extends Command with AtomAPIActions with Logging {
   type T = MediaAtom
 
   def process(): T = {
+    log.info(s"Request to publish atom $id")
+
     previewDataStore.getAtom(id) match {
-      case None => AtomNotFound
+      case None =>
+        log.info(s"Unable to publish atom $id. No atom has that id")
+        AtomNotFound
+
       case Some(thriftAtom) => {
         val atom = MediaAtom.fromThrift(thriftAtom)
         val api = YouTubeVideoUpdateApi(youtubeConfig)
 
         MediaAtom.getActiveYouTubeAsset(atom) match {
-          case Some(_) => {
+          case Some(asset) => {
             try {
               updateThumbnail(atom, api)
             } catch {
               case NonFatal(e) => {
-                Logger.error(s"Active YouTube asset found but could not be updated for atom: ${id}")
+                log.error(s"Unable to update thumbnail for asset=${asset.id} atom={$id}", e)
                 PosterImageUploadFailed(e.getMessage)
               }
             }
           }
-          case None => Logger.info(s"No active YouTube asset found for atom: ${id}")
+          case None =>
+            log.info(s"Unable to update thumbnail for $id. There is no active YouTube asset")
         }
 
         atom.activeVersion match {
@@ -67,6 +72,7 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
               atom.plutoProjectId))
           }
           case None =>
+            log.info(s"Not updating YouTube metadata for atom $id as it has no active asset")
         }
 
         val changeRecord = ChangeRecord((new Date()).getTime(), None) // Todo: User...
@@ -77,6 +83,8 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
             revision = thriftAtom.contentChangeDetails.revision + 1
           )
         )
+
+        log.info(s"Publishing atom $id")
 
         auditDataStore.auditPublish(id, user)
         UpdateAtomCommand(id, MediaAtom.fromThrift(updatedAtom)).process()
@@ -94,12 +102,16 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
       case Success(_) =>
         publishedDataStore.updateAtom(atom) match {
           case Xor.Right(_) => {
-            Logger.info(s"Successfully published atom: ${id}")
+            log.info(s"Successfully published atom: ${id}")
             MediaAtom.fromThrift(atom)
           }
-          case Xor.Left(err) => AtomPublishFailed(s"Could not update published datastore after publish: ${err.toString}")
+          case Xor.Left(err) =>
+            log.error("Unable to update datastore after publish", err)
+            AtomPublishFailed(s"Could not update published datastore after publish: ${err.toString}")
         }
-      case Failure(err) => AtomPublishFailed(s"Could not publish atom (live kinesis event failed): ${err.toString}")
+      case Failure(err) =>
+        log.error("Unable to publish atom to kinesis", err)
+        AtomPublishFailed(s"Could not publish atom (live kinesis event failed): ${err.toString}")
     }
   }
 
@@ -121,14 +133,13 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
     }
 
     api.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
-
-    Logger.info(s"Updated YouTube thumbnail for atom: ${id}")
   }
 
   private def setOldAssetsToPrivate(atom: MediaAtom, api: YouTubeVideoUpdateApi): Unit = {
     MediaAtom.getActiveYouTubeAsset(atom).foreach { activeAsset =>
       atom.assets.collect {
         case asset if asset.platform == Youtube && asset.id != activeAsset.id =>
+          log.info(s"Marking asset=${asset.id} atom=${atom.id} as private")
           api.setStatusToPrivate(asset.id, atom.id)
       }
     }
