@@ -1,5 +1,6 @@
 const validate = (values) => {
-  const errors = {};
+  console.log('validate values are ', values);
+ const errors = {};
   if (!values) {
     return {};
   }
@@ -9,9 +10,6 @@ const validate = (values) => {
   }
   if (!values.category) {
     errors.category = 'Required'
-  }
-  if (!values.posterImage) {
-    errors.posterImage = 'Required'
   }
   if (!values.duration) {
     errors.duration = 'Required'

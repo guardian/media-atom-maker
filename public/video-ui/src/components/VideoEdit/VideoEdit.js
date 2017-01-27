@@ -84,7 +84,6 @@ const VideoEdit = (props) => {
       return (
         <div>
           <div className="form__group">
-            <div className="form__group__header">Video Metadata</div>
             <FormFieldSaveWrapper
               saveVideo={props.saveVideo}
               resetVideo={props.resetVideo}
@@ -142,17 +141,6 @@ const VideoEdit = (props) => {
           </div>
 
           <div className="form__group">
-            <div className="form__group__header">Media</div>
-            <Field
-              name="posterImage"
-              component={VideoPosterEdit}
-              video={props.video}
-              editable={props.editable}
-              saveAndUpdateVideo={props.saveAndUpdateVideo}/>
-          </div>
-
-          <div className="form__group">
-            <div className="form__group__header">Youtube Metadata</div>
 
             <FormFieldSaveWrapper
               saveVideo={props.saveVideo}
