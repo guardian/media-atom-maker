@@ -4,19 +4,16 @@ import java.util.Date
 
 import com.gu.atom.data.PreviewDataStore
 import com.gu.atom.publish.PreviewAtomPublisher
-import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
-import model.commands.CommandExceptions._
-import util.atom.MediaAtomImplicits
-import model.{ChangeRecord, MediaAtom}
+import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
+import com.gu.pandomainauth.model.{User => PandaUser}
 import data.AuditDataStore
+import model.commands.CommandExceptions._
+import model.{ChangeRecord, MediaAtom}
+import org.joda.time.DateTime
+import util.Logging
+import util.atom.MediaAtomImplicits
 
 import scala.util.{Failure, Success}
-import model.commands.CommandExceptions._
-import org.joda.time.DateTime
-import ai.x.diff.DiffShow
-import ai.x.diff.conversions._
-
-import com.gu.pandomainauth.model.{User => PandaUser}
 
 case class UpdateAtomCommand(id: String, atom: MediaAtom, maybeChangeRecord: Option[ChangeRecord] = None)
                             (implicit previewDataStore: PreviewDataStore,
@@ -24,11 +21,14 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, maybeChangeRecord: Opt
                              auditDataStore: AuditDataStore,
                              user: PandaUser)
     extends Command
-    with MediaAtomImplicits {
+    with MediaAtomImplicits
+    with Logging {
 
   type T = MediaAtom
 
   def process(): T = {
+    log.info(s"Request to update atom ${atom.id}")
+
     if (id != atom.id) {
       AtomIdConflict
     }
@@ -36,12 +36,14 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, maybeChangeRecord: Opt
     val oldAtom = previewDataStore.getAtom(atom.id)
 
     if (oldAtom.isEmpty) {
+      log.info(s"Unable to update atom ${atom.id}. Atom does not exist")
       AtomNotFound
     }
 
     val existingAtom = oldAtom.get
 
     val diffString = auditDataStore.createDiffString(MediaAtom.fromThrift(existingAtom), atom)
+    log.info(s"Update atom changes ${atom.id}: $diffString")
 
     //Publish atom command will pass its own change record to the update atom command
     //to make sure that preview and publish atoms have the same change record
@@ -57,16 +59,23 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, maybeChangeRecord: Opt
     val thrift = atom.copy(contentChangeDetails = details).asThrift
 
     previewDataStore.updateAtom(thrift).fold(
-      err => AtomUpdateFailed(err.msg),
+      err => {
+        log.error(s"Unable to update atom ${atom.id}", err)
+        AtomUpdateFailed(err.msg)
+      },
       _ => {
         val event = ContentAtomEvent(thrift, EventType.Update, new Date().getTime)
 
         previewPublisher.publishAtomEvent(event) match {
           case Success(_) => {
             auditDataStore.auditUpdate(id, user, diffString)
+
+            log.info(s"Successfully updated atom ${atom.id}")
             MediaAtom.fromThrift(thrift)
           }
-          case Failure(err) => AtomPublishFailed(s"could not publish: ${err.toString}")
+          case Failure(err) =>
+            log.error(s"Unable to publish updated atom ${atom.id}", err)
+            AtomPublishFailed(s"could not publish: ${err.toString}")
         }
       }
     )

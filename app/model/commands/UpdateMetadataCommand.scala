@@ -1,19 +1,13 @@
 package model.commands
 
-import java.util.Date
-
 import com.gu.atom.data.PreviewDataStore
 import com.gu.atom.publish.PreviewAtomPublisher
-import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
-import model.{MediaAtom, UpdatedMetadata}
-import model.commands.CommandExceptions._
-import util.{YouTubeConfig, YouTubeVideoInfoApi, YouTubeVideoUpdateApi}
-import util.atom.MediaAtomImplicits
-import data.AuditDataStore
-
-import scala.util.{Failure, Success}
-
 import com.gu.pandomainauth.model.{User => PandaUser}
+import data.AuditDataStore
+import model.commands.CommandExceptions._
+import model.{MediaAtom, UpdatedMetadata}
+import util.atom.MediaAtomImplicits
+import util.{Logging, YouTubeConfig, YouTubeVideoInfoApi}
 
 case class UpdateMetadataCommand(atomId: String,
                                  metadata: UpdatedMetadata)
@@ -23,11 +17,14 @@ case class UpdateMetadataCommand(atomId: String,
                                  auditDataStore: AuditDataStore,
                                  user: PandaUser)
     extends Command
-    with MediaAtomImplicits {
+    with MediaAtomImplicits
+    with Logging {
 
   type T = Unit
 
   def process(): Unit = {
+    log.info(s"Request to update metadata for $atomId")
+
     previewDataStore.getAtom(atomId) match {
       case Some(atom) =>
         val thriftMediaAtom = atom.tdata
@@ -57,9 +54,14 @@ case class UpdateMetadataCommand(atomId: String,
 
             UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom)).process()
 
-          case None => NotYoutubeAsset
+          case None =>
+            log.info(s"Unable to update metadata for $atomId. Atom does not have an active asset")
+
+            NotYoutubeAsset
         }
-      case None => AtomNotFound
+      case None =>
+        log.info(s"Unable to update metadata for $atomId. Atom does not exist")
+        AtomNotFound
     }
   }
 }

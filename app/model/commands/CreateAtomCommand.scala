@@ -14,8 +14,8 @@ import org.cvogt.play.json.Jsonx
 import scala.util.{Failure, Success}
 import com.gu.contentatom.thrift.{Atom => ThriftAtom}
 import com.gu.contentatom.thrift.atom.media.{Category => ThriftCategory, MediaAtom => ThriftMediaAtom, Metadata => ThriftMetadata, PrivacyStatus => ThriftPrivacyStatus}
-
 import com.gu.pandomainauth.model.{User => PandaUser}
+import util.Logging
 
 // Since the data store and publisher are injected rather than being objects we cannot serialize JSON directly into a
 // command so we'll use a small POD for easy JSONification
@@ -38,13 +38,15 @@ case class CreateAtomCommand(data: CreateAtomCommandData)
                             (implicit previewDataStore: PreviewDataStore,
                              previewPublisher: PreviewAtomPublisher,
                              auditDataStore: AuditDataStore,
-                             user: PandaUser) extends Command {
+                             user: PandaUser) extends Command with Logging {
   type T = MediaAtom
 
   def process() = {
+    val atomId = randomUUID().toString
+    log.info(s"Request to create new atom $atomId [${data.title}]")
 
     val atom = ThriftAtom(
-      id = randomUUID().toString,
+      id = atomId,
       atomType = AtomType.Media,
       labels = Nil,
       defaultHtml = "<div></div>", // No content set so empty div
@@ -70,16 +72,30 @@ case class CreateAtomCommand(data: CreateAtomCommandData)
 
     auditDataStore.auditCreate(atom.id, user)
 
+    log.info(s"Creating new atom $atomId [${data.title}]")
+
     previewDataStore.createAtom(atom).fold({
-        case IDConflictError => AtomIdConflict
-        case _ => UnknownFailure
+        case IDConflictError =>
+          log.error(s"Cannot create new atom $atomId. The id is already in use")
+          AtomIdConflict
+
+        case other =>
+          log.error(s"Cannot create new atom $atomId. $other")
+          UnknownFailure
       },
       _ => {
+        log.info(s"Successfully created new atom $atomId [${data.title}]")
+
         val event = ContentAtomEvent(atom, EventType.Update, new Date().getTime)
 
         previewPublisher.publishAtomEvent(event) match {
-          case Success(_)  => MediaAtom.fromThrift(atom)
-          case Failure(err) => AtomPublishFailed(err.toString)
+          case Success(_)  =>
+            log.info(s"New atom published to preview $atomId [${data.title}]")
+            MediaAtom.fromThrift(atom)
+
+          case Failure(err) =>
+            log.error(s"Unable to published new atom to preview $atomId [${data.title}]", err)
+            AtomPublishFailed(err.toString)
         }
       }
     )
