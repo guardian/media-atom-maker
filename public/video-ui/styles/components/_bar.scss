@@ -53,26 +53,15 @@
 
 .error-bar {
   display: block;
-
   position: relative;
-
   padding: 10px;
-
   background-color: $cRedFF;
   color: white;
   text-align: center;
 }
 
 .publish-bar {
-  font-size: 13px;
-  flex-basis: 66%;
-}
-
-.publish-bar__button {
-
-  &:disabled {
-    background: $color500Grey;
-  }
+  padding: 0 10px 0 10px;
 }
 
 .publish-bar__message {
@@ -80,6 +69,6 @@
 }
 
 .publish-bar__message__block {
-  margin-left: 10px;
+  margin-right: 10px;
 }
 
