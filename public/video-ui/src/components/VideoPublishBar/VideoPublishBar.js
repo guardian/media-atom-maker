@@ -1,20 +1,9 @@
 import React from 'react';
 import {saveStateVals} from '../../constants/saveStateVals';
 import {isVideoPublished} from '../../util/isVideoPublished';
+import {hasUnpublishedChanges} from '../../util/hasUnpublishedChanges';
 
 export default class VideoPublishBar extends React.Component {
-
-  videoHasUnpublishedChanges() {
-    const changeDetails = this.props.video.contentChangeDetails;
-    const lastModified = changeDetails.lastModified && changeDetails.lastModified.date;
-    const published = changeDetails.published && changeDetails.published.date;
-
-    if (!published || lastModified > published) {
-      return true;
-    }
-
-    return false;
-  }
 
   videoIsCurrentlyPublishing() {
     return this.props.saveState.publishing === saveStateVals.inprogress;
@@ -32,8 +21,9 @@ export default class VideoPublishBar extends React.Component {
   renderPublishButton() {
     return (<button
         type="button"
-        disabled={!this.videoHasUnpublishedChanges() || this.videoIsCurrentlyPublishing()}
         className="btn"
+        disabled={!hasUnpublishedChanges(this.props.video, this.props.publishedVideo) || this.videoIsCurrentlyPublishing()}
+        className="bar__button publish-bar__button"
         onClick={this.props.publishVideo}
       >
         Publish
@@ -72,7 +62,7 @@ export default class VideoPublishBar extends React.Component {
       );
     }
 
-    if (!this.videoHasUnpublishedChanges()) {
+    if (!hasUnpublishedChanges(this.props.video, this.props.publishedVideo)) {
       return (
         <div className="flex-container flex-grow publish-bar">
           {this.renderVideoPublishedInfo()}
