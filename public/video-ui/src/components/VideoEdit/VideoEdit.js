@@ -54,7 +54,6 @@ const VideoEdit = (props) => {
 
           <Field
             name="videoExpiry"
-            name="expiry"
             type="select"
             component={VideoExpiryEdit}
             video={props.video}
@@ -79,7 +78,7 @@ const VideoEdit = (props) => {
 
           <SaveButton saveState={props.saveState.saving} onSaveClick={props.saveVideo} onResetClick={props.resetVideo} />
         </div>
-      )
+      );
     } else {
       return (
         <div>
@@ -186,7 +185,6 @@ const VideoEdit = (props) => {
               component={PrivacyStatusSelect}
               video={props.video}
               updateVideo={props.updateVideo}
-              editable={props.editable}
               disableEditing={props.disableStatusEditing}>
             </MaybeFormFieldSaveWrapper>
 
@@ -198,11 +196,11 @@ const VideoEdit = (props) => {
               editable={props.editable} />
           </div>
         </div>
-      )
+      );
     }
 };
 
 export default reduxForm({
   form: 'VideoEdit',
   validate
-})(VideoEdit)
+})(VideoEdit);

@@ -9,7 +9,6 @@ dependencies:
     - npm install -g gulp
     - npm install
     - gulp js
-    - npm run build
   override:
     - sbt update
   cache_directories:
@@ -21,10 +20,12 @@ dependencies:
 
 test:
   override:
+    - npm test
     - sbt test
 
 deployment:
   riffraff_upload:
     branch: /.*/
     commands:
+      - npm run build
       - sbt riffRaffUpload

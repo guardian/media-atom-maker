@@ -45,7 +45,7 @@ class VideoDisplay extends React.Component {
   };
 
   cannotEditStatus = () => {
-    return this.props.video.expiryDate <= Date.now()
+    return this.props.video.expiryDate <= Date.now();
   };
 
   render() {
@@ -102,7 +102,7 @@ class VideoDisplay extends React.Component {
           </div>
         </div>
       </div>
-    )
+    );
   }
 }
 

@@ -25,14 +25,14 @@ export default {
       contentType: 'application/json',
       method: 'post',
       data: JSON.stringify(video)
-    })
+    });
   },
 
   publishVideo: (videoId) => {
     return pandaReqwest({
       url: '/api2/atom/' + videoId + '/publish',
       method: 'put'
-    })
+    });
   },
 
   createAsset: (asset, videoId) => {
@@ -41,7 +41,7 @@ export default {
       contentType: 'application/json',
       method: 'post',
       data: JSON.stringify(asset)
-    })
+    });
   },
 
   revertAsset: (atomId, videoId) => {
@@ -50,7 +50,7 @@ export default {
       contentType: 'application/json',
       method: 'put',
       data: JSON.stringify({youtubeId: videoId})
-    })
+    });
   },
 
   saveVideo: (videoId, video) => {
@@ -59,14 +59,14 @@ export default {
       method: 'put',
       contentType: 'application/json',
       data: JSON.stringify(video)
-    })
+    });
   },
 
   fetchAudits: (atomId) => {
     return pandaReqwest({
       url: '/api2/audits/' + atomId,
       method: 'get'
-    })
+    });
   },
 
   getVideoUsages: (videoId) => {
@@ -74,7 +74,7 @@ export default {
     return pandaReqwest({
       url: capiProxyUrl + "/atom/media/" + videoId + "/usage",
       method: 'get'
-    })
+    });
   },
 
   createComposerPage(id, title, composerUrl) {
@@ -109,7 +109,6 @@ export default {
 
   fetchComposerId(capiId) {
     const capiProxyUrl = getStore().getState().config.capiProxyUrl;
-    const url = capiProxyUrl + '/' + capiId + "?show-fields=all";
     return pandaReqwest({
       url: capiProxyUrl + '/' + capiId + "?show-fields=all",
       method: 'get'
@@ -122,4 +121,4 @@ export default {
   });
 }
 
-}
+};

@@ -1,5 +1,4 @@
-import React, {PropTypes} from 'react';
-import {Link} from 'react-router';
+import React from 'react';
 import {getStore} from '../../util/storeAccessor';
 
 export default class VideoPreview extends React.Component {
@@ -28,16 +27,16 @@ export default class VideoPreview extends React.Component {
     if (!activeAsset) {
       return (
         <div className="video-preview__video">No Active Video</div>
-      )
+      );
     }
 
     if (activeAsset.platform !== "Youtube") {
-      <div className="video-preview__video">Unable to Preview</div>
+      <div className="video-preview__video">Unable to Preview</div>;
     }
 
     return  (
       <iframe className="video-preview__video" src={this.youtubeEmbedUrl() + activeAsset.id} allowFullScreen></iframe>
-    )
+    );
   }
 
   render() {

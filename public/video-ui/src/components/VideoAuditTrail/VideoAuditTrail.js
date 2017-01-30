@@ -1,4 +1,4 @@
-import React, {PropTypes}  from 'react';
+import React  from 'react';
 import moment from 'moment';
 
 export default class VideoAuditTrail extends React.Component {
@@ -44,9 +44,9 @@ export default class VideoAuditTrail extends React.Component {
     if (this.props.audits) {
       return (
         <div>
-          <table className='table'>
-            <thead className='table__header'>
-              <tr className='table__header-row'>
+          <table className="table">
+            <thead className="table__header">
+              <tr className="table__header-row">
                 <th>Date</th>
                 <th>Operation</th>
                 <th>Description</th>

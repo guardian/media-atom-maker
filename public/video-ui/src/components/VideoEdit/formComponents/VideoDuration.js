@@ -1,10 +1,11 @@
 import React from 'react';
 import TextInput from '../../FormFields/TextInput';
+import Logger from '../../../logger';
 
 export default class VideoDurationEdit extends React.Component {
 
   onUpdateDuration= (e) => {
-    let newData = Object.assign({}, this.props.video, {
+    const newData = Object.assign({}, this.props.video, {
       duration: Number(e.target.value)
     });
 
@@ -13,7 +14,7 @@ export default class VideoDurationEdit extends React.Component {
 
   render () {
     if (!this.props.video) {
-      console.log('VideoEdit loaded without video provided');
+      Logger.log('VideoEdit loaded without video provided');
       return false;
     }
 

@@ -21,7 +21,7 @@ function parseAsset(asset) {
       width: asset.dimensions.width,
       height: asset.dimensions.height
     }
-  }
+  };
 }
 
 export function parseImageFromGridCrop(cropData) {
@@ -29,5 +29,5 @@ export function parseImageFromGridCrop(cropData) {
     assets: cropData.assets.map(parseAsset),
     master: parseAsset(cropData.master),
     mediaId: cropData.specification.uri
-  }
+  };
 }

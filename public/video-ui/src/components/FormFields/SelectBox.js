@@ -4,14 +4,14 @@ export default class SelectBox extends React.Component {
 
   renderField = () => {
     if(!this.props.editable) {
-      const matchingValues = this.props.selectValues.filter((fieldValue) => this.props.fieldValue && (fieldValue.id.toString() === this.props.fieldValue.toString()))
-      const displayValue = matchingValues.length ? matchingValues[0].title : this.props.fieldValue
+      const matchingValues = this.props.selectValues.filter((fieldValue) => this.props.fieldValue && (fieldValue.id.toString() === this.props.fieldValue.toString()));
+      const displayValue = matchingValues.length ? matchingValues[0].title : this.props.fieldValue;
       return (
         <div>
           <p className="details-list__title">{this.props.fieldName}</p>
           <p className="details-list__field">{displayValue}</p>
         </div>
-      )
+      );
     }
 
     const hasError = this.props.meta.touched && this.props.meta.error;
@@ -25,7 +25,7 @@ export default class SelectBox extends React.Component {
           value={this.props.fieldValue}
           onChange={this.props.onUpdateField}>
 
-          <option value=''>{this.props.defaultOption || "Please select..."}</option>
+          <option value="">{this.props.defaultOption || "Please select..."}</option>
 
           {this.props.selectValues.map(function(value) {
             return (
@@ -35,7 +35,7 @@ export default class SelectBox extends React.Component {
         </select>
         {hasError ? <p className="form__message form__message--error">{this.props.meta.error}</p> : ""}
       </div>
-    )
+    );
   };
 
 
@@ -44,6 +44,6 @@ export default class SelectBox extends React.Component {
       <div>
         {this.renderField()}
       </div>
-    )
+    );
   }
 }

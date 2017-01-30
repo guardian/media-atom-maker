@@ -7,7 +7,7 @@ export function pandaReqwest(reqwestBody) {
   return Q.Promise(function(resolve, reject) {
     Reqwest(reqwestBody)
         .then(res => {
-          resolve(res)
+          resolve(res);
         })
         .fail(err => {
           if (err.status == 419) {
@@ -15,7 +15,7 @@ export function pandaReqwest(reqwestBody) {
             var reauthUrl = store.getState().config.reauthUrl;
 
             reEstablishSession(reauthUrl, 5000).then(
-                res => {
+              () => {
                   Reqwest(reqwestBody).then(res => resolve(res)).fail(err => reject(err));
                 },
                 error => {
@@ -23,7 +23,7 @@ export function pandaReqwest(reqwestBody) {
                 });
 
           } else {
-            reject(err)
+            reject(err);
           }
         });
   });

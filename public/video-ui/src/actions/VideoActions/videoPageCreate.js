@@ -1,6 +1,6 @@
 import VideosApi from '../../services/VideosApi';
 
-function requestVideoPageCreate(id) {
+function requestVideoPageCreate() {
   return {
     type:       'VIDEO_PAGE_CREATE_POST_REQUEST',
     receivedAt: Date.now()
@@ -32,16 +32,16 @@ export function createVideoPage(id, title, composerUrl, data) {
     return VideosApi.createComposerPage(id, title, composerUrl)
     .then(res => {
 
-      const pageId = res.data.id
+      const pageId = res.data.id;
       const pagePath = res.data.identifiers.path.data;
 
       return VideosApi.addVideoToComposerPage(pageId, data, composerUrl)
       .then(() => {
-        dispatch(receiveVideoPageCreate(pageId, pagePath, id))
+        dispatch(receiveVideoPageCreate(pageId, pagePath, id));
       });
     })
     .catch(error => {
-      dispatch(errorReceivingVideoPageCreate(error))
-    })
+      dispatch(errorReceivingVideoPageCreate(error));
+    });
   };
 }

@@ -1,14 +1,14 @@
-import React, {PropTypes} from 'react';
+import React from 'react';
 import {findSmallestAsset} from '../../util/imageHelpers';
 
 export default class VideoDetails extends React.Component {
 
   renderPosterImage() {
     if (!this.props.video.posterImage) {
-      return <dd className="details-list__field">No Image Selected</dd>
+      return <dd className="details-list__field">No Image Selected</dd>;
     }
 
-    const image = findSmallestAsset(this.props.video.posterImage.assets)
+    const image = findSmallestAsset(this.props.video.posterImage.assets);
 
     return (
        <dd className="details-list__field">
@@ -47,6 +47,6 @@ export default class VideoDetails extends React.Component {
             {this.props.showSelect ? <button className="btn" onClick={this.props.onSelectVideo}>Select this Atom</button> : false}
           </div>
         </div>
-    )
+    );
   }
 }
