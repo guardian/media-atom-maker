@@ -61,20 +61,6 @@ class VideoDisplay extends React.Component {
         <VideoSelectBar video={video} onSelectVideo={this.selectVideo} embeddedMode={this.props.config.embeddedMode} />
 
         <div className="video">
-          <div className="video__sidebar video-details">
-            <form className="form video__sidebar__group">
-              <VideoEdit
-                video={this.props.video || {}}
-                updateVideo={this.updateVideo}
-                saveVideo={this.saveVideo}
-                saveAndUpdateVideo={this.saveAndUpdateVideo}
-                resetVideo={this.resetVideo}
-                saveState={this.props.saveState}
-                disableStatusEditing={this.cannotEditStatus()}
-               />
-            </form>
-          </div>
-
           <div className="video__main">
             <div className="video__main__header">
               <div className="video__detailbox">
@@ -85,6 +71,13 @@ class VideoDisplay extends React.Component {
                 <span className="video__detailbox__header">Video Meta Data</span>
                 <VideoMetaData
                   component={VideoMetaData}
+                  video={this.props.video || {}}
+                  updateVideo={this.updateVideo}
+                  saveVideo={this.saveVideo}
+                  saveAndUpdateVideo={this.saveAndUpdateVideo}
+                  resetVideo={this.resetVideo}
+                  saveState={this.props.saveState}
+                  disableStatusEditing={this.cannotEditStatus()}
                  />
               </div>
               <div className="video__detailbox usages">
