@@ -351,9 +351,9 @@
                                 {
                                   "Ref": "Stage"
                                 },
-                                "/atom-maker.private.conf' /etc/gu\n",
-                                "chown media-service /etc/gu/atom-maker.private.conf\n",
-                                "chmod 0600 /etc/gu/atom-maker.private.conf\n",
+                                "/media-atom-maker.private.conf' /etc/gu\n",
+                                "chown media-service /etc/gu/media-atom-maker.private.conf\n",
+                                "chmod 0600 /etc/gu/media-atom-maker.private.conf\n",
 
                                 "systemctl start media-atom-maker\n"
                             ]

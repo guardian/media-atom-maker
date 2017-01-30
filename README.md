@@ -19,7 +19,7 @@ publisher that pushes media atoms into a Kinesis stream.
 0. The nginx bucket size should be `128`, up from the default of `64`. Edit `nginx.conf` and modify the `http` section to contain `server_names_hash_bucket_size 128;`
 0. You'll need to get the private configuration information from the S3 bucket (atom-maker-conf) and put it in your /etc/gu folder. This will be referenced in `application.conf`
  on start up.
-`aws s3 cp s3://atom-maker-conf/DEV/atom-maker.private.conf /etc/gu/atom-maker.private.conf --profile media-service`
+`aws s3 cp s3://atom-maker-conf/DEV/media-atom-maker.private.conf /etc/gu/media-atom-maker.private.conf --profile media-service`
 
 
 ## Running the apps
@@ -49,6 +49,6 @@ publisher that pushes media atoms into a Kinesis stream.
 0. If you want to publish to the CODE kinesis streams, you will need
    credentials for `composer` profile.
 0. If you are still unable to publish atoms, make sure that the
-   `readFromComposer` property is set to true in `/etc/gu/atom-maker.private.conf` the kinesis
+   `readFromComposer` property is set to true in `/etc/gu/media-atom-maker.private.conf` the kinesis
    stream names are the code stream names. You can find these streams in the S3 `atom-maker-conf` bucket
    `composer` aws account.
