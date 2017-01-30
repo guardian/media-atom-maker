@@ -1,6 +1,7 @@
 import React from 'react';
 import {getVideoBlock} from '../../util/getVideoBlock';
 import {getStore} from '../../util/storeAccessor';
+import {isVideoPublished} from '../../util/isVideoPublished';
 
 export default class VideoPage extends React.Component {
 
@@ -59,7 +60,7 @@ export default class VideoPage extends React.Component {
 
 
   renderCreateButton = () => {
-    if (this.props.video && this.props.video.contentChangeDetails && this.props.video.contentChangeDetails.published) {
+    if (this.props.video && isVideoPublished(this.props.publishedVideo)) {
       return (
         <button
           type="button"

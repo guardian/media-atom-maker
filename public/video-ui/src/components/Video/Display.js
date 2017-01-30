@@ -83,7 +83,7 @@ class VideoDisplay extends React.Component {
 
     return (
       <div>
-        <VideoSelectBar video={video} onSelectVideo={this.selectVideo} embeddedMode={this.props.config.embeddedMode} />
+        <VideoSelectBar video={video} onSelectVideo={this.selectVideo} publishedVideo={this.props.publishedVideo} embeddedMode={this.props.config.embeddedMode} />
 
         <div className="video">
           <div className="video__main">
@@ -133,6 +133,7 @@ class VideoDisplay extends React.Component {
                 <header className="video__detailbox__header">Usages</header>
                 <VideoUsages
                   video={this.props.video || {}}
+                  publishedVideo={this.props.publishedVideo || {}}
                   fetchUsages={this.props.videoActions.getUsages}
                   usages={this.props.usages[this.props.video.id] || {}}
                   composerPageWithUsage={this.props.composerPageWithUsage[this.props.video.id] || {}}
@@ -157,6 +158,7 @@ import * as getVideo from '../../actions/VideoActions/getVideo';
 import * as saveVideo from '../../actions/VideoActions/saveVideo';
 import * as videoUsages from '../../actions/VideoActions/videoUsages';
 import * as videoPageCreate from '../../actions/VideoActions/videoPageCreate';
+import * as getPublishedVideo from '../../actions/VideoActions/getPublishedVideo';
 
 function mapStateToProps(state) {
   return {
@@ -164,12 +166,13 @@ function mapStateToProps(state) {
     config: state.config,
     usages: state.usage,
     composerPageWithUsage: state.pageCreate,
+    publishedVideo: state.publishedVideo
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, videoUsages, videoPageCreate), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, videoUsages, videoPageCreate, getPublishedVideo), dispatch)
   };
 }
 

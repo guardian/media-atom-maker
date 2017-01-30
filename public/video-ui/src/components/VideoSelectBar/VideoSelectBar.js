@@ -15,11 +15,6 @@ export default class VideoSelectBar extends React.Component {
     return <div className="bar__image-placeholder">No Image</div>;
   }
 
-  isVideoPublished() {
-    return this.props.video && this.props.video.contentChangeDetails && this.props.video.contentChangeDetails.published;
-
-  }
-
   renderEmbedButton() {
     return <button type="button" className="bar__button" onClick={this.props.onSelectVideo}>Select this Video</button>;
   }
@@ -33,7 +28,7 @@ export default class VideoSelectBar extends React.Component {
        return false;
     }
 
-    if (isVideoPublished(this.props.video)) {
+    if (isVideoPublished(this.props.publishedVideo)) {
       return (
         <div className="bar info-bar">
         <div className="bar__image">{this.renderItemImage()}</div>

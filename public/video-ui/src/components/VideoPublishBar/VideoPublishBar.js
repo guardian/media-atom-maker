@@ -38,8 +38,8 @@ export default class VideoPublishBar extends React.Component {
   }
 
   renderVideoPublishedInfo() {
-    if (isVideoPublished(this.props.video)) {
-      return <div className="publish__label label__live">Live</div>;
+    if (isVideoPublished(this.props.publishedVideo)) {
+      return <div className="publish__label label__live">Live</div>
     }
     return <div className="publish__label label__draft">Draft</div>;
   }
