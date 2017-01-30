@@ -16,44 +16,43 @@ export default class VideoSelectBar extends React.Component {
     return <div className="bar__image-placeholder">No Image</div>
   }
 
-  isVideoPublished() {
-    return this.props.video && this.props.video.contentChangeDetails && this.props.video.contentChangeDetails.published;
-
-  }
-
   renderEmbedButton() {
-    return <button type="button" className="bar__button" onClick={this.props.onSelectVideo}>Select this Video</button>
-  }
+    // you can always select a video in 'preview' mode (this is used by the Pluto embed)
+    // otherwise you should only be able to select published videos (when embedded inside Composer for example)
 
-  renderCannotEmbedMessage() {
-    return <div>This atom cannot be embedded because it has not been published</div>
+    const isPublished = this.props.video && this.props.video.contentChangeDetails && this.props.video.contentChangeDetails.published;
+    const embedButton = <button type="button" className="bar__button" onClick={this.props.onSelectVideo}>Select this Video</button>;
+
+    switch(this.props.embeddedMode) {
+      case "preview":
+        return embedButton;
+
+      case "live":
+      case "true":
+        if(isPublished) {
+          return embedButton;
+        } else {
+          return <div>This atom cannot be embedded because it has not been published</div>;
+        }
+
+      default:
+        return false;
+    }
   }
 
   render() {
-    if (!this.props.embeddedMode) {
-       return false;
+    if(!this.props.embeddedMode) {
+      return false;
     }
 
-    if (isVideoPublished(this.props.video)) {
-      return (
-        <div className="bar info-bar">
+    return (
+      <div className="bar info-bar">
         <div className="bar__image">{this.renderItemImage()}</div>
         <div>
           <span className="grid__item__title">{this.props.video.title}</span>
           {this.renderEmbedButton()}
         </div>
-        </div>
-      )
-    } else {
-      return (
-        <div className="bar info-bar">
-        <div className="bar__image">{this.renderItemImage()}</div>
-        <div>
-          <span className="grid__item__title">{this.props.video.title}</span>
-          {this.renderCannotEmbedMessage()}
-        </div>
-        </div>
-      )
-    }
+      </div>
+    );
   }
 }

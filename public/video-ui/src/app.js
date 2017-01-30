@@ -21,10 +21,6 @@ function extractConfigFromPage() {
   return JSON.parse(configEl.innerHTML);
 }
 
-function isEmbeddedMode() {
-  return qs.parse(location.search).embeddedMode === "true"
-}
-
 const store = configureStore();
 const config = extractConfigFromPage();
 
@@ -36,7 +32,7 @@ setStore(store);
 store.dispatch({
   type:       'CONFIG_RECEIVED',
   config:     Object.assign({}, extractConfigFromPage(), {
-    embeddedMode: isEmbeddedMode()
+    embeddedMode: qs.parse(location.search).embeddedMode
   }),
   receivedAt: Date.now()
 });
