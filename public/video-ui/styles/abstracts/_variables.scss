@@ -2,6 +2,27 @@
 // This file contains all application-wide Sass variables.
 // -----------------------------------------------------------------------------
 
+@mixin buttonClass($colorA, $colorB) {
+  display: block;
+  padding: 10px;
+  background-color: $colorA;
+  color: $colorB;
+  font-size: 12px;
+  font-weight: bold;
+  text-decoration: none;
+
+  &:hover:not(:disabled) {
+    background: $brandColor;
+  }
+
+  &:disabled {
+    background: $color500Grey;
+  }
+
+  &:focus {
+    outline: 1px solid $cWhite;
+  }
+}
 
 /// Regular font family
 /// $type List

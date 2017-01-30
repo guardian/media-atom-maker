@@ -11,26 +11,12 @@ button {
   padding: 0;
 }
 
+.button__secondary {
+  @include buttonClass($color800Grey, $color300Grey);
+}
+
 .btn {
-  display: block;
-  padding: 10px;
-  background: $darkBrandColor;
-  color: $color800Grey;
-  font-size: 12px;
-  font-weight: bold;
-  text-decoration: none;
-
-  &:hover:not(:disabled) {
-    background: $brandColor;
-  }
-
-  &:disabled {
-    background: $color500Grey;
-  }
-
-  &:focus {
-    outline: 1px solid $cWhite;
-  }
+  @include buttonClass($brandColor, $color800Grey);
 }
 
 .btn + .btn {

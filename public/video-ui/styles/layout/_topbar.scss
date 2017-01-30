@@ -26,9 +26,15 @@ $topbarHeight: 50px;
   text-decoration: none;
 }
 
+.topbar__global {
+  margin-right: 20px;
+}
+
+.topbar__functional {
+  margin-left: 20px;
+}
 
 .topbar__home-link {
-  text-indent: -9999px;
   width: $topbarHeight;
   height: $topbarHeight;
   background: url(/assets/video-ui/images/logo.svg) no-repeat center;
@@ -40,8 +46,4 @@ $topbarHeight: 50px;
   &:hover {
     background-color: $color650Grey;
   }
-}
-
-.topbar__feedback {
-  color: $brandColor;
 }

@@ -62,6 +62,10 @@
 
 .publish-bar {
   padding: 0 10px 0 10px;
+  border: 1px solid $color625Grey;
+  border-top: 0;
+  border-bottom: 0;
+  height: $topbarHeight;
 }
 
 .publish-bar__message {
@@ -71,4 +75,3 @@
 .publish-bar__message__block {
   margin-right: 10px;
 }
-
