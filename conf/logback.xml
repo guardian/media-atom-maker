@@ -22,6 +22,7 @@
   </appender>
 
   <logger name="play" level="INFO" />
+  <logger name="com.google.api.client.http.HttpTransport" level="WARN" />
   <logger name="application" level="DEBUG" />
 
   <root level="INFO">

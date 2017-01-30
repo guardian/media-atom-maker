@@ -25,6 +25,21 @@ object UpdatedMetadata {
     (__ \ "expiryDate").readNullable[Long] ~
     (__ \ "plutoId").readNullable[String]
   )(UpdatedMetadata.apply _)
+
+  def prettyToString(metadata: UpdatedMetadata): String = {
+    Map(
+      "title" -> metadata.title,
+      "description" -> metadata.description,
+      "tags" -> metadata.tags,
+      "categoryId" -> metadata.categoryId,
+      "license" -> metadata.license,
+      "privacyStatus" -> metadata.privacyStatus.map(_.toString),
+      "plutoId" -> metadata.plutoId
+    ).collect {
+      case (key, Some(value)) =>
+        s"\t$key=$value"
+    }.mkString("\n")
+  }
 }
 
 // The license has only this 2 valid values. Update the thrift model?

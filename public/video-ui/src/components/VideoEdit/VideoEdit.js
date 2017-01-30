@@ -136,7 +136,7 @@ const VideoEdit = (props) => {
               name="contentFlags"
               component={ContentFlags}
               video={props.video}
-              updateVideo={props.updateVideo}
+              saveAndUpdateVideo={props.saveAndUpdateVideo}
               editable={props.editable} />
 
           </div>

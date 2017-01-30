@@ -1,23 +1,14 @@
 package model.commands
 
-import java.util.Date
-import model.MediaAtom
-import org.joda.time.DateTime
-
-import scala.util.{Failure, Success}
-import CommandExceptions._
-
-import play.api.Logger
-
-import data.AuditDataStore
-import model.{MediaAtom}
 import com.gu.atom.data.{PreviewDataStore, PublishedDataStore}
-import com.gu.atom.publish.{PreviewAtomPublisher, LiveAtomPublisher}
+import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import com.gu.contentatom.thrift.atom.media.Asset
-import util.atom.MediaAtomImplicits
-import util.{YoutubeResponse, YouTubeConfig, YouTubeVideoInfoApi, SuccesfulYoutubeResponse, YoutubeException}
-
 import com.gu.pandomainauth.model.{User => PandaUser}
+import data.AuditDataStore
+import model.MediaAtom
+import model.commands.CommandExceptions._
+import util._
+import util.atom.MediaAtomImplicits
 
 case class ActiveAssetCommand(atomId: String, youtubeId: String)
                              (implicit previewDataStore: PreviewDataStore,
@@ -28,7 +19,8 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
                               auditDataStore: AuditDataStore,
                               user: PandaUser)
   extends Command
-  with MediaAtomImplicits {
+  with MediaAtomImplicits
+  with Logging {
 
   type T = MediaAtom
 
@@ -59,17 +51,22 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
                 duration = ytAssetDuration
               ))
 
+            log.info(s"Marking $youtubeId as the active asset in $atomId")
             UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom)).process()
 
-          case None => AssetNotFound
+          case None =>
+            log.info(s"Cannot mark $youtubeId as the active asset in $atomId. No asset has that id")
+            AssetNotFound
         }
-      case None => AtomNotFound
+      case None =>
+        log.info(s"Cannot mark $youtubeId as the active asset in $atomId. No atom has that id")
+        AtomNotFound
     }
   }
 
 
   def process(): T = {
-    Logger.info(s"Marking YouTube asset $youtubeId as active")
+    log.info(s"Request to mark $youtubeId as the active asset in $atomId")
 
     getVideoStatus(youtubeId) match {
       case response: SuccesfulYoutubeResponse =>
@@ -82,16 +79,21 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
           * terminated – Processing information is no longer available.
           **/
         videoStatus match {
-          case Some(status) if status == "succeeded" || status == "terminated" => markAssetAsActive()
-          case Some(_) => AssetEncodingInProcess
-          case None => NotYoutubeAsset
+          case Some(status) if status == "succeeded" || status == "terminated" =>
+            markAssetAsActive()
+
+          case Some(other) =>
+            log.info(s"Cannot mark $youtubeId as the active asset in $atomId. Unexpected processing state $other")
+            AssetEncodingInProcess
+
+          case None =>
+            log.info(s"Cannot mark $youtubeId as the active asset in $atomId. No youtube video has that id")
+            NotYoutubeAsset
         }
 
-      case e: YoutubeException => {
-        Logger.error(e.toString)
+      case e: YoutubeException =>
+        log.error(s"Cannot mark $youtubeId as the active asset in $atomId. Youtube error", e.exception)
         YouTubeConnectionIssue
-      }
-
     }
   }
 }
