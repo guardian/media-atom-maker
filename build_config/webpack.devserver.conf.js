@@ -10,7 +10,7 @@ var webpack = require('webpack');
 //
 
 var port = 9002;
-var addr = 'media-atom-maker-assets.local.dev-gutools.co.uk';
+var addr = 'video-assets.local.dev-gutools.co.uk';
 var host = 'https://' + addr;
 
 //
