@@ -5,6 +5,7 @@ import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoAuditTrail from '../VideoAuditTrail/VideoAuditTrail';
 import VideoUsages from '../VideoUsages/VideoUsages';
+import VideoMetaData from '../VideoMetaData/VideoMetaData';
 
 class VideoDisplay extends React.Component {
 
@@ -79,6 +80,12 @@ class VideoDisplay extends React.Component {
               <div className="video__detailbox">
                 <span className="video__detailbox__header">Preview</span>
                 <VideoPreview video={this.props.video || {}} />
+              </div>
+              <div className="video__detailbox">
+                <span className="video__detailbox__header">Video Meta Data</span>
+                <VideoMetaData
+                  component={VideoMetaData}
+                 />
               </div>
               <div className="video__detailbox usages">
                 <span className="video__detailbox__header">Usages</span>
