@@ -47,7 +47,7 @@ export default class VideoPublishBar extends React.Component {
 
   render() {
 
-    if (!this.props.video || !this.props.video.contentChangeDetails) {
+    if (!this.props.video) {
         return false;
     }
 

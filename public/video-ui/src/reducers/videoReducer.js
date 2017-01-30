@@ -16,11 +16,6 @@ export default function video(state = null, action) {
     case 'VIDEO_POPULATE_BLANK':
       return action.video;
 
-    case 'VIDEO_SAVE_RECEIVE':
-      return Object.assign({}, state, {
-        contentChangeDetails: action.video.contentChangeDetails
-      });
-
     case 'ASSET_REVERT_REQUEST':
       return Object.assign({}, state, {
         activeVersion: action.assetVersion
