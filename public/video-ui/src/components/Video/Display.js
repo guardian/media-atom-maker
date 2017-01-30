@@ -6,6 +6,7 @@ import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoAuditTrail from '../VideoAuditTrail/VideoAuditTrail';
 import VideoUsages from '../VideoUsages/VideoUsages';
 import VideoMetaData from '../VideoMetaData/VideoMetaData';
+import YoutubeMetaData from '../YoutubeMetaData/YoutubeMetaData';
 
 class VideoDisplay extends React.Component {
 
@@ -71,6 +72,19 @@ class VideoDisplay extends React.Component {
                 <span className="video__detailbox__header">Video Meta Data</span>
                 <VideoMetaData
                   component={VideoMetaData}
+                  video={this.props.video || {}}
+                  updateVideo={this.updateVideo}
+                  saveVideo={this.saveVideo}
+                  saveAndUpdateVideo={this.saveAndUpdateVideo}
+                  resetVideo={this.resetVideo}
+                  saveState={this.props.saveState}
+                  disableStatusEditing={this.cannotEditStatus()}
+                 />
+              </div>
+              <div className="video__detailbox">
+                <span className="video__detailbox__header">Youtube Meta Data</span>
+                <YoutubeMetaData
+                  component={YoutubeMetaData}
                   video={this.props.video || {}}
                   updateVideo={this.updateVideo}
                   saveVideo={this.saveVideo}

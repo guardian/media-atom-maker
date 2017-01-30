@@ -7,6 +7,7 @@ import FormFieldSaveWrapper from '../FormFields/FormFieldSaveWrapper';
 import MaybeFormFieldSaveWrapper from '../FormFields/MaybeFormFieldSaveWrapper';
 import YoutubeKeywordsSelect from '../VideoEdit/formComponents/YoutubeKeywords';
 import YoutubeChannelSelect from '../VideoEdit/formComponents/YoutubeChannel';
+import YoutubeCategorySelect from '../VideoEdit/formComponents/YoutubeCategory';
 import PrivacyStatusSelect from '../VideoEdit/formComponents/PrivacyStatus';
 import ContentFlags from '../VideoEdit/formComponents/ContentFlags';
 
