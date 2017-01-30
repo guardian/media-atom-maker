@@ -16,6 +16,7 @@ PUT     /api/atom/:id/publish           controllers.Api.publishAtom(id)
 
 POST    /api2/atoms                     controllers.Api2.createMediaAtom
 GET     /api2/atoms                     controllers.Api2.getMediaAtoms()
+GET     /api2/atoms/published/:id       controllers.Api2.getPublishedMediaAtom(id)
 GET     /api2/atoms/:id                 controllers.Api2.getMediaAtom(id)
 PUT     /api2/atoms/:id                 controllers.Api2.putMediaAtom(id)
 POST    /api2/atoms/:id/assets          controllers.Api2.addAsset(id)

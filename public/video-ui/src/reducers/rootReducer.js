@@ -4,6 +4,7 @@ import audits from './auditReducer';
 import config from './configReducer';
 import error from './errorReducer';
 import video from './videoReducer';
+import publishedVideo from './publishedVideoReducer';
 import videos from './videosReducer';
 import saveState from './saveStateReducer';
 import searchTerm from './searchTermReducer';
@@ -24,5 +25,6 @@ export default combineReducers({
   youtube,
   form,
   usage,
-  pageCreate
+  pageCreate,
+  publishedVideo
 });

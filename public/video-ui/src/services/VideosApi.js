@@ -19,6 +19,14 @@ export default {
     });
   },
 
+  fetchPublishedVideo: (videoId) => {
+    return pandaReqwest({
+      url: '/api2/atoms/published/' + videoId,
+      method: 'get',
+      contentType: 'application/json'
+    });
+  },
+
   createVideo: (video) => {
     return pandaReqwest({
       url: '/api2/atoms',
