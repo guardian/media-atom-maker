@@ -1,22 +1,15 @@
 package model.commands
 
-import java.util.Date
-
-import play.api.Logger
 import com.gu.atom.data.PreviewDataStore
-import CommandExceptions._
 import com.gu.atom.publish.PreviewAtomPublisher
 import com.gu.contentatom.thrift.atom.media.Category.Hosted
-import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.contentatom.thrift.atom.media.{Asset, Platform}
-import model.MediaAtom
-import util.{ThriftUtil, YouTubeConfig, YouTubeVideoInfoApi}
-import util.atom.MediaAtomImplicits
-import data.AuditDataStore
-
-import scala.util.{Failure, Success}
-
 import com.gu.pandomainauth.model.{User => PandaUser}
+import data.AuditDataStore
+import model.MediaAtom
+import model.commands.CommandExceptions._
+import util.atom.MediaAtomImplicits
+import util.{Logging, ThriftUtil, YouTubeConfig, YouTubeVideoInfoApi}
 
 case class AddAssetCommand(atomId: String,
                            videoUri: String,
@@ -28,7 +21,8 @@ case class AddAssetCommand(atomId: String,
                            auditDataStore: AuditDataStore,
                            user: PandaUser)
     extends Command
-    with MediaAtomImplicits {
+    with MediaAtomImplicits
+    with Logging {
 
   type T = MediaAtom
 
@@ -38,6 +32,7 @@ case class AddAssetCommand(atomId: String,
         val isMine = YouTubeVideoInfoApi(youtubeConfig).isMyVideo(asset.id)
 
         if (! isMine) {
+          log.info(s"Cannot add asset $videoUri to $atomId. The youtube video is not on a Guardian channel")
           NotGuardianYoutubeVideo
         }
       }
@@ -53,8 +48,8 @@ case class AddAssetCommand(atomId: String,
   }
 
   def process(): MediaAtom = {
+    log.info(s"Request to add new asset $videoUri to $atomId")
 
-    Logger.info(s"Adding asset videoUri $videoUri to $atomId")
     previewDataStore.getAtom(atomId) match {
       case Some(atom) =>
         val mediaAtom = atom.tdata
@@ -63,6 +58,7 @@ case class AddAssetCommand(atomId: String,
         val resolvedVersion = version.getOrElse(currentAssets.foldLeft(1L){(acc, asset) => if (asset.version >= acc) asset.version + 1 else acc})
 
         if (currentAssets.exists(asset => asset.version == resolvedVersion && asset.mimeType == mimeType)) {
+          log.info(s"Cannot add asset $videoUri to $atomId. An asset already exists with version $resolvedVersion and mimeType $mimeType")
           AssetVersionConflict
         }
 
@@ -81,11 +77,13 @@ case class AddAssetCommand(atomId: String,
             duration = assetDuration
           ))
 
-        Logger.info(s"Constructed new atom $atomId, updating")
+        log.info(s"Adding new asset $videoUri to $atomId")
 
         UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom)).process()
 
-      case None => AtomNotFound
+      case None =>
+        log.info(s"Cannot add asset $videoUri to $atomId. No atom has that id")
+        AtomNotFound
     }
   }
 }

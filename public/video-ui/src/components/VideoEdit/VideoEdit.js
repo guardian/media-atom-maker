@@ -19,68 +19,68 @@ import { Field, reduxForm } from 'redux-form';
 
 const VideoEdit = (props) => {
 
-      return (
-        <div>
-          <Field
-          name="title"
-          type="text"
-          component={VideoTitleEdit}
-          video={props.video}
-          updateVideo={props.updateVideo}
-          editable={props.editable} />
+  return (
+    <div>
+      <Field
+      name="title"
+      type="text"
+      component={VideoTitleEdit}
+      video={props.video}
+      updateVideo={props.updateVideo}
+      editable={props.editable} />
 
-          <Field
-            name="category"
-            type="select"
-            component={VideoCategorySelect}
-            video={props.video}
-            updateVideo={props.updateVideo}
-            editable={props.editable} />
+      <Field
+        name="category"
+        type="select"
+        component={VideoCategorySelect}
+        video={props.video}
+        updateVideo={props.updateVideo}
+        editable={props.editable} />
 
-          <Field
-            name="posterImage"
-            component={VideoPosterEdit}
-            video={props.video}
-            editable={props.editable}
-            saveAndUpdateVideo={props.saveAndUpdateVideo} />
+      <Field
+        name="posterImage"
+        component={VideoPosterEdit}
+        video={props.video}
+        editable={props.editable}
+        saveAndUpdateVideo={props.saveAndUpdateVideo} />
 
-          <Field
-            name="youtubeCategory"
-            type="select"
-            component={YoutubeCategorySelect}
-            video={props.video}
-            updateVideo={props.updateVideo}
-            editable={props.editable} />
+      <Field
+        name="youtubeCategory"
+        type="select"
+        component={YoutubeCategorySelect}
+        video={props.video}
+        updateVideo={props.updateVideo}
+        editable={props.editable} />
 
-          <Field
-            name="videoExpiry"
-            name="expiry"
-            type="select"
-            component={VideoExpiryEdit}
-            video={props.video}
-            updateVideo={props.updateVideo}
-            editable={props.editable} />
+      <Field
+        name="videoExpiry"
+        name="expiry"
+        type="select"
+        component={VideoExpiryEdit}
+        video={props.video}
+        updateVideo={props.updateVideo}
+        editable={props.editable} />
 
-          <Field
-            name="youtube-channel"
-            type="select"
-            component={YoutubeChannelSelect}
-            video={props.video}
-            updateVideo={props.updateVideo}
-            editable={props.editable} />
+      <Field
+        name="youtube-channel"
+        type="select"
+        component={YoutubeChannelSelect}
+        video={props.video}
+        updateVideo={props.updateVideo}
+        editable={props.editable} />
 
-          <Field
-            name="privacyStatus"
-            type="text"
-            component={PrivacyStatusSelect}
-            video={props.video}
-            updateVideo={props.updateVideo}
-            editable={props.editable} />
+      <Field
+        name="privacyStatus"
+        type="text"
+        component={PrivacyStatusSelect}
+        video={props.video}
+        updateVideo={props.updateVideo}
+        editable={props.editable} />
 
-          <SaveButton saveState={props.saveState.saving} onSaveClick={props.saveVideo} onResetClick={props.resetVideo} />
-        </div>
-      )
-    };
+      <SaveButton saveState={props.saveState.saving} onSaveClick={props.saveVideo} onResetClick={props.resetVideo} />
+    </div>
+  )
+};
 
 export default reduxForm({
   form: 'VideoEdit',
