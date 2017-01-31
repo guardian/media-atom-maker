@@ -3,7 +3,6 @@ import TextInput from '../FormFields/TextInput';
 import VideoTitleEdit from '../VideoEdit/formComponents/VideoTitle';
 import { Field, reduxForm } from 'redux-form';
 import validate from '../../constants/videoEditValidation';
-import FormFieldSaveWrapper from '../FormFields/FormFieldSaveWrapper';
 import YoutubeKeywordsSelect from '../VideoEdit/formComponents/YoutubeKeywords';
 import YoutubeChannelSelect from '../VideoEdit/formComponents/YoutubeChannel';
 import YoutubeCategorySelect from '../VideoEdit/formComponents/YoutubeCategory';

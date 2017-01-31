@@ -31,14 +31,6 @@ class VideoDisplay extends React.Component {
     this.props.videoActions.saveVideo(video);
   };
 
-  updateVideo = (video) => {
-    this.props.videoActions.updateVideo(video);
-  };
-
-  resetVideo = () => {
-    this.props.videoActions.getVideo(this.props.video.id);
-  };
-
   selectVideo = () => {
     window.parent.postMessage({atomId: this.props.video.id}, '*');
   };
@@ -90,11 +82,7 @@ class VideoDisplay extends React.Component {
                 <VideoMetaData
                   component={VideoMetaData}
                   video={this.props.video || {}}
-                  updateVideo={this.updateVideo}
                   saveAndUpdateVideo={this.saveAndUpdateVideo}
-                  resetVideo={this.resetVideo}
-                  saveState={this.props.saveState}
-                  disableStatusEditing={this.cannotEditStatus()}
                   editable={this.state.metadataEditable}
                  />
               </div>
@@ -106,11 +94,8 @@ class VideoDisplay extends React.Component {
                 <YoutubeMetaData
                   component={YoutubeMetaData}
                   video={this.props.video || {}}
-                  updateVideo={this.updateVideo}
                   saveVideo={this.saveVideo}
                   saveAndUpdateVideo={this.saveAndUpdateVideo}
-                  resetVideo={this.resetVideo}
-                  saveState={this.props.saveState}
                   disableStatusEditing={this.cannotEditStatus()}
                   editable={this.state.youtubeEditable}
                 />
@@ -149,14 +134,12 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getVideo from '../../actions/VideoActions/getVideo';
 import * as saveVideo from '../../actions/VideoActions/saveVideo';
-import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as videoUsages from '../../actions/VideoActions/videoUsages';
 import * as videoPageCreate from '../../actions/VideoActions/videoPageCreate';
 
 function mapStateToProps(state) {
   return {
     video: state.video,
-    saveState: state.saveState,
     config: state.config,
     usages: state.usage,
     composerPageWithUsage: state.pageCreate,
@@ -165,7 +148,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, videoUsages, videoPageCreate), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, videoUsages, videoPageCreate), dispatch)
   };
 }
 
