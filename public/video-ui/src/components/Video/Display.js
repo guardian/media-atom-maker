@@ -7,6 +7,7 @@ import VideoUsages from '../VideoUsages/VideoUsages';
 import VideoMetaData from '../VideoMetaData/VideoMetaData';
 import YoutubeMetaData from '../YoutubeMetaData/YoutubeMetaData';
 import VideoPoster from '../VideoPoster/VideoPoster';
+import GridImageSelect from '../utils/GridImageSelect';
 
 class VideoDisplay extends React.Component {
 
@@ -122,6 +123,7 @@ class VideoDisplay extends React.Component {
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
                   <span className="video__detailbox__header">Poster Image</span>
+                  <GridImageSelect video={this.props.video || {}} saveAndUpdateVideo={this.saveAndUpdateVideo} gridUrl={this.props.config.gridUrl}/>
                 </div>
                 <VideoPoster
                   video={this.props.video || {}}

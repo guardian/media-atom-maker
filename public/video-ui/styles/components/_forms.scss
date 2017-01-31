@@ -72,8 +72,9 @@
 .form__label {
   display: block;
   font-weight: bold;
-  margin-bottom: 5px;
-  padding-right: 5px;
+  margin: 0 0 5px;
+  padding: 8px 0 0;
+  border-top: 1px solid $color625Grey;
 }
 
 .form__message {
@@ -192,8 +193,7 @@
 }
 
 .form__group {
-  padding: 15px;
-  border-bottom: 1px solid $color600Grey;
+  padding: 10px;
 }
 
 .form__group__header {

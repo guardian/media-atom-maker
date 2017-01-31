@@ -38,7 +38,7 @@ class VideoPosterImageEdit extends React.Component {
             <label className="form__label">Poster image</label>
             <div className="form__imageselect">
               {this.renderImage()}
-              <GridImageSelect onEmbed={this.onUpdatePosterImage} gridUrl={this.props.config.gridUrl}/>
+              <GridImageSelect saveAndUpdateVideo={this.onUpdatePosterImage} gridUrl={this.props.config.gridUrl}/>
             </div>
           </div>
       );

@@ -1,11 +1,25 @@
 import React from 'react';
 import Modal from './Modal';
+import { parseImageFromGridCrop } from '../../util/parseGridMetadata';
 
 export default class GridEmbedder extends React.Component {
 
     state = {
         modalOpen: false
     }
+
+    onUpdatePosterImage = (cropData) => {
+
+      const image = parseImageFromGridCrop(cropData);
+
+      const newData = Object.assign({}, this.props.video, {
+        posterImage: image
+      });
+
+      console.log(newData);
+
+      this.props.saveAndUpdateVideo(newData);
+    };
 
     toggleModal = () => {
         if (this.state.modalOpen) {
@@ -48,7 +62,7 @@ export default class GridEmbedder extends React.Component {
         }
 
         this.closeModal();
-        this.props.onEmbed(data.crop.data);
+        this.onUpdatePosterImage(data.crop.data);
     }
 
 
@@ -57,7 +71,7 @@ export default class GridEmbedder extends React.Component {
         return (
             <div className="gridembedder">
                 <div className="gridembedder__button" onClick={this.toggleModal}>
-                    + Add Image from Grid
+                    <i className="icon icon__edit">add_to_photos</i>
                 </div>
 
                 <Modal isOpen={this.state.modalOpen} dismiss={this.closeModal}>

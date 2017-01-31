@@ -9,6 +9,9 @@
     &__item {
       padding: 5px 10px;
       border-top: 1px solid $color600Grey;
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 }

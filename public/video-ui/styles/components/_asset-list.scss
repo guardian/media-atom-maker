@@ -15,21 +15,18 @@ $assetThumbnailHeight: 40px;
     padding: 5px 10px;
     width: 100%;
     word-break: break-all;
-    background: $color800Grey;
+    background: $color700Grey;
 
     &:not(:last-child) {
       border-bottom: 1px solid $color600Grey;
     }
 
     &:hover {
-      background: $color650Grey;
+      background: $color625Grey;
     }
 
     &--current {
-      border: {
-        left: 5px solid $brandColor;
-        right: 5px solid $brandColor;
-      }
+      border-left: 5px solid $brandColor;
     }
   }
 

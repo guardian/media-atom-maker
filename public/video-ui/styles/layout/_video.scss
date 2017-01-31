@@ -59,10 +59,6 @@
   width: 300px;
 }
 
-.video-edit {
-
-}
-
 .video__detailbox__header__container {
   display: flex;
   justify-content: space-between;
@@ -78,7 +74,6 @@
     color: $color500Grey;
     font-weight: bold;
     display: block;
-    // text-transform: uppercase;
     padding: 10px;
     font-size: 17px;
   }
