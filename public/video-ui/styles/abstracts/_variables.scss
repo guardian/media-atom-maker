@@ -12,7 +12,7 @@
   text-decoration: none;
 
   &:hover:not(:disabled) {
-    background: $brandColor;
+    background: darken($colorA, 5);
   }
 
   &:disabled {

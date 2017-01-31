@@ -33,8 +33,8 @@ export default class Header extends React.Component {
   renderCreateVideo() {
     return (
       <nav className="topbar__nav-link">
-        <Link className="btn" to="/videos/create">
-          <i className="icon icon__add">add</i> Create new video
+        <Link className="button__secondary" to="/videos/create">
+          <i className="icon">add</i> Create new video
         </Link>
       </nav>
     );
