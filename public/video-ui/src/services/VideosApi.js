@@ -21,7 +21,7 @@ export default {
 
   fetchPublishedVideo: (videoId) => {
     return pandaReqwest({
-      url: '/api2/atoms/published/' + videoId,
+      url: '/api2/atoms/' + videoId + '/published',
       method: 'get',
       contentType: 'application/json'
     });
