@@ -20,7 +20,7 @@ export default class Header extends React.Component {
 
   renderFeedback() {
     return (
-      <nav className="topbar__nav-link topbar__functional">
+      <nav className="topbar__nav-link">
         <a className="button__secondary"
            target="_blank"
            href="https://goo.gl/forms/0KoeGOW64584Bydm2">
@@ -33,8 +33,8 @@ export default class Header extends React.Component {
   renderAuditLink() {
     const auditLink = "/videos/" + this.props.video.id + "/audit";
     return (
-      <nav className="topbar__nav topbar__feedback">
-        <Link activeClassName="topbar__nav-link--active" className="topbar__nav-link" to={auditLink}>View audit trail</Link>
+      <nav className="topbar__nav-link topbar__functional">
+        <Link activeClassName="topbar__nav-link--active" className="button__secondary" to={auditLink}>View audit trail</Link>
       </nav>
     );
   }
@@ -77,6 +77,8 @@ export default class Header extends React.Component {
             saveState={this.props.saveState}
             publishVideo={this.publishVideo} />
 
+          <div className="flex-container">
+            {this.renderAuditLink()}
             {this.renderFeedback()}
             {this.renderCreateVideo()}
           </div>

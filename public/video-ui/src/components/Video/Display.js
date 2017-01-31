@@ -106,6 +106,14 @@ class VideoDisplay extends React.Component {
                  />
               </div>
               <div className="video__detailbox usages">
+                <span className="video__detailbox__header">Poster Image</span>
+                <VideoPoster
+                  video={this.props.video || {}}
+                  saveAndUpdateVideo={this.saveAndUpdateVideo}
+                  editable={this.state.editable}
+                />
+              </div>
+              <div className="video__detailbox usages">
                 <span className="video__detailbox__header">Usages</span>
                 <VideoUsages
                   video={this.props.video || {}}
@@ -115,17 +123,9 @@ class VideoDisplay extends React.Component {
                   createComposerPage={this.props.videoActions.createVideoPage}
                 />
               </div>
-              <div className="video__detailbox usages">
-                <span className="video__detailbox__header">Poster Image</span>
-                <VideoPoster
-                  video={this.props.video || {}}
-                  saveAndUpdateVideo={this.saveAndUpdateVideo}
-                  editable={this.state.editable}
-                />
+              <div className="video__detailbox">
+                <VideoAssets video={this.props.video || {}} />
               </div>
-            </div>
-            <div className="video__detailbox">
-              <VideoAssets video={this.props.video || {}} />
             </div>
           </div>
         </div>

@@ -5,15 +5,6 @@
   align-items: stretch;
 }
 
-.video__sidebar {
-
-  background-color: $color800Grey;
-  height: 100%;
-  max-height: 100%;
-  overflow: auto;
-  flex-shrink: 0;
-}
-
 .video__main {
   flex-grow: 1;
   padding: 10px 15px;
@@ -22,6 +13,7 @@
 
   &__header {
     display: flex;
+    flex-wrap: wrap;
   }
 }
 
@@ -72,6 +64,7 @@
 }
 
 .video__detailbox {
+  width: 23vw;
   margin: 10px;
   background-color: $color650Grey;
   border: 1px solid $color600Grey;
