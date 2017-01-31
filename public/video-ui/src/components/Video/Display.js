@@ -11,7 +11,8 @@ import VideoPoster from '../VideoPoster/VideoPoster';
 class VideoDisplay extends React.Component {
 
   state = {
-    editable: false
+    metadataEditable: false,
+    youtubeEditable: false
   };
 
   componentWillMount() {
@@ -42,20 +43,25 @@ class VideoDisplay extends React.Component {
     window.parent.postMessage({atomId: this.props.video.id}, '*');
   };
 
-  enableEditing = () => {
-    this.setState({
-      editable: true
-    });
-  };
+  manageEditingState = (value, property) => {
 
-  disableEditing = () => {
-    this.setState({
-      editable: false
-    });
+    if (property === 'metadata') {
+
+      this.setState({
+        metadataEditable: value
+      });
+
+    } else if (property === 'youtube') {
+
+      this.setState({
+        youtubeEditable: value
+      });
+    }
   };
 
   cannotEditStatus = () => {
-    return this.props.video.expiryDate <= Date.now()
+
+    return this.props.video.expiryDate <= Date.now();
   };
 
   render() {
@@ -79,7 +85,7 @@ class VideoDisplay extends React.Component {
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
                   <span className="video__detailbox__header">Video Meta Data</span>
-                  {this.state.editable ? <i className="icon icon__done" onClick={this.disableEditing}>done</i> : <i className="icon icon__edit" onClick={this.enableEditing}>edit</i>}
+                  {this.state.metadataEditable ? <i className="icon icon__done" onClick={this.manageEditingState.bind(null, false, 'metadata')}>done</i> : <i className="icon icon__edit" onClick={this.manageEditingState.bind(this, true, 'metadata')}>edit</i>}
                 </div>
                 <VideoMetaData
                   component={VideoMetaData}
@@ -89,11 +95,14 @@ class VideoDisplay extends React.Component {
                   resetVideo={this.resetVideo}
                   saveState={this.props.saveState}
                   disableStatusEditing={this.cannotEditStatus()}
-                  editable={this.state.editable}
+                  editable={this.state.metadataEditable}
                  />
               </div>
               <div className="video__detailbox">
-                <span className="video__detailbox__header">Youtube Meta Data</span>
+                <div className="video__detailbox__header__container">
+                  <span className="video__detailbox__header">Youtube Meta Data</span>
+                  {this.state.youtubeEditable ? <i className="icon icon__done" onClick={this.manageEditingState.bind(null, false, 'youtube')}>done</i> : <i className="icon icon__edit" onClick={this.manageEditingState.bind(this, true, 'youtube')}>edit</i>}
+                </div>
                 <YoutubeMetaData
                   component={YoutubeMetaData}
                   video={this.props.video || {}}
@@ -103,7 +112,8 @@ class VideoDisplay extends React.Component {
                   resetVideo={this.resetVideo}
                   saveState={this.props.saveState}
                   disableStatusEditing={this.cannotEditStatus()}
-                 />
+                  editable={this.state.youtubeEditable}
+                />
               </div>
               <div className="video__detailbox usages">
                 <span className="video__detailbox__header">Usages</span>

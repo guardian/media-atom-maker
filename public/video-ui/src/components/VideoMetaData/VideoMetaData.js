@@ -6,7 +6,6 @@ import ContentFlags from '../VideoEdit/formComponents/ContentFlags';
 import VideoExpiryEdit from '../VideoEdit/formComponents/VideoExpiry';
 import VideoCategorySelect from '../VideoEdit/formComponents/VideoCategory';
 import FormFieldSaveWrapper from '../FormFields/FormFieldSaveWrapper';
-import MaybeFormFieldSaveWrapper from '../FormFields/MaybeFormFieldSaveWrapper';
 import { Field, reduxForm } from 'redux-form';
 import validate from '../../constants/videoEditValidation';
 

@@ -4,59 +4,44 @@ import VideoTitleEdit from '../VideoEdit/formComponents/VideoTitle';
 import { Field, reduxForm } from 'redux-form';
 import validate from '../../constants/videoEditValidation';
 import FormFieldSaveWrapper from '../FormFields/FormFieldSaveWrapper';
-import MaybeFormFieldSaveWrapper from '../FormFields/MaybeFormFieldSaveWrapper';
 import YoutubeKeywordsSelect from '../VideoEdit/formComponents/YoutubeKeywords';
 import YoutubeChannelSelect from '../VideoEdit/formComponents/YoutubeChannel';
 import YoutubeCategorySelect from '../VideoEdit/formComponents/YoutubeCategory';
 import PrivacyStatusSelect from '../VideoEdit/formComponents/PrivacyStatus';
 import ContentFlags from '../VideoEdit/formComponents/ContentFlags';
 
-
 const YoutubeMetaData = (props) => {
 
     return (
       <div className="form__group">
-        <FormFieldSaveWrapper
-          saveVideo={props.saveVideo}
-          resetVideo={props.resetVideo}
-          editable={props.editable}
-          saveState={props.saveState}>
-          <Field
-            name="youtubeCategory"
-            type="select"
-            component={YoutubeCategorySelect}
-            video={props.video}
-            updateVideo={props.updateVideo}
-            editable={props.editable} />
-        </FormFieldSaveWrapper>
+        <Field
+          name="youtubeCategory"
+          type="select"
+          component={YoutubeCategorySelect}
+          video={props.video}
+          saveAndUpdateVideo={props.saveAndUpdateVideo}
+          editable={props.editable} />
 
         <Field
           name="youtubeChannel"
           type="select"
           component={YoutubeChannelSelect}
           video={props.video}
-          updateVideo={props.updateVideo}
-          editable={props.editable} />
+          editable={false} />
 
-        <MaybeFormFieldSaveWrapper
-          saveVideo={props.saveVideo}
-          resetVideo={props.resetVideo}
-          editable={props.editable}
-          saveState={props.saveState}
-          name={"privacyStatus"}
-          type={"text"}
+        <Field
+          name="privacyStatus"
+          type="text"
           component={PrivacyStatusSelect}
           video={props.video}
-          updateVideo={props.updateVideo}
-          editable={props.editable}
-          disableEditing={props.disableStatusEditing}>
-        </MaybeFormFieldSaveWrapper>
+          saveAndUpdateVideo={props.saveAndUpdateVideo}
+          editable={!props.disableStatusEditing && props.editable} />
 
         <Field
           name="youtubeKeywords"
           component={YoutubeKeywordsSelect}
           video={props.video}
-          updateVideo={props.updateVideo}
+          saveAndUpdateVideo={props.saveAndUpdateVideo}
           editable={props.editable} />
       </div>
     );

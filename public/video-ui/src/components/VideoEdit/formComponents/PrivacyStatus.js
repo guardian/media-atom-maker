@@ -10,7 +10,7 @@ export default class PrivacyStatusSelect extends React.Component {
       privacyStatus: e.target.value
     });
 
-    this.props.updateVideo(newData);
+    this.props.saveAndUpdateVideo(newData);
   };
 
   render () {
