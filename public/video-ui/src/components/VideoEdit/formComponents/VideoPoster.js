@@ -38,7 +38,6 @@ class VideoPosterImageEdit extends React.Component {
             <label className="form__label">Poster image</label>
             <div className="form__imageselect">
               {this.renderImage()}
-              <GridImageSelect saveAndUpdateVideo={this.onUpdatePosterImage} gridUrl={this.props.config.gridUrl}/>
             </div>
           </div>
       );
@@ -46,8 +45,7 @@ class VideoPosterImageEdit extends React.Component {
       return (
           <div className="form__row">
             <div className="form__imageselect">
-              {this.renderImage()}
-              <GridImageSelect onEmbed={this.onUpdatePosterImage} gridUrl={this.props.config.gridUrl}/>
+              {this.renderImage()}  
             </div>
           </div>
       );
