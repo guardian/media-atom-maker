@@ -8,6 +8,7 @@ export default class ContentFlags extends React.Component {
         <input
           id="legallySensitive"
           type="checkbox"
+          disabled={!this.props.editable}
           checked={this.props.video.legallySensitive || false}
           onChange={this.updateFlag.bind(this)}
         />

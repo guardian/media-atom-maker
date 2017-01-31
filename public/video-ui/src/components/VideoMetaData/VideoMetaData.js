@@ -15,58 +15,42 @@ const VideoMetaData = (props) => {
 
     return (
         <div className="form__group">
-          <FormFieldSaveWrapper
-            saveVideo={props.saveVideo}
-            resetVideo={props.resetVideo}
-            editable={props.editable}
-            saveState={props.saveState}>
-            <Field
-              name="title"
-              type="text"
-              component={VideoTitleEdit}
+          <Field
+            name="title"
+            type="text"
+            component={VideoTitleEdit}
+            video={props.video}
+            saveAndUpdateVideo={props.saveAndUpdateVideo}
+            editable={props.editable} />
 
-              video={props.video}
-              updateVideo={props.updateVideo}
-              editable={props.editable} />
-          </FormFieldSaveWrapper>
+          <Field
+            name="category"
+            type="select"
+            component={VideoCategorySelect}
+            video={props.video}
+            saveAndUpdateVideo={props.saveAndUpdateVideo}
+            editable={props.editable} />
 
-          <FormFieldSaveWrapper
-            saveVideo={props.saveVideo}
-            resetVideo={props.resetVideo}
-            editable={props.editable}
-            saveState={props.saveState}>
-            <Field
-              name="category"
-              type="select"
-              component={VideoCategorySelect}
-              video={props.video}
-              updateVideo={props.updateVideo}
-              editable={props.editable} />
-          </FormFieldSaveWrapper>
-
-          <FormFieldSaveWrapper {...props}>
-            <Field
-              name="expiry"
-              type="number"
-              component={VideoExpiryEdit}
-              video={props.video}
-              updateVideo={props.updateVideo}
-              editable={props.editable} />
-          </FormFieldSaveWrapper>
+          <Field
+            name="expiry"
+            type="number"
+            component={VideoExpiryEdit}
+            video={props.video}
+            saveAndUpdateVideo={props.saveAndUpdateVideo}
+            editable={props.editable} />
 
           <Field
             name="duration"
             type="number"
             component={VideoDurationEdit}
             video={props.video}
-            updateVideo={props.updateVideo}
-            editable={props.editable} />
+            editable={false} />
 
           <Field
             name="contentFlags"
             component={ContentFlags}
             video={props.video}
-            updateVideo={props.updateVideo}
+            saveAndUpdateVideo={props.saveAndUpdateVideo}
             editable={props.editable} />
         </div>
     );

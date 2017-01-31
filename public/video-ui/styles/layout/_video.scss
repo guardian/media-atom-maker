@@ -67,6 +67,10 @@
   width: 300px;
 }
 
+.video__detailbox__header__container {
+  padding-top: 10px;
+}
+
 .video__detailbox {
   margin: 10px;
   background-color: $color650Grey;
@@ -75,7 +79,6 @@
 
   &__header {
     color: $color500Grey;
-    display: block;
     font-weight: bold;
     text-transform: uppercase;
     padding: 10px;
