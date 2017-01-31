@@ -1,0 +1,13 @@
+.flex-container {
+  display: flex;
+  align-items: center;
+}
+
+.flex-spacer,
+.flex-grow {
+  flex-grow: 1;
+}
+
+.flex-no-shrink {
+  flex-shrink: 0;
+}
