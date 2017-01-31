@@ -56,6 +56,19 @@ class VideoDisplay extends React.Component {
     return this.props.video.expiryDate <= Date.now();
   };
 
+  renderEditButton = (editable, property) => {
+
+    if (editable) {
+      return (
+        <i className="icon icon__done" onClick={this.manageEditingState.bind(this, false, property)}>done</i>
+      );
+    } else {
+      return (
+        <i className="icon icon__edit" onClick={this.manageEditingState.bind(this, true, property)}>edit</i>
+      );
+    }
+  }
+
   render() {
     const video = this.props.video && this.props.params.id === this.props.video.id ? this.props.video : undefined;
 
@@ -77,7 +90,7 @@ class VideoDisplay extends React.Component {
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
                   <span className="video__detailbox__header">Video Meta Data</span>
-                  {this.state.metadataEditable ? <i className="icon icon__done" onClick={this.manageEditingState.bind(null, false, 'metadata')}>done</i> : <i className="icon icon__edit" onClick={this.manageEditingState.bind(this, true, 'metadata')}>edit</i>}
+                  {this.renderEditButton(this.state.metadataEditable, 'metadata')}
                 </div>
                 <VideoMetaData
                   component={VideoMetaData}
@@ -89,7 +102,7 @@ class VideoDisplay extends React.Component {
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
                   <span className="video__detailbox__header">Youtube Meta Data</span>
-                  {this.state.youtubeEditable ? <i className="icon icon__done" onClick={this.manageEditingState.bind(null, false, 'youtube')}>done</i> : <i className="icon icon__edit" onClick={this.manageEditingState.bind(this, true, 'youtube')}>edit</i>}
+                  {this.renderEditButton(this.state.youtubeEditable, 'youtube')}
                 </div>
                 <YoutubeMetaData
                   component={YoutubeMetaData}
