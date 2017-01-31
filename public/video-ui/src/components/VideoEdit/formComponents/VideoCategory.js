@@ -9,7 +9,7 @@ export default class VideoCategorySelect extends React.Component {
       category: e.target.value
     });
 
-    this.props.updateVideo(newData);
+    this.props.saveAndUpdateVideo(newData);
   };
 
   render () {

@@ -48,6 +48,12 @@ class VideoDisplay extends React.Component {
     });
   };
 
+  disableEditing = () => {
+    this.setState({
+      editable: false
+    });
+  };
+
   cannotEditStatus = () => {
     return this.props.video.expiryDate <= Date.now()
   };
@@ -71,16 +77,19 @@ class VideoDisplay extends React.Component {
                 <VideoPreview video={this.props.video || {}} />
               </div>
               <div className="video__detailbox">
-                <span className="video__detailbox__header">Video Meta Data</span>
+                <div className="video__detailbox__header__container">
+                  <span className="video__detailbox__header">Video Meta Data</span>
+                  {this.state.editable ? <i className="icon icon__done" onClick={this.disableEditing}>done</i> : <i className="icon icon__edit" onClick={this.enableEditing}>edit</i>}
+                </div>
                 <VideoMetaData
                   component={VideoMetaData}
                   video={this.props.video || {}}
                   updateVideo={this.updateVideo}
-                  saveVideo={this.saveVideo}
                   saveAndUpdateVideo={this.saveAndUpdateVideo}
                   resetVideo={this.resetVideo}
                   saveState={this.props.saveState}
                   disableStatusEditing={this.cannotEditStatus()}
+                  editable={this.state.editable}
                  />
               </div>
               <div className="video__detailbox">
