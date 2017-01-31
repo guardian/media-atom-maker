@@ -13,7 +13,7 @@ class YoutubeKeywordsSelect extends React.Component {
     return (
       <div className="form__row">
         <label className="form__label">Keywords</label>
-        <KeywordPicker keywords={this.props.video.tags} updateKeywords={this.updateKeywords}/>
+        <KeywordPicker keywords={this.props.video.tags} updateKeywords={this.updateKeywords} editable={this.props.editable}/>
       </div>
     );
   }

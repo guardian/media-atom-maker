@@ -59,21 +59,26 @@
   width: 300px;
 }
 
+.video-edit {
+
+}
+
 .video__detailbox__header__container {
-  padding-top: 10px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .video__detailbox {
   width: 23vw;
   margin: 10px;
   background-color: $color650Grey;
-  border: 1px solid $color600Grey;
-  box-shadow: 2px 2px 4px $color800Grey;
+  border-top: 1px solid $color600Grey;
 
   &__header {
     color: $color500Grey;
     font-weight: bold;
-    text-transform: uppercase;
+    display: block;
+    // text-transform: uppercase;
     padding: 10px;
     font-size: 17px;
   }

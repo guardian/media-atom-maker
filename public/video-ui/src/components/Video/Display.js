@@ -11,7 +11,8 @@ import VideoPoster from '../VideoPoster/VideoPoster';
 class VideoDisplay extends React.Component {
 
   state = {
-    editable: false
+    metadataEditable: false,
+    youtubeEditable: false
   };
 
   componentWillMount() {
@@ -30,22 +31,24 @@ class VideoDisplay extends React.Component {
     this.props.videoActions.saveVideo(video);
   };
 
-  updateVideo = (video) => {
-    this.props.videoActions.updateVideo(video);
-  };
-
-  resetVideo = () => {
-    this.props.videoActions.getVideo(this.props.video.id);
-  };
-
   selectVideo = () => {
     window.parent.postMessage({atomId: this.props.video.id}, '*');
   };
 
-  enableEditing = () => {
-    this.setState({
-      editable: true
-    });
+  manageEditingState = (value, property) => {
+
+    if (property === 'metadata') {
+
+      this.setState({
+        metadataEditable: value
+      });
+
+    } else if (property === 'youtube') {
+
+      this.setState({
+        youtubeEditable: value
+      });
+    }
   };
 
   disableEditing = () => {
@@ -55,8 +58,22 @@ class VideoDisplay extends React.Component {
   };
 
   cannotEditStatus = () => {
-    return this.props.video.expiryDate <= Date.now()
+
+    return this.props.video.expiryDate <= Date.now();
   };
+
+  renderEditButton = (editable, property) => {
+
+    if (editable) {
+      return (
+        <i className="icon icon__done" onClick={this.manageEditingState.bind(this, false, property)}>done</i>
+      );
+    } else {
+      return (
+        <i className="icon icon__edit" onClick={this.manageEditingState.bind(this, true, property)}>edit</i>
+      );
+    }
+  }
 
   render() {
     const video = this.props.video && this.props.params.id === this.props.video.id ? this.props.video : undefined;
@@ -79,41 +96,40 @@ class VideoDisplay extends React.Component {
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
                   <span className="video__detailbox__header">Video Meta Data</span>
-                  {this.state.editable ? <i className="icon icon__done" onClick={this.disableEditing}>done</i> : <i className="icon icon__edit" onClick={this.enableEditing}>edit</i>}
+                  {this.renderEditButton(this.state.metadataEditable, 'metadata')}
                 </div>
                 <VideoMetaData
                   component={VideoMetaData}
                   video={this.props.video || {}}
-                  updateVideo={this.updateVideo}
                   saveAndUpdateVideo={this.saveAndUpdateVideo}
-                  resetVideo={this.resetVideo}
-                  saveState={this.props.saveState}
-                  disableStatusEditing={this.cannotEditStatus()}
-                  editable={this.state.editable}
+                  editable={this.state.metadataEditable}
                  />
               </div>
               <div className="video__detailbox">
-                <span className="video__detailbox__header">Youtube Meta Data</span>
+                <div className="video__detailbox__header__container">
+                  <span className="video__detailbox__header">Youtube Meta Data</span>
+                  {this.renderEditButton(this.state.youtubeEditable, 'youtube')}
+                </div>
                 <YoutubeMetaData
                   component={YoutubeMetaData}
                   video={this.props.video || {}}
-                  updateVideo={this.updateVideo}
                   saveVideo={this.saveVideo}
                   saveAndUpdateVideo={this.saveAndUpdateVideo}
-                  resetVideo={this.resetVideo}
-                  saveState={this.props.saveState}
                   disableStatusEditing={this.cannotEditStatus()}
-                 />
+                  editable={this.state.youtubeEditable}
+                />
               </div>
-              <div className="video__detailbox usages">
-                <span className="video__detailbox__header">Poster Image</span>
+              <div className="video__detailbox">
+                <div className="video__detailbox__header__container">
+                  <span className="video__detailbox__header">Poster Image</span>
+                </div>
                 <VideoPoster
                   video={this.props.video || {}}
                   saveAndUpdateVideo={this.saveAndUpdateVideo}
                   editable={this.state.editable}
                 />
               </div>
-              <div className="video__detailbox usages">
+              <div className="video__detailbox">
                 <span className="video__detailbox__header">Usages</span>
                 <VideoUsages
                   video={this.props.video || {}}
@@ -139,14 +155,12 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getVideo from '../../actions/VideoActions/getVideo';
 import * as saveVideo from '../../actions/VideoActions/saveVideo';
-import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as videoUsages from '../../actions/VideoActions/videoUsages';
 import * as videoPageCreate from '../../actions/VideoActions/videoPageCreate';
 
 function mapStateToProps(state) {
   return {
     video: state.video,
-    saveState: state.saveState,
     config: state.config,
     usages: state.usage,
     composerPageWithUsage: state.pageCreate,
@@ -155,7 +169,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, videoUsages, videoPageCreate), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, videoUsages, videoPageCreate), dispatch)
   };
 }
 
