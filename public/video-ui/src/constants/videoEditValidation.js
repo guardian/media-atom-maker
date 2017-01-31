@@ -5,27 +5,27 @@ const validate = (values) => {
   }
   // Required fields
   if (!values.title) {
-    errors.title = 'Required'
+    errors.title = 'Required';
   }
   if (!values.category) {
-    errors.category = 'Required'
+    errors.category = 'Required';
   }
   if (!values.posterImage) {
-    errors.posterImage = 'Required'
+    errors.posterImage = 'Required';
   }
   if (!values.duration) {
-    errors.duration = 'Required'
+    errors.duration = 'Required';
   }
   if(!values.youtubeCategory) {
-    errors.youtubeCategory = 'Required'
+    errors.youtubeCategory = 'Required';
   }
   if(!values.youtubeChannel) {
-    errors.youtubeChannel = 'Required'
+    errors.youtubeChannel = 'Required';
   }
   if(!values.privacyStatus) {
-    errors.privacyStatus = 'Required'
+    errors.privacyStatus = 'Required';
   }
-  return errors
+  return errors;
 };
 
 export default validate;

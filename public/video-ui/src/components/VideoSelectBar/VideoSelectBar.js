@@ -1,5 +1,4 @@
 import React from 'react';
-import {saveStateVals} from '../../constants/saveStateVals';
 import {isVideoPublished} from '../../util/isVideoPublished';
 
 export default class VideoSelectBar extends React.Component {
@@ -10,10 +9,10 @@ export default class VideoSelectBar extends React.Component {
     }
 
     if (this.props.video.posterImage) {
-      return  <img src={this.props.video.posterImage.master.file} alt={this.props.video.title}/>
+      return  <img src={this.props.video.posterImage.master.file} alt={this.props.video.title}/>;
     }
 
-    return <div className="bar__image-placeholder">No Image</div>
+    return <div className="bar__image-placeholder">No Image</div>;
   }
 
   isVideoPublished() {
@@ -22,11 +21,11 @@ export default class VideoSelectBar extends React.Component {
   }
 
   renderEmbedButton() {
-    return <button type="button" className="bar__button" onClick={this.props.onSelectVideo}>Select this Video</button>
+    return <button type="button" className="bar__button" onClick={this.props.onSelectVideo}>Select this Video</button>;
   }
 
   renderCannotEmbedMessage() {
-    return <div>This atom cannot be embedded because it has not been published</div>
+    return <div>This atom cannot be embedded because it has not been published</div>;
   }
 
   render() {
@@ -43,7 +42,7 @@ export default class VideoSelectBar extends React.Component {
           {this.renderEmbedButton()}
         </div>
         </div>
-      )
+      );
     } else {
       return (
         <div className="bar info-bar">
@@ -53,7 +52,7 @@ export default class VideoSelectBar extends React.Component {
           {this.renderCannotEmbedMessage()}
         </div>
         </div>
-      )
+      );
     }
   }
 }

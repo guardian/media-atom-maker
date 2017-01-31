@@ -21,7 +21,7 @@ function errorReceivingCatetories(error) {
     message: 'Could not get YouTube channels',
     error: error,
     receivedAt: Date.now()
-  }
+  };
 }
 
 export function getChannels() {

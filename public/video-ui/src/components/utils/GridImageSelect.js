@@ -1,5 +1,6 @@
 import React from 'react';
 import Modal from './Modal';
+import Logger from '../../logger';
 
 export default class GridEmbedder extends React.Component {
 
@@ -31,19 +32,19 @@ export default class GridEmbedder extends React.Component {
 
     onMessage = (event) => {
         if (event.origin !== this.props.gridUrl) {
-            console.log("didn't come from the grid");
+            Logger.log("didn't come from the grid");
             return;
         }
 
         const data = event.data;
 
         if (!data) {
-            console.log("got no data...");
+            Logger.log("got no data...");
             return;
         }
 
         if (!this.validMessage(data)) {
-            console.log("not a valid message...");
+            Logger.log("not a valid message...");
             return;
         }
 

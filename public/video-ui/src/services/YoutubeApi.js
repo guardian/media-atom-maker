@@ -5,7 +5,7 @@ export function getYoutubeCategories() {
     url: '/api/youtube/categories',
     contentType: 'application/json',
     method: 'get'
-  })
+  });
 }
 
 export function getYoutubeChannels() {
@@ -13,5 +13,5 @@ export function getYoutubeChannels() {
     url: '/api/youtube/channels',
     contentType: 'application/json',
     method: 'get'
-  })
+  });
 }

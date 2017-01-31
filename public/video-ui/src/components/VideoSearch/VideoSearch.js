@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import {saveStateVals} from '../../constants/saveStateVals';
 
 export default class VideoSearch extends React.Component {
@@ -17,6 +17,6 @@ export default class VideoSearch extends React.Component {
         <i className="icon icon__search-magnifier">search</i>
         <input className={'form__field' + (this.searchInProgress() ? ' form__field--loading' : '')} type="search" value={this.props.searchTerm || ''} onChange={this.onSearch} placeholder={"Search for videos..."} />
       </div>
-    )
+    );
   }
 }

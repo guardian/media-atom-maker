@@ -6,5 +6,5 @@ export function searchText(query) {
   return pandaReqwest({
     url: capiProxyUrl + "/atoms?types=media&q=" + query + "&searchFields=data.title",
     method: 'get'
-  })
+  });
 }
