@@ -30,6 +30,15 @@ export default class Header extends React.Component {
     );
   }
 
+  renderAuditLink() {
+    const auditLink = "/videos/" + this.props.video.id + "/audit";
+    return (
+      <nav className="topbar__nav topbar__feedback">
+        <Link activeClassName="topbar__nav-link--active" className="topbar__nav-link" to={auditLink}>View audit trail</Link>
+      </nav>
+    );
+  }
+
   renderCreateVideo() {
     return (
       <nav className="topbar__nav-link">
@@ -68,7 +77,6 @@ export default class Header extends React.Component {
             saveState={this.props.saveState}
             publishVideo={this.publishVideo} />
 
-          <div className="flex-container">
             {this.renderFeedback()}
             {this.renderCreateVideo()}
           </div>
