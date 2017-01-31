@@ -1,14 +1,14 @@
-@mixin buttonClass($colorA, $colorB) {
+@mixin buttonClass($btnBackground, $btnText) {
   display: block;
   padding: 10px;
-  background-color: $colorA;
-  color: $colorB;
+  background-color: $btnBackground;
+  color: $btnText;
   font-size: 12px;
   font-weight: bold;
   text-decoration: none;
 
   &:hover:not(:disabled) {
-    background: darken($colorA, 5);
+    background: darken($btnBackground, 5);
   }
 
   &:disabled {
