@@ -10,7 +10,7 @@ const PosterEdit = (props) => {
       name="posterImage"
       component={VideoPosterEdit}
       video={props.video || {}}
-      saveAndUpdateVideo={props.saveAndUpdateVideo}
+      updateVideo={props.updateVideo}
       editable={props.editable}
       editMode={true}
     />
