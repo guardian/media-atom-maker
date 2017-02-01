@@ -1,5 +1,4 @@
 import React from 'react';
-import GridImageSelect from '../../utils/GridImageSelect';
 import {parseImageFromGridCrop} from '../../../util/parseGridMetadata';
 import {findSmallestAssetAboveWidth} from '../../../util/imageHelpers';
 
@@ -31,15 +30,25 @@ class VideoPosterImageEdit extends React.Component {
   }
 
   render () {
-    return (
-        <div className="form__row">
-          <label className="form__label">Poster image</label>
-          <div className="form__imageselect">
-            {this.renderImage()}
-            <GridImageSelect onEmbed={this.onUpdatePosterImage} gridUrl={this.props.config.gridUrl}/>
+
+    if (!this.props.editMode) {
+      return (
+          <div className="form__row">
+            <label className="form__label">Poster image</label>
+            <div className="form__imageselect">
+              {this.renderImage()}
+            </div>
           </div>
-        </div>
-    );
+      );
+    } else {
+      return (
+          <div className="form__row">
+            <div className="form__imageselect">
+              {this.renderImage()}
+            </div>
+          </div>
+      );
+    }
   }
 }
 

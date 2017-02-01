@@ -1,18 +1,19 @@
 import React from 'react';
-import VideoEdit from '../VideoEdit/VideoEdit';
 import VideoAssets from '../VideoAssets/VideoAssets';
 import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../VideoPreview/VideoPreview';
-import VideoAuditTrail from '../VideoAuditTrail/VideoAuditTrail';
 import VideoUsages from '../VideoUsages/VideoUsages';
+import VideoMetaData from '../VideoMetaData/VideoMetaData';
+import YoutubeMetaData from '../YoutubeMetaData/YoutubeMetaData';
+import VideoPoster from '../VideoPoster/VideoPoster';
+import GridImageSelect from '../utils/GridImageSelect';
 
 class VideoDisplay extends React.Component {
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.video != this.props.video) {
-      this.props.videoActions.getAudits(nextProps.video.id);
-    }
-  }
+  state = {
+    metadataEditable: false,
+    youtubeEditable: false
+  };
 
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
@@ -20,33 +21,58 @@ class VideoDisplay extends React.Component {
 
   saveVideo = () => {
     this.props.videoActions.saveVideo(this.props.video);
+
+    this.setState({
+      editable: false
+    });
   };
 
   saveAndUpdateVideo = (video) => {
     this.props.videoActions.saveVideo(video);
   };
 
-  updateVideo = (video) => {
-    this.props.videoActions.updateVideo(video);
-  };
-
-  resetVideo = () => {
-    this.props.videoActions.getVideo(this.props.video.id);
-  };
-
   selectVideo = () => {
     window.parent.postMessage({atomId: this.props.video.id}, '*');
   };
 
-  enableEditing = () => {
+  manageEditingState = (value, property) => {
+
+    if (property === 'metadata') {
+
+      this.setState({
+        metadataEditable: value
+      });
+
+    } else if (property === 'youtube') {
+
+      this.setState({
+        youtubeEditable: value
+      });
+    }
+  };
+
+  disableEditing = () => {
     this.setState({
-      editable: true
+      editable: false
     });
   };
 
   cannotEditStatus = () => {
     return this.props.video.expiryDate <= Date.now();
   };
+
+  renderEditButton = (editable, property) => {
+
+    if (editable) {
+      return (
+        <i className="icon icon__done" onClick={this.manageEditingState.bind(this, false, property)}>done</i>
+      );
+    } else {
+      return (
+        <i className="icon icon__edit" onClick={this.manageEditingState.bind(this, true, property)}>edit</i>
+      );
+    }
+  }
 
   render() {
     const video = this.props.video && this.props.params.id === this.props.video.id ? this.props.video : undefined;
@@ -60,28 +86,51 @@ class VideoDisplay extends React.Component {
         <VideoSelectBar video={video} onSelectVideo={this.selectVideo} embeddedMode={this.props.config.embeddedMode} />
 
         <div className="video">
-          <div className="video__sidebar video-details">
-            <form className="form video__sidebar__group">
-              <VideoEdit
-                video={this.props.video || {}}
-                updateVideo={this.updateVideo}
-                saveVideo={this.saveVideo}
-                saveAndUpdateVideo={this.saveAndUpdateVideo}
-                resetVideo={this.resetVideo}
-                saveState={this.props.saveState}
-                disableStatusEditing={this.cannotEditStatus()}
-               />
-            </form>
-          </div>
-
           <div className="video__main">
             <div className="video__main__header">
               <div className="video__detailbox">
-                <span className="video__detailbox__header">Preview</span>
+                <header className="video__detailbox__header">Preview</header>
                 <VideoPreview video={this.props.video || {}} />
               </div>
-              <div className="video__detailbox usages">
-                <span className="video__detailbox__header">Usages</span>
+              <div className="video__detailbox">
+                <div className="video__detailbox__header__container">
+                  <header className="video__detailbox__header">Video Meta Data</header>
+                  {this.renderEditButton(this.state.metadataEditable, 'metadata')}
+                </div>
+                <VideoMetaData
+                  component={VideoMetaData}
+                  video={this.props.video || {}}
+                  saveAndUpdateVideo={this.saveAndUpdateVideo}
+                  editable={this.state.metadataEditable}
+                 />
+              </div>
+              <div className="video__detailbox">
+                <div className="video__detailbox__header__container">
+                  <header className="video__detailbox__header">Youtube Meta Data</header>
+                  {this.renderEditButton(this.state.youtubeEditable, 'youtube')}
+                </div>
+                <YoutubeMetaData
+                  component={YoutubeMetaData}
+                  video={this.props.video || {}}
+                  saveVideo={this.saveVideo}
+                  saveAndUpdateVideo={this.saveAndUpdateVideo}
+                  disableStatusEditing={this.cannotEditStatus()}
+                  editable={this.state.youtubeEditable}
+                />
+              </div>
+              <div className="video__detailbox">
+                <div className="video__detailbox__header__container">
+                  <header className="video__detailbox__header">Poster Image</header>
+                  <GridImageSelect video={this.props.video || {}} saveAndUpdateVideo={this.saveAndUpdateVideo} gridUrl={this.props.config.gridUrl}/>
+                </div>
+                <VideoPoster
+                  video={this.props.video || {}}
+                  saveAndUpdateVideo={this.saveAndUpdateVideo}
+                  editable={this.state.editable}
+                />
+              </div>
+              <div className="video__detailbox">
+                <header className="video__detailbox__header">Usages</header>
                 <VideoUsages
                   video={this.props.video || {}}
                   fetchUsages={this.props.videoActions.getUsages}
@@ -90,14 +139,9 @@ class VideoDisplay extends React.Component {
                   createComposerPage={this.props.videoActions.createVideoPage}
                 />
               </div>
-            </div>
-            <div className="video__detailbox">
-              <VideoAssets video={this.props.video || {}} />
-            </div>
-
-            <div className="video__detailbox">
-              <span className="video__detailbox__header">Atom Audit Trail</span>
-              <VideoAuditTrail video={this.props.video || {}} audits={this.props.audits || []}/>
+              <div className="video__detailbox">
+                <VideoAssets video={this.props.video || {}} />
+              </div>
             </div>
           </div>
         </div>
@@ -111,25 +155,21 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getVideo from '../../actions/VideoActions/getVideo';
 import * as saveVideo from '../../actions/VideoActions/saveVideo';
-import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as videoUsages from '../../actions/VideoActions/videoUsages';
 import * as videoPageCreate from '../../actions/VideoActions/videoPageCreate';
-import * as getAudits from '../../actions/VideoActions/getAudits';
 
 function mapStateToProps(state) {
   return {
     video: state.video,
-    saveState: state.saveState,
     config: state.config,
     usages: state.usage,
     composerPageWithUsage: state.pageCreate,
-    audits: state.audits
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, videoUsages, videoPageCreate, getAudits), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, videoUsages, videoPageCreate), dispatch)
   };
 }
 

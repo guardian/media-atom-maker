@@ -4,14 +4,6 @@ import Logger from '../../../logger';
 
 export default class VideoDurationEdit extends React.Component {
 
-  onUpdateDuration= (e) => {
-    const newData = Object.assign({}, this.props.video, {
-      duration: Number(e.target.value)
-    });
-
-    this.props.updateVideo(newData);
-  };
-
   render () {
     if (!this.props.video) {
       Logger.log('VideoEdit loaded without video provided');
@@ -22,7 +14,6 @@ export default class VideoDurationEdit extends React.Component {
         <TextInput
           fieldName="Duration (in seconds)"
           fieldValue={this.props.video.duration}
-          onUpdateField={this.onUpdateDuration}
           inputType="number"
           video={this.props.video}
           editable={this.props.editable}

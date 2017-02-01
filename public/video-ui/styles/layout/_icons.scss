@@ -24,22 +24,34 @@
 
 .icon__search-magnifier,
 .icon__add,
+.icon__done,
 .icon__edit {
   align-self: center;
   padding: 0 5px;
 }
 
+.icon__done,
 .icon__edit {
-  color: $color300Grey;
   background-color: $color600Grey;
   width: 25px;
   height: 25px;
   padding: 4px 5px;
   cursor: pointer;
-  position: absolute;
-  top: 8px;
-  right: 0;
+  margin-right: 10px;
+}
+
+.icon__edit {
+  background-color: $color600Grey;
+  color: $color300Grey;
   &:hover {
     background-color: darken($color600Grey, 10%);
+  }
+}
+
+.icon__done {
+  background-color: $brandColor;
+  color: $color800Grey;
+  &:hover {
+    background-color: darken($brandColor, 5%);
   }
 }
