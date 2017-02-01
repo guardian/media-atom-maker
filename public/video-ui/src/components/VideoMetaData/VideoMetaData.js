@@ -17,7 +17,7 @@ const VideoMetaData = (props) => {
             type="text"
             component={VideoTitleEdit}
             video={props.video}
-            saveAndUpdateVideo={props.saveAndUpdateVideo}
+            updateVideo={props.saveAndUpdateVideo}
             editable={props.editable} />
 
           <Field
@@ -25,7 +25,7 @@ const VideoMetaData = (props) => {
             type="select"
             component={VideoCategorySelect}
             video={props.video}
-            saveAndUpdateVideo={props.saveAndUpdateVideo}
+            updateVideo={props.saveAndUpdateVideo}
             editable={props.editable} />
 
           <Field
@@ -33,7 +33,7 @@ const VideoMetaData = (props) => {
             type="number"
             component={VideoExpiryEdit}
             video={props.video}
-            saveAndUpdateVideo={props.saveAndUpdateVideo}
+            updateVideo={props.saveAndUpdateVideo}
             editable={props.editable} />
 
           <Field
@@ -47,7 +47,7 @@ const VideoMetaData = (props) => {
             name="contentFlags"
             component={ContentFlags}
             video={props.video}
-            saveAndUpdateVideo={props.saveAndUpdateVideo}
+            updateVideo={props.saveAndUpdateVideo}
             editable={props.editable} />
         </div>
     );

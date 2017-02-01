@@ -35,7 +35,7 @@ const VideoEdit = (props) => {
             component={VideoPosterEdit}
             video={props.video}
             editable={props.editable}
-            saveAndUpdateVideo={props.saveAndUpdateVideo} />
+            updateVideo={props.saveAndUpdateVideo} />
 
           <Field
             name="youtubeCategory"
