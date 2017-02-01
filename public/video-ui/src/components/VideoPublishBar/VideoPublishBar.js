@@ -9,6 +9,10 @@ export default class VideoPublishBar extends React.Component {
     return this.props.saveState.publishing === saveStateVals.inprogress;
   }
 
+  videoHasUnpublishedChanges() {
+    return hasUnpublishedChanges(this.props.video, this.props.publishedVideo);
+  }
+
   renderUnpublishedNote() {
     return (
       <span className="publish-bar__message__block">
@@ -22,8 +26,7 @@ export default class VideoPublishBar extends React.Component {
     return (<button
         type="button"
         className="btn"
-        disabled={!hasUnpublishedChanges(this.props.video, this.props.publishedVideo) || this.videoIsCurrentlyPublishing()}
-        className="bar__button publish-bar__button"
+        disabled={!this.videoHasUnpublishedChanges() || this.videoIsCurrentlyPublishing()}
         onClick={this.props.publishVideo}
       >
         Publish
@@ -39,7 +42,7 @@ export default class VideoPublishBar extends React.Component {
 
   renderVideoPublishedInfo() {
     if (isVideoPublished(this.props.publishedVideo)) {
-      return <div className="publish__label label__live">Live</div>
+      return <div className="publish__label label__live">Live</div>;
     }
     return <div className="publish__label label__draft">Draft</div>;
   }
@@ -62,7 +65,7 @@ export default class VideoPublishBar extends React.Component {
       );
     }
 
-    if (!hasUnpublishedChanges(this.props.video, this.props.publishedVideo)) {
+    if (!this.videoHasUnpublishedChanges()) {
       return (
         <div className="flex-container flex-grow publish-bar">
           {this.renderVideoPublishedInfo()}
