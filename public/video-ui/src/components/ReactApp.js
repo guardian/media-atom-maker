@@ -14,6 +14,7 @@ class ReactApp extends React.Component {
   componentWillMount() {
     if (this.props.params.id) {
       this.props.appActions.getVideo(this.props.params.id);
+      this.props.appActions.getPublishedVideo(this.props.params.id);
     }
   }
 
@@ -23,6 +24,7 @@ class ReactApp extends React.Component {
         this.state.fetchedVideoFor !== this.props.params.id
       ) {
       this.props.appActions.getVideo(this.props.params.id);
+      this.props.appActions.getPublishedVideo(this.props.params.id);
       this.setState({
         fetchedVideoFor: this.props.params.id
       });
@@ -41,6 +43,7 @@ class ReactApp extends React.Component {
             searchTerm={this.props.searchTerm}
             searching={this.props.saveState.searching}
             video={this.props.video || {}}
+            publishedVideo={this.props.publishedVideo || {}}
             showPublishedState={this.props.params.id ? true : false}
             publishVideo={this.props.appActions.publishVideo}
             saveState={this.props.saveState}
@@ -59,6 +62,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as updateSearchTerm from '../actions/SearchActions/updateSearchTerm';
 import * as getVideo from '../actions/VideoActions/getVideo';
+import * as getPublishedVideo from '../actions/VideoActions/getPublishedVideo';
 import * as publishVideo from '../actions/VideoActions/publishVideo';
 import * as saveVideo from '../actions/VideoActions/saveVideo';
 
@@ -67,13 +71,14 @@ function mapStateToProps(state) {
     searchTerm: state.searchTerm,
     saveState: state.saveState,
     video: state.video,
+    publishedVideo: state.publishedVideo,
     error: state.error
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    appActions: bindActionCreators(Object.assign({}, updateSearchTerm, getVideo, publishVideo, saveVideo), dispatch)
+    appActions: bindActionCreators(Object.assign({}, updateSearchTerm, getVideo, getPublishedVideo, publishVideo, saveVideo), dispatch)
   };
 }
 

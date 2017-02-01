@@ -11,7 +11,7 @@ function requestVideoPublish(video) {
 function receiveVideoPublish(video) {
   return {
     type: 'VIDEO_PUBLISH_RECEIVE',
-    video: video,
+    publishedVideo: video,
     receivedAt: Date.now()
   };
 }

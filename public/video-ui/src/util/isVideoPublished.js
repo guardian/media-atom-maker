@@ -1,3 +1,6 @@
 export function isVideoPublished(video) {
-  return video && video.contentChangeDetails && video.contentChangeDetails.published;
+  if (!video) {
+    return false;
+  }
+  return Object.keys(video).length !== 0;
 }

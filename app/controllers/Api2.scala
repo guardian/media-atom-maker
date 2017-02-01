@@ -68,6 +68,13 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
     }
   }
 
+  def getPublishedMediaAtom(id: String) = APIHMACAuthAction {
+    publishedDataStore.getAtom(id) match {
+      case Some(atom) => Ok(Json.toJson(MediaAtom.fromThrift(atom)))
+      case None => Ok(Json.obj())
+    }
+  }
+
   def publishMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
     implicit val user = req.user
 
