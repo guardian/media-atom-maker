@@ -9,10 +9,10 @@ export default class VideoSelectBar extends React.Component {
     }
 
     if (this.props.video.posterImage) {
-      return  <img src={this.props.video.posterImage.master.file} alt={this.props.video.title}/>
+      return  <img src={this.props.video.posterImage.master.file} alt={this.props.video.title}/>;
     }
 
-    return <div className="bar__image-placeholder">No Image</div>
+    return <div className="bar__image-placeholder">No Image</div>;
   }
 
   renderEmbedButton() {
