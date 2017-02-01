@@ -5,15 +5,15 @@ import {isVideoPublished} from '../../util/isVideoPublished';
 export default class VideoPublishBar extends React.Component {
 
   videoHasUnpublishedChanges() {
-    const changeDetails = this.props.video.contentChangeDetails
-    const lastModified = changeDetails.lastModified && changeDetails.lastModified.date
-    const published = changeDetails.published && changeDetails.published.date
+    const changeDetails = this.props.video.contentChangeDetails;
+    const lastModified = changeDetails.lastModified && changeDetails.lastModified.date;
+    const published = changeDetails.published && changeDetails.published.date;
 
     if (!published || lastModified > published) {
-      return true
+      return true;
     }
 
-    return false
+    return false;
   }
 
   videoIsCurrentlyPublishing() {
@@ -33,7 +33,7 @@ export default class VideoPublishBar extends React.Component {
     return (<button
         type="button"
         disabled={!this.videoHasUnpublishedChanges() || this.videoIsCurrentlyPublishing()}
-        className="bar__button publish-bar__button"
+        className="btn"
         onClick={this.props.publishVideo}
       >
         Publish
@@ -49,9 +49,9 @@ export default class VideoPublishBar extends React.Component {
 
   renderVideoPublishedInfo() {
     if (isVideoPublished(this.props.video)) {
-      return <div className="publish__label label__live">Live</div>
+      return <div className="publish__label label__live">Live</div>;
     }
-    return <div className="publish__label label__draft">Draft</div>
+    return <div className="publish__label label__draft">Draft</div>;
   }
 
 
@@ -63,8 +63,9 @@ export default class VideoPublishBar extends React.Component {
 
     if (this.videoIsCurrentlyPublishing()) {
       return (
-        <div className="topbar__container publish-bar">
+        <div className="flex-container flex-grow publish-bar">
           {this.renderVideoPublishedInfo()}
+          <div className="flex-spacer"></div>
           {this.renderPublishButton()}
           {this.renderPublishMessage()}
         </div>
@@ -73,19 +74,21 @@ export default class VideoPublishBar extends React.Component {
 
     if (!this.videoHasUnpublishedChanges()) {
       return (
-        <div className="topbar__container publish-bar">
+        <div className="flex-container flex-grow publish-bar">
           {this.renderVideoPublishedInfo()}
+          <div className="flex-spacer"></div>
           {this.renderPublishButton()}
         </div>
       );
     }
 
     return (
-      <div className="topbar__container publish-bar">
+      <div className="flex-container flex-grow publish-bar">
         {this.renderVideoPublishedInfo()}
-        {this.renderPublishButton()}
+        <div className="flex-spacer"></div>
         {this.renderUnpublishedNote()}
+        {this.renderPublishButton()}
       </div>
-    )
+    );
   }
 }

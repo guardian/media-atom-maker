@@ -1,8 +1,6 @@
-import React, {PropTypes} from 'react';
-import {Link} from 'react-router';
+import React from 'react';
 import VideoAssetItem from './VideoAssetItem';
 import VideoAssetAdd from '../VideoAssetAdd/VideoAssetAdd';
-import SaveButton from '../utils/SaveButton';
 
 class VideoAssets extends React.Component {
 
@@ -59,9 +57,9 @@ class VideoAssets extends React.Component {
             {this.renderCurrentItem()}
             {this.renderListItems()}
           </ul>
-        )
+        );
       } else {
-        return (<p>No assets found</p>)
+        return (<p>No assets found</p>);
       }
   }
 
@@ -81,7 +79,7 @@ class VideoAssets extends React.Component {
     if (this.state.showAssetList) {
       return (
         this.props.video.assets.map(this.mapListItems)
-      )
+      );
     }
 
     return false;
@@ -95,7 +93,7 @@ class VideoAssets extends React.Component {
                         video={this.props.video}
                         revertAsset={this.revertAsset}
                         updateVideo={this.updateVideo}/>
-      )
+      );
     }
   };
 
@@ -105,7 +103,7 @@ class VideoAssets extends React.Component {
         <form className="form baseline-margin">
           <VideoAssetAdd createAsset={this.createAsset} hideAssetForm={this.hideAssetForm} {...this.props} />
         </form>
-      )
+      );
     }
 
     return false;
@@ -117,14 +115,14 @@ class VideoAssets extends React.Component {
         <div className="video-assets">
           <div className="section-header">
             <span className="video__detailbox__header">Assets</span>
-            {!this.state.showAssetForm ? <button className="btn section-header__btn" type="button" onClick={this.showAssetForm}>Add new asset</button> : false}
+            {!this.state.showAssetForm ? <button type="button" onClick={this.showAssetForm}><i className="icon icon__edit">add</i></button> : false}
           </div>
           {this.renderAssetEdit()}
           {this.renderList()}
           {!this.props.video.assets.length ? <span>No assets found</span> : false}
           {!this.state.showAssetList && this.props.video.assets.length ? <button className="video-assets__show-btn" type="button" onClick={this.showAssetList}>Show all assets</button> : false}
         </div>
-    )
+    );
   }
 }
 

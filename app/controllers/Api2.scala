@@ -121,15 +121,6 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
 
   private def atomUrl(id: String) = s"/atom/$id"
 
-  def updateMetadata(atomId: String) = APIHMACAuthAction { implicit req =>
-    implicit val user = req.user
-
-    parse(req) { metadata: UpdatedMetadata =>
-      UpdateMetadataCommand(atomId, metadata).process()
-      Ok
-    }
-  }
-
   def setActiveAsset(atomId: String) = APIHMACAuthAction { implicit req =>
     implicit val user = req.user
 
@@ -137,6 +128,18 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
       (JsPath \ "youtubeId").read[String].map(ActiveAssetCommand(atomId, _))
 
     parse(req) { command: ActiveAssetCommand =>
+      val atom = command.process()
+      Ok(Json.toJson(atom))
+    }
+  }
+
+  def setPlutoId(atomId: String) = APIHMACAuthAction { implicit req =>
+    implicit val user = req.user
+
+    implicit val readCommand: Reads[SetPlutoIdCommand] =
+      (JsPath \ "plutoId").read[String].map(new SetPlutoIdCommand(atomId, _))
+
+    parse(req) { command: SetPlutoIdCommand =>
       val atom = command.process()
       Ok(Json.toJson(atom))
     }

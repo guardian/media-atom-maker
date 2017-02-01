@@ -14,9 +14,9 @@ export default class VideoItem extends React.Component {
       const assets = this.props.video.assets.filter((asset) => asset.version === activeVersion);
 
       if(assets.length && assets[0] && assets[0].platform) {
-        return <span className="success">Active {assets[0].platform} video</span>
+        return <span className="success">Active {assets[0].platform} video</span>;
       } else {
-        return <span className="error">No Active Assets</span>
+        return <span className="error">No Active Assets</span>;
       }
     }
   }
@@ -28,7 +28,7 @@ export default class VideoItem extends React.Component {
       return <img src={image.file} alt={this.props.video.title}/>;
     }
 
-    return <div className="grid__image__placeholder">No Image</div>
+    return <div className="grid__image__placeholder">No Image</div>;
   }
 
   render() {
@@ -47,6 +47,6 @@ export default class VideoItem extends React.Component {
             </div>
           </Link>
         </li>
-    )
+    );
   }
 }

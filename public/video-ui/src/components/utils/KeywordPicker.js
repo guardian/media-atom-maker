@@ -1,4 +1,5 @@
 import React from 'react';
+import Logger from '../../logger';
 
 class KeywordPicker extends React.Component {
 
@@ -15,7 +16,7 @@ class KeywordPicker extends React.Component {
   addKeyword = () => {
 
     if (!this.isValidKeyword()) {
-      console.log("Tried to add invalid keyword");
+      Logger.log("Tried to add invalid keyword");
       return;
     }
 
@@ -49,12 +50,12 @@ class KeywordPicker extends React.Component {
       return false; // Is there already an matching keyword
     }
 
-    return true
+    return true;
   }
 
   removeKeyword = (keyword) => {
-    const newKeywords = this.props.keywords.filter((k) => k !== keyword)
-    this.props.updateKeywords(newKeywords)
+    const newKeywords = this.props.keywords.filter((k) => k !== keyword);
+    this.props.updateKeywords(newKeywords);
   }
 
   renderKeyword = (keyword) => {
@@ -64,7 +65,7 @@ class KeywordPicker extends React.Component {
         <div className="keyword__item__text">{keyword}</div>
         <button className="keyword__item__remove" onClick={this.removeKeyword.bind(this, keyword)}>X</button>
       </div>
-    )
+    );
   }
 
   renderKeywords = () => {
@@ -72,10 +73,24 @@ class KeywordPicker extends React.Component {
     if (!this.props.keywords || !this.props.keywords.length) {
       return (
         <span className="keywords__message">No Keywords</span>
-      )
+      );
     }
 
-    return this.props.keywords.map(this.renderKeyword)
+    return this.props.keywords.map(this.renderKeyword);
+  }
+
+  renderInputField = () => {
+    if (this.props.editable) {
+      return (
+        <input
+          type="text"
+          className="form__field"
+          value={this.state.newKeywordText}
+          onChange={this.updateNewKeywordText}
+          onKeyDown={this.onInputKeyDown} placeholder="Enter new keyword..."
+        />
+      );
+    }
   }
 
   render() {
@@ -84,8 +99,7 @@ class KeywordPicker extends React.Component {
       <div className="keywords">
         {this.renderKeywords()}
         <div className="keywords__add">
-          <input type="text" className="form__field" value={this.state.newKeywordText} onChange={this.updateNewKeywordText} onKeyDown={this.onInputKeyDown} placeholder="Enter new keyword..." />
-          <button disabled={!this.isValidKeyword()} className="keywords__add__button btn" onClick={this.addKeyword}>Add</button>
+          {this.renderInputField()}
         </div>
       </div>
     );

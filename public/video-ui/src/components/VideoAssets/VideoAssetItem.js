@@ -1,5 +1,4 @@
 import React from 'react';
-import {Link} from 'react-router';
 import {getStore} from '../../util/storeAccessor';
 
 export default class VideoAssetItem extends React.Component {
@@ -30,7 +29,7 @@ export default class VideoAssetItem extends React.Component {
         <button type="button" className="btn asset-list__makecurrent" onClick={this.revertAsset}>
           Set as current asset
         </button>
-      )
+      );
     } else {
       return (
         <p className="asset-list__current">Current asset</p>
@@ -42,12 +41,8 @@ export default class VideoAssetItem extends React.Component {
     return(
         <li className={"asset-list__item " + (this.props.activeAsset ? "asset-list__item--current" : false)}>
           <img className="asset-list__thumbnail" src={this.youtubeThumbnailUrl(this.props.asset.id)} />
-          <div className="asset-list__platform">
-            {this.props.asset.platform} -
-            <a target="_blank" href={this.youtubeVideoUrl(this.props.asset.id)}>{this.youtubeVideoUrl(this.props.asset.id)}</a>
-          </div>
           {this.renderAssetVersionButton()}
         </li>
-    )
+    );
   }
 }

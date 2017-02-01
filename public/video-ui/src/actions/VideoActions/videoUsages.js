@@ -1,7 +1,7 @@
 import VideosApi from '../../services/VideosApi';
 import Q from 'q';
 
-function requestVideoUsages(id) {
+function requestVideoUsages() {
   return {
     type:       'VIDEO_USAGE_GET_REQUEST',
     receivedAt: Date.now()
@@ -48,11 +48,11 @@ export function getUsages(id) {
           });
         });
 
-        dispatch(receiveVideoUsages(usagesWithoutComposer, composerIdsWithUsage, id))
+        dispatch(receiveVideoUsages(usagesWithoutComposer, composerIdsWithUsage, id));
       });
     })
     .catch(error => {
-      dispatch(errorReceivingVideoUsages(error))
-    })
+      dispatch(errorReceivingVideoUsages(error));
+    });
   };
 }

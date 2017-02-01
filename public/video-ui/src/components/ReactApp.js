@@ -73,8 +73,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    appActions: bindActionCreators(Object.assign({}, updateSearchTerm, getVideo, publishVideo), dispatch)
+    appActions: bindActionCreators(Object.assign({}, updateSearchTerm, getVideo, publishVideo, saveVideo), dispatch)
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ReactApp)
+export default connect(mapStateToProps, mapDispatchToProps)(ReactApp);

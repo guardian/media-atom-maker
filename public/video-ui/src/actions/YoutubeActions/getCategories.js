@@ -1,4 +1,5 @@
 import {getYoutubeCategories} from '../../services/YoutubeApi';
+import Logger from '../../logger';
 
 function requestCategories() {
   return {
@@ -16,13 +17,13 @@ function receiveCategories(categories) {
 }
 
 function errorReceivingCategories(error) {
-  console.error(error);
+  Logger.error(error);
   return {
     type: 'SHOW_ERROR',
     message: 'Could not get YouTube categories',
     error: error,
     receivedAt: Date.now()
-  }
+  };
 }
 
 export function getCategories() {
@@ -30,10 +31,10 @@ export function getCategories() {
     dispatch(requestCategories());
     return getYoutubeCategories()
       .then(res => {
-        dispatch(receiveCategories(res))
+        dispatch(receiveCategories(res));
       })
       .catch(error => {
-        dispatch(errorReceivingCategories(error))
+        dispatch(errorReceivingCategories(error));
       });
   };
 }

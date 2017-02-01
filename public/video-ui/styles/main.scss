@@ -2,7 +2,8 @@
 
 // 1. Configuration and helpers
 @import
-  'abstracts/variables';
+  'abstracts/variables',
+  'abstracts/mixins';
 
 // 2. Vendors
 @import
@@ -17,6 +18,7 @@
 
 // 4. Layout-related sections
 @import
+  'layout/flex',
   'layout/topbar',
   'layout/grid',
   'layout/video',

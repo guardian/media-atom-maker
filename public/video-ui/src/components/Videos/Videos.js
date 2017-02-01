@@ -1,5 +1,4 @@
 import React, {PropTypes} from 'react';
-import {Link} from 'react-router';
 import VideoItem from './VideoItem';
 
 class Videos extends React.Component {
@@ -28,9 +27,9 @@ class Videos extends React.Component {
       return (
           <ul className="grid__list">
             {this.renderListItems()}
-          </ul>)
+          </ul>);
     } else {
-        return (<p className="grid__message">No videos found</p>)
+        return (<p className="grid__message">No videos found</p>);
     }
   }
 
@@ -45,7 +44,7 @@ class Videos extends React.Component {
             {this.renderList()}
           </div>
         </div>
-    )
+    );
   }
 }
 

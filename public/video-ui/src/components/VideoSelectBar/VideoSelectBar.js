@@ -1,5 +1,4 @@
 import React from 'react';
-import {saveStateVals} from '../../constants/saveStateVals';
 import {isVideoPublished} from '../../util/isVideoPublished';
 
 export default class VideoSelectBar extends React.Component {
@@ -20,7 +19,6 @@ export default class VideoSelectBar extends React.Component {
     // you can always select a video in 'preview' mode (this is used by the Pluto embed)
     // otherwise you should only be able to select published videos (when embedded inside Composer for example)
 
-    const isPublished = this.props.video && this.props.video.contentChangeDetails && this.props.video.contentChangeDetails.published;
     const embedButton = <button type="button" className="bar__button" onClick={this.props.onSelectVideo}>Select this Video</button>;
 
     switch(this.props.embeddedMode) {
@@ -29,7 +27,7 @@ export default class VideoSelectBar extends React.Component {
 
       case "live":
       case "true":
-        if(isPublished) {
+        if(isVideoPublished(this.props.publishedVideo)) {
           return embedButton;
         } else {
           return <div>This atom cannot be embedded because it has not been published</div>;

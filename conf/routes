@@ -21,8 +21,8 @@ PUT     /api2/atoms/:id                 controllers.Api2.putMediaAtom(id)
 POST    /api2/atoms/:id/assets          controllers.Api2.addAsset(id)
 
 PUT     /api2/atom/:id/publish          controllers.Api2.publishMediaAtom(id)
-PUT     /api/atom/:id/update-metadata   controllers.Api2.updateMetadata(id)
 PUT     /api2/atom/:id/asset-active     controllers.Api2.setActiveAsset(id)
+PUT     /api2/atom/:id/pluto-id         controllers.Api2.setPlutoId(id)
 
 GET     /api2/audits/:id                controllers.Api2.getAuditTrailForAtomId(id)
 
@@ -50,6 +50,7 @@ GET /video/*path                        controllers.Support.legacyVideosEndpoint
 GET /                                   controllers.VideoUIApp.index(id = "")
 GET /videos                             controllers.VideoUIApp.index(id = "")
 GET /videos/:id                         controllers.VideoUIApp.index(id)
+GET /videos/:id/audit                   controllers.VideoUIApp.index(id)
 
 #Support
 GET /support/previewCapi/*path          controllers.Support.previewCapiProxy(path: String)

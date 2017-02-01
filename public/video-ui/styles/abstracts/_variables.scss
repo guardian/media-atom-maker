@@ -2,7 +2,6 @@
 // This file contains all application-wide Sass variables.
 // -----------------------------------------------------------------------------
 
-
 /// Regular font family
 /// $type List
 $text-font-stack: 'Guardian Agate Sans', Arial, sans-serif !default;
@@ -57,7 +56,7 @@ $cWhite: #FFFFFF;
 /*
 Background colours
 */
-$bodyBgColor: $color700Grey;
+$bodyBgColor: $color800Grey;
 $greyBgColor: $color200Grey;
 $darkGreyBgColor: $color300Grey;
 
@@ -88,4 +87,5 @@ $anchorColor: $cWhite;
 
 // Sizes
 $toolbarHeight: 50px;
+$videoBlockWidth: 230px;
 $standard-padding: 10px;

@@ -1,6 +1,5 @@
 import React from 'react';
-import moment from 'moment';
-import DatePickerField from '../../FormFields/DatePicker';
+import DatePicker from '../../FormFields/DatePicker';
 
 export default class VideoExpiryEdit extends React.Component {
 
@@ -9,7 +8,7 @@ export default class VideoExpiryEdit extends React.Component {
       expiryDate: newDate
     });
 
-    this.props.updateVideo(newData);
+    this.props.saveAndUpdateVideo(newData);
   };
 
   render () {
@@ -18,7 +17,7 @@ export default class VideoExpiryEdit extends React.Component {
     }
 
     return (
-        <DatePickerField
+        <DatePicker
           fieldName="Expiry Date"
           fieldValue={this.props.video.expiryDate || 'No expiry date set'}
           onUpdateField={this.onUpdateExpiry}
