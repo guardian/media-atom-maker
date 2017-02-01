@@ -17,7 +17,7 @@ export default class GridEmbedder extends React.Component {
         posterImage: image
       });
 
-      this.props.saveAndUpdateVideo(newData);
+      this.props.updateVideo(newData);
     };
 
     toggleModal = () => {
