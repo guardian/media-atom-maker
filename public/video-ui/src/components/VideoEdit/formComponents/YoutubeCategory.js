@@ -16,7 +16,7 @@ class YoutubeCategorySelect extends React.Component {
       youtubeCategoryId: e.target.value}
     );
 
-    this.props.saveAndUpdateVideo(newId);
+    this.props.updateVideo(newId);
   };
 
   render () {

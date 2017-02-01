@@ -8,7 +8,7 @@ export default class VideoExpiryEdit extends React.Component {
       expiryDate: newDate
     });
 
-    this.props.saveAndUpdateVideo(newData);
+    this.props.updateVideo(newData);
   };
 
   render () {

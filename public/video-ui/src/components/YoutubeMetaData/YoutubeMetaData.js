@@ -15,7 +15,7 @@ const YoutubeMetaData = (props) => {
           type="select"
           component={YoutubeCategorySelect}
           video={props.video}
-          saveAndUpdateVideo={props.saveAndUpdateVideo}
+          updateVideo={props.saveAndUpdateVideo}
           editable={props.editable} />
 
         <Field
@@ -30,14 +30,14 @@ const YoutubeMetaData = (props) => {
           type="text"
           component={PrivacyStatusSelect}
           video={props.video}
-          saveAndUpdateVideo={props.saveAndUpdateVideo}
+          updateVideo={props.saveAndUpdateVideo}
           editable={!props.disableStatusEditing && props.editable} />
 
         <Field
           name="youtubeKeywords"
           component={YoutubeKeywordsSelect}
           video={props.video}
-          saveAndUpdateVideo={props.saveAndUpdateVideo}
+          updateVideo={props.saveAndUpdateVideo}
           editable={props.editable} />
       </div>
     );

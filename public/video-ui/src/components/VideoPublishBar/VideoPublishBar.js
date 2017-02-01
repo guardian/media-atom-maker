@@ -1,23 +1,16 @@
 import React from 'react';
 import {saveStateVals} from '../../constants/saveStateVals';
 import {isVideoPublished} from '../../util/isVideoPublished';
+import {hasUnpublishedChanges} from '../../util/hasUnpublishedChanges';
 
 export default class VideoPublishBar extends React.Component {
 
-  videoHasUnpublishedChanges() {
-    const changeDetails = this.props.video.contentChangeDetails;
-    const lastModified = changeDetails.lastModified && changeDetails.lastModified.date;
-    const published = changeDetails.published && changeDetails.published.date;
-
-    if (!published || lastModified > published) {
-      return true;
-    }
-
-    return false;
-  }
-
   videoIsCurrentlyPublishing() {
     return this.props.saveState.publishing === saveStateVals.inprogress;
+  }
+
+  videoHasUnpublishedChanges() {
+    return hasUnpublishedChanges(this.props.video, this.props.publishedVideo);
   }
 
   renderUnpublishedNote() {
@@ -32,8 +25,8 @@ export default class VideoPublishBar extends React.Component {
   renderPublishButton() {
     return (<button
         type="button"
-        disabled={!this.videoHasUnpublishedChanges() || this.videoIsCurrentlyPublishing()}
         className="btn"
+        disabled={!this.videoHasUnpublishedChanges() || this.videoIsCurrentlyPublishing()}
         onClick={this.props.publishVideo}
       >
         Publish
@@ -48,7 +41,7 @@ export default class VideoPublishBar extends React.Component {
   }
 
   renderVideoPublishedInfo() {
-    if (isVideoPublished(this.props.video)) {
+    if (isVideoPublished(this.props.publishedVideo)) {
       return <div className="publish__label label__live">Live</div>;
     }
     return <div className="publish__label label__draft">Draft</div>;
@@ -57,7 +50,7 @@ export default class VideoPublishBar extends React.Component {
 
   render() {
 
-    if (!this.props.video || !this.props.video.contentChangeDetails) {
+    if (!this.props.video) {
         return false;
     }
 

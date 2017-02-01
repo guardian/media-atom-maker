@@ -74,6 +74,7 @@ export default class Header extends React.Component {
 
           <VideoPublishBar className="flex-grow"
             video={this.props.video}
+            publishedVideo={this.props.publishedVideo}
             saveState={this.props.saveState}
             publishVideo={this.publishVideo} />
 
