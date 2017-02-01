@@ -1,5 +1,4 @@
 import React from 'react';
-import GridImageSelect from '../../utils/GridImageSelect';
 import {parseImageFromGridCrop} from '../../../util/parseGridMetadata';
 import {findSmallestAssetAboveWidth} from '../../../util/imageHelpers';
 
@@ -45,7 +44,7 @@ class VideoPosterImageEdit extends React.Component {
       return (
           <div className="form__row">
             <div className="form__imageselect">
-              {this.renderImage()}  
+              {this.renderImage()}
             </div>
           </div>
       );

@@ -1,18 +1,13 @@
 import React from 'react';
 import VideoTitleEdit from './formComponents/VideoTitle';
 import VideoCategorySelect from './formComponents/VideoCategory';
-import VideoDurationEdit from './formComponents/VideoDuration';
 import VideoPosterEdit from './formComponents/VideoPoster';
 import YoutubeCategorySelect from './formComponents/YoutubeCategory';
 import VideoExpiryEdit from './formComponents/VideoExpiry';
-import YoutubeKeywordsSelect from './formComponents/YoutubeKeywords';
 import YoutubeChannelSelect from './formComponents/YoutubeChannel';
 import PrivacyStatusSelect from './formComponents/PrivacyStatus';
-import ContentFlags from './formComponents/ContentFlags';
 import SaveButton from '../utils/SaveButton';
 import validate from '../../constants/videoEditValidation';
-import YoutubeMetaData from '../YoutubeMetaData/YoutubeMetaData';
-import VideoMetaData from '../VideoMetaData/VideoMetaData';
 import { Field, reduxForm } from 'redux-form';
 
 const VideoEdit = (props) => {
@@ -76,7 +71,7 @@ const VideoEdit = (props) => {
 
           <SaveButton saveState={props.saveState.saving} onSaveClick={props.saveVideo} onResetClick={props.resetVideo} />
         </div>
-      )
+      );
 };
 
 export default reduxForm({

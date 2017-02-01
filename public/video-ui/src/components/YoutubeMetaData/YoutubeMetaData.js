@@ -1,13 +1,10 @@
 import React from 'react';
-import TextInput from '../FormFields/TextInput';
-import VideoTitleEdit from '../VideoEdit/formComponents/VideoTitle';
 import { Field, reduxForm } from 'redux-form';
 import validate from '../../constants/videoEditValidation';
 import YoutubeKeywordsSelect from '../VideoEdit/formComponents/YoutubeKeywords';
 import YoutubeChannelSelect from '../VideoEdit/formComponents/YoutubeChannel';
 import YoutubeCategorySelect from '../VideoEdit/formComponents/YoutubeCategory';
 import PrivacyStatusSelect from '../VideoEdit/formComponents/PrivacyStatus';
-import ContentFlags from '../VideoEdit/formComponents/ContentFlags';
 
 const YoutubeMetaData = (props) => {
 
@@ -44,9 +41,9 @@ const YoutubeMetaData = (props) => {
           editable={props.editable} />
       </div>
     );
-  }
+  };
 
 export default reduxForm({
   form: 'YoutubeMetaData',
   validate
-})(YoutubeMetaData)
+})(YoutubeMetaData);

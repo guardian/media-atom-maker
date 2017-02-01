@@ -58,9 +58,9 @@ class VideoAuditTrail extends React.Component {
             <span className="video__detailbox__header">Atom Audit Trail</span>
           </div>
           <div>
-            <table className='table'>
-              <thead className='table__header'>
-                <tr className='table__header-row'>
+            <table className="table">
+              <thead className="table__header">
+                <tr className="table__header-row">
                   <th>Date</th>
                   <th>Operation</th>
                   <th>Description</th>

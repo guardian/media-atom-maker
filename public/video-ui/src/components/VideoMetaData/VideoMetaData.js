@@ -1,5 +1,4 @@
 import React from 'react';
-import TextInput from '../FormFields/TextInput';
 import VideoTitleEdit from '../VideoEdit/formComponents/VideoTitle';
 import VideoDurationEdit from '../VideoEdit/formComponents/VideoDuration';
 import ContentFlags from '../VideoEdit/formComponents/ContentFlags';
@@ -52,9 +51,9 @@ const VideoMetaData = (props) => {
             editable={props.editable} />
         </div>
     );
-  }
+  };
 
 export default reduxForm({
   form: 'VideoMetaData',
   validate
-})(VideoMetaData)
+})(VideoMetaData);

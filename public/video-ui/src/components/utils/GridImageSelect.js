@@ -17,8 +17,6 @@ export default class GridEmbedder extends React.Component {
         posterImage: image
       });
 
-      console.log(newData);
-
       this.props.saveAndUpdateVideo(newData);
     };
 

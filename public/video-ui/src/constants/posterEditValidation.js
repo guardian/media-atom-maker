@@ -5,9 +5,9 @@ const validate = (values) => {
   }
   // Required fields
   if (!values.posterImage) {
-    errors.posterImage = 'Required'
+    errors.posterImage = 'Required';
   }
-  return errors
+  return errors;
 };
 
 export default validate;
