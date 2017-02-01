@@ -9,7 +9,7 @@ export default class VideoTitleEdit extends React.Component {
       title: e.target.value
     });
 
-    this.props.saveAndUpdateVideo(newData);
+    this.props.updateVideo(newData);
   };
 
   render () {
