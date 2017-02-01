@@ -13,14 +13,14 @@ export default class ContentFlags extends React.Component {
           onChange={this.updateFlag.bind(this)}
         />
       </div>
-    )
+    );
   }
 
   updateFlag(e) {
     e.preventDefault();
-    const flag = {[e.target.id]: e.target.checked}
+    const flag = {[e.target.id]: e.target.checked};
     const video = Object.assign({}, this.props.video, flag);
-    this.props.saveAndUpdateVideo(video)
+    this.props.saveAndUpdateVideo(video);
   }
 
   render(){
@@ -32,7 +32,7 @@ export default class ContentFlags extends React.Component {
           <p className="details-list__field details-list__labeled-filter__label">This content involves active criminal proceedings.</p>
         </div>
       </div>
-    )
+    );
   }
 
 }

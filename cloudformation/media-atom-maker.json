@@ -332,7 +332,6 @@
                                 "#!/bin/bash -ev\n",
                                 "apt-get -y update\n",
                                 "apt-get -y upgrade\n",
-                                "/opt/features/native-packager/install.sh -b atom-maker-dist -a media-atom-maker -t tgz\n",
                                 {
                                     "Fn::Join": [
                                         "",
@@ -345,17 +344,23 @@
                                         ]
                                     ]
                                 },
-                                "aws s3 cp 's3://atom-maker-conf/media-atom-maker.",
+                                "/opt/features/native-packager/install.sh -b atom-maker-dist -a media-atom-maker -t tgz\n",
+
+                                "aws s3 cp 's3://atom-maker-conf/",
                                 {
-                                    "Ref": "Stage"
+                                  "Ref": "Stage"
                                 },
-                                ".application.conf' ",
-                                "/home/media-service/media-atom-maker/conf/application.conf\n",
-                                "cat >> /home/media-service/media-atom-maker/conf/application.conf<<'EOF'\n",
+                                "/media-atom-maker.private.conf' /tmp\n",
+                                "cat >> /tmp/media-atom-maker.private.conf<<'EOF'\n",
                                 "aws.dynamo.tableName=", { "Ref": "AtomMakerTable" }, "\n",
                                 "aws.dynamo.publishedTableName=", { "Ref": "PublishedAtomMakerTable" }, "\n",
                                 "aws.dynamo.auditTableName=", { "Ref": "AuditTable" }, "\n",
                                 "EOF\n",
+                                "mkdir /etc/gu\n",
+                                "mv /tmp/media-atom-maker.private.conf /etc/gu\n",
+
+                                "chown media-service /etc/gu/media-atom-maker.private.conf\n",
+                                "chmod 0600 /etc/gu/media-atom-maker.private.conf\n",
 
                                 "systemctl start media-atom-maker\n"
                             ]

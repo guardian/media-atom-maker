@@ -9,7 +9,7 @@ export default class TextInput extends React.Component {
           <p className="details-list__title">{this.props.fieldName}</p>
           <p className="details-list__field">{this.props.fieldValue}</p>
         </div>
-      )
+      );
     }
 
     const hasError = this.props.meta.touched && this.props.meta.error;
@@ -25,7 +25,7 @@ export default class TextInput extends React.Component {
           onChange={this.props.onUpdateField} />
         {hasError ? <p className="form__message form__message--error">{this.props.meta.error}</p> : ""}
       </div>
-    )
+    );
   };
 
 
@@ -34,6 +34,6 @@ export default class TextInput extends React.Component {
       <div>
         {this.renderField()}
       </div>
-    )
+    );
   }
 }

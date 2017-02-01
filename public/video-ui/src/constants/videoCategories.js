@@ -9,4 +9,4 @@ export const videoCategories = [
   'Explainer',
   'Feature',
   // 'Hosted'
-].map(cat => { return { id: cat, title: cat } });
+].map(cat => { return { id: cat, title: cat }; });

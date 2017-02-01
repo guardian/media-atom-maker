@@ -1,5 +1,4 @@
 import React from 'react';
-import Q from 'q';
 import {getVideoBlock} from '../../util/getVideoBlock';
 import {getStore} from '../../util/storeAccessor';
 
@@ -11,7 +10,7 @@ export default class VideoPage extends React.Component {
 
   componentDidMount() {
     if (this.props.video) {
-      this.props.fetchUsages(this.props.video.id)
+      this.props.fetchUsages(this.props.video.id);
     }
   }
 
@@ -37,7 +36,7 @@ export default class VideoPage extends React.Component {
 
     const videoPage = getVideoBlock(this.props.video.id, this.props.video.title);
 
-    return this.props.createComposerPage(this.props.video.id, this.props.video.title, this.getComposerUrl(), videoPage)
+    return this.props.createComposerPage(this.props.video.id, this.props.video.title, this.getComposerUrl(), videoPage);
   }
 
   renderComposerLink = (composerIdWithUsage) => {
@@ -115,7 +114,7 @@ export default class VideoPage extends React.Component {
       <li key={usage} className="detail__list__item">
         {usage}
       </li>
-    )
+    );
   }
 
   renderUsages() {
@@ -123,13 +122,13 @@ export default class VideoPage extends React.Component {
       <ul className="detail__list">
         {this.props.usages.usagesWithoutComposer.map(this.renderUsage)}
       </ul>
-    )
+    );
   }
 
   render() {
 
     if (!this.usagesFetched()) {
-      return (<div className="baseline-margin">Fetching Usages...</div>)
+      return (<div className="baseline-margin">Fetching Usages...</div>);
     }
 
     if (this.props.usages.usagesWithoutComposer.length === 0) {
@@ -141,10 +140,10 @@ export default class VideoPage extends React.Component {
           </div>
         );
       }
-      return (<div>{this.renderComposerPages()}</div>)
+      return (<div>{this.renderComposerPages()}</div>);
     }
 
-    return (<div>{this.renderUsages()} {this.renderComposerPages()}</div>)
+    return (<div>{this.renderUsages()} {this.renderComposerPages()}</div>);
   }
 }
 

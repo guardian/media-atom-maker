@@ -52,7 +52,6 @@ const VideoEdit = (props) => {
 
           <Field
             name="videoExpiry"
-            name="expiry"
             type="select"
             component={VideoExpiryEdit}
             video={props.video}
@@ -83,4 +82,4 @@ const VideoEdit = (props) => {
 export default reduxForm({
   form: 'VideoEdit',
   validate
-})(VideoEdit)
+})(VideoEdit);

@@ -22,7 +22,7 @@ function extractConfigFromPage() {
 }
 
 function isEmbeddedMode() {
-  return qs.parse(location.search).embeddedMode === "true"
+  return qs.parse(location.search).embeddedMode === "true";
 }
 
 const store = configureStore();

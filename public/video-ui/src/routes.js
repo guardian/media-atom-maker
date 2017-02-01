@@ -1,5 +1,5 @@
 import React from 'react';
-import {Router, Route, IndexRoute, browserHistory, IndexRedirect} from 'react-router';
+import {Router, Route, browserHistory, IndexRedirect} from 'react-router';
 
 import Videos from './components/Videos/Videos';
 import VideoDisplay from './components/Video/Display';

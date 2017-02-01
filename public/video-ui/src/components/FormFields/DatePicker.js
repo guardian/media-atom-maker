@@ -4,6 +4,7 @@ import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 
 export default React.createClass({
+  displayName: 'DatePicker',
 
   handleChange(date) {
     this.setState({
@@ -27,7 +28,7 @@ export default React.createClass({
 
     return {
       startDate: startDate
-    }
+    };
   },
 
   getReadableFieldValue(value) {
@@ -44,7 +45,7 @@ export default React.createClass({
           <p className="details-list__title">{this.props.fieldName}</p>
           <p className="details-list__field">{this.getReadableFieldValue(this.props.fieldValue)}</p>
         </div>
-      )
+      );
     }
 
     return (
@@ -57,15 +58,14 @@ export default React.createClass({
           className="form__field"
         />
       </div>
-    )
+    );
   },
-
 
   render() {
     return (
       <div>
         {this.renderField()}
       </div>
-    )
+    );
   }
-})
+});

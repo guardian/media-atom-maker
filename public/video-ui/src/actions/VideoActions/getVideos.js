@@ -78,7 +78,7 @@ export function searchVideosWithQuery(query) {
         dispatch(receiveSearchVideos(atoms));
       })
       .catch(error => {
-        dispatch(errorReceivingVideos(error))
+        dispatch(errorReceivingVideos(error));
       });
   };
 }

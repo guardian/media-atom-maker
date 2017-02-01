@@ -1,4 +1,5 @@
 import VideosApi from '../../services/VideosApi';
+import Logger from '../../logger';
 
 function requestAudits(id) {
   return {
@@ -17,7 +18,7 @@ function receiveAudits(audits) {
 }
 
 function errorReceivingAudits(error) {
-  console.error(error);
+  Logger.error(error);
   return {
     type:       'SHOW_ERROR',
     message:    'Could not get audits',
