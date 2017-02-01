@@ -172,7 +172,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, videoUsages, videoPageCreate, getPublishedVideo), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, videoUsages, videoPageCreate, getPublishedVideo), dispatch)
   };
 }
 
