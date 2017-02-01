@@ -39,6 +39,18 @@ export default class Header extends React.Component {
     );
   }
 
+  renderHowTo() {
+    return (
+      <nav className="topbar__nav-link">
+        <a className="button__secondary"
+           target="_blank"
+           href="https://docs.google.com/a/guardian.co.uk/document/d/1pqRpgIAAlcUMafbA3T7ZHg54kEs2E9XeANzRoNrwTrE/edit?usp=sharing">
+          <i className="icon">live_help</i> How To
+        </a>
+      </nav>
+    );
+  }
+
   renderCreateVideo() {
     return (
       <nav className="topbar__nav-link">
@@ -61,6 +73,7 @@ export default class Header extends React.Component {
 
           <div className="flex-container">
             {this.renderFeedback()}
+            {this.renderHowTo()}
             {this.renderCreateVideo()}
           </div>
 
@@ -80,6 +93,7 @@ export default class Header extends React.Component {
           <div className="flex-container">
             {this.renderAuditLink()}
             {this.renderFeedback()}
+            {this.renderHowTo()}
             {this.renderCreateVideo()}
           </div>
 
