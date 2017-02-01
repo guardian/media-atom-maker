@@ -1,3 +1,4 @@
+import React from 'react';
 import { Field, reduxForm } from 'redux-form';
 import VideoPosterEdit from '../VideoEdit/formComponents/VideoPoster';
 import validate from '../../constants/posterEditValidation';
@@ -19,5 +20,4 @@ const PosterEdit = (props) => {
 export default reduxForm({
     form: 'PosterEdit',
     validate
-})(PosterEdit)
-
+})(PosterEdit);

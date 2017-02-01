@@ -89,12 +89,12 @@ class VideoDisplay extends React.Component {
           <div className="video__main">
             <div className="video__main__header">
               <div className="video__detailbox">
-                <span className="video__detailbox__header">Preview</span>
+                <header className="video__detailbox__header">Preview</header>
                 <VideoPreview video={this.props.video || {}} />
               </div>
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
-                  <span className="video__detailbox__header">Video Meta Data</span>
+                  <header className="video__detailbox__header">Video Meta Data</header>
                   {this.renderEditButton(this.state.metadataEditable, 'metadata')}
                 </div>
                 <VideoMetaData
@@ -106,7 +106,7 @@ class VideoDisplay extends React.Component {
               </div>
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
-                  <span className="video__detailbox__header">Youtube Meta Data</span>
+                  <header className="video__detailbox__header">Youtube Meta Data</header>
                   {this.renderEditButton(this.state.youtubeEditable, 'youtube')}
                 </div>
                 <YoutubeMetaData
@@ -120,7 +120,7 @@ class VideoDisplay extends React.Component {
               </div>
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
-                  <span className="video__detailbox__header">Poster Image</span>
+                  <header className="video__detailbox__header">Poster Image</header>
                   <GridImageSelect video={this.props.video || {}} saveAndUpdateVideo={this.saveAndUpdateVideo} gridUrl={this.props.config.gridUrl}/>
                 </div>
                 <VideoPoster
@@ -130,7 +130,7 @@ class VideoDisplay extends React.Component {
                 />
               </div>
               <div className="video__detailbox">
-                <span className="video__detailbox__header">Usages</span>
+                <header className="video__detailbox__header">Usages</header>
                 <VideoUsages
                   video={this.props.video || {}}
                   fetchUsages={this.props.videoActions.getUsages}
