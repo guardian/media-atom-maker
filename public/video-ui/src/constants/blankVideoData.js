@@ -1,6 +1,6 @@
 export const blankVideoData = {
     title: '',
-    description: '',
+    description: undefined,
     category: '',
     duration: 0,
     channelId: '',

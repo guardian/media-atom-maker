@@ -5,7 +5,7 @@ export default class VideoDescriptionEdit extends React.Component {
 
   onUpdateDescription = (e) => {
     const newData = Object.assign({}, this.props.video, {
-      description: e.target.value
+      description: e.target.value !== "" ? e.target.value : undefined
     });
 
     this.props.updateVideo(newData);
@@ -20,7 +20,7 @@ export default class VideoDescriptionEdit extends React.Component {
       return 'No Description';
     }
 
-    return ''
+    return undefined;
   };
 
 
