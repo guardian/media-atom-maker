@@ -17,7 +17,6 @@ export default class ContentFlags extends React.Component {
   }
 
   updateFlag(e) {
-    e.preventDefault();
     const flag = {[e.target.id]: e.target.checked};
     const video = Object.assign({}, this.props.video, flag);
     this.props.updateVideo(video);
