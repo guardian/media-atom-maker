@@ -43,29 +43,25 @@ libraryDependencies ++= Seq(
 
 ) ++ scanamoDeps
 
-lazy val appDistSettings = Seq(
-    packageName in Universal := name.value,
-    riffRaffBuildIdentifier := Option(System.getenv("CIRCLE_BUILD_NUM")).getOrElse("dev"),
-    riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
-    riffRaffUploadManifestBucket := Option("riffraff-builds"),
-    riffRaffArtifactPublishPath := name.value,
-    riffRaffPackageName := s"media-service:${name.value}",
-    riffRaffManifestProjectName := riffRaffPackageName.value,
-    riffRaffArtifactResources := Seq(
-      (packageZipTarball in Universal).value -> s"${name.value}/${name.value}.tgz",
-      (packageBin in Debian).value -> s"${name.value}/${name.value}.deb",
-      baseDirectory.value / "conf" / "riff-raff.yaml" -> "riff-raff.yaml"
-    ),
-    artifactName in Universal := { (sv: ScalaVersion, module: ModuleID, artifact: Artifact) =>
-      artifact.name + "." + artifact.extension
-    },
-    riffRaffManifestBranch := Option(System.getenv("CIRCLE_BRANCH")).getOrElse("dev")
-  )
-
 lazy val root = (project in file("."))
-  .enablePlugins(PlayScala, SbtWeb, RiffRaffArtifact, UniversalPlugin, BuildInfoPlugin, JDebPackaging)
+  .enablePlugins(PlayScala, SbtWeb, RiffRaffArtifact, BuildInfoPlugin, JDebPackaging)
   .settings(
-    appDistSettings,
+    Seq(
+      riffRaffBuildIdentifier := Option(System.getenv("CIRCLE_BUILD_NUM")).getOrElse("dev"),
+      riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
+      riffRaffUploadManifestBucket := Option("riffraff-builds"),
+      riffRaffArtifactPublishPath := name.value,
+      riffRaffPackageName := s"media-service:${name.value}",
+      riffRaffManifestProjectName := riffRaffPackageName.value,
+      riffRaffArtifactResources := Seq(
+        (packageBin in Debian).value -> s"${name.value}/${name.value}.deb",
+        baseDirectory.value / "conf" / "riff-raff.yaml" -> "riff-raff.yaml"
+      ),
+      riffRaffManifestBranch := Option(System.getenv("CIRCLE_BRANCH")).getOrElse("dev")
+    ),
+    javaOptions in Universal ++= Seq(
+      "-Dpidfile.path=/dev/null"
+    ),
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       BuildInfoKey.constant("gitCommitId", Option(System.getenv("BUILD_VCS_NUMBER")) getOrElse(try {
