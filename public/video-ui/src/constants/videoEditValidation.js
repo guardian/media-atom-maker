@@ -1,4 +1,4 @@
-const validate = (values) => {
+export const validate = (values) => {
  const errors = {};
   if (!values) {
     return {};
@@ -30,4 +30,6 @@ const validate = (values) => {
   return errors;
 };
 
-export default validate;
+export const fieldLengths = {
+  title: 100 // https://developers.google.com/youtube/v3/docs/videos#snippet.title
+};
