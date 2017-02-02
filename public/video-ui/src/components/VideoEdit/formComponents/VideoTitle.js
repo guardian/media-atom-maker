@@ -21,6 +21,7 @@ export default class VideoTitleEdit extends React.Component {
     return (
         <TextInput
           fieldName="Title"
+          maxLength={100}
           fieldValue={this.props.video.title}
           onUpdateField={this.onUpdateTitle}
           video={this.props.video}
