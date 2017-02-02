@@ -7,6 +7,7 @@ import YoutubeCategorySelect from '../VideoEdit/formComponents/YoutubeCategory';
 import PrivacyStatusSelect from '../VideoEdit/formComponents/PrivacyStatus';
 
 const YoutubeMetaData = (props) => {
+  const hasAssets = props.video.assets.length > 0;
 
     return (
       <div className="form__group">
@@ -23,7 +24,7 @@ const YoutubeMetaData = (props) => {
           type="select"
           component={YoutubeChannelSelect}
           video={props.video}
-          editable={false} />
+          editable={!hasAssets && props.editable} />
 
         <Field
           name="privacyStatus"
