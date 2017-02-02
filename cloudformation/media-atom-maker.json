@@ -328,23 +328,23 @@
                                 "apt-get -y update\n",
                                 "apt-get -y upgrade\n",
 
-                                "aws s3 cp 's3://atom-maker-conf/",
-                                {
-                                  "Ref": "Stage"
-                                },
-                                "/media-atom-maker.private.conf' /tmp\n",
+                                "aws s3 cp 's3://atom-maker-conf/", { "Ref": "Stage"},"/media-atom-maker.private.conf' /tmp\n",
+
                                 "cat >> /tmp/media-atom-maker.private.conf<<'EOF'\n",
                                 "aws.dynamo.tableName=", { "Ref": "AtomMakerTable" }, "\n",
                                 "aws.dynamo.publishedTableName=", { "Ref": "PublishedAtomMakerTable" }, "\n",
                                 "aws.dynamo.auditTableName=", { "Ref": "AuditTable" }, "\n",
                                 "EOF\n",
+
                                 "mkdir /etc/gu\n",
                                 "mv /tmp/media-atom-maker.private.conf /etc/gu\n",
 
-                                "chown media-service /etc/gu/media-atom-maker.private.conf\n",
-                                "chmod 0600 /etc/gu/media-atom-maker.private.conf\n",
                                 "aws s3 cp s3://atom-maker-dist/media-service/", {"Ref":"Stage"}, "/media-atom-maker/media-atom-maker.deb /tmp\n",
-                                "dpkg -i /tmp/media-atom-maker.deb\n"
+                                "dpkg -i /tmp/media-atom-maker.deb\n",
+
+                                "chown ", {"Ref": "App"},  " /etc/gu/media-atom-maker.private.conf\n",
+                                "chmod 0600 /etc/gu/media-atom-maker.private.conf\n",
+
                             ]
                         ]
                     }
