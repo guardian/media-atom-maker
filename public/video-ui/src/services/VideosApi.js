@@ -92,11 +92,11 @@ export default {
 
     const properties = propertiesToSend.reduce((queryStrings, property) => {
       if (metadata[property]) {
-        queryStrings.push(property.charAt(0).toUpperCase() + property.slice(1) + '=' + metadata[property]);
+        queryStrings.push('&initial' + property.charAt(0).toUpperCase() + property.slice(1) + '=' + metadata[property]);
       }
       return queryStrings;
     }, []);
-    const composerUrl = initialComposerUrl + properties.join('&initial');
+    const composerUrl = initialComposerUrl + properties.join();
 
     return pandaReqwest({
       url: composerUrl,
