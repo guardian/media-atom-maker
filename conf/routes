@@ -16,6 +16,7 @@ PUT     /api/atom/:id/publish           controllers.Api.publishAtom(id)
 
 POST    /api2/atoms                     controllers.Api2.createMediaAtom
 GET     /api2/atoms                     controllers.Api2.getMediaAtoms()
+GET     /api2/atoms/:id/published       controllers.Api2.getPublishedMediaAtom(id)
 GET     /api2/atoms/:id                 controllers.Api2.getMediaAtom(id)
 PUT     /api2/atoms/:id                 controllers.Api2.putMediaAtom(id)
 POST    /api2/atoms/:id/assets          controllers.Api2.addAsset(id)
@@ -50,6 +51,7 @@ GET /video/*path                        controllers.Support.legacyVideosEndpoint
 GET /                                   controllers.VideoUIApp.index(id = "")
 GET /videos                             controllers.VideoUIApp.index(id = "")
 GET /videos/:id                         controllers.VideoUIApp.index(id)
+GET /videos/:id/audit                   controllers.VideoUIApp.index(id)
 
 #Support
 GET /support/previewCapi/*path          controllers.Support.previewCapiProxy(path: String)

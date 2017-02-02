@@ -4,7 +4,7 @@ import KeywordPicker from '../../utils/KeywordPicker';
 class YoutubeKeywordsSelect extends React.Component {
 
   updateKeywords = (keywords) => {
-    this.props.saveAndUpdateVideo(Object.assign({}, this.props.video, {
+    this.props.updateVideo(Object.assign({}, this.props.video, {
       tags: keywords
     }));
   };
@@ -13,7 +13,7 @@ class YoutubeKeywordsSelect extends React.Component {
     return (
       <div className="form__row">
         <label className="form__label">Keywords</label>
-        <KeywordPicker keywords={this.props.video.tags} updateKeywords={this.updateKeywords}/>
+        <KeywordPicker keywords={this.props.video.tags} updateKeywords={this.updateKeywords} editable={this.props.editable}/>
       </div>
     );
   }

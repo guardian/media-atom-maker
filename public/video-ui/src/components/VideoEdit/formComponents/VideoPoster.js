@@ -1,21 +1,8 @@
 import React from 'react';
-import GridImageSelect from '../../utils/GridImageSelect';
-import {parseImageFromGridCrop} from '../../../util/parseGridMetadata';
 import {findSmallestAssetAboveWidth} from '../../../util/imageHelpers';
+import GridImageSelect from '../../utils/GridImageSelect';
 
 class VideoPosterImageEdit extends React.Component {
-
-  onUpdatePosterImage = (cropData) => {
-
-    const image = parseImageFromGridCrop(cropData);
-
-    const newData = Object.assign({}, this.props.video, {
-      posterImage: image
-    });
-
-    this.props.saveAndUpdateVideo(newData);
-  };
-
   renderImage() {
     if (!this.props.video.posterImage) {
       return false;
@@ -31,15 +18,26 @@ class VideoPosterImageEdit extends React.Component {
   }
 
   render () {
-    return (
-        <div className="form__row">
-          <label className="form__label">Poster image</label>
-          <div className="form__imageselect">
-            {this.renderImage()}
-            <GridImageSelect onEmbed={this.onUpdatePosterImage} gridUrl={this.props.config.gridUrl}/>
+
+    if (!this.props.editMode) {
+      return (
+          <div className="form__row">
+            <label className="form__label">Poster image</label>
+            <div className="form__imageselect">
+              <GridImageSelect video={this.props.video} updateVideo={this.props.updateVideo} gridUrl={this.props.config.gridUrl}/>
+              {this.renderImage()}
+            </div>
           </div>
-        </div>
-    );
+      );
+    } else {
+      return (
+          <div className="form__row">
+            <div className="form__imageselect">
+              {this.renderImage()}
+            </div>
+          </div>
+      );
+    }
   }
 }
 

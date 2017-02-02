@@ -1,5 +1,5 @@
 const validate = (values) => {
-  const errors = {};
+ const errors = {};
   if (!values) {
     return {};
   }
@@ -10,9 +10,11 @@ const validate = (values) => {
   if (!values.category) {
     errors.category = 'Required';
   }
+
   if (!values.posterImage) {
     errors.posterImage = 'Required';
   }
+
   if (!values.duration) {
     errors.duration = 'Required';
   }

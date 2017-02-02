@@ -115,7 +115,7 @@ class VideoAssets extends React.Component {
         <div className="video-assets">
           <div className="section-header">
             <span className="video__detailbox__header">Assets</span>
-            {!this.state.showAssetForm ? <button className="btn section-header__btn" type="button" onClick={this.showAssetForm}>Add new asset</button> : false}
+            {!this.state.showAssetForm ? <button type="button" onClick={this.showAssetForm}><i className="icon icon__edit">add</i></button> : false}
           </div>
           {this.renderAssetEdit()}
           {this.renderList()}
