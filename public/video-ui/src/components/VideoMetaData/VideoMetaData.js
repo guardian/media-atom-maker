@@ -5,7 +5,7 @@ import ContentFlags from '../VideoEdit/formComponents/ContentFlags';
 import VideoExpiryEdit from '../VideoEdit/formComponents/VideoExpiry';
 import VideoCategorySelect from '../VideoEdit/formComponents/VideoCategory';
 import { Field, reduxForm } from 'redux-form';
-import validate from '../../constants/videoEditValidation';
+import {validate} from '../../constants/videoEditValidation';
 
 
 const VideoMetaData = (props) => {
