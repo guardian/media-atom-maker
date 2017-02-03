@@ -37,7 +37,7 @@ export default class VideoPage extends React.Component {
 
     const metadata = {
       title: this.props.video.title,
-      description: this.props.video.description
+      standfirst: this.props.video.description
     };
 
     const videoBlock = getVideoBlock(this.props.video.id, metadata);

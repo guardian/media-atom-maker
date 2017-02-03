@@ -88,7 +88,7 @@ export default {
   createComposerPage(id, metadata, composerUrlBase) {
 
     const initialComposerUrl = composerUrlBase + '/api/content?atomPoweredVideo=true&originatingSystem=composer&type=video';
-    const propertiesToSend= ['title', 'description'];
+    const propertiesToSend= ['title', 'standfirst'];
 
     const properties = propertiesToSend.reduce((queryStrings, property) => {
       if (metadata[property]) {
