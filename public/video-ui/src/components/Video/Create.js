@@ -10,7 +10,12 @@ class VideoCreate extends React.Component {
   }
 
   createVideo = () => {
-    this.props.videoActions.createVideo(this.props.video);
+
+    const videoWithStatus = Object.assign({}, this.props.video, {
+      privacyStatus: 'Private'
+    });
+
+    this.props.videoActions.createVideo(videoWithStatus);
   };
 
   resetVideo = () => {
