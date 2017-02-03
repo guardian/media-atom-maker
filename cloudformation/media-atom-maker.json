@@ -325,8 +325,6 @@
                             "",
                             [
                                 "#!/bin/bash -ev\n",
-                                "apt-get -y update\n",
-                                "apt-get -y upgrade\n",
 
                                 "aws s3 cp 's3://atom-maker-conf/", { "Ref": "Stage"},"/media-atom-maker.private.conf' /tmp\n",
 
