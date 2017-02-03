@@ -5,3 +5,11 @@ deployments:
     type: autoscaling
     parameters:
       bucket: atom-maker-dist
+  media-atom-maker-ami-update:
+      type: ami-cloudformation-parameter
+      app: media-atom-maker
+      parameters:
+        amiTags:
+          Recipe: editorial-tools-basic
+          AmigoStage: PROD
+        amiParameter: ImageId
