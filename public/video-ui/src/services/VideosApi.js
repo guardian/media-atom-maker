@@ -96,7 +96,7 @@ export default {
       }
       return queryStrings;
     }, []);
-    const composerUrl = initialComposerUrl + properties.join();
+    const composerUrl = initialComposerUrl + properties.join('');
 
     return pandaReqwest({
       url: composerUrl,
