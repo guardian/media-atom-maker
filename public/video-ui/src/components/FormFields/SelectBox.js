@@ -2,26 +2,44 @@ import React from 'react';
 
 export default class SelectBox extends React.Component {
 
+  hasError = () => {
+    return this.props.meta.touched && this.props.meta.error;
+  };
+
+  getClassName = () => {
+
+    return "form__field form__field--select " + (this.hasError() ? "form__field--error" : "") + (this.props.hasNotifications ? "form__field--notification" : "")
+  }
+
+  renderNotification = () => {
+    if (this.props.hasNotifications) {
+      return (
+        <span className="details-list__notification-text">Atoms with private status cannot be published</span>
+        );
+    }
+  }
+
   renderField = () => {
     if(!this.props.editable) {
       const matchingValues = this.props.selectValues.filter((fieldValue) => this.props.fieldValue && (fieldValue.id.toString() === this.props.fieldValue.toString()));
       const displayValue = matchingValues.length ? matchingValues[0].title : this.props.fieldValue;
       return (
         <div>
-          <p className="details-list__title">{this.props.fieldName}</p>
-          <p className="details-list__field">{displayValue}</p>
+          <div className="details-list__heading">
+            <p className="details-list__title">{this.props.fieldName}</p>
+            {this.renderNotification()}
+          </div>
+          <p className={"details-list__field" + (this.props.hasNotifications ? " details-list__notification" : "")}>{displayValue}</p>
         </div>
       );
     }
-
-    const hasError = this.props.meta.touched && this.props.meta.error;
 
     return (
       <div className="form__row">
         <label className="form__label">{this.props.fieldName}</label>
         <select
           {...this.props.input}
-          className={"form__field form__field--select " + (hasError ? "form__field--error" : "") }
+          className={this.getClassName()}
           value={this.props.fieldValue}
           onChange={this.props.onUpdateField}>
 
@@ -33,7 +51,7 @@ export default class SelectBox extends React.Component {
             );
           })}
         </select>
-        {hasError ? <p className="form__message form__message--error">{this.props.meta.error}</p> : ""}
+        {this.hasError() ? <p className="form__message form__message--error">{this.props.meta.error}</p> : ""}
       </div>
     );
   };

@@ -23,6 +23,7 @@ export default class PrivacyStatusSelect extends React.Component {
         video={this.props.video}
         editable={this.props.editable}
         input={this.props.input}
+        hasNotifications={this.props.video.privacyStatus === 'Private'}
         meta={this.props.meta} />
     );
   }
