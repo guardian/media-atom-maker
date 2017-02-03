@@ -1,6 +1,6 @@
 import React from 'react';
 import { Field, reduxForm } from 'redux-form';
-import validate from '../../constants/videoEditValidation';
+import {validate} from '../../constants/videoEditValidation';
 import YoutubeKeywordsSelect from '../VideoEdit/formComponents/YoutubeKeywords';
 import YoutubeChannelSelect from '../VideoEdit/formComponents/YoutubeChannel';
 import YoutubeCategorySelect from '../VideoEdit/formComponents/YoutubeCategory';

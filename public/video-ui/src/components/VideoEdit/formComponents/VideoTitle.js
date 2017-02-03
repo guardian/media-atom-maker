@@ -1,6 +1,7 @@
 import React from 'react';
 import TextInput from '../../FormFields/TextInput';
 import Logger from '../../../logger';
+import {fieldLengths} from '../../../constants/videoEditValidation';
 
 export default class VideoTitleEdit extends React.Component {
 
@@ -21,6 +22,7 @@ export default class VideoTitleEdit extends React.Component {
     return (
         <TextInput
           fieldName="Title"
+          maxLength={fieldLengths.title}
           fieldValue={this.props.video.title}
           onUpdateField={this.onUpdateTitle}
           video={this.props.video}
