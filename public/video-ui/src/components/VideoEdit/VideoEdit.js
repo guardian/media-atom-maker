@@ -70,14 +70,6 @@ const VideoEdit = (props) => {
             updateVideo={props.updateVideo}
             editable={props.editable} />
 
-          <Field
-            name="privacyStatus"
-            type="text"
-            component={PrivacyStatusSelect}
-            video={props.video}
-            updateVideo={props.updateVideo}
-            editable={props.editable} />
-
           <SaveButton saveState={props.saveState.saving} onSaveClick={props.saveVideo} onResetClick={props.resetVideo} />
         </div>
       );
