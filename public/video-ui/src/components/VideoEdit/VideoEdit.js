@@ -6,7 +6,6 @@ import VideoPosterEdit from './formComponents/VideoPoster';
 import YoutubeCategorySelect from './formComponents/YoutubeCategory';
 import VideoExpiryEdit from './formComponents/VideoExpiry';
 import YoutubeChannelSelect from './formComponents/YoutubeChannel';
-import PrivacyStatusSelect from './formComponents/PrivacyStatus';
 import SaveButton from '../utils/SaveButton';
 import {validate} from '../../constants/videoEditValidation';
 import { Field, reduxForm } from 'redux-form';
