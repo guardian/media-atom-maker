@@ -20,14 +20,11 @@
     -moz-osx-font-smoothing: grayscale;
 
     vertical-align: middle;
-}
+    align-self: center;
 
-.icon__search-magnifier,
-.icon__add,
-.icon__done,
-.icon__edit {
-  align-self: center;
-  padding: 0 5px;
+  &--text {
+    margin-left: 5px;
+  }
 }
 
 .icon__done,
@@ -35,9 +32,10 @@
   background-color: $color600Grey;
   width: 25px;
   height: 25px;
-  padding: 4px 5px;
   cursor: pointer;
-  margin-right: 10px;
+  display:flex;
+  justify-content:center;
+  align-items: center;
 }
 
 .icon__edit {

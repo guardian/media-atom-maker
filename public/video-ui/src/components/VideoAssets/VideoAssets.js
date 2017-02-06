@@ -1,6 +1,7 @@
 import React from 'react';
 import VideoAssetItem from './VideoAssetItem';
 import VideoAssetAdd from '../VideoAssetAdd/VideoAssetAdd';
+import Icon from '../Icon';
 
 class VideoAssets extends React.Component {
 
@@ -115,7 +116,7 @@ class VideoAssets extends React.Component {
         <div className="video-assets">
           <div className="section-header">
             <span className="video__detailbox__header">Assets</span>
-            {!this.state.showAssetForm ? <button type="button" onClick={this.showAssetForm}><i className="icon icon__edit">add</i></button> : false}
+            {!this.state.showAssetForm ? <button type="button" onClick={this.showAssetForm}><Icon className="icon__edit" icon="add"/></button> : false}
           </div>
           {this.renderAssetEdit()}
           {this.renderList()}

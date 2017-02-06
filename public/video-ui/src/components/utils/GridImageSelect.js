@@ -2,6 +2,7 @@ import React from 'react';
 import Modal from './Modal';
 import { parseImageFromGridCrop } from '../../util/parseGridMetadata';
 import Logger from '../../logger';
+import Icon from '../Icon';
 
 export default class GridEmbedder extends React.Component {
 
@@ -70,7 +71,7 @@ export default class GridEmbedder extends React.Component {
         return (
             <div className="gridembedder">
                 <div className="gridembedder__button" onClick={this.toggleModal}>
-                    <i className="icon icon__edit">add_to_photos</i>
+                  <Icon icon="add_to_photos" className="icon__edit"/>
                 </div>
 
                 <Modal isOpen={this.state.modalOpen} dismiss={this.closeModal}>
