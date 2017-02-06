@@ -8,13 +8,13 @@ export default class SelectBox extends React.Component {
 
   getClassName = () => {
 
-    return "form__field form__field--select " + (this.hasError() ? "form__field--error" : "") + (this.props.hasNotifications ? "form__field--notification" : "")
+    return "form__field form__field--select " + (this.hasError() ? "form__field--error" : "") + (this.props.hasNotifications ? "form__field--notification" : "");
   }
 
   renderNotification = () => {
     if (this.props.hasNotifications) {
       return (
-        <span className="details-list__notification-text">Atoms with private status cannot be published</span>
+        <span className="details-list__notification-text">{this.props.notificationMessage}</span>
         );
     }
   }
@@ -25,11 +25,9 @@ export default class SelectBox extends React.Component {
       const displayValue = matchingValues.length ? matchingValues[0].title : this.props.fieldValue;
       return (
         <div>
-          <div className="details-list__heading">
-            <p className="details-list__title">{this.props.fieldName}</p>
-            {this.renderNotification()}
-          </div>
+          <p className="details-list__title">{this.props.fieldName}</p>
           <p className={"details-list__field" + (this.props.hasNotifications ? " details-list__notification" : "")}>{displayValue}</p>
+          {this.renderNotification()}
         </div>
       );
     }
@@ -51,6 +49,7 @@ export default class SelectBox extends React.Component {
             );
           })}
         </select>
+        {this.renderNotification()}
         {this.hasError() ? <p className="form__message form__message--error">{this.props.meta.error}</p> : ""}
       </div>
     );

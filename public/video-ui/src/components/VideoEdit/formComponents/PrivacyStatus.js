@@ -2,6 +2,7 @@ import React from 'react';
 
 import SelectBox from '../../FormFields/SelectBox';
 import { publishedPrivacyStates } from '../../../constants/privacyStates';
+import { statusNotification } from '../../../constants/notificationMessages';
 import { isPublishable } from '../../../util/isPublishable';
 
 export default class PrivacyStatusSelect extends React.Component {
@@ -25,6 +26,7 @@ export default class PrivacyStatusSelect extends React.Component {
         editable={this.props.editable}
         input={this.props.input}
         hasNotifications={isPublishable(this.props.video).errors.includes('privacyStatus')}
+        notificationMessage={statusNotification}
         meta={this.props.meta} />
     );
   }
