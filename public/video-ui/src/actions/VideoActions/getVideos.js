@@ -66,10 +66,12 @@ function adaptCapiAtom(atom) {
 }
 
 export function searchVideosWithQuery(query) {
+  const encodedQuery = encodeURIComponent(query);
+
   return dispatch => {
     dispatch(requestSearchVideos());
 
-    return searchText(query)
+    return searchText(encodedQuery)
       .then(res => {
         const capiAtoms = res.response.results;
         const atoms = capiAtoms.map(adaptCapiAtom);
