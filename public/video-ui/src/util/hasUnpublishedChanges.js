@@ -9,7 +9,7 @@ export function hasUnpublishedChanges(previewVideo, publishedVideo) {
     return true;
   }
 
-  const propertiesToCheck = ['title', 'category', 'expiryDate', 'legallySensitive', 'posterImage', 'youtubeCategoryId', 'privacyStatus', 'tags', 'activeVersion'];
+  const propertiesToCheck = ['title', 'description', 'category', 'expiryDate', 'legallySensitive', 'posterImage', 'youtubeCategoryId', 'privacyStatus', 'tags', 'activeVersion'];
 
   return !propertiesToCheck.every(key => {
     return _.isEqual(previewVideo[key], publishedVideo[key]);

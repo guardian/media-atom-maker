@@ -35,9 +35,14 @@ export default class VideoPage extends React.Component {
       pageCreated: true
     });
 
-    const videoPage = getVideoBlock(this.props.video.id, this.props.video.title);
+    const metadata = {
+      title: this.props.video.title,
+      standfirst: this.props.video.description
+    };
 
-    return this.props.createComposerPage(this.props.video.id, this.props.video.title, this.getComposerUrl(), videoPage);
+    const videoBlock = getVideoBlock(this.props.video.id, metadata);
+
+    return this.props.createComposerPage(this.props.video.id, metadata, this.getComposerUrl(), videoBlock);
   }
 
   renderComposerLink = (composerIdWithUsage) => {

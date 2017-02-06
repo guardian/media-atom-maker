@@ -27,7 +27,8 @@ case class CreateAtomCommandData(
   youtubeCategoryId: String,
   channelId: String,
   privacyStatus: PrivacyStatus,
-  expiryDate: Option[Long]
+  expiryDate: Option[Long],
+  description: Option[String]
 )
 
 object CreateAtomCommandData {
@@ -59,7 +60,7 @@ case class CreateAtomCommand(data: CreateAtomCommandData)
         source = None,
         posterImage= Some(data.posterImage.asThrift),
         duration = Some(data.duration),
-        description = None,
+        description = data.description,
         metadata = Some(ThriftMetadata(
           categoryId = Some(data.youtubeCategoryId),
           channelId = Some(data.channelId),
