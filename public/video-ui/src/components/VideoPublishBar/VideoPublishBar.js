@@ -2,6 +2,7 @@ import React from 'react';
 import {saveStateVals} from '../../constants/saveStateVals';
 import {isVideoPublished} from '../../util/isVideoPublished';
 import {hasUnpublishedChanges} from '../../util/hasUnpublishedChanges';
+import Icon from '../../components/Icon';
 
 export default class VideoPublishBar extends React.Component {
 
@@ -16,7 +17,7 @@ export default class VideoPublishBar extends React.Component {
   renderUnpublishedNote() {
     return (
       <span className="publish-bar__message__block">
-        <i className="icon">repeat</i>
+        <Icon icon="repeat"/>
         <span className="bar__message">This video atom has unpublished changes</span>
       </span>
     );

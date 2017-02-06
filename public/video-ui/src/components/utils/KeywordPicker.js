@@ -72,7 +72,7 @@ class KeywordPicker extends React.Component {
 
     if (!this.props.keywords || !this.props.keywords.length) {
       return (
-        <span className="keywords__message">No Keywords</span>
+        <span className="details-list__empty">No Keywords</span>
       );
     }
 

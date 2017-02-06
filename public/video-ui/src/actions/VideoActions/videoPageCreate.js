@@ -24,18 +24,18 @@ function errorReceivingVideoPageCreate(error) {
   };
 }
 
-export function createVideoPage(id, title, composerUrl, data) {
+export function createVideoPage(id, metadata, composerUrl, videoBlock) {
   return dispatch => {
 
     dispatch(requestVideoPageCreate());
 
-    return VideosApi.createComposerPage(id, title, composerUrl)
+    return VideosApi.createComposerPage(id, metadata, composerUrl)
     .then(res => {
 
       const pageId = res.data.id;
       const pagePath = res.data.identifiers.path.data;
 
-      return VideosApi.addVideoToComposerPage(pageId, data, composerUrl)
+      return VideosApi.addVideoToComposerPage(pageId, videoBlock, composerUrl)
       .then(() => {
         dispatch(receiveVideoPageCreate(pageId, pagePath, id));
       });

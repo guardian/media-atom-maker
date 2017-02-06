@@ -1,5 +1,6 @@
 import React from 'react';
 import VideoTitleEdit from './formComponents/VideoTitle';
+import VideoDescriptionEdit from './formComponents/VideoDescription';
 import VideoCategorySelect from './formComponents/VideoCategory';
 import VideoPosterEdit from './formComponents/VideoPoster';
 import YoutubeCategorySelect from './formComponents/YoutubeCategory';
@@ -7,7 +8,7 @@ import VideoExpiryEdit from './formComponents/VideoExpiry';
 import YoutubeChannelSelect from './formComponents/YoutubeChannel';
 import PrivacyStatusSelect from './formComponents/PrivacyStatus';
 import SaveButton from '../utils/SaveButton';
-import validate from '../../constants/videoEditValidation';
+import {validate} from '../../constants/videoEditValidation';
 import { Field, reduxForm } from 'redux-form';
 
 const VideoEdit = (props) => {
@@ -15,12 +16,20 @@ const VideoEdit = (props) => {
       return (
         <div>
           <Field
-          name="title"
-          type="text"
-          component={VideoTitleEdit}
-          video={props.video}
-          updateVideo={props.updateVideo}
-          editable={props.editable} />
+            name="title"
+            type="text"
+            component={VideoTitleEdit}
+            video={props.video}
+            updateVideo={props.updateVideo}
+            editable={props.editable} />
+
+          <Field
+            name="description"
+            type="text"
+            component={VideoDescriptionEdit}
+            video={props.video}
+            updateVideo={props.updateVideo}
+            editable={props.editable} />
 
           <Field
             name="category"

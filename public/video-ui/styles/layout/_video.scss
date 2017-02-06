@@ -62,6 +62,7 @@
 .video__detailbox__header__container {
   display: flex;
   justify-content: space-between;
+  padding: 10px;
 }
 
 .video__detailbox {
@@ -74,7 +75,6 @@
     color: $color500Grey;
     font-weight: bold;
     display: block;
-    padding: 10px;
     font-size: 17px;
   }
 }

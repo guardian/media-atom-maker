@@ -85,9 +85,21 @@ export default {
     });
   },
 
-  createComposerPage(id, title, composerUrl) {
+  createComposerPage(id, metadata, composerUrlBase) {
+
+    const initialComposerUrl = composerUrlBase + '/api/content?atomPoweredVideo=true&originatingSystem=composer&type=video';
+    const propertiesToSend= ['title', 'standfirst'];
+
+    const properties = propertiesToSend.reduce((queryStrings, property) => {
+      if (metadata[property]) {
+        queryStrings.push('&initial' + property.charAt(0).toUpperCase() + property.slice(1) + '=' + metadata[property]);
+      }
+      return queryStrings;
+    }, []);
+    const composerUrl = initialComposerUrl + properties.join('');
+
     return pandaReqwest({
-      url: composerUrl + '/api/content?atomPoweredVideo=true&originatingSystem=composer&type=video&initialTitle='+title,
+      url: composerUrl,
       method: 'post',
       contentType: 'application/json',
       crossOrigin: true,

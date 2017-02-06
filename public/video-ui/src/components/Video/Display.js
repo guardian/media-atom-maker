@@ -7,6 +7,7 @@ import VideoMetaData from '../VideoMetaData/VideoMetaData';
 import YoutubeMetaData from '../YoutubeMetaData/YoutubeMetaData';
 import VideoPoster from '../VideoPoster/VideoPoster';
 import GridImageSelect from '../utils/GridImageSelect';
+import Icon from '../Icon';
 
 class VideoDisplay extends React.Component {
 
@@ -65,11 +66,11 @@ class VideoDisplay extends React.Component {
 
     if (editable) {
       return (
-        <i className="icon icon__done" onClick={this.manageEditingState.bind(this, false, property)}>done</i>
+        <Icon className="icon__done" icon="done" onClick={this.manageEditingState.bind(this, false, property)}/>
       );
     } else {
       return (
-        <i className="icon icon__edit" onClick={this.manageEditingState.bind(this, true, property)}>edit</i>
+        <Icon className="icon__edit" icon="edit" onClick={this.manageEditingState.bind(this, true, property)}/>
       );
     }
   }
@@ -89,7 +90,9 @@ class VideoDisplay extends React.Component {
           <div className="video__main">
             <div className="video__main__header">
               <div className="video__detailbox">
-                <header className="video__detailbox__header">Preview</header>
+                <div className="video__detailbox__header__container">
+                  <header className="video__detailbox__header">Preview</header>
+                </div>
                 <VideoPreview video={this.props.video || {}} />
               </div>
               <div className="video__detailbox">
@@ -130,7 +133,9 @@ class VideoDisplay extends React.Component {
                 />
               </div>
               <div className="video__detailbox">
-                <header className="video__detailbox__header">Usages</header>
+                <div className="video__detailbox__header__container">
+                  <header className="video__detailbox__header">Usages</header>
+                </div>
                 <VideoUsages
                   video={this.props.video || {}}
                   publishedVideo={this.props.publishedVideo || {}}

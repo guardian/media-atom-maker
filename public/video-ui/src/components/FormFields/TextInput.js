@@ -7,7 +7,7 @@ export default class TextInput extends React.Component {
       return (
         <div>
           <p className="details-list__title">{this.props.fieldName}</p>
-          <p className="details-list__field">{this.props.fieldValue}</p>
+          <p className={"details-list__field " + (this.props.noValue ? "details-list__empty" : "")}> {this.props.fieldValue}</p>
         </div>
       );
     }
@@ -19,6 +19,7 @@ export default class TextInput extends React.Component {
         <label className="form__label">{this.props.fieldName}</label>
         <input
           { ...this.props.input}
+          maxLength={this.props.maxLength || ''}
           className={"form__field " + (hasError ? "form__field--error" : "")}
           type={this.props.inputType || "text"}
           value={this.props.fieldValue}

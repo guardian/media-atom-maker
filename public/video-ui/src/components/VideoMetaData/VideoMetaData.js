@@ -1,11 +1,12 @@
 import React from 'react';
 import VideoTitleEdit from '../VideoEdit/formComponents/VideoTitle';
+import VideoDescriptionEdit from '../VideoEdit/formComponents/VideoDescription';
 import VideoDurationEdit from '../VideoEdit/formComponents/VideoDuration';
 import ContentFlags from '../VideoEdit/formComponents/ContentFlags';
 import VideoExpiryEdit from '../VideoEdit/formComponents/VideoExpiry';
 import VideoCategorySelect from '../VideoEdit/formComponents/VideoCategory';
 import { Field, reduxForm } from 'redux-form';
-import validate from '../../constants/videoEditValidation';
+import {validate} from '../../constants/videoEditValidation';
 
 
 const VideoMetaData = (props) => {
@@ -16,6 +17,14 @@ const VideoMetaData = (props) => {
             name="title"
             type="text"
             component={VideoTitleEdit}
+            video={props.video}
+            updateVideo={props.saveAndUpdateVideo}
+            editable={props.editable} />
+
+          <Field
+            name="description"
+            type="text"
+            component={VideoDescriptionEdit}
             video={props.video}
             updateVideo={props.saveAndUpdateVideo}
             editable={props.editable} />

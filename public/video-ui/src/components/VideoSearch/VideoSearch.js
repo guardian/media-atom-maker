@@ -1,5 +1,6 @@
 import React from 'react';
 import {saveStateVals} from '../../constants/saveStateVals';
+import Icon from '../../components/Icon';
 
 export default class VideoSearch extends React.Component {
 
@@ -14,7 +15,7 @@ export default class VideoSearch extends React.Component {
   render () {
     return (
       <div className="topbar__search flex-container flex-grow">
-        <i className="icon icon__search-magnifier">search</i>
+        <Icon icon="search"/>
         <input className={'form__field' + (this.searchInProgress() ? ' form__field--loading' : '')} type="search" value={this.props.searchTerm || ''} onChange={this.onSearch} placeholder={"Search for videos..."} />
       </div>
     );
