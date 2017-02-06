@@ -14,4 +14,3 @@ deployments:
         amiTags:
           Recipe: editorial-tools-basic
           AmigoStage: PROD
-        amiParameter: AMI
