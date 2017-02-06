@@ -19,36 +19,43 @@ export default class VideoPublishBar extends React.Component {
     return isPublishable(this.props.video).errors.length === 0;
   }
 
-  renderPublishButton() {
+  isPublishingDisabled() {
+    return this.videoIsCurrentlyPublishing() ||
+      !this.videoHasUnpublishedChanges() ||
+      !this.videoIsPublishable();
+  }
+
+  renderPublishButtonText() {
     if (this.videoIsCurrentlyPublishing()) {
-      return (<button
-          type="button"
-          className="btn"
-          disabled={true}
-        >
-          Publishing
-        </button>
-      );
-    } else if (isVideoPublished(this.props.publishedVideo) && !this.videoHasUnpublishedChanges()) {
-      return (<button
-          type="button"
-          className="btn"
-          disabled={true}
-        >
-          Published
-        </button>
-      );
-    } else {
-      return (<button
-          type="button"
-          className="btn"
-          disabled={!this.videoIsPublishable()}
-          onClick={this.props.publishVideo}
-        >
-          Publish
-        </button>
-      );
+      return (<span>Publishing</span>);
     }
+
+    if (isVideoPublished(this.props.publishedVideo) && !this.videoHasUnpublishedChanges()){
+      return (<span>Published</span>);
+
+    }
+
+    if (!this.videoIsPublishable()) {
+      return (<span>
+        <i className="icon icon__warning">warning</i>
+        <span>Publish</span>
+      </span>);
+    } else {
+      return (<span>Publish</span>);
+    }
+
+  }
+
+  renderPublishButton() {
+    return (<button
+        type="button"
+        className="btn"
+        disabled={this.isPublishingDisabled()}
+        onClick={this.props.publishVideo}
+      >
+        {this.renderPublishButtonText()}
+      </button>
+    );
   }
 
   renderVideoPublishedInfo() {

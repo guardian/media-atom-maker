@@ -26,6 +26,13 @@
     margin-left: 5px;
   }
 }
+.icon__search-magnifier,
+.icon__add,
+.icon__done,
+.icon__edit {
+  align-self: center;
+  padding: 0 5px;
+}
 
 .icon__done,
 .icon__edit {
@@ -53,3 +60,8 @@
     background-color: darken($brandColor, 5%);
   }
 }
+
+.icon__warning {
+  padding: 0px 20px 20px 0px;
+}
+
