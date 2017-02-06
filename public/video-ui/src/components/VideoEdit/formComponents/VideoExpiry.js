@@ -38,7 +38,7 @@ export default class VideoExpiryEdit extends React.Component {
     return <div>
       <p className="details-list__title">{this.fieldName}</p>
       <p className="details-list__field">{displayString}</p>
-    </div>
+    </div>;
   }
 
   selector(values, selected, formatter, onChange) {
@@ -66,7 +66,7 @@ export default class VideoExpiryEdit extends React.Component {
     const hourPicker = this.selector(this.validHours, this.date.hour(),
       (hour) => moment().hour(hour).format("HH"),
       (newHour) => {
-        this.setExpiryDate(this.date.hours(newHour))
+        this.setExpiryDate(this.date.hours(newHour));
       }
     );
 
