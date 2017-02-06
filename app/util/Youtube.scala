@@ -28,6 +28,7 @@ class YouTubeConfig @Inject()(config: Configuration) {
   lazy val refreshToken = config.getString("youtube.refreshToken").getOrElse("")
   lazy val contentOwner = config.getString("youtube.contentOwner").getOrElse("")
   lazy val allowedChannels = config.getStringList("youtube.allowedChannels")
+  lazy val disallowedVideos = config.getStringList("youtube.disallowedVideos")
 }
 
 trait YouTubeBuilder {
@@ -68,6 +69,17 @@ case class YouTubeVideoCategoryApi(config: YouTubeConfig) extends YouTubeBuilder
 case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder with Logging {
   private def protectAgainstMistakesInDev(video: Video) = {
     val videoChannelId = video.getSnippet.getChannelId
+
+    config.disallowedVideos match {
+      case Some(blacklist) => {
+          if (blacklist.contains(video.getId)) {
+            val msg = s"Failed to edit video ${video.getId} as its in config.youtube.disallowedVideos"
+            Logger.info(msg)
+            throw new Exception(msg)
+          }
+      }
+      case None =>
+    }
 
     config.allowedChannels match {
       case Some(allowedList) => {
