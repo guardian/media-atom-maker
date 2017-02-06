@@ -1,7 +1,8 @@
 import React from 'react';
 
 import SelectBox from '../../FormFields/SelectBox';
-import { privacyStates } from '../../../constants/privacyStates';
+import { publishedPrivacyStates } from '../../../constants/privacyStates';
+import { isPublishable } from '../../../util/isPublishable';
 
 export default class PrivacyStatusSelect extends React.Component {
 
@@ -18,12 +19,12 @@ export default class PrivacyStatusSelect extends React.Component {
       <SelectBox
         fieldName="Privacy Status"
         fieldValue={this.props.video.privacyStatus}
-        selectValues={privacyStates || []}
+        selectValues={publishedPrivacyStates || []}
         onUpdateField={this.updatePrivacyStatus}
         video={this.props.video}
         editable={this.props.editable}
         input={this.props.input}
-        hasNotifications={this.props.video.privacyStatus === 'Private'}
+        hasNotifications={isPublishable(this.props.video).errors.includes('privacyStatus')}
         meta={this.props.meta} />
     );
   }
