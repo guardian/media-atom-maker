@@ -54,9 +54,14 @@ export default class VideoExpiryEdit extends React.Component {
   }
 
   renderPicker() {
-    const onDateChange = (newDate) => {
-      this.setExpiryDate(newDate.hours(this.date.hours()).minutes(this.date.minutes()));
-    };
+    const datePicker = <Picker
+      className="form__field"
+      selected={this.date}
+      minDate={moment()}
+      onChange={(newDate) =>
+        this.setExpiryDate(newDate.hours(this.date.hours()).minutes(this.date.minutes()))
+      }
+    />;
 
     const hourPicker = this.selector(this.validHours, this.date.hour(),
       (hour) => moment().hour(hour).format("HH"),
@@ -73,14 +78,11 @@ export default class VideoExpiryEdit extends React.Component {
     return (
       <div>
         <label className="form__label">{this.fieldName}</label>
-        <Picker
-          selected={this.date}
-          onChange={onDateChange}
-          minDate={moment()}
-          className="form__field"
-        />
-        {hourPicker}
-        {minutePicker}
+        <div className="expiry-date-picker">
+          <div className="expiry-date-picker__date">{datePicker}</div>
+          <div className="expiry-date-picker__number">{hourPicker}</div>
+          <div className="expiry-date-picker__number">{minutePicker}</div>
+        </div>
       </div>
     );
   }

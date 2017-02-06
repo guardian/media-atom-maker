@@ -1,0 +1,18 @@
+.expiry-date-picker {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  /* overrides margins from form styling */
+  div:not(:last-child) {
+    margin: 0;
+  }
+
+  &__date {
+    flex-grow: 8;
+  }
+
+  &__number {
+    flex-grow: 1;
+  }
+}

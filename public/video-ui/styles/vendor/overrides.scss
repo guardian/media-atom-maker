@@ -1,0 +1,4 @@
+// Convince the datepicker input (not the pop-out) to behave as a flex item
+.react-datepicker__input-container {
+  display: block;
+}
