@@ -2,6 +2,7 @@ import React from 'react';
 import {Link} from 'react-router';
 import VideoSearch from './VideoSearch/VideoSearch';
 import VideoPublishBar from './VideoPublishBar/VideoPublishBar';
+import Icon from './Icon';
 
 export default class Header extends React.Component {
 
@@ -24,7 +25,7 @@ export default class Header extends React.Component {
         <a className="button__secondary"
            target="_blank"
            href="https://goo.gl/forms/0KoeGOW64584Bydm2">
-          <i className="icon">bug_report</i> Feedback
+          <Icon icon="bug_report">Feedback</Icon>
         </a>
       </nav>
     );
@@ -45,7 +46,7 @@ export default class Header extends React.Component {
         <a className="button__secondary"
            target="_blank"
            href="https://docs.google.com/a/guardian.co.uk/document/d/1pqRpgIAAlcUMafbA3T7ZHg54kEs2E9XeANzRoNrwTrE/edit?usp=sharing">
-          <i className="icon">live_help</i> How To
+          <Icon icon="live_help">How To</Icon>
         </a>
       </nav>
     );
@@ -55,7 +56,7 @@ export default class Header extends React.Component {
     return (
       <nav className="topbar__nav-link">
         <Link className="button__secondary" to="/videos/create">
-          <i className="icon">add</i> Create new video
+          <Icon icon="add">Create new video</Icon>
         </Link>
       </nav>
     );
