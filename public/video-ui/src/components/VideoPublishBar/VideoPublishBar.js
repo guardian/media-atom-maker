@@ -2,7 +2,6 @@ import React from 'react';
 import {saveStateVals} from '../../constants/saveStateVals';
 import {isVideoPublished} from '../../util/isVideoPublished';
 import {hasUnpublishedChanges} from '../../util/hasUnpublishedChanges';
-import Icon from '../../components/Icon';
 import {getPublishErrors} from '../../util/getPublishErrors';
 
 export default class VideoPublishBar extends React.Component {
