@@ -60,7 +60,7 @@
             "Type": "String"
         },
         "DomainToMonitor": {
-          "Description": "Domain name for the Route53 health check",
+          "Description": "Domain name for the app (Route53 healthcheck and S3 CORS for user upload)",
           "Type": "String"
         }
     },
@@ -234,6 +234,53 @@
                         }
                     }
                 ]
+            }
+        },
+        "UserUploadBucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "CorsConfiguration": {
+                    "CorsRules": [{
+                        "AllowedHeaders": ["*"],
+                        "AllowedMethods": ["GET", "PUT"],
+                        "AllowedOrigins": [
+                          { "Fn::Join": ["", [ "https://", { "Ref": "DomainToMonitor" } ]] }
+                        ]
+                    }]
+                }
+            }
+        },
+        "LimitedUploadPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "LimitedUploadPolicy",
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [ "s3:PutObject", "s3:PutObjectAcl" ],
+                            "Resource": [ { "Fn::Join": ["", [
+                              "arn:aws:s3:::", { "Ref": "UserUploadBucket" }, "/uploads/*"
+                            ]]}]
+                        }
+                    ]
+                }
+            }
+        },
+        "LimitedUploadGrantPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "LimitedUploadGrantPolicy",
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [ "sts:AssumeRole" ],
+                            "Resource": [ { "Ref": "LimitedUploadPolicy"} ]
+                        }
+                    ]
+                },
+                "Roles": [  { "Ref": "DistributionRole" } ]
             }
         },
         "MediaAtomMakerLoadBalancer": {
@@ -563,6 +610,12 @@
                 "Statistic": "Minimum",
                 "AlarmActions": [ { "Ref": "AlertTopic" } ]
             }
+        }
+    },
+
+    "Outputs": {
+        "UserUploadBucket": {
+            "Value": { "Ref": "UserUploadBucket" }
         }
     }
 }

@@ -1,5 +1,11 @@
 $assetThumbnailHeight: 40px;
 
+.video-assets {
+  &__buttons {
+    margin-left: auto;
+  }
+}
+
 .asset-list {
 
   list-style: none;

@@ -1,4 +1,5 @@
 import React from 'react';
+import {browserHistory} from 'react-router';
 import VideoAssetItem from './VideoAssetItem';
 import VideoAssetAdd from '../VideoAssetAdd/VideoAssetAdd';
 import Icon from '../Icon';
@@ -110,14 +111,28 @@ class VideoAssets extends React.Component {
     return false;
   }
 
+  renderHeader() {
+    const atomId = this.props.video.id;
+
+    function goToUploadPage() {
+      browserHistory.push(`/videos/${atomId}/upload`);
+    }
+
+    const buttons = <div className="video-assets__buttons">
+      <button type="button" onClick={this.showAssetForm}><Icon className="icon__edit" icon="add"/></button>
+      <button type="button" onClick={goToUploadPage}><Icon className="icon__edit" icon="backup"/></button>
+    </div>;
+
+    return <div className="section-header">
+      <span className="video__detailbox__header">Assets</span>
+      {this.state.showAssetForm ? false : buttons }
+    </div>;
+  }
 
   render() {
     return (
         <div className="video-assets">
-          <div className="section-header">
-            <span className="video__detailbox__header">Assets</span>
-            {!this.state.showAssetForm ? <button type="button" onClick={this.showAssetForm}><Icon className="icon__edit" icon="add"/></button> : false}
-          </div>
+          {this.renderHeader()}
           {this.renderAssetEdit()}
           {this.renderList()}
           {!this.props.video.assets.length ? <span>No assets found</span> : false}

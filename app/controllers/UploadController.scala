@@ -1,0 +1,60 @@
+package controllers
+
+import java.util.UUID
+import javax.inject.Inject
+
+import com.amazonaws.services.securitytoken.model.AssumeRoleRequest
+import com.gu.pandahmac.HMACAuthActions
+import model.{UploadCredentials, UploadPolicy}
+import play.api.libs.json.{JsArray, JsObject, JsString, Json}
+import play.api.mvc.Results.Ok
+import util.{AWSConfig, Logging}
+
+class UploadController @Inject ()(implicit val authActions: HMACAuthActions, val awsConfig: AWSConfig) extends Logging {
+  val folder = "uploads"
+
+  import authActions.APIHMACAuthAction
+
+  def create(atomId: String) = APIHMACAuthAction {
+    val uploadId = UUID.randomUUID().toString
+    val key = s"$folder/$atomId/$uploadId"
+
+    val keyPolicy = generateKeyPolicy(key)
+    val credentials = generateCredentials(uploadId, keyPolicy)
+
+    val policy = UploadPolicy(awsConfig.userUploadBucket, key, awsConfig.region.toString, credentials)
+
+    Ok(Json.toJson(policy))
+  }
+
+  private def generateCredentials(uploadId: String, keyPolicy: String): UploadCredentials = {
+    val request = new AssumeRoleRequest()
+      .withRoleArn(awsConfig.userUploadRole)
+      .withDurationSeconds(900) // 15 minutes
+      .withPolicy(keyPolicy)
+      .withRoleSessionName(uploadId)
+
+    val result = awsConfig.stsClient.assumeRole(request)
+    val credentials = result.getCredentials
+
+    UploadCredentials(credentials.getAccessKeyId, credentials.getSecretAccessKey, credentials.getSessionToken)
+  }
+
+  private def generateKeyPolicy(key: String): String = {
+    val keyArn = s"arn:aws:s3:::${awsConfig.userUploadBucket}/$key"
+
+    val json = JsObject(List(
+      "Statement" -> JsArray(List(
+        JsObject(List(
+          "Action" -> JsArray(List(JsString("s3:PutObject"), JsString("s3:PutObjectAcl"))),
+          "Resource" -> JsString(keyArn),
+          "Effect" -> JsString("Allow")
+        ))
+      ))
+    ))
+
+    log.info(Json.stringify(json))
+
+    Json.stringify(json)
+  }
+}

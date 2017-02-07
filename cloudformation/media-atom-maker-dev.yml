@@ -1,5 +1,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: "Media atom maker development"
+Parameters:
+  Domain:
+    Description: "The domain name where the app is running"
+    Type: "String"
 Resources:
   MediaAtomGroup:
     Type: "AWS::IAM::Group"
@@ -30,6 +34,7 @@ Resources:
     Type: "AWS::IAM::AccessKey"
     Properties:
       UserName: {"Ref": "MediaAtomUser"}
+      Serial: 2
   MediaAtomsDynamoTable:
     Type: "AWS::DynamoDB::Table"
     Properties:
@@ -87,6 +92,46 @@ Resources:
           ProvisionedThroughput:
             ReadCapacityUnits: "5"
             WriteCapacityUnits: "5"
+  UserUploadBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      CorsConfiguration:
+        CorsRules:
+          -
+            AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - "GET"
+              - "PUT"
+            AllowedOrigins:
+              -
+                !Join [ "", [ "https://", { "Ref": "Domain"} ]]
+  LimitedUploadRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              AWS:
+                !GetAtt MediaAtomUser.Arn
+            Action: [ "sts:AssumeRole" ]
+      Path: "/"
+      Policies:
+        -
+          PolicyName: "LimitedUploadPolicy"
+          PolicyDocument:
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - "s3:PutObject"
+                  - "s3:PutObjectAcl"
+                Resource:
+                  - Fn::Join:
+                    - ""
+                    - ["arn:aws:s3:::", { "Ref": "UserUploadBucket" }, "/uploads/*"]
 Outputs:
   EditsDynamoTable:
     Value:
@@ -103,3 +148,6 @@ Outputs:
   AwsSecret:
     Value:
       Fn::GetAtt: ["HostKeys", "SecretAccessKey"]
+  UserUploadBucket:
+    Value:
+      Ref: "UserUploadBucket"
