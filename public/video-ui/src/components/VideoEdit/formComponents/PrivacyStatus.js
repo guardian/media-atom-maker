@@ -15,6 +15,11 @@ export default class PrivacyStatusSelect extends React.Component {
     this.props.updateVideo(newData);
   };
 
+  isPrivacySet = () => {
+    return getPublishErrors(this.props.video).errors.includes('privacyStatus');
+  };
+
+
   render () {
     return (
       <SelectBox
@@ -25,7 +30,8 @@ export default class PrivacyStatusSelect extends React.Component {
         video={this.props.video}
         editable={this.props.editable}
         input={this.props.input}
-        hasNotifications={getPublishErrors(this.props.video).errors.includes('privacyStatus')}
+        displayDefault={this.isPrivacySet()}
+        hasNotifications={this.isPrivacySet()}
         notificationMessage={statusNotification}
         meta={this.props.meta} />
     );

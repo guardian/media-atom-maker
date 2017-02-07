@@ -19,7 +19,7 @@ export default class SelectBox extends React.Component {
     }
   }
   renderDefaultOption = () => {
-    if (this.props.fieldValue === "") {
+    if (this.props.displayDefault || this.props.fieldValue === "") {
       return (
         <option value="">{this.props.defaultOption || "Please select..."}</option>
       );
