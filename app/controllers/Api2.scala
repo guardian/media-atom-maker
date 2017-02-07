@@ -45,6 +45,7 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   }
 
   def getMediaAtoms = APIHMACAuthAction {
+    def created(atom: MediaAtom) = atom.contentChangeDetails.created.map(_.date.getMillis)
 
     previewDataStore.listAtoms.fold(
       err =>   InternalServerError(jsonError(err.msg)),
@@ -56,7 +57,9 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
         val mediaAtoms = atoms.map(MediaAtom.fromThrift)
           .toList
           .filter(_.category != Hosted)
-          .sorted
+          .sortBy(created)
+          .reverse // newest atoms first
+
         Ok(Json.toJson(mediaAtoms))
       }
     )
