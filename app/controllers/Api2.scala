@@ -56,6 +56,7 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
         val mediaAtoms = atoms.map(MediaAtom.fromThrift)
           .toList
           .filter(_.category != Hosted)
+          .sorted
         Ok(Json.toJson(mediaAtoms))
       }
     )

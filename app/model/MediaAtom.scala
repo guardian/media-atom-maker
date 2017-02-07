@@ -29,7 +29,14 @@ case class MediaAtom(
   commentsEnabled: Boolean = false,
   legallySensitive: Option[Boolean],
   privacyStatus: Option[PrivacyStatus],
-  expiryDate: Option[Long] = None) {
+  expiryDate: Option[Long] = None) extends Ordered[MediaAtom] {
+
+  def compare(that: MediaAtom): Int = (this.contentChangeDetails.created, that.contentChangeDetails.created) match {
+    case (Some(me), Some(other)) => other.date.compareTo(me.date) // `contentChangeDetails.created` DESC
+    case (None, _) => 1
+    case (_, None) => -1
+    case (None, None) => 0
+  }
 
   def asThrift = ThriftAtom(
       id = id,
