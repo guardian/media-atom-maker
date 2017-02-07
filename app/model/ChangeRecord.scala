@@ -17,15 +17,12 @@ object ChangeRecord {
   // TODO be better
   // HACK: HMAC authenticated users are a `PandaUser` without an email
   // see https://github.com/guardian/media-atom-maker/pull/170
-  private def getUsername (user: PandaUser): String = {
-    user.email match {
-      case "" => user.firstName
-      case _ => user.email
-    }
-  }
-
   def now (pandaUser: PandaUser): ChangeRecord = {
-    val user = Some(User(getUsername(pandaUser), Some(pandaUser.firstName), Some(pandaUser.lastName)))
-    ChangeRecord(DateTime.now(), user)
+    val user = pandaUser.email match {
+      case "" => User(pandaUser.firstName, Some("bot"), Some(pandaUser.firstName))
+      case _ => User(pandaUser.firstName, Some(pandaUser.lastName), Some(pandaUser.email))
+    }
+
+    ChangeRecord(DateTime.now(), Some(user))
   }
 }
