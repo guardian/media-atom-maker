@@ -11,7 +11,7 @@
   word-wrap: inherit;
   text-overflow: ellipsis;
   margin: 0 0 10px;
-  padding: 0;
+  padding-left: 3px;
 }
 
 .details-list__labeled-filter {
@@ -24,4 +24,22 @@
 
 .details-list__empty {
   font-style: italic;
+}
+
+.details-list__notification {
+  border: solid 1px;
+  border-color: $brandColor;
+}
+
+.details-list__notification-text {
+  font-style: italic;
+  font-size: 10px;
+  padding: 12px 0 0;
+}
+
+.details-list__heading {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  color: $brandColor;
 }

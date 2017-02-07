@@ -13,6 +13,7 @@ import data.AuditDataStore
 import model.{ImageAsset, MediaAtom, UpdatedMetadata, ChangeRecord}
 import CommandExceptions._
 import model.Platform.Youtube
+import model.PrivacyStatus
 import util.{Logging, YouTubeConfig, YouTubeVideoUpdateApi}
 
 import scala.util.control.NonFatal
@@ -39,59 +40,68 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
         val atom = MediaAtom.fromThrift(thriftAtom)
         val api = YouTubeVideoUpdateApi(youtubeConfig)
 
-        MediaAtom.getActiveYouTubeAsset(atom) match {
-          case Some(asset) => {
-            try {
-              updateThumbnail(atom, api)
-            } catch {
-              case NonFatal(e) => {
-                log.error(s"Unable to update thumbnail for asset=${asset.id} atom={$id}", e)
-                PosterImageUploadFailed(e.getMessage)
+        atom.privacyStatus match {
+          case Some(PrivacyStatus.Private) =>
+            log.error(s"Unable to publish atom ${atom.id}, privacy status is set to private")
+            AtomPublishFailed("Atom status set to private")
+
+          case _ => {
+
+            MediaAtom.getActiveYouTubeAsset(atom) match {
+              case Some(asset) => {
+                try {
+                  updateThumbnail(atom, api)
+                } catch {
+                  case NonFatal(e) => {
+                    log.error(s"Unable to update thumbnail for asset=${asset.id} atom={$id}", e)
+                    PosterImageUploadFailed(e.getMessage)
+                  }
+                }
               }
+              case None =>
+                log.info(s"Unable to update thumbnail for $id. There is no active YouTube asset")
             }
+
+            atom.activeVersion match {
+              case Some(atomVersion) => {
+
+                val activeAssetId = atom.assets.find(asset => {
+                  asset.version == atomVersion
+                }).get.id
+
+                api.updateMetadata(activeAssetId, UpdatedMetadata(
+                  Some(atom.title),
+                  atom.description,
+                  Some(atom.tags),
+                  atom.youtubeCategoryId,
+                  atom.license,
+                  atom.privacyStatus,
+                  atom.expiryDate,
+                  atom.plutoProjectId))
+              }
+              case None =>
+                log.info(s"Not updating YouTube metadata for atom $id as it has no active asset")
+            }
+
+            val changeRecord = Some(ChangeRecord.now(user).asThrift)
+
+            val updatedAtom = thriftAtom.copy(
+              contentChangeDetails = thriftAtom.contentChangeDetails.copy(
+                published = changeRecord,
+                lastModified = changeRecord,
+                revision = thriftAtom.contentChangeDetails.revision + 1
+              )
+            )
+
+            log.info(s"Publishing atom $id")
+
+            auditDataStore.auditPublish(id, user)
+            UpdateAtomCommand(id, MediaAtom.fromThrift(updatedAtom)).process()
+
+            setOldAssetsToPrivate(atom, api)
+            publishAtomToLive(updatedAtom)
           }
-          case None =>
-            log.info(s"Unable to update thumbnail for $id. There is no active YouTube asset")
         }
-
-        atom.activeVersion match {
-          case Some(atomVersion) => {
-
-            val activeAssetId = atom.assets.find(asset => {
-              asset.version == atomVersion
-            }).get.id
-
-            api.updateMetadata(activeAssetId, UpdatedMetadata(
-              Some(atom.title),
-              atom.description,
-              Some(atom.tags),
-              atom.youtubeCategoryId,
-              atom.license,
-              atom.privacyStatus,
-              atom.expiryDate,
-              atom.plutoProjectId))
-          }
-          case None =>
-            log.info(s"Not updating YouTube metadata for atom $id as it has no active asset")
-        }
-
-        val changeRecord = Some(ChangeRecord.now(user).asThrift)
-
-        val updatedAtom = thriftAtom.copy(
-          contentChangeDetails = thriftAtom.contentChangeDetails.copy(
-            published = changeRecord,
-            lastModified = changeRecord,
-            revision = thriftAtom.contentChangeDetails.revision + 1
-          )
-        )
-
-        log.info(s"Publishing atom $id")
-
-        auditDataStore.auditPublish(id, user)
-        UpdateAtomCommand(id, MediaAtom.fromThrift(updatedAtom)).process()
-
-        setOldAssetsToPrivate(atom, api)
-        publishAtomToLive(updatedAtom)
       }
     }
   }

@@ -6,7 +6,6 @@ import VideoPosterEdit from './formComponents/VideoPoster';
 import YoutubeCategorySelect from './formComponents/YoutubeCategory';
 import VideoExpiryEdit from './formComponents/VideoExpiry';
 import YoutubeChannelSelect from './formComponents/YoutubeChannel';
-import PrivacyStatusSelect from './formComponents/PrivacyStatus';
 import SaveButton from '../utils/SaveButton';
 import {validate} from '../../constants/videoEditValidation';
 import { Field, reduxForm } from 'redux-form';
@@ -66,14 +65,6 @@ const VideoEdit = (props) => {
             name="youtube-channel"
             type="select"
             component={YoutubeChannelSelect}
-            video={props.video}
-            updateVideo={props.updateVideo}
-            editable={props.editable} />
-
-          <Field
-            name="privacyStatus"
-            type="text"
-            component={PrivacyStatusSelect}
             video={props.video}
             updateVideo={props.updateVideo}
             editable={props.editable} />

@@ -58,6 +58,11 @@
     border-color: $dangerColor;
   }
 
+  &--notification {
+    border-color: $brandColor;
+  }
+
+
   &--loading {
     background: {
       image: url(/assets/video-ui/images/progress-spinner.gif);
@@ -84,6 +89,7 @@
   &--error {
     color: $dangerColor;
   }
+
 }
 
 .form__image {
