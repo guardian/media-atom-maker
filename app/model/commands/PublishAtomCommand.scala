@@ -7,10 +7,10 @@ import cats.data.Xor
 import com.gu.atom.data.{PreviewDataStore, PublishedDataStore}
 import com.gu.atom.play.AtomAPIActions
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
-import com.gu.contentatom.thrift.{Atom, ChangeRecord, ContentAtomEvent, EventType}
+import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.AuditDataStore
-import model.{ImageAsset, MediaAtom, UpdatedMetadata}
+import model.{ImageAsset, MediaAtom, UpdatedMetadata, ChangeRecord}
 import CommandExceptions._
 import model.Platform.Youtube
 import util.{Logging, YouTubeConfig, YouTubeVideoUpdateApi}
@@ -75,13 +75,12 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
             log.info(s"Not updating YouTube metadata for atom $id as it has no active asset")
         }
 
-        val changeRecord = ChangeRecord((new Date()).getTime(), None) // Todo: User...
-        val changeRecordAsModel = model.ChangeRecord.fromThrift(changeRecord)
+        val changeRecord = Some(ChangeRecord.now(user).asThrift)
 
         val updatedAtom = thriftAtom.copy(
           contentChangeDetails = thriftAtom.contentChangeDetails.copy(
-            published = Some(changeRecord),
-            lastModified = Some(changeRecord),
+            published = changeRecord,
+            lastModified = changeRecord,
             revision = thriftAtom.contentChangeDetails.revision + 1
           )
         )
@@ -89,7 +88,7 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
         log.info(s"Publishing atom $id")
 
         auditDataStore.auditPublish(id, user)
-        UpdateAtomCommand(id, MediaAtom.fromThrift(updatedAtom), Some(changeRecordAsModel)).process()
+        UpdateAtomCommand(id, MediaAtom.fromThrift(updatedAtom)).process()
 
         setOldAssetsToPrivate(atom, api)
         publishAtomToLive(updatedAtom)

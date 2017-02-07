@@ -7,14 +7,15 @@ import com.gu.atom.data.{IDConflictError, PreviewDataStore}
 import com.gu.atom.publish.PreviewAtomPublisher
 import com.gu.contentatom.thrift._
 import data.AuditDataStore
-import model.{Image, MediaAtom, PrivacyStatus}
+import model.{ChangeRecord, Image, MediaAtom, PrivacyStatus}
 import model.commands.CommandExceptions._
 import org.cvogt.play.json.Jsonx
 
 import scala.util.{Failure, Success}
 import com.gu.contentatom.thrift.{Atom => ThriftAtom}
-import com.gu.contentatom.thrift.atom.media.{Category => ThriftCategory, MediaAtom => ThriftMediaAtom, Metadata => ThriftMetadata, PrivacyStatus => ThriftPrivacyStatus}
+import com.gu.contentatom.thrift.atom.media.{Category => ThriftCategory, MediaAtom => ThriftMediaAtom, Metadata => ThriftMetadata}
 import com.gu.pandomainauth.model.{User => PandaUser}
+import play.api.libs.json.Format
 import util.Logging
 
 // Since the data store and publisher are injected rather than being objects we cannot serialize JSON directly into a
@@ -32,7 +33,7 @@ case class CreateAtomCommandData(
 )
 
 object CreateAtomCommandData {
-  implicit val createAtomCommandFormat = Jsonx.formatCaseClass[CreateAtomCommandData]
+  implicit val createAtomCommandFormat: Format[CreateAtomCommandData] = Jsonx.formatCaseClass[CreateAtomCommandData]
 }
 
 case class CreateAtomCommand(data: CreateAtomCommandData)
@@ -45,6 +46,8 @@ case class CreateAtomCommand(data: CreateAtomCommandData)
   def process() = {
     val atomId = randomUUID().toString
     log.info(s"Request to create new atom $atomId [${data.title}]")
+
+    val createdChangeRecord = Some(ChangeRecord.now(user).asThrift)
 
     val atom = ThriftAtom(
       id = atomId,
@@ -68,7 +71,12 @@ case class CreateAtomCommand(data: CreateAtomCommandData)
           expiryDate = data.expiryDate
         ))
       )),
-      contentChangeDetails = ContentChangeDetails(None, None, None, 1L)
+      contentChangeDetails = ContentChangeDetails(
+        lastModified = createdChangeRecord,
+        created = createdChangeRecord,
+        published = None,
+        revision = 1L
+      )
     )
 
     auditDataStore.auditCreate(atom.id, user)
