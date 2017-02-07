@@ -3,7 +3,7 @@ import {saveStateVals} from '../../constants/saveStateVals';
 import {isVideoPublished} from '../../util/isVideoPublished';
 import {hasUnpublishedChanges} from '../../util/hasUnpublishedChanges';
 import Icon from '../../components/Icon';
-import {isPublishable} from '../../util/isPublishable';
+import {getPublishErrors} from '../../util/getPublishErrors';
 
 export default class VideoPublishBar extends React.Component {
 
@@ -16,7 +16,7 @@ export default class VideoPublishBar extends React.Component {
   }
 
   videoIsPublishable() {
-    return isPublishable(this.props.video).errors.length === 0;
+    return getPublishErrors(this.props.video).errors.length === 0;
   }
 
   isPublishingDisabled() {

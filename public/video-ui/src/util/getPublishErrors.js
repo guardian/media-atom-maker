@@ -1,8 +1,8 @@
 import { previewPrivacyState } from '../constants/privacyStates';
 
-export function isPublishable(video) {
+export function getPublishErrors(video) {
 
-  let publishState = {
+  const publishState = {
     errors: []
   };
 
