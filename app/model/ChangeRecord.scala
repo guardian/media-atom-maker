@@ -19,8 +19,15 @@ object ChangeRecord {
   // see https://github.com/guardian/media-atom-maker/pull/170
   def now (pandaUser: PandaUser): ChangeRecord = {
     val user = pandaUser.email match {
-      case "" => User(pandaUser.firstName, None, None)
-      case _ => User(pandaUser.firstName, Some(pandaUser.lastName), Some(pandaUser.email))
+      case "" => User(email = pandaUser.firstName,
+        firstName = None,
+        lastName = None
+      )
+      case _ => User(
+        email = pandaUser.email,
+        firstName = Some(pandaUser.firstName),
+        lastName = Some(pandaUser.lastName)
+      )
     }
 
     ChangeRecord(DateTime.now(), Some(user))
