@@ -17,7 +17,7 @@ export default class PrivacyStatusSelect extends React.Component {
     return (
       <SelectBox
         fieldName="Privacy Status"
-        fieldValue={this.props.video.privacyStatus}
+        fieldValue={this.props.video ? this.props.video.privacyStatus : ''}
         selectValues={privacyStates || []}
         onUpdateField={this.updatePrivacyStatus}
         video={this.props.video}
