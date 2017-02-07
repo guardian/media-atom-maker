@@ -5,6 +5,8 @@ class YoutubeChannelSelect extends React.Component {
 
   hasChannels = () => this.props.youtube.channels.length !== 0;
 
+  defaultOption = "Select a channel";
+
   componentWillMount() {
     if (! this.hasChannels()) {
       this.props.youtubeActions.getChannels();
@@ -12,6 +14,11 @@ class YoutubeChannelSelect extends React.Component {
   }
 
   updateVideoChannel = (e) => {
+
+    if (e.target.value === this.defaultOption) {
+      return;
+    }
+
     const newId = Object.assign({}, this.props.video, {
       channelId: e.target.value
     });
@@ -34,7 +41,7 @@ class YoutubeChannelSelect extends React.Component {
         fieldValue={this.props.video.channelId}
         selectValues={this.props.youtube.channels || []}
         onUpdateField={this.updateVideoChannel}
-        defaultOption="Select a channel..."
+        defaultOption={this.defaultOption}
         video={this.props.video}
         editable={this.props.editable}
         input={this.props.input}
