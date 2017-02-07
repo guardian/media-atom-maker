@@ -18,6 +18,13 @@ export default class SelectBox extends React.Component {
         );
     }
   }
+  renderDefaultOption = () => {
+    if (this.props.displayDefault || this.props.fieldValue === "") {
+      return (
+        <option value="">{this.props.defaultOption || "Please select..."}</option>
+      );
+    }
+  }
 
   renderField = () => {
     if(!this.props.editable) {
@@ -41,8 +48,8 @@ export default class SelectBox extends React.Component {
           value={this.props.fieldValue}
           onChange={this.props.onUpdateField}>
 
-          <option value="">{this.props.defaultOption || "Please select..."}</option>
 
+          {this.renderDefaultOption()}
           {this.props.selectValues.map(function(value) {
             return (
               <option value={value.id} key={value.id}>{value.title}</option>

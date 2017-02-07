@@ -5,6 +5,8 @@ class YoutubeCategorySelect extends React.Component {
 
   hasCategories = () => this.props.youtube.categories.length !== 0;
 
+  defaultOption = "Select a youtube category";
+
   componentWillMount() {
     if (! this.hasCategories()) {
       this.props.youtubeActions.getCategories();
@@ -12,6 +14,10 @@ class YoutubeCategorySelect extends React.Component {
   }
 
   updateVideoCategory = (e) => {
+
+    if (e.target.value === this.defaultOption) {
+      return;
+    }
     const newId = Object.assign({}, this.props.video, {
       youtubeCategoryId: e.target.value}
     );
@@ -34,7 +40,7 @@ class YoutubeCategorySelect extends React.Component {
       fieldValue={this.props.video.youtubeCategoryId}
       selectValues={this.props.youtube.categories || []}
       onUpdateField={this.updateVideoCategory}
-      defaultOption="Select a category..."
+      defaultOption={this.defaultOption}
       video={this.props.video}
       editable={this.props.editable}
       input={this.props.input}
