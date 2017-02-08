@@ -25,7 +25,7 @@ class AWSConfig @Inject() (config: Configuration) {
 
   lazy val credProviders = Seq(
     config.getString("aws.profile").map(new ProfileCredentialsProvider(_)),
-    Some(new InstanceProfileCredentialsProvider)
+    Some(new InstanceProfileCredentialsProvider(false))
   )
 
   lazy val credProvider = new AWSCredentialsProviderChain(credProviders.flatten: _*)
