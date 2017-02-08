@@ -15,10 +15,7 @@ dependencies:
     - sbt update
   cache_directories:
     - "project/project/target/resolution-cache"
-    - "project/project/target/streams"
-    - "project/target/resolution-cache"
     - "project/target/streams"
-    - ".dynamodb-local"
     - "~/.ivy2"
     - "~/.sbt"
 
