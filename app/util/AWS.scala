@@ -34,9 +34,12 @@ class AWSConfig @Inject() (config: Configuration) {
 
   lazy val stsRoleToAssume = config.getString("aws.kinesis.stsRoleToAssume").getOrElse("")
 
+  lazy val stsAssumeRoleSessionCredentialsProvider =
+    new STSAssumeRoleSessionCredentialsProvider.Builder(stsRoleToAssume, "media-atom-maker").build()
+
   lazy val atomsCredProvider = new AWSCredentialsProviderChain(
     new ProfileCredentialsProvider("composer"),
-    new STSAssumeRoleSessionCredentialsProvider(credProvider, stsRoleToAssume, sessionId)
+    stsAssumeRoleSessionCredentialsProvider
   )
 
   lazy val dynamoDB = region.createClient(
