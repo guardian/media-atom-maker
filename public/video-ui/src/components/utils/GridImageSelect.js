@@ -67,7 +67,19 @@ export default class GridEmbedder extends React.Component {
 
 
     render() {
-      if(this.props.video){
+      if(this.props.createPagePosterAdd && this.props.video.posterImage){
+        return (
+            <div className="gridembedder">
+                <div className="gridembedder__button" onClick={this.toggleModal}>
+                  <Icon icon="add_to_photos" className="icon__edit"/>
+                </div>
+
+                <Modal isOpen={this.state.modalOpen} dismiss={this.closeModal}>
+                    <iframe className="gridembedder__modal" src={this.props.gridUrl}></iframe>
+                </Modal>
+            </div>
+        );
+      } else if(this.props.createPagePosterAdd){
         return (
             <div className="gridembedder">
               <div className="gridembedder__noposter" onClick={this.toggleModal}>
