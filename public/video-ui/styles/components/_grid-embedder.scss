@@ -19,9 +19,9 @@
   }
 }
 
-
-
-// .gridembedder__button {
-//     text-align: center;
-//     cursor: pointer;
-// }
+.gridembedder__button {
+    display: flex;
+    margin-top: -20px;
+    justify-content: flex-end;
+    cursor: pointer;
+}

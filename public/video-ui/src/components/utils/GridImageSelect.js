@@ -85,7 +85,7 @@ export default class GridEmbedder extends React.Component {
               <div className="gridembedder__noposter" onClick={this.toggleModal}>
                 <div className="gridembedder__noposter-elements">
                 <span>Add Grid Image</span>
-                  <div className="gridembedder__button">
+                  <div>
                     <Icon icon="add_to_photos" className="icon__edit"/>
                   </div>
                 </div>
@@ -99,7 +99,7 @@ export default class GridEmbedder extends React.Component {
       } else {
         return (
             <div className="gridembedder">
-                <div className="gridembedder__button" onClick={this.toggleModal}>
+                <div onClick={this.toggleModal}>
                   <Icon icon="add_to_photos" className="icon__edit"/>
                 </div>
 
