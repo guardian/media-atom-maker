@@ -67,7 +67,24 @@ export default class GridEmbedder extends React.Component {
 
 
     render() {
+      if(this.props.video){
+        return (
+            <div className="gridembedder">
+              <div className="gridembedder__noposter" onClick={this.toggleModal}>
+                <div className="gridembedder__noposter-elements">
+                <span>Add Grid Image</span>
+                  <div className="gridembedder__button">
+                    <Icon icon="add_to_photos" className="icon__edit"/>
+                  </div>
+                </div>
+              </div>
 
+                <Modal isOpen={this.state.modalOpen} dismiss={this.closeModal}>
+                    <iframe className="gridembedder__modal" src={this.props.gridUrl}></iframe>
+                </Modal>
+            </div>
+        );
+      } else {
         return (
             <div className="gridembedder">
                 <div className="gridembedder__button" onClick={this.toggleModal}>
@@ -79,5 +96,6 @@ export default class GridEmbedder extends React.Component {
                 </Modal>
             </div>
         );
+      }
     }
 }
