@@ -30,7 +30,7 @@ class UploadController @Inject ()(implicit val authActions: HMACAuthActions, val
   private def generateCredentials(uploadId: String, keyPolicy: String): UploadCredentials = {
     val request = new AssumeRoleRequest()
       .withRoleArn(awsConfig.userUploadRole)
-      .withDurationSeconds(900) // 15 minutes
+      .withDurationSeconds(900) // 15 minutes (the minimum allowed in STS requests)
       .withPolicy(keyPolicy)
       .withRoleSessionName(uploadId)
 

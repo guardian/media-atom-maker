@@ -58,12 +58,6 @@ class AWSConfig @Inject() (config: Configuration) {
     null
   )
 
-  lazy val s3client = region.createClient(
-    classOf[AmazonS3Client],
-    credProvider,
-    null
-  )
-
   lazy val stage = config.getString("stage").getOrElse("DEV")
 
   lazy val composerUrl = config.getString("flexible.url").get
