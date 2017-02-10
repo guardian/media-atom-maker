@@ -16,14 +16,20 @@ class UploadController @Inject ()(implicit val authActions: HMACAuthActions, val
   import authActions.APIHMACAuthAction
 
   def create(atomId: String) = APIHMACAuthAction {
+    log.info(s"Request for upload credentials for atom $atomId")
+
     val uploadId = UUID.randomUUID().toString
     val key = s"$folder/$atomId/$uploadId"
 
+    log.info(s"Generated upload key $key for atom $atomId")
+
     val keyPolicy = generateKeyPolicy(key)
+
+    log.info(s"Issuing STS request. uploadKey=$key. atomId=$atomId")
     val credentials = generateCredentials(uploadId, keyPolicy)
+    log.info(s"Received STS credentials. uploadKey=$key. atomId=$atomId")
 
     val policy = UploadPolicy(awsConfig.userUploadBucket, key, awsConfig.region.toString, credentials)
-
     Ok(Json.toJson(policy))
   }
 
@@ -52,8 +58,6 @@ class UploadController @Inject ()(implicit val authActions: HMACAuthActions, val
         ))
       ))
     ))
-
-    log.info(Json.stringify(json))
 
     Json.stringify(json)
   }
