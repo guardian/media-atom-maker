@@ -67,7 +67,7 @@ export default class GridEmbedder extends React.Component {
 
 
     render() {
-      if(this.props.createPagePosterAdd && this.props.video.posterImage){
+      if(this.props.createMode && this.props.video.posterImage){
         return (
             <div className="gridembedder">
                 <div className="gridembedder__button" onClick={this.toggleModal}>
@@ -79,7 +79,7 @@ export default class GridEmbedder extends React.Component {
                 </Modal>
             </div>
         );
-      } else if(this.props.createPagePosterAdd){
+      } else if(this.props.createMode){
         return (
             <div className="gridembedder">
               <div className="gridembedder__noposter" onClick={this.toggleModal}>

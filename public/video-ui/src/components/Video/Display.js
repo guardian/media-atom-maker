@@ -124,7 +124,7 @@ class VideoDisplay extends React.Component {
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
                   <header className="video__detailbox__header">Poster Image</header>
-                  <GridImageSelect video={this.props.video || {}} updateVideo={this.saveAndUpdateVideo} gridUrl={this.props.config.gridUrl} createPagePosterAdd={false}/>
+                  <GridImageSelect video={this.props.video || {}} updateVideo={this.saveAndUpdateVideo} gridUrl={this.props.config.gridUrl} createMode={false}/>
                 </div>
                 <VideoPoster
                   video={this.props.video || {}}
