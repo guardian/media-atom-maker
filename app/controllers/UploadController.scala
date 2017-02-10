@@ -40,7 +40,7 @@ class UploadController @Inject ()(implicit val authActions: HMACAuthActions, val
       .withPolicy(keyPolicy)
       .withRoleSessionName(uploadId)
 
-    val result = awsConfig.stsClient.assumeRole(request)
+    val result = awsConfig.uploadSTSClient.assumeRole(request)
     val credentials = result.getCredentials
 
     UploadCredentials(credentials.getAccessKeyId, credentials.getSecretAccessKey, credentials.getSessionToken)

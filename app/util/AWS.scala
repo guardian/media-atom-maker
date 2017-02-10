@@ -89,7 +89,7 @@ class AWSConfig @Inject() (config: Configuration) {
   else
     getKinesisClient(credProvider)
 
-  lazy val stsClient = getStsClient()
+  lazy val uploadSTSClient = createUploadSTSClient()
 
   lazy val expiryPollerName = "Expiry"
   lazy val expiryPollerLastName = "Poller"
@@ -100,7 +100,7 @@ class AWSConfig @Inject() (config: Configuration) {
     null
   )
 
-  private def getStsClient() = {
+  private def createUploadSTSClient() = {
     val provider = stage match {
       case "DEV" =>
         // Only required in dev. Instance profile credentials are sufficient when deployed

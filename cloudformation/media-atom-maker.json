@@ -162,6 +162,11 @@
                                     "Effect": "Allow",
                                     "Action": ["sts:AssumeRole"],
                                     "Resource": { "Ref": "ContentAtomArn" }
+                                },
+                                {
+                                    "Effect": "Allow",
+                                    "Action": ["sts:AssumeRole"],
+                                    "Resource": { "Fn::GetAtt" : ["LimitedUploadRole", "Arn"] }
                                 }
                             ]
                         }
