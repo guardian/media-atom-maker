@@ -250,37 +250,31 @@
                 }
             }
         },
-        "LimitedUploadPolicy": {
-            "Type": "AWS::IAM::Policy",
+        "LimitedUploadRole": {
+            "Type": "AWS::IAM::Role",
             "Properties": {
-                "PolicyName": "LimitedUploadPolicy",
-                "PolicyDocument": {
-                    "Statement": [
-                        {
-                            "Effect": "Allow",
-                            "Action": [ "s3:PutObject", "s3:PutObjectAcl" ],
-                            "Resource": [ { "Fn::Join": ["", [
-                              "arn:aws:s3:::", { "Ref": "UserUploadBucket" }, "/uploads/*"
-                            ]]}]
-                        }
-                    ]
-                }
-            }
-        },
-        "LimitedUploadGrantPolicy": {
-            "Type": "AWS::IAM::Policy",
-            "Properties": {
-                "PolicyName": "LimitedUploadGrantPolicy",
-                "PolicyDocument": {
-                    "Statement": [
-                        {
-                            "Effect": "Allow",
-                            "Action": [ "sts:AssumeRole" ],
-                            "Resource": [ { "Ref": "LimitedUploadPolicy"} ]
-                        }
-                    ]
+                "AssumeRolePolicyDocument": {
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Principal": {
+                            "AWS": { "Fn::Join": ["", [ "arn:aws:iam::", { "Ref": "AWS::AccountId" }, ":root"]] }
+                        },
+                        "Action": "sts:AssumeRole"
+                    }]
                 },
-                "Roles": [  { "Ref": "DistributionRole" } ]
+                "Path": "/",
+                "Policies": [
+                    {
+                        "PolicyName": "LimitedUploadPolicy",
+                        "PolicyDocument": {
+                            "Statement": [{
+                                "Effect": "Allow",
+                                "Action": ["s3:PutObject", "s3:PutObjectAcl"],
+                                "Resource": { "Fn::Join": ["", ["arn:aws:s3:::", { "Ref": "UserUploadBucket" }, "/uploads/*"]] }
+                            }]
+                        }
+                    }
+                ]
             }
         },
         "MediaAtomMakerLoadBalancer": {
@@ -616,6 +610,9 @@
     "Outputs": {
         "UserUploadBucket": {
             "Value": { "Ref": "UserUploadBucket" }
+        },
+        "UserUploadRole": {
+          "Value": { "Ref": "LimitedUploadRole" }
         }
     }
 }
