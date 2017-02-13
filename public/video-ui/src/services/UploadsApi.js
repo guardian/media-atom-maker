@@ -28,7 +28,7 @@ class UploadsApi {
     const s3 = this.getS3(config);
 
     const params = { Key: config.key, Body: file, ACL: 'private', Metadata: { original: file.name} };
-    const request = s3.putObject(params);
+    const request = s3.upload(params);
 
     request.on('httpUploadProgress', (event) => {
       progress(event.loaded, event.total);

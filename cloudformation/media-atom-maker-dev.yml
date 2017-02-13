@@ -100,9 +100,13 @@ Resources:
           -
             AllowedHeaders:
               - "*"
+            ExposedHeaders:
+              - "ETag"
             AllowedMethods:
               - "GET"
               - "PUT"
+              - "POST"
+              - "DELETE" # to clean up failed multipart uploads
             AllowedOrigins:
               -
                 !Join [ "", [ "https://", { "Ref": "Domain"} ]]
@@ -128,10 +132,13 @@ Resources:
                 Action:
                   - "s3:PutObject"
                   - "s3:PutObjectAcl"
+                  - "s3:ListBucketMultipartUploads"
+                  - "s3:ListMultipartUploadParts"
+                  - "s3:AbortMultipartUpload"
                 Resource:
-                  - Fn::Join:
-                    - ""
-                    - ["arn:aws:s3:::", { "Ref": "UserUploadBucket" }, "/uploads/*"]
+                  - !Sub
+                    - "arn:aws:s3:::${Bucket}/uploads/*"
+                    - { Bucket: !Ref "UserUploadBucket" }
 Outputs:
   EditsDynamoTable:
     Value:

@@ -47,10 +47,13 @@ class UploadController @Inject ()(implicit val authActions: HMACAuthActions, val
   private def generateKeyPolicy(key: String): String = {
     val keyArn = s"arn:aws:s3:::${awsConfig.userUploadBucket}/$key"
 
+    val permissions = List("s3:PutObject", "s3:PutObjectAcl", "s3:ListMultipartUploadParts",
+                           "s3:AbortMultipartUpload", "s3:ListBucketMultipartUploads")
+
     val json = JsObject(List(
       "Statement" -> JsArray(List(
         JsObject(List(
-          "Action" -> JsArray(List(JsString("s3:PutObject"), JsString("s3:PutObjectAcl"))),
+          "Action" -> JsArray(permissions.map(JsString)),
           "Resource" -> JsString(keyArn),
           "Effect" -> JsString("Allow")
         ))

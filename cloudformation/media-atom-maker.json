@@ -161,12 +161,7 @@
                                 {
                                     "Effect": "Allow",
                                     "Action": ["sts:AssumeRole"],
-                                    "Resource": { "Ref": "ContentAtomArn" }
-                                },
-                                {
-                                    "Effect": "Allow",
-                                    "Action": ["sts:AssumeRole"],
-                                    "Resource": { "Fn::GetAtt" : ["LimitedUploadRole", "Arn"] }
+                                    "Resource": [{ "Ref": "ContentAtomArn" }, { "Fn::GetAtt" : ["LimitedUploadRole", "Arn"] }]
                                 }
                             ]
                         }
@@ -247,7 +242,8 @@
                 "CorsConfiguration": {
                     "CorsRules": [{
                         "AllowedHeaders": ["*"],
-                        "AllowedMethods": ["GET", "PUT"],
+                        "ExposedHeaders": ["ETag"],
+                        "AllowedMethods": ["GET", "PUT", "POST", "DELETE"],
                         "AllowedOrigins": [
                           { "Fn::Join": ["", [ "https://", { "Ref": "DomainToMonitor" } ]] }
                         ]
@@ -274,7 +270,7 @@
                         "PolicyDocument": {
                             "Statement": [{
                                 "Effect": "Allow",
-                                "Action": ["s3:PutObject", "s3:PutObjectAcl"],
+                                "Action": ["s3:PutObject", "s3:PutObjectAcl", "s3:ListBucketMultipartUploads", "s3: ListMultipartUploadParts", "s3:AbortMultipartUpload"],
                                 "Resource": { "Fn::Join": ["", ["arn:aws:s3:::", { "Ref": "UserUploadBucket" }, "/uploads/*"]] }
                             }]
                         }
