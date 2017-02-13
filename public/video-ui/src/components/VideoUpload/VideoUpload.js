@@ -32,7 +32,12 @@ class VideoUpload extends React.Component {
     }
 
     return <div className="upload__header__container">
-      <header className="upload__header">Upload Video</header>
+      <header className="upload__header">
+        Upload Video
+      </header>
+      <div className="publish__label label__draft">
+        Warning: still under development!
+      </div>
       {link}
     </div>;
   }
