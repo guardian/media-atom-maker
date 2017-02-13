@@ -13,8 +13,8 @@ class UploadsApi {
   }
 
   getS3(config) {
-    const { temporaryAccessKey, temporarySecretKey, sessionToken } = config.credentials;
-    const credentials = new AWS.Credentials(temporaryAccessKey, temporarySecretKey, sessionToken);
+    const { temporaryAccessId, temporarySecretKey, sessionToken } = config.credentials;
+    const credentials = new AWS.Credentials(temporaryAccessId, temporarySecretKey, sessionToken);
 
     return new AWS.S3({
       apiVersion: '2006-03-01',

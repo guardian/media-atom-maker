@@ -11,15 +11,13 @@ import play.api.mvc.Results.Ok
 import util.{AWSConfig, Logging}
 
 class UploadController @Inject ()(implicit val authActions: HMACAuthActions, val awsConfig: AWSConfig) extends Logging {
-  val folder = "uploads"
-
   import authActions.APIHMACAuthAction
 
   def create(atomId: String) = APIHMACAuthAction {
     log.info(s"Request for upload credentials for atom $atomId")
 
     val uploadId = UUID.randomUUID().toString
-    val key = s"$folder/$atomId/$uploadId"
+    val key = s"${awsConfig.userUploadFolder}/$atomId/$uploadId"
 
     log.info(s"Generated upload key $key for atom $atomId")
 

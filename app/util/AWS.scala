@@ -73,6 +73,7 @@ class AWSConfig @Inject() (config: Configuration) {
   lazy val publishedKinesisReindexStreamName = config.getString("aws.kinesis.publishedReindexStreamName").get
 
   lazy val userUploadBucket = config.getString("aws.upload.bucket").get
+  lazy val userUploadFolder = config.getString("aws.upload.folder").get
   lazy val userUploadRole = config.getString("aws.upload.role").get
 
   lazy val loggingKinesisStreamName = config.getString("aws.kinesis.logging")

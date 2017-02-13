@@ -28,7 +28,7 @@ class VideoUpload extends React.Component {
     if (this.props.video) {
       link = <Link className="button" onClick={this.props.uploadActions.clearUploadPolicy} to={`/videos/${this.props.video.id}`}>
         <Icon className="icon__edit" icon="clear" />
-      </Link>
+      </Link>;
     }
 
     return <div className="upload__header__container">
