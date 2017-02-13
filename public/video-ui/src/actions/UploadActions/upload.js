@@ -31,12 +31,7 @@ export function startUpload(policy, file) {
       dispatch(uploadProgressAction(completed, total));
     }
 
-    const start = Date.now();
-
     UploadsApi.startUpload(policy, file, progress).then(() => {
-      const end = Date.now();
-      console.log("Upload took " + ((end - start) / 1000) + " seconds");
-
       dispatch(uploadComplete());
     });
   };
