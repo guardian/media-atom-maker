@@ -104,8 +104,13 @@ class AWSConfig @Inject() (config: Configuration) {
     val provider = stage match {
       case "DEV" =>
         // Only required in dev. Instance profile credentials are sufficient when deployed
-        val accessKey = config.getString("aws.upload.accessKey").get
-        val secretKey = config.getString("aws.upload.secretKey").get
+        val accessKey = config.getString("aws.upload.accessKey").getOrElse {
+          throw new IllegalArgumentException("Missing aws.upload.accessKey. This is the AwsId output of the dev cloudformation")
+        }
+
+        val secretKey = config.getString("aws.upload.secretKey").getOrElse {
+          throw new IllegalArgumentException("Missing aws.upload.secretKey. This is the AwsSecret output of the dev cloudformation")
+        }
 
         new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey))
 

@@ -3,6 +3,11 @@ $assetThumbnailHeight: 40px;
 .video-assets {
   &__buttons {
     margin-left: auto;
+
+    a {
+      display: inline-block;
+      text-decoration: none;
+    }
   }
 }
 

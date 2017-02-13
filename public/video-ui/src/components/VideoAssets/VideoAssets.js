@@ -1,5 +1,5 @@
 import React from 'react';
-import {browserHistory} from 'react-router';
+import {Link} from 'react-router';
 import VideoAssetItem from './VideoAssetItem';
 import VideoAssetAdd from '../VideoAssetAdd/VideoAssetAdd';
 import Icon from '../Icon';
@@ -112,15 +112,13 @@ class VideoAssets extends React.Component {
   }
 
   renderHeader() {
-    const atomId = this.props.video.id;
-
-    function goToUploadPage() {
-      browserHistory.push(`/videos/${atomId}/upload`);
-    }
-
     const buttons = <div className="video-assets__buttons">
-      <button type="button" onClick={this.showAssetForm}><Icon className="icon__edit" icon="add"/></button>
-      <button type="button" onClick={goToUploadPage}><Icon className="icon__edit" icon="backup"/></button>
+      <a className="button" onClick={this.showAssetForm}>
+        <Icon className="icon__edit" icon="add"/>
+      </a>
+      <Link className="button" to={`/videos/${this.props.video.id}/upload`}>
+        <Icon className="icon__edit" icon="backup"/>
+      </Link>
     </div>;
 
     return <div className="section-header">

@@ -1,10 +1,10 @@
-export default function upload(state = null, action) {
+export default function upload(state = { complete: false }, action) {
   switch(action.type) {
     case 'UPLOAD_POLICY_RECEIVE':
       return { file: action.file, policy: action.policy };
 
     case 'UPLOAD_POLICY_CLEAR':
-      return null;
+      return { complete: false };
 
     case 'START_UPLOAD':
       return { progress: 0.0 };

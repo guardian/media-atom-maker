@@ -5,7 +5,7 @@ import Videos from './components/Videos/Videos';
 import VideoDisplay from './components/Video/Display';
 import VideoCreate from './components/Video/Create';
 import VideoAuditTrail from './components/VideoAuditTrail/VideoAuditTrail';
-import VideoUpload from './components/VideoUpload/Upload';
+import VideoUpload from './components/VideoUpload/VideoUpload';
 import ReactApp from './components/ReactApp';
 
 
