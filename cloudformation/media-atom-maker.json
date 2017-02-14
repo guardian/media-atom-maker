@@ -270,8 +270,19 @@
                         "PolicyDocument": {
                             "Statement": [{
                                 "Effect": "Allow",
-                                "Action": ["s3:PutObject", "s3:PutObjectAcl", "s3:ListBucketMultipartUploads", "s3: ListMultipartUploadParts", "s3:AbortMultipartUpload"],
-                                "Resource": { "Fn::Join": ["", ["arn:aws:s3:::", { "Ref": "UserUploadBucket" }, "/uploads/*"]] }
+                                "Action": [
+                                  "s3:PutObject",
+                                  "s3:PutObjectAcl",
+                                  "s3:ListBucketMultipartUploads",
+                                  "s3:ListMultipartUploadParts",
+                                  "s3:AbortMultipartUpload"
+                                ],
+                                "Resource": {
+                                  "Fn::Sub": [
+                                    "arn:aws:s3:::${Bucket}/uploads/*",
+                                    { "Bucket": { "Ref": "UserUploadBucket" }}
+                                  ]
+                                }
                             }]
                         }
                     }
