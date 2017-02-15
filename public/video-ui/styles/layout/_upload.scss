@@ -1,0 +1,49 @@
+.upload {
+  width: 100%;
+  display: flex;
+  height: calc(100vh - #{$toolbarHeight});
+  align-items: stretch;
+
+  background-color: $color800Grey;
+
+  &__main {
+    flex-grow: 1;
+    margin: 20px 30px;
+
+    background-color: $color650Grey;
+    border-top: 1px solid $color600Grey;
+  }
+
+  &__header__container {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid $color625Grey;
+
+    a {
+      text-decoration: none;
+    }
+
+    .publish__label {
+      width: auto;
+    }
+  }
+
+  &__header {
+    color: $color500Grey;
+    font-weight: bold;
+    display: block;
+    font-size: 17px;
+  }
+
+  &__picker {
+    p {
+      font-weight: bold;
+      margin-bottom: 0px;
+    }
+
+    input {
+      margin-left: 10px;
+    }
+  }
+}
