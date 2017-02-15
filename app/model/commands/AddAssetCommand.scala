@@ -11,10 +11,7 @@ import model.commands.CommandExceptions._
 import util.atom.MediaAtomImplicits
 import util.{Logging, ThriftUtil, YouTubeConfig, YouTubeVideoInfoApi}
 
-case class AddAssetCommand(atomId: String,
-                           videoUri: String,
-                           version: Option[Long],
-                           mimeType: Option[String])
+case class AddAssetCommand(atomId: String, videoUri: String)
                           (implicit previewDataStore: PreviewDataStore,
                            previewPublisher: PreviewAtomPublisher,
                            val youtubeConfig: YouTubeConfig,
@@ -40,50 +37,63 @@ case class AddAssetCommand(atomId: String,
     }
   }
 
-  private def getAssetDuration (asset: Asset): Option[Long] = {
-    asset.platform match {
-      case Platform.Youtube => YouTubeVideoInfoApi(youtubeConfig).getDuration(asset.id)
-      case _ => None
-    }
+  private def getNextAssetVersionNumber (currentAssets: Seq[Asset]): Long = {
+    currentAssets.foldLeft(1L){ (acc, asset) => {
+      if (asset.version >= acc) asset.version else acc
+    }}
+  }
+
+  private def doesAssetAlreadyExist (videoId: String, currentAssets: Seq[Asset]): Boolean = {
+    currentAssets.exists(x => x.platform == Platform.Youtube && x.id == videoId)
   }
 
   def process(): MediaAtom = {
     log.info(s"Request to add new asset $videoUri to $atomId")
 
     previewDataStore.getAtom(atomId) match {
-      case Some(atom) =>
-        val mediaAtom = atom.tdata
-        val currentAssets: Seq[Asset] = mediaAtom.assets
+      case Some(atom) => {
+        ThriftUtil.parsePlatform(videoUri) match {
+          case Right(Platform.Youtube) => {
+            val mediaAtom = atom.tdata
+            val currentAssets: Seq[Asset] = mediaAtom.assets
 
-        val resolvedVersion = version.getOrElse(currentAssets.foldLeft(1L){(acc, asset) => if (asset.version >= acc) asset.version + 1 else acc})
+            videoUri match {
+              case ThriftUtil.youtube(videoId) => {
+                if (doesAssetAlreadyExist(videoId, currentAssets)) {
+                  log.info(s"Cannot add asset $videoUri to $atomId as it already exists.")
+                  AssetVersionConflict
+                } else {
+                  val version = getNextAssetVersionNumber(currentAssets)
 
-        if (currentAssets.exists(asset => asset.version == resolvedVersion && asset.mimeType == mimeType)) {
-          log.info(s"Cannot add asset $videoUri to $atomId. An asset already exists with version $resolvedVersion and mimeType $mimeType")
-          AssetVersionConflict
+                  val newAsset = ThriftUtil.parseAsset(uri = videoUri, version = version, mimeType = None)
+                    .fold(err => AssetParseFailed, identity)
+
+                  if (mediaAtom.category != Hosted) {
+                    validateYoutubeOwnership(newAsset)
+                  }
+
+                  val assetDuration = YouTubeVideoInfoApi(youtubeConfig).getDuration(videoId)
+
+                  val updatedAtom = atom
+                    .withData(mediaAtom.copy(
+                      assets = newAsset +: currentAssets,
+                      duration = assetDuration
+                    ))
+
+                  log.info(s"Adding new asset $videoUri to $atomId")
+
+                  UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom)).process()
+              }
+            }
+            case _ => NotYoutubeAsset
+          }
         }
-
-        val newAsset = ThriftUtil.parseAsset(videoUri, mimeType, resolvedVersion)
-          .fold(err => AssetParseFailed, identity)
-
-        if (mediaAtom.category != Hosted) {
-          validateYoutubeOwnership(newAsset)
-        }
-
-        val assetDuration = getAssetDuration(newAsset)
-
-        val updatedAtom = atom
-          .withData(mediaAtom.copy(
-            assets = newAsset +: currentAssets,
-            duration = assetDuration
-          ))
-
-        log.info(s"Adding new asset $videoUri to $atomId")
-
-        UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom)).process()
-
-      case None =>
-        log.info(s"Cannot add asset $videoUri to $atomId. No atom has that id")
-        AtomNotFound
+        case _ => NotYoutubeAsset
+      }
+    }
+    case None =>
+      log.info(s"Cannot add asset $videoUri to $atomId. No atom has that id")
+      AtomNotFound
     }
   }
 }
