@@ -4,11 +4,12 @@ import java.util.UUID
 import javax.inject.Inject
 
 import com.amazonaws.services.securitytoken.model.AssumeRoleRequest
+import com.gu.media.logging.Logging
 import com.gu.pandahmac.HMACAuthActions
 import model.{UploadCredentials, UploadPolicy}
 import play.api.libs.json.{JsArray, JsObject, JsString, Json}
 import play.api.mvc.Results.Ok
-import util.{AWSConfig, Logging}
+import util.AWSConfig
 
 class UploadController @Inject ()(implicit val authActions: HMACAuthActions, val awsConfig: AWSConfig) extends Logging {
   import authActions.APIHMACAuthAction

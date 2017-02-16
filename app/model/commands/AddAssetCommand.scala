@@ -4,12 +4,13 @@ import com.gu.atom.data.PreviewDataStore
 import com.gu.atom.publish.PreviewAtomPublisher
 import com.gu.contentatom.thrift.atom.media.Category.Hosted
 import com.gu.contentatom.thrift.atom.media.{Asset, Platform}
+import com.gu.media.logging.Logging
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.AuditDataStore
 import model.MediaAtom
 import model.commands.CommandExceptions._
 import util.atom.MediaAtomImplicits
-import util.{Logging, ThriftUtil, YouTubeConfig, YouTubeVideoInfoApi}
+import util.{ThriftUtil, YouTubeConfig, YouTubeVideoInfoApi}
 
 case class AddAssetCommand(atomId: String, videoUri: String)
                           (implicit previewDataStore: PreviewDataStore,

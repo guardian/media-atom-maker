@@ -14,9 +14,9 @@ import org.cvogt.play.json.Jsonx
 import scala.util.{Failure, Success}
 import com.gu.contentatom.thrift.{Atom => ThriftAtom}
 import com.gu.contentatom.thrift.atom.media.{Category => ThriftCategory, MediaAtom => ThriftMediaAtom, Metadata => ThriftMetadata}
+import com.gu.media.logging.Logging
 import com.gu.pandomainauth.model.{User => PandaUser}
 import play.api.libs.json.Format
-import util.Logging
 
 // Since the data store and publisher are injected rather than being objects we cannot serialize JSON directly into a
 // command so we'll use a small POD for easy JSONification

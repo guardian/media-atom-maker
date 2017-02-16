@@ -7,6 +7,15 @@ deployments:
       bucket: atom-maker-dist
     dependencies:
       - media-atom-maker-ami-update
+  media-atom-uploader:
+    type: aws-lambda
+    parameters:
+      bucket: atom-maker-dist
+      fileName: media-atom-uploader.zip
+      functions:
+        CODE:
+          name: media-atom-maker-CODE-UploaderLambda-88U8JB1YYG4J
+          filename: media-atom-uploader.zip
   media-atom-maker-ami-update:
       type: ami-cloudformation-parameter
       app: media-atom-maker

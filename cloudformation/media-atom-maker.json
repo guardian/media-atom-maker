@@ -60,8 +60,16 @@
             "Type": "String"
         },
         "DomainToMonitor": {
-          "Description": "Domain name for the app (Route53 healthcheck and S3 CORS for user upload)",
-          "Type": "String"
+            "Description": "Domain name for the app (Route53 healthcheck and S3 CORS for user upload)",
+            "Type": "String"
+        },
+        "BuildBucket": {
+            "Description": "The S3 bucket where builds live",
+            "Type": "String"
+        },
+        "ConfigBucket": {
+            "Description": "The S3 bucket where configuration lives",
+            "Type": "String"
         }
     },
     "Mappings": {
@@ -78,9 +86,20 @@
                 "DesiredCapacity": 1,
                 "InstanceType": "t2.small"
             }
+        },
+        "LambdaBuilds": {
+            "Uploader": {
+                "CODE": "media-service/CODE/media-atom-uploader/media-atom-uploader.zip",
+                "PROD": "media-service/PROD/media-atom-uploader/media-atom-uploader.zip"
+            }
+        },
+        "LambdaConfig": {
+            "Uploader": {
+                "CODE": "CODE/media-atom-maker.private.conf",
+                "PROD": "PROD/media-atom-maker.private.conf"
+            }
         }
     },
-
     "Resources": {
         "MediaMakerInstanceProfile": {
             "Type": "AWS::IAM::InstanceProfile",
@@ -287,6 +306,79 @@
                         }
                     }
                 ]
+            }
+        },
+        "LambdaCloudWatchLoggingPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "LambdaCloudWatchLoggingPolicy",
+                "PolicyDocument": {
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Action": ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+                        "Resource": "*"
+                    }]
+                },
+                "Roles": [
+                    { "Ref": "UploaderRole" }
+                ]
+            }
+        },
+        "UploaderRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Action": "sts:AssumeRole",
+                        "Principal": { "Service": ["lambda.amazonaws.com"] }
+                    }]
+                },
+                "Path": "/",
+                "Policies": [{
+                    "PolicyName": "UploaderPolicy",
+                    "PolicyDocument": {
+                        "Statement": [{
+                            "Effect": "Allow",
+                            "Action": ["s3:GetObject"],
+                            "Resource": [
+                                { "Fn::Sub": [
+                                  "arn:aws:s3:::${Bucket}/${Key}",
+                                  { "Bucket": { "Ref": "BuildBucket" }, "Key": { "Fn::FindInMap": [ "LambdaBuilds", "Uploader", { "Ref": "Stage" }] } }
+                                ]},
+                                { "Fn::Sub": [
+                                  "arn:aws:s3:::${Bucket}/${Key}",
+                                  { "Bucket": { "Ref": "ConfigBucket" }, "Key": { "Fn::FindInMap": [ "LambdaConfig", "Uploader", { "Ref": "Stage" }] } }
+                                ]}
+                            ]
+                        }]
+                    }
+                }]
+            }
+        },
+        "UploaderLambda": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+                "Description": "Uploads videos to YouTube",
+                "Handler": "com.gu.media.UploaderLambda::handleRequest",
+                "Code": {
+                    "S3Bucket": { "Ref": "BuildBucket" },
+                    "S3Key": { "Fn::FindInMap": [ "LambdaBuilds", "Uploader", { "Ref": "Stage" }] }
+                },
+                "Environment": {
+                    "Variables": {
+                        "REGION": { "Ref": "AWS::Region" },
+                        "STACK": "media-service",
+                        "APP": "media-atom-uploader",
+                        "STAGE": "DEV",
+                        "CONFIG_BUCKET": { "Ref": "ConfigBucket" },
+                        "CONFIG_KEY": { "Fn::FindInMap": [ "LambdaConfig", "Uploader", { "Ref": "Stage" }] }
+                    }
+                },
+                "MemorySize": 256,
+                "Role":  { "Fn::GetAtt": [ "UploaderRole", "Arn" ] },
+                "Runtime": "java8",
+                "Timeout": 300
             }
         },
         "MediaAtomMakerLoadBalancer": {

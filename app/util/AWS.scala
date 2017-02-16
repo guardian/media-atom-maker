@@ -1,50 +1,34 @@
 package util
 
-import java.nio.charset.StandardCharsets
-
-import com.amazonaws.auth.{AWSCredentialsProviderChain, STSAssumeRoleSessionCredentialsProvider}
-import com.amazonaws.regions.{Region, Regions}
-import com.amazonaws.services.kinesis.AmazonKinesisClient
-import play.api.Configuration
 import javax.inject.{Inject, Singleton}
 
-import com.amazonaws.auth._
+import com.amazonaws.auth.{AWSCredentialsProviderChain, _}
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
+import com.amazonaws.regions.{Region, Regions}
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.ec2.AmazonEC2Client
 import com.amazonaws.services.ec2.model.{DescribeTagsRequest, Filter}
-import com.amazonaws.services.s3.AmazonS3Client
+import com.amazonaws.services.kinesis.AmazonKinesisClient
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClient
 import com.amazonaws.util.EC2MetadataUtils
+import com.gu.media.ComposerCredentials
+import play.api.Configuration
 
 import scala.collection.JavaConverters._
 
 
 @Singleton
-class AWSConfig @Inject() (config: Configuration) {
+class AWSConfig @Inject() (val config: Configuration) extends ComposerCredentials {
 
-  lazy val region = {
+  lazy val region: Region = {
     val r = config.getString("aws.region").map(Regions.fromName(_)).getOrElse(Regions.EU_WEST_1)
     Region.getRegion(r)
   }
 
-  val instanceProvider = InstanceProfileCredentialsProvider.getInstance()
+  private val instanceProvider = InstanceProfileCredentialsProvider.getInstance()
 
-  lazy val credProviders = Seq(
-    config.getString("aws.profile").map(new ProfileCredentialsProvider(_)),
-    Some(instanceProvider)
-  )
-
-  lazy val credProvider = new AWSCredentialsProviderChain(credProviders.flatten: _*)
-
-  lazy val sessionId: String = "session" + Math.random()
-
-  lazy val stsRoleToAssume = config.getString("aws.kinesis.stsRoleToAssume").getOrElse("")
-
-  lazy val atomsCredProvider = new AWSCredentialsProviderChain(
-    new ProfileCredentialsProvider("composer"),
-    new STSAssumeRoleSessionCredentialsProvider(credProvider, stsRoleToAssume, sessionId)
-  )
+  val credProvider: AWSCredentialsProvider = createCredentialProvider()
+  val composerCredentialsProvider: AWSCredentialsProvider = getComposerCredentials(credProvider, config.underlying)
 
   lazy val dynamoDB = region.createClient(
     classOf[AmazonDynamoDBClient],
@@ -76,8 +60,6 @@ class AWSConfig @Inject() (config: Configuration) {
   lazy val userUploadFolder = config.getString("aws.upload.folder").get
   lazy val userUploadRole = config.getString("aws.upload.role").get
 
-  lazy val loggingKinesisStreamName = config.getString("aws.kinesis.logging")
-
   lazy val readFromComposerAccount = config.getBoolean("readFromComposer").getOrElse(false)
 
   lazy val gridUrl = stage match {
@@ -85,21 +67,20 @@ class AWSConfig @Inject() (config: Configuration) {
     case _ => "https://media.test.dev-gutools.co.uk"
   }
 
-  lazy val kinesisClient = if (stage != "DEV" || readFromComposerAccount)
-    getKinesisClient(atomsCredProvider)
-  else
+  lazy val kinesisClient = if (stage != "DEV" || readFromComposerAccount) {
+    getKinesisClient(getComposerCredentials(credProvider, config.underlying))
+  } else {
     getKinesisClient(credProvider)
+  }
 
   lazy val uploadSTSClient = createUploadSTSClient()
 
   lazy val expiryPollerName = "Expiry"
   lazy val expiryPollerLastName = "Poller"
 
-  private def getKinesisClient(credentialsProvider: AWSCredentialsProviderChain) = region.createClient(
-    classOf[AmazonKinesisClient],
-    credentialsProvider,
-    null
-  )
+  private def getKinesisClient(credentialsProvider: AWSCredentialsProvider) = {
+    region.createClient(classOf[AmazonKinesisClient], composerCredentialsProvider, null)
+  }
 
   private def createUploadSTSClient() = {
     val provider = stage match {
@@ -120,6 +101,13 @@ class AWSConfig @Inject() (config: Configuration) {
     }
 
     region.createClient(classOf[AWSSecurityTokenServiceClient], provider, null)
+  }
+
+  private def createCredentialProvider() = {
+    config.getString("aws.profile") match {
+      case Some(profile) => new AWSCredentialsProviderChain(new ProfileCredentialsProvider(profile), instanceProvider)
+      case None => instanceProvider
+    }
   }
 
   def readTag(tagName: String) = {

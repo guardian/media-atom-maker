@@ -6,13 +6,11 @@ import java.time.Duration
 import java.util.Date
 import javax.inject.{Inject, Singleton}
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.google.api.client.http.InputStreamContent
-import com.google.api.client.http.javanet.NetHttpTransport
-import com.google.api.client.json.jackson2.JacksonFactory
-import com.google.api.services.youtube.YouTube
 import com.google.api.services.youtube.model.Video
 import com.gu.contentatom.thrift.Atom
+import com.gu.media.YouTubeClient
+import com.gu.media.logging.Logging
 import model.Platform.Youtube
 import model._
 import play.api.{Configuration, Logger}
@@ -21,41 +19,12 @@ import scala.collection.JavaConverters._
 
 @Singleton
 class YouTubeConfig @Inject()(config: Configuration) {
-  lazy val appName = config.getString("name").getOrElse("")
-
-  lazy val clientId = config.getString("youtube.clientId").getOrElse("")
-  lazy val clientSecret = config.getString("youtube.clientSecret").getOrElse("")
-  lazy val refreshToken = config.getString("youtube.refreshToken").getOrElse("")
-  lazy val contentOwner = config.getString("youtube.contentOwner").getOrElse("")
-  lazy val allowedChannels = config.getStringList("youtube.allowedChannels")
-  lazy val disallowedVideos = config.getStringList("youtube.disallowedVideos")
+  val YouTubeClient(client, _, contentOwner, allowedChannels, disallowedVideos) = YouTubeClient(config.underlying)
 }
 
-trait YouTubeBuilder {
-  def config: YouTubeConfig
-
-  private val httpTransport = new NetHttpTransport()
-  private val jacksonFactory = new JacksonFactory()
-
-  private val credentials: GoogleCredential = {
-    new GoogleCredential.Builder()
-      .setTransport(httpTransport)
-      .setJsonFactory(jacksonFactory)
-      .setClientSecrets(config.clientId, config.clientSecret)
-      .build
-      .setRefreshToken(config.refreshToken)
-  }
-
-  protected val youtube = {
-    new YouTube.Builder(httpTransport, jacksonFactory, credentials)
-      .setApplicationName(config.appName)
-      .build
-  }
-}
-
-case class YouTubeVideoCategoryApi(config: YouTubeConfig) extends YouTubeBuilder {
+case class YouTubeVideoCategoryApi(config: YouTubeConfig) {
   def list: List[YouTubeVideoCategory] = {
-    val request = youtube.videoCategories()
+    val request = config.client.videoCategories()
       .list("snippet")
       .setRegionCode("GB")
 
@@ -66,30 +35,20 @@ case class YouTubeVideoCategoryApi(config: YouTubeConfig) extends YouTubeBuilder
   }
 }
 
-case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder with Logging {
+case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends Logging {
   private def protectAgainstMistakesInDev(video: Video) = {
     val videoChannelId = video.getSnippet.getChannelId
 
-    config.disallowedVideos match {
-      case Some(blacklist) => {
-          if (blacklist.contains(video.getId)) {
-            val msg = s"Failed to edit video ${video.getId} as its in config.youtube.disallowedVideos"
-            Logger.info(msg)
-            throw new Exception(msg)
-          }
-      }
-      case None =>
+    if (config.disallowedVideos.contains(video.getId)) {
+      val msg = s"Failed to edit video ${video.getId} as its in config.youtube.disallowedVideos"
+      Logger.info(msg)
+      throw new Exception(msg)
     }
 
-    config.allowedChannels match {
-      case Some(allowedList) => {
-        if (!allowedList.contains(videoChannelId)) {
-          val msg = s"Failed to edit video ${video.getId} as its channel ($videoChannelId) isn't in config.youtube.allowedChannels"
-          Logger.info(msg)
-          throw new Exception(msg)
-        }
-      }
-      case None =>
+    if (!config.allowedChannels.contains(videoChannelId)) {
+      val msg = s"Failed to edit video ${video.getId} as its channel ($videoChannelId) isn't in config.youtube.allowedChannels"
+      Logger.info(msg)
+      throw new Exception(msg)
     }
   }
 
@@ -136,7 +95,7 @@ case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder w
 
         log.info(s"Updating YouTube metadata for $id:\n${UpdatedMetadata.prettyToString(metadata)}")
 
-        Some(youtube.videos()
+        Some(config.client.videos()
           .update("snippet, status", video)
           .setOnBehalfOfContentOwner(config.contentOwner)
           .execute())
@@ -177,7 +136,7 @@ case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder w
         video.getStatus.setPrivacyStatus(PrivacyStatus.Private.name)
 
         try {
-          Some(youtube.videos()
+          Some(config.client.videos()
             .update("snippet, status", video)
             .setOnBehalfOfContentOwner(config.contentOwner)
             .execute())
@@ -199,7 +158,7 @@ case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder w
         protectAgainstMistakesInDev(video)
 
         val content = new InputStreamContent(mimeType, new BufferedInputStream(thumbnailUrl.openStream()))
-        val set = youtube.thumbnails().set(id, content).setOnBehalfOfContentOwner(config.contentOwner)
+        val set = config.client.thumbnails().set(id, content).setOnBehalfOfContentOwner(config.contentOwner)
 
         // If we want some way of monitoring and resuming thumbnail uploads then we can change this to be `false`
         set.getMediaHttpUploader.setDirectUploadEnabled(true)
@@ -212,9 +171,9 @@ case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends YouTubeBuilder w
   }
 }
 
-case class YouTubeChannelsApi(config: YouTubeConfig) extends YouTubeBuilder {
+case class YouTubeChannelsApi(config: YouTubeConfig) {
   def fetchMyChannels(): List[YouTubeChannel] = {
-    val request = youtube.channels()
+    val request = config.client.channels()
       .list("snippet")
       .setMaxResults(50L)
       .setManagedByMe(true)
@@ -223,15 +182,15 @@ case class YouTubeChannelsApi(config: YouTubeConfig) extends YouTubeBuilder {
     val allChannels = request.execute().getItems.asScala.toList.map(YouTubeChannel.build).sortBy(_.title)
 
     config.allowedChannels match {
-      case None => allChannels
-      case Some(allowedList) => allChannels.filter(c => allowedList.contains(c.id))
+      case Nil => allChannels
+      case allowedList => allChannels.filter(c => allowedList.contains(c.id))
     }
   }
 }
 
-case class YouTubeVideoInfoApi(config: YouTubeConfig) extends YouTubeBuilder {
+case class YouTubeVideoInfoApi(config: YouTubeConfig) {
   def getVideo(youtubeId: String, part: String): Option[Video] = {
-    youtube.videos()
+    config.client.videos()
       .list(part)
       .setId(youtubeId)
       .setOnBehalfOfContentOwner(config.contentOwner)
