@@ -1,5 +1,4 @@
 import { combineReducers } from 'redux';
-import asset from './assetReducer';
 import audits from './auditReducer';
 import config from './configReducer';
 import error from './errorReducer';
@@ -15,7 +14,6 @@ import pageCreate from './composerPageReducer';
 import upload from './uploadsReducer';
 
 export default combineReducers({
-  asset,
   audits,
   config,
   error,
