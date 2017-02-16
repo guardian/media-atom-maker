@@ -39,7 +39,7 @@ case class AddAssetCommand(atomId: String, videoUri: String)
 
   private def getNextAssetVersionNumber (currentAssets: Seq[Asset]): Long = {
     currentAssets.foldLeft(1L){ (acc, asset) => {
-      if (asset.version >= acc) asset.version else acc
+      if (asset.version >= acc) asset.version + 1 else acc
     }}
   }
 
