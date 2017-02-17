@@ -32,7 +32,7 @@ class PanDomainAuthActions @Inject() (
   override lazy val awsCredentialsProvider: AWSCredentialsProvider =
     new AWSCredentialsProviderChain(
       new ProfileCredentialsProvider(conf.getString("panda.awsCredsProfile").getOrElse("panda")),
-      new InstanceProfileCredentialsProvider
+      new InstanceProfileCredentialsProvider(false)
     )
 
   override def validateUser(authedUser: AuthenticatedUser): Boolean = {

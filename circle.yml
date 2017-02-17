@@ -9,14 +9,15 @@ dependencies:
     - npm install -g gulp
     - npm install
     - gulp js
-  override:
-    - sbt update
+    - wget -q https://dl.bintray.com/sbt/debian/sbt-0.13.13.deb
+    - sudo dpkg -i sbt-0.13.13.deb
   cache_directories:
     - "project/project/target/resolution-cache"
-    - "project/project/target/streams"
-    - "project/target/resolution-cache"
     - "project/target/streams"
-    - ".dynamodb-local"
+    - "~/.ivy2"
+    - "~/.sbt"
+  override:
+    - sbt test:compile
 
 test:
   override:
