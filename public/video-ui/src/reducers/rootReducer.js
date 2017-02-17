@@ -12,6 +12,7 @@ import youtube from './youtubeReducer';
 import { reducer as form } from 'redux-form';
 import usage from './usageReducer';
 import pageCreate from './composerPageReducer';
+import upload from './uploadsReducer';
 
 export default combineReducers({
   asset,
@@ -26,5 +27,6 @@ export default combineReducers({
   form,
   usage,
   pageCreate,
-  publishedVideo
+  publishedVideo,
+  upload
 });

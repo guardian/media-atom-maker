@@ -26,6 +26,10 @@ module.exports = {
         test: /\.(ttf|eot|svg|gif)(\?v=[0-9].[0-9].[0-9])?$/,
         loader: "file-loader?name=[name].[ext]"
       }
+    ],
+    // http://andrewhfarmer.com/aws-sdk-with-webpack/
+    noParse: [
+      /aws\-sdk/,
     ]
   },
   resolveLoader: {
