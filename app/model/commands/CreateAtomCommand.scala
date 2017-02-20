@@ -3,20 +3,17 @@ package model.commands
 import java.util.Date
 import java.util.UUID._
 
-import com.gu.atom.data.{IDConflictError, PreviewDataStore}
-import com.gu.atom.publish.PreviewAtomPublisher
-import com.gu.contentatom.thrift._
-import data.AuditDataStore
-import model.{ChangeRecord, Image, MediaAtom, PrivacyStatus}
+import com.gu.atom.data.IDConflictError
+import com.gu.contentatom.thrift.atom.media.{Category => ThriftCategory, MediaAtom => ThriftMediaAtom, Metadata => ThriftMetadata}
+import com.gu.contentatom.thrift.{Atom => ThriftAtom, _}
+import com.gu.pandomainauth.model.{User => PandaUser}
+import data.DataStores
 import model.commands.CommandExceptions._
+import model.{ChangeRecord, Image, MediaAtom, PrivacyStatus}
 import org.cvogt.play.json.Jsonx
+import play.api.libs.json.Format
 
 import scala.util.{Failure, Success}
-import com.gu.contentatom.thrift.{Atom => ThriftAtom}
-import com.gu.contentatom.thrift.atom.media.{Category => ThriftCategory, MediaAtom => ThriftMediaAtom, Metadata => ThriftMetadata}
-import com.gu.media.logging.Logging
-import com.gu.pandomainauth.model.{User => PandaUser}
-import play.api.libs.json.Format
 
 // Since the data store and publisher are injected rather than being objects we cannot serialize JSON directly into a
 // command so we'll use a small POD for easy JSONification
@@ -36,11 +33,7 @@ object CreateAtomCommandData {
   implicit val createAtomCommandFormat: Format[CreateAtomCommandData] = Jsonx.formatCaseClass[CreateAtomCommandData]
 }
 
-case class CreateAtomCommand(data: CreateAtomCommandData)
-                            (implicit previewDataStore: PreviewDataStore,
-                             previewPublisher: PreviewAtomPublisher,
-                             auditDataStore: AuditDataStore,
-                             user: PandaUser) extends Command with Logging {
+case class CreateAtomCommand(data: CreateAtomCommandData, user: PandaUser, stores: DataStores) extends Command {
   type T = MediaAtom
 
   def process() = {
@@ -79,11 +72,11 @@ case class CreateAtomCommand(data: CreateAtomCommandData)
       )
     )
 
-    auditDataStore.auditCreate(atom.id, user)
+    stores.audit.auditCreate(atom.id, user)
 
     log.info(s"Creating new atom $atomId [${data.title}]")
 
-    previewDataStore.createAtom(atom).fold({
+    stores.preview.createAtom(atom).fold({
         case IDConflictError =>
           log.error(s"Cannot create new atom $atomId. The id is already in use")
           AtomIdConflict
@@ -97,7 +90,7 @@ case class CreateAtomCommand(data: CreateAtomCommandData)
 
         val event = ContentAtomEvent(atom, EventType.Update, new Date().getTime)
 
-        previewPublisher.publishAtomEvent(event) match {
+        stores.previewPublisher.publishAtomEvent(event) match {
           case Success(_)  =>
             log.info(s"New atom published to preview $atomId [${data.title}]")
             MediaAtom.fromThrift(atom)

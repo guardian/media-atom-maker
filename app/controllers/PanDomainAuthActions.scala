@@ -15,12 +15,8 @@ import play.api.libs.ws.WSClient
 
 import com.typesafe.scalalogging.LazyLogging
 
-@Singleton
-class PanDomainAuthActions @Inject() (
-  val wsClient:WSClient, val conf: Configuration,
-  applicationLifeCycle: ApplicationLifecycle
-) extends HMACAuthActions
-    with LazyLogging {
+class PanDomainAuthActions(override val wsClient: WSClient, conf: Configuration, applicationLifeCycle: ApplicationLifecycle)
+  extends HMACAuthActions {
 
   applicationLifeCycle.addStopHook {
     () => Future {
