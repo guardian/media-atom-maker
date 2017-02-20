@@ -72,7 +72,7 @@ lazy val root = (project in file("root"))
     riffRaffUploadManifestBucket := Option("riffraff-builds"),
     riffRaffManifestProjectName := "media-service:media-atom-maker",
     riffRaffArtifactResources := Seq(
-      (packageBin in Universal in app).value -> s"${(name in app).value}/${(packageBin in Universal in app).value.getName}",
+      (packageBin in Debian in app).value -> s"${(name in app).value}/${(packageBin in Debian in app).value.getName}",
       (packageBin in Universal in uploader).value -> s"${(name in uploader).value}/${(packageBin in Universal in uploader).value.getName}",
       (baseDirectory in Global in app).value / "conf/riff-raff.yaml" -> "riff-raff.yaml"
     )

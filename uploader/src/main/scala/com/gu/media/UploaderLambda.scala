@@ -24,8 +24,3 @@ object UploaderLambda {
   implicit val inputFormat: Format[Input] = Jsonx.formatCaseClass[Input]
   implicit val outputFormat: Format[Output] = Jsonx.formatCaseClass[Output]
 }
-
-object UploaderLambdaApp extends App {
-  val lambda = new UploaderLambda
-  println(lambda.handleRequest(Input("hello world!", 4)))
-}
