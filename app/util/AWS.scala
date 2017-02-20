@@ -2,8 +2,8 @@ package util
 
 import javax.inject.{Inject, Singleton}
 
-import com.amazonaws.auth.{AWSCredentialsProviderChain, _}
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
+import com.amazonaws.auth.{AWSCredentialsProviderChain, _}
 import com.amazonaws.regions.{Region, Regions}
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.ec2.AmazonEC2Client
@@ -11,14 +11,14 @@ import com.amazonaws.services.ec2.model.{DescribeTagsRequest, Filter}
 import com.amazonaws.services.kinesis.AmazonKinesisClient
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClient
 import com.amazonaws.util.EC2MetadataUtils
-import com.gu.media.ComposerCredentials
+import com.gu.media.CrossAccountAccess
 import play.api.Configuration
 
 import scala.collection.JavaConverters._
 
 
 @Singleton
-class AWSConfig @Inject() (val config: Configuration) extends ComposerCredentials {
+class AWSConfig @Inject() (val config: Configuration) extends CrossAccountAccess(config.underlying) {
 
   lazy val region: Region = {
     val r = config.getString("aws.region").map(Regions.fromName(_)).getOrElse(Regions.EU_WEST_1)
@@ -28,7 +28,7 @@ class AWSConfig @Inject() (val config: Configuration) extends ComposerCredential
   private val instanceProvider = InstanceProfileCredentialsProvider.getInstance()
 
   val credProvider: AWSCredentialsProvider = createCredentialProvider()
-  val composerCredentialsProvider: AWSCredentialsProvider = getComposerCredentials(credProvider, config.underlying)
+  val atomEventsProvider: AWSCredentialsProvider = getCrossAccountCredentials(credProvider, "media-atom-maker-atom-events")
 
   lazy val dynamoDB = region.createClient(
     classOf[AmazonDynamoDBClient],
@@ -68,19 +68,15 @@ class AWSConfig @Inject() (val config: Configuration) extends ComposerCredential
   }
 
   lazy val kinesisClient = if (stage != "DEV" || readFromComposerAccount) {
-    getKinesisClient(getComposerCredentials(credProvider, config.underlying))
+    region.createClient(classOf[AmazonKinesisClient], atomEventsProvider, null)
   } else {
-    getKinesisClient(credProvider)
+    region.createClient(classOf[AmazonKinesisClient], credProvider, null)
   }
 
   lazy val uploadSTSClient = createUploadSTSClient()
 
   lazy val expiryPollerName = "Expiry"
   lazy val expiryPollerLastName = "Poller"
-
-  private def getKinesisClient(credentialsProvider: AWSCredentialsProvider) = {
-    region.createClient(classOf[AmazonKinesisClient], composerCredentialsProvider, null)
-  }
 
   private def createUploadSTSClient() = {
     val provider = stage match {

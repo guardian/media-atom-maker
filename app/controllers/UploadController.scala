@@ -37,7 +37,7 @@ class UploadController @Inject ()(implicit val authActions: HMACAuthActions, val
       .withRoleArn(awsConfig.userUploadRole)
       .withDurationSeconds(900) // 15 minutes (the minimum allowed in STS requests)
       .withPolicy(keyPolicy)
-      .withRoleSessionName(uploadId)
+      .withRoleSessionName(s"media-atom-maker-upload-$uploadId")
 
     val result = awsConfig.uploadSTSClient.assumeRole(request)
     val credentials = result.getCredentials
