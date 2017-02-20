@@ -1,5 +1,5 @@
 import React from 'react';
-import TextInput from '../../FormFields/TextInput';
+import TextArea from '../../FormFields/TextArea';
 
 export default class VideoDescriptionEdit extends React.Component {
 
@@ -26,7 +26,7 @@ export default class VideoDescriptionEdit extends React.Component {
 
   render () {
     return (
-        <TextInput
+        <TextArea
           fieldName="Description"
           fieldValue={this.getFieldValue()}
           noValue={(!this.props.video.description) ? true : false}
