@@ -16,6 +16,9 @@ deployments:
         CODE:
           name: media-atom-maker-CODE-UploaderLambda-88U8JB1YYG4J
           filename: media-atom-uploader.zip
+        PROD:
+          name: media-atom-maker-PROD-UploaderLambda-MXQD3DV3H1VL
+          filename: media-atom-uploader.zip
   media-atom-maker-ami-update:
       type: ami-cloudformation-parameter
       app: media-atom-maker
