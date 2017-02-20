@@ -2,11 +2,11 @@ package model.commands
 
 import com.gu.atom.data.PreviewDataStore
 import com.gu.atom.publish.PreviewAtomPublisher
+import com.gu.media.logging.Logging
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.AuditDataStore
 import model.MediaAtom
 import model.commands.CommandExceptions.AtomNotFound
-import util.Logging
 import util.atom.MediaAtomImplicits
 
 class SetPlutoIdCommand(atomId: String, plutoId: String)

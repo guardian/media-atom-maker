@@ -2,12 +2,13 @@ package model.commands
 
 import com.gu.atom.data.PreviewDataStore
 import com.gu.atom.publish.PreviewAtomPublisher
+import com.gu.media.logging.Logging
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.AuditDataStore
 import model.commands.CommandExceptions._
 import model.{MediaAtom, UpdatedMetadata}
 import util.atom.MediaAtomImplicits
-import util.{Logging, YouTubeConfig, YouTubeVideoInfoApi}
+import util.{YouTubeConfig, YouTubeVideoInfoApi}
 
 case class UpdateMetadataCommand(atomId: String,
                                  metadata: UpdatedMetadata)

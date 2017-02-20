@@ -5,11 +5,11 @@ import java.util.Date
 import com.gu.atom.data.PreviewDataStore
 import com.gu.atom.publish.PreviewAtomPublisher
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
+import com.gu.media.logging.Logging
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.AuditDataStore
 import model.commands.CommandExceptions._
 import model.{ChangeRecord, MediaAtom}
-import util.Logging
 import util.atom.MediaAtomImplicits
 
 import scala.util.{Failure, Success}

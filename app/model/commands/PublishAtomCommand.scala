@@ -10,11 +10,12 @@ import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.AuditDataStore
-import model.{ImageAsset, MediaAtom, UpdatedMetadata, ChangeRecord}
+import model.{ChangeRecord, ImageAsset, MediaAtom, UpdatedMetadata}
 import CommandExceptions._
+import com.gu.media.logging.Logging
 import model.Platform.Youtube
 import model.PrivacyStatus
-import util.{Logging, YouTubeConfig, YouTubeVideoUpdateApi}
+import util.{YouTubeConfig, YouTubeVideoUpdateApi}
 
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success}

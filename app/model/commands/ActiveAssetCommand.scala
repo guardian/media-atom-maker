@@ -3,6 +3,7 @@ package model.commands
 import com.gu.atom.data.{PreviewDataStore, PublishedDataStore}
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import com.gu.contentatom.thrift.atom.media.Asset
+import com.gu.media.logging.Logging
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.AuditDataStore
 import model.MediaAtom
