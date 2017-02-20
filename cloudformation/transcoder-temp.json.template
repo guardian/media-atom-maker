@@ -1,16 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "temp to test out lambda transcoder. eventually this should feed into the media-atom-maker.json",
-  "Parameters": {
-    "InputBucket": {
-      "Description": "S3 bucket name containing the masters",
-      "Type": "String"
-    },
-    "OutputBucket": {
-      "Description": "S3 bucket name where mp4s will be output to",
-      "Type": "String"
-    }
-  },
   "Resources": {
     "LambdaRole": {
       "Type": "AWS::IAM::Role",
@@ -70,12 +60,6 @@
             }
           ]
         }
-      }
-    },
-    "PipelineNotification": {
-      "Type": "AWS::SNS::Topic",
-      "Properties": {
-        "DisplayName": "mam-transcode-pipeline-notifications-dev"
       }
     },
     "TranscoderLambda": {
