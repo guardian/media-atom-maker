@@ -533,27 +533,6 @@
                 "AlarmActions": [ { "Ref": "AlertTopic" } ]
             }
         },
-        "MediaAtomMaker4XXAlarm": {
-            "Type": "AWS::CloudWatch::Alarm",
-            "Properties": {
-                "ActionsEnabled": { "Ref": "AlertActive" },
-                "AlarmDescription": "Repeated 4XX errors reported from media-atom-maker",
-                "ComparisonOperator": "GreaterThanOrEqualToThreshold",
-                "Threshold": "30",
-                "Namespace": "AWS/ELB",
-                "MetricName": "HTTPCode_Backend_4XX",
-                "Dimensions": [
-                    {
-                      "Name": "LoadBalancerName",
-                      "Value": { "Ref": "MediaAtomMakerLoadBalancer" }
-                    }
-                ],
-                "Period": "300",
-                "EvaluationPeriods": "2",
-                "Statistic": "Sum",
-                "AlarmActions": [ { "Ref": "AlertTopic" } ]
-            }
-        },
         "MediaAtomMakerLatency": {
             "Type": "AWS::CloudWatch::Alarm",
             "Properties": {
