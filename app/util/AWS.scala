@@ -10,6 +10,7 @@ import com.amazonaws.services.ec2.AmazonEC2Client
 import com.amazonaws.services.ec2.model.{DescribeTagsRequest, Filter}
 import com.amazonaws.services.kinesis.AmazonKinesisClient
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClient
+import com.amazonaws.services.elastictranscoder.AmazonElasticTranscoderClient
 import com.amazonaws.util.EC2MetadataUtils
 import com.gu.media.CrossAccountAccess
 import play.api.Configuration
@@ -38,6 +39,12 @@ class AWSConfig @Inject() (val config: Configuration) extends CrossAccountAccess
 
   lazy val ec2Client = region.createClient(
     classOf[AmazonEC2Client],
+    credProvider,
+    null
+  )
+
+  lazy val transcoderClient = region.createClient(
+    classOf[AmazonElasticTranscoderClient],
     credProvider,
     null
   )
@@ -78,6 +85,13 @@ class AWSConfig @Inject() (val config: Configuration) extends CrossAccountAccess
   lazy val expiryPollerName = "Expiry"
   lazy val expiryPollerLastName = "Poller"
 
+  lazy val transcodePipelineId = config.getString("aws.transcoder.pipelineId").get
+
+  private def getKinesisClient(credentialsProvider: AWSCredentialsProviderChain) = region.createClient(
+    classOf[AmazonKinesisClient],
+    credentialsProvider,
+    null
+  )
   private def createUploadSTSClient() = {
     val provider = stage match {
       case "DEV" =>

@@ -75,7 +75,7 @@ object Dependencies {
 
   val appDependencies = panda ++ scanamo ++ scrooge ++ atomMaker ++ slf4j ++ Seq(
     PlayImport.cache, thrift, scalaLogging, cats, jacksonDatabind, okHttp, contentAtomModel, diff,
-    awsSts, awsEc2, scalaTestPlusPlay, mockito, scalaXml
+    awsSts, awsEc2, scalaTestPlusPlay, mockito, scalaXml, awsTranscoder
   )
 
   val uploaderDependencies = Seq(

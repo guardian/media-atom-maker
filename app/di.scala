@@ -3,7 +3,7 @@ import com.gu.atom.data._
 import com.gu.atom.publish._
 import com.gu.pandahmac.HMACAuthActions
 import data._
-import util.LogShipping
+import util.{LogShipping, Transcoder}
 
 
 class Module extends AbstractModule {
@@ -34,5 +34,8 @@ class Module extends AbstractModule {
 
     bind(classOf[AuditDataStore])
       .toProvider(classOf[AuditDataStoreProvider])
+
+    bind(classOf[Transcoder]).asEagerSingleton()
+
   }
 }

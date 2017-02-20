@@ -30,7 +30,7 @@ class Lambda extends RequestStreamHandler {
       val transcoderClient = new AmazonElasticTranscoderClient()
       transcoderClient.setRegion(Region.getRegion(Regions.EU_WEST_1))
 
-      val jobInput = new JobInput().withKey(jobInfo.masterFileName) 
+      val jobInput = new JobInput().withKey(jobInfo.masterFileName)
 
       val mp4FileName = jobInfo.masterFileName.replace(".mxf", ".mp4")
 
