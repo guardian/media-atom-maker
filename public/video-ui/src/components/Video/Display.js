@@ -29,7 +29,7 @@ class VideoDisplay extends React.Component {
   };
 
   saveAndUpdateVideo = (video) => {
-    this.props.videoActions.debouncedSaveVideo(video);
+    this.props.videoActions.saveVideo(video);
   };
 
   updateVideo = (video) => {
