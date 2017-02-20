@@ -203,6 +203,10 @@
   padding: 10px;
 }
 
+textarea {
+  resize: vertical; 
+}
+
 .form__group__header {
   font-size: 15px;
   text-transform: uppercase;
