@@ -32,24 +32,23 @@ class VideoDisplay extends React.Component {
     this.props.videoActions.debouncedSaveVideo(video);
   };
 
+  updateVideo = (video) => {
+    this.props.videoActions.updateVideo(video);
+  };
+
   selectVideo = () => {
     window.parent.postMessage({atomId: this.props.video.id}, '*');
   };
 
-  manageEditingState = (value, property) => {
+  manageEditingState = (property) => {
 
-    if (property === 'metadata') {
+    if (this.props.editState[property]) {
 
-      this.setState({
-        metadataEditable: value
-      });
-
-    } else if (property === 'youtube') {
-
-      this.setState({
-        youtubeEditable: value
-      });
+      this.saveAndUpdateVideo(this.props.video);
     }
+
+    const newEditableState = Object.assign(this.props.editState, {[property]: !this.props.editState[property]});
+    this.props.videoActions.updateVideoEditState(newEditableState);
   };
 
   disableEditing = () => {
@@ -62,15 +61,15 @@ class VideoDisplay extends React.Component {
     return this.props.video.expiryDate <= Date.now();
   };
 
-  renderEditButton = (editable, property) => {
+  renderEditButton = (property) => {
 
-    if (editable) {
+    if (this.props && this.props.editState[property]) {
       return (
-        <Icon className="icon__done" icon="done" onClick={this.manageEditingState.bind(this, false, property)}/>
+        <Icon className="icon__done" icon="done" onClick={this.manageEditingState.bind(this, property)}/>
       );
     } else {
       return (
-        <Icon className="icon__edit" icon="edit" onClick={this.manageEditingState.bind(this, true, property)}/>
+        <Icon className="icon__edit" icon="edit" onClick={this.manageEditingState.bind(this, property)}/>
       );
     }
   }
@@ -98,27 +97,27 @@ class VideoDisplay extends React.Component {
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
                   <header className="video__detailbox__header">Video Meta Data</header>
-                  {this.renderEditButton(this.state.metadataEditable, 'metadata')}
+                  {this.renderEditButton('metadataEditable')}
                 </div>
                 <VideoMetaData
                   component={VideoMetaData}
                   video={this.props.video || {}}
-                  saveAndUpdateVideo={this.saveAndUpdateVideo}
-                  editable={this.state.metadataEditable}
+                  updateVideo={this.updateVideo}
+                  editable={this.props.editState.metadataEditable}
                  />
               </div>
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
                   <header className="video__detailbox__header">Youtube Meta Data</header>
-                  {this.renderEditButton(this.state.youtubeEditable, 'youtube')}
+                  {this.renderEditButton('youtubeEditable')}
                 </div>
                 <YoutubeMetaData
                   component={YoutubeMetaData}
                   video={this.props.video || {}}
                   saveVideo={this.saveVideo}
-                  saveAndUpdateVideo={this.saveAndUpdateVideo}
+                  updateVideo={this.updateVideo}
                   disableStatusEditing={this.cannotEditStatus()}
-                  editable={this.state.youtubeEditable}
+                  editable={this.props.editState.youtubeEditable}
                 />
               </div>
               <div className="video__detailbox">
@@ -160,9 +159,11 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getVideo from '../../actions/VideoActions/getVideo';
 import * as saveVideo from '../../actions/VideoActions/saveVideo';
+import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as videoUsages from '../../actions/VideoActions/videoUsages';
 import * as videoPageCreate from '../../actions/VideoActions/videoPageCreate';
 import * as getPublishedVideo from '../../actions/VideoActions/getPublishedVideo';
+import * as updateVideoEditState from '../../actions/VideoActions/updateVideoEditState';
 
 function mapStateToProps(state) {
   return {
@@ -170,13 +171,14 @@ function mapStateToProps(state) {
     config: state.config,
     usages: state.usage,
     composerPageWithUsage: state.pageCreate,
-    publishedVideo: state.publishedVideo
+    publishedVideo: state.publishedVideo,
+    editState: state.editState
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, videoUsages, videoPageCreate, getPublishedVideo), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, videoUsages, videoPageCreate, getPublishedVideo, updateVideoEditState), dispatch)
   };
 }
 
