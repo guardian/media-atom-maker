@@ -60,7 +60,7 @@
             "Type": "String"
         },
         "DomainToMonitor": {
-          "Description": "Domain name for the Route53 health check",
+          "Description": "Domain name for the app (Route53 healthcheck and S3 CORS for user upload)",
           "Type": "String"
         }
     },
@@ -161,7 +161,7 @@
                                 {
                                     "Effect": "Allow",
                                     "Action": ["sts:AssumeRole"],
-                                    "Resource": { "Ref": "ContentAtomArn" }
+                                    "Resource": [{ "Ref": "ContentAtomArn" }, { "Fn::GetAtt" : ["LimitedUploadRole", "Arn"] }]
                                 }
                             ]
                         }
@@ -231,6 +231,59 @@
                         "ToPort": 9000,
                         "SourceSecurityGroupName": {
                             "Ref": "LoadBalancerSecurityGroup"
+                        }
+                    }
+                ]
+            }
+        },
+        "UserUploadBucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "CorsConfiguration": {
+                    "CorsRules": [{
+                        "AllowedHeaders": ["*"],
+                        "ExposedHeaders": ["ETag"],
+                        "AllowedMethods": ["GET", "PUT", "POST", "DELETE"],
+                        "AllowedOrigins": [
+                          { "Fn::Join": ["", [ "https://", { "Ref": "DomainToMonitor" } ]] }
+                        ]
+                    }]
+                }
+            }
+        },
+        "LimitedUploadRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Principal": {
+                            "AWS": { "Fn::Join": ["", [ "arn:aws:iam::", { "Ref": "AWS::AccountId" }, ":root"]] }
+                        },
+                        "Action": "sts:AssumeRole"
+                    }]
+                },
+                "Path": "/",
+                "Policies": [
+                    {
+                        "PolicyName": "LimitedUploadPolicy",
+                        "PolicyDocument": {
+                            "Statement": [{
+                                "Effect": "Allow",
+                                "Action": [
+                                  "s3:PutObject",
+                                  "s3:PutObjectAcl",
+                                  "s3:ListBucketMultipartUploads",
+                                  "s3:ListMultipartUploadParts",
+                                  "s3:AbortMultipartUpload"
+                                ],
+                                "Resource": {
+                                  "Fn::Sub": [
+                                    "arn:aws:s3:::${Bucket}/uploads/*",
+                                    { "Bucket": { "Ref": "UserUploadBucket" }}
+                                  ]
+                                }
+                            }]
                         }
                     }
                 ]
@@ -561,6 +614,15 @@
                 "Statistic": "Minimum",
                 "AlarmActions": [ { "Ref": "AlertTopic" } ]
             }
+        }
+    },
+
+    "Outputs": {
+        "UserUploadBucket": {
+            "Value": { "Ref": "UserUploadBucket" }
+        },
+        "UserUploadRole": {
+          "Value": { "Ref": "LimitedUploadRole" }
         }
     }
 }

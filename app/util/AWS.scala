@@ -1,15 +1,20 @@
 package util
 
-import com.amazonaws.auth.{ STSAssumeRoleSessionCredentialsProvider, AWSCredentialsProviderChain }
+import java.nio.charset.StandardCharsets
+
+import com.amazonaws.auth.{AWSCredentialsProviderChain, STSAssumeRoleSessionCredentialsProvider}
 import com.amazonaws.regions.{Region, Regions}
 import com.amazonaws.services.kinesis.AmazonKinesisClient
 import play.api.Configuration
-import javax.inject.{ Singleton, Inject }
+import javax.inject.{Inject, Singleton}
+
 import com.amazonaws.auth._
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.ec2.AmazonEC2Client
 import com.amazonaws.services.ec2.model.{DescribeTagsRequest, Filter}
+import com.amazonaws.services.s3.AmazonS3Client
+import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClient
 import com.amazonaws.util.EC2MetadataUtils
 
 import scala.collection.JavaConverters._
@@ -23,9 +28,11 @@ class AWSConfig @Inject() (config: Configuration) {
     Region.getRegion(r)
   }
 
+  val instanceProvider = InstanceProfileCredentialsProvider.getInstance()
+
   lazy val credProviders = Seq(
     config.getString("aws.profile").map(new ProfileCredentialsProvider(_)),
-    Some(new InstanceProfileCredentialsProvider)
+    Some(instanceProvider)
   )
 
   lazy val credProvider = new AWSCredentialsProviderChain(credProviders.flatten: _*)
@@ -34,9 +41,12 @@ class AWSConfig @Inject() (config: Configuration) {
 
   lazy val stsRoleToAssume = config.getString("aws.kinesis.stsRoleToAssume").getOrElse("")
 
+  lazy val stsAssumeRoleSessionCredentialsProvider =
+    new STSAssumeRoleSessionCredentialsProvider.Builder(stsRoleToAssume, "media-atom-maker").build()
+
   lazy val atomsCredProvider = new AWSCredentialsProviderChain(
     new ProfileCredentialsProvider("composer"),
-    new STSAssumeRoleSessionCredentialsProvider(credProvider, stsRoleToAssume, sessionId)
+    stsAssumeRoleSessionCredentialsProvider
   )
 
   lazy val dynamoDB = region.createClient(
@@ -51,6 +61,8 @@ class AWSConfig @Inject() (config: Configuration) {
     null
   )
 
+  lazy val stage = config.getString("stage").getOrElse("DEV")
+
   lazy val composerUrl = config.getString("flexible.url").get
 
   lazy val dynamoTableName = config.getString("aws.dynamo.tableName").get
@@ -63,9 +75,12 @@ class AWSConfig @Inject() (config: Configuration) {
   lazy val previewKinesisReindexStreamName = config.getString("aws.kinesis.previewReindexStreamName").get
   lazy val publishedKinesisReindexStreamName = config.getString("aws.kinesis.publishedReindexStreamName").get
 
+  lazy val userUploadBucket = config.getString("aws.upload.bucket").get
+  lazy val userUploadFolder = config.getString("aws.upload.folder").get
+  lazy val userUploadRole = config.getString("aws.upload.role").get
+
   lazy val loggingKinesisStreamName = config.getString("aws.kinesis.logging")
 
-  lazy val stage = config.getString("stage").getOrElse("DEV")
   lazy val readFromComposerAccount = config.getBoolean("readFromComposer").getOrElse(false)
 
   lazy val gridUrl = stage match {
@@ -78,6 +93,8 @@ class AWSConfig @Inject() (config: Configuration) {
   else
     getKinesisClient(credProvider)
 
+  lazy val uploadSTSClient = createUploadSTSClient()
+
   lazy val expiryPollerName = "Expiry"
   lazy val expiryPollerLastName = "Poller"
 
@@ -86,6 +103,27 @@ class AWSConfig @Inject() (config: Configuration) {
     credentialsProvider,
     null
   )
+
+  private def createUploadSTSClient() = {
+    val provider = stage match {
+      case "DEV" =>
+        // Only required in dev. Instance profile credentials are sufficient when deployed
+        val accessKey = config.getString("aws.upload.accessKey").getOrElse {
+          throw new IllegalArgumentException("Missing aws.upload.accessKey. This is the AwsId output of the dev cloudformation")
+        }
+
+        val secretKey = config.getString("aws.upload.secretKey").getOrElse {
+          throw new IllegalArgumentException("Missing aws.upload.secretKey. This is the AwsSecret output of the dev cloudformation")
+        }
+
+        new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey))
+
+      case _ =>
+        instanceProvider
+    }
+
+    region.createClient(classOf[AWSSecurityTokenServiceClient], provider, null)
+  }
 
   def readTag(tagName: String) = {
     val tagsResult = ec2Client.describeTags(

@@ -25,6 +25,9 @@ PUT     /api2/atom/:id/publish          controllers.Api2.publishMediaAtom(id)
 PUT     /api2/atom/:id/asset-active     controllers.Api2.setActiveAsset(id)
 PUT     /api2/atom/:id/pluto-id         controllers.Api2.setPlutoId(id)
 
+# user uploaded videos
+POST    /api2/atom/:atomId/uploads      controllers.UploadController.create(atomId)
+
 GET     /api2/audits/:id                controllers.Api2.getAuditTrailForAtomId(id)
 
 GET     /api/youtube/categories         controllers.Youtube.listCategories()
@@ -52,6 +55,7 @@ GET /                                   controllers.VideoUIApp.index(id = "")
 GET /videos                             controllers.VideoUIApp.index(id = "")
 GET /videos/:id                         controllers.VideoUIApp.index(id)
 GET /videos/:id/audit                   controllers.VideoUIApp.index(id)
+GET /videos/:id/upload                  controllers.VideoUIApp.index(id)
 
 #Support
 GET /support/previewCapi/*path          controllers.Support.previewCapiProxy(path: String)

@@ -117,11 +117,7 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   def addAsset(atomId: String) = APIHMACAuthAction { implicit req =>
     implicit val user = req.user
 
-    implicit val readCommand: Reads[AddAssetCommand] = (
-      (JsPath \ "uri").read[String] and
-      (JsPath \ "version").readNullable[Long] and
-      (JsPath \ "mimeType").readNullable[String]
-    )(AddAssetCommand(atomId, _, _, _))
+    implicit val readCommand: Reads[AddAssetCommand] = (JsPath \ "uri").read[String].map(AddAssetCommand(atomId, _))
 
     parse(req) { command: AddAssetCommand =>
       val atom = command.process()
