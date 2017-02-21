@@ -1,5 +1,4 @@
 import VideosApi from '../../services/VideosApi';
-import Q from 'q';
 
 function requestVideoUsages() {
   return {
@@ -34,7 +33,7 @@ export function getUsages(id) {
     return VideosApi.getVideoUsages(id)
     .then(res => {
       const usages = res.response.results;
-      Q.all(usages.map(VideosApi.fetchComposerId))
+      Promise.all(usages.map(VideosApi.fetchComposerId))
       .then((composerIds) => {
         const composerIdsWithUsage = composerIds.reduce((idsWithUsage, composerId, index) => {
           if (composerId !== '') {

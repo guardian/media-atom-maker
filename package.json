@@ -45,7 +45,6 @@
     "debounce-promise": "^3.0.1",
     "moment": "^2.17.1",
     "panda-session": "^0.1.6",
-    "q": "^1.4.1",
     "querystringify": "0.0.4",
     "raven-js": "^3.9.1",
     "react": "^15.3.2",
