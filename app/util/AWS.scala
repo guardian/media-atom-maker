@@ -1,7 +1,5 @@
 package util
 
-import javax.inject.{Inject, Singleton}
-
 import com.amazonaws.services.ec2.AmazonEC2Client
 import com.amazonaws.services.ec2.model.{DescribeTagsRequest, Filter}
 import com.amazonaws.util.EC2MetadataUtils
@@ -11,7 +9,6 @@ import com.typesafe.config.Config
 
 import scala.collection.JavaConverters._
 
-@Singleton
 class AWSConfig(override val config: Config)
   extends AwsAccess
     with CrossAccountAccess
