@@ -1,7 +1,5 @@
 package util
 
-import javax.inject.{Inject, Singleton}
-
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.{AWSCredentialsProviderChain, _}
 import com.amazonaws.regions.{Region, Regions}
@@ -17,8 +15,7 @@ import play.api.Configuration
 import scala.collection.JavaConverters._
 
 
-@Singleton
-class AWSConfig @Inject() (val config: Configuration) extends CrossAccountAccess(config.underlying) {
+class AWSConfig(val config: Configuration) extends CrossAccountAccess(config.underlying) {
 
   lazy val region: Region = {
     val r = config.getString("aws.region").map(Regions.fromName(_)).getOrElse(Regions.EU_WEST_1)

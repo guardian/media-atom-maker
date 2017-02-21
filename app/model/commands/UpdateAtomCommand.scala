@@ -14,11 +14,8 @@ import util.atom.MediaAtomImplicits
 
 import scala.util.{Failure, Success}
 
-case class UpdateAtomCommand(id: String, atom: MediaAtom)
-                            (implicit previewDataStore: PreviewDataStore,
-                             previewPublisher: PreviewAtomPublisher,
-                             auditDataStore: AuditDataStore,
-                             user: PandaUser)
+case class UpdateAtomCommand(id: String, atom: MediaAtom, previewDataStore: PreviewDataStore,
+                             previewPublisher: PreviewAtomPublisher, auditDataStore: AuditDataStore, user: PandaUser)
     extends Command
     with MediaAtomImplicits
     with Logging {

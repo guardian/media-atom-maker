@@ -1,9 +1,6 @@
 package controllers
 
-import javax.inject.Inject
-
-import _root_.util.{AWSConfig, ExpiryPoller, YouTubeConfig, YouTubeVideoUpdateApi}
-import akka.actor.ActorSystem
+import _root_.util.{AWSConfig, YouTubeConfig, YouTubeVideoUpdateApi}
 import com.gu.atom.data.{PreviewDataStore, PublishedDataStore}
 import com.gu.atom.play.AtomAPIActions
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
@@ -11,38 +8,29 @@ import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.action.UserRequest
 import data.AuditDataStore
 import model.Category.Hosted
+import model.MediaAtom
 import model.commands.CommandExceptions._
 import model.commands._
-import model.{MediaAtom, UpdatedMetadata}
 import play.api.{Configuration, Logger}
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
-import play.api.libs.functional.syntax._
 import play.api.mvc.{AnyContent, Result}
 
-class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
-                     implicit val publishedDataStore: PublishedDataStore,
-                     val livePublisher: LiveAtomPublisher,
-                     implicit val previewPublisher: PreviewAtomPublisher,
-                     val conf: Configuration,
-                     val awsConfig: AWSConfig,
-                     val authActions: HMACAuthActions,
-                     val youtubeConfig: YouTubeConfig,
-                     implicit val auditDataStore: AuditDataStore,
-                     val expiryPoller: ExpiryPoller,
-                      val system: ActorSystem)
+class Api2 (override val previewDataStore: PreviewDataStore,
+            override val publishedDataStore: PublishedDataStore,
+            override val livePublisher: LiveAtomPublisher,
+            override val previewPublisher: PreviewAtomPublisher,
+            conf: Configuration,
+            awsConfig: AWSConfig,
+            val authActions: HMACAuthActions,
+            youtubeConfig: YouTubeConfig,
+            auditDataStore: AuditDataStore)
 
   extends MediaAtomImplicits
     with AtomAPIActions
     with AtomController {
 
   import authActions.APIHMACAuthAction
-
-  initialize()
-
-  def initialize() = {
-    expiryPoller.start(system.scheduler)
-  }
 
   def getMediaAtoms = APIHMACAuthAction {
     def created(atom: MediaAtom) = atom.contentChangeDetails.created.map(_.date.getMillis)
@@ -80,10 +68,11 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   }
 
   def publishMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
-    implicit val user = req.user
-
     try {
-      val updatedAtom = PublishAtomCommand(id).process()
+      val command = PublishAtomCommand(id, previewDataStore, previewPublisher, publishedDataStore,
+        livePublisher, auditDataStore, youtubeConfig, req.user)
+
+      val updatedAtom = command.process()
       Ok(Json.toJson(updatedAtom))
     } catch {
       commandExceptionAsResult
@@ -91,17 +80,15 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   }
 
   def createMediaAtom = APIHMACAuthAction { implicit req =>
-    implicit val user = req.user
+    parse(req) { data: CreateAtomCommandData =>
+      val command = CreateAtomCommand(data, previewDataStore, previewPublisher, auditDataStore, req.user)
+      val atom = command.process()
 
-    parse(req) { command: CreateAtomCommandData =>
-      val atom = CreateAtomCommand(command).process()
       Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
     }
   }
 
   def putMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
-    implicit val user = req.user
-
     parse(req) { atom: MediaAtom =>
       val thriftAtom = atom.asThrift
       val atomWithExpiryChecked = YouTubeVideoUpdateApi(youtubeConfig).updateStatusIfExpired(thriftAtom) match {
@@ -109,15 +96,18 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
         case _ => atom
       }
 
-      val updatedAtom = UpdateAtomCommand(id, atomWithExpiryChecked).process()
+      val command = UpdateAtomCommand(id, atomWithExpiryChecked, previewDataStore, previewPublisher, auditDataStore, req.user)
+      val updatedAtom = command.process()
+
       Ok(Json.toJson(updatedAtom))
     }
   }
 
   def addAsset(atomId: String) = APIHMACAuthAction { implicit req =>
-    implicit val user = req.user
-
-    implicit val readCommand: Reads[AddAssetCommand] = (JsPath \ "uri").read[String].map(AddAssetCommand(atomId, _))
+    implicit val readCommand: Reads[AddAssetCommand] =
+      (JsPath \ "uri").read[String].map { videoUri =>
+        AddAssetCommand(atomId, videoUri, previewDataStore, previewPublisher, youtubeConfig, auditDataStore, req.user)
+      }
 
     parse(req) { command: AddAssetCommand =>
       val atom = command.process()
@@ -129,10 +119,11 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   private def atomUrl(id: String) = s"/atom/$id"
 
   def setActiveAsset(atomId: String) = APIHMACAuthAction { implicit req =>
-    implicit val user = req.user
-
     implicit val readCommand: Reads[ActiveAssetCommand] =
-      (JsPath \ "youtubeId").read[String].map(ActiveAssetCommand(atomId, _))
+      (JsPath \ "youtubeId").read[String].map { videoUri =>
+        ActiveAssetCommand(atomId, videoUri, previewDataStore, previewPublisher, publishedDataStore,
+          livePublisher, youtubeConfig, auditDataStore, req.user)
+      }
 
     parse(req) { command: ActiveAssetCommand =>
       val atom = command.process()
@@ -141,10 +132,10 @@ class Api2 @Inject() (implicit val previewDataStore: PreviewDataStore,
   }
 
   def setPlutoId(atomId: String) = APIHMACAuthAction { implicit req =>
-    implicit val user = req.user
-
     implicit val readCommand: Reads[SetPlutoIdCommand] =
-      (JsPath \ "plutoId").read[String].map(new SetPlutoIdCommand(atomId, _))
+      (JsPath \ "plutoId").read[String].map { plutoId =>
+        new SetPlutoIdCommand(atomId, plutoId, previewDataStore, previewPublisher, auditDataStore, req.user)
+      }
 
     parse(req) { command: SetPlutoIdCommand =>
       val atom = command.process()

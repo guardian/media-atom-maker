@@ -4,7 +4,6 @@ import java.io.BufferedInputStream
 import java.net.URL
 import java.time.Duration
 import java.util.Date
-import javax.inject.{Inject, Singleton}
 
 import com.google.api.client.http.InputStreamContent
 import com.google.api.services.youtube.model.Video
@@ -17,8 +16,8 @@ import play.api.{Configuration, Logger}
 
 import scala.collection.JavaConverters._
 
-@Singleton
-class YouTubeConfig @Inject()(config: Configuration) {
+
+class YouTubeConfig(config: Configuration) {
   val YouTubeClient(client, _, contentOwner, allowedChannels, disallowedVideos) = YouTubeClient(config.underlying)
 }
 

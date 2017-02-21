@@ -13,14 +13,13 @@ import model.commands.{PublishAtomCommand, UpdateAtomCommand}
 import com.gu.atom.data.{PublishedDataStore, PreviewDataStore}
 import com.gu.pandomainauth.model.{User => PandaUser}
 
-case class ExpiryPoller @Inject () (
-                        implicit val previewDataStore: PreviewDataStore,
-                        implicit val publishedDataStore: PublishedDataStore,
+case class ExpiryPoller(previewDataStore: PreviewDataStore,
+                        publishedDataStore: PublishedDataStore,
                         previewPublisher: PreviewAtomPublisher,
                         livePublisher: LiveAtomPublisher,
                         youtubeConfig: YouTubeConfig,
-                        implicit val auditDataStore: AuditDataStore,
-                        val awsConfig: AWSConfig
+                        auditDataStore: AuditDataStore,
+                        awsConfig: AWSConfig
                        ){
   def start(scheduler: Scheduler): Unit = {
 
@@ -31,7 +30,7 @@ case class ExpiryPoller @Inject () (
   def checkExpiryDates(): Unit = {
 
     val timeNow = new Date().getTime
-    implicit val username = PandaUser(awsConfig.expiryPollerName,
+    val user = PandaUser(awsConfig.expiryPollerName,
       awsConfig.expiryPollerLastName, "expiryPoller", None)
 
     previewDataStore.listAtoms.map(atoms => {
@@ -41,10 +40,15 @@ case class ExpiryPoller @Inject () (
           case Some(expiredAtom) => {
 
             val atomId = expiredAtom.id
-            
+
             publishedDataStore.getAtom(atomId) match {
-              case Some(atom) => PublishAtomCommand(atomId).process()
-              case None => UpdateAtomCommand(expiredAtom.id, expiredAtom).process()
+              case Some(atom) =>
+                PublishAtomCommand(atomId, previewDataStore, previewPublisher, publishedDataStore, livePublisher,
+                  auditDataStore, youtubeConfig, user).process()
+
+              case None =>
+                UpdateAtomCommand(expiredAtom.id, expiredAtom, previewDataStore, previewPublisher, auditDataStore, user)
+                  .process()
             }
           }
           case _ =>

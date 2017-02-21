@@ -9,11 +9,8 @@ import model.MediaAtom
 import model.commands.CommandExceptions.AtomNotFound
 import util.atom.MediaAtomImplicits
 
-class SetPlutoIdCommand(atomId: String, plutoId: String)
-                       (implicit previewDataStore: PreviewDataStore,
-                        previewPublisher: PreviewAtomPublisher,
-                        auditDataStore: AuditDataStore,
-                        user: PandaUser)
+class SetPlutoIdCommand(atomId: String, plutoId: String, previewDataStore: PreviewDataStore,
+                        previewPublisher: PreviewAtomPublisher, auditDataStore: AuditDataStore, user: PandaUser)
 
   extends Command with MediaAtomImplicits with Logging {
 
@@ -28,7 +25,7 @@ class SetPlutoIdCommand(atomId: String, plutoId: String)
           data.copy(plutoProjectId = Some(plutoId))
         }
 
-        UpdateAtomCommand(atomId, MediaAtom.fromThrift(after)).process()
+        UpdateAtomCommand(atomId, MediaAtom.fromThrift(after), previewDataStore, previewPublisher, auditDataStore, user).process()
 
       case None =>
         log.info(s"Cannot set pluto id $plutoId for atom $atomId. No atom has that id")

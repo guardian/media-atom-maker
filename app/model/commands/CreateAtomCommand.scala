@@ -36,11 +36,11 @@ object CreateAtomCommandData {
   implicit val createAtomCommandFormat: Format[CreateAtomCommandData] = Jsonx.formatCaseClass[CreateAtomCommandData]
 }
 
-case class CreateAtomCommand(data: CreateAtomCommandData)
-                            (implicit previewDataStore: PreviewDataStore,
-                             previewPublisher: PreviewAtomPublisher,
-                             auditDataStore: AuditDataStore,
-                             user: PandaUser) extends Command with Logging {
+case class CreateAtomCommand(data: CreateAtomCommandData, previewDataStore: PreviewDataStore,
+                             previewPublisher: PreviewAtomPublisher, auditDataStore: AuditDataStore, user: PandaUser)
+
+  extends Command with Logging {
+
   type T = MediaAtom
 
   def process() = {

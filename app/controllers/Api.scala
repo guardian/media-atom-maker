@@ -1,7 +1,6 @@
 package controllers
 
 import java.util.Date
-import javax.inject._
 
 import util.{ThriftUtil, AWSConfig}
 import com.gu.atom.data._
@@ -19,13 +18,13 @@ import com.gu.atom.play._
 
 import scala.util.{Failure, Success}
 
-class Api @Inject() (val previewDataStore: PreviewDataStore,
-                     val publishedDataStore: PublishedDataStore,
-                     val livePublisher: LiveAtomPublisher,
-                     val previewPublisher: PreviewAtomPublisher,
-                     val conf: Configuration,
-                     val awsConfig: AWSConfig,
-                     val authActions: HMACAuthActions)
+class Api (val previewDataStore: PreviewDataStore,
+           val publishedDataStore: PublishedDataStore,
+           val livePublisher: LiveAtomPublisher,
+           val previewPublisher: PreviewAtomPublisher,
+           val conf: Configuration,
+           val awsConfig: AWSConfig,
+           val authActions: HMACAuthActions)
     extends AtomController
     with MediaAtomImplicits
     with AtomAPIActions {

@@ -10,13 +10,9 @@ import model.{MediaAtom, UpdatedMetadata}
 import util.atom.MediaAtomImplicits
 import util.{YouTubeConfig, YouTubeVideoInfoApi}
 
-case class UpdateMetadataCommand(atomId: String,
-                                 metadata: UpdatedMetadata)
-                                (implicit previewDataStore: PreviewDataStore,
-                                 previewPublisher: PreviewAtomPublisher,
-                                 val youtubeConfig: YouTubeConfig,
-                                 auditDataStore: AuditDataStore,
-                                 user: PandaUser)
+case class UpdateMetadataCommand(atomId: String, metadata: UpdatedMetadata, previewDataStore: PreviewDataStore,
+                                 previewPublisher: PreviewAtomPublisher, youtubeConfig: YouTubeConfig,
+                                 auditDataStore: AuditDataStore, user: PandaUser)
     extends Command
     with MediaAtomImplicits
     with Logging {
@@ -53,7 +49,7 @@ case class UpdateMetadataCommand(atomId: String,
                 )
             }
 
-            UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom)).process()
+            UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom), previewDataStore, previewPublisher, auditDataStore, user).process()
 
           case None =>
             log.info(s"Unable to update metadata for $atomId. Atom does not have an active asset")

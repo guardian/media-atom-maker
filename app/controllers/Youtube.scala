@@ -1,7 +1,5 @@
 package controllers
 
-import javax.inject._
-
 import play.api.cache._
 import com.gu.pandahmac.HMACAuthActions
 import model.{YouTubeChannel, YouTubeVideoCategory}
@@ -9,9 +7,10 @@ import play.api.libs.json.Json
 import util.{YouTubeChannelsApi, YouTubeConfig, YouTubeVideoCategoryApi}
 import scala.concurrent.duration._
 
-class Youtube @Inject() (val authActions: HMACAuthActions,
-                                 val youtubeConfig: YouTubeConfig,
-                                 val cache: CacheApi) extends AtomController {
+class Youtube (val authActions: HMACAuthActions,
+               val youtubeConfig: YouTubeConfig,
+               val cache: CacheApi) extends AtomController {
+
   import authActions.AuthAction
 
   def listCategories() = AuthAction {

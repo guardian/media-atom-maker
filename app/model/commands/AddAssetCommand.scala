@@ -12,12 +12,9 @@ import model.commands.CommandExceptions._
 import util.atom.MediaAtomImplicits
 import util.{ThriftUtil, YouTubeConfig, YouTubeVideoInfoApi}
 
-case class AddAssetCommand(atomId: String, videoUri: String)
-                          (implicit previewDataStore: PreviewDataStore,
-                           previewPublisher: PreviewAtomPublisher,
-                           val youtubeConfig: YouTubeConfig,
-                           auditDataStore: AuditDataStore,
-                           user: PandaUser)
+case class AddAssetCommand(atomId: String, videoUri: String, previewDataStore: PreviewDataStore,
+                           previewPublisher: PreviewAtomPublisher, youtubeConfig: YouTubeConfig,
+                           auditDataStore: AuditDataStore, user: PandaUser)
     extends Command
     with MediaAtomImplicits
     with Logging {
@@ -83,7 +80,7 @@ case class AddAssetCommand(atomId: String, videoUri: String)
 
                   log.info(s"Adding new asset $videoUri to $atomId")
 
-                  UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom)).process()
+                  UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom), previewDataStore, previewPublisher, auditDataStore, user).process()
               }
             }
             case _ => NotYoutubeAsset

@@ -12,7 +12,7 @@ import model.{Audit, MediaAtom}
 
 import scala.collection.JavaConversions._
 
-class AuditDataStoreProvider @Inject() (awsConfig: AWSConfig)
+class AuditDataStoreProvider(awsConfig: AWSConfig)
     extends Provider[AuditDataStore] {
   def get = new AuditDataStore(awsConfig.dynamoDB, awsConfig.auditDynamoTableName)
 }

@@ -1,7 +1,5 @@
 package controllers
 
-import javax.inject._
-
 import com.gu.pandahmac.HMACAuthActions
 import com.squareup.okhttp.{OkHttpClient, Credentials, Request}
 import java.util.concurrent.TimeUnit
@@ -9,8 +7,7 @@ import play.api.Configuration
 import play.api.mvc.{Action}
 
 
-class Support @Inject() (val authActions: HMACAuthActions,
-                                  val conf: Configuration) extends AtomController {
+class Support(val authActions: HMACAuthActions, val conf: Configuration) extends AtomController {
 
   import authActions.APIAuthAction
 

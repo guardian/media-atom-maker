@@ -11,14 +11,10 @@ import model.commands.CommandExceptions._
 import util._
 import util.atom.MediaAtomImplicits
 
-case class ActiveAssetCommand(atomId: String, youtubeId: String)
-                             (implicit previewDataStore: PreviewDataStore,
-                              previewPublisher: PreviewAtomPublisher,
-                              publishedDataStore: PublishedDataStore,
-                              livePublisher: LiveAtomPublisher,
-                              val youtubeConfig: YouTubeConfig,
-                              auditDataStore: AuditDataStore,
-                              user: PandaUser)
+case class ActiveAssetCommand(atomId: String, youtubeId: String, previewDataStore: PreviewDataStore,
+                              previewPublisher: PreviewAtomPublisher, publishedDataStore: PublishedDataStore,
+                              livePublisher: LiveAtomPublisher, youtubeConfig: YouTubeConfig,
+                              auditDataStore: AuditDataStore, user: PandaUser)
   extends Command
   with MediaAtomImplicits
   with Logging {
@@ -53,7 +49,7 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String)
               ))
 
             log.info(s"Marking $youtubeId as the active asset in $atomId")
-            UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom)).process()
+            UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom), previewDataStore, previewPublisher, auditDataStore, user).process()
 
           case None =>
             log.info(s"Cannot mark $youtubeId as the active asset in $atomId. No asset has that id")

@@ -20,13 +20,12 @@ import util.{YouTubeConfig, YouTubeVideoUpdateApi}
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success}
 
-case class PublishAtomCommand(id: String)(implicit val previewDataStore: PreviewDataStore,
-                                          val previewPublisher: PreviewAtomPublisher,
-                                          val publishedDataStore: PublishedDataStore,
-                                          val livePublisher: LiveAtomPublisher,
-                                          auditDataStore: AuditDataStore,
-                                          youtubeConfig: YouTubeConfig,
-                                          user: PandaUser) extends Command with AtomAPIActions with Logging {
+case class PublishAtomCommand(id: String, previewDataStore: PreviewDataStore, previewPublisher: PreviewAtomPublisher,
+                              publishedDataStore: PublishedDataStore, livePublisher: LiveAtomPublisher,
+                              auditDataStore: AuditDataStore, youtubeConfig: YouTubeConfig, user: PandaUser)
+
+  extends Command with AtomAPIActions with Logging {
+
   type T = MediaAtom
 
   def process(): T = {
@@ -97,7 +96,7 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
             log.info(s"Publishing atom $id")
 
             auditDataStore.auditPublish(id, user)
-            UpdateAtomCommand(id, MediaAtom.fromThrift(updatedAtom)).process()
+            UpdateAtomCommand(id, MediaAtom.fromThrift(updatedAtom), previewDataStore, previewPublisher, auditDataStore, user).process()
 
             setOldAssetsToPrivate(atom, api)
             publishAtomToLive(updatedAtom)

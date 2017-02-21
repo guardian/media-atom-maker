@@ -1,7 +1,5 @@
 package controllers
 
-import javax.inject._
-
 import com.gu.atom.data._
 import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.service.GoogleAuthException
@@ -13,11 +11,11 @@ import views.html.MediaAtom._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class MainApp @Inject() (previewDataStore: PreviewDataStore,
-                         publishedDataStore: PublishedDataStore,
-                         val wsClient: WSClient,
-                         val conf: Configuration,
-                         val authActions: HMACAuthActions)
+class MainApp (previewDataStore: PreviewDataStore,
+               publishedDataStore: PublishedDataStore,
+               wsClient: WSClient,
+               conf: Configuration,
+               val authActions: HMACAuthActions)
     extends AtomController {
 
   import authActions.{AuthAction, processGoogleCallback}
