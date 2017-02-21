@@ -77,10 +77,10 @@ export default class VideoUsages extends React.Component {
 
     return (
       <li key={usage} className="detail__list__item">
-        <a className="usage-icon" href={websiteLink} title="Open on theguardian.com" target="_blank">
+        <a className="usage--platform-link" href={websiteLink} title="Open on theguardian.com" target="_blank">
           <FrontendIcon />
         </a>
-        <a className="usage-icon" href={composerLink} title="Open in Composer" target="_blank">
+        <a className="usage--platform-link" href={composerLink} title="Open in Composer" target="_blank">
           <ComposerIcon />
         </a>
         {usage}
