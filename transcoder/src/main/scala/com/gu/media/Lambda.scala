@@ -44,7 +44,7 @@ class Lambda extends RequestStreamHandler {
         .withInput(jobInput)
         .withOutput(jobOutput)
 
-      transcoderClient.createJob(createJobRequest).getJob //TODO monitor progress
+      transcoderClient.createJob(createJobRequest).getJob
       logger.log("Job started")
 
 
