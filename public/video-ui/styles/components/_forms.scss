@@ -58,11 +58,6 @@
     border-color: $dangerColor;
   }
 
-  &--notification {
-    border-color: $brandColor;
-  }
-
-
   &--loading {
     background: {
       image: url(/assets/video-ui/images/progress-spinner.gif);
@@ -204,7 +199,7 @@
 }
 
 textarea {
-  resize: vertical; 
+  resize: vertical;
 }
 
 .form__group__header {
