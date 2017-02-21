@@ -5,16 +5,14 @@ import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import com.gu.contentatom.thrift.atom.media.Asset
 import com.gu.media.logging.Logging
 import com.gu.pandomainauth.model.{User => PandaUser}
-import data.AuditDataStore
+import data.{AuditDataStore, DataStores}
 import model.MediaAtom
 import model.commands.CommandExceptions._
 import util._
 import util.atom.MediaAtomImplicits
 
-case class ActiveAssetCommand(atomId: String, youtubeId: String, previewDataStore: PreviewDataStore,
-                              previewPublisher: PreviewAtomPublisher, publishedDataStore: PublishedDataStore,
-                              livePublisher: LiveAtomPublisher, youtubeConfig: YouTubeConfig,
-                              auditDataStore: AuditDataStore, user: PandaUser)
+case class ActiveAssetCommand(atomId: String, youtubeId: String, stores: DataStores,
+                              youtubeConfig: YouTubeConfig, user: PandaUser)
   extends Command
   with MediaAtomImplicits
   with Logging {
@@ -49,7 +47,7 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String, previewDataStor
               ))
 
             log.info(s"Marking $youtubeId as the active asset in $atomId")
-            UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom), previewDataStore, previewPublisher, auditDataStore, user).process()
+            UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom), stores, user).process()
 
           case None =>
             log.info(s"Cannot mark $youtubeId as the active asset in $atomId. No asset has that id")

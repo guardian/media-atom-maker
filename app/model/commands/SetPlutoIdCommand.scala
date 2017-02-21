@@ -1,16 +1,13 @@
 package model.commands
 
-import com.gu.atom.data.PreviewDataStore
-import com.gu.atom.publish.PreviewAtomPublisher
 import com.gu.media.logging.Logging
 import com.gu.pandomainauth.model.{User => PandaUser}
-import data.AuditDataStore
+import data.DataStores
 import model.MediaAtom
 import model.commands.CommandExceptions.AtomNotFound
 import util.atom.MediaAtomImplicits
 
-class SetPlutoIdCommand(atomId: String, plutoId: String, previewDataStore: PreviewDataStore,
-                        previewPublisher: PreviewAtomPublisher, auditDataStore: AuditDataStore, user: PandaUser)
+class SetPlutoIdCommand(atomId: String, plutoId: String, override val stores: DataStores, user: PandaUser)
 
   extends Command with MediaAtomImplicits with Logging {
 
@@ -25,7 +22,7 @@ class SetPlutoIdCommand(atomId: String, plutoId: String, previewDataStore: Previ
           data.copy(plutoProjectId = Some(plutoId))
         }
 
-        UpdateAtomCommand(atomId, MediaAtom.fromThrift(after), previewDataStore, previewPublisher, auditDataStore, user).process()
+        UpdateAtomCommand(atomId, MediaAtom.fromThrift(after), stores, user).process()
 
       case None =>
         log.info(s"Cannot set pluto id $plutoId for atom $atomId. No atom has that id")

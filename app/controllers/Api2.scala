@@ -1,12 +1,10 @@
 package controllers
 
 import _root_.util.{AWSConfig, YouTubeConfig, YouTubeVideoUpdateApi}
-import com.gu.atom.data.{PreviewDataStore, PublishedDataStore}
 import com.gu.atom.play.AtomAPIActions
-import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.action.UserRequest
-import data.AuditDataStore
+import data.DataStores
 import model.Category.Hosted
 import model.MediaAtom
 import model.commands.CommandExceptions._
@@ -16,15 +14,11 @@ import util.atom.MediaAtomImplicits
 import play.api.libs.json._
 import play.api.mvc.{AnyContent, Result}
 
-class Api2 (override val previewDataStore: PreviewDataStore,
-            override val publishedDataStore: PublishedDataStore,
-            override val livePublisher: LiveAtomPublisher,
-            override val previewPublisher: PreviewAtomPublisher,
+class Api2 (override val stores: DataStores,
             conf: Configuration,
             awsConfig: AWSConfig,
             val authActions: HMACAuthActions,
-            youtubeConfig: YouTubeConfig,
-            auditDataStore: AuditDataStore)
+            youtubeConfig: YouTubeConfig)
 
   extends MediaAtomImplicits
     with AtomAPIActions
@@ -69,8 +63,7 @@ class Api2 (override val previewDataStore: PreviewDataStore,
 
   def publishMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
     try {
-      val command = PublishAtomCommand(id, previewDataStore, previewPublisher, publishedDataStore,
-        livePublisher, auditDataStore, youtubeConfig, req.user)
+      val command = PublishAtomCommand(id, stores, youtubeConfig, req.user)
 
       val updatedAtom = command.process()
       Ok(Json.toJson(updatedAtom))
@@ -81,7 +74,7 @@ class Api2 (override val previewDataStore: PreviewDataStore,
 
   def createMediaAtom = APIHMACAuthAction { implicit req =>
     parse(req) { data: CreateAtomCommandData =>
-      val command = CreateAtomCommand(data, previewDataStore, previewPublisher, auditDataStore, req.user)
+      val command = CreateAtomCommand(data, stores, req.user)
       val atom = command.process()
 
       Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
@@ -96,7 +89,7 @@ class Api2 (override val previewDataStore: PreviewDataStore,
         case _ => atom
       }
 
-      val command = UpdateAtomCommand(id, atomWithExpiryChecked, previewDataStore, previewPublisher, auditDataStore, req.user)
+      val command = UpdateAtomCommand(id, atomWithExpiryChecked, stores, req.user)
       val updatedAtom = command.process()
 
       Ok(Json.toJson(updatedAtom))
@@ -106,7 +99,7 @@ class Api2 (override val previewDataStore: PreviewDataStore,
   def addAsset(atomId: String) = APIHMACAuthAction { implicit req =>
     implicit val readCommand: Reads[AddAssetCommand] =
       (JsPath \ "uri").read[String].map { videoUri =>
-        AddAssetCommand(atomId, videoUri, previewDataStore, previewPublisher, youtubeConfig, auditDataStore, req.user)
+        AddAssetCommand(atomId, videoUri, stores, youtubeConfig, req.user)
       }
 
     parse(req) { command: AddAssetCommand =>
@@ -121,8 +114,7 @@ class Api2 (override val previewDataStore: PreviewDataStore,
   def setActiveAsset(atomId: String) = APIHMACAuthAction { implicit req =>
     implicit val readCommand: Reads[ActiveAssetCommand] =
       (JsPath \ "youtubeId").read[String].map { videoUri =>
-        ActiveAssetCommand(atomId, videoUri, previewDataStore, previewPublisher, publishedDataStore,
-          livePublisher, youtubeConfig, auditDataStore, req.user)
+        ActiveAssetCommand(atomId, videoUri, stores, youtubeConfig, req.user)
       }
 
     parse(req) { command: ActiveAssetCommand =>
@@ -134,7 +126,7 @@ class Api2 (override val previewDataStore: PreviewDataStore,
   def setPlutoId(atomId: String) = APIHMACAuthAction { implicit req =>
     implicit val readCommand: Reads[SetPlutoIdCommand] =
       (JsPath \ "plutoId").read[String].map { plutoId =>
-        new SetPlutoIdCommand(atomId, plutoId, previewDataStore, previewPublisher, auditDataStore, req.user)
+        new SetPlutoIdCommand(atomId, plutoId, stores, req.user)
       }
 
     parse(req) { command: SetPlutoIdCommand =>

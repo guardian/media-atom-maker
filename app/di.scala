@@ -1,6 +1,4 @@
-import com.gu.atom.data.{PreviewMediaAtomDataStoreProvider, PublishedMediaAtomDataStoreProvider}
 import com.gu.atom.play.ReindexController
-import com.gu.atom.publish.{LiveKinesisAtomPublisher, PreviewKinesisAtomPublisher}
 import controllers._
 import data._
 import play.api.ApplicationLoader.Context
@@ -30,41 +28,33 @@ class MediaAtomMaker(context: Context)
   private val aws = new AWSConfig(configuration)
   private val logging = new LogShipping(aws)
 
-  private val previewStore = new PreviewMediaAtomDataStoreProvider(aws).get
-  private val publishedStore = new PublishedMediaAtomDataStoreProvider(aws).get
-  private val auditStore = new AuditDataStoreProvider(aws).get
-  private val reindexPreview = new PreviewAtomReindexerProvider(aws).get()
-  private val reindexPublished = new PublishedAtomReindexerProvider(aws).get()
-
-  private val livePublisher = new LiveKinesisAtomPublisher(aws.liveKinesisStreamName, aws.kinesisClient)
-  private val previewPublisher = new PreviewKinesisAtomPublisher(aws.previewKinesisStreamName, aws.kinesisClient)
+  private val stores = new DataStores(aws)
+  private val reindexer = buildReindexer()
 
   private val youTube = new YouTubeConfig(configuration)
 
-  private val reindexer =
-    new ReindexController(previewStore, publishedStore, reindexPreview, reindexPublished, configuration, actorSystem)
-
-  private val expiryPoller =
-    ExpiryPoller(previewStore, publishedStore, previewPublisher, livePublisher, youTube, auditStore, aws)
+  private val expiryPoller = ExpiryPoller(stores, youTube, aws)
 
   expiryPoller.start(actorSystem.scheduler)
 
-  private val api =
-    new Api(previewStore, publishedStore, livePublisher, previewPublisher, configuration, aws, hmacAuthActions)
-
-  private val api2 =
-    new Api2(previewStore, publishedStore, livePublisher, previewPublisher, configuration, aws, hmacAuthActions, youTube, auditStore)
+  private val api = new Api(stores, configuration, aws, hmacAuthActions)
+  private val api2 = new Api2(stores, configuration, aws, hmacAuthActions, youTube)
 
   private val uploads = new UploadController(hmacAuthActions, aws)
 
   private val support = new Support(hmacAuthActions, configuration)
   private val youTubeController = new controllers.Youtube(hmacAuthActions, youTube, defaultCacheApi)
 
-  private val mainApp = new MainApp(previewStore, publishedStore, wsClient, configuration, hmacAuthActions)
+  private val mainApp = new MainApp(stores, wsClient, configuration, hmacAuthActions)
   private val videoApp = new VideoUIApp(hmacAuthActions, configuration, aws)
 
   private val assets = new controllers.Assets(httpErrorHandler)
 
   override val router =
     new Routes(httpErrorHandler, mainApp, api, api2, uploads, youTubeController, reindexer, assets, videoApp, support)
+
+  private def buildReindexer() = {
+    // pass the parameters manually since the reindexer is part of the atom-maker lib
+    new ReindexController(stores.preview, stores.published, stores.reindexPreview, stores.reindexPublished, configuration, actorSystem)
+  }
 }

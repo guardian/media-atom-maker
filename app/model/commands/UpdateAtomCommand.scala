@@ -2,20 +2,17 @@ package model.commands
 
 import java.util.Date
 
-import com.gu.atom.data.PreviewDataStore
-import com.gu.atom.publish.PreviewAtomPublisher
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.media.logging.Logging
 import com.gu.pandomainauth.model.{User => PandaUser}
-import data.AuditDataStore
+import data.DataStores
 import model.commands.CommandExceptions._
 import model.{ChangeRecord, MediaAtom}
 import util.atom.MediaAtomImplicits
 
 import scala.util.{Failure, Success}
 
-case class UpdateAtomCommand(id: String, atom: MediaAtom, previewDataStore: PreviewDataStore,
-                             previewPublisher: PreviewAtomPublisher, auditDataStore: AuditDataStore, user: PandaUser)
+case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: DataStores, user: PandaUser)
     extends Command
     with MediaAtomImplicits
     with Logging {

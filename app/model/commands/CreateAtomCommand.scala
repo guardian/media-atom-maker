@@ -3,20 +3,18 @@ package model.commands
 import java.util.Date
 import java.util.UUID._
 
-import com.gu.atom.data.{IDConflictError, PreviewDataStore}
-import com.gu.atom.publish.PreviewAtomPublisher
-import com.gu.contentatom.thrift._
-import data.AuditDataStore
-import model.{ChangeRecord, Image, MediaAtom, PrivacyStatus}
-import model.commands.CommandExceptions._
-import org.cvogt.play.json.Jsonx
-
-import scala.util.{Failure, Success}
-import com.gu.contentatom.thrift.{Atom => ThriftAtom}
+import com.gu.atom.data.IDConflictError
 import com.gu.contentatom.thrift.atom.media.{Category => ThriftCategory, MediaAtom => ThriftMediaAtom, Metadata => ThriftMetadata}
+import com.gu.contentatom.thrift.{Atom => ThriftAtom, _}
 import com.gu.media.logging.Logging
 import com.gu.pandomainauth.model.{User => PandaUser}
+import data.DataStores
+import model.commands.CommandExceptions._
+import model.{ChangeRecord, Image, MediaAtom, PrivacyStatus}
+import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
+
+import scala.util.{Failure, Success}
 
 // Since the data store and publisher are injected rather than being objects we cannot serialize JSON directly into a
 // command so we'll use a small POD for easy JSONification
@@ -36,8 +34,7 @@ object CreateAtomCommandData {
   implicit val createAtomCommandFormat: Format[CreateAtomCommandData] = Jsonx.formatCaseClass[CreateAtomCommandData]
 }
 
-case class CreateAtomCommand(data: CreateAtomCommandData, previewDataStore: PreviewDataStore,
-                             previewPublisher: PreviewAtomPublisher, auditDataStore: AuditDataStore, user: PandaUser)
+case class CreateAtomCommand(data: CreateAtomCommandData, override val stores: DataStores, user: PandaUser)
 
   extends Command with Logging {
 

@@ -4,25 +4,20 @@ import java.net.URL
 import java.util.Date
 
 import cats.data.Xor
-import com.gu.atom.data.{PreviewDataStore, PublishedDataStore}
 import com.gu.atom.play.AtomAPIActions
-import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
-import com.gu.pandomainauth.model.{User => PandaUser}
-import data.AuditDataStore
-import model.{ChangeRecord, ImageAsset, MediaAtom, UpdatedMetadata}
-import CommandExceptions._
 import com.gu.media.logging.Logging
+import com.gu.pandomainauth.model.{User => PandaUser}
+import data.DataStores
 import model.Platform.Youtube
-import model.PrivacyStatus
+import model.commands.CommandExceptions._
+import model._
 import util.{YouTubeConfig, YouTubeVideoUpdateApi}
 
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success}
 
-case class PublishAtomCommand(id: String, previewDataStore: PreviewDataStore, previewPublisher: PreviewAtomPublisher,
-                              publishedDataStore: PublishedDataStore, livePublisher: LiveAtomPublisher,
-                              auditDataStore: AuditDataStore, youtubeConfig: YouTubeConfig, user: PandaUser)
+case class PublishAtomCommand(id: String, override val stores: DataStores, youtubeConfig: YouTubeConfig, user: PandaUser)
 
   extends Command with AtomAPIActions with Logging {
 
@@ -96,7 +91,7 @@ case class PublishAtomCommand(id: String, previewDataStore: PreviewDataStore, pr
             log.info(s"Publishing atom $id")
 
             auditDataStore.auditPublish(id, user)
-            UpdateAtomCommand(id, MediaAtom.fromThrift(updatedAtom), previewDataStore, previewPublisher, auditDataStore, user).process()
+            UpdateAtomCommand(id, MediaAtom.fromThrift(updatedAtom), stores, user).process()
 
             setOldAssetsToPrivate(atom, api)
             publishAtomToLive(updatedAtom)

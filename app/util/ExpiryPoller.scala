@@ -1,30 +1,19 @@
 package util
 
 import java.util.Date
-import javax.inject.Inject
+
 import akka.actor.Scheduler
-import data.AuditDataStore
-import model.MediaAtom
-import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
-
-import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
-import model.commands.{PublishAtomCommand, UpdateAtomCommand}
-import com.gu.atom.data.{PublishedDataStore, PreviewDataStore}
 import com.gu.pandomainauth.model.{User => PandaUser}
+import data.{DataStores, HasDataStores}
+import model.commands.{PublishAtomCommand, UpdateAtomCommand}
 
-case class ExpiryPoller(previewDataStore: PreviewDataStore,
-                        publishedDataStore: PublishedDataStore,
-                        previewPublisher: PreviewAtomPublisher,
-                        livePublisher: LiveAtomPublisher,
-                        youtubeConfig: YouTubeConfig,
-                        auditDataStore: AuditDataStore,
-                        awsConfig: AWSConfig
-                       ){
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+
+case class ExpiryPoller(override val stores: DataStores, youtubeConfig: YouTubeConfig, awsConfig: AWSConfig) extends HasDataStores {
+
   def start(scheduler: Scheduler): Unit = {
-
     scheduler.schedule(0.seconds, 6.hours)(checkExpiryDates())
-
   }
 
   def checkExpiryDates(): Unit = {
@@ -43,12 +32,10 @@ case class ExpiryPoller(previewDataStore: PreviewDataStore,
 
             publishedDataStore.getAtom(atomId) match {
               case Some(atom) =>
-                PublishAtomCommand(atomId, previewDataStore, previewPublisher, publishedDataStore, livePublisher,
-                  auditDataStore, youtubeConfig, user).process()
+                PublishAtomCommand(atomId, stores, youtubeConfig, user).process()
 
               case None =>
-                UpdateAtomCommand(expiredAtom.id, expiredAtom, previewDataStore, previewPublisher, auditDataStore, user)
-                  .process()
+                UpdateAtomCommand(expiredAtom.id, expiredAtom, stores, user).process()
             }
           }
           case _ =>

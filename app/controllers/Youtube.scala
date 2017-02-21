@@ -4,13 +4,12 @@ import play.api.cache._
 import com.gu.pandahmac.HMACAuthActions
 import model.{YouTubeChannel, YouTubeVideoCategory}
 import play.api.libs.json.Json
+import play.api.mvc.Controller
 import util.{YouTubeChannelsApi, YouTubeConfig, YouTubeVideoCategoryApi}
+
 import scala.concurrent.duration._
 
-class Youtube (val authActions: HMACAuthActions,
-               val youtubeConfig: YouTubeConfig,
-               val cache: CacheApi) extends AtomController {
-
+class Youtube (val authActions: HMACAuthActions, youtubeConfig: YouTubeConfig, cache: CacheApi) extends Controller {
   import authActions.AuthAction
 
   def listCategories() = AuthAction {
