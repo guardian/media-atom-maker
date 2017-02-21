@@ -140,8 +140,7 @@ class VideoDisplay extends React.Component {
                   video={this.props.video || {}}
                   publishedVideo={this.props.publishedVideo || {}}
                   fetchUsages={this.props.videoActions.getUsages}
-                  usages={this.props.usages[this.props.video.id] || {}}
-                  composerPageWithUsage={this.props.composerPageWithUsage[this.props.video.id] || {}}
+                  usages={this.props.usages || []}
                   createComposerPage={this.props.videoActions.createVideoPage}
                 />
               </div>

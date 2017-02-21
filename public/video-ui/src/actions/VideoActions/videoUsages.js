@@ -7,13 +7,10 @@ function requestVideoUsages() {
   };
 }
 
-function receiveVideoUsages(usages, composerIdsWithUsage, id) {
-
-  const usageObject = {[id]: {usagesWithoutComposer: usages, composerIdsWithUsage: composerIdsWithUsage}};
-
+function receiveVideoUsages(usages) {
   return {
     type:           'VIDEO_USAGE_GET_RECEIVE',
-    usages:         usageObject,
+    usages:         usages,
     receivedAt:     Date.now()
   };
 }
@@ -33,22 +30,7 @@ export function getUsages(id) {
     return VideosApi.getVideoUsages(id)
     .then(res => {
       const usages = res.response.results;
-      Promise.all(usages.map(VideosApi.fetchComposerId))
-      .then((composerIds) => {
-        const composerIdsWithUsage = composerIds.reduce((idsWithUsage, composerId, index) => {
-          if (composerId !== '') {
-            idsWithUsage.push({usage: usages[index], composerId: composerId});
-          }
-          return idsWithUsage;
-        }, []);
-        const usagesWithoutComposer = usages.filter(usage => {
-          return composerIdsWithUsage.every(idWithUsage => {
-            return idWithUsage.usage !== usage;
-          });
-        });
-
-        dispatch(receiveVideoUsages(usagesWithoutComposer, composerIdsWithUsage, id));
-      });
+      dispatch(receiveVideoUsages(usages));
     })
     .catch(error => {
       dispatch(errorReceivingVideoUsages(error));
