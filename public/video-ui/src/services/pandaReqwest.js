@@ -19,8 +19,7 @@ export function pandaReqwest(reqwestBody) {
             reqwest(reqwestBody)
               .then(res => resolve(res))
               .fail(err => reject(err));
-          })
-          .fail(error => {
+          }, error => {
               throw error;
           });
       });
