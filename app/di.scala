@@ -35,7 +35,7 @@ class MediaAtomMaker(context: Context)
   private val youTube = new YouTube(config)
 
   private val expiryPoller = ExpiryPoller(stores, youTube, aws)
-  expiryPoller.start(actorSystem.scheduler)
+  expiryPoller.start(actorSystem.scheduler)(actorSystem.dispatcher)
 
   private val api = new Api(stores, configuration, aws, hmacAuthActions)
   private val api2 = new Api2(stores, configuration, hmacAuthActions, youTube, expiryPoller)

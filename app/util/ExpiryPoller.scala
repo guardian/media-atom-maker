@@ -12,13 +12,13 @@ import model.Platform.Youtube
 import model.{MediaAtom, PrivacyStatus}
 import model.commands.{PublishAtomCommand, UpdateAtomCommand}
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
 case class ExpiryPoller(override val stores: DataStores, youTube: YouTube, awsConfig: AWSConfig)
   extends HasDataStores with Logging {
 
-  def start(scheduler: Scheduler): Unit = {
+  def start(scheduler: Scheduler)(implicit ec: ExecutionContext): Unit = {
     scheduler.schedule(0.seconds, 6.hours)(checkExpiryDates())
   }
 
