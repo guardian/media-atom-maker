@@ -28,6 +28,7 @@ object Dependencies {
   val awsSts = "com.amazonaws" % "aws-java-sdk-sts" % awsVersion
   val awsEc2 = "com.amazonaws" % "aws-java-sdk-ec2" % awsVersion
   val awsS3 = "com.amazonaws" % "aws-java-sdk-s3" % awsVersion
+  val awsDynamo = "com.amazonaws" % "aws-java-sdk-dynamodb" % awsVersion
   val awsLambdaCore = "com.amazonaws" % "aws-lambda-java-core" % "1.1.0"
 
   val logstashLogbackEncoder = "net.logstash.logback" % "logstash-logback-encoder" % "4.8"
@@ -69,7 +70,7 @@ object Dependencies {
   )
 
   val commonDependencies = googleApi ++ Seq(
-    typesafeConfig, awsLambdaCore, awsS3, playJsonExtensions, logstashLogbackEncoder, kinesisLogbackAppender
+    typesafeConfig, awsLambdaCore, awsS3, awsDynamo, playJsonExtensions, logstashLogbackEncoder, kinesisLogbackAppender
   )
 
   val appDependencies = panda ++ scanamo ++ scrooge ++ atomMaker ++ slf4j ++ Seq(

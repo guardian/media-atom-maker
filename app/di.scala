@@ -7,7 +7,7 @@ import play.api.inject.DefaultApplicationLifecycle
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext, LoggerConfigurator}
 import router.Routes
-import util.{AWSConfig, ExpiryPoller, LogShipping, YouTubeConfig}
+import util.{AWSConfig, ExpiryPoller, YouTubeConfig}
 
 class MediaAtomMakerLoader extends ApplicationLoader {
   override def load(context: Context): Application = new MediaAtomMaker(context).application
@@ -25,8 +25,8 @@ class MediaAtomMaker(context: Context)
 
   private val hmacAuthActions = new PanDomainAuthActions(wsClient, configuration, new DefaultApplicationLifecycle)
 
-  private val aws = new AWSConfig(configuration)
-  private val logging = new LogShipping(aws)
+  private val aws = new AWSConfig(config)
+  aws.startKinesisLogging("media-atom-maker")
 
   private val stores = new DataStores(aws)
   private val reindexer = buildReindexer()
@@ -34,7 +34,6 @@ class MediaAtomMaker(context: Context)
   private val youTube = new YouTubeConfig(configuration)
 
   private val expiryPoller = ExpiryPoller(stores, youTube, aws)
-
   expiryPoller.start(actorSystem.scheduler)
 
   private val api = new Api(stores, configuration, aws, hmacAuthActions)
