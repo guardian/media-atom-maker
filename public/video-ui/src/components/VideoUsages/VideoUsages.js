@@ -3,6 +3,7 @@ import {getVideoBlock} from '../../util/getVideoBlock';
 import {getStore} from '../../util/storeAccessor';
 import {isVideoPublished} from '../../util/isVideoPublished';
 import {hasUnpublishedChanges} from '../../util/hasUnpublishedChanges';
+import {FrontendIcon, ComposerIcon} from '../Icon';
 
 export default class VideoUsages extends React.Component {
 
@@ -72,10 +73,17 @@ export default class VideoUsages extends React.Component {
 
   renderUsage = (usage) => {
     const composerLink = `${this.getComposerUrl()}/find-by-path/${usage}`;
+    const websiteLink = `https://gu.com/${usage}`;
 
     return (
       <li key={usage} className="detail__list__item">
-        <a href={composerLink}>{usage}</a>
+        <a className="usage-icon" href={websiteLink} title="Open on theguardian.com" target="_blank">
+          <FrontendIcon />
+        </a>
+        <a className="usage-icon" href={composerLink} title="Open in Composer" target="_blank">
+          <ComposerIcon />
+        </a>
+        {usage}
       </li>
     );
   };

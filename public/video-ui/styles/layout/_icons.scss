@@ -2,7 +2,7 @@
     font-family: 'Material Icons';
     font-weight: normal;
     font-style: normal;
-    font-size: 16px;  /* Preferred icon size */
+    font-size: $iconSize;
     display: inline-block;
     width: 1em;
     height: 1em;
@@ -54,3 +54,23 @@
   }
 }
 
+.icon__warning {
+  padding: 0px 20px 20px 0px;
+}
+
+.svg-icon {
+  svg {
+    width: $iconSize;
+    height: $iconSize;
+  }
+
+  path {
+    fill: $color600Grey;
+  }
+
+  &:hover {
+    path {
+      fill: $color300Grey;
+    }
+  }
+}
