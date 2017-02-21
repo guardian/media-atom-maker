@@ -1,7 +1,8 @@
 package controllers
 
-import _root_.util.{AWSConfig, YouTubeConfig, YouTubeVideoUpdateApi}
+import _root_.util.ExpiryPoller
 import com.gu.atom.play.AtomAPIActions
+import com.gu.media.youtube.YouTube
 import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.action.UserRequest
 import data.DataStores
@@ -14,11 +15,8 @@ import util.atom.MediaAtomImplicits
 import play.api.libs.json._
 import play.api.mvc.{AnyContent, Result}
 
-class Api2 (override val stores: DataStores,
-            conf: Configuration,
-            awsConfig: AWSConfig,
-            val authActions: HMACAuthActions,
-            youtubeConfig: YouTubeConfig)
+class Api2 (override val stores: DataStores, conf: Configuration, val authActions: HMACAuthActions,
+            youTube: YouTube, expiryPoller: ExpiryPoller)
 
   extends MediaAtomImplicits
     with AtomAPIActions
@@ -63,7 +61,7 @@ class Api2 (override val stores: DataStores,
 
   def publishMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
     try {
-      val command = PublishAtomCommand(id, stores, youtubeConfig, req.user)
+      val command = PublishAtomCommand(id, stores, youTube, req.user)
 
       val updatedAtom = command.process()
       Ok(Json.toJson(updatedAtom))
@@ -84,7 +82,7 @@ class Api2 (override val stores: DataStores,
   def putMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
     parse(req) { atom: MediaAtom =>
       val thriftAtom = atom.asThrift
-      val atomWithExpiryChecked = YouTubeVideoUpdateApi(youtubeConfig).updateStatusIfExpired(thriftAtom) match {
+      val atomWithExpiryChecked = expiryPoller.updateStatusIfExpired(thriftAtom) match {
         case Some(expiredAtom) => expiredAtom
         case _ => atom
       }
@@ -99,7 +97,7 @@ class Api2 (override val stores: DataStores,
   def addAsset(atomId: String) = APIHMACAuthAction { implicit req =>
     implicit val readCommand: Reads[AddAssetCommand] =
       (JsPath \ "uri").read[String].map { videoUri =>
-        AddAssetCommand(atomId, videoUri, stores, youtubeConfig, req.user)
+        AddAssetCommand(atomId, videoUri, stores, youTube, req.user)
       }
 
     parse(req) { command: AddAssetCommand =>
@@ -114,7 +112,7 @@ class Api2 (override val stores: DataStores,
   def setActiveAsset(atomId: String) = APIHMACAuthAction { implicit req =>
     implicit val readCommand: Reads[ActiveAssetCommand] =
       (JsPath \ "youtubeId").read[String].map { videoUri =>
-        ActiveAssetCommand(atomId, videoUri, stores, youtubeConfig, req.user)
+        ActiveAssetCommand(atomId, videoUri, stores, youTube, req.user)
       }
 
     parse(req) { command: ActiveAssetCommand =>

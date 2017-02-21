@@ -3,15 +3,16 @@ package model.commands
 import com.gu.contentatom.thrift.atom.media.Category.Hosted
 import com.gu.contentatom.thrift.atom.media.{Asset, Platform}
 import com.gu.media.logging.Logging
+import com.gu.media.youtube.YouTube
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.MediaAtom
 import model.commands.CommandExceptions._
 import util.atom.MediaAtomImplicits
-import util.{ThriftUtil, YouTubeConfig, YouTubeVideoInfoApi}
+import util.ThriftUtil
 
 case class AddAssetCommand(atomId: String, videoUri: String, override val stores: DataStores,
-                           youtubeConfig: YouTubeConfig, user: PandaUser)
+                           youTube: YouTube, user: PandaUser)
     extends Command
     with MediaAtomImplicits
     with Logging {
@@ -21,7 +22,7 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
   private def validateYoutubeOwnership (asset: Asset) = {
     asset.platform match {
       case Platform.Youtube => {
-        val isMine = YouTubeVideoInfoApi(youtubeConfig).isMyVideo(asset.id)
+        val isMine = youTube.isMyVideo(asset.id)
 
         if (! isMine) {
           log.info(s"Cannot add asset $videoUri to $atomId. The youtube video is not on a Guardian channel")
@@ -67,7 +68,7 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
                     validateYoutubeOwnership(newAsset)
                   }
 
-                  val assetDuration = YouTubeVideoInfoApi(youtubeConfig).getDuration(videoId)
+                  val assetDuration = youTube.getDuration(videoId)
 
                   val updatedAtom = atom
                     .withData(mediaAtom.copy(

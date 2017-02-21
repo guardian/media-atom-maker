@@ -14,7 +14,7 @@ object Dependencies {
   val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0"
   val cats = "org.typelevel" %% "cats-core" % "0.7.0" // for interacting with scanamo
   val jacksonDatabind = "com.fasterxml.jackson.core" % "jackson-databind" % "2.7.0"
-  val playJsonExtensions = "org.cvogt" %% "play-json-extensions" % "0.6.0"
+  val playJsonExtensions = "org.cvogt" %% "play-json-extensions" % "0.8.0"
   val okHttp = "com.squareup.okhttp" % "okhttp" % "2.4.0"
   val diff = "ai.x" %% "diff" % "1.2.0"
   val typesafeConfig = "com.typesafe" % "config" % "1.3.1"

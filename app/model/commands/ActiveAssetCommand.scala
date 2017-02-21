@@ -4,6 +4,7 @@ import com.gu.atom.data.{PreviewDataStore, PublishedDataStore}
 import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import com.gu.contentatom.thrift.atom.media.Asset
 import com.gu.media.logging.Logging
+import com.gu.media.youtube.YouTube
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.{AuditDataStore, DataStores}
 import model.MediaAtom
@@ -12,7 +13,7 @@ import util._
 import util.atom.MediaAtomImplicits
 
 case class ActiveAssetCommand(atomId: String, youtubeId: String, stores: DataStores,
-                              youtubeConfig: YouTubeConfig, user: PandaUser)
+                              youTube: YouTube, user: PandaUser)
   extends Command
   with MediaAtomImplicits
   with Logging {
@@ -21,7 +22,7 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String, stores: DataSto
 
   def getVideoStatus(youtubeId: String): YoutubeResponse = {
     try {
-      val status = YouTubeVideoInfoApi(youtubeConfig).getProcessingStatus(youtubeId)
+      val status = youTube.getProcessingStatus(youtubeId)
       new SuccesfulYoutubeResponse(status)
     }
     catch {
@@ -38,7 +39,7 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String, stores: DataSto
         atomAssets.find(asset => asset.id == youtubeId) match {
           case Some(newActiveAsset) =>
 
-            val ytAssetDuration = YouTubeVideoInfoApi(youtubeConfig).getDuration(newActiveAsset.id)
+            val ytAssetDuration = youTube.getDuration(newActiveAsset.id)
 
             val updatedAtom = atom
               .withData(mediaAtom.copy(

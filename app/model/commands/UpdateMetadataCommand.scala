@@ -1,15 +1,15 @@
 package model.commands
 
 import com.gu.media.logging.Logging
+import com.gu.media.youtube.YouTube
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
 import model.{MediaAtom, UpdatedMetadata}
 import util.atom.MediaAtomImplicits
-import util.{YouTubeConfig, YouTubeVideoInfoApi}
 
 case class UpdateMetadataCommand(atomId: String, metadata: UpdatedMetadata, override val stores: DataStores,
-                                 youtubeConfig: YouTubeConfig, user: PandaUser)
+                                 youTube: YouTube, user: PandaUser)
     extends Command
     with MediaAtomImplicits
     with Logging {
@@ -35,7 +35,7 @@ case class UpdateMetadataCommand(atomId: String, metadata: UpdatedMetadata, over
               expiryDate = metadata.expiryDate
             ))
 
-            val activeYTAssetDuration = YouTubeVideoInfoApi(youtubeConfig).getDuration(youtubeAsset.id)
+            val activeYTAssetDuration = youTube.getDuration(youtubeAsset.id)
 
             val updatedAtom = atom.updateData { media =>
                 media.copy(

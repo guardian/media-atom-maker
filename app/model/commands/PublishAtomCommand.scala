@@ -7,17 +7,17 @@ import cats.data.Xor
 import com.gu.atom.play.AtomAPIActions
 import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
 import com.gu.media.logging.Logging
+import com.gu.media.youtube.{YouTube, YouTubeMetadataUpdate}
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.Platform.Youtube
 import model.commands.CommandExceptions._
 import model._
-import util.{YouTubeConfig, YouTubeVideoUpdateApi}
 
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success}
 
-case class PublishAtomCommand(id: String, override val stores: DataStores, youtubeConfig: YouTubeConfig, user: PandaUser)
+case class PublishAtomCommand(id: String, override val stores: DataStores, youTube: YouTube, user: PandaUser)
 
   extends Command with AtomAPIActions with Logging {
 
@@ -33,7 +33,6 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youtu
 
       case Some(thriftAtom) => {
         val atom = MediaAtom.fromThrift(thriftAtom)
-        val api = YouTubeVideoUpdateApi(youtubeConfig)
 
         atom.privacyStatus match {
           case Some(PrivacyStatus.Private) =>
@@ -45,7 +44,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youtu
             MediaAtom.getActiveYouTubeAsset(atom) match {
               case Some(asset) => {
                 try {
-                  updateThumbnail(atom, api)
+                  updateThumbnail(atom)
                 } catch {
                   case NonFatal(e) => {
                     log.error(s"Unable to update thumbnail for asset=${asset.id} atom={$id}", e)
@@ -64,15 +63,16 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youtu
                   asset.version == atomVersion
                 }).get.id
 
-                api.updateMetadata(activeAssetId, UpdatedMetadata(
-                  Some(atom.title),
-                  atom.description,
-                  Some(atom.tags),
-                  atom.youtubeCategoryId,
-                  atom.license,
-                  atom.privacyStatus,
-                  atom.expiryDate,
-                  atom.plutoProjectId))
+                val metadata = YouTubeMetadataUpdate(
+                  title = Some(atom.title),
+                  categoryId = atom.youtubeCategoryId,
+                  description = atom.description,
+                  tags = atom.tags,
+                  license = atom.license,
+                  privacyStatus = atom.privacyStatus.map(_.name)
+                )
+
+                youTube.updateMetadata(activeAssetId, metadata)
               }
               case None =>
                 log.info(s"Not updating YouTube metadata for atom $id as it has no active asset")
@@ -93,7 +93,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youtu
             auditDataStore.auditPublish(id, user)
             UpdateAtomCommand(id, MediaAtom.fromThrift(updatedAtom), stores, user).process()
 
-            setOldAssetsToPrivate(atom, api)
+            setOldAssetsToPrivate(atom)
             publishAtomToLive(updatedAtom)
           }
         }
@@ -121,7 +121,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youtu
     }
   }
 
-  private def updateThumbnail(atom: MediaAtom, api: YouTubeVideoUpdateApi): Unit = {
+  private def updateThumbnail(atom: MediaAtom): Unit = {
     val asset = atom.getActiveAsset.get
 
     val master = atom.posterImage.flatMap(_.master).get
@@ -138,15 +138,15 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youtu
       ).get
     }
 
-    api.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
+    youTube.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
   }
 
-  private def setOldAssetsToPrivate(atom: MediaAtom, api: YouTubeVideoUpdateApi): Unit = {
+  private def setOldAssetsToPrivate(atom: MediaAtom): Unit = {
     MediaAtom.getActiveYouTubeAsset(atom).foreach { activeAsset =>
       atom.assets.collect {
         case asset if asset.platform == Youtube && asset.id != activeAsset.id =>
           log.info(s"Marking asset=${asset.id} atom=${atom.id} as private")
-          api.setStatusToPrivate(asset.id, atom.id)
+          youTube.setStatusToPrivate(asset.id, atom.id)
       }
     }
   }
