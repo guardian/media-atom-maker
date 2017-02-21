@@ -1,7 +1,6 @@
 package controllers
 
 import java.util.UUID
-import javax.inject.Inject
 
 import com.amazonaws.services.securitytoken.model.AssumeRoleRequest
 import com.gu.media.logging.Logging
@@ -11,7 +10,7 @@ import play.api.libs.json.{JsArray, JsObject, JsString, Json}
 import play.api.mvc.Results.Ok
 import util.AWSConfig
 
-class UploadController @Inject ()(implicit val authActions: HMACAuthActions, val awsConfig: AWSConfig) extends Logging {
+class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig) extends Logging {
   import authActions.APIHMACAuthAction
 
   def create(atomId: String) = APIHMACAuthAction {
@@ -49,7 +48,7 @@ class UploadController @Inject ()(implicit val authActions: HMACAuthActions, val
     val keyArn = s"arn:aws:s3:::${awsConfig.userUploadBucket}/$key"
 
     val permissions = List("s3:PutObject", "s3:PutObjectAcl", "s3:ListMultipartUploadParts",
-                           "s3:AbortMultipartUpload", "s3:ListBucketMultipartUploads")
+      "s3:AbortMultipartUpload", "s3:ListBucketMultipartUploads")
 
     val json = JsObject(List(
       "Statement" -> JsArray(List(

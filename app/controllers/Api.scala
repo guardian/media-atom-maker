@@ -1,50 +1,43 @@
 package controllers
 
 import java.util.Date
-import javax.inject._
 
-import util.{ThriftUtil, AWSConfig}
 import com.gu.atom.data._
-import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
+import com.gu.atom.play.AtomAPIActions
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
+import com.gu.media.aws.AwsAccess
 import com.gu.pandahmac.HMACAuthActions
+import data.DataStores
 import data.JsonConversions._
-import util.ThriftUtil._
-import play.api.Configuration
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import util.atom.MediaAtomImplicits
+import util.ThriftUtil._
 import play.api.libs.json._
-
-import com.gu.atom.play._
 
 import scala.util.{Failure, Success}
 
-class Api @Inject() (val previewDataStore: PreviewDataStore,
-                     val publishedDataStore: PublishedDataStore,
-                     val livePublisher: LiveAtomPublisher,
-                     val previewPublisher: PreviewAtomPublisher,
-                     val conf: Configuration,
-                     val awsConfig: AWSConfig,
-                     val authActions: HMACAuthActions)
-    extends AtomController
-    with MediaAtomImplicits
-    with AtomAPIActions {
+class Api (override val stores: DataStores, awsConfig: AwsAccess, val authActions: HMACAuthActions)
+  extends AtomController with AtomAPIActions {
 
   import authActions.APIAuthAction
+
+  override val livePublisher = stores.livePublisher
+  override val previewPublisher = stores.previewPublisher
+  override val previewDataStore = stores.preview
+  override val publishedDataStore = stores.published
 
   private def atomUrl(id: String) = s"/atom/$id"
 
   // takes a configured URL object and shows how it would look as a content atom
 
   def getMediaAtom(id: String) = APIAuthAction { implicit req =>
-    previewDataStore.getAtom(id) match {
+    stores.preview.getAtom(id) match {
       case Some(atom) => Ok(Json.toJson(atom))
       case None => NotFound(jsonError(s"no atom with id $id found"))
     }
   }
 
   def getPublishedMediaAtom(id: String) = APIAuthAction { implicit req =>
-    publishedDataStore.getAtom(id) match {
+    stores.published.getAtom(id) match {
       case Some(atom) => Ok(Json.toJson(atom))
       case None => Ok("not published")
     }
@@ -52,7 +45,7 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
 
   def createMediaAtom = thriftResultAction(atomBodyParser) { implicit req =>
     val atom = req.body
-    previewDataStore.createAtom(atom).fold(
+    stores.preview.createAtom(atom).fold(
       { case IDConflictError =>
         Conflict(s"${atom.id} already exists")
         case _ => InternalServerError("Unknown error")
@@ -60,7 +53,7 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
       _ => {
         val event = ContentAtomEvent(atom, EventType.Update, now())
 
-        previewPublisher.publishAtomEvent(event) match {
+        stores.previewPublisher.publishAtomEvent(event) match {
           case Success(_)  => NoContent
           case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
         }
@@ -73,7 +66,7 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
 
   def updateMediaAtom(atomId: String) = thriftResultAction(atomBodyParser) { implicit req =>
     val updatedData = req.body.tdata
-    previewDataStore.getAtom(atomId) match {
+    stores.preview.getAtom(atomId) match {
       case Some(atom) =>
         val activeVersion = atom.tdata.activeVersion getOrElse {
           val versions = atom.tdata.assets.map(_.version)
@@ -91,12 +84,12 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
                           posterUrl = updatedData.posterUrl
                         )
                       }
-        previewDataStore.updateAtom(newAtom).fold(
+        stores.preview.updateAtom(newAtom).fold(
           err => InternalServerError(err.msg),
           _ => {
             val event = ContentAtomEvent(newAtom, EventType.Update, now())
 
-            previewPublisher.publishAtomEvent(event) match {
+            stores.previewPublisher.publishAtomEvent(event) match {
               case Success(_) => NoContent
               case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
             }
@@ -111,7 +104,7 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
   def addAsset(atomId: String) = thriftResultAction(assetBodyParser) { implicit req =>
     val newAsset = req.body
 
-    previewDataStore.getAtom(atomId) match {
+    stores.preview.getAtom(atomId) match {
       case Some(atom) =>
         val ma = atom.tdata
         val assets = ma.assets
@@ -128,13 +121,13 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
             ))
             .withRevision(_ + 1)
 
-          previewDataStore.updateAtom(newAtom).fold(
+          stores.preview.updateAtom(newAtom).fold(
             err => InternalServerError(err.msg),
             _ => {
 
               val event = ContentAtomEvent(newAtom, EventType.Update, now())
 
-              previewPublisher.publishAtomEvent(event) match {
+              stores.previewPublisher.publishAtomEvent(event) match {
                 case Success(_) => NoContent
                 case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
               }
@@ -150,7 +143,7 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
   def now() = new Date().getTime
 
   def revertAtom(atomId: String, version: Long) = APIAuthAction { implicit req =>
-    previewDataStore.getAtom(atomId) match {
+    stores.preview.getAtom(atomId) match {
       case Some(atom) =>
         if(!atom.tdata.assets.exists(_.version == version)) {
           InternalServerError(jsonError(s"no asset is listed for version $version"))
@@ -159,7 +152,7 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
             .withRevision(_ + 1)
             .updateData { media => media.copy(activeVersion = Some(version)) }
 
-          previewDataStore.updateAtom(newAtom)
+          stores.preview.updateAtom(newAtom)
           Ok(Json.toJson(newAtom))
         }
       case None => NotFound(s"atom not found $atomId")
@@ -168,7 +161,7 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
 
   // TODO -> this needs to handle paging
   def listAtoms = APIAuthAction { implicit req =>
-    previewDataStore.listAtoms.fold(
+    stores.preview.listAtoms.fold(
       err =>   InternalServerError(jsonError(err.msg)),
       atoms => Ok(Json.toJson(atoms.toList))
     )

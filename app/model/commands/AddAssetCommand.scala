@@ -1,33 +1,23 @@
 package model.commands
 
-import com.gu.atom.data.PreviewDataStore
-import com.gu.atom.publish.PreviewAtomPublisher
 import com.gu.contentatom.thrift.atom.media.Category.Hosted
 import com.gu.contentatom.thrift.atom.media.{Asset, Platform}
-import com.gu.media.logging.Logging
+import com.gu.media.youtube.YouTubeVideos
 import com.gu.pandomainauth.model.{User => PandaUser}
-import data.AuditDataStore
+import data.DataStores
 import model.MediaAtom
 import model.commands.CommandExceptions._
-import util.atom.MediaAtomImplicits
-import util.{ThriftUtil, YouTubeConfig, YouTubeVideoInfoApi}
+import util.ThriftUtil
 
-case class AddAssetCommand(atomId: String, videoUri: String)
-                          (implicit previewDataStore: PreviewDataStore,
-                           previewPublisher: PreviewAtomPublisher,
-                           val youtubeConfig: YouTubeConfig,
-                           auditDataStore: AuditDataStore,
-                           user: PandaUser)
-    extends Command
-    with MediaAtomImplicits
-    with Logging {
+case class AddAssetCommand(atomId: String, videoUri: String, user: PandaUser, stores: DataStores,
+                           youTube: YouTubeVideos) extends Command {
 
   type T = MediaAtom
 
   private def validateYoutubeOwnership (asset: Asset) = {
     asset.platform match {
       case Platform.Youtube => {
-        val isMine = YouTubeVideoInfoApi(youtubeConfig).isMyVideo(asset.id)
+        val isMine = youTube.isMyVideo(asset.id)
 
         if (! isMine) {
           log.info(s"Cannot add asset $videoUri to $atomId. The youtube video is not on a Guardian channel")
@@ -51,7 +41,7 @@ case class AddAssetCommand(atomId: String, videoUri: String)
   def process(): MediaAtom = {
     log.info(s"Request to add new asset $videoUri to $atomId")
 
-    previewDataStore.getAtom(atomId) match {
+    stores.preview.getAtom(atomId) match {
       case Some(atom) => {
         ThriftUtil.parsePlatform(videoUri) match {
           case Right(Platform.Youtube) => {
@@ -73,7 +63,7 @@ case class AddAssetCommand(atomId: String, videoUri: String)
                     validateYoutubeOwnership(newAsset)
                   }
 
-                  val assetDuration = YouTubeVideoInfoApi(youtubeConfig).getDuration(videoId)
+                  val assetDuration = youTube.getDuration(videoId)
 
                   val updatedAtom = atom
                     .withData(mediaAtom.copy(
@@ -83,7 +73,7 @@ case class AddAssetCommand(atomId: String, videoUri: String)
 
                   log.info(s"Adding new asset $videoUri to $atomId")
 
-                  UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom)).process()
+                  UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom), user, stores).process()
               }
             }
             case _ => NotYoutubeAsset

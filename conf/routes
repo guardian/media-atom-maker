@@ -30,8 +30,8 @@ POST    /api2/atom/:atomId/uploads      controllers.UploadController.create(atom
 
 GET     /api2/audits/:id                controllers.Api2.getAuditTrailForAtomId(id)
 
-GET     /api/youtube/categories         controllers.Youtube.listCategories()
-GET     /api/youtube/channels           controllers.Youtube.listChannels()
+GET     /api/youtube/categories         controllers.YouTubeController.listCategories()
+GET     /api/youtube/channels           controllers.YouTubeController.listChannels()
 
 # reindex
 

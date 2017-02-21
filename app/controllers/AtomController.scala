@@ -1,12 +1,14 @@
 package controllers
 
 import com.gu.pandomainauth.action.AuthActions
+import data.DataStores
+import play.api.libs.json.{JsObject, JsString}
 import play.api.mvc._
-import play.api.libs.json.{ JsObject, JsString }
 import util.ThriftUtil._
+import util.atom.MediaAtomImplicits
 
-trait AtomController extends Controller {
-
+trait AtomController extends Controller with MediaAtomImplicits {
+  val stores: DataStores
   val authActions: AuthActions
 
   /* if the creation of the thrift data from the request fails, reply

@@ -1,38 +1,57 @@
-import com.google.inject.AbstractModule
-import com.gu.atom.data._
-import com.gu.atom.publish._
-import com.gu.pandahmac.HMACAuthActions
+import com.gu.atom.play.ReindexController
+import com.gu.media.youtube.YouTubeConfig
+import controllers._
 import data._
-import util.LogShipping
+import play.api.ApplicationLoader.Context
+import play.api.cache.EhCacheComponents
+import play.api.inject.DefaultApplicationLifecycle
+import play.api.libs.ws.ahc.AhcWSComponents
+import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext, LoggerConfigurator}
+import router.Routes
+import util.{AWSConfig, ExpiryPoller}
 
+class MediaAtomMakerLoader extends ApplicationLoader {
+  override def load(context: Context): Application = new MediaAtomMaker(context).application
+}
 
-class Module extends AbstractModule {
-  def configure() = {
+class MediaAtomMaker(context: Context)
+  extends BuiltInComponentsFromContext(context)
+  with AhcWSComponents
+  with EhCacheComponents {
 
-    bind(classOf[LogShipping]).asEagerSingleton()
+  // required to start logging (https://www.playframework.com/documentation/2.5.x/ScalaCompileTimeDependencyInjection)
+  LoggerConfigurator(context.environment.classLoader).foreach(_.configure(context.environment))
 
-    bind(classOf[HMACAuthActions])
-      .to(classOf[controllers.PanDomainAuthActions])
+  private val config = configuration.underlying
 
-    bind(classOf[PublishedDataStore])
-    .toProvider(classOf[PublishedMediaAtomDataStoreProvider])
+  private val hmacAuthActions = new PanDomainAuthActions(wsClient, configuration, new DefaultApplicationLifecycle)
 
-    bind(classOf[PreviewDataStore])
-      .toProvider(classOf[PreviewMediaAtomDataStoreProvider])
+  private val aws = new AWSConfig(config)
+  private val loggingCredsProvider = aws.getCrossAccountCredentials("media-atom-maker-logging")
+  aws.startKinesisLogging(loggingCredsProvider)
 
-    bind(classOf[LiveAtomPublisher])
-    .toProvider(classOf[LiveAtomPublisherProvider])
+  private val stores = new DataStores(aws)
 
-    bind(classOf[PreviewAtomPublisher])
-      .toProvider(classOf[PreviewAtomPublisherProvider])
+  private val youTube = new YouTubeConfig(config)
 
-    bind(classOf[PreviewAtomReindexer])
-      .toProvider(classOf[PreviewAtomReindexerProvider])
+  private val reindexer = new ReindexController(stores.preview, stores.published, stores.reindexPreview,
+    stores.reindexPublished, configuration, actorSystem)
 
-    bind(classOf[PublishedAtomReindexer])
-      .toProvider(classOf[PublishedAtomReindexerProvider])
+  private val expiryPoller = ExpiryPoller(stores, youTube, aws)
+  expiryPoller.start(actorSystem.scheduler)
 
-    bind(classOf[AuditDataStore])
-      .toProvider(classOf[AuditDataStoreProvider])
-  }
+  private val api = new Api(stores, aws, hmacAuthActions)
+  private val api2 = new Api2(stores, hmacAuthActions, youTube)
+  private val uploads = new UploadController(hmacAuthActions, aws)
+
+  private val support = new Support(hmacAuthActions, configuration)
+  private val youTubeController = new YouTubeController(hmacAuthActions, youTube, defaultCacheApi)
+
+  private val mainApp = new MainApp(stores, configuration, hmacAuthActions)
+  private val videoApp = new VideoUIApp(hmacAuthActions, configuration, aws)
+
+  private val assets = new controllers.Assets(httpErrorHandler)
+
+  override val router =
+    new Routes(httpErrorHandler, mainApp, api, api2, uploads, youTubeController, reindexer, assets, videoApp, support)
 }
