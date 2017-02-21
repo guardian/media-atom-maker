@@ -22,6 +22,8 @@ Mappings:
   LambdaBuilds:
     Uploader:
       DEV: "media-service/DEV/media-atom-uploader/media-atom-uploader.zip"
+    Transcoder:
+      DEV: "media-service/DEV/media-atom-transcoder/media-atom-transcoder.zip"
   LambdaConfig:
     Uploader:
       DEV: "DEV/media-atom-maker.private.conf"
@@ -245,8 +247,8 @@ Resources:
       Description: "Transcoders masters to mp4s"
       Handler: "com.gu.media.Lambda::handleRequest"
       Code:
-        S3Bucket: "atom-maker-dist"
-        S3Key: "transcoder-test/media-atom-transcoder-assembly-0.1.3-SNAPSHOT.jar"
+        S3Bucket: !Ref ConfigBucket
+        S3Key: !FindInMap [LambdaBuilds, Transcoder, DEV]
       Environment:
         Variables:
           REGION: !Ref AWS::Region
