@@ -768,6 +768,9 @@
         },
         "UserUploadRole": {
           "Value": { "Ref": "LimitedUploadRole" }
+        },
+        "TranscoderPipelineName": {
+          "Value": {"Fn::Join": ["-", ["media-atom-maker-transcoder", {"Ref": "Stage"} ] ] }
         }
     }
 }
