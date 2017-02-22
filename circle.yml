@@ -22,7 +22,7 @@ dependencies:
 test:
   override:
     - npm test
-    - sbt 'testOnly test.UnitTestSuite'
+    - sbt 'test-only UnitTestsSuite'
 
 deployment:
   riffraff_upload:
