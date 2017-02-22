@@ -8,6 +8,7 @@ import YoutubeMetaData from '../YoutubeMetaData/YoutubeMetaData';
 import VideoPoster from '../VideoPoster/VideoPoster';
 import GridImageSelect from '../utils/GridImageSelect';
 import Icon from '../Icon';
+import {validate} from '../../constants/videoEditValidation';
 
 class VideoDisplay extends React.Component {
 
@@ -61,15 +62,41 @@ class VideoDisplay extends React.Component {
     return this.props.video.expiryDate <= Date.now();
   };
 
+  isButtonDisabled = (property) => {
+
+    const formFields = [];
+    if (property === 'metadataEditable') {
+      formFields.splice(0, 0, 'title', 'category');
+    } else if (property === 'youtubeEditable') {
+      formFields.splice(0, 0, 'youtubeCategory', 'youtubeChannel', 'privacyStatus');
+    }
+    const errors  = validate(Object.assign(this.props.video, {
+      youtubeCategory: this.props.video.youtubeCategoryId,
+      youtubeChannel: this.props.video.channelId
+    }));
+
+    if (formFields.some(field => {
+      return Object.keys(errors).includes(field);
+    })) {
+      return true;
+    }
+    return false;
+
+  };
+
   renderEditButton = (property) => {
 
     if (this.props && this.props.editState[property]) {
       return (
-        <Icon className="icon__done" icon="done" onClick={this.manageEditingState.bind(this, property)}/>
+        <button disabled={this.isButtonDisabled(property)} onClick={() => this.manageEditingState(property)}>
+          <Icon className={"icon__done " + (this.isButtonDisabled(property) ? "disabled": "")} icon="done" />
+        </button>
       );
     } else {
       return (
-        <Icon className="icon__edit" icon="edit" onClick={this.manageEditingState.bind(this, property)}/>
+        <button onClick={() => this.manageEditingState(property)}>
+          <Icon className="icon__edit" icon="edit" />
+        </button>
       );
     }
   }

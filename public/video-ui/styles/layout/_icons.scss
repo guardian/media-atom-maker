@@ -52,5 +52,9 @@
   &:hover {
     background-color: darken($brandColor, 5%);
   }
+
+  &.disabled {
+    background-color: darken($brandColor, 15%);
+  }
 }
 
