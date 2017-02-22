@@ -19,6 +19,13 @@ deployments:
         PROD:
           name: media-atom-maker-PROD-UploaderLambda-MXQD3DV3H1VL
           filename: media-atom-uploader.zip
+  media-atom-transcoder:
+    type: aws-lambda
+    parameters:
+      bucket: atom-maker-dist
+      functionNames: media-atom-maker-transcoder
+      fileName: media-atom-transcoder.zip
+      prefixStack: false
   media-atom-maker-ami-update:
       type: ami-cloudformation-parameter
       app: media-atom-maker
