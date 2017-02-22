@@ -19,7 +19,7 @@ class VideoPosterImageEdit extends React.Component {
 
   render () {
 
-    if (!this.props.editMode) {
+    if (this.props.video && !this.props.editMode) {
       return (
           <div className="form__row">
             <label className="form__label">Poster image</label>
