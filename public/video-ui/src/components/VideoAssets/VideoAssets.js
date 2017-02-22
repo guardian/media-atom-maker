@@ -6,10 +6,6 @@ import Icon from '../Icon';
 
 class VideoAssets extends React.Component {
 
-  componentDidMount() {
-    this.props.videoActions.populateEmptyAsset();
-  }
-
   state = {
     showAssetForm: false,
     showAssetList: false
@@ -40,7 +36,7 @@ class VideoAssets extends React.Component {
   };
 
   createAsset = (asset) => {
-    this.props.videoActions.createAsset(asset, this.props.video.id);
+    this.props.videoActions.createAsset(asset, this.props.video);
   };
 
   revertAsset = (videoId, version) => {
@@ -78,7 +74,7 @@ class VideoAssets extends React.Component {
   }
 
   renderListItems() {
-    if (this.state.showAssetList) {
+    if (this.state.showAssetList || !this.props.video.activeVersion) {
       return (
         this.props.video.assets.map(this.mapListItems)
       );
@@ -127,6 +123,10 @@ class VideoAssets extends React.Component {
     </div>;
   }
 
+  shouldShowAssetExpander = () => {
+    return !this.state.showAssetList && this.props.video.assets.length && !!this.props.video.activeVersion;
+  };
+
   render() {
     return (
         <div className="video-assets">
@@ -134,7 +134,7 @@ class VideoAssets extends React.Component {
           {this.renderAssetEdit()}
           {this.renderList()}
           {!this.props.video.assets.length ? <span>No assets found</span> : false}
-          {!this.state.showAssetList && this.props.video.assets.length ? <button className="video-assets__show-btn" type="button" onClick={this.showAssetList}>Show all assets</button> : false}
+          {this.shouldShowAssetExpander() ? <button className="video-assets__show-btn" type="button" onClick={this.showAssetList}>Show all assets</button> : false}
         </div>
     );
   }
@@ -149,7 +149,6 @@ import * as revertAsset from '../../actions/VideoActions/revertAsset';
 
 function mapStateToProps(state) {
   return {
-    asset: state.asset,
     video: state.video
   };
 }

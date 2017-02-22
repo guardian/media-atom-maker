@@ -2,14 +2,13 @@ import { browserHistory } from 'react-router';
 import VideosApi from '../../services/VideosApi';
 
 const BLANK_ASSET = {
-  uri: '',
-  mimetype: '',
-  version: 0
+  uri: ''
 };
 
-function requestAssetCreate() {
+function requestAssetCreate(video) {
   return {
     type:       'ASSET_CREATE_REQUEST',
+    video:      video,
     receivedAt: Date.now()
   };
 }
@@ -33,10 +32,10 @@ function errorAssetCreate(error) {
   };
 }
 
-export function createAsset(asset, videoId) {
+export function createAsset(asset, video) {
   return dispatch => {
-    dispatch(requestAssetCreate());
-    return VideosApi.createAsset(asset, videoId)
+    dispatch(requestAssetCreate(video));
+    return VideosApi.createAsset(asset, video.id)
         .then(res => dispatch(receiveAssetCreate(res)))
         .catch(error => dispatch(errorAssetCreate(error.response)));
   };
