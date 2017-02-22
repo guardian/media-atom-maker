@@ -247,7 +247,7 @@ Resources:
       Description: "Transcoders masters to mp4s"
       Handler: "com.gu.media.Lambda::handleRequest"
       Code:
-        S3Bucket: !Ref ConfigBucket
+        S3Bucket: !Ref BuildBucket
         S3Key: !FindInMap [LambdaBuilds, Transcoder, DEV]
       Environment:
         Variables:
