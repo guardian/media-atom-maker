@@ -20,7 +20,8 @@ import util.{YouTubeConfig, YouTubeVideoUpdateApi}
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success}
 
-case class PublishAtomCommand(id: String)(implicit val previewDataStore: PreviewDataStore,
+case class PublishAtomCommand(id: String, fromExpiryPoller: Boolean = false)
+                                        (implicit val previewDataStore: PreviewDataStore,
                                           val previewPublisher: PreviewAtomPublisher,
                                           val publishedDataStore: PublishedDataStore,
                                           val livePublisher: LiveAtomPublisher,
@@ -41,8 +42,8 @@ case class PublishAtomCommand(id: String)(implicit val previewDataStore: Preview
         val atom = MediaAtom.fromThrift(thriftAtom)
         val api = YouTubeVideoUpdateApi(youtubeConfig)
 
-        atom.privacyStatus match {
-          case Some(PrivacyStatus.Private) =>
+        (atom.privacyStatus, !fromExpiryPoller) match {
+          case (Some(PrivacyStatus.Private), false) =>
             log.error(s"Unable to publish atom ${atom.id}, privacy status is set to private")
             AtomPublishFailed("Atom status set to private")
 

@@ -41,9 +41,9 @@ case class ExpiryPoller @Inject () (
           case Some(expiredAtom) => {
 
             val atomId = expiredAtom.id
-            
+
             publishedDataStore.getAtom(atomId) match {
-              case Some(atom) => PublishAtomCommand(atomId).process()
+              case Some(atom) => PublishAtomCommand(atomId, true).process()
               case None => UpdateAtomCommand(expiredAtom.id, expiredAtom).process()
             }
           }
