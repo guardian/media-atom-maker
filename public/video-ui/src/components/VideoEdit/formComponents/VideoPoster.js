@@ -4,7 +4,7 @@ import GridImageSelect from '../../utils/GridImageSelect';
 
 class VideoPosterImageEdit extends React.Component {
   renderImage() {
-    if (!this.props.video.posterImage) {
+    if (!this.props.video || !this.props.video.posterImage) {
       return false;
     }
 
