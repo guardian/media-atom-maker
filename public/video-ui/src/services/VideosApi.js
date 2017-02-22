@@ -138,7 +138,6 @@ export default {
         return resp.response.content.fields.internalComposerCode;
       }
       return "";
-  });
-}
-
+    });
+  }
 };

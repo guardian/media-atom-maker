@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 import {getVideoBlock} from '../../util/getVideoBlock';
 import {getStore} from '../../util/storeAccessor';
 import {isVideoPublished} from '../../util/isVideoPublished';
@@ -72,18 +73,24 @@ export default class VideoUsages extends React.Component {
   };
 
   renderUsage = (usage) => {
-    const composerLink = `${this.getComposerUrl()}/find-by-path/${usage}`;
-    const websiteLink = `https://gu.com/${usage}`;
+    const composerLink = `${this.getComposerUrl()}/content/${usage.fields.internalComposerCode}`;
+    const websiteLink = `https://gu.com/${usage.id}`;
 
+    const usageDateFromNow = moment(usage.fields.creationDate).fromNow();
+
+    //TODO add an icon to indicate atom usage on a video page
     return (
-      <li key={usage} className="detail__list__item">
-        <a className="usage--platform-link" href={websiteLink} title="Open on theguardian.com" target="_blank">
-          <FrontendIcon />
-        </a>
-        <a className="usage--platform-link" href={composerLink} title="Open in Composer" target="_blank">
-          <ComposerIcon />
-        </a>
-        {usage}
+      <li key={usage.id} className="detail__list__item">
+        {usage.fields.headline}
+        <div>
+          Created: <span title={usage.fields.creationDate}>{usageDateFromNow}</span>
+          <a className="usage--platform-link" href={websiteLink} title="Open on theguardian.com" target="_blank">
+            <FrontendIcon />
+          </a>
+          <a className="usage--platform-link" href={composerLink} title="Open in Composer" target="_blank">
+            <ComposerIcon />
+          </a>
+        </div>
       </li>
     );
   };

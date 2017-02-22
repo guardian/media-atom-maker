@@ -1,4 +1,5 @@
 import VideosApi from '../../services/VideosApi';
+import ContentApi from '../../services/capi';
 
 function requestVideoUsages() {
   return {
@@ -29,8 +30,20 @@ export function getUsages(id) {
     dispatch(requestVideoUsages());
     return VideosApi.getVideoUsages(id)
     .then(res => {
-      const usages = res.response.results;
-      dispatch(receiveVideoUsages(usages));
+      const usagePaths = res.response.results;
+
+      Promise.all(usagePaths.map(ContentApi.getByPath))
+        .then(capiResponse => {
+          const usages = capiResponse.reduce((all, item) => {
+            all.push(item.response.content);
+            return all;
+          }, []);
+
+          // sort by article creation date DESC
+          usages.sort((first, second) => new Date(second.fields.creationDate) - new Date(first.fields.creationDate));
+
+          dispatch(receiveVideoUsages(usages));
+        });
     })
     .catch(error => {
       dispatch(errorReceivingVideoUsages(error));

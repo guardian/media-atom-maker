@@ -1,5 +1,5 @@
 import VideosApi from '../../services/VideosApi';
-import {searchText} from '../../services/capi';
+import ContentApi from '../../services/capi';
 
 function requestVideos() {
   return {
@@ -66,12 +66,10 @@ function adaptCapiAtom(atom) {
 }
 
 export function searchVideosWithQuery(query) {
-  const encodedQuery = encodeURIComponent(query);
-
   return dispatch => {
     dispatch(requestSearchVideos());
 
-    return searchText(encodedQuery)
+    return ContentApi.search(query)
       .then(res => {
         const capiAtoms = res.response.results;
         const atoms = capiAtoms.map(adaptCapiAtom);
