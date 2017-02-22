@@ -45,7 +45,7 @@ case class YouTubeVideoUpdateApi(config: YouTubeConfig) extends Logging {
       throw new Exception(msg)
     }
 
-    if (!config.allowedChannels.contains(videoChannelId)) {
+    if (config.allowedChannels.nonEmpty && !config.allowedChannels.contains(videoChannelId)) {
       val msg = s"Failed to edit video ${video.getId} as its channel ($videoChannelId) isn't in config.youtube.allowedChannels"
       Logger.info(msg)
       throw new Exception(msg)
