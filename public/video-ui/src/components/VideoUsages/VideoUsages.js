@@ -82,7 +82,7 @@ export default class VideoUsages extends React.Component {
     //TODO add an icon to indicate atom usage on a video page
     return (
       <li key={usage.id} className="detail__list__item">
-        {usage.fields.headline}
+        {usage.fields.headline || usage.id}
         <div>
           Created: <span title={usage.fields.creationDate}>{usageDateFromNow}</span>
           <a className="usage--platform-link" href={websiteLink} title="Open on theguardian.com" target="_blank">
