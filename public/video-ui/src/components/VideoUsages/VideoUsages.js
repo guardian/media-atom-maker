@@ -4,7 +4,7 @@ import {getVideoBlock} from '../../util/getVideoBlock';
 import {getStore} from '../../util/storeAccessor';
 import {isVideoPublished} from '../../util/isVideoPublished';
 import {hasUnpublishedChanges} from '../../util/hasUnpublishedChanges';
-import {FrontendIcon, ComposerIcon} from '../Icon';
+import {FrontendIcon, ComposerIcon, ViewerIcon} from '../Icon';
 
 export default class VideoUsages extends React.Component {
 
@@ -30,6 +30,10 @@ export default class VideoUsages extends React.Component {
 
   getComposerUrl = () => {
     return getStore().getState().config.composerUrl;
+  };
+
+  getViewerUrl = () => {
+    return getStore().getState().config.viewerUrl;
   };
 
   pageCreate = () => {
@@ -74,6 +78,7 @@ export default class VideoUsages extends React.Component {
 
   renderUsage = (usage) => {
     const composerLink = `${this.getComposerUrl()}/content/${usage.fields.internalComposerCode}`;
+    const viewerLink = `${this.getViewerUrl()}/preview/${usage.id}`;
     const websiteLink = `https://gu.com/${usage.id}`;
 
     const usageDateFromNow = moment(usage.fields.creationDate).fromNow();
@@ -89,6 +94,9 @@ export default class VideoUsages extends React.Component {
           </a>
           <a className="usage--platform-link" href={composerLink} title="Open in Composer" target="_blank">
             <ComposerIcon />
+          </a>
+          <a className="usage--platform-link" href={viewerLink} title="Open in Viewer" target="_blank">
+            <ViewerIcon />
           </a>
         </div>
       </li>

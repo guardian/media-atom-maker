@@ -24,6 +24,21 @@ export class ComposerIcon extends React.Component {
   }
 }
 
+export class ViewerIcon extends React.Component {
+  render () {
+    return (
+      <span className="icon svg-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+          <g fill="#FFF">
+            <path d="M16 5.2C5.7 5.2 0 16 0 16s5.7 10.8 16 10.8S32 16 32 16 26.3 5.2 16 5.2zm0 18.4c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/>
+            <path d="M16 11.9c-2.1 0-3.8 1.7-3.8 3.8 0 2.1 1.7 3.7 3.8 3.7 2.1 0 3.7-1.7 3.7-3.7.1-2.1-1.6-3.8-3.7-3.8z"/>
+          </g>
+        </svg>
+      </span>
+    );
+  }
+}
+
 export default class Icon extends React.Component {
   renderText () {
     if (this.props.children) {

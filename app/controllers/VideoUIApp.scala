@@ -31,7 +31,8 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
       capiProxyUrl = "/support/previewCapi",
       composerUrl = composerUrl,
       ravenUrl = conf.getString("raven.url").get,
-      stage = conf.getString("stage").get
+      stage = conf.getString("stage").get,
+      viewerUrl = awsConfig.viewerUrl
     )
 
     Ok(views.html.VideoUIApp.app("Media Atom Maker", jsLocation, Json.toJson(clientConfig).toString()))

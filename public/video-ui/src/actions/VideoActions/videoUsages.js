@@ -32,6 +32,8 @@ export function getUsages(id) {
     .then(res => {
       const usagePaths = res.response.results;
 
+      // the atom usage endpoint in capi only returns article paths,
+      // lookup the articles in capi to get their fields
       Promise.all(usagePaths.map(ContentApi.getByPath))
         .then(capiResponse => {
           const usages = capiResponse.reduce((all, item) => {

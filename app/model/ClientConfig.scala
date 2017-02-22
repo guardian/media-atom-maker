@@ -13,7 +13,8 @@ case class ClientConfig(username: String,
                         capiProxyUrl: String,
                         composerUrl: String,
                         ravenUrl: String,
-                        stage: String
+                        stage: String,
+                        viewerUrl: String
                        )
 
 object ClientConfig {
