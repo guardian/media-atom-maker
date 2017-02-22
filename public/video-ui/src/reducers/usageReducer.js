@@ -4,7 +4,8 @@ export default function usage(state = [], action) {
       return action.usages || [];
     }
     case 'VIDEO_PAGE_CREATE_POST_RECEIVE': {
-      state.push(action.newPage.usage);
+      // usages are sorted creation date DESC, new usage goes to the top
+      state.unshift(action.newPage);
       return state;
     }
     default: {

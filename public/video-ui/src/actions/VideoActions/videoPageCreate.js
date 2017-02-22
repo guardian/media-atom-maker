@@ -1,4 +1,5 @@
 import VideosApi from '../../services/VideosApi';
+import ContentApi from '../../services/capi';
 
 function requestVideoPageCreate() {
   return {
@@ -7,10 +8,10 @@ function requestVideoPageCreate() {
   };
 }
 
-function receiveVideoPageCreate(pageId, pagePath, videoId) {
+function receiveVideoPageCreate(capiPage) {
   return {
     type:           'VIDEO_PAGE_CREATE_POST_RECEIVE',
-    newPage:        { composerId: pageId, usage: pagePath, videoId: videoId },
+    newPage:        capiPage,
     receivedAt:     Date.now()
   };
 }
@@ -30,18 +31,22 @@ export function createVideoPage(id, metadata, composerUrl, videoBlock) {
     dispatch(requestVideoPageCreate());
 
     return VideosApi.createComposerPage(id, metadata, composerUrl)
-    .then(res => {
+      .then(res => {
+        const pageId = res.data.id;
+        const pagePath = res.data.identifiers.path.data;
 
-      const pageId = res.data.id;
-      const pagePath = res.data.identifiers.path.data;
-
-      return VideosApi.addVideoToComposerPage(pageId, videoBlock, composerUrl)
-      .then(() => {
-        dispatch(receiveVideoPageCreate(pageId, pagePath, id));
+        return VideosApi.addVideoToComposerPage(pageId, videoBlock, composerUrl)
+          .then(() => {
+            // it takes a little time for the new Composer page to get to CAPI,
+            // so keep trying until success or timeout
+            ContentApi.getByPath(pagePath, true)
+              .then(capiResponse => {
+                dispatch(receiveVideoPageCreate(capiResponse.response.content));
+              });
+          });
+      })
+      .catch(error => {
+        dispatch(errorReceivingVideoPageCreate(error));
       });
-    })
-    .catch(error => {
-      dispatch(errorReceivingVideoPageCreate(error));
-    });
   };
 }

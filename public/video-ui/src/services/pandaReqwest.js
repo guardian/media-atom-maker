@@ -2,26 +2,42 @@ import reqwest from 'reqwest';
 import {reEstablishSession} from 'babel?presets[]=es2015!panda-session';
 import {getStore} from '../util/storeAccessor';
 
-export function pandaReqwest(reqwestBody) {
-  return new Promise((resolve, reject) => {
+function poll(reqwestBody, timeout) {
+  const endTime = Number(new Date()) + timeout;
+  const interval = 100;
+
+  function makeRequest(resolve, reject) {
     reqwest(reqwestBody)
-      .then(res => resolve(res))
+      .then(response => resolve(response))
       .fail(err => {
-        if (err !== 419) {
-          reject(err);
-        }
+        if (err === 419) {
+          const store = getStore();
+          const reauthUrl = store.getState().config.reauthUrl;
 
-        const store = getStore();
-        const reauthUrl = store.getState().config.reauthUrl;
-
-        reEstablishSession(reauthUrl, 5000)
-          .then(() => {
-            reqwest(reqwestBody)
-              .then(res => resolve(res))
-              .fail(err => reject(err));
-          }, error => {
+          reEstablishSession(reauthUrl, 5000)
+            .then(() => {
+              setTimeout(makeRequest, interval, resolve, reject);
+            }, error => {
               throw error;
-          });
+            });
+        } else {
+          if (Number(new Date()) < endTime) {
+            setTimeout(makeRequest, interval, resolve, reject);
+          } else {
+            reject(err);
+          }
+        }
       });
+  }
+
+  return new Promise(makeRequest);
+}
+
+// when `timeout` > 0, the request will be retried every 100ms until success or timeout
+export function pandaReqwest(reqwestBody, timeout = 0) {
+  return new Promise((resolve, reject) => {
+    poll(reqwestBody, timeout)
+      .then(response => resolve(response))
+      .catch(error => reject(error));
   });
 }

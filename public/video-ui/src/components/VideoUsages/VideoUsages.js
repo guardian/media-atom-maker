@@ -52,10 +52,6 @@ export default class VideoUsages extends React.Component {
     return this.props.createComposerPage(this.props.video.id, metadata, this.getComposerUrl(), videoBlock);
   };
 
-  noExistingComposerPages = (composerUsages) => {
-    return !((this.props.composerPageWithUsage && this.props.composerPageWithUsage.composerId) || (composerUsages && composerUsages.length > 0));
-  };
-
   videoHasUnpublishedChanges() {
     return hasUnpublishedChanges(this.props.video, this.props.publishedVideo);
   }
@@ -125,3 +121,10 @@ export default class VideoUsages extends React.Component {
   }
 }
 
+VideoUsages.propTypes = {
+  usages: React.PropTypes.array.isRequired,
+  video: React.PropTypes.object.isRequired,
+  publishedVideo: React.PropTypes.object.isRequired,
+  createComposerPage: React.PropTypes.func.isRequired,
+  fetchUsages: React.PropTypes.func.isRequired
+};

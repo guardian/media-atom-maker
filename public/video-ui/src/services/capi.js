@@ -15,10 +15,12 @@ export default class ContentApi {
     });
   }
 
-  static getByPath(path) {
+  static getByPath(path, retry = false) {
+    const retryTimeout = retry ? 10 * 1000 : 0; // retry up to 10 seconds
+
     return pandaReqwest({
       url: `${ContentApi.proxyUrl}/${path}?show-fields=all`,
       method: 'get'
-    });
+    }, retryTimeout);
   }
 }
