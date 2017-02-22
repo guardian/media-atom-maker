@@ -244,7 +244,7 @@ Resources:
   TranscoderLambda:
     Type: "AWS::Lambda::Function"
     Properties:
-      Description: "Transcoders masters to mp4s"
+      Description: "Transcodes masters to mp4s"
       Handler: "com.gu.media.Lambda::handleRequest"
       Code:
         S3Bucket: !Ref BuildBucket
