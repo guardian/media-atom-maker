@@ -38,7 +38,7 @@ case class ExpiryPoller(override val stores: DataStores, youTube: YouTube, awsCo
 
             publishedDataStore.getAtom(atomId) match {
               case Some(atom) =>
-                PublishAtomCommand(atomId, stores, youTube, user).process()
+                PublishAtomCommand(atomId, fromExpiryPolller = true, stores, youTube, user).process()
 
               case None =>
                 UpdateAtomCommand(expiredAtom.id, expiredAtom, stores, user).process()

@@ -132,7 +132,7 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
       throw new Exception(msg)
     }
 
-    if (!allowedChannels.contains(videoChannelId)) {
+    if (allowedChannels.nonEmpty && !allowedChannels.contains(videoChannelId)) {
       val msg = s"Failed to edit video ${video.getId} as its channel ($videoChannelId) isn't in config.youtube.allowedChannels"
       log.info(msg)
       throw new Exception(msg)

@@ -17,8 +17,7 @@ import model._
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success}
 
-case class PublishAtomCommand(id: String, override val stores: DataStores, youTube: YouTube, user: PandaUser)
-
+case class PublishAtomCommand(id: String, fromExpiryPoller: Boolean, override val stores: DataStores, youTube: YouTube, user: PandaUser)
   extends Command with AtomAPIActions with Logging {
 
   type T = MediaAtom
@@ -34,8 +33,8 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
       case Some(thriftAtom) => {
         val atom = MediaAtom.fromThrift(thriftAtom)
 
-        atom.privacyStatus match {
-          case Some(PrivacyStatus.Private) =>
+        (atom.privacyStatus, !fromExpiryPoller) match {
+          case (Some(PrivacyStatus.Private), false) =>
             log.error(s"Unable to publish atom ${atom.id}, privacy status is set to private")
             AtomPublishFailed("Atom status set to private")
 

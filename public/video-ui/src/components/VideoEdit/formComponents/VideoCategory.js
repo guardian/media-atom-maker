@@ -23,7 +23,7 @@ export default class VideoCategorySelect extends React.Component {
     return (
         <SelectBox
           fieldName="Category"
-          fieldValue={this.props.video.category}
+          fieldValue={this.props.video ? this.props.video.category : ''}
           selectValues={videoCategories || []}
           onUpdateField={this.updateVideoCategory}
           defaultOption={this.defaultOption}
