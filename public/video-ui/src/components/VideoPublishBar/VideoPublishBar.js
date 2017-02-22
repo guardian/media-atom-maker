@@ -2,7 +2,6 @@ import React from 'react';
 import {saveStateVals} from '../../constants/saveStateVals';
 import {isVideoPublished} from '../../util/isVideoPublished';
 import {hasUnpublishedChanges} from '../../util/hasUnpublishedChanges';
-import {getPublishErrors} from '../../util/getPublishErrors';
 
 export default class VideoPublishBar extends React.Component {
 
@@ -14,14 +13,9 @@ export default class VideoPublishBar extends React.Component {
     return hasUnpublishedChanges(this.props.video, this.props.publishedVideo);
   }
 
-  videoIsPublishable() {
-    return getPublishErrors(this.props.video).errors.length === 0;
-  }
-
   isPublishingDisabled() {
     return this.videoIsCurrentlyPublishing() ||
-      !this.videoHasUnpublishedChanges() ||
-      !this.videoIsPublishable();
+      !this.videoHasUnpublishedChanges();
   }
 
   renderPublishButtonText() {
@@ -34,14 +28,7 @@ export default class VideoPublishBar extends React.Component {
 
     }
 
-    if (!this.videoIsPublishable()) {
-      return (<span>
-        <i className="icon icon__warning">warning</i>
-        <span>Publish</span>
-      </span>);
-    } else {
-      return (<span>Publish</span>);
-    }
+    return (<span>Publish</span>);
 
   }
 

@@ -2,7 +2,6 @@ import React from 'react';
 import VideoEdit from '../VideoEdit/VideoEdit';
 import SaveButton from '../utils/SaveButton';
 import {blankVideoData} from '../../constants/blankVideoData';
-import {previewPrivacyState} from '../../constants/privacyStates';
 
 class VideoCreate extends React.Component {
 
@@ -11,12 +10,7 @@ class VideoCreate extends React.Component {
   }
 
   createVideo = () => {
-
-    const videoWithStatus = Object.assign({}, this.props.video, {
-      privacyStatus: previewPrivacyState
-    });
-
-    this.props.videoActions.createVideo(videoWithStatus);
+    this.props.videoActions.createVideo(this.props.video);
   };
 
   resetVideo = () => {
