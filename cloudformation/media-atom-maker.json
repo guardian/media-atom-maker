@@ -78,19 +78,26 @@
                 "MinSize": 3,
                 "MaxSize": 6,
                 "DesiredCapacity": 3,
-                "InstanceType": "t2.medium"
+                "InstanceType": "t2.medium",
+                "TranscoderBucket": "media-atom-maker-transcoder-prod"
             },
             "CODE": {
                 "MinSize": 1,
                 "MaxSize": 2,
                 "DesiredCapacity": 1,
-                "InstanceType": "t2.small"
+                "InstanceType": "t2.small",
+                "TranscoderBucket": "media-atom-maker-transcoder-code"
+
             }
         },
         "LambdaBuilds": {
             "Uploader": {
                 "CODE": "media-service/CODE/media-atom-uploader/media-atom-uploader.zip",
                 "PROD": "media-service/PROD/media-atom-uploader/media-atom-uploader.zip"
+            },
+            "Transcoder": {
+              "CODE": "media-service/CODE/media-atom-transcoder/media-atom-transcoder.zip",
+              "PROD": "media-service/PROD/media-atom-transcoder/media-atom-transcoder.zip"
             }
         },
         "LambdaConfig": {
@@ -381,6 +388,73 @@
                 "Timeout": 300
             }
         },
+
+        "TranscoderOutputS3Bucket": {
+          "Type": "AWS::S3::Bucket",
+          "Properties": {
+            "BucketName": { "Fn::FindInMap": [ "StageMap", {"Ref": "Stage"}, "TranscoderBucket"]}
+          }
+        },
+        "TranscoderRole" : {
+          "Type": "AWS::IAM::Role",
+          "Properties": {
+            "AssumeRolePolicyDocument": {
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": "sts:AssumeRole",
+                  "Principal": {
+                    "Service": [
+                      "lambda.amazonaws.com"
+                    ]
+                  }
+                }
+              ]
+            },
+            "Path": "/",
+            "Policies": [
+              {
+                "PolicyName": "TranscoderPolicy",
+                "PolicyDocument": {
+                      "Statement": [{
+                          "Effect": "Allow",
+                          "Action": [
+                            "elastictranscoder:CreateJob"
+                          ],
+                          "Resource": [
+                            "arn:aws:elastictranscoder:*"
+                          ]
+                        }]
+                    }
+                }]
+          }
+        },
+
+        "TranscoderLambda": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Description": "Transcodes masters to mp4s",
+            "FunctionName":  {"Fn::Join": ["-", ["media-atom-maker-transcoder", {"Ref": "Stage"} ] ] },
+            "Handler": "com.gu.media.TranscoderLambda::handleRequest",
+            "Code": {
+              "S3Bucket": { "Ref": "BuildBucket" },
+              "S3Key": { "Fn::FindInMap": [ "LambdaBuilds", "Transcoder", { "Ref": "Stage" }] }
+            },
+            "Environment": {
+              "Variables": {
+                "REGION": { "Ref": "AWS::Region" },
+                "STACK": { "Ref": "Stack" },
+                "APP": "media-atom-transcoder",
+                "STAGE": { "Ref": "Stage" }
+              }
+            },
+            "MemorySize": 256,
+            "Role":  { "Fn::GetAtt": [ "TranscoderRole", "Arn" ] },
+            "Runtime": "java8",
+            "Timeout": 300
+          }
+        },
+
         "MediaAtomMakerLoadBalancer": {
             "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
             "Properties": {
@@ -694,6 +768,9 @@
         },
         "UserUploadRole": {
           "Value": { "Ref": "LimitedUploadRole" }
+        },
+        "TranscoderPipelineName": {
+          "Value": {"Fn::Join": ["-", ["media-atom-maker-transcoder", {"Ref": "Stage"} ] ] }
         }
     }
 }

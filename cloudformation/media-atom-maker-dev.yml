@@ -10,10 +10,20 @@ Parameters:
   ConfigBucket:
     Description: "The S3 bucket where configuration lives"
     Type: "String"
+  Stack:
+    Description: "Stack name"
+    Type: "String"
+    Default: "media-service"
+  Stage:
+    Description: "Stage name"
+    Type: "String"
+    Default: "DEV"
 Mappings:
   LambdaBuilds:
     Uploader:
       DEV: "media-service/DEV/media-atom-uploader/media-atom-uploader.zip"
+    Transcoder:
+      DEV: "media-service/DEV/media-atom-transcoder/media-atom-transcoder.zip"
   LambdaConfig:
     Uploader:
       DEV: "DEV/media-atom-maker.private.conf"
@@ -198,15 +208,58 @@ Resources:
       Environment:
         Variables:
           REGION: !Ref AWS::Region
-          STACK: "media-service"
+          STACK: !Ref Stack
           APP: "media-atom-uploader"
-          STAGE: "DEV"
+          STAGE: !Ref Stage
           CONFIG_BUCKET: !Ref ConfigBucket
           CONFIG_KEY: !FindInMap [LambdaConfig, Uploader, DEV]
       MemorySize: 256
       Role: !GetAtt UploaderRole.Arn
       Runtime: "java8"
       Timeout: 300
+
+  TranscoderOutputS3Bucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: "media-atom-maker-transcoder-dev"
+
+  TranscoderRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: "Allow"
+            Action: "sts:AssumeRole"
+            Principal:
+              Service: ["lambda.amazonaws.com"]
+      Path: "/"
+      Policies:
+        - PolicyName: "TranscoderPolicy"
+          PolicyDocument:
+            Statement:
+              - Effect: "Allow"
+                Action: ["elastictranscoder:CreateJob"]
+                Resource: ["arn:aws:elastictranscoder:*"]
+
+  TranscoderLambda:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Description: "Transcodes masters to mp4s"
+      Handler: "com.gu.media.TranscoderLambda::handleRequest"
+      Code:
+        S3Bucket: !Ref BuildBucket
+        S3Key: !FindInMap [LambdaBuilds, Transcoder, DEV]
+      Environment:
+        Variables:
+          REGION: !Ref AWS::Region
+          STACK: !Ref Stack
+          APP: "media-atom-transcoder"
+          STAGE: !Ref Stage
+      MemorySize: 256
+      Role: !GetAtt TranscoderRole.Arn
+      Runtime: "java8"
+      Timeout: 300
+
 Outputs:
   EditsDynamoTable:
     Value:
@@ -229,3 +282,6 @@ Outputs:
   UploadRole:
     Value:
       Ref: "LimitedUploadRole"
+  TranscoderOutputS3Bucket:
+    Value:
+      Ref: "TranscoderOutputS3Bucket"

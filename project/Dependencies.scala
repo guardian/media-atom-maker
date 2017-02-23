@@ -30,6 +30,7 @@ object Dependencies {
   val awsS3 = "com.amazonaws" % "aws-java-sdk-s3" % awsVersion
   val awsDynamo = "com.amazonaws" % "aws-java-sdk-dynamodb" % awsVersion
   val awsLambdaCore = "com.amazonaws" % "aws-lambda-java-core" % "1.1.0"
+  val awsTranscoder = "com.amazonaws" % "aws-java-sdk-elastictranscoder" % awsVersion
 
   val logstashLogbackEncoder = "net.logstash.logback" % "logstash-logback-encoder" % "4.8"
   val kinesisLogbackAppender = "com.gu" % "kinesis-logback-appender" % "1.3.0"
@@ -70,15 +71,17 @@ object Dependencies {
   )
 
   val commonDependencies = googleApi ++ Seq(
-    typesafeConfig, awsLambdaCore, awsS3, awsDynamo, playJsonExtensions, logstashLogbackEncoder, kinesisLogbackAppender
+    typesafeConfig, awsLambdaCore, awsS3, awsDynamo, playJsonExtensions, logstashLogbackEncoder, kinesisLogbackAppender, awsTranscoder
   )
 
   val appDependencies = panda ++ scanamo ++ scrooge ++ atomMaker ++ slf4j ++ Seq(
     PlayImport.cache, thrift, scalaLogging, cats, jacksonDatabind, okHttp, contentAtomModel, diff,
-    awsSts, awsEc2, scalaTestPlusPlay, mockito, scalaXml
+    awsSts, awsEc2, scalaTestPlusPlay, mockito, scalaXml, awsTranscoder
   )
 
   val uploaderDependencies = Seq(
     logstashLogbackEncoder, okHttp
   )
+
+  val transcodeDependencies = Seq(awsLambdaCore, awsTranscoder, playJsonExtensions)
 }

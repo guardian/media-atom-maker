@@ -15,6 +15,7 @@ class AWSConfig(override val config: Config)
     with DynamoAccess
     with UploadAccess
     with KinesisAccess
+    with ElasticTranscodeAccess
     with KinesisLogging {
 
   lazy val ec2Client = region.createClient(
