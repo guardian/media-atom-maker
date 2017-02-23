@@ -23,7 +23,7 @@ deployments:
     type: aws-lambda
     parameters:
       bucket: atom-maker-dist
-      functionNames: media-atom-maker-transcoder-
+      functionNames: [media-atom-maker-transcoder-]
       fileName: media-atom-transcoder.zip
       prefixStack: false
   media-atom-maker-ami-update:
