@@ -7,7 +7,7 @@ import YoutubeCategorySelect from './formComponents/YoutubeCategory';
 import VideoExpiryEdit from './formComponents/VideoExpiry';
 import YoutubeChannelSelect from './formComponents/YoutubeChannel';
 import PrivacyStatusSelect from './formComponents/PrivacyStatus';
-import {validate} from '../../constants/videoEditValidation';
+import {validate, warn} from '../../constants/videoEditValidation';
 import { Field, reduxForm } from 'redux-form';
 
 const VideoEdit = (props) => {
@@ -83,5 +83,6 @@ const VideoEdit = (props) => {
 
 export default reduxForm({
   form: 'VideoEdit',
-  validate
+  validate,
+  warn
 })(VideoEdit);

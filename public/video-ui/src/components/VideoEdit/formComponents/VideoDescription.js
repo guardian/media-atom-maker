@@ -11,6 +11,7 @@ export default class VideoDescriptionEdit extends React.Component {
         description: newValue
       });
 
+      this.props.input.onChange(e.target.value);
       this.props.updateVideo(newData);
     }
   };
