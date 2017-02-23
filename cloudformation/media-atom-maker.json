@@ -188,6 +188,13 @@
                                     "Effect": "Allow",
                                     "Action": ["sts:AssumeRole"],
                                     "Resource": [{ "Ref": "ContentAtomArn" }, { "Fn::GetAtt" : ["LimitedUploadRole", "Arn"] }]
+                                },
+                                {
+                                  "Effect": "Allow",
+                                  "Action": ["elastictranscoder:ListJobsByPipeline"],
+                                  "Resource": [
+                                    "arn:aws:elastictranscoder:*"
+                                  ]
                                 }
                             ]
                         }
