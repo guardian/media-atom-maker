@@ -16,7 +16,7 @@ object JobInfo {
   implicit val format: Format[JobInfo] = Jsonx.formatCaseClass[JobInfo]
 }
 
-class Lambda extends RequestStreamHandler {
+class TranscoderLambda extends RequestStreamHandler {
 
   val PRESET_ID = "1351620000001-000001" //System preset: Generic 1080p
 
