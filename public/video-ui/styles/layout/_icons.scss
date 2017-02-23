@@ -44,6 +44,9 @@
   &:hover {
     background-color: darken($color600Grey, 10%);
   }
+  &.disabled {
+    background-color: darken($color600Grey, 10%);
+  }
 }
 
 .icon__done {

@@ -12,22 +12,13 @@ import {validate} from '../../constants/videoEditValidation';
 
 class VideoDisplay extends React.Component {
 
-  state = {
-    metadataEditable: false,
-    youtubeEditable: false
-  };
-
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
   }
 
   saveVideo = () => {
     this.props.videoActions.saveVideo(this.props.video);
-
-    this.setState({
-      editable: false
-    });
-  };
+  }
 
   saveAndUpdateVideo = (video) => {
     this.props.videoActions.saveVideo(video);
@@ -52,17 +43,20 @@ class VideoDisplay extends React.Component {
     this.props.videoActions.updateVideoEditState(newEditableState);
   };
 
-  disableEditing = () => {
-    this.setState({
-      editable: false
-    });
-  };
-
   cannotEditStatus = () => {
     return this.props.video.expiryDate <= Date.now();
   };
 
-  isButtonDisabled = (property) => {
+  cannotOpenEditForm = () => {
+    if (this.props.editState && (this.props.editState.metadataEditable || this.props.editState.youtubeEditable)) {
+      return true;
+    }
+
+    return false;
+  }
+
+
+  cannotCloseEditForm = (property) => {
 
     const formFields = [];
     if (property === 'metadataEditable') {
@@ -88,14 +82,14 @@ class VideoDisplay extends React.Component {
 
     if (this.props && this.props.editState[property]) {
       return (
-        <button disabled={this.isButtonDisabled(property)} onClick={() => this.manageEditingState(property)}>
-          <Icon className={"icon__done " + (this.isButtonDisabled(property) ? "disabled": "")} icon="done" />
+        <button disabled={this.cannotCloseEditForm(property)} onClick={() => this.manageEditingState(property)}>
+          <Icon className={"icon__done " + (this.cannotCloseEditForm(property) ? "disabled": "")} icon="done" />
         </button>
       );
     } else {
       return (
-        <button onClick={() => this.manageEditingState(property)}>
-          <Icon className="icon__edit" icon="edit" />
+        <button disabled={this.cannotOpenEditForm()} onClick={() => this.manageEditingState(property)}>
+          <Icon className={"icon__edit " + (this.cannotOpenEditForm() ? "disabled" : "")} icon="edit" />
         </button>
       );
     }
@@ -150,12 +144,11 @@ class VideoDisplay extends React.Component {
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
                   <header className="video__detailbox__header">Poster Image</header>
-                  <GridImageSelect video={this.props.video || {}} updateVideo={this.saveAndUpdateVideo} gridUrl={this.props.config.gridUrl} createMode={false}/>
+                  <GridImageSelect editState={this.props.editState} video={this.props.video || {}} updateVideo={this.saveAndUpdateVideo} gridUrl={this.props.config.gridUrl} createMode={false}/>
                 </div>
                 <VideoPoster
                   video={this.props.video || {}}
                   updateVideo={this.saveAndUpdateVideo}
-                  editable={this.state.editable}
                 />
               </div>
               <div className="video__detailbox">
