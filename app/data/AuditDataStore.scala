@@ -12,11 +12,6 @@ import model.{Audit, MediaAtom}
 
 import scala.collection.JavaConversions._
 
-class AuditDataStoreProvider @Inject() (awsConfig: AWSConfig)
-    extends Provider[AuditDataStore] {
-  def get = new AuditDataStore(awsConfig.dynamoDB, awsConfig.auditDynamoTableName)
-}
-
 class AuditDataStore(client: AmazonDynamoDBClient, auditDynamoTableName: String) {
   lazy val db = new DynamoDB(client).getTable(auditDynamoTableName)
 

@@ -1,22 +1,15 @@
 package model.commands
 
-import com.gu.atom.data.PreviewDataStore
-import com.gu.atom.publish.PreviewAtomPublisher
 import com.gu.media.logging.Logging
+import com.gu.media.youtube.YouTube
 import com.gu.pandomainauth.model.{User => PandaUser}
-import data.AuditDataStore
+import data.DataStores
 import model.commands.CommandExceptions._
 import model.{MediaAtom, UpdatedMetadata}
 import util.atom.MediaAtomImplicits
-import util.{YouTubeConfig, YouTubeVideoInfoApi}
 
-case class UpdateMetadataCommand(atomId: String,
-                                 metadata: UpdatedMetadata)
-                                (implicit previewDataStore: PreviewDataStore,
-                                 previewPublisher: PreviewAtomPublisher,
-                                 val youtubeConfig: YouTubeConfig,
-                                 auditDataStore: AuditDataStore,
-                                 user: PandaUser)
+case class UpdateMetadataCommand(atomId: String, metadata: UpdatedMetadata, override val stores: DataStores,
+                                 youTube: YouTube, user: PandaUser)
     extends Command
     with MediaAtomImplicits
     with Logging {
@@ -42,7 +35,7 @@ case class UpdateMetadataCommand(atomId: String,
               expiryDate = metadata.expiryDate
             ))
 
-            val activeYTAssetDuration = YouTubeVideoInfoApi(youtubeConfig).getDuration(youtubeAsset.id)
+            val activeYTAssetDuration = youTube.getDuration(youtubeAsset.id)
 
             val updatedAtom = atom.updateData { media =>
                 media.copy(
@@ -53,7 +46,7 @@ case class UpdateMetadataCommand(atomId: String,
                 )
             }
 
-            UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom)).process()
+            UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom), stores, user).process()
 
           case None =>
             log.info(s"Unable to update metadata for $atomId. Atom does not have an active asset")

@@ -4,30 +4,22 @@ import java.net.URL
 import java.util.Date
 
 import cats.data.Xor
-import com.gu.atom.data.{PreviewDataStore, PublishedDataStore}
 import com.gu.atom.play.AtomAPIActions
-import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
 import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
-import com.gu.pandomainauth.model.{User => PandaUser}
-import data.AuditDataStore
-import model.{ChangeRecord, ImageAsset, MediaAtom, UpdatedMetadata}
-import CommandExceptions._
 import com.gu.media.logging.Logging
+import com.gu.media.youtube.{YouTube, YouTubeMetadataUpdate}
+import com.gu.pandomainauth.model.{User => PandaUser}
+import data.DataStores
 import model.Platform.Youtube
-import model.PrivacyStatus
-import util.{YouTubeConfig, YouTubeVideoUpdateApi}
+import model.commands.CommandExceptions._
+import model._
 
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success}
 
-case class PublishAtomCommand(id: String, fromExpiryPoller: Boolean = false)
-                                        (implicit val previewDataStore: PreviewDataStore,
-                                          val previewPublisher: PreviewAtomPublisher,
-                                          val publishedDataStore: PublishedDataStore,
-                                          val livePublisher: LiveAtomPublisher,
-                                          auditDataStore: AuditDataStore,
-                                          youtubeConfig: YouTubeConfig,
-                                          user: PandaUser) extends Command with AtomAPIActions with Logging {
+case class PublishAtomCommand(id: String, fromExpiryPoller: Boolean, override val stores: DataStores, youTube: YouTube, user: PandaUser)
+  extends Command with AtomAPIActions with Logging {
+
   type T = MediaAtom
 
   def process(): T = {
@@ -40,7 +32,6 @@ case class PublishAtomCommand(id: String, fromExpiryPoller: Boolean = false)
 
       case Some(thriftAtom) => {
         val atom = MediaAtom.fromThrift(thriftAtom)
-        val api = YouTubeVideoUpdateApi(youtubeConfig)
 
         (atom.privacyStatus, !fromExpiryPoller) match {
           case (Some(PrivacyStatus.Private), false) =>
@@ -52,7 +43,7 @@ case class PublishAtomCommand(id: String, fromExpiryPoller: Boolean = false)
             MediaAtom.getActiveYouTubeAsset(atom) match {
               case Some(asset) => {
                 try {
-                  updateThumbnail(atom, api)
+                  updateThumbnail(atom)
                 } catch {
                   case NonFatal(e) => {
                     log.error(s"Unable to update thumbnail for asset=${asset.id} atom={$id}", e)
@@ -71,15 +62,16 @@ case class PublishAtomCommand(id: String, fromExpiryPoller: Boolean = false)
                   asset.version == atomVersion
                 }).get.id
 
-                api.updateMetadata(activeAssetId, UpdatedMetadata(
-                  Some(atom.title),
-                  atom.description,
-                  Some(atom.tags),
-                  atom.youtubeCategoryId,
-                  atom.license,
-                  atom.privacyStatus,
-                  atom.expiryDate,
-                  atom.plutoProjectId))
+                val metadata = YouTubeMetadataUpdate(
+                  title = Some(atom.title),
+                  categoryId = atom.youtubeCategoryId,
+                  description = atom.description,
+                  tags = atom.tags,
+                  license = atom.license,
+                  privacyStatus = atom.privacyStatus.map(_.name)
+                )
+
+                youTube.updateMetadata(activeAssetId, metadata)
               }
               case None =>
                 log.info(s"Not updating YouTube metadata for atom $id as it has no active asset")
@@ -98,9 +90,9 @@ case class PublishAtomCommand(id: String, fromExpiryPoller: Boolean = false)
             log.info(s"Publishing atom $id")
 
             auditDataStore.auditPublish(id, user)
-            UpdateAtomCommand(id, MediaAtom.fromThrift(updatedAtom)).process()
+            UpdateAtomCommand(id, MediaAtom.fromThrift(updatedAtom), stores, user).process()
 
-            setOldAssetsToPrivate(atom, api)
+            setOldAssetsToPrivate(atom)
             publishAtomToLive(updatedAtom)
           }
         }
@@ -128,7 +120,7 @@ case class PublishAtomCommand(id: String, fromExpiryPoller: Boolean = false)
     }
   }
 
-  private def updateThumbnail(atom: MediaAtom, api: YouTubeVideoUpdateApi): Unit = {
+  private def updateThumbnail(atom: MediaAtom): Unit = {
     val asset = atom.getActiveAsset.get
 
     val master = atom.posterImage.flatMap(_.master).get
@@ -145,15 +137,15 @@ case class PublishAtomCommand(id: String, fromExpiryPoller: Boolean = false)
       ).get
     }
 
-    api.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
+    youTube.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
   }
 
-  private def setOldAssetsToPrivate(atom: MediaAtom, api: YouTubeVideoUpdateApi): Unit = {
+  private def setOldAssetsToPrivate(atom: MediaAtom): Unit = {
     MediaAtom.getActiveYouTubeAsset(atom).foreach { activeAsset =>
       atom.assets.collect {
         case asset if asset.platform == Youtube && asset.id != activeAsset.id =>
           log.info(s"Marking asset=${asset.id} atom=${atom.id} as private")
-          api.setStatusToPrivate(asset.id, atom.id)
+          youTube.setStatusToPrivate(asset.id, atom.id)
       }
     }
   }

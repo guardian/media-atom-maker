@@ -6,21 +6,25 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.{AWSCredentialsProvider, EnvironmentVariableCredentialsProvider}
 import com.amazonaws.regions.{Region, Regions}
 import com.amazonaws.services.s3.AmazonS3Client
-import com.gu.media.logging.LambdaElkLoggingFormat
+import com.gu.media.aws.AwsAccess
 import com.typesafe.config.{Config, ConfigFactory}
 
-trait LambdaBase {
+trait LambdaBase extends AwsAccess {
   private val regionName = envSetting("REGION")
   private val configBucket = envSetting("CONFIG_BUCKET")
   private val configKey = envSetting("CONFIG_KEY")
   private val localConfig = ConfigFactory.load()
 
-  val region: Region = Region.getRegion(Regions.fromName(regionName))
-  val credsProvider: AWSCredentialsProvider = buildCredsProvider(localConfig)
+  override val region: Region = Region.getRegion(Regions.fromName(regionName))
+  override val credsProvider: AWSCredentialsProvider = buildCredsProvider(localConfig)
 
   // Creating these outside the handleRequest call means they can be re-used across invocations
   // http://docs.aws.amazon.com/lambda/latest/dg/best-practices.html
   val (s3, config) = buildS3Client(localConfig)
+
+  override val stack = sys.env.get("STACK")
+  override val app = sys.env.get("APP")
+  override val stage = sys.env.getOrElse("STAGE", "DEV")
 
   private def buildS3Client(localConfig: Config): (AmazonS3Client, Config) = {
     val s3: AmazonS3Client = region.createClient(classOf[AmazonS3Client], credsProvider, null)
