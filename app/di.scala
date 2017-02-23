@@ -45,8 +45,7 @@ class MediaAtomMaker(context: Context)
   private val support = new Support(hmacAuthActions, configuration)
   private val youTubeController = new controllers.Youtube(hmacAuthActions, youTube, defaultCacheApi)
 
-  private val transcoder = new util.Transcoder(aws)
-  transcoder.start(actorSystem.scheduler)(actorSystem.dispatcher)
+  private val transcoder = new util.Transcoder(aws, defaultCacheApi)
   private val transcoderController = new controllers.Transcoder(hmacAuthActions, transcoder)
 
   private val mainApp = new MainApp(stores, wsClient, configuration, hmacAuthActions)

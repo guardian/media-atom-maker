@@ -1,26 +1,17 @@
 package util
 
-import javax.inject.{Inject, Singleton}
-
-import akka.actor.{ActorSystem, Scheduler}
-import akka.agent.Agent
 import com.amazonaws.services.elastictranscoder.model.ListJobsByPipelineRequest
 import model.transcoder.JobStatus
+import play.api.cache.CacheApi
 
 import scala.collection.JavaConverters._
-import scala.concurrent.ExecutionContext
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
-class Transcoder @Inject()(awsConfig: AWSConfig) {
+class Transcoder(awsConfig: AWSConfig, cache: CacheApi) {
 
-  val agent: Agent[List[JobStatus]] = Agent(List.empty)
+  def getJobsStatus = cache.getOrElse[List[JobStatus]]("transcoderJobs", 20.seconds){updateJobsStatus}
 
-  def start(scheduler: Scheduler)(implicit ec: ExecutionContext): Unit = {
-    scheduler.schedule(0.seconds, 2.minutes)(updateJobsStatus)
-  }
-
-  def updateJobsStatus {
+  private def updateJobsStatus = {
     val pipelineRequest: ListJobsByPipelineRequest = new ListJobsByPipelineRequest()
     pipelineRequest.setPipelineId(awsConfig.transcodePipelineId)
     //assumption this will be used sparingly so no need to paginate results
@@ -32,9 +23,6 @@ class Transcoder @Inject()(awsConfig: AWSConfig) {
       val statusDetail = if (job.getStatus.equals("Error")) Some(job.getOutput.getStatusDetail) else None
       JobStatus(job.getId, job.getStatus, statusDetail)
     }
-    agent send jobs
+    jobs
   }
-
-  def getJobsStatus = agent.get()
-
 }
