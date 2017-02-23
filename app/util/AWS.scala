@@ -29,6 +29,7 @@ class AWSConfig(override val config: Config)
   override val stage = readTag("Stage").getOrElse("DEV")
 
   lazy val composerUrl = getMandatoryString("flexible.url")
+  lazy val viewerUrl = getMandatoryString("viewer.url")
 
   lazy val gridUrl = stage match {
     case "PROD" => "https://media.gutools.co.uk"
