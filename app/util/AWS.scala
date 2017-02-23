@@ -30,10 +30,7 @@ class AWSConfig(override val config: Config)
 
   lazy val composerUrl = getMandatoryString("flexible.url")
 
-  lazy val gridUrl = stage match {
-    case "PROD" => "https://media.gutools.co.uk"
-    case _ => "https://media.test.dev-gutools.co.uk"
-  }
+  lazy val gridUrl = getMandatoryString("grid.url")
 
   lazy val expiryPollerName = "Expiry"
   lazy val expiryPollerLastName = "Poller"
