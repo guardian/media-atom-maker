@@ -7,7 +7,7 @@ import com.gu.contentatom.thrift.Atom
 import com.gu.media.logging.Logging
 import com.gu.media.youtube.YouTube
 import com.gu.pandomainauth.model.{User => PandaUser}
-import data.{DataStores, HasDataStores}
+import data.{DataStores, UnpackedDataStores}
 import model.Platform.Youtube
 import model.{MediaAtom, PrivacyStatus}
 import model.commands.{PublishAtomCommand, UpdateAtomCommand}
@@ -16,7 +16,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
 case class ExpiryPoller(override val stores: DataStores, youTube: YouTube, awsConfig: AWSConfig)
-  extends HasDataStores with Logging {
+  extends UnpackedDataStores with Logging {
 
   def start(scheduler: Scheduler)(implicit ec: ExecutionContext): Unit = {
     scheduler.schedule(0.seconds, 6.hours)(checkExpiryDates())

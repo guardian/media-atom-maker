@@ -1,8 +1,8 @@
 package model.commands
 
-import data.HasDataStores
+import data.UnpackedDataStores
 
-trait Command extends HasDataStores {
+trait Command extends UnpackedDataStores {
   type T
 
   def process(): T

@@ -40,10 +40,10 @@ class DataStores(aws: AWSConfig) extends MediaAtomImplicits {
   }
 }
 
-trait HasDataStores {
-  // To avoid renaming references in code
+trait UnpackedDataStores {
   val stores: DataStores
 
+  // To avoid renaming references in code
   val previewDataStore: PreviewDataStore = stores.preview
   val publishedDataStore: PublishedDataStore = stores.published
   val auditDataStore: AuditDataStore = stores.audit
