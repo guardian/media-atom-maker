@@ -35,7 +35,7 @@ class TranscoderLambda extends RequestStreamHandler {
       val mp4FileName = jobInfo.masterFileName.replace(".mxf", ".mp4")
 
       val jobOutput = new CreateJobOutput()
-        .withKey(s"$mp4FileName")
+        .withKey(mp4FileName)
         .withPresetId(PRESET_ID)
 
       // Create the job.
