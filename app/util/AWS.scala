@@ -2,9 +2,6 @@ package util
 
 import com.amazonaws.services.ec2.AmazonEC2Client
 import com.amazonaws.services.ec2.model.{DescribeTagsRequest, Filter}
-import com.amazonaws.services.kinesis.AmazonKinesisClient
-import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClient
-import com.amazonaws.services.elastictranscoder.AmazonElasticTranscoderClient
 import com.amazonaws.util.EC2MetadataUtils
 import com.gu.media.aws._
 import com.gu.media.logging.KinesisLogging
@@ -40,8 +37,6 @@ class AWSConfig(override val config: Config)
 
   lazy val expiryPollerName = "Expiry"
   lazy val expiryPollerLastName = "Poller"
-
-
 
   def readTag(tagName: String) = {
     val tagsResult = ec2Client.describeTags(
