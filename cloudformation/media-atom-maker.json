@@ -79,14 +79,14 @@
                 "MaxSize": 6,
                 "DesiredCapacity": 3,
                 "InstanceType": "t2.medium",
-                "TranscoderBucket": "media-atom-maker-transcoder-code"
+                "TranscoderBucket": "media-atom-maker-transcoder-prod"
             },
             "CODE": {
                 "MinSize": 1,
                 "MaxSize": 2,
                 "DesiredCapacity": 1,
                 "InstanceType": "t2.small",
-                "TranscoderBucket": "media-atom-maker-transcoder-prod"
+                "TranscoderBucket": "media-atom-maker-transcoder-code"
 
             }
         },
