@@ -1,30 +1,27 @@
-import Reqwest from 'reqwest';
-import Q from 'q';
+import reqwest from 'reqwest';
 import {reEstablishSession} from 'babel?presets[]=es2015!panda-session';
 import {getStore} from '../util/storeAccessor';
 
 export function pandaReqwest(reqwestBody) {
-  return Q.Promise(function(resolve, reject) {
-    Reqwest(reqwestBody)
-        .then(res => {
-          resolve(res);
-        })
-        .fail(err => {
-          if (err.status == 419) {
-            const store = getStore();
-            var reauthUrl = store.getState().config.reauthUrl;
+  return new Promise((resolve, reject) => {
+    reqwest(reqwestBody)
+      .then(res => resolve(res))
+      .fail(err => {
+        if (err !== 419) {
+          reject(err);
+        }
 
-            reEstablishSession(reauthUrl, 5000).then(
-              () => {
-                  Reqwest(reqwestBody).then(res => resolve(res)).fail(err => reject(err));
-                },
-                error => {
-                  throw error;
-                });
+        const store = getStore();
+        const reauthUrl = store.getState().config.reauthUrl;
 
-          } else {
-            reject(err);
-          }
-        });
+        reEstablishSession(reauthUrl, 5000)
+          .then(() => {
+            reqwest(reqwestBody)
+              .then(res => resolve(res))
+              .fail(err => reject(err));
+          }, error => {
+              throw error;
+          });
+      });
   });
 }

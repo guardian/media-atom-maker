@@ -1,11 +1,12 @@
 package controllers
 
 import com.gu.pandomainauth.action.AuthActions
+import data.UnpackedDataStores
 import play.api.mvc._
-import play.api.libs.json.{ JsObject, JsString }
+import play.api.libs.json.{JsObject, JsString}
 import util.ThriftUtil._
 
-trait AtomController extends Controller {
+trait AtomController extends Controller with UnpackedDataStores {
 
   val authActions: AuthActions
 

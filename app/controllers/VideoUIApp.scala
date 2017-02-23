@@ -1,18 +1,16 @@
 package controllers
 
-import javax.inject._
 
 import com.gu.pandahmac.HMACAuthActions
-import com.typesafe.config.ConfigFactory
 import model.ClientConfig
 import play.api.Configuration
 import play.api.libs.json.Json
+import play.api.mvc.Controller
 import util.AWSConfig
 
-class VideoUIApp @Inject() (val authActions: HMACAuthActions, conf: Configuration, awsConfig: AWSConfig)
-  extends AtomController {
-
+class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfig: AWSConfig) extends Controller {
   import authActions.AuthAction
+
   def index(id: String = "") = AuthAction { req =>
 
     val jsFileName = "video-ui/build/app.js"

@@ -1,17 +1,14 @@
 package controllers
 
-import javax.inject._
-
 import com.gu.pandahmac.HMACAuthActions
-import com.squareup.okhttp.{OkHttpClient, Credentials, Request}
+import com.squareup.okhttp.{Credentials, OkHttpClient, Request}
 import java.util.concurrent.TimeUnit
+
 import play.api.Configuration
-import play.api.mvc.{Action}
+import play.api.mvc.{Action, Controller}
 
 
-class Support @Inject() (val authActions: HMACAuthActions,
-                                  val conf: Configuration) extends AtomController {
-
+class Support(val authActions: HMACAuthActions, val conf: Configuration) extends Controller {
   import authActions.APIAuthAction
 
   def previewCapiProxy(path: String) = APIAuthAction { request =>

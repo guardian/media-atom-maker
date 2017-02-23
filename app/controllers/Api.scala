@@ -1,31 +1,26 @@
 package controllers
 
 import java.util.Date
-import javax.inject._
 
-import util.{ThriftUtil, AWSConfig}
 import com.gu.atom.data._
-import com.gu.atom.publish.{LiveAtomPublisher, PreviewAtomPublisher}
+import com.gu.atom.play._
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.pandahmac.HMACAuthActions
+import data.DataStores
 import data.JsonConversions._
-import util.ThriftUtil._
 import play.api.Configuration
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import util.AWSConfig
+import util.ThriftUtil._
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
 
-import com.gu.atom.play._
-
 import scala.util.{Failure, Success}
 
-class Api @Inject() (val previewDataStore: PreviewDataStore,
-                     val publishedDataStore: PublishedDataStore,
-                     val livePublisher: LiveAtomPublisher,
-                     val previewPublisher: PreviewAtomPublisher,
-                     val conf: Configuration,
-                     val awsConfig: AWSConfig,
-                     val authActions: HMACAuthActions)
+class Api (override val stores: DataStores,
+           val conf: Configuration,
+           val awsConfig: AWSConfig,
+           val authActions: HMACAuthActions)
     extends AtomController
     with MediaAtomImplicits
     with AtomAPIActions {

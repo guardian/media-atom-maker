@@ -21,6 +21,11 @@ export default function video(state = null, action) {
         activeVersion: action.assetVersion
       });
 
+    case 'ASSET_CREATE_RECEIVE':
+      return Object.assign({}, state, {
+        assets: action.video.assets
+      });
+
     default:
       return state;
   }

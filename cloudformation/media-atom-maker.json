@@ -375,9 +375,9 @@
                 "Environment": {
                     "Variables": {
                         "REGION": { "Ref": "AWS::Region" },
-                        "STACK": "media-service",
+                        "STACK": { "Ref": "Stack" },
                         "APP": "media-atom-uploader",
-                        "STAGE": "DEV",
+                        "STAGE": { "Ref": "Stage" },
                         "CONFIG_BUCKET": { "Ref": "ConfigBucket" },
                         "CONFIG_KEY": { "Fn::FindInMap": [ "LambdaConfig", "Uploader", { "Ref": "Stage" }] }
                     }

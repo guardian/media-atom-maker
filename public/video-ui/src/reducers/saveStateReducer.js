@@ -64,6 +64,18 @@ export default function saveState(state = {
         searching: false
       });
 
+    // Adding asset states
+
+    case 'ASSET_CREATE_REQUEST':
+      return Object.assign({}, state, {
+        addingAsset: saveStateVals.inprogress
+      });
+    case 'ASSET_CREATE_RECEIVE':
+      return Object.assign({}, state, {
+        addingAsset: false
+      });
+
+
     case 'SHOW_ERROR':
       return Object.assign({}, state, {
         searching: false,

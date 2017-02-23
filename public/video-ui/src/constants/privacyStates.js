@@ -1,6 +1,4 @@
-export const publishedPrivacyStates = [
+export const privacyStates = [
   'Public',
   'Unlisted'
 ].map(state => {return {id: state, title: state};});
-
-export const previewPrivacyState = 'Private';

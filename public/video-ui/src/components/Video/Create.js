@@ -2,25 +2,19 @@ import React from 'react';
 import VideoEdit from '../VideoEdit/VideoEdit';
 import SaveButton from '../utils/SaveButton';
 import {blankVideoData} from '../../constants/blankVideoData';
-import {previewPrivacyState} from '../../constants/privacyStates';
 
 class VideoCreate extends React.Component {
 
   componentDidMount() {
-    this.props.videoActions.populateEmptyVideo();
+    this.props.videoActions.updateVideo(blankVideoData);
   }
 
   createVideo = () => {
-
-    const videoWithStatus = Object.assign({}, this.props.video, {
-      privacyStatus: previewPrivacyState
-    });
-
-    this.props.videoActions.createVideo(videoWithStatus);
+    this.props.videoActions.createVideo(this.props.video);
   };
 
   resetVideo = () => {
-    this.props.videoActions.populateEmptyVideo();
+    this.props.videoActions.updateVideo(blankVideoData);
   };
 
   updateVideo = (video) => {
@@ -33,7 +27,7 @@ class VideoCreate extends React.Component {
         <form className="form create-form">
           <h1>Create new video</h1>
           <VideoEdit
-            video={this.props.video || blankVideoData}
+            video={this.props.video}
             updateVideo={this.updateVideo}
             saveAndUpdateVideo={this.updateVideo}
             createMode
