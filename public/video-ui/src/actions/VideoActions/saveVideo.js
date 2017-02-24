@@ -1,7 +1,4 @@
 import VideosApi from '../../services/VideosApi';
-import debounce from 'debounce-promise';
-
-const debounceInterval = 500;
 
 function requestVideoSave(video) {
   return {
@@ -37,12 +34,3 @@ export function saveVideo(video) {
   };
 }
 
-const debouncedSave = debounce(VideosApi.saveVideo, debounceInterval);
-export function debouncedSaveVideo(video) {
-  return dispatch => {
-    dispatch(requestVideoSave(video));
-    debouncedSave(video.id, video)
-        .then(res => dispatch(receiveVideoSave(res)))
-        .catch(error => dispatch(errorVideoSave(error)));
-  };
-}

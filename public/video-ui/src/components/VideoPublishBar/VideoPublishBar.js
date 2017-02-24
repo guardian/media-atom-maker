@@ -3,7 +3,7 @@ import {saveStateVals} from '../../constants/saveStateVals';
 import {isVideoPublished} from '../../util/isVideoPublished';
 import {hasUnpublishedChanges} from '../../util/hasUnpublishedChanges';
 
-export default class VideoPublishBar extends React.Component {
+class VideoPublishBar extends React.Component {
 
   videoIsCurrentlyPublishing() {
     return this.props.saveState.publishing === saveStateVals.inprogress;
@@ -15,6 +15,8 @@ export default class VideoPublishBar extends React.Component {
 
   isPublishingDisabled() {
     return this.videoIsCurrentlyPublishing() ||
+      this.props.editState.metadataEditable ||
+      this.props.editState.youtubeEditable ||
       !this.videoHasUnpublishedChanges();
   }
 
@@ -67,3 +69,13 @@ export default class VideoPublishBar extends React.Component {
     );
   }
 }
+
+//REDUX CONNECTIONS
+import { connect } from 'react-redux';
+
+function mapStateToProps(state) {
+  return {
+    editState: state.editState
+  };
+}
+export default connect(mapStateToProps)(VideoPublishBar);

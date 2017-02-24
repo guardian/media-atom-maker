@@ -12,6 +12,7 @@ import { reducer as form } from 'redux-form';
 import usage from './usageReducer';
 import pageCreate from './composerPageReducer';
 import upload from './uploadsReducer';
+import editState from './editStateReducer';
 
 export default combineReducers({
   audits,
@@ -26,5 +27,6 @@ export default combineReducers({
   usage,
   pageCreate,
   publishedVideo,
-  upload
+  upload,
+  editState
 });

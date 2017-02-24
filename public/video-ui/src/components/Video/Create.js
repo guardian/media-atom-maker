@@ -34,7 +34,7 @@ class VideoCreate extends React.Component {
             editable
             saveState={this.props.saveState}
           />
-          <SaveButton saveState={this.props.saveState} onSaveClick={this.createVideo} onResetClick={this.resetVideo} />
+          <SaveButton video={this.props.video} saveState={this.props.saveState} onSaveClick={this.createVideo} onResetClick={this.resetVideo} />
         </form>
       </div>
     );
