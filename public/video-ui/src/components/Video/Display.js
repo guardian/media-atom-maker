@@ -9,6 +9,7 @@ import VideoPoster from '../VideoPoster/VideoPoster';
 import GridImageSelect from '../utils/GridImageSelect';
 import {getVideoBlock} from '../../util/getVideoBlock';
 import {getStore} from '../../util/storeAccessor';
+import {saveStateVals} from '../../constants/saveStateVals';
 import Icon from '../Icon';
 
 class VideoDisplay extends React.Component {
@@ -86,13 +87,13 @@ class VideoDisplay extends React.Component {
   }
 
   renderCreateButton = () => {
-    const filterUsageType = this.props.usages.filter(value => value.type === 'video');
+      const filterUsageType = this.props.usages.filter(value => value.type === 'video');
 
-    if(filterUsageType.length === 0){
-      return (
-        <button className="button__secondary" onClick={this.pageCreate}><Icon icon="add_to_queue"></Icon> Create Video Page</button>
-      )
-    }
+      if(filterUsageType.length === 0){
+        return (
+          <button className="button__secondary" onClick={this.pageCreate}><Icon icon="add_to_queue"></Icon> Create Video Page</button>
+        )
+      }
   }
 
 
