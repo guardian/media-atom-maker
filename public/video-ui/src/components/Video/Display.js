@@ -7,6 +7,8 @@ import VideoMetaData from '../VideoMetaData/VideoMetaData';
 import YoutubeMetaData from '../YoutubeMetaData/YoutubeMetaData';
 import VideoPoster from '../VideoPoster/VideoPoster';
 import GridImageSelect from '../utils/GridImageSelect';
+import {getVideoBlock} from '../../util/getVideoBlock';
+import {getStore} from '../../util/storeAccessor';
 import Icon from '../Icon';
 
 class VideoDisplay extends React.Component {
@@ -18,6 +20,7 @@ class VideoDisplay extends React.Component {
 
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
+    this.props.videoActions.getUsages(this.props.params.id);
   }
 
   saveVideo = () => {
@@ -61,6 +64,33 @@ class VideoDisplay extends React.Component {
   cannotEditStatus = () => {
     return this.props.video.expiryDate <= Date.now();
   };
+
+    pageCreate = () => {
+
+    this.setState({
+      pageCreated: true
+    });
+
+    const metadata = {
+      title: this.props.video.title,
+      standfirst: this.props.video.description
+    };
+
+    const videoBlock = getVideoBlock(this.props.video.id, metadata);
+
+    return this.props.videoActions.createVideoPage(this.props.video.id, metadata, this.getComposerUrl(), videoBlock);
+  }
+
+  getComposerUrl = () => {
+    return getStore().getState().config.composerUrl;
+  }
+
+  renderUsagesButton = () => {
+    return (
+      <button className="button__secondary" onClick={this.pageCreate}><Icon icon="add_to_queue"></Icon> Create Video Page</button>
+    )
+  }
+
 
   renderEditButton = (editable, property) => {
 
@@ -135,13 +165,12 @@ class VideoDisplay extends React.Component {
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
                   <header className="video__detailbox__header">Usages</header>
+                  {this.renderUsagesButton()}
                 </div>
                 <VideoUsages
                   video={this.props.video || {}}
                   publishedVideo={this.props.publishedVideo || {}}
-                  fetchUsages={this.props.videoActions.getUsages}
                   usages={this.props.usages || []}
-                  createComposerPage={this.props.videoActions.createVideoPage}
                 />
               </div>
               <div className="video__detailbox">

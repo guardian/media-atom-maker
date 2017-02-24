@@ -26,16 +26,16 @@ export default class VideoPreview extends React.Component {
 
     if (!activeAsset) {
       return (
-        <div className="video-preview__video">No Active Video</div>
+        <div className="baseline-margin">No Active Video</div>
       );
     }
 
     if (activeAsset.platform !== "Youtube") {
-      <div className="video-preview__video">Unable to Preview</div>;
+      <div className="baseline-margin">Unable to Preview</div>;
     }
 
     return  (
-      <iframe className="video-preview__video" src={this.youtubeEmbedUrl() + activeAsset.id} allowFullScreen></iframe>
+      <iframe className="baseline-margin" src={this.youtubeEmbedUrl() + activeAsset.id} allowFullScreen></iframe>
     );
   }
 

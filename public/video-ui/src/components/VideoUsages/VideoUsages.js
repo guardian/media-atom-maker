@@ -69,7 +69,7 @@ export default class VideoUsages extends React.Component {
       );
     }
 
-    return (<div>Publish this atom to enable the creation of composer pages</div>);
+    return (<div className="baseline-margin">Publish this atom to enable the creation of composer pages</div>);
   };
 
   renderUsage = (usage) => {
