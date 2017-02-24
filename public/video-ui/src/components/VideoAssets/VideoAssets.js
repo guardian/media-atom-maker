@@ -110,7 +110,7 @@ class VideoAssets extends React.Component {
   renderHeader() {
     const buttons = <div className="video-assets__buttons">
       <a className="button" onClick={this.showAssetForm}>
-        <Icon className="icon__edit" icon="add"/>
+        <Icon className="icon__edit icon__spacing" icon="add"/>
       </a>
       <Link className="button" to={`/videos/${this.props.video.id}/upload`}>
         <Icon className="icon__edit" icon="backup"/>
