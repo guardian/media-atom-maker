@@ -75,7 +75,7 @@ export default class VideoUsages extends React.Component {
   renderUsage = (usage) => {
     const composerLink = `${this.getComposerUrl()}/content/${usage.fields.internalComposerCode}`;
     const viewerLink = `${this.getViewerUrl()}/preview/${usage.id}`;
-    const websiteLink = `https://gu.com/${usage.id}`;
+    const websiteLink = `https://www.theguardian.com/${usage.id}`;
 
     const usageDateFromNow = moment(usage.fields.creationDate).fromNow();
 
