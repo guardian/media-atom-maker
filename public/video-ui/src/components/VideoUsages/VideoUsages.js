@@ -40,22 +40,6 @@ export default class VideoUsages extends React.Component {
     return hasUnpublishedChanges(this.props.video, this.props.publishedVideo);
   }
 
-  // renderCreateButton = () => {
-  //   if (this.props.video && isVideoPublished(this.props.publishedVideo) && !this.videoHasUnpublishedChanges()) {
-  //     return (
-  //       <button
-  //         type="button"
-  //         className="btn page__add__button"
-  //         disabled={this.state.pageCreated}
-  //         onClick={this.pageCreate}>
-  //         Create video page
-  //       </button>
-  //     );
-  //   }
-
-    // return (<div className="baseline-margin">Publish this atom to enable the creation of composer pages</div>);
-  // };
-
   renderUsage = (usage) => {
     const composerLink = `${this.getComposerUrl()}/content/${usage.fields.internalComposerCode}`;
     const viewerLink = `${this.getViewerUrl()}/preview/${usage.id}`;

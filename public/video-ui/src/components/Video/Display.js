@@ -86,7 +86,7 @@ class VideoDisplay extends React.Component {
     return getStore().getState().config.composerUrl;
   }
 
-  renderCreateButton = () => {
+  videoPageUsages = () => {
       const filterUsageType = this.props.usages.filter(value => value.type === 'video');
 
       if(filterUsageType.length === 0){
@@ -170,7 +170,7 @@ class VideoDisplay extends React.Component {
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
                   <header className="video__detailbox__header">Usages</header>
-                  {this.renderCreateButton()}
+                  {this.videoPageUsages()}
                 </div>
                 <VideoUsages
                   video={this.props.video || {}}
