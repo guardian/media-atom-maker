@@ -12,22 +12,6 @@ export default class VideoUsages extends React.Component {
     pageCreated: false
   };
 
-  componentDidMount() {
-    if (this.props.video) {
-      this.props.fetchUsages(this.props.video.id);
-    }
-  }
-
-  componentWillReceiveProps(newProps) {
-    const oldVideoId = this.props.video && this.props.video.id;
-    const newVideoId = newProps.video && newProps.video.id;
-
-    if (oldVideoId !== newVideoId) {
-
-      this.props.fetchUsages(newVideoId);
-    }
-  }
-
   getComposerUrl = () => {
     return getStore().getState().config.composerUrl;
   };
@@ -56,21 +40,21 @@ export default class VideoUsages extends React.Component {
     return hasUnpublishedChanges(this.props.video, this.props.publishedVideo);
   }
 
-  renderCreateButton = () => {
-    if (this.props.video && isVideoPublished(this.props.publishedVideo) && !this.videoHasUnpublishedChanges()) {
-      return (
-        <button
-          type="button"
-          className="btn page__add__button"
-          disabled={this.state.pageCreated}
-          onClick={this.pageCreate}>
-          Create video page
-        </button>
-      );
-    }
+  // renderCreateButton = () => {
+  //   if (this.props.video && isVideoPublished(this.props.publishedVideo) && !this.videoHasUnpublishedChanges()) {
+  //     return (
+  //       <button
+  //         type="button"
+  //         className="btn page__add__button"
+  //         disabled={this.state.pageCreated}
+  //         onClick={this.pageCreate}>
+  //         Create video page
+  //       </button>
+  //     );
+  //   }
 
-    return (<div className="baseline-margin">Publish this atom to enable the creation of composer pages</div>);
-  };
+    // return (<div className="baseline-margin">Publish this atom to enable the creation of composer pages</div>);
+  // };
 
   renderUsage = (usage) => {
     const composerLink = `${this.getComposerUrl()}/content/${usage.fields.internalComposerCode}`;
@@ -108,23 +92,28 @@ export default class VideoUsages extends React.Component {
   }
 
   render() {
-    if (! this.props.usages) {
+    if (!this.props.usages) {
       return (<div className="baseline-margin">Fetching Usages...</div>);
     }
 
-    return (
-      <div>
-        {this.renderCreateButton()}
-        {this.renderUsages()}
-      </div>
-    );
+    if(this.props.usages.length === 0){
+      return (
+        <div>
+          <div className="baseline-margin">No usages found</div>
+        </div>
+      )
+    } else {
+      return (
+        <div>
+          {this.renderUsages()}
+        </div>
+      );
+    }
   }
 }
 
 VideoUsages.propTypes = {
   usages: React.PropTypes.array.isRequired,
   video: React.PropTypes.object.isRequired,
-  publishedVideo: React.PropTypes.object.isRequired,
-  createComposerPage: React.PropTypes.func.isRequired,
-  fetchUsages: React.PropTypes.func.isRequired
+  publishedVideo: React.PropTypes.object.isRequired
 };

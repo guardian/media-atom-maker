@@ -85,10 +85,15 @@ class VideoDisplay extends React.Component {
     return getStore().getState().config.composerUrl;
   }
 
-  renderUsagesButton = () => {
-    return (
-      <button className="button__secondary" onClick={this.pageCreate}><Icon icon="add_to_queue"></Icon> Create Video Page</button>
-    )
+
+  renderCreateButton = () => {
+    const filterUsageType = this.props.usages.filter(value => value.type === 'video');
+
+    if(filterUsageType.length === 0){
+      return (
+        <button className="button__secondary" onClick={this.pageCreate}><Icon icon="add_to_queue"></Icon> Create Video Page</button>
+      )
+    }
   }
 
 
@@ -165,7 +170,7 @@ class VideoDisplay extends React.Component {
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
                   <header className="video__detailbox__header">Usages</header>
-                  {this.renderUsagesButton()}
+                  {this.renderCreateButton()}
                 </div>
                 <VideoUsages
                   video={this.props.video || {}}
