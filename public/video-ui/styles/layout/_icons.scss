@@ -45,6 +45,8 @@
     background-color: darken($color600Grey, 10%);
   }
   &.disabled {
+    opacity: 0.4;
+    cursor: default;
     background-color: darken($color600Grey, 10%);
   }
 }
@@ -57,7 +59,8 @@
   }
 
   &.disabled {
-    background-color: darken($brandColor, 15%);
+    cursor: default;
+    opacity: 0.4;
   }
 }
 
