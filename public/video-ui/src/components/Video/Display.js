@@ -85,7 +85,6 @@ class VideoDisplay extends React.Component {
     return getStore().getState().config.composerUrl;
   }
 
-
   renderCreateButton = () => {
     const filterUsageType = this.props.usages.filter(value => value.type === 'video');
 
