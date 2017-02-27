@@ -67,6 +67,9 @@ Resources:
                   - !Sub
                     - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
                     - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "UploadTrackingDynamoTable" }
+                  - !Sub
+                    - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
+                    - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "ManualPlutoMediaAtomsDynamoTable" }
   MediaAtomUser:
     Type: "AWS::IAM::User"
     Properties:
@@ -100,6 +103,18 @@ Resources:
           KeyType: "HASH"
       ProvisionedThroughput:
         ReadCapacityUnits: "10"
+        WriteCapacityUnits: "5"
+  ManualPlutoMediaAtomsDynamoTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "id"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
   AuditMediaAtomMakerDynamoTable:
     Type: "AWS::DynamoDB::Table"
@@ -443,6 +458,12 @@ Outputs:
   UploadTrackingDynamoTable:
     Value:
       Ref: "UploadTrackingDynamoTable"
+  UploadTrackingStream:
+    Value:
+      !GetAtt UploadTrackingDynamoTable.StreamArn
+  ManualPlutoDynamoTable:
+    Value:
+      Ref: "ManualPlutoMediaAtomsDynamoTable"
   AwsId:
     Value:
       Ref: "HostKeys"

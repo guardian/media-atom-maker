@@ -97,7 +97,7 @@ lazy val plutoSender = (project in file("pluto-sender"))
   .dependsOn(common)
   .settings(commonSettings,
     name := "pluto-sender",
-    libraryDependencies,
+    libraryDependencies ++= Dependencies.plutoSenderDependencies,
 
     topLevelDirectory in Universal := None,
     packageName in Universal := normalizedName.value

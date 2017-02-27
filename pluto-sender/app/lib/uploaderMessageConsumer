@@ -1,0 +1,96 @@
+package com.gu.media.pluto
+
+import com.amazonaws.auth.AWSCredentialsProvider
+import com.gu.contentatom.thrift.atom.media.MediaAtom
+import com.gu.media.Settings
+import com.gu.media.aws.AwsAccess
+import com.typesafe.config.Config
+import com.gu.media.model.MediaAtom
+import org.joda.time.DateTime
+import org.joda.time.format.ISODateTimeFormat
+import play.api.libs.json.{Reads, JsValue}
+import akka.actor.Scheduler
+import scala.annotation.tailrec
+import scala.concurrent.duration._
+import play.api.libs.json._
+import com.amazonaws.services.sqs.model.{ReceiveMessageRequest, Message}
+import com.amazonaws.services.sqs.AmazonSQSClient
+import scala.concurrent.{Future, ExecutionContext}
+import com.gu.atom.play.AtomAPIActions
+import com.gu.atom.data.PreviewDataStore
+
+class UploaderMessageConsumer(plutoSenderConfig: PlutoSenderConfig, previewDataStore: PreviewDataStore) {
+
+  def start(scheduler: Scheduler)(implicit ec: ExecutionContext): Unit = {
+    scheduler.scheduleOnce(0.seconds)(processMessages())
+  }
+
+
+  lazy val client =
+    new AmazonSQSClient(plutoSenderConfig.credsProvider)
+
+  @tailrec
+  private def processMessages(): Unit = {
+    for (
+      msg <- getMessages(waitTime = 20, maxMessages = 1)
+    ) yield {
+      extractSNSMessage(msg) match {
+        case Some(message) => handleMessage(message)
+        case None => //log an error: could not parse
+      }
+    }
+
+    processMessages()
+
+  }
+
+  //should we log parse errors?
+  private def extractSNSMessage(sqsMessage: Message): Option[SNSMessage] =
+    Json.fromJson[SNSMessage](Json.parse(sqsMessage.getBody)).asOpt
+
+  private def getMessages(waitTime: Int, maxMessages: Int): Seq[Message] =
+    client.receiveMessage(
+      new ReceiveMessageRequest(plutoSenderConfig.queueUrl)
+        .withWaitTimeSeconds(waitTime)
+        .withMaxNumberOfMessages(maxMessages)
+    ).getMessages.asScala.toList
+
+  private def handleMessage(message: SNSMessage): Unit = {
+    val atomId = (message.body \ "atomId").toString()
+    previewDataStore.getAtom(atomId) match {
+      case Some(atom) => {
+        //check if atom has a project id: if yes, push to another queue
+        println("check if atom has pluto project")
+        
+      }
+      case None => {
+        println("could not find atom: log an error")
+      }
+    }
+  }
+
+  case class SNSMessage(
+                         messageId: String,
+                         timestamp: DateTime,
+                         body: JsValue
+                       )
+
+  object SNSMessage {
+    private def parseTimestamp(timestamp: String): DateTime =
+      ISODateTimeFormat.dateTime.withZoneUTC.parseDateTime(timestamp)
+
+    implicit def snsMessageReads: Reads[SNSMessage] =
+      (
+          (__ \ "MessageId").read[String] ~
+            (__ \ "Timestamp").read[String].map(parseTimestamp) ~
+          (__ \ "Message").read[String].map(Json.parse)
+        )(SNSMessage(_, _, _))
+  }
+
+}
+
+class PlutoSenderConfig(override val config: Config, val settings: Settings) extends AwsAccess {
+
+  lazy val queueUrl = settings.getMandatoryString("uploaded.url")
+
+}

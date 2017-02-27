@@ -90,4 +90,8 @@ object Dependencies {
     playJsonExtensions,
     typesafeConfig
   )
+
+  val plutoSenderDependencies = Seq("com.amazonaws" % "aws-java-sdk-sqs" % awsVersion,
+    "com.typesafe.akka" %% "akka-actor" % "2.4.17") ++ atomMaker
+  
 }
