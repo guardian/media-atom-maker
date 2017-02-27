@@ -4,6 +4,7 @@ import java.util.Date
 
 import com.gu.atom.data._
 import com.gu.atom.play._
+import com.gu.contentatom.thrift.atom.media.Category.Hosted
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.pandahmac.HMACAuthActions
 import data.DataStores
@@ -165,7 +166,13 @@ class Api (override val stores: DataStores,
   def listAtoms = APIAuthAction { implicit req =>
     previewDataStore.listAtoms.fold(
       err =>   InternalServerError(jsonError(err.msg)),
-      atoms => Ok(Json.toJson(atoms.toList))
+      atoms => {
+        val hostedMediaAtoms = atoms
+          .toList
+          .filter(_.tdata.category == Hosted)
+
+        Ok(Json.toJson(hostedMediaAtoms))
+      }
     )
   }
 
