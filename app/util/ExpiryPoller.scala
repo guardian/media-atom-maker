@@ -67,7 +67,7 @@ case class ExpiryPoller(override val stores: DataStores, youTube: YouTube, awsCo
           atom.assets.collect {
             case asset if asset.platform == Youtube =>
               log.info(s"Marking asset=${asset.id} atom=$atomId as private due to expiry")
-              youTube.setStatusToPrivate(asset.id, atomId)
+              youTube.setStatusToPrivate(asset.id)
           }
 
           val updatedAtom = atom.copy(privacyStatus = Some(PrivacyStatus.Private))

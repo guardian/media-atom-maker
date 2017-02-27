@@ -74,8 +74,20 @@ lazy val transcoder = (project in file("transcoder"))
 
   )
 
+lazy val expirer = (project in file("expirer"))
+  .dependsOn(common)
+  .enablePlugins(JavaAppPackaging)
+  .settings(commonSettings,
+    name := "media-atom-expirer",
+    libraryDependencies ++= Dependencies.expirerDependencies,
+
+    topLevelDirectory in Universal := None,
+    packageName in Universal := normalizedName.value
+
+  )
+
 lazy val root = (project in file("root"))
-  .aggregate(common, app, uploader, transcoder)
+  .aggregate(common, app, uploader, transcoder, expirer)
   .enablePlugins(RiffRaffArtifact)
   .settings(
     riffRaffBuildIdentifier := Option(System.getenv("CIRCLE_BUILD_NUM")).getOrElse("dev"),

@@ -76,4 +76,6 @@ object Dependencies {
   )
 
   val transcodeDependencies = Seq(awsLambdaCore, awsTranscoder, playJsonExtensions)
+
+  val expirerDependencies = Seq.empty[ModuleID]
 }

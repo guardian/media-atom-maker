@@ -1,4 +1,5 @@
 import com.gu.atom.play.ReindexController
+import com.gu.media.{CapiPreview, CapiPreviewAccess}
 import com.gu.media.youtube.YouTube
 import controllers._
 import data._
@@ -33,6 +34,7 @@ class MediaAtomMaker(context: Context)
   private val reindexer = buildReindexer()
 
   private val youTube = new YouTube(config)
+  private val capi = new CapiPreview(config)
 
   private val expiryPoller = ExpiryPoller(stores, youTube, aws)
   expiryPoller.start(actorSystem.scheduler)(actorSystem.dispatcher)
@@ -42,7 +44,7 @@ class MediaAtomMaker(context: Context)
 
   private val uploads = new UploadController(hmacAuthActions, aws)
 
-  private val support = new Support(hmacAuthActions, configuration)
+  private val support = new Support(hmacAuthActions, capi)
   private val youTubeController = new controllers.Youtube(hmacAuthActions, youTube, defaultCacheApi)
 
   private val transcoder = new util.Transcoder(aws, defaultCacheApi)

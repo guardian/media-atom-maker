@@ -138,7 +138,7 @@ case class PublishAtomCommand(id: String, fromExpiryPoller: Boolean, override va
       atom.assets.collect {
         case asset if asset.platform == Youtube && asset.id != activeAsset.id =>
           log.info(s"Marking asset=${asset.id} atom=${atom.id} as private")
-          youTube.setStatusToPrivate(asset.id, atom.id)
+          youTube.setStatusToPrivate(asset.id)
       }
     }
   }
