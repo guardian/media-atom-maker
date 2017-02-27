@@ -80,7 +80,7 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String, stores: DataSto
 
           case Some(other) =>
             log.info(s"Cannot mark $youtubeId as the active asset in $atomId. Unexpected processing state $other")
-            AssetEncodingInProcess
+            AssetEncodingInProgress(other)
 
           case None =>
             log.info(s"Cannot mark $youtubeId as the active asset in $atomId. No youtube video has that id")
