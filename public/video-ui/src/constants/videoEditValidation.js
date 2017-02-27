@@ -15,9 +15,6 @@ export const validate = (values) => {
     errors.posterImage = 'Required';
   }
 
-  if (!values.duration) {
-    errors.duration = 'Required';
-  }
   if(!values.youtubeCategory) {
     errors.youtubeCategory = 'Required';
   }
