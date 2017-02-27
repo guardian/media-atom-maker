@@ -38,7 +38,7 @@ case class ExpiryPoller(override val stores: DataStores, youTube: YouTube, awsCo
               val atomId = expiredAtom.id
 
               publishedDataStore.getAtom(atomId) match {
-                case Right(atom) =>
+                case Right(_) =>
                   PublishAtomCommand(atomId, fromExpiryPoller = true, stores, youTube, user).process()
 
                 case _ =>
@@ -48,6 +48,9 @@ case class ExpiryPoller(override val stores: DataStores, youTube: YouTube, awsCo
             case _ =>
           }
         })
+
+      case Left(err) =>
+        log.error(s"Unable to list atoms for expiry: ${err.msg}")
     }
   }
 

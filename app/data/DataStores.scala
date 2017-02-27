@@ -4,14 +4,23 @@ import com.gu.atom.data._
 import com.gu.atom.publish._
 import com.gu.contentatom.thrift.{Atom, AtomData}
 import com.gu.contentatom.thrift.atom.media.MediaAtom
+import com.gu.scanamo.DynamoFormat
 import util.atom.MediaAtomImplicits
 import com.gu.scanamo.scrooge.ScroogeDynamoFormat._
 import model.commands.CommandExceptions._
 import util.AWSConfig
 
+import scala.reflect.ClassTag
+
 class DataStores(aws: AWSConfig) extends MediaAtomImplicits {
-  val published: PublishedDataStore = createPublished()
-  val preview: PreviewDataStore = createPreview()
+  import cats.syntax.either._ // appears unused but is required to make the data stores compile
+
+  val mediaDynamoFormats = new AtomDynamoFormats[MediaAtom] {
+    def fromAtomData: PartialFunction[AtomData, MediaAtom] = { case AtomData.Media(data) => data }
+    def toAtomData(data: MediaAtom): AtomData = AtomData.Media(data)
+  }
+
+  val (preview, published) = getDataStores[MediaAtom](mediaDynamoFormats)
   val audit: AuditDataStore = new AuditDataStore(aws.dynamoDB, aws.auditDynamoTableName)
 
   val livePublisher: LiveKinesisAtomPublisher =
@@ -26,17 +35,14 @@ class DataStores(aws: AWSConfig) extends MediaAtomImplicits {
   val reindexPublished: PublishedKinesisAtomReindexer =
     new PublishedKinesisAtomReindexer(aws.publishedKinesisReindexStreamName, aws.kinesisClient)
 
-  private def createPublished() = {
-    new PublishedDynamoDataStore[MediaAtom](aws.dynamoDB, aws.publishedDynamoTableName) {
-      def fromAtomData = { case AtomData.Media(data) => data }
-      def toAtomData(data: MediaAtom) = AtomData.Media(data)
-    }
-  }
-
-  private def createPreview() = {
-    new PreviewDynamoDataStore[MediaAtom](aws.dynamoDB, aws.dynamoTableName) {
-      def fromAtomData = { case AtomData.Media(data) => data }
-      def toAtomData(data: MediaAtom) = AtomData.Media(data)
+  def getDataStores[T: ClassTag: DynamoFormat](dynamoFormats: AtomDynamoFormats[T]): (PreviewDynamoDataStore[T], PublishedDynamoDataStore[T]) = {
+    new PreviewDynamoDataStore[T](aws.dynamoDB, aws.dynamoTableName) {
+      def fromAtomData = dynamoFormats.fromAtomData
+      def toAtomData(data: T) = dynamoFormats.toAtomData(data)
+    } ->
+    new PublishedDynamoDataStore[T](aws.dynamoDB, aws.publishedDynamoTableName) {
+      def fromAtomData = dynamoFormats.fromAtomData
+      def toAtomData(data: T) = dynamoFormats.toAtomData(data)
     }
   }
 }
