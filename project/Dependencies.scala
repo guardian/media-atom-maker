@@ -11,7 +11,6 @@ object Dependencies {
   val typesafeConfigVersion = "1.3.0" // to match what we get from Play transitively
   val scanamoVersion = "0.9.1" // to match what we get from atom-publisher-lib transitively
 
-  val thrift = "org.apache.thrift" % "libthrift" % "0.9.3"
   val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0"
   val jacksonDatabind = "com.fasterxml.jackson.core" % "jackson-databind" % "2.7.0"
   val playJsonExtensions = "org.cvogt" %% "play-json-extensions" % "0.8.0"
@@ -67,7 +66,7 @@ object Dependencies {
   )
 
   val appDependencies = panda ++ atomMaker ++ slf4j ++ Seq(
-    PlayImport.cache, thrift, scalaLogging, jacksonDatabind, okHttp, contentAtomModel, diff,
+    PlayImport.cache, scalaLogging, jacksonDatabind, okHttp, contentAtomModel, diff,
     awsSts, awsEc2, scalaTestPlusPlay, mockito, scalaXml, awsTranscoder
   )
 
