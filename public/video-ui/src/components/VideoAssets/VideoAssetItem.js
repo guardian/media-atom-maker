@@ -1,5 +1,6 @@
 import React from 'react';
 import {getStore} from '../../util/storeAccessor';
+import Icon from '../Icon';
 
 export default class VideoAssetItem extends React.Component {
 
@@ -8,9 +9,9 @@ export default class VideoAssetItem extends React.Component {
     return store.getState().config.youtubeThumbnailUrl + assetId + "/0.jpg";
   };
 
-  youtubeVideoUrl = (assetId) => {
+  youtubeVideoUrl = () => {
     const store = getStore();
-    return store.getState().config.youtubeEmbedUrl + assetId;
+    return store.getState().config.youtubeEmbedUrl + this.props.asset.id;
   };
 
   revertAsset = () => {
@@ -37,11 +38,23 @@ export default class VideoAssetItem extends React.Component {
     }
   };
 
+  renderYoutubeLink = () => {
+    return (
+      <a href={this.youtubeVideoUrl()}
+         title="Open on YouTube"
+         target="_blank">
+        <Icon icon="open_in_new"/>
+      </a>
+    );
+  };
+
   render() {
     return(
         <li className={"asset-list__item " + (this.props.activeAsset ? "asset-list__item--current" : false)}>
           <img className="asset-list__thumbnail" src={this.youtubeThumbnailUrl(this.props.asset.id)} />
-          {this.renderAssetVersionButton()}
+            {this.renderAssetVersionButton()}
+            Video ID: {this.props.asset.id}
+            {this.renderYoutubeLink()}
         </li>
     );
   }
