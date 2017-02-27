@@ -110,14 +110,14 @@ class VideoAssets extends React.Component {
   renderHeader() {
     const buttons = <div className="video-assets__buttons">
       <a className="button" onClick={this.showAssetForm}>
-        <Icon className="icon__edit" icon="add"/>
+        <Icon className="icon__edit icon__spacing" icon="add"/>
       </a>
       <Link className="button" to={`/videos/${this.props.video.id}/upload`}>
         <Icon className="icon__edit" icon="backup"/>
       </Link>
     </div>;
 
-    return <div className="section-header">
+    return <div className="video__detailbox__header__container">
       <span className="video__detailbox__header">Assets</span>
       {this.state.showAssetForm ? false : buttons }
     </div>;
@@ -133,7 +133,7 @@ class VideoAssets extends React.Component {
           {this.renderHeader()}
           {this.renderAssetEdit()}
           {this.renderList()}
-          {!this.props.video.assets.length ? <span>No assets found</span> : false}
+          {!this.props.video.assets.length ? <span className="baseline-margin">No assets found</span> : false}
           {this.shouldShowAssetExpander() ? <button className="video-assets__show-btn" type="button" onClick={this.showAssetList}>Show all assets</button> : false}
         </div>
     );

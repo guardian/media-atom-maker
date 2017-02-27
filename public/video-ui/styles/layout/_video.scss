@@ -18,18 +18,8 @@
 }
 
 .video-preview {
-
-  margin: 0 10px 10px;
-  vertical-align: top;
-
-  position: relative;
-  align-content: center;
-
-  &__video {
-    height: 200px;
-    border-style: none;
-    display: block;
-  }
+  text-align: center;
+  border-style: none;
 
   &__header {
     display: block;

@@ -40,7 +40,6 @@ button {
 }
 
 .page__add__button {
-  padding: 5px 10px;
-  margin: 0px 5px;
-  font-family: $text-font-stack;
+  display: flex;
+  justify-content: flex-end;
 }

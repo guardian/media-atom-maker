@@ -75,6 +75,16 @@ export default function saveState(state = {
         addingAsset: false
       });
 
+      // Checkign usages state
+      case 'VIDEO_USAGE_GET_REQUEST':
+        return Object.assign({}, state, {
+          fetchingUsages: true
+        });
+      case 'VIDEO_USAGE_GET_RECEIVE':
+        return Object.assign({}, state, {
+          fetchingUsages: false
+        });
+
 
     case 'SHOW_ERROR':
       return Object.assign({}, state, {
