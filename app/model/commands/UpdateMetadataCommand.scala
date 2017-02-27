@@ -19,43 +19,39 @@ case class UpdateMetadataCommand(atomId: String, metadata: UpdatedMetadata, over
   def process(): Unit = {
     log.info(s"Request to update metadata for $atomId")
 
-    previewDataStore.getAtom(atomId) match {
-      case Some(atom) =>
-        val thriftMediaAtom = atom.tdata
-        val mediaAtom = MediaAtom.fromThrift(atom)
+    val atom = getPreviewAtom(atomId)
 
-        MediaAtom.getActiveYouTubeAsset(mediaAtom) match {
-          case Some(youtubeAsset) =>
+    val thriftMediaAtom = atom.tdata
+    val mediaAtom = MediaAtom.fromThrift(atom)
 
-            val newMetadata = thriftMediaAtom.metadata.map(_.copy(
-              tags = metadata.tags,
-              categoryId = metadata.categoryId,
-              license = metadata.license,
-              privacyStatus = metadata.privacyStatus.flatMap(_.asThrift),
-              expiryDate = metadata.expiryDate
-            ))
+    MediaAtom.getActiveYouTubeAsset(mediaAtom) match {
+      case Some(youtubeAsset) =>
 
-            val activeYTAssetDuration = youTube.getDuration(youtubeAsset.id)
+        val newMetadata = thriftMediaAtom.metadata.map(_.copy(
+          tags = metadata.tags,
+          categoryId = metadata.categoryId,
+          license = metadata.license,
+          privacyStatus = metadata.privacyStatus.flatMap(_.asThrift),
+          expiryDate = metadata.expiryDate
+        ))
 
-            val updatedAtom = atom.updateData { media =>
-                media.copy(
-                  description = metadata.description,
-                  metadata = newMetadata,
-                  duration = activeYTAssetDuration,
-                  plutoProjectId = metadata.plutoId
-                )
-            }
+        val activeYTAssetDuration = youTube.getDuration(youtubeAsset.id)
 
-            UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom), stores, user).process()
-
-          case None =>
-            log.info(s"Unable to update metadata for $atomId. Atom does not have an active asset")
-
-            NotYoutubeAsset
+        val updatedAtom = atom.updateData { media =>
+          media.copy(
+            description = metadata.description,
+            metadata = newMetadata,
+            duration = activeYTAssetDuration,
+            plutoProjectId = metadata.plutoId
+          )
         }
+
+        UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom), stores, user).process()
+
       case None =>
-        log.info(s"Unable to update metadata for $atomId. Atom does not exist")
-        AtomNotFound
+        log.info(s"Unable to update metadata for $atomId. Atom does not have an active asset")
+
+        NotYoutubeAsset
     }
   }
 }

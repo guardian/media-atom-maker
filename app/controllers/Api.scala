@@ -34,15 +34,15 @@ class Api (override val stores: DataStores,
 
   def getMediaAtom(id: String) = APIAuthAction { implicit req =>
     previewDataStore.getAtom(id) match {
-      case Some(atom) => Ok(Json.toJson(atom))
-      case None => NotFound(jsonError(s"no atom with id $id found"))
+      case Right(atom) => Ok(Json.toJson(atom))
+      case _ => NotFound(jsonError(s"no atom with id $id found"))
     }
   }
 
   def getPublishedMediaAtom(id: String) = APIAuthAction { implicit req =>
     publishedDataStore.getAtom(id) match {
-      case Some(atom) => Ok(Json.toJson(atom))
-      case None => Ok("not published")
+      case Right(atom) => Ok(Json.toJson(atom))
+      case _ => Ok("not published")
     }
   }
 
@@ -70,7 +70,7 @@ class Api (override val stores: DataStores,
   def updateMediaAtom(atomId: String) = thriftResultAction(atomBodyParser) { implicit req =>
     val updatedData = req.body.tdata
     previewDataStore.getAtom(atomId) match {
-      case Some(atom) =>
+      case Right(atom) =>
         val activeVersion = atom.tdata.activeVersion getOrElse {
           val versions = atom.tdata.assets.map(_.version)
           if (versions.isEmpty) 1 else versions.max
@@ -100,7 +100,7 @@ class Api (override val stores: DataStores,
             Ok(Json.toJson(atom))
           }
         )
-      case None => NotFound(s"atom not found $atomId")
+      case _ => NotFound(s"atom not found $atomId")
     }
   }
 
@@ -108,7 +108,7 @@ class Api (override val stores: DataStores,
     val newAsset = req.body
 
     previewDataStore.getAtom(atomId) match {
-      case Some(atom) =>
+      case Right(atom) =>
         val ma = atom.tdata
         val assets = ma.assets
 
@@ -139,7 +139,7 @@ class Api (override val stores: DataStores,
             }
           )
         }
-      case None => NotFound(s"atom not found $atomId")
+      case _ => NotFound(s"atom not found $atomId")
     }
   }
 
@@ -147,7 +147,7 @@ class Api (override val stores: DataStores,
 
   def revertAtom(atomId: String, version: Long) = APIAuthAction { implicit req =>
     previewDataStore.getAtom(atomId) match {
-      case Some(atom) =>
+      case Right(atom) =>
         if(!atom.tdata.assets.exists(_.version == version)) {
           InternalServerError(jsonError(s"no asset is listed for version $version"))
         } else {
@@ -158,7 +158,7 @@ class Api (override val stores: DataStores,
           previewDataStore.updateAtom(newAtom)
           Ok(Json.toJson(newAtom))
         }
-      case None => NotFound(s"atom not found $atomId")
+      case _ => NotFound(s"atom not found $atomId")
     }
   }
 

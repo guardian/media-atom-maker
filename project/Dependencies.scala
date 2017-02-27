@@ -6,19 +6,20 @@ object Dependencies {
   val awsVersion = "1.11.48"
   val pandaVersion = "0.4.0"
   val mockitoVersion = "2.0.97-beta"
-  val atomMakerVersion = "0.1.7"
+  val atomMakerVersion = "0.2.0"
   val slf4jVersion = "1.7.21"
   val typesafeConfigVersion = "1.3.0" // to match what we get from Play transitively
+  val scanamoVersion = "0.9.1" // to match what we get from atom-publisher-lib transitively
 
   val thrift = "org.apache.thrift" % "libthrift" % "0.9.3"
   val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0"
-  val cats = "org.typelevel" %% "cats-core" % "0.7.0" // for interacting with scanamo
   val jacksonDatabind = "com.fasterxml.jackson.core" % "jackson-databind" % "2.7.0"
   val playJsonExtensions = "org.cvogt" %% "play-json-extensions" % "0.8.0"
   val okHttp = "com.squareup.okhttp" % "okhttp" % "2.4.0"
   val diff = "ai.x" %% "diff" % "1.2.0"
   val typesafeConfig = "com.typesafe" % "config" % "1.3.1"
 
+  val scanamo = "com.gu" %% "scanamo" % scanamoVersion
   val contentAtomModel = "com.gu" %% "content-atom-model" %  "2.4.17"
 
   val scalaTestPlusPlay = "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % "test"
@@ -43,16 +44,6 @@ object Dependencies {
     PlayImport.ws
   )
 
-  val scanamo = Seq(
-    "com.gu" %% "scanamo" % "0.7.0",
-    "com.gu" %% "scanamo-scrooge" % "0.1.3"
-  )
-
-  val scrooge = Seq(
-    "com.twitter" %% "scrooge-core" % scroogeVersion,
-    "com.twitter" %% "scrooge-serializer" % scroogeVersion
-  )
-
   val atomMaker = Seq(
     "com.gu" %% "atom-publisher-lib" % atomMakerVersion,
     "com.gu" %% "atom-publisher-lib" % atomMakerVersion % "test" classifier "tests",
@@ -71,11 +62,12 @@ object Dependencies {
   )
 
   val commonDependencies = googleApi ++ Seq(
-    typesafeConfig, awsLambdaCore, awsS3, awsDynamo, playJsonExtensions, logstashLogbackEncoder, kinesisLogbackAppender, awsTranscoder
+    typesafeConfig, awsLambdaCore, awsS3, awsDynamo, playJsonExtensions, logstashLogbackEncoder, kinesisLogbackAppender,
+    awsTranscoder, scanamo
   )
 
-  val appDependencies = panda ++ scanamo ++ scrooge ++ atomMaker ++ slf4j ++ Seq(
-    PlayImport.cache, thrift, scalaLogging, cats, jacksonDatabind, okHttp, contentAtomModel, diff,
+  val appDependencies = panda ++ atomMaker ++ slf4j ++ Seq(
+    PlayImport.cache, thrift, scalaLogging, jacksonDatabind, okHttp, contentAtomModel, diff,
     awsSts, awsEc2, scalaTestPlusPlay, mockito, scalaXml, awsTranscoder
   )
 

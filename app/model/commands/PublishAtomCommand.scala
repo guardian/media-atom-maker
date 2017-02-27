@@ -3,7 +3,6 @@ package model.commands
 import java.net.URL
 import java.util.Date
 
-import cats.data.Xor
 import com.gu.atom.play.AtomAPIActions
 import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
 import com.gu.media.logging.Logging
@@ -11,8 +10,8 @@ import com.gu.media.youtube.{YouTube, YouTubeMetadataUpdate}
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.Platform.Youtube
-import model.commands.CommandExceptions._
 import model._
+import model.commands.CommandExceptions._
 
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success}
@@ -25,77 +24,71 @@ case class PublishAtomCommand(id: String, fromExpiryPoller: Boolean, override va
   def process(): T = {
     log.info(s"Request to publish atom $id")
 
-    previewDataStore.getAtom(id) match {
-      case None =>
-        log.info(s"Unable to publish atom $id. No atom has that id")
-        AtomNotFound
+    val thriftAtom = getPreviewAtom(id)
 
-      case Some(thriftAtom) => {
-        val atom = MediaAtom.fromThrift(thriftAtom)
+    val atom = MediaAtom.fromThrift(thriftAtom)
 
-        (atom.privacyStatus, !fromExpiryPoller) match {
-          case (Some(PrivacyStatus.Private), false) =>
-            log.error(s"Unable to publish atom ${atom.id}, privacy status is set to private")
-            AtomPublishFailed("Atom status set to private")
+    (atom.privacyStatus, !fromExpiryPoller) match {
+      case (Some(PrivacyStatus.Private), false) =>
+        log.error(s"Unable to publish atom ${atom.id}, privacy status is set to private")
+        AtomPublishFailed("Atom status set to private")
 
-          case _ => {
+      case _ => {
 
-            MediaAtom.getActiveYouTubeAsset(atom) match {
-              case Some(asset) => {
-                try {
-                  updateThumbnail(atom)
-                } catch {
-                  case NonFatal(e) => {
-                    log.error(s"Unable to update thumbnail for asset=${asset.id} atom={$id}", e)
-                    PosterImageUploadFailed(e.getMessage)
-                  }
-                }
+        MediaAtom.getActiveYouTubeAsset(atom) match {
+          case Some(asset) => {
+            try {
+              updateThumbnail(atom)
+            } catch {
+              case NonFatal(e) => {
+                log.error(s"Unable to update thumbnail for asset=${asset.id} atom={$id}", e)
+                PosterImageUploadFailed(e.getMessage)
               }
-              case None =>
-                log.info(s"Unable to update thumbnail for $id. There is no active YouTube asset")
             }
+          }
+          case None =>
+            log.info(s"Unable to update thumbnail for $id. There is no active YouTube asset")
+        }
 
-            atom.activeVersion match {
-              case Some(atomVersion) => {
+        atom.activeVersion match {
+          case Some(atomVersion) => {
 
-                val activeAssetId = atom.assets.find(asset => {
-                  asset.version == atomVersion
-                }).get.id
+            val activeAssetId = atom.assets.find(asset => {
+              asset.version == atomVersion
+            }).get.id
 
-                val metadata = YouTubeMetadataUpdate(
-                  title = Some(atom.title),
-                  categoryId = atom.youtubeCategoryId,
-                  description = atom.description,
-                  tags = atom.tags,
-                  license = atom.license,
-                  privacyStatus = atom.privacyStatus.map(_.name)
-                )
-
-                youTube.updateMetadata(activeAssetId, metadata)
-              }
-              case None =>
-                log.info(s"Not updating YouTube metadata for atom $id as it has no active asset")
-            }
-
-            val changeRecord = Some(ChangeRecord.now(user).asThrift)
-
-            val updatedAtom = thriftAtom.copy(
-              contentChangeDetails = thriftAtom.contentChangeDetails.copy(
-                published = changeRecord,
-                lastModified = changeRecord,
-                revision = thriftAtom.contentChangeDetails.revision + 1
-              )
+            val metadata = YouTubeMetadataUpdate(
+              title = Some(atom.title),
+              categoryId = atom.youtubeCategoryId,
+              description = atom.description,
+              tags = atom.tags,
+              license = atom.license,
+              privacyStatus = atom.privacyStatus.map(_.name)
             )
 
-            log.info(s"Publishing atom $id")
-
-            auditDataStore.auditPublish(id, user)
-            UpdateAtomCommand(id, MediaAtom.fromThrift(updatedAtom), stores, user).process()
-
-            setOldAssetsToPrivate(atom)
-            publishAtomToLive(updatedAtom)
+            youTube.updateMetadata(activeAssetId, metadata)
           }
+          case None =>
+            log.info(s"Not updating YouTube metadata for atom $id as it has no active asset")
         }
+
+        val changeRecord = Some(ChangeRecord.now(user).asThrift)
+
+        val updatedAtom = thriftAtom.copy(
+          contentChangeDetails = thriftAtom.contentChangeDetails.copy(
+            published = changeRecord,
+            lastModified = changeRecord,
+            revision = thriftAtom.contentChangeDetails.revision + 1
+          )
+        )
+
+        log.info(s"Publishing atom $id")
+
+        auditDataStore.auditPublish(id, user)
+        UpdateAtomCommand(id, MediaAtom.fromThrift(updatedAtom), stores, user).process()
+
+        setOldAssetsToPrivate(atom)
+        publishAtomToLive(updatedAtom)
       }
     }
   }
@@ -106,11 +99,11 @@ case class PublishAtomCommand(id: String, fromExpiryPoller: Boolean, override va
     livePublisher.publishAtomEvent(event) match {
       case Success(_) =>
         publishedDataStore.updateAtom(atom) match {
-          case Xor.Right(_) => {
+          case Right(_) => {
             log.info(s"Successfully published atom: ${id}")
             MediaAtom.fromThrift(atom)
           }
-          case Xor.Left(err) =>
+          case Left(err) =>
             log.error("Unable to update datastore after publish", err)
             AtomPublishFailed(s"Could not update published datastore after publish: ${err.toString}")
         }

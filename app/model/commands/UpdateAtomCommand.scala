@@ -26,14 +26,7 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
       AtomIdConflict
     }
 
-    val oldAtom = previewDataStore.getAtom(atom.id)
-
-    if (oldAtom.isEmpty) {
-      log.info(s"Unable to update atom ${atom.id}. Atom does not exist")
-      AtomNotFound
-    }
-
-    val existingAtom = oldAtom.get
+    val existingAtom = getPreviewAtom(atom.id)
 
     val diffString = auditDataStore.createDiffString(MediaAtom.fromThrift(existingAtom), atom)
     log.info(s"Update atom changes ${atom.id}: $diffString")
