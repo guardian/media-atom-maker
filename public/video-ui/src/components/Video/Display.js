@@ -9,7 +9,6 @@ import VideoPoster from '../VideoPoster/VideoPoster';
 import GridImageSelect from '../utils/GridImageSelect';
 import {getVideoBlock} from '../../util/getVideoBlock';
 import {getStore} from '../../util/storeAccessor';
-import {saveStateVals} from '../../constants/saveStateVals';
 import Icon from '../Icon';
 import {validate} from '../../constants/videoEditValidation';
 
@@ -77,7 +76,7 @@ class VideoDisplay extends React.Component {
       if(filterUsageType.length === 0){
         return (
           <button className="button__secondary" onClick={this.pageCreate}><Icon icon="add_to_queue"></Icon> Create Video Page</button>
-        )
+        );
       }
   }
 

@@ -2,7 +2,6 @@ import React from 'react';
 import moment from 'moment';
 import {getVideoBlock} from '../../util/getVideoBlock';
 import {getStore} from '../../util/storeAccessor';
-import {isVideoPublished} from '../../util/isVideoPublished';
 import {hasUnpublishedChanges} from '../../util/hasUnpublishedChanges';
 import {FrontendIcon, ComposerIcon, ViewerIcon} from '../Icon';
 
@@ -85,7 +84,7 @@ export default class VideoUsages extends React.Component {
         <div>
           <div className="baseline-margin">No usages found</div>
         </div>
-      )
+      );
     } else {
       return (
         <div>
