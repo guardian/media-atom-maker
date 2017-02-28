@@ -26,7 +26,10 @@ PUT     /api2/atom/:id/asset-active     controllers.Api2.setActiveAsset(id)
 PUT     /api2/atom/:id/pluto-id         controllers.Api2.setPlutoId(id)
 
 # user uploaded videos
-POST    /api2/atom/:atomId/uploads      controllers.UploadController.create(atomId)
+GET     /api2/uploads/:atomId                          controllers.UploadController.list(atomId)
+POST    /api2/uploads/:atomId/                         controllers.UploadController.create(atomId)
+DELETE  /api2/uploads/:atomId/:uploadId                controllers.UploadController.stop(atomId, uploadId)
+POST    /api2/uploads/:atomId/:uploadId/_credentials   controllers.UploadController.credentials(atomId, uploadId, part)
 
 GET     /api2/audits/:id                controllers.Api2.getAuditTrailForAtomId(id)
 
