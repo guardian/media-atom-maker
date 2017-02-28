@@ -41,6 +41,8 @@ GET     /api/youtube/channels           controllers.Youtube.listChannels()
 
 GET     /api/transcoder/jobStatus    controllers.Transcoder.jobStatus
 
+GET     /api/manual-pluto               controllers.PlutoManagement.getAtoms
+
 # reindex
 
 POST    /reindex-preview                com.gu.atom.play.ReindexController.newPreviewReindexJob()
