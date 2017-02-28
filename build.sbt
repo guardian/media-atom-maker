@@ -95,6 +95,7 @@ lazy val expirer = (project in file("expirer"))
 
 lazy val plutoSender = (project in file("pluto-sender"))
   .dependsOn(common)
+  .enablePlugins(JavaAppPackaging)
   .settings(commonSettings,
     name := "pluto-sender",
     libraryDependencies ++= Dependencies.plutoSenderDependencies,

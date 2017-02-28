@@ -1,11 +1,9 @@
-package com.gu.media.pluto
+package lib
 
-import com.amazonaws.auth.AWSCredentialsProvider
-import com.gu.contentatom.thrift.atom.media.MediaAtom
 import com.gu.media.Settings
-import com.gu.media.aws.AwsAccess
+import com.gu.media.aws.{DynamoAccess, AwsAccess}
+import com.gu.scanamo
 import com.typesafe.config.Config
-import com.gu.media.model.MediaAtom
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import play.api.libs.json.{Reads, JsValue}
@@ -16,15 +14,17 @@ import play.api.libs.json._
 import com.amazonaws.services.sqs.model.{ReceiveMessageRequest, Message}
 import com.amazonaws.services.sqs.AmazonSQSClient
 import scala.concurrent.{Future, ExecutionContext}
-import com.gu.atom.play.AtomAPIActions
-import com.gu.atom.data.PreviewDataStore
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
+import com.amazonaws.services.dynamodbv2.document.{DynamoDB}
+import com.gu.scanamo._
+import com.gu.media.pluto.AtomResponse
 
-class UploaderMessageConsumer(plutoSenderConfig: PlutoSenderConfig, previewDataStore: PreviewDataStore) {
+class UploaderMessageConsumer(plutoSenderConfig: PlutoSenderConfig) {
+
 
   def start(scheduler: Scheduler)(implicit ec: ExecutionContext): Unit = {
     scheduler.scheduleOnce(0.seconds)(processMessages())
   }
-
 
   lazy val client =
     new AmazonSQSClient(plutoSenderConfig.credsProvider)
@@ -44,7 +44,6 @@ class UploaderMessageConsumer(plutoSenderConfig: PlutoSenderConfig, previewDataS
 
   }
 
-  //should we log parse errors?
   private def extractSNSMessage(sqsMessage: Message): Option[SNSMessage] =
     Json.fromJson[SNSMessage](Json.parse(sqsMessage.getBody)).asOpt
 
@@ -56,15 +55,17 @@ class UploaderMessageConsumer(plutoSenderConfig: PlutoSenderConfig, previewDataS
     ).getMessages.asScala.toList
 
   private def handleMessage(message: SNSMessage): Unit = {
-    val atomId = (message.body \ "atomId").toString()
-    previewDataStore.getAtom(atomId) match {
-      case Some(atom) => {
-        //check if atom has a project id: if yes, push to another queue
-        println("check if atom has pluto project")
-        
+    val mediaAtom: Option[AtomResponse] = Json.fromJson[AtomResponse](message.body).asOpt
+    mediaAtom  match {
+      case Some(atom @AtomResponse(_, _, _, Some(id))) => {
+        //to other queue
+      }
+      case Some(atom @AtomResponse(_, _, _, None)) => {
+
+        Scanamo.put(plutoSenderConfig.dynamoDB)(plutoSenderConfig.manualPlutoDynamo)(atom)
       }
       case None => {
-        println("could not find atom: log an error")
+        //error: could not extract atom from queue message
       }
     }
   }
@@ -86,10 +87,9 @@ class UploaderMessageConsumer(plutoSenderConfig: PlutoSenderConfig, previewDataS
           (__ \ "Message").read[String].map(Json.parse)
         )(SNSMessage(_, _, _))
   }
-
 }
 
-class PlutoSenderConfig(override val config: Config, val settings: Settings) extends AwsAccess {
+class PlutoSenderConfig(override val config: Config, val settings: Settings) extends AwsAccess with DynamoAccess {
 
   lazy val queueUrl = settings.getMandatoryString("uploaded.url")
 

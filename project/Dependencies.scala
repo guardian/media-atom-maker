@@ -79,7 +79,7 @@ object Dependencies {
     logstashLogbackEncoder, awsLambdaEvents, okHttp, pandaHmacHeaders
   )
 
-  val transcodeDependencies = Seq(awsLambdaCore, awsTranscoder, playJsonExtensions)
+  val transcodeDependencies = scanamo ++ Seq(awsLambdaCore, awsTranscoder, playJsonExtensions)
 
   val expirerDependencies = Seq(scalaTest)
 
