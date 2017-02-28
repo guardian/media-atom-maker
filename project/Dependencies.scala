@@ -30,6 +30,7 @@ object Dependencies {
   val awsS3 = "com.amazonaws" % "aws-java-sdk-s3" % awsVersion
   val awsDynamo = "com.amazonaws" % "aws-java-sdk-dynamodb" % awsVersion
   val awsLambdaCore = "com.amazonaws" % "aws-lambda-java-core" % "1.1.0"
+  val awsLambdaEvents = "com.amazonaws" % "aws-lambda-java-events" % "1.3.0"
   val awsTranscoder = "com.amazonaws" % "aws-java-sdk-elastictranscoder" % awsVersion
 
   val logstashLogbackEncoder = "net.logstash.logback" % "logstash-logback-encoder" % "4.8"
@@ -71,7 +72,7 @@ object Dependencies {
   )
 
   val uploaderDependencies = Seq(
-    logstashLogbackEncoder, okHttp
+    logstashLogbackEncoder, awsLambdaEvents, okHttp
   )
 
   val transcodeDependencies = Seq(awsLambdaCore, awsTranscoder, playJsonExtensions)
