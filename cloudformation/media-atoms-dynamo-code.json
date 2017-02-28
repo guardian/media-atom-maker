@@ -15,8 +15,12 @@
             "Description": "Code audit dynamo table",
             "Type": "String",
             "Default": "audit-media-atom-maker-CODE"
+        },
+        "UploadTrackingAtomMakerCodeTable": {
+          "Description": "Code upload dynamo table",
+          "Type": "String",
+          "Default": "upload-tracking-media-atom-maker-CODE"
         }
-
     },
     "Resources": {
         "MediaAtomMakerCode": {
@@ -118,6 +122,39 @@
                     }
                 ]
             }
+        },
+        "UploadTrackingMediaAtomMakerCode": {
+          "Type": "AWS::DynamoDB::Table",
+          "Properties": {
+            "TableName": { "Ref": "UploadTrackingAtomMakerCodeTable" },
+            "AttributeDefinitions": [
+              {
+                "AttributeName": "atomId",
+                "AttributeType": "S"
+              },
+              {
+                "AttributeName": "id",
+                "AttributeType": "S"
+              }
+            ],
+            "KeySchema": [
+              {
+                "AttributeName": "atomId",
+                "KeyType": "HASH"
+              },
+              {
+                "AttributeName": "id",
+                "KeyType": "RANGE"
+              }
+            ],
+            "ProvisionedThroughput": {
+              "ReadCapacityUnits": "5",
+              "WriteCapacityUnits": "5"
+            },
+            "StreamSpecification": {
+              "StreamViewType": "NEW_IMAGE"
+            }
+          }
         }
     }
 }
