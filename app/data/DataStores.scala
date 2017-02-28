@@ -1,16 +1,27 @@
 package data
 
-import com.gu.atom.data.{PreviewDataStore, PreviewDynamoDataStore, PublishedDataStore, PublishedDynamoDataStore}
+import com.gu.atom.data._
 import com.gu.atom.publish._
-import com.gu.contentatom.thrift.AtomData
+import com.gu.contentatom.thrift.{Atom, AtomData}
 import com.gu.contentatom.thrift.atom.media.MediaAtom
+import com.gu.scanamo.DynamoFormat
 import util.atom.MediaAtomImplicits
 import com.gu.scanamo.scrooge.ScroogeDynamoFormat._
+import model.commands.CommandExceptions._
 import util.AWSConfig
 
+import scala.reflect.ClassTag
+
 class DataStores(aws: AWSConfig) extends MediaAtomImplicits {
-  val published: PublishedDataStore = createPublished()
-  val preview: PreviewDataStore = createPreview()
+  import cats.syntax.either._ // appears unused but is required to make the data stores compile
+
+  val mediaDynamoFormats = new AtomDynamoFormats[MediaAtom] {
+    def fromAtomData: PartialFunction[AtomData, MediaAtom] = { case AtomData.Media(data) => data }
+    def toAtomData(data: MediaAtom): AtomData = AtomData.Media(data)
+  }
+
+  val preview: PreviewDynamoDataStore[MediaAtom] = getPreview(mediaDynamoFormats)
+  val published: PublishedDynamoDataStore[MediaAtom] = getPublished(mediaDynamoFormats)
   val audit: AuditDataStore = new AuditDataStore(aws.dynamoDB, aws.auditDynamoTableName)
 
   val livePublisher: LiveKinesisAtomPublisher =
@@ -25,17 +36,17 @@ class DataStores(aws: AWSConfig) extends MediaAtomImplicits {
   val reindexPublished: PublishedKinesisAtomReindexer =
     new PublishedKinesisAtomReindexer(aws.publishedKinesisReindexStreamName, aws.kinesisClient)
 
-  private def createPublished() = {
-    new PublishedDynamoDataStore[MediaAtom](aws.dynamoDB, aws.publishedDynamoTableName) {
-      def fromAtomData = { case AtomData.Media(data) => data }
-      def toAtomData(data: MediaAtom) = AtomData.Media(data)
+  private def getPreview[T: ClassTag: DynamoFormat](dynamoFormats: AtomDynamoFormats[T]): PreviewDynamoDataStore[T] = {
+    new PreviewDynamoDataStore[T](aws.dynamoDB, aws.dynamoTableName) {
+      def fromAtomData = dynamoFormats.fromAtomData
+      def toAtomData(data: T) = dynamoFormats.toAtomData(data)
     }
   }
 
-  private def createPreview() = {
-    new PreviewDynamoDataStore[MediaAtom](aws.dynamoDB, aws.dynamoTableName) {
-      def fromAtomData = { case AtomData.Media(data) => data }
-      def toAtomData(data: MediaAtom) = AtomData.Media(data)
+  private def getPublished[T: ClassTag: DynamoFormat](dynamoFormats: AtomDynamoFormats[T]): PublishedDynamoDataStore[T] = {
+    new PublishedDynamoDataStore[T](aws.dynamoDB, aws.dynamoTableName) {
+      def fromAtomData = dynamoFormats.fromAtomData
+      def toAtomData(data: T) = dynamoFormats.toAtomData(data)
     }
   }
 }
@@ -50,4 +61,16 @@ trait UnpackedDataStores {
 
   val previewPublisher: PreviewAtomPublisher = stores.previewPublisher
   val livePublisher: LiveAtomPublisher = stores.livePublisher
+
+  def getPreviewAtom(atomId: String): Atom  = previewDataStore.getAtom(atomId) match {
+    case Right(atom) => atom
+    case Left(IDNotFound) => AtomNotFound
+    case Left(err) => AtomDataStoreError(err.msg)
+  }
+
+  def getPublishedAtom(atomId: String): Atom  = previewDataStore.getAtom(atomId) match {
+    case Right(atom) => atom
+    case Left(IDNotFound) => AtomNotFound
+    case Left(err) => AtomDataStoreError(err.msg)
+  }
 }

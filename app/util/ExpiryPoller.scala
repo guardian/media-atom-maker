@@ -28,26 +28,30 @@ case class ExpiryPoller(override val stores: DataStores, youTube: YouTube, awsCo
     val user = PandaUser(awsConfig.expiryPollerName,
       awsConfig.expiryPollerLastName, "expiryPoller", None)
 
-    previewDataStore.listAtoms.map(atoms => {
-      atoms.foreach(atom => {
+    previewDataStore.listAtoms match {
+      case Right(atoms) =>
+        atoms.foreach(atom => {
 
-        updateStatusIfExpired(atom) match {
-          case Some(expiredAtom) => {
+          updateStatusIfExpired(atom) match {
+            case Some(expiredAtom) => {
 
-            val atomId = expiredAtom.id
+              val atomId = expiredAtom.id
 
-            publishedDataStore.getAtom(atomId) match {
-              case Some(atom) =>
-                PublishAtomCommand(atomId, fromExpiryPoller = true, stores, youTube, user).process()
+              publishedDataStore.getAtom(atomId) match {
+                case Right(_) =>
+                  PublishAtomCommand(atomId, fromExpiryPoller = true, stores, youTube, user).process()
 
-              case None =>
-                UpdateAtomCommand(expiredAtom.id, expiredAtom, stores, user).process()
+                case _ =>
+                  UpdateAtomCommand(expiredAtom.id, expiredAtom, stores, user).process()
+              }
             }
+            case _ =>
           }
-          case _ =>
-        }
-      })
-    })
+        })
+
+      case Left(err) =>
+        log.error(s"Unable to list atoms for expiry: ${err.msg}")
+    }
   }
 
   def updateStatusIfExpired(thriftAtom: Atom): Option[MediaAtom] = {

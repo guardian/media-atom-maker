@@ -1,15 +1,17 @@
 package model.commands
 
+import com.gu.contentatom.thrift.Atom
 import com.gu.contentatom.thrift.atom.media.Category.Hosted
-import com.gu.contentatom.thrift.atom.media.{Asset, Platform}
+import com.gu.contentatom.thrift.atom.media.{Asset, Platform, MediaAtom => ThriftMediaAtom}
 import com.gu.media.logging.Logging
 import com.gu.media.youtube.YouTube
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.MediaAtom
+import model.MediaAtom.fromThrift
 import model.commands.CommandExceptions._
-import util.atom.MediaAtomImplicits
 import util.ThriftUtil
+import util.atom.MediaAtomImplicits
 
 case class AddAssetCommand(atomId: String, videoUri: String, override val stores: DataStores,
                            youTube: YouTube, user: PandaUser)
@@ -18,6 +20,50 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
     with Logging {
 
   type T = MediaAtom
+
+  def process(): MediaAtom = {
+    log.info(s"Request to add new asset $videoUri to $atomId")
+
+    val atom = getPreviewAtom(atomId)
+
+    val mediaAtom = atom.tdata
+    val currentAssets: Seq[Asset] = mediaAtom.assets
+
+    videoUri match {
+      case YouTubeId(videoId) if assetAlreadyExists(videoId, currentAssets) =>
+        log.info(s"Cannot add asset $videoUri to $atomId as it already exists.")
+        AssetVersionConflict
+
+      case YouTubeId(videoId) =>
+        addAsset(atom, mediaAtom, currentAssets, videoId)
+
+      case _ =>
+        NotYoutubeAsset
+    }
+  }
+
+  private def addAsset(atom: Atom, mediaAtom: ThriftMediaAtom, currentAssets: Seq[Asset], videoId: String) = {
+    val version = getNextAssetVersionNumber(currentAssets)
+
+    val newAsset = ThriftUtil.parseAsset(uri = videoUri, version = version, mimeType = None)
+      .fold(err => AssetParseFailed, identity)
+
+    if (mediaAtom.category != Hosted) {
+      validateYoutubeOwnership(newAsset)
+    }
+
+    val assetDuration = youTube.getDuration(videoId)
+
+    val updatedAtom = atom
+      .withData(mediaAtom.copy(
+        assets = newAsset +: currentAssets,
+        duration = assetDuration
+      ))
+
+    log.info(s"Adding new asset $videoUri to $atomId")
+
+    UpdateAtomCommand(atomId, fromThrift(updatedAtom), stores, user).process()
+  }
 
   private def validateYoutubeOwnership (asset: Asset) = {
     asset.platform match {
@@ -39,57 +85,21 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
     }}
   }
 
-  private def doesAssetAlreadyExist (videoId: String, currentAssets: Seq[Asset]): Boolean = {
+  private def assetAlreadyExists (videoId: String, currentAssets: Seq[Asset]): Boolean = {
     currentAssets.exists(x => x.platform == Platform.Youtube && x.id == videoId)
   }
 
-  def process(): MediaAtom = {
-    log.info(s"Request to add new asset $videoUri to $atomId")
+  private case object YouTubeId {
+    def unapply(videoUri: String): Option[String] = {
+      val platform = ThriftUtil.parsePlatform(videoUri)
 
-    previewDataStore.getAtom(atomId) match {
-      case Some(atom) => {
-        ThriftUtil.parsePlatform(videoUri) match {
-          case Right(Platform.Youtube) => {
-            val mediaAtom = atom.tdata
-            val currentAssets: Seq[Asset] = mediaAtom.assets
+      (platform, videoUri) match {
+        case (Right(Platform.Youtube), ThriftUtil.youtube(videoId)) =>
+          Some(videoId)
 
-            videoUri match {
-              case ThriftUtil.youtube(videoId) => {
-                if (doesAssetAlreadyExist(videoId, currentAssets)) {
-                  log.info(s"Cannot add asset $videoUri to $atomId as it already exists.")
-                  AssetVersionConflict
-                } else {
-                  val version = getNextAssetVersionNumber(currentAssets)
-
-                  val newAsset = ThriftUtil.parseAsset(uri = videoUri, version = version, mimeType = None)
-                    .fold(err => AssetParseFailed, identity)
-
-                  if (mediaAtom.category != Hosted) {
-                    validateYoutubeOwnership(newAsset)
-                  }
-
-                  val assetDuration = youTube.getDuration(videoId)
-
-                  val updatedAtom = atom
-                    .withData(mediaAtom.copy(
-                      assets = newAsset +: currentAssets,
-                      duration = assetDuration
-                    ))
-
-                  log.info(s"Adding new asset $videoUri to $atomId")
-
-                  UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom), stores, user).process()
-              }
-            }
-            case _ => NotYoutubeAsset
-          }
-        }
-        case _ => NotYoutubeAsset
+        case _ =>
+          None
       }
-    }
-    case None =>
-      log.info(s"Cannot add asset $videoUri to $atomId. No atom has that id")
-      AtomNotFound
     }
   }
 }

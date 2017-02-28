@@ -46,17 +46,13 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
   }
 
   def getMediaAtom(id: String) = APIHMACAuthAction {
-    previewDataStore.getAtom(id) match {
-      case Some(atom) => Ok(Json.toJson(MediaAtom.fromThrift(atom)))
-      case None => NotFound(jsonError(s"no atom with id $id found"))
-    }
+    val atom = getPreviewAtom(id)
+    Ok(Json.toJson(MediaAtom.fromThrift(atom)))
   }
 
   def getPublishedMediaAtom(id: String) = APIHMACAuthAction {
-    publishedDataStore.getAtom(id) match {
-      case Some(atom) => Ok(Json.toJson(MediaAtom.fromThrift(atom)))
-      case None => Ok(Json.obj())
-    }
+    val atom = getPublishedAtom(id)
+    Ok(Json.toJson(MediaAtom.fromThrift(atom)))
   }
 
   def publishMediaAtom(id: String) = APIHMACAuthAction { implicit req =>

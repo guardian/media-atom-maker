@@ -53,9 +53,9 @@ class ThriftUtilSpec extends FunSpec
       inside(parseRequest(makeParams("uri" -> youtubeUrl))) {
         case Right(atom) =>
           inside(atom) {
-            case Atom(_, AtomType.Media, Nil, defaultHtml, _, changeDetails, None) =>
+            case Atom(_, AtomType.Media, Nil, defaultHtml, _, changeDetails, None, _) =>
               changeDetails should matchPattern {
-                case ContentChangeDetails(None, None, None, 1L) =>
+                case ContentChangeDetails(None, None, None, 1L, None) =>
               }
               XML.loadString(defaultHtml) should matchPattern {
                 case <iframe>{_}</iframe> =>

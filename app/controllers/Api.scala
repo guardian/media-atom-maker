@@ -5,7 +5,7 @@ import java.util.Date
 import com.gu.atom.data._
 import com.gu.atom.play._
 import com.gu.contentatom.thrift.atom.media.Category.Hosted
-import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
+import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
 import com.gu.pandahmac.HMACAuthActions
 import data.DataStores
 import data.JsonConversions._
@@ -15,6 +15,7 @@ import util.AWSConfig
 import util.ThriftUtil._
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
+import play.api.mvc.Result
 
 import scala.util.{Failure, Success}
 
@@ -33,16 +34,14 @@ class Api (override val stores: DataStores,
   // takes a configured URL object and shows how it would look as a content atom
 
   def getMediaAtom(id: String) = APIAuthAction { implicit req =>
-    previewDataStore.getAtom(id) match {
-      case Some(atom) => Ok(Json.toJson(atom))
-      case None => NotFound(jsonError(s"no atom with id $id found"))
+    getAtom(id, previewDataStore) { atom =>
+      Ok(Json.toJson(atom))
     }
   }
 
   def getPublishedMediaAtom(id: String) = APIAuthAction { implicit req =>
-    publishedDataStore.getAtom(id) match {
-      case Some(atom) => Ok(Json.toJson(atom))
-      case None => Ok("not published")
+    getAtom(id, publishedDataStore) { atom =>
+      Ok(Json.toJson(atom))
     }
   }
 
@@ -69,27 +68,63 @@ class Api (override val stores: DataStores,
 
   def updateMediaAtom(atomId: String) = thriftResultAction(atomBodyParser) { implicit req =>
     val updatedData = req.body.tdata
-    previewDataStore.getAtom(atomId) match {
-      case Some(atom) =>
-        val activeVersion = atom.tdata.activeVersion getOrElse {
-          val versions = atom.tdata.assets.map(_.version)
-          if (versions.isEmpty) 1 else versions.max
-        }
 
+    getAtom(atomId, previewDataStore) { atom =>
+      val activeVersion = atom.tdata.activeVersion getOrElse {
+        val versions = atom.tdata.assets.map(_.version)
+        if (versions.isEmpty) 1 else versions.max
+      }
+
+      val newAtom = atom
+        .withRevision(_ + 1)
+        .updateData { media =>
+          media.copy(
+            activeVersion = Some(activeVersion),
+            title = updatedData.title,
+            category = updatedData.category,
+            duration = updatedData.duration,
+            posterUrl = updatedData.posterUrl
+          )
+        }
+      previewDataStore.updateAtom(newAtom).fold(
+        err => InternalServerError(err.msg),
+        _ => {
+          val event = ContentAtomEvent(newAtom, EventType.Update, now())
+
+          previewPublisher.publishAtomEvent(event) match {
+            case Success(_) => NoContent
+            case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
+          }
+
+          Ok(Json.toJson(atom))
+        }
+      )
+    }
+  }
+
+  def addAsset(atomId: String) = thriftResultAction(assetBodyParser) { implicit req =>
+    val newAsset = req.body
+
+    getAtom(atomId, previewDataStore) { atom =>
+      val ma = atom.tdata
+      val assets = ma.assets
+
+      if (assets.exists(asset => {
+        asset.version == newAsset.version && asset.mimeType == newAsset.mimeType
+      })) {
+        InternalServerError("could not add asset to atom: version conflict")
+      } else {
         val newAtom = atom
-                      .withRevision(_ + 1)
-                      .updateData { media =>
-                        media.copy(
-                          activeVersion = Some(activeVersion),
-                          title = updatedData.title,
-                          category = updatedData.category,
-                          duration = updatedData.duration,
-                          posterUrl = updatedData.posterUrl
-                        )
-                      }
+          .withData(ma.copy(
+            activeVersion = Some(newAsset.version),
+            assets = newAsset +: assets
+          ))
+          .withRevision(_ + 1)
+
         previewDataStore.updateAtom(newAtom).fold(
           err => InternalServerError(err.msg),
           _ => {
+
             val event = ContentAtomEvent(newAtom, EventType.Update, now())
 
             previewPublisher.publishAtomEvent(event) match {
@@ -97,68 +132,27 @@ class Api (override val stores: DataStores,
               case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
             }
 
-            Ok(Json.toJson(atom))
+            Ok(Json.toJson(newAtom))
           }
         )
-      case None => NotFound(s"atom not found $atomId")
-    }
-  }
-
-  def addAsset(atomId: String) = thriftResultAction(assetBodyParser) { implicit req =>
-    val newAsset = req.body
-
-    previewDataStore.getAtom(atomId) match {
-      case Some(atom) =>
-        val ma = atom.tdata
-        val assets = ma.assets
-
-        if (assets.exists(asset => {
-          asset.version == newAsset.version && asset.mimeType == newAsset.mimeType
-        })) {
-          InternalServerError("could not add asset to atom: version conflict")
-        } else {
-          val newAtom = atom
-            .withData(ma.copy(
-              activeVersion = Some(newAsset.version),
-              assets = newAsset +: assets
-            ))
-            .withRevision(_ + 1)
-
-          previewDataStore.updateAtom(newAtom).fold(
-            err => InternalServerError(err.msg),
-            _ => {
-
-              val event = ContentAtomEvent(newAtom, EventType.Update, now())
-
-              previewPublisher.publishAtomEvent(event) match {
-                case Success(_) => NoContent
-                case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
-              }
-
-              Ok(Json.toJson(newAtom))
-            }
-          )
-        }
-      case None => NotFound(s"atom not found $atomId")
+      }
     }
   }
 
   def now() = new Date().getTime
 
   def revertAtom(atomId: String, version: Long) = APIAuthAction { implicit req =>
-    previewDataStore.getAtom(atomId) match {
-      case Some(atom) =>
-        if(!atom.tdata.assets.exists(_.version == version)) {
-          InternalServerError(jsonError(s"no asset is listed for version $version"))
-        } else {
-          val newAtom = atom
-            .withRevision(_ + 1)
-            .updateData { media => media.copy(activeVersion = Some(version)) }
+    getAtom(atomId, previewDataStore) { atom =>
+      if(!atom.tdata.assets.exists(_.version == version)) {
+        InternalServerError(jsonError(s"no asset is listed for version $version"))
+      } else {
+        val newAtom = atom
+          .withRevision(_ + 1)
+          .updateData { media => media.copy(activeVersion = Some(version)) }
 
-          previewDataStore.updateAtom(newAtom)
-          Ok(Json.toJson(newAtom))
-        }
-      case None => NotFound(s"atom not found $atomId")
+        previewDataStore.updateAtom(newAtom)
+        Ok(Json.toJson(newAtom))
+      }
     }
   }
 
@@ -182,5 +176,13 @@ class Api (override val stores: DataStores,
 
     Ok(Json.toJson(Map("stage" -> stage)))
 
+  }
+
+  private def getAtom(atomId: String, store: DataStore)(fn: Atom => Result): Result = {
+    store.getAtom(atomId) match {
+      case Right(atom) => fn(atom)
+      case Left(IDNotFound) => NotFound(s"atom not found $atomId")
+      case Left(err) => InternalServerError(err.msg)
+    }
   }
 }
