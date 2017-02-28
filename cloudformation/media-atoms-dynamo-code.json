@@ -156,6 +156,13 @@
             }
           }
         }
+    },
+    "Outputs": {
+      "UploadTrackingTableStream": {
+        "Value": {
+          "Fn::GetAtt": ["UploadTrackingMediaAtomMakerCode", "StreamArn"]
+        }
+      }
     }
 }
 

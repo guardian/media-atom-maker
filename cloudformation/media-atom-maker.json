@@ -55,6 +55,10 @@
             "Description": "Name of the upload tracking dynamo table",
             "Type": "String"
         },
+        "UploadTrackingTableStream": {
+          "Description": "Arn of the upload tracking dynamo table stream",
+          "Type": "String"
+        },
         "AlertActive": {
             "Description": "Whether to send CloudWatch alerts",
             "Type": "String"
@@ -83,6 +87,7 @@
                 "MaxSize": 6,
                 "DesiredCapacity": 3,
                 "InstanceType": "t2.medium",
+                "UploadBucket": "media-atom-maker-upload-prod",
                 "TranscoderBucket": "media-atom-maker-transcoder-prod"
             },
             "CODE": {
@@ -90,6 +95,7 @@
                 "MaxSize": 2,
                 "DesiredCapacity": 1,
                 "InstanceType": "t2.small",
+                "UploadBucket": "media-atom-maker-upload-code",
                 "TranscoderBucket": "media-atom-maker-transcoder-code"
 
             }
@@ -276,7 +282,7 @@
         "UserUploadBucket": {
             "Type": "AWS::S3::Bucket",
             "Properties": {
-                "BucketName": { "Fn::Join": ["", [ "media-atom-maker-upload-", { "Ref": "Stage" } ]] },
+                "BucketName": { "Fn::FindInMap": [ "StageMap", {"Ref": "Stage"}, "UploadBucket"] },
                 "CorsConfiguration": {
                     "CorsRules": [{
                         "AllowedHeaders": ["*"],
@@ -386,16 +392,14 @@
                             "Resource": {
                               "Fn::Sub": [
                                 "arn:aws:dynamodb:${Region}:${Account}:table/${Table}",
-                                { "Region": { "Ref": "AWS::Region"}, "Account": { "Ref": "AWS::AccountId" }, "Table": { "Ref": "UploadTrackingDynamoTable" } }
+                                { "Region": { "Ref": "AWS::Region"}, "Account": { "Ref": "AWS::AccountId" }, "Table": { "Ref": "UploadTrackingTable" } }
                               ]
                             }
                           },
                           {
                             "Effect": "Allow",
                             "Action": ["dynamodb:*"],
-                            "Resource": {
-                              "Fn::GetAtt": ["UploadTrackingDynamoTable", "StreamArn"]
-                            }
+                            "Resource": { "Ref": "UploadTrackingTableStream" }
                           }
                         ]
                     }
@@ -433,9 +437,9 @@
           "Type": "AWS::Lambda::Permission",
           "Properties": {
             "Action": "lambda:InvokeFunction",
-            "FunctionName": { "Ref": "UploadS3EventsLambda" },
+            "FunctionName": { "Ref": "UploaderS3EventsLambda" },
             "Principal": "s3.amazonaws.com",
-            "SourceArn": { "Fn::Join": ["", [ "arn:aws:s3:::media-atom-maker-upload-", { "Ref": "Stage" } ]] }
+            "SourceArn": { "Fn::Join": ["", [ "arn:aws:s3:::", { "Fn::FindInMap": [ "StageMap", {"Ref": "Stage"}, "UploadBucket"] } ]] }
           }
         },
 
@@ -470,7 +474,7 @@
           "Type": "AWS::Lambda::EventSourceMapping",
           "Properties": {
             "FunctionName": { "Ref": "UploaderDynamoEventsLambda" },
-            "EventSourceArn": { "Fn::GetAtt": ["UploadTrackingDynamoTable", "StreamArn"] },
+            "EventSourceArn": { "Ref": "UploadTrackingTableStream" },
             "StartingPosition": "LATEST"
           }
         },
@@ -855,9 +859,6 @@
     },
 
     "Outputs": {
-        "UserUploadBucket": {
-            "Value": { "Ref": "UserUploadBucket" }
-        },
         "UserUploadRole": {
           "Value": { "Ref": "LimitedUploadRole" }
         },
