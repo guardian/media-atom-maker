@@ -391,6 +391,21 @@ Resources:
       Runtime: "java8"
       Timeout: 300
 
+  ExpirerLambdaTrigger:
+    Type: "AWS::Events::Rule"
+    Properties:
+      ScheduleExpression: "cron(0 00 * * ? *)"
+      Targets:
+        - Arn: !GetAtt ExpirerLambda.Arn
+
+  ExpirerLambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: "lambda:InvokeFunction"
+      FunctionName: !Ref ExpirerLambda
+      Principal: "events.amazonaws.com"
+      SourceArn: !GetAtt ExpirerLambdaTrigger.Arn
+
 Outputs:
   EditsDynamoTable:
     Value:
