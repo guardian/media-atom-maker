@@ -1,5 +1,5 @@
 import com.gu.atom.play.ReindexController
-import com.gu.media.{CapiPreview, CapiPreviewAccess}
+import com.gu.media.CapiPreview
 import com.gu.media.youtube.YouTube
 import controllers._
 import data._
@@ -9,7 +9,7 @@ import play.api.inject.DefaultApplicationLifecycle
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext, LoggerConfigurator}
 import router.Routes
-import util.{AWSConfig, ExpiryPoller}
+import util.AWSConfig
 
 class MediaAtomMakerLoader extends ApplicationLoader {
   override def load(context: Context): Application = new MediaAtomMaker(context).application
@@ -36,11 +36,8 @@ class MediaAtomMaker(context: Context)
   private val youTube = new YouTube(config)
   private val capi = new CapiPreview(config)
 
-  private val expiryPoller = ExpiryPoller(stores, youTube, aws)
-  expiryPoller.start(actorSystem.scheduler)(actorSystem.dispatcher)
-
   private val api = new Api(stores, configuration, aws, hmacAuthActions)
-  private val api2 = new Api2(stores, configuration, hmacAuthActions, youTube, expiryPoller)
+  private val api2 = new Api2(stores, configuration, hmacAuthActions, youTube)
 
   private val uploads = new UploadController(hmacAuthActions, aws)
 

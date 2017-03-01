@@ -65,7 +65,3 @@ class ExpirerLambda extends RequestHandler[Unit, Unit]
     }
   }
 }
-
-object ExpirerLambdaApp extends App {
-  new ExpirerLambda().handleRequest(null, null)
-}
