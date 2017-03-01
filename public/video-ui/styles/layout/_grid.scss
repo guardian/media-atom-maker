@@ -72,7 +72,7 @@
   left: 0;
   width: 100%;
   background-color: $color700Grey;
-  height: 50px;
+  height: 60px;
 }
 
 .grid__item__title {
@@ -80,10 +80,8 @@
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
   font-size: 15px;
-  line-height: 17px;
+  line-height: 18px;
   padding: 5px 10px;
-  height: 40px;
+  overflow: hidden;
 }

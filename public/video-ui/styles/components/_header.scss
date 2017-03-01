@@ -25,9 +25,14 @@
   color: $cWhite;
 }
 
-.label__overlay {
+.label__alert {
+  color: $color300Grey;
+  background-color: rgba(51,51,51,0.9);
+}
+
+.label__frontpage__overlay {
   position: absolute;
   left: 5px;
-  bottom: 55px;
-  width: 80px;
+  bottom: 65px;
+  width: 70px;
 }

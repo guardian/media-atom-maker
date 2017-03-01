@@ -14,9 +14,9 @@ export default class VideoItem extends React.Component {
       const assets = this.props.video.assets.filter((asset) => asset.version === activeVersion);
 
       if(assets.length && assets[0] && assets[0].platform) {
-        return <span className="publish__label label__live label__overlay">Live</span>;
+        return <span className="publish__label label__live label__frontpage__overlay">Live</span>;
       } else {
-        return <span className="publish__label label__draft label__overlay">No Video</span>;
+        return <span className="publish__label label__alert label__frontpage__overlay">No Video</span>;
       }
     }
   }
