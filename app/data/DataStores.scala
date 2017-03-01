@@ -44,7 +44,7 @@ class DataStores(aws: AWSConfig) extends MediaAtomImplicits {
   }
 
   private def getPublished[T: ClassTag: DynamoFormat](dynamoFormats: AtomDynamoFormats[T]): PublishedDynamoDataStore[T] = {
-    new PublishedDynamoDataStore[T](aws.dynamoDB, aws.dynamoTableName) {
+    new PublishedDynamoDataStore[T](aws.dynamoDB, aws.publishedDynamoTableName) {
       def fromAtomData = dynamoFormats.fromAtomData
       def toAtomData(data: T) = dynamoFormats.toAtomData(data)
     }
@@ -68,7 +68,7 @@ trait UnpackedDataStores {
     case Left(err) => AtomDataStoreError(err.msg)
   }
 
-  def getPublishedAtom(atomId: String): Atom  = previewDataStore.getAtom(atomId) match {
+  def getPublishedAtom(atomId: String): Atom  = publishedDataStore.getAtom(atomId) match {
     case Right(atom) => atom
     case Left(IDNotFound) => AtomNotFound
     case Left(err) => AtomDataStoreError(err.msg)
