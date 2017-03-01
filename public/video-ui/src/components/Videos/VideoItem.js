@@ -16,7 +16,7 @@ export default class VideoItem extends React.Component {
       if(assets.length && assets[0] && assets[0].platform) {
         return <span className="publish__label label__live label__overlay">Live</span>;
       } else {
-        return <span className="publish__label label__draft label__overlay">Draft</span>;
+        return <span className="publish__label label__draft label__overlay">No Video</span>;
       }
     }
   }
