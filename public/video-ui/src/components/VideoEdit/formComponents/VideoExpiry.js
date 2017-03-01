@@ -54,14 +54,17 @@ export default class VideoExpiryEdit extends React.Component {
   }
 
   renderPicker() {
-    const datePicker = <Picker
-      className="form__field"
-      selected={this.date}
-      minDate={moment()}
-      onChange={(newDate) =>
-        this.setExpiryDate(newDate.hours(this.date.hours()).minutes(this.date.minutes()))
+    const datePickerParams = {
+      className: "form__field",
+      selected: this.date,
+      minDate: moment(),
+      locale: 'en-GB', // for DD/MM/YYYY
+      onChange: (newDate) => {
+        this.setExpiryDate(newDate.hours(this.date.hours()).minutes(this.date.minutes()));
       }
-    />;
+    };
+
+    const datePicker = <Picker {...datePickerParams} />;
 
     const hourPicker = this.selector(this.validHours, this.date.hour(),
       (hour) => moment().hour(hour).format("HH"),
