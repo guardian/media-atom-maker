@@ -1,6 +1,6 @@
 import React from 'react';
 import {saveStateVals} from '../../constants/saveStateVals';
-import {isVideoPublished} from '../../util/isVideoPublished';
+import {isVideoPublished, hasVideoExpired} from '../../util/isVideoPublished';
 import {hasUnpublishedChanges} from '../../util/hasUnpublishedChanges';
 
 class VideoPublishBar extends React.Component {
@@ -47,7 +47,9 @@ class VideoPublishBar extends React.Component {
   }
 
   renderVideoPublishedInfo() {
-    if (isVideoPublished(this.props.publishedVideo)) {
+    if (hasVideoExpired(this.props.publishedVideo)) {
+      return <div className="publish__label label__expired">Expired</div>;
+    } else if (isVideoPublished(this.props.publishedVideo)) {
       return <div className="publish__label label__live">Live</div>;
     }
     return <div className="publish__label label__draft">Draft</div>;
