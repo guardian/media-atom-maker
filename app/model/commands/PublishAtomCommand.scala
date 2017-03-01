@@ -1,6 +1,7 @@
 package model.commands
 
 import java.net.URL
+import java.time.Instant
 import java.util.Date
 
 import com.gu.atom.play.AtomAPIActions
@@ -87,7 +88,7 @@ case class PublishAtomCommand(id: String, fromExpiryPoller: Boolean, override va
         auditDataStore.auditPublish(id, user)
         UpdateAtomCommand(id, MediaAtom.fromThrift(updatedAtom), stores, user).process()
 
-        setOldAssetsToPrivate(atom)
+        setAssetsToPrivate(atom)
         publishAtomToLive(updatedAtom)
       }
     }
@@ -133,12 +134,17 @@ case class PublishAtomCommand(id: String, fromExpiryPoller: Boolean, override va
     youTube.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
   }
 
-  private def setOldAssetsToPrivate(atom: MediaAtom): Unit = {
+  private def setAssetsToPrivate(atom: MediaAtom): Unit = {
+    val nowMillis = Instant.now().toEpochMilli
+    val expired = atom.expiryDate.exists(_ < nowMillis)
+
     MediaAtom.getActiveYouTubeAsset(atom).foreach { activeAsset =>
-      atom.assets.collect {
-        case asset if asset.platform == Youtube && asset.id != activeAsset.id =>
-          log.info(s"Marking asset=${asset.id} atom=${atom.id} as private")
-          youTube.setStatusToPrivate(asset.id)
+      val youTubeAssets = atom.assets.filter(_.platform == Youtube)
+      val toMakePrivate = if(expired) { youTubeAssets } else { youTubeAssets.filter(_.id == activeAsset.id) }
+
+      toMakePrivate.foreach { asset =>
+        log.info(s"Marking asset=${asset.id} atom=${atom.id} as private")
+        youTube.setStatusToPrivate(asset.id)
       }
     }
   }

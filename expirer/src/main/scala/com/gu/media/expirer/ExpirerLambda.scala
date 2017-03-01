@@ -20,7 +20,7 @@ class ExpirerLambda extends RequestHandler[Unit, Unit]
   with YouTubeVideos {
 
   override def handleRequest(input: Unit, context: Context): Unit = {
-    val epochMillis = Instant.now().getEpochSecond * 1000
+    val epochMillis = Instant.now().toEpochMilli
     val expired = getExpiredAssets(100, 1, epochMillis, Set.empty)
 
     expired.par.foreach { video =>
