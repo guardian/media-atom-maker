@@ -8,9 +8,9 @@ import com.typesafe.config.Config
 import play.api.libs.json.{JsValue, Json}
 
 trait CapiPreviewAccess { this: Settings =>
-  private val capiPreviewUser = getMandatoryString("capi.previewUser")
-  private val capiPreviewPassword = getMandatoryString("capi.previewPassword")
-  private val capiUrl = getMandatoryString("capi.previewUrl")
+  def capiPreviewUser = getMandatoryString("capi.previewUser")
+  def capiPreviewPassword = getMandatoryString("capi.previewPassword")
+  def capiUrl = getMandatoryString("capi.previewUrl")
 
   private val httpClient = new OkHttpClient()
   httpClient.setConnectTimeout(5, TimeUnit.SECONDS)

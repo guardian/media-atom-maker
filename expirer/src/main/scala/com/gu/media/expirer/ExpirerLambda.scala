@@ -19,11 +19,15 @@ class ExpirerLambda extends RequestHandler[Unit, Unit]
   with YouTubeAccess
   with YouTubeVideos {
 
+  def expireInParallel = true // disabled in unit tests
+
   override def handleRequest(input: Unit, context: Context): Unit = {
     val epochMillis = Instant.now().toEpochMilli
-    val expired = getExpiredAssets(100, 1, epochMillis, Set.empty)
+    val assets = getExpiredAssets(100, 1, epochMillis, Set.empty)
 
-    expired.par.foreach { video =>
+    val toExpire = if(expireInParallel) { assets.par } else { assets }
+
+    toExpire.foreach { video =>
       try {
         setStatusToPrivate(video)
       } catch {

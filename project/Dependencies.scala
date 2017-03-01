@@ -21,7 +21,8 @@ object Dependencies {
   val scanamo = "com.gu" %% "scanamo" % scanamoVersion
   val contentAtomModel = "com.gu" %% "content-atom-model" %  "2.4.17"
 
-  val scalaTestPlusPlay = "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % "test"
+  val scalaTest = "org.scalatest" %% "scalatest" % "2.2.6" % "test"
+  val scalaTestPlusPlay = "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % "test"
   val mockito = "org.mockito" %  "mockito-core" % mockitoVersion % "test"
   val scalaXml = "org.scala-lang.modules" %% "scala-xml" % "1.0.5"   % "test"
 
@@ -77,5 +78,5 @@ object Dependencies {
 
   val transcodeDependencies = Seq(awsLambdaCore, awsTranscoder, playJsonExtensions)
 
-  val expirerDependencies = Seq.empty[ModuleID]
+  val expirerDependencies = Seq(scalaTest)
 }
