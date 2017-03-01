@@ -9,10 +9,10 @@
   }
 
   &__date {
-    flex-grow: 8;
+    flex-grow: 1;
   }
 
   &__number {
-    flex-grow: 1;
+    flex-basis: 25%;
   }
 }
