@@ -18,6 +18,10 @@ Parameters:
     Description: "Stage name"
     Type: "String"
     Default: "DEV"
+  UploadBucketName:
+    Description: "The name to use for the S3 bucket where uploads will be saved"
+    Type: "String"
+    Default: "media-atom-maker-upload-dev"
 Mappings:
   LambdaBuilds:
     Uploader:
@@ -138,7 +142,7 @@ Resources:
   UserUploadBucket:
     Type: "AWS::S3::Bucket"
     Properties:
-      BucketName: "media-atom-maker-upload-dev"
+      BucketName: !Ref UploadBucketName
       CorsConfiguration:
         CorsRules:
           -
@@ -263,7 +267,9 @@ Resources:
       FunctionName: !Ref UploaderS3EventsLambda
       Principal: "s3.amazonaws.com"
       # use hard-coded name rather than ref to avoid circular dependency
-      SourceArn: "arn:aws:s3:::media-atom-maker-upload-dev"
+      SourceArn: !Sub
+        - "arn:aws:s3:::${Name}"
+        - { Name: !Ref UploadBucketName }
 
   UploaderDynamoEventsLambda:
     Type: "AWS::Lambda::Function"
