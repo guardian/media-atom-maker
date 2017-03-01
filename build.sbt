@@ -101,6 +101,7 @@ lazy val root = (project in file("root"))
       (packageBin in Universal in uploader).value -> s"media-atom-uploader-s3-events/${(packageBin in Universal in uploader).value.getName}",
       (packageBin in Universal in uploader).value -> s"media-atom-uploader-dynamo-events/${(packageBin in Universal in uploader).value.getName}",
       (packageBin in Universal in transcoder).value -> s"${(name in transcoder).value}/${(packageBin in Universal in transcoder).value.getName}",
+      (packageBin in Universal in expirer).value -> s"${(name in expirer).value}/${(packageBin in Universal in expirer).value.getName}",
       (baseDirectory in Global in app).value / "conf/riff-raff.yaml" -> "riff-raff.yaml"
     )
   )

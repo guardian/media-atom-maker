@@ -63,7 +63,7 @@ object Dependencies {
 
   val commonDependencies = googleApi ++ Seq(
     typesafeConfig, awsLambdaCore, awsS3, awsDynamo, playJsonExtensions, logstashLogbackEncoder, kinesisLogbackAppender,
-    awsTranscoder, scanamo
+    awsTranscoder, scanamo, okHttp
   )
 
   val appDependencies = panda ++ atomMaker ++ slf4j ++ Seq(
