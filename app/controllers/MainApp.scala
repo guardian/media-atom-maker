@@ -24,15 +24,7 @@ class MainApp (override val stores: DataStores,
   }
 
   def oauthCallback = Action.async { implicit req =>
-    try {
-      processGoogleCallback()
-    } catch {
-      case e: GoogleAuthException => {
-        val redirectTo = "https://" + conf.getString("host").get
-        Logger.info(s"Authentication failure. ${e.message}. Redirecting to $redirectTo")
-        Future(Redirect(redirectTo, MOVED_PERMANENTLY))
-      }
-    }
+    processGoogleCallback()
   }
 
   def listAtoms = AuthAction { implicit req =>
