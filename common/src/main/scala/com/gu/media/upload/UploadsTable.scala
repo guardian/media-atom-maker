@@ -7,8 +7,8 @@ import com.gu.scanamo.{Scanamo, Table}
 trait UploadsTable {
   def list(atomId: String): List[UploadEntry]
   def put(upload: UploadEntry): Unit
-  def get(atomId: String, id: String): Option[UploadEntry]
-  def delete(atomId: String, id: String): Unit
+  def get(id: String): Option[UploadEntry]
+  def delete(id: String): Unit
 }
 
 class DynamoUploadsTable(aws: DynamoAccess) extends UploadsTable {
@@ -31,8 +31,8 @@ class DynamoUploadsTable(aws: DynamoAccess) extends UploadsTable {
     Scanamo.exec(aws.dynamoDB)(operation)
   }
 
-  override def get(atomId: String, id: String): Option[UploadEntry] = {
-    val operation = table.get('atomId -> atomId and 'id -> id)
+  override def get(id: String): Option[UploadEntry] = {
+    val operation = table.get('id -> id)
     val result = Scanamo.exec(aws.dynamoDB)(operation)
 
     result.map {
@@ -41,8 +41,8 @@ class DynamoUploadsTable(aws: DynamoAccess) extends UploadsTable {
     }
   }
 
-  override def delete(atomId: String, id: String): Unit = {
-    Scanamo.exec(aws.dynamoDB)(table.delete('atomId -> atomId and 'id -> id))
+  override def delete(id: String): Unit = {
+    Scanamo.exec(aws.dynamoDB)(table.delete('id -> id))
   }
 }
 

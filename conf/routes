@@ -26,17 +26,17 @@ PUT     /api2/atom/:id/asset-active     controllers.Api2.setActiveAsset(id)
 PUT     /api2/atom/:id/pluto-id         controllers.Api2.setPlutoId(id)
 
 # user uploaded videos
-GET     /api2/uploads/:atomId                          controllers.UploadController.list(atomId)
-POST    /api2/uploads/:atomId/                         controllers.UploadController.create(atomId)
-DELETE  /api2/uploads/:atomId/:uploadId                controllers.UploadController.stop(atomId, uploadId)
-POST    /api2/uploads/:atomId/:uploadId/_credentials   controllers.UploadController.credentials(atomId, uploadId, part)
+GET     /api2/uploads                   controllers.UploadController.list(atomId)
+POST    /api2/uploads                   controllers.UploadController.create
+DELETE  /api2/uploads/:id               controllers.UploadController.stop(id)
+POST    /api2/uploads/:id/_credentials  controllers.UploadController.credentials(id, part)
 
 GET     /api2/audits/:id                controllers.Api2.getAuditTrailForAtomId(id)
 
 GET     /api/youtube/categories         controllers.Youtube.listCategories()
 GET     /api/youtube/channels           controllers.Youtube.listChannels()
 
-GET     /api/transcoder/jobStatus    controllers.Transcoder.jobStatus
+GET     /api/transcoder/jobStatus       controllers.Transcoder.jobStatus
 
 # reindex
 

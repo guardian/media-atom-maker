@@ -5,7 +5,7 @@ import play.api.libs.json.Format
 
 package object upload {
   // Stored in the progress table
-  case class UploadEntry(atomId: String, id: String, parts: List[UploadPartEntry])
+  case class UploadEntry(id: String, atomId: String, parts: List[UploadPartEntry])
   case class UploadPartEntry(start: Long, end: Long, uploadedToS3: Long = 0, uploadedToYouTube: Long = 0)
 
   // Temporary STS-issued credentials for uploading video parts.
@@ -13,9 +13,9 @@ package object upload {
   case class UploadCredentials(temporaryAccessId: String, temporarySecretKey: String, sessionToken: String)
 
   // Front-end API
-  case class CreateAPIRequest(filename: String, size: Long)
-  case class APIPart(key: String, start: Long, end: Long)
-  case class CreateAPIResponse(region: String, bucket: String, parts: List[APIPart])
+  case class CreateAPIRequest(atomId: String, filename: String, size: Long)
+  case class APIPart(id: Int, key: String, start: Long, end: Long)
+  case class CreateAPIResponse(id: String, region: String, bucket: String, parts: List[APIPart])
 
   def calculateChunks(size: Long): List[(Long, Long)] = {
     // We want gigabyte chunks. YouTube mandates that chunk size must be a multiple of 256Kb
