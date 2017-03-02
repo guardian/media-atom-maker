@@ -1,7 +1,7 @@
 import React from 'react';
 import {Link} from 'react-router';
 import {findSmallestAssetAboveWidth} from '../../util/imageHelpers';
-import {isVideoPublished, hasVideoExpired} from '../../util/isVideoPublished';
+import {hasVideoExpired} from '../../util/isVideoPublished';
 
 export default class VideoItem extends React.Component {
 
