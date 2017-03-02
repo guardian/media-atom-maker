@@ -44,6 +44,8 @@ class IntegrationTests extends FlatSpec with Matchers with Eventually with Integ
 
     val atomId = (Json.parse(response.body().string()) \ "id").get.as[String]
 
+    //TODO: Hit /api2/atoms/:id/published - should be empty
+
     val apiEndpoint = apiUri(atomId)
 
     eventually {
