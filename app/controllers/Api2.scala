@@ -46,13 +46,25 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
   }
 
   def getMediaAtom(id: String) = APIHMACAuthAction {
-    val atom = getPreviewAtom(id)
-    Ok(Json.toJson(MediaAtom.fromThrift(atom)))
+    try {
+      val atom = getPreviewAtom(id)
+      Ok(Json.toJson(MediaAtom.fromThrift(atom)))
+    } catch {
+      commandExceptionAsResult
+    }
   }
 
   def getPublishedMediaAtom(id: String) = APIHMACAuthAction {
-    val atom = getPublishedAtom(id)
-    Ok(Json.toJson(MediaAtom.fromThrift(atom)))
+    try {
+      val atom = getPublishedAtom(id)
+      Ok(Json.toJson(MediaAtom.fromThrift(atom)))
+    } catch {
+      case CommandException(_, 404) =>
+        Ok(Json.obj())
+
+      case err: CommandException =>
+        commandExceptionAsResult(err)
+    }
   }
 
   def publishMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
