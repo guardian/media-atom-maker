@@ -8,4 +8,4 @@ node_modules
 public/video-ui/build
 yarn.lock
 
-test/integration/resources/int-test.conf
+test/integration/int-test.conf
