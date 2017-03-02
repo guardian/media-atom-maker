@@ -14,7 +14,7 @@ deployments:
       fileName: media-atom-uploader.zip
       functions:
         CODE:
-          name: media-atom-maker-CODE-UploaderLambda-QFNJ4Y06QLZ
+          name: media-atom-maker-CODE-UploaderLambda-2YYI5KOIPSK9
           filename: media-atom-uploader.zip
         PROD:
           name: media-atom-maker-PROD-UploaderLambda-MXQD3DV3H1VL
