@@ -81,7 +81,14 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   font-size: 15px;
-  line-height: 18px;
-  padding: 5px 10px;
+  line-height: 19px;
+  padding: 8px 10px;
+  height: 50px;
   overflow: hidden;
+}
+
+.grid__status__overlay {
+  position: absolute;
+  left: 5px;
+  bottom: 70px;
 }

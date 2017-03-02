@@ -14,7 +14,7 @@ export default class VideoItem extends React.Component {
       const assets = this.props.video.assets.filter((asset) => asset.version === activeVersion);
 
       if(assets.length && assets[0] && assets[0].platform) {
-        return ;
+        return;
       } else {
         return <span className="publish__label label__frontpage__novideo label__frontpage__overlay">No Video</span>;
       }
@@ -39,6 +39,8 @@ export default class VideoItem extends React.Component {
             <div className="grid__info">
               <div className="grid__image">
                 {this.renderItemImage()}
+              </div>
+              <div className="grid__status__overlay">
                 {this.renderActiveAssetName()}
               </div>
               <div className="grid__item__footer">
