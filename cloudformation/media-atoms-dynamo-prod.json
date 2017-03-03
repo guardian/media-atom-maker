@@ -161,7 +161,7 @@
     "Outputs": {
       "UploadTrackingTableStream": {
         "Value": {
-          "Fn::GetAtt": ["UploadTrackingMediaAtomMakerCode", "StreamArn"]
+          "Fn::GetAtt": ["UploadTrackingMediaAtomMakerProd", "StreamArn"]
         }
       }
     }
