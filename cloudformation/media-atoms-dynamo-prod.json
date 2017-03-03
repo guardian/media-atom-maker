@@ -15,6 +15,11 @@
             "Description": "Prod audit dynamo table",
             "Type": "String",
             "Default": "audit-media-atom-maker-PROD"
+        },
+        "UploadTrackingAtomMakerProdTable": {
+          "Description": "Prod upload dynamo table",
+          "Type": "String",
+          "Default": "upload-tracking-media-atom-maker-PROD"
         }
     },
     "Resources": {
@@ -118,7 +123,47 @@
                     }
                 ]
             }
+        },
+        "UploadTrackingMediaAtomMakerProd": {
+          "Type": "AWS::DynamoDB::Table",
+          "Properties": {
+            "TableName": { "Ref": "UploadTrackingAtomMakerProdTable" },
+            "AttributeDefinitions": [
+              {
+                "AttributeName": "atomId",
+                "AttributeType": "S"
+              },
+              {
+                "AttributeName": "id",
+                "AttributeType": "S"
+              }
+            ],
+            "KeySchema": [
+              {
+                "AttributeName": "atomId",
+                "KeyType": "HASH"
+              },
+              {
+                "AttributeName": "id",
+                "KeyType": "RANGE"
+              }
+            ],
+            "ProvisionedThroughput": {
+              "ReadCapacityUnits": "5",
+              "WriteCapacityUnits": "5"
+            },
+            "StreamSpecification": {
+              "StreamViewType": "NEW_IMAGE"
+            }
+          }
         }
+    },
+    "Outputs": {
+      "UploadTrackingTableStream": {
+        "Value": {
+          "Fn::GetAtt": ["UploadTrackingMediaAtomMakerCode", "StreamArn"]
+        }
+      }
     }
 }
 
