@@ -1,31 +1,25 @@
 package com.gu.media.aws
 
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
+import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain}
 import com.amazonaws.regions.{Region, Regions}
 import com.gu.media.Settings
 
-trait AwsAccess extends Settings {
-  val region: Region = getRegion
-  val credsProvider: AWSCredentialsProvider = getCredentialProvider
+trait AwsAccess { this: Settings =>
+  def regionName: Option[String]
+  def readTag(tag: String): Option[String]
 
-  val stack: Option[String] = None
-  val app: Option[String] = None
-  val stage: String = getString("stage").getOrElse("DEV")
+  def instanceCredentials: AWSCredentialsProvider
+  def localDevCredentials: Option[AWSCredentialsProvider]
 
-  private def getRegion = {
-    getString("aws.region") match {
-      case Some(name) => Region.getRegion(Regions.fromName(name))
-      case None => Region.getRegion(Regions.EU_WEST_1)
-    }
-  }
+  val credsProvider = new AWSCredentialsProviderChain(List(Some(instanceCredentials), localDevCredentials).flatten: _*)
 
-  private def getCredentialProvider = {
-    val instanceProvider = InstanceProfileCredentialsProvider.getInstance()
+  final def defaultRegion: Region = Region.getRegion(Regions.EU_WEST_1)
+  final def region: Region = regionName
+    .map { name => Region.getRegion(Regions.fromName(name)) }
+    .getOrElse(defaultRegion)
 
-    getString("aws.profile") match {
-      case Some(profile) => new AWSCredentialsProviderChain(new ProfileCredentialsProvider(profile), instanceProvider)
-      case None => instanceProvider
-    }
-  }
+  // These are injected as environment variables when running in a Lambda (unfortunately they cannot be tagged)
+  final val stack: Option[String] = readTag("Stack")
+  final val app: Option[String] = readTag("App")
+  final val stage: String = readTag("Stage").getOrElse("DEV")
 }

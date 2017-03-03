@@ -3,10 +3,11 @@ package com.gu.media.logging
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.classic.{Logger => LogbackLogger}
 import com.gu.logback.appender.kinesis.KinesisAppender
+import com.gu.media.Settings
 import com.gu.media.aws.{AwsAccess, CrossAccountAccess}
 import org.slf4j.{LoggerFactory, Logger => SLFLogger}
 
-trait KinesisLogging { this: AwsAccess with CrossAccountAccess =>
+trait KinesisLogging { this: Settings with AwsAccess with CrossAccountAccess =>
   private val rootLogger = LoggerFactory.getLogger(SLFLogger.ROOT_LOGGER_NAME).asInstanceOf[LogbackLogger]
 
   def startKinesisLogging(sessionId: String): Unit = {

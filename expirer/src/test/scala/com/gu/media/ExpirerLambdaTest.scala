@@ -38,7 +38,7 @@ class ExpirerLambdaTest extends FunSuite with CapiResponses with MustMatchers {
     lambda.madePrivate must be(List("one", "two"))
   }
 
-  class TestExpirerLambda(var capiResults: List[String]) extends ExpirerLambda with ApiStubs {
+  class TestExpirerLambda(var capiResults: List[String]) extends ExpirerLambda with TestSettings {
     var madePrivate = List.empty[String]
 
     override def expireInParallel = false

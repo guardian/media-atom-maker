@@ -28,7 +28,8 @@ trait YouTubeAccess extends Settings {
     .build
     .setRefreshToken(refreshToken)
 
-  val client: YouTubeClient = new YouTubeClient.Builder(httpTransport, jacksonFactory, credentials)
+  // lazy to avoid initialising when in test
+  lazy val client: YouTubeClient = new YouTubeClient.Builder(httpTransport, jacksonFactory, credentials)
     .setApplicationName(appName)
     .build
 
