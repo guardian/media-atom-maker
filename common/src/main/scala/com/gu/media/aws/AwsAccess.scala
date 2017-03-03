@@ -8,7 +8,7 @@ import com.gu.media.Settings
 trait AwsAccess { this: Settings =>
   def regionName: Option[String]
   def readTag(tag: String): Option[String]
-  
+
   def instanceCredentials: AWSCredentialsProvider
   def localDevCredentials: Option[AWSCredentialsProvider]
 

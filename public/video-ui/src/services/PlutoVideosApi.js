@@ -5,7 +5,7 @@ export default {
 
   fetchPlutoVideos: () => {
     return pandaReqwest({
-      url: '/api/manual-pluto',
+      url: '/api/pluto',
       method: 'get'
     });
   }

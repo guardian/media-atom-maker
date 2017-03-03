@@ -4,7 +4,6 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.gu.media.Settings
 
 trait DynamoAccess { this: Settings with AwsAccess =>
-<<<<<<< 134cff97034c25cf71b7166e63c74adf39dfab6a
   lazy val dynamoTableName: String = getMandatoryString("aws.dynamo.tableName")
   lazy val publishedDynamoTableName: String = getMandatoryString("aws.dynamo.publishedTableName")
   lazy val auditDynamoTableName: String = getMandatoryString("aws.dynamo.auditTableName")

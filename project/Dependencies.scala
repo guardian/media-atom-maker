@@ -67,19 +67,20 @@ object Dependencies {
 
   val commonDependencies = googleApi ++ Seq(
     typesafeConfig, awsLambdaCore, awsS3, awsDynamo, playJsonExtensions, logstashLogbackEncoder, kinesisLogbackAppender,
-    awsTranscoder, scanamo, okHttp, scalaTest, scalaCheck
+    awsTranscoder, scanamo, okHttp, scalaTest, scalaCheck, "com.amazonaws" % "aws-java-sdk-sqs" % awsVersion, "com.amazonaws" % "aws-java-sdk-sns" % awsVersion
   )
 
   val appDependencies = panda ++ atomMaker ++ slf4j ++ Seq(
     PlayImport.cache, scalaLogging, jacksonDatabind, okHttp, contentAtomModel, diff,
-    awsSts, awsEc2, scalaTestPlusPlay, mockito, scalaXml, awsTranscoder
+    awsSts, awsEc2, scalaTestPlusPlay, mockito, scalaXml, awsTranscoder,
+    "com.amazonaws" % "aws-java-sdk-sqs" % awsVersion, "com.amazonaws" % "aws-java-sdk-sns" % awsVersion
   )
 
   val uploaderDependencies = Seq(
     logstashLogbackEncoder, awsLambdaEvents, okHttp, pandaHmacHeaders
   )
 
-  val transcodeDependencies = scanamo ++ Seq(awsLambdaCore, awsTranscoder, playJsonExtensions)
+  val transcodeDependencies = Seq(awsLambdaCore, awsTranscoder, playJsonExtensions)
 
   val expirerDependencies = Seq(scalaTest)
 
@@ -93,5 +94,5 @@ object Dependencies {
 
   val plutoSenderDependencies = Seq("com.amazonaws" % "aws-java-sdk-sqs" % awsVersion,
     "com.typesafe.akka" %% "akka-actor" % "2.4.17") ++ atomMaker
-  
+
 }

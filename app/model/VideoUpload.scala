@@ -1,34 +1,34 @@
-package com.gu.media.pluto
+package model
 
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
-case class AtomResponse (
+case class VideoUpload (
                           id: String,
                           title: String,
                           description: String,
                           plutoProjectId: Option[String])
-object AtomResponse {
+object VideoUpload {
 
-  implicit val atomResponseRead: Reads[AtomResponse] =
+  implicit val videoUploadRead: Reads[VideoUpload] =
     (
       (__ \ "id").read[String] ~
         (__ \ "title").read[String]~
         (__ \ "description").read[String] ~
         (__ \ "plutoProjectId").readNullable[String]
-      )(AtomResponse.apply _)
+      )(VideoUpload.apply _)
 
-  implicit val atomResponse: Writes[AtomResponse] = (
+  implicit val videoUploadResponse: Writes[VideoUpload] = (
     (__ \ "id").write[String] ~
       (__ \ "title").write[String]~
       (__ \ "description").write[String] ~
       (__ \ "plutoProjectId").writeNullable[String]
     ) {
-    atomResponse: AtomResponse => (
-      atomResponse.id,
-      atomResponse.title,
-      atomResponse.description,
-      atomResponse.plutoProjectId
+    videoUpload: VideoUpload => (
+      videoUpload.id,
+      videoUpload.title,
+      videoUpload.description,
+      videoUpload.plutoProjectId
       )
   }
 

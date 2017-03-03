@@ -93,19 +93,9 @@ lazy val expirer = (project in file("expirer"))
 
   )
 
-lazy val plutoSender = (project in file("pluto-sender"))
-  .dependsOn(common)
-  .enablePlugins(JavaAppPackaging)
-  .settings(commonSettings,
-    name := "pluto-sender",
-    libraryDependencies ++= Dependencies.plutoSenderDependencies,
-
-    topLevelDirectory in Universal := None,
-    packageName in Universal := normalizedName.value
-  )
-
 lazy val root = (project in file("root"))
-  .aggregate(common, app, uploader, plutoSender, transcoder, expirer)
+  .aggregate(common, app, uploader, transcoder, expirer)
+
   .enablePlugins(RiffRaffArtifact)
   .settings(
     riffRaffBuildIdentifier := Option(System.getenv("CIRCLE_BUILD_NUM")).getOrElse("dev"),

@@ -11,7 +11,7 @@ import play.api.inject.DefaultApplicationLifecycle
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext, LoggerConfigurator}
 import router.Routes
-import util.{AWSConfig, DevUploadHandler, DevUploadSender}
+import util.{UploaderMessageConsumer, AWSConfig, DevUploadHandler, DevUploadSender}
 
 class MediaAtomMakerLoader extends ApplicationLoader {
   override def load(context: Context): Application = new MediaAtomMaker(context).application
@@ -38,8 +38,12 @@ class MediaAtomMaker(context: Context)
   private val youTube = new YouTube(config)
   private val capi = new CapiPreview(config)
 
+  private val uploaderMessageConsumer = UploaderMessageConsumer(stores, aws)
+  uploaderMessageConsumer.start(actorSystem.scheduler)(actorSystem.dispatcher)
+
   private val api = new Api(stores, configuration, aws, hmacAuthActions)
-  private val api2 = new Api2(stores, configuration, hmacAuthActions, youTube)
+
+  private val api2 = new Api2(stores, configuration, hmacAuthActions, youTube, aws)
 
   private val uploadSender = buildUploadSender()
   private val uploads = new UploadController(hmacAuthActions, aws, youTube, uploadSender, stores)
@@ -50,16 +54,14 @@ class MediaAtomMaker(context: Context)
   private val transcoder = new util.Transcoder(aws, defaultCacheApi)
   private val transcoderController = new controllers.Transcoder(hmacAuthActions, transcoder)
 
-  private val plutoManagementController = new PlutoManagement(hmacAuthActions, aws)
-
   private val mainApp = new MainApp(stores, wsClient, configuration, hmacAuthActions)
   private val videoApp = new VideoUIApp(hmacAuthActions, configuration, aws)
 
   private val assets = new controllers.Assets(httpErrorHandler)
 
   override val router =
-    new Routes(httpErrorHandler, mainApp, api, api2, uploads, youTubeController, transcoderController,
-      plutoManagementController, reindexer, assets, videoApp, support)
+    new Routes(httpErrorHandler, mainApp, api, api2, uploads, youTubeController, transcoderController, reindexer,
+      assets, videoApp, support)
 
   private def buildReindexer() = {
     // pass the parameters manually since the reindexer is part of the atom-maker lib

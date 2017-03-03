@@ -1,12 +1,14 @@
 package controllers
 
+import _root_.util.{AWSConfig}
 import com.gu.atom.play.AtomAPIActions
 import com.gu.media.youtube.YouTube
 import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.action.UserRequest
+import com.gu.scanamo.Scanamo
 import data.DataStores
 import model.Category.Hosted
-import model.MediaAtom
+import model.{VideoUpload, MediaAtom}
 import model.commands.CommandExceptions._
 import model.commands._
 import play.api.{Configuration, Logger}
@@ -14,7 +16,8 @@ import util.atom.MediaAtomImplicits
 import play.api.libs.json._
 import play.api.mvc.{AnyContent, Result}
 
-class Api2 (override val stores: DataStores, conf: Configuration, val authActions: HMACAuthActions, youTube: YouTube)
+class Api2 (override val stores: DataStores, conf: Configuration, val authActions: HMACAuthActions,
+            youTube: YouTube, awsConfig: AWSConfig)
 
   extends MediaAtomImplicits
     with AtomAPIActions
@@ -145,6 +148,27 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
     }
     catch {
       commandExceptionAsResult
+    }
+
+  def getPlutoAtoms = APIHMACAuthAction {  implicit req =>
+    Ok(Json.toJson(plutoDataStore.getAtomsWithoutPlutoId()))
+  }
+
+  def removeAtomFromPlutoTable(id: String) = APIHMACAuthAction {  implicit req =>
+    Ok("Atom deleted from pluto table")
+  }
+
+  def addPlutoProjectToAtom(id: String) = APIHMACAuthAction { implicit req =>
+
+    implicit val readCommand: Reads[AddPlutoProjectCommand] =
+      (JsPath \ "plutoId").read[String].map { plutoId =>
+        new AddPlutoProjectCommand(id, plutoId, stores, req.user, awsConfig)
+      }
+
+    parse(req) { command: AddPlutoProjectCommand =>
+      command.process()
+      Ok("Added pluto project to atom")
+
     }
   }
 }
