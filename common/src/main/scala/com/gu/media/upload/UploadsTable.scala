@@ -15,7 +15,7 @@ class DynamoUploadsTable(aws: DynamoAccess) extends UploadsTable {
   private val table = Table[UploadEntry](aws.uploadTrackingTableName)
 
   override def list(atomId: String): List[UploadEntry] = {
-    val operation = table.query('atomId -> atomId)
+    val operation = table.scan()
     val allResults = Scanamo.exec(aws.dynamoDB)(operation)
 
     val errors = allResults.collect { case Left(err) => err }
@@ -23,7 +23,7 @@ class DynamoUploadsTable(aws: DynamoAccess) extends UploadsTable {
       throw DynamoUploadsTableException(errors.mkString(","))
     }
 
-    allResults.collect { case Right(upload) => upload }
+    allResults.collect { case Right(upload) if upload.atomId == atomId => upload }
   }
 
   override def put(upload: UploadEntry): Unit = {
