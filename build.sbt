@@ -75,7 +75,7 @@ lazy val transcoder = (project in file("transcoder"))
   )
 
 lazy val expirer = (project in file("expirer"))
-  .dependsOn(common)
+  .dependsOn(common % "compile->compile;test->test")
   .enablePlugins(JavaAppPackaging)
   .settings(commonSettings,
     name := "media-atom-expirer",

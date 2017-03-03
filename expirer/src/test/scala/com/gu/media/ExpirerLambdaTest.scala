@@ -1,12 +1,13 @@
 package com.gu.media
 
+import com.amazonaws.util.IOUtils
 import com.gu.media.expirer.ExpirerLambda
 import org.scalatest.{FunSuite, MustMatchers}
 import play.api.libs.json.{JsValue, Json}
 
-class ExpirerLambdaTest extends FunSuite with CapiResponses with MustMatchers {
+class ExpirerLambdaTest extends FunSuite with MustMatchers {
   test("Make YouTube assets private") {
-    val result = capiResult(List(expiredAtom(youTubeAsset("one"), youTubeAsset("two"))))
+    val result = capiResult("one-expired-atom-two-yt-assets.json")
     val lambda = new TestExpirerLambda(List(result))
 
     lambda.handleRequest((), null)
@@ -14,7 +15,7 @@ class ExpirerLambdaTest extends FunSuite with CapiResponses with MustMatchers {
   }
 
   test("Not touch other assets") {
-    val result = capiResult(List(expiredAtom(youTubeAsset("one"), nonYouTubeAsset("two"))))
+    val result = capiResult("one-expired-atom-one-yt-asset-one-nonyt-asset.json")
     val lambda = new TestExpirerLambda(List(result))
 
     lambda.handleRequest((), null)
@@ -22,7 +23,7 @@ class ExpirerLambdaTest extends FunSuite with CapiResponses with MustMatchers {
   }
 
   test("Not touch other atoms") {
-    val result = capiResult(List(expiredAtom(youTubeAsset("one")), liveAtom(youTubeAsset("two"))))
+    val result = capiResult("one-live-atom-one-expired-atom.json")
     val lambda = new TestExpirerLambda(List(result))
 
     lambda.handleRequest((), null)
@@ -30,8 +31,8 @@ class ExpirerLambdaTest extends FunSuite with CapiResponses with MustMatchers {
   }
 
   test("Iterate through CAPI pages") {
-    val pageOne = capiResult(List(expiredAtom(youTubeAsset("one"))), page = 1, pages = 2)
-    val pageTwo = capiResult(List(expiredAtom(youTubeAsset("two"))), page = 2, pages = 2)
+    val pageOne = capiResult("one-atom-per-page-page-1.json")
+    val pageTwo = capiResult("one-atom-per-page-page-2.json")
     val lambda = new TestExpirerLambda(List(pageOne, pageTwo))
 
     lambda.handleRequest((), null)
@@ -53,5 +54,10 @@ class ExpirerLambdaTest extends FunSuite with CapiResponses with MustMatchers {
     override def setStatusToPrivate(id: String): Unit = {
       madePrivate :+= id
     }
+  }
+
+  private def capiResult(filename: String) = {
+    val resource = getClass.getResourceAsStream('/' + filename)
+    IOUtils.toString(resource)
   }
 }

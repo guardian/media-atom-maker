@@ -23,7 +23,7 @@ class ExpirerLambda extends RequestHandler[Unit, Unit]
 
   override def handleRequest(input: Unit, context: Context): Unit = {
     val epochMillis = Instant.now().toEpochMilli
-    val assets = getExpiredAssets(100, 1, epochMillis, Set.empty)
+    val assets = getVideosFromExpiredAtoms(100, 1, epochMillis, Set.empty)
 
     val toExpire = if(expireInParallel) { assets.par } else { assets }
 
@@ -38,7 +38,7 @@ class ExpirerLambda extends RequestHandler[Unit, Unit]
   }
 
   @tailrec
-  private def getExpiredAssets(pageSize: Int, page: Int, now: Long, before: Set[String]): Set[String] = {
+  private def getVideosFromExpiredAtoms(pageSize: Int, page: Int, now: Long, before: Set[String]): Set[String] = {
     val url = s"atoms?types=media&page-size=$pageSize&page=$page"
     val response = (capiQuery(url) \ "response").get
 
@@ -46,15 +46,15 @@ class ExpirerLambda extends RequestHandler[Unit, Unit]
     val pages = (response \ "pages").as[Int]
 
     val results = (response \ "results").as[JsArray].value
-    val after = results.foldLeft(before) { (acc, atom) => acc ++ getExpiredAssets(atom, now) }
+    val after = results.foldLeft(before) { (acc, atom) => acc ++ getExpiredVideos(atom, now) }
 
     if(currentPage < pages)
-      getExpiredAssets(pageSize, page + 1, now, after)
+      getVideosFromExpiredAtoms(pageSize, page + 1, now, after)
     else
       after
   }
 
-  private def getExpiredAssets(atom: JsValue, now: Long): Set[String] = {
+  private def getExpiredVideos(atom: JsValue, now: Long): Set[String] = {
     (atom \ "data" \ "media" \ "metadata" \ "expiryDate").asOpt[Long] match {
       case Some(expiryDate) if expiryDate < now =>
         val assets = (atom \ "data" \ "media" \ "assets").as[JsArray]

@@ -4,6 +4,7 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 import com.squareup.okhttp.{Credentials, OkHttpClient, Request}
+import com.typesafe.config.Config
 import play.api.libs.json.{JsValue, Json}
 
 trait CapiPreviewAccess { this: Settings =>
@@ -36,4 +37,5 @@ trait CapiPreviewAccess { this: Settings =>
   }
 }
 
+class CapiPreview(override val config: Config) extends Settings with CapiPreviewAccess
 case class CapiException(err: String, cause: Throwable = null) extends RuntimeException(err, cause)
