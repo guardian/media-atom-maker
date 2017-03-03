@@ -641,6 +641,7 @@
                                 "aws.dynamo.tableName=", { "Ref": "AtomMakerTable" }, "\n",
                                 "aws.dynamo.publishedTableName=", { "Ref": "PublishedAtomMakerTable" }, "\n",
                                 "aws.dynamo.auditTableName=", { "Ref": "AuditTable" }, "\n",
+                                "aws.dynamo.uploadTrackingTableName=", { "Ref": "UploadTrackingTable" }, "\n",
                                 "EOF\n",
 
                                 "mkdir /etc/gu\n",
