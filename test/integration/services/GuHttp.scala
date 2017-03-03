@@ -27,6 +27,7 @@ trait GuHttp {
 
     body match {
       case Some(e) => req.post(e)
+      case None => req.addHeader("Content-Length", "0")
     }
 
     httpClient.newCall(req.build()).execute()
@@ -39,6 +40,7 @@ trait GuHttp {
 
     body match {
       case Some(e) => req.put(e)
+      case None => req.addHeader("Content-Length", "0")
     }
 
     httpClient.newCall(req.build()).execute()
