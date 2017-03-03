@@ -13,7 +13,8 @@ class PanDomainAuthService (val system: String, val domain: String) extends PanD
   override lazy val awsCredentialsProvider: AWSCredentialsProvider =
     new AWSCredentialsProviderChain(
       new ProfileCredentialsProvider(Config.credentialsProvider),
-      new InstanceProfileCredentialsProvider(false)
+      new InstanceProfileCredentialsProvider(false),
+      new DefaultAWSCredentialsProviderChain
     )
 
   val thirtyMinsMillis: Long = 1000 * 60 * 30
