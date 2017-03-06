@@ -44,13 +44,13 @@ class IntegrationTests extends FlatSpec with Matchers with Eventually with Integ
 
     val atomId = (Json.parse(response.body().string()) \ "id").get.as[String]
 
-    Json.parse(gutoolsGet(s"$targetBaseUrl/api2/atoms/$atomId/published").body().string()).toString() should be ("{}")
-
     val apiEndpoint = apiUri(atomId)
 
     eventually {
       gutoolsGet(apiEndpoint).code() should be (200)
     }
+
+    Json.parse(gutoolsGet(s"$targetBaseUrl/api2/atoms/$atomId/published").body().string()).toString() should be ("{}")
 
     /* Add the asset */
 
