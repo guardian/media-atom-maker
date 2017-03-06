@@ -385,7 +385,6 @@ Resources:
           STAGE: !Ref Stage
           CONFIG_BUCKET: !Ref ConfigBucket
           CONFIG_KEY: !FindInMap [LambdaConfig, Expirer, DEV]
-          DOMAIN: !Ref Domain
       MemorySize: 256
       Role: !GetAtt UploaderRole.Arn
       Runtime: "java8"
@@ -397,7 +396,7 @@ Resources:
       ScheduleExpression: "cron(0 00 * * ? *)"
       Targets:
         - Arn: !GetAtt ExpirerLambda.Arn
-        - Id: "ExpirerLambda"
+          Id: "ExpirerLambda"
 
   ExpirerLambdaPermission:
     Type: "AWS::Lambda::Permission"
