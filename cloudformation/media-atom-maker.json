@@ -563,26 +563,26 @@
                 "Principal": {
                   "Service": ["lambda.amazonaws.com"]
                 }
-              }],
-              "Path": "/",
-              "Policies": [{
-                "PolicyName": "ExpirerPolicy",
-                "PolicyDocument": {
-                  "Statement": [{
-                    "Effect": "Allow",
-                    "Action": ["s3:GetObject"],
-                    "Resource": [
-                      { "Fn::Sub": [ "arn:aws:s3:::${Bucket}/${Key}",
-                        { "Bucket": { "Ref": "BuildBucket" }, "Key": { "Fn::FindInMap": ["LambdaBuilds", "Expirer", { "Ref": "Stage"}] } }
-                      ]},
-                      { "Fn::Sub": [ "arn:aws:s3:::${Bucket}/${Key}",
-                        { "Bucket": { "Ref": "ConfigBucket" }, "Key": { "Fn::FindInMap": ["LambdaConfig", "Expirer", { "Ref": "Stage"}] } }
-                      ]}
-                    ]
-                  }]
-                }
               }]
-            }
+            },
+            "Path": "/",
+            "Policies": [{
+              "PolicyName": "ExpirerPolicy",
+              "PolicyDocument": {
+                "Statement": [{
+                  "Effect": "Allow",
+                  "Action": ["s3:GetObject"],
+                  "Resource": [
+                    { "Fn::Sub": [ "arn:aws:s3:::${Bucket}/${Key}",
+                      { "Bucket": { "Ref": "BuildBucket" }, "Key": { "Fn::FindInMap": ["LambdaBuilds", "Expirer", { "Ref": "Stage"}] } }
+                    ]},
+                    { "Fn::Sub": [ "arn:aws:s3:::${Bucket}/${Key}",
+                      { "Bucket": { "Ref": "ConfigBucket" }, "Key": { "Fn::FindInMap": ["LambdaConfig", "Expirer", { "Ref": "Stage"}] } }
+                    ]}
+                  ]
+                }]
+              }
+            }]
           }
         },
 
