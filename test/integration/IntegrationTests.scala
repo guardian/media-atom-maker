@@ -7,6 +7,7 @@ import org.scalatest.concurrent.{Eventually, IntegrationPatience}
 import org.scalatest.{FlatSpec, Matchers}
 import play.api.libs.json.Json
 import integration.services.{Config, GuHttp, TestAtomJsonGenerator}
+import tags.IntTest
 
 class IntegrationTests extends FlatSpec with Matchers with Eventually with IntegrationPatience with GuHttp with TestAtomJsonGenerator {
 
@@ -17,13 +18,13 @@ class IntegrationTests extends FlatSpec with Matchers with Eventually with Integ
 
   def apiUri(atomId: String): String = s"$targetBaseUrl/api/atom/$atomId"
 
-  "Hitting code atom maker" should "return a 200" in {
+  "Hitting code atom maker" should "return a 200" taggedAs(IntTest) in {
     val response = gutoolsGet(targetBaseUrl)
     response.code() should be (200)
     response.body().string() should include ("video")
   }
 
-  "Creating a new atom, adding an asset and making it the current asset" should "be represented in the atom maker API" in {
+  "Creating a new atom, adding an asset and making it the current asset" should "be represented in the atom maker API" taggedAs(IntTest) in {
     val asset = Config.asset
     val assetId = Config.assetId
     val json = generateJson(
@@ -80,3 +81,5 @@ class IntegrationTests extends FlatSpec with Matchers with Eventually with Integ
   }
 
 }
+
+
