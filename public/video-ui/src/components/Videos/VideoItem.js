@@ -1,6 +1,7 @@
 import React from 'react';
 import {Link} from 'react-router';
 import {findSmallestAssetAboveWidth} from '../../util/imageHelpers';
+import {hasVideoExpired} from '../../util/isVideoPublished';
 
 export default class VideoItem extends React.Component {
 
@@ -12,8 +13,9 @@ export default class VideoItem extends React.Component {
       return "";
     } else {
       const assets = this.props.video.assets.filter((asset) => asset.version === activeVersion);
-
-      if(assets.length && assets[0] && assets[0].platform) {
+      if (hasVideoExpired(this.props.video)) {
+        return <div className="publish__label label__expired">Expired</div>;
+      } else if(assets.length && assets[0] && assets[0].platform) {
         return <span className="publish__label label__live label__frontpage__overlay">Active</span>;
       } else {
         return <span className="publish__label label__frontpage__novideo label__frontpage__overlay">No Video</span>;
