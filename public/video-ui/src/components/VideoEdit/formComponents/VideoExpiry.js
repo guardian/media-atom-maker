@@ -5,6 +5,13 @@ import _ from 'lodash';
 import 'react-datepicker/dist/react-datepicker.css';
 import Icon from '../../Icon';
 
+const DATE_FORMAT = "YYYY/MM/DD";
+const DATETIME_FORMAT = `${DATE_FORMAT} HH:mm`;
+
+const MINUTES = [0, 15, 30, 45].map((minute) => moment().minute(minute).format("mm"));
+const HOURS = [...new Array(24).keys()].map((hour) => moment().hour(hour).format("HH"));
+const EMPTY = [" "];
+
 function Selector({values, value, disabled, onChange}) {
   const handler = (e) => {
     onChange(e.target.value);
@@ -25,13 +32,8 @@ function Selector({values, value, disabled, onChange}) {
 }
 
 function HourSelector({date, onChange}) {
-  let values = [" "];
-  if (date) {
-    values = [...new Array(24).keys()].map((hour) => moment().hour(hour).format("HH"));
-  }
-
   const params = {
-    values: values,
+    values: date ? HOURS : EMPTY,
     value: date ? date.format("HH") : " ",
     disabled: !date,
     onChange: (newHour) => onChange(date.hours(newHour))
@@ -41,13 +43,8 @@ function HourSelector({date, onChange}) {
 }
 
 function MinuteSelector({date, onChange}) {
-  let values = [" "];
-  if (date) {
-    values = [0, 15, 30, 45].map((minute) => moment().minute(minute).format("mm"));
-  }
-
   const params = {
-    values: values,
+    values: date ? MINUTES : EMPTY,
     value: date ? date.format("mm") : " ",
     disabled: !date,
     onChange: (newMinute) => onChange(date.minutes(newMinute))
@@ -61,7 +58,7 @@ function DateSelector({date, onChange}) {
     className: "form__field",
     selected: date,
     minDate: moment(),
-    dateFormat: "DD/MM/YYYY",
+    dateFormat: DATE_FORMAT,
     onChange: (newDate) => {
       const base = date ? date : moment().hours(0).minutes(0);
       onChange(newDate.hours(base.hours()).minutes(base.minutes()));
@@ -96,7 +93,7 @@ function Editor({date, onChange}) {
 }
 
 function Display({date}) {
-  const displayString = date ? date.format("DD/MM/YYYY HH:mm") : 'No expiry date set';
+  const displayString = date ? date.format(DATETIME_FORMAT) : 'No expiry date set';
 
   return <div>
     <p className="details-list__title">Expiry Date</p>
