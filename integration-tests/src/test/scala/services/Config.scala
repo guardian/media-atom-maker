@@ -1,12 +1,10 @@
 package integration.services
 
-import java.io.File
-
 import com.typesafe.config.ConfigFactory
 
 object Config {
 
-  val config = ConfigFactory.parseFile(new File("/etc/gu/media-atom-maker-integration-test.private.conf"))
+  val config = ConfigFactory.load()
 
   /* Test */
   lazy val targetBaseUrl = config.getString("targetBaseUrl")
