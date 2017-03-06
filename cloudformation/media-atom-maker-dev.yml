@@ -373,7 +373,7 @@ Resources:
     Type: "AWS::Lambda::Function"
     Properties:
       Description: "Expires atoms"
-      Handler: "com.gu.media.ExpirerLambda::handleRequest"
+      Handler: "com.gu.media.expirer.ExpirerLambda::handleRequest"
       Code:
         S3Bucket: !Ref BuildBucket
         S3Key: !FindInMap [LambdaBuilds, Expirer, DEV]
@@ -397,6 +397,7 @@ Resources:
       ScheduleExpression: "cron(0 00 * * ? *)"
       Targets:
         - Arn: !GetAtt ExpirerLambda.Arn
+        - Id: "ExpirerLambda"
 
   ExpirerLambdaPermission:
     Type: "AWS::Lambda::Permission"
