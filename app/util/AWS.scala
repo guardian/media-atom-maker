@@ -1,8 +1,11 @@
 package util
 
+import com.amazonaws.auth.InstanceProfileCredentialsProvider
+import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.services.ec2.AmazonEC2Client
 import com.amazonaws.services.ec2.model.{DescribeTagsRequest, Filter}
 import com.amazonaws.util.EC2MetadataUtils
+import com.gu.media.Settings
 import com.gu.media.aws._
 import com.gu.media.logging.KinesisLogging
 import com.typesafe.config.Config
@@ -10,7 +13,8 @@ import com.typesafe.config.Config
 import scala.collection.JavaConverters._
 
 class AWSConfig(override val config: Config)
-  extends AwsAccess
+  extends Settings
+    with AwsAccess
     with CrossAccountAccess
     with DynamoAccess
     with UploadAccess
@@ -24,10 +28,6 @@ class AWSConfig(override val config: Config)
     null
   )
 
-  override val stack = readTag("Stack")
-  override val app = readTag("App")
-  override val stage = readTag("Stage").getOrElse("DEV")
-
   lazy val composerUrl = getMandatoryString("flexible.url")
   lazy val viewerUrl = getMandatoryString("viewer.url")
 
@@ -36,7 +36,11 @@ class AWSConfig(override val config: Config)
   lazy val expiryPollerName = "Expiry"
   lazy val expiryPollerLastName = "Poller"
 
-  def readTag(tagName: String) = {
+  final override def regionName = getString("aws.region")
+  final override def instanceCredentials = InstanceProfileCredentialsProvider.getInstance()
+  final override def localDevCredentials = getString("aws.profile").map(new ProfileCredentialsProvider(_))
+
+  final override def readTag(tagName: String) = {
     val tagsResult = ec2Client.describeTags(
       new DescribeTagsRequest().withFilters(
         new Filter("resource-type").withValues("instance"),

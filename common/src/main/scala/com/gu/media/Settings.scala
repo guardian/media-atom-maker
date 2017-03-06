@@ -4,7 +4,7 @@ import com.typesafe.config.Config
 import scala.collection.JavaConverters._
 
 trait Settings {
-  val config: Config
+  def config: Config
 
   def getString(name: String): Option[String] = if(config.hasPath(name)) { Some(config.getString(name)) } else { None }
   def getStringList(name: String): List[String] = if(config.hasPath(name)) { config.getStringList(name).asScala.toList } else { List.empty}

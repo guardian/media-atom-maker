@@ -108,12 +108,20 @@
             "Transcoder": {
               "CODE": "media-service/CODE/media-atom-transcoder/media-atom-transcoder.zip",
               "PROD": "media-service/PROD/media-atom-transcoder/media-atom-transcoder.zip"
+            },
+            "Expirer": {
+              "CODE": "media-service/CODE/media-atom-expirer/media-atom-expirer.zip",
+              "PROD": "media-service/PROD/media-atom-expirer/media-atom-expirer.zip"
             }
         },
         "LambdaConfig": {
             "Uploader": {
                 "CODE": "CODE/media-atom-maker.private.conf",
                 "PROD": "PROD/media-atom-maker.private.conf"
+            },
+            "Expirer": {
+              "CODE": "CODE/media-atom-maker.private.conf",
+              "PROD": "PROD/media-atom-maker.private.conf"
             }
         }
     },
@@ -542,6 +550,86 @@
             "Role":  { "Fn::GetAtt": [ "TranscoderRole", "Arn" ] },
             "Runtime": "java8",
             "Timeout": 300
+          }
+        },
+
+        "ExpirerRole": {
+          "Type": "AWS::IAM::Role",
+          "Properties": {
+            "AssumeRolePolicyDocument": {
+              "Statement": [{
+                "Effect": "Allow",
+                "Action": "sts:AssumeRole",
+                "Principal": {
+                  "Service": ["lambda.amazonaws.com"]
+                }
+              }]
+            },
+            "Path": "/",
+            "Policies": [{
+              "PolicyName": "ExpirerPolicy",
+              "PolicyDocument": {
+                "Statement": [{
+                  "Effect": "Allow",
+                  "Action": ["s3:GetObject"],
+                  "Resource": [
+                    { "Fn::Sub": [ "arn:aws:s3:::${Bucket}/${Key}",
+                      { "Bucket": { "Ref": "BuildBucket" }, "Key": { "Fn::FindInMap": ["LambdaBuilds", "Expirer", { "Ref": "Stage"}] } }
+                    ]},
+                    { "Fn::Sub": [ "arn:aws:s3:::${Bucket}/${Key}",
+                      { "Bucket": { "Ref": "ConfigBucket" }, "Key": { "Fn::FindInMap": ["LambdaConfig", "Expirer", { "Ref": "Stage"}] } }
+                    ]}
+                  ]
+                }]
+              }
+            }]
+          }
+        },
+
+        "ExpirerLambda": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Description": "Expires atoms",
+            "Handler": "com.gu.media.expirer.ExpirerLambda::handleRequest",
+            "Code": {
+              "S3Bucket": { "Ref": "BuildBucket" },
+              "S3Key": { "Fn::FindInMap": ["LambdaBuilds", "Expirer", { "Ref": "Stage" }] }
+            },
+            "Environment": {
+              "Variables": {
+                "REGION": { "Ref": "AWS::Region" },
+                "STACK": { "Ref": "Stack" },
+                "APP": "media-atom-expirer",
+                "STAGE": { "Ref": "Stage" },
+                "CONFIG_BUCKET": { "Ref": "ConfigBucket" },
+                "CONFIG_KEY": { "Fn::FindInMap": [ "LambdaConfig", "Expirer", { "Ref": "Stage" }] }
+              }
+            },
+            "MemorySize": 256,
+            "Role": { "Fn::GetAtt": ["UploaderRole", "Arn"] },
+            "Runtime": "java8",
+            "Timeout": 300
+          }
+        },
+
+        "ExpirerLambdaTrigger": {
+          "Type": "AWS::Events::Rule",
+          "Properties": {
+            "ScheduleExpression": "cron(0 00 * * ? *)",
+            "Targets": [{
+              "Arn": { "Fn::GetAtt": ["ExpirerLambda", "Arn"] },
+              "Id": "ExpirerLambda"
+            }]
+          }
+        },
+
+        "ExpirerLambdaPermission": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "Action": "lambda:InvokeFunction",
+            "FunctionName": { "Ref": "ExpirerLambda" },
+            "Principal": "events.amazonaws.com",
+            "SourceArn": { "Fn::GetAtt": ["ExpirerLambdaTrigger", "Arn"] }
           }
         },
 

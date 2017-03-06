@@ -74,8 +74,20 @@ lazy val transcoder = (project in file("transcoder"))
 
   )
 
+lazy val expirer = (project in file("expirer"))
+  .dependsOn(common % "compile->compile;test->test")
+  .enablePlugins(JavaAppPackaging)
+  .settings(commonSettings,
+    name := "media-atom-expirer",
+    libraryDependencies ++= Dependencies.expirerDependencies,
+
+    topLevelDirectory in Universal := None,
+    packageName in Universal := normalizedName.value
+
+  )
+
 lazy val root = (project in file("root"))
-  .aggregate(common, app, uploader, transcoder)
+  .aggregate(common, app, uploader, transcoder, expirer)
   .enablePlugins(RiffRaffArtifact)
   .settings(
     riffRaffBuildIdentifier := Option(System.getenv("CIRCLE_BUILD_NUM")).getOrElse("dev"),
@@ -89,6 +101,7 @@ lazy val root = (project in file("root"))
       (packageBin in Universal in uploader).value -> s"media-atom-uploader-s3-events/${(packageBin in Universal in uploader).value.getName}",
       (packageBin in Universal in uploader).value -> s"media-atom-uploader-dynamo-events/${(packageBin in Universal in uploader).value.getName}",
       (packageBin in Universal in transcoder).value -> s"${(name in transcoder).value}/${(packageBin in Universal in transcoder).value.getName}",
+      (packageBin in Universal in expirer).value -> s"${(name in expirer).value}/${(packageBin in Universal in expirer).value.getName}",
       (baseDirectory in Global in app).value / "conf/riff-raff.yaml" -> "riff-raff.yaml"
     )
   )

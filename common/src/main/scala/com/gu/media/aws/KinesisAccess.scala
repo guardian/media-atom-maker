@@ -2,8 +2,9 @@ package com.gu.media.aws
 
 import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.kinesis.AmazonKinesisClient
+import com.gu.media.Settings
 
-trait KinesisAccess { this: AwsAccess with CrossAccountAccess =>
+trait KinesisAccess { this: Settings with AwsAccess with CrossAccountAccess =>
   val liveKinesisStreamName: String = getMandatoryString("aws.kinesis.liveStreamName")
   val previewKinesisStreamName: String = getMandatoryString("aws.kinesis.previewStreamName")
 

@@ -1,52 +1,49 @@
 package com.gu.media.lambda
 
 import java.io.InputStreamReader
+import java.util.Locale
 
+import com.amazonaws.auth.EnvironmentVariableCredentialsProvider
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.auth.{AWSCredentialsProvider, EnvironmentVariableCredentialsProvider}
-import com.amazonaws.regions.{Region, Regions}
 import com.amazonaws.services.s3.AmazonS3Client
+import com.gu.media.Settings
 import com.gu.media.aws.AwsAccess
 import com.typesafe.config.{Config, ConfigFactory}
 
-trait LambdaBase extends AwsAccess {
-  private val regionName = envSetting("REGION")
-  private val configBucket = envSetting("CONFIG_BUCKET")
-  private val configKey = envSetting("CONFIG_KEY")
-  private val localConfig = ConfigFactory.load()
+trait LambdaBase extends Settings with AwsAccess {
+  final override def regionName = sys.env.get("REGION")
+  final override def readTag(tag: String) = sys.env.get(tag.toUpperCase(Locale.ENGLISH))
 
-  override val region: Region = Region.getRegion(Regions.fromName(regionName))
-  override val credsProvider: AWSCredentialsProvider = buildCredsProvider(localConfig)
+  private val remoteConfig = downloadConfig()
+  private val mergedConfig = remoteConfig.withFallback(ConfigFactory.load())
 
-  // Creating these outside the handleRequest call means they can be re-used across invocations
-  // http://docs.aws.amazon.com/lambda/latest/dg/best-practices.html
-  val (s3, config) = buildS3Client(localConfig)
+  final override def instanceCredentials = new EnvironmentVariableCredentialsProvider()
+  final override def localDevCredentials = getDevProfile.map(new ProfileCredentialsProvider(_))
 
-  override val stack = sys.env.get("STACK")
-  override val app = sys.env.get("APP")
-  override val stage = sys.env.getOrElse("STAGE", "DEV")
+  override def config: Config = mergedConfig
 
-  private def buildS3Client(localConfig: Config): (AmazonS3Client, Config) = {
-    val s3: AmazonS3Client = region.createClient(classOf[AmazonS3Client], credsProvider, null)
+  private def downloadConfig(): Config = {
+    (sys.env.get("CONFIG_BUCKET"), sys.env.get("CONFIG_KEY")) match {
+      case (Some(bucket), Some(key)) =>
+        val defaultRegionS3 = defaultRegion.createClient(classOf[AmazonS3Client], credsProvider, null)
 
-    val obj = s3.getObject(configBucket, configKey)
-    val rawConfig = obj.getObjectContent
-    val fromS3 = ConfigFactory.parseReader(new InputStreamReader(rawConfig))
+        val obj = defaultRegionS3.getObject(bucket, key)
+        val rawConfig = obj.getObjectContent
+        ConfigFactory.parseReader(new InputStreamReader(rawConfig))
 
-    val config = fromS3.withFallback(localConfig)
-
-    (s3, config)
-  }
-
-  private def buildCredsProvider(config: Config): AWSCredentialsProvider = {
-    if(config.hasPath("aws.profile")) {
-      new ProfileCredentialsProvider(config.getString("aws.profile"))
-    } else {
-      new EnvironmentVariableCredentialsProvider()
+      case _ =>
+        ConfigFactory.empty()
     }
   }
 
-  private def envSetting(name: String): String = sys.env.getOrElse(name, {
-    throw new IllegalArgumentException(s"Missing environment variable $name. Check the Lambda configuration")
-  })
+  private def getDevProfile = {
+    val localConfig = ConfigFactory.load()
+
+    // we must use the local config, as we may not have downloaded the remote stuff yet
+    if(localConfig.hasPath("aws.profile")) {
+      Some(localConfig.getString("aws.profile"))
+    } else {
+      None
+    }
+  }
 }

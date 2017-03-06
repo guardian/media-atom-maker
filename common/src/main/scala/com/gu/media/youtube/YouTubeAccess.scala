@@ -9,14 +9,14 @@ import com.gu.media.Settings
 import scala.collection.JavaConverters._
 
 trait YouTubeAccess extends Settings {
-  val appName: String = getMandatoryString("name")
-  val contentOwner: String = getMandatoryString("youtube.contentOwner")
+  def appName: String = getMandatoryString("name")
+  def contentOwner: String = getMandatoryString("youtube.contentOwner")
   val allowedChannels: List[String] = getStringList("youtube.allowedChannels")
   val disallowedVideos: List[String] = getStringList("youtube.disallowedVideos")
 
-  private val clientId = getMandatoryString("youtube.clientId")
-  private val clientSecret = getMandatoryString("youtube.clientSecret")
-  private val refreshToken = getMandatoryString("youtube.refreshToken")
+  def clientId = getMandatoryString("youtube.clientId")
+  def clientSecret = getMandatoryString("youtube.clientSecret")
+  def refreshToken = getMandatoryString("youtube.refreshToken")
 
   private val httpTransport = new NetHttpTransport()
   private val jacksonFactory = new JacksonFactory()
@@ -28,7 +28,8 @@ trait YouTubeAccess extends Settings {
     .build
     .setRefreshToken(refreshToken)
 
-  val client: YouTubeClient = new YouTubeClient.Builder(httpTransport, jacksonFactory, credentials)
+  // lazy to avoid initialising when in test
+  lazy val client: YouTubeClient = new YouTubeClient.Builder(httpTransport, jacksonFactory, credentials)
     .setApplicationName(appName)
     .build
 

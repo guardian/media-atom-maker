@@ -28,8 +28,12 @@ Mappings:
       DEV: "media-service/DEV/media-atom-uploader/media-atom-uploader.zip"
     Transcoder:
       DEV: "media-service/DEV/media-atom-transcoder/media-atom-transcoder.zip"
+    Expirer:
+      DEV: "media-service/DEV/media-atom-transcoder/media-atom-expirer.zip"
   LambdaConfig:
     Uploader:
+      DEV: "DEV/media-atom-maker.private.conf"
+    Expirer:
       DEV: "DEV/media-atom-maker.private.conf"
 Resources:
   MediaAtomGroup:
@@ -340,6 +344,67 @@ Resources:
       Role: !GetAtt TranscoderRole.Arn
       Runtime: "java8"
       Timeout: 300
+
+  ExpirerRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: "Allow"
+            Action: "sts:AssumeRole"
+            Principal:
+              Service: ["lambda.amazonaws.com"]
+      Path: "/"
+      Policies:
+        - PolicyName: "ExpirerPolicy"
+          PolicyDocument:
+            Statement:
+              - Effect: "Allow"
+                Action: ["s3:GetObject"]
+                Resource:
+                  - !Sub
+                    - "arn:aws:s3:::${Bucket}/${Key}"
+                    - { "Bucket": !Ref BuildBucket, "Key": !FindInMap [LambdaBuilds, Expirer, DEV] }
+                  - !Sub
+                    - "arn:aws:s3:::${Bucket}/${Key}"
+                    - { "Bucket": !Ref ConfigBucket, "Key": !FindInMap [LambdaConfig, Expirer, DEV] }
+
+  ExpirerLambda:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Description: "Expires atoms"
+      Handler: "com.gu.media.expirer.ExpirerLambda::handleRequest"
+      Code:
+        S3Bucket: !Ref BuildBucket
+        S3Key: !FindInMap [LambdaBuilds, Expirer, DEV]
+      Environment:
+        Variables:
+          REGION: !Ref AWS::Region
+          STACK: !Ref Stack
+          APP: "media-atom-expirer"
+          STAGE: !Ref Stage
+          CONFIG_BUCKET: !Ref ConfigBucket
+          CONFIG_KEY: !FindInMap [LambdaConfig, Expirer, DEV]
+      MemorySize: 256
+      Role: !GetAtt UploaderRole.Arn
+      Runtime: "java8"
+      Timeout: 300
+
+  ExpirerLambdaTrigger:
+    Type: "AWS::Events::Rule"
+    Properties:
+      ScheduleExpression: "cron(0 00 * * ? *)"
+      Targets:
+        - Arn: !GetAtt ExpirerLambda.Arn
+          Id: "ExpirerLambda"
+
+  ExpirerLambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: "lambda:InvokeFunction"
+      FunctionName: !Ref ExpirerLambda
+      Principal: "events.amazonaws.com"
+      SourceArn: !GetAtt ExpirerLambdaTrigger.Arn
 
 Outputs:
   EditsDynamoTable:

@@ -1,6 +1,5 @@
 package controllers
 
-import _root_.util.ExpiryPoller
 import com.gu.atom.play.AtomAPIActions
 import com.gu.media.youtube.YouTube
 import com.gu.pandahmac.HMACAuthActions
@@ -15,8 +14,7 @@ import util.atom.MediaAtomImplicits
 import play.api.libs.json._
 import play.api.mvc.{AnyContent, Result}
 
-class Api2 (override val stores: DataStores, conf: Configuration, val authActions: HMACAuthActions,
-            youTube: YouTube, expiryPoller: ExpiryPoller)
+class Api2 (override val stores: DataStores, conf: Configuration, val authActions: HMACAuthActions, youTube: YouTube)
 
   extends MediaAtomImplicits
     with AtomAPIActions
@@ -89,13 +87,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
 
   def putMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
     parse(req) { atom: MediaAtom =>
-      val thriftAtom = atom.asThrift
-      val atomWithExpiryChecked = expiryPoller.updateStatusIfExpired(thriftAtom) match {
-        case Some(expiredAtom) => expiredAtom
-        case _ => atom
-      }
-
-      val command = UpdateAtomCommand(id, atomWithExpiryChecked, stores, req.user)
+      val command = UpdateAtomCommand(id, atom, stores, req.user)
       val updatedAtom = command.process()
 
       Ok(Json.toJson(updatedAtom))
