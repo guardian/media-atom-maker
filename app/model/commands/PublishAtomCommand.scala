@@ -140,7 +140,7 @@ case class PublishAtomCommand(id: String, fromExpiryPoller: Boolean, override va
 
     MediaAtom.getActiveYouTubeAsset(atom).foreach { activeAsset =>
       val youTubeAssets = atom.assets.filter(_.platform == Youtube)
-      val toMakePrivate = if(expired) { youTubeAssets } else { youTubeAssets.filter(_.id == activeAsset.id) }
+      val toMakePrivate = if(expired) { youTubeAssets } else { youTubeAssets.filterNot(_.id == activeAsset.id) }
 
       toMakePrivate.foreach { asset =>
         log.info(s"Marking asset=${asset.id} atom=${atom.id} as private")
