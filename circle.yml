@@ -18,11 +18,12 @@ dependencies:
     - "~/.sbt"
   override:
     - sbt test:compile
+    - sbt integrationTests/compile
 
 test:
   override:
     - npm test
-    - ./sbt 'test-only -- -l IntTest'
+    - sbt test
 
 deployment:
   riffraff_upload:

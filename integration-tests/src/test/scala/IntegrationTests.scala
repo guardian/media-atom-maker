@@ -1,39 +1,37 @@
 package integration
 
 import com.squareup.okhttp._
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
 import org.scalatest.concurrent.{Eventually, IntegrationPatience}
 import org.scalatest.{FlatSpec, Matchers}
-import play.api.libs.json.Json
 import integration.services.{Config, GuHttp, TestAtomJsonGenerator}
-import tags.IntTest
+import java.time.Instant
+import java.util.UUID
+
+import play.api.libs.json.Json
 
 class IntegrationTests extends FlatSpec with Matchers with Eventually with IntegrationPatience with GuHttp with TestAtomJsonGenerator {
 
   val targetBaseUrl: String = Config.targetBaseUrl
   val JSON = MediaType.parse("application/json; charset=utf-8")
 
-  def timestamp: String = DateTime.now.toString(DateTimeFormat.forPattern("yyyyMMddHHmmss"))
-
   def apiUri(atomId: String): String = s"$targetBaseUrl/api/atom/$atomId"
 
-  "Hitting code atom maker" should "return a 200" taggedAs(IntTest) in {
+  "Hitting code atom maker" should "return a 200" in {
     val response = gutoolsGet(targetBaseUrl)
     response.code() should be (200)
     response.body().string() should include ("video")
   }
 
-  "Creating a new atom, adding an asset and making it the current asset" should "be represented in the atom maker API" taggedAs(IntTest) in {
+  "Creating a new atom, adding an asset and making it the current asset" should "be represented in the atom maker API" in {
     val asset = Config.asset
     val assetId = Config.assetId
     val json = generateJson(
-      title = s"test-atom-$timestamp",
+      title = s"test-atom-${UUID.randomUUID().toString}",
       description = "test atom",
       category = "News",
       channelId = Config.channelId,
       youtubeCategoryId = Config.youtubeCategoryId,
-      expiryDate = DateTime.now().getMillis + (100 * 60 * 60 * 24)
+      expiryDate = Instant.now.toEpochMilli + (100 * 60 * 60 * 24)
     )
 
     /* Create the atom */

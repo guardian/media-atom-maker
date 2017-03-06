@@ -62,6 +62,12 @@ lazy val uploader = (project in file("uploader"))
     packageName in Universal := normalizedName.value
   )
 
+lazy val integrationTests = (project in file("integration-tests"))
+  .settings(commonSettings,
+    name := "integration-tests",
+    libraryDependencies ++= Dependencies.integrationTestDependencies
+  )
+
 lazy val root = (project in file("root"))
   .aggregate(common, app, uploader)
   .enablePlugins(RiffRaffArtifact)

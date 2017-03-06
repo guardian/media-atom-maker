@@ -6,7 +6,7 @@ import com.typesafe.config.ConfigFactory
 
 object Config {
 
-  val config = ConfigFactory.parseFile(new File("test/integration/int-test.conf"))
+  val config = ConfigFactory.parseFile(new File("/etc/gu/media-atom-maker-integration-test.private.conf"))
 
   /* Test */
   lazy val targetBaseUrl = config.getString("targetBaseUrl")

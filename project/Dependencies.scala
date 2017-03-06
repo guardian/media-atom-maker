@@ -21,6 +21,7 @@ object Dependencies {
 
   val contentAtomModel = "com.gu" %% "content-atom-model" %  "2.4.17"
 
+  val scalaTest = "org.scalatest" %% "scalatest" % "2.2.6" % "test"
   val scalaTestPlusPlay = "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % "test"
   val mockito = "org.mockito" %  "mockito-core" % mockitoVersion % "test"
   val scalaXml = "org.scala-lang.modules" %% "scala-xml" % "1.0.5"   % "test"
@@ -79,5 +80,13 @@ object Dependencies {
 
   val uploaderDependencies = Seq(
     logstashLogbackEncoder, okHttp
+  )
+
+  val integrationTestDependencies =
+    panda ++ Seq(
+    scalaTest,
+    okHttp,
+    playJsonExtensions,
+    typesafeConfig
   )
 }
