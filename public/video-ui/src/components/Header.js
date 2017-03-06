@@ -24,6 +24,7 @@ export default class Header extends React.Component {
       <nav className="topbar__nav-link">
         <a className="button__secondary"
            target="_blank"
+           rel="noopener noreferrer"
            href="https://goo.gl/forms/0KoeGOW64584Bydm2">
           <Icon icon="bug_report">Feedback</Icon>
         </a>
@@ -45,6 +46,7 @@ export default class Header extends React.Component {
       <nav className="topbar__nav-link">
         <a className="button__secondary"
            target="_blank"
+           rel="noopener noreferrer"
            href="https://docs.google.com/a/guardian.co.uk/document/d/1pqRpgIAAlcUMafbA3T7ZHg54kEs2E9XeANzRoNrwTrE/edit?usp=sharing">
           <Icon icon="live_help">How To</Icon>
         </a>

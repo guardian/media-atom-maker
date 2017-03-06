@@ -52,13 +52,13 @@ export default class VideoUsages extends React.Component {
         {usage.fields.headline || usage.id}
         <div>
           Created: <span title={usage.fields.creationDate}>{usageDateFromNow}</span>
-          <a className="usage--platform-link" href={websiteLink} title="Open on theguardian.com" target="_blank">
+          <a className="usage--platform-link" href={websiteLink} title="Open on theguardian.com" target="_blank" rel="noopener noreferrer">
             <FrontendIcon />
           </a>
-          <a className="usage--platform-link" href={composerLink} title="Open in Composer" target="_blank">
+          <a className="usage--platform-link" href={composerLink} title="Open in Composer" target="_blank" rel="noopener noreferrer">
             <ComposerIcon />
           </a>
-          <a className="usage--platform-link" href={viewerLink} title="Open in Viewer" target="_blank">
+          <a className="usage--platform-link" href={viewerLink} title="Open in Viewer" target="_blank" rel="noopener noreferrer">
             <ViewerIcon />
           </a>
         </div>
