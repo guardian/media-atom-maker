@@ -28,6 +28,13 @@ deployments:
       functionNames: [media-atom-maker-transcoder-]
       fileName: media-atom-transcoder.zip
       prefixStack: false
+  media-atom-expirer:
+    type: aws-lambda
+    parameters:
+      bucket: atom-maker-dist
+      functionNames: [media-atom-maker-expirer-]
+      fileName: media-atom-expirer.zip
+      prefixStack: false
   media-atom-maker-ami-update:
       type: ami-cloudformation-parameter
       app: media-atom-maker
