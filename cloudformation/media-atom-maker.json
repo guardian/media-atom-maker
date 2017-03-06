@@ -590,6 +590,7 @@
           "Type": "AWS::Lambda::Function",
           "Properties": {
             "Description": "Expires atoms",
+            "FunctionName":  {"Fn::Join": ["-", ["media-atom-maker-expirer", {"Ref": "Stage"} ] ] },
             "Handler": "com.gu.media.expirer.ExpirerLambda::handleRequest",
             "Code": {
               "S3Bucket": { "Ref": "BuildBucket" },
