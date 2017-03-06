@@ -22,7 +22,7 @@ dependencies:
 test:
   override:
     - npm test
-    - sbt 'test-only -- -l IntTest'
+    - ./sbt 'test-only -- -l IntTest'
 
 deployment:
   riffraff_upload:
