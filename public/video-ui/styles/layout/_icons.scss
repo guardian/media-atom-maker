@@ -2,7 +2,7 @@
     font-family: 'Material Icons';
     font-weight: normal;
     font-style: normal;
-    font-size: 16px;  /* Preferred icon size */
+    font-size: $iconSize;
     display: inline-block;
     width: 1em;
     height: 1em;
@@ -44,6 +44,15 @@
   &:hover {
     background-color: darken($color600Grey, 10%);
   }
+  &.disabled {
+    opacity: 0.4;
+    cursor: default;
+    background-color: darken($color600Grey, 10%);
+  }
+}
+
+.icon__spacing {
+  margin-right: 5px;
 }
 
 .icon__done {
@@ -52,5 +61,26 @@
   &:hover {
     background-color: darken($brandColor, 5%);
   }
+
+  &.disabled {
+    cursor: default;
+    opacity: 0.4;
+  }
 }
 
+.svg-icon {
+  svg {
+    width: $iconSize;
+    height: $iconSize;
+  }
+
+  path {
+    fill: $color600Grey;
+  }
+
+  &:hover {
+    path {
+      fill: $color300Grey;
+    }
+  }
+}

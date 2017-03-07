@@ -1,28 +1,25 @@
 package controllers
 
-import javax.inject._
-
+import com.gu.media.youtube.{YouTube, YouTubeChannel, YouTubeVideoCategory}
 import play.api.cache._
 import com.gu.pandahmac.HMACAuthActions
-import model.{YouTubeChannel, YouTubeVideoCategory}
 import play.api.libs.json.Json
-import util.{YouTubeChannelsApi, YouTubeConfig, YouTubeVideoCategoryApi}
+import play.api.mvc.Controller
+
 import scala.concurrent.duration._
 
-class Youtube @Inject() (val authActions: HMACAuthActions,
-                                 val youtubeConfig: YouTubeConfig,
-                                 val cache: CacheApi) extends AtomController {
+class Youtube (val authActions: HMACAuthActions, youTube: YouTube, cache: CacheApi) extends Controller {
   import authActions.AuthAction
 
   def listCategories() = AuthAction {
     val categories = cache.getOrElse[List[YouTubeVideoCategory]]("categories", 1.hours) {
-      YouTubeVideoCategoryApi(youtubeConfig).list}
+      youTube.categories}
     Ok(Json.toJson(categories))
   }
 
   def listChannels() = AuthAction {
     val channels = cache.getOrElse[List[YouTubeChannel]]("channels", 1.hours) {
-      YouTubeChannelsApi(youtubeConfig).fetchMyChannels()}
+      youTube.channels}
     Ok(Json.toJson(channels))
   }
 }

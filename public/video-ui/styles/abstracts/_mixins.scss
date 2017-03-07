@@ -13,6 +13,7 @@
 
   &:disabled {
     background: $color500Grey;
+    cursor: default;
   }
 
   &:focus {

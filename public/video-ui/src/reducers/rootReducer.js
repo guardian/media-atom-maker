@@ -1,5 +1,4 @@
 import { combineReducers } from 'redux';
-import asset from './assetReducer';
 import audits from './auditReducer';
 import config from './configReducer';
 import error from './errorReducer';
@@ -13,9 +12,9 @@ import { reducer as form } from 'redux-form';
 import usage from './usageReducer';
 import pageCreate from './composerPageReducer';
 import upload from './uploadsReducer';
+import editState from './editStateReducer';
 
 export default combineReducers({
-  asset,
   audits,
   config,
   error,
@@ -28,5 +27,6 @@ export default combineReducers({
   usage,
   pageCreate,
   publishedVideo,
-  upload
+  upload,
+  editState
 });

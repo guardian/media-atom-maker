@@ -9,18 +9,12 @@ import scala.concurrent.Future
 
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
-import javax.inject.{ Inject, Singleton }
 import play.api.inject.ApplicationLifecycle
 import play.api.libs.ws.WSClient
 
-import com.typesafe.scalalogging.LazyLogging
 
-@Singleton
-class PanDomainAuthActions @Inject() (
-  val wsClient:WSClient, val conf: Configuration,
-  applicationLifeCycle: ApplicationLifecycle
-) extends HMACAuthActions
-    with LazyLogging {
+class PanDomainAuthActions(val wsClient:WSClient, val conf: Configuration, applicationLifeCycle: ApplicationLifecycle)
+  extends HMACAuthActions {
 
   applicationLifeCycle.addStopHook {
     () => Future {

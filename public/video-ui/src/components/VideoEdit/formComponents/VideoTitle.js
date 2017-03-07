@@ -9,6 +9,7 @@ export default class VideoTitleEdit extends React.Component {
     const newData = Object.assign({}, this.props.video, {
       title: e.target.value
     });
+    this.props.input.onChange(e.target.value);
 
     this.props.updateVideo(newData);
   };

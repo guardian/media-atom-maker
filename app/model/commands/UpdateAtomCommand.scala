@@ -2,23 +2,17 @@ package model.commands
 
 import java.util.Date
 
-import com.gu.atom.data.PreviewDataStore
-import com.gu.atom.publish.PreviewAtomPublisher
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.media.logging.Logging
 import com.gu.pandomainauth.model.{User => PandaUser}
-import data.AuditDataStore
+import data.DataStores
 import model.commands.CommandExceptions._
 import model.{ChangeRecord, MediaAtom}
 import util.atom.MediaAtomImplicits
 
 import scala.util.{Failure, Success}
 
-case class UpdateAtomCommand(id: String, atom: MediaAtom)
-                            (implicit previewDataStore: PreviewDataStore,
-                             previewPublisher: PreviewAtomPublisher,
-                             auditDataStore: AuditDataStore,
-                             user: PandaUser)
+case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: DataStores, user: PandaUser)
     extends Command
     with MediaAtomImplicits
     with Logging {
@@ -32,14 +26,7 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom)
       AtomIdConflict
     }
 
-    val oldAtom = previewDataStore.getAtom(atom.id)
-
-    if (oldAtom.isEmpty) {
-      log.info(s"Unable to update atom ${atom.id}. Atom does not exist")
-      AtomNotFound
-    }
-
-    val existingAtom = oldAtom.get
+    val existingAtom = getPreviewAtom(atom.id)
 
     val diffString = auditDataStore.createDiffString(MediaAtom.fromThrift(existingAtom), atom)
     log.info(s"Update atom changes ${atom.id}: $diffString")

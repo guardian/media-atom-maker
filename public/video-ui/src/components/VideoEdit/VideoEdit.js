@@ -6,7 +6,6 @@ import VideoPosterEdit from './formComponents/VideoPoster';
 import YoutubeCategorySelect from './formComponents/YoutubeCategory';
 import VideoExpiryEdit from './formComponents/VideoExpiry';
 import YoutubeChannelSelect from './formComponents/YoutubeChannel';
-import SaveButton from '../utils/SaveButton';
 import PrivacyStatusSelect from './formComponents/PrivacyStatus';
 import {validate} from '../../constants/videoEditValidation';
 import { Field, reduxForm } from 'redux-form';
@@ -78,7 +77,6 @@ const VideoEdit = (props) => {
             updateVideo={props.updateVideo}
             editable={props.editable} />
 
-          <SaveButton saveState={props.saveState.saving} onSaveClick={props.saveVideo} onResetClick={props.resetVideo} />
         </div>
       );
 };

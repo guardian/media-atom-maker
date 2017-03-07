@@ -9,11 +9,12 @@ object CommandExceptions extends Results {
   def UnknownFailure = throw new CommandException("Unknown internal server error", 500)
   def AtomNotFound = throw new CommandException("Atom not found", 404)
   def AtomIdConflict = throw new CommandException("Atom ID conflict", 400)
+  def AtomDataStoreError(err: String) = throw new CommandException(err, 500)
   def YouTubeConnectionIssue = throw new CommandException("Could not connect to YouTube", 500)
   def NotYoutubeAsset = throw new CommandException("Asset is not a youtube video", 400)
   def AssetVersionConflict = throw new CommandException("Asset version conflict", 400)
   def AssetParseFailed = throw new CommandException("Failed to parse asset", 400)
-  def AssetEncodingInProcess = throw new CommandException("Asset encoding in progress", 400)
+  def AssetEncodingInProgress(state: String) = throw CommandException(s"Asset encoding in progress. Current state $state", 400)
   def AssetNotFound = throw new CommandException("Asset not found", 404)
 
   def AssetNotFound(assetId: String) = throw new CommandException(s"Asset with id $assetId not found", 404)

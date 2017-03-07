@@ -68,8 +68,32 @@ lazy val integrationTests = (project in file("integration-tests"))
     libraryDependencies ++= Dependencies.integrationTestDependencies
   )
 
+lazy val transcoder = (project in file("transcoder"))
+  .dependsOn(common)
+  .enablePlugins(JavaAppPackaging)
+  .settings(commonSettings,
+    name := "media-atom-transcoder",
+    libraryDependencies ++= Dependencies.transcodeDependencies,
+
+    topLevelDirectory in Universal := None,
+    packageName in Universal := normalizedName.value
+
+  )
+
+lazy val expirer = (project in file("expirer"))
+  .dependsOn(common % "compile->compile;test->test")
+  .enablePlugins(JavaAppPackaging)
+  .settings(commonSettings,
+    name := "media-atom-expirer",
+    libraryDependencies ++= Dependencies.expirerDependencies,
+
+    topLevelDirectory in Universal := None,
+    packageName in Universal := normalizedName.value
+
+  )
+
 lazy val root = (project in file("root"))
-  .aggregate(common, app, uploader)
+  .aggregate(common, app, uploader, transcoder, expirer)
   .enablePlugins(RiffRaffArtifact)
   .settings(
     riffRaffBuildIdentifier := Option(System.getenv("CIRCLE_BUILD_NUM")).getOrElse("dev"),
@@ -79,7 +103,11 @@ lazy val root = (project in file("root"))
     riffRaffManifestProjectName := "media-service:media-atom-maker",
     riffRaffArtifactResources := Seq(
       (packageBin in Debian in app).value -> s"${(name in app).value}/${(name in app).value}.deb",
-      (packageBin in Universal in uploader).value -> s"${(name in uploader).value}/${(packageBin in Universal in uploader).value.getName}",
+      // we have an entry here for each lambda that uses this code (see the cloud formation)
+      (packageBin in Universal in uploader).value -> s"media-atom-uploader-s3-events/${(packageBin in Universal in uploader).value.getName}",
+      (packageBin in Universal in uploader).value -> s"media-atom-uploader-dynamo-events/${(packageBin in Universal in uploader).value.getName}",
+      (packageBin in Universal in transcoder).value -> s"${(name in transcoder).value}/${(packageBin in Universal in transcoder).value.getName}",
+      (packageBin in Universal in expirer).value -> s"${(name in expirer).value}/${(packageBin in Universal in expirer).value.getName}",
       (baseDirectory in Global in app).value / "conf/riff-raff.yaml" -> "riff-raff.yaml"
     )
   )

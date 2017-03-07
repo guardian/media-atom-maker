@@ -19,3 +19,17 @@
 .label__draft {
   background-color: $brandColor;
 }
+
+.label__expired {
+  background-color: $cRedE3;
+  color: $cWhite;
+}
+
+.label__frontpage__novideo {
+  color: $color300Grey;
+  background-color: rgba(51,51,51,0.9);
+}
+
+.label__frontpage__overlay {
+  width: 70px;
+}

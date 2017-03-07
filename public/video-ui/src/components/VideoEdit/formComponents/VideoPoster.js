@@ -4,7 +4,7 @@ import GridImageSelect from '../../utils/GridImageSelect';
 
 class VideoPosterImageEdit extends React.Component {
   renderImage() {
-    if (!this.props.video.posterImage) {
+    if (!this.props.video || !this.props.video.posterImage) {
       return false;
     }
 
@@ -19,12 +19,17 @@ class VideoPosterImageEdit extends React.Component {
 
   render () {
 
-    if (!this.props.editMode) {
+    if (this.props.video && !this.props.editMode) {
       return (
           <div className="form__row">
             <label className="form__label">Poster image</label>
             <div className="form__imageselect">
-              <GridImageSelect video={this.props.video} updateVideo={this.props.updateVideo} gridUrl={this.props.config.gridUrl} createMode={true}/>
+              <GridImageSelect
+                video={this.props.video}
+                updateVideo={this.props.updateVideo}
+                gridUrl={this.props.config.gridUrl}
+                createMode={true}
+              />
               {this.renderImage()}
             </div>
           </div>

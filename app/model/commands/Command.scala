@@ -1,6 +1,8 @@
 package model.commands
 
-trait Command {
+import data.UnpackedDataStores
+
+trait Command extends UnpackedDataStores {
   type T
 
   def process(): T

@@ -1,22 +1,15 @@
 package model.commands
 
-import com.gu.atom.data.PreviewDataStore
-import com.gu.atom.publish.PreviewAtomPublisher
 import com.gu.media.logging.Logging
+import com.gu.media.youtube.YouTube
 import com.gu.pandomainauth.model.{User => PandaUser}
-import data.AuditDataStore
+import data.DataStores
 import model.commands.CommandExceptions._
 import model.{MediaAtom, UpdatedMetadata}
 import util.atom.MediaAtomImplicits
-import util.{YouTubeConfig, YouTubeVideoInfoApi}
 
-case class UpdateMetadataCommand(atomId: String,
-                                 metadata: UpdatedMetadata)
-                                (implicit previewDataStore: PreviewDataStore,
-                                 previewPublisher: PreviewAtomPublisher,
-                                 val youtubeConfig: YouTubeConfig,
-                                 auditDataStore: AuditDataStore,
-                                 user: PandaUser)
+case class UpdateMetadataCommand(atomId: String, metadata: UpdatedMetadata, override val stores: DataStores,
+                                 youTube: YouTube, user: PandaUser)
     extends Command
     with MediaAtomImplicits
     with Logging {
@@ -26,43 +19,39 @@ case class UpdateMetadataCommand(atomId: String,
   def process(): Unit = {
     log.info(s"Request to update metadata for $atomId")
 
-    previewDataStore.getAtom(atomId) match {
-      case Some(atom) =>
-        val thriftMediaAtom = atom.tdata
-        val mediaAtom = MediaAtom.fromThrift(atom)
+    val atom = getPreviewAtom(atomId)
 
-        MediaAtom.getActiveYouTubeAsset(mediaAtom) match {
-          case Some(youtubeAsset) =>
+    val thriftMediaAtom = atom.tdata
+    val mediaAtom = MediaAtom.fromThrift(atom)
 
-            val newMetadata = thriftMediaAtom.metadata.map(_.copy(
-              tags = metadata.tags,
-              categoryId = metadata.categoryId,
-              license = metadata.license,
-              privacyStatus = metadata.privacyStatus.flatMap(_.asThrift),
-              expiryDate = metadata.expiryDate
-            ))
+    MediaAtom.getActiveYouTubeAsset(mediaAtom) match {
+      case Some(youtubeAsset) =>
 
-            val activeYTAssetDuration = YouTubeVideoInfoApi(youtubeConfig).getDuration(youtubeAsset.id)
+        val newMetadata = thriftMediaAtom.metadata.map(_.copy(
+          tags = metadata.tags,
+          categoryId = metadata.categoryId,
+          license = metadata.license,
+          privacyStatus = metadata.privacyStatus.flatMap(_.asThrift),
+          expiryDate = metadata.expiryDate
+        ))
 
-            val updatedAtom = atom.updateData { media =>
-                media.copy(
-                  description = metadata.description,
-                  metadata = newMetadata,
-                  duration = activeYTAssetDuration,
-                  plutoProjectId = metadata.plutoId
-                )
-            }
+        val activeYTAssetDuration = youTube.getDuration(youtubeAsset.id)
 
-            UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom)).process()
-
-          case None =>
-            log.info(s"Unable to update metadata for $atomId. Atom does not have an active asset")
-
-            NotYoutubeAsset
+        val updatedAtom = atom.updateData { media =>
+          media.copy(
+            description = metadata.description,
+            metadata = newMetadata,
+            duration = activeYTAssetDuration,
+            plutoProjectId = metadata.plutoId
+          )
         }
+
+        UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom), stores, user).process()
+
       case None =>
-        log.info(s"Unable to update metadata for $atomId. Atom does not exist")
-        AtomNotFound
+        log.info(s"Unable to update metadata for $atomId. Atom does not have an active asset")
+
+        NotYoutubeAsset
     }
   }
 }

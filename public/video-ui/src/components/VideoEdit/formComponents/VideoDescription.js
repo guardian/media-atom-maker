@@ -4,15 +4,19 @@ import TextArea from '../../FormFields/TextArea';
 export default class VideoDescriptionEdit extends React.Component {
 
   onUpdateDescription = (e) => {
-    const newData = Object.assign({}, this.props.video, {
-      description: e.target.value !== "" ? e.target.value : undefined
-    });
 
-    this.props.updateVideo(newData);
+    const newValue = e.target.value !== "" ? e.target.value : null;
+    if (newValue !== '') {
+      const newData = Object.assign({}, this.props.video, {
+        description: newValue
+      });
+
+      this.props.updateVideo(newData);
+    }
   };
 
   getFieldValue = () => {
-    if (this.props.video.description) {
+    if (this.props.video && this.props.video.description) {
       return this.props.video.description;
     }
 
@@ -20,7 +24,7 @@ export default class VideoDescriptionEdit extends React.Component {
       return 'No Description';
     }
 
-    return undefined;
+    return '';
   };
 
 
@@ -29,7 +33,7 @@ export default class VideoDescriptionEdit extends React.Component {
         <TextArea
           fieldName="Description"
           fieldValue={this.getFieldValue()}
-          noValue={(!this.props.video.description) ? true : false}
+          noValue={(!this.props.video || !this.props.video.description) ? true : false}
           onUpdateField={this.onUpdateDescription}
           video={this.props.video}
           editable={this.props.editable}

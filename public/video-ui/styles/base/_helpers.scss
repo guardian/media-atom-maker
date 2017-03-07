@@ -66,5 +66,12 @@
 $baselineMargin: 20px;
 
 .baseline-margin {
+  background-color: $color700Grey;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
   margin: 10px;
+  height: 170px;
+  border-style: none;
 }

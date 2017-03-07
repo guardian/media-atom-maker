@@ -7,18 +7,34 @@ deployments:
       bucket: atom-maker-dist
     dependencies:
       - media-atom-maker-ami-update
-  media-atom-uploader:
+  media-atom-uploader-s3-events:
     type: aws-lambda
     parameters:
       bucket: atom-maker-dist
+      functionNames: [media-atom-maker-uploader-s3-events-]
       fileName: media-atom-uploader.zip
-      functions:
-        CODE:
-          name: media-atom-maker-CODE-UploaderLambda-88U8JB1YYG4J
-          filename: media-atom-uploader.zip
-        PROD:
-          name: media-atom-maker-PROD-UploaderLambda-MXQD3DV3H1VL
-          filename: media-atom-uploader.zip
+      prefixStack: false
+  media-atom-uploader-dynamo-events:
+    type: aws-lambda
+    parameters:
+      bucket: atom-maker-dist
+      functionNames: [media-atom-maker-uploader-dynamo-events-]
+      fileName: media-atom-uploader.zip
+      prefixStack: false
+  media-atom-transcoder:
+    type: aws-lambda
+    parameters:
+      bucket: atom-maker-dist
+      functionNames: [media-atom-maker-transcoder-]
+      fileName: media-atom-transcoder.zip
+      prefixStack: false
+  media-atom-expirer:
+    type: aws-lambda
+    parameters:
+      bucket: atom-maker-dist
+      functionNames: [media-atom-maker-expirer-]
+      fileName: media-atom-expirer.zip
+      prefixStack: false
   media-atom-maker-ami-update:
       type: ami-cloudformation-parameter
       app: media-atom-maker

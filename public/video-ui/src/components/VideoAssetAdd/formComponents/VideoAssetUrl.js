@@ -1,6 +1,3 @@
-/**
- * Created by shaun_dillon on 01/11/2016.
- */
 import React from 'react';
 
 export default class VideoAssetUrl extends React.Component {
@@ -9,13 +6,11 @@ export default class VideoAssetUrl extends React.Component {
     asset: {
       uri: ""
     }
-  }
+  };
 
   onUpdateAssetUrl = (e) => {
-    const newVersion = this.props.video.activeVersion === undefined ? 0 : Math.max(...this.props.video.assets.map(x => x.version)) + 1;
-    const newAsset = Object.assign({}, this.props.asset, {
-      uri: e.target.value,
-      version: newVersion
+    const newAsset = Object.assign({}, this.state.asset, {
+      uri: e.target.value
     });
     this.setState({
       asset: newAsset
@@ -38,7 +33,10 @@ export default class VideoAssetUrl extends React.Component {
       <div>
         <div className="form__row">
           <label className="form__label">Asset Url</label>
-          <input { ...this.props.input} className={"form__field " + (hasError ? "form__field--error" : "")} type="text" value={this.state.asset.uri || ""} onChange={this.onUpdateAssetUrl} />
+          <input { ...this.props.input}
+                 className={"form__field " + (hasError ? "form__field--error" : "")}
+                 type="text" value={this.state.asset.uri || ""}
+                 onChange={this.onUpdateAssetUrl} />
           {hasError ? <p className="form__message form__message--error">{this.props.meta.error}</p> : ""}
         </div>
         <div className="btn__group">

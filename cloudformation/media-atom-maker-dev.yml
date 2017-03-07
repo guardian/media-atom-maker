@@ -10,12 +10,30 @@ Parameters:
   ConfigBucket:
     Description: "The S3 bucket where configuration lives"
     Type: "String"
+  Stack:
+    Description: "Stack name"
+    Type: "String"
+    Default: "media-service"
+  Stage:
+    Description: "Stage name"
+    Type: "String"
+    Default: "DEV"
+  UploadBucketName:
+    Description: "The name to use for the S3 bucket where uploads will be saved"
+    Type: "String"
+    Default: "media-atom-maker-upload-dev"
 Mappings:
   LambdaBuilds:
     Uploader:
       DEV: "media-service/DEV/media-atom-uploader/media-atom-uploader.zip"
+    Transcoder:
+      DEV: "media-service/DEV/media-atom-transcoder/media-atom-transcoder.zip"
+    Expirer:
+      DEV: "media-service/DEV/media-atom-transcoder/media-atom-expirer.zip"
   LambdaConfig:
     Uploader:
+      DEV: "DEV/media-atom-maker.private.conf"
+    Expirer:
       DEV: "DEV/media-atom-maker.private.conf"
 Resources:
   MediaAtomGroup:
@@ -29,15 +47,15 @@ Resources:
               - Effect: "Allow"
                 Action: ["dynamodb:*"]
                 Resource:
-                  - Fn::Join:
-                    - ""
-                    - ["arn:aws:dynamodb:", {Ref: "AWS::Region"}, ":", {Ref: "AWS::AccountId"}, ":table/", {Ref: "MediaAtomsDynamoTable"}]
-              - Effect: "Allow"
-                Action: ["dynamodb:*"]
-                Resource:
-                  - Fn::Join:
-                    - ""
-                    - ["arn:aws:dynamodb:", {Ref: "AWS::Region"}, ":", {Ref: "AWS::AccountId"}, ":table/", {Ref: "PublishedMediaAtomsDynamoTable"}]
+                  - !Sub
+                    - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
+                    - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "MediaAtomsDynamoTable" }
+                  - !Sub
+                    - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
+                    - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "PublishedMediaAtomsDynamoTable" }
+                  - !Sub
+                    - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
+                    - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "UploadTrackingDynamoTable" }
   MediaAtomUser:
     Type: "AWS::IAM::User"
     Properties:
@@ -105,9 +123,30 @@ Resources:
           ProvisionedThroughput:
             ReadCapacityUnits: "5"
             WriteCapacityUnits: "5"
+
+  UploadTrackingDynamoTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "atomId"
+          AttributeType: "S"
+        - AttributeName: "id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "atomId"
+          KeyType: "HASH"
+        - AttributeName: "id"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      StreamSpecification:
+        StreamViewType: "NEW_IMAGE"
+
   UserUploadBucket:
     Type: "AWS::S3::Bucket"
     Properties:
+      BucketName: !Ref UploadBucketName
       CorsConfiguration:
         CorsRules:
           -
@@ -123,6 +162,11 @@ Resources:
             AllowedOrigins:
               -
                 !Join [ "", [ "https://", { "Ref": "Domain"} ]]
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Function: !GetAtt UploaderS3EventsLambda.Arn
+            Event: "s3:ObjectCreated:*"
+
   LimitedUploadRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -152,8 +196,8 @@ Resources:
                   - !Sub
                     - "arn:aws:s3:::${Bucket}/uploads/*"
                     - { Bucket: !Ref "UserUploadBucket" }
+
   LambdaCloudWatchLoggingPolicy:
-    # This is just for start-up logging, everything else goes through kinesis as normal
     Type: "AWS::IAM::Policy"
     Properties:
       PolicyName: "LambdaCloudWatchLoggingPolicy"
@@ -164,6 +208,7 @@ Resources:
           Resource: "*"
       Roles:
         - !Ref UploaderRole
+
   UploaderRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -187,26 +232,180 @@ Resources:
                   - !Sub
                     - "arn:aws:s3:::${Bucket}/${Key}"
                     - { "Bucket": !Ref ConfigBucket, "Key": !FindInMap [LambdaConfig, Uploader, DEV] }
-  UploaderLambda:
+              - Effect: "Allow"
+                Action: ["dynamodb:*"]
+                Resource:
+                  - !Sub
+                    - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
+                    - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "UploadTrackingDynamoTable" }
+              - Effect: "Allow"
+                Action: ["dynamodb:*"]
+                Resource:
+                  - !GetAtt UploadTrackingDynamoTable.StreamArn
+
+  UploaderS3EventsLambda:
     Type: "AWS::Lambda::Function"
     Properties:
-      Description: "Uploads videos to YouTube"
-      Handler: "com.gu.media.UploaderLambda::handleRequest"
+      Description: "Updates upload progress based on S3 events"
+      Handler: "com.gu.media.S3EventsLambda::handleRequest"
       Code:
         S3Bucket: !Ref BuildBucket
         S3Key: !FindInMap [LambdaBuilds, Uploader, DEV]
       Environment:
         Variables:
           REGION: !Ref AWS::Region
-          STACK: "media-service"
+          STACK: !Ref Stack
           APP: "media-atom-uploader"
-          STAGE: "DEV"
+          STAGE: !Ref Stage
           CONFIG_BUCKET: !Ref ConfigBucket
           CONFIG_KEY: !FindInMap [LambdaConfig, Uploader, DEV]
       MemorySize: 256
       Role: !GetAtt UploaderRole.Arn
       Runtime: "java8"
       Timeout: 300
+
+  UploaderS3EventsPermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: "lambda:InvokeFunction"
+      FunctionName: !Ref UploaderS3EventsLambda
+      Principal: "s3.amazonaws.com"
+      # use hard-coded name rather than ref to avoid circular dependency
+      SourceArn: !Sub
+        - "arn:aws:s3:::${Name}"
+        - { Name: !Ref UploadBucketName }
+
+  UploaderDynamoEventsLambda:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Description: "Triggers upload actions based on Dynamo events"
+      Handler: "com.gu.media.DynamoEventsLambda::handleRequest"
+      Code:
+        S3Bucket: !Ref BuildBucket
+        S3Key: !FindInMap [LambdaBuilds, Uploader, DEV]
+      Environment:
+        Variables:
+          REGION: !Ref AWS::Region
+          STACK: !Ref Stack
+          APP: "media-atom-uploader"
+          STAGE: !Ref Stage
+          CONFIG_BUCKET: !Ref ConfigBucket
+          CONFIG_KEY: !FindInMap [LambdaConfig, Uploader, DEV]
+      MemorySize: 256
+      Role: !GetAtt UploaderRole.Arn
+      Runtime: "java8"
+      Timeout: 300
+
+  UploaderDynamoEventsMapping:
+    Type: "AWS::Lambda::EventSourceMapping"
+    Properties:
+      FunctionName: !Ref UploaderDynamoEventsLambda
+      EventSourceArn: !GetAtt UploadTrackingDynamoTable.StreamArn
+      StartingPosition: "LATEST"
+
+  TranscoderOutputS3Bucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: "media-atom-maker-transcoder-dev"
+
+  TranscoderRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: "Allow"
+            Action: "sts:AssumeRole"
+            Principal:
+              Service: ["lambda.amazonaws.com"]
+      Path: "/"
+      Policies:
+        - PolicyName: "TranscoderPolicy"
+          PolicyDocument:
+            Statement:
+              - Effect: "Allow"
+                Action: ["elastictranscoder:CreateJob"]
+                Resource: ["arn:aws:elastictranscoder:*"]
+
+  TranscoderLambda:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Description: "Transcodes masters to mp4s"
+      Handler: "com.gu.media.TranscoderLambda::handleRequest"
+      Code:
+        S3Bucket: !Ref BuildBucket
+        S3Key: !FindInMap [LambdaBuilds, Transcoder, DEV]
+      Environment:
+        Variables:
+          REGION: !Ref AWS::Region
+          STACK: !Ref Stack
+          APP: "media-atom-transcoder"
+          STAGE: !Ref Stage
+      MemorySize: 256
+      Role: !GetAtt TranscoderRole.Arn
+      Runtime: "java8"
+      Timeout: 300
+
+  ExpirerRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: "Allow"
+            Action: "sts:AssumeRole"
+            Principal:
+              Service: ["lambda.amazonaws.com"]
+      Path: "/"
+      Policies:
+        - PolicyName: "ExpirerPolicy"
+          PolicyDocument:
+            Statement:
+              - Effect: "Allow"
+                Action: ["s3:GetObject"]
+                Resource:
+                  - !Sub
+                    - "arn:aws:s3:::${Bucket}/${Key}"
+                    - { "Bucket": !Ref BuildBucket, "Key": !FindInMap [LambdaBuilds, Expirer, DEV] }
+                  - !Sub
+                    - "arn:aws:s3:::${Bucket}/${Key}"
+                    - { "Bucket": !Ref ConfigBucket, "Key": !FindInMap [LambdaConfig, Expirer, DEV] }
+
+  ExpirerLambda:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Description: "Expires atoms"
+      Handler: "com.gu.media.expirer.ExpirerLambda::handleRequest"
+      Code:
+        S3Bucket: !Ref BuildBucket
+        S3Key: !FindInMap [LambdaBuilds, Expirer, DEV]
+      Environment:
+        Variables:
+          REGION: !Ref AWS::Region
+          STACK: !Ref Stack
+          APP: "media-atom-expirer"
+          STAGE: !Ref Stage
+          CONFIG_BUCKET: !Ref ConfigBucket
+          CONFIG_KEY: !FindInMap [LambdaConfig, Expirer, DEV]
+      MemorySize: 256
+      Role: !GetAtt UploaderRole.Arn
+      Runtime: "java8"
+      Timeout: 300
+
+  ExpirerLambdaTrigger:
+    Type: "AWS::Events::Rule"
+    Properties:
+      ScheduleExpression: "cron(0 00 * * ? *)"
+      Targets:
+        - Arn: !GetAtt ExpirerLambda.Arn
+          Id: "ExpirerLambda"
+
+  ExpirerLambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: "lambda:InvokeFunction"
+      FunctionName: !Ref ExpirerLambda
+      Principal: "events.amazonaws.com"
+      SourceArn: !GetAtt ExpirerLambdaTrigger.Arn
+
 Outputs:
   EditsDynamoTable:
     Value:
@@ -217,6 +416,12 @@ Outputs:
   AuditsDynamoTable:
     Value:
       Ref: "AuditMediaAtomMakerDynamoTable"
+  UploadTrackingDynamoTable:
+    Value:
+      Ref: "UploadTrackingDynamoTable"
+  UploadTrackingStream:
+    Value:
+      !GetAtt UploadTrackingDynamoTable.StreamArn
   AwsId:
     Value:
       Ref: "HostKeys"
@@ -229,3 +434,6 @@ Outputs:
   UploadRole:
     Value:
       Ref: "LimitedUploadRole"
+  TranscoderOutputS3Bucket:
+    Value:
+      Ref: "TranscoderOutputS3Bucket"

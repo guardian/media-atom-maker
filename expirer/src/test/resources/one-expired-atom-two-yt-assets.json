@@ -1,0 +1,27 @@
+{
+  "response": {
+    "currentPage": 1,
+    "pages": 1,
+    "results": [
+      {
+        "data": {
+          "media": {
+            "metadata": {
+              "expiryDate": 1488551229752
+            },
+            "assets": [
+              {
+                "platform": "youtube",
+                "id": "one"
+              },
+              {
+                "platform": "youtube",
+                "id": "two"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

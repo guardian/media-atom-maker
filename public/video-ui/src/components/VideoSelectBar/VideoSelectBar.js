@@ -1,5 +1,6 @@
 import React from 'react';
 import {isVideoPublished} from '../../util/isVideoPublished';
+import {findSmallestAssetAboveWidth} from '../../util/imageHelpers';
 
 export default class VideoSelectBar extends React.Component {
 
@@ -9,7 +10,8 @@ export default class VideoSelectBar extends React.Component {
     }
 
     if (this.props.video.posterImage) {
-      return  <img src={this.props.video.posterImage.master.file} alt={this.props.video.title}/>;
+      const image = findSmallestAssetAboveWidth(this.props.video.posterImage.assets);
+      return  <img src={image.file} alt={this.props.video.title}/>;
     }
 
     return <div className="bar__image-placeholder">No Image</div>;

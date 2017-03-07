@@ -6,7 +6,7 @@ import {blankVideoData} from '../../constants/blankVideoData';
 class VideoCreate extends React.Component {
 
   componentDidMount() {
-    this.props.videoActions.populateEmptyVideo();
+    this.props.videoActions.updateVideo(blankVideoData);
   }
 
   createVideo = () => {
@@ -14,7 +14,7 @@ class VideoCreate extends React.Component {
   };
 
   resetVideo = () => {
-    this.props.videoActions.populateEmptyVideo();
+    this.props.videoActions.updateVideo(blankVideoData);
   };
 
   updateVideo = (video) => {
@@ -27,14 +27,14 @@ class VideoCreate extends React.Component {
         <form className="form create-form">
           <h1>Create new video</h1>
           <VideoEdit
-            video={this.props.video || blankVideoData}
+            video={this.props.video}
             updateVideo={this.updateVideo}
             saveAndUpdateVideo={this.updateVideo}
             createMode
             editable
             saveState={this.props.saveState}
           />
-          <SaveButton saveState={this.props.saveState} onSaveClick={this.createVideo} onResetClick={this.resetVideo} />
+          <SaveButton video={this.props.video} saveState={this.props.saveState} onSaveClick={this.createVideo} onResetClick={this.resetVideo} />
         </form>
       </div>
     );
