@@ -35,18 +35,12 @@ Parameters:
     Default: "2"
   UploadsQueue:
     Description: "Name of the queue where uploaded videos get pushed"
+  UploadsStreamName:
+    Description: "Name of the kinesis stream where uploaded videos get pushed"
     Type: "String"
     Default: "media-atom-maker-video-uploads"
-  PlutoQueue:
-    Description: "Name of the queue where videos on their way to pluto get pushed"
-    Type: "String"
-    Default: "media-atom-maker-pluto-videos"
-  UploadsTopic:
-    Description: "Name of the topic where uploaded videos get published"
-    Type: "String"
-    Default: "media-atom-maker-uploaded-videos"
-  PlutoTopic:
-    Description: "Name of the topic where videos to pluto get published"
+  PlutoStreamName:
+    Description: "Name of the kinesis stream where videos on their way to pluto get pushed"
     Type: "String"
     Default: "media-atom-maker-pluto-videos"
 Mappings:
@@ -470,53 +464,16 @@ Resources:
           Protocol: sqs
   UploadsSQSQueue:
     Type: "AWS::SQS::Queue"
+  UploadsStream:
+    Type: "AWS::Kinesis::Stream"
     Properties:
-      QueueName: !Sub ${UploadsQueue}-${Stage}
-  UploadsSQSQueuePolicy:
-    Type: "AWS::SQS::QueuePolicy"
+      Name: !Sub "${UploadsStreamName}-${Stage}"
+      ShardCount: 1
+  PlutoStream:
+    Type: "AWS::Kinesis::Stream"
     Properties:
-      Queues:
-      - Ref: UploadsSQSQueue
-      PolicyDocument:
-        Statement:
-        - Sid: allow-sqs-sendmessage
-          Effect: Allow
-          Principal:
-            AWS: "*"
-          Action: SQS:SendMessage
-          Resource: !GetAtt UploadsSQSQueue.Arn
-          Condition:
-            ArnEquals:
-              aws:SourceArn:
-                Ref: UploadsSNSTopic
-  PlutoSNSTopic:
-    Type: "AWS::SNS::Topic"
-    Properties:
-      TopicName: !Sub "${PlutoTopic}-${Stage}"
-      Subscription:
-        - Endpoint: !GetAtt PlutoSQSQueue.Arn
-          Protocol: sqs
-  PlutoSQSQueue:
-    Type: "AWS::SQS::Queue"
-    Properties:
-      QueueName: !Sub ${PlutoQueue}-${Stage}
-  PlutoSQSQueuePolicy:
-    Type: "AWS::SQS::QueuePolicy"
-    Properties:
-      Queues:
-      - Ref: PlutoSQSQueue
-      PolicyDocument:
-        Statement:
-        - Sid: allow-sqs-sendmessage
-          Effect: Allow
-          Principal:
-            AWS: "*"
-          Action: SQS:SendMessage
-          Resource: !GetAtt PlutoSQSQueue.Arn
-          Condition:
-            ArnEquals:
-              aws:SourceArn:
-                Ref: UploadsSNSTopic
+      Name: !Sub "${PlutoStreamName}-${Stage}"
+      ShardCount: 1
 Outputs:
   EditsDynamoTable:
     Value:
@@ -551,16 +508,10 @@ Outputs:
   TranscoderOutputS3Bucket:
     Value:
       Ref: "TranscoderOutputS3Bucket"
-  UploadsSNSQueue:
+  UploadsStream:
     Value:
-     Ref: "UploadsQueue"
-  UploadsTopic:
+     Ref: "UploadsStream"
+  PlutoStream:
     Value:
-      Ref: "UploadsTopic"
-  PlutoSNSQueue:
-    Value:
-      Ref: "PlutoQueue"
-  PlutoTopic:
-    Value:
-      Ref: "PlutoTopic"
+      Ref: "PlutoStream"
 
