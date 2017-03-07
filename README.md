@@ -55,8 +55,8 @@ publisher that pushes media atoms into a Kinesis stream.
    
 ## Testing
 
-To run unit tests `./sbt 'test-only UnitTestsSuite'`
+To run unit tests `sbt test`
 
 To run the blackbox integration tests against a deployed environment:
-0. Download the config from S3 `aws s3 cp s3://atom-maker-conf/TEST/int-test.conf test/integration/int-test.conf`
-0. Run `./sbt 'test-only IntegrationTestSuite'`
+0. Download the config from S3 `aws s3 cp s3://atom-maker-conf/TEST/media-atom-maker-integration-test.private.conf integration-tests/src/test/conf/media-atom-maker-integration-test.private.conf`
+0. Run `sbt integrationTests/test`
