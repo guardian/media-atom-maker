@@ -3,82 +3,26 @@
 /* -------------------------------------- */
 
 .table {
-  width: 70%;
-  margin: 20px auto;
-
-  &__table {
-    text-align: left;
-  }
-
-  &__header {
-    padding: 10px;
-  }
-
-  &__header, &__item {
-    padding: 10px;
-  }
-
-  &__item {
-    padding: 0 10px;
-    text-align: left;
-    font-size: 13px;
-    line-height: 18px;
-  }
-
-  &__row {
-    border: {
-      bottom: 1px solid $color200Grey;
-      left: 5px solid $color300Grey;
-      right: 5px solid $color300Grey;
-    };
-
-    &:hover {
-      border: {
-        left: 5px solid $color150Grey;
-        right: 5px solid $color150Grey;
-      };
-      background-color: $color150Grey;
-    }
-
-    &--highlight {
-      background: $lightBrandColor;
-      border: {
-        left: 5px solid $brandColor;
-        right: 5px solid $brandColor;
-      }
-    }
-  }
+  width: 80%;
+  margin: 20px;
+  border-collapse: collapse;
 
   &__header-row {
+    // background-color: $brandColor;
+    padding-left: 5px;
     color: $color300Grey;
     text-align: left;
     font-size: $iconSize;
     font-weight: bold;
+    border-top: 1px solid $brandColor;
   }
-
-  &__link {
-    font-weight: bold;
-    text-decoration: none;
-    color: $cBlueLink;
-    cursor: pointer;
-    padding: 5px 0;
-    display: block;
-    width: 100%;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-}
-
-td {
-  padding: 8px 5px;
-}
-
-tr:nth-child(1){
-  border-bottom: 2px solid $color300Grey;
 }
 
 tr:nth-child(even) {
   background-color: $color650Grey;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
 }
