@@ -18,6 +18,7 @@ dependencies:
     - "~/.sbt"
   override:
     - sbt test:compile
+    - sbt integrationTests/compile
 
 test:
   override:

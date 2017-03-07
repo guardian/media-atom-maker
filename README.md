@@ -52,3 +52,11 @@ publisher that pushes media atoms into a Kinesis stream.
    `readFromComposer` property is set to true in `/etc/gu/media-atom-maker.private.conf` the kinesis
    stream names are the code stream names. You can find these streams in the S3 `atom-maker-conf` bucket
    `composer` aws account.
+   
+## Testing
+
+To run unit tests `sbt test`
+
+To run the blackbox integration tests against a deployed environment:
+0. Download the config from S3 `aws s3 cp s3://atom-maker-conf/TEST/media-atom-maker-integration-test.private.conf integration-tests/src/test/conf/media-atom-maker-integration-test.private.conf`
+0. Run `sbt integrationTests/test`

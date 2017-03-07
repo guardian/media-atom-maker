@@ -79,4 +79,12 @@ object Dependencies {
   val transcodeDependencies = Seq(awsLambdaCore, awsTranscoder, playJsonExtensions)
 
   val expirerDependencies = Seq(scalaTest)
+
+  val integrationTestDependencies =
+    panda ++ Seq(
+    scalaTest,
+    okHttp,
+    playJsonExtensions,
+    typesafeConfig
+  )
 }

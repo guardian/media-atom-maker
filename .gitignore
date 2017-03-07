@@ -7,3 +7,4 @@ node_modules
 .DS_Store
 public/video-ui/build
 yarn.lock
+integration-tests/src/test/conf/*
