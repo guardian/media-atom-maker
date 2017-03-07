@@ -68,3 +68,15 @@
     font-size: 17px;
   }
 }
+
+.video__detail__page {
+  flex: 1 0 20%;
+  margin: 10px;
+
+  &__header {
+    color: $color500Grey;
+    font-weight: bold;
+    display: block;
+    font-size: 17px;
+  }
+}

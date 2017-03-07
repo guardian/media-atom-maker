@@ -3,17 +3,15 @@
 /* -------------------------------------- */
 
 .table {
-  width: 100%;
-  margin: 0 auto;
+  width: 70%;
+  margin: 20px auto;
 
   &__table {
-    width: 100%;
     text-align: left;
-    background: $cWhite;
   }
 
   &__header {
-    padding: 5px;
+    padding: 10px;
   }
 
   &__header, &__item {
@@ -21,14 +19,13 @@
   }
 
   &__item {
-    padding: 0 5px;
+    padding: 0 10px;
     text-align: left;
     font-size: 13px;
     line-height: 18px;
   }
 
   &__row {
-    background-color: $color100Grey;
     border: {
       bottom: 1px solid $color200Grey;
       left: 5px solid $color300Grey;
@@ -53,14 +50,9 @@
   }
 
   &__header-row {
-    background-color: $color200Grey;
-    border: {
-      left: 5px solid $color200Grey;
-      right: 5px solid $color200Grey;
-    };
-    color: $color700Grey;
+    color: $color300Grey;
     text-align: left;
-    font-size: 13px;
+    font-size: $iconSize;
     font-weight: bold;
   }
 
@@ -77,4 +69,16 @@
       text-decoration: underline;
     }
   }
+}
+
+td {
+  padding: 8px 5px;
+}
+
+tr:nth-child(1){
+  border-bottom: 2px solid $color300Grey;
+}
+
+tr:nth-child(even) {
+  background-color: $color650Grey;
 }

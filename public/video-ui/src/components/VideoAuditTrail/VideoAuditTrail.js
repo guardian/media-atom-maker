@@ -42,7 +42,7 @@ class VideoAuditTrail extends React.Component {
     if (this.state.renderAll) {
       return (<tbody>{audits.map((a) => this.renderAudit(a))}</tbody>);
     } else {
-      return (<tbody>{audits.slice(0, 5).map((a) => this.renderAudit(a))}</tbody>);
+      return (<tbody>{audits.map((a) => this.renderAudit(a))}</tbody>);
     }
   }
 
@@ -54,7 +54,7 @@ class VideoAuditTrail extends React.Component {
     if (this.props.audits) {
       return (
         <div>
-          <div className="video__detailbox">
+          <div className="video__detail__page">
             <span className="video__detailbox__header">Atom Audit Trail</span>
           </div>
           <div>
@@ -69,7 +69,6 @@ class VideoAuditTrail extends React.Component {
               </thead>
               {this.renderList()}
             </table>
-            {!this.state.renderAll && this.props.audits.length > 5 ? this.renderExpandButton() : false}
           </div>
         </div>
       );
