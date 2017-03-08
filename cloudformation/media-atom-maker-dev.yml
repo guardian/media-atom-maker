@@ -29,7 +29,7 @@ Mappings:
     Transcoder:
       DEV: "media-service/DEV/media-atom-transcoder/media-atom-transcoder.zip"
     Expirer:
-      DEV: "media-service/DEV/media-atom-transcoder/media-atom-expirer.zip"
+      DEV: "media-service/DEV/media-atom-expirer/media-atom-expirer.zip"
   LambdaConfig:
     Uploader:
       DEV: "DEV/media-atom-maker.private.conf"
