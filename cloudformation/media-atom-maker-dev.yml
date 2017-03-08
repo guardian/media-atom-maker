@@ -18,6 +18,10 @@ Parameters:
     Description: "Stage name"
     Type: "String"
     Default: "DEV"
+  TranscodeOutputBucketName:
+    Description: "The name to use for the S3 bucket for transcoding output"
+    Type: "String"
+    Default: "media-atom-maker-transcoder-dev"
   UploadBucketName:
     Description: "The name to use for the S3 bucket where uploads will be saved"
     Type: "String"
@@ -29,7 +33,7 @@ Mappings:
     Transcoder:
       DEV: "media-service/DEV/media-atom-transcoder/media-atom-transcoder.zip"
     Expirer:
-      DEV: "media-service/DEV/media-atom-transcoder/media-atom-expirer.zip"
+      DEV: "media-service/DEV/media-atom-expirer/media-atom-expirer.zip"
   LambdaConfig:
     Uploader:
       DEV: "DEV/media-atom-maker.private.conf"
@@ -128,15 +132,11 @@ Resources:
     Type: "AWS::DynamoDB::Table"
     Properties:
       AttributeDefinitions:
-        - AttributeName: "atomId"
-          AttributeType: "S"
         - AttributeName: "id"
           AttributeType: "S"
       KeySchema:
-        - AttributeName: "atomId"
-          KeyType: "HASH"
         - AttributeName: "id"
-          KeyType: "RANGE"
+          KeyType: "HASH"
       ProvisionedThroughput:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
@@ -242,6 +242,12 @@ Resources:
                 Action: ["dynamodb:*"]
                 Resource:
                   - !GetAtt UploadTrackingDynamoTable.StreamArn
+              - Effect: "Allow"
+                Action: ["s3:GetObject"]
+                Resource:
+                  - !Sub
+                    - "arn:aws:s3:::${Bucket}/*"
+                    - { "Bucket": !Ref UploadBucketName }
 
   UploaderS3EventsLambda:
     Type: "AWS::Lambda::Function"
@@ -306,7 +312,7 @@ Resources:
   TranscoderOutputS3Bucket:
     Type: "AWS::S3::Bucket"
     Properties:
-      BucketName: "media-atom-maker-transcoder-dev"
+      BucketName: !Ref TranscodeOutputBucketName
 
   TranscoderRole:
     Type: "AWS::IAM::Role"

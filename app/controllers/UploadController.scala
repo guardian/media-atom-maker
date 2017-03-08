@@ -2,64 +2,67 @@ package controllers
 
 import java.util.UUID
 
-import com.amazonaws.services.securitytoken.model.AssumeRoleRequest
 import com.gu.media.logging.Logging
+import com.gu.media.upload._
 import com.gu.pandahmac.HMACAuthActions
-import model.{UploadCredentials, UploadPolicy}
-import play.api.libs.json.{JsArray, JsObject, JsString, Json}
-import play.api.mvc.Results.Ok
+import controllers.UploadController.CreateRequest
+import data.{DataStores, UnpackedDataStores}
+import model.MediaAtom
+import org.cvogt.play.json.Jsonx
+import play.api.libs.json.{Format, Json}
+import play.api.mvc.Controller
 import util.AWSConfig
 
-class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig) extends Logging {
+class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, override val stores: DataStores)
+  extends Controller with Logging with JsonRequestParsing with UnpackedDataStores {
+
   import authActions.APIHMACAuthAction
 
-  def create(atomId: String) = APIHMACAuthAction {
-    log.info(s"Request for upload credentials for atom $atomId")
+  private val table = new DynamoUploadsTable(awsConfig)
+  private val creds = new CredentialsGenerator(awsConfig)
 
-    val uploadId = UUID.randomUUID().toString
-    val key = s"${awsConfig.userUploadFolder}/$atomId/$uploadId"
-
-    log.info(s"Generated upload key $key for atom $atomId")
-
-    val keyPolicy = generateKeyPolicy(key)
-
-    log.info(s"Issuing STS request. uploadKey=$key. atomId=$atomId")
-    val credentials = generateCredentials(uploadId, keyPolicy)
-    log.info(s"Received STS credentials. uploadKey=$key. atomId=$atomId")
-
-    val policy = UploadPolicy(awsConfig.userUploadBucket, key, awsConfig.region.toString, credentials)
-    Ok(Json.toJson(policy))
+  def list(atomId: String) = APIHMACAuthAction {
+    val results = table.list(atomId)
+    Ok(Json.toJson(results))
   }
 
-  private def generateCredentials(uploadId: String, keyPolicy: String): UploadCredentials = {
-    val request = new AssumeRoleRequest()
-      .withRoleArn(awsConfig.userUploadRole)
-      .withDurationSeconds(900) // 15 minutes (the minimum allowed in STS requests)
-      .withPolicy(keyPolicy)
-      .withRoleSessionName(s"media-atom-maker-upload-$uploadId")
+  def create = APIHMACAuthAction { implicit raw =>
+    parse(raw) { req: CreateRequest =>
+      log.info(s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}")
 
-    val result = awsConfig.uploadSTSClient.assumeRole(request)
-    val credentials = result.getCredentials
+      val atom = MediaAtom.fromThrift(getPreviewAtom(req.atomId))
+      val id = UUID.randomUUID().toString
 
-    UploadCredentials(credentials.getAccessKeyId, credentials.getSecretAccessKey, credentials.getSessionToken)
+      val parts = UploadPart.build(req.size)
+      val upload = Upload(id, atom.id, parts)
+
+      table.put(upload)
+      Ok(Json.toJson(upload))
+    }
   }
 
-  private def generateKeyPolicy(key: String): String = {
-    val keyArn = s"arn:aws:s3:::${awsConfig.userUploadBucket}/$key"
-
-    val permissions = List("s3:PutObject", "s3:PutObjectAcl", "s3:ListMultipartUploadParts",
-                           "s3:AbortMultipartUpload", "s3:ListBucketMultipartUploads")
-
-    val json = JsObject(List(
-      "Statement" -> JsArray(List(
-        JsObject(List(
-          "Action" -> JsArray(permissions.map(JsString)),
-          "Resource" -> JsString(keyArn),
-          "Effect" -> JsString("Allow")
-        ))
-      ))
-    ))
-
-    Json.stringify(json)
+  def stop(id: String) = APIHMACAuthAction {
+    table.delete(id)
+    NoContent
   }
+
+  def credentials(id: String, part: String) = APIHMACAuthAction {
+    try {
+      val key = UploadPartKey(awsConfig.userUploadFolder, id, part.toInt)
+      val credentials = creds.forPart(key)
+
+      Ok(Json.toJson(credentials))
+    } catch {
+      case err: NumberFormatException =>
+        BadRequest(err.getMessage)
+    }
+  }
+}
+
+object UploadController {
+  case class CreateRequest(atomId: String, filename: String, size: Long)
+  case class CreateResponse(id: String, region: String, bucket: String, parts: List[UploadPart])
+
+  implicit val createRequestFormat: Format[CreateRequest] = Jsonx.formatCaseClass[CreateRequest]
+  implicit val createResponseFormat: Format[CreateResponse] = Jsonx.formatCaseClass[CreateResponse]
 }
