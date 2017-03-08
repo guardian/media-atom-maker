@@ -7,9 +7,7 @@ import com.gu.media.Settings
 
 trait SQSAccess { this: Settings with AwsAccess =>
 
-  lazy val uploadedQueueUrl = getMandatoryString("aws.sqs.uploadedQueueUrl")
-  lazy val plutoTopicArn = getMandatoryString("aws.sqs.plutoTopicArn")
-  val snsClient = AmazonSNSClientBuilder.standard().withRegion("eu-west-1").withCredentials(credsProvider).build()
+  lazy val plutoQueueUrl = getMandatoryString("aws.sqs.plutoQueueUrl")
 
   lazy val sqsClient =
     new AmazonSQSClient(credsProvider)

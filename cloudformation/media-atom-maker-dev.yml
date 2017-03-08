@@ -39,10 +39,14 @@ Parameters:
     Description: "Name of the kinesis stream where uploaded videos get pushed"
     Type: "String"
     Default: "media-atom-maker-video-uploads"
-  PlutoStreamName:
-    Description: "Name of the kinesis stream where videos on their way to pluto get pushed"
+  PlutoQueueName:
+    Description: "Name of the queue with ids of ingested atoms"
     Type: "String"
-    Default: "media-atom-maker-pluto-videos"
+    Default: "media-atom-maker-ingested-videos"
+  PlutoTopicName:
+    Description: "Name of the topic where pluto publishes atom ids with ingested master"
+    Type: "String"
+    Default: "media-atom-maker-ingested-videos"
 Mappings:
   LambdaBuilds:
     Uploader:
@@ -469,11 +473,34 @@ Resources:
     Properties:
       Name: !Sub "${UploadsStreamName}-${Stage}"
       ShardCount: 1
-  PlutoStream:
-    Type: "AWS::Kinesis::Stream"
+  PlutoTopic:
+    Type: "AWS::SNS::Topic"
     Properties:
-      Name: !Sub "${PlutoStreamName}-${Stage}"
-      ShardCount: 1
+      TopicName: !Sub "${PlutoTopicName}-${Stage}"
+      Subscription:
+        - Endpoint: !GetAtt PlutoQueue.Arn
+          Protocol: sqs
+  PlutoQueue:
+    Type: "AWS::SQS::Queue"
+    Properties:
+      QueueName: !Sub ${PlutoQueueName}-${Stage}
+  PlutoQueuePolicy:
+    Type: "AWS::SQS::QueuePolicy"
+    Properties:
+      Queues:
+        - Ref: PlutoQueue
+      PolicyDocument:
+        Statement:
+        - Sid: allow-sqs-sendmessage
+          Effect: Allow
+          Principal:
+            AWS: "*"
+          Action: SQS:SendMessage
+          Resource: !GetAtt PlutoQueue.Arn
+          Condition:
+            ArnEquals:
+              aws:SourceArn:
+                Ref: PlutoTopic
 Outputs:
   EditsDynamoTable:
     Value:
@@ -511,7 +538,10 @@ Outputs:
   UploadsStream:
     Value:
      Ref: "UploadsStream"
-  PlutoStream:
+  PlutoQueue:
     Value:
-      Ref: "PlutoStream"
+      Ref: "PlutoQueue"
+  PlutoTopic:
+    Value:
+      Ref: "PlutoTopic"
 

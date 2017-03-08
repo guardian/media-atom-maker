@@ -11,7 +11,7 @@ import play.api.inject.DefaultApplicationLifecycle
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext, LoggerConfigurator}
 import router.Routes
-import util.{UploaderMessageConsumer, AWSConfig, DevUploadHandler, DevUploadSender}
+import util.{PlutoMessageConsumer, AWSConfig, DevUploadHandler, DevUploadSender}
 
 class MediaAtomMakerLoader extends ApplicationLoader {
   override def load(context: Context): Application = new MediaAtomMaker(context).application
@@ -38,7 +38,7 @@ class MediaAtomMaker(context: Context)
   private val youTube = new YouTube(config)
   private val capi = new CapiPreview(config)
 
-  private val uploaderMessageConsumer = UploaderMessageConsumer(stores, aws)
+  private val uploaderMessageConsumer = PlutoMessageConsumer(stores, aws)
   uploaderMessageConsumer.start(actorSystem.scheduler)(actorSystem.dispatcher)
 
   private val api = new Api(stores, configuration, aws, hmacAuthActions)

@@ -10,6 +10,7 @@ object Dependencies {
   val slf4jVersion = "1.7.21"
   val typesafeConfigVersion = "1.3.0" // to match what we get from Play transitively
   val scanamoVersion = "0.9.1" // to match what we get from atom-publisher-lib transitively
+  val kinesisClientVersion = "1.7.4"
 
   val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0"
   val jacksonDatabind = "com.fasterxml.jackson.core" % "jackson-databind" % "2.7.0"
@@ -34,6 +35,9 @@ object Dependencies {
   val awsLambdaCore = "com.amazonaws" % "aws-lambda-java-core" % "1.1.0"
   val awsLambdaEvents = "com.amazonaws" % "aws-lambda-java-events" % "1.3.0"
   val awsTranscoder = "com.amazonaws" % "aws-java-sdk-elastictranscoder" % awsVersion
+  val awsSNS = "com.amazonaws" % "aws-java-sdk-sns" % awsVersion
+  val awsSQS = "com.amazonaws" % "aws-java-sdk-sqs" % awsVersion
+  val awsKinesisClient = "com.amazonaws" % "amazon-kinesis-client" % kinesisClientVersion
 
   val logstashLogbackEncoder = "net.logstash.logback" % "logstash-logback-encoder" % "4.8"
   val kinesisLogbackAppender = "com.gu" % "kinesis-logback-appender" % "1.3.0"
@@ -67,13 +71,13 @@ object Dependencies {
 
   val commonDependencies = googleApi ++ Seq(
     typesafeConfig, awsLambdaCore, awsS3, awsDynamo, playJsonExtensions, logstashLogbackEncoder, kinesisLogbackAppender,
-    awsTranscoder, scanamo, okHttp, scalaTest, scalaCheck, "com.amazonaws" % "aws-java-sdk-sqs" % awsVersion, "com.amazonaws" % "aws-java-sdk-sns" % awsVersion
+    awsTranscoder, scanamo, okHttp, scalaTest, scalaCheck, awsKinesisClient, awsSQS, awsSNS
   )
 
   val appDependencies = panda ++ atomMaker ++ slf4j ++ Seq(
     PlayImport.cache, scalaLogging, jacksonDatabind, okHttp, contentAtomModel, diff,
     awsSts, awsEc2, scalaTestPlusPlay, mockito, scalaXml, awsTranscoder,
-    "com.amazonaws" % "aws-java-sdk-sqs" % awsVersion, "com.amazonaws" % "aws-java-sdk-sns" % awsVersion
+    awsSQS, awsSNS, awsS3
   )
 
   val uploaderDependencies = Seq(
@@ -91,8 +95,4 @@ object Dependencies {
     playJsonExtensions,
     typesafeConfig
   )
-
-  val plutoSenderDependencies = Seq("com.amazonaws" % "aws-java-sdk-sqs" % awsVersion,
-    "com.typesafe.akka" %% "akka-actor" % "2.4.17") ++ atomMaker
-
 }

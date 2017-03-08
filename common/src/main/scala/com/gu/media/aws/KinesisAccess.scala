@@ -15,6 +15,8 @@ trait KinesisAccess { this: Settings with AwsAccess with CrossAccountAccess =>
   val previewKinesisReindexStreamName: String = getMandatoryString("aws.kinesis.previewReindexStreamName")
   val publishedKinesisReindexStreamName: String = getMandatoryString("aws.kinesis.publishedReindexStreamName")
 
+  val uploadsStreamName: String = getMandatoryString("aws.kinesis.uploadsStreamName")
+
   val readFromComposerAccount: Boolean = getBoolean("readFromComposer").getOrElse(false)
   val atomEventsProvider: AWSCredentialsProvider = getCrossAccountCredentials("media-atom-maker-atom-events")
 
