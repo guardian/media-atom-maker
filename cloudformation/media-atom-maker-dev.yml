@@ -140,8 +140,6 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
-      StreamSpecification:
-        StreamViewType: "NEW_IMAGE"
 
   UserUploadBucket:
     Type: "AWS::S3::Bucket"
@@ -239,10 +237,6 @@ Resources:
                     - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
                     - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "UploadTrackingDynamoTable" }
               - Effect: "Allow"
-                Action: ["dynamodb:*"]
-                Resource:
-                  - !GetAtt UploadTrackingDynamoTable.StreamArn
-              - Effect: "Allow"
                 Action: ["s3:GetObject"]
                 Resource:
                   - !Sub
@@ -280,34 +274,6 @@ Resources:
       SourceArn: !Sub
         - "arn:aws:s3:::${Name}"
         - { Name: !Ref UploadBucketName }
-
-  UploaderDynamoEventsLambda:
-    Type: "AWS::Lambda::Function"
-    Properties:
-      Description: "Triggers upload actions based on Dynamo events"
-      Handler: "com.gu.media.DynamoEventsLambda::handleRequest"
-      Code:
-        S3Bucket: !Ref BuildBucket
-        S3Key: !FindInMap [LambdaBuilds, Uploader, DEV]
-      Environment:
-        Variables:
-          REGION: !Ref AWS::Region
-          STACK: !Ref Stack
-          APP: "media-atom-uploader"
-          STAGE: !Ref Stage
-          CONFIG_BUCKET: !Ref ConfigBucket
-          CONFIG_KEY: !FindInMap [LambdaConfig, Uploader, DEV]
-      MemorySize: 256
-      Role: !GetAtt UploaderRole.Arn
-      Runtime: "java8"
-      Timeout: 300
-
-  UploaderDynamoEventsMapping:
-    Type: "AWS::Lambda::EventSourceMapping"
-    Properties:
-      FunctionName: !Ref UploaderDynamoEventsLambda
-      EventSourceArn: !GetAtt UploadTrackingDynamoTable.StreamArn
-      StartingPosition: "LATEST"
 
   TranscoderOutputS3Bucket:
     Type: "AWS::S3::Bucket"
@@ -425,9 +391,6 @@ Outputs:
   UploadTrackingDynamoTable:
     Value:
       Ref: "UploadTrackingDynamoTable"
-  UploadTrackingStream:
-    Value:
-      !GetAtt UploadTrackingDynamoTable.StreamArn
   AwsId:
     Value:
       Ref: "HostKeys"

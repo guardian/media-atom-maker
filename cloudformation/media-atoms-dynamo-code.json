@@ -1,170 +1,150 @@
 {
-  "AWSTemplateFormatVersion": "2010-09-09",
-  "Parameters": {
-    "AtomMakerCodeTable": {
-      "Description": "Code dynamo table",
-      "Type": "String",
-      "Default": "media-atom-maker-CODE"
-    },
-    "PublishedAtomMakerCodeTable": {
-      "Description": "Published code dynamo table",
-      "Type": "String",
-      "Default": "published-media-atom-maker-CODE"
-    },
-    "AuditAtomMakerCodeTable": {
-      "Description": "Code audit dynamo table",
-      "Type": "String",
-      "Default": "audit-media-atom-maker-CODE"
-    },
-    "UploadTrackingAtomMakerCodeTable": {
-      "Description": "Code upload dynamo table",
-      "Type": "String",
-      "Default": "upload-tracking-media-atom-maker-CODE"
-    }
-  },
-  "Resources": {
-    "MediaAtomMakerCode": {
-      "Type": "AWS::DynamoDB::Table",
-      "Properties": {
-        "TableName": {
-          "Ref": "AtomMakerCodeTable"
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+        "AtomMakerCodeTable": {
+            "Description": "Code dynamo table",
+            "Type": "String",
+            "Default": "media-atom-maker-CODE"
         },
-        "AttributeDefinitions": [
-          {
-            "AttributeName": "id",
-            "AttributeType": "S"
-          }
-        ],
-        "KeySchema": [
-          {
-            "AttributeName": "id",
-            "KeyType": "HASH"
-          }
-        ],
-        "ProvisionedThroughput": {
-          "ReadCapacityUnits": "5",
-          "WriteCapacityUnits": "5"
+        "PublishedAtomMakerCodeTable": {
+            "Description": "Published code dynamo table",
+            "Type": "String",
+            "Default": "published-media-atom-maker-CODE"
+        },
+        "AuditAtomMakerCodeTable": {
+            "Description": "Code audit dynamo table",
+            "Type": "String",
+            "Default": "audit-media-atom-maker-CODE"
+        },
+        "UploadTrackingAtomMakerCodeTable": {
+          "Description": "Code upload dynamo table",
+          "Type": "String",
+          "Default": "upload-tracking-media-atom-maker-CODE"
         }
-      }
     },
-    "PublishedMediaAtomMakerCode": {
-      "Type": "AWS::DynamoDB::Table",
-      "Properties": {
-        "TableName": {
-          "Ref": "PublishedAtomMakerCodeTable"
+    "Resources": {
+        "MediaAtomMakerCode": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+                "TableName": { "Ref": "AtomMakerCodeTable" },
+                "AttributeDefinitions": [
+                    {
+                        "AttributeName": "id",
+                        "AttributeType": "S"
+                    }
+                ],
+                "KeySchema": [
+                    {
+                        "AttributeName": "id",
+                        "KeyType": "HASH"
+                    }
+                ],
+                "ProvisionedThroughput": {
+                    "ReadCapacityUnits": "5",
+                    "WriteCapacityUnits": "5"
+                }
+            }
         },
-        "AttributeDefinitions": [
-          {
-            "AttributeName": "id",
-            "AttributeType": "S"
-          }
-        ],
-        "KeySchema": [
-          {
-            "AttributeName": "id",
-            "KeyType": "HASH"
-          }
-        ],
-        "ProvisionedThroughput": {
-          "ReadCapacityUnits": "5",
-          "WriteCapacityUnits": "5"
-        }
-      }
-    },
-    "AuditMediaAtomMakerCode": {
-      "Type": "AWS::DynamoDB::Table",
-      "Properties": {
-        "TableName": {
-          "Ref": "AuditAtomMakerCodeTable"
+        "PublishedMediaAtomMakerCode": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+                "TableName": { "Ref": "PublishedAtomMakerCodeTable" },
+                "AttributeDefinitions": [
+                    {
+                        "AttributeName": "id",
+                        "AttributeType": "S"
+                    }
+                ],
+                "KeySchema": [
+                    {
+                        "AttributeName": "id",
+                        "KeyType": "HASH"
+                    }
+                ],
+                "ProvisionedThroughput": {
+                    "ReadCapacityUnits": "5",
+                    "WriteCapacityUnits": "5"
+                }
+            }
         },
-        "AttributeDefinitions": [
-          {
-            "AttributeName": "atomId",
-            "AttributeType": "S"
-          },
-          {
-            "AttributeName": "operation",
-            "AttributeType": "S"
-          },
-          {
-            "AttributeName": "date",
-            "AttributeType": "N"
-          }
-        ],
-        "KeySchema": [
-          {
-            "AttributeName": "atomId",
-            "KeyType": "HASH"
-          },
-          {
-            "AttributeName": "date",
-            "KeyType": "RANGE"
-          }
-        ],
-        "ProvisionedThroughput": {
-          "ReadCapacityUnits": "5",
-          "WriteCapacityUnits": "5"
+        "AuditMediaAtomMakerCode": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+                "TableName": { "Ref": "AuditAtomMakerCodeTable" },
+                "AttributeDefinitions": [
+                    {
+                        "AttributeName": "atomId",
+                        "AttributeType": "S"
+                    },
+                    {
+                        "AttributeName": "operation",
+                        "AttributeType": "S"
+                    },
+                    {
+                        "AttributeName": "date",
+                        "AttributeType": "N"
+                    }
+                ],
+                "KeySchema": [
+                    {
+                        "AttributeName": "atomId",
+                        "KeyType": "HASH"
+                    },
+                    {
+                        "AttributeName": "date",
+                        "KeyType": "RANGE"
+                    }
+                ],
+                "ProvisionedThroughput": {
+                    "ReadCapacityUnits": "5",
+                    "WriteCapacityUnits": "5"
+                },
+                "GlobalSecondaryIndexes": [
+                    {
+                        "IndexName": "operation-date-index",
+                        "KeySchema": [
+                            {
+                                "AttributeName": "operation",
+                                "KeyType": "HASH"
+                            },
+                            {
+                                "AttributeName": "date",
+                                "KeyType": "RANGE"
+                            }
+                        ],
+                        "Projection": {
+                            "ProjectionType": "ALL"
+                        },
+                        "ProvisionedThroughput" : {
+                            "ReadCapacityUnits" : "5",
+                            "WriteCapacityUnits" : "5"
+                        }
+                    }
+                ]
+            }
         },
-        "GlobalSecondaryIndexes": [
-          {
-            "IndexName": "operation-date-index",
-            "KeySchema": [
+        "UploadTrackingMediaAtomMakerCode": {
+          "Type": "AWS::DynamoDB::Table",
+          "Properties": {
+            "TableName": { "Ref": "UploadTrackingAtomMakerCodeTable" },
+            "AttributeDefinitions": [
               {
-                "AttributeName": "operation",
-                "KeyType": "HASH"
-              },
-              {
-                "AttributeName": "date",
-                "KeyType": "RANGE"
+                "AttributeName": "id",
+                "AttributeType": "S"
               }
             ],
-            "Projection": {
-              "ProjectionType": "ALL"
-            },
+            "KeySchema": [
+              {
+                "AttributeName": "id",
+                "KeyType": "HASH"
+              }
+            ],
             "ProvisionedThroughput": {
               "ReadCapacityUnits": "5",
               "WriteCapacityUnits": "5"
             }
           }
-        ]
-      }
-    },
-    "UploadTrackingMediaAtomMakerCode": {
-      "Type": "AWS::DynamoDB::Table",
-      "Properties": {
-        "TableName": {
-          "Ref": "UploadTrackingAtomMakerCodeTable"
-        },
-        "AttributeDefinitions": [
-          {
-            "AttributeName": "id",
-            "AttributeType": "S"
-          }
-        ],
-        "KeySchema": [
-          {
-            "AttributeName": "id",
-            "KeyType": "HASH"
-          }
-        ],
-        "ProvisionedThroughput": {
-          "ReadCapacityUnits": "5",
-          "WriteCapacityUnits": "5"
-        },
-        "StreamSpecification": {
-          "StreamViewType": "NEW_IMAGE"
         }
-      }
     }
-  },
-  "Outputs": {
-    "UploadTrackingTableStream": {
-      "Value": {
-        "Fn::GetAtt": [
-          "UploadTrackingMediaAtomMakerCode",
-          "StreamArn"
-        ]
-      }
-    }
-  }
 }
+
