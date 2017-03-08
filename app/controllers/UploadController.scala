@@ -5,6 +5,7 @@ import java.util.UUID
 import com.gu.media.logging.Logging
 import com.gu.media.upload._
 import com.gu.pandahmac.HMACAuthActions
+import com.gu.pandomainauth.model.User
 import controllers.UploadController.CreateRequest
 import data.{DataStores, UnpackedDataStores}
 import model.MediaAtom
@@ -31,10 +32,7 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, o
       log.info(s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}")
 
       val atom = MediaAtom.fromThrift(getPreviewAtom(req.atomId))
-      val id = UUID.randomUUID().toString
-
-      val parts = UploadPart.build(req.size)
-      val upload = Upload(id, atom.id, parts)
+      val upload = buildUpload(atom, raw.user, req.size)
 
       table.put(upload)
       Ok(Json.toJson(upload))
@@ -46,16 +44,42 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, o
     NoContent
   }
 
-  def credentials(id: String, part: String) = APIHMACAuthAction {
-    try {
-      val key = UploadPartKey(awsConfig.userUploadFolder, id, part.toInt)
-      val credentials = creds.forPart(key)
+  def credentials(id: String, key: String) = APIHMACAuthAction {
+    table.get(id) match {
+      case Some(upload) =>
+        val validKey = upload.parts.exists(_.key == key)
 
-      Ok(Json.toJson(credentials))
-    } catch {
-      case err: NumberFormatException =>
-        BadRequest(err.getMessage)
+        if(validKey) {
+          val credentials = creds.forKey(id, key)
+          Ok(Json.toJson(credentials))
+        } else {
+          BadRequest(s"Unknown part key $key")
+        }
+
+      case None =>
+        BadRequest(s"Unknown upload $id")
     }
+  }
+
+  private def chunk(uploadId: String, size: Long): List[UploadPart] = {
+    val boundaries = Upload.calculateChunks(size)
+
+    boundaries.zipWithIndex.map { case ((start, end), id) =>
+      UploadPart(UploadPartKey(awsConfig.userUploadFolder, uploadId, id).toString, start, end)
+    }
+  }
+
+  private def buildUpload(atom: MediaAtom, user: User, size: Long) = {
+    val id = UUID.randomUUID().toString
+
+    Upload(
+      id = id,
+      atomId = atom.id,
+      user = user.email,
+      bucket = awsConfig.userUploadBucket,
+      region = awsConfig.region.getName,
+      parts = chunk(id, size)
+    )
   }
 }
 

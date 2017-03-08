@@ -6,11 +6,10 @@ import com.gu.media.logging.Logging
 import play.api.libs.json.{JsArray, JsObject, JsString, Json}
 
 class CredentialsGenerator(aws: UploadAccess) extends Logging {
-  def forPart(part: UploadPartKey): UploadCredentials = {
-    val key = part.toString
+  def forKey(uploadId: String, key: String): UploadCredentials = {
     val keyPolicy = generateKeyPolicy(key)
 
-    generateCredentials(part.id, key, keyPolicy)
+    generateCredentials(uploadId, key, keyPolicy)
   }
 
   private def generateCredentials(uploadId: String, key: String, keyPolicy: String): UploadCredentials = {
