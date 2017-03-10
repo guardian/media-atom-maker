@@ -10,14 +10,6 @@ export default {
     });
   },
 
-  addPlutoProjectManual: (atomId, projectId) => {
-    return pandaReqwest({
-      url: '/api/pluto/' + atomId + '/add-manual/',
-      method: 'post',
-      data: JSON.stringify({plutoId: projectId})
-    });
-  },
-
   addPlutoProject: (atomId, projectId) => {
     return pandaReqwest({
       url: '/api/pluto/' + atomId + '/add/',

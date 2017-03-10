@@ -153,11 +153,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
   def getPlutoAtoms = APIHMACAuthAction {  implicit req =>
     Ok(Json.toJson(plutoDataStore.getAtomsWithoutPlutoId()))
   }
-
-  def removeAtomFromPlutoTable(id: String) = APIHMACAuthAction {  implicit req =>
-    Ok("Atom deleted from pluto table")
-  }
-
+  
   def addPlutoProjectToAtom(id: String) = APIHMACAuthAction { implicit req =>
 
     implicit val readCommand: Reads[AddPlutoProjectCommand] =
