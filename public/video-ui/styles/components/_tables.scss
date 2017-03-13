@@ -10,10 +10,8 @@
 
   &__header-row {
     background-color: $color600Grey;
-    padding-left: 5px;
     color: $color300Grey;
-    text-align: left;
-    font-size: $iconSize;
+    font-size: $fontsize__detailbox;
     font-weight: bold;
     border-top: 1px solid $color600Grey;
   }
