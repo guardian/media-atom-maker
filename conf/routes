@@ -42,7 +42,7 @@ GET     /api/youtube/channels           controllers.Youtube.listChannels()
 GET     /api/transcoder/jobStatus       controllers.Transcoder.jobStatus
 
 GET     /api/pluto                      controllers.Api2.getPlutoAtoms()
-POST    /api/pluto/:id/add              controllers.Api2.addPlutoProjectToAtom(id)
+PUT     /api/pluto/:id/add              controllers.Api2.addPlutoProjectToAtom(id)
 
 
 # reindex

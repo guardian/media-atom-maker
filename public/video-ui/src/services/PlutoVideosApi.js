@@ -12,8 +12,9 @@ export default {
 
   addPlutoProject: (atomId, projectId) => {
     return pandaReqwest({
-      url: '/api/pluto/' + atomId + '/add/',
-      method: 'post',
+      url: '/api/pluto/' + atomId + '/add',
+      method: 'put',
+      contentType: 'application/json',
       data: JSON.stringify({plutoId: projectId})
     });
   }

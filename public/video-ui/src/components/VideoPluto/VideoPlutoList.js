@@ -6,11 +6,29 @@ class VideoPlutoList extends React.Component{
     this.props.plutoVideoActions.getPlutoVideos();
   }
 
+  selectPlutoId(video) {
+    this.props.plutoVideoActions.addProject(video.id, video.plutoProjectId);
+  }
+
+  updatePlutoId(video, event) {
+    video.plutoProjectId = event.target.value;
+  }
+
+  renderAddProject(video) {
+    return (
+      <div>
+        <input value={video.plutoProjectId} onChange={this.updatePlutoId.bind(this, video)}/>
+        <button type="button" className="btn" onClick={() => this.selectPlutoId(video)}>Add Pluto Video</button>
+      </div>
+      );
+  }
+
   renderPlutoVideo(video) {
     return (
       <tr key={video.id}>
         <td>{video.title}</td>
         <td>{video.description}</td>
+        <td>{this.renderAddProject(video)}</td>
       </tr>
     );
   }
@@ -18,7 +36,7 @@ class VideoPlutoList extends React.Component{
   renderPlutoVideos() {
     return (
       <tbody>
-        {this.props.plutoVideos.map(this.renderPlutoVideo)}
+        {this.props.plutoVideos.map(video => this.renderPlutoVideo(video))}
       </tbody>
     );
   }
@@ -37,6 +55,7 @@ class VideoPlutoList extends React.Component{
                 <tr className="table__header-row">
                   <th>Title</th>
                   <th>Description</th>
+                  <th>Pluto Project</th>
                 </tr>
               </thead>
               {this.renderPlutoVideos()}
@@ -54,6 +73,7 @@ class VideoPlutoList extends React.Component{
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getPlutoVideos from '../../actions/PlutoIdActions/getPlutoVideos';
+import * as addProject from '../../actions/PlutoIdActions/addProject';
 
 function mapStateToProps(state) {
   return {
@@ -63,7 +83,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    plutoVideoActions: bindActionCreators(Object.assign({}, getPlutoVideos), dispatch)
+    plutoVideoActions: bindActionCreators(Object.assign({}, getPlutoVideos, addProject), dispatch)
   };
 }
 
