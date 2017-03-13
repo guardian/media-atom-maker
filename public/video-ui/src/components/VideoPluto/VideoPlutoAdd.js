@@ -9,15 +9,28 @@ export default class VideoPlutoAdd extends React.Component {
 
   updatePlutoId(event) {
     this.props.video.plutoProjectId = event.target.value;
-    this.setState({
-      hasPlutoId: true
-    });
+    if (event.target.value !== '') {
+      this.setState({
+        hasPlutoId: true
+      });
+    } else {
+      this.setState({
+        hasPlutoId: false
+      });
+    }
+  }
+
+  renderDefaultOption() {
+    return (
+      <option value="">Select pluto id</option>
+      );
   }
 
   render () {
     return (
       <div>
         <select value={this.props.video.plutoProjectId} onChange={(event) => this.updatePlutoId(event)}>
+          {this.renderDefaultOption()}
           {this.state.plutoIds.map(v =>
             {
               return (<option value={v} key={v}>{v}</option> );
