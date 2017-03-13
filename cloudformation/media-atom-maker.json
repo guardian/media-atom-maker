@@ -445,6 +445,21 @@
                                 { "Region": { "Ref": "AWS::Region"}, "Account": { "Ref": "AWS::AccountId" }, "Table": { "Ref": "UploadTrackingTable" } }
                               ]
                             }
+                          },
+                          {
+                            "Effect": "Allow",
+                            "Action": ["s3:GetObject"],
+                            "Resource": [
+                              { "Fn::Sub": [
+                                "arn:aws:s3:::${Bucket}/*",
+                                { "Bucket": { "Fn::FindInMap": [ "StageMap", {"Ref": "Stage"}, "UploadBucket"] } }
+                              ]}
+                            ]
+                          },
+                          {
+                            "Effect": "Allow",
+                            "Action": ["kinesis:Get*", "kinesis:PutRecord", "kinesis:DescribeStream"],
+                            "Resource": { "Fn::GetAtt": ["YouTubeUploadsStrem", "Arn"] }
                           }
                         ]
                     }
@@ -485,6 +500,50 @@
             "FunctionName": { "Ref": "UploaderS3EventsLambda" },
             "Principal": "s3.amazonaws.com",
             "SourceArn": { "Fn::Join": ["", [ "arn:aws:s3:::", { "Fn::FindInMap": [ "StageMap", {"Ref": "Stage"}, "UploadBucket"] } ]] }
+          }
+        },
+
+        "YouTubeUploadsStream": {
+          "Type": "AWS::Kinesis::Stream",
+          "Properties": {
+            "ShardCount": 2
+          }
+        },
+
+        "YouTubeUploadsLambda": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "FunctionName":  {"Fn::Join": ["-", ["media-atom-maker-uploader-youtube", {"Ref": "Stage"} ] ] },
+            "Description": "Uploads chunks of video to YouTube",
+            "Handler": "com.gu.media.YouTubeUploadLambda::handleRequest",
+            "Code": {
+              "S3Bucket": { "Ref": "BuildBucket" },
+              "S3Key": { "Fn::FindInMap": [ "LambdaBuilds", "Uploader", { "Ref": "Stage" }] }
+            },
+            "Environment": {
+              "Variables": {
+                "REGION": { "Ref": "AWS::Region" },
+                "STACK": { "Ref": "Stack" },
+                "APP": "media-atom-uploader",
+                "STAGE": { "Ref": "Stage" },
+                "CONFIG_BUCKET": { "Ref": "ConfigBucket" },
+                "CONFIG_KEY": { "Fn::FindInMap": [ "LambdaConfig", "Uploader", { "Ref": "Stage" }] }
+              }
+            },
+            "MemorySize": 256,
+            "Role":  { "Fn::GetAtt": [ "UploaderRole", "Arn" ] },
+            "Runtime": "java8",
+            "Timeout": 300
+          }
+        },
+
+        "YouTubeEventSourceMapping": {
+          "Type": "AWS::Lambda::EventSourceMapping",
+          "Properties": {
+            "EventSourceArn": { "Fn::GetAtt": ["YouTubeUploadsStream", "Arn"] },
+            "FunctionName": { "Fn::GetAtt": ["YouTubeUploadLambda", "Arn"] },
+            "BatchSize": 1,
+            "StartingPosition": "TRIM_HORIZON"
           }
         },
 

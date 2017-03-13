@@ -308,7 +308,7 @@ Resources:
       Runtime: "java8"
       Timeout: 300
 
-  EventSourceMapping:
+  YouTubeEventSourceMapping:
     Type: "AWS::Lambda::EventSourceMapping"
     Properties:
       EventSourceArn: !GetAtt YouTubeUploadsStream.Arn
