@@ -243,7 +243,7 @@ Resources:
                     - "arn:aws:s3:::${Bucket}/*"
                     - { "Bucket": !Ref UploadBucketName }
               - Effect: "Allow"
-                Action: ["kinesis:Get*", "kinesis:DescribeStream"]
+                Action: ["kinesis:Get*", "kinesis:PutRecord", "kinesis:DescribeStream"]
                 Resource: !GetAtt YouTubeUploadsStream.Arn
 
   UploaderS3EventsLambda:
