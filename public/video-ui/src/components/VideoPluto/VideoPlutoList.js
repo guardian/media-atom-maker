@@ -38,7 +38,7 @@ class VideoPlutoList extends React.Component{
     if (this.props.plutoVideos) {
       return (
         <div>
-          <div className="video__detailbox">
+          <div className="video__detail__page">
             <span className="video__detailbox__header">Videos without pluto projects</span>
           </div>
           <div>
