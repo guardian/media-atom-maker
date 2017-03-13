@@ -22,3 +22,14 @@ object UploadPartKey {
     case _ => None
   }
 }
+
+case class UploadFullKey(folder: String, id: String) {
+  override def toString = s"$folder/$id/full"
+}
+
+object UploadFullKey {
+  def unapply(key: String): Option[(String, String)] = key.split("/").toList match {
+    case folder :: id :: "full" :: Nil => Some((folder, id))
+    case _ => None
+  }
+}
