@@ -3,9 +3,10 @@
 /* -------------------------------------- */
 
 .table {
-  width: 100% auto;
-  margin: 20px;
+  width: 90%;
+  margin: 30px auto;
   border-collapse: collapse;
+  border: 1px solid $color700Grey;
 
   &__header-row {
     background-color: $color600Grey;
@@ -23,6 +24,6 @@ tr:nth-child(even) {
 }
 
 th, td {
-    padding: 8px;
+    padding: 6px;
     text-align: left;
 }

@@ -38,16 +38,7 @@ class VideoAuditTrail extends React.Component {
 
   renderList() {
     const audits = this.props.audits.map(x => x).sort((a, b) => b.date - a.date);
-
-    if (this.state.renderAll) {
-      return (<tbody>{audits.map((a) => this.renderAudit(a))}</tbody>);
-    } else {
-      return (<tbody>{audits.map((a) => this.renderAudit(a))}</tbody>);
-    }
-  }
-
-  renderExpandButton() {
-      return (<button className="video-assets__show-btn" type="button" onClick={this.showAll}>Show all audits</button>);
+    return (<tbody>{audits.map((a) => this.renderAudit(a))}</tbody>);
   }
 
   render() {
