@@ -237,7 +237,7 @@ Resources:
                     - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
                     - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "UploadTrackingDynamoTable" }
               - Effect: "Allow"
-                Action: ["s3:GetObject"]
+                Action: ["s3:*"]
                 Resource:
                   - !Sub
                     - "arn:aws:s3:::${Bucket}/*"
@@ -273,7 +273,6 @@ Resources:
       Action: "lambda:InvokeFunction"
       FunctionName: !Ref UploaderS3EventsLambda
       Principal: "s3.amazonaws.com"
-      # use hard-coded name rather than ref to avoid circular dependency
       SourceArn: !Sub
         - "arn:aws:s3:::${Name}"
         - { Name: !Ref UploadBucketName }
