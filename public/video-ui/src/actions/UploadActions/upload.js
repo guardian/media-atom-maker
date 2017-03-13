@@ -1,38 +1,30 @@
-import UploadsApi from '../../services/UploadsApi';
+import {UploadsApi, UploadHandle} from '../../services/UploadsApi';
 
-function startUploadAction() {
+function uploadStarted(upload, handle) {
   return {
-    type: 'START_UPLOAD',
-    receivedAt: Date.now()
+    type: 'UPLOAD_STARTED',
+    receivedAt: Date.now(),
+    upload: upload,
+    handle: handle
   };
 }
 
-function uploadProgressAction(completed, total) {
+function uploadProgress(progress) {
   return {
     type: 'UPLOAD_PROGRESS',
     receivedAt: Date.now(),
-    completed: completed,
-    total: total
+    progress: progress
   };
 }
 
-function uploadComplete() {
-  return {
-    type: 'UPLOAD_COMPLETE',
-    receivedAt: Date.now()
-  };
-}
-
-export function startUpload(policy, file) {
+export function startUpload(id, file) {
   return dispatch => {
-    dispatch(startUploadAction());
+    UploadsApi.createUpload(id, file).then((upload) => {
+      const progress = (completed) => dispatch(uploadProgress(completed));
+      const handle = new UploadHandle(upload, file, progress);
 
-    function progress(completed, total) {
-      dispatch(uploadProgressAction(completed, total));
-    }
-
-    UploadsApi.startUpload(policy, file, progress).then(() => {
-      dispatch(uploadComplete());
+      handle.start();
+      dispatch(uploadStarted(upload));
     });
   };
 }

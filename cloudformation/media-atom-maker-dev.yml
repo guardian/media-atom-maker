@@ -29,7 +29,7 @@ Mappings:
     Transcoder:
       DEV: "media-service/DEV/media-atom-transcoder/media-atom-transcoder.zip"
     Expirer:
-      DEV: "media-service/DEV/media-atom-transcoder/media-atom-expirer.zip"
+      DEV: "media-service/DEV/media-atom-expirer/media-atom-expirer.zip"
   LambdaConfig:
     Uploader:
       DEV: "DEV/media-atom-maker.private.conf"
@@ -128,15 +128,11 @@ Resources:
     Type: "AWS::DynamoDB::Table"
     Properties:
       AttributeDefinitions:
-        - AttributeName: "atomId"
-          AttributeType: "S"
         - AttributeName: "id"
           AttributeType: "S"
       KeySchema:
-        - AttributeName: "atomId"
-          KeyType: "HASH"
         - AttributeName: "id"
-          KeyType: "RANGE"
+          KeyType: "HASH"
       ProvisionedThroughput:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"

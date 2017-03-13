@@ -130,22 +130,14 @@
             "TableName": { "Ref": "UploadTrackingAtomMakerProdTable" },
             "AttributeDefinitions": [
               {
-                "AttributeName": "atomId",
-                "AttributeType": "S"
-              },
-              {
                 "AttributeName": "id",
                 "AttributeType": "S"
               }
             ],
             "KeySchema": [
               {
-                "AttributeName": "atomId",
-                "KeyType": "HASH"
-              },
-              {
                 "AttributeName": "id",
-                "KeyType": "RANGE"
+                "KeyType": "HASH"
               }
             ],
             "ProvisionedThroughput": {
