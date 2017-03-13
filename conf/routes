@@ -28,8 +28,8 @@ PUT     /api2/atom/:id/pluto-id         controllers.Api2.setPlutoId(id)
 # user uploaded videos
 GET     /api2/uploads                   controllers.UploadController.list(atomId)
 POST    /api2/uploads                   controllers.UploadController.create
-DELETE  /api2/uploads/:id               controllers.UploadController.stop(id)
-POST    /api2/uploads/:id/_credentials  controllers.UploadController.credentials(id, key)
+DELETE  /api2/uploads/:id               controllers.UploadController.delete(id)
+POST    /api2/uploads/:id/credentials   controllers.UploadController.credentials(id)
 
 GET     /api2/audits/:id                controllers.Api2.getAuditTrailForAtomId(id)
 

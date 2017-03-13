@@ -42,8 +42,11 @@ class UploadFunctions {
 
   getCredentials = (id, key) => {
     return pandaReqwest({
-      url: `/api2/uploads/${id}/_credentials?key=${key}`,
-      method: 'post'
+      url: `/api2/uploads/${id}/credentials`,
+      method: 'post',
+      headers: {
+        'X-Upload-Key': key
+      }
     }).then((resp) => {
       return resp;
     });

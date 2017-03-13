@@ -19,6 +19,7 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, o
 
   import authActions.APIHMACAuthAction
 
+  private val UPLOAD_KEY_HEADER = "X-Upload-Key"
   private val table = new DynamoUploadsTable(awsConfig)
   private val creds = new CredentialsGenerator(awsConfig)
 
@@ -39,14 +40,14 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, o
     }
   }
 
-  def stop(id: String) = APIHMACAuthAction {
+  def delete(id: String) = APIHMACAuthAction {
     table.delete(id)
     NoContent
   }
 
-  def credentials(id: String, key: String) = APIHMACAuthAction {
-    table.get(id) match {
-      case Some(upload) =>
+  def credentials(id: String) = APIHMACAuthAction { implicit req =>
+    (table.get(id), req.headers.get(UPLOAD_KEY_HEADER)) match {
+      case (Some(upload), Some(key)) =>
         val validKey = upload.parts.exists(_.key == key)
 
         if(validKey) {
@@ -56,8 +57,8 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, o
           BadRequest(s"Unknown part key $key")
         }
 
-      case None =>
-        BadRequest(s"Unknown upload $id")
+      case _ =>
+        BadRequest(s"Unknown upload or missing $UPLOAD_KEY_HEADER. id=$id")
     }
   }
 
