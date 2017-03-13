@@ -3,18 +3,18 @@
 /* -------------------------------------- */
 
 .table {
-  width: 70%;
+  width: 100% auto;
   margin: 20px;
   border-collapse: collapse;
 
   &__header-row {
-    // background-color: $brandColor;
+    background-color: $color600Grey;
     padding-left: 5px;
     color: $color300Grey;
     text-align: left;
     font-size: $iconSize;
     font-weight: bold;
-    border-top: 1px solid $brandColor;
+    border-top: 1px solid $color600Grey;
   }
 }
 
@@ -23,6 +23,6 @@ tr:nth-child(even) {
 }
 
 th, td {
-    padding: 10px;
+    padding: 8px;
     text-align: left;
 }
