@@ -242,6 +242,9 @@ Resources:
                   - !Sub
                     - "arn:aws:s3:::${Bucket}/*"
                     - { "Bucket": !Ref UploadBucketName }
+              - Effect: "Allow"
+                Action: ["kinesis:Get*", "kinesis:DescribeStream"]
+                Resource: !GetAtt YouTubeUploadsStream.Arn
 
   UploaderS3EventsLambda:
     Type: "AWS::Lambda::Function"
@@ -274,6 +277,41 @@ Resources:
       SourceArn: !Sub
         - "arn:aws:s3:::${Name}"
         - { Name: !Ref UploadBucketName }
+
+  YouTubeUploadsStream:
+    Type: "AWS::Kinesis::Stream"
+    Properties:
+      # Allows a maximum of two videos to be uploaded in parallel (for now)
+      ShardCount: 2
+
+  YouTubeUploadLambda:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Description: "Uploads chunks of video to YouTube"
+      Handler: "com.gu.media.YouTubeUploadLambda::handleRequest"
+      Code:
+        S3Bucket: !Ref BuildBucket
+        S3Key: !FindInMap [LambdaBuilds, Uploader, DEV]
+      Environment:
+        Variables:
+          REGION: !Ref AWS::Region
+          STACK: !Ref Stack
+          APP: "media-atom-uploader"
+          STAGE: !Ref Stage
+          CONFIG_BUCKET: !Ref ConfigBucket
+          CONFIG_KEY: !FindInMap [LambdaConfig, Uploader, DEV]
+      MemorySize: 256
+      Role: !GetAtt UploaderRole.Arn
+      Runtime: "java8"
+      Timeout: 300
+
+  EventSourceMapping:
+    Type: "AWS::Lambda::EventSourceMapping"
+    Properties:
+      EventSourceArn: !GetAtt YouTubeUploadsStream.Arn
+      FunctionName: !GetAtt YouTubeUploadLambda.Arn
+      BatchSize: 1
+      StartingPosition: "TRIM_HORIZON"
 
   TranscoderOutputS3Bucket:
     Type: "AWS::S3::Bucket"
