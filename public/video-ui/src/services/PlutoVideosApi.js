@@ -1,5 +1,4 @@
 import {pandaReqwest} from './pandaReqwest';
-import {getStore} from '../util/storeAccessor';
 
 export default {
 

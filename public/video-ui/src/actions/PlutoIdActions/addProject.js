@@ -28,7 +28,7 @@ export function addProject(videoId, plutoId) {
   return dispatch => {
     dispatch(requestAddProject());
     return PlutoVideosApi.addPlutoProject(videoId, plutoId)
-      .then(res => {
+      .then(() => {
         dispatch(receiveAddProject(videoId));
       })
       .catch(error => dispatch(errorReceivingAddProject(error)));

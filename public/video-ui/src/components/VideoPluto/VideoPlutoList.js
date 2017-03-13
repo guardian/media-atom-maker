@@ -1,10 +1,7 @@
 import React from 'react';
+import VideoPlutoAdd from './VideoPlutoAdd';
 
 class VideoPlutoList extends React.Component{
-
-  state = {
-    plutoIds: ['1', '2', '3', '4', '5', '6', '7']
-  }
 
   componentWillMount() {
     this.props.plutoVideoActions.getPlutoVideos();
@@ -14,27 +11,16 @@ class VideoPlutoList extends React.Component{
     this.props.plutoVideoActions.addProject(video.id, video.plutoProjectId);
   }
 
-  updatePlutoId(video, event) {
-    video.plutoProjectId = event.target.value;
-  }
-
-  renderAddProject(video) {
-    return (
-      <div>
-        <select value={video.plutoProjectId} onChange={this.updatePlutoId.bind(this, video)}>
-          {this.state.plutoIds.map(v => { return (<option value={v} key={v}>{v}</option> )})};
-        </select>
-        <button type="button" className="btn" onClick={() => this.selectPlutoId(video)}>Add Pluto Video</button>
-      </div>
-      );
-  }
-
   renderPlutoVideo(video) {
     return (
       <tr key={video.id}>
         <td>{video.title}</td>
         <td>{video.description}</td>
-        <td>{this.renderAddProject(video)}</td>
+        <td>
+          <VideoPlutoAdd
+            video={video}
+            onProjectAdd={this.props.plutoVideoActions.addProject} />
+        </td>
       </tr>
     );
   }
