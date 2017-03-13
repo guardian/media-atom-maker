@@ -38,23 +38,14 @@ class VideoAuditTrail extends React.Component {
 
   renderList() {
     const audits = this.props.audits.map(x => x).sort((a, b) => b.date - a.date);
-
-    if (this.state.renderAll) {
-      return (<tbody>{audits.map((a) => this.renderAudit(a))}</tbody>);
-    } else {
-      return (<tbody>{audits.slice(0, 5).map((a) => this.renderAudit(a))}</tbody>);
-    }
-  }
-
-  renderExpandButton() {
-      return (<button className="video-assets__show-btn" type="button" onClick={this.showAll}>Show all audits</button>);
+    return (<tbody>{audits.map((a) => this.renderAudit(a))}</tbody>);
   }
 
   render() {
     if (this.props.audits) {
       return (
         <div>
-          <div className="video__detailbox">
+          <div className="video__detail__page">
             <span className="video__detailbox__header">Atom Audit Trail</span>
           </div>
           <div>
@@ -69,7 +60,6 @@ class VideoAuditTrail extends React.Component {
               </thead>
               {this.renderList()}
             </table>
-            {!this.state.renderAll && this.props.audits.length > 5 ? this.renderExpandButton() : false}
           </div>
         </div>
       );
