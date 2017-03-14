@@ -20,28 +20,30 @@ class AddPlutoProjectCommand(atomId: String, plutoId: String, override val store
 
       val updatedAtom = new SetPlutoIdCommand(atomId, plutoId, stores, user).process()
 
-      for {
-        upload <- plutoDataStore.get(atomId)
-      } plutoDataStore.put(upload.copy(plutoProjectId = Some(plutoId)))
+      plutoDataStore.get(atomId) match {
 
-      val request = new PutRecordsRequest().withStreamName(awsConfig.uploadsStreamName)
+        case Some(upload) => {
 
-      val data =
-        s"""
-          {
-            "atomId": ${atomId}
-            "plutoProjectId": ${plutoId}
-            "s3Key": "key
+          plutoDataStore.put(upload.copy(plutoProjectId = Some(plutoId)))
 
-        """.stripMargin.getBytes("UTF-8");
+          val request = new PutRecordsRequest().withStreamName(awsConfig.uploadsStreamName)
 
-      val record = new PutRecordsRequestEntry()
-        .withPartitionKey(atomId)
-        .withData(ByteBuffer.wrap(data))
+          val data =
+            s"""
+              {
+                "plutoProjectId": ${plutoId}
+                "s3Key": ${upload.s3Key}
 
-      request.withRecords(record)
-      awsConfig.kinesisClient.putRecords(request)
+            """.stripMargin.getBytes("UTF-8");
 
-      updatedAtom
+          val record = new PutRecordsRequestEntry()
+            .withPartitionKey(atomId)
+            .withData(ByteBuffer.wrap(data))
+
+          request.withRecords(record)
+          awsConfig.kinesisClient.putRecords(request)
+          updatedAtom
+        }
+      }
     }
   }
