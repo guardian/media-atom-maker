@@ -54,8 +54,6 @@ class IntegrationTests extends FlatSpec with Matchers with Eventually with Integ
 
     val atomId = (Json.parse(response.body().string()) \ "id").get.as[String]
 
-    println(s"Atom ID = $atomId")
-
     createdAtoms = atomId :: createdAtoms
 
     val apiEndpoint = apiUri(atomId)
