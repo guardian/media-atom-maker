@@ -2,19 +2,30 @@ package integration
 
 import com.squareup.okhttp._
 import org.scalatest.concurrent.{Eventually, IntegrationPatience}
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
 import integration.services.{Config, GuHttp, TestAtomJsonGenerator}
 import java.time.Instant
 import java.util.UUID
 
 import play.api.libs.json.Json
 
-class IntegrationTests extends FlatSpec with Matchers with Eventually with IntegrationPatience with GuHttp with TestAtomJsonGenerator {
+class IntegrationTests extends FlatSpec with Matchers with Eventually with IntegrationPatience with GuHttp with TestAtomJsonGenerator with BeforeAndAfterAll {
 
   val targetBaseUrl: String = Config.targetBaseUrl
   val JSON = MediaType.parse("application/json; charset=utf-8")
 
   def apiUri(atomId: String): String = s"$targetBaseUrl/api/atom/$atomId"
+
+  var createdAtoms: List[String] = List() /* Add all created atoms IDs to this list as first action after atom created. This allows for test cleanup outside the test flow  */
+
+  def deleteAtom(id: String) = {
+    gutoolsDelete(s"$targetBaseUrl/api2/atom/$id")
+  }
+
+  override def afterAll(): Unit = {
+    createdAtoms.foreach{ e => deleteAtom(e) }
+    super.afterAll()
+  }
 
   "Hitting code atom maker" should "return a 200" in {
     val response = gutoolsGet(targetBaseUrl)
@@ -42,6 +53,10 @@ class IntegrationTests extends FlatSpec with Matchers with Eventually with Integ
     response.code() should be (201)
 
     val atomId = (Json.parse(response.body().string()) \ "id").get.as[String]
+
+    println(s"Atom ID = $atomId")
+
+    createdAtoms = atomId :: createdAtoms
 
     val apiEndpoint = apiUri(atomId)
 
