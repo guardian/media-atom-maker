@@ -21,7 +21,7 @@ class AddPlutoProjectCommand(atomId: String, plutoId: String, override val store
     override def process(): MediaAtom = {
 
       val updatedAtom = new SetPlutoIdCommand(atomId, plutoId, stores, user).process()
-      plutoDataStore.deleteAtomFromPlutoDynamo(atomId)
+      plutoDataStore.delete(atomId)
 
       val request = new PutRecordsRequest().withStreamName(awsConfig.uploadsStreamName)
 

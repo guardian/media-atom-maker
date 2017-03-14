@@ -151,7 +151,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
     }
 
   def getPlutoAtoms = APIHMACAuthAction {  implicit req =>
-    Ok(Json.toJson(plutoDataStore.getAtomsWithoutPlutoId()))
+    Ok(Json.toJson(plutoDataStore.listAll()))
   }
 
   def sendToPluto(id: String) = APIHMACAuthAction { implicit req =>
