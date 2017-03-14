@@ -23,7 +23,7 @@ export default class VideoPlutoAdd extends React.Component {
   renderDefaultOption() {
     return (
       <option value="">Select pluto project id</option>
-      );
+    );
   }
 
   render () {
@@ -31,8 +31,7 @@ export default class VideoPlutoAdd extends React.Component {
       <div className="list-container">
         <select className="form__field form__field--select form__field--pluto" value={this.props.video.plutoProjectId} onChange={(event) => this.updatePlutoId(event)}>
           {this.renderDefaultOption()}
-          {this.state.plutoIds.map(v =>
-            {
+          {this.state.plutoIds.map(v => {
               return (<option value={v} key={v}>{v}</option> );
             })
           };
