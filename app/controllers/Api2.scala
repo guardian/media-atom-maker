@@ -151,12 +151,13 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
     }
 
   def getPlutoAtoms = APIHMACAuthAction {  implicit req =>
-    Ok(Json.toJson(plutoDataStore.listAll()))
+    Ok(Json.toJson(plutoDataStore.listWithoutPluto()))
   }
 
   def sendToPluto(id: String) = APIHMACAuthAction { implicit req =>
 
     implicit val readCommand: Reads[AddPlutoProjectCommand] =
+
       (JsPath \ "plutoId").read[String].map { plutoId =>
         new AddPlutoProjectCommand(id, plutoId, stores, req.user, awsConfig)
       }

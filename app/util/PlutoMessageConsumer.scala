@@ -11,6 +11,7 @@ import scala.concurrent.ExecutionContext
 import scala.collection.JavaConversions._
 import model.{VideoUpload, MediaAtom}
 import com.gu.media.logging.Logging
+import data.DataStores
 
 case class PlutoMessageConsumer(val stores: DataStores, awsConfig: AWSConfig)
   extends UnpackedDataStores with Logging {
@@ -54,7 +55,8 @@ case class PlutoMessageConsumer(val stores: DataStores, awsConfig: AWSConfig)
       case JsDefined(message) => {
         val messageString = message.toString
         val atomId = messageString.substring(1, messageString.length - 1)
-        //Todo: remove from dynamo table and s3 now that pluto has finished processing
+        //Todo: remove from s3 now that pluto has finished processing
+        plutoDataStore.delete(atomId)
       }
       case undefined => log.error(s"Could not extract a message body from message ${msg.getReceiptHandle()}")
     }

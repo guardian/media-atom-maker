@@ -25,7 +25,7 @@ class DataStores(aws: AWSConfig) extends MediaAtomImplicits {
   val preview: PreviewDynamoDataStore[MediaAtom] = getPreview(mediaDynamoFormats)
   val published: PublishedDynamoDataStore[MediaAtom] = getPublished(mediaDynamoFormats)
   val audit: AuditDataStore = new AuditDataStore(aws.dynamoDB, aws.auditDynamoTableName)
-  val pluto: ScanamoDataStore[VideoUpload] = new ScanamoDataStore[VideoUpload](aws.dynamoDB, aws.manualPlutoDynamo)
+  val pluto: PlutoDataStore = new PlutoDataStore(aws.dynamoDB, aws.manualPlutoDynamo)
 
   val livePublisher: LiveKinesisAtomPublisher =
     new LiveKinesisAtomPublisher(aws.liveKinesisStreamName, aws.crossAccountKinesisClient)
@@ -63,7 +63,7 @@ trait UnpackedDataStores {
   val previewDataStore: PreviewDataStore = stores.preview
   val publishedDataStore: PublishedDataStore = stores.published
   val auditDataStore: AuditDataStore = stores.audit
-  val plutoDataStore: ScanamoDataStore[VideoUpload] = stores.pluto
+  val plutoDataStore: PlutoDataStore = stores.pluto
 
   val previewPublisher: PreviewAtomPublisher = stores.previewPublisher
   val livePublisher: LiveAtomPublisher = stores.livePublisher
