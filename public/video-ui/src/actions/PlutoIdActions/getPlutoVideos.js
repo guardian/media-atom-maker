@@ -1,4 +1,5 @@
 import PlutoVideosApi from '../../services/PlutoVideosApi';
+import Logger from '../../logger';
 
 function requestPlutoVideos() {
   return {
@@ -16,6 +17,7 @@ function receivePlutoVideos(videos) {
 }
 
 function errorReceivingPlutoVideos(error) {
+  Logger.error(error);
   return {
     type:       'SHOW_ERROR',
     message:    'Could not get videos without pluto ids',
