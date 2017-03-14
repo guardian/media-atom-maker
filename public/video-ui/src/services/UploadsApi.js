@@ -27,15 +27,15 @@ class UploadFunctions {
     const slice = file.slice(part.start, part.end);
 
     return this.getCredentials(upload.id, part.key).then((credentials) => {
-      const s3 = this.getS3(upload.bucket, upload.region, credentials);
+      const s3 = this.getS3(upload.metadata.bucket, upload.metadata.region, credentials);
 
       const params = { Key: part.key, Body: slice, ACL: 'private', Metadata: { original: file.name } };
-      const request = s3.upload(params);
-      
+      const request = s3.putObject(params);
+
       request.on('httpUploadProgress', (event) => {
         progressFn(part.start + event.loaded);
       });
-      
+
       return request;
     });
   };
