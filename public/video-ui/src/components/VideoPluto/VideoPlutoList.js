@@ -12,10 +12,12 @@ class VideoPlutoList extends React.Component{
   }
 
   renderPlutoVideo(video) {
+    const videoLink = '/videos/' + video.id;
+
     return (
       <tr key={video.id}>
         <td>{video.title}</td>
-        <td>{video.description}</td>
+        <td><a href={videoLink}>video page</a></td>
         <td>
           <VideoPlutoAdd
             video={video}
@@ -46,7 +48,7 @@ class VideoPlutoList extends React.Component{
               <thead className="table__header">
                 <tr className="table__header-row">
                   <th>Title</th>
-                  <th>Description</th>
+                  <th>View Video Atom</th>
                   <th>Pluto Project</th>
                 </tr>
               </thead>
