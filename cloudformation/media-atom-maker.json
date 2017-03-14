@@ -78,6 +78,11 @@
         "MultimediaAccountId": {
             "Type": "Number",
             "Description": "Account number of multimedia account"
+        },
+        "UploadParallelism": {
+            "Description": "How many video chunks can be uploaded in parallel",
+            "Type": "String",
+            "Default": "2"
         }
     },
     "Mappings": {
@@ -459,7 +464,7 @@
                           {
                             "Effect": "Allow",
                             "Action": ["kinesis:Get*", "kinesis:PutRecord", "kinesis:DescribeStream"],
-                            "Resource": { "Fn::GetAtt": ["YouTubeUploadsStrem", "Arn"] }
+                            "Resource": { "Fn::GetAtt": ["YouTubeUploadsStream", "Arn"] }
                           }
                         ]
                     }
@@ -506,7 +511,7 @@
         "YouTubeUploadsStream": {
           "Type": "AWS::Kinesis::Stream",
           "Properties": {
-            "ShardCount": 2
+            "ShardCount": { "Ref": "UploadParallelism" }
           }
         },
 

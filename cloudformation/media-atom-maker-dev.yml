@@ -29,6 +29,10 @@ Parameters:
   MultimediaAccountId:
     Type: "Number"
     Description: "Account number of multimedia account"
+  UploadParallelism:
+    Description: "How many video chunks can be uploaded in parallel"
+    Type: "String"
+    Default: "2"
 Mappings:
   LambdaBuilds:
     Uploader:
@@ -284,7 +288,7 @@ Resources:
     Type: "AWS::Kinesis::Stream"
     Properties:
       # Allows a maximum of two video chunks to be uploaded in parallel (for now)
-      ShardCount: 2
+      ShardCount: !Ref UploadParallelism
 
   YouTubeUploadLambda:
     Type: "AWS::Lambda::Function"
