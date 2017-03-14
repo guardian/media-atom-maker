@@ -1,7 +1,5 @@
 package com.gu.media
 
-import java.util.concurrent.atomic.AtomicLong
-
 import com.amazonaws.services.lambda.runtime.events.KinesisEvent
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import com.gu.media.aws.{DynamoAccess, S3Access, UploadAccess}
@@ -29,24 +27,14 @@ class YouTubeUploadLambda extends RequestHandler[KinesisEvent, Unit]
       uploadUri = getYTUploadUrl(upload)
     } yield {
       log.info(s"Uploading $uploadUri ${part.key} [${part.start} - ${part.end}]")
-      uploadPart(uploadUri, part.key, part.start, part.end, upload.parts.last.end, uploadProgress(upload, part))
-    }
-  }
 
-  private def uploadProgress(upload: Upload, part: UploadPart) = {
-    val lastUpdatedTime = new AtomicLong(System.currentTimeMillis())
-    val updatePeriod = 10 * 1000 // 10 seconds
-
-    (progress: Long) => {
-      val before = lastUpdatedTime.get()
-      val now = System.currentTimeMillis()
-
-      if(now - before > updatePeriod) {
+      uploadPart(uploadUri, part.key, part.start, part.end, upload.parts.last.end, (progress: Long) => {
         val updated = upload.withPart(part.key)(_.copy(uploadedToYouTube = progress))
         table.put(updated)
+      })
 
-        lastUpdatedTime.set(now)
-      }
+      val completed = upload.withPart(part.key) { part => part.copy(uploadedToYouTube = part.end) }
+      table.put(completed)
     }
   }
 
