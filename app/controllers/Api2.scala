@@ -159,4 +159,14 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
   } catch {
     commandExceptionAsResult
   }
+
+  def deleteAtom(id: String) = APIHMACAuthAction {
+    try {
+      DeleteCommand(id, stores).process()
+      Ok(s"Atom $id deleted")
+    }
+    catch {
+      commandExceptionAsResult
+    }
+  }
 }

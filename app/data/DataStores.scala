@@ -73,4 +73,16 @@ trait UnpackedDataStores {
     case Left(IDNotFound) => AtomNotFound
     case Left(err) => AtomDataStoreError(err.msg)
   }
+
+  def deletePreviewAtom(atomId: String): Unit = previewDataStore.deleteAtom(atomId) match {
+    case Right(_) =>
+    case Left(IDNotFound) => AtomNotFound
+    case Left(err) => AtomDataStoreError(err.msg)
+  }
+
+  def deletePublishedAtom(atomId: String): Unit = publishedDataStore.deleteAtom(atomId) match {
+    case Right(_) =>
+    case Left(IDNotFound) => /* Ignoring as atom not published */
+    case Left(err) => AtomDataStoreError(err.msg)
+  }
 }

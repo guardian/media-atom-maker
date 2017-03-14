@@ -25,6 +25,8 @@ PUT     /api2/atom/:id/publish          controllers.Api2.publishMediaAtom(id)
 PUT     /api2/atom/:id/asset-active     controllers.Api2.setActiveAsset(id)
 PUT     /api2/atom/:id/pluto-id         controllers.Api2.setPlutoId(id)
 
+DELETE  /api2/atom/:id                  controllers.Api2.deleteAtom(id)
+
 # user uploaded videos
 POST    /api2/atom/:atomId/uploads      controllers.UploadController.create(atomId)
 
