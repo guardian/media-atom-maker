@@ -55,10 +55,6 @@
             "Description": "Name of the upload tracking dynamo table",
             "Type": "String"
         },
-        "UploadTrackingTableStream": {
-          "Description": "Arn of the upload tracking dynamo table stream",
-          "Type": "String"
-        },
         "AlertActive": {
             "Description": "Whether to send CloudWatch alerts",
             "Type": "String"
