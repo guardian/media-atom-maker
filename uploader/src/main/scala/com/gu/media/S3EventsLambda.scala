@@ -9,7 +9,7 @@ import com.amazonaws.services.s3.model.{CompleteMultipartUploadRequest, CopyPart
 import com.gu.media.aws._
 import com.gu.media.lambda.LambdaBase
 import com.gu.media.logging.Logging
-import com.gu.media.upload.{DynamoUploadsTable, Upload, UploadFullKey, UploadPartKey}
+import com.gu.media.upload._
 
 import scala.collection.JavaConverters._
 
@@ -36,15 +36,12 @@ class S3EventsLambda extends RequestHandler[S3Event, Unit]
         val updated = completePart(key, upload)
 
         if(allPartsInS3(updated)) {
-          createFullObject(upload)
+          val fullKey = createFullObject(upload)
+          sendToPluto(fullKey.toString, upload.metadata)
         }
 
         table.put(updated)
       }
-    }
-
-    getFullKeys(keys).foreach { fullKey =>
-      // TODO: send to pluto
     }
   }
 
@@ -70,7 +67,7 @@ class S3EventsLambda extends RequestHandler[S3Event, Unit]
     }
   }
 
-  private def createFullObject(upload: Upload): Unit = {
+  private def createFullObject(upload: Upload): UploadFullKey = {
     val fullKey = UploadFullKey(userUploadFolder, upload.id)
     val start = new InitiateMultipartUploadRequest(userUploadBucket, fullKey.toString)
     log.info(s"Starting multipart copy for upload ${upload.id}")
@@ -86,6 +83,8 @@ class S3EventsLambda extends RequestHandler[S3Event, Unit]
 
     s3Client.completeMultipartUpload(complete)
     log.info(s"Multipart copy complete. upload=${upload.id} multipart=${multipart.getUploadId}")
+
+    fullKey
   }
 
   private def completePart(key: UploadPartKey, upload: Upload): Upload = {
@@ -116,5 +115,9 @@ class S3EventsLambda extends RequestHandler[S3Event, Unit]
     val response = s3Client.copyPart(request)
 
     new PartETag(response.getPartNumber, response.getETag)
+  }
+
+  private def sendToPluto(s3Key: String, metadata: UploadMetadata): Unit = {
+    // TODO: send to pluto
   }
 }

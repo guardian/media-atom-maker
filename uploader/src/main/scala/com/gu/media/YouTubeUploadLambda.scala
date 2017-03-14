@@ -27,7 +27,7 @@ class YouTubeUploadLambda extends RequestHandler[KinesisEvent, Unit]
       total = upload.parts.last.end
       uploadUri = getYTUploadUrl(upload)
     } yield {
-      log.info(s"Uploading $uploadUri ${part.key} [${part.start} - ${part.end}]")
+      log.info(s"Uploading ${part.key} [${part.start} - ${part.end}]")
 
       uploadPart(uploadUri, part.key, part.start, part.end, total, (_: Long) => {}).foreach { videoId =>
         log.info(s"Successful upload ${upload.id}. YouTube ID: $videoId")
@@ -37,9 +37,9 @@ class YouTubeUploadLambda extends RequestHandler[KinesisEvent, Unit]
   }
 
   private def getYTUploadUrl(upload: Upload): String = upload.youTube.upload.getOrElse {
-    log.info(s"Starting YouTube upload for ${upload.id} [${upload.youTube.title} - ${upload.youTube.channel}]")
+    log.info(s"Starting YouTube upload for ${upload.id} [${upload.metadata.title} - ${upload.youTube.channel}]")
 
-    val url = startUpload(upload.youTube.title, upload.youTube.channel, upload.id, upload.parts.last.end)
+    val url = startUpload(upload.metadata.title, upload.youTube.channel, upload.id, upload.parts.last.end)
     val updated = upload.copy(youTube = upload.youTube.copy(upload = Some(url)))
 
     table.put(updated)

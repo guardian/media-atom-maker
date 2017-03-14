@@ -85,11 +85,12 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, o
       atomId = atom.id,
       user = user.email,
       bucket = awsConfig.userUploadBucket,
-      region = awsConfig.region.getName
+      region = awsConfig.region.getName,
+      title = atom.title,
+      plutoProjectId = atom.plutoProjectId
     )
 
     val youTube = YouTubeMetadata(
-      title = atom.title,
       channel = channelId,
       upload = None
     )
