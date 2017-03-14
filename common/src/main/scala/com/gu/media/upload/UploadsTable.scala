@@ -7,7 +7,6 @@ import com.gu.scanamo.{Scanamo, Table}
 trait UploadsTable {
   def list(atomId: String): List[Upload]
   def put(upload: Upload): Unit
-  def get(id: String): Option[Upload]
   def consistentlyGet(id: String): Option[Upload]
   def delete(id: String): Unit
 }
@@ -30,16 +29,6 @@ class DynamoUploadsTable(aws: DynamoAccess) extends UploadsTable {
   override def put(upload: Upload): Unit = {
     val operation = table.put(upload)
     Scanamo.exec(aws.dynamoDB)(operation)
-  }
-
-  override def get(id: String): Option[Upload] = {
-    val operation = table.get('id -> id)
-    val result = Scanamo.exec(aws.dynamoDB)(operation)
-
-    result.map {
-      case Right(upload) => upload
-      case Left(err) => throw DynamoUploadsTableException(err.toString)
-    }
   }
 
   override def consistentlyGet(id: String): Option[Upload] = {

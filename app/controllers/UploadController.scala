@@ -52,7 +52,7 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, o
   }
 
   def credentials(id: String) = APIHMACAuthAction { implicit req =>
-    (table.get(id), req.headers.get(UPLOAD_KEY_HEADER)) match {
+    (table.consistentlyGet(id), req.headers.get(UPLOAD_KEY_HEADER)) match {
       case (Some(upload), Some(key)) =>
         val validKey = upload.parts.exists(_.key == key)
 

@@ -24,17 +24,15 @@ class YouTubeUploadLambda extends RequestHandler[KinesisEvent, Unit]
       key <- readKey(input)
       (upload, part) <- readUploadAndPart(key)
 
+      total = upload.parts.last.end
       uploadUri = getYTUploadUrl(upload)
     } yield {
       log.info(s"Uploading $uploadUri ${part.key} [${part.start} - ${part.end}]")
 
-      uploadPart(uploadUri, part.key, part.start, part.end, upload.parts.last.end, (progress: Long) => {
-        val updated = upload.withPart(part.key)(_.copy(uploadedToYouTube = progress))
-        table.put(updated)
-      })
-
-      val completed = upload.withPart(part.key) { part => part.copy(uploadedToYouTube = part.end) }
-      table.put(completed)
+      uploadPart(uploadUri, part.key, part.start, part.end, total, (_: Long) => {}).foreach { videoId =>
+        log.info(s"Successful upload ${upload.id}. YouTube ID: $videoId")
+        table.delete(upload.id)
+      }
     }
   }
 
