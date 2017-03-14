@@ -24,7 +24,7 @@ class DynamoUploadsTable(aws: DynamoAccess) extends UploadsTable {
       throw DynamoUploadsTableException(errors.mkString(","))
     }
 
-    allResults.collect { case Right(upload) if upload.atomId == atomId => upload }
+    allResults.collect { case Right(upload) if upload.metadata.atomId == atomId => upload }
   }
 
   override def put(upload: Upload): Unit = {

@@ -33,10 +33,16 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, o
       log.info(s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}")
 
       val atom = MediaAtom.fromThrift(getPreviewAtom(req.atomId))
-      val upload = buildUpload(atom, raw.user, req.size)
+      atom.channelId match {
+        case Some(channel) =>
+          val upload = buildUpload(atom, channel, raw.user, req.size)
 
-      table.put(upload)
-      Ok(Json.toJson(upload))
+          table.put(upload)
+          Ok(Json.toJson(upload))
+
+        case None =>
+          BadRequest("Atom missing YouTube channel")
+      }
     }
   }
 
@@ -70,17 +76,25 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, o
     }
   }
 
-  private def buildUpload(atom: MediaAtom, user: User, size: Long) = {
+  private def buildUpload(atom: MediaAtom, channelId: String, user: User, size: Long) = {
     val id = UUID.randomUUID().toString
 
-    Upload(
-      id = id,
+    val parts = chunk(id, size)
+
+    val metadata = UploadMetadata(
       atomId = atom.id,
       user = user.email,
       bucket = awsConfig.userUploadBucket,
-      region = awsConfig.region.getName,
-      parts = chunk(id, size)
+      region = awsConfig.region.getName
     )
+
+    val youTube = YouTubeMetadata(
+      title = atom.title,
+      channel = channelId,
+      multipartUpload = None
+    )
+
+    Upload(id, parts, metadata, youTube)
   }
 }
 
