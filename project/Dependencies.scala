@@ -38,6 +38,7 @@ object Dependencies {
   val awsSNS = "com.amazonaws" % "aws-java-sdk-sns" % awsVersion
   val awsSQS = "com.amazonaws" % "aws-java-sdk-sqs" % awsVersion
   val awsKinesisClient = "com.amazonaws" % "amazon-kinesis-client" % kinesisClientVersion
+  val aws = "com.amazonaws" % "aws-java-sdk" % awsVersion
 
   val logstashLogbackEncoder = "net.logstash.logback" % "logstash-logback-encoder" % "4.8"
   val kinesisLogbackAppender = "com.gu" % "kinesis-logback-appender" % "1.3.0"
