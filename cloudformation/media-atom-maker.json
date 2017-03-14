@@ -55,10 +55,6 @@
             "Description": "Name of the upload tracking dynamo table",
             "Type": "String"
         },
-        "UploadTrackingTableStream": {
-          "Description": "Arn of the upload tracking dynamo table stream",
-          "Type": "String"
-        },
         "AlertActive": {
             "Description": "Whether to send CloudWatch alerts",
             "Type": "String"
@@ -403,11 +399,6 @@
                                 { "Region": { "Ref": "AWS::Region"}, "Account": { "Ref": "AWS::AccountId" }, "Table": { "Ref": "UploadTrackingTable" } }
                               ]
                             }
-                          },
-                          {
-                            "Effect": "Allow",
-                            "Action": ["dynamodb:*"],
-                            "Resource": { "Ref": "UploadTrackingTableStream" }
                           }
                         ]
                     }
@@ -448,42 +439,6 @@
             "FunctionName": { "Ref": "UploaderS3EventsLambda" },
             "Principal": "s3.amazonaws.com",
             "SourceArn": { "Fn::Join": ["", [ "arn:aws:s3:::", { "Fn::FindInMap": [ "StageMap", {"Ref": "Stage"}, "UploadBucket"] } ]] }
-          }
-        },
-
-        "UploaderDynamoEventsLambda": {
-          "Type": "AWS::Lambda::Function",
-          "Properties": {
-            "FunctionName":  {"Fn::Join": ["-", ["media-atom-maker-uploader-dynamo-events", {"Ref": "Stage"} ] ] },
-            "Description": "Triggers upload actions based on Dynamo events",
-            "Handler": "com.gu.media.DynamoEventsLambda::handleRequest",
-            "Code": {
-              "S3Bucket": { "Ref": "BuildBucket" },
-              "S3Key": { "Fn::FindInMap": [ "LambdaBuilds", "Uploader", { "Ref": "Stage" }] }
-            },
-            "Environment": {
-              "Variables": {
-                "REGION": { "Ref": "AWS::Region" },
-                "STACK": { "Ref": "Stack" },
-                "APP": "media-atom-uploader",
-                "STAGE": { "Ref": "Stage" },
-                "CONFIG_BUCKET": { "Ref": "ConfigBucket" },
-                "CONFIG_KEY": { "Fn::FindInMap": [ "LambdaConfig", "Uploader", { "Ref": "Stage" }] }
-              }
-            },
-            "MemorySize": 256,
-            "Role":  { "Fn::GetAtt": [ "UploaderRole", "Arn" ] },
-            "Runtime": "java8",
-            "Timeout": 300
-          }
-        },
-
-        "UploaderDynamoEventsMapping": {
-          "Type": "AWS::Lambda::EventSourceMapping",
-          "Properties": {
-            "FunctionName": { "Ref": "UploaderDynamoEventsLambda" },
-            "EventSourceArn": { "Ref": "UploadTrackingTableStream" },
-            "StartingPosition": "LATEST"
           }
         },
 

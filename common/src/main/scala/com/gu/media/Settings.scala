@@ -10,7 +10,9 @@ trait Settings {
   def getStringList(name: String): List[String] = if(config.hasPath(name)) { config.getStringList(name).asScala.toList } else { List.empty}
   def getBoolean(name: String): Option[Boolean] = if(config.hasPath(name)) { Some(config.getBoolean(name)) } else { None }
 
-  def getMandatoryString(name: String, hint: String = ""): String = Option(config.getString(name)).getOrElse {
+  def getMandatoryString(name: String, hint: String = ""): String = if(config.hasPath(name)) {
+    config.getString(name)
+  } else {
     throw new IllegalArgumentException(s"Missing $name $hint")
   }
 }

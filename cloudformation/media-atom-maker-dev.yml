@@ -18,6 +18,10 @@ Parameters:
     Description: "Stage name"
     Type: "String"
     Default: "DEV"
+  TranscodeOutputBucketName:
+    Description: "The name to use for the S3 bucket for transcoding output"
+    Type: "String"
+    Default: "media-atom-maker-transcoder-dev"
   UploadBucketName:
     Description: "The name to use for the S3 bucket where uploads will be saved"
     Type: "String"
@@ -29,7 +33,7 @@ Mappings:
     Transcoder:
       DEV: "media-service/DEV/media-atom-transcoder/media-atom-transcoder.zip"
     Expirer:
-      DEV: "media-service/DEV/media-atom-transcoder/media-atom-expirer.zip"
+      DEV: "media-service/DEV/media-atom-expirer/media-atom-expirer.zip"
   LambdaConfig:
     Uploader:
       DEV: "DEV/media-atom-maker.private.conf"
@@ -128,20 +132,14 @@ Resources:
     Type: "AWS::DynamoDB::Table"
     Properties:
       AttributeDefinitions:
-        - AttributeName: "atomId"
-          AttributeType: "S"
         - AttributeName: "id"
           AttributeType: "S"
       KeySchema:
-        - AttributeName: "atomId"
-          KeyType: "HASH"
         - AttributeName: "id"
-          KeyType: "RANGE"
+          KeyType: "HASH"
       ProvisionedThroughput:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
-      StreamSpecification:
-        StreamViewType: "NEW_IMAGE"
 
   UserUploadBucket:
     Type: "AWS::S3::Bucket"
@@ -239,9 +237,11 @@ Resources:
                     - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
                     - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "UploadTrackingDynamoTable" }
               - Effect: "Allow"
-                Action: ["dynamodb:*"]
+                Action: ["s3:GetObject"]
                 Resource:
-                  - !GetAtt UploadTrackingDynamoTable.StreamArn
+                  - !Sub
+                    - "arn:aws:s3:::${Bucket}/*"
+                    - { "Bucket": !Ref UploadBucketName }
 
   UploaderS3EventsLambda:
     Type: "AWS::Lambda::Function"
@@ -275,38 +275,10 @@ Resources:
         - "arn:aws:s3:::${Name}"
         - { Name: !Ref UploadBucketName }
 
-  UploaderDynamoEventsLambda:
-    Type: "AWS::Lambda::Function"
-    Properties:
-      Description: "Triggers upload actions based on Dynamo events"
-      Handler: "com.gu.media.DynamoEventsLambda::handleRequest"
-      Code:
-        S3Bucket: !Ref BuildBucket
-        S3Key: !FindInMap [LambdaBuilds, Uploader, DEV]
-      Environment:
-        Variables:
-          REGION: !Ref AWS::Region
-          STACK: !Ref Stack
-          APP: "media-atom-uploader"
-          STAGE: !Ref Stage
-          CONFIG_BUCKET: !Ref ConfigBucket
-          CONFIG_KEY: !FindInMap [LambdaConfig, Uploader, DEV]
-      MemorySize: 256
-      Role: !GetAtt UploaderRole.Arn
-      Runtime: "java8"
-      Timeout: 300
-
-  UploaderDynamoEventsMapping:
-    Type: "AWS::Lambda::EventSourceMapping"
-    Properties:
-      FunctionName: !Ref UploaderDynamoEventsLambda
-      EventSourceArn: !GetAtt UploadTrackingDynamoTable.StreamArn
-      StartingPosition: "LATEST"
-
   TranscoderOutputS3Bucket:
     Type: "AWS::S3::Bucket"
     Properties:
-      BucketName: "media-atom-maker-transcoder-dev"
+      BucketName: !Ref TranscodeOutputBucketName
 
   TranscoderRole:
     Type: "AWS::IAM::Role"
@@ -419,9 +391,6 @@ Outputs:
   UploadTrackingDynamoTable:
     Value:
       Ref: "UploadTrackingDynamoTable"
-  UploadTrackingStream:
-    Value:
-      !GetAtt UploadTrackingDynamoTable.StreamArn
   AwsId:
     Value:
       Ref: "HostKeys"

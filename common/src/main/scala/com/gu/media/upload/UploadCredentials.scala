@@ -1,16 +1,10 @@
-package model
+package com.gu.media.upload
 
 import org.cvogt.play.json.Jsonx
-import play.api.libs.json._
+import play.api.libs.json.Format
 
-case class UploadPolicy(bucket: String, key: String, region: String, credentials: UploadCredentials)
 case class UploadCredentials(temporaryAccessId: String, temporarySecretKey: String, sessionToken: String)
-
-object UploadPolicy {
-  implicit val format: Format[UploadPolicy] = Jsonx.formatCaseClass[UploadPolicy]
-}
 
 object UploadCredentials {
   implicit val format: Format[UploadCredentials] = Jsonx.formatCaseClass[UploadCredentials]
 }
-

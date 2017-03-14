@@ -25,6 +25,7 @@ object Dependencies {
   val scalaTestPlusPlay = "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % "test"
   val mockito = "org.mockito" %  "mockito-core" % mockitoVersion % "test"
   val scalaXml = "org.scala-lang.modules" %% "scala-xml" % "1.0.5"   % "test"
+  val scalaCheck = "org.scalacheck" %% "scalacheck" % "1.12.5" % "test" // to match ScalaTest version
 
   val awsSts = "com.amazonaws" % "aws-java-sdk-sts" % awsVersion
   val awsEc2 = "com.amazonaws" % "aws-java-sdk-ec2" % awsVersion
@@ -64,7 +65,7 @@ object Dependencies {
 
   val commonDependencies = googleApi ++ Seq(
     typesafeConfig, awsLambdaCore, awsS3, awsDynamo, playJsonExtensions, logstashLogbackEncoder, kinesisLogbackAppender,
-    awsTranscoder, scanamo, okHttp
+    awsTranscoder, scanamo, okHttp, scalaTest, scalaCheck
   )
 
   val appDependencies = panda ++ atomMaker ++ slf4j ++ Seq(
