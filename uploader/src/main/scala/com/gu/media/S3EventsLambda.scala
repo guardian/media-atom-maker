@@ -89,9 +89,9 @@ class S3EventsLambda extends RequestHandler[S3Event, Unit]
   }
 
   private def completePart(key: UploadPartKey, upload: Upload): Upload = {
-    upload.withPart(key.part, { part =>
+    upload.withPart(key.toString) { part =>
       part.copy(uploadedToS3 = true)
-    })
+    }
   }
 
   private def allPartsInS3(upload: Upload): Boolean = {

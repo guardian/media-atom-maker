@@ -91,7 +91,7 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, o
     val youTube = YouTubeMetadata(
       title = atom.title,
       channel = channelId,
-      multipartUpload = None
+      upload = None
     )
 
     Upload(id, parts, metadata, youTube)
