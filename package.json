@@ -5,7 +5,9 @@
     "build": "webpack -p ./public/video-ui/src/app.js ./public/video-ui/build/app.js --config ./build_config/webpack.prod.conf.js",
     "build-dev": "webpack ./public/video-ui/src/app.js ./public/video-ui/build/app.js --config ./build_config/webpack.dev.conf.js --watch",
     "client-dev": "node ./webpack-dev-server.js",
-    "lint": "eslint public/video-ui/src/",
+    "lint-video-ui": "eslint public/video-ui/src/",
+    "lint-cloudformation": "jsonlint cloudformation/*.json --quiet",
+    "lint": "npm run lint-video-ui && npm run lint-cloudformation",
     "test": "npm run lint"
   },
   "devDependencies": {
@@ -30,6 +32,7 @@
     "gulp-ng-annotate": "^2.0.0",
     "gulp-sourcemaps": "^1.6.0",
     "gulp-uglify": "^2.0.0",
+    "jsonlint": "^1.6.2",
     "lodash": "^4.17.4",
     "moment": "^2.10.6",
     "node-sass": "^3.10.1",
