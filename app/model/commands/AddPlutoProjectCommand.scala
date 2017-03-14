@@ -1,12 +1,10 @@
 package model.commands
 
-import java.nio.ByteBuffer
-
-import com.amazonaws.services.kinesis.model.{PutRecordsRequestEntry, PutRecordsRequest}
 import com.gu.media.logging.Logging
+import com.gu.media.kinesis.PlutoKinesisSender
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
-import model.{VideoUpload, MediaAtom}
+import model.MediaAtom
 import util.AWSConfig
 
 class AddPlutoProjectCommand(atomId: String, plutoId: String, override val stores: DataStores, user: PandaUser,
@@ -26,22 +24,8 @@ class AddPlutoProjectCommand(atomId: String, plutoId: String, override val store
 
           plutoDataStore.put(upload.copy(plutoProjectId = Some(plutoId)))
 
-          val request = new PutRecordsRequest().withStreamName(awsConfig.uploadsStreamName)
+          PlutoKinesisSender.send(plutoId, upload.s3Key, awsConfig.uploadsStreamName, awsConfig.kinesisClient)
 
-          val data =
-            s"""
-              {
-                "plutoProjectId": ${plutoId}
-                "s3Key": ${upload.s3Key}
-
-            """.stripMargin.getBytes("UTF-8");
-
-          val record = new PutRecordsRequestEntry()
-            .withPartitionKey(atomId)
-            .withData(ByteBuffer.wrap(data))
-
-          request.withRecords(record)
-          awsConfig.kinesisClient.putRecords(request)
           updatedAtom
         }
       }
