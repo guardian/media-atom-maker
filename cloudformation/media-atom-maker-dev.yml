@@ -280,7 +280,7 @@ Resources:
   YouTubeUploadsStream:
     Type: "AWS::Kinesis::Stream"
     Properties:
-      # Allows a maximum of two videos to be uploaded in parallel (for now)
+      # Allows a maximum of two video chunks to be uploaded in parallel (for now)
       ShardCount: 2
 
   YouTubeUploadLambda:
