@@ -740,7 +740,7 @@
                                 "dpkg -i /tmp/media-atom-maker.deb\n",
 
                                 "chown ", {"Ref": "App"},  " /etc/gu/media-atom-maker.private.conf\n",
-                                "chmod 0600 /etc/gu/media-atom-maker.private.conf\n",
+                                "chmod 0600 /etc/gu/media-atom-maker.private.conf\n"
 
                             ]
                         ]
