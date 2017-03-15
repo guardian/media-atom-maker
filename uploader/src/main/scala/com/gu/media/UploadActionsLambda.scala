@@ -32,8 +32,7 @@ class UploadActionsLambda extends RequestHandler[KinesisEvent, Unit]
   override def handleRequest(input: KinesisEvent, context: Context): Unit = {
     readAction(input).foreach {
       case UploadPartToYouTube(uploadId, key) =>
-        // TODO: upload to YouTube
-        log.info(s"$key uploaded for $uploadId")
+        uploadToYouTube(uploadId, key)
 
       case DeleteParts(uploadId, partsToDelete) =>
         deleteParts(partsToDelete)
@@ -74,7 +73,7 @@ class UploadActionsLambda extends RequestHandler[KinesisEvent, Unit]
     val actuallyPerformRequest = stage != "DEV" && domain.nonEmpty
 
     val origin = s"${domain.getOrElse("https://video.local.dev-gutools.co.uk")}"
-    val uri = s"$origin//api2/atoms/:id/assets"
+    val uri = s"$origin/api2/atoms/:id/assets"
     val hmacHeaders = generateHmacHeaders(uri)
 
     val videoUri = s"https://www.youtube.com/watch?v=$videoId"
