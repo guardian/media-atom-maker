@@ -25,12 +25,12 @@ class UploadLifecycle(aws: AwsAccess with S3Access with DynamoAccess with Kinesi
     val complete = upload.withPart(part.key)(_.copy(uploadedToS3 = true))
 
     // Put on Kinesis to be picked up by the UploadActionsLambda
-    val action = PartUploaded(upload.id, part.key)
+    val action = UploadPartToYouTube(upload.id, part.key)
     aws.sendOnKinesis(aws.uploadActionsStreamName, upload.id, action)
 
     if(complete.parts.forall(_.uploadedToS3)) {
       val fullKey = createFullObject(complete).toString
-      val action = FullKeyCreated(upload.id, fullKey, upload.parts.map(_.key))
+      val action = DeleteParts(upload.id, upload.parts.map(_.key))
 
       aws.sendOnKinesis(aws.uploadActionsStreamName, upload.id, action)
       sendToPluto(fullKey, upload.metadata)

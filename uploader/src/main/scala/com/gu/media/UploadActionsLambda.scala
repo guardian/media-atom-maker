@@ -18,11 +18,11 @@ class UploadActionsLambda extends RequestHandler[KinesisEvent, Unit]
 
   override def handleRequest(input: KinesisEvent, context: Context): Unit = {
     readAction(input).foreach {
-      case PartUploaded(uploadId, key) =>
+      case UploadPartToYouTube(uploadId, key) =>
         // TODO: upload to YouTube
         log.info(s"$key uploaded for $uploadId")
 
-      case FullKeyCreated(uploadId, _, partsToDelete) =>
+      case DeleteParts(uploadId, partsToDelete) =>
         deleteParts(partsToDelete)
     }
   }

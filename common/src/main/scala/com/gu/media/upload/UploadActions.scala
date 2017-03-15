@@ -4,15 +4,15 @@ import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
 
 sealed abstract class UploadAction
-case class PartUploaded(uploadId: String, key: String) extends UploadAction
-case class FullKeyCreated(uploadId: String, fullKey: String, partsToDelete: List[String]) extends UploadAction
+case class UploadPartToYouTube(uploadId: String, key: String) extends UploadAction
+case class DeleteParts(uploadId: String, partsToDelete: List[String]) extends UploadAction
 
-object PartUploaded {
-  implicit val format: Format[PartUploaded] = Jsonx.formatCaseClass[PartUploaded]
+object UploadPartToYouTube {
+  implicit val format: Format[UploadPartToYouTube] = Jsonx.formatCaseClass[UploadPartToYouTube]
 }
 
-object FullKeyCreated {
-  implicit val format: Format[FullKeyCreated] = Jsonx.formatCaseClass[FullKeyCreated]
+object DeleteParts {
+  implicit val format: Format[DeleteParts] = Jsonx.formatCaseClass[DeleteParts]
 }
 
 object UploadAction {
