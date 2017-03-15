@@ -137,4 +137,14 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
   def getAuditTrailForAtomId(id: String) = APIHMACAuthAction { implicit req =>
     Ok(Json.toJson(auditDataStore.getAuditTrailForAtomId(id)))
   }
+
+  def deleteAtom(id: String) = APIHMACAuthAction {
+    try {
+      DeleteCommand(id, stores).process()
+      Ok(s"Atom $id deleted")
+    }
+    catch {
+      commandExceptionAsResult
+    }
+  }
 }

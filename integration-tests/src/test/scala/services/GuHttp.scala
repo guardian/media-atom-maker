@@ -46,4 +46,14 @@ trait GuHttp {
     httpClient.newCall(req.build()).execute()
   }
 
+  def gutoolsDelete(url: String)(implicit cookie: PandaCookie): Response = {
+    val req = new Request.Builder()
+      .url(url)
+      .addHeader("Cookie", s"${cookie.key}=${cookie.value}")
+      .delete()
+      .build()
+
+    httpClient.newCall(req).execute()
+  }
+
 }
