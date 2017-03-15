@@ -9,6 +9,8 @@ import java.util.UUID
 
 import play.api.libs.json.Json
 
+import scala.collection.mutable.ListBuffer
+
 class IntegrationTests extends FlatSpec with Matchers with Eventually with IntegrationPatience with GuHttp with TestAtomJsonGenerator with BeforeAndAfterAll {
 
   val targetBaseUrl: String = Config.targetBaseUrl
@@ -16,7 +18,7 @@ class IntegrationTests extends FlatSpec with Matchers with Eventually with Integ
 
   def apiUri(atomId: String): String = s"$targetBaseUrl/api/atom/$atomId"
 
-  var createdAtoms: List[String] = List() /* Add all created atoms IDs to this list as first action after atom created. This allows for test cleanup outside the test flow  */
+  var createdAtoms = new ListBuffer[String]() /* Add all created atoms IDs to this list as first action after atom created. This allows for test cleanup outside the test flow  */
 
   def deleteAtom(id: String) = {
     gutoolsDelete(s"$targetBaseUrl/api2/atom/$id")
@@ -54,7 +56,7 @@ class IntegrationTests extends FlatSpec with Matchers with Eventually with Integ
 
     val atomId = (Json.parse(response.body().string()) \ "id").get.as[String]
 
-    createdAtoms = atomId :: createdAtoms
+    createdAtoms += atomId
 
     val apiEndpoint = apiUri(atomId)
 
