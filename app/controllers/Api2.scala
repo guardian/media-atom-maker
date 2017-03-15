@@ -153,6 +153,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
     catch {
       commandExceptionAsResult
     }
+  }
 
   def getPlutoAtoms = APIHMACAuthAction {  implicit req =>
 

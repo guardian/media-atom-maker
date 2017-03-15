@@ -526,9 +526,6 @@ Outputs:
   UploadTrackingDynamoTable:
     Value:
       Ref: "UploadTrackingDynamoTable"
-  UploadTrackingStream:
-    Value:
-      !GetAtt UploadTrackingDynamoTable.StreamArn
   ManualPlutoDynamoTable:
     Value:
       Ref: "ManualPlutoMediaAtomsDynamoTable"
@@ -547,9 +544,6 @@ Outputs:
   TranscoderOutputS3Bucket:
     Value:
       Ref: "TranscoderOutputS3Bucket"
-  UploadsStream:
-    Value:
-     Ref: "UploadsStream"
   PlutoQueue:
     Value:
       Ref: "PlutoQueue"
