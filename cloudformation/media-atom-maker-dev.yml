@@ -271,6 +271,7 @@ Resources:
           STAGE: !Ref Stage
           CONFIG_BUCKET: !Ref ConfigBucket
           CONFIG_KEY: !FindInMap [LambdaConfig, Uploader, DEV]
+          DOMAIN: !Join [ "", [ "https://", { "Ref": "Domain"} ]]
       MemorySize: 256
       Role: !GetAtt UploaderRole.Arn
       Runtime: "java8"

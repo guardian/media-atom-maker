@@ -10,11 +10,11 @@ import scala.collection.JavaConverters._
 class UploadLifecycle(aws: AwsAccess with S3Access with DynamoAccess with KinesisAccess with UploadAccess) extends Logging {
   private val credentials = new CredentialsGenerator(aws)
 
-  def create(metadata: UploadMetadata, size: Long): Upload = {
+  def create(metadata: UploadMetadata, youtubeMetadata: YouTubeMetadata, size: Long): Upload = {
     val id = UUID.randomUUID().toString
     val parts = chunk(id, size)
 
-    Upload(id, parts, metadata, error = None)
+    Upload(id, parts, metadata, youtubeMetadata, error = None)
   }
 
   def credentialsForPart(upload: Upload, part: UploadPart): UploadCredentials = {

@@ -488,7 +488,8 @@
                 "APP": "media-atom-uploader",
                 "STAGE": { "Ref": "Stage" },
                 "CONFIG_BUCKET": { "Ref": "ConfigBucket" },
-                "CONFIG_KEY": { "Fn::FindInMap": [ "LambdaConfig", "Uploader", { "Ref": "Stage" }] }
+                "CONFIG_KEY": { "Fn::FindInMap": [ "LambdaConfig", "Uploader", { "Ref": "Stage" }] },
+                "DOMAIN": { "Fn::Join": ["", [ "https://", { "Ref": "DomainToMonitor" } ]] }
               }
             },
             "MemorySize": 256,

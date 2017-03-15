@@ -76,7 +76,12 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, o
       plutoProjectId = atom.plutoProjectId
     )
 
-    uploads.create(metadata, size)
+    val youTube = YouTubeMetadata(
+      channel = channelId,
+      upload = None
+    )
+
+    uploads.create(metadata, youTube, size)
   }
 
   private def partRequest(id: String, request: UserRequest[_])(fn: (Upload, UploadPart) => Result): Result = {

@@ -58,4 +58,9 @@ trait YouTubeAccess extends Settings {
       case allowedList => allChannels.filter(c => allowedList.contains(c.id))
     }
   }
+
+  def accessToken(): String = {
+    credentials.refreshToken()
+    credentials.getAccessToken
+  }
 }

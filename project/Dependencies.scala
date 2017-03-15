@@ -38,6 +38,8 @@ object Dependencies {
   val logstashLogbackEncoder = "net.logstash.logback" % "logstash-logback-encoder" % "4.8"
   val kinesisLogbackAppender = "com.gu" % "kinesis-logback-appender" % "1.3.0"
 
+  val pandaHmacHeaders = "com.gu" %% "hmac-headers" % "1.1"
+
   val panda = Seq(
     "com.gu" %% "pan-domain-auth-play_2-5" % pandaVersion,
     "com.gu" %% "pan-domain-auth-verification" % pandaVersion,
@@ -74,7 +76,7 @@ object Dependencies {
   )
 
   val uploaderDependencies = Seq(
-    logstashLogbackEncoder, awsLambdaEvents, okHttp
+    logstashLogbackEncoder, awsLambdaEvents, okHttp, pandaHmacHeaders
   )
 
   val transcodeDependencies = Seq(awsLambdaCore, awsTranscoder, playJsonExtensions)
