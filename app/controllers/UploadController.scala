@@ -20,7 +20,7 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, o
 
   private val UPLOAD_KEY_HEADER = "X-Upload-Key"
   private val table = new UploadsTable(awsConfig)
-  private val uploads = new UploadActions(awsConfig)
+  private val uploads = new UploadLifecycle(awsConfig)
 
   def list(atomId: String) = APIHMACAuthAction {
     val uploads = table.list(atomId)

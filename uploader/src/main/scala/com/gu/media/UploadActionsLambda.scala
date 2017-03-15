@@ -1,14 +1,30 @@
 package com.gu.media
 
-import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import com.amazonaws.services.lambda.runtime.events.KinesisEvent
+import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
+import com.gu.media.aws.{S3Access, UploadAccess}
+import com.gu.media.lambda.LambdaBase
 import com.gu.media.logging.Logging
-import com.gu.media.upload.UploadAction
+import com.gu.media.upload._
 import play.api.libs.json.{JsError, JsSuccess, Json}
 
-class UploadActionsLambda extends RequestHandler[KinesisEvent, Unit] with Logging {
+import scala.util.control.NonFatal
+
+class UploadActionsLambda extends RequestHandler[KinesisEvent, Unit]
+  with LambdaBase
+  with S3Access
+  with UploadAccess
+  with Logging {
+
   override def handleRequest(input: KinesisEvent, context: Context): Unit = {
-    readAction(input).foreach { action => log.info(action.toString) }
+    readAction(input).foreach {
+      case PartUploaded(uploadId, key) =>
+        // TODO: upload to YouTube
+        log.info(s"$key uploaded for $uploadId")
+
+      case FullKeyCreated(uploadId, _, partsToDelete) =>
+        deleteParts(partsToDelete)
+    }
   }
 
   private def readAction(input: KinesisEvent): Option[UploadAction] = {
@@ -28,6 +44,20 @@ class UploadActionsLambda extends RequestHandler[KinesisEvent, Unit] with Loggin
       case JsError(err) =>
         log.error(s"Unable to parse $data: $err")
         None
+    }
+  }
+
+  private def deleteParts(partsToDelete: List[String]): Unit = {
+    // The full key will be deleted once it has been ingested by Pluto
+    partsToDelete.foreach { part =>
+      try {
+        log.info(s"Deleting part $part")
+        s3Client.deleteObject(userUploadBucket, part)
+      } catch {
+        case NonFatal(err) =>
+          // if we can't delete it, no problem. the bucket policy will remove it in time
+          log.warn(s"Unable to delete part $part: $err")
+      }
     }
   }
 }
