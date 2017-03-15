@@ -167,10 +167,6 @@ Resources:
             AllowedOrigins:
               -
                 !Join [ "", [ "https://", { "Ref": "Domain"} ]]
-      NotificationConfiguration:
-        LambdaConfigurations:
-          - Function: !GetAtt UploaderS3EventsLambda.Arn
-            Event: "s3:ObjectCreated:*"
 
   LimitedUploadRole:
     Type: "AWS::IAM::Role"
@@ -251,50 +247,19 @@ Resources:
                     - { "Bucket": !Ref UploadBucketName }
               - Effect: "Allow"
                 Action: ["kinesis:Get*", "kinesis:PutRecord", "kinesis:DescribeStream"]
-                Resource: !GetAtt YouTubeUploadsStream.Arn
+                Resource: !GetAtt UploadActionsStream.Arn
 
-  UploaderS3EventsLambda:
-    Type: "AWS::Lambda::Function"
-    Properties:
-      Description: "Updates upload progress based on S3 events"
-      Handler: "com.gu.media.S3EventsLambda::handleRequest"
-      Code:
-        S3Bucket: !Ref BuildBucket
-        S3Key: !FindInMap [LambdaBuilds, Uploader, DEV]
-      Environment:
-        Variables:
-          REGION: !Ref AWS::Region
-          STACK: !Ref Stack
-          APP: "media-atom-uploader"
-          STAGE: !Ref Stage
-          CONFIG_BUCKET: !Ref ConfigBucket
-          CONFIG_KEY: !FindInMap [LambdaConfig, Uploader, DEV]
-      MemorySize: 256
-      Role: !GetAtt UploaderRole.Arn
-      Runtime: "java8"
-      Timeout: 300
-
-  UploaderS3EventsPermission:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      Action: "lambda:InvokeFunction"
-      FunctionName: !Ref UploaderS3EventsLambda
-      Principal: "s3.amazonaws.com"
-      SourceArn: !Sub
-        - "arn:aws:s3:::${Name}"
-        - { Name: !Ref UploadBucketName }
-
-  YouTubeUploadsStream:
+  UploadActionsStream:
     Type: "AWS::Kinesis::Stream"
     Properties:
       # Allows a maximum of two video chunks to be uploaded in parallel (for now)
       ShardCount: !Ref UploadParallelism
 
-  YouTubeUploadLambda:
+  UploadActionsLambda:
     Type: "AWS::Lambda::Function"
     Properties:
       Description: "Uploads chunks of video to YouTube"
-      Handler: "com.gu.media.YouTubeUploadLambda::handleRequest"
+      Handler: "com.gu.media.UploadActionsLambda::handleRequest"
       Code:
         S3Bucket: !Ref BuildBucket
         S3Key: !FindInMap [LambdaBuilds, Uploader, DEV]
@@ -311,11 +276,11 @@ Resources:
       Runtime: "java8"
       Timeout: 300
 
-  YouTubeEventSourceMapping:
+  UploadActionsEventSourceMapping:
     Type: "AWS::Lambda::EventSourceMapping"
     Properties:
-      EventSourceArn: !GetAtt YouTubeUploadsStream.Arn
-      FunctionName: !GetAtt YouTubeUploadLambda.Arn
+      EventSourceArn: !GetAtt UploadActionsStream.Arn
+      FunctionName: !GetAtt UploadActionsLambda.Arn
       BatchSize: 1
       StartingPosition: "TRIM_HORIZON"
 

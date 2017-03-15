@@ -7,18 +7,11 @@ deployments:
       bucket: atom-maker-dist
     dependencies:
       - media-atom-maker-ami-update
-  media-atom-uploader-s3-events:
+  media-atom-upload-actions:
     type: aws-lambda
     parameters:
       bucket: atom-maker-dist
-      functionNames: [media-atom-maker-uploader-s3-events-]
-      fileName: media-atom-uploader.zip
-      prefixStack: false
-  media-atom-uploader-youtube:
-    type: aws-lambda
-    parameters:
-      bucket: atom-maker-dist
-      functionNames: [media-atom-maker-uploader-youtube-]
+      functionNames: [media-atom-maker-upload-actions-]
       fileName: media-atom-uploader.zip
       prefixStack: false
   media-atom-transcoder:
