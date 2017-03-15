@@ -4,7 +4,7 @@ import com.amazonaws.auth.{AWSStaticCredentialsProvider, BasicAWSCredentials}
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClient
 import com.gu.media.Settings
 
-trait UploadAccess { this: Settings with AwsAccess =>
+trait UploadAccess { this: Settings with AwsAccess with DynamoAccess with KinesisAccess =>
   val userUploadBucket: String = getMandatoryString("aws.upload.bucket")
   val userUploadFolder: String = getMandatoryString("aws.upload.folder")
   val userUploadRole: String = getMandatoryString("aws.upload.role")
@@ -12,6 +12,10 @@ trait UploadAccess { this: Settings with AwsAccess =>
   lazy val uploadSTSClient = createUploadSTSClient()
 
   private def createUploadSTSClient() = {
+    if(!userUploadRole.startsWith("arn:")) {
+      throw new IllegalArgumentException("aws.upload.role must be in ARN format: arn:aws:iam::<account>:role/<role_name>")
+    }
+
     val provider = stage match {
       case "DEV" =>
         // Only required in dev. Instance profile credentials are sufficient when deployed

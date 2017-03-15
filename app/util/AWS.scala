@@ -16,6 +16,7 @@ class AWSConfig(override val config: Config)
   extends Settings
     with AwsAccess
     with CrossAccountAccess
+    with S3Access
     with DynamoAccess
     with UploadAccess
     with KinesisAccess
