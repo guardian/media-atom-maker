@@ -1,14 +1,22 @@
 package com.gu.media.upload
 
-import java.nio.ByteBuffer
-import java.nio.charset.StandardCharsets
 import java.util.UUID
 
 import com.amazonaws.services.s3.model.{CompleteMultipartUploadRequest, CopyPartRequest, InitiateMultipartUploadRequest, PartETag}
 import com.gu.media.aws._
 import com.gu.media.logging.Logging
+import org.cvogt.play.json.Jsonx
+import play.api.libs.json.Format
 
 import scala.collection.JavaConverters._
+
+sealed abstract class UploadAction
+case class PartUploaded(uploadId: String, key: String) extends UploadAction
+case class FullKeyCreated(uploadId: String) extends UploadAction
+
+object UploadAction {
+  implicit val format: Format[UploadAction] = Jsonx.formatAuto[UploadAction]
+}
 
 class UploadActions(aws: AwsAccess with S3Access with DynamoAccess with KinesisAccess with UploadAccess) extends Logging {
   private val credentials = new CredentialsGenerator(aws)
@@ -27,13 +35,16 @@ class UploadActions(aws: AwsAccess with S3Access with DynamoAccess with KinesisA
   def partComplete(upload: Upload, part: UploadPart): Upload = {
     val complete = upload.withPart(part.key)(_.copy(uploadedToS3 = true))
 
-    // Put on Kinesis to be picked up by the YouTubeUploadLambda
-    val bytes = ByteBuffer.wrap(part.key.toString.getBytes(StandardCharsets.UTF_8))
-    aws.kinesisClient.putRecord(aws.youTubeUploadsStreamName, bytes, upload.id)
+    // Put on Kinesis to be picked up by the UploadActionsLambda
+    val action = PartUploaded(upload.id, part.key)
+    aws.sendOnKinesis(aws.uploadActionsStreamName, upload.id, action)
 
     if(complete.parts.forall(_.uploadedToS3)) {
-      val fullKey = createFullObject(complete)
-      sendToPluto(fullKey.toString, upload.metadata)
+      val fullKey = createFullObject(complete).toString
+      val action = FullKeyCreated(upload.id)
+
+      aws.sendOnKinesis(aws.uploadActionsStreamName, upload.id, action)
+      sendToPluto(fullKey, upload.metadata)
     }
 
     complete

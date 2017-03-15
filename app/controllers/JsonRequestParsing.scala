@@ -16,7 +16,7 @@ trait JsonRequestParsing { this: Controller =>
 
           case JsError(errors) =>
             val errorsByPath = errors.flatMap { case(p, e) => e.map(p -> _) } // flatten
-          val msg = errorsByPath.map { case(p, e) => s"$p -> $e" }.mkString("\n")
+            val msg = errorsByPath.map { case(p, e) => s"$p -> $e" }.mkString("\n")
 
             Logger.info(s"Error parsing request: $msg - ${raw.body}")
             BadRequest(msg)

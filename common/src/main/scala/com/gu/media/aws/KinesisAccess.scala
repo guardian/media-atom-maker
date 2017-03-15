@@ -1,8 +1,12 @@
 package com.gu.media.aws
 
+import java.nio.ByteBuffer
+import java.nio.charset.StandardCharsets
+
 import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.kinesis.AmazonKinesisClient
 import com.gu.media.Settings
+import play.api.libs.json.{Json, Writes}
 
 trait KinesisAccess { this: Settings with AwsAccess with CrossAccountAccess =>
   val liveKinesisStreamName: String = getMandatoryString("aws.kinesis.liveStreamName")
@@ -14,11 +18,18 @@ trait KinesisAccess { this: Settings with AwsAccess with CrossAccountAccess =>
   val readFromComposerAccount: Boolean = getBoolean("readFromComposer").getOrElse(false)
   val atomEventsProvider: AWSCredentialsProvider = getCrossAccountCredentials("media-atom-maker-atom-events")
 
-  val youTubeUploadsStreamName: String = getMandatoryString("aws.kinesis.youTubeUploadsStreamName")
+  val uploadActionsStreamName: String = getMandatoryString("aws.kinesis.uploadActionsStreamName")
 
   lazy val kinesisClient = if (stage != "DEV" || readFromComposerAccount) {
     region.createClient(classOf[AmazonKinesisClient], atomEventsProvider, null)
   } else {
     region.createClient(classOf[AmazonKinesisClient], credsProvider, null)
+  }
+
+  def sendOnKinesis[T: Writes](streamName: String, partitionKey: String, value: T): Unit = {
+    val json = Json.stringify(Json.toJson(value))
+    val bytes = ByteBuffer.wrap(json.getBytes(StandardCharsets.UTF_8))
+
+    kinesisClient.putRecord(streamName, bytes, partitionKey)
   }
 }
