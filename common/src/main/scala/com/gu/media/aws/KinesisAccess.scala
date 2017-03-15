@@ -14,6 +14,8 @@ trait KinesisAccess { this: Settings with AwsAccess with CrossAccountAccess =>
   val readFromComposerAccount: Boolean = getBoolean("readFromComposer").getOrElse(false)
   val atomEventsProvider: AWSCredentialsProvider = getCrossAccountCredentials("media-atom-maker-atom-events")
 
+  val youTubeUploadsStreamName: String = getMandatoryString("aws.kinesis.youTubeUploadsStreamName")
+
   lazy val kinesisClient = if (stage != "DEV" || readFromComposerAccount) {
     region.createClient(classOf[AmazonKinesisClient], atomEventsProvider, null)
   } else {

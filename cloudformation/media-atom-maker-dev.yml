@@ -26,6 +26,10 @@ Parameters:
     Description: "The name to use for the S3 bucket where uploads will be saved"
     Type: "String"
     Default: "media-atom-maker-upload-dev"
+  UploadParallelism:
+    Description: "How many video chunks can be uploaded in parallel"
+    Type: "String"
+    Default: "2"
 Mappings:
   LambdaBuilds:
     Uploader:
@@ -237,11 +241,14 @@ Resources:
                     - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
                     - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "UploadTrackingDynamoTable" }
               - Effect: "Allow"
-                Action: ["s3:GetObject"]
+                Action: ["s3:*"]
                 Resource:
                   - !Sub
                     - "arn:aws:s3:::${Bucket}/*"
                     - { "Bucket": !Ref UploadBucketName }
+              - Effect: "Allow"
+                Action: ["kinesis:Get*", "kinesis:PutRecord", "kinesis:DescribeStream"]
+                Resource: !GetAtt YouTubeUploadsStream.Arn
 
   UploaderS3EventsLambda:
     Type: "AWS::Lambda::Function"
@@ -270,10 +277,44 @@ Resources:
       Action: "lambda:InvokeFunction"
       FunctionName: !Ref UploaderS3EventsLambda
       Principal: "s3.amazonaws.com"
-      # use hard-coded name rather than ref to avoid circular dependency
       SourceArn: !Sub
         - "arn:aws:s3:::${Name}"
         - { Name: !Ref UploadBucketName }
+
+  YouTubeUploadsStream:
+    Type: "AWS::Kinesis::Stream"
+    Properties:
+      # Allows a maximum of two video chunks to be uploaded in parallel (for now)
+      ShardCount: !Ref UploadParallelism
+
+  YouTubeUploadLambda:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Description: "Uploads chunks of video to YouTube"
+      Handler: "com.gu.media.YouTubeUploadLambda::handleRequest"
+      Code:
+        S3Bucket: !Ref BuildBucket
+        S3Key: !FindInMap [LambdaBuilds, Uploader, DEV]
+      Environment:
+        Variables:
+          REGION: !Ref AWS::Region
+          STACK: !Ref Stack
+          APP: "media-atom-uploader"
+          STAGE: !Ref Stage
+          CONFIG_BUCKET: !Ref ConfigBucket
+          CONFIG_KEY: !FindInMap [LambdaConfig, Uploader, DEV]
+      MemorySize: 256
+      Role: !GetAtt UploaderRole.Arn
+      Runtime: "java8"
+      Timeout: 300
+
+  YouTubeEventSourceMapping:
+    Type: "AWS::Lambda::EventSourceMapping"
+    Properties:
+      EventSourceArn: !GetAtt YouTubeUploadsStream.Arn
+      FunctionName: !GetAtt YouTubeUploadLambda.Arn
+      BatchSize: 1
+      StartingPosition: "TRIM_HORIZON"
 
   TranscoderOutputS3Bucket:
     Type: "AWS::S3::Bucket"
