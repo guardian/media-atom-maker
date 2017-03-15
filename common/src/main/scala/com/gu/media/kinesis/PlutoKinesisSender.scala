@@ -20,6 +20,8 @@ object PlutoKinesisSender {
 
         }""".stripMargin.getBytes("UTF-8");
 
+    println(s"sending data to kinesis ${data}")
+
     val record = new PutRecordsRequestEntry()
       .withPartitionKey(plutoId)
       .withData(ByteBuffer.wrap(data))

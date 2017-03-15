@@ -54,7 +54,7 @@ case class PlutoMessageConsumer(val stores: DataStores, awsConfig: AWSConfig)
         val messageString = message.toString
         val atomId = messageString.substring(1, messageString.length - 1)
         //Todo: remove from s3 now that pluto has finished processing
-        plutoDataStore.delete(atomId)
+        plutoDataStore.deleteAllWithAtom(atomId)
       }
       case undefined => log.error(s"Could not extract a message body from message ${msg.getReceiptHandle()}")
     }

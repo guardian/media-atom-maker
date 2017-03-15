@@ -28,10 +28,26 @@ class VideoPlutoList extends React.Component{
   }
 
   renderPlutoVideos() {
+
+    if (this.props.plutoVideos.length > 0) {
+      return (
+        <table className="table">
+          <thead className="table__header">
+            <tr className="table__header-row">
+              <th>Title</th>
+              <th>View Video Atom</th>
+              <th>Pluto Project</th>
+            </tr>
+          </thead>
+          <tbody>
+            {this.props.plutoVideos.map(video => this.renderPlutoVideo(video))}
+          </tbody>
+        </table>
+      );
+    }
+
     return (
-      <tbody>
-        {this.props.plutoVideos.map(video => this.renderPlutoVideo(video))}
-      </tbody>
+      <div className="empty-pluto-container">There are no videos without pluto ids in need of processing</div>
     );
   }
 
@@ -44,16 +60,7 @@ class VideoPlutoList extends React.Component{
             <span className="video__detailbox__header">Videos without pluto projects</span>
           </div>
           <div>
-            <table className="table">
-              <thead className="table__header">
-                <tr className="table__header-row">
-                  <th>Title</th>
-                  <th>View Video Atom</th>
-                  <th>Pluto Project</th>
-                </tr>
-              </thead>
               {this.renderPlutoVideos()}
-            </table>
           </div>
         </div>
       );

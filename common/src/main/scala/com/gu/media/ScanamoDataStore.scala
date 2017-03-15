@@ -3,6 +3,7 @@ package com.gu.media
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.gu.media.model.VideoUpload
 import com.gu.scanamo.error.DynamoReadError
+import com.gu.scanamo.ops.ScanamoOps
 import com.gu.scanamo.syntax._
 import com.gu.scanamo.{DynamoFormat, Scanamo, Table}
 
@@ -13,9 +14,9 @@ class ScanamoDataStore[T: ClassTag : DynamoFormat](client: AmazonDynamoDBClient,
 
   //TODO: filter list by id to deal with uploads datastore
 
-  private val table = Table[T](dynamoTableName)
+  val table = Table[T](dynamoTableName)
 
-  def list(): List[Either[DynamoReadError, T]] = {
+  def list(): List[T] = {
     val operation = table.scan()
     val allResults = Scanamo.exec(client)(operation)
 
@@ -24,7 +25,7 @@ class ScanamoDataStore[T: ClassTag : DynamoFormat](client: AmazonDynamoDBClient,
       throw DynamoTableException(errors.mkString(","))
     }
 
-    allResults
+    allResults.collect { case Right(result) => result}
   }
 
   def get(id: String): Option[T] = {
@@ -41,9 +42,6 @@ class ScanamoDataStore[T: ClassTag : DynamoFormat](client: AmazonDynamoDBClient,
     val result = Scanamo.put(client)(dynamoTableName)(item)
   }
 
-  def delete(id: String): Unit = {
-    Scanamo.exec(client)(table.delete('id -> id))
-  }
 
   case class DynamoTableException(err: String) extends RuntimeException(err)
 
@@ -52,8 +50,22 @@ class ScanamoDataStore[T: ClassTag : DynamoFormat](client: AmazonDynamoDBClient,
 case class PlutoDataStore(client: AmazonDynamoDBClient, dynamoTableName: String)
   extends ScanamoDataStore[VideoUpload] (client, dynamoTableName) {
 
-  def listWithoutPluto(): List[VideoUpload] = {
-    val allResults = list()
-    allResults.collect { case Right(upload@VideoUpload(_, _, _, None)) => upload }
+  def getUploadsWithAtomId(id: String): List[VideoUpload] = {
+    val atomIdIndex = table.index("atom-id")
+    val results = Scanamo.exec(client)(atomIdIndex.query('atomId -> id))
+
+    val errors = results.collect { case Left(err) => err }
+    if (errors.nonEmpty) {
+      throw DynamoTableException(errors.mkString(","))
+    }
+
+    results.collect { case Right(result) => result }
+  }
+
+  def deleteAllWithAtom(id: String): Unit = {
+
+    getUploadsWithAtomId(id).map(result => Scanamo.exec(client)(table.delete('id -> result.id)))
+
   }
 }
+

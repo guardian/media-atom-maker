@@ -2,10 +2,12 @@ package controllers
 
 import _root_.util.{AWSConfig}
 import com.gu.atom.play.AtomAPIActions
+import com.gu.contentatom.thrift.Atom
 import com.gu.media.youtube.YouTube
 import com.gu.media.model.VideoUpload
 import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.action.UserRequest
+import com.gu.scanamo.error.DynamoReadError
 import data.DataStores
 import model.Category.Hosted
 import model.MediaAtom
@@ -15,6 +17,8 @@ import play.api.{Configuration, Logger}
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
 import play.api.mvc.{AnyContent, Result}
+
+import scala.collection.immutable.Iterable
 
 class Api2 (override val stores: DataStores, conf: Configuration, val authActions: HMACAuthActions,
             youTube: YouTube, awsConfig: AWSConfig)
@@ -151,7 +155,27 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
     }
 
   def getPlutoAtoms = APIHMACAuthAction {  implicit req =>
-    Ok(Json.toJson(plutoDataStore.listWithoutPluto()))
+
+    val unprocessedAssetResponses: List[VideoUpload] = plutoDataStore.list()
+
+    val uploadsWithoutPlutoId = unprocessedAssetResponses.foldRight(Map[String, MediaAtom]())((upload, acc) => {
+      if (!acc.contains(upload.atomId)) {
+        previewDataStore.getAtom(upload.atomId) match {
+          case Right(atom) => {
+            val mediaAtom = MediaAtom.fromThrift(atom)
+            mediaAtom.plutoProjectId match {
+              case None => acc ++ Map(upload.atomId -> mediaAtom)
+              case Some(string) => acc
+            }
+          }
+          case Left(error) => {
+            Logger.error(s"Error in fetching atom ${upload.atomId} corresponding to upload ${upload.id}" + error.msg)
+            acc
+          }
+        }
+      } else acc
+    }).map(keyval => keyval._2)
+    Ok(Json.toJson(uploadsWithoutPlutoId))
   }
 
   def sendToPluto(id: String) = APIHMACAuthAction { implicit req =>

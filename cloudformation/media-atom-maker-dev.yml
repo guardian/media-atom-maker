@@ -124,9 +124,21 @@ Resources:
       AttributeDefinitions:
         - AttributeName: "id"
           AttributeType: "S"
+        - AttributeName: "atomId"
+          AttributeType: "S"
       KeySchema:
         - AttributeName: "id"
           KeyType: "HASH"
+      GlobalSecondaryIndexes:
+        - IndexName: atom-id
+          KeySchema:
+            - AttributeName: atomId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: '5'
+            WriteCapacityUnits: '1'
       ProvisionedThroughput:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
