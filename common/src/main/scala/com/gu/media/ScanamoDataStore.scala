@@ -1,10 +1,10 @@
-package data
+package com.gu.media
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
+import com.gu.media.model.VideoUpload
 import com.gu.scanamo.error.DynamoReadError
-import com.gu.scanamo.{DynamoFormat, Scanamo, Table}
 import com.gu.scanamo.syntax._
-import model.VideoUpload
+import com.gu.scanamo.{DynamoFormat, Scanamo, Table}
 
 import scala.reflect.ClassTag
 

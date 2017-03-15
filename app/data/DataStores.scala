@@ -5,8 +5,8 @@ import com.gu.atom.publish._
 import com.gu.contentatom.thrift.{Atom, AtomData}
 import com.gu.contentatom.thrift.atom.media.MediaAtom
 import com.gu.media.upload.UploadsDataStore
+import com.gu.media.PlutoDataStore
 import com.gu.scanamo.DynamoFormat
-import model.VideoUpload
 import util.atom.MediaAtomImplicits
 import com.gu.scanamo.scrooge.ScroogeDynamoFormat._
 import model.commands.CommandExceptions._

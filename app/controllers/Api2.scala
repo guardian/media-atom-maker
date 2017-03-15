@@ -3,12 +3,12 @@ package controllers
 import _root_.util.{AWSConfig}
 import com.gu.atom.play.AtomAPIActions
 import com.gu.media.youtube.YouTube
+import com.gu.media.model.VideoUpload
 import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.action.UserRequest
-import com.gu.scanamo.Scanamo
 import data.DataStores
 import model.Category.Hosted
-import model.{VideoUpload, MediaAtom}
+import model.MediaAtom
 import model.commands.CommandExceptions._
 import model.commands._
 import play.api.{Configuration, Logger}

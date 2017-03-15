@@ -1,7 +1,6 @@
 package util
 
-import com.amazonaws.services.kinesis.model.{PutRecordsRequestEntry, PutRecordsRequest}
-import data.{UnpackedDataStores, DataStores}
+import data.UnpackedDataStores
 import akka.actor.Scheduler
 import scala.annotation.tailrec
 import scala.concurrent.duration._
@@ -9,7 +8,6 @@ import play.api.libs.json._
 import com.amazonaws.services.sqs.model.{DeleteMessageRequest, ReceiveMessageRequest, Message}
 import scala.concurrent.ExecutionContext
 import scala.collection.JavaConversions._
-import model.{VideoUpload, MediaAtom}
 import com.gu.media.logging.Logging
 import data.DataStores
 
