@@ -129,40 +129,22 @@
             "TableName": { "Ref": "UploadTrackingAtomMakerCodeTable" },
             "AttributeDefinitions": [
               {
-                "AttributeName": "atomId",
-                "AttributeType": "S"
-              },
-              {
                 "AttributeName": "id",
                 "AttributeType": "S"
               }
             ],
             "KeySchema": [
               {
-                "AttributeName": "atomId",
-                "KeyType": "HASH"
-              },
-              {
                 "AttributeName": "id",
-                "KeyType": "RANGE"
+                "KeyType": "HASH"
               }
             ],
             "ProvisionedThroughput": {
               "ReadCapacityUnits": "5",
               "WriteCapacityUnits": "5"
-            },
-            "StreamSpecification": {
-              "StreamViewType": "NEW_IMAGE"
             }
           }
         }
-    },
-    "Outputs": {
-      "UploadTrackingTableStream": {
-        "Value": {
-          "Fn::GetAtt": ["UploadTrackingMediaAtomMakerCode", "StreamArn"]
-        }
-      }
     }
 }
 

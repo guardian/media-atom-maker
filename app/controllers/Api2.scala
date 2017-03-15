@@ -18,7 +18,8 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
 
   extends MediaAtomImplicits
     with AtomAPIActions
-    with AtomController {
+    with AtomController
+    with JsonRequestParsing {
 
   import authActions.APIHMACAuthAction
 
@@ -135,38 +136,5 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
 
   def getAuditTrailForAtomId(id: String) = APIHMACAuthAction { implicit req =>
     Ok(Json.toJson(auditDataStore.getAuditTrailForAtomId(id)))
-  }
-
-  private def parse[T](raw: UserRequest[AnyContent])(fn: T => Result)(implicit reads: Reads[T]): Result = try {
-    raw.body.asJson match {
-      case Some(rawJson) =>
-        rawJson.validate[T] match {
-          case JsSuccess(request, _) =>
-            fn(request)
-
-          case JsError(errors) =>
-            val errorsByPath = errors.flatMap { case(p, e) => e.map(p -> _) } // flatten
-            val msg = errorsByPath.map { case(p, e) => s"$p -> $e" }.mkString("\n")
-
-            Logger.info(s"Error parsing request: $msg - ${raw.body}")
-            BadRequest(msg)
-        }
-
-      case None =>
-        Logger.info(s"Error parsing request: ${raw.body}")
-        BadRequest("Unable to parse body as JSON")
-    }
-  } catch {
-    commandExceptionAsResult
-  }
-
-  def deleteAtom(id: String) = APIHMACAuthAction {
-    try {
-      DeleteCommand(id, stores).process()
-      Ok(s"Atom $id deleted")
-    }
-    catch {
-      commandExceptionAsResult
-    }
   }
 }

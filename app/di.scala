@@ -39,7 +39,7 @@ class MediaAtomMaker(context: Context)
   private val api = new Api(stores, configuration, aws, hmacAuthActions)
   private val api2 = new Api2(stores, configuration, hmacAuthActions, youTube)
 
-  private val uploads = new UploadController(hmacAuthActions, aws)
+  private val uploads = new UploadController(hmacAuthActions, aws, stores)
 
   private val support = new Support(hmacAuthActions, capi)
   private val youTubeController = new controllers.Youtube(hmacAuthActions, youTube, defaultCacheApi)
