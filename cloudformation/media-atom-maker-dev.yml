@@ -240,7 +240,7 @@ Resources:
                     - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
                     - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "UploadTrackingDynamoTable" }
               - Effect: "Allow"
-                Action: ["s3:*"]
+                Action: ["s3:GetObject", "s3:DeleteObject"]
                 Resource:
                   - !Sub
                     - "arn:aws:s3:::${Bucket}/*"
