@@ -7,7 +7,8 @@
 
 // 2. Vendors
 @import
-  'vendor/normalize';
+  'vendor/normalize',
+  'vendor/overrides';
 
 // 3. Base stuff
 @import
@@ -39,4 +40,5 @@
   'components/section-header',
   'components/bar',
   'components/header',
-  'components/usage';
+  'components/usage',
+  'components/expiry-date';
