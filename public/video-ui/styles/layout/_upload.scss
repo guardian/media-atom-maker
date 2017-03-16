@@ -27,8 +27,8 @@
   }
 
   &__action {
-    padding-bottom: 10px;
-    margin-bottom: 10px;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
   }
 
   &__action:not(:last-child) {
@@ -48,6 +48,10 @@
   &__asset {
     width: 30%;
 
+    img {
+      width: 100%;
+    }
+
     &__empty {
       background-color: black;
       color: white;
@@ -55,15 +59,20 @@
     }
 
     &__caption {
-      margin: 0 10px 10px;
+      position: relative;
+      top: calc(-20px - #{$fontsize__detailbox});
+
+      margin: 0 20px;
       text-align: center;
       font-size: $fontsize__detailbox;
       height: $fontsize__detailbox;
 
-      border: {
-        right: 1px solid $color650Grey;
-        bottom: 1px solid $color650Grey;
-        left: 1px solid $color650Grey;
+      span {
+        float: left;
+      }
+
+      a {
+        float: right;
       }
     }
   }
