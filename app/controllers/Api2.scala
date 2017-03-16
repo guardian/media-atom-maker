@@ -170,7 +170,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
             }
           }
           case Left(error) => {
-            Logger.error(s"Error in fetching atom ${upload.atomId} corresponding to upload ${upload.id}" + error.msg)
+            Logger.error(s"Error in fetching atom ${upload.atomId} corresponding to s3Key ${upload.s3Key}" + error.msg)
             acc
           }
         }

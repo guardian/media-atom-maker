@@ -48,15 +48,9 @@ case class PlutoMessageConsumer(val stores: DataStores, awsConfig: AWSConfig)
     (body \ "Message") match {
       case JsDefined(message) => {
         val messageString = message.toString
-        val videoId = messageString.substring(1, messageString.length - 1)
-        plutoDataStore.get(videoId) match {
-          case Some(video) => {
-            val s3Key = video.s3Key
-            //delete this from S3
-            plutoDataStore.delete(videoId)
-          }
-          case None => log.error(s"Could not fetch video entry with id ${videoId} from manual dynamo table")
-        }
+        val s3Key = messageString.substring(1, messageString.length - 1)
+        //delete from s3
+        plutoDataStore.delete(s3Key)
       }
       case undefined => log.error(s"Could not extract a message body from message ${msg.getReceiptHandle()}")
     }

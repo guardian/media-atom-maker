@@ -122,7 +122,7 @@ Resources:
     Type: "AWS::DynamoDB::Table"
     Properties:
       AttributeDefinitions:
-        - AttributeName: "id"
+        - AttributeName: "s3Key"
           AttributeType: "S"
         - AttributeName: "atomId"
           AttributeType: "S"
