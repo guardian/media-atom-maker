@@ -14,7 +14,7 @@ class UploadLifecycle(aws: AwsAccess with S3Access with DynamoAccess with Kinesi
     val id = UUID.randomUUID().toString
     val parts = chunk(id, size)
 
-    Upload(id, parts, metadata, youtubeMetadata, error = None)
+    Upload(id, parts, metadata, youtubeMetadata)
   }
 
   def credentialsForPart(upload: Upload, part: UploadPart): UploadCredentials = {
