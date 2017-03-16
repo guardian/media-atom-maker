@@ -3,6 +3,33 @@ import {Link} from 'react-router';
 import Icon from '../Icon';
 import VideoTrail from './VideoTrail';
 
+class AddAssetFromURL extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { uri: null };
+  }
+
+  addAsset = () => {
+    if(this.state.uri) {
+      this.props.createAsset(this.state, this.props.video);
+    }
+  };
+
+  onChange = (e) => {
+    this.setState({ uri: e.target.value });
+  }
+
+  render() {
+    const disabled = !this.state.uri;
+
+    return <div className="upload__action">
+      <label>Asset URL</label>
+      <input className="form__field" type="text" placeholder="Paste YouTube URL here" onChange={this.onChange} />
+      <button className="btn" type="button" onClick={this.addAsset} disabled={disabled}>Add</button>
+    </div>;
+  }
+}
+
 class VideoUpload extends React.Component {
   constructor(props) {
     super(props);
@@ -67,14 +94,6 @@ class VideoUpload extends React.Component {
     </div>;
   }
 
-  renderAddAsset() {
-    return <div className="upload__action">
-      <label>Asset URL</label>
-      <input className="form__field" type="text" placeholder="Paste YouTube URL here" />
-      <button className="btn" type="button">Add</button>
-    </div>;
-  }
-
   renderPlutoProject() {
     return <div className="upload__action">
       <label>Pluto Project</label>
@@ -85,6 +104,7 @@ class VideoUpload extends React.Component {
   }
 
   render() {
+    const activeVersion = this.props.video ? this.props.video.activeVersion : 0;
     const assets = this.props.video ? this.props.video.assets : [];
 
     return <div className="upload">
@@ -93,9 +113,9 @@ class VideoUpload extends React.Component {
         <div className="upload__actions">
           {this.renderPlutoProject()}
           {this.renderPicker()}
-          {this.renderAddAsset()}
+          <AddAssetFromURL video={this.props.video} createAsset={this.props.videoActions.createAsset} />
         </div>
-        <VideoTrail assets={assets} />
+        <VideoTrail activeVersion={activeVersion} assets={assets} />
       </div>
     </div>;
   }
@@ -106,6 +126,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getVideo from '../../actions/VideoActions/getVideo';
 import * as uploadActions from '../../actions/UploadActions/upload';
+import * as createAsset from '../../actions/VideoActions/createAsset';
 
 function mapStateToProps(state) {
   return {
@@ -116,7 +137,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo), dispatch),
+    videoActions: bindActionCreators(Object.assign({}, getVideo, createAsset), dispatch),
     uploadActions: bindActionCreators(Object.assign({}, uploadActions), dispatch)
   };
 }
