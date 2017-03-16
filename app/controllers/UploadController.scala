@@ -12,6 +12,7 @@ import org.cvogt.play.json.Jsonx
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.{Controller, Result}
 import util.AWSConfig
+import model.commands.CommandExceptions.AtomMissingYouTubeChannel
 
 class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, override val stores: DataStores)
   extends Controller with Logging with JsonRequestParsing with UnpackedDataStores {
@@ -32,16 +33,10 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, o
       log.info(s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}")
 
       val atom = MediaAtom.fromThrift(getPreviewAtom(req.atomId))
-      atom.channelId match {
-        case Some(channel) =>
-          val upload = buildUpload(atom, channel, raw.user, req.size)
-          table.put(upload)
+      val upload = buildUpload(atom, raw.user, req.size)
+      table.put(upload)
 
-          Ok(Json.toJson(upload))
-
-        case None =>
-          BadRequest("Atom missing YouTube channel")
-      }
+      Ok(Json.toJson(upload))
     }
   }
 
@@ -66,7 +61,7 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, o
     }
   }
 
-  private def buildUpload(atom: MediaAtom, channelId: String, user: User, size: Long) = {
+  private def buildUpload(atom: MediaAtom, user: User, size: Long) = {
     val metadata = UploadMetadata(
       atomId = atom.id,
       user = user.email,
@@ -77,7 +72,7 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, o
     )
 
     val youTube = YouTubeMetadata(
-      channel = channelId,
+      channel = atom.channelId.getOrElse { AtomMissingYouTubeChannel },
       upload = None
     )
 
