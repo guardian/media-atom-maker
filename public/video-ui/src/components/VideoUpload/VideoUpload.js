@@ -31,10 +31,7 @@ class AddAssetFromURL extends React.Component {
 }
 
 class VideoUpload extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { file: null };
-  }
+  state = { file: null };
 
   setFile = (event) => {
     if (!this.props.video) {
@@ -76,9 +73,7 @@ class VideoUpload extends React.Component {
         <Icon icon="done">Uploaded</Icon>
       </button>;
     } else if (this.props.upload.progress) {
-      return <div className="upload__progress">
-        <progress value={this.props.upload.progress} max={this.props.upload.total} />
-      </div>;
+      return false;
     } else {
       return <button type="button" className="button__secondary" disabled={!this.state.file} onClick={this.startUpload}>
         <Icon icon="backup">Upload</Icon>
@@ -119,7 +114,7 @@ class VideoUpload extends React.Component {
           {this.renderPicker()}
           <AddAssetFromURL video={this.props.video} createAsset={this.props.videoActions.createAsset} />
         </div>
-        <VideoTrail activeVersion={activeVersion} assets={assets} selectAsset={selectAsset} />
+        <VideoTrail activeVersion={activeVersion} assets={assets} selectAsset={selectAsset} upload={this.props.upload} />
       </div>
     </div>;
   }

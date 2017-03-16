@@ -2,6 +2,10 @@ import React from 'react';
 import Icon from '../Icon';
 import {getStore} from '../../util/storeAccessor';
 
+const labelClasses = "publish__label label__frontpage__overlay";
+const activeLabelClasses = `${labelClasses} label__live`;
+const inactiveLabelClasses = `${labelClasses} label__frontpage__novideo`;
+
 function thumbnail(assetId, platform) {
     if(platform === "Youtube") {
         const store = getStore();
@@ -38,25 +42,50 @@ function VideoAsset({ id, platform, version, active, selectAsset }) {
     return <div className="upload__asset">
         <div className="baseline-margin">{thumbnail(id, platform)}</div>
         <div className="upload__asset__caption">
-            {active ?
-                <span className="publish__label label__live label__frontpage__overlay">Active</span> :
-                <span className="publish__label label__frontpage__novideo label__frontpage__overlay">Inactive</span>
-            }
-            {link(id, platform)}
-            {selector(id, version, selectAsset)}
+            <div className="upload__asset__left">
+                {active ?
+                    <span className={activeLabelClasses}>Active</span> :
+                    <span className={inactiveLabelClasses}>Inactive</span>
+                }
+            </div>
+            <div className="upload__asset__right">
+                {link(id, platform)}
+                {selector(id, version, selectAsset)}
+            </div>
         </div>
     </div>;
 }
 
-export default function VideoTrail({ activeVersion, assets, selectAsset }) {
-    const body = assets.map((asset) => {
-        return <VideoAsset key={asset.id} active={asset.version === activeVersion} selectAsset={selectAsset} {...asset} />;
+function UploadAsset({ total, progress }) {
+    return <div className="upload__asset">
+        <div className="baseline-margin">
+            <img src="https://upload.wikimedia.org/wikipedia/en/5/52/Testcard_F.jpg" />
+        </div>
+        <div className="upload__asset__caption">
+            <div className="upload__asset__left">
+                <span className={inactiveLabelClasses}>
+                    <progress value={progress} max={total} />
+                </span>
+            </div>
+        </div>
+    </div>;
+}
+
+export default function VideoTrail({ activeVersion, assets, selectAsset, upload }) {
+    const squares = [];
+
+    if(upload.total) {
+        squares.push(<UploadAsset key="upload" total={upload.total} progress={upload.progress} />);
+    }
+
+    assets.forEach((asset) => {
+        squares.push(<VideoAsset key={asset.id} active={asset.version === activeVersion} selectAsset={selectAsset} {...asset} />);
     });
 
     return <div className="upload__assets">
         <label>Video Trail</label>
         <div className="upload__trail">
-            {body.length > 0 ? body : <VideoAsset />}
+            {squares.length > 0 ? squares : <VideoAsset />}
         </div>
     </div>;
 }

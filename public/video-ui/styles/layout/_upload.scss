@@ -66,15 +66,15 @@
       text-align: center;
       font-size: $fontsize__detailbox;
       height: $fontsize__detailbox;
+    }
 
-      span {
-        float: left;
-      }
+    &__left {
+      float: left;
+    }
 
-      a {
-        float: right;
-        margin-left: 10px;
-      }
+    &__right a {
+      float: right;
+      margin-left: 10px;
     }
   }
 
