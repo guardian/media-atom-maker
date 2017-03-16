@@ -58,6 +58,8 @@ class IntegrationTests extends FlatSpec with Matchers with Eventually with Integ
 
     createdAtoms += atomId
 
+    println(s"Create atom test: Atom Id = $atomId")
+
     val apiEndpoint = apiUri(atomId)
 
     eventually {
@@ -89,6 +91,16 @@ class IntegrationTests extends FlatSpec with Matchers with Eventually with Integ
 
     eventually {
       (Json.parse(gutoolsGet(apiEndpoint).body().string()) \ "defaultHtml").get.as[String] should not be ("<div></div>")
+    }
+
+    /* Publish atom */
+
+    val publishResponse = gutoolsPut(s"${targetBaseUrl}/api2/atom/${atomId}/publish")
+
+    publishResponse.code() should be (200)
+
+    eventually {
+      (Json.parse(gutoolsGet(apiEndpoint).body().string()) \ "contentChangeDetails" \ "published" \ "user" \ "email").get.as[String] should be (Config.userEmail)
     }
 
   }
