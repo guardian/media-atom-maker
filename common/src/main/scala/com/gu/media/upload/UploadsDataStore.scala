@@ -4,7 +4,7 @@ import com.gu.media.aws.DynamoAccess
 import com.gu.scanamo.syntax._
 import com.gu.scanamo.{Scanamo, Table}
 
-class UploadsTable(aws: DynamoAccess) {
+class UploadsDataStore(aws: DynamoAccess) {
   private val table = Table[Upload](aws.uploadTrackingTableName)
 
   def list(atomId: String): List[Upload] = {
@@ -13,7 +13,7 @@ class UploadsTable(aws: DynamoAccess) {
 
     val errors = allResults.collect { case Left(err) => err }
     if(errors.nonEmpty) {
-      throw DynamoUploadsTableException(errors.mkString(","))
+      throw UploadsDataStoreException(errors.mkString(","))
     }
 
     allResults.collect { case Right(upload) if upload.metadata.atomId == atomId => upload }
@@ -30,7 +30,7 @@ class UploadsTable(aws: DynamoAccess) {
 
     result.map {
       case Right(upload) => upload
-      case Left(err) => throw DynamoUploadsTableException(err.toString)
+      case Left(err) => throw UploadsDataStoreException(err.toString)
     }
   }
 
@@ -39,4 +39,4 @@ class UploadsTable(aws: DynamoAccess) {
   }
 }
 
-case class DynamoUploadsTableException(err: String) extends RuntimeException(err)
+case class UploadsDataStoreException(err: String) extends RuntimeException(err)
