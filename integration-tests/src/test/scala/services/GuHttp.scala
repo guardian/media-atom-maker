@@ -11,6 +11,8 @@ trait GuHttp {
   val httpClient = new OkHttpClient()
   httpClient.setConnectTimeout(5, TimeUnit.SECONDS)
 
+  val emptyBody: RequestBody = RequestBody.create(null, Array(192, 168, 1, 1).map(_.toByte))
+
   def gutoolsGet(url: String)(implicit cookie: PandaCookie): Response = {
     val req = new Request.Builder()
       .url(url)
@@ -27,7 +29,10 @@ trait GuHttp {
 
     body match {
       case Some(e) => req.post(e)
-      case None => req.addHeader("Content-Length", "0")
+      case None => {
+        req.addHeader("Content-Length", "0")
+        req.post(emptyBody)
+      }
     }
 
     httpClient.newCall(req.build()).execute()
@@ -40,7 +45,10 @@ trait GuHttp {
 
     body match {
       case Some(e) => req.put(e)
-      case None => req.addHeader("Content-Length", "0")
+      case None => {
+        req.addHeader("Content-Length", "0")
+        req.put(emptyBody)
+      }
     }
 
     httpClient.newCall(req.build()).execute()
