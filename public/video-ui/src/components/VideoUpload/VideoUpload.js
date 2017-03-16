@@ -34,13 +34,8 @@ class VideoUpload extends React.Component {
       </Link>;
     }
 
-    return <div className="upload__header__container">
-      <header className="upload__header">
-        Upload Video
-      </header>
-      <div className="publish__label label__draft">
-        Warning: still under development!
-      </div>
+    return <div className="upload__header">
+      <header className="video__detailbox__header">Video Assets</header>
       {link}
     </div>;
   }
@@ -63,24 +58,42 @@ class VideoUpload extends React.Component {
     }
   }
 
-  picker() {
-    return <div className="upload__picker">
-      <p>File</p>
-      <div className="flex-container">
-        <input type="file" onChange={this.setFile} disabled={this.props.upload.progress} />
-        {this.renderButtons()}
-      </div>
+  renderPicker() {
+    return <div className="upload__action">
+      <label>Upload Video</label>
+      <input className="form__field" type="file" onChange={this.setFile} disabled={this.props.upload.progress} />
+      {this.renderButtons()}
+    </div>;
+  }
+
+  renderAddAsset() {
+    return <div className="upload__action">
+      <label>Asset URL</label>
+      <input className="form__field" type="text" placeholder="Paste YouTube URL here" />
+      <button className="btn" type="button">Save</button>
+    </div>;
+  }
+
+  renderPlutoProject() {
+    return <div className="upload__action">
+      <label>Pluto Project</label>
+      <select className="form__field form__field--select" disabled>
+        <option value="Project">Project</option>
+      </select>
+      <button className="btn" type="button">Save</button>
     </div>;
   }
 
   render() {
     return <div className="upload">
-      <div className="upload__main">
-        {this.renderHeader()}
-
-        <div className="form__group">
-          {this.picker()}
+      {this.renderHeader()}
+      <div className="upload__content">
+        <div className="upload__actions">
+          {this.renderPlutoProject()}
+          {this.renderAddAsset()}
+          {this.renderPicker()}
         </div>
+        <div className="upload__assets">ASSETS</div>
       </div>
     </div>;
   }

@@ -29,6 +29,10 @@
     outline: none;
   }
 
+  &[type="file"] {
+    border: none;
+  }
+
   // Placeholder styling, separated because if one selector is invalid, the browser will ignore the rest
   ::-webkit-input-placeholder {
     color: $textColor;

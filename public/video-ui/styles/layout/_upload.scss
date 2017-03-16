@@ -1,49 +1,47 @@
 .upload {
   width: 100%;
   display: flex;
-  height: calc(100vh - #{$toolbarHeight});
-  align-items: stretch;
-
+  flex-direction: column;
+  padding: 20px 30px;
   background-color: $color800Grey;
 
-  &__main {
-    flex-grow: 1;
-    margin: 20px 30px;
-
-    background-color: $color650Grey;
-    border-top: 1px solid $color600Grey;
-  }
-
-  &__header__container {
+  &__header {
     display: flex;
     justify-content: space-between;
     padding: 10px;
+
+    background-color: $color650Grey;
+    border-top: 1px solid $color600Grey;
     border-bottom: 1px solid $color625Grey;
-
-    a {
-      text-decoration: none;
-    }
-
-    .publish__label {
-      width: auto;
-    }
   }
 
-  &__header {
-    color: $color500Grey;
-    font-weight: bold;
-    display: block;
-    font-size: 17px;
+  &__content {
+    display: flex;
+    background-color: $color650Grey;
   }
 
-  &__picker {
-    p {
+  &__actions {
+    flex: 1 0 0;
+    padding: 10px;
+  }
+
+  &__action {
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+
+    label {
+      display: block;
       font-weight: bold;
-      margin-bottom: 0px;
+      margin: 0 0 5px;
+      padding: 8px 0 0;
     }
+  }
 
-    input {
-      margin-left: 10px;
-    }
+  &__action:not(:last-child) {
+    border-bottom: 1px solid $color625Grey;
+  }
+
+  &__assets {
+    flex: 3 0 0;
   }
 }
