@@ -2,7 +2,7 @@ package integration.services
 
 import java.util.concurrent.TimeUnit
 
-import com.squareup.okhttp.{OkHttpClient, Request, RequestBody, Response}
+import com.squareup.okhttp._
 
 trait GuHttp {
 
@@ -12,6 +12,7 @@ trait GuHttp {
   httpClient.setConnectTimeout(5, TimeUnit.SECONDS)
 
   val emptyBody: RequestBody = RequestBody.create(null, Array(192, 168, 1, 1).map(_.toByte))
+  def jsonBody(bodyString: String): RequestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), bodyString)
 
   def gutoolsGet(url: String)(implicit cookie: PandaCookie): Response = {
     val req = new Request.Builder()
