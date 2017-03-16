@@ -1,4 +1,5 @@
 import React from 'react';
+import {Link} from 'react-router';
 import VideoAssets from '../VideoAssets/VideoAssets';
 import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../VideoPreview/VideoPreview';
@@ -151,7 +152,10 @@ class VideoDisplay extends React.Component {
             <div className="video__main__header">
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
-                  <header className="video__detailbox__header">Preview</header>
+                  <header className="video__detailbox__header">Video Asset</header>
+                  <Link className="button" to={`/videos/${this.props.video.id}/upload`}>
+                    <Icon className="icon__edit" icon="edit"/>
+                  </Link>
                 </div>
                 <VideoPreview video={this.props.video || {}} />
               </div>

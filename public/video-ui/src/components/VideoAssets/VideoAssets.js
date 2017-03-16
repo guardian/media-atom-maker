@@ -1,5 +1,4 @@
 import React from 'react';
-import {Link} from 'react-router';
 import VideoAssetItem from './VideoAssetItem';
 import VideoAssetAdd from '../VideoAssetAdd/VideoAssetAdd';
 import Icon from '../Icon';
@@ -112,9 +111,6 @@ class VideoAssets extends React.Component {
       <a className="button" onClick={this.showAssetForm}>
         <Icon className="icon__edit icon__spacing" icon="add"/>
       </a>
-      <Link className="button" to={`/videos/${this.props.video.id}/upload`}>
-        <Icon className="icon__edit" icon="backup"/>
-      </Link>
     </div>;
 
     return <div className="video__detailbox__header__container">
