@@ -23,7 +23,7 @@ class UploadActionsLambda extends RequestHandler[KinesisEvent, Unit]
   with HmacRequestSupport
   with Logging {
 
-  private val table = new UploadsTable(this)
+  private val table = new UploadsDataStore(this)
   private val domain = sys.env.get("DOMAIN")
 
   private val http = new OkHttpClient()

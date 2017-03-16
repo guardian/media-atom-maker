@@ -43,9 +43,7 @@ class InputStreamRequestBody(override val contentType: MediaType, input: InputSt
         // important otherwise we just make a massive buffer!
         sink.flush()
 
-        if(written == -1) {
-          // terminate
-        } else {
+        if(written != -1) {
           write(source, sink, uploaded + written)
         }
     }
