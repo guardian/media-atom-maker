@@ -17,6 +17,8 @@ class IntegrationTests extends FlatSpec with Matchers with Eventually with Integ
   val JSON = MediaType.parse("application/json; charset=utf-8")
 
   def apiUri(atomId: String): String = s"$targetBaseUrl/api/atom/$atomId"
+  var atomId: String = ""
+  var apiEndpoint: String = ""
 
   var createdAtoms = new ListBuffer[String]() /* Add all created atoms IDs to this list as first action after atom created. This allows for test cleanup outside the test flow  */
 
@@ -35,9 +37,7 @@ class IntegrationTests extends FlatSpec with Matchers with Eventually with Integ
     response.body().string() should include ("video")
   }
 
-  "Creating a new atom, adding an asset and making it the current asset" should "be represented in the atom maker API" in {
-    val asset = Config.asset
-    val assetId = Config.assetId
+  "Creating a new atom" should "be represented in the atom maker API" in {
     val json = generateJson(
       title = s"test-atom-${UUID.randomUUID().toString}",
       description = "test atom",
@@ -52,33 +52,36 @@ class IntegrationTests extends FlatSpec with Matchers with Eventually with Integ
     val body = RequestBody.create(JSON, json)
     val response = gutoolsPost(s"$targetBaseUrl/api2/atoms", Some(body))
 
-    response.code() should be (201)
+    response.code() should be(201)
 
-    val atomId = (Json.parse(response.body().string()) \ "id").get.as[String]
+    atomId = (Json.parse(response.body().string()) \ "id").get.as[String]
 
     createdAtoms += atomId
 
     println(s"Create atom test: Atom Id = $atomId")
 
-    val apiEndpoint = apiUri(atomId)
+    apiEndpoint = apiUri(atomId)
 
     eventually {
-      gutoolsGet(apiEndpoint).code() should be (200)
+      gutoolsGet(apiEndpoint).code() should be(200)
     }
 
-    Json.parse(gutoolsGet(s"$targetBaseUrl/api2/atoms/$atomId/published").body().string()).toString() should be ("{}")
+    Json.parse(gutoolsGet(s"$targetBaseUrl/api2/atoms/$atomId/published").body().string()).toString() should be("{}")
+  }
 
-    /* Add the asset */
 
+  "Adding an asset to an existing item and making it current" should "be reflected in the API" in {
+    val asset = Config.asset
+    val assetId = Config.assetId
     val assetBody = RequestBody.create(JSON, s"""{"uri":"$asset"}""")
 
     val assetResponse = gutoolsPost(s"${targetBaseUrl}/api2/atoms/${atomId}/assets", Some(assetBody))
 
-    assetResponse.code() should be (200)
+    assetResponse.code() should be(200)
 
     eventually {
-      val assets = (Json.parse(gutoolsGet(apiEndpoint).body().string()) \ "data" \ "assets")(0)
-      (assets \ "id").get.as[String] should be (assetId)
+      val assets = (Json.parse(gutoolsGet(apiEndpoint).body().string()) \ "data" \ "assets") (0)
+      (assets \ "id").get.as[String] should be(assetId)
     }
 
     /* Make current asset */
@@ -87,13 +90,14 @@ class IntegrationTests extends FlatSpec with Matchers with Eventually with Integ
 
     val currentAssetResponse = gutoolsPut(s"${targetBaseUrl}/api2/atom/${atomId}/asset-active", Some(currentAssetBody))
 
-    currentAssetResponse.code() should be (200)
+    currentAssetResponse.code() should be(200)
 
     eventually {
       (Json.parse(gutoolsGet(apiEndpoint).body().string()) \ "defaultHtml").get.as[String] should not be ("<div></div>")
     }
+  }
 
-    /* Publish atom */
+  "Publishing an atom" should "be reflected in the API" in {
 
     val publishResponse = gutoolsPut(s"${targetBaseUrl}/api2/atom/${atomId}/publish")
 
