@@ -1,6 +1,7 @@
 import React from 'react';
 import {Link} from 'react-router';
 import Icon from '../Icon';
+import VideoTrail from './VideoTrail';
 
 class VideoUpload extends React.Component {
   constructor(props) {
@@ -70,7 +71,7 @@ class VideoUpload extends React.Component {
     return <div className="upload__action">
       <label>Asset URL</label>
       <input className="form__field" type="text" placeholder="Paste YouTube URL here" />
-      <button className="btn" type="button">Save</button>
+      <button className="btn" type="button">Add</button>
     </div>;
   }
 
@@ -80,20 +81,21 @@ class VideoUpload extends React.Component {
       <select className="form__field form__field--select" disabled>
         <option value="Project">Project</option>
       </select>
-      <button className="btn" type="button">Save</button>
     </div>;
   }
 
   render() {
+    const assets = this.props.video ? this.props.video.assets : [];
+
     return <div className="upload">
       {this.renderHeader()}
       <div className="upload__content">
         <div className="upload__actions">
           {this.renderPlutoProject()}
-          {this.renderAddAsset()}
           {this.renderPicker()}
+          {this.renderAddAsset()}
         </div>
-        <div className="upload__assets">ASSETS</div>
+        <VideoTrail assets={assets} />
       </div>
     </div>;
   }
