@@ -22,7 +22,13 @@ function link(assetId, platform) {
     }
 }
 
-function VideoAsset({ id, platform, active }) {
+function selector(assetId, version, selectAsset) {
+    return <a className="button" onClick={() => selectAsset(assetId, version)}>
+        <Icon className="icon__edit" icon="settings_ethernet" />
+    </a>;
+}
+
+function VideoAsset({ id, platform, version, active, selectAsset }) {
     if(!id) {
         return <div className="upload__asset">
             <div className="baseline-margin upload__asset__empty">No Assets Added</div>
@@ -37,13 +43,14 @@ function VideoAsset({ id, platform, active }) {
                 <span className="publish__label label__frontpage__novideo label__frontpage__overlay">Inactive</span>
             }
             {link(id, platform)}
+            {selector(id, version, selectAsset)}
         </div>
     </div>;
 }
 
-export default function VideoTrail({ activeVersion, assets }) {
+export default function VideoTrail({ activeVersion, assets, selectAsset }) {
     const body = assets.map((asset) => {
-        return <VideoAsset key={asset.id} active={asset.version === activeVersion} {...asset} />;
+        return <VideoAsset key={asset.id} active={asset.version === activeVersion} selectAsset={selectAsset} {...asset} />;
     });
 
     return <div className="upload__assets">
