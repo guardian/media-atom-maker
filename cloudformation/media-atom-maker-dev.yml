@@ -26,6 +26,9 @@ Parameters:
     Description: "The name to use for the S3 bucket where uploads will be saved"
     Type: "String"
     Default: "media-atom-maker-upload-dev"
+  MultimediaAccountId:
+    Type: "Number"
+    Description: "Account number of multimedia account"
 Mappings:
   LambdaBuilds:
     Uploader:
@@ -377,6 +380,42 @@ Resources:
       FunctionName: !Ref ExpirerLambda
       Principal: "events.amazonaws.com"
       SourceArn: !GetAtt ExpirerLambdaTrigger.Arn
+
+  PlutoIntegrationIncomingStream:
+    Type: AWS::Kinesis::Stream
+    Properties:
+      ShardCount: 1
+      Tags:
+      - Key: Stage
+        Value:
+          Ref: Stage
+      - Key: Stack
+        Value:
+          Ref: Stack
+
+  PlutoIntegrationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            AWS: !Ref MultimediaAccountId
+      Path: "/"
+      Policies:
+      - PolicyName: PlutoIntegrationRolePolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Resource:
+              !GetAtt PlutoIntegrationIncomingStream.Arn
+            Effect: Allow
+            Action:
+            - kinesis:PutRecord
+            - kinesis:PutRecords
 
 Outputs:
   EditsDynamoTable:
