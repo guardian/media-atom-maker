@@ -23,18 +23,12 @@
   &__actions {
     flex: 1 0 0;
     padding: 10px;
+    margin-right: 30px;
   }
 
   &__action {
     padding-bottom: 10px;
     margin-bottom: 10px;
-
-    label {
-      display: block;
-      font-weight: bold;
-      margin: 0 0 5px;
-      padding: 8px 0 0;
-    }
   }
 
   &__action:not(:last-child) {
@@ -43,5 +37,41 @@
 
   &__assets {
     flex: 3 0 0;
+    padding: 10px;
+  }
+
+  &__trail {
+    display: flex;
+    flex-flow: row wrap;
+  }
+
+  &__asset {
+    width: 30%;
+
+    &__empty {
+      background-color: black;
+      color: white;
+      font-weight: bold;
+    }
+
+    &__caption {
+      margin: 0 10px 10px;
+      text-align: center;
+      font-size: $fontsize__detailbox;
+      height: $fontsize__detailbox;
+
+      border: {
+        right: 1px solid $color650Grey;
+        bottom: 1px solid $color650Grey;
+        left: 1px solid $color650Grey;
+      }
+    }
+  }
+
+  label {
+    display: block;
+    font-weight: bold;
+    margin: 0 0 5px;
+    padding: 8px 0 0;
   }
 }
