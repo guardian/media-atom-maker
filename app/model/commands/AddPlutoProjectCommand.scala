@@ -19,7 +19,7 @@ class AddPlutoProjectCommand(atomId: String, plutoId: String, override val store
       val updatedAtom = new SetPlutoIdCommand(atomId, plutoId, stores, user).process()
 
       plutoDataStore.getUploadsWithAtomId(atomId).map(upload =>
-        PlutoKinesisSender.send(plutoId, upload.s3Key, awsConfig.uploadsStreamName, awsConfig.kinesisClient)
+        PlutoKinesisSender.send(plutoId, upload.s3Key, upload.id, awsConfig.uploadsStreamName, awsConfig.kinesisClient)
       )
 
       updatedAtom

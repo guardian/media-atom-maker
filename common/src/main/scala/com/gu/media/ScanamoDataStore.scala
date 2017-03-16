@@ -42,6 +42,9 @@ class ScanamoDataStore[T: ClassTag : DynamoFormat](client: AmazonDynamoDBClient,
     val result = Scanamo.put(client)(dynamoTableName)(item)
   }
 
+  def delete(id: String) = {
+    Scanamo.exec(client)(table.delete('id -> id))
+  }
 
   case class DynamoTableException(err: String) extends RuntimeException(err)
 
@@ -62,10 +65,5 @@ case class PlutoDataStore(client: AmazonDynamoDBClient, dynamoTableName: String)
     results.collect { case Right(result) => result }
   }
 
-  def deleteAllWithAtom(id: String): Unit = {
-
-    getUploadsWithAtomId(id).map(result => Scanamo.exec(client)(table.delete('id -> result.id)))
-
-  }
 }
 

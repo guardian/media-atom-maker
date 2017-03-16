@@ -8,7 +8,7 @@ import java.nio.ByteBuffer
 
 object PlutoKinesisSender {
 
-  def send(plutoId: String, s3Key: String, streamName: String, client: AmazonKinesisClient) = {
+  def send(plutoId: String, s3Key: String, videoId: String, streamName: String, client: AmazonKinesisClient) = {
 
     val request = new PutRecordsRequest().withStreamName(streamName)
 
@@ -17,6 +17,7 @@ object PlutoKinesisSender {
         {
           "plutoProjectId": ${plutoId}
           "s3Key": ${s3Key}
+          "videoId": ${videoId}
 
         }""".stripMargin.getBytes("UTF-8");
 

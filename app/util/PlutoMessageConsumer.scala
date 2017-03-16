@@ -16,10 +16,6 @@ case class PlutoMessageConsumer(val stores: DataStores, awsConfig: AWSConfig)
 
   def start(scheduler: Scheduler)(implicit ec: ExecutionContext): Unit = {
     log.info("Starting uploads sqs queue reader")
-    //val req = new PublishRequest(awsConfig.plutoTopicArn,
-    // "857aebb9-4c99-4d7e-a06d-d88b2a235ac9"
-    //)
-    //awsConfig.snsClient.publish(req)
     scheduler.scheduleOnce(0.seconds)(processMessages())
 
   }
@@ -52,9 +48,15 @@ case class PlutoMessageConsumer(val stores: DataStores, awsConfig: AWSConfig)
     (body \ "Message") match {
       case JsDefined(message) => {
         val messageString = message.toString
-        val atomId = messageString.substring(1, messageString.length - 1)
-        //Todo: remove from s3 now that pluto has finished processing
-        plutoDataStore.deleteAllWithAtom(atomId)
+        val videoId = messageString.substring(1, messageString.length - 1)
+        plutoDataStore.get(videoId) match {
+          case Some(video) => {
+            val s3Key = video.s3Key
+            //delete this from S3
+            plutoDataStore.delete(videoId)
+          }
+          case None => log.error(s"Could not fetch video entry with id ${videoId} from manual dynamo table")
+        }
       }
       case undefined => log.error(s"Could not extract a message body from message ${msg.getReceiptHandle()}")
     }
