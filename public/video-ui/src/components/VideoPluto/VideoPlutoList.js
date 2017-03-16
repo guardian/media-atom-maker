@@ -7,10 +7,6 @@ class VideoPlutoList extends React.Component{
     this.props.plutoVideoActions.getPlutoVideos();
   }
 
-  selectPlutoId(video) {
-    this.props.plutoVideoActions.addProject(video.id, video.plutoProjectId);
-  }
-
   renderPlutoVideo(video) {
     const videoLink = '/videos/' + video.id;
 

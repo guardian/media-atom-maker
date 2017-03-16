@@ -24,12 +24,12 @@ function errorReceivingAddProject(error) {
   };
 }
 
-export function addProject(videoId, plutoId) {
+export function addProject(video) {
   return dispatch => {
     dispatch(requestAddProject());
-    return PlutoVideosApi.sendToPluto(videoId, plutoId)
+    return PlutoVideosApi.sendToPluto(video.id, video.plutoProjectId)
       .then(() => {
-        dispatch(receiveAddProject(videoId));
+        dispatch(receiveAddProject(video.id));
       })
       .catch(error => dispatch(errorReceivingAddProject(error)));
   };

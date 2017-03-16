@@ -40,7 +40,7 @@ export default class VideoPlutoAdd extends React.Component {
           type="button"
           disabled= {!this.state.hasPlutoId}
           className="btn btn--pluto"
-          onClick={() => this.props.onProjectAdd(this.props.video.id, this.props.video.plutoProjectId)}
+          onClick={() => this.props.onProjectAdd(this.props.video)}
         >
           Add
         </button>
