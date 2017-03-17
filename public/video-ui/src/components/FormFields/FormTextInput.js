@@ -6,6 +6,8 @@ export default class FormTextInput extends React.Component {
     //Fill me in
   }
 
+  const hasError = this.props.errors.length > 0;
+
   renderField = () => {
     if(!this.props.editable) {
       return (
@@ -15,8 +17,6 @@ export default class FormTextInput extends React.Component {
         </div>
       );
     }
-
-    const hasError = this.props.errors.length > 0;
 
     return (
       <div className="form__row">

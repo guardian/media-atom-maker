@@ -17,6 +17,11 @@ import {fieldLengths} from '../../constants/videoEditValidation';
 
 class VideoDisplay extends React.Component {
 
+  state = {
+    metadataErrors: {},
+    youtubeErrors: {}
+  };
+
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
     this.props.videoActions.getUsages(this.props.params.id);
@@ -37,6 +42,14 @@ class VideoDisplay extends React.Component {
   selectVideo = () => {
     window.parent.postMessage({atomId: this.props.video.id}, '*');
   };
+
+  updateMetadataFormErrors = (fieldErrors, fieldName) => {
+    this.setState({
+      metadataErrors: {
+        [fieldName]: fieldErrors
+      }
+    });
+  }
 
   manageEditingState = (property) => {
 
@@ -94,24 +107,15 @@ class VideoDisplay extends React.Component {
 
   cannotCloseEditForm = (property) => {
 
-    const formFields = [];
     if (property === 'metadataEditable') {
-      formFields.splice(0, 0, 'title', 'category');
+      const errors = this.state.metadataErrors;
+      return Object.keys(errors).some(field => {
+        const value = errors[field];
+        return value.length !== 0;
+      });
     } else if (property === 'youtubeEditable') {
-      formFields.splice(0, 0, 'youtubeCategory', 'youtubeChannel', 'privacyStatus');
+      //TODO
     }
-    const errors  = validate(Object.assign(this.props.video, {
-      youtubeCategory: this.props.video.youtubeCategoryId,
-      youtubeChannel: this.props.video.channelId
-    }));
-
-    if (formFields.some(field => {
-      return Object.keys(errors).includes(field);
-    })) {
-      return true;
-    }
-    return false;
-
   };
 
   renderEditButton = (property) => {
@@ -157,20 +161,23 @@ class VideoDisplay extends React.Component {
                   {this.renderEditButton('metadataEditable')}
                 </div>
 
-                <ManagedForm
-                  data={this.props.video}
-                  updateData={this.updateVideo}
-                  editable={this.props.editState.metadataEditable}
-                >
-                  <ManagedField
-                    fieldLocation="title"
-                    name="title"
-                    maxLength={fieldLengths.title}
-                    isRequired={true}
+                <div className="form__group">
+                  <ManagedForm
+                    data={this.props.video}
+                    updateData={this.updateVideo}
+                    editable={this.props.editState.metadataEditable}
+                    updateFormErrors={this.updateMetadataFormErrors}
                   >
-                    <FormTextInput/>
-                  </ManagedField>
-                </ManagedForm>
+                    <ManagedField
+                      fieldLocation="title"
+                      name="Title"
+                      maxLength={fieldLengths.title}
+                      isRequired={true}
+                    >
+                      <FormTextInput/>
+                    </ManagedField>
+                  </ManagedForm>
+                </div>
 
                 <VideoMetaData
                   component={VideoMetaData}

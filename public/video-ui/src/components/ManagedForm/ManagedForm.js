@@ -17,29 +17,12 @@ export class ManagedForm extends React.Component {
     formWarnings: []
   }
 
-  updateFormErrors = (fieldErrors, fieldName) => {
-    this.setState({
-      formErrors: {
-        [fieldName]: fieldErrors
-      }
-    });
-  }
-
-  updateFormWarnings = (fieldWarnings, fieldName) => {
-    this.setState({
-      formWarning: {
-        [fieldName]: fieldWarning
-      }
-    });
-  }
-
   render() {
     const hydratedChildren = React.Children.map(this.props.children, (child) => {
       return React.cloneElement(child, {
         data: this.props.data,
         updateData: this.props.updateData,
-        updateFormErrors: this.updateFormErrors,
-        updateFormWarnings: this.updateFormWarnings,
+        updateFormErrors: this.props.updateFormErrors,
         editable: this.props.editable
       });
     });
