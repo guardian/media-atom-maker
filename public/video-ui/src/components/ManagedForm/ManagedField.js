@@ -42,14 +42,21 @@ export class ManagedField extends React.Component {
     });
 
     this.props.updateFormErrors(notifications.errors, this.props.name);
-    //custom validation here?
-    //select boxes: check if the value is the same as default empty option
-    //
-    if (this.props.defaultEmptyOption && this.props.defaultEmptyOption === newValue) {
-      return;
+
+    if (newValue !== '') {
+      this.props.updateData(_set(this.props.fieldLocation, newValue, this.props.data));
+    } else {
+      this.props.updateData(_set(this.props.fieldLocation, null, this.props.data));
+    }
+  }
+
+  getFieldValue(value) {
+    if (!this.props.editable && this.props.placeholder) {
+      return this.props.placeholder;
     }
 
-    this.props.updateData(_set(this.props.fieldLocation, newValue, this.props.data));
+    return value;
+
   }
 
 
@@ -58,16 +65,13 @@ export class ManagedField extends React.Component {
     const hydratedChildren = React.Children.map(this.props.children, (child) => {
       return React.cloneElement(child, {
         fieldName: this.props.name,
-        fieldValue: _get(this.props.fieldLocation, this.props.data),
+        fieldValue: this.getFieldValue(_get(this.props.fieldLocation, this.props.data)),
         fieldErrors: this.state.fieldErrors,
         onUpdateField: this.updateFn,
         editable: this.props.editable,
         maxLength: this.props.maxLength,
-        errors: this.state.fieldErrors
+        errors: this.state.fieldErrors,
+        placeholder: this.props.placeholder
       });
     });
-
-    return <div>{hydratedChildren}</div>;
-  }
-}
-
+return <div>{hydratedChildren}</div>; } }

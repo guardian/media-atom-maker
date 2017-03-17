@@ -13,6 +13,7 @@ import Icon from '../Icon';
 import {validate} from '../../constants/videoEditValidation';
 import {ManagedForm, ManagedField} from '../ManagedForm';
 import FormTextInput from '../FormFields/FormTextInput';
+import FormTextArea from '../FormFields/FormTextArea';
 import {fieldLengths} from '../../constants/videoEditValidation';
 
 class VideoDisplay extends React.Component {
@@ -175,6 +176,13 @@ class VideoDisplay extends React.Component {
                       isRequired={true}
                     >
                       <FormTextInput/>
+                    </ManagedField>
+                    <ManagedField
+                      fieldLocation="description"
+                      name="Description"
+                      placeholder="No Description"
+                    >
+                      <FormTextArea/>
                     </ManagedField>
                   </ManagedForm>
                 </div>
