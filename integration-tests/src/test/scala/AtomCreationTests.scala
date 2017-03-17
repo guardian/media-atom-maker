@@ -6,7 +6,7 @@ import integration.services.Config
 import org.scalatest.CancelAfterFailure
 import play.api.libs.json.Json
 
-class AtomCreationTest extends IntegrationTestBase with CancelAfterFailure {
+class AtomCreationTests extends IntegrationTestBase with CancelAfterFailure {
 
   var atomId: String = ""
   var apiEndpoint: String = ""
@@ -27,7 +27,7 @@ class AtomCreationTest extends IntegrationTestBase with CancelAfterFailure {
       expiryDate = Instant.now.toEpochMilli + (100 * 60 * 60 * 24)
     )
 
-    val response = gutoolsPost(s"$targetBaseUrl/api2/atoms", Some(jsonBody(json)))
+    val response = gutoolsPost(s"$targetBaseUrl/api2/atoms", jsonBody(json))
 
     response.code() should be(201)
 
@@ -46,7 +46,7 @@ class AtomCreationTest extends IntegrationTestBase with CancelAfterFailure {
 
 
   test("Add an asset to an existing atom") {
-    val assetResponse = gutoolsPost(s"${targetBaseUrl}/api2/atoms/${atomId}/assets", Some(jsonBody(s"""{"uri":"${Config.asset}"}""")))
+    val assetResponse = gutoolsPost(s"$targetBaseUrl/api2/atoms/$atomId/assets", jsonBody(s"""{"uri":"${Config.asset}"}"""))
 
     assetResponse.code() should be(200)
 
@@ -57,7 +57,7 @@ class AtomCreationTest extends IntegrationTestBase with CancelAfterFailure {
   }
 
   test("Make an asset current for an existing atom") {
-    val currentAssetResponse = gutoolsPut(s"${targetBaseUrl}/api2/atom/${atomId}/asset-active", Some(jsonBody(s"""{"youtubeId":"${Config.assetId}"}""")))
+    val currentAssetResponse = gutoolsPut(s"$targetBaseUrl/api2/atom/$atomId/asset-active", Some(jsonBody(s"""{"youtubeId":"${Config.assetId}"}""")))
 
     currentAssetResponse.code() should be(200)
 
@@ -67,7 +67,7 @@ class AtomCreationTest extends IntegrationTestBase with CancelAfterFailure {
   }
 
   test("Publishing an existing atom") {
-    val publishResponse = gutoolsPut(s"${targetBaseUrl}/api2/atom/${atomId}/publish")
+    val publishResponse = gutoolsPut(s"$targetBaseUrl/api2/atom/$atomId/publish")
 
     publishResponse.code() should be (200)
 

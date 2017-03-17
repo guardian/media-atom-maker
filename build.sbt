@@ -65,7 +65,8 @@ lazy val uploader = (project in file("uploader"))
 lazy val integrationTests = (project in file("integration-tests"))
   .settings(commonSettings,
     name := "integration-tests",
-    libraryDependencies ++= Dependencies.integrationTestDependencies
+    libraryDependencies ++= Dependencies.integrationTestDependencies,
+    logBuffered in Test := false
   )
 
 lazy val transcoder = (project in file("transcoder"))

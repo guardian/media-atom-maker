@@ -1,8 +1,9 @@
 package integration
 
 import org.scalatest.concurrent.{Eventually, IntegrationPatience}
-import org.scalatest.{BeforeAndAfterAll, FlatSpec, FunSuite, Matchers}
+import org.scalatest.{BeforeAndAfterAll, FunSuite, Matchers}
 import integration.services.{Config, GuHttp, TestAtomJsonGenerator}
+import play.api.Logger
 
 import scala.collection.mutable.ListBuffer
 
@@ -15,7 +16,7 @@ class IntegrationTestBase extends FunSuite with Matchers with Eventually with In
   var atomStore = new ListBuffer[String]() /* Add all created atoms IDs to this list as first action after atom created. This allows for test cleanup outside the test flow  */
 
   def deleteAtom(id: String) = {
-    println(s"Deleting atom $id")
+    Logger.info(s"Deleting atom $id")
     gutoolsDelete(s"$targetBaseUrl/api2/atom/$id")
   }
 
@@ -25,7 +26,7 @@ class IntegrationTestBase extends FunSuite with Matchers with Eventually with In
   }
 
   def addAtomToStore(atomId: String): ListBuffer[String] = {
-    println(s"Adding $atomId to Atom Store")
+    Logger.info(s"Adding $atomId to Atom Store")
     atomStore += atomId
   }
 
