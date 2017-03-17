@@ -14,7 +14,9 @@ import {validate} from '../../constants/videoEditValidation';
 import {ManagedForm, ManagedField} from '../ManagedForm';
 import FormTextInput from '../FormFields/FormTextInput';
 import FormTextArea from '../FormFields/FormTextArea';
+import FormSelectBox from '../FormFields/FormSelectBox';
 import {fieldLengths} from '../../constants/videoEditValidation';
+import {videoCategories} from '../../constants/videoCategories';
 
 class VideoDisplay extends React.Component {
 
@@ -183,6 +185,12 @@ class VideoDisplay extends React.Component {
                       placeholder="No Description"
                     >
                       <FormTextArea/>
+                    </ManagedField>
+                    <ManagedField
+                      fieldLocation="category"
+                      name="Category"
+                    >
+                      <FormSelectBox selectValues={videoCategories}></FormSelectBox>
                     </ManagedField>
                   </ManagedForm>
                 </div>
