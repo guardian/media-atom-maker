@@ -11,6 +11,9 @@ import {getVideoBlock} from '../../util/getVideoBlock';
 import {getStore} from '../../util/storeAccessor';
 import Icon from '../Icon';
 import {validate} from '../../constants/videoEditValidation';
+import {ManagedForm, ManagedField} from '../ManagedForm';
+import FormTextInput from '../FormFields/FormTextInput';
+import {fieldLengths} from '../../constants/videoEditValidation';
 
 class VideoDisplay extends React.Component {
 
@@ -153,6 +156,22 @@ class VideoDisplay extends React.Component {
                   <header className="video__detailbox__header">Video Meta Data</header>
                   {this.renderEditButton('metadataEditable')}
                 </div>
+
+                <ManagedForm
+                  data={this.props.video}
+                  updateData={this.updateVideo}
+                  editable={this.props.editState.metadataEditable}
+                >
+                  <ManagedField
+                    fieldLocation="title"
+                    name="title"
+                    maxLength={fieldLengths.title}
+                    isRequired={true}
+                  >
+                    <FormTextInput/>
+                  </ManagedField>
+                </ManagedForm>
+
                 <VideoMetaData
                   component={VideoMetaData}
                   video={this.props.video || {}}
