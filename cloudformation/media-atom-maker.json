@@ -260,6 +260,22 @@
                                   "Resource": [
                                     "arn:aws:elastictranscoder:*"
                                   ]
+                                },
+                                {
+                                  "Effect": "Allow",
+                                  "Action": [
+                                    "s3:PutObject",
+                                    "s3:PutObjectAcl",
+                                    "s3:ListBucketMultipartUploads",
+                                    "s3:ListMultipartUploadParts",
+                                    "s3:AbortMultipartUpload"
+                                  ],
+                                  "Resource": {
+                                    "Fn::Sub": [
+                                      "arn:aws:s3:::${Bucket}/uploads/*",
+                                      { "Bucket": { "Ref": "UserUploadBucket" }}
+                                    ]
+                                  }
                                 }
                             ]
                         }
@@ -445,7 +461,7 @@
                           },
                           {
                             "Effect": "Allow",
-                            "Action": ["s3:GetObject"],
+                            "Action": ["s3:GetObject", "s3:DeleteObject"],
                             "Resource": [
                               { "Fn::Sub": [
                                 "arn:aws:s3:::${Bucket}/*",
