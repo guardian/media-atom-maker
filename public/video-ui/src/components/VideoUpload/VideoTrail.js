@@ -1,8 +1,5 @@
 import React from 'react';
-
-const labelClasses = "publish__label label__frontpage__overlay";
-const activeLabelClasses = `${labelClasses} label__live`;
-const inactiveLabelClasses = `${labelClasses} label__frontpage__novideo`;
+import moment from 'moment';
 
 const VIDEO_WIDTH = 320;
 const VIDEO_HEIGHT = 180;
@@ -23,13 +20,23 @@ function embed(assetId, platform) {
     }
 }
 
-function selector(assetId, version, selectAsset) {
-    return <button className="button__secondary" onClick={() => selectAsset(assetId, version)}>
-        Select
+function selector(assetId, version, selectAsset, active) {
+    const classes = active ? "button__active" : "button__secondary";
+    const action = active ? "Active" : "Activate";
+
+    return <button className={classes} disabled={active} onClick={() => selectAsset(assetId, version)}>
+        {action}
     </button>;
 }
 
-function VideoAsset({ id, platform, version, active, selectAsset }) {
+function readableDateTime(created) {
+    return <div>
+        <strong>{moment(created).format('DD/MM/YY')}</strong>
+        {moment(created).format('HH:mm:ss')}
+    </div>;
+}
+
+function VideoAsset({ id, platform, version, active, created, selectAsset }) {
     if(!id) {
         return <div className="upload__asset">
             <div className="upload__asset__video upload__asset__empty">
@@ -41,26 +48,20 @@ function VideoAsset({ id, platform, version, active, selectAsset }) {
     return <div className="upload__asset">
         <div className="upload__asset__video">{embed(id, platform)}</div>
         <div className="upload__asset__caption">
-            {active ?
-                <div className={activeLabelClasses}>Active</div> :
-                <div className={inactiveLabelClasses}>Inactive</div>
-            }
-            {selector(id, version, selectAsset)}
+            {created ? readableDateTime(created) : <div />}
+            {selector(id, version, selectAsset, active)}
         </div>
     </div>;
 }
 
-function UploadAsset({ total, progress }) {
+function UploadAsset({ created, total, progress }) {
     return <div className="upload__asset">
-        <div className="upload__asset__video">
-            <img src="https://upload.wikimedia.org/wikipedia/en/5/52/Testcard_F.jpg" />
+        <div className="upload__asset__video upload__asset__local">
+            <span>Uploading to YouTube</span>
         </div>
         <div className="upload__asset__caption">
-            <div className="upload__asset__left">
-                <span className={inactiveLabelClasses}>
-                    <progress value={progress} max={total} />
-                </span>
-            </div>
+            {readableDateTime(created)}
+            <progress value={progress} max={total} />
         </div>
     </div>;
 }
@@ -69,7 +70,7 @@ export default function VideoTrail({ activeVersion, assets, selectAsset, upload 
     const squares = [];
 
     if(upload.total) {
-        squares.push(<UploadAsset key="upload" total={upload.total} progress={upload.progress} />);
+        squares.push(<UploadAsset key="upload" {...upload} />);
     }
 
     assets.forEach((asset) => {
