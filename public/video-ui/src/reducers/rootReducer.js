@@ -11,7 +11,7 @@ import youtube from './youtubeReducer';
 import { reducer as form } from 'redux-form';
 import usage from './usageReducer';
 import pageCreate from './composerPageReducer';
-import upload from './uploadsReducer';
+import localUpload from './localUploadsReducer';
 import editState from './editStateReducer';
 
 export default combineReducers({
@@ -27,6 +27,6 @@ export default combineReducers({
   usage,
   pageCreate,
   publishedVideo,
-  upload,
+  localUpload,
   editState
 });

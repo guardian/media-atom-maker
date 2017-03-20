@@ -66,11 +66,11 @@ function UploadAsset({ created, total, progress }) {
     </div>;
 }
 
-export default function VideoTrail({ activeVersion, assets, selectAsset, upload }) {
+export default function VideoTrail({ activeVersion, assets, selectAsset, localUpload }) {
     const squares = [];
 
-    if(upload.total) {
-        squares.push(<UploadAsset key="upload" {...upload} />);
+    if(localUpload.total) {
+        squares.push(<UploadAsset key="upload" {...localUpload} />);
     }
 
     assets.forEach((asset) => {

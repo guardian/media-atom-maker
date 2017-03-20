@@ -66,13 +66,9 @@ class VideoUpload extends React.Component {
   }
 
   renderButtons() {
-    const complete = this.props.upload.handle !== null && this.props.upload.progress === this.props.upload.total;
+    const uploading = this.props.localUpload.handle !== null;
 
-    if (complete) {
-      return <button type="button" className="button__secondary" disabled={true}>
-        <Icon icon="done">Uploaded</Icon>
-      </button>;
-    } else if (this.props.upload.progress) {
+    if (uploading) {
       return false;
     } else {
       return <button type="button" className="button__secondary" disabled={!this.state.file} onClick={this.startUpload}>
@@ -82,9 +78,11 @@ class VideoUpload extends React.Component {
   }
 
   renderPicker() {
+    const disabled = this.props.localUpload.handle !== null;
+
     return <div className="upload__action">
       <label>Upload Video</label>
-      <input className="form__field" type="file" onChange={this.setFile} disabled={this.props.upload.progress} />
+      <input className="form__field" type="file" onChange={this.setFile} disabled={disabled} />
       {this.renderButtons()}
     </div>;
   }
@@ -114,7 +112,7 @@ class VideoUpload extends React.Component {
           {this.renderPicker()}
           <AddAssetFromURL video={this.props.video} createAsset={this.props.videoActions.createAsset} />
         </div>
-        <VideoTrail activeVersion={activeVersion} assets={assets} selectAsset={selectAsset} upload={this.props.upload} />
+        <VideoTrail activeVersion={activeVersion} assets={assets} selectAsset={selectAsset} localUpload={this.props.localUpload} />
       </div>
     </div>;
   }
@@ -124,14 +122,14 @@ class VideoUpload extends React.Component {
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getVideo from '../../actions/VideoActions/getVideo';
-import * as uploadActions from '../../actions/UploadActions/upload';
+import * as uploadActions from '../../actions/UploadActions/localUpload';
 import * as createAsset from '../../actions/VideoActions/createAsset';
 import * as revertAsset from '../../actions/VideoActions/revertAsset';
 
 function mapStateToProps(state) {
   return {
     video: state.video,
-    upload: state.upload
+    localUpload: state.localUpload
   };
 }
 

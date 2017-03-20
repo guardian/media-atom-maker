@@ -8,7 +8,8 @@ export default function YouTubeEmbed({id}) {
     return <iframe
         className="baseline-margin"
         type="text/html"
-        src={src} allowFullScreen
+        src={src}
+        allowFullScreen
         frameBorder="0">
     </iframe>;
 }
