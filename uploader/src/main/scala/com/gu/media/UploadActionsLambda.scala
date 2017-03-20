@@ -72,7 +72,7 @@ class UploadActionsLambda extends RequestHandler[KinesisEvent, Unit]
   private def addAsset(atomId: String, videoId: String): Unit = {
     val actuallyPerformRequest = stage != "DEV" && domain.nonEmpty
 
-    val uri = s"https://$domain/api2/atoms/:id/assets"
+    val uri = s"https://$domain/api2/atoms/$atomId/assets"
     val hmacHeaders = generateHmacHeaders(uri)
 
     val videoUri = s"https://www.youtube.com/watch?v=$videoId"
