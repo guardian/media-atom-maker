@@ -15,6 +15,7 @@ import localUpload from './localUploadsReducer';
 import editState from './editStateReducer';
 import plutoVideos from './plutoVideosReducer';
 import formErrors from './formErrorsReducer';
+import uploads from './uploadsReducer';
 
 export default combineReducers({
   audits,
@@ -29,8 +30,9 @@ export default combineReducers({
   usage,
   pageCreate,
   publishedVideo,
-  editState,
   plutoVideos,
   formErrors,
-  localUpload
+  localUpload,
+  editState,
+  uploads
 });
