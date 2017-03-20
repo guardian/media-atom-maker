@@ -5,7 +5,7 @@ import java.net.URL
 import java.time.Duration
 
 import com.google.api.client.http.InputStreamContent
-import com.google.api.services.youtube.model.Video
+import com.google.api.services.youtube.model.{Video, VideoSnippet}
 import com.gu.media.logging.Logging
 
 import scala.collection.JavaConverters._
@@ -59,17 +59,19 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
       case Some(video) =>
         protectAgainstMistakesInDev(video)
 
-        val snippet = video.getSnippet
-        val status = video.getStatus
+        val oldSnippet = video.getSnippet
 
-        metadata.title.foreach(snippet.setTitle)
-        metadata.categoryId.foreach(snippet.setCategoryId)
-        metadata.description.foreach(snippet.setDescription)
-        snippet.setTags(metadata.tags.asJava)
+        val newSnippet = new VideoSnippet()
+        newSnippet.setTags(metadata.tags.asJava)
+        newSnippet.setTitle(metadata.title.getOrElse(oldSnippet.getTitle))
+        newSnippet.setCategoryId(metadata.categoryId.getOrElse(oldSnippet.getCategoryId))
+        newSnippet.setDescription(metadata.description.getOrElse(oldSnippet.getDescription))
+
+        val status = video.getStatus
         metadata.license.foreach(status.setLicense)
         metadata.privacyStatus.map(_.toLowerCase).foreach(status.setPrivacyStatus)
 
-        video.setSnippet(snippet)
+        video.setSnippet(newSnippet)
         video.setStatus(status)
 
         log.info(s"Updating YouTube metadata for $id:\n${YouTubeMetadataUpdate.prettyToString(metadata)}")
