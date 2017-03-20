@@ -263,16 +263,10 @@
                                 },
                                 {
                                   "Effect": "Allow",
-                                  "Action": [
-                                    "s3:PutObject",
-                                    "s3:PutObjectAcl",
-                                    "s3:ListBucketMultipartUploads",
-                                    "s3:ListMultipartUploadParts",
-                                    "s3:AbortMultipartUpload"
-                                  ],
+                                  "Action": ["s3:*"],
                                   "Resource": {
                                     "Fn::Sub": [
-                                      "arn:aws:s3:::${Bucket}/uploads/*",
+                                      "arn:aws:s3:::${Bucket}/*",
                                       { "Bucket": { "Ref": "UserUploadBucket" }}
                                     ]
                                   }
@@ -504,7 +498,8 @@
                 "APP": "media-atom-uploader",
                 "STAGE": { "Ref": "Stage" },
                 "CONFIG_BUCKET": { "Ref": "ConfigBucket" },
-                "CONFIG_KEY": { "Fn::FindInMap": [ "LambdaConfig", "Uploader", { "Ref": "Stage" }] }
+                "CONFIG_KEY": { "Fn::FindInMap": [ "LambdaConfig", "Uploader", { "Ref": "Stage" }] },
+                "UPLOAD_TRACKING_TABLE_NAME": { "Ref": "UploadTrackingTable" }
               }
             },
             "MemorySize": 256,
