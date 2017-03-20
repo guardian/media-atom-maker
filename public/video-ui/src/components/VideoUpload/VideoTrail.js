@@ -1,64 +1,58 @@
 import React from 'react';
-import Icon from '../Icon';
-import {getStore} from '../../util/storeAccessor';
 
 const labelClasses = "publish__label label__frontpage__overlay";
 const activeLabelClasses = `${labelClasses} label__live`;
 const inactiveLabelClasses = `${labelClasses} label__frontpage__novideo`;
 
-function thumbnail(assetId, platform) {
-    if(platform === "Youtube") {
-        const store = getStore();
-        const src = store.getState().config.youtubeThumbnailUrl + assetId + "/0.jpg";
-        return <img src={src} />;
-    } else {
-        return false;
-    }
-}
+const VIDEO_WIDTH = 320;
+const VIDEO_HEIGHT = 180;
 
-function link(assetId, platform) {
-    if(platform == "Youtube") {
-        return <a className="button" href={`https://www.youtube.com/watch?v=${assetId}`} target="_blank" rel="noopener noreferrer">
-            <Icon className="icon__edit" icon="launch" />
-        </a>;
+function embed(assetId, platform) {
+    if(platform === "Youtube") {
+        const props = {
+            type: "text/html",
+            width: VIDEO_WIDTH, 
+            height: VIDEO_HEIGHT,
+            src: `https://www.youtube.com/embed/${assetId}?showinfo=0`,
+            frameBorder: 0
+        };
+
+        return <iframe {...props}></iframe>;
     } else {
         return false;
     }
 }
 
 function selector(assetId, version, selectAsset) {
-    return <a className="button" onClick={() => selectAsset(assetId, version)}>
-        <Icon className="icon__edit" icon="settings_ethernet" />
-    </a>;
+    return <button className="button__secondary" onClick={() => selectAsset(assetId, version)}>
+        Select
+    </button>;
 }
 
 function VideoAsset({ id, platform, version, active, selectAsset }) {
     if(!id) {
         return <div className="upload__asset">
-            <div className="baseline-margin upload__asset__empty">No Assets Added</div>
+            <div className="upload__asset__video upload__asset__empty">
+                <span>No Assets Added</span>    
+            </div>
         </div>;
     }
 
     return <div className="upload__asset">
-        <div className="baseline-margin">{thumbnail(id, platform)}</div>
+        <div className="upload__asset__video">{embed(id, platform)}</div>
         <div className="upload__asset__caption">
-            <div className="upload__asset__left">
-                {active ?
-                    <span className={activeLabelClasses}>Active</span> :
-                    <span className={inactiveLabelClasses}>Inactive</span>
-                }
-            </div>
-            <div className="upload__asset__right">
-                {link(id, platform)}
-                {selector(id, version, selectAsset)}
-            </div>
+            {active ?
+                <div className={activeLabelClasses}>Active</div> :
+                <div className={inactiveLabelClasses}>Inactive</div>
+            }
+            {selector(id, version, selectAsset)}
         </div>
     </div>;
 }
 
 function UploadAsset({ total, progress }) {
     return <div className="upload__asset">
-        <div className="baseline-margin">
+        <div className="upload__asset__video">
             <img src="https://upload.wikimedia.org/wikipedia/en/5/52/Testcard_F.jpg" />
         </div>
         <div className="upload__asset__caption">
@@ -83,9 +77,6 @@ export default function VideoTrail({ activeVersion, assets, selectAsset, upload 
     });
 
     return <div className="upload__assets">
-        <label>Video Trail</label>
-        <div className="upload__trail">
-            {squares.length > 0 ? squares : <VideoAsset />}
-        </div>
+        {squares.length > 0 ? squares : <VideoAsset />}
     </div>;
 }
