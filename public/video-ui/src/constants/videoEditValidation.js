@@ -7,6 +7,7 @@ export const validate = (values) => {
   if (!values.title) {
     errors.title = 'Required';
   }
+
   if (!values.category) {
     errors.category = 'Required';
   }
@@ -26,6 +27,16 @@ export const validate = (values) => {
   }
   return errors;
 };
+
+export const warn = values => {
+  const warnings = {};
+
+  if (!values.description) {
+    warnings.description = 'Having a description on a video atom is recommended';
+  }
+
+  return warnings;
+}
 
 export const fieldLengths = {
   title: 100 // https://developers.google.com/youtube/v3/docs/videos#snippet.title
