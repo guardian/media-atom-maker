@@ -107,8 +107,8 @@
         },
         "LambdaBuilds": {
             "Uploader": {
-                "CODE": "media-service/CODE/media-atom-uploader/media-atom-uploader.zip",
-                "PROD": "media-service/PROD/media-atom-uploader/media-atom-uploader.zip"
+                "CODE": "media-service/CODE/media-atom-upload-actions/media-atom-uploader.zip",
+                "PROD": "media-service/PROD/media-atom-upload-actions/media-atom-uploader.zip"
             },
             "Transcoder": {
               "CODE": "media-service/CODE/media-atom-transcoder/media-atom-transcoder.zip",
