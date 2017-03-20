@@ -29,11 +29,11 @@ class UploadLifecycle(aws: AwsAccess with S3Access with DynamoAccess with Kinesi
     aws.sendOnKinesis(aws.uploadActionsStreamName, upload.id, action)
 
     if(complete.parts.forall(_.uploadedToS3)) {
-      val fullKey = createFullObject(complete).toString
+      val completeKey = createCompleteObject(complete).toString
       val action = DeleteParts(upload.id, upload.parts.map(_.key))
 
       aws.sendOnKinesis(aws.uploadActionsStreamName, upload.id, action)
-      sendToPluto(fullKey, upload.metadata)
+      sendToPluto(completeKey, upload.metadata)
     }
 
     complete
@@ -47,24 +47,26 @@ class UploadLifecycle(aws: AwsAccess with S3Access with DynamoAccess with Kinesi
     }
   }
 
-  private def createFullObject(upload: Upload): UploadFullKey = {
-    val fullKey = UploadFullKey(aws.userUploadFolder, upload.id)
-    val start = new InitiateMultipartUploadRequest(aws.userUploadBucket, fullKey.toString)
+  // Videos are uploaded as a series of smaller parts. In order to simplify Pluto ingestion and allow us
+  // to transcode if required, we use S3 multipart copy to create a new object consisting of all the parts
+  private def createCompleteObject(upload: Upload): CompleteUploadKey = {
+    val completeKey = CompleteUploadKey(aws.userUploadFolder, upload.id)
+    val start = new InitiateMultipartUploadRequest(aws.userUploadBucket, completeKey.toString)
     log.info(s"Starting multipart copy for upload ${upload.id}")
 
     val multipart = aws.s3Client.initiateMultipartUpload(start)
     log.info(s"Started. upload=${upload.id} multipart=${multipart.getUploadId}")
 
     val eTags = for(part <- upload.parts.indices)
-      yield copyPart(multipart.getUploadId, upload.id, part, fullKey.toString)
+      yield copyPart(multipart.getUploadId, upload.id, part, completeKey.toString)
 
     val complete = new CompleteMultipartUploadRequest(
-      aws.userUploadBucket, fullKey.toString, multipart.getUploadId, eTags.asJava)
+      aws.userUploadBucket, completeKey.toString, multipart.getUploadId, eTags.asJava)
 
     aws.s3Client.completeMultipartUpload(complete)
     log.info(s"Multipart copy complete. upload=${upload.id} multipart=${multipart.getUploadId}")
 
-    fullKey
+    completeKey
   }
 
   private def copyPart(multipartId: String, uploadId: String, part: Int, key: String): PartETag = {

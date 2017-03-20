@@ -48,7 +48,7 @@ class UploadActionsLambda extends RequestHandler[KinesisEvent, Unit]
   }
 
   private def deleteParts(partsToDelete: List[String]): Unit = {
-    // The full key will be deleted once it has been ingested by Pluto
+    // The complete key will be deleted once it has been ingested by Pluto
     partsToDelete.foreach { part =>
       try {
         log.info(s"Deleting part $part")
