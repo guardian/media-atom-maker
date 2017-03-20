@@ -25,16 +25,16 @@ class DataStores(aws: AWSConfig) extends MediaAtomImplicits {
   val audit: AuditDataStore = new AuditDataStore(aws.dynamoDB, aws.auditDynamoTableName)
 
   val livePublisher: LiveKinesisAtomPublisher =
-    new LiveKinesisAtomPublisher(aws.liveKinesisStreamName, aws.kinesisClient)
+    new LiveKinesisAtomPublisher(aws.liveKinesisStreamName, aws.crossAccountKinesisClient)
 
   val previewPublisher: PreviewKinesisAtomPublisher =
-    new PreviewKinesisAtomPublisher(aws.previewKinesisStreamName, aws.kinesisClient)
+    new PreviewKinesisAtomPublisher(aws.previewKinesisStreamName, aws.crossAccountKinesisClient)
 
   val reindexPreview: PreviewAtomReindexer =
-    new PreviewKinesisAtomReindexer(aws.previewKinesisReindexStreamName, aws.kinesisClient)
+    new PreviewKinesisAtomReindexer(aws.previewKinesisReindexStreamName, aws.crossAccountKinesisClient)
 
   val reindexPublished: PublishedKinesisAtomReindexer =
-    new PublishedKinesisAtomReindexer(aws.publishedKinesisReindexStreamName, aws.kinesisClient)
+    new PublishedKinesisAtomReindexer(aws.publishedKinesisReindexStreamName, aws.crossAccountKinesisClient)
 
   private def getPreview[T: ClassTag: DynamoFormat](dynamoFormats: AtomDynamoFormats[T]): PreviewDynamoDataStore[T] = {
     new PreviewDynamoDataStore[T](aws.dynamoDB, aws.dynamoTableName) {

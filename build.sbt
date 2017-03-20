@@ -104,9 +104,7 @@ lazy val root = (project in file("root"))
     riffRaffManifestProjectName := "media-service:media-atom-maker",
     riffRaffArtifactResources := Seq(
       (packageBin in Debian in app).value -> s"${(name in app).value}/${(name in app).value}.deb",
-      // we have an entry here for each lambda that uses this code (see the cloud formation)
-      (packageBin in Universal in uploader).value -> s"media-atom-uploader-s3-events/${(packageBin in Universal in uploader).value.getName}",
-      (packageBin in Universal in uploader).value -> s"media-atom-uploader-dynamo-events/${(packageBin in Universal in uploader).value.getName}",
+      (packageBin in Universal in uploader).value -> s"media-atom-upload-actions/${(packageBin in Universal in uploader).value.getName}",
       (packageBin in Universal in transcoder).value -> s"${(name in transcoder).value}/${(packageBin in Universal in transcoder).value.getName}",
       (packageBin in Universal in expirer).value -> s"${(name in expirer).value}/${(packageBin in Universal in expirer).value.getName}",
       (baseDirectory in Global in app).value / "conf/riff-raff.yaml" -> "riff-raff.yaml"

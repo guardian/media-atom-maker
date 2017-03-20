@@ -260,6 +260,16 @@
                                   "Resource": [
                                     "arn:aws:elastictranscoder:*"
                                   ]
+                                },
+                                {
+                                  "Effect": "Allow",
+                                  "Action": ["s3:*"],
+                                  "Resource": {
+                                    "Fn::Sub": [
+                                      "arn:aws:s3:::${Bucket}/*",
+                                      { "Bucket": { "Ref": "UserUploadBucket" }}
+                                    ]
+                                  }
                                 }
                             ]
                         }
@@ -445,7 +455,7 @@
                           },
                           {
                             "Effect": "Allow",
-                            "Action": ["s3:GetObject"],
+                            "Action": ["s3:GetObject", "s3:DeleteObject"],
                             "Resource": [
                               { "Fn::Sub": [
                                 "arn:aws:s3:::${Bucket}/*",
@@ -488,7 +498,8 @@
                 "APP": "media-atom-uploader",
                 "STAGE": { "Ref": "Stage" },
                 "CONFIG_BUCKET": { "Ref": "ConfigBucket" },
-                "CONFIG_KEY": { "Fn::FindInMap": [ "LambdaConfig", "Uploader", { "Ref": "Stage" }] }
+                "CONFIG_KEY": { "Fn::FindInMap": [ "LambdaConfig", "Uploader", { "Ref": "Stage" }] },
+                "UPLOAD_TRACKING_TABLE_NAME": { "Ref": "UploadTrackingTable" }
               }
             },
             "MemorySize": 256,

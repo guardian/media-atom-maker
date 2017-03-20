@@ -24,7 +24,7 @@ class UploadActionsLambda extends RequestHandler[KinesisEvent, Unit]
   with Logging {
 
   private val table = new UploadsDataStore(this)
-  private val domain = getString("host").getOrElse("https://video.local.dev-gutools.co.uk")
+  private val domain = getString("host").getOrElse("video.local.dev-gutools.co.uk")
 
   private val http = new OkHttpClient()
   private val appJson = MediaType.parse("application/json")
@@ -71,8 +71,8 @@ class UploadActionsLambda extends RequestHandler[KinesisEvent, Unit]
 
   private def addAsset(atomId: String, videoId: String): Unit = {
     val actuallyPerformRequest = stage != "DEV" && domain.nonEmpty
-    
-    val uri = s"$domain/api2/atoms/:id/assets"
+
+    val uri = s"https://$domain/api2/atoms/$atomId/assets"
     val hmacHeaders = generateHmacHeaders(uri)
 
     val videoUri = s"https://www.youtube.com/watch?v=$videoId"
