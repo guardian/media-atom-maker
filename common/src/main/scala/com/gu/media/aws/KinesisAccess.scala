@@ -20,11 +20,13 @@ trait KinesisAccess { this: Settings with AwsAccess with CrossAccountAccess =>
 
   val uploadActionsStreamName: String = getMandatoryString("aws.kinesis.uploadActionsStreamName")
 
-  lazy val kinesisClient = if (stage != "DEV" || readFromComposerAccount) {
+  lazy val crossAccountKinesisClient = if (stage != "DEV" || readFromComposerAccount) {
     region.createClient(classOf[AmazonKinesisClient], atomEventsProvider, null)
   } else {
     region.createClient(classOf[AmazonKinesisClient], credsProvider, null)
   }
+
+  lazy val kinesisClient = region.createClient(classOf[AmazonKinesisClient], credsProvider, null)
 
   def sendOnKinesis[T: Writes](streamName: String, partitionKey: String, value: T): Unit = {
     val json = Json.stringify(Json.toJson(value))
