@@ -48,6 +48,7 @@
 
   &__asset {
     margin: 10px;
+    color: white;
 
     &__video {
       width: 320px;
@@ -57,6 +58,9 @@
       align-items: center;
       justify-content: center;
 
+      color: white;
+      font-weight: bold;
+
       img {
         width: 100%;
       }
@@ -64,16 +68,37 @@
 
     &__empty {
       background-color: black;
-      color: white;
-      font-weight: bold;
+    }
+
+    &__local {
+      background-image: url("https://upload.wikimedia.org/wikipedia/en/5/52/Testcard_F.jpg");
+      background-size: 100%;
+
+      span {
+        padding: 10px;
+        background-color: rgba(51, 51, 51, 0.9);
+      }
     }
 
     &__caption {
+      height: 40px;
       display: flex;
       justify-content: space-between;
+      align-items: center;
       padding: 5px;
       background-color: $color650Grey;
+      font-size: 12px;
+
+      strong {
+        margin-right: 5px;
+      }
     }
+  }
+
+  progress {
+    width: 100%;
+    height: 15px;
+    margin: 0 10px;
   }
 
   label {
