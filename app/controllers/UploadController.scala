@@ -1,17 +1,16 @@
 package controllers
 
-import java.util.UUID
-
 import com.gu.media.logging.Logging
 import com.gu.media.upload._
 import com.gu.pandahmac.HMACAuthActions
+import com.gu.pandomainauth.action.UserRequest
 import com.gu.pandomainauth.model.User
 import controllers.UploadController.CreateRequest
 import data.{DataStores, UnpackedDataStores}
 import model.MediaAtom
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.{Format, Json}
-import play.api.mvc.Controller
+import play.api.mvc.{Controller, Result}
 import util.AWSConfig
 
 class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, override val stores: DataStores)
@@ -20,12 +19,12 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, o
   import authActions.APIHMACAuthAction
 
   private val UPLOAD_KEY_HEADER = "X-Upload-Key"
-  private val table = new DynamoUploadsTable(awsConfig)
-  private val creds = new CredentialsGenerator(awsConfig)
+  private val table = new UploadsDataStore(awsConfig)
+  private val uploads = new UploadLifecycle(awsConfig)
 
   def list(atomId: String) = APIHMACAuthAction {
-    val results = table.list(atomId)
-    Ok(Json.toJson(results))
+    val uploads = table.list(atomId)
+    Ok(Json.toJson(uploads))
   }
 
   def create = APIHMACAuthAction { implicit raw =>
@@ -33,10 +32,16 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, o
       log.info(s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}")
 
       val atom = MediaAtom.fromThrift(getPreviewAtom(req.atomId))
-      val upload = buildUpload(atom, raw.user, req.size)
+      atom.channelId match {
+        case Some(channel) =>
+          val upload = buildUpload(atom, channel, raw.user, req.size)
+          table.put(upload)
 
-      table.put(upload)
-      Ok(Json.toJson(upload))
+          Ok(Json.toJson(upload))
+
+        case None =>
+          BadRequest("Atom missing YouTube channel")
+      }
     }
   }
 
@@ -46,41 +51,54 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, o
   }
 
   def credentials(id: String) = APIHMACAuthAction { implicit req =>
-    (table.get(id), req.headers.get(UPLOAD_KEY_HEADER)) match {
-      case (Some(upload), Some(key)) =>
-        val validKey = upload.parts.exists(_.key == key)
-
-        if(validKey) {
-          val credentials = creds.forKey(id, key)
-          Ok(Json.toJson(credentials))
-        } else {
-          BadRequest(s"Unknown part key $key")
-        }
-
-      case _ =>
-        BadRequest(s"Unknown upload or missing $UPLOAD_KEY_HEADER. id=$id")
+    partRequest(id, req) { (upload, part) =>
+      val credentials = uploads.credentialsForPart(upload, part)
+      Ok(Json.toJson(credentials))
     }
   }
 
-  private def chunk(uploadId: String, size: Long): List[UploadPart] = {
-    val boundaries = Upload.calculateChunks(size)
+  def complete(id: String) = APIHMACAuthAction { implicit req =>
+    partRequest(id, req) { (upload, part) =>
+      val complete = uploads.partComplete(upload, part)
+      table.put(complete)
 
-    boundaries.zipWithIndex.map { case ((start, end), id) =>
-      UploadPart(UploadPartKey(awsConfig.userUploadFolder, uploadId, id).toString, start, end)
+      NoContent
     }
   }
 
-  private def buildUpload(atom: MediaAtom, user: User, size: Long) = {
-    val id = UUID.randomUUID().toString
-
-    Upload(
-      id = id,
+  private def buildUpload(atom: MediaAtom, channelId: String, user: User, size: Long) = {
+    val metadata = UploadMetadata(
       atomId = atom.id,
       user = user.email,
       bucket = awsConfig.userUploadBucket,
       region = awsConfig.region.getName,
-      parts = chunk(id, size)
+      title = atom.title,
+      plutoProjectId = atom.plutoProjectId
     )
+
+    uploads.create(metadata, size)
+  }
+
+  private def partRequest(id: String, request: UserRequest[_])(fn: (Upload, UploadPart) => Result): Result = {
+    table.get(id) match {
+      case Some(upload) =>
+        request.headers.get(UPLOAD_KEY_HEADER) match {
+          case Some(key) =>
+            upload.parts.find(_.key == key) match {
+              case Some(part) =>
+                fn(upload, part)
+
+              case None =>
+                BadRequest(s"Unknown part key $key")
+            }
+
+          case None =>
+            BadRequest(s"Missing header $UPLOAD_KEY_HEADER")
+        }
+
+      case None =>
+        BadRequest(s"Unknown upload id $id")
+    }
   }
 }
 

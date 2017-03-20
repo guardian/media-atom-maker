@@ -32,6 +32,7 @@ GET     /api2/uploads                   controllers.UploadController.list(atomId
 POST    /api2/uploads                   controllers.UploadController.create
 DELETE  /api2/uploads/:id               controllers.UploadController.delete(id)
 POST    /api2/uploads/:id/credentials   controllers.UploadController.credentials(id)
+POST    /api2/uploads/:id/complete      controllers.UploadController.complete(id)
 
 GET     /api2/audits/:id                controllers.Api2.getAuditTrailForAtomId(id)
 

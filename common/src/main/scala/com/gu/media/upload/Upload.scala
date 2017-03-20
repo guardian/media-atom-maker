@@ -3,7 +3,14 @@ package com.gu.media.upload
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
 
-case class Upload(id: String, atomId: String, user: String, bucket: String, region: String, parts: List[UploadPart])
+case class Upload(id: String, parts: List[UploadPart], metadata: UploadMetadata, error: Option[String]) {
+  def withPart(key: String)(fn: UploadPart => UploadPart): Upload = {
+    copy(parts = parts.map {
+      case part if part.key == key => fn(part)
+      case part => part
+    })
+  }
+}
 
 object Upload {
   implicit val format: Format[Upload] = Jsonx.formatCaseClass[Upload]

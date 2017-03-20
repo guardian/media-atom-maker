@@ -29,6 +29,10 @@ Parameters:
   MultimediaAccountId:
     Type: "Number"
     Description: "Account number of multimedia account"
+  UploadParallelism:
+    Description: "How many video chunks can be uploaded in parallel"
+    Type: "String"
+    Default: "2"
 Mappings:
   LambdaBuilds:
     Uploader:
@@ -163,10 +167,6 @@ Resources:
             AllowedOrigins:
               -
                 !Join [ "", [ "https://", { "Ref": "Domain"} ]]
-      NotificationConfiguration:
-        LambdaConfigurations:
-          - Function: !GetAtt UploaderS3EventsLambda.Arn
-            Event: "s3:ObjectCreated:*"
 
   LimitedUploadRole:
     Type: "AWS::IAM::Role"
@@ -240,17 +240,26 @@ Resources:
                     - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
                     - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "UploadTrackingDynamoTable" }
               - Effect: "Allow"
-                Action: ["s3:GetObject"]
+                Action: ["s3:GetObject", "s3:DeleteObject"]
                 Resource:
                   - !Sub
                     - "arn:aws:s3:::${Bucket}/*"
                     - { "Bucket": !Ref UploadBucketName }
+              - Effect: "Allow"
+                Action: ["kinesis:Get*", "kinesis:PutRecord", "kinesis:DescribeStream"]
+                Resource: !GetAtt UploadActionsStream.Arn
 
-  UploaderS3EventsLambda:
+  UploadActionsStream:
+    Type: "AWS::Kinesis::Stream"
+    Properties:
+      # Allows a maximum of two video chunks to be uploaded in parallel (for now)
+      ShardCount: !Ref UploadParallelism
+
+  UploadActionsLambda:
     Type: "AWS::Lambda::Function"
     Properties:
-      Description: "Updates upload progress based on S3 events"
-      Handler: "com.gu.media.S3EventsLambda::handleRequest"
+      Description: "Uploads chunks of video to YouTube"
+      Handler: "com.gu.media.UploadActionsLambda::handleRequest"
       Code:
         S3Bucket: !Ref BuildBucket
         S3Key: !FindInMap [LambdaBuilds, Uploader, DEV]
@@ -267,16 +276,13 @@ Resources:
       Runtime: "java8"
       Timeout: 300
 
-  UploaderS3EventsPermission:
-    Type: "AWS::Lambda::Permission"
+  UploadActionsEventSourceMapping:
+    Type: "AWS::Lambda::EventSourceMapping"
     Properties:
-      Action: "lambda:InvokeFunction"
-      FunctionName: !Ref UploaderS3EventsLambda
-      Principal: "s3.amazonaws.com"
-      # use hard-coded name rather than ref to avoid circular dependency
-      SourceArn: !Sub
-        - "arn:aws:s3:::${Name}"
-        - { Name: !Ref UploadBucketName }
+      EventSourceArn: !GetAtt UploadActionsStream.Arn
+      FunctionName: !GetAtt UploadActionsLambda.Arn
+      BatchSize: 1
+      StartingPosition: "TRIM_HORIZON"
 
   TranscoderOutputS3Bucket:
     Type: "AWS::S3::Bucket"

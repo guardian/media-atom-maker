@@ -78,6 +78,11 @@
         "MultimediaAccountId": {
             "Type": "Number",
             "Description": "Account number of multimedia account"
+        },
+        "UploadParallelism": {
+            "Description": "How many video chunks can be uploaded in parallel",
+            "Type": "String",
+            "Default": "2"
         }
     },
     "Mappings": {
@@ -342,14 +347,6 @@
                           { "Fn::Join": ["", [ "https://", { "Ref": "DomainToMonitor" } ]] }
                         ]
                     }]
-                },
-                "NotificationConfiguration": {
-                    "LambdaConfigurations": [
-                        {
-                            "Function": { "Fn::GetAtt": ["UploaderS3EventsLambda", "Arn"] },
-                            "Event": "s3:ObjectCreated:*"
-                        }
-                    ]
                 }
             }
         },
@@ -445,46 +442,69 @@
                                 { "Region": { "Ref": "AWS::Region"}, "Account": { "Ref": "AWS::AccountId" }, "Table": { "Ref": "UploadTrackingTable" } }
                               ]
                             }
+                          },
+                          {
+                            "Effect": "Allow",
+                            "Action": ["s3:GetObject"],
+                            "Resource": [
+                              { "Fn::Sub": [
+                                "arn:aws:s3:::${Bucket}/*",
+                                { "Bucket": { "Fn::FindInMap": [ "StageMap", {"Ref": "Stage"}, "UploadBucket"] } }
+                              ]}
+                            ]
+                          },
+                          {
+                            "Effect": "Allow",
+                            "Action": ["kinesis:Get*", "kinesis:PutRecord", "kinesis:DescribeStream"],
+                            "Resource": { "Fn::GetAtt": ["UploadActionsStream", "Arn"] }
                           }
                         ]
                     }
                 }]
             }
         },
-        "UploaderS3EventsLambda": {
-            "Type": "AWS::Lambda::Function",
-            "Properties": {
-                "FunctionName":  {"Fn::Join": ["-", ["media-atom-maker-uploader-s3-events", {"Ref": "Stage"} ] ] },
-                "Description": "Updates upload progress based on S3 events",
-                "Handler": "com.gu.media.S3EventsLambda::handleRequest",
-                "Code": {
-                    "S3Bucket": { "Ref": "BuildBucket" },
-                    "S3Key": { "Fn::FindInMap": [ "LambdaBuilds", "Uploader", { "Ref": "Stage" }] }
-                },
-                "Environment": {
-                    "Variables": {
-                        "REGION": { "Ref": "AWS::Region" },
-                        "STACK": { "Ref": "Stack" },
-                        "APP": "media-atom-uploader",
-                        "STAGE": { "Ref": "Stage" },
-                        "CONFIG_BUCKET": { "Ref": "ConfigBucket" },
-                        "CONFIG_KEY": { "Fn::FindInMap": [ "LambdaConfig", "Uploader", { "Ref": "Stage" }] }
-                    }
-                },
-                "MemorySize": 256,
-                "Role":  { "Fn::GetAtt": [ "UploaderRole", "Arn" ] },
-                "Runtime": "java8",
-                "Timeout": 300
-            }
+
+        "UploadActionsStream": {
+          "Type": "AWS::Kinesis::Stream",
+          "Properties": {
+            "ShardCount": { "Ref": "UploadParallelism" }
+          }
         },
 
-        "UploaderS3EventsPermission": {
-          "Type": "AWS::Lambda::Permission",
+        "UploadActionsLambda": {
+          "Type": "AWS::Lambda::Function",
           "Properties": {
-            "Action": "lambda:InvokeFunction",
-            "FunctionName": { "Ref": "UploaderS3EventsLambda" },
-            "Principal": "s3.amazonaws.com",
-            "SourceArn": { "Fn::Join": ["", [ "arn:aws:s3:::", { "Fn::FindInMap": [ "StageMap", {"Ref": "Stage"}, "UploadBucket"] } ]] }
+            "FunctionName":  {"Fn::Join": ["-", ["media-atom-maker-upload-actions", {"Ref": "Stage"} ] ] },
+            "Description": "Uploads chunks of video to YouTube",
+            "Handler": "com.gu.media.UploadActionsLambda::handleRequest",
+            "Code": {
+              "S3Bucket": { "Ref": "BuildBucket" },
+              "S3Key": { "Fn::FindInMap": [ "LambdaBuilds", "Uploader", { "Ref": "Stage" }] }
+            },
+            "Environment": {
+              "Variables": {
+                "REGION": { "Ref": "AWS::Region" },
+                "STACK": { "Ref": "Stack" },
+                "APP": "media-atom-uploader",
+                "STAGE": { "Ref": "Stage" },
+                "CONFIG_BUCKET": { "Ref": "ConfigBucket" },
+                "CONFIG_KEY": { "Fn::FindInMap": [ "LambdaConfig", "Uploader", { "Ref": "Stage" }] }
+              }
+            },
+            "MemorySize": 256,
+            "Role":  { "Fn::GetAtt": [ "UploaderRole", "Arn" ] },
+            "Runtime": "java8",
+            "Timeout": 300
+          }
+        },
+
+        "UploadActionsEventSourceMapping": {
+          "Type": "AWS::Lambda::EventSourceMapping",
+          "Properties": {
+            "EventSourceArn": { "Fn::GetAtt": ["UploadActionsStream", "Arn"] },
+            "FunctionName": { "Fn::GetAtt": ["UploadActionsLambda", "Arn"] },
+            "BatchSize": 1,
+            "StartingPosition": "TRIM_HORIZON"
           }
         },
 

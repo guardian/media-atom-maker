@@ -12,6 +12,10 @@ trait UploadAccess { this: Settings with AwsAccess =>
   lazy val uploadSTSClient = createUploadSTSClient()
 
   private def createUploadSTSClient() = {
+    if(!userUploadRole.startsWith("arn:")) {
+      throw new IllegalArgumentException("aws.upload.role must be in ARN format: arn:aws:iam::<account>:role/<role_name>")
+    }
+
     val provider = stage match {
       case "DEV" =>
         // Only required in dev. Instance profile credentials are sufficient when deployed

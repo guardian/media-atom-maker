@@ -16,10 +16,8 @@ class UploadFunctions {
 
   stopUpload = (id) => {
     return pandaReqwest({
-      url: `/api2/uploads/_stop`,
-      method: 'post',
-      contentType: 'application/json',
-      data: JSON.stringify({ id: id })
+      url: `/api2/uploads/${id}`,
+      method: 'delete'
     });
   };
 
@@ -27,7 +25,7 @@ class UploadFunctions {
     const slice = file.slice(part.start, part.end);
 
     return this.getCredentials(upload.id, part.key).then((credentials) => {
-      const s3 = this.getS3(upload.bucket, upload.region, credentials);
+      const s3 = this.getS3(upload.metadata.bucket, upload.metadata.region, credentials);
 
       const params = { Key: part.key, Body: slice, ACL: 'private', Metadata: { original: file.name } };
       const request = s3.upload(params);
@@ -40,6 +38,16 @@ class UploadFunctions {
     });
   };
 
+  completePart = (id, key) => {
+    return pandaReqwest({
+      url: `/api2/uploads/${id}/complete`,
+      method: 'post',
+      headers: {
+        'X-Upload-Key': key
+      }
+    });
+  };
+
   getCredentials = (id, key) => {
     return pandaReqwest({
       url: `/api2/uploads/${id}/credentials`,
@@ -47,8 +55,6 @@ class UploadFunctions {
       headers: {
         'X-Upload-Key': key
       }
-    }).then((resp) => {
-      return resp;
     });
   };
 
@@ -89,13 +95,16 @@ export class UploadHandle {
 
   uploadParts = (parts) => {
     if(parts.length > 0) {
-      const partRequest = UploadsApi.uploadPart(this.upload, parts[0], this.file, this.progressFn);
+      const part = parts[0];
+      const partRequest = UploadsApi.uploadPart(this.upload, part, this.file, this.progressFn);
 
       partRequest.then((s3Request) => {
         this.request = s3Request;
 
         s3Request.promise().then(() => {
-          this.uploadParts(parts.slice(1));
+          UploadsApi.completePart(this.upload.id, part.key).then(() => {
+            this.uploadParts(parts.slice(1));
+          });
         });
       });
     }
