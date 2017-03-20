@@ -1,5 +1,6 @@
 import React from 'react';
 import moment from 'moment';
+import _ from 'lodash';
 
 const VIDEO_WIDTH = 320;
 const VIDEO_HEIGHT = 180;
@@ -54,24 +55,32 @@ function VideoAsset({ id, platform, version, active, created, selectAsset }) {
     </div>;
 }
 
-function UploadAsset({ created, total, progress }) {
+function UploadAsset({ created, message, total, progress }) {
     return <div className="upload__asset">
-        <div className="upload__asset__video upload__asset__local">
-            <span>Uploading to YouTube</span>
+        <div className="upload__asset__video upload__asset__running">
+            <span>{message}</span>
         </div>
         <div className="upload__asset__caption">
             {readableDateTime(created)}
-            <progress value={progress} max={total} />
+            {progress === undefined ? <progress /> : <progress value={progress} max={total} />}
         </div>
     </div>;
 }
 
-export default function VideoTrail({ activeVersion, assets, selectAsset, localUpload }) {
+export default function VideoTrail({ activeVersion, assets, selectAsset, localUpload, uploads }) {
     const squares = [];
 
     if(localUpload.total) {
-        squares.push(<UploadAsset key="upload" {...localUpload} />);
+        squares.push(<UploadAsset key="upload" message="Uploading To S3" {...localUpload} />);
     }
+
+    uploads.forEach((upload) => {
+        const hidden = _.find(upload.parts, (part) => !part.uploadedToS3);
+
+        if(!hidden) {
+            squares.push(<UploadAsset key={upload.id} message="Uploading To YouTube" created={Date.now()} />);
+        }
+    });
 
     assets.forEach((asset) => {
         squares.push(<VideoAsset key={asset.id} active={asset.version === activeVersion} selectAsset={selectAsset} {...asset} />);

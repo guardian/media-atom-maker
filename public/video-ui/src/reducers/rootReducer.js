@@ -13,6 +13,7 @@ import usage from './usageReducer';
 import pageCreate from './composerPageReducer';
 import localUpload from './localUploadsReducer';
 import editState from './editStateReducer';
+import uploads from './uploadsReducer';
 
 export default combineReducers({
   audits,
@@ -28,5 +29,6 @@ export default combineReducers({
   pageCreate,
   publishedVideo,
   localUpload,
-  editState
+  editState,
+  uploads
 });

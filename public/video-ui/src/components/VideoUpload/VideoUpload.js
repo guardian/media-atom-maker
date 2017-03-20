@@ -112,7 +112,7 @@ class VideoUpload extends React.Component {
           {this.renderPicker()}
           <AddAssetFromURL video={this.props.video} createAsset={this.props.videoActions.createAsset} />
         </div>
-        <VideoTrail activeVersion={activeVersion} assets={assets} selectAsset={selectAsset} localUpload={this.props.localUpload} />
+        <VideoTrail activeVersion={activeVersion} assets={assets} selectAsset={selectAsset} localUpload={this.props.localUpload} uploads={this.props.uploads} />
       </div>
     </div>;
   }
@@ -129,7 +129,8 @@ import * as revertAsset from '../../actions/VideoActions/revertAsset';
 function mapStateToProps(state) {
   return {
     video: state.video,
-    localUpload: state.localUpload
+    localUpload: state.localUpload,
+    uploads: state.uploads
   };
 }
 
