@@ -2,10 +2,10 @@ package com.gu.media.ses
 
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient
 import com.amazonaws.services.simpleemail.model._
-import com.gu.media.aws.SESSettings
+import scala.collection.JavaConversions._
 
-class SES(sesClient: AmazonSimpleEmailServiceClient, sesSettings: SESSettings) {
-  def sendCookieEmail(atomTitle: String, sendTo: String): Unit = {
+class Mailer(sesClient: AmazonSimpleEmailServiceClient) {
+  def sendPlutoIdMissingEmail(atomTitle: String, sendTo: String, fromAddress: String, replyToAddresses: Array[String]): Unit = {
 
     val emailBody =
       s"<div>A video with title $atomTitle you uploaded to youtube recently was missing a pluto project id</div>" +
@@ -15,11 +15,11 @@ class SES(sesClient: AmazonSimpleEmailServiceClient, sesSettings: SESSettings) {
     sesClient.sendEmail(new SendEmailRequest()
       .withDestination(new Destination().withToAddresses(sendTo))
       .withMessage(new Message()
-        .withSubject(new Content("Gutools new cookie link"))
+        .withSubject(new Content("Failed Pluto Video Ingest - Action Required"))
         .withBody(new Body().withHtml(new Content(emailBody)))
       )
-      .withSource(sesSettings.fromEmailAddress)
-      .withReplyToAddresses(sesSettings.replyToAddresses)
+      .withSource(fromAddress)
+      .withReplyToAddresses(replyToAddresses.toSeq)
     )
 
   }

@@ -1,7 +1,10 @@
+import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient
 import com.gu.atom.play.ReindexController
 import com.gu.media.CapiPreview
 import com.gu.media.upload.UploadsDataStore
 import com.gu.media.upload.actions.KinesisActionSender
+import com.gu.media.aws.SESSettings
+import com.gu.media.ses.Mailer
 import com.gu.media.youtube.YouTube
 import controllers._
 import data._
@@ -38,6 +41,8 @@ class MediaAtomMaker(context: Context)
   private val youTube = new YouTube(config)
   private val capi = new CapiPreview(config)
 
+  private val sesMailer = new Mailer(new AmazonSimpleEmailServiceClient())
+
   private val uploaderMessageConsumer = PlutoMessageConsumer(stores, aws)
   uploaderMessageConsumer.start(actorSystem.scheduler)(actorSystem.dispatcher)
 
@@ -46,7 +51,7 @@ class MediaAtomMaker(context: Context)
   private val api2 = new Api2(stores, configuration, hmacAuthActions, youTube, aws)
 
   private val uploadSender = buildUploadSender()
-  private val uploads = new UploadController(hmacAuthActions, aws, youTube, uploadSender, stores)
+  private val uploads = new UploadController(hmacAuthActions, aws, youTube, uploadSender, sesMailer, stores)
 
   private val support = new Support(hmacAuthActions, capi)
   private val youTubeController = new controllers.Youtube(hmacAuthActions, youTube, defaultCacheApi)

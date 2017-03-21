@@ -5,6 +5,6 @@ import com.gu.media.Settings
 trait SESSettings { this: Settings =>
   val fromEmailAddress = getMandatoryString("aws.ses.fromEmailAddress")
 
-  val replyToAddresses = getMandatoryString("aws.ses.replyToAddresses")
+  val replyToAddresses = getMandatoryString("aws.ses.replyToAddresses").split(",")
 
 }

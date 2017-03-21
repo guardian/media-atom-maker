@@ -1,7 +1,7 @@
 package controllers
 
 import java.util.UUID
-
+import com.gu.media.ses.Mailer
 import com.gu.media.logging.Logging
 import com.gu.media.upload._
 import com.gu.media.upload.actions.{CopyParts, DeleteParts, UploadActionSender, UploadPartToYouTube}
@@ -19,8 +19,7 @@ import play.api.libs.json.{Format, Json}
 import play.api.mvc.{Controller, Result}
 import util.AWSConfig
 
-class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, youTube: YouTubeAccess,
-                       uploadActions: UploadActionSender, override val stores: DataStores)
+class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, youTube: YouTubeAccess, uploadActions: UploadActionSender, sesMailer: Mailer, override val stores: DataStores)
 
   extends Controller with Logging with JsonRequestParsing with UnpackedDataStores {
 
