@@ -6,7 +6,6 @@ import com.gu.contentatom.thrift.{Atom, AtomData}
 import com.gu.contentatom.thrift.atom.media.MediaAtom
 import com.gu.media.upload.UploadsDataStore
 import com.gu.media.PlutoDataStore
-import com.gu.media.model.VideoUpload
 import com.gu.scanamo.DynamoFormat
 import util.atom.MediaAtomImplicits
 import com.gu.scanamo.scrooge.ScroogeDynamoFormat._

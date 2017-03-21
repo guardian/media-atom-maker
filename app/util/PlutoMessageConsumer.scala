@@ -49,8 +49,13 @@ case class PlutoMessageConsumer(val stores: DataStores, awsConfig: AWSConfig)
       case JsDefined(message) => {
         val messageString = message.toString
         val s3Key = messageString.substring(1, messageString.length - 1)
-        //delete from s3
-        plutoDataStore.delete(s3Key)
+        awsConfig.s3Client.deleteObject(awsConfig.userUploadBucket, s3Key)
+
+        plutoDataStore.get(s3Key) match {
+          case Some(upload) => plutoDataStore.delete(s3Key)
+          case _ =>
+        }
+
       }
       case undefined => log.error(s"Could not extract a message body from message ${msg.getReceiptHandle()}")
     }

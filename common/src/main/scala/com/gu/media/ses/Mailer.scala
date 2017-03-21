@@ -12,6 +12,7 @@ class Mailer(sesClient: AmazonSimpleEmailServiceClient) {
       s"<div>Please visit <a href='www.media-atom-maker.gutools.co.uk/videos/pluto-list'>this address</a> to add a project id."
       s"<div>Without this id Pluto cannot ingest the video</div>"
 
+
     sesClient.sendEmail(new SendEmailRequest()
       .withDestination(new Destination().withToAddresses(sendTo))
       .withMessage(new Message()
@@ -20,7 +21,7 @@ class Mailer(sesClient: AmazonSimpleEmailServiceClient) {
       )
       .withSource(fromAddress)
       .withReplyToAddresses(replyToAddresses.toSeq)
-    )
 
+    )
   }
 }

@@ -17,7 +17,7 @@ class UploadsDataStore(aws: DynamoAccess) {
       throw UploadsDataStoreException(errors.mkString(","))
     }
 
-    allResults.collect { case Right(upload) if upload.metadata.atomId == atomId => upload }
+    allResults.collect { case Right(upload) if upload.metadata.pluto.atomId == atomId => upload }
   }
 
   def put(upload: Upload): Unit = {

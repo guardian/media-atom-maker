@@ -1,16 +1,18 @@
 package com.gu.media
 
-import com.gu.media.aws.{AwsAccess, S3Access, UploadAccess}
+import com.gu.media.aws._
+import com.gu.media.ses.Mailer
 import com.gu.media.upload.UploadsDataStore
-import com.gu.media.upload.actions.UploadActionHandler
+import com.gu.media.upload.actions.{UploaderAccess, UploadActionHandler}
 import com.gu.media.youtube.YouTubeUploader
 import com.squareup.okhttp._
 import play.api.libs.json.{JsArray, JsValue, Json}
 
 import scala.collection.JavaConverters._
 
-class LambdaActionHandler(store: UploadsDataStore, aws: LambdaActionHandler.AWS, youTube: YouTubeUploader)
-  extends UploadActionHandler(store, aws, youTube) {
+class LambdaActionHandler(store: UploadsDataStore, plutoStore: PlutoDataStore, aws: LambdaActionHandler.AWS,
+                          youTube: YouTubeUploader, mailer: Mailer)
+  extends UploadActionHandler(store, plutoStore, aws, youTube, mailer) {
 
   private val domain = aws.getString("host").getOrElse("dev")
   private val http = new OkHttpClient()
@@ -59,4 +61,5 @@ class LambdaActionHandler(store: UploadsDataStore, aws: LambdaActionHandler.AWS,
 
 object LambdaActionHandler {
   type AWS = Settings with AwsAccess with S3Access with UploadAccess with HmacRequestSupport
+    with SESSettings with KinesisAccess
 }

@@ -19,7 +19,8 @@ import play.api.libs.json.{Format, Json}
 import play.api.mvc.{Controller, Result}
 import util.AWSConfig
 
-class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, youTube: YouTubeAccess, uploadActions: UploadActionSender, sesMailer: Mailer, override val stores: DataStores)
+class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, youTube: YouTubeAccess, uploadActions: UploadActionSender,
+                       override val stores: DataStores)
 
   extends Controller with Logging with JsonRequestParsing with UnpackedDataStores {
 
@@ -80,12 +81,12 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
 
     val plutoData = PlutoSyncMetadata(
       projectId = atom.plutoProjectId,
-      key = CompleteUploadKey(awsConfig.userUploadFolder, id).toString,
-      assetVersion = -1
+      s3Key = CompleteUploadKey(awsConfig.userUploadFolder, id).toString,
+      assetVersion = -1,
+      atomId = atom.id
     )
 
     val metadata = UploadMetadata(
-      atomId = atom.id,
       user = user.email,
       bucket = awsConfig.userUploadBucket,
       region = awsConfig.region.getName,

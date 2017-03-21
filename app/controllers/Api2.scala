@@ -2,12 +2,9 @@ package controllers
 
 import _root_.util.{AWSConfig}
 import com.gu.atom.play.AtomAPIActions
-import com.gu.contentatom.thrift.Atom
+import com.gu.media.upload.PlutoSyncMetadata
 import com.gu.media.youtube.YouTube
-import com.gu.media.model.VideoUpload
 import com.gu.pandahmac.HMACAuthActions
-import com.gu.pandomainauth.action.UserRequest
-import com.gu.scanamo.error.DynamoReadError
 import data.DataStores
 import model.Category.Hosted
 import model.MediaAtom
@@ -16,9 +13,6 @@ import model.commands._
 import play.api.{Configuration, Logger}
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
-import play.api.mvc.{AnyContent, Result}
-
-import scala.collection.immutable.Iterable
 
 class Api2 (override val stores: DataStores, conf: Configuration, val authActions: HMACAuthActions,
             youTube: YouTube, awsConfig: AWSConfig)
@@ -157,7 +151,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
 
   def getPlutoAtoms = APIHMACAuthAction {  implicit req =>
 
-    val unprocessedAssetResponses: List[VideoUpload] = plutoDataStore.list()
+    val unprocessedAssetResponses: List[PlutoSyncMetadata] = plutoDataStore.list()
 
     val uploadsWithoutPlutoId = unprocessedAssetResponses.foldRight(Map[String, MediaAtom]())((upload, acc) => {
       if (!acc.contains(upload.atomId)) {

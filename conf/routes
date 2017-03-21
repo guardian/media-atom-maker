@@ -21,6 +21,7 @@ GET     /api2/atoms/:id                 controllers.Api2.getMediaAtom(id)
 PUT     /api2/atoms/:id                 controllers.Api2.putMediaAtom(id)
 POST    /api2/atoms/:id/assets          controllers.Api2.addAsset(id)
 
+GET     /api2/atoms/pluto-list          controllers.Api2.getPlutoAtoms()
 PUT     /api2/atom/:id/publish          controllers.Api2.publishMediaAtom(id)
 PUT     /api2/atom/:id/asset-active     controllers.Api2.setActiveAsset(id)
 PUT     /api2/atom/:id/pluto-id         controllers.Api2.setPlutoId(id)

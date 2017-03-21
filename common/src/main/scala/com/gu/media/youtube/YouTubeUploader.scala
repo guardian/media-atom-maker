@@ -2,12 +2,12 @@ package com.gu.media.youtube
 
 import java.io.InputStream
 
-import com.gu.media.upload.actions.S3UploadAccess
+import com.gu.media.upload.actions.UploaderAccess
 import com.gu.media.util.InputStreamRequestBody
 import com.squareup.okhttp.{MediaType, OkHttpClient, Request, RequestBody}
 import play.api.libs.json.Json
 
-class YouTubeUploader(aws: S3UploadAccess, youTube: YouTubeAccess) {
+class YouTubeUploader(aws: UploaderAccess, youTube: YouTubeAccess) {
   private val JSON = MediaType.parse("application/json; charset=utf-8")
   private val VIDEO = MediaType.parse("video/*")
 
