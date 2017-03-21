@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default class SelectBox extends React.Component {
+export default class FormSelectBox extends React.Component {
 
   getClassName = () => {
     return "form__field form__field--select " + (this.hasError() ? "form__field--error" : "");
@@ -36,7 +36,7 @@ export default class SelectBox extends React.Component {
           className={"form__field form__field--select " + (hasError ? "form__field--error" : "")}
 
           value={this.props.fieldValue}
-          onChange={this.props.onUpdateField}>
+          onChange={(e) => {this.props.onUpdateField(e.target.value)}}>
 
 
           {this.renderDefaultOption()}

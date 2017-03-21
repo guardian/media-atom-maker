@@ -6,12 +6,16 @@ export default class FormTextArea extends React.Component {
     //Fill me in
   };
 
+  displayPlaceholder = () => {
+    return this.props.placeholder && !this.props.fieldValue;
+  }
+
   renderField = () => {
     if(!this.props.editable) {
       return (
         <div>
           <p className="details-list__title">{this.props.fieldName}</p>
-          <p className={"details-list__field " + (this.props.placeholder ? "details-list__empty" : "")}> {this.props.fieldValue}</p>
+          <p className={"details-list__field " + (this.displayPlaceholder ? "details-list__empty" : "")}> {this.props.fieldValue}</p>
         </div>
       );
     }
@@ -27,7 +31,7 @@ export default class FormTextArea extends React.Component {
           className={"form__field " + (hasError ? "form__field--error" : "")}
           type={this.props.inputType || "text"}
           value={this.props.fieldValue}
-          onChange={this.props.onUpdateField} />
+          onChange={(e) => {this.props.onUpdateField(e.target.value)}} />
         {hasError ? <p className="form__message form__message--error">{this.props.meta.error}</p> : ""}
       </div>
     );

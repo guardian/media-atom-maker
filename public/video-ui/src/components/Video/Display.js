@@ -15,6 +15,7 @@ import {ManagedForm, ManagedField} from '../ManagedForm';
 import FormTextInput from '../FormFields/FormTextInput';
 import FormTextArea from '../FormFields/FormTextArea';
 import FormSelectBox from '../FormFields/FormSelectBox';
+import FormCheckBox from '../FormFields/FormCheckBox';
 import {fieldLengths} from '../../constants/videoEditValidation';
 import {videoCategories} from '../../constants/videoCategories';
 
@@ -191,6 +192,12 @@ class VideoDisplay extends React.Component {
                       name="Category"
                     >
                       <FormSelectBox selectValues={videoCategories}></FormSelectBox>
+                    </ManagedField>
+                    <ManagedField
+                      fieldLocation="legallySensitive"
+                      name="Legally Sensitive"
+                    >
+                      <FormCheckBox/>
                     </ManagedField>
                   </ManagedForm>
                 </div>

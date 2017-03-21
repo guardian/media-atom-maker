@@ -28,12 +28,9 @@ export class ManagedField extends React.Component {
     isDesired: PropTypes.bool,
     editable: PropTypes.bool,
     maxLength: PropTypes.number
-    //custom validation ???
-
   };
 
-  updateFn = (event) => {
-    const newValue = event.target.value;
+  updateFn = (newValue) => {
     const notifications = validateField(newValue, this.props.isRequired, this.props.isDesired);
 
     this.setState({
@@ -51,8 +48,12 @@ export class ManagedField extends React.Component {
   }
 
   getFieldValue(value) {
-    if (!this.props.editable && this.props.placeholder) {
+    if (!this.props.editable && this.props.placeholder && !value) {
       return this.props.placeholder;
+    }
+
+    if (!value) {
+      return '';
     }
 
     return value;
