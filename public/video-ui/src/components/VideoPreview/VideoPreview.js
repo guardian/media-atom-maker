@@ -1,5 +1,5 @@
 import React from 'react';
-import YouTubeEmbed from '../utils/YouTubeEmbed';
+import {YouTubeEmbed} from '../utils/YouTubeEmbed';
 
 export default class VideoPreview extends React.Component {
 
@@ -29,7 +29,7 @@ export default class VideoPreview extends React.Component {
       <div className="baseline-margin">Unable to Preview</div>;
     }
 
-    return <YouTubeEmbed id={activeAsset.id} />;
+    return <YouTubeEmbed id={activeAsset.id} className="baseline-margin" />;
   }
 
   render() {
