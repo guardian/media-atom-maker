@@ -1,6 +1,6 @@
 import FieldNotification from '../constants/FieldNotification';
 
-const validateField = (fieldValue, isRequired: false, isDesired: false, customValidation) => {
+const validateField = (fieldValue, isRequired: false, isDesired: false) => {
   const errors = [];
   const warnings = [];
 
