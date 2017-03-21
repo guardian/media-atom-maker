@@ -227,31 +227,10 @@ progress {
   background-color: $color600Grey;
 }
 
-progress[value]::-webkit-progress-value {
+progress::-webkit-progress-value {
   background-color: $darkBrandColor;
 }
 
-progress[value]::-moz-progress-bar {
+progress::-moz-progress-bar {
   background-color: $darkBrandColor;
-}
-
-progress:not([value]) {
-  display: flex;
-}
-
-progress:not([value]):before {
-  background-color: $darkBrandColor;
-  content: '';
-  width: 20%;
-  -webkit-animation: running-progress 2s infinite;
-  animation: running-progress 2s infinite;
-}
-
-@-webkit-keyframes running-progress {
-  0% { margin-left: 0; width: 20%; }
-  100% { margin-left: 120%; width: 20%; }
-}
-@keyframes running-progress {
-  0% { margin-left: 0; width: 20%; }
-  100% { margin-left: 120%; width: 20%; }
 }
