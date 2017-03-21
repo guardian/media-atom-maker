@@ -14,8 +14,8 @@ abstract class UploadActionHandler(store: UploadsDataStore, s3: S3UploadAccess, 
 
   def handle(action: UploadAction): Unit = action match {
     case UploadPartToYouTube(uploadId, key) =>
-      withUploadAndPort(uploadId, key) { (upload, part) =>
-        uploadToYouTube(upload, part)
+      withUploadAndPart(uploadId, key) { (upload, part, uri) =>
+        uploadToYouTube(upload, part, uri)
       }
 
     case CopyParts(uploadId, destination) =>
@@ -31,10 +31,8 @@ abstract class UploadActionHandler(store: UploadsDataStore, s3: S3UploadAccess, 
       }
   }
 
-  private def uploadToYouTube(upload: Upload, part: UploadPart): Unit = {
+  private def uploadToYouTube(upload: Upload, part: UploadPart, uploadUri: String): Unit = {
     val total = upload.parts.last.end
-    val uploadUri = getYTUploadUrl(upload)
-
     log.info(s"Uploading ${part.key} [${part.start} - ${part.end}]")
 
     youTube.uploadPart(uploadUri, part.key, part.start, part.end, total) match {
@@ -54,16 +52,6 @@ abstract class UploadActionHandler(store: UploadsDataStore, s3: S3UploadAccess, 
     }
   }
 
-  private def getYTUploadUrl(upload: Upload): String = upload.youTube.upload.getOrElse {
-    log.info(s"Starting YouTube upload for ${upload.id} [${upload.metadata.title} - ${upload.youTube.channel}]")
-
-    val url = youTube.startUpload(upload.metadata.title, upload.youTube.channel, upload.id, upload.parts.last.end)
-    val updated = upload.copy(youTube = upload.youTube.copy(upload = Some(url)))
-
-    store.put(updated)
-    url
-  }
-
   // Videos are uploaded as a series of smaller parts. In order to simplify Pluto ingestion and allow us
   // to transcode if required, we use S3 multipart copy to create a new object consisting of all the parts
   private def createCompleteObject(upload: Upload, destination: String): Unit = {
@@ -71,7 +59,6 @@ abstract class UploadActionHandler(store: UploadsDataStore, s3: S3UploadAccess, 
     log.info(s"Starting multipart copy for upload ${upload.id}")
 
     val multipart = s3.s3Client.initiateMultipartUpload(start)
-    log.info(s"Started. upload=${upload.id} multipart=${multipart.getUploadId}")
 
     val eTags = for (part <- upload.parts.indices)
       yield copyPart(multipart.getUploadId, upload.id, part, destination)
@@ -88,6 +75,9 @@ abstract class UploadActionHandler(store: UploadsDataStore, s3: S3UploadAccess, 
     val plutoData = upload.metadata.pluto
 
     plutoData.projectId match {
+      case _ if plutoData.assetVersion == -1 =>
+        // TODO: work out what to do here? probably need to manually add the asset
+
       case Some(project) =>
         // TODO: send to pluto directly
 
@@ -135,10 +125,25 @@ abstract class UploadActionHandler(store: UploadsDataStore, s3: S3UploadAccess, 
     }
   }
 
-  private def withUploadAndPort(uploadId: String, partKey: String)(fn: (Upload, UploadPart) => Unit): Unit = {
-    for {
-      upload <- store.get(uploadId)
-      part <- upload.parts.find(_.key == partKey)
-    } yield fn(upload, part)
+  private def withUploadAndPart(uploadId: String, partKey: String)(fn: (Upload, UploadPart, String) => Unit): Unit = {
+    store.get(uploadId) match {
+      case Some(upload) =>
+        upload.youTube.upload match {
+          case Some(uploadUri) =>
+            upload.parts.find(_.key == partKey) match {
+              case Some(part) =>
+                fn(upload, part, uploadUri)
+
+              case None =>
+                log.error(s"Unknown part $partKey for upload $uploadId")
+            }
+
+          case None =>
+            log.error(s"Missing uploadUri for upload $uploadId")
+        }
+
+      case None =>
+        log.error(s"Unknown upload id $uploadId")
+    }
   }
 }

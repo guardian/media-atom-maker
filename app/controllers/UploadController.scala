@@ -5,7 +5,7 @@ import java.util.UUID
 import com.gu.media.logging.Logging
 import com.gu.media.upload._
 import com.gu.media.upload.actions.{CopyParts, DeleteParts, UploadActionSender, UploadPartToYouTube}
-import com.gu.media.youtube.YouTubeAccess
+import com.gu.media.youtube.{YouTubeAccess, YouTubeUploader}
 import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.action.UserRequest
 import com.gu.pandomainauth.model.User
@@ -28,6 +28,7 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
   private val UPLOAD_KEY_HEADER = "X-Upload-Key"
   private val table = stores.uploadStore
   private val credsGenerator = new CredentialsGenerator(awsConfig)
+  private val uploader = new YouTubeUploader(awsConfig, youTube)
 
   def list(atomId: String) = APIHMACAuthAction {
     val uploads = table.list(atomId)
@@ -60,9 +61,7 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
 
   def complete(id: String) = APIHMACAuthAction { implicit req =>
     partRequest(id, req) { (upload, part) =>
-      val complete = partComplete(upload, part)
-      table.put(complete)
-
+      partComplete(upload, part)
       NoContent
     }
   }
@@ -118,8 +117,15 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
   }
 
   private def partComplete(upload: Upload, part: UploadPart): Upload = {
-    val complete = upload.withPart(part.key)(_.copy(uploadedToS3 = true))
+    val uploadUri = upload.youTube.upload.getOrElse {
+      uploader.startUpload(upload.metadata.title, upload.youTube.channel, upload.id, upload.parts.last.end)
+    }
 
+    val complete = upload
+      .withPart(part.key)(_.copy(uploadedToS3 = true))
+      .copy(youTube = upload.youTube.copy(upload = Some(uploadUri)))
+
+    table.put(complete)
     uploadActions.send(UploadPartToYouTube(upload.id, part.key))
 
     if(complete.parts.forall(_.uploadedToS3)) {

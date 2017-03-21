@@ -15,7 +15,8 @@ class DevUploadHandler(stores: DataStores, s3: S3UploadAccess, youTube: YouTube)
   private val user = PandaUser("Media", "Atom Maker", "media-atom-maker@theguardian.co.uk", None)
 
   override def addAsset(atomId: String, videoId: String): Long = {
-    val atom = AddAssetCommand(atomId, videoId, stores, youTube, user).process()
+    val videoUri = s"https://www.youtube.com/watch?v=$videoId"
+    val atom = AddAssetCommand(atomId, videoUri, stores, youTube, user).process()
     val versions = atom.assets.map(_.version).sorted
 
     versions.last
