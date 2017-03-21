@@ -35,6 +35,8 @@ class LambdaActionHandler(store: UploadsDataStore, aws: LambdaActionHandler.AWS,
         log.error(s"Unexpected response adding asset ${response.code()}")
         log.error(s"uri=$uri body=$body responseBody=${response.body().string()}")
         log.error(s"atomId=$atomId youTubeId=$videoId")
+
+        -1
       } else {
         val str = response.body().string()
         val json = Json.parse(str)

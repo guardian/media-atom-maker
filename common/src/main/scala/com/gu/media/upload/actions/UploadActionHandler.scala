@@ -14,32 +14,37 @@ abstract class UploadActionHandler(store: UploadsDataStore, s3: S3UploadAccess, 
 
   def handle(action: UploadAction): Unit = action match {
     case UploadPartToYouTube(uploadId, key) =>
-      uploadToYouTube(uploadId, key)
+      withUploadAndPort(uploadId, key) { (upload, part) =>
+        uploadToYouTube(upload, part)
+      }
 
     case CopyParts(uploadId, destination) =>
-      createCompleteObject(uploadId, destination)
+      withUpload(uploadId) { upload =>
+        createCompleteObject(upload, destination)
+      }
 
     case DeleteParts(uploadId) =>
-      deleteParts(uploadId)
+      withUpload(uploadId) { upload =>
+        sendToPluto(upload)
+        deleteParts(upload)
+        store.delete(uploadId)
+      }
   }
 
-  private def uploadToYouTube(uploadId: String, partKey: String): Unit = {
-    getUploadAndPart(uploadId, partKey) match {
-      case Some((upload, part)) =>
-        val total = upload.parts.last.end
-        val uploadUri = getYTUploadUrl(upload)
+  private def uploadToYouTube(upload: Upload, part: UploadPart): Unit = {
+    val total = upload.parts.last.end
+    val uploadUri = getYTUploadUrl(upload)
 
-        log.info(s"Uploading ${part.key} [${part.start} - ${part.end}]")
+    log.info(s"Uploading ${part.key} [${part.start} - ${part.end}]")
 
-        youTube.uploadPart(uploadUri, part.key, part.start, part.end, total, (_: Long) => {}).foreach { videoId =>
-          log.info(s"Successful upload ${upload.id}. YouTube ID: $videoId")
+    youTube.uploadPart(uploadUri, part.key, part.start, part.end, total, (_: Long) => {}).foreach { videoId =>
+      log.info(s"Successful upload ${upload.id}. YouTube ID: $videoId")
 
-          addAsset(upload.metadata.atomId, videoId)
-          store.delete(upload.id)
-        }
+      val version = addAsset(upload.metadata.atomId, videoId)
+      val plutoData = upload.metadata.pluto.copy(assetVersion = version)
+      val updated = upload.copy(metadata = upload.metadata.copy(pluto = plutoData))
 
-      case _ =>
-        log.error(s"Unknown upload id $uploadId or part $partKey")
+      store.put(updated)
     }
   }
 
@@ -55,27 +60,33 @@ abstract class UploadActionHandler(store: UploadsDataStore, s3: S3UploadAccess, 
 
   // Videos are uploaded as a series of smaller parts. In order to simplify Pluto ingestion and allow us
   // to transcode if required, we use S3 multipart copy to create a new object consisting of all the parts
-  private def createCompleteObject(uploadId: String, destination: String): Unit = {
-    store.get(uploadId) match {
-      case Some(upload) =>
-        val start = new InitiateMultipartUploadRequest(s3.userUploadBucket, destination)
-        log.info(s"Starting multipart copy for upload ${upload.id}")
+  private def createCompleteObject(upload: Upload, destination: String): Unit = {
+    val start = new InitiateMultipartUploadRequest(s3.userUploadBucket, destination)
+    log.info(s"Starting multipart copy for upload ${upload.id}")
 
-        val multipart = s3.s3Client.initiateMultipartUpload(start)
-        log.info(s"Started. upload=${upload.id} multipart=${multipart.getUploadId}")
+    val multipart = s3.s3Client.initiateMultipartUpload(start)
+    log.info(s"Started. upload=${upload.id} multipart=${multipart.getUploadId}")
 
-        val eTags = for (part <- upload.parts.indices)
-          yield copyPart(multipart.getUploadId, upload.id, part, destination)
+    val eTags = for (part <- upload.parts.indices)
+      yield copyPart(multipart.getUploadId, upload.id, part, destination)
 
-        val complete = new CompleteMultipartUploadRequest(
-          s3.userUploadBucket, destination, multipart.getUploadId, eTags.asJava)
+    val complete = new CompleteMultipartUploadRequest(
+      s3.userUploadBucket, destination, multipart.getUploadId, eTags.asJava)
 
-        s3.s3Client.completeMultipartUpload(complete)
+    s3.s3Client.completeMultipartUpload(complete)
 
-        log.info(s"Multipart copy complete. upload=${upload.id} multipart=${multipart.getUploadId}")
+    log.info(s"Multipart copy complete. upload=${upload.id} multipart=${multipart.getUploadId}")
+  }
+
+  private def sendToPluto(upload: Upload): Unit = {
+    val plutoData = upload.metadata.pluto
+
+    plutoData.projectId match {
+      case Some(project) =>
+        // TODO: send to pluto directly
 
       case None =>
-        log.error(s"Unknown upload id $uploadId")
+        // TODO: send to manual sync table
     }
   }
 
@@ -94,30 +105,34 @@ abstract class UploadActionHandler(store: UploadsDataStore, s3: S3UploadAccess, 
     new PartETag(response.getPartNumber, response.getETag)
   }
 
-  private def deleteParts(uploadId: String): Unit = {
+  private def deleteParts(upload: Upload): Unit = {
+    // The complete key will be deleted once it has been ingested by Pluto
+    upload.parts.foreach { part =>
+      try {
+        log.info(s"Deleting part $part")
+        s3.s3Client.deleteObject(s3.userUploadBucket, part.key)
+      } catch {
+        case NonFatal(err) =>
+          // if we can't delete it, no problem. the bucket policy will remove it in time
+          log.warn(s"Unable to delete part $part: $err")
+      }
+    }
+  }
+
+  private def withUpload(uploadId: String)(fn: Upload => Unit): Unit = {
     store.get(uploadId) match {
       case Some(upload) =>
-        // The complete key will be deleted once it has been ingested by Pluto
-        upload.parts.foreach { part =>
-          try {
-            log.info(s"Deleting part $part")
-            s3.s3Client.deleteObject(s3.userUploadBucket, part.key)
-          } catch {
-            case NonFatal(err) =>
-              // if we can't delete it, no problem. the bucket policy will remove it in time
-              log.warn(s"Unable to delete part $part: $err")
-          }
-        }
+        fn(upload)
 
       case None =>
         log.error(s"Unknown upload id $uploadId")
     }
   }
 
-  private def getUploadAndPart(uploadId: String, partKey: String): Option[(Upload, UploadPart)] = {
+  private def withUploadAndPort(uploadId: String, partKey: String)(fn: (Upload, UploadPart) => Unit): Unit = {
     for {
       upload <- store.get(uploadId)
       part <- upload.parts.find(_.key == partKey)
-    } yield (upload, part)
+    } yield fn(upload, part)
   }
 }

@@ -68,14 +68,21 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
   }
 
   private def buildUpload(atom: MediaAtom, user: User, size: Long) = {
+    val id = UUID.randomUUID().toString
+
+    val plutoData = PlutoSyncMetadata(
+      projectId = atom.plutoProjectId,
+      key = CompleteUploadKey(awsConfig.userUploadFolder, id).toString,
+      assetVersion = -1
+    )
+
     val metadata = UploadMetadata(
       atomId = atom.id,
       user = user.email,
       bucket = awsConfig.userUploadBucket,
       region = awsConfig.region.getName,
       title = atom.title,
-      plutoProjectId = atom.plutoProjectId,
-      assetVersion = None
+      pluto = plutoData
     )
 
     val youTube = YouTubeMetadata(
@@ -83,7 +90,6 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
       upload = None
     )
 
-    val id = UUID.randomUUID().toString
     val parts = chunk(id, size)
 
     Upload(id, parts, metadata, youTube)
