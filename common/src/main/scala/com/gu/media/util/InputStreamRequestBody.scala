@@ -10,9 +10,8 @@ import scala.annotation.tailrec
 
 // http://stackoverflow.com/questions/25367888/upload-binary-file-with-okhttp-from-resources
 // http://stackoverflow.com/questions/25962595/tracking-progress-of-multipart-file-upload-using-okhttp
-class InputStreamRequestBody(override val contentType: MediaType, input: InputStream, size: Long, progress: Long => Unit) extends RequestBody {
+class InputStreamRequestBody(override val contentType: MediaType, input: InputStream, size: Long) extends RequestBody {
   private val SEGMENT_SIZE = 2048L // okio.Segment.SIZE
-  private val LOGGING_THROTTLE = 10000
 
   override def contentLength(): Long = size
 
@@ -29,9 +28,6 @@ class InputStreamRequestBody(override val contentType: MediaType, input: InputSt
 
   @tailrec
   private def write(source: Source, sink: BufferedSink, uploaded: Long): Unit = {
-    if(uploaded % LOGGING_THROTTLE == 0)
-      progress(uploaded)
-
     size - uploaded match {
       case 0 =>
       // terminate

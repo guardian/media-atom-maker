@@ -37,14 +37,20 @@ abstract class UploadActionHandler(store: UploadsDataStore, s3: S3UploadAccess, 
 
     log.info(s"Uploading ${part.key} [${part.start} - ${part.end}]")
 
-    youTube.uploadPart(uploadUri, part.key, part.start, part.end, total, (_: Long) => {}).foreach { videoId =>
-      log.info(s"Successful upload ${upload.id}. YouTube ID: $videoId")
+    youTube.uploadPart(uploadUri, part.key, part.start, part.end, total) match {
+      case Some(videoId) =>
+        val version = addAsset(upload.metadata.atomId, videoId)
+        val plutoData = upload.metadata.pluto.copy(assetVersion = version)
 
-      val version = addAsset(upload.metadata.atomId, videoId)
-      val plutoData = upload.metadata.pluto.copy(assetVersion = version)
-      val updated = upload.copy(metadata = upload.metadata.copy(pluto = plutoData))
+        val updated = upload
+          .copy(metadata = upload.metadata.copy(pluto = plutoData))
+          .withPart(part.key)(_.copy(uploadedToYouTube = true))
 
-      store.put(updated)
+        store.put(updated)
+
+      case None =>
+        val updated = upload.withPart(part.key)(_.copy(uploadedToYouTube = true))
+        store.put(updated)
     }
   }
 

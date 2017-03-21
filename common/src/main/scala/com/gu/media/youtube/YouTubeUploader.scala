@@ -49,17 +49,17 @@ class YouTubeUploader(aws: S3UploadAccess, youTube: YouTubeAccess) {
     response.header("Location")
   }
 
-  def uploadPart(uri: String, key: String, start: Long, end: Long, total: Long, uploaded: Long => Unit): Option[String] = {
+  def uploadPart(uri: String, key: String, start: Long, end: Long, total: Long): Option[String] = {
     val input = aws.s3Client.getObject(aws.userUploadBucket, key.toString).getObjectContent
-    uploadPart(uri, input, start, end, total, uploaded)
+    uploadPart(uri, input, start, end, total)
   }
 
-  def uploadPart(uri: String, input: InputStream, start: Long, end: Long, total: Long, uploaded: Long => Unit): Option[String] = {
+  def uploadPart(uri: String, input: InputStream, start: Long, end: Long, total: Long): Option[String] = {
     val size = end - start
     // end index is inclusive in direct contradiction to programming history (and my end variable)
     val range = s"$start-${start + size - 1}"
 
-    val body = new InputStreamRequestBody(VIDEO, input, size, uploaded)
+    val body = new InputStreamRequestBody(VIDEO, input, size)
 
     val request = new Request.Builder()
       .url(uri)
