@@ -1,6 +1,6 @@
 package com.gu.media
 
-import com.gu.media.aws.{S3Access, UploadAccess}
+import com.gu.media.aws.{AwsAccess, S3Access, UploadAccess}
 import com.gu.media.upload.UploadsDataStore
 import com.gu.media.upload.actions.UploadActionHandler
 import com.gu.media.youtube.YouTubeUploader
@@ -23,7 +23,10 @@ class LambdaActionHandler(store: UploadsDataStore, aws: LambdaActionHandler.AWS,
     val videoUri = s"https://www.youtube.com/watch?v=$videoId"
     val body = s"""{"uri": "$videoUri"}"""
 
-    if(domain != "dev") {
+    if(aws.stage == "DEV") {
+      log.info(s"Add asset: POST $uri $body $hmacHeaders")
+      -1
+    } else {
       val request = new Request.Builder()
         .url(uri)
         .headers(Headers.of(hmacHeaders.asJava))
@@ -43,9 +46,6 @@ class LambdaActionHandler(store: UploadsDataStore, aws: LambdaActionHandler.AWS,
 
         parseAssetVersion(json)
       }
-    } else {
-      log.info(s"Add asset: POST $uri $body $hmacHeaders")
-      -1
     }
   }
 
@@ -58,5 +58,5 @@ class LambdaActionHandler(store: UploadsDataStore, aws: LambdaActionHandler.AWS,
 }
 
 object LambdaActionHandler {
-  type AWS = Settings with S3Access with UploadAccess with HmacRequestSupport
+  type AWS = Settings with AwsAccess with S3Access with UploadAccess with HmacRequestSupport
 }
