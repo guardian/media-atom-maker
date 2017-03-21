@@ -33,8 +33,6 @@ Parameters:
     Description: "How many video chunks can be uploaded in parallel"
     Type: "String"
     Default: "2"
-  UploadsQueue:
-    Description: "Name of the queue where uploaded videos get pushed"
   UploadsStreamName:
     Description: "Name of the kinesis stream where uploaded videos get pushed"
     Type: "String"
@@ -127,7 +125,7 @@ Resources:
         - AttributeName: "atomId"
           AttributeType: "S"
       KeySchema:
-        - AttributeName: "id"
+        - AttributeName: "s3Key"
           KeyType: "HASH"
       GlobalSecondaryIndexes:
         - IndexName: atom-id
@@ -471,15 +469,6 @@ Resources:
             - kinesis:PutRecord
             - kinesis:PutRecords
 
-  UploadsSNSTopic:
-    Type: "AWS::SNS::Topic"
-    Properties:
-      TopicName: !Sub "${UploadsTopic}-${Stage}"
-      Subscription:
-        - Endpoint: !GetAtt UploadsSQSQueue.Arn
-          Protocol: sqs
-  UploadsSQSQueue:
-    Type: "AWS::SQS::Queue"
   UploadsStream:
     Type: "AWS::Kinesis::Stream"
     Properties:
@@ -544,10 +533,3 @@ Outputs:
   TranscoderOutputS3Bucket:
     Value:
       Ref: "TranscoderOutputS3Bucket"
-  PlutoQueue:
-    Value:
-      Ref: "PlutoQueue"
-  PlutoTopic:
-    Value:
-      Ref: "PlutoTopic"
-
