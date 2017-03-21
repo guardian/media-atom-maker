@@ -21,7 +21,7 @@ class UploadActionsLambda extends RequestHandler[KinesisEvent, Unit]
 
   val store = new UploadsDataStore(this)
   val uploader = new YouTubeUploader(this, this)
-  val handler = new LambdaActionHandler(store, this, uploader, addAssets = stage != "DEV")
+  val handler = new LambdaActionHandler(store, this, uploader)
 
   override def handleRequest(input: KinesisEvent, context: Context): Unit = {
     readAction(input).foreach(handler.handle)

@@ -1,7 +1,7 @@
 import com.gu.atom.play.ReindexController
 import com.gu.media.CapiPreview
 import com.gu.media.upload.UploadsDataStore
-import com.gu.media.upload.actions.{KinesisActionSender, LocalActionSender}
+import com.gu.media.upload.actions.{KinesisActionSender, DevActionSender}
 import com.gu.media.youtube.{YouTube, YouTubeUploader}
 import controllers._
 import data._
@@ -11,7 +11,7 @@ import play.api.inject.DefaultApplicationLifecycle
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext, LoggerConfigurator}
 import router.Routes
-import util.{AWSConfig, LocalUploadActionHandler}
+import util.{AWSConfig, DevUploadHandler}
 
 class MediaAtomMakerLoader extends ApplicationLoader {
   override def load(context: Context): Application = new MediaAtomMaker(context).application
@@ -68,11 +68,8 @@ class MediaAtomMaker(context: Context)
 
   private def buildUploadSender() = aws.stage match {
     case "DEV" =>
-      val uploader = new YouTubeUploader(aws, youTube)
-      val store = new UploadsDataStore(aws)
-      val handler = new LocalUploadActionHandler(store, aws, uploader)
-
-      new LocalActionSender(handler)
+      val handler = new DevUploadHandler(stores, aws, youTube)
+      new DevActionSender(handler)
 
     case _ =>
       new KinesisActionSender(aws)

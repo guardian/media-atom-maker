@@ -12,7 +12,7 @@ class KinesisActionSender(aws: KinesisAccess) extends UploadActionSender {
   }
 }
 
-class LocalActionSender(handler: UploadActionHandler) extends UploadActionSender {
+class DevActionSender(handler: UploadActionHandler) extends UploadActionSender {
   override def send(action: UploadAction): Unit = {
     handler.handle(action)
   }

@@ -26,8 +26,7 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
   import authActions.APIHMACAuthAction
 
   private val UPLOAD_KEY_HEADER = "X-Upload-Key"
-  private val table = new UploadsDataStore(awsConfig)
-  private val uploads = new UploadLifecycle(awsConfig, uploadActions)
+  private val table = stores.uploadStore
   private val credsGenerator = new CredentialsGenerator(awsConfig)
 
   def list(atomId: String) = APIHMACAuthAction {
