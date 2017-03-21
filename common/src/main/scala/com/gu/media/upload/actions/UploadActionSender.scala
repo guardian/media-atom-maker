@@ -11,9 +11,3 @@ class KinesisActionSender(aws: KinesisAccess) extends UploadActionSender {
     aws.sendOnKinesis(aws.uploadActionsStreamName, action.uploadId, action)
   }
 }
-
-class DevActionSender(handler: UploadActionHandler) extends UploadActionSender {
-  override def send(action: UploadAction): Unit = {
-    handler.handle(action)
-  }
-}
