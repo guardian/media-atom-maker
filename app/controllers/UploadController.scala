@@ -2,26 +2,30 @@ package controllers
 
 import com.gu.media.logging.Logging
 import com.gu.media.upload._
+import com.gu.media.upload.actions.UploadActionSender
+import com.gu.media.youtube.YouTubeAccess
 import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.action.UserRequest
 import com.gu.pandomainauth.model.User
 import controllers.UploadController.CreateRequest
 import data.{DataStores, UnpackedDataStores}
 import model.MediaAtom
+import model.commands.CommandExceptions.AtomMissingYouTubeChannel
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.{Controller, Result}
 import util.AWSConfig
-import model.commands.CommandExceptions.AtomMissingYouTubeChannel
 
-class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, override val stores: DataStores)
+class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, youTube: YouTubeAccess,
+                       uploadActions: UploadActionSender, override val stores: DataStores)
+
   extends Controller with Logging with JsonRequestParsing with UnpackedDataStores {
 
   import authActions.APIHMACAuthAction
 
   private val UPLOAD_KEY_HEADER = "X-Upload-Key"
   private val table = new UploadsDataStore(awsConfig)
-  private val uploads = new UploadLifecycle(awsConfig)
+  private val uploads = new UploadLifecycle(awsConfig, uploadActions)
 
   def list(atomId: String) = APIHMACAuthAction {
     val uploads = table.list(atomId)

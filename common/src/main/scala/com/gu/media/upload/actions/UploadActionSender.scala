@@ -1,0 +1,19 @@
+package com.gu.media.upload.actions
+
+import com.gu.media.aws.KinesisAccess
+
+trait UploadActionSender {
+  def send(id: String, action: UploadAction): Unit
+}
+
+class KinesisActionSender(aws: KinesisAccess) extends UploadActionSender {
+  override def send(id: String, action: UploadAction): Unit = {
+    aws.sendOnKinesis(aws.uploadActionsStreamName, id, action)
+  }
+}
+
+class LocalActionSender(handler: UploadActionHandler) extends UploadActionSender {
+  override def send(id: String, action: UploadAction): Unit = {
+    handler.handle(action)
+  }
+}

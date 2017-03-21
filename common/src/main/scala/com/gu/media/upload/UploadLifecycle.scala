@@ -5,9 +5,12 @@ import java.util.UUID
 import com.amazonaws.services.s3.model.{CompleteMultipartUploadRequest, CopyPartRequest, InitiateMultipartUploadRequest, PartETag}
 import com.gu.media.aws._
 import com.gu.media.logging.Logging
+import com.gu.media.upload.UploadLifecycle.UploadAws
+import com.gu.media.upload.actions.{DeleteParts, UploadActionSender, UploadPartToYouTube}
+
 import scala.collection.JavaConverters._
 
-class UploadLifecycle(aws: AwsAccess with S3Access with DynamoAccess with KinesisAccess with UploadAccess) extends Logging {
+class UploadLifecycle(aws: UploadAws, actions: UploadActionSender) extends Logging {
   private val credentials = new CredentialsGenerator(aws)
 
   def create(metadata: UploadMetadata, youtubeMetadata: YouTubeMetadata, size: Long): Upload = {
@@ -24,16 +27,13 @@ class UploadLifecycle(aws: AwsAccess with S3Access with DynamoAccess with Kinesi
   def partComplete(upload: Upload, part: UploadPart): Upload = {
     val complete = upload.withPart(part.key)(_.copy(uploadedToS3 = true))
 
-    // Put on Kinesis to be picked up by the UploadActionsLambda
-    val action = UploadPartToYouTube(upload.id, part.key)
-    aws.sendOnKinesis(aws.uploadActionsStreamName, upload.id, action)
+    actions.send(upload.id, UploadPartToYouTube(upload.id, part.key))
 
     if(complete.parts.forall(_.uploadedToS3)) {
       val completeKey = createCompleteObject(complete).toString
       val action = DeleteParts(upload.id, upload.parts.map(_.key))
 
-      aws.sendOnKinesis(aws.uploadActionsStreamName, upload.id, action)
-      sendToPluto(completeKey, upload.metadata)
+      actions.send(upload.id, action)
     }
 
     complete
@@ -83,8 +83,8 @@ class UploadLifecycle(aws: AwsAccess with S3Access with DynamoAccess with Kinesi
 
     new PartETag(response.getPartNumber, response.getETag)
   }
+}
 
-  private def sendToPluto(s3Key: String, metadata: UploadMetadata): Unit = {
-    // TODO: send to pluto
-  }
+object UploadLifecycle {
+  type UploadAws = AwsAccess with S3Access with DynamoAccess with KinesisAccess with UploadAccess
 }

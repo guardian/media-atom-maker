@@ -1,4 +1,4 @@
-package com.gu.media
+package com.gu.media.util
 
 import java.io.InputStream
 
