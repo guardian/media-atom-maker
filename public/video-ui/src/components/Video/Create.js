@@ -21,6 +21,14 @@ class VideoCreate extends React.Component {
     this.props.videoActions.updateVideo(video);
   };
 
+  updateFormErrors = (fieldErrors, fieldName) => {
+    this.setState({
+      errors: {
+        [fieldName]: fieldErrors
+      }
+    });
+  }
+
   render () {
     return (
       <div className="container">
@@ -29,10 +37,8 @@ class VideoCreate extends React.Component {
           <VideoEdit
             video={this.props.video}
             updateVideo={this.updateVideo}
-            saveAndUpdateVideo={this.updateVideo}
-            createMode
-            editable
-            saveState={this.props.saveState}
+            editable={true}
+            updateFormErrors={this.updateFormErrors}
           />
           <SaveButton video={this.props.video} saveState={this.props.saveState} onSaveClick={this.createVideo} onResetClick={this.resetVideo} />
         </form>
