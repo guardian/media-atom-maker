@@ -1,27 +1,34 @@
 package controllers
 
+import java.util.UUID
+
 import com.gu.media.logging.Logging
 import com.gu.media.upload._
+import com.gu.media.upload.actions.{CopyParts, DeleteParts, UploadActionSender, UploadPartToYouTube}
+import com.gu.media.youtube.{YouTubeAccess, YouTubeUploader}
 import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.action.UserRequest
 import com.gu.pandomainauth.model.User
 import controllers.UploadController.CreateRequest
 import data.{DataStores, UnpackedDataStores}
 import model.MediaAtom
+import model.commands.CommandExceptions.AtomMissingYouTubeChannel
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.{Controller, Result}
 import util.AWSConfig
-import model.commands.CommandExceptions.AtomMissingYouTubeChannel
 
-class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, override val stores: DataStores)
+class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, youTube: YouTubeAccess,
+                       uploadActions: UploadActionSender, override val stores: DataStores)
+
   extends Controller with Logging with JsonRequestParsing with UnpackedDataStores {
 
   import authActions.APIHMACAuthAction
 
   private val UPLOAD_KEY_HEADER = "X-Upload-Key"
-  private val table = new UploadsDataStore(awsConfig)
-  private val uploads = new UploadLifecycle(awsConfig)
+  private val table = stores.uploadStore
+  private val credsGenerator = new CredentialsGenerator(awsConfig)
+  private val uploader = new YouTubeUploader(awsConfig, youTube)
 
   def list(atomId: String) = APIHMACAuthAction {
     val uploads = table.list(atomId)
@@ -47,28 +54,34 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, o
 
   def credentials(id: String) = APIHMACAuthAction { implicit req =>
     partRequest(id, req) { (upload, part) =>
-      val credentials = uploads.credentialsForPart(upload, part)
+      val credentials = credsGenerator.forKey(upload.id, part.key)
       Ok(Json.toJson(credentials))
     }
   }
 
   def complete(id: String) = APIHMACAuthAction { implicit req =>
     partRequest(id, req) { (upload, part) =>
-      val complete = uploads.partComplete(upload, part)
-      table.put(complete)
-
+      partComplete(upload, part)
       NoContent
     }
   }
 
   private def buildUpload(atom: MediaAtom, user: User, size: Long) = {
+    val id = UUID.randomUUID().toString
+
+    val plutoData = PlutoSyncMetadata(
+      projectId = atom.plutoProjectId,
+      key = CompleteUploadKey(awsConfig.userUploadFolder, id).toString,
+      assetVersion = -1
+    )
+
     val metadata = UploadMetadata(
       atomId = atom.id,
       user = user.email,
       bucket = awsConfig.userUploadBucket,
       region = awsConfig.region.getName,
       title = atom.title,
-      plutoProjectId = atom.plutoProjectId
+      pluto = plutoData
     )
 
     val youTube = YouTubeMetadata(
@@ -76,7 +89,9 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, o
       upload = None
     )
 
-    uploads.create(metadata, youTube, size)
+    val parts = chunk(id, size)
+
+    Upload(id, parts, metadata, youTube)
   }
 
   private def partRequest(id: String, request: UserRequest[_])(fn: (Upload, UploadPart) => Result): Result = {
@@ -98,6 +113,36 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, o
 
       case None =>
         BadRequest(s"Unknown upload id $id")
+    }
+  }
+
+  private def partComplete(upload: Upload, part: UploadPart): Upload = {
+    val uploadUri = upload.youTube.upload.getOrElse {
+      uploader.startUpload(upload.metadata.title, upload.youTube.channel, upload.id, upload.parts.last.end)
+    }
+
+    val complete = upload
+      .withPart(part.key)(_.copy(uploadedToS3 = true))
+      .copy(youTube = upload.youTube.copy(upload = Some(uploadUri)))
+
+    table.put(complete)
+    uploadActions.send(UploadPartToYouTube(upload.id, part.key))
+
+    if(complete.parts.forall(_.uploadedToS3)) {
+      val completeKey = CompleteUploadKey(awsConfig.userUploadFolder, complete.id).toString
+
+      uploadActions.send(CopyParts(upload.id, completeKey))
+      uploadActions.send(DeleteParts(upload.id))
+    }
+
+    complete
+  }
+
+  private def chunk(uploadId: String, size: Long): List[UploadPart] = {
+    val boundaries = Upload.calculateChunks(size)
+
+    boundaries.zipWithIndex.map { case ((start, end), id) =>
+      UploadPart(UploadPartKey(awsConfig.userUploadFolder, uploadId, id).toString, start, end)
     }
   }
 }

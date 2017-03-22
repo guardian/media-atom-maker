@@ -1,5 +1,7 @@
 import com.gu.atom.play.ReindexController
 import com.gu.media.CapiPreview
+import com.gu.media.upload.UploadsDataStore
+import com.gu.media.upload.actions.KinesisActionSender
 import com.gu.media.youtube.YouTube
 import controllers._
 import data._
@@ -9,7 +11,7 @@ import play.api.inject.DefaultApplicationLifecycle
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext, LoggerConfigurator}
 import router.Routes
-import util.AWSConfig
+import util.{AWSConfig, DevUploadHandler, DevUploadSender}
 
 class MediaAtomMakerLoader extends ApplicationLoader {
   override def load(context: Context): Application = new MediaAtomMaker(context).application
@@ -39,7 +41,8 @@ class MediaAtomMaker(context: Context)
   private val api = new Api(stores, configuration, aws, hmacAuthActions)
   private val api2 = new Api2(stores, configuration, hmacAuthActions, youTube)
 
-  private val uploads = new UploadController(hmacAuthActions, aws, stores)
+  private val uploadSender = buildUploadSender()
+  private val uploads = new UploadController(hmacAuthActions, aws, youTube, uploadSender, stores)
 
   private val support = new Support(hmacAuthActions, capi)
   private val youTubeController = new controllers.Youtube(hmacAuthActions, youTube, defaultCacheApi)
@@ -61,5 +64,15 @@ class MediaAtomMaker(context: Context)
     new ReindexController(stores.preview, stores.published, stores.reindexPreview, stores.reindexPublished,
       configuration, actorSystem)
 
+  }
+
+  private def buildUploadSender() = aws.stage match {
+    case "DEV" =>
+      // Disable this case to use the lambdas, even in dev
+      val handler = new DevUploadHandler(stores, aws, youTube)
+      new DevUploadSender(handler)
+
+    case _ =>
+      new KinesisActionSender(aws)
   }
 }
