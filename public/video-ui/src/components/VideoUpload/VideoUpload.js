@@ -112,7 +112,14 @@ class VideoUpload extends React.Component {
           {this.renderPicker()}
           <AddAssetFromURL video={this.props.video} createAsset={this.props.videoActions.createAsset} />
         </div>
-        <VideoTrail activeVersion={activeVersion} assets={assets} selectAsset={selectAsset} localUpload={this.props.localUpload} uploads={this.props.uploads} />
+        <VideoTrail
+          activeVersion={activeVersion}
+          assets={assets}
+          selectAsset={selectAsset}
+          localUpload={this.props.localUpload}
+          uploads={this.props.uploads}
+          getUploads={() => this.props.uploadActions.getUploads(this.props.video.id)} 
+        />
       </div>
     </div>;
   }
@@ -122,7 +129,8 @@ class VideoUpload extends React.Component {
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getVideo from '../../actions/VideoActions/getVideo';
-import * as uploadActions from '../../actions/UploadActions/localUpload';
+import * as getUpload from '../../actions/UploadActions/getUploads';
+import * as localUploadActions from '../../actions/UploadActions/localUpload';
 import * as createAsset from '../../actions/VideoActions/createAsset';
 import * as revertAsset from '../../actions/VideoActions/revertAsset';
 
@@ -137,7 +145,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     videoActions: bindActionCreators(Object.assign({}, getVideo, createAsset, revertAsset), dispatch),
-    uploadActions: bindActionCreators(Object.assign({}, uploadActions), dispatch)
+    uploadActions: bindActionCreators(Object.assign({}, localUploadActions, getUpload), dispatch)
   };
 }
 
