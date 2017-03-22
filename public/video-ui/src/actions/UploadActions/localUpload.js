@@ -17,13 +17,25 @@ function uploadProgress(progress) {
   };
 }
 
-export function startUpload(id, file) {
+function uploadComplete() {
+  return {
+    type: 'UPLOAD_COMPLETE',
+    receivedAt: Date.now()
+  };
+}
+
+export function startUpload(id, file, completeFn) {
   return dispatch => {
     UploadsApi.createUpload(id, file).then((upload) => {
       const progress = (completed) => dispatch(uploadProgress(completed));
-      const handle = new UploadHandle(upload, file, progress);
-
+      const complete = () => {
+        dispatch(uploadComplete());
+        completeFn();
+      };
+      
+      const handle = new UploadHandle(upload, file, progress, complete);
       handle.start();
+
       dispatch(uploadStarted(upload));
     });
   };

@@ -1,5 +1,4 @@
 import React from 'react';
-import _ from 'lodash';
 import {YouTubeEmbed, youTubeUrl} from '../utils/YouTubeEmbed';
 
 const VIDEO_WIDTH = 320;
@@ -63,7 +62,7 @@ function buildUpload(upload) {
     if(upload.progress.uploadedToS3 === total) {
         return <UploadAsset key={upload.id} message="Uploading to YouTube" total={total * 2} progress={progress} />;
     } else {
-        return false; // don't show uploads from other sessions until they have reached YouTube
+        return false; // don't show uploads until they have reached YouTube
     }
 }
 
@@ -71,7 +70,7 @@ function VideoSquares({ activeVersion, assets, selectAsset, localUpload, uploads
     const squares = [];
 
     if(localUpload.total) {
-        squares.push(<UploadAsset key="upload" message="Uploading To S3" {...localUpload} />);
+        squares.push(<UploadAsset key="upload" message="Uploading To S3" total={localUpload.total * 2} progress={localUpload.progress }/>);
     }
 
     uploads.forEach((upload) => {
@@ -108,7 +107,10 @@ export default class VideoTrail extends React.Component {
             clearInterval(this.polling);
             this.polling = null;
         } else if(!this.polling && props.uploads.length > 0) {
-            this.polling = setInterval(props.getUploads, 1000);
+            this.polling = setInterval(() => {
+                props.getUploads();
+                props.getVideo();
+            }, 5000);
         }
     }
 
