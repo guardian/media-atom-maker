@@ -68,6 +68,7 @@ class MediaAtomMaker(context: Context)
 
   private def buildUploadSender() = aws.stage match {
     case "DEV" =>
+      // Disable this case to use the lambdas, even in dev
       val handler = new DevUploadHandler(stores, aws, youTube)
       new DevUploadSender(handler)
 

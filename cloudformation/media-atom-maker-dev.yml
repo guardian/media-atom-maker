@@ -240,7 +240,14 @@ Resources:
                     - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
                     - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "UploadTrackingDynamoTable" }
               - Effect: "Allow"
-                Action: ["s3:GetObject", "s3:DeleteObject"]
+                Action:
+                  - "s3:GetObject"
+                  - "s3:PutObject"
+                  - "s3:PutObjectAcl"
+                  - "s3:DeleteObject"
+                  - "s3:ListBucketMultipartUploads"
+                  - "s3:ListMultipartUploadParts"
+                  - "s3:AbortMultipartUpload"
                 Resource:
                   - !Sub
                     - "arn:aws:s3:::${Bucket}/*"
@@ -271,7 +278,7 @@ Resources:
           STAGE: !Ref Stage
           CONFIG_BUCKET: !Ref ConfigBucket
           CONFIG_KEY: !FindInMap [LambdaConfig, Uploader, DEV]
-      MemorySize: 256
+      MemorySize: 512
       Role: !GetAtt UploaderRole.Arn
       Runtime: "java8"
       Timeout: 300
