@@ -75,4 +75,6 @@ export class ManagedField extends React.Component {
         placeholder: this.props.placeholder
       });
     });
-return <div>{hydratedChildren}</div>; } }
+    return <div>{hydratedChildren}</div>;
+  }
+}

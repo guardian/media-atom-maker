@@ -16,6 +16,7 @@ import FormTextInput from '../FormFields/FormTextInput';
 import FormTextArea from '../FormFields/FormTextArea';
 import FormSelectBox from '../FormFields/FormSelectBox';
 import FormCheckBox from '../FormFields/FormCheckBox';
+import FormDatePicker from '../FormFields/FormDatePicker';
 import {fieldLengths} from '../../constants/videoEditValidation';
 import {videoCategories} from '../../constants/videoCategories';
 
@@ -198,6 +199,12 @@ class VideoDisplay extends React.Component {
                       name="Legally Sensitive"
                     >
                       <FormCheckBox/>
+                    </ManagedField>
+                    <ManagedField
+                      fieldLocation="expiryDate"
+                      name="Expiry Date"
+                    >
+                      <FormDatePicker/>
                     </ManagedField>
                   </ManagedForm>
                 </div>
