@@ -56,7 +56,18 @@ function UploadAsset({ message, total, progress }) {
     </div>;
 }
 
-export default function VideoTrail({ activeVersion, assets, selectAsset, localUpload, uploads }) {
+function buildUpload(upload) {
+    const total = upload.parts[upload.parts.length - 1].end;
+    const progress = upload.progress.uploadedToS3 + upload.progress.uploadedToYouTube;
+    
+    if(upload.progress.uploadedToS3 === total) {
+        return <UploadAsset key={upload.id} message="Uploading to YouTube" total={total * 2} progress={progress} />;
+    } else {
+        return false; // don't show uploads from other sessions until they have reached YouTube
+    }
+}
+
+function VideoSquares({ activeVersion, assets, selectAsset, localUpload, uploads }) {
     const squares = [];
 
     if(localUpload.total) {
@@ -64,10 +75,10 @@ export default function VideoTrail({ activeVersion, assets, selectAsset, localUp
     }
 
     uploads.forEach((upload) => {
-        const hidden = _.find(upload.parts, (part) => !part.uploadedToS3);
+        const element = buildUpload(upload);
 
-        if(!hidden) {
-            squares.push(<UploadAsset key={upload.id} message="Uploading To YouTube" />);
+        if(element) {
+            squares.push(element);
         }
     });
 
@@ -78,4 +89,30 @@ export default function VideoTrail({ activeVersion, assets, selectAsset, localUp
     return <div className="upload__assets">
         {squares.length > 0 ? squares : <VideoAsset />}
     </div>;
+}
+
+export default class VideoTrail extends React.Component {
+    polling = null;
+
+    constructor(props) {
+        super(props);
+        this.doScheduling(props); 
+    }
+
+    componentWillReceiveProps(props) {
+        this.doScheduling(props);
+    }
+
+    doScheduling(props) {
+        if(this.polling && props.uploads.length === 0) {
+            clearInterval(this.polling);
+            this.polling = null;
+        } else if(!this.polling && props.uploads.length > 0) {
+            this.polling = setInterval(props.getUploads, 1000);
+        }
+    }
+
+    render() {
+        return <VideoSquares {...this.props} />;
+    }
 }
