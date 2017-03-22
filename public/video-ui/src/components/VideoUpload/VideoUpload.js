@@ -2,6 +2,7 @@ import React from 'react';
 import {Link} from 'react-router';
 import Icon from '../Icon';
 import VideoTrail from './VideoTrail';
+import _ from 'lodash';
 
 class AddAssetFromURL extends React.Component {
   constructor(props) {
@@ -47,7 +48,12 @@ class VideoUpload extends React.Component {
 
   startUpload = () => {
     if(this.props.video && this.state.file) {
-      this.props.uploadActions.startUpload(this.props.video.id, this.state.file);
+      const atomId = this.props.video.id;
+
+      this.props.uploadActions.startUpload(atomId, this.state.file, () => {
+        // on complete
+        this.props.uploadActions.getUploads(atomId);
+      });
     }
   };
 
@@ -104,6 +110,14 @@ class VideoUpload extends React.Component {
       this.props.videoActions.revertAsset(this.props.video.id, assetId, version);
     };
 
+    // We want to display uploads that do not yet have a corresponding asset in the atom.
+    // VideoTrail will poll appropriately.
+    const uploads = _.filter(this.props.uploads, (upload) => {
+        const version = upload.metadata.pluto.assetVersion;
+        const exists = _.some(assets, (asset) => asset.version === version);
+        return !exists;
+    });
+
     return <div className="upload">
       {this.renderHeader()}
       <div className="upload__content">
@@ -115,10 +129,11 @@ class VideoUpload extends React.Component {
         <VideoTrail
           activeVersion={activeVersion}
           assets={assets}
-          selectAsset={selectAsset}
           localUpload={this.props.localUpload}
-          uploads={this.props.uploads}
-          getUploads={() => this.props.uploadActions.getUploads(this.props.video.id)} 
+          uploads={uploads}
+          selectAsset={selectAsset}
+          getVideo={() => this.props.videoActions.getVideo(this.props.video.id)}
+          getUploads={() => this.props.uploadActions.getUploads(this.props.video.id)}
         />
       </div>
     </div>;

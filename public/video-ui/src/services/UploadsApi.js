@@ -85,10 +85,11 @@ class UploadFunctions {
 export const UploadsApi = new UploadFunctions();
 
 export class UploadHandle {
-  constructor(upload, file, progressFn) {
+  constructor(upload, file, progressFn, completeFn) {
     this.upload = upload;
     this.file = file;
     this.progressFn = progressFn;
+    this.completeFn = completeFn;
 
     this.request = null;
     this.uploadUri = null;
@@ -120,6 +121,8 @@ export class UploadHandle {
           });
         });
       });
+    } else {
+      this.completeFn();
     }
   }
 }
