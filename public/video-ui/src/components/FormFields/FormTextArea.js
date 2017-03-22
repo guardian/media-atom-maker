@@ -7,7 +7,7 @@ export default class FormTextArea extends React.Component {
   };
 
   displayPlaceholder = () => {
-    return this.props.placeholder && !this.props.fieldValue;
+    return this.props.placeholder === this.props.fieldValue;
   }
 
   renderField = () => {
@@ -15,7 +15,7 @@ export default class FormTextArea extends React.Component {
       return (
         <div>
           <p className="details-list__title">{this.props.fieldName}</p>
-          <p className={"details-list__field " + (this.displayPlaceholder ? "details-list__empty" : "")}> {this.props.fieldValue}</p>
+          <p className={"details-list__field " + (this.displayPlaceholder() ? "details-list__empty" : "")}> {this.props.fieldValue}</p>
         </div>
       );
     }
