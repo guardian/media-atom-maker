@@ -9,7 +9,7 @@ import com.gu.media.youtube.{YouTubeAccess, YouTubeUploader}
 import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.action.UserRequest
 import com.gu.pandomainauth.model.User
-import controllers.UploadController.CreateRequest
+import controllers.UploadController.{CompleteResponse, CreateRequest}
 import data.{DataStores, UnpackedDataStores}
 import model.MediaAtom
 import model.commands.CommandExceptions.AtomMissingYouTubeChannel
@@ -26,6 +26,8 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
   import authActions.APIHMACAuthAction
 
   private val UPLOAD_KEY_HEADER = "X-Upload-Key"
+  private val UPLOAD_URI_HEADER = "X-Upload-Uri"
+
   private val table = stores.uploadStore
   private val credsGenerator = new CredentialsGenerator(awsConfig)
   private val uploader = new YouTubeUploader(awsConfig, youTube)
@@ -53,19 +55,23 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
   }
 
   def credentials(id: String) = APIHMACAuthAction { implicit req =>
-    partRequest(id, req) { (upload, part) =>
+    partRequest(id, req) { (upload, part, _) =>
       val credentials = credsGenerator.forKey(upload.id, part.key)
       Ok(Json.toJson(credentials))
     }
   }
 
   def complete(id: String) = APIHMACAuthAction { implicit req =>
-    partRequest(id, req) { (upload, part) =>
-      // TODO MRB: get upload URI for client
-      val uploadUri = uploader.startUpload(upload.metadata.title, upload.metadata.channel, upload.id, upload.parts.last.end)
-      partComplete(upload, part, uploadUri)
+    partRequest(id, req) {
+      case (upload, part, Some(uploadUri)) =>
+        partComplete(upload, part, uploadUri)
+        Ok(Json.toJson(CompleteResponse(uploadUri)))
 
-      NoContent
+
+      case (upload, part, None) =>
+        val uploadUri = uploader.startUpload(upload.metadata.title, upload.metadata.channel, upload.id, upload.parts.last.end)
+        partComplete(upload, part, uploadUri)
+        Ok(Json.toJson(CompleteResponse(uploadUri)))
     }
   }
 
@@ -93,14 +99,14 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
     Upload(id, parts, metadata, UploadProgress(0, 0))
   }
 
-  private def partRequest(id: String, request: UserRequest[_])(fn: (Upload, UploadPart) => Result): Result = {
+  private def partRequest(id: String, request: UserRequest[_])(fn: (Upload, UploadPart, Option[String]) => Result): Result = {
     table.get(id) match {
       case Some(upload) =>
         request.headers.get(UPLOAD_KEY_HEADER) match {
           case Some(key) =>
             upload.parts.find(_.key == key) match {
               case Some(part) =>
-                fn(upload, part)
+                fn(upload, part, request.headers.get(UPLOAD_URI_HEADER))
 
               case None =>
                 BadRequest(s"Unknown part key $key")
@@ -143,7 +149,9 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
 object UploadController {
   case class CreateRequest(atomId: String, filename: String, size: Long)
   case class CreateResponse(id: String, region: String, bucket: String, parts: List[UploadPart])
+  case class CompleteResponse(uploadUri: String)
 
   implicit val createRequestFormat: Format[CreateRequest] = Jsonx.formatCaseClass[CreateRequest]
   implicit val createResponseFormat: Format[CreateResponse] = Jsonx.formatCaseClass[CreateResponse]
+  implicit val completeResponseFormat: Format[CompleteResponse] = Jsonx.formatCaseClass[CompleteResponse]
 }
