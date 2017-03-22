@@ -170,12 +170,10 @@ class VideoDisplay extends React.Component {
                   {this.renderEditButton('youtubeEditable')}
                 </div>
                 <YoutubeMetaData
-                  component={YoutubeMetaData}
                   video={this.props.video || {}}
-                  saveVideo={this.saveVideo}
                   updateVideo={this.updateVideo}
-                  disableStatusEditing={this.cannotEditStatus()}
                   editable={this.props.editState.youtubeEditable}
+                  updateFormErrors={this.updateMetadataFormErrors}
                 />
               </div>
               <div className="video__detailbox">
