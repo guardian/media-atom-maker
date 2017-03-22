@@ -24,6 +24,13 @@ class UploadsDataStore(aws: DynamoAccess) {
     Scanamo.exec(aws.dynamoDB)(operation)
   }
 
+  def report(upload: Upload): Unit = {
+    get(upload.id).foreach { before =>
+      val after = Upload.mergeProgress(upload, before.progress)
+      put(after)
+    }
+  }
+
   def get(id: String): Option[Upload] = {
     val operation = table.get('id -> id)
     val result = Scanamo.exec(aws.dynamoDB)(operation)

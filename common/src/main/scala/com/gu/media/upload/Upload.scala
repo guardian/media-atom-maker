@@ -29,6 +29,13 @@ object Upload {
     }
   }
 
+  def mergeProgress(upload: Upload, progress: UploadProgress): Upload = {
+    upload.copy(progress = UploadProgress(
+      uploadedToS3 = Math.max(upload.progress.uploadedToS3, progress.uploadedToS3),
+      uploadedToYouTube = Math.max(upload.progress.uploadedToYouTube, progress.uploadedToYouTube)
+    ))
+  }
+
   private def chunksOfExactly(chunkSize: Long, size: Long): (List[(Long, Long)], Long) = {
     val numParts = (size / chunkSize).toInt
     val remainder = size % chunkSize

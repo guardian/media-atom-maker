@@ -15,12 +15,9 @@ abstract class UploadActionHandler(store: UploadsDataStore, s3: S3UploadAccess, 
   def handle(action: UploadAction): Unit = action match {
     case UploadPartToYouTube(upload, part, uploadUri) =>
       val updated = uploadToYouTube(upload, part, uploadUri)
-        .copy(progress = upload.progress.copy(
-          uploadedToS3 = part.end,
-          uploadedToYouTube = part.end)
-        )
+      val withProgress = updated.copy(progress = upload.progress.copy(uploadedToYouTube = part.end))
 
-      store.put(updated)
+      store.report(withProgress)
 
     case CopyParts(upload, destination) =>
       createCompleteObject(upload, destination)

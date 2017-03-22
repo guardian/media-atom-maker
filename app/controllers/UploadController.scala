@@ -123,8 +123,8 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
 
   private def partComplete(upload: Upload, part: UploadPart, uploadUri: String): Upload = {
     val complete = upload.copy(progress = upload.progress.copy(uploadedToS3 = part.end))
-    table.put(complete)
 
+    table.report(complete)
     uploadActions.send(UploadPartToYouTube(upload, part, uploadUri))
 
     if(part.key == upload.parts.last.key) {
