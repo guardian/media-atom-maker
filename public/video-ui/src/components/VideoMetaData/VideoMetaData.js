@@ -1,67 +1,59 @@
 import React from 'react';
-import VideoTitleEdit from '../VideoEdit/formComponents/VideoTitle';
-import VideoDescriptionEdit from '../VideoEdit/formComponents/VideoDescription';
-import VideoDurationEdit from '../VideoEdit/formComponents/VideoDuration';
-import ContentFlags from '../VideoEdit/formComponents/ContentFlags';
-import VideoExpiryEdit from '../VideoEdit/formComponents/VideoExpiry';
-import VideoCategorySelect from '../VideoEdit/formComponents/VideoCategory';
-import { Field, reduxForm } from 'redux-form';
-import {validate} from '../../constants/videoEditValidation';
+import {ManagedForm, ManagedField} from '../ManagedForm';
+import FormTextInput from '../FormFields/FormTextInput';
+import FormTextArea from '../FormFields/FormTextArea';
+import FormSelectBox from '../FormFields/FormSelectBox';
+import FormCheckBox from '../FormFields/FormCheckBox';
+import FormDatePicker from '../FormFields/FormDatePicker';
+import {fieldLengths} from '../../constants/videoEditValidation';
+import {videoCategories} from '../../constants/videoCategories';
 
-const VideoMetaData = (props) => {
+export default class VideoMetaData extends React.Component {
 
+  render () {
     return (
-        <div className="form__group">
-          <Field
-            name="title"
-            type="text"
-            component={VideoTitleEdit}
-            video={props.video}
-            updateVideo={props.updateVideo}
-            editable={props.editable} />
-
-          <Field
-            name="description"
-            type="text"
-            component={VideoDescriptionEdit}
-            video={props.video}
-            updateVideo={props.updateVideo}
-            editable={props.editable} />
-
-          <Field
-            name="category"
-            type="select"
-            component={VideoCategorySelect}
-            video={props.video}
-            updateVideo={props.updateVideo}
-            editable={props.editable} />
-
-          <Field
-            name="expiry"
-            type="number"
-            component={VideoExpiryEdit}
-            video={props.video}
-            updateVideo={props.updateVideo}
-            editable={props.editable} />
-
-          <Field
-            name="duration"
-            type="number"
-            component={VideoDurationEdit}
-            video={props.video}
-            editable={false} />
-
-          <Field
-            name="contentFlags"
-            component={ContentFlags}
-            video={props.video}
-            updateVideo={props.updateVideo}
-            editable={props.editable} />
-        </div>
+      <div className="form__group">
+        <ManagedForm
+          data={this.props.video}
+          updateData={this.props.updateVideo}
+          editable={this.props.editable}
+          updateFormErrors={this.props.updateFormErrors}
+        >
+          <ManagedField
+            fieldLocation="title"
+            name="Title"
+            maxLength={fieldLengths.title}
+            isRequired={true}
+          >
+            <FormTextInput/>
+          </ManagedField>
+          <ManagedField
+            fieldLocation="description"
+            name="Description"
+            placeholder="No Description"
+          >
+            <FormTextArea/>
+          </ManagedField>
+          <ManagedField
+            fieldLocation="category"
+            name="Category"
+          >
+            <FormSelectBox selectValues={videoCategories}></FormSelectBox>
+          </ManagedField>
+          <ManagedField
+            fieldLocation="expiryDate"
+            name="Expiry Date"
+          >
+            <FormDatePicker/>
+          </ManagedField>
+          <ManagedField
+            fieldLocation="legallySensitive"
+            name="Legally Sensitive"
+          >
+            <FormCheckBox/>
+          </ManagedField>
+        </ManagedForm>
+      </div>
     );
-  };
-
-export default reduxForm({
-  form: 'VideoMetaData',
-  validate
-})(VideoMetaData);
+  }
+};

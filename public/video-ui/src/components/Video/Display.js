@@ -10,15 +10,6 @@ import GridImageSelect from '../utils/GridImageSelect';
 import {getVideoBlock} from '../../util/getVideoBlock';
 import {getStore} from '../../util/storeAccessor';
 import Icon from '../Icon';
-import {validate} from '../../constants/videoEditValidation';
-import {ManagedForm, ManagedField} from '../ManagedForm';
-import FormTextInput from '../FormFields/FormTextInput';
-import FormTextArea from '../FormFields/FormTextArea';
-import FormSelectBox from '../FormFields/FormSelectBox';
-import FormCheckBox from '../FormFields/FormCheckBox';
-import FormDatePicker from '../FormFields/FormDatePicker';
-import {fieldLengths} from '../../constants/videoEditValidation';
-import {videoCategories} from '../../constants/videoCategories';
 
 class VideoDisplay extends React.Component {
 
@@ -166,54 +157,11 @@ class VideoDisplay extends React.Component {
                   {this.renderEditButton('metadataEditable')}
                 </div>
 
-                <div className="form__group">
-                  <ManagedForm
-                    data={this.props.video}
-                    updateData={this.updateVideo}
-                    editable={this.props.editState.metadataEditable}
-                    updateFormErrors={this.updateMetadataFormErrors}
-                  >
-                    <ManagedField
-                      fieldLocation="title"
-                      name="Title"
-                      maxLength={fieldLengths.title}
-                      isRequired={true}
-                    >
-                      <FormTextInput/>
-                    </ManagedField>
-                    <ManagedField
-                      fieldLocation="description"
-                      name="Description"
-                      placeholder="No Description"
-                    >
-                      <FormTextArea/>
-                    </ManagedField>
-                    <ManagedField
-                      fieldLocation="category"
-                      name="Category"
-                    >
-                      <FormSelectBox selectValues={videoCategories}></FormSelectBox>
-                    </ManagedField>
-                    <ManagedField
-                      fieldLocation="legallySensitive"
-                      name="Legally Sensitive"
-                    >
-                      <FormCheckBox/>
-                    </ManagedField>
-                    <ManagedField
-                      fieldLocation="expiryDate"
-                      name="Expiry Date"
-                    >
-                      <FormDatePicker/>
-                    </ManagedField>
-                  </ManagedForm>
-                </div>
-
                 <VideoMetaData
-                  component={VideoMetaData}
                   video={this.props.video || {}}
                   updateVideo={this.updateVideo}
                   editable={this.props.editState.metadataEditable}
+                  updateFormErrors={this.updateMetadataFormErrors}
                  />
               </div>
               <div className="video__detailbox">
