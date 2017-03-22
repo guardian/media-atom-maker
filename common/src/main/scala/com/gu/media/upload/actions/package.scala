@@ -5,10 +5,10 @@ import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
 
 package object actions {
-  sealed abstract class UploadAction { def uploadId: String }
-  case class UploadPartToYouTube(uploadId: String, key: String) extends UploadAction
-  case class CopyParts(uploadId: String, destination: String) extends UploadAction
-  case class DeleteParts(uploadId: String) extends UploadAction
+  sealed abstract class UploadAction { def upload: Upload }
+  case class UploadPartToYouTube(upload: Upload, part: UploadPart, uploadUri: String) extends UploadAction
+  case class CopyParts(upload: Upload, destination: String) extends UploadAction
+  case class DeleteParts(upload: Upload) extends UploadAction
 
   type S3UploadAccess = S3Access with UploadAccess
 

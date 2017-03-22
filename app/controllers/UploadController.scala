@@ -61,7 +61,10 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
 
   def complete(id: String) = APIHMACAuthAction { implicit req =>
     partRequest(id, req) { (upload, part) =>
-      partComplete(upload, part)
+      // TODO MRB: get upload URI for client
+      val uploadUri = uploader.startUpload(upload.metadata.title, upload.metadata.channel, upload.id, upload.parts.last.end)
+      partComplete(upload, part, uploadUri)
+
       NoContent
     }
   }
@@ -81,17 +84,13 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
       bucket = awsConfig.userUploadBucket,
       region = awsConfig.region.getName,
       title = atom.title,
-      pluto = plutoData
-    )
-
-    val youTube = YouTubeMetadata(
       channel = atom.channelId.getOrElse { AtomMissingYouTubeChannel },
-      upload = None
+      pluto = plutoData
     )
 
     val parts = chunk(id, size)
 
-    Upload(id, parts, metadata, youTube)
+    Upload(id, parts, metadata, UploadProgress(0, 0))
   }
 
   private def partRequest(id: String, request: UserRequest[_])(fn: (Upload, UploadPart) => Result): Result = {
@@ -116,23 +115,17 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
     }
   }
 
-  private def partComplete(upload: Upload, part: UploadPart): Upload = {
-    val uploadUri = upload.youTube.upload.getOrElse {
-      uploader.startUpload(upload.metadata.title, upload.youTube.channel, upload.id, upload.parts.last.end)
-    }
-
-    val complete = upload
-      .withPart(part.key)(_.copy(uploadedToS3 = true))
-      .copy(youTube = upload.youTube.copy(upload = Some(uploadUri)))
-
+  private def partComplete(upload: Upload, part: UploadPart, uploadUri: String): Upload = {
+    val complete = upload.copy(progress = upload.progress.copy(uploadedToS3 = part.end))
     table.put(complete)
-    uploadActions.send(UploadPartToYouTube(upload.id, part.key))
 
-    if(complete.parts.forall(_.uploadedToS3)) {
+    uploadActions.send(UploadPartToYouTube(upload, part, uploadUri))
+
+    if(part.key == upload.parts.last.key) {
       val completeKey = CompleteUploadKey(awsConfig.userUploadFolder, complete.id).toString
 
-      uploadActions.send(CopyParts(upload.id, completeKey))
-      uploadActions.send(DeleteParts(upload.id))
+      uploadActions.send(CopyParts(upload, completeKey))
+      uploadActions.send(DeleteParts(upload))
     }
 
     complete

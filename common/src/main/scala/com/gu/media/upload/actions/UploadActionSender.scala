@@ -8,6 +8,6 @@ trait UploadActionSender {
 
 class KinesisActionSender(aws: KinesisAccess) extends UploadActionSender {
   override def send(action: UploadAction): Unit = {
-    aws.sendOnKinesis(aws.uploadActionsStreamName, action.uploadId, action)
+    aws.sendOnKinesis(aws.uploadActionsStreamName, action.upload.id, action)
   }
 }
