@@ -24,15 +24,15 @@ function selector(assetId, version, selectAsset, active) {
     </button>;
 }
 
-function VideoAsset({ id, platform, version, active, selectAsset }) {
-    if(!id) {
-        return <div className="upload__asset">
-            <div className="upload__asset__video upload__asset__empty">
-                <span>No Assets Added</span>    
-            </div>
-        </div>;
-    }
+function ErrorAsset({ message }) {
+    return <div className="upload__asset">
+        <div className="upload__asset__video upload__asset__empty">
+            <span>{message}</span>    
+        </div>
+    </div>;
+}
 
+function VideoAsset({ id, platform, version, active, selectAsset }) {
     return <div className="upload__asset">
         <div className="upload__asset__video">{embed(id, platform)}</div>
         <div className="upload__asset__caption">
@@ -59,41 +59,6 @@ function UploadAsset({ message, total, progress }) {
     </div>;
 }
 
-function buildUpload(upload) {
-    const total = upload.parts[upload.parts.length - 1].end;
-    const progress = upload.progress.uploadedToS3 + upload.progress.uploadedToYouTube;
-    
-    if(upload.progress.uploadedToS3 === total) {
-        return <UploadAsset key={upload.id} message="Uploading to YouTube" total={total * 2} progress={progress} />;
-    } else {
-        return false; // don't show uploads until they have reached YouTube
-    }
-}
-
-function VideoSquares({ activeVersion, assets, selectAsset, localUpload, uploads }) {
-    const squares = [];
-
-    if(localUpload.total) {
-        squares.push(<UploadAsset key="upload" message="Uploading To S3" total={localUpload.total * 2} progress={localUpload.progress }/>);
-    }
-
-    uploads.forEach((upload) => {
-        const element = buildUpload(upload);
-
-        if(element) {
-            squares.push(element);
-        }
-    });
-
-    assets.forEach((asset) => {
-        squares.push(<VideoAsset key={asset.id} active={asset.version === activeVersion} selectAsset={selectAsset} {...asset} />);
-    });
-
-    return <div className="upload__assets">
-        {squares.length > 0 ? squares : <VideoAsset />}
-    </div>;
-}
-
 export default class VideoTrail extends React.Component {
     polling = null;
     state = { status: [] };
@@ -115,7 +80,7 @@ export default class VideoTrail extends React.Component {
         clearInterval(this.polling);
     }
 
-    pollIfRequired() {
+    pollIfRequired = () => {
         if(this.props.uploads.length > 0) {
             this.props.getUploads();
             this.props.getVideo();
@@ -124,9 +89,9 @@ export default class VideoTrail extends React.Component {
         if(_.some(this.state.status, (entry) => entry.status === "processing")) {
             this.enrichWithStatus(this.props.assets);
         }
-    }
+    };
 
-    enrichWithStatus(assets) {
+    enrichWithStatus = (assets) => {
         if(assets.length === 0) {
             return;
         }
@@ -135,9 +100,61 @@ export default class VideoTrail extends React.Component {
         getProcessingStatus(ids).then((resp) => {
             this.setState({ status: resp });
         }); 
-    }
+    };
+
+    renderLocalUpload = () => {
+        // Multiply by 2 to give the impression of a continuous progress bar once this component is swapped out with the remote upload one
+        const total = this.props.localUpload.total * 2;
+        const progress = this.props.localUpload.progress;
+
+        return <UploadAsset key="localUpload" message="Uploading To S3" total={total} progress={progress} />;
+    };
+
+    renderRemoteUpload = (id, total, progress) => {
+        // See renderLocalUpload() for why we multiply by 2
+        return <UploadAsset key={id} message="Uploading to YouTube" total={total * 2} progress={progress} />;
+    };
+
+    renderAsset = (asset) => {
+        const processing = _.find(this.state.status, (status) => status.id === asset.id);
+
+        if(processing && processing.status === "processing") {
+            const message = processing.timeLeftMs === 0 ?
+                "YouTube Processing" :
+                `YouTube Processing (${processing.timeLeftMs / 1000}s left)`;
+
+            return <UploadAsset key={asset.id} message={message} total={processing.total} progress={processing.progress} />;
+        } else if(processing && processing.status === "failed") {
+            return <ErrorAsset key={asset.id} message={processing.failure} />;
+        } else {
+            const active = asset.version === this.props.activeVersion;
+            return <VideoAsset key={asset.id} active={active} selectAsset={this.props.selectAsset} {...asset} />;
+        }
+    };
 
     render() {
-        return <VideoSquares {...this.props} />;
+        const blocks = [];
+
+        if(this.props.localUpload.total) {
+            blocks.push(this.renderLocalUpload());
+        }
+
+        this.props.uploads.forEach((upload) => {
+            const total = upload.parts[upload.parts.length - 1].end;
+            const progress = upload.progress.uploadedToS3 + upload.progress.uploadedToYouTube;
+
+            // Don't show other users uploads until they have reached YouTube
+            if(upload.progress.uploadedToS3 === total) {
+                blocks.push(this.renderRemoteUpload(upload.id, total, progress));
+            }
+        });
+
+        blocks.push(...this.props.assets.map(this.renderAsset));
+
+        const content = blocks.length > 0 ? blocks : <ErrorAsset message="No Assets Uploaded" />;
+
+        return <div className="upload__assets">
+            {content}
+        </div>;
     }
 }
