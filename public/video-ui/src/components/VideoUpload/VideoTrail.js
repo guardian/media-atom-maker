@@ -28,6 +28,15 @@ function selector(assetId, version, selectAsset, active) {
     </button>;
 }
 
+function youTubeLink(id) {
+    return <a href={youTubeUrl(id)} title="Open on YouTube" target="_blank" rel="noopener noreferrer">
+        {id}
+        <span icon="open_in_new">
+            <i className="icon">open_in_new</i>
+        </span>
+    </a>;
+}
+
 function ErrorAsset({ message }) {
     return <div className="upload__asset">
         <div className="upload__asset__video upload__asset__empty">
@@ -40,25 +49,21 @@ function VideoAsset({ id, platform, version, active, selectAsset }) {
     return <div className="upload__asset">
         <div className="upload__asset__video">{embed(id, platform)}</div>
         <div className="upload__asset__caption">
-            <a href={youTubeUrl(id)} title="Open on YouTube" target="_blank" rel="noopener noreferrer">
-                {id}
-                <span icon="open_in_new">
-                    <i className="icon">open_in_new</i>
-                </span>
-            </a>
+            {youTubeLink(id)}
             {selector(id, version, selectAsset, active)}
         </div>
     </div>;
 }
 
-function UploadAsset({ message, total, progress }) {
+function UploadAsset({ id, message, total, progress }) {
     return <div className="upload__asset">
         <div className="upload__asset__video upload__asset__running">
             <GuardianLogo />
             <span className="upload__asset__message">{message}</span>
         </div>
         <div className="upload__asset__caption">
-            {progress === undefined ? <progress /> : <progress value={progress} max={total} />}
+            {id ? youTubeLink(id) : false}
+            {progress && total ? <progress value={progress} max={total} /> : false }
         </div>
     </div>;
 }
@@ -127,12 +132,16 @@ export default class VideoTrail extends React.Component {
                 "YouTube Processing" :
                 `YouTube Processing (${processing.timeLeftMs / 1000}s left)`;
 
-            return <UploadAsset key={asset.id} message={message} total={processing.total} progress={processing.progress} />;
+            return <UploadAsset key={asset.id} id={asset.id} message={message} />;
         } else if(processing && processing.status === "failed") {
             return <ErrorAsset key={asset.id} message={processing.failure} />;
         } else {
             const active = asset.version === this.props.activeVersion;
-            const selectAsset = processing && processing.status === "succeeded" ? this.props.selectAsset : null;
+            
+            let selectAsset = null;
+            if(processing && (processing.status === "succeeded" || processing.status === "terminated")) {
+                selectAsset = this.props.selectAsset;
+            }
 
             return <VideoAsset key={asset.id} active={active} selectAsset={selectAsset} {...asset} />;
         }
