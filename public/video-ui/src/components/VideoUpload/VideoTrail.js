@@ -16,6 +16,10 @@ function embed(assetId, platform) {
 }
 
 function selector(assetId, version, selectAsset, active) {
+    if(!selectAsset) {
+        return false;
+    }
+
     const classes = active ? "button__active" : "button__secondary";
     const action = active ? "Active" : "Activate";
 
@@ -128,7 +132,9 @@ export default class VideoTrail extends React.Component {
             return <ErrorAsset key={asset.id} message={processing.failure} />;
         } else {
             const active = asset.version === this.props.activeVersion;
-            return <VideoAsset key={asset.id} active={active} selectAsset={this.props.selectAsset} {...asset} />;
+            const selectAsset = processing && processing.status === "succeeded" ? this.props.selectAsset : null;
+
+            return <VideoAsset key={asset.id} active={active} selectAsset={selectAsset} {...asset} />;
         }
     };
 
