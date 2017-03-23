@@ -71,9 +71,7 @@ class VideoUpload extends React.Component {
     </div>;
   }
 
-  renderButtons() {
-    const uploading = this.props.localUpload.handle !== null;
-
+  renderButtons(uploading) {
     if (uploading) {
       return false;
     } else {
@@ -83,13 +81,11 @@ class VideoUpload extends React.Component {
     }
   }
 
-  renderPicker() {
-    const disabled = this.props.localUpload.handle !== null;
-
+  renderPicker(uploading) {
     return <div className="upload__action">
       <label>Upload Video</label>
-      <input className="form__field" type="file" onChange={this.setFile} disabled={disabled} />
-      {this.renderButtons()}
+      <input className="form__field" type="file" onChange={this.setFile} disabled={uploading} />
+      {this.renderButtons(uploading)}
     </div>;
   }
 
@@ -103,6 +99,8 @@ class VideoUpload extends React.Component {
   }
 
   render() {
+    const uploading = this.props.localUpload.handle !== null || this.props.uploads.length > 0;
+
     const activeVersion = this.props.video ? this.props.video.activeVersion : 0;
     const assets = this.props.video ? this.props.video.assets : [];
 
@@ -123,7 +121,7 @@ class VideoUpload extends React.Component {
       <div className="upload__content">
         <div className="upload__actions">
           {this.renderPlutoProject()}
-          {this.renderPicker()}
+          {this.renderPicker(uploading)}
           <AddAssetFromURL video={this.props.video} createAsset={this.props.videoActions.createAsset} />
         </div>
         <VideoTrail
