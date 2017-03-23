@@ -90,7 +90,7 @@ class VideoUpload extends React.Component {
   }
 
   render() {
-    const uploading = this.props.localUpload.handle !== null || this.props.uploads.length > 0;
+    const uploading = this.props.localUpload.handle !== null;
 
     const activeVersion = this.props.video ? this.props.video.activeVersion : 0;
     const assets = this.props.video ? this.props.video.assets : [];
