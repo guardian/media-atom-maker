@@ -89,15 +89,6 @@ class VideoUpload extends React.Component {
     </div>;
   }
 
-  renderPlutoProject() {
-    return <div className="upload__action">
-      <label>Pluto Project</label>
-      <select className="form__field form__field--select" disabled>
-        <option value="Project">Project</option>
-      </select>
-    </div>;
-  }
-
   render() {
     const uploading = this.props.localUpload.handle !== null || this.props.uploads.length > 0;
 
@@ -120,7 +111,6 @@ class VideoUpload extends React.Component {
       {this.renderHeader()}
       <div className="upload__content">
         <div className="upload__actions">
-          {this.renderPlutoProject()}
           {this.renderPicker(uploading)}
           <AddAssetFromURL video={this.props.video} createAsset={this.props.videoActions.createAsset} />
         </div>
