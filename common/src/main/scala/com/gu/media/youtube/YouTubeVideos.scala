@@ -20,11 +20,15 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
       .getItems.asScala.toList.headOption
   }
 
-  def getProcessingStatus(youtubeId: String): Option[String] =
-    getVideo(youtubeId, "processingDetails") match {
-      case Some(video) => Some(video.getProcessingDetails.getProcessingStatus)
-      case None => None
-    }
+  def getProcessingStatus(videoIds: List[String]): List[YouTubeProcessingStatus] = {
+    val request = client.videos()
+      .list("processingDetails")
+      .setId(videoIds.mkString(","))
+      .setOnBehalfOfContentOwner(contentOwner)
+
+    val items = request.execute().getItems.asScala.toList
+    items.map(convertProcessingStatus)
+  }
 
   def getDuration(youtubeId: String): Option[Long] = {
     getVideo(youtubeId, "contentDetails") match {
@@ -122,6 +126,31 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
         Some(video)
       }
       case _ => None
+    }
+  }
+
+  private def convertProcessingStatus(video: Video): YouTubeProcessingStatus = {
+    val status = video.getProcessingDetails.getProcessingStatus
+    val maybeProgress = Option(video.getProcessingDetails.getProcessingProgress) // may be null
+    val base = YouTubeProcessingStatus(video.getId, status = "", total = 0, processed = 0, timeLeftMs = 0, failure = None)
+
+    (status, maybeProgress) match {
+      case ("processing", Some(progress)) =>
+        base.copy(
+          status = "processing",
+          total = progress.getPartsTotal.longValue(),
+          processed = progress.getPartsProcessed.longValue(),
+          timeLeftMs = progress.getTimeLeftMs.longValue()
+        )
+
+      case ("failed", _) =>
+        base.copy(
+          status = "failed",
+          failure = Some(video.getProcessingDetails.getProcessingFailureReason)
+        )
+
+      case (other, _) =>
+        base.copy(status = other)
     }
   }
 
