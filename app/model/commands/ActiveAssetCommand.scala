@@ -20,7 +20,7 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String, stores: DataSto
 
   def getVideoStatus(youtubeId: String): YoutubeResponse = {
     try {
-      val status = youTube.getProcessingStatus(youtubeId)
+      val status = youTube.getProcessingStatus(List(youtubeId)).headOption.map(_.status)
       new SuccesfulYoutubeResponse(status)
     }
     catch {
