@@ -1,5 +1,4 @@
 import React from 'react';
-import {Link} from 'react-router';
 import VideoAssets from '../VideoAssets/VideoAssets';
 import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../VideoPreview/VideoPreview';

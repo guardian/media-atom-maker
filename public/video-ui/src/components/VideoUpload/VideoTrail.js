@@ -1,5 +1,6 @@
 import React from 'react';
 import {YouTubeEmbed, youTubeUrl} from '../utils/YouTubeEmbed';
+import {GuardianLogo} from '../Icon';
 
 const VIDEO_WIDTH = 320;
 const VIDEO_HEIGHT = 180;
@@ -47,7 +48,8 @@ function VideoAsset({ id, platform, version, active, selectAsset }) {
 function UploadAsset({ message, total, progress }) {
     return <div className="upload__asset">
         <div className="upload__asset__video upload__asset__running">
-            <span>{message}</span>
+            <GuardianLogo />
+            <span className="upload__asset__message">{message}</span>
         </div>
         <div className="upload__asset__caption">
             {progress === undefined ? <progress /> : <progress value={progress} max={total} />}
