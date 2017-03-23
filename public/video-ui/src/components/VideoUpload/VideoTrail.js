@@ -1,6 +1,8 @@
 import React from 'react';
 import {YouTubeEmbed, youTubeUrl} from '../utils/YouTubeEmbed';
 import {GuardianLogo} from '../Icon';
+import {getProcessingStatus} from '../../services/YoutubeApi';
+import _ from 'lodash';
 
 const VIDEO_WIDTH = 320;
 const VIDEO_HEIGHT = 180;
@@ -94,26 +96,45 @@ function VideoSquares({ activeVersion, assets, selectAsset, localUpload, uploads
 
 export default class VideoTrail extends React.Component {
     polling = null;
+    state = { status: [] };
 
     constructor(props) {
         super(props);
-        this.doScheduling(props); 
+        
+        this.polling = setInterval(() => this.pollIfRequired(), 5000);
+        this.enrichWithStatus(props.assets);
     }
 
-    componentWillReceiveProps(props) {
-        this.doScheduling(props);
-    }
-
-    doScheduling(props) {
-        if(this.polling && props.uploads.length === 0) {
-            clearInterval(this.polling);
-            this.polling = null;
-        } else if(!this.polling && props.uploads.length > 0) {
-            this.polling = setInterval(() => {
-                props.getUploads();
-                props.getVideo();
-            }, 5000);
+    componentDidUpdate(prevProps) {
+        if(!_.isEqual(prevProps.assets, this.props.assets)) {
+            this.enrichWithStatus(this.props.assets);
         }
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.polling);
+    }
+
+    pollIfRequired() {
+        if(this.props.uploads.length > 0) {
+            this.props.getUploads();
+            this.props.getVideo();
+        }
+
+        if(_.some(this.state.status, (entry) => entry.status === "processing")) {
+            this.enrichWithStatus(this.props.assets);
+        }
+    }
+
+    enrichWithStatus(assets) {
+        if(assets.length === 0) {
+            return;
+        }
+
+        const ids = assets.map((asset) => asset.id);
+        getProcessingStatus(ids).then((resp) => {
+            this.setState({ status: resp });
+        }); 
     }
 
     render() {
