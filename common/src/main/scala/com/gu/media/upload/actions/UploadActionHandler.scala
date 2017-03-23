@@ -2,7 +2,6 @@ package com.gu.media.upload.actions
 
 import com.amazonaws.services.s3.model.{CompleteMultipartUploadRequest, CopyPartRequest, InitiateMultipartUploadRequest, PartETag}
 import com.gu.media.PlutoDataStore
-import com.gu.media.kinesis.PlutoKinesisSender
 import com.gu.media.logging.Logging
 import com.gu.media.ses.Mailer
 import com.gu.media.upload._
@@ -81,8 +80,7 @@ abstract class UploadActionHandler(store: UploadsDataStore, plutoStore: PlutoDat
         // TODO: work out what to do here? probably need to manually add the asset
 
       case Some(project) =>
-        PlutoKinesisSender.send(project, plutoData.s3Key, plutoData.assetVersion,
-          uploaderAccess.uploadsStreamName, uploaderAccess.kinesisClient)
+        uploaderAccess.sendOnKinesis(uploaderAccess.uploadsStreamName, plutoData.s3Key, plutoData)
 
       case None =>
         val metadata = upload.metadata

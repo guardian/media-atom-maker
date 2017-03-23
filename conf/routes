@@ -21,10 +21,13 @@ GET     /api2/atoms/:id                 controllers.Api2.getMediaAtom(id)
 PUT     /api2/atoms/:id                 controllers.Api2.putMediaAtom(id)
 POST    /api2/atoms/:id/assets          controllers.Api2.addAsset(id)
 
-GET     /api2/atoms/pluto-list          controllers.Api2.getPlutoAtoms()
 PUT     /api2/atom/:id/publish          controllers.Api2.publishMediaAtom(id)
 PUT     /api2/atom/:id/asset-active     controllers.Api2.setActiveAsset(id)
 PUT     /api2/atom/:id/pluto-id         controllers.Api2.setPlutoId(id)
+
+PUT     /api/pluto/:id/send              controllers.Api2.sendToPluto(id)
+GET     /api2/pluto-list                controllers.Api2.getPlutoAtoms()
+
 
 DELETE  /api2/atom/:id                  controllers.Api2.deleteAtom(id)
 
@@ -42,8 +45,6 @@ GET     /api/youtube/channels           controllers.Youtube.listChannels()
 
 GET     /api/transcoder/jobStatus       controllers.Transcoder.jobStatus
 
-GET     /api/pluto                      controllers.Api2.getPlutoAtoms()
-PUT     /api/pluto/:id/send             controllers.Api2.sendToPluto(id)
 
 
 # reindex

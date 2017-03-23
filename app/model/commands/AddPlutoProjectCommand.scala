@@ -1,7 +1,6 @@
 package model.commands
 
 import com.gu.media.logging.Logging
-import com.gu.media.kinesis.PlutoKinesisSender
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.MediaAtom
@@ -19,7 +18,7 @@ class AddPlutoProjectCommand(atomId: String, plutoId: String, override val store
       val updatedAtom = new SetPlutoIdCommand(atomId, plutoId, stores, user).process()
 
       plutoDataStore.getUploadsWithAtomId(atomId).map(upload =>
-        PlutoKinesisSender.send(plutoId, upload.s3Key, upload.assetVersion, awsConfig.uploadsStreamName, awsConfig.kinesisClient)
+        awsConfig.sendOnKinesis(awsConfig.uploadsStreamName, upload.s3Key, upload)
       )
 
       updatedAtom

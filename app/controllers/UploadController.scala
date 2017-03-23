@@ -1,7 +1,6 @@
 package controllers
 
 import java.util.UUID
-import com.gu.media.ses.Mailer
 import com.gu.media.logging.Logging
 import com.gu.media.upload._
 import com.gu.media.upload.actions.{CopyParts, DeleteParts, UploadActionSender, UploadPartToYouTube}
