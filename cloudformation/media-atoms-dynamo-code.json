@@ -20,6 +20,11 @@
           "Description": "Code upload dynamo table",
           "Type": "String",
           "Default": "upload-tracking-media-atom-maker-CODE"
+        },
+        "ManualPlutoAtomMakerCodeTable": {
+          "Description": "Code manual pluto dynamo table",
+          "Type": "String",
+          "Default": "manual-pluto-media-atom-maker-CODE"
         }
     },
     "Resources": {
@@ -139,6 +144,48 @@
                 "KeyType": "HASH"
               }
             ],
+            "ProvisionedThroughput": {
+              "ReadCapacityUnits": "5",
+              "WriteCapacityUnits": "5"
+            }
+          }
+        },
+        "ManualPlutoMediaAtomMakerCode": {
+          "Type": "AWS::DynamoDB::Table",
+          "Properties": {
+            "TableName": { "Ref": "ManualPlutoAtomMakerCodeTable" },
+            "AttributeDefinitions": [
+              {
+                "AttributeName": "s3Key",
+                "AttributeType": "S"
+              },
+              {
+                "AttributeName": "atomId",
+                "AttributeType": "S"
+              }
+            ],
+            "KeySchema": [
+              {
+                "AttributeName": "s3Key",
+                "KeyType": "HASH"
+              }
+            ],
+            "GlobalSecondaryIndexes": [{
+              "IndexName": "atom-id",
+              "KeySchema": [
+                {
+                  "AttributeName": "atomId",
+                  "KeyType": "HASH"
+                }
+              ],
+              "Projection": {
+                "ProjectionType": "ALL"
+              },
+              "ProvisionedThroughput" : {
+                "ReadCapacityUnits" : "1",
+                "WriteCapacityUnits" : "1"
+              }
+            }],
             "ProvisionedThroughput": {
               "ReadCapacityUnits": "5",
               "WriteCapacityUnits": "5"
