@@ -1,22 +1,25 @@
 package util
 
 import data.UnpackedDataStores
-import akka.actor.Scheduler
+import akka.actor.{ActorSystem, Scheduler}
 import scala.annotation.tailrec
 import scala.concurrent.duration._
-import play.api.libs.json._
 import com.amazonaws.services.sqs.model.{DeleteMessageRequest, ReceiveMessageRequest, Message}
 import scala.concurrent.ExecutionContext
-import scala.collection.JavaConversions._
 import com.gu.media.logging.Logging
 import data.DataStores
+import scala.collection.JavaConverters._
+import play.api.libs.json._
 
 case class PlutoMessageConsumer(val stores: DataStores, awsConfig: AWSConfig)
   extends UnpackedDataStores with Logging {
 
+  val actorSystem = ActorSystem("PlutoMessageConsumer")
+
+
   def start(scheduler: Scheduler)(implicit ec: ExecutionContext): Unit = {
-    log.info("Starting uploads sqs queue reader")
-    scheduler.scheduleOnce(0.seconds)(processMessages())
+    log.info(s"Starting uploads sqs queue reader for queue ${awsConfig.plutoQueueUrl}")
+    actorSystem.scheduler.scheduleOnce(0.seconds)(processMessages())
 
   }
 
@@ -39,20 +42,19 @@ case class PlutoMessageConsumer(val stores: DataStores, awsConfig: AWSConfig)
       new ReceiveMessageRequest(awsConfig.plutoQueueUrl)
         .withWaitTimeSeconds(waitTime)
         .withMaxNumberOfMessages(maxMessages)
-    ).getMessages.toList
+    ).getMessages.asScala.toList
 
   private def handleMessage(msg: Message): Unit = {
 
-    val body = Json.parse(msg.getBody)
+    val bodyJson = Json.parse(msg.getBody)
 
-    (body \ "Message") match {
-      case JsDefined(message) => {
-        val messageString = message.toString
-        val s3Key = messageString.substring(1, messageString.length - 1)
-        awsConfig.s3Client.deleteObject(awsConfig.userUploadBucket, s3Key)
+    (bodyJson \ "Message").validate[PlutoMessage] match {
+      case JsSuccess(plutoMessage, _) => {
 
-        stores.pluto.get(s3Key) match {
-          case Some(upload) => stores.pluto.delete(s3Key)
+        awsConfig.s3Client.deleteObject(awsConfig.userUploadBucket, plutoMessage.s3Key)
+
+        stores.pluto.get(plutoMessage.s3Key) match {
+          case Some(upload) => stores.pluto.delete(plutoMessage.s3Key)
           case _ =>
         }
 
@@ -60,4 +62,20 @@ case class PlutoMessageConsumer(val stores: DataStores, awsConfig: AWSConfig)
       case undefined => log.error(s"Could not extract a message body from message ${msg.getReceiptHandle()}")
     }
   }
+}
+
+
+case class PlutoMessage(s3Key: String)
+
+
+object PlutoMessage {
+
+  // Because Pluto Message only has a single field, we cannot use the usual pattern
+  // for transforming json because the code does not compile:
+  // http://stackoverflow.com/questions/40679540/overloaded-method-value-read-cannot-be-applied-to-string-searchcontroller
+
+  implicit val plutoMessageReads: Reads[PlutoMessage] = (
+    ((__ ).read[String])
+      .map(PlutoMessage(_))
+    )
 }
