@@ -37,7 +37,6 @@ object Dependencies {
   val awsTranscoder = "com.amazonaws" % "aws-java-sdk-elastictranscoder" % awsVersion
   val awsSNS = "com.amazonaws" % "aws-java-sdk-sns" % awsVersion
   val awsSQS = "com.amazonaws" % "aws-java-sdk-sqs" % awsVersion
-  val awsKinesisClient = "com.amazonaws" % "amazon-kinesis-client" % kinesisClientVersion
   val aws = "com.amazonaws" % "aws-java-sdk" % awsVersion
 
   val logstashLogbackEncoder = "net.logstash.logback" % "logstash-logback-encoder" % "4.8"
@@ -72,7 +71,7 @@ object Dependencies {
 
   val commonDependencies = googleApi ++ Seq(
     typesafeConfig, awsLambdaCore, awsS3, awsDynamo, playJsonExtensions, logstashLogbackEncoder, kinesisLogbackAppender,
-    awsTranscoder, scanamo, okHttp, scalaTest, scalaCheck, awsKinesisClient, awsSQS, awsSNS, aws
+    awsTranscoder, scanamo, okHttp, scalaTest, scalaCheck, awsSQS, awsSNS, aws
   )
 
   val appDependencies = panda ++ atomMaker ++ slf4j ++ Seq(
