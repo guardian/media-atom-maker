@@ -4,7 +4,6 @@ import com.amazonaws.auth.InstanceProfileCredentialsProvider
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.services.ec2.AmazonEC2Client
 import com.amazonaws.services.ec2.model.{DescribeTagsRequest, Filter}
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient
 import com.amazonaws.util.EC2MetadataUtils
 import com.gu.media.Settings
 import com.gu.media.aws._
@@ -31,10 +30,6 @@ class AWSConfig(override val config: Config)
     credsProvider,
     null
   )
-
-
-  lazy val sesClient = region.createClient(classOf[AmazonSimpleEmailServiceClient],
-    credsProvider, null)
 
   lazy val composerUrl = getMandatoryString("flexible.url")
   lazy val viewerUrl = getMandatoryString("viewer.url")
