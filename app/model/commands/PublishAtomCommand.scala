@@ -33,7 +33,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
       AtomPublishFailed("Atom status set to private")
     }
 
-    val updatedAtom = getActiveAsset(atom) match {
+    getActiveAsset(atom) match {
       case Some(asset) if asset.platform == Youtube =>
         val withDuration = atom.copy(duration = youTube.getDuration(asset.id))
 
@@ -44,9 +44,6 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
       case _ =>
         publish(atom, user)
     }
-
-    setAssetsToPrivate(updatedAtom)
-    updatedAtom
   }
 
   private def publish(atom: MediaAtom, user: PandaUser): MediaAtom = {
@@ -65,7 +62,10 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
     auditDataStore.auditPublish(id, user)
     UpdateAtomCommand(id, updatedAtom, stores, user).process()
 
-    publishAtomToLive(updatedAtom)
+    val publishedAtom = publishAtomToLive(updatedAtom)
+    setAssetsToPrivate(publishedAtom)
+
+    publishedAtom
   }
 
   private def publishAtomToLive(mediaAtom: MediaAtom): MediaAtom = {
