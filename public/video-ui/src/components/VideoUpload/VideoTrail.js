@@ -33,7 +33,7 @@ function youTubeLink(id) {
       <span className="grid__item__title__assets">{id}</span>
       <a href={youTubeUrl(id)} icon="open_in_new">
             <i className="icon__edit"></i>
-        </a>
+        </a></i>
         </div>;
 }
 
