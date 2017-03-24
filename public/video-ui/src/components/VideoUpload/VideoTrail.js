@@ -29,26 +29,29 @@ function selector(assetId, version, selectAsset, active) {
 }
 
 function youTubeLink(id) {
-    return <a href={youTubeUrl(id)} title="Open on YouTube" target="_blank" rel="noopener noreferrer">
-        {id}
-        <span icon="open_in_new">
-            <i className="icon">open_in_new</i>
-        </span>
-    </a>;
+    return <div>
+      <span className="grid__item__title__assets">{id}</span>
+      <a href={youTubeUrl(id)} icon="open_in_new">
+            <i className="icon__edit"></i>
+        </a>
+        </div>;
 }
 
 function ErrorAsset({ message }) {
-    return <div className="upload__asset">
+    return <div className="grid__item">
         <div className="upload__asset__video upload__asset__empty">
-            <span>{message}</span>    
+            <span>{message}</span>
         </div>
     </div>;
 }
 
 function VideoAsset({ id, platform, version, active, selectAsset }) {
-    return <div className="upload__asset">
+    return <div className="grid__item">
         <div className="upload__asset__video">{embed(id, platform)}</div>
-        <div className="upload__asset__caption">
+          <div className="grid__status__overlay">
+            <span className="publish__label label__live label__frontpage__overlay">{id}</span>
+          </div>
+        <div className="grid__item__footer">
             {youTubeLink(id)}
             {selector(id, version, selectAsset, active)}
         </div>
@@ -56,12 +59,12 @@ function VideoAsset({ id, platform, version, active, selectAsset }) {
 }
 
 function UploadAsset({ id, message, total, progress }) {
-    return <div className="upload__asset">
+    return <div className="grid__item">
         <div className="upload__asset__video upload__asset__running">
-            <GuardianLogo />
             <span className="upload__asset__message">{message}</span>
+            <span className="loader"></span>
         </div>
-        <div className="upload__asset__caption">
+        <div className="grid__item__footer">
             {id ? youTubeLink(id) : false}
             {progress && total ? <progress value={progress} max={total} /> : false }
         </div>
@@ -74,7 +77,7 @@ export default class VideoTrail extends React.Component {
 
     constructor(props) {
         super(props);
-        
+
         this.polling = setInterval(() => this.pollIfRequired(), 5000);
         this.enrichWithStatus(props.assets);
     }
@@ -108,7 +111,7 @@ export default class VideoTrail extends React.Component {
         const ids = assets.map((asset) => asset.id);
         getProcessingStatus(ids).then((resp) => {
             this.setState({ status: resp });
-        }); 
+        });
     };
 
     renderLocalUpload = () => {
@@ -137,7 +140,7 @@ export default class VideoTrail extends React.Component {
             return <ErrorAsset key={asset.id} message={processing.failure} />;
         } else {
             const active = asset.version === this.props.activeVersion;
-            
+
             let selectAsset = null;
             if(processing && (processing.status === "succeeded" || processing.status === "terminated")) {
                 selectAsset = this.props.selectAsset;
@@ -149,6 +152,8 @@ export default class VideoTrail extends React.Component {
 
     render() {
         const blocks = [];
+
+        // blocks.push(<UploadAsset key={"chris"} message="Uploading to YouTube" total={10} progress={5} />);
 
         if(this.props.localUpload.total) {
             blocks.push(this.renderLocalUpload());
@@ -168,8 +173,15 @@ export default class VideoTrail extends React.Component {
 
         const content = blocks.length > 0 ? blocks : <ErrorAsset message="No Assets Uploaded" />;
 
-        return <div className="upload__assets">
+      return <div className="video__detail__page__trail">
+          <div className="video__detailbox__header__container">
+            <header className="video__detailbox__header">Video trail</header>
+          </div>
+          <div className="grid">
+            <div className="grid__list">
             {content}
+          </div>
+          </div>
         </div>;
     }
 }

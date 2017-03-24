@@ -13,6 +13,10 @@ button {
 
 .button__secondary {
   @include buttonClass($color800Grey, $color500Grey, $color300Grey);
+
+  &__assets {
+    margin: 10px;
+  }
 }
 
 .button__active {
