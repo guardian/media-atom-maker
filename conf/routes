@@ -25,8 +25,8 @@ PUT     /api2/atom/:id/publish          controllers.Api2.publishMediaAtom(id)
 PUT     /api2/atom/:id/asset-active     controllers.Api2.setActiveAsset(id)
 PUT     /api2/atom/:id/pluto-id         controllers.Api2.setPlutoId(id)
 
-PUT     /api/pluto/:id/send              controllers.Api2.sendToPluto(id)
-GET     /api2/pluto-list                controllers.Api2.getPlutoAtoms()
+PUT     /api2/pluto/:id                 controllers.Api2.sendToPluto(id)
+GET     /api2/pluto                     controllers.Api2.getPlutoAtoms()
 
 
 DELETE  /api2/atom/:id                  controllers.Api2.deleteAtom(id)
