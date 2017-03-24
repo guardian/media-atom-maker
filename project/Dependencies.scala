@@ -41,6 +41,8 @@ object Dependencies {
   val logstashLogbackEncoder = "net.logstash.logback" % "logstash-logback-encoder" % "4.8"
   val kinesisLogbackAppender = "com.gu" % "kinesis-logback-appender" % "1.3.0"
 
+  val permissionsClient = "com.gu" %% "editorial-permissions-client" % "0.2"
+
   val pandaHmacHeaders = "com.gu" %% "hmac-headers" % "1.1"
 
   val panda = Seq(
@@ -70,7 +72,7 @@ object Dependencies {
 
   val commonDependencies = googleApi ++ Seq(
     typesafeConfig, awsLambdaCore, awsS3, awsDynamo, playJsonExtensions, logstashLogbackEncoder, kinesisLogbackAppender,
-    awsTranscoder, scanamo, okHttp, scalaTest, scalaCheck, awsSQS, awsSNS, aws
+    awsTranscoder, scanamo, okHttp, scalaTest, scalaCheck, awsSQS, awsSNS, aws, permissionsClient
   )
 
   val appDependencies = panda ++ atomMaker ++ slf4j ++ Seq(

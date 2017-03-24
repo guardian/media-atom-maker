@@ -14,7 +14,8 @@ case class ClientConfig(username: String,
                         composerUrl: String,
                         ravenUrl: String,
                         stage: String,
-                        viewerUrl: String
+                        viewerUrl: String,
+                        showAssetsPageButton: Boolean
                        )
 
 object ClientConfig {

@@ -1,17 +1,19 @@
 package controllers
 
 
+import com.gu.media.Permissions
 import com.gu.pandahmac.HMACAuthActions
 import model.ClientConfig
 import play.api.Configuration
 import play.api.libs.json.Json
 import play.api.mvc.Controller
+import play.api.libs.concurrent.Execution.Implicits._
 import util.AWSConfig
 
 class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfig: AWSConfig) extends Controller {
   import authActions.AuthAction
 
-  def index(id: String = "") = AuthAction { req =>
+  def index(id: String = "") = AuthAction.async { req =>
 
     val jsFileName = "video-ui/build/app.js"
 
@@ -22,20 +24,23 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
 
     val composerUrl = awsConfig.composerUrl
 
-    val clientConfig = ClientConfig(
-      username = req.user.email,
-      youtubeEmbedUrl = "https://www.youtube.com/embed/",
-      youtubeThumbnailUrl = "https://img.youtube.com/vi/",
-      reauthUrl = "/reauth",
-      gridUrl = awsConfig.gridUrl,
-      capiProxyUrl = "/support/previewCapi",
-      composerUrl = composerUrl,
-      ravenUrl = conf.getString("raven.url").get,
-      stage = conf.getString("stage").get,
-      viewerUrl = awsConfig.viewerUrl
-    )
+    Permissions.forUser(req.user.email).map { permissions =>
+      val clientConfig = ClientConfig(
+        username = req.user.email,
+        youtubeEmbedUrl = "https://www.youtube.com/embed/",
+        youtubeThumbnailUrl = "https://img.youtube.com/vi/",
+        reauthUrl = "/reauth",
+        gridUrl = awsConfig.gridUrl,
+        capiProxyUrl = "/support/previewCapi",
+        composerUrl = composerUrl,
+        ravenUrl = conf.getString("raven.url").get,
+        stage = conf.getString("stage").get,
+        viewerUrl = awsConfig.viewerUrl,
+        showAssetsPageButton = permissions.directUpload
+      )
 
-    Ok(views.html.VideoUIApp.app("Media Atom Maker", jsLocation, Json.toJson(clientConfig).toString()))
+      Ok(views.html.VideoUIApp.app("Media Atom Maker", jsLocation, Json.toJson(clientConfig).toString()))
+    }
   }
 
   def reauth = AuthAction {

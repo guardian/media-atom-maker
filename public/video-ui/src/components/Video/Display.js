@@ -1,4 +1,5 @@
 import React from 'react';
+import {Link} from 'react-router';
 import VideoAssets from '../VideoAssets/VideoAssets';
 import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../VideoPreview/VideoPreview';
@@ -135,6 +136,23 @@ class VideoDisplay extends React.Component {
     }
   }
 
+  renderPreview = () => {
+    let link = false;
+    if(this.props.video && getStore().getState().config.showAssetsPageButton) {
+      link = <Link className="button" to={`/videos/${this.props.video.id}/upload`}>
+        <Icon className="icon__edit" icon="edit"/>
+      </Link>;
+    }
+
+    return <div className="video__detailbox">
+      <div className="video__detailbox__header__container">
+        <header className="video__detailbox__header">Video Asset</header>
+        {link}
+      </div>
+      <VideoPreview video={this.props.video || {}} />
+    </div>;
+  };
+
   render() {
     const video = this.props.video && this.props.params.id === this.props.video.id ? this.props.video : undefined;
 
@@ -149,12 +167,7 @@ class VideoDisplay extends React.Component {
         <div className="video">
           <div className="video__main">
             <div className="video__main__header">
-              <div className="video__detailbox">
-                <div className="video__detailbox__header__container">
-                  <header className="video__detailbox__header">Video Asset</header>
-                </div>
-                <VideoPreview video={this.props.video || {}} />
-              </div>
+              {this.renderPreview()}
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
                   <header className="video__detailbox__header">Video Meta Data</header>
