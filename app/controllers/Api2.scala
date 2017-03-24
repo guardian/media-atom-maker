@@ -24,10 +24,10 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
 
   import authActions.APIHMACAuthAction
 
-  def getMediaAtoms = APIHMACAuthAction {
+  def getMediaAtoms(limit: Option[Int]) = APIHMACAuthAction {
     def created(atom: MediaAtom) = atom.contentChangeDetails.created.map(_.date.getMillis)
 
-    previewDataStore.listAtoms.fold(
+    previewDataStore.listAtoms(limit).fold(
       err =>   InternalServerError(jsonError(err.msg)),
       atoms => {
         // TODO add `Hosted` category.
