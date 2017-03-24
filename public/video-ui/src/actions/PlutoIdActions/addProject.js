@@ -2,14 +2,14 @@ import PlutoVideosApi from '../../services/PlutoVideosApi';
 
 function requestAddProject() {
   return {
-    type:       'ADD_PROJECT_GET_REQUEST',
+    type:       'ADD_PROJECT_REQUEST',
     receivedAt: Date.now()
   };
 }
 
 function receiveAddProject(videoId) {
   return {
-    type:       'ADD_PROJECT_GET_RECEIVE',
+    type:       'ADD_PROJECT_RECEIVE',
     videoId:    videoId,
     receivedAt: Date.now()
   };
