@@ -169,7 +169,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
           }
         }
       } else acc
-    }).map(keyval => keyval._2)
+    }).values
     Ok(Json.toJson(uploadsWithoutPlutoId))
   }
 
