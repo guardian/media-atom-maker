@@ -4,9 +4,9 @@ import {getStore} from '../util/storeAccessor';
 
 export default {
 
-  fetchVideos: () => {
+  fetchVideos: (limit) => {
     return pandaReqwest({
-      url: '/api2/atoms',
+      url: `/api2/atoms?limit=${limit}`,
       method: 'get'
     });
   },

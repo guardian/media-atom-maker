@@ -1,9 +1,10 @@
 import VideosApi from '../../services/VideosApi';
 import ContentApi from '../../services/capi';
 
-function requestVideos() {
+function requestVideos(limit) {
   return {
     type:       'VIDEOS_GET_REQUEST',
+    limit:      limit,
     receivedAt: Date.now()
   };
 }
@@ -40,10 +41,10 @@ function errorReceivingVideos(error) {
   };
 }
 
-export function getVideos() {
+export function getVideos(limit) {
   return dispatch => {
-    dispatch(requestVideos());
-    return VideosApi.fetchVideos()
+    dispatch(requestVideos(limit));
+    return VideosApi.fetchVideos(limit)
       .then(res => {
         dispatch(receiveVideos(res));
       })

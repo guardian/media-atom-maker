@@ -8,7 +8,7 @@ class Videos extends React.Component {
   };
 
   componentDidMount() {
-    this.props.videoActions.getVideos();
+    this.props.videoActions.getVideos(this.props.limit);
   }
 
   componentWillReceiveProps(newProps) {
@@ -18,7 +18,7 @@ class Videos extends React.Component {
     if (oldSearch !== newSearch && newSearch !== "") {
       this.props.videoActions.searchVideosWithQuery(newSearch);
     } else if (newSearch === "" && oldSearch !== "") {
-      this.props.videoActions.getVideos();
+      this.props.videoActions.getVideos(this.props.limit);
     }
   }
 
@@ -37,12 +37,27 @@ class Videos extends React.Component {
     return (this.props.videos.map((video) => <VideoItem key={video.id} video={video} />));
   }
 
+  renderMoreLink() {
+    if(this.props.limit === -1) {
+      return false;
+    }
+
+    const showMore = () => {
+      this.props.videoActions.getVideos(this.props.limit + 2);
+    };
+
+    return <div>
+      <button className="btn video__load_more" onClick={showMore}>Load More</button>
+    </div>;
+  }
+
   render() {
     return (
         <div>
           <div className="grid">
             {this.renderList()}
           </div>
+          {this.renderMoreLink()}
         </div>
     );
   }
@@ -56,7 +71,8 @@ import * as getVideos from '../../actions/VideoActions/getVideos';
 
 function mapStateToProps(state) {
   return {
-    videos: state.videos,
+    videos: state.videos.entries,
+    limit: state.videos.limit,
     searchTerm: state.searchTerm
   };
 }
