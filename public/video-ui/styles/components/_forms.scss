@@ -224,11 +224,15 @@ textarea {
 progress {
   -webkit-appearance: none;
   -moz-appearance: none;
-  background-color: $color600Grey;
+  background-color: $darkBrandColor;
 }
 
 progress::-webkit-progress-value {
   background-color: $darkBrandColor;
+}
+
+progress::-webkit-progress-bar {
+  background-color: $color900Grey;
 }
 
 progress::-moz-progress-bar {
