@@ -63,7 +63,6 @@ trait UnpackedDataStores {
   val previewDataStore: PreviewDataStore = stores.preview
   val publishedDataStore: PublishedDataStore = stores.published
   val auditDataStore: AuditDataStore = stores.audit
-  val plutoDataStore: PlutoDataStore = stores.pluto
 
   val previewPublisher: PreviewAtomPublisher = stores.previewPublisher
   val livePublisher: LiveAtomPublisher = stores.livePublisher

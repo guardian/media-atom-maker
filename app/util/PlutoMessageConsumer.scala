@@ -51,8 +51,8 @@ case class PlutoMessageConsumer(val stores: DataStores, awsConfig: AWSConfig)
         val s3Key = messageString.substring(1, messageString.length - 1)
         awsConfig.s3Client.deleteObject(awsConfig.userUploadBucket, s3Key)
 
-        plutoDataStore.get(s3Key) match {
-          case Some(upload) => plutoDataStore.delete(s3Key)
+        stores.pluto.get(s3Key) match {
+          case Some(upload) => stores.pluto.delete(s3Key)
           case _ =>
         }
 

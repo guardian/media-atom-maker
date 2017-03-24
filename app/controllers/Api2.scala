@@ -151,7 +151,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
 
   def getPlutoAtoms = APIHMACAuthAction {  implicit req =>
 
-    val unprocessedAssetResponses: List[PlutoSyncMetadata] = plutoDataStore.list()
+    val unprocessedAssetResponses: List[PlutoSyncMetadata] = stores.pluto.list()
 
     val uploadsWithoutPlutoId = unprocessedAssetResponses.foldRight(Map[String, MediaAtom]())((upload, acc) => {
       if (!acc.contains(upload.atomId)) {
