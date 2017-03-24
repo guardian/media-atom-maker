@@ -1,6 +1,6 @@
 import React from 'react';
 import {YouTubeEmbed, youTubeUrl} from '../utils/YouTubeEmbed';
-import {GuardianLogo} from '../Icon';
+import Icon from '../Icon';
 import {getProcessingStatus} from '../../services/YoutubeApi';
 import _ from 'lodash';
 
@@ -23,18 +23,17 @@ function selector(assetId, version, selectAsset, active) {
     const classes = active ? "button__active" : "button__secondary";
     const action = active ? "Active" : "Activate";
 
-    return <button className={classes} disabled={active} onClick={() => selectAsset(assetId, version)}>
-        {action}
-    </button>;
+    return ;
+    // <button className={classes} disabled={active} onClick={() => selectAsset(assetId, version)}>
+    //     {action}
+    // </button>;
 }
 
 function youTubeLink(id) {
-    return <div>
-      <span className="grid__item__title__assets">{id}</span>
-      <a href={youTubeUrl(id)} icon="open_in_new">
-            <i className="icon__edit"></i>
-        </a></i>
-        </div>;
+    return <div className="grid__item__footer">
+      <span className="grid__item__title grid__item__title__assets">Video ID: {id}</span>
+      <a href={youTubeUrl(id)}><Icon icon="open_in_new" className="icon__assets"></Icon></a>
+      </div>;
 }
 
 function ErrorAsset({ message }) {
@@ -47,7 +46,7 @@ function ErrorAsset({ message }) {
 
 function VideoAsset({ id, platform, version, active, selectAsset }) {
     return <div className="grid__item">
-        <div className="upload__asset__video">{embed(id, platform)}</div>
+        <div className="upload__asset__video">{embed(id, platform, active)}</div>
           <div className="grid__status__overlay">
             <span className="publish__label label__live label__frontpage__overlay">{id}</span>
           </div>
@@ -61,12 +60,12 @@ function VideoAsset({ id, platform, version, active, selectAsset }) {
 function UploadAsset({ id, message, total, progress }) {
     return <div className="grid__item">
         <div className="upload__asset__video upload__asset__running">
-            <span className="upload__asset__message">{message}</span>
             <span className="loader"></span>
+            {progress && total ? <progress className="progress" value={progress} max={total} /> : false }
         </div>
         <div className="grid__item__footer">
+          <span className="grid__item__title">{message}</span>
             {id ? youTubeLink(id) : false}
-            {progress && total ? <progress value={progress} max={total} /> : false }
         </div>
     </div>;
 }
@@ -153,7 +152,7 @@ export default class VideoTrail extends React.Component {
     render() {
         const blocks = [];
 
-        // blocks.push(<UploadAsset key={"chris"} message="Uploading to YouTube" total={10} progress={5} />);
+        blocks.push(<UploadAsset key={"chris"} message="Uploading to YouTube" total={10} progress={3} />);
 
         if(this.props.localUpload.total) {
             blocks.push(this.renderLocalUpload());

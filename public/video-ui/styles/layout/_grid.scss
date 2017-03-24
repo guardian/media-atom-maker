@@ -12,8 +12,6 @@
 .grid__list {
   list-style: none;
   padding: 0 20px;
-
-  text-align: center;
 }
 
 .grid__item {
@@ -87,7 +85,8 @@
   overflow: hidden;
 
   &__assets {
-
+    width: 70%;
+    display: inline-flex;
   }
 }
 

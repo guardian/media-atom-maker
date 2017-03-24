@@ -28,7 +28,8 @@
 }
 
 .icon__done,
-.icon__edit {
+.icon__edit,
+.icon__assets {
   background-color: $color600Grey;
   width: 25px;
   height: 25px;
@@ -38,7 +39,14 @@
   align-items: center;
 }
 
-.icon__edit {
+.icon__assets {
+  position: absolute;
+  right: 10px;
+  top: 8px;
+}
+
+.icon__edit,
+.icon__assets {
   background-color: $color600Grey;
   color: $color300Grey;
   &:hover {

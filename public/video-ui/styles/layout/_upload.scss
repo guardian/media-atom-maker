@@ -71,8 +71,6 @@
 
     &__running {
       background-color: $color900Grey;
-      text-align: center;
-      padding-top: -30px;
 
       span {
         position: absolute;
@@ -98,12 +96,6 @@
     }
   }
 
-  progress {
-    width: 100%;
-    height: 15px;
-    margin: 0 10px;
-  }
-
   label {
     display: block;
     font-weight: bold;
@@ -120,7 +112,6 @@
     width: 40px;
     height: 40px;
     animation: spin 2s linear infinite;
-    margin-top: 40px;
 }
 
 @keyframes spin {
