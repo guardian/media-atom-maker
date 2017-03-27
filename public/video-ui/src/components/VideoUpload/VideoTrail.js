@@ -23,10 +23,9 @@ function selector(assetId, version, selectAsset, active) {
     const classes = active ? "button__active" : "button__secondary";
     const action = active ? "Active" : "Activate";
 
-    return ;
-    // <button className={classes} disabled={active} onClick={() => selectAsset(assetId, version)}>
-    //     {action}
-    // </button>;
+    return <button className={classes} disabled={active} onClick={() => selectAsset(assetId, version)}>
+        {action}
+    </button>;
 }
 
 function youTubeLink(id) {
@@ -46,9 +45,9 @@ function ErrorAsset({ message }) {
 
 function VideoAsset({ id, platform, version, active, selectAsset }) {
     return <div className="grid__item">
-        <div className="upload__asset__video">{embed(id, platform, active)}</div>
+        <div className="upload__asset__video">{embed(id, platform)}</div>
           <div className="grid__status__overlay">
-            <span className="publish__label label__live label__frontpage__overlay">{id}</span>
+            <span className="publish__label label__live label__frontpage__overlay">{active}</span>
           </div>
         <div className="grid__item__footer">
             {youTubeLink(id)}
