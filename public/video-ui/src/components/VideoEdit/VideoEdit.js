@@ -8,6 +8,7 @@ import FormDatePicker from '../FormFields/FormDatePicker';
 import {fieldLengths} from '../../constants/videoEditValidation';
 import {videoCategories} from '../../constants/videoCategories';
 import { privacyStates } from '../../constants/privacyStates';
+import FormImageSelector from '../FormFields/FormImageSelector';
 
 class VideoEdit extends React.Component {
 
@@ -53,6 +54,11 @@ class VideoEdit extends React.Component {
             name="Category"
           >
             <FormSelectBox selectValues={videoCategories}></FormSelectBox>
+          </ManagedField>
+          <ManagedField
+            fieldLocation="posterImage"
+            name="Poster Image">
+            <FormImageSelector/>
           </ManagedField>
           <ManagedField
             fieldLocation="youtubeCategoryId"

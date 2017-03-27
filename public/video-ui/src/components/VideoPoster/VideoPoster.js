@@ -1,23 +1,25 @@
 import React from 'react';
-import { Field, reduxForm } from 'redux-form';
 import VideoPosterEdit from '../VideoEdit/formComponents/VideoPoster';
 import validate from '../../constants/posterEditValidation';
+import {ManagedForm, ManagedField} from '../ManagedForm';
+import FormImageSelector from '../FormFields/FormImageSelector';
 
-const PosterEdit = (props) => {
+export default class VideoPoster extends React.Component {
 
-  return (
-    <Field
-      name="posterImage"
-      component={VideoPosterEdit}
-      video={props.video || {}}
-      updateVideo={props.updateVideo}
-      editable={props.editable}
-      editMode={true}
-    />
-  );
+  render () {
+    return (
+      <ManagedForm
+        data={this.props.video}
+        updateData={this.props.updateVideo}
+        editable={this.props.editable}
+      >
+        <ManagedField
+          fieldLocation="posterImage"
+          name=""
+        >
+          <FormImageSelector editMode={true}/>
+        </ManagedField>
+      </ManagedForm>
+    );
+  }
 };
-
-export default reduxForm({
-    form: 'PosterEdit',
-    validate
-})(PosterEdit);

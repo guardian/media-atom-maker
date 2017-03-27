@@ -14,11 +14,7 @@ export default class GridEmbedder extends React.Component {
 
       const image = parseImageFromGridCrop(cropData);
 
-      const newData = Object.assign({}, this.props.video, {
-        posterImage: image
-      });
-
-      this.props.updateVideo(newData);
+      this.props.updateVideo(image);
     };
 
     toggleModal = () => {
@@ -65,12 +61,8 @@ export default class GridEmbedder extends React.Component {
         this.onUpdatePosterImage(data.crop.data);
     }
 
-    pickerIsDisabled = () => {
-      return this.props.editState.metadataEditable || this.props.editState.youtubeEditable;
-    }
-
     render() {
-      if(this.props.createMode && this.props.video.posterImage){
+      if(this.props.createMode && this.props.fieldValue){
         return (
             <div className="gridembedder">
                 <div className="gridembedder__button" onClick={this.toggleModal}>
@@ -102,8 +94,8 @@ export default class GridEmbedder extends React.Component {
       } else {
         return (
             <div className="gridembedder">
-                <button disabled={this.pickerIsDisabled()} onClick={this.toggleModal}>
-                  <Icon icon="add_to_photos" className={"icon__edit " + (this.pickerIsDisabled() ? "disabled" : "")}/>
+                <button disabled={this.props.disabled} onClick={this.toggleModal}>
+                  <Icon icon="add_to_photos" className={"icon__edit " + (this.props.disabled ? "disabled" : "")}/>
                 </button>
 
                 <Modal isOpen={this.state.modalOpen} dismiss={this.closeModal}>

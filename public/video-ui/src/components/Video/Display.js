@@ -27,6 +27,14 @@ class VideoDisplay extends React.Component {
     this.props.videoActions.saveVideo(this.props.video);
   }
 
+  saveAndUpdateVideoPoster = (poster) => {
+    const newVideo = Object.assign({}, this.props.video, {
+      posterImage: poster
+    });
+    this.saveAndUpdateVideo(newVideo);
+
+  }
+
   saveAndUpdateVideo = (video) => {
     this.props.videoActions.saveVideo(video);
   };
@@ -179,7 +187,13 @@ class VideoDisplay extends React.Component {
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
                   <header className="video__detailbox__header">Poster Image</header>
-                  <GridImageSelect editState={this.props.editState} video={this.props.video || {}} updateVideo={this.saveAndUpdateVideo} gridUrl={this.props.config.gridUrl} createMode={false}/>
+                  <GridImageSelect
+                    editState={this.props.editState}
+                    video={this.props.video || {}}
+                    updateVideo={this.saveAndUpdateVideoPoster}
+                    gridUrl={this.props.config.gridUrl}
+                    disabled={this.props.editState.youtubeEditable || this.props.editState.metadataEditable}
+                    createMode={false}/>
                 </div>
                 <VideoPoster
                   video={this.props.video || {}}
