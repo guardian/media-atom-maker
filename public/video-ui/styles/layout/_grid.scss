@@ -12,6 +12,11 @@
 .grid__list {
   list-style: none;
   padding: 0 20px;
+  text-align: center;
+
+  &__trail {
+    text-align: left;
+  }
 }
 
 .grid__item {

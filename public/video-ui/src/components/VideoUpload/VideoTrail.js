@@ -55,8 +55,7 @@ function VideoAsset({ id, platform, version, active, selectAsset }) {
 function UploadAsset({ id, message, total, progress }) {
     return <div className="grid__item">
         <div className="upload__asset__video upload__asset__running">
-            <span className="loader"></span>
-            {progress && total ? <progress className="progress" value={progress} max={total} /> : false }
+            {progress && total ? <progress className="progress" value={progress} max={total} /> : <span className="loader"></span> }
         </div>
         <div className="grid__item__footer">
           <span className="grid__item__title">{message}</span>
@@ -143,7 +142,7 @@ export default class VideoTrail extends React.Component {
     render() {
         const blocks = [];
 
-        blocks.push(<UploadAsset key={"chris"} message="Uploading to YouTube" total={10} progress={3} />);
+        blocks.push(<UploadAsset key={"chris"} message="Uploading to YouTube" />);
 
         if(this.props.localUpload.total) {
             blocks.push(this.renderLocalUpload());
@@ -168,7 +167,7 @@ export default class VideoTrail extends React.Component {
             <header className="video__detailbox__header">Video trail</header>
           </div>
           <div className="grid">
-            <div className="grid__list">
+            <div className="grid__list grid__list__trail">
             {content}
           </div>
           </div>
