@@ -10,6 +10,14 @@ export default class Header extends React.Component {
     this.props.publishVideo(this.props.video.id);
   };
 
+  renderProgress() {
+    if(this.props.localUpload.total) {
+      return <progress className="topbar__progress" max={this.props.localUpload.total} value={this.props.localUpload.progress} />;
+    } else {
+      return false;
+    }
+  }
+
   renderHomeAndSearch() {
     return (
       <div className="flex-container topbar__global">
@@ -69,6 +77,7 @@ export default class Header extends React.Component {
     if (!this.props.showPublishedState) {
       return (
         <header className="topbar flex-container">
+          {this.renderProgress()}
 
           {this.renderHomeAndSearch()}
 
@@ -85,7 +94,7 @@ export default class Header extends React.Component {
     } else {
       return (
         <header className="topbar flex-container">
-
+          {this.renderProgress()}
           {this.renderHomeAndSearch()}
 
           <VideoPublishBar className="flex-grow"

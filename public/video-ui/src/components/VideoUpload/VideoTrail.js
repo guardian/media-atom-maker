@@ -142,8 +142,6 @@ export default class VideoTrail extends React.Component {
     render() {
         const blocks = [];
 
-        blocks.push(<UploadAsset key={"chris"} message="Uploading to YouTube" />);
-
         if(this.props.localUpload.total) {
             blocks.push(this.renderLocalUpload());
         }
