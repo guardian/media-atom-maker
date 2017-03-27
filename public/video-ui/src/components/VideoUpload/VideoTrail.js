@@ -30,7 +30,7 @@ function ErrorAsset({ message }) {
     </div>;
 }
 
-function VideoAsset({ id, platform, version, active, selectable, selectAsset }) {
+function VideoAsset({ id, platform, version, active, selectAsset }) {
 
     const statusClasses = active ? "publish__label label__live label__frontpage__overlay" : "publish__label label__frontpage__novideo label__frontpage__overlay";
     const status = active ? "Live" : "Not Live";
