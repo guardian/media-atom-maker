@@ -55,6 +55,14 @@ class VideoDisplay extends React.Component {
     });
   }
 
+  updateYoutubeFormErrors = (fieldErrors, fieldName) => {
+    this.setState({
+      youtubeErrors: {
+        [fieldName]: fieldErrors
+      }
+    });
+  }
+
   manageEditingState = (property) => {
 
     if (this.props.editState[property]) {
@@ -118,7 +126,11 @@ class VideoDisplay extends React.Component {
         return value.length !== 0;
       });
     } else if (property === 'youtubeEditable') {
-      //TODO
+      const errors = this.state.youtubeErrors;
+      return Object.keys(errors).some(field => {
+        const value = errors[field];
+        return value.length !== 0;
+      });
     }
   };
 
@@ -181,7 +193,7 @@ class VideoDisplay extends React.Component {
                   video={this.props.video || {}}
                   updateVideo={this.updateVideo}
                   editable={this.props.editState.youtubeEditable}
-                  updateFormErrors={this.updateMetadataFormErrors}
+                  updateFormErrors={this.updateYoutubeFormErrors}
                 />
               </div>
               <div className="video__detailbox">

@@ -52,6 +52,7 @@ class VideoEdit extends React.Component {
           <ManagedField
             fieldLocation="category"
             name="Category"
+            isRequired={true}
           >
             <SelectBox selectValues={videoCategories}></SelectBox>
           </ManagedField>
@@ -63,6 +64,7 @@ class VideoEdit extends React.Component {
           <ManagedField
             fieldLocation="youtubeCategoryId"
             name="YouTube Category"
+            isRequired={true}
           >
             <SelectBox selectValues={this.props.youtube.categories}></SelectBox>
           </ManagedField>
@@ -75,12 +77,14 @@ class VideoEdit extends React.Component {
           <ManagedField
             fieldLocation="channelId"
             name="YouTube Channel"
+            isRequired={true}
           >
             <SelectBox selectValues={this.props.youtube.channels}></SelectBox>
           </ManagedField>
           <ManagedField
             fieldLocation="privacyStatus"
             name="Privacy Status"
+            isRequired={true}
           >
             <SelectBox selectValues={privacyStates}></SelectBox>
           </ManagedField>
