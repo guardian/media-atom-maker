@@ -35,11 +35,11 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
 
     getActiveAsset(atom) match {
       case Some(asset) if asset.platform == Youtube =>
-        val withDuration = atom.copy(duration = youTube.getDuration(asset.id))
+        val atomWithDuration = atom.copy(duration = youTube.getDuration(asset.id))
 
-        updateThumbnail(withDuration, asset)
-        updateYouTube(withDuration, asset)
-        publish(withDuration, user)
+        updateThumbnail(atomWithDuration, asset)
+        updateYouTube(atomWithDuration, asset)
+        publish(atomWithDuration, user)
 
       case _ =>
         publish(atom, user)
