@@ -16,8 +16,8 @@ function embed(assetId, platform) {
 }
 
 function youTubeLink(id) {
-    return <div className="grid__item__footer">
-      <span className="grid__item__title grid__item__title__assets">Video ID: {id}</span>
+    return <div>
+      <span>Video ID: {id}</span>
       <a href={youTubeUrl(id)}><Icon icon="open_in_new" className="icon__assets"></Icon></a>
       </div>;
 }
@@ -46,7 +46,7 @@ function VideoAsset({ id, platform, version, active, selectAsset }) {
             <span className={statusClasses}>{status}</span>
           </div>
         <div className="grid__item__footer">
-            {youTubeLink(id)}
+          <span className="grid__item__title">{youTubeLink(id)}</span>
             {selector}
         </div>
     </div>;
@@ -59,7 +59,6 @@ function UploadAsset({ id, message, total, progress }) {
         </div>
         <div className="grid__item__footer">
           <span className="grid__item__title">{message}</span>
-            {id ? youTubeLink(id) : false}
         </div>
     </div>;
 }
@@ -130,7 +129,7 @@ export default class VideoTrail extends React.Component {
 
             return <UploadAsset key={asset.id} id={asset.id} message={message} />;
         } else if(processing && processing.status === "failed") {
-            return <ErrorAsset key={asset.id} message={processing.failure} />;
+            return <ErrorAsset  key={asset.id} message={processing.failure} />;
         } else {
             const active = asset.version === this.props.activeVersion;
             const selectable = !active && processing && (processing.status === "succeeded" || processing.status === "terminated");
@@ -145,6 +144,8 @@ export default class VideoTrail extends React.Component {
         if(this.props.localUpload.total) {
             blocks.push(this.renderLocalUpload());
         }
+
+        blocks.push(<UploadAsset key={"chris"} message={"Processing cat videos"} />);
 
         this.props.uploads.forEach((upload) => {
             const total = upload.parts[upload.parts.length - 1].end;
