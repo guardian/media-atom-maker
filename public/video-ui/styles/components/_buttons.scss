@@ -12,7 +12,7 @@ button {
 }
 
 .button__secondary {
-  @include buttonClass($color800Grey, $color500Grey, $color300Grey);
+  @include buttonClass($color800Grey, $color500Grey, $color300Grey, $color800Grey);
 
   &__assets {
     margin: 10px;
@@ -20,7 +20,7 @@ button {
 }
 
 .button__active {
-  @include buttonClass($cGreen33, $color500Grey, $color300Grey);
+  @include buttonClass($cGreen33, $color500Grey, $color300Grey, $color800Grey);
   position: absolute;
   right: 50px;
   top: 8px;
@@ -28,7 +28,7 @@ button {
 }
 
 .btn {
-  @include buttonClass($brandColor, $color500Grey, $color800Grey);
+  @include buttonClass($brandColor, $color500Grey, $color800Grey, $color800Grey);
 
   &--pluto {
     margin-left: 5px;
