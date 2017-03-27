@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default class FormCheckBox extends React.Component {
+export default class CheckBox extends React.Component {
 
   renderCheckbox() {
     return (

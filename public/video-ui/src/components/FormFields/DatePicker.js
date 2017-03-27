@@ -101,7 +101,7 @@ function Display({date}) {
   </div>;
 }
 
-export default function FormDatePicker({editable, onUpdateField, fieldName, fieldValue, video}) {
+export default function DatePicker({editable, onUpdateField, fieldName, fieldValue, video}) {
 
   const date = fieldValue ? moment(fieldValue) : null;
 

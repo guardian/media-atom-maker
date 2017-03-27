@@ -1,8 +1,8 @@
 import React from 'react';
 import {ManagedForm, ManagedField} from '../ManagedForm';
-import FormTextInput from '../FormFields/FormTextInput';
-import FormSelectBox from '../FormFields/FormSelectBox';
-import ItemPicker from '../FormFields/FormPicker';
+import TextInput from '../FormFields/TextInput';
+import SelectBox from '../FormFields/SelectBox';
+import ItemPicker from '../FormFields/ItemPicker';
 import { privacyStates } from '../../constants/privacyStates';
 
 class YoutubeMetaData extends React.Component {
@@ -33,19 +33,19 @@ class YoutubeMetaData extends React.Component {
             fieldLocation="youtubeCategoryId"
             name="YouTube Category"
           >
-            <FormSelectBox selectValues={this.props.youtube.categories}></FormSelectBox>
+            <SelectBox selectValues={this.props.youtube.categories}></SelectBox>
           </ManagedField>
           <ManagedField
             fieldLocation="channelId"
             name="YouTube Channel"
           >
-            <FormSelectBox selectValues={this.props.youtube.channels}></FormSelectBox>
+            <SelectBox selectValues={this.props.youtube.channels}></SelectBox>
           </ManagedField>
           <ManagedField
             fieldLocation="privacyStatus"
             name="Privacy Status"
           >
-            <FormSelectBox selectValues={privacyStates}></FormSelectBox>
+            <SelectBox selectValues={privacyStates}></SelectBox>
           </ManagedField>
           <ManagedField
             fieldLocation="tags"

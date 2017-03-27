@@ -1,14 +1,14 @@
 import React from 'react';
 import {ManagedForm, ManagedField} from '../ManagedForm';
-import FormTextInput from '../FormFields/FormTextInput';
-import FormTextArea from '../FormFields/FormTextArea';
-import FormSelectBox from '../FormFields/FormSelectBox';
-import FormCheckBox from '../FormFields/FormCheckBox';
-import FormDatePicker from '../FormFields/FormDatePicker';
+import TextInput from '../FormFields/TextInput';
+import TextArea from '../FormFields/TextArea';
+import SelectBox from '../FormFields/SelectBox';
+import CheckBox from '../FormFields/CheckBox';
+import DatePicker from '../FormFields/DatePicker';
 import {fieldLengths} from '../../constants/videoEditValidation';
 import {videoCategories} from '../../constants/videoCategories';
 import { privacyStates } from '../../constants/privacyStates';
-import FormImageSelector from '../FormFields/FormImageSelector';
+import ImageSelector from '../FormFields/ImageSelector';
 
 class VideoEdit extends React.Component {
 
@@ -40,49 +40,49 @@ class VideoEdit extends React.Component {
             maxLength={fieldLengths.title}
             isRequired={true}
           >
-            <FormTextInput/>
+            <TextInput/>
           </ManagedField>
           <ManagedField
             fieldLocation="description"
             name="Description"
             placeholder="No Description"
           >
-            <FormTextArea/>
+            <TextArea/>
           </ManagedField>
           <ManagedField
             fieldLocation="category"
             name="Category"
           >
-            <FormSelectBox selectValues={videoCategories}></FormSelectBox>
+            <SelectBox selectValues={videoCategories}></SelectBox>
           </ManagedField>
           <ManagedField
             fieldLocation="posterImage"
             name="Poster Image">
-            <FormImageSelector/>
+            <ImageSelector/>
           </ManagedField>
           <ManagedField
             fieldLocation="youtubeCategoryId"
             name="YouTube Category"
           >
-            <FormSelectBox selectValues={this.props.youtube.categories}></FormSelectBox>
+            <SelectBox selectValues={this.props.youtube.categories}></SelectBox>
           </ManagedField>
           <ManagedField
             fieldLocation="expiryDate"
             name="Expiry Date"
           >
-            <FormDatePicker/>
+            <DatePicker/>
           </ManagedField>
           <ManagedField
             fieldLocation="channelId"
             name="YouTube Channel"
           >
-            <FormSelectBox selectValues={this.props.youtube.channels}></FormSelectBox>
+            <SelectBox selectValues={this.props.youtube.channels}></SelectBox>
           </ManagedField>
           <ManagedField
             fieldLocation="privacyStatus"
             name="Privacy Status"
           >
-            <FormSelectBox selectValues={privacyStates}></FormSelectBox>
+            <SelectBox selectValues={privacyStates}></SelectBox>
           </ManagedField>
         </ManagedForm>
       </div>

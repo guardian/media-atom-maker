@@ -1,10 +1,10 @@
 import React from 'react';
 import {ManagedForm, ManagedField} from '../ManagedForm';
-import FormTextInput from '../FormFields/FormTextInput';
-import FormTextArea from '../FormFields/FormTextArea';
-import FormSelectBox from '../FormFields/FormSelectBox';
-import FormCheckBox from '../FormFields/FormCheckBox';
-import FormDatePicker from '../FormFields/FormDatePicker';
+import TextInput from '../FormFields/TextInput';
+import TextArea from '../FormFields/TextArea';
+import SelectBox from '../FormFields/SelectBox';
+import CheckBox from '../FormFields/CheckBox';
+import DatePicker from '../FormFields/DatePicker';
 import {fieldLengths} from '../../constants/videoEditValidation';
 import {videoCategories} from '../../constants/videoCategories';
 
@@ -25,32 +25,32 @@ export default class VideoMetaData extends React.Component {
             maxLength={fieldLengths.title}
             isRequired={true}
           >
-            <FormTextInput/>
+            <TextInput/>
           </ManagedField>
           <ManagedField
             fieldLocation="description"
             name="Description"
             placeholder="No Description"
           >
-            <FormTextArea/>
+            <TextArea/>
           </ManagedField>
           <ManagedField
             fieldLocation="category"
             name="Category"
           >
-            <FormSelectBox selectValues={videoCategories}></FormSelectBox>
+            <SelectBox selectValues={videoCategories}></SelectBox>
           </ManagedField>
           <ManagedField
             fieldLocation="expiryDate"
             name="Expiry Date"
           >
-            <FormDatePicker/>
+            <DatePicker/>
           </ManagedField>
           <ManagedField
             fieldLocation="legallySensitive"
             name="Legally Sensitive"
           >
-            <FormCheckBox/>
+            <CheckBox/>
           </ManagedField>
         </ManagedForm>
       </div>

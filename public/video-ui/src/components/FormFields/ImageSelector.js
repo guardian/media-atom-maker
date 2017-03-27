@@ -2,7 +2,7 @@ import React from 'react';
 import {findSmallestAssetAboveWidth} from '../../util/imageHelpers';
 import GridImageSelect from '../utils/GridImageSelect';
 
-class FormImageSelector extends React.Component {
+class ImageSelector extends React.Component {
   renderImage() {
     if (!this.props.fieldValue) {
       return false;
@@ -58,4 +58,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(FormImageSelector);
+export default connect(mapStateToProps)(ImageSelector);
