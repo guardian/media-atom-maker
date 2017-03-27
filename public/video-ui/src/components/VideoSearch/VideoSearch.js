@@ -9,7 +9,7 @@ export default class VideoSearch extends React.Component {
   };
 
   searchInProgress = () => {
-    return this.props.searching === saveStateVals.inprogress;
+    return this.props.saving === saveStateVals.inprogress;
   };
 
   render () {

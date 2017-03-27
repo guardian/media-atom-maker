@@ -16,7 +16,7 @@ trait AtomListStore {
 
 class CapiBackedAtomListStore(capi: CapiPreviewAccess) extends AtomListStore {
   override def getAtoms(search: Option[String], limit: Option[Int]): List[MediaAtomSummary] = {
-    val base = "atoms?types=media"
+    val base = "atoms?types=media&order-by=newest"
     val searchPart = search.map { q => s"&searchFields=data.title&q=$q" }.getOrElse("")
     val pageSizePart = limit.map { l => s"&page-size=$l" }.getOrElse("")
 

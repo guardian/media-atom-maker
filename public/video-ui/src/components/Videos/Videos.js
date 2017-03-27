@@ -8,17 +8,15 @@ class Videos extends React.Component {
   };
 
   componentDidMount() {
-    this.props.videoActions.getVideos(this.props.limit);
+    this.props.videoActions.getVideos(this.props.searchTerm, this.props.limit);
   }
 
   componentWillReceiveProps(newProps) {
     const oldSearch = this.props.searchTerm;
     const newSearch = newProps.searchTerm;
 
-    if (oldSearch !== newSearch && newSearch !== "") {
-      this.props.videoActions.searchVideosWithQuery(newSearch);
-    } else if (newSearch === "" && oldSearch !== "") {
-      this.props.videoActions.getVideos(this.props.limit);
+    if(oldSearch !== newSearch) {
+      this.props.videoActions.getVideos(newSearch, this.props.limit);
     }
   }
 
@@ -43,7 +41,7 @@ class Videos extends React.Component {
     }
 
     const showMore = () => {
-      this.props.videoActions.getVideos(this.props.limit + 2);
+      this.props.videoActions.getVideos(this.props.searchTerm, this.props.limit + 2);
     };
 
     return <div>
