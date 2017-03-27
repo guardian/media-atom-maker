@@ -1,0 +1,111 @@
+package data
+
+import java.time.Instant
+
+import com.gu.atom.data.PreviewDynamoDataStore
+import com.gu.contentatom.thrift.atom.media.{MediaAtom => ThriftMediaAtom}
+import com.gu.media.CapiPreviewAccess
+import model.Category.Hosted
+import model.commands.CommandExceptions.AtomDataStoreError
+import model.{Image, MediaAtom, MediaAtomSummary}
+import play.api.libs.json.{JsArray, JsValue}
+
+trait AtomListStore {
+  def getAtoms(search: Option[String], limit: Option[Int]): List[MediaAtomSummary]
+}
+
+class CapiBackedAtomListStore(capi: CapiPreviewAccess) extends AtomListStore {
+  override def getAtoms(search: Option[String], limit: Option[Int]): List[MediaAtomSummary] = {
+    val base = "atoms?types=media"
+    val searchPart = search.map { q => s"&searchFields=data.title&q=$q" }.getOrElse("")
+    val pageSizePart = limit.map { l => s"&page-size=$l" }.getOrElse("")
+
+    val query = base + searchPart + pageSizePart
+    val results = (capi.capiQuery(query) \ "response" \ "results").as[JsArray]
+
+    results.value.map(fromJson).toList
+  }
+
+  private def fromJson(wrapper: JsValue): MediaAtomSummary = {
+    val id = (wrapper \ "id").as[String]
+    val atom = wrapper \ "data" \ "media"
+
+    val title = (atom \ "title").as[String]
+    val posterImage = (atom \ "posterImage").asOpt[Image]
+
+    val expiryDate = (atom \ "expiryDate").asOpt[Long]
+    val activeVersion = (atom \ "activeVersion").asOpt[Long]
+
+    val versions = (atom \ "assets").as[JsArray].value.map { asset =>
+      (asset \ "version").as[Long]
+    }
+
+    val state = AtomListStore.getState(expiryDate, activeVersion, versions.toSet)
+
+    MediaAtomSummary(id, state, title, posterImage)
+  }
+}
+
+class DynamoBackedAtomListStore(store: AtomListStore.PreviewStore) extends AtomListStore {
+  override def getAtoms(search: Option[String], limit: Option[Int]): List[MediaAtomSummary] = {
+    store.listAtoms match {
+      case Left(err) =>
+        AtomDataStoreError(err.msg)
+
+      case Right(atoms) =>
+        def created(atom: MediaAtom) = atom.contentChangeDetails.created.map(_.date.getMillis)
+
+        // TODO add `Hosted` category.
+        // Although `Hosted` is a valid category, the APIs driving the React frontend perform authenticated calls to YT.
+        // These only work with content that we own. `Hosted` can have third-party assets so the API calls will fail.
+        // Add `Hosted` once the UI is smarter and removes features when category is `Hosted`.
+        val mediaAtoms = atoms
+          .map(MediaAtom.fromThrift)
+          .filterNot(_.category == Hosted)
+          .toList
+          .sortBy(created)
+          .reverse // newest atoms first
+
+        val filteredAtoms = search match {
+          case Some(str) => mediaAtoms.filter(_.title.contains(str))
+          case None => mediaAtoms
+        }
+
+        filteredAtoms.map(fromAtom)
+    }
+  }
+
+  private def fromAtom(atom: MediaAtom): MediaAtomSummary = {
+    val versions = atom.assets.map(_.version).toSet
+    val state = AtomListStore.getState(atom.expiryDate, atom.activeVersion, versions)
+
+    MediaAtomSummary(atom.id, state, atom.title, atom.posterImage)
+  }
+}
+
+object AtomListStore {
+  type PreviewStore = PreviewDynamoDataStore[ThriftMediaAtom]
+
+  def apply(stage: String, capi: CapiPreviewAccess, store: PreviewStore): AtomListStore = stage match {
+//    case "DEV" => new DynamoBackedAtomListStore(store)
+    case _ => new CapiBackedAtomListStore(capi)
+  }
+
+  def getState(expiryDate: Option[Long], activeVersion: Option[Long], versions: Set[Long]): String = {
+    val now = Instant.now().toEpochMilli
+    val hasExpired = expiryDate.exists(_ < now)
+
+    val hasVideo = activeVersion match {
+      case Some(version) => versions.contains(version)
+      case None => false
+    }
+
+    if(hasExpired) {
+      "Expired"
+    } else if(hasVideo) {
+      "Active"
+    } else {
+      "No Video"
+    }
+  }
+}

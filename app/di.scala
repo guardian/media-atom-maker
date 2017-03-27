@@ -33,11 +33,12 @@ class MediaAtomMaker(context: Context)
   private val aws = new AWSConfig(config)
   aws.startKinesisLogging("media-atom-maker")
 
-  private val stores = new DataStores(aws)
+  private val capi = new CapiPreview(config)
+
+  private val stores = new DataStores(aws, capi)
   private val reindexer = buildReindexer()
 
   private val youTube = new YouTube(config)
-  private val capi = new CapiPreview(config)
 
   private val sesMailer = new Mailer(aws.sesClient, configuration.getString("host").get)
 

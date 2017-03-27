@@ -158,7 +158,7 @@ class Api (override val stores: DataStores,
 
   // TODO -> this needs to handle paging
   def listAtoms = APIAuthAction { implicit req =>
-    previewDataStore.listAtoms().fold(
+    previewDataStore.listAtoms.fold(
       err =>   InternalServerError(jsonError(err.msg)),
       atoms => {
         val hostedMediaAtoms = atoms

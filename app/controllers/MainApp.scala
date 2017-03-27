@@ -28,7 +28,7 @@ class MainApp (override val stores: DataStores,
   }
 
   def listAtoms = AuthAction { implicit req =>
-    previewDataStore.listAtoms().fold(
+    previewDataStore.listAtoms.fold(
       err => InternalServerError(err.msg),
       atoms => Ok(displayAtomList())
     )

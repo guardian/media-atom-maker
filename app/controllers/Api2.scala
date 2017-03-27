@@ -24,25 +24,9 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
 
   import authActions.APIHMACAuthAction
 
-  def getMediaAtoms(limit: Option[Int]) = APIHMACAuthAction {
-    def created(atom: MediaAtom) = atom.contentChangeDetails.created.map(_.date.getMillis)
-
-    previewDataStore.listAtoms(limit).fold(
-      err =>   InternalServerError(jsonError(err.msg)),
-      atoms => {
-        // TODO add `Hosted` category.
-        // Although `Hosted` is a valid category, the APIs driving the React frontend perform authenticated calls to YT.
-        // These only work with content that we own. `Hosted` can have third-party assets so the API calls will fail.
-        // Add `Hosted` once the UI is smarter and removes features when category is `Hosted`.
-        val mediaAtoms = atoms.map(MediaAtom.fromThrift)
-          .toList
-          .filter(_.category != Hosted)
-          .sortBy(created)
-          .reverse // newest atoms first
-
-        Ok(Json.toJson(mediaAtoms))
-      }
-    )
+  def getMediaAtoms(search: Option[String], limit: Option[Int]) = APIHMACAuthAction {
+    val atoms = stores.listStore.getAtoms(search, limit)
+    Ok(Json.toJson(atoms))
   }
 
   def getMediaAtom(id: String) = APIHMACAuthAction {
