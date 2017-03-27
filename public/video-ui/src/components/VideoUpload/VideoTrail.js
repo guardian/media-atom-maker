@@ -20,7 +20,7 @@ function selector(assetId, version, selectAsset, active) {
         return false;
     }
 
-    const classes = active ? "button__active" : "button__secondary";
+    const classes = active ? "button__active" : "button__secondary button__active";
     const action = active ? "Active" : "Activate";
 
     return <button className={classes} disabled={active} onClick={() => selectAsset(assetId, version)}>
@@ -44,10 +44,14 @@ function ErrorAsset({ message }) {
 }
 
 function VideoAsset({ id, platform, version, active, selectAsset }) {
+
+    const statusClasses = active ? "publish__label label__live label__frontpage__overlay" : "publish__label label__frontpage__novideo label__frontpage__overlay";
+    const status = active ? "Live" : "Not Live";
+
     return <div className="grid__item">
         <div className="upload__asset__video">{embed(id, platform)}</div>
           <div className="grid__status__overlay">
-            <span className="publish__label label__live label__frontpage__overlay">{active}</span>
+            <span className={statusClasses}>{status}</span>
           </div>
         <div className="grid__item__footer">
             {youTubeLink(id)}
