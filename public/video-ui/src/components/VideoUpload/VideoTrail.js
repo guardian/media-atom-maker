@@ -15,19 +15,6 @@ function embed(assetId, platform) {
     }
 }
 
-function selector(assetId, version, selectAsset, active) {
-    if(!selectAsset) {
-        return false;
-    }
-
-    const classes = active ? "button__active" : "button__secondary button__active";
-    const action = active ? "Active" : "Activate";
-
-    return <button className={classes} disabled={active} onClick={() => selectAsset(assetId, version)}>
-        {action}
-    </button>;
-}
-
 function youTubeLink(id) {
     return <div className="grid__item__footer">
       <span className="grid__item__title grid__item__title__assets">Video ID: {id}</span>
@@ -43,10 +30,15 @@ function ErrorAsset({ message }) {
     </div>;
 }
 
-function VideoAsset({ id, platform, version, active, selectAsset }) {
+function VideoAsset({ id, platform, version, active, selectable, selectAsset }) {
 
     const statusClasses = active ? "publish__label label__live label__frontpage__overlay" : "publish__label label__frontpage__novideo label__frontpage__overlay";
     const status = active ? "Live" : "Not Live";
+
+    const selector = !active ?
+      <button className="button__secondary button__active" onClick={() => selectAsset(id, version)}>
+          Activate
+      </button> : false;
 
     return <div className="grid__item">
         <div className="upload__asset__video">{embed(id, platform)}</div>
@@ -55,7 +47,7 @@ function VideoAsset({ id, platform, version, active, selectAsset }) {
           </div>
         <div className="grid__item__footer">
             {youTubeLink(id)}
-            {selector(id, version, selectAsset, active)}
+            {selector}
         </div>
     </div>;
 }
@@ -142,13 +134,9 @@ export default class VideoTrail extends React.Component {
             return <ErrorAsset key={asset.id} message={processing.failure} />;
         } else {
             const active = asset.version === this.props.activeVersion;
+            const selectable = !active && processing && (processing.status === "succeeded" || processing.status === "terminated");
 
-            let selectAsset = null;
-            if(processing && (processing.status === "succeeded" || processing.status === "terminated")) {
-                selectAsset = this.props.selectAsset;
-            }
-
-            return <VideoAsset key={asset.id} active={active} selectAsset={selectAsset} {...asset} />;
+            return <VideoAsset key={asset.id} active={active} selectable={selectable} selectAsset={this.props.selectAsset} {...asset} />;
         }
     };
 
