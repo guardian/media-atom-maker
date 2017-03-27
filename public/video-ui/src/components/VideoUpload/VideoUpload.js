@@ -66,12 +66,11 @@ class VideoUpload extends React.Component {
   };
 
   renderHeader() {
-    let link = false;
     if (this.props.video) {
-      link = <Link className="button" to={`/videos/${this.props.video.id}`}>
+      <Link className="button" to={`/videos/${this.props.video.id}`}>
         <Icon className="icon__edit" icon="clear" />
       </Link>;
-    };
+    }
   }
 
   renderButtons(uploading) {
