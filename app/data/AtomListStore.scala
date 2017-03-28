@@ -10,6 +10,10 @@ import model.commands.CommandExceptions.AtomDataStoreError
 import model.{Image, MediaAtom, MediaAtomSummary}
 import play.api.libs.json.{JsArray, JsValue}
 
+// TODO add `Hosted` category.
+// Although `Hosted` is a valid category, the APIs driving the React frontend perform authenticated calls to YT.
+// These only work with content that we own. `Hosted` can have third-party assets so the API calls will fail.
+// Add `Hosted` once the UI is smarter and removes features when category is `Hosted`.
 trait AtomListStore {
   def getAtoms(search: Option[String], limit: Option[Int]): List[MediaAtomSummary]
 }
@@ -23,26 +27,32 @@ class CapiBackedAtomListStore(capi: CapiPreviewAccess) extends AtomListStore {
     val query = base + searchPart + pageSizePart
     val results = (capi.capiQuery(query) \ "response" \ "results").as[JsArray]
 
-    results.value.map(fromJson).toList
+    results.value.flatMap(fromJson).toList
   }
 
-  private def fromJson(wrapper: JsValue): MediaAtomSummary = {
+  private def fromJson(wrapper: JsValue): Option[MediaAtomSummary] = {
     val id = (wrapper \ "id").as[String]
     val atom = wrapper \ "data" \ "media"
 
-    val title = (atom \ "title").as[String]
-    val posterImage = (atom \ "posterImage").asOpt[Image]
+    val category = (atom \ "category").as[String]
 
-    val expiryDate = (atom \ "expiryDate").asOpt[Long]
-    val activeVersion = (atom \ "activeVersion").asOpt[Long]
+    if(category != "hosted") {
+      val title = (atom \ "title").as[String]
+      val posterImage = (atom \ "posterImage").asOpt[Image]
 
-    val versions = (atom \ "assets").as[JsArray].value.map { asset =>
-      (asset \ "version").as[Long]
+      val expiryDate = (atom \ "expiryDate").asOpt[Long]
+      val activeVersion = (atom \ "activeVersion").asOpt[Long]
+
+      val versions = (atom \ "assets").as[JsArray].value.map { asset =>
+        (asset \ "version").as[Long]
+      }
+
+      val state = AtomListStore.getState(expiryDate, activeVersion, versions.toSet)
+
+      Some(MediaAtomSummary(id, state, title, posterImage))
+    } else {
+      None
     }
-
-    val state = AtomListStore.getState(expiryDate, activeVersion, versions.toSet)
-
-    MediaAtomSummary(id, state, title, posterImage)
   }
 }
 
@@ -57,10 +67,6 @@ class DynamoBackedAtomListStore(store: AtomListStore.PreviewStore) extends AtomL
       case Right(atoms) =>
         def created(atom: MediaAtom) = atom.contentChangeDetails.created.map(_.date.getMillis)
 
-        // TODO add `Hosted` category.
-        // Although `Hosted` is a valid category, the APIs driving the React frontend perform authenticated calls to YT.
-        // These only work with content that we own. `Hosted` can have third-party assets so the API calls will fail.
-        // Add `Hosted` once the UI is smarter and removes features when category is `Hosted`.
         val mediaAtoms = atoms
           .map(MediaAtom.fromThrift)
           .filterNot(_.category == Hosted)
