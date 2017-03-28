@@ -1,12 +1,12 @@
 import React from 'react';
 import {Link} from 'react-router';
-import VideoAssets from '../VideoAssets/VideoAssets';
 import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoUsages from '../VideoUsages/VideoUsages';
 import VideoMetaData from '../VideoMetaData/VideoMetaData';
 import YoutubeMetaData from '../YoutubeMetaData/YoutubeMetaData';
 import VideoPoster from '../VideoPoster/VideoPoster';
+import AdvancedActions from '../Videos/AdvancedActions';
 import GridImageSelect from '../utils/GridImageSelect';
 import {getVideoBlock} from '../../util/getVideoBlock';
 import {getStore} from '../../util/storeAccessor';
@@ -218,7 +218,7 @@ class VideoDisplay extends React.Component {
                 />
               </div>
               <div className="video__detailbox">
-                <VideoAssets video={this.props.video || {}} />
+                <AdvancedActions video={this.props.video || {}} />
               </div>
             </div>
           </div>
