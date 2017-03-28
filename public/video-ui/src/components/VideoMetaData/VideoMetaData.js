@@ -49,6 +49,7 @@ export default class VideoMetaData extends React.Component {
           <ManagedField
             fieldLocation="legallySensitive"
             name="Legally Sensitive"
+            fieldDetails="This content involves active criminal proceedings."
           >
             <CheckBox/>
           </ManagedField>

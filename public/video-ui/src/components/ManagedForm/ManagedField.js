@@ -45,7 +45,8 @@ export class ManagedField extends React.Component {
     isRequired: PropTypes.bool,
     isDesired: PropTypes.bool,
     editable: PropTypes.bool,
-    maxLength: PropTypes.number
+    maxLength: PropTypes.number,
+    fieldDetails: PropTypes.string
   };
 
   updateFn = (newValue) => {
@@ -89,7 +90,8 @@ export class ManagedField extends React.Component {
         maxLength: this.props.maxLength,
         errors: this.state.fieldErrors,
         placeholder: this.props.placeholder,
-        touched: this.state.touched
+        touched: this.state.touched,
+        fieldDetails: this.props.fieldDetails
       });
     });
     return <div>{hydratedChildren}</div>;

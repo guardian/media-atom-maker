@@ -22,7 +22,7 @@ export default class CheckBox extends React.Component {
         <p className="details-list__title">{this.props.fieldName}</p>
         <div className="details-list__labeled-filter">
           {this.renderCheckbox()}
-          <p className="details-list__field details-list__labeled-filter__label">This content involves active criminal proceedings.</p>
+          <p className="details-list__field details-list__labeled-filter__label">{this.props.fieldDetails}</p>
         </div>
       </div>
     );
