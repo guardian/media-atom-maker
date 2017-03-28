@@ -12,11 +12,6 @@ export class ManagedForm extends React.Component {
     editable: PropTypes.bool
   };
 
-  state: {
-    formErrors: [],
-    formWarnings: []
-  }
-
   render() {
     const hydratedChildren = React.Children.map(this.props.children, (child) => {
       return React.cloneElement(child, {
