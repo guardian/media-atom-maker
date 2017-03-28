@@ -2,9 +2,9 @@ package controllers
 
 import _root_.util.AWSConfig
 import com.gu.atom.play.AtomAPIActions
-import com.gu.media.upload.model.PlutoSyncMetadata
-import com.gu.media.Permissions
+import com.gu.media.MamPermissionsProvider
 import com.gu.media.logging.Logging
+import com.gu.media.upload.model.PlutoSyncMetadata
 import com.gu.media.youtube.YouTube
 import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.action.UserRequest
@@ -14,15 +14,15 @@ import model.MediaAtom
 import model.commands.CommandExceptions._
 import model.commands._
 import play.api.Configuration
+import play.api.libs.concurrent.Execution.Implicits._
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
 import play.api.mvc.{AnyContent, Result}
-import play.api.libs.concurrent.Execution.Implicits._
 
 import scala.concurrent.Future
 
-class Api2 (override val stores: DataStores, conf: Configuration, val authActions: HMACAuthActions,
-            youTube: YouTube, awsConfig: AWSConfig)
+class Api2 (override val stores: DataStores, conf: Configuration, val authActions: HMACAuthActions, youTube: YouTube,
+            awsConfig: AWSConfig, permissions: MamPermissionsProvider)
 
   extends MediaAtomImplicits
     with AtomAPIActions
@@ -136,7 +136,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
   }
 
   def deleteAtom(id: String) = APIHMACAuthAction.async { implicit req =>
-    Permissions.canDeleteAtom(req.user.email).map {
+    permissions.canDeleteAtom(req.user.email).map {
       case true =>
         try {
           DeleteCommand(id, stores).process()
@@ -152,7 +152,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
   }
 
   private def withAddAssetPermission(req: UserRequest[AnyContent])(fn: => Result): Future[Result] = {
-    Permissions.canAddAsset(req.user.email).map {
+    permissions.canAddAsset(req.user.email).map {
       case true =>
         fn
 

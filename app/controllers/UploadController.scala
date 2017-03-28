@@ -2,7 +2,7 @@ package controllers
 
 import java.util.UUID
 
-import com.gu.media.Permissions
+import com.gu.media.MamPermissionsProvider
 import com.gu.media.logging.Logging
 import com.gu.media.upload._
 import com.gu.media.upload.actions.{CopyParts, DeleteParts, UploadActionSender, UploadPartToYouTube}
@@ -16,15 +16,15 @@ import data.{DataStores, UnpackedDataStores}
 import _root_.model.MediaAtom
 import _root_.model.commands.CommandExceptions._
 import org.cvogt.play.json.Jsonx
+import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.{AnyContent, Controller, Result}
-import play.api.libs.concurrent.Execution.Implicits._
 import util.AWSConfig
 
 import scala.concurrent.Future
 
 class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, youTube: YouTubeAccess,
-                       uploadActions: UploadActionSender, override val stores: DataStores)
+                       uploadActions: UploadActionSender, permissions: MamPermissionsProvider, override val stores: DataStores)
 
   extends Controller with Logging with JsonRequestParsing with UnpackedDataStores {
 
@@ -161,7 +161,7 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
   }
 
   private def withPermission(req: UserRequest[AnyContent])(fn: => Result): Future[Result] = {
-    Permissions.canAddAsset(req.user.email).map {
+    permissions.canAddAsset(req.user.email).map {
       case true =>
         fn
 

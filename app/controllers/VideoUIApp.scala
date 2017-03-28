@@ -1,16 +1,17 @@
 package controllers
 
 
-import com.gu.media.Permissions
+import com.gu.media.MamPermissionsProvider
 import com.gu.pandahmac.HMACAuthActions
 import model.ClientConfig
 import play.api.Configuration
+import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.Json
 import play.api.mvc.Controller
-import play.api.libs.concurrent.Execution.Implicits._
 import util.AWSConfig
 
-class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfig: AWSConfig) extends Controller {
+class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfig: AWSConfig,
+                 permissions: MamPermissionsProvider) extends Controller {
   import authActions.AuthAction
 
   def index(id: String = "") = AuthAction.async { req =>
@@ -24,7 +25,9 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
 
     val composerUrl = awsConfig.composerUrl
 
-    Permissions.get(req.user.email).map { permissions =>
+    permissions.getAll(req.user.email).map { permissions =>
+      println(permissions)
+
       val clientConfig = ClientConfig(
         username = req.user.email,
         youtubeEmbedUrl = "https://www.youtube.com/embed/",
