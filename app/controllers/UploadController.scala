@@ -5,14 +5,15 @@ import java.util.UUID
 import com.gu.media.logging.Logging
 import com.gu.media.upload._
 import com.gu.media.upload.actions.{CopyParts, DeleteParts, UploadActionSender, UploadPartToYouTube}
+import com.gu.media.upload.model._
 import com.gu.media.youtube.{YouTubeAccess, YouTubeUploader}
 import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.action.UserRequest
 import com.gu.pandomainauth.model.User
-import controllers.UploadController.CreateRequest
+import controllers.UploadController.{CompleteResponse, CreateRequest}
 import data.{DataStores, UnpackedDataStores}
-import model.MediaAtom
-import model.commands.CommandExceptions.AtomMissingYouTubeChannel
+import _root_.model.MediaAtom
+import _root_.model.commands.CommandExceptions._
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.{Controller, Result}
@@ -26,6 +27,8 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
   import authActions.APIHMACAuthAction
 
   private val UPLOAD_KEY_HEADER = "X-Upload-Key"
+  private val UPLOAD_URI_HEADER = "X-Upload-Uri"
+
   private val table = stores.uploadStore
   private val credsGenerator = new CredentialsGenerator(awsConfig)
   private val uploader = new YouTubeUploader(awsConfig, youTube)
@@ -53,16 +56,23 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
   }
 
   def credentials(id: String) = APIHMACAuthAction { implicit req =>
-    partRequest(id, req) { (upload, part) =>
+    partRequest(id, req) { (upload, part, _) =>
       val credentials = credsGenerator.forKey(upload.id, part.key)
       Ok(Json.toJson(credentials))
     }
   }
 
   def complete(id: String) = APIHMACAuthAction { implicit req =>
-    partRequest(id, req) { (upload, part) =>
-      partComplete(upload, part)
-      NoContent
+    partRequest(id, req) {
+      case (upload, part, Some(uploadUri)) =>
+        partComplete(upload, part, uploadUri)
+        Ok(Json.toJson(CompleteResponse(uploadUri)))
+
+
+      case (upload, part, None) =>
+        val uploadUri = uploader.startUpload(upload.metadata.title, upload.metadata.channel, upload.id, upload.parts.last.end)
+        partComplete(upload, part, uploadUri)
+        Ok(Json.toJson(CompleteResponse(uploadUri)))
     }
   }
 
@@ -81,27 +91,23 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
       bucket = awsConfig.userUploadBucket,
       region = awsConfig.region.getName,
       title = atom.title,
-      pluto = plutoData
-    )
-
-    val youTube = YouTubeMetadata(
       channel = atom.channelId.getOrElse { AtomMissingYouTubeChannel },
-      upload = None
+      pluto = plutoData
     )
 
     val parts = chunk(id, size)
 
-    Upload(id, parts, metadata, youTube)
+    Upload(id, parts, metadata, UploadProgress(0, 0))
   }
 
-  private def partRequest(id: String, request: UserRequest[_])(fn: (Upload, UploadPart) => Result): Result = {
+  private def partRequest(id: String, request: UserRequest[_])(fn: (Upload, UploadPart, Option[String]) => Result): Result = {
     table.get(id) match {
       case Some(upload) =>
         request.headers.get(UPLOAD_KEY_HEADER) match {
           case Some(key) =>
             upload.parts.find(_.key == key) match {
               case Some(part) =>
-                fn(upload, part)
+                fn(upload, part, request.headers.get(UPLOAD_URI_HEADER))
 
               case None =>
                 BadRequest(s"Unknown part key $key")
@@ -116,23 +122,17 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
     }
   }
 
-  private def partComplete(upload: Upload, part: UploadPart): Upload = {
-    val uploadUri = upload.youTube.upload.getOrElse {
-      uploader.startUpload(upload.metadata.title, upload.youTube.channel, upload.id, upload.parts.last.end)
-    }
+  private def partComplete(upload: Upload, part: UploadPart, uploadUri: String): Upload = {
+    val complete = upload.copy(progress = upload.progress.copy(uploadedToS3 = part.end))
 
-    val complete = upload
-      .withPart(part.key)(_.copy(uploadedToS3 = true))
-      .copy(youTube = upload.youTube.copy(upload = Some(uploadUri)))
+    table.report(complete)
+    uploadActions.send(UploadPartToYouTube(upload, part, uploadUri))
 
-    table.put(complete)
-    uploadActions.send(UploadPartToYouTube(upload.id, part.key))
-
-    if(complete.parts.forall(_.uploadedToS3)) {
+    if(part.key == upload.parts.last.key) {
       val completeKey = CompleteUploadKey(awsConfig.userUploadFolder, complete.id).toString
 
-      uploadActions.send(CopyParts(upload.id, completeKey))
-      uploadActions.send(DeleteParts(upload.id))
+      uploadActions.send(CopyParts(upload, completeKey))
+      uploadActions.send(DeleteParts(upload))
     }
 
     complete
@@ -150,7 +150,9 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
 object UploadController {
   case class CreateRequest(atomId: String, filename: String, size: Long)
   case class CreateResponse(id: String, region: String, bucket: String, parts: List[UploadPart])
+  case class CompleteResponse(uploadUri: String)
 
   implicit val createRequestFormat: Format[CreateRequest] = Jsonx.formatCaseClass[CreateRequest]
   implicit val createResponseFormat: Format[CreateResponse] = Jsonx.formatCaseClass[CreateResponse]
+  implicit val completeResponseFormat: Format[CompleteResponse] = Jsonx.formatCaseClass[CompleteResponse]
 }

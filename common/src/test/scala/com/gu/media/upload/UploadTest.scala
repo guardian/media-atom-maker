@@ -2,7 +2,7 @@ package com.gu.media.upload
 
 import org.scalatest.{FunSuite, MustMatchers}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
-import Upload.{calculateChunks, oneHundredMegabytes, twoFiveSixKilobytes}
+import com.gu.media.upload.model.Upload.{calculateChunks, oneHundredMegabytes, twoFiveSixKilobytes}
 import org.scalacheck.Gen
 
 class UploadTest extends FunSuite with MustMatchers with GeneratorDrivenPropertyChecks {

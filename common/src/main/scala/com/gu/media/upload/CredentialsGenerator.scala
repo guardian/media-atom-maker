@@ -3,6 +3,7 @@ package com.gu.media.upload
 import com.amazonaws.services.securitytoken.model.AssumeRoleRequest
 import com.gu.media.aws.UploadAccess
 import com.gu.media.logging.Logging
+import com.gu.media.upload.model.UploadCredentials
 import play.api.libs.json.{JsArray, JsObject, JsString, Json}
 
 class CredentialsGenerator(aws: UploadAccess) extends Logging {

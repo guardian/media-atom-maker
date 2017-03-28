@@ -3,6 +3,7 @@ package com.gu.media.upload.actions
 import com.amazonaws.services.s3.model.{CompleteMultipartUploadRequest, CopyPartRequest, InitiateMultipartUploadRequest, PartETag}
 import com.gu.media.logging.Logging
 import com.gu.media.upload._
+import com.gu.media.upload.model.{Upload, UploadPart}
 import com.gu.media.youtube.YouTubeUploader
 
 import scala.util.control.NonFatal
@@ -13,42 +14,37 @@ abstract class UploadActionHandler(store: UploadsDataStore, s3: S3UploadAccess, 
   def addAsset(atomId: String, videoId: String): Long
 
   def handle(action: UploadAction): Unit = action match {
-    case UploadPartToYouTube(uploadId, key) =>
-      withUploadAndPart(uploadId, key) { (upload, part, uri) =>
-        uploadToYouTube(upload, part, uri)
-      }
+    case UploadPartToYouTube(upload, part, uploadUri) =>
+      val updated = uploadToYouTube(upload, part, uploadUri)
+      val withProgress = updated.copy(progress = upload.progress.copy(uploadedToYouTube = part.end))
 
-    case CopyParts(uploadId, destination) =>
-      withUpload(uploadId) { upload =>
-        createCompleteObject(upload, destination)
-      }
+      store.report(withProgress)
 
-    case DeleteParts(uploadId) =>
-      withUpload(uploadId) { upload =>
-        sendToPluto(upload)
-        deleteParts(upload)
-        store.delete(uploadId)
-      }
+    case CopyParts(upload, destination) =>
+      createCompleteObject(upload, destination)
+      sendToPluto(upload)
+
+    case DeleteParts(upload) =>
+      deleteParts(upload)
+      store.delete(upload.id)
   }
 
-  private def uploadToYouTube(upload: Upload, part: UploadPart, uploadUri: String): Unit = {
-    val total = upload.parts.last.end
+  private def uploadToYouTube(upload: Upload, part: UploadPart, uploadUri: String): Upload = {
     log.info(s"Uploading ${part.key} [${part.start} - ${part.end}]")
 
-    youTube.uploadPart(uploadUri, part.key, part.start, part.end, total) match {
+    val UploadPart(key, start, end) = part
+    val total = upload.parts.last.end
+
+    youTube.uploadPart(uploadUri, key, start, end, total) match {
       case Some(videoId) =>
+        // last part. add asset
         val version = addAsset(upload.metadata.atomId, videoId)
         val plutoData = upload.metadata.pluto.copy(assetVersion = version)
 
-        val updated = upload
-          .copy(metadata = upload.metadata.copy(pluto = plutoData))
-          .withPart(part.key)(_.copy(uploadedToYouTube = true))
-
-        store.put(updated)
+        upload.copy(metadata = upload.metadata.copy(pluto = plutoData))
 
       case None =>
-        val updated = upload.withPart(part.key)(_.copy(uploadedToYouTube = true))
-        store.put(updated)
+        upload
     }
   }
 
@@ -112,38 +108,6 @@ abstract class UploadActionHandler(store: UploadsDataStore, s3: S3UploadAccess, 
           // if we can't delete it, no problem. the bucket policy will remove it in time
           log.warn(s"Unable to delete part $part: $err")
       }
-    }
-  }
-
-  private def withUpload(uploadId: String)(fn: Upload => Unit): Unit = {
-    store.get(uploadId) match {
-      case Some(upload) =>
-        fn(upload)
-
-      case None =>
-        log.error(s"Unknown upload id $uploadId")
-    }
-  }
-
-  private def withUploadAndPart(uploadId: String, partKey: String)(fn: (Upload, UploadPart, String) => Unit): Unit = {
-    store.get(uploadId) match {
-      case Some(upload) =>
-        upload.youTube.upload match {
-          case Some(uploadUri) =>
-            upload.parts.find(_.key == partKey) match {
-              case Some(part) =>
-                fn(upload, part, uploadUri)
-
-              case None =>
-                log.error(s"Unknown part $partKey for upload $uploadId")
-            }
-
-          case None =>
-            log.error(s"Missing uploadUri for upload $uploadId")
-        }
-
-      case None =>
-        log.error(s"Unknown upload id $uploadId")
     }
   }
 }

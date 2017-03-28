@@ -1,16 +1,10 @@
-package com.gu.media.upload
+package com.gu.media.upload.model
 
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
 
-case class Upload(id: String, parts: List[UploadPart], metadata: UploadMetadata, youTube: YouTubeMetadata) {
-  def withPart(key: String)(fn: UploadPart => UploadPart): Upload = {
-    copy(parts = parts.map {
-      case part if part.key == key => fn(part)
-      case part => part
-    })
-  }
-}
+// All data is conceptually immutable except UploadProgress
+case class Upload(id: String, parts: List[UploadPart], metadata: UploadMetadata, progress: UploadProgress)
 
 object Upload {
   implicit val format: Format[Upload] = Jsonx.formatCaseClass[Upload]
@@ -33,6 +27,13 @@ object Upload {
             bigChunks ++ List((start, end), (size - remainder, size))
         }
     }
+  }
+
+  def mergeProgress(upload: Upload, progress: UploadProgress): Upload = {
+    upload.copy(progress = UploadProgress(
+      uploadedToS3 = Math.max(upload.progress.uploadedToS3, progress.uploadedToS3),
+      uploadedToYouTube = Math.max(upload.progress.uploadedToYouTube, progress.uploadedToYouTube)
+    ))
   }
 
   private def chunksOfExactly(chunkSize: Long, size: Long): (List[(Long, Long)], Long) = {

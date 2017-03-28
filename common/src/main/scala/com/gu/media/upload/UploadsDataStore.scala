@@ -1,6 +1,7 @@
 package com.gu.media.upload
 
 import com.gu.media.aws.DynamoAccess
+import com.gu.media.upload.model.Upload
 import com.gu.scanamo.syntax._
 import com.gu.scanamo.{Scanamo, Table}
 
@@ -24,8 +25,15 @@ class UploadsDataStore(aws: DynamoAccess) {
     Scanamo.exec(aws.dynamoDB)(operation)
   }
 
+  def report(upload: Upload): Unit = {
+    get(upload.id).foreach { before =>
+      val after = Upload.mergeProgress(upload, before.progress)
+      put(after)
+    }
+  }
+
   def get(id: String): Option[Upload] = {
-    val operation = table.consistently.get('id -> id)
+    val operation = table.get('id -> id)
     val result = Scanamo.exec(aws.dynamoDB)(operation)
 
     result.map {

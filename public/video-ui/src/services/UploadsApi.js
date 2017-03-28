@@ -38,13 +38,17 @@ class UploadFunctions {
     });
   };
 
-  completePart = (id, key) => {
+  completePart = (id, key, uploadUri) => {
+    const headers = { 'X-Upload-Key': key };
+
+    if(uploadUri) {
+      headers['X-Upload-Uri'] = uploadUri;
+    }
+
     return pandaReqwest({
       url: `/api2/uploads/${id}/complete`,
       method: 'post',
-      headers: {
-        'X-Upload-Key': key
-      }
+      headers: headers
     });
   };
 
@@ -80,6 +84,7 @@ export class UploadHandle {
     this.progressFn = progressFn;
 
     this.request = null;
+    this.uploadUri = null;
   }
 
   start = () => {
@@ -102,7 +107,8 @@ export class UploadHandle {
         this.request = s3Request;
 
         s3Request.promise().then(() => {
-          UploadsApi.completePart(this.upload.id, part.key).then(() => {
+          UploadsApi.completePart(this.upload.id, part.key, this.uploadUri).then((resp) => {
+            this.uploadUri = resp.uploadUri;
             this.uploadParts(parts.slice(1));
           });
         });
