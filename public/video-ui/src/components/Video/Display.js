@@ -10,13 +10,9 @@ import GridImageSelect from '../utils/GridImageSelect';
 import {getVideoBlock} from '../../util/getVideoBlock';
 import {getStore} from '../../util/storeAccessor';
 import Icon from '../Icon';
+import {formNames} from '../../constants/formNames';
 
 class VideoDisplay extends React.Component {
-
-  state = {
-    metadataErrors: {},
-    youtubeErrors: {}
-  };
 
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
@@ -48,18 +44,14 @@ class VideoDisplay extends React.Component {
   };
 
   updateMetadataFormErrors = (fieldErrors, fieldName) => {
-    this.setState({
-      metadataErrors: {
-        [fieldName]: fieldErrors
-      }
+    this.props.formErrorActions.updateFormErrors({
+      [formNames.metadata]: { [fieldName]: fieldErrors }
     });
   }
 
   updateYoutubeFormErrors = (fieldErrors, fieldName) => {
-    this.setState({
-      youtubeErrors: {
-        [fieldName]: fieldErrors
-      }
+    this.props.formErrorActions.updateFormErrors({
+      [formNames.youtube]: { [fieldName]: fieldErrors }
     });
   }
 
@@ -119,19 +111,18 @@ class VideoDisplay extends React.Component {
 
   cannotCloseEditForm = (property) => {
 
+    let formName;
     if (property === 'metadataEditable') {
-      const errors = this.state.metadataErrors;
-      return Object.keys(errors).some(field => {
-        const value = errors[field];
-        return value.length !== 0;
-      });
+      formName = formNames.metadata;
     } else if (property === 'youtubeEditable') {
-      const errors = this.state.youtubeErrors;
-      return Object.keys(errors).some(field => {
-        const value = errors[field];
-        return value.length !== 0;
-      });
+      formName = formNames.youtube;
     }
+    const errors = this.props.formErrors[formName] ? this.props.formErrors[formName] : {};
+    return Object.keys(errors).some(field => {
+      const value = errors[field];
+      return value.length !== 0;
+    });
+
   };
 
   renderEditButton = (property) => {
@@ -244,6 +235,7 @@ import * as videoUsages from '../../actions/VideoActions/videoUsages';
 import * as videoPageCreate from '../../actions/VideoActions/videoPageCreate';
 import * as getPublishedVideo from '../../actions/VideoActions/getPublishedVideo';
 import * as updateVideoEditState from '../../actions/VideoActions/updateVideoEditState';
+import * as updateFormErrors from '../../actions/FormErrorActions/updateFormErrors';
 
 function mapStateToProps(state) {
   return {
@@ -252,13 +244,15 @@ function mapStateToProps(state) {
     usages: state.usage,
     composerPageWithUsage: state.pageCreate,
     publishedVideo: state.publishedVideo,
-    editState: state.editState
+    editState: state.editState,
+    formErrors: state.formErrors
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, videoUsages, videoPageCreate, getPublishedVideo, updateVideoEditState), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, videoUsages, videoPageCreate, getPublishedVideo, updateVideoEditState), dispatch),
+    formErrorActions: bindActionCreators(Object.assign({}, updateFormErrors), dispatch)
   };
 }
 

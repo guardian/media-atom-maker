@@ -12,7 +12,7 @@ export default class TextInput extends React.Component {
       );
     }
 
-    const hasError = this.props.errors.length > 0;
+    const hasError = this.props.touched && this.props.errors.length > 0;
 
     return (
       <div className="form__row">

@@ -58,7 +58,9 @@ class VideoEdit extends React.Component {
           </ManagedField>
           <ManagedField
             fieldLocation="posterImage"
-            name="Poster Image">
+            name="Poster Image"
+            isRequired={true}
+          >
             <ImageSelector/>
           </ManagedField>
           <ManagedField

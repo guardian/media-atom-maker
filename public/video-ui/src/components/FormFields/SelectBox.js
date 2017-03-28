@@ -26,7 +26,7 @@ export default class SelectBox extends React.Component {
       );
     }
 
-    const hasError = this.props.errors.length > 0;
+    const hasError = this.props.touched && this.props.errors.length > 0;
 
     return (
       <div className="form__row">
@@ -46,7 +46,7 @@ export default class SelectBox extends React.Component {
             );
           })}
         </select>
-        {hasError ? <p className="form__message form__message--error">{this.props.meta.error}</p> : ""}
+        {hasError ? <p className="form__message form__message--error">{this.props.errors[0].message}</p> : ""}
       </div>
     );
   };

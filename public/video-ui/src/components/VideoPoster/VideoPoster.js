@@ -1,6 +1,5 @@
 import React from 'react';
 import VideoPosterEdit from '../VideoEdit/formComponents/VideoPoster';
-import validate from '../../constants/posterEditValidation';
 import {ManagedForm, ManagedField} from '../ManagedForm';
 import ImageSelector from '../FormFields/ImageSelector';
 

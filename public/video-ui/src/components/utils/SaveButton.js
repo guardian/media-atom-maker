@@ -1,18 +1,7 @@
 import React from 'react';
 import {saveStateVals} from '../../constants/saveStateVals';
-import {validate} from '../../constants/videoEditValidation';
 
 export default class SaveButton extends React.Component {
-
-  createDisabled = () => {
-    if (!this.props.video) {
-      return false;
-    }
-    return Object.keys(validate(Object.assign(this.props.video, {
-      youtubeCategory: this.props.video.youtubeCategoryId,
-      youtubeChannel: this.props.video.channelId
-    }))).length !== 0;
-  }
 
   renderButtons = () => {
     if (this.props.isHidden) {
@@ -27,16 +16,24 @@ export default class SaveButton extends React.Component {
     );
   };
 
+  isDisabled = () => {
+
+    const errors = Object.keys(this.props.formErrors).reduce((errors, fieldName) => {
+      return errors.concat(this.props.formErrors[fieldName]);
+    }, []);
+    return errors.length !== 0;
+  };
+
+
   saveButton = () => {
     if(!this.props.onSaveClick) {
       return false;
     }
 
-
     return (
       <button
         type="button"
-        disabled={this.createDisabled()}
+        disabled={this.isDisabled()}
         className={(this.props.saveState.saving == saveStateVals.inprogress ? "btn--loading " : "") + "btn"}
         onClick={this.props.onSaveClick}
       >

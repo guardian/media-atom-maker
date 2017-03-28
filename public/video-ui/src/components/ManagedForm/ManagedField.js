@@ -7,8 +7,29 @@ export class ManagedField extends React.Component {
 
   state = {
     fieldErrors : [],
-    fieldWarnings : []
+    fieldWarnings : [],
+    touched : false
   };
+
+  componentDidMount() {
+    const value = this.props.data ? this.props.data[this.props.fieldLocation] : null;
+    this.checkErrorsAndWarnings(value);
+  }
+
+  checkErrorsAndWarnings(value) {
+
+    if (this.props.updateFormErrors) {
+      const notifications = validateField(value, this.props.isRequired, this.props.isDesired);
+
+      this.setState({
+        fieldErrors: notifications.errors,
+        fieldWarnings: notifications.warnings
+      });
+
+      this.props.updateFormErrors(notifications.errors, this.props.name);
+    }
+
+  }
 
   static propTypes = {
     fieldLocation: PropTypes.string.isRequired,
@@ -31,14 +52,12 @@ export class ManagedField extends React.Component {
   };
 
   updateFn = (newValue) => {
-    const notifications = validateField(newValue, this.props.isRequired, this.props.isDesired);
 
     this.setState({
-      fieldErrors: notifications.errors,
-      fieldWarnings: notifications.warnings
+      touched: true
     });
 
-    this.props.updateFormErrors(notifications.errors, this.props.name);
+    this.checkErrorsAndWarnings(newValue);
 
     if (newValue !== '') {
       this.props.updateData(_set(this.props.fieldLocation, newValue, this.props.data));
@@ -72,7 +91,8 @@ export class ManagedField extends React.Component {
         editable: this.props.editable,
         maxLength: this.props.maxLength,
         errors: this.state.fieldErrors,
-        placeholder: this.props.placeholder
+        placeholder: this.props.placeholder,
+        touched: this.state.touched
       });
     });
     return <div>{hydratedChildren}</div>;
