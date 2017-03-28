@@ -192,7 +192,6 @@ class VideoDisplay extends React.Component {
                   <header className="video__detailbox__header">Poster Image</header>
                   <GridImageSelect
                     editState={this.props.editState}
-                    video={this.props.video || {}}
                     updateVideo={this.saveAndUpdateVideoPoster}
                     gridUrl={this.props.config.gridUrl}
                     disabled={this.props.editState.youtubeEditable || this.props.editState.metadataEditable}

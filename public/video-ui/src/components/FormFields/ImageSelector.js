@@ -25,7 +25,6 @@ class ImageSelector extends React.Component {
             <label className="form__label">{this.props.fieldName}</label>
             <div className="form__imageselect">
               <GridImageSelect
-                video={this.props.video}
                 updateVideo={this.props.onUpdateField}
                 gridUrl={this.props.config.gridUrl}
                 createMode={true}

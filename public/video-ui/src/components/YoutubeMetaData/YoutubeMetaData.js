@@ -1,7 +1,7 @@
 import React from 'react';
 import {ManagedForm, ManagedField} from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
-import ItemPicker from '../FormFields/ItemPicker';
+import KeywordPicker from '../FormFields/KeywordPicker';
 import { privacyStates } from '../../constants/privacyStates';
 
 class YoutubeMetaData extends React.Component {
@@ -50,7 +50,7 @@ class YoutubeMetaData extends React.Component {
             fieldLocation="tags"
             name="Keywords"
           >
-            <ItemPicker/>
+            <KeywordPicker/>
           </ManagedField>
         </ManagedForm>
       </div>
