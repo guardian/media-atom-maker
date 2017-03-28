@@ -24,7 +24,7 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
 
     val composerUrl = awsConfig.composerUrl
 
-    Permissions.canDeleteAtom(req.user.email).map { canDeleteAtom =>
+    Permissions.get(req.user.email).map { permissions =>
       val clientConfig = ClientConfig(
         username = req.user.email,
         youtubeEmbedUrl = "https://www.youtube.com/embed/",
@@ -36,7 +36,7 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
         ravenUrl = conf.getString("raven.url").get,
         stage = conf.getString("stage").get,
         viewerUrl = awsConfig.viewerUrl,
-        canDeleteAtom = canDeleteAtom
+        permissions
       )
 
       Ok(views.html.VideoUIApp.app("Media Atom Maker", jsLocation, Json.toJson(clientConfig).toString()))
