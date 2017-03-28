@@ -161,8 +161,8 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
   }
 
   private def withPermission(req: UserRequest[AnyContent])(fn: => Result): Future[Result] = {
-    Permissions.forUser(req.user.email).map {
-      case perms if perms.directUpload =>
+    Permissions.canAddAsset(req.user.email).map {
+      case true =>
         fn
 
       case _ =>

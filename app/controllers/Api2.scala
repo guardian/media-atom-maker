@@ -1,18 +1,25 @@
 package controllers
 
-import _root_.util.{AWSConfig}
+import _root_.util.AWSConfig
 import com.gu.atom.play.AtomAPIActions
 import com.gu.media.upload.model.PlutoSyncMetadata
+import com.gu.media.Permissions
+import com.gu.media.logging.Logging
 import com.gu.media.youtube.YouTube
 import com.gu.pandahmac.HMACAuthActions
+import com.gu.pandomainauth.action.UserRequest
 import data.DataStores
 import model.Category.Hosted
 import model.MediaAtom
 import model.commands.CommandExceptions._
 import model.commands._
-import play.api.{Configuration, Logger}
+import play.api.Configuration
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
+import play.api.mvc.{AnyContent, Result}
+import play.api.libs.concurrent.Execution.Implicits._
+
+import scala.concurrent.Future
 
 class Api2 (override val stores: DataStores, conf: Configuration, val authActions: HMACAuthActions,
             youTube: YouTube, awsConfig: AWSConfig)
@@ -20,7 +27,8 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
   extends MediaAtomImplicits
     with AtomAPIActions
     with AtomController
-    with JsonRequestParsing {
+    with JsonRequestParsing
+    with Logging {
 
   import authActions.APIHMACAuthAction
 
@@ -80,30 +88,34 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
     }
   }
 
-  def addAsset(atomId: String) = APIHMACAuthAction { implicit req =>
+  def addAsset(atomId: String) = APIHMACAuthAction.async { implicit req =>
     implicit val readCommand: Reads[AddAssetCommand] =
       (JsPath \ "uri").read[String].map { videoUri =>
         AddAssetCommand(atomId, videoUri, stores, youTube, req.user)
       }
 
-    parse(req) { command: AddAssetCommand =>
-      val atom = command.process()
-      Ok(Json.toJson(atom))
+    withAddAssetPermission(req) {
+      parse(req) { command: AddAssetCommand =>
+        val atom = command.process()
+        Ok(Json.toJson(atom))
+      }
     }
   }
 
 
   private def atomUrl(id: String) = s"/atom/$id"
 
-  def setActiveAsset(atomId: String) = APIHMACAuthAction { implicit req =>
+  def setActiveAsset(atomId: String) = APIHMACAuthAction.async { implicit req =>
     implicit val readCommand: Reads[ActiveAssetCommand] =
       (JsPath \ "youtubeId").read[String].map { videoUri =>
         ActiveAssetCommand(atomId, videoUri, stores, youTube, req.user)
       }
 
-    parse(req) { command: ActiveAssetCommand =>
-      val atom = command.process()
-      Ok(Json.toJson(atom))
+    withAddAssetPermission(req) {
+      parse(req) { command: ActiveAssetCommand =>
+        val atom = command.process()
+        Ok(Json.toJson(atom))
+      }
     }
   }
 
@@ -123,13 +135,29 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
     Ok(Json.toJson(auditDataStore.getAuditTrailForAtomId(id)))
   }
 
-  def deleteAtom(id: String) = APIHMACAuthAction {
-    try {
-      DeleteCommand(id, stores).process()
-      Ok(s"Atom $id deleted")
+  def deleteAtom(id: String) = APIHMACAuthAction.async { implicit req =>
+    Permissions.canDeleteAtom(req.user.email).map {
+      case true =>
+        try {
+          DeleteCommand(id, stores).process()
+          Ok(s"Atom $id deleted")
+        }
+        catch {
+          commandExceptionAsResult
+        }
+
+      case false =>
+        Unauthorized
     }
-    catch {
-      commandExceptionAsResult
+  }
+
+  private def withAddAssetPermission(req: UserRequest[AnyContent])(fn: => Result): Future[Result] = {
+    Permissions.canAddAsset(req.user.email).map {
+      case true =>
+        fn
+
+      case _ =>
+        Unauthorized
     }
   }
 
@@ -148,7 +176,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
             }
           }
           case Left(error) => {
-            Logger.error(s"Error in fetching atom ${upload.atomId} corresponding to s3Key ${upload.s3Key}" + error.msg)
+            log.error(s"Error in fetching atom ${upload.atomId} corresponding to s3Key ${upload.s3Key}" + error.msg)
             acc
           }
         }

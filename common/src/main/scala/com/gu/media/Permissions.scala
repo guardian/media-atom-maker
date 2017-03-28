@@ -4,21 +4,29 @@ import com.gu.editorial.permissions.client._
 
 import scala.concurrent.Future
 
-case class Permissions(directUpload: Boolean)
+case class Permissions(addAsset: Boolean, deleteAtom: Boolean)
 
 object Permissions extends PermissionsProvider {
   val app = "media-atom-maker"
-  val directUpload = Permission("media_atom_direct_upload", app, defaultVal = PermissionDenied)
+  val addAsset = Permission("media_atom_add_asset", app, defaultVal = PermissionDenied)
+  val deleteAtom = Permission("media_atom_delete", app, defaultVal = PermissionDenied)
 
-  val all = Seq(directUpload)
-  val none = Permissions(false)
+  val all = Seq(addAsset, deleteAtom)
+  val none = Permissions(addAsset = false, deleteAtom = false)
 
   implicit def config = PermissionsConfig(app, all)
 
-  def forUser(email: String): Future[Permissions] = {
-    get(directUpload)(PermissionsUser(email)).map {
-      case PermissionGranted => Permissions(directUpload = true)
-      case _ => none
+  def canAddAsset(email: String): Future[Boolean] = {
+    get(addAsset)(PermissionsUser(email)).map {
+      case PermissionGranted => true
+      case _ => false
+    }
+  }
+
+  def canDeleteAtom(email: String): Future[Boolean] = {
+    get(deleteAtom)(PermissionsUser(email)).map {
+      case PermissionGranted => true
+      case _ => false
     }
   }
 }

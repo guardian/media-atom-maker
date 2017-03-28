@@ -14,7 +14,8 @@ case class ClientConfig(username: String,
                         composerUrl: String,
                         ravenUrl: String,
                         stage: String,
-                        viewerUrl: String
+                        viewerUrl: String,
+                        canDeleteAtom: Boolean // also validated server-side on every delete request
                        )
 
 object ClientConfig {
