@@ -36,7 +36,7 @@ export default class SelectBox extends React.Component {
           className={"form__field form__field--select " + (hasError ? "form__field--error" : "")}
 
           value={this.props.fieldValue}
-          onChange={(e) => {this.props.onUpdateField(e.target.value)}}>
+          onChange={(e) => {this.props.onUpdateField(e.target.value);}}>
 
 
           {this.renderDefaultOption()}

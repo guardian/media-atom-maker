@@ -23,7 +23,7 @@ export default class TextInput extends React.Component {
           className={"form__field " + (hasError ? "form__field--error" : "")}
           type="text"
           value={this.props.fieldValue}
-          onChange={(e) => {this.props.onUpdateField(e.target.value)}} />
+          onChange={(e) => {this.props.onUpdateField(e.target.value);}} />
         {hasError ? <p className="form__message form__message--error">{this.props.errors[0].message}</p> : ""}
       </div>
     );

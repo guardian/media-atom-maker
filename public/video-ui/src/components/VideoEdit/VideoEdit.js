@@ -3,7 +3,6 @@ import {ManagedForm, ManagedField} from '../ManagedForm';
 import TextInput from '../FormFields/TextInput';
 import TextArea from '../FormFields/TextArea';
 import SelectBox from '../FormFields/SelectBox';
-import CheckBox from '../FormFields/CheckBox';
 import DatePicker from '../FormFields/DatePicker';
 import {fieldLengths} from '../../constants/videoEditValidation';
 import {videoCategories} from '../../constants/videoCategories';

@@ -10,7 +10,7 @@ export default class CheckBox extends React.Component {
           type="checkbox"
           disabled={!this.props.editable}
           checked= {this.props.fieldValue}
-          onChange={(e) => {this.props.onUpdateField(e.target.checked)}}
+          onChange={(e) => {this.props.onUpdateField(e.target.checked);}}
         />
       </div>
     );

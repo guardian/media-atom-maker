@@ -1,7 +1,6 @@
 import React from 'react';
 import Picker from 'react-datepicker';
 import moment from 'moment';
-import _ from 'lodash';
 import 'react-datepicker/dist/react-datepicker.css';
 import Icon from '../Icon';
 
@@ -101,12 +100,12 @@ function Display({date}) {
   </div>;
 }
 
-export default function DatePicker({editable, onUpdateField, fieldName, fieldValue, video}) {
+export default function DatePicker({editable, onUpdateField, fieldValue}) {
 
   const date = fieldValue ? moment(fieldValue) : null;
 
   if(editable) {
-    return <Editor date={date} onChange={(newDate) => { onUpdateField(newDate.valueOf()) }} />;
+    return <Editor date={date} onChange={(newDate) => { onUpdateField(newDate.valueOf()); }} />;
   } else {
     return <Display date={date} />;
   }

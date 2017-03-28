@@ -9,7 +9,7 @@ class ItemPicker extends React.Component {
         <label className="form__label">Keywords</label>
         <KeywordPicker
           keywords={this.props.fieldValue}
-          updateKeywords={(keywords) => {this.props.onUpdateField(keywords)}}
+          updateKeywords={(keywords) => {this.props.onUpdateField(keywords);}}
           editable={this.props.editable}/>
       </div>
     );

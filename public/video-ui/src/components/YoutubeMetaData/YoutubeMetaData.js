@@ -1,6 +1,5 @@
 import React from 'react';
 import {ManagedForm, ManagedField} from '../ManagedForm';
-import TextInput from '../FormFields/TextInput';
 import SelectBox from '../FormFields/SelectBox';
 import ItemPicker from '../FormFields/ItemPicker';
 import { privacyStates } from '../../constants/privacyStates';

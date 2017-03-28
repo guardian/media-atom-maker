@@ -1,5 +1,4 @@
 import React from 'react';
-import VideoPosterEdit from '../VideoEdit/formComponents/VideoPoster';
 import {ManagedForm, ManagedField} from '../ManagedForm';
 import ImageSelector from '../FormFields/ImageSelector';
 
@@ -21,4 +20,4 @@ export default class VideoPoster extends React.Component {
       </ManagedForm>
     );
   }
-};
+}

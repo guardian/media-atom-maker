@@ -56,4 +56,4 @@ export default class VideoMetaData extends React.Component {
       </div>
     );
   }
-};
+}
