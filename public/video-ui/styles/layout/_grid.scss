@@ -12,8 +12,11 @@
 .grid__list {
   list-style: none;
   padding: 0 20px;
-
   text-align: center;
+
+  &__trail {
+    text-align: left;
+  }
 }
 
 .grid__item {
@@ -85,6 +88,11 @@
   padding: 8px 10px;
   height: 50px;
   overflow: hidden;
+
+  &__assets {
+    width: 70%;
+    display: inline-flex;
+  }
 }
 
 .grid__status__overlay {

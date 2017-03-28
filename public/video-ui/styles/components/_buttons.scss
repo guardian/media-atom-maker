@@ -12,15 +12,23 @@ button {
 }
 
 .button__secondary {
-  @include buttonClass($color800Grey, $color500Grey, $color300Grey);
+  @include buttonClass($color800Grey, $color500Grey, $color300Grey, $color800Grey);
+
+  &__assets {
+    margin: 10px;
+  }
 }
 
 .button__active {
-  @include buttonClass(#33a22b, #33a22b, $color300Grey);
+  @include buttonClass($brandColor, $color500Grey, $color800Grey, $color800Grey);
+  position: absolute;
+  right: 50px;
+  top: 8px;
+  padding: 10px;
 }
 
 .btn {
-  @include buttonClass($brandColor, $color500Grey, $color800Grey);
+  @include buttonClass($brandColor, $color500Grey, $color800Grey, $color800Grey);
 }
 
 .btn + .btn {

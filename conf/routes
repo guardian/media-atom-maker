@@ -38,6 +38,7 @@ GET     /api2/audits/:id                controllers.Api2.getAuditTrailForAtomId(
 
 GET     /api/youtube/categories         controllers.Youtube.listCategories()
 GET     /api/youtube/channels           controllers.Youtube.listChannels()
+GET     /api/youtube/processingStatus   controllers.Youtube.processingStatus(videoIds)
 
 GET     /api/transcoder/jobStatus    controllers.Transcoder.jobStatus
 

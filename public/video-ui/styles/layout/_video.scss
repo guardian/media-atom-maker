@@ -79,4 +79,11 @@
     display: block;
     font-size: $fontsize__detailbox;
   }
+
+  &__trail {
+    margin-top: 20px;
+    border-left: 1px solid $color700Grey;
+    padding-left: 20px;
+    flex: 1;
+  }
 }

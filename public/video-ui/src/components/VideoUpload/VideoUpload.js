@@ -23,10 +23,18 @@ class AddAssetFromURL extends React.Component {
   render() {
     const disabled = !this.state.uri;
 
-    return <div className="upload__action">
-      <label>Asset URL</label>
-      <input className="form__field" type="text" placeholder="Paste YouTube URL here" onChange={this.onChange} />
-      <button className="btn" type="button" onClick={this.addAsset} disabled={disabled}>Add</button>
+    return <div className="video__detailbox">
+      <div className="video__detailbox__header__container">
+        <header className="video__detailbox__header">Asset URL</header>
+      </div>
+      <div className="form__group">
+      <div className="form__row">
+        <div>
+          <input className="form__field" type="text" placeholder="Paste YouTube URL here" onChange={this.onChange} />
+          <button className="btn" type="button" onClick={this.addAsset} disabled={disabled}>Add</button>
+        </div>
+      </div>
+    </div>
     </div>;
   }
 }
@@ -58,39 +66,35 @@ class VideoUpload extends React.Component {
   };
 
   renderHeader() {
-    let link = false;
     if (this.props.video) {
-      link = <Link className="button" to={`/videos/${this.props.video.id}`}>
+      <Link className="button" to={`/videos/${this.props.video.id}`}>
         <Icon className="icon__edit" icon="clear" />
       </Link>;
     }
-
-    return <div className="upload__header">
-      <header className="video__detailbox__header">Video Assets</header>
-      {link}
-    </div>;
   }
 
   renderButtons(uploading) {
     if (uploading) {
       return false;
     } else {
-      return <button type="button" className="button__secondary" disabled={!this.state.file} onClick={this.startUpload}>
+      return <button type="button" className="btn button__secondary__assets" disabled={!this.state.file} onClick={this.startUpload}>
         <Icon icon="backup">Upload</Icon>
       </button>;
     }
   }
 
   renderPicker(uploading) {
-    return <div className="upload__action">
-      <label>Upload Video</label>
-      <input className="form__field" type="file" onChange={this.setFile} disabled={uploading} />
-      {this.renderButtons(uploading)}
+    return <div className="video__detailbox upload__action">
+      <div className="video__detailbox__header__container">
+        <header className="video__detailbox__header">Upload Video</header>
+      </div>
+        <input className="form__field" type="file" onChange={this.setFile} disabled={uploading} />
+        {this.renderButtons(uploading)}
     </div>;
   }
 
   render() {
-    const uploading = this.props.localUpload.handle !== null || this.props.uploads.length > 0;
+    const uploading = this.props.localUpload.handle !== null;
 
     const activeVersion = this.props.video ? this.props.video.activeVersion : 0;
     const assets = this.props.video ? this.props.video.assets : [];
@@ -107,9 +111,9 @@ class VideoUpload extends React.Component {
         return !exists;
     });
 
-    return <div className="upload">
+    return <div className="video__main">
       {this.renderHeader()}
-      <div className="upload__content">
+      <div className="video__main__header">
         <div className="upload__actions">
           {this.renderPicker(uploading)}
           <AddAssetFromURL video={this.props.video} createAsset={this.props.videoActions.createAsset} />
