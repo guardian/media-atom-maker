@@ -5,14 +5,15 @@ import java.util.UUID
 import com.gu.media.logging.Logging
 import com.gu.media.upload._
 import com.gu.media.upload.actions.{CopyParts, DeleteParts, UploadActionSender, UploadPartToYouTube}
+import com.gu.media.upload.model._
 import com.gu.media.youtube.{YouTubeAccess, YouTubeUploader}
 import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.action.UserRequest
 import com.gu.pandomainauth.model.User
 import controllers.UploadController.{CompleteResponse, CreateRequest}
 import data.{DataStores, UnpackedDataStores}
-import model._
-import model.commands.CommandExceptions.AtomMissingYouTubeChannel
+import _root_.model.MediaAtom
+import _root_.model.commands.CommandExceptions._
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.{Controller, Result}
