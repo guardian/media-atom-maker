@@ -152,12 +152,23 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
   }
 
   private def withAddAssetPermission(req: UserRequest[AnyContent])(fn: => Result): Future[Result] = {
-    permissions.canAddAsset(req.user.email).map {
-      case true =>
-        fn
+    import com.gu.pandahmac.HMACHeaderNames._
 
-      case _ =>
-        Unauthorized
+    // ASSUMPTION: the HMAC request has already been authenticated by Panda.
+    // We are merely checking to see if the request was made using HMAC or not.
+    val headers = req.headers.toSimpleMap.keySet
+    val hmacHeaders = Set(hmacKey, dateKey, serviceNameKey)
+
+    if(hmacHeaders.subsetOf(headers)) {
+      Future { fn }
+    } else {
+      permissions.canAddAsset(req.user.email).map {
+        case true =>
+          fn
+
+        case _ =>
+          Unauthorized
+      }
     }
   }
 
