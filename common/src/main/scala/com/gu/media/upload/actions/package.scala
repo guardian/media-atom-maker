@@ -1,6 +1,7 @@
 package com.gu.media.upload
 
 import com.gu.media.aws.{S3Access, UploadAccess}
+import com.gu.media.upload.model.{Upload, UploadPart}
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
 

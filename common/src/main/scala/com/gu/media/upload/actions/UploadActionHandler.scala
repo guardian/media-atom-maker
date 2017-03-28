@@ -3,6 +3,7 @@ package com.gu.media.upload.actions
 import com.amazonaws.services.s3.model.{CompleteMultipartUploadRequest, CopyPartRequest, InitiateMultipartUploadRequest, PartETag}
 import com.gu.media.logging.Logging
 import com.gu.media.upload._
+import com.gu.media.upload.model.{Upload, UploadPart}
 import com.gu.media.youtube.YouTubeUploader
 
 import scala.util.control.NonFatal

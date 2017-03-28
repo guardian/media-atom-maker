@@ -1,4 +1,4 @@
-package com.gu.media.upload
+package com.gu.media.upload.model
 
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format

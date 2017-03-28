@@ -1,6 +1,7 @@
 package com.gu.media.upload
 
 import com.gu.media.aws.DynamoAccess
+import com.gu.media.upload.model.Upload
 import com.gu.scanamo.syntax._
 import com.gu.scanamo.{Scanamo, Table}
 

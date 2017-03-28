@@ -11,7 +11,7 @@ import com.gu.pandomainauth.action.UserRequest
 import com.gu.pandomainauth.model.User
 import controllers.UploadController.{CompleteResponse, CreateRequest}
 import data.{DataStores, UnpackedDataStores}
-import model.MediaAtom
+import model._
 import model.commands.CommandExceptions.AtomMissingYouTubeChannel
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.{Format, Json}
