@@ -137,17 +137,12 @@ class VideoDisplay extends React.Component {
   }
 
   renderPreview = () => {
-    let link = false;
-    if(this.props.video && getStore().getState().config.showAssetsPageButton) {
-      link = <Link className="button" to={`/videos/${this.props.video.id}/upload`}>
-        <Icon className="icon__edit" icon="edit"/>
-      </Link>;
-    }
-
     return <div className="video__detailbox">
       <div className="video__detailbox__header__container">
         <header className="video__detailbox__header">Video Asset</header>
-        {link}
+        <Link className="button" to={`/videos/${this.props.video.id}/upload`}>
+          <Icon className="icon__edit" icon="edit"/>
+        </Link>
       </div>
       <VideoPreview video={this.props.video || {}} />
     </div>;
