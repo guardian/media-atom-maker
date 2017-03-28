@@ -48,6 +48,8 @@ class CapiBackedAtomListStore(capi: CapiPreviewAccess) extends AtomListStore {
 
 class DynamoBackedAtomListStore(store: AtomListStore.PreviewStore) extends AtomListStore {
   override def getAtoms(search: Option[String], limit: Option[Int]): List[MediaAtomSummary] = {
+    // We must filter the entire list of atoms rather than use Dynamo limit to ensure stable iteration order.
+    // Without it, the front page will shuffle around when clicking the Load More button.
     store.listAtoms match {
       case Left(err) =>
         AtomDataStoreError(err.msg)
@@ -71,7 +73,12 @@ class DynamoBackedAtomListStore(store: AtomListStore.PreviewStore) extends AtomL
           case None => mediaAtoms
         }
 
-        filteredAtoms.map(fromAtom)
+        val limitedAtoms = limit match {
+          case Some(l) => filteredAtoms.take(l)
+          case None => filteredAtoms
+        }
+
+        limitedAtoms.map(fromAtom)
     }
   }
 
@@ -87,7 +94,7 @@ object AtomListStore {
   type PreviewStore = PreviewDynamoDataStore[ThriftMediaAtom]
 
   def apply(stage: String, capi: CapiPreviewAccess, store: PreviewStore): AtomListStore = stage match {
-//    case "DEV" => new DynamoBackedAtomListStore(store)
+    case "DEV" => new DynamoBackedAtomListStore(store)
     case _ => new CapiBackedAtomListStore(capi)
   }
 

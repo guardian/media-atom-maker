@@ -1,5 +1,6 @@
 import React, {PropTypes} from 'react';
 import VideoItem from './VideoItem';
+import {frontPageSize} from '../../constants/frontPageSize';
 
 class Videos extends React.Component {
 
@@ -41,7 +42,7 @@ class Videos extends React.Component {
     }
 
     const showMore = () => {
-      this.props.videoActions.getVideos(this.props.searchTerm, this.props.limit + 2);
+      this.props.videoActions.getVideos(this.props.searchTerm, this.props.limit + frontPageSize);
     };
 
     return <div>
