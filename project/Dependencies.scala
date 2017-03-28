@@ -10,7 +10,6 @@ object Dependencies {
   val slf4jVersion = "1.7.21"
   val typesafeConfigVersion = "1.3.0" // to match what we get from Play transitively
   val scanamoVersion = "0.9.1" // to match what we get from atom-publisher-lib transitively
-  val kinesisClientVersion = "1.7.4"
 
   val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0"
   val jacksonDatabind = "com.fasterxml.jackson.core" % "jackson-databind" % "2.7.0"
