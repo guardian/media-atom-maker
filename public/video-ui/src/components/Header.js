@@ -2,7 +2,6 @@ import React from 'react';
 import {Link} from 'react-router';
 import VideoSearch from './VideoSearch/VideoSearch';
 import VideoPublishBar from './VideoPublishBar/VideoPublishBar';
-import VideoUpload from './VideoUpload/VideoUpload';
 import Icon from './Icon';
 
 export default class Header extends React.Component {
@@ -34,7 +33,7 @@ export default class Header extends React.Component {
         <Link to={`/videos/${this.props.video.id}`} className="button" title="Back"><Icon className="icon icon__back" icon="keyboard_arrow_left"></Icon></Link>
         <span>Edit Videos</span>
       </div>
-    )
+    );
   }
 
   renderFeedback() {
@@ -88,7 +87,7 @@ export default class Header extends React.Component {
         <header className="topbar flex-container">
           {this.renderHeaderBack()}
         </header>
-      )
+      );
     } if (!this.props.showPublishedState) {
       return (
         <header className="topbar flex-container">
