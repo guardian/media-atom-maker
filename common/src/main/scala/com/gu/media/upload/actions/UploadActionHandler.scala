@@ -5,7 +5,7 @@ import com.gu.media.PlutoDataStore
 import com.gu.media.logging.Logging
 import com.gu.media.ses.Mailer
 import com.gu.media.upload._
-import com.gu.media.upload.model.{Upload, UploadPart}
+import com.gu.media.upload.model.{PlutoSyncMetadata, Upload, UploadPart}
 import com.gu.media.youtube.YouTubeUploader
 
 import scala.util.control.NonFatal

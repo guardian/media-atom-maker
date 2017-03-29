@@ -1,7 +1,7 @@
 package com.gu.media
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
-import com.gu.media.upload.PlutoSyncMetadata
+import com.gu.media.upload.model.PlutoSyncMetadata
 import com.gu.scanamo.syntax._
 import com.gu.scanamo.{Scanamo, Table}
 

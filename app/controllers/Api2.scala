@@ -2,7 +2,7 @@ package controllers
 
 import _root_.util.{AWSConfig}
 import com.gu.atom.play.AtomAPIActions
-import com.gu.media.upload.PlutoSyncMetadata
+import com.gu.media.upload.model.PlutoSyncMetadata
 import com.gu.media.youtube.YouTube
 import com.gu.pandahmac.HMACAuthActions
 import data.DataStores
