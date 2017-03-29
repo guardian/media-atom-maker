@@ -172,11 +172,10 @@
         "Type": "AWS::SNS::Topic",
         "Properties": {
           "TopicName":  {"Fn::Join": ["-", [{"Ref": "PlutoIngestedVideoTopicName"}, {"Ref": "Stage"} ] ] },
-          "Subscription": {
+          "Subscription": [ {
             "Endpoint": {"Fn::GetAtt": ["PlutoIngestedVideoQueue", "Arn"]},
             "Protocol": "sqs"
-
-          }
+          } ]
         }
       },
       "PlutoIngestedVideoQueue": {
@@ -188,7 +187,7 @@
       "PlutoIngestedVideoPolicy": {
         "Type": "AWS::SQS::QueuePolicy",
         "Properties": {
-          "Queues": { "Ref": "PlutoIngestedVideoQueue"},
+          "Queues": [{ "Ref": "PlutoIngestedVideoQueue"}],
           "PolicyDocument": {
             "Statement": [
               {
@@ -201,7 +200,7 @@
                 "Resource": "*",
                 "Condition": {
                   "ArnEquals": {
-                    "aws:SourceArn": { "Ref": "NotificationEmailFrom" }
+                    "aws:SourceArn": { "Ref": "PlutoIngestedVideoTopic" }
                   }
                 }
               }
@@ -955,7 +954,7 @@
                     "kinesis:PutRecord",
                     "kinesis:PutRecords"
                   ],
-                  "Resource": { "Ref": "UploadsToPlutoStream"}
+                  "Resource": {"Fn::GetAtt": ["UploadsToPlutoStream", "Arn"]}
                 }
               ]
             },
@@ -974,7 +973,7 @@
                     "sqs:ReceiveMessage",
                     "sqs:DeleteMessage"
                   ],
-                  "Resource": { "Ref": "PlutoIngestedVideoQueue"}
+                  "Resource": {"Fn::GetAtt": ["PlutoIngestedVideoQueue", "Arn"]}
                 }
               ]
             },
