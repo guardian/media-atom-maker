@@ -37,7 +37,6 @@
     "gulp-uglify": "^2.0.0",
     "jsonlint": "^1.6.2",
     "lodash": "^4.17.4",
-    "moment": "^2.10.6",
     "node-sass": "^3.10.1",
     "properties-reader": "0.0.15",
     "react-hot-loader": "^3.0.0-beta.5",
