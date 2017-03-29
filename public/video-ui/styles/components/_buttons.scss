@@ -17,6 +17,11 @@ button {
 
 .btn {
   @include buttonClass($brandColor, $color800Grey);
+
+  &--pluto {
+    margin-left: 5px;
+    padding: 7px;
+  }
 }
 
 .btn + .btn {

@@ -33,6 +33,18 @@ Parameters:
     Description: "How many video chunks can be uploaded in parallel"
     Type: "String"
     Default: "2"
+  UploadsStreamName:
+    Description: "Name of the kinesis stream where uploaded videos get pushed"
+    Type: "String"
+    Default: "media-atom-maker-video-uploads"
+  PlutoQueueName:
+    Description: "Name of the queue with ids of ingested atoms"
+    Type: "String"
+    Default: "media-atom-maker-ingested-videos"
+  PlutoTopicName:
+    Description: "Name of the topic where pluto publishes atom ids with ingested master"
+    Type: "String"
+    Default: "media-atom-maker-ingested-videos"
 Mappings:
   LambdaBuilds:
     Uploader:
@@ -67,6 +79,9 @@ Resources:
                   - !Sub
                     - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
                     - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "UploadTrackingDynamoTable" }
+                  - !Sub
+                    - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
+                    - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "ManualPlutoMediaAtomsDynamoTable" }
   MediaAtomUser:
     Type: "AWS::IAM::User"
     Properties:
@@ -100,6 +115,30 @@ Resources:
           KeyType: "HASH"
       ProvisionedThroughput:
         ReadCapacityUnits: "10"
+        WriteCapacityUnits: "5"
+  ManualPlutoMediaAtomsDynamoTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "s3Key"
+          AttributeType: "S"
+        - AttributeName: "atomId"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "s3Key"
+          KeyType: "HASH"
+      GlobalSecondaryIndexes:
+        - IndexName: atom-id
+          KeySchema:
+            - AttributeName: atomId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: '5'
+            WriteCapacityUnits: '1'
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
   AuditMediaAtomMakerDynamoTable:
     Type: "AWS::DynamoDB::Table"
@@ -430,6 +469,39 @@ Resources:
             - kinesis:PutRecord
             - kinesis:PutRecords
 
+  UploadsStream:
+    Type: "AWS::Kinesis::Stream"
+    Properties:
+      Name: !Sub "${UploadsStreamName}-${Stage}"
+      ShardCount: 1
+  PlutoTopic:
+    Type: "AWS::SNS::Topic"
+    Properties:
+      TopicName: !Sub "${PlutoTopicName}-${Stage}"
+      Subscription:
+        - Endpoint: !GetAtt PlutoQueue.Arn
+          Protocol: sqs
+  PlutoQueue:
+    Type: "AWS::SQS::Queue"
+    Properties:
+      QueueName: !Sub ${PlutoQueueName}-${Stage}
+  PlutoQueuePolicy:
+    Type: "AWS::SQS::QueuePolicy"
+    Properties:
+      Queues:
+        - Ref: PlutoQueue
+      PolicyDocument:
+        Statement:
+        - Sid: allow-sqs-sendmessage
+          Effect: Allow
+          Principal:
+            AWS: "*"
+          Action: SQS:SendMessage
+          Resource: !GetAtt PlutoQueue.Arn
+          Condition:
+            ArnEquals:
+              aws:SourceArn:
+                Ref: PlutoTopic
 Outputs:
   EditsDynamoTable:
     Value:
@@ -443,6 +515,9 @@ Outputs:
   UploadTrackingDynamoTable:
     Value:
       Ref: "UploadTrackingDynamoTable"
+  ManualPlutoDynamoTable:
+    Value:
+      Ref: "ManualPlutoMediaAtomsDynamoTable"
   AwsId:
     Value:
       Ref: "HostKeys"

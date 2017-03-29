@@ -21,7 +21,9 @@ class AWSConfig(override val config: Config)
     with UploadAccess
     with KinesisAccess
     with ElasticTranscodeAccess
-    with KinesisLogging {
+    with KinesisLogging
+    with SQSAccess
+    with SESSettings {
 
   lazy val ec2Client = region.createClient(
     classOf[AmazonEC2Client],

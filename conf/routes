@@ -23,7 +23,10 @@ POST    /api2/atoms/:id/assets          controllers.Api2.addAsset(id)
 
 PUT     /api2/atom/:id/publish          controllers.Api2.publishMediaAtom(id)
 PUT     /api2/atom/:id/asset-active     controllers.Api2.setActiveAsset(id)
-PUT     /api2/atom/:id/pluto-id         controllers.Api2.setPlutoId(id)
+
+PUT     /api2/pluto/:id                 controllers.Api2.sendToPluto(id)
+GET     /api2/pluto                     controllers.Api2.getPlutoAtoms()
+
 
 DELETE  /api2/atom/:id                  controllers.Api2.deleteAtom(id)
 
@@ -39,7 +42,9 @@ GET     /api2/audits/:id                controllers.Api2.getAuditTrailForAtomId(
 GET     /api/youtube/categories         controllers.Youtube.listCategories()
 GET     /api/youtube/channels           controllers.Youtube.listChannels()
 
-GET     /api/transcoder/jobStatus    controllers.Transcoder.jobStatus
+GET     /api/transcoder/jobStatus       controllers.Transcoder.jobStatus
+
+
 
 # reindex
 
@@ -61,6 +66,7 @@ GET /video/*path                        controllers.Support.legacyVideosEndpoint
 
 GET /                                   controllers.VideoUIApp.index(id = "")
 GET /videos                             controllers.VideoUIApp.index(id = "")
+GET /videos/pluto-list                  controllers.VideoUIApp.index(id = "")
 GET /videos/:id                         controllers.VideoUIApp.index(id)
 GET /videos/:id/audit                   controllers.VideoUIApp.index(id)
 GET /videos/:id/upload                  controllers.VideoUIApp.index(id)

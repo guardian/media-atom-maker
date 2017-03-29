@@ -1,15 +1,19 @@
 package com.gu.media.upload.actions
 
 import com.amazonaws.services.s3.model.{CompleteMultipartUploadRequest, CopyPartRequest, InitiateMultipartUploadRequest, PartETag}
+import com.gu.media.PlutoDataStore
 import com.gu.media.logging.Logging
+import com.gu.media.ses.Mailer
 import com.gu.media.upload._
-import com.gu.media.upload.model.{Upload, UploadPart}
+import com.gu.media.upload.model.{PlutoSyncMetadata, Upload, UploadPart}
 import com.gu.media.youtube.YouTubeUploader
 
 import scala.util.control.NonFatal
 import scala.collection.JavaConverters._
 
-abstract class UploadActionHandler(store: UploadsDataStore, s3: S3UploadAccess, youTube: YouTubeUploader) extends Logging {
+abstract class UploadActionHandler(store: UploadsDataStore, plutoStore: PlutoDataStore, uploaderAccess: UploaderAccess,
+                                   youTube: YouTubeUploader, mailer: Mailer)
+  extends Logging {
   // Returns the new version number
   def addAsset(atomId: String, videoId: String): Long
 
@@ -38,7 +42,7 @@ abstract class UploadActionHandler(store: UploadsDataStore, s3: S3UploadAccess, 
     youTube.uploadPart(uploadUri, key, start, end, total) match {
       case Some(videoId) =>
         // last part. add asset
-        val version = addAsset(upload.metadata.atomId, videoId)
+        val version = addAsset(upload.metadata.pluto.atomId, videoId)
         val plutoData = upload.metadata.pluto.copy(assetVersion = version)
 
         upload.copy(metadata = upload.metadata.copy(pluto = plutoData))
@@ -51,48 +55,52 @@ abstract class UploadActionHandler(store: UploadsDataStore, s3: S3UploadAccess, 
   // Videos are uploaded as a series of smaller parts. In order to simplify Pluto ingestion and allow us
   // to transcode if required, we use S3 multipart copy to create a new object consisting of all the parts
   private def createCompleteObject(upload: Upload, destination: String): Unit = {
-    val start = new InitiateMultipartUploadRequest(s3.userUploadBucket, destination)
+    val start = new InitiateMultipartUploadRequest(uploaderAccess.userUploadBucket, destination)
     log.info(s"Starting multipart copy for upload ${upload.id}")
 
-    val multipart = s3.s3Client.initiateMultipartUpload(start)
+    val multipart = uploaderAccess.s3Client.initiateMultipartUpload(start)
 
     val eTags = for (part <- upload.parts.indices)
       yield copyPart(multipart.getUploadId, upload.id, part, destination)
 
     val complete = new CompleteMultipartUploadRequest(
-      s3.userUploadBucket, destination, multipart.getUploadId, eTags.asJava)
+      uploaderAccess.userUploadBucket, destination, multipart.getUploadId, eTags.asJava)
 
-    s3.s3Client.completeMultipartUpload(complete)
+    uploaderAccess.s3Client.completeMultipartUpload(complete)
 
     log.info(s"Multipart copy complete. upload=${upload.id} multipart=${multipart.getUploadId}")
   }
 
   private def sendToPluto(upload: Upload): Unit = {
-    val plutoData = upload.metadata.pluto
+
+    val plutoData: PlutoSyncMetadata = upload.metadata.pluto
 
     plutoData.projectId match {
       case _ if plutoData.assetVersion == -1 =>
         // TODO: work out what to do here? probably need to manually add the asset
 
       case Some(project) =>
-        // TODO: send to pluto directly
+        uploaderAccess.sendOnKinesis(uploaderAccess.uploadsStreamName, plutoData.s3Key, plutoData)
 
       case None =>
-        // TODO: send to manual sync table
+        val metadata = upload.metadata
+        mailer.sendPlutoIdMissingEmail(metadata.title, metadata.user, uploaderAccess.fromEmailAddress,
+          uploaderAccess.replyToAddresses)
+        plutoStore.put(plutoData)
     }
   }
 
   private def copyPart(multipartId: String, uploadId: String, part: Int, key: String): PartETag = {
     val request = new CopyPartRequest()
       .withUploadId(multipartId)
-      .withSourceBucketName(s3.userUploadBucket)
-      .withSourceKey(UploadPartKey(s3.userUploadFolder, uploadId, part).toString)
-      .withDestinationBucketName(s3.userUploadBucket)
+      .withSourceBucketName(uploaderAccess.userUploadBucket)
+      .withSourceKey(UploadPartKey(uploaderAccess.userUploadFolder, uploadId, part).toString)
+      .withDestinationBucketName(uploaderAccess.userUploadBucket)
       .withDestinationKey(key.toString)
       .withPartNumber(part + 1)
 
     log.info(s"Copying upload=$uploadId multipart=$multipartId part=$part")
-    val response = s3.s3Client.copyPart(request)
+    val response = uploaderAccess.s3Client.copyPart(request)
 
     new PartETag(response.getPartNumber, response.getETag)
   }
@@ -102,7 +110,7 @@ abstract class UploadActionHandler(store: UploadsDataStore, s3: S3UploadAccess, 
     upload.parts.foreach { part =>
       try {
         log.info(s"Deleting part $part")
-        s3.s3Client.deleteObject(s3.userUploadBucket, part.key)
+        uploaderAccess.s3Client.deleteObject(uploaderAccess.userUploadBucket, part.key)
       } catch {
         case NonFatal(err) =>
           // if we can't delete it, no problem. the bucket policy will remove it in time

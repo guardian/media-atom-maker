@@ -2,9 +2,10 @@ package com.gu.media
 
 import com.amazonaws.services.lambda.runtime.events.KinesisEvent
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
-import com.gu.media.aws.{DynamoAccess, S3Access, UploadAccess}
+import com.gu.media.aws._
 import com.gu.media.lambda.LambdaBase
 import com.gu.media.logging.Logging
+import com.gu.media.ses.Mailer
 import com.gu.media.upload.UploadsDataStore
 import com.gu.media.upload.actions.UploadAction
 import com.gu.media.youtube.{YouTubeAccess, YouTubeUploader}
@@ -17,11 +18,16 @@ class UploadActionsLambda extends RequestHandler[KinesisEvent, Unit]
   with DynamoAccess
   with YouTubeAccess
   with HmacRequestSupport
-  with Logging {
+  with Logging
+  with SESSettings
+  with CrossAccountAccess
+  with KinesisAccess {
 
   val store = new UploadsDataStore(this)
+  val plutoStore = new PlutoDataStore(this.dynamoDB, this.manualPlutoDynamo)
   val uploader = new YouTubeUploader(this, this)
-  val handler = new LambdaActionHandler(store, this, uploader)
+  val mailer = new Mailer(this.sesClient)
+  val handler = new LambdaActionHandler(store, plutoStore, this, uploader, mailer)
 
   override def handleRequest(input: KinesisEvent, context: Context): Unit = {
     readAction(input).foreach(handler.handle)

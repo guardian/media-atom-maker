@@ -1,9 +1,10 @@
 package controllers
 
+import _root_.util.{AWSConfig}
 import com.gu.atom.play.AtomAPIActions
+import com.gu.media.upload.model.PlutoSyncMetadata
 import com.gu.media.youtube.YouTube
 import com.gu.pandahmac.HMACAuthActions
-import com.gu.pandomainauth.action.UserRequest
 import data.DataStores
 import model.Category.Hosted
 import model.MediaAtom
@@ -12,9 +13,9 @@ import model.commands._
 import play.api.{Configuration, Logger}
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
-import play.api.mvc.{AnyContent, Result}
 
-class Api2 (override val stores: DataStores, conf: Configuration, val authActions: HMACAuthActions, youTube: YouTube)
+class Api2 (override val stores: DataStores, conf: Configuration, val authActions: HMACAuthActions,
+            youTube: YouTube, awsConfig: AWSConfig)
 
   extends MediaAtomImplicits
     with AtomAPIActions
@@ -122,18 +123,6 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
     }
   }
 
-  def setPlutoId(atomId: String) = APIHMACAuthAction { implicit req =>
-    implicit val readCommand: Reads[SetPlutoIdCommand] =
-      (JsPath \ "plutoId").read[String].map { plutoId =>
-        new SetPlutoIdCommand(atomId, plutoId, stores, req.user)
-      }
-
-    parse(req) { command: SetPlutoIdCommand =>
-      val atom = command.process()
-      Ok(Json.toJson(atom))
-    }
-  }
-
   def getAuditTrailForAtomId(id: String) = APIHMACAuthAction { implicit req =>
     Ok(Json.toJson(auditDataStore.getAuditTrailForAtomId(id)))
   }
@@ -145,6 +134,45 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
     }
     catch {
       commandExceptionAsResult
+    }
+  }
+
+  def getPlutoAtoms = APIHMACAuthAction {  implicit req =>
+
+    val unprocessedAssetResponses: List[PlutoSyncMetadata] = stores.pluto.list()
+
+    val uploadsWithoutPlutoId = unprocessedAssetResponses.foldRight(Map[String, MediaAtom]())((upload, acc) => {
+      if (!acc.contains(upload.atomId)) {
+        previewDataStore.getAtom(upload.atomId) match {
+          case Right(atom) => {
+            val mediaAtom = MediaAtom.fromThrift(atom)
+            mediaAtom.plutoProjectId match {
+              case None => acc ++ Map(upload.atomId -> mediaAtom)
+              case Some(string) => acc
+            }
+          }
+          case Left(error) => {
+            Logger.error(s"Error in fetching atom ${upload.atomId} corresponding to s3Key ${upload.s3Key}" + error.msg)
+            acc
+          }
+        }
+      } else acc
+    }).values
+    Ok(Json.toJson(uploadsWithoutPlutoId))
+  }
+
+  def sendToPluto(id: String) = APIHMACAuthAction { implicit req =>
+
+    implicit val readCommand: Reads[AddPlutoProjectCommand] =
+
+      (JsPath \ "plutoId").read[String].map { plutoId =>
+        new AddPlutoProjectCommand(id, plutoId, stores, req.user, awsConfig)
+      }
+
+    parse(req) { command: AddPlutoProjectCommand =>
+      command.process()
+      Ok("Added pluto project to atom")
+
     }
   }
 }

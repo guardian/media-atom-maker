@@ -10,6 +10,7 @@ trait DynamoAccess { this: Settings with AwsAccess =>
   lazy val uploadTrackingTableName: String = sys.env.getOrElse("UPLOAD_TRACKING_TABLE_NAME",
     getMandatoryString("aws.dynamo.uploadTrackingTableName")
   )
+  val manualPlutoDynamo = getMandatoryString("aws.dynamo.plutoTableName")
 
   lazy val dynamoDB: AmazonDynamoDBClient = region.createClient(
     classOf[AmazonDynamoDBClient],
