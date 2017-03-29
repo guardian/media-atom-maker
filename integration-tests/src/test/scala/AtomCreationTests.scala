@@ -4,6 +4,7 @@ import java.util.UUID
 import integration.IntegrationTestBase
 import integration.services.Config
 import org.scalatest.CancelAfterFailure
+import org.scalatest.exceptions.TestFailedException
 import play.api.libs.json.Json
 
 class AtomCreationTests extends IntegrationTestBase with CancelAfterFailure {
@@ -67,9 +68,13 @@ class AtomCreationTests extends IntegrationTestBase with CancelAfterFailure {
   }
 
   test("Publishing an existing atom") {
-    val publishResponse = gutoolsPut(s"$targetBaseUrl/api2/atom/$atomId/publish")
+    val initialPublishResponse = gutoolsPut(s"$targetBaseUrl/api2/atom/$atomId/publish")
 
-    publishResponse.code() should be (200)
+    initialPublishResponse.code() match {
+      case 200 =>
+      case 400 => throw new TestFailedException(s"Publishing atom returned 400: ${initialPublishResponse.body().string()}", 5)
+      case _ => { eventually { gutoolsPut(s"$targetBaseUrl/api2/atom/$atomId/publish").code() should be (200) } }
+    }
 
     eventually {
       (Json.parse(gutoolsGet(apiEndpoint).body().string()) \ "contentChangeDetails" \ "published" \ "user" \ "email").get.as[String] should be (Config.userEmail)
