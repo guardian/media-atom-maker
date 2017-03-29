@@ -55,3 +55,9 @@ $topbarHeight: 50px;
   height: 2px;
   top: 49px // covering 1px border, otherwise would be 50px :)
 }
+
+.topbar__back-link {
+  width: $topbarHeight;
+  height: $topbarHeight;
+  margin-right: 0;
+}

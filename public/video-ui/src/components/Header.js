@@ -2,6 +2,7 @@ import React from 'react';
 import {Link} from 'react-router';
 import VideoSearch from './VideoSearch/VideoSearch';
 import VideoPublishBar from './VideoPublishBar/VideoPublishBar';
+import VideoUpload from './VideoUpload/VideoUpload';
 import Icon from './Icon';
 
 export default class Header extends React.Component {
@@ -25,6 +26,15 @@ export default class Header extends React.Component {
         <VideoSearch {...this.props}/>
       </div>
     );
+  }
+
+  renderHeaderBack() {
+    return (
+      <div className="flex-container topbar__global">
+        <Link to={`/videos/${this.props.video.id}`} className="button" title="Back"><Icon className="icon icon__back" icon="keyboard_arrow_left"></Icon></Link>
+        <span>Edit Videos</span>
+      </div>
+    )
   }
 
   renderFeedback() {
@@ -73,8 +83,13 @@ export default class Header extends React.Component {
   }
 
   render () {
-
-    if (!this.props.showPublishedState) {
+    if (this.props.currentPath.endsWith("/upload")){
+      return (
+        <header className="topbar flex-container">
+          {this.renderHeaderBack()}
+        </header>
+      )
+    } if (!this.props.showPublishedState) {
       return (
         <header className="topbar flex-container">
           {this.renderProgress()}
