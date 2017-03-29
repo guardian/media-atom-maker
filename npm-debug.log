@@ -1,0 +1,48 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/Users/chris_j_clarke/.nvm/versions/node/v6.3.1/bin/node',
+1 verbose cli   '/Users/chris_j_clarke/.nvm/versions/node/v6.3.1/bin/npm',
+1 verbose cli   'run',
+1 verbose cli   'client-dev' ]
+2 info using npm@3.10.3
+3 info using node@v6.3.1
+4 verbose run-script [ 'preclient-dev', 'client-dev', 'postclient-dev' ]
+5 info lifecycle media-atom-maker@~preclient-dev: media-atom-maker@
+6 silly lifecycle media-atom-maker@~preclient-dev: no script for preclient-dev, continuing
+7 info lifecycle media-atom-maker@~client-dev: media-atom-maker@
+8 verbose lifecycle media-atom-maker@~client-dev: unsafe-perm in lifecycle true
+9 verbose lifecycle media-atom-maker@~client-dev: PATH: /Users/chris_j_clarke/.nvm/versions/node/v6.3.1/lib/node_modules/npm/bin/node-gyp-bin:/Users/chris_j_clarke/Documents/repos/media-atom-maker/node_modules/.bin:/Users/chris_j_clarke/.nvm/versions/node/v6.3.1/bin:/Users/chris_j_clarke/.nvm/versions/node/v6.3.1/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/MacGPG2/bin
+10 verbose lifecycle media-atom-maker@~client-dev: CWD: /Users/chris_j_clarke/Documents/repos/media-atom-maker
+11 silly lifecycle media-atom-maker@~client-dev: Args: [ '-c', 'node ./webpack-dev-server.js' ]
+12 silly lifecycle media-atom-maker@~client-dev: Returned: code: 1  signal: null
+13 info lifecycle media-atom-maker@~client-dev: Failed to exec client-dev script
+14 verbose stack Error: media-atom-maker@ client-dev: `node ./webpack-dev-server.js`
+14 verbose stack Exit status 1
+14 verbose stack     at EventEmitter.<anonymous> (/Users/chris_j_clarke/.nvm/versions/node/v6.3.1/lib/node_modules/npm/lib/utils/lifecycle.js:242:16)
+14 verbose stack     at emitTwo (events.js:106:13)
+14 verbose stack     at EventEmitter.emit (events.js:191:7)
+14 verbose stack     at ChildProcess.<anonymous> (/Users/chris_j_clarke/.nvm/versions/node/v6.3.1/lib/node_modules/npm/lib/utils/spawn.js:40:14)
+14 verbose stack     at emitTwo (events.js:106:13)
+14 verbose stack     at ChildProcess.emit (events.js:191:7)
+14 verbose stack     at maybeClose (internal/child_process.js:852:16)
+14 verbose stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:215:5)
+15 verbose pkgid media-atom-maker@
+16 verbose cwd /Users/chris_j_clarke/Documents/repos/media-atom-maker
+17 error Darwin 14.5.0
+18 error argv "/Users/chris_j_clarke/.nvm/versions/node/v6.3.1/bin/node" "/Users/chris_j_clarke/.nvm/versions/node/v6.3.1/bin/npm" "run" "client-dev"
+19 error node v6.3.1
+20 error npm  v3.10.3
+21 error code ELIFECYCLE
+22 error media-atom-maker@ client-dev: `node ./webpack-dev-server.js`
+22 error Exit status 1
+23 error Failed at the media-atom-maker@ client-dev script 'node ./webpack-dev-server.js'.
+23 error Make sure you have the latest version of node.js and npm installed.
+23 error If you do, this is most likely a problem with the media-atom-maker package,
+23 error not with npm itself.
+23 error Tell the author that this fails on your system:
+23 error     node ./webpack-dev-server.js
+23 error You can get information on how to open an issue for this project with:
+23 error     npm bugs media-atom-maker
+23 error Or if that isn't available, you can get their info via:
+23 error     npm owner ls media-atom-maker
+23 error There is likely additional logging output above.
+24 verbose exit [ 1, true ]
