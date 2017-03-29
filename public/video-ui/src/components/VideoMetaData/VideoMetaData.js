@@ -17,7 +17,7 @@ export default class VideoMetaData extends React.Component {
           data={this.props.video}
           updateData={this.props.updateVideo}
           editable={this.props.editable}
-          updateFormErrors={this.props.updateFormErrors}
+          updateErrors={this.props.updateErrors}
         >
           <ManagedField
             fieldLocation="title"

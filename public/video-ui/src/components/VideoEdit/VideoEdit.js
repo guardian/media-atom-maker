@@ -31,7 +31,8 @@ class VideoEdit extends React.Component {
           data={this.props.video}
           updateData={this.props.updateVideo}
           editable={this.props.editable}
-          updateFormErrors={this.props.updateFormErrors}
+          updateErrors={this.props.updateErrors}
+          formName={this.props.formName}
         >
           <ManagedField
             fieldLocation="title"

@@ -43,18 +43,6 @@ class VideoDisplay extends React.Component {
     window.parent.postMessage({atomId: this.props.video.id}, '*');
   };
 
-  updateMetadataFormErrors = (fieldErrors, fieldName) => {
-    this.props.formErrorActions.updateFormErrors({
-      [formNames.metadata]: { [fieldName]: fieldErrors }
-    });
-  }
-
-  updateYoutubeFormErrors = (fieldErrors, fieldName) => {
-    this.props.formErrorActions.updateFormErrors({
-      [formNames.youtube]: { [fieldName]: fieldErrors }
-    });
-  }
-
   manageEditingState = (property) => {
 
     if (this.props.editState[property]) {
@@ -172,7 +160,8 @@ class VideoDisplay extends React.Component {
                   video={this.props.video || {}}
                   updateVideo={this.updateVideo}
                   editable={this.props.editState.metadataEditable}
-                  updateFormErrors={this.updateMetadataFormErrors}
+                  formName={formNames.metadata}
+                  updateErrors={this.props.formErrorActions.updateFormErrors}
                  />
               </div>
               <div className="video__detailbox">
@@ -185,6 +174,8 @@ class VideoDisplay extends React.Component {
                   updateVideo={this.updateVideo}
                   editable={this.props.editState.youtubeEditable}
                   updateFormErrors={this.updateYoutubeFormErrors}
+                  formName={formNames.youtube}
+                  updateErrors={this.props.formErrorActions.updateFormErrors}
                 />
               </div>
               <div className="video__detailbox">

@@ -9,15 +9,25 @@ export class ManagedForm extends React.Component {
         PropTypes.element,
         PropTypes.arrayOf(PropTypes.element)
     ]),
-    editable: PropTypes.bool
+    editable: PropTypes.bool,
+    formName: PropTypes.string,
+    updateErrors: PropTypes.func
   };
+
+  updateFormErrors = (fieldErrors, fieldName) => {
+    if (this.props.updateErrors) {
+      this.props.updateErrors({
+        [this.props.formName]: { [fieldName]: fieldErrors }
+      });
+    }
+  }
 
   render() {
     const hydratedChildren = React.Children.map(this.props.children, (child) => {
       return React.cloneElement(child, {
         data: this.props.data,
         updateData: this.props.updateData,
-        updateFormErrors: this.props.updateFormErrors,
+        updateFormErrors: this.updateFormErrors,
         editable: this.props.editable
       });
     });

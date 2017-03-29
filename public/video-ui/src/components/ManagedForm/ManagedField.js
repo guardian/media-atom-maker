@@ -5,6 +5,24 @@ import validateField from '../../util/validateField';
 
 export class ManagedField extends React.Component {
 
+  static propTypes = {
+    fieldLocation: PropTypes.string.isRequired,
+    children: PropTypes.oneOfType([
+      PropTypes.element,
+      PropTypes.arrayOf(PropTypes.element)
+    ]),
+    updateData: PropTypes.func,
+    updateFormErrors: PropTypes.func,
+    updateFormWarnings: PropTypes.func,
+    data: PropTypes.object,
+    fieldName: PropTypes.string,
+    isRequired: PropTypes.bool,
+    isDesired: PropTypes.bool,
+    editable: PropTypes.bool,
+    maxLength: PropTypes.number,
+    fieldDetails: PropTypes.string
+  };
+
   state = {
     fieldErrors : [],
     fieldWarnings : [],
@@ -30,24 +48,6 @@ export class ManagedField extends React.Component {
     }
 
   }
-
-  static propTypes = {
-    fieldLocation: PropTypes.string.isRequired,
-    children: PropTypes.oneOfType([
-      PropTypes.element,
-      PropTypes.arrayOf(PropTypes.element)
-    ]),
-    updateData: PropTypes.func,
-    updateFormErrors: PropTypes.func,
-    updateFormWarnings: PropTypes.func,
-    data: PropTypes.object,
-    fieldName: PropTypes.string,
-    isRequired: PropTypes.bool,
-    isDesired: PropTypes.bool,
-    editable: PropTypes.bool,
-    maxLength: PropTypes.number,
-    fieldDetails: PropTypes.string
-  };
 
   updateFn = (newValue) => {
 
