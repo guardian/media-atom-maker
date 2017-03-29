@@ -60,6 +60,11 @@ function getData() {
       }
     }
 
+    if (! args.data && ! args.dataFile) {
+      // no data
+      resolve();
+    }
+
     if (args.data) {
       tryParse(args.data);
     }
@@ -73,8 +78,6 @@ function getData() {
         tryParse(rawData);
       });
     }
-
-    resolve({});
   });
 }
 

@@ -82,6 +82,9 @@ Resources:
                   - !Sub
                     - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
                     - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "ManualPlutoMediaAtomsDynamoTable" }
+                  - !Sub
+                    - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
+                    - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "PlutoProjectDynamoTable" }
   MediaAtomUser:
     Type: "AWS::IAM::User"
     Properties:
@@ -175,6 +178,19 @@ Resources:
             WriteCapacityUnits: "5"
 
   UploadTrackingDynamoTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "id"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+
+  PlutoProjectDynamoTable:
     Type: "AWS::DynamoDB::Table"
     Properties:
       AttributeDefinitions:

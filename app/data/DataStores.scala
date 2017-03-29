@@ -4,6 +4,7 @@ import com.gu.atom.data._
 import com.gu.atom.publish._
 import com.gu.contentatom.thrift.{Atom, AtomData}
 import com.gu.contentatom.thrift.atom.media.MediaAtom
+import com.gu.media.pluto.PlutoProjectDataStore
 import com.gu.media.upload.UploadsDataStore
 import com.gu.media.PlutoDataStore
 import com.gu.scanamo.DynamoFormat
@@ -40,6 +41,8 @@ class DataStores(aws: AWSConfig) extends MediaAtomImplicits {
     new PublishedKinesisAtomReindexer(aws.publishedKinesisReindexStreamName, aws.crossAccountKinesisClient)
 
   val uploadStore: UploadsDataStore = new UploadsDataStore(aws)
+
+  val plutoProjectStore: PlutoProjectDataStore = new PlutoProjectDataStore(aws)
 
   private def getPreview[T: ClassTag: DynamoFormat](dynamoFormats: AtomDynamoFormats[T]): PreviewDynamoDataStore[T] = {
     new PreviewDynamoDataStore[T](aws.dynamoDB, aws.dynamoTableName) {
