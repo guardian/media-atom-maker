@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-// Example usage: ./make-hmac-request.js --method post --path api2/atoms --data-file $PWD/new-atom.json
-
 const fs = require('fs');
 
 const ArgumentParser = require('argparse').ArgumentParser;
@@ -27,13 +25,11 @@ parser.addArgument('--method', {
 
 parser.addArgument('--data', {
   dest: 'data',
-  defaultValue: {},
   help: 'data to send in request payload'
 });
 
 parser.addArgument('--data-file', {
   dest: 'dataFile',
-  defaultValue: false,
   help: 'file path to read json from to send in request payload'
 });
 
@@ -64,17 +60,21 @@ function getData() {
       }
     }
 
-    if (! args.dataFile) {
+    if (args.data) {
       tryParse(args.data);
     }
 
-    fs.readFile(args.dataFile, 'utf8', (err, rawData) => {
-      if (err) {
-        reject(err);
-      }
+    if (args.dataFile) {
+      fs.readFile(args.dataFile, 'utf8', (err, rawData) => {
+        if (err) {
+          reject(err);
+        }
 
-      tryParse(rawData);
-    });
+        tryParse(rawData);
+      });
+    }
+
+    resolve({});
   });
 }
 
