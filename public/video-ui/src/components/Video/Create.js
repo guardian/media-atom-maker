@@ -7,7 +7,9 @@ import {formNames} from '../../constants/formNames';
 class VideoCreate extends React.Component {
 
   componentDidMount() {
-    this.props.videoActions.updateVideo(blankVideoData);
+    if (!this.props.video) {
+      this.props.videoActions.updateVideo(blankVideoData);
+    }
   }
 
   createVideo = () => {

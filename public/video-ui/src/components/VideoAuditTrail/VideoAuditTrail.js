@@ -1,5 +1,6 @@
 import React  from 'react';
 import moment from 'moment';
+import {blankVideoData} from '../../constants/blankVideoData';
 
 class VideoAuditTrail extends React.Component {
 
@@ -11,6 +12,10 @@ class VideoAuditTrail extends React.Component {
 
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
+  }
+
+  componentWillUnmount() {
+    this.props.videoActions.updateVideo(blankVideoData);
   }
 
   state = {
@@ -73,6 +78,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getVideo from '../../actions/VideoActions/getVideo';
 import * as getAudits from '../../actions/VideoActions/getAudits';
+import * as updateVideo from '../../actions/VideoActions/updateVideo';
 
 function mapStateToProps(state) {
   return {
@@ -83,7 +89,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo, getAudits), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, getVideo, getAudits, updateVideo), dispatch)
   };
 }
 export default connect(mapStateToProps, mapDispatchToProps)(VideoAuditTrail);

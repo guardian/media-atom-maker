@@ -11,12 +11,17 @@ import {getVideoBlock} from '../../util/getVideoBlock';
 import {getStore} from '../../util/storeAccessor';
 import Icon from '../Icon';
 import {formNames} from '../../constants/formNames';
+import {blankVideoData} from '../../constants/blankVideoData';
 
 class VideoDisplay extends React.Component {
 
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
     this.props.videoActions.getUsages(this.props.params.id);
+  }
+
+  componentWillUnmount() {
+    this.props.videoActions.updateVideo(blankVideoData);
   }
 
   saveVideo = () => {
