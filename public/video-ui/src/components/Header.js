@@ -48,7 +48,7 @@ export default class Header extends React.Component {
       <div className="flex-container">
         <span className="header__video__title">{this.props.video.title}</span>
       </div>
-    )
+    );
   }
 
   renderFeedback() {
