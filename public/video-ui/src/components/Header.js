@@ -38,7 +38,7 @@ export default class Header extends React.Component {
     return (
       <div className="flex-container topbar__global">
         <Link to={`/videos/${this.props.video.id}`} className="button" title="Back"><Icon className="icon icon__back" icon="keyboard_arrow_left"></Icon></Link>
-        <span>Edit Videos</span>
+        <span className="header__video__title">{this.props.video.title}</span>
       </div>
     );
   }
