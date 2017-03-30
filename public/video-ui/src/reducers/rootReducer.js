@@ -14,6 +14,7 @@ import pageCreate from './composerPageReducer';
 import upload from './uploadsReducer';
 import editState from './editStateReducer';
 import plutoVideos from './plutoVideosReducer';
+import formErrors from './formErrorsReducer';
 
 export default combineReducers({
   audits,
@@ -30,5 +31,6 @@ export default combineReducers({
   publishedVideo,
   upload,
   editState,
-  plutoVideos
+  plutoVideos,
+  formErrors
 });

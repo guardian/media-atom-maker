@@ -7,12 +7,12 @@ export default class TextInput extends React.Component {
       return (
         <div>
           <p className="details-list__title">{this.props.fieldName}</p>
-          <p className={"details-list__field " + (this.props.noValue ? "details-list__empty" : "")}> {this.props.fieldValue}</p>
+          <p className="details-list__field"> {this.props.fieldValue}</p>
         </div>
       );
     }
 
-    const hasError = this.props.meta.touched && this.props.meta.error;
+    const hasError = this.props.touched && this.props.errors.length > 0;
 
     return (
       <div className="form__row">
@@ -21,10 +21,10 @@ export default class TextInput extends React.Component {
           { ...this.props.input}
           maxLength={this.props.maxLength || ''}
           className={"form__field " + (hasError ? "form__field--error" : "")}
-          type={this.props.inputType || "text"}
+          type="text"
           value={this.props.fieldValue}
-          onChange={this.props.onUpdateField} />
-        {hasError ? <p className="form__message form__message--error">{this.props.meta.error}</p> : ""}
+          onChange={(e) => {this.props.onUpdateField(e.target.value);}} />
+        {hasError ? <p className="form__message form__message--error">{this.props.errors[0].message}</p> : ""}
       </div>
     );
   };

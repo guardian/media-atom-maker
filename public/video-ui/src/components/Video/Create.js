@@ -2,11 +2,14 @@ import React from 'react';
 import VideoEdit from '../VideoEdit/VideoEdit';
 import SaveButton from '../utils/SaveButton';
 import {blankVideoData} from '../../constants/blankVideoData';
+import {formNames} from '../../constants/formNames';
 
 class VideoCreate extends React.Component {
 
   componentDidMount() {
-    this.props.videoActions.updateVideo(blankVideoData);
+    if (!this.props.video) {
+      this.props.videoActions.updateVideo(blankVideoData);
+    }
   }
 
   createVideo = () => {
@@ -29,12 +32,16 @@ class VideoCreate extends React.Component {
           <VideoEdit
             video={this.props.video}
             updateVideo={this.updateVideo}
-            saveAndUpdateVideo={this.updateVideo}
-            createMode
-            editable
-            saveState={this.props.saveState}
+            editable={true}
+            updateErrors={this.props.formErrorActions.updateFormErrors}
+            formName={formNames.create}
           />
-          <SaveButton video={this.props.video} saveState={this.props.saveState} onSaveClick={this.createVideo} onResetClick={this.resetVideo} />
+          <SaveButton
+            video={this.props.video}
+            formErrors={this.props.formErrors[formNames.create] ? this.props.formErrors[formNames.create] : {}}
+            saveState={this.props.saveState}
+            onSaveClick={this.createVideo}
+            onResetClick={this.resetVideo} />
         </form>
       </div>
     );
@@ -46,17 +53,21 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as createVideo from '../../actions/VideoActions/createVideo';
 import * as updateVideo from '../../actions/VideoActions/updateVideo';
+import * as updateFormErrors from '../../actions/FormErrorActions/updateFormErrors';
 
 function mapStateToProps(state) {
   return {
     video: state.video,
-    saveState: state.saveState
+    saveState: state.saveState,
+    formErrors: state.formErrors
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, updateVideo, createVideo), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, updateVideo, createVideo), dispatch),
+    formErrorActions: bindActionCreators(Object.assign({}, updateFormErrors), dispatch)
+
   };
 }
 

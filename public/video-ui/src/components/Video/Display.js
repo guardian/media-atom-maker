@@ -10,7 +10,8 @@ import GridImageSelect from '../utils/GridImageSelect';
 import {getVideoBlock} from '../../util/getVideoBlock';
 import {getStore} from '../../util/storeAccessor';
 import Icon from '../Icon';
-import {validate} from '../../constants/videoEditValidation';
+import {formNames} from '../../constants/formNames';
+import {blankVideoData} from '../../constants/blankVideoData';
 
 class VideoDisplay extends React.Component {
 
@@ -19,8 +20,20 @@ class VideoDisplay extends React.Component {
     this.props.videoActions.getUsages(this.props.params.id);
   }
 
+  componentWillUnmount() {
+    this.props.videoActions.updateVideo(blankVideoData);
+  }
+
   saveVideo = () => {
     this.props.videoActions.saveVideo(this.props.video);
+  }
+
+  saveAndUpdateVideoPoster = (poster) => {
+    const newVideo = Object.assign({}, this.props.video, {
+      posterImage: poster
+    });
+    this.saveAndUpdateVideo(newVideo);
+
   }
 
   saveAndUpdateVideo = (video) => {
@@ -91,23 +104,17 @@ class VideoDisplay extends React.Component {
 
   cannotCloseEditForm = (property) => {
 
-    const formFields = [];
+    let formName;
     if (property === 'metadataEditable') {
-      formFields.splice(0, 0, 'title', 'category');
+      formName = formNames.metadata;
     } else if (property === 'youtubeEditable') {
-      formFields.splice(0, 0, 'youtubeCategory', 'youtubeChannel', 'privacyStatus');
+      formName = formNames.youtube;
     }
-    const errors  = validate(Object.assign(this.props.video, {
-      youtubeCategory: this.props.video.youtubeCategoryId,
-      youtubeChannel: this.props.video.channelId
-    }));
-
-    if (formFields.some(field => {
-      return Object.keys(errors).includes(field);
-    })) {
-      return true;
-    }
-    return false;
+    const errors = this.props.formErrors[formName] ? this.props.formErrors[formName] : {};
+    return Object.keys(errors).some(field => {
+      const value = errors[field];
+      return value.length !== 0;
+    });
 
   };
 
@@ -153,11 +160,13 @@ class VideoDisplay extends React.Component {
                   <header className="video__detailbox__header">Video Meta Data</header>
                   {this.renderEditButton('metadataEditable')}
                 </div>
+
                 <VideoMetaData
-                  component={VideoMetaData}
                   video={this.props.video || {}}
                   updateVideo={this.updateVideo}
                   editable={this.props.editState.metadataEditable}
+                  formName={formNames.metadata}
+                  updateErrors={this.props.formErrorActions.updateFormErrors}
                  />
               </div>
               <div className="video__detailbox">
@@ -166,18 +175,23 @@ class VideoDisplay extends React.Component {
                   {this.renderEditButton('youtubeEditable')}
                 </div>
                 <YoutubeMetaData
-                  component={YoutubeMetaData}
                   video={this.props.video || {}}
-                  saveVideo={this.saveVideo}
                   updateVideo={this.updateVideo}
-                  disableStatusEditing={this.cannotEditStatus()}
                   editable={this.props.editState.youtubeEditable}
+                  updateFormErrors={this.updateYoutubeFormErrors}
+                  formName={formNames.youtube}
+                  updateErrors={this.props.formErrorActions.updateFormErrors}
                 />
               </div>
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
                   <header className="video__detailbox__header">Poster Image</header>
-                  <GridImageSelect editState={this.props.editState} video={this.props.video || {}} updateVideo={this.saveAndUpdateVideo} gridUrl={this.props.config.gridUrl} createMode={false}/>
+                  <GridImageSelect
+                    editState={this.props.editState}
+                    updateVideo={this.saveAndUpdateVideoPoster}
+                    gridUrl={this.props.config.gridUrl}
+                    disabled={this.props.editState.youtubeEditable || this.props.editState.metadataEditable}
+                    createMode={false}/>
                 </div>
                 <VideoPoster
                   video={this.props.video || {}}
@@ -216,6 +230,7 @@ import * as videoUsages from '../../actions/VideoActions/videoUsages';
 import * as videoPageCreate from '../../actions/VideoActions/videoPageCreate';
 import * as getPublishedVideo from '../../actions/VideoActions/getPublishedVideo';
 import * as updateVideoEditState from '../../actions/VideoActions/updateVideoEditState';
+import * as updateFormErrors from '../../actions/FormErrorActions/updateFormErrors';
 
 function mapStateToProps(state) {
   return {
@@ -224,13 +239,15 @@ function mapStateToProps(state) {
     usages: state.usage,
     composerPageWithUsage: state.pageCreate,
     publishedVideo: state.publishedVideo,
-    editState: state.editState
+    editState: state.editState,
+    formErrors: state.formErrors
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, videoUsages, videoPageCreate, getPublishedVideo, updateVideoEditState), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, videoUsages, videoPageCreate, getPublishedVideo, updateVideoEditState), dispatch),
+    formErrorActions: bindActionCreators(Object.assign({}, updateFormErrors), dispatch)
   };
 }
 

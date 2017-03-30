@@ -1,14 +1,14 @@
 import React from 'react';
-import {findSmallestAssetAboveWidth} from '../../../util/imageHelpers';
-import GridImageSelect from '../../utils/GridImageSelect';
+import {findSmallestAssetAboveWidth} from '../../util/imageHelpers';
+import GridImageSelect from '../utils/GridImageSelect';
 
-class VideoPosterImageEdit extends React.Component {
+class ImageSelector extends React.Component {
   renderImage() {
-    if (!this.props.video || !this.props.video.posterImage) {
+    if (!this.props.fieldValue) {
       return false;
     }
 
-    const image = findSmallestAssetAboveWidth(this.props.video.posterImage.assets);
+    const image = findSmallestAssetAboveWidth(this.props.fieldValue.assets);
 
     return (
       <div className="form__image" >
@@ -19,16 +19,17 @@ class VideoPosterImageEdit extends React.Component {
 
   render () {
 
-    if (this.props.video && !this.props.editMode) {
+    if (!this.props.editMode) {
       return (
           <div className="form__row">
-            <label className="form__label">Poster image</label>
+            <label className="form__label">{this.props.fieldName}</label>
             <div className="form__imageselect">
               <GridImageSelect
-                video={this.props.video}
-                updateVideo={this.props.updateVideo}
+                updateVideo={this.props.onUpdateField}
                 gridUrl={this.props.config.gridUrl}
                 createMode={true}
+                disabled={!this.props.editable}
+                fieldValue={this.props.fieldValue}
               />
               {this.renderImage()}
             </div>
@@ -56,4 +57,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(VideoPosterImageEdit);
+export default connect(mapStateToProps)(ImageSelector);

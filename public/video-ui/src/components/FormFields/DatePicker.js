@@ -1,9 +1,8 @@
 import React from 'react';
 import Picker from 'react-datepicker';
 import moment from 'moment';
-import _ from 'lodash';
 import 'react-datepicker/dist/react-datepicker.css';
-import Icon from '../../Icon';
+import Icon from '../Icon';
 
 const DATE_FORMAT = "YYYY/MM/DD";
 const DATETIME_FORMAT = `${DATE_FORMAT} HH:mm`;
@@ -101,25 +100,12 @@ function Display({date}) {
   </div>;
 }
 
-export default function VideoExpiryEdit({editable, video, updateVideo}) {
-  function setExpiryDate(newDate) {
-    if(newDate) {
-      const newVideo = Object.assign({}, video, { expiryDate: newDate.valueOf() });
-      updateVideo(newVideo);
-    } else {
-      const newVideo = _.omit(video, 'expiryDate');
-      updateVideo(newVideo);
-    }
-  }
+export default function DatePicker({editable, onUpdateField, fieldValue}) {
 
-  if (!video) {
-    return false;
-  }
-
-  const date = video.expiryDate ? moment(video.expiryDate) : null;
+  const date = fieldValue ? moment(fieldValue) : null;
 
   if(editable) {
-    return <Editor date={date} onChange={setExpiryDate} />;
+    return <Editor date={date} onChange={(newDate) => { onUpdateField(newDate.valueOf()); }} />;
   } else {
     return <Display date={date} />;
   }

@@ -2,18 +2,14 @@ import React from 'react';
 
 export default class SelectBox extends React.Component {
 
-  hasError = () => {
-    return this.props.meta.touched && this.props.meta.error;
-  };
-
   getClassName = () => {
     return "form__field form__field--select " + (this.hasError() ? "form__field--error" : "");
   }
 
   renderDefaultOption = () => {
-    if (this.props.displayDefault || this.props.fieldValue === "") {
+    if (this.props.displayDefault || !this.props.fieldValue) {
       return (
-        <option value="">{this.props.defaultOption || "Please select..."}</option>
+        <option value={null}>{this.props.defaultOption || "Please select..."}</option>
       );
     }
   }
@@ -30,14 +26,17 @@ export default class SelectBox extends React.Component {
       );
     }
 
+    const hasError = this.props.touched && this.props.errors.length > 0;
+
     return (
       <div className="form__row">
         <label className="form__label">{this.props.fieldName}</label>
         <select
           {...this.props.input}
-          className={this.getClassName()}
+          className={"form__field form__field--select " + (hasError ? "form__field--error" : "")}
+
           value={this.props.fieldValue}
-          onChange={this.props.onUpdateField}>
+          onChange={(e) => {this.props.onUpdateField(e.target.value);}}>
 
 
           {this.renderDefaultOption()}
@@ -47,7 +46,7 @@ export default class SelectBox extends React.Component {
             );
           })}
         </select>
-        {this.hasError() ? <p className="form__message form__message--error">{this.props.meta.error}</p> : ""}
+        {hasError ? <p className="form__message form__message--error">{this.props.errors[0].message}</p> : ""}
       </div>
     );
   };
