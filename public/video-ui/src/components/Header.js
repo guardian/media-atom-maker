@@ -43,6 +43,14 @@ export default class Header extends React.Component {
     );
   }
 
+  renderVideoTitle() {
+    return (
+      <div className="flex-container">
+        <span className="header__video__title">{this.props.video.title}</span>
+      </div>
+    )
+  }
+
   renderFeedback() {
     return (
       <nav className="topbar__nav-link">
@@ -122,6 +130,10 @@ export default class Header extends React.Component {
           {this.renderProgress()}
           {this.renderHome()}
 
+          <div>
+            {this.renderVideoTitle()}
+          </div>
+
           <VideoPublishBar className="flex-grow"
             video={this.props.video}
             publishedVideo={this.props.publishedVideo}
@@ -130,8 +142,6 @@ export default class Header extends React.Component {
 
           <div className="flex-container">
             {this.renderAuditLink()}
-            {this.renderFeedback()}
-            {this.renderHowTo()}
           </div>
 
         </header>

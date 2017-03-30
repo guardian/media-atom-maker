@@ -33,3 +33,11 @@
 .label__frontpage__overlay {
   width: 70px;
 }
+
+.header__video__title {
+  width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 10px;
+}
