@@ -39,7 +39,7 @@ class MediaAtomMaker(context: Context)
   private val youTube = new YouTube(config)
   private val capi = new CapiPreview(config)
 
-  private val sesMailer = new Mailer(aws.sesClient)
+  private val sesMailer = new Mailer(aws.sesClient, configuration.getString("host").get)
 
   private val uploaderMessageConsumer = PlutoMessageConsumer(stores, aws)
   uploaderMessageConsumer.start(actorSystem.scheduler)(actorSystem.dispatcher)
