@@ -10,6 +10,10 @@ Parameters:
   ConfigBucket:
     Description: "The S3 bucket where configuration lives"
     Type: "String"
+  App:
+    Description: "App name"
+    Type: "String"
+    Default: "media-atom-maker"
   Stack:
     Description: "Stack name"
     Type: "String"
@@ -193,6 +197,8 @@ Resources:
   PlutoProjectDynamoTable:
     Type: "AWS::DynamoDB::Table"
     Properties:
+      TableName: !Join ["-", [Ref: App, Ref: Stage, "pluto-projects-table"]]
+
       AttributeDefinitions:
         - AttributeName: "id"
           AttributeType: "S"

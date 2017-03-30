@@ -20,6 +20,6 @@ trait AwsAccess { this: Settings =>
 
   // These are injected as environment variables when running in a Lambda (unfortunately they cannot be tagged)
   final val stack: Option[String] = readTag("Stack")
-  final val app: Option[String] = readTag("App")
+  final val app: String = readTag("App").getOrElse("media-atom-maker")
   final val stage: String = readTag("Stage").getOrElse("DEV")
 }
