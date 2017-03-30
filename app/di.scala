@@ -54,6 +54,8 @@ class MediaAtomMaker(context: Context)
   private val support = new Support(hmacAuthActions, capi)
   private val youTubeController = new controllers.Youtube(hmacAuthActions, youTube, defaultCacheApi)
 
+  private val pluto = new PlutoProjectController(hmacAuthActions, stores)
+
   private val transcoder = new util.Transcoder(aws, defaultCacheApi)
   private val transcoderController = new controllers.Transcoder(hmacAuthActions, transcoder)
 
@@ -62,9 +64,20 @@ class MediaAtomMaker(context: Context)
 
   private val assets = new controllers.Assets(httpErrorHandler)
 
-  override val router =
-    new Routes(httpErrorHandler, mainApp, api, api2, uploads, youTubeController, transcoderController, reindexer,
-      assets, videoApp, support)
+  override val router = new Routes(
+    httpErrorHandler,
+    mainApp,
+    api,
+    api2,
+    pluto,
+    uploads,
+    youTubeController,
+    transcoderController,
+    reindexer,
+    assets,
+    videoApp,
+    support
+  )
 
   private def buildReindexer() = {
     // pass the parameters manually since the reindexer is part of the atom-maker lib

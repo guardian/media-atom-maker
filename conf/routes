@@ -28,8 +28,12 @@ PUT     /api2/atom/:id/pluto-id         controllers.Api2.setPlutoId(id)
 PUT     /api2/pluto/:id                 controllers.Api2.sendToPluto(id)
 GET     /api2/pluto                     controllers.Api2.getPlutoAtoms()
 
-
 DELETE  /api2/atom/:id                  controllers.Api2.deleteAtom(id)
+
+GET     /api2/pluto/projects            controllers.PlutoProjectController.listProjects()
+GET     /api2/pluto/projects/:id         controllers.PlutoProjectController.getProject(id)
+POST    /api2/pluto/projects            controllers.PlutoProjectController.createProject()
+PUT     /api2/pluto/projects/:id        controllers.PlutoProjectController.updateProject(id)
 
 # user uploaded videos
 GET     /api2/uploads                   controllers.UploadController.list(atomId)
@@ -44,8 +48,6 @@ GET     /api/youtube/categories         controllers.Youtube.listCategories()
 GET     /api/youtube/channels           controllers.Youtube.listChannels()
 
 GET     /api/transcoder/jobStatus       controllers.Transcoder.jobStatus
-
-
 
 # reindex
 

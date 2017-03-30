@@ -10,6 +10,10 @@ Parameters:
   ConfigBucket:
     Description: "The S3 bucket where configuration lives"
     Type: "String"
+  App:
+    Description: "App name"
+    Type: "String"
+    Default: "media-atom-maker"
   Stack:
     Description: "Stack name"
     Type: "String"
@@ -82,6 +86,9 @@ Resources:
                   - !Sub
                     - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
                     - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "ManualPlutoMediaAtomsDynamoTable" }
+                  - !Sub
+                    - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
+                    - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "PlutoProjectDynamoTable" }
   MediaAtomUser:
     Type: "AWS::IAM::User"
     Properties:
@@ -177,6 +184,21 @@ Resources:
   UploadTrackingDynamoTable:
     Type: "AWS::DynamoDB::Table"
     Properties:
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "id"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+
+  PlutoProjectDynamoTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: !Join ["-", [Ref: App, Ref: Stage, "pluto-projects-table"]]
+
       AttributeDefinitions:
         - AttributeName: "id"
           AttributeType: "S"
