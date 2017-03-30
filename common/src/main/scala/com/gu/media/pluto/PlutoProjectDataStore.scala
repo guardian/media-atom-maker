@@ -24,7 +24,8 @@ class PlutoProjectDataStore(aws: DynamoAccess) extends Logging {
 
     results.collect {
       case Left(error) => {
-        throw new Exception(error.toString)
+        log.error("failed to list pluto projects")
+        throw PlutoProjectDataStoreException(error.toString)
       }
       case Right(plutoProject) => {
         plutoProject
