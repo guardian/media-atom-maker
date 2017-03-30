@@ -18,10 +18,17 @@ export default class Header extends React.Component {
     }
   }
 
-  renderHomeAndSearch() {
+  renderHome() {
     return (
       <div className="flex-container topbar__global">
         <Link to="/" className="topbar__home-link" title="Home"></Link>
+      </div>
+    );
+  }
+
+  renderSearch() {
+    return (
+      <div className="flex-container topbar__global">
         <VideoSearch {...this.props}/>
       </div>
     );
@@ -74,7 +81,7 @@ export default class Header extends React.Component {
   renderCreateVideo() {
     return (
       <nav className="topbar__nav-link">
-        <Link className="button__secondary" to="/videos/create">
+        <Link className="btn" to="/videos/create">
           <Icon icon="add">Create new video</Icon>
         </Link>
       </nav>
@@ -93,14 +100,18 @@ export default class Header extends React.Component {
         <header className="topbar flex-container">
           {this.renderProgress()}
 
-          {this.renderHomeAndSearch()}
+          {this.renderHome()}
+          {this.renderSearch()}
 
           <div className="flex-spacer"></div>
+
+        <div className="flex-container">
+            {this.renderCreateVideo()}
+          </div>
 
           <div className="flex-container">
             {this.renderFeedback()}
             {this.renderHowTo()}
-            {this.renderCreateVideo()}
           </div>
 
         </header>
@@ -109,7 +120,7 @@ export default class Header extends React.Component {
       return (
         <header className="topbar flex-container">
           {this.renderProgress()}
-          {this.renderHomeAndSearch()}
+          {this.renderHome()}
 
           <VideoPublishBar className="flex-grow"
             video={this.props.video}
@@ -121,7 +132,6 @@ export default class Header extends React.Component {
             {this.renderAuditLink()}
             {this.renderFeedback()}
             {this.renderHowTo()}
-            {this.renderCreateVideo()}
           </div>
 
         </header>
