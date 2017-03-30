@@ -6,3 +6,4 @@ if [ $STATUS -eq 1 ]
 then
   curl -X POST --data-urlencode 'payload={"text": "Media Atom Maker integration tests have failed on CODE"}' ${SLACK_URL}
 fi
+exit $STATUS
