@@ -4,6 +4,7 @@
   "scripts": {
     "build": "webpack -p ./public/video-ui/src/app.js ./public/video-ui/build/app.js --config ./build_config/webpack.prod.conf.js",
     "build-dev": "webpack ./public/video-ui/src/app.js ./public/video-ui/build/app.js --config ./build_config/webpack.dev.conf.js --watch",
+    "build-bookmarklet": "bookmarklet scripts/bookmarklets/delete-atom.js scripts/bookmarklets/delete-atom.bookmarklet",
     "client-dev": "node ./webpack-dev-server.js",
     "lint-video-ui": "eslint public/video-ui/src/",
     "lint-cloudformation": "jsonlint cloudformation/*.json --quiet",
@@ -19,6 +20,7 @@
     "babel-plugin-transform-object-assign": "^6.8.0",
     "babel-preset-es2015": "^6.16.0",
     "babel-preset-react": "^6.16.0",
+    "bookmarklet": "0.0.6",
     "chalk": "^1.1.3",
     "crypto": "0.0.3",
     "css-loader": "^0.25.0",
