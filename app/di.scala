@@ -54,7 +54,7 @@ class MediaAtomMaker(context: Context)
   private val support = new Support(hmacAuthActions, capi)
   private val youTubeController = new controllers.Youtube(hmacAuthActions, youTube, defaultCacheApi)
 
-  private val pluto = new PlutoController(hmacAuthActions, stores)
+  private val pluto = new PlutoProjectController(hmacAuthActions, stores)
 
   private val transcoder = new util.Transcoder(aws, defaultCacheApi)
   private val transcoderController = new controllers.Transcoder(hmacAuthActions, transcoder)

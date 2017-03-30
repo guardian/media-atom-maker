@@ -30,10 +30,10 @@ GET     /api2/pluto                     controllers.Api2.getPlutoAtoms()
 
 DELETE  /api2/atom/:id                  controllers.Api2.deleteAtom(id)
 
-GET     /api2/pluto/projects            controllers.PlutoController.listProjects()
-GET     /api2/pluto/projects:id         controllers.PlutoController.getProject(id)
-POST    /api2/pluto/projects            controllers.PlutoController.createProject()
-PUT     /api2/pluto/projects/:id        controllers.PlutoController.updateProject(id)
+GET     /api2/pluto/projects            controllers.PlutoProjectController.listProjects()
+GET     /api2/pluto/projects:id         controllers.PlutoProjectController.getProject(id)
+POST    /api2/pluto/projects            controllers.PlutoProjectController.createProject()
+PUT     /api2/pluto/projects/:id        controllers.PlutoProjectController.updateProject(id)
 
 # user uploaded videos
 GET     /api2/uploads                   controllers.UploadController.list(atomId)

@@ -6,7 +6,7 @@ import data.{DataStores, UnpackedDataStores}
 import play.api.libs.json.Json
 import play.api.mvc.Controller
 
-class PlutoController (val authActions: HMACAuthActions, override val stores: DataStores) extends Controller
+class PlutoProjectController(val authActions: HMACAuthActions, override val stores: DataStores) extends Controller
   with UnpackedDataStores
   with JsonRequestParsing {
 
