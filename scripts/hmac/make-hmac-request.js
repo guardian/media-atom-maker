@@ -3,7 +3,7 @@
 const fs = require('fs');
 
 const ArgumentParser = require('argparse').ArgumentParser;
-const PropertiesReader = require('properties-reader');
+const parseHocon = require('hoconjs/build/hoconjs');
 const chalk = require('chalk');
 
 const HMACRequest = require('./hmac-request');
@@ -41,12 +41,18 @@ parser.addArgument('--config-file', {
 
 const args = parser.parseArgs();
 
-const configuration = new PropertiesReader(args.configFile).getAllProperties();
-
-const host = configuration.host.replace(/"/g, '');
-const secret = configuration.secret.replace(/"/g, '');
-const url = `https://${host}/${args.path}`;
-const method = args.method;
+function getConfig() {
+  return new Promise((resolve, reject) => {
+    fs.readFile(args.configFile, 'utf8', (err, rawFile) => {
+      if (err) {
+        reject(err);
+      } else {
+        const config = parseHocon(rawFile);
+        resolve(config);
+      }
+    })
+  });
+}
 
 function getData() {
   return new Promise((resolve, reject) => {
@@ -81,11 +87,21 @@ function getData() {
   });
 }
 
+Promise.all([
+  getConfig(),
+  getData()
+]).then(results => {
+  const config = results[0];
+  const payloadData = results[1];
 
-getData().then(data => {
+  const host = config.host;
+  const secret = config.secret;
+  const url = `https://${host}/${args.path}`;
+  const method = args.method;
+
   const hmacRequest = new HMACRequest({secret: secret});
 
-  hmacRequest[method](url, data)
+  hmacRequest[method](url, payloadData)
     .then(response => console.log(response))
     .catch(err => {
       console.log(chalk.red(`ERROR! ${err.status} (${err.statusText}) ${method.toUpperCase()} ${url}`));
