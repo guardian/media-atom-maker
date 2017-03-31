@@ -7,4 +7,9 @@
 # So, lets run this file as a build step in every branch. That way, master just gets a friendly message, and other branches,
 # namely `aa-pluto-project-ingestion` can customise it.
 
-echo 'howdy partner'
+set -e
+
+pushd pluto-message-ingestion
+npm install
+npm run build
+popd

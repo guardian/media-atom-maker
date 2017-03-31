@@ -1,0 +1,37 @@
+{
+  "name": "pluto-message-ingestion",
+  "version": "0.0.0",
+  "description": "Ingesting messages sent from Pluto via a Kinesis stream",
+  "cloudformation": "../cloudformation/media-atom-maker.json",
+  "riffraffFile": "../conf/riff-raff.yaml",
+  "packageName": "media-service:media-atom-maker:pluto-message-ingestion",
+  "isAwsLambda": true,
+  "uploadArtefact": false,
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint *.js --fix",
+    "test": "npm run lint",
+    "build-artefact": "VERBOSE=true ARTEFACT_PATH=$PWD riffraff-artefact",
+    "build": "npm run test && npm run build-artefact"
+  },
+  "dependencies": {
+    "crypto": "0.0.3",
+    "elk-kinesis-logger": "0.1.0",
+    "hoconjs": "github:yellowblood/hocon-js",
+    "reqwest": "^2.0.5",
+    "xhr2": "^0.1.4"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.35.0",
+    "eslint": "^3.19.0",
+    "eslint-config-prettier": "^1.6.0",
+    "eslint-config-standard": "^10.0.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-node": "^4.2.2",
+    "eslint-plugin-prettier": "^2.0.1",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "node-riffraff-artefact": "^1.8.4",
+    "prettier-eslint-cli": "^3.4.1"
+  }
+}
