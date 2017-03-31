@@ -4,12 +4,9 @@ import Icon from '../Icon';
 import {getProcessingStatus} from '../../services/YoutubeApi';
 import _ from 'lodash';
 
-const VIDEO_WIDTH = 320;
-const VIDEO_HEIGHT = 180;
-
 function embed(assetId, platform) {
     if(platform === "Youtube") {
-        return <YouTubeEmbed id={assetId} width={VIDEO_WIDTH} height={VIDEO_HEIGHT} />;
+        return <YouTubeEmbed id={assetId} />;
     } else {
         return false;
     }
