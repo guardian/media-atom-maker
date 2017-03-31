@@ -1,5 +1,5 @@
 import React from 'react';
-import {YouTubeEmbed, youTubeUrl} from '../utils/YouTubeEmbed';
+import {YouTubeEmbed} from '../utils/YouTubeEmbed';
 import Icon from '../Icon';
 import {getProcessingStatus} from '../../services/YoutubeApi';
 import _ from 'lodash';
@@ -18,7 +18,7 @@ function embed(assetId, platform) {
 function youTubeLink(id) {
     return <div>
       <span>Video ID: {id}</span>
-      <a href={youTubeUrl(id)}><Icon icon="open_in_new" className="icon__assets"></Icon></a>
+      <a href={`https://www.youtube.com/watch?v=${id}`}><Icon icon="open_in_new" className="icon__assets"></Icon></a>
       </div>;
 }
 
@@ -106,16 +106,17 @@ export default class VideoTrail extends React.Component {
         });
     };
 
-    renderLocalUpload = () => {
-        // Multiply by 2 to give the impression of a continuous progress bar once this component is swapped out with the remote upload one
-        const total = this.props.localUpload.total * 2;
-        const progress = this.props.localUpload.progress;
+    renderS3Upload = () => {
+        // Multiply by 2 to give the impression of a continuous progress bar once this component is swapped out with
+        // another showing the progress of uploading to YouTube server-side
+        const total = this.props.s3Upload.total * 2;
+        const progress = this.props.s3Upload.progress;
 
-        return <UploadAsset key="localUpload" message="Uploading To S3" total={total} progress={progress} />;
+        return <UploadAsset key="s3Upload" message="Uploading To S3" total={total} progress={progress} />;
     };
 
     renderRemoteUpload = (id, total, progress) => {
-        // See renderLocalUpload() for why we multiply by 2
+        // See renderS3Upload() for why we multiply by 2
         return <UploadAsset key={id} message="Uploading to YouTube" total={total * 2} progress={progress} />;
     };
 
@@ -141,8 +142,8 @@ export default class VideoTrail extends React.Component {
     render() {
         const blocks = [];
 
-        if(this.props.localUpload.total) {
-            blocks.push(this.renderLocalUpload());
+        if(this.props.s3Upload.total) {
+            blocks.push(this.renderS3Upload());
         }
 
         this.props.uploads.forEach((upload) => {

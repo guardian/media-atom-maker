@@ -47,7 +47,7 @@ class ReactApp extends React.Component {
             video={this.props.video || {}}
             publishedVideo={this.props.publishedVideo || {}}
             showPublishedState={this.props.params.id ? true : false}
-            localUpload={this.props.localUpload}
+            s3Upload={this.props.s3Upload}
             publishVideo={this.props.appActions.publishVideo}
             saveState={this.props.saveState}
           />
@@ -78,7 +78,7 @@ function mapStateToProps(state) {
     publishedVideo: state.publishedVideo,
     error: state.error,
     uploads: state.uploads,
-    localUpload: state.localUpload
+    s3Upload: state.s3Upload
   };
 }
 

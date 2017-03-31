@@ -11,8 +11,8 @@ export default class Header extends React.Component {
   };
 
   renderProgress() {
-    if(this.props.localUpload.total) {
-      return <progress className="topbar__progress" max={this.props.localUpload.total} value={this.props.localUpload.progress} />;
+    if(this.props.s3Upload.total) {
+      return <progress className="topbar__progress" max={this.props.s3Upload.total} value={this.props.s3Upload.progress} />;
     } else {
       return false;
     }

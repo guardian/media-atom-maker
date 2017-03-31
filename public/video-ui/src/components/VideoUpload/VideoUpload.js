@@ -3,6 +3,7 @@ import {Link} from 'react-router';
 import Icon from '../Icon';
 import VideoTrail from './VideoTrail';
 import _ from 'lodash';
+import {blankVideoData} from '../../constants/blankVideoData';
 
 class AddAssetFromURL extends React.Component {
   constructor(props) {
@@ -41,6 +42,10 @@ class AddAssetFromURL extends React.Component {
 
 class VideoUpload extends React.Component {
   state = { file: null };
+
+  componentWillUnmount() {
+    this.props.videoActions.updateVideo(blankVideoData);
+  }
 
   setFile = (event) => {
     if (!this.props.video) {
@@ -94,7 +99,7 @@ class VideoUpload extends React.Component {
   }
 
   render() {
-    const uploading = this.props.localUpload.handle !== null;
+    const uploading = this.props.s3Upload.handle !== null;
 
     const activeVersion = this.props.video ? this.props.video.activeVersion : 0;
     const assets = this.props.video ? this.props.video.assets : [];
@@ -121,7 +126,7 @@ class VideoUpload extends React.Component {
         <VideoTrail
           activeVersion={activeVersion}
           assets={assets}
-          localUpload={this.props.localUpload}
+          s3Upload={this.props.s3Upload}
           uploads={uploads}
           selectAsset={selectAsset}
           getVideo={() => this.props.videoActions.getVideo(this.props.video.id)}
@@ -136,23 +141,24 @@ class VideoUpload extends React.Component {
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getVideo from '../../actions/VideoActions/getVideo';
+import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as getUpload from '../../actions/UploadActions/getUploads';
-import * as localUploadActions from '../../actions/UploadActions/localUpload';
+import * as s3UploadActions from '../../actions/UploadActions/s3Upload';
 import * as createAsset from '../../actions/VideoActions/createAsset';
 import * as revertAsset from '../../actions/VideoActions/revertAsset';
 
 function mapStateToProps(state) {
   return {
     video: state.video,
-    localUpload: state.localUpload,
+    s3Upload: state.s3Upload,
     uploads: state.uploads
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo, createAsset, revertAsset), dispatch),
-    uploadActions: bindActionCreators(Object.assign({}, localUploadActions, getUpload), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, getVideo, updateVideo, createAsset, revertAsset), dispatch),
+    uploadActions: bindActionCreators(Object.assign({}, s3UploadActions, getUpload), dispatch)
   };
 }
 
