@@ -45,6 +45,16 @@ object Dependencies {
 
   val pandaHmacHeaders = "com.gu" %% "hmac-headers" % "1.1"
 
+  val guava = "com.google.guava" % "guava-jdk5" % "17.0"
+  val googleHttpJackson = "com.google.http-client" % "google-http-client-jackson2" % "1.22.0"
+  val googleOauth = "com.google.oauth-client" % "google-oauth-client-jetty" % "1.20.0"
+  val googleBugs = "com.google.code.findbugs" % "jsr305" % "1.3.9"
+  val googleHttp = "com.google.http-client" % "google-http-client" % "1.22.0"
+  val commonsLogging = "commons-logging" % "commons-logging" % "1.1.1"
+  val apacheHttpClient = "org.apache.httpcomponents" % "httpclient" % "4.0.1"
+  val apacheHttpCore = "org.apache.httpcomponents" % "httpcore" % "4.0.1"
+
+
   val panda = Seq(
     "com.gu" %% "pan-domain-auth-play_2-5" % pandaVersion,
     "com.gu" %% "pan-domain-auth-verification" % pandaVersion,
@@ -70,10 +80,13 @@ object Dependencies {
     "com.google.apis" % "google-api-services-youtube" % "v3-rev178-1.22.0"
   )
 
+  val partnerApiDepencies = Seq(guava, googleHttpJackson, googleOauth, googleBugs, googleHttp, commonsLogging,
+    apacheHttpClient, apacheHttpCore)
+
   val commonDependencies = googleApi ++ Seq(
     typesafeConfig, awsLambdaCore, awsS3, awsDynamo, playJsonExtensions, logstashLogbackEncoder, kinesisLogbackAppender,
     awsTranscoder, scanamo, okHttp, scalaTest, scalaCheck, awsSQS, awsSNS, aws, permissionsClient
-  )
+  ) ++ partnerApiDepencies
 
   val appDependencies = panda ++ atomMaker ++ slf4j ++ Seq(
     PlayImport.cache, scalaLogging, jacksonDatabind, okHttp, contentAtomModel, diff,

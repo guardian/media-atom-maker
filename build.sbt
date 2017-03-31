@@ -17,6 +17,9 @@ lazy val commonSettings = Seq(
 lazy val common = (project in file("common"))
   .settings(commonSettings,
     name := "media-atom-common",
+    unmanagedBase := baseDirectory.value / "common" / "lib",
+    unmanagedJars in Compile += file("common/lib/google-api-services-youtubePartner-v1-rev20160726-java-1.22.0-sources.jar"),
+    unmanagedJars in Compile += file("common/lib/google-api-services-youtubePartner-v1-rev20160726-java-1.22.0.jar"),
     libraryDependencies ++= Dependencies.commonDependencies
   )
 
