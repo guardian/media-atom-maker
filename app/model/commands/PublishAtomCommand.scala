@@ -8,7 +8,7 @@ import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import com.gu.atom.play.AtomAPIActions
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.media.logging.Logging
-import com.gu.media.youtube.{YouTube, YouTubeMetadataUpdate}
+import com.gu.media.youtube.{YouTubeClaims, YouTube, YouTubeMetadataUpdate}
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.Platform.Youtube
@@ -18,7 +18,8 @@ import model.commands.CommandExceptions._
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success}
 
-case class PublishAtomCommand(id: String, override val stores: DataStores, youTube: YouTube, user: PandaUser)
+case class PublishAtomCommand(id: String, override val stores: DataStores, youTube: YouTube, youtubeClaims: YouTubeClaims,
+                              user: PandaUser)
   extends Command with AtomAPIActions with Logging {
 
   type T = MediaAtom
@@ -40,6 +41,9 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
 
         updateThumbnail(atomWithDuration, asset)
         updateYouTube(atomWithDuration, asset)
+
+        val oldPublishedAtomAdds = MediaAtom.fromThrift(getPublishedAtom(atom.id)).addsTurnedOff
+        updateUsagePolicy(atomWithDuration, oldPublishedAtomAdds)
         publish(atomWithDuration, user)
 
       case _ =>
@@ -101,6 +105,22 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
     )
 
     youTube.updateMetadata(asset.id, metadata)
+  }
+
+  private def updateUsagePolicy(publishedAtom: MediaAtom, oldAtomAdds: Boolean): Unit = {
+    if (oldAtomAdds == publishedAtom.addsTurnedOff) return;
+
+    else {
+
+      val activeVideoId = MediaAtom.getActiveYouTubeAsset(publishedAtom).get.id
+
+      youtubeClaims.getExistingClaimAndPolicyIds(activeVideoId) match {
+        case Some((claimId, assetId)) => youtubeClaims.updateClaim(claimId, assetId, activeVideoId, publishedAtom.addsTurnedOff)
+
+        case None => youtubeClaims.setVideoClaim(publishedAtom.title, publishedAtom.description.getOrElse(""),
+          publishedAtom.addsTurnedOff, activeVideoId)
+      }
+    }
   }
 
   private def updateThumbnail(atom: MediaAtom, asset: Asset): Unit = {

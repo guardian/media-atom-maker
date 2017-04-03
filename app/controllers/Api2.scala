@@ -55,7 +55,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
 
   def publishMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
     try {
-      val command = PublishAtomCommand(id, stores, youTube, req.user)
+      val command = PublishAtomCommand(id, stores, youTube, youTubeClaims, req.user)
 
       val updatedAtom = command.process()
       Ok(Json.toJson(updatedAtom))
