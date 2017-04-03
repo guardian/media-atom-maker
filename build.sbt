@@ -97,8 +97,6 @@ lazy val root = (project in file("root"))
   .aggregate(common, app, uploader, transcoder, expirer)
   .enablePlugins(RiffRaffArtifact)
   .settings(
-    riffRaffBuildIdentifier := Option(System.getenv("CIRCLE_BUILD_NUM")).getOrElse("dev"),
-    riffRaffManifestBranch := Option(System.getenv("CIRCLE_BRANCH")).getOrElse("dev"),
     riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
     riffRaffUploadManifestBucket := Option("riffraff-builds"),
     riffRaffManifestProjectName := "media-service:media-atom-maker",
