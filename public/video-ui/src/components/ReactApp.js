@@ -78,12 +78,9 @@ function mapStateToProps(state) {
     video: state.video,
     publishedVideo: state.publishedVideo,
     error: state.error,
-<<<<<<< 5a204f08904241662db6fb7d88445bb937c0f1e7
     uploads: state.uploads,
-    s3Upload: state.s3Upload
-=======
+    s3Upload: state.s3Upload,
     config: state.config
->>>>>>> added live and preview parameters
   };
 }
 

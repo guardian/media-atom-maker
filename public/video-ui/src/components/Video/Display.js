@@ -1,6 +1,5 @@
 import React from 'react';
 import VideoAssets from '../VideoAssets/VideoAssets';
-import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoUsages from '../VideoUsages/VideoUsages';
 import VideoMetaData from '../VideoMetaData/VideoMetaData';

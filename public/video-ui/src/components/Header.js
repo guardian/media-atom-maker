@@ -2,7 +2,7 @@ import React from 'react';
 import {Link} from 'react-router';
 import VideoSearch from './VideoSearch/VideoSearch';
 import VideoPublishBar from './VideoPublishBar/VideoPublishBar';
-import VideoUpload from './VideoUpload/VideoUpload';
+import {isVideoPublished} from './util/isVideoPublished';
 import Icon from './Icon';
 
 export default class Header extends React.Component {
