@@ -41,7 +41,7 @@ object JsonConversions {
     (__ \ "channelId").writeNullable[String] and
     (__ \ "privacyStatus").writeNullable[PrivacyStatus] and
     (__ \ "expiryDate").writeNullable[Long] and
-    (__ \ "monetizationPolicy").writeNullable[Boolean]
+    (__ \ "addsTurnedOff").writeNullable[Boolean]
 
   ) { metadata: Metadata =>
       (
@@ -52,7 +52,7 @@ object JsonConversions {
         metadata.channelId,
         metadata.privacyStatus,
         metadata.expiryDate,
-        metadata.monetizationPolicy
+        metadata.addsTurnedOff
         )
   }
 
@@ -64,7 +64,7 @@ object JsonConversions {
     (__ \ "channelId").readNullable[String] and
     (__ \ "privacyStatus").readNullable[PrivacyStatus] and
     (__ \ "expiryDate").readNullable[Long] and
-    (__ \ "monetizationPolicy").readNullable[Boolean]
+    (__ \ "addsTurnedOff").readNullable[Boolean]
 
   )(Metadata.apply _)
 
