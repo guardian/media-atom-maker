@@ -100,6 +100,7 @@ export default class Header extends React.Component {
     if (this.props.currentPath.endsWith("/upload")){
       return (
         <header className="topbar flex-container">
+          {this.renderProgress()}
           {this.renderHeaderBack()}
         </header>
       );
