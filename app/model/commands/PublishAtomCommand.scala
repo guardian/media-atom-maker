@@ -4,6 +4,7 @@ import java.net.URL
 import java.time.Instant
 import java.util.Date
 
+import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import com.gu.atom.play.AtomAPIActions
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.media.logging.Logging
@@ -120,6 +121,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
 
       youTube.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
     } catch {
+      case e: GoogleJsonResponseException if e.getDetails.getCode == 503 => { YouTubeConnectionIssue }
       case NonFatal(e) =>
         log.error(s"Unable to update thumbnail for asset=${asset.id} atom={$id}", e)
         PosterImageUploadFailed(e.getMessage)
