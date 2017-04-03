@@ -1,6 +1,6 @@
 package com.gu.media.upload.actions
 
-import com.amazonaws.services.s3.model.{CompleteMultipartUploadRequest, CopyPartRequest, InitiateMultipartUploadRequest, PartETag}
+import com.amazonaws.services.s3.model._
 import com.gu.media.PlutoDataStore
 import com.gu.media.logging.Logging
 import com.gu.media.ses.Mailer
@@ -43,7 +43,7 @@ abstract class UploadActionHandler(store: UploadsDataStore, plutoStore: PlutoDat
     val UploadPart(key, start, end) = part
     val total = upload.parts.last.end
 
-    if(s3.doesObjectExist(bucket, key.toString)) {
+    if(objectExists(key.toString)) {
       val input = s3.getObject(bucket, key.toString).getObjectContent
 
       youTube.uploadPart(uploadUri, input, start, end, total) match {
@@ -128,5 +128,13 @@ abstract class UploadActionHandler(store: UploadsDataStore, plutoStore: PlutoDat
           log.warn(s"Unable to delete part $part: $err")
       }
     }
+  }
+
+  private def objectExists(key: String) = try {
+    s3.doesObjectExist(bucket, key)
+  } catch {
+    case e: AmazonS3Exception =>
+      log.error(s"Error checking $key", e)
+      false
   }
 }
