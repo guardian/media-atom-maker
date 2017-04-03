@@ -151,7 +151,7 @@ class VideoDisplay extends React.Component {
             <div className="video__main__header">
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
-                  <header className="video__detailbox__header">Preview</header>
+                  <header className="video__detailbox__header">Video Asset</header>
                 </div>
                 <VideoPreview video={this.props.video || {}} />
               </div>

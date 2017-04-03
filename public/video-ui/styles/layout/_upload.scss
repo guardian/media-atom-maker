@@ -1,49 +1,121 @@
 .upload {
   width: 100%;
-  display: flex;
-  height: calc(100vh - #{$toolbarHeight});
-  align-items: stretch;
-
+  padding: 20px 30px;
   background-color: $color800Grey;
 
-  &__main {
-    flex-grow: 1;
-    margin: 20px 30px;
-
-    background-color: $color650Grey;
-    border-top: 1px solid $color600Grey;
-  }
-
-  &__header__container {
+  &__header {
     display: flex;
     justify-content: space-between;
     padding: 10px;
+
+    background-color: $color650Grey;
+    border-top: 1px solid $color600Grey;
     border-bottom: 1px solid $color625Grey;
+  }
 
-    a {
-      text-decoration: none;
+  &__content {
+    display: flex;
+    height: 100%;
+  }
+
+  &__actions {
+    flex: 0 0 20%;
+    padding: 10px;
+    margin: 0 10px 0 15px;
+  }
+
+  &__action {
+    padding-bottom: 5px;
+    margin-bottom: 40px;
+  }
+
+  &__action:not(:last-child) {
+    border-bottom: 1px solid $color625Grey;
+  }
+
+  &__assets {
+    flex: 3 0 0;
+
+    margin: 10px 30px;
+    padding: 10px;
+
+    display: flex;
+    flex-flow: row wrap;
+
+    background-color: $bodyBgColor;
+  }
+
+  &__asset {
+    margin: 10px;
+    color: white;
+    display: inline-block;
+
+    &__video {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      color: white;
+
+      img {
+        width: 100%;
+      }
     }
 
-    .publish__label {
-      width: auto;
+    &__empty {
+      background-color: $color900Grey;
+    }
+
+    &__running {
+      background-color: $color900Grey;
+
+      span {
+        position: absolute;
+      }
+
+      svg {
+        position: absolute;
+      }
+    }
+
+    &__caption {
+      height: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: left;
+      background-color: $color650Grey;
+      font-size: 15px;
+      padding: 8px 10px;
+
+      a {
+        text-decoration: none;
+      }
     }
   }
 
-  &__header {
-    color: $color500Grey;
-    font-weight: bold;
+  label {
     display: block;
-    font-size: 17px;
+    font-weight: bold;
+    margin: 0 0 5px;
+    padding: 8px 0 0;
   }
+}
 
-  &__picker {
-    p {
-      font-weight: bold;
-      margin-bottom: 0px;
-    }
+.upload__final{
+  z-index: 100px;
+}
 
-    input {
-      margin-left: 10px;
-    }
-  }
+
+.loader {
+    border: 5px solid $color700Grey;
+    border-top: 5px solid $brandColor;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

@@ -348,8 +348,10 @@ legend {
  */
 
 progress {
-  display: inline-block; /* 1 */
-  vertical-align: baseline; /* 2 */
+  position: absolute;
+  align-items: center;
+  width: 60%;
+  height: 5px;
 }
 
 /**

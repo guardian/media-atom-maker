@@ -1,11 +1,50 @@
 import React from 'react';
 import {Link} from 'react-router';
 import Icon from '../Icon';
+import VideoTrail from './VideoTrail';
+import _ from 'lodash';
+import {blankVideoData} from '../../constants/blankVideoData';
 
-class VideoUpload extends React.Component {
+class AddAssetFromURL extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { file: null };
+    this.state = { uri: null };
+  }
+
+  addAsset = () => {
+    if(this.state.uri) {
+      this.props.createAsset(this.state, this.props.video);
+    }
+  };
+
+  onChange = (e) => {
+    this.setState({ uri: e.target.value });
+  }
+
+  render() {
+    const disabled = !this.state.uri;
+
+    return <div className="video__detailbox">
+      <div className="video__detailbox__header__container">
+        <header className="video__detailbox__header">Asset URL</header>
+      </div>
+      <div className="form__group">
+      <div className="form__row">
+        <div>
+          <input className="form__field" type="text" placeholder="Paste YouTube URL here" onChange={this.onChange} />
+          <button className="btn" type="button" onClick={this.addAsset} disabled={disabled}>Add</button>
+        </div>
+      </div>
+    </div>
+    </div>;
+  }
+}
+
+class VideoUpload extends React.Component {
+  state = { file: null };
+
+  componentWillUnmount() {
+    this.props.videoActions.updateVideo(blankVideoData);
   }
 
   setFile = (event) => {
@@ -22,65 +61,77 @@ class VideoUpload extends React.Component {
 
   startUpload = () => {
     if(this.props.video && this.state.file) {
-      this.props.uploadActions.startUpload(this.props.video.id, this.state.file);
+      const atomId = this.props.video.id;
+
+      this.props.uploadActions.startUpload(atomId, this.state.file, () => {
+        // on complete
+        this.props.uploadActions.getUploads(atomId);
+      });
     }
   };
 
   renderHeader() {
-    let link = false;
     if (this.props.video) {
-      link = <Link className="button" to={`/videos/${this.props.video.id}`}>
+      <Link className="button" to={`/videos/${this.props.video.id}`}>
         <Icon className="icon__edit" icon="clear" />
       </Link>;
     }
-
-    return <div className="upload__header__container">
-      <header className="upload__header">
-        Upload Video
-      </header>
-      <div className="publish__label label__draft">
-        Warning: still under development!
-      </div>
-      {link}
-    </div>;
   }
 
-  renderButtons() {
-    const complete = this.props.upload.handle !== null && this.props.upload.progress === this.props.upload.total;
-
-    if (complete) {
-      return <button type="button" className="button__secondary" disabled={true}>
-        <Icon icon="done">Uploaded</Icon>
-      </button>;
-    } else if (this.props.upload.progress) {
-      return <div className="upload__progress">
-        <progress value={this.props.upload.progress} max={this.props.upload.total} />
-      </div>;
+  renderButtons(uploading) {
+    if (uploading) {
+      return false;
     } else {
-      return <button type="button" className="button__secondary" disabled={!this.state.file} onClick={this.startUpload}>
+      return <button type="button" className="btn button__secondary__assets" disabled={!this.state.file} onClick={this.startUpload}>
         <Icon icon="backup">Upload</Icon>
       </button>;
     }
   }
 
-  picker() {
-    return <div className="upload__picker">
-      <p>File</p>
-      <div className="flex-container">
-        <input type="file" onChange={this.setFile} disabled={this.props.upload.progress} />
-        {this.renderButtons()}
+  renderPicker(uploading) {
+    return <div className="video__detailbox upload__action">
+      <div className="video__detailbox__header__container">
+        <header className="video__detailbox__header">Upload Video</header>
       </div>
+        <input className="form__field" type="file" onChange={this.setFile} disabled={uploading} />
+        {this.renderButtons(uploading)}
     </div>;
   }
 
   render() {
-    return <div className="upload">
-      <div className="upload__main">
-        {this.renderHeader()}
+    const uploading = this.props.s3Upload.handle !== null;
 
-        <div className="form__group">
-          {this.picker()}
+    const activeVersion = this.props.video ? this.props.video.activeVersion : 0;
+    const assets = this.props.video ? this.props.video.assets : [];
+
+    const selectAsset = (assetId, version) => {
+      this.props.videoActions.revertAsset(this.props.video.id, assetId, version);
+    };
+
+    // We want to display uploads that do not yet have a corresponding asset in the atom.
+    // VideoTrail will poll appropriately.
+    const uploads = _.filter(this.props.uploads, (upload) => {
+        const version = upload.metadata.pluto.assetVersion;
+        const exists = _.some(assets, (asset) => asset.version === version);
+        return !exists;
+    });
+
+    return <div className="video__main">
+      {this.renderHeader()}
+      <div className="video__main__header">
+        <div className="upload__actions">
+          {this.renderPicker(uploading)}
+          <AddAssetFromURL video={this.props.video} createAsset={this.props.videoActions.createAsset} />
         </div>
+        <VideoTrail
+          activeVersion={activeVersion}
+          assets={assets}
+          s3Upload={this.props.s3Upload}
+          uploads={uploads}
+          selectAsset={selectAsset}
+          getVideo={() => this.props.videoActions.getVideo(this.props.video.id)}
+          getUploads={() => this.props.uploadActions.getUploads(this.props.video.id)}
+        />
       </div>
     </div>;
   }
@@ -90,19 +141,24 @@ class VideoUpload extends React.Component {
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getVideo from '../../actions/VideoActions/getVideo';
-import * as uploadActions from '../../actions/UploadActions/upload';
+import * as updateVideo from '../../actions/VideoActions/updateVideo';
+import * as getUpload from '../../actions/UploadActions/getUploads';
+import * as s3UploadActions from '../../actions/UploadActions/s3Upload';
+import * as createAsset from '../../actions/VideoActions/createAsset';
+import * as revertAsset from '../../actions/VideoActions/revertAsset';
 
 function mapStateToProps(state) {
   return {
     video: state.video,
-    upload: state.upload
+    s3Upload: state.s3Upload,
+    uploads: state.uploads
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo), dispatch),
-    uploadActions: bindActionCreators(Object.assign({}, uploadActions), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, getVideo, updateVideo, createAsset, revertAsset), dispatch),
+    uploadActions: bindActionCreators(Object.assign({}, s3UploadActions, getUpload), dispatch)
   };
 }
 

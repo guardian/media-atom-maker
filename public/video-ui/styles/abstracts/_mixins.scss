@@ -1,4 +1,4 @@
-@mixin buttonClass($btnBackground, $btnText) {
+@mixin buttonClass($btnBackground, $btnDisabled, $btnText, $btnTextDisabled) {
   display: block;
   padding: 10px;
   background-color: $btnBackground;
@@ -12,7 +12,8 @@
   }
 
   &:disabled {
-    background: $color500Grey;
+    background: $btnDisabled;
+    color: $btnTextDisabled;
     cursor: default;
   }
 

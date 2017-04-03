@@ -15,6 +15,7 @@ class ReactApp extends React.Component {
     if (this.props.params.id) {
       this.props.appActions.getVideo(this.props.params.id);
       this.props.appActions.getPublishedVideo(this.props.params.id);
+      this.props.appActions.getUploads(this.props.params.id);
     }
   }
 
@@ -25,6 +26,7 @@ class ReactApp extends React.Component {
       ) {
       this.props.appActions.getVideo(this.props.params.id);
       this.props.appActions.getPublishedVideo(this.props.params.id);
+      this.props.appActions.getUploads(this.props.params.id);
       this.setState({
         fetchedVideoFor: this.props.params.id
       });
@@ -45,6 +47,7 @@ class ReactApp extends React.Component {
             video={this.props.video || {}}
             publishedVideo={this.props.publishedVideo || {}}
             showPublishedState={this.props.params.id ? true : false}
+            s3Upload={this.props.s3Upload}
             publishVideo={this.props.appActions.publishVideo}
             saveState={this.props.saveState}
           />
@@ -65,6 +68,7 @@ import * as getVideo from '../actions/VideoActions/getVideo';
 import * as getPublishedVideo from '../actions/VideoActions/getPublishedVideo';
 import * as publishVideo from '../actions/VideoActions/publishVideo';
 import * as saveVideo from '../actions/VideoActions/saveVideo';
+import * as getUploads from '../actions/UploadActions/getUploads';
 
 function mapStateToProps(state) {
   return {
@@ -72,13 +76,15 @@ function mapStateToProps(state) {
     saveState: state.saveState,
     video: state.video,
     publishedVideo: state.publishedVideo,
-    error: state.error
+    error: state.error,
+    uploads: state.uploads,
+    s3Upload: state.s3Upload
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    appActions: bindActionCreators(Object.assign({}, updateSearchTerm, getVideo, getPublishedVideo, publishVideo, saveVideo), dispatch)
+    appActions: bindActionCreators(Object.assign({}, updateSearchTerm, getVideo, getPublishedVideo, publishVideo, saveVideo, getUploads), dispatch)
   };
 }
 

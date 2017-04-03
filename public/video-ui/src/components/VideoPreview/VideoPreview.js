@@ -1,5 +1,5 @@
 import React from 'react';
-import {getStore} from '../../util/storeAccessor';
+import {YouTubeEmbed} from '../utils/YouTubeEmbed';
 
 export default class VideoPreview extends React.Component {
 
@@ -16,11 +16,6 @@ export default class VideoPreview extends React.Component {
     }
   };
 
-  youtubeEmbedUrl = () => {
-    const store = getStore();
-    return store.getState().config.youtubeEmbedUrl;
-  };
-
   renderPreview() {
     const activeAsset = this.getActiveAsset();
 
@@ -34,9 +29,7 @@ export default class VideoPreview extends React.Component {
       <div className="baseline-margin">Unable to Preview</div>;
     }
 
-    return  (
-      <iframe className="baseline-margin" src={this.youtubeEmbedUrl() + activeAsset.id} allowFullScreen></iframe>
-    );
+    return <YouTubeEmbed id={activeAsset.id} className="baseline-margin" />;
   }
 
   render() {

@@ -15,3 +15,10 @@ export function getYoutubeChannels() {
     method: 'get'
   });
 }
+
+export function getProcessingStatus(videoIds) {
+  return pandaReqwest({
+    url: `/api/youtube/processingStatus?videoIds=${videoIds.join(',')}`,
+    method: 'get'
+  });
+}

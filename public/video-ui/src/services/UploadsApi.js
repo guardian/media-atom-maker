@@ -5,6 +5,13 @@ import 'aws-sdk/dist/aws-sdk';
 const AWS = window.AWS;
 
 class UploadFunctions {
+  getUploads = (atomId) => {
+    return pandaReqwest({
+      url: `/api2/uploads?atomId=${atomId}`,
+      method: 'get'
+    });
+  };
+
   createUpload = (atomId, file) => {
     return pandaReqwest({
       url: `/api2/uploads?atomId=${atomId}`,
@@ -78,10 +85,11 @@ class UploadFunctions {
 export const UploadsApi = new UploadFunctions();
 
 export class UploadHandle {
-  constructor(upload, file, progressFn) {
+  constructor(upload, file, progressFn, completeFn) {
     this.upload = upload;
     this.file = file;
     this.progressFn = progressFn;
+    this.completeFn = completeFn;
 
     this.request = null;
     this.uploadUri = null;
@@ -113,6 +121,8 @@ export class UploadHandle {
           });
         });
       });
+    } else {
+      this.completeFn();
     }
   }
 }

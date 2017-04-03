@@ -5,6 +5,7 @@ import java.net.URI
 import com.google.api.services.youtube.model.{Channel, VideoCategory}
 import com.gu.media.logging.Logging
 import com.typesafe.config.Config
+import org.cvogt.play.json.Jsonx
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
@@ -17,6 +18,11 @@ package object youtube {
   case class YouTubeMetadataUpdate(title: Option[String], categoryId: Option[String], description: Option[String],
                                    tags: List[String], license: Option[String], privacyStatus: Option[String])
 
+  // failure only set is status is "failed"
+  case class YouTubeProcessingStatus(id: String, status: String, total: Long, processed: Long,
+                                     timeLeftMs: Long, failure: Option[String])
+
+  implicit val format: Format[YouTubeProcessingStatus] = Jsonx.formatCaseClass[YouTubeProcessingStatus]
 
   object YouTubeVideoCategory {
     implicit val reads: Reads[YouTubeVideoCategory] = Json.reads[YouTubeVideoCategory]
