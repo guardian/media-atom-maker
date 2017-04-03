@@ -48,14 +48,13 @@ export default class Header extends React.Component {
     // you can always select a video in 'preview' mode (this is used by the Pluto embed)
     // otherwise you should only be able to select published videos (when embedded inside Composer for example)
 
-    const embedButton = <button type="button" className="btn" onSelectVideo={this.selectVideo} publishedVideo={this.props.publishedVideo}  embeddedMode={this.props.config.embeddedMode} onClick={this.props.onSelectVideo}>Select this Video</button>;
+    const embedButton = <button type="button" className="btn" onSelectVideo={this.selectVideo} publishedVideo={this.props.publishedVideo} onClick={this.props.onSelectVideo}>Select this Video</button>;
 
     switch(this.props.embeddedMode) {
       case "preview":
         return embedButton;
 
       case "live":
-      case "true":
         if(isVideoPublished(this.props.publishedVideo)) {
           return embedButton;
         } else {
@@ -149,7 +148,7 @@ export default class Header extends React.Component {
 
         </header>
       );
-    } if (this.props.embeddedMode){
+    } if (this.props.embeddedMode === 'live'){
       return (
         <header className="topbar flex-container">
           <div>This is embed mode</div>
