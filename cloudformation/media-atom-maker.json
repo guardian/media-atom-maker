@@ -616,7 +616,8 @@
                 "STAGE": { "Ref": "Stage" },
                 "CONFIG_BUCKET": { "Ref": "ConfigBucket" },
                 "CONFIG_KEY": { "Fn::FindInMap": [ "LambdaConfig", "Uploader", { "Ref": "Stage" }] },
-                "UPLOAD_TRACKING_TABLE_NAME": { "Ref": "UploadTrackingTable" }
+                "UPLOAD_TRACKING_TABLE_NAME": { "Ref": "UploadTrackingTable" },
+                "PLUTO_TABLE_NAME": { "Ref": "ManualPlutoTable" }
               }
             },
             "MemorySize": 512,
