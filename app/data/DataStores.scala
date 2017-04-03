@@ -6,7 +6,7 @@ import com.gu.contentatom.thrift.{Atom, AtomData}
 import com.gu.contentatom.thrift.atom.media.MediaAtom
 import com.gu.media.pluto.PlutoProjectDataStore
 import com.gu.media.upload.UploadsDataStore
-import com.gu.media.PlutoDataStore
+import com.gu.media.{CapiPreviewAccess, PlutoDataStore}
 import com.gu.scanamo.DynamoFormat
 import util.atom.MediaAtomImplicits
 import com.gu.scanamo.scrooge.ScroogeDynamoFormat._
@@ -15,7 +15,7 @@ import util.AWSConfig
 
 import scala.reflect.ClassTag
 
-class DataStores(aws: AWSConfig) extends MediaAtomImplicits {
+class DataStores(aws: AWSConfig, capi: CapiPreviewAccess) extends MediaAtomImplicits {
   import cats.syntax.either._ // appears unused but is required to make the data stores compile
 
   val mediaDynamoFormats = new AtomDynamoFormats[MediaAtom] {
@@ -43,6 +43,8 @@ class DataStores(aws: AWSConfig) extends MediaAtomImplicits {
   val uploadStore: UploadsDataStore = new UploadsDataStore(aws)
 
   val plutoProjectStore: PlutoProjectDataStore = new PlutoProjectDataStore(aws)
+
+  val atomListStore = AtomListStore(aws.stage, capi, preview)
 
   private def getPreview[T: ClassTag: DynamoFormat](dynamoFormats: AtomDynamoFormats[T]): PreviewDynamoDataStore[T] = {
     new PreviewDynamoDataStore[T](aws.dynamoDB, aws.dynamoTableName) {

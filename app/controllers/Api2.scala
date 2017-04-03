@@ -25,7 +25,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
   import authActions.APIHMACAuthAction
 
   def getMediaAtoms(search: Option[String], limit: Option[Int]) = APIHMACAuthAction {
-    val atoms = stores.listStore.getAtoms(search, limit)
+    val atoms = stores.atomListStore.getAtoms(search, limit)
     Ok(Json.toJson(atoms))
   }
 

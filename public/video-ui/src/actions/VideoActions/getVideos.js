@@ -9,9 +9,10 @@ function requestVideos(search, limit) {
   };
 }
 
-function receiveVideos(videos) {
+function receiveVideos(total, videos) {
   return {
     type:       'VIDEOS_GET_RECEIVE',
+    total:      total,
     videos:     videos,
     receivedAt: Date.now()
   };
@@ -31,7 +32,7 @@ export function getVideos(search, limit) {
     dispatch(requestVideos(search, limit));
     return VideosApi.fetchVideos(search, limit)
       .then(res => {
-        dispatch(receiveVideos(res));
+        dispatch(receiveVideos(res.total, res.atoms));
       })
       .catch(error => dispatch(errorReceivingVideos(error)));
   };

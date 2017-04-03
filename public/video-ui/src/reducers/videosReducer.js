@@ -1,15 +1,11 @@
 import {frontPageSize} from '../constants/frontPageSize';
 
-export default function videos(state = { entries: [], limit: frontPageSize }, action) {
+export default function videos(state = { entries: [], total: 0, limit: frontPageSize }, action) {
   switch (action.type) {
     case 'VIDEOS_GET_REQUEST':
-      return { entries: state.entries, limit: action.limit };
-    case 'VIDEOS_SEARCH_REQUEST':
-      return { entries: state.entries, limit: -1 };
+      return { entries: state.entries, total: state.total, limit: action.limit };
     case 'VIDEOS_GET_RECEIVE':
-      return { entries: action.videos || [], limit: state.limit };
-    case 'VIDEOS_SEARCH_RECEIVE':
-      return { entries: action.videos || [], limit: state.limit };
+      return { entries: action.videos || [], total: action.total, limit: state.limit };
     default:
       return state;
   }

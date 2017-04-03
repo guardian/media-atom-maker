@@ -37,7 +37,7 @@ class Videos extends React.Component {
   }
 
   renderMoreLink() {
-    if(this.props.limit === -1) {
+    if(this.props.videos.length === this.props.total) {
       return false;
     }
 
@@ -71,6 +71,7 @@ import * as getVideos from '../../actions/VideoActions/getVideos';
 function mapStateToProps(state) {
   return {
     videos: state.videos.entries,
+    total: state.videos.total,
     limit: state.videos.limit,
     searchTerm: state.searchTerm
   };

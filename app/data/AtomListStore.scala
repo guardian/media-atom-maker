@@ -7,7 +7,7 @@ import com.gu.contentatom.thrift.atom.media.{MediaAtom => ThriftMediaAtom}
 import com.gu.media.CapiPreviewAccess
 import model.Category.Hosted
 import model.commands.CommandExceptions.AtomDataStoreError
-import model.{Image, MediaAtom, MediaAtomSummary}
+import model.{Image, MediaAtom, MediaAtomList, MediaAtomSummary}
 import play.api.libs.json.{JsArray, JsValue}
 
 // TODO add `Hosted` category.
@@ -15,19 +15,25 @@ import play.api.libs.json.{JsArray, JsValue}
 // These only work with content that we own. `Hosted` can have third-party assets so the API calls will fail.
 // Add `Hosted` once the UI is smarter and removes features when category is `Hosted`.
 trait AtomListStore {
-  def getAtoms(search: Option[String], limit: Option[Int]): List[MediaAtomSummary]
+  def getAtoms(search: Option[String], limit: Option[Int]): MediaAtomList
 }
 
 class CapiBackedAtomListStore(capi: CapiPreviewAccess) extends AtomListStore {
-  override def getAtoms(search: Option[String], limit: Option[Int]): List[MediaAtomSummary] = {
+  override def getAtoms(search: Option[String], limit: Option[Int]): MediaAtomList = {
+    // CAPI max page size is 200
+    val cappedLimit = limit.map(Math.min(200, _))
+
     val base = "atoms?types=media&order-by=newest"
     val searchPart = search.map { q => s"&searchFields=data.title&q=$q" }.getOrElse("")
-    val pageSizePart = limit.map { l => s"&page-size=$l" }.getOrElse("")
+    val pageSizePart = cappedLimit.map { l => s"&page-size=$l" }.getOrElse("")
 
     val query = base + searchPart + pageSizePart
-    val results = (capi.capiQuery(query) \ "response" \ "results").as[JsArray]
+    val response = capi.capiQuery(query)
 
-    results.value.flatMap(fromJson).toList
+    val total = (response \ "response" \ "total").as[Int]
+    val results = (response \ "response" \ "results").as[JsArray]
+
+    MediaAtomList(total, results.value.flatMap(fromJson).toList)
   }
 
   private def fromJson(wrapper: JsValue): Option[MediaAtomSummary] = {
@@ -57,7 +63,7 @@ class CapiBackedAtomListStore(capi: CapiPreviewAccess) extends AtomListStore {
 }
 
 class DynamoBackedAtomListStore(store: AtomListStore.PreviewStore) extends AtomListStore {
-  override def getAtoms(search: Option[String], limit: Option[Int]): List[MediaAtomSummary] = {
+  override def getAtoms(search: Option[String], limit: Option[Int]): MediaAtomList = {
     // We must filter the entire list of atoms rather than use Dynamo limit to ensure stable iteration order.
     // Without it, the front page will shuffle around when clicking the Load More button.
     store.listAtoms match {
@@ -84,7 +90,7 @@ class DynamoBackedAtomListStore(store: AtomListStore.PreviewStore) extends AtomL
           case None => filteredAtoms
         }
 
-        limitedAtoms.map(fromAtom)
+        MediaAtomList(filteredAtoms.size, limitedAtoms.map(fromAtom))
     }
   }
 
