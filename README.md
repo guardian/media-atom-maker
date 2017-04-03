@@ -1,5 +1,3 @@
-[![CircleCI](https://circleci.com/gh/guardian/media-atom-maker.svg?style=svg)](https://circleci.com/gh/guardian/media-atom-maker)
-
 # Media-Atom-Maker
 This is app a Play app for editing media atoms, and a
 publisher that pushes media atoms into a Kinesis stream.
@@ -52,7 +50,7 @@ publisher that pushes media atoms into a Kinesis stream.
    `readFromComposer` property is set to true in `/etc/gu/media-atom-maker.private.conf` the kinesis
    stream names are the code stream names. You can find these streams in the S3 `atom-maker-conf` bucket
    `composer` aws account.
-   
+
 ## Testing
 
 To run unit tests `sbt test`
