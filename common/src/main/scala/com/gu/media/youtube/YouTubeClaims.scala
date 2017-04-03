@@ -1,11 +1,10 @@
 package com.gu.media.youtube
 
 import com.google.api.services.youtubePartner.model._
-import com.gu.media.logging.Logging
-import scala.collection.JavaConverters._
+import com.typesafe.config.Config
 import scala.collection.JavaConversions._
 
-trait Monetization { this: YouTubeAccess with Logging =>
+class YouTubeClaims(override val config: Config) extends YouTubeAccess {
 
   private def createAsset(title: String, description: String): String = {
 
@@ -56,29 +55,19 @@ trait Monetization { this: YouTubeAccess with Logging =>
       .setOnBehalfOfContentOwner(contentOwner)
   }
 
-  private def getPolicyId(name: String): Option[Policy] = {
-    val policies = partnerClient.policies
-      .list()
-      .execute()
-      .getItems()
-      .asScala
+  def setVideoClaim(assetTitle: String, assetDescription: String, addsTurnedOff: Boolean, videoId: String): Unit = {
 
-    policies.find(policy => {
-      policy.getName() == name })
-
-  }
-
-  def setVideoUsage(assetTitle: String, assetDescription: String, policyName: String, videoId: String): Unit = {
+    val policy = new Policy()
+    if (addsTurnedOff)
+      policy.setId(trackingPolicyId)
+    else
+      policy.setId(monetizationPolicyId)
 
     val assetId = createAsset(assetTitle, assetDescription)
     setOwnership(assetId)
-    getPolicyId(policyName) match {
-      case Some(policy) => claimVideo(assetId, videoId, policy)
-      case None => {
-        log.warn(s"Could not add asset: could not find policy with name ${policyName}")
-        throw new Exception(s"Failed to find policy with name ${policyName}")
-      }
-    }
+
+    claimVideo(assetId, videoId, policy)
+
   }
 
 }

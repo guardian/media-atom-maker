@@ -20,6 +20,9 @@ trait YouTubeAccess extends Settings {
   def clientSecret = getMandatoryString("youtube.clientSecret")
   def refreshToken = getMandatoryString("youtube.refreshToken")
 
+  def monetizationPolicyId = getMandatoryString("youtube.monetizationPolicyId")
+  def trackingPolicyId = getMandatoryString("youtube.trackingPolicyId")
+
   private val httpTransport = new NetHttpTransport()
   private val jacksonFactory = new JacksonFactory()
 
@@ -36,7 +39,7 @@ trait YouTubeAccess extends Settings {
   lazy val client: YouTubeClient = new YouTubeClient.Builder(httpTransport, jacksonFactory, credentials)
     .setApplicationName(appName)
     .build
-  
+
   lazy val partnerClient: YouTubePartner = new YouTubePartner.Builder(httpTransport, jacksonFactory, partnerCredentials)
     .setApplicationName(appName)
     .build()
