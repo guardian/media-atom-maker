@@ -10,7 +10,7 @@ export function hasUnpublishedChanges(previewVideo, publishedVideo, editableFiel
     return true;
   }
 
-  const allFields = editableFields.concat(appUpdatedFields);
+  dconst allFields = editableFields.concat(appUpdatedFields);
 
   return !allFields.every(key => {
     return _.isEqual(previewVideo[key], publishedVideo[key]);

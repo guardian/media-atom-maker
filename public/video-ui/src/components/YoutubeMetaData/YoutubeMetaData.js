@@ -2,6 +2,7 @@ import React from 'react';
 import {ManagedForm, ManagedField} from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
 import KeywordPicker from '../FormFields/KeywordPicker';
+import CheckBox from '../FormFields/CheckBox';
 import { privacyStates } from '../../constants/privacyStates';
 
 class YoutubeMetaData extends React.Component {
@@ -52,6 +53,12 @@ class YoutubeMetaData extends React.Component {
             name="Keywords"
           >
             <KeywordPicker/>
+          </ManagedField>
+          <ManagedField
+            fieldLocation="addsTurnedOff"
+            name="Turn advertising off"
+          >
+            <CheckBox/>
           </ManagedField>
         </ManagedForm>
       </div>
