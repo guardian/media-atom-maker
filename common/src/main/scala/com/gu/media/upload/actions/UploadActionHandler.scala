@@ -1,6 +1,6 @@
 package com.gu.media.upload.actions
 
-import com.amazonaws.services.s3.model.{CompleteMultipartUploadRequest, CopyPartRequest, InitiateMultipartUploadRequest, PartETag}
+import com.amazonaws.services.s3.model._
 import com.gu.media.PlutoDataStore
 import com.gu.media.logging.Logging
 import com.gu.media.ses.Mailer
@@ -14,6 +14,10 @@ import scala.collection.JavaConverters._
 abstract class UploadActionHandler(store: UploadsDataStore, plutoStore: PlutoDataStore, uploaderAccess: UploaderAccess,
                                    youTube: YouTubeUploader, mailer: Mailer)
   extends Logging {
+
+  private val s3 = uploaderAccess.s3Client
+  private val bucket = uploaderAccess.userUploadBucket
+
   // Returns the new version number
   def addAsset(atomId: String, videoId: String): Long
 
@@ -39,36 +43,49 @@ abstract class UploadActionHandler(store: UploadsDataStore, plutoStore: PlutoDat
     val UploadPart(key, start, end) = part
     val total = upload.parts.last.end
 
-    youTube.uploadPart(uploadUri, key, start, end, total) match {
-      case Some(videoId) =>
-        // last part. add asset
-        val version = addAsset(upload.metadata.pluto.atomId, videoId)
-        val plutoData = upload.metadata.pluto.copy(assetVersion = version)
+    if(objectExists(key.toString)) {
+      val input = s3.getObject(bucket, key.toString).getObjectContent
 
-        upload.copy(metadata = upload.metadata.copy(pluto = plutoData))
+      youTube.uploadPart(uploadUri, input, start, end, total) match {
+        case Some(videoId) =>
+          // last part. add asset
+          val version = addAsset(upload.metadata.pluto.atomId, videoId)
+          val plutoData = upload.metadata.pluto.copy(assetVersion = version)
 
-      case None =>
-        upload
+          upload.copy(metadata = upload.metadata.copy(pluto = plutoData))
+
+        case None =>
+          upload
+      }
+    } else {
+      log.error(s"Unable to upload ${part.key} since it has been deleted from S3")
+      upload
     }
   }
 
   // Videos are uploaded as a series of smaller parts. In order to simplify Pluto ingestion and allow us
   // to transcode if required, we use S3 multipart copy to create a new object consisting of all the parts
   private def createCompleteObject(upload: Upload, destination: String): Unit = {
-    val start = new InitiateMultipartUploadRequest(uploaderAccess.userUploadBucket, destination)
-    log.info(s"Starting multipart copy for upload ${upload.id}")
+    val parts = upload.parts.map { case UploadPart(key, _, _) => key }
 
-    val multipart = uploaderAccess.s3Client.initiateMultipartUpload(start)
+    if(parts.forall(objectExists)) {
+      val start = new InitiateMultipartUploadRequest(bucket, destination)
+      log.info(s"Starting multipart copy for upload ${upload.id}")
 
-    val eTags = for (part <- upload.parts.indices)
-      yield copyPart(multipart.getUploadId, upload.id, part, destination)
+      val multipart = s3.initiateMultipartUpload(start)
+      val eTags = parts.zipWithIndex.map { case(key, part) =>
+        copyPart(multipart.getUploadId, part, key, destination)
+      }
 
-    val complete = new CompleteMultipartUploadRequest(
-      uploaderAccess.userUploadBucket, destination, multipart.getUploadId, eTags.asJava)
+      val complete = new CompleteMultipartUploadRequest(
+        bucket, destination, multipart.getUploadId, eTags.asJava)
 
-    uploaderAccess.s3Client.completeMultipartUpload(complete)
+      s3.completeMultipartUpload(complete)
 
-    log.info(s"Multipart copy complete. upload=${upload.id} multipart=${multipart.getUploadId}")
+      log.info(s"Multipart copy complete. upload=${upload.id} multipart=${multipart.getUploadId}")
+    } else {
+      log.error(s"Unable to create complete object $destination since the parts have been deleted from S3")
+    }
   }
 
   private def sendToPluto(upload: Upload): Unit = {
@@ -90,17 +107,17 @@ abstract class UploadActionHandler(store: UploadsDataStore, plutoStore: PlutoDat
     }
   }
 
-  private def copyPart(multipartId: String, uploadId: String, part: Int, key: String): PartETag = {
+  private def copyPart(multipartId: String, part: Int, source: String, destination: String): PartETag = {
     val request = new CopyPartRequest()
       .withUploadId(multipartId)
-      .withSourceBucketName(uploaderAccess.userUploadBucket)
-      .withSourceKey(UploadPartKey(uploaderAccess.userUploadFolder, uploadId, part).toString)
-      .withDestinationBucketName(uploaderAccess.userUploadBucket)
-      .withDestinationKey(key.toString)
+      .withSourceBucketName(bucket)
+      .withSourceKey(source)
+      .withDestinationBucketName(bucket)
+      .withDestinationKey(destination)
       .withPartNumber(part + 1)
 
-    log.info(s"Copying upload=$uploadId multipart=$multipartId part=$part")
-    val response = uploaderAccess.s3Client.copyPart(request)
+    log.info(s"Copying $source to $destination [multipart=$multipartId part=$part]")
+    val response = s3.copyPart(request)
 
     new PartETag(response.getPartNumber, response.getETag)
   }
@@ -110,12 +127,20 @@ abstract class UploadActionHandler(store: UploadsDataStore, plutoStore: PlutoDat
     upload.parts.foreach { part =>
       try {
         log.info(s"Deleting part $part")
-        uploaderAccess.s3Client.deleteObject(uploaderAccess.userUploadBucket, part.key)
+        s3.deleteObject(bucket, part.key)
       } catch {
         case NonFatal(err) =>
           // if we can't delete it, no problem. the bucket policy will remove it in time
           log.warn(s"Unable to delete part $part: $err")
       }
     }
+  }
+
+  private def objectExists(key: String) = try {
+    s3.doesObjectExist(bucket, key)
+  } catch {
+    case e: AmazonS3Exception =>
+      log.error(s"Error checking $key", e)
+      false
   }
 }

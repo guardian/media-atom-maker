@@ -49,11 +49,6 @@ class YouTubeUploader(aws: UploaderAccess, youTube: YouTubeAccess) {
     response.header("Location")
   }
 
-  def uploadPart(uri: String, key: String, start: Long, end: Long, total: Long): Option[String] = {
-    val input = aws.s3Client.getObject(aws.userUploadBucket, key.toString).getObjectContent
-    uploadPart(uri, input, start, end, total)
-  }
-
   def uploadPart(uri: String, input: InputStream, start: Long, end: Long, total: Long): Option[String] = {
     val size = end - start
     // end index is inclusive in direct contradiction to programming history (and my end variable)
