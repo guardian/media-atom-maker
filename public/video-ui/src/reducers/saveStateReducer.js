@@ -2,8 +2,7 @@ import {saveStateVals} from '../constants/saveStateVals';
 
 export default function saveState(state = {
   saving: false,
-  publishing: false,
-  searching: false
+  publishing: false
 }, action) {
 
   switch (action.type) {
@@ -53,17 +52,6 @@ export default function saveState(state = {
         publishing: false
       });
 
-    // Searching states
-
-    case 'VIDEOS_SEARCH_REQUEST':
-      return Object.assign({}, state, {
-        searching: saveStateVals.inprogress
-      });
-    case 'VIDEOS_SEARCH_RECEIVE':
-      return Object.assign({}, state, {
-        searching: false
-      });
-
     // Adding asset states
 
     case 'ASSET_CREATE_REQUEST':
@@ -88,7 +76,6 @@ export default function saveState(state = {
 
     case 'SHOW_ERROR':
       return Object.assign({}, state, {
-        searching: false,
         saving: false,
         publishing: false
       });

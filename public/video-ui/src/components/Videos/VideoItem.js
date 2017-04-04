@@ -1,25 +1,17 @@
 import React from 'react';
 import {Link} from 'react-router';
 import {findSmallestAssetAboveWidth} from '../../util/imageHelpers';
-import {hasVideoExpired} from '../../util/isVideoPublished';
 
 export default class VideoItem extends React.Component {
 
-  renderActiveAssetName() {
-    const activeVersion = this.props.video.activeVersion ? this.props.video.activeVersion : 0;
-
-    if(activeVersion === -1) {
-      // search results do not contain the version
-      return "";
-    } else {
-      const assets = this.props.video.assets.filter((asset) => asset.version === activeVersion);
-      if (hasVideoExpired(this.props.video)) {
+  renderPill() {
+    switch(this.props.video.status) {
+      case "Expired":
         return <div className="publish__label label__expired">Expired</div>;
-      } else if(assets.length && assets[0] && assets[0].platform) {
+      case "Active":
         return <span className="publish__label label__live label__frontpage__overlay">Active</span>;
-      } else {
+      default:
         return <span className="publish__label label__frontpage__novideo label__frontpage__overlay">No Video</span>;
-      }
     }
   }
 
@@ -43,7 +35,7 @@ export default class VideoItem extends React.Component {
                 {this.renderItemImage()}
               </div>
               <div className="grid__status__overlay">
-                {this.renderActiveAssetName()}
+                {this.renderPill()}
               </div>
               <div className="grid__item__footer">
                 <span className="grid__item__title">{this.props.video.title}</span>

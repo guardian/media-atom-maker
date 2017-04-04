@@ -15,7 +15,8 @@ PUT     /api/atom/:id/revert/:version   controllers.Api.revertAtom(id, version: 
 PUT     /api/atom/:id/publish           controllers.Api.publishAtom(id)
 
 POST    /api2/atoms                     controllers.Api2.createMediaAtom
-GET     /api2/atoms                     controllers.Api2.getMediaAtoms()
+# optional limit
+GET     /api2/atoms                     controllers.Api2.getMediaAtoms(search: Option[String], limit: Option[Int])
 GET     /api2/atoms/:id/published       controllers.Api2.getPublishedMediaAtom(id)
 GET     /api2/atoms/:id                 controllers.Api2.getMediaAtom(id)
 PUT     /api2/atoms/:id                 controllers.Api2.putMediaAtom(id)
