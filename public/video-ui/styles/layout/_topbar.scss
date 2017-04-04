@@ -27,7 +27,7 @@ $topbarHeight: 50px;
 }
 
 .topbar__global {
-  margin-right: 20px;
+  margin-right: 10px;
 }
 
 .topbar__functional {
@@ -54,4 +54,10 @@ $topbarHeight: 50px;
   width: 100%;
   height: 2px;
   top: 49px // covering 1px border, otherwise would be 50px :)
+}
+
+.topbar__back-link {
+  width: $topbarHeight;
+  height: $topbarHeight;
+  margin-right: 0;
 }

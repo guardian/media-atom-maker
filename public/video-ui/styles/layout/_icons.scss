@@ -1,8 +1,6 @@
 .icon {
     font-family: 'Material Icons';
-    font-weight: normal;
     font-style: normal;
-    font-size: $iconSize;
     display: inline-block;
     width: 1em;
     height: 1em;
@@ -10,6 +8,7 @@
     text-transform: none;
     letter-spacing: normal;
     word-wrap: normal;
+    text-decoration: none;
 
     /* Support for all WebKit browsers. */
     -webkit-font-smoothing: antialiased;
@@ -25,6 +24,10 @@
   &--text {
     margin-left: 5px;
   }
+
+  &:link {
+    text-decoration: none;
+  }
 }
 
 .icon__done,
@@ -33,6 +36,7 @@
   background-color: $color600Grey;
   width: 33px;
   height: 33px;
+  font-size: $iconSize;
   cursor: pointer;
   display:flex;
   justify-content:center;
@@ -63,8 +67,27 @@
   margin-right: 5px;
 }
 
+.icon__back {
+  background-color: $brandColor;
+  color: $color800Grey;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 24px;
+  cursor: pointer;
+  display:flex;
+  justify-content:center;
+  align-items: center;
+  margin: 10px 20px 10px 10px;
+
+  &:hover {
+    background-color: darken($brandColor, 10%);
+  }
+}
+
 .icon__done {
   background-color: $brandColor;
+  font-size: $iconSize;
   color: $color800Grey;
   &:hover {
     background-color: darken($brandColor, 5%);

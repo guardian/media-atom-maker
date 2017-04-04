@@ -43,6 +43,7 @@ class ReactApp extends React.Component {
           <Header
             updateSearchTerm={this.updateSearchTerm}
             searchTerm={this.props.searchTerm}
+            currentPath={this.props.location.pathname}
             video={this.props.video || {}}
             publishedVideo={this.props.publishedVideo || {}}
             showPublishedState={this.props.params.id ? true : false}

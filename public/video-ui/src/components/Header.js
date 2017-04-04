@@ -18,11 +18,35 @@ export default class Header extends React.Component {
     }
   }
 
-  renderHomeAndSearch() {
+  renderHome() {
     return (
       <div className="flex-container topbar__global">
         <Link to="/" className="topbar__home-link" title="Home"></Link>
+      </div>
+    );
+  }
+
+  renderSearch() {
+    return (
+      <div className="flex-container topbar__global">
         <VideoSearch {...this.props}/>
+      </div>
+    );
+  }
+
+  renderHeaderBack() {
+    return (
+      <div className="flex-container topbar__global">
+        <Link to={`/videos/${this.props.video.id}`} className="button" title="Back"><Icon className="icon icon__back" icon="keyboard_arrow_left"></Icon></Link>
+        <span className="header__video__title">{this.props.video.title}</span>
+      </div>
+    );
+  }
+
+  renderVideoTitle() {
+    return (
+      <div className="flex-container">
+        <span className="header__video__title">{this.props.video.title}</span>
       </div>
     );
   }
@@ -65,7 +89,7 @@ export default class Header extends React.Component {
   renderCreateVideo() {
     return (
       <nav className="topbar__nav-link">
-        <Link className="button__secondary" to="/videos/create">
+        <Link className="btn" to="/videos/create">
           <Icon icon="add">Create new video</Icon>
         </Link>
       </nav>
@@ -73,20 +97,30 @@ export default class Header extends React.Component {
   }
 
   render () {
-
-    if (!this.props.showPublishedState) {
+    if (this.props.currentPath.endsWith("/upload")){
+      return (
+        <header className="topbar flex-container">
+          {this.renderProgress()}
+          {this.renderHeaderBack()}
+        </header>
+      );
+    } if (!this.props.showPublishedState) {
       return (
         <header className="topbar flex-container">
           {this.renderProgress()}
 
-          {this.renderHomeAndSearch()}
+          {this.renderHome()}
+          {this.renderSearch()}
 
           <div className="flex-spacer"></div>
+
+        <div className="flex-container">
+            {this.renderCreateVideo()}
+          </div>
 
           <div className="flex-container">
             {this.renderFeedback()}
             {this.renderHowTo()}
-            {this.renderCreateVideo()}
           </div>
 
         </header>
@@ -95,7 +129,11 @@ export default class Header extends React.Component {
       return (
         <header className="topbar flex-container">
           {this.renderProgress()}
-          {this.renderHomeAndSearch()}
+          {this.renderHome()}
+
+          <div>
+            {this.renderVideoTitle()}
+          </div>
 
           <VideoPublishBar className="flex-grow"
             video={this.props.video}
@@ -105,9 +143,6 @@ export default class Header extends React.Component {
 
           <div className="flex-container">
             {this.renderAuditLink()}
-            {this.renderFeedback()}
-            {this.renderHowTo()}
-            {this.renderCreateVideo()}
           </div>
 
         </header>
