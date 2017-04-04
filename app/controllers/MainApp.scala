@@ -1,5 +1,6 @@
 package controllers
 
+import com.gu.editorial.permissions.client.PermissionsProvider
 import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.service.GoogleAuthException
 import data.DataStores
@@ -14,7 +15,8 @@ import scala.concurrent.Future
 class MainApp (override val stores: DataStores,
                wsClient: WSClient,
                conf: Configuration,
-               val authActions: HMACAuthActions)
+               val authActions: HMACAuthActions,
+               val permissions: PermissionsProvider)
     extends AtomController {
 
   import authActions.{AuthAction, processGoogleCallback}

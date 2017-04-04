@@ -10,12 +10,14 @@ import scala.concurrent.Future
 case class Permissions(addAsset: Boolean, deleteAtom: Boolean)
 object Permissions {
   implicit val format: Format[Permissions] = Jsonx.formatCaseClass[Permissions]
-}
 
-class MamPermissionsProvider(stage: String, credsProvider: AWSCredentialsProvider) extends PermissionsProvider {
   val app = "media-atom-maker"
   val addAsset = Permission("add_media_atom_asset", app, defaultVal = PermissionDenied)
   val deleteAtom = Permission("delete_media_atom", app, defaultVal = PermissionDenied)
+}
+
+class MediaAtomMakerPermissionsProvider(stage: String, credsProvider: AWSCredentialsProvider) extends PermissionsProvider {
+  import Permissions._
 
   val all = Seq(addAsset, deleteAtom)
   val none = Permissions(addAsset = false, deleteAtom = false)
@@ -28,19 +30,12 @@ class MamPermissionsProvider(stage: String, credsProvider: AWSCredentialsProvide
   )
 
   def getAll(email: String): Future[Permissions] = for {
-    addAsset <- canAddAsset(email)
-    deleteAtom <- canDeleteAtom(email)
+    addAsset <- hasPermission(addAsset, email)
+    deleteAtom <- hasPermission(deleteAtom, email)
   } yield Permissions(addAsset, deleteAtom)
 
-  def canAddAsset(email: String): Future[Boolean] = {
-    get(addAsset)(PermissionsUser(email)).map {
-      case PermissionGranted => true
-      case _ => false
-    }
-  }
-
-  def canDeleteAtom(email: String): Future[Boolean] = {
-    get(deleteAtom)(PermissionsUser(email)).map {
+  private def hasPermission(permission: Permission, email: String): Future[Boolean] = {
+    get(permission)(PermissionsUser(email)).map {
       case PermissionGranted => true
       case _ => false
     }

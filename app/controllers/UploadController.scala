@@ -2,7 +2,9 @@ package controllers
 
 import java.util.UUID
 
-import com.gu.media.MamPermissionsProvider
+import _root_.model.MediaAtom
+import _root_.model.commands.CommandExceptions._
+import com.gu.editorial.permissions.client.PermissionsProvider
 import com.gu.media.logging.Logging
 import com.gu.media.upload._
 import com.gu.media.upload.actions.{CopyParts, DeleteParts, UploadActionSender, UploadPartToYouTube}
@@ -13,20 +15,16 @@ import com.gu.pandomainauth.action.UserRequest
 import com.gu.pandomainauth.model.User
 import controllers.UploadController.{CompleteResponse, CreateRequest}
 import data.{DataStores, UnpackedDataStores}
-import _root_.model.MediaAtom
-import _root_.model.commands.CommandExceptions._
 import org.cvogt.play.json.Jsonx
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.{Format, Json}
-import play.api.mvc.{AnyContent, Controller, Result}
+import play.api.mvc.Result
 import util.AWSConfig
 
-import scala.concurrent.Future
+class UploadController(override val authActions: HMACAuthActions, awsConfig: AWSConfig, youTube: YouTubeAccess,
+                       uploadActions: UploadActionSender, override val stores: DataStores,
+                       override val permissions: PermissionsProvider)
 
-class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, youTube: YouTubeAccess,
-                       uploadActions: UploadActionSender, permissions: MamPermissionsProvider, override val stores: DataStores)
-
-  extends Controller with Logging with JsonRequestParsing with UnpackedDataStores {
+  extends AtomController with Logging with JsonRequestParsing with UnpackedDataStores {
 
   import authActions.APIHMACAuthAction
 
@@ -44,49 +42,41 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
     Ok(Json.toJson(uploads))
   }
 
-  def create = APIHMACAuthAction.async { implicit raw =>
-    withPermission(raw) {
-      parse(raw) { req: CreateRequest =>
-        log.info(s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}")
+  def create = CanAddAsset { implicit raw =>
+    parse(raw) { req: CreateRequest =>
+      log.info(s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}")
 
-        val atom = MediaAtom.fromThrift(getPreviewAtom(req.atomId))
-        val upload = buildUpload(atom, raw.user, req.size)
-        table.put(upload)
+      val atom = MediaAtom.fromThrift(getPreviewAtom(req.atomId))
+      val upload = buildUpload(atom, raw.user, req.size)
+      table.put(upload)
 
-        Ok(Json.toJson(upload))
-      }
+      Ok(Json.toJson(upload))
     }
   }
 
-  def delete(id: String) = APIHMACAuthAction.async { implicit req =>
-    withPermission(req) {
-      table.delete(id)
-      NoContent
+  def delete(id: String) = CanAddAsset { implicit req =>
+    table.delete(id)
+    NoContent
+  }
+
+  def credentials(id: String) = CanAddAsset { implicit req =>
+    partRequest(id, req) { (upload, part, _) =>
+      val credentials = credsGenerator.forKey(upload.id, part.key)
+      Ok(Json.toJson(credentials))
     }
   }
 
-  def credentials(id: String) = APIHMACAuthAction.async { implicit req =>
-    withPermission(req) {
-      partRequest(id, req) { (upload, part, _) =>
-        val credentials = credsGenerator.forKey(upload.id, part.key)
-        Ok(Json.toJson(credentials))
-      }
-    }
-  }
-
-  def complete(id: String) = APIHMACAuthAction.async { implicit req =>
-    withPermission(req) {
-      partRequest(id, req) {
-        case (upload, part, Some(uploadUri)) =>
-          partComplete(upload, part, uploadUri)
-          Ok(Json.toJson(CompleteResponse(uploadUri)))
+  def complete(id: String) = CanAddAsset { implicit req =>
+    partRequest(id, req) {
+      case (upload, part, Some(uploadUri)) =>
+        partComplete(upload, part, uploadUri)
+        Ok(Json.toJson(CompleteResponse(uploadUri)))
 
 
-        case (upload, part, None) =>
-          val uploadUri = uploader.startUpload(upload.metadata.title, upload.metadata.channel, upload.id, upload.parts.last.end)
-          partComplete(upload, part, uploadUri)
-          Ok(Json.toJson(CompleteResponse(uploadUri)))
-      }
+      case (upload, part, None) =>
+        val uploadUri = uploader.startUpload(upload.metadata.title, upload.metadata.channel, upload.id, upload.parts.last.end)
+        partComplete(upload, part, uploadUri)
+        Ok(Json.toJson(CompleteResponse(uploadUri)))
     }
   }
 
@@ -157,16 +147,6 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
 
     boundaries.zipWithIndex.map { case ((start, end), id) =>
       UploadPart(UploadPartKey(awsConfig.userUploadFolder, uploadId, id).toString, start, end)
-    }
-  }
-
-  private def withPermission(req: UserRequest[AnyContent])(fn: => Result): Future[Result] = {
-    permissions.canAddAsset(req.user.email).map {
-      case true =>
-        fn
-
-      case _ =>
-        Unauthorized
     }
   }
 }

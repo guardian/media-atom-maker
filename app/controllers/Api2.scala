@@ -2,27 +2,21 @@ package controllers
 
 import _root_.util.AWSConfig
 import com.gu.atom.play.AtomAPIActions
-import com.gu.media.MamPermissionsProvider
+import com.gu.editorial.permissions.client.PermissionsProvider
 import com.gu.media.logging.Logging
 import com.gu.media.upload.model.PlutoSyncMetadata
 import com.gu.media.youtube.YouTube
 import com.gu.pandahmac.HMACAuthActions
-import com.gu.pandomainauth.action.UserRequest
 import data.DataStores
-import model.Category.Hosted
 import model.MediaAtom
 import model.commands.CommandExceptions._
 import model.commands._
 import play.api.Configuration
-import play.api.libs.concurrent.Execution.Implicits._
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
-import play.api.mvc.{AnyContent, Result}
 
-import scala.concurrent.Future
-
-class Api2 (override val stores: DataStores, conf: Configuration, val authActions: HMACAuthActions, youTube: YouTube,
-            awsConfig: AWSConfig, permissions: MamPermissionsProvider)
+class Api2 (override val stores: DataStores, conf: Configuration, override val authActions: HMACAuthActions,
+            youTube: YouTube, awsConfig: AWSConfig, override val permissions: PermissionsProvider)
 
   extends MediaAtomImplicits
     with AtomAPIActions
@@ -88,34 +82,30 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
     }
   }
 
-  def addAsset(atomId: String) = APIHMACAuthAction.async { implicit req =>
+  def addAsset(atomId: String) = CanAddAsset { implicit req =>
     implicit val readCommand: Reads[AddAssetCommand] =
       (JsPath \ "uri").read[String].map { videoUri =>
         AddAssetCommand(atomId, videoUri, stores, youTube, req.user)
       }
 
-    withAddAssetPermission(req) {
-      parse(req) { command: AddAssetCommand =>
-        val atom = command.process()
-        Ok(Json.toJson(atom))
-      }
+    parse(req) { command: AddAssetCommand =>
+      val atom = command.process()
+      Ok(Json.toJson(atom))
     }
   }
 
 
   private def atomUrl(id: String) = s"/atom/$id"
 
-  def setActiveAsset(atomId: String) = APIHMACAuthAction.async { implicit req =>
+  def setActiveAsset(atomId: String) = CanAddAsset { implicit req =>
     implicit val readCommand: Reads[ActiveAssetCommand] =
       (JsPath \ "youtubeId").read[String].map { videoUri =>
         ActiveAssetCommand(atomId, videoUri, stores, youTube, req.user)
       }
 
-    withAddAssetPermission(req) {
-      parse(req) { command: ActiveAssetCommand =>
-        val atom = command.process()
-        Ok(Json.toJson(atom))
-      }
+    parse(req) { command: ActiveAssetCommand =>
+      val atom = command.process()
+      Ok(Json.toJson(atom))
     }
   }
 
@@ -135,40 +125,13 @@ class Api2 (override val stores: DataStores, conf: Configuration, val authAction
     Ok(Json.toJson(auditDataStore.getAuditTrailForAtomId(id)))
   }
 
-  def deleteAtom(id: String) = APIHMACAuthAction.async { implicit req =>
-    permissions.canDeleteAtom(req.user.email).map {
-      case true =>
-        try {
-          DeleteCommand(id, stores).process()
-          Ok(s"Atom $id deleted")
-        }
-        catch {
-          commandExceptionAsResult
-        }
-
-      case false =>
-        Unauthorized
+  def deleteAtom(id: String) = CanDeleteAtom { implicit req =>
+    try {
+      DeleteCommand(id, stores).process()
+      Ok(s"Atom $id deleted")
     }
-  }
-
-  private def withAddAssetPermission(req: UserRequest[AnyContent])(fn: => Result): Future[Result] = {
-    import com.gu.pandahmac.HMACHeaderNames._
-
-    // ASSUMPTION: the HMAC request has already been authenticated by Panda.
-    // We are merely checking to see if the request was made using HMAC or not.
-    val headers = req.headers.toSimpleMap.keySet
-    val hmacHeaders = Set(hmacKey, dateKey, serviceNameKey)
-
-    if(hmacHeaders.subsetOf(headers)) {
-      Future { fn }
-    } else {
-      permissions.canAddAsset(req.user.email).map {
-        case true =>
-          fn
-
-        case _ =>
-          Unauthorized
-      }
+    catch {
+      commandExceptionAsResult
     }
   }
 

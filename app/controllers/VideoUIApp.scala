@@ -1,7 +1,7 @@
 package controllers
 
 
-import com.gu.media.MamPermissionsProvider
+import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.pandahmac.HMACAuthActions
 import model.ClientConfig
 import play.api.Configuration
@@ -11,7 +11,7 @@ import play.api.mvc.Controller
 import util.AWSConfig
 
 class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfig: AWSConfig,
-                 permissions: MamPermissionsProvider) extends Controller {
+                 permissions: MediaAtomMakerPermissionsProvider) extends Controller {
   import authActions.AuthAction
 
   def index(id: String = "") = AuthAction.async { req =>
