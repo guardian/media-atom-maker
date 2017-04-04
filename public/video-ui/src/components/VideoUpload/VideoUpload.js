@@ -87,10 +87,10 @@ class VideoUpload extends React.Component {
   renderActions(uploading) {
     // the permissions are also validated on the server-side for each request
     if(!getStore().getState().config.permissions.addAsset) {
-      return false;
+      return <div className="upload__actions" />;
     }
 
-    return <div>
+    return <div className="upload__actions upload__actions--non-empty">
       <div className="video__detailbox upload__action">
         <div className="video__detailbox__header__container">
           <header className="video__detailbox__header">Upload Video</header>
@@ -122,9 +122,7 @@ class VideoUpload extends React.Component {
 
     return <div className="video__main">
       <div className="video__main__header">
-        <div className="upload__actions">
-          {this.renderActions(uploading)}
-        </div>
+        {this.renderActions(uploading)}
         <VideoTrail
           activeVersion={activeVersion}
           assets={assets}
