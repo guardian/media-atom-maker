@@ -598,6 +598,26 @@
           }
         },
 
+        "UploadActionsStreamPolicy": {
+          "Type": "AWS::IAM::Policy",
+          "Properties": {
+            "PolicyName": "UploadActionsStreamPolicy",
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "kinesis:PutRecord",
+                    "kinesis:PutRecords"
+                  ],
+                  "Resource": {"Fn::GetAtt": ["UploadActionsStream", "Arn"]}
+                }
+              ]
+            },
+            "Roles": [{"Ref": "DistributionRole"}]
+          }
+        },
+
         "UploadActionsLambda": {
           "Type": "AWS::Lambda::Function",
           "Properties": {
