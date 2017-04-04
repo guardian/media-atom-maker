@@ -43,6 +43,10 @@ class AddAssetFromURL extends React.Component {
 class VideoUpload extends React.Component {
   state = { file: null };
 
+  componentWillMount() {
+    this.props.videoActions.getVideo(this.props.params.id);
+  }
+
   componentWillUnmount() {
     this.props.videoActions.updateVideo(blankVideoData);
   }
