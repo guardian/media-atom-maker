@@ -2,7 +2,7 @@ import React from 'react';
 import {Link} from 'react-router';
 import VideoSearch from './VideoSearch/VideoSearch';
 import VideoPublishBar from './VideoPublishBar/VideoPublishBar';
-import {isVideoPublished} from './util/isVideoPublished';
+import {isVideoPublished} from '../util/isVideoPublished';
 import Icon from './Icon';
 
 export default class Header extends React.Component {
@@ -151,7 +151,22 @@ export default class Header extends React.Component {
     } if (this.props.embeddedMode === 'live'){
       return (
         <header className="topbar flex-container">
-          <div>This is embed mode</div>
+          {this.renderHome()}
+
+          <div>
+            {this.renderVideoTitle()}
+          </div>
+          
+          <VideoPublishBar className="flex-grow"
+            video={this.props.video}
+            embeddedMode={this.props.embeddedMode}
+            publishedVideo={this.props.publishedVideo}
+            saveState={this.props.saveState}
+            publishVideo={this.publishVideo} />
+
+          <div className="flex-container">
+            {this.renderAuditLink()}
+          </div>
         </header>
       );
     } else {
