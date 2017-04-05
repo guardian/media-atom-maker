@@ -125,27 +125,6 @@ export default class Header extends React.Component {
 
         </header>
       );
-    } if (this.props.embeddedMode === 'live'){
-      return (
-        <header className="topbar flex-container">
-          {this.renderHome()}
-
-          <div>
-            {this.renderVideoTitle()}
-          </div>
-
-          <VideoPublishBar className="flex-grow"
-            video={this.props.video}
-            embeddedMode={this.props.embeddedMode}
-            publishedVideo={this.props.publishedVideo}
-            saveState={this.props.saveState}
-            publishVideo={this.publishVideo} />
-
-          <div className="flex-container">
-            {this.renderAuditLink()}
-          </div>
-        </header>
-      );
     } else {
       return (
         <header className="topbar flex-container">
