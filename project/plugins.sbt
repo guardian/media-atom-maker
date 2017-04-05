@@ -1,7 +1,7 @@
 // The Typesafe repository
 resolvers += "Typesafe repository" at "https://repo.typesafe.com/typesafe/maven-releases/"
 
-// a, faster, alternative dependancies resolver to ivy
+// a, faster, alternative dependancy resolver to ivy
 // https://github.com/coursier/coursier#sbt-plugin
 addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.0-M15")
 
