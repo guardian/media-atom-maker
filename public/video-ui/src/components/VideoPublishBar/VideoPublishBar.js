@@ -66,7 +66,7 @@ class VideoPublishBar extends React.Component {
         return embedButton;
 
       case "live":
-        if(isVideoPublished(this.props.publishedVideo)) {
+        if(isVideoPublished(this.props.publishedVideo) && !this.videoHasUnpublishedChanges()) {
           return embedButton;
         } else {
           return <div>This atom cannot be embedded because it has not been published</div>;
