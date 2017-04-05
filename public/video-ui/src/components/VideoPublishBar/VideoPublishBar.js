@@ -55,28 +55,6 @@ class VideoPublishBar extends React.Component {
     return <div className="publish__label label__draft">Draft</div>;
   }
 
-  renderEmbedButton() {
-    // you can always select a video in 'preview' mode (this is used by the Pluto embed)
-    // otherwise you should only be able to select published videos (when embedded inside Composer for example)
-
-    const embedButton = <button type="button" className="btn" onSelectVideo={this.selectVideo} publishedVideo={this.props.publishedVideo} onClick={this.props.onSelectVideo}>Select this Video</button>;
-
-    switch(this.props.embeddedMode) {
-      case "preview":
-        return embedButton;
-
-      case "live":
-        if(isVideoPublished(this.props.publishedVideo)) {
-          return embedButton;
-        } else {
-          return <div>This atom cannot be embedded because it has not been published</div>;
-        }
-
-      default:
-        return false;
-    }
-  }
-
 
   render() {
 
@@ -88,9 +66,6 @@ class VideoPublishBar extends React.Component {
       <div className="flex-container flex-grow publish-bar">
         {this.renderVideoPublishedInfo()}
         <div className="flex-spacer"></div>
-        <div className="icon__spacing">
-          {this.renderEmbedButton()}
-        </div>
         {this.renderPublishButton()}
       </div>
     );
