@@ -33,9 +33,7 @@ setStore(store);
 store.dispatch({
   type:       'CONFIG_RECEIVED',
   config:     Object.assign({}, extractConfigFromPage(), {
-    embeddedMode: qs.parse(location.search).embeddedMode,
-    isPreviewMode: qs.parse(location.search).embeddedMode === 'preview',
-    isLiveMode: qs.parse(location.search).embeddedMode === 'live'
+    embeddedMode: qs.parse(location.search).embeddedMode
   }),
   receivedAt: Date.now()
 });
