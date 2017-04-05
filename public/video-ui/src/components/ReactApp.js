@@ -46,6 +46,7 @@ class ReactApp extends React.Component {
             currentPath={this.props.location.pathname}
             video={this.props.video || {}}
             publishedVideo={this.props.publishedVideo || {}}
+            embeddedMode={this.props.config.embeddedMode}
             showPublishedState={this.props.params.id ? true : false}
             s3Upload={this.props.s3Upload}
             publishVideo={this.props.appActions.publishVideo}
@@ -78,7 +79,8 @@ function mapStateToProps(state) {
     publishedVideo: state.publishedVideo,
     error: state.error,
     uploads: state.uploads,
-    s3Upload: state.s3Upload
+    s3Upload: state.s3Upload,
+    config: state.config
   };
 }
 

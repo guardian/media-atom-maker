@@ -1,6 +1,5 @@
 import React from 'react';
 import VideoAssets from '../VideoAssets/VideoAssets';
-import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoUsages from '../VideoUsages/VideoUsages';
 import VideoMetaData from '../VideoMetaData/VideoMetaData';
@@ -144,7 +143,6 @@ class VideoDisplay extends React.Component {
 
     return (
       <div>
-        <VideoSelectBar video={video} onSelectVideo={this.selectVideo} publishedVideo={this.props.publishedVideo} embeddedMode={this.props.config.embeddedMode} />
 
         <div className="video">
           <div className="video__main">
