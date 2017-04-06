@@ -1105,6 +1105,22 @@
                 "Roles": [{"Ref": "DistributionRole"}]
             }
         },
+        "PermissionsPolicy": {
+          "Type": "AWS::IAM::Policy",
+          "Properties": {
+            "PolicyName": "PermissionsPolicy",
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": ["s3:GetObject"],
+                  "Resource": ["arn:aws:s3:::permissions-cache/*"]
+                }
+              ]
+            },
+            "Roles": [{"Ref": "DistributionRole"}]
+          }
+        },
         "AlertTopic": {
             "Type": "AWS::SNS::Topic",
             "Properties": {
