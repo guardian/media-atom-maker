@@ -1,11 +1,12 @@
 import React from 'react';
-import VideoAssets from '../VideoAssets/VideoAssets';
+import {Link} from 'react-router';
 import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoUsages from '../VideoUsages/VideoUsages';
 import VideoMetaData from '../VideoMetaData/VideoMetaData';
 import YoutubeMetaData from '../YoutubeMetaData/YoutubeMetaData';
 import VideoPoster from '../VideoPoster/VideoPoster';
+import AdvancedActions from '../Videos/AdvancedActions';
 import GridImageSelect from '../utils/GridImageSelect';
 import {getVideoBlock} from '../../util/getVideoBlock';
 import {getStore} from '../../util/storeAccessor';
@@ -135,6 +136,18 @@ class VideoDisplay extends React.Component {
     }
   }
 
+  renderPreview = () => {
+    return <div className="video__detailbox">
+      <div className="video__detailbox__header__container">
+        <header className="video__detailbox__header">Video Asset</header>
+        <Link className="button" to={`/videos/${this.props.video.id}/upload`}>
+          <Icon className="icon__edit" icon="edit"/>
+        </Link>
+      </div>
+      <VideoPreview video={this.props.video || {}} />
+    </div>;
+  };
+
   render() {
     const video = this.props.video && this.props.params.id === this.props.video.id ? this.props.video : undefined;
 
@@ -149,12 +162,7 @@ class VideoDisplay extends React.Component {
         <div className="video">
           <div className="video__main">
             <div className="video__main__header">
-              <div className="video__detailbox">
-                <div className="video__detailbox__header__container">
-                  <header className="video__detailbox__header">Video Asset</header>
-                </div>
-                <VideoPreview video={this.props.video || {}} />
-              </div>
+              {this.renderPreview()}
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
                   <header className="video__detailbox__header">Video Meta Data</header>
@@ -210,7 +218,7 @@ class VideoDisplay extends React.Component {
                 />
               </div>
               <div className="video__detailbox">
-                <VideoAssets video={this.props.video || {}} />
+                <AdvancedActions video={this.props.video || {}} />
               </div>
             </div>
           </div>

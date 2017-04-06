@@ -24,6 +24,10 @@
     margin: 0 10px 0 15px;
   }
 
+  &__actions--non-empty {
+    border-right: 1px solid $color700Grey;
+  }
+
   &__action {
     padding-bottom: 5px;
     margin-bottom: 40px;
@@ -64,6 +68,7 @@
 
     &__empty {
       background-color: $color900Grey;
+      height: 140px;
     }
 
     &__running {

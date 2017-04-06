@@ -1,6 +1,10 @@
 package controllers
 
 import java.util.UUID
+
+import _root_.model.MediaAtom
+import _root_.model.commands.CommandExceptions._
+import com.gu.editorial.permissions.client.PermissionsProvider
 import com.gu.media.logging.Logging
 import com.gu.media.upload._
 import com.gu.media.upload.actions.{CopyParts, DeleteParts, UploadActionSender, UploadPartToYouTube}
@@ -11,17 +15,16 @@ import com.gu.pandomainauth.action.UserRequest
 import com.gu.pandomainauth.model.User
 import controllers.UploadController.{CompleteResponse, CreateRequest}
 import data.{DataStores, UnpackedDataStores}
-import _root_.model.MediaAtom
-import _root_.model.commands.CommandExceptions._
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.{Format, Json}
-import play.api.mvc.{Controller, Result}
+import play.api.mvc.Result
 import util.AWSConfig
 
-class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, youTube: YouTubeAccess, uploadActions: UploadActionSender,
-                       override val stores: DataStores)
+class UploadController(override val authActions: HMACAuthActions, awsConfig: AWSConfig, youTube: YouTubeAccess,
+                       uploadActions: UploadActionSender, override val stores: DataStores,
+                       override val permissions: PermissionsProvider)
 
-  extends Controller with Logging with JsonRequestParsing with UnpackedDataStores {
+  extends AtomController with Logging with JsonRequestParsing with UnpackedDataStores {
 
   import authActions.APIHMACAuthAction
 
@@ -33,11 +36,13 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
   private val uploader = new YouTubeUploader(awsConfig, youTube)
 
   def list(atomId: String) = APIHMACAuthAction {
+    // Anyone can see the running uploads.
+    // Only users with permission can create/complete/delete them.
     val uploads = table.list(atomId)
     Ok(Json.toJson(uploads))
   }
 
-  def create = APIHMACAuthAction { implicit raw =>
+  def create = CanAddAsset { implicit raw =>
     parse(raw) { req: CreateRequest =>
       log.info(s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}")
 
@@ -49,19 +54,19 @@ class UploadController(val authActions: HMACAuthActions, awsConfig: AWSConfig, y
     }
   }
 
-  def delete(id: String) = APIHMACAuthAction {
+  def delete(id: String) = CanAddAsset { implicit req =>
     table.delete(id)
     NoContent
   }
 
-  def credentials(id: String) = APIHMACAuthAction { implicit req =>
+  def credentials(id: String) = CanAddAsset { implicit req =>
     partRequest(id, req) { (upload, part, _) =>
       val credentials = credsGenerator.forKey(upload.id, part.key)
       Ok(Json.toJson(credentials))
     }
   }
 
-  def complete(id: String) = APIHMACAuthAction { implicit req =>
+  def complete(id: String) = CanAddAsset { implicit req =>
     partRequest(id, req) {
       case (upload, part, Some(uploadUri)) =>
         partComplete(upload, part, uploadUri)

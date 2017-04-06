@@ -5,5 +5,6 @@ export const blankVideoData = {
     duration: 0,
     channelId: '',
     youtubeCategoryId: '',
-    privacyStatus: ''
+    privacyStatus: '',
+    assets: []
 };

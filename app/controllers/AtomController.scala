@@ -1,14 +1,21 @@
 package controllers
 
-import com.gu.pandomainauth.action.AuthActions
+import com.gu.editorial.permissions.client.{Permission, PermissionGranted, PermissionsProvider, PermissionsUser}
+import com.gu.pandahmac.HMACAuthActions
+import com.gu.pandahmac.HMACHeaderNames._
+import com.gu.pandomainauth.action.UserRequest
 import data.UnpackedDataStores
-import play.api.mvc._
 import play.api.libs.json.{JsObject, JsString}
+import play.api.mvc._
 import util.ThriftUtil._
+import play.api.libs.concurrent.Execution.Implicits._
+import com.gu.media.Permissions._
+
+import scala.concurrent.Future
 
 trait AtomController extends Controller with UnpackedDataStores {
-
-  val authActions: AuthActions
+  val authActions: HMACAuthActions
+  val permissions: PermissionsProvider
 
   /* if the creation of the thrift data from the request fails, reply
    * with the error. Otherwise delegate to `success`, which can avoid
@@ -25,4 +32,34 @@ trait AtomController extends Controller with UnpackedDataStores {
 
   def jsonError(msg: String): JsObject = JsObject(Seq("error" -> JsString(msg)))
 
+  type RequestHandler[A] = UserRequest[A] => Future[Result]
+
+  import authActions.APIHMACAuthAction
+
+  class PermissionedAction(permission: Permission, allowHmac: Boolean) extends ActionBuilder[UserRequest] {
+    override def invokeBlock[A](request: Request[A], block: RequestHandler[A]): Future[Result] = {
+      APIHMACAuthAction.invokeBlock(request, { req: UserRequest[A] =>
+        // At this point, an HMAC request has already been authenticated by Panda.
+        // We are merely checking to see if the request was made using HMAC or not.
+        val headers = request.headers.toSimpleMap.keySet
+        val hmacHeaders = Set(hmacKey, dateKey, serviceNameKey)
+
+        if (hmacHeaders.subsetOf(headers)) {
+          block(req)
+        } else {
+          permissions.get(permission)(PermissionsUser(req.user.email)).flatMap {
+            case PermissionGranted =>
+              block(req)
+
+            case _ =>
+              Future.successful(Unauthorized)
+          }
+        }
+      })
+    }
+  }
+
+
+  val CanAddAsset: ActionBuilder[UserRequest] = new PermissionedAction(addAsset, allowHmac = true)
+  val CanDeleteAtom: ActionBuilder[UserRequest] = new PermissionedAction(deleteAtom, allowHmac = false)
 }

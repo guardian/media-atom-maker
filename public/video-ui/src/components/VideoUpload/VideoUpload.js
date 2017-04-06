@@ -1,7 +1,7 @@
 import React from 'react';
-import {Link} from 'react-router';
 import Icon from '../Icon';
 import VideoTrail from './VideoTrail';
+import {getStore} from '../../util/storeAccessor';
 import _ from 'lodash';
 import {blankVideoData} from '../../constants/blankVideoData';
 
@@ -43,6 +43,10 @@ class AddAssetFromURL extends React.Component {
 class VideoUpload extends React.Component {
   state = { file: null };
 
+  componentWillMount() {
+    this.props.videoActions.getVideo(this.props.params.id);
+  }
+
   componentWillUnmount() {
     this.props.videoActions.updateVideo(blankVideoData);
   }
@@ -70,14 +74,6 @@ class VideoUpload extends React.Component {
     }
   };
 
-  renderHeader() {
-    if (this.props.video) {
-      <Link className="button" to={`/videos/${this.props.video.id}`}>
-        <Icon className="icon__edit" icon="clear" />
-      </Link>;
-    }
-  }
-
   renderButtons(uploading) {
     if (uploading) {
       return false;
@@ -88,13 +84,21 @@ class VideoUpload extends React.Component {
     }
   }
 
-  renderPicker(uploading) {
-    return <div className="video__detailbox upload__action">
-      <div className="video__detailbox__header__container">
-        <header className="video__detailbox__header">Upload Video</header>
+  renderActions(uploading) {
+    // the permissions are also validated on the server-side for each request
+    if(!getStore().getState().config.permissions.addAsset) {
+      return <div className="upload__actions" />;
+    }
+
+    return <div className="upload__actions upload__actions--non-empty">
+      <div className="video__detailbox upload__action">
+        <div className="video__detailbox__header__container">
+          <header className="video__detailbox__header">Upload Video</header>
+        </div>
+          <input className="form__field" type="file" onChange={this.setFile} disabled={uploading} />
+          {this.renderButtons(uploading)}
       </div>
-        <input className="form__field" type="file" onChange={this.setFile} disabled={uploading} />
-        {this.renderButtons(uploading)}
+      <AddAssetFromURL video={this.props.video} createAsset={this.props.videoActions.createAsset} />
     </div>;
   }
 
@@ -117,12 +121,8 @@ class VideoUpload extends React.Component {
     });
 
     return <div className="video__main">
-      {this.renderHeader()}
       <div className="video__main__header">
-        <div className="upload__actions">
-          {this.renderPicker(uploading)}
-          <AddAssetFromURL video={this.props.video} createAsset={this.props.videoActions.createAsset} />
-        </div>
+        {this.renderActions(uploading)}
         <VideoTrail
           activeVersion={activeVersion}
           assets={assets}

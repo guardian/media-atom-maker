@@ -1,4 +1,3 @@
-import { browserHistory } from 'react-router';
 import VideosApi from '../../services/VideosApi';
 
 const BLANK_ASSET = {
@@ -14,7 +13,6 @@ function requestAssetCreate(video) {
 }
 
 function receiveAssetCreate(video) {
-  browserHistory.push('/videos/' + video.id );
   return {
     type: 'ASSET_CREATE_RECEIVE',
     video: video,

@@ -1,9 +1,7 @@
 package model
 
+import com.gu.media.Permissions
 import org.cvogt.play.json.Jsonx
-import play.api.libs.functional.syntax._
-import play.api.libs.json.Json
-import scala.concurrent.{Future}
 
 case class ClientConfig(username: String,
                         youtubeEmbedUrl: String,
@@ -14,7 +12,9 @@ case class ClientConfig(username: String,
                         composerUrl: String,
                         ravenUrl: String,
                         stage: String,
-                        viewerUrl: String
+                        viewerUrl: String,
+                        // permissions also validated server-side on every request
+                        permissions: Permissions
                        )
 
 object ClientConfig {

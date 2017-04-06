@@ -1,9 +1,8 @@
 import com.gu.atom.play.ReindexController
-import com.gu.media.CapiPreview
-import com.gu.media.upload.UploadsDataStore
-import com.gu.media.upload.actions.KinesisActionSender
 import com.gu.media.ses.Mailer
+import com.gu.media.upload.actions.KinesisActionSender
 import com.gu.media.youtube.YouTube
+import com.gu.media.{CapiPreview, MediaAtomMakerPermissionsProvider}
 import controllers._
 import data._
 import play.api.ApplicationLoader.Context
@@ -12,7 +11,7 @@ import play.api.inject.DefaultApplicationLifecycle
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext, LoggerConfigurator}
 import router.Routes
-import util.{PlutoMessageConsumer, AWSConfig, DevUploadHandler, DevUploadSender}
+import util.{AWSConfig, DevUploadHandler, DevUploadSender, PlutoMessageConsumer}
 
 class MediaAtomMakerLoader extends ApplicationLoader {
   override def load(context: Context): Application = new MediaAtomMaker(context).application
@@ -36,6 +35,8 @@ class MediaAtomMaker(context: Context)
   private val capi = new CapiPreview(config)
 
   private val stores = new DataStores(aws, capi)
+  private val permissions = new MediaAtomMakerPermissionsProvider(aws.stage, aws.credsProvider)
+
   private val reindexer = buildReindexer()
 
   private val youTube = new YouTube(config)
@@ -45,12 +46,12 @@ class MediaAtomMaker(context: Context)
   private val uploaderMessageConsumer = PlutoMessageConsumer(stores, aws)
   uploaderMessageConsumer.start(actorSystem.scheduler)(actorSystem.dispatcher)
 
-  private val api = new Api(stores, configuration, aws, hmacAuthActions)
+  private val api = new Api(stores, configuration, aws, hmacAuthActions, permissions)
 
-  private val api2 = new Api2(stores, configuration, hmacAuthActions, youTube, aws)
+  private val api2 = new Api2(stores, configuration, hmacAuthActions, youTube, aws, permissions)
 
   private val uploadSender = buildUploadSender()
-  private val uploads = new UploadController(hmacAuthActions, aws, youTube, uploadSender, stores)
+  private val uploads = new UploadController(hmacAuthActions, aws, youTube, uploadSender, stores, permissions)
 
   private val support = new Support(hmacAuthActions, capi)
   private val youTubeController = new controllers.Youtube(hmacAuthActions, youTube, defaultCacheApi)
@@ -60,8 +61,8 @@ class MediaAtomMaker(context: Context)
   private val transcoder = new util.Transcoder(aws, defaultCacheApi)
   private val transcoderController = new controllers.Transcoder(hmacAuthActions, transcoder)
 
-  private val mainApp = new MainApp(stores, wsClient, configuration, hmacAuthActions)
-  private val videoApp = new VideoUIApp(hmacAuthActions, configuration, aws)
+  private val mainApp = new MainApp(stores, wsClient, configuration, hmacAuthActions, permissions)
+  private val videoApp = new VideoUIApp(hmacAuthActions, configuration, aws, permissions)
 
   private val assets = new controllers.Assets(httpErrorHandler)
 

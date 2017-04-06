@@ -90,6 +90,13 @@ export default {
     });
   },
 
+  deleteVideo: (videoId) => {
+    return pandaReqwest({
+      url: '/api2/atom/' + videoId,
+      method: 'delete',
+    });
+  },
+
   createComposerPage(id, metadata, composerUrlBase) {
 
     const initialComposerUrl = composerUrlBase + '/api/content?atomPoweredVideo=true&originatingSystem=composer&type=video';
