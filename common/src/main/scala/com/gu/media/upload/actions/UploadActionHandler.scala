@@ -54,6 +54,10 @@ abstract class UploadActionHandler(store: UploadsDataStore, plutoStore: PlutoDat
 
           upload.copy(metadata = upload.metadata.copy(pluto = plutoData))
 
+        case None if part == upload.parts.last =>
+          log.error("YouTube did not provide a video id. The asset cannot be added")
+          upload
+
         case None =>
           upload
       }
