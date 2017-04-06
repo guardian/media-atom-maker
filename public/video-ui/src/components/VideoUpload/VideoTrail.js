@@ -3,7 +3,6 @@ import {YouTubeEmbed} from '../utils/YouTubeEmbed';
 import Icon from '../Icon';
 import {getProcessingStatus} from '../../services/YoutubeApi';
 import _ from 'lodash';
-import {getStore} from '../../util/storeAccessor';
 
 function embed(assetId, platform) {
     if(platform === "Youtube") {
@@ -33,9 +32,7 @@ function VideoAsset({ id, platform, version, active, selectAsset }) {
     const statusClasses = active ? "publish__label label__live label__frontpage__overlay" : "publish__label label__frontpage__novideo label__frontpage__overlay";
     const status = active ? "Live" : "Not Live";
 
-    const canAddAsset = getStore().getState().config.permissions.addAsset;
-
-    const selector = !active && canAddAsset ?
+    const selector = !active ?
       <button className="button__secondary button__active" onClick={() => selectAsset(id, version)}>
           Activate
       </button> : false;

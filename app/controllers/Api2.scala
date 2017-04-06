@@ -82,7 +82,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
     }
   }
 
-  def addAsset(atomId: String) = CanAddAsset { implicit req =>
+  def addAsset(atomId: String) = APIHMACAuthAction { implicit req =>
     implicit val readCommand: Reads[AddAssetCommand] =
       (JsPath \ "uri").read[String].map { videoUri =>
         AddAssetCommand(atomId, videoUri, stores, youTube, req.user)
@@ -97,7 +97,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
 
   private def atomUrl(id: String) = s"/atom/$id"
 
-  def setActiveAsset(atomId: String) = CanAddAsset { implicit req =>
+  def setActiveAsset(atomId: String) = APIHMACAuthAction { implicit req =>
     implicit val readCommand: Reads[ActiveAssetCommand] =
       (JsPath \ "youtubeId").read[String].map { videoUri =>
         ActiveAssetCommand(atomId, videoUri, stores, youTube, req.user)
