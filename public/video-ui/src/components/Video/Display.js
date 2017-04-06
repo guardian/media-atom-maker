@@ -141,7 +141,9 @@ class VideoDisplay extends React.Component {
       <div className="video__detailbox__header__container">
         <header className="video__detailbox__header">Video Preview</header>
         <Link className="button" to={`/videos/${this.props.video.id}/upload`}>
-          <Icon className="icon__edit" icon="edit"/>
+          <Icon className="icon__edit video__temporary_button" icon="edit">
+            Edit Assets
+          </Icon>
         </Link>
       </div>
       <VideoPreview video={this.props.video || {}} />
