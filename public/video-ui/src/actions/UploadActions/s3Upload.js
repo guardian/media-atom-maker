@@ -33,19 +33,19 @@ function uploadError(error) {
   };
 }
 
-export function startUpload(id, file, completeFn) {
+export function startUpload(id, file, completeFn, shouldbeGuHosted) {
   return dispatch => {
     // Start prompting the user about reloading the page
     window.onbeforeunload = () => { return false; };
 
-    UploadsApi.createUpload(id, file).then((upload) => {
+    UploadsApi.createUpload(id, file, shouldbeGuHosted).then((upload) => {
       const progress = (completed) => dispatch(uploadProgress(completed));
-      
+
       const err = (err) => {
         window.onbeforeunload = undefined;
         dispatch(uploadError(err));
       };
-      
+
       const complete = () => {
         // Stop prompting the user. The upload continues server-side
         window.onbeforeunload = undefined;
@@ -53,7 +53,7 @@ export function startUpload(id, file, completeFn) {
         dispatch(uploadComplete());
         completeFn();
       };
-      
+
       const handle = new UploadHandle(upload, file, progress, complete, err);
       handle.start();
 

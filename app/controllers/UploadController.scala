@@ -44,7 +44,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   def create = CanAddAsset { implicit raw =>
     parse(raw) { req: CreateRequest =>
-      log.info(s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}")
+      log.info(s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}, shouldBeGuHosted=${req.shouldBeGuHosted}")
 
       val atom = MediaAtom.fromThrift(getPreviewAtom(req.atomId))
       val upload = buildUpload(atom, raw.user, req.size)
@@ -152,7 +152,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 }
 
 object UploadController {
-  case class CreateRequest(atomId: String, filename: String, size: Long)
+  case class CreateRequest(atomId: String, filename: String, size: Long, shouldBeGuHosted: Boolean = false)
   case class CreateResponse(id: String, region: String, bucket: String, parts: List[UploadPart])
   case class CompleteResponse(uploadUri: String)
 
