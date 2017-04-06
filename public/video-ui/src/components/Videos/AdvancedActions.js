@@ -12,7 +12,11 @@ class AdvancedActions extends React.Component {
         }
 
         const doDelete = () => {
-            this.props.videoActions.deleteVideo(this.props.video);
+            const result = prompt("Enter the atom ID to confirm deletion (it can be copied from the URL)");
+
+            if(result === this.props.video.id) {
+                this.props.videoActions.deleteVideo(this.props.video);
+            }
         };
 
         return <li className="action-list__item">
