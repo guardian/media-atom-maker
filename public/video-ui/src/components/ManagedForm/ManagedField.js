@@ -89,6 +89,7 @@ export class ManagedField extends React.Component {
         editable: this.props.editable,
         maxLength: this.props.maxLength,
         errors: this.state.fieldErrors,
+        warnings: this.state.fieldWarnings,
         placeholder: this.props.placeholder,
         touched: this.state.touched,
         fieldDetails: this.props.fieldDetails

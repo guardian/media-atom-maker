@@ -17,6 +17,22 @@ export default class TextArea extends React.Component {
     }
 
     const hasError = this.props.touched && this.props.errors.length > 0;
+    const hasWarning = this.props.warnings.length > 0;
+
+    function getTextAreaClassName() {
+      let postFix;
+
+      if (hasError) {
+        postFix = "form__field--error";
+      } else if (hasWarning) {
+        postFix = "form__field--warning";
+      }
+      else {
+        postFix = "";
+      }
+
+      return "form__field " + postFix;
+    }
 
     return (
       <div className="form__row">
@@ -24,11 +40,12 @@ export default class TextArea extends React.Component {
         <textarea rows="4"
           { ...this.props.input}
           maxLength={this.props.maxLength || ''}
-          className={"form__field " + (hasError ? "form__field--error" : "")}
+          className={getTextAreaClassName()}
           type={this.props.inputType || "text"}
           value={this.props.fieldValue}
           onChange={(e) => {this.props.onUpdateField(e.target.value);}} />
         {hasError ? <p className="form__message form__message--error">{this.props.errors[0].message}</p> : ""}
+        {hasWarning ? <p className="form__message form__message--warning">{this.props.warnings[0].message}</p> : ""}
       </div>
     );
   };

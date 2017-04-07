@@ -10,7 +10,7 @@ const validateField = (fieldValue, isRequired: false, isDesired: false) => {
   }
 
   else if (isDesired && !fieldValue) {
-    const warning = new FieldNotification('desired', 'It is recommended that you fill in this field');
+    const warning = new FieldNotification('desired', 'This field is recommended');
     warnings.push(warning);
   }
 

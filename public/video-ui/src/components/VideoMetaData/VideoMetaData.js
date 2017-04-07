@@ -32,6 +32,7 @@ export default class VideoMetaData extends React.Component {
             fieldLocation="description"
             name="Description"
             placeholder="No Description"
+            isDesired={true}
           >
             <TextArea/>
           </ManagedField>
