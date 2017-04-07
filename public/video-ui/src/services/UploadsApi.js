@@ -85,11 +85,12 @@ class UploadFunctions {
 export const UploadsApi = new UploadFunctions();
 
 export class UploadHandle {
-  constructor(upload, file, progressFn, completeFn) {
+  constructor(upload, file, progressFn, completeFn, errFn) {
     this.upload = upload;
     this.file = file;
     this.progressFn = progressFn;
     this.completeFn = completeFn;
+    this.errFn = errFn;
 
     this.request = null;
     this.uploadUri = null;
@@ -114,12 +115,14 @@ export class UploadHandle {
       partRequest.then((s3Request) => {
         this.request = s3Request;
 
-        s3Request.promise().then(() => {
-          UploadsApi.completePart(this.upload.id, part.key, this.uploadUri).then((resp) => {
+        return s3Request.promise().then(() => {
+          return UploadsApi.completePart(this.upload.id, part.key, this.uploadUri).then((resp) => {
             this.uploadUri = resp.uploadUri;
             this.uploadParts(parts.slice(1));
           });
         });
+      }).catch((err) => {
+        this.errFn(err);
       });
     } else {
       this.completeFn();
