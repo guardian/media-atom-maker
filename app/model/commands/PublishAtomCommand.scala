@@ -6,7 +6,7 @@ import java.util.Date
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import com.gu.atom.play.AtomAPIActions
-import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
+import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
 import com.gu.media.logging.Logging
 import com.gu.media.youtube.{YouTubeClaims, YouTube, YouTubeMetadataUpdate}
 import com.gu.pandomainauth.model.{User => PandaUser}
@@ -30,7 +30,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
     val thriftAtom = getPreviewAtom(id)
     val atom = MediaAtom.fromThrift(thriftAtom)
 
-    if(atom.privacyStatus.contains(PrivacyStatus.Private)) {
+    if (atom.privacyStatus.contains(PrivacyStatus.Private)) {
       log.error(s"Unable to publish atom ${atom.id}, privacy status is set to private")
       AtomPublishFailed("Atom status set to private")
     }
@@ -38,12 +38,9 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
     getActiveAsset(atom) match {
       case Some(asset) if asset.platform == Youtube =>
         val atomWithDuration = atom.copy(duration = youTube.getDuration(asset.id))
-
         updateThumbnail(atomWithDuration, asset)
+        youtubeClaims.createOrUpdateClaim(atomWithDuration.id, asset.id, user.username, atomWithDuration.addsTurnedOff )
         updateYouTube(atomWithDuration, asset)
-
-        val oldPublishedAtomAdds = MediaAtom.fromThrift(getPublishedAtom(atom.id)).addsTurnedOff
-        updateUsagePolicy(atomWithDuration, oldPublishedAtomAdds)
         publish(atomWithDuration, user)
 
       case _ =>
@@ -105,22 +102,6 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
     )
 
     youTube.updateMetadata(asset.id, metadata)
-  }
-
-  private def updateUsagePolicy(publishedAtom: MediaAtom, oldAtomAdds: Boolean): Unit = {
-    if (oldAtomAdds == publishedAtom.addsTurnedOff) return;
-
-    else {
-
-      val activeVideoId = MediaAtom.getActiveYouTubeAsset(publishedAtom).get.id
-
-      youtubeClaims.getExistingClaimAndPolicyIds(activeVideoId) match {
-        case Some((claimId, assetId)) => youtubeClaims.updateClaim(claimId, assetId, activeVideoId, publishedAtom.addsTurnedOff)
-
-        case None => youtubeClaims.setVideoClaim(publishedAtom.title, publishedAtom.description.getOrElse(""),
-          publishedAtom.addsTurnedOff, activeVideoId)
-      }
-    }
   }
 
   private def updateThumbnail(atom: MediaAtom, asset: Asset): Unit = {

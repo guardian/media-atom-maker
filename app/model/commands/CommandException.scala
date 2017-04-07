@@ -26,8 +26,6 @@ object CommandExceptions extends Results {
   def NotGuardianYoutubeVideo = throw new CommandException("YouTube video is not in the Guardian's account", 400)
   def AtomMissingYouTubeChannel = throw new CommandException("Atom is missing YouTube channel", 400)
 
-  def PolicyExecption = throw new CommandException("Failed to fetch policy from youtube", 404)
-
   // Add exceptions here as required
   def commandExceptionAsResult: PartialFunction[Throwable, Result] = {
     case CommandException(msg, 400) => BadRequest(msg)

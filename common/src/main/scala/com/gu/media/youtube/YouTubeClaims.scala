@@ -1,17 +1,20 @@
 package com.gu.media.youtube
 
+import com.google.api.services.youtubePartner.YouTubePartner
 import com.google.api.services.youtubePartner.model._
+import com.gu.media.logging.Logging
 import com.typesafe.config.Config
+import org.joda.time.DateTime
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 
-class YouTubeClaims(override val config: Config) extends YouTubeAccess {
+class YouTubeClaims(override val config: Config) extends YouTubeAccess with Logging {
 
-  private def createAsset(title: String, description: String): String = {
+  private def createAsset(title: String, videoId: String): String = {
 
     val metadata = new Metadata()
       .setTitle(title)
-      .setDescription(description)
+      .setDescription(videoId)
 
     val asset = new Asset()
       .setMetadata(metadata)
@@ -43,17 +46,18 @@ class YouTubeClaims(override val config: Config) extends YouTubeAccess {
 
   }
 
-  private  def claimVideo(assetId: String, videoId: String, policy: Policy) = {
+  private  def claimVideo(assetId: String, videoId: String, policy: Policy): Unit = {
 
     val claim = new Claim()
       .setAssetId((assetId))
       .setVideoId(videoId)
       .setPolicy(policy)
-      .setContentType("audivisual")
+      .setContentType("audiovisual")
 
-    partnerClient.claims()
+    val createdClaim = partnerClient.claims()
       .insert(claim)
       .setOnBehalfOfContentOwner(contentOwner)
+      .execute()
   }
 
   private def getPolicy(addsTurnedOff: Boolean): Policy = {
@@ -64,26 +68,16 @@ class YouTubeClaims(override val config: Config) extends YouTubeAccess {
       policy.setId(monetizationPolicyId)
   }
 
-  def setVideoClaim(assetTitle: String, assetDescription: String, addsTurnedOff: Boolean, videoId: String): Unit = {
-
+  private def createVideoClaim(atomId: String, userName: String, addsTurnedOff: Boolean, videoId: String): Unit = {
     val policy = getPolicy(addsTurnedOff)
-    val assetId = createAsset(assetTitle, assetDescription)
+    val assetTitle = s"$atomId-$userName-${DateTime.now()}"
+    val assetId = createAsset(assetTitle, videoId)
     setOwnership(assetId)
-
     claimVideo(assetId, videoId, policy)
 
   }
 
-  def getExistingClaimAndPolicyIds(videoId: String): Option[(String, String)] = {
-
-    val claims = partnerClient.claims.list().execute().getItems().asScala
-
-    claims.find(_.getId() == videoId).flatMap(claim => {
-      Some((claim.getId(), claim.getAssetId()))
-    })
-  }
-
-  def updateClaim(claimId: String, assetId: String, videoId: String, addsTurnedOff: Boolean): Unit = {
+  private def updateClaim(claimId: String, assetId: String, videoId: String, addsTurnedOff: Boolean): Unit = {
 
     val policy = getPolicy(addsTurnedOff)
 
@@ -91,12 +85,42 @@ class YouTubeClaims(override val config: Config) extends YouTubeAccess {
       .setAssetId((assetId))
       .setVideoId(videoId)
       .setPolicy(policy)
-      .setContentType("audivisual")
+      .setContentType("audiovisual")
 
     partnerClient.claims
-      .update(claimId, claim)
+      .patch(claimId, claim)
       .setOnBehalfOfContentOwner(contentOwner)
-
+      .execute()
   }
 
+  def createOrUpdateClaim(atomId: String, videoId: String, userName: String, addsTurnedOff: Boolean): Unit = {
+
+    try {
+      val videoClaims = partnerClient
+        .claimSearch()
+        .list
+        .setVideoId(videoId)
+        .execute()
+
+      if (videoClaims.getPageInfo.getTotalResults() == 0) {
+        createVideoClaim(atomId, userName, addsTurnedOff, videoId)
+      } else {
+
+        val claimsList = videoClaims.getItems().asScala
+
+        claimsList.find(claimSnippet => !claimSnippet.getThirdPartyClaim()) match {
+          case Some(claimSnippet) => {
+            val claim = partnerClient.claims().get(claimSnippet.getId()).execute()
+            val assetId = claim.getAssetId()
+            val policy = claim.getPolicy().getId
+            updateClaim(claim.getId(), assetId, videoId, addsTurnedOff)
+          }
+          case None => createVideoClaim(atomId, userName, addsTurnedOff, videoId)
+        }
+      }
+    }
+    catch {
+      case e: Throwable => log.warn(s"unable to update claims for asset=$videoId ", e)
+    }
+  }
 }

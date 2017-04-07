@@ -173,15 +173,4 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
 
     }
   }
-
-  def setUsagePolicy(id: String) = APIHMACAuthAction { implicit req =>
-    try {
-      val command = new AddMonetizationPolicyCommand(id, stores, youTubeClaims)
-      command.process()
-      Ok("Added usage policy to atom")
-    } catch {
-      commandExceptionAsResult
-    }
-
-  }
 }
