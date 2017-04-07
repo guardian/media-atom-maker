@@ -64,7 +64,6 @@ class VideoUpload extends React.Component {
   };
 
   startUpload = (shouldBeGuardianHosted) => {
-    console.log(shouldBeGuardianHosted)
     if(this.props.video && this.state.file) {
       const atomId = this.props.video.id;
 

@@ -7,7 +7,7 @@ import _root_.model.commands.CommandExceptions._
 import com.gu.editorial.permissions.client.PermissionsProvider
 import com.gu.media.logging.Logging
 import com.gu.media.upload._
-import com.gu.media.upload.actions.{CopyParts, DeleteParts, UploadActionSender, UploadPartToYouTube}
+import com.gu.media.upload.actions.{CopyParts, DeleteParts, UploadActionSender, UploadPartToYouTube, UploadPartsToGuardianHosted}
 import com.gu.media.upload.model._
 import com.gu.media.youtube.{YouTubeAccess, YouTubeUploader}
 import com.gu.pandahmac.HMACAuthActions
@@ -47,7 +47,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       log.info(s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}, shouldBeGuHosted=${req.shouldBeGuHosted}")
 
       val atom = MediaAtom.fromThrift(getPreviewAtom(req.atomId))
-      val upload = buildUpload(atom, raw.user, req.size)
+      val upload = buildUpload(atom, raw.user, req.size, req.shouldBeGuHosted)
       table.put(upload)
 
       Ok(Json.toJson(upload))
@@ -68,10 +68,18 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   def complete(id: String) = CanAddAsset { implicit req =>
     partRequest(id, req) {
+      case(upload, part, _) if part == upload.parts.last && upload.metadata.guardianHosted =>
+        completeAndDeleteParts(upload, part)
+        val key = completeKey(upload)
+        uploadActions.send(UploadPartsToGuardianHosted(upload, key, awsConfig.transcodePipelineId))
+        Ok(Json.toJson(CompleteResponse(s"$key has been sent for transcoding to S3")))
+
+      case(upload, part, _) if upload.metadata.guardianHosted  =>
+        Ok(Json.toJson(CompleteResponse(s"${upload.id} has not finished uploading to S3 yet")))
+
       case (upload, part, Some(uploadUri)) =>
         partComplete(upload, part, uploadUri)
         Ok(Json.toJson(CompleteResponse(uploadUri)))
-
 
       case (upload, part, None) =>
         val uploadUri = uploader.startUpload(upload.metadata.title, upload.metadata.channel, upload.id, upload.parts.last.end)
@@ -80,7 +88,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     }
   }
 
-  private def buildUpload(atom: MediaAtom, user: User, size: Long) = {
+  private def buildUpload(atom: MediaAtom, user: User, size: Long, guardianHosted: Boolean) = {
     val id = UUID.randomUUID().toString
 
     val plutoData = PlutoSyncMetadata(
@@ -96,7 +104,8 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       region = awsConfig.region.getName,
       title = atom.title,
       channel = atom.channelId.getOrElse { AtomMissingYouTubeChannel },
-      pluto = plutoData
+      pluto = plutoData,
+      guardianHosted = guardianHosted
     )
 
     val parts = chunk(id, size)
@@ -128,19 +137,20 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   private def partComplete(upload: Upload, part: UploadPart, uploadUri: String): Upload = {
     val complete = upload.copy(progress = upload.progress.copy(uploadedToS3 = part.end))
-
     table.report(complete)
     uploadActions.send(UploadPartToYouTube(upload, part, uploadUri))
-
-    if(part.key == upload.parts.last.key) {
-      val completeKey = CompleteUploadKey(awsConfig.userUploadFolder, complete.id).toString
-
-      uploadActions.send(CopyParts(upload, completeKey))
-      uploadActions.send(DeleteParts(upload))
-    }
-
+    completeAndDeleteParts(upload, part)
     complete
   }
+
+  private def completeAndDeleteParts(upload: Upload, part: UploadPart) {
+    if(part.key == upload.parts.last.key) {
+      uploadActions.send(CopyParts(upload, completeKey(upload)))
+      uploadActions.send(DeleteParts(upload))
+    }
+  }
+
+  private def completeKey(upload: Upload) = CompleteUploadKey(awsConfig.userUploadFolder, upload.id).toString
 
   private def chunk(uploadId: String, size: Long): List[UploadPart] = {
     val boundaries = Upload.calculateChunks(size)
