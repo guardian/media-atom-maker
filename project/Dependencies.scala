@@ -19,7 +19,7 @@ object Dependencies {
   val typesafeConfig = "com.typesafe" % "config" % "1.3.1"
 
   val scanamo = "com.gu" %% "scanamo" % scanamoVersion
-  val contentAtomModel = "com.gu" %% "content-atom-model" %  "2.4.35-SNAPSHOT"
+  val contentAtomModel = "com.gu" %% "content-atom-model" %  "2.4.17"
 
   val scalaTest = "org.scalatest" %% "scalatest" % "2.2.6" % "test"
   val scalaTestPlusPlay = "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % "test"
