@@ -26,9 +26,15 @@ function uploadComplete() {
 
 export function startUpload(id, file, completeFn) {
   return dispatch => {
+    // Start prompting the user about reloading the page
+    window.onbeforeunload = () => { return false; };
+
     UploadsApi.createUpload(id, file).then((upload) => {
       const progress = (completed) => dispatch(uploadProgress(completed));
       const complete = () => {
+        // Stop prompting the user. The upload continues server-side
+        window.onbeforeunload = undefined;
+
         dispatch(uploadComplete());
         completeFn();
       };
