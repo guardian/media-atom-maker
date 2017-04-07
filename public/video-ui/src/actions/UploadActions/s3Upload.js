@@ -24,19 +24,43 @@ function uploadComplete() {
   };
 }
 
+function uploadError(error) {
+  return {
+    type: 'SHOW_ERROR',
+    message: `Error uploading video ${error}`,
+    error: error,
+    receivedAt: Date.now()
+  };
+}
+
 export function startUpload(id, file, completeFn) {
   return dispatch => {
+    // Start prompting the user about reloading the page
+    window.onbeforeunload = () => { return false; };
+
     UploadsApi.createUpload(id, file).then((upload) => {
       const progress = (completed) => dispatch(uploadProgress(completed));
+      
+      const err = (err) => {
+        window.onbeforeunload = undefined;
+        dispatch(uploadError(err));
+      };
+      
       const complete = () => {
+        // Stop prompting the user. The upload continues server-side
+        window.onbeforeunload = undefined;
+
         dispatch(uploadComplete());
         completeFn();
       };
       
-      const handle = new UploadHandle(upload, file, progress, complete);
+      const handle = new UploadHandle(upload, file, progress, complete, err);
       handle.start();
 
       dispatch(uploadStarted(upload));
+    }).catch((err) => {
+      window.onbeforeunload = undefined;
+      dispatch(uploadError(err));
     });
   };
 }
