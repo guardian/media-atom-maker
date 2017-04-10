@@ -37,8 +37,12 @@
   border-left-width: 0;
   color: $color400Grey;
 
-  .keywords__item:hover & {
+  &:hover:not(:disabled) {
     color: white;
+  }
+
+  &:disabled {
+    cursor: default;
   }
 }
 
