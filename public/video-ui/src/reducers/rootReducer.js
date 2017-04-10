@@ -14,7 +14,7 @@ import pageCreate from './composerPageReducer';
 import s3Upload from './s3UploadReducer';
 import editState from './editStateReducer';
 import plutoVideos from './plutoVideosReducer';
-import formErrors from './formErrorsReducer';
+import checkedFormFields from './checkedFormFieldsReducer';
 import uploads from './uploadsReducer';
 
 export default combineReducers({
@@ -31,7 +31,7 @@ export default combineReducers({
   pageCreate,
   publishedVideo,
   plutoVideos,
-  formErrors,
+  checkedFormFields,
   s3Upload,
   editState,
   uploads

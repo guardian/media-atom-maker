@@ -10,6 +10,7 @@ export default class VideoPoster extends React.Component {
         data={this.props.video}
         updateData={this.props.updateVideo}
         editable={this.props.editable}
+        updateErrors={this.props.updateErrors}
       >
         <ManagedField
           fieldLocation="posterImage"

@@ -37,6 +37,15 @@ class ReactApp extends React.Component {
     this.props.appActions.updateSearchTerm(searchTerm);
   };
 
+  getEditableFields = () => {
+    const allFields = this.props.checkedFormFields;
+
+    const editableFormFields = Object.keys(allFields).reduce((fields, formName) => {
+      return fields.concat(Object.keys(this.props.checkedFormFields[formName]));
+    }, []);
+    return editableFormFields;
+  }
+
   render() {
     return (
         <div className="wrap">
@@ -50,6 +59,7 @@ class ReactApp extends React.Component {
             s3Upload={this.props.s3Upload}
             publishVideo={this.props.appActions.publishVideo}
             saveState={this.props.saveState}
+            editableFields={this.getEditableFields()}
           />
           {this.props.error ? <div className="error-bar">{this.props.error}</div> : false}
           <div>
@@ -78,7 +88,8 @@ function mapStateToProps(state) {
     publishedVideo: state.publishedVideo,
     error: state.error,
     uploads: state.uploads,
-    s3Upload: state.s3Upload
+    s3Upload: state.s3Upload,
+    checkedFormFields: state.checkedFormFields
   };
 }
 

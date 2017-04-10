@@ -111,7 +111,7 @@ class VideoDisplay extends React.Component {
     } else if (property === 'youtubeEditable') {
       formName = formNames.youtube;
     }
-    const errors = this.props.formErrors[formName] ? this.props.formErrors[formName] : {};
+    const errors = this.props.checkedFormFields[formName] ? this.props.checkedFormFields[formName] : {};
     return Object.keys(errors).some(field => {
       const value = errors[field];
       return value.length !== 0;
@@ -188,7 +188,6 @@ class VideoDisplay extends React.Component {
                   video={this.props.video || {}}
                   updateVideo={this.updateVideo}
                   editable={this.props.editState.youtubeEditable}
-                  updateFormErrors={this.updateYoutubeFormErrors}
                   formName={formNames.youtube}
                   updateErrors={this.props.formErrorActions.updateFormErrors}
                 />
@@ -206,6 +205,8 @@ class VideoDisplay extends React.Component {
                 <VideoPoster
                   video={this.props.video || {}}
                   updateVideo={this.saveAndUpdateVideo}
+                  formName={formNames.posterImage}
+                  updateErrors={this.props.formErrorActions.updateFormErrors}
                 />
               </div>
               <div className="video__detailbox">
@@ -250,7 +251,7 @@ function mapStateToProps(state) {
     composerPageWithUsage: state.pageCreate,
     publishedVideo: state.publishedVideo,
     editState: state.editState,
-    formErrors: state.formErrors
+    checkedFormFields: state.checkedFormFields
   };
 }
 

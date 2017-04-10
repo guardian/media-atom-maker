@@ -1,6 +1,7 @@
 import _ from 'lodash';
+import {appUpdatedFields} from '../constants/appUpdatedFields';
 
-export function hasUnpublishedChanges(previewVideo, publishedVideo) {
+export function hasUnpublishedChanges(previewVideo, publishedVideo, editableFields) {
   if (!previewVideo) {
     return false;
   }
@@ -9,9 +10,9 @@ export function hasUnpublishedChanges(previewVideo, publishedVideo) {
     return true;
   }
 
-  const propertiesToCheck = ['title', 'description', 'category', 'expiryDate', 'legallySensitive', 'posterImage', 'youtubeCategoryId', 'privacyStatus', 'tags', 'activeVersion'];
+  const allFields = editableFields.concat(appUpdatedFields);
 
-  return !propertiesToCheck.every(key => {
+  return !allFields.every(key => {
     return _.isEqual(previewVideo[key], publishedVideo[key]);
   });
 }

@@ -44,7 +44,7 @@ export class ManagedField extends React.Component {
         fieldWarnings: notifications.warnings
       });
 
-      this.props.updateFormErrors(notifications.errors, this.props.name);
+      this.props.updateFormErrors(notifications.errors, this.props.fieldLocation);
     }
 
   }
