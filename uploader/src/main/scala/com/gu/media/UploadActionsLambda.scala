@@ -21,7 +21,8 @@ class UploadActionsLambda extends RequestHandler[KinesisEvent, Unit]
   with Logging
   with SESSettings
   with CrossAccountAccess
-  with KinesisAccess {
+  with KinesisAccess
+  with ElasticTranscodeAccess {
 
   val store = new UploadsDataStore(this)
   val plutoStore = new PlutoDataStore(this.dynamoDB, this.manualPlutoDynamo)

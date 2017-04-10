@@ -61,5 +61,5 @@ class LambdaActionHandler(store: UploadsDataStore, plutoStore: PlutoDataStore, a
 
 object LambdaActionHandler {
   type AWS = Settings with AwsAccess with S3Access with UploadAccess with HmacRequestSupport
-    with SESSettings with KinesisAccess
+    with SESSettings with KinesisAccess with ElasticTranscodeAccess
 }
