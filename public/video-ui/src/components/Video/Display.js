@@ -89,12 +89,17 @@ class VideoDisplay extends React.Component {
 
       if(filterUsageType.length === 0){
         return (
-          <button className="button__secondary" onClick={this.pageCreate}><Icon icon="add_to_queue"></Icon> Create Video Page</button>
+          <button
+            className="button__secondary"
+            disabled={this.cannotMakeEdits()}
+            onClick={this.pageCreate}>
+              <Icon icon="add_to_queue"></Icon> Create Video Page
+          </button>
         );
       }
   }
 
-  cannotOpenEditForm = () => {
+  cannotMakeEdits = () => {
     if (this.props.editState && (this.props.editState.metadataEditable || this.props.editState.youtubeEditable)) {
       return true;
     }
@@ -129,8 +134,8 @@ class VideoDisplay extends React.Component {
       );
     } else {
       return (
-        <button disabled={this.cannotOpenEditForm()} onClick={() => this.manageEditingState(property)}>
-          <Icon className={"icon__edit " + (this.cannotOpenEditForm() ? "disabled" : "")} icon="edit" />
+        <button disabled={this.cannotMakeEdits()} onClick={() => this.manageEditingState(property)}>
+          <Icon className={"icon__edit " + (this.cannotMakeEdits() ? "disabled" : "")} icon="edit" />
         </button>
       );
     }
