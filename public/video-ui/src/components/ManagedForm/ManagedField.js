@@ -24,8 +24,8 @@ export class ManagedField extends React.Component {
   };
 
   state = {
-    fieldErrors : [],
-    fieldWarnings : [],
+    fieldError : [],
+    fieldWarning : [],
     touched : false
   };
 
@@ -37,14 +37,13 @@ export class ManagedField extends React.Component {
   checkErrorsAndWarnings(value) {
 
     if (this.props.updateFormErrors) {
-      const notifications = validateField(value, this.props.isRequired, this.props.isDesired);
-
+      const notifications = validateField(value, this.props.isRequired, this.props.isDesired, this.props.customValidation);
       this.setState({
-        fieldErrors: notifications.errors,
-        fieldWarnings: notifications.warnings
+        fieldError: notifications.error,
+        fieldWarning: notifications.warning
       });
 
-      this.props.updateFormErrors(notifications.errors, this.props.fieldLocation);
+      this.props.updateFormErrors(notifications.error, this.props.fieldLocation);
     }
 
   }
@@ -84,12 +83,11 @@ export class ManagedField extends React.Component {
       return React.cloneElement(child, {
         fieldName: this.props.name,
         fieldValue: this.getFieldValue(_get(this.props.fieldLocation, this.props.data)),
-        fieldErrors: this.state.fieldErrors,
         onUpdateField: this.updateFn,
         editable: this.props.editable,
         maxLength: this.props.maxLength,
-        errors: this.state.fieldErrors,
-        warnings: this.state.fieldWarnings,
+        error: this.state.fieldError,
+        warning: this.state.fieldWarning,
         placeholder: this.props.placeholder,
         touched: this.state.touched,
         fieldDetails: this.props.fieldDetails

@@ -119,7 +119,7 @@ class VideoDisplay extends React.Component {
     const errors = this.props.checkedFormFields[formName] ? this.props.checkedFormFields[formName] : {};
     return Object.keys(errors).some(field => {
       const value = errors[field];
-      return value.length !== 0;
+      return value !== null;
     });
 
   };
