@@ -10,7 +10,7 @@ class VideoPublishBar extends React.Component {
   }
 
   videoHasUnpublishedChanges() {
-    return hasUnpublishedChanges(this.props.video, this.props.publishedVideo);
+    return hasUnpublishedChanges(this.props.video, this.props.publishedVideo, this.props.editableFields);
   }
 
   isPublishingDisabled() {
