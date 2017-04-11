@@ -105,7 +105,13 @@ export default function DatePicker({editable, onUpdateField, fieldValue}) {
   const date = fieldValue ? moment(fieldValue) : null;
 
   if(editable) {
-    return <Editor date={date} onChange={(newDate) => { onUpdateField(newDate.valueOf()); }} />;
+    return <Editor date={date} onChange={(newDate) => {
+      if (newDate) {
+        onUpdateField(newDate.valueOf());
+      } else {
+        onUpdateField(null);
+      }
+    }} />;
   } else {
     return <Display date={date} />;
   }
