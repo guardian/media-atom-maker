@@ -16,8 +16,8 @@ export default class TextArea extends React.Component {
       );
     }
 
-    const hasError = this.props.touched && this.props.error;
-    const hasWarning = this.props.warning;
+    const hasError = this.props.touched && this.props.notification && this.props.notification.type === 'error';
+    const hasWarning = this.props.notification && this.props.notification.type === 'warning';
 
     function getTextAreaClassName() {
       let postFix;
@@ -44,8 +44,8 @@ export default class TextArea extends React.Component {
           type={this.props.inputType || "text"}
           value={this.props.fieldValue}
           onChange={(e) => {this.props.onUpdateField(e.target.value);}} />
-        {hasError ? <p className="form__message form__message--error">{this.props.error.message}</p> : ""}
-        {hasWarning ? <p className="form__message form__message--warning">{this.props.warning.message}</p> : ""}
+        {hasError ? <p className="form__message form__message--error">{this.props.notification.message}</p> : ""}
+        {hasWarning ? <p className="form__message form__message--warning">{this.props.notification.message}</p> : ""}
       </div>
     );
   };

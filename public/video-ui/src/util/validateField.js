@@ -2,43 +2,19 @@ import FieldNotification from '../constants/FieldNotification';
 
 const validateField = (fieldValue, isRequired: false, isDesired: false, customValidation: null) => {
 
-  function withWarning(warning) {
-    return {
-      error: null,
-      warning: warning
-    };
-  }
-
-  function withError(error) {
-    return {
-      error: error,
-      warning: null
-    };
-  }
-
   if (customValidation) {
-    const customResults = customValidation(fieldValue);
-    if (customResults.error) {
-      return withError(customResults.error);
-    }
-
-    if (customResults.warning) {
-      return withWarning(customResults.warning);
-    }
+    return customValidation(fieldValue);
   }
 
   if (isRequired && !fieldValue) {
-    return withError(new FieldNotification('required', 'This field is required'));
+    return new FieldNotification('required', 'This field is required', 'error');
   }
 
   if (isDesired && !fieldValue) {
-    return withWarning(new FieldNotification('desired', 'This field is recommended'));
+    return new FieldNotification('desired', 'This field is recommended', 'warning');
   }
 
-  return {
-    error: null,
-    warning: null
-  };
+  return null;
 
 };
 

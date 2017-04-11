@@ -12,7 +12,7 @@ export default class TextInput extends React.Component {
       );
     }
 
-    const hasError = this.props.touched && this.props.error;
+    const hasError = this.props.touched && this.props.notification && this.props.notification.type === 'error';
 
     return (
       <div className="form__row">
@@ -24,7 +24,7 @@ export default class TextInput extends React.Component {
           type="text"
           value={this.props.fieldValue}
           onChange={(e) => {this.props.onUpdateField(e.target.value);}} />
-        {hasError ? <p className="form__message form__message--error">{this.props.error.message}</p> : ""}
+        {hasError ? <p className="form__message form__message--error">{this.props.notification.message}</p> : ""}
       </div>
     );
   };

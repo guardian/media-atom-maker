@@ -25,8 +25,7 @@ export class ManagedField extends React.Component {
   };
 
   state = {
-    fieldError : [],
-    fieldWarning : [],
+    fieldNotification: null,
     touched : false
   };
 
@@ -38,19 +37,24 @@ export class ManagedField extends React.Component {
   checkErrorsAndWarnings(value) {
 
     if (this.props.updateFormErrors) {
-      const notifications = validateField(value, this.props.isRequired, this.props.isDesired, this.props.customValidation);
+
+      const notification = validateField(value, this.props.isRequired, this.props.isDesired, this.props.customValidation);
+
+      if (notification && notification.type === 'error') {
+        this.props.updateFormErrors(notification, this.props.name);
+      } else {
+        this.props.updateFormErrors(null, this.props.name);
+      }
+
       this.setState({
-        fieldError: notifications.error,
-        fieldWarning: notifications.warning
+        fieldNotification: notification
       });
 
-      this.props.updateFormErrors(notifications.error, this.props.fieldLocation);
+      this.props.updateFormErrors(notification, this.props.fieldLocation);
     }
-
   }
 
   updateFn = (newValue) => {
-
     this.setState({
       touched: true
     });
@@ -87,8 +91,7 @@ export class ManagedField extends React.Component {
         onUpdateField: this.updateFn,
         editable: this.props.editable,
         maxLength: this.props.maxLength,
-        error: this.state.fieldError,
-        warning: this.state.fieldWarning,
+        notification: this.state.fieldNotification,
         placeholder: this.props.placeholder,
         touched: this.state.touched,
         fieldDetails: this.props.fieldDetails
