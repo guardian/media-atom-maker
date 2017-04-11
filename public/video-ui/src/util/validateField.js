@@ -22,8 +22,8 @@ const validateField = (fieldValue, isRequired: false, isDesired: false, customVa
       return withError(customResults.error);
     }
 
-    if (custonResults.warning) {
-      return witWarning(customResults.warning);
+    if (customResults.warning) {
+      return withWarning(customResults.warning);
     }
   }
 

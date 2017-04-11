@@ -14,6 +14,7 @@ export class ManagedField extends React.Component {
     updateData: PropTypes.func,
     updateFormErrors: PropTypes.func,
     updateFormWarnings: PropTypes.func,
+    customValidation: PropTypes.func,
     data: PropTypes.object,
     fieldName: PropTypes.string,
     isRequired: PropTypes.bool,

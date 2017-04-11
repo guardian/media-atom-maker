@@ -13,6 +13,7 @@ import {getStore} from '../../util/storeAccessor';
 import Icon from '../Icon';
 import {formNames} from '../../constants/formNames';
 import {blankVideoData} from '../../constants/blankVideoData';
+import FieldNotification from '../../constants/FieldNotification';
 
 class VideoDisplay extends React.Component {
 
@@ -124,6 +125,33 @@ class VideoDisplay extends React.Component {
 
   };
 
+  validateDescription = (video, description) => {
+    //TODO: don't hardcode
+    if (video.privacyStatus == "Unlisted") {
+      if (!description) {
+        return {
+          error: new FieldNotification('required', 'This field is required'),
+          warning: null
+        };
+      }
+      return {
+        error: null,
+        warning: null
+      };
+    } else {
+      if (!description) {
+        return {
+         warning: new FieldNotification('desired', 'This field is recommended'),
+          error: null
+        };
+      }
+      return {
+        error: null,
+        warning: null
+      };
+    }
+  }
+
   renderEditButton = (property) => {
 
     if (this.props && this.props.editState[property]) {
@@ -182,6 +210,7 @@ class VideoDisplay extends React.Component {
                   editable={this.props.editState.metadataEditable}
                   formName={formNames.metadata}
                   updateErrors={this.props.formErrorActions.updateFormErrors}
+                  descriptionValidator={this.validateDescription.bind(this, this.props.video)}
                  />
               </div>
               <div className="video__detailbox">
