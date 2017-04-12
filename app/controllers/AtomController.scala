@@ -1,21 +1,22 @@
 package controllers
 
-import com.gu.editorial.permissions.client.{Permission, PermissionGranted, PermissionsProvider, PermissionsUser}
+import com.gu.editorial.permissions.client.{Permission, PermissionGranted, PermissionsUser}
+import com.gu.media.Permissions._
+import com.gu.media.{MediaAtomMakerPermissionsProvider, Permissions}
 import com.gu.pandahmac.HMACAuthActions
-import com.gu.pandahmac.HMACHeaderNames._
 import com.gu.pandomainauth.action.UserRequest
+import com.gu.pandomainauth.model.User
 import data.UnpackedDataStores
+import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.{JsObject, JsString}
 import play.api.mvc._
 import util.ThriftUtil._
-import play.api.libs.concurrent.Execution.Implicits._
-import com.gu.media.Permissions._
 
 import scala.concurrent.Future
 
 trait AtomController extends Controller with UnpackedDataStores {
   val authActions: HMACAuthActions
-  val permissions: PermissionsProvider
+  val permissions: MediaAtomMakerPermissionsProvider
 
   /* if the creation of the thrift data from the request fails, reply
    * with the error. Otherwise delegate to `success`, which can avoid
@@ -32,34 +33,38 @@ trait AtomController extends Controller with UnpackedDataStores {
 
   def jsonError(msg: String): JsObject = JsObject(Seq("error" -> JsString(msg)))
 
-  type RequestHandler[A] = UserRequest[A] => Future[Result]
-
   import authActions.APIHMACAuthAction
 
-  class PermissionedAction(permission: Permission, allowHmac: Boolean) extends ActionBuilder[UserRequest] {
-    override def invokeBlock[A](request: Request[A], block: RequestHandler[A]): Future[Result] = {
+  object CanUploadAsset extends ActionBuilder[UploadUserRequest] {
+    override def invokeBlock[A](request: Request[A], block: UploadUserRequest[A] => Future[Result]): Future[Result] = {
       APIHMACAuthAction.invokeBlock(request, { req: UserRequest[A] =>
-        // At this point, an HMAC request has already been authenticated by Panda.
-        // We are merely checking to see if the request was made using HMAC or not.
-        val headers = request.headers.toSimpleMap.keySet
-        val hmacHeaders = Set(hmacKey, dateKey, serviceNameKey)
+        permissions.getAll(req.user.email).flatMap { p =>
+          if(p.addAsset || p.addSelfHostedAsset ) block(new UploadUserRequest(req.user, request, p))
+          else Future.successful(Unauthorized(s"User ${req.user.email} is not authorised to upload assets"))
+        }
+      })
+    }
+  }
 
-        if (hmacHeaders.subsetOf(headers)) {
-          block(req)
-        } else {
+  class PermissionedAction(permission: Permission) extends ActionBuilder[UserRequest] {
+    override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] = {
+      APIHMACAuthAction.invokeBlock(request, { req: UserRequest[A] =>
+
           permissions.get(permission)(PermissionsUser(req.user.email)).flatMap {
             case PermissionGranted =>
               block(req)
 
             case _ =>
-              Future.successful(Unauthorized)
-          }
+              Future.successful(Unauthorized(s"User ${req.user.email} is not authorised for permission ${permission.name}"))
+
         }
       })
     }
   }
 
 
-  val CanAddAsset: ActionBuilder[UserRequest] = new PermissionedAction(addAsset, allowHmac = true)
-  val CanDeleteAtom: ActionBuilder[UserRequest] = new PermissionedAction(deleteAtom, allowHmac = false)
+  val CanDeleteAtom: ActionBuilder[UserRequest] = new PermissionedAction(deleteAtom)
+
+  case class UploadUserRequest[A](val user: User, request: Request[A], permissions: Permissions) extends WrappedRequest[A](request)
+
 }

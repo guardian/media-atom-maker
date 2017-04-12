@@ -1,22 +1,18 @@
 package controllers
 
-import com.gu.editorial.permissions.client.PermissionsProvider
+import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.pandahmac.HMACAuthActions
-import com.gu.pandomainauth.service.GoogleAuthException
 import data.DataStores
+import play.api.Configuration
 import play.api.libs.ws.WSClient
 import play.api.mvc._
-import play.api.{Configuration, Logger}
 import views.html.MediaAtom._
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 
 class MainApp (override val stores: DataStores,
                wsClient: WSClient,
                conf: Configuration,
                val authActions: HMACAuthActions,
-               val permissions: PermissionsProvider)
+               val permissions: MediaAtomMakerPermissionsProvider)
     extends AtomController {
 
   import authActions.{AuthAction, processGoogleCallback}

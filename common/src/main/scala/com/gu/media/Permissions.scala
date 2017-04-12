@@ -36,10 +36,26 @@ class MediaAtomMakerPermissionsProvider(stage: String, credsProvider: AWSCredent
     selfHostedMediaAtom <- hasPermission(addSelfHostedAsset, email)
   } yield Permissions(addAsset, deleteAtom, selfHostedMediaAtom)
 
+
+  def getUploadPermissions(email: String): Future[Permissions] = for {
+    addAsset <- hasPermission(addAsset, email)
+    selfHostedMediaAtom <- hasPermission(addSelfHostedAsset, email)
+  } yield {
+    Permissions(addAsset, deleteAtom = false, selfHostedMediaAtom)
+  }
+
   private def hasPermission(permission: Permission, email: String): Future[Boolean] = {
     get(permission)(PermissionsUser(email)).map {
       case PermissionGranted => true
       case _ => false
     }
+  }
+}
+
+object PermissionsUploadHelper {
+  def permissionAndIntentMatch(permission: Permissions, selfHosted: Boolean) : Boolean = {
+    if(permission.addAsset && !selfHosted) true
+    else if(permission.addSelfHostedAsset && selfHosted) true
+    else false
   }
 }
