@@ -63,14 +63,14 @@ class VideoUpload extends React.Component {
     }
   };
 
-  startUpload = (shouldBeGuardianHosted) => {
+  startUpload = (selfHost) => {
     if(this.props.video && this.state.file) {
       const atomId = this.props.video.id;
 
       this.props.uploadActions.startUpload(atomId, this.state.file, () => {
         // on complete
         this.props.uploadActions.getUploads(atomId);
-      }, shouldBeGuardianHosted);
+      }, selfHost);
     }
   };
 
@@ -93,8 +93,8 @@ class VideoUpload extends React.Component {
     }
   }
 
-  renderStartUpload(selfHosted, msg) {
-    return <button type="button" className="btn button__secondary__assets" disabled={!this.state.file} onClick={() => this.startUpload(selfHosted)}>
+  renderStartUpload(selfHost, msg) {
+    return <button type="button" className="btn button__secondary__assets" disabled={!this.state.file} onClick={() => this.startUpload(selfHost)}>
     <Icon icon="backup">{msg}</Icon>
         </button>;
   }

@@ -41,7 +41,7 @@ abstract class UploadActionHandler(store: UploadsDataStore, plutoStore: PlutoDat
       deleteParts(upload)
       store.delete(upload.id)
 
-    case UploadPartsToGuardianHosted(upload, key, pipelineId) =>
+    case UploadPartsToSelfHost(upload, key, pipelineId) =>
       transcodeToS3(key, pipelineId)
   }
 

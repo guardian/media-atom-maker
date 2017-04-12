@@ -10,13 +10,13 @@ package object actions {
   case class UploadPartToYouTube(upload: Upload, part: UploadPart, uploadUri: String) extends UploadAction
   case class CopyParts(upload: Upload, destination: String) extends UploadAction
   case class DeleteParts(upload: Upload) extends UploadAction
-  case class UploadPartsToGuardianHosted(upload: Upload, fileName: String, pipelineId: String) extends UploadAction
+  case class UploadPartsToSelfHost(upload: Upload, fileName: String, pipelineId: String) extends UploadAction
 
   type UploaderAccess = S3Access with UploadAccess with SESSettings with KinesisAccess with ElasticTranscodeAccess
 
   implicit val uploadPartToYouTubeFormat: Format[UploadPartToYouTube] = Jsonx.formatCaseClass[UploadPartToYouTube]
   implicit val copyPartsFormat: Format[CopyParts] = Jsonx.formatCaseClass[CopyParts]
   implicit val deletePartsFormat: Format[DeleteParts] = Jsonx.formatCaseClass[DeleteParts]
-  implicit val uploadPartsToGuardianHostedFormat: Format[UploadPartsToGuardianHosted] = Jsonx.formatCaseClass[UploadPartsToGuardianHosted]
+  implicit val uploadPartsToSelfHostFormat: Format[UploadPartsToSelfHost] = Jsonx.formatCaseClass[UploadPartsToSelfHost]
   implicit val uploadActionFormat: Format[UploadAction] = Jsonx.formatSealed[UploadAction]
 }

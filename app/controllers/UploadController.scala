@@ -6,7 +6,7 @@ import _root_.model.MediaAtom
 import _root_.model.commands.CommandExceptions._
 import com.gu.media.logging.Logging
 import com.gu.media.upload._
-import com.gu.media.upload.actions.{CopyParts, DeleteParts, UploadActionSender, UploadPartToYouTube, UploadPartsToGuardianHosted}
+import com.gu.media.upload.actions.{CopyParts, DeleteParts, UploadActionSender, UploadPartToYouTube, UploadPartsToSelfHost}
 import com.gu.media.upload.model._
 import com.gu.media.youtube.{YouTubeAccess, YouTubeUploader}
 import com.gu.media.{MediaAtomMakerPermissionsProvider, Permissions, PermissionsUploadHelper}
@@ -43,14 +43,14 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   def create = CanUploadAsset { implicit raw =>
     parse(raw) { req: CreateRequest =>
-      if (PermissionsUploadHelper.permissionAndIntentMatch(raw.permissions, req.shouldBeGuHosted)) {
-        log.info(s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}, shouldBeGuHosted=${req.shouldBeGuHosted}")
+      if (PermissionsUploadHelper.permissionAndIntentMatch(raw.permissions, req.selfHost)) {
+        log.info(s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}, selfHosted=${req.selfHost}")
         val atom = MediaAtom.fromThrift(getPreviewAtom(req.atomId))
-        val upload = buildUpload(atom, raw.user, req.size, req.shouldBeGuHosted)
+        val upload = buildUpload(atom, raw.user, req.size, req.selfHost)
         table.put(upload)
         Ok(Json.toJson(upload))
       }
-      else Unauthorized(s"User is not authorised with permissions to upload asset, self-hosted value: ${req.shouldBeGuHosted}")
+      else Unauthorized(s"User is not authorised with permissions to upload asset, self-hosted value: ${req.selfHost}")
     }
   }
 
@@ -68,10 +68,10 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   def complete(id: String) = CanUploadAsset { implicit req =>
     partRequest(id, req) { (upload, part, optionalUri) =>
-      val shouldSelfHosted = upload.metadata.guardianHosted
-      if(!PermissionsUploadHelper.permissionAndIntentMatch(req.permissions, shouldSelfHosted))
-        Unauthorized("User is not authorised with permissions to complete upload, self-hosted value: ${req.shouldBeGuHosted}")
-      else if (shouldSelfHosted)
+      val selfHost = upload.metadata.selfHost
+      if(!PermissionsUploadHelper.permissionAndIntentMatch(req.permissions, selfHost))
+        Unauthorized(s"User is not authorised with permissions to complete upload, self-hosted value: ${selfHost}")
+      else if (selfHost)
         startUploadToSelfHost(upload, part, req.permissions)
       else
         startUpload(upload, part, optionalUri, req.permissions)
@@ -82,7 +82,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     if(part == upload.parts.last) {
       completeAndDeleteParts(upload, part)
       val key = completeKey(upload)
-      uploadActions.send(UploadPartsToGuardianHosted(upload, key, awsConfig.transcodePipelineId))
+      uploadActions.send(UploadPartsToSelfHost(upload, key, awsConfig.transcodePipelineId))
       Ok(Json.toJson(CompleteResponse(s"$key has been sent for transcoding to S3")))
     }
     else Ok(Json.toJson(CompleteResponse(s"${upload.id} has not finished uploading to S3 yet")))
@@ -100,7 +100,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     }
   }
 
-  private def buildUpload(atom: MediaAtom, user: User, size: Long, guardianHosted: Boolean) = {
+  private def buildUpload(atom: MediaAtom, user: User, size: Long, selfHosted: Boolean) = {
     val id = UUID.randomUUID().toString
 
     val plutoData = PlutoSyncMetadata(
@@ -117,7 +117,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       title = atom.title,
       channel = atom.channelId.getOrElse { AtomMissingYouTubeChannel },
       pluto = plutoData,
-      guardianHosted = guardianHosted
+      selfHost = selfHosted
     )
 
     val parts = chunk(id, size)
@@ -174,7 +174,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 }
 
 object UploadController {
-  case class CreateRequest(atomId: String, filename: String, size: Long, shouldBeGuHosted: Boolean = false)
+  case class CreateRequest(atomId: String, filename: String, size: Long, selfHost: Boolean = false)
   case class CreateResponse(id: String, region: String, bucket: String, parts: List[UploadPart])
   case class CompleteResponse(uploadUri: String)
 

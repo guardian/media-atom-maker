@@ -12,12 +12,12 @@ class UploadFunctions {
     });
   };
 
-  createUpload = (atomId, file, shouldBeGuHosted) => {
+  createUpload = (atomId, file, selfHost) => {
     return pandaReqwest({
       url: `/api2/uploads?atomId=${atomId}`,
       method: 'post',
       contentType: 'application/json',
-      data: JSON.stringify({ atomId: atomId, filename: file.name, size: file.size, shouldBeGuHosted: shouldBeGuHosted
+      data: JSON.stringify({ atomId: atomId, filename: file.name, size: file.size, selfHost: selfHost
       })
     });
   };
