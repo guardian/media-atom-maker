@@ -107,6 +107,10 @@
           "Description": "Name of the email address notifications emails of missing pluto ids are sent from",
           "Type": "String",
           "Default": "digitalcms.dev@guardian.co.uk"
+        },
+        "TranscoderPipelineId": {
+          "Description": "Name of the pipeline that will transcode videos for self-hosted route",
+          "Type": "String"
         }
     },
     "Mappings": {
@@ -584,6 +588,28 @@
                             "Effect": "Allow",
                             "Action": ["kinesis:Get*", "kinesis:PutRecord", "kinesis:DescribeStream"],
                             "Resource": { "Fn::GetAtt": ["UploadActionsStream", "Arn"] }
+                          },
+                          {
+                            "Effect": "Allow",
+                            "Action": [
+                              "elastictranscoder:CreateJob"
+                            ],
+                            "Resource": {
+                              "Fn::Sub": [
+                                "arn:aws:elastictranscode:${Region}:${Account}:pipeline/${pipelineId}",
+                                  {
+                                  "Region": {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "Account": {
+                                    "Ref": "AWS::AccountId"
+                                  },
+                                  "pipelineId": {
+                                    "Ref": "TranscoderPipelineId"
+                                  }
+                                }
+                              ]
+                            }
                           }
                         ]
                     }

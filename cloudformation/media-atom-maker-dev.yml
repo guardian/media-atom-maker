@@ -49,6 +49,9 @@ Parameters:
     Description: "Name of the topic where pluto publishes atom ids with ingested master"
     Type: "String"
     Default: "media-atom-maker-ingested-videos"
+  TranscoderPipelineId:
+    Description: "Name of the pipeline that will transcode videos for self-hosted route"
+    Type: "String"
 Mappings:
   LambdaBuilds:
     Uploader:
@@ -316,6 +319,12 @@ Resources:
               - Effect: "Allow"
                 Action: ["kinesis:Get*", "kinesis:PutRecord", "kinesis:DescribeStream"]
                 Resource: !GetAtt UploadActionsStream.Arn
+              - Effect: "Allow"
+                Action: ["elastictranscoder:CreateJob"]
+                Resource:
+                 - !Sub
+                  - "arn:aws:elastictranscode:${Region}:${Account}:pipeline/${pipelineId}"
+                  - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", pipelineId: !Ref "TranscoderPipelineId" }
 
   UploadActionsStream:
     Type: "AWS::Kinesis::Stream"
