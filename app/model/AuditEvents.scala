@@ -120,7 +120,7 @@ object AuditEvent {
       )))
     } else if(removed.nonEmpty) {
       Some(JsObject(Seq(
-        "removed" -> jsList(added)
+        "removed" -> jsList(removed)
       )))
     } else {
       None
