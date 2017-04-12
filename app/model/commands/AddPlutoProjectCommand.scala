@@ -3,7 +3,7 @@ package model.commands
 import com.gu.media.logging.Logging
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
-import model.{Audit, MediaAtom}
+import model.{AuditEvent, MediaAtom}
 import util.AWSConfig
 
 class AddPlutoProjectCommand(atomId: String, plutoId: String, override val stores: DataStores, user: PandaUser,
@@ -13,7 +13,7 @@ class AddPlutoProjectCommand(atomId: String, plutoId: String, override val store
 
     override type T = MediaAtom
 
-    override def process(): (MediaAtom, Audit) = {
+    override def process(): (MediaAtom, AuditEvent) = {
 
       val (updatedAtom, audit) = new SetPlutoIdCommand(atomId, plutoId, stores, user).process()
 

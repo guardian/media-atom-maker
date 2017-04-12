@@ -1,10 +1,10 @@
 package model.commands
 
 import data.UnpackedDataStores
-import model.Audit
+import model.AuditEvent
 
 trait Command extends UnpackedDataStores {
   type T
 
-  def process(): (T, Audit)
+  def process(): (T, AuditEvent)
 }

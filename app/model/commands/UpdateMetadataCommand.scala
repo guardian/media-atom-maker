@@ -5,7 +5,7 @@ import com.gu.media.youtube.YouTube
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
-import model.{Audit, MediaAtom, UpdatedMetadata}
+import model.{AuditEvent, MediaAtom, UpdatedMetadata}
 import util.atom.MediaAtomImplicits
 
 case class UpdateMetadataCommand(atomId: String, metadata: UpdatedMetadata, override val stores: DataStores,
@@ -16,7 +16,7 @@ case class UpdateMetadataCommand(atomId: String, metadata: UpdatedMetadata, over
 
   type T = MediaAtom
 
-  def process(): (MediaAtom, Audit) = {
+  def process(): (MediaAtom, AuditEvent) = {
     log.info(s"Request to update metadata for $atomId")
 
     val atom = getPreviewAtom(atomId)

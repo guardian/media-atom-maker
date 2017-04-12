@@ -6,12 +6,11 @@ import java.util.UUID._
 import com.gu.atom.data.IDConflictError
 import com.gu.contentatom.thrift.atom.media.{Category => ThriftCategory, MediaAtom => ThriftMediaAtom, Metadata => ThriftMetadata}
 import com.gu.contentatom.thrift.{Atom => ThriftAtom, _}
-import com.gu.media.AuditEvents
 import com.gu.media.logging.Logging
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
-import model.{Audit, ChangeRecord, Image, MediaAtom, PrivacyStatus}
+import model.{ChangeRecord, Image, AuditEvent, MediaAtom, PrivacyStatus}
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
 
@@ -41,7 +40,7 @@ case class CreateAtomCommand(data: CreateAtomCommandData, override val stores: D
 
   type T = MediaAtom
 
-  def process(): (MediaAtom, Audit) = {
+  def process(): (MediaAtom, AuditEvent) = {
     val atomId = randomUUID().toString
     log.info(s"Request to create new atom $atomId [${data.title}]")
 
@@ -98,7 +97,7 @@ case class CreateAtomCommand(data: CreateAtomCommandData, override val stores: D
             log.info(s"New atom published to preview $atomId [${data.title}]")
 
             val mediaAtom = MediaAtom.fromThrift(atom)
-            val auditEvent = Audit(atom.id, AuditEvents.CREATE, MediaAtom.fromThrift(atom), user)
+            val auditEvent = AuditEvent.create(user, mediaAtom)
 
             (mediaAtom, auditEvent)
 

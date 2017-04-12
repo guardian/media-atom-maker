@@ -7,7 +7,6 @@ import java.util.Date
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import com.gu.atom.play.AtomAPIActions
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
-import com.gu.media.AuditEvents
 import com.gu.media.logging.Logging
 import com.gu.media.youtube.{YouTube, YouTubeMetadataUpdate}
 import com.gu.pandomainauth.model.{User => PandaUser}
@@ -24,7 +23,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
 
   type T = MediaAtom
 
-  def process(): (T, Audit) = {
+  def process(): (T, AuditEvent) = {
     log.info(s"Request to publish atom $id")
 
     val thriftAtom = getPreviewAtom(id)
@@ -48,7 +47,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
     }
   }
 
-  private def publish(atom: MediaAtom, user: PandaUser): (MediaAtom, Audit) = {
+  private def publish(atom: MediaAtom, user: PandaUser): (MediaAtom, AuditEvent) = {
     log.info(s"Publishing atom $id")
 
     val changeRecord = Some(ChangeRecord.now(user))
@@ -66,7 +65,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
     val publishedAtom = publishAtomToLive(updatedAtom)
     setAssetsToPrivate(publishedAtom)
 
-    val audit = Audit(atom.id, AuditEvents.PUBLISH, "Atom published", user)
+    val audit = AuditEvent.publish(user, atom.id)
     (publishedAtom, audit)
   }
 

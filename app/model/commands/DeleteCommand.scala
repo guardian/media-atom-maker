@@ -4,27 +4,27 @@ import java.util.Date
 
 import com.gu.atom.play.AtomAPIActions
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
-import com.gu.pandomainauth.model.{User => PandaUser}
-import com.gu.media.AuditEvents
 import com.gu.media.logging.Logging
+import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
-import model.Audit
+import model.AuditEvent
 
 case class DeleteCommand(id: String, user: PandaUser, override val stores: DataStores)
   extends Command with AtomAPIActions with Logging {
 
   type T = Unit
 
-  override def process(): (Unit, Audit) = {
+  override def process(): (Unit, AuditEvent) = {
     val atom = getPreviewAtom(id)
 
-    val event = ContentAtomEvent(atom, EventType.Takedown, new Date().getTime)
-    livePublisher.publishAtomEvent(event)
-    previewPublisher.publishAtomEvent(event)
+    val capiEvent = ContentAtomEvent(atom, EventType.Takedown, new Date().getTime)
+    livePublisher.publishAtomEvent(capiEvent)
+    previewPublisher.publishAtomEvent(capiEvent)
 
     deletePreviewAtom(id)
     deletePublishedAtom(id)
 
-    ((), Audit(id, AuditEvents.DELETE, "Atom deleted", user))
+    val auditEvent = AuditEvent.delete(user, id)
+    ((), auditEvent)
   }
 }
