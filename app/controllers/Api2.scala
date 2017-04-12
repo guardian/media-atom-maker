@@ -133,7 +133,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
 
   def deleteAtom(id: String) = CanDeleteAtom { implicit req =>
     try {
-      val command = DeleteCommand(id, stores)
+      val command = DeleteCommand(id, req.user, stores)
 
       execute(command) { _ =>
         Ok(s"Atom $id deleted")

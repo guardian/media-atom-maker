@@ -1,5 +1,9 @@
 package model
 
+import java.time.{Instant, ZoneId}
+import java.time.format.{DateTimeFormatter, FormatStyle}
+import java.util.Locale
+
 import com.gu.contentatom.thrift.atom.media.{MediaAtom => ThriftMediaAtom, Metadata => ThriftMetadata}
 import com.gu.contentatom.thrift.{AtomData, Atom => ThriftAtom, AtomType => ThriftAtomType, Flags => ThriftFlags}
 import org.cvogt.play.json.Jsonx
@@ -117,5 +121,69 @@ object MediaAtom extends MediaAtomImplicits {
       case Some(asset) if asset.platform == Platform.Youtube => Some(asset)
       case _ => None
     }
+  }
+
+  // TODO MRB: generic way to do this?
+  def diff(before: MediaAtom, after: MediaAtom): String = {
+    // Assets are ignored as they have their own audit events (including activeVersion)
+    // Duration is ignored as it is set automatically
+
+    def _diff[T](field: String, before: T, after: T): Option[String] = {
+      if(before == after) { None } else { Some(s"\t$field: $before -> $after") }
+    }
+
+    def _diffOpt[T](field: String, before: Option[T], after: Option[T]): Option[String] = {
+      (before, after) match {
+        case (Some(value), None) => Some(s"\tremoved $field")
+        case (None, Some(value)) => Some(s"\tadded $field: $value")
+        case (Some(b), Some(a)) if a != b => Some(s"\t$field: $before -> $after")
+        case _ => None
+      }
+    }
+
+    def _diffSet[T](field: String, before: Iterable[T], after: Iterable[T]): Option[String] = {
+      val setBefore = before.toSet
+      val setAfter = after.toSet
+
+      val added = setAfter.diff(setBefore)
+      val removed = setBefore.diff(setAfter)
+
+      if(added.nonEmpty || removed.nonEmpty) {
+        val addedStr = if (added.nonEmpty) s"added: [${added.mkString(",")}]" else ""
+        val removedStr = if (removed.nonEmpty) s"added: [${added.mkString(",")}]" else ""
+
+        Some(s"\t$field: $addedStr $removedStr")
+      } else {
+        None
+      }
+    }
+
+    def fromEpochMilli(ts: Long): String = {
+      val formatter = DateTimeFormatter
+        .ofLocalizedDateTime(FormatStyle.SHORT)
+        .withLocale(Locale.UK)
+        .withZone(ZoneId.of("UTC"))
+
+      val instant = Instant.ofEpochMilli(ts)
+
+      formatter.format(instant)
+    }
+
+    List(
+      _diff("title", before.title, after.title),
+      _diff("category", before.category, after.category),
+      _diffOpt("plutoProjectId", before.plutoProjectId, after.plutoProjectId),
+      _diffOpt("source", before.source, after.source),
+      _diffOpt("posterImage", before.posterImage, after.posterImage),
+      _diffOpt("description", before.description, after.description),
+      _diffSet("tags", before.tags, after.tags),
+      _diffOpt("youtubeCategoryId", before.youtubeCategoryId, after.youtubeCategoryId),
+      _diffOpt("expiryDate", before.expiryDate.map(fromEpochMilli), after.expiryDate.map(fromEpochMilli)),
+      _diffOpt("license", before.license, after.license),
+      _diffOpt("channelId", before.channelId, after.channelId),
+      _diff("commentsEnabled", before.commentsEnabled, after.commentsEnabled),
+      _diffOpt("legallySensitive", before.legallySensitive, after.legallySensitive),
+      _diffOpt("privacyStatus", before.privacyStatus, after.privacyStatus)
+    ).flatten.mkString("\n")
   }
 }

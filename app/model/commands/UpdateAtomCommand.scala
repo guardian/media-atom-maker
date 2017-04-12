@@ -3,6 +3,7 @@ package model.commands
 import java.util.Date
 
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
+import com.gu.media.AuditEvents
 import com.gu.media.logging.Logging
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
@@ -46,7 +47,13 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
         previewPublisher.publishAtomEvent(event) match {
           case Success(_) => {
             log.info(s"Successfully updated atom ${atom.id}")
-            MediaAtom.fromThrift(thrift)
+
+            val before = MediaAtom.fromThrift(existingAtom)
+            val after = MediaAtom.fromThrift(thrift)
+            val diff = s"Updated atom fields\n${MediaAtom.diff(before, after)}"
+
+            val audit = Audit(after.id, AuditEvents.UPDATE, diff, user)
+            (after, audit)
           }
           case Failure(err) =>
             log.error(s"Unable to publish updated atom ${atom.id}", err)

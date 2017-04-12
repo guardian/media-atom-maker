@@ -48,7 +48,7 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String, stores: DataSto
 
         log.info(s"Marking $youtubeId as the active asset in $atomId")
 
-        val result = UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom), stores, user).process()
+        val (result, _) = UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom), stores, user).process()
         val event = Audit(atomId, AuditEvents.ACTIVATE_ASSET, model.Asset.fromThrift(newActiveAsset), user)
 
         (result, event)

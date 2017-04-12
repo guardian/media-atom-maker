@@ -18,7 +18,10 @@ class DevUploadHandler(stores: DataStores, access: UploaderAccess, youTube: YouT
 
   override def addAsset(atomId: String, videoId: String): Long = {
     val videoUri = s"https://www.youtube.com/watch?v=$videoId"
-    val atom = AddAssetCommand(atomId, videoUri, stores, youTube, user).process()
+
+    val (atom, audit) = AddAssetCommand(atomId, videoUri, stores, youTube, user).process()
+    stores.audit.putAuditEvent(audit)
+
     val versions = atom.assets.map(_.version).sorted
 
     versions.last
