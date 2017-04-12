@@ -77,14 +77,20 @@ class VideoUpload extends React.Component {
 
 
   renderButtons(uploading) {
+    const addAssetPermission = getStore().getState().config.permissions.addAsset
+    const addSelfHostedAssetPermission = getStore().getState().config.permissions.addSelfHostedAsset
     if (uploading) {
       return false;
-    } else if (!getStore().getState().config.permissions.addSelfHostedAsset) {
+    }
+    else if (addAssetPermission && addSelfHostedAssetPermission) {
+      return <div> {this.renderStartUpload(false, 'Upload')} {this.renderStartUpload(true, 'Upload to Guardian')} </div>;
+    }
+    else if (addAssetPermission) {
       return this.renderStartUpload(false, 'Upload');
     }
-      else {
-        return <div> {this.renderStartUpload(false, 'Upload')} {this.renderStartUpload(true, 'Upload to Guardian')} </div>
-      }
+    else if (addSelfHostedAssetPermission) {
+      return this.renderStartUpload(true, 'Upload to Guardian');
+    }
   }
 
   renderStartUpload(selfHosted, msg) {
@@ -95,7 +101,7 @@ class VideoUpload extends React.Component {
 
   renderUpload(uploading) {
     // the permissions are also validated on the server-side for each request
-    if(!getStore().getState().config.permissions.addAsset) {
+    if(!getStore().getState().config.permissions.addAsset && !getStore().getState().config.permissions.addSelfHostedAsset) {
       return false;
     }
 
