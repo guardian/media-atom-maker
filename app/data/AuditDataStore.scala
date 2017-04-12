@@ -17,6 +17,9 @@ class AuditDataStore(client: AmazonDynamoDBClient, auditDynamoTableName: String)
   }
 
   def putAuditEvent(audit: AuditEvent): Unit = {
-    Item.fromJSON(Json.stringify(Json.toJson(audit)))
+    val json = Json.stringify(Json.toJson(audit))
+    val item = Item.fromJSON(json)
+
+    db.putItem(item)
   }
 }

@@ -9,7 +9,7 @@ import play.api.libs.json._
 
 import com.gu.pandomainauth.model.{User => PandaUser}
 
-case class AuditEvent(atomId: String, operation: String, description: JsValue, date: Long, user: String)
+case class AuditEvent(atomId: String, operation: String, description: Option[JsValue], date: Long, user: String)
 
 object AuditEvent {
   implicit val format = Jsonx.formatCaseClass[AuditEvent]
@@ -23,7 +23,7 @@ object AuditEvent {
       "privacyStatus" -> JsString(atom.privacyStatus.map(_.toString).getOrElse("none"))
     ))
 
-    AuditEvent(atom.id, "create", description, Instant.now().toEpochMilli, getUsername(user))
+    AuditEvent(atom.id, "create", Some(description), Instant.now().toEpochMilli, getUsername(user))
   }
 
   def update(user: PandaUser, before: MediaAtom, after: MediaAtom): AuditEvent = {
@@ -44,15 +44,15 @@ object AuditEvent {
       diffOpt(before.privacyStatus, after.privacyStatus).map("privacyStatus" -> _)
     ).flatten)
 
-    AuditEvent(after.id, "create", description, Instant.now().toEpochMilli, getUsername(user))
+    AuditEvent(after.id, "create", Some(description), Instant.now().toEpochMilli, getUsername(user))
   }
 
   def delete(user: PandaUser, atomId: String): AuditEvent = {
-    AuditEvent(atomId, "delete", JsNull, Instant.now().toEpochMilli, getUsername(user))
+    AuditEvent(atomId, "delete", None, Instant.now().toEpochMilli, getUsername(user))
   }
 
   def publish(user: PandaUser, atomId: String): AuditEvent = {
-    AuditEvent(atomId, "publish", JsNull, Instant.now().toEpochMilli, getUsername(user))
+    AuditEvent(atomId, "publish", None, Instant.now().toEpochMilli, getUsername(user))
   }
 
   def addAsset(user: PandaUser, atomId: String, asset: Asset, source: String): AuditEvent = {
@@ -61,7 +61,7 @@ object AuditEvent {
       "source" -> JsString(source)
     ))
 
-    AuditEvent(atomId, "add_asset", description, Instant.now().toEpochMilli, getUsername(user))
+    AuditEvent(atomId, "add_asset", Some(description), Instant.now().toEpochMilli, getUsername(user))
   }
 
   def activateAsset(user: PandaUser, atomId: String, asset: Asset): AuditEvent = {
@@ -69,7 +69,7 @@ object AuditEvent {
       "asset" -> Json.toJson(asset)
     ))
 
-    AuditEvent(atomId, "activate_asset", description, Instant.now().toEpochMilli, getUsername(user))
+    AuditEvent(atomId, "activate_asset", Some(description), Instant.now().toEpochMilli, getUsername(user))
   }
 
   // TODO MRB: generic way of doing this?
