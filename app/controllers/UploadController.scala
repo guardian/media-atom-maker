@@ -2,7 +2,7 @@ package controllers
 
 import java.util.UUID
 
-import _root_.model.MediaAtom
+import _root_.model.{MediaAtom, AuditEvent}
 import _root_.model.commands.CommandExceptions._
 import com.gu.editorial.permissions.client.PermissionsProvider
 import com.gu.media.logging.Logging
@@ -19,6 +19,7 @@ import org.cvogt.play.json.Jsonx
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.Result
 import util.AWSConfig
+import com.gu.pandomainauth.model.{User => PandaUser}
 
 class UploadController(override val authActions: HMACAuthActions, awsConfig: AWSConfig, youTube: YouTubeAccess,
                        uploadActions: UploadActionSender, override val stores: DataStores,
@@ -50,6 +51,9 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       val upload = buildUpload(atom, raw.user, req.size)
       table.put(upload)
 
+      val event = AuditEvent.startUpload(raw.user, req.atomId, upload.id, req.filename, req.size)
+      stores.audit.putAuditEvent(event)
+
       Ok(Json.toJson(upload))
     }
   }
@@ -69,13 +73,13 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
   def complete(id: String) = CanAddAsset { implicit req =>
     partRequest(id, req) {
       case (upload, part, Some(uploadUri)) =>
-        partComplete(upload, part, uploadUri)
+        partComplete(upload, part, uploadUri, req.user)
         Ok(Json.toJson(CompleteResponse(uploadUri)))
 
 
       case (upload, part, None) =>
         val uploadUri = uploader.startUpload(upload.metadata.title, upload.metadata.channel, upload.id, upload.parts.last.end)
-        partComplete(upload, part, uploadUri)
+        partComplete(upload, part, uploadUri, req.user)
         Ok(Json.toJson(CompleteResponse(uploadUri)))
     }
   }
@@ -126,7 +130,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     }
   }
 
-  private def partComplete(upload: Upload, part: UploadPart, uploadUri: String): Upload = {
+  private def partComplete(upload: Upload, part: UploadPart, uploadUri: String, user: PandaUser): Upload = {
     val complete = upload.copy(progress = upload.progress.copy(uploadedToS3 = part.end))
 
     table.report(complete)
@@ -137,6 +141,9 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
       uploadActions.send(CopyParts(upload, completeKey))
       uploadActions.send(DeleteParts(upload))
+
+      val event = AuditEvent.s3UploadComplete(user, upload.metadata.pluto.atomId, upload.id)
+      stores.audit.putAuditEvent(event)
     }
 
     complete

@@ -72,6 +72,24 @@ object AuditEvent {
     AuditEvent(atomId, "activate_asset", Some(description), Instant.now().toEpochMilli, getUsername(user))
   }
 
+  def startUpload(user: PandaUser, atomId: String, uploadId: String, filename: String, size: Long): AuditEvent = {
+    val description = JsObject(Seq(
+      "id" -> JsString(uploadId),
+      "filename" -> JsString(filename),
+      "size" -> JsNumber(size)
+    ))
+
+    AuditEvent(atomId, "start_upload", Some(description), Instant.now().toEpochMilli, getUsername(user))
+  }
+
+  def s3UploadComplete(user: PandaUser, atomId: String, uploadId: String): AuditEvent = {
+    val description = JsObject(Seq(
+      "id" -> JsString(uploadId)
+    ))
+
+    AuditEvent(atomId, "s3_upload_complete", Some(description), Instant.now().toEpochMilli, getUsername(user))
+  }
+
   // TODO MRB: generic way of doing this?
   def diff[T](before: T, after: T): Option[JsValue] = {
     if(before == after) {
