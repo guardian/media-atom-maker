@@ -57,8 +57,9 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
     try {
       val command = PublishAtomCommand(id, stores, youTube, req.user)
 
-      val updatedAtom = command.process()
-      Ok(Json.toJson(updatedAtom))
+      execute(command) { updatedAtom =>
+        Ok(Json.toJson(updatedAtom))
+      }
     } catch {
       commandExceptionAsResult
     }
@@ -67,18 +68,20 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
   def createMediaAtom = APIHMACAuthAction { implicit req =>
     parse(req) { data: CreateAtomCommandData =>
       val command = CreateAtomCommand(data, stores, req.user)
-      val atom = command.process()
 
-      Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
+      execute(command) { atom =>
+        Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
+      }
     }
   }
 
   def putMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
     parse(req) { atom: MediaAtom =>
       val command = UpdateAtomCommand(id, atom, stores, req.user)
-      val updatedAtom = command.process()
 
-      Ok(Json.toJson(updatedAtom))
+      execute(command) { updatedAtom =>
+        Ok(Json.toJson(updatedAtom))
+      }
     }
   }
 
@@ -89,8 +92,9 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
       }
 
     parse(req) { command: AddAssetCommand =>
-      val atom = command.process()
-      Ok(Json.toJson(atom))
+      execute(command) { atom =>
+        Ok(Json.toJson(atom))
+      }
     }
   }
 
@@ -104,8 +108,9 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
       }
 
     parse(req) { command: ActiveAssetCommand =>
-      val atom = command.process()
-      Ok(Json.toJson(atom))
+      execute(command) { atom =>
+        Ok(Json.toJson(atom))
+      }
     }
   }
 
@@ -116,8 +121,9 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
       }
 
     parse(req) { command: SetPlutoIdCommand =>
-      val atom = command.process()
-      Ok(Json.toJson(atom))
+      execute(command) { atom =>
+        Ok(Json.toJson(atom))
+      }
     }
   }
 
@@ -127,8 +133,11 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
 
   def deleteAtom(id: String) = CanDeleteAtom { implicit req =>
     try {
-      DeleteCommand(id, stores).process()
-      Ok(s"Atom $id deleted")
+      val command = DeleteCommand(id, stores)
+
+      execute(command) { _ =>
+        Ok(s"Atom $id deleted")
+      }
     }
     catch {
       commandExceptionAsResult
@@ -168,9 +177,9 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
       }
 
     parse(req) { command: AddPlutoProjectCommand =>
-      command.process()
-      Ok("Added pluto project to atom")
-
+      execute(command) { _ =>
+        Ok("Added pluto project to atom")
+      }
     }
   }
 }

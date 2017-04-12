@@ -10,6 +10,7 @@ import play.api.mvc._
 import util.ThriftUtil._
 import play.api.libs.concurrent.Execution.Implicits._
 import com.gu.media.Permissions._
+import model.commands.Command
 
 import scala.concurrent.Future
 
@@ -62,4 +63,11 @@ trait AtomController extends Controller with UnpackedDataStores {
 
   val CanAddAsset: ActionBuilder[UserRequest] = new PermissionedAction(addAsset, allowHmac = true)
   val CanDeleteAtom: ActionBuilder[UserRequest] = new PermissionedAction(deleteAtom, allowHmac = false)
+
+  def execute(command: Command)(resp: command.T => Result): Result = {
+    val (result, event) = command.process()
+
+    auditDataStore.putAuditEvent(event)
+    resp(result)
+  }
 }

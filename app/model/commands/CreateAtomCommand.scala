@@ -6,11 +6,12 @@ import java.util.UUID._
 import com.gu.atom.data.IDConflictError
 import com.gu.contentatom.thrift.atom.media.{Category => ThriftCategory, MediaAtom => ThriftMediaAtom, Metadata => ThriftMetadata}
 import com.gu.contentatom.thrift.{Atom => ThriftAtom, _}
+import com.gu.media.AuditEvents
 import com.gu.media.logging.Logging
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
-import model.{ChangeRecord, Image, MediaAtom, PrivacyStatus}
+import model.{Audit, ChangeRecord, Image, MediaAtom, PrivacyStatus}
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
 
@@ -40,7 +41,7 @@ case class CreateAtomCommand(data: CreateAtomCommandData, override val stores: D
 
   type T = MediaAtom
 
-  def process() = {
+  def process(): (MediaAtom, Audit) = {
     val atomId = randomUUID().toString
     log.info(s"Request to create new atom $atomId [${data.title}]")
 
@@ -76,8 +77,6 @@ case class CreateAtomCommand(data: CreateAtomCommandData, override val stores: D
       )
     )
 
-    auditDataStore.auditCreate(atom.id, user)
-
     log.info(s"Creating new atom $atomId [${data.title}]")
 
     previewDataStore.createAtom(atom).fold({
@@ -92,12 +91,16 @@ case class CreateAtomCommand(data: CreateAtomCommandData, override val stores: D
       _ => {
         log.info(s"Successfully created new atom $atomId [${data.title}]")
 
-        val event = ContentAtomEvent(atom, EventType.Update, new Date().getTime)
+        val capiEvent = ContentAtomEvent(atom, EventType.Update, new Date().getTime)
 
-        previewPublisher.publishAtomEvent(event) match {
+        previewPublisher.publishAtomEvent(capiEvent) match {
           case Success(_)  =>
             log.info(s"New atom published to preview $atomId [${data.title}]")
-            MediaAtom.fromThrift(atom)
+
+            val mediaAtom = MediaAtom.fromThrift(atom)
+            val auditEvent = Audit(atom.id, AuditEvents.CREATE, MediaAtom.fromThrift(atom), user)
+
+            (mediaAtom, auditEvent)
 
           case Failure(err) =>
             log.error(s"Unable to published new atom to preview $atomId [${data.title}]", err)

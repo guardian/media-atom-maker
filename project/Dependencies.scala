@@ -15,7 +15,6 @@ object Dependencies {
   val jacksonDatabind = "com.fasterxml.jackson.core" % "jackson-databind" % "2.7.0"
   val playJsonExtensions = "org.cvogt" %% "play-json-extensions" % "0.8.0"
   val okHttp = "com.squareup.okhttp" % "okhttp" % "2.4.0"
-  val diff = "ai.x" %% "diff" % "1.2.0"
   val typesafeConfig = "com.typesafe" % "config" % "1.3.1"
 
   val scanamo = "com.gu" %% "scanamo" % scanamoVersion
@@ -76,7 +75,7 @@ object Dependencies {
   )
 
   val appDependencies = panda ++ atomMaker ++ slf4j ++ Seq(
-    PlayImport.cache, scalaLogging, jacksonDatabind, okHttp, contentAtomModel, diff,
+    PlayImport.cache, scalaLogging, jacksonDatabind, okHttp, contentAtomModel,
     awsSts, awsEc2, scalaTestPlusPlay, mockito, scalaXml, awsTranscoder,
     awsSQS, awsSNS, awsS3
   )

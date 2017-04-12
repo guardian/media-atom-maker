@@ -3,11 +3,12 @@ package model.commands
 import com.gu.contentatom.thrift.Atom
 import com.gu.contentatom.thrift.atom.media.Category.Hosted
 import com.gu.contentatom.thrift.atom.media.{Asset, Platform, MediaAtom => ThriftMediaAtom}
+import com.gu.media.AuditEvents
 import com.gu.media.logging.Logging
 import com.gu.media.youtube.YouTube
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
-import model.MediaAtom
+import model.{Audit, MediaAtom}
 import model.MediaAtom.fromThrift
 import model.commands.CommandExceptions._
 import util.ThriftUtil
@@ -21,7 +22,7 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
 
   type T = MediaAtom
 
-  def process(): MediaAtom = {
+  def process(): (MediaAtom, Audit) = {
     log.info(s"Request to add new asset $videoUri to $atomId")
 
     val atom = getPreviewAtom(atomId)
@@ -62,7 +63,10 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
 
     log.info(s"Adding new asset $videoUri to $atomId")
 
-    UpdateAtomCommand(atomId, fromThrift(updatedAtom), stores, user).process()
+    val (result, _) = UpdateAtomCommand(atomId, fromThrift(updatedAtom), stores, user).process()
+    val event = Audit(atomId, AuditEvents.ADD_ASSET, model.Asset.fromThrift(newAsset), user)
+
+    (result, event)
   }
 
   private def validateYoutubeOwnership (asset: Asset) = {

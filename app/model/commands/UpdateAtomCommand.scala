@@ -7,7 +7,7 @@ import com.gu.media.logging.Logging
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
-import model.{ChangeRecord, MediaAtom}
+import model.{Audit, ChangeRecord, MediaAtom}
 import util.atom.MediaAtomImplicits
 
 import scala.util.{Failure, Success}
@@ -19,7 +19,7 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
 
   type T = MediaAtom
 
-  def process(): T = {
+  def process(): (T, Audit) = {
     log.info(s"Request to update atom ${atom.id}")
 
     if (id != atom.id) {
@@ -27,10 +27,6 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
     }
 
     val existingAtom = getPreviewAtom(atom.id)
-
-    val diffString = auditDataStore.createDiffString(MediaAtom.fromThrift(existingAtom), atom)
-    log.info(s"Update atom changes ${atom.id}: $diffString")
-
     val changeRecord = ChangeRecord.now(user)
 
     val details = atom.contentChangeDetails.copy(
@@ -49,8 +45,6 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
 
         previewPublisher.publishAtomEvent(event) match {
           case Success(_) => {
-            auditDataStore.auditUpdate(id, user, diffString)
-
             log.info(s"Successfully updated atom ${atom.id}")
             MediaAtom.fromThrift(thrift)
           }

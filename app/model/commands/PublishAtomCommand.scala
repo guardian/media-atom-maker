@@ -60,7 +60,6 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
       )
     )
 
-    auditDataStore.auditPublish(id, user)
     UpdateAtomCommand(id, updatedAtom, stores, user).process()
 
     val publishedAtom = publishAtomToLive(updatedAtom)
