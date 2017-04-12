@@ -12,9 +12,8 @@
   }
 
   &:disabled {
-    background: $btnDisabled;
-    color: $btnTextDisabled;
     cursor: default;
+    opacity: 0.5;
   }
 
   &:focus {

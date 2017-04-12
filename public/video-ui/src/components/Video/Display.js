@@ -89,12 +89,17 @@ class VideoDisplay extends React.Component {
 
       if(filterUsageType.length === 0){
         return (
-          <button className="button__secondary" onClick={this.pageCreate}><Icon icon="add_to_queue"></Icon> Create Video Page</button>
+          <button
+            className="button__secondary"
+            disabled={this.cannotMakeEdits()}
+            onClick={this.pageCreate}>
+              <Icon icon="add_to_queue"></Icon> Create Video Page
+          </button>
         );
       }
   }
 
-  cannotOpenEditForm = () => {
+  cannotMakeEdits = () => {
     if (this.props.editState && (this.props.editState.metadataEditable || this.props.editState.youtubeEditable)) {
       return true;
     }
@@ -111,7 +116,7 @@ class VideoDisplay extends React.Component {
     } else if (property === 'youtubeEditable') {
       formName = formNames.youtube;
     }
-    const errors = this.props.formErrors[formName] ? this.props.formErrors[formName] : {};
+    const errors = this.props.checkedFormFields[formName] ? this.props.checkedFormFields[formName] : {};
     return Object.keys(errors).some(field => {
       const value = errors[field];
       return value.length !== 0;
@@ -129,8 +134,8 @@ class VideoDisplay extends React.Component {
       );
     } else {
       return (
-        <button disabled={this.cannotOpenEditForm()} onClick={() => this.manageEditingState(property)}>
-          <Icon className={"icon__edit " + (this.cannotOpenEditForm() ? "disabled" : "")} icon="edit" />
+        <button disabled={this.cannotMakeEdits()} onClick={() => this.manageEditingState(property)}>
+          <Icon className={"icon__edit " + (this.cannotMakeEdits() ? "disabled" : "")} icon="edit" />
         </button>
       );
     }
@@ -188,7 +193,6 @@ class VideoDisplay extends React.Component {
                   video={this.props.video || {}}
                   updateVideo={this.updateVideo}
                   editable={this.props.editState.youtubeEditable}
-                  updateFormErrors={this.updateYoutubeFormErrors}
                   formName={formNames.youtube}
                   updateErrors={this.props.formErrorActions.updateFormErrors}
                 />
@@ -206,6 +210,8 @@ class VideoDisplay extends React.Component {
                 <VideoPoster
                   video={this.props.video || {}}
                   updateVideo={this.saveAndUpdateVideo}
+                  formName={formNames.posterImage}
+                  updateErrors={this.props.formErrorActions.updateFormErrors}
                 />
               </div>
               <div className="video__detailbox">
@@ -250,7 +256,7 @@ function mapStateToProps(state) {
     composerPageWithUsage: state.pageCreate,
     publishedVideo: state.publishedVideo,
     editState: state.editState,
-    formErrors: state.formErrors
+    checkedFormFields: state.checkedFormFields
   };
 }
 

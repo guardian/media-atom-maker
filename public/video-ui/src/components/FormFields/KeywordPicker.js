@@ -57,7 +57,7 @@ class KeywordPicker extends React.Component {
     return (
       <div className="keywords__item" key={keyword}>
         <div className="keyword__item__text">{keyword}</div>
-        <button className="keyword__item__remove" onClick={this.removeKeyword.bind(this, keyword)}>X</button>
+        <button className="keyword__item__remove" disabled={!this.props.editable} onClick={this.removeKeyword.bind(this, keyword)}>X</button>
       </div>
     );
   }

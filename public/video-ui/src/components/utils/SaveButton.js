@@ -17,9 +17,8 @@ export default class SaveButton extends React.Component {
   };
 
   isDisabled = () => {
-
-    const errors = Object.keys(this.props.formErrors).reduce((errors, fieldName) => {
-      return errors.concat(this.props.formErrors[fieldName]);
+    const errors = Object.keys(this.props.checkedFormFields).reduce((errors, fieldName) => {
+      return errors.concat(this.props.checkedFormFields[fieldName]);
     }, []);
     return errors.length !== 0;
   };

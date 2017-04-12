@@ -38,7 +38,7 @@ class VideoCreate extends React.Component {
           />
           <SaveButton
             video={this.props.video}
-            formErrors={this.props.formErrors[formNames.create] ? this.props.formErrors[formNames.create] : {}}
+            checkedFormFields={this.props.checkedFormFields[formNames.create] ? this.props.checkedFormFields[formNames.create] : {}}
             saveState={this.props.saveState}
             onSaveClick={this.createVideo}
             onResetClick={this.resetVideo} />
@@ -59,7 +59,7 @@ function mapStateToProps(state) {
   return {
     video: state.video,
     saveState: state.saveState,
-    formErrors: state.formErrors
+    checkedFormFields: state.checkedFormFields,
   };
 }
 
