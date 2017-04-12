@@ -44,7 +44,7 @@ object AuditEvent {
       diffOpt(before.privacyStatus, after.privacyStatus).map("privacyStatus" -> _)
     ).flatten)
 
-    AuditEvent(after.id, "create", Some(description), Instant.now().toEpochMilli, getUsername(user))
+    AuditEvent(after.id, "update", Some(description), Instant.now().toEpochMilli, getUsername(user))
   }
 
   def delete(user: PandaUser, atomId: String): AuditEvent = {
