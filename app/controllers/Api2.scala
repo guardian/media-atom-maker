@@ -86,10 +86,14 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
   }
 
   def addAsset(atomId: String) = APIHMACAuthAction { implicit req =>
-    implicit val readCommand: Reads[AddAssetCommand] =
-      (JsPath \ "uri").read[String].map { videoUri =>
-        AddAssetCommand(atomId, videoUri, stores, youTube, req.user)
-      }
+    implicit val readCommand: Reads[AddAssetCommand] = new Reads[AddAssetCommand] {
+      override def reads(json: JsValue): JsResult[AddAssetCommand] = for {
+        uri <- (json \ "uri").validate[String]
+        source <- (json \ "source").validateOpt[String]
+
+        _ = println(Json.stringify(json))
+      } yield AddAssetCommand(atomId, uri, source.getOrElse("unknown"), stores, youTube, req.user)
+    }
 
     parse(req) { command: AddAssetCommand =>
       execute(command) { atom =>
@@ -103,6 +107,8 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
 
   def setActiveAsset(atomId: String) = APIHMACAuthAction { implicit req =>
     implicit val readCommand: Reads[ActiveAssetCommand] =
+
+
       (JsPath \ "youtubeId").read[String].map { videoUri =>
         ActiveAssetCommand(atomId, videoUri, stores, youTube, req.user)
       }

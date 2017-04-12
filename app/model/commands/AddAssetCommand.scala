@@ -13,8 +13,8 @@ import model.commands.CommandExceptions._
 import util.ThriftUtil
 import util.atom.MediaAtomImplicits
 
-case class AddAssetCommand(atomId: String, videoUri: String, override val stores: DataStores,
-                           youTube: YouTube, user: PandaUser)
+case class AddAssetCommand(atomId: String, videoUri: String, source: String,
+                           override val stores: DataStores, youTube: YouTube, user: PandaUser)
     extends Command
     with MediaAtomImplicits
     with Logging {
@@ -63,8 +63,7 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
     log.info(s"Adding new asset $videoUri to $atomId")
 
     val (result, _) = UpdateAtomCommand(atomId, fromThrift(updatedAtom), stores, user).process()
-    // TODO MRB: asset source
-    val event = AuditEvent.addAsset(user, atomId, model.Asset.fromThrift(newAsset), "unknown")
+    val event = AuditEvent.addAsset(user, atomId, model.Asset.fromThrift(newAsset), source)
 
     (result, event)
   }

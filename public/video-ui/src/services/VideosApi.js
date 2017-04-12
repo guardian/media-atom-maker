@@ -49,11 +49,13 @@ export default {
   },
 
   createAsset: (asset, videoId) => {
+    const toSubmit = Object.assign({}, asset, { source: "link" });
+
     return pandaReqwest({
       url: '/api2/atoms/' + videoId + '/assets',
       contentType: 'application/json',
       method: 'post',
-      data: JSON.stringify(asset)
+      data: JSON.stringify(toSubmit)
     });
   },
 

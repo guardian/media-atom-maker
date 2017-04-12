@@ -19,7 +19,7 @@ abstract class UploadActionHandler(store: UploadsDataStore, plutoStore: PlutoDat
   private val bucket = uploaderAccess.userUploadBucket
 
   // Returns the new version number
-  def addAsset(atomId: String, videoId: String): Long
+  def addAsset(atomId: String, videoId: String, source: String): Long
 
   def handle(action: UploadAction): Unit = action match {
     case UploadPartToYouTube(upload, part, uploadUri) =>
@@ -49,7 +49,7 @@ abstract class UploadActionHandler(store: UploadsDataStore, plutoStore: PlutoDat
       youTube.uploadPart(uploadUri, input, start, end, total) match {
         case Some(videoId) =>
           // last part. add asset
-          val version = addAsset(upload.metadata.pluto.atomId, videoId)
+          val version = addAsset(upload.metadata.pluto.atomId, videoId, "direct_upload")
           val plutoData = upload.metadata.pluto.copy(assetVersion = version)
 
           upload.copy(metadata = upload.metadata.copy(pluto = plutoData))

@@ -18,12 +18,12 @@ class LambdaActionHandler(store: UploadsDataStore, plutoStore: PlutoDataStore, a
   private val http = new OkHttpClient()
   private val appJson = MediaType.parse("application/json")
 
-  override def addAsset(atomId: String, videoId: String): Long = {
+  override def addAsset(atomId: String, videoId: String, source: String): Long = {
     val uri = s"https://$domain/api2/atoms/$atomId/assets"
     val hmacHeaders = aws.generateHmacHeaders(uri)
 
     val videoUri = s"https://www.youtube.com/watch?v=$videoId"
-    val body = s"""{"uri": "$videoUri"}"""
+    val body = s"""{"uri": "$videoUri", "source": "$source"}"""
 
     if(aws.stage == "DEV") {
       log.info(s"Add asset: POST $uri $body $hmacHeaders")
