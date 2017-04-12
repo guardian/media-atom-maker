@@ -83,20 +83,20 @@ class VideoUpload extends React.Component {
       return false;
     }
     else if (addAssetPermission && addSelfHostedAssetPermission) {
-      return <div> {this.renderStartUpload(false, 'Upload')} {this.renderStartUpload(true, 'Upload to Guardian')} </div>;
+      return <div> {this.renderStartUpload(false, 'Upload')} {this.renderStartUpload(true, 'Upload avoiding YouTube')} </div>;
     }
     else if (addAssetPermission) {
       return this.renderStartUpload(false, 'Upload');
     }
     else if (addSelfHostedAssetPermission) {
-      return this.renderStartUpload(true, 'Upload to Guardian');
+      return this.renderStartUpload(true, 'Upload avoiding YouTube');
     }
   }
 
   renderStartUpload(selfHost, msg) {
-    return <button type="button" className="btn button__secondary__assets" disabled={!this.state.file} onClick={() => this.startUpload(selfHost)}>
+    return <div><button type="button" className="btn button__secondary__assets" disabled={!this.state.file} onClick={() => this.startUpload(selfHost)}>
     <Icon icon="backup">{msg}</Icon>
-        </button>;
+        </button></div>;
   }
 
   renderUpload(uploading) {
