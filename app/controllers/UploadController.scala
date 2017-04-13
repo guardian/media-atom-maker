@@ -43,14 +43,14 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   def create = CanUploadAsset { implicit raw =>
     parse(raw) { req: CreateRequest =>
-      if (PermissionsUploadHelper.permissionAndIntentMatch(raw.permissions, req.selfHost)) {
+      if (PermissionsUploadHelper.canPerformUpload(raw.permissions, req.selfHost)) {
         log.info(s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}, selfHosted=${req.selfHost}")
         val atom = MediaAtom.fromThrift(getPreviewAtom(req.atomId))
         val upload = buildUpload(atom, raw.user, req.size, req.selfHost)
         table.put(upload)
         Ok(Json.toJson(upload))
       }
-      else Unauthorized(s"User is not authorised with permissions to upload asset, self-hosted value: ${req.selfHost}")
+      else Unauthorized(s"User ${raw.user.email} is not authorised with permissions to upload asset, self-hosted value: ${req.selfHost}")
     }
   }
 
@@ -69,12 +69,12 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
   def complete(id: String) = CanUploadAsset { implicit req =>
     partRequest(id, req) { (upload, part, optionalUri) =>
       val selfHost = upload.metadata.selfHost
-      if(!PermissionsUploadHelper.permissionAndIntentMatch(req.permissions, selfHost))
-        Unauthorized(s"User is not authorised with permissions to complete upload, self-hosted value: ${selfHost}")
+      if(!PermissionsUploadHelper.canPerformUpload(req.permissions, selfHost))
+        Unauthorized(s"User ${req.user.email} is not authorised with permissions to complete upload, self-hosted value: ${selfHost}")
       else if (selfHost)
         startUploadToSelfHost(upload, part, req.permissions)
       else
-        startUpload(upload, part, optionalUri, req.permissions)
+        startUploadToYouTube(upload, part, optionalUri, req.permissions)
     }
   }
 
@@ -89,7 +89,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   }
 
-  private def startUpload(upload: Upload, part: UploadPart, uploadUri: Option[String], permission: Permissions) = {
+  private def startUploadToYouTube(upload: Upload, part: UploadPart, uploadUri: Option[String], permission: Permissions) = {
     uploadUri.map { u =>
       partComplete(upload, part, u)
       Ok(Json.toJson(CompleteResponse(u)))

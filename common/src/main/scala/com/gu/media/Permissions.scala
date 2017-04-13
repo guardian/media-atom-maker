@@ -53,7 +53,7 @@ class MediaAtomMakerPermissionsProvider(stage: String, credsProvider: AWSCredent
 }
 
 object PermissionsUploadHelper {
-  def permissionAndIntentMatch(permission: Permissions, selfHosted: Boolean) : Boolean = {
+  def canPerformUpload(permission: Permissions, selfHosted: Boolean) : Boolean = {
     if(permission.addAsset && !selfHosted) true
     else if(permission.addSelfHostedAsset && selfHosted) true
     else false
