@@ -83,9 +83,13 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       completeAndDeleteParts(upload, part)
       val key = completeKey(upload)
       uploadActions.send(UploadPartsToSelfHost(upload, key, awsConfig.transcodePipelineId))
+      log.info(s"$key has been sent to transcoding to pipeline ${awsConfig.transcodePipelineId}")
       Ok(Json.toJson(CompleteResponse(s"$key has been sent for transcoding to S3")))
     }
-    else Ok(Json.toJson(CompleteResponse(s"${upload.id} has not finished uploading to S3 yet")))
+    else {
+      log.info(s"${upload.id} has not finished uploading to S3 yet")
+      Ok(Json.toJson(CompleteResponse(s"${upload.id} has not finished uploading to S3 yet")))
+    }
 
   }
 
