@@ -20,18 +20,16 @@ export default class TextArea extends React.Component {
     const hasWarning = this.props.notification && this.props.notification.type === 'warning';
 
     function getTextAreaClassName() {
-      let postFix;
 
       if (hasError) {
-        postFix = "form__field--error";
-      } else if (hasWarning) {
-        postFix = "form__field--warning";
-      }
-      else {
-        postFix = "";
+        return "form__field form__field--error";
       }
 
-      return "form__field " + postFix;
+      if (hasWarning) {
+        return "form__field form__field--warning";
+      }
+
+      return "form__field";
     }
 
     return (
