@@ -3,7 +3,6 @@ package data
 import java.time.Instant
 
 import com.gu.atom.data.PreviewDynamoDataStore
-import com.gu.contentatom.thrift.atom.media.{MediaAtom => ThriftMediaAtom}
 import com.gu.media.CapiPreviewAccess
 import model.Category.Hosted
 import model.commands.CommandExceptions.AtomDataStoreError
@@ -62,7 +61,7 @@ class CapiBackedAtomListStore(capi: CapiPreviewAccess) extends AtomListStore {
   }
 }
 
-class DynamoBackedAtomListStore(store: AtomListStore.PreviewStore) extends AtomListStore {
+class DynamoBackedAtomListStore(store: PreviewDynamoDataStore) extends AtomListStore {
   override def getAtoms(search: Option[String], limit: Option[Int]): MediaAtomList = {
     // We must filter the entire list of atoms rather than use Dynamo limit to ensure stable iteration order.
     // Without it, the front page will shuffle around when clicking the Load More button.
@@ -103,9 +102,8 @@ class DynamoBackedAtomListStore(store: AtomListStore.PreviewStore) extends AtomL
 }
 
 object AtomListStore {
-  type PreviewStore = PreviewDynamoDataStore[ThriftMediaAtom]
 
-  def apply(stage: String, capi: CapiPreviewAccess, store: PreviewStore): AtomListStore = stage match {
+  def apply(stage: String, capi: CapiPreviewAccess, store: PreviewDynamoDataStore): AtomListStore = stage match {
     case "DEV" => new DynamoBackedAtomListStore(store)
     case _ => new CapiBackedAtomListStore(capi)
   }
