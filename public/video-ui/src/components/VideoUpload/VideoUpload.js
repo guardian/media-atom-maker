@@ -77,18 +77,22 @@ class VideoUpload extends React.Component {
 
 
   renderButtons(uploading) {
-    const addAssetPermission = getStore().getState().config.permissions.addAsset
-    const addSelfHostedAssetPermission = getStore().getState().config.permissions.addSelfHostedAsset
     if (uploading) {
       return false;
     }
-    else if (addAssetPermission && addSelfHostedAssetPermission) {
-      return <div> {this.renderStartUpload(false, 'Upload')} {this.renderStartUpload(true, 'Upload avoiding YouTube')} </div>;
+    else {
+      return <div> {this.renderAddAssetUpload()} {this.renderAddSelfHostAssetUpload()} </div>;
     }
-    else if (addAssetPermission) {
+  }
+
+  renderAddAssetUpload() {
+    if (getStore().getState().config.permissions.addAsset) {
       return this.renderStartUpload(false, 'Upload');
     }
-    else if (addSelfHostedAssetPermission) {
+  }
+
+  renderAddSelfHostAssetUpload() {
+    if (getStore().getState().config.permissions.addSelfHostedAsset) {
       return this.renderStartUpload(true, 'Upload avoiding YouTube');
     }
   }
