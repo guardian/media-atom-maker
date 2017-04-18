@@ -1,6 +1,7 @@
 package controllers
 
 import com.gu.editorial.permissions.client.PermissionsProvider
+import com.gu.media.aws.KinesisAccess
 import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.service.GoogleAuthException
 import data.DataStores
@@ -16,13 +17,18 @@ class MainApp (override val stores: DataStores,
                wsClient: WSClient,
                conf: Configuration,
                val authActions: HMACAuthActions,
-               val permissions: PermissionsProvider)
+               val permissions: PermissionsProvider,
+               kinesis: KinesisAccess)
     extends AtomController {
 
   import authActions.{AuthAction, processGoogleCallback}
 
   def healthcheck = Action {
-    Ok(s"ok\ngitCommitID ${app.BuildInfo.gitCommitId}")
+    if(kinesis.testKinesisAccess(kinesis.previewKinesisStreamName) && kinesis.testKinesisAccess(kinesis.liveKinesisStreamName)) {
+      Ok(s"ok\ngitCommitID ${app.BuildInfo.gitCommitId}")
+    } else {
+      InternalServerError("fail. cannot access CAPI kinesis streams")
+    }
   }
 
   def oauthCallback = Action.async { implicit req =>
