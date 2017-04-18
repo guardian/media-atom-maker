@@ -16,8 +16,9 @@ export default class TextArea extends React.Component {
       );
     }
 
-    const hasError = this.props.touched && this.props.notification && this.props.notification.type === 'error';
-    const hasWarning = this.props.notification && this.props.notification.type === 'warning';
+    const hasError = this.props.hasError(this.props);
+
+    const hasWarning = this.props.hasWarning(this.props);
 
     function getTextAreaClassName() {
 

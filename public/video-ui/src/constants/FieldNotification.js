@@ -4,4 +4,8 @@ export default class FieldNotification {
     this.message = message;
     this.type = type;
   }
+
+  static warning = 'warning';
+
+  static error = 'error';
 }

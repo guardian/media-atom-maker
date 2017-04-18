@@ -2,6 +2,7 @@ import React, {PropTypes} from 'react';
 import _get from 'lodash/fp/get';
 import _set from 'lodash/fp/set';
 import validateField from '../../util/validateField';
+import FieldNotification from '../../constants/FieldNotification';
 
 export class ManagedField extends React.Component {
 
@@ -40,17 +41,16 @@ export class ManagedField extends React.Component {
 
       const notification = validateField(value, this.props.isRequired, this.props.isDesired, this.props.customValidation);
 
-      if (notification && notification.type === 'error') {
-        this.props.updateFormErrors(notification, this.props.name);
+      if (notification && notification.type === FieldNotification.error) {
+        this.props.updateFormErrors(notification, this.props.fieldLocation);
       } else {
-        this.props.updateFormErrors(null, this.props.name);
+        this.props.updateFormErrors(null, this.props.fieldLocation);
       }
 
       this.setState({
         fieldNotification: notification
       });
 
-      this.props.updateFormErrors(notification, this.props.fieldLocation);
     }
   }
 
@@ -81,6 +81,14 @@ export class ManagedField extends React.Component {
 
   }
 
+  hasError(props) {
+    return props.touched && props.notification && props.notification.type === FieldNotification.error;
+  }
+
+  hasWarning(props) {
+    return props.notification && props.notification.type === FieldNotification.warning;
+
+  }
 
   render () {
 
@@ -94,7 +102,9 @@ export class ManagedField extends React.Component {
         notification: this.state.fieldNotification,
         placeholder: this.props.placeholder,
         touched: this.state.touched,
-        fieldDetails: this.props.fieldDetails
+        fieldDetails: this.props.fieldDetails,
+        hasError: this.hasError,
+        hasWarning: this.hasWarning
       });
     });
     return <div>{hydratedChildren}</div>;

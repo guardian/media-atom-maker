@@ -26,7 +26,7 @@ export default class SelectBox extends React.Component {
       );
     }
 
-    const hasError = this.props.touched && this.props.notification && this.props.notification.type === 'error';
+    const hasError = this.props.hasError(this.props);
 
     return (
       <div className="form__row">

@@ -125,17 +125,9 @@ class VideoDisplay extends React.Component {
 
   };
 
-  updateFormErrors = (notification) => {
-    if (notification.type === 'error') {
-      this.props.formErrorActions.updateFormErrors(notification);
-    } else {
-      this.props.formErrorActions.updateFormErrors(null);
-    }
-  }
-
   validateDescription = (description) => {
     if (!description) {
-      return new FieldNotification('required', 'It is recommeded you fill in this field for seo', 'warning');
+      return new FieldNotification('required', 'It is recommeded you fill in this field for seo', FieldNotification.warning);
     }
     return null;
   }
@@ -197,7 +189,7 @@ class VideoDisplay extends React.Component {
                   updateVideo={this.updateVideo}
                   editable={this.props.editState.metadataEditable}
                   formName={formNames.metadata}
-                  updateErrors={this.props.updateFormErrors}
+                  updateErrors={this.props.formErrorActions.updateFormErrors}
                   descriptionValidator={this.validateDescription}
                  />
               </div>
@@ -211,7 +203,7 @@ class VideoDisplay extends React.Component {
                   updateVideo={this.updateVideo}
                   editable={this.props.editState.youtubeEditable}
                   formName={formNames.youtube}
-                  updateErrors={this.props.updateFormErrors}
+                  updateErrors={this.props.formErrorActions.updateFormErrors}
                 />
               </div>
               <div className="video__detailbox">
@@ -228,7 +220,7 @@ class VideoDisplay extends React.Component {
                   video={this.props.video || {}}
                   updateVideo={this.saveAndUpdateVideo}
                   formName={formNames.posterImage}
-                  updateErrors={this.props.updateFormErrors}
+                  updateErrors={this.props.formErrorActions.updateFormErrors}
                 />
               </div>
               <div className="video__detailbox">
