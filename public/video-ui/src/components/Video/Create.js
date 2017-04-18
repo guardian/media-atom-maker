@@ -16,10 +16,6 @@ class VideoCreate extends React.Component {
     this.props.videoActions.createVideo(this.props.video);
   };
 
-  resetVideo = () => {
-    this.props.videoActions.updateVideo(blankVideoData);
-  };
-
   updateVideo = (video) => {
     this.props.videoActions.updateVideo(video);
   };
@@ -40,8 +36,7 @@ class VideoCreate extends React.Component {
             video={this.props.video}
             checkedFormFields={this.props.checkedFormFields[formNames.create] ? this.props.checkedFormFields[formNames.create] : {}}
             saveState={this.props.saveState}
-            onSaveClick={this.createVideo}
-            onResetClick={this.resetVideo} />
+            onSaveClick={this.createVideo} />
         </form>
       </div>
     );
