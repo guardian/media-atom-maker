@@ -1,0 +1,118 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  AtomMakerProdTable:
+    Description: Prod dynamo table
+    Type: String
+    Default: media-atom-maker-PROD
+  PublishedAtomMakerProdTable:
+    Description: Published prod dynamo table
+    Type: String
+    Default: published-media-atom-maker-PROD
+  AuditAtomMakerProdTable:
+    Description: Prod audit dynamo table
+    Type: String
+    Default: audit-media-atom-maker-PROD
+  UploadTrackingAtomMakerProdTable:
+    Description: Prod upload dynamo table
+    Type: String
+    Default: upload-tracking-media-atom-maker-PROD
+  ManualPlutoAtomMakerProdTable:
+    Description: Prod manual pluto dynamo table
+    Type: String
+    Default: manual-pluto-media-atom-maker-PROD
+Resources:
+  MediaAtomMakerProd:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref 'AtomMakerProdTable'
+      AttributeDefinitions:
+      - AttributeName: id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: id
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: '5'
+        WriteCapacityUnits: '5'
+  PublishedMediaAtomMakerProd:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref 'PublishedAtomMakerProdTable'
+      AttributeDefinitions:
+      - AttributeName: id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: id
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: '5'
+        WriteCapacityUnits: '5'
+  AuditMediaAtomMakerProd:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref 'AuditAtomMakerProdTable'
+      AttributeDefinitions:
+      - AttributeName: atomId
+        AttributeType: S
+      - AttributeName: operation
+        AttributeType: S
+      - AttributeName: date
+        AttributeType: N
+      KeySchema:
+      - AttributeName: atomId
+        KeyType: HASH
+      - AttributeName: date
+        KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: '5'
+        WriteCapacityUnits: '5'
+      GlobalSecondaryIndexes:
+      - IndexName: operation-date-index
+        KeySchema:
+        - AttributeName: operation
+          KeyType: HASH
+        - AttributeName: date
+          KeyType: RANGE
+        Projection:
+          ProjectionType: ALL
+        ProvisionedThroughput:
+          ReadCapacityUnits: '5'
+          WriteCapacityUnits: '5'
+  UploadTrackingMediaAtomMakerProd:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref 'UploadTrackingAtomMakerProdTable'
+      AttributeDefinitions:
+      - AttributeName: id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: id
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: '5'
+        WriteCapacityUnits: '5'
+  ManualPlutoMediaAtomMakerProd:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref 'ManualPlutoAtomMakerProdTable'
+      AttributeDefinitions:
+      - AttributeName: s3Key
+        AttributeType: S
+      - AttributeName: atomId
+        AttributeType: S
+      KeySchema:
+      - AttributeName: s3Key
+        KeyType: HASH
+      GlobalSecondaryIndexes:
+      - IndexName: atom-id
+        KeySchema:
+        - AttributeName: atomId
+          KeyType: HASH
+        Projection:
+          ProjectionType: ALL
+        ProvisionedThroughput:
+          ReadCapacityUnits: '1'
+          WriteCapacityUnits: '1'
+      ProvisionedThroughput:
+        ReadCapacityUnits: '5'
+        WriteCapacityUnits: '5'

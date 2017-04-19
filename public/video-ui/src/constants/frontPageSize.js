@@ -1,1 +1,1 @@
-export const frontPageSize = 30;
+export const frontPageSize = 50;
