@@ -8,7 +8,6 @@ import videos from './videosReducer';
 import saveState from './saveStateReducer';
 import searchTerm from './searchTermReducer';
 import youtube from './youtubeReducer';
-import { reducer as form } from 'redux-form';
 import usage from './usageReducer';
 import pageCreate from './composerPageReducer';
 import s3Upload from './s3UploadReducer';
@@ -26,7 +25,6 @@ export default combineReducers({
   saveState,
   searchTerm,
   youtube,
-  form,
   usage,
   pageCreate,
   publishedVideo,
