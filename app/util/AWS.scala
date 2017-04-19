@@ -1,7 +1,5 @@
 package util
 
-import com.amazonaws.auth.InstanceProfileCredentialsProvider
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.services.ec2.AmazonEC2Client
 import com.amazonaws.services.ec2.model.{DescribeTagsRequest, Filter}
 import com.amazonaws.util.EC2MetadataUtils
@@ -12,10 +10,9 @@ import com.typesafe.config.Config
 
 import scala.collection.JavaConverters._
 
-class AWSConfig(override val config: Config)
+class AWSConfig(override val config: Config, override val credentials: AwsCredentials)
   extends Settings
     with AwsAccess
-    with CrossAccountAccess
     with S3Access
     with DynamoAccess
     with UploadAccess
@@ -27,7 +24,7 @@ class AWSConfig(override val config: Config)
 
   lazy val ec2Client = region.createClient(
     classOf[AmazonEC2Client],
-    credsProvider,
+    credentials.instance,
     null
   )
 
@@ -40,8 +37,6 @@ class AWSConfig(override val config: Config)
   lazy val expiryPollerLastName = "Poller"
 
   final override def regionName = getString("aws.region")
-  final override def instanceCredentials = InstanceProfileCredentialsProvider.getInstance()
-  final override def localDevCredentials = getString("aws.profile").map(new ProfileCredentialsProvider(_))
 
   final override def readTag(tagName: String) = {
     val tagsResult = ec2Client.describeTags(

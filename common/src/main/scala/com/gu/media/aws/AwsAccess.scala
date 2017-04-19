@@ -1,6 +1,6 @@
 package com.gu.media.aws
 
-import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain}
+import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.regions.{Region, Regions}
 import com.gu.media.Settings
 
@@ -8,10 +8,9 @@ trait AwsAccess { this: Settings =>
   def regionName: Option[String]
   def readTag(tag: String): Option[String]
 
-  def instanceCredentials: AWSCredentialsProvider
-  def localDevCredentials: Option[AWSCredentialsProvider]
-
-  val credsProvider = new AWSCredentialsProviderChain(List(Some(instanceCredentials), localDevCredentials).flatten: _*)
+  val credentials: AwsCredentials
+  // To avoid renaming references everywhere
+  val credsProvider: AWSCredentialsProvider = credentials.instance
 
   final def defaultRegion: Region = Region.getRegion(Regions.EU_WEST_1)
   final def region: Region = regionName
