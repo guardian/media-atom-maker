@@ -60,16 +60,16 @@ class YouTubeClaims(override val config: Config) extends YouTubeAccess with Logg
       .execute()
   }
 
-  private def getPolicy(addsTurnedOff: Boolean): Policy = {
+  private def getPolicy(blockAds: Boolean): Policy = {
     val policy = new Policy()
-    if (addsTurnedOff)
+    if (blockAds)
       policy.setId(trackingPolicyId)
     else
       policy.setId(monetizationPolicyId)
   }
 
-  private def createVideoClaim(atomId: String, userName: String, addsTurnedOff: Boolean, videoId: String): Unit = {
-    val policy = getPolicy(addsTurnedOff)
+  private def createVideoClaim(atomId: String, userName: String, blockAds: Boolean, videoId: String): Unit = {
+    val policy = getPolicy(blockAds)
     val assetTitle = s"$atomId-$userName-${DateTime.now()}"
     val assetId = createAsset(assetTitle, videoId)
     setOwnership(assetId)
@@ -77,9 +77,9 @@ class YouTubeClaims(override val config: Config) extends YouTubeAccess with Logg
 
   }
 
-  private def updateClaim(claimId: String, assetId: String, videoId: String, addsTurnedOff: Boolean): Unit = {
+  private def updateClaim(claimId: String, assetId: String, videoId: String, blockAds: Boolean): Unit = {
 
-    val policy = getPolicy(addsTurnedOff)
+    val policy = getPolicy(blockAds)
 
     val claim = new Claim()
       .setAssetId((assetId))
@@ -93,7 +93,7 @@ class YouTubeClaims(override val config: Config) extends YouTubeAccess with Logg
       .execute()
   }
 
-  def createOrUpdateClaim(atomId: String, videoId: String, userName: String, addsTurnedOff: Boolean): Unit = {
+  def createOrUpdateClaim(atomId: String, videoId: String, userName: String, blockAds: Boolean): Unit = {
 
     try {
       val videoClaims = partnerClient
@@ -103,7 +103,7 @@ class YouTubeClaims(override val config: Config) extends YouTubeAccess with Logg
         .execute()
 
       if (videoClaims.getPageInfo.getTotalResults() == 0) {
-        createVideoClaim(atomId, userName, addsTurnedOff, videoId)
+        createVideoClaim(atomId, userName, blockAds, videoId)
       } else {
 
         val claimsList = videoClaims.getItems().asScala
@@ -113,9 +113,9 @@ class YouTubeClaims(override val config: Config) extends YouTubeAccess with Logg
             val claim = partnerClient.claims().get(claimSnippet.getId()).execute()
             val assetId = claim.getAssetId()
             val policy = claim.getPolicy().getId
-            updateClaim(claim.getId(), assetId, videoId, addsTurnedOff)
+            updateClaim(claim.getId(), assetId, videoId, blockAds)
           }
-          case None => createVideoClaim(atomId, userName, addsTurnedOff, videoId)
+          case None => createVideoClaim(atomId, userName, blockAds, videoId)
         }
       }
     }

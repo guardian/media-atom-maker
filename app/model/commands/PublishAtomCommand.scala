@@ -30,7 +30,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
     val thriftAtom = getPreviewAtom(id)
     val atom = MediaAtom.fromThrift(thriftAtom)
 
-    if (atom.privacyStatus.contains(PrivacyStatus.Private)) {
+    if(atom.privacyStatus.contains(PrivacyStatus.Private)) {
       log.error(s"Unable to publish atom ${atom.id}, privacy status is set to private")
       AtomPublishFailed("Atom status set to private")
     }
@@ -39,7 +39,8 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
       case Some(asset) if asset.platform == Youtube =>
         val atomWithDuration = atom.copy(duration = youTube.getDuration(asset.id))
         updateThumbnail(atomWithDuration, asset)
-        youtubeClaims.createOrUpdateClaim(atomWithDuration.id, asset.id, user.username, atomWithDuration.addsTurnedOff )
+        youtubeClaims.createOrUpdateClaim(atomWithDuration.id, asset.id, user.username,
+          atomWithDuration.blockAds.getOrElse(false) )
         updateYouTube(atomWithDuration, asset)
         publish(atomWithDuration, user)
 

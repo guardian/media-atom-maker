@@ -6,7 +6,7 @@ object Dependencies {
   val awsVersion = "1.11.48"
   val pandaVersion = "0.4.0"
   val mockitoVersion = "2.0.97-beta"
-  val atomMakerVersion = "0.2.3"
+  val atomMakerVersion = "0.2.4"
   val slf4jVersion = "1.7.21"
   val typesafeConfigVersion = "1.3.0" // to match what we get from Play transitively
   val scanamoVersion = "0.9.1" // to match what we get from atom-publisher-lib transitively
@@ -19,7 +19,7 @@ object Dependencies {
   val typesafeConfig = "com.typesafe" % "config" % "1.3.1"
 
   val scanamo = "com.gu" %% "scanamo" % scanamoVersion
-  val contentAtomModel = "com.gu" %% "content-atom-model" %  "2.4.17"
+  val contentAtomModel = "com.gu" %% "content-atom-model" %  "2.4.36"
 
   val scalaTest = "org.scalatest" %% "scalatest" % "2.2.6" % "test"
   val scalaTestPlusPlay = "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % "test"

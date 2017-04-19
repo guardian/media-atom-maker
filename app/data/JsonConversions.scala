@@ -40,8 +40,7 @@ object JsonConversions {
     (__ \ "commentsEnabled").writeNullable[Boolean] and
     (__ \ "channelId").writeNullable[String] and
     (__ \ "privacyStatus").writeNullable[PrivacyStatus] and
-    (__ \ "expiryDate").writeNullable[Long] and
-    (__ \ "addsTurnedOff").writeNullable[Boolean]
+    (__ \ "expiryDate").writeNullable[Long]
 
   ) { metadata: Metadata =>
       (
@@ -51,8 +50,7 @@ object JsonConversions {
         metadata.commentsEnabled,
         metadata.channelId,
         metadata.privacyStatus,
-        metadata.expiryDate,
-        metadata.addsTurnedOff
+        metadata.expiryDate
         )
   }
 
@@ -63,9 +61,7 @@ object JsonConversions {
     (__ \ "commentsEnabled").readNullable[Boolean] and
     (__ \ "channelId").readNullable[String] and
     (__ \ "privacyStatus").readNullable[PrivacyStatus] and
-    (__ \ "expiryDate").readNullable[Long] and
-    (__ \ "addsTurnedOff").readNullable[Boolean]
-
+    (__ \ "expiryDate").readNullable[Long]
   )(Metadata.apply _)
 
   implicit val atomDataMedia = (
@@ -122,7 +118,10 @@ object JsonConversions {
       )
   }
 
-  implicit val flagsWrites = {flags: Flags => (__ \ "legallySensitive").writeNullable[Boolean]}
+  implicit val flagsWrites = {flags: Flags =>
+    (__ \ "legallySensitive").writeNullable[Boolean] and
+      (__ \ "blockAds").writeNullable[Boolean]
+  }
 
   implicit val atomWrites: Writes[Atom] = (
     (__ \ "id").write[String] and
