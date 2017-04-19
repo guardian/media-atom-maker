@@ -4,6 +4,7 @@ import java.time.Instant
 
 import com.gu.atom.data.PreviewDynamoDataStore
 import com.gu.media.CapiPreviewAccess
+import com.gu.media.util.TestFilters
 import model.Category.Hosted
 import model.commands.CommandExceptions.AtomDataStoreError
 import model.{Image, MediaAtom, MediaAtomList, MediaAtomSummary}
@@ -44,7 +45,7 @@ class CapiBackedAtomListStore(capi: CapiPreviewAccess) extends AtomListStore {
     if(category != "hosted") {
       val title = (atom \ "title").as[String]
 
-      if (title.startsWith("int-test-atom")) None
+      if (title.startsWith(TestFilters.testAtomBaseName)) None /* This filters out test atoms created by the Integration Tests, as we don't want them to be user facing */
       else {
         val posterImage = (atom \ "posterImage").asOpt[Image]
 
