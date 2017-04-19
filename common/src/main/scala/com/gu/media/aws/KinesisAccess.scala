@@ -17,17 +17,9 @@ trait KinesisAccess { this: Settings with AwsAccess =>
   val publishedKinesisReindexStreamName: String = getMandatoryString("aws.kinesis.publishedReindexStreamName")
 
   val uploadsStreamName: String = getMandatoryString("aws.kinesis.uploadsStreamName")
-
-  val readFromComposerAccount: Boolean = getBoolean("readFromComposer").getOrElse(false)
-
   val uploadActionsStreamName: String = getMandatoryString("aws.kinesis.uploadActionsStreamName")
 
-  lazy val crossAccountKinesisClient = if (stage != "DEV" || readFromComposerAccount) {
-    region.createClient(classOf[AmazonKinesisClient], credentials.crossAccount, null)
-  } else {
-    region.createClient(classOf[AmazonKinesisClient], credentials.instance, null)
-  }
-
+  lazy val crossAccountKinesisClient = region.createClient(classOf[AmazonKinesisClient], credentials.crossAccount, null)
   lazy val kinesisClient = region.createClient(classOf[AmazonKinesisClient], credentials.instance, null)
 
   def sendOnKinesis[T: Writes](streamName: String, partitionKey: String, value: T): Unit = {
