@@ -10,7 +10,7 @@ trait AwsAccess { this: Settings =>
 
   val credentials: AwsCredentials
   // To avoid renaming references everywhere
-  val credsProvider: AWSCredentialsProvider = credentials.instance
+  def credsProvider: AWSCredentialsProvider = credentials.instance
 
   final def defaultRegion: Region = Region.getRegion(Regions.EU_WEST_1)
   final def region: Region = regionName
