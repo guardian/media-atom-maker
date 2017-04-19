@@ -132,6 +132,12 @@ class VideoDisplay extends React.Component {
     return null;
   }
 
+  handleAssetClick = (e) => {
+    if (this.cannotMakeEdits()) {
+      e.preventDefault();
+    }
+  }
+
   renderEditButton = (property) => {
 
     if (this.props && this.props.editState[property]) {
@@ -153,7 +159,8 @@ class VideoDisplay extends React.Component {
     return <div className="video__detailbox">
       <div className="video__detailbox__header__container">
         <header className="video__detailbox__header">Video Preview</header>
-        <Link className="button" to={`/videos/${this.props.video.id}/upload`}>
+        <Link className={"button " + (this.cannotMakeEdits() ? "disabled" : "")} to={`/videos/${this.props.video.id}/upload`}
+            onClick={e => this.handleAssetClick(e)}>
           <Icon className="icon__edit video__temporary_button" icon="edit">
             Edit Assets
           </Icon>

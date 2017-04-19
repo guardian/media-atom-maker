@@ -66,4 +66,8 @@ button {
 
 a.button {
   text-decoration: none;
+
+  &.disabled {
+    @include disabled;
+  }
 }

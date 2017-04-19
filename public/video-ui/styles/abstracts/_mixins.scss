@@ -20,3 +20,9 @@
     outline: 1px solid $cWhite;
   }
 }
+
+@mixin disabled {
+  opacity: 0.4;
+  cursor: default;
+  background-color: darken($color600Grey, 10%);
+}
