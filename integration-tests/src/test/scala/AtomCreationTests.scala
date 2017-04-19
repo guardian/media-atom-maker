@@ -20,7 +20,7 @@ class AtomCreationTests extends IntegrationTestBase with CancelAfterFailure {
 
   test("Create a new atom") {
     val json = generateJson(
-      title = s"test-atom-${UUID.randomUUID().toString}",
+      title = s"int-test-atom-${UUID.randomUUID().toString}",
       description = "test atom",
       category = "News",
       channelId = Config.channelId,
