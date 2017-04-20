@@ -1,5 +1,6 @@
 import {pandaReqwest} from './pandaReqwest';
 import {getStore} from '../util/storeAccessor';
+import {composerSyncFields} from '../constants/composerSyncFields';
 
 
 export default {
@@ -100,9 +101,8 @@ export default {
   createComposerPage(id, metadata, composerUrlBase) {
 
     const initialComposerUrl = composerUrlBase + '/api/content?atomPoweredVideo=true&originatingSystem=composer&type=video';
-    const propertiesToSend= ['title', 'standfirst'];
 
-    const properties = propertiesToSend.reduce((queryStrings, property) => {
+    const properties = composerSyncFields.reduce((queryStrings, property) => {
       if (metadata[property]) {
         queryStrings.push('&initial' + property.charAt(0).toUpperCase() + property.slice(1) + '=' + metadata[property]);
       }
