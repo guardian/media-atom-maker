@@ -15,6 +15,7 @@ class AdvancedActions extends React.Component {
 
         const disabled = this.props.usage.length > 0;
         const deleteMsg = this.state.deleteDoubleCheck ? "Confirm delete from database" : "Delete from database";
+        const helpMsg = disabled ? "All usages of the atom must be removed before deletion" : "The video will remain on YouTube as private"; 
 
         const doDelete = () => {
             if(this.state.deleteDoubleCheck) {
@@ -29,7 +30,7 @@ class AdvancedActions extends React.Component {
                 {deleteMsg}
             </button>
             <span className="right">
-                The video will remain on YouTube as private
+                {helpMsg}
             </span>
         </li>;
     }
