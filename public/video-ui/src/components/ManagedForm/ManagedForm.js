@@ -14,10 +14,10 @@ export class ManagedForm extends React.Component {
     updateErrors: PropTypes.func
   };
 
-  updateFormErrors = (fieldErrors, fieldName) => {
+  updateFormErrors = (fieldError, fieldName) => {
     if (this.props.updateErrors) {
       this.props.updateErrors({
-        [this.props.formName]: { [fieldName]: fieldErrors }
+        [this.props.formName]: { [fieldName]: fieldError }
       });
     }
   }

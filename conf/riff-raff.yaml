@@ -1,33 +1,12 @@
 stacks: [media-service]
 regions: [eu-west-1]
+templates:
+  lambda:
+    type: aws-lambda
+    parameters:
+      bucket: atom-maker-dist
+      prefixStack: false
 deployments:
-  media-atom-maker:
-    type: autoscaling
-    parameters:
-      bucket: atom-maker-dist
-    dependencies:
-      - media-atom-maker-ami-update
-  media-atom-upload-actions:
-    type: aws-lambda
-    parameters:
-      bucket: atom-maker-dist
-      functionNames: [media-atom-maker-upload-actions-]
-      fileName: media-atom-uploader.zip
-      prefixStack: false
-  media-atom-transcoder:
-    type: aws-lambda
-    parameters:
-      bucket: atom-maker-dist
-      functionNames: [media-atom-maker-transcoder-]
-      fileName: media-atom-transcoder.zip
-      prefixStack: false
-  media-atom-expirer:
-    type: aws-lambda
-    parameters:
-      bucket: atom-maker-dist
-      functionNames: [media-atom-maker-expirer-]
-      fileName: media-atom-expirer.zip
-      prefixStack: false
   media-atom-maker-ami-update:
       type: ami-cloudformation-parameter
       app: media-atom-maker
@@ -35,3 +14,24 @@ deployments:
         amiTags:
           Recipe: editorial-tools-basic
           AmigoStage: PROD
+  media-atom-maker:
+    type: autoscaling
+    parameters:
+      bucket: atom-maker-dist
+    dependencies:
+      - media-atom-maker-ami-update
+  media-atom-upload-actions:
+    template: lambda
+    parameters:
+      functionNames: [media-atom-maker-upload-actions-]
+      fileName: media-atom-uploader.zip
+  media-atom-transcoder:
+    template: lambda
+    parameters:
+      functionNames: [media-atom-maker-transcoder-]
+      fileName: media-atom-transcoder.zip
+  media-atom-expirer:
+    template: lambda
+    parameters:
+      functionNames: [media-atom-maker-expirer-]
+      fileName: media-atom-expirer.zip

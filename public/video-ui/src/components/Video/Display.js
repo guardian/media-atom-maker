@@ -13,6 +13,7 @@ import {getStore} from '../../util/storeAccessor';
 import Icon from '../Icon';
 import {formNames} from '../../constants/formNames';
 import {blankVideoData} from '../../constants/blankVideoData';
+import FieldNotification from '../../constants/FieldNotification';
 
 class VideoDisplay extends React.Component {
 
@@ -119,10 +120,17 @@ class VideoDisplay extends React.Component {
     const errors = this.props.checkedFormFields[formName] ? this.props.checkedFormFields[formName] : {};
     return Object.keys(errors).some(field => {
       const value = errors[field];
-      return value.length !== 0;
+      return value !== null;
     });
 
   };
+
+  validateDescription = (description) => {
+    if (!description) {
+      return new FieldNotification('required', 'It is recommeded you fill in this field for seo', FieldNotification.warning);
+    }
+    return null;
+  }
 
   renderEditButton = (property) => {
 
@@ -182,6 +190,7 @@ class VideoDisplay extends React.Component {
                   editable={this.props.editState.metadataEditable}
                   formName={formNames.metadata}
                   updateErrors={this.props.formErrorActions.updateFormErrors}
+                  descriptionValidator={this.validateDescription}
                  />
               </div>
               <div className="video__detailbox">

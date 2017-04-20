@@ -1,6 +1,7 @@
 import java.time.Instant
 import java.util.UUID
 
+import com.gu.media.util.TestFilters
 import integration.IntegrationTestBase
 import integration.services.Config
 import org.scalatest.CancelAfterFailure
@@ -20,7 +21,7 @@ class AtomCreationTests extends IntegrationTestBase with CancelAfterFailure {
 
   test("Create a new atom") {
     val json = generateJson(
-      title = s"test-atom-${UUID.randomUUID().toString}",
+      title = s"${TestFilters.testAtomBaseName}-${UUID.randomUUID().toString}",
       description = "test atom",
       category = "News",
       channelId = Config.channelId,

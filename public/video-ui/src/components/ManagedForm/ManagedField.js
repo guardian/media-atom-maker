@@ -2,6 +2,7 @@ import React, {PropTypes} from 'react';
 import _get from 'lodash/fp/get';
 import _set from 'lodash/fp/set';
 import validateField from '../../util/validateField';
+import FieldNotification from '../../constants/FieldNotification';
 
 export class ManagedField extends React.Component {
 
@@ -14,6 +15,7 @@ export class ManagedField extends React.Component {
     updateData: PropTypes.func,
     updateFormErrors: PropTypes.func,
     updateFormWarnings: PropTypes.func,
+    customValidation: PropTypes.func,
     data: PropTypes.object,
     fieldName: PropTypes.string,
     isRequired: PropTypes.bool,
@@ -24,8 +26,7 @@ export class ManagedField extends React.Component {
   };
 
   state = {
-    fieldErrors : [],
-    fieldWarnings : [],
+    fieldNotification: null,
     touched : false
   };
 
@@ -37,20 +38,23 @@ export class ManagedField extends React.Component {
   checkErrorsAndWarnings(value) {
 
     if (this.props.updateFormErrors) {
-      const notifications = validateField(value, this.props.isRequired, this.props.isDesired);
+
+      const notification = validateField(value, this.props.isRequired, this.props.isDesired, this.props.customValidation);
+
+      if (notification && notification.type === FieldNotification.error) {
+        this.props.updateFormErrors(notification, this.props.fieldLocation);
+      } else {
+        this.props.updateFormErrors(null, this.props.fieldLocation);
+      }
 
       this.setState({
-        fieldErrors: notifications.errors,
-        fieldWarnings: notifications.warnings
+        fieldNotification: notification
       });
 
-      this.props.updateFormErrors(notifications.errors, this.props.fieldLocation);
     }
-
   }
 
   updateFn = (newValue) => {
-
     this.setState({
       touched: true
     });
@@ -77,6 +81,14 @@ export class ManagedField extends React.Component {
 
   }
 
+  hasError(props) {
+    return props.touched && props.notification && props.notification.type === FieldNotification.error;
+  }
+
+  hasWarning(props) {
+    return props.notification && props.notification.type === FieldNotification.warning;
+
+  }
 
   render () {
 
@@ -84,14 +96,15 @@ export class ManagedField extends React.Component {
       return React.cloneElement(child, {
         fieldName: this.props.name,
         fieldValue: this.getFieldValue(_get(this.props.fieldLocation, this.props.data)),
-        fieldErrors: this.state.fieldErrors,
         onUpdateField: this.updateFn,
         editable: this.props.editable,
         maxLength: this.props.maxLength,
-        errors: this.state.fieldErrors,
+        notification: this.state.fieldNotification,
         placeholder: this.props.placeholder,
         touched: this.state.touched,
-        fieldDetails: this.props.fieldDetails
+        fieldDetails: this.props.fieldDetails,
+        hasError: this.hasError,
+        hasWarning: this.hasWarning
       });
     });
     return <div>{hydratedChildren}</div>;
