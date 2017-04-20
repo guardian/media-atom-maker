@@ -3,8 +3,7 @@ This is app a Play app for editing media atoms, and a
 publisher that pushes media atoms into a Kinesis stream.
 
 ## Credentials
-0. You will need `media-service` credentials to run the app and `composer`
-   credentials if you want to be able to publish media atoms.
+0. You will need `media-service` credentials to run the app.
 0. You will need read access to S3 files in the `workflow` profile for panda
    auth to work.
 
@@ -43,13 +42,10 @@ publisher that pushes media atoms into a Kinesis stream.
 0. Test everything is working
    [here](https://media-atom-maker.local.dev-gutools.co.uk/atoms)
 
-## Publishing to CODE kinesis stream
-0. If you want to publish to the CODE kinesis streams, you will need
-   credentials for `composer` profile.
-0. If you are still unable to publish atoms, make sure that the
-   `readFromComposer` property is set to true in `/etc/gu/media-atom-maker.private.conf` the kinesis
-   stream names are the code stream names. You can find these streams in the S3 `atom-maker-conf` bucket
-   `composer` aws account.
+## Publishing to CAPI CODE from dev
+0. You will need `composer` credentials.
+0. Modify the kinesis stream names in `/etc/gu/media-atom-maker.private.conf` to point to CAPI CODE.
+0. Modify `AwsCredentials.scala` to set the `crossAccount` field to `composer` profile credentials.
 
 ## Testing
 
