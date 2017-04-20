@@ -39,8 +39,8 @@ export default class VideoMetaData extends React.Component {
           </ManagedField>
           <ManagedField
             fieldLocation="blockAds"
-            name="Turn advertising off"
-            fieldDetails="Adds will not be displayed with this video"
+            name="Block ads"
+            fieldDetails="Ads will not be displayed with this video"
           >
             <CheckBox/>
           </ManagedField>
