@@ -6,22 +6,31 @@ class AdvancedActions extends React.Component {
     permissions = getStore().getState().config.permissions;
     showActions = this.permissions.deleteAtom;
 
+    state = { deleteDoubleCheck: false }
+
     renderDelete() {
         if(!this.permissions.deleteAtom) {
             return false;
         }
 
-        const doDelete = () => {
-            const result = prompt("Enter the atom ID to confirm deletion (it can be copied from the URL)");
+        const disabled = this.props.usage.length > 0;
+        const deleteMsg = this.state.deleteDoubleCheck ? "Confirm delete from database" : "Delete from database";
 
-            if(result === this.props.video.id) {
+        const doDelete = () => {
+            if(this.state.deleteDoubleCheck) {
                 this.props.videoActions.deleteVideo(this.props.video);
+            } else {
+                this.setState({ deleteDoubleCheck: true });
             }
         };
 
         return <li className="action-list__item">
-            <button className="btn label__expired action-list__button" onClick={doDelete}>DELETE</button>
-            <span className="right">Usages will not be replaced and the video will remain on YouTube</span>
+            <button className="btn label__expired action-list__button" onClick={doDelete} disabled={disabled}>
+                {deleteMsg}
+            </button>
+            <span className="right">
+                The video will remain on YouTube as private
+            </span>
         </li>;
     }
 
@@ -48,7 +57,8 @@ import * as deleteVideo from '../../actions/VideoActions/deleteVideo';
 
 function mapStateToProps(state) {
   return {
-    video: state.video
+    video: state.video,
+    usage: state.usage
   };
 }
 
