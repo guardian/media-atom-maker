@@ -23,7 +23,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
 
   type T = MediaAtom
 
-  def process(): T = {
+  def process(): (T, AuditEvent) = {
     log.info(s"Request to publish atom $id")
 
     val thriftAtom = getPreviewAtom(id)
@@ -47,7 +47,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
     }
   }
 
-  private def publish(atom: MediaAtom, user: PandaUser): MediaAtom = {
+  private def publish(atom: MediaAtom, user: PandaUser): (MediaAtom, AuditEvent) = {
     log.info(s"Publishing atom $id")
 
     val changeRecord = Some(ChangeRecord.now(user))
@@ -60,13 +60,13 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
       )
     )
 
-    auditDataStore.auditPublish(id, user)
     UpdateAtomCommand(id, updatedAtom, stores, user).process()
 
     val publishedAtom = publishAtomToLive(updatedAtom)
     setAssetsToPrivate(publishedAtom)
 
-    publishedAtom
+    val audit = AuditEvent.publish(user, atom.id)
+    (publishedAtom, audit)
   }
 
   private def publishAtomToLive(mediaAtom: MediaAtom): MediaAtom = {

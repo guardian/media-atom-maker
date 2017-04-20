@@ -10,7 +10,7 @@ import com.gu.media.logging.Logging
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
-import model.{ChangeRecord, Image, MediaAtom, PrivacyStatus}
+import model.{ChangeRecord, Image, AuditEvent, MediaAtom, PrivacyStatus}
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
 
@@ -40,7 +40,7 @@ case class CreateAtomCommand(data: CreateAtomCommandData, override val stores: D
 
   type T = MediaAtom
 
-  def process() = {
+  def process(): (MediaAtom, AuditEvent) = {
     val atomId = randomUUID().toString
     log.info(s"Request to create new atom $atomId [${data.title}]")
 
@@ -76,8 +76,6 @@ case class CreateAtomCommand(data: CreateAtomCommandData, override val stores: D
       )
     )
 
-    auditDataStore.auditCreate(atom.id, user)
-
     log.info(s"Creating new atom $atomId [${data.title}]")
 
     previewDataStore.createAtom(atom).fold({
@@ -92,12 +90,16 @@ case class CreateAtomCommand(data: CreateAtomCommandData, override val stores: D
       _ => {
         log.info(s"Successfully created new atom $atomId [${data.title}]")
 
-        val event = ContentAtomEvent(atom, EventType.Update, new Date().getTime)
+        val capiEvent = ContentAtomEvent(atom, EventType.Update, new Date().getTime)
 
-        previewPublisher.publishAtomEvent(event) match {
+        previewPublisher.publishAtomEvent(capiEvent) match {
           case Success(_)  =>
             log.info(s"New atom published to preview $atomId [${data.title}]")
-            MediaAtom.fromThrift(atom)
+
+            val mediaAtom = MediaAtom.fromThrift(atom)
+            val auditEvent = AuditEvent.create(user, mediaAtom)
+
+            (mediaAtom, auditEvent)
 
           case Failure(err) =>
             log.error(s"Unable to published new atom to preview $atomId [${data.title}]", err)

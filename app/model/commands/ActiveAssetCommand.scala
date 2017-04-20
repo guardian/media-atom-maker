@@ -5,7 +5,7 @@ import com.gu.media.logging.Logging
 import com.gu.media.youtube.YouTube
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
-import model.MediaAtom
+import model.{AuditEvent, MediaAtom}
 import model.commands.CommandExceptions._
 import util._
 import util.atom.MediaAtomImplicits
@@ -28,7 +28,7 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String, stores: DataSto
     }
   }
 
-  def markAssetAsActive(): MediaAtom = {
+  def markAssetAsActive(): (MediaAtom, AuditEvent) = {
     val atom = getPreviewAtom(atomId)
 
     val mediaAtom = atom.tdata
@@ -46,7 +46,11 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String, stores: DataSto
           ))
 
         log.info(s"Marking $youtubeId as the active asset in $atomId")
-        UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom), stores, user).process()
+
+        val (result, _) = UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom), stores, user).process()
+        val event = AuditEvent.activateAsset(user, atomId, model.Asset.fromThrift(newActiveAsset))
+
+        (result, event)
 
       case None =>
         log.info(s"Cannot mark $youtubeId as the active asset in $atomId. No asset has that id")
@@ -55,7 +59,7 @@ case class ActiveAssetCommand(atomId: String, youtubeId: String, stores: DataSto
   }
 
 
-  def process(): T = {
+  def process(): (T, AuditEvent) = {
     log.info(s"Request to mark $youtubeId as the active asset in $atomId")
 
     getVideoStatus(youtubeId) match {

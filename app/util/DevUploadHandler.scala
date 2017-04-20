@@ -1,8 +1,7 @@
 package util
 
-import com.gu.media.aws.SESSettings
 import com.gu.media.ses.Mailer
-import com.gu.media.upload.actions.{UploaderAccess, UploadActionHandler}
+import com.gu.media.upload.actions.{UploadActionHandler, UploaderAccess}
 import com.gu.media.youtube.{YouTube, YouTubeUploader}
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
@@ -16,9 +15,12 @@ class DevUploadHandler(stores: DataStores, access: UploaderAccess, youTube: YouT
 
   private val user = PandaUser("Media", "Atom Maker", "media-atom-maker@theguardian.co.uk", None)
 
-  override def addAsset(atomId: String, videoId: String): Long = {
+  override def addAsset(atomId: String, videoId: String, source: String): Long = {
     val videoUri = s"https://www.youtube.com/watch?v=$videoId"
-    val atom = AddAssetCommand(atomId, videoUri, stores, youTube, user).process()
+
+    val (atom, audit) = AddAssetCommand(atomId, videoUri, source, stores, youTube, user).process()
+    stores.audit.putAuditEvent(audit)
+
     val versions = atom.assets.map(_.version).sorted
 
     versions.last

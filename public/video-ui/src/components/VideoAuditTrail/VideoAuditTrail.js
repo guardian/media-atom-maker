@@ -30,12 +30,13 @@ class VideoAuditTrail extends React.Component {
 
   renderAudit(audit) {
       const itemTime = moment(audit.date, 'x');
+      const description = JSON.stringify(audit.description, null, ' ');
 
       return (
         <tr key={audit.date}>
           <td>{itemTime.format('HH:mm:ss DD/MM/YYYY')}</td>
           <td>{audit.operation}</td>
-          <td>{audit.description}</td>
+          <td>{description}</td>
           <td>{audit.user}</td>
         </tr>
       );
