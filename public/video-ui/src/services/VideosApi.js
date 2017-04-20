@@ -1,6 +1,7 @@
 import {pandaReqwest} from './pandaReqwest';
 import {getStore} from '../util/storeAccessor';
 import {composerSyncFields} from '../constants/composerSyncFields';
+import ContentApi from './capi';
 
 
 export default {
@@ -96,6 +97,11 @@ export default {
       url: '/api2/atom/' + videoId,
       method: 'delete',
     });
+  },
+
+  updateComposerPage(id, metadata, composerUrlBase) {
+    //remember to udpate composer page and video as well
+    ContentApi.isLive(id);
   },
 
   createComposerPage(id, metadata, composerUrlBase) {

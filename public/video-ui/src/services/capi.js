@@ -23,4 +23,9 @@ export default class ContentApi {
       method: 'get'
     }, retryTimeout);
   }
+
+  static isLive(title) {
+    console.log('proxy url is ', ContentApi.proxyUrl);
+
+  }
 }

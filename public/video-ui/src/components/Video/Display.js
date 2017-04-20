@@ -67,10 +67,6 @@ class VideoDisplay extends React.Component {
 
   pageCreate = () => {
 
-    this.setState({
-      pageCreated: true
-    });
-
     const metadata = {
       title: this.props.video.title,
       standfirst: this.props.video.description
@@ -79,6 +75,18 @@ class VideoDisplay extends React.Component {
     const videoBlock = getVideoBlock(this.props.video.id, metadata);
 
     return this.props.videoActions.createVideoPage(this.props.video.id, metadata, this.getComposerUrl(), videoBlock);
+  }
+
+  pageUpdate = () => {
+
+    const metadata = {
+      title: this.props.video.title,
+      standfirst: this.props.video.description
+    };
+
+    const videoBlock = getVideoBlock(this.props.video.id, metadata);
+
+    return this.props.videoActions.updateVideoPage(this.props.video.id, metadata, this.getComposerUrl(), videoBlock);
   }
 
   getComposerUrl = () => {
@@ -95,6 +103,15 @@ class VideoDisplay extends React.Component {
             disabled={this.cannotMakeEdits()}
             onClick={this.pageCreate}>
               <Icon icon="add_to_queue"></Icon> Create Video Page
+          </button>
+        );
+      } else {
+        return (
+          <button
+            className="button__secondary"
+            disabled={this.cannotMakeEdits()}
+            onClick={this.pageUpdate}>
+              <Icon icon="add_to_queue"></Icon> Update Video Pages
           </button>
         );
       }
@@ -260,6 +277,7 @@ import * as saveVideo from '../../actions/VideoActions/saveVideo';
 import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as videoUsages from '../../actions/VideoActions/videoUsages';
 import * as videoPageCreate from '../../actions/VideoActions/videoPageCreate';
+import * as videoPageUpdate from '../../actions/VideoActions/videoPageUpdate';
 import * as getPublishedVideo from '../../actions/VideoActions/getPublishedVideo';
 import * as updateVideoEditState from '../../actions/VideoActions/updateVideoEditState';
 import * as updateFormErrors from '../../actions/FormErrorActions/updateFormErrors';
@@ -278,7 +296,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, videoUsages, videoPageCreate, getPublishedVideo, updateVideoEditState), dispatch),
+    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, videoUsages, videoPageCreate, videoPageUpdate, getPublishedVideo, updateVideoEditState), dispatch),
     formErrorActions: bindActionCreators(Object.assign({}, updateFormErrors), dispatch)
   };
 }
