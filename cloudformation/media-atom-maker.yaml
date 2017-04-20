@@ -1,0 +1,834 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  GuardianIP:
+    Description: Ip range for the office
+    Type: String
+    Default: 77.91.248.0/21
+  SSLCertificateId:
+    Description: ARN of the SSL certificate
+    Type: String
+  AMI:
+    Type: String
+  Stage:
+    Type: String
+    AllowedValues:
+    - PROD
+    - CODE
+  Stack:
+    Description: Stack name
+    Type: String
+    Default: media-service
+  App:
+    Description: App name
+    Type: String
+    Default: media-atom-maker
+  KinesisStreamPrefix:
+    Description: Kinesis stream name prefix
+    Type: String
+    Default: content-atom-events
+  ContentAtomArn:
+    Description: ARN of Content Atom kinesis stream Cross Account role
+    Type: String
+  AtomMakerTable:
+    Description: Name of the media atom dynamo table
+    Type: String
+  PublishedAtomMakerTable:
+    Description: Name of the published media atom dynamo table
+    Type: String
+  AuditTable:
+    Description: Name of the audit dynamo table
+    Type: String
+  UploadTrackingTable:
+    Description: Name of the upload tracking dynamo table
+    Type: String
+  ManualPlutoTable:
+    Description: Name of the table with video uploads without pluto project ids
+    Type: String
+  AlertActive:
+    Description: Whether to send CloudWatch alerts
+    Type: String
+  AlertWebhook:
+    Description: Where CloudWatch alerts are sent
+    Type: String
+  DomainToMonitor:
+    Description: Domain name for the app (Route53 healthcheck and S3 CORS for user
+      upload)
+    Type: String
+  BuildBucket:
+    Description: The S3 bucket where builds live
+    Type: String
+  ConfigBucket:
+    Description: The S3 bucket where configuration lives
+    Type: String
+  MultimediaAccountId:
+    Type: Number
+    Description: Account number of multimedia account
+  UploadParallelism:
+    Description: How many video chunks can be uploaded in parallel
+    Type: String
+    Default: '2'
+  UploadsToPlutoStreamName:
+    Description: Name of the kinesis stream where uploaded videos get pushed
+    Type: String
+    Default: media-atom-maker-uploads-to-pluto
+  PlutoIngestedVideoQueueName:
+    Description: Name of the queue with ids of ingested atoms
+    Type: String
+    Default: media-atom-maker-ingested-videos
+  PlutoIngestedVideoTopicName:
+    Description: Name of the topic where pluto publishes atom ids with ingested master
+    Type: String
+    Default: media-atom-maker-ingested-videos
+  NotificationEmailFrom:
+    Description: Name of the email address notifications emails of missing pluto ids
+      are sent from
+    Type: String
+    Default: digitalcms.dev@guardian.co.uk
+Mappings:
+  StageMap:
+    PROD:
+      MinSize: 3
+      MaxSize: 6
+      DesiredCapacity: 3
+      InstanceType: t2.medium
+      UploadBucket: media-atom-maker-upload-prod
+      TranscoderBucket: media-atom-maker-transcoder-prod
+    CODE:
+      MinSize: 1
+      MaxSize: 2
+      DesiredCapacity: 1
+      InstanceType: t2.small
+      UploadBucket: media-atom-maker-upload-code
+      TranscoderBucket: media-atom-maker-transcoder-code
+  LambdaBuilds:
+    Uploader:
+      CODE: media-service/CODE/media-atom-upload-actions/media-atom-uploader.zip
+      PROD: media-service/PROD/media-atom-upload-actions/media-atom-uploader.zip
+    Transcoder:
+      CODE: media-service/CODE/media-atom-transcoder/media-atom-transcoder.zip
+      PROD: media-service/PROD/media-atom-transcoder/media-atom-transcoder.zip
+    Expirer:
+      CODE: media-service/CODE/media-atom-expirer/media-atom-expirer.zip
+      PROD: media-service/PROD/media-atom-expirer/media-atom-expirer.zip
+  LambdaConfig:
+    Uploader:
+      CODE: CODE/media-atom-maker.private.conf
+      PROD: PROD/media-atom-maker.private.conf
+    Expirer:
+      CODE: CODE/media-atom-maker.private.conf
+      PROD: PROD/media-atom-maker.private.conf
+Resources:
+  PlutoProjectDynamoTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${App}-${Stage}-pluto-projects-table'
+      AttributeDefinitions:
+      - AttributeName: id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: id
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: '5'
+        WriteCapacityUnits: '5'
+  UploadsToPlutoStream:
+    Type: AWS::Kinesis::Stream
+    Properties:
+      Name: !Sub '${UploadsToPlutoStreamName}-${Stage}'
+      ShardCount: 1
+      Tags:
+      - Key: Stage
+        Value: !Ref 'Stage'
+      - Key: Stack
+        Value: !Ref 'Stack'
+      - Key: App
+        Value: !Ref 'App'
+  PlutoIngestedVideoTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub '${PlutoIngestedVideoTopicName}-${Stage}'
+      Subscription:
+      - Endpoint: !GetAtt 'PlutoIngestedVideoQueue.Arn'
+        Protocol: sqs
+  PlutoIngestedVideoQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub '${PlutoIngestedVideoQueueName}-${Stage}'
+  PlutoIngestedVideoPolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+      - !Ref 'PlutoIngestedVideoQueue'
+      PolicyDocument:
+        Statement:
+        - Sid: allow-sqs-sendmessage
+          Effect: Allow
+          Principal:
+            AWS: '*'
+          Action:
+          - sQS:SendMessage
+          Resource: '*'
+          Condition:
+            ArnEquals:
+              aws:SourceArn: !Ref 'PlutoIngestedVideoTopic'
+  PlutoIntegrationIncomingStream:
+    Type: AWS::Kinesis::Stream
+    Properties:
+      ShardCount: 1
+      Tags:
+      - Key: Stage
+        Value: !Ref 'Stage'
+      - Key: Stack
+        Value: !Ref 'Stack'
+      - Key: App
+        Value: !Ref 'App'
+  PlutoIntegrationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            AWS: !Ref 'MultimediaAccountId'
+      Path: /
+      Policies:
+      - PolicyName: PlutoIntegrationRolePolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Resource: !GetAtt 'PlutoIntegrationIncomingStream.Arn'
+            Effect: Allow
+            Action:
+            - kinesis:PutRecord
+            - kinesis:PutRecords
+          - Resource: !GetAtt 'UploadsToPlutoStream.Arn'
+            Effect: Allow
+            Action:
+            - kinesis:Get*
+            - kinesis:DescribeStream
+  MediaMakerInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+      - !Ref 'DistributionRole'
+  SSHSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow SSH access from the office
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '22'
+        ToPort: '22'
+        CidrIp: !Ref 'GuardianIP'
+  DistributionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: /
+      Policies:
+      - PolicyName: root
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+            - s3:GetObject
+            Resource:
+            - arn:aws:s3:::atom-maker-dist/*
+          - Effect: Allow
+            Action:
+            - s3:GetObject
+            Resource:
+            - arn:aws:s3:::atom-maker-conf/*
+          - Effect: Allow
+            Action:
+            - ec2:DescribeTags
+            Resource: '*'
+          - Effect: Allow
+            Action:
+            - sts:AssumeRole
+            Resource:
+            - !Ref 'ContentAtomArn'
+            - !GetAtt 'LimitedUploadRole.Arn'
+          - Effect: Allow
+            Action:
+            - elastictranscoder:ListJobsByPipeline
+            Resource:
+            - arn:aws:elastictranscoder:*
+          - Effect: Allow
+            Action:
+            - s3:*
+            Resource: !Sub ['arn:aws:s3:::${Bucket}/*', {Bucket: !Ref 'UserUploadBucket'}]
+  GetTeamKeysPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: GetTeamKeysPolicy
+      PolicyDocument:
+        Statement:
+        - Effect: Allow
+          Action:
+          - s3:GetObject
+          Resource:
+          - arn:aws:s3:::github-team-keys/*
+        - Effect: Allow
+          Action:
+          - s3:ListBucket
+          Resource: arn:aws:s3:::github-team-keys
+      Roles:
+      - !Ref 'DistributionRole'
+  LoadBalancerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: application load balancer
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '80'
+        ToPort: '80'
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: '443'
+        ToPort: '443'
+        CidrIp: 0.0.0.0/0
+  AppServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Application servers
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 9000
+        ToPort: 9000
+        SourceSecurityGroupName: !Ref 'LoadBalancerSecurityGroup'
+  UserUploadBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !FindInMap [StageMap, !Ref 'Stage', UploadBucket]
+      CorsConfiguration:
+        CorsRules:
+        - AllowedHeaders:
+          - '*'
+          ExposedHeaders:
+          - ETag
+          AllowedMethods:
+          - GET
+          - PUT
+          - POST
+          - DELETE
+          AllowedOrigins:
+          - !Sub 'https://${DomainToMonitor}'
+  LimitedUploadRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+          Action: sts:AssumeRole
+      Path: /
+      Policies:
+      - PolicyName: LimitedUploadPolicy
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+            - s3:PutObject
+            - s3:PutObjectAcl
+            - s3:ListBucketMultipartUploads
+            - s3:ListMultipartUploadParts
+            - s3:AbortMultipartUpload
+            Resource: !Sub ['arn:aws:s3:::${Bucket}/uploads/*', {Bucket: !Ref 'UserUploadBucket'}]
+  LambdaCloudWatchLoggingPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: LambdaCloudWatchLoggingPolicy
+      PolicyDocument:
+        Statement:
+        - Effect: Allow
+          Action:
+          - logs:CreateLogGroup
+          - logs:CreateLogStream
+          - logs:PutLogEvents
+          Resource: '*'
+      Roles:
+      - !Ref 'UploaderRole'
+  UploaderRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Action: sts:AssumeRole
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+      Path: /
+      Policies:
+      - PolicyName: UploaderPolicy
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+            - s3:GetObject
+            Resource:
+            - !Sub ['arn:aws:s3:::${Bucket}/${Key}', {Bucket: !Ref 'BuildBucket',
+                Key: !FindInMap [LambdaBuilds, Uploader, !Ref 'Stage']}]
+            - !Sub ['arn:aws:s3:::${Bucket}/${Key}', {Bucket: !Ref 'ConfigBucket',
+                Key: !FindInMap [LambdaConfig, Uploader, !Ref 'Stage']}]
+          - Effect: Allow
+            Action:
+            - dynamodb:*
+            Resource: !Sub ['arn:aws:dynamodb:${Region}:${Account}:table/${Table}',
+              {Region: !Ref 'AWS::Region', Account: !Ref 'AWS::AccountId', Table: !Ref 'UploadTrackingTable'}]
+          - Effect: Allow
+            Action:
+            - s3:GetObject
+            - s3:PutObject
+            - s3:PutObjectAcl
+            - s3:DeleteObject
+            - s3:ListBucketMultipartUploads
+            - s3:ListMultipartUploadParts
+            - s3:AbortMultipartUpload
+            Resource:
+            - !Sub ['arn:aws:s3:::${Bucket}/*', {Bucket: !FindInMap [StageMap, !Ref 'Stage',
+                  UploadBucket]}]
+          - Effect: Allow
+            Action:
+            - kinesis:Get*
+            - kinesis:PutRecord
+            - kinesis:DescribeStream
+            Resource: !GetAtt 'UploadActionsStream.Arn'
+  UploadActionsStream:
+    Type: AWS::Kinesis::Stream
+    Properties:
+      ShardCount: !Ref 'UploadParallelism'
+  UploadActionsStreamPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: UploadActionsStreamPolicy
+      PolicyDocument:
+        Statement:
+        - Effect: Allow
+          Action:
+          - kinesis:PutRecord
+          - kinesis:PutRecords
+          Resource: !GetAtt 'UploadActionsStream.Arn'
+      Roles:
+      - !Ref 'DistributionRole'
+  UploadActionsLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'media-atom-maker-upload-actions-${Stage}'
+      Description: Uploads chunks of video to YouTube
+      Handler: com.gu.media.UploadActionsLambda::handleRequest
+      Code:
+        S3Bucket: !Ref 'BuildBucket'
+        S3Key: !FindInMap [LambdaBuilds, Uploader, !Ref 'Stage']
+      Environment:
+        Variables:
+          REGION: !Ref 'AWS::Region'
+          STACK: !Ref 'Stack'
+          APP: media-atom-uploader
+          STAGE: !Ref 'Stage'
+          CONFIG_BUCKET: !Ref 'ConfigBucket'
+          CONFIG_KEY: !FindInMap [LambdaConfig, Uploader, !Ref 'Stage']
+          UPLOAD_TRACKING_TABLE_NAME: !Ref 'UploadTrackingTable'
+          PLUTO_TABLE_NAME: !Ref 'ManualPlutoTable'
+      MemorySize: 512
+      Role: !GetAtt 'UploaderRole.Arn'
+      Runtime: java8
+      Timeout: 300
+  UploadActionsEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn: !GetAtt 'UploadActionsStream.Arn'
+      FunctionName: !GetAtt 'UploadActionsLambda.Arn'
+      BatchSize: 1
+      StartingPosition: TRIM_HORIZON
+  TranscoderOutputS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !FindInMap [StageMap, !Ref 'Stage', TranscoderBucket]
+  TranscoderRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Action: sts:AssumeRole
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+      Path: /
+      Policies:
+      - PolicyName: TranscoderPolicy
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+            - elastictranscoder:CreateJob
+            Resource:
+            - arn:aws:elastictranscoder:*
+  TranscoderLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Transcodes masters to mp4s
+      FunctionName: !Sub 'media-atom-maker-transcoder-${Stage}'
+      Handler: com.gu.media.TranscoderLambda::handleRequest
+      Code:
+        S3Bucket: !Ref 'BuildBucket'
+        S3Key: !FindInMap [LambdaBuilds, Transcoder, !Ref 'Stage']
+      Environment:
+        Variables:
+          REGION: !Ref 'AWS::Region'
+          STACK: !Ref 'Stack'
+          APP: media-atom-transcoder
+          STAGE: !Ref 'Stage'
+      MemorySize: 256
+      Role: !GetAtt 'TranscoderRole.Arn'
+      Runtime: java8
+      Timeout: 300
+  ExpirerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Action: sts:AssumeRole
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+      Path: /
+      Policies:
+      - PolicyName: ExpirerPolicy
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+            - s3:GetObject
+            Resource:
+            - !Sub ['arn:aws:s3:::${Bucket}/${Key}', {Bucket: !Ref 'BuildBucket',
+                Key: !FindInMap [LambdaBuilds, Expirer, !Ref 'Stage']}]
+            - !Sub ['arn:aws:s3:::${Bucket}/${Key}', {Bucket: !Ref 'ConfigBucket',
+                Key: !FindInMap [LambdaConfig, Expirer, !Ref 'Stage']}]
+  ExpirerLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Expires atoms
+      FunctionName: !Sub 'media-atom-maker-expirer-${Stage}'
+      Handler: com.gu.media.expirer.ExpirerLambda::handleRequest
+      Code:
+        S3Bucket: !Ref 'BuildBucket'
+        S3Key: !FindInMap [LambdaBuilds, Expirer, !Ref 'Stage']
+      Environment:
+        Variables:
+          REGION: !Ref 'AWS::Region'
+          STACK: !Ref 'Stack'
+          APP: media-atom-expirer
+          STAGE: !Ref 'Stage'
+          CONFIG_BUCKET: !Ref 'ConfigBucket'
+          CONFIG_KEY: !FindInMap [LambdaConfig, Expirer, !Ref 'Stage']
+      MemorySize: 256
+      Role: !GetAtt 'UploaderRole.Arn'
+      Runtime: java8
+      Timeout: 300
+  ExpirerLambdaTrigger:
+    Type: AWS::Events::Rule
+    Properties:
+      ScheduleExpression: cron(0/15 * * * ? *)
+      Targets:
+      - Arn: !GetAtt 'ExpirerLambda.Arn'
+        Id: ExpirerLambda
+  ExpirerLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref 'ExpirerLambda'
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt 'ExpirerLambdaTrigger.Arn'
+  MediaAtomMakerLoadBalancer:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties:
+      CrossZone: true
+      AvailabilityZones: !GetAZs ''
+      SecurityGroups:
+      - !GetAtt 'LoadBalancerSecurityGroup.GroupId'
+      HealthCheck:
+        HealthyThreshold: '2'
+        Interval: '30'
+        Target: HTTP:9000/healthcheck
+        Timeout: '5'
+        UnhealthyThreshold: '2'
+      Listeners:
+      - LoadBalancerPort: '80'
+        InstancePort: '9000'
+        Protocol: HTTP
+      - LoadBalancerPort: '443'
+        InstancePort: '9000'
+        Protocol: HTTPS
+        SSLCertificateId: !Ref 'SSLCertificateId'
+      Tags:
+      - Key: Stage
+        Value: !Ref 'Stage'
+      - Key: Stack
+        Value: !Ref 'Stack'
+      - Key: App
+        Value: !Ref 'App'
+  MediaAtomLaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: !Ref 'AMI'
+      SecurityGroups:
+      - !GetAtt 'AppServerSecurityGroup.GroupId'
+      - !GetAtt 'SSHSecurityGroup.GroupId'
+      InstanceType: !FindInMap [StageMap, !Ref 'Stage', InstanceType]
+      IamInstanceProfile: !Ref 'MediaMakerInstanceProfile'
+      UserData: !Base64
+        Fn::Sub: '#!/bin/bash -ev
+
+          aws s3 cp ''s3://atom-maker-conf/${Stage}/media-atom-maker.private.conf''
+          /tmp
+
+          cat >> /tmp/media-atom-maker.private.conf<<''EOF''
+
+          aws.dynamo.tableName=${AtomMakerTable}
+
+          aws.dynamo.publishedTableName=${PublishedAtomMakerTable}
+
+          aws.dynamo.auditTableName=${AuditTable}
+
+          aws.dynamo.uploadTrackingTableName=${UploadTrackingTable}
+
+          aws.dynamo.plutoTableName=${ManualPlutoTable}
+
+          EOF
+
+          mkdir /etc/gu
+
+          mv /tmp/media-atom-maker.private.conf /etc/gu
+
+          aws s3 cp s3://atom-maker-dist/media-service/${Stage}/media-atom-maker/media-atom-maker.deb
+          /tmp
+
+          dpkg -i /tmp/media-atom-maker.deb
+
+          chown ${App} /etc/gu/media-atom-maker.private.conf
+
+          chmod 0600 /etc/gu/media-atom-maker.private.conf
+
+          '
+  MediaAtomAutoscalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AvailabilityZones:
+      - eu-west-1c
+      - eu-west-1a
+      - eu-west-1b
+      LaunchConfigurationName: !Ref 'MediaAtomLaunchConfig'
+      MinSize: !FindInMap [StageMap, !Ref 'Stage', MinSize]
+      MaxSize: !FindInMap [StageMap, !Ref 'Stage', MaxSize]
+      DesiredCapacity: !FindInMap [StageMap, !Ref 'Stage', DesiredCapacity]
+      Cooldown: '180'
+      HealthCheckType: ELB
+      HealthCheckGracePeriod: 300
+      LoadBalancerNames:
+      - !Ref 'MediaAtomMakerLoadBalancer'
+      Tags:
+      - Key: Stage
+        Value: !Ref 'Stage'
+        PropagateAtLaunch: 'true'
+      - Key: Stack
+        Value: !Ref 'Stack'
+        PropagateAtLaunch: 'true'
+      - Key: App
+        Value: !Ref 'App'
+        PropagateAtLaunch: 'true'
+  SendMailPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: SendMailPolicy
+      PolicyDocument:
+        Statement:
+        - Effect: Allow
+          Action:
+          - ses:SendEmail
+          Resource: '*'
+          Condition:
+            StringEquals:
+              ses:FromAddress: !Ref 'NotificationEmailFrom'
+      Roles:
+      - !Ref 'DistributionRole'
+  PlutoKinesisPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: PlutoKinesisPolicy
+      PolicyDocument:
+        Statement:
+        - Effect: Allow
+          Action:
+          - kinesis:PutRecord
+          - kinesis:PutRecords
+          Resource: !GetAtt 'UploadsToPlutoStream.Arn'
+      Roles:
+      - !Ref 'DistributionRole'
+  PlutoSQSPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: PlutoSQSPolicy
+      PolicyDocument:
+        Statement:
+        - Effect: Allow
+          Action:
+          - sqs:ReceiveMessage
+          - sqs:DeleteMessage
+          Resource: !GetAtt 'PlutoIngestedVideoQueue.Arn'
+      Roles:
+      - !Ref 'DistributionRole'
+  DynamoDBTablePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: MediaAtomMakerDynamoDBPolicy
+      PolicyDocument:
+        Statement:
+        - Action:
+          - dynamodb:*
+          Effect: Allow
+          Resource: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${AtomMakerTable}'
+        - Action:
+          - dynamodb:*
+          Effect: Allow
+          Resource: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${PublishedAtomMakerTable}'
+        - Action:
+          - dynamodb:*
+          Effect: Allow
+          Resource: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${AuditTable}'
+        - Action:
+          - dynamodb:*
+          Effect: Allow
+          Resource: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${UploadTrackingTable}'
+        - Action:
+          - dynamodb:Query
+          Effect: Allow
+          Resource: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ManualPlutoTable}/*'
+        - Action:
+          - dynamodb:*
+          Effect: Allow
+          Resource: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ManualPlutoTable}'
+        - Action:
+          - dynamodb:*
+          Effect: Allow
+          Resource: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${PlutoProjectDynamoTable}'
+      Roles:
+      - !Ref 'DistributionRole'
+  PanDomainPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: PanDomainPolicy
+      PolicyDocument:
+        Statement:
+        - Effect: Allow
+          Action:
+          - s3:GetObject
+          Resource:
+          - arn:aws:s3:::pan-domain-auth-settings/*
+      Roles:
+      - !Ref 'DistributionRole'
+  PermissionsPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: PermissionsPolicy
+      PolicyDocument:
+        Statement:
+        - Effect: Allow
+          Action:
+          - s3:GetObject
+          Resource:
+          - arn:aws:s3:::permissions-cache/*
+      Roles:
+      - !Ref 'DistributionRole'
+  AlertTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Sub '${Stage}-Alerts'
+      Subscription:
+      - Endpoint: !Ref 'AlertWebhook'
+        Protocol: https
+  MediaAtomMaker5XXAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ActionsEnabled: !Ref 'AlertActive'
+      AlarmDescription: 500 Error reported from media-atom-maker
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: '1'
+      Namespace: AWS/ELB
+      MetricName: HTTPCode_Backend_5XX
+      Dimensions:
+      - Name: LoadBalancerName
+        Value: !Ref 'MediaAtomMakerLoadBalancer'
+      Period: '300'
+      EvaluationPeriods: '1'
+      Statistic: Sum
+      AlarmActions:
+      - !Ref 'AlertTopic'
+  MediaAtomMakerLatency:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ActionsEnabled: !Ref 'AlertActive'
+      AlarmDescription: Requests to media-atom-maker start taking on average more
+        than 3 seconds
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: '3'
+      Namespace: AWS/ELB
+      MetricName: Latency
+      Dimensions:
+      - Name: LoadBalancerName
+        Value: !Ref 'MediaAtomMakerLoadBalancer'
+      Period: '300'
+      EvaluationPeriods: '2'
+      Statistic: Average
+      AlarmActions:
+      - !Ref 'AlertTopic'
+  MediaAtomMakerPingVideos:
+    Type: AWS::Route53::HealthCheck
+    Properties:
+      HealthCheckConfig:
+        Port: 443
+        Type: HTTPS
+        FullyQualifiedDomainName: !Ref 'DomainToMonitor'
+        ResourcePath: /video/videos
+        RequestInterval: '30'
+        FailureThreshold: '3'
+      HealthCheckTags:
+      - Key: Name
+        Value: !Sub 'https://${DomainToMonitor}/video/videos'
+  MediaAtomMakerVideosDown:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ActionsEnabled: !Ref 'AlertActive'
+      AlarmDescription: Unable to get a response from the videos application
+      ComparisonOperator: LessThanThreshold
+      Threshold: '1'
+      Namespace: AWS/Route53
+      MetricName: HealthCheckStatus
+      Dimensions:
+      - Name: HealthCheckId
+        Value: !Ref 'MediaAtomMakerPingVideos'
+      Period: '60'
+      EvaluationPeriods: '1'
+      Statistic: Minimum
+      AlarmActions:
+      - !Ref 'AlertTopic'
+Outputs:
+  UserUploadRole:
+    Value: !Ref 'LimitedUploadRole'
+  TranscoderPipelineName:
+    Value: !Sub 'media-atom-maker-transcoder-${Stage}'
