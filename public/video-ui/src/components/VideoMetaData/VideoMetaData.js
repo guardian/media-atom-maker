@@ -32,6 +32,8 @@ export default class VideoMetaData extends React.Component {
             fieldLocation="description"
             name="Description"
             placeholder="No Description"
+            customValidation={this.props.descriptionValidator}
+            isDesired={true}
           >
             <TextArea/>
           </ManagedField>
