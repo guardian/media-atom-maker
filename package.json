@@ -6,9 +6,7 @@
     "build-dev": "webpack ./public/video-ui/src/app.js ./public/video-ui/build/app.js --config ./build_config/webpack.dev.conf.js --watch",
     "build-bookmarklet": "bookmarklet scripts/bookmarklets/delete-atom.js scripts/bookmarklets/delete-atom.bookmarklet",
     "client-dev": "node ./webpack-dev-server.js",
-    "lint-video-ui": "eslint public/video-ui/src/",
-    "lint-cloudformation": "jsonlint cloudformation/*.json --quiet",
-    "lint": "npm run lint-video-ui && npm run lint-cloudformation",
+    "lint": "eslint public/video-ui/src/",
     "test": "npm run lint"
   },
   "devDependencies": {
@@ -38,7 +36,6 @@
     "gulp-sourcemaps": "^1.6.0",
     "gulp-uglify": "^2.0.0",
     "hoconjs": "github:yellowblood/hocon-js",
-    "jsonlint": "^1.6.2",
     "lodash": "^4.17.4",
     "node-sass": "^3.10.1",
     "react-hot-loader": "^3.0.0-beta.5",
