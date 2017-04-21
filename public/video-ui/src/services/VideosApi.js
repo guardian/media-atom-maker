@@ -99,9 +99,17 @@ export default {
     });
   },
 
-  updateComposerPage(id, metadata, composerUrlBase) {
-    //remember to udpate composer page and video as well
-    ContentApi.isLive(id);
+  updateComposerPage(id, metadata, composerUrlBase, videoBlock, usages) {
+    return Promise.all(usages.map(usage => ContentApi.getLivePage(usage.id)))
+    .then(responses => {
+      responses.forEach(reponse => {
+        if (response.status == "ok") {
+          //handle live content
+        } else {
+          //handle rpeview content
+        }
+      });
+    });
   },
 
   createComposerPage(id, metadata, composerUrlBase) {

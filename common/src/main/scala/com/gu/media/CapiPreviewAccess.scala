@@ -7,10 +7,11 @@ import com.squareup.okhttp.{Credentials, OkHttpClient, Request}
 import com.typesafe.config.Config
 import play.api.libs.json.{JsValue, Json}
 
-trait CapiPreviewAccess { this: Settings =>
+trait CapiAccess { this: Settings =>
   def capiPreviewUser = getMandatoryString("capi.previewUser")
   def capiPreviewPassword = getMandatoryString("capi.previewPassword")
   def capiUrl = getMandatoryString("capi.previewUrl")
+  def liveCapiUrl = getMandatoryString("capi.liveUrl")
 
   private val httpClient = new OkHttpClient()
   httpClient.setConnectTimeout(5, TimeUnit.SECONDS)
@@ -35,7 +36,28 @@ trait CapiPreviewAccess { this: Settings =>
         throw CapiException(err.getMessage, err)
     }
   }
+
+  //TODO: refactor repeat code out
+  def liveCapiQuery(query: String): JsValue = {
+    val url = s"$liveCapiUrl/$query"
+
+    val req = new Request.Builder()
+      .url(url)
+      .build
+
+    try {
+      val response = httpClient.newCall(req).execute
+
+      if(response.code() != 200 && response.code() != 404)
+        throw CapiException(s"CAPI returned status ${response.code()}")
+
+      Json.parse(response.body().byteStream())
+    } catch {
+      case err: IOException =>
+        throw CapiException(err.getMessage, err)
+    }
+  }
 }
 
-class CapiPreview(override val config: Config) extends Settings with CapiPreviewAccess
+class CapiPreview(override val config: Config) extends Settings with CapiAccess
 case class CapiException(err: String, cause: Throwable = null) extends RuntimeException(err, cause)

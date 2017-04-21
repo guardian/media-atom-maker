@@ -65,6 +65,11 @@ class VideoDisplay extends React.Component {
     return this.props.video.expiryDate <= Date.now();
   };
 
+  getVideoPageUsages = () => {
+    return  this.props.usages.filter(value => value.type === 'video');
+  }
+
+
   pageCreate = () => {
 
     const metadata = {
@@ -86,7 +91,7 @@ class VideoDisplay extends React.Component {
 
     const videoBlock = getVideoBlock(this.props.video.id, metadata);
 
-    return this.props.videoActions.updateVideoPage(this.props.video.id, metadata, this.getComposerUrl(), videoBlock);
+    return this.props.videoActions.updateVideoPage(this.props.video.id, metadata, this.getComposerUrl(), videoBlock, this.getVideoPageUsages());
   }
 
   getComposerUrl = () => {
@@ -94,9 +99,8 @@ class VideoDisplay extends React.Component {
   }
 
   videoPageUsages = () => {
-      const filterUsageType = this.props.usages.filter(value => value.type === 'video');
 
-      if(filterUsageType.length === 0){
+      if(this.getVideoPageUsages().length === 0){
         return (
           <button
             className="button__secondary"

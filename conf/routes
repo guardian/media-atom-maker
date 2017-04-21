@@ -78,3 +78,5 @@ GET /videos/:id/upload                  controllers.VideoUIApp.index(id)
 
 #Support
 GET /support/previewCapi/*path          controllers.Support.previewCapiProxy(path: String)
+
+GET /support/liveCapi/*path             controllers.Support.liveCapiProxy(path: String)
