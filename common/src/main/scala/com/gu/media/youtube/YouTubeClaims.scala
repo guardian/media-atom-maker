@@ -8,9 +8,11 @@ import org.joda.time.DateTime
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 
+//This class contains functionality to add usage policies to published videos.
+//Videos are either tracked or monetized: https://support.google.com/youtube/answer/107383?hl=en-GB
 class YouTubeClaims(override val config: Config) extends YouTubeAccess with Logging {
 
-  private def createAsset(title: String, videoId: String): String = {
+  private def createAsset(title: String, videoId: String): Asset = {
 
     val metadata = new Metadata()
       .setTitle(title)
@@ -25,7 +27,7 @@ class YouTubeClaims(override val config: Config) extends YouTubeAccess with Logg
       .setOnBehalfOfContentOwner(contentOwner)
       .execute()
 
-    createdAsset.getId()
+    createdAsset
 
   }
 
@@ -60,7 +62,7 @@ class YouTubeClaims(override val config: Config) extends YouTubeAccess with Logg
       .execute()
   }
 
-  private def getPolicy(blockAds: Boolean): Policy = {
+  private def getNewPolicy(blockAds: Boolean): Policy = {
     val policy = new Policy()
     if (blockAds)
       policy.setId(trackingPolicyId)
@@ -69,9 +71,9 @@ class YouTubeClaims(override val config: Config) extends YouTubeAccess with Logg
   }
 
   private def createVideoClaim(atomId: String, userName: String, blockAds: Boolean, videoId: String): Unit = {
-    val policy = getPolicy(blockAds)
+    val policy = getNewPolicy(blockAds)
     val assetTitle = s"$atomId-$userName-${DateTime.now()}"
-    val assetId = createAsset(assetTitle, videoId)
+    val assetId = createAsset(assetTitle, videoId).getId()
     setOwnership(assetId)
     claimVideo(assetId, videoId, policy)
 
@@ -79,7 +81,7 @@ class YouTubeClaims(override val config: Config) extends YouTubeAccess with Logg
 
   private def updateClaim(claimId: String, assetId: String, videoId: String, blockAds: Boolean): Unit = {
 
-    val policy = getPolicy(blockAds)
+    val policy = getNewPolicy(blockAds)
 
     val claim = new Claim()
       .setAssetId((assetId))
