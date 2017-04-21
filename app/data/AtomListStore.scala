@@ -4,6 +4,7 @@ import java.time.Instant
 
 import com.gu.atom.data.PreviewDynamoDataStore
 import com.gu.media.CapiPreviewAccess
+import com.gu.media.util.TestFilters
 import model.Category.Hosted
 import model.commands.CommandExceptions.AtomDataStoreError
 import model.{Image, MediaAtom, MediaAtomList, MediaAtomSummary}
@@ -43,18 +44,22 @@ class CapiBackedAtomListStore(capi: CapiPreviewAccess) extends AtomListStore {
 
     if(category != "hosted") {
       val title = (atom \ "title").as[String]
-      val posterImage = (atom \ "posterImage").asOpt[Image]
 
-      val expiryDate = (atom \ "expiryDate").asOpt[Long]
-      val activeVersion = (atom \ "activeVersion").asOpt[Long]
+      if (title.startsWith(TestFilters.testAtomBaseName)) None /* This filters out test atoms created by the Integration Tests, as we don't want them to be user facing */
+      else {
+        val posterImage = (atom \ "posterImage").asOpt[Image]
 
-      val versions = (atom \ "assets").as[JsArray].value.map { asset =>
-        (asset \ "version").as[Long]
+        val expiryDate = (atom \ "expiryDate").asOpt[Long]
+        val activeVersion = (atom \ "activeVersion").asOpt[Long]
+
+        val versions = (atom \ "assets").as[JsArray].value.map { asset =>
+          (asset \ "version").as[Long]
+        }
+
+        val state = AtomListStore.getState(expiryDate, activeVersion, versions.toSet)
+
+        Some(MediaAtomSummary(id, state, title, posterImage))
       }
-
-      val state = AtomListStore.getState(expiryDate, activeVersion, versions.toSet)
-
-      Some(MediaAtomSummary(id, state, title, posterImage))
     } else {
       None
     }
