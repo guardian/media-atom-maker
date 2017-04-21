@@ -95,32 +95,46 @@ class YouTubeClaims(override val config: Config) extends YouTubeAccess with Logg
       .execute()
   }
 
-  def createOrUpdateClaim(atomId: String, videoId: String, userName: String, blockAds: Boolean): Unit = {
+  private def getPagedVideoClaims(request: YouTubePartner#ClaimSearch#List, items: List[ClaimSnippet]):
+    List[ClaimSnippet] = {
 
-    try {
-      val videoClaims = partnerClient
-        .claimSearch()
-        .list
-        .setVideoId(videoId)
-        .execute()
+    val response = request.execute()
 
-      if (videoClaims.getPageInfo.getTotalResults() == 0) {
-        createVideoClaim(atomId, userName, blockAds, videoId)
-      } else {
+    val allItems = if (response.getPageInfo.getTotalResults == 0) items
+      else items ++ response.getItems.asScala.toList
 
-        val claimsList = videoClaims.getItems().asScala
-
-        claimsList.find(claimSnippet => !claimSnippet.getThirdPartyClaim()) match {
-          case Some(claimSnippet) => {
-            val claim = partnerClient.claims().get(claimSnippet.getId()).execute()
-            val assetId = claim.getAssetId()
-            val policy = claim.getPolicy().getId
-            updateClaim(claim.getId(), assetId, videoId, blockAds)
-          }
-          case None => createVideoClaim(atomId, userName, blockAds, videoId)
-        }
+    response.getNextPageToken() match {
+      case null => allItems
+      case token => {
+        val nextRequest = request.setPageToken(token)
+        getPagedVideoClaims(nextRequest, allItems)
       }
     }
+  }
+
+  def createOrUpdateClaim(atomId: String, videoId: String, userName: String, blockAds: Boolean): Unit = {
+
+    val request: YouTubePartner#ClaimSearch#List = partnerClient
+      .claimSearch()
+      .list
+      .setVideoId(videoId)
+
+    try {
+
+      val videoClaims = getPagedVideoClaims(request, List())
+
+      videoClaims.find(claimSnippet => !claimSnippet.getThirdPartyClaim()) match {
+        case Some(claimSnippet) => {
+          val claim = partnerClient.claims().get(claimSnippet.getId()).execute()
+          val assetId = claim.getAssetId()
+          val policy = claim.getPolicy().getId
+          updateClaim(claim.getId(), assetId, videoId, blockAds)
+        }
+        case None => createVideoClaim(atomId, userName, blockAds, videoId)
+
+      }
+    }
+
     catch {
       case e: Throwable => log.warn(s"unable to update claims for asset=$videoId ", e)
     }
