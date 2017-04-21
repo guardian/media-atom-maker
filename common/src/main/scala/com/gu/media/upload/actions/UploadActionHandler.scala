@@ -37,12 +37,13 @@ abstract class UploadActionHandler(store: UploadsDataStore, plutoStore: PlutoDat
       createCompleteObject(upload, destination)
       sendToPluto(upload)
 
+    case UploadPartsToSelfHost(upload, key, pipelineId) =>
+      transcodeToS3(key, pipelineId)
+
     case DeleteParts(upload) =>
       deleteParts(upload)
       store.delete(upload.id)
 
-    case UploadPartsToSelfHost(upload, key, pipelineId) =>
-      transcodeToS3(key, pipelineId)
   }
 
   private def uploadToYouTube(upload: Upload, part: UploadPart, uploadUri: String): Upload = {
