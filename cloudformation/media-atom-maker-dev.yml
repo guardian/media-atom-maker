@@ -321,10 +321,7 @@ Resources:
                 Resource: !GetAtt UploadActionsStream.Arn
               - Effect: "Allow"
                 Action: ["elastictranscoder:CreateJob"]
-                Resource:
-                 - !Sub
-                  - "arn:aws:elastictranscode:${Region}:${Account}:pipeline/${pipelineId}"
-                  - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", pipelineId: !Ref "TranscoderPipelineId" }
+                Resource: "arn:aws:elastictranscoder:*"
 
   UploadActionsStream:
     Type: "AWS::Kinesis::Stream"

@@ -594,22 +594,7 @@
                             "Action": [
                               "elastictranscoder:CreateJob"
                             ],
-                            "Resource": {
-                              "Fn::Sub": [
-                                "arn:aws:elastictranscode:${Region}:${Account}:pipeline/${pipelineId}",
-                                  {
-                                  "Region": {
-                                    "Ref": "AWS::Region"
-                                  },
-                                  "Account": {
-                                    "Ref": "AWS::AccountId"
-                                  },
-                                  "pipelineId": {
-                                    "Ref": "TranscoderPipelineId"
-                                  }
-                                }
-                              ]
-                            }
+                            "Resource": "arn:aws:elastictranscoder:*"
                           }
                         ]
                     }
