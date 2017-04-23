@@ -46,11 +46,16 @@ case class CreateAtomCommand(data: CreateAtomCommandData, override val stores: D
 
     val createdChangeRecord = Some(ChangeRecord.now(user).asThrift)
 
+    val defaultHtml = data.posterImage.master match {
+      case Some(image) => s"""<img src="${image.file}">"""
+      case None => "<div></div>"
+    }
+
     val atom = ThriftAtom(
       id = atomId,
       atomType = AtomType.Media,
       labels = Nil,
-      defaultHtml = "<div></div>", // No content set so empty div
+      defaultHtml = defaultHtml,
       data = AtomData.Media(ThriftMediaAtom(
         title = data.title,
         assets = Nil,
