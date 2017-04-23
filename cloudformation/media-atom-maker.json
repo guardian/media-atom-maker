@@ -366,7 +366,7 @@
                                 {
                                     "Effect": "Allow",
                                     "Action": ["sts:AssumeRole"],
-                                    "Resource": [{ "Ref": "ContentAtomArn" }, { "Fn::GetAtt" : ["LimitedUploadRole", "Arn"] }]
+                                    "Resource": [{ "Fn::GetAtt" : ["LimitedUploadRole", "Arn"] }]
                                 },
                                 {
                                   "Effect": "Allow",
@@ -530,6 +530,24 @@
             }
         },
 
+        "CrossAccountAccessPolicy": {
+          "Type": "AWS::IAM::Policy",
+          "Properties": {
+            "PolicyName": "CrossAccountAccessPolicy",
+            "PolicyDocument": {
+              "Statement": [{
+                "Effect": "Allow",
+                "Action": ["sts:AssumeRole"],
+                "Resource": [{ "Ref": "ContentAtomArn" }]
+              }]
+            },
+            "Roles": [
+              { "Ref": "DistributionRole" },
+              { "Ref": "PlutoMessageIngestionRole" }
+            ]
+          }
+        },
+
         "PlutoMessageIngestionRole" : {
           "Type": "AWS::IAM::Role",
           "Properties": {
@@ -564,16 +582,9 @@
                       "kinesis:DescribeStream",
                       "kinesis:GetRecords",
                       "kinesis:GetShardIterator",
-                      "kinesis:ListStreams",
-                      "logs:CreateLogGroup",
-                      "logs:CreateLogStream",
-                      "logs:PutLogEvents"
+                      "kinesis:ListStreams"
                     ],
                     "Resource": { "Fn::GetAtt": ["PlutoIntegrationIncomingStream", "Arn"] }
-                  }, {
-                    "Effect": "Allow",
-                    "Action": ["sts:AssumeRole"],
-                    "Resource": [{ "Ref": "ContentAtomArn" }]
                   }
                 ]
               }
