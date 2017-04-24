@@ -2,7 +2,7 @@ package controllers
 
 import _root_.util.AWSConfig
 import com.gu.atom.play.AtomAPIActions
-import com.gu.editorial.permissions.client.PermissionsProvider
+import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
 import com.gu.media.upload.model.PlutoSyncMetadata
 import com.gu.media.youtube.YouTube
@@ -16,7 +16,7 @@ import util.atom.MediaAtomImplicits
 import play.api.libs.json._
 
 class Api2 (override val stores: DataStores, conf: Configuration, override val authActions: HMACAuthActions,
-            youTube: YouTube, awsConfig: AWSConfig, override val permissions: PermissionsProvider)
+            youTube: YouTube, awsConfig: AWSConfig, override val permissions: MediaAtomMakerPermissionsProvider)
 
   extends MediaAtomImplicits
     with AtomAPIActions

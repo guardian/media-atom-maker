@@ -1,13 +1,12 @@
 package controllers
 
-import com.gu.pandomainauth.action.UserRequest
 import model.commands.CommandExceptions.commandExceptionAsResult
 import play.api.Logger
 import play.api.libs.json.{JsError, JsSuccess, Reads}
-import play.api.mvc.{AnyContent, Controller, Result}
+import play.api.mvc.{AnyContent, Controller, Request, Result}
 
 trait JsonRequestParsing { this: Controller =>
-  def parse[T](raw: UserRequest[AnyContent])(fn: T => Result)(implicit reads: Reads[T]): Result = try {
+  def parse[T](raw: Request[AnyContent])(fn: T => Result)(implicit reads: Reads[T]): Result = try {
     raw.body.asJson match {
       case Some(rawJson) =>
         rawJson.validate[T] match {

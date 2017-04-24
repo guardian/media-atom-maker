@@ -6,7 +6,7 @@ import com.gu.atom.data._
 import com.gu.atom.play._
 import com.gu.contentatom.thrift.atom.media.Category.Hosted
 import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
-import com.gu.editorial.permissions.client.PermissionsProvider
+import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.pandahmac.HMACAuthActions
 import data.DataStores
 import data.JsonConversions._
@@ -24,7 +24,7 @@ class Api (override val stores: DataStores,
            val conf: Configuration,
            val awsConfig: AWSConfig,
            val authActions: HMACAuthActions,
-           val permissions: PermissionsProvider)
+           val permissions: MediaAtomMakerPermissionsProvider)
     extends AtomController
     with MediaAtomImplicits
     with AtomAPIActions {

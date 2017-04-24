@@ -63,30 +63,49 @@ class VideoUpload extends React.Component {
     }
   };
 
-  startUpload = () => {
+  startUpload = (selfHost) => {
     if(this.props.video && this.state.file) {
       const atomId = this.props.video.id;
 
       this.props.uploadActions.startUpload(atomId, this.state.file, () => {
         // on complete
         this.props.uploadActions.getUploads(atomId);
-      });
+      }, selfHost);
     }
   };
+
+
 
   renderButtons(uploading) {
     if (uploading) {
       return false;
-    } else {
-      return <button type="button" className="btn button__secondary__assets" disabled={!this.state.file} onClick={this.startUpload}>
-        <Icon icon="backup">Upload</Icon>
-      </button>;
     }
+    else {
+      return <div> {this.renderAddAssetUpload()} {this.renderAddSelfHostAssetUpload()} </div>;
+    }
+  }
+
+  renderAddAssetUpload() {
+    if (getStore().getState().config.permissions.addAsset) {
+      return this.renderStartUpload(false, 'Upload');
+    }
+  }
+
+  renderAddSelfHostAssetUpload() {
+    if (getStore().getState().config.permissions.addSelfHostedAsset) {
+      return this.renderStartUpload(true, 'Upload avoiding YouTube');
+    }
+  }
+
+  renderStartUpload(selfHost, msg) {
+    return <div><button type="button" className="btn button__secondary__assets" disabled={!this.state.file} onClick={() => this.startUpload(selfHost)}>
+    <Icon icon="backup">{msg}</Icon>
+        </button></div>;
   }
 
   renderUpload(uploading) {
     // the permissions are also validated on the server-side for each request
-    if(!getStore().getState().config.permissions.addAsset) {
+    if(!getStore().getState().config.permissions.addAsset && !getStore().getState().config.permissions.addSelfHostedAsset) {
       return false;
     }
 
