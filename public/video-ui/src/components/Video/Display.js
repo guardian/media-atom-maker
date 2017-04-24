@@ -74,7 +74,7 @@ class VideoDisplay extends React.Component {
 
     const metadata = {
       title: this.props.video.title,
-      standfirst: this.props.video.description
+      standfirst: '<p>' + this.props.video.description + '</p>'
     };
 
     const videoBlock = getVideoBlock(this.props.video.id, metadata);
