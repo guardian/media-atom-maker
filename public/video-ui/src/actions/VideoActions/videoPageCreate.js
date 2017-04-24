@@ -35,7 +35,7 @@ export function createVideoPage(id, metadata, composerUrl, videoBlock) {
         const pageId = res.data.id;
         const pagePath = res.data.identifiers.path.data;
 
-        return VideosApi.addVideoToComposerPage(pageId, videoBlock, composerUrl)
+        return VideosApi.addVideoToComposerPage(pageId, videoBlock, composerUrl, false)
           .then(() => {
             // it takes a little time for the new Composer page to get to CAPI,
             // so keep trying until success or timeout

@@ -100,16 +100,44 @@ export default {
   },
 
   updateComposerPage(id, metadata, composerUrlBase, videoBlock, usages) {
+
+    function getComposerUpdateRequests(id, metadata, composerUrlBase, videoBlock, isLive) {
+      const promises = [];
+      promises.push(updateArticleField('preview', 'headline', metadata.title, composerUrlBase, id));
+      promises.push(updateArticleField('preview', 'standfirst', metadata.standfirst, composerUrlBase, id));
+      if (!isLive) {
+        promises.push(updateArticleField('live', 'headline', metadata.title, composerUrlBase, id));
+        promises.push(updateArticleField('live', 'standfirst', metadata.standfirst, composerUrlBase, id));
+      }
+
+      return promises;
+
+    }
+
+    function updateArticleField(stage, field, value, composerUrl, pageId) {
+      return pandaReqwest({
+        url: `${composerUrl}/api/content/${pageId}/${stage}/fields/${field}`,
+        method: 'put',
+        contentType: 'application/json',
+        crossOrigin: true,
+        withCredentials: true,
+        data: JSON.stringify(value)
+      });
+    }
+
     return Promise.all(usages.map(usage => ContentApi.getLivePage(usage.id)))
     .then(responses => {
-      responses.forEach(reponse => {
+      const promises = responses.map((response, index) => {
         if (response.status == "ok") {
-          //handle live content
+          return getComposerUpdateRequests(usages[index].fields.internalComposerCode, metadata, composerUrlBase, videoBlock, true);
         } else {
-          //handle rpeview content
+          return getComposerUpdateRequests(usages[index].fields.internalComposerCode, metadata, composerUrlBase, videoBlock, false);
         }
       });
-    });
+
+      return Promise.all([].concat.apply([], promises));
+    })
+    .catch(error => { console.log('caught error ', error); });
   },
 
   createComposerPage(id, metadata, composerUrlBase) {
@@ -133,7 +161,7 @@ export default {
     });
   },
 
-  addVideoToComposerPage(pageId, previewData, composerUrl) {
+  addVideoToComposerPage(pageId, previewData, composerUrl, isLive) {
 
     function updateMainBlock(stage, data) {
       return pandaReqwest({
@@ -147,10 +175,13 @@ export default {
     }
 
     // The composer client (whilst in draft) keeps both the preview and live data in sync so we must do the same
-    return updateMainBlock('preview', previewData).then((preview) => {
-      const liveData = preview.data.block;
-      return updateMainBlock('live', liveData);
-    });
+
+    if (!isLive) {
+      return updateMainBlock('preview', previewData).then((preview) => {
+        const liveData = preview.data.block;
+        return updateMainBlock('live', liveData);
+      });
+    }
   },
 
   fetchComposerId(capiId) {
