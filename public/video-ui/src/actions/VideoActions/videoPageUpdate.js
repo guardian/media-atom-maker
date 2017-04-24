@@ -32,19 +32,8 @@ export function updateVideoPage(id, metadata, composerUrl, videoBlock, usages) {
 
     return VideosApi.updateComposerPage(id, metadata, composerUrl, videoBlock, usages)
       .then(res => {
-        console.log('res from page update is ', res);
-        const pageId = res.data.id;
-        const pagePath = res.data.identifiers.path.data;
-
-        return VideosApi.addVideoToComposerPage(pageId, videoBlock, composerUrl, usages)
-          .then(() => {
-            // it takes a little time for the new Composer page to get to CAPI,
-            // so keep trying until success or timeout
-            ContentApi.getByPath(pagePath, true)
-              .then(capiResponse => {
-                dispatch(receiveVideoPageUpdate(capiResponse.response.content));
-              });
-          });
+        console.log('res from update ', res);
+        dispatch(receiveVideoPageUpdate());
       })
       .catch(error => {
         dispatch(errorReceivingVideoPageUpdate(error));

@@ -102,37 +102,48 @@ export default {
   updateComposerPage(id, metadata, composerUrlBase, videoBlock, usages) {
 
     function getComposerUpdateRequests(id, metadata, composerUrlBase, videoBlock, isLive) {
-      const promises = [];
-      promises.push(updateArticleField('preview', 'headline', metadata.title, composerUrlBase, id));
-      promises.push(updateArticleField('preview', 'standfirst', metadata.standfirst, composerUrlBase, id));
-      if (!isLive) {
-        promises.push(updateArticleField('live', 'headline', metadata.title, composerUrlBase, id));
-        promises.push(updateArticleField('live', 'standfirst', metadata.standfirst, composerUrlBase, id));
-      }
 
-      return promises;
-
+      return composerSyncFields.reduce((promises, field) => {
+        promises.push(updateArticleField('preview', field, metadata[field], composerUrlBase, id));
+        if (!isLive) {
+          promises.push(updateArticleField('live', field, metadata[field], composerUrlBase, id));
+        }
+        return promises;
+      }, []);
     }
 
     function updateArticleField(stage, field, value, composerUrl, pageId) {
+
+      if (value) {
+        return pandaReqwest({
+          url: `${composerUrl}/api/content/${pageId}/${stage}/fields/${field}`,
+          method: 'put',
+          contentType: 'application/json',
+          crossOrigin: true,
+          withCredentials: true,
+          data: JSON.stringify(value)
+        });
+      }
       return pandaReqwest({
         url: `${composerUrl}/api/content/${pageId}/${stage}/fields/${field}`,
-        method: 'put',
+        method: 'delete',
         contentType: 'application/json',
         crossOrigin: true,
-        withCredentials: true,
-        data: JSON.stringify(value)
+        withCredentials: true
       });
     }
 
     return Promise.all(usages.map(usage => ContentApi.getLivePage(usage.id)))
     .then(responses => {
       const promises = responses.map((response, index) => {
-        if (response.status == "ok") {
-          return getComposerUpdateRequests(usages[index].fields.internalComposerCode, metadata, composerUrlBase, videoBlock, true);
-        } else {
-          return getComposerUpdateRequests(usages[index].fields.internalComposerCode, metadata, composerUrlBase, videoBlock, false);
-        }
+
+        const isLive = response.status == 'ok';
+
+        const fieldPromises = getComposerUpdateRequests(usages[index].fields.internalComposerCode, metadata, composerUrlBase, videoBlock, isLive);
+
+        const videoPagePromise = this.addVideoToComposerPage(usages[index].fields.internalComposerCode, videoBlock, composerUrlBase, isLive);
+
+        return fieldPromises.concat(videoPagePromise);
       });
 
       return Promise.all([].concat.apply([], promises));
@@ -176,12 +187,15 @@ export default {
 
     // The composer client (whilst in draft) keeps both the preview and live data in sync so we must do the same
 
-    if (!isLive) {
-      return updateMainBlock('preview', previewData).then((preview) => {
+    return updateMainBlock('preview', previewData).then((preview) => {
+      if (!isLive) {
         const liveData = preview.data.block;
+
         return updateMainBlock('live', liveData);
-      });
-    }
+      }
+      return;
+
+    });
   },
 
   fetchComposerId(capiId) {

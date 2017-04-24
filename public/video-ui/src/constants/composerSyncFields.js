@@ -1,2 +1,2 @@
-export const composerSyncFields = ['title', 'standfirst'];
+export const composerSyncFields = ['headline', 'standfirst'];
 

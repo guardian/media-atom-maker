@@ -28,13 +28,11 @@ export default class ContentApi {
     }, retryTimeout);
   }
 
-  static getLivePage(id, retry = false) {
-    const retryTimeout = retry ? 10 * 1000 : 0; // retry up to 10 seconds
-
+  static getLivePage(id) {
     return pandaReqwest({
       url: `${ContentApi.liveProxyUrl}/${id}`,
       method: 'get'
-    }, retryTimeout);
+    });
 
   }
 }
