@@ -34,11 +34,10 @@ class KinesisMessageProcessor {
           this.logger
             .open()
             .then(() => {
-              this.logger.log('Starting');
-
               this.hmacRequest = new HMACRequest({
                 serviceName: EnvironmentConfig.app,
-                secret: config.secret
+                secret: config.secret,
+                logger: this.logger
               });
 
               this.plutoMessageProcessor = new PlutoMessageProcessor({
@@ -58,17 +57,12 @@ class KinesisMessageProcessor {
   }
 
   close() {
-    // eslint-disable-next-line no-console
-    console.log(`Ensuring ${this._messages.length} messages are processed`);
-
     return new Promise((resolve, reject) => {
       Promise.all(this._messages)
         .then(() => {
-          this.logger.log('Finished successfully');
           this.logger.close().then(() => resolve('done'));
         })
         .catch(err => {
-          this.logger.log('Finished with errors');
           this.logger.close().then(() => reject(err));
         });
     });

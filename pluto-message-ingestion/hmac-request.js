@@ -3,9 +3,10 @@ const reqwest = require('reqwest');
 const url = require('url');
 
 class HMACRequest {
-  constructor({ serviceName, secret }) {
+  constructor({ serviceName, secret, logger }) {
     this.serviceName = serviceName;
     this.secret = secret;
+    this.logger = logger;
   }
 
   _getToken(remoteUrl, date) {
@@ -36,6 +37,8 @@ class HMACRequest {
     if (Object.keys(data).length > 0) {
       requestBody.data = JSON.stringify(data);
     }
+
+    this.logger.log(`Making ${method} request to ${remoteUrl}`, data);
 
     return reqwest(requestBody);
   }
