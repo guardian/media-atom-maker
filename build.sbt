@@ -70,17 +70,6 @@ lazy val integrationTests = (project in file("integration-tests"))
     logBuffered in Test := false
   )
 
-lazy val transcoder = (project in file("transcoder"))
-  .dependsOn(common)
-  .enablePlugins(JavaAppPackaging)
-  .settings(commonSettings,
-    name := "media-atom-transcoder",
-    libraryDependencies ++= Dependencies.transcodeDependencies,
-
-    topLevelDirectory in Universal := None,
-    packageName in Universal := normalizedName.value
-
-  )
 
 lazy val expirer = (project in file("expirer"))
   .dependsOn(common % "compile->compile;test->test")
@@ -95,7 +84,7 @@ lazy val expirer = (project in file("expirer"))
   )
 
 lazy val root = (project in file("root"))
-  .aggregate(common, app, uploader, transcoder, expirer)
+  .aggregate(common, app, uploader, expirer)
   .enablePlugins(RiffRaffArtifact)
   .settings(
     riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
@@ -104,7 +93,6 @@ lazy val root = (project in file("root"))
     riffRaffArtifactResources := Seq(
       (packageBin in Debian in app).value -> s"${(name in app).value}/${(name in app).value}.deb",
       (packageBin in Universal in uploader).value -> s"media-atom-upload-actions/${(packageBin in Universal in uploader).value.getName}",
-      (packageBin in Universal in transcoder).value -> s"${(name in transcoder).value}/${(packageBin in Universal in transcoder).value.getName}",
       (packageBin in Universal in expirer).value -> s"${(name in expirer).value}/${(packageBin in Universal in expirer).value.getName}",
       (baseDirectory in Global in app).value / "conf/riff-raff.yaml" -> "riff-raff.yaml"
     )

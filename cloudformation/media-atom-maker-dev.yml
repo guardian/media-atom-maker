@@ -56,8 +56,6 @@ Mappings:
   LambdaBuilds:
     Uploader:
       DEV: "media-service/DEV/media-atom-uploader/media-atom-uploader.zip"
-    Transcoder:
-      DEV: "media-service/DEV/media-atom-transcoder/media-atom-transcoder.zip"
     Expirer:
       DEV: "media-service/DEV/media-atom-expirer/media-atom-expirer.zip"
   LambdaConfig:
@@ -362,43 +360,6 @@ Resources:
     Type: "AWS::S3::Bucket"
     Properties:
       BucketName: !Ref TranscodeOutputBucketName
-
-  TranscoderRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          - Effect: "Allow"
-            Action: "sts:AssumeRole"
-            Principal:
-              Service: ["lambda.amazonaws.com"]
-      Path: "/"
-      Policies:
-        - PolicyName: "TranscoderPolicy"
-          PolicyDocument:
-            Statement:
-              - Effect: "Allow"
-                Action: ["elastictranscoder:CreateJob"]
-                Resource: ["arn:aws:elastictranscoder:*"]
-
-  TranscoderLambda:
-    Type: "AWS::Lambda::Function"
-    Properties:
-      Description: "Transcodes masters to mp4s"
-      Handler: "com.gu.media.TranscoderLambda::handleRequest"
-      Code:
-        S3Bucket: !Ref BuildBucket
-        S3Key: !FindInMap [LambdaBuilds, Transcoder, DEV]
-      Environment:
-        Variables:
-          REGION: !Ref AWS::Region
-          STACK: !Ref Stack
-          APP: "media-atom-transcoder"
-          STAGE: !Ref Stage
-      MemorySize: 256
-      Role: !GetAtt TranscoderRole.Arn
-      Runtime: "java8"
-      Timeout: 300
 
   ExpirerRole:
     Type: "AWS::IAM::Role"

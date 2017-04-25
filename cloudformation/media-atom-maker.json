@@ -138,10 +138,6 @@
                 "CODE": "media-service/CODE/media-atom-upload-actions/media-atom-uploader.zip",
                 "PROD": "media-service/PROD/media-atom-upload-actions/media-atom-uploader.zip"
             },
-            "Transcoder": {
-              "CODE": "media-service/CODE/media-atom-transcoder/media-atom-transcoder.zip",
-              "PROD": "media-service/PROD/media-atom-transcoder/media-atom-transcoder.zip"
-            },
             "Expirer": {
               "CODE": "media-service/CODE/media-atom-expirer/media-atom-expirer.zip",
               "PROD": "media-service/PROD/media-atom-expirer/media-atom-expirer.zip"
@@ -674,65 +670,7 @@
             "BucketName": { "Fn::FindInMap": [ "StageMap", {"Ref": "Stage"}, "TranscoderBucket"]}
           }
         },
-        "TranscoderRole" : {
-          "Type": "AWS::IAM::Role",
-          "Properties": {
-            "AssumeRolePolicyDocument": {
-              "Statement": [
-                {
-                  "Effect": "Allow",
-                  "Action": "sts:AssumeRole",
-                  "Principal": {
-                    "Service": [
-                      "lambda.amazonaws.com"
-                    ]
-                  }
-                }
-              ]
-            },
-            "Path": "/",
-            "Policies": [
-              {
-                "PolicyName": "TranscoderPolicy",
-                "PolicyDocument": {
-                      "Statement": [{
-                          "Effect": "Allow",
-                          "Action": [
-                            "elastictranscoder:CreateJob"
-                          ],
-                          "Resource": [
-                            "arn:aws:elastictranscoder:*"
-                          ]
-                        }]
-                    }
-                }]
-          }
-        },
 
-        "TranscoderLambda": {
-          "Type": "AWS::Lambda::Function",
-          "Properties": {
-            "Description": "Transcodes masters to mp4s",
-            "FunctionName":  {"Fn::Join": ["-", ["media-atom-maker-transcoder", {"Ref": "Stage"} ] ] },
-            "Handler": "com.gu.media.TranscoderLambda::handleRequest",
-            "Code": {
-              "S3Bucket": { "Ref": "BuildBucket" },
-              "S3Key": { "Fn::FindInMap": [ "LambdaBuilds", "Transcoder", { "Ref": "Stage" }] }
-            },
-            "Environment": {
-              "Variables": {
-                "REGION": { "Ref": "AWS::Region" },
-                "STACK": { "Ref": "Stack" },
-                "APP": "media-atom-transcoder",
-                "STAGE": { "Ref": "Stage" }
-              }
-            },
-            "MemorySize": 256,
-            "Role":  { "Fn::GetAtt": [ "TranscoderRole", "Arn" ] },
-            "Runtime": "java8",
-            "Timeout": 300
-          }
-        },
 
         "ExpirerRole": {
           "Type": "AWS::IAM::Role",
