@@ -1,5 +1,4 @@
 import VideosApi from '../../services/VideosApi';
-import ContentApi from '../../services/capi';
 
 function requestVideoPageUpdate() {
   return {
@@ -31,8 +30,8 @@ export function updateVideoPage(id, metadata, composerUrl, videoBlock, usages) {
     dispatch(requestVideoPageUpdate());
 
     return VideosApi.updateComposerPage(id, metadata, composerUrl, videoBlock, usages)
-      .then(res => {
-        dispatch(receiveVideoPageUpdate(metadata.headline));
+      .then(() => {
+        return dispatch(receiveVideoPageUpdate(metadata.headline));
       })
       .catch(error => {
         dispatch(errorReceivingVideoPageUpdate(error));

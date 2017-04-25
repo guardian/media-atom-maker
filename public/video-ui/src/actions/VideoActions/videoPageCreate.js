@@ -39,9 +39,9 @@ export function createVideoPage(id, metadata, composerUrl, videoBlock) {
           .then(() => {
             // it takes a little time for the new Composer page to get to CAPI,
             // so keep trying until success or timeout
-            ContentApi.getByPath(pagePath, true)
+            return ContentApi.getByPath(pagePath, true)
               .then(capiResponse => {
-                dispatch(receiveVideoPageCreate(capiResponse.response.content));
+                return dispatch(receiveVideoPageCreate(capiResponse.response.content));
               });
           });
       })

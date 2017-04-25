@@ -26,6 +26,10 @@ class VideoDisplay extends React.Component {
     this.props.videoActions.updateVideo(blankVideoData);
   }
 
+  state = {
+    composerUpdateInProgress: false
+  };
+
   saveVideo = () => {
     this.props.videoActions.saveVideo(this.props.video);
   }
@@ -79,20 +83,38 @@ class VideoDisplay extends React.Component {
 
   pageCreate = () => {
 
+    this.setState({
+      composerUpdateInProgress: true
+    });
+
     const metadata = this.getVideoMetadata();
 
     const videoBlock = getVideoBlock(this.props.video.id, metadata);
 
-    return this.props.videoActions.createVideoPage(this.props.video.id, metadata, this.getComposerUrl(), videoBlock);
+    return this.props.videoActions.createVideoPage(this.props.video.id, metadata, this.getComposerUrl(), videoBlock)
+    .then(() => {
+      this.setState({
+        composerUpdateInProgress: false
+      });
+    });
   }
 
   pageUpdate = () => {
 
+    this.setState({
+      composerUpdateInProgress: true
+    });
+
     const metadata = this.getVideoMetadata();
 
     const videoBlock = getVideoBlock(this.props.video.id, metadata);
 
-    return this.props.videoActions.updateVideoPage(this.props.video.id, metadata, this.getComposerUrl(), videoBlock, this.getVideoPageUsages());
+    return this.props.videoActions.updateVideoPage(this.props.video.id, metadata, this.getComposerUrl(), videoBlock, this.getVideoPageUsages())
+    .then(() => {
+      this.setState({
+        composerUpdateInProgress: false
+      });
+    });
   }
 
   getComposerUrl = () => {
@@ -105,7 +127,7 @@ class VideoDisplay extends React.Component {
         return (
           <button
             className="button__secondary"
-            disabled={this.cannotMakeEdits()}
+            disabled={this.cannotMakeEdits() || this.state.composerUpdateInProgress }
             onClick={this.pageCreate}>
               <Icon icon="add_to_queue"></Icon> Create Video Page
           </button>
@@ -114,7 +136,7 @@ class VideoDisplay extends React.Component {
         return (
           <button
             className="button__secondary"
-            disabled={this.cannotMakeEdits()}
+            disabled={this.cannotMakeEdits() || this.state.composerUpdateInProgress}
             onClick={this.pageUpdate}>
               <Icon icon="add_to_queue"></Icon> Update Video Pages
           </button>
