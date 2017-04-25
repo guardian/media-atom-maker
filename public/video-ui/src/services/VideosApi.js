@@ -103,6 +103,8 @@ export default {
 
     function getComposerUpdateRequests(id, metadata, composerUrlBase, videoBlock, isLive) {
 
+      // When article is in preview, composer keeps track of both the live and preview versions of an article
+      // For an uplublished article, we need to update both live and preview versions.
       return composerSyncFields.reduce((promises, field) => {
         promises.push(updateArticleField('preview', field, metadata[field], composerUrlBase, id));
         if (!isLive) {
@@ -124,6 +126,7 @@ export default {
           data: JSON.stringify(value)
         });
       }
+
       return pandaReqwest({
         url: `${composerUrl}/api/content/${pageId}/${stage}/fields/${field}`,
         method: 'delete',
@@ -137,8 +140,7 @@ export default {
     .then(responses => {
       const promises = responses.map((response, index) => {
 
-        const isLive = response.status == 'ok';
-
+        const isLive = response.response.status === 'ok';
         const fieldPromises = getComposerUpdateRequests(usages[index].fields.internalComposerCode, metadata, composerUrlBase, videoBlock, isLive);
 
         const videoPagePromise = this.addVideoToComposerPage(usages[index].fields.internalComposerCode, videoBlock, composerUrlBase, isLive);
@@ -147,8 +149,7 @@ export default {
       });
 
       return Promise.all([].concat.apply([], promises));
-    })
-    .catch(error => { console.log('caught error ', error); });
+    });
   },
 
   createComposerPage(id, metadata, composerUrlBase) {

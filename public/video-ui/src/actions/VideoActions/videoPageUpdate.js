@@ -8,10 +8,10 @@ function requestVideoPageUpdate() {
   };
 }
 
-function receiveVideoPageUpdate(capiPage) {
+function receiveVideoPageUpdate(newTitle) {
   return {
     type:           'VIDEO_PAGE_UPDATE_POST_RECEIVE',
-    newPage:        capiPage,
+    newTitle:       newTitle,
     receivedAt:     Date.now()
   };
 }
@@ -32,8 +32,7 @@ export function updateVideoPage(id, metadata, composerUrl, videoBlock, usages) {
 
     return VideosApi.updateComposerPage(id, metadata, composerUrl, videoBlock, usages)
       .then(res => {
-        console.log('res from update ', res);
-        dispatch(receiveVideoPageUpdate());
+        dispatch(receiveVideoPageUpdate(metadata.headline));
       })
       .catch(error => {
         dispatch(errorReceivingVideoPageUpdate(error));

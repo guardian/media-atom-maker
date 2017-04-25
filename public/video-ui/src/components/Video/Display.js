@@ -69,13 +69,17 @@ class VideoDisplay extends React.Component {
     return  this.props.usages.filter(value => value.type === 'video');
   }
 
+  getVideoMetadata = () => {
+    return {
+      headline: this.props.video.title,
+      standfirst: '<p>' + (this.props.video.description ? this.props.video.description : '') + '</p>'
+    };
+  }
+
 
   pageCreate = () => {
 
-    const metadata = {
-      title: this.props.video.title,
-      standfirst: '<p>' + this.props.video.description + '</p>'
-    };
+    const metadata = this.getVideoMetadata();
 
     const videoBlock = getVideoBlock(this.props.video.id, metadata);
 
@@ -84,10 +88,7 @@ class VideoDisplay extends React.Component {
 
   pageUpdate = () => {
 
-    const metadata = {
-      title: this.props.video.title,
-      standfirst: this.props.video.description
-    };
+    const metadata = this.getVideoMetadata();
 
     const videoBlock = getVideoBlock(this.props.video.id, metadata);
 
