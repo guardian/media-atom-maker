@@ -76,7 +76,7 @@ class VideoDisplay extends React.Component {
   getVideoMetadata = () => {
     return {
       headline: this.props.video.title,
-      standfirst: '<p>' + (this.props.video.description ? this.props.video.description : '') + '</p>'
+      standfirst: this.props.video.description ? '<p>' + this.props.video.description + '</p>' : null
     };
   }
 
