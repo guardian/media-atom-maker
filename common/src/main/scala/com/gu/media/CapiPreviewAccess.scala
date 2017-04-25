@@ -16,8 +16,18 @@ trait CapiAccess { this: Settings =>
   private val httpClient = new OkHttpClient()
   httpClient.setConnectTimeout(5, TimeUnit.SECONDS)
 
-  def capiQuery(query: String): JsValue = {
-    val url = s"$capiUrl/$query"
+  private def getUrl(query: String, queryLive: Boolean): String = {
+    if (queryLive) s"$liveCapiUrl/$query"
+    else s"$capiUrl/$query"
+  }
+
+  private def getAllowedResponseCodes(queryLive: Boolean): List[Int] = {
+    if (queryLive) List(200, 404)
+    else List(200)
+  }
+
+  def capiQuery(query: String, queryLive: Boolean = false): JsValue = {
+    val url = getUrl(query, queryLive)
 
     val req = new Request.Builder()
       .url(url)
@@ -26,29 +36,9 @@ trait CapiAccess { this: Settings =>
 
     try {
       val response = httpClient.newCall(req).execute
+      val allowedCodes = getAllowedResponseCodes(queryLive)
 
-      if(response.code() != 200)
-        throw CapiException(s"CAPI returned status ${response.code()}")
-
-      Json.parse(response.body().byteStream())
-    } catch {
-      case err: IOException =>
-        throw CapiException(err.getMessage, err)
-    }
-  }
-
-  //TODO: refactor repeat code out
-  def liveCapiQuery(query: String): JsValue = {
-    val url = s"$liveCapiUrl/$query"
-
-    val req = new Request.Builder()
-      .url(url)
-      .build
-
-    try {
-      val response = httpClient.newCall(req).execute
-
-      if(response.code() != 200 && response.code() != 404)
+      if(! allowedCodes.contains(response.code()))
         throw CapiException(s"CAPI returned status ${response.code()}")
 
       Json.parse(response.body().byteStream())
