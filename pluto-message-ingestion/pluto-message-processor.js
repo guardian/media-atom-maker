@@ -9,6 +9,7 @@ class PlutoMessageProcessor {
     switch (message.type) {
       case 'project-created': {
         const project = PlutoMessageProcessor._convertMessageToProject(message);
+        this.logger.log('Project', project);
 
         return new Promise((resolve, reject) => {
           this._createProject(project)
@@ -19,7 +20,8 @@ class PlutoMessageProcessor {
             .catch(err => {
               this.logger.error('failed to add project', {
                 status: err.status,
-                response: err.response
+                response: err.response,
+                project: project
               });
               reject(err.response);
             });
@@ -27,6 +29,7 @@ class PlutoMessageProcessor {
       }
       case 'project-updated': {
         const project = PlutoMessageProcessor._convertMessageToProject(message);
+        this.logger.log('Project', project);
 
         return new Promise((resolve, reject) => {
           this._updateProject(project)
@@ -39,7 +42,8 @@ class PlutoMessageProcessor {
             .catch(err => {
               this.logger.error('failed to update project', {
                 status: err.status,
-                response: err.response
+                response: err.response,
+                project: project
               });
               reject(err.response);
             });
@@ -64,11 +68,13 @@ class PlutoMessageProcessor {
 
   _createProject(project) {
     const remoteUrl = `${this.hostname}/api2/pluto/projects`;
+    this.logger.log(`making a request to ${remoteUrl}`, project);
     return this.hmacRequest.post(remoteUrl, project);
   }
 
   _updateProject(project) {
     const remoteUrl = `${this.hostname}/api2/pluto/projects/${project.id}`;
+    this.logger.log(`making a request to ${remoteUrl}`, project);
     return this.hmacRequest.put(remoteUrl, project);
   }
 }
