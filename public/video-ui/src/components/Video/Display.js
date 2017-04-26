@@ -51,15 +51,14 @@ class VideoDisplay extends React.Component {
     window.parent.postMessage({atomId: this.props.video.id}, '*');
   };
 
-  manageEditingState = (property) => {
+  manageEditingState = () => {
 
-    if (this.props.editState[property]) {
+    if (this.props.videoEditOpen) {
 
       this.saveAndUpdateVideo(this.props.video);
     }
 
-    const newEditableState = Object.assign(this.props.editState, {[property]: !this.props.editState[property]});
-    this.props.videoActions.updateVideoEditState(newEditableState);
+    this.props.videoActions.updateVideoEditState(!this.props.videoEditOpen);
   };
 
   cannotEditStatus = () => {
@@ -93,7 +92,7 @@ class VideoDisplay extends React.Component {
         return (
           <button
             className="button__secondary"
-            disabled={this.cannotMakeEdits()}
+            disabled={this.props.videoEditOpen}
             onClick={this.pageCreate}>
               <Icon icon="add_to_queue"></Icon> Create Video Page
           </button>
@@ -101,23 +100,10 @@ class VideoDisplay extends React.Component {
       }
   }
 
-  cannotMakeEdits = () => {
-    if (this.props.editState && (this.props.editState.metadataEditable || this.props.editState.youtubeEditable)) {
-      return true;
-    }
+  cannotCloseEditForm = () => {
 
-    return false;
-  }
+    const formName = formNames.videoData;
 
-
-  cannotCloseEditForm = (property) => {
-
-    let formName;
-    if (property === 'metadataEditable') {
-      formName = formNames.metadata;
-    } else if (property === 'youtubeEditable') {
-      formName = formNames.youtube;
-    }
     const errors = this.props.checkedFormFields[formName] ? this.props.checkedFormFields[formName] : {};
     return Object.keys(errors).some(field => {
       const value = errors[field];
@@ -134,23 +120,23 @@ class VideoDisplay extends React.Component {
   }
 
   handleAssetClick = (e) => {
-    if (this.cannotMakeEdits()) {
+    if (this.props.videoEditOpen) {
       e.preventDefault();
     }
   }
 
-  renderEditButton = (property) => {
+  renderEditButton = () => {
 
-    if (this.props && this.props.editState[property]) {
+    if (this.props && this.props.videoEditOpen) {
       return (
-        <button disabled={this.cannotCloseEditForm(property)} onClick={() => this.manageEditingState(property)}>
-          <Icon className={"icon__done " + (this.cannotCloseEditForm(property) ? "disabled": "")} icon="done" />
+        <button disabled={this.cannotCloseEditForm()} onClick={() => this.manageEditingState()}>
+          <Icon className={"icon__done " + (this.cannotCloseEditForm() ? "disabled": "")} icon="done" />
         </button>
       );
     } else {
       return (
-        <button disabled={this.cannotMakeEdits()} onClick={() => this.manageEditingState(property)}>
-          <Icon className={"icon__edit " + (this.cannotMakeEdits() ? "disabled" : "")} icon="edit" />
+        <button disabled={this.props.videoEditOpen} onClick={() => this.manageEditingState()}>
+          <Icon className={"icon__edit " + (this.props.videoEditOpen ? "disabled" : "")} icon="edit" />
         </button>
       );
     }
@@ -160,7 +146,7 @@ class VideoDisplay extends React.Component {
     return <div className="video__detailbox">
       <div className="video__detailbox__header__container">
         <header className="video__detailbox__header">Video Preview</header>
-        <Link className={"button " + (this.cannotMakeEdits() ? "disabled" : "")} to={`/videos/${this.props.video.id}/upload`}
+        <Link className={"button " + (this.props.videoEditOpen ? "disabled" : "")} to={`/videos/${this.props.video.id}/upload`}
             onClick={e => this.handleAssetClick(e)}>
           <Icon className="icon__edit video__temporary_button" icon="edit">
             Edit Assets
@@ -188,41 +174,13 @@ class VideoDisplay extends React.Component {
               {this.renderPreview()}
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
-                  <header className="video__detailbox__header">Video Meta Data</header>
-                  {this.renderEditButton('metadataEditable')}
-                </div>
-
-                <VideoMetaData
-                  video={this.props.video || {}}
-                  updateVideo={this.updateVideo}
-                  editable={this.props.editState.metadataEditable}
-                  formName={formNames.metadata}
-                  updateErrors={this.props.formErrorActions.updateFormErrors}
-                  descriptionValidator={this.validateDescription}
-                 />
-              </div>
-              <div className="video__detailbox">
-                <div className="video__detailbox__header__container">
-                  <header className="video__detailbox__header">Youtube Meta Data</header>
-                  {this.renderEditButton('youtubeEditable')}
-                </div>
-                <YoutubeMetaData
-                  video={this.props.video || {}}
-                  updateVideo={this.updateVideo}
-                  editable={this.props.editState.youtubeEditable}
-                  formName={formNames.youtube}
-                  updateErrors={this.props.formErrorActions.updateFormErrors}
-                />
-              </div>
-              <div className="video__detailbox">
-                <div className="video__detailbox__header__container">
-                  <header className="video__detailbox__header">Youtube Meta Data</header>
-                  {this.renderEditButton('videoDataEditable')}
+                  <header className="video__detailbox__header">Video Data</header>
+                  {this.renderEditButton()}
                 </div>
                 <VideoData
                   video={this.props.video || {}}
                   updateVideo={this.updateVideo}
-                  editable={this.props.editState.videoDataEditable}
+                  editable={this.props.videoEditOpen}
                   formName={formNames.videoData}
                   updateErrors={this.props.formErrorActions.updateFormErrors}
                 />
@@ -231,10 +189,9 @@ class VideoDisplay extends React.Component {
                 <div className="video__detailbox__header__container">
                   <header className="video__detailbox__header">Poster Image</header>
                   <GridImageSelect
-                    editState={this.props.editState}
                     updateVideo={this.saveAndUpdateVideoPoster}
                     gridUrl={this.props.config.gridUrl}
-                    disabled={this.props.editState.youtubeEditable || this.props.editState.metadataEditable}
+                    disabled={this.props.videoEditOpen}
                     createMode={false}/>
                 </div>
                 <VideoPoster
@@ -285,7 +242,7 @@ function mapStateToProps(state) {
     usages: state.usage,
     composerPageWithUsage: state.pageCreate,
     publishedVideo: state.publishedVideo,
-    editState: state.editState,
+    videoEditOpen: state.videoEditOpen,
     checkedFormFields: state.checkedFormFields
   };
 }

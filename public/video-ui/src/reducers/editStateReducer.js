@@ -1,11 +1,7 @@
-export default function video(state = {
-    metadataEditable: false,
-    youtubeEditable: false,
-    videoDataEditable: false
-  }, action) {
+export default function video(state = false, action) {
   switch (action.type) {
     case 'VIDEO_EDIT_STATE_REQUEST':
-      return Object.assign({}, action.editState) || state;
+      return action.editState;
     default:
       return state;
   }

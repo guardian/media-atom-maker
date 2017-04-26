@@ -15,8 +15,7 @@ class VideoPublishBar extends React.Component {
 
   isPublishingDisabled() {
     return this.videoIsCurrentlyPublishing() ||
-      this.props.editState.metadataEditable ||
-      this.props.editState.youtubeEditable ||
+      this.props.videoEditOpen ||
       !this.videoHasUnpublishedChanges();
   }
 
@@ -77,7 +76,7 @@ import { connect } from 'react-redux';
 
 function mapStateToProps(state) {
   return {
-    editState: state.editState
+    videoEditOpen: state.videoEditOpen
   };
 }
 export default connect(mapStateToProps)(VideoPublishBar);
