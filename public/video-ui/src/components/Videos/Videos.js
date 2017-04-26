@@ -1,4 +1,5 @@
-import React, {PropTypes} from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import VideoItem from './VideoItem';
 import {frontPageSize} from '../../constants/frontPageSize';
 

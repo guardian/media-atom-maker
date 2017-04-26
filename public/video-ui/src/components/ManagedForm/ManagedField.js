@@ -1,4 +1,5 @@
-import React, {PropTypes} from 'react';
+import React from 'react';
+import {PropTypes} from 'prop-types';
 import _get from 'lodash/fp/get';
 import _set from 'lodash/fp/set';
 import validateField from '../../util/validateField';
