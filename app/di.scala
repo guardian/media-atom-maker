@@ -1,8 +1,8 @@
 import com.gu.atom.play.ReindexController
 import com.gu.media.ses.Mailer
 import com.gu.media.upload.actions.KinesisActionSender
-import com.gu.media.youtube.YouTube
 import com.gu.media.{CapiPreview, MediaAtomMakerPermissionsProvider}
+import com.gu.media.youtube.{YouTube, YouTubeClaims}
 import controllers._
 import data._
 import play.api.ApplicationLoader.Context
@@ -41,6 +41,8 @@ class MediaAtomMaker(context: Context)
 
   private val youTube = new YouTube(config)
 
+  private val youTubeClaims = new YouTubeClaims(config)
+
   private val sesMailer = new Mailer(aws.sesClient, configuration.getString("host").get)
 
   private val uploaderMessageConsumer = PlutoMessageConsumer(stores, aws)
@@ -48,7 +50,7 @@ class MediaAtomMaker(context: Context)
 
   private val api = new Api(stores, configuration, aws, hmacAuthActions, permissions)
 
-  private val api2 = new Api2(stores, configuration, hmacAuthActions, youTube, aws, permissions)
+  private val api2 = new Api2(stores, configuration, hmacAuthActions, youTube, youTubeClaims, aws, permissions)
 
   private val uploadSender = buildUploadSender()
   private val uploads = new UploadController(hmacAuthActions, aws, youTube, uploadSender, stores, permissions)

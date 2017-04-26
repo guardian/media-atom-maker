@@ -29,7 +29,8 @@ case class MediaAtom(
   commentsEnabled: Boolean = false,
   legallySensitive: Option[Boolean],
   privacyStatus: Option[PrivacyStatus],
-  expiryDate: Option[Long] = None) {
+  expiryDate: Option[Long] = None,
+  blockAds: Option[Boolean]) {
 
   def asThrift = ThriftAtom(
       id = id,
@@ -59,7 +60,8 @@ case class MediaAtom(
         )),
       contentChangeDetails = contentChangeDetails.asThrift,
       flags = Some(ThriftFlags(
-        legallySensitive = legallySensitive
+        legallySensitive = legallySensitive,
+        blockAds = blockAds
       ))
   )
 
@@ -101,6 +103,7 @@ object MediaAtom extends MediaAtomImplicits {
       tags = data.metadata.flatMap(_.tags.map(_.toList)).getOrElse(Nil),
       youtubeCategoryId = data.metadata.map(_.categoryId).getOrElse(None),
       expiryDate = data.metadata.map(_.expiryDate).getOrElse(None),
+      blockAds = atom.flags.flatMap(_.blockAds),
       license = data.metadata.flatMap(_.license),
       commentsEnabled = data.metadata.flatMap(_.commentsEnabled).getOrElse(false),
       channelId = data.metadata.flatMap(_.channelId),
