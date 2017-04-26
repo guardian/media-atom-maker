@@ -40,3 +40,10 @@ Pluto sends a JSON blob that looks like:
   "created": "2017-04-24T17:20:11.503Z"
 }
 ```
+
+Note, if an old Pluto Project is updated, a `project-updated` message still gets put on the Kinesis stream.
+As MAM has not seen this project before, it does not know what to update and thus the message is discarded, 
+logging `attempted to update a project that does not exist`.
+
+This means only projects created **after** the Pluto and MAM changes have gone out can be selected as a destination 
+for Direct Upload. 
