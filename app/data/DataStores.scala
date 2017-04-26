@@ -6,11 +6,10 @@ import com.gu.contentatom.thrift.Atom
 import com.gu.media.pluto.PlutoProjectDataStore
 import com.gu.media.upload.UploadsDataStore
 import com.gu.media.{CapiPreviewAccess, PlutoDataStore}
-import util.atom.MediaAtomImplicits
 import model.commands.CommandExceptions._
 import util.AWSConfig
 
-class DataStores(aws: AWSConfig, capi: CapiPreviewAccess) extends MediaAtomImplicits {
+class DataStores(aws: AWSConfig, capi: CapiPreviewAccess)  {
   import cats.syntax.either._ // appears unused but is required to make the data stores compile
 
   val preview = new PreviewDynamoDataStore(aws.dynamoDB, aws.dynamoTableName)
