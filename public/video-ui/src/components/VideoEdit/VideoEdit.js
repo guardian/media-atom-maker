@@ -1,9 +1,7 @@
 import React from 'react';
 import {ManagedForm, ManagedField} from '../ManagedForm';
 import TextInput from '../FormFields/TextInput';
-import TextArea from '../FormFields/TextArea';
 import SelectBox from '../FormFields/SelectBox';
-import DatePicker from '../FormFields/DatePicker';
 import {fieldLengths} from '../../constants/videoEditValidation';
 import {videoCategories} from '../../constants/videoCategories';
 import { privacyStates } from '../../constants/privacyStates';
@@ -43,13 +41,6 @@ class VideoEdit extends React.Component {
             <TextInput/>
           </ManagedField>
           <ManagedField
-            fieldLocation="description"
-            name="Description"
-            placeholder="No Description"
-          >
-            <TextArea/>
-          </ManagedField>
-          <ManagedField
             fieldLocation="category"
             name="Category"
             isRequired={true}
@@ -69,12 +60,6 @@ class VideoEdit extends React.Component {
             isRequired={true}
           >
             <SelectBox selectValues={this.props.youtube.categories}></SelectBox>
-          </ManagedField>
-          <ManagedField
-            fieldLocation="expiryDate"
-            name="Expiry Date"
-          >
-            <DatePicker/>
           </ManagedField>
           <ManagedField
             fieldLocation="channelId"
