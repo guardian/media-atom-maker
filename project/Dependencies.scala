@@ -41,7 +41,7 @@ object Dependencies {
   val logstashLogbackEncoder = "net.logstash.logback" % "logstash-logback-encoder" % "4.8"
   val kinesisLogbackAppender = "com.gu" % "kinesis-logback-appender" % "1.3.0"
 
-  val permissionsClient = "com.gu" %% "editorial-permissions-client" % "0.2"
+  val permissionsClient = "com.gu" %% "editorial-permissions-client" % "0.7"
 
   val pandaHmacHeaders = "com.gu" %% "hmac-headers" % "1.1"
 
