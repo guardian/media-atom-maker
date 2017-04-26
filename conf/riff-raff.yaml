@@ -25,11 +25,6 @@ deployments:
     parameters:
       functionNames: [media-atom-maker-upload-actions-]
       fileName: media-atom-uploader.zip
-  media-atom-transcoder:
-    template: lambda
-    parameters:
-      functionNames: [media-atom-maker-transcoder-]
-      fileName: media-atom-transcoder.zip
   media-atom-expirer:
     template: lambda
     parameters:
