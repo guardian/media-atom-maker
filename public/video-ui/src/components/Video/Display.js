@@ -5,6 +5,7 @@ import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoUsages from '../VideoUsages/VideoUsages';
 import VideoMetaData from '../VideoMetaData/VideoMetaData';
 import YoutubeMetaData from '../YoutubeMetaData/YoutubeMetaData';
+import VideoData from '../VideoData/VideoData';
 import VideoPoster from '../VideoPoster/VideoPoster';
 import AdvancedActions from '../Videos/AdvancedActions';
 import GridImageSelect from '../utils/GridImageSelect';
@@ -210,6 +211,19 @@ class VideoDisplay extends React.Component {
                   updateVideo={this.updateVideo}
                   editable={this.props.editState.youtubeEditable}
                   formName={formNames.youtube}
+                  updateErrors={this.props.formErrorActions.updateFormErrors}
+                />
+              </div>
+              <div className="video__detailbox">
+                <div className="video__detailbox__header__container">
+                  <header className="video__detailbox__header">Youtube Meta Data</header>
+                  {this.renderEditButton('videoDataEditable')}
+                </div>
+                <VideoData
+                  video={this.props.video || {}}
+                  updateVideo={this.updateVideo}
+                  editable={this.props.editState.videoDataEditable}
+                  formName={formNames.videoData}
                   updateErrors={this.props.formErrorActions.updateFormErrors}
                 />
               </div>

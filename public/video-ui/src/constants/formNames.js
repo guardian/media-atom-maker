@@ -3,4 +3,5 @@ export const formNames = {
   metadata: 'metadataForm',
   youtube: 'youtubeForm',
   posterImage: 'posterImage',
+  videoData: 'dataForm'
 };
