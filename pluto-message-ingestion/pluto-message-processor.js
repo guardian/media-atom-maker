@@ -13,7 +13,9 @@ class PlutoMessageProcessor {
         return new Promise((resolve, reject) => {
           this._createProject(project)
             .then(resp => {
-              this.logger.log('successfully created project', { response: resp });
+              this.logger.log('successfully created project', {
+                response: resp
+              });
               resolve(resp);
             })
             .catch(err => {
@@ -22,7 +24,7 @@ class PlutoMessageProcessor {
                 response: err.response,
                 project: project
               });
-              reject(err.response);
+              reject(err);
             });
         });
       }
@@ -38,12 +40,27 @@ class PlutoMessageProcessor {
               resolve(resp);
             })
             .catch(err => {
-              this.logger.error('failed to update project', {
+              const logDetail = {
                 status: err.status,
                 response: err.response,
                 project: project
-              });
-              reject(err.response);
+              };
+
+              if (err.status === 404) {
+                // A 404 happens when we try to `PUT` to update, but we haven't seen the project before so it doesn't exist.
+                // As message processing failures are blocking and AWS Lambda will not read any new records from the
+                // stream until the failed batch of records either expires or processed successfully,
+                // `resolve` for the happy path so we can continue
+                // http://docs.aws.amazon.com/lambda/latest/dg/retries-on-errors.html
+                this.logger.error(
+                  'attempted to update a project that does not exist',
+                  logDetail
+                );
+                resolve('attempted to update a project that does not exist');
+              } else {
+                this.logger.error('failed to update project', logDetail);
+                reject(err);
+              }
             });
         });
       }
