@@ -5,7 +5,7 @@ import com.gu.atom.play.AtomAPIActions
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
 import com.gu.media.upload.model.PlutoSyncMetadata
-import com.gu.media.youtube.YouTube
+import com.gu.media.youtube.{YouTube, YouTubeClaims}
 import com.gu.pandahmac.HMACAuthActions
 import data.DataStores
 import model.MediaAtom
@@ -16,7 +16,7 @@ import util.atom.MediaAtomImplicits
 import play.api.libs.json._
 
 class Api2 (override val stores: DataStores, conf: Configuration, override val authActions: HMACAuthActions,
-            youTube: YouTube, awsConfig: AWSConfig, override val permissions: MediaAtomMakerPermissionsProvider)
+            youTube: YouTube, youTubeClaims: YouTubeClaims, awsConfig: AWSConfig, override val permissions: MediaAtomMakerPermissionsProvider)
 
   extends MediaAtomImplicits
     with AtomAPIActions
@@ -55,7 +55,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
 
   def publishMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
     try {
-      val command = PublishAtomCommand(id, stores, youTube, req.user)
+      val command = PublishAtomCommand(id, stores, youTube, youTubeClaims, req.user)
 
       val updatedAtom = command.process()
       Ok(Json.toJson(updatedAtom))

@@ -1,13 +1,16 @@
 import com.typesafe.sbt.SbtNativePackager.autoImport.maintainer
 import com.typesafe.sbt.packager.archetypes.ServerLoader.Systemd
 import com.typesafe.sbt.packager.debian.DebianPlugin.autoImport.debianPackageDependencies
-import sbt.Keys.organization
+import sbt.Keys._
 
 lazy val commonSettings = Seq(
   scalaVersion in ThisBuild := "2.11.8",
   organization in ThisBuild := "com.gu",
 
-  resolvers += "Guardian Bintray" at "https://dl.bintray.com/guardian/editorial-tools",
+  resolvers ++= Seq("Guardian Bintray" at "https://dl.bintray.com/guardian/editorial-tools",
+    "Sonatype OSS" at "http://oss.sonatype.org/content/repositories/releases/",
+    "Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
+  ),
 
   // silly SBT command to work-around lack of support for root projects that are not in the "root" folder
   // https://github.com/sbt/sbt/issues/2405
@@ -17,6 +20,9 @@ lazy val commonSettings = Seq(
 lazy val common = (project in file("common"))
   .settings(commonSettings,
     name := "media-atom-common",
+    unmanagedBase := baseDirectory.value / "common" / "lib",
+    unmanagedJars in Compile += file("common/lib/google-api-services-youtubePartner-v1-rev20160726-java-1.22.0-sources.jar"),
+    unmanagedJars in Compile += file("common/lib/google-api-services-youtubePartner-v1-rev20160726-java-1.22.0.jar"),
     libraryDependencies ++= Dependencies.commonDependencies
   )
 
