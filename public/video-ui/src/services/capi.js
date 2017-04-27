@@ -6,6 +6,10 @@ export default class ContentApi {
     return getStore().getState().config.capiProxyUrl;
   }
 
+  static get liveProxyUrl () {
+    return getStore().getState().config.liveCapiProxyUrl;
+  }
+
   static search(query) {
     const encodedQuery = encodeURIComponent(query);
 
@@ -22,5 +26,13 @@ export default class ContentApi {
       url: `${ContentApi.proxyUrl}/${path}?show-fields=all`,
       method: 'get'
     }, retryTimeout);
+  }
+
+  static getLivePage(id) {
+    return pandaReqwest({
+      url: `${ContentApi.liveProxyUrl}/${id}`,
+      method: 'get'
+    });
+
   }
 }
