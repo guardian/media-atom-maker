@@ -108,6 +108,6 @@ export class ManagedField extends React.Component {
         hasWarning: this.hasWarning
       });
     });
-    return <div>{hydratedChildren}</div>;
+    return <div className="form-element">{hydratedChildren}</div>;
   }
 }

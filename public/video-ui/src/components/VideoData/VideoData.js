@@ -1,5 +1,5 @@
 import React from 'react';
-import {ManagedForm, ManagedField} from '../ManagedForm';
+import {ManagedForm, ManagedField, ManagedSection} from '../ManagedForm';
 import TextInput from '../FormFields/TextInput';
 import TextArea from '../FormFields/TextArea';
 import SelectBox from '../FormFields/SelectBox';
@@ -34,73 +34,79 @@ class VideoData extends React.Component {
           updateErrors={this.props.updateErrors}
           formName={this.props.formName}
         >
-          <ManagedField
-            fieldLocation="title"
-            name="Title"
-            maxLength={fieldLengths.title}
-            isRequired={true}
-          >
-            <TextInput/>
-          </ManagedField>
-          <ManagedField
-            fieldLocation="description"
-            name="Description"
-            placeholder="No Description"
-            customValidation={this.props.descriptionValidator}
-            isDesired={true}
-          >
-            <TextArea/>
-          </ManagedField>
-          <ManagedField
-            fieldLocation="blockAds"
-            name="Block ads"
-            fieldDetails="Ads will not be displayed with this video"
-          >
-            <CheckBox/>
-          </ManagedField>
-          <ManagedField
-            fieldLocation="category"
-            name="Category"
-          >
-            <SelectBox selectValues={videoCategories}></SelectBox>
-          </ManagedField>
-          <ManagedField
-            fieldLocation="expiryDate"
-            name="Expiry Date"
-          >
-            <DatePicker/>
-          </ManagedField>
-          <ManagedField
-            fieldLocation="legallySensitive"
-            name="Legally Sensitive"
-            fieldDetails="This content involves active criminal proceedings."
-          >
-            <CheckBox/>
-          </ManagedField>
-          <ManagedField
-            fieldLocation="youtubeCategoryId"
-            name="YouTube Category"
-          >
-            <SelectBox selectValues={this.props.youtube.categories}></SelectBox>
-          </ManagedField>
-          <ManagedField
-            fieldLocation="channelId"
-            name="YouTube Channel"
-          >
-            <SelectBox selectValues={this.props.youtube.channels}></SelectBox>
-          </ManagedField>
-          <ManagedField
-            fieldLocation="privacyStatus"
-            name="Privacy Status"
-          >
-            <SelectBox selectValues={privacyStates}></SelectBox>
-          </ManagedField>
-          <ManagedField
-            fieldLocation="tags"
-            name="Keywords"
-          >
-            <KeywordPicker/>
-          </ManagedField>
+          <ManagedSection>
+            <ManagedField
+              fieldLocation="title"
+              name="Title"
+              maxLength={fieldLengths.title}
+              isRequired={true}
+            >
+              <TextInput/>
+            </ManagedField>
+            <ManagedField
+              fieldLocation="description"
+              name="Description"
+              placeholder="No Description"
+              customValidation={this.props.descriptionValidator}
+              isDesired={true}
+            >
+              <TextArea/>
+            </ManagedField>
+            <ManagedField
+              fieldLocation="blockAds"
+              name="Block ads"
+              fieldDetails="Ads will not be displayed with this video"
+            >
+              <CheckBox/>
+            </ManagedField>
+            <ManagedField
+              fieldLocation="category"
+              name="Category"
+            >
+              <SelectBox selectValues={videoCategories}></SelectBox>
+            </ManagedField>
+            <ManagedField
+              fieldLocation="expiryDate"
+              name="Expiry Date"
+            >
+              <DatePicker/>
+            </ManagedField>
+          </ManagedSection>
+          <ManagedSection>
+            <ManagedField
+              fieldLocation="youtubeCategoryId"
+              name="YouTube Category"
+            >
+              <SelectBox selectValues={this.props.youtube.categories}></SelectBox>
+            </ManagedField>
+            <ManagedField
+              fieldLocation="channelId"
+              name="YouTube Channel"
+            >
+              <SelectBox selectValues={this.props.youtube.channels}></SelectBox>
+            </ManagedField>
+            <ManagedField
+              fieldLocation="privacyStatus"
+              name="Privacy Status"
+            >
+              <SelectBox selectValues={privacyStates}></SelectBox>
+            </ManagedField>
+            <ManagedField
+              fieldLocation="tags"
+              name="Keywords"
+            >
+              <KeywordPicker/>
+            </ManagedField>
+          </ManagedSection>
+          <ManagedSection>
+            <ManagedField
+              fieldLocation="legallySensitive"
+              name="Legally Sensitive"
+              fieldDetails="This content involves active criminal proceedings."
+            >
+              <CheckBox/>
+            </ManagedField>
+          </ManagedSection>
         </ManagedForm>
       </div>
     );

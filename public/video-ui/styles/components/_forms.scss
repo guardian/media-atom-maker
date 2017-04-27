@@ -4,6 +4,12 @@
 
 .form {
   display: block;
+  display: flex;
+}
+
+.form-section {
+  padding: 20px;
+  min-width: 33%;
 }
 
 .form__row {
