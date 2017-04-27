@@ -3,6 +3,7 @@ import {Link} from 'react-router';
 import VideoSearch from './VideoSearch/VideoSearch';
 import VideoPublishBar from './VideoPublishBar/VideoPublishBar';
 import AdvancedActions from './Videos/AdvancedActions';
+import ComposerPageCreate from './Videos/ComposerPageCreate';
 import Icon from './Icon';
 
 export default class Header extends React.Component {
@@ -144,6 +145,7 @@ export default class Header extends React.Component {
             publishVideo={this.publishVideo} />
 
           <AdvancedActions video={this.props.video || {}} />
+          <ComposerPageCreate video={this.props.video || {}}/>
           <div className="flex-container">
             {this.renderAuditLink()}
           </div>
