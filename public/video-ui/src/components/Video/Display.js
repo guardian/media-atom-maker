@@ -15,6 +15,7 @@ import Icon from '../Icon';
 import {formNames} from '../../constants/formNames';
 import {blankVideoData} from '../../constants/blankVideoData';
 import FieldNotification from '../../constants/FieldNotification';
+import ReactTooltip from 'react-tooltip';
 
 class VideoDisplay extends React.Component {
 
@@ -147,10 +148,11 @@ class VideoDisplay extends React.Component {
       <div className="video__detailbox__header__container">
         <header className="video__detailbox__header">Video Preview</header>
         <Link className={"button " + (this.props.videoEditOpen ? "disabled" : "")} to={`/videos/${this.props.video.id}/upload`}
-            onClick={e => this.handleAssetClick(e)}>
-          <Icon className="icon__edit video__temporary_button" icon="edit">
-            Edit Assets
-          </Icon>
+            onClick={e => this.handleAssetClick(e)}
+            data-tip="Edit Assets"
+          >
+          <Icon className="icon__edit" icon="edit"></Icon>
+          <ReactTooltip place="bottom"/>
         </Link>
       </div>
       <VideoPreview video={this.props.video || {}} />
@@ -172,7 +174,7 @@ class VideoDisplay extends React.Component {
           <div className="video__main">
             <div className="video__main__header">
               {this.renderPreview()}
-              <div className="video__detailbox video__data">
+              <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
                   <header className="video__detailbox__header">Video Data</header>
                   {this.renderEditButton()}
@@ -211,6 +213,9 @@ class VideoDisplay extends React.Component {
                   publishedVideo={this.props.publishedVideo || {}}
                   usages={this.props.usages || []}
                 />
+              </div>
+              <div className="video__detailbox">
+                <AdvancedActions video={this.props.video || {}} />
               </div>
             </div>
           </div>

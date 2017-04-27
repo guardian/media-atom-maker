@@ -29,7 +29,6 @@ class AdvancedActions extends React.Component {
         return <li className="action-list__item">
             <button className="btn label__expired action-list__button" onClick={doDelete} disabled={disabled} data-tip={helpMsg}>
                 {deleteMsg}
-                <ReactTooltip place="bottom"/>
             </button>
         </li>;
     }
