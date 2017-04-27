@@ -1,6 +1,5 @@
 import React from 'react';
 import {getStore} from '../../util/storeAccessor';
-import ReactTooltip from 'react-tooltip';
 
 class AdvancedActions extends React.Component {
     // the permissions are also validated on the server-side for each request
@@ -27,9 +26,9 @@ class AdvancedActions extends React.Component {
         };
 
         return <li className="action-list__item">
-            <button className="btn label__expired action-list__button" onClick={doDelete} disabled={disabled} data-tip={helpMsg}>
+            <span data-tip={helpMsg}><button className="btn label__expired action-list__button" onClick={doDelete} disabled={disabled}>
                 {deleteMsg}
-            </button>
+            </button></span>
         </li>;
     }
 
