@@ -7,7 +7,6 @@ import VideoMetaData from '../VideoMetaData/VideoMetaData';
 import YoutubeMetaData from '../YoutubeMetaData/YoutubeMetaData';
 import VideoData from '../VideoData/VideoData';
 import VideoPoster from '../VideoPoster/VideoPoster';
-import AdvancedActions from '../Videos/AdvancedActions';
 import GridImageSelect from '../utils/GridImageSelect';
 import {getVideoBlock} from '../../util/getVideoBlock';
 import {getStore} from '../../util/storeAccessor';
@@ -174,7 +173,7 @@ class VideoDisplay extends React.Component {
           <div className="video__main">
             <div className="video__main__header">
               {this.renderPreview()}
-              <div className="video__detailbox">
+              <div className="video__detailbox video__data">
                 <div className="video__detailbox__header__container">
                   <header className="video__detailbox__header">Video Data</header>
                   {this.renderEditButton()}
@@ -213,9 +212,6 @@ class VideoDisplay extends React.Component {
                   publishedVideo={this.props.publishedVideo || {}}
                   usages={this.props.usages || []}
                 />
-              </div>
-              <div className="video__detailbox">
-                <AdvancedActions video={this.props.video || {}} />
               </div>
             </div>
           </div>
