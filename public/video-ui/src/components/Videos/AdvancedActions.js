@@ -1,5 +1,6 @@
 import React from 'react';
 import {getStore} from '../../util/storeAccessor';
+import ReactTooltip from 'react-tooltip';
 
 class AdvancedActions extends React.Component {
     // the permissions are also validated on the server-side for each request
@@ -15,7 +16,7 @@ class AdvancedActions extends React.Component {
 
         const disabled = this.props.usage.length > 0;
         const deleteMsg = this.state.deleteDoubleCheck ? "Confirm delete from database" : "Delete from database";
-        const helpMsg = disabled ? "All usages of the atom must be removed before deletion" : "The video will remain on YouTube as private"; 
+        const helpMsg = disabled ? "All usages of the atom must be removed before deletion" : "The video will remain on YouTube as private after the atom has been deleted";
 
         const doDelete = () => {
             if(this.state.deleteDoubleCheck) {
@@ -26,12 +27,10 @@ class AdvancedActions extends React.Component {
         };
 
         return <li className="action-list__item">
-            <button className="btn label__expired action-list__button" onClick={doDelete} disabled={disabled}>
+            <button className="btn label__expired action-list__button" onClick={doDelete} disabled={disabled} data-tip={helpMsg}>
                 {deleteMsg}
+                <ReactTooltip place="bottom"/>
             </button>
-            <span className="right">
-                {helpMsg}
-            </span>
         </li>;
     }
 
@@ -41,9 +40,6 @@ class AdvancedActions extends React.Component {
         }
 
         return <div>
-            <div className="video__detailbox__header__container">
-                <span className="video__detailbox__header">Advanced</span>
-            </div>  
             <ul className="action-list">
                 {this.renderDelete()}
             </ul>

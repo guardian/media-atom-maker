@@ -212,9 +212,6 @@ class VideoDisplay extends React.Component {
                   usages={this.props.usages || []}
                 />
               </div>
-              <div className="video__detailbox">
-                <AdvancedActions video={this.props.video || {}} />
-              </div>
             </div>
           </div>
         </div>
