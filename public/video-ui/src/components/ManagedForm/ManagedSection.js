@@ -19,7 +19,7 @@ export class ManagedSection extends React.Component {
       return React.cloneElement(child, {
         data: this.props.data,
         updateData: this.props.updateData,
-        updateFormErrors: this.updateFormErrors,
+        updateFormErrors: this.props.updateFormErrors,
         editable: this.props.editable
       });
     });
