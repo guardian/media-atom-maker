@@ -4,6 +4,7 @@ import {isVideoPublished, hasVideoExpired} from '../../util/isVideoPublished';
 import {hasUnpublishedChanges} from '../../util/hasUnpublishedChanges';
 import {getVideoBlock} from '../../util/getVideoBlock';
 import {getStore} from '../../util/storeAccessor';
+import {getComposerPages} from '../../util/getComposerPages';
 
 export default class VideoPublishBar extends React.Component {
 
@@ -21,10 +22,6 @@ export default class VideoPublishBar extends React.Component {
       !this.videoHasUnpublishedChanges();
   }
 
-  getVideoPageUsages = () => {
-    return  this.props.usages.filter(value => value.type === 'video');
-  }
-
   getVideoMetadata = () => {
     return {
       headline: this.props.video.title,
@@ -37,7 +34,7 @@ export default class VideoPublishBar extends React.Component {
   }
 
   publishVideo = () => {
-    const usages = this.getVideoPageUsages();
+    const usages = getComposerPages(this.props.usages);
 
     const metadata = this.getVideoMetadata();
 

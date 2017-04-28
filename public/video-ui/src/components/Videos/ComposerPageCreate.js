@@ -2,6 +2,7 @@ import React from 'react';
 import {getVideoBlock} from '../../util/getVideoBlock';
 import Icon from '../Icon';
 import {getStore} from '../../util/storeAccessor';
+import {getComposerPages} from '../../util/getComposerPages';
 
 export default class ComposerPageCreate extends React.Component {
 
@@ -21,9 +22,8 @@ export default class ComposerPageCreate extends React.Component {
   }
 
   composerPageExists = () => {
-    return  this.props.usages.filter(value => value.type === 'video').length > 0;
+    return getComposerPages(this.props.usages).length > 0;
   }
-
 
   pageCreate = () => {
     this.setState({
