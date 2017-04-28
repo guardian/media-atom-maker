@@ -121,7 +121,8 @@
                 "DesiredCapacity": 3,
                 "InstanceType": "t2.medium",
                 "UploadBucket": "media-atom-maker-upload-prod",
-                "TranscoderBucket": "media-atom-maker-transcoder-prod"
+                "TranscoderBucket": "media-atom-maker-transcoder-prod",
+                "LambdaConfig": "PROD/media-atom-maker.private.conf"
             },
             "CODE": {
                 "MinSize": 1,
@@ -129,8 +130,8 @@
                 "DesiredCapacity": 1,
                 "InstanceType": "t2.small",
                 "UploadBucket": "media-atom-maker-upload-code",
-                "TranscoderBucket": "media-atom-maker-transcoder-code"
-
+                "TranscoderBucket": "media-atom-maker-transcoder-code",
+                "LambdaConfig": "CODE/media-atom-maker.private.conf"
             }
         },
         "LambdaBuilds": {
@@ -141,6 +142,10 @@
             "Expirer": {
               "CODE": "media-service/CODE/media-atom-expirer/media-atom-expirer.zip",
               "PROD": "media-service/PROD/media-atom-expirer/media-atom-expirer.zip"
+            },
+            "PlutoMessageIngestion": {
+              "CODE": "media-service/CODE/pluto-message-ingestion/pluto-message-ingestion.zip",
+              "PROD": "media-service/PROD/pluto-message-ingestion/pluto-message-ingestion.zip"
             }
         },
         "LambdaConfig": {
@@ -361,7 +366,7 @@
                                 {
                                     "Effect": "Allow",
                                     "Action": ["sts:AssumeRole"],
-                                    "Resource": [{ "Ref": "ContentAtomArn" }, { "Fn::GetAtt" : ["LimitedUploadRole", "Arn"] }]
+                                    "Resource": [{ "Fn::GetAtt" : ["LimitedUploadRole", "Arn"] }]
                                 },
                                 {
                                   "Effect": "Allow",
@@ -519,10 +524,110 @@
                     }]
                 },
                 "Roles": [
-                    { "Ref": "UploaderRole" }
+                    { "Ref": "UploaderRole" },
+                    { "Ref": "PlutoMessageIngestionRole" }
                 ]
             }
         },
+
+        "CrossAccountAccessPolicy": {
+          "Type": "AWS::IAM::Policy",
+          "Properties": {
+            "PolicyName": "CrossAccountAccessPolicy",
+            "PolicyDocument": {
+              "Statement": [{
+                "Effect": "Allow",
+                "Action": ["sts:AssumeRole"],
+                "Resource": [{ "Ref": "ContentAtomArn" }]
+              }]
+            },
+            "Roles": [
+              { "Ref": "DistributionRole" },
+              { "Ref": "PlutoMessageIngestionRole" }
+            ]
+          }
+        },
+
+        "PlutoMessageIngestionRole" : {
+          "Type": "AWS::IAM::Role",
+          "Properties": {
+            "AssumeRolePolicyDocument": {
+              "Statement": [{
+                "Effect": "Allow",
+                "Action": "sts:AssumeRole",
+                "Principal": { "Service": ["lambda.amazonaws.com"] }
+              }]
+            },
+            "Path": "/",
+            "Policies": [{
+              "PolicyName": "PlutoMessageIngestionRolePolicy",
+              "PolicyDocument": {
+                "Statement": [{
+                    "Effect": "Allow",
+                    "Action": ["s3:GetObject"],
+                    "Resource": [{
+                      "Fn::Sub": [
+                        "arn:aws:s3:::${Bucket}/${Key}",
+                        { "Bucket": { "Ref": "BuildBucket" }, "Key": { "Fn::FindInMap": [ "LambdaBuilds", "PlutoMessageIngestion", { "Ref": "Stage" }] } }
+                      ]
+                    }, {
+                      "Fn::Sub": [
+                        "arn:aws:s3:::${Bucket}/${Key}",
+                        { "Bucket": { "Ref": "ConfigBucket" }, "Key": { "Fn::FindInMap": [ "StageMap", {"Ref": "Stage"}, "LambdaConfig"]} }
+                      ]
+                    }]
+                  }, {
+                    "Effect": "Allow",
+                    "Action": [
+                      "kinesis:DescribeStream",
+                      "kinesis:GetRecords",
+                      "kinesis:GetShardIterator",
+                      "kinesis:ListStreams"
+                    ],
+                    "Resource": { "Fn::GetAtt": ["PlutoIntegrationIncomingStream", "Arn"] }
+                  }
+                ]
+              }
+            }]
+          }
+        },
+
+        "PlutoMessageIngestionLambda": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "FunctionName":  {"Fn::Join": ["-", ["pluto-message-ingestion", {"Ref": "Stage"} ] ] },
+            "Description": "Processes messages sent from Pluto",
+            "Handler": "index.handler",
+            "Code": {
+              "S3Bucket": { "Ref": "BuildBucket" },
+              "S3Key": { "Fn::FindInMap": [ "LambdaBuilds", "PlutoMessageIngestion", { "Ref": "Stage" }] }
+            },
+            "Environment": {
+              "Variables": {
+                "REGION": { "Ref": "AWS::Region" },
+                "STACK": { "Ref": "Stack" },
+                "STAGE": { "Ref": "Stage" },
+                "APP": "pluto-message-ingestion",
+                "CONFIG_BUCKET": { "Ref": "ConfigBucket" }
+              }
+            },
+            "MemorySize": 512,
+            "Role":  { "Fn::GetAtt": [ "PlutoMessageIngestionRole", "Arn" ] },
+            "Runtime": "nodejs6.10",
+            "Timeout": 180
+          }
+        },
+
+        "PlutoMessageIngestionLambdaEventSource": {
+          "Type": "AWS::Lambda::EventSourceMapping",
+          "Properties": {
+            "EventSourceArn": { "Fn::GetAtt": ["PlutoIntegrationIncomingStream", "Arn"] },
+            "FunctionName": { "Fn::GetAtt": ["PlutoMessageIngestionLambda", "Arn"] },
+            "BatchSize": 1,
+            "StartingPosition": "LATEST"
+          }
+        },
+
         "UploaderRole": {
             "Type": "AWS::IAM::Role",
             "Properties": {

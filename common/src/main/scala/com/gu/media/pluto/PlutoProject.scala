@@ -7,10 +7,11 @@ import com.gu.media.util.JsonDate._
 
 case class PlutoProject (
   id: String,
-  collectionId: String,
-  headline: String,
-  productionOffice: String,
+  title: String,
   status: String,
+  commissionId: String,
+  commissionTitle: String,
+  productionOffice: String,
   created: DateTime
 )
 

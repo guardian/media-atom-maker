@@ -89,6 +89,9 @@ lazy val expirer = (project in file("expirer"))
 
   )
 
+val jsTargetDir = "target/riffraff/packages"
+val plutoMessageIngestion = "pluto-message-ingestion"
+
 lazy val root = (project in file("root"))
   .aggregate(common, app, uploader, expirer)
   .enablePlugins(RiffRaffArtifact)
@@ -100,6 +103,7 @@ lazy val root = (project in file("root"))
       (packageBin in Debian in app).value -> s"${(name in app).value}/${(name in app).value}.deb",
       (packageBin in Universal in uploader).value -> s"media-atom-upload-actions/${(packageBin in Universal in uploader).value.getName}",
       (packageBin in Universal in expirer).value -> s"${(name in expirer).value}/${(packageBin in Universal in expirer).value.getName}",
+      (baseDirectory in Global in app).value / s"$plutoMessageIngestion/$jsTargetDir/$plutoMessageIngestion/$plutoMessageIngestion.zip" -> s"$plutoMessageIngestion/$plutoMessageIngestion.zip",
       (baseDirectory in Global in app).value / "conf/riff-raff.yaml" -> "riff-raff.yaml"
     )
   )
