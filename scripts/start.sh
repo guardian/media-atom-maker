@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-npm run build-dev &
+yarn run build-dev &
 ./sbt $@ app/run

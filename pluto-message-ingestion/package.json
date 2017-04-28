@@ -1,6 +1,8 @@
 {
   "name": "pluto-message-ingestion",
   "version": "0.0.0",
+  "repository": "git@github.com:guardian/media-atom-maker.git",
+  "author": "The Guardian <digitalcms.dev@theguardian.com>",
   "description": "Ingesting messages sent from Pluto via a Kinesis stream",
   "cloudformation": "../cloudformation/media-atom-maker.json",
   "riffraffFile": "../conf/riff-raff.yaml",
@@ -11,7 +13,7 @@
   "scripts": {
     "lint": "eslint *.js --fix",
     "test": "npm run lint",
-    "build-artefact": "VERBOSE=true ARTEFACT_PATH=$PWD riffraff-artefact",
+    "build-artefact": "ARTEFACT_PATH=$PWD riffraff-artefact",
     "build": "npm run test && npm run build-artefact"
   },
   "dependencies": {
