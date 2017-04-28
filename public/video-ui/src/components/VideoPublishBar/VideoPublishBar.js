@@ -2,8 +2,10 @@ import React from 'react';
 import {saveStateVals} from '../../constants/saveStateVals';
 import {isVideoPublished, hasVideoExpired} from '../../util/isVideoPublished';
 import {hasUnpublishedChanges} from '../../util/hasUnpublishedChanges';
+import {getVideoBlock} from '../../util/getVideoBlock';
+import {getStore} from '../../util/storeAccessor';
 
-class VideoPublishBar extends React.Component {
+export default class VideoPublishBar extends React.Component {
 
   videoIsCurrentlyPublishing() {
     return this.props.saveState.publishing === saveStateVals.inprogress;
@@ -17,6 +19,35 @@ class VideoPublishBar extends React.Component {
     return this.videoIsCurrentlyPublishing() ||
       this.props.videoEditOpen ||
       !this.videoHasUnpublishedChanges();
+  }
+
+  getVideoPageUsages = () => {
+    return  this.props.usages.filter(value => value.type === 'video');
+  }
+
+  getVideoMetadata = () => {
+    return {
+      headline: this.props.video.title,
+      standfirst: this.props.video.description ? '<p>' + this.props.video.description + '</p>' : null
+    };
+  }
+
+  getComposerUrl = () => {
+    return getStore().getState().config.composerUrl;
+  }
+
+  publishVideo = () => {
+    const usages = this.getVideoPageUsages();
+
+    const metadata = this.getVideoMetadata();
+
+    const videoBlock = getVideoBlock(this.props.video.id, metadata);
+
+    if (usages.length > 0) {
+      this.props.updateVideoPage(this.props.video.id, metadata, this.getComposerUrl(), videoBlock, usages);
+    }
+
+    this.props.publishVideo();
   }
 
   renderPublishButtonText() {
@@ -38,7 +69,7 @@ class VideoPublishBar extends React.Component {
         type="button"
         className="btn"
         disabled={this.isPublishingDisabled()}
-        onClick={this.props.publishVideo}
+        onClick={this.publishVideo}
       >
         {this.renderPublishButtonText()}
       </button>
@@ -56,7 +87,6 @@ class VideoPublishBar extends React.Component {
 
 
   render() {
-
     if (!this.props.video) {
         return false;
     }
@@ -70,13 +100,3 @@ class VideoPublishBar extends React.Component {
     );
   }
 }
-
-//REDUX CONNECTIONS
-import { connect } from 'react-redux';
-
-function mapStateToProps(state) {
-  return {
-    videoEditOpen: state.videoEditOpen
-  };
-}
-export default connect(mapStateToProps)(VideoPublishBar);

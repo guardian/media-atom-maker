@@ -142,10 +142,17 @@ export default class Header extends React.Component {
             publishedVideo={this.props.publishedVideo}
             editableFields={this.props.editableFields}
             saveState={this.props.saveState}
+            videoEditOpen={this.props.videoEditOpen}
+            updateVideoPage={this.props.updateVideoPage}
+            usages={this.props.usages}
             publishVideo={this.publishVideo} />
 
           <AdvancedActions video={this.props.video || {}} />
-          <ComposerPageCreate video={this.props.video || {}}/>
+          <ComposerPageCreate
+            usages={this.props.usages}
+            videoEditOpen={this.props.videoEditOpen}
+            video={this.props.video || {}}
+          />
           <div className="flex-container">
             {this.renderAuditLink()}
           </div>

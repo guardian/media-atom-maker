@@ -16,6 +16,7 @@ class ReactApp extends React.Component {
       this.props.appActions.getVideo(this.props.params.id);
       this.props.appActions.getPublishedVideo(this.props.params.id);
       this.props.appActions.getUploads(this.props.params.id);
+      this.props.appActions.getUsages(this.props.params.id);
     }
   }
 
@@ -60,6 +61,9 @@ class ReactApp extends React.Component {
             publishVideo={this.props.appActions.publishVideo}
             saveState={this.props.saveState}
             editableFields={this.getEditableFields()}
+            updateVideoPage={this.props.appActions.updateVideoPage}
+            videoEditOpen={this.props.videoEditOpen}
+            usages={this.props.usages}
           />
           {this.props.error ? <div className="error-bar">{this.props.error}</div> : false}
           <div>
@@ -79,6 +83,8 @@ import * as getPublishedVideo from '../actions/VideoActions/getPublishedVideo';
 import * as publishVideo from '../actions/VideoActions/publishVideo';
 import * as saveVideo from '../actions/VideoActions/saveVideo';
 import * as getUploads from '../actions/UploadActions/getUploads';
+import * as videoPageUpdate from '../actions/VideoActions/videoPageUpdate';
+import * as videoUsages from '../actions/VideoActions/videoUsages';
 
 function mapStateToProps(state) {
   return {
@@ -89,13 +95,15 @@ function mapStateToProps(state) {
     error: state.error,
     uploads: state.uploads,
     s3Upload: state.s3Upload,
-    checkedFormFields: state.checkedFormFields
+    checkedFormFields: state.checkedFormFields,
+    videoEditOpen: state.videoEditOpen,
+    usages: state.usage
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    appActions: bindActionCreators(Object.assign({}, updateSearchTerm, getVideo, getPublishedVideo, publishVideo, saveVideo, getUploads), dispatch)
+    appActions: bindActionCreators(Object.assign({}, updateSearchTerm, getVideo, getPublishedVideo, publishVideo, saveVideo, getUploads, videoPageUpdate, videoUsages), dispatch)
   };
 }
 

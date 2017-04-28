@@ -3,18 +3,15 @@ import {Link} from 'react-router';
 import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoUsages from '../VideoUsages/VideoUsages';
-import VideoMetaData from '../VideoMetaData/VideoMetaData';
-import YoutubeMetaData from '../YoutubeMetaData/YoutubeMetaData';
 import VideoData from '../VideoData/VideoData';
 import VideoPoster from '../VideoPoster/VideoPoster';
 import GridImageSelect from '../utils/GridImageSelect';
-import {getVideoBlock} from '../../util/getVideoBlock';
-import {getStore} from '../../util/storeAccessor';
 import Icon from '../Icon';
 import {formNames} from '../../constants/formNames';
 import {blankVideoData} from '../../constants/blankVideoData';
 import FieldNotification from '../../constants/FieldNotification';
 import ReactTooltip from 'react-tooltip';
+import {getStore} from '../../util/storeAccessor';
 
 class VideoDisplay extends React.Component {
 
@@ -26,10 +23,6 @@ class VideoDisplay extends React.Component {
   componentWillUnmount() {
     this.props.videoActions.updateVideo(blankVideoData);
   }
-
-  state = {
-    composerUpdateInProgress: false
-  };
 
   saveVideo = () => {
     this.props.videoActions.saveVideo(this.props.video);
@@ -69,79 +62,8 @@ class VideoDisplay extends React.Component {
     return this.props.video.expiryDate <= Date.now();
   };
 
-  getVideoPageUsages = () => {
-    return  this.props.usages.filter(value => value.type === 'video');
-  }
-
-  getVideoMetadata = () => {
-    return {
-      headline: this.props.video.title,
-      standfirst: this.props.video.description ? '<p>' + this.props.video.description + '</p>' : null
-    };
-  }
-
-
-  pageCreate = () => {
-
-    this.setState({
-      composerUpdateInProgress: true
-    });
-
-    const metadata = this.getVideoMetadata();
-
-    const videoBlock = getVideoBlock(this.props.video.id, metadata);
-
-    return this.props.videoActions.createVideoPage(this.props.video.id, metadata, this.getComposerUrl(), videoBlock)
-    .then(() => {
-      this.setState({
-        composerUpdateInProgress: false
-      });
-    });
-  }
-
-  pageUpdate = () => {
-
-    this.setState({
-      composerUpdateInProgress: true
-    });
-
-    const metadata = this.getVideoMetadata();
-
-    const videoBlock = getVideoBlock(this.props.video.id, metadata);
-
-    return this.props.videoActions.updateVideoPage(this.props.video.id, metadata, this.getComposerUrl(), videoBlock, this.getVideoPageUsages())
-    .then(() => {
-      this.setState({
-        composerUpdateInProgress: false
-      });
-    });
-  }
-
   getComposerUrl = () => {
     return getStore().getState().config.composerUrl;
-  }
-
-  videoPageUsages = () => {
-
-      if(this.getVideoPageUsages().length === 0){
-        return (
-          <button
-            className="button__secondary"
-            disabled={this.props.videoEditOpen || this.state.composerUpdateInProgress }
-            onClick={this.pageCreate}>
-              <Icon icon="add_to_queue"></Icon> Create Video Page
-          </button>
-        );
-      } else {
-        return (
-          <button
-            className="button__secondary"
-            disabled={this.props.videoEditOpen || this.state.composerUpdateInProgress}
-            onClick={this.pageUpdate}>
-              <Icon icon="add_to_queue"></Icon> Update Video Pages
-          </button>
-        );
-      }
   }
 
   cannotCloseEditForm = () => {
@@ -249,7 +171,6 @@ class VideoDisplay extends React.Component {
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
                   <header className="video__detailbox__header">Usages</header>
-                  {this.videoPageUsages()}
                 </div>
                 <VideoUsages
                   video={this.props.video || {}}
@@ -272,8 +193,6 @@ import * as getVideo from '../../actions/VideoActions/getVideo';
 import * as saveVideo from '../../actions/VideoActions/saveVideo';
 import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as videoUsages from '../../actions/VideoActions/videoUsages';
-import * as videoPageCreate from '../../actions/VideoActions/videoPageCreate';
-import * as videoPageUpdate from '../../actions/VideoActions/videoPageUpdate';
 import * as getPublishedVideo from '../../actions/VideoActions/getPublishedVideo';
 import * as updateVideoEditState from '../../actions/VideoActions/updateVideoEditState';
 import * as updateFormErrors from '../../actions/FormErrorActions/updateFormErrors';
@@ -292,7 +211,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, videoUsages, videoPageCreate, videoPageUpdate, getPublishedVideo, updateVideoEditState), dispatch),
+    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, videoUsages, getPublishedVideo, updateVideoEditState), dispatch),
     formErrorActions: bindActionCreators(Object.assign({}, updateFormErrors), dispatch)
   };
 }

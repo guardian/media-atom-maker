@@ -3,13 +3,7 @@ import {getVideoBlock} from '../../util/getVideoBlock';
 import Icon from '../Icon';
 import {getStore} from '../../util/storeAccessor';
 
-class ComposerPageCreate extends React.Component {
-
-  componentWillMount() {
-    if (this.props.video) {
-      this.props.videoActions.getUsages(this.props.video.id);
-    }
-  }
+export default class ComposerPageCreate extends React.Component {
 
   state = {
     composerUpdateInProgress: false
@@ -66,25 +60,3 @@ class ComposerPageCreate extends React.Component {
     );
   };
 }
-
-//REDUX CONNECTIONS
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import * as videoUsages from '../../actions/VideoActions/videoUsages';
-import * as videoPageCreate from '../../actions/VideoActions/videoPageCreate';
-import * as updateVideoEditState from '../../actions/VideoActions/updateVideoEditState';
-
-function mapStateToProps(state) {
-  return {
-    usages: state.usage,
-    videoEditOpen: state.videoEditOpen,
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    videoActions: bindActionCreators(Object.assign({},  videoUsages, videoPageCreate, updateVideoEditState), dispatch)
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ComposerPageCreate);
