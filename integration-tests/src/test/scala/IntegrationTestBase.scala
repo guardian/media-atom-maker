@@ -17,8 +17,8 @@ class IntegrationTestBase extends FunSuite with Matchers with Eventually with In
 
   def apiUri(atomId: String): String = s"$targetBaseUrl/api/atom/$atomId"
 
-  var atomStore = new ListBuffer[String]() /* Add all created atoms IDs to this list as first action after atom created. This allows for test cleanup outside the test flow  */
-  var youtubeStore = new ListBuffer[String]() /* As above but for YouTube videos upload */
+  val atomStore = new ListBuffer[String]() /* Add all created atoms IDs to this list as first action after atom created. This allows for test cleanup outside the test flow  */
+  val youtubeStore = new ListBuffer[String]() /* As above but for YouTube videos upload */
 
   def deleteAtom(id: String) = {
     Logger.info(s"Deleting atom $id")

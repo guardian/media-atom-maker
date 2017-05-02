@@ -29,6 +29,7 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
   var uploadBucket: String = ""
   var uploadParts = List.empty[(String, Long, Long)]
   var uploadUri: Option[String] = None
+  var completeKey: String = ""
 
   test(s"$targetBaseUrl is up") {
     val response = gutoolsGet(targetBaseUrl)
@@ -75,6 +76,7 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
     uploadId = (responseJson \ "id").as[String]
     uploadBucket = (responseJson \ "metadata" \ "bucket").as[String]
     uploadParts = (responseJson \ "parts").as[JsArray].value.map(parseUploadPart).toList
+    completeKey = (responseJson \ "metadata" \ "pluto" \ "s3Key").as[String]
   }
 
   test("Upload parts") {
@@ -110,6 +112,15 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
 
       (asset \ "platform").as[String] should be("Youtube")
       addYouTubeVideoToStore((asset \ "id").as[String])
+    }
+  }
+
+  test("Create complete video in S3") {
+    completeKey should not be empty
+
+    eventually {
+      s3.doesObjectExist(uploadBucket, completeKey) should be(true)
+      s3.deleteObject(uploadBucket, completeKey)
     }
   }
 
