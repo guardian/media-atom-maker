@@ -25,7 +25,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   extends AtomController with Logging with JsonRequestParsing with UnpackedDataStores {
 
-  import authActions.APIHMACAuthAction
+  import authActions.APIAuthAction
 
   private val UPLOAD_KEY_HEADER = "X-Upload-Key"
   private val UPLOAD_URI_HEADER = "X-Upload-Uri"
@@ -34,7 +34,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
   private val credsGenerator = new CredentialsGenerator(awsConfig)
   private val uploader = new YouTubeUploader(awsConfig, youTube)
 
-  def list(atomId: String) = APIHMACAuthAction {
+  def list(atomId: String) = APIAuthAction {
     // Anyone can see the running uploads.
     // Only users with permission can create/complete/delete them.
     val uploads = table.list(atomId)
