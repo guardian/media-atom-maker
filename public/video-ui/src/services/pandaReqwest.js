@@ -9,8 +9,8 @@ function poll(reqwestBody, timeout) {
   function makeRequest(resolve, reject) {
     reqwest(reqwestBody)
       .then(response => resolve(response))
-      .fail(err => {
-        if (err === 419) {
+      .catch(err => {
+        if (err.status === 419) {
           const store = getStore();
           const reauthUrl = store.getState().config.reauthUrl;
 

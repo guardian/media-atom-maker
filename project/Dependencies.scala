@@ -59,7 +59,7 @@ object Dependencies {
     "com.gu" %% "pan-domain-auth-play_2-5" % pandaVersion,
     "com.gu" %% "pan-domain-auth-verification" % pandaVersion,
     "com.gu" %% "pan-domain-auth-core" % pandaVersion,
-    "com.gu" %% "panda-hmac" % "1.1.0",
+    "com.gu" %% "panda-hmac" % "1.2.0",
     PlayImport.ws
   )
 
