@@ -1,4 +1,5 @@
 import {UploadsApi, UploadHandle} from '../../services/UploadsApi';
+import {errorDetails} from '../../util/errorDetails';
 
 function uploadStarted(upload, handle) {
   return {
@@ -27,7 +28,7 @@ function uploadComplete() {
 function uploadError(error) {
   return {
     type: 'SHOW_ERROR',
-    message: `Error uploading video ${error}`,
+    message: error,
     error: error,
     receivedAt: Date.now()
   };
@@ -43,7 +44,7 @@ export function startUpload(id, file, completeFn, selfHost) {
 
       const err = (err) => {
         window.onbeforeunload = undefined;
-        dispatch(uploadError(err));
+        dispatch(uploadError(errorDetails(err)));
       };
 
       const complete = () => {
@@ -60,7 +61,7 @@ export function startUpload(id, file, completeFn, selfHost) {
       dispatch(uploadStarted(upload));
     }).catch((err) => {
       window.onbeforeunload = undefined;
-      dispatch(uploadError(err));
+      dispatch(uploadError(errorDetails(err)));
     });
   };
 }

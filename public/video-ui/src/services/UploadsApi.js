@@ -1,4 +1,5 @@
 import {pandaReqwest} from './pandaReqwest';
+import {errorDetails} from '../util/errorDetails';
 
 // See http://andrewhfarmer.com/aws-sdk-with-webpack/ for why this is strange
 import 'aws-sdk/dist/aws-sdk';
@@ -111,19 +112,22 @@ export class UploadHandle {
   uploadParts = (parts) => {
     if(parts.length > 0) {
       const part = parts[0];
-      const partRequest = UploadsApi.uploadPart(this.upload, part, this.file, this.progressFn);
+      
+      UploadsApi.uploadPart(this.upload, part, this.file, this.progressFn).then((s3Request) => {
+        s3Request.promise().then(() => {
+          this.request = s3Request;
 
-      partRequest.then((s3Request) => {
-        this.request = s3Request;
-
-        return s3Request.promise().then(() => {
-          return UploadsApi.completePart(this.upload.id, part.key, this.uploadUri).then((resp) => {
+          UploadsApi.completePart(this.upload.id, part.key, this.uploadUri).then((resp) => {
             this.uploadUri = resp.uploadUri;
             this.uploadParts(parts.slice(1));
+          }).catch((err) => {
+            this.errFn(`Error completing part ${part.key}: ${errorDetails(err)}`);
           });
+        }).catch((err) => {
+          this.errFn(`Error uploading part ${part.key} to S3: ${errorDetails(err)}`);
         });
       }).catch((err) => {
-        this.errFn(err);
+        this.errFn(`Error constructing upload for part ${part.key}: ${errorDetails(err)}`);
       });
     } else {
       this.completeFn();
