@@ -1,4 +1,4 @@
-import java.io.FilterInputStream
+import java.io.{FilterInputStream, InputStream}
 import java.time.Instant
 import java.util.UUID
 
@@ -11,14 +11,11 @@ import com.gu.media.util.TestFilters
 import integration.IntegrationTestBase
 import integration.services.Config
 import org.scalatest.CancelAfterFailure
+import org.scalatest.time.{Minutes, Seconds, Span}
 import play.api.libs.json.{JsArray, JsValue, Json}
-import play.api.Logger
-import play.mvc.Http.RequestBody
-
-import scala.tools.nsc.interpreter.InputStream
 
 class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
-  // TODO: use STS credentials
+  // TODO MRB: use STS credentials
   val credentials = new ProfileCredentialsProvider("media-service")
   val s3 = Region.getRegion(Regions.EU_WEST_1).createClient(classOf[AmazonS3Client], credentials, null)
 
@@ -87,8 +84,6 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
       val length = end - start
       val part = slice(source, length)
 
-      Logger.info(s"Uploading $length bytes to $uploadKey")
-
       val metadata = new ObjectMetadata()
       metadata.setContentLength(length)
 
@@ -98,8 +93,23 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
 
       val response = gutoolsPost(s"$targetBaseUrl/api2/uploads/$uploadId/complete", emptyBody, headers.toMap)
       uploadUri = Some((Json.parse(response.body().string()) \ "uploadUri").as[String])
+    }
+  }
 
-      println(uploadUri)
+  test("Add asset to atom") {
+    implicit val patienceConfig = PatienceConfig(
+      timeout = Span(10, Minutes),
+      interval = Span(10, Seconds)
+    )
+
+    eventually {
+      val assets = (Json.parse(gutoolsGet(apiEndpoint).body().string()) \ "data" \ "assets").as[JsArray].value
+      assets should not be empty
+
+      val asset = assets.head
+
+      (asset \ "platform").as[String] should be("Youtube")
+      addYouTubeVideoToStore((asset \ "id").as[String])
     }
   }
 

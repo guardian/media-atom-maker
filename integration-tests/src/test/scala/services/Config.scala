@@ -1,6 +1,6 @@
 package integration.services
 
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.util.Try
 
@@ -24,4 +24,17 @@ object Config {
   lazy val userSecondName = config.getString("userSecondName")
   lazy val userEmail = config.getString("userEmail")
   lazy val credentialsProvider = config.getString("credentialsProvider")
+
+  lazy val youTube = YouTubeConfig(config)
+}
+
+case class YouTubeConfig(name: String, contentOwner: String, clientId: String, clientSecret: String, refreshToken: String)
+object YouTubeConfig {
+  def apply(config: Config): YouTubeConfig = YouTubeConfig(
+    config.getString("youTube.name"),
+    config.getString("youTube.contentOwner"),
+    config.getString("youTube.clientId"),
+    config.getString("youTube.clientSecret"),
+    config.getString("youTube.refreshToken")
+  )
 }
