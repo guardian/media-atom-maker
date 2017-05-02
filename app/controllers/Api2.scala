@@ -24,9 +24,9 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
     with JsonRequestParsing
     with Logging {
 
-  import authActions.APIHMACAuthAction
+  import authActions.{APIAuthAction, APIHMACAuthAction}
 
-  def getMediaAtoms(search: Option[String], limit: Option[Int]) = APIHMACAuthAction {
+  def getMediaAtoms(search: Option[String], limit: Option[Int]) = APIAuthAction {
     val atoms = stores.atomListStore.getAtoms(search, limit)
     Ok(Json.toJson(atoms))
   }
@@ -40,7 +40,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
     }
   }
 
-  def getPublishedMediaAtom(id: String) = APIHMACAuthAction {
+  def getPublishedMediaAtom(id: String) = APIAuthAction {
     try {
       val atom = getPublishedAtom(id)
       Ok(Json.toJson(MediaAtom.fromThrift(atom)))
@@ -53,7 +53,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
     }
   }
 
-  def publishMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
+  def publishMediaAtom(id: String) = APIAuthAction { implicit req =>
     try {
       val command = PublishAtomCommand(id, stores, youTube, youTubeClaims, req.user)
 
@@ -64,7 +64,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
     }
   }
 
-  def createMediaAtom = APIHMACAuthAction { implicit req =>
+  def createMediaAtom = APIAuthAction { implicit req =>
     parse(req) { data: CreateAtomCommandData =>
       val command = CreateAtomCommand(data, stores, req.user)
       val atom = command.process()
@@ -121,7 +121,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
     }
   }
 
-  def getAuditTrailForAtomId(id: String) = APIHMACAuthAction { implicit req =>
+  def getAuditTrailForAtomId(id: String) = APIAuthAction { implicit req =>
     Ok(Json.toJson(auditDataStore.getAuditTrailForAtomId(id)))
   }
 
@@ -135,7 +135,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
     }
   }
 
-  def getPlutoAtoms = APIHMACAuthAction {  implicit req =>
+  def getPlutoAtoms = APIAuthAction {  implicit req =>
 
     val unprocessedAssetResponses: List[PlutoSyncMetadata] = stores.pluto.list()
 
@@ -159,7 +159,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
     Ok(Json.toJson(uploadsWithoutPlutoId))
   }
 
-  def sendToPluto(id: String) = APIHMACAuthAction { implicit req =>
+  def sendToPluto(id: String) = APIAuthAction { implicit req =>
 
     implicit val readCommand: Reads[AddPlutoProjectCommand] =
 
