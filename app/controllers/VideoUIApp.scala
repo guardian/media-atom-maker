@@ -33,6 +33,7 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
         reauthUrl = "/reauth",
         gridUrl = awsConfig.gridUrl,
         capiProxyUrl = "/support/previewCapi",
+        liveCapiProxyUrl = "/support/liveCapi",
         composerUrl = composerUrl,
         ravenUrl = conf.getString("raven.url").get,
         stage = conf.getString("stage").get,

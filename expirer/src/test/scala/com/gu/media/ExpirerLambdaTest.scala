@@ -44,7 +44,7 @@ class ExpirerLambdaTest extends FunSuite with MustMatchers {
 
     override def expireInParallel = false
 
-    override def capiQuery(query: String): JsValue = {
+    override def capiQuery(query: String, isLive: Boolean = false): JsValue = {
       val ret = capiResults.head
       capiResults = capiResults.tail
 

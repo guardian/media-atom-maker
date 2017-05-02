@@ -3,7 +3,7 @@ package com.gu.media.expirer
 import java.time.Instant
 
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
-import com.gu.media.CapiPreviewAccess
+import com.gu.media.CapiAccess
 import com.gu.media.lambda.LambdaBase
 import com.gu.media.logging.Logging
 import com.gu.media.youtube.{YouTubeAccess, YouTubeVideos}
@@ -15,7 +15,7 @@ import scala.util.control.NonFatal
 class ExpirerLambda extends RequestHandler[Unit, Unit]
   with LambdaBase
   with Logging
-  with CapiPreviewAccess
+  with CapiAccess
   with YouTubeAccess
   with YouTubeVideos {
 

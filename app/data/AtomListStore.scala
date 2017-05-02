@@ -3,7 +3,7 @@ package data
 import java.time.Instant
 
 import com.gu.atom.data.PreviewDynamoDataStore
-import com.gu.media.CapiPreviewAccess
+import com.gu.media.CapiAccess
 import com.gu.media.util.TestFilters
 import model.Category.Hosted
 import model.commands.CommandExceptions.AtomDataStoreError
@@ -18,7 +18,7 @@ trait AtomListStore {
   def getAtoms(search: Option[String], limit: Option[Int]): MediaAtomList
 }
 
-class CapiBackedAtomListStore(capi: CapiPreviewAccess) extends AtomListStore {
+class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
   override def getAtoms(search: Option[String], limit: Option[Int]): MediaAtomList = {
     // CAPI max page size is 200
     val cappedLimit = limit.map(Math.min(200, _))
@@ -108,7 +108,7 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore) extends AtomListS
 
 object AtomListStore {
 
-  def apply(stage: String, capi: CapiPreviewAccess, store: PreviewDynamoDataStore): AtomListStore = stage match {
+  def apply(stage: String, capi: CapiAccess, store: PreviewDynamoDataStore): AtomListStore = stage match {
     case "DEV" => new DynamoBackedAtomListStore(store)
     case _ => new CapiBackedAtomListStore(capi)
   }

@@ -77,4 +77,5 @@ GET /videos/:id/audit                   controllers.VideoUIApp.index(id)
 GET /videos/:id/upload                  controllers.VideoUIApp.index(id)
 
 #Support
-GET /support/previewCapi/*path          controllers.Support.previewCapiProxy(path: String)
+GET /support/previewCapi/*path          controllers.Support.capiProxy(path: String, queryLive: Boolean ?= false)
+GET /support/liveCapi/*path             controllers.Support.capiProxy(path: String, queryLive: Boolean ?= false)
