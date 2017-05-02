@@ -62,6 +62,7 @@ class ReactApp extends React.Component {
             saveState={this.props.saveState}
             editableFields={this.getEditableFields()}
             updateVideoPage={this.props.appActions.updateVideoPage}
+            createVideoPage={this.props.appActions.createVideoPage}
             videoEditOpen={this.props.videoEditOpen}
             usages={this.props.usages}
           />
@@ -84,6 +85,7 @@ import * as publishVideo from '../actions/VideoActions/publishVideo';
 import * as saveVideo from '../actions/VideoActions/saveVideo';
 import * as getUploads from '../actions/UploadActions/getUploads';
 import * as videoPageUpdate from '../actions/VideoActions/videoPageUpdate';
+import * as videoPageCreate from '../actions/VideoActions/videoPageCreate';
 import * as videoUsages from '../actions/VideoActions/videoUsages';
 
 function mapStateToProps(state) {
@@ -103,7 +105,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    appActions: bindActionCreators(Object.assign({}, updateSearchTerm, getVideo, getPublishedVideo, publishVideo, saveVideo, getUploads, videoPageUpdate, videoUsages), dispatch)
+    appActions: bindActionCreators(Object.assign({}, updateSearchTerm, getVideo, getPublishedVideo, publishVideo, saveVideo, getUploads, videoPageUpdate, videoPageCreate, videoUsages), dispatch)
   };
 }
 

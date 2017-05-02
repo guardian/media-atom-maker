@@ -34,7 +34,7 @@ export default class ComposerPageCreate extends React.Component {
 
     const videoBlock = getVideoBlock(this.props.video.id, metadata);
 
-    return this.props.videoActions.createVideoPage(this.props.video.id, metadata, this.getComposerUrl(), videoBlock)
+    return this.props.createVideoPage(this.props.video.id, metadata, this.getComposerUrl(), videoBlock)
     .then(() => {
       this.setState({
         composerUpdateInProgress: false
@@ -58,5 +58,5 @@ export default class ComposerPageCreate extends React.Component {
           <Icon icon="add_to_queue"></Icon> Create Video Page
       </button>
     );
-  };
+  }
 }

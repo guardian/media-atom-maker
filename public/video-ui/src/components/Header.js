@@ -152,6 +152,7 @@ export default class Header extends React.Component {
             usages={this.props.usages}
             videoEditOpen={this.props.videoEditOpen}
             video={this.props.video || {}}
+            createVideoPage={this.props.createVideoPage}
           />
           <div className="flex-container">
             {this.renderAuditLink()}
