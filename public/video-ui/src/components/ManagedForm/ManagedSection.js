@@ -14,6 +14,10 @@ export class ManagedSection extends React.Component {
     updateErrors: PropTypes.func
   };
 
+  static get componentType () {
+    return 'managedSection';
+  }
+
   render() {
     const hydratedChildren = React.Children.map(this.props.children, (child) => {
       return React.cloneElement(child, {
@@ -24,7 +28,7 @@ export class ManagedSection extends React.Component {
       });
     });
 
-    return <div className="form-section">{hydratedChildren}</div>;
+    return <div className="form__section">{hydratedChildren}</div>;
   }
 
 }

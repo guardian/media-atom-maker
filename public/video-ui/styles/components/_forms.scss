@@ -2,12 +2,11 @@
 // This file contains styles for all form elements
 // -----------------------------------------------------------------------------
 
-.form {
-  display: block;
+.atom__section__form {
   display: flex;
 }
 
-.form-section {
+.form__section {
   padding: 20px;
   min-width: 33%;
 }
