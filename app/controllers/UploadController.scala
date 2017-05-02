@@ -46,7 +46,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       if (PermissionsUploadHelper.canPerformUpload(raw.permissions, req.selfHost)) {
         log.info(s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}, selfHosted=${req.selfHost}")
         val atom = MediaAtom.fromThrift(getPreviewAtom(req.atomId))
-        val upload = buildUpload(atom, raw.user, req.size, req.selfHost)
+        val upload = buildUpload(atom, raw.user, req.size, req.selfHost, req.syncWithPluto)
         table.put(upload)
 
         log.info(s"Upload created under atom ${req.atomId}. upload=${upload.id}. parts=${upload.parts.size}, selfHosted=${upload.metadata.selfHost}")
@@ -108,10 +108,11 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     }
   }
 
-  private def buildUpload(atom: MediaAtom, user: User, size: Long, selfHosted: Boolean) = {
+  private def buildUpload(atom: MediaAtom, user: User, size: Long, selfHosted: Boolean, syncWithPluto: Boolean) = {
     val id = UUID.randomUUID().toString
 
     val plutoData = PlutoSyncMetadata(
+      enabled = syncWithPluto,
       projectId = atom.plutoProjectId,
       s3Key = CompleteUploadKey(awsConfig.userUploadFolder, id).toString,
       assetVersion = -1,
@@ -187,7 +188,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 }
 
 object UploadController {
-  case class CreateRequest(atomId: String, filename: String, size: Long, selfHost: Boolean = false)
+  case class CreateRequest(atomId: String, filename: String, size: Long, selfHost: Boolean, syncWithPluto: Boolean)
   case class CreateResponse(id: String, region: String, bucket: String, parts: List[UploadPart])
   case class CompleteResponse(uploadUri: String)
 
