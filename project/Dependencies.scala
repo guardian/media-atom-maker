@@ -105,6 +105,7 @@ object Dependencies {
     scalaTest,
     okHttp,
     playJsonExtensions,
-    typesafeConfig
+    typesafeConfig,
+    awsS3
   )
 }
