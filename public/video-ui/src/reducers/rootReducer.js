@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux';
+import { routerReducer } from 'react-router-redux';
 import audits from './auditReducer';
 import config from './configReducer';
 import error from './errorReducer';
@@ -32,5 +33,6 @@ export default combineReducers({
   checkedFormFields,
   s3Upload,
   editState,
-  uploads
+  uploads,
+  routerReducer
 });
