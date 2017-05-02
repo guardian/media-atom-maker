@@ -48,6 +48,8 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
         val atom = MediaAtom.fromThrift(getPreviewAtom(req.atomId))
         val upload = buildUpload(atom, raw.user, req.size, req.selfHost)
         table.put(upload)
+
+        log.info(s"Upload created under atom ${req.atomId}. upload=${upload.id}. parts=${upload.parts.size}, selfHosted=${upload.metadata.selfHost}")
         Ok(Json.toJson(upload))
       }
       else Unauthorized(s"User ${raw.user.email} is not authorised with permissions to upload asset, self-hosted value: ${req.selfHost}")
@@ -99,6 +101,8 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       Ok(Json.toJson(CompleteResponse(u)))
     }.getOrElse {
       val uploadUri = uploader.startUpload(upload.metadata.title, upload.metadata.channel, upload.id, upload.parts.last.end)
+      log.info(s"Starting upload to YouTube. atom=${upload.metadata.pluto.atomId} upload=${upload.id} uploadUri=${uploadUri}")
+
       partComplete(upload, part, uploadUri)
       Ok(Json.toJson(CompleteResponse(uploadUri)))
     }
@@ -155,12 +159,17 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     val complete = upload.copy(progress = upload.progress.copy(uploadedToS3 = part.end))
     table.report(complete)
     uploadActions.send(UploadPartToYouTube(upload, part, uploadUri))
+
+    log.info(s"Part ${part.key} uploaded to S3. upload=${upload.id} atom=${upload.metadata.pluto.atomId}")
+
     completeAndDeleteParts(upload, part)
     complete
   }
 
   private def completeAndDeleteParts(upload: Upload, part: UploadPart) {
     if(part.key == upload.parts.last.key) {
+      log.info(s"All parts uploaded to S3. upload=${upload.id} atom=${upload.metadata.pluto.atomId}")
+
       uploadActions.send(CopyParts(upload, completeKey(upload)))
       uploadActions.send(DeleteParts(upload))
     }

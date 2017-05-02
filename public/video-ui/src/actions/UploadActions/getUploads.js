@@ -1,5 +1,5 @@
 import {UploadsApi} from '../../services/UploadsApi';
-import Logger from '../../logger';
+import {errorDetails} from '../../util/errorDetails';
 
 function runningUploads(uploads) {
   return {
@@ -10,8 +10,6 @@ function runningUploads(uploads) {
 }
 
 function errorGettingUploads(error) {
-  Logger.error(error);
-
   return {
     type:       'SHOW_ERROR',
     message:    `Could not get uploads: ${error}`,
@@ -25,7 +23,7 @@ export function getUploads(atomId) {
         UploadsApi.getUploads(atomId).then((uploads) => {
             dispatch(runningUploads(uploads));
         }).catch((error) => {
-            dispatch(errorGettingUploads(`${error.status} ${error.statusText}`));  
+            dispatch(errorGettingUploads(errorDetails(error)));
         });
     };
 }
