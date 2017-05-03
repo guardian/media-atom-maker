@@ -21,7 +21,7 @@ publisher that pushes media atoms into a Kinesis stream.
 
 
 ## Running the apps
-- There are two apps which you can run:
+There are two apps which you can run:
 1. An angular app which provides a simple way of editing and publishing media
    atoms.
 2. A react app which allows for browsing atoms and more complex atom
