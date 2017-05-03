@@ -29,27 +29,7 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
   var completeKey: String = ""
 
   override def beforeAll(): Unit = {
-    val aliveResponse = gutoolsGet(targetBaseUrl)
-    aliveResponse.code() should be (200)
-    aliveResponse.body().string() should include ("video")
-
-    val json = generateJson(
-      title = s"${TestFilters.testAtomBaseName}-${UUID.randomUUID().toString}",
-      description = "test atom",
-      category = "News",
-      channelId = Config.channelId,
-      youtubeCategoryId = Config.youtubeCategoryId,
-      expiryDate = Instant.now.toEpochMilli + (100 * 60 * 60 * 24)
-    )
-
-    val response = gutoolsPost(s"$targetBaseUrl/api2/atoms", jsonBody(json))
-
-    response.code() should be(201)
-
-    atomId = (Json.parse(response.body().string()) \ "id").get.as[String]
-
-    addAtomToStore(atomId)
-
+    atomId = createAtom()
     apiEndpoint = apiUri(atomId)
 
     eventually {

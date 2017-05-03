@@ -1,7 +1,3 @@
-import java.time.Instant
-import java.util.UUID
-
-import com.gu.media.util.TestFilters
 import integration.IntegrationTestBase
 import integration.services.Config
 import org.scalatest.CancelAfterFailure
@@ -9,9 +5,8 @@ import org.scalatest.exceptions.TestFailedException
 import play.api.libs.json.Json
 
 class AtomCreationTests extends IntegrationTestBase with CancelAfterFailure {
-
-  var atomId: String = ""
-  var apiEndpoint: String = ""
+  var atomId = ""
+  var apiEndpoint = ""
 
   test(s"$targetBaseUrl is up") {
     val response = gutoolsGet(targetBaseUrl)
@@ -20,23 +15,7 @@ class AtomCreationTests extends IntegrationTestBase with CancelAfterFailure {
   }
 
   test("Create a new atom") {
-    val json = generateJson(
-      title = s"${TestFilters.testAtomBaseName}-${UUID.randomUUID().toString}",
-      description = "test atom",
-      category = "News",
-      channelId = Config.channelId,
-      youtubeCategoryId = Config.youtubeCategoryId,
-      expiryDate = Instant.now.toEpochMilli + (100 * 60 * 60 * 24)
-    )
-
-    val response = gutoolsPost(s"$targetBaseUrl/api2/atoms", jsonBody(json))
-
-    response.code() should be(201)
-
-    atomId = (Json.parse(response.body().string()) \ "id").get.as[String]
-
-    addAtomToStore(atomId)
-
+    atomId = createAtom()
     apiEndpoint = apiUri(atomId)
 
     eventually {
