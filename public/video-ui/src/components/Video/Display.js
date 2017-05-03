@@ -22,10 +22,6 @@ class VideoDisplay extends React.Component {
     this.props.videoActions.getUsages(this.props.params.id);
   }
 
-  componentWillUnmount() {
-    this.props.videoActions.updateVideo(blankVideoData);
-  }
-
   saveVideo = () => {
     this.props.videoActions.saveVideo(this.props.video);
   }

@@ -14,10 +14,6 @@ class VideoAuditTrail extends React.Component {
     this.props.videoActions.getVideo(this.props.params.id);
   }
 
-  componentWillUnmount() {
-    this.props.videoActions.updateVideo(blankVideoData);
-  }
-
   state = {
     renderAll: false
   };

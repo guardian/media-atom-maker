@@ -47,10 +47,6 @@ class VideoUpload extends React.Component {
     this.props.videoActions.getVideo(this.props.params.id);
   }
 
-  componentWillUnmount() {
-    this.props.videoActions.updateVideo(blankVideoData);
-  }
-
   setFile = (event) => {
     if (!this.props.video) {
       return;
