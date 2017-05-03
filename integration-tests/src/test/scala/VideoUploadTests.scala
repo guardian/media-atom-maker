@@ -17,8 +17,6 @@ import play.api.libs.json.{JsArray, JsValue, Json}
 import services.AWS
 
 class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
-  val sourceVideoBucket = "atom-maker-test-videos"
-  val sourceVideo = "170502radcliffe.mp4"
   val s3 = accountCredentialsS3Client()
 
   var atomId: String = ""
@@ -60,7 +58,7 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
   }
 
   test("Create an upload") {
-    val source = s3.getObject(sourceVideoBucket, sourceVideo)
+    val source = s3.getObject(Config.testVideoBucket, Config.testVideo)
     val json = generateUploadRequest(atomId, source.getObjectMetadata.getContentLength)
 
     val response = gutoolsPost(s"$targetBaseUrl/api2/uploads?atomId=$atomId", jsonBody(json))
@@ -75,7 +73,7 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
   }
 
   test("Upload parts") {
-    val source = s3.getObject(sourceVideoBucket, sourceVideo).getObjectContent
+    val source = s3.getObject(Config.testVideoBucket, Config.testVideo).getObjectContent
 
     uploadParts.foreach { case(uploadKey, start, end) =>
       val credentials = partRequest(uploadKey, s"$targetBaseUrl/api2/uploads/$uploadId/credentials")

@@ -26,6 +26,8 @@ object Config {
   lazy val credentialsProvider = config.getString("credentialsProvider")
 
   lazy val youTube = YouTubeConfig(config)
+  lazy val testVideoBucket = config.getString("testVideos.bucket")
+  lazy val testVideo = config.getString("testVideos.video")
 }
 
 case class YouTubeConfig(name: String, contentOwner: String, clientId: String, clientSecret: String, refreshToken: String)
