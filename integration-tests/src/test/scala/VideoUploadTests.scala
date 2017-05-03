@@ -2,25 +2,24 @@ import java.io.{FilterInputStream, InputStream}
 import java.time.Instant
 import java.util.UUID
 
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
+import com.amazonaws.auth.{AWSStaticCredentialsProvider, BasicSessionCredentials}
 import com.amazonaws.regions.{Region, Regions}
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.ObjectMetadata
 import com.google.common.io.ByteStreams
 import com.gu.media.util.TestFilters
+import com.squareup.okhttp.Response
 import integration.IntegrationTestBase
 import integration.services.Config
 import org.scalatest.CancelAfterFailure
 import org.scalatest.time.{Minutes, Seconds, Span}
 import play.api.libs.json.{JsArray, JsValue, Json}
+import services.AWS
 
 class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
-  // TODO MRB: use STS credentials
-  val credentials = new ProfileCredentialsProvider("media-service")
-  val s3 = Region.getRegion(Regions.EU_WEST_1).createClient(classOf[AmazonS3Client], credentials, null)
-
   val sourceVideoBucket = "atom-maker-test-videos"
   val sourceVideo = "170502radcliffe.mp4"
+  val s3 = accountCredentialsS3Client()
 
   var atomId: String = ""
   var apiEndpoint: String = ""
@@ -31,13 +30,11 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
   var uploadUri: Option[String] = None
   var completeKey: String = ""
 
-  test(s"$targetBaseUrl is up") {
-    val response = gutoolsGet(targetBaseUrl)
-    response.code() should be (200)
-    response.body().string() should include ("video")
-  }
+  override def beforeAll(): Unit = {
+    val aliveResponse = gutoolsGet(targetBaseUrl)
+    aliveResponse.code() should be (200)
+    aliveResponse.body().string() should include ("video")
 
-  test("Create a new atom") {
     val json = generateJson(
       title = s"${TestFilters.testAtomBaseName}-${UUID.randomUUID().toString}",
       description = "test atom",
@@ -60,8 +57,6 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
     eventually {
       gutoolsGet(apiEndpoint).code() should be(200)
     }
-
-    Json.parse(gutoolsGet(s"$targetBaseUrl/api2/atoms/$atomId/published").body().string()).toString() should be("{}")
   }
 
   test("Create an upload") {
@@ -83,17 +78,18 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
     val source = s3.getObject(sourceVideoBucket, sourceVideo).getObjectContent
 
     uploadParts.foreach { case(uploadKey, start, end) =>
+      val credentials = partRequest(uploadKey, s"$targetBaseUrl/api2/uploads/$uploadId/credentials")
+      val temporaryClient = stsCredentialsS3Client(credentials)
+
       val length = end - start
       val part = slice(source, length)
 
       val metadata = new ObjectMetadata()
       metadata.setContentLength(length)
 
-      s3.putObject(uploadBucket, uploadKey, part, metadata)
+      temporaryClient.putObject(uploadBucket, uploadKey, part, metadata)
 
-      val headers = List(Some("X-Upload-Key" -> uploadKey), uploadUri.map("X-Upload-Uri" -> _)).flatten
-
-      val response = gutoolsPost(s"$targetBaseUrl/api2/uploads/$uploadId/complete", emptyBody, headers.toMap)
+      val response = partRequest(uploadKey, s"$targetBaseUrl/api2/uploads/$uploadId/complete")
       uploadUri = Some((Json.parse(response.body().string()) \ "uploadUri").as[String])
     }
   }
@@ -133,5 +129,27 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
         // nah keep it open :)
       }
     }
+  }
+
+  private def partRequest(key: String, uri: String) = {
+    val headers = List(Some("X-Upload-Key" -> key), uploadUri.map("X-Upload-Uri" -> _)).flatten
+    gutoolsPost(uri, emptyBody, headers.toMap)
+  }
+
+  private def accountCredentialsS3Client() = {
+    Region.getRegion(Regions.EU_WEST_1).createClient(classOf[AmazonS3Client], AWS.credentialsProvider, null)
+  }
+
+  private def stsCredentialsS3Client(credentials: Response) = {
+    val json = Json.parse(credentials.body().string())
+
+    val accessId = (json \ "temporaryAccessId").as[String]
+    val secret = (json \ "temporarySecretKey").as[String]
+    val token = (json \ "sessionToken").as[String]
+
+    val awsCredentials = new BasicSessionCredentials(accessId, secret, token)
+    val awsCredentialsProvider = new AWSStaticCredentialsProvider(awsCredentials)
+
+    Region.getRegion(Regions.EU_WEST_1).createClient(classOf[AmazonS3Client], awsCredentialsProvider, null)
   }
 }
