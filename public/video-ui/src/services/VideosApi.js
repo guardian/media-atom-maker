@@ -13,31 +13,25 @@ export default {
     }
 
     return pandaReqwest({
-      url: url,
-      method: 'get'
+      url: url
     });
   },
 
   fetchVideo: (videoId) => {
     return pandaReqwest({
-      url: '/api2/atoms/' + videoId,
-      method: 'get',
-      contentType: 'application/json'
+      url: '/api2/atoms/' + videoId
     });
   },
 
   fetchPublishedVideo: (videoId) => {
     return pandaReqwest({
-      url: '/api2/atoms/' + videoId + '/published',
-      method: 'get',
-      contentType: 'application/json'
+      url: '/api2/atoms/' + videoId + '/published'
     });
   },
 
   createVideo: (video) => {
     return pandaReqwest({
       url: '/api2/atoms',
-      contentType: 'application/json',
       method: 'post',
       data: video
     });
@@ -53,7 +47,6 @@ export default {
   createAsset: (asset, videoId) => {
     return pandaReqwest({
       url: '/api2/atoms/' + videoId + '/assets',
-      contentType: 'application/json',
       method: 'post',
       data: asset
     });
@@ -62,7 +55,6 @@ export default {
   revertAsset: (atomId, videoId) => {
     return pandaReqwest({
       url: '/api2/atom/' + atomId + '/asset-active',
-      contentType: 'application/json',
       method: 'put',
       data: {youtubeId: videoId}
     });
@@ -72,23 +64,20 @@ export default {
     return pandaReqwest({
       url: '/api2/atoms/' + videoId,
       method: 'put',
-      contentType: 'application/json',
       data: video
     });
   },
 
   fetchAudits: (atomId) => {
     return pandaReqwest({
-      url: '/api2/audits/' + atomId,
-      method: 'get'
+      url: '/api2/audits/' + atomId
     });
   },
 
   getVideoUsages: (videoId) => {
     const capiProxyUrl = getStore().getState().config.capiProxyUrl;
     return pandaReqwest({
-      url: capiProxyUrl + "/atom/media/" + videoId + "/usage",
-      method: 'get'
+      url: capiProxyUrl + "/atom/media/" + videoId + "/usage"
     });
   },
 
@@ -130,7 +119,6 @@ export default {
       return pandaReqwest({
         url: `${composerUrl}/api/content/${pageId}/${stage}/fields/${field}`,
         method: 'delete',
-        contentType: 'application/json',
         crossOrigin: true,
         withCredentials: true
       });
@@ -167,7 +155,6 @@ export default {
     return pandaReqwest({
       url: composerUrl,
       method: 'post',
-      contentType: 'application/json',
       crossOrigin: true,
       withCredentials: true
     });
@@ -179,7 +166,6 @@ export default {
       return pandaReqwest({
         url: `${composerUrl}/api/content/${pageId}/${stage}/mainblock`,
         method: 'post',
-        contentType: 'application/json',
         crossOrigin: true,
         withCredentials: true,
         data: data
@@ -202,8 +188,7 @@ export default {
   fetchComposerId(capiId) {
     const capiProxyUrl = getStore().getState().config.capiProxyUrl;
     return pandaReqwest({
-      url: capiProxyUrl + '/' + capiId + "?show-fields=all",
-      method: 'get'
+      url: capiProxyUrl + '/' + capiId + "?show-fields=all"
     })
     .then(resp => {
       if (resp.response.content && resp.response.content.fields && resp.response.content.fields.internalComposerCode) {

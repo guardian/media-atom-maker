@@ -8,8 +8,7 @@ const AWS = window.AWS;
 class UploadFunctions {
   getUploads = (atomId) => {
     return pandaReqwest({
-      url: `/api2/uploads?atomId=${atomId}`,
-      method: 'get'
+      url: `/api2/uploads?atomId=${atomId}`
     });
   };
 
@@ -17,7 +16,6 @@ class UploadFunctions {
     return pandaReqwest({
       url: `/api2/uploads?atomId=${atomId}`,
       method: 'post',
-      contentType: 'application/json',
       data: {
         atomId: atomId,
         filename: file.name,
