@@ -39,7 +39,7 @@ export default {
       url: '/api2/atoms',
       contentType: 'application/json',
       method: 'post',
-      data: JSON.stringify(video)
+      data: video
     });
   },
 
@@ -55,7 +55,7 @@ export default {
       url: '/api2/atoms/' + videoId + '/assets',
       contentType: 'application/json',
       method: 'post',
-      data: JSON.stringify(asset)
+      data: asset
     });
   },
 
@@ -64,7 +64,7 @@ export default {
       url: '/api2/atom/' + atomId + '/asset-active',
       contentType: 'application/json',
       method: 'put',
-      data: JSON.stringify({youtubeId: videoId})
+      data: {youtubeId: videoId}
     });
   },
 
@@ -73,7 +73,7 @@ export default {
       url: '/api2/atoms/' + videoId,
       method: 'put',
       contentType: 'application/json',
-      data: JSON.stringify(video)
+      data: video
     });
   },
 
@@ -123,7 +123,7 @@ export default {
           contentType: 'application/json',
           crossOrigin: true,
           withCredentials: true,
-          data: JSON.stringify(value)
+          data: value
         });
       }
 
@@ -182,7 +182,7 @@ export default {
         contentType: 'application/json',
         crossOrigin: true,
         withCredentials: true,
-        data: JSON.stringify(data)
+        data: data
       });
     }
 
