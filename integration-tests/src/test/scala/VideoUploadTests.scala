@@ -13,6 +13,7 @@ import integration.IntegrationTestBase
 import integration.services.Config
 import org.scalatest.CancelAfterFailure
 import org.scalatest.time.{Minutes, Seconds, Span}
+import play.api.Logger
 import play.api.libs.json.{JsArray, JsValue, Json}
 import services.AWS
 
@@ -56,6 +57,7 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
     val source = s3.getObject(Config.testVideoBucket, Config.testVideo).getObjectContent
 
     uploadParts.foreach { case(uploadKey, start, end) =>
+      Logger.info(s"Getting credentials for $uploadKey")
       val credentials = partRequest(uploadKey, s"$targetBaseUrl/api2/uploads/$uploadId/credentials")
       val temporaryClient = stsCredentialsS3Client(credentials)
 
@@ -65,6 +67,7 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
       val metadata = new ObjectMetadata()
       metadata.setContentLength(length)
 
+      Logger.info(s"Uploading $uploadKey")
       temporaryClient.putObject(uploadBucket, uploadKey, part, metadata)
 
       val response = partRequest(uploadKey, s"$targetBaseUrl/api2/uploads/$uploadId/complete")

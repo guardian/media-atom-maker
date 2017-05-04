@@ -12,10 +12,10 @@ trait LambdaBase extends Settings with AwsAccess {
   final override def regionName = sys.env.get("REGION")
   final override def readTag(tag: String) = sys.env.get(tag.toUpperCase(Locale.ENGLISH))
 
+  final override val credentials = AwsCredentials.lambda()
+
   private val remoteConfig = downloadConfig()
   private val mergedConfig = remoteConfig.withFallback(ConfigFactory.load())
-
-  final override val credentials = AwsCredentials.lambda()
 
   override def config: Config = mergedConfig
 
