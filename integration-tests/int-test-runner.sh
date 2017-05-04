@@ -4,7 +4,7 @@ export STATUS=$?
 
 if [ $STATUS -eq 1 ]
 then
-  if [ "$INT_TEST_TARGET" == "PROD" ]
+  if [ "$INT_TEST_TARGET" = "PROD" ]
   then
     curl -X POST --data-urlencode 'payload={"text": "<!here> Media Atom Maker integration tests have failed on PRODUCTION '${BUILD_URL}'"}' ${SLACK_URL}
   else
