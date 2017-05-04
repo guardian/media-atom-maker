@@ -1,4 +1,4 @@
-import {getYoutubeChannels} from '../../services/YoutubeApi';
+import { getYoutubeChannels } from '../../services/YoutubeApi';
 
 function requestChannels() {
   return {

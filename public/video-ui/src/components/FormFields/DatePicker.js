@@ -4,24 +4,28 @@ import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 import Icon from '../Icon';
 
-const DATE_FORMAT = "YYYY/MM/DD";
+const DATE_FORMAT = 'YYYY/MM/DD';
 const DATETIME_FORMAT = `${DATE_FORMAT} HH:mm`;
 
-const MINUTES = [0, 15, 30, 45].map((minute) => moment().minute(minute).format("mm"));
-const HOURS = [...new Array(24).keys()].map((hour) => moment().hour(hour).format("HH"));
-const EMPTY = [" "];
+const MINUTES = [0, 15, 30, 45].map(minute =>
+  moment().minute(minute).format('mm')
+);
+const HOURS = [...new Array(24).keys()].map(hour =>
+  moment().hour(hour).format('HH')
+);
+const EMPTY = [' '];
 
-function Selector({values, value, disabled, onChange}) {
-  const handler = (e) => {
+function Selector({ values, value, disabled, onChange }) {
+  const handler = e => {
     onChange(e.target.value);
   };
 
-  const options = values.map((value) => {
+  const options = values.map(value => {
     return <option key={value} value={value}>{value}</option>;
   });
 
   const params = {
-    className: "form__field form__field--select",
+    className: 'form__field form__field--select',
     disabled: disabled,
     value: value,
     onChange: handler
@@ -30,35 +34,35 @@ function Selector({values, value, disabled, onChange}) {
   return <select {...params}>{options}</select>;
 }
 
-function HourSelector({date, onChange}) {
+function HourSelector({ date, onChange }) {
   const params = {
     values: date ? HOURS : EMPTY,
-    value: date ? date.format("HH") : " ",
+    value: date ? date.format('HH') : ' ',
     disabled: !date,
-    onChange: (newHour) => onChange(date.hours(newHour))
+    onChange: newHour => onChange(date.hours(newHour))
   };
 
   return <Selector {...params} />;
 }
 
-function MinuteSelector({date, onChange}) {
+function MinuteSelector({ date, onChange }) {
   const params = {
     values: date ? MINUTES : EMPTY,
-    value: date ? date.format("mm") : " ",
+    value: date ? date.format('mm') : ' ',
     disabled: !date,
-    onChange: (newMinute) => onChange(date.minutes(newMinute))
+    onChange: newMinute => onChange(date.minutes(newMinute))
   };
 
   return <Selector {...params} />;
 }
 
-function DateSelector({date, onChange}) {
+function DateSelector({ date, onChange }) {
   const datePickerParams = {
-    className: "form__field",
+    className: 'form__field',
     selected: date,
     minDate: moment(),
     dateFormat: DATE_FORMAT,
-    onChange: (newDate) => {
+    onChange: newDate => {
       const base = date ? date : moment().hours(0).minutes(0);
       onChange(newDate.hours(base.hours()).minutes(base.minutes()));
     }
@@ -67,51 +71,63 @@ function DateSelector({date, onChange}) {
   return <Picker {...datePickerParams} />;
 }
 
-function Editor({date, onChange}) {
+function Editor({ date, onChange }) {
   function reset() {
     onChange(null);
   }
 
   return (
-      <div>
-        <label className="form__label">Expiry Date</label>
-        <div className="expiry-date-picker">
-          <div className="expiry-date-picker__date">
-            <DateSelector date={date} onChange={onChange} />
-          </div>
-          <div className="expiry-date-picker__number">
-            <HourSelector date={date} onChange={onChange} />
-          </div>
-          <div className="expiry-date-picker__number">
-            <MinuteSelector date={date} onChange={onChange} />
-          </div>
-          <Icon icon="cancel" className="icon__edit expiry-date-picker__reset" onClick={reset} />
+    <div>
+      <label className="form__label">Expiry Date</label>
+      <div className="expiry-date-picker">
+        <div className="expiry-date-picker__date">
+          <DateSelector date={date} onChange={onChange} />
         </div>
+        <div className="expiry-date-picker__number">
+          <HourSelector date={date} onChange={onChange} />
+        </div>
+        <div className="expiry-date-picker__number">
+          <MinuteSelector date={date} onChange={onChange} />
+        </div>
+        <Icon
+          icon="cancel"
+          className="icon__edit expiry-date-picker__reset"
+          onClick={reset}
+        />
       </div>
-    );
+    </div>
+  );
 }
 
-function Display({date}) {
-  const displayString = date ? date.format(DATETIME_FORMAT) : 'No expiry date set';
+function Display({ date }) {
+  const displayString = date
+    ? date.format(DATETIME_FORMAT)
+    : 'No expiry date set';
 
-  return <div>
-    <p className="details-list__title">Expiry Date</p>
-    <p className="details-list__field">{displayString}</p>
-  </div>;
+  return (
+    <div>
+      <p className="details-list__title">Expiry Date</p>
+      <p className="details-list__field">{displayString}</p>
+    </div>
+  );
 }
 
-export default function DatePicker({editable, onUpdateField, fieldValue}) {
-
+export default function DatePicker({ editable, onUpdateField, fieldValue }) {
   const date = fieldValue ? moment(fieldValue) : null;
 
-  if(editable) {
-    return <Editor date={date} onChange={(newDate) => {
-      if (newDate) {
-        onUpdateField(newDate.valueOf());
-      } else {
-        onUpdateField(null);
-      }
-    }} />;
+  if (editable) {
+    return (
+      <Editor
+        date={date}
+        onChange={newDate => {
+          if (newDate) {
+            onUpdateField(newDate.valueOf());
+          } else {
+            onUpdateField(null);
+          }
+        }}
+      />
+    );
   } else {
     return <Display date={date} />;
   }

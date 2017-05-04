@@ -7,6 +7,8 @@ export const videoCategories = [
   'News',
   'Documentary',
   'Explainer',
-  'Feature',
+  'Feature'
   // 'Hosted'
-].map(cat => { return { id: cat, title: cat }; });
+].map(cat => {
+  return { id: cat, title: cat };
+});

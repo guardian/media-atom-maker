@@ -12,7 +12,6 @@ export function getVideoBlock(id, metadata) {
           published: 'Unable to get published state from atom',
           isMandatory: 'true',
           editorialLink: ''
-
         },
         assets: []
       }

@@ -1,36 +1,33 @@
 import React from 'react';
 
 class KeywordPicker extends React.Component {
-
   state = {
-    newKeywordText: ""
-  }
+    newKeywordText: ''
+  };
 
-  updateNewKeywordText = (e) => {
+  updateNewKeywordText = e => {
     this.setState({
-      newKeywordText: e.target.value || ""
+      newKeywordText: e.target.value || ''
     });
-  }
+  };
 
   addKeyword = () => {
-
     const oldKeywords = this.props.fieldValue ? this.props.fieldValue : [];
     const newKeywords = oldKeywords.concat([this.state.newKeywordText]);
     this.props.onUpdateField(newKeywords);
     this.setState({
-      newKeywordText: ""
+      newKeywordText: ''
     });
-  }
+  };
 
-  onInputKeyDown = (e) => {
-     if (e.key === "Enter") {
-       e.preventDefault();
-       this.addKeyword();
-     }
-  }
+  onInputKeyDown = e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      this.addKeyword();
+    }
+  };
 
   isValidKeyword = () => {
-
     if (!this.state.newKeywordText) {
       return false;
     }
@@ -45,33 +42,35 @@ class KeywordPicker extends React.Component {
     }
 
     return true;
-  }
+  };
 
-  removeKeyword = (keyword) => {
-    const newKeywords = this.props.fieldValue.filter((k) => k !== keyword);
+  removeKeyword = keyword => {
+    const newKeywords = this.props.fieldValue.filter(k => k !== keyword);
     this.props.onUpdateField(newKeywords);
-  }
+  };
 
-  renderKeyword = (keyword) => {
-
+  renderKeyword = keyword => {
     return (
       <div className="keywords__item" key={keyword}>
         <div className="keyword__item__text">{keyword}</div>
-        <button className="keyword__item__remove" disabled={!this.props.editable} onClick={this.removeKeyword.bind(this, keyword)}>X</button>
+        <button
+          className="keyword__item__remove"
+          disabled={!this.props.editable}
+          onClick={this.removeKeyword.bind(this, keyword)}
+        >
+          X
+        </button>
       </div>
     );
-  }
+  };
 
   renderKeywords = () => {
-
     if (!this.props.fieldValue || !this.props.fieldValue.length) {
-      return (
-        <span className="details-list__empty">No Keywords</span>
-      );
+      return <span className="details-list__empty">No Keywords</span>;
     }
 
     return this.props.fieldValue.map(this.renderKeyword);
-  }
+  };
 
   renderInputField = () => {
     if (this.props.editable) {
@@ -81,12 +80,12 @@ class KeywordPicker extends React.Component {
           className="form__field"
           value={this.state.newKeywordText}
           onChange={this.updateNewKeywordText}
-          onKeyDown={this.onInputKeyDown} placeholder="Enter new keyword..."
+          onKeyDown={this.onInputKeyDown}
+          placeholder="Enter new keyword..."
         />
       );
     }
-  }
-
+  };
 
   render() {
     return (
@@ -101,7 +100,6 @@ class KeywordPicker extends React.Component {
       </div>
     );
   }
-
 }
 
 export default KeywordPicker;

@@ -1,7 +1,11 @@
 import _ from 'lodash';
-import {appUpdatedFields} from '../constants/appUpdatedFields';
+import { appUpdatedFields } from '../constants/appUpdatedFields';
 
-export function hasUnpublishedChanges(previewVideo, publishedVideo, editableFields) {
+export function hasUnpublishedChanges(
+  previewVideo,
+  publishedVideo,
+  editableFields
+) {
   if (!previewVideo) {
     return false;
   }

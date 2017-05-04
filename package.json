@@ -6,7 +6,7 @@
     "build": "webpack -p ./public/video-ui/src/app.js ./public/video-ui/build/app.js --config ./build_config/webpack.prod.conf.js",
     "build-dev": "webpack ./public/video-ui/src/app.js ./public/video-ui/build/app.js --config ./build_config/webpack.dev.conf.js --watch",
     "client-dev": "node ./webpack-dev-server.js",
-    "lint-video-ui": "eslint public/video-ui/src/",
+    "lint-video-ui": "eslint public/video-ui/src/ --fix",
     "lint-cloudformation": "jsonlint cloudformation/*.json --quiet",
     "lint": "npm run lint-video-ui && npm run lint-cloudformation",
     "test": "npm run lint"

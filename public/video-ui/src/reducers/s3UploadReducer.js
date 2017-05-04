@@ -4,10 +4,14 @@ const EMPTY = { handle: null, progress: 0, total: 0 };
 // We hold that progress in a separate state key from the progress of uploading to YouTube on the server side.
 // This way we can give a finer grained progress bar to the user for the S3 upload.
 export default function s3Upload(state = EMPTY, action) {
-  switch(action.type) {
+  switch (action.type) {
     case 'UPLOAD_STARTED': {
       const total = action.upload.parts[action.upload.parts.length - 1].end;
-      return Object.assign({}, state, { created: action.receivedAt, handle: action.handle, total: total });
+      return Object.assign({}, state, {
+        created: action.receivedAt,
+        handle: action.handle,
+        total: total
+      });
     }
 
     case 'UPLOAD_PROGRESS':

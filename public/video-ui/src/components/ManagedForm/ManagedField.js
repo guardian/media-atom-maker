@@ -1,12 +1,11 @@
 import React from 'react';
-import {PropTypes} from 'prop-types';
+import { PropTypes } from 'prop-types';
 import _get from 'lodash/fp/get';
 import _set from 'lodash/fp/set';
 import validateField from '../../util/validateField';
 import FieldNotification from '../../constants/FieldNotification';
 
 export class ManagedField extends React.Component {
-
   static propTypes = {
     fieldLocation: PropTypes.string.isRequired,
     children: PropTypes.oneOfType([
@@ -28,19 +27,24 @@ export class ManagedField extends React.Component {
 
   state = {
     fieldNotification: null,
-    touched : false
+    touched: false
   };
 
   componentDidMount() {
-    const value = this.props.data ? this.props.data[this.props.fieldLocation] : null;
+    const value = this.props.data
+      ? this.props.data[this.props.fieldLocation]
+      : null;
     this.checkErrorsAndWarnings(value);
   }
 
   checkErrorsAndWarnings(value) {
-
     if (this.props.updateFormErrors) {
-
-      const notification = validateField(value, this.props.isRequired, this.props.isDesired, this.props.customValidation);
+      const notification = validateField(
+        value,
+        this.props.isRequired,
+        this.props.isDesired,
+        this.props.customValidation
+      );
 
       if (notification && notification.type === FieldNotification.error) {
         this.props.updateFormErrors(notification, this.props.fieldLocation);
@@ -51,11 +55,10 @@ export class ManagedField extends React.Component {
       this.setState({
         fieldNotification: notification
       });
-
     }
   }
 
-  updateFn = (newValue) => {
+  updateFn = newValue => {
     this.setState({
       touched: true
     });
@@ -63,11 +66,15 @@ export class ManagedField extends React.Component {
     this.checkErrorsAndWarnings(newValue);
 
     if (newValue !== '') {
-      this.props.updateData(_set(this.props.fieldLocation, newValue, this.props.data));
+      this.props.updateData(
+        _set(this.props.fieldLocation, newValue, this.props.data)
+      );
     } else {
-      this.props.updateData(_set(this.props.fieldLocation, null, this.props.data));
+      this.props.updateData(
+        _set(this.props.fieldLocation, null, this.props.data)
+      );
     }
-  }
+  };
 
   getFieldValue(value) {
     if (!this.props.editable && this.props.placeholder && !value) {
@@ -79,24 +86,30 @@ export class ManagedField extends React.Component {
     }
 
     return value;
-
   }
 
   hasError(props) {
-    return props.touched && props.notification && props.notification.type === FieldNotification.error;
+    return (
+      props.touched &&
+      props.notification &&
+      props.notification.type === FieldNotification.error
+    );
   }
 
   hasWarning(props) {
-    return props.notification && props.notification.type === FieldNotification.warning;
-
+    return (
+      props.notification &&
+      props.notification.type === FieldNotification.warning
+    );
   }
 
-  render () {
-
-    const hydratedChildren = React.Children.map(this.props.children, (child) => {
+  render() {
+    const hydratedChildren = React.Children.map(this.props.children, child => {
       return React.cloneElement(child, {
         fieldName: this.props.name,
-        fieldValue: this.getFieldValue(_get(this.props.fieldLocation, this.props.data)),
+        fieldValue: this.getFieldValue(
+          _get(this.props.fieldLocation, this.props.data)
+        ),
         onUpdateField: this.updateFn,
         editable: this.props.editable,
         maxLength: this.props.maxLength,

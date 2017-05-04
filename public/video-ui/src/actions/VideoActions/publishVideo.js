@@ -2,7 +2,7 @@ import VideosApi from '../../services/VideosApi';
 
 function requestVideoPublish(video) {
   return {
-    type:       'VIDEO_PUBLISH_REQUEST',
+    type: 'VIDEO_PUBLISH_REQUEST',
     video: video,
     receivedAt: Date.now()
   };
@@ -18,9 +18,9 @@ function receiveVideoPublish(video) {
 
 function errorVideoPublish(error) {
   return {
-    type:       'SHOW_ERROR',
-    message:    'Could not publish video',
-    error:      error,
+    type: 'SHOW_ERROR',
+    message: 'Could not publish video',
+    error: error,
     receivedAt: Date.now()
   };
 }
@@ -29,7 +29,7 @@ export function publishVideo(video) {
   return dispatch => {
     dispatch(requestVideoPublish(video));
     return VideosApi.publishVideo(video)
-        .then(res => dispatch(receiveVideoPublish(res)))
-        .catch(error => dispatch(errorVideoPublish(error)));
+      .then(res => dispatch(receiveVideoPublish(res)))
+      .catch(error => dispatch(errorVideoPublish(error)));
   };
 }

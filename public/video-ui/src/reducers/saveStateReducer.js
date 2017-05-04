@@ -1,10 +1,12 @@
-import {saveStateVals} from '../constants/saveStateVals';
+import { saveStateVals } from '../constants/saveStateVals';
 
-export default function saveState(state = {
-  saving: false,
-  publishing: false
-}, action) {
-
+export default function saveState(
+  state = {
+    saving: false,
+    publishing: false
+  },
+  action
+) {
   switch (action.type) {
     //Save States
     case 'VIDEO_GET_REQUEST':
@@ -40,8 +42,8 @@ export default function saveState(state = {
       return Object.assign({}, state, {
         saving: false
       });
-
     //Publish States
+
 
     case 'VIDEO_PUBLISH_REQUEST':
       return Object.assign({}, state, {
@@ -51,8 +53,8 @@ export default function saveState(state = {
       return Object.assign({}, state, {
         publishing: false
       });
-
     // Adding asset states
+
 
     case 'ASSET_CREATE_REQUEST':
       return Object.assign({}, state, {
@@ -62,17 +64,15 @@ export default function saveState(state = {
       return Object.assign({}, state, {
         addingAsset: false
       });
-
-      // Checkign usages state
-      case 'VIDEO_USAGE_GET_REQUEST':
-        return Object.assign({}, state, {
-          fetchingUsages: true
-        });
-      case 'VIDEO_USAGE_GET_RECEIVE':
-        return Object.assign({}, state, {
-          fetchingUsages: false
-        });
-
+    // Checkign usages state
+    case 'VIDEO_USAGE_GET_REQUEST':
+      return Object.assign({}, state, {
+        fetchingUsages: true
+      });
+    case 'VIDEO_USAGE_GET_RECEIVE':
+      return Object.assign({}, state, {
+        fetchingUsages: false
+      });
 
     case 'SHOW_ERROR':
       return Object.assign({}, state, {

@@ -1,25 +1,23 @@
 import React from 'react';
-import {ManagedForm, ManagedField} from '../ManagedForm';
+import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
 import KeywordPicker from '../FormFields/KeywordPicker';
 import { privacyStates } from '../../constants/privacyStates';
 
 class YoutubeMetaData extends React.Component {
-
   hasCategories = () => this.props.youtube.categories.length !== 0;
   hasChannels = () => this.props.youtube.channels.length !== 0;
 
   componentWillMount() {
-    if (! this.hasCategories()) {
+    if (!this.hasCategories()) {
       this.props.youtubeActions.getCategories();
     }
-    if (! this.hasChannels()) {
+    if (!this.hasChannels()) {
       this.props.youtubeActions.getChannels();
     }
   }
 
-  render () {
-
+  render() {
     return (
       <div className="form__group">
         <ManagedForm
@@ -33,25 +31,16 @@ class YoutubeMetaData extends React.Component {
             fieldLocation="youtubeCategoryId"
             name="YouTube Category"
           >
-            <SelectBox selectValues={this.props.youtube.categories}></SelectBox>
+            <SelectBox selectValues={this.props.youtube.categories} />
           </ManagedField>
-          <ManagedField
-            fieldLocation="channelId"
-            name="YouTube Channel"
-          >
-            <SelectBox selectValues={this.props.youtube.channels}></SelectBox>
+          <ManagedField fieldLocation="channelId" name="YouTube Channel">
+            <SelectBox selectValues={this.props.youtube.channels} />
           </ManagedField>
-          <ManagedField
-            fieldLocation="privacyStatus"
-            name="Privacy Status"
-          >
-            <SelectBox selectValues={privacyStates}></SelectBox>
+          <ManagedField fieldLocation="privacyStatus" name="Privacy Status">
+            <SelectBox selectValues={privacyStates} />
           </ManagedField>
-          <ManagedField
-            fieldLocation="tags"
-            name="Keywords"
-          >
-            <KeywordPicker/>
+          <ManagedField fieldLocation="tags" name="Keywords">
+            <KeywordPicker />
           </ManagedField>
         </ManagedForm>
       </div>
@@ -73,7 +62,10 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    youtubeActions: bindActionCreators(Object.assign({}, getCategories, getChannels), dispatch)
+    youtubeActions: bindActionCreators(
+      Object.assign({}, getCategories, getChannels),
+      dispatch
+    )
   };
 }
 

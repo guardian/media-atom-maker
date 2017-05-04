@@ -1,9 +1,8 @@
 import React from 'react';
 
 export default class TextInput extends React.Component {
-
   renderField = () => {
-    if(!this.props.editable) {
+    if (!this.props.editable) {
       return (
         <div>
           <p className="details-list__title">{this.props.fieldName}</p>
@@ -18,17 +17,23 @@ export default class TextInput extends React.Component {
       <div className="form__row">
         <label className="form__label">{this.props.fieldName}</label>
         <input
-          { ...this.props.input}
+          {...this.props.input}
           maxLength={this.props.maxLength || ''}
-          className={"form__field " + (hasError ? "form__field--error" : "")}
+          className={'form__field ' + (hasError ? 'form__field--error' : '')}
           type="text"
           value={this.props.fieldValue}
-          onChange={(e) => {this.props.onUpdateField(e.target.value);}} />
-        {hasError ? <p className="form__message form__message--error">{this.props.notification.message}</p> : ""}
+          onChange={e => {
+            this.props.onUpdateField(e.target.value);
+          }}
+        />
+        {hasError
+          ? <p className="form__message form__message--error">
+              {this.props.notification.message}
+            </p>
+          : ''}
       </div>
     );
   };
-
 
   render() {
     return (
