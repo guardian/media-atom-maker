@@ -76,4 +76,15 @@ trait TestAtomJsonGenerator {
     }"""
   }
 
+  def generateUploadRequest(atomId: String, size: Long): String =
+    s"""
+      {
+        "atomId": "$atomId",
+        "filename": "test",
+        "size": $size,
+        "selfHost": false,
+        "syncWithPluto": false
+      }
+    """
+
 }

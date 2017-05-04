@@ -18,7 +18,12 @@ class UploadFunctions {
       url: `/api2/uploads?atomId=${atomId}`,
       method: 'post',
       contentType: 'application/json',
-      data: JSON.stringify({ atomId: atomId, filename: file.name, size: file.size, selfHost: selfHost
+      data: JSON.stringify({
+        atomId: atomId,
+        filename: file.name,
+        size: file.size,
+        selfHost: selfHost,
+        syncWithPluto: true
       })
     });
   };

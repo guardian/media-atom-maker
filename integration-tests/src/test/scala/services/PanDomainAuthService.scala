@@ -2,19 +2,15 @@ package integration.services
 
 import java.util.Date
 
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth._
-import com.gu.pandomainauth.{PanDomainAuth, PublicSettings}
 import com.gu.pandomainauth.model.{AuthenticatedUser, User}
 import com.gu.pandomainauth.service.CookieUtils
+import com.gu.pandomainauth.{PanDomainAuth, PublicSettings}
+import services.AWS
 
 class PanDomainAuthService (val system: String, val domain: String) extends PanDomainAuth {
 
-  override lazy val awsCredentialsProvider: AWSCredentialsProvider =
-    new AWSCredentialsProviderChain(
-      new ProfileCredentialsProvider(Config.credentialsProvider),
-      new DefaultAWSCredentialsProviderChain
-    )
+  override def awsCredentialsProvider: AWSCredentialsProvider = AWS.credentialsProvider
 
   val thirtyMinsMillis: Long = 1000 * 60 * 30
 

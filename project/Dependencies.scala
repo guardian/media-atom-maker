@@ -101,10 +101,11 @@ object Dependencies {
   val expirerDependencies = Seq(scalaTest)
 
   val integrationTestDependencies =
-    panda ++ Seq(
+    panda ++ googleApi ++ Seq(
     scalaTest,
     okHttp,
     playJsonExtensions,
-    typesafeConfig
+    typesafeConfig,
+    awsS3
   )
 }

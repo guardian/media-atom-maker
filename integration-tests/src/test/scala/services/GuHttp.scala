@@ -23,11 +23,15 @@ trait GuHttp {
     httpClient.newCall(req).execute()
   }
 
-  def gutoolsPost(url: String, body: RequestBody)(implicit cookie: PandaCookie): Response = {
+  def gutoolsPost(url: String, body: RequestBody, headers: Map[String, String] = Map.empty)(implicit cookie: PandaCookie): Response = {
     val req = new Request.Builder()
       .url(url)
       .addHeader("Cookie", s"${cookie.key}=${cookie.value}")
       .post(body)
+
+    headers.foreach { case(k, v) =>
+      req.addHeader(k, v)
+    }
 
     httpClient.newCall(req.build()).execute()
   }
