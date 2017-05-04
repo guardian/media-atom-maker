@@ -2,6 +2,8 @@ import React from 'react';
 import {Link} from 'react-router';
 import VideoSearch from './VideoSearch/VideoSearch';
 import VideoPublishBar from './VideoPublishBar/VideoPublishBar';
+import AdvancedActions from './Videos/AdvancedActions';
+import ComposerPageCreate from './Videos/ComposerPageCreate';
 import Icon from './Icon';
 
 export default class Header extends React.Component {
@@ -140,8 +142,18 @@ export default class Header extends React.Component {
             publishedVideo={this.props.publishedVideo}
             editableFields={this.props.editableFields}
             saveState={this.props.saveState}
+            videoEditOpen={this.props.videoEditOpen}
+            updateVideoPage={this.props.updateVideoPage}
+            usages={this.props.usages}
             publishVideo={this.publishVideo} />
 
+          <AdvancedActions video={this.props.video || {}} />
+          <ComposerPageCreate
+            usages={this.props.usages}
+            videoEditOpen={this.props.videoEditOpen}
+            video={this.props.video || {}}
+            createVideoPage={this.props.createVideoPage}
+          />
           <div className="flex-container">
             {this.renderAuditLink()}
           </div>

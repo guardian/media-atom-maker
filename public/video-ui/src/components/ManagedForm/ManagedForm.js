@@ -12,6 +12,7 @@ export class ManagedForm extends React.Component {
     ]),
     editable: PropTypes.bool,
     formName: PropTypes.string,
+    formClass: PropTypes.string,
     updateErrors: PropTypes.func
   };
 
@@ -21,6 +22,13 @@ export class ManagedForm extends React.Component {
         [this.props.formName]: { [fieldName]: fieldError }
       });
     }
+  }
+
+  getFormClass = () => {
+    if (React.Children.toArray(this.props.children).some(child => child.type.componentType === 'managedSection')) {
+      return 'atom__section__form';
+    }
+    return '';
   }
 
   render() {
@@ -33,7 +41,7 @@ export class ManagedForm extends React.Component {
       });
     });
 
-    return <div className="form">{hydratedChildren}</div>;
+    return <div className={this.getFormClass()}>{hydratedChildren}</div>;
   }
 }
 

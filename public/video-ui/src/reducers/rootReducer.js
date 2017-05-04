@@ -11,7 +11,7 @@ import youtube from './youtubeReducer';
 import usage from './usageReducer';
 import pageCreate from './composerPageReducer';
 import s3Upload from './s3UploadReducer';
-import editState from './editStateReducer';
+import videoEditOpen from './editStateReducer';
 import plutoVideos from './plutoVideosReducer';
 import checkedFormFields from './checkedFormFieldsReducer';
 import uploads from './uploadsReducer';
@@ -31,6 +31,6 @@ export default combineReducers({
   plutoVideos,
   checkedFormFields,
   s3Upload,
-  editState,
+  videoEditOpen,
   uploads
 });
