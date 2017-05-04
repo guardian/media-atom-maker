@@ -5,12 +5,14 @@ module.exports = {
   },
   "extends": [
     "eslint:recommended",
-    "plugin:react/recommended"
+    "plugin:react/recommended",
+    "prettier"
   ],
   "plugins": [
     "standard",
     "promise",
-    "react"
+    "react",
+    "prettier"
   ],
   "parserOptions": {
     "ecmaVersion": 6,
@@ -21,9 +23,19 @@ module.exports = {
   },
   "parser": "babel-eslint",
   "rules": {
+    // prettier settings
+    "prettier/prettier": [
+      "error",
+      {
+        singleQuote: true,
+        bracketSpacing: true,
+        tabWidth: 2
+      }
+    ],
     "react/prop-types": "warn",
     "jsx-quotes": ["error", "prefer-double"],
     "prefer-const": "error",
-    "semi": ["error", "always"]
+    "semi": ["error", "always"],
+    "comma-dangle": ["error", "never"]
   }
 };
