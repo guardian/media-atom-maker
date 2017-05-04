@@ -18,13 +18,13 @@ class UploadFunctions {
       url: `/api2/uploads?atomId=${atomId}`,
       method: 'post',
       contentType: 'application/json',
-      data: JSON.stringify({
+      data: {
         atomId: atomId,
         filename: file.name,
         size: file.size,
         selfHost: selfHost,
         syncWithPluto: true
-      })
+      }
     });
   };
 
@@ -43,11 +43,11 @@ class UploadFunctions {
 
       const params = { Key: part.key, Body: slice, ACL: 'private', Metadata: { original: file.name } };
       const request = s3.upload(params);
-      
+
       request.on('httpUploadProgress', (event) => {
         progressFn(part.start + event.loaded);
       });
-      
+
       return request;
     });
   };
@@ -117,7 +117,7 @@ export class UploadHandle {
   uploadParts = (parts) => {
     if(parts.length > 0) {
       const part = parts[0];
-      
+
       UploadsApi.uploadPart(this.upload, part, this.file, this.progressFn).then((s3Request) => {
         s3Request.promise().then(() => {
           this.request = s3Request;

@@ -14,7 +14,7 @@ export default {
       url: '/api2/pluto/' + atomId,
       method: 'put',
       contentType: 'application/json',
-      data: JSON.stringify({plutoId: projectId})
+      data: {plutoId: projectId}
     });
   }
 };
