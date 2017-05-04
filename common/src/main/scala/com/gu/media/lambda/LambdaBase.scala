@@ -3,11 +3,9 @@ package com.gu.media.lambda
 import java.io.InputStreamReader
 import java.util.Locale
 
-import com.amazonaws.auth.EnvironmentVariableCredentialsProvider
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.services.s3.AmazonS3Client
 import com.gu.media.Settings
-import com.gu.media.aws.AwsAccess
+import com.gu.media.aws.{AwsAccess, AwsCredentials}
 import com.typesafe.config.{Config, ConfigFactory}
 
 trait LambdaBase extends Settings with AwsAccess {
@@ -17,15 +15,14 @@ trait LambdaBase extends Settings with AwsAccess {
   private val remoteConfig = downloadConfig()
   private val mergedConfig = remoteConfig.withFallback(ConfigFactory.load())
 
-  final override def instanceCredentials = new EnvironmentVariableCredentialsProvider()
-  final override def localDevCredentials = getDevProfile.map(new ProfileCredentialsProvider(_))
+  final override val credentials = AwsCredentials.lambda()
 
   override def config: Config = mergedConfig
 
   private def downloadConfig(): Config = {
     (sys.env.get("CONFIG_BUCKET"), sys.env.get("CONFIG_KEY")) match {
       case (Some(bucket), Some(key)) =>
-        val defaultRegionS3 = defaultRegion.createClient(classOf[AmazonS3Client], credsProvider, null)
+        val defaultRegionS3 = defaultRegion.createClient(classOf[AmazonS3Client], credentials.instance, null)
 
         val obj = defaultRegionS3.getObject(bucket, key)
         val rawConfig = obj.getObjectContent

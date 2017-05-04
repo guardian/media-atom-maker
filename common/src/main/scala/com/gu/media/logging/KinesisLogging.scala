@@ -4,16 +4,14 @@ import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.classic.{Logger => LogbackLogger}
 import com.gu.logback.appender.kinesis.KinesisAppender
 import com.gu.media.Settings
-import com.gu.media.aws.{AwsAccess, CrossAccountAccess}
+import com.gu.media.aws.AwsAccess
 import org.slf4j.{LoggerFactory, Logger => SLFLogger}
 
-trait KinesisLogging { this: Settings with AwsAccess with CrossAccountAccess =>
+trait KinesisLogging { this: Settings with AwsAccess =>
   private val rootLogger = LoggerFactory.getLogger(SLFLogger.ROOT_LOGGER_NAME).asInstanceOf[LogbackLogger]
 
   def startKinesisLogging(sessionId: String): Unit = {
     rootLogger.info("bootstrapping kinesis appender if configured correctly")
-
-    val credentials = getCrossAccountCredentials(sessionId)
 
     for {
       _stack <- stack
@@ -29,7 +27,7 @@ trait KinesisLogging { this: Settings with AwsAccess with CrossAccountAccess =>
       appender.setStreamName(stream)
       appender.setContext(context)
       appender.setLayout(Logging.layout(context, _stack, app, stage))
-      appender.setCredentialsProvider(credentials)
+      appender.setCredentialsProvider(credentials.crossAccount)
       appender.start()
 
       rootLogger.addAppender(appender)

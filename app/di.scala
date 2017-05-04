@@ -1,15 +1,16 @@
 import com.gu.atom.play.ReindexController
+import com.gu.media.aws.AwsCredentials
 import com.gu.media.ses.Mailer
 import com.gu.media.upload.actions.KinesisActionSender
-import com.gu.media.{CapiPreview, MediaAtomMakerPermissionsProvider}
 import com.gu.media.youtube.{YouTube, YouTubeClaims}
+import com.gu.media.{CapiPreview, MediaAtomMakerPermissionsProvider, Settings}
 import controllers._
 import data._
 import play.api.ApplicationLoader.Context
+import play.api._
 import play.api.cache.EhCacheComponents
 import play.api.inject.DefaultApplicationLifecycle
 import play.api.libs.ws.ahc.AhcWSComponents
-import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext, LoggerConfigurator}
 import router.Routes
 import util.{AWSConfig, DevUploadHandler, DevUploadSender, PlutoMessageConsumer}
 
@@ -27,15 +28,20 @@ class MediaAtomMaker(context: Context)
 
   private val config = configuration.underlying
 
+  private val credentials = environment.mode match {
+    case Mode.Dev => AwsCredentials.dev(Settings(config))
+    case _ => AwsCredentials.app(Settings(config))
+  }
+
   private val hmacAuthActions = new PanDomainAuthActions(wsClient, configuration, new DefaultApplicationLifecycle)
 
-  private val aws = new AWSConfig(config)
+  private val aws = new AWSConfig(config, credentials)
   aws.startKinesisLogging("media-atom-maker")
 
   private val capi = new CapiPreview(config)
 
   private val stores = new DataStores(aws, capi)
-  private val permissions = new MediaAtomMakerPermissionsProvider(aws.stage, aws.credsProvider)
+  private val permissions = new MediaAtomMakerPermissionsProvider(aws.stage, aws.credentials.instance)
 
   private val reindexer = buildReindexer()
 

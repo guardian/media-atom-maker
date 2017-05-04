@@ -20,10 +20,9 @@ class UploadActionsLambda extends RequestHandler[KinesisEvent, Unit]
   with HmacRequestSupport
   with Logging
   with SESSettings
-  with CrossAccountAccess
   with KinesisAccess
   with ElasticTranscodeAccess {
-
+  
   val store = new UploadsDataStore(this)
   val plutoStore = new PlutoDataStore(this.dynamoDB, this.manualPlutoDynamo)
   val uploader = new YouTubeUploader(this, this)

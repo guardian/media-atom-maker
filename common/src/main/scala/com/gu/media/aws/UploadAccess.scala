@@ -16,18 +16,6 @@ trait UploadAccess { this: Settings with AwsAccess =>
       throw new IllegalArgumentException("aws.upload.role must be in ARN format: arn:aws:iam::<account>:role/<role_name>")
     }
 
-    val provider = stage match {
-      case "DEV" =>
-        // Only required in dev. Instance profile credentials are sufficient when deployed
-        val accessKey = getMandatoryString("aws.upload.accessKey", "This is the AwsId output of the dev cloudformation")
-        val secretKey = getMandatoryString("aws.upload.secretKey", "This is the AwsSecret output of the dev cloudformation")
-
-        new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey))
-
-      case _ =>
-        credsProvider
-    }
-
-    region.createClient(classOf[AWSSecurityTokenServiceClient], provider, null)
+    region.createClient(classOf[AWSSecurityTokenServiceClient], credentials.upload, null)
   }
 }

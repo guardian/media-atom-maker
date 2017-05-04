@@ -16,3 +16,9 @@ trait Settings {
     throw new IllegalArgumentException(s"Missing $name $hint")
   }
 }
+
+object Settings {
+  def apply(raw: Config): Settings = new Settings {
+    override def config: Config = raw
+  }
+}
