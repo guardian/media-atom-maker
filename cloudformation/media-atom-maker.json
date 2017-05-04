@@ -660,12 +660,13 @@
                           {
                             "Effect": "Allow",
                             "Action": ["dynamodb:*"],
-                            "Resource": {
-                              "Fn::Sub": [
+                            "Resource": [
+                              { "Fn::Sub": [
                                 "arn:aws:dynamodb:${Region}:${Account}:table/${Table}",
                                 { "Region": { "Ref": "AWS::Region"}, "Account": { "Ref": "AWS::AccountId" }, "Table": { "Ref": "UploadTrackingTable" } }
-                              ]
-                            }
+                              ]},
+                              { "Fn::Join": ["", ["arn:aws:dynamodb:", {"Ref": "AWS::Region"}, ":", {"Ref": "AWS::AccountId"}, ":table/", {"Ref": "ManualPlutoTable"} ] ] }
+                            ]
                           },
                           {
                             "Effect": "Allow",
@@ -1038,7 +1039,7 @@
                 }
               ]
             },
-            "Roles": [{"Ref": "DistributionRole"}]
+            "Roles": [{ "Ref": "DistributionRole" }, { "Ref": "UploaderRole" }]
           }
         },
         "PlutoKinesisPolicy": {
