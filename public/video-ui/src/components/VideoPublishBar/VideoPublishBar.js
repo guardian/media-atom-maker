@@ -27,15 +27,6 @@ export default class VideoPublishBar extends React.Component {
     );
   }
 
-  getVideoMetadata = () => {
-    return {
-      headline: this.props.video.title,
-      standfirst: this.props.video.description
-        ? '<p>' + this.props.video.description + '</p>'
-        : null
-    };
-  };
-
   getComposerUrl = () => {
     return getStore().getState().config.composerUrl;
   };
@@ -43,14 +34,15 @@ export default class VideoPublishBar extends React.Component {
   publishVideo = () => {
     const usages = getComposerPages(this.props.usages);
 
-    const metadata = this.getVideoMetadata();
-
-    const videoBlock = getVideoBlock(this.props.video.id, metadata);
+    const videoBlock = getVideoBlock(
+      this.props.video.id,
+      this.props.video.title
+    );
 
     if (usages.length > 0) {
       this.props.updateVideoPage(
         this.props.video.id,
-        metadata,
+        this.props.video,
         this.getComposerUrl(),
         videoBlock,
         usages

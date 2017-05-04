@@ -9,15 +9,6 @@ export default class ComposerPageCreate extends React.Component {
     composerUpdateInProgress: false
   };
 
-  getVideoMetadata = () => {
-    return {
-      headline: this.props.video.title,
-      standfirst: this.props.video.description
-        ? '<p>' + this.props.video.description + '</p>'
-        : null
-    };
-  };
-
   getComposerUrl = () => {
     return getStore().getState().config.composerUrl;
   };
@@ -31,14 +22,15 @@ export default class ComposerPageCreate extends React.Component {
       composerUpdateInProgress: true
     });
 
-    const metadata = this.getVideoMetadata();
-
-    const videoBlock = getVideoBlock(this.props.video.id, metadata);
+    const videoBlock = getVideoBlock(
+      this.props.video.id,
+      this.props.video.title
+    );
 
     return this.props
       .createVideoPage(
         this.props.video.id,
-        metadata,
+        this.props.video,
         this.getComposerUrl(),
         videoBlock
       )

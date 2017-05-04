@@ -1,6 +1,6 @@
 import { pandaReqwest } from './pandaReqwest';
 import { getStore } from '../util/storeAccessor';
-import { composerSyncFields } from '../constants/composerSyncFields';
+import { getComposerData, getRightsPayload } from '../util/getComposerData';
 import ContentApi from './capi';
 
 export default {
@@ -86,45 +86,44 @@ export default {
     });
   },
 
-  updateComposerPage(id, metadata, composerUrlBase, videoBlock, usages) {
+  updateComposerPage(id, video, composerUrlBase, videoBlock, usages) {
     function getComposerUpdateRequests(
       id,
-      metadata,
+      video,
       composerUrlBase,
       videoBlock,
       isLive
     ) {
+      const rightsExpiryPayload = getRightsPayload(video);
+      const rightsRequest = pandaReqwest({
+        url: `${composerUrlBase}/api/content/${id}/expiry/rights`,
+        method: 'post',
+        contentType: 'application/json',
+        crossOrigin: true,
+        withCredentials: true,
+        data: JSON.stringify(rightsExpiryPayload)
+      });
+
       // When article is in preview, composer keeps track of both the live and preview versions of an article
       // For an uplublished article, we need to update both live and preview versions.
-      return composerSyncFields.reduce((promises, field) => {
-        promises.push(
-          updateArticleField(
-            'preview',
-            field,
-            metadata[field],
-            composerUrlBase,
-            id
-          )
-        );
+      const composerData = getComposerData(video);
+      const dataUpdatePromises = composerData.reduce((promises, data) => {
+        promises.push(updateArticleField('preview', data, composerUrlBase, id));
+
         if (!isLive) {
-          promises.push(
-            updateArticleField(
-              'live',
-              field,
-              metadata[field],
-              composerUrlBase,
-              id
-            )
-          );
+          promises.push(updateArticleField('live', data, composerUrlBase, id));
         }
         return promises;
       }, []);
+
+      dataUpdatePromises.push(rightsRequest);
+      return dataUpdatePromises;
     }
 
-    function updateArticleField(stage, field, value, composerUrl, pageId) {
-      if (value) {
+    function updateArticleField(stage, data, composerUrl, pageId) {
+      if (data.value || data.belongsTo === 'settings') {
         return pandaReqwest({
-          url: `${composerUrl}/api/content/${pageId}/${stage}/fields/${field}`,
+          url: `${composerUrl}/api/content/${pageId}/${stage}/${data.belongsTo}/${data.name}`,
           method: 'put',
           contentType: 'application/json',
           crossOrigin: true,
@@ -134,7 +133,7 @@ export default {
       }
 
       return pandaReqwest({
-        url: `${composerUrl}/api/content/${pageId}/${stage}/fields/${field}`,
+        url: `${composerUrl}/api/content/${pageId}/${stage}/${data.belongsTo}/${data.name}`,
         method: 'delete',
         crossOrigin: true,
         withCredentials: true
@@ -146,9 +145,10 @@ export default {
     ).then(responses => {
       const promises = responses.map((response, index) => {
         const isLive = response.response.status === 'ok';
+
         const fieldPromises = getComposerUpdateRequests(
           usages[index].fields.internalComposerCode,
-          metadata,
+          video,
           composerUrlBase,
           videoBlock,
           isLive
@@ -168,24 +168,32 @@ export default {
     });
   },
 
-  createComposerPage(id, metadata, composerUrlBase) {
+  createComposerPage(id, video, composerUrlBase) {
+
+    const composerData = getComposerData(video);
+
     const initialComposerUrl =
       composerUrlBase +
       '/api/content?atomPoweredVideo=true&originatingSystem=composer&type=video';
 
-    const properties = composerSyncFields.reduce((queryStrings, property) => {
-      if (metadata[property]) {
+    const properties = composerData.reduce((queryStrings, data) => {
+      if (data.value) {
         queryStrings.push(
           '&initial' +
-            property.charAt(0).toUpperCase() +
-            property.slice(1) +
+            data.name.charAt(0).toUpperCase() +
+            data.name.slice(1) +
             '=' +
-            metadata[property]
+            data.value
         );
       }
       return queryStrings;
     }, []);
-    const composerUrl = initialComposerUrl + properties.join('');
+
+    let composerUrl = initialComposerUrl + properties.join('');
+
+    if (video.expiryDate) {
+      composerUrl += '&initialExpiry=' + video.expiryDate;
+    }
 
     return pandaReqwest({
       url: composerUrl,

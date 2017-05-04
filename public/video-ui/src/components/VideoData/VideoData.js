@@ -53,11 +53,42 @@ class VideoData extends React.Component {
               <TextArea />
             </ManagedField>
             <ManagedField
+              fieldLocation="trailText"
+              derivedFrom={this.props.video.description}
+              name="Trail Text"
+              placeholder="No Trail Text"
+            >
+              <TextArea />
+            </ManagedField>
+            <ManagedField
               fieldLocation="blockAds"
               name="Block ads"
               fieldDetails="Ads will not be displayed with this video"
             >
               <CheckBox />
+            </ManagedField>
+            <ManagedField
+              fieldLocation="legallySensitive"
+              name="Legally Sensitive"
+              fieldDetails="This content involves active criminal proceedings."
+            >
+              <CheckBox />
+            </ManagedField>
+            <ManagedField
+              fieldLocation="sensitive"
+              name="Sensitive"
+              fieldDetails="Contains sensitive content"
+            >
+              <CheckBox />
+            </ManagedField>
+          </ManagedSection>
+          <ManagedSection>
+            <ManagedField
+              fieldLocation="videoSource"
+              name="Video Source"
+              placeholder="No video source"
+            >
+              <TextInput />
             </ManagedField>
             <ManagedField fieldLocation="category" name="Category">
               <SelectBox selectValues={videoCategories} />
@@ -81,15 +112,6 @@ class VideoData extends React.Component {
             </ManagedField>
             <ManagedField fieldLocation="tags" name="Keywords">
               <KeywordPicker />
-            </ManagedField>
-          </ManagedSection>
-          <ManagedSection>
-            <ManagedField
-              fieldLocation="legallySensitive"
-              name="Legally Sensitive"
-              fieldDetails="This content involves active criminal proceedings."
-            >
-              <CheckBox />
             </ManagedField>
           </ManagedSection>
         </ManagedForm>

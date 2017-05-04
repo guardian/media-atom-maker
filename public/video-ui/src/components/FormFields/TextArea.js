@@ -1,8 +1,18 @@
 import React from 'react';
+import CopyTrailButton from '../FormComponents/CopyTrailButton';
 
 export default class TextArea extends React.Component {
-  displayPlaceholder = () => {
-    return this.props.placeholder === this.props.fieldValue;
+  renderCopyButton = () => {
+    if (this.props.derivedFrom === undefined) {
+      return null;
+    }
+
+    return (
+      <CopyTrailButton
+        onUpdateField={this.props.onUpdateField}
+        derivedFrom={this.props.derivedFrom}
+      />
+    );
   };
 
   renderField = () => {
@@ -13,10 +23,15 @@ export default class TextArea extends React.Component {
           <p
             className={
               'details-list__field ' +
-                (this.displayPlaceholder() ? 'details-list__empty' : '')
+                (this.props.displayPlaceholder(
+                  this.props.placeholder,
+                  this.props.fieldValue
+                )
+                  ? 'details-list__empty'
+                  : '')
             }
           >
-            {' '}{this.props.fieldValue}
+            {this.props.fieldValue}
           </p>
         </div>
       );
@@ -40,10 +55,12 @@ export default class TextArea extends React.Component {
 
     return (
       <div className="form__row">
-        <label className="form__label">{this.props.fieldName}</label>
+        <div className="form__label__layout">
+          <label className="form__label">{this.props.fieldName}</label>
+          {this.renderCopyButton()}
+        </div>
         <textarea
           rows="4"
-          {...this.props.input}
           maxLength={this.props.maxLength || ''}
           className={getTextAreaClassName()}
           type={this.props.inputType || 'text'}

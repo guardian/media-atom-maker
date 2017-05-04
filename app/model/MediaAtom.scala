@@ -20,6 +20,8 @@ case class MediaAtom(
   duration: Option[Long],
   source: Option[String],
   description: Option[String],
+  trailText: Option[String],
+  videoSource: Option[String],
   posterImage: Option[Image],
   // metadata
   tags: List[String],
@@ -28,6 +30,7 @@ case class MediaAtom(
   channelId: Option[String],
   commentsEnabled: Boolean = false,
   legallySensitive: Option[Boolean],
+  sensitive: Option[Boolean],
   privacyStatus: Option[PrivacyStatus],
   expiryDate: Option[Long] = None,
   blockAds: Option[Boolean]) {
@@ -47,7 +50,9 @@ case class MediaAtom(
         source = source,
         posterUrl = posterImage.flatMap(_.master).map(_.file),
         description = description,
+        trailText = trailText,
         posterImage = posterImage.map(_.asThrift),
+        videoSource = videoSource,
         metadata = Some(ThriftMetadata(
           tags = Some(tags),
           categoryId = youtubeCategoryId,
@@ -61,7 +66,8 @@ case class MediaAtom(
       contentChangeDetails = contentChangeDetails.asThrift,
       flags = Some(ThriftFlags(
         legallySensitive = legallySensitive,
-        blockAds = blockAds
+        blockAds = blockAds,
+        sensitive = sensitive
       ))
   )
 
@@ -100,6 +106,7 @@ object MediaAtom extends MediaAtomImplicits {
       source = data.source,
       posterImage = data.posterImage.map(Image.fromThrift),
       description = data.description,
+      trailText = data.trailText,
       tags = data.metadata.flatMap(_.tags.map(_.toList)).getOrElse(Nil),
       youtubeCategoryId = data.metadata.map(_.categoryId).getOrElse(None),
       expiryDate = data.metadata.map(_.expiryDate).getOrElse(None),
@@ -108,7 +115,9 @@ object MediaAtom extends MediaAtomImplicits {
       commentsEnabled = data.metadata.flatMap(_.commentsEnabled).getOrElse(false),
       channelId = data.metadata.flatMap(_.channelId),
       legallySensitive = atom.flags.flatMap(_.legallySensitive),
-      privacyStatus = data.metadata.flatMap(_.privacyStatus).flatMap(PrivacyStatus.fromThrift)
+      sensitive = atom.flags.flatMap(_.sensitive),
+      privacyStatus = data.metadata.flatMap(_.privacyStatus).flatMap(PrivacyStatus.fromThrift),
+      videoSource = data.videoSource
     )
   }
 

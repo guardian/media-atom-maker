@@ -1,15 +1,9 @@
 import React from 'react';
 import moment from 'moment';
-import { getVideoBlock } from '../../util/getVideoBlock';
 import { getStore } from '../../util/storeAccessor';
-import { hasUnpublishedChanges } from '../../util/hasUnpublishedChanges';
 import { FrontendIcon, ComposerIcon, ViewerIcon } from '../Icon';
 
 export default class VideoUsages extends React.Component {
-  state = {
-    pageCreated: false
-  };
-
   getComposerUrl = () => {
     return getStore().getState().config.composerUrl;
   };
@@ -17,30 +11,6 @@ export default class VideoUsages extends React.Component {
   getViewerUrl = () => {
     return getStore().getState().config.viewerUrl;
   };
-
-  pageCreate = () => {
-    this.setState({
-      pageCreated: true
-    });
-
-    const metadata = {
-      title: this.props.video.title,
-      standfirst: this.props.video.description
-    };
-
-    const videoBlock = getVideoBlock(this.props.video.id, metadata);
-
-    return this.props.createComposerPage(
-      this.props.video.id,
-      metadata,
-      this.getComposerUrl(),
-      videoBlock
-    );
-  };
-
-  videoHasUnpublishedChanges() {
-    return hasUnpublishedChanges(this.props.video, this.props.publishedVideo);
-  }
 
   renderUsage = usage => {
     const composerLink = `${this.getComposerUrl()}/content/${usage.fields.internalComposerCode}`;
