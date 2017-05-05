@@ -35,16 +35,16 @@ function poll(reqwestBody, timeout) {
 
 // when `timeout` > 0, the request will be retried every 100ms until success or timeout
 export function pandaReqwest(reqwestBody, timeout = 0) {
-  const defaultPayload = {
-    contentType: 'application/json',
-    method: 'get'
-  };
+  const data = reqwestBody.data ? { data: JSON.stringify(reqwestBody.data) } : {};
+  const payload = Object.assign({}, reqwestBody, data);
 
-  const payload = !reqwestBody.data
-    ? Object.assign(defaultPayload, reqwestBody)
-    : Object.assign(defaultPayload, reqwestBody, {
-        data: JSON.stringify(reqwestBody.data)
-      });
+  if(payload.data && !payload.contentType) {
+    payload.contentType = 'application/json';
+  }
+
+  if(!payload.method) {
+    payload.method = 'get';
+  }
 
   return new Promise((resolve, reject) => {
     poll(payload, timeout)
