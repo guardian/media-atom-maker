@@ -14,8 +14,7 @@ export default class ContentApi {
     const encodedQuery = encodeURIComponent(query);
 
     return pandaReqwest({
-      url: `${ContentApi.proxyUrl}/atoms?types=media&q=${encodedQuery}&searchFields=data.title`,
-      method: 'get'
+      url: `${ContentApi.proxyUrl}/atoms?types=media&q=${encodedQuery}&searchFields=data.title`
     });
   }
 
@@ -23,15 +22,13 @@ export default class ContentApi {
     const retryTimeout = retry ? 10 * 1000 : 0; // retry up to 10 seconds
 
     return pandaReqwest({
-      url: `${ContentApi.proxyUrl}/${path}?show-fields=all`,
-      method: 'get'
+      url: `${ContentApi.proxyUrl}/${path}?show-fields=all`
     }, retryTimeout);
   }
 
   static getLivePage(id) {
     return pandaReqwest({
-      url: `${ContentApi.liveProxyUrl}/${id}`,
-      method: 'get'
+      url: `${ContentApi.liveProxyUrl}/${id}`
     });
 
   }
