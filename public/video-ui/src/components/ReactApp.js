@@ -8,7 +8,7 @@ class ReactApp extends React.Component {
   }
 
   state = {
-    fetchedVideoFor: ""
+    fetchedVideoFor: ''
   };
 
   componentWillMount() {
@@ -21,10 +21,11 @@ class ReactApp extends React.Component {
   }
 
   componentWillReceiveProps() {
-    if (this.props.params.id &&
-        (!this.props.video || this.props.params.id !== this.props.video.id) &&
-        this.state.fetchedVideoFor !== this.props.params.id
-      ) {
+    if (
+      this.props.params.id &&
+      (!this.props.video || this.props.params.id !== this.props.video.id) &&
+      this.state.fetchedVideoFor !== this.props.params.id
+    ) {
       this.props.appActions.getVideo(this.props.params.id);
       this.props.appActions.getPublishedVideo(this.props.params.id);
       this.props.appActions.getUploads(this.props.params.id);
@@ -34,43 +35,47 @@ class ReactApp extends React.Component {
     }
   }
 
-  updateSearchTerm = (searchTerm) => {
+  updateSearchTerm = searchTerm => {
     this.props.appActions.updateSearchTerm(searchTerm);
   };
 
   getEditableFields = () => {
     const allFields = this.props.checkedFormFields;
 
-    const editableFormFields = Object.keys(allFields).reduce((fields, formName) => {
+    const editableFormFields = Object.keys(
+      allFields
+    ).reduce((fields, formName) => {
       return fields.concat(Object.keys(this.props.checkedFormFields[formName]));
     }, []);
     return editableFormFields;
-  }
+  };
 
   render() {
     return (
-        <div className="wrap">
-          <Header
-            updateSearchTerm={this.updateSearchTerm}
-            searchTerm={this.props.searchTerm}
-            currentPath={this.props.location.pathname}
-            video={this.props.video || {}}
-            publishedVideo={this.props.publishedVideo || {}}
-            showPublishedState={this.props.params.id ? true : false}
-            s3Upload={this.props.s3Upload}
-            publishVideo={this.props.appActions.publishVideo}
-            saveState={this.props.saveState}
-            editableFields={this.getEditableFields()}
-            updateVideoPage={this.props.appActions.updateVideoPage}
-            createVideoPage={this.props.appActions.createVideoPage}
-            videoEditOpen={this.props.videoEditOpen}
-            usages={this.props.usages}
-          />
-          {this.props.error ? <div className="error-bar">{this.props.error}</div> : false}
-          <div>
-            {this.props.children}
-          </div>
+      <div className="wrap">
+        <Header
+          updateSearchTerm={this.updateSearchTerm}
+          searchTerm={this.props.searchTerm}
+          currentPath={this.props.location.pathname}
+          video={this.props.video || {}}
+          publishedVideo={this.props.publishedVideo || {}}
+          showPublishedState={this.props.params.id ? true : false}
+          s3Upload={this.props.s3Upload}
+          publishVideo={this.props.appActions.publishVideo}
+          saveState={this.props.saveState}
+          editableFields={this.getEditableFields()}
+          updateVideoPage={this.props.appActions.updateVideoPage}
+          createVideoPage={this.props.appActions.createVideoPage}
+          videoEditOpen={this.props.videoEditOpen}
+          usages={this.props.usages}
+        />
+        {this.props.error
+          ? <div className="error-bar">{this.props.error}</div>
+          : false}
+        <div>
+          {this.props.children}
         </div>
+      </div>
     );
   }
 }
@@ -105,7 +110,21 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    appActions: bindActionCreators(Object.assign({}, updateSearchTerm, getVideo, getPublishedVideo, publishVideo, saveVideo, getUploads, videoPageUpdate, videoPageCreate, videoUsages), dispatch)
+    appActions: bindActionCreators(
+      Object.assign(
+        {},
+        updateSearchTerm,
+        getVideo,
+        getPublishedVideo,
+        publishVideo,
+        saveVideo,
+        getUploads,
+        videoPageUpdate,
+        videoPageCreate,
+        videoUsages
+      ),
+      dispatch
+    )
   };
 }
 

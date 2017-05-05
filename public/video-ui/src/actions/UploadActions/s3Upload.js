@@ -1,5 +1,5 @@
-import {UploadsApi, UploadHandle} from '../../services/UploadsApi';
-import {errorDetails} from '../../util/errorDetails';
+import { UploadsApi, UploadHandle } from '../../services/UploadsApi';
+import { errorDetails } from '../../util/errorDetails';
 
 function uploadStarted(upload, handle) {
   return {
@@ -37,31 +37,35 @@ function uploadError(error) {
 export function startUpload(id, file, completeFn, selfHost) {
   return dispatch => {
     // Start prompting the user about reloading the page
-    window.onbeforeunload = () => { return false; };
+    window.onbeforeunload = () => {
+      return false;
+    };
 
-    UploadsApi.createUpload(id, file, selfHost).then((upload) => {
-      const progress = (completed) => dispatch(uploadProgress(completed));
+    UploadsApi.createUpload(id, file, selfHost)
+      .then(upload => {
+        const progress = completed => dispatch(uploadProgress(completed));
 
-      const err = (err) => {
+        const err = err => {
+          window.onbeforeunload = undefined;
+          dispatch(uploadError(errorDetails(err)));
+        };
+
+        const complete = () => {
+          // Stop prompting the user. The upload continues server-side
+          window.onbeforeunload = undefined;
+
+          dispatch(uploadComplete());
+          completeFn();
+        };
+
+        const handle = new UploadHandle(upload, file, progress, complete, err);
+        handle.start();
+
+        dispatch(uploadStarted(upload));
+      })
+      .catch(err => {
         window.onbeforeunload = undefined;
         dispatch(uploadError(errorDetails(err)));
-      };
-
-      const complete = () => {
-        // Stop prompting the user. The upload continues server-side
-        window.onbeforeunload = undefined;
-
-        dispatch(uploadComplete());
-        completeFn();
-      };
-
-      const handle = new UploadHandle(upload, file, progress, complete, err);
-      handle.start();
-
-      dispatch(uploadStarted(upload));
-    }).catch((err) => {
-      window.onbeforeunload = undefined;
-      dispatch(uploadError(errorDetails(err)));
-    });
+      });
   };
 }

@@ -1,7 +1,7 @@
-export default function searchTerm(state = "", action) {
+export default function searchTerm(state = '', action) {
   switch (action.type) {
     case 'UPDATE_SEARCH_TERM':
-      return action.searchTerm || "";
+      return action.searchTerm || '';
     default:
       return state;
   }

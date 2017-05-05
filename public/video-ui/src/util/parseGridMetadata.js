@@ -1,16 +1,14 @@
 function parseMimeType(mimeType) {
-
   //Normalise Mime Types coming from the grid.
-  switch(mimeType) {
-    case "jpg":
-      return "image/jpeg";
-    case "png":
-      return "image/png";
+  switch (mimeType) {
+    case 'jpg':
+      return 'image/jpeg';
+    case 'png':
+      return 'image/png';
   }
 
   return mimeType;
 }
-
 
 function parseAsset(asset) {
   return {

@@ -1,37 +1,44 @@
 import React from 'react';
-import {saveStateVals} from '../../constants/saveStateVals';
-import {isVideoPublished, hasVideoExpired} from '../../util/isVideoPublished';
-import {hasUnpublishedChanges} from '../../util/hasUnpublishedChanges';
-import {getVideoBlock} from '../../util/getVideoBlock';
-import {getStore} from '../../util/storeAccessor';
-import {getComposerPages} from '../../util/getComposerPages';
+import { saveStateVals } from '../../constants/saveStateVals';
+import { isVideoPublished, hasVideoExpired } from '../../util/isVideoPublished';
+import { hasUnpublishedChanges } from '../../util/hasUnpublishedChanges';
+import { getVideoBlock } from '../../util/getVideoBlock';
+import { getStore } from '../../util/storeAccessor';
+import { getComposerPages } from '../../util/getComposerPages';
 
 export default class VideoPublishBar extends React.Component {
-
   videoIsCurrentlyPublishing() {
     return this.props.saveState.publishing === saveStateVals.inprogress;
   }
 
   videoHasUnpublishedChanges() {
-    return hasUnpublishedChanges(this.props.video, this.props.publishedVideo, this.props.editableFields);
+    return hasUnpublishedChanges(
+      this.props.video,
+      this.props.publishedVideo,
+      this.props.editableFields
+    );
   }
 
   isPublishingDisabled() {
-    return this.videoIsCurrentlyPublishing() ||
+    return (
+      this.videoIsCurrentlyPublishing() ||
       this.props.videoEditOpen ||
-      !this.videoHasUnpublishedChanges();
+      !this.videoHasUnpublishedChanges()
+    );
   }
 
   getVideoMetadata = () => {
     return {
       headline: this.props.video.title,
-      standfirst: this.props.video.description ? '<p>' + this.props.video.description + '</p>' : null
+      standfirst: this.props.video.description
+        ? '<p>' + this.props.video.description + '</p>'
+        : null
     };
-  }
+  };
 
   getComposerUrl = () => {
     return getStore().getState().config.composerUrl;
-  }
+  };
 
   publishVideo = () => {
     const usages = getComposerPages(this.props.usages);
@@ -41,28 +48,36 @@ export default class VideoPublishBar extends React.Component {
     const videoBlock = getVideoBlock(this.props.video.id, metadata);
 
     if (usages.length > 0) {
-      this.props.updateVideoPage(this.props.video.id, metadata, this.getComposerUrl(), videoBlock, usages);
+      this.props.updateVideoPage(
+        this.props.video.id,
+        metadata,
+        this.getComposerUrl(),
+        videoBlock,
+        usages
+      );
     }
 
     this.props.publishVideo();
-  }
+  };
 
   renderPublishButtonText() {
     if (this.videoIsCurrentlyPublishing()) {
-      return (<span>Publishing</span>);
+      return <span>Publishing</span>;
     }
 
-    if (isVideoPublished(this.props.publishedVideo) && !this.videoHasUnpublishedChanges()){
-      return (<span>Published</span>);
-
+    if (
+      isVideoPublished(this.props.publishedVideo) &&
+      !this.videoHasUnpublishedChanges()
+    ) {
+      return <span>Published</span>;
     }
 
-    return (<span>Publish</span>);
-
+    return <span>Publish</span>;
   }
 
   renderPublishButton() {
-    return (<button
+    return (
+      <button
         type="button"
         className="btn"
         disabled={this.isPublishingDisabled()}
@@ -82,16 +97,15 @@ export default class VideoPublishBar extends React.Component {
     return <div className="publish__label label__draft">Draft</div>;
   }
 
-
   render() {
     if (!this.props.video) {
-        return false;
+      return false;
     }
 
     return (
       <div className="flex-container flex-grow publish-bar">
         {this.renderVideoPublishedInfo()}
-        <div className="flex-spacer"></div>
+        <div className="flex-spacer" />
         {this.renderPublishButton()}
       </div>
     );

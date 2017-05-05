@@ -1,4 +1,4 @@
-import {pandaReqwest} from './pandaReqwest';
+import { pandaReqwest } from './pandaReqwest';
 
 export function getYoutubeCategories() {
   return pandaReqwest({

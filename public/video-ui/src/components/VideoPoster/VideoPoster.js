@@ -1,10 +1,9 @@
 import React from 'react';
-import {ManagedForm, ManagedField} from '../ManagedForm';
+import { ManagedForm, ManagedField } from '../ManagedForm';
 import ImageSelector from '../FormFields/ImageSelector';
 
 export default class VideoPoster extends React.Component {
-
-  render () {
+  render() {
     return (
       <ManagedForm
         data={this.props.video}
@@ -13,11 +12,8 @@ export default class VideoPoster extends React.Component {
         updateErrors={this.props.updateErrors}
         formName={this.props.formName}
       >
-        <ManagedField
-          fieldLocation="posterImage"
-          name=""
-        >
-          <ImageSelector editMode={true}/>
+        <ManagedField fieldLocation="posterImage" name="">
+          <ImageSelector editMode={true} />
         </ManagedField>
       </ManagedForm>
     );

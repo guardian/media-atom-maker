@@ -1,10 +1,10 @@
 import { browserHistory } from 'react-router';
 import VideosApi from '../../services/VideosApi';
-import {blankVideoData} from '../../constants/blankVideoData';
+import { blankVideoData } from '../../constants/blankVideoData';
 
 function requestVideoCreate() {
   return {
-    type:       'VIDEO_CREATE_REQUEST',
+    type: 'VIDEO_CREATE_REQUEST',
     receivedAt: Date.now()
   };
 }
@@ -16,14 +16,13 @@ function receiveVideoCreate(video) {
     video: video,
     receivedAt: Date.now()
   };
-
 }
 
 function errorVideoCreate(error) {
   return {
-    type:       'SHOW_ERROR',
-    message:    'Could not create video',
-    error:      error,
+    type: 'SHOW_ERROR',
+    message: 'Could not create video',
+    error: error,
     receivedAt: Date.now()
   };
 }
@@ -32,17 +31,17 @@ export function createVideo(video) {
   return dispatch => {
     dispatch(requestVideoCreate());
     return VideosApi.createVideo(video)
-        .then(res => dispatch(receiveVideoCreate(res)))
-        .catch(error => dispatch(errorVideoCreate(error)));
+      .then(res => dispatch(receiveVideoCreate(res)))
+      .catch(error => dispatch(errorVideoCreate(error)));
   };
 }
 
 export function populateEmptyVideo() {
   return {
-    type:        'VIDEO_POPULATE_BLANK',
-    video:       Object.assign({}, blankVideoData, {
+    type: 'VIDEO_POPULATE_BLANK',
+    video: Object.assign({}, blankVideoData, {
       type: 'media'
     }),
-    receivedAt:  Date.now()
+    receivedAt: Date.now()
   };
 }

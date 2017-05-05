@@ -1,5 +1,5 @@
 export default function uploads(state = [], action) {
-  switch(action.type) {
+  switch (action.type) {
     case 'RUNNING_UPLOADS':
       return action.uploads;
 

@@ -5,13 +5,12 @@ import qs from 'querystringify';
 import Raven from 'raven-js';
 
 import configureStore from './util/configureStore';
-import {setStore} from './util/storeAccessor';
-import {routes} from './routes';
+import { setStore } from './util/storeAccessor';
+import { routes } from './routes';
 
 import '../styles/main.scss';
 
 function extractConfigFromPage() {
-
   const configEl = document.getElementById('config');
 
   if (!configEl) {
@@ -25,21 +24,21 @@ const store = configureStore();
 const config = extractConfigFromPage();
 
 // publish uncaught errors to sentry.io
-if(config.stage === 'PROD')
-  Raven.config(config.ravenUrl).install();
+if (config.stage === 'PROD') Raven.config(config.ravenUrl).install();
 
 setStore(store);
 
 store.dispatch({
-  type:       'CONFIG_RECEIVED',
-  config:     Object.assign({}, extractConfigFromPage(), {
+  type: 'CONFIG_RECEIVED',
+  config: Object.assign({}, extractConfigFromPage(), {
     embeddedMode: qs.parse(location.search).embeddedMode
   }),
   receivedAt: Date.now()
 });
 
 render(
-    <Provider store={store}>
-      {routes}
-    </Provider>
-    , document.getElementById('react-mount'));
+  <Provider store={store}>
+    {routes}
+  </Provider>,
+  document.getElementById('react-mount')
+);

@@ -1,4 +1,4 @@
-import {getYoutubeCategories} from '../../services/YoutubeApi';
+import { getYoutubeCategories } from '../../services/YoutubeApi';
 import Logger from '../../logger';
 
 function requestCategories() {

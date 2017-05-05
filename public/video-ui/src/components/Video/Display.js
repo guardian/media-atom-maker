@@ -1,5 +1,5 @@
 import React from 'react';
-import {Link} from 'react-router';
+import { Link } from 'react-router';
 import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoUsages from '../VideoUsages/VideoUsages';
@@ -7,14 +7,13 @@ import VideoData from '../VideoData/VideoData';
 import VideoPoster from '../VideoPoster/VideoPoster';
 import GridImageSelect from '../utils/GridImageSelect';
 import Icon from '../Icon';
-import {formNames} from '../../constants/formNames';
-import {blankVideoData} from '../../constants/blankVideoData';
+import { formNames } from '../../constants/formNames';
+import { blankVideoData } from '../../constants/blankVideoData';
 import FieldNotification from '../../constants/FieldNotification';
 import ReactTooltip from 'react-tooltip';
-import {getStore} from '../../util/storeAccessor';
+import { getStore } from '../../util/storeAccessor';
 
 class VideoDisplay extends React.Component {
-
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
     this.props.videoActions.getUsages(this.props.params.id);
@@ -26,32 +25,29 @@ class VideoDisplay extends React.Component {
 
   saveVideo = () => {
     this.props.videoActions.saveVideo(this.props.video);
-  }
+  };
 
-  saveAndUpdateVideoPoster = (poster) => {
+  saveAndUpdateVideoPoster = poster => {
     const newVideo = Object.assign({}, this.props.video, {
       posterImage: poster
     });
     this.saveAndUpdateVideo(newVideo);
+  };
 
-  }
-
-  saveAndUpdateVideo = (video) => {
+  saveAndUpdateVideo = video => {
     this.props.videoActions.saveVideo(video);
   };
 
-  updateVideo = (video) => {
+  updateVideo = video => {
     this.props.videoActions.updateVideo(video);
   };
 
   selectVideo = () => {
-    window.parent.postMessage({atomId: this.props.video.id}, '*');
+    window.parent.postMessage({ atomId: this.props.video.id }, '*');
   };
 
   manageEditingState = () => {
-
     if (this.props.videoEditOpen) {
-
       this.saveAndUpdateVideo(this.props.video);
     }
 
@@ -64,68 +60,94 @@ class VideoDisplay extends React.Component {
 
   getComposerUrl = () => {
     return getStore().getState().config.composerUrl;
-  }
+  };
 
   cannotCloseEditForm = () => {
-
     const formName = formNames.videoData;
 
-    const errors = this.props.checkedFormFields[formName] ? this.props.checkedFormFields[formName] : {};
+    const errors = this.props.checkedFormFields[formName]
+      ? this.props.checkedFormFields[formName]
+      : {};
     return Object.keys(errors).some(field => {
       const value = errors[field];
       return value !== null;
     });
-
   };
 
-  validateDescription = (description) => {
+  validateDescription = description => {
     if (!description) {
-      return new FieldNotification('required', 'It is recommeded you fill in this field for seo', FieldNotification.warning);
+      return new FieldNotification(
+        'required',
+        'It is recommeded you fill in this field for seo',
+        FieldNotification.warning
+      );
     }
     return null;
-  }
+  };
 
-  handleAssetClick = (e) => {
+  handleAssetClick = e => {
     if (this.props.videoEditOpen) {
       e.preventDefault();
     }
-  }
+  };
 
   renderEditButton = () => {
-
     if (this.props && this.props.videoEditOpen) {
       return (
-        <button disabled={this.cannotCloseEditForm()} onClick={() => this.manageEditingState()}>
-          <Icon className={"icon__done " + (this.cannotCloseEditForm() ? "disabled": "")} icon="done" />
+        <button
+          disabled={this.cannotCloseEditForm()}
+          onClick={() => this.manageEditingState()}
+        >
+          <Icon
+            className={
+              'icon__done ' + (this.cannotCloseEditForm() ? 'disabled' : '')
+            }
+            icon="done"
+          />
         </button>
       );
     } else {
       return (
-        <button disabled={this.props.videoEditOpen} onClick={() => this.manageEditingState()}>
-          <Icon className={"icon__edit " + (this.props.videoEditOpen ? "disabled" : "")} icon="edit" />
+        <button
+          disabled={this.props.videoEditOpen}
+          onClick={() => this.manageEditingState()}
+        >
+          <Icon
+            className={
+              'icon__edit ' + (this.props.videoEditOpen ? 'disabled' : '')
+            }
+            icon="edit"
+          />
         </button>
       );
     }
-  }
+  };
 
   renderPreview = () => {
-    return <div className="video__detailbox">
-      <div className="video__detailbox__header__container">
-        <header className="video__detailbox__header">Video Preview</header>
-        <Link className={"button " + (this.props.videoEditOpen ? "disabled" : "")} to={`/videos/${this.props.video.id}/upload`}
+    return (
+      <div className="video__detailbox">
+        <div className="video__detailbox__header__container">
+          <header className="video__detailbox__header">Video Preview</header>
+          <Link
+            className={'button ' + (this.props.videoEditOpen ? 'disabled' : '')}
+            to={`/videos/${this.props.video.id}/upload`}
             onClick={e => this.handleAssetClick(e)}
             data-tip="Edit Assets"
           >
-          <Icon className="icon__edit" icon="edit"></Icon>
-          <ReactTooltip place="bottom"/>
-        </Link>
+            <Icon className="icon__edit" icon="edit" />
+            <ReactTooltip place="bottom" />
+          </Link>
+        </div>
+        <VideoPreview video={this.props.video || {}} />
       </div>
-      <VideoPreview video={this.props.video || {}} />
-    </div>;
+    );
   };
 
   render() {
-    const video = this.props.video && this.props.params.id === this.props.video.id ? this.props.video : undefined;
+    const video = this.props.video &&
+      this.props.params.id === this.props.video.id
+      ? this.props.video
+      : undefined;
 
     if (!video) {
       return <div className="container">Loading... </div>;
@@ -133,7 +155,12 @@ class VideoDisplay extends React.Component {
 
     return (
       <div>
-        <VideoSelectBar video={video} onSelectVideo={this.selectVideo} publishedVideo={this.props.publishedVideo} embeddedMode={this.props.config.embeddedMode} />
+        <VideoSelectBar
+          video={video}
+          onSelectVideo={this.selectVideo}
+          publishedVideo={this.props.publishedVideo}
+          embeddedMode={this.props.config.embeddedMode}
+        />
 
         <div className="video">
           <div className="video__main">
@@ -141,7 +168,9 @@ class VideoDisplay extends React.Component {
               {this.renderPreview()}
               <div className="video__detailbox video__data">
                 <div className="video__detailbox__header__container">
-                  <header className="video__detailbox__header">Video Data</header>
+                  <header className="video__detailbox__header">
+                    Video Data
+                  </header>
                   {this.renderEditButton()}
                 </div>
                 <VideoData
@@ -154,12 +183,15 @@ class VideoDisplay extends React.Component {
               </div>
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
-                  <header className="video__detailbox__header">Poster Image</header>
+                  <header className="video__detailbox__header">
+                    Poster Image
+                  </header>
                   <GridImageSelect
                     updateVideo={this.saveAndUpdateVideoPoster}
                     gridUrl={this.props.config.gridUrl}
                     disabled={this.props.videoEditOpen}
-                    createMode={false}/>
+                    createMode={false}
+                  />
                 </div>
                 <VideoPoster
                   video={this.props.video || {}}
@@ -193,9 +225,12 @@ import * as getVideo from '../../actions/VideoActions/getVideo';
 import * as saveVideo from '../../actions/VideoActions/saveVideo';
 import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as videoUsages from '../../actions/VideoActions/videoUsages';
-import * as getPublishedVideo from '../../actions/VideoActions/getPublishedVideo';
-import * as updateVideoEditState from '../../actions/VideoActions/updateVideoEditState';
-import * as updateFormErrors from '../../actions/FormErrorActions/updateFormErrors';
+import * as getPublishedVideo
+  from '../../actions/VideoActions/getPublishedVideo';
+import * as updateVideoEditState
+  from '../../actions/VideoActions/updateVideoEditState';
+import * as updateFormErrors
+  from '../../actions/FormErrorActions/updateFormErrors';
 
 function mapStateToProps(state) {
   return {
@@ -211,8 +246,22 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo, saveVideo, updateVideo, videoUsages, getPublishedVideo, updateVideoEditState), dispatch),
-    formErrorActions: bindActionCreators(Object.assign({}, updateFormErrors), dispatch)
+    videoActions: bindActionCreators(
+      Object.assign(
+        {},
+        getVideo,
+        saveVideo,
+        updateVideo,
+        videoUsages,
+        getPublishedVideo,
+        updateVideoEditState
+      ),
+      dispatch
+    ),
+    formErrorActions: bindActionCreators(
+      Object.assign({}, updateFormErrors),
+      dispatch
+    )
   };
 }
 
