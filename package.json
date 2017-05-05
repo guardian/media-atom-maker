@@ -9,8 +9,7 @@
     "lint-video-ui": "eslint public/video-ui/src/ --fix",
     "lint-cloudformation": "jsonlint cloudformation/*.json --quiet",
     "lint": "yarn lint-video-ui && yarn lint-cloudformation",
-    "test": "yarn lint",
-    "precommit": "yarn test"
+    "test": "yarn lint"
   },
   "devDependencies": {
     "argparse": "^1.0.9",
