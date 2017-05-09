@@ -1,0 +1,143 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "A game-changing pipeline for uploading videos to the internet"
+
+# TODO:
+#  - add catch/retry to YouTube upload
+#  - replace sleeps with wait (transcoder)
+
+Parameters:
+  BuildBucket:
+    Description: "The S3 bucket where builds live"
+    Type: "String"
+  ConfigBucket:
+    Description: "The S3 bucket where configuration lives"
+    Type: "String"
+  App:
+    Description: "App name"
+    Type: "String"
+    Default: "media-atom-maker"
+  Stack:
+    Description: "Stack name"
+    Type: "String"
+    Default: "media-service"
+  Stage:
+    Description: "Stage name"
+    Type: "String"
+    Default: "DEV"
+  UploadBucketName:
+    Description: "The S3 bucket where videos are uploaded to"
+    Type: "String"
+  UploadProgressTable:
+    Description: "The Dynamo table to store progress"
+    Type: "String"
+
+Conditions:
+  CreateProdResources: !Equals [!Ref "Stage", "PROD"]
+  CreateCodeResources: !Equals [!Ref "Stage", "CODE"]
+  CreateDevResources:  !Equals [!Ref "Stage", "DEV"]
+
+Resources:
+  LambdaExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: "LambdaExecutionPolicy"
+          PolicyDocument:
+            Statement:
+              - Effect: "Allow"
+                Action: ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
+                Resource: "*"
+              - Effect: "Allow"
+                Action: ["s3:GetObject"]
+                Resource: !Sub ["arn:aws:s3:::${Bucket}/*", { "Bucket": !Ref ConfigBucket }]
+              - Effect: "Allow"
+                Action: ["s3:*"]
+                Resource:
+                  - !Sub ["arn:aws:s3:::${Bucket}", { "Bucket": !Ref UploadBucketName }]
+                  - !Sub ["arn:aws:s3:::${Bucket}/*", { "Bucket": !Ref UploadBucketName }]
+              - Effect: "Allow"
+                Action: ["dynamodb:*"]
+                Resource:
+                  - !Sub
+                    - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
+                    - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref UploadProgressTable }
+
+  StatesExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - !Sub states.${AWS::Region}.amazonaws.com
+            Action: "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: StatesExecutionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "lambda:InvokeFunction"
+                Resource: "*"
+
+  {{GetChunkFromS3}}
+
+  {{UploadChunkToYouTube}}
+
+  {{CreateCompleteVideoInS3}}
+
+  {{SendToPluto}}
+
+  {{SendToTranscoder}}
+
+  {{CheckTranscodingComplete}}
+
+  {{AddAssetToAtom}}
+
+  VideoPipelinePROD:
+    Type: "AWS::StepFunctions::StateMachine"
+    Condition: CreateProdResources
+    Properties:
+      DefinitionString:
+        !Sub
+          - |-
+            {{state_machine}}
+          -
+            {}
+      RoleArn: !GetAtt [ StatesExecutionRole, Arn ]
+
+  VideoPipelineCODE:
+    Type: "AWS::StepFunctions::StateMachine"
+    Condition: CreateCodeResources
+    Properties:
+      DefinitionString:
+        !Sub
+          - |-
+            {{state_machine}}
+          -
+            {}
+      RoleArn: !GetAtt [ StatesExecutionRole, Arn ]
+
+  VideoPipelineDEV:
+    Type: "AWS::StepFunctions::StateMachine"
+    Condition: CreateDevResources
+    Properties:
+      DefinitionString:
+        !Sub
+          - |-
+            {{state_machine}}
+          -
+            {}
+      RoleArn: !GetAtt [ StatesExecutionRole, Arn ]

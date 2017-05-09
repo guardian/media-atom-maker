@@ -2,6 +2,7 @@ import com.typesafe.sbt.SbtNativePackager.autoImport.maintainer
 import com.typesafe.sbt.packager.archetypes.ServerLoader.Systemd
 import com.typesafe.sbt.packager.debian.DebianPlugin.autoImport.debianPackageDependencies
 import sbt.Keys._
+import StateMachines._
 
 lazy val commonSettings = Seq(
   scalaVersion in ThisBuild := "2.11.8",
@@ -65,7 +66,33 @@ lazy val uploader = (project in file("uploader"))
     libraryDependencies ++= Dependencies.uploaderDependencies,
 
     topLevelDirectory in Universal := None,
-    packageName in Universal := normalizedName.value
+    packageName in Universal := normalizedName.value,
+
+    lambdas in Compile := Map(
+      "GetChunkFromS3" -> LambdaConfig(
+        description = "Checks to see if a chunk of video has been uploaded to S3"
+      ),
+      "UploadChunkToYouTube" -> LambdaConfig(
+        description = "Uploads a chunk of video to YouTube"
+      ),
+      "CreateCompleteVideoInS3" -> LambdaConfig(
+        description = "Uses multipart copy to combine all the chunks in S3 into a single key"
+      ),
+      "SendToPluto" -> LambdaConfig(
+        description = "Sends a complete video to Pluto for ingestion"
+      ),
+      "SendToTranscoder" -> LambdaConfig(
+        description = "Sends a complete video to the AWS transcoder"
+      ),
+      "CheckTranscodingComplete" -> LambdaConfig(
+        description = "Polls the AWS transcoder"
+      ),
+      "AddAssetToAtom" -> LambdaConfig(
+        description = "Adds the resulting asset to the atom"
+      )
+    ),
+
+    resourceGenerators in Compile += compileTemplate.taskValue
   )
 
 lazy val integrationTests = (project in file("integration-tests"))

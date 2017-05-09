@@ -1,0 +1,104 @@
+{
+  "StartAt": "GetChunkFromS3",
+  "States": {
+    "GetChunkFromS3": {
+      "Type": "Task",
+      "Resource": "$${GetChunkFromS3.Arn}",
+      "Next": "CheckChunkInS3"
+    },
+    "CheckChunkInS3": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.progress.retries",
+          "NumericEquals": 0,
+          "Next": "CheckNotSelfHosted"
+        }
+      ],
+      "Default": "WaitForChunkInS3"
+    },
+    "WaitForChunkInS3": {
+      "Type": "Wait",
+      "Seconds": 1,
+      "Next": "GetChunkFromS3"
+    },
+    "CheckNotSelfHosted": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.flags.selfHost",
+          "BooleanEquals": false,
+          "Next": "UploadChunkToYouTube"
+        }
+      ],
+      "Default": "MoveToNextChunk"
+    },
+    "UploadChunkToYouTube": {
+      "Type": "Task",
+      "Resource": "$${UploadChunkToYouTube.Arn}",
+      "Next": "MoveToNextChunk"
+    },
+    "MoveToNextChunk": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.progress.fullyUploaded",
+          "BooleanEquals": true,
+          "Next": "CreateCompleteVideoInS3"
+        }
+      ],
+      "Default": "GetChunkFromS3"
+    },
+    "CreateCompleteVideoInS3": {
+      "Type": "Task",
+      "Resource": "$${CreateCompleteVideoInS3.Arn}",
+      "Next": "CheckSyncWithPluto"
+    },
+    "CheckSyncWithPluto": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.flags.syncWithPluto",
+          "BooleanEquals": true,
+          "Next": "SendToPluto"
+        }
+      ],
+      "Default": "CheckSelfHosted"
+    },
+    "SendToPluto": {
+      "Type": "Task",
+      "Resource": "$${SendToPluto.Arn}",
+      "Next": "CheckSelfHosted"
+    },
+    "CheckSelfHosted": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.flags.selfHost",
+          "BooleanEquals": true,
+          "Next": "SendToTranscoder"
+        }
+      ],
+      "Default": "AddAssetToAtom"
+    },
+    "SendToTranscoder": {
+      "Type": "Task",
+      "Resource": "$${SendToTranscoder.Arn}",
+      "Next": "CheckTranscodingComplete"
+    },
+    "CheckTranscodingComplete": {
+      "Type": "Task",
+      "Resource": "$${CheckTranscodingComplete.Arn}",
+      "Next": "AddAssetToAtom"
+    },
+    "AddAssetToAtom": {
+      "Type": "Task",
+      "Resource": "$${AddAssetToAtom.Arn}",
+      "Next": "Complete"
+    },
+    "Complete": {
+      "Type": "Pass",
+      "End": true
+    }
+  }
+}
