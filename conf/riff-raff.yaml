@@ -29,9 +29,7 @@ deployments:
     template: lambda
     parameters:
       functionNames: [media-atom-maker-expirer-]
-      fileName: media-atom-expirer.zip
   pluto-message-ingestion:
     template: lambda
     parameters:
       functionNames: [pluto-message-ingestion-]
-      fileName: pluto-message-ingestion.zip
