@@ -4,7 +4,7 @@
   "States": {
     "GetChunkFromS3": {
       "Type": "Task",
-      "Resource": "$${GetChunkFromS3.Arn}",
+      "Resource": "${GetChunkFromS3.Arn}",
       "Next": "CheckChunkInS3"
     },
     "CheckChunkInS3": {
@@ -27,7 +27,7 @@
       "Type": "Choice",
       "Choices": [
         {
-          "Variable": "$.flags.selfHost",
+          "Variable": "$.metadata.selfHost",
           "BooleanEquals": false,
           "Next": "UploadChunkToYouTube"
         }
@@ -36,7 +36,7 @@
     },
     "UploadChunkToYouTube": {
       "Type": "Task",
-      "Resource": "$${UploadChunkToYouTube.Arn}",
+      "Resource": "${UploadChunkToYouTube.Arn}",
       "Next": "MoveToNextChunk"
     },
     "MoveToNextChunk": {
@@ -52,7 +52,7 @@
     },
     "CreateCompleteVideoInS3": {
       "Type": "Task",
-      "Resource": "$${CreateCompleteVideoInS3.Arn}",
+      "Resource": "${CreateCompleteVideoInS3.Arn}",
       "Next": "CheckSyncWithPluto"
     },
     "CheckSyncWithPluto": {
@@ -68,7 +68,7 @@
     },
     "SendToPluto": {
       "Type": "Task",
-      "Resource": "$${SendToPluto.Arn}",
+      "Resource": "${SendToPluto.Arn}",
       "Next": "CheckSelfHosted"
     },
     "CheckSelfHosted": {
@@ -84,17 +84,17 @@
     },
     "SendToTranscoder": {
       "Type": "Task",
-      "Resource": "$${SendToTranscoder.Arn}",
+      "Resource": "${SendToTranscoder.Arn}",
       "Next": "CheckTranscodingComplete"
     },
     "CheckTranscodingComplete": {
       "Type": "Task",
-      "Resource": "$${CheckTranscodingComplete.Arn}",
+      "Resource": "${CheckTranscodingComplete.Arn}",
       "Next": "AddAssetToAtom"
     },
     "AddAssetToAtom": {
       "Type": "Task",
-      "Resource": "$${AddAssetToAtom.Arn}",
+      "Resource": "${AddAssetToAtom.Arn}",
       "Next": "Complete"
     },
     "Complete": {
