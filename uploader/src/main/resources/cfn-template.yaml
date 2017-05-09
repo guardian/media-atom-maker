@@ -15,7 +15,7 @@ Parameters:
   App:
     Description: "App name"
     Type: "String"
-    Default: "media-atom-maker"
+    Default: "media-atom-pipeline"
   Stack:
     Description: "Stack name"
     Type: "String"
