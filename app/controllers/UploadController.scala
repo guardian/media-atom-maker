@@ -4,6 +4,7 @@ import java.util.UUID
 
 import _root_.model.MediaAtom
 import _root_.model.commands.CommandExceptions._
+import com.amazonaws.services.stepfunctions.model.StartExecutionRequest
 import com.gu.media.logging.Logging
 import com.gu.media.upload._
 import com.gu.media.upload.actions.{CopyParts, DeleteParts, UploadActionSender, UploadPartToYouTube, UploadPartsToSelfHost}
@@ -49,6 +50,14 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
         val upload = buildUpload(atom, raw.user, req.size, req.selfHost, req.syncWithPluto)
         table.put(upload)
 
+        // This is currently just for testing purposes
+        val stepFunctionsRequest = new StartExecutionRequest()
+          .withName(s"${upload.metadata.pluto.atomId}--${upload.id}")
+          .withStateMachineArn(awsConfig.pipelineArn)
+          .withInput(Json.stringify(Json.toJson(upload)))
+
+        awsConfig.stepFunctionsClient.startExecution(stepFunctionsRequest)
+
         log.info(s"Upload created under atom ${req.atomId}. upload=${upload.id}. parts=${upload.parts.size}, selfHosted=${upload.metadata.selfHost}")
         Ok(Json.toJson(upload))
       }
@@ -70,13 +79,15 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   def complete(id: String) = CanUploadAsset { implicit req =>
     partRequest(id, req) { (upload, part, optionalUri) =>
-      val selfHost = upload.metadata.selfHost
-      if(!PermissionsUploadHelper.canPerformUpload(req.permissions, selfHost))
-        Unauthorized(s"User ${req.user.email} is not authorised with permissions to complete upload, self-hosted value: ${selfHost}")
-      else if (selfHost)
-        startUploadToSelfHost(upload, part, req.permissions)
-      else
-        startUploadToYouTube(upload, part, optionalUri, req.permissions)
+//      val selfHost = upload.metadata.selfHost
+//      if(!PermissionsUploadHelper.canPerformUpload(req.permissions, selfHost))
+//        Unauthorized(s"User ${req.user.email} is not authorised with permissions to complete upload, self-hosted value: ${selfHost}")
+//      else if (selfHost)
+//        startUploadToSelfHost(upload, part, req.permissions)
+//      else
+//        startUploadToYouTube(upload, part, optionalUri, req.permissions)
+
+      Ok(Json.toJson(CompleteResponse("")))
     }
   }
 
@@ -92,7 +103,6 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       log.info(s"${upload.id} has not finished uploading to S3 yet")
       Ok(Json.toJson(CompleteResponse(s"${upload.id} has not finished uploading to S3 yet")))
     }
-
   }
 
   private def startUploadToYouTube(upload: Upload, part: UploadPart, uploadUri: Option[String], permission: Permissions) = {

@@ -3,7 +3,7 @@ import play.sbt.PlayImport
 
 object Dependencies {
   val scroogeVersion = "4.12.0"
-  val awsVersion = "1.11.48"
+  val awsVersion = "1.11.125"
   val pandaVersion = "0.4.0"
   val mockitoVersion = "2.0.97-beta"
   val atomMakerVersion = "1.0.1"
@@ -36,7 +36,7 @@ object Dependencies {
   val awsTranscoder = "com.amazonaws" % "aws-java-sdk-elastictranscoder" % awsVersion
   val awsSNS = "com.amazonaws" % "aws-java-sdk-sns" % awsVersion
   val awsSQS = "com.amazonaws" % "aws-java-sdk-sqs" % awsVersion
-  val aws = "com.amazonaws" % "aws-java-sdk" % awsVersion
+  val awsStepFunctions = "com.amazonaws" % "aws-java-sdk-stepfunctions" % awsVersion
 
   val logstashLogbackEncoder = "net.logstash.logback" % "logstash-logback-encoder" % "4.8"
   val kinesisLogbackAppender = "com.gu" % "kinesis-logback-appender" % "1.3.0"
@@ -85,7 +85,7 @@ object Dependencies {
 
   val commonDependencies = googleApi ++ Seq(
     typesafeConfig, awsLambdaCore, awsS3, awsDynamo, playJsonExtensions, logstashLogbackEncoder, kinesisLogbackAppender,
-    awsTranscoder, scanamo, okHttp, scalaTest, scalaCheck, awsSQS, awsSNS, aws, permissionsClient
+    awsTranscoder, scanamo, okHttp, scalaTest, scalaCheck, awsSQS, awsSNS, permissionsClient, awsStepFunctions
   ) ++ partnerApiDepencies
 
   val appDependencies = panda ++ atomMaker ++ slf4j ++ Seq(
