@@ -1,7 +1,7 @@
 {{name}}:
   Type: "AWS::Lambda::Function"
   Properties:
-    FunctionName: !Sub "${Stack}-{{name}}-${Stage}"
+    FunctionName: !Sub "${App}-{{name}}-${Stage}"
     Description: "{{description}}"
     Handler: "com.gu.media.upload.{{name}}::handleRequest"
     Code:

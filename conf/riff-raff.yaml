@@ -35,3 +35,23 @@ deployments:
     parameters:
       functionNames: [pluto-message-ingestion-]
       fileName: pluto-message-ingestion.zip
+
+  media-atom-pipeline-cloudformation:
+    type: cloud-formation
+    app: media-atom-pipeline
+    parameters:
+      templatePath: media-atom-pipeline.yaml
+
+  media-atom-pipeline-lambdas:
+    type: aws-lambda
+    parameters:
+      functionNames:
+        - "-GetChunkFromS3-"
+        - "-UploadChunkToYouTube-"
+        - "-CreateCompleteVideoInS3-"
+        - "-SendToPluto-"
+        - "-SendToTranscoder-"
+        - "-CheckTranscodingComplete-"
+        - "-AddAssetToAtom-"
+    dependencies:
+      - media-atom-pipeline-cloudformation
