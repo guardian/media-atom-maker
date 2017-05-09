@@ -1,4 +1,7 @@
-export default function youtube(state = {categories: [], channels: []}, action) {
+export default function youtube(
+  state = { categories: [], channels: [] },
+  action
+) {
   switch (action.type) {
     case 'YT_CATEGORIES_GET_RECEIVE':
       return Object.assign({}, state, {

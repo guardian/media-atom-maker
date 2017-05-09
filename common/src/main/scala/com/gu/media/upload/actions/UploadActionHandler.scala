@@ -102,21 +102,21 @@ abstract class UploadActionHandler(store: UploadsDataStore, plutoStore: PlutoDat
   }
 
   private def sendToPluto(upload: Upload): Unit = {
-
     val plutoData: PlutoSyncMetadata = upload.metadata.pluto
 
-    plutoData.projectId match {
-      case _ if plutoData.assetVersion == -1 =>
-        // TODO: work out what to do here? probably need to manually add the asset
+    if(plutoData.enabled) {
+      log.info(s"Not syncing to Pluto upload=${upload.id} atom=${plutoData.atomId}")
+    } else {
+      plutoData.projectId match {
+        case Some(project) =>
+          uploaderAccess.sendOnKinesis(uploaderAccess.uploadsStreamName, plutoData.s3Key, plutoData)
 
-      case Some(project) =>
-        uploaderAccess.sendOnKinesis(uploaderAccess.uploadsStreamName, plutoData.s3Key, plutoData)
-
-      case None =>
-        val metadata = upload.metadata
-        mailer.sendPlutoIdMissingEmail(metadata.title, metadata.user, uploaderAccess.fromEmailAddress,
-          uploaderAccess.replyToAddresses)
-        plutoStore.put(plutoData)
+        case None =>
+          val metadata = upload.metadata
+          mailer.sendPlutoIdMissingEmail(metadata.title, metadata.user, uploaderAccess.fromEmailAddress,
+            uploaderAccess.replyToAddresses)
+          plutoStore.put(plutoData)
+      }
     }
   }
 

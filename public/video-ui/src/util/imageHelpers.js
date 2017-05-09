@@ -13,6 +13,8 @@ export function findSmallestAssetAboveWidth(assetsArray, minSize = 250) {
   // their widths are fixed and typically 140, 500, 1000, 2000px
   // use the first one that's above `minSize` in width
   // as the resolution is usually good enough for a simple preview
-  const usefulAssets = assetsArray.filter((asset) => asset.dimensions.width > minSize);
+  const usefulAssets = assetsArray.filter(
+    asset => asset.dimensions.width > minSize
+  );
   return findSmallestAsset(usefulAssets);
 }

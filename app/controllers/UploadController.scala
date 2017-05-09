@@ -25,7 +25,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   extends AtomController with Logging with JsonRequestParsing with UnpackedDataStores {
 
-  import authActions.APIHMACAuthAction
+  import authActions.APIAuthAction
 
   private val UPLOAD_KEY_HEADER = "X-Upload-Key"
   private val UPLOAD_URI_HEADER = "X-Upload-Uri"
@@ -34,7 +34,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
   private val credsGenerator = new CredentialsGenerator(awsConfig)
   private val uploader = new YouTubeUploader(awsConfig, youTube)
 
-  def list(atomId: String) = APIHMACAuthAction {
+  def list(atomId: String) = APIAuthAction {
     // Anyone can see the running uploads.
     // Only users with permission can create/complete/delete them.
     val uploads = table.list(atomId)
@@ -46,8 +46,10 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       if (PermissionsUploadHelper.canPerformUpload(raw.permissions, req.selfHost)) {
         log.info(s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}, selfHosted=${req.selfHost}")
         val atom = MediaAtom.fromThrift(getPreviewAtom(req.atomId))
-        val upload = buildUpload(atom, raw.user, req.size, req.selfHost)
+        val upload = buildUpload(atom, raw.user, req.size, req.selfHost, req.syncWithPluto)
         table.put(upload)
+
+        log.info(s"Upload created under atom ${req.atomId}. upload=${upload.id}. parts=${upload.parts.size}, selfHosted=${upload.metadata.selfHost}")
         Ok(Json.toJson(upload))
       }
       else Unauthorized(s"User ${raw.user.email} is not authorised with permissions to upload asset, self-hosted value: ${req.selfHost}")
@@ -99,15 +101,18 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       Ok(Json.toJson(CompleteResponse(u)))
     }.getOrElse {
       val uploadUri = uploader.startUpload(upload.metadata.title, upload.metadata.channel, upload.id, upload.parts.last.end)
+      log.info(s"Starting upload to YouTube. atom=${upload.metadata.pluto.atomId} upload=${upload.id} uploadUri=${uploadUri}")
+
       partComplete(upload, part, uploadUri)
       Ok(Json.toJson(CompleteResponse(uploadUri)))
     }
   }
 
-  private def buildUpload(atom: MediaAtom, user: User, size: Long, selfHosted: Boolean) = {
+  private def buildUpload(atom: MediaAtom, user: User, size: Long, selfHosted: Boolean, syncWithPluto: Boolean) = {
     val id = UUID.randomUUID().toString
 
     val plutoData = PlutoSyncMetadata(
+      enabled = syncWithPluto,
       projectId = atom.plutoProjectId,
       s3Key = CompleteUploadKey(awsConfig.userUploadFolder, id).toString,
       assetVersion = -1,
@@ -155,12 +160,17 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     val complete = upload.copy(progress = upload.progress.copy(uploadedToS3 = part.end))
     table.report(complete)
     uploadActions.send(UploadPartToYouTube(upload, part, uploadUri))
+
+    log.info(s"Part ${part.key} uploaded to S3. upload=${upload.id} atom=${upload.metadata.pluto.atomId}")
+
     completeAndDeleteParts(upload, part)
     complete
   }
 
   private def completeAndDeleteParts(upload: Upload, part: UploadPart) {
     if(part.key == upload.parts.last.key) {
+      log.info(s"All parts uploaded to S3. upload=${upload.id} atom=${upload.metadata.pluto.atomId}")
+
       uploadActions.send(CopyParts(upload, completeKey(upload)))
       uploadActions.send(DeleteParts(upload))
     }
@@ -178,7 +188,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 }
 
 object UploadController {
-  case class CreateRequest(atomId: String, filename: String, size: Long, selfHost: Boolean = false)
+  case class CreateRequest(atomId: String, filename: String, size: Long, selfHost: Boolean, syncWithPluto: Boolean)
   case class CreateResponse(id: String, region: String, bucket: String, parts: List[UploadPart])
   case class CompleteResponse(uploadUri: String)
 

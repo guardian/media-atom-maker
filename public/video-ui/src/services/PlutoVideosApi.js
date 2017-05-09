@@ -1,11 +1,9 @@
-import {pandaReqwest} from './pandaReqwest';
+import { pandaReqwest } from './pandaReqwest';
 
 export default {
-
   fetchPlutoVideos: () => {
     return pandaReqwest({
-      url: '/api2/pluto',
-      method: 'get'
+      url: '/api2/pluto'
     });
   },
 
@@ -13,8 +11,7 @@ export default {
     return pandaReqwest({
       url: '/api2/pluto/' + atomId,
       method: 'put',
-      contentType: 'application/json',
-      data: JSON.stringify({plutoId: projectId})
+      data: { plutoId: projectId }
     });
   }
 };

@@ -1,17 +1,17 @@
 import React from 'react';
-import {PropTypes} from 'prop-types';
+import { PropTypes } from 'prop-types';
 
 export class ManagedForm extends React.Component {
-
-  static propTypes =  {
+  static propTypes = {
     data: PropTypes.object,
     updateData: PropTypes.func.isRequired,
     children: PropTypes.oneOfType([
-        PropTypes.element,
-        PropTypes.arrayOf(PropTypes.element)
+      PropTypes.element,
+      PropTypes.arrayOf(PropTypes.element)
     ]),
     editable: PropTypes.bool,
     formName: PropTypes.string,
+    formClass: PropTypes.string,
     updateErrors: PropTypes.func
   };
 
@@ -21,10 +21,21 @@ export class ManagedForm extends React.Component {
         [this.props.formName]: { [fieldName]: fieldError }
       });
     }
-  }
+  };
+
+  getFormClass = () => {
+    if (
+      React.Children
+        .toArray(this.props.children)
+        .some(child => child.type.componentType === 'managedSection')
+    ) {
+      return 'atom__section__form';
+    }
+    return '';
+  };
 
   render() {
-    const hydratedChildren = React.Children.map(this.props.children, (child) => {
+    const hydratedChildren = React.Children.map(this.props.children, child => {
       return React.cloneElement(child, {
         data: this.props.data,
         updateData: this.props.updateData,
@@ -33,7 +44,6 @@ export class ManagedForm extends React.Component {
       });
     });
 
-    return <div className="form">{hydratedChildren}</div>;
+    return <div className={this.getFormClass()}>{hydratedChildren}</div>;
   }
 }
-

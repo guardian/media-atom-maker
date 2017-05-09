@@ -10,5 +10,5 @@ export function hasVideoExpired(video) {
     return false;
   }
 
-  return video.expiryDate < Date.now(); 
+  return video.expiryDate < Date.now();
 }

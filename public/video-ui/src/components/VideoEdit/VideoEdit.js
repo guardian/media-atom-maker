@@ -1,28 +1,26 @@
 import React from 'react';
-import {ManagedForm, ManagedField} from '../ManagedForm';
+import { ManagedForm, ManagedField } from '../ManagedForm';
 import TextInput from '../FormFields/TextInput';
 import SelectBox from '../FormFields/SelectBox';
-import {fieldLengths} from '../../constants/videoEditValidation';
-import {videoCategories} from '../../constants/videoCategories';
+import { fieldLengths } from '../../constants/videoEditValidation';
+import { videoCategories } from '../../constants/videoCategories';
 import { privacyStates } from '../../constants/privacyStates';
 import ImageSelector from '../FormFields/ImageSelector';
 
 class VideoEdit extends React.Component {
-
   hasCategories = () => this.props.youtube.categories.length !== 0;
   hasChannels = () => this.props.youtube.channels.length !== 0;
 
   componentWillMount() {
-    if (! this.hasCategories()) {
+    if (!this.hasCategories()) {
       this.props.youtubeActions.getCategories();
     }
-    if (! this.hasChannels()) {
+    if (!this.hasChannels()) {
       this.props.youtubeActions.getChannels();
     }
   }
 
   render() {
-
     return (
       <div className="form__group">
         <ManagedForm
@@ -38,42 +36,42 @@ class VideoEdit extends React.Component {
             maxLength={fieldLengths.title}
             isRequired={true}
           >
-            <TextInput/>
+            <TextInput />
           </ManagedField>
           <ManagedField
             fieldLocation="category"
             name="Category"
             isRequired={true}
           >
-            <SelectBox selectValues={videoCategories}></SelectBox>
+            <SelectBox selectValues={videoCategories} />
           </ManagedField>
           <ManagedField
             fieldLocation="posterImage"
             name="Poster Image"
             isRequired={true}
           >
-            <ImageSelector/>
+            <ImageSelector />
           </ManagedField>
           <ManagedField
             fieldLocation="youtubeCategoryId"
             name="YouTube Category"
             isRequired={true}
           >
-            <SelectBox selectValues={this.props.youtube.categories}></SelectBox>
+            <SelectBox selectValues={this.props.youtube.categories} />
           </ManagedField>
           <ManagedField
             fieldLocation="channelId"
             name="YouTube Channel"
             isRequired={true}
           >
-            <SelectBox selectValues={this.props.youtube.channels}></SelectBox>
+            <SelectBox selectValues={this.props.youtube.channels} />
           </ManagedField>
           <ManagedField
             fieldLocation="privacyStatus"
             name="Privacy Status"
             isRequired={true}
           >
-            <SelectBox selectValues={privacyStates}></SelectBox>
+            <SelectBox selectValues={privacyStates} />
           </ManagedField>
         </ManagedForm>
       </div>
@@ -95,7 +93,10 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    youtubeActions: bindActionCreators(Object.assign({}, getCategories, getChannels), dispatch)
+    youtubeActions: bindActionCreators(
+      Object.assign({}, getCategories, getChannels),
+      dispatch
+    )
   };
 }
 

@@ -1,47 +1,41 @@
-import {pandaReqwest} from './pandaReqwest';
-import {getStore} from '../util/storeAccessor';
-
+import { pandaReqwest } from './pandaReqwest';
+import { getStore } from '../util/storeAccessor';
+import { composerSyncFields } from '../constants/composerSyncFields';
+import ContentApi from './capi';
 
 export default {
-
   fetchVideos: (search, limit) => {
     let url = `/api2/atoms?limit=${limit}`;
-    if(search) {
+    if (search) {
       url += `&search=${search}`;
     }
 
     return pandaReqwest({
-      url: url,
-      method: 'get'
+      url: url
     });
   },
 
-  fetchVideo: (videoId) => {
+  fetchVideo: videoId => {
     return pandaReqwest({
-      url: '/api2/atoms/' + videoId,
-      method: 'get',
-      contentType: 'application/json'
+      url: '/api2/atoms/' + videoId
     });
   },
 
-  fetchPublishedVideo: (videoId) => {
+  fetchPublishedVideo: videoId => {
     return pandaReqwest({
-      url: '/api2/atoms/' + videoId + '/published',
-      method: 'get',
-      contentType: 'application/json'
+      url: '/api2/atoms/' + videoId + '/published'
     });
   },
 
-  createVideo: (video) => {
+  createVideo: video => {
     return pandaReqwest({
       url: '/api2/atoms',
-      contentType: 'application/json',
       method: 'post',
-      data: JSON.stringify(video)
+      data: video
     });
   },
 
-  publishVideo: (videoId) => {
+  publishVideo: videoId => {
     return pandaReqwest({
       url: '/api2/atom/' + videoId + '/publish',
       method: 'put'
@@ -51,18 +45,16 @@ export default {
   createAsset: (asset, videoId) => {
     return pandaReqwest({
       url: '/api2/atoms/' + videoId + '/assets',
-      contentType: 'application/json',
       method: 'post',
-      data: JSON.stringify(asset)
+      data: asset
     });
   },
 
   revertAsset: (atomId, videoId) => {
     return pandaReqwest({
       url: '/api2/atom/' + atomId + '/asset-active',
-      contentType: 'application/json',
       method: 'put',
-      data: JSON.stringify({youtubeId: videoId})
+      data: { youtubeId: videoId }
     });
   },
 
@@ -70,41 +62,126 @@ export default {
     return pandaReqwest({
       url: '/api2/atoms/' + videoId,
       method: 'put',
-      contentType: 'application/json',
-      data: JSON.stringify(video)
+      data: video
     });
   },
 
-  fetchAudits: (atomId) => {
+  fetchAudits: atomId => {
     return pandaReqwest({
-      url: '/api2/audits/' + atomId,
-      method: 'get'
+      url: '/api2/audits/' + atomId
     });
   },
 
-  getVideoUsages: (videoId) => {
+  getVideoUsages: videoId => {
     const capiProxyUrl = getStore().getState().config.capiProxyUrl;
     return pandaReqwest({
-      url: capiProxyUrl + "/atom/media/" + videoId + "/usage",
-      method: 'get'
+      url: capiProxyUrl + '/atom/media/' + videoId + '/usage'
     });
   },
 
-  deleteVideo: (videoId) => {
+  deleteVideo: videoId => {
     return pandaReqwest({
       url: '/api2/atom/' + videoId,
-      method: 'delete',
+      method: 'delete'
+    });
+  },
+
+  updateComposerPage(id, metadata, composerUrlBase, videoBlock, usages) {
+    function getComposerUpdateRequests(
+      id,
+      metadata,
+      composerUrlBase,
+      videoBlock,
+      isLive
+    ) {
+      // When article is in preview, composer keeps track of both the live and preview versions of an article
+      // For an uplublished article, we need to update both live and preview versions.
+      return composerSyncFields.reduce((promises, field) => {
+        promises.push(
+          updateArticleField(
+            'preview',
+            field,
+            metadata[field],
+            composerUrlBase,
+            id
+          )
+        );
+        if (!isLive) {
+          promises.push(
+            updateArticleField(
+              'live',
+              field,
+              metadata[field],
+              composerUrlBase,
+              id
+            )
+          );
+        }
+        return promises;
+      }, []);
+    }
+
+    function updateArticleField(stage, field, value, composerUrl, pageId) {
+      if (value) {
+        return pandaReqwest({
+          url: `${composerUrl}/api/content/${pageId}/${stage}/fields/${field}`,
+          method: 'put',
+          contentType: 'application/json',
+          crossOrigin: true,
+          withCredentials: true,
+          data: value
+        });
+      }
+
+      return pandaReqwest({
+        url: `${composerUrl}/api/content/${pageId}/${stage}/fields/${field}`,
+        method: 'delete',
+        crossOrigin: true,
+        withCredentials: true
+      });
+    }
+
+    return Promise.all(
+      usages.map(usage => ContentApi.getLivePage(usage.id))
+    ).then(responses => {
+      const promises = responses.map((response, index) => {
+        const isLive = response.response.status === 'ok';
+        const fieldPromises = getComposerUpdateRequests(
+          usages[index].fields.internalComposerCode,
+          metadata,
+          composerUrlBase,
+          videoBlock,
+          isLive
+        );
+
+        const videoPagePromise = this.addVideoToComposerPage(
+          usages[index].fields.internalComposerCode,
+          videoBlock,
+          composerUrlBase,
+          isLive
+        );
+
+        return fieldPromises.concat(videoPagePromise);
+      });
+
+      return Promise.all([].concat.apply([], promises));
     });
   },
 
   createComposerPage(id, metadata, composerUrlBase) {
+    const initialComposerUrl =
+      composerUrlBase +
+      '/api/content?atomPoweredVideo=true&originatingSystem=composer&type=video';
 
-    const initialComposerUrl = composerUrlBase + '/api/content?atomPoweredVideo=true&originatingSystem=composer&type=video';
-    const propertiesToSend= ['title', 'standfirst'];
-
-    const properties = propertiesToSend.reduce((queryStrings, property) => {
+    const properties = composerSyncFields.reduce((queryStrings, property) => {
       if (metadata[property]) {
-        queryStrings.push('&initial' + property.charAt(0).toUpperCase() + property.slice(1) + '=' + metadata[property]);
+        queryStrings.push(
+          '&initial' +
+            property.charAt(0).toUpperCase() +
+            property.slice(1) +
+            '=' +
+            metadata[property]
+        );
       }
       return queryStrings;
     }, []);
@@ -113,43 +190,47 @@ export default {
     return pandaReqwest({
       url: composerUrl,
       method: 'post',
-      contentType: 'application/json',
       crossOrigin: true,
       withCredentials: true
     });
   },
 
-  addVideoToComposerPage(pageId, previewData, composerUrl) {
-
+  addVideoToComposerPage(pageId, previewData, composerUrl, isLive) {
     function updateMainBlock(stage, data) {
       return pandaReqwest({
         url: `${composerUrl}/api/content/${pageId}/${stage}/mainblock`,
         method: 'post',
-        contentType: 'application/json',
         crossOrigin: true,
         withCredentials: true,
-        data: JSON.stringify(data)
+        data: data
       });
     }
 
     // The composer client (whilst in draft) keeps both the preview and live data in sync so we must do the same
-    return updateMainBlock('preview', previewData).then((preview) => {
-      const liveData = preview.data.block;
-      return updateMainBlock('live', liveData);
+
+    return updateMainBlock('preview', previewData).then(preview => {
+      if (!isLive) {
+        const liveData = preview.data.block;
+
+        return updateMainBlock('live', liveData);
+      }
+      return;
     });
   },
 
   fetchComposerId(capiId) {
     const capiProxyUrl = getStore().getState().config.capiProxyUrl;
     return pandaReqwest({
-      url: capiProxyUrl + '/' + capiId + "?show-fields=all",
-      method: 'get'
-    })
-    .then(resp => {
-      if (resp.response.content && resp.response.content.fields && resp.response.content.fields.internalComposerCode) {
+      url: capiProxyUrl + '/' + capiId + '?show-fields=all'
+    }).then(resp => {
+      if (
+        resp.response.content &&
+        resp.response.content.fields &&
+        resp.response.content.fields.internalComposerCode
+      ) {
         return resp.response.content.fields.internalComposerCode;
       }
-      return "";
+      return '';
     });
   }
 };

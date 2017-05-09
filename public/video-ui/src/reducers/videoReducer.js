@@ -2,7 +2,6 @@ import {blankVideoData} from '../constants/blankVideoData';
 
 export default function video(state = null, action) {
   switch (action.type) {
-
     case 'VIDEO_GET_RECEIVE':
       return action.video || false;
 

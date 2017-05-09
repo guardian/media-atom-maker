@@ -1,12 +1,28 @@
 #!/usr/bin/env bash
 
 printf "\n\rSetting up Media Atom Maker dependencies... \n\r\n\r"
-printf "\n\rInstalling NPM packages... \n\r\n\r"
 
-npm install
+installed() {
+  hash "$1" 2>/dev/null
+}
 
-printf "\n\Compiling Javascript... \n\r\n\r"
+install_yarn() {
+  if ! installed yarn; then
+    echo 'Installing yarn'
+    npm install -g yarn
+  fi
+}
 
-npm run build
+install_deps_and_build() {
+  yarn install
+  printf "\n\Compiling Javascript... \n\r\n\r"
+  yarn run build
+}
 
-printf "\n\rDone.\n\r\n\r"
+main() {
+  install_yarn
+  install_deps_and_build
+  printf "\n\rDone.\n\r\n\r"
+}
+
+main

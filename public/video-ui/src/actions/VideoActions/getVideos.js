@@ -2,27 +2,27 @@ import VideosApi from '../../services/VideosApi';
 
 function requestVideos(search, limit) {
   return {
-    type:       'VIDEOS_GET_REQUEST',
-    search:     search,
-    limit:      limit,
+    type: 'VIDEOS_GET_REQUEST',
+    search: search,
+    limit: limit,
     receivedAt: Date.now()
   };
 }
 
 function receiveVideos(total, videos) {
   return {
-    type:       'VIDEOS_GET_RECEIVE',
-    total:      total,
-    videos:     videos,
+    type: 'VIDEOS_GET_RECEIVE',
+    total: total,
+    videos: videos,
     receivedAt: Date.now()
   };
 }
 
 function errorReceivingVideos(error) {
   return {
-    type:       'SHOW_ERROR',
-    message:    'Could not get videos',
-    error:      error,
+    type: 'SHOW_ERROR',
+    message: 'Could not get videos',
+    error: error,
     receivedAt: Date.now()
   };
 }

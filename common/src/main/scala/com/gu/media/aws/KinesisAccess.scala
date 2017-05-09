@@ -9,7 +9,7 @@ import com.amazonaws.services.kinesis.AmazonKinesisClient
 import com.gu.media.Settings
 import play.api.libs.json.{Json, Writes}
 
-trait KinesisAccess { this: Settings with AwsAccess with CrossAccountAccess =>
+trait KinesisAccess { this: Settings with AwsAccess =>
   val liveKinesisStreamName: String = getMandatoryString("aws.kinesis.liveStreamName")
   val previewKinesisStreamName: String = getMandatoryString("aws.kinesis.previewStreamName")
 
@@ -17,19 +17,10 @@ trait KinesisAccess { this: Settings with AwsAccess with CrossAccountAccess =>
   val publishedKinesisReindexStreamName: String = getMandatoryString("aws.kinesis.publishedReindexStreamName")
 
   val uploadsStreamName: String = getMandatoryString("aws.kinesis.uploadsStreamName")
-
-  val readFromComposerAccount: Boolean = getBoolean("readFromComposer").getOrElse(false)
-  val atomEventsProvider: AWSCredentialsProvider = getCrossAccountCredentials("media-atom-maker-atom-events")
-
   val uploadActionsStreamName: String = getMandatoryString("aws.kinesis.uploadActionsStreamName")
 
-  lazy val crossAccountKinesisClient = if (stage != "DEV" || readFromComposerAccount) {
-    region.createClient(classOf[AmazonKinesisClient], atomEventsProvider, null)
-  } else {
-    region.createClient(classOf[AmazonKinesisClient], credsProvider, null)
-  }
-
-  lazy val kinesisClient = region.createClient(classOf[AmazonKinesisClient], credsProvider, null)
+  lazy val crossAccountKinesisClient = region.createClient(classOf[AmazonKinesisClient], credentials.crossAccount, null)
+  lazy val kinesisClient = region.createClient(classOf[AmazonKinesisClient], credentials.instance, null)
 
   def sendOnKinesis[T: Writes](streamName: String, partitionKey: String, value: T): Unit = {
     val json = Json.stringify(Json.toJson(value))

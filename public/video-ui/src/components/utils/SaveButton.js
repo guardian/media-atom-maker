@@ -1,11 +1,11 @@
 import React from 'react';
-import {saveStateVals} from '../../constants/saveStateVals';
+import { saveStateVals } from '../../constants/saveStateVals';
 
 export default class SaveButton extends React.Component {
-
   isDisabled = () => {
-    const errors = Object.keys(this.props.checkedFormFields).reduce((errors, fieldName) => {
-
+    const errors = Object.keys(
+      this.props.checkedFormFields
+    ).reduce((errors, fieldName) => {
       const error = this.props.checkedFormFields[fieldName];
 
       if (error) {
@@ -17,14 +17,12 @@ export default class SaveButton extends React.Component {
     return errors.length !== 0;
   };
 
-
   renderSaveButton = () => {
-
     if (this.props.isHidden) {
       return false;
     }
 
-    if(!this.props.onSaveClick) {
+    if (!this.props.onSaveClick) {
       return false;
     }
 
@@ -32,16 +30,19 @@ export default class SaveButton extends React.Component {
       <button
         type="button"
         disabled={this.isDisabled()}
-        className={(this.props.saveState.saving == saveStateVals.inprogress ? "btn--loading " : "") + "btn"}
+        className={
+          (this.props.saveState.saving == saveStateVals.inprogress
+            ? 'btn--loading '
+            : '') + 'btn'
+        }
         onClick={this.props.onSaveClick}
       >
-        <i className="i-tick-green"/>Save
+        <i className="i-tick-green" />Save
       </button>
     );
-
   };
 
-  render () {
+  render() {
     return (
       <div>
         {this.renderSaveButton()}

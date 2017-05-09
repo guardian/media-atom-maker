@@ -8,9 +8,16 @@ export default function usage(state = [], action) {
       state.unshift(action.newPage);
       return state;
     }
+    case 'VIDEO_PAGE_UPDATE_POST_RECEIVE': {
+      const newState = state.map(usage => {
+        usage.fields.headline = action.newTitle;
+        return usage;
+      });
+
+      return newState;
+    }
     default: {
       return state;
     }
   }
 }
-

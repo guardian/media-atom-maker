@@ -1,5 +1,5 @@
 import React from 'react';
-import {Router, Route, browserHistory, IndexRedirect} from 'react-router';
+import { Router, Route, browserHistory, IndexRedirect } from 'react-router';
 
 import Videos from './components/Videos/Videos';
 import VideoDisplay from './components/Video/Display';
@@ -8,7 +8,6 @@ import VideoAuditTrail from './components/VideoAuditTrail/VideoAuditTrail';
 import VideoUpload from './components/VideoUpload/VideoUpload';
 import VideoPlutoList from './components/VideoPluto/VideoPlutoList';
 import ReactApp from './components/ReactApp';
-
 
 export const routes = (
   <Router history={browserHistory}>

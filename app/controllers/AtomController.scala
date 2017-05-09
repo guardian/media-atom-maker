@@ -33,11 +33,11 @@ trait AtomController extends Controller with UnpackedDataStores {
 
   def jsonError(msg: String): JsObject = JsObject(Seq("error" -> JsString(msg)))
 
-  import authActions.APIHMACAuthAction
+  import authActions.APIAuthAction
 
   object CanUploadAsset extends ActionBuilder[UploadUserRequest] {
     override def invokeBlock[A](request: Request[A], block: UploadUserRequest[A] => Future[Result]): Future[Result] = {
-      APIHMACAuthAction.invokeBlock(request, { req: UserRequest[A] =>
+      APIAuthAction.invokeBlock(request, { req: UserRequest[A] =>
         permissions.getAll(req.user.email).flatMap { p =>
           if(p.addAsset || p.addSelfHostedAsset ) block(new UploadUserRequest(req.user, request, p))
           else Future.successful(Unauthorized(s"User ${req.user.email} is not authorised to upload assets"))
@@ -48,7 +48,7 @@ trait AtomController extends Controller with UnpackedDataStores {
 
   class PermissionedAction(permission: Permission) extends ActionBuilder[UserRequest] {
     override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] = {
-      APIHMACAuthAction.invokeBlock(request, { req: UserRequest[A] =>
+      APIAuthAction.invokeBlock(request, { req: UserRequest[A] =>
 
           permissions.get(permission)(PermissionsUser(req.user.email)).flatMap {
             case PermissionGranted =>

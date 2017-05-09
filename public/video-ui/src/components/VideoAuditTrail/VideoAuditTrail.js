@@ -1,9 +1,8 @@
-import React  from 'react';
+import React from 'react';
 import moment from 'moment';
-import {blankVideoData} from '../../constants/blankVideoData';
+import { blankVideoData } from '../../constants/blankVideoData';
 
 class VideoAuditTrail extends React.Component {
-
   componentWillReceiveProps(nextProps) {
     if (nextProps.video != this.props.video) {
       this.props.videoActions.getAudits(nextProps.video.id);
@@ -25,21 +24,23 @@ class VideoAuditTrail extends React.Component {
   };
 
   renderAudit(audit) {
-      const itemTime = moment(audit.date, 'x');
+    const itemTime = moment(audit.date, 'x');
 
-      return (
-        <tr key={audit.date}>
-          <td>{itemTime.format('HH:mm:ss DD/MM/YYYY')}</td>
-          <td>{audit.operation}</td>
-          <td>{audit.description}</td>
-          <td>{audit.user}</td>
-        </tr>
-      );
+    return (
+      <tr key={audit.date}>
+        <td>{itemTime.format('HH:mm:ss DD/MM/YYYY')}</td>
+        <td>{audit.operation}</td>
+        <td>{audit.description}</td>
+        <td>{audit.user}</td>
+      </tr>
+    );
   }
 
   renderList() {
-    const audits = this.props.audits.map(x => x).sort((a, b) => b.date - a.date);
-    return (<tbody>{audits.map((a) => this.renderAudit(a))}</tbody>);
+    const audits = this.props.audits
+      .map(x => x)
+      .sort((a, b) => b.date - a.date);
+    return <tbody>{audits.map(a => this.renderAudit(a))}</tbody>;
   }
 
   render() {
@@ -66,7 +67,7 @@ class VideoAuditTrail extends React.Component {
       );
     }
 
-    return (<div>Loading...</div>);
+    return <div>Loading...</div>;
   }
 }
 //REDUX CONNECTIONS
@@ -85,7 +86,10 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideo, getAudits, updateVideo), dispatch)
+    videoActions: bindActionCreators(
+      Object.assign({}, getVideo, getAudits, updateVideo),
+      dispatch
+    )
   };
 }
 export default connect(mapStateToProps, mapDispatchToProps)(VideoAuditTrail);

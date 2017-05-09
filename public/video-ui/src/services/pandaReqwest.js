@@ -1,33 +1,33 @@
 import reqwest from 'reqwest';
-import {reEstablishSession} from 'babel?presets[]=es2015!panda-session';
-import {getStore} from '../util/storeAccessor';
+import { reEstablishSession } from 'babel?presets[]=es2015!panda-session';
+import { getStore } from '../util/storeAccessor';
 
 function poll(reqwestBody, timeout) {
   const endTime = Number(new Date()) + timeout;
   const interval = 100;
 
   function makeRequest(resolve, reject) {
-    reqwest(reqwestBody)
-      .then(response => resolve(response))
-      .fail(err => {
-        if (err === 419) {
-          const store = getStore();
-          const reauthUrl = store.getState().config.reauthUrl;
+    reqwest(reqwestBody).then(response => resolve(response)).fail(err => {
+      if (err.status === 419) {
+        const store = getStore();
+        const reauthUrl = store.getState().config.reauthUrl;
 
-          reEstablishSession(reauthUrl, 5000)
-            .then(() => {
-              setTimeout(makeRequest, interval, resolve, reject);
-            }, error => {
-              throw error;
-            });
-        } else {
-          if (Number(new Date()) < endTime) {
+        reEstablishSession(reauthUrl, 5000).then(
+          () => {
             setTimeout(makeRequest, interval, resolve, reject);
-          } else {
-            reject(err);
+          },
+          error => {
+            throw error;
           }
+        );
+      } else {
+        if (Number(new Date()) < endTime) {
+          setTimeout(makeRequest, interval, resolve, reject);
+        } else {
+          reject(err);
         }
-      });
+      }
+    });
   }
 
   return new Promise(makeRequest);
@@ -35,8 +35,18 @@ function poll(reqwestBody, timeout) {
 
 // when `timeout` > 0, the request will be retried every 100ms until success or timeout
 export function pandaReqwest(reqwestBody, timeout = 0) {
+  const payload = Object.assign({ method: 'get' }, reqwestBody);
+
+  if(payload.data) {
+    payload.contentType = payload.contentType || 'application/json';
+
+    if(payload.contentType === 'application/json' && typeof payload.data === 'object') {
+      payload.data = JSON.stringify(payload.data);
+    }
+  }
+
   return new Promise((resolve, reject) => {
-    poll(reqwestBody, timeout)
+    poll(payload, timeout)
       .then(response => resolve(response))
       .catch(error => reject(error));
   });
