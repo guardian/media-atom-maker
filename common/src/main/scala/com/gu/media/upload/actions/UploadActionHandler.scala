@@ -113,6 +113,7 @@ abstract class UploadActionHandler(store: UploadsDataStore, plutoStore: PlutoDat
 
         case None =>
           val metadata = upload.metadata
+          log.info(s"Sending missing Pluto ID email user=${metadata.user} atom=${plutoData.atomId}")
           mailer.sendPlutoIdMissingEmail(metadata.title, metadata.user, uploaderAccess.fromEmailAddress,
             uploaderAccess.replyToAddresses)
           plutoStore.put(plutoData)
