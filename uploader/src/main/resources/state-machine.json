@@ -1,4 +1,5 @@
 {
+  "Comment": "A game-changing pipeline for uploading videos to the internet",
   "StartAt": "GetChunkFromS3",
   "States": {
     "GetChunkFromS3": {

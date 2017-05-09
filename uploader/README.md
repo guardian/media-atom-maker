@@ -21,5 +21,4 @@ Run `./scripts/deploy-pipeline-dev.sh`. It will:
 - Update `media-atom-pipeline-DEV` with the new cloud-formation
 - Update each lambda with the new code
 
-
 ## Adding a new step to the pipeline
