@@ -79,13 +79,15 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   def complete(id: String) = CanUploadAsset { implicit req =>
     partRequest(id, req) { (upload, part, optionalUri) =>
-      val selfHost = upload.metadata.selfHost
-      if(!PermissionsUploadHelper.canPerformUpload(req.permissions, selfHost))
-        Unauthorized(s"User ${req.user.email} is not authorised with permissions to complete upload, self-hosted value: ${selfHost}")
-      else if (selfHost)
-        startUploadToSelfHost(upload, part, req.permissions)
-      else
-        startUploadToYouTube(upload, part, optionalUri, req.permissions)
+//      val selfHost = upload.metadata.selfHost
+//      if(!PermissionsUploadHelper.canPerformUpload(req.permissions, selfHost))
+//        Unauthorized(s"User ${req.user.email} is not authorised with permissions to complete upload, self-hosted value: ${selfHost}")
+//      else if (selfHost)
+//        startUploadToSelfHost(upload, part, req.permissions)
+//      else
+//        startUploadToYouTube(upload, part, optionalUri, req.permissions)
+
+      Ok(Json.toJson(CompleteResponse("")))
     }
   }
 
