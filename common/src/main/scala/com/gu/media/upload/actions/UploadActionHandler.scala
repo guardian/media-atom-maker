@@ -104,7 +104,7 @@ abstract class UploadActionHandler(store: UploadsDataStore, plutoStore: PlutoDat
   private def sendToPluto(upload: Upload): Unit = {
     val plutoData: PlutoSyncMetadata = upload.metadata.pluto
 
-    if(plutoData.enabled) {
+    if(!plutoData.enabled) {
       log.info(s"Not syncing to Pluto upload=${upload.id} atom=${plutoData.atomId}")
     } else {
       plutoData.projectId match {
