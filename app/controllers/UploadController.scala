@@ -129,9 +129,17 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       selfHost = selfHosted
     )
 
+    val progress = UploadProgress(
+      uploadedToS3 = 0,
+      uploadedToYouTube = 0,
+      chunksInS3 = 0,
+      fullyUploaded = false,
+      retries = 0
+    )
+
     val parts = chunk(id, size)
 
-    Upload(id, parts, metadata, UploadProgress(0, 0))
+    Upload(id, parts, metadata, progress)
   }
 
   private def partRequest(id: String, request: Request[_])(fn: (Upload, UploadPart, Option[String]) => Result): Result = {

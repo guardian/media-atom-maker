@@ -59,7 +59,7 @@
       "Type": "Choice",
       "Choices": [
         {
-          "Variable": "$.flags.syncWithPluto",
+          "Variable": "$.metadata.pluto.enabled",
           "BooleanEquals": true,
           "Next": "SendToPluto"
         }
@@ -75,7 +75,7 @@
       "Type": "Choice",
       "Choices": [
         {
-          "Variable": "$.flags.selfHost",
+          "Variable": "$.metadata.selfHost",
           "BooleanEquals": true,
           "Next": "SendToTranscoder"
         }

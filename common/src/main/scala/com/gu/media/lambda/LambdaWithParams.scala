@@ -7,11 +7,11 @@ import com.google.common.base.Charsets
 import play.api.libs.json.{Json, Reads, Writes}
 
 abstract class LambdaWithParams[I: Reads, O: Writes] extends RequestStreamHandler with LambdaBase {
-  def handleRequest(input: I): O
+  def handle(input: I): O
 
   override def handleRequest(rawInput: InputStream, rawOutput: OutputStream, context: Context): Unit = {
     val input = Json.parse(rawInput).as[I]
-    val output = handleRequest(input)
+    val output = handle(input)
 
     val outputStr = Json.stringify(Json.toJson(output))
     rawOutput.write(outputStr.getBytes(Charsets.UTF_8))
