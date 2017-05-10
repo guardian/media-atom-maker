@@ -54,7 +54,7 @@ class AddAssetFromURL extends React.Component {
 }
 
 class VideoUpload extends React.Component {
-  state = { file: null };
+  state = { file: null, useStepFunctions: false };
 
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
@@ -83,7 +83,8 @@ class VideoUpload extends React.Component {
           // on complete
           this.props.uploadActions.getUploads(atomId);
         },
-        selfHost
+        selfHost,
+        this.state.useStepFunctions
       );
     }
   };
@@ -99,6 +100,7 @@ class VideoUpload extends React.Component {
           {' '}
           {this.renderAddSelfHostAssetUpload()}
           {' '}
+          {this.renderMethodPicker()}
         </div>
       );
     }
@@ -113,6 +115,23 @@ class VideoUpload extends React.Component {
   renderAddSelfHostAssetUpload() {
     if (getStore().getState().config.permissions.addSelfHostedAsset) {
       return this.renderStartUpload(true, 'Upload avoiding YouTube');
+    }
+  }
+
+  // TODO MRB: remove this once step functions are in use
+  renderMethodPicker() {
+    if (getStore().getState().config.permissions.addSelfHostedAsset) {
+      return (
+        <div>
+          Use Step Functions
+          <input
+            type="checkbox"
+            onChange={e =>
+              this.setState({ useStepFunctions: e.target.checked })}
+            checked={this.state.useStepFunctions}
+          />
+        </div>
+      );
     }
   }
 

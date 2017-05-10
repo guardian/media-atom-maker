@@ -4,7 +4,8 @@ import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
 
 case class UploadMetadata(user: String, bucket: String, region: String, title: String, channel: String,
-                          pluto: PlutoSyncMetadata, selfHost: Boolean = false)
+                          pluto: PlutoSyncMetadata, selfHost: Boolean = false, youTubeId: Option[String] = None,
+                          youTubeUploadUri: Option[String] = None, useStepFunctions: Boolean = false)
 
 case class PlutoSyncMetadata(enabled: Boolean, projectId: Option[String], s3Key: String, assetVersion: Long, atomId: String)
 

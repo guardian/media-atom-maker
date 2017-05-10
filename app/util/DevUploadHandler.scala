@@ -12,7 +12,7 @@ import model.commands.AddAssetCommand
   * For use in dev, uploads the video and adds the asset directly rather than via a Lambda
   */
 class DevUploadHandler(stores: DataStores, access: UploaderAccess, youTube: YouTube, mailer: Mailer)
-  extends UploadActionHandler(stores.uploadStore, stores.pluto, access, new YouTubeUploader(access, youTube), mailer) {
+  extends UploadActionHandler(stores.uploadStore, stores.pluto, access, YouTubeUploader(access, youTube), mailer) {
 
   private val user = PandaUser("Media", "Atom Maker", "media-atom-maker@theguardian.co.uk", None)
 
