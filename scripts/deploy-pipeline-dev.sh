@@ -8,14 +8,7 @@ LAMBDA_PACKAGE_KEY='media-service/DEV/media-atom-upload-actions/media-atom-uploa
 
 JQ_FILTER='.StackResources[] | select(.ResourceType == "AWS::Lambda::Function") | .PhysicalResourceId'
 
-sbt uploader/packageBin || exit 1
 aws s3 cp ./uploader/target/universal/media-atom-uploader.zip s3://${BUILD_BUCKET}/${LAMBDA_PACKAGE_KEY} --profile ${PROFILE}
-
-aws cloudformation deploy \
-  --stack-name ${PIPELINE_NAME} \
-  --template-file ./uploader/target/scala-2.11/resource_managed/main/media-atom-pipeline.yaml \
-  --capabilities CAPABILITY_IAM \
-  --profile $PROFILE || exit 1
 
 STACK_JSON=$(aws cloudformation describe-stack-resources --stack-name ${PIPELINE_NAME} --profile ${PROFILE})
 LAMBDAS=($(echo ${STACK_JSON} | jq -r "$JQ_FILTER"))

@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "A game-changing pipeline for uploading videos to the internet"
+Description: "A game-changing pipeline for uploading video to the internet"
 
 # TODO:
 #  - add catch/retry to YouTube upload
