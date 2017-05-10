@@ -2,7 +2,6 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: "A game-changing pipeline for uploading video to the internet"
 
 # TODO:
-#  - add catch/retry to YouTube upload
 #  - replace sleeps with wait (transcoder)
 
 Parameters:

@@ -37,6 +37,11 @@
     "UploadChunkToYouTube": {
       "Type": "Task",
       "Resource": "${UploadChunkToYouTube.Arn}",
+      "Retry": [{
+        "ErrorEquals": ["States.TaskFailed"],
+        "IntervalSeconds": 10,
+        "MaxAttempts": 3
+      }],
       "Next": "MoveToNextChunk"
     },
     "MoveToNextChunk": {

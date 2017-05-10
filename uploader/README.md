@@ -40,6 +40,22 @@ Finally run:
 
 This will update each DEV lambda with our local build.
 
+## State Machine Linting
+
+The [statelint](https://github.com/awslabs/statelint) Ruby gem can verify the syntax of
+the state machine before deploying it. In most cases the errors you get here are way more
+readable than those from the cloud formation console.
+
+```
+statelint uploader/src/main/resources/state-machine.json
+```
+
+We do not specify the lambda ARN directly in the JSON so you will always see the following error:
+ 
+```
+State Machine.States.GetChunkFromS3.Resource is "${GetChunkFromS3.Arn}" but should be A URI
+```
+
 ## Adding a new step to the pipeline
 
 The pipeline graph is defined in [state-machine.json](https://github.com/guardian/media-atom-maker/blob/mbarton/step-functions/uploader/src/main/resources/state-machine.json).
