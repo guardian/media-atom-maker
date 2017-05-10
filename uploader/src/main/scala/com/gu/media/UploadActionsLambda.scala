@@ -22,7 +22,7 @@ class UploadActionsLambda extends RequestHandler[KinesisEvent, Unit]
   with SESSettings
   with KinesisAccess
   with ElasticTranscodeAccess {
-  
+
   val store = new UploadsDataStore(this)
   val plutoStore = new PlutoDataStore(this.dynamoDB, this.manualPlutoDynamo)
   val uploader = new YouTubeUploader(this, this)
@@ -43,8 +43,11 @@ class UploadActionsLambda extends RequestHandler[KinesisEvent, Unit]
     val record = input.getRecords.get(0)
     val data = new String(record.getKinesis.getData.array(), "UTF-8")
 
+    log.info(s"Received JSON from Kinesis: $data")
+
     Json.parse(data).validate[UploadAction] match {
       case JsSuccess(action, _) =>
+        log.info(s"Received action from Kinesis: $action")
         Some(action)
 
       case JsError(err) =>
