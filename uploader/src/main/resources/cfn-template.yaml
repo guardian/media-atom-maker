@@ -1,9 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "A game-changing pipeline for uploading video to the internet"
 
-# TODO:
-#  - replace sleeps with wait (transcoder)
-
 Parameters:
   BuildBucket:
     Description: "The S3 bucket where builds live"
@@ -101,7 +98,7 @@ Resources:
 
   {{SendToTranscoder}}
 
-  {{CheckTranscodingComplete}}
+  {{GetTranscodingProgress}}
 
   {{AddAssetToAtom}}
 

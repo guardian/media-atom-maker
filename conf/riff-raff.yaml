@@ -51,7 +51,7 @@ deployments:
         - "-CreateCompleteVideoInS3-"
         - "-SendToPluto-"
         - "-SendToTranscoder-"
-        - "-CheckTranscodingComplete-"
+        - "-GetTranscodingProgress-"
         - "-AddAssetToAtom-"
     dependencies:
       - media-atom-pipeline-cloudformation

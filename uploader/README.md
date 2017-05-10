@@ -58,14 +58,14 @@ State Machine.States.GetChunkFromS3.Resource is "${GetChunkFromS3.Arn}" but shou
 
 ## Adding a new step to the pipeline
 
-The pipeline graph is defined in [state-machine.json](https://github.com/guardian/media-atom-maker/blob/mbarton/step-functions/uploader/src/main/resources/state-machine.json).
+The pipeline graph is defined in [state-machine.json](src/main/resources/state-machine.json).
 Adding any states other than [Task](http://docs.aws.amazon.com/step-functions/latest/dg/concepts-tasks.html#concepts-tasks)
 is as simple as updating the JSON and re-deploying.
 
 To add a new task:
 
-- Create the new handler in [com.gu.media.upload](https://github.com/guardian/media-atom-maker/tree/mbarton/step-functions/uploader/src/main/scala/com/gu/media/upload)
-- Add an entry for the task in [state-machine.json](https://github.com/guardian/media-atom-maker/blob/mbarton/step-functions/uploader/src/main/resources/state-machine.json)
+- Create the new handler in [com.gu.media.upload](src/main/scala/com/gu/media/upload)
+- Add an entry for the task in [state-machine.json](src/main/resources/state-machine.json)
 
 ```json
 {
@@ -77,7 +77,7 @@ To add a new task:
 }
 ```
 
-- Add an entry for the task in [build.sbt](https://github.com/guardian/media-atom-maker/blob/mbarton/step-functions/build.sbt#L71)
+- Add an entry for the task in [build.sbt](../build.sbt#L71)
 
 ```scala
   "NewTaskName" -> LambdaConfig(
@@ -86,6 +86,14 @@ To add a new task:
 ```
 
 The compiled cloudformation will contain a new entry for the lambda.
+
+- Add an entry for the new lambda to [riff-raff.yaml](../conf/riff-raff.yaml)
+
+```yaml
+  functionNames:
+    - "-SomeFunction-"
+    - "-NewTaskName-"
+```
 
 ## Customising Cloud Formation
 

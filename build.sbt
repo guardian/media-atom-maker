@@ -84,7 +84,7 @@ lazy val uploader = (project in file("uploader"))
       "SendToTranscoder" -> LambdaConfig(
         description = "Sends a complete video to the AWS transcoder"
       ),
-      "CheckTranscodingComplete" -> LambdaConfig(
+      "GetTranscodingProgress" -> LambdaConfig(
         description = "Polls the AWS transcoder"
       ),
       "AddAssetToAtom" -> LambdaConfig(

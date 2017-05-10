@@ -142,6 +142,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       uploadedToYouTube = 0,
       chunksInS3 = 0,
       fullyUploaded = false,
+      fullyTranscoded = false,
       retries = 0
     )
 

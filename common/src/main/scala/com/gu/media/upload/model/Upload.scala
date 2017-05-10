@@ -35,7 +35,8 @@ object Upload {
       uploadedToYouTube = Math.max(upload.progress.uploadedToYouTube, progress.uploadedToYouTube),
       retries = Math.max(upload.progress.retries, progress.retries),
       chunksInS3 = Math.max(upload.progress.chunksInS3, progress.chunksInS3),
-      fullyUploaded = upload.progress.fullyUploaded || progress.fullyUploaded
+      fullyUploaded = upload.progress.fullyUploaded || progress.fullyUploaded,
+      fullyTranscoded = upload.progress.fullyTranscoded || progress.fullyTranscoded
     ))
   }
 
