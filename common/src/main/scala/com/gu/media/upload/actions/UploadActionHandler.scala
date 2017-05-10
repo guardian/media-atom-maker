@@ -3,17 +3,18 @@ package com.gu.media.upload.actions
 import com.amazonaws.regions.{Region, Regions}
 import com.amazonaws.services.elastictranscoder.model.{CreateJobOutput, CreateJobRequest, JobInput}
 import com.gu.media.PlutoDataStore
+import com.gu.media.aws.AwsAccess.UploaderAccess
 import com.gu.media.logging.Logging
-import com.gu.media.ses.Mailer
 import com.gu.media.upload._
-import com.gu.media.upload.model.{PlutoSyncMetadata, Upload}
 import com.gu.media.youtube.YouTubeUploader
 
 abstract class UploadActionHandler(store: UploadsDataStore, plutoStore: PlutoDataStore, uploaderAccess: UploaderAccess,
-                                   youTube: YouTubeUploader, mailer: Mailer)
+                                   youTube: YouTubeUploader)
   extends Logging {
 
   private val s3 = new S3UploadActions(uploaderAccess.s3Client)
+  private val pluto = new PlutoUploadActions(uploaderAccess)
+
   private val transcoderClient = uploaderAccess.transcoderClient
   transcoderClient.setRegion(Region.getRegion(Regions.EU_WEST_1))
   private val TRANSCODER_PRESET_ID = "1351620000001-000001" //System preset: Generic 1080p
@@ -41,7 +42,12 @@ abstract class UploadActionHandler(store: UploadsDataStore, plutoStore: PlutoDat
 
     case CopyParts(upload, destination) =>
       s3.createCompleteObject(upload, destination)
-      sendToPluto(upload)
+
+      if(upload.metadata.pluto.enabled) {
+        pluto.sendToPluto(upload.metadata)
+      } else {
+        log.info(s"Not syncing to Pluto upload=${upload.id} atom=${upload.metadata.pluto.atomId}")
+      }
 
     case UploadPartsToSelfHost(upload, key, pipelineId) =>
       transcodeToS3(key, pipelineId)
@@ -50,26 +56,6 @@ abstract class UploadActionHandler(store: UploadsDataStore, plutoStore: PlutoDat
       s3.deleteParts(upload)
       store.delete(upload.id)
 
-  }
-
-  private def sendToPluto(upload: Upload): Unit = {
-    val plutoData: PlutoSyncMetadata = upload.metadata.pluto
-
-    if(!plutoData.enabled) {
-      log.info(s"Not syncing to Pluto upload=${upload.id} atom=${plutoData.atomId}")
-    } else {
-      plutoData.projectId match {
-        case Some(project) =>
-          uploaderAccess.sendOnKinesis(uploaderAccess.uploadsStreamName, plutoData.s3Key, plutoData)
-
-        case None =>
-          val metadata = upload.metadata
-          log.info(s"Sending missing Pluto ID email user=${metadata.user} atom=${plutoData.atomId}")
-          mailer.sendPlutoIdMissingEmail(metadata.title, metadata.user, uploaderAccess.fromEmailAddress,
-            uploaderAccess.replyToAddresses)
-          plutoStore.put(plutoData)
-      }
-    }
   }
 
   private def transcodeToS3(fileName: String, pipelineId: String) {
