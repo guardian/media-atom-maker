@@ -164,7 +164,7 @@ class VideoDisplay extends React.Component {
 
         <div className="video">
           <div className="video__main">
-            <div className="video__main__header">
+            <div className="video__row">
               {this.renderPreview()}
               <div className="video__detailbox video__data">
                 <div className="video__detailbox__header__container">
@@ -181,6 +181,8 @@ class VideoDisplay extends React.Component {
                   updateErrors={this.props.formErrorActions.updateFormErrors}
                 />
               </div>
+            </div>
+            <div className="video__row">
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
                   <header className="video__detailbox__header">
