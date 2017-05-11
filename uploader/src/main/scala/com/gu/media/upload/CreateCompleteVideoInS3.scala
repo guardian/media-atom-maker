@@ -10,6 +10,8 @@ class CreateCompleteVideoInS3 extends LambdaWithParams[Upload, Upload] with S3Ac
 
   override def handle(upload: Upload): Upload = {
     actions.createCompleteObject(upload, upload.metadata.pluto.s3Key)
+    actions.deleteParts(upload)
+
     upload
   }
 }

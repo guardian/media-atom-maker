@@ -21,11 +21,11 @@ class UploadChunkToYouTube extends LambdaWithParams[Upload, Upload]
     val chunk = upload.parts(upload.progress.chunksInS3 - 1)
     val uploadUri = getUploadUri(upload)
 
-    uploader.uploadPart(upload, chunk, uploadUri)
+    val after = uploader.uploadPart(upload, chunk, uploadUri)
 
-    val updated = upload.copy(
-      metadata = upload.metadata.copy(youTubeUploadUri = Some(uploadUri)),
-      progress = upload.progress.copy(uploadedToYouTube = chunk.end)
+    val updated = after.copy(
+      metadata = after.metadata.copy(youTubeUploadUri = Some(uploadUri)),
+      progress = after.progress.copy(uploadedToYouTube = chunk.end)
     )
 
     table.put(updated)
