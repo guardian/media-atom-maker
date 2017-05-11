@@ -1,6 +1,5 @@
 package com.gu.media.upload
 
-import com.gu.media.UploadLambda
 import com.gu.media.aws.{DynamoAccess, KinesisAccess, SESSettings}
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
@@ -11,11 +10,10 @@ class SendToPluto extends LambdaWithParams[Upload, Upload]
   with KinesisAccess
   with SESSettings
   with Logging
-  with UploadLambda
 {
   private val pluto = new PlutoUploadActions(this)
 
-  override def handleUpload(upload: Upload): Upload = {
+  override def handle(upload: Upload): Upload = {
     pluto.sendToPluto(upload.metadata)
     upload
   }

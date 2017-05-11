@@ -1,6 +1,5 @@
 package com.gu.media.upload
 
-import com.gu.media.UploadLambda
 import com.gu.media.aws.{DynamoAccess, S3Access}
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
@@ -12,12 +11,11 @@ class UploadChunkToYouTube extends LambdaWithParams[Upload, Upload]
   with YouTubeAccess
   with S3Access
   with DynamoAccess
-  with UploadLambda
 {
   private val uploader = YouTubeUploader(this, this)
   private val table = new UploadsDataStore(this)
 
-  override def handleUpload(upload: Upload): Upload = {
+  override def handle(upload: Upload): Upload = {
     val chunk = upload.parts(upload.progress.chunksInS3 - 1)
     val uploadUri = getUploadUri(upload)
 
