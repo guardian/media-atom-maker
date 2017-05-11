@@ -126,7 +126,7 @@ class YouTubeClaims(override val config: Config) extends YouTubeAccess with Logg
           val claim = partnerClient.claims().get(claimSnippet.getId).execute()
           val claimId = claim.getId
           val assetId = claim.getAssetId
-          log.info(s"updating claim for claim=$claimId asset=$assetId")
+          log.info(s"updating claim for claim=$claimId asset=$assetId video=$videoId")
           updateClaim(claimId, assetId, videoId, blockAds)
         }
         case None => {
