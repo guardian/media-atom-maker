@@ -41,7 +41,7 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
         permissions
       )
 
-      Ok(views.html.VideoUIApp.app("Media Atom Maker", jsLocation, Json.toJson(clientConfig).toString()))
+      Ok(views.html.VideoUIApp.app("Media Atom Maker", jsLocation, Json.toJson(clientConfig).toString(), awsConfig.isDev))
     }
   }
 

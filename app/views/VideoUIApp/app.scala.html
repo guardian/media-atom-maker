@@ -1,6 +1,6 @@
-@(title: String, jsFileLocation: String, clientConfigJson: String)
+@(title: String, jsFileLocation: String, clientConfigJson: String, isDev: Boolean)
 
-@layout(title) {
+@layout(title, isDev) {
     <div id="react-mount" class="main">
         <h1>Loading...</h1>
     </div>
