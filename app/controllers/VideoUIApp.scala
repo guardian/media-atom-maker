@@ -18,9 +18,17 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
 
     val jsFileName = "video-ui/build/app.js"
 
-    val jsLocation = sys.env.get("JS_ASSET_HOST") match {
-      case Some(assetHost) => assetHost + jsFileName
-      case None => routes.Assets.versioned(jsFileName).toString
+    val jsAssetHost = sys.env.get("JS_ASSET_HOST")
+
+    val isHotReloading = jsAssetHost match {
+      case Some(_) if awsConfig.isDev => true
+      case _ => false
+    }
+
+    val jsLocation = if (isHotReloading) {
+      jsAssetHost.get + jsFileName
+    } else {
+      routes.Assets.versioned(jsFileName).toString
     }
 
     val composerUrl = awsConfig.composerUrl
@@ -41,7 +49,7 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
         permissions
       )
 
-      Ok(views.html.VideoUIApp.app("Media Atom Maker", jsLocation, Json.toJson(clientConfig).toString(), awsConfig.isDev))
+      Ok(views.html.VideoUIApp.app("Media Atom Maker", jsLocation, Json.toJson(clientConfig).toString(), isHotReloading))
     }
   }
 
