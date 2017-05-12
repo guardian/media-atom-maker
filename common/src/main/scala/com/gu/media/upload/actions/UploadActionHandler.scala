@@ -9,6 +9,7 @@ import com.gu.media.ses.Mailer
 import com.gu.media.upload._
 import com.gu.media.upload.model.{PlutoSyncMetadata, Upload, UploadPart}
 import com.gu.media.youtube.YouTubeUploader
+import com.gu.media.youtube.YouTubeUploader.{MoveToNextChunk, UploadError, VideoFullyUpload}
 
 import scala.util.control.NonFatal
 import scala.collection.JavaConverters._
@@ -54,20 +55,25 @@ abstract class UploadActionHandler(store: UploadsDataStore, plutoStore: PlutoDat
 
     if(objectExists(key.toString)) {
       val input = s3.getObject(bucket, key.toString).getObjectContent
+      val result = youTube.uploadPart(uploadUri, input, start, end, total)
 
-      youTube.uploadPart(uploadUri, input, start, end, total) match {
-        case Some(videoId) =>
+      result match {
+        case VideoFullyUpload(videoId) =>
           // last part. add asset
           val version = addAsset(upload.metadata.pluto.atomId, videoId)
           val plutoData = upload.metadata.pluto.copy(assetVersion = version)
 
           upload.copy(metadata = upload.metadata.copy(pluto = plutoData))
 
-        case None if part == upload.parts.last =>
+        case MoveToNextChunk if part == upload.parts.last =>
           log.error("YouTube did not provide a video id. The asset cannot be added")
           upload
 
-        case None =>
+        case MoveToNextChunk =>
+          upload
+
+        case UploadError(error) =>
+          log.error(error)
           upload
       }
     } else {
