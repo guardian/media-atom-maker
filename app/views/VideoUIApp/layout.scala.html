@@ -1,4 +1,4 @@
-@(title: String, isDev: Boolean)(content: Html)
+@(title: String, isHotReloading: Boolean)(content: Html)
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -8,7 +8,7 @@
     <title>@title</title>
     <link rel="icon" type="image/png" href="@routes.Assets.versioned("video-ui/images/favicon.png")">
 
-    @if(!isDev) {
+    @if(!isHotReloading) {
       <link rel="stylesheet" type="text/css" href="@routes.Assets.versioned("video-ui/build/main.css")"/>
     }
 
