@@ -3,7 +3,6 @@ import Icon from '../Icon';
 import VideoTrail from './VideoTrail';
 import { getStore } from '../../util/storeAccessor';
 import _ from 'lodash';
-import { blankVideoData } from '../../constants/blankVideoData';
 
 class AddAssetFromURL extends React.Component {
   constructor(props) {

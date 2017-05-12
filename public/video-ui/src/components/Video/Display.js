@@ -8,7 +8,6 @@ import VideoPoster from '../VideoPoster/VideoPoster';
 import GridImageSelect from '../utils/GridImageSelect';
 import Icon from '../Icon';
 import { formNames } from '../../constants/formNames';
-import { blankVideoData } from '../../constants/blankVideoData';
 import FieldNotification from '../../constants/FieldNotification';
 import ReactTooltip from 'react-tooltip';
 import { getStore } from '../../util/storeAccessor';

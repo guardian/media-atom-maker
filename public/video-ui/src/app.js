@@ -22,7 +22,7 @@ function extractConfigFromPage() {
 }
 
 const store = configureStore();
-const history = syncHistoryWithStore(browserHistory, store);
+syncHistoryWithStore(browserHistory, store);
 const config = extractConfigFromPage();
 
 // publish uncaught errors to sentry.io
@@ -39,8 +39,8 @@ store.dispatch({
 });
 
 store.dispatch({
-  type:       'PATH_UPDATE',
-  path:       location.pathname,
+  type: 'PATH_UPDATE',
+  path: location.pathname,
   receivedAt: Date.now()
 });
 

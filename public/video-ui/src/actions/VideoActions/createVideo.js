@@ -37,7 +37,7 @@ export function createVideo(video) {
 
 export function populateEmptyVideo() {
   return {
-    type:        'VIDEO_POPULATE_BLANK',
-    receivedAt:  Date.now()
+    type: 'VIDEO_POPULATE_BLANK',
+    receivedAt: Date.now()
   };
 }

@@ -1,4 +1,4 @@
-import {blankVideoData} from '../constants/blankVideoData';
+import { blankVideoData } from '../constants/blankVideoData';
 
 export default function video(state = null, action) {
   switch (action.type) {

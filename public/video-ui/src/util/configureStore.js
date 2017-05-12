@@ -9,13 +9,13 @@ import rootReducer from '../reducers/rootReducer';
 export function configureStore() {
   const router = routerMiddleware(browserHistory);
   const store = createStore(
-      rootReducer,
-      compose(
-        applyMiddleware(thunkMiddleware),
-        applyMiddleware(router),
-        applyMiddleware(storeMiddleware),
-        window.devToolsExtension ? window.devToolsExtension() : f => f
-      )
+    rootReducer,
+    compose(
+      applyMiddleware(thunkMiddleware),
+      applyMiddleware(router),
+      applyMiddleware(storeMiddleware),
+      window.devToolsExtension ? window.devToolsExtension() : f => f
+    )
   );
 
   return store;

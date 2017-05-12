@@ -33,9 +33,8 @@ export default combineReducers({
   plutoVideos,
   checkedFormFields,
   s3Upload,
-  editState,
+  videoEditOpen,
   uploads,
   path,
-  routing: routerReducer,
-  videoEditOpen
+  routing: routerReducer
 });
