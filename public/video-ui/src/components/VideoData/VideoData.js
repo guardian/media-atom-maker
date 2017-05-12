@@ -120,7 +120,7 @@ class VideoData extends React.Component {
             <ManagedField
               fieldLocation="plutoProjectId"
               name="Pluto Project"
-              isRequired={true}
+              isRequired={false}
             >
               <SelectBox selectValues={this.props.pluto.projects} />
             </ManagedField>
