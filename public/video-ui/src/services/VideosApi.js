@@ -129,7 +129,7 @@ export default {
           contentType: 'application/json',
           crossOrigin: true,
           withCredentials: true,
-          data: value
+          data: `"${value}"`
         });
       }
 
