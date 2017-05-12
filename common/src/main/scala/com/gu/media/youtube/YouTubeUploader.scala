@@ -4,8 +4,9 @@ import java.io.InputStream
 
 import com.gu.media.upload.actions.UploaderAccess
 import com.gu.media.util.InputStreamRequestBody
+import com.gu.media.youtube.YouTubeUploader.{MoveToNextChunk, UploadError, VideoFullyUpload}
 import com.squareup.okhttp.{MediaType, OkHttpClient, Request, RequestBody}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, JsValue, Json}
 
 class YouTubeUploader(aws: UploaderAccess, youTube: YouTubeAccess) {
   private val JSON = MediaType.parse("application/json; charset=utf-8")
@@ -49,7 +50,7 @@ class YouTubeUploader(aws: UploaderAccess, youTube: YouTubeAccess) {
     response.header("Location")
   }
 
-  def uploadPart(uri: String, input: InputStream, start: Long, end: Long, total: Long): Option[String] = {
+  def uploadPart(uri: String, input: InputStream, start: Long, end: Long, total: Long): YouTubeUploader.Result = {
     val size = end - start
     // end index is inclusive in direct contradiction to programming history (and my end variable)
     val range = s"$start-${start + size - 1}"
@@ -65,13 +66,35 @@ class YouTubeUploader(aws: UploaderAccess, youTube: YouTubeAccess) {
       .build()
 
     val response = http.newCall(request).execute()
-    val str = response.body().string()
+    parseResult(response.body().string())
+  }
 
-    if(str.nonEmpty) {
-      Some((Json.parse(str) \ "id").as[String])
+  private def parseResult(result: String): YouTubeUploader.Result = {
+    if(result.isEmpty) {
+      MoveToNextChunk
     } else {
-      // next part
-      None
+      val json = Json.parse(result)
+
+      ((json \ "id").asOpt[String], (json \ "error").asOpt[JsObject]) match {
+        case (_, Some(error)) =>
+          val code = (error \ "code").as[Int]
+          val message = (error \ "message").as[String]
+
+          UploadError(s"YouTube upload error $code: $message")
+
+        case (Some(id), None) =>
+          VideoFullyUpload(id)
+
+        case (None, None) =>
+          UploadError(s"Unable to parse YouTube response $result")
+      }
     }
   }
+}
+
+object YouTubeUploader {
+  sealed trait Result
+  case object MoveToNextChunk extends Result
+  case class VideoFullyUpload(videoId: String) extends Result
+  case class UploadError(error: String) extends Result
 }
