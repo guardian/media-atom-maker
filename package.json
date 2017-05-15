@@ -6,9 +6,7 @@
     "build": "webpack -p ./public/video-ui/src/app.js ./public/video-ui/build/app.js --config ./build_config/webpack.prod.conf.js",
     "build-dev": "webpack ./public/video-ui/src/app.js ./public/video-ui/build/app.js --config ./build_config/webpack.dev.conf.js --watch",
     "client-dev": "node ./webpack-dev-server.js",
-    "lint-video-ui": "eslint public/video-ui/src/ --fix",
-    "lint-cloudformation": "jsonlint cloudformation/*.json --quiet",
-    "lint": "yarn lint-video-ui && yarn lint-cloudformation",
+    "lint": "eslint public/video-ui/src/ --fix",
     "test": "yarn lint",
     "precommit": "lint-staged"
   },
@@ -47,7 +45,6 @@
     "gulp-uglify": "^2.0.0",
     "hoconjs": "github:yellowblood/hocon-js",
     "husky": "^0.13.3",
-    "jsonlint": "^1.6.2",
     "lint-staged": "^3.4.1",
     "lodash": "^4.17.4",
     "node-sass": "^3.10.1",
