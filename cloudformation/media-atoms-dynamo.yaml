@@ -1,30 +1,29 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Parameters:
-  AtomMakerCodeTable:
-    Description: Code dynamo table
+  Stage:
     Type: String
-    Default: media-atom-maker-CODE
-  PublishedAtomMakerCodeTable:
-    Description: Published code dynamo table
-    Type: String
-    Default: published-media-atom-maker-CODE
-  AuditAtomMakerCodeTable:
-    Description: Code audit dynamo table
-    Type: String
-    Default: audit-media-atom-maker-CODE
-  UploadTrackingAtomMakerCodeTable:
-    Description: Code upload dynamo table
-    Type: String
-    Default: upload-tracking-media-atom-maker-CODE
-  ManualPlutoAtomMakerCodeTable:
-    Description: Code manual pluto dynamo table
-    Type: String
-    Default: manual-pluto-media-atom-maker-CODE
+    AllowedValues:
+    - PROD
+    - CODE
+Mappings:
+  StageMap:
+    CODE:
+      AtomMakerTable: media-atom-maker-CODE
+      PublishedAtomMakerTable: published-media-atom-maker-CODE
+      AuditAtomMakerTable: audit-media-atom-maker-CODE
+      UploadTrackingAtomMakerTable: upload-tracking-media-atom-maker-CODE
+      ManualPlutoAtomMakerTable: manual-pluto-media-atom-maker-CODE
+    PROD:
+      AtomMakerTable: media-atom-maker-PROD
+      PublishedAtomMakerTable: published-media-atom-maker-PROD
+      AuditAtomMakerTable: audit-media-atom-maker-PROD
+      UploadTrackingAtomMakerTable: upload-tracking-media-atom-maker-PROD
+      ManualPlutoAtomMakerTable: manual-pluto-media-atom-maker-PROD
 Resources:
-  MediaAtomMakerCode:
+  MediaAtomMaker:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Ref 'AtomMakerCodeTable'
+      TableName: !FindInMap [StageMap, !Ref 'Stage', AtomMakerTable]
       AttributeDefinitions:
       - AttributeName: id
         AttributeType: S
@@ -34,10 +33,10 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: '5'
         WriteCapacityUnits: '5'
-  PublishedMediaAtomMakerCode:
+  PublishedMediaAtomMaker:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Ref 'PublishedAtomMakerCodeTable'
+      TableName: !FindInMap [StageMap, !Ref 'Stage', PublishedAtomMakerTable]
       AttributeDefinitions:
       - AttributeName: id
         AttributeType: S
@@ -47,10 +46,10 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: '5'
         WriteCapacityUnits: '5'
-  AuditMediaAtomMakerCode:
+  AuditMediaAtomMaker:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Ref 'AuditAtomMakerCodeTable'
+      TableName: !FindInMap [StageMap, !Ref 'Stage', AuditAtomMakerTable]
       AttributeDefinitions:
       - AttributeName: atomId
         AttributeType: S
@@ -78,10 +77,10 @@ Resources:
         ProvisionedThroughput:
           ReadCapacityUnits: '5'
           WriteCapacityUnits: '5'
-  UploadTrackingMediaAtomMakerCode:
+  UploadTrackingMediaAtomMaker:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Ref 'UploadTrackingAtomMakerCodeTable'
+      TableName: !FindInMap [StageMap, !Ref 'Stage', UploadTrackingAtomMakerTable]
       AttributeDefinitions:
       - AttributeName: id
         AttributeType: S
@@ -91,10 +90,10 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: '5'
         WriteCapacityUnits: '5'
-  ManualPlutoMediaAtomMakerCode:
+  ManualPlutoMediaAtomMaker:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Ref 'ManualPlutoAtomMakerCodeTable'
+      TableName: !FindInMap [StageMap, !Ref 'Stage', ManualPlutoAtomMakerTable]
       AttributeDefinitions:
       - AttributeName: s3Key
         AttributeType: S
