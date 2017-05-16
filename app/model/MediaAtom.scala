@@ -21,7 +21,6 @@ case class MediaAtom(
   source: Option[String],
   description: Option[String],
   trailText: Option[String],
-  videoSource: Option[String],
   posterImage: Option[Image],
   // metadata
   tags: List[String],
@@ -52,7 +51,6 @@ case class MediaAtom(
         description = description,
         trailText = trailText,
         posterImage = posterImage.map(_.asThrift),
-        videoSource = videoSource,
         metadata = Some(ThriftMetadata(
           tags = Some(tags),
           categoryId = youtubeCategoryId,
@@ -116,8 +114,7 @@ object MediaAtom extends MediaAtomImplicits {
       channelId = data.metadata.flatMap(_.channelId),
       legallySensitive = atom.flags.flatMap(_.legallySensitive),
       sensitive = atom.flags.flatMap(_.sensitive),
-      privacyStatus = data.metadata.flatMap(_.privacyStatus).flatMap(PrivacyStatus.fromThrift),
-      videoSource = data.videoSource
+      privacyStatus = data.metadata.flatMap(_.privacyStatus).flatMap(PrivacyStatus.fromThrift)
     )
   }
 

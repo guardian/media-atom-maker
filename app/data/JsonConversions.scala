@@ -74,7 +74,7 @@ object JsonConversions {
     (__ \ "posterUrl").writeNullable[String] and
     (__ \ "description").writeNullable[String] and
     (__ \ "trailText").writeNullable[String] and
-    (__ \ "videoSource").writeNullable[String] and
+    (__ \ "source").writeNullable[String] and
     (__ \ "metadata").writeNullable[Metadata]
     ) { mediaAtom: MediaAtom =>
     (
@@ -87,7 +87,7 @@ object JsonConversions {
       mediaAtom.posterUrl,
       mediaAtom.description,
       mediaAtom.trailText,
-      mediaAtom.videoSource,
+      mediaAtom.source,
       mediaAtom.metadata
       )
   }
