@@ -98,10 +98,9 @@ export default {
       const rightsRequest = pandaReqwest({
         url: `${composerUrlBase}/api/content/${id}/expiry/rights`,
         method: 'post',
-        contentType: 'application/json',
         crossOrigin: true,
         withCredentials: true,
-        data: JSON.stringify(rightsExpiryPayload)
+        data: rightsExpiryPayload
       });
 
       // When article is in preview, composer keeps track of both the live and preview versions of an article
@@ -125,10 +124,9 @@ export default {
         return pandaReqwest({
           url: `${composerUrl}/api/content/${pageId}/${stage}/${data.belongsTo}/${data.name}`,
           method: 'put',
-          contentType: 'application/json',
           crossOrigin: true,
           withCredentials: true,
-          data: `"${value}"`
+          data: `"${data.value}"`
         });
       }
 
@@ -169,7 +167,6 @@ export default {
   },
 
   createComposerPage(id, video, composerUrlBase) {
-
     const composerData = getComposerData(video);
 
     const initialComposerUrl =
