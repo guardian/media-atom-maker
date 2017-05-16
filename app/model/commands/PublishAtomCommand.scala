@@ -96,6 +96,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
   }
 
   private def createOrUpdateYoutubeClaim(previewAtom: MediaAtom, asset: Asset): MediaAtom = {
+    // if previewAtom.blockAds.isEmpty == true, we know there isn't a published atom and we can save a database call
     if (previewAtom.blockAds.isEmpty) {
       log.info(s"BlockAds not previously set, defaulting to false")
       youtubeClaims.createOrUpdateClaim(
