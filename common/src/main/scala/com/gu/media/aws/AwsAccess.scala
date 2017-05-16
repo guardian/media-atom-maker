@@ -21,4 +21,5 @@ trait AwsAccess { this: Settings =>
   final val stack: Option[String] = readTag("Stack")
   final val app: String = readTag("App").getOrElse("media-atom-maker")
   final val stage: String = readTag("Stage").getOrElse("DEV")
+  final val isDev: Boolean = stage == "DEV"
 }

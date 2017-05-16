@@ -16,7 +16,6 @@ import videoEditOpen from './editStateReducer';
 import plutoVideos from './plutoVideosReducer';
 import checkedFormFields from './checkedFormFieldsReducer';
 import uploads from './uploadsReducer';
-import path from './pathReducer';
 
 export default combineReducers({
   audits,
@@ -35,6 +34,5 @@ export default combineReducers({
   s3Upload,
   videoEditOpen,
   uploads,
-  path,
   routing: routerReducer
 });

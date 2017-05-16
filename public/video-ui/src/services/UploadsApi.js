@@ -21,7 +21,7 @@ class UploadFunctions {
         filename: file.name,
         size: file.size,
         selfHost: selfHost,
-        syncWithPluto: true
+        syncWithPluto: false // TODO change this once full Pluto integration is complete
       }
     });
   };

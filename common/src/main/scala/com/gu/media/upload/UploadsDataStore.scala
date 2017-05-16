@@ -33,7 +33,7 @@ class UploadsDataStore(aws: DynamoAccess) {
   }
 
   def get(id: String): Option[Upload] = {
-    val operation = table.get('id -> id)
+    val operation = table.consistently.get('id -> id)
     val result = Scanamo.exec(aws.dynamoDB)(operation)
 
     result.map {

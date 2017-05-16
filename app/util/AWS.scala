@@ -5,13 +5,14 @@ import com.amazonaws.services.ec2.model.{DescribeTagsRequest, Filter}
 import com.amazonaws.util.EC2MetadataUtils
 import com.gu.media.Settings
 import com.gu.media.aws._
-import com.gu.media.logging.KinesisLogging
+import com.gu.media.logging.{KinesisLogging, Logging}
 import com.typesafe.config.Config
 
 import scala.collection.JavaConverters._
 
 class AWSConfig(override val config: Config, override val credentials: AwsCredentials)
   extends Settings
+    with Logging
     with AwsAccess
     with S3Access
     with DynamoAccess

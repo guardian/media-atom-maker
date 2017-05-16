@@ -1,4 +1,4 @@
-@(title: String)(content: Html)
+@(title: String, isHotReloading: Boolean)(content: Html)
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -7,25 +7,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@title</title>
     <link rel="icon" type="image/png" href="@routes.Assets.versioned("video-ui/images/favicon.png")">
-    <link rel="stylesheet" type="text/css" href="@routes.Assets.versioned("video-ui/build/main.css")"/>
+
+    @if(!isHotReloading) {
+      <link rel="stylesheet" type="text/css" href="@routes.Assets.versioned("video-ui/build/main.css")"/>
+    }
+
   </head>
   <body>
-
-    <noscript class="logout__noscript">
-    @{ /*
-            @if(user.isEmpty) {
-                <a class="top-toolbar__user-link" href="@routes.Application.index">Log in</a>
-            } else {
-                <a class="top-toolbar__user-link" href="@routes.Login.logout" title="Logout">Logout</a>
-            }
-        */ }
-    </noscript>
-
     @content
-    @{ /*
-            <!-- build-commit-id: @build.BuildInfo.gitCommitId -->
-            <!-- build-number: @build.BuildInfo.buildNumber -->
-*/ }
-
   </body>
 </html>
