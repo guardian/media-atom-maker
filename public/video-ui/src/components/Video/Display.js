@@ -8,7 +8,6 @@ import VideoPoster from '../VideoPoster/VideoPoster';
 import GridImageSelect from '../utils/GridImageSelect';
 import Icon from '../Icon';
 import { formNames } from '../../constants/formNames';
-import { blankVideoData } from '../../constants/blankVideoData';
 import FieldNotification from '../../constants/FieldNotification';
 import ReactTooltip from 'react-tooltip';
 import { getStore } from '../../util/storeAccessor';
@@ -17,10 +16,6 @@ class VideoDisplay extends React.Component {
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
     this.props.videoActions.getUsages(this.props.params.id);
-  }
-
-  componentWillUnmount() {
-    this.props.videoActions.updateVideo(blankVideoData);
   }
 
   saveVideo = () => {

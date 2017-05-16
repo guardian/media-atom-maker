@@ -1,6 +1,5 @@
 import React from 'react';
 import moment from 'moment';
-import { blankVideoData } from '../../constants/blankVideoData';
 
 class VideoAuditTrail extends React.Component {
   componentWillReceiveProps(nextProps) {
@@ -11,10 +10,6 @@ class VideoAuditTrail extends React.Component {
 
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
-  }
-
-  componentWillUnmount() {
-    this.props.videoActions.updateVideo(blankVideoData);
   }
 
   state = {

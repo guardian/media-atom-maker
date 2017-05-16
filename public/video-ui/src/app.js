@@ -3,8 +3,9 @@ import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import qs from 'querystringify';
 import Raven from 'raven-js';
-
-import configureStore from './util/configureStore';
+import { browserHistory } from 'react-router';
+import { syncHistoryWithStore } from 'react-router-redux';
+import { configureStore } from './util/configureStore';
 import { setStore } from './util/storeAccessor';
 import { routes } from './routes';
 
@@ -21,6 +22,7 @@ function extractConfigFromPage() {
 }
 
 const store = configureStore();
+syncHistoryWithStore(browserHistory, store);
 const config = extractConfigFromPage();
 
 // publish uncaught errors to sentry.io
@@ -33,6 +35,12 @@ store.dispatch({
   config: Object.assign({}, extractConfigFromPage(), {
     embeddedMode: qs.parse(location.search).embeddedMode
   }),
+  receivedAt: Date.now()
+});
+
+store.dispatch({
+  type: 'PATH_UPDATE',
+  path: location.pathname,
   receivedAt: Date.now()
 });
 

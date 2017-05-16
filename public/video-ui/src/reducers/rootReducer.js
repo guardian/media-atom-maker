@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux';
+import { routerReducer } from 'react-router-redux';
 import audits from './auditReducer';
 import config from './configReducer';
 import error from './errorReducer';
@@ -15,6 +16,7 @@ import videoEditOpen from './editStateReducer';
 import plutoVideos from './plutoVideosReducer';
 import checkedFormFields from './checkedFormFieldsReducer';
 import uploads from './uploadsReducer';
+import path from './pathReducer';
 
 export default combineReducers({
   audits,
@@ -32,5 +34,7 @@ export default combineReducers({
   checkedFormFields,
   s3Upload,
   videoEditOpen,
-  uploads
+  uploads,
+  path,
+  routing: routerReducer
 });

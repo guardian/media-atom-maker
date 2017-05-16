@@ -3,7 +3,6 @@ import Icon from '../Icon';
 import VideoTrail from './VideoTrail';
 import { getStore } from '../../util/storeAccessor';
 import _ from 'lodash';
-import { blankVideoData } from '../../constants/blankVideoData';
 
 class AddAssetFromURL extends React.Component {
   constructor(props) {
@@ -59,10 +58,6 @@ class VideoUpload extends React.Component {
 
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
-  }
-
-  componentWillUnmount() {
-    this.props.videoActions.updateVideo(blankVideoData);
   }
 
   setFile = event => {
