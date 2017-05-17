@@ -180,7 +180,7 @@ class Api (override val stores: DataStores,
 
   }
 
-  private def getAtom(atomId: String, store: DataStore)(fn: Atom => Result): Result = {
+  private def getAtom(atomId: String, store: AtomDataStore)(fn: Atom => Result): Result = {
     store.getAtom(atomId) match {
       case Right(atom) => fn(atom)
       case Left(IDNotFound) => NotFound(s"atom not found $atomId")
