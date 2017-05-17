@@ -27,25 +27,22 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
   def process(): T = {
     log.info(s"Request to publish atom $id")
 
-    val thriftAtom = getPreviewAtom(id)
-    val atom = MediaAtom.fromThrift(thriftAtom)
+    val thriftPreviewAtom = getPreviewAtom(id)
+    val previewAtom = MediaAtom.fromThrift(thriftPreviewAtom)
 
-    if(atom.privacyStatus.contains(PrivacyStatus.Private)) {
-      log.error(s"Unable to publish atom ${atom.id}, privacy status is set to private")
+    if(previewAtom.privacyStatus.contains(PrivacyStatus.Private)) {
+      log.error(s"Unable to publish atom ${previewAtom.id}, privacy status is set to private")
       AtomPublishFailed("Atom status set to private")
     }
 
-    getActiveAsset(atom) match {
+    getActiveAsset(previewAtom) match {
       case Some(asset) if asset.platform == Youtube =>
-        val atomWithDuration = atom.copy(duration = youTube.getDuration(asset.id))
-        updateThumbnail(atomWithDuration, asset)
-        youtubeClaims.createOrUpdateClaim(atomWithDuration.id, asset.id, user.username,
-          atomWithDuration.blockAds.getOrElse(false) )
-        updateYouTube(atomWithDuration, asset)
-        publish(atomWithDuration, user)
+        val atomWithDuration = previewAtom.copy(duration = youTube.getDuration(asset.id))
+        val atomWithYoutubeUpdates = updateYouTube(atomWithDuration, asset)
+        publish(atomWithYoutubeUpdates, user)
 
       case _ =>
-        publish(atom, user)
+        publish(previewAtom, user)
     }
   }
 
@@ -92,20 +89,69 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
     }
   }
 
-  private def updateYouTube(atom: MediaAtom, asset: Asset): Unit = {
+  private def updateYouTube(previewAtom: MediaAtom, asset: Asset): MediaAtom = {
+    updateYoutubeMetadata(previewAtom, asset)
+    updateYoutubeThumbnail(previewAtom, asset)
+    createOrUpdateYoutubeClaim(previewAtom, asset)
+  }
+
+  private def createOrUpdateYoutubeClaim(previewAtom: MediaAtom, asset: Asset): MediaAtom = {
+    // if previewAtom.blockAds.isEmpty == true, we know there isn't a published atom and we can save a database call
+    if (previewAtom.blockAds.isEmpty) {
+      log.info(s"BlockAds not previously set, defaulting to false")
+      youtubeClaims.createOrUpdateClaim(
+        previewAtom.id,
+        asset.id,
+        blockAds = false
+      )
+
+      previewAtom.copy(blockAds = Some(false))
+    }
+    else {
+      try {
+        val thriftPublishedAtom = getPublishedAtom(id)
+        val publishedAtom = MediaAtom.fromThrift(thriftPublishedAtom)
+
+        if (previewAtom.blockAds.get == publishedAtom.blockAds.getOrElse(false)) {
+          log.info(s"No change to BlockAds field, not editing YouTube Claim")
+        } else {
+          log.info(s"BlockAds changed from ${publishedAtom.blockAds.getOrElse(false)} to ${previewAtom.blockAds.get}. Updating YouTube Claim")
+          youtubeClaims.createOrUpdateClaim(
+            previewAtom.id,
+            asset.id,
+            previewAtom.blockAds.get
+          )
+        }
+        previewAtom
+      } catch {
+        case CommandException(_, 404) => {
+          // atom hasn't been published yet
+          log.info(s"Unable to find Published atom. Creating YouTube Claim")
+          youtubeClaims.createOrUpdateClaim(
+            previewAtom.id,
+            asset.id,
+            previewAtom.blockAds.get
+          )
+          previewAtom
+        }
+      }
+    }
+  }
+
+  private def updateYoutubeMetadata(previewAtom: MediaAtom, asset: Asset) = {
     val metadata = YouTubeMetadataUpdate(
-      title = Some(atom.title),
-      categoryId = atom.youtubeCategoryId,
-      description = atom.description,
-      tags = atom.tags,
-      license = atom.license,
-      privacyStatus = atom.privacyStatus.map(_.name)
+      title = Some(previewAtom.title),
+      categoryId = previewAtom.youtubeCategoryId,
+      description = previewAtom.description,
+      tags = previewAtom.tags,
+      license = previewAtom.license,
+      privacyStatus = previewAtom.privacyStatus.map(_.name)
     )
 
     youTube.updateMetadata(asset.id, metadata)
   }
 
-  private def updateThumbnail(atom: MediaAtom, asset: Asset): Unit = {
+  private def updateYoutubeThumbnail(atom: MediaAtom, asset: Asset): Unit = {
     try {
       val master = atom.posterImage.flatMap(_.master).get
       val MAX_SIZE = 2000000
@@ -116,8 +162,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
         atom.posterImage.map(
           _.assets
             .filter(a => a.size.nonEmpty && a.size.get < MAX_SIZE)
-            .sortBy(_.size.get)
-            .last
+            .maxBy(_.size.get)
         ).get
       }
 

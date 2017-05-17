@@ -12,11 +12,12 @@ import scala.collection.JavaConverters._
 //Videos are either tracked or monetized: https://support.google.com/youtube/answer/107383?hl=en-GB
 class YouTubeClaims(override val config: Config) extends YouTubeAccess with Logging {
 
-  private def createAsset(title: String, videoId: String): Asset = {
+  private def createAsset(title: String, videoId: String, atomId: String): Asset = {
 
     val metadata = new Metadata()
       .setTitle(title)
       .setDescription(videoId)
+      .setCustomId(atomId)
 
     val asset = new Asset()
       .setMetadata(metadata)
@@ -70,10 +71,10 @@ class YouTubeClaims(override val config: Config) extends YouTubeAccess with Logg
       policy.setId(monetizationPolicyId)
   }
 
-  private def createVideoClaim(atomId: String, userName: String, blockAds: Boolean, videoId: String): Claim = {
+  private def createVideoClaim(atomId: String, blockAds: Boolean, videoId: String): Claim = {
     val policy = getNewPolicy(blockAds)
-    val assetTitle = s"$atomId-$userName-${DateTime.now()}"
-    val assetId = createAsset(assetTitle, videoId).getId
+    val assetTitle = s"media-atom-maker_atom=${atomId}_video=${videoId}"
+    val assetId = createAsset(assetTitle, videoId, atomId).getId
     setOwnership(assetId)
     claimVideo(assetId, videoId, policy)
   }
@@ -110,7 +111,7 @@ class YouTubeClaims(override val config: Config) extends YouTubeAccess with Logg
     }
   }
 
-  def createOrUpdateClaim(atomId: String, videoId: String, userName: String, blockAds: Boolean): Claim = {
+  def createOrUpdateClaim(atomId: String, videoId: String, blockAds: Boolean): Claim = {
 
     val request: YouTubePartner#ClaimSearch#List = partnerClient
       .claimSearch()
@@ -131,7 +132,7 @@ class YouTubeClaims(override val config: Config) extends YouTubeAccess with Logg
         }
         case None => {
           log.info(s"no partner claim found, creating claim for video=$videoId")
-          createVideoClaim(atomId, userName, blockAds, videoId)
+          createVideoClaim(atomId, blockAds, videoId)
         }
 
       }
