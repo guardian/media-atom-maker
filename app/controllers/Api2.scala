@@ -73,6 +73,15 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
     }
   }
 
+  def createWorkflowMediaAtom = APIAuthAction { implicit req =>
+    parse(req) { title: String =>
+      val command = CreateWorkflowAtomCommand(title, stores, req.user)
+      val atom = command.process()
+
+      Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
+    }
+  }
+
   def putMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
     parse(req) { atom: MediaAtom =>
       val command = UpdateAtomCommand(id, atom, stores, req.user)
