@@ -140,7 +140,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
 
   private def updateYoutubeMetadata(previewAtom: MediaAtom, asset: Asset) = {
     val metadata = YouTubeMetadataUpdate(
-      title = Some(previewAtom.title),
+      title = Some(previewAtom.title.replaceAll(" (-|–) video$", "")),
       categoryId = previewAtom.youtubeCategoryId,
       description = previewAtom.description,
       tags = previewAtom.tags,
