@@ -95,6 +95,17 @@
   border-top: 1px solid $color625Grey;
 }
 
+.form__label__layout {
+  display: flex;
+  justify-content: space-between;
+  align-items: center
+}
+
+.form__label__button {
+  font-size: 10px;
+  padding: 5px;
+}
+
 .form__message {
   font-size: 13px;
   margin: 0;

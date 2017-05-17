@@ -24,19 +24,19 @@ function errorReceivingVideoPageUpdate(error) {
   };
 }
 
-export function updateVideoPage(id, metadata, composerUrl, videoBlock, usages) {
+export function updateVideoPage(id, video, composerUrl, videoBlock, usages) {
   return dispatch => {
     dispatch(requestVideoPageUpdate());
 
     return VideosApi.updateComposerPage(
       id,
-      metadata,
+      video,
       composerUrl,
       videoBlock,
       usages
     )
       .then(() => {
-        return dispatch(receiveVideoPageUpdate(metadata.headline));
+        return dispatch(receiveVideoPageUpdate(video.title));
       })
       .catch(error => {
         dispatch(errorReceivingVideoPageUpdate(error));

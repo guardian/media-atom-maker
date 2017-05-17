@@ -73,6 +73,8 @@ object JsonConversions {
     (__ \ "duration").writeNullable[Long] and
     (__ \ "posterUrl").writeNullable[String] and
     (__ \ "description").writeNullable[String] and
+    (__ \ "trailText").writeNullable[String] and
+    (__ \ "source").writeNullable[String] and
     (__ \ "metadata").writeNullable[Metadata]
     ) { mediaAtom: MediaAtom =>
     (
@@ -84,6 +86,8 @@ object JsonConversions {
       mediaAtom.duration,
       mediaAtom.posterUrl,
       mediaAtom.description,
+      mediaAtom.trailText,
+      mediaAtom.source,
       mediaAtom.metadata
       )
   }
@@ -120,7 +124,9 @@ object JsonConversions {
 
   implicit val flagsWrites = {flags: Flags =>
     (__ \ "legallySensitive").writeNullable[Boolean] and
-      (__ \ "blockAds").writeNullable[Boolean]
+      (__ \ "blockAds").writeNullable[Boolean] and
+      (__ \ "sensitive").writeNullable[Boolean]
+
   }
 
   implicit val atomWrites: Writes[Atom] = (

@@ -25,11 +25,11 @@ function errorReceivingVideoPageCreate(error) {
   };
 }
 
-export function createVideoPage(id, metadata, composerUrl, videoBlock) {
+export function createVideoPage(id, video, composerUrl, videoBlock) {
   return dispatch => {
     dispatch(requestVideoPageCreate());
 
-    return VideosApi.createComposerPage(id, metadata, composerUrl)
+    return VideosApi.createComposerPage(id, video, composerUrl)
       .then(res => {
         const pageId = res.data.id;
         const pagePath = res.data.identifiers.path.data;

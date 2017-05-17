@@ -103,6 +103,10 @@ export class ManagedField extends React.Component {
     );
   }
 
+  displayPlaceholder(placeholder, fieldValue) {
+    return placeholder && placeholder === fieldValue;
+  }
+
   render() {
     const hydratedChildren = React.Children.map(this.props.children, child => {
       return React.cloneElement(child, {
@@ -118,7 +122,9 @@ export class ManagedField extends React.Component {
         touched: this.state.touched,
         fieldDetails: this.props.fieldDetails,
         hasError: this.hasError,
-        hasWarning: this.hasWarning
+        hasWarning: this.hasWarning,
+        displayPlaceholder: this.displayPlaceholder,
+        derivedFrom: this.props.derivedFrom
       });
     });
     return <div className="form-element">{hydratedChildren}</div>;
