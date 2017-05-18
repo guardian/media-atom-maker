@@ -1,6 +1,6 @@
 package model
 
-import com.gu.contentatom.thrift.atom.media.{MediaAtom => ThriftMediaAtom, Metadata => ThriftMetadata}
+import com.gu.contentatom.thrift.atom.media.{MediaAtom => ThriftMediaAtom, Metadata => ThriftMetadata, PlutoData => ThriftPlutoData}
 import com.gu.contentatom.thrift.{AtomData, Atom => ThriftAtom, AtomType => ThriftAtomType, Flags => ThriftFlags}
 import org.cvogt.play.json.Jsonx
 import util.atom.MediaAtomImplicits
@@ -16,7 +16,9 @@ case class MediaAtom(
   activeVersion: Option[Long],
   title: String,
   category: Category,
+  plutoCommissionId: Option[String],
   plutoProjectId: Option[String],
+  plutoMasterId: Option[String],
   duration: Option[Long],
   source: Option[String],
   description: Option[String],
@@ -45,7 +47,6 @@ case class MediaAtom(
         activeVersion = activeVersion,
         title = title,
         category = category.asThrift,
-        plutoProjectId = plutoProjectId,
         duration = duration,
         source = source,
         posterUrl = posterImage.flatMap(_.master).map(_.file),
@@ -59,7 +60,12 @@ case class MediaAtom(
           commentsEnabled = Some(commentsEnabled),
           channelId = channelId,
           privacyStatus = privacyStatus.flatMap(_.asThrift),
-          expiryDate = expiryDate
+          expiryDate = expiryDate,
+          pluto = Some(ThriftPlutoData(
+            commissionId = plutoCommissionId,
+            projectId = plutoProjectId,
+            masterId = plutoMasterId
+          ))
           ))
         )),
       contentChangeDetails = contentChangeDetails.asThrift,
@@ -100,7 +106,9 @@ object MediaAtom extends MediaAtomImplicits {
       activeVersion = data.activeVersion,
       title = data.title,
       category = Category.fromThrift(data.category),
-      plutoProjectId = data.plutoProjectId,
+      plutoCommissionId = data.metadata.flatMap(_.pluto.flatMap(_.commissionId)),
+      plutoProjectId = data.metadata.flatMap(_.pluto.flatMap(_.projectId)),
+      plutoMasterId = data.metadata.flatMap(_.pluto.flatMap(_.masterId)),
       duration = data.duration,
       source = data.source,
       posterImage = data.posterImage.map(Image.fromThrift),
