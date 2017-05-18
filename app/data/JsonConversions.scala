@@ -21,7 +21,7 @@ object JsonConversions {
     }
   })
 
-  implicit val mediaAsset = (
+  implicit val mediaAsset: Writes[Asset] = (
     (__ \ "id").write[String] and
     (__ \ "version").write[Long] and
     (__ \ "platform").write[String] and
@@ -33,6 +33,18 @@ object JsonConversions {
     }
   }
 
+  implicit val plutoReads: Reads[PlutoData] = (
+    (__ \ "commissionId").readNullable[String] and
+    (__ \ "projectId").readNullable[String] and
+    (__ \ "masterId").readNullable[String]
+  )(PlutoData.apply _)
+
+  implicit val plutoWrites: Writes[PlutoData] = (
+    (__ \ "commissionId").writeNullable[String] and
+    (__ \ "projectId").writeNullable[String] and
+    (__ \ "masterId").writeNullable[String]
+  ) {pluto: PlutoData => (pluto.commissionId, pluto.projectId, pluto.masterId )}
+
   implicit val mediaMetadata: Writes[Metadata] = (
     (__ \ "tags").writeNullable[Seq[String]] and
     (__ \ "categoryId").writeNullable[String] and
@@ -40,7 +52,8 @@ object JsonConversions {
     (__ \ "commentsEnabled").writeNullable[Boolean] and
     (__ \ "channelId").writeNullable[String] and
     (__ \ "privacyStatus").writeNullable[PrivacyStatus] and
-    (__ \ "expiryDate").writeNullable[Long]
+    (__ \ "expiryDate").writeNullable[Long] and
+    (__ \ "pluto").writeNullable[PlutoData]
 
   ) { metadata: Metadata =>
       (
@@ -50,7 +63,8 @@ object JsonConversions {
         metadata.commentsEnabled,
         metadata.channelId,
         metadata.privacyStatus,
-        metadata.expiryDate
+        metadata.expiryDate,
+        metadata.pluto
         )
   }
 
@@ -61,7 +75,8 @@ object JsonConversions {
     (__ \ "commentsEnabled").readNullable[Boolean] and
     (__ \ "channelId").readNullable[String] and
     (__ \ "privacyStatus").readNullable[PrivacyStatus] and
-    (__ \ "expiryDate").readNullable[Long]
+    (__ \ "expiryDate").readNullable[Long] and
+    (__ \ "pluto").readNullable[PlutoData]
   )(Metadata.apply _)
 
   implicit val atomDataMedia = (
