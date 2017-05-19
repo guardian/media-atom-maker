@@ -37,6 +37,7 @@ POST    /api2/pluto/projects            controllers.PlutoProjectController.creat
 PUT     /api2/pluto/projects/:id        controllers.PlutoProjectController.updateProject(id)
 
 # endpoint used by workflow
+OPTIONS /api2/workflow/*url             controllers.Api2.allowCORSAccess(methods = "PUT, POST, DELETE", url: String)
 POST    /api2/workflow/atoms            controllers.Api2.createWorkflowMediaAtom
 
 # user uploaded videos
