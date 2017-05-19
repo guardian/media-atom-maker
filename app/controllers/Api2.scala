@@ -164,7 +164,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
         previewDataStore.getAtom(upload.atomId) match {
           case Right(atom) => {
             val mediaAtom = MediaAtom.fromThrift(atom)
-            mediaAtom.plutoProjectId match {
+            mediaAtom.plutoData match {
               case None => acc ++ Map(upload.atomId -> mediaAtom)
               case Some(string) => acc
             }

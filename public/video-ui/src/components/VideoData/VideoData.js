@@ -118,7 +118,7 @@ class VideoData extends React.Component {
               <KeywordPicker />
             </ManagedField>
             <ManagedField
-              fieldLocation="plutoProjectId"
+              fieldLocation="plutoData.projectId"
               name="Pluto Project"
               isRequired={false}
             >

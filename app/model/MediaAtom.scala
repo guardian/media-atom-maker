@@ -16,9 +16,7 @@ case class MediaAtom(
   activeVersion: Option[Long],
   title: String,
   category: Category,
-  plutoCommissionId: Option[String],
-  plutoProjectId: Option[String],
-  plutoMasterId: Option[String],
+  plutoData: Option[PlutoData],
   duration: Option[Long],
   source: Option[String],
   description: Option[String],
@@ -61,11 +59,7 @@ case class MediaAtom(
           channelId = channelId,
           privacyStatus = privacyStatus.flatMap(_.asThrift),
           expiryDate = expiryDate,
-          pluto = Some(ThriftPlutoData(
-            commissionId = plutoCommissionId,
-            projectId = plutoProjectId,
-            masterId = plutoMasterId
-          ))
+          pluto = plutoData.map(_.asThrift)
           ))
         )),
       contentChangeDetails = contentChangeDetails.asThrift,
@@ -106,9 +100,7 @@ object MediaAtom extends MediaAtomImplicits {
       activeVersion = data.activeVersion,
       title = data.title,
       category = Category.fromThrift(data.category),
-      plutoCommissionId = data.metadata.flatMap(_.pluto.flatMap(_.commissionId)),
-      plutoProjectId = data.metadata.flatMap(_.pluto.flatMap(_.projectId)),
-      plutoMasterId = data.metadata.flatMap(_.pluto.flatMap(_.masterId)),
+      plutoData = data.metadata.flatMap(_.pluto).map(PlutoData.fromThrift),
       duration = data.duration,
       source = data.source,
       posterImage = data.posterImage.map(Image.fromThrift),

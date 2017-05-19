@@ -127,7 +127,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
     val plutoData = PlutoSyncMetadata(
       enabled = syncWithPluto,
-      projectId = atom.plutoProjectId,
+      projectId = atom.plutoData.flatMap(_.projectId),
       s3Key = CompleteUploadKey(awsConfig.userUploadFolder, id).toString,
       assetVersion = -1,
       atomId = atom.id
