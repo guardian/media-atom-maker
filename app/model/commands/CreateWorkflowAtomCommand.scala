@@ -10,11 +10,11 @@ import com.gu.media.logging.Logging
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
-import model.{ChangeRecord, MediaAtom}
+import model.{ChangeRecord, MediaAtom, WorkflowMediaAtom}
 
 import scala.util.{Failure, Success}
 
-case class CreateWorkflowAtomCommand(title: String, override val stores: DataStores, user: PandaUser)
+case class CreateWorkflowAtomCommand(workflowMediaAtom: WorkflowMediaAtom, override val stores: DataStores, user: PandaUser)
 
   extends Command with Logging {
 
@@ -22,7 +22,7 @@ case class CreateWorkflowAtomCommand(title: String, override val stores: DataSto
 
   def process(): MediaAtom = {
     val atomId = randomUUID().toString
-    log.info(s"Request to create new atom $atomId [$title] from Workflow")
+    log.info(s"Request to create new atom $atomId [${workflowMediaAtom.title}] from Workflow")
 
     val createdChangeRecord = Some(ChangeRecord.now(user).asThrift)
 
@@ -32,7 +32,7 @@ case class CreateWorkflowAtomCommand(title: String, override val stores: DataSto
       labels = Nil,
       defaultHtml = "<div></div>", // No content set so empty div
       data = AtomData.Media(ThriftMediaAtom(
-        title = title,
+        title = workflowMediaAtom.title,
         assets = Nil,
         activeVersion = None,
         category = ThriftCategory.News,
@@ -58,7 +58,7 @@ case class CreateWorkflowAtomCommand(title: String, override val stores: DataSto
 
     auditDataStore.auditCreate(atom.id, user)
 
-    log.info(s"Creating new atom $atomId [$title] from Workflow")
+    log.info(s"Creating new atom $atomId [${workflowMediaAtom.title}] from Workflow")
 
     previewDataStore.createAtom(atom).fold({
         case IDConflictError =>
@@ -70,17 +70,17 @@ case class CreateWorkflowAtomCommand(title: String, override val stores: DataSto
           UnknownFailure
       },
       _ => {
-        log.info(s"Successfully created new atom $atomId [$title]")
+        log.info(s"Successfully created new atom $atomId [${workflowMediaAtom.title}]")
 
         val event = ContentAtomEvent(atom, EventType.Update, new Date().getTime)
 
         previewPublisher.publishAtomEvent(event) match {
           case Success(_)  =>
-            log.info(s"New atom published to preview $atomId [$title]")
+            log.info(s"New atom published to preview $atomId [${workflowMediaAtom.title}]")
             MediaAtom.fromThrift(atom)
 
           case Failure(err) =>
-            log.error(s"Unable to published new atom to preview $atomId [$title]", err)
+            log.error(s"Unable to published new atom to preview $atomId [${workflowMediaAtom.title}]", err)
             AtomPublishFailed(err.toString)
         }
       }

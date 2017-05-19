@@ -83,8 +83,8 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
 
   def createWorkflowMediaAtom = CORSable(awsConfig.workflowUrl) {
       APIAuthAction { implicit req =>
-        parse(req) { wma: WorkflowMediaAtom =>
-          val command = CreateWorkflowAtomCommand(wma.title, stores, req.user)
+        parse(req) { workflowMediaAtom: WorkflowMediaAtom =>
+          val command = CreateWorkflowAtomCommand(workflowMediaAtom, stores, req.user)
           val atom = command.process()
           Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
         }
