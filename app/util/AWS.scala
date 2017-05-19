@@ -30,6 +30,7 @@ class AWSConfig(override val config: Config, override val credentials: AwsCreden
   )
 
   lazy val composerUrl = getMandatoryString("flexible.url")
+  lazy val workflowUrl = getMandatoryString("workflow.url")
   lazy val viewerUrl = getMandatoryString("viewer.url")
 
   lazy val gridUrl = getMandatoryString("grid.url")

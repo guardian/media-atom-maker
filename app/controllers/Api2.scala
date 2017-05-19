@@ -1,6 +1,5 @@
 package controllers
 
-import _root_.util.AWSConfig
 import com.gu.atom.play.AtomAPIActions
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
@@ -8,12 +7,14 @@ import com.gu.media.upload.model.PlutoSyncMetadata
 import com.gu.media.youtube.{YouTube, YouTubeClaims}
 import com.gu.pandahmac.HMACAuthActions
 import data.DataStores
-import model.MediaAtom
 import model.commands.CommandExceptions._
 import model.commands._
+import model.{MediaAtom, WorkflowMediaAtom}
 import play.api.Configuration
+import util.{AWSConfig, CORSable}
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
+import play.api.mvc._
 
 class Api2 (override val stores: DataStores, conf: Configuration, override val authActions: HMACAuthActions,
             youTube: YouTube, youTubeClaims: YouTubeClaims, awsConfig: AWSConfig, override val permissions: MediaAtomMakerPermissionsProvider)
@@ -25,6 +26,13 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
     with Logging {
 
   import authActions.{APIAuthAction, APIHMACAuthAction}
+
+  def allowCORSAccess(methods: String, args: Any*) = CORSable(awsConfig.workflowUrl) {
+    Action { implicit req =>
+      val requestedHeaders = req.headers("Access-Control-Request-Headers")
+      NoContent.withHeaders("Access-Control-Allow-Methods" -> methods, "Access-Control-Allow-Headers" -> requestedHeaders)
+    }
+  }
 
   def getMediaAtoms(search: Option[String], limit: Option[Int]) = APIAuthAction {
     val atoms = stores.atomListStore.getAtoms(search, limit)
@@ -72,6 +80,16 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
       Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
     }
   }
+
+  def createWorkflowMediaAtom = CORSable(awsConfig.workflowUrl) {
+      APIAuthAction { implicit req =>
+        parse(req) { workflowMediaAtom: WorkflowMediaAtom =>
+          val command = CreateWorkflowAtomCommand(workflowMediaAtom, stores, req.user)
+          val atom = command.process()
+          Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
+        }
+      }
+    }
 
   def putMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
     parse(req) { atom: MediaAtom =>
