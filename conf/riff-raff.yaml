@@ -46,6 +46,7 @@ deployments:
 
   media-atom-pipeline-lambdas:
     type: aws-lambda
+    contentDirectory: media-atom-upload-actions
     parameters:
       bucket: atom-maker-dist
       fileName: media-atom-uploader.zip
