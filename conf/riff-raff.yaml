@@ -46,6 +46,7 @@ deployments:
     type: aws-lambda
     parameters:
       bucket: atom-maker-dist
+      fileName: media-atom-uploader.zip
       functionNames:
         - "-GetChunkFromS3-"
         - "-UploadChunkToYouTube-"
