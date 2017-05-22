@@ -40,6 +40,8 @@ deployments:
     type: cloud-formation
     app: media-atom-pipeline
     parameters:
+      cloudFormationStackName: media-atom-pipeline
+      prependStackToCloudFormationStackName: false
       templatePath: media-atom-pipeline.yaml
 
   media-atom-pipeline-lambdas:
