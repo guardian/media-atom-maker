@@ -91,8 +91,8 @@ The compiled cloudformation will contain a new entry for the lambda.
 
 ```yaml
   functionNames:
-    - "-SomeFunction-"
-    - "-NewTaskName-"
+    - "media-atom-pipeline-SomeFunction-"
+    - "media-atom-pipeline-NewTaskName-"
 ```
 
 ## Customising Cloud Formation
