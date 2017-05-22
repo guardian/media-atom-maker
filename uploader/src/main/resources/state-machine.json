@@ -1,5 +1,5 @@
 {
-  "Comment": "A game-changing pipeline for uploading video to the internet",
+  "Comment": "A pipeline for uploading video to YouTube or an S3 bucket",
   "StartAt": "GetChunkFromS3",
   "States": {
     "GetChunkFromS3": {
@@ -14,9 +14,18 @@
           "Variable": "$.progress.retries",
           "NumericEquals": 0,
           "Next": "CheckNotSelfHosted"
+        },
+        {
+          "Variable": "$.progress.retries",
+          "NumericGreaterThanEquals": 60,
+          "Next": "FailS3Upload"
         }
       ],
       "Default": "WaitForChunkInS3"
+    },
+    "FailS3Upload": {
+      "Type": "Fail",
+      "Cause": "Timed out waiting for chunks in S3"
     },
     "WaitForChunkInS3": {
       "Type": "Wait",
