@@ -2,7 +2,7 @@ import com.typesafe.sbt.SbtNativePackager.autoImport.maintainer
 import com.typesafe.sbt.packager.archetypes.ServerLoader.Systemd
 import com.typesafe.sbt.packager.debian.DebianPlugin.autoImport.debianPackageDependencies
 import sbt.Keys._
-import StateMachines._
+import StateMachine._
 
 lazy val commonSettings = Seq(
   scalaVersion in ThisBuild := "2.11.8",

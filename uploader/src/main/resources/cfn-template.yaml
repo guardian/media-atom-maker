@@ -1,5 +1,8 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "A game-changing pipeline for uploading video to the internet"
+Description: "A pipeline for uploading video to YouTube or an S3 bucket"
+
+# This template is separate from the main one and is managed as a sub-deployment in riff-raff.yaml.
+# The main app looks up the resources by STAGE relying on the naming convention.
 
 Parameters:
   BuildBucket:
@@ -87,6 +90,8 @@ Resources:
                 Action:
                   - "lambda:InvokeFunction"
                 Resource: "*"
+
+  # The following entries are filled in based on the LambdaConfig entries in build.sbt.
 
   {{GetChunkFromS3}}
 

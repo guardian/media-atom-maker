@@ -1,7 +1,7 @@
 import sbt._
 import sbt.Keys._
 
-object StateMachines {
+object StateMachine {
   case class LambdaConfig(description: String, timeout: Int = 60)
 
   val lambdas = settingKey[Map[String, LambdaConfig]]("The lambdas to include in the state machine")
