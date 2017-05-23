@@ -36,7 +36,8 @@ export default class VideoPublishBar extends React.Component {
 
     const videoBlock = getVideoBlock(
       this.props.video.id,
-      this.props.video.title
+      this.props.video.title,
+      this.props.video.source
     );
 
     if (usages.length > 0) {
