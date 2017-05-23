@@ -74,6 +74,11 @@
     "redux": "^3.6.0",
     "redux-thunk": "^2.1.0",
     "reqwest": "^2.0.5",
+    "scribe": "^0.0.9",
+    "scribe-plugin-keyboard-shortcuts": "^0.1.1",
+    "scribe-plugin-link-prompt-command": "^1.0.0",
+    "scribe-plugin-sanitizer": "^0.1.10",
+    "scribe-plugin-toolbar": "^1.0.0",
     "valid-url": "^1.0.9"
   },
   "version": "1.0.0",
