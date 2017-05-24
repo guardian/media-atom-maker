@@ -46,9 +46,14 @@ export default class ScribeEditorField extends React.Component {
   };
 
   renderField() {
-    const hasError = this.props.hasError(this.props);
+    const hasWarning = this.state.wordCount === 0;
 
-    const hasWarning = this.props.hasWarning(this.props);
+    function getClassName() {
+      if (hasWarning) {
+        return 'form__field form__field--warning';
+      }
+      return '';
+    }
 
     if (!this.props.editable) {
       return (
@@ -68,7 +73,7 @@ export default class ScribeEditorField extends React.Component {
     }
 
     return (
-      <div className={(this.props.formRowClass || 'form__row') + ' scribe'}>
+      <div className={getClassName()}>
         {this.props.fieldLabel
           ? <label htmlFor={this.props.fieldName} className="form__label">
               {this.props.fieldLabel}
@@ -80,14 +85,9 @@ export default class ScribeEditorField extends React.Component {
           onUpdate={this.props.onUpdateField}
         />
         {this.renderWordCount()}
-        {hasError
-          ? <p className="form__message form__message--error">
-              {this.props.notification.message}
-            </p>
-          : ''}
         {hasWarning
           ? <p className="form__message form__message--warning">
-              {this.props.notification.message}
+              This field is recommended
             </p>
           : ''}
       </div>
