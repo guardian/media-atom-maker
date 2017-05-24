@@ -84,7 +84,7 @@ class VideoData extends React.Component {
           </ManagedSection>
           <ManagedSection>
             <ManagedField
-              fieldLocation="videoSource"
+              fieldLocation="source"
               name="Video Source"
               placeholder="No video source"
             >
