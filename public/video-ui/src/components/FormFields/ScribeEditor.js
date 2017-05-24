@@ -48,21 +48,18 @@ export default class ScribeEditorField extends React.Component {
 
     if (!this.props.editable) {
       return (
-        <div>
-          <p
-            className={
-              'details-list__field ' +
-                (this.props.displayPlaceholder(
-                  this.props.placeholder,
-                  this.props.fieldValue
-                )
-                  ? 'details-list__empty'
-                  : '')
-            }
-          >
-            {this.props.fieldValue}
-          </p>
-        </div>
+        <div
+          className={
+            'details-list__field ' +
+              (this.props.displayPlaceholder(
+                this.props.placeholder,
+                this.props.fieldValue
+              )
+                ? 'details-list__empty'
+                : '')
+          }
+          dangerouslySetInnerHTML={{ __html: this.props.fieldValue }}
+        />
       );
     }
 
@@ -78,7 +75,7 @@ export default class ScribeEditorField extends React.Component {
           value={this.props.fieldValue}
           onUpdate={this.props.onUpdateField}
         />
-        {this.props.showWordCount ? this.renderWordCount() : false}
+        {this.renderWordCount()}
         {hasError
           ? <p className="form__message form__message--error">
               {this.props.notification.message}
