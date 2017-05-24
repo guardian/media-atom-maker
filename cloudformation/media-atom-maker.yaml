@@ -273,6 +273,20 @@ Resources:
             Action:
             - s3:*
             Resource: !Sub ['arn:aws:s3:::${Bucket}/*', {Bucket: !Ref 'UserUploadBucket'}]
+          - Effect: Allow
+            Action:
+            - "states:ListStateMachines"
+            Resource: arn:aws:states:*:*:*
+          - Effect: Allow
+            Action:
+            - "states:ListExecutions"
+            - "states:StartExecution"
+            Resource: !Sub "arn:aws:states:*:*:stateMachine:VideoPipeline${Stage}-*"
+          - Effect: Allow
+            Action:
+            - "states:DescribeExecution"
+            - "states:GetExecutionHistory"
+            Resource: !Sub "arn:aws:states:*:*:execution:VideoPipeline${Stage}-*"
   GetTeamKeysPolicy:
     Type: AWS::IAM::Policy
     Properties:
@@ -490,6 +504,10 @@ Resources:
             Action:
             - elastictranscoder:CreateJob
             Resource: arn:aws:elastictranscoder:*
+          - Effect: Allow
+            Action:
+            - states:ListStateMachines
+            Resource: arn:aws:states:*:*:*
   UploadActionsStream:
     Type: AWS::Kinesis::Stream
     Properties:

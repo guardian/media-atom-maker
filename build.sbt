@@ -2,6 +2,7 @@ import com.typesafe.sbt.SbtNativePackager.autoImport.maintainer
 import com.typesafe.sbt.packager.archetypes.ServerLoader.Systemd
 import com.typesafe.sbt.packager.debian.DebianPlugin.autoImport.debianPackageDependencies
 import sbt.Keys._
+import StateMachine._
 
 lazy val commonSettings = Seq(
   scalaVersion in ThisBuild := "2.11.8",
@@ -65,7 +66,33 @@ lazy val uploader = (project in file("uploader"))
     libraryDependencies ++= Dependencies.uploaderDependencies,
 
     topLevelDirectory in Universal := None,
-    packageName in Universal := normalizedName.value
+    packageName in Universal := normalizedName.value,
+
+    lambdas in Compile := Map(
+      "GetChunkFromS3" -> LambdaConfig(
+        description = "Checks to see if a chunk of video has been uploaded to S3"
+      ),
+      "UploadChunkToYouTube" -> LambdaConfig(
+        description = "Uploads a chunk of video to YouTube"
+      ),
+      "CreateCompleteVideoInS3" -> LambdaConfig(
+        description = "Uses multipart copy to combine all the chunks in S3 into a single key"
+      ),
+      "SendToPluto" -> LambdaConfig(
+        description = "Sends a complete video to Pluto for ingestion"
+      ),
+      "SendToTranscoder" -> LambdaConfig(
+        description = "Sends a complete video to the AWS transcoder"
+      ),
+      "GetTranscodingProgress" -> LambdaConfig(
+        description = "Polls the AWS transcoder"
+      ),
+      "AddAssetToAtom" -> LambdaConfig(
+        description = "Adds the resulting asset to the atom"
+      )
+    ),
+
+    resourceGenerators in Compile += compileTemplate.taskValue
   )
 
 lazy val integrationTests = (project in file("integration-tests"))
@@ -104,6 +131,7 @@ lazy val root = (project in file("root"))
       (packageBin in Universal in uploader).value -> s"media-atom-upload-actions/${(packageBin in Universal in uploader).value.getName}",
       (packageBin in Universal in expirer).value -> s"${(name in expirer).value}/${(packageBin in Universal in expirer).value.getName}",
       (baseDirectory in Global in app).value / s"$plutoMessageIngestion/$jsTargetDir/$plutoMessageIngestion/$plutoMessageIngestion.zip" -> s"$plutoMessageIngestion/$plutoMessageIngestion.zip",
-      (baseDirectory in Global in app).value / "conf/riff-raff.yaml" -> "riff-raff.yaml"
+      (baseDirectory in Global in app).value / "conf/riff-raff.yaml" -> "riff-raff.yaml",
+      (resourceManaged in Compile in uploader).value / "media-atom-pipeline.yaml" -> "media-atom-pipeline-cloudformation/media-atom-pipeline.yaml"
     )
   )

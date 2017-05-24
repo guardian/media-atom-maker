@@ -4,6 +4,7 @@ import java.util.UUID
 
 import _root_.model.MediaAtom
 import _root_.model.commands.CommandExceptions._
+import com.amazonaws.services.stepfunctions.model.StartExecutionRequest
 import com.gu.media.logging.Logging
 import com.gu.media.upload._
 import com.gu.media.upload.actions.{CopyParts, DeleteParts, UploadActionSender, UploadPartToYouTube, UploadPartsToSelfHost}
@@ -49,6 +50,14 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
         val upload = buildUpload(atom, raw.user, req.size, req.selfHost, req.syncWithPluto)
         table.put(upload)
 
+        // This is currently just for testing purposes
+        val stepFunctionsRequest = new StartExecutionRequest()
+          .withName(s"${upload.metadata.pluto.atomId}--${upload.id}")
+          .withStateMachineArn(awsConfig.pipelineArn)
+          .withInput(Json.stringify(Json.toJson(upload)))
+
+        awsConfig.stepFunctionsClient.startExecution(stepFunctionsRequest)
+
         log.info(s"Upload created under atom ${req.atomId}. upload=${upload.id}. parts=${upload.parts.size}, selfHosted=${upload.metadata.selfHost}")
         Ok(Json.toJson(upload))
       }
@@ -92,7 +101,6 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       log.info(s"${upload.id} has not finished uploading to S3 yet")
       Ok(Json.toJson(CompleteResponse(s"${upload.id} has not finished uploading to S3 yet")))
     }
-
   }
 
   private def startUploadToYouTube(upload: Upload, part: UploadPart, uploadUri: Option[String], permission: Permissions) = {
@@ -129,9 +137,18 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       selfHost = selfHosted
     )
 
+    val progress = UploadProgress(
+      uploadedToS3 = 0,
+      uploadedToYouTube = 0,
+      chunksInS3 = 0,
+      fullyUploaded = false,
+      fullyTranscoded = false,
+      retries = 0
+    )
+
     val parts = chunk(id, size)
 
-    Upload(id, parts, metadata, UploadProgress(0, 0))
+    Upload(id, parts, metadata, progress)
   }
 
   private def partRequest(id: String, request: Request[_])(fn: (Upload, UploadPart, Option[String]) => Result): Result = {
