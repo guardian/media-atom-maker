@@ -6,13 +6,13 @@
     "build": "webpack -p ./public/video-ui/src/app.js ./public/video-ui/build/app.js --config ./build_config/webpack.prod.conf.js",
     "build-dev": "webpack ./public/video-ui/src/app.js ./public/video-ui/build/app.js --config ./build_config/webpack.dev.conf.js --watch",
     "client-dev": "node ./webpack-dev-server.js",
-    "lint": "eslint public/video-ui/src/ --fix",
+    "lint": "eslint public/video-ui/src/**/*.js --fix",
     "test": "yarn lint",
     "precommit": "lint-staged"
   },
   "lint-staged": {
     "public/video-ui/src/**/*.js": [
-      "yarn lint",
+      "eslint public/video-ui/src/**/*.js --fix",
       "git add"
     ]
   },
