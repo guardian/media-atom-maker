@@ -1,0 +1,36 @@
+scribe__toolbar {
+  display: flex;
+  width: 100%;
+}
+
+
+.scribe__toolbar__item {
+  padding: 10px;
+  font-size: 12px;
+  background-color: $color100Grey;
+  border: {
+    left: 1px solid $color800Grey;
+    top: 1px solid $color800Grey;
+  }
+
+  &:last-child {
+    border-right: 1px solid $color800Grey;
+  }
+
+  &:hover {
+    background-color: $darkGreyBgColor;
+  }
+}
+
+.scribe__editor {
+  width: 100%;
+  padding: 20px;
+  background: $cWhite;
+  border: 1px solid $color800Grey;
+
+  &:focus {
+    border-color: $brandColor;
+    outline: none;
+  }
+}
+

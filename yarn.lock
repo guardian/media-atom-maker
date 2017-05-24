@@ -2826,6 +2826,10 @@ ignore@^3.2.0, ignore@^3.2.7:
   version "3.2.7"
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-3.2.7.tgz#4810ca5f1d8eca5595213a34b94f2eb4ed926bbd"
 
+immutable@~3.8.1:
+  version "3.8.1"
+  resolved "https://registry.yarnpkg.com/immutable/-/immutable-3.8.1.tgz#200807f11ab0f72710ea485542de088075f68cd2"
+
 imurmurhash@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/imurmurhash/-/imurmurhash-0.1.4.tgz#9218b9b2b928a238b13dc4fb6b6d576f231453ea"
@@ -5237,11 +5241,11 @@ scribe-plugin-toolbar@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/scribe-plugin-toolbar/-/scribe-plugin-toolbar-1.0.0.tgz#3da21eb9f632a508ef44f6f7936aee274fac1c34"
 
-scribe@^0.0.9:
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/scribe/-/scribe-0.0.9.tgz#551bf03a09a1646be2f9b1743d3303a475594c19"
+scribe@guardian/scribe#fcf4e16:
+  version "3.2.0"
+  resolved "https://codeload.github.com/guardian/scribe/tar.gz/fcf4e16"
   dependencies:
-    thrift "0.7.0"
+    immutable "~3.8.1"
 
 scss-tokenizer@^0.1.2:
   version "0.1.2"
@@ -5684,10 +5688,6 @@ tether@^1.3.2:
 text-table@~0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
-
-thrift@0.7.0:
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/thrift/-/thrift-0.7.0.tgz#d6de59b226954d8bc1c2a5180d13de461e3e72b0"
 
 through2@2.X, through2@^2.0.0, through2@^2.0.1, through2@^2.0.3:
   version "2.0.3"
