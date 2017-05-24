@@ -37,6 +37,7 @@ object Dependencies {
   val awsSNS = "com.amazonaws" % "aws-java-sdk-sns" % awsVersion
   val awsSQS = "com.amazonaws" % "aws-java-sdk-sqs" % awsVersion
   val awsStepFunctions = "com.amazonaws" % "aws-java-sdk-stepfunctions" % awsVersion
+  val awsSES = "com.amazonaws" % "aws-java-sdk-ses" % awsVersion
 
   val logstashLogbackEncoder = "net.logstash.logback" % "logstash-logback-encoder" % "4.8"
   val kinesisLogbackAppender = "com.gu" % "kinesis-logback-appender" % "1.3.0"
@@ -85,7 +86,7 @@ object Dependencies {
 
   val commonDependencies = googleApi ++ Seq(
     typesafeConfig, awsLambdaCore, awsS3, awsDynamo, playJsonExtensions, logstashLogbackEncoder, kinesisLogbackAppender,
-    awsTranscoder, scanamo, okHttp, scalaTest, scalaCheck, awsSQS, awsSNS, permissionsClient, awsStepFunctions
+    awsTranscoder, scanamo, okHttp, scalaTest, scalaCheck, awsSQS, awsSNS, permissionsClient, awsStepFunctions, awsSES
   ) ++ partnerApiDepencies
 
   val appDependencies = panda ++ atomMaker ++ slf4j ++ Seq(
