@@ -25,7 +25,11 @@ export default class ScribeEditorField extends React.Component {
   };
 
   wordCount = text =>
-    text.trim().replace(/<(?:.|\n)*?>/gm, '').split(/\s+/).length;
+    text
+      .trim()
+      .replace(/<(?:.|\n)*?>/gm, '')
+      .split(/\s+/)
+      .filter(_ => _.length !== 0).length;
 
   renderWordCount = () => {
     const wordCount = this.wordCount(this.props.fieldValue);
