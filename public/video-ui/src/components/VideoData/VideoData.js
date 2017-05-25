@@ -53,6 +53,8 @@ class VideoData extends React.Component {
               placeholder="No Description"
               customValidation={this.props.descriptionValidator}
               isDesired={true}
+              maxCharLength={fieldLengths.description.charMax}
+              maxLength={fieldLengths.description.max}
             >
               <ScribeEditorField />
             </ManagedField>
@@ -61,6 +63,8 @@ class VideoData extends React.Component {
               derivedFrom={this.props.video.description}
               name="Trail Text"
               placeholder="No Trail Text"
+              maxCharLength={fieldLengths.description.charMax}
+              maxLength={fieldLengths.description.max}
             >
               <ScribeEditorField />
             </ManagedField>

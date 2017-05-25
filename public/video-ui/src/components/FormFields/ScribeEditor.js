@@ -22,6 +22,49 @@ export default class ScribeEditorField extends React.Component {
     });
   };
 
+  getWords = text => {
+    return text
+      .trim()
+      .replace(/<(?:.|\n)*?>/gm, '')
+      .split(/\s+/)
+      .filter(_ => _.length !== 0);
+  };
+
+  updateWordCount = text => {
+    const count = this.getWords(text).length;
+
+    this.setState({
+      wordCount: count,
+      isTooLong: false
+    });
+  };
+
+  isTooLong = value => {
+    const wordLength = this.getWords(value).reduce((length, word) => {
+      length += word.length;
+      return length;
+    }, 0);
+    return (
+      wordLength > this.props.maxLength ||
+      value.length > this.props.maxCharLength
+    );
+  };
+
+  updateFieldValue = value => {
+    if (!this.isTooLong(value)) {
+      this.setState({
+        isTooLong: false
+      });
+
+      this.updateWordCount(value);
+      this.props.onUpdateField(value);
+    } else {
+      this.setState({
+        isTooLong: true
+      });
+    }
+  };
+
   renderCopyButton = () => {
     if (this.props.derivedFrom === undefined || !this.props.editable) {
       return null;
@@ -40,36 +83,16 @@ export default class ScribeEditorField extends React.Component {
     );
   };
 
-  updateWordCount = text => {
-    const count = text
-      .trim()
-      .replace(/<(?:.|\n)*?>/gm, '')
-      .split(/\s+/)
-      .filter(_ => _.length !== 0).length;
-
-    this.setState({
-      wordCount: count
-    });
-  };
-
-  renderWordCount = () => {
-    const wordCount = this.state.wordCount;
-
-    const tooLong =
-      this.props.suggestedLength && wordCount > this.props.suggestedLength;
+  renderLimitWarning = () => {
     return (
       <div>
-        <span className="form__message__text">{wordCount} words</span>
-        {tooLong
-          ? <span className="form__message__text--error"> (too long)</span>
+        {this.state.isTooLong
+          ? <span className="form__message__text--error">
+              {' '}(This text is too long: updates will not get saved)
+            </span>
           : false}
       </div>
     );
-  };
-
-  updateFieldValue = value => {
-    this.updateWordCount(value);
-    this.props.onUpdateField(value);
   };
 
   renderField() {
@@ -104,7 +127,7 @@ export default class ScribeEditorField extends React.Component {
           onUpdate={this.updateFieldValue}
           copiedValue={this.state.copiedValue}
         />
-        {this.renderWordCount()}
+        {this.renderLimitWarning()}
         {hasWarning
           ? <p className="form__message form__message--warning">
               This field is recommended
@@ -144,7 +167,7 @@ export class ScribeEditor extends React.Component {
     this.scribe.on('content-changed', this.onContentChange);
     this.refs.editor.innerHTML = this.props.value;
   }
-  //this.props.copiedValue
+
   componentWillReceiveProps(nextProps) {
     if (nextProps.copiedValue !== this.state.copiedValue) {
       this.refs.editor.innerHTML = nextProps.copiedValue;
