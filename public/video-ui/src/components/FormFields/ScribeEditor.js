@@ -4,27 +4,39 @@ import scribeKeyboardShortcutsPlugin from 'scribe-plugin-keyboard-shortcuts';
 import scribePluginToolbar from 'scribe-plugin-toolbar';
 import scribePluginLinkPromptCommand from 'scribe-plugin-link-prompt-command';
 import scribePluginSanitizer from 'scribe-plugin-sanitizer';
-import CopyTrailButton from '../FormComponents/CopyTrailButton';
 
 export default class ScribeEditorField extends React.Component {
   state = {
-    wordCount: 0
+    wordCount: 0,
+    copiedValue: null
   };
 
   componentDidMount() {
     this.updateWordCount(this.props.fieldValue);
   }
 
+  updateValueFromCopy = () => {
+    this.props.onUpdateField(this.props.derivedFrom);
+    this.setState({
+      copiedValue: this.props.derivedFrom
+    });
+  };
+
   renderCopyButton = () => {
-    if (this.props.derivedFrom === undefined) {
+    if (this.props.derivedFrom === undefined || !this.props.editable) {
       return null;
     }
 
     return (
-      <CopyTrailButton
-        onUpdateField={this.props.onUpdateField}
-        derivedFrom={this.props.derivedFrom}
-      />
+      <button
+        type="button"
+        disabled={!this.props.derivedFrom}
+        className="btn form__label__button"
+        onClick={this.updateValueFromCopy}
+      >
+        <i className="icon">edit</i>
+        <span data-tip="Copy trail text from description" />
+      </button>
     );
   };
 
@@ -90,6 +102,7 @@ export default class ScribeEditorField extends React.Component {
           fieldName={this.props.fieldName}
           value={this.props.fieldValue}
           onUpdate={this.updateFieldValue}
+          copiedValue={this.state.copiedValue}
         />
         {this.renderWordCount()}
         {hasWarning
@@ -105,8 +118,8 @@ export default class ScribeEditorField extends React.Component {
     return (
       <div className="form__row">
         <p className="details-list__title">{this.props.fieldName}</p>
-        {this.renderField()}
         {this.renderCopyButton()}
+        {this.renderField()}
       </div>
     );
   }
@@ -119,6 +132,10 @@ export class ScribeEditor extends React.Component {
     onUpdate: PropTypes.func
   };
 
+  state = {
+    copiedValue: null
+  };
+
   componentDidMount() {
     this.scribe = new Scribe(this.refs.editor);
 
@@ -126,6 +143,15 @@ export class ScribeEditor extends React.Component {
 
     this.scribe.on('content-changed', this.onContentChange);
     this.refs.editor.innerHTML = this.props.value;
+  }
+  //this.props.copiedValue
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.copiedValue !== this.state.copiedValue) {
+      this.refs.editor.innerHTML = nextProps.copiedValue;
+      this.setState({
+        copiedValue: nextProps.copiedValue
+      });
+    }
   }
 
   configureScribe() {

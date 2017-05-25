@@ -75,6 +75,14 @@ class VideoData extends React.Component {
               <TextArea />
             </ManagedField>
             <ManagedField
+              fieldLocation="trailText"
+              derivedFrom={this.props.video.description}
+              name="Trail Text"
+              placeholder="No Trail Text"
+            >
+              <ScribeEditorField />
+            </ManagedField>
+            <ManagedField
               fieldLocation="blockAds"
               name="Block ads"
               fieldDetails="Ads will not be displayed with this video"
