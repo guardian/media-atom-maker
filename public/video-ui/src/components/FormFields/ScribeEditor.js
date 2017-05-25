@@ -11,6 +11,10 @@ export default class ScribeEditorField extends React.Component {
     wordCount: 0
   };
 
+  componentDidMount() {
+    this.updateWordCount(this.props.fieldValue);
+  }
+
   renderCopyButton = () => {
     if (this.props.derivedFrom === undefined) {
       return null;
@@ -24,15 +28,21 @@ export default class ScribeEditorField extends React.Component {
     );
   };
 
-  wordCount = text =>
-    text
+  updateWordCount = text => {
+    const count = text
       .trim()
       .replace(/<(?:.|\n)*?>/gm, '')
       .split(/\s+/)
       .filter(_ => _.length !== 0).length;
 
+    this.setState({
+      wordCount: count
+    });
+  };
+
   renderWordCount = () => {
-    const wordCount = this.wordCount(this.props.fieldValue);
+    const wordCount = this.state.wordCount;
+
     const tooLong =
       this.props.suggestedLength && wordCount > this.props.suggestedLength;
     return (
@@ -45,35 +55,32 @@ export default class ScribeEditorField extends React.Component {
     );
   };
 
+  updateFieldValue = value => {
+    this.updateWordCount(value);
+    this.props.onUpdateField(value);
+  };
+
   renderField() {
     const hasWarning = this.state.wordCount === 0;
 
-    function getClassName() {
-      if (hasWarning) {
-        return 'form__field form__field--warning';
-      }
-      return '';
-    }
-
     if (!this.props.editable) {
+      if (this.state.wordCount === 0) {
+        return (
+          <div className="details-list__field details-list__empty">
+            {this.props.placeholder}
+          </div>
+        );
+      }
       return (
         <div
-          className={
-            'details-list__field ' +
-              (this.props.displayPlaceholder(
-                this.props.placeholder,
-                this.props.fieldValue
-              )
-                ? 'details-list__empty'
-                : '')
-          }
+          className="details-list__field "
           dangerouslySetInnerHTML={{ __html: this.props.fieldValue }}
         />
       );
     }
 
     return (
-      <div className={getClassName()}>
+      <div className={(this.props.formRowClass || 'form__row') + ' scribe'}>
         {this.props.fieldLabel
           ? <label htmlFor={this.props.fieldName} className="form__label">
               {this.props.fieldLabel}
@@ -82,7 +89,7 @@ export default class ScribeEditorField extends React.Component {
         <ScribeEditor
           fieldName={this.props.fieldName}
           value={this.props.fieldValue}
-          onUpdate={this.props.onUpdateField}
+          onUpdate={this.updateFieldValue}
         />
         {this.renderWordCount()}
         {hasWarning
