@@ -39,6 +39,7 @@ case class MediaAtom(
       atomType = ThriftAtomType.Media,
       labels = List(),
       defaultHtml = generateHtml(),
+      title = title,
       data = AtomData.Media(ThriftMediaAtom(
         assets = assets.map(_.asThrift),
         activeVersion = activeVersion,
