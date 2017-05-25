@@ -115,19 +115,18 @@ export default class ScribeEditorField extends React.Component {
     }
 
     return (
-      <div className={(this.props.formRowClass || 'form__row') + ' scribe'}>
-        {this.props.fieldLabel
-          ? <label htmlFor={this.props.fieldName} className="form__label">
-              {this.props.fieldLabel}
-            </label>
-          : false}
-        <ScribeEditor
-          fieldName={this.props.fieldName}
-          value={this.props.fieldValue}
-          onUpdate={this.updateFieldValue}
-          copiedValue={this.state.copiedValue}
-        />
-        {this.renderLimitWarning()}
+      <div>
+        <div
+          className={(this.props.formRowClass || 'form__row') + ' scribe__row'}
+        >
+          <ScribeEditor
+            fieldName={this.props.fieldName}
+            value={this.props.fieldValue}
+            onUpdate={this.updateFieldValue}
+            copiedValue={this.state.copiedValue}
+          />
+          {this.renderLimitWarning()}
+        </div>
         {hasWarning
           ? <p className="form__message form__message--warning">
               This field is recommended
@@ -140,8 +139,10 @@ export default class ScribeEditorField extends React.Component {
   render() {
     return (
       <div className="form__row">
-        <p className="details-list__title">{this.props.fieldName}</p>
-        {this.renderCopyButton()}
+        <div className="form__label__layout">
+          <label className="form__label">{this.props.fieldName}</label>
+          {this.renderCopyButton()}
+        </div>
         {this.renderField()}
       </div>
     );
@@ -233,7 +234,7 @@ export class ScribeEditor extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className="scribe__container">
         <div ref="toolbar" className="scribe__toolbar">
           <button
             type="button"
