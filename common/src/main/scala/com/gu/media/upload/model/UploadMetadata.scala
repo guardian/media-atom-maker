@@ -12,8 +12,7 @@ case class UploadMetadata(
   pluto: PlutoSyncMetadata,
   selfHost: Boolean = false,
   youTubeId: Option[String] = None,
-  youTubeUploadUri: Option[String] = None,
-  useStepFunctions: Boolean = false
+  youTubeUploadUri: Option[String] = None
 )
 
 case class PlutoSyncMetadata (

@@ -1,4 +1,4 @@
-package com.gu.media.upload
+package util
 
 import com.amazonaws.services.securitytoken.model.AssumeRoleRequest
 import com.gu.media.aws.UploadAccess
@@ -7,18 +7,18 @@ import com.gu.media.upload.model.UploadCredentials
 import play.api.libs.json.{JsArray, JsObject, JsString, Json}
 
 class CredentialsGenerator(aws: UploadAccess) extends Logging {
-  def forKey(uploadId: String, key: String): UploadCredentials = {
+  def forKey(key: String): UploadCredentials = {
     val keyPolicy = generateKeyPolicy(key)
 
-    generateCredentials(uploadId, key, keyPolicy)
+    generateCredentials(key, keyPolicy)
   }
 
-  private def generateCredentials(uploadId: String, key: String, keyPolicy: String): UploadCredentials = {
+  private def generateCredentials(key: String, keyPolicy: String): UploadCredentials = {
     val request = new AssumeRoleRequest()
       .withRoleArn(aws.userUploadRole)
       .withDurationSeconds(900) // 15 minutes (the minimum allowed in STS requests)
       .withPolicy(keyPolicy)
-      .withRoleSessionName(s"media-atom-maker-upload-$uploadId")
+      .withRoleSessionName(s"media-atom-pipeline")
 
     log.info(s"Issuing STS request for $key")
     val result = aws.uploadSTSClient.assumeRole(request)

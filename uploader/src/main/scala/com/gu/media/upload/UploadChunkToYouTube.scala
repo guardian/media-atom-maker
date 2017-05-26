@@ -23,7 +23,7 @@ class UploadChunkToYouTube extends LambdaWithParams[Upload, Upload]
 
     val updated = after.copy(
       metadata = after.metadata.copy(youTubeUploadUri = Some(uploadUri)),
-      progress = after.progress.copy(uploadedToYouTube = chunk.end)
+      progress = after.progress.copy(chunksInYouTube = upload.progress.chunksInYouTube + 1)
     )
 
     table.put(updated)

@@ -1,12 +1,11 @@
-import { UploadsApi, UploadHandle } from '../../services/UploadsApi';
+import { UploadsApi } from '../../services/UploadsApi';
 import { errorDetails } from '../../util/errorDetails';
 
-function uploadStarted(upload, handle) {
+function uploadStarted(upload) {
   return {
     type: 'UPLOAD_STARTED',
     receivedAt: Date.now(),
-    upload: upload,
-    handle: handle
+    upload: upload
   };
 }
 
@@ -34,38 +33,30 @@ function uploadError(error) {
   };
 }
 
-export function startUpload(id, file, completeFn, selfHost, useStepFunctions) {
+export function startUpload(id, file, selfHost, completeFn) {
   return dispatch => {
     // Start prompting the user about reloading the page
     window.onbeforeunload = () => {
       return false;
     };
 
-    UploadsApi.createUpload(id, file, selfHost, useStepFunctions)
-      .then(upload => {
-        const progress = completed => dispatch(uploadProgress(completed));
+    UploadsApi.createUpload(id, file, selfHost).then(upload => {
+      dispatch(uploadStarted(upload));
 
-        const err = err => {
-          window.onbeforeunload = undefined;
-          dispatch(uploadError(errorDetails(err)));
-        };
+      const progress = completed => dispatch(uploadProgress(completed));
 
-        const complete = () => {
+      return UploadsApi.uploadParts(upload, upload.parts, file, progress)
+        .then(() => {
           // Stop prompting the user. The upload continues server-side
           window.onbeforeunload = undefined;
 
           dispatch(uploadComplete());
           completeFn();
-        };
-
-        const handle = new UploadHandle(upload, file, progress, complete, err);
-        handle.start();
-
-        dispatch(uploadStarted(upload));
-      })
-      .catch(err => {
-        window.onbeforeunload = undefined;
-        dispatch(uploadError(errorDetails(err)));
-      });
+        })
+        .catch(err => {
+          window.onbeforeunload = undefined;
+          dispatch(uploadError(errorDetails(err)));
+        });
+    });
   };
 }

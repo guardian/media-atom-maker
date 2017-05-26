@@ -18,9 +18,6 @@ abstract class UploadActionHandler(store: UploadsDataStore, plutoStore: PlutoDat
   def addAsset(atomId: String, videoId: String): Long
 
   def handle(action: UploadAction): Unit = action match {
-    case _ if action.upload.metadata.useStepFunctions =>
-      log.info("Bypassing kinesis powered lambdas")
-
     case UploadPartToYouTube(upload, part, uploadUri) =>
       val updated = youTube.uploadPart(upload, part, uploadUri)
 

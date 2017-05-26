@@ -31,10 +31,9 @@ object Upload {
 
   def mergeProgress(upload: Upload, progress: UploadProgress): Upload = {
     upload.copy(progress = UploadProgress(
-      uploadedToS3 = Math.max(upload.progress.uploadedToS3, progress.uploadedToS3),
-      uploadedToYouTube = Math.max(upload.progress.uploadedToYouTube, progress.uploadedToYouTube),
       retries = Math.max(upload.progress.retries, progress.retries),
       chunksInS3 = Math.max(upload.progress.chunksInS3, progress.chunksInS3),
+      chunksInYouTube = Math.max(upload.progress.chunksInYouTube, progress.chunksInYouTube),
       fullyUploaded = upload.progress.fullyUploaded || progress.fullyUploaded,
       fullyTranscoded = upload.progress.fullyTranscoded || progress.fullyTranscoded
     ))

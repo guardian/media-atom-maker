@@ -82,7 +82,9 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: S3UploadActions) extends Loggi
         upload
     }
 
-    updated.copy(progress = upload.progress.copy(uploadedToYouTube = part.end))
+    updated.copy(progress = upload.progress.copy(
+      chunksInYouTube = upload.progress.chunksInYouTube + 1
+    ))
   }
 
   private def uploadChunk(uri: String, input: InputStream, start: Long, end: Long, total: Long): YouTubeUploader.Result = {
