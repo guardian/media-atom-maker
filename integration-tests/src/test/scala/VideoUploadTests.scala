@@ -26,7 +26,6 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
   var uploadId: String = ""
   var uploadBucket: String = ""
   var uploadParts = List.empty[(String, Long, Long)]
-  var uploadUri: Option[String] = None
   var completeKey: String = ""
 
   override def beforeAll(): Unit = {
@@ -58,7 +57,7 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
 
     uploadParts.foreach { case(uploadKey, start, end) =>
       Logger.info(s"Getting credentials for $uploadKey")
-      val credentials = partRequest(uploadKey, s"$targetBaseUrl/api2/uploads/$uploadId/credentials")
+      val credentials = gutoolsPost(s"$targetBaseUrl/api2/uploads/$uploadId/credentials?key=$uploadKey", emptyBody)
       val temporaryClient = stsCredentialsS3Client(credentials)
 
       val length = end - start
@@ -69,9 +68,6 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
 
       Logger.info(s"Uploading $uploadKey")
       temporaryClient.putObject(uploadBucket, uploadKey, part, metadata)
-
-      val response = partRequest(uploadKey, s"$targetBaseUrl/api2/uploads/$uploadId/complete")
-      uploadUri = Some((Json.parse(response.body().string()) \ "uploadUri").as[String])
     }
   }
 
@@ -110,11 +106,6 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
         // nah keep it open :)
       }
     }
-  }
-
-  private def partRequest(key: String, uri: String) = {
-    val headers = List(Some("X-Upload-Key" -> key), uploadUri.map("X-Upload-Uri" -> _)).flatten
-    gutoolsPost(uri, emptyBody, headers.toMap)
   }
 
   private def accountCredentialsS3Client() = {

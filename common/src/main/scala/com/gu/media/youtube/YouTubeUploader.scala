@@ -50,7 +50,12 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: S3UploadActions) extends Loggi
       .build()
 
     val response = http.newCall(request).execute()
-    response.header("Location")
+
+    if(response.code() == 200) {
+      response.header("Location")
+    } else {
+      throw new IllegalStateException(s"${response.code()} when starting YouTube upload: ${response.body().string()}")
+    }
   }
 
   def uploadPart(upload: Upload, part: UploadPart, uploadUri: String): Upload = {
