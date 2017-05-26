@@ -22,7 +22,7 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: S3UploadActions) extends Loggi
     val params = s"uploadType=resumable&part=snippet,statistics,status&$contentOwnerParams"
     val endpoint = s"https://www.googleapis.com/upload/youtube/v3/videos?$params"
 
-    val videoTitle = s"$title-$id"
+    val videoTitle = s"$title-$id".take(70) // YouTube character limit
     val description = s"Uploaded by the media-atom-maker. Pending publishing"
 
     val json =
