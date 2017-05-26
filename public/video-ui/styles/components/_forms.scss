@@ -232,6 +232,71 @@
   cursor: pointer;
 }
 
+.form__field--multiselect {
+  $multiSelectBtnWidth: 45px;
+  position: relative;
+  padding-right: $multiSelectBtnWidth + 10px;
+
+  &__btn {
+    width: $multiSelectBtnWidth;
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    background: $color200Grey;
+    border-left: 1px solid $color300Grey;
+    cursor: pointer;
+  }
+
+  &__options {
+    background: $color200Grey;
+    border: 1px solid $color300Grey;
+    box-shadow: 2px 2px 2px 0px rgba(0,0,0,0.1);
+    position: absolute;
+    top: 48px;
+    left: 0;
+    width: 100%;
+    max-height: 300px;
+    overflow: auto;
+    z-index: 1;
+  }
+
+  &__option {
+    padding: 5px;
+    cursor: pointer;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid $color300Grey;
+    };
+
+    &:hover {
+      background: $color400Grey;
+    }
+  }
+
+  &__value {
+    display: inline-block;
+    padding: 2px 4px;
+    background: $color650Grey;
+    border: 1px solid $color300Grey;
+    border-radius: 2px;
+    margin-right: 2px;
+    font-weight: bold;
+    cursor: pointer;
+
+    &:hover {
+      background: $color400Grey;
+    }
+
+    &:after {
+      content: '×';
+      display: inline-block;
+      font-weight: normal;
+      margin-left: 4px;
+    }
+  }
+}
+
 // bit specific
 .create-form {
   width: 500px;

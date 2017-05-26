@@ -58,7 +58,7 @@ export default class FormFieldTagPicker extends React.Component {
       <div className="form__field__bylineTags">
         {this.state.bylineTags.map(tag => {
           const addTag = () => {
-            this.selectTag(tag.id);
+            this.selectTag(tag.webTitle);
           };
 
           return (
@@ -99,18 +99,25 @@ export default class FormFieldTagPicker extends React.Component {
     if (this.props.fieldValue) {
       return (
         <div className={this.props.formRowClass || 'form__row'}>
-          {this.props.fieldLabel
-            ? <label htmlFor={this.props.fieldName} className="form__label">
-                {this.props.fieldLabel}
-              </label>
-            : false}
 
-          <input
-            className="form__field"
-            value={`${this.props.fieldValue}`}
-            disabled={true}
-          />
-          <button className="btn" onClick={this.resetTag}>Change Tag</button>
+          <div className="form__container">
+            <div className="form__field form__field--multiselect">
+              <span
+                className="form__field--multiselect__value"
+                key={`this.props.fieldName`}
+                onClick={this.resetTag}
+              >
+                {this.props.fieldValue}{' '}
+              </span>
+              <button
+                type="button"
+                className="form__field--multiselect__btn"
+                onClick={this.resetTag}
+              >
+                Add
+              </button>
+            </div>
+          </div>
 
         </div>
       );
