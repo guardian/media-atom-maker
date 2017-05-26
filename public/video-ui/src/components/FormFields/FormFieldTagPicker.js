@@ -7,15 +7,6 @@ export default class FormFieldTagPicker extends React.Component {
     searchText: ''
   };
 
-  selectTag = id => {
-    this.props.onUpdateField(id);
-
-    this.setState({
-      bylineTags: null,
-      searchText: ''
-    });
-  };
-
   resetTag = () => {
     this.props.onUpdateField(undefined);
   };
@@ -45,6 +36,28 @@ export default class FormFieldTagPicker extends React.Component {
       });
   };
 
+  addTag = (tag) => {
+    console.log(this.props)
+    let newFieldValue = this.props.fieldValue.concat([tag.id]);
+    this.props.onUpdateField(newFieldValue);
+    this.setState({
+      bylineTags: null,
+      searchText: ''
+    });
+
+  };
+
+  removeFn = () => {
+    const newFieldValue = this.props.fieldValue.filter(oldFieldName => {
+        return fieldName !== oldFieldName;
+    });
+    this.props.onUpdateField(newFieldValue);
+    this.setState({
+      bylineTags: null,
+      searchText: ''
+    });
+  };
+
   renderBylineTags() {
     if (!this.state.bylineTags) {
       return false;
@@ -57,16 +70,15 @@ export default class FormFieldTagPicker extends React.Component {
     return (
       <div className="form__field__bylineTags">
         {this.state.bylineTags.map(tag => {
-          const addTag = () => {
-            this.selectTag(tag.webTitle);
-          };
+
+
 
           return (
             <a
               className="form__field__bylineTags"
               key={tag.id}
               title={tag.id}
-              onClick={addTag}
+              onClick={this.addTag(tag)}
             >
               {tag.webTitle}
             </a>
@@ -77,18 +89,13 @@ export default class FormFieldTagPicker extends React.Component {
   }
 
   renderValue = (fieldName, i) => {
-    const removeFn = () => {
-      const newFieldValue = this.props.fieldValue.filter(oldFieldName => {
-        return fieldName !== oldFieldName;
-      });
-      this.props.onUpdateField(newFieldValue);
-    };
+
 
     return (
       <span
         className="form__field--multiselect__value"
         key={`${fieldName}-${i}`}
-        onClick={removeFn}
+        onClick={this.removeFn()}
       >
         {fieldName}{' '}
       </span>
@@ -96,40 +103,19 @@ export default class FormFieldTagPicker extends React.Component {
   };
 
   render() {
-    if (this.props.fieldValue) {
-      return (
-        <div className={this.props.formRowClass || 'form__row'}>
 
-          <div className="form__container">
-            <div className="form__field form__field--multiselect">
-              <span
-                className="form__field--multiselect__value"
-                key={`this.props.fieldName`}
-                onClick={this.resetTag}
-              >
-                {this.props.fieldValue}{' '}
-              </span>
-              <button
-                type="button"
-                className="form__field--multiselect__btn"
-                onClick={this.resetTag}
-              >
-                Add
-              </button>
-            </div>
-          </div>
-
-        </div>
-      );
-    }
 
     return (
       <div className={this.props.formRowClass || 'form__row'}>
+
         {this.props.fieldLabel
           ? <label htmlFor={this.props.fieldName} className="form__label">
               {this.props.fieldLabel}
             </label>
           : false}
+        {this.props.fieldValue.length ? this.props.fieldValue.map((fieldName, i) => this.renderValue(fieldName, i)) : 'No items selected'}
+
+
         <input
           type="text"
           className="form__field "
