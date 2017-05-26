@@ -189,15 +189,18 @@ export default class VideoTrail extends React.Component {
       blocks.push(this.renderS3Upload());
     }
 
-    this.props.uploads.forEach(upload => {
+    const uploads = this.props.s3Upload.id
+      ? this.props.uploads.filter(
+          upload => upload.id !== this.props.s3Upload.id
+        )
+      : this.props.uploads;
+
+    uploads.forEach(upload => {
       const total = upload.parts[upload.parts.length - 1].end;
       const progress =
         upload.progress.uploadedToS3 + upload.progress.uploadedToYouTube;
 
-      // Don't show other users uploads until they have reached YouTube
-      if (upload.progress.uploadedToS3 === total) {
-        blocks.push(this.renderRemoteUpload(upload.id, total, progress));
-      }
+      blocks.push(this.renderRemoteUpload(upload.id, total, progress));
     });
 
     blocks.push(...this.props.assets.map(this.renderAsset));
