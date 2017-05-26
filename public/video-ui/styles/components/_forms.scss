@@ -219,6 +219,19 @@
   }
 }
 
+.form__field__bylineTags {
+  border-top: 12px solid $color650Grey;
+}
+
+.form__field__bylineTags {
+  border: 1px solid $color400Grey;
+  display: block;
+  border-top: 1px solid $color400Grey;
+  width: 100%;
+  padding: 5px 5px;
+  cursor: pointer;
+}
+
 // bit specific
 .create-form {
   width: 500px;

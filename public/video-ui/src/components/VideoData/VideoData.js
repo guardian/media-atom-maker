@@ -6,6 +6,7 @@ import SelectBox from '../FormFields/SelectBox';
 import CheckBox from '../FormFields/CheckBox';
 import DatePicker from '../FormFields/DatePicker';
 import KeywordPicker from '../FormFields/KeywordPicker';
+import FormFieldTagPicker from '../FormFields/FormFieldTagPicker';
 import { fieldLengths } from '../../constants/videoEditValidation';
 import { videoCategories } from '../../constants/videoCategories';
 import { privacyStates } from '../../constants/privacyStates';
@@ -13,6 +14,7 @@ import { privacyStates } from '../../constants/privacyStates';
 class VideoData extends React.Component {
   hasCategories = () => this.props.youtube.categories.length !== 0;
   hasChannels = () => this.props.youtube.channels.length !== 0;
+  hasGuBylineTags = () => this.props.guTags.bylineTags.length !== 0;
 
   componentWillMount() {
     if (!this.hasCategories()) {
@@ -21,6 +23,9 @@ class VideoData extends React.Component {
     if (!this.hasChannels()) {
       this.props.youtubeActions.getChannels();
     }
+    // if (!this.hasGuBylineTags()) {
+    //   this.props.guTagActions.getGuBylineTags();
+    // }
   }
 
   render() {
@@ -59,6 +64,12 @@ class VideoData extends React.Component {
               placeholder="No Trail Text"
             >
               <TextArea />
+            </ManagedField>
+            <ManagedField
+              fieldLocation="this.props.guTags.bylineTags"
+              name="Byline Tags"
+            >
+              <FormFieldTagPicker />
             </ManagedField>
             <ManagedField
               fieldLocation="blockAds"
@@ -125,10 +136,12 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getCategories from '../../actions/YoutubeActions/getCategories';
 import * as getChannels from '../../actions/YoutubeActions/getChannels';
+import * as getGuBylineTags from '../../actions/GuTagActions/getGuBylineTags';
 
 function mapStateToProps(state) {
   return {
-    youtube: state.youtube
+    youtube: state.youtube,
+    guTags: state.guTags
   };
 }
 
@@ -136,6 +149,10 @@ function mapDispatchToProps(dispatch) {
   return {
     youtubeActions: bindActionCreators(
       Object.assign({}, getCategories, getChannels),
+      dispatch
+    ),
+    guTagActions: bindActionCreators(
+      Object.assign({}, getGuBylineTags),
       dispatch
     )
   };
