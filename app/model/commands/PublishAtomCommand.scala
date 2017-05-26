@@ -5,9 +5,8 @@ import java.time.Instant
 import java.util.Date
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
-import com.google.api.services.youtube.model.Video
 import com.gu.atom.play.AtomAPIActions
-import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
+import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.media.logging.Logging
 import com.gu.media.youtube.{YouTube, YouTubeClaims, YouTubeMetadataUpdate}
 import com.gu.pandomainauth.model.{User => PandaUser}
