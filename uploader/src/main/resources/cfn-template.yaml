@@ -26,8 +26,11 @@ Parameters:
   UploadBucketName:
     Description: "The S3 bucket where videos are uploaded to"
     Type: "String"
-  UploadProgressTable:
+  UploadTrackingTable:
     Description: "The Dynamo table to store progress"
+    Type: "String"
+  ManualPlutoTable:
+    Description: "The Dynamo table to store videos that must be manually synced with Pluto"
     Type: "String"
 
 Conditions:
@@ -65,9 +68,8 @@ Resources:
               - Effect: "Allow"
                 Action: ["dynamodb:*"]
                 Resource:
-                  - !Sub
-                    - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
-                    - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref UploadProgressTable }
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${UploadTrackingTable}"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ManualPlutoTable}"
 
   StatesExecutionRole:
     Type: "AWS::IAM::Role"
