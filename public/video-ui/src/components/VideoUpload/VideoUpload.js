@@ -2,7 +2,6 @@ import React from 'react';
 import Icon from '../Icon';
 import VideoTrail from './VideoTrail';
 import { getStore } from '../../util/storeAccessor';
-import _ from 'lodash';
 
 class AddAssetFromURL extends React.Component {
   constructor(props) {
@@ -201,14 +200,6 @@ class VideoUpload extends React.Component {
       );
     };
 
-    // We want to display uploads that do not yet have a corresponding asset in the atom.
-    // VideoTrail will poll appropriately.
-    const uploads = _.filter(this.props.uploads, upload => {
-      const version = upload.metadata.pluto.assetVersion;
-      const exists = _.some(assets, asset => asset.version === version);
-      return !exists;
-    });
-
     return (
       <div className="video__main">
         <div className="video__main__header">
@@ -217,7 +208,7 @@ class VideoUpload extends React.Component {
             activeVersion={activeVersion}
             assets={assets}
             s3Upload={this.props.s3Upload}
-            uploads={uploads}
+            uploads={this.props.uploads}
             selectAsset={selectAsset}
             getVideo={() =>
               this.props.videoActions.getVideo(this.props.video.id)}
