@@ -18,6 +18,7 @@ class GetChunkFromS3 extends LambdaWithParams[Upload, Upload] with S3Access {
   private def complete(upload: Upload, chunk: UploadPart): Upload = {
     upload.copy(progress = upload.progress.copy(
       fullyUploaded = chunk == upload.parts.last,
+      uploadedToS3 = chunk.end,
       chunksInS3 = upload.progress.chunksInS3 + 1,
       retries = 0
     ))

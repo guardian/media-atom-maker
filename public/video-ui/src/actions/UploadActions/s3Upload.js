@@ -34,14 +34,14 @@ function uploadError(error) {
   };
 }
 
-export function startUpload(id, file, completeFn, selfHost) {
+export function startUpload(id, file, completeFn, selfHost, useStepFunctions) {
   return dispatch => {
     // Start prompting the user about reloading the page
     window.onbeforeunload = () => {
       return false;
     };
 
-    UploadsApi.createUpload(id, file, selfHost)
+    UploadsApi.createUpload(id, file, selfHost, useStepFunctions)
       .then(upload => {
         const progress = completed => dispatch(uploadProgress(completed));
 
