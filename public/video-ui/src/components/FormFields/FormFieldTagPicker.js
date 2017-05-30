@@ -7,16 +7,8 @@ export default class FormFieldTagPicker extends React.Component {
     searchText: ''
   };
 
-  resetTag = () => {
-    this.props.onUpdateField(undefined);
-  };
-
   updateSearchBylineTags = e => {
     const searchText = e.target.value;
-
-    this.setState({
-      searchText: searchText
-    });
 
     ContentApi.getBylineTags(searchText)
       .then(capiResponse => {
@@ -25,7 +17,8 @@ export default class FormFieldTagPicker extends React.Component {
           return tags;
         });
         this.setState({
-          bylineTags: bylines
+          bylineTags: bylines,
+          searchText: ''
         });
         return;
       })
@@ -36,66 +29,39 @@ export default class FormFieldTagPicker extends React.Component {
       });
   };
 
-  addTag = (tag) => {
-    console.log(this.props)
-    let newFieldValue = this.props.fieldValue.concat([tag.id]);
-    this.props.onUpdateField(newFieldValue);
-    this.setState({
-      bylineTags: null,
-      searchText: ''
-    });
-
-  };
-
-  removeFn = () => {
-    const newFieldValue = this.props.fieldValue.filter(oldFieldName => {
-        return fieldName !== oldFieldName;
-    });
-    this.props.onUpdateField(newFieldValue);
-    this.setState({
-      bylineTags: null,
-      searchText: ''
-    });
-  };
-
-  renderBylineTags() {
-    if (!this.state.bylineTags) {
-      return false;
-    }
-
-    if (!this.state.bylineTags.length) {
-      return <div>No tags found</div>;
-    }
-
+  renderBylineTags(tag) {
+    const addTag = () => {
+      const newFieldValue = this.props.fieldValue.concat([tag.webTitle]);
+      this.props.onUpdateField(newFieldValue);
+      this.setState({
+        bylineTags: null,
+        searchText: ''
+      });
+    };
     return (
-      <div className="form__field__bylineTags">
-        {this.state.bylineTags.map(tag => {
-
-
-
-          return (
-            <a
-              className="form__field__bylineTags"
-              key={tag.id}
-              title={tag.id}
-              onClick={this.addTag(tag)}
-            >
-              {tag.webTitle}
-            </a>
-          );
-        })}
-      </div>
+      <a
+        className="form__field__tags"
+        key={tag.id}
+        title={tag.id}
+        onClick={addTag}
+      >
+        {' '}{tag.webTitle}{' '}
+      </a>
     );
   }
 
   renderValue = (fieldName, i) => {
-
-
+    const removeFn = () => {
+      const newFieldValue = this.props.fieldValue.filter(oldFieldName => {
+        return fieldName !== oldFieldName;
+      });
+      this.props.onUpdateField(newFieldValue);
+    };
     return (
       <span
         className="form__field--multiselect__value"
         key={`${fieldName}-${i}`}
-        onClick={this.removeFn()}
+        onClick={removeFn}
       >
         {fieldName}{' '}
       </span>
@@ -103,8 +69,6 @@ export default class FormFieldTagPicker extends React.Component {
   };
 
   render() {
-
-
     return (
       <div className={this.props.formRowClass || 'form__row'}>
 
@@ -113,17 +77,25 @@ export default class FormFieldTagPicker extends React.Component {
               {this.props.fieldLabel}
             </label>
           : false}
-        {this.props.fieldValue.length ? this.props.fieldValue.map((fieldName, i) => this.renderValue(fieldName, i)) : 'No items selected'}
-
+        {this.props.fieldValue.length
+          ? this.props.fieldValue.map((fieldName, i) =>
+              this.renderValue(fieldName, i)
+            )
+          : 'No tags selected'}
 
         <input
           type="text"
           className="form__field "
           id={this.props.fieldName}
           onChange={this.updateSearchBylineTags}
-          value={this.state.searchText}
         />
-        {this.renderBylineTags()}
+
+        {this.state.bylineTags
+          ? <div className="form__field__tags">
+              {this.state.bylineTags.map(tag => this.renderBylineTags(tag))}
+            </div>
+          : ''}
+
       </div>
     );
   }

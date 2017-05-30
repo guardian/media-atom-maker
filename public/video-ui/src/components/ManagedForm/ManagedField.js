@@ -82,7 +82,7 @@ export class ManagedField extends React.Component {
       return this.props.placeholder;
     }
 
-    if(this.props.isArray && !value) {
+    if (this.props.isArray && !value) {
       return [];
     }
 

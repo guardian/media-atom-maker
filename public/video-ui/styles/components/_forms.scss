@@ -219,11 +219,11 @@
   }
 }
 
-.form__field__bylineTags {
+.form__field__tags {
   border-top: 12px solid $color650Grey;
 }
 
-.form__field__bylineTags {
+.form__field__tags {
   border: 1px solid $color400Grey;
   display: block;
   border-top: 1px solid $color400Grey;
@@ -270,7 +270,7 @@
     };
 
     &:hover {
-      background: $color400Grey;
+      background: $color650Grey;
     }
   }
 
@@ -284,9 +284,6 @@
     font-weight: bold;
     cursor: pointer;
 
-    &:hover {
-      background: $color400Grey;
-    }
 
     &:after {
       content: '×';
