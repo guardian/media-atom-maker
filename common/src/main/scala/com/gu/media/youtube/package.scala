@@ -66,13 +66,12 @@ package object youtube {
     def clean(): YouTubeMetadataUpdate = {
       // Editorial add "- video" for on platform SEO, but it isn't needed on a YouTube video title as its a video platform
       val cleanTitle = this.title.map(_.replaceAll(" (-|–) video$", ""))
+      this.copy(title = cleanTitle)
+    }
 
+    def withContentBundleTags(): YouTubeMetadataUpdate = {
       val contentBundledTags = getContentBundlingTags()
-
-      this.copy (
-        title = cleanTitle,
-        tags = contentBundledTags
-      )
+      this.copy(tags = contentBundledTags)
     }
 
     private def getContentBundlingTags(): List[String] = {
@@ -110,17 +109,12 @@ package object youtube {
         "science" -> "gdnpfpscience"
       )
 
-      val tagsAndContentBundleTags: ListBuffer[String] = new ListBuffer[String]()
-
-      this.tags.map(tag => {
-        val lowerCaseTag = tag.toLowerCase()
-        contentBundlingMap.get(lowerCaseTag) match {
-          case Some(contentBundleTag) => tagsAndContentBundleTags += contentBundleTag += tag
-          case None => tagsAndContentBundleTags += tag
+      this.tags.flatMap { tag =>
+        contentBundlingMap.get(tag.toLowerCase()) match {
+          case Some(contentBundleTag) => List(tag, contentBundleTag)
+          case None => List(tag)
         }
-      })
-
-      tagsAndContentBundleTags.toList
+      }
     }
   }
 
