@@ -33,7 +33,7 @@ class S3UploadActions(s3: AmazonS3Client) extends Logging {
 
       log.info(s"Multipart copy complete. upload=${upload.id} multipart=${multipart.getUploadId}")
     } else {
-      log.error(s"Unable to create complete object $destination since the parts have been deleted from S3")
+      throw new IllegalStateException(s"Unable to create complete object $destination since the parts have been deleted from S3")
     }
   }
 

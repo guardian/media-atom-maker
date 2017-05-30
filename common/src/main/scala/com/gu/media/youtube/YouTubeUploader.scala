@@ -71,20 +71,17 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: S3UploadActions) extends Loggi
             upload.copy(metadata = upload.metadata.copy(youTubeId = Some(videoId)))
 
           case MoveToNextChunk if part == upload.parts.last =>
-            log.error("YouTube did not provide a video id. The asset cannot be added")
-            upload
+            throw new IllegalStateException("YouTube did not provide a video id. The asset cannot be added")
 
           case MoveToNextChunk =>
             upload
 
           case UploadError(error) =>
-            log.error(error)
-            upload
+            throw new IllegalStateException(error)
         }
 
       case None =>
-        log.error(s"Unable to upload ${part.key} since it has been deleted from S3")
-        upload
+        throw new IllegalStateException(s"Unable to upload ${part.key} since it has been deleted from S3")
     }
 
     updated.copy(progress = upload.progress.copy(
