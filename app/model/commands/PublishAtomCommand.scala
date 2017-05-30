@@ -146,7 +146,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
       tags = previewAtom.tags,
       license = previewAtom.license,
       privacyStatus = previewAtom.privacyStatus.map(_.name))
-      .clean()
+      .withSaneTitle()
       .withContentBundleTags()
 
     youTube.updateMetadata(asset.id, metadata)
