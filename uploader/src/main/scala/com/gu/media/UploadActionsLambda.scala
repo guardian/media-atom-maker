@@ -25,7 +25,7 @@ class UploadActionsLambda extends RequestHandler[KinesisEvent, Unit]
 
   val store = new UploadsDataStore(this)
   val plutoStore = new PlutoDataStore(this.dynamoDB, this.manualPlutoDynamo)
-  val uploader = YouTubeUploader(this, this)
+  val uploader = new YouTubeUploader(this, this.s3Client)
   val mailer = new Mailer(this.sesClient, getMandatoryString("host"))
   val handler = new LambdaActionHandler(store, plutoStore, this, uploader, this)
 
