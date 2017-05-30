@@ -16,6 +16,9 @@ import util.atom.MediaAtomImplicits
 import play.api.libs.json._
 import play.api.mvc._
 
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+
 class Api2 (override val stores: DataStores, conf: Configuration, override val authActions: HMACAuthActions,
             youTube: YouTube, youTubeClaims: YouTubeClaims, awsConfig: AWSConfig, override val permissions: MediaAtomMakerPermissionsProvider)
 
@@ -61,15 +64,14 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
     }
   }
 
-  def publishMediaAtom(id: String) = APIAuthAction { implicit req =>
-    try {
+  def publishMediaAtom(id: String) = APIAuthAction.async { implicit req =>
       val command = PublishAtomCommand(id, stores, youTube, youTubeClaims, req.user)
 
-      val updatedAtom = command.process()
-      Ok(Json.toJson(updatedAtom))
-    } catch {
-      commandExceptionAsResult
-    }
+      val updatedAtom: Future[MediaAtom] = command.process()
+
+      updatedAtom.map(updatedAtom => {
+        Ok(Json.toJson(updatedAtom))
+      }) recover commandExceptionAsResult
   }
 
   def createMediaAtom = APIAuthAction { implicit req =>
