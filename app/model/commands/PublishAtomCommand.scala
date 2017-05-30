@@ -139,17 +139,14 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
   }
 
   private def updateYoutubeMetadata(previewAtom: MediaAtom, asset: Asset) = {
-    // Editorial add "- video" for on platform SEO, but it isn't needed on a YouTube video title as its a video platform
-    val title = previewAtom.title.replaceAll(" (-|–) video$", "")
-
     val metadata = YouTubeMetadataUpdate(
-      title = Some(title),
+      title = Some(previewAtom.title),
       categoryId = previewAtom.youtubeCategoryId,
       description = previewAtom.description,
       tags = previewAtom.tags,
       license = previewAtom.license,
       privacyStatus = previewAtom.privacyStatus.map(_.name)
-    )
+    ).clean()
 
     youTube.updateMetadata(asset.id, metadata)
   }
