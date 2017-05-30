@@ -79,7 +79,7 @@ class StepFunctions(awsConfig: AWSConfig) {
           val total = upload.parts.length
 
           if(current < total) {
-            UploadStatus(id, "Uploading to YouTube", current, total, failed = false)
+            UploadStatus(id, "Uploading to YouTube", current, total)
           } else {
             UploadStatus.indeterminate(id, state)
           }
@@ -108,7 +108,7 @@ class StepFunctions(awsConfig: AWSConfig) {
       case None => "Failed (unknown error)"
     }
 
-    UploadStatus.indeterminate(id, cause).copy(failed = true)
+    UploadStatus.indeterminate(id, cause, failed = true)
   }
 
   private def lessThan10MinutesOld(e: ExecutionListItem): Boolean = {

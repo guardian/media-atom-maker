@@ -1,4 +1,4 @@
-import { UploadsApi } from '../../services/UploadsApi';
+import { createUpload, uploadParts } from '../../services/UploadsApi';
 import { errorDetails } from '../../util/errorDetails';
 
 function uploadStarted(upload) {
@@ -40,12 +40,12 @@ export function startUpload(id, file, selfHost, completeFn) {
       return false;
     };
 
-    UploadsApi.createUpload(id, file, selfHost).then(upload => {
+    createUpload(id, file, selfHost).then(upload => {
       dispatch(uploadStarted(upload));
 
       const progress = completed => dispatch(uploadProgress(completed));
 
-      return UploadsApi.uploadParts(upload, upload.parts, file, progress)
+      return uploadParts(upload, upload.parts, file, progress)
         .then(() => {
           // Stop prompting the user. The upload continues server-side
           window.onbeforeunload = undefined;

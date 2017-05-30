@@ -201,17 +201,14 @@ export default class VideoTrail extends React.Component {
     );
 
     uploads.forEach(upload => {
-      const total = upload.total == -1 ? undefined : upload.total;
-      const current = upload.current == -1 ? undefined : upload.current;
-
       blocks.push(
         upload.failed
           ? <FailedUpload key={upload.id} message={upload.status} />
           : <UploadAsset
               key={upload.id}
               message={upload.status}
-              total={total}
-              progress={current}
+              total={upload.total}
+              progress={upload.current}
             />
       );
     });

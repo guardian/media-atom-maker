@@ -1,4 +1,4 @@
-import { UploadsApi } from '../../services/UploadsApi';
+import * as UploadsApi from '../../services/UploadsApi';
 import { errorDetails } from '../../util/errorDetails';
 
 function runningUploads(uploads) {
