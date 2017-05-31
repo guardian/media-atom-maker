@@ -115,6 +115,12 @@ export default class VideoTrail extends React.Component {
     }
   }
 
+  componentDidReceiveProps(nextProps) {
+    if (nextProps.s3Upload.id === null && this.props.s3Upload.id !== null) {
+      this.props.getUploads();
+    }
+  }
+
   componentWillUnmount() {
     clearInterval(this.polling);
   }
