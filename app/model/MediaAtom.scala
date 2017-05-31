@@ -1,6 +1,6 @@
 package model
 
-import com.gu.contentatom.thrift.atom.media.{MediaAtom => ThriftMediaAtom, Metadata => ThriftMetadata}
+import com.gu.contentatom.thrift.atom.media.{MediaAtom => ThriftMediaAtom, Metadata => ThriftMetadata, PlutoData => ThriftPlutoData}
 import com.gu.contentatom.thrift.{AtomData, Atom => ThriftAtom, AtomType => ThriftAtomType, Flags => ThriftFlags}
 import org.cvogt.play.json.Jsonx
 import util.atom.MediaAtomImplicits
@@ -16,7 +16,7 @@ case class MediaAtom(
   activeVersion: Option[Long],
   title: String,
   category: Category,
-  plutoProjectId: Option[String],
+  plutoData: Option[PlutoData],
   duration: Option[Long],
   source: Option[String],
   description: Option[String],
@@ -45,7 +45,6 @@ case class MediaAtom(
         activeVersion = activeVersion,
         title = title,
         category = category.asThrift,
-        plutoProjectId = plutoProjectId,
         duration = duration,
         source = source,
         posterUrl = posterImage.flatMap(_.master).map(_.file),
@@ -59,7 +58,8 @@ case class MediaAtom(
           commentsEnabled = Some(commentsEnabled),
           channelId = channelId,
           privacyStatus = privacyStatus.flatMap(_.asThrift),
-          expiryDate = expiryDate
+          expiryDate = expiryDate,
+          pluto = plutoData.map(_.asThrift)
           ))
         )),
       contentChangeDetails = contentChangeDetails.asThrift,
@@ -100,7 +100,7 @@ object MediaAtom extends MediaAtomImplicits {
       activeVersion = data.activeVersion,
       title = data.title,
       category = Category.fromThrift(data.category),
-      plutoProjectId = data.plutoProjectId,
+      plutoData = data.metadata.flatMap(_.pluto).map(PlutoData.fromThrift),
       duration = data.duration,
       source = data.source,
       posterImage = data.posterImage.map(Image.fromThrift),
