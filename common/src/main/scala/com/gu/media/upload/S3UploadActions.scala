@@ -17,41 +17,20 @@ class S3UploadActions(s3: AmazonS3Client) extends Logging {
     val bucket = upload.metadata.bucket
     val parts = upload.parts.map { case UploadPart(key, _, _) => key }
 
-    if(parts.forall(objectExists(bucket, _))) {
-      val start = new InitiateMultipartUploadRequest(bucket, destination)
-      log.info(s"Starting multipart copy for upload ${upload.id}")
+    val start = new InitiateMultipartUploadRequest(bucket, destination)
+    log.info(s"Starting multipart copy for upload ${upload.id}")
 
-      val multipart = s3.initiateMultipartUpload(start)
-      val eTags = parts.zipWithIndex.map { case(key, part) =>
-        copyPart(multipart.getUploadId, bucket, part, key, destination)
-      }
-
-      val complete = new CompleteMultipartUploadRequest(
-        bucket, destination, multipart.getUploadId, eTags.asJava)
-
-      s3.completeMultipartUpload(complete)
-
-      log.info(s"Multipart copy complete. upload=${upload.id} multipart=${multipart.getUploadId}")
-    } else {
-      log.error(s"Unable to create complete object $destination since the parts have been deleted from S3")
+    val multipart = s3.initiateMultipartUpload(start)
+    val eTags = parts.zipWithIndex.map { case(key, part) =>
+      copyPart(multipart.getUploadId, bucket, part, key, destination)
     }
-  }
 
-  // TODO MRB: remove this once moved to step functions
-  def objectExists(bucket: String, key: String) = try {
-    s3.doesObjectExist(bucket, key)
-  } catch {
-    case e: AmazonS3Exception =>
-      log.error(s"Error checking $key", e)
-      false
-  }
+    val complete = new CompleteMultipartUploadRequest(
+      bucket, destination, multipart.getUploadId, eTags.asJava)
 
-  def getObjectInput(bucket: String, key: String): Option[InputStream] = {
-    if(objectExists(bucket, key)) {
-      Some(s3.getObject(bucket, key).getObjectContent)
-    } else {
-      None
-    }
+    s3.completeMultipartUpload(complete)
+
+    log.info(s"Multipart copy complete. upload=${upload.id} multipart=${multipart.getUploadId}")
   }
 
   def deleteParts(upload: Upload): Unit = {

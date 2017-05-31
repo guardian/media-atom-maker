@@ -12,7 +12,7 @@ class UploadChunkToYouTube extends LambdaWithParams[Upload, Upload]
   with S3Access
   with DynamoAccess
 {
-  private val uploader = YouTubeUploader(this, this)
+  private val uploader = new YouTubeUploader(this, this.s3Client)
   private val table = new UploadsDataStore(this)
 
   override def handle(upload: Upload): Upload = {
@@ -23,7 +23,7 @@ class UploadChunkToYouTube extends LambdaWithParams[Upload, Upload]
 
     val updated = after.copy(
       metadata = after.metadata.copy(youTubeUploadUri = Some(uploadUri)),
-      progress = after.progress.copy(uploadedToYouTube = chunk.end)
+      progress = after.progress.copy(chunksInYouTube = upload.progress.chunksInYouTube + 1)
     )
 
     table.put(updated)

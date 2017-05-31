@@ -53,7 +53,7 @@ class AddAssetFromURL extends React.Component {
 }
 
 class VideoUpload extends React.Component {
-  state = { file: null, useStepFunctions: false };
+  state = { file: null };
 
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
@@ -73,17 +73,10 @@ class VideoUpload extends React.Component {
 
   startUpload = selfHost => {
     if (this.props.video && this.state.file) {
-      const atomId = this.props.video.id;
-
       this.props.uploadActions.startUpload(
-        atomId,
+        this.props.video.id,
         this.state.file,
-        () => {
-          // on complete
-          this.props.uploadActions.getUploads(atomId);
-        },
-        selfHost,
-        this.state.useStepFunctions
+        selfHost
       );
     }
   };
@@ -98,8 +91,6 @@ class VideoUpload extends React.Component {
           {this.renderAddAssetUpload()}
           {' '}
           {this.renderAddSelfHostAssetUpload()}
-          {' '}
-          {this.renderMethodPicker()}
         </div>
       );
     }
@@ -114,23 +105,6 @@ class VideoUpload extends React.Component {
   renderAddSelfHostAssetUpload() {
     if (getStore().getState().config.permissions.addSelfHostedAsset) {
       return this.renderStartUpload(true, 'Upload avoiding YouTube');
-    }
-  }
-
-  // TODO MRB: remove this once step functions are in use
-  renderMethodPicker() {
-    if (getStore().getState().config.permissions.addSelfHostedAsset) {
-      return (
-        <div>
-          Use Step Functions
-          <input
-            type="checkbox"
-            onChange={e =>
-              this.setState({ useStepFunctions: e.target.checked })}
-            checked={this.state.useStepFunctions}
-          />
-        </div>
-      );
     }
   }
 
@@ -187,7 +161,7 @@ class VideoUpload extends React.Component {
   }
 
   render() {
-    const uploading = this.props.s3Upload.handle !== null;
+    const uploading = this.props.s3Upload.total > 0;
 
     const activeVersion = this.props.video ? this.props.video.activeVersion : 0;
     const assets = this.props.video ? this.props.video.assets : [];

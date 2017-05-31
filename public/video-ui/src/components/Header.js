@@ -13,6 +13,11 @@ export default class Header extends React.Component {
 
   renderProgress() {
     if (this.props.s3Upload.total) {
+      // Start prompting the user about reloading the page
+      window.onbeforeunload = () => {
+        return false;
+      };
+
       return (
         <progress
           className="topbar__progress"
@@ -21,6 +26,8 @@ export default class Header extends React.Component {
         />
       );
     } else {
+      // Stop prompting the user. The upload continues server-side
+      window.onbeforeunload = undefined;
       return false;
     }
   }

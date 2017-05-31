@@ -31,11 +31,7 @@ class AddAssetActions(config: Settings with AwsAccess, hmac: HmacRequestSupport)
 
       val response = http.newCall(request).execute()
       if (response.code() != 200) {
-        log.error(s"Unexpected response adding asset ${response.code()}")
-        log.error(s"uri=$uri body=$body responseBody=${response.body().string()}")
-        log.error(s"atomId=$atomId youTubeId=$videoId")
-
-        -1
+        throw new IllegalStateException(s"Unexpected response adding asset ${response.code()} ${response.body().string()}")
       } else {
         val str = response.body().string()
         val json = Json.parse(str)
