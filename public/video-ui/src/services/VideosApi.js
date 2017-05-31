@@ -121,7 +121,7 @@ export default {
 
     function updateArticleField(stage, data, composerUrl, pageId) {
       if (data.value || data.belongsTo === 'settings') {
-        const value = data.isHtml
+        const value = data.isFreeText
           ? data.value.split('"').join('\\"')
           : data.value;
         return pandaReqwest({
@@ -178,7 +178,7 @@ export default {
 
     const properties = composerData.reduce((queryStrings, data) => {
       if (data.value) {
-        const value = data.isHtml
+        const value = data.isFreeText
           ? data.value.split('"').join('\\"')
           : data.value;
 
