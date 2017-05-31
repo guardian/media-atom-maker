@@ -4,6 +4,7 @@ import java.util.UUID
 
 import _root_.model.MediaAtom
 import _root_.model.commands.CommandExceptions._
+import com.amazonaws.services.stepfunctions.model.StartExecutionRequest
 import com.gu.media.logging.Logging
 import com.gu.media.upload._
 import com.gu.media.upload.actions.{CopyParts, DeleteParts, UploadActionSender, UploadPartToYouTube, UploadPartsToSelfHost}
@@ -29,10 +30,11 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   private val UPLOAD_KEY_HEADER = "X-Upload-Key"
   private val UPLOAD_URI_HEADER = "X-Upload-Uri"
+  private val UPLOAD_METHOD_HEADER = "X-Upload-Method"
 
   private val table = stores.uploadStore
   private val credsGenerator = new CredentialsGenerator(awsConfig)
-  private val uploader = new YouTubeUploader(awsConfig, youTube)
+  private val uploader = YouTubeUploader(awsConfig, youTube)
 
   def list(atomId: String) = APIAuthAction {
     // Anyone can see the running uploads.
@@ -43,11 +45,22 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   def create = CanUploadAsset { implicit raw =>
     parse(raw) { req: CreateRequest =>
+      val useStepFunctions = raw.headers.get(UPLOAD_METHOD_HEADER).contains("StepFunctions")
+
       if (PermissionsUploadHelper.canPerformUpload(raw.permissions, req.selfHost)) {
         log.info(s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}, selfHosted=${req.selfHost}")
         val atom = MediaAtom.fromThrift(getPreviewAtom(req.atomId))
-        val upload = buildUpload(atom, raw.user, req.size, req.selfHost, req.syncWithPluto)
+        val upload = buildUpload(atom, raw.user, req.size, req.selfHost, req.syncWithPluto, useStepFunctions)
         table.put(upload)
+
+        if(useStepFunctions) {
+          val stepFunctionsRequest = new StartExecutionRequest()
+            .withName(s"${upload.metadata.pluto.atomId}--${upload.id}")
+            .withStateMachineArn(awsConfig.pipelineArn)
+            .withInput(Json.stringify(Json.toJson(upload)))
+
+          awsConfig.stepFunctionsClient.startExecution(stepFunctionsRequest)
+        }
 
         log.info(s"Upload created under atom ${req.atomId}. upload=${upload.id}. parts=${upload.parts.size}, selfHosted=${upload.metadata.selfHost}")
         Ok(Json.toJson(upload))
@@ -73,6 +86,8 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       val selfHost = upload.metadata.selfHost
       if(!PermissionsUploadHelper.canPerformUpload(req.permissions, selfHost))
         Unauthorized(s"User ${req.user.email} is not authorised with permissions to complete upload, self-hosted value: ${selfHost}")
+      else if (upload.metadata.useStepFunctions)
+        Ok(Json.toJson(CompleteResponse(s"${upload.id} running using step functions")))
       else if (selfHost)
         startUploadToSelfHost(upload, part, req.permissions)
       else
@@ -92,7 +107,6 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       log.info(s"${upload.id} has not finished uploading to S3 yet")
       Ok(Json.toJson(CompleteResponse(s"${upload.id} has not finished uploading to S3 yet")))
     }
-
   }
 
   private def startUploadToYouTube(upload: Upload, part: UploadPart, uploadUri: Option[String], permission: Permissions) = {
@@ -108,12 +122,12 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     }
   }
 
-  private def buildUpload(atom: MediaAtom, user: User, size: Long, selfHosted: Boolean, syncWithPluto: Boolean) = {
+  private def buildUpload(atom: MediaAtom, user: User, size: Long, selfHosted: Boolean, syncWithPluto: Boolean, useStepFunctions: Boolean) = {
     val id = UUID.randomUUID().toString
 
     val plutoData = PlutoSyncMetadata(
       enabled = syncWithPluto,
-      projectId = atom.plutoProjectId,
+      projectId = atom.plutoData.flatMap(_.projectId),
       s3Key = CompleteUploadKey(awsConfig.userUploadFolder, id).toString,
       assetVersion = -1,
       atomId = atom.id
@@ -126,12 +140,22 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       title = atom.title,
       channel = atom.channelId.getOrElse { AtomMissingYouTubeChannel },
       pluto = plutoData,
-      selfHost = selfHosted
+      selfHost = selfHosted,
+      useStepFunctions = useStepFunctions
+    )
+
+    val progress = UploadProgress(
+      uploadedToS3 = 0,
+      uploadedToYouTube = 0,
+      chunksInS3 = 0,
+      fullyUploaded = false,
+      fullyTranscoded = false,
+      retries = 0
     )
 
     val parts = chunk(id, size)
 
-    Upload(id, parts, metadata, UploadProgress(0, 0))
+    Upload(id, parts, metadata, progress)
   }
 
   private def partRequest(id: String, request: Request[_])(fn: (Upload, UploadPart, Option[String]) => Result): Result = {

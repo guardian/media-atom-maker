@@ -33,7 +33,7 @@ module.exports = {
         tabWidth: 2
       }
     ],
-    "react/prop-types": "warn",
+    "react/prop-types": "off",
     "jsx-quotes": ["error", "prefer-double"],
     "prefer-const": "error",
     "semi": ["error", "always"],

@@ -17,6 +17,7 @@ import plutoVideos from './plutoVideosReducer';
 import checkedFormFields from './checkedFormFieldsReducer';
 import uploads from './uploadsReducer';
 import path from './pathReducer';
+import pluto from './plutoReducer';
 import guTags from './guTagsReducer';
 
 export default combineReducers({
@@ -38,5 +39,6 @@ export default combineReducers({
   uploads,
   path,
   guTags,
-  routing: routerReducer
+  routing: routerReducer,
+  pluto
 });

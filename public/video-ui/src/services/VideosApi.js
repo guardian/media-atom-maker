@@ -171,7 +171,7 @@ export default {
 
     const initialComposerUrl =
       composerUrlBase +
-      '/api/content?atomPoweredVideo=true&originatingSystem=composer&type=video';
+      '/api/content?atomPoweredVideo=true&originatingSystem=MediaAtomMaker&type=video';
 
     const properties = composerData.reduce((queryStrings, data) => {
       if (data.value) {

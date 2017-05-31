@@ -6,23 +6,25 @@ import java.util.Date
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import com.gu.atom.play.AtomAPIActions
-import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
+import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.media.logging.Logging
-import com.gu.media.youtube.{YouTubeClaims, YouTube, YouTubeMetadataUpdate}
+import com.gu.media.youtube.{YouTube, YouTubeClaims, YouTubeMetadataUpdate}
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.Platform.Youtube
 import model._
 import model.commands.CommandExceptions._
 
+import scala.concurrent.Future
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 case class PublishAtomCommand(id: String, override val stores: DataStores, youTube: YouTube, youtubeClaims: YouTubeClaims,
                               user: PandaUser)
   extends Command with AtomAPIActions with Logging {
 
-  type T = MediaAtom
+  type T = Future[MediaAtom]
 
   def process(): T = {
     log.info(s"Request to publish atom $id")
@@ -38,11 +40,12 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
     getActiveAsset(previewAtom) match {
       case Some(asset) if asset.platform == Youtube =>
         val atomWithDuration = previewAtom.copy(duration = youTube.getDuration(asset.id))
-        val atomWithYoutubeUpdates = updateYouTube(atomWithDuration, asset)
-        publish(atomWithYoutubeUpdates, user)
+        updateYouTube(atomWithDuration, asset).map(atomWithYoutubeUpdates => {
+          publish(atomWithYoutubeUpdates, user)
+        })
 
       case _ =>
-        publish(previewAtom, user)
+        Future.successful(publish(previewAtom, user))
     }
   }
 
@@ -89,13 +92,13 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
     }
   }
 
-  private def updateYouTube(previewAtom: MediaAtom, asset: Asset): MediaAtom = {
+  private def updateYouTube(previewAtom: MediaAtom, asset: Asset): Future[MediaAtom] = {
     updateYoutubeMetadata(previewAtom, asset)
     updateYoutubeThumbnail(previewAtom, asset)
     createOrUpdateYoutubeClaim(previewAtom, asset)
   }
 
-  private def createOrUpdateYoutubeClaim(previewAtom: MediaAtom, asset: Asset): MediaAtom = {
+  private def createOrUpdateYoutubeClaim(previewAtom: MediaAtom, asset: Asset): Future[MediaAtom] = Future{
     // if previewAtom.blockAds.isEmpty == true, we know there isn't a published atom and we can save a database call
     if (previewAtom.blockAds.isEmpty) {
       log.info(s"BlockAds not previously set, defaulting to false")
@@ -139,22 +142,22 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
   }
 
   private def updateYoutubeMetadata(previewAtom: MediaAtom, asset: Asset) = {
-    // Editorial add "- video" for on platform SEO, but it isn't needed on a YouTube video title as its a video platform
-    val title = previewAtom.title.replaceAll(" (-|–) video$", "")
-
     val metadata = YouTubeMetadataUpdate(
-      title = Some(title),
+      title = Some(previewAtom.title),
       categoryId = previewAtom.youtubeCategoryId,
       description = previewAtom.description,
       tags = previewAtom.tags,
       license = previewAtom.license,
-      privacyStatus = previewAtom.privacyStatus.map(_.name)
-    )
+      privacyStatus = previewAtom.privacyStatus.map(_.name))
+      .withSaneTitle()
+      .withContentBundleTags()
 
     youTube.updateMetadata(asset.id, metadata)
+
+    previewAtom
   }
 
-  private def updateYoutubeThumbnail(atom: MediaAtom, asset: Asset): Unit = {
+  private def updateYoutubeThumbnail(atom: MediaAtom, asset: Asset): Future[MediaAtom] = Future{
     try {
       val master = atom.posterImage.flatMap(_.master).get
       val MAX_SIZE = 2000000
@@ -170,8 +173,9 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
       }
 
       youTube.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
+      atom
     } catch {
-      case e: GoogleJsonResponseException if e.getDetails.getCode == 503 => { YouTubeConnectionIssue }
+      case e: GoogleJsonResponseException if e.getDetails.getCode == 503 => YouTubeConnectionIssue
       case NonFatal(e) =>
         log.error(s"Unable to update thumbnail for asset=${asset.id} atom={$id}", e)
         PosterImageUploadFailed(e.getMessage)

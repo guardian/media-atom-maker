@@ -14,6 +14,7 @@ import { privacyStates } from '../../constants/privacyStates';
 class VideoData extends React.Component {
   hasCategories = () => this.props.youtube.categories.length !== 0;
   hasChannels = () => this.props.youtube.channels.length !== 0;
+  hasPlutoProjects = () => this.props.pluto.projects.length !== 0;
   hasGuBylineTags = () => this.props.guTags.bylineTags.length !== 0;
 
   componentWillMount() {
@@ -23,9 +24,9 @@ class VideoData extends React.Component {
     if (!this.hasChannels()) {
       this.props.youtubeActions.getChannels();
     }
-    // if (!this.hasGuBylineTags()) {
-    //   this.props.guTagActions.getGuBylineTags();
-    // }
+    if (!this.hasPlutoProjects()) {
+      this.props.plutoActions.getProjects();
+    }
   }
 
   render() {
@@ -98,7 +99,7 @@ class VideoData extends React.Component {
           </ManagedSection>
           <ManagedSection>
             <ManagedField
-              fieldLocation="videoSource"
+              fieldLocation="source"
               name="Video Source"
               placeholder="No video source"
             >
@@ -127,6 +128,13 @@ class VideoData extends React.Component {
             <ManagedField fieldLocation="tags" name="Keywords">
               <KeywordPicker />
             </ManagedField>
+            <ManagedField
+              fieldLocation="plutoData.projectId"
+              name="Pluto Project"
+              isRequired={false}
+            >
+              <SelectBox selectValues={this.props.pluto.projects} />
+            </ManagedField>
           </ManagedSection>
         </ManagedForm>
       </div>
@@ -139,11 +147,13 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getCategories from '../../actions/YoutubeActions/getCategories';
 import * as getChannels from '../../actions/YoutubeActions/getChannels';
+import * as getProjects from '../../actions/PlutoActions/getProjects';
 import * as getGuBylineTags from '../../actions/GuTagActions/getGuBylineTags';
 
 function mapStateToProps(state) {
   return {
     youtube: state.youtube,
+    pluto: state.pluto,
     guTags: state.guTags
   };
 }
@@ -154,6 +164,7 @@ function mapDispatchToProps(dispatch) {
       Object.assign({}, getCategories, getChannels),
       dispatch
     ),
+    plutoActions: bindActionCreators(Object.assign({}, getProjects), dispatch),
     guTagActions: bindActionCreators(
       Object.assign({}, getGuBylineTags),
       dispatch

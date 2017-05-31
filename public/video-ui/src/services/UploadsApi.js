@@ -12,10 +12,15 @@ class UploadFunctions {
     });
   };
 
-  createUpload = (atomId, file, selfHost) => {
+  createUpload = (atomId, file, selfHost, useStepFunctions) => {
+    const headers = useStepFunctions
+      ? { 'X-Upload-Method': 'StepFunctions' }
+      : {};
+
     return pandaReqwest({
       url: `/api2/uploads?atomId=${atomId}`,
       method: 'post',
+      headers: headers,
       data: {
         atomId: atomId,
         filename: file.name,

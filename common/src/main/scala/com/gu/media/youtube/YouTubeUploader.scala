@@ -2,13 +2,16 @@ package com.gu.media.youtube
 
 import java.io.InputStream
 
-import com.gu.media.upload.actions.UploaderAccess
+import com.gu.media.aws.S3Access
+import com.gu.media.logging.Logging
+import com.gu.media.upload.S3UploadActions
+import com.gu.media.upload.model.{Upload, UploadPart}
 import com.gu.media.util.InputStreamRequestBody
 import com.gu.media.youtube.YouTubeUploader.{MoveToNextChunk, UploadError, VideoFullyUpload}
 import com.squareup.okhttp.{MediaType, OkHttpClient, Request, RequestBody}
-import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.{JsObject, Json}
 
-class YouTubeUploader(aws: UploaderAccess, youTube: YouTubeAccess) {
+class YouTubeUploader(youTube: YouTubeAccess, s3: S3UploadActions) extends Logging {
   private val JSON = MediaType.parse("application/json; charset=utf-8")
   private val VIDEO = MediaType.parse("video/*")
 
@@ -50,7 +53,39 @@ class YouTubeUploader(aws: UploaderAccess, youTube: YouTubeAccess) {
     response.header("Location")
   }
 
-  def uploadPart(uri: String, input: InputStream, start: Long, end: Long, total: Long): YouTubeUploader.Result = {
+  def uploadPart(upload: Upload, part: UploadPart, uploadUri: String): Upload = {
+    log.info(s"Uploading ${part.key} [${part.start} - ${part.end}]")
+
+    val UploadPart(key, start, end) = part
+    val total = upload.parts.last.end
+
+    val updated = s3.getObjectInput(upload.metadata.bucket, key.toString) match {
+      case Some(input) =>
+        uploadChunk(uploadUri, input, start, end, total) match {
+          case VideoFullyUpload(videoId) =>
+            upload.copy(metadata = upload.metadata.copy(youTubeId = Some(videoId)))
+
+          case MoveToNextChunk if part == upload.parts.last =>
+            log.error("YouTube did not provide a video id. The asset cannot be added")
+            upload
+
+          case MoveToNextChunk =>
+            upload
+
+          case UploadError(error) =>
+            log.error(error)
+            upload
+        }
+
+      case None =>
+        log.error(s"Unable to upload ${part.key} since it has been deleted from S3")
+        upload
+    }
+
+    updated.copy(progress = upload.progress.copy(uploadedToYouTube = part.end))
+  }
+
+  private def uploadChunk(uri: String, input: InputStream, start: Long, end: Long, total: Long): YouTubeUploader.Result = {
     val size = end - start
     // end index is inclusive in direct contradiction to programming history (and my end variable)
     val range = s"$start-${start + size - 1}"
@@ -97,4 +132,8 @@ object YouTubeUploader {
   case object MoveToNextChunk extends Result
   case class VideoFullyUpload(videoId: String) extends Result
   case class UploadError(error: String) extends Result
+
+  def apply(aws: S3Access, youTube: YouTubeAccess): YouTubeUploader = {
+    new YouTubeUploader(youTube, new S3UploadActions(aws.s3Client))
+  }
 }

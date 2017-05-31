@@ -1,0 +1,131 @@
+{
+  "Comment": "A pipeline for uploading video to YouTube or an S3 bucket",
+  "StartAt": "GetChunkFromS3",
+  "States": {
+    "GetChunkFromS3": {
+      "Type": "Task",
+      "Resource": "${GetChunkFromS3.Arn}",
+      "Next": "CheckChunkInS3"
+    },
+    "CheckChunkInS3": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.progress.retries",
+          "NumericEquals": 0,
+          "Next": "CheckNotSelfHosted"
+        },
+        {
+          "Variable": "$.progress.retries",
+          "NumericGreaterThanEquals": 120,
+          "Next": "FailS3Upload"
+        }
+      ],
+      "Default": "WaitForChunkInS3"
+    },
+    "FailS3Upload": {
+      "Type": "Fail",
+      "Cause": "Timed out waiting for chunks in S3"
+    },
+    "WaitForChunkInS3": {
+      "Type": "Wait",
+      "Seconds": 1,
+      "Next": "GetChunkFromS3"
+    },
+    "CheckNotSelfHosted": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.metadata.selfHost",
+          "BooleanEquals": false,
+          "Next": "UploadChunkToYouTube"
+        }
+      ],
+      "Default": "MoveToNextChunk"
+    },
+    "UploadChunkToYouTube": {
+      "Type": "Task",
+      "Resource": "${UploadChunkToYouTube.Arn}",
+      "Retry": [{
+        "ErrorEquals": ["States.TaskFailed"],
+        "IntervalSeconds": 10,
+        "MaxAttempts": 3
+      }],
+      "Next": "MoveToNextChunk"
+    },
+    "MoveToNextChunk": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.progress.fullyUploaded",
+          "BooleanEquals": true,
+          "Next": "CreateCompleteVideoInS3"
+        }
+      ],
+      "Default": "GetChunkFromS3"
+    },
+    "CreateCompleteVideoInS3": {
+      "Type": "Task",
+      "Resource": "${CreateCompleteVideoInS3.Arn}",
+      "Next": "CheckSyncWithPluto"
+    },
+    "CheckSyncWithPluto": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.metadata.pluto.enabled",
+          "BooleanEquals": true,
+          "Next": "SendToPluto"
+        }
+      ],
+      "Default": "CheckSelfHosted"
+    },
+    "SendToPluto": {
+      "Type": "Task",
+      "Resource": "${SendToPluto.Arn}",
+      "Next": "CheckSelfHosted"
+    },
+    "CheckSelfHosted": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.metadata.selfHost",
+          "BooleanEquals": true,
+          "Next": "SendToTranscoder"
+        }
+      ],
+      "Default": "AddAssetToAtom"
+    },
+    "SendToTranscoder": {
+      "Type": "Task",
+      "Resource": "${SendToTranscoder.Arn}",
+      "Next": "GetTranscodingProgress"
+    },
+    "GetTranscodingProgress": {
+      "Type": "Task",
+      "Resource": "${GetTranscodingProgress.Arn}",
+      "Next": "CheckTranscodingComplete"
+    },
+    "CheckTranscodingComplete": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.progress.fullyTranscoded",
+          "BooleanEquals": true,
+          "Next": "AddAssetToAtom"
+        }
+      ],
+      "Default": "WaitForTranscoder"
+    },
+    "WaitForTranscoder": {
+      "Type": "Wait",
+      "Seconds": 10,
+      "Next": "GetTranscodingProgress"
+    },
+    "AddAssetToAtom": {
+      "Type": "Task",
+      "Resource": "${AddAssetToAtom.Arn}",
+      "End": true
+    }
+  }
+}

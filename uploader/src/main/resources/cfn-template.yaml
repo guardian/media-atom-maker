@@ -1,0 +1,146 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "A pipeline for uploading video to YouTube or an S3 bucket"
+
+# This template is separate from the main one and is managed as a sub-deployment in riff-raff.yaml.
+# The main app looks up the resources by STAGE relying on the naming convention.
+
+Parameters:
+  BuildBucket:
+    Description: "The S3 bucket where builds live"
+    Type: "String"
+  ConfigBucket:
+    Description: "The S3 bucket where configuration lives"
+    Type: "String"
+  App:
+    Description: "App name"
+    Type: "String"
+    Default: "media-atom-pipeline"
+  Stack:
+    Description: "Stack name"
+    Type: "String"
+    Default: "media-service"
+  Stage:
+    Description: "Stage name"
+    Type: "String"
+    Default: "DEV"
+  UploadBucketName:
+    Description: "The S3 bucket where videos are uploaded to"
+    Type: "String"
+  UploadTrackingTable:
+    Description: "The Dynamo table to store progress"
+    Type: "String"
+  ManualPlutoTable:
+    Description: "The Dynamo table to store videos that must be manually synced with Pluto"
+    Type: "String"
+
+Conditions:
+  CreateProdResources: !Equals [!Ref "Stage", "PROD"]
+  CreateCodeResources: !Equals [!Ref "Stage", "CODE"]
+  CreateDevResources:  !Equals [!Ref "Stage", "DEV"]
+
+Resources:
+  LambdaExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: "LambdaExecutionPolicy"
+          PolicyDocument:
+            Statement:
+              - Effect: "Allow"
+                Action: ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
+                Resource: "*"
+              - Effect: "Allow"
+                Action: ["s3:GetObject"]
+                Resource: !Sub ["arn:aws:s3:::${Bucket}/*", { "Bucket": !Ref ConfigBucket }]
+              - Effect: "Allow"
+                Action: ["s3:*"]
+                Resource:
+                  - !Sub ["arn:aws:s3:::${Bucket}", { "Bucket": !Ref UploadBucketName }]
+                  - !Sub ["arn:aws:s3:::${Bucket}/*", { "Bucket": !Ref UploadBucketName }]
+              - Effect: "Allow"
+                Action: ["dynamodb:*"]
+                Resource:
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${UploadTrackingTable}"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ManualPlutoTable}"
+
+  StatesExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - !Sub states.${AWS::Region}.amazonaws.com
+            Action: "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: StatesExecutionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "lambda:InvokeFunction"
+                Resource: "*"
+
+  # The following entries are filled in based on the LambdaConfig entries in build.sbt.
+
+  {{GetChunkFromS3}}
+
+  {{UploadChunkToYouTube}}
+
+  {{CreateCompleteVideoInS3}}
+
+  {{SendToPluto}}
+
+  {{SendToTranscoder}}
+
+  {{GetTranscodingProgress}}
+
+  {{AddAssetToAtom}}
+
+  VideoPipelinePROD:
+    Type: "AWS::StepFunctions::StateMachine"
+    Condition: CreateProdResources
+    Properties:
+      DefinitionString:
+        !Sub
+          - |-
+            {{state_machine}}
+          -
+            {}
+      RoleArn: !GetAtt [ StatesExecutionRole, Arn ]
+
+  VideoPipelineCODE:
+    Type: "AWS::StepFunctions::StateMachine"
+    Condition: CreateCodeResources
+    Properties:
+      DefinitionString:
+        !Sub
+          - |-
+            {{state_machine}}
+          -
+            {}
+      RoleArn: !GetAtt [ StatesExecutionRole, Arn ]
+
+  VideoPipelineDEV:
+    Type: "AWS::StepFunctions::StateMachine"
+    Condition: CreateDevResources
+    Properties:
+      DefinitionString:
+        !Sub
+          - |-
+            {{state_machine}}
+          -
+            {}
+      RoleArn: !GetAtt [ StatesExecutionRole, Arn ]

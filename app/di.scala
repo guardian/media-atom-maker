@@ -49,8 +49,6 @@ class MediaAtomMaker(context: Context)
 
   private val youTubeClaims = new YouTubeClaims(config)
 
-  private val sesMailer = new Mailer(aws.sesClient, configuration.getString("host").get)
-
   private val uploaderMessageConsumer = PlutoMessageConsumer(stores, aws)
   uploaderMessageConsumer.start(actorSystem.scheduler)(actorSystem.dispatcher)
 
@@ -99,7 +97,7 @@ class MediaAtomMaker(context: Context)
   private def buildUploadSender() = aws.stage match {
     case "DEV" =>
       // Disable this case to use the lambdas, even in dev
-      val handler = new DevUploadHandler(stores, aws, youTube, sesMailer)
+      val handler = new DevUploadHandler(stores, aws, youTube)
       new DevUploadSender(handler)
 
     case _ =>

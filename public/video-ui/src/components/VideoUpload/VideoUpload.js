@@ -2,7 +2,6 @@ import React from 'react';
 import Icon from '../Icon';
 import VideoTrail from './VideoTrail';
 import { getStore } from '../../util/storeAccessor';
-import _ from 'lodash';
 
 class AddAssetFromURL extends React.Component {
   constructor(props) {
@@ -54,7 +53,7 @@ class AddAssetFromURL extends React.Component {
 }
 
 class VideoUpload extends React.Component {
-  state = { file: null };
+  state = { file: null, useStepFunctions: false };
 
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
@@ -83,7 +82,8 @@ class VideoUpload extends React.Component {
           // on complete
           this.props.uploadActions.getUploads(atomId);
         },
-        selfHost
+        selfHost,
+        this.state.useStepFunctions
       );
     }
   };
@@ -99,6 +99,7 @@ class VideoUpload extends React.Component {
           {' '}
           {this.renderAddSelfHostAssetUpload()}
           {' '}
+          {this.renderMethodPicker()}
         </div>
       );
     }
@@ -113,6 +114,23 @@ class VideoUpload extends React.Component {
   renderAddSelfHostAssetUpload() {
     if (getStore().getState().config.permissions.addSelfHostedAsset) {
       return this.renderStartUpload(true, 'Upload avoiding YouTube');
+    }
+  }
+
+  // TODO MRB: remove this once step functions are in use
+  renderMethodPicker() {
+    if (getStore().getState().config.permissions.addSelfHostedAsset) {
+      return (
+        <div>
+          Use Step Functions
+          <input
+            type="checkbox"
+            onChange={e =>
+              this.setState({ useStepFunctions: e.target.checked })}
+            checked={this.state.useStepFunctions}
+          />
+        </div>
+      );
     }
   }
 
@@ -182,14 +200,6 @@ class VideoUpload extends React.Component {
       );
     };
 
-    // We want to display uploads that do not yet have a corresponding asset in the atom.
-    // VideoTrail will poll appropriately.
-    const uploads = _.filter(this.props.uploads, upload => {
-      const version = upload.metadata.pluto.assetVersion;
-      const exists = _.some(assets, asset => asset.version === version);
-      return !exists;
-    });
-
     return (
       <div className="video__main">
         <div className="video__main__header">
@@ -198,7 +208,7 @@ class VideoUpload extends React.Component {
             activeVersion={activeVersion}
             assets={assets}
             s3Upload={this.props.s3Upload}
-            uploads={uploads}
+            uploads={this.props.uploads}
             selectAsset={selectAsset}
             getVideo={() =>
               this.props.videoActions.getVideo(this.props.video.id)}

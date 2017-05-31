@@ -2,7 +2,7 @@ package com.gu.media.aws
 
 import com.amazonaws.auth._
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder
+import com.amazonaws.services.securitytoken.{AWSSecurityTokenServiceClient}
 import com.gu.media.Settings
 
 case class AwsCredentials(instance: AWSCredentialsProvider, crossAccount: AWSCredentialsProvider,
@@ -44,10 +44,7 @@ object AwsCredentials {
   }
 
   private def assumeCrossAccountRole(instance: AWSCredentialsProvider, settings: Settings): AWSCredentialsProvider = {
-    val securityTokens = AWSSecurityTokenServiceClientBuilder
-      .standard()
-      .withCredentials(instance)
-      .build()
+    val securityTokens = new AWSSecurityTokenServiceClient(instance)
 
     val crossAccountRole = settings.getMandatoryString("aws.kinesis.stsRoleToAssume",
       "Role to assume to access logging and CAPI streams (in format arn:aws:iam::<account>:role/<role_name>)")

@@ -1,4 +1,4 @@
-export function getVideoBlock(id, title) {
+export function getVideoBlock(id, title, source) {
   return {
     elements: [
       {
@@ -10,7 +10,8 @@ export function getVideoBlock(id, title) {
           title: title,
           published: 'Unable to get published state from atom',
           isMandatory: 'true',
-          editorialLink: ''
+          editorialLink: '',
+          source: source
         },
         assets: []
       }
