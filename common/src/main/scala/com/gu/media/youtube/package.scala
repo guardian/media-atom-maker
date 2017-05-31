@@ -65,7 +65,7 @@ package object youtube {
   ) {
     def withSaneTitle(): YouTubeMetadataUpdate = {
       // Editorial add "- video" for on platform SEO, but it isn't needed on a YouTube video title as its a video platform
-      val cleanTitle = this.title.map(_.replaceAll(" (-|–) video$", ""))
+      val cleanTitle = this.title.map(_.replaceAll(" (-|–) video( .*)?$", ""))
       this.copy(title = cleanTitle)
     }
 
