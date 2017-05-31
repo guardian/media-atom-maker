@@ -31,7 +31,7 @@ export default class FormFieldTagPicker extends React.Component {
 
   renderBylineTags(tag) {
     const addTag = () => {
-      const newFieldValue = this.props.fieldValue.concat([tag.webTitle]);
+      const newFieldValue = this.props.fieldValue.concat([tag.id]);
       this.props.onUpdateField(newFieldValue);
       this.setState({
         bylineTags: null,
@@ -69,6 +69,27 @@ export default class FormFieldTagPicker extends React.Component {
   };
 
   render() {
+    if (!this.props.editable) {
+      return (
+        <div>
+          <p className="details-list__title">{this.props.fieldName}</p>
+          <p
+            className={
+              'details-list__field ' +
+                (this.props.displayPlaceholder(
+                  this.props.placeholder,
+                  this.props.fieldValue
+                )
+                  ? 'details-list__empty'
+                  : '')
+            }
+          >
+
+            {this.props.fieldValue.join(', ')}
+          </p>
+        </div>
+      );
+    }
     return (
       <div className={this.props.formRowClass || 'form__row'}>
 

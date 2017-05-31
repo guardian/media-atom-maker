@@ -53,9 +53,9 @@ object JsonConversions {
     (__ \ "channelId").writeNullable[String] and
     (__ \ "privacyStatus").writeNullable[PrivacyStatus] and
     (__ \ "expiryDate").writeNullable[Long] and
-    (__ \ "pluto").writeNullable[PlutoData]
-
-  ) { metadata: Metadata =>
+    (__ \ "pluto").writeNullable[PlutoData] and
+    (__ \ "bylineIds").writeNullable[Seq[String]]
+    ) { metadata: Metadata =>
       (
         metadata.tags,
         metadata.categoryId,
@@ -64,7 +64,8 @@ object JsonConversions {
         metadata.channelId,
         metadata.privacyStatus,
         metadata.expiryDate,
-        metadata.pluto
+        metadata.pluto,
+        metadata.bylineIds
         )
   }
 
@@ -76,8 +77,9 @@ object JsonConversions {
     (__ \ "channelId").readNullable[String] and
     (__ \ "privacyStatus").readNullable[PrivacyStatus] and
     (__ \ "expiryDate").readNullable[Long] and
-    (__ \ "pluto").readNullable[PlutoData]
-  )(Metadata.apply _)
+    (__ \ "pluto").readNullable[PlutoData] and
+    (__ \ "bylineIds").readNullable[Seq[String]]
+    )(Metadata.apply _)
 
   implicit val atomDataMedia = (
     (__ \ "assets").write[Seq[Asset]] and
