@@ -155,19 +155,19 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
 
   private def getComposerLinkText(atomId: String): String = {
 
-    try {
-      val usages: JsValue = (capi.capiQuery("/atom/media/" + atomId + "/usage", true) \ "response" \ "results").get
-      val usagesList = usages.as[List[String]]
 
-      val composerPage = usagesList.find(usage => ".*/video/.*".r.pattern.matcher(usage).matches())
+    val usages: JsValue = (capi.capiQuery("/atom/media/" + atomId + "/usage", true) \ "response" \ "results").get
+    val usagesList = usages.as[List[String]]
 
-      composerPage match {
-        case Some(page) => "\n View the video at https://www.theguardian.com/" + page
-        case None => ""
-      }
-    }
-    catch {
-      case _ => ""
+    val composerPage = usagesList.find(usage => {
+      val query = capi.capiQuery(usage, true)
+      val contentType = (capi.capiQuery(usage, true) \ "response" \ "content" \ "type").get.as[String]
+      contentType == "video"
+    })
+
+    composerPage match {
+      case Some(page) => "\n View the video at https://www.theguardian.com/" + page
+      case None => ""
     }
   }
 
