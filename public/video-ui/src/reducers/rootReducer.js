@@ -18,7 +18,6 @@ import checkedFormFields from './checkedFormFieldsReducer';
 import uploads from './uploadsReducer';
 import path from './pathReducer';
 import pluto from './plutoReducer';
-import guTags from './guTagsReducer';
 
 export default combineReducers({
   audits,
@@ -38,7 +37,6 @@ export default combineReducers({
   videoEditOpen,
   uploads,
   path,
-  guTags,
   routing: routerReducer,
   pluto
 });

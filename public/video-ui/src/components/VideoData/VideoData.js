@@ -15,7 +15,6 @@ class VideoData extends React.Component {
   hasCategories = () => this.props.youtube.categories.length !== 0;
   hasChannels = () => this.props.youtube.channels.length !== 0;
   hasPlutoProjects = () => this.props.pluto.projects.length !== 0;
-  hasGuBylineTags = () => this.props.guTags.bylineTags.length !== 0;
 
   componentWillMount() {
     if (!this.hasCategories()) {
@@ -144,13 +143,11 @@ import { bindActionCreators } from 'redux';
 import * as getCategories from '../../actions/YoutubeActions/getCategories';
 import * as getChannels from '../../actions/YoutubeActions/getChannels';
 import * as getProjects from '../../actions/PlutoActions/getProjects';
-import * as getGuBylineTags from '../../actions/GuTagActions/getGuBylineTags';
 
 function mapStateToProps(state) {
   return {
     youtube: state.youtube,
-    pluto: state.pluto,
-    guTags: state.guTags
+    pluto: state.pluto
   };
 }
 
@@ -160,11 +157,7 @@ function mapDispatchToProps(dispatch) {
       Object.assign({}, getCategories, getChannels),
       dispatch
     ),
-    plutoActions: bindActionCreators(Object.assign({}, getProjects), dispatch),
-    guTagActions: bindActionCreators(
-      Object.assign({}, getGuBylineTags),
-      dispatch
-    )
+    plutoActions: bindActionCreators(Object.assign({}, getProjects), dispatch)
   };
 }
 
