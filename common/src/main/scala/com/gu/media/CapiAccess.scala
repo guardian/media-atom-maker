@@ -49,5 +49,5 @@ trait CapiAccess { this: Settings =>
   }
 }
 
-class CapiPreview(override val config: Config) extends Settings with CapiAccess
+class Capi(override val config: Config) extends Settings with CapiAccess
 case class CapiException(err: String, cause: Throwable = null) extends RuntimeException(err, cause)
