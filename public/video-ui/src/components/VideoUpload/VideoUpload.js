@@ -73,15 +73,10 @@ class VideoUpload extends React.Component {
 
   startUpload = selfHost => {
     if (this.props.video && this.state.file) {
-      const atomId = this.props.video.id;
-
       this.props.uploadActions.startUpload(
-        atomId,
+        this.props.video.id,
         this.state.file,
-        selfHost,
-        () => {
-          this.props.uploadActions.getUploads(atomId);
-        }
+        selfHost
       );
     }
   };

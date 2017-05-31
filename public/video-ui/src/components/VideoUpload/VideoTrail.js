@@ -120,7 +120,10 @@ export default class VideoTrail extends React.Component {
   }
 
   pollIfRequired = () => {
-    if (this.props.uploads.length > 0) {
+    const existingUploads = this.props.uploads.length > 0;
+    const missingUploads = this.props.s3Upload.id && !existingUploads;
+
+    if (existingUploads || missingUploads) {
       this.props.getUploads();
       this.props.getVideo();
     }

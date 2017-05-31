@@ -19,6 +19,9 @@ export default function s3Upload(state = EMPTY, action) {
     case 'UPLOAD_COMPLETE':
       return EMPTY;
 
+    case 'SHOW_ERROR':
+      return EMPTY;
+
     default:
       return state;
   }
