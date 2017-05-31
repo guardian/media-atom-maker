@@ -19,7 +19,6 @@ object Dependencies {
   val typesafeConfig = "com.typesafe" % "config" % "1.3.1"
 
   val scanamo = "com.gu" %% "scanamo" % scanamoVersion
-  val contentAtomModel = "com.gu" %% "content-atom-model" %  "2.4.37"
 
   val scalaTest = "org.scalatest" %% "scalatest" % "2.2.6" % "test"
   val scalaTestPlusPlay = "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % "test"
@@ -90,7 +89,7 @@ object Dependencies {
   ) ++ partnerApiDepencies
 
   val appDependencies = panda ++ atomMaker ++ slf4j ++ Seq(
-    PlayImport.cache, scalaLogging, jacksonDatabind, okHttp, contentAtomModel, diff,
+    PlayImport.cache, scalaLogging, jacksonDatabind, okHttp, diff,
     awsSts, awsEc2, scalaTestPlusPlay, mockito, scalaXml, awsTranscoder,
     awsSQS, awsSNS, awsS3
   )
