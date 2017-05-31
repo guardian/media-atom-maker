@@ -8,12 +8,14 @@ export function getComposerData(video) {
     {
       name: 'standfirst',
       value: video.description ? '<p>' + video.description + '</p>' : null,
-      belongsTo: 'fields'
+      belongsTo: 'fields',
+      isHtml: true
     },
     {
       name: 'trailText',
       value: video.trailText ? '<p>' + video.trailText + '</p>' : null,
-      belongsTo: 'fields'
+      belongsTo: 'fields',
+      isHtml: true
     },
     {
       name: 'sensitive',
