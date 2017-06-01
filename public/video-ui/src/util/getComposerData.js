@@ -24,6 +24,11 @@ export function getComposerData(video) {
       name: 'legallySensitive',
       value: video.legallySensitive ? 'true' : 'false',
       belongsTo: 'settings'
+    },
+    {
+      name: 'bylineIds',
+      value: video.bylineIds.join(','),
+      belongsTo: 'video-tags'
     }
   ];
 }
