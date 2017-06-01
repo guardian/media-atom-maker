@@ -3,9 +3,6 @@ export default function config(state = {}, action) {
     case 'CONFIG_RECEIVED':
       return action.config || {};
 
-    case 'PRESENCE_STARTED':
-      return Object.assign({}, state, { presence: action.client });
-
     default:
       return state;
   }
