@@ -2,8 +2,10 @@ package controllers
 
 
 import com.gu.media.MediaAtomMakerPermissionsProvider
+import com.gu.media.logging.Logging
 import com.gu.pandahmac.HMACAuthActions
-import model.ClientConfig
+import com.gu.pandomainauth.model.User
+import model.{ClientConfig, Presence}
 import play.api.Configuration
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.Json
@@ -11,7 +13,7 @@ import play.api.mvc.Controller
 import util.AWSConfig
 
 class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfig: AWSConfig,
-                 permissions: MediaAtomMakerPermissionsProvider) extends Controller {
+                 permissions: MediaAtomMakerPermissionsProvider) extends Controller with Logging {
   import authActions.AuthAction
 
   def index(id: String = "") = AuthAction.async { req =>
@@ -35,7 +37,7 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
 
     permissions.getAll(req.user.email).map { permissions =>
       val clientConfig = ClientConfig(
-        username = req.user.email,
+        presence = presenceConfig(req.user),
         youtubeEmbedUrl = "https://www.youtube.com/embed/",
         youtubeThumbnailUrl = "https://img.youtube.com/vi/",
         reauthUrl = "/reauth",
@@ -49,7 +51,13 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
         permissions
       )
 
-      Ok(views.html.VideoUIApp.app("Media Atom Maker", jsLocation, Json.toJson(clientConfig).toString(), isHotReloading))
+      Ok(views.html.VideoUIApp.app(
+        title = "Media Atom Maker",
+        jsLocation,
+        presenceJsLocation = clientConfig.presence.map(_.jsLocation),
+        Json.toJson(clientConfig).toString(),
+        isHotReloading)
+      )
     }
   }
 
@@ -57,4 +65,17 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
     Ok("auth ok")
   }
 
+  private def presenceConfig(user: User): Option[Presence] = {
+    (awsConfig.stage, conf.getString("presence.url")) match {
+      case ("DEV", _ ) =>
+        None
+
+      case (_, None) =>
+        log.warn("Presence disabled. Missing presence.url in config")
+        None
+
+      case (_, Some(url)) =>
+        Some(Presence(url, user.firstName, user.lastName, user.email))
+    }
+  }
 }

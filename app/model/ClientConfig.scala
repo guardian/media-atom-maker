@@ -2,8 +2,17 @@ package model
 
 import com.gu.media.Permissions
 import org.cvogt.play.json.Jsonx
+import play.api.libs.json.Format
 
-case class ClientConfig(username: String,
+case class Presence(endpoint: String, firstName: String, lastName: String, email: String) {
+  val jsLocation = s"$endpoint/client/1/lib.js"
+}
+
+object Presence {
+  implicit val format: Format[Presence] = Jsonx.formatCaseClass[Presence]
+}
+
+case class ClientConfig(presence: Option[Presence],
                         youtubeEmbedUrl: String,
                         youtubeThumbnailUrl: String,
                         reauthUrl: String,
@@ -19,5 +28,5 @@ case class ClientConfig(username: String,
                        )
 
 object ClientConfig {
-  implicit val clientConfigFormat = Jsonx.formatCaseClass[ClientConfig]
+  implicit val format: Format[ClientConfig] = Jsonx.formatCaseClass[ClientConfig]
 }

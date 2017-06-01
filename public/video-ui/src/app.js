@@ -21,6 +21,21 @@ function extractConfigFromPage() {
   return JSON.parse(configEl.innerHTML);
 }
 
+function registerPresence({ endpoint, firstName, lastName, email }, store) {
+  const user = { firstName, lastName, email };
+  const client = window.presenceClient(endpoint, user);
+
+  client.startConnection();
+
+  client.on('connection.open', () => {
+    store.dispatch({
+      type: 'PRESENCE_STARTED',
+      client: client,
+      receivedAt: Date.now()
+    });
+  });
+}
+
 const store = configureStore();
 syncHistoryWithStore(browserHistory, store);
 const config = extractConfigFromPage();
@@ -43,6 +58,10 @@ store.dispatch({
   path: location.pathname,
   receivedAt: Date.now()
 });
+
+if (config.presence) {
+  registerPresence(config.presence, store);
+}
 
 render(
   <Provider store={store}>
