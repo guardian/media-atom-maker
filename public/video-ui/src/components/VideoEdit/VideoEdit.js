@@ -32,7 +32,7 @@ class VideoEdit extends React.Component {
         >
           <ManagedField
             fieldLocation="title"
-            name="Title"
+            name="Headline (YouTube title)"
             maxLength={fieldLengths.title}
             isRequired={true}
           >
