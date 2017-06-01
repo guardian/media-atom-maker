@@ -41,7 +41,7 @@ class VideoData extends React.Component {
           <ManagedSection>
             <ManagedField
               fieldLocation="title"
-              name="Title"
+              name="Headline (YouTube title)"
               maxLength={fieldLengths.title}
               isRequired={true}
             >
@@ -49,7 +49,7 @@ class VideoData extends React.Component {
             </ManagedField>
             <ManagedField
               fieldLocation="description"
-              name="Description"
+              name="Standfirst (YouTube description)"
               placeholder="No Description"
               customValidation={this.props.descriptionValidator}
               isDesired={true}
