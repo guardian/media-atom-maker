@@ -1,6 +1,6 @@
 package util
 
-import com.amazonaws.services.ec2.AmazonEC2Client
+import com.amazonaws.services.ec2.AmazonEC2ClientBuilder
 import com.amazonaws.services.ec2.model.{DescribeTagsRequest, Filter}
 import com.amazonaws.util.EC2MetadataUtils
 import com.gu.media.Settings
@@ -23,11 +23,11 @@ class AWSConfig(override val config: Config, override val credentials: AwsCreden
     with SQSAccess
     with SESSettings {
 
-  lazy val ec2Client = region.createClient(
-    classOf[AmazonEC2Client],
-    credentials.instance,
-    null
-  )
+  lazy val ec2Client = AmazonEC2ClientBuilder
+    .standard()
+    .withRegion(region.getName)
+    .withCredentials(credentials.instance)
+    .build()
 
   lazy val composerUrl = getMandatoryString("flexible.url")
   lazy val workflowUrl = getMandatoryString("workflow.url")
