@@ -6,7 +6,7 @@ import SelectBox from '../FormFields/SelectBox';
 import CheckBox from '../FormFields/CheckBox';
 import DatePicker from '../FormFields/DatePicker';
 import KeywordPicker from '../FormFields/KeywordPicker';
-import FormFieldTagPicker from '../FormFields/FormFieldTagPicker';
+import FormFieldBylinePicker from '../FormFields/FormFieldBylinePicker';
 import { fieldLengths } from '../../constants/videoEditValidation';
 import { videoCategories } from '../../constants/videoCategories';
 import { privacyStates } from '../../constants/privacyStates';
@@ -72,7 +72,7 @@ class VideoData extends React.Component {
               isArray
               placeholder="No byline tags"
             >
-              <FormFieldTagPicker />
+              <FormFieldBylinePicker />
             </ManagedField>
 
             <ManagedField
