@@ -147,7 +147,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
     }
   }
 
-  private def parseDescriptionForYoutube(description: String): String = {
+  private def removeHtmlTagsForYouTube(description: String): String = {
       val html = Jsoup.parse(description)
       html.select("a").remove()
       html.text()
@@ -174,7 +174,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
   private def updateYoutubeMetadata(previewAtom: MediaAtom, asset: Asset) = {
 
     val description = previewAtom.description.map(description => {
-      parseDescriptionForYoutube(description) + getComposerLinkText(previewAtom.id)
+      removeHtmlTagsForYouTube(description) + getComposerLinkText(previewAtom.id)
     })
 
     val metadata = YouTubeMetadataUpdate(
