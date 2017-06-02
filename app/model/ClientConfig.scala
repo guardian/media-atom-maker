@@ -4,8 +4,8 @@ import com.gu.media.Permissions
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
 
-case class Presence(origin: String, firstName: String, lastName: String, email: String) {
-  val jsLocation = s"https://$origin/client/1/lib.js"
+case class Presence(domain: String, firstName: String, lastName: String, email: String) {
+  val jsLocation = s"https://$domain/client/1/lib.js"
 }
 
 object Presence {

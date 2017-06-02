@@ -1,6 +1,6 @@
 export class Presence {
-  constructor(id, { origin, firstName, lastName, email }) {
-    const endpoint = `wss://${origin}/socket`;
+  constructor(id, { domain, firstName, lastName, email }) {
+    const endpoint = `wss://${domain}/socket`;
     const user = { firstName, lastName, email };
 
     this.client = window.presenceClient(endpoint, user);
