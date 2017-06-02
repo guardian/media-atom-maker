@@ -121,12 +121,15 @@ export default {
 
     function updateArticleField(stage, data, composerUrl, pageId) {
       if (data.value || data.belongsTo === 'settings') {
+        const value = data.isFreeText
+          ? data.value.split('"').join('\\"')
+          : data.value;
         return pandaReqwest({
           url: `${composerUrl}/api/content/${pageId}/${stage}/${data.belongsTo}/${data.name}`,
           method: 'put',
           crossOrigin: true,
           withCredentials: true,
-          data: `"${data.value}"`
+          data: `"${value}"`
         });
       }
 
@@ -175,12 +178,16 @@ export default {
 
     const properties = composerData.reduce((queryStrings, data) => {
       if (data.value) {
+        const value = data.isFreeText
+          ? data.value.split('"').join('\\"')
+          : data.value;
+
         queryStrings.push(
           '&initial' +
             data.name.charAt(0).toUpperCase() +
             data.name.slice(1) +
             '=' +
-            data.value
+            value
         );
       }
       return queryStrings;

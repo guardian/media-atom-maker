@@ -1,0 +1,41 @@
+.scribe__toolbar {
+  display: flex;
+  width: 100%;
+}
+
+.scribe__toolbar__item {
+  flex-basis: auto;
+  flex-grow: 1;
+  padding: 10px;
+  font-size: 12px;
+  background-color: $color650Grey;
+  color: $color300Grey;
+  border: {
+    left: 1px solid $color500Grey;
+    top: 1px solid $color500Grey;
+  }
+
+  &:last-child {
+    border-right: 1px solid $color500Grey;
+  }
+
+  &:hover {
+    background-color: $darkGreyBgColor;
+    color: $color800Grey;
+  }
+}
+
+.scribe__row {
+  display: flex;
+}
+
+.scribe__container {
+  width: 100%;
+}
+
+.scribe__editor {
+  width: 100%;
+  padding: 20px;
+  background: $color650Grey;
+  border: 1px solid $color500Grey;
+}

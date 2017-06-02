@@ -54,7 +54,8 @@ object Dependencies {
   val apacheHttpClient = "org.apache.httpcomponents" % "httpclient" % "4.0.1"
   val apacheHttpCore = "org.apache.httpcomponents" % "httpcore" % "4.0.1"
 
-
+  val jsoup = "org.jsoup" % "jsoup" % "1.8.3"
+  
   val panda = Seq(
     "com.gu" %% "pan-domain-auth-play_2-5" % pandaVersion,
     "com.gu" %% "pan-domain-auth-verification" % pandaVersion,
@@ -91,7 +92,7 @@ object Dependencies {
   val appDependencies = panda ++ atomMaker ++ slf4j ++ Seq(
     PlayImport.cache, scalaLogging, jacksonDatabind, okHttp, diff,
     awsSts, awsEc2, scalaTestPlusPlay, mockito, scalaXml, awsTranscoder,
-    awsSQS, awsSNS, awsS3
+    awsSQS, awsSNS, awsS3, jsoup
   )
 
   val uploaderDependencies = Seq(

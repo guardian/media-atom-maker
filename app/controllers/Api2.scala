@@ -5,6 +5,7 @@ import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
 import com.gu.media.upload.model.PlutoSyncMetadata
 import com.gu.media.youtube.{YouTube, YouTubeClaims}
+import com.gu.media.Capi
 import com.gu.pandahmac.HMACAuthActions
 import data.DataStores
 import model.commands.CommandExceptions._
@@ -20,7 +21,8 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class Api2 (override val stores: DataStores, conf: Configuration, override val authActions: HMACAuthActions,
-            youTube: YouTube, youTubeClaims: YouTubeClaims, awsConfig: AWSConfig, override val permissions: MediaAtomMakerPermissionsProvider)
+            youTube: YouTube, youTubeClaims: YouTubeClaims, awsConfig: AWSConfig,
+            override val permissions: MediaAtomMakerPermissionsProvider, capi: Capi)
 
   extends MediaAtomImplicits
     with AtomAPIActions
@@ -65,7 +67,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
   }
 
   def publishMediaAtom(id: String) = APIAuthAction.async { implicit req =>
-      val command = PublishAtomCommand(id, stores, youTube, youTubeClaims, req.user)
+      val command = PublishAtomCommand(id, stores, youTube, youTubeClaims, req.user, capi)
 
       val updatedAtom: Future[MediaAtom] = command.process()
 

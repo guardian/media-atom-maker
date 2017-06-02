@@ -1,7 +1,7 @@
 import React from 'react';
 import { ManagedForm, ManagedField, ManagedSection } from '../ManagedForm';
 import TextInput from '../FormFields/TextInput';
-import TextArea from '../FormFields/TextArea';
+import ScribeEditorField from '../FormFields/ScribeEditor';
 import SelectBox from '../FormFields/SelectBox';
 import CheckBox from '../FormFields/CheckBox';
 import DatePicker from '../FormFields/DatePicker';
@@ -53,16 +53,20 @@ class VideoData extends React.Component {
               placeholder="No Description"
               customValidation={this.props.descriptionValidator}
               isDesired={true}
+              maxCharLength={fieldLengths.description.charMax}
+              maxLength={fieldLengths.description.max}
             >
-              <TextArea />
+              <ScribeEditorField />
             </ManagedField>
             <ManagedField
               fieldLocation="trailText"
               derivedFrom={this.props.video.description}
               name="Trail Text"
               placeholder="No Trail Text"
+              maxCharLength={fieldLengths.description.charMax}
+              maxLength={fieldLengths.description.max}
             >
-              <TextArea />
+              <ScribeEditorField />
             </ManagedField>
             <ManagedField
               fieldLocation="blockAds"

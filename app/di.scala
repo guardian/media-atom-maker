@@ -1,7 +1,7 @@
 import com.gu.atom.play.ReindexController
 import com.gu.media.aws.AwsCredentials
 import com.gu.media.youtube.{YouTube, YouTubeClaims}
-import com.gu.media.{CapiPreview, MediaAtomMakerPermissionsProvider, Settings}
+import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider, Settings}
 import controllers._
 import data._
 import play.api.ApplicationLoader.Context
@@ -36,7 +36,7 @@ class MediaAtomMaker(context: Context)
   private val aws = new AWSConfig(config, credentials)
   aws.startKinesisLogging("media-atom-maker")
 
-  private val capi = new CapiPreview(config)
+  private val capi = new Capi(config)
 
   private val stores = new DataStores(aws, capi)
   private val permissions = new MediaAtomMakerPermissionsProvider(aws.stage, aws.credentials.instance)
@@ -52,7 +52,7 @@ class MediaAtomMaker(context: Context)
 
   private val api = new Api(stores, configuration, aws, hmacAuthActions, permissions)
 
-  private val api2 = new Api2(stores, configuration, hmacAuthActions, youTube, youTubeClaims, aws, permissions)
+  private val api2 = new Api2(stores, configuration, hmacAuthActions, youTube, youTubeClaims, aws, permissions, capi)
 
   private val stepFunctions = new StepFunctions(aws)
   private val uploads = new UploadController(hmacAuthActions, aws, stepFunctions, stores, permissions)

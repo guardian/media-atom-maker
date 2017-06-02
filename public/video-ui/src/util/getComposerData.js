@@ -3,17 +3,20 @@ export function getComposerData(video) {
     {
       name: 'headline',
       value: video.title,
-      belongsTo: 'fields'
+      belongsTo: 'fields',
+      isFreeText: true
     },
     {
       name: 'standfirst',
       value: video.description ? '<p>' + video.description + '</p>' : null,
-      belongsTo: 'fields'
+      belongsTo: 'fields',
+      isFreeText: true
     },
     {
       name: 'trailText',
       value: video.trailText ? '<p>' + video.trailText + '</p>' : null,
-      belongsTo: 'fields'
+      belongsTo: 'fields',
+      isFreeText: true
     },
     {
       name: 'sensitive',
