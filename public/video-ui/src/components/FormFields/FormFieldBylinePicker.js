@@ -4,12 +4,27 @@ import ContentApi from '../../services/capi';
 export default class FormFieldBylinePicker extends React.Component {
   state = {
     bylineTags: null,
-    searchText: ''
+    searchText: '',
+    inputString: this.fieldValueToString(this.props.fieldValue)
+  };
+
+  updateInput = e => {
+    const newVal = e.target.value;
+    const appendSpace = newVal[newVal.length - 1] == ' ';
+    const valueAsArray = newVal.split(' ');
+    if (appendSpace) {
+      const lastElem = valueAsArray[valueAsArray.length - 1];
+      valueAsArray[valueAsArray.length - 1] = lastElem + ' ';
+    }
+    this.setState({
+      inputString: this.fieldValueToString(valueAsArray)
+    });
   };
 
   processTagInput = e => {
     // only search or add the last word we've added
     const allWords = e.target.value.split(' ');
+
     const latestWord = allWords[allWords.length - 1];
 
     if (e.keyCode === 32) {
@@ -17,7 +32,10 @@ export default class FormFieldBylinePicker extends React.Component {
         searchText: ''
       });
 
-      const newFieldValue = this.props.fieldValue.concat([latestWord]);
+      const newFieldValue = this.props.fieldValue.concat([latestWord + ' ']);
+      this.setState({
+        inputString: this.fieldValueToString(newFieldValue)
+      });
 
       this.props.onUpdateField(newFieldValue);
     } else {
@@ -45,7 +63,12 @@ export default class FormFieldBylinePicker extends React.Component {
 
   renderBylineTags(tag) {
     const addTag = () => {
-      const newFieldValue = this.props.fieldValue.concat([tag.id]);
+      const newFieldValue = this.props.fieldValue.concat([tag]);
+
+      this.setState({
+        inputString: this.fieldValueToString(newFieldValue)
+      });
+
       this.props.onUpdateField(newFieldValue);
       this.setState({
         bylineTags: null,
@@ -65,23 +88,39 @@ export default class FormFieldBylinePicker extends React.Component {
     );
   }
 
-  renderValue = (fieldName, i) => {
+  renderValue = (field, i) => {
     const removeFn = () => {
-      const newFieldValue = this.props.fieldValue.filter(oldFieldName => {
-        return fieldName !== oldFieldName;
+      const newFieldValue = this.props.fieldValue.filter(oldField => {
+        return field.id !== oldField.id;
       });
       this.props.onUpdateField(newFieldValue);
     };
-    return (
-      <span
-        className="form__field--multiselect__value"
-        key={`${fieldName}-${i}`}
-        onClick={removeFn}
-      >
-        {fieldName}{' '}
-      </span>
-    );
+
+    if (field.id) {
+      return (
+        <span
+          className="form__field--multiselect__value"
+          key={`${field.id}-${i}`}
+          onClick={removeFn}
+        >
+          {field.webTitle}{' '}
+        </span>
+      );
+    }
+    return <span key={`${field.id}-${i}`}> {field}{' '}</span>;
   };
+
+  fieldValueToString(fieldValue) {
+    const concatenatedValues = fieldValue.reduce((values, value) => {
+      if (value.webTitle) {
+        values += value.webTitle + ' ';
+      } else {
+        values += value + ' ';
+      }
+      return values;
+    }, '');
+    return concatenatedValues.substring(0, concatenatedValues.length - 1);
+  }
 
   render() {
     if (!this.props.editable) {
@@ -99,11 +138,12 @@ export default class FormFieldBylinePicker extends React.Component {
         <div>
           <p className="details-list__title">{this.props.fieldName}</p>
           <p className="details-list__field ">
-            {this.props.fieldValue.join(', ')}
+            {this.fieldValueToString(this.props.fieldValue)}
           </p>
         </div>
       );
     }
+
     return (
       <div className={this.props.formRowClass || 'form__row'}>
 
@@ -111,9 +151,7 @@ export default class FormFieldBylinePicker extends React.Component {
           <label className="form__label">{this.props.fieldName}</label>
         </div>
         {this.props.fieldValue.length
-          ? this.props.fieldValue.map((fieldName, i) =>
-              this.renderValue(fieldName, i)
-            )
+          ? this.props.fieldValue.map((value, i) => this.renderValue(value, i))
           : 'No tags selected'}
 
         <input
@@ -121,6 +159,8 @@ export default class FormFieldBylinePicker extends React.Component {
           className="form__field "
           id={this.props.fieldName}
           onKeyDown={this.processTagInput}
+          onChange={this.updateInput}
+          value={this.state.inputString}
         />
 
         {this.state.bylineTags
