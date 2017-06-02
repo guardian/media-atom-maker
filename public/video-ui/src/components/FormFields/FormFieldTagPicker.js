@@ -93,11 +93,9 @@ export default class FormFieldTagPicker extends React.Component {
     return (
       <div className={this.props.formRowClass || 'form__row'}>
 
-        {this.props.fieldLabel
-          ? <label htmlFor={this.props.fieldName} className="form__label">
-              {this.props.fieldLabel}
-            </label>
-          : false}
+        <div className="form__label__layout">
+          <label className="form__label">{this.props.fieldName}</label>
+        </div>
         {this.props.fieldValue.length
           ? this.props.fieldValue.map((fieldName, i) =>
               this.renderValue(fieldName, i)
