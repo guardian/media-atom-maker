@@ -83,6 +83,9 @@ export class ManagedField extends React.Component {
     }
 
     if (this.props.isArray && !value) {
+      if (!this.props.editable) {
+        return this.props.placeholder;
+      }
       return [];
     }
 

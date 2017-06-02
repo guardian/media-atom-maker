@@ -70,21 +70,20 @@ export default class FormFieldTagPicker extends React.Component {
 
   render() {
     if (!this.props.editable) {
+      if (!this.props.fieldValue || this.props.fieldValue.length === 0) {
+        return (
+          <div>
+            <p className="details-list__title">{this.props.fieldName}</p>
+            <p className={'details-list__field details-list__empty'}>
+              {this.props.placeholder}
+            </p>
+          </div>
+        );
+      }
       return (
         <div>
           <p className="details-list__title">{this.props.fieldName}</p>
-          <p
-            className={
-              'details-list__field ' +
-                (this.props.displayPlaceholder(
-                  this.props.placeholder,
-                  this.props.fieldValue
-                )
-                  ? 'details-list__empty'
-                  : '')
-            }
-          >
-
+          <p className="details-list__field ">
             {this.props.fieldValue.join(', ')}
           </p>
         </div>

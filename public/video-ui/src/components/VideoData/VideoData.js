@@ -66,7 +66,12 @@ class VideoData extends React.Component {
               <TextArea />
             </ManagedField>
 
-            <ManagedField fieldLocation="bylineIds" name="Byline Tags" isArray>
+            <ManagedField
+              fieldLocation="bylineIds"
+              name="Byline Tags"
+              isArray
+              placeholder="No byline tags"
+            >
               <FormFieldTagPicker />
             </ManagedField>
 
