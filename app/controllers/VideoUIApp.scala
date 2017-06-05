@@ -66,12 +66,12 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
   }
 
   private def presenceConfig(user: User): Option[Presence] = {
-    (awsConfig.stage, conf.getString("presence.origin")) match {
+    (awsConfig.stage, conf.getString("presence.domain")) match {
       case ("DEV", _ ) =>
         None
 
       case (_, None) =>
-        log.warn("Presence disabled. Missing presence.url in config")
+        log.warn("Presence disabled. Missing presence.domain in config")
         None
 
       case (_, Some(origin)) =>
