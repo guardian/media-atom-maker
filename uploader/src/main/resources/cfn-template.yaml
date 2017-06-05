@@ -121,7 +121,9 @@ Resources:
 
   {{GetTranscodingProgress}}
 
-  {{AddAssetToAtom}}
+  {{AddYouTubeAsset}}
+
+  {{AddSelfHostedAsset}}
 
   VideoPipelinePROD:
     Type: "AWS::StepFunctions::StateMachine"
