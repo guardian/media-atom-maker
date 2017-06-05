@@ -4,42 +4,41 @@ import ContentApi from '../../services/capi';
 export default class FormFieldBylinePicker extends React.Component {
   state = {
     bylineTags: null,
-    searchText: '',
-    inputString: this.fieldValueToString(this.props.fieldValue)
+    inputString: '',
+    lastAction: 'OTHER'
   };
 
   updateInput = e => {
-    const newVal = e.target.value;
-    const appendSpace = newVal[newVal.length - 1] == ' ';
-    const valueAsArray = newVal.split(' ');
-    if (appendSpace) {
-      const lastElem = valueAsArray[valueAsArray.length - 1];
-      valueAsArray[valueAsArray.length - 1] = lastElem + ' ';
-    }
-    this.setState({
-      inputString: this.fieldValueToString(valueAsArray)
-    });
-  };
-
-  processTagInput = e => {
-    // only search or add the last word we've added
-    const allWords = e.target.value.split(' ');
-
-    const latestWord = allWords[allWords.length - 1];
-
-    if (e.keyCode === 32) {
-      this.setState({
-        searchText: ''
-      });
-
-      const newFieldValue = this.props.fieldValue.concat([latestWord + ' ']);
-      this.setState({
-        inputString: this.fieldValueToString(newFieldValue)
-      });
-
+    if (this.state.lastAction === 'SPACE') {
+      const newFieldValue = this.props.fieldValue.concat([
+        this.state.inputString
+      ]);
       this.props.onUpdateField(newFieldValue);
+      this.setState({
+        inputString: ''
+      });
+
+      // If the user did not add new text input, we update the tag search
+    } else if (this.state.lastAction === 'DELETE') {
+      const length = this.props.fieldValue.length;
+      const lastInput = this.props.fieldValue[length - 1];
+
+      this.setState({
+        inputString: lastInput,
+        lastAction: 'OTHER'
+      });
+
+      const newValue = this.props.fieldValue.slice(
+        0,
+        this.props.fieldValue.length - 1
+      );
+      this.props.onUpdateField(newValue);
     } else {
-      const searchText = latestWord;
+      this.setState({
+        inputString: e.target.value
+      });
+
+      const searchText = e.target.value;
 
       ContentApi.getBylineTags(searchText)
         .then(capiResponse => {
@@ -48,8 +47,7 @@ export default class FormFieldBylinePicker extends React.Component {
             return tags;
           });
           this.setState({
-            bylineTags: bylines,
-            searchText: ''
+            bylineTags: bylines
           });
           return;
         })
@@ -61,18 +59,59 @@ export default class FormFieldBylinePicker extends React.Component {
     }
   };
 
+  processTagInput = e => {
+    if (e.keyCode === 32) {
+      this.setState({
+        lastAction: 'SPACE'
+      });
+    } else if (e.keyCode === 8) {
+      if (this.state.inputString.length === 0) {
+        const lastInput = this.props.fieldValue[
+          this.props.fieldValue.length - 1
+        ];
+
+        if (typeof lastInput === 'string') {
+          //User is trying to delete a string input
+          this.setState(
+            {
+              lastAction: 'DELETE'
+            },
+            () => {
+              this.updateInput();
+            }
+          );
+        }
+      }
+    } else {
+      this.setState({
+        lastAction: 'OTHER'
+      });
+    }
+  };
+
+  fieldValueToString(value, index) {
+    if (value.webTitle) {
+      return (
+        <span key={`${value.id}-${index}`}>
+          <span className="tag">{value.webTitle}</span>{' '}
+        </span>
+      );
+    } else {
+      return `${value} `;
+    }
+  }
+
   renderBylineTags(tag) {
     const addTag = () => {
       const newFieldValue = this.props.fieldValue.concat([tag]);
 
       this.setState({
-        inputString: this.fieldValueToString(newFieldValue)
+        inputString: ''
       });
 
       this.props.onUpdateField(newFieldValue);
       this.setState({
-        bylineTags: null,
-        searchText: ''
+        bylineTags: null
       });
     };
 
@@ -93,6 +132,10 @@ export default class FormFieldBylinePicker extends React.Component {
       const newFieldValue = this.props.fieldValue.filter(oldField => {
         return field.id !== oldField.id;
       });
+
+      this.setState({
+        inputString: ''
+      });
       this.props.onUpdateField(newFieldValue);
     };
 
@@ -110,18 +153,6 @@ export default class FormFieldBylinePicker extends React.Component {
     return <span key={`${field.id}-${i}`}> {field}{' '}</span>;
   };
 
-  fieldValueToString(fieldValue) {
-    const concatenatedValues = fieldValue.reduce((values, value) => {
-      if (value.webTitle) {
-        values += value.webTitle + ' ';
-      } else {
-        values += value + ' ';
-      }
-      return values;
-    }, '');
-    return concatenatedValues.substring(0, concatenatedValues.length - 1);
-  }
-
   render() {
     if (!this.props.editable) {
       if (!this.props.fieldValue || this.props.fieldValue.length === 0) {
@@ -138,7 +169,7 @@ export default class FormFieldBylinePicker extends React.Component {
         <div>
           <p className="details-list__title">{this.props.fieldName}</p>
           <p className="details-list__field ">
-            {this.fieldValueToString(this.props.fieldValue)}
+            {this.props.fieldValue.map(this.fieldValueToString)}
           </p>
         </div>
       );
@@ -152,7 +183,7 @@ export default class FormFieldBylinePicker extends React.Component {
         </div>
         {this.props.fieldValue.length
           ? this.props.fieldValue.map((value, i) => this.renderValue(value, i))
-          : 'No tags selected'}
+          : ''}
 
         <input
           type="text"
@@ -163,11 +194,13 @@ export default class FormFieldBylinePicker extends React.Component {
           value={this.state.inputString}
         />
 
-        {this.state.bylineTags
+        {this.state.bylineTags && this.state.bylineTags.length !== 0
           ? <div className="form__field__tags">
               {this.state.bylineTags.map(tag => this.renderBylineTags(tag))}
             </div>
           : ''}
+
+        {this.props.fieldValue.map(this.fieldValueToString)}
 
       </div>
     );
