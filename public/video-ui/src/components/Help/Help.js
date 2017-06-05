@@ -1,28 +1,15 @@
 import React from 'react';
 
 export default class Help extends React.Component {
-  renderHowTo() {
+  getLink({ url, text }) {
     return (
       <a
         className="button__secondary"
         target="_blank"
         rel="noopener noreferrer"
-        href="https://goo.gl/vzTc3s"
+        href={url}
       >
-        How to use this Tool
-      </a>
-    );
-  }
-
-  renderFeedback() {
-    return (
-      <a
-        className="button__secondary"
-        target="_blank"
-        rel="noopener noreferrer"
-        href="https://goo.gl/forms/0KoeGOW64584Bydm2"
-      >
-        Contact the Team
+        {text}
       </a>
     );
   }
@@ -33,10 +20,22 @@ export default class Help extends React.Component {
         <h1>Help</h1>
         <ul>
           <li>
-            {this.renderHowTo()}
+            {this.getLink({
+              url: 'https://goo.gl/vzTc3s',
+              text: 'How to use this Tool'
+            })}
           </li>
           <li>
-            {this.renderFeedback()}
+            {this.getLink({
+              url: 'https://goo.gl/forms/0KoeGOW64584Bydm2',
+              text: 'Contact the Team'
+            })}
+          </li>
+          <li>
+            {this.getLink({
+              url: 'https://goo.gl/g2FUxn',
+              text: 'Publishing without Pluto'
+            })}
           </li>
         </ul>
       </div>
