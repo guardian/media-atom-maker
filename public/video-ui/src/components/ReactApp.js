@@ -68,6 +68,7 @@ class ReactApp extends React.Component {
           createVideoPage={this.props.appActions.createVideoPage}
           videoEditOpen={this.props.videoEditOpen}
           usages={this.props.usages}
+          presenceConfig={this.props.config.presence}
         />
         {this.props.error
           ? <div className="error-bar">{this.props.error}</div>
@@ -104,7 +105,8 @@ function mapStateToProps(state) {
     s3Upload: state.s3Upload,
     checkedFormFields: state.checkedFormFields,
     videoEditOpen: state.videoEditOpen,
-    usages: state.usage
+    usages: state.usage,
+    config: state.config
   };
 }
 
