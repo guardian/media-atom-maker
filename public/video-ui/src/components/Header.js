@@ -5,7 +5,7 @@ import VideoPublishBar from './VideoPublishBar/VideoPublishBar';
 import AdvancedActions from './Videos/AdvancedActions';
 import ComposerPageCreate from './Videos/ComposerPageCreate';
 import Icon from './Icon';
-import { Presence } from '../util/Presence';
+import { Presence } from '../util/presence';
 
 export default class Header extends React.Component {
   state = { presence: null };
