@@ -93,7 +93,8 @@ export default class FormFieldBylinePicker extends React.Component {
     if (value.webTitle) {
       return (
         <span key={`${value.id}-${index}`}>
-          <span className="tag">{value.webTitle}</span>{' '}
+          <span className="form__field__tag__display">{value.webTitle}</span>
+          {' '}
         </span>
       );
     } else {
@@ -150,7 +151,14 @@ export default class FormFieldBylinePicker extends React.Component {
         </span>
       );
     }
-    return <span key={`${field.id}-${i}`}> {field}{' '}</span>;
+    return (
+      <span
+        className="form__field--multistring__value"
+        key={`${field.id}-${i}`}
+      >
+        {' '}{field}{' '}
+      </span>
+    );
   };
 
   render() {
@@ -176,23 +184,28 @@ export default class FormFieldBylinePicker extends React.Component {
     }
 
     return (
-      <div className={this.props.formRowClass || 'form__row'}>
+      <div className="form__row">
 
         <div className="form__label__layout">
           <label className="form__label">{this.props.fieldName}</label>
         </div>
-        {this.props.fieldValue.length
-          ? this.props.fieldValue.map((value, i) => this.renderValue(value, i))
-          : ''}
 
-        <input
-          type="text"
-          className="form__field "
-          id={this.props.fieldName}
-          onKeyDown={this.processTagInput}
-          onChange={this.updateInput}
-          value={this.state.inputString}
-        />
+        <div className="form__field__byline">
+          {this.props.fieldValue.length
+            ? this.props.fieldValue.map((value, i) =>
+                this.renderValue(value, i)
+              )
+            : ''}
+
+          <input
+            type="text"
+            className="form__field__byline--input"
+            id={this.props.fieldName}
+            onKeyDown={this.processTagInput}
+            onChange={this.updateInput}
+            value={this.state.inputString}
+          />
+        </div>
 
         {this.state.bylineTags && this.state.bylineTags.length !== 0
           ? <div className="form__field__tags">

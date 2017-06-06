@@ -15,6 +15,29 @@
   margin-bottom: 10px;
 }
 
+.form__field__byline--input {
+  border: none;
+  background-color: $color650Grey;
+  color: $textColor;
+  width: 100%;
+  font-size: 13px;
+  &:focus {
+    outline: none;
+  }
+
+}
+
+.form__field__byline {
+  display: flex;
+  align-content: flex-start;
+  border: 1px solid $color400Grey;
+  border-top: 1px solid $color400Grey;
+  width: 100%;
+  padding: 5px 5px;
+  cursor: pointer;
+  height: 35px;
+}
+
 .form__field {
   position: relative;
   padding: 5px;
@@ -232,6 +255,10 @@
   cursor: pointer;
 }
 
+.form__field__tag__display {
+  text-decoration: underline $textColor;
+}
+
 .form__field--multiselect {
   $multiSelectBtnWidth: 45px;
   position: relative;
@@ -283,6 +310,7 @@
     margin-right: 2px;
     font-weight: bold;
     cursor: pointer;
+    flex-shrink: 0;
 
 
     &:after {
@@ -292,6 +320,11 @@
       margin-left: 4px;
     }
   }
+}
+
+.form__field--multistring__value {
+  padding-right: 2px;
+  padding-top: 2px;
 }
 
 // bit specific
