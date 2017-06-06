@@ -77,6 +77,7 @@ GET /videos/pluto-list                  controllers.VideoUIApp.index(id = "")
 GET /videos/:id                         controllers.VideoUIApp.index(id)
 GET /videos/:id/audit                   controllers.VideoUIApp.index(id)
 GET /videos/:id/upload                  controllers.VideoUIApp.index(id)
+GET /help                               controllers.VideoUIApp.index(id = "")
 
 #Support
 GET /support/previewCapi/*path          controllers.Support.capiProxy(path: String, queryLive: Boolean ?= false)

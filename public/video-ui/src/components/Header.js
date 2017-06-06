@@ -74,17 +74,12 @@ export default class Header extends React.Component {
     );
   }
 
-  renderFeedback() {
+  renderHelpLink() {
     return (
       <nav className="topbar__nav-link">
-        <a
-          className="button__secondary"
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://goo.gl/forms/0KoeGOW64584Bydm2"
-        >
-          <Icon icon="bug_report">Feedback</Icon>
-        </a>
+        <Link className="button__secondary" to="/help">
+          <Icon icon="live_help">Help</Icon>
+        </Link>
       </nav>
     );
   }
@@ -100,21 +95,6 @@ export default class Header extends React.Component {
         >
           View audit trail
         </Link>
-      </nav>
-    );
-  }
-
-  renderHowTo() {
-    return (
-      <nav className="topbar__nav-link">
-        <a
-          className="button__secondary"
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://docs.google.com/a/guardian.co.uk/document/d/1pqRpgIAAlcUMafbA3T7ZHg54kEs2E9XeANzRoNrwTrE/edit?usp=sharing"
-        >
-          <Icon icon="live_help">How To</Icon>
-        </a>
       </nav>
     );
   }
@@ -163,11 +143,7 @@ export default class Header extends React.Component {
 
           <div className="flex-container">
             {this.renderCreateVideo()}
-          </div>
-
-          <div className="flex-container">
-            {this.renderFeedback()}
-            {this.renderHowTo()}
+            {this.renderHelpLink()}
           </div>
 
         </header>
@@ -204,6 +180,7 @@ export default class Header extends React.Component {
           />
           <div className="flex-container">
             {this.renderAuditLink()}
+            {this.renderHelpLink()}
           </div>
 
         </header>
