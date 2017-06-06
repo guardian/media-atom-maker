@@ -81,4 +81,4 @@ GET /help                               controllers.VideoUIApp.index(id = "")
 
 #Support
 GET /support/previewCapi/*path          controllers.Support.capiProxy(path: String, queryLive: Boolean ?= false)
-GET /support/liveCapi/*path             controllers.Support.capiProxy(path: String, queryLive: Boolean ?= false)
+GET /support/liveCapi/*path             controllers.Support.capiProxy(path: String, queryLive: Boolean ?= true)
