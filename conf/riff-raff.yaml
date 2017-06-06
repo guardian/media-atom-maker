@@ -56,6 +56,7 @@ deployments:
         - "media-atom-pipeline-SendToPluto-"
         - "media-atom-pipeline-SendToTranscoder-"
         - "media-atom-pipeline-GetTranscodingProgress-"
-        - "media-atom-pipeline-AddAssetToAtom-"
+        - "media-atom-pipeline-AddYouTubeAsset-"
+        - "media-atom-pipeline-AddSelfHostedAsset-"
     dependencies:
       - media-atom-pipeline-cloudformation

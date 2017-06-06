@@ -59,10 +59,26 @@
         {
           "Variable": "$.progress.fullyUploaded",
           "BooleanEquals": true,
-          "Next": "CreateCompleteVideoInS3"
+          "Next": "CheckYouTube"
         }
       ],
       "Default": "GetChunkFromS3"
+    },
+    "CheckYouTube": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.metadata.selfHost",
+          "BooleanEquals": false,
+          "Next": "AddYouTubeAsset"
+        }
+      ],
+      "Default": "CreateCompleteVideoInS3"
+    },
+    "AddYouTubeAsset": {
+      "Type": "Task",
+      "Resource": "${AddYouTubeAsset.Arn}",
+      "Next": "CreateCompleteVideoInS3"
     },
     "CreateCompleteVideoInS3": {
       "Type": "Task",
@@ -94,7 +110,7 @@
           "Next": "SendToTranscoder"
         }
       ],
-      "Default": "AddAssetToAtom"
+      "Default": "Complete"
     },
     "SendToTranscoder": {
       "Type": "Task",
@@ -112,7 +128,7 @@
         {
           "Variable": "$.progress.fullyTranscoded",
           "BooleanEquals": true,
-          "Next": "AddAssetToAtom"
+          "Next": "AddSelfHostedAsset"
         }
       ],
       "Default": "WaitForTranscoder"
@@ -122,9 +138,13 @@
       "Seconds": 10,
       "Next": "GetTranscodingProgress"
     },
-    "AddAssetToAtom": {
+    "AddSelfHostedAsset": {
       "Type": "Task",
-      "Resource": "${AddAssetToAtom.Arn}",
+      "Resource": "${AddSelfHostedAsset.Arn}",
+      "Next": "Complete"
+    },
+    "Complete": {
+      "Type": "Pass",
       "End": true
     }
   }

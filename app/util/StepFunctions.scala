@@ -29,7 +29,7 @@ class StepFunctions(awsConfig: AWSConfig) {
     val runningJobs = getExecutions(atomId, ExecutionStatus.RUNNING)
     val failedJobs = getExecutions(atomId, ExecutionStatus.FAILED).filter(lessThan10MinutesOld)
 
-    val running = runningJobs.map(getRunningStatus)
+    val running = runningJobs.flatMap(getRunningStatus)
     val failed = failedJobs.map(getFailedStatus)
 
     running ++ failed
@@ -63,7 +63,7 @@ class StepFunctions(awsConfig: AWSConfig) {
     awsConfig.stepFunctionsClient.getExecutionHistory(request).getEvents.asScala
   }
 
-  private def getRunningStatus(execution: ExecutionListItem): UploadStatus = {
+  private def getRunningStatus(execution: ExecutionListItem): Option[UploadStatus] = {
     val id = execution.getName
     val events = getEvents(execution)
 
@@ -72,21 +72,27 @@ class StepFunctions(awsConfig: AWSConfig) {
         val state = event.getStateEnteredEventDetails.getName
         val upload = Json.parse(event.getStateEnteredEventDetails.getInput).as[Upload]
 
-        if(upload.metadata.selfHost) {
-          UploadStatus.indeterminate(id, state)
+        if(upload.progress.assetAdded) {
+          None
         } else {
-          val current = upload.progress.chunksInYouTube
-          val total = upload.parts.length
-
-          if(current < total) {
-            UploadStatus(id, "Uploading to YouTube", current, total)
-          } else {
+          val status = if(upload.metadata.selfHost) {
             UploadStatus.indeterminate(id, state)
+          } else {
+            val current = upload.progress.chunksInYouTube
+            val total = upload.parts.length
+
+            if(current < total) {
+              UploadStatus(id, "Uploading to YouTube", current, total)
+            } else {
+              UploadStatus.indeterminate(id, state)
+            }
           }
+
+          Some(status)
         }
 
       case None =>
-        UploadStatus.indeterminate(id, "Uploading")
+        Some(UploadStatus.indeterminate(id, "Uploading"))
     }
   }
 

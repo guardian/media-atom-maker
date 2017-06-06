@@ -35,7 +35,8 @@ object Upload {
       chunksInS3 = Math.max(upload.progress.chunksInS3, progress.chunksInS3),
       chunksInYouTube = Math.max(upload.progress.chunksInYouTube, progress.chunksInYouTube),
       fullyUploaded = upload.progress.fullyUploaded || progress.fullyUploaded,
-      fullyTranscoded = upload.progress.fullyTranscoded || progress.fullyTranscoded
+      fullyTranscoded = upload.progress.fullyTranscoded || progress.fullyTranscoded,
+      assetAdded = upload.progress.assetAdded || progress.assetAdded
     ))
   }
 
