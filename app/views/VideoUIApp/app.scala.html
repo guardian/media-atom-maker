@@ -1,4 +1,4 @@
-@(title: String, jsFileLocation: String, clientConfigJson: String, isHotReloading: Boolean)
+@(title: String, jsFileLocation: String, presenceJsLocation: Option[String], clientConfigJson: String, isHotReloading: Boolean)
 
 @layout(title, isHotReloading) {
     <div id="react-mount" class="main">
@@ -8,6 +8,10 @@
     <script type="application/json" id="config">
         @Html(clientConfigJson)
     </script>
+
+    @presenceJsLocation.map { presenceJs =>
+      <script src="@presenceJs"></script>
+    }
 
     <script src="@jsFileLocation"></script>
 

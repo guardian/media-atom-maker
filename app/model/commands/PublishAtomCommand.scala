@@ -4,6 +4,11 @@ import java.net.URL
 import java.time.Instant
 import java.util.Date
 
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.nodes._
+import play.api.libs.json.{JsValue, JsLookupResult}
+
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import com.gu.atom.play.AtomAPIActions
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
@@ -14,6 +19,7 @@ import data.DataStores
 import model.Platform.Youtube
 import model._
 import model.commands.CommandExceptions._
+import com.gu.media.Capi
 
 import scala.concurrent.Future
 import scala.util.control.NonFatal
@@ -21,7 +27,7 @@ import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 case class PublishAtomCommand(id: String, override val stores: DataStores, youTube: YouTube, youtubeClaims: YouTubeClaims,
-                              user: PandaUser)
+                              user: PandaUser, val capi: Capi)
   extends Command with AtomAPIActions with Logging {
 
   type T = Future[MediaAtom]
@@ -141,11 +147,40 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
     }
   }
 
+  private def removeHtmlTagsForYouTube(description: String): String = {
+      val html = Jsoup.parse(description)
+      html.select("a").remove()
+      html.text()
+  }
+
+  private def getComposerLinkText(atomId: String): String = {
+
+
+    val usages: JsValue = (capi.capiQuery("/atom/media/" + atomId + "/usage", true) \ "response" \ "results").get
+    val usagesList = usages.as[List[String]]
+
+    val composerPage = usagesList.find(usage => {
+      val query = capi.capiQuery(usage, true)
+      val contentType = (capi.capiQuery(usage, true) \ "response" \ "content" \ "type").get.as[String]
+      contentType == "video"
+    })
+
+    composerPage match {
+      case Some(page) => "\n View the video at https://www.theguardian.com/" + page
+      case None => ""
+    }
+  }
+
   private def updateYoutubeMetadata(previewAtom: MediaAtom, asset: Asset) = {
+
+    val description = previewAtom.description.map(description => {
+      removeHtmlTagsForYouTube(description) + getComposerLinkText(previewAtom.id)
+    })
+
     val metadata = YouTubeMetadataUpdate(
       title = Some(previewAtom.title),
       categoryId = previewAtom.youtubeCategoryId,
-      description = previewAtom.description,
+      description = description,
       tags = previewAtom.tags,
       license = previewAtom.license,
       privacyStatus = previewAtom.privacyStatus.map(_.name))

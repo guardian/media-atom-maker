@@ -16,7 +16,7 @@ class AddAssetToAtom extends LambdaWithParams[Upload, Upload] with DynamoAccess 
         actions.addAsset(upload.metadata.pluto.atomId, videoId)
 
       case None =>
-        log.info("Missing YouTube video ID. Cannot add asset")
+        throw new IllegalStateException("Missing YouTube video ID. Cannot add asset")
     }
 
     table.delete(upload.id)

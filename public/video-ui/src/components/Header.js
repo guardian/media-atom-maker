@@ -5,14 +5,22 @@ import VideoPublishBar from './VideoPublishBar/VideoPublishBar';
 import AdvancedActions from './Videos/AdvancedActions';
 import ComposerPageCreate from './Videos/ComposerPageCreate';
 import Icon from './Icon';
+import { Presence } from './Presence';
 
 export default class Header extends React.Component {
+  state = { presence: null };
+
   publishVideo = () => {
     this.props.publishVideo(this.props.video.id);
   };
 
   renderProgress() {
     if (this.props.s3Upload.total) {
+      // Start prompting the user about reloading the page
+      window.onbeforeunload = () => {
+        return false;
+      };
+
       return (
         <progress
           className="topbar__progress"
@@ -21,6 +29,8 @@ export default class Header extends React.Component {
         />
       );
     } else {
+      // Stop prompting the user. The upload continues server-side
+      window.onbeforeunload = undefined;
       return false;
     }
   }
@@ -119,10 +129,22 @@ export default class Header extends React.Component {
     );
   }
 
+  renderPresence() {
+    // No indicator in the UI yet, just reporting back for use in Workflow
+    if (this.props.presenceConfig) {
+      return (
+        <Presence video={this.props.video} config={this.props.presenceConfig} />
+      );
+    }
+
+    return false;
+  }
+
   render() {
     if (this.props.currentPath.endsWith('/upload')) {
       return (
         <header className="topbar flex-container">
+          {this.renderPresence()}
           {this.renderProgress()}
           {this.renderHeaderBack()}
         </header>
@@ -131,6 +153,7 @@ export default class Header extends React.Component {
     if (!this.props.showPublishedState) {
       return (
         <header className="topbar flex-container">
+          {this.renderPresence()}
           {this.renderProgress()}
 
           {this.renderHome()}
@@ -152,6 +175,7 @@ export default class Header extends React.Component {
     } else {
       return (
         <header className="topbar flex-container">
+          {this.renderPresence()}
           {this.renderProgress()}
           {this.renderHome()}
 

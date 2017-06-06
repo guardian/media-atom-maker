@@ -2,16 +2,15 @@ package com.gu.media.youtube
 
 import java.io.InputStream
 
-import com.gu.media.aws.S3Access
+import com.amazonaws.services.s3.AmazonS3Client
 import com.gu.media.logging.Logging
-import com.gu.media.upload.S3UploadActions
 import com.gu.media.upload.model.{Upload, UploadPart}
 import com.gu.media.util.InputStreamRequestBody
-import com.gu.media.youtube.YouTubeUploader.{MoveToNextChunk, UploadError, VideoFullyUpload}
+import com.gu.media.youtube.YouTubeUploader.{MoveToNextChunk, UploadError, VideoFullyUploaded}
 import com.squareup.okhttp.{MediaType, OkHttpClient, Request, RequestBody}
 import play.api.libs.json.{JsObject, Json}
 
-class YouTubeUploader(youTube: YouTubeAccess, s3: S3UploadActions) extends Logging {
+class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3Client) extends Logging {
   private val JSON = MediaType.parse("application/json; charset=utf-8")
   private val VIDEO = MediaType.parse("video/*")
 
@@ -22,7 +21,7 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: S3UploadActions) extends Loggi
     val params = s"uploadType=resumable&part=snippet,statistics,status&$contentOwnerParams"
     val endpoint = s"https://www.googleapis.com/upload/youtube/v3/videos?$params"
 
-    val videoTitle = s"$title-$id"
+    val videoTitle = s"$title-$id".take(70) // YouTube character limit
     val description = s"Uploaded by the media-atom-maker. Pending publishing"
 
     val json =
@@ -50,7 +49,12 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: S3UploadActions) extends Loggi
       .build()
 
     val response = http.newCall(request).execute()
-    response.header("Location")
+
+    if(response.code() == 200) {
+      response.header("Location")
+    } else {
+      throw new IllegalStateException(s"${response.code()} when starting YouTube upload: ${response.body().string()}")
+    }
   }
 
   def uploadPart(upload: Upload, part: UploadPart, uploadUri: String): Upload = {
@@ -59,30 +63,26 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: S3UploadActions) extends Loggi
     val UploadPart(key, start, end) = part
     val total = upload.parts.last.end
 
-    val updated = s3.getObjectInput(upload.metadata.bucket, key.toString) match {
-      case Some(input) =>
-        uploadChunk(uploadUri, input, start, end, total) match {
-          case VideoFullyUpload(videoId) =>
-            upload.copy(metadata = upload.metadata.copy(youTubeId = Some(videoId)))
+    val input = s3.getObject(upload.metadata.bucket, key).getObjectContent
 
-          case MoveToNextChunk if part == upload.parts.last =>
-            log.error("YouTube did not provide a video id. The asset cannot be added")
-            upload
+    uploadChunk(uploadUri, input, start, end, total) match {
+      case VideoFullyUploaded(videoId) =>
+        upload.copy(
+          progress = upload.progress.copy(chunksInYouTube = upload.progress.chunksInYouTube + 1),
+          metadata = upload.metadata.copy(youTubeId = Some(videoId))
+        )
 
-          case MoveToNextChunk =>
-            upload
+      case MoveToNextChunk if part == upload.parts.last =>
+        throw new IllegalStateException("YouTube did not provide a video id. The asset cannot be added")
 
-          case UploadError(error) =>
-            log.error(error)
-            upload
-        }
+      case MoveToNextChunk =>
+        upload.copy(progress = upload.progress.copy(
+          chunksInYouTube = upload.progress.chunksInYouTube + 1
+        ))
 
-      case None =>
-        log.error(s"Unable to upload ${part.key} since it has been deleted from S3")
-        upload
+      case UploadError(error) =>
+        throw new IllegalStateException(error)
     }
-
-    updated.copy(progress = upload.progress.copy(uploadedToYouTube = part.end))
   }
 
   private def uploadChunk(uri: String, input: InputStream, start: Long, end: Long, total: Long): YouTubeUploader.Result = {
@@ -118,7 +118,7 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: S3UploadActions) extends Loggi
           UploadError(s"YouTube upload error $code: $message")
 
         case (Some(id), None) =>
-          VideoFullyUpload(id)
+          VideoFullyUploaded(id)
 
         case (None, None) =>
           UploadError(s"Unable to parse YouTube response $result")
@@ -130,10 +130,6 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: S3UploadActions) extends Loggi
 object YouTubeUploader {
   sealed trait Result
   case object MoveToNextChunk extends Result
-  case class VideoFullyUpload(videoId: String) extends Result
+  case class VideoFullyUploaded(videoId: String) extends Result
   case class UploadError(error: String) extends Result
-
-  def apply(aws: S3Access, youTube: YouTubeAccess): YouTubeUploader = {
-    new YouTubeUploader(youTube, new S3UploadActions(aws.s3Client))
-  }
 }

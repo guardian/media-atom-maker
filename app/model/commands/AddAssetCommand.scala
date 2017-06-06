@@ -52,12 +52,9 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
       validateYoutubeOwnership(newAsset)
     }
 
-    val assetDuration = youTube.getDuration(videoId)
-
     val updatedAtom = atom
       .withData(mediaAtom.copy(
-        assets = newAsset +: currentAssets,
-        duration = assetDuration
+        assets = newAsset +: currentAssets
       ))
 
     log.info(s"Adding new asset $videoUri to $atomId")

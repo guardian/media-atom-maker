@@ -19,7 +19,6 @@ object Dependencies {
   val typesafeConfig = "com.typesafe" % "config" % "1.3.1"
 
   val scanamo = "com.gu" %% "scanamo" % scanamoVersion
-  val contentAtomModel = "com.gu" %% "content-atom-model" %  "2.4.39-SNAPSHOT"
 
   val scalaTest = "org.scalatest" %% "scalatest" % "2.2.6" % "test"
   val scalaTestPlusPlay = "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % "test"
@@ -55,6 +54,7 @@ object Dependencies {
   val apacheHttpClient = "org.apache.httpcomponents" % "httpclient" % "4.0.1"
   val apacheHttpCore = "org.apache.httpcomponents" % "httpcore" % "4.0.1"
 
+  val jsoup = "org.jsoup" % "jsoup" % "1.8.3"
 
   val panda = Seq(
     "com.gu" %% "pan-domain-auth-play_2-5" % pandaVersion,
@@ -90,9 +90,9 @@ object Dependencies {
   ) ++ partnerApiDepencies
 
   val appDependencies = panda ++ atomMaker ++ slf4j ++ Seq(
-    PlayImport.cache, scalaLogging, jacksonDatabind, okHttp, contentAtomModel, diff,
+    PlayImport.cache, scalaLogging, jacksonDatabind, okHttp, diff,
     awsSts, awsEc2, scalaTestPlusPlay, mockito, scalaXml, awsTranscoder,
-    awsSQS, awsSNS, awsS3
+    awsSQS, awsSNS, awsS3, jsoup
   )
 
   val uploaderDependencies = Seq(

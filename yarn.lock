@@ -2752,6 +2752,10 @@ html-comment-regex@^1.1.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/html-comment-regex/-/html-comment-regex-1.1.1.tgz#668b93776eaae55ebde8f3ad464b307a4963625e"
 
+html-janitor@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/html-janitor/-/html-janitor-2.0.2.tgz#3f4551d23d1be8554e273f9eada2b617c2b3ab70"
+
 http-errors@~1.5.0:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/http-errors/-/http-errors-1.5.1.tgz#788c0d2c1de2c81b9e6e8c01843b6b97eb920750"
@@ -2821,6 +2825,10 @@ ieee754@^1.1.4:
 ignore@^3.2.0, ignore@^3.2.7:
   version "3.2.7"
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-3.2.7.tgz#4810ca5f1d8eca5595213a34b94f2eb4ed926bbd"
+
+immutable@~3.8.1:
+  version "3.8.1"
+  resolved "https://registry.yarnpkg.com/immutable/-/immutable-3.8.1.tgz#200807f11ab0f72710ea485542de088075f68cd2"
 
 imurmurhash@^0.1.4:
   version "0.1.4"
@@ -3387,6 +3395,14 @@ locate-path@^2.0.0:
   dependencies:
     p-locate "^2.0.0"
     path-exists "^3.0.0"
+
+lodash-amd@~2.4.1:
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/lodash-amd/-/lodash-amd-2.4.1.tgz#f8e1ceceeb818f7f3284ec0c3581d63c51f3ec63"
+
+lodash-amd@~3.5.0:
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/lodash-amd/-/lodash-amd-3.5.0.tgz#a08aaafc6d8fb8e72253fab837f4ffb7d1c7ecdd"
 
 lodash-es@^4.2.0, lodash-es@^4.2.1:
   version "4.17.4"
@@ -5203,6 +5219,33 @@ sass-loader@^4.0.2:
 sax@1.2.1, sax@>=0.6.0, sax@~1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.1.tgz#7b8e656190b228e81a66aea748480d828cd2d37a"
+
+scribe-plugin-keyboard-shortcuts@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/scribe-plugin-keyboard-shortcuts/-/scribe-plugin-keyboard-shortcuts-0.1.1.tgz#fb4b377512e905312ae0255b451201afc4500694"
+  dependencies:
+    lodash-amd "~2.4.1"
+
+scribe-plugin-link-prompt-command@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/scribe-plugin-link-prompt-command/-/scribe-plugin-link-prompt-command-1.0.0.tgz#c2c4afe0e55350dbceb746592f7e9cb7654a6058"
+
+scribe-plugin-sanitizer@^0.1.10:
+  version "0.1.10"
+  resolved "https://registry.yarnpkg.com/scribe-plugin-sanitizer/-/scribe-plugin-sanitizer-0.1.10.tgz#8c912b4729e204cf7a8e86c338fafb1bd0b971e4"
+  dependencies:
+    html-janitor "^2.0.2"
+    lodash-amd "~3.5.0"
+
+scribe-plugin-toolbar@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/scribe-plugin-toolbar/-/scribe-plugin-toolbar-1.0.0.tgz#3da21eb9f632a508ef44f6f7936aee274fac1c34"
+
+scribe@guardian/scribe#fcf4e16:
+  version "3.2.0"
+  resolved "https://codeload.github.com/guardian/scribe/tar.gz/fcf4e16"
+  dependencies:
+    immutable "~3.8.1"
 
 scss-tokenizer@^0.1.2:
   version "0.1.2"

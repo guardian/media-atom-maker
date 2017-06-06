@@ -77,6 +77,27 @@ function UploadAsset({ message, total, progress }) {
   );
 }
 
+function FailedUpload({ message }) {
+  return (
+    <div className="grid__item">
+      <div className="upload__asset__video">
+        <p>
+          <strong>Upload Failed</strong><br />
+          You may retry your upload.<br />
+          This message will disappear after 10 minutes.
+        </p>
+      </div>
+      <div className="grid__item__footer">
+        <span className="grid__item__title">
+          <small>
+            <code>{message}</code>
+          </small>
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default class VideoTrail extends React.Component {
   polling = null;
   state = { status: [] };
@@ -99,7 +120,10 @@ export default class VideoTrail extends React.Component {
   }
 
   pollIfRequired = () => {
-    if (this.props.uploads.length > 0) {
+    const existingUploads = this.props.uploads.length > 0;
+    const missingUploads = this.props.s3Upload.id && !existingUploads;
+
+    if (existingUploads || missingUploads) {
       this.props.getUploads();
       this.props.getVideo();
     }
@@ -121,9 +145,7 @@ export default class VideoTrail extends React.Component {
   };
 
   renderS3Upload = () => {
-    // Multiply by 2 to give the impression of a continuous progress bar once this component is swapped out with
-    // another showing the progress of uploading to YouTube server-side
-    const total = this.props.s3Upload.total * 2;
+    const total = this.props.s3Upload.total;
     const progress = this.props.s3Upload.progress;
 
     return (
@@ -131,18 +153,6 @@ export default class VideoTrail extends React.Component {
         key="s3Upload"
         message="Uploading To S3"
         total={total}
-        progress={progress}
-      />
-    );
-  };
-
-  renderRemoteUpload = (id, total, progress) => {
-    // See renderS3Upload() for why we multiply by 2
-    return (
-      <UploadAsset
-        key={id}
-        message="Uploading to YouTube"
-        total={total * 2}
         progress={progress}
       />
     );
@@ -189,18 +199,21 @@ export default class VideoTrail extends React.Component {
       blocks.push(this.renderS3Upload());
     }
 
-    const uploads = this.props.s3Upload.id
-      ? this.props.uploads.filter(
-          upload => upload.id !== this.props.s3Upload.id
-        )
-      : this.props.uploads;
+    const uploads = this.props.uploads.filter(
+      upload => upload.id !== this.props.s3Upload.id
+    );
 
     uploads.forEach(upload => {
-      const total = upload.parts[upload.parts.length - 1].end;
-      const progress =
-        upload.progress.uploadedToS3 + upload.progress.uploadedToYouTube;
-
-      blocks.push(this.renderRemoteUpload(upload.id, total, progress));
+      blocks.push(
+        upload.failed
+          ? <FailedUpload key={upload.id} message={upload.status} />
+          : <UploadAsset
+              key={upload.id}
+              message={upload.status}
+              total={upload.total}
+              progress={upload.current}
+            />
+      );
     });
 
     blocks.push(...this.props.assets.map(this.renderAsset));

@@ -46,5 +46,10 @@ module.exports = {
 
   plugins: [
     new ExtractTextPlugin('main.css')
-  ]
+  ],
+  node: {
+    fs: 'empty',
+    net: 'empty',
+    tls: 'empty'
+  }
 };
