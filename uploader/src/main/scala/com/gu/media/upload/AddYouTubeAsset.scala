@@ -27,7 +27,7 @@ class AddYouTubeAsset extends LambdaWithParams[Upload, Upload]
     }
 
     table.delete(upload.id)
-    upload
+    upload.copy(progress = upload.progress.copy(assetAdded = true))
   }
 
   private def addYouTubeAsset(atomId: String, youTubeId: String): Unit = {

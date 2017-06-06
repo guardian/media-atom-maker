@@ -63,12 +63,14 @@ function VideoAsset({ id, platform, version, active, selectAsset }) {
 }
 
 function UploadAsset({ message, total, progress }) {
+  const progressBar = total !== undefined && progress !== undefined
+    ? <progress className="progress" value={progress} max={total} />
+    : <span className="loader" />;
+
   return (
     <div className="grid__item">
       <div className="upload__asset__video upload__asset__running">
-        {progress && total
-          ? <progress className="progress" value={progress} max={total} />
-          : <span className="loader" />}
+        {progressBar}
       </div>
       <div className="grid__item__footer">
         <span className="grid__item__title">{message}</span>
@@ -192,30 +194,28 @@ export default class VideoTrail extends React.Component {
     }
   };
 
+  renderUpload = upload => {
+    return upload.failed
+      ? <FailedUpload key={upload.id} message={upload.status} />
+      : <UploadAsset
+          key={upload.id}
+          message={upload.status}
+          total={upload.total}
+          progress={upload.current}
+        />;
+  };
+
   render() {
     const blocks = [];
+    const uploads = this.props.uploads.filter(
+      upload => upload.id !== this.props.s3Upload.id
+    );
 
     if (this.props.s3Upload.total) {
       blocks.push(this.renderS3Upload());
     }
 
-    const uploads = this.props.uploads.filter(
-      upload => upload.id !== this.props.s3Upload.id
-    );
-
-    uploads.forEach(upload => {
-      blocks.push(
-        upload.failed
-          ? <FailedUpload key={upload.id} message={upload.status} />
-          : <UploadAsset
-              key={upload.id}
-              message={upload.status}
-              total={upload.total}
-              progress={upload.current}
-            />
-      );
-    });
-
+    blocks.push(...uploads.map(this.renderUpload));
     blocks.push(...this.props.assets.map(this.renderAsset));
 
     const content = blocks.length > 0
