@@ -29,8 +29,8 @@ export function getComposerData(video) {
       belongsTo: 'settings'
     },
     {
-      name: 'bylineIds',
-      value: video.bylineIds.join(','),
+      name: 'byline',
+      value: video.byline,
       belongsTo: 'video-tags'
     }
   ];

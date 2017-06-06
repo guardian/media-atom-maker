@@ -22,8 +22,7 @@ export class ManagedField extends React.Component {
     isDesired: PropTypes.bool,
     editable: PropTypes.bool,
     maxLength: PropTypes.number,
-    fieldDetails: PropTypes.string,
-    isArray: PropTypes.bool
+    fieldDetails: PropTypes.string
   };
 
   state = {
@@ -80,13 +79,6 @@ export class ManagedField extends React.Component {
   getFieldValue(value) {
     if (!this.props.editable && this.props.placeholder && !value) {
       return this.props.placeholder;
-    }
-
-    if (this.props.isArray && !value) {
-      if (!this.props.editable) {
-        return this.props.placeholder;
-      }
-      return [];
     }
 
     if (!value) {

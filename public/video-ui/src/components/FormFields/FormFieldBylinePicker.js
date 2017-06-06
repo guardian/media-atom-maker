@@ -5,34 +5,80 @@ export default class FormFieldBylinePicker extends React.Component {
   state = {
     bylineTags: null,
     inputString: '',
-    lastAction: 'OTHER'
+    lastAction: 'OTHER',
+    tagValue: []
+  };
+
+  componentDidMount() {
+    if (this.props.fieldValue !== this.props.placeholder) {
+      this.tagsFromString(this.props.fieldValue).then(result => {
+        this.setState({
+          tagValue: result
+        });
+      });
+    }
+  }
+
+  tagsFromString = savedTags => {
+    return Promise.all(
+      savedTags.split('|').map(element => {
+        if (element.match('^profile/')) {
+          return ContentApi.getLivePage(element).then(capiResponse => {
+            const tag = capiResponse.response.tag;
+            return {
+              id: tag.id,
+              webTitle: tag.webTitle
+            };
+          });
+        } else {
+          return new Promise(resolve => resolve(element));
+        }
+      })
+    );
+  };
+
+  tagsToString = addedTags => {
+    return addedTags
+      .map(tag => {
+        if (typeof tag === 'string') {
+          return tag;
+        } else return tag.id;
+      })
+      .join('|');
+  };
+
+  onUpdate = newValue => {
+    this.setState({
+      tagValue: newValue
+    });
+    this.props.onUpdateField(this.tagsToString(newValue));
   };
 
   updateInput = e => {
     if (this.state.lastAction === 'SPACE') {
-      const newFieldValue = this.props.fieldValue.concat([
+      const newFieldValue = this.state.tagValue.concat([
         this.state.inputString
       ]);
-      this.props.onUpdateField(newFieldValue);
+      this.onUpdate(newFieldValue);
       this.setState({
         inputString: ''
       });
 
       // If the user did not add new text input, we update the tag search
     } else if (this.state.lastAction === 'DELETE') {
-      const length = this.props.fieldValue.length;
-      const lastInput = this.props.fieldValue[length - 1];
+      const length = this.state.tagValue.length;
+      const lastInput = this.state.tagValue[length - 1];
 
       this.setState({
         inputString: lastInput,
         lastAction: 'OTHER'
       });
 
-      const newValue = this.props.fieldValue.slice(
+      const newValue = this.state.tagValue.slice(
         0,
-        this.props.fieldValue.length - 1
+        this.state.tagValue.length - 1
       );
-      this.props.onUpdateField(newValue);
+      this.onUpdate(newValue);
     } else {
       this.setState({
         inputString: e.target.value
@@ -66,9 +112,7 @@ export default class FormFieldBylinePicker extends React.Component {
       });
     } else if (e.keyCode === 8) {
       if (this.state.inputString.length === 0) {
-        const lastInput = this.props.fieldValue[
-          this.props.fieldValue.length - 1
-        ];
+        const lastInput = this.state.tagValue[this.state.tagValue.length - 1];
 
         if (typeof lastInput === 'string') {
           //User is trying to delete a string input
@@ -89,7 +133,7 @@ export default class FormFieldBylinePicker extends React.Component {
     }
   };
 
-  fieldValueToString(value, index) {
+  renderFieldValue(value, index) {
     if (value.webTitle) {
       return (
         <span key={`${value.id}-${index}`}>
@@ -104,13 +148,13 @@ export default class FormFieldBylinePicker extends React.Component {
 
   renderBylineTags(tag) {
     const addTag = () => {
-      const newFieldValue = this.props.fieldValue.concat([tag]);
+      const newFieldValue = this.state.tagValue.concat([tag]);
 
       this.setState({
         inputString: ''
       });
 
-      this.props.onUpdateField(newFieldValue);
+      this.onUpdate(newFieldValue);
       this.setState({
         bylineTags: null
       });
@@ -130,14 +174,14 @@ export default class FormFieldBylinePicker extends React.Component {
 
   renderValue = (field, i) => {
     const removeFn = () => {
-      const newFieldValue = this.props.fieldValue.filter(oldField => {
+      const newFieldValue = this.state.tagValue.filter(oldField => {
         return field.id !== oldField.id;
       });
 
       this.setState({
         inputString: ''
       });
-      this.props.onUpdateField(newFieldValue);
+      this.onUpdate(newFieldValue);
     };
 
     if (field.id) {
@@ -163,7 +207,7 @@ export default class FormFieldBylinePicker extends React.Component {
 
   render() {
     if (!this.props.editable) {
-      if (!this.props.fieldValue || this.props.fieldValue.length === 0) {
+      if (!this.state.tagValue || this.state.tagValue.length === 0) {
         return (
           <div>
             <p className="details-list__title">{this.props.fieldName}</p>
@@ -177,7 +221,7 @@ export default class FormFieldBylinePicker extends React.Component {
         <div>
           <p className="details-list__title">{this.props.fieldName}</p>
           <p className="details-list__field ">
-            {this.props.fieldValue.map(this.fieldValueToString)}
+            {this.state.tagValue.map(this.renderFieldValue)}
           </p>
         </div>
       );
@@ -191,10 +235,8 @@ export default class FormFieldBylinePicker extends React.Component {
         </div>
 
         <div className="form__field__byline">
-          {this.props.fieldValue.length
-            ? this.props.fieldValue.map((value, i) =>
-                this.renderValue(value, i)
-              )
+          {this.state.tagValue.length
+            ? this.state.tagValue.map((value, i) => this.renderValue(value, i))
             : ''}
 
           <input
@@ -213,7 +255,7 @@ export default class FormFieldBylinePicker extends React.Component {
             </div>
           : ''}
 
-        {this.props.fieldValue.map(this.fieldValueToString)}
+        {this.state.tagValue.map(this.renderFieldValue)}
 
       </div>
     );

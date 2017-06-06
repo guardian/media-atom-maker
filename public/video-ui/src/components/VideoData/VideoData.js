@@ -71,9 +71,8 @@ class VideoData extends React.Component {
             </ManagedField>
 
             <ManagedField
-              fieldLocation="bylineIds"
+              fieldLocation="byline"
               name="Byline Tags"
-              isArray
               placeholder="No byline tags"
               formRowClass="form__row__byline"
             >
