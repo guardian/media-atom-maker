@@ -31,7 +31,7 @@ export function getComposerData(video) {
     {
       name: 'byline',
       value: video.byline,
-      belongsTo: 'video-tags'
+      belongsTo: 'atom'
     }
   ];
 }
