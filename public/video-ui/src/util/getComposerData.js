@@ -8,13 +8,13 @@ export function getComposerData(video) {
     },
     {
       name: 'standfirst',
-      value: video.description ? '<p>' + video.description + '</p>' : null,
+      value: video.description ? video.description : null,
       belongsTo: 'fields',
       isFreeText: true
     },
     {
       name: 'trailText',
-      value: video.trailText ? '<p>' + video.trailText + '</p>' : null,
+      value: video.trailText ? video.trailText : null,
       belongsTo: 'fields',
       isFreeText: true
     },
