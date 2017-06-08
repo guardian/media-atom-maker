@@ -38,4 +38,8 @@
   padding: 20px;
   background: $color650Grey;
   border: 1px solid $color500Grey;
+
+  a {
+    text-decoration: underline;
+  }
 }
