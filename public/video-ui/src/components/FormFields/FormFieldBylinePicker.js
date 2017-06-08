@@ -152,56 +152,33 @@ export default class FormFieldBylinePicker extends React.Component {
 
   renderBylineTags(tag) {
     const addTag = () => {
-      const tagWords = tag.webTitle.split(' ').map(word => word.toLowerCase());
-      const wordsInTag = tagWords.length;
-
-      // The words already added as text input may be duplcates of tag being added
-      // We need to remove these words before adding a new tag
-      let possibleDuplicates;
-      if (this.state.tagValue.length > wordsInTag) {
-        possibleDuplicates = this.state.tagValue.slice(
-          this.state.tagValue.length - wordsInTag,
-          this.state.tagValue.length
-        );
-      } else {
-        possibleDuplicates = this.state.tagValue.slice(0);
-      }
-      possibleDuplicates.reverse();
-      const possibleStringDuplicates = possibleDuplicates.reduce(
-        (seenInfo, value) => {
-          if (seenInfo.seenTag) {
-            return seenInfo;
-          }
-          if (value.id) {
-            seenInfo.seenTag = true;
-            return seenInfo;
-          }
-
-          seenInfo.values.push(value.toLowerCase());
-          return seenInfo;
-        },
-        {
-          values: [],
-          seenTag: false
+      // We need to remove string input that appears in the tag that is being added
+      const tagWords = tag.webTitle
+        .split(' ')
+        .map(word => word.toLowerCase())
+        .reverse();
+      const addedValues = this.state.tagValue.slice(0).map(word => {
+        if (!word.id) {
+          return word.toLowerCase();
+        } else {
+          return word;
         }
-      ).values;
+      });
+      const valuesLength = addedValues.length;
+      let numberOfMatches = 0;
 
-      tagWords.reverse();
-      const matchIndex = tagWords.findIndex(word => {
-        return possibleStringDuplicates.some(stringDupe => {
-          return stringDupe === word;
-        });
+      const firstTagMatch = tagWords.findIndex(tagWord => {
+        return addedValues[valuesLength - 1] === tagWord;
       });
 
-      const slicedTagWords = matchIndex === -1
-        ? []
-        : tagWords.slice(matchIndex);
-      var numberOfMatches = 0;
-      for (var i = 0; i < possibleStringDuplicates.length; i++) {
-        if (possibleStringDuplicates[i] === slicedTagWords[i]) {
-          numberOfMatches++;
-        } else {
-          break;
+      if (firstTagMatch !== -1) {
+        numberOfMatches = 1;
+        for (var i = firstTagMatch + 1; i < tagWords.length; i++) {
+          if (tagWords[i] === addedValues[valuesLength - 1 - numberOfMatches]) {
+            numberOfMatches++;
+          } else {
+            break;
+          }
         }
       }
 
