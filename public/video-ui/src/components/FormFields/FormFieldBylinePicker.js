@@ -20,6 +20,10 @@ export default class FormFieldBylinePicker extends React.Component {
   }
 
   tagsFromString = savedTags => {
+    if (!savedTags) {
+      return new Promise(resolve => resolve([]));
+    }
+
     return Promise.all(
       savedTags.split('|').map(element => {
         if (element.match('^profile/')) {
@@ -148,7 +152,64 @@ export default class FormFieldBylinePicker extends React.Component {
 
   renderBylineTags(tag) {
     const addTag = () => {
-      const newFieldValue = this.state.tagValue.concat([tag]);
+      const tagWords = tag.webTitle.split(' ').map(word => word.toLowerCase());
+      const wordsInTag = tagWords.length;
+
+      // The words already added as text input may be duplcates of tag being added
+      // We need to remove these words before adding a new tag
+      let possibleDuplicates;
+      if (this.state.tagValue.length > wordsInTag) {
+        possibleDuplicates = this.state.tagValue.slice(
+          this.state.tagValue.length - wordsInTag,
+          this.state.tagValue.length
+        );
+      } else {
+        possibleDuplicates = this.state.tagValue.slice(0);
+      }
+      possibleDuplicates.reverse();
+      const possibleStringDuplicates = possibleDuplicates.reduce(
+        (seenInfo, value) => {
+          if (seenInfo.seenTag) {
+            return seenInfo;
+          }
+          if (value.id) {
+            seenInfo.seenTag = true;
+            return seenInfo;
+          }
+
+          seenInfo.values.push(value.toLowerCase());
+          return seenInfo;
+        },
+        {
+          values: [],
+          seenTag: false
+        }
+      ).values;
+
+      tagWords.reverse();
+      const matchIndex = tagWords.findIndex(word => {
+        return possibleStringDuplicates.some(stringDupe => {
+          return stringDupe === word;
+        });
+      });
+
+      const slicedTagWords = matchIndex === -1
+        ? []
+        : tagWords.slice(matchIndex);
+      var numberOfMatches = 0;
+      for (var i = 0; i < possibleStringDuplicates.length; i++) {
+        if (possibleStringDuplicates[i] === slicedTagWords[i]) {
+          numberOfMatches++;
+        } else {
+          break;
+        }
+      }
+
+      const slicedTagValue = this.state.tagValue.slice(
+        0,
+        this.state.tagValue.length - numberOfMatches
+      );
+      const newFieldValue = slicedTagValue.concat([tag]);
 
       this.setState({
         inputString: ''
