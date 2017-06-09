@@ -18,7 +18,7 @@ button {
   @include buttonClass($color800Grey, $color500Grey, $color300Grey, $color800Grey);
 
   &__assets {
-    margin: 10px;
+    margin: 5px;
   }
 }
 

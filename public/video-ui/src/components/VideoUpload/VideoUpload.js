@@ -26,7 +26,7 @@ class AddAssetFromURL extends React.Component {
 
     return (
       <div>
-        <div className="video__detailbox">
+        <div className="video__detailbox video__detailbox__assets">
           <div className="video__detailbox__header__container">
             <header className="video__detailbox__header">Asset URL</header>
           </div>
@@ -124,17 +124,19 @@ class VideoUpload extends React.Component {
     // the permissions are also validated on the server-side for each request
 
     return (
-      <div className="video__detailbox upload__action">
+      <div className="video__detailbox video__detailbox__assets upload__action">
         <div className="video__detailbox__header__container">
           <header className="video__detailbox__header">Upload Video</header>
         </div>
-        <input
-          className="form__field"
-          type="file"
-          onChange={this.setFile}
-          disabled={uploading}
-        />
-        {this.renderButtons(uploading)}
+        <div className="form__group">
+          <input
+            className="form__field"
+            type="file"
+            onChange={this.setFile}
+            disabled={uploading}
+          />
+          {this.renderButtons(uploading)}
+        </div>
       </div>
     );
   }
@@ -193,22 +195,24 @@ class VideoUpload extends React.Component {
 
     return (
       <div>
-        <div className="video__detailbox">
-          <div className="video__detailbox__header__container">
-            <header className="video__detailbox__header">YouTube Data</header>
-          </div>
-          {this.renderEditButton()}
-          <VideoYoutube
-            video={this.props.video || {}}
-            updateVideo={this.props.videoActions.updateVideo}
-            editable={this.state.videoEditOpen}
-            formName={formNames.youtube}
-            updateErrors={this.props.formErrorActions.updateFormErrors}
-          />
-        </div>
         <div className="video__main">
           <div className="video__main__header">
-            {this.renderActions(uploading)}
+            <div className="video__detailbox">
+              <div className="video__detailbox__header__container">
+                <header className="video__detailbox__header">
+                  YouTube Data
+                </header>
+                {this.renderEditButton()}
+              </div>
+              <VideoYoutube
+                video={this.props.video || {}}
+                updateVideo={this.props.videoActions.updateVideo}
+                editable={this.state.videoEditOpen}
+                formName={formNames.youtube}
+                updateErrors={this.props.formErrorActions.updateFormErrors}
+              />
+              {this.renderActions(uploading)}
+            </div>
             <VideoTrail
               activeVersion={activeVersion}
               assets={assets}
