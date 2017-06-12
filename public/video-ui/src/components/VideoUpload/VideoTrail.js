@@ -63,12 +63,14 @@ function VideoAsset({ id, platform, version, active, selectAsset }) {
 }
 
 function UploadAsset({ message, total, progress }) {
+  const progressBar = total !== undefined && progress !== undefined
+    ? <progress className="progress" value={progress} max={total} />
+    : <span className="loader" />;
+
   return (
     <div className="grid__item">
       <div className="upload__asset__video upload__asset__running">
-        {progress && total
-          ? <progress className="progress" value={progress} max={total} />
-          : <span className="loader" />}
+        {progressBar}
       </div>
       <div className="grid__item__footer">
         <span className="grid__item__title">{message}</span>
