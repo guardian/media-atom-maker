@@ -29,7 +29,7 @@ class StepFunctions(awsConfig: AWSConfig) {
     val runningJobs = getExecutions(atomId, ExecutionStatus.RUNNING)
     val failedJobs = getExecutions(atomId, ExecutionStatus.FAILED).filter(lessThan10MinutesOld)
 
-    val running = runningJobs.map(getRunningStatus)
+    val running = runningJobs.flatMap(parseRunningStatus)
     val failed = failedJobs.map(getFailedStatus)
 
     running ++ failed
@@ -63,30 +63,18 @@ class StepFunctions(awsConfig: AWSConfig) {
     awsConfig.stepFunctionsClient.getExecutionHistory(request).getEvents.asScala
   }
 
-  private def getRunningStatus(execution: ExecutionListItem): UploadStatus = {
+  private def parseRunningStatus(execution: ExecutionListItem): Option[UploadStatus] = {
     val id = execution.getName
-    val events = getEvents(execution)
 
-    events.find(_.getType == "TaskStateEntered") match {
-      case Some(event) =>
-        val state = event.getStateEnteredEventDetails.getName
-        val upload = Json.parse(event.getStateEnteredEventDetails.getInput).as[Upload]
+    getLastTask(execution) match {
+      case Some((_, upload)) if upload.metadata.youTubeId.nonEmpty =>
+        None // hide uploads that already have a corresponding asset
 
-        if(upload.metadata.selfHost) {
-          UploadStatus.indeterminate(id, state)
-        } else {
-          val current = upload.progress.chunksInYouTube
-          val total = upload.parts.length
-
-          if(current < total) {
-            UploadStatus(id, "Uploading to YouTube", current, total)
-          } else {
-            UploadStatus.indeterminate(id, state)
-          }
-        }
+      case Some((state, upload)) =>
+        Some(buildProgress(id, state, upload))
 
       case None =>
-        UploadStatus.indeterminate(id, "Uploading")
+        Some(UploadStatus.indeterminate(id, "Uploading"))
     }
   }
 
@@ -111,10 +99,37 @@ class StepFunctions(awsConfig: AWSConfig) {
     UploadStatus.indeterminate(id, cause, failed = true)
   }
 
+  private def getLastTask(execution: ExecutionListItem): Option[(String, Upload)] = {
+    val events = getEvents(execution)
+    val taskEvent = events.find(_.getType == "TaskStateEntered")
+
+    taskEvent.map { event =>
+      val state = event.getStateEnteredEventDetails.getName
+      val upload = Json.parse(event.getStateEnteredEventDetails.getInput).as[Upload]
+
+      (state, upload)
+    }
+  }
+
   private def lessThan10MinutesOld(e: ExecutionListItem): Boolean = {
     val now = Instant.now().toEpochMilli
     val end = e.getStopDate.toInstant.toEpochMilli
 
     (now - end) < (1000 * 60 * 10)
+  }
+
+  private def buildProgress(id: String, state: String, upload: Upload): UploadStatus = {
+    if(upload.metadata.selfHost) {
+      UploadStatus.indeterminate(id, state)
+    } else {
+      val current = upload.progress.chunksInYouTube
+      val total = upload.parts.length
+
+      if(current < total) {
+        UploadStatus(id, "Uploading to YouTube", current, total)
+      } else {
+        UploadStatus.indeterminate(id, state)
+      }
+    }
   }
 }
