@@ -25,7 +25,7 @@ export default class FormFieldBylinePicker extends React.Component {
     }
 
     return Promise.all(
-      savedTags.split('|').map(element => {
+      savedTags.map(element => {
         if (element.match('^profile/')) {
           return ContentApi.getLivePage(element).then(capiResponse => {
             const tag = capiResponse.response.tag;
@@ -42,13 +42,11 @@ export default class FormFieldBylinePicker extends React.Component {
   };
 
   tagsToString = addedTags => {
-    return addedTags
-      .map(tag => {
-        if (typeof tag === 'string') {
-          return tag;
-        } else return tag.id;
-      })
-      .join('|');
+    return addedTags.map(tag => {
+      if (typeof tag === 'string') {
+        return tag;
+      } else return tag.id;
+    });
   };
 
   onUpdate = newValue => {
