@@ -30,7 +30,7 @@ export function getComposerData(video) {
     },
     {
       name: 'byline',
-      value: video.byline,
+      value: video.byline.join('|'),
       belongsTo: 'atom'
     }
   ];

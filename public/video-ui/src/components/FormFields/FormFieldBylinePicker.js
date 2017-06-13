@@ -1,5 +1,6 @@
 import React from 'react';
 import ContentApi from '../../services/capi';
+import { tagsFromStringList, tagsToStringList } from '../../util/tagParsers';
 
 export default class FormFieldBylinePicker extends React.Component {
   state = {
@@ -11,7 +12,7 @@ export default class FormFieldBylinePicker extends React.Component {
 
   componentDidMount() {
     if (this.props.fieldValue !== this.props.placeholder) {
-      this.tagsFromString(this.props.fieldValue).then(result => {
+      tagsFromStringList(this.props.fieldValue).then(result => {
         this.setState({
           tagValue: result
         });
@@ -19,41 +20,11 @@ export default class FormFieldBylinePicker extends React.Component {
     }
   }
 
-  tagsFromString = savedTags => {
-    if (!savedTags) {
-      Promise.resolve([]);
-    }
-
-    return Promise.all(
-      savedTags.map(element => {
-        if (element.match('^profile/')) {
-          return ContentApi.getLivePage(element).then(capiResponse => {
-            const tag = capiResponse.response.tag;
-            return {
-              id: tag.id,
-              webTitle: tag.webTitle
-            };
-          });
-        } else {
-          return new Promise(resolve => resolve(element));
-        }
-      })
-    );
-  };
-
-  tagsToString = addedTags => {
-    return addedTags.map(tag => {
-      if (typeof tag === 'string') {
-        return tag;
-      } else return tag.id;
-    });
-  };
-
   onUpdate = newValue => {
     this.setState({
       tagValue: newValue
     });
-    this.props.onUpdateField(this.tagsToString(newValue));
+    this.props.onUpdateField(tagsToStringList(newValue));
   };
 
   updateInput = e => {
