@@ -33,7 +33,7 @@ function ErrorAsset({ id, message }) {
   return (
     <div className="grid__item">
       <div className="upload__asset__video upload__asset__empty">
-        <span>{message}</span>
+        <span>Failed: {message}</span>
       </div>
       {footer}
     </div>
@@ -211,7 +211,7 @@ export default class VideoTrail extends React.Component {
     }
 
     const uploads = this.props.uploads.filter(
-      upload => upload.id !== this.props.s3Upload.id
+      upload => upload.id !== this.props.s3Upload.id && !upload.assetAdded
     );
 
     uploads.forEach(upload => {

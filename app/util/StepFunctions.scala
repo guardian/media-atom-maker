@@ -29,7 +29,7 @@ class StepFunctions(awsConfig: AWSConfig) {
     val runningJobs = getExecutions(atomId, ExecutionStatus.RUNNING)
     val failedJobs = getExecutions(atomId, ExecutionStatus.FAILED).filter(lessThan10MinutesOld)
 
-    val running = runningJobs.flatMap(parseRunningStatus)
+    val running = runningJobs.map(getRunningStatus)
     val failed = failedJobs.map(getFailedStatus)
 
     running ++ failed
@@ -63,18 +63,15 @@ class StepFunctions(awsConfig: AWSConfig) {
     awsConfig.stepFunctionsClient.getExecutionHistory(request).getEvents.asScala
   }
 
-  private def parseRunningStatus(execution: ExecutionListItem): Option[UploadStatus] = {
+  private def getRunningStatus(execution: ExecutionListItem): UploadStatus = {
     val id = execution.getName
 
     getLastTask(execution) match {
-      case Some((_, upload)) if upload.metadata.youTubeId.nonEmpty =>
-        None // hide uploads that already have a corresponding asset
-
       case Some((state, upload)) =>
-        Some(buildProgress(id, state, upload))
+        buildProgress(id, state, upload)
 
       case None =>
-        Some(UploadStatus.indeterminate(id, "Uploading"))
+        UploadStatus.indeterminate(id, "Uploading")
     }
   }
 
@@ -125,11 +122,13 @@ class StepFunctions(awsConfig: AWSConfig) {
       val current = upload.progress.chunksInYouTube
       val total = upload.parts.length
 
-      if(current < total) {
+      val status = if(current < total) {
         UploadStatus(id, "Uploading to YouTube", current, total)
       } else {
         UploadStatus.indeterminate(id, state)
       }
+
+      status.copy(assetAdded = upload.metadata.youTubeId.nonEmpty)
     }
   }
 }
