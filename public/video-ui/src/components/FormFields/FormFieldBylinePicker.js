@@ -3,7 +3,7 @@ import ContentApi from '../../services/capi';
 
 export default class FormFieldBylinePicker extends React.Component {
   state = {
-    bylineTags: null,
+    bylineTags: [],
     inputString: '',
     lastAction: 'OTHER',
     tagValue: []
@@ -103,7 +103,7 @@ export default class FormFieldBylinePicker extends React.Component {
         })
         .catch(() => {
           this.setState({
-            bylineTags: null
+            bylineTags: []
           });
         });
     }
@@ -194,7 +194,7 @@ export default class FormFieldBylinePicker extends React.Component {
 
       this.onUpdate(newFieldValue);
       this.setState({
-        bylineTags: null
+        bylineTags: []
       });
     };
 
@@ -287,7 +287,7 @@ export default class FormFieldBylinePicker extends React.Component {
           />
         </div>
 
-        {this.state.bylineTags && this.state.bylineTags.length !== 0
+        {this.state.bylineTags.length !== 0
           ? <div className="form__field__tags">
               {this.state.bylineTags.map(tag => this.renderBylineTags(tag))}
             </div>
