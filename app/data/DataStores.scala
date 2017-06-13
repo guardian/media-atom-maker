@@ -8,7 +8,7 @@ import com.gu.media.{CapiAccess, PlutoDataStore}
 import model.commands.CommandExceptions._
 import util.AWSConfig
 
-class DataStores(aws: AWSConfig, capi: CapiAccess)  { // appears unused but is required to make the data stores compile
+class DataStores(aws: AWSConfig, capi: CapiAccess)  {
 
   val preview = new PreviewDynamoDataStore(aws.dynamoDB, aws.dynamoTableName)
   val published = new PublishedDynamoDataStore(aws.dynamoDB, aws.publishedDynamoTableName)
