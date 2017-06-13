@@ -1,6 +1,7 @@
 import React from 'react';
 import ContentApi from '../../services/capi';
 import { tagsFromStringList, tagsToStringList } from '../../util/tagParsers';
+import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 
 export default class FormFieldBylinePicker extends React.Component {
   state = {
@@ -121,41 +122,11 @@ export default class FormFieldBylinePicker extends React.Component {
 
   renderBylineTags(tag) {
     const addTag = () => {
-      // We need to remove string input that appears in the tag that is being added
-      const tagWords = tag.webTitle
-        .split(' ')
-        .map(word => word.toLowerCase())
-        .reverse();
-      const addedValues = this.state.tagValue.slice(0).map(word => {
-        if (!word.id) {
-          return word.toLowerCase();
-        } else {
-          return word;
-        }
-      });
-      const valuesLength = addedValues.length;
-      let numberOfMatches = 0;
-
-      const firstTagMatch = tagWords.findIndex(tagWord => {
-        return addedValues[valuesLength - 1] === tagWord;
-      });
-
-      if (firstTagMatch !== -1) {
-        numberOfMatches = 1;
-        for (var i = firstTagMatch + 1; i < tagWords.length; i++) {
-          if (tagWords[i] === addedValues[valuesLength - 1 - numberOfMatches]) {
-            numberOfMatches++;
-          } else {
-            break;
-          }
-        }
-      }
-
-      const slicedTagValue = this.state.tagValue.slice(
-        0,
-        this.state.tagValue.length - numberOfMatches
+      const valueWithoutStringDupes = removeStringTagDuplicates(
+        tag,
+        this.state.tagValue
       );
-      const newFieldValue = slicedTagValue.concat([tag]);
+      const newFieldValue = valueWithoutStringDupes.concat([tag]);
 
       this.setState({
         inputString: ''
