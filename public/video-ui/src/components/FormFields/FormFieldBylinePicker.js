@@ -21,7 +21,7 @@ export default class FormFieldBylinePicker extends React.Component {
 
   tagsFromString = savedTags => {
     if (!savedTags) {
-      return new Promise(resolve => resolve([]));
+      Promise.resolve([]);
     }
 
     return Promise.all(
