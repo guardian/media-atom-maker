@@ -33,7 +33,7 @@ function ErrorAsset({ id, message }) {
   return (
     <div className="grid__item">
       <div className="upload__asset__video upload__asset__empty">
-        <span>Failed: {message}</span>
+        <span>{message}</span>
       </div>
       {footer}
     </div>
