@@ -18,6 +18,7 @@ js_deps() {
 }
 
 js_test() {
+  yarn run lint
   yarn run test
 }
 

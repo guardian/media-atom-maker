@@ -8,8 +8,7 @@
     "client-dev": "node ./webpack-dev-server.js",
     "lint": "eslint public/video-ui/src/**/*.js --fix",
     "precommit": "lint-staged",
-    "test": "lint",
-    "tests": "jest"
+    "test": "jest"
   },
   "jest": {
     "testPathDirs": ["public/video-ui/test"]
