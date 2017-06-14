@@ -589,11 +589,6 @@ Resources:
           - '
 
             '
-          - aws.dynamo.uploadTrackingTableName=
-          - !Ref 'UploadTrackingTable'
-          - '
-
-            '
           - aws.dynamo.plutoTableName=
           - !Ref 'ManualPlutoTable'
           - '
