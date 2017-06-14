@@ -8,16 +8,25 @@ export default class FormFieldBylinePicker extends React.Component {
     bylineTags: [],
     inputString: '',
     lastAction: 'OTHER',
-    tagValue: []
+    tagValue: [],
+    capiUnavailable: false
   };
 
   componentDidMount() {
     if (this.props.fieldValue !== this.props.placeholder) {
-      tagsFromStringList(this.props.fieldValue).then(result => {
-        this.setState({
-          tagValue: result
+      tagsFromStringList(this.props.fieldValue)
+        .then(result => {
+          this.setState({
+            tagValue: result
+          });
+        })
+        .catch(() => {
+          // capi is unavailable and we cannot get webtitles for tags
+          this.setState({
+            tagValue: this.props.fieldValue.slice(),
+            capiUnavailable: true
+          });
         });
-      });
     }
   }
 
@@ -69,11 +78,11 @@ export default class FormFieldBylinePicker extends React.Component {
           this.setState({
             bylineTags: bylines
           });
-          return;
         })
         .catch(() => {
           this.setState({
-            bylineTags: []
+            bylineTags: [],
+            capiUnavailable: true
           });
         });
     }
@@ -183,6 +192,16 @@ export default class FormFieldBylinePicker extends React.Component {
     );
   };
 
+  renderCapiUnavailable() {
+    if (this.state.capiUnavailable) {
+      return (
+        <span className="form__field--external__error">
+          Tags are currently unavailable
+        </span>
+      );
+    }
+  }
+
   render() {
     if (!this.props.editable) {
       if (!this.state.tagValue || this.state.tagValue.length === 0) {
@@ -211,6 +230,7 @@ export default class FormFieldBylinePicker extends React.Component {
         <div className="form__label__layout">
           <label className="form__label">{this.props.fieldName}</label>
         </div>
+        {this.renderCapiUnavailable()}
 
         <div className="form__field__byline">
           {this.state.tagValue.length

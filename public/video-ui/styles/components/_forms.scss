@@ -91,6 +91,10 @@
     border-color: $dangerColor;
   }
 
+  &--external__error {
+    color: $dangerColor;
+  }
+
   &--warning {
     border-color: $brandColor;
   }
