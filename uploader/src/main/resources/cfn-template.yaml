@@ -36,6 +36,10 @@ Parameters:
     Description: "email address where notifications of missing pluto ids are sent from"
     Type: "String"
     Default: "digitalcms.dev@guardian.co.uk"
+  AlertWebhook:
+    Description: "Where CloudWatch alerts are sent"
+    Type: "String"
+    Default: ""
 
 Conditions:
   CreateProdResources: !Equals [!Ref "Stage", "PROD"]
@@ -158,3 +162,30 @@ Resources:
           -
             {}
       RoleArn: !GetAtt [ StatesExecutionRole, Arn ]
+
+  AlertTopic:
+    Type: AWS::SNS::Topic
+    Condition: CreateProdResources
+    Properties:
+      DisplayName: !Join ['-', [!Ref 'Stage', Alerts]]
+      Subscription:
+      - Endpoint: !Ref 'AlertWebhook'
+        Protocol: https
+
+  UploadFailedAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: CreateProdResources
+    Properties:
+      AlarmDescription: Video upload failed
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: '1'
+      Namespace: AWS/States
+      MetricName: ExecutionsFailed
+      Dimensions:
+      - Name: StateMachineArn
+        Value: !Ref 'VideoPipelinePROD'
+      Period: '60'
+      EvaluationPeriods: '1'
+      Statistic: Maximum
+      AlarmActions:
+      - !Ref 'AlertTopic'
