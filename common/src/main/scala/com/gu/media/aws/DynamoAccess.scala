@@ -8,10 +8,6 @@ trait DynamoAccess { this: Settings with AwsAccess =>
   lazy val publishedDynamoTableName: String = getMandatoryString("aws.dynamo.publishedTableName")
   lazy val auditDynamoTableName: String = getMandatoryString("aws.dynamo.auditTableName")
 
-  lazy val uploadTrackingTableName: String = sys.env.getOrElse("UPLOAD_TRACKING_TABLE_NAME",
-    getMandatoryString("aws.dynamo.uploadTrackingTableName")
-  )
-
   lazy val manualPlutoDynamo: String = sys.env.getOrElse("PLUTO_TABLE_NAME",
     getMandatoryString("aws.dynamo.plutoTableName")
   )
