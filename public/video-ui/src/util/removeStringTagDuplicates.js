@@ -1,5 +1,8 @@
 export default function removeStringTagDuplicates(tag, tagValue) {
   // Remove string input that appears in the last words of the tag input that is being added
+  // If a word Mary has already been added and a user adds a tag with title `Mary Smith`, `Mary`
+  // gets removed from the input. Instead of the byline reading `Mary Mary Smith`, it only
+  // reads `Mary Smith`.
 
   const tagWords = tag.webTitle
     .split(' ')
