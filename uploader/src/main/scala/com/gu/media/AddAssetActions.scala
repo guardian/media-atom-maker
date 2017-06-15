@@ -16,8 +16,15 @@ class AddAssetActions(config: Settings with AwsAccess, hmac: HmacRequestSupport)
     val uri = s"https://$domain/api2/atoms/$atomId/assets"
     val hmacHeaders = hmac.generateHmacHeaders(uri)
 
-    val videoUri = s"https://www.youtube.com/watch?v=$videoId"
-    val body = s"""{"uri": "$videoUri"}"""
+    val body =
+      s"""
+         | {
+         |    "platform": "Youtube",
+         |    "assets": [
+         |        { "id": "$videoId" }
+         |    ]
+         | }
+       """.stripMargin
 
     if(config.stage == "DEV") {
       log.info(s"Add asset: POST $uri $body $hmacHeaders")
