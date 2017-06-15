@@ -1,5 +1,6 @@
 package util
 
+import model.Asset
 import org.scalatest.{FunSuite, MustMatchers}
 import play.api.libs.json.Json
 
@@ -14,7 +15,7 @@ class AddAssetRequestTest extends FunSuite with MustMatchers {
          |}
        """.stripMargin
 
-    val asset :: Nil = AddAssetRequest(Json.parse(input)).get
+    val asset = addYouTubeAsset(input)
     asset.platform must be(model.Platform.Youtube)
     asset.id must be("QRplDNMsS4U")
   }
@@ -43,7 +44,7 @@ class AddAssetRequestTest extends FunSuite with MustMatchers {
          |}
        """.stripMargin
 
-    val asset1 :: asset2 :: Nil = AddAssetRequest(Json.parse(input)).get
+    val asset1 :: asset2 :: Nil = addSelfHostedAsset(input)
 
     asset1.platform must be(model.Platform.Url)
     asset1.id must be("link_1")
@@ -89,7 +90,7 @@ class AddAssetRequestTest extends FunSuite with MustMatchers {
          |}
        """.stripMargin
 
-    val asset :: Nil = AddAssetRequest(Json.parse(input)).get
+    val asset = addYouTubeAsset(input)
     asset.platform must be(model.Platform.Youtube)
     asset.id must be("QRplDNMsS4U")
   }
@@ -105,5 +106,13 @@ class AddAssetRequestTest extends FunSuite with MustMatchers {
        """.stripMargin
 
     AddAssetRequest(Json.parse(input)).isError must be(true)
+  }
+
+  private def addYouTubeAsset(input: String): Asset = {
+    AddAssetRequest(Json.parse(input)).get.asInstanceOf[AddYouTubeAsset].asset
+  }
+
+  private def addSelfHostedAsset(input: String): List[Asset] = {
+    AddAssetRequest(Json.parse(input)).get.asInstanceOf[AddSelfHostedAsset].assets
   }
 }

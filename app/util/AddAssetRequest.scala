@@ -5,7 +5,9 @@ import model.Platform.Url.{name => UrlPlatform}
 import model.{Asset, AssetType, Platform}
 import play.api.libs.json._
 
-case class AddAssetRequest(assets: List[Asset])
+sealed abstract class AddAssetRequest
+case class AddYouTubeAsset(asset: Asset) extends AddAssetRequest
+case class AddSelfHostedAsset(assets: List[Asset]) extends AddAssetRequest
 
 object AddAssetRequest {
   private val emptyAsset = Asset(
@@ -16,9 +18,9 @@ object AddAssetRequest {
     mimeType = None
   )
 
-  implicit val reads: Reads[AddAssetRequest] = Reads { v => apply(v) }.map(AddAssetRequest(_))
+  implicit val reads: Reads[AddAssetRequest] = Reads { v => apply(v) }
 
-  def apply(json: JsValue): JsResult[List[Asset]] = {
+  def apply(json: JsValue): JsResult[AddAssetRequest] = {
     val ret = for {
       platform <- (json \ "platform").validate[String]
       rawAssets <- (json \ "assets").validate[List[JsValue]]
@@ -32,7 +34,7 @@ object AddAssetRequest {
     ret orElse parseYouTubeUri(json)
   }
 
-  private def parseAssetsByPlatform(platform: String, rawAssets: List[JsValue]): JsResult[List[Asset]] = {
+  private def parseAssetsByPlatform(platform: String, rawAssets: List[JsValue]): JsResult[AddAssetRequest] = {
     (platform, rawAssets) match {
       case (p, assets) if p == YouTubePlatform =>
         assets match {
@@ -51,7 +53,7 @@ object AddAssetRequest {
         if(failures.nonEmpty) {
           JsError(failures.flatten)
         } else {
-          JsSuccess(results.collect { case JsSuccess(asset, _) => asset })
+          JsSuccess(AddSelfHostedAsset(results.collect { case JsSuccess(asset, _) => asset }))
         }
 
       case _ =>
@@ -59,20 +61,20 @@ object AddAssetRequest {
     }
   }
 
-  private def parseYouTubeId(rawAsset: JsValue): JsResult[List[Asset]] = {
+  private def parseYouTubeId(rawAsset: JsValue): JsResult[AddAssetRequest] = {
     (rawAsset \ "id").validate[String].flatMap {
       case id if id.startsWith("http") =>
         JsError(s"Expected YouTube ID, got $id")
 
       case id =>
-        JsSuccess(List(emptyAsset.copy(id = id, platform = Platform.Youtube)))
+        JsSuccess(AddYouTubeAsset(emptyAsset.copy(id = id, platform = Platform.Youtube)))
     }
   }
 
-  private def parseYouTubeUri(rawAsset: JsValue): JsResult[List[Asset]] = {
+  private def parseYouTubeUri(rawAsset: JsValue): JsResult[AddAssetRequest] = {
     (rawAsset \ "uri").validate[String].flatMap {
       case ThriftUtil.youtube(id) =>
-        JsSuccess(List(emptyAsset.copy(id = id, platform = Platform.Youtube)))
+        JsSuccess(AddYouTubeAsset(emptyAsset.copy(id = id, platform = Platform.Youtube)))
 
       case other =>
         JsError(s"Expected YouTube link, got $other")

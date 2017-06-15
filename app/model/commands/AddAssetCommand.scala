@@ -6,9 +6,10 @@ import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
 import model.{Asset, MediaAtom}
+import util.{AddAssetRequest, AddSelfHostedAsset}
 import util.atom.MediaAtomImplicits
 
-case class AddAssetCommand(atomId: String, newAssets: List[Asset], override val stores: DataStores,
+case class AddAssetCommand(atomId: String, params: AddAssetRequest, override val stores: DataStores,
                            youTube: YouTube, user: PandaUser)
   extends Command
     with MediaAtomImplicits
@@ -17,6 +18,9 @@ case class AddAssetCommand(atomId: String, newAssets: List[Asset], override val 
   type T = MediaAtom
 
   def process(): MediaAtom = {
+    // TODO MRB: replace with switch on params
+    val newAssets = params.asInstanceOf[AddSelfHostedAsset].assets
+
     log.info(s"Request to add new asset ${newAssets.mkString(",")} to $atomId")
 
     val atom = getPreviewAtom(atomId)

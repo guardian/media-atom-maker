@@ -106,7 +106,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
 
   def addAsset(atomId: String) = APIHMACAuthAction { implicit req =>
     parse(req) { params: AddAssetRequest =>
-      val command = AddAssetCommand(atomId, params.assets, stores, youTube, req.user)
+      val command = AddAssetCommand(atomId, params, stores, youTube, req.user)
       val atom = command.process()
 
       Ok(Json.toJson(atom))
