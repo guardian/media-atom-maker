@@ -36,7 +36,6 @@ Parameters:
   AlertWebhook:
     Description: "Where CloudWatch alerts are sent"
     Type: "String"
-    # Optional in DEV/CODE (just fill in with a dummy string)
 
 Conditions:
   CreateProdResources: !Equals [!Ref "Stage", "PROD"]
