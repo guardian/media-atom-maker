@@ -21,9 +21,9 @@ case class AddAssetCommand(atomId: String, newAssets: List[Asset], override val 
 
     val atom = getPreviewAtom(atomId)
     val mediaAtom = MediaAtom.fromThrift(atom)
-    val currentAssets: Seq[Asset] = mediaAtom.assets
+    val currentAssets = mediaAtom.assets
 
-    val nextVersion = currentAssets.map(_.version).max + 1
+    val nextVersion = getNextVersion(currentAssets)
     val versionedAssets = newAssets.map(_.copy(version = nextVersion))
 
     versionedAssets.foreach { asset =>
@@ -40,6 +40,14 @@ case class AddAssetCommand(atomId: String, newAssets: List[Asset], override val 
     current.find(_.id == asset.id).foreach { _ =>
       log.info(s"${asset.id} has already been added to $atomId")
       AssetVersionConflict
+    }
+  }
+
+  private def getNextVersion(assets: Seq[Asset]): Long = {
+    if(assets.isEmpty) {
+      1
+    } else {
+      assets.map(_.version).max + 1
     }
   }
 }
