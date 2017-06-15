@@ -25,6 +25,8 @@ case class MediaAtom(
   // metadata
   tags: List[String],
   byline: List[String] = Nil,
+  commissioningDesks: List[String] = Nil,
+  keywords: List[String] = Nil,
   youtubeCategoryId: Option[String],
   license: Option[String],
   channelId: Option[String],
@@ -53,6 +55,8 @@ case class MediaAtom(
         trailText = trailText,
         posterImage = posterImage.map(_.asThrift),
         byline = byline,
+        commissioningDesks = commissioningDesks,
+        keywords = keywords,
         metadata = Some(ThriftMetadata(
           tags = Some(tags),
           categoryId = youtubeCategoryId,
@@ -110,6 +114,8 @@ object MediaAtom extends MediaAtomImplicits {
       trailText = data.trailText,
       tags = data.metadata.flatMap(_.tags.map(_.toList)).getOrElse(Nil),
       byline = data.byline.toList,
+      commissioningDesks = data.commissioningDesks.toList,
+      keywords = data.keywords.toList,
       youtubeCategoryId = data.metadata.map(_.categoryId).getOrElse(None),
       expiryDate = data.metadata.map(_.expiryDate).getOrElse(None),
       blockAds = atom.flags.flatMap(_.blockAds),
