@@ -14,7 +14,7 @@ export default class FormFieldBylinePicker extends React.Component {
 
   componentDidMount() {
     if (this.props.fieldValue !== this.props.placeholder) {
-      tagsFromStringList(this.props.fieldValue)
+      tagsFromStringList(this.props.fieldValue, this.props.tagType)
         .then(result => {
           this.setState({
             tagValue: result
@@ -202,6 +202,40 @@ export default class FormFieldBylinePicker extends React.Component {
     }
   }
 
+  renderTextInputElement() {
+    const getInputPlaceholder = () => {
+      if (!this.props.fieldValue || this.props.fieldValue.length === 0) {
+        return this.props.inputPlaceholder;
+      }
+      return '';
+    };
+
+    if (this.props.disableTextInput) {
+      return (
+        <input
+          type="text"
+          className="form__field__byline--input"
+          id={this.props.fieldName}
+          onChange={this.updateInput}
+          value={this.state.inputString}
+          placeholder={getInputPlaceholder()}
+        />
+      );
+    }
+
+    return (
+      <input
+        type="text"
+        className="form__field__byline--input"
+        id={this.props.fieldName}
+        onKeyDown={this.processTagInput}
+        onChange={this.updateInput}
+        value={this.state.inputString}
+        placeholder={getInputPlaceholder()}
+      />
+    );
+  }
+
   render() {
     if (!this.props.editable) {
       if (!this.state.tagValue || this.state.tagValue.length === 0) {
@@ -237,14 +271,8 @@ export default class FormFieldBylinePicker extends React.Component {
             ? this.state.tagValue.map((value, i) => this.renderValue(value, i))
             : ''}
 
-          <input
-            type="text"
-            className="form__field__byline--input"
-            id={this.props.fieldName}
-            onKeyDown={this.processTagInput}
-            onChange={this.updateInput}
-            value={this.state.inputString}
-          />
+          {this.renderTextInputElement()}
+
         </div>
 
         {this.state.bylineTags.length !== 0

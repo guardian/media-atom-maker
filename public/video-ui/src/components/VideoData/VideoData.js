@@ -79,6 +79,27 @@ class VideoData extends React.Component {
             >
               <FormFieldBylinePicker />
             </ManagedField>
+            <ManagedField
+              fieldLocation="commissioningDesk"
+              name="Comissioning Desk"
+              placeholder="No comissioning desk"
+              formRowClass="form__row__byline"
+              tagType="tracking"
+              inputPlaceholder="Search comissioning info (type '*' to show all)"
+            >
+              <FormFieldBylinePicker disableTextInput />
+            </ManagedField>
+
+            <ManagedField
+              fieldLocation="keywords"
+              name="Composer Keywords"
+              placeholder="No keywords"
+              formRowClass="form__row__byline"
+              tagType="keyword"
+              inputPlaceholder="Search keywords (type '*' to show all)"
+            >
+              <FormFieldBylinePicker disableTextInput />
+            </ManagedField>
 
             <ManagedField
               fieldLocation="blockAds"
