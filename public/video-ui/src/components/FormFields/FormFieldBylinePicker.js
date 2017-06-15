@@ -69,7 +69,7 @@ export default class FormFieldBylinePicker extends React.Component {
 
       const searchText = e.target.value;
 
-      ContentApi.getBylineTags(searchText)
+      ContentApi.getTagsByType(searchText, this.props.tagType)
         .then(capiResponse => {
           const bylines = capiResponse.response.results.map(result => {
             const tags = { id: result.id, webTitle: result.webTitle };

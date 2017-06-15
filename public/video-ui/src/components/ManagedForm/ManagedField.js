@@ -22,7 +22,8 @@ export class ManagedField extends React.Component {
     isDesired: PropTypes.bool,
     editable: PropTypes.bool,
     maxLength: PropTypes.number,
-    fieldDetails: PropTypes.string
+    fieldDetails: PropTypes.string,
+    tagType: PropTypes.string
   };
 
   state = {
@@ -125,7 +126,8 @@ export class ManagedField extends React.Component {
         hasWarning: this.hasWarning,
         displayPlaceholder: this.displayPlaceholder,
         derivedFrom: this.props.derivedFrom,
-        maxCharLength: this.props.maxCharLength
+        maxCharLength: this.props.maxCharLength,
+        tagType: this.props.tagType
       });
     });
     return <div className="form-element">{hydratedChildren}</div>;

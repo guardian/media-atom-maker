@@ -75,6 +75,7 @@ class VideoData extends React.Component {
               name="Byline Tags"
               placeholder="No byline tags"
               formRowClass="form__row__byline"
+              tagType="contributor"
             >
               <FormFieldBylinePicker />
             </ManagedField>

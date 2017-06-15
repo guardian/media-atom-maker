@@ -35,7 +35,7 @@ export default class ContentApi {
     });
   }
 
-  static getTagsByType(type, query) {
+  static getTagsByType(query, type) {
     if (query === '*') {
       return pandaReqwest({
         url: `${ContentApi.proxyUrl}/tags?page-size=100&type=${type}` //TODO this is likely to change based on CAPI work to search by prefix on webTitle
