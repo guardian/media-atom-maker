@@ -12,7 +12,7 @@ import model.commands.CommandExceptions._
 import model.commands._
 import model.{MediaAtom, WorkflowMediaAtom}
 import play.api.Configuration
-import util.{AWSConfig, CORSable}
+import util.{AWSConfig, CORSable, AddAssetRequest, ActivateAssetRequest}
 import util.atom.MediaAtomImplicits
 import play.api.libs.json._
 import play.api.mvc._
@@ -67,13 +67,13 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
   }
 
   def publishMediaAtom(id: String) = APIAuthAction.async { implicit req =>
-      val command = PublishAtomCommand(id, stores, youTube, youTubeClaims, req.user, capi)
+    val command = PublishAtomCommand(id, stores, youTube, youTubeClaims, req.user, capi)
 
-      val updatedAtom: Future[MediaAtom] = command.process()
+    val updatedAtom: Future[MediaAtom] = command.process()
 
-      updatedAtom.map(updatedAtom => {
-        Ok(Json.toJson(updatedAtom))
-      }) recover commandExceptionAsResult
+    updatedAtom.map(updatedAtom => {
+      Ok(Json.toJson(updatedAtom))
+    }) recover commandExceptionAsResult
   }
 
   def createMediaAtom = APIAuthAction { implicit req =>
@@ -86,14 +86,14 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
   }
 
   def createWorkflowMediaAtom = CORSable(awsConfig.workflowUrl) {
-      APIAuthAction { implicit req =>
-        parse(req) { workflowMediaAtom: WorkflowMediaAtom =>
-          val command = CreateWorkflowAtomCommand(workflowMediaAtom, stores, req.user)
-          val atom = command.process()
-          Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
-        }
+    APIAuthAction { implicit req =>
+      parse(req) { workflowMediaAtom: WorkflowMediaAtom =>
+        val command = CreateWorkflowAtomCommand(workflowMediaAtom, stores, req.user)
+        val atom = command.process()
+        Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
       }
     }
+  }
 
   def putMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
     parse(req) { atom: MediaAtom =>
@@ -105,13 +105,10 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
   }
 
   def addAsset(atomId: String) = APIHMACAuthAction { implicit req =>
-    implicit val readCommand: Reads[AddAssetCommand] =
-      (JsPath \ "uri").read[String].map { videoUri =>
-        AddAssetCommand(atomId, videoUri, stores, youTube, req.user)
-      }
-
-    parse(req) { command: AddAssetCommand =>
+    parse(req) { params: AddAssetRequest =>
+      val command = AddAssetCommand(atomId, params.assets, stores, youTube, req.user)
       val atom = command.process()
+
       Ok(Json.toJson(atom))
     }
   }
@@ -120,13 +117,10 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
   private def atomUrl(id: String) = s"/atom/$id"
 
   def setActiveAsset(atomId: String) = APIHMACAuthAction { implicit req =>
-    implicit val readCommand: Reads[ActiveAssetCommand] =
-      (JsPath \ "youtubeId").read[String].map { videoUri =>
-        ActiveAssetCommand(atomId, videoUri, stores, youTube, req.user)
-      }
-
-    parse(req) { command: ActiveAssetCommand =>
+    parse(req) { params: ActivateAssetRequest =>
+      val command = ActiveAssetCommand(atomId, params, stores, youTube, req.user)
       val atom = command.process()
+
       Ok(Json.toJson(atom))
     }
   }
