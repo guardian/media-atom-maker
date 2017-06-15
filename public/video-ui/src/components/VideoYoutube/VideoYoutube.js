@@ -2,23 +2,7 @@ import React from 'react';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
 
-class YoutubeMetaData extends React.Component {
-  hasCategories = () => this.props.youtube.categories.length !== 0;
-  hasChannels = () => this.props.youtube.channels.length !== 0;
-  hasPlutoProjects = () => this.props.pluto.projects.length !== 0;
-
-  componentWillMount() {
-    if (!this.hasCategories()) {
-      this.props.youtubeActions.getCategories();
-    }
-    if (!this.hasChannels()) {
-      this.props.youtubeActions.getChannels();
-    }
-    if (!this.hasPlutoProjects()) {
-      this.props.plutoActions.getProjects();
-    }
-  }
-
+export default class YoutubeMetaData extends React.Component {
   render() {
     return (
       <div className="form__group">
@@ -50,29 +34,3 @@ class YoutubeMetaData extends React.Component {
     );
   }
 }
-
-//REDUX CONNECTIONS
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import * as getCategories from '../../actions/YoutubeActions/getCategories';
-import * as getChannels from '../../actions/YoutubeActions/getChannels';
-import * as getProjects from '../../actions/PlutoActions/getProjects';
-
-function mapStateToProps(state) {
-  return {
-    youtube: state.youtube,
-    pluto: state.pluto
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    youtubeActions: bindActionCreators(
-      Object.assign({}, getCategories, getChannels),
-      dispatch
-    ),
-    plutoActions: bindActionCreators(Object.assign({}, getProjects), dispatch)
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(YoutubeMetaData);
