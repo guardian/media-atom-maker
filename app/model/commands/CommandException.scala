@@ -23,6 +23,8 @@ object CommandExceptions extends Results {
   def AtomPublishFailed(err: String) = throw new CommandException(s"Failed to publish atom: $err", 500)
 
   def AtomMissingYouTubeChannel = throw new CommandException("Atom is missing YouTube channel", 400)
+  def YouTubeVideoDoesNotExist(id: String) = throw new CommandException(s"YouTube video $id does not exist", 400)
+  def YouTubeVideoOnIncorrectChannel(expected: String, actual: String) = throw new CommandException(s"Expected YouTube video on channel $expected, got $actual", 400)
 
   // Add exceptions here as required
   def commandExceptionAsResult: PartialFunction[Throwable, Result] = {
