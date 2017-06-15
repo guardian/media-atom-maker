@@ -26,9 +26,6 @@ Parameters:
   UploadBucketName:
     Description: "The S3 bucket where videos are uploaded to"
     Type: "String"
-  UploadTrackingTable:
-    Description: "The Dynamo table to store progress"
-    Type: "String"
   ManualPlutoTable:
     Description: "The Dynamo table to store videos that must be manually synced with Pluto"
     Type: "String"
@@ -39,7 +36,6 @@ Parameters:
   AlertWebhook:
     Description: "Where CloudWatch alerts are sent"
     Type: "String"
-    Default: ""
 
 Conditions:
   CreateProdResources: !Equals [!Ref "Stage", "PROD"]
@@ -76,7 +72,6 @@ Resources:
               - Effect: "Allow"
                 Action: ["dynamodb:*"]
                 Resource:
-                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${UploadTrackingTable}"
                   - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ManualPlutoTable}"
               - Effect: "Allow"
                 Action: ["elastictranscoder:CreateJob"]
