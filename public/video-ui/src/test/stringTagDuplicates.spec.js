@@ -3,7 +3,7 @@ import removeStringTagDuplicates from '../util/removeStringTagDuplicates';
 const simpleTag = { id: 'tag', webTitle: 'tag' };
 
 describe('Removing string tag duplicates', () => {
-  it('does not trim when imput is empty', () => {
+  it('does not trim when input is empty', () => {
     expect(removeStringTagDuplicates(simpleTag, [])).toEqual([]);
   });
 
