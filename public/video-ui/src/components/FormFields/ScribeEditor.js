@@ -269,7 +269,7 @@ export class ScribeEditor extends React.Component {
             data-command-name="insertUnorderedList"
             className="scribe__toolbar__item"
           >
-            Insert list
+            Bullet point
           </button>
         </div>
         <div

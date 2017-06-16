@@ -8,7 +8,6 @@ import com.gu.media.upload.model.Upload
 
 class AddAssetToAtom extends LambdaWithParams[Upload, Upload] with DynamoAccess with HmacRequestSupport with Logging {
   private val actions = new AddAssetActions(this, this)
-  private val table = new UploadsDataStore(this)
 
   override def handle(upload: Upload): Upload = {
     upload.metadata.youTubeId match {
@@ -19,7 +18,6 @@ class AddAssetToAtom extends LambdaWithParams[Upload, Upload] with DynamoAccess 
         throw new IllegalStateException("Missing YouTube video ID. Cannot add asset")
     }
 
-    table.delete(upload.id)
     upload
   }
 }

@@ -26,9 +26,6 @@ Parameters:
   UploadBucketName:
     Description: "The S3 bucket where videos are uploaded to"
     Type: "String"
-  UploadTrackingTable:
-    Description: "The Dynamo table to store progress"
-    Type: "String"
   ManualPlutoTable:
     Description: "The Dynamo table to store videos that must be manually synced with Pluto"
     Type: "String"
@@ -36,6 +33,9 @@ Parameters:
     Description: "email address where notifications of missing pluto ids are sent from"
     Type: "String"
     Default: "digitalcms.dev@guardian.co.uk"
+  AlertWebhook:
+    Description: "Where CloudWatch alerts are sent"
+    Type: "String"
 
 Conditions:
   CreateProdResources: !Equals [!Ref "Stage", "PROD"]
@@ -72,7 +72,6 @@ Resources:
               - Effect: "Allow"
                 Action: ["dynamodb:*"]
                 Resource:
-                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${UploadTrackingTable}"
                   - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ManualPlutoTable}"
               - Effect: "Allow"
                 Action: ["elastictranscoder:CreateJob"]
@@ -158,3 +157,30 @@ Resources:
           -
             {}
       RoleArn: !GetAtt [ StatesExecutionRole, Arn ]
+
+  AlertTopic:
+    Type: AWS::SNS::Topic
+    Condition: CreateProdResources
+    Properties:
+      DisplayName: !Join ['-', [!Ref 'Stage', Alerts]]
+      Subscription:
+      - Endpoint: !Ref 'AlertWebhook'
+        Protocol: https
+
+  UploadFailedAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: CreateProdResources
+    Properties:
+      AlarmDescription: Video upload failed
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: '1'
+      Namespace: AWS/States
+      MetricName: ExecutionsFailed
+      Dimensions:
+      - Name: StateMachineArn
+        Value: !Ref 'VideoPipelinePROD'
+      Period: '60'
+      EvaluationPeriods: '1'
+      Statistic: Maximum
+      AlarmActions:
+      - !Ref 'AlertTopic'

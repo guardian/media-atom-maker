@@ -38,9 +38,6 @@ Parameters:
   AuditTable:
     Description: Name of the audit dynamo table
     Type: String
-  UploadTrackingTable:
-    Description: Name of the upload tracking dynamo table
-    Type: String
   ManualPlutoTable:
     Description: Name of the table with video uploads without pluto project ids
     Type: String
@@ -63,10 +60,6 @@ Parameters:
   MultimediaAccountId:
     Type: Number
     Description: Account number of multimedia account
-  UploadParallelism:
-    Description: How many video chunks can be uploaded in parallel
-    Type: String
-    Default: '2'
   UploadsToPlutoStreamName:
     Description: Name of the kinesis stream where uploaded videos get pushed
     Type: String
@@ -106,9 +99,6 @@ Mappings:
       TranscoderBucket: media-atom-maker-transcoder-code
       LambdaConfig: CODE/media-atom-maker.private.conf
   LambdaBuilds:
-    Uploader:
-      CODE: media-service/CODE/media-atom-upload-actions/media-atom-uploader.zip
-      PROD: media-service/PROD/media-atom-upload-actions/media-atom-uploader.zip
     Expirer:
       CODE: media-service/CODE/media-atom-expirer/media-atom-expirer.zip
       PROD: media-service/PROD/media-atom-expirer/media-atom-expirer.zip
@@ -116,9 +106,6 @@ Mappings:
       CODE: media-service/CODE/pluto-message-ingestion/pluto-message-ingestion.zip
       PROD: media-service/PROD/pluto-message-ingestion/pluto-message-ingestion.zip
   LambdaConfig:
-    Uploader:
-      CODE: CODE/media-atom-maker.private.conf
-      PROD: PROD/media-atom-maker.private.conf
     Expirer:
       CODE: CODE/media-atom-maker.private.conf
       PROD: PROD/media-atom-maker.private.conf
@@ -378,7 +365,7 @@ Resources:
           - logs:PutLogEvents
           Resource: '*'
       Roles:
-      - !Ref 'UploaderRole'
+      - !Ref 'ExpirerRole'
       - !Ref 'PlutoMessageIngestionRole'
   CrossAccountAccessPolicy:
     Type: AWS::IAM::Policy
@@ -451,7 +438,7 @@ Resources:
       FunctionName: !GetAtt [PlutoMessageIngestionLambda, Arn]
       BatchSize: 1
       StartingPosition: LATEST
-  UploaderRole:
+  ExpirerRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -471,90 +458,9 @@ Resources:
             - s3:GetObject
             Resource:
             - !Sub ['arn:aws:s3:::${Bucket}/${Key}', {Bucket: !Ref 'BuildBucket',
-                Key: !FindInMap [LambdaBuilds, Uploader, !Ref 'Stage']}]
+                Key: !FindInMap [LambdaBuilds, Expirer, !Ref 'Stage']}]
             - !Sub ['arn:aws:s3:::${Bucket}/${Key}', {Bucket: !Ref 'ConfigBucket',
-                Key: !FindInMap [LambdaConfig, Uploader, !Ref 'Stage']}]
-          - Effect: Allow
-            Action:
-            - dynamodb:*
-            Resource:
-            - !Sub ['arn:aws:dynamodb:${Region}:${Account}:table/${Table}', {Region: !Ref 'AWS::Region',
-                Account: !Ref 'AWS::AccountId', Table: !Ref 'UploadTrackingTable'}]
-            - !Join ['', ['arn:aws:dynamodb:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId',
-                ':table/', !Ref 'ManualPlutoTable']]
-          - Effect: Allow
-            Action:
-            - s3:GetObject
-            - s3:PutObject
-            - s3:PutObjectAcl
-            - s3:DeleteObject
-            - s3:ListBucketMultipartUploads
-            - s3:ListMultipartUploadParts
-            - s3:AbortMultipartUpload
-            Resource:
-            - !Sub ['arn:aws:s3:::${Bucket}/*', {Bucket: !FindInMap [StageMap, !Ref 'Stage',
-                  UploadBucket]}]
-          - Effect: Allow
-            Action:
-            - kinesis:Get*
-            - kinesis:PutRecord
-            - kinesis:DescribeStream
-            Resource: !GetAtt [UploadActionsStream, Arn]
-          - Effect: Allow
-            Action:
-            - elastictranscoder:CreateJob
-            Resource: arn:aws:elastictranscoder:*
-          - Effect: Allow
-            Action:
-            - states:ListStateMachines
-            Resource: arn:aws:states:*:*:*
-  UploadActionsStream:
-    Type: AWS::Kinesis::Stream
-    Properties:
-      ShardCount: !Ref 'UploadParallelism'
-  UploadActionsStreamPolicy:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: UploadActionsStreamPolicy
-      PolicyDocument:
-        Statement:
-        - Effect: Allow
-          Action:
-          - kinesis:PutRecord
-          - kinesis:PutRecords
-          Resource: !GetAtt [UploadActionsStream, Arn]
-      Roles:
-      - !Ref 'DistributionRole'
-  UploadActionsLambda:
-    Type: AWS::Lambda::Function
-    Properties:
-      FunctionName: !Join ['-', [media-atom-maker-upload-actions, !Ref 'Stage']]
-      Description: Uploads chunks of video to YouTube
-      Handler: com.gu.media.UploadActionsLambda::handleRequest
-      Code:
-        S3Bucket: !Ref 'BuildBucket'
-        S3Key: !FindInMap [LambdaBuilds, Uploader, !Ref 'Stage']
-      Environment:
-        Variables:
-          REGION: !Ref 'AWS::Region'
-          STACK: !Ref 'Stack'
-          APP: media-atom-uploader
-          STAGE: !Ref 'Stage'
-          CONFIG_BUCKET: !Ref 'ConfigBucket'
-          CONFIG_KEY: !FindInMap [LambdaConfig, Uploader, !Ref 'Stage']
-          UPLOAD_TRACKING_TABLE_NAME: !Ref 'UploadTrackingTable'
-          PLUTO_TABLE_NAME: !Ref 'ManualPlutoTable'
-      MemorySize: 512
-      Role: !GetAtt [UploaderRole, Arn]
-      Runtime: java8
-      Timeout: 300
-  UploadActionsEventSourceMapping:
-    Type: AWS::Lambda::EventSourceMapping
-    Properties:
-      EventSourceArn: !GetAtt [UploadActionsStream, Arn]
-      FunctionName: !GetAtt [UploadActionsLambda, Arn]
-      BatchSize: 1
-      StartingPosition: TRIM_HORIZON
+                Key: !FindInMap [LambdaConfig, Expirer, !Ref 'Stage']}]
   TranscoderOutputS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -600,7 +506,7 @@ Resources:
           CONFIG_BUCKET: !Ref 'ConfigBucket'
           CONFIG_KEY: !FindInMap [LambdaConfig, Expirer, !Ref 'Stage']
       MemorySize: 256
-      Role: !GetAtt [UploaderRole, Arn]
+      Role: !GetAtt [ExpirerRole, Arn]
       Runtime: java8
       Timeout: 300
   ExpirerLambdaTrigger:
@@ -683,11 +589,6 @@ Resources:
           - '
 
             '
-          - aws.dynamo.uploadTrackingTableName=
-          - !Ref 'UploadTrackingTable'
-          - '
-
-            '
           - aws.dynamo.plutoTableName=
           - !Ref 'ManualPlutoTable'
           - '
@@ -759,7 +660,6 @@ Resources:
               ses:FromAddress: !Ref 'NotificationEmailFrom'
       Roles:
       - !Ref 'DistributionRole'
-      - !Ref 'UploaderRole'
   PlutoKinesisPolicy:
     Type: AWS::IAM::Policy
     Properties:
@@ -807,11 +707,6 @@ Resources:
           Effect: Allow
           Resource: !Join ['', ['arn:aws:dynamodb:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId',
               ':table/', !Ref 'AuditTable']]
-        - Action:
-          - dynamodb:*
-          Effect: Allow
-          Resource: !Join ['', ['arn:aws:dynamodb:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId',
-              ':table/', !Ref 'UploadTrackingTable']]
         - Action:
           - dynamodb:Query
           Effect: Allow

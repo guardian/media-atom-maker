@@ -65,25 +65,10 @@ class StepFunctions(awsConfig: AWSConfig) {
 
   private def getRunningStatus(execution: ExecutionListItem): UploadStatus = {
     val id = execution.getName
-    val events = getEvents(execution)
 
-    events.find(_.getType == "TaskStateEntered") match {
-      case Some(event) =>
-        val state = event.getStateEnteredEventDetails.getName
-        val upload = Json.parse(event.getStateEnteredEventDetails.getInput).as[Upload]
-
-        if(upload.metadata.selfHost) {
-          UploadStatus.indeterminate(id, state)
-        } else {
-          val current = upload.progress.chunksInYouTube
-          val total = upload.parts.length
-
-          if(current < total) {
-            UploadStatus(id, "Uploading to YouTube", current, total)
-          } else {
-            UploadStatus.indeterminate(id, state)
-          }
-        }
+    getLastTask(execution) match {
+      case Some((state, upload)) =>
+        buildProgress(id, state, upload)
 
       case None =>
         UploadStatus.indeterminate(id, "Uploading")
@@ -111,10 +96,39 @@ class StepFunctions(awsConfig: AWSConfig) {
     UploadStatus.indeterminate(id, cause, failed = true)
   }
 
+  private def getLastTask(execution: ExecutionListItem): Option[(String, Upload)] = {
+    val events = getEvents(execution)
+    val taskEvent = events.find(_.getType == "TaskStateEntered")
+
+    taskEvent.map { event =>
+      val state = event.getStateEnteredEventDetails.getName
+      val upload = Json.parse(event.getStateEnteredEventDetails.getInput).as[Upload]
+
+      (state, upload)
+    }
+  }
+
   private def lessThan10MinutesOld(e: ExecutionListItem): Boolean = {
     val now = Instant.now().toEpochMilli
     val end = e.getStopDate.toInstant.toEpochMilli
 
     (now - end) < (1000 * 60 * 10)
+  }
+
+  private def buildProgress(id: String, state: String, upload: Upload): UploadStatus = {
+    if(upload.metadata.selfHost) {
+      UploadStatus.indeterminate(id, state)
+    } else {
+      val current = upload.progress.chunksInYouTube
+      val total = upload.parts.length
+
+      val status = if(current < total) {
+        UploadStatus(id, "Uploading to YouTube", current, total)
+      } else {
+        UploadStatus.indeterminate(id, state)
+      }
+
+      status.copy(assetAdded = upload.metadata.youTubeId.nonEmpty)
+    }
   }
 }

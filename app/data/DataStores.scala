@@ -4,14 +4,11 @@ import com.gu.atom.data._
 import com.gu.atom.publish._
 import com.gu.contentatom.thrift.Atom
 import com.gu.media.pluto.PlutoProjectDataStore
-import com.gu.media.upload.UploadsDataStore
 import com.gu.media.{CapiAccess, PlutoDataStore}
 import model.commands.CommandExceptions._
 import util.AWSConfig
 
 class DataStores(aws: AWSConfig, capi: CapiAccess)  {
-  
-  import cats.syntax.either._ // appears unused but is required to make the data stores compile
 
   val preview = new PreviewDynamoDataStore(aws.dynamoDB, aws.dynamoTableName)
   val published = new PublishedDynamoDataStore(aws.dynamoDB, aws.publishedDynamoTableName)
@@ -30,8 +27,6 @@ class DataStores(aws: AWSConfig, capi: CapiAccess)  {
 
   val reindexPublished: PublishedKinesisAtomReindexer =
     new PublishedKinesisAtomReindexer(aws.publishedKinesisReindexStreamName, aws.crossAccountKinesisClient)
-
-  val uploadStore: UploadsDataStore = new UploadsDataStore(aws)
 
   val plutoProjectStore: PlutoProjectDataStore = new PlutoProjectDataStore(aws)
 

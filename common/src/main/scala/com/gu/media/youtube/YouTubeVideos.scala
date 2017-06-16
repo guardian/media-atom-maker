@@ -5,7 +5,7 @@ import java.net.URL
 import java.time.Duration
 
 import com.google.api.client.http.InputStreamContent
-import com.google.api.services.youtube.model.{Video, VideoSnippet}
+import com.google.api.services.youtube.model.{Video, VideoProcessingDetails, VideoSnippet}
 import com.gu.media.logging.Logging
 
 import scala.collection.JavaConverters._
@@ -22,12 +22,12 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
 
   def getProcessingStatus(videoIds: List[String]): List[YouTubeProcessingStatus] = {
     val request = client.videos()
-      .list("processingDetails")
+      .list("status,processingDetails")
       .setId(videoIds.mkString(","))
       .setOnBehalfOfContentOwner(contentOwner)
 
     val items = request.execute().getItems.asScala.toList
-    items.map(convertProcessingStatus)
+    items.map(YouTubeProcessingStatus(_))
   }
 
   def getDuration(youtubeId: String): Option[Long] = {
@@ -126,31 +126,6 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
         Some(video)
       }
       case _ => None
-    }
-  }
-
-  private def convertProcessingStatus(video: Video): YouTubeProcessingStatus = {
-    val status = video.getProcessingDetails.getProcessingStatus
-    val maybeProgress = Option(video.getProcessingDetails.getProcessingProgress) // may be null
-    val base = YouTubeProcessingStatus(video.getId, status = "", total = 0, processed = 0, timeLeftMs = 0, failure = None)
-
-    (status, maybeProgress) match {
-      case ("processing", Some(progress)) =>
-        base.copy(
-          status = "processing",
-          total = progress.getPartsTotal.longValue(),
-          processed = progress.getPartsProcessed.longValue(),
-          timeLeftMs = progress.getTimeLeftMs.longValue()
-        )
-
-      case ("failed", _) =>
-        base.copy(
-          status = "failed",
-          failure = Some(video.getProcessingDetails.getProcessingFailureReason)
-        )
-
-      case (other, _) =>
-        base.copy(status = other)
     }
   }
 

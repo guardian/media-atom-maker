@@ -17,12 +17,6 @@ package object youtube {
   case class YouTubeVideoCategory(id: Int, title: String)
   case class YouTubeChannel(title: String, logo: URI, id: String)
 
-  // failure only set is status is "failed"
-  case class YouTubeProcessingStatus(id: String, status: String, total: Long, processed: Long,
-                                     timeLeftMs: Long, failure: Option[String])
-
-  implicit val format: Format[YouTubeProcessingStatus] = Jsonx.formatCaseClass[YouTubeProcessingStatus]
-
   object YouTubeVideoCategory {
     implicit val reads: Reads[YouTubeVideoCategory] = Json.reads[YouTubeVideoCategory]
     implicit val writes: Writes[YouTubeVideoCategory] = Json.writes[YouTubeVideoCategory]

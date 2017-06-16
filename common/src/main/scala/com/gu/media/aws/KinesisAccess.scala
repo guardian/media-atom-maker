@@ -17,7 +17,6 @@ trait KinesisAccess { this: Settings with AwsAccess with Logging =>
   val publishedKinesisReindexStreamName: String = getMandatoryString("aws.kinesis.publishedReindexStreamName")
 
   val uploadsStreamName: String = getMandatoryString("aws.kinesis.uploadsStreamName")
-  val uploadActionsStreamName: String = getMandatoryString("aws.kinesis.uploadActionsStreamName")
 
   lazy val crossAccountKinesisClient = region.createClient(classOf[AmazonKinesisClient], credentials.crossAccount, null)
   lazy val kinesisClient = region.createClient(classOf[AmazonKinesisClient], credentials.instance, null)

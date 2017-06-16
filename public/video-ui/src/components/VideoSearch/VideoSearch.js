@@ -16,6 +16,7 @@ export default class VideoSearch extends React.Component {
       <div className="topbar__search flex-container flex-grow">
         <Icon icon="search" />
         <input
+          aria-label="search"
           className={
             'form__field' +
               (this.searchInProgress() ? ' form__field--loading' : '')

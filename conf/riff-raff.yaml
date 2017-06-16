@@ -20,11 +20,7 @@ deployments:
       bucket: atom-maker-dist
     dependencies:
       - media-atom-maker-ami-update
-  media-atom-upload-actions:
-    template: lambda
-    parameters:
-      functionNames: [media-atom-maker-upload-actions-]
-      fileName: media-atom-uploader.zip
+
   media-atom-expirer:
     template: lambda
     parameters:

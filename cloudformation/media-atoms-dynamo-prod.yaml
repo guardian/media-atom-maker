@@ -12,10 +12,6 @@ Parameters:
     Description: Prod audit dynamo table
     Type: String
     Default: audit-media-atom-maker-PROD
-  UploadTrackingAtomMakerProdTable:
-    Description: Prod upload dynamo table
-    Type: String
-    Default: upload-tracking-media-atom-maker-PROD
   ManualPlutoAtomMakerProdTable:
     Description: Prod manual pluto dynamo table
     Type: String
@@ -78,19 +74,6 @@ Resources:
         ProvisionedThroughput:
           ReadCapacityUnits: '5'
           WriteCapacityUnits: '5'
-  UploadTrackingMediaAtomMakerProd:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: !Ref 'UploadTrackingAtomMakerProdTable'
-      AttributeDefinitions:
-      - AttributeName: id
-        AttributeType: S
-      KeySchema:
-      - AttributeName: id
-        KeyType: HASH
-      ProvisionedThroughput:
-        ReadCapacityUnits: '5'
-        WriteCapacityUnits: '5'
   ManualPlutoMediaAtomMakerProd:
     Type: AWS::DynamoDB::Table
     Properties:
