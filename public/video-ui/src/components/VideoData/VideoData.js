@@ -80,8 +80,8 @@ class VideoData extends React.Component {
               <FormFieldBylinePicker />
             </ManagedField>
             <ManagedField
-              fieldLocation="commissioningDesk"
-              name="Comissioning Desk"
+              fieldLocation="commissioningDesks"
+              name="Comissioning Desks"
               placeholder="No comissioning desk"
               formRowClass="form__row__byline"
               tagType="tracking"
