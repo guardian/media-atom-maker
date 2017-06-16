@@ -90,9 +90,9 @@ object JsonConversions {
     (__ \ "description").writeNullable[String] and
     (__ \ "trailText").writeNullable[String] and
     (__ \ "source").writeNullable[String] and
-    (__ \ "byline").write[Seq[String]] and
-      (__ \ "commissioningDesks").write[Seq[String]] and
-      (__ \ "keywords").write[Seq[String]] and
+    (__ \ "byline").writeNullable[Seq[String]] and
+    (__ \ "commissioningDesks").writeNullable[Seq[String]] and
+    (__ \ "keywords").writeNullable[Seq[String]] and
     (__ \ "metadata").writeNullable[Metadata]
     ) { mediaAtom: MediaAtom =>
     (
