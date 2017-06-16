@@ -87,12 +87,12 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
       case _ => None
     }
 
-  def setStatusToPrivate(id: String): Unit = {
+  def setStatus(id: String, status: String): Unit = {
     getVideo(id, "snippet,status") match {
       case Some(video) => {
         protectAgainstMistakesInDev(video)
 
-        video.getStatus.setPrivacyStatus("Private")
+        video.getStatus.setPrivacyStatus(status)
 
         try {
           Some(client.videos()
@@ -100,11 +100,11 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
             .setOnBehalfOfContentOwner(contentOwner)
             .execute())
 
-          log.info(s"marked asset=$id as private")
+          log.info(s"marked asset=$id as $status")
         }
         catch {
           case e: Throwable =>
-            log.warn(s"unable to mark asset=$id as private", e)
+            log.warn(s"unable to mark asset=$id as $status", e)
         }
       }
       case _ =>
