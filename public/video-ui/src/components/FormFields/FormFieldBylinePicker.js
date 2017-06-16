@@ -2,12 +2,14 @@ import React from 'react';
 import ContentApi from '../../services/capi';
 import { tagsFromStringList, tagsToStringList } from '../../util/tagParsers';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
+import { keyCodes } from '../../constants/keyCodes';
+import UserActions from '../../constants/UserActions';
 
 export default class FormFieldBylinePicker extends React.Component {
   state = {
     bylineTags: [],
     inputString: '',
-    lastAction: 'OTHER',
+    lastAction: UserActions.other,
     tagValue: [],
     capiUnavailable: false
   };
@@ -38,7 +40,7 @@ export default class FormFieldBylinePicker extends React.Component {
   };
 
   updateInput = e => {
-    if (this.state.lastAction === 'SPACE') {
+    if (this.state.lastAction === UserActions.space) {
       const newFieldValue = this.state.tagValue.concat([
         this.state.inputString
       ]);
@@ -48,13 +50,13 @@ export default class FormFieldBylinePicker extends React.Component {
       });
 
       // If the user did not add new text input, we update the tag search
-    } else if (this.state.lastAction === 'DELETE') {
+    } else if (this.state.lastAction === UserActions.delete) {
       const length = this.state.tagValue.length;
       const lastInput = this.state.tagValue[length - 1];
 
       this.setState({
         inputString: lastInput,
-        lastAction: 'OTHER'
+        lastAction: UserActions.other
       });
 
       const newValue = this.state.tagValue.slice(
@@ -89,11 +91,11 @@ export default class FormFieldBylinePicker extends React.Component {
   };
 
   processTagInput = e => {
-    if (e.keyCode === 32) {
+    if (e.keyCode === keyCodes.space) {
       this.setState({
-        lastAction: 'SPACE'
+        lastAction: UserActions.space
       });
-    } else if (e.keyCode === 8) {
+    } else if (e.keyCode === keyCodes.backspace) {
       if (this.state.inputString.length === 0) {
         const lastInput = this.state.tagValue[this.state.tagValue.length - 1];
 
@@ -101,7 +103,7 @@ export default class FormFieldBylinePicker extends React.Component {
           //User is trying to delete a string input
           this.setState(
             {
-              lastAction: 'DELETE'
+              lastAction: UserActions.delete
             },
             () => {
               this.updateInput();
@@ -111,7 +113,7 @@ export default class FormFieldBylinePicker extends React.Component {
       }
     } else {
       this.setState({
-        lastAction: 'OTHER'
+        lastAction: UserActions.other
       });
     }
   };
