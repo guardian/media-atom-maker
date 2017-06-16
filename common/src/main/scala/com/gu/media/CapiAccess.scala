@@ -10,7 +10,7 @@ import play.api.libs.json.{JsValue, Json}
 trait CapiAccess { this: Settings =>
   def capiPreviewUser = getMandatoryString("capi.previewUser")
   def capiPreviewPassword = getMandatoryString("capi.previewPassword")
-  def capiUrl = getMandatoryString("capi.previewUrl")
+  def previewCapiUrl = getMandatoryString("capi.previewUrl")
   def liveCapiUrl = getMandatoryString("capi.liveUrl")
 
   private val httpClient = new OkHttpClient()
@@ -18,7 +18,7 @@ trait CapiAccess { this: Settings =>
 
   private def getUrl(query: String, queryLive: Boolean): String = {
     if (queryLive) s"$liveCapiUrl/$query"
-    else s"$capiUrl/$query"
+    else s"$previewCapiUrl/$query"
   }
 
   private def getAllowedResponseCodes(queryLive: Boolean): List[Int] = {

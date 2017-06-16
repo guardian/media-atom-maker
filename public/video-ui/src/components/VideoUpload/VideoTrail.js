@@ -23,12 +23,19 @@ function youTubeLink(id) {
   );
 }
 
-function ErrorAsset({ message }) {
+function ErrorAsset({ id, message }) {
+  const footer = id
+    ? <div className="grid__item__footer">
+        <span className="grid__item__title">{youTubeLink(id)}</span>
+      </div>
+    : false;
+
   return (
     <div className="grid__item">
       <div className="upload__asset__video upload__asset__empty">
         <span>{message}</span>
       </div>
+      {footer}
     </div>
   );
 }
@@ -63,12 +70,14 @@ function VideoAsset({ id, platform, version, active, selectAsset }) {
 }
 
 function UploadAsset({ message, total, progress }) {
+  const progressBar = total !== undefined && progress !== undefined
+    ? <progress className="progress" value={progress} max={total} />
+    : <span className="loader" />;
+
   return (
     <div className="grid__item">
       <div className="upload__asset__video upload__asset__running">
-        {progress && total
-          ? <progress className="progress" value={progress} max={total} />
-          : <span className="loader" />}
+        {progressBar}
       </div>
       <div className="grid__item__footer">
         <span className="grid__item__title">{message}</span>
@@ -171,7 +180,9 @@ export default class VideoTrail extends React.Component {
 
       return <UploadAsset key={asset.id} id={asset.id} message={message} />;
     } else if (processing && processing.status === 'failed') {
-      return <ErrorAsset key={asset.id} message={processing.failure} />;
+      return (
+        <ErrorAsset key={asset.id} id={asset.id} message={processing.failure} />
+      );
     } else {
       const active = asset.version === this.props.activeVersion;
       const selectable =
@@ -200,7 +211,7 @@ export default class VideoTrail extends React.Component {
     }
 
     const uploads = this.props.uploads.filter(
-      upload => upload.id !== this.props.s3Upload.id
+      upload => upload.id !== this.props.s3Upload.id && !upload.assetAdded
     );
 
     uploads.forEach(upload => {

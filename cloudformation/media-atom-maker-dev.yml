@@ -33,10 +33,6 @@ Parameters:
   MultimediaAccountId:
     Type: "Number"
     Description: "Account number of multimedia account"
-  UploadParallelism:
-    Description: "How many video chunks can be uploaded in parallel"
-    Type: "String"
-    Default: "2"
   UploadsStreamName:
     Description: "Name of the kinesis stream where uploaded videos get pushed"
     Type: "String"
@@ -81,9 +77,6 @@ Resources:
                   - !Sub
                     - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
                     - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "PublishedMediaAtomsDynamoTable" }
-                  - !Sub
-                    - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
-                    - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "UploadTrackingDynamoTable" }
                   - !Sub
                     - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
                     - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "ManualPlutoMediaAtomsDynamoTable" }
@@ -182,19 +175,6 @@ Resources:
             ReadCapacityUnits: "5"
             WriteCapacityUnits: "5"
 
-  UploadTrackingDynamoTable:
-    Type: "AWS::DynamoDB::Table"
-    Properties:
-      AttributeDefinitions:
-        - AttributeName: "id"
-          AttributeType: "S"
-      KeySchema:
-        - AttributeName: "id"
-          KeyType: "HASH"
-      ProvisionedThroughput:
-        ReadCapacityUnits: "5"
-        WriteCapacityUnits: "5"
-
   PlutoProjectDynamoTable:
     Type: "AWS::DynamoDB::Table"
     Properties:
@@ -270,9 +250,9 @@ Resources:
           Action: ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
           Resource: "*"
       Roles:
-        - !Ref UploaderRole
+        - !Ref ExpirerRole
 
-  UploaderRole:
+  ExpirerRole:
     Type: "AWS::IAM::Role"
     Properties:
       AssumeRolePolicyDocument:
@@ -295,66 +275,6 @@ Resources:
                   - !Sub
                     - "arn:aws:s3:::${Bucket}/${Key}"
                     - { "Bucket": !Ref ConfigBucket, "Key": !FindInMap [LambdaConfig, Uploader, DEV] }
-              - Effect: "Allow"
-                Action: ["dynamodb:*"]
-                Resource:
-                  - !Sub
-                    - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
-                    - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "UploadTrackingDynamoTable" }
-              - Effect: "Allow"
-                Action:
-                  - "s3:GetObject"
-                  - "s3:PutObject"
-                  - "s3:PutObjectAcl"
-                  - "s3:DeleteObject"
-                  - "s3:ListBucketMultipartUploads"
-                  - "s3:ListMultipartUploadParts"
-                  - "s3:AbortMultipartUpload"
-                Resource:
-                  - !Sub
-                    - "arn:aws:s3:::${Bucket}/*"
-                    - { "Bucket": !Ref UploadBucketName }
-              - Effect: "Allow"
-                Action: ["kinesis:Get*", "kinesis:PutRecord", "kinesis:DescribeStream"]
-                Resource: !GetAtt UploadActionsStream.Arn
-              - Effect: "Allow"
-                Action: ["elastictranscoder:CreateJob"]
-                Resource: "arn:aws:elastictranscoder:*"
-
-  UploadActionsStream:
-    Type: "AWS::Kinesis::Stream"
-    Properties:
-      # Allows a maximum of two video chunks to be uploaded in parallel (for now)
-      ShardCount: !Ref UploadParallelism
-
-  UploadActionsLambda:
-    Type: "AWS::Lambda::Function"
-    Properties:
-      Description: "Uploads chunks of video to YouTube"
-      Handler: "com.gu.media.UploadActionsLambda::handleRequest"
-      Code:
-        S3Bucket: !Ref BuildBucket
-        S3Key: !FindInMap [LambdaBuilds, Uploader, DEV]
-      Environment:
-        Variables:
-          REGION: !Ref AWS::Region
-          STACK: !Ref Stack
-          APP: "media-atom-uploader"
-          STAGE: !Ref Stage
-          CONFIG_BUCKET: !Ref ConfigBucket
-          CONFIG_KEY: !FindInMap [LambdaConfig, Uploader, DEV]
-      MemorySize: 512
-      Role: !GetAtt UploaderRole.Arn
-      Runtime: "java8"
-      Timeout: 300
-
-  UploadActionsEventSourceMapping:
-    Type: "AWS::Lambda::EventSourceMapping"
-    Properties:
-      EventSourceArn: !GetAtt UploadActionsStream.Arn
-      FunctionName: !GetAtt UploadActionsLambda.Arn
-      BatchSize: 1
-      StartingPosition: "TRIM_HORIZON"
 
   TranscoderOutputS3Bucket:
     Type: "AWS::S3::Bucket"
@@ -402,7 +322,7 @@ Resources:
           CONFIG_BUCKET: !Ref ConfigBucket
           CONFIG_KEY: !FindInMap [LambdaConfig, Expirer, DEV]
       MemorySize: 256
-      Role: !GetAtt UploaderRole.Arn
+      Role: !GetAtt ExpirerRole.Arn
       Runtime: "java8"
       Timeout: 300
 
@@ -501,9 +421,6 @@ Outputs:
   AuditsDynamoTable:
     Value:
       Ref: "AuditMediaAtomMakerDynamoTable"
-  UploadTrackingDynamoTable:
-    Value:
-      Ref: "UploadTrackingDynamoTable"
   ManualPlutoDynamoTable:
     Value:
       Ref: "ManualPlutoMediaAtomsDynamoTable"

@@ -19,7 +19,6 @@
         CONFIG_KEY: !Sub
           - "${Stage}/media-atom-maker.private.conf"
           - { Stage: !Ref Stage }
-        UPLOAD_TRACKING_TABLE_NAME: !Ref 'UploadTrackingTable'
         PLUTO_TABLE_NAME: !Ref 'ManualPlutoTable'
     MemorySize: 512
     Role: !GetAtt LambdaExecutionRole.Arn
