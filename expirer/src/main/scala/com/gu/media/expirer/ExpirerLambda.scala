@@ -29,7 +29,7 @@ class ExpirerLambda extends RequestHandler[Unit, Unit]
 
     toExpire.foreach { video =>
       try {
-        setStatusToPrivate(video)
+        setStatus(video, "Private")
       } catch {
         case NonFatal(err) =>
           log.error(s"Unable to expire $video", err)

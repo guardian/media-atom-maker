@@ -51,7 +51,8 @@ class ExpirerLambdaTest extends FunSuite with MustMatchers {
       Json.parse(ret)
     }
 
-    override def setStatusToPrivate(id: String): Unit = {
+    override def setStatus(id: String, status: String): Unit = {
+      status must be("Private")
       madePrivate :+= id
     }
   }
