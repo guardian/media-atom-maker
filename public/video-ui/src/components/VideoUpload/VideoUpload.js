@@ -106,13 +106,7 @@ class VideoUpload extends React.Component {
     }
   };
 
-  youtubeDataMissing = () => {
-    const noProjectId =
-      !this.props.video.plutoData || !this.props.video.plutoData.projectId;
-    return (
-      !this.props.video.channelId || (this.hasPlutoProjects() && noProjectId)
-    );
-  };
+  addYoutubeData = () => {};
 
   renderButtons(uploading) {
     if (uploading) {
@@ -146,16 +140,6 @@ class VideoUpload extends React.Component {
     );
   }
 
-  renderDataMissing() {
-    if (this.youtubeDataMissing()) {
-      const errorString = () =>
-        'You must add a youtube channel ' +
-        (!this.hasPlutoProjects() ? ' and a pluto project id ' : '') +
-        'before you and upload a video.';
-      return <div>{errorString()}</div>;
-    }
-  }
-
   renderUpload(uploading) {
     // the permissions are also validated on the server-side for each request
 
@@ -164,13 +148,12 @@ class VideoUpload extends React.Component {
         <div className="video__detailbox__header__container">
           <header className="video__detailbox__header">Upload Video</header>
         </div>
-        {this.renderDataMissing()}
         <div className="form__group">
           <input
             className="form__field"
             type="file"
             onChange={this.setFile}
-            disabled={this.youtubeDataMissing() || uploading}
+            disabled={uploading}
           />
           {this.renderButtons(uploading)}
         </div>
@@ -200,18 +183,28 @@ class VideoUpload extends React.Component {
     );
   }
 
-  renderEditButton = () => {
-    if (this.props && this.state.videoEditOpen) {
+  renderYouTubeData = () => {
+    if (this.props.video.channelId) {
       return (
-        <button onClick={() => this.setEditingState(false)}>
-          <Icon className="icon__done" icon="done" />
-        </button>
-      );
-    } else {
-      return (
-        <button onClick={() => this.setEditingState(true)}>
-          <Icon className="icon__edit" icon="edit" />
-        </button>
+        <div>
+          <div className="video__detailbox__header__container">
+            <header className="video__detailbox__header">
+              YouTube Data
+            </header>
+          </div>
+          <VideoYoutube
+            video={this.props.video || {}}
+            saveVideo={this.props.videoActions.saveVideo}
+            formName={formNames.youtube}
+            updateErrors={this.props.formErrorActions.updateFormErrors}
+            youtube={this.props.youtube}
+            editable={
+              !(this.props.video.plutoData &&
+                this.props.video.plutoData.projectId) && this.hasPlutoProjects()
+            }
+            pluto={this.props.pluto}
+          />
+        </div>
       );
     }
   };
@@ -235,21 +228,7 @@ class VideoUpload extends React.Component {
         <div className="video__main">
           <div className="video__main__header">
             <div className="video__detailbox">
-              <div className="video__detailbox__header__container">
-                <header className="video__detailbox__header">
-                  YouTube Data
-                </header>
-                {this.renderEditButton()}
-              </div>
-              <VideoYoutube
-                video={this.props.video || {}}
-                updateVideo={this.props.videoActions.updateVideo}
-                editable={this.state.videoEditOpen}
-                formName={formNames.youtube}
-                updateErrors={this.props.formErrorActions.updateFormErrors}
-                youtube={this.props.youtube}
-                pluto={this.props.pluto}
-              />
+              {this.renderYouTubeData()}
               {this.renderActions(uploading)}
             </div>
             <VideoTrail
@@ -274,7 +253,6 @@ class VideoUpload extends React.Component {
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getVideo from '../../actions/VideoActions/getVideo';
-import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as saveVideo from '../../actions/VideoActions/saveVideo';
 import * as getUpload from '../../actions/UploadActions/getUploads';
 import * as s3UploadActions from '../../actions/UploadActions/s3Upload';
@@ -299,14 +277,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     videoActions: bindActionCreators(
-      Object.assign(
-        {},
-        getVideo,
-        updateVideo,
-        saveVideo,
-        createAsset,
-        revertAsset
-      ),
+      Object.assign({}, getVideo, saveVideo, createAsset, revertAsset),
       dispatch
     ),
     uploadActions: bindActionCreators(
