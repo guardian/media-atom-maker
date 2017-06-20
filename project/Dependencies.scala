@@ -43,8 +43,6 @@ object Dependencies {
 
   val permissionsClient = "com.gu" %% "editorial-permissions-client" % "0.7"
 
-  val pandaHmacHeaders = "com.gu" %% "hmac-headers" % "1.1"
-
   val guava = "com.google.guava" % "guava-jdk5" % "17.0"
   val googleHttpJackson = "com.google.http-client" % "google-http-client-jackson2" % "1.22.0"
   val googleOauth = "com.google.oauth-client" % "google-oauth-client-jetty" % "1.20.0"
@@ -89,14 +87,14 @@ object Dependencies {
     awsTranscoder, scanamo, okHttp, scalaTest, scalaCheck, awsSQS, awsSNS, permissionsClient, awsStepFunctions, awsSES
   ) ++ partnerApiDepencies
 
-  val appDependencies = panda ++ slf4j ++ Seq(
+  val appDependencies = panda ++ slf4j ++ atomMaker ++ Seq(
     PlayImport.cache, scalaLogging, jacksonDatabind, okHttp, diff,
     awsSts, awsEc2, scalaTestPlusPlay, mockito, scalaXml, awsTranscoder,
     awsSQS, awsSNS, awsS3, jsoup
   )
 
   val uploaderDependencies = Seq(
-    logstashLogbackEncoder, awsLambdaEvents, okHttp, pandaHmacHeaders
+    logstashLogbackEncoder, awsLambdaEvents, okHttp
   )
 
   val expirerDependencies = Seq(scalaTest)
