@@ -1,6 +1,5 @@
 package com.gu.media.util
 
-import com.gu.contentatom.thrift.atom.media.{Asset, AssetType, MediaAtom, Platform}
 import com.gu.media.youtube.YouTubeLink
 import play.api.libs.json._
 
@@ -25,35 +24,6 @@ object VideoAsset {
 
     // try at the top level for legacy compat
     ret orElse parseYouTubeUri(json)
-  }
-
-  def addToAtom(atom: MediaAtom, asset: VideoAsset): MediaAtom = {
-    val version = getNextVersion(atom.assets)
-    val assets = getThriftAssets(asset, version)
-
-    atom.copy(assets = assets ++ atom.assets)
-  }
-
-  private def getThriftAssets(asset: VideoAsset, version: Long): List[Asset] = asset match {
-    case YouTubeAsset(id) =>
-      val asset = Asset(AssetType.Video, version, id, Platform.Youtube, mimeType = None)
-
-      List(asset)
-
-    case SelfHostedAsset(sources) =>
-      val assets = sources.map { case VideoSource(src, mimeType) =>
-        Asset(AssetType.Video, version, src, Platform.Url, Some(mimeType))
-      }
-
-      assets
-  }
-
-  private def getNextVersion(assets: Seq[Asset]): Long = {
-    if(assets.isEmpty) {
-      1
-    } else {
-      assets.map(_.version).max + 1
-    }
   }
 
   private def parseAssetsByPlatform(platform: String, rawAssets: List[JsValue]): JsResult[VideoAsset] = {

@@ -1,14 +1,15 @@
 package model.commands
 
-import com.gu.contentatom.thrift.AtomData.Media
+import com.gu.contentatom.thrift.atom.media.Asset
 import com.gu.media.logging.Logging
-import com.gu.media.util.{SelfHostedAsset, VideoAsset, YouTubeAsset}
+import com.gu.media.util.{MediaAtomHelpers, SelfHostedAsset, VideoAsset, YouTubeAsset}
 import com.gu.media.youtube.YouTube
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
+import model.MediaAtom
 import model.commands.CommandExceptions._
-import model.{Asset, MediaAtom}
 import util.atom.MediaAtomImplicits
+import MediaAtomHelpers._
 
 case class AddAssetCommand(atomId: String, asset: VideoAsset, override val stores: DataStores,
                            youTube: YouTube, user: PandaUser)
@@ -21,21 +22,18 @@ case class AddAssetCommand(atomId: String, asset: VideoAsset, override val store
   def process(): MediaAtom = {
     log.info(s"Request to add $asset on $atomId")
 
-    val atom = getPreviewAtom(atomId)
-    val withAssets = VideoAsset.addToAtom(atom.tdata, asset)
+    val before = getPreviewAtom(atomId)
+    val after = updateAtom(before) { mediaAtom =>
+      checkNotAlreadyAdded(mediaAtom.assets, asset)
 
-    val existingChannel = withAssets.metadata.flatMap(_.channelId)
-    val channel = getYouTubeChannel(asset, existingChannel)
+      val existingChannel = mediaAtom.metadata.flatMap(_.channelId)
+      val channel = getYouTubeChannel(asset, existingChannel)
 
-    val metadata = withAssets.metadata.map(_.copy(channelId = channel))
-    val withChannel = withAssets.copy(metadata = metadata)
-
-    val mediaAtom = MediaAtom.fromThrift(atom.copy(data = Media(withChannel)))
-
-    checkNotAlreadyAdded(mediaAtom.assets, asset)
+      mediaAtom.copy(metadata = mediaAtom.metadata.map(_.copy(channelId = channel)))
+    }
 
     log.info(s"Adding new asset $asset to $atomId")
-    UpdateAtomCommand(atomId, mediaAtom, stores, user).process()
+    UpdateAtomCommand(atomId, MediaAtom.fromThrift(after), stores, user).process()
   }
 
   private def getYouTubeChannel(asset: VideoAsset, existingChannel: Option[String]): Option[String] = asset match {

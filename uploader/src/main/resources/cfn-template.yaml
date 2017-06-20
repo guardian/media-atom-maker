@@ -26,6 +26,9 @@ Parameters:
   UploadBucketName:
     Description: "The S3 bucket where videos are uploaded to"
     Type: "String"
+  MediaAtomTable:
+    Description: "The Dynamo table where preview media atoms are stored"
+    Type: "String"
   ManualPlutoTable:
     Description: "The Dynamo table to store videos that must be manually synced with Pluto"
     Type: "String"
@@ -72,6 +75,7 @@ Resources:
               - Effect: "Allow"
                 Action: ["dynamodb:*"]
                 Resource:
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${MediaAtomTable}"
                   - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ManualPlutoTable}"
               - Effect: "Allow"
                 Action: ["elastictranscoder:CreateJob"]
