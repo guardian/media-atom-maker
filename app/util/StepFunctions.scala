@@ -122,13 +122,11 @@ class StepFunctions(awsConfig: AWSConfig) {
       val current = upload.progress.chunksInYouTube
       val total = upload.parts.length
 
-      val status = if(current < total) {
-        UploadStatus(id, "Uploading to YouTube", current, total)
+      if(current < total) {
+        UploadStatus(id, "Uploading to YouTube", upload.metadata.youTubeId, Some(current), Some(total), failed = false)
       } else {
         UploadStatus.indeterminate(id, state)
       }
-
-      status.copy(assetAdded = upload.metadata.youTubeId.nonEmpty)
     }
   }
 }
