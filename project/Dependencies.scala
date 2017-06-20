@@ -84,12 +84,12 @@ object Dependencies {
   val partnerApiDepencies = Seq(guava, googleHttpJackson, googleOauth, googleBugs, googleHttp, commonsLogging,
     apacheHttpClient, apacheHttpCore)
 
-  val commonDependencies = googleApi ++ Seq(
+  val commonDependencies = googleApi ++ atomMaker ++ Seq(
     typesafeConfig, awsLambdaCore, awsS3, awsDynamo, playJsonExtensions, logstashLogbackEncoder, kinesisLogbackAppender,
     awsTranscoder, scanamo, okHttp, scalaTest, scalaCheck, awsSQS, awsSNS, permissionsClient, awsStepFunctions, awsSES
   ) ++ partnerApiDepencies
 
-  val appDependencies = panda ++ atomMaker ++ slf4j ++ Seq(
+  val appDependencies = panda ++ slf4j ++ Seq(
     PlayImport.cache, scalaLogging, jacksonDatabind, okHttp, diff,
     awsSts, awsEc2, scalaTestPlusPlay, mockito, scalaXml, awsTranscoder,
     awsSQS, awsSNS, awsS3, jsoup

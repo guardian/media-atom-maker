@@ -76,7 +76,7 @@ case class CreateAtomCommand(data: CreateAtomCommandData, override val stores: D
       )
     )
 
-    auditDataStore.auditCreate(atom.id, user)
+    auditDataStore.auditCreate(atom.id, getUsername(user))
 
     log.info(s"Creating new atom $atomId [${data.title}]")
 

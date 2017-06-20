@@ -2,9 +2,10 @@ package model.commands
 
 import java.util.Date
 
+import ai.x.diff.DiffShow
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
-import com.gu.media.logging.Logging
 import com.gu.pandomainauth.model.{User => PandaUser}
+import com.gu.media.logging.Logging
 import data.DataStores
 import model.commands.CommandExceptions._
 import model.{ChangeRecord, MediaAtom}
@@ -28,7 +29,7 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
 
     val existingAtom = getPreviewAtom(atom.id)
 
-    val diffString = auditDataStore.createDiffString(MediaAtom.fromThrift(existingAtom), atom)
+    val diffString = createDiffString(MediaAtom.fromThrift(existingAtom), atom)
     log.info(s"Update atom changes ${atom.id}: $diffString")
 
     val changeRecord = ChangeRecord.now(user)
@@ -49,7 +50,7 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
 
         previewPublisher.publishAtomEvent(event) match {
           case Success(_) => {
-            auditDataStore.auditUpdate(id, user, diffString)
+            auditDataStore.auditUpdate(id, getUsername(user), diffString)
 
             log.info(s"Successfully updated atom ${atom.id}")
             MediaAtom.fromThrift(thrift)
@@ -60,5 +61,24 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
         }
       }
     )
+  }
+
+  private val interestingFields = List("title", "category", "description", "duration", "source", "youtubeCategoryId", "license", "commentsEnabled", "channelId", "legallySensitive")
+
+  // We don't use HTTP patch so diffing has to be done manually
+  def createDiffString(before: MediaAtom, after: MediaAtom): String = {
+    val fieldDiffs = DiffShow.diff[MediaAtom](before, after).string
+      .replaceAll("\\[*[0-9]+m", "") // Clean out the silly console coloring stuff
+      .split('\n')
+      .map(_.trim())
+      .filter(line => !line.contains("ERROR")) // More silly stuff from diffing library
+      .filter(line => interestingFields.exists(line.contains))
+      .mkString(", ")
+
+    if (fieldDiffs == "") { // There's a change, but in some field we're not interested in (or rather, unable to format nicely)
+      "Updated atom fields"
+    } else {
+      s"Updated atom fields ($fieldDiffs)"
+    }
   }
 }
