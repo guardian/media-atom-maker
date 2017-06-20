@@ -72,7 +72,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
     UpdateAtomCommand(id, updatedAtom, stores, user).process()
 
     val publishedAtom = publishAtomToLive(updatedAtom)
-    setAssetsToPrivate(publishedAtom)
+    updateInactiveAssets(publishedAtom)
 
     publishedAtom
   }
@@ -217,17 +217,19 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
     }
   }
 
-  private def setAssetsToPrivate(atom: MediaAtom): Unit = {
+  private def updateInactiveAssets(atom: MediaAtom): Unit = {
     val nowMillis = Instant.now().toEpochMilli
     val expired = atom.expiryDate.exists(_ < nowMillis)
 
     MediaAtom.getActiveYouTubeAsset(atom).foreach { activeAsset =>
       val youTubeAssets = atom.assets.filter(_.platform == Youtube)
-      val toMakePrivate = if(expired) { youTubeAssets } else { youTubeAssets.filterNot(_.id == activeAsset.id) }
+      val inactiveAssets = youTubeAssets.filterNot(_.id == activeAsset.id)
 
-      toMakePrivate.foreach { asset =>
+      val status = if(expired) { "Private" } else { "Unlisted" }
+
+      inactiveAssets.foreach { asset =>
         log.info(s"Marking asset=${asset.id} atom=${atom.id} as private")
-        youTube.setStatusToPrivate(asset.id)
+        youTube.setStatus(asset.id, status)
       }
     }
   }

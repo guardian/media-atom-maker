@@ -18,8 +18,8 @@ js_deps() {
 }
 
 js_test() {
-  yarn run lint
-  yarn run test
+  yarn lint
+  yarn test
 }
 
 js_build() {

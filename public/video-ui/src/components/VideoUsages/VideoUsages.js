@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 import { getStore } from '../../util/storeAccessor';
 import { FrontendIcon, ComposerIcon, ViewerIcon } from '../Icon';
@@ -89,7 +90,7 @@ export default class VideoUsages extends React.Component {
 }
 
 VideoUsages.propTypes = {
-  usages: React.PropTypes.array.isRequired,
-  video: React.PropTypes.object.isRequired,
-  publishedVideo: React.PropTypes.object.isRequired
+  usages: PropTypes.array.isRequired,
+  video: PropTypes.object.isRequired,
+  publishedVideo: PropTypes.object.isRequired
 };
