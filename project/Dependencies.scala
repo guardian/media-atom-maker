@@ -55,7 +55,7 @@ object Dependencies {
   val apacheHttpCore = "org.apache.httpcomponents" % "httpcore" % "4.0.1"
 
   val jsoup = "org.jsoup" % "jsoup" % "1.8.3"
-  
+
   val panda = Seq(
     "com.gu" %% "pan-domain-auth-play_2-5" % pandaVersion,
     "com.gu" %% "pan-domain-auth-verification" % pandaVersion,
@@ -84,7 +84,7 @@ object Dependencies {
   val partnerApiDepencies = Seq(guava, googleHttpJackson, googleOauth, googleBugs, googleHttp, commonsLogging,
     apacheHttpClient, apacheHttpCore)
 
-  val commonDependencies = googleApi ++ Seq(
+  val commonDependencies = googleApi ++ atomMaker ++ Seq(
     typesafeConfig, awsLambdaCore, awsS3, awsDynamo, playJsonExtensions, logstashLogbackEncoder, kinesisLogbackAppender,
     awsTranscoder, scanamo, okHttp, scalaTest, scalaCheck, awsSQS, awsSNS, permissionsClient, awsStepFunctions, awsSES
   ) ++ partnerApiDepencies

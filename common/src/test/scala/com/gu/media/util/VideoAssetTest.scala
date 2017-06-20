@@ -44,10 +44,10 @@ class VideoAssetTest extends FunSuite with MustMatchers {
     val asset1 :: asset2 :: Nil = addSelfHostedAsset(input)
 
     asset1.src must be("link_1")
-    asset1.mimeType must contain("video/mp4")
+    asset1.mimeType must be("video/mp4")
 
     asset2.src must be("link_2")
-    asset2.mimeType must contain("video/vp8")
+    asset2.mimeType must be("video/vp8")
   }
 
   test("Fail on bad Url asset") {

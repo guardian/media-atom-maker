@@ -1,12 +1,13 @@
 package model.commands
 
+import com.gu.contentatom.thrift.AtomData.Media
 import com.gu.media.logging.Logging
-import com.gu.media.util.{SelfHostedAsset, VideoAsset, VideoSource, YouTubeAsset}
+import com.gu.media.util.{SelfHostedAsset, VideoAsset, YouTubeAsset}
 import com.gu.media.youtube.YouTube
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
-import model.{Asset, AssetType, MediaAtom, Platform}
+import model.{Asset, MediaAtom}
 import util.atom.MediaAtomImplicits
 
 case class AddAssetCommand(atomId: String, asset: VideoAsset, override val stores: DataStores,
@@ -21,71 +22,55 @@ case class AddAssetCommand(atomId: String, asset: VideoAsset, override val store
     log.info(s"Request to add $asset on $atomId")
 
     val atom = getPreviewAtom(atomId)
-    val mediaAtom = MediaAtom.fromThrift(atom)
+    val withAssets = VideoAsset.addToAtom(atom.tdata, asset)
 
-    val currentAssets = mediaAtom.assets
-    val nextVersion = getNextVersion(currentAssets)
+    val existingChannel = withAssets.metadata.flatMap(_.channelId)
+    val channel = getYouTubeChannel(asset, existingChannel)
 
-    val (newAssets, youTubeChannel) = validate(asset, nextVersion, mediaAtom.channelId)
+    val metadata = withAssets.metadata.map(_.copy(channelId = channel))
+    val withChannel = withAssets.copy(metadata = metadata)
 
-    newAssets.foreach { asset =>
-      checkNotAlreadyAdded(currentAssets, asset)
-    }
+    val mediaAtom = MediaAtom.fromThrift(atom.copy(data = Media(withChannel)))
 
-    val updatedAtom = mediaAtom.copy(
-      channelId = youTubeChannel,
-      assets = newAssets ++ currentAssets
-    )
+    checkNotAlreadyAdded(mediaAtom.assets, asset)
 
-    log.info(s"Adding new asset ${newAssets.mkString(",")} to $atomId")
-    UpdateAtomCommand(atomId, updatedAtom, stores, user).process()
+    log.info(s"Adding new asset $asset to $atomId")
+    UpdateAtomCommand(atomId, mediaAtom, stores, user).process()
   }
 
-  private def validate(asset: VideoAsset, version: Long, existingChannel: Option[String]): (List[Asset], Option[String]) = asset match {
+  private def getYouTubeChannel(asset: VideoAsset, existingChannel: Option[String]): Option[String] = asset match {
     case YouTubeAsset(id) =>
-      val asset = Asset(AssetType.Video, version, id, Platform.Youtube, mimeType = None)
-      val channel = validateYouTubeChannel(asset.id, existingChannel)
+      youTube.getVideo(id, "snippet") match {
+        case Some(video) =>
+          val channel = video.getSnippet.getChannelId
 
-      (List(asset), Some(channel))
+          existingChannel match {
+            case Some(c) if c != channel =>
+              YouTubeVideoOnIncorrectChannel(channel, c)
 
-    case SelfHostedAsset(sources) =>
-      val assets = sources.map { case VideoSource(src, mimeType) =>
-        Asset(AssetType.Video, version, src, Platform.Url, Some(mimeType))
+            case _ =>
+              Some(channel)
+          }
+
+        case None =>
+          YouTubeVideoDoesNotExist(id)
       }
 
-      (assets, existingChannel)
+    case _ =>
+      existingChannel
   }
 
-  private def validateYouTubeChannel(id: String, existingChannel: Option[String]): String = {
-    youTube.getVideo(id, "snippet") match {
-      case Some(video) =>
-        val newChannel = video.getSnippet.getChannelId
-
-        existingChannel match {
-          case Some(channel) if channel != newChannel =>
-            YouTubeVideoOnIncorrectChannel(channel, newChannel)
-
-          case _ =>
-            newChannel
-        }
-
-      case None =>
-        YouTubeVideoDoesNotExist(id)
+  private def checkNotAlreadyAdded(current: Seq[Asset], asset: VideoAsset) = {
+    val ids = asset match {
+      case YouTubeAsset(id) => List(id)
+      case SelfHostedAsset(sources) => sources.map(_.src)
     }
-  }
 
-  private def checkNotAlreadyAdded(current: Seq[Asset], asset: Asset) = {
-    current.find(_.id == asset.id).foreach { _ =>
-      log.info(s"${asset.id} has already been added to $atomId")
+    val inUse = ids.exists { id => current.exists(_.id == id) }
+
+    if(inUse) {
+      log.info(s"$asset has already been added to $atomId")
       AssetVersionConflict
-    }
-  }
-
-  private def getNextVersion(assets: Seq[Asset]): Long = {
-    if(assets.isEmpty) {
-      1
-    } else {
-      assets.map(_.version).max + 1
     }
   }
 }
