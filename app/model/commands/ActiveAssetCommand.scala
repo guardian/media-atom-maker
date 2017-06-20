@@ -1,89 +1,94 @@
 package model.commands
 
-import com.gu.contentatom.thrift.atom.media.Asset
 import com.gu.media.logging.Logging
 import com.gu.media.youtube.YouTube
 import com.gu.pandomainauth.model.{User => PandaUser}
+import com.twitter.util.NonFatal
 import data.DataStores
 import model.MediaAtom
+import model.Platform.Youtube
 import model.commands.CommandExceptions._
 import util._
 import util.atom.MediaAtomImplicits
 
-case class ActiveAssetCommand(atomId: String, youtubeId: String, stores: DataStores,
+case class ActiveAssetCommand(atomId: String, params: ActivateAssetRequest, stores: DataStores,
                               youTube: YouTube, user: PandaUser)
   extends Command
-  with MediaAtomImplicits
-  with Logging {
+    with MediaAtomImplicits
+    with Logging {
 
   type T = MediaAtom
 
-  def getVideoStatus(youtubeId: String): YoutubeResponse = {
-    try {
-      val status = youTube.getProcessingStatus(List(youtubeId)).headOption.map(_.status)
-      new SuccesfulYoutubeResponse(status)
-    }
-    catch {
-      case e: Throwable => new YoutubeException(e)
-    }
-  }
+  def process(): T = {
+    log.info(s"Request to $params in $atomId")
 
-  def markAssetAsActive(): MediaAtom = {
     val atom = getPreviewAtom(atomId)
+    val mediaAtom = MediaAtom.fromThrift(atom)
 
-    val mediaAtom = atom.tdata
-    val atomAssets: Seq[Asset] = mediaAtom.assets
+    getVersion(mediaAtom) match {
+      case Some(version) =>
+        validateYouTubeProcessed(version, mediaAtom)
 
-    atomAssets.find(asset => asset.id == youtubeId) match {
-      case Some(newActiveAsset) =>
+        // TODO MRB: set duration of self-hosted video
+        val duration = getYouTubeId(version, mediaAtom).flatMap(youTube.getDuration)
+        val updatedAtom = mediaAtom.copy(activeVersion = Some(version), duration = duration)
 
-        val ytAssetDuration = youTube.getDuration(newActiveAsset.id)
-
-        val updatedAtom = atom
-          .withData(mediaAtom.copy(
-            activeVersion = Some(newActiveAsset.version),
-            duration = ytAssetDuration
-          ))
-
-        log.info(s"Marking $youtubeId as the active asset in $atomId")
-        UpdateAtomCommand(atomId, MediaAtom.fromThrift(updatedAtom), stores, user).process()
+        log.info(s"$params in $atomId")
+        UpdateAtomCommand(atomId, updatedAtom, stores, user).process()
 
       case None =>
-        log.info(s"Cannot mark $youtubeId as the active asset in $atomId. No asset has that id")
-        AssetNotFound
+        log.info(s"Cannot $params. No asset has that version")
+        AssetVersionConflict
     }
   }
 
+  private def getVersion(atom: MediaAtom): Option[Long] = params match {
+    case ActivateAssetByVersion(version) =>
+      atom.assets.collectFirst {
+        case asset if asset.version == version =>
+          version
+      }
 
-  def process(): T = {
-    log.info(s"Request to mark $youtubeId as the active asset in $atomId")
+    case ActivateYouTubeAssetById(id) =>
+      atom.assets.collectFirst {
+        case asset if asset.platform == Youtube && asset.id == id =>
+          asset.version
+      }
+  }
 
-    getVideoStatus(youtubeId) match {
-      case response: SuccesfulYoutubeResponse =>
-        val videoStatus = response.status
+  private def validateYouTubeProcessed(version: Long, atom: MediaAtom): Unit = {
+    for {
+      id <- getYouTubeId(version, atom)
+      status <- getProcessingStatus(id)
+    } yield {
+      /** Processing status:
+        * failed – Video processing has failed.
+        * processing – Video is currently being processed.
+        * succeeded – Video has been successfully processed.
+        * terminated – Processing information is no longer available.
+        * */
+      status match {
+        case "succeeded" | "terminated" =>
+        // all good
 
-        /** Processing status:
-          * failed – Video processing has failed.
-          * processing – Video is currently being processed.
-          * succeeded – Video has been successfully processed.
-          * terminated – Processing information is no longer available.
-          **/
-        videoStatus match {
-          case Some(status) if status == "succeeded" || status == "terminated" =>
-            markAssetAsActive()
-
-          case Some(other) =>
-            log.info(s"Cannot mark $youtubeId as the active asset in $atomId. Unexpected processing state $other")
-            AssetEncodingInProgress(other)
-
-          case None =>
-            log.info(s"Cannot mark $youtubeId as the active asset in $atomId. No youtube video has that id")
-            NotYoutubeAsset
-        }
-
-      case e: YoutubeException =>
-        log.error(s"Cannot mark $youtubeId as the active asset in $atomId. Youtube error", e.exception)
-        YouTubeConnectionIssue
+        case other =>
+          log.info (s"Cannot mark $id as the active asset in $atomId. Unexpected processing state $other")
+          AssetEncodingInProgress (other)
+      }
     }
+  }
+
+  private def getYouTubeId(version: Long, atom: MediaAtom): Option[String] = {
+    atom.assets
+      .find(_.version == version)
+      .map(_.id)
+  }
+
+  private def getProcessingStatus(id: String): Option[String] = try {
+    youTube.getProcessingStatus(List(id)).headOption.map(_.status)
+  } catch {
+    case NonFatal(e) =>
+      log.error(s"Cannot mark $id as the active asset in $atomId. Youtube error", e)
+      YouTubeConnectionIssue
   }
 }

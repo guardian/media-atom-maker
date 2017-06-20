@@ -4,7 +4,7 @@ import com.gu.atom.data._
 import com.gu.atom.publish._
 import com.gu.contentatom.thrift.Atom
 import com.gu.media.pluto.PlutoProjectDataStore
-import com.gu.media.{CapiAccess, PlutoDataStore}
+import com.gu.media.{AuditDataStore, CapiAccess, PlutoDataStore}
 import model.commands.CommandExceptions._
 import util.AWSConfig
 

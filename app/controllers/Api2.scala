@@ -1,24 +1,24 @@
 package controllers
 
 import com.gu.atom.play.AtomAPIActions
-import com.gu.media.MediaAtomMakerPermissionsProvider
+import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider}
 import com.gu.media.logging.Logging
 import com.gu.media.upload.model.PlutoSyncMetadata
+import com.gu.media.util.VideoAsset
 import com.gu.media.youtube.{YouTube, YouTubeClaims}
-import com.gu.media.Capi
 import com.gu.pandahmac.HMACAuthActions
 import data.DataStores
 import model.commands.CommandExceptions._
 import model.commands._
 import model.{MediaAtom, WorkflowMediaAtom}
 import play.api.Configuration
-import util.{AWSConfig, CORSable}
 import util.atom.MediaAtomImplicits
+import util.{AWSConfig, ActivateAssetRequest, CORSable}
 import play.api.libs.json._
 import play.api.mvc._
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class Api2 (override val stores: DataStores, conf: Configuration, override val authActions: HMACAuthActions,
             youTube: YouTube, youTubeClaims: YouTubeClaims, awsConfig: AWSConfig,
@@ -67,13 +67,13 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
   }
 
   def publishMediaAtom(id: String) = APIAuthAction.async { implicit req =>
-      val command = PublishAtomCommand(id, stores, youTube, youTubeClaims, req.user, capi)
+    val command = PublishAtomCommand(id, stores, youTube, youTubeClaims, req.user, capi)
 
-      val updatedAtom: Future[MediaAtom] = command.process()
+    val updatedAtom: Future[MediaAtom] = command.process()
 
-      updatedAtom.map(updatedAtom => {
-        Ok(Json.toJson(updatedAtom))
-      }) recover commandExceptionAsResult
+    updatedAtom.map(updatedAtom => {
+      Ok(Json.toJson(updatedAtom))
+    }) recover commandExceptionAsResult
   }
 
   def createMediaAtom = APIAuthAction { implicit req =>
@@ -86,14 +86,14 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
   }
 
   def createWorkflowMediaAtom = CORSable(awsConfig.workflowUrl) {
-      APIAuthAction { implicit req =>
-        parse(req) { workflowMediaAtom: WorkflowMediaAtom =>
-          val command = CreateWorkflowAtomCommand(workflowMediaAtom, stores, req.user)
-          val atom = command.process()
-          Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
-        }
+    APIAuthAction { implicit req =>
+      parse(req) { workflowMediaAtom: WorkflowMediaAtom =>
+        val command = CreateWorkflowAtomCommand(workflowMediaAtom, stores, req.user)
+        val atom = command.process()
+        Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
       }
     }
+  }
 
   def putMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
     parse(req) { atom: MediaAtom =>
@@ -105,13 +105,10 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
   }
 
   def addAsset(atomId: String) = APIHMACAuthAction { implicit req =>
-    implicit val readCommand: Reads[AddAssetCommand] =
-      (JsPath \ "uri").read[String].map { videoUri =>
-        AddAssetCommand(atomId, videoUri, stores, youTube, req.user)
-      }
-
-    parse(req) { command: AddAssetCommand =>
+    parse(req) { asset: VideoAsset =>
+      val command = AddAssetCommand(atomId, asset, stores, youTube, req.user)
       val atom = command.process()
+
       Ok(Json.toJson(atom))
     }
   }
@@ -120,13 +117,10 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
   private def atomUrl(id: String) = s"/atom/$id"
 
   def setActiveAsset(atomId: String) = APIHMACAuthAction { implicit req =>
-    implicit val readCommand: Reads[ActiveAssetCommand] =
-      (JsPath \ "youtubeId").read[String].map { videoUri =>
-        ActiveAssetCommand(atomId, videoUri, stores, youTube, req.user)
-      }
-
-    parse(req) { command: ActiveAssetCommand =>
+    parse(req) { params: ActivateAssetRequest =>
+      val command = ActiveAssetCommand(atomId, params, stores, youTube, req.user)
       val atom = command.process()
+
       Ok(Json.toJson(atom))
     }
   }
