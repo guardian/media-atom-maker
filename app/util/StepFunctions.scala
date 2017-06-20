@@ -125,7 +125,7 @@ class StepFunctions(awsConfig: AWSConfig) {
       if(current < total) {
         UploadStatus(id, "Uploading to YouTube", upload.metadata.youTubeId, Some(current), Some(total), failed = false)
       } else {
-        UploadStatus.indeterminate(id, state)
+        UploadStatus.indeterminate(id, state, upload.metadata.youTubeId)
       }
     }
   }
