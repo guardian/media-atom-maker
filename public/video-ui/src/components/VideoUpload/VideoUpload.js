@@ -3,7 +3,6 @@ import Icon from '../Icon';
 import VideoTrail from './VideoTrail';
 import { getStore } from '../../util/storeAccessor';
 import VideoYoutube from '../VideoYoutube/VideoYoutube';
-import { formNames } from '../../constants/formNames';
 
 class AddAssetFromURL extends React.Component {
   constructor(props) {
@@ -71,6 +70,18 @@ class VideoUpload extends React.Component {
     videoEditOpen: false
   };
 
+  // We only require a pluto id when pluto projects are available
+  shouldAddPlutoId = () => {
+    return (
+      !(this.props.video.plutoData && this.props.video.plutoData.projectId) &&
+      this.hasPlutoProjects()
+    );
+  };
+
+  videoDataMissing = () => {
+    return this.shouldAddPlutoId() || !this.props.video.channelId;
+  };
+
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
     if (!this.hasPlutoProjects()) {
@@ -106,8 +117,6 @@ class VideoUpload extends React.Component {
     }
   };
 
-  addYoutubeData = () => {};
-
   renderButtons(uploading) {
     if (uploading) {
       return false;
@@ -125,13 +134,26 @@ class VideoUpload extends React.Component {
     }
   }
 
+  renderDataMissingMessage() {
+    if (this.state.file && this.videoDataMissing()) {
+      const dataInstructions =
+        'You have to add a channel id ' +
+        (this.hasPlutoProjects()
+          ? 'and a pluto id before uploading to youtube.'
+          : 'before uploading to youtube. Pluto is currently unavailable. You can add a pluto project id later.');
+
+      return <div className="error"> {dataInstructions} </div>;
+    }
+    return null;
+  }
+
   renderStartUpload(selfHost, msg) {
     return (
       <div>
         <button
           type="button"
           className="btn button__secondary__assets"
-          disabled={!this.state.file}
+          disabled={!this.state.file || (!selfHost && this.videoDataMissing())}
           onClick={() => this.startUpload(selfHost)}
         >
           <Icon icon="backup">{msg}</Icon>
@@ -155,21 +177,12 @@ class VideoUpload extends React.Component {
             onChange={this.setFile}
             disabled={uploading}
           />
+          {this.renderDataMissingMessage()}
           {this.renderButtons(uploading)}
         </div>
       </div>
     );
   }
-
-  setEditingState = state => {
-    if (!state) {
-      this.props.videoActions.saveVideo(this.props.video);
-    }
-
-    this.setState({
-      videoEditOpen: state
-    });
-  };
 
   renderActions(uploading) {
     return (
@@ -195,13 +208,8 @@ class VideoUpload extends React.Component {
           <VideoYoutube
             video={this.props.video || {}}
             saveVideo={this.props.videoActions.saveVideo}
-            formName={formNames.youtube}
-            updateErrors={this.props.formErrorActions.updateFormErrors}
             youtube={this.props.youtube}
-            editable={
-              !(this.props.video.plutoData &&
-                this.props.video.plutoData.projectId) && this.hasPlutoProjects()
-            }
+            editable={this.shouldAddPlutoId()}
             pluto={this.props.pluto}
           />
         </div>
@@ -259,8 +267,6 @@ import * as s3UploadActions from '../../actions/UploadActions/s3Upload';
 import * as createAsset from '../../actions/VideoActions/createAsset';
 import * as revertAsset from '../../actions/VideoActions/revertAsset';
 import * as getProjects from '../../actions/PlutoActions/getProjects';
-import * as updateFormErrors
-  from '../../actions/FormErrorActions/updateFormErrors';
 import * as getCategories from '../../actions/YoutubeActions/getCategories';
 import * as getChannels from '../../actions/YoutubeActions/getChannels';
 
@@ -282,10 +288,6 @@ function mapDispatchToProps(dispatch) {
     ),
     uploadActions: bindActionCreators(
       Object.assign({}, s3UploadActions, getUpload),
-      dispatch
-    ),
-    formErrorActions: bindActionCreators(
-      Object.assign({}, updateFormErrors),
       dispatch
     ),
     youtubeActions: bindActionCreators(

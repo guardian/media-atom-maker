@@ -31,7 +31,6 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
 
     videoUri match {
       case YouTubeId(videoId) if assetAlreadyExists(videoId, currentAssets) =>
-        
         log.info(s"Cannot add asset $videoUri to $atomId as it already exists.")
         AssetVersionConflict
 
