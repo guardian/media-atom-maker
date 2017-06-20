@@ -1,24 +1,24 @@
 package controllers
 
 import com.gu.atom.play.AtomAPIActions
-import com.gu.media.MediaAtomMakerPermissionsProvider
+import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider}
 import com.gu.media.logging.Logging
 import com.gu.media.upload.model.PlutoSyncMetadata
+import com.gu.media.util.VideoAsset
 import com.gu.media.youtube.{YouTube, YouTubeClaims}
-import com.gu.media.Capi
 import com.gu.pandahmac.HMACAuthActions
 import data.DataStores
 import model.commands.CommandExceptions._
 import model.commands._
 import model.{MediaAtom, WorkflowMediaAtom}
 import play.api.Configuration
-import util.{AWSConfig, CORSable, AddAssetRequest, ActivateAssetRequest}
 import util.atom.MediaAtomImplicits
+import util.{AWSConfig, ActivateAssetRequest, CORSable}
 import play.api.libs.json._
 import play.api.mvc._
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class Api2 (override val stores: DataStores, conf: Configuration, override val authActions: HMACAuthActions,
             youTube: YouTube, youTubeClaims: YouTubeClaims, awsConfig: AWSConfig,
@@ -105,8 +105,8 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
   }
 
   def addAsset(atomId: String) = APIHMACAuthAction { implicit req =>
-    parse(req) { params: AddAssetRequest =>
-      val command = AddAssetCommand(atomId, params, stores, youTube, req.user)
+    parse(req) { asset: VideoAsset =>
+      val command = AddAssetCommand(atomId, asset, stores, youTube, req.user)
       val atom = command.process()
 
       Ok(Json.toJson(atom))

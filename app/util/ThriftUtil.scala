@@ -5,6 +5,7 @@ import java.util.UUID.randomUUID
 
 import com.gu.contentatom.thrift.atom.media.{Category, _}
 import com.gu.contentatom.thrift.{ContentChangeDetails, _}
+import com.gu.media.youtube.YouTubeLink
 import data.JsonConversions._
 import play.api.mvc.{BodyParser, BodyParsers}
 import util.atom.MediaAtomImplicits._
@@ -16,21 +17,19 @@ import scala.util.Try
 object ThriftUtil {
   type ThriftResult[A] = Either[String, A]
 
-  val youtube = "https?://www.youtube.com/watch\\?v=([^&]+)".r
-
   def getSingleParam(params: Map[String, Seq[String]], name: String): Option[String] =
     params.get(name).flatMap(_.headOption)
 
   def parsePlatform(uri: String): ThriftResult[Platform] =
     uri match {
-      case youtube(_) => Right(Platform.Youtube)
+      case YouTubeLink(_) => Right(Platform.Youtube)
       case Url(_) => Right(Platform.Url)
       case _ => Left(s"Unrecognised platform in uri ($uri)")
     }
 
   def parseId(uri: String): ThriftResult[String] =
     uri match {
-      case youtube(id) => Right(id)
+      case YouTubeLink(id) => Right(id)
       case Url(url) => Right(url)
       case _ => Left(s"couldn't extract id from uri ($uri)")
     }

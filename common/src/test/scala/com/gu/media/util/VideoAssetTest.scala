@@ -1,10 +1,9 @@
-package util
+package com.gu.media.util
 
-import model.Asset
 import org.scalatest.{FunSuite, MustMatchers}
 import play.api.libs.json.Json
 
-class AddAssetRequestTest extends FunSuite with MustMatchers {
+class VideoAssetTest extends FunSuite with MustMatchers {
   test("YouTube asset") {
     val input =
       s"""{
@@ -15,9 +14,7 @@ class AddAssetRequestTest extends FunSuite with MustMatchers {
          |}
        """.stripMargin
 
-    val asset = addYouTubeAsset(input)
-    asset.platform must be(model.Platform.Youtube)
-    asset.id must be("QRplDNMsS4U")
+    addYouTubeAsset(input) must be("QRplDNMsS4U")
   }
 
   test("Error on multiple YouTube assets") {
@@ -30,7 +27,7 @@ class AddAssetRequestTest extends FunSuite with MustMatchers {
                    |}
        """.stripMargin
 
-    AddAssetRequest(Json.parse(input)).isError must be(true)
+    VideoAsset(Json.parse(input)).isError must be(true)
   }
 
   test("Url assets") {
@@ -46,12 +43,10 @@ class AddAssetRequestTest extends FunSuite with MustMatchers {
 
     val asset1 :: asset2 :: Nil = addSelfHostedAsset(input)
 
-    asset1.platform must be(model.Platform.Url)
-    asset1.id must be("link_1")
+    asset1.src must be("link_1")
     asset1.mimeType must contain("video/mp4")
 
-    asset2.platform must be(model.Platform.Url)
-    asset2.id must be("link_2")
+    asset2.src must be("link_2")
     asset2.mimeType must contain("video/vp8")
   }
 
@@ -66,7 +61,7 @@ class AddAssetRequestTest extends FunSuite with MustMatchers {
          |}
        """.stripMargin
 
-    AddAssetRequest(Json.parse(input)).isError must be(true)
+    VideoAsset(Json.parse(input)).isError must be(true)
   }
 
   test("Unknown platform") {
@@ -80,7 +75,7 @@ class AddAssetRequestTest extends FunSuite with MustMatchers {
          |}
        """.stripMargin
 
-    AddAssetRequest(Json.parse(input)).isError must be(true)
+    VideoAsset(Json.parse(input)).isError must be(true)
   }
 
   test("Only URI") {
@@ -90,9 +85,7 @@ class AddAssetRequestTest extends FunSuite with MustMatchers {
          |}
        """.stripMargin
 
-    val asset = addYouTubeAsset(input)
-    asset.platform must be(model.Platform.Youtube)
-    asset.id must be("QRplDNMsS4U")
+    addYouTubeAsset(input) must be("QRplDNMsS4U")
   }
 
   test("Fail if YouTube URI passed as ID") {
@@ -105,14 +98,14 @@ class AddAssetRequestTest extends FunSuite with MustMatchers {
          |}
        """.stripMargin
 
-    AddAssetRequest(Json.parse(input)).isError must be(true)
+    VideoAsset(Json.parse(input)).isError must be(true)
   }
 
-  private def addYouTubeAsset(input: String): Asset = {
-    AddAssetRequest(Json.parse(input)).get.asInstanceOf[AddYouTubeAsset].asset
+  private def addYouTubeAsset(input: String): String = {
+    VideoAsset(Json.parse(input)).get.asInstanceOf[YouTubeAsset].id
   }
 
-  private def addSelfHostedAsset(input: String): List[Asset] = {
-    AddAssetRequest(Json.parse(input)).get.asInstanceOf[AddSelfHostedAsset].assets
+  private def addSelfHostedAsset(input: String): List[VideoSource] = {
+    VideoAsset(Json.parse(input)).get.asInstanceOf[SelfHostedAsset].sources
   }
 }

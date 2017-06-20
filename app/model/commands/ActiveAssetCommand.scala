@@ -82,9 +82,6 @@ case class ActiveAssetCommand(atomId: String, params: ActivateAssetRequest, stor
     atom.assets
       .find(_.version == version)
       .map(_.id)
-      .collect {
-        case ThriftUtil.youtube(id) => id
-      }
   }
 
   private def getProcessingStatus(id: String): Option[String] = try {

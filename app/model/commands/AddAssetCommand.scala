@@ -1,15 +1,15 @@
 package model.commands
 
 import com.gu.media.logging.Logging
+import com.gu.media.util.{SelfHostedAsset, VideoAsset, VideoSource, YouTubeAsset}
 import com.gu.media.youtube.YouTube
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
-import model.{Asset, MediaAtom}
-import util.{AddAssetRequest, AddSelfHostedAsset, AddYouTubeAsset}
+import model.{Asset, AssetType, MediaAtom, Platform}
 import util.atom.MediaAtomImplicits
 
-case class AddAssetCommand(atomId: String, params: AddAssetRequest, override val stores: DataStores,
+case class AddAssetCommand(atomId: String, asset: VideoAsset, override val stores: DataStores,
                            youTube: YouTube, user: PandaUser)
   extends Command
     with MediaAtomImplicits
@@ -18,7 +18,7 @@ case class AddAssetCommand(atomId: String, params: AddAssetRequest, override val
   type T = MediaAtom
 
   def process(): MediaAtom = {
-    log.info(s"Request to $params on $atomId")
+    log.info(s"Request to add $asset on $atomId")
 
     val atom = getPreviewAtom(atomId)
     val mediaAtom = MediaAtom.fromThrift(atom)
@@ -26,28 +26,33 @@ case class AddAssetCommand(atomId: String, params: AddAssetRequest, override val
     val currentAssets = mediaAtom.assets
     val nextVersion = getNextVersion(currentAssets)
 
-    val (newAssets, youTubeChannel) = validate(params, mediaAtom.channelId)
-    val versionedAssets = newAssets.map(_.copy(version = nextVersion))
+    val (newAssets, youTubeChannel) = validate(asset, nextVersion, mediaAtom.channelId)
 
-    versionedAssets.foreach { asset =>
+    newAssets.foreach { asset =>
       checkNotAlreadyAdded(currentAssets, asset)
     }
 
     val updatedAtom = mediaAtom.copy(
       channelId = youTubeChannel,
-      assets = versionedAssets ++ currentAssets
+      assets = newAssets ++ currentAssets
     )
 
     log.info(s"Adding new asset ${newAssets.mkString(",")} to $atomId")
     UpdateAtomCommand(atomId, updatedAtom, stores, user).process()
   }
 
-  private def validate(params: AddAssetRequest, existingChannel: Option[String]): (List[Asset], Option[String]) = params match {
-    case AddYouTubeAsset(asset) =>
+  private def validate(asset: VideoAsset, version: Long, existingChannel: Option[String]): (List[Asset], Option[String]) = asset match {
+    case YouTubeAsset(id) =>
+      val asset = Asset(AssetType.Video, version, id, Platform.Youtube, mimeType = None)
       val channel = validateYouTubeChannel(asset.id, existingChannel)
+
       (List(asset), Some(channel))
 
-    case AddSelfHostedAsset(assets) =>
+    case SelfHostedAsset(sources) =>
+      val assets = sources.map { case VideoSource(src, mimeType) =>
+        Asset(AssetType.Video, version, src, Platform.Url, Some(mimeType))
+      }
+
       (assets, existingChannel)
   }
 

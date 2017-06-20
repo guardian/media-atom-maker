@@ -12,6 +12,8 @@ import play.api.libs.json._
 import scala.collection.mutable.ListBuffer
 
 package object youtube {
+  val YouTubeLink = "https?://www.youtube.com/watch\\?v=([^&]+)".r
+
   class YouTube(override val config: Config) extends Logging with YouTubeAccess with YouTubeVideos
 
   case class YouTubeVideoCategory(id: Int, title: String)
