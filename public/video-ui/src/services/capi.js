@@ -34,4 +34,11 @@ export default class ContentApi {
       url: `${ContentApi.liveProxyUrl}/${id}`
     });
   }
+
+  static getBylineTags(query) {
+    const encodedQuery = encodeURIComponent(query);
+    return pandaReqwest({
+      url: `${ContentApi.proxyUrl}/tags?page-size=100&type=contributor&q=${encodedQuery}` //TODO this is likely to change based on CAPI work to search by prefix on webTitle
+    });
+  }
 }

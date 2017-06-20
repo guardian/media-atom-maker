@@ -6,7 +6,7 @@ object Dependencies {
   val awsVersion = "1.11.125"
   val pandaVersion = "0.4.0"
   val mockitoVersion = "2.0.97-beta"
-  val atomMakerVersion = "1.0.2"
+  val atomMakerVersion = "1.0.3"
   val slf4jVersion = "1.7.21"
   val typesafeConfigVersion = "1.3.0" // to match what we get from Play transitively
   val scanamoVersion = "0.9.1" // to match what we get from atom-publisher-lib transitively
@@ -55,7 +55,7 @@ object Dependencies {
   val apacheHttpCore = "org.apache.httpcomponents" % "httpcore" % "4.0.1"
 
   val jsoup = "org.jsoup" % "jsoup" % "1.8.3"
-  
+
   val panda = Seq(
     "com.gu" %% "pan-domain-auth-play_2-5" % pandaVersion,
     "com.gu" %% "pan-domain-auth-verification" % pandaVersion,

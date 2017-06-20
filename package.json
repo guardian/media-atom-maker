@@ -7,8 +7,11 @@
     "build-dev": "webpack ./public/video-ui/src/app.js ./public/video-ui/build/app.js --config ./build_config/webpack.dev.conf.js --watch",
     "client-dev": "node ./webpack-dev-server.js",
     "lint": "eslint public/video-ui/src/**/*.js --fix",
-    "test": "yarn lint",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "test": "jest"
+  },
+  "jest": {
+    "roots": ["public/video-ui/src/test"]
   },
   "lint-staged": {
     "public/video-ui/src/**/*.js": [
@@ -20,11 +23,12 @@
     "argparse": "^1.0.9",
     "babel-core": "^6.17.0",
     "babel-eslint": "^6.1.2",
+    "babel-jest": "^20.0.3",
     "babel-loader": "^6.2.5",
     "babel-plugin-transform-class-properties": "^6.16.0",
     "babel-plugin-transform-object-assign": "^6.8.0",
-    "babel-preset-es2015": "^6.16.0",
-    "babel-preset-react": "^6.16.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
     "chalk": "^1.1.3",
     "crypto": "0.0.3",
     "css-loader": "^0.25.0",
@@ -45,6 +49,7 @@
     "gulp-uglify": "^2.0.0",
     "hoconjs": "github:yellowblood/hocon-js",
     "husky": "^0.13.3",
+    "jest": "^20.0.4",
     "lint-staged": "^3.4.1",
     "lodash": "^4.17.4",
     "node-sass": "^3.10.1",

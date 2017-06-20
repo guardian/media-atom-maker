@@ -15,6 +15,29 @@
   margin-bottom: 10px;
 }
 
+.form__field__byline--input {
+  border: none;
+  background-color: $color650Grey;
+  color: $textColor;
+  width: 100%;
+  font-size: 13px;
+  &:focus {
+    outline: none;
+  }
+
+}
+
+.form__field__byline {
+  display: flex;
+  align-content: flex-start;
+  border: 1px solid $color400Grey;
+  border-top: 1px solid $color400Grey;
+  width: 100%;
+  padding: 5px 5px;
+  cursor: pointer;
+  height: 35px;
+}
+
 .form__field {
   position: relative;
   padding: 5px;
@@ -24,6 +47,7 @@
   background-color: $color650Grey;
   color: $cWhite;
   display: inline-block;
+  height: 35px;
 
   &:not(:last-child) {
     margin: 0 0 10px;
@@ -65,6 +89,10 @@
 
   &--error {
     border-color: $dangerColor;
+  }
+
+  &--external__error {
+    color: $dangerColor;
   }
 
   &--warning {
@@ -217,6 +245,88 @@
   &:focus {
     border: 1px solid $cWhite;
   }
+}
+
+.form__field__tags {
+  border: 1px solid $color400Grey;
+  display: block;
+  border-top: 1px solid $color400Grey;
+  width: 100%;
+  padding: 5px 5px;
+  cursor: pointer;
+  border-top: 12px solid $color650Grey;
+}
+
+.form__field__tag__display {
+  text-decoration: underline $textColor;
+}
+
+.form__field--multiselect {
+  $multiSelectBtnWidth: 45px;
+  position: relative;
+  padding-right: $multiSelectBtnWidth + 10px;
+
+  &__btn {
+    width: $multiSelectBtnWidth;
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    background: $color200Grey;
+    border-left: 1px solid $color300Grey;
+    cursor: pointer;
+  }
+
+  &__options {
+    background: $color200Grey;
+    border: 1px solid $color300Grey;
+    box-shadow: 2px 2px 2px 0px rgba(0,0,0,0.1);
+    position: absolute;
+    top: 48px;
+    left: 0;
+    width: 100%;
+    max-height: 300px;
+    overflow: auto;
+    z-index: 1;
+  }
+
+  &__option {
+    padding: 5px;
+    cursor: pointer;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid $color300Grey;
+    };
+
+    &:hover {
+      background: $color650Grey;
+    }
+  }
+
+  &__value {
+    display: inline-block;
+    padding: 2px 4px;
+    background: $color650Grey;
+    border: 1px solid $color300Grey;
+    border-radius: 2px;
+    margin-right: 2px;
+    font-weight: bold;
+    cursor: pointer;
+    flex-shrink: 0;
+
+
+    &:after {
+      content: '×';
+      display: inline-block;
+      font-weight: normal;
+      margin-left: 4px;
+    }
+  }
+}
+
+.form__field--multistring__value {
+  padding-right: 2px;
+  padding-top: 2px;
 }
 
 // bit specific

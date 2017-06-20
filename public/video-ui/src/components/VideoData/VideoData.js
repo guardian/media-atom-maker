@@ -6,6 +6,7 @@ import SelectBox from '../FormFields/SelectBox';
 import CheckBox from '../FormFields/CheckBox';
 import DatePicker from '../FormFields/DatePicker';
 import KeywordPicker from '../FormFields/KeywordPicker';
+import FormFieldBylinePicker from '../FormFields/FormFieldBylinePicker';
 import { fieldLengths } from '../../constants/videoEditValidation';
 import { videoCategories } from '../../constants/videoCategories';
 import { privacyStates } from '../../constants/privacyStates';
@@ -68,6 +69,16 @@ class VideoData extends React.Component {
             >
               <ScribeEditorField />
             </ManagedField>
+
+            <ManagedField
+              fieldLocation="byline"
+              name="Byline Tags"
+              placeholder="No byline tags"
+              formRowClass="form__row__byline"
+            >
+              <FormFieldBylinePicker />
+            </ManagedField>
+
             <ManagedField
               fieldLocation="blockAds"
               name="Block ads"

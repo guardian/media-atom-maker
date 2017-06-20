@@ -90,6 +90,7 @@ object JsonConversions {
     (__ \ "description").writeNullable[String] and
     (__ \ "trailText").writeNullable[String] and
     (__ \ "source").writeNullable[String] and
+    (__ \ "byline").writeNullable[Seq[String]] and
     (__ \ "metadata").writeNullable[Metadata]
     ) { mediaAtom: MediaAtom =>
     (
@@ -103,6 +104,7 @@ object JsonConversions {
       mediaAtom.description,
       mediaAtom.trailText,
       mediaAtom.source,
+      mediaAtom.byline,
       mediaAtom.metadata
       )
   }
