@@ -9,6 +9,7 @@ import com.gu.media.AuditDataStore
 import com.gu.media.aws.{DynamoAccess, KinesisAccess}
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
+import com.gu.media.model.VideoAsset
 import com.gu.media.upload.model.Upload
 import com.gu.media.util.MediaAtomHelpers._
 
@@ -20,15 +21,14 @@ class AddAssetToAtom extends LambdaWithParams[Upload, Upload] with DynamoAccess 
   private val publisher = new PreviewKinesisAtomPublisher(previewKinesisStreamName, crossAccountKinesisClient)
 
   override def handle(upload: Upload): Upload = {
-    // TODO MRB: add self hosted asset
     val atomId = upload.metadata.pluto.atomId
-    val videoId = upload.metadata.youTubeId.getOrElse { throw new IllegalStateException("Missing YouTube video ID. Cannot add asset") }
+    val asset = upload.metadata.asset.getOrElse { throw new IllegalStateException("Missing asset") }
 
     val before = getAtom(atomId)
-    val after = updateAtom(before)(addAsset(_, videoId))
+    val after = updateAtom(before)(addAsset(_, asset))
 
     saveAtom(after)
-    audit.auditUpdate(atomId, "media-atom-pipeline", s"Added YouTube video $videoId")
+    audit.auditUpdate(atomId, "media-atom-pipeline", s"Added YouTube video $asset")
 
     upload
   }

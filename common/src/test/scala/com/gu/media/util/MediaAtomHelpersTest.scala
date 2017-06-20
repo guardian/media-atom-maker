@@ -2,17 +2,38 @@ package com.gu.media.util
 
 import com.gu.contentatom.thrift.atom.media._
 import com.gu.contentatom.thrift.{Atom, AtomData, AtomType, ContentChangeDetails}
-import com.gu.media.util.MediaAtomHelpers._
 import org.scalatest.{FunSuite, MustMatchers}
+import MediaAtomHelpers._
+import com.gu.media.model.{SelfHostedAsset, VideoSource, YouTubeAsset}
 
 class MediaAtomHelpersTest extends FunSuite with MustMatchers {
   test("add YouTube asset") {
     val newAtom = updateAtom(atom()) { mediaAtom =>
-      addAsset(mediaAtom, "L9CMNVzMHJ8")
+      addAsset(mediaAtom, YouTubeAsset("L9CMNVzMHJ8"))
     }
 
     val expected = Seq(
       asset().copy(platform = Platform.Youtube, id = "L9CMNVzMHJ8", version = 2),
+      asset()
+    )
+
+    newAtom.contentChangeDetails.revision must be(2)
+    assets(newAtom) must be(expected)
+  }
+
+  test("add self hosted asset") {
+    val newAsset = SelfHostedAsset(List(
+      VideoSource("test.mp4", "video/mp4"),
+      VideoSource("test.m3u8", "video/m3u8"))
+    )
+
+    val newAtom = updateAtom(atom()) { mediaAtom =>
+      addAsset(mediaAtom, newAsset)
+    }
+
+    val expected = Seq(
+      asset().copy(platform = Platform.Url, id = "test.mp4", version = 2, mimeType = Some("video/mp4")),
+      asset().copy(platform = Platform.Url, id = "test.m3u8", version = 2, mimeType = Some("video/m3u8")),
       asset()
     )
 

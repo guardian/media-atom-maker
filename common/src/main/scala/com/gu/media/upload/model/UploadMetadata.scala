@@ -2,6 +2,7 @@ package com.gu.media.upload.model
 
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
+import com.gu.media.model.VideoAsset
 
 case class UploadMetadata(
   user: String,
@@ -11,7 +12,7 @@ case class UploadMetadata(
   channel: String,
   pluto: PlutoSyncMetadata,
   selfHost: Boolean = false,
-  youTubeId: Option[String] = None,
+  asset: Option[VideoAsset] = None,
   youTubeUploadUri: Option[String] = None
 )
 
