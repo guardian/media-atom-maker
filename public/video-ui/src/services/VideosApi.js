@@ -183,7 +183,7 @@ export default {
           : data.value;
 
         queryStrings.push(
-          '&initial' +
+          '&initialVideo' +
             data.name.charAt(0).toUpperCase() +
             data.name.slice(1) +
             '=' +
