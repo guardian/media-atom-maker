@@ -7,6 +7,7 @@ import _root_.model.commands.CommandExceptions._
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.PermissionsUploadHelper._
 import com.gu.media.logging.Logging
+import com.gu.media.model.{SelfHostedAsset, VideoAsset, VideoSource}
 import com.gu.media.upload._
 import com.gu.media.upload.model._
 import com.gu.pandahmac.HMACAuthActions
@@ -73,6 +74,16 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       atomId = atom.id
     )
 
+    val asset = if(!selfHosted) {
+      None
+    } else {
+      val mp4Key = TranscoderOutputKey(id, "mp4").toString
+
+      Some(SelfHostedAsset(List(
+        VideoSource(mp4Key, "video/mp4")
+      )))
+    }
+
     val metadata = UploadMetadata(
       user = user.email,
       bucket = awsConfig.userUploadBucket,
@@ -80,7 +91,8 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       title = atom.title,
       channel = atom.channelId.getOrElse { AtomMissingYouTubeChannel },
       pluto = plutoData,
-      selfHost = selfHosted
+      selfHost = selfHosted,
+      asset = asset
     )
 
     val progress = UploadProgress(
