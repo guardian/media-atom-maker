@@ -1,7 +1,6 @@
 package com.gu.media.upload
 
 import com.gu.atom.data.PreviewDynamoDataStore
-import com.gu.media.HmacRequestSupport
 import com.gu.media.aws.DynamoAccess
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
@@ -9,7 +8,7 @@ import com.gu.media.upload.model.Upload
 import com.gu.media.util.MediaAtomHelpers._
 import com.gu.media.util.YouTubeAsset
 
-class AddAssetToAtom extends LambdaWithParams[Upload, Upload] with DynamoAccess with HmacRequestSupport with Logging {
+class AddAssetToAtom extends LambdaWithParams[Upload, Upload] with DynamoAccess with Logging {
   private val store = new PreviewDynamoDataStore(this.dynamoDB, this.dynamoTableName)
 
   override def handle(upload: Upload): Upload = {

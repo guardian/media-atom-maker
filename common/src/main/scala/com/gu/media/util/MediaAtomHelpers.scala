@@ -8,7 +8,10 @@ object MediaAtomHelpers {
     val before = atom.data.asInstanceOf[AtomData.Media].media
     val after = fn(before)
 
-    atom.copy(data = AtomData.Media(after))
+    atom.copy(
+      data = AtomData.Media(after),
+      contentChangeDetails = atom.contentChangeDetails.copy(revision = atom.contentChangeDetails.revision + 1)
+    )
   }
 
   def addAsset(mediaAtom: MediaAtom, asset: VideoAsset): MediaAtom = {
