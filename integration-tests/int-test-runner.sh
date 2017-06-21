@@ -2,7 +2,7 @@
 ./sbt integrationTests/test
 export STATUS=$?
 
-if [ $STATUS -eq 1 ]
+if [[ $STATUS = 1 &&  ! -f NO_ALERTS ]]
 then
   if [ "$INT_TEST_TARGET" = "PROD" ]
   then
@@ -11,4 +11,7 @@ then
     curl -X POST --data-urlencode 'payload={"text": "Media Atom Maker integration tests have failed on CODE '${BUILD_URL}' "}' ${SLACK_URL}
   fi
 fi
+
+rm -f NO_ALERTS
+
 exit $STATUS

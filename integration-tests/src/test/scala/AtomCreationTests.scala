@@ -48,18 +48,18 @@ class AtomCreationTests extends IntegrationTestBase with CancelAfterFailure {
   }
 
   test("Publishing an existing atom") {
-    val initialPublishResponse = gutoolsPut(s"$targetBaseUrl/api2/atom/$atomId/publish")
+    val response = gutoolsPut(s"$targetBaseUrl/api2/atom/$atomId/publish")
 
-    initialPublishResponse.code() match {
-      case 200 =>
-      case 400 => throw new TestFailedException(s"Publishing atom returned 400: ${initialPublishResponse.body().string()}", 5)
-      case _ => { eventually { gutoolsPut(s"$targetBaseUrl/api2/atom/$atomId/publish").code() should be (200) } }
+    response.code() match {
+      case 200 => eventually {
+        (Json.parse(gutoolsGet(apiEndpoint).body().string()) \ "contentChangeDetails" \ "published" \ "user" \ "email").get.as[String] should be (Config.userEmail)
+      }
+
+      case 400 =>
+        fail(s"Publishing atom returned 400: ${response.body().string()}")
+
+      case 503 if response.body().string().startsWith("YouTube") =>
+        failQuietly(s"YouTube backend error ${response.body().string()}")
     }
-
-    eventually {
-      (Json.parse(gutoolsGet(apiEndpoint).body().string()) \ "contentChangeDetails" \ "published" \ "user" \ "email").get.as[String] should be (Config.userEmail)
-    }
-
   }
-
 }

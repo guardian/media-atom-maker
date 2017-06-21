@@ -1,6 +1,7 @@
 package model.commands
 
-import play.api.mvc.{Results, Result}
+import com.google.api.client.googleapis.json.{GoogleJsonError, GoogleJsonResponseException}
+import play.api.mvc.{Result, Results}
 
 case class CommandException(msg: String, responseCode: Int) extends RuntimeException(msg)
 
@@ -31,5 +32,22 @@ object CommandExceptions extends Results {
     case CommandException(msg, 400) => BadRequest(msg)
     case CommandException(msg, 404) => NotFound(msg)
     case CommandException(msg, 500) => InternalServerError(msg)
+    case YouTubeBackendError(err) => ServiceUnavailable(s"YouTube backend error: ${err.getMessage}")
+  }
+}
+
+object YouTubeBackendError {
+  def unapply(err: Throwable): Option[GoogleJsonError] = err match {
+    case e: GoogleJsonResponseException =>
+      val code = e.getDetails.getCode
+
+      if(code >= 500 && code < 600) {
+        Some(e.getDetails)
+      } else {
+        None
+      }
+
+    case _ =>
+      None
   }
 }
