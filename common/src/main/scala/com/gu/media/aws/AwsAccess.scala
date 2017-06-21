@@ -23,15 +23,3 @@ trait AwsAccess { this: Settings =>
   final val stage: String = readTag("Stage").getOrElse("DEV")
   final val isDev: Boolean = stage == "DEV"
 }
-
-object AwsAccess {
-  // TODO MRB: remove this when we move to step functions
-  type UploaderAccess = Settings
-    with AwsAccess
-    with S3Access
-    with DynamoAccess
-    with KinesisAccess
-    with SESSettings
-    with ElasticTranscodeAccess
-    with UploadAccess
-}

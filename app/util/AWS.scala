@@ -16,7 +16,7 @@ class AWSConfig(override val config: Config, override val credentials: AwsCreden
     with AwsAccess
     with S3Access
     with DynamoAccess
-    with UploadAccess
+    with PipelineAccess
     with KinesisAccess
     with ElasticTranscodeAccess
     with KinesisLogging

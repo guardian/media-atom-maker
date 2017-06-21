@@ -64,7 +64,8 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
   }
 
   private def buildUpload(atom: MediaAtom, user: User, size: Long, selfHosted: Boolean, syncWithPluto: Boolean) = {
-    val id = s"${atom.id}--${UUID.randomUUID().toString}"
+    val uploadId = UUID.randomUUID().toString
+    val id = s"${atom.id}--$uploadId"
 
     val plutoData = PlutoSyncMetadata(
       enabled = syncWithPluto,
@@ -82,7 +83,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       channel = atom.channelId.getOrElse { AtomMissingYouTubeChannel },
       pluto = plutoData,
       selfHost = selfHosted,
-      asset = if(selfHosted) { Some(selfHostedAsset(atom.title, id)) } else { None }
+      asset = if(selfHosted) { Some(selfHostedAsset(atom.title, uploadId)) } else { None }
     )
 
     val progress = UploadProgress(
@@ -98,8 +99,8 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     Upload(id, parts, metadata, progress)
   }
 
-  private def selfHostedAsset(title: String, id: String): SelfHostedAsset = {
-    val mp4Key = TranscoderOutputKey(title, id, "mp4").toString
+  private def selfHostedAsset(title: String, uploadId: String): SelfHostedAsset = {
+    val mp4Key = TranscoderOutputKey(title, uploadId, "mp4").toString
 
     SelfHostedAsset(List(VideoSource(mp4Key, "video/mp4")))
   }

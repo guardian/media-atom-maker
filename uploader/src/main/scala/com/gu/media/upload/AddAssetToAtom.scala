@@ -1,5 +1,6 @@
 package com.gu.media.upload
 
+import java.net.URLEncoder
 import java.util.Date
 
 import com.gu.atom.data.PreviewDynamoDataStore
@@ -54,7 +55,7 @@ class AddAssetToAtom extends LambdaWithParams[Upload, Upload] with DynamoAccess 
 
       case Some(SelfHostedAsset(sources)) =>
         SelfHostedAsset(sources.map { source =>
-          source.copy(src = s"$selfHostedOrigin/${source.src}")
+          source.copy(src = s"$selfHostedOrigin/${URLEncoder.encode(source.src, "UTF-8")}")
         })
 
       case None =>
