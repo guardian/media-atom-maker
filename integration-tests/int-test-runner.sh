@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Only use this runner when wanting to alert to Slack
 ./sbt integrationTests/test
 export STATUS=$?
