@@ -90,7 +90,7 @@ class KeywordPicker extends React.Component {
   render() {
     return (
       <div className="form__row">
-        <label className="form__label">Keywords</label>
+        <label className="form__label">{this.props.fieldName}</label>
         <div className="keywords">
           {this.renderKeywords()}
           <div className="keywords__add">
