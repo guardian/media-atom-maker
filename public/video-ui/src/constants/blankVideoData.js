@@ -1,7 +1,7 @@
 export const blankVideoData = {
   title: '',
   description: null,
-  category: '',
+  category: 'News',
   duration: 0,
   channelId: '',
   youtubeCategoryId: '',
