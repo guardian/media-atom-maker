@@ -5,19 +5,9 @@ export function tagsFromStringList(savedTags, tagType) {
     Promise.resolve([]);
   }
 
-  let regex;
-
-  if (tagType === 'contributor') {
-    regex = '^profile';
-  } else if (tagType === 'tracking') {
-    regex = '^tracking';
-  } else if (tagType === 'keyword') {
-    regex = '^.*/.*/g';
-  }
-
   return Promise.all(
     savedTags.map(element => {
-      if (element.match(regex)) {
+      if (tagType !== 'contributor' || element.match('^profile/')) {
         return ContentApi.getLivePage(element).then(capiResponse => {
           const tag = capiResponse.response.tag;
           return {
