@@ -21,10 +21,10 @@ import scala.util.{Failure, Success}
 case class CreateAtomCommandData(
   title: String,
   category: String, //TODO use Category model for stronger typing
-  posterImage: Image,
+  posterImage: Option[Image],
   duration: Long,
-  youtubeCategoryId: String,
-  channelId: String,
+  youtubeCategoryId: Option[String],
+  channelId: Option[String],
   expiryDate: Option[Long],
   description: Option[String]
 )
@@ -57,12 +57,12 @@ case class CreateAtomCommand(data: CreateAtomCommandData, override val stores: D
         category = ThriftCategory.valueOf(data.category).get,
         plutoProjectId = None,
         source = None,
-        posterImage= Some(data.posterImage.asThrift),
+        posterImage= data.posterImage.map(data => data.asThrift),
         duration = Some(data.duration),
         description = data.description,
         metadata = Some(ThriftMetadata(
-          categoryId = Some(data.youtubeCategoryId),
-          channelId = Some(data.channelId),
+          categoryId = data.youtubeCategoryId,
+          channelId = data.channelId,
           expiryDate = data.expiryDate
         ))
       )),

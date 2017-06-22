@@ -24,12 +24,6 @@ class VideoDisplay extends React.Component {
     }
   }
 
-  componentWillUpdate(newProps) {
-    if (!this.props.video.id && newProps.video.id) {
-      //push something into browser history
-    }
-  }
-
   saveAndUpdateVideoPoster = poster => {
     const newVideo = Object.assign({}, this.props.video, {
       posterImage: poster

@@ -42,6 +42,15 @@ export function pandaReqwest(reqwestBody, timeout = 0) {
 
     // prettier-ignore
     if (payload.contentType === 'application/json' && typeof payload.data === 'object') {
+
+      //Replace all empty strings with nulls so that dynamo can save all the data we
+      //send to the server
+      Object.keys(payload.data).forEach(key => {
+        if (payload.data[key] === '') {
+          payload.data[key] = null;
+        }
+      });
+
       payload.data = JSON.stringify(payload.data);
     }
   }
