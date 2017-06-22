@@ -5,9 +5,9 @@ import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 import { keyCodes } from '../../constants/keyCodes';
 import UserActions from '../../constants/UserActions';
 
-export default class FormFieldBylinePicker extends React.Component {
+export default class ComposerTagPicker extends React.Component {
   state = {
-    bylineTags: [],
+    addedTags: [],
     inputString: '',
     lastAction: UserActions.other,
     tagValue: [],
@@ -73,17 +73,16 @@ export default class FormFieldBylinePicker extends React.Component {
 
       ContentApi.getTagsByType(searchText, this.props.tagType)
         .then(capiResponse => {
-          const bylines = capiResponse.response.results.map(result => {
-            const tags = { id: result.id, webTitle: result.webTitle };
-            return tags;
+          const tags = capiResponse.response.results.map(result => {
+            return { id: result.id, webTitle: result.webTitle };
           });
           this.setState({
-            bylineTags: bylines
+            addedTags: tags
           });
         })
         .catch(() => {
           this.setState({
-            bylineTags: [],
+            addedTags: [],
             capiUnavailable: true
           });
         });
@@ -131,7 +130,7 @@ export default class FormFieldBylinePicker extends React.Component {
     }
   }
 
-  renderBylineTags(tag) {
+  renderTags(tag) {
     const addTag = () => {
       const valueWithoutStringDupes = removeStringTagDuplicates(
         tag,
@@ -145,7 +144,7 @@ export default class FormFieldBylinePicker extends React.Component {
 
       this.onUpdate(newFieldValue);
       this.setState({
-        bylineTags: []
+        addedTags: []
       });
     };
 
@@ -204,7 +203,7 @@ export default class FormFieldBylinePicker extends React.Component {
     }
   }
 
-  renderTextInputElement() {
+  renderTextInputElement(lastElement) {
     const getInputPlaceholder = () => {
       if (!this.props.fieldValue || this.props.fieldValue.length === 0) {
         return this.props.inputPlaceholder;
@@ -214,27 +213,38 @@ export default class FormFieldBylinePicker extends React.Component {
 
     if (this.props.disableTextInput) {
       return (
-        <input
-          type="text"
-          className="form__field__byline--input"
-          id={this.props.fieldName}
-          onChange={this.updateInput}
-          value={this.state.inputString}
-          placeholder={getInputPlaceholder()}
-        />
+        <span className="form__field__tag--container">
+          {lastElement && this.renderValue(lastElement, 0)}
+          <input
+            type="text"
+            className={
+              'form__field__tag--input' +
+                (getInputPlaceholder().length !== 0
+                  ? ' form__field__tag--input--empty'
+                  : '')
+            }
+            id={this.props.fieldName}
+            onChange={this.updateInput}
+            value={this.state.inputString}
+            placeholder={getInputPlaceholder()}
+          />
+        </span>
       );
     }
 
     return (
-      <input
-        type="text"
-        className="form__field__byline--input"
-        id={this.props.fieldName}
-        onKeyDown={this.processTagInput}
-        onChange={this.updateInput}
-        value={this.state.inputString}
-        placeholder={getInputPlaceholder()}
-      />
+      <span className="form__field__tag--container">
+        {lastElement && this.renderValue(lastElement, 0)}
+        <input
+          type="text"
+          className="form__field__tag--input"
+          id={this.props.fieldName}
+          onKeyDown={this.processTagInput}
+          onChange={this.updateInput}
+          value={this.state.inputString}
+          placeholder={getInputPlaceholder()}
+        />
+      </span>
     );
   }
 
@@ -260,6 +270,10 @@ export default class FormFieldBylinePicker extends React.Component {
       );
     }
 
+    const valueLength = this.state.tagValue.length;
+    const lastElement = !valueLength || valueLength === 0
+      ? null
+      : this.state.tagValue[valueLength - 1];
     return (
       <div className="form__row">
 
@@ -268,18 +282,22 @@ export default class FormFieldBylinePicker extends React.Component {
         </div>
         {this.renderCapiUnavailable()}
 
-        <div className="form__field__byline">
-          {this.state.tagValue.length
-            ? this.state.tagValue.map((value, i) => this.renderValue(value, i))
+        <div className="form__field__tag--selector">
+          {valueLength
+            ? this.state.tagValue.map((value, i) => {
+                if (i < valueLength - 1) {
+                  return this.renderValue(value, i);
+                }
+              })
             : ''}
 
-          {this.renderTextInputElement()}
+          {this.renderTextInputElement(lastElement)}
 
         </div>
 
-        {this.state.bylineTags.length !== 0
+        {this.state.addedTags.length !== 0
           ? <div className="form__field__tags">
-              {this.state.bylineTags.map(tag => this.renderBylineTags(tag))}
+              {this.state.addedTags.map(tag => this.renderTags(tag))}
             </div>
           : ''}
 
