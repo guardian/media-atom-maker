@@ -25,7 +25,6 @@ case class CreateAtomCommandData(
   duration: Long,
   youtubeCategoryId: String,
   channelId: String,
-  privacyStatus: PrivacyStatus,
   expiryDate: Option[Long],
   description: Option[String]
 )
@@ -64,7 +63,6 @@ case class CreateAtomCommand(data: CreateAtomCommandData, override val stores: D
         metadata = Some(ThriftMetadata(
           categoryId = Some(data.youtubeCategoryId),
           channelId = Some(data.channelId),
-          privacyStatus = data.privacyStatus.asThrift,
           expiryDate = data.expiryDate
         ))
       )),
