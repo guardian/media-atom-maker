@@ -17,6 +17,8 @@ import com.gu.media.util.MediaAtomHelpers._
 import scala.util.control.NonFatal
 
 class AddAssetToAtom extends LambdaWithParams[Upload, Upload] with DynamoAccess with KinesisAccess with UploadAccess with Logging {
+  private val selfHostedOrigin: String = getMandatoryString("aws.upload.selfHostedOrigin")
+
   private val store = new PreviewDynamoDataStore(dynamoDB, dynamoTableName)
   private val audit = new AuditDataStore(dynamoDB, auditDynamoTableName)
   private val publisher = new PreviewKinesisAtomPublisher(previewKinesisStreamName, crossAccountKinesisClient)

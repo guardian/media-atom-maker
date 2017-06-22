@@ -83,7 +83,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       channel = atom.channelId.getOrElse { AtomMissingYouTubeChannel },
       pluto = plutoData,
       selfHost = selfHosted,
-      asset = if(selfHosted) { Some(selfHostedAsset(atom.title, uploadId)) } else { None }
+      asset = getAsset(selfHosted, atom.title, uploadId)
     )
 
     val progress = UploadProgress(
@@ -99,10 +99,16 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     Upload(id, parts, metadata, progress)
   }
 
-  private def selfHostedAsset(title: String, uploadId: String): SelfHostedAsset = {
-    val mp4Key = TranscoderOutputKey(title, uploadId, "mp4").toString
+  private def getAsset(selfHosted: Boolean, title: String, uploadId: String): Option[SelfHostedAsset] = {
+    if(!selfHosted) {
+      // YouTube assets are added after they have been uploaded (once we know the ID)
+      None
+    } else {
+      val mp4Key = TranscoderOutputKey(title, uploadId, "mp4").toString
+      val mp4Source = VideoSource(mp4Key, "video/mp4")
 
-    SelfHostedAsset(List(VideoSource(mp4Key, "video/mp4")))
+      Some(SelfHostedAsset(List(mp4Source)))
+    }
   }
 
   private def chunk(uploadId: String, size: Long): List[UploadPart] = {

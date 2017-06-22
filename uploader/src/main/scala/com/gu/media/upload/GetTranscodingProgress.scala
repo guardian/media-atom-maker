@@ -4,27 +4,30 @@ import com.amazonaws.services.elastictranscoder.model.{Job, ReadJobRequest}
 import com.gu.media.aws.ElasticTranscodeAccess
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
-import com.gu.media.upload.model.Upload
+import com.gu.media.upload.model.{SelfHostedUploadMetadata, Upload}
+
 import scala.collection.JavaConverters._
 
 class GetTranscodingProgress extends LambdaWithParams[Upload, Upload] with ElasticTranscodeAccess with Logging {
   override def handle(upload: Upload): Upload = {
-    val progress = upload.progress
+    upload.metadata.runtime match {
+      case Some(SelfHostedUploadMetadata(ids)) =>
+        val jobs = ids.map(getJob)
+        val progress = upload.progress
 
-    val id = upload.metadata.mp4TranscodeJobId.getOrElse { throw new IllegalStateException("Missing MP4 job ID") }
-    val job = getJob(id)
+        val complete = jobs.forall(_.getStatus == "Complete")
+        val error = jobs.exists(_.getStatus == "Error")
 
-    log.info(s"Job ${job.getId}: ${job.getStatus} $job")
+        if(error) {
+          throw new IllegalStateException(s"Transcode failed: [${jobs.map(getDescription).mkString(",")}]")
+        } else if(complete) {
+          upload.copy(progress = progress.copy(retries = 0, fullyTranscoded = true))
+        } else {
+          upload.copy(progress = progress.copy(retries = progress.retries + 1))
+        }
 
-    job.getStatus match {
-      case "Complete" =>
-        upload.copy(progress = progress.copy(retries = 0, fullyTranscoded = true))
-
-      case "Error" =>
-        throw new IllegalStateException(s"Transcode failed: ${getDescription(job)}")
-
-      case _ =>
-        upload.copy(progress = progress.copy(retries = progress.retries + 1))
+      case other =>
+        throw new IllegalArgumentException(s"Unexpected runtime metadata $other")
     }
   }
 
