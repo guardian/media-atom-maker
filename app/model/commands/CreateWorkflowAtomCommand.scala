@@ -56,7 +56,7 @@ case class CreateWorkflowAtomCommand(workflowMediaAtom: WorkflowMediaAtom, overr
       )
     )
 
-    auditDataStore.auditCreate(atom.id, user)
+    auditDataStore.auditCreate(atom.id, getUsername(user))
 
     log.info(s"Creating new atom $atomId [${workflowMediaAtom.title}] from Workflow")
 
