@@ -32,6 +32,16 @@ export function getComposerData(video) {
       name: 'byline',
       value: video.byline.join('|'),
       belongsTo: 'atom'
+    },
+    {
+      name: 'commissioningDesks',
+      value: video.commissioningDesks.join('|'),
+      belongsTo: 'atom'
+    },
+    {
+      name: 'keywords',
+      value: video.keywords.join('|'),
+      belongsTo: 'atom'
     }
   ];
 }
