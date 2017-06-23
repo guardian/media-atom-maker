@@ -66,24 +66,11 @@ class VideoUpload extends React.Component {
     this.props.pluto && this.props.pluto.projects.length !== 0;
 
   state = {
-    file: null,
-    videoEditOpen: false
-  };
-
-  // We only require a pluto id when pluto projects are available
-  shouldAddPlutoId = () => {
-    return (
-      !(this.props.video.plutoData && this.props.video.plutoData.projectId) &&
-      this.hasPlutoProjects()
-    );
+    file: null
   };
 
   videoDataMissing = () => {
-    return (
-      this.shouldAddPlutoId() ||
-      !this.props.video.channelId ||
-      !this.props.video.youtubeCategoryId
-    );
+    return !this.props.video.channelId || !this.props.video.youtubeCategoryId;
   };
 
   componentWillMount() {
@@ -141,11 +128,7 @@ class VideoUpload extends React.Component {
   renderDataMissingMessage() {
     if (this.state.file && this.videoDataMissing()) {
       const dataInstructions =
-        'You have to add a channel, category  ' +
-        (this.hasPlutoProjects()
-          ? 'and a pluto id before uploading to youtube.'
-          : 'before uploading to youtube. Pluto is currently unavailable. You can add a pluto project id later.');
-
+        'You have to add a channel and a category before you upload a video. ';
       return <div className="error"> {dataInstructions} </div>;
     }
     return null;
@@ -212,7 +195,6 @@ class VideoUpload extends React.Component {
           video={this.props.video || {}}
           saveVideo={this.props.videoActions.saveVideo}
           youtube={this.props.youtube}
-          editable={this.shouldAddPlutoId()}
           pluto={this.props.pluto}
         />
       </div>

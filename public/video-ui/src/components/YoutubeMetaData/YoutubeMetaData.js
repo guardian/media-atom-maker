@@ -3,39 +3,15 @@ import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
 
 export default class YoutubeMetaData extends React.Component {
-  renderPlutoDownWarning() {
-    if (!this.props.pluto || !this.props.pluto.projects) {
-      return (
-        <div className="error">
-          Pluto is currently down and we are unable to display pluto project names
-        </div>
-      );
-    }
-  }
-
   renderProjectIdForm() {
-    if (
-      !this.props.video.plutoData &&
-      (!this.props.pluto || !this.props.pluto.projects)
-    ) {
-      return (
-        <div>
-          <p className="details-list__title">Pluto Project</p>
-          <p className="details-list__field">
-            Pluto projects are currently unavailable
-          </p>
-        </div>
-      );
-    }
     return (
       <div>
-
-        {this.renderPlutoDownWarning()}
-
         <ManagedForm
           data={this.props.video}
           updateData={this.props.saveVideo}
-          editable={this.props.editable}
+          editable={
+            !this.props.video.plutoData || !this.props.video.plutoData.projectId
+          }
           updateErrors={this.props.updateErrors}
           formName={this.props.formName}
         >
@@ -85,8 +61,8 @@ export default class YoutubeMetaData extends React.Component {
     return (
       <div className="form__group">
         {this.renderChannelIdForm()}
-        {this.renderCategoryForm()}
         {this.renderProjectIdForm()}
+        {this.renderCategoryForm()}
       </div>
     );
   }
