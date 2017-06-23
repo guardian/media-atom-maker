@@ -34,7 +34,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     Ok(Json.toJson(running))
   }
 
-  def create = CanUploadAsset { implicit raw =>
+  def create = ActionWithPermission { implicit raw =>
     parse(raw) { req: CreateRequest =>
       if(canPerformUpload(raw.permissions, req.selfHost)) {
         log.info(s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}, selfHosted=${req.selfHost}")
@@ -52,7 +52,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     }
   }
 
-  def credentials(id: String, key: String) = CanUploadAsset { implicit req =>
+  def credentials(id: String, key: String) = ActionWithPermission { implicit req =>
     getPart(id, key) match {
       case Some(part) =>
         val credentials = credsGenerator.forKey(part.key)
