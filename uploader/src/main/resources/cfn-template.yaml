@@ -85,7 +85,7 @@ Resources:
                   - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${AuditTable}"
                   - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ManualPlutoTable}"
               - Effect: "Allow"
-                Action: ["elastictranscoder:CreateJob"]
+                Action: ["elastictranscoder:CreateJob", "elastictranscoder:ReadJob"]
                 Resource: "arn:aws:elastictranscoder:*"
               - Effect: Allow
                 Action:

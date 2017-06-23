@@ -70,12 +70,12 @@
         {
           "Variable": "$.metadata.selfHost",
           "BooleanEquals": false,
-          "Next": "AddAssetToAtom"
+          "Next": "AddYouTubeAssetToAtom"
         }
       ],
       "Default": "CreateCompleteVideoInS3"
     },
-    "AddAssetToAtom": {
+    "AddYouTubeAssetToAtom": {
       "Type": "Task",
       "Resource": "${AddAssetToAtom.Arn}",
       "Next": "CreateCompleteVideoInS3"
@@ -128,7 +128,7 @@
         {
           "Variable": "$.progress.fullyTranscoded",
           "BooleanEquals": true,
-          "Next": "Complete"
+          "Next": "AddSelfHostedAssetToAtom"
         }
       ],
       "Default": "WaitForTranscoder"
@@ -137,6 +137,11 @@
       "Type": "Wait",
       "Seconds": 10,
       "Next": "GetTranscodingProgress"
+    },
+    "AddSelfHostedAssetToAtom": {
+      "Type": "Task",
+      "Resource": "${AddAssetToAtom.Arn}",
+      "Next": "Complete"
     },
     "Complete": {
       "Type": "Pass",

@@ -22,10 +22,6 @@ Parameters:
     Description: "Stage name"
     Type: "String"
     Default: "DEV"
-  TranscodeOutputBucketName:
-    Description: "The name to use for the S3 bucket for transcoding output"
-    Type: "String"
-    Default: "media-atom-maker-transcoder-dev"
   UploadBucketName:
     Description: "The name to use for the S3 bucket where uploads will be saved"
     Type: "String"
@@ -276,11 +272,6 @@ Resources:
                     - "arn:aws:s3:::${Bucket}/${Key}"
                     - { "Bucket": !Ref ConfigBucket, "Key": !FindInMap [LambdaConfig, Uploader, DEV] }
 
-  TranscoderOutputS3Bucket:
-    Type: "AWS::S3::Bucket"
-    Properties:
-      BucketName: !Ref TranscodeOutputBucketName
-
   ExpirerRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -436,6 +427,3 @@ Outputs:
   UploadRole:
     Value:
       Ref: "LimitedUploadRole"
-  TranscoderOutputS3Bucket:
-    Value:
-      Ref: "TranscoderOutputS3Bucket"

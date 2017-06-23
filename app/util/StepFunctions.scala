@@ -93,7 +93,7 @@ class StepFunctions(awsConfig: AWSConfig) {
       case None => "Failed (unknown error)"
     }
 
-    UploadStatus.indeterminate(id, cause, failed = true)
+    UploadStatus.indeterminate(id, cause).copy(failed = true)
   }
 
   private def getLastTask(execution: ExecutionListItem): Option[(String, Upload)] = {
@@ -116,17 +116,15 @@ class StepFunctions(awsConfig: AWSConfig) {
   }
 
   private def buildProgress(id: String, state: String, upload: Upload): UploadStatus = {
-    if(upload.metadata.selfHost) {
-      UploadStatus.indeterminate(id, state)
-    } else {
-      val current = upload.progress.chunksInYouTube
-      val total = upload.parts.length
+    val default = UploadStatus.indeterminate(id, state).copy(asset = upload.metadata.asset)
 
-      if(current < total) {
-        UploadStatus(id, "Uploading to YouTube", upload.metadata.youTubeId, Some(current), Some(total), failed = false)
-      } else {
-        UploadStatus.indeterminate(id, state, upload.metadata.youTubeId)
-      }
+    val current = upload.progress.chunksInYouTube
+    val total = upload.parts.length
+
+    if(upload.metadata.selfHost || current >= total) {
+      default
+    } else {
+      default.copy(status = "Uploading to YouTube", current = Some(current), total = Some(total))
     }
   }
 }

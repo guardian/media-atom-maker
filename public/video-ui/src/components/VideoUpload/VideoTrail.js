@@ -208,9 +208,8 @@ export default class VideoTrail extends React.Component {
 
     this.props.uploads.forEach(upload => {
       const isLocalUpload = upload.id == this.props.s3Upload.id;
-      const isAsset = this.props.assets.some(
-        asset => asset.id === upload.asset
-      );
+      const assetId = upload.asset ? upload.asset.id : false;
+      const isAsset = this.props.assets.some(asset => asset.id === assetId);
 
       if (!isLocalUpload && !isAsset) {
         ret.push(upload);

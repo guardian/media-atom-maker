@@ -2,6 +2,7 @@ package com.gu.media.util
 
 import com.gu.contentatom.thrift.{Atom, AtomData}
 import com.gu.contentatom.thrift.atom.media.{Asset, AssetType, MediaAtom, Platform}
+import com.gu.media.model.{SelfHostedAsset, VideoAsset, VideoSource, YouTubeAsset}
 
 object MediaAtomHelpers {
   def updateAtom(atom: Atom)(fn: MediaAtom => MediaAtom): Atom = {
@@ -14,11 +15,25 @@ object MediaAtomHelpers {
     )
   }
 
-  def addAsset(mediaAtom: MediaAtom, id: String): MediaAtom = {
+  def addAsset(mediaAtom: MediaAtom, asset: VideoAsset): MediaAtom = {
     val version = getNextVersion(mediaAtom.assets)
-    val asset = Asset(AssetType.Video, version, id, Platform.Youtube, mimeType = None)
+    val assets = getAssets(asset, version)
 
-    mediaAtom.copy(assets = asset +: mediaAtom.assets)
+    mediaAtom.copy(assets = assets ++ mediaAtom.assets)
+  }
+
+  private def getAssets(asset: VideoAsset, version: Long): List[Asset] = asset match {
+    case YouTubeAsset(id) =>
+      val asset = Asset(AssetType.Video, version, id, Platform.Youtube, mimeType = None)
+
+      List(asset)
+
+    case SelfHostedAsset(sources) =>
+      val assets = sources.map { case VideoSource(src, mimeType) =>
+        Asset(AssetType.Video, version, src, Platform.Url, Some(mimeType))
+      }
+
+      assets
   }
 
   private def getNextVersion(assets: Seq[Asset]): Long = {
