@@ -48,11 +48,3 @@ class MediaAtomMakerPermissionsProvider(stage: String, credsProvider: AWSCredent
     }
   }
 }
-
-object PermissionsUploadHelper {
-  def canPerformUpload(permission: Permissions, selfHosted: Boolean) : Boolean = {
-    if(!selfHosted) true
-    else if(permission.addSelfHostedAsset && selfHosted) true
-    else false
-  }
-}
