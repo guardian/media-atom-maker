@@ -79,7 +79,11 @@ class VideoUpload extends React.Component {
   };
 
   videoDataMissing = () => {
-    return this.shouldAddPlutoId() || !this.props.video.channelId;
+    return (
+      this.shouldAddPlutoId() ||
+      !this.props.video.channelId ||
+      !this.props.video.youtubeCategoryId
+    );
   };
 
   componentWillMount() {
@@ -137,7 +141,7 @@ class VideoUpload extends React.Component {
   renderDataMissingMessage() {
     if (this.state.file && this.videoDataMissing()) {
       const dataInstructions =
-        'You have to add a channel id ' +
+        'You have to add a channel, category  ' +
         (this.hasPlutoProjects()
           ? 'and a pluto id before uploading to youtube.'
           : 'before uploading to youtube. Pluto is currently unavailable. You can add a pluto project id later.');
@@ -197,24 +201,22 @@ class VideoUpload extends React.Component {
   }
 
   renderYouTubeData = () => {
-    if (this.props.video.channelId) {
-      return (
-        <div>
-          <div className="video__detailbox__header__container">
-            <header className="video__detailbox__header">
-              YouTube Data
-            </header>
-          </div>
-          <YoutubeMetadata
-            video={this.props.video || {}}
-            saveVideo={this.props.videoActions.saveVideo}
-            youtube={this.props.youtube}
-            editable={this.shouldAddPlutoId()}
-            pluto={this.props.pluto}
-          />
+    return (
+      <div>
+        <div className="video__detailbox__header__container">
+          <header className="video__detailbox__header">
+            YouTube Data
+          </header>
         </div>
-      );
-    }
+        <YoutubeMetadata
+          video={this.props.video || {}}
+          saveVideo={this.props.videoActions.saveVideo}
+          youtube={this.props.youtube}
+          editable={this.shouldAddPlutoId()}
+          pluto={this.props.pluto}
+        />
+      </div>
+    );
   };
 
   render() {
