@@ -3,6 +3,16 @@ import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
 
 export default class YoutubeMetaData extends React.Component {
+  renderPlutoDownWarning() {
+    if (!this.props.pluto || !this.props.pluto.projects) {
+      return (
+        <div className="error">
+          Pluto is currently down and we are unable to display pluto project names
+        </div>
+      );
+    }
+  }
+
   renderProjectIdForm() {
     if (
       !this.props.video.plutoData &&
@@ -18,23 +28,28 @@ export default class YoutubeMetaData extends React.Component {
       );
     }
     return (
-      <ManagedForm
-        data={this.props.video}
-        updateData={this.props.saveVideo}
-        editable={this.props.editable}
-        updateErrors={this.props.updateErrors}
-        formName={this.props.formName}
-      >
-        <ManagedField
-          fieldLocation="plutoData.projectId"
-          name="Pluto Project"
-          isRequired={false}
+      <div>
+
+        {this.renderPlutoDownWarning()}
+
+        <ManagedForm
+          data={this.props.video}
+          updateData={this.props.saveVideo}
+          editable={this.props.editable}
+          updateErrors={this.props.updateErrors}
+          formName={this.props.formName}
         >
-          <SelectBox
-            selectValues={this.props.pluto ? this.props.pluto.projects : []}
-          />
-        </ManagedField>
-      </ManagedForm>
+          <ManagedField
+            fieldLocation="plutoData.projectId"
+            name="Pluto Project"
+            isRequired={false}
+          >
+            <SelectBox
+              selectValues={this.props.pluto ? this.props.pluto.projects : []}
+            />
+          </ManagedField>
+        </ManagedForm>
+      </div>
     );
   }
 
