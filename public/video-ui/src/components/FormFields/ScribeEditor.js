@@ -24,6 +24,10 @@ export default class ScribeEditorField extends React.Component {
   };
 
   getWords = text => {
+    if (!text) {
+      return 0;
+    }
+
     return text
       .trim()
       .replace(/<(?:.|\n)*?>/gm, '')
