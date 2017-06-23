@@ -32,7 +32,7 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3Client) extends Loggin
          |      "description": "$description"
          |    },
          |    "status": {
-         |      "privacyStatus": "private"
+         |      "privacyStatus": "unlisted"
          |    },
          |    "onBehalfOfContentOwner": "${youTube.contentOwner}",
          |    "onBehalfOfContentOwnerChannel": "$channel"
