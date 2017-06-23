@@ -12,7 +12,7 @@ trait UploadAccess { this: Settings with AwsAccess =>
   val userUploadRole: String = getMandatoryString("aws.upload.role")
 
   val pipelineName: String = s"VideoPipeline$stage"
-  val pipelineArn: String = getPipelineArn()
+  lazy val pipelineArn: String = getPipelineArn()
 
   lazy val uploadSTSClient = createUploadSTSClient()
 
