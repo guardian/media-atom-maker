@@ -36,7 +36,7 @@ export default class ScribeEditorField extends React.Component {
   };
 
   updateWordCount = text => {
-    const count = this.getWords(text).length;
+    const count = text ? this.getWords(text).length : 0;
 
     this.setState({
       wordCount: count,

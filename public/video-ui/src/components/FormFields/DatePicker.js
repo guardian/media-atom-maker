@@ -99,21 +99,30 @@ function Editor({ date, onChange }) {
   );
 }
 
-function Display({ date }) {
-  const displayString = date
-    ? date.format(DATETIME_FORMAT)
-    : 'No expiry date set';
+function Display({ date, placeholder }) {
+  const displayString = date ? date.format(DATETIME_FORMAT) : placeholder;
 
   return (
     <div>
       <p className="details-list__title">Expiry Date</p>
-      <p className="details-list__field">{displayString}</p>
+      <p
+        className={
+          'details-list__field' + (!date ? ' details-list__empty' : '')
+        }
+      >
+        {displayString}
+      </p>
     </div>
   );
 }
 
-export default function DatePicker({ editable, onUpdateField, fieldValue }) {
-  const date = fieldValue ? moment(fieldValue) : null;
+export default function DatePicker({
+  editable,
+  onUpdateField,
+  fieldValue,
+  placeholder
+}) {
+  const date = fieldValue !== placeholder ? moment(fieldValue) : null;
 
   if (editable) {
     return (
@@ -129,6 +138,6 @@ export default function DatePicker({ editable, onUpdateField, fieldValue }) {
       />
     );
   } else {
-    return <Display date={date} />;
+    return <Display date={date} placeholder={placeholder} />;
   }
 }
