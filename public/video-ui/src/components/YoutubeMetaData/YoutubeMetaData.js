@@ -3,6 +3,9 @@ import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
 
 export default class YoutubeMetaData extends React.Component {
+  hasYouTubeUploads = () =>
+    this.props.assets.some(asset => asset.platform === 'Youtube');
+
   renderProjectIdForm() {
     return (
       <div>
@@ -10,7 +13,9 @@ export default class YoutubeMetaData extends React.Component {
           data={this.props.video}
           updateData={this.props.saveVideo}
           editable={
-            !this.props.video.plutoData || !this.props.video.plutoData.projectId
+            !this.hasYouTubeUploads() ||
+              (!this.props.video.plutoData ||
+                !this.props.video.plutoData.projectId)
           }
           updateErrors={this.props.updateErrors}
           formName={this.props.formName}
@@ -34,7 +39,7 @@ export default class YoutubeMetaData extends React.Component {
       <ManagedForm
         data={this.props.video}
         updateData={this.props.saveVideo}
-        editable={!this.props.video.channelId}
+        editable={!this.hasYouTubeUploads() || !this.props.video.channelId}
       >
         <ManagedField fieldLocation="channelId" name="YouTube Channel">
           <SelectBox selectValues={this.props.youtube.channels} />

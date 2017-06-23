@@ -196,6 +196,7 @@ class VideoUpload extends React.Component {
           saveVideo={this.props.videoActions.saveVideo}
           youtube={this.props.youtube}
           pluto={this.props.pluto}
+          assets={this.props.video.assets}
         />
       </div>
     );
