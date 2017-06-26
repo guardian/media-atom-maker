@@ -1,6 +1,7 @@
 import React from 'react';
 import Icon from '../Icon';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
+import { VideoEmbed } from '../utils/VideoEmbed';
 
 const UPLOAD_FAILED_MSG = (
   <p>
@@ -34,7 +35,7 @@ function Overlay({ active }) {
   );
 }
 
-function AssetDescription({ title, href, activate }) {
+export function Asset({ content, title, href, active, activate }) {
   const button = activate
     ? <button className="button__secondary button__active" onClick={activate}>
         Activate
@@ -46,65 +47,44 @@ function AssetDescription({ title, href, activate }) {
     : false;
 
   return (
-    <div className="grid__item__title">
-      {title}
-      {link}
-      {button}
-    </div>
-  );
-}
-
-export function Asset({ active, content, caption }) {
-  return (
     <div className="grid__item">
       <div className="upload__asset__video">
         {content}
       </div>
       <Overlay active={active} />
       <div className="grid__item__footer">
-        {caption}
+        <div className="grid__item__title">
+          {title}
+          {link}
+          {button}
+        </div>
       </div>
     </div>
   );
 }
 
-export function YouTubeAsset({ id, activate }) {
-  const content = <YouTubeEmbed id={id} />;
-
-  const caption = (
-    <AssetDescription
-      title={`ID: ${id}`}
-      href={`https://www.youtube.com/watch?v=${id}`}
-      activate={activate}
-    />
-  );
-
-  return <Asset active={!activate} content={content} caption={caption} />;
-}
-
-export function SelfHostedAsset({ version, sources, activate }) {
-  const content = (
-    <video controls>
-      {sources.map(source => {
-        return (
-          <source key={source.src} src={source.src} type={source.mimeType} />
-        );
-      })}
-    </video>
-  );
-  const caption = (
-    <AssetDescription title={`Version ${version}`} activate={activate} />
-  );
-
-  return <Asset active={!activate} content={content} caption={caption} />;
-}
-
-export function ProcessingAsset({ status, failed, current, total }) {
-  const content = failed
-    ? UPLOAD_FAILED_MSG
-    : <ProgressBar current={current} total={total} />;
-
-  const caption = <AssetDescription title={status} />;
-
-  return <Asset content={content} caption={caption} />;
+export function assetProps(id, asset, processing, active, selectAsset) {
+  if (processing) {
+    return {
+      title: processing.status,
+      content: processing.failed
+        ? UPLOAD_FAILED_MSG
+        : <ProgressBar {...processing} />
+    };
+  } else if (asset.id) {
+    return {
+      title: `ID: ${asset.id}`,
+      active,
+      href: `https://www.youtube.com/watch?v=${asset.id}`,
+      content: <YouTubeEmbed id={asset.id} />,
+      activate: active ? false : () => selectAsset(Number(id))
+    };
+  } else {
+    return {
+      title: `Version ${id}`,
+      active,
+      content: <VideoEmbed sources={asset.sources} />,
+      activate: active ? false : () => selectAsset(Number(id))
+    };
+  }
 }

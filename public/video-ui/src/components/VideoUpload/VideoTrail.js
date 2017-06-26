@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  Asset,
-  YouTubeAsset,
-  SelfHostedAsset,
-  ProcessingAsset
-} from './VideoAsset';
+import { Asset, assetProps } from './VideoAsset';
 
 export default class VideoTrail extends React.Component {
   polling = null;
@@ -57,32 +52,15 @@ export default class VideoTrail extends React.Component {
 
     const blocks = assets.map(upload => {
       const active = upload.id == this.props.activeVersion;
-      const activate = active
-        ? false
-        : () => {
-            this.props.selectAsset(Number(upload.id));
-          };
+      const props = assetProps(
+        upload.id,
+        upload.asset,
+        upload.processing,
+        active,
+        this.props.selectAsset
+      );
 
-      if (upload.processing) {
-        return <ProcessingAsset key={upload.id} {...upload.processing} />;
-      } else if (upload.asset.id) {
-        return (
-          <YouTubeAsset
-            key={upload.id}
-            id={upload.asset.id}
-            activate={activate}
-          />
-        );
-      } else {
-        return (
-          <SelfHostedAsset
-            key={upload.id}
-            version={upload.id}
-            sources={upload.asset.sources}
-            activate={activate}
-          />
-        );
-      }
+      return <Asset key={upload.id} {...props} />;
     });
 
     const content = blocks.length > 0

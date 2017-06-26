@@ -36,7 +36,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     val jobs = stepFunctions.getJobs(atomId)
     val running = jobs.flatMap(getRunning)
 
-    val assets = added ++ running
+    val assets = running ++ added
     Ok(Json.toJson(assets))
   }
 
