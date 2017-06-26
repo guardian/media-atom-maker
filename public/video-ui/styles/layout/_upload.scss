@@ -62,6 +62,10 @@
       img {
         width: 100%;
       }
+
+      video {
+        height: inherit;
+      }
     }
 
     &__empty {
@@ -105,11 +109,6 @@
     padding: 8px 0 0;
   }
 }
-
-.upload__final{
-  z-index: 100px;
-}
-
 
 .loader {
     border: 5px solid $color700Grey;

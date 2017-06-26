@@ -208,9 +208,7 @@ class VideoUpload extends React.Component {
 
   render() {
     const uploading = this.props.s3Upload.total > 0;
-
     const activeVersion = this.props.video ? this.props.video.activeVersion : 0;
-    const assets = this.props.video ? this.props.video.assets : [];
 
     const selectAsset = (assetId, version) => {
       this.props.videoActions.revertAsset(
@@ -230,12 +228,9 @@ class VideoUpload extends React.Component {
             </div>
             <VideoTrail
               activeVersion={activeVersion}
-              assets={assets}
               s3Upload={this.props.s3Upload}
               uploads={this.props.uploads}
               selectAsset={selectAsset}
-              getVideo={() =>
-                this.props.videoActions.getVideo(this.props.video.id)}
               getUploads={() =>
                 this.props.uploadActions.getUploads(this.props.video.id)}
             />
