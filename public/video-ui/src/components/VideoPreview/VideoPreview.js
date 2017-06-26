@@ -1,33 +1,25 @@
 import React from 'react';
+import { VideoEmbed } from '../utils/VideoEmbed';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 
 export default class VideoPreview extends React.Component {
-  getActiveAsset = () => {
-    if (!this.props.video.assets || !this.props.video.activeVersion) {
-      return false;
-    }
-
-    for (let i = 0; i < this.props.video.assets.length; i++) {
-      if (
-        this.props.video.activeVersion === this.props.video.assets[i].version
-      ) {
-        return this.props.video.assets[i];
-      }
-    }
-  };
-
   renderPreview() {
-    const activeAsset = this.getActiveAsset();
+    const { assets, activeVersion } = this.props.video;
+    const relevant = assets.filter(asset => asset.version === activeVersion);
 
-    if (!activeAsset) {
+    if (!assets || !activeVersion || relevant.length === 0) {
       return <div className="baseline-margin">No Active Video</div>;
     }
 
-    if (activeAsset.platform !== 'Youtube') {
-      <div className="baseline-margin">Unable to Preview</div>;
+    if (relevant.length === 1 && relevant[0].id) {
+      return <YouTubeEmbed id={relevant[0].id} className="baseline-margin" />;
     }
 
-    return <YouTubeEmbed id={activeAsset.id} className="baseline-margin" />;
+    const sources = relevant.map(asset => {
+      return { src: asset.id, mimeType: asset.mimeType };
+    });
+
+    return <VideoEmbed sources={sources} />;
   }
 
   render() {
