@@ -2,6 +2,20 @@ import React from 'react';
 import Icon from '../Icon';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 
+const UPLOAD_FAILED_MSG = (
+  <p>
+    <strong>Upload Failed</strong><br />
+    You may retry your upload.<br />
+    This message will disappear after 10 minutes.
+  </p>
+);
+
+function ProgressBar({ current, total }) {
+  return total !== undefined && current !== undefined
+    ? <progress className="progress" value={current} max={total} />
+    : <span className="loader" />;
+}
+
 function Overlay({ active }) {
   if (active === undefined) {
     return false;
@@ -83,4 +97,14 @@ export function SelfHostedAsset({ version, sources, activate }) {
   );
 
   return <Asset active={!activate} content={content} caption={caption} />;
+}
+
+export function ProcessingAsset({ status, failed, current, total }) {
+  const content = failed
+    ? UPLOAD_FAILED_MSG
+    : <ProgressBar current={current} total={total} />;
+
+  const caption = <AssetDescription title={status} />;
+
+  return <Asset content={content} caption={caption} />;
 }

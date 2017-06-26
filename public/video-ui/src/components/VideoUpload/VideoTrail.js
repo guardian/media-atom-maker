@@ -1,5 +1,10 @@
 import React from 'react';
-import { Asset, YouTubeAsset, SelfHostedAsset } from './VideoAsset';
+import {
+  Asset,
+  YouTubeAsset,
+  SelfHostedAsset,
+  ProcessingAsset
+} from './VideoAsset';
 
 export default class VideoTrail extends React.Component {
   polling = null;
@@ -54,7 +59,9 @@ export default class VideoTrail extends React.Component {
       const active = upload.id == this.props.activeVersion;
       const activate = active ? false : function() {};
 
-      if (upload.asset.id) {
+      if (upload.processing) {
+        return <ProcessingAsset key={upload.id} {...upload.processing} />;
+      } else if (upload.asset.id) {
         return (
           <YouTubeAsset
             key={upload.id}
