@@ -12,6 +12,14 @@ case class ClientAssetProcessing(status: String, failed: Boolean, current: Optio
 object ClientAsset {
   implicit val format: Format[ClientAsset] = Jsonx.formatCaseClass[ClientAsset]
 
+  def byVersion(assets: List[Asset], youTube: YouTubeVideos): List[ClientAsset] = {
+    val versions = assets.map(_.version).distinct.sorted.reverse
+
+    versions.flatMap { version =>
+      ClientAsset(assets.filter(_.version == version), youTube)
+    }
+  }
+
   def apply(assets: List[Asset], youTube: YouTubeVideos): Option[ClientAsset] = {
     assets.headOption.map { asset =>
       asset.platform match {

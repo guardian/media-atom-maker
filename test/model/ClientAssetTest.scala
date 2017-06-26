@@ -68,6 +68,22 @@ class ClientAssetTest extends FunSuite with MustMatchers {
     }
   }
 
+  test("Group assets by version (newest first)") {
+    withYouTubeStatus(processing = None) { youTube =>
+      val input = List(mp4.copy(version = 1), m3u8.copy(version = 1), ytAsset.copy(version = 2))
+      val output = ClientAsset.byVersion(input, youTube)
+
+      output match {
+        case first :: second :: Nil =>
+          first.asset.get mustBe a[YouTubeAsset]
+          second.asset.get mustBe a[SelfHostedAsset]
+
+        case _ =>
+          fail(s"Expected two entries, got $output")
+      }
+    }
+  }
+
   test("Self hosted upload") {
     val upload = Upload("test", List.empty, blank(selfHost = true), null)
     val processing = ClientAssetProcessing("Uploading", failed = false, None, None)
