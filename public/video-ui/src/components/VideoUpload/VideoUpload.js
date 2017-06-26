@@ -210,12 +210,8 @@ class VideoUpload extends React.Component {
     const uploading = this.props.s3Upload.total > 0;
     const activeVersion = this.props.video ? this.props.video.activeVersion : 0;
 
-    const selectAsset = (assetId, version) => {
-      this.props.videoActions.revertAsset(
-        this.props.video.id,
-        assetId,
-        version
-      );
+    const selectAsset = version => {
+      this.props.videoActions.revertAsset(this.props.video.id, version);
     };
 
     return (
