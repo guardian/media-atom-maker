@@ -100,7 +100,8 @@ lazy val integrationTests = (project in file("integration-tests"))
   .settings(commonSettings,
     name := "integration-tests",
     libraryDependencies ++= Dependencies.integrationTestDependencies,
-    logBuffered in Test := false
+    logBuffered in Test := false,
+    parallelExecution in Test := false
   )
 
 
