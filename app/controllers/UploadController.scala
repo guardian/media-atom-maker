@@ -36,7 +36,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
   def create = ActionWithPermission { implicit raw =>
     parse(raw) { req: CreateRequest =>
       if(req.selfHost && !raw.permissions.addSelfHostedAsset) {
-        Unauthorized(s"User ${raw.user.email} is not authorised with permissions to upload asset")
+        Unauthorized(s"User ${raw.user.email} is not authorised with permissions to upload self-hosted asset")
       } else {
         log.info(s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}, selfHosted=${req.selfHost}")
 
