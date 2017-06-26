@@ -164,21 +164,15 @@ class ClientAssetTest extends FunSuite with MustMatchers {
     UploadMetadata("", "", "", "", "", null, selfHost, None, None)
   }
 
-  private def withoutYouTubeStatus(fn: YouTubeVideos => Unit): Unit = {
-    fn(new YouTubeVideos with YouTubeAccess with Logging {
-      override def config: Config = ConfigFactory.load()
-      override def getProcessingStatus(videoId: String): Option[YouTubeProcessingStatus] = {
-        fail("Unexpected call to YouTube status")
-      }
+  private def withoutYouTubeStatus(fn: (String => Option[YouTubeProcessingStatus]) => Unit): Unit = {
+    fn((_: String) => {
+      fail("Unexpected call to YouTube status")
     })
   }
 
-  private def withYouTubeStatus(processing: Option[YouTubeProcessingStatus])(fn: YouTubeVideos => Unit): Unit = {
-    fn(new YouTubeVideos with YouTubeAccess with Logging {
-      override def config: Config = ConfigFactory.load()
-      override def getProcessingStatus(videoId: String): Option[YouTubeProcessingStatus] = {
-        processing
-      }
+  private def withYouTubeStatus(processing: Option[YouTubeProcessingStatus])(fn: (String => Option[YouTubeProcessingStatus]) => Unit): Unit = {
+    fn((_: String) => {
+      processing
     })
   }
 }

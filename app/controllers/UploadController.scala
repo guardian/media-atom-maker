@@ -31,7 +31,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   def list(atomId: String) = APIAuthAction {
     val atom = MediaAtom.fromThrift(getPreviewAtom(atomId))
-    val added = ClientAsset.byVersion(atom.assets, youTube)
+    val added = ClientAsset.byVersion(atom.assets, youTube.getProcessingStatus)
 
     val jobs = stepFunctions.getJobs(atomId)
     val running = jobs.flatMap(getRunning)

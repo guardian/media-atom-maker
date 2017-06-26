@@ -2,7 +2,7 @@ package model
 
 import com.gu.media.model.{SelfHostedAsset, VideoAsset, VideoSource, YouTubeAsset}
 import com.gu.media.upload.model.Upload
-import com.gu.media.youtube.{YouTubeProcessingStatus, YouTubeVideos}
+import com.gu.media.youtube.YouTubeProcessingStatus
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
 
@@ -12,7 +12,7 @@ case class ClientAssetProcessing(status: String, failed: Boolean, current: Optio
 object ClientAsset {
   implicit val format: Format[ClientAsset] = Jsonx.formatCaseClass[ClientAsset]
 
-  def byVersion(assets: List[Asset], youTube: YouTubeVideos): List[ClientAsset] = {
+  def byVersion(assets: List[Asset], youTube: String => Option[YouTubeProcessingStatus]): List[ClientAsset] = {
     val versions = assets.map(_.version).distinct.sorted.reverse
 
     versions.flatMap { version =>
@@ -20,11 +20,11 @@ object ClientAsset {
     }
   }
 
-  def apply(assets: List[Asset], youTube: YouTubeVideos): Option[ClientAsset] = {
+  def apply(assets: List[Asset], getProcessingStatus: String => Option[YouTubeProcessingStatus]): Option[ClientAsset] = {
     assets.headOption.map { asset =>
       asset.platform match {
         case Platform.Url => selfHostedAsset(asset.version, assets)
-        case Platform.Youtube => youTubeAsset(asset.version, asset.id, youTube)
+        case Platform.Youtube => youTubeAsset(asset.version, asset.id, getProcessingStatus)
         case other => throw new IllegalArgumentException(s"Unsupported platform ${other.name}")
       }
     }
@@ -55,9 +55,8 @@ object ClientAsset {
     )))
   }
 
-  private def youTubeAsset(version: Long, id: String, youTube: YouTubeVideos): ClientAsset = {
-    val processing = youTube
-      .getProcessingStatus(id)
+  private def youTubeAsset(version: Long, id: String, getProcessingStatus: String => Option[YouTubeProcessingStatus]): ClientAsset = {
+    val processing = getProcessingStatus(id)
       .filterNot(_.status == "succeeded")
       .map(ClientAssetProcessing(_))
 
