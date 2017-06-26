@@ -32,13 +32,16 @@ class StepFunctions(awsConfig: AWSConfig) {
     runningJobs ++ failedJobs
   }
 
-  def getUpload(events: Iterable[HistoryEvent]): Option[Upload] = {
+  def getTaskEntered(events: Iterable[HistoryEvent]): Option[(String, Upload)] = {
     events.find(_.getType == "TaskStateEntered").map { event =>
-      Json.parse(event.getStateEnteredEventDetails.getInput).as[Upload]
+      val details = event.getStateEnteredEventDetails
+      val upload = Json.parse(details.getInput).as[Upload]
+
+      (details.getName, upload)
     }
   }
 
-  def getError(events: Iterable[HistoryEvent]): Option[String] = {
+  def getExecutionFailed(events: Iterable[HistoryEvent]): Option[String] = {
     events.find(_.getType == "ExecutionFailed").flatMap { event =>
       val cause = event.getExecutionFailedEventDetails.getCause
 

@@ -30,9 +30,9 @@ object ClientAsset {
     }
   }
 
-  def apply(upload: Upload, error: Option[String]): ClientAsset = {
+  def apply(state: String, upload: Upload, error: Option[String]): ClientAsset = {
     if(upload.metadata.selfHost) {
-      selfHostedUpload(upload.id, error)
+      selfHostedUpload(upload.id, state, error)
     } else {
       youTubeUpload(upload)
     }
@@ -46,9 +46,9 @@ object ClientAsset {
     ClientAsset(version.toString, asset = Some(SelfHostedAsset(sources)), processing = None)
   }
 
-  private def selfHostedUpload(id: String, error: Option[String]): ClientAsset = {
+  private def selfHostedUpload(id: String, state: String, error: Option[String]): ClientAsset = {
     ClientAsset(id, asset = None, processing = Some(ClientAssetProcessing(
-      status = error.getOrElse("Uploading"),
+      status = error.getOrElse(state),
       failed = error.isDefined,
       current = None,
       total = None

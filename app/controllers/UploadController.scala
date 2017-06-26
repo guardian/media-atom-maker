@@ -132,10 +132,13 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   private def getRunning(job: ExecutionListItem): Option[ClientAsset] = {
     val events = stepFunctions.getEventsInReverseOrder(job)
-    val upload = stepFunctions.getUpload(events)
-    val error = stepFunctions.getError(events)
 
-    upload.map(ClientAsset(_, error))
+    val upload = stepFunctions.getTaskEntered(events)
+    val error = stepFunctions.getExecutionFailed(events)
+
+    upload.map { case(state, upload) =>
+      ClientAsset(state, upload, error)
+    }
   }
 }
 

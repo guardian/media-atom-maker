@@ -86,10 +86,10 @@ class ClientAssetTest extends FunSuite with MustMatchers {
 
   test("Self hosted upload") {
     val upload = Upload("test", List.empty, blank(selfHost = true), null)
-    val processing = ClientAssetProcessing("Uploading", failed = false, None, None)
+    val processing = ClientAssetProcessing("Reticulating Splines", failed = false, None, None)
 
     val expected = ClientAsset("test", asset = None, Some(processing))
-    val actual = ClientAsset(upload, error = None)
+    val actual = ClientAsset("Reticulating Splines", upload, error = None)
 
     actual must be(expected)
   }
@@ -99,31 +99,31 @@ class ClientAssetTest extends FunSuite with MustMatchers {
     val processing = ClientAssetProcessing("Failed due to electric boogaloo", failed = true, None, None)
 
     val expected = ClientAsset("test", asset = None, Some(processing))
-    val actual = ClientAsset(upload, error = Some("Failed due to electric boogaloo"))
+    val actual = ClientAsset("test", upload, error = Some("Failed due to electric boogaloo"))
 
     actual must be(expected)
   }
 
-  test("YouTube upload") {
+  test("YouTube fully uploaded") {
     val progress = UploadProgress(chunksInS3 = 2, chunksInYouTube = 2, fullyUploaded = true, fullyTranscoded = false, retries = 0)
     val metadata = blank(selfHost = false).copy(asset = Some(YouTubeAsset("test")))
     val upload = Upload("test", parts, metadata, progress)
 
     val processing = ClientAssetProcessing("Uploading", failed = false, None, None)
     val expected = ClientAsset("test", asset = None, Some(processing))
-    val actual = ClientAsset(upload, error = None)
+    val actual = ClientAsset("test", upload, error = None)
 
     actual must be(expected)
   }
 
-  test("YouTube upload (processing)") {
+  test("YouTube partially uploaded") {
     val progress = UploadProgress(chunksInS3 = 2, chunksInYouTube = 1, fullyUploaded = false, fullyTranscoded = false, retries = 0)
     val metadata = blank(selfHost = false).copy(asset = Some(YouTubeAsset("test")))
     val upload = Upload("test", parts, metadata, progress)
 
     val processing = ClientAssetProcessing("Uploading to YouTube", failed = false, current = Some(1), total = Some(2))
     val expected = ClientAsset("test", asset = None, Some(processing))
-    val actual = ClientAsset(upload, error = None)
+    val actual = ClientAsset("test", upload, error = None)
 
     actual must be(expected)
   }
