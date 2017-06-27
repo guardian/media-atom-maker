@@ -2,7 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { getStore } from '../../util/storeAccessor';
-import { FrontendIcon, ComposerIcon, ViewerIcon } from '../Icon';
+import {
+  FrontendIcon,
+  ComposerIcon,
+  ViewerIcon,
+  ComposerVideoIcon
+} from '../Icon';
 
 export default class VideoUsages extends React.Component {
   getComposerUrl = () => {
@@ -17,13 +22,20 @@ export default class VideoUsages extends React.Component {
     const composerLink = `${this.getComposerUrl()}/content/${usage.fields.internalComposerCode}`;
     const viewerLink = `${this.getViewerUrl()}/preview/${usage.id}`;
     const websiteLink = `https://www.theguardian.com/${usage.id}`;
+    const isVideoType = usage.type === 'video';
 
     const usageDateFromNow = moment(usage.fields.creationDate).fromNow();
 
-    //TODO add an icon to indicate atom usage on a video page
     return (
-      <li key={usage.id} className="detail__list__item">
-        {usage.fields.headline || usage.id}
+      <li
+        key={usage.id}
+        className={
+          isVideoType ? 'detail__list__item--video' : 'detail__list__item'
+        }
+      >
+        <div className="details-list__title">
+          {usage.fields.headline || usage.id}
+        </div>
         <div>
           Created:
           {' '}
@@ -44,7 +56,7 @@ export default class VideoUsages extends React.Component {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <ComposerIcon />
+            {isVideoType ? <ComposerVideoIcon /> : <ComposerIcon />}
           </a>
           <a
             className="usage--platform-link"
