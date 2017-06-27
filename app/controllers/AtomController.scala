@@ -35,7 +35,7 @@ trait AtomController extends Controller with UnpackedDataStores {
 
   import authActions.APIAuthAction
 
-  object ActionWithPermission extends ActionBuilder[UploadUserRequest] {
+  object LookupPermissions extends ActionBuilder[UploadUserRequest] {
     override def invokeBlock[A](request: Request[A], block: UploadUserRequest[A] => Future[Result]): Future[Result] = {
       APIAuthAction.invokeBlock(request, { req: UserRequest[A] =>
         permissions.getAll(req.user.email).flatMap { p =>

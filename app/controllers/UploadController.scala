@@ -33,7 +33,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     Ok(Json.toJson(running))
   }
 
-  def create = ActionWithPermission { implicit raw =>
+  def create = LookupPermissions { implicit raw =>
     parse(raw) { req: CreateRequest =>
       if(req.selfHost && !raw.permissions.addSelfHostedAsset) {
         Unauthorized(s"User ${raw.user.email} is not authorised with permissions to upload self-hosted asset")
@@ -51,7 +51,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     }
   }
 
-  def credentials(id: String, key: String) = ActionWithPermission { implicit req =>
+  def credentials(id: String, key: String) = LookupPermissions { implicit req =>
     getPart(id, key) match {
       case Some(part) =>
         val credentials = credsGenerator.forKey(part.key)
