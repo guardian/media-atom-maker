@@ -1,8 +1,7 @@
 @import com.gu.media.model.{VideoAsset, YouTubeAsset, SelfHostedAsset}
-
 @(asset: Option[VideoAsset], posterUrl: Option[String])
 
-@(asset, posterUrl) match {
+@defining((asset, posterUrl)) {
   case (None, Some(poster)) => {
     <img src="@poster"/>
   }
@@ -12,13 +11,14 @@
   }
 
   case (Some(SelfHostedAsset(sources)), Some(poster)) => {
-    <video controls="controls" poster="@{poster}">
+    <video controls="controls" poster="@poster">
     @for(source <- sources) {
-      <source type="@{source.mimeType}" src="@{source.src}" />
+      <source type="@source.mimeType" src="@source.src" />
     }
     </video>
   }
 
-  case _ =>
+  case _ => {
     <div />
+  }
 }
