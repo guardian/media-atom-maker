@@ -88,23 +88,13 @@ class VideoUpload extends React.Component {
       return (
         <div>
           {' '}
-          {this.renderAddAssetUpload()}
+          {this.renderStartUpload(false, 'Upload')}
           {' '}
-          {this.renderAddSelfHostAssetUpload()}
+          {getStore().getState().config.permissions.addSelfHostedAsset
+            ? this.renderStartUpload(true, 'Upload avoiding YouTube')
+            : null}
         </div>
       );
-    }
-  }
-
-  renderAddAssetUpload() {
-    if (getStore().getState().config.permissions.addAsset) {
-      return this.renderStartUpload(false, 'Upload');
-    }
-  }
-
-  renderAddSelfHostAssetUpload() {
-    if (getStore().getState().config.permissions.addSelfHostedAsset) {
-      return this.renderStartUpload(true, 'Upload avoiding YouTube');
     }
   }
 
@@ -125,12 +115,6 @@ class VideoUpload extends React.Component {
 
   renderUpload(uploading) {
     // the permissions are also validated on the server-side for each request
-    if (
-      !getStore().getState().config.permissions.addAsset &&
-      !getStore().getState().config.permissions.addSelfHostedAsset
-    ) {
-      return false;
-    }
 
     return (
       <div className="video__detailbox upload__action">

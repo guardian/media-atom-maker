@@ -35,12 +35,11 @@ trait AtomController extends Controller with UnpackedDataStores {
 
   import authActions.APIAuthAction
 
-  object CanUploadAsset extends ActionBuilder[UploadUserRequest] {
+  object LookupPermissions extends ActionBuilder[UploadUserRequest] {
     override def invokeBlock[A](request: Request[A], block: UploadUserRequest[A] => Future[Result]): Future[Result] = {
       APIAuthAction.invokeBlock(request, { req: UserRequest[A] =>
         permissions.getAll(req.user.email).flatMap { p =>
-          if(p.addAsset || p.addSelfHostedAsset ) block(new UploadUserRequest(req.user, request, p))
-          else Future.successful(Unauthorized(s"User ${req.user.email} is not authorised to upload assets"))
+          block(new UploadUserRequest(req.user, request, p))
         }
       })
     }
