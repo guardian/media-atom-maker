@@ -757,7 +757,7 @@ Resources:
       ActionsEnabled: !Ref 'AlertActive'
       AlarmDescription: 500 Error reported from media-atom-maker
       ComparisonOperator: GreaterThanOrEqualToThreshold
-      Threshold: '1'
+      Threshold: '10'
       Namespace: AWS/ELB
       MetricName: HTTPCode_Backend_5XX
       Dimensions:
