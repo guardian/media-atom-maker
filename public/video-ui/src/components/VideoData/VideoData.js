@@ -122,8 +122,6 @@ class VideoData extends React.Component {
             >
               <CheckBox />
             </ManagedField>
-          </ManagedSection>
-          <ManagedSection>
             <ManagedField
               fieldLocation="source"
               name="Video Source"
