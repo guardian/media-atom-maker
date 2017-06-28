@@ -127,9 +127,12 @@ class VideoUpload extends React.Component {
 
   renderDataMissingMessage() {
     if (this.state.file && this.videoDataMissing()) {
-      const dataInstructions =
-        'You have to add a channel and a category before you upload a video. ';
-      return <div className="error"> {dataInstructions} </div>;
+      return (
+        <div className="error">
+          {' '}
+          'You have to add a channel and a category before you upload a video. '
+        </div>
+      );
     }
     return null;
   }
@@ -183,7 +186,7 @@ class VideoUpload extends React.Component {
     );
   }
 
-  renderYouTubeData = () => {
+  renderYouTubeData = uploading => {
     return (
       <div>
         <div className="video__detailbox__header__container">
@@ -197,6 +200,7 @@ class VideoUpload extends React.Component {
           youtube={this.props.youtube}
           pluto={this.props.pluto}
           assets={this.props.video.assets}
+          editable={!uploading}
         />
       </div>
     );
@@ -221,7 +225,7 @@ class VideoUpload extends React.Component {
         <div className="video__main">
           <div className="video__main__header">
             <div className="video__detailbox">
-              {this.renderYouTubeData()}
+              {this.renderYouTubeData(uploading)}
               {this.renderActions(uploading)}
             </div>
             <VideoTrail

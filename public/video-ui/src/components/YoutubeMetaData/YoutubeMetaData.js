@@ -13,9 +13,10 @@ export default class YoutubeMetaData extends React.Component {
           data={this.props.video}
           updateData={this.props.saveVideo}
           editable={
-            !this.hasYouTubeUploads() ||
-              (!this.props.video.plutoData ||
-                !this.props.video.plutoData.projectId)
+            this.props.editable &&
+              (!this.hasYouTubeUploads() ||
+                (!this.props.video.plutoData ||
+                  !this.props.video.plutoData.projectId))
           }
           updateErrors={this.props.updateErrors}
           formName={this.props.formName}
@@ -39,7 +40,10 @@ export default class YoutubeMetaData extends React.Component {
       <ManagedForm
         data={this.props.video}
         updateData={this.props.saveVideo}
-        editable={!this.hasYouTubeUploads() || !this.props.video.channelId}
+        editable={
+          this.props.editable &&
+            (!this.hasYouTubeUploads() || !this.props.video.channelId)
+        }
       >
         <ManagedField fieldLocation="channelId" name="YouTube Channel">
           <SelectBox selectValues={this.props.youtube.channels} />
@@ -53,7 +57,7 @@ export default class YoutubeMetaData extends React.Component {
       <ManagedForm
         data={this.props.video}
         updateData={this.props.saveVideo}
-        editable={true}
+        editable={this.props.editable}
       >
         <ManagedField fieldLocation="youtubeCategoryId" name="YouTube Category">
           <SelectBox selectValues={this.props.youtube.categories} />
