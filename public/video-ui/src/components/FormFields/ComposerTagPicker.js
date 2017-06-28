@@ -63,7 +63,8 @@ export default class ComposerTagPicker extends React.Component {
   };
 
   updateInput = e => {
-    if (this.state.lastAction === UserActions.space) {
+    const onlyWhitespace = !/\S/.test(this.state.inputString);
+    if (this.state.lastAction === UserActions.space && !onlyWhitespace) {
       const newFieldValue = this.state.tagValue.concat([
         this.state.inputString
       ]);
