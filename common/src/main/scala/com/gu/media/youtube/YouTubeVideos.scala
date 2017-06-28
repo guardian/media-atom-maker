@@ -42,21 +42,6 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
     }
   }
 
-  def isMyVideo(youtubeId: String): Boolean = {
-    // HACK Listing `fileDetails` of a video requires authentication and an exception is thrown if not authorized,
-    // so we can say the video is not ours.
-    //
-    // A cleaner way to do this would be to check the channel id of the video is one of ours,
-    // however this involves an extra API call.
-    // TODO cache YouTube channels in a store and query against that.
-    try {
-      getVideo(youtubeId, "fileDetails").nonEmpty
-    }
-    catch {
-      case _: Throwable => false
-    }
-  }
-
   def updateMetadata(id: String, metadata: YouTubeMetadataUpdate): Option[Video] =
     getVideo(id, "snippet, status") match {
       case Some(video) =>

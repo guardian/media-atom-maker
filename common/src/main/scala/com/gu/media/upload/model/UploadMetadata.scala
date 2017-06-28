@@ -9,11 +9,10 @@ case class UploadMetadata(
   bucket: String,
   region: String,
   title: String,
-  channel: String,
   pluto: PlutoSyncMetadata,
   selfHost: Boolean = false,
-  asset: Option[VideoAsset] = None,
-  runtime: Option[RuntimeUploadMetadata] = None
+  runtime: RuntimeUploadMetadata,
+  asset: Option[VideoAsset] = None
 )
 
 case class PlutoSyncMetadata (
@@ -25,7 +24,7 @@ case class PlutoSyncMetadata (
 )
 
 sealed abstract class RuntimeUploadMetadata
-case class YouTubeUploadMetadata(uri: String) extends RuntimeUploadMetadata
+case class YouTubeUploadMetadata(channel: String, uri: Option[String]) extends RuntimeUploadMetadata
 case class SelfHostedUploadMetadata(jobs: List[String]) extends RuntimeUploadMetadata
 
 object UploadMetadata {

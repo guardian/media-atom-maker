@@ -86,9 +86,9 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       bucket = awsConfig.userUploadBucket,
       region = awsConfig.region.getName,
       title = atom.title,
-      channel = atom.channelId.getOrElse { AtomMissingYouTubeChannel },
       pluto = plutoData,
       selfHost = selfHosted,
+      runtime = getRuntimeMetadata(selfHosted, atom.channelId),
       asset = getAsset(selfHosted, atom.title, uploadId)
     )
 
@@ -115,6 +115,12 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
       Some(SelfHostedAsset(List(mp4Source)))
     }
+  }
+
+  private def getRuntimeMetadata(selfHosted: Boolean, atomChannel: Option[String]) = atomChannel match {
+    case _ if selfHosted => SelfHostedUploadMetadata(List.empty)
+    case Some(channel) => YouTubeUploadMetadata(channel, uri = None)
+    case None => AtomMissingYouTubeChannel
   }
 
   private def chunk(uploadId: String, size: Long): List[UploadPart] = {
