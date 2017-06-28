@@ -4,8 +4,6 @@ import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoUsages from '../VideoUsages/VideoUsages';
 import VideoData from '../VideoData/VideoData';
-import VideoPoster from '../VideoPoster/VideoPoster';
-import GridImageSelect from '../utils/GridImageSelect';
 import Icon from '../Icon';
 import { formNames } from '../../constants/formNames';
 import FieldNotification from '../../constants/FieldNotification';
@@ -20,13 +18,6 @@ class VideoDisplay extends React.Component {
 
   saveVideo = () => {
     this.props.videoActions.saveVideo(this.props.video);
-  };
-
-  saveAndUpdateVideoPoster = poster => {
-    const newVideo = Object.assign({}, this.props.video, {
-      posterImage: poster
-    });
-    this.saveAndUpdateVideo(newVideo);
   };
 
   saveAndUpdateVideo = video => {
@@ -133,7 +124,12 @@ class VideoDisplay extends React.Component {
             <ReactTooltip place="bottom" />
           </Link>
         </div>
-        <VideoPreview video={this.props.video || {}} />
+        <VideoPreview
+          video={this.props.video || {}}
+          saveAndUpdateVideo={this.saveAndUpdateVideo}
+          updateErrors={this.props.formErrorActions.updateFormErrors}
+          config={this.props.config}
+        />
       </div>
     );
   };
@@ -178,25 +174,6 @@ class VideoDisplay extends React.Component {
               </div>
             </div>
             <div className="video__row">
-              <div className="video__detailbox">
-                <div className="video__detailbox__header__container">
-                  <header className="video__detailbox__header">
-                    Poster Image
-                  </header>
-                  <GridImageSelect
-                    updateVideo={this.saveAndUpdateVideoPoster}
-                    gridUrl={this.props.config.gridUrl}
-                    disabled={this.props.videoEditOpen}
-                    createMode={false}
-                  />
-                </div>
-                <VideoPoster
-                  video={this.props.video || {}}
-                  updateVideo={this.saveAndUpdateVideo}
-                  formName={formNames.posterImage}
-                  updateErrors={this.props.formErrorActions.updateFormErrors}
-                />
-              </div>
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
                   <header className="video__detailbox__header">Usages</header>
