@@ -99,9 +99,19 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
   }
 
   private def updateYouTube(previewAtom: MediaAtom, asset: Asset): Future[MediaAtom] = {
-    updateYoutubeMetadata(previewAtom, asset)
-    updateYoutubeThumbnail(previewAtom, asset)
-    createOrUpdateYoutubeClaim(previewAtom, asset)
+    previewAtom.channelId match {
+      case Some(channel) if youTube.allowedChannels.contains(channel) =>
+        updateYoutubeMetadata(previewAtom, asset)
+        updateYoutubeThumbnail(previewAtom, asset)
+        createOrUpdateYoutubeClaim(previewAtom, asset)
+
+      case Some(_) =>
+        // third party YouTube video that we do not have permission to edit
+        Future.successful(previewAtom)
+
+      case None =>
+        AtomPublishFailed("Atom missing YouTube channel")
+    }
   }
 
   private def createOrUpdateYoutubeClaim(previewAtom: MediaAtom, asset: Asset): Future[MediaAtom] = Future{
