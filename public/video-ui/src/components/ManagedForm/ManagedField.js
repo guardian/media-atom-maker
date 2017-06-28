@@ -92,9 +92,7 @@ export class ManagedField extends React.Component {
 
   hasError(props) {
     return (
-      props.touched &&
-      props.notification &&
-      props.notification.type === FieldNotification.error
+      props.notification && props.notification.type === FieldNotification.error
     );
   }
 
