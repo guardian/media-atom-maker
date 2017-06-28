@@ -113,6 +113,17 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
     }
   }
 
+  def isMyVideo(youtubeId: String): Boolean = {
+    getVideo(youtubeId, "snippet") match {
+      case Some(video) =>
+        val channel = video.getSnippet.getChannelId
+        allowedChannels.contains(channel)
+
+      case None =>
+        false
+    }
+  }
+
   private def protectAgainstMistakesInDev(video: Video) = {
     val videoChannelId = video.getSnippet.getChannelId
 
