@@ -1,6 +1,7 @@
 import { pandaReqwest } from './pandaReqwest';
 import { getStore } from '../util/storeAccessor';
 import { getComposerData, getRightsPayload } from '../util/getComposerData';
+import { nullifyEmptyStrings } from '../util/nullifyEmptyStrings';
 import ContentApi from './capi';
 
 export default {
@@ -31,7 +32,7 @@ export default {
     return pandaReqwest({
       url: '/api2/atoms',
       method: 'post',
-      data: video
+      data: nullifyEmptyStrings(video)
     });
   },
 
@@ -62,7 +63,7 @@ export default {
     return pandaReqwest({
       url: '/api2/atoms/' + videoId,
       method: 'put',
-      data: video
+      data: nullifyEmptyStrings(video)
     });
   },
 
