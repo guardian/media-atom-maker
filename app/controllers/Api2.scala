@@ -4,10 +4,10 @@ import com.gu.atom.play.AtomAPIActions
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
 import com.gu.media.upload.model.PlutoSyncMetadata
-import com.gu.media.youtube.{YouTube, YouTubeClaims}
+import com.gu.media.youtube.YouTubeClaims
 import com.gu.media.Capi
 import com.gu.pandahmac.HMACAuthActions
-import _root_.util.ActivateAssetRequest
+import _root_.util.{ActivateAssetRequest, YouTube}
 import data.DataStores
 import model.commands.CommandExceptions._
 import model.commands._

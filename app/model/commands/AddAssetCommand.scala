@@ -4,13 +4,12 @@ import com.gu.contentatom.thrift.Atom
 import com.gu.contentatom.thrift.atom.media.Category.Hosted
 import com.gu.contentatom.thrift.atom.media.{Asset, Metadata, Platform, MediaAtom => ThriftMediaAtom}
 import com.gu.media.logging.Logging
-import com.gu.media.youtube.YouTube
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.MediaAtom
 import model.MediaAtom.fromThrift
 import model.commands.CommandExceptions._
-import util.ThriftUtil
+import util.{ThriftUtil, YouTube}
 import util.atom.MediaAtomImplicits
 
 case class AddAssetCommand(atomId: String, videoUri: String, override val stores: DataStores,
@@ -32,7 +31,7 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
     videoUri match {
       case YouTubeId(videoId) if assetAlreadyExists(videoId, currentAssets) =>
         log.info(s"Cannot add asset $videoUri to $atomId as it already exists.")
-        AssetVersionConflict
+        AssetAlreadyAdded
 
       case YouTubeId(videoId) =>
         addAsset(atom, mediaAtom, currentAssets, videoId)
@@ -48,7 +47,7 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
     val newAsset = ThriftUtil.parseAsset(uri = videoUri, version = version, mimeType = None)
       .fold(err => AssetParseFailed, identity)
 
-    val channel = getYouTubeChannel(newAsset, mediaAtom.metadata.flatMap(_.channelId))
+    val channel = getYouTubeChannel(newAsset, mediaAtom)
     val metadata = mediaAtom.metadata.getOrElse(Metadata()).copy(channelId = Some(channel))
 
     val updatedAtom = atom
@@ -62,13 +61,28 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
     UpdateAtomCommand(atomId, fromThrift(updatedAtom), stores, user).process()
   }
 
-  private def getYouTubeChannel(asset: Asset, existingChannel: Option[String]): String = {
-    (youTube.getVideo(asset.id, "snippet"), existingChannel) match {
-      case (Some(video), Some(channel)) if video.getSnippet.getChannelId != channel =>
-        IncorrectYouTubeChannel
+  private def getYouTubeChannel(asset: Asset, atom: ThriftMediaAtom): String = {
+    val existingChannel = atom.metadata.flatMap(_.channelId)
 
+    if(!youTube.isGuardianVideo(asset.id) && atom.category != Hosted) {
+      NotHostedAtom
+    }
+
+    if(youTube.isGuardianVideo(asset.id) && atom.category == Hosted) {
+      GuardianVideoOnHostedAtom
+    }
+
+    (youTube.getVideo(asset.id, "snippet"), existingChannel) match {
       case (None, _) =>
         YouTubeVideoDoesNotExist(asset.id)
+
+      case (Some(video), Some(channel)) if video.getSnippet.getChannelId != channel =>
+        if(atom.assets.isEmpty) {
+          // that's fine, no assets yet
+          video.getSnippet.getChannelId
+        } else {
+          IncorrectYouTubeChannel
+        }
 
       case (Some(video), _) =>
         video.getSnippet.getChannelId

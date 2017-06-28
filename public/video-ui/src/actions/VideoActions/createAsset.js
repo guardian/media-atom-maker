@@ -1,4 +1,6 @@
 import VideosApi from '../../services/VideosApi';
+import { getVideo } from './getVideo';
+import { getUploads } from '../UploadActions/getUploads';
 
 const BLANK_ASSET = {
   uri: ''
@@ -33,7 +35,13 @@ export function createAsset(asset, video) {
   return dispatch => {
     dispatch(requestAssetCreate(video));
     return VideosApi.createAsset(asset, video.id)
-      .then(res => dispatch(receiveAssetCreate(res)))
+      .then(res => {
+        dispatch(receiveAssetCreate(res));
+
+        // Pull down the latest changes from the server
+        dispatch(getUploads(video.id));
+        dispatch(getVideo(video.id));
+      })
       .catch(error => dispatch(errorAssetCreate(error.response)));
   };
 }

@@ -1,10 +1,14 @@
 import React from 'react';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
+import { channelAllowed } from '../../util/channelAllowed';
 
 export default class YoutubeMetaData extends React.Component {
   hasYouTubeUploads = () =>
     this.props.assets.some(asset => asset.platform === 'Youtube');
+
+  notOnAllowedChannel = () =>
+    !channelAllowed(this.props.video, this.props.youtube.channels);
 
   renderProjectIdForm() {
     return (
@@ -25,6 +29,7 @@ export default class YoutubeMetaData extends React.Component {
             fieldLocation="plutoData.projectId"
             name="Pluto Project"
             isRequired={false}
+            disabled={this.notOnAllowedChannel()}
           >
             <SelectBox
               selectValues={this.props.pluto ? this.props.pluto.projects : []}
@@ -59,7 +64,11 @@ export default class YoutubeMetaData extends React.Component {
         updateData={this.props.saveVideo}
         editable={this.props.editable}
       >
-        <ManagedField fieldLocation="youtubeCategoryId" name="YouTube Category">
+        <ManagedField
+          fieldLocation="youtubeCategoryId"
+          name="YouTube Category"
+          disabled={this.notOnAllowedChannel()}
+        >
           <SelectBox selectValues={this.props.youtube.categories} />
         </ManagedField>
       </ManagedForm>
@@ -68,10 +77,17 @@ export default class YoutubeMetaData extends React.Component {
 
   render() {
     return (
-      <div className="form__group">
-        {this.renderChannelIdForm()}
-        {this.renderProjectIdForm()}
-        {this.renderCategoryForm()}
+      <div>
+        <div className="video__detailbox__header__container">
+          <header className="video__detailbox__header">
+            YouTube Data
+          </header>
+        </div>
+        <div className="form__group">
+          {this.renderChannelIdForm()}
+          {this.renderProjectIdForm()}
+          {this.renderCategoryForm()}
+        </div>
       </div>
     );
   }

@@ -1,60 +1,10 @@
 import React from 'react';
-import Icon from '../Icon';
 import VideoTrail from './VideoTrail';
-import CheckBox from '../FormFields/CheckBox';
 import { getStore } from '../../util/storeAccessor';
 import YoutubeMetaData from '../YoutubeMetaData/YoutubeMetaData';
-
-class AddAssetFromURL extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { uri: null };
-  }
-
-  addAsset = () => {
-    if (this.state.uri) {
-      this.props.createAsset(this.state, this.props.video);
-    }
-  };
-
-  onChange = e => {
-    this.setState({ uri: e.target.value });
-  };
-
-  render() {
-    const disabled = !this.state.uri;
-
-    return (
-      <div>
-        <div className="video__detailbox video__detailbox__assets">
-          <div className="video__detailbox__header__container">
-            <header className="video__detailbox__header">Asset URL</header>
-          </div>
-          <div className="form__group">
-            <div className="form__row">
-              <div>
-                <input
-                  className="form__field"
-                  type="text"
-                  placeholder="Paste YouTube URL here"
-                  onChange={this.onChange}
-                />
-                <button
-                  className="btn"
-                  type="button"
-                  onClick={this.addAsset}
-                  disabled={disabled}
-                >
-                  Add
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-}
+import AddAssetFromURL from './AddAssetFromURL';
+import UploadPicker from './UploadPicker';
+import { channelAllowed } from '../../util/channelAllowed';
 
 class VideoUpload extends React.Component {
   hasCategories = () =>
@@ -65,15 +15,6 @@ class VideoUpload extends React.Component {
     this.props.youtube && this.props.youtube.channels.length !== 0;
   hasPlutoProjects = () =>
     this.props.pluto && this.props.pluto.projects.length !== 0;
-
-  state = {
-    file: null,
-    selfHost: false
-  };
-
-  videoDataMissing = () => {
-    return !this.props.video.channelId || !this.props.video.youtubeCategoryId;
-  };
 
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
@@ -88,133 +29,15 @@ class VideoUpload extends React.Component {
     }
   }
 
-  setFile = event => {
-    if (!this.props.video) {
-      return;
-    }
-
-    if (event.target.files.length == 0) {
-      this.setState({ file: null });
-    } else {
-      this.setState({ file: event.target.files[0] });
-    }
-  };
-
-  startUpload = () => {
-    if (this.props.video && this.state.file) {
-      this.props.uploadActions.startUpload(
-        this.props.video.id,
-        this.state.file,
-        this.state.selfHost
-      );
-
-      this.setState({ selfHost: false });
-    }
-  };
-
-  renderButtons(uploading) {
-    const metadataCorrect = !this.videoDataMissing() || this.state.selfHost;
-    const enabled = this.state.file && metadataCorrect;
-
-    const permissions = getStore().getState().config.permissions;
-
-    if (uploading) {
-      return false;
-    } else {
-      return (
-        <div>
-          <button
-            type="button"
-            className="btn button__secondary__assets"
-            disabled={!enabled}
-            onClick={() => this.startUpload()}
-          >
-            <Icon icon="backup">Upload</Icon>
-          </button>
-
-          {permissions.addSelfHostedAsset
-            ? <CheckBox
-                fieldName="Options"
-                fieldDetails="Host on YouTube"
-                editable={true}
-                fieldValue={!this.state.selfHost}
-                onUpdateField={v => this.setState({ selfHost: !v })}
-              />
-            : false}
-        </div>
-      );
-    }
-  }
-
-  renderDataMissingMessage() {
-    if (this.state.file && this.videoDataMissing()) {
-      return (
-        <div className="error">
-          {' '}
-          'You have to add a channel and a category before you upload a video. '
-        </div>
-      );
-    }
-    return null;
-  }
-
-  renderUpload(uploading) {
-    // the permissions are also validated on the server-side for each request
-
-    return (
-      <div className="video__detailbox video__detailbox__assets upload__action">
-        <div className="video__detailbox__header__container">
-          <header className="video__detailbox__header">Upload Video</header>
-        </div>
-        <div className="form__group">
-          <input
-            className="form__field"
-            type="file"
-            onChange={this.setFile}
-            disabled={uploading}
-          />
-          {this.renderDataMissingMessage()}
-          {this.renderButtons(uploading)}
-        </div>
-      </div>
-    );
-  }
-
-  renderActions(uploading) {
-    return (
-      <div className="upload__actions upload__actions--non-empty">
-        {this.renderUpload(uploading)}
-        <AddAssetFromURL
-          video={this.props.video}
-          createAsset={this.props.videoActions.createAsset}
-        />
-      </div>
-    );
-  }
-
-  renderYouTubeData = uploading => {
-    return (
-      <div>
-        <div className="video__detailbox__header__container">
-          <header className="video__detailbox__header">
-            YouTube Data
-          </header>
-        </div>
-        <YoutubeMetaData
-          video={this.props.video || {}}
-          saveVideo={this.props.videoActions.saveVideo}
-          youtube={this.props.youtube}
-          pluto={this.props.pluto}
-          assets={this.props.video.assets}
-          editable={!uploading}
-        />
-      </div>
-    );
-  };
-
   render() {
     const uploading = this.props.s3Upload.total > 0;
     const activeVersion = this.props.video ? this.props.video.activeVersion : 0;
+
+    const { channels } = this.props.youtube;
+    const permissions = getStore().getState().config.permissions;
+
+    const canSelfHost = permissions.addSelfHostedAsset;
+    const canUploadToYouTube = channelAllowed(this.props.video, channels);
 
     const selectAsset = version => {
       this.props.videoActions.revertAsset(this.props.video.id, version);
@@ -225,8 +48,27 @@ class VideoUpload extends React.Component {
         <div className="video__main">
           <div className="video__main__header">
             <div className="video__detailbox">
-              {this.renderYouTubeData(uploading)}
-              {this.renderActions(uploading)}
+              <YoutubeMetaData
+                video={this.props.video || {}}
+                saveVideo={this.props.videoActions.saveVideo}
+                youtube={this.props.youtube}
+                pluto={this.props.pluto}
+                assets={this.props.video.assets}
+                editable={!uploading}
+              />
+              <div className="upload__actions upload__actions--non-empty">
+                <UploadPicker
+                  canSelfHost={canSelfHost}
+                  canUploadToYouTube={canUploadToYouTube}
+                  video={this.props.video}
+                  uploading={uploading}
+                  uploadActions={this.props.uploadActions}
+                />
+                <AddAssetFromURL
+                  video={this.props.video}
+                  createAsset={this.props.videoActions.createAsset}
+                />
+              </div>
             </div>
             <VideoTrail
               activeVersion={activeVersion}

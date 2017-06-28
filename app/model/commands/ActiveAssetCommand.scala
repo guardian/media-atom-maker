@@ -1,9 +1,7 @@
 package model.commands
 
 import com.gu.media.logging.Logging
-import com.gu.media.youtube.YouTube
 import com.gu.pandomainauth.model.{User => PandaUser}
-import com.twitter.util.NonFatal
 import data.DataStores
 import model.MediaAtom
 import model.Platform.Youtube

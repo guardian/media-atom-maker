@@ -62,12 +62,7 @@ trait YouTubeAccess extends Settings {
       .setManagedByMe(true)
       .setOnBehalfOfContentOwner(contentOwner)
 
-    val allChannels = request.execute().getItems.asScala.toList.map(YouTubeChannel.build).sortBy(_.title)
-
-    allowedChannels match {
-      case Nil => allChannels
-      case allowedList => allChannels.filter(c => allowedList.contains(c.id))
-    }
+    request.execute().getItems.asScala.toList.map(YouTubeChannel.build).sortBy(_.title)
   }
 
   def accessToken(): String = {
