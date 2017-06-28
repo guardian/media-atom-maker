@@ -72,7 +72,7 @@ class VideoData extends React.Component {
 
             <ManagedField
               fieldLocation="byline"
-              name="Byline Tags"
+              name="Byline"
               placeholder="No byline tags"
               formRowClass="form__row__byline"
               tagType="contributor"
@@ -100,11 +100,20 @@ class VideoData extends React.Component {
             >
               <ComposerTagPicker disableTextInput />
             </ManagedField>
-
             <ManagedField
-              fieldLocation="blockAds"
-              name="Block ads"
-              fieldDetails="Ads will not be displayed with this video"
+              fieldLocation="source"
+              name="Video Source"
+              placeholder="No video source"
+            >
+              <TextInput />
+            </ManagedField>
+
+          </ManagedSection>
+          <ManagedSection>
+            <ManagedField
+              fieldLocation="sensitive"
+              name="Sensitive"
+              fieldDetails="Contains sensitive content"
             >
               <CheckBox />
             </ManagedField>
@@ -116,27 +125,18 @@ class VideoData extends React.Component {
               <CheckBox />
             </ManagedField>
             <ManagedField
-              fieldLocation="sensitive"
-              name="Sensitive"
-              fieldDetails="Contains sensitive content"
+              fieldLocation="blockAds"
+              name="Block ads"
+              fieldDetails="Ads will not be displayed with this video"
             >
               <CheckBox />
-            </ManagedField>
-            <ManagedField
-              fieldLocation="source"
-              name="Video Source"
-              placeholder="No video source"
-            >
-              <TextInput />
-            </ManagedField>
-            <ManagedField fieldLocation="category" name="Category">
-              <SelectBox selectValues={videoCategories} />
             </ManagedField>
             <ManagedField fieldLocation="expiryDate" name="Expiry Date">
               <DatePicker />
             </ManagedField>
-          </ManagedSection>
-          <ManagedSection>
+            <ManagedField fieldLocation="category" name="Category">
+              <SelectBox selectValues={videoCategories} />
+            </ManagedField>
             <ManagedField fieldLocation="privacyStatus" name="Privacy Status">
               <SelectBox selectValues={privacyStates} />
             </ManagedField>
