@@ -71,6 +71,10 @@
     display: block;
     font-size: $fontsize__detailbox;
   }
+
+  &__assets {
+    margin: 0px;
+  }
 }
 
 .video__data {
@@ -91,7 +95,7 @@
   &__trail {
     margin-top: 20px;
     padding-left: 20px;
-    flex: 1;
+    flex: 8;
   }
 }
 

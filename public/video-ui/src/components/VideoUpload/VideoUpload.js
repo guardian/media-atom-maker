@@ -2,6 +2,7 @@ import React from 'react';
 import Icon from '../Icon';
 import VideoTrail from './VideoTrail';
 import { getStore } from '../../util/storeAccessor';
+import YoutubeMetaData from '../YoutubeMetaData/YoutubeMetaData';
 
 class AddAssetFromURL extends React.Component {
   constructor(props) {
@@ -23,27 +24,29 @@ class AddAssetFromURL extends React.Component {
     const disabled = !this.state.uri;
 
     return (
-      <div className="video__detailbox">
-        <div className="video__detailbox__header__container">
-          <header className="video__detailbox__header">Asset URL</header>
-        </div>
-        <div className="form__group">
-          <div className="form__row">
-            <div>
-              <input
-                className="form__field"
-                type="text"
-                placeholder="Paste YouTube URL here"
-                onChange={this.onChange}
-              />
-              <button
-                className="btn"
-                type="button"
-                onClick={this.addAsset}
-                disabled={disabled}
-              >
-                Add
-              </button>
+      <div>
+        <div className="video__detailbox video__detailbox__assets">
+          <div className="video__detailbox__header__container">
+            <header className="video__detailbox__header">Asset URL</header>
+          </div>
+          <div className="form__group">
+            <div className="form__row">
+              <div>
+                <input
+                  className="form__field"
+                  type="text"
+                  placeholder="Paste YouTube URL here"
+                  onChange={this.onChange}
+                />
+                <button
+                  className="btn"
+                  type="button"
+                  onClick={this.addAsset}
+                  disabled={disabled}
+                >
+                  Add
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -53,10 +56,34 @@ class AddAssetFromURL extends React.Component {
 }
 
 class VideoUpload extends React.Component {
-  state = { file: null };
+  hasCategories = () =>
+    this.props &&
+    this.props.youtube &&
+    this.props.youtube.categories.length !== 0;
+  hasChannels = () =>
+    this.props.youtube && this.props.youtube.channels.length !== 0;
+  hasPlutoProjects = () =>
+    this.props.pluto && this.props.pluto.projects.length !== 0;
+
+  state = {
+    file: null
+  };
+
+  videoDataMissing = () => {
+    return !this.props.video.channelId || !this.props.video.youtubeCategoryId;
+  };
 
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
+    if (!this.hasPlutoProjects()) {
+      this.props.plutoActions.getProjects();
+    }
+    if (!this.hasCategories()) {
+      this.props.youtubeActions.getCategories();
+    }
+    if (!this.hasChannels()) {
+      this.props.youtubeActions.getChannels();
+    }
   }
 
   setFile = event => {
@@ -98,13 +125,25 @@ class VideoUpload extends React.Component {
     }
   }
 
+  renderDataMissingMessage() {
+    if (this.state.file && this.videoDataMissing()) {
+      return (
+        <div className="error">
+          {' '}
+          'You have to add a channel and a category before you upload a video. '
+        </div>
+      );
+    }
+    return null;
+  }
+
   renderStartUpload(selfHost, msg) {
     return (
       <div>
         <button
           type="button"
           className="btn button__secondary__assets"
-          disabled={!this.state.file}
+          disabled={!this.state.file || (!selfHost && this.videoDataMissing())}
           onClick={() => this.startUpload(selfHost)}
         >
           <Icon icon="backup">{msg}</Icon>
@@ -117,17 +156,20 @@ class VideoUpload extends React.Component {
     // the permissions are also validated on the server-side for each request
 
     return (
-      <div className="video__detailbox upload__action">
+      <div className="video__detailbox video__detailbox__assets upload__action">
         <div className="video__detailbox__header__container">
           <header className="video__detailbox__header">Upload Video</header>
         </div>
-        <input
-          className="form__field"
-          type="file"
-          onChange={this.setFile}
-          disabled={uploading}
-        />
-        {this.renderButtons(uploading)}
+        <div className="form__group">
+          <input
+            className="form__field"
+            type="file"
+            onChange={this.setFile}
+            disabled={uploading}
+          />
+          {this.renderDataMissingMessage()}
+          {this.renderButtons(uploading)}
+        </div>
       </div>
     );
   }
@@ -144,6 +186,26 @@ class VideoUpload extends React.Component {
     );
   }
 
+  renderYouTubeData = uploading => {
+    return (
+      <div>
+        <div className="video__detailbox__header__container">
+          <header className="video__detailbox__header">
+            YouTube Data
+          </header>
+        </div>
+        <YoutubeMetaData
+          video={this.props.video || {}}
+          saveVideo={this.props.videoActions.saveVideo}
+          youtube={this.props.youtube}
+          pluto={this.props.pluto}
+          assets={this.props.video.assets}
+          editable={!uploading}
+        />
+      </div>
+    );
+  };
+
   render() {
     const uploading = this.props.s3Upload.total > 0;
 
@@ -159,20 +221,25 @@ class VideoUpload extends React.Component {
     };
 
     return (
-      <div className="video__main">
-        <div className="video__main__header">
-          {this.renderActions(uploading)}
-          <VideoTrail
-            activeVersion={activeVersion}
-            assets={assets}
-            s3Upload={this.props.s3Upload}
-            uploads={this.props.uploads}
-            selectAsset={selectAsset}
-            getVideo={() =>
-              this.props.videoActions.getVideo(this.props.video.id)}
-            getUploads={() =>
-              this.props.uploadActions.getUploads(this.props.video.id)}
-          />
+      <div>
+        <div className="video__main">
+          <div className="video__main__header">
+            <div className="video__detailbox">
+              {this.renderYouTubeData(uploading)}
+              {this.renderActions(uploading)}
+            </div>
+            <VideoTrail
+              activeVersion={activeVersion}
+              assets={assets}
+              s3Upload={this.props.s3Upload}
+              uploads={this.props.uploads}
+              selectAsset={selectAsset}
+              getVideo={() =>
+                this.props.videoActions.getVideo(this.props.video.id)}
+              getUploads={() =>
+                this.props.uploadActions.getUploads(this.props.video.id)}
+            />
+          </div>
         </div>
       </div>
     );
@@ -183,30 +250,40 @@ class VideoUpload extends React.Component {
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getVideo from '../../actions/VideoActions/getVideo';
-import * as updateVideo from '../../actions/VideoActions/updateVideo';
+import * as saveVideo from '../../actions/VideoActions/saveVideo';
 import * as getUpload from '../../actions/UploadActions/getUploads';
 import * as s3UploadActions from '../../actions/UploadActions/s3Upload';
 import * as createAsset from '../../actions/VideoActions/createAsset';
 import * as revertAsset from '../../actions/VideoActions/revertAsset';
+import * as getProjects from '../../actions/PlutoActions/getProjects';
+import * as getCategories from '../../actions/YoutubeActions/getCategories';
+import * as getChannels from '../../actions/YoutubeActions/getChannels';
 
 function mapStateToProps(state) {
   return {
     video: state.video,
     s3Upload: state.s3Upload,
-    uploads: state.uploads
+    uploads: state.uploads,
+    pluto: state.pluto,
+    youtube: state.youtube
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     videoActions: bindActionCreators(
-      Object.assign({}, getVideo, updateVideo, createAsset, revertAsset),
+      Object.assign({}, getVideo, saveVideo, createAsset, revertAsset),
       dispatch
     ),
     uploadActions: bindActionCreators(
       Object.assign({}, s3UploadActions, getUpload),
       dispatch
-    )
+    ),
+    youtubeActions: bindActionCreators(
+      Object.assign({}, getCategories, getChannels),
+      dispatch
+    ),
+    plutoActions: bindActionCreators(Object.assign({}, getProjects), dispatch)
   };
 }
 

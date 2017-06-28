@@ -117,27 +117,11 @@ class VideoData extends React.Component {
             </ManagedField>
           </ManagedSection>
           <ManagedSection>
-            <ManagedField
-              fieldLocation="youtubeCategoryId"
-              name="YouTube Category"
-            >
-              <SelectBox selectValues={this.props.youtube.categories} />
-            </ManagedField>
-            <ManagedField fieldLocation="channelId" name="YouTube Channel">
-              <SelectBox selectValues={this.props.youtube.channels} />
-            </ManagedField>
             <ManagedField fieldLocation="privacyStatus" name="Privacy Status">
               <SelectBox selectValues={privacyStates} />
             </ManagedField>
             <ManagedField fieldLocation="tags" name="Keywords">
               <KeywordPicker />
-            </ManagedField>
-            <ManagedField
-              fieldLocation="plutoData.projectId"
-              name="Pluto Project"
-              isRequired={false}
-            >
-              <SelectBox selectValues={this.props.pluto.projects} />
             </ManagedField>
           </ManagedSection>
         </ManagedForm>

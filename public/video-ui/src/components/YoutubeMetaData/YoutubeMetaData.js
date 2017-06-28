@@ -1,72 +1,78 @@
 import React from 'react';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
-import KeywordPicker from '../FormFields/KeywordPicker';
-import { privacyStates } from '../../constants/privacyStates';
 
-class YoutubeMetaData extends React.Component {
-  hasCategories = () => this.props.youtube.categories.length !== 0;
-  hasChannels = () => this.props.youtube.channels.length !== 0;
+export default class YoutubeMetaData extends React.Component {
+  hasYouTubeUploads = () =>
+    this.props.assets.some(asset => asset.platform === 'Youtube');
 
-  componentWillMount() {
-    if (!this.hasCategories()) {
-      this.props.youtubeActions.getCategories();
-    }
-    if (!this.hasChannels()) {
-      this.props.youtubeActions.getChannels();
-    }
-  }
-
-  render() {
+  renderProjectIdForm() {
     return (
-      <div className="form__group">
+      <div>
         <ManagedForm
           data={this.props.video}
-          updateData={this.props.updateVideo}
-          editable={this.props.editable}
+          updateData={this.props.saveVideo}
+          editable={
+            this.props.editable &&
+              (!this.hasYouTubeUploads() ||
+                (!this.props.video.plutoData ||
+                  !this.props.video.plutoData.projectId))
+          }
           updateErrors={this.props.updateErrors}
           formName={this.props.formName}
         >
           <ManagedField
-            fieldLocation="youtubeCategoryId"
-            name="YouTube Category"
+            fieldLocation="plutoData.projectId"
+            name="Pluto Project"
+            isRequired={false}
           >
-            <SelectBox selectValues={this.props.youtube.categories} />
-          </ManagedField>
-          <ManagedField fieldLocation="channelId" name="YouTube Channel">
-            <SelectBox selectValues={this.props.youtube.channels} />
-          </ManagedField>
-          <ManagedField fieldLocation="privacyStatus" name="Privacy Status">
-            <SelectBox selectValues={privacyStates} />
-          </ManagedField>
-          <ManagedField fieldLocation="tags" name="Keywords">
-            <KeywordPicker />
+            <SelectBox
+              selectValues={this.props.pluto ? this.props.pluto.projects : []}
+            />
           </ManagedField>
         </ManagedForm>
       </div>
     );
   }
+
+  renderChannelIdForm() {
+    return (
+      <ManagedForm
+        data={this.props.video}
+        updateData={this.props.saveVideo}
+        editable={
+          this.props.editable &&
+            (!this.hasYouTubeUploads() || !this.props.video.channelId)
+        }
+      >
+        <ManagedField fieldLocation="channelId" name="YouTube Channel">
+          <SelectBox selectValues={this.props.youtube.channels} />
+        </ManagedField>
+      </ManagedForm>
+    );
+  }
+
+  renderCategoryForm() {
+    return (
+      <ManagedForm
+        data={this.props.video}
+        updateData={this.props.saveVideo}
+        editable={this.props.editable}
+      >
+        <ManagedField fieldLocation="youtubeCategoryId" name="YouTube Category">
+          <SelectBox selectValues={this.props.youtube.categories} />
+        </ManagedField>
+      </ManagedForm>
+    );
+  }
+
+  render() {
+    return (
+      <div className="form__group">
+        {this.renderChannelIdForm()}
+        {this.renderProjectIdForm()}
+        {this.renderCategoryForm()}
+      </div>
+    );
+  }
 }
-
-//REDUX CONNECTIONS
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import * as getCategories from '../../actions/YoutubeActions/getCategories';
-import * as getChannels from '../../actions/YoutubeActions/getChannels';
-
-function mapStateToProps(state) {
-  return {
-    youtube: state.youtube
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    youtubeActions: bindActionCreators(
-      Object.assign({}, getCategories, getChannels),
-      dispatch
-    )
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(YoutubeMetaData);
