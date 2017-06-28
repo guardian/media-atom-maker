@@ -1,5 +1,5 @@
 import React from 'react';
-import { Asset, assetProps } from './VideoAsset';
+import { Asset, buildAssetProps } from './VideoAsset';
 
 export default class VideoTrail extends React.Component {
   polling = null;
@@ -52,7 +52,7 @@ export default class VideoTrail extends React.Component {
 
     const blocks = assets.map(upload => {
       const active = upload.id == this.props.activeVersion;
-      const props = assetProps(
+      const props = buildAssetProps(
         upload.id,
         upload.asset,
         upload.processing,

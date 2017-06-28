@@ -4,18 +4,19 @@ import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 
 export default class VideoPreview extends React.Component {
   renderPreview() {
-    const { assets, activeVersion } = this.props.video;
-    const relevant = assets.filter(asset => asset.version === activeVersion);
+    const activeVersion = this.props.video.activeVersion;
+    const assets = this.props.video.assets || [];
+    const active = assets.filter(asset => asset.version === activeVersion);
 
-    if (!assets || !activeVersion || relevant.length === 0) {
+    if (active.length === 0) {
       return <div className="baseline-margin">No Active Video</div>;
     }
 
-    if (relevant.length === 1 && relevant[0].id) {
-      return <YouTubeEmbed id={relevant[0].id} className="baseline-margin" />;
+    if (active.length === 1 && active[0].id) {
+      return <YouTubeEmbed id={active[0].id} className="baseline-margin" />;
     }
 
-    const sources = relevant.map(asset => {
+    const sources = active.map(asset => {
       return { src: asset.id, mimeType: asset.mimeType };
     });
 

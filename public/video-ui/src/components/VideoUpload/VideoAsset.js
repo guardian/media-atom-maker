@@ -35,9 +35,9 @@ function Overlay({ active }) {
   );
 }
 
-export function Asset({ content, title, href, active, activate }) {
-  const button = activate
-    ? <button className="button__secondary button__active" onClick={activate}>
+export function Asset({ content, title, href, active, activateFn }) {
+  const button = activateFn
+    ? <button className="button__secondary button__active" onClick={activateFn}>
         Activate
       </button>
     : false;
@@ -63,7 +63,7 @@ export function Asset({ content, title, href, active, activate }) {
   );
 }
 
-export function assetProps(id, asset, processing, active, selectAsset) {
+export function buildAssetProps(id, asset, processing, active, selectAsset) {
   if (processing) {
     return {
       title: processing.status,
@@ -77,14 +77,14 @@ export function assetProps(id, asset, processing, active, selectAsset) {
       active,
       href: `https://www.youtube.com/watch?v=${asset.id}`,
       content: <YouTubeEmbed id={asset.id} />,
-      activate: active ? false : () => selectAsset(Number(id))
+      activateFn: active ? null : () => selectAsset(Number(id))
     };
   } else {
     return {
       title: `Version ${id}`,
       active,
       content: <VideoEmbed sources={asset.sources} />,
-      activate: active ? false : () => selectAsset(Number(id))
+      activateFn: active ? null : () => selectAsset(Number(id))
     };
   }
 }
