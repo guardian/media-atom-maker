@@ -101,15 +101,13 @@ function Editor({ date, onChange }) {
 
 function Display({ date, placeholder }) {
   const displayString = date ? date.format(DATETIME_FORMAT) : placeholder;
+  const fieldClassName = () =>
+    'details-list__field' + (!date ? ' details-list__empty' : '');
 
   return (
     <div>
       <p className="details-list__title">Expiry Date</p>
-      <p
-        className={
-          'details-list__field' + (!date ? ' details-list__empty' : '')
-        }
-      >
+      <p className={fieldClassName()}>
         {displayString}
       </p>
     </div>
@@ -122,7 +120,9 @@ export default function DatePicker({
   fieldValue,
   placeholder
 }) {
-  const date = fieldValue !== placeholder ? moment(fieldValue) : null;
+  const date = fieldValue && fieldValue !== placeholder
+    ? moment(fieldValue)
+    : null;
 
   if (editable) {
     return (

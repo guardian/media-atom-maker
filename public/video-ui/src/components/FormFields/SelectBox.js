@@ -25,23 +25,24 @@ export default class SelectBox extends React.Component {
           this.props.fieldValue &&
           fieldValue.id.toString() === this.props.fieldValue.toString()
       );
+
       const displayValue = matchingValues.length
         ? matchingValues[0].title
         : this.props.fieldValue;
+
+      const fieldClassName = () =>
+        'details-list__field ' +
+        (this.props.displayPlaceholder(
+          this.props.placeholder,
+          this.props.fieldValue
+        )
+          ? 'details-list__empty'
+          : '');
+
       return (
         <div>
           <p className="details-list__title">{this.props.fieldName}</p>
-          <p
-            className={
-              'details-list__field ' +
-                (this.props.displayPlaceholder(
-                  this.props.placeholder,
-                  this.props.fieldValue
-                )
-                  ? 'details-list__empty'
-                  : '')
-            }
-          >
+          <p className={fieldClassName()}>
             {displayValue}
           </p>
         </div>
