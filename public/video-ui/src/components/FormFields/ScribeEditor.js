@@ -109,7 +109,7 @@ export default class ScribeEditorField extends React.Component {
       }
       return (
         <div
-          className="details-list__field "
+          className="details-list__field details-list__field--scribe"
           dangerouslySetInnerHTML={{ __html: this.props.fieldValue }}
         />
       );
