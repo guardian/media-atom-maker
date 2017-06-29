@@ -2,7 +2,7 @@ package model
 
 import com.gu.media.logging.Logging
 import com.gu.media.model.{SelfHostedAsset, VideoSource, YouTubeAsset}
-import com.gu.media.upload.model.{Upload, UploadMetadata, UploadPart, UploadProgress}
+import com.gu.media.upload.model._
 import com.gu.media.youtube.{YouTubeAccess, YouTubeProcessingStatus, YouTubeVideos}
 import com.typesafe.config.{Config, ConfigFactory}
 import org.scalatest.{FunSuite, MustMatchers}
@@ -161,7 +161,7 @@ class ClientAssetTest extends FunSuite with MustMatchers {
   }
 
   private def blank(selfHost: Boolean): UploadMetadata = {
-    UploadMetadata("", "", "", "", "", null, selfHost, None, None)
+    UploadMetadata("", "", "", "", null, selfHost, null, None)
   }
 
   private def withoutYouTubeStatus(fn: (String => Option[YouTubeProcessingStatus]) => Unit): Unit = {
