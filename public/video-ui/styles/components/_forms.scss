@@ -15,19 +15,26 @@
   margin-bottom: 10px;
 }
 
-.form__field__byline--input {
+.form__field__tag--input {
   border: none;
   background-color: $color650Grey;
   color: $textColor;
-  width: 100%;
   font-size: 13px;
+  width: 60px;
   &:focus {
     outline: none;
   }
 
+  &--empty {
+    width: 270px;
+  }
 }
 
-.form__field__byline {
+.form__field__tag--container {
+  padding-top: 2px;
+}
+
+.form__field__tag--selector {
   display: flex;
   align-content: flex-start;
   border: 1px solid $color400Grey;
@@ -35,7 +42,8 @@
   width: 100%;
   padding: 5px 5px;
   cursor: pointer;
-  height: 35px;
+  flex-wrap: wrap;
+  min-height: 35px;
 }
 
 .form__field {

@@ -5,9 +5,9 @@ import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 import { keyCodes } from '../../constants/keyCodes';
 import UserActions from '../../constants/UserActions';
 
-export default class FormFieldBylinePicker extends React.Component {
+export default class ComposerTagPicker extends React.Component {
   state = {
-    bylineTags: [],
+    addedTags: [],
     inputString: '',
     lastAction: UserActions.other,
     tagValue: [],
@@ -16,7 +16,7 @@ export default class FormFieldBylinePicker extends React.Component {
 
   componentDidMount() {
     if (this.props.fieldValue !== this.props.placeholder) {
-      tagsFromStringList(this.props.fieldValue)
+      tagsFromStringList(this.props.fieldValue, this.props.tagType)
         .then(result => {
           this.setState({
             tagValue: result
@@ -31,6 +31,29 @@ export default class FormFieldBylinePicker extends React.Component {
         });
     }
   }
+
+  parseTags = results => {
+    return results.map(result => {
+      if (this.props.tagType === 'keyword') {
+        let detailedTitle;
+
+        //Some webtitles on keyword tags are too unspecific and we need to add
+        //the section name to them to know what tags they are referring to
+
+        if (
+          result.webTitle !== result.sectionName &&
+          result.webTitle.split(' ').length <= 2
+        ) {
+          detailedTitle = result.webTitle + ' (' + result.sectionName + ')';
+        } else {
+          detailedTitle = result.webTitle;
+        }
+
+        return { id: result.id, webTitle: detailedTitle };
+      }
+      return { id: result.id, webTitle: result.webTitle };
+    });
+  };
 
   onUpdate = newValue => {
     this.setState({
@@ -71,19 +94,16 @@ export default class FormFieldBylinePicker extends React.Component {
 
       const searchText = e.target.value;
 
-      ContentApi.getBylineTags(searchText)
+      ContentApi.getTagsByType(searchText, this.props.tagType)
         .then(capiResponse => {
-          const bylines = capiResponse.response.results.map(result => {
-            const tags = { id: result.id, webTitle: result.webTitle };
-            return tags;
-          });
+          const tags = this.parseTags(capiResponse.response.results);
           this.setState({
-            bylineTags: bylines
+            addedTags: tags
           });
         })
         .catch(() => {
           this.setState({
-            bylineTags: [],
+            addedTags: [],
             capiUnavailable: true
           });
         });
@@ -131,7 +151,7 @@ export default class FormFieldBylinePicker extends React.Component {
     }
   }
 
-  renderBylineTags(tag) {
+  renderTags(tag) {
     const addTag = () => {
       const valueWithoutStringDupes = removeStringTagDuplicates(
         tag,
@@ -145,7 +165,7 @@ export default class FormFieldBylinePicker extends React.Component {
 
       this.onUpdate(newFieldValue);
       this.setState({
-        bylineTags: []
+        addedTags: []
       });
     };
 
@@ -204,6 +224,51 @@ export default class FormFieldBylinePicker extends React.Component {
     }
   }
 
+  renderTextInputElement(lastElement) {
+    const getInputPlaceholder = () => {
+      if (!this.props.fieldValue || this.props.fieldValue.length === 0) {
+        return this.props.inputPlaceholder;
+      }
+      return '';
+    };
+
+    if (this.props.disableTextInput) {
+      return (
+        <span className="form__field__tag--container">
+          {lastElement && this.renderValue(lastElement, 0)}
+          <input
+            type="text"
+            className={
+              'form__field__tag--input' +
+                (getInputPlaceholder().length !== 0
+                  ? ' form__field__tag--input--empty'
+                  : '')
+            }
+            id={this.props.fieldName}
+            onChange={this.updateInput}
+            value={this.state.inputString}
+            placeholder={getInputPlaceholder()}
+          />
+        </span>
+      );
+    }
+
+    return (
+      <span className="form__field__tag--container">
+        {lastElement && this.renderValue(lastElement, 0)}
+        <input
+          type="text"
+          className="form__field__tag--input"
+          id={this.props.fieldName}
+          onKeyDown={this.processTagInput}
+          onChange={this.updateInput}
+          value={this.state.inputString}
+          placeholder={getInputPlaceholder()}
+        />
+      </span>
+    );
+  }
+
   render() {
     if (!this.props.editable) {
       if (!this.state.tagValue || this.state.tagValue.length === 0) {
@@ -226,6 +291,10 @@ export default class FormFieldBylinePicker extends React.Component {
       );
     }
 
+    const valueLength = this.state.tagValue.length;
+    const lastElement = !valueLength || valueLength === 0
+      ? null
+      : this.state.tagValue[valueLength - 1];
     return (
       <div className="form__row">
 
@@ -234,24 +303,22 @@ export default class FormFieldBylinePicker extends React.Component {
         </div>
         {this.renderCapiUnavailable()}
 
-        <div className="form__field__byline">
-          {this.state.tagValue.length
-            ? this.state.tagValue.map((value, i) => this.renderValue(value, i))
+        <div className="form__field__tag--selector">
+          {valueLength
+            ? this.state.tagValue.map((value, i) => {
+                if (i < valueLength - 1) {
+                  return this.renderValue(value, i);
+                }
+              })
             : ''}
 
-          <input
-            type="text"
-            className="form__field__byline--input"
-            id={this.props.fieldName}
-            onKeyDown={this.processTagInput}
-            onChange={this.updateInput}
-            value={this.state.inputString}
-          />
+          {this.renderTextInputElement(lastElement)}
+
         </div>
 
-        {this.state.bylineTags.length !== 0
+        {this.state.addedTags.length !== 0
           ? <div className="form__field__tags">
-              {this.state.bylineTags.map(tag => this.renderBylineTags(tag))}
+              {this.state.addedTags.map(tag => this.renderTags(tag))}
             </div>
           : ''}
 

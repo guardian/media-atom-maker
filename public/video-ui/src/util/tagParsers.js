@@ -1,13 +1,13 @@
 import ContentApi from '../services/capi';
 
-export function tagsFromStringList(savedTags) {
+export function tagsFromStringList(savedTags, tagType) {
   if (!savedTags) {
     Promise.resolve([]);
   }
 
   return Promise.all(
     savedTags.map(element => {
-      if (element.match('^profile/')) {
+      if (tagType !== 'contributor' || element.match('^profile/')) {
         return ContentApi.getLivePage(element).then(capiResponse => {
           const tag = capiResponse.response.tag;
           return {

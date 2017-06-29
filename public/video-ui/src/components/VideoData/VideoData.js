@@ -6,7 +6,7 @@ import SelectBox from '../FormFields/SelectBox';
 import CheckBox from '../FormFields/CheckBox';
 import DatePicker from '../FormFields/DatePicker';
 import KeywordPicker from '../FormFields/KeywordPicker';
-import FormFieldBylinePicker from '../FormFields/FormFieldBylinePicker';
+import ComposerTagPicker from '../FormFields/ComposerTagPicker';
 import { fieldLengths } from '../../constants/videoEditValidation';
 import { videoCategories } from '../../constants/videoCategories';
 import { privacyStates } from '../../constants/privacyStates';
@@ -75,8 +75,30 @@ class VideoData extends React.Component {
               name="Byline Tags"
               placeholder="No byline tags"
               formRowClass="form__row__byline"
+              tagType="contributor"
             >
-              <FormFieldBylinePicker />
+              <ComposerTagPicker />
+            </ManagedField>
+            <ManagedField
+              fieldLocation="commissioningDesks"
+              name="Comissioning Desks"
+              placeholder="No comissioning desk"
+              formRowClass="form__row__byline"
+              tagType="tracking"
+              inputPlaceholder="Search commissioning info (type '*' to show all)"
+            >
+              <ComposerTagPicker disableTextInput />
+            </ManagedField>
+
+            <ManagedField
+              fieldLocation="keywords"
+              name="Composer Keywords"
+              placeholder="No keywords"
+              formRowClass="form__row__byline"
+              tagType="keyword"
+              inputPlaceholder="Search keywords (type '*' to show all)"
+            >
+              <ComposerTagPicker disableTextInput />
             </ManagedField>
 
             <ManagedField
@@ -120,7 +142,7 @@ class VideoData extends React.Component {
             <ManagedField fieldLocation="privacyStatus" name="Privacy Status">
               <SelectBox selectValues={privacyStates} />
             </ManagedField>
-            <ManagedField fieldLocation="tags" name="Keywords">
+            <ManagedField fieldLocation="tags" name="YouTube Keywords">
               <KeywordPicker />
             </ManagedField>
           </ManagedSection>
