@@ -260,9 +260,10 @@
   display: block;
   border-top: 1px solid $color400Grey;
   width: 100%;
-  padding: 5px 5px;
+  padding: 7px 5px;
   cursor: pointer;
-  border-top: 12px solid $color650Grey;
+  overflow: auto;
+  max-height: 250px;
 }
 
 .form__field__tag__display {
