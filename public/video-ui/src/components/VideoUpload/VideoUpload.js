@@ -1,6 +1,7 @@
 import React from 'react';
 import Icon from '../Icon';
 import VideoTrail from './VideoTrail';
+import CheckBox from '../FormFields/CheckBox';
 import { getStore } from '../../util/storeAccessor';
 import YoutubeMetaData from '../YoutubeMetaData/YoutubeMetaData';
 
@@ -66,7 +67,8 @@ class VideoUpload extends React.Component {
     this.props.pluto && this.props.pluto.projects.length !== 0;
 
   state = {
-    file: null
+    file: null,
+    selfHost: false
   };
 
   videoDataMissing = () => {
@@ -98,28 +100,47 @@ class VideoUpload extends React.Component {
     }
   };
 
-  startUpload = selfHost => {
+  startUpload = () => {
     if (this.props.video && this.state.file) {
       this.props.uploadActions.startUpload(
         this.props.video.id,
         this.state.file,
-        selfHost
+        this.state.selfHost
       );
+
+      this.setState({ selfHost: false });
     }
   };
 
   renderButtons(uploading) {
+    const metadataCorrect = !this.videoDataMissing() || this.state.selfHost;
+    const enabled = this.state.file && metadataCorrect;
+
+    const permissions = getStore().getState().config.permissions;
+
     if (uploading) {
       return false;
     } else {
       return (
         <div>
-          {' '}
-          {this.renderStartUpload(false, 'Upload')}
-          {' '}
-          {getStore().getState().config.permissions.addSelfHostedAsset
-            ? this.renderStartUpload(true, 'Upload avoiding YouTube')
-            : null}
+          <button
+            type="button"
+            className="btn button__secondary__assets"
+            disabled={!enabled}
+            onClick={() => this.startUpload()}
+          >
+            <Icon icon="backup">Upload</Icon>
+          </button>
+
+          {permissions.addSelfHostedAsset
+            ? <CheckBox
+                fieldName="Options"
+                fieldDetails="Host on YouTube"
+                editable={true}
+                fieldValue={!this.state.selfHost}
+                onUpdateField={v => this.setState({ selfHost: !v })}
+              />
+            : false}
         </div>
       );
     }
@@ -135,21 +156,6 @@ class VideoUpload extends React.Component {
       );
     }
     return null;
-  }
-
-  renderStartUpload(selfHost, msg) {
-    return (
-      <div>
-        <button
-          type="button"
-          className="btn button__secondary__assets"
-          disabled={!this.state.file || (!selfHost && this.videoDataMissing())}
-          onClick={() => this.startUpload(selfHost)}
-        >
-          <Icon icon="backup">{msg}</Icon>
-        </button>
-      </div>
-    );
   }
 
   renderUpload(uploading) {
@@ -208,16 +214,10 @@ class VideoUpload extends React.Component {
 
   render() {
     const uploading = this.props.s3Upload.total > 0;
-
     const activeVersion = this.props.video ? this.props.video.activeVersion : 0;
-    const assets = this.props.video ? this.props.video.assets : [];
 
-    const selectAsset = (assetId, version) => {
-      this.props.videoActions.revertAsset(
-        this.props.video.id,
-        assetId,
-        version
-      );
+    const selectAsset = version => {
+      this.props.videoActions.revertAsset(this.props.video.id, version);
     };
 
     return (
@@ -230,12 +230,9 @@ class VideoUpload extends React.Component {
             </div>
             <VideoTrail
               activeVersion={activeVersion}
-              assets={assets}
               s3Upload={this.props.s3Upload}
               uploads={this.props.uploads}
               selectAsset={selectAsset}
-              getVideo={() =>
-                this.props.videoActions.getVideo(this.props.video.id)}
               getUploads={() =>
                 this.props.uploadActions.getUploads(this.props.video.id)}
             />

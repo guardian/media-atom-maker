@@ -25,14 +25,33 @@ class StepFunctions(awsConfig: AWSConfig) {
     }
   }
 
-  def getStatus(atomId: String): Iterable[UploadStatus] = {
+  def getJobs(atomId: String): Iterable[ExecutionListItem] = {
     val runningJobs = getExecutions(atomId, ExecutionStatus.RUNNING)
     val failedJobs = getExecutions(atomId, ExecutionStatus.FAILED).filter(lessThan10MinutesOld)
 
-    val running = runningJobs.map(getRunningStatus)
-    val failed = failedJobs.map(getFailedStatus)
+    runningJobs ++ failedJobs
+  }
 
-    running ++ failed
+  def getTaskEntered(events: Iterable[HistoryEvent]): Option[(String, Upload)] = {
+    events.find(_.getType == "TaskStateEntered").map { event =>
+      val details = event.getStateEnteredEventDetails
+      val upload = Json.parse(details.getInput).as[Upload]
+
+      (details.getName, upload)
+    }
+  }
+
+  def getExecutionFailed(events: Iterable[HistoryEvent]): Option[String] = {
+    events.find(_.getType == "ExecutionFailed").flatMap { event =>
+      val cause = event.getExecutionFailedEventDetails.getCause
+
+      try {
+        Some((Json.parse(cause) \ "errorMessage").as[String])
+      } catch {
+        case _: JsonParseException | _: JsResultException =>
+          None
+      }
+    }
   }
 
   def start(upload: Upload): Unit = {
@@ -42,6 +61,15 @@ class StepFunctions(awsConfig: AWSConfig) {
       .withInput(Json.stringify(Json.toJson(upload)))
 
     awsConfig.stepFunctionsClient.startExecution(stepFunctionsRequest)
+  }
+
+  def getEventsInReverseOrder(execution: ExecutionListItem): Iterable[HistoryEvent] = {
+    val request = new GetExecutionHistoryRequest()
+      .withExecutionArn(execution.getExecutionArn)
+      .withReverseOrder(true)
+      .withMaxResults(20)
+
+    awsConfig.stepFunctionsClient.getExecutionHistory(request).getEvents.asScala
   }
 
   private def getExecutions(atomId: String, filter: ExecutionStatus): Iterable[ExecutionListItem] = {
@@ -54,77 +82,10 @@ class StepFunctions(awsConfig: AWSConfig) {
     results.filter(_.getName.startsWith(atomId))
   }
 
-  private def getEvents(execution: ExecutionListItem): Iterable[HistoryEvent] = {
-    val request = new GetExecutionHistoryRequest()
-      .withExecutionArn(execution.getExecutionArn)
-      .withReverseOrder(true)
-      .withMaxResults(20)
-
-    awsConfig.stepFunctionsClient.getExecutionHistory(request).getEvents.asScala
-  }
-
-  private def getRunningStatus(execution: ExecutionListItem): UploadStatus = {
-    val id = execution.getName
-
-    getLastTask(execution) match {
-      case Some((state, upload)) =>
-        buildProgress(id, state, upload)
-
-      case None =>
-        UploadStatus.indeterminate(id, "Uploading")
-    }
-  }
-
-  private def getFailedStatus(execution: ExecutionListItem): UploadStatus = {
-    val id = execution.getName
-    val events = getEvents(execution)
-
-    val cause = events.find(_.getType == "ExecutionFailed") match {
-      case Some(event) =>
-        val cause = event.getExecutionFailedEventDetails.getCause
-
-        try {
-          (Json.parse(cause) \ "errorMessage").as[String]
-        } catch {
-          case _: JsonParseException | _: JsResultException =>
-            id
-        }
-
-      case None => "Failed (unknown error)"
-    }
-
-    UploadStatus.indeterminate(id, cause).copy(failed = true)
-  }
-
-  private def getLastTask(execution: ExecutionListItem): Option[(String, Upload)] = {
-    val events = getEvents(execution)
-    val taskEvent = events.find(_.getType == "TaskStateEntered")
-
-    taskEvent.map { event =>
-      val state = event.getStateEnteredEventDetails.getName
-      val upload = Json.parse(event.getStateEnteredEventDetails.getInput).as[Upload]
-
-      (state, upload)
-    }
-  }
-
   private def lessThan10MinutesOld(e: ExecutionListItem): Boolean = {
     val now = Instant.now().toEpochMilli
     val end = e.getStopDate.toInstant.toEpochMilli
 
     (now - end) < (1000 * 60 * 10)
-  }
-
-  private def buildProgress(id: String, state: String, upload: Upload): UploadStatus = {
-    val default = UploadStatus.indeterminate(id, state).copy(asset = upload.metadata.asset)
-
-    val current = upload.progress.chunksInYouTube
-    val total = upload.parts.length
-
-    if(upload.metadata.selfHost || current >= total) {
-      default
-    } else {
-      default.copy(status = "Uploading to YouTube", current = Some(current), total = Some(total))
-    }
   }
 }

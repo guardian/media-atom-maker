@@ -2,6 +2,7 @@ package test
 
 import com.gu.contentatom.thrift._
 import com.gu.contentatom.thrift.atom.media._
+import org.jsoup.Jsoup
 import org.scalatest.{FunSpec, Inside, Matchers}
 import util.ThriftUtil
 
@@ -58,9 +59,9 @@ class ThriftUtilSpec extends FunSpec
               changeDetails should matchPattern {
                 case ContentChangeDetails(None, None, None, 1L, None) =>
               }
-              XML.loadString(defaultHtml) should matchPattern {
-                case <iframe>{_}</iframe> =>
-              }
+
+              val iframe = Jsoup.parse(defaultHtml).getElementsByTag("iframe")
+              iframe.attr("src") should be(s"https://www.youtube.com/embed/$youtubeId")
           }
       }
     }

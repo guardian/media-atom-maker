@@ -6,7 +6,12 @@ export default function uploads(state = [], action) {
       const id = action.upload.id;
 
       if (!_.find(state, upload => upload.id === id)) {
-        const status = { id: id, status: 'Uploading', failed: false };
+        const status = {
+          id,
+          failed: false,
+          processing: { status: 'Uploading' }
+        };
+
         return [status, ...state];
       }
 

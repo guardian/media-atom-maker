@@ -22,11 +22,4 @@ class Youtube (val authActions: HMACAuthActions, youTube: YouTube, cache: CacheA
       youTube.channels}
     Ok(Json.toJson(channels))
   }
-
-  def processingStatus(csvIds: String) = AuthAction {
-    val videoIds = csvIds.split(",").map(_.trim).toList
-    val response = youTube.getProcessingStatus(videoIds)
-
-    Ok(Json.toJson(response))
-  }
 }

@@ -1,0 +1,24 @@
+@import com.gu.media.model.{VideoAsset, YouTubeAsset, SelfHostedAsset}
+@(asset: Option[VideoAsset], posterUrl: Option[String])
+
+@defining((asset, posterUrl)) {
+  case (None, Some(poster)) => {
+    <img src="@poster"/>
+  }
+
+  case (Some(YouTubeAsset(id)), _) => {
+    <iframe frameborder="0" allowfullscreen="true" src="https://www.youtube.com/embed/@id"></iframe>
+  }
+
+  case (Some(SelfHostedAsset(sources)), Some(poster)) => {
+    <video controls="controls" poster="@poster" preload="metadata">
+    @for(source <- sources) {
+      <source type="@source.mimeType" src="@source.src" />
+    }
+    </video>
+  }
+
+  case _ => {
+    <div />
+  }
+}

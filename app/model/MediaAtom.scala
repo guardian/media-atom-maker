@@ -37,58 +37,47 @@ case class MediaAtom(
   expiryDate: Option[Long] = None,
   blockAds: Option[Boolean]) {
 
-  def asThrift = ThriftAtom(
+  def asThrift = {
+    val data = ThriftMediaAtom(
+      assets = assets.map(_.asThrift),
+      activeVersion = activeVersion,
+      title = title,
+      category = category.asThrift,
+      duration = duration,
+      source = source,
+      posterUrl = posterImage.flatMap(_.master).map(_.file),
+      description = description,
+      trailText = trailText,
+      posterImage = posterImage.map(_.asThrift),
+      byline = Some(byline),
+      commissioningDesks = Some(commissioningDesks),
+      keywords = Some(keywords),
+      metadata = Some(ThriftMetadata(
+        tags = Some(tags),
+        categoryId = youtubeCategoryId,
+        license = license,
+        commentsEnabled = Some(commentsEnabled),
+        channelId = channelId,
+        privacyStatus = privacyStatus.flatMap(_.asThrift),
+        expiryDate = expiryDate,
+        pluto = plutoData.map(_.asThrift)
+      ))
+    )
+
+    ThriftAtom(
       id = id,
       atomType = ThriftAtomType.Media,
       labels = List(),
-      defaultHtml = generateHtml(),
+      defaultHtml = MediaAtomImplicits.defaultMediaHtml(data),
       title = Some(title),
-      data = AtomData.Media(ThriftMediaAtom(
-        assets = assets.map(_.asThrift),
-        activeVersion = activeVersion,
-        title = title,
-        category = category.asThrift,
-        duration = duration,
-        source = source,
-        posterUrl = posterImage.flatMap(_.master).map(_.file),
-        description = description,
-        trailText = trailText,
-        posterImage = posterImage.map(_.asThrift),
-        byline = Some(byline),
-        commissioningDesks = Some(commissioningDesks),
-        keywords = Some(keywords),
-        metadata = Some(ThriftMetadata(
-          tags = Some(tags),
-          categoryId = youtubeCategoryId,
-          license = license,
-          commentsEnabled = Some(commentsEnabled),
-          channelId = channelId,
-          privacyStatus = privacyStatus.flatMap(_.asThrift),
-          expiryDate = expiryDate,
-          pluto = plutoData.map(_.asThrift)
-          ))
-        )),
+      data = AtomData.Media(data),
       contentChangeDetails = contentChangeDetails.asThrift,
       flags = Some(ThriftFlags(
         legallySensitive = legallySensitive,
         blockAds = blockAds,
         sensitive = sensitive
       ))
-  )
-
-  def getActiveAsset = this.assets.find(_.version == this.activeVersion.get)
-
-  private def generateHtml(): String = {
-    val activeAssets = assets filter (asset => activeVersion.contains(asset.version))
-    if (activeAssets.nonEmpty && activeAssets.forall(_.platform == Platform.Url)) {
-      views.html.MediaAtom.embedUrlAssets2(posterImage.flatMap(_.master).map(_.file).getOrElse(""), activeAssets).toString
-    } else {
-      activeAssets.headOption match {
-        case Some(activeAsset) if activeAsset.platform == Platform.Youtube =>
-          views.html.MediaAtom.embedYoutubeAsset2(activeAsset).toString
-        case _ => "<div></div>"
-      }
-    }
+    )
   }
 }
 
