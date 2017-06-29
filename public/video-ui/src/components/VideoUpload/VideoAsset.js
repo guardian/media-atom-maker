@@ -43,13 +43,8 @@ export function Asset({ content, title, href, active, activateFn }) {
     : false;
 
   const link = href
-    ? <a href={href}>
-        <Icon
-          icon="open_in_new"
-          className="icon__assets"
-          target="_blank"
-          rel="noopener noreferrer"
-        />
+    ? <a href={href} target="_blank" rel="noopener noreferrer">
+        <Icon icon="open_in_new" className="icon__assets" />
       </a>
     : false;
 
