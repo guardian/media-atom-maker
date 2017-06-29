@@ -12,7 +12,7 @@ export default class VideoPreview extends React.Component {
       return <div className="baseline-margin">No Active Video</div>;
     }
 
-    if (active.length === 1 && active[0].id) {
+    if (active.length === 1 && active[0].platform === 'Youtube') {
       return <YouTubeEmbed id={active[0].id} className="baseline-margin" />;
     }
 
