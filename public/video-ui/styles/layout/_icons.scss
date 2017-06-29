@@ -103,13 +103,13 @@
     height: $iconSize;
   }
 
-  path, polygon {
+  path {
     fill: $color600Grey;
   }
 
 
   &:hover {
-    path, polygon {
+    path {
       fill: $color300Grey;
     }
   }
