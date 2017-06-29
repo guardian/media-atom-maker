@@ -84,7 +84,7 @@ case class ActiveAssetCommand(atomId: String, params: ActivateAssetRequest, stor
   }
 
   private def getProcessingStatus(id: String): Option[String] = try {
-    youTube.getProcessingStatus(List(id)).headOption.map(_.status)
+    youTube.getProcessingStatus(id).map(_.status)
   } catch {
     case NonFatal(e) =>
       log.error(s"Cannot mark $id as the active asset in $atomId. Youtube error", e)

@@ -20,14 +20,13 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
       .getItems.asScala.toList.headOption
   }
 
-  def getProcessingStatus(videoIds: List[String]): List[YouTubeProcessingStatus] = {
+  def getProcessingStatus(videoId: String): Option[YouTubeProcessingStatus] = {
     val request = client.videos()
       .list("status,processingDetails")
-      .setId(videoIds.mkString(","))
+      .setId(videoId)
       .setOnBehalfOfContentOwner(contentOwner)
 
-    val items = request.execute().getItems.asScala.toList
-    items.map(YouTubeProcessingStatus(_))
+    request.execute().getItems.asScala.headOption.map(YouTubeProcessingStatus(_))
   }
 
   def getDuration(youtubeId: String): Option[Long] = {

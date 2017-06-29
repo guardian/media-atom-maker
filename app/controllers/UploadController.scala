@@ -2,13 +2,15 @@ package controllers
 
 import java.util.UUID
 
-import _root_.model.MediaAtom
+import _root_.model.{ClientAsset, MediaAtom}
 import _root_.model.commands.CommandExceptions._
+import com.amazonaws.services.stepfunctions.model.ExecutionListItem
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
 import com.gu.media.model.{SelfHostedAsset, VideoSource}
 import com.gu.media.upload._
 import com.gu.media.upload.model._
+import com.gu.media.youtube.YouTubeVideos
 import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.model.User
 import controllers.UploadController.CreateRequest
@@ -18,7 +20,8 @@ import play.api.libs.json.{Format, Json}
 import util.{AWSConfig, CredentialsGenerator, StepFunctions}
 
 class UploadController(override val authActions: HMACAuthActions, awsConfig: AWSConfig, stepFunctions: StepFunctions,
-                       override val stores: DataStores, override val permissions: MediaAtomMakerPermissionsProvider)
+                       override val stores: DataStores, override val permissions: MediaAtomMakerPermissionsProvider,
+                       youTube: YouTubeVideos)
 
   extends AtomController with Logging with JsonRequestParsing with UnpackedDataStores {
 
@@ -27,10 +30,14 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
   private val credsGenerator = new CredentialsGenerator(awsConfig)
 
   def list(atomId: String) = APIAuthAction {
-    // Anyone can see the running uploads.
-    // Only users with permission can create/complete/delete them.
-    val running = stepFunctions.getStatus(atomId)
-    Ok(Json.toJson(running))
+    val atom = MediaAtom.fromThrift(getPreviewAtom(atomId))
+    val added = ClientAsset.byVersion(atom.assets, youTube.getProcessingStatus)
+
+    val jobs = stepFunctions.getJobs(atomId)
+    val running = jobs.flatMap(getRunning)
+
+    val assets = running ++ added
+    Ok(Json.toJson(assets))
   }
 
   def create = LookupPermissions { implicit raw =>
@@ -122,6 +129,17 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     upload <- stepFunctions.getById(id)
     part <- upload.parts.find(_.key == key)
   } yield part
+
+  private def getRunning(job: ExecutionListItem): Option[ClientAsset] = {
+    val events = stepFunctions.getEventsInReverseOrder(job)
+
+    val upload = stepFunctions.getTaskEntered(events)
+    val error = stepFunctions.getExecutionFailed(events)
+
+    upload.map { case(state, upload) =>
+      ClientAsset(state, upload, error)
+    }
+  }
 }
 
 object UploadController {
