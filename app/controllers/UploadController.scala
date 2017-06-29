@@ -5,8 +5,8 @@ import java.util.UUID
 import _root_.model.MediaAtom
 import _root_.model.commands.CommandExceptions._
 import com.gu.media.MediaAtomMakerPermissionsProvider
-import com.gu.media.PermissionsUploadHelper._
 import com.gu.media.logging.Logging
+import com.gu.media.model.{SelfHostedAsset, VideoSource}
 import com.gu.media.upload._
 import com.gu.media.upload.model._
 import com.gu.pandahmac.HMACAuthActions
@@ -33,9 +33,11 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     Ok(Json.toJson(running))
   }
 
-  def create = CanUploadAsset { implicit raw =>
+  def create = LookupPermissions { implicit raw =>
     parse(raw) { req: CreateRequest =>
-      if(canPerformUpload(raw.permissions, req.selfHost)) {
+      if(req.selfHost && !raw.permissions.addSelfHostedAsset) {
+        Unauthorized(s"User ${raw.user.email} is not authorised with permissions to upload self-hosted asset")
+      } else {
         log.info(s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}, selfHosted=${req.selfHost}")
 
         val atom = MediaAtom.fromThrift(getPreviewAtom(req.atomId))
@@ -45,13 +47,11 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
         log.info(s"Upload created under atom ${req.atomId}. upload=${upload.id}. parts=${upload.parts.size}, selfHosted=${upload.metadata.selfHost}")
         Ok(Json.toJson(upload))
-      } else {
-        Unauthorized(s"User ${raw.user.email} is not authorised with permissions to upload asset, self-hosted value: ${req.selfHost}")
       }
     }
   }
 
-  def credentials(id: String, key: String) = CanUploadAsset { implicit req =>
+  def credentials(id: String, key: String) = LookupPermissions { implicit req =>
     getPart(id, key) match {
       case Some(part) =>
         val credentials = credsGenerator.forKey(part.key)
@@ -63,7 +63,8 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
   }
 
   private def buildUpload(atom: MediaAtom, user: User, size: Long, selfHosted: Boolean, syncWithPluto: Boolean) = {
-    val id = s"${atom.id}--${UUID.randomUUID().toString}"
+    val uploadId = UUID.randomUUID().toString
+    val id = s"${atom.id}--$uploadId"
 
     val plutoData = PlutoSyncMetadata(
       enabled = syncWithPluto,
@@ -80,7 +81,8 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       title = atom.title,
       channel = atom.channelId.getOrElse { AtomMissingYouTubeChannel },
       pluto = plutoData,
-      selfHost = selfHosted
+      selfHost = selfHosted,
+      asset = getAsset(selfHosted, atom.title, uploadId)
     )
 
     val progress = UploadProgress(
@@ -94,6 +96,18 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     val parts = chunk(id, size)
 
     Upload(id, parts, metadata, progress)
+  }
+
+  private def getAsset(selfHosted: Boolean, title: String, uploadId: String): Option[SelfHostedAsset] = {
+    if(!selfHosted) {
+      // YouTube assets are added after they have been uploaded (once we know the ID)
+      None
+    } else {
+      val mp4Key = TranscoderOutputKey(title, uploadId, "mp4").toString
+      val mp4Source = VideoSource(mp4Key, "video/mp4")
+
+      Some(SelfHostedAsset(List(mp4Source)))
+    }
   }
 
   private def chunk(uploadId: String, size: Long): List[UploadPart] = {

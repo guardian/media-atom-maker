@@ -7,12 +7,17 @@
     margin: 0;
 
     &__item {
-      padding: 5px 10px;
+      padding: 0 10px 5px 10px;
       border-top: 1px solid $color600Grey;
       width: 100%;
       overflow: hidden;
       text-overflow: ellipsis;
       word-wrap: nowrap;
+      &--video {
+        border-top: 3px solid $slightDangerColor;
+        background: $color700Grey;
+        padding: 0 10px 5px 10px;
+      }
     }
   }
 }

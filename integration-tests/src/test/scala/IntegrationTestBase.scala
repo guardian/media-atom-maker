@@ -1,5 +1,8 @@
 package integration
 
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Paths}
+import java.nio.file.StandardOpenOption._
 import java.time.Instant
 import java.util.UUID
 
@@ -77,6 +80,13 @@ class IntegrationTestBase extends FunSuite with Matchers with Eventually with In
     }
 
     super.afterAll()
+  }
+
+  def failQuietly(msg: String): Unit = {
+    val file = Paths.get("NO_ALERTS")
+    Files.write(file, "NO_ALERTS".getBytes(StandardCharsets.UTF_8), CREATE, WRITE)
+
+    fail(msg)
   }
 
   private def youTubeClient(): YouTube = {

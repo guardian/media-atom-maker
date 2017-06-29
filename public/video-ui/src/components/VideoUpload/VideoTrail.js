@@ -203,6 +203,22 @@ export default class VideoTrail extends React.Component {
     }
   };
 
+  getUploads = () => {
+    const ret = [];
+
+    this.props.uploads.forEach(upload => {
+      const isLocalUpload = upload.id == this.props.s3Upload.id;
+      const assetId = upload.asset ? upload.asset.id : false;
+      const isAsset = this.props.assets.some(asset => asset.id === assetId);
+
+      if (!isLocalUpload && !isAsset) {
+        ret.push(upload);
+      }
+    });
+
+    return ret;
+  };
+
   render() {
     const blocks = [];
 
@@ -210,9 +226,7 @@ export default class VideoTrail extends React.Component {
       blocks.push(this.renderS3Upload());
     }
 
-    const uploads = this.props.uploads.filter(
-      upload => upload.id !== this.props.s3Upload.id && !upload.assetAdded
-    );
+    const uploads = this.getUploads();
 
     uploads.forEach(upload => {
       blocks.push(

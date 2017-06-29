@@ -88,7 +88,6 @@ Mappings:
       DesiredCapacity: 3
       InstanceType: t2.medium
       UploadBucket: media-atom-maker-upload-prod
-      TranscoderBucket: media-atom-maker-transcoder-prod
       LambdaConfig: PROD/media-atom-maker.private.conf
     CODE:
       MinSize: 1
@@ -96,7 +95,6 @@ Mappings:
       DesiredCapacity: 1
       InstanceType: t2.small
       UploadBucket: media-atom-maker-upload-code
-      TranscoderBucket: media-atom-maker-transcoder-code
       LambdaConfig: CODE/media-atom-maker.private.conf
   LambdaBuilds:
     Expirer:
@@ -461,10 +459,6 @@ Resources:
                 Key: !FindInMap [LambdaBuilds, Expirer, !Ref 'Stage']}]
             - !Sub ['arn:aws:s3:::${Bucket}/${Key}', {Bucket: !Ref 'ConfigBucket',
                 Key: !FindInMap [LambdaConfig, Expirer, !Ref 'Stage']}]
-  TranscoderOutputS3Bucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !FindInMap [StageMap, !Ref 'Stage', TranscoderBucket]
   ExpirerRole:
     Type: AWS::IAM::Role
     Properties:
@@ -763,7 +757,7 @@ Resources:
       ActionsEnabled: !Ref 'AlertActive'
       AlarmDescription: 500 Error reported from media-atom-maker
       ComparisonOperator: GreaterThanOrEqualToThreshold
-      Threshold: '1'
+      Threshold: '10'
       Namespace: AWS/ELB
       MetricName: HTTPCode_Backend_5XX
       Dimensions:

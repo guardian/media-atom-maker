@@ -7,6 +7,7 @@ import com.gu.media.upload.model.PlutoSyncMetadata
 import com.gu.media.youtube.{YouTube, YouTubeClaims}
 import com.gu.media.Capi
 import com.gu.pandahmac.HMACAuthActions
+import _root_.util.ActivateAssetRequest
 import data.DataStores
 import model.commands.CommandExceptions._
 import model.commands._
@@ -120,13 +121,10 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
   private def atomUrl(id: String) = s"/atom/$id"
 
   def setActiveAsset(atomId: String) = APIHMACAuthAction { implicit req =>
-    implicit val readCommand: Reads[ActiveAssetCommand] =
-      (JsPath \ "youtubeId").read[String].map { videoUri =>
-        ActiveAssetCommand(atomId, videoUri, stores, youTube, req.user)
-      }
-
-    parse(req) { command: ActiveAssetCommand =>
+    parse(req) { request: ActivateAssetRequest =>
+      val command = ActiveAssetCommand(atomId, request, stores, youTube, req.user)
       val atom = command.process()
+
       Ok(Json.toJson(atom))
     }
   }

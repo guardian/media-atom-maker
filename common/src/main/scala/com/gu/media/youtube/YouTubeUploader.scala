@@ -4,6 +4,7 @@ import java.io.InputStream
 
 import com.amazonaws.services.s3.AmazonS3Client
 import com.gu.media.logging.Logging
+import com.gu.media.model.YouTubeAsset
 import com.gu.media.upload.model.{Upload, UploadPart}
 import com.gu.media.util.InputStreamRequestBody
 import com.gu.media.youtube.YouTubeUploader.{MoveToNextChunk, UploadError, VideoFullyUploaded}
@@ -32,7 +33,7 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3Client) extends Loggin
          |      "description": "$description"
          |    },
          |    "status": {
-         |      "privacyStatus": "private"
+         |      "privacyStatus": "unlisted"
          |    },
          |    "onBehalfOfContentOwner": "${youTube.contentOwner}",
          |    "onBehalfOfContentOwnerChannel": "$channel"
@@ -69,7 +70,7 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3Client) extends Loggin
       case VideoFullyUploaded(videoId) =>
         upload.copy(
           progress = upload.progress.copy(chunksInYouTube = upload.progress.chunksInYouTube + 1),
-          metadata = upload.metadata.copy(youTubeId = Some(videoId))
+          metadata = upload.metadata.copy(asset = Some(YouTubeAsset(videoId)))
         )
 
       case MoveToNextChunk if part == upload.parts.last =>
