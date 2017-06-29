@@ -33,8 +33,8 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     val atom = MediaAtom.fromThrift(getPreviewAtom(atomId))
     val added = ClientAsset.byVersion(atom.assets, youTube.getProcessingStatus)
 
-    val jobs = stepFunctions.getJobs(atomId)
-    val running = jobs.flatMap(getRunning)
+    val runningJobs = stepFunctions.getJobs(atomId)
+    val running = runningJobs.flatMap(getRunning)
 
     val assets = running ++ added
     Ok(Json.toJson(assets))
