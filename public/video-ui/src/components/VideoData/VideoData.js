@@ -85,7 +85,7 @@ class VideoData extends React.Component {
               placeholder="No comissioning desk"
               formRowClass="form__row__byline"
               tagType="tracking"
-              inputPlaceholder="Search comissioning info (type '*' to show all)"
+              inputPlaceholder="Search commissioning info (type '*' to show all)"
             >
               <ComposerTagPicker disableTextInput />
             </ManagedField>
