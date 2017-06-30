@@ -82,13 +82,6 @@ class IntegrationTestBase extends FunSuite with Matchers with Eventually with In
     super.afterAll()
   }
 
-  def failQuietly(msg: String): Unit = {
-    val file = Paths.get("NO_ALERTS")
-    Files.write(file, "NO_ALERTS".getBytes(StandardCharsets.UTF_8), CREATE, WRITE)
-
-    fail(msg)
-  }
-
   private def youTubeClient(): YouTube = {
     val httpTransport = new NetHttpTransport()
     val jacksonFactory = new JacksonFactory()
