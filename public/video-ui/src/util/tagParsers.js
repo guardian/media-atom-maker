@@ -7,7 +7,10 @@ export function tagsFromStringList(savedTags, tagType) {
 
   return Promise.all(
     savedTags.map(element => {
-      if (tagType !== 'contributor' || element.match('^profile/')) {
+      if (
+        (tagType !== 'contributor' && tagType !== 'youtube') ||
+        element.match('^profile/')
+      ) {
         return ContentApi.getLivePage(element).then(capiResponse => {
           const tag = capiResponse.response.tag;
           return {
@@ -16,6 +19,13 @@ export function tagsFromStringList(savedTags, tagType) {
           };
         });
       } else {
+        if (tagType === 'youtube') {
+          return Promise.resolve({
+            id: element,
+            webTitle: element
+          });
+        }
+
         return Promise.resolve(element);
       }
     })

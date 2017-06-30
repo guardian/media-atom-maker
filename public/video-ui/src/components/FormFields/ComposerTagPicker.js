@@ -65,9 +65,20 @@ export default class ComposerTagPicker extends React.Component {
   updateInput = e => {
     const onlyWhitespace = !/\S/.test(this.state.inputString);
     if (this.state.lastAction === UserActions.space && !onlyWhitespace) {
-      const newFieldValue = this.state.tagValue.concat([
-        this.state.inputString
-      ]);
+
+      let newInput;
+
+      if (this.props.tagType === 'youtube') {
+        newInput = {
+          id: this.state.inputString,
+          webTitle: this.state.inputString
+        };
+      } else {
+        newInput = this.state.inputString;
+      }
+
+      const newFieldValue = this.state.tagValue.concat([newInput]);
+
       this.onUpdate(newFieldValue);
       this.setState({
         inputString: ''
@@ -93,21 +104,23 @@ export default class ComposerTagPicker extends React.Component {
         inputString: e.target.value
       });
 
-      const searchText = e.target.value;
+      if (!this.props.disableCapiTags) {
+        const searchText = e.target.value;
 
-      ContentApi.getTagsByType(searchText, this.props.tagType)
-        .then(capiResponse => {
-          const tags = this.parseTags(capiResponse.response.results);
-          this.setState({
-            addedTags: tags
+        ContentApi.getTagsByType(searchText, this.props.tagType)
+          .then(capiResponse => {
+            const tags = this.parseTags(capiResponse.response.results);
+            this.setState({
+              addedTags: tags
+            });
+          })
+          .catch(() => {
+            this.setState({
+              addedTags: [],
+              capiUnavailable: true
+            });
           });
-        })
-        .catch(() => {
-          this.setState({
-            addedTags: [],
-            capiUnavailable: true
-          });
-        });
+      }
     }
   };
 

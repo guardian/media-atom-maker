@@ -159,6 +159,14 @@ class VideoData extends React.Component {
             >
               <KeywordPicker />
             </ManagedField>
+            <ManagedField
+              fieldLocation="tags"
+              name="YouTube Keywords"
+              placeholder="No keywords"
+              tagType="youtube"
+            >
+              <ComposerTagPicker disableCapiTags />
+            </ManagedField>
           </ManagedSection>
         </ManagedForm>
       </div>
