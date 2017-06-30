@@ -1,4 +1,5 @@
 import ContentApi from '../services/capi';
+import TagTypes from '../constants/TagTypes';
 
 export function tagsFromStringList(savedTags, tagType) {
   if (!savedTags) {
@@ -8,7 +9,7 @@ export function tagsFromStringList(savedTags, tagType) {
   return Promise.all(
     savedTags.map(element => {
       if (
-        (tagType !== 'contributor' && tagType !== 'youtube') ||
+        (tagType !== TagTypes.contributor && tagType !== TagTypes.youtube) ||
         element.match('^profile/')
       ) {
         return ContentApi.getLivePage(element).then(capiResponse => {
@@ -19,7 +20,7 @@ export function tagsFromStringList(savedTags, tagType) {
           };
         });
       } else {
-        if (tagType === 'youtube') {
+        if (tagType === TagTypes.youtube) {
           return Promise.resolve({
             id: element,
             webTitle: element

@@ -7,6 +7,7 @@ import CheckBox from '../FormFields/CheckBox';
 import DatePicker from '../FormFields/DatePicker';
 import KeywordPicker from '../FormFields/KeywordPicker';
 import ComposerTagPicker from '../FormFields/ComposerTagPicker';
+import TagTypes from '../../constants/TagTypes';
 import { fieldLengths } from '../../constants/videoEditValidation';
 import { videoCategories } from '../../constants/videoCategories';
 import { privacyStates } from '../../constants/privacyStates';
@@ -85,7 +86,7 @@ class VideoData extends React.Component {
               fieldLocation="byline"
               name="Byline"
               formRowClass="form__row__byline"
-              tagType="contributor"
+              tagType={TagTypes.contributor}
             >
               <ComposerTagPicker />
             </ManagedField>
@@ -93,7 +94,7 @@ class VideoData extends React.Component {
               fieldLocation="commissioningDesks"
               name="Comissioning Desks"
               formRowClass="form__row__byline"
-              tagType="tracking"
+              tagType={TagTypes.tracking}
               inputPlaceholder="Search commissioning info (type '*' to show all)"
             >
               <ComposerTagPicker disableTextInput />
@@ -103,7 +104,7 @@ class VideoData extends React.Component {
               fieldLocation="keywords"
               name="Composer Keywords"
               formRowClass="form__row__byline"
-              tagType="keyword"
+              tagType={TagTypes.keyword}
               inputPlaceholder="Search keywords (type '*' to show all)"
             >
               <ComposerTagPicker disableTextInput />
@@ -163,7 +164,7 @@ class VideoData extends React.Component {
               fieldLocation="tags"
               name="YouTube Keywords"
               placeholder="No keywords"
-              tagType="youtube"
+              tagType={TagTypes.youtube}
             >
               <ComposerTagPicker disableCapiTags />
             </ManagedField>

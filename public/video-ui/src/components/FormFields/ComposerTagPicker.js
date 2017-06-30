@@ -4,6 +4,7 @@ import { tagsFromStringList, tagsToStringList } from '../../util/tagParsers';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 import { keyCodes } from '../../constants/keyCodes';
 import UserActions from '../../constants/UserActions';
+import TagTypes from '../../constants/TagTypes';
 
 export default class ComposerTagPicker extends React.Component {
   state = {
@@ -34,7 +35,7 @@ export default class ComposerTagPicker extends React.Component {
 
   parseTags = results => {
     return results.map(result => {
-      if (this.props.tagType === 'keyword') {
+      if (this.props.tagType === TagTypes.keyword) {
         let detailedTitle;
 
         //Some webtitles on keyword tags are too unspecific and we need to add
@@ -65,10 +66,9 @@ export default class ComposerTagPicker extends React.Component {
   updateInput = e => {
     const onlyWhitespace = !/\S/.test(this.state.inputString);
     if (this.state.lastAction === UserActions.space && !onlyWhitespace) {
-
       let newInput;
 
-      if (this.props.tagType === 'youtube') {
+      if (this.props.tagType === TagTypes.youtube) {
         newInput = {
           id: this.state.inputString,
           webTitle: this.state.inputString
@@ -284,7 +284,7 @@ export default class ComposerTagPicker extends React.Component {
   }
 
   renderBylineInstructions() {
-    if (this.props.tagType === 'contributor') {
+    if (this.props.tagType === TagTypes.contributor) {
       return (
         <span className="form__field__instructions">
           Press space to add byline as text
