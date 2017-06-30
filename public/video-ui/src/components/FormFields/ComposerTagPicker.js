@@ -63,16 +63,27 @@ export default class ComposerTagPicker extends React.Component {
     this.props.onUpdateField(tagsToStringList(newValue));
   };
 
+  getYoutubeInputValue = () => {
+    if (
+      this.state.tagValue.every(value => {
+        return value.id !== this.state.inputString;
+      })
+    ) {
+      return {
+        id: this.state.inputString,
+        webTitle: this.state.inputString
+      };
+    }
+    return [];
+  };
+
   updateInput = e => {
     const onlyWhitespace = !/\S/.test(this.state.inputString);
     if (this.state.lastAction === UserActions.space && !onlyWhitespace) {
       let newInput;
 
       if (this.props.tagType === TagTypes.youtube) {
-        newInput = {
-          id: this.state.inputString,
-          webTitle: this.state.inputString
-        };
+        newInput = this.getYoutubeInputValue();
       } else {
         newInput = this.state.inputString;
       }
