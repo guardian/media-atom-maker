@@ -5,8 +5,7 @@ import ScribeEditorField from '../FormFields/ScribeEditor';
 import SelectBox from '../FormFields/SelectBox';
 import CheckBox from '../FormFields/CheckBox';
 import DatePicker from '../FormFields/DatePicker';
-import KeywordPicker from '../FormFields/KeywordPicker';
-import ComposerTagPicker from '../FormFields/ComposerTagPicker';
+import TagPicker from '../FormFields/TagPicker';
 import TagTypes from '../../constants/TagTypes';
 import { fieldLengths } from '../../constants/videoEditValidation';
 import { videoCategories } from '../../constants/videoCategories';
@@ -88,7 +87,7 @@ class VideoData extends React.Component {
               formRowClass="form__row__byline"
               tagType={TagTypes.contributor}
             >
-              <ComposerTagPicker />
+              <TagPicker />
             </ManagedField>
             <ManagedField
               fieldLocation="commissioningDesks"
@@ -97,7 +96,7 @@ class VideoData extends React.Component {
               tagType={TagTypes.tracking}
               inputPlaceholder="Search commissioning info (type '*' to show all)"
             >
-              <ComposerTagPicker disableTextInput />
+              <TagPicker disableTextInput />
             </ManagedField>
 
             <ManagedField
@@ -107,7 +106,7 @@ class VideoData extends React.Component {
               tagType={TagTypes.keyword}
               inputPlaceholder="Search keywords (type '*' to show all)"
             >
-              <ComposerTagPicker disableTextInput />
+              <TagPicker disableTextInput />
             </ManagedField>
             <ManagedField fieldLocation="source" name="Video Source">
               <TextInput />
@@ -156,17 +155,11 @@ class VideoData extends React.Component {
             <ManagedField
               fieldLocation="tags"
               name="YouTube Keywords"
-              disabled={notOnManagedChannel}
-            >
-              <KeywordPicker />
-            </ManagedField>
-            <ManagedField
-              fieldLocation="tags"
-              name="YouTube Keywords"
               placeholder="No keywords"
               tagType={TagTypes.youtube}
+              disabled={notOnManagedChannel}
             >
-              <ComposerTagPicker disableCapiTags />
+              <TagPicker disableCapiTags />
             </ManagedField>
           </ManagedSection>
         </ManagedForm>

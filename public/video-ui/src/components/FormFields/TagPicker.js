@@ -6,7 +6,7 @@ import { keyCodes } from '../../constants/keyCodes';
 import UserActions from '../../constants/UserActions';
 import TagTypes from '../../constants/TagTypes';
 
-export default class ComposerTagPicker extends React.Component {
+export default class TagPicker extends React.Component {
   state = {
     addedTags: [],
     inputString: '',
