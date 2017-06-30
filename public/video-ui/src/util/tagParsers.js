@@ -19,16 +19,16 @@ export function tagsFromStringList(savedTags, tagType) {
             webTitle: tag.webTitle
           };
         });
-      } else {
-        if (tagType === TagTypes.youtube) {
-          return Promise.resolve({
-            id: element,
-            webTitle: element
-          });
-        }
-
-        return Promise.resolve(element);
       }
+
+      if (tagType === TagTypes.youtube) {
+        return Promise.resolve({
+          id: element,
+          webTitle: element
+        });
+      }
+
+      return Promise.resolve(element);
     })
   );
 }
