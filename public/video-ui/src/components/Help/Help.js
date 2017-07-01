@@ -13,6 +13,10 @@ export default class Help extends React.Component {
     {
       url: 'https://goo.gl/g2FUxn',
       text: 'Publishing without Pluto'
+    },
+    {
+      url: 'https://docs.google.com/document/d/1Ey9BcoeUsZSTnVomQCRnGwdlO7akVceJZUYJihPd4xk/edit#',
+      text: 'HOW TO FIX - Media Atom Maker creating invalid Composer Pages'
     }
   ];
 
