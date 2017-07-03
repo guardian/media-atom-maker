@@ -97,7 +97,7 @@ export default {
     ) {
       const rightsExpiryPayload = getRightsPayload(video);
       const rightsRequest = pandaReqwest({
-        url: `${composerUrlBase}/api/content/${id}/expiry/rights`,
+        url: `${composerUrlBase}/api/content/${id}/atom-expiry/rights`,
         method: 'post',
         crossOrigin: true,
         withCredentials: true,
