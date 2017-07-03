@@ -16,21 +16,27 @@ class UploadChunkToYouTube extends LambdaWithParams[Upload, Upload]
 
   override def handle(upload: Upload): Upload = {
     val chunk = upload.parts(upload.progress.chunksInS3 - 1)
-    val uploadUri = getUploadUri(upload)
+    val (uploadUri, runtimeMetadata) = getUploadUri(upload)
 
     val after = uploader.uploadPart(upload, chunk, uploadUri)
 
     val updated = after.copy(
-      metadata = after.metadata.copy(runtime = Some(YouTubeUploadMetadata(uploadUri))),
+      metadata = after.metadata.copy(runtime = runtimeMetadata),
       progress = after.progress.copy(chunksInYouTube = upload.progress.chunksInYouTube + 1)
     )
 
     updated
   }
 
-  private def getUploadUri(upload: Upload): String = upload.metadata.runtime match {
-    case Some(YouTubeUploadMetadata(uri)) => uri
-    case Some(other) => throw new IllegalStateException(s"Unexpected runtime metadata $other")
-    case None => uploader.startUpload(upload.metadata.title, upload.metadata.channel, upload.id, upload.parts.last.end)
+  private def getUploadUri(upload: Upload): (String, YouTubeUploadMetadata) = upload.metadata.runtime match {
+    case meta @ YouTubeUploadMetadata(_, Some(uri)) =>
+      (uri, meta)
+
+    case YouTubeUploadMetadata(channel, None) =>
+      val uri = uploader.startUpload(upload.metadata.title, channel, upload.id, upload.parts.last.end)
+      (uri, YouTubeUploadMetadata(channel, Some(uri)))
+
+    case other =>
+      throw new IllegalStateException(s"Unexpected runtime metadata $other")
   }
 }

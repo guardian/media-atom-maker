@@ -23,7 +23,7 @@ class ExpirerLambda extends RequestHandler[Unit, Unit]
 
   override def handleRequest(input: Unit, context: Context): Unit = {
     val epochMillis = Instant.now().toEpochMilli
-    val assets = getVideosFromExpiredAtoms(100, 1, epochMillis, Set.empty)
+    val assets = getVideosFromExpiredAtoms(100, 1, epochMillis, Set.empty).filter(isMyVideo)
 
     val toExpire = if(expireInParallel) { assets.par } else { assets }
 

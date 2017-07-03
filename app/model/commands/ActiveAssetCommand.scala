@@ -27,8 +27,6 @@ case class ActiveAssetCommand(atomId: String, params: ActivateAssetRequest, stor
 
     getVersion(mediaAtom) match {
       case Some(version) =>
-        validateYouTubeProcessed(version, mediaAtom)
-
         val duration = getYouTubeId(version, mediaAtom).flatMap(youTube.getDuration)
         val updatedAtom = mediaAtom.copy(activeVersion = Some(version), duration = duration)
 
@@ -55,39 +53,9 @@ case class ActiveAssetCommand(atomId: String, params: ActivateAssetRequest, stor
       }
   }
 
-  private def validateYouTubeProcessed(version: Long, atom: MediaAtom): Unit = {
-    for {
-      id <- getYouTubeId(version, atom)
-      status <- getProcessingStatus(id)
-    } yield {
-      /** Processing status:
-        * failed – Video processing has failed.
-        * processing – Video is currently being processed.
-        * succeeded – Video has been successfully processed.
-        * terminated – Processing information is no longer available.
-        * */
-      status match {
-        case "succeeded" | "terminated" =>
-        // all good
-
-        case other =>
-          log.info (s"Cannot mark $id as the active asset in $atomId. Unexpected processing state $other")
-          AssetEncodingInProgress (other)
-      }
-    }
-  }
-
   private def getYouTubeId(version: Long, atom: MediaAtom): Option[String] = {
     atom.assets
       .find(_.version == version)
       .map(_.id)
-  }
-
-  private def getProcessingStatus(id: String): Option[String] = try {
-    youTube.getProcessingStatus(id).map(_.status)
-  } catch {
-    case NonFatal(e) =>
-      log.error(s"Cannot mark $id as the active asset in $atomId. Youtube error", e)
-      YouTubeConnectionIssue
   }
 }
