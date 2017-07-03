@@ -60,7 +60,7 @@ class AtomCreationTests extends IntegrationTestBase with CancelAfterFailure {
 
       case 500 =>
         Option(response.header("X-No-Alerts")) match {
-          case Some("true") =>
+          case Some(_) =>
             cancel(s"Publishing atom returned 500: ${response.body().string()}")
 
           case None =>
