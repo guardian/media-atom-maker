@@ -49,9 +49,9 @@ object YouTubeError extends Logging {
         case (403, Some("usageLimits")) =>
           Some((noAlerts(e), false))
 
-        case (code, maybeMessage) =>
-          val message = maybeMessage.getOrElse("unknown")
-          
+        case (code, _) =>
+          val message = Option(e.getDetails.getMessage).getOrElse("unknown")
+
           log.warn(s"YouTube failure. Code: $code. Message: $message")
           Some((s"YouTube $code: $message", true)) // alerts
       }
