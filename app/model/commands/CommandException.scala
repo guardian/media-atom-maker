@@ -44,12 +44,15 @@ object YouTubeError extends Logging {
     case e: GoogleJsonResponseException =>
       (e.getDetails.getCode, e.getMessage) match {
         case (503, "Backend Error") =>
-          Some(noAlerts(e), false)
+          Some((noAlerts(e), false))
 
         case (403, "User Rate Limit Exceeded") =>
-          Some(noAlerts(e), false)
+          Some((noAlerts(e), false))
 
         case (code, message) =>
+          // TODO MRB: add logging to check match
+          log.warn(s"YouTube failure. Code: $code. Message: $message")
+
           Some((s"YouTube $code: $message", true)) // alerts
       }
 
