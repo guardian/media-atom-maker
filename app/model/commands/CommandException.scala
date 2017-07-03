@@ -42,22 +42,27 @@ object CommandExceptions extends Results {
 object YouTubeError extends Logging {
   def unapply(err: Throwable): Option[(String, Boolean)] = err match {
     case e: GoogleJsonResponseException =>
-      (e.getDetails.getCode, e.getMessage) match {
-        case (503, "Backend Error") =>
+      (e.getDetails.getCode, getDomain(e)) match {
+        case (503, Some("global")) =>
           Some((noAlerts(e), false))
 
-        case (403, "User Rate Limit Exceeded") =>
+        case (403, Some("usageLimits")) =>
           Some((noAlerts(e), false))
 
-        case (code, message) =>
-          // TODO MRB: add logging to check match
+        case (code, maybeMessage) =>
+          val message = maybeMessage.getOrElse("unknown")
+          
           log.warn(s"YouTube failure. Code: $code. Message: $message")
-
           Some((s"YouTube $code: $message", true)) // alerts
       }
 
     case _ =>
       None
+  }
+
+  private def getDomain(e: GoogleJsonResponseException): Option[String] = {
+    val errors = e.getDetails.getErrors.asScala
+    errors.headOption.flatMap { err => Some(err.getDomain) }
   }
 
   // For testing
