@@ -10,15 +10,15 @@
     <iframe frameborder="0" allowfullscreen="true" src="https://www.youtube.com/embed/@id"></iframe>
   }
 
-  case (Some(SelfHostedAsset(sources)), Some(poster)) => {
-    <video controls="controls" poster="@poster" preload="metadata">
+  case (Some(SelfHostedAsset(sources)), maybePoster) => {
+    <video controls="controls" preload="metadata" @if(maybePoster.isDefined) {poster="@maybePoster.get"}>
     @for(source <- sources) {
       <source type="@source.mimeType" src="@source.src" />
     }
     </video>
   }
 
-  case _ => {
+  case (None, None) => {
     <div />
   }
 }
