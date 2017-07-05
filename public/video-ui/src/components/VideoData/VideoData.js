@@ -31,10 +31,9 @@ class VideoData extends React.Component {
 
   render() {
     const isHosted = this.props.video.category === 'Hosted';
-    const notOnManagedChannel = !channelAllowed(
-      this.props.video,
-      this.props.youtube.channels
-    );
+    const notOnManagedChannel =
+      isHosted ||
+      !channelAllowed(this.props.video, this.props.youtube.channels);
     const hasAssets = this.props.video.assets.length > 0;
 
     return (

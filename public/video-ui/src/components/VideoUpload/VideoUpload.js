@@ -1,10 +1,10 @@
 import React from 'react';
 import VideoTrail from './VideoTrail';
 import { getStore } from '../../util/storeAccessor';
-import YoutubeMetaData from '../YoutubeMetaData/YoutubeMetaData';
 import AddAssetFromURL from './AddAssetFromURL';
-import UploadPicker from './UploadPicker';
-import { channelAllowed } from '../../util/channelAllowed';
+import PlutoProjectPicker from './PlutoProjectPicker';
+import AddSelfHostedAsset from './AddSelfHostedAsset';
+import AddYouTubeAsset from './AddYouTubeAsset';
 
 class VideoUpload extends React.Component {
   hasCategories = () =>
@@ -33,48 +33,44 @@ class VideoUpload extends React.Component {
     const uploading = this.props.s3Upload.total > 0;
     const activeVersion = this.props.video ? this.props.video.activeVersion : 0;
 
-    const { channels } = this.props.youtube;
-    const permissions = getStore().getState().config.permissions;
-
-    const canSelfHost = permissions.addSelfHostedAsset;
-    const canUploadToYouTube = channelAllowed(this.props.video, channels);
-
-    const selectAsset = version => {
-      this.props.videoActions.revertAsset(this.props.video.id, version);
-    };
-
     return (
       <div>
         <div className="video__main">
           <div className="video__main__header">
             <div className="video__detailbox">
-              <YoutubeMetaData
+              <PlutoProjectPicker
                 video={this.props.video || {}}
+                projects={this.props.pluto.projects}
                 saveVideo={this.props.videoActions.saveVideo}
-                youtube={this.props.youtube}
-                pluto={this.props.pluto}
-                assets={this.props.video.assets}
-                editable={!uploading}
               />
-              <div className="upload__actions upload__actions--non-empty">
-                <UploadPicker
-                  canSelfHost={canSelfHost}
-                  canUploadToYouTube={canUploadToYouTube}
-                  video={this.props.video}
-                  uploading={uploading}
-                  uploadActions={this.props.uploadActions}
-                />
-                <AddAssetFromURL
-                  video={this.props.video}
-                  createAsset={this.props.videoActions.createAsset}
-                />
-              </div>
+              <AddYouTubeAsset
+                video={this.props.video || {}}
+                categories={this.props.youtube.categories}
+                channels={this.props.youtube.channels}
+                uploading={uploading}
+                saveVideo={this.props.videoActions.saveVideo}
+                startUpload={this.props.uploadActions.startUpload}
+              />
+              <AddAssetFromURL
+                video={this.props.video}
+                createAsset={this.props.videoActions.createAsset}
+              />
+              <AddSelfHostedAsset
+                video={this.props.video || {}}
+                permissions={getStore().getState().config.permissions}
+                uploading={uploading}
+                startUpload={this.props.uploadActions.startUpload}
+              />
             </div>
             <VideoTrail
               activeVersion={activeVersion}
               s3Upload={this.props.s3Upload}
               uploads={this.props.uploads}
-              selectAsset={selectAsset}
+              selectAsset={version =>
+                this.props.videoActions.revertAsset(
+                  this.props.video.id,
+                  version
+                )}
               getUploads={() =>
                 this.props.uploadActions.getUploads(this.props.video.id)}
             />
