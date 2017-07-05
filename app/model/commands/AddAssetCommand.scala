@@ -2,7 +2,7 @@ package model.commands
 
 import com.gu.contentatom.thrift.Atom
 import com.gu.contentatom.thrift.atom.media.Category.Hosted
-import com.gu.contentatom.thrift.atom.media.{Asset, Platform, MediaAtom => ThriftMediaAtom}
+import com.gu.contentatom.thrift.atom.media.{Asset, Metadata, Platform, MediaAtom => ThriftMediaAtom}
 import com.gu.media.logging.Logging
 import com.gu.media.youtube.YouTube
 import com.gu.pandomainauth.model.{User => PandaUser}
@@ -48,13 +48,13 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
     val newAsset = ThriftUtil.parseAsset(uri = videoUri, version = version, mimeType = None)
       .fold(err => AssetParseFailed, identity)
 
-    if (mediaAtom.category != Hosted) {
-      validateYoutubeOwnership(newAsset)
-    }
+    val channel = getYouTubeChannel(newAsset, mediaAtom.metadata.flatMap(_.channelId))
+    val metadata = mediaAtom.metadata.getOrElse(Metadata()).copy(channelId = Some(channel))
 
     val updatedAtom = atom
       .withData(mediaAtom.copy(
-        assets = newAsset +: currentAssets
+        assets = newAsset +: currentAssets,
+        metadata = Some(metadata)
       ))
 
     log.info(s"Adding new asset $videoUri to $atomId")
@@ -62,17 +62,16 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
     UpdateAtomCommand(atomId, fromThrift(updatedAtom), stores, user).process()
   }
 
-  private def validateYoutubeOwnership (asset: Asset) = {
-    asset.platform match {
-      case Platform.Youtube => {
-        val isMine = youTube.isMyVideo(asset.id)
+  private def getYouTubeChannel(asset: Asset, existingChannel: Option[String]): String = {
+    (youTube.getVideo(asset.id, "snippet"), existingChannel) match {
+      case (Some(video), Some(channel)) if video.getSnippet.getChannelId != channel =>
+        IncorrectYouTubeChannel
 
-        if (! isMine) {
-          log.info(s"Cannot add asset $videoUri to $atomId. The youtube video is not on a Guardian channel")
-          NotGuardianYoutubeVideo
-        }
-      }
-      case _ => None
+      case (None, _) =>
+        YouTubeVideoDoesNotExist(asset.id)
+
+      case (Some(video), _) =>
+        video.getSnippet.getChannelId
     }
   }
 

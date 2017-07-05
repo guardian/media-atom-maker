@@ -19,7 +19,7 @@ class SendToTranscoder extends LambdaWithParams[Upload, Upload]
         val outputs = getOutputs(sources)
         val jobs = outputs.map { case(output, preset) => sendToTranscoder(input, output, preset) }
 
-        val metadata = upload.metadata.copy(runtime = Some(SelfHostedUploadMetadata(jobs)))
+        val metadata = upload.metadata.copy(runtime = SelfHostedUploadMetadata(jobs))
         upload.copy(metadata = metadata)
 
       case other =>

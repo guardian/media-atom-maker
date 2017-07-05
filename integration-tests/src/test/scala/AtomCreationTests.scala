@@ -58,8 +58,14 @@ class AtomCreationTests extends IntegrationTestBase with CancelAfterFailure {
       case 400 =>
         fail(s"Publishing atom returned 400: ${response.body().string()}")
 
-      case 503 if response.body().string().startsWith("YouTube") =>
-        failQuietly(s"YouTube backend error ${response.body().string()}")
+      case 500 =>
+        Option(response.header("X-No-Alerts")) match {
+          case Some(_) =>
+            cancel(s"Publishing atom returned 500: ${response.body().string()}")
+
+          case None =>
+            fail(s"Publishing atom returned 500: ${response.body().string()}")
+        }
     }
   }
 }

@@ -99,9 +99,19 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
   }
 
   private def updateYouTube(previewAtom: MediaAtom, asset: Asset): Future[MediaAtom] = {
-    updateYoutubeMetadata(previewAtom, asset)
-    updateYoutubeThumbnail(previewAtom, asset)
-    createOrUpdateYoutubeClaim(previewAtom, asset)
+    previewAtom.channelId match {
+      case Some(channel) if youTube.allowedChannels.contains(channel) =>
+        updateYoutubeMetadata(previewAtom, asset)
+        updateYoutubeThumbnail(previewAtom, asset)
+        createOrUpdateYoutubeClaim(previewAtom, asset)
+
+      case Some(_) =>
+        // third party YouTube video that we do not have permission to edit
+        Future.successful(previewAtom)
+
+      case None =>
+        AtomPublishFailed("Atom missing YouTube channel")
+    }
   }
 
   private def createOrUpdateYoutubeClaim(previewAtom: MediaAtom, asset: Asset): Future[MediaAtom] = Future{
@@ -193,28 +203,21 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
   }
 
   private def updateYoutubeThumbnail(atom: MediaAtom, asset: Asset): Future[MediaAtom] = Future{
-    try {
-      val master = atom.posterImage.flatMap(_.master).get
-      val MAX_SIZE = 2000000
-      val img: ImageAsset = if (master.size.get < MAX_SIZE) {
-        master
-      } else {
-        // Get the biggest crop which is still less than MAX_SIZE
-        atom.posterImage.map(
-          _.assets
-            .filter(a => a.size.nonEmpty && a.size.get < MAX_SIZE)
-            .maxBy(_.size.get)
-        ).get
-      }
-
-      youTube.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
-      atom
-    } catch {
-      case e: GoogleJsonResponseException if e.getDetails.getCode == 503 => YouTubeConnectionIssue
-      case NonFatal(e) =>
-        log.error(s"Unable to update thumbnail for asset=${asset.id} atom={$id}", e)
-        PosterImageUploadFailed(e.getMessage)
+    val master = atom.posterImage.flatMap(_.master).get
+    val MAX_SIZE = 2000000
+    val img: ImageAsset = if (master.size.get < MAX_SIZE) {
+      master
+    } else {
+      // Get the biggest crop which is still less than MAX_SIZE
+      atom.posterImage.map(
+        _.assets
+          .filter(a => a.size.nonEmpty && a.size.get < MAX_SIZE)
+          .maxBy(_.size.get)
+      ).get
     }
+
+    youTube.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
+    atom
   }
 
   private def updateInactiveAssets(atom: MediaAtom): Unit = {

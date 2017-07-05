@@ -11,7 +11,7 @@ import scala.collection.JavaConverters._
 class GetTranscodingProgress extends LambdaWithParams[Upload, Upload] with ElasticTranscodeAccess with Logging {
   override def handle(upload: Upload): Upload = {
     upload.metadata.runtime match {
-      case Some(SelfHostedUploadMetadata(ids)) =>
+      case SelfHostedUploadMetadata(ids) =>
         val jobs = ids.map(getJob)
         val progress = upload.progress
 

@@ -63,7 +63,8 @@ export default class ComposerTagPicker extends React.Component {
   };
 
   updateInput = e => {
-    if (this.state.lastAction === UserActions.space) {
+    const onlyWhitespace = !/\S/.test(this.state.inputString);
+    if (this.state.lastAction === UserActions.space && !onlyWhitespace) {
       const newFieldValue = this.state.tagValue.concat([
         this.state.inputString
       ]);
@@ -269,6 +270,16 @@ export default class ComposerTagPicker extends React.Component {
     );
   }
 
+  renderBylineInstructions() {
+    if (this.props.tagType === 'contributor') {
+      return (
+        <span className="form__field__instructions">
+          Press space to add byline as text
+        </span>
+      );
+    }
+  }
+
   render() {
     if (!this.props.editable) {
       if (!this.state.tagValue || this.state.tagValue.length === 0) {
@@ -300,6 +311,7 @@ export default class ComposerTagPicker extends React.Component {
 
         <div className="form__label__layout">
           <label className="form__label">{this.props.fieldName}</label>
+          {this.renderBylineInstructions()}
         </div>
         {this.renderCapiUnavailable()}
 

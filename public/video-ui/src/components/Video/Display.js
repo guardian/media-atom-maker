@@ -9,19 +9,32 @@ import { formNames } from '../../constants/formNames';
 import FieldNotification from '../../constants/FieldNotification';
 import ReactTooltip from 'react-tooltip';
 import { getStore } from '../../util/storeAccessor';
+import { blankVideoData } from '../../constants/blankVideoData';
 
 class VideoDisplay extends React.Component {
   componentWillMount() {
-    this.props.videoActions.getVideo(this.props.params.id);
-    this.props.videoActions.getUsages(this.props.params.id);
+    if (this.props.route.mode === 'create') {
+      this.props.videoActions.updateVideo(blankVideoData);
+      this.props.videoActions.updateVideoEditState(true);
+    } else {
+      this.props.videoActions.getVideo(this.props.params.id);
+      this.props.videoActions.getUsages(this.props.params.id);
+    }
   }
 
-  saveVideo = () => {
-    this.props.videoActions.saveVideo(this.props.video);
+  saveAndUpdateVideoPoster = poster => {
+    const newVideo = Object.assign({}, this.props.video, {
+      posterImage: poster
+    });
+    this.saveAndUpdateVideo(newVideo);
   };
 
   saveAndUpdateVideo = video => {
-    this.props.videoActions.saveVideo(video);
+    if (this.props.route.mode === 'create') {
+      this.props.videoActions.createVideo(video);
+    } else {
+      this.props.videoActions.saveVideo(video);
+    }
   };
 
   updateVideo = video => {
@@ -197,6 +210,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getVideo from '../../actions/VideoActions/getVideo';
 import * as saveVideo from '../../actions/VideoActions/saveVideo';
+import * as createVideo from '../../actions/VideoActions/createVideo';
 import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as videoUsages from '../../actions/VideoActions/videoUsages';
 import * as getPublishedVideo
@@ -225,6 +239,7 @@ function mapDispatchToProps(dispatch) {
         {},
         getVideo,
         saveVideo,
+        createVideo,
         updateVideo,
         videoUsages,
         getPublishedVideo,

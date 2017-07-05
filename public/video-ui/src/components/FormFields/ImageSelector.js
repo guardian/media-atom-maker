@@ -18,6 +18,9 @@ class ImageSelector extends React.Component {
   }
 
   render() {
+    if (this.props.fieldValue === this.props.placeholder) {
+      return <div className="form__section">Poster image not selected</div>;
+    }
     if (!this.props.editMode) {
       return (
         <div className="form__row">

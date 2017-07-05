@@ -87,7 +87,8 @@ package object youtube {
         "boxing" -> "gdnpfpsportboxing",
         "racing" -> "gdnpfpsportracing",
         "us sports" -> "gdnpfpsportus",
-        "sports" -> "gdnpfpsportother",
+        "other sport" -> "gdnpfpsportother",
+        "other sports" -> "gdnpfpsportother",
         "culture" -> "gdnpfpculture",
         "film" -> "gdnpfpculturefilm",
         "music" -> "gdnpfpculturemusic",
@@ -100,7 +101,10 @@ package object youtube {
         "environment" -> "gdnpfpenvironment",
         "technology" -> "gdnpfptechnology",
         "travel" -> "gdnpfptravel",
-        "science" -> "gdnpfpscience"
+        "science" -> "gdnpfpscience",
+        "athletics" -> "gdnpfpsportother",
+        "basketball" -> "gdnpfpsportus",
+        "sport 2.0" -> "gdnpfpsport20"
       )
 
       this.tags.flatMap { tag =>

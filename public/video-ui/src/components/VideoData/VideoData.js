@@ -51,7 +51,6 @@ class VideoData extends React.Component {
             <ManagedField
               fieldLocation="description"
               name="Standfirst (YouTube description)"
-              placeholder="No Description"
               customValidation={this.props.descriptionValidator}
               isDesired={true}
               maxCharLength={fieldLengths.description.charMax}
@@ -63,7 +62,6 @@ class VideoData extends React.Component {
               fieldLocation="trailText"
               derivedFrom={this.props.video.description}
               name="Trail Text"
-              placeholder="No Trail Text"
               maxCharLength={fieldLengths.description.charMax}
               maxLength={fieldLengths.description.max}
             >
@@ -73,7 +71,6 @@ class VideoData extends React.Component {
             <ManagedField
               fieldLocation="byline"
               name="Byline"
-              placeholder="No byline tags"
               formRowClass="form__row__byline"
               tagType="contributor"
             >
@@ -82,7 +79,6 @@ class VideoData extends React.Component {
             <ManagedField
               fieldLocation="commissioningDesks"
               name="Comissioning Desks"
-              placeholder="No comissioning desk"
               formRowClass="form__row__byline"
               tagType="tracking"
               inputPlaceholder="Search commissioning info (type '*' to show all)"
@@ -93,7 +89,6 @@ class VideoData extends React.Component {
             <ManagedField
               fieldLocation="keywords"
               name="Composer Keywords"
-              placeholder="No keywords"
               formRowClass="form__row__byline"
               tagType="keyword"
               inputPlaceholder="Search keywords (type '*' to show all)"
@@ -103,7 +98,6 @@ class VideoData extends React.Component {
             <ManagedField
               fieldLocation="source"
               name="Video Source"
-              placeholder="No video source"
             >
               <TextInput />
             </ManagedField>
