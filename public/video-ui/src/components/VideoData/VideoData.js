@@ -51,7 +51,6 @@ class VideoData extends React.Component {
             <ManagedField
               fieldLocation="description"
               name="Standfirst (YouTube description)"
-              placeholder="No Description"
               customValidation={this.props.descriptionValidator}
               isDesired={true}
               maxCharLength={fieldLengths.description.charMax}
@@ -63,7 +62,6 @@ class VideoData extends React.Component {
               fieldLocation="trailText"
               derivedFrom={this.props.video.description}
               name="Trail Text"
-              placeholder="No Trail Text"
               maxCharLength={fieldLengths.description.charMax}
               maxLength={fieldLengths.description.max}
             >
@@ -124,11 +122,7 @@ class VideoData extends React.Component {
             </ManagedField>
           </ManagedSection>
           <ManagedSection>
-            <ManagedField
-              fieldLocation="source"
-              name="Video Source"
-              placeholder="No video source"
-            >
+            <ManagedField fieldLocation="source" name="Video Source">
               <TextInput />
             </ManagedField>
             <ManagedField fieldLocation="category" name="Category">

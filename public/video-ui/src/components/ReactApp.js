@@ -59,7 +59,12 @@ class ReactApp extends React.Component {
           currentPath={this.props.location.pathname}
           video={this.props.video || {}}
           publishedVideo={this.props.publishedVideo || {}}
-          showPublishedState={this.props.params.id ? true : false}
+          showPublishedState={
+            this.props.params.id ||
+              this.props.location.pathname === '/videos/create'
+              ? true
+              : false
+          }
           s3Upload={this.props.s3Upload}
           publishVideo={this.props.appActions.publishVideo}
           saveState={this.props.saveState}

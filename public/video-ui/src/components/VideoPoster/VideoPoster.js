@@ -12,7 +12,7 @@ export default class VideoPoster extends React.Component {
         updateErrors={this.props.updateErrors}
         formName={this.props.formName}
       >
-        <ManagedField fieldLocation="posterImage" name="">
+        <ManagedField fieldLocation="posterImage" name="Poster Image">
           <ImageSelector editMode={true} />
         </ManagedField>
       </ManagedForm>

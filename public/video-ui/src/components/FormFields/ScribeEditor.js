@@ -24,6 +24,10 @@ export default class ScribeEditorField extends React.Component {
   };
 
   getWords = text => {
+    if (!text) {
+      return [];
+    }
+
     return text
       .trim()
       .replace(/<(?:.|\n)*?>/gm, '')
@@ -32,7 +36,7 @@ export default class ScribeEditorField extends React.Component {
   };
 
   updateWordCount = text => {
-    const count = this.getWords(text).length;
+    const count = text ? this.getWords(text).length : 0;
 
     this.setState({
       wordCount: count,

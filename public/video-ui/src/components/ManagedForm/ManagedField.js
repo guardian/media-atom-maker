@@ -37,6 +37,8 @@ export class ManagedField extends React.Component {
       ? this.props.data[this.props.fieldLocation]
       : null;
     this.checkErrorsAndWarnings(value);
+
+    this.placeholder = 'No ' + this.props.name.split('(')[0];
   }
 
   checkErrorsAndWarnings(value) {
@@ -79,8 +81,8 @@ export class ManagedField extends React.Component {
   };
 
   getFieldValue(value) {
-    if (!this.props.editable && this.props.placeholder && !value) {
-      return this.props.placeholder;
+    if (!this.props.editable && !value) {
+      return this.placeholder;
     }
 
     if (!value) {
@@ -92,9 +94,7 @@ export class ManagedField extends React.Component {
 
   hasError(props) {
     return (
-      props.touched &&
-      props.notification &&
-      props.notification.type === FieldNotification.error
+      props.notification && props.notification.type === FieldNotification.error
     );
   }
 
@@ -120,7 +120,7 @@ export class ManagedField extends React.Component {
         editable: this.props.editable,
         maxLength: this.props.maxLength,
         notification: this.state.fieldNotification,
-        placeholder: this.props.placeholder,
+        placeholder: this.placeholder,
         touched: this.state.touched,
         fieldDetails: this.props.fieldDetails,
         hasError: this.hasError,

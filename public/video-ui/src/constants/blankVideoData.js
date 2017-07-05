@@ -1,10 +1,12 @@
 export const blankVideoData = {
   title: '',
-  description: null,
-  category: '',
+  description: '',
+  category: 'News',
   duration: 0,
   channelId: '',
   youtubeCategoryId: '',
   privacyStatus: '',
-  assets: []
+  assets: [],
+  trailText: '',
+  tags: []
 };
