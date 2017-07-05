@@ -1,4 +1,4 @@
 export const keyCodes = {
-  space: 32,
+  enter: 13,
   backspace: 8
 };
