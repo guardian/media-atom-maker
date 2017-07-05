@@ -60,52 +60,36 @@ export default class GridEmbedder extends React.Component {
   };
 
   render() {
-    if (this.props.createMode && this.props.fieldValue) {
-      return (
-        <div className="gridembedder">
-          <div className="gridembedder__button" onClick={this.toggleModal}>
-            <Icon icon="add_to_photos" className="icon__edit" />
-          </div>
 
-          <Modal isOpen={this.state.modalOpen} dismiss={this.closeModal}>
-            <iframe className="gridembedder__modal" src={this.props.gridUrl} />
-          </Modal>
-        </div>
-      );
-    } else if (this.props.createMode) {
-      return (
-        <div className="gridembedder">
-          <div className="gridembedder__noposter" onClick={this.toggleModal}>
-            <div className="gridembedder__noposter-elements">
-              <span>Add Grid Image</span>
-              <div>
-                <Icon icon="add_to_photos" className="icon__edit" />
-              </div>
-            </div>
-          </div>
+    let gridUrl;
+    console.log('porps are ', this.props);
 
-          <Modal isOpen={this.state.modalOpen} dismiss={this.closeModal}>
-            <iframe className="gridembedder__modal" src={this.props.gridUrl} />
-          </Modal>
-        </div>
-      );
+    if (this.props.posterImage && this.props.isComposerImage) {
+      const imageIdParts = this.props.posterImage.mediaId.split("/");
+      console.log('image id parths ', imageIdParts);
+      const imageGridId = imageIdParts[imageIdParts.length - 1];
+      console.log('grid image id is ', imageGridId);
+      gridUrl = this.props.gridUrl + '/images/' + imageGridId + '/crop?type=composer';
+      //gridUrl = this.props.gridUrl;
     } else {
-      return (
-        <div className="gridembedder">
-          <button disabled={this.props.disabled} onClick={this.toggleModal}>
-            <Icon
-              icon="add_to_photos"
-              className={
-                'icon__edit ' + (this.props.disabled ? 'disabled' : '')
-              }
-            />
-          </button>
-
-          <Modal isOpen={this.state.modalOpen} dismiss={this.closeModal}>
-            <iframe className="gridembedder__modal" src={this.props.gridUrl} />
-          </Modal>
-        </div>
-      );
+      gridUrl = this.props.gridUrl;
     }
+
+    return (
+      <div className="gridembedder">
+        <button disabled={this.props.disabled} onClick={this.toggleModal}>
+          <Icon
+            icon="add_to_photos"
+            className={
+              'icon__edit ' + (this.props.disabled ? 'disabled' : '')
+            }
+          />
+        </button>
+
+        <Modal isOpen={this.state.modalOpen} dismiss={this.closeModal}>
+          <iframe className="gridembedder__modal" src={gridUrl} />
+        </Modal>
+      </div>
+    );
   }
 }
