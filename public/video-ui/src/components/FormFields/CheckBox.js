@@ -2,13 +2,16 @@ import React from 'react';
 
 export default class CheckBox extends React.Component {
   renderCheckbox() {
+    const checked =
+      this.props.fieldValue && this.props.fieldValue !== this.props.placeholder;
+
     return (
       <div>
         <input
           id={this.props.fieldLocation}
           type="checkbox"
           disabled={!this.props.editable}
-          checked={this.props.fieldValue}
+          checked={checked}
           onChange={e => {
             this.props.onUpdateField(e.target.checked);
           }}
