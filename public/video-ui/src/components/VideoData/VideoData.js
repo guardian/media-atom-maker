@@ -70,8 +70,7 @@ class VideoData extends React.Component {
 
             <ManagedField
               fieldLocation="byline"
-              name="Byline Tags"
-              placeholder="No byline tags"
+              name="Byline"
               formRowClass="form__row__byline"
               tagType="contributor"
             >
@@ -80,7 +79,6 @@ class VideoData extends React.Component {
             <ManagedField
               fieldLocation="commissioningDesks"
               name="Comissioning Desks"
-              placeholder="No comissioning desk"
               formRowClass="form__row__byline"
               tagType="tracking"
               inputPlaceholder="Search commissioning info (type '*' to show all)"
@@ -91,18 +89,25 @@ class VideoData extends React.Component {
             <ManagedField
               fieldLocation="keywords"
               name="Composer Keywords"
-              placeholder="No keywords"
               formRowClass="form__row__byline"
               tagType="keyword"
               inputPlaceholder="Search keywords (type '*' to show all)"
             >
               <ComposerTagPicker disableTextInput />
             </ManagedField>
-
             <ManagedField
-              fieldLocation="blockAds"
-              name="Block ads"
-              fieldDetails="Ads will not be displayed with this video"
+              fieldLocation="source"
+              name="Video Source"
+            >
+              <TextInput />
+            </ManagedField>
+
+          </ManagedSection>
+          <ManagedSection>
+            <ManagedField
+              fieldLocation="sensitive"
+              name="Sensitive"
+              fieldDetails="Contains sensitive content"
             >
               <CheckBox />
             </ManagedField>
@@ -114,25 +119,18 @@ class VideoData extends React.Component {
               <CheckBox />
             </ManagedField>
             <ManagedField
-              fieldLocation="sensitive"
-              name="Sensitive"
-              fieldDetails="Contains sensitive content"
+              fieldLocation="blockAds"
+              name="Block ads"
+              fieldDetails="Ads will not be displayed with this video"
             >
               <CheckBox />
-            </ManagedField>
-          </ManagedSection>
-          <ManagedSection>
-            <ManagedField fieldLocation="source" name="Video Source">
-              <TextInput />
-            </ManagedField>
-            <ManagedField fieldLocation="category" name="Category">
-              <SelectBox selectValues={videoCategories} />
             </ManagedField>
             <ManagedField fieldLocation="expiryDate" name="Expiry Date">
               <DatePicker />
             </ManagedField>
-          </ManagedSection>
-          <ManagedSection>
+            <ManagedField fieldLocation="category" name="Category">
+              <SelectBox selectValues={videoCategories} />
+            </ManagedField>
             <ManagedField fieldLocation="privacyStatus" name="Privacy Status">
               <SelectBox selectValues={privacyStates} />
             </ManagedField>

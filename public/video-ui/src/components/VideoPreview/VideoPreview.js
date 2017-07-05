@@ -1,8 +1,19 @@
 import React from 'react';
 import { VideoEmbed } from '../utils/VideoEmbed';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
+import { formNames } from '../../constants/formNames';
+import VideoPoster from '../VideoPoster/VideoPoster';
+import GridImageSelect from '../utils/GridImageSelect';
 
 export default class VideoPreview extends React.Component {
+
+  saveAndUpdateVideoPoster = poster => {
+    const newVideo = Object.assign({}, this.props.video, {
+      posterImage: poster
+    });
+    this.props.saveAndUpdateVideo(newVideo);
+  };
+
   renderPreview() {
     const activeVersion = this.props.video.activeVersion;
     const assets = this.props.video.assets || [];
@@ -27,6 +38,25 @@ export default class VideoPreview extends React.Component {
     return (
       <div className="video-preview">
         {this.renderPreview()}
+        <div className="video__detailbox">
+          <div className="video__detailbox__header__container">
+            <header className="video__detailbox__header">
+              Poster Image
+            </header>
+            <GridImageSelect
+              updateVideo={this.saveAndUpdateVideoPoster}
+              gridUrl={this.props.config.gridUrl}
+              disabled={this.props.videoEditOpen}
+              createMode={false}
+            />
+          </div>
+          <VideoPoster
+            video={this.props.video || {}}
+            updateVideo={this.props.saveAndUpdateVideo}
+            formName={formNames.posterImage}
+            updateErrors={this.props.updateErrors}
+          />
+        </div>
       </div>
     );
   }
