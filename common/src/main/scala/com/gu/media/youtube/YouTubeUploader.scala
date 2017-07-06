@@ -9,7 +9,7 @@ import com.gu.media.upload.model.{Upload, UploadPart}
 import com.gu.media.util.InputStreamRequestBody
 import com.gu.media.youtube.YouTubeUploader.{MoveToNextChunk, UploadError, VideoFullyUploaded}
 import com.squareup.okhttp.{MediaType, OkHttpClient, Request, RequestBody}
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsObject, JsString, Json}
 
 class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3Client) extends Logging {
   private val JSON = MediaType.parse("application/json; charset=utf-8")
@@ -25,22 +25,19 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3Client) extends Loggin
     val videoTitle = s"$title-$id".take(70) // YouTube character limit
     val description = s"Uploaded by the media-atom-maker. Pending publishing"
 
-    val json =
-      s"""
-         | {
-         |    "snippet": {
-         |      "title": "$videoTitle",
-         |      "description": "$description"
-         |    },
-         |    "status": {
-         |      "privacyStatus": "unlisted"
-         |    },
-         |    "onBehalfOfContentOwner": "${youTube.contentOwner}",
-         |    "onBehalfOfContentOwnerChannel": "$channel"
-         | }
-       """.stripMargin
+    val json = JsObject(Seq(
+      "snippet" -> JsObject(Seq(
+        "title" -> JsString(videoTitle),
+        "description" -> JsString(description)
+      )),
+      "status" -> JsObject(Seq(
+        "privacyStatus" -> JsString("unlisted")
+      )),
+      "onBehalfOfContentOwner" -> JsString(youTube.contentOwner),
+      "onBehalfOnContentOwnerChannel" -> JsString(channel)
+    ))
 
-    val body = RequestBody.create(JSON, json)
+    val body = RequestBody.create(JSON, Json.stringify(json))
     val request = new Request.Builder()
       .url(endpoint)
       .addHeader("Authorization", "Bearer " + youTube.accessToken())
