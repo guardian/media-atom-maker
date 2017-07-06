@@ -40,6 +40,7 @@ export default class VideoPreview extends React.Component {
       <div className="video__preview__container">
         {this.renderPreview()}
       </div>
+      <div className="video__imagebox">
         <div className="video__detailbox">
           <div className="video__detailbox__header__container">
             <header className="video__detailbox__header">
@@ -51,7 +52,6 @@ export default class VideoPreview extends React.Component {
               disabled={this.props.videoEditOpen}
               fieldLocation="posterImage"
             />
-
           </div>
           <VideoPoster
             video={this.props.video || {}}
@@ -61,6 +61,8 @@ export default class VideoPreview extends React.Component {
             fieldLocation="posterImage"
             name="Youtube Poster Image"
           />
+        </div>
+        <div className="video__detailbox">
           <div className="video__detailbox__header__container">
             <header className="video__detailbox__header">
               Composer Trail Image
@@ -73,7 +75,6 @@ export default class VideoPreview extends React.Component {
               posterImage={this.props.video.posterImage}
               fieldLocation="posterImage"
             />
-
           </div>
           <VideoPoster
             video={this.props.video || {}}
@@ -84,6 +85,7 @@ export default class VideoPreview extends React.Component {
           />
         </div>
       </div>
+    </div>
     );
   }
 }
