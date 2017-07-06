@@ -34,7 +34,7 @@ object ClientAsset {
     if(upload.metadata.selfHost) {
       selfHostedUpload(upload.id, state, error)
     } else {
-      youTubeUpload(upload)
+      youTubeUpload(upload, error)
     }
   }
 
@@ -68,17 +68,28 @@ object ClientAsset {
     ClientAsset(id = version.toString, asset, processing)
   }
 
-  private def youTubeUpload(upload: Upload): ClientAsset = {
-    val fullyUploaded = upload.progress.fullyUploaded
-    val current = upload.progress.chunksInYouTube
-    val total = upload.parts.length
+  private def youTubeUpload(upload: Upload, error: Option[String]): ClientAsset = {
+    val processing = error match {
+      case Some(msg) =>
+        ClientAssetProcessing(
+          status = msg,
+          failed = true,
+          current = None,
+          total = None
+        )
 
-    val processing = ClientAssetProcessing(
-      status = if(fullyUploaded) { "Uploading" } else { "Uploading to YouTube" },
-      failed = false,
-      current = if(fullyUploaded) { None } else { Some(current) },
-      total = if(fullyUploaded) { None } else { Some(total) }
-    )
+      case None =>
+        val fullyUploaded = upload.progress.fullyUploaded
+        val current = upload.progress.chunksInYouTube
+        val total = upload.parts.length
+
+        ClientAssetProcessing(
+          status = if(fullyUploaded) { "Uploading" } else { "Uploading to YouTube" },
+          failed = false,
+          current = if(fullyUploaded) { None } else { Some(current) },
+          total = if(fullyUploaded) { None } else { Some(total) }
+        )
+    }
 
     ClientAsset(id = upload.id, asset = None, Some(processing))
   }

@@ -128,6 +128,17 @@ class ClientAssetTest extends FunSuite with MustMatchers {
     actual must be(expected)
   }
 
+  test("YouTube upload (error)") {
+    val metadata = blank(selfHost = false).copy(asset = Some(YouTubeAsset("test")))
+    val upload = Upload("test", parts, metadata, null)
+
+    val processing = ClientAssetProcessing("It Didn't Work!", failed = true, current = None, total = None)
+    val expected = ClientAsset("test", asset = None, Some(processing))
+    val actual = ClientAsset("test", upload, error = Some("It Didn't Work!"))
+
+    actual must be(expected)
+  }
+
   test("YouTube processing (indeterminate)") {
     val status = YouTubeProcessingStatus("", "processing", 0, 0, 0, None)
     val expected = ClientAssetProcessing("YouTube Processing", failed = false, None, None)
