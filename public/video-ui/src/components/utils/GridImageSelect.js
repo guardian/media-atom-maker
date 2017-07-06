@@ -12,7 +12,7 @@ export default class GridEmbedder extends React.Component {
   onUpdatePosterImage = cropData => {
     const image = parseImageFromGridCrop(cropData);
 
-    this.props.updateVideo(image);
+    this.props.updateVideo(image, this.props.fieldLocation);
   };
 
   toggleModal = () => {
@@ -62,17 +62,14 @@ export default class GridEmbedder extends React.Component {
   render() {
 
     let gridUrl;
-    console.log('porps are ', this.props);
 
     if (this.props.posterImage && this.props.isComposerImage) {
       const imageIdParts = this.props.posterImage.mediaId.split("/");
-      console.log('image id parths ', imageIdParts);
       const imageGridId = imageIdParts[imageIdParts.length - 1];
-      console.log('grid image id is ', imageGridId);
       gridUrl = this.props.gridUrl + '/images/' + imageGridId + '/crop?type=composer';
       //gridUrl = this.props.gridUrl;
     } else {
-      gridUrl = this.props.gridUrl;
+      gridUrl = this.props.gridUrl + '?type=video';
     }
 
     return (

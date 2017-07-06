@@ -22,13 +22,6 @@ class VideoDisplay extends React.Component {
     }
   }
 
-  saveAndUpdateVideoPoster = poster => {
-    const newVideo = Object.assign({}, this.props.video, {
-      posterImage: poster
-    });
-    this.saveAndUpdateVideo(newVideo);
-  };
-
   saveAndUpdateVideo = video => {
     if (this.props.route.mode === 'create') {
       this.props.videoActions.createVideo(video);
@@ -187,32 +180,6 @@ class VideoDisplay extends React.Component {
               </div>
             </div>
             <div className="video__row">
-              <div className="video__detailbox">
-                <div className="video__detailbox__header__container">
-                  <header className="video__detailbox__header">
-                    Poster Image
-                  </header>
-                  <GridImageSelect
-                    updateVideo={this.saveAndUpdateVideoPoster}
-                    gridUrl={this.props.config.gridUrl}
-                    disabled={this.props.videoEditOpen}
-                    posterImage={this.props.video.posterImage}
-                  />
-                  <GridImageSelect
-                    updateVideo={this.saveAndUpdateVideoPoster}
-                    gridUrl={this.props.config.gridUrl}
-                    disabled={this.props.videoEditOpen || !this.props.video.posterImage}
-                    isComposerImage={true}
-                    posterImage={this.props.video.posterImage}
-                  />
-                </div>
-                <VideoPoster
-                  video={this.props.video || {}}
-                  updateVideo={this.saveAndUpdateVideo}
-                  formName={formNames.posterImage}
-                  updateErrors={this.props.formErrorActions.updateFormErrors}
-                />
-              </div>
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
                   <header className="video__detailbox__header">Usages</header>
