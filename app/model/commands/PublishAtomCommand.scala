@@ -110,6 +110,18 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
     }
   }
 
+  private def noClaimsToUpdate(previewAtom: MediaAtom, publishedAtom: MediaAtom): Boolean = {
+
+    val previewVersion = previewAtom.activeVersion.get
+    val noNewAssets = publishedAtom.activeVersion match {
+      case None => false
+      case Some(publishedVersion) => {
+        publishedVersion == previewVersion
+      }
+    }
+    previewAtom.blockAds.get == publishedAtom.blockAds.getOrElse(false) && noNewAssets
+  }
+
   private def createOrUpdateYoutubeClaim(previewAtom: MediaAtom, asset: Asset): Future[MediaAtom] = Future{
     // if previewAtom.blockAds.isEmpty == true, we know there isn't a published atom and we can save a database call
     if (previewAtom.blockAds.isEmpty) {
@@ -127,7 +139,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
         val thriftPublishedAtom = getPublishedAtom(id)
         val publishedAtom = MediaAtom.fromThrift(thriftPublishedAtom)
 
-        if (previewAtom.blockAds.get == publishedAtom.blockAds.getOrElse(false)) {
+        if (noClaimsToUpdate(previewAtom, publishedAtom)) {
           log.info(s"No change to BlockAds field, not editing YouTube Claim")
         } else {
           log.info(s"BlockAds changed from ${publishedAtom.blockAds.getOrElse(false)} to ${previewAtom.blockAds.get}. Updating YouTube Claim")
