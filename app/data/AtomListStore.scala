@@ -42,26 +42,22 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
 
     val category = (atom \ "category").as[String]
 
-    if(category != "hosted") {
-      val title = (atom \ "title").as[String]
+    val title = (atom \ "title").as[String]
 
-      if (title.startsWith(TestFilters.testAtomBaseName)) None /* This filters out test atoms created by the Integration Tests, as we don't want them to be user facing */
-      else {
-        val posterImage = (atom \ "posterImage").asOpt[Image]
+    if (title.startsWith(TestFilters.testAtomBaseName)) None /* This filters out test atoms created by the Integration Tests, as we don't want them to be user facing */
+    else {
+      val posterImage = (atom \ "posterImage").asOpt[Image]
 
-        val expiryDate = (atom \ "expiryDate").asOpt[Long]
-        val activeVersion = (atom \ "activeVersion").asOpt[Long]
+      val expiryDate = (atom \ "expiryDate").asOpt[Long]
+      val activeVersion = (atom \ "activeVersion").asOpt[Long]
 
-        val versions = (atom \ "assets").as[JsArray].value.map { asset =>
-          (asset \ "version").as[Long]
-        }
-
-        val state = AtomListStore.getState(expiryDate, activeVersion, versions.toSet)
-
-        Some(MediaAtomSummary(id, state, title, posterImage))
+      val versions = (atom \ "assets").as[JsArray].value.map { asset =>
+        (asset \ "version").as[Long]
       }
-    } else {
-      None
+
+      val state = AtomListStore.getState(expiryDate, activeVersion, versions.toSet)
+
+      Some(MediaAtomSummary(id, state, title, posterImage))
     }
   }
 }
@@ -79,7 +75,6 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore) extends AtomListS
 
         val mediaAtoms = atoms
           .map(MediaAtom.fromThrift)
-          .filterNot(_.category == Hosted)
           .toList
           .sortBy(created)
           .reverse // newest atoms first

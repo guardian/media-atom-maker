@@ -2,8 +2,8 @@ package controllers
 
 import java.util.UUID
 
-import _root_.model.{ClientAsset, MediaAtom}
 import _root_.model.commands.CommandExceptions._
+import _root_.model.{ClientAsset, MediaAtom}
 import com.amazonaws.services.stepfunctions.model.ExecutionListItem
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging

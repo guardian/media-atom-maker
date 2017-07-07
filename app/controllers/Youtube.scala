@@ -1,25 +1,23 @@
 package controllers
 
-import com.gu.media.youtube.{YouTube, YouTubeChannel, YouTubeVideoCategory}
 import com.gu.pandahmac.HMACAuthActions
-import play.api.cache._
 import play.api.libs.json.Json
 import play.api.mvc.Controller
+import util.YouTube
 
-import scala.concurrent.duration._
-
-class Youtube (val authActions: HMACAuthActions, youTube: YouTube, cache: CacheApi) extends Controller {
+class Youtube (val authActions: HMACAuthActions, youTube: YouTube) extends Controller {
   import authActions.AuthAction
 
   def listCategories() = AuthAction {
-    val categories = cache.getOrElse[List[YouTubeVideoCategory]]("categories", 1.hours) {
-      youTube.categories}
-    Ok(Json.toJson(categories))
+    Ok(Json.toJson(youTube.categories))
   }
 
   def listChannels() = AuthAction {
-    val channels = cache.getOrElse[List[YouTubeChannel]]("channels", 1.hours) {
-      youTube.channels}
+    val channels = youTube.allowedChannels match {
+      case Nil => youTube.channels
+      case allowedList => youTube.channels.filter(c => allowedList.contains(c.id))
+    }
+
     Ok(Json.toJson(channels))
   }
 }

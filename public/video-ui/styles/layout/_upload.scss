@@ -26,11 +26,6 @@
     border-right: 1px solid $color700Grey;
   }
 
-  &__action {
-    padding-bottom: 5px;
-    margin-bottom: 40px;
-  }
-
   &__action:not(:last-child) {
     border-bottom: 1px solid $color625Grey;
   }

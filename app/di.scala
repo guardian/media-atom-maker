@@ -1,6 +1,6 @@
 import com.gu.atom.play.ReindexController
 import com.gu.media.aws.AwsCredentials
-import com.gu.media.youtube.{YouTube, YouTubeClaims}
+import com.gu.media.youtube.YouTubeClaims
 import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider, Settings}
 import controllers._
 import data._
@@ -11,6 +11,7 @@ import play.api.inject.DefaultApplicationLifecycle
 import play.api.libs.ws.ahc.AhcWSComponents
 import router.Routes
 import util._
+import scala.concurrent.duration._
 
 class MediaAtomMakerLoader extends ApplicationLoader {
   override def load(context: Context): Application = new MediaAtomMaker(context).application
@@ -43,7 +44,7 @@ class MediaAtomMaker(context: Context)
 
   private val reindexer = buildReindexer()
 
-  private val youTube = new YouTube(config)
+  private val youTube = YouTube(config, defaultCacheApi, 1.hour)
 
   private val youTubeClaims = new YouTubeClaims(config)
 
@@ -58,7 +59,7 @@ class MediaAtomMaker(context: Context)
   private val uploads = new UploadController(hmacAuthActions, aws, stepFunctions, stores, permissions, youTube)
 
   private val support = new Support(hmacAuthActions, capi)
-  private val youTubeController = new controllers.Youtube(hmacAuthActions, youTube, defaultCacheApi)
+  private val youTubeController = new controllers.Youtube(hmacAuthActions, youTube)
 
   private val pluto = new PlutoProjectController(hmacAuthActions, stores)
 

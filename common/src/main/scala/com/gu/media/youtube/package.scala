@@ -12,8 +12,6 @@ import play.api.libs.json._
 import scala.collection.mutable.ListBuffer
 
 package object youtube {
-  class YouTube(override val config: Config) extends Logging with YouTubeAccess with YouTubeVideos
-
   case class YouTubeVideoCategory(id: Int, title: String)
   case class YouTubeChannel(title: String, logo: URI, id: String)
 

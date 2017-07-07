@@ -21,12 +21,16 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
   }
 
   def getProcessingStatus(videoId: String): Option[YouTubeProcessingStatus] = {
-    val request = client.videos()
-      .list("status,processingDetails")
-      .setId(videoId)
-      .setOnBehalfOfContentOwner(contentOwner)
+    if(isGuardianVideo(videoId)) {
+      val request = client.videos()
+        .list("status,processingDetails")
+        .setId(videoId)
+        .setOnBehalfOfContentOwner(contentOwner)
 
-    request.execute().getItems.asScala.headOption.map(YouTubeProcessingStatus(_))
+      request.execute().getItems.asScala.headOption.map(YouTubeProcessingStatus(_))
+    } else {
+      None
+    }
   }
 
   def getDuration(youtubeId: String): Option[Long] = {
@@ -113,7 +117,18 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
     }
   }
 
-  def isMyVideo(youtubeId: String): Boolean = {
+  def isGuardianVideo(youtubeId: String): Boolean = {
+    getVideo(youtubeId, "snippet") match {
+      case Some(video) =>
+        val channel = video.getSnippet.getChannelId
+        channels.exists(_.id == channel)
+
+      case None =>
+        false
+    }
+  }
+
+  def isManagedVideo(youtubeId: String): Boolean = {
     getVideo(youtubeId, "snippet") match {
       case Some(video) =>
         val channel = video.getSnippet.getChannelId

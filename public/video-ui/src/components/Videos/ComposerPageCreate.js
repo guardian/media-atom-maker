@@ -17,6 +17,10 @@ export default class ComposerPageCreate extends React.Component {
     return getComposerPages(this.props.usages).length > 0;
   };
 
+  isHosted = () => {
+    return this.props.video.category === 'Hosted';
+  };
+
   pageCreate = () => {
     this.setState({
       composerUpdateInProgress: true
@@ -43,7 +47,7 @@ export default class ComposerPageCreate extends React.Component {
   };
 
   render() {
-    if (this.composerPageExists()) {
+    if (this.composerPageExists() || this.isHosted()) {
       return null;
     }
 

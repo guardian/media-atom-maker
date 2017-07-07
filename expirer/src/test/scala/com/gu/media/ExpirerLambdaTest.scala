@@ -64,7 +64,7 @@ class ExpirerLambdaTest extends FunSuite with MustMatchers {
       madePrivate :+= id
     }
 
-    override def isMyVideo(youtubeId: String): Boolean = {
+    override def isManagedVideo(youtubeId: String): Boolean = {
       isMyVideo
     }
   }

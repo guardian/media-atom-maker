@@ -20,6 +20,7 @@ export class ManagedField extends React.Component {
     fieldName: PropTypes.string,
     isRequired: PropTypes.bool,
     isDesired: PropTypes.bool,
+    disabled: PropTypes.bool,
     editable: PropTypes.bool,
     maxLength: PropTypes.number,
     fieldDetails: PropTypes.string,
@@ -110,6 +111,14 @@ export class ManagedField extends React.Component {
   }
 
   render() {
+    let editable = this.props.editable;
+    let className = 'form-element';
+
+    if (this.props.disabled) {
+      editable = false;
+      className += ' form-element--hidden';
+    }
+
     const hydratedChildren = React.Children.map(this.props.children, child => {
       return React.cloneElement(child, {
         fieldName: this.props.name,
@@ -117,7 +126,7 @@ export class ManagedField extends React.Component {
           _get(this.props.fieldLocation, this.props.data)
         ),
         onUpdateField: this.updateFn,
-        editable: this.props.editable,
+        editable,
         maxLength: this.props.maxLength,
         notification: this.state.fieldNotification,
         placeholder: this.placeholder,
@@ -132,6 +141,6 @@ export class ManagedField extends React.Component {
         inputPlaceholder: this.props.inputPlaceholder
       });
     });
-    return <div className="form-element">{hydratedChildren}</div>;
+    return <div className={className}>{hydratedChildren}</div>;
   }
 }

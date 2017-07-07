@@ -4,30 +4,26 @@ import java.net.URL
 import java.time.Instant
 import java.util.Date
 
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-import org.jsoup.nodes._
-import play.api.libs.json.{JsValue, JsLookupResult}
-
-import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import com.gu.atom.play.AtomAPIActions
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
+import com.gu.media.Capi
 import com.gu.media.logging.Logging
-import com.gu.media.youtube.{YouTube, YouTubeClaims, YouTubeMetadataUpdate}
+import com.gu.media.youtube.{YouTubeClaims, YouTubeMetadataUpdate}
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.Platform.Youtube
 import model._
 import model.commands.CommandExceptions._
-import com.gu.media.Capi
+import org.jsoup.Jsoup
+import play.api.libs.json.JsValue
+import util.YouTube
 
-import scala.concurrent.Future
-import scala.util.control.NonFatal
-import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
-case class PublishAtomCommand(id: String, override val stores: DataStores, youTube: YouTube, youtubeClaims: YouTubeClaims,
-                              user: PandaUser, val capi: Capi)
+case class PublishAtomCommand(id: String, override val stores: DataStores, youTube: YouTube,
+                              youtubeClaims: YouTubeClaims, user: PandaUser, val capi: Capi)
   extends Command with AtomAPIActions with Logging {
 
   type T = Future[MediaAtom]

@@ -10,6 +10,7 @@ import ComposerTagPicker from '../FormFields/ComposerTagPicker';
 import { fieldLengths } from '../../constants/videoEditValidation';
 import { videoCategories } from '../../constants/videoCategories';
 import { privacyStates } from '../../constants/privacyStates';
+import { channelAllowed } from '../../util/channelAllowed';
 
 class VideoData extends React.Component {
   hasCategories = () => this.props.youtube.categories.length !== 0;
@@ -29,6 +30,12 @@ class VideoData extends React.Component {
   }
 
   render() {
+    const isHosted = this.props.video.category === 'Hosted';
+    const notOnManagedChannel =
+      isHosted ||
+      !channelAllowed(this.props.video, this.props.youtube.channels);
+    const hasAssets = this.props.video.assets.length > 0;
+
     return (
       <div className="form__group">
         <ManagedForm
@@ -42,7 +49,9 @@ class VideoData extends React.Component {
           <ManagedSection>
             <ManagedField
               fieldLocation="title"
-              name="Headline (YouTube title)"
+              name={
+                notOnManagedChannel ? 'Headline' : 'Headline (YouTube title)'
+              }
               maxLength={fieldLengths.title}
               isRequired={true}
             >
@@ -50,7 +59,11 @@ class VideoData extends React.Component {
             </ManagedField>
             <ManagedField
               fieldLocation="description"
-              name="Standfirst (YouTube description)"
+              name={
+                notOnManagedChannel
+                  ? 'Standfirst'
+                  : 'Standfirst (YouTube description)'
+              }
               customValidation={this.props.descriptionValidator}
               isDesired={true}
               maxCharLength={fieldLengths.description.charMax}
@@ -95,13 +108,9 @@ class VideoData extends React.Component {
             >
               <ComposerTagPicker disableTextInput />
             </ManagedField>
-            <ManagedField
-              fieldLocation="source"
-              name="Video Source"
-            >
+            <ManagedField fieldLocation="source" name="Video Source">
               <TextInput />
             </ManagedField>
-
           </ManagedSection>
           <ManagedSection>
             <ManagedField
@@ -122,19 +131,32 @@ class VideoData extends React.Component {
               fieldLocation="blockAds"
               name="Block ads"
               fieldDetails="Ads will not be displayed with this video"
+              disabled={notOnManagedChannel}
             >
               <CheckBox />
             </ManagedField>
             <ManagedField fieldLocation="expiryDate" name="Expiry Date">
               <DatePicker />
             </ManagedField>
-            <ManagedField fieldLocation="category" name="Category">
+            <ManagedField
+              fieldLocation="category"
+              name="Category"
+              disabled={isHosted && hasAssets}
+            >
               <SelectBox selectValues={videoCategories} />
             </ManagedField>
-            <ManagedField fieldLocation="privacyStatus" name="Privacy Status">
+            <ManagedField
+              fieldLocation="privacyStatus"
+              name="Privacy Status"
+              disabled={notOnManagedChannel}
+            >
               <SelectBox selectValues={privacyStates} />
             </ManagedField>
-            <ManagedField fieldLocation="tags" name="YouTube Keywords">
+            <ManagedField
+              fieldLocation="tags"
+              name="YouTube Keywords"
+              disabled={notOnManagedChannel}
+            >
               <KeywordPicker />
             </ManagedField>
           </ManagedSection>

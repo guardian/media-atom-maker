@@ -30,7 +30,7 @@ case class DeleteCommand(id: String, override val stores: DataStores, youTube: Y
   }
 
   private def makeYouTubeVideosPrivate(assets: List[Asset]): Unit = assets.collect {
-    case Asset(_, _, videoId, Youtube, _) if youTube.isMyVideo(videoId) =>
+    case Asset(_, _, videoId, Youtube, _) if youTube.isManagedVideo(videoId) =>
       log.info(s"Marking $videoId as private as parent atom $id is being deleted")
       youTube.setStatus(videoId, "Private")
   }

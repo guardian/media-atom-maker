@@ -17,6 +17,7 @@ object CommandExceptions extends Results {
   def YouTubeConnectionIssue = throw new CommandException("Could not connect to YouTube", 500)
   def NotYoutubeAsset = throw new CommandException("Asset is not a youtube video", 400)
   def AssetVersionConflict = throw new CommandException("Asset version conflict", 400)
+  def AssetAlreadyAdded = throw new CommandException("Asset has already been added to this atom", 400)
   def AssetParseFailed = throw new CommandException("Failed to parse asset", 400)
   def AssetNotFound = throw new CommandException("Asset not found", 404)
 
@@ -28,6 +29,8 @@ object CommandExceptions extends Results {
   def AtomMissingYouTubeChannel = throw new CommandException("Atom is missing YouTube channel", 400)
   def YouTubeVideoDoesNotExist(id: String) = throw new CommandException(s"YouTube video $id does not exist", 400)
   def IncorrectYouTubeChannel = throw new CommandException(s"New video is not on the same YouTube channel", 400)
+  def NotHostedAtom = throw new CommandException(s"Third party videos can only be added to Hosted atoms", 400)
+  def GuardianVideoOnHostedAtom = throw new CommandException(s"Videos on the Guardian channels cannot be added to Hosted atoms", 400)
 
   // Add exceptions here as required
   def commandExceptionAsResult: PartialFunction[Throwable, Result] = {

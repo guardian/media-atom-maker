@@ -385,3 +385,7 @@ progress::-webkit-progress-bar {
 progress::-moz-progress-bar {
   background-color: $cWhite;
 }
+
+.form-element--hidden {
+  opacity: 0.1;
+}
