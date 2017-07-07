@@ -1,3 +1,5 @@
+import {parseComposerDataFromImage} from './parseGridMetadata';
+
 export function getComposerData(video) {
   return [
     {
@@ -42,9 +44,14 @@ export function getComposerData(video) {
       name: 'keywords',
       value: video.keywords.join('|'),
       belongsTo: 'atom'
+    },
+    {
+      name: 'trailImage',
+      value: video.trailImage ? parseComposerDataFromImage(video.trailImage, video.trailText) : null,
+      belongsTo: 'thumbnail'
     }
-  ];
-}
+  ]
+};
 
 export function getRightsPayload(video) {
   if (video.expiryDate) {

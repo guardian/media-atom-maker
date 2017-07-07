@@ -73,7 +73,7 @@ export default class VideoPreview extends React.Component {
               disabled={this.props.videoEditOpen || !this.props.video.posterImage}
               isComposerImage={true}
               posterImage={this.props.video.posterImage}
-              fieldLocation="posterImage"
+              fieldLocation="trailImage"
             />
           </div>
           <VideoPoster

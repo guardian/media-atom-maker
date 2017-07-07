@@ -9,8 +9,8 @@ export default class GridEmbedder extends React.Component {
     modalOpen: false
   };
 
-  onUpdatePosterImage = cropData => {
-    const image = parseImageFromGridCrop(cropData);
+  onUpdatePosterImage = (cropData, imageData) => {
+    const image = parseImageFromGridCrop(cropData, imageData);
 
     this.props.updateVideo(image, this.props.fieldLocation);
   };
@@ -56,7 +56,7 @@ export default class GridEmbedder extends React.Component {
     }
 
     this.closeModal();
-    this.onUpdatePosterImage(data.crop.data);
+    this.onUpdatePosterImage(data.crop.data, data.image);
   };
 
   render() {
@@ -66,10 +66,9 @@ export default class GridEmbedder extends React.Component {
     if (this.props.posterImage && this.props.isComposerImage) {
       const imageIdParts = this.props.posterImage.mediaId.split("/");
       const imageGridId = imageIdParts[imageIdParts.length - 1];
-      gridUrl = this.props.gridUrl + '/images/' + imageGridId + '/crop?type=composer';
-      //gridUrl = this.props.gridUrl;
+      gridUrl = this.props.gridUrl + '/images/' + imageGridId + '/crop?cropType=composer';
     } else {
-      gridUrl = this.props.gridUrl + '?type=video';
+      gridUrl = this.props.gridUrl + '?cropType=video';
     }
 
     return (

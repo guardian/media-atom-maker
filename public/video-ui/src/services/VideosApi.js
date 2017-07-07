@@ -121,6 +121,22 @@ export default {
     }
 
     function updateArticleField(stage, data, composerUrl, pageId) {
+
+      //if it belongs to thumbnail, then do somehting
+
+      if (data.belongsTo === 'thumbnail') {
+        if (data.value) {
+          return pandaReqwest({
+            url: `${composerUrl}/api/content/${pageId}/${stage}/thumbnail`,
+            method: 'put',
+            crossOrigin: true,
+            withCredentials: true,
+            data: data.value
+          });
+        }
+        //and what to do if no ddata??
+      }
+
       if (data.value || data.belongsTo === 'settings') {
         const value = data.isFreeText
           ? data.value.split('"').join('\\"')
