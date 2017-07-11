@@ -1,5 +1,7 @@
 package com.gu.media.util
 
+import java.time.Duration
+
 import org.joda.time.format.ISODateTimeFormat
 import play.api.libs.json._
 import org.joda.time.DateTime
@@ -15,5 +17,11 @@ object JsonDate {
         case _ => JsError("DateTime can only be extracted from a JsString")
       }
     }
+  }
+}
+
+object ISO8601Duration {
+  def toSeconds(iso8601Duration: String): Long = {
+    Duration.parse(iso8601Duration).toMillis / 1000 // seconds
   }
 }

@@ -3,11 +3,11 @@ package com.gu.media.youtube
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
-import com.google.api.services.youtube.{YouTube => YouTubeClient, YouTubeScopes}
+import com.google.api.services.youtube.{YouTubeScopes, YouTube => YouTubeClient}
 import com.google.api.services.youtubePartner.YouTubePartner
 import com.gu.media.Settings
-import scala.collection.JavaConversions._
 
+import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 
 trait YouTubeAccess extends Settings {

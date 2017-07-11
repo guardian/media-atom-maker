@@ -22,7 +22,7 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class Api2 (override val stores: DataStores, conf: Configuration, override val authActions: HMACAuthActions,
-            youTube: YouTube, youTubeClaims: YouTubeClaims, awsConfig: AWSConfig,
+            youtube: YouTube, awsConfig: AWSConfig,
             override val permissions: MediaAtomMakerPermissionsProvider, capi: Capi)
 
   extends MediaAtomImplicits
@@ -68,7 +68,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
   }
 
   def publishMediaAtom(id: String) = APIAuthAction.async { implicit req =>
-      val command = PublishAtomCommand(id, stores, youTube, youTubeClaims, req.user, capi)
+      val command = PublishAtomCommand(id, stores, youtube, req.user, capi)
 
       val updatedAtom: Future[MediaAtom] = command.process()
 
@@ -108,7 +108,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
   def addAsset(atomId: String) = APIHMACAuthAction { implicit req =>
     implicit val readCommand: Reads[AddAssetCommand] =
       (JsPath \ "uri").read[String].map { videoUri =>
-        AddAssetCommand(atomId, videoUri, stores, youTube, req.user)
+        AddAssetCommand(atomId, videoUri, stores, youtube, req.user)
       }
 
     parse(req) { command: AddAssetCommand =>
@@ -122,7 +122,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
 
   def setActiveAsset(atomId: String) = APIHMACAuthAction { implicit req =>
     parse(req) { request: ActivateAssetRequest =>
-      val command = ActiveAssetCommand(atomId, request, stores, youTube, req.user)
+      val command = ActiveAssetCommand(atomId, request, stores, youtube, req.user)
       val atom = command.process()
 
       Ok(Json.toJson(atom))
@@ -147,7 +147,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
 
   def deleteAtom(id: String) = CanDeleteAtom { implicit req =>
     try {
-      DeleteCommand(id, stores, youTube).process()
+      DeleteCommand(id, stores, youtube).process()
       Ok(s"Atom $id deleted")
     }
     catch {

@@ -8,7 +8,7 @@ import com.gu.atom.play.AtomAPIActions
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.media.Capi
 import com.gu.media.logging.Logging
-import com.gu.media.youtube.{YouTubeClaims, YouTubeMetadataUpdate}
+import com.gu.media.youtube.YouTubeMetadataUpdate
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.Platform.Youtube
@@ -22,8 +22,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-case class PublishAtomCommand(id: String, override val stores: DataStores, youTube: YouTube,
-                              youtubeClaims: YouTubeClaims, user: PandaUser, val capi: Capi)
+case class PublishAtomCommand(id: String, override val stores: DataStores, youtube: YouTube, user: PandaUser, capi: Capi)
   extends Command with AtomAPIActions with Logging {
 
   type T = Future[MediaAtom]
@@ -41,7 +40,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
 
     getActiveAsset(previewAtom) match {
       case Some(asset) if asset.platform == Youtube =>
-        val atomWithDuration = previewAtom.copy(duration = youTube.getDuration(asset.id))
+        val atomWithDuration = previewAtom.copy(duration = youtube.getDuration(asset.id))
         updateYouTube(atomWithDuration, asset).map(atomWithYoutubeUpdates => {
           publish(atomWithYoutubeUpdates, user)
         })
@@ -96,7 +95,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
 
   private def updateYouTube(previewAtom: MediaAtom, asset: Asset): Future[MediaAtom] = {
     previewAtom.channelId match {
-      case Some(channel) if youTube.allowedChannels.contains(channel) =>
+      case Some(channel) if youtube.allowedChannels.contains(channel) =>
         updateYoutubeMetadata(previewAtom, asset)
         updateYoutubeThumbnail(previewAtom, asset)
         createOrUpdateYoutubeClaim(previewAtom, asset)
@@ -122,34 +121,43 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
     previewAtom.blockAds == publishedAtom.blockAds && noNewAssets
   }
 
-  private def createOrUpdateYoutubeClaim(previewAtom: MediaAtom, asset: Asset): Future[MediaAtom] = Future{
+  private def createOrUpdateYoutubeClaim(previewAtom: MediaAtom, asset: Asset): Future[MediaAtom] = Future {
+    // if previewAtom.blockAds.isEmpty == true, we know there isn't a published atom and we can save a database call
+    if (previewAtom.blockAds.isEmpty) {
+      log.info(s"BlockAds not previously set, defaulting to false")
+      youtube.createOrUpdateClaim(
+        previewAtom.id,
+        asset.id,
+        blockAds = false
+      )
 
-    try {
-      val thriftPublishedAtom = getPublishedAtom(id)
-      val publishedAtom = MediaAtom.fromThrift(thriftPublishedAtom)
+      try {
+        val thriftPublishedAtom = getPublishedAtom(id)
+        val publishedAtom = MediaAtom.fromThrift(thriftPublishedAtom)
 
-      if (noClaimsToUpdate(previewAtom, publishedAtom)) {
-        log.info(s"No change to BlockAds field, not editing YouTube Claim")
-      } else {
-        log.info(s"BlockAds changed from ${publishedAtom.blockAds} to ${previewAtom.blockAds}. Updating YouTube Claim")
-        youtubeClaims.createOrUpdateClaim(
-          previewAtom.id,
-          asset.id,
-          previewAtom.blockAds
-        )
-      }
-      previewAtom
-
-    } catch {
-      case CommandException(_, 404) => {
-        // atom hasn't been published yet
-        log.info(s"Unable to find Published atom. Creating YouTube Claim")
-        youtubeClaims.createOrUpdateClaim(
-          previewAtom.id,
-          asset.id,
-          previewAtom.blockAds
-        )
+        if (noClaimsToUpdate(previewAtom, publishedAtom)) {
+          log.info(s"No change to BlockAds field, not editing YouTube Claim")
+        } else {
+          log.info(s"BlockAds changed from ${publishedAtom.blockAds} to ${previewAtom.blockAds}. Updating YouTube Claim")
+          youtube.createOrUpdateClaim(
+            previewAtom.id,
+            asset.id,
+            previewAtom.blockAds
+          )
+        }
         previewAtom
+
+      } catch {
+        case CommandException(_, 404) => {
+          // atom hasn't been published yet
+          log.info(s"Unable to find Published atom. Creating YouTube Claim")
+          youtube.createOrUpdateClaim(
+            previewAtom.id,
+            asset.id,
+            previewAtom.blockAds
+          )
+          previewAtom
+        }
       }
     }
   }
@@ -194,7 +202,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
       .withSaneTitle()
       .withContentBundleTags()
 
-    youTube.updateMetadata(asset.id, metadata)
+    youtube.updateMetadata(asset.id, metadata)
 
     previewAtom
   }
@@ -213,7 +221,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
       ).get
     }
 
-    youTube.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
+    youtube.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
     atom
   }
 
@@ -229,7 +237,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
 
       inactiveAssets.foreach { asset =>
         log.info(s"Marking asset=${asset.id} atom=${atom.id} as private")
-        youTube.setStatus(asset.id, status)
+        youtube.setStatus(asset.id, status)
       }
     }
   }

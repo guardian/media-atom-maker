@@ -3,14 +3,13 @@ package com.gu.media.youtube
 import com.google.api.services.youtubePartner.YouTubePartner
 import com.google.api.services.youtubePartner.model._
 import com.gu.media.logging.Logging
-import com.typesafe.config.Config
-import org.joda.time.DateTime
+
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 
 //This class contains functionality to add usage policies to published videos.
 //Videos are either tracked or monetized: https://support.google.com/youtube/answer/107383?hl=en-GB
-class YouTubeClaims(override val config: Config) extends YouTubeAccess with Logging {
+trait YouTubeClaims { this: YouTubeAccess with Logging =>
 
   private def createAsset(title: String, videoId: String, atomId: String): Asset = {
 
@@ -144,5 +143,9 @@ class YouTubeClaims(override val config: Config) extends YouTubeAccess with Logg
         throw e
       }
     }
+  }
+
+  def getAdvertisingOptions(videoId: String): VideoAdvertisingOption = {
+    partnerClient.videoAdvertisingOptions().get(videoId).execute()
   }
 }
