@@ -1,15 +1,11 @@
 package com.gu.media
 
-import java.net.URI
-
 import com.google.api.services.youtube.model.{Channel, Video, VideoCategory}
 import com.google.api.services.youtubePartner.model.VideoAdvertisingOption
-import com.gu.media.logging.Logging
 import com.gu.media.util.ISO8601Duration
-import com.typesafe.config.Config
-import org.cvogt.play.json.Jsonx
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
+
 import scala.collection.JavaConverters._
 import org.joda.time.DateTime
 import com.gu.media.util.JsonDate._
@@ -47,13 +43,18 @@ package object youtube {
     implicit val writes: Writes[YouTubeVideo] = Json.writes[YouTubeVideo]
 
     def build(video: Video): YouTubeVideo = {
+      val tags: Seq[String] = video.getSnippet.getTags match {
+        case null => List()
+        case t => t.asScala
+      }
+
       YouTubeVideo(
         id = video.getId,
         title = video.getSnippet.getTitle,
         duration = ISO8601Duration.toSeconds(video.getContentDetails.getDuration),
         publishedAt = new DateTime(video.getSnippet.getPublishedAt.toString),
         privacyStatus = video.getStatus.getPrivacyStatus,
-        tags = video.getSnippet.getTags.asScala,
+        tags = tags,
         channel = YouTubeChannel(id = video.getSnippet.getChannelId, title = video.getSnippet.getChannelTitle)
       )
     }
