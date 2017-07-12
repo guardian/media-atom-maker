@@ -12,10 +12,6 @@ import com.gu.media.util.JsonDate._
 
 package object youtube {
   case class YouTubeVideoCategory(id: Int, title: String)
-  case class YouTubeChannel(id: String, title: String)
-  case class YouTubeVideo(id: String, title: String, duration: Long, publishedAt: DateTime, privacyStatus: String, tags: Seq[String], channel: YouTubeChannel)
-  case class YouTubeAdvertising(id: String, adFormats: Seq[YouTubeAdFormat], adBreaks: Seq[String])
-  case class YouTubeVideoCommercialInfo (video: YouTubeVideo, advertising: YouTubeAdvertising)
 
   object YouTubeVideoCategory {
     implicit val reads: Reads[YouTubeVideoCategory] = Json.reads[YouTubeVideoCategory]
@@ -62,6 +58,8 @@ package object youtube {
     }
   }
 
+  case class YouTubeChannel(id: String, title: String)
+
   object YouTubeChannel {
     implicit val reads: Reads[YouTubeChannel] = Json.reads[YouTubeChannel]
     implicit val writes: Writes[YouTubeChannel] = Json.writes[YouTubeChannel]
@@ -73,6 +71,17 @@ package object youtube {
       )
     }
   }
+
+  case class YouTubeVideo (
+     id: String,
+     title: String,
+     duration: Long,
+     publishedAt: DateTime,
+     privacyStatus: String,
+     tags: Seq[String],
+     contentBundleTags: Seq[String],
+     channel: YouTubeChannel
+  )
 
   object YouTubeVideo {
     implicit val reads: Reads[YouTubeVideo] = Json.reads[YouTubeVideo]
@@ -91,10 +100,13 @@ package object youtube {
         publishedAt = new DateTime(video.getSnippet.getPublishedAt.toString),
         privacyStatus = video.getStatus.getPrivacyStatus,
         tags = tags,
+        contentBundleTags = tags.filter(t => t.startsWith("gdnpfp")),
         channel = YouTubeChannel(id = video.getSnippet.getChannelId, title = video.getSnippet.getChannelTitle)
       )
     }
   }
+
+  case class YouTubeAdvertising(id: String, adFormats: Seq[YouTubeAdFormat], adBreaks: Seq[String])
 
   object YouTubeAdvertising {
     implicit val reads: Reads[YouTubeAdvertising] = Json.reads[YouTubeAdvertising]
@@ -108,6 +120,8 @@ package object youtube {
       )
     }
   }
+
+  case class YouTubeVideoCommercialInfo (video: YouTubeVideo, advertising: YouTubeAdvertising)
 
   object YouTubeVideoCommercialInfo {
     implicit val reads: Reads[YouTubeVideoCommercialInfo] = Json.reads[YouTubeVideoCommercialInfo]
