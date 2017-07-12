@@ -21,43 +21,7 @@ package object youtube {
       YouTubeVideoCategory(category.getId.toInt, category.getSnippet.getTitle)
     }
   }
-
-  case class YouTubeAdFormat(format: String, description: String)
-
-  object YouTubeAdFormat {
-    implicit val reads: Reads[YouTubeAdFormat] = Json.reads[YouTubeAdFormat]
-    implicit val writes: Writes[YouTubeAdFormat] = Json.writes[YouTubeAdFormat]
-
-    def build(format: String): YouTubeAdFormat = {
-      // definitions lifted from https://developers.google.com/youtube/partner/docs/v1/videoAdvertisingOptions#adFormats[]
-      val description = format match {
-        case "display"              => """Appears to the right of the feature video and above the video suggestions list
-                                      |on www.youtube.com. Not shown on O&O platforms."""
-        case "long"                 => """Long video ads which would be enabled to run for videos that can show standard
-                                      |in-stream ads. Requires standard_instream ads to be enabled."""
-        case "overlay"              => """An ad that is displayed in the video player during video playback.
-                                      |Overlay settings also govern YouTube's ability to display ads in a
-                                      |companion ad slot on the page."""
-        case "product_listing"      => """Ads that feature products related to or featured in the video content.
-                                      |These ads are sponsored cards that display during the video.
-                                      |The cards are added automatically by the ad system.
-                                      |Viewers see a teaser for the card for a few seconds and can also click the icon
-                                      |in the top right corner of the video to browse the video's cards."""
-        case "standard_instream"    => """Non-skippable video ads that play before during, or after the video content.
-                                      |While playing, in-stream ads are the only content displayed in the player."""
-        case "third_party"          => "Advertisements are served by a third-party ad server."
-        case "trueview_inslate"     => """The user has an option to choose one of several ads to run.
-                                      |Requires standard_instream ads to be enabled."""
-        case "trueview_instream"    => """Skippable video ads that run before video playback begins.
-                                      |Advertisers are charged only when a viewer has watched the ad for an agreed
-                                      |length of time or until it ends whichever comes first."""
-        case _                      => "Unknown... Make. It. Rain."
-      }
-
-      YouTubeAdFormat(format = format, description = description.stripMargin.replaceAll("\n", " "))
-    }
-  }
-
+  
   case class YouTubeChannel(id: String, title: String)
 
   object YouTubeChannel {
@@ -106,7 +70,7 @@ package object youtube {
     }
   }
 
-  case class YouTubeAdvertising(id: String, adFormats: Seq[YouTubeAdFormat], adBreaks: Seq[String])
+  case class YouTubeAdvertising(id: String, adFormats: Seq[String], adBreaks: Seq[String])
 
   object YouTubeAdvertising {
     implicit val reads: Reads[YouTubeAdvertising] = Json.reads[YouTubeAdvertising]
@@ -115,8 +79,8 @@ package object youtube {
     def build(videoAdvertisingOption: VideoAdvertisingOption): YouTubeAdvertising = {
       YouTubeAdvertising(
         id = videoAdvertisingOption.getId,
-        adFormats = videoAdvertisingOption.getAdFormats.asScala.toList.map(YouTubeAdFormat.build),
-        adBreaks = videoAdvertisingOption.getAdBreaks.asScala.toList.map(_.getPosition)
+        adFormats = videoAdvertisingOption.getAdFormats.asScala,
+        adBreaks = videoAdvertisingOption.getAdBreaks.asScala.map(_.getPosition)
       )
     }
   }
