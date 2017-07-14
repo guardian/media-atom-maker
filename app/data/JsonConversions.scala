@@ -145,7 +145,7 @@ object JsonConversions {
 
   implicit val flagsWrites = {flags: Flags =>
     (__ \ "legallySensitive").writeNullable[Boolean] and
-      (__ \ "blockAds").writeNullable[Boolean] and
+      (__ \ "blockAds").write[Boolean] and
       (__ \ "sensitive").writeNullable[Boolean]
 
   }
