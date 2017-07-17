@@ -8,5 +8,10 @@ export const blankVideoData = {
   privacyStatus: 'Unlisted',
   assets: [],
   trailText: '',
-  tags: []
+  tags: [],
+  byline: [],
+  keywords: [],
+  commentsEnabled: false,
+  commissioningDesks: [],
+  blockAds: false
 };

@@ -11,7 +11,7 @@ import _root_.util.{ActivateAssetRequest, YouTube}
 import data.DataStores
 import model.commands.CommandExceptions._
 import model.commands._
-import model.{MediaAtom, WorkflowMediaAtom}
+import model.{MediaAtom, WorkflowMediaAtom, MediaAtomBeforeCreation}
 import play.api.Configuration
 import util.{AWSConfig, CORSable}
 import util.atom.MediaAtomImplicits
@@ -78,7 +78,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
   }
 
   def createMediaAtom = APIAuthAction { implicit req =>
-    parse(req) { data: CreateAtomCommandData =>
+    parse(req) { data: MediaAtomBeforeCreation =>
       val command = CreateAtomCommand(data, stores, req.user)
       val atom = command.process()
 

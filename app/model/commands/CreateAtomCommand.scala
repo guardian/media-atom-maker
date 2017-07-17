@@ -10,31 +10,13 @@ import com.gu.media.logging.Logging
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
-import model.{ChangeRecord, Image, MediaAtom, PrivacyStatus}
+import model.{ChangeRecord, Image, MediaAtom, PrivacyStatus, MediaAtomBeforeCreation, ContentChangeDetails}
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
 
 import scala.util.{Failure, Success}
 
-// Since the data store and publisher are injected rather than being objects we cannot serialize JSON directly into a
-// command so we'll use a small POD for easy JSONification
-case class CreateAtomCommandData(
-  title: String,
-  category: String, //TODO use Category model for stronger typing
-  posterImage: Option[Image],
-  duration: Long,
-  youtubeCategoryId: Option[String],
-  channelId: Option[String],
-  expiryDate: Option[Long],
-  description: Option[String],
-  privacyStatus: Option[PrivacyStatus]
-)
-
-object CreateAtomCommandData {
-  implicit val createAtomCommandFormat: Format[CreateAtomCommandData] = Jsonx.formatCaseClass[CreateAtomCommandData]
-}
-
-case class CreateAtomCommand(data: CreateAtomCommandData, override val stores: DataStores, user: PandaUser)
+case class CreateAtomCommand(data: MediaAtomBeforeCreation, override val stores: DataStores, user: PandaUser)
 
   extends Command with Logging {
 
@@ -42,39 +24,18 @@ case class CreateAtomCommand(data: CreateAtomCommandData, override val stores: D
 
   def process() = {
     val atomId = randomUUID().toString
+    val createdChangeRecord = Some(ChangeRecord.now(user))
+
+    val details = ContentChangeDetails(
+      lastModified = createdChangeRecord,
+      created = createdChangeRecord,
+      published = None,
+      revision = 1L
+    )
+
     log.info(s"Request to create new atom $atomId [${data.title}]")
 
-    val createdChangeRecord = Some(ChangeRecord.now(user).asThrift)
-
-    val atom = ThriftAtom(
-      id = atomId,
-      atomType = AtomType.Media,
-      labels = Nil,
-      defaultHtml = "<div></div>", // No content set so empty div
-      data = AtomData.Media(ThriftMediaAtom(
-        title = data.title,
-        assets = Nil,
-        activeVersion = None,
-        category = ThriftCategory.valueOf(data.category).get,
-        plutoProjectId = None,
-        source = None,
-        posterImage= data.posterImage.map(data => data.asThrift),
-        duration = Some(data.duration),
-        description = data.description,
-        metadata = Some(ThriftMetadata(
-          categoryId = data.youtubeCategoryId,
-          channelId = data.channelId,
-          expiryDate = data.expiryDate,
-          privacyStatus = data.privacyStatus.flatMap(_.asThrift)
-        ))
-      )),
-      contentChangeDetails = ContentChangeDetails(
-        lastModified = createdChangeRecord,
-        created = createdChangeRecord,
-        published = None,
-        revision = 1L
-      )
-    )
+    val atom = data.asThrift(atomId, details)
 
     auditDataStore.auditCreate(atom.id, getUsername(user))
 
