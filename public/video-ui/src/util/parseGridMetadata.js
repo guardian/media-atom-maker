@@ -11,8 +11,6 @@ function parseMimeType(mimeType) {
 }
 
 function parseAsset(asset, aspectRatio) {
-  console.log('parsing asset with ratio ', aspectRatio);
-  console.log('asset is ', asset);
   return {
     file: asset.secureUrl,
     mimeType: parseMimeType(asset.mimeType),
@@ -26,9 +24,7 @@ function parseAsset(asset, aspectRatio) {
 };
 
 export function parseImageFromGridCrop(cropData, imageData) {
-  console.log('**** parsing image from grid crop ****');
   const aspectRatio = cropData.specification.aspectRatio;
-  console.log('aspect ratio ', aspectRatio);
   return {
     assets: cropData.assets.map((asset) => parseAsset(asset, aspectRatio)),
     master: parseAsset(cropData.master, aspectRatio),
@@ -38,8 +34,6 @@ export function parseImageFromGridCrop(cropData, imageData) {
 }
 
 export function parseComposerDataFromImage(image, trail) {
-  console.log('parse data from image');
-  console.log('image ', image);
 
   const urlParts = image.mediaId.split('/');
   const mediaId = urlParts[urlParts.length - 1];
@@ -63,14 +57,17 @@ export function parseComposerDataFromImage(image, trail) {
     return composerAsset;
   }
 
-  console.log('trail is ', trail.innerHtml);
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = trail;
+  const alt = tempDiv.innerText;
+
   return {
     assets: [ getComposerMasterAsset(image.master) ]
     .concat(
       image.assets.map(getComposerAsset)
     ),
     fields: {
-      alt: trail ? trail.innerHtml : null,
+      alt: alt,
       imageType: 'Photograph',
       isMandatory: true,
       mediaApiUrl: image.mediaId,
