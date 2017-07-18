@@ -194,7 +194,7 @@ export default {
       '/api/content?atomPoweredVideo=true&originatingSystem=MediaAtomMaker&type=video';
 
     const properties = composerData.reduce((queryStrings, data) => {
-      if (data.value) {
+      if (data.value && data.belongsTo !== 'thumbnail') {
         const value = data.isFreeText
           ? data.value.split('"').join('\\"')
           : data.value;
@@ -216,11 +216,15 @@ export default {
       composerUrl += '&initialExpiry=' + video.expiryDate;
     }
 
+    const imageData = composerData.find(data => data.name === 'trailImage');
+    const payload = imageData.value ? {thumbnail: imageData.value} : null;
+
     return pandaReqwest({
       url: composerUrl,
       method: 'post',
       crossOrigin: true,
-      withCredentials: true
+      withCredentials: true,
+      data: payload
     });
   },
 

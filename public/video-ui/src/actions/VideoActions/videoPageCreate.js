@@ -17,7 +17,6 @@ function receiveVideoPageCreate(capiPage) {
 }
 
 function errorReceivingVideoPageCreate(error) {
-  console.log('got error ', error);
   return {
     type: 'SHOW_ERROR',
     message: 'Could not create a video page',
