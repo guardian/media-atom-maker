@@ -122,8 +122,6 @@ export default {
 
     function updateArticleField(stage, data, composerUrl, pageId) {
 
-      //if it belongs to thumbnail, then do somehting
-
       if (data.belongsTo === 'thumbnail') {
         if (data.value) {
           return pandaReqwest({
@@ -133,8 +131,14 @@ export default {
             withCredentials: true,
             data: data.value
           });
+        } else {
+          return pandaReqwest({
+            url: `${composerUrl}/api/content/${pageId}/${stage}/thumbnail`,
+            method: 'delete',
+            crossOrigin: true,
+            withCredentials: true,
+          });
         }
-        //and what to do if no ddata??
       }
 
       if (data.value || data.belongsTo === 'settings') {
