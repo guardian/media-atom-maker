@@ -5,8 +5,8 @@ import ScribeEditorField from '../FormFields/ScribeEditor';
 import SelectBox from '../FormFields/SelectBox';
 import CheckBox from '../FormFields/CheckBox';
 import DatePicker from '../FormFields/DatePicker';
-import KeywordPicker from '../FormFields/KeywordPicker';
-import ComposerTagPicker from '../FormFields/ComposerTagPicker';
+import TagPicker from '../FormFields/TagPicker';
+import TagTypes from '../../constants/TagTypes';
 import { fieldLengths } from '../../constants/videoEditValidation';
 import { videoCategories } from '../../constants/videoCategories';
 import { privacyStates } from '../../constants/privacyStates';
@@ -85,28 +85,28 @@ class VideoData extends React.Component {
               fieldLocation="byline"
               name="Byline"
               formRowClass="form__row__byline"
-              tagType="contributor"
+              tagType={TagTypes.contributor}
             >
-              <ComposerTagPicker />
+              <TagPicker />
             </ManagedField>
             <ManagedField
               fieldLocation="commissioningDesks"
               name="Comissioning Desks"
               formRowClass="form__row__byline"
-              tagType="tracking"
+              tagType={TagTypes.tracking}
               inputPlaceholder="Search commissioning info (type '*' to show all)"
             >
-              <ComposerTagPicker disableTextInput />
+              <TagPicker disableTextInput />
             </ManagedField>
 
             <ManagedField
               fieldLocation="keywords"
               name="Composer Keywords"
               formRowClass="form__row__byline"
-              tagType="keyword"
+              tagType={TagTypes.keyword}
               inputPlaceholder="Search keywords (type '*' to show all)"
             >
-              <ComposerTagPicker disableTextInput />
+              <TagPicker disableTextInput />
             </ManagedField>
             <ManagedField fieldLocation="source" name="Video Source">
               <TextInput />
@@ -155,9 +155,11 @@ class VideoData extends React.Component {
             <ManagedField
               fieldLocation="tags"
               name="YouTube Keywords"
+              placeholder="No keywords"
+              tagType={TagTypes.youtube}
               disabled={notOnManagedChannel}
             >
-              <KeywordPicker />
+              <TagPicker disableCapiTags />
             </ManagedField>
           </ManagedSection>
         </ManagedForm>

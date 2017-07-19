@@ -4,10 +4,11 @@ import { tagsFromStringList, tagsToStringList } from '../../util/tagParsers';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 import { keyCodes } from '../../constants/keyCodes';
 import UserActions from '../../constants/UserActions';
+import TagTypes from '../../constants/TagTypes';
 
-export default class ComposerTagPicker extends React.Component {
+export default class TagPicker extends React.Component {
   state = {
-    addedTags: [],
+    capiTags: [],
     inputString: '',
     lastAction: UserActions.other,
     tagValue: [],
@@ -34,7 +35,7 @@ export default class ComposerTagPicker extends React.Component {
 
   parseTags = results => {
     return results.map(result => {
-      if (this.props.tagType === 'keyword') {
+      if (this.props.tagType === TagTypes.keyword) {
         let detailedTitle;
 
         //Some webtitles on keyword tags are too unspecific and we need to add
@@ -62,19 +63,23 @@ export default class ComposerTagPicker extends React.Component {
     this.props.onUpdateField(tagsToStringList(newValue));
   };
 
-  updateInput = e => {
-    const onlyWhitespace = !/\S/.test(this.state.inputString);
-    if (this.state.lastAction === UserActions.space && !onlyWhitespace) {
-      const newFieldValue = this.state.tagValue.concat([
-        this.state.inputString
-      ]);
-      this.onUpdate(newFieldValue);
-      this.setState({
-        inputString: ''
-      });
+  getYoutubeInputValue = () => {
+    if (
+      this.state.tagValue.every(value => {
+        return value.id !== this.state.inputString;
+      })
+    ) {
+      return {
+        id: this.state.inputString,
+        webTitle: this.state.inputString
+      };
+    }
+    return [];
+  };
 
+  updateInput = e => {
       // If the user did not add new text input, we update the tag search
-    } else if (this.state.lastAction === UserActions.delete) {
+    if (this.state.lastAction === UserActions.delete) {
       const length = this.state.tagValue.length;
       const lastInput = this.state.tagValue[length - 1];
 
@@ -93,29 +98,42 @@ export default class ComposerTagPicker extends React.Component {
         inputString: e.target.value
       });
 
-      const searchText = e.target.value;
+      if (!this.props.disableCapiTags) {
+        const searchText = e.target.value;
 
-      ContentApi.getTagsByType(searchText, this.props.tagType)
-        .then(capiResponse => {
-          const tags = this.parseTags(capiResponse.response.results);
-          this.setState({
-            addedTags: tags
+        ContentApi.getTagsByType(searchText, this.props.tagType)
+          .then(capiResponse => {
+            const tags = this.parseTags(capiResponse.response.results);
+            this.setState({
+              capiTags: tags
+            });
+          })
+          .catch(() => {
+            this.setState({
+              capiTags: [],
+              capiUnavailable: true
+            });
           });
-        })
-        .catch(() => {
-          this.setState({
-            addedTags: [],
-            capiUnavailable: true
-          });
-        });
+      }
     }
   };
 
   processTagInput = e => {
-    if (e.keyCode === keyCodes.space) {
-      this.setState({
-        lastAction: UserActions.space
-      });
+    if (e.keyCode === keyCodes.enter) {
+      const onlyWhitespace = !/\S/.test(this.state.inputString);
+      if (!onlyWhitespace) {
+
+        const newInput = this.props.tagType === TagTypes.youtube ? this.getYoutubeInputValue() : this.state.inputString;
+
+        const newFieldValue = this.state.tagValue.concat([newInput]);
+
+        this.onUpdate(newFieldValue);
+        this.setState({
+          inputString: '',
+          capiTags: []
+        });
+      }
+
     } else if (e.keyCode === keyCodes.backspace) {
       if (this.state.inputString.length === 0) {
         const lastInput = this.state.tagValue[this.state.tagValue.length - 1];
@@ -166,7 +184,7 @@ export default class ComposerTagPicker extends React.Component {
 
       this.onUpdate(newFieldValue);
       this.setState({
-        addedTags: []
+        capiTags: []
       });
     };
 
@@ -271,10 +289,10 @@ export default class ComposerTagPicker extends React.Component {
   }
 
   renderBylineInstructions() {
-    if (this.props.tagType === 'contributor') {
+    if (this.props.tagType === TagTypes.contributor) {
       return (
         <span className="form__field__instructions">
-          Press space to add byline as text
+          Press enter to add byline as text
         </span>
       );
     }
@@ -328,9 +346,9 @@ export default class ComposerTagPicker extends React.Component {
 
         </div>
 
-        {this.state.addedTags.length !== 0
+        {this.state.capiTags.length !== 0
           ? <div className="form__field__tags">
-              {this.state.addedTags.map(tag => this.renderTags(tag))}
+              {this.state.capiTags.map(tag => this.renderTags(tag))}
             </div>
           : ''}
 
