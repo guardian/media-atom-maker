@@ -21,7 +21,7 @@ package object youtube {
       YouTubeVideoCategory(category.getId.toInt, category.getSnippet.getTitle)
     }
   }
-  
+
   case class YouTubeChannel(id: String, title: String)
 
   object YouTubeChannel {
@@ -36,7 +36,7 @@ package object youtube {
     }
   }
 
-  case class YouTubeVideo (
+  case class YouTubeVideoDetail(
      id: String,
      title: String,
      duration: Long,
@@ -47,17 +47,17 @@ package object youtube {
      channel: YouTubeChannel
   )
 
-  object YouTubeVideo {
-    implicit val reads: Reads[YouTubeVideo] = Json.reads[YouTubeVideo]
-    implicit val writes: Writes[YouTubeVideo] = Json.writes[YouTubeVideo]
+  object YouTubeVideoDetail {
+    implicit val reads: Reads[YouTubeVideoDetail] = Json.reads[YouTubeVideoDetail]
+    implicit val writes: Writes[YouTubeVideoDetail] = Json.writes[YouTubeVideoDetail]
 
-    def build(video: Video): YouTubeVideo = {
+    def build(video: Video): YouTubeVideoDetail = {
       val tags: Seq[String] = video.getSnippet.getTags match {
         case null => List()
         case t => t.asScala
       }
 
-      YouTubeVideo(
+      YouTubeVideoDetail(
         id = video.getId,
         title = video.getSnippet.getTitle,
         duration = ISO8601Duration.toSeconds(video.getContentDetails.getDuration),
@@ -85,7 +85,7 @@ package object youtube {
     }
   }
 
-  case class YouTubeVideoCommercialInfo (video: YouTubeVideo, advertising: YouTubeAdvertising)
+  case class YouTubeVideoCommercialInfo (video: YouTubeVideoDetail, advertising: YouTubeAdvertising)
 
   object YouTubeVideoCommercialInfo {
     implicit val reads: Reads[YouTubeVideoCommercialInfo] = Json.reads[YouTubeVideoCommercialInfo]
@@ -93,7 +93,7 @@ package object youtube {
 
     def build(video: Video, videoAdvertisingOption: VideoAdvertisingOption): YouTubeVideoCommercialInfo = {
       YouTubeVideoCommercialInfo (
-        video = YouTubeVideo.build(video),
+        video = YouTubeVideoDetail.build(video),
         advertising = YouTubeAdvertising.build(videoAdvertisingOption)
       )
     }
