@@ -1,19 +1,17 @@
 package com.gu.media
 
-import java.net.URI
-
-import com.google.api.services.youtube.model.{Channel, VideoCategory}
-import com.gu.media.logging.Logging
-import com.typesafe.config.Config
-import org.cvogt.play.json.Jsonx
+import com.google.api.services.youtube.model.{Channel, Video, VideoCategory}
+import com.google.api.services.youtubePartner.model.VideoAdvertisingOption
+import com.gu.media.util.ISO8601Duration
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-import scala.collection.mutable.ListBuffer
+import scala.collection.JavaConverters._
+import org.joda.time.DateTime
+import com.gu.media.util.JsonDate._
 
 package object youtube {
   case class YouTubeVideoCategory(id: Int, title: String)
-  case class YouTubeChannel(title: String, logo: URI, id: String)
 
   object YouTubeVideoCategory {
     implicit val reads: Reads[YouTubeVideoCategory] = Json.reads[YouTubeVideoCategory]
@@ -24,25 +22,79 @@ package object youtube {
     }
   }
 
-  object YouTubeChannel {
-    implicit val reads: Reads[YouTubeChannel] = (
-      (__ \ "title").read[String] ~
-        (__ \ "logo").read[String].map(URI.create) ~
-        (__ \ "id").read[String]
-      )(YouTubeChannel.apply _)
+  case class YouTubeChannel(id: String, title: String)
 
-    implicit val writes: Writes[YouTubeChannel] = (
-      (__ \ "title").write[String] ~
-        (__ \ "logo").write[String].contramap((_: URI).toString) ~
-        (__ \ "id").write[String]
-      )(unlift(YouTubeChannel.unapply))
+  object YouTubeChannel {
+    implicit val reads: Reads[YouTubeChannel] = Json.reads[YouTubeChannel]
+    implicit val writes: Writes[YouTubeChannel] = Json.writes[YouTubeChannel]
 
     def build(channel: Channel): YouTubeChannel = {
-
       YouTubeChannel(
-        title = channel.getSnippet().getTitle(),
-        logo = URI.create(channel.getSnippet().getThumbnails().getDefault().getUrl()),
-        id = channel.getId
+        id = channel.getId,
+        title = channel.getSnippet.getTitle
+      )
+    }
+  }
+
+  case class YouTubeVideoDetail(
+     id: String,
+     title: String,
+     duration: Long,
+     publishedAt: DateTime,
+     privacyStatus: String,
+     tags: Seq[String],
+     contentBundleTags: Seq[String],
+     channel: YouTubeChannel
+  )
+
+  object YouTubeVideoDetail {
+    implicit val reads: Reads[YouTubeVideoDetail] = Json.reads[YouTubeVideoDetail]
+    implicit val writes: Writes[YouTubeVideoDetail] = Json.writes[YouTubeVideoDetail]
+
+    def build(video: Video): YouTubeVideoDetail = {
+      val tags: Seq[String] = video.getSnippet.getTags match {
+        case null => List()
+        case t => t.asScala
+      }
+
+      YouTubeVideoDetail(
+        id = video.getId,
+        title = video.getSnippet.getTitle,
+        duration = ISO8601Duration.toSeconds(video.getContentDetails.getDuration),
+        publishedAt = new DateTime(video.getSnippet.getPublishedAt.toString),
+        privacyStatus = video.getStatus.getPrivacyStatus,
+        tags = tags,
+        contentBundleTags = tags.filter(t => t.startsWith("gdnpfp")),
+        channel = YouTubeChannel(id = video.getSnippet.getChannelId, title = video.getSnippet.getChannelTitle)
+      )
+    }
+  }
+
+  case class YouTubeAdvertising(id: String, adFormats: Seq[String], adBreaks: Seq[String])
+
+  object YouTubeAdvertising {
+    implicit val reads: Reads[YouTubeAdvertising] = Json.reads[YouTubeAdvertising]
+    implicit val writes: Writes[YouTubeAdvertising] = Json.writes[YouTubeAdvertising]
+
+    def build(videoAdvertisingOption: VideoAdvertisingOption): YouTubeAdvertising = {
+      YouTubeAdvertising(
+        id = videoAdvertisingOption.getId,
+        adFormats = videoAdvertisingOption.getAdFormats.asScala,
+        adBreaks = videoAdvertisingOption.getAdBreaks.asScala.map(_.getPosition)
+      )
+    }
+  }
+
+  case class YouTubeVideoCommercialInfo (video: YouTubeVideoDetail, advertising: YouTubeAdvertising)
+
+  object YouTubeVideoCommercialInfo {
+    implicit val reads: Reads[YouTubeVideoCommercialInfo] = Json.reads[YouTubeVideoCommercialInfo]
+    implicit val writes: Writes[YouTubeVideoCommercialInfo] = Json.writes[YouTubeVideoCommercialInfo]
+
+    def build(video: Video, videoAdvertisingOption: VideoAdvertisingOption): YouTubeVideoCommercialInfo = {
+      YouTubeVideoCommercialInfo (
+        video = YouTubeVideoDetail.build(video),
+        advertising = YouTubeAdvertising.build(videoAdvertisingOption)
       )
     }
   }

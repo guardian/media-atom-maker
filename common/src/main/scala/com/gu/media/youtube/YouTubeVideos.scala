@@ -2,11 +2,11 @@ package com.gu.media.youtube
 
 import java.io.BufferedInputStream
 import java.net.URL
-import java.time.Duration
 
 import com.google.api.client.http.InputStreamContent
 import com.google.api.services.youtube.model.{Video, VideoProcessingDetails, VideoSnippet}
 import com.gu.media.logging.Logging
+import com.gu.media.util.ISO8601Duration
 
 import scala.collection.JavaConverters._
 
@@ -39,8 +39,7 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
         // YouTube API returns duration is in ISO 8601 format
         // https://developers.google.com/youtube/v3/docs/videos#contentDetails.duration
         val iso8601Duration = video.getContentDetails.getDuration
-
-        Some(Duration.parse(iso8601Duration).toMillis / 1000) // seconds
+        Some(ISO8601Duration.toSeconds(iso8601Duration))
       }
       case None => None
     }

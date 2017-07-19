@@ -46,14 +46,12 @@ class MediaAtomMaker(context: Context)
 
   private val youTube = YouTube(config, defaultCacheApi, 1.hour)
 
-  private val youTubeClaims = new YouTubeClaims(config)
-
   private val uploaderMessageConsumer = PlutoMessageConsumer(stores, aws)
   uploaderMessageConsumer.start(actorSystem.scheduler)(actorSystem.dispatcher)
 
   private val api = new Api(stores, configuration, aws, hmacAuthActions, permissions)
 
-  private val api2 = new Api2(stores, configuration, hmacAuthActions, youTube, youTubeClaims, aws, permissions, capi)
+  private val api2 = new Api2(stores, configuration, hmacAuthActions, youTube, aws, permissions, capi)
 
   private val stepFunctions = new StepFunctions(aws)
   private val uploads = new UploadController(hmacAuthActions, aws, stepFunctions, stores, permissions, youTube)

@@ -52,6 +52,10 @@ object YouTubeError extends Logging {
         case (403, Some("usageLimits")) =>
           Some((noAlerts(e), false))
 
+        case (400, Some("youtubePartner.videoAdvertisingOptions.get")) => {
+          Some((noAlerts(e), false))
+        }
+
         case (code, _) =>
           val message = Option(e.getDetails.getMessage).getOrElse("unknown")
 

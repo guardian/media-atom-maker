@@ -4,6 +4,7 @@ import com.gu.pandahmac.HMACAuthActions
 import play.api.libs.json.Json
 import play.api.mvc.Controller
 import util.YouTube
+import model.commands.CommandExceptions._
 
 class Youtube (val authActions: HMACAuthActions, youTube: YouTube) extends Controller {
   import authActions.AuthAction
@@ -19,5 +20,13 @@ class Youtube (val authActions: HMACAuthActions, youTube: YouTube) extends Contr
     }
 
     Ok(Json.toJson(channels))
+  }
+
+  def commercialVideoInfo(id: String) = AuthAction {
+    try {
+      Ok(Json.toJson(youTube.getCommercialVideoInfo(id)))
+    } catch {
+      commandExceptionAsResult
+    }
   }
 }
