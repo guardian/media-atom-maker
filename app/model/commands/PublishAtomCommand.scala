@@ -119,48 +119,37 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youTu
         publishedVersion == previewVersion
       }
     }
-    previewAtom.blockAds.get == publishedAtom.blockAds.getOrElse(false) && noNewAssets
+    previewAtom.blockAds == publishedAtom.blockAds && noNewAssets
   }
 
   private def createOrUpdateYoutubeClaim(previewAtom: MediaAtom, asset: Asset): Future[MediaAtom] = Future{
-    // if previewAtom.blockAds.isEmpty == true, we know there isn't a published atom and we can save a database call
-    if (previewAtom.blockAds.isEmpty) {
-      log.info(s"BlockAds not previously set, defaulting to false")
-      youtubeClaims.createOrUpdateClaim(
-        previewAtom.id,
-        asset.id,
-        blockAds = false
-      )
 
-      previewAtom.copy(blockAds = Some(false))
-    }
-    else {
-      try {
-        val thriftPublishedAtom = getPublishedAtom(id)
-        val publishedAtom = MediaAtom.fromThrift(thriftPublishedAtom)
+    try {
+      val thriftPublishedAtom = getPublishedAtom(id)
+      val publishedAtom = MediaAtom.fromThrift(thriftPublishedAtom)
 
-        if (noClaimsToUpdate(previewAtom, publishedAtom)) {
-          log.info(s"No change to BlockAds field, not editing YouTube Claim")
-        } else {
-          log.info(s"BlockAds changed from ${publishedAtom.blockAds.getOrElse(false)} to ${previewAtom.blockAds.get}. Updating YouTube Claim")
-          youtubeClaims.createOrUpdateClaim(
-            previewAtom.id,
-            asset.id,
-            previewAtom.blockAds.get
-          )
-        }
+      if (noClaimsToUpdate(previewAtom, publishedAtom)) {
+        log.info(s"No change to BlockAds field, not editing YouTube Claim")
+      } else {
+        log.info(s"BlockAds changed from ${publishedAtom.blockAds} to ${previewAtom.blockAds}. Updating YouTube Claim")
+        youtubeClaims.createOrUpdateClaim(
+          previewAtom.id,
+          asset.id,
+          previewAtom.blockAds
+        )
+      }
+      previewAtom
+
+    } catch {
+      case CommandException(_, 404) => {
+        // atom hasn't been published yet
+        log.info(s"Unable to find Published atom. Creating YouTube Claim")
+        youtubeClaims.createOrUpdateClaim(
+          previewAtom.id,
+          asset.id,
+          previewAtom.blockAds
+        )
         previewAtom
-      } catch {
-        case CommandException(_, 404) => {
-          // atom hasn't been published yet
-          log.info(s"Unable to find Published atom. Creating YouTube Claim")
-          youtubeClaims.createOrUpdateClaim(
-            previewAtom.id,
-            asset.id,
-            previewAtom.blockAds.get
-          )
-          previewAtom
-        }
       }
     }
   }
