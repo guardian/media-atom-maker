@@ -24,7 +24,7 @@ export default class VideoPreview extends React.Component {
     }
 
     if (active.length === 1 && active[0].platform === 'Youtube') {
-      return <YouTubeEmbed id={active[0].id} className="baseline-margin" />;
+      return <YouTubeEmbed id={active[0].id} className="video__preview__player" />;
     }
 
     const sources = active.map(asset => {
@@ -37,7 +37,9 @@ export default class VideoPreview extends React.Component {
   render() {
     return (
       <div className="video-preview">
+      <div className="video__preview__container">
         {this.renderPreview()}
+      </div>
         <div className="video__detailbox">
           <div className="video__detailbox__header__container">
             <header className="video__detailbox__header">
