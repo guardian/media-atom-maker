@@ -5,6 +5,7 @@ import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 import { keyCodes } from '../../constants/keyCodes';
 import UserActions from '../../constants/UserActions';
 import TagTypes from '../../constants/TagTypes';
+import DragSortableList from 'react-drag-sortable';
 
 export default class TagPicker extends React.Component {
   state = {
@@ -107,6 +108,14 @@ export default class TagPicker extends React.Component {
             this.setState({
               capiTags: tags
             });
+
+            // Because the keyword tag input field is inside
+            // a component that makes the keywords sortable,
+            // we need to refocus to the input field to keep
+            // typing.
+            if (this.props.tagType === TagTypes.keyword) {
+              this.refs.keywordInput.focus()
+            }
           })
           .catch(() => {
             this.setState({
@@ -264,6 +273,7 @@ export default class TagPicker extends React.Component {
                   : '')
             }
             id={this.props.fieldName}
+            ref={this.props.tagType + 'Input'}
             onChange={this.updateInput}
             value={this.state.inputString}
             placeholder={getInputPlaceholder()}
@@ -298,6 +308,74 @@ export default class TagPicker extends React.Component {
     }
   }
 
+  onSort = (sortedList) => {
+
+    const newTagValues = sortedList.reduce((newTagValues, sortedValue) => {
+
+      //For each component in the list of dragged elements,
+      //we have to extract the name of the tag it represents.
+      const child = sortedValue.content.props.children[0];
+
+      const tagTitle = typeof child === 'string' ? child : child.props.children[0];
+
+      const tagValue = this.state.tagValue.find(value => value.webTitle === tagTitle);
+
+      newTagValues.push(tagValue);
+      return newTagValues;
+    }, []);
+
+    this.onUpdate(newTagValues);
+  }
+
+  renderInputElements() {
+
+    const valueLength = this.state.tagValue.length;
+    const lastElement = !valueLength || valueLength === 0
+      ? null
+      : this.state.tagValue[valueLength - 1];
+
+    if (this.props.tagType !== TagTypes.keyword) {
+      return (
+        <div className="form__field__tag--selector">
+          {valueLength
+            ? this.state.tagValue.map((value, i) => {
+                if (i < valueLength - 1) {
+                  return this.renderValue(value, i);
+                }
+              })
+            : ''}
+
+          {this.renderTextInputElement(lastElement)}
+
+        </div>
+
+      );
+
+    } else {
+      const existingItems = this.state.tagValue.reduce((values, value, i) => {
+        if (i < valueLength - 1) {
+          values.push({ content: this.renderValue(value, i) });
+        }
+        return values;
+      }, [])
+
+      const items = existingItems.concat([{content: this.renderTextInputElement(lastElement)}]);
+
+      return (
+        <div className="form__field__tag--selector">
+          <DragSortableList
+            items={items}
+            dropBackTransitionDuration={0.3}
+            type="horizontal"
+            onSort={this.onSort}
+            placeholder={<span></span>}
+          />
+        </div>
+      );
+
+    }
+
+  }
   render() {
     if (!this.props.editable) {
       if (!this.state.tagValue || this.state.tagValue.length === 0) {
@@ -320,10 +398,6 @@ export default class TagPicker extends React.Component {
       );
     }
 
-    const valueLength = this.state.tagValue.length;
-    const lastElement = !valueLength || valueLength === 0
-      ? null
-      : this.state.tagValue[valueLength - 1];
     return (
       <div className="form__row">
 
@@ -333,18 +407,7 @@ export default class TagPicker extends React.Component {
         </div>
         {this.renderCapiUnavailable()}
 
-        <div className="form__field__tag--selector">
-          {valueLength
-            ? this.state.tagValue.map((value, i) => {
-                if (i < valueLength - 1) {
-                  return this.renderValue(value, i);
-                }
-              })
-            : ''}
-
-          {this.renderTextInputElement(lastElement)}
-
-        </div>
+        {this.renderInputElements()}
 
         {this.state.capiTags.length !== 0
           ? <div className="form__field__tags">
