@@ -10,7 +10,9 @@
     "test": "jest"
   },
   "jest": {
-    "roots": ["public/video-ui/src/test"]
+    "roots": [
+      "public/video-ui/src/test"
+    ]
   },
   "devDependencies": {
     "argparse": "^1.0.9",
@@ -63,6 +65,7 @@
     "react": "^15.3.2",
     "react-datepicker": "^0.39.0",
     "react-dom": "^15.3.2",
+    "react-drag-sortable": "^1.0.4",
     "react-redux": "^5.0.1",
     "react-router": "^3.0.0",
     "react-router-redux": "^4.0.8",
