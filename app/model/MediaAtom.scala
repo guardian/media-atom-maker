@@ -5,6 +5,101 @@ import com.gu.contentatom.thrift.{AtomData, Atom => ThriftAtom, AtomType => Thri
 import org.cvogt.play.json.Jsonx
 import util.atom.MediaAtomImplicits
 
+abstract class MediaAtomBase {
+  val title: String
+  val category: Category
+  val source: Option[String]
+  val description: Option[String]
+  val trailText: Option[String]
+  val posterImage: Option[Image]
+  // metadata
+  val tags: List[String]
+  val byline: List[String]
+  val commissioningDesks: List[String]
+  val keywords: List[String]
+  val youtubeCategoryId: Option[String]
+  val license: Option[String]
+  val channelId: Option[String]
+  val commentsEnabled: Boolean
+  val legallySensitive: Option[Boolean]
+  val sensitive: Option[Boolean]
+  val privacyStatus: Option[PrivacyStatus]
+  val expiryDate: Option[Long]
+  val blockAds: Boolean
+}
+
+// This is used to parse the a media atom from a create atom
+// request before an id has been added to it
+case class MediaAtomBeforeCreation(
+  title: String,
+  category: Category,
+  source: Option[String],
+  description: Option[String],
+  trailText: Option[String],
+  posterImage: Option[Image],
+  tags: List[String],
+  byline: List[String],
+  commissioningDesks: List[String],
+  keywords: List[String],
+  youtubeCategoryId: Option[String],
+  license: Option[String],
+  channelId: Option[String],
+  commentsEnabled: Boolean,
+  legallySensitive: Option[Boolean],
+  sensitive: Option[Boolean],
+  privacyStatus: Option[PrivacyStatus],
+  expiryDate: Option[Long],
+  blockAds: Boolean
+) extends MediaAtomBase {
+
+  def asThrift(id: String, contentChangeDetails: ContentChangeDetails) = {
+    val data = ThriftMediaAtom(
+      assets = Nil,
+      activeVersion = None,
+      title = title,
+      category = category.asThrift,
+      duration = None,
+      source = source,
+      posterUrl = posterImage.flatMap(_.master).map(_.file),
+      description = description,
+      trailText = trailText,
+      posterImage = posterImage.map(_.asThrift),
+      byline = Some(byline),
+      commissioningDesks = Some(commissioningDesks),
+      keywords = Some(keywords),
+      metadata = Some(ThriftMetadata(
+        tags = Some(tags),
+        categoryId = youtubeCategoryId,
+        license = license,
+        commentsEnabled = Some(commentsEnabled),
+        channelId = channelId,
+        privacyStatus = privacyStatus.flatMap(_.asThrift),
+        expiryDate = expiryDate,
+        pluto = None
+      ))
+    )
+
+    ThriftAtom(
+      id = id,
+      atomType = ThriftAtomType.Media,
+      labels = List(),
+      defaultHtml = MediaAtomImplicits.defaultMediaHtml(data),
+      title = Some(title),
+      data = AtomData.Media(data),
+      contentChangeDetails = contentChangeDetails.asThrift,
+      flags = Some(ThriftFlags(
+        legallySensitive = legallySensitive,
+        blockAds = Some(blockAds),
+        sensitive = sensitive
+      ))
+    )
+  }
+}
+
+object MediaAtomBeforeCreation {
+  implicit val mediaAtomBeforeCreationFormat = Jsonx.formatCaseClass[MediaAtomBeforeCreation]
+}
+
 // Note: This is *NOT* structured like the thrift representation
 case class MediaAtom(
   // Atom wrapper fields
@@ -35,7 +130,8 @@ case class MediaAtom(
   sensitive: Option[Boolean],
   privacyStatus: Option[PrivacyStatus],
   expiryDate: Option[Long] = None,
-  blockAds: Boolean = false) {
+  blockAds: Boolean = false)
+    extends MediaAtomBase {
 
   def asThrift = {
     val data = ThriftMediaAtom(
