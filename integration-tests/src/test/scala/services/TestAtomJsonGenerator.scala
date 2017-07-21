@@ -14,6 +14,12 @@ trait TestAtomJsonGenerator {
       "youtubeCategory": "$youtubeCategoryId",
       "youtubeChannel": "$channelId",
       "expiryDate": $expiryDate,
+      "tags": [],
+      "byline": [],
+      "commissioningDesks": [],
+      "keywords": [],
+      "commentsEnabled": false,
+      "blockAds": false,
       "posterImage": {
         "assets": [
           {
