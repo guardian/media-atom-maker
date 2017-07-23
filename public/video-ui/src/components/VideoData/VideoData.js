@@ -11,6 +11,7 @@ import { fieldLengths } from '../../constants/videoEditValidation';
 import { videoCategories } from '../../constants/videoCategories';
 import { privacyStates } from '../../constants/privacyStates';
 import { channelAllowed } from '../../util/channelAllowed';
+import { getStore } from '../../util/storeAccessor';
 
 class VideoData extends React.Component {
   hasCategories = () => this.props.youtube.categories.length !== 0;
@@ -132,6 +133,7 @@ class VideoData extends React.Component {
               name="Block ads"
               fieldDetails="Ads will not be displayed with this video"
               disabled={notOnManagedChannel}
+              tooltip={`Videos less than ${getStore().getState().config.minDurationForAds} seconds will automatically have ads blocked`}
             >
               <CheckBox />
             </ManagedField>

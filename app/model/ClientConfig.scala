@@ -24,7 +24,8 @@ case class ClientConfig(presence: Option[Presence],
                         stage: String,
                         viewerUrl: String,
                         // permissions also validated server-side on every request
-                        permissions: Permissions
+                        permissions: Permissions,
+                        minDurationForAds: Long
                        )
 
 object ClientConfig {

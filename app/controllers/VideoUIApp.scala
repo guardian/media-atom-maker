@@ -3,6 +3,7 @@ package controllers
 
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
+import com.gu.media.youtube.YouTubeAccess
 import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.model.User
 import model.{ClientConfig, Presence}
@@ -13,7 +14,7 @@ import play.api.mvc.Controller
 import util.AWSConfig
 
 class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfig: AWSConfig,
-                 permissions: MediaAtomMakerPermissionsProvider) extends Controller with Logging {
+                 permissions: MediaAtomMakerPermissionsProvider, youtube: YouTubeAccess) extends Controller with Logging {
   import authActions.AuthAction
 
   def index(id: String = "") = AuthAction.async { req =>
@@ -48,7 +49,8 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
         ravenUrl = conf.getString("raven.url").get,
         stage = conf.getString("stage").get,
         viewerUrl = awsConfig.viewerUrl,
-        permissions
+        permissions,
+        minDurationForAds = youtube.minDurationForAds
       )
 
       Ok(views.html.VideoUIApp.app(
