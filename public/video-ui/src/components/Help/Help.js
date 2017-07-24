@@ -3,7 +3,7 @@ import React from 'react';
 export default class Help extends React.Component {
   helpPages = [
     {
-      url: 'https://goo.gl/vzTc3s',
+      url: 'https://goo.gl/3tCyKB',
       text: 'How to use this Tool'
     },
     {
