@@ -40,8 +40,11 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youtu
 
     getActiveAsset(previewAtom) match {
       case Some(asset) if asset.platform == Youtube =>
-        val atomWithDuration = previewAtom.copy(duration = youtube.getDuration(asset.id))
-        updateYouTube(atomWithDuration, asset).map(atomWithYoutubeUpdates => {
+        val duration = youtube.getDuration(asset.id)
+        val blockAds = if (duration.getOrElse(0L) < youtube.minDurationForAds) false else previewAtom.blockAds
+
+        val updatedPreviewAtom = previewAtom.copy(duration = duration, blockAds = blockAds)
+        updateYouTube(updatedPreviewAtom, asset).map(atomWithYoutubeUpdates => {
           publish(atomWithYoutubeUpdates, user)
         })
 

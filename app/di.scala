@@ -65,7 +65,7 @@ class MediaAtomMaker(context: Context)
   private val transcoderController = new controllers.Transcoder(hmacAuthActions, transcoder)
 
   private val mainApp = new MainApp(stores, wsClient, configuration, hmacAuthActions, permissions, aws)
-  private val videoApp = new VideoUIApp(hmacAuthActions, configuration, aws, permissions)
+  private val videoApp = new VideoUIApp(hmacAuthActions, configuration, aws, permissions, youTube)
 
   private val assets = new controllers.Assets(httpErrorHandler)
 
