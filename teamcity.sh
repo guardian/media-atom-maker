@@ -2,6 +2,15 @@
 
 set -e
 
+NODE_VERSION="6.2.1"
+
+use_nvm() {
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+
+  nvm use ${NODE_VERSION}
+}
+
 install_yarn() {
   npm install -g yarn
 }
@@ -30,12 +39,24 @@ js_build() {
   yarn run build
 }
 
+sbt_build() {
+  java -Xmx1024m \
+    -XX:MaxPermSize=256m \
+    -XX:ReservedCodeCacheSize=128m \
+    -XX:+CMSClassUnloadingEnabled \
+    -Dsbt.log.noformat=true \
+    -jar sbt-launcher.jar \
+    clean compile test riffRaffUpload
+}
+
 main() {
+  use_nvm
   install_yarn
   js_pluto_lambda
   js_deps
   js_test
   js_build
+  sbt_build
 }
 
 main
