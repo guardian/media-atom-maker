@@ -193,42 +193,22 @@ export default {
   createComposerPage(id, video, composerUrlBase) {
     const composerData = getComposerData(video);
 
-    const initialComposerUrl =
+    const composerUrl =
       composerUrlBase +
       '/api/content?atomPoweredVideo=true&originatingSystem=MediaAtomMaker&type=video';
-
-    const properties = composerData.reduce((queryStrings, data) => {
-      if (data.value && data.belongsTo !== 'thumbnail') {
-        const value = data.isFreeText
-          ? data.value.split('"').join('\\"')
-          : data.value;
-
-        queryStrings.push(
-          '&initialVideo' +
-            data.name.charAt(0).toUpperCase() +
-            data.name.slice(1) +
-            '=' +
-            value
-        );
-      }
-      return queryStrings;
-    }, []);
-
-    let composerUrl = initialComposerUrl + properties.join('');
-
-    if (video.expiryDate) {
-      composerUrl += '&initialExpiry=' + video.expiryDate;
-    }
-
-    const imageData = composerData.find(data => data.name === 'trailImage');
-    const payload = imageData.value ? {thumbnail: imageData.value} : null;
+    const videoFields = composerData.reduce((fields, data) => {
+      fields[data.name] = data.value;
+      return fields;
+    }, {});
 
     return pandaReqwest({
       url: composerUrl,
       method: 'post',
       crossOrigin: true,
       withCredentials: true,
-      data: payload
+      data: {
+        videoFields: nullifyEmptyStrings(videoFields)
+      }
     });
   },
 
