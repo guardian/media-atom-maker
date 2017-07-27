@@ -13,7 +13,9 @@ export default class TagPicker extends React.Component {
     inputString: '',
     lastAction: UserActions.other,
     tagValue: [],
-    capiUnavailable: false
+    capiUnavailable: false,
+    showTags: true,
+    tagsVisible: false
   };
 
   componentDidMount() {
@@ -376,6 +378,40 @@ export default class TagPicker extends React.Component {
     }
 
   }
+
+  selectTag = () => {
+
+  }
+
+  hideTagResults = (e) => {
+
+    // For each tag picker component, there is a tagsVisible state variable.
+    // The onBlur event attached to the tag picker gets fired when
+    // any of its children are clicked. This variable is used to check if the event
+    // was fired by clicking on one of the child elements and makes sure that this
+    // does not hide the tag search results.
+
+    const tagsVisible = this.state.tagsVisible;
+
+    if (!tagsVisible) {
+      this.setState({
+        showTags: false,
+        inputString: '',
+      });
+    } else {
+      this.setState({
+        tagsVisible: false
+      });
+    }
+  }
+
+  showTagResults = () => {
+    this.setState({
+      showTags: true
+    });
+  }
+
+
   render() {
     if (!this.props.editable) {
       if (!this.state.tagValue || this.state.tagValue.length === 0) {
@@ -399,7 +435,13 @@ export default class TagPicker extends React.Component {
     }
 
     return (
-      <div className="form__row">
+      <div className="form__row"
+        onKeyDown={this.navigateDown}
+        onKeyUp={this.navigateUpTagList}
+
+        onBlur={this.hideTagResults}
+        onMouseDown={this.showTagResults}
+      >
 
         <div className="form__label__layout">
           <label className="form__label">{this.props.fieldName}</label>
@@ -409,8 +451,8 @@ export default class TagPicker extends React.Component {
 
         {this.renderInputElements()}
 
-        {this.state.capiTags.length !== 0
-          ? <div className="form__field__tags">
+        {(this.state.capiTags.length !== 0 && this.state.showTags)
+          ? <div className="form__field__tags" onMouseDown={() => this.setState({tagsVisible: true})}>
               {this.state.capiTags.map(tag => this.renderTags(tag))}
             </div>
           : ''}
