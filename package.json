@@ -10,7 +10,9 @@
     "test": "jest"
   },
   "jest": {
-    "roots": ["public/video-ui/src/test"]
+    "roots": [
+      "public/video-ui/src/test"
+    ]
   },
   "devDependencies": {
     "argparse": "^1.0.9",
