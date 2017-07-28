@@ -55,7 +55,8 @@ lazy val app = (project in file("."))
     debianPackageDependencies := Seq("openjdk-8-jre-headless"),
     maintainer := "Digital CMS <digitalcms.dev@guardian.co.uk>",
     packageSummary := "media-atom-maker",
-    packageDescription := """making media atoms"""
+    packageDescription := """making media atoms""",
+    pipelineStages := Seq(digest, gzip)
   )
 
 lazy val uploader = (project in file("uploader"))
