@@ -46,7 +46,7 @@ export function getComposerData(video) {
       belongsTo: 'atom'
     },
     {
-      name: 'trailImage',
+      name: 'thumbnail',
       value: video.trailImage ? parseComposerDataFromImage(video.trailImage, video.trailText) : null,
       belongsTo: 'thumbnail'
     }
