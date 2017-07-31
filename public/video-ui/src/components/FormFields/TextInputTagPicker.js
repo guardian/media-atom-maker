@@ -1,0 +1,379 @@
+import React from 'react';
+import { keyCodes } from '../../constants/keyCodes';
+import UserActions from '../../constants/UserActions';
+import TagTypes from '../../constants/TagTypes';
+import DragSortableList from 'react-drag-sortable';
+import CapiSearch from '../CapiSearch/Capisearch';
+import CapiUnavailable from '../CapiSearch/CapiUnavailable';
+import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
+
+export default class TextInputTagPicker extends React.Component {
+
+  //rename to props if commented out!
+  state = {
+    //capiTags: [],
+    inputString: '',
+    lastAction: UserActions.other,
+    //tagValue: [],
+    //capiUnavailable: false,
+    showTags: true,
+    tagsVisible: false
+  };
+
+  selectNewTag = (newFieldValue) => {
+
+      this.setState({
+        inputString: ''
+      });
+
+      this.props.onUpdate(newFieldValue);
+  }
+
+  getYoutubeInputValue = () => {
+    if (
+      this.props.tagValue.every(value => {
+        return value.id !== this.state.inputString;
+      })
+    ) {
+      return {
+        id: this.state.inputString,
+        webTitle: this.state.inputString
+      };
+    }
+    return [];
+  };
+
+  updateInput = e => {
+      // If the user did not add new text input, we update the tag search
+    if (this.state.lastAction === UserActions.delete) {
+      const length = this.props.tagValue.length;
+      const lastInput = this.props.tagValue[length - 1];
+
+      this.setState({
+        inputString: lastInput,
+        lastAction: UserActions.other
+      });
+
+      const newValue = this.props.tagValue.slice(
+        0,
+        this.props.tagValue.length - 1
+      );
+      this.props.onUpdate(newValue);
+    } else {
+      this.setState({
+        inputString: e.target.value
+      });
+
+      if (!this.props.disableCapiTags) {
+        const searchText = e.target.value;
+
+        this.props.fetchTags(searchText)
+
+      }
+    }
+  };
+
+  processTagInput = e => {
+    if (e.keyCode === keyCodes.enter) {
+      const onlyWhitespace = !/\S/.test(this.state.inputString);
+      if (!onlyWhitespace) {
+
+        const newInput = this.props.tagType === TagTypes.youtube ? this.getYoutubeInputValue() : this.state.inputString;
+
+        const newFieldValue = this.props.tagValue.concat([newInput]);
+
+        this.props.onUpdate(newFieldValue);
+        this.setState({
+          inputString: '',
+        });
+      }
+
+    } else if (e.keyCode === keyCodes.backspace) {
+      if (this.state.inputString.length === 0) {
+        const lastInput = this.props.tagValue[this.props.tagValue.length - 1];
+
+        if (typeof lastInput === 'string') {
+          //User is trying to delete a string input
+          this.setState(
+            {
+              lastAction: UserActions.delete
+            },
+            () => {
+              this.updateInput();
+            }
+          );
+        }
+      }
+    } else {
+      this.setState({
+        lastAction: UserActions.other
+      });
+    }
+  };
+
+  renderFieldValue(value, index) {
+    if (value.webTitle) {
+      return (
+        <span key={`${value.id}-${index}`}>
+          <span className="form__field__tag__display">{value.webTitle}</span>
+          {' '}
+        </span>
+      );
+    } else {
+      return `${value} `;
+    }
+  }
+
+  renderValue = (field, i) => {
+    const removeFn = () => {
+      const newFieldValue = this.props.tagValue.filter(oldField => {
+        return field.id !== oldField.id;
+      });
+
+      this.setState({
+        inputString: ''
+      });
+      this.props.onUpdate(newFieldValue);
+    };
+
+    if (field.id) {
+      return (
+        <span
+          className="form__field--multiselect__value"
+          key={`${field.id}-${i}`}
+          onClick={removeFn}
+        >
+          {field.webTitle}{' '}
+        </span>
+      );
+    }
+    return (
+      <span
+        className="form__field--multistring__value"
+        key={`${field.id}-${i}`}
+      >
+        {' '}{field}{' '}
+      </span>
+    );
+  };
+
+  renderTextInputElement(lastElement) {
+    const getInputPlaceholder = () => {
+      if (!this.props.fieldValue || this.props.fieldValue.length === 0) {
+        return this.props.inputPlaceholder;
+      }
+      return '';
+    };
+
+    if (this.props.disableTextInput) {
+      return (
+        <span className="form__field__tag--container">
+          {lastElement && this.renderValue(lastElement, 0)}
+          <input
+            type="text"
+            className={
+              'form__field__tag--input' +
+                (getInputPlaceholder().length !== 0
+                  ? ' form__field__tag--input--empty'
+                  : '')
+            }
+            id={this.props.fieldName}
+            ref={this.props.tagType + 'Input'}
+            onChange={this.updateInput}
+            value={this.state.inputString}
+            placeholder={getInputPlaceholder()}
+          />
+        </span>
+      );
+    }
+
+    return (
+      <span className="form__field__tag--container">
+        {lastElement && this.renderValue(lastElement, 0)}
+        <input
+          type="text"
+          className="form__field__tag--input"
+          id={this.props.fieldName}
+          onKeyDown={this.processTagInput}
+r         onChange={this.updateInput}
+          value={this.state.inputString}
+          placeholder={getInputPlaceholder()}
+        />
+      </span>
+    );
+  }
+
+  renderBylineInstructions() {
+    if (this.props.tagType === TagTypes.contributor) {
+      return (
+        <span className="form__field__instructions">
+          Press enter to add byline as text
+        </span>
+      );
+    }
+  }
+
+  onSort = (sortedList) => {
+
+    const newTagValues = sortedList.reduce((newTagValues, sortedValue) => {
+
+      //For each component in the list of dragged elements,
+      //we have to extract the name of the tag it represents.
+      const child = sortedValue.content.props.children[0];
+
+      const tagTitle = typeof child === 'string' ? child : child.props.children[0];
+
+      const tagValue = this.props.tagValue.find(value => value.webTitle === tagTitle);
+
+      newTagValues.push(tagValue);
+      return newTagValues;
+    }, []);
+
+    this.props.onUpdate(newTagValues);
+  }
+
+  renderInputElements() {
+
+    const valueLength = this.props.tagValue.length;
+    const lastElement = !valueLength || valueLength === 0
+      ? null
+      : this.props.tagValue[valueLength - 1];
+
+    if (this.props.tagType !== TagTypes.keyword) {
+      return (
+        <div className="form__field__tag--selector">
+          {valueLength
+            ? this.props.tagValue.map((value, i) => {
+                if (i < valueLength - 1) {
+                  return this.renderValue(value, i);
+                }
+              })
+            : ''}
+
+          {this.renderTextInputElement(lastElement)}
+
+        </div>
+
+      );
+
+    } else {
+      const existingItems = this.props.tagValue.reduce((values, value, i) => {
+        if (i < valueLength - 1) {
+          values.push({ content: this.renderValue(value, i) });
+        }
+        return values;
+      }, [])
+
+      const items = existingItems.concat([{content: this.renderTextInputElement(lastElement)}]);
+
+      return (
+        <div className="form__field__tag--selector">
+          <DragSortableList
+            items={items}
+            dropBackTransitionDuration={0.3}
+            type="horizontal"
+            onSort={this.onSort}
+            placeholder={<span></span>}
+          />
+        </div>
+      );
+
+    }
+
+  }
+
+  selectTag = () => {
+
+  }
+
+  hideTagResults = (e) => {
+
+    // For each tag picker component, there is a tagsVisible state variable.
+    // The onBlur event attached to the tag picker gets fired when
+    // any of its children are clicked. This variable is used to check if the event
+    // was fired by clicking on one of the child elements and makes sure that this
+    // does not hide the tag search results.
+
+    const tagsVisible = this.state.tagsVisible;
+
+    if (!tagsVisible) {
+      this.setState({
+        showTags: false,
+        inputString: '',
+      });
+    } else {
+      this.setState({
+        tagsVisible: false
+      });
+    }
+  }
+
+  showTagResults = () => {
+    this.setState({
+      showTags: true
+    });
+  }
+
+  tagsToVisible = () => {
+    this.setState({
+      tagsVisible: true
+    });
+  }
+
+  render() {
+    if (!this.props.editable) {
+      if (!this.props.tagValue || this.props.tagValue.length === 0) {
+        return (
+          <div>
+            <p className="details-list__title">{this.props.fieldName}</p>
+            <p className={'details-list__field details-list__empty'}>
+              {this.props.placeholder}
+            </p>
+          </div>
+        );
+      }
+      return (
+        <div>
+          <p className="details-list__title">{this.props.fieldName}</p>
+          <p className="details-list__field ">
+            {this.props.tagValue.map(this.renderFieldValue)}
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="form__row"
+        onKeyDown={this.navigateDown}
+        onKeyUp={this.navigateUpTagList}
+
+        onBlur={this.hideTagResults}
+        onMouseDown={this.showTagResults}
+      >
+
+        <div className="form__label__layout">
+          <label className="form__label">{this.props.fieldName}</label>
+          {this.renderBylineInstructions()}
+        </div>
+
+        <CapiUnavailable capiUnavailable={this.state.capiUnavailable} />
+
+        {this.renderInputElements()}
+
+        <CapiSearch
+          capiTags={this.props.capiTags}
+          showTags={this.state.showTags}
+          tagsToVisible={this.tagsToVisible}
+          selectNewTag={this.selectNewTag}
+          tagValue={this.props.tagValue}
+          removeDupes={removeStringTagDuplicates}
+        />
+
+        {this.props.tagValue.map(this.renderFieldValue)}
+
+      </div>
+    );
+  }
+
+
+};
