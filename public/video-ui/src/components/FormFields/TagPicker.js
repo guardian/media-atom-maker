@@ -7,6 +7,7 @@ import TagTypes from '../../constants/TagTypes';
 import DragSortableList from 'react-drag-sortable';
 import CapiSearch from '../CapiSearch/Capisearch';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
+import getTagDisplayNames from '../../util/getTagDisplayNames';
 
 export default class TagPicker extends React.Component {
   state = {
@@ -36,29 +37,6 @@ export default class TagPicker extends React.Component {
         });
     }
   }
-
-  parseTags = results => {
-    return results.map(result => {
-      if (this.props.tagType === TagTypes.keyword) {
-        let detailedTitle;
-
-        //Some webtitles on keyword tags are too unspecific and we need to add
-        //the section name to them to know what tags they are referring to
-
-        if (
-          result.webTitle !== result.sectionName &&
-          result.webTitle.split(' ').length <= 2
-        ) {
-          detailedTitle = result.webTitle + ' (' + result.sectionName + ')';
-        } else {
-          detailedTitle = result.webTitle;
-        }
-
-        return { id: result.id, webTitle: detailedTitle };
-      }
-      return { id: result.id, webTitle: result.webTitle };
-    });
-  };
 
   onUpdate = newValue => {
     this.setState({
@@ -119,7 +97,7 @@ export default class TagPicker extends React.Component {
 
         ContentApi.getTagsByType(searchText, this.props.tagType)
           .then(capiResponse => {
-            const tags = this.parseTags(capiResponse.response.results);
+            const tags = getTagDisplayNames(capiResponse.response.results, this.props.tagType);
             this.setState({
               capiTags: tags
             });
