@@ -18,15 +18,15 @@ function parseAsset(asset, aspectRatio) {
     aspectRatio: aspectRatio,
     dimensions: {
       width: asset.dimensions.width,
-      height: asset.dimensions.height,
+      height: asset.dimensions.height
     }
   };
-};
+}
 
 export function parseImageFromGridCrop(cropData, imageData) {
   const aspectRatio = cropData.specification.aspectRatio;
   return {
-    assets: cropData.assets.map((asset) => parseAsset(asset, aspectRatio)),
+    assets: cropData.assets.map(asset => parseAsset(asset, aspectRatio)),
     master: parseAsset(cropData.master, aspectRatio),
     mediaId: cropData.specification.uri,
     source: imageData.data.metadata.credit
@@ -34,7 +34,6 @@ export function parseImageFromGridCrop(cropData, imageData) {
 }
 
 export function parseComposerDataFromImage(image, trail) {
-
   const urlParts = image.mediaId.split('/');
   const mediaId = urlParts[urlParts.length - 1];
 
@@ -62,8 +61,7 @@ export function parseComposerDataFromImage(image, trail) {
   const alt = tempDiv.innerText;
 
   return {
-    assets: [ getComposerMasterAsset(image.master) ]
-    .concat(
+    assets: [getComposerMasterAsset(image.master)].concat(
       image.assets.map(getComposerAsset)
     ),
     fields: {

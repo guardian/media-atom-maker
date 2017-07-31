@@ -121,7 +121,6 @@ export default {
     }
 
     function updateArticleField(stage, data, composerUrl, pageId) {
-
       if (data.belongsTo === 'thumbnail') {
         if (data.value) {
           return pandaReqwest({
@@ -136,7 +135,7 @@ export default {
             url: `${composerUrl}/api/content/${pageId}/${stage}/thumbnail`,
             method: 'delete',
             crossOrigin: true,
-            withCredentials: true,
+            withCredentials: true
           });
         }
       }

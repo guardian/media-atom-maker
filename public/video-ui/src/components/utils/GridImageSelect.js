@@ -59,17 +59,20 @@ export default class GridEmbedder extends React.Component {
     this.onUpdatePosterImage(data.crop.data, data.image);
   };
 
-  render() {
-
-    let gridUrl;
+  getGridUrl = () => {
 
     if (this.props.posterImage && this.props.isComposerImage) {
       const imageIdParts = this.props.posterImage.mediaId.split("/");
       const imageGridId = imageIdParts[imageIdParts.length - 1];
-      gridUrl = this.props.gridUrl + '/images/' + imageGridId + '/crop?cropType=composer';
-    } else {
-      gridUrl = this.props.gridUrl + '?cropType=video';
+      return this.props.gridUrl + '/images/' + imageGridId + '/crop?cropType=composer';
     }
+
+    return this.props.gridUrl + '?cropType=video';
+  }
+
+  render() {
+
+    const gridUrl = this.getGridUrl();
 
     return (
       <div className="gridembedder">

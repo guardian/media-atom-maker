@@ -1,4 +1,4 @@
-import {parseComposerDataFromImage} from './parseGridMetadata';
+import { parseComposerDataFromImage } from './parseGridMetadata';
 
 export function getComposerData(video) {
   return [
@@ -47,11 +47,13 @@ export function getComposerData(video) {
     },
     {
       name: 'thumbnail',
-      value: video.trailImage ? parseComposerDataFromImage(video.trailImage, video.trailText) : null,
+      value: video.trailImage
+        ? parseComposerDataFromImage(video.trailImage, video.trailText)
+        : null,
       belongsTo: 'thumbnail'
     }
-  ]
-};
+  ];
+}
 
 export function getRightsPayload(video) {
   if (video.expiryDate) {
