@@ -4,7 +4,6 @@ import UserActions from '../../constants/UserActions';
 import TagTypes from '../../constants/TagTypes';
 import DragSortableList from 'react-drag-sortable';
 import CapiSearch from '../CapiSearch/Capisearch';
-import CapiUnavailable from '../CapiSearch/CapiUnavailable';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 import TagFieldValue from '../Tags/TagFieldValue';
 
@@ -265,27 +264,6 @@ r         onChange={this.updateInput}
   }
 
   render() {
-    if (!this.props.editable) {
-      if (!this.props.tagValue || this.props.tagValue.length === 0) {
-        return (
-          <div>
-            <p className="details-list__title">{this.props.fieldName}</p>
-            <p className={'details-list__field details-list__empty'}>
-              {this.props.placeholder}
-            </p>
-          </div>
-        );
-      }
-      return (
-        <div>
-          <p className="details-list__title">{this.props.fieldName}</p>
-          <p className="details-list__field ">
-            <TagFieldValue tagValue={this.props.tagValue}/>
-          </p>
-        </div>
-      );
-    }
-
     return (
       <div className="form__row"
         onBlur={this.props.hideTagResults}
@@ -297,7 +275,6 @@ r         onChange={this.updateInput}
           {this.renderBylineInstructions()}
         </div>
 
-        <CapiUnavailable capiUnavailable={this.state.capiUnavailable} />
 
         {this.renderInputElements()}
 

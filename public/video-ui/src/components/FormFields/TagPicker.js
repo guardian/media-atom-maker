@@ -6,6 +6,8 @@ import UserActions from '../../constants/UserActions';
 import TagTypes from '../../constants/TagTypes';
 import getTagDisplayNames from '../../util/getTagDisplayNames';
 import TextInputTagPicker from './TextInputTagPicker';
+import TagFieldValue from '../Tags/TagFieldValue';
+import CapiUnavailable from '../CapiSearch/CapiUnavailable';
 
 export default class TagPicker extends React.Component {
 
@@ -98,20 +100,44 @@ export default class TagPicker extends React.Component {
 
   render() {
 
-    return (
-      <TextInputTagPicker
-        tagValue={this.state.tagValue}
-        capiUnavailable={this.state.capiUnavailable}
-        onUpdate={this.onUpdate}
-        fetchTags={this.fetchTags}
-        capiTags={this.state.capiTags}
-        tagsToVisible={this.tagsToVisible}
-        showTagResults={this.showTagResults}
-        showTags={this.state.showTags}
-        hideTagResults={this.hideTagResults}
+    if (!this.props.editable) {
+      if (!this.state.tagValue || this.state.tagValue.length === 0) {
+        return (
+          <div>
+            <p className="details-list__title">{this.props.fieldName}</p>
+            <p className={'details-list__field details-list__empty'}>
+              {this.props.placeholder}
+            </p>
+          </div>
+        );
+      }
+      return (
+        <div>
+          <p className="details-list__title">{this.props.fieldName}</p>
+          <CapiUnavailable capiUnavailable={this.state.capiUnavailable} />
+          <p className="details-list__field ">
+            <TagFieldValue tagValue={this.state.tagValue}/>
+          </p>
+        </div>
+      );
+    }
 
-        {...this.props}
-      />
+    return (
+      <div>
+        <CapiUnavailable capiUnavailable={this.state.capiUnavailable} />
+        <TextInputTagPicker
+          tagValue={this.state.tagValue}
+          onUpdate={this.onUpdate}
+          fetchTags={this.fetchTags}
+          capiTags={this.state.capiTags}
+          tagsToVisible={this.tagsToVisible}
+          showTagResults={this.showTagResults}
+          showTags={this.state.showTags}
+          hideTagResults={this.hideTagResults}
+
+          {...this.props}
+        />
+      </div>
     );
   }
 }
