@@ -11,7 +11,6 @@ export default class TagPicker extends React.Component {
 
   state = {
     capiTags: [],
-    inputString: '',
     tagValue: [],
     capiUnavailable: false,
     showTags: true,
@@ -58,9 +57,6 @@ export default class TagPicker extends React.Component {
     });
     this.props.onUpdateField(tagsToStringList(newValue));
 
-    //TODO: does setting this at all times produce weird
-    //behaviour when deleting bylines?
-    //Do we need to displayAnbele this when deleting/
     this.setState({
       capiTags: []
     });
@@ -79,7 +75,6 @@ export default class TagPicker extends React.Component {
     if (!tagsVisible) {
       this.setState({
         showTags: false,
-        inputString: '',
       });
     } else {
       this.setState({

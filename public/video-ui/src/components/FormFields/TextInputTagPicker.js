@@ -6,6 +6,7 @@ import DragSortableList from 'react-drag-sortable';
 import CapiSearch from '../CapiSearch/Capisearch';
 import CapiUnavailable from '../CapiSearch/CapiUnavailable';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
+import TagFieldValue from '../Tags/TagFieldValue';
 
 export default class TextInputTagPicker extends React.Component {
 
@@ -104,19 +105,6 @@ export default class TextInputTagPicker extends React.Component {
       });
     }
   };
-
-  renderFieldValue(value, index) {
-    if (value.webTitle) {
-      return (
-        <span key={`${value.id}-${index}`}>
-          <span className="form__field__tag__display">{value.webTitle}</span>
-          {' '}
-        </span>
-      );
-    } else {
-      return `${value} `;
-    }
-  }
 
   renderValue = (field, i) => {
     const removeFn = () => {
@@ -292,7 +280,7 @@ r         onChange={this.updateInput}
         <div>
           <p className="details-list__title">{this.props.fieldName}</p>
           <p className="details-list__field ">
-            {this.props.tagValue.map(this.renderFieldValue)}
+            <TagFieldValue tagValue={this.props.tagValue}/>
           </p>
         </div>
       );
@@ -322,7 +310,7 @@ r         onChange={this.updateInput}
           removeDupes={removeStringTagDuplicates}
         />
 
-        {this.props.tagValue.map(this.renderFieldValue)}
+        <TagFieldValue tagValue={this.props.tagValue}/>
 
       </div>
     );
