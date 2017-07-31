@@ -8,6 +8,7 @@ import getTagDisplayNames from '../../util/getTagDisplayNames';
 import TextInputTagPicker from './TextInputTagPicker';
 
 export default class TagPicker extends React.Component {
+
   state = {
     capiTags: [],
     inputString: '',
@@ -65,6 +66,41 @@ export default class TagPicker extends React.Component {
     });
   };
 
+  hideTagResults = (e) => {
+
+    // For each tag picker component, there is a tagsVisible state variable.
+    // The onBlur event attached to the tag picker gets fired when
+    // any of its children are clicked. This variable is used to check if the event
+    // was fired by clicking on one of the child elements and makes sure that this
+    // does not hide the tag search results.
+
+    const tagsVisible = this.state.tagsVisible;
+
+    if (!tagsVisible) {
+      this.setState({
+        showTags: false,
+        inputString: '',
+      });
+    } else {
+      this.setState({
+        tagsVisible: false
+      });
+    }
+  }
+
+  showTagResults = () => {
+    this.setState({
+      showTags: true
+    });
+  }
+
+  tagsToVisible = () => {
+    this.setState({
+      tagsVisible: true
+    });
+  }
+
+
   render() {
 
     return (
@@ -74,7 +110,11 @@ export default class TagPicker extends React.Component {
         onUpdate={this.onUpdate}
         fetchTags={this.fetchTags}
         capiTags={this.state.capiTags}
-        selectNewTag={this.selectNewTag}
+        tagsToVisible={this.tagsToVisible}
+        showTagResults={this.showTagResults}
+        showTags={this.state.showTags}
+        hideTagResults={this.hideTagResults}
+
         {...this.props}
       />
     );

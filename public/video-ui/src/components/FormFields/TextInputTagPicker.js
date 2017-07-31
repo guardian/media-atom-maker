@@ -9,15 +9,9 @@ import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 
 export default class TextInputTagPicker extends React.Component {
 
-  //rename to props if commented out!
   state = {
-    //capiTags: [],
     inputString: '',
     lastAction: UserActions.other,
-    //tagValue: [],
-    //capiUnavailable: false,
-    showTags: true,
-    tagsVisible: false
   };
 
   selectNewTag = (newFieldValue) => {
@@ -282,44 +276,6 @@ r         onChange={this.updateInput}
 
   }
 
-  selectTag = () => {
-
-  }
-
-  hideTagResults = (e) => {
-
-    // For each tag picker component, there is a tagsVisible state variable.
-    // The onBlur event attached to the tag picker gets fired when
-    // any of its children are clicked. This variable is used to check if the event
-    // was fired by clicking on one of the child elements and makes sure that this
-    // does not hide the tag search results.
-
-    const tagsVisible = this.state.tagsVisible;
-
-    if (!tagsVisible) {
-      this.setState({
-        showTags: false,
-        inputString: '',
-      });
-    } else {
-      this.setState({
-        tagsVisible: false
-      });
-    }
-  }
-
-  showTagResults = () => {
-    this.setState({
-      showTags: true
-    });
-  }
-
-  tagsToVisible = () => {
-    this.setState({
-      tagsVisible: true
-    });
-  }
-
   render() {
     if (!this.props.editable) {
       if (!this.props.tagValue || this.props.tagValue.length === 0) {
@@ -344,11 +300,8 @@ r         onChange={this.updateInput}
 
     return (
       <div className="form__row"
-        onKeyDown={this.navigateDown}
-        onKeyUp={this.navigateUpTagList}
-
-        onBlur={this.hideTagResults}
-        onMouseDown={this.showTagResults}
+        onBlur={this.props.hideTagResults}
+        onMouseDown={this.props.showTagResults}
       >
 
         <div className="form__label__layout">
@@ -362,8 +315,8 @@ r         onChange={this.updateInput}
 
         <CapiSearch
           capiTags={this.props.capiTags}
-          showTags={this.state.showTags}
-          tagsToVisible={this.tagsToVisible}
+          showTags={this.props.showTags}
+          tagsToVisible={this.props.tagsToVisible}
           selectNewTag={this.selectNewTag}
           tagValue={this.props.tagValue}
           removeDupes={removeStringTagDuplicates}
@@ -374,6 +327,4 @@ r         onChange={this.updateInput}
       </div>
     );
   }
-
-
 };
