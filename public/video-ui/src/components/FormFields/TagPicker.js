@@ -1,11 +1,12 @@
 import React from 'react';
 import ContentApi from '../../services/capi';
 import { tagsFromStringList, tagsToStringList } from '../../util/tagParsers';
-import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 import { keyCodes } from '../../constants/keyCodes';
 import UserActions from '../../constants/UserActions';
 import TagTypes from '../../constants/TagTypes';
 import DragSortableList from 'react-drag-sortable';
+import CapiSearch from '../CapiSearch/Capisearch';
+import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 
 export default class TagPicker extends React.Component {
   state = {
@@ -65,6 +66,18 @@ export default class TagPicker extends React.Component {
     });
     this.props.onUpdateField(tagsToStringList(newValue));
   };
+
+  selectNewTag = (newFieldValue) => {
+
+      this.setState({
+        inputString: ''
+      });
+
+      this.onUpdate(newFieldValue);
+      this.setState({
+        capiTags: []
+      });
+  }
 
   getYoutubeInputValue = () => {
     if (
@@ -181,36 +194,6 @@ export default class TagPicker extends React.Component {
     }
   }
 
-  renderTags(tag) {
-    const addTag = () => {
-      const valueWithoutStringDupes = removeStringTagDuplicates(
-        tag,
-        this.state.tagValue
-      );
-      const newFieldValue = valueWithoutStringDupes.concat([tag]);
-
-      this.setState({
-        inputString: ''
-      });
-
-      this.onUpdate(newFieldValue);
-      this.setState({
-        capiTags: []
-      });
-    };
-
-    return (
-      <a
-        className="form__field__tags"
-        key={tag.id}
-        title={tag.id}
-        onClick={addTag}
-      >
-        {' '}{tag.webTitle}{' '}
-      </a>
-    );
-  }
-
   renderValue = (field, i) => {
     const removeFn = () => {
       const newFieldValue = this.state.tagValue.filter(oldField => {
@@ -292,7 +275,7 @@ export default class TagPicker extends React.Component {
           className="form__field__tag--input"
           id={this.props.fieldName}
           onKeyDown={this.processTagInput}
-          onChange={this.updateInput}
+r         onChange={this.updateInput}
           value={this.state.inputString}
           placeholder={getInputPlaceholder()}
         />
@@ -411,6 +394,11 @@ export default class TagPicker extends React.Component {
     });
   }
 
+  tagsToVisible = () => {
+    this.setState({
+      tagsVisible: true
+    });
+  }
 
   render() {
     if (!this.props.editable) {
@@ -451,11 +439,14 @@ export default class TagPicker extends React.Component {
 
         {this.renderInputElements()}
 
-        {(this.state.capiTags.length !== 0 && this.state.showTags)
-          ? <div className="form__field__tags" onMouseDown={() => this.setState({tagsVisible: true})}>
-              {this.state.capiTags.map(tag => this.renderTags(tag))}
-            </div>
-          : ''}
+        <CapiSearch
+          capiTags={this.state.capiTags}
+          showTags={this.state.showTags}
+          tagsToVisible={this.tagsToVisible}
+          selectNewTag={this.selectNewTag}
+          tagValue={this.state.tagValue}
+          removeDupes={removeStringTagDuplicates}
+        />
 
         {this.state.tagValue.map(this.renderFieldValue)}
 
