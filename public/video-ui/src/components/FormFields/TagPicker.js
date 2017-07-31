@@ -36,7 +36,7 @@ export default class TagPicker extends React.Component {
 
   parseTags = results => {
     return results.map(result => {
-      if (this.props.tagType === TagTypes.keyword) {
+      if (result.type === TagTypes.keyword) {
         let detailedTitle;
 
         //Some webtitles on keyword tags are too unspecific and we need to add
@@ -53,6 +53,11 @@ export default class TagPicker extends React.Component {
 
         return { id: result.id, webTitle: detailedTitle };
       }
+
+      if (result.type === TagTypes.series) {
+        return { id: result.id, webTitle: result.webTitle + ' (series)' };
+      }
+
       return { id: result.id, webTitle: result.webTitle };
     });
   };
@@ -102,9 +107,14 @@ export default class TagPicker extends React.Component {
       if (!this.props.disableCapiTags) {
         const searchText = e.target.value;
 
-        ContentApi.getTagsByType(searchText, this.props.tagType)
-          .then(capiResponse => {
-            const tags = this.parseTags(capiResponse.response.results);
+        const tagTypes = this.props.tagType === TagTypes.keyword ? [TagTypes.series, TagTypes.keyword] : [this.props.tagType];
+
+        ContentApi.getTagsByType(searchText, tagTypes)
+          .then(capiResponses => {
+            const tags = capiResponses.reduce((tags, capiResponse) => {
+                return tags.concat(this.parseTags(capiResponse.response.results));
+            }, []);
+
             this.setState({
               capiTags: tags
             });
