@@ -64,7 +64,7 @@ export default class GridEmbedder extends React.Component {
 
     if (this.props.posterImage && this.props.isComposerImage) {
       const imageGridId = getGridMediaId(this.props.posterImage);
-      return this.props.gridUrl + '/images/' + imageGridId + '/crop?cropType=composer';
+      return this.props.gridUrl + '/images/' + imageGridId + '/crop?cropType=landscape';
     }
 
     return this.props.gridUrl + '?cropType=video';
