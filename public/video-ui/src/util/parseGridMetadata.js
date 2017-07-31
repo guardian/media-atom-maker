@@ -1,3 +1,5 @@
+import { getGridMediaId } from './getGridMediaId';
+
 function parseMimeType(mimeType) {
   //Normalise Mime Types coming from the grid.
   switch (mimeType) {
@@ -34,8 +36,7 @@ export function parseImageFromGridCrop(cropData, imageData) {
 }
 
 export function parseComposerDataFromImage(image, trail) {
-  const urlParts = image.mediaId.split('/');
-  const mediaId = urlParts[urlParts.length - 1];
+  const mediaId = getGridMediaId(image);
 
   function getComposerAsset(asset) {
     return {

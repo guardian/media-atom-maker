@@ -1,6 +1,7 @@
 import React from 'react';
 import Modal from './Modal';
 import { parseImageFromGridCrop } from '../../util/parseGridMetadata';
+import { getGridMediaId } from '../../util/getGridMediaId';
 import Logger from '../../logger';
 import Icon from '../Icon';
 
@@ -62,8 +63,7 @@ export default class GridEmbedder extends React.Component {
   getGridUrl = () => {
 
     if (this.props.posterImage && this.props.isComposerImage) {
-      const imageIdParts = this.props.posterImage.mediaId.split("/");
-      const imageGridId = imageIdParts[imageIdParts.length - 1];
+      const imageGridId = getGridMediaId(this.props.posterImage);
       return this.props.gridUrl + '/images/' + imageGridId + '/crop?cropType=composer';
     }
 
