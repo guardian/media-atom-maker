@@ -34,6 +34,12 @@
   padding-top: 2px;
 }
 
+.form__field__selected__tag {
+  padding: 3px;
+  border: 1px solid $color400Grey;
+  margin-top: 3px;
+}
+
 .form__field__tag--selector {
   display: flex;
   align-content: flex-start;
@@ -327,13 +333,15 @@
     cursor: pointer;
     flex-shrink: 0;
 
+  }
+}
 
-    &:after {
-      content: '×';
-      display: inline-block;
-      font-weight: normal;
-      margin-left: 4px;
-    }
+.form__field__tag__remove {
+  &:after {
+    content: '×';
+    display: inline-block;
+    font-weight: normal;
+    margin-left: 4px;
   }
 }
 

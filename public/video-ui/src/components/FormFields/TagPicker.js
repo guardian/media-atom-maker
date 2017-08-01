@@ -6,6 +6,7 @@ import UserActions from '../../constants/UserActions';
 import TagTypes from '../../constants/TagTypes';
 import getTagDisplayNames from '../../util/getTagDisplayNames';
 import TextInputTagPicker from './TextInputTagPicker';
+import PureTagPicker from './PureTagPicker';
 import TagFieldValue from '../Tags/TagFieldValue';
 import CapiUnavailable from '../CapiSearch/CapiUnavailable';
 
@@ -122,10 +123,30 @@ export default class TagPicker extends React.Component {
       );
     }
 
+    if (this.props.tagType === TagTypes.contributor || this.props.tagType === TagTypes.youtube) {
+      return (
+        <div>
+          <CapiUnavailable capiUnavailable={this.state.capiUnavailable} />
+          <TextInputTagPicker
+            tagValue={this.state.tagValue}
+            onUpdate={this.onUpdate}
+            fetchTags={this.fetchTags}
+            capiTags={this.state.capiTags}
+            tagsToVisible={this.tagsToVisible}
+            showTagResults={this.showTagResults}
+            showTags={this.state.showTags}
+            hideTagResults={this.hideTagResults}
+
+            {...this.props}
+          />
+        </div>
+      );
+    }
+
     return (
       <div>
         <CapiUnavailable capiUnavailable={this.state.capiUnavailable} />
-        <TextInputTagPicker
+        <PureTagPicker
           tagValue={this.state.tagValue}
           onUpdate={this.onUpdate}
           fetchTags={this.fetchTags}

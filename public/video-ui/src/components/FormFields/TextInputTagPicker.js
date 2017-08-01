@@ -61,7 +61,7 @@ export default class TextInputTagPicker extends React.Component {
       if (!this.props.disableCapiTags) {
         const searchText = e.target.value;
 
-        this.props.fetchTags(searchText)
+        this.props.fetchTags(searchText);
 
       }
     }
@@ -120,7 +120,7 @@ export default class TextInputTagPicker extends React.Component {
     if (field.id) {
       return (
         <span
-          className="form__field--multiselect__value"
+          className="form__field--multiselect__value form__field__tag__remove"
           key={`${field.id}-${i}`}
           onClick={removeFn}
         >
@@ -139,12 +139,6 @@ export default class TextInputTagPicker extends React.Component {
   };
 
   renderTextInputElement(lastElement) {
-    const getInputPlaceholder = () => {
-      if (!this.props.fieldValue || this.props.fieldValue.length === 0) {
-        return this.props.inputPlaceholder;
-      }
-      return '';
-    };
 
     if (this.props.disableTextInput) {
       return (
@@ -152,17 +146,11 @@ export default class TextInputTagPicker extends React.Component {
           {lastElement && this.renderValue(lastElement, 0)}
           <input
             type="text"
-            className={
-              'form__field__tag--input' +
-                (getInputPlaceholder().length !== 0
-                  ? ' form__field__tag--input--empty'
-                  : '')
-            }
+            className="form__field__tag--input"
             id={this.props.fieldName}
             ref={this.props.tagType + 'Input'}
             onChange={this.updateInput}
             value={this.state.inputString}
-            placeholder={getInputPlaceholder()}
           />
         </span>
       );
@@ -178,7 +166,6 @@ export default class TextInputTagPicker extends React.Component {
           onKeyDown={this.processTagInput}
 r         onChange={this.updateInput}
           value={this.state.inputString}
-          placeholder={getInputPlaceholder()}
         />
       </span>
     );
