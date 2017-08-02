@@ -19,15 +19,6 @@ export default class PureTagPicker extends React.Component {
     });
   }
 
-  removeFn = () => {
-    const newFieldValue = this.props.tagValue.filter(oldField => {
-      return tag.id !== oldField.id;
-    });
-
-    this.props.onUpdate(newFieldValue);
-  };
-
-
   selectNewTag = (newFieldValue) => {
 
       this.setState({

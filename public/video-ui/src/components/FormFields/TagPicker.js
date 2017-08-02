@@ -66,6 +66,15 @@ export default class TagPicker extends React.Component {
     });
   };
 
+  removeFn = (tag) => {
+    const newFieldValue = this.state.tagValue.filter(oldField => {
+      return tag.id !== oldField.id;
+    });
+
+    this.onUpdate(newFieldValue);
+  };
+
+
   hideTagResults = (e) => {
 
     // For each tag picker component, there is a tagsVisible state variable.
@@ -152,7 +161,7 @@ export default class TagPicker extends React.Component {
         </span>
         <span
           className="form__field__tag__remove"
-          onClick={this.removeFn}>
+          onClick={() => this.removeFn(tag)}>
         </span>
       </div>
     );
@@ -172,6 +181,7 @@ export default class TagPicker extends React.Component {
             showTagResults={this.showTagResults}
             showTags={this.state.showTags}
             hideTagResults={this.hideTagResults}
+            removeFn={this.removeFn}
 
             {...this.props}
           />

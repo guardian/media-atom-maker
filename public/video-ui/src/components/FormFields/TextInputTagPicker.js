@@ -105,23 +105,13 @@ export default class TextInputTagPicker extends React.Component {
   };
 
   renderValue = (field, i) => {
-    const removeFn = () => {
-      const newFieldValue = this.props.tagValue.filter(oldField => {
-        return field.id !== oldField.id;
-      });
-
-      this.setState({
-        inputString: ''
-      });
-      this.props.onUpdate(newFieldValue);
-    };
 
     if (field.id) {
       return (
         <span
           className="form__field--multiselect__value form__field__tag__remove"
           key={`${field.id}-${i}`}
-          onClick={removeFn}
+          onClick={tag => this.props.removeFn(field)}
         >
           {field.webTitle}{' '}
         </span>
