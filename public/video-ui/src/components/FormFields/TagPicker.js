@@ -9,6 +9,7 @@ import TextInputTagPicker from './TextInputTagPicker';
 import PureTagPicker from './PureTagPicker';
 import TagFieldValue from '../Tags/TagFieldValue';
 import CapiUnavailable from '../CapiSearch/CapiUnavailable';
+import DragSortableList from 'react-drag-sortable';
 
 export default class TagPicker extends React.Component {
 
@@ -98,6 +99,67 @@ export default class TagPicker extends React.Component {
     });
   }
 
+  onSort = (sortedList) => {
+    const newTagValues = sortedList.reduce((newTagValues, sortedValue) => {
+
+      //For each component in the list of dragged elements,
+      //we have to extract the name of the tag it represents.
+      const tagTitle = sortedValue.content.props.children[0].props.children;
+
+      const tagValue = this.state.tagValue.find(value => value.webTitle === tagTitle);
+
+      newTagValues.push(tagValue);
+      return newTagValues;
+    }, []);
+
+    this.onUpdate(newTagValues);
+  }
+
+  renderSelectedTags = () => {
+
+    if (this.props.tagType !== TagTypes.keyword) {
+      return (
+          this.state.tagValue.map((tag, index) => this.renderTag(tag, index))
+      );
+    }
+
+    const tagItems = this.state.tagValue.map((value, index) => {
+      return {
+        content: this.renderTag(value, index)
+      }
+    });
+
+    return (
+        <DragSortableList
+          items={tagItems}
+          moveTransitionDuration={0.3}
+          dropBackTransitionDuration={0.3}
+          type="vertical"
+          onSort={this.onSort}
+          placeholder={<span></span>}
+        />
+    );
+
+  }
+  renderTag = (tag, index) => {
+    return (
+      <div
+        key={`${tag.id}-${index}`}
+        className="form__field__selected__tag"
+      >
+        <span>
+          {tag.webTitle}
+        </span>
+        <span
+          className="form__field__tag__remove"
+          onClick={this.removeFn}>
+        </span>
+      </div>
+    );
+
+  }
+
+
 
   render() {
 
@@ -158,6 +220,7 @@ export default class TagPicker extends React.Component {
 
           {...this.props}
         />
+        {this.renderSelectedTags()}
       </div>
     );
   }

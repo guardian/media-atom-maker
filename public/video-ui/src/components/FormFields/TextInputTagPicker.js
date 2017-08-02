@@ -2,7 +2,6 @@ import React from 'react';
 import { keyCodes } from '../../constants/keyCodes';
 import UserActions from '../../constants/UserActions';
 import TagTypes from '../../constants/TagTypes';
-import DragSortableList from 'react-drag-sortable';
 import CapiSearch from '../CapiSearch/Capisearch';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 import TagFieldValue from '../Tags/TagFieldValue';
@@ -181,25 +180,6 @@ r         onChange={this.updateInput}
     }
   }
 
-  onSort = (sortedList) => {
-
-    const newTagValues = sortedList.reduce((newTagValues, sortedValue) => {
-
-      //For each component in the list of dragged elements,
-      //we have to extract the name of the tag it represents.
-      const child = sortedValue.content.props.children[0];
-
-      const tagTitle = typeof child === 'string' ? child : child.props.children[0];
-
-      const tagValue = this.props.tagValue.find(value => value.webTitle === tagTitle);
-
-      newTagValues.push(tagValue);
-      return newTagValues;
-    }, []);
-
-    this.props.onUpdate(newTagValues);
-  }
-
   renderInputElements() {
 
     const valueLength = this.props.tagValue.length;
@@ -207,46 +187,21 @@ r         onChange={this.updateInput}
       ? null
       : this.props.tagValue[valueLength - 1];
 
-    if (this.props.tagType !== TagTypes.keyword) {
-      return (
-        <div className="form__field__tag--selector">
-          {valueLength
-            ? this.props.tagValue.map((value, i) => {
-                if (i < valueLength - 1) {
-                  return this.renderValue(value, i);
-                }
-              })
-            : ''}
+    return (
+      <div className="form__field__tag--selector">
+        {valueLength
+          ? this.props.tagValue.map((value, i) => {
+              if (i < valueLength - 1) {
+                return this.renderValue(value, i);
+              }
+            })
+          : ''}
 
-          {this.renderTextInputElement(lastElement)}
+        {this.renderTextInputElement(lastElement)}
 
-        </div>
+      </div>
 
-      );
-
-    } else {
-      const existingItems = this.props.tagValue.reduce((values, value, i) => {
-        if (i < valueLength - 1) {
-          values.push({ content: this.renderValue(value, i) });
-        }
-        return values;
-      }, [])
-
-      const items = existingItems.concat([{content: this.renderTextInputElement(lastElement)}]);
-
-      return (
-        <div className="form__field__tag--selector">
-          <DragSortableList
-            items={items}
-            dropBackTransitionDuration={0.3}
-            type="horizontal"
-            onSort={this.onSort}
-            placeholder={<span></span>}
-          />
-        </div>
-      );
-
-    }
+    );
 
   }
 
@@ -275,7 +230,6 @@ r         onChange={this.updateInput}
         />
 
         <TagFieldValue tagValue={this.props.tagValue}/>
-
       </div>
     );
   }

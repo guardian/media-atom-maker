@@ -19,30 +19,14 @@ export default class PureTagPicker extends React.Component {
     });
   }
 
+  removeFn = () => {
+    const newFieldValue = this.props.tagValue.filter(oldField => {
+      return tag.id !== oldField.id;
+    });
 
-  renderSelectedTags = (tag, index) => {
+    this.props.onUpdate(newFieldValue);
+  };
 
-    const removeFn = () => {
-      const newFieldValue = this.props.tagValue.filter(oldField => {
-        return tag.id !== oldField.id;
-      });
-
-      this.props.onUpdate(newFieldValue);
-    };
-
-    return (
-      <div
-        key={`${tag.id}-${index}`}
-        className="form__field__selected__tag"
-      >
-        <span>
-          {tag.webTitle}
-        </span>
-        <span className="form__field__tag__remove"
-        onClick={removeFn}></span>
-      </div>
-    );
-  }
 
   selectNewTag = (newFieldValue) => {
 
@@ -90,9 +74,6 @@ export default class PureTagPicker extends React.Component {
           removeDupes={removeStringTagDuplicates}
         />
 
-        {this.props.tagValue.map(tag => {
-          return this.renderSelectedTags(tag);
-        })}
       </div>
     );
   }
