@@ -4,6 +4,7 @@ import UserActions from '../../constants/UserActions';
 import TagTypes from '../../constants/TagTypes';
 import CapiSearch from '../CapiSearch/Capisearch';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
+import removeTagDuplicates from '../../util/removeTagDuplicates';
 
 export default class TextInputTagPicker extends React.Component {
 

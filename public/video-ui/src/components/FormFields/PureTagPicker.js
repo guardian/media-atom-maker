@@ -2,7 +2,7 @@ import React from 'react';
 import TagTypes from '../../constants/TagTypes';
 import DragSortableList from 'react-drag-sortable';
 import CapiSearch from '../CapiSearch/Capisearch';
-import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
+import removeTagDuplicates from '../../util/removeTagDuplicates';
 
 export default class PureTagPicker extends React.Component {
 
@@ -71,7 +71,7 @@ export default class PureTagPicker extends React.Component {
           tagsToVisible={this.props.tagsToVisible}
           selectNewTag={this.selectNewTag}
           tagValue={this.props.tagValue}
-          removeDupes={removeStringTagDuplicates}
+          removeDupes={removeTagDuplicates}
         />
 
       </div>
