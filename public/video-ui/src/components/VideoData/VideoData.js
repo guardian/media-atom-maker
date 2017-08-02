@@ -114,29 +114,6 @@ class VideoData extends React.Component {
             </ManagedField>
           </ManagedSection>
           <ManagedSection>
-            <ManagedField
-              fieldLocation="sensitive"
-              name="Sensitive"
-              fieldDetails="Contains sensitive content"
-            >
-              <CheckBox />
-            </ManagedField>
-            <ManagedField
-              fieldLocation="legallySensitive"
-              name="Legally Sensitive"
-              fieldDetails="This content involves active criminal proceedings."
-            >
-              <CheckBox />
-            </ManagedField>
-            <ManagedField
-              fieldLocation="blockAds"
-              name="Block ads"
-              fieldDetails="Ads will not be displayed with this video"
-              disabled={notOnManagedChannel}
-              tooltip={`Videos less than ${getStore().getState().config.minDurationForAds} seconds will automatically have ads blocked`}
-            >
-              <CheckBox />
-            </ManagedField>
             <ManagedField fieldLocation="expiryDate" name="Expiry Date">
               <DatePicker />
             </ManagedField>
@@ -162,6 +139,59 @@ class VideoData extends React.Component {
               disabled={notOnManagedChannel}
             >
               <TagPicker disableCapiTags />
+            </ManagedField>
+          </ManagedSection>
+          <ManagedSection>
+            <ManagedField
+              fieldLocation="blockAds"
+              name="Block ads"
+              fieldDetails="Ads will not be displayed with this video"
+              disabled={notOnManagedChannel}
+              tooltip={`Videos less than ${getStore().getState().config.minDurationForAds} seconds will automatically have ads blocked`}
+            >
+              <CheckBox />
+            </ManagedField>
+            <ManagedField
+              fieldLocation="youtubeCommentsEnabled"
+              name="Comments Enabled (YouTube)"
+              fieldDetails="Comments enabled on YouTube"
+            >
+              <CheckBox />
+            </ManagedField>
+            <ManagedField
+              fieldLocation="composerCommentsEnabled"
+              name="Comments Enabled (Composer)"
+              fieldDetails="Comments enabled on canonical video page"
+            >
+              <CheckBox />
+            </ManagedField>
+            <ManagedField
+              fieldLocation="optimisedForWeb"
+              name="Optimised for Web"
+              fieldDetails="Optimised for Web"
+            >
+              <CheckBox />
+            </ManagedField>
+            <ManagedField
+              fieldLocation="sensitive"
+              name="Sensitive"
+              fieldDetails="Contains sensitive content"
+            >
+              <CheckBox />
+            </ManagedField>
+            <ManagedField
+              fieldLocation="legallySensitive"
+              name="Legally Sensitive"
+              fieldDetails="This content involves active criminal proceedings"
+            >
+              <CheckBox />
+            </ManagedField>
+            <ManagedField
+              fieldLocation="suppressRelatedContent"
+              name="Suppress related content"
+              fieldDetails="Suppress related content"
+            >
+              <CheckBox />
             </ManagedField>
           </ManagedSection>
         </ManagedForm>
