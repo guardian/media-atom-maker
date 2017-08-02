@@ -4,7 +4,6 @@ import UserActions from '../../constants/UserActions';
 import TagTypes from '../../constants/TagTypes';
 import CapiSearch from '../CapiSearch/Capisearch';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
-import TagFieldValue from '../Tags/TagFieldValue';
 
 export default class TextInputTagPicker extends React.Component {
 
@@ -200,9 +199,7 @@ r         onChange={this.updateInput}
         {this.renderTextInputElement(lastElement)}
 
       </div>
-
     );
-
   }
 
   render() {
@@ -229,7 +226,6 @@ r         onChange={this.updateInput}
           removeDupes={removeStringTagDuplicates}
         />
 
-        <TagFieldValue tagValue={this.props.tagValue}/>
       </div>
     );
   }

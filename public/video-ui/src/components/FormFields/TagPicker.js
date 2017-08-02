@@ -139,8 +139,8 @@ export default class TagPicker extends React.Component {
           placeholder={<span></span>}
         />
     );
-
   }
+
   renderTag = (tag, index) => {
     return (
       <div
@@ -156,10 +156,58 @@ export default class TagPicker extends React.Component {
         </span>
       </div>
     );
-
   }
 
+  renderTagPicker() {
 
+    if (this.props.tagType === TagTypes.contributor ||
+        this.props.tagType === TagTypes.youtube) {
+      return (
+          <TextInputTagPicker
+            tagValue={this.state.tagValue}
+            onUpdate={this.onUpdate}
+            fetchTags={this.fetchTags}
+            capiTags={this.state.capiTags}
+            tagsToVisible={this.tagsToVisible}
+            showTagResults={this.showTagResults}
+            showTags={this.state.showTags}
+            hideTagResults={this.hideTagResults}
+
+            {...this.props}
+          />
+
+      );
+
+    }
+
+    return (
+      <PureTagPicker
+        tagValue={this.state.tagValue}
+        onUpdate={this.onUpdate}
+        fetchTags={this.fetchTags}
+        capiTags={this.state.capiTags}
+        tagsToVisible={this.tagsToVisible}
+        showTagResults={this.showTagResults}
+        showTags={this.state.showTags}
+        hideTagResults={this.hideTagResults}
+
+        {...this.props}
+      />
+    );
+  }
+
+  renderAddedTags() {
+    if (this.props.tagType === TagTypes.contributor) {
+      return (
+        <TagFieldValue tagValue={this.state.tagValue}/>
+      );
+
+    }
+    return (
+      this.renderSelectedTags()
+    );
+
+  }
 
   render() {
 
@@ -185,42 +233,11 @@ export default class TagPicker extends React.Component {
       );
     }
 
-    if (this.props.tagType === TagTypes.contributor || this.props.tagType === TagTypes.youtube) {
-      return (
-        <div>
-          <CapiUnavailable capiUnavailable={this.state.capiUnavailable} />
-          <TextInputTagPicker
-            tagValue={this.state.tagValue}
-            onUpdate={this.onUpdate}
-            fetchTags={this.fetchTags}
-            capiTags={this.state.capiTags}
-            tagsToVisible={this.tagsToVisible}
-            showTagResults={this.showTagResults}
-            showTags={this.state.showTags}
-            hideTagResults={this.hideTagResults}
-
-            {...this.props}
-          />
-        </div>
-      );
-    }
-
     return (
       <div>
         <CapiUnavailable capiUnavailable={this.state.capiUnavailable} />
-        <PureTagPicker
-          tagValue={this.state.tagValue}
-          onUpdate={this.onUpdate}
-          fetchTags={this.fetchTags}
-          capiTags={this.state.capiTags}
-          tagsToVisible={this.tagsToVisible}
-          showTagResults={this.showTagResults}
-          showTags={this.state.showTags}
-          hideTagResults={this.hideTagResults}
-
-          {...this.props}
-        />
-        {this.renderSelectedTags()}
+        {this.renderTagPicker()}
+        {this.renderAddedTags()}
       </div>
     );
   }
