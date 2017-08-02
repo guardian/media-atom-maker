@@ -129,22 +129,6 @@ export default class TextInputTagPicker extends React.Component {
 
   renderTextInputElement(lastElement) {
 
-    if (this.props.disableTextInput) {
-      return (
-        <span className="form__field__tag--container">
-          {lastElement && this.renderValue(lastElement, 0)}
-          <input
-            type="text"
-            className="form__field__tag--input"
-            id={this.props.fieldName}
-            ref={this.props.tagType + 'Input'}
-            onChange={this.updateInput}
-            value={this.state.inputString}
-          />
-        </span>
-      );
-    }
-
     return (
       <span className="form__field__tag--container">
         {lastElement && this.renderValue(lastElement, 0)}
