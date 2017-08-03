@@ -7,7 +7,10 @@ export default class CapiSearch extends React.Component {
     if (this.props.selectedTagIndex !== nextProps.selectedTagIndex && nextProps.selectedTagIndex !== null) {
       const selectedTag = this.props.capiTags[nextProps.selectedTagIndex];
       const listNode = this.refs.list;
-      listNode.scrollTop = 35 * (nextProps.selectedTagIndex === 0 ? 0 : nextProps.selectedTagIndex - 1)
+      const elementHeight = listNode.children[0].offsetHeight;
+      if (listNode) {
+        listNode.scrollTop = elementHeight * (nextProps.selectedTagIndex === 0 ? 0 : nextProps.selectedTagIndex - 1)
+      }
     }
   }
 
