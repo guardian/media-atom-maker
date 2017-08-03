@@ -7,7 +7,7 @@ import removeTagDuplicates from '../../util/removeTagDuplicates';
 export default class PureTagPicker extends React.Component {
 
   state = {
-    inputString: ''
+    inputString: '',
   };
 
   updateInput = e => {
@@ -38,15 +38,7 @@ export default class PureTagPicker extends React.Component {
     };
 
     return (
-      <div className="form__row"
-        onBlur={this.props.hideTagResults}
-        onMouseDown={this.props.showTagResults}
-      >
-
-        <div className="form__label__layout">
-          <label className="form__label">{this.props.fieldName}</label>
-        </div>
-
+      <div>
         <input
           type="text"
           className="form__field"
@@ -63,6 +55,7 @@ export default class PureTagPicker extends React.Component {
           selectNewTag={this.selectNewTag}
           tagValue={this.props.tagValue}
           removeDupes={removeTagDuplicates}
+          selectedTagIndex={this.props.selectedTagIndex}
         />
 
       </div>

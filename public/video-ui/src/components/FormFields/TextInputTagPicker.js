@@ -68,17 +68,20 @@ export default class TextInputTagPicker extends React.Component {
 
   processTagInput = e => {
     if (e.keyCode === keyCodes.enter) {
-      const onlyWhitespace = !/\S/.test(this.state.inputString);
-      if (!onlyWhitespace) {
 
-        const newInput = this.props.tagType === TagTypes.youtube ? this.getYoutubeInputValue() : this.state.inputString;
+      if (this.props.selectedTagIndex === null) {
+        const onlyWhitespace = !/\S/.test(this.state.inputString);
+        if (!onlyWhitespace) {
 
-        const newFieldValue = this.props.tagValue.concat([newInput]);
+          const newInput = this.props.tagType === TagTypes.youtube ? this.getYoutubeInputValue() : this.state.inputString;
 
-        this.props.onUpdate(newFieldValue);
-        this.setState({
-          inputString: '',
-        });
+          const newFieldValue = this.props.tagValue.concat([newInput]);
+
+          this.props.onUpdate(newFieldValue);
+          this.setState({
+            inputString: '',
+          });
+        }
       }
 
     } else if (e.keyCode === keyCodes.backspace) {
@@ -144,16 +147,6 @@ r         onChange={this.updateInput}
     );
   }
 
-  renderBylineInstructions() {
-    if (this.props.tagType === TagTypes.contributor) {
-      return (
-        <span className="form__field__instructions">
-          Press enter to add byline as text
-        </span>
-      );
-    }
-  }
-
   renderInputElements() {
 
     const valueLength = this.props.tagValue.length;
@@ -179,16 +172,7 @@ r         onChange={this.updateInput}
 
   render() {
     return (
-      <div className="form__row"
-        onBlur={this.props.hideTagResults}
-        onMouseDown={this.props.showTagResults}
-      >
-
-        <div className="form__label__layout">
-          <label className="form__label">{this.props.fieldName}</label>
-          {this.renderBylineInstructions()}
-        </div>
-
+      <div>
 
         {this.renderInputElements()}
 
@@ -199,6 +183,7 @@ r         onChange={this.updateInput}
           selectNewTag={this.selectNewTag}
           tagValue={this.props.tagValue}
           removeDupes={removeStringTagDuplicates}
+          selectedTagIndex={this.props.selectedTagIndex}
         />
 
       </div>

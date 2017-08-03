@@ -10,6 +10,8 @@ import PureTagPicker from './PureTagPicker';
 import TagFieldValue from '../Tags/TagFieldValue';
 import CapiUnavailable from '../CapiSearch/CapiUnavailable';
 import DragSortableList from 'react-drag-sortable';
+import removeTagDuplicates from '../../util/removeTagDuplicates';
+import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 
 export default class TagPicker extends React.Component {
 
@@ -18,7 +20,8 @@ export default class TagPicker extends React.Component {
     tagValue: [],
     capiUnavailable: false,
     showTags: true,
-    tagsVisible: false
+    tagsVisible: false,
+    selectedTagIndex: null
   };
 
   componentDidMount() {
@@ -77,6 +80,14 @@ export default class TagPicker extends React.Component {
 
   hideTagResults = (e) => {
 
+    //First we need to make sure to set the selectedTagIndex back to null
+
+    if (this.state.selectedTagIndex !== null) {
+      this.setState({
+        selectedTagIndex: null
+      });
+    }
+
     // For each tag picker component, there is a tagsVisible state variable.
     // The onBlur event attached to the tag picker gets fired when
     // any of its children are clicked. This variable is used to check if the event
@@ -106,6 +117,45 @@ export default class TagPicker extends React.Component {
     this.setState({
       tagsVisible: true
     });
+  }
+
+  onKeyDown = (e) => {
+    if (e.keyCode === keyCodes.down) {
+      if (this.state.selectedTagIndex === null && this.state.capiTags.length > 0) {
+
+        this.setState({
+          selectedTagIndex: 0
+        });
+
+    } else {
+        if (this.state.selectedTagIndex < this.state.capiTags.length - 1) {
+          this.setState({
+            selectedTagIndex: this.state.selectedTagIndex + 1
+          });
+        }
+      }
+    }
+
+    if (e.keyCode === keyCodes.up) {
+      if (this.state.selectedTagIndex && this.state.selectedTagIndex !== 0) {
+        this.setState({
+          selectedTagIndex: this.state.selectedTagIndex - 1
+          });
+      }
+    }
+
+    if (e.keyCode === keyCodes.enter) {
+      const newTag = this.state.capiTags[this.state.selectedTagIndex];
+      const valueWithoutDupes = this.props.tagType === TagTypes.contributor ? removeStringTagDuplicates(newTag, this.state.tagValue) : removeTagDuplicates(newTag, this.state.tagValue);
+      const newFieldValue = valueWithoutDupes.concat([newTag]);
+
+      this.setState({
+        selectedTagIndex: null
+      });
+
+      this.onUpdate(newFieldValue);
+
+    }
   }
 
   onSort = (sortedList) => {
@@ -182,6 +232,7 @@ export default class TagPicker extends React.Component {
             showTags={this.state.showTags}
             hideTagResults={this.hideTagResults}
             removeFn={this.removeFn}
+            selectedTagIndex={this.state.selectedTagIndex}
 
             {...this.props}
           />
@@ -200,6 +251,7 @@ export default class TagPicker extends React.Component {
         showTagResults={this.showTagResults}
         showTags={this.state.showTags}
         hideTagResults={this.hideTagResults}
+        selectedTagIndex={this.state.selectedTagIndex}
 
         {...this.props}
       />
@@ -217,6 +269,16 @@ export default class TagPicker extends React.Component {
       this.renderSelectedTags()
     );
 
+  }
+
+  renderBylineInstructions() {
+    if (this.props.tagType === TagTypes.contributor) {
+      return (
+        <span className="form__field__instructions">
+          Press enter to add byline as text
+        </span>
+      );
+    }
   }
 
   render() {
@@ -244,7 +306,17 @@ export default class TagPicker extends React.Component {
     }
 
     return (
-      <div>
+      <div className="form__row"
+        onBlur={this.hideTagResults}
+        onMouseDown={this.showTagResults}
+        onKeyDown={this.onKeyDown}
+      >
+
+        <div className="form__label__layout">
+          <label className="form__label">{this.props.fieldName}</label>
+          {this.renderBylineInstructions()}
+        </div>
+
         <CapiUnavailable capiUnavailable={this.state.capiUnavailable} />
         {this.renderTagPicker()}
         {this.renderAddedTags()}

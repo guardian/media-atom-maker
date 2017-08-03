@@ -107,6 +107,7 @@
 
   &--external__error {
     color: $dangerColor;
+    margin-top: 10px;
   }
 
   &--warning {
@@ -274,7 +275,12 @@
   cursor: pointer;
   overflow: auto;
   max-height: 250px;
+
+  &--selected {
+    background: $color800Grey;
+  }
 }
+
 
 .form__field__tag__display {
   text-decoration: underline $textColor;

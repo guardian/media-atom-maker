@@ -3,7 +3,13 @@ import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 
 export default class CapiSearch extends React.Component {
 
-  renderTags(tag) {
+  renderTags(tag, index) {
+
+    const getTagClassName = () => {
+      const name = "form__field__tags" + (index === this.props.selectedTagIndex ? " form__field__tags--selected" : "");
+
+      return "form__field__tags" + (index === this.props.selectedTagIndex ? " form__field__tags--selected" : "");
+    }
     const addTag = () => {
 
       const valueWithoutStringDupes = this.props.removeDupes(
@@ -19,7 +25,7 @@ export default class CapiSearch extends React.Component {
 
     return (
       <a
-        className="form__field__tags"
+        className={getTagClassName()}
         key={tag.id}
         title={tag.id}
         onClick={addTag}
@@ -34,7 +40,7 @@ export default class CapiSearch extends React.Component {
     if (this.props.capiTags.length !== 0 && this.props.showTags) {
       return (
         <div className="form__field__tags" onMouseDown={this.props.tagsToVisible}>
-          {this.props.capiTags.map(tag => this.renderTags(tag))}
+          {this.props.capiTags.map((tag, index) => this.renderTags(tag, index))}
         </div>
       );
     }
