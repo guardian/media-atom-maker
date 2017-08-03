@@ -10,6 +10,14 @@ export default class PureTagPicker extends React.Component {
     inputString: '',
   };
 
+  componentWillReceiveProps(nextProps) {
+    if (this.props.inputClearCount !== nextProps.inputClearCount) {
+      this.setState({
+        inputString: '',
+      });
+    }
+  }
+
   updateInput = e => {
 
     const searchText = e.target.value;

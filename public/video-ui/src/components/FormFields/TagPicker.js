@@ -21,7 +21,8 @@ export default class TagPicker extends React.Component {
     capiUnavailable: false,
     showTags: true,
     tagsVisible: false,
-    selectedTagIndex: null
+    selectedTagIndex: null,
+    inputClearCount: 0
   };
 
   componentDidMount() {
@@ -150,7 +151,8 @@ export default class TagPicker extends React.Component {
       const newFieldValue = valueWithoutDupes.concat([newTag]);
 
       this.setState({
-        selectedTagIndex: null
+        selectedTagIndex: null,
+        inputClearCount: this.state.inputClearCount + 1
       });
 
       this.onUpdate(newFieldValue);
@@ -233,6 +235,7 @@ export default class TagPicker extends React.Component {
             hideTagResults={this.hideTagResults}
             removeFn={this.removeFn}
             selectedTagIndex={this.state.selectedTagIndex}
+            inputClearCount={this.state.inputClearCount}
 
             {...this.props}
           />
@@ -252,6 +255,7 @@ export default class TagPicker extends React.Component {
         showTags={this.state.showTags}
         hideTagResults={this.hideTagResults}
         selectedTagIndex={this.state.selectedTagIndex}
+        inputClearCount={this.state.inputClearCount}
 
         {...this.props}
       />

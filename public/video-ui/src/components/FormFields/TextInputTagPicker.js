@@ -13,6 +13,14 @@ export default class TextInputTagPicker extends React.Component {
     lastAction: UserActions.other,
   };
 
+  componentWillReceiveProps(nextProps) {
+    if (this.props.inputClearCount !== nextProps.inputClearCount) {
+      this.setState({
+        inputString: '',
+      });
+    }
+  }
+
   selectNewTag = (newFieldValue) => {
 
       this.setState({
