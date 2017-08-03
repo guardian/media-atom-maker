@@ -9,9 +9,8 @@ case class Upload(id: String, parts: List[UploadPart], metadata: UploadMetadata,
 object Upload {
   implicit val format: Format[Upload] = Jsonx.formatCaseClass[Upload]
 
-  // We want 100MB chunks. YouTube mandates that chunk size must be a multiple of 256KB
+  // We want 100MB chunks to upload in a single lambda invocation
   val oneHundredMegabytes: Long = 100 * 1024 * 1024
-  val twoFiveSixKilobytes: Long = 1024 * 256
 
   def calculateChunks(size: Long): List[(Long, Long)] = {
     chunksOfExactly(oneHundredMegabytes, size) match {
@@ -19,13 +18,8 @@ object Upload {
         bigChunks
 
       case (bigChunks, remainder) =>
-        chunkMultipleOf(twoFiveSixKilobytes, size - remainder, size) match {
-          case ((start, end), 0) =>
-            bigChunks :+ ((start, end))
-
-          case ((start, end), remainder) =>
-            bigChunks ++ List((start, end), (size - remainder, size))
-        }
+        val start = startOfLastChunk(bigChunks)
+        bigChunks :+ (start, start + remainder)
     }
   }
 
@@ -53,13 +47,7 @@ object Upload {
     (chunks, remainder)
   }
 
-  private def chunkMultipleOf(chunkMultiple: Long, start: Long, total: Long): ((Long, Long), Long) = {
-    val size = total - start
-    val chunkSize = (size / chunkMultiple) * chunkMultiple
-
-    val end = start + chunkSize
-    val remainder = size - chunkSize
-
-    ((start, end), remainder)
+  private def startOfLastChunk(bigChunks: List[(Long, Long)]): Long = {
+    bigChunks.lastOption.map(_._2).getOrElse(0)
   }
 }
