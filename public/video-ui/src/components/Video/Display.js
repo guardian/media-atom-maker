@@ -22,13 +22,6 @@ class VideoDisplay extends React.Component {
     }
   }
 
-  saveAndUpdateVideoPoster = poster => {
-    const newVideo = Object.assign({}, this.props.video, {
-      posterImage: poster
-    });
-    this.saveAndUpdateVideo(newVideo);
-  };
-
   saveAndUpdateVideo = video => {
     if (this.props.route.mode === 'create') {
       this.props.videoActions.createVideo(video);

@@ -7,9 +7,9 @@ import GridImageSelect from '../utils/GridImageSelect';
 
 export default class VideoPreview extends React.Component {
 
-  saveAndUpdateVideoPoster = poster => {
+  saveAndUpdateVideoPoster = (poster, location) => {
     const newVideo = Object.assign({}, this.props.video, {
-      posterImage: poster
+      [location]: poster
     });
     this.props.saveAndUpdateVideo(newVideo);
   };
@@ -40,16 +40,17 @@ export default class VideoPreview extends React.Component {
       <div className="video__preview__container">
         {this.renderPreview()}
       </div>
+      <div className="video__imagebox">
         <div className="video__detailbox">
           <div className="video__detailbox__header__container">
             <header className="video__detailbox__header">
-              Poster Image
+              Youtube Poster Image
             </header>
             <GridImageSelect
               updateVideo={this.saveAndUpdateVideoPoster}
               gridUrl={this.props.config.gridUrl}
               disabled={this.props.videoEditOpen}
-              createMode={false}
+              fieldLocation="posterImage"
             />
           </div>
           <VideoPoster
@@ -57,9 +58,34 @@ export default class VideoPreview extends React.Component {
             updateVideo={this.props.saveAndUpdateVideo}
             formName={formNames.posterImage}
             updateErrors={this.props.updateErrors}
+            fieldLocation="posterImage"
+            name="Youtube Poster Image"
+          />
+        </div>
+        <div className="video__detailbox">
+          <div className="video__detailbox__header__container">
+            <header className="video__detailbox__header">
+              Composer Trail Image
+            </header>
+            <GridImageSelect
+              updateVideo={this.saveAndUpdateVideoPoster}
+              gridUrl={this.props.config.gridUrl}
+              disabled={this.props.videoEditOpen || !this.props.video.posterImage}
+              isComposerImage={true}
+              posterImage={this.props.video.posterImage}
+              fieldLocation="trailImage"
+            />
+          </div>
+          <VideoPoster
+            video={this.props.video || {}}
+            updateVideo={this.props.saveAndUpdateVideo}
+            updateErrors={this.props.updateErrors}
+            fieldLocation="trailImage"
+            name="Composer Trail Image"
           />
         </div>
       </div>
+    </div>
     );
   }
 }

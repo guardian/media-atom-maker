@@ -13,23 +13,26 @@ object ImageAssetDimensions {
   def fromThrift(dim: ThriftImageAssetDimensions) = ImageAssetDimensions(dim.height, dim.width)
 }
 
-case class ImageAsset(mimeType: Option[String], file: String, dimensions: Option[ImageAssetDimensions], size: Option[Long]) {
-  def asThrift = ThriftImageAsset(mimeType, file, dimensions.map(_.asThrift), size)
+case class ImageAsset(mimeType: Option[String], file: String, dimensions: Option[ImageAssetDimensions],
+                      size: Option[Long], aspectRatio: Option[String]) {
+  def asThrift = ThriftImageAsset(mimeType, file, dimensions.map(_.asThrift), size, aspectRatio)
 }
 
 object ImageAsset {
   implicit val imageAssetFormat = Jsonx.formatCaseClass[ImageAsset]
 
-  def fromThrift(imgAsset: ThriftImageAsset) = ImageAsset(imgAsset.mimeType, imgAsset.file, imgAsset.dimensions.map(ImageAssetDimensions.fromThrift), imgAsset.size)
+  def fromThrift(imgAsset: ThriftImageAsset) = ImageAsset(imgAsset.mimeType, imgAsset.file,
+    imgAsset.dimensions.map(ImageAssetDimensions.fromThrift), imgAsset.size, imgAsset.aspectRatio)
 }
 
-case class Image(assets: List[ImageAsset], master: Option[ImageAsset], mediaId: String) {
-  def asThrift = ThriftImage(assets.map(_.asThrift), master.map(_.asThrift), mediaId)
+case class Image(assets: List[ImageAsset], master: Option[ImageAsset], mediaId: String, source: Option[String]) {
+  def asThrift = ThriftImage(assets.map(_.asThrift), master.map(_.asThrift), mediaId, source)
 }
 
 object Image {
   implicit val imageFormat = Jsonx.formatCaseClass[Image]
 
-  def fromThrift(img: ThriftImage) = Image(img.assets.map(ImageAsset.fromThrift).toList, img.master.map(ImageAsset.fromThrift), img.mediaId)
+  def fromThrift(img: ThriftImage) =
+    Image(img.assets.map(ImageAsset.fromThrift).toList, img.master.map(ImageAsset.fromThrift), img.mediaId, img.source)
 }
 

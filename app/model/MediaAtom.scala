@@ -12,6 +12,7 @@ abstract class MediaAtomBase {
   val description: Option[String]
   val trailText: Option[String]
   val posterImage: Option[Image]
+  val trailImage: Option[Image]
   // metadata
   val tags: List[String]
   val byline: List[String]
@@ -37,6 +38,7 @@ case class MediaAtomBeforeCreation(
   description: Option[String],
   trailText: Option[String],
   posterImage: Option[Image],
+  trailImage: Option[Image],
   tags: List[String],
   byline: List[String],
   commissioningDesks: List[String],
@@ -64,6 +66,7 @@ case class MediaAtomBeforeCreation(
       description = description,
       trailText = trailText,
       posterImage = posterImage.map(_.asThrift),
+      trailImage = trailImage.map(_.asThrift),
       byline = Some(byline),
       commissioningDesks = Some(commissioningDesks),
       keywords = Some(keywords),
@@ -117,6 +120,7 @@ case class MediaAtom(
   description: Option[String],
   trailText: Option[String],
   posterImage: Option[Image],
+  trailImage: Option[Image],
   // metadata
   tags: List[String],
   byline: List[String],
@@ -133,6 +137,7 @@ case class MediaAtom(
   blockAds: Boolean = false)
     extends MediaAtomBase {
 
+
   def asThrift = {
     val data = ThriftMediaAtom(
       assets = assets.map(_.asThrift),
@@ -145,6 +150,7 @@ case class MediaAtom(
       description = description,
       trailText = trailText,
       posterImage = posterImage.map(_.asThrift),
+      trailImage = trailImage.map(_.asThrift),
       byline = Some(byline),
       commissioningDesks = Some(commissioningDesks),
       keywords = Some(keywords),
@@ -195,6 +201,7 @@ object MediaAtom extends MediaAtomImplicits {
       duration = data.duration,
       source = data.source,
       posterImage = data.posterImage.map(Image.fromThrift),
+      trailImage = data.trailImage.map(Image.fromThrift),
       description = data.description,
       trailText = data.trailText,
       tags = data.metadata.flatMap(_.tags.map(_.toList)).getOrElse(Nil),

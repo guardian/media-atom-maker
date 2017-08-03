@@ -1,6 +1,7 @@
 import React from 'react';
 import Modal from './Modal';
 import { parseImageFromGridCrop } from '../../util/parseGridMetadata';
+import { getGridMediaId } from '../../util/getGridMediaId';
 import Logger from '../../logger';
 import Icon from '../Icon';
 
@@ -9,10 +10,10 @@ export default class GridEmbedder extends React.Component {
     modalOpen: false
   };
 
-  onUpdatePosterImage = cropData => {
-    const image = parseImageFromGridCrop(cropData);
+  onUpdatePosterImage = (cropData, imageData) => {
+    const image = parseImageFromGridCrop(cropData, imageData);
 
-    this.props.updateVideo(image);
+    this.props.updateVideo(image, this.props.fieldLocation);
   };
 
   toggleModal = () => {
@@ -56,56 +57,38 @@ export default class GridEmbedder extends React.Component {
     }
 
     this.closeModal();
-    this.onUpdatePosterImage(data.crop.data);
+    this.onUpdatePosterImage(data.crop.data, data.image);
   };
 
-  render() {
-    if (this.props.createMode && this.props.fieldValue) {
-      return (
-        <div className="gridembedder">
-          <div className="gridembedder__button" onClick={this.toggleModal}>
-            <Icon icon="add_to_photos" className="icon__edit" />
-          </div>
+  getGridUrl = () => {
 
-          <Modal isOpen={this.state.modalOpen} dismiss={this.closeModal}>
-            <iframe className="gridembedder__modal" src={this.props.gridUrl} />
-          </Modal>
-        </div>
-      );
-    } else if (this.props.createMode) {
-      return (
-        <div className="gridembedder">
-          <div className="gridembedder__noposter" onClick={this.toggleModal}>
-            <div className="gridembedder__noposter-elements">
-              <span>Add Grid Image</span>
-              <div>
-                <Icon icon="add_to_photos" className="icon__edit" />
-              </div>
-            </div>
-          </div>
-
-          <Modal isOpen={this.state.modalOpen} dismiss={this.closeModal}>
-            <iframe className="gridembedder__modal" src={this.props.gridUrl} />
-          </Modal>
-        </div>
-      );
-    } else {
-      return (
-        <div className="gridembedder">
-          <button disabled={this.props.disabled} onClick={this.toggleModal}>
-            <Icon
-              icon="add_to_photos"
-              className={
-                'icon__edit ' + (this.props.disabled ? 'disabled' : '')
-              }
-            />
-          </button>
-
-          <Modal isOpen={this.state.modalOpen} dismiss={this.closeModal}>
-            <iframe className="gridembedder__modal" src={this.props.gridUrl} />
-          </Modal>
-        </div>
-      );
+    if (this.props.posterImage && this.props.isComposerImage) {
+      const imageGridId = getGridMediaId(this.props.posterImage);
+      return this.props.gridUrl + '/images/' + imageGridId + '/crop?cropType=landscape';
     }
+
+    return this.props.gridUrl + '?cropType=video';
+  }
+
+  render() {
+
+    const gridUrl = this.getGridUrl();
+
+    return (
+      <div className="gridembedder">
+        <button disabled={this.props.disabled} onClick={this.toggleModal}>
+          <Icon
+            icon="add_to_photos"
+            className={
+              'icon__edit ' + (this.props.disabled ? 'disabled' : '')
+            }
+          />
+        </button>
+
+        <Modal isOpen={this.state.modalOpen} dismiss={this.closeModal}>
+          <iframe className="gridembedder__modal" src={gridUrl} />
+        </Modal>
+      </div>
+    );
   }
 }
