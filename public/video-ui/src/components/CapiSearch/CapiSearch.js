@@ -1,7 +1,15 @@
- import React from 'react';
+import React from 'react';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 
 export default class CapiSearch extends React.Component {
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.selectedTagIndex !== nextProps.selectedTagIndex && nextProps.selectedTagIndex !== null) {
+      const selectedTag = this.props.capiTags[nextProps.selectedTagIndex];
+      const listNode = this.refs.list;
+      listNode.scrollTop = 35 * (nextProps.selectedTagIndex === 0 ? 0 : nextProps.selectedTagIndex - 1)
+    }
+  }
 
   renderTags(tag, index) {
 
@@ -39,7 +47,7 @@ export default class CapiSearch extends React.Component {
 
     if (this.props.capiTags.length !== 0 && this.props.showTags) {
       return (
-        <div className="form__field__tags" onMouseDown={this.props.tagsToVisible}>
+        <div ref="list" className="form__field__tags" onMouseDown={this.props.tagsToVisible}>
           {this.props.capiTags.map((tag, index) => this.renderTags(tag, index))}
         </div>
       );
