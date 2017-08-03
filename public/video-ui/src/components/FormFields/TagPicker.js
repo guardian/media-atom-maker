@@ -144,7 +144,7 @@ export default class TagPicker extends React.Component {
       }
     }
 
-    if (e.keyCode === keyCodes.enter) {
+    if (e.keyCode === keyCodes.enter && this.state.selectedTagIndex !== null) {
       const newTag = this.state.capiTags[this.state.selectedTagIndex];
       const valueWithoutDupes = this.props.tagType === TagTypes.contributor ? removeStringTagDuplicates(newTag, this.state.tagValue) : removeTagDuplicates(newTag, this.state.tagValue);
       const newFieldValue = valueWithoutDupes.concat([newTag]);
@@ -259,7 +259,8 @@ export default class TagPicker extends React.Component {
   }
 
   renderAddedTags() {
-    if (this.props.tagType === TagTypes.contributor) {
+    if (this.props.tagType === TagTypes.contributor ||
+        this.props.tagType === TagTypes.youtube) {
       return (
         <TagFieldValue tagValue={this.state.tagValue}/>
       );
