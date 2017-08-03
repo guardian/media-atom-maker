@@ -271,7 +271,9 @@ export default class TagPicker extends React.Component {
 
     }
     return (
-      this.renderSelectedTags()
+      <div className="form__field__tag__list">
+        {this.renderSelectedTags()}
+      </div>
     );
 
   }

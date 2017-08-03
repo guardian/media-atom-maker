@@ -35,6 +35,12 @@
 }
 
 .form__field__selected__tag {
+  border: 1px solid $color400Grey;
+  margin-top: 3px;
+  padding: 3px;
+}
+
+.form__field__tag__list {
   padding: 3px;
   border: 1px solid $color400Grey;
   margin-top: 3px;
