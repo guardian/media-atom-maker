@@ -38,20 +38,13 @@ export default class PureTagPicker extends React.Component {
 
   render() {
 
-    const getInputPlaceholder = () => {
-      if (!this.props.fieldValue || this.props.fieldValue.length === 0) {
-        return this.props.inputPlaceholder;
-      }
-      return '';
-    };
-
     return (
       <div>
         <input
           type="text"
           className="form__field"
           onChange={this.updateInput}
-          placeholder={getInputPlaceholder()}
+          placeholder={this.props.inputPlaceholder}
           value={this.state.inputString}
         />
 
