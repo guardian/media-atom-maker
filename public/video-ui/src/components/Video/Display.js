@@ -135,6 +135,7 @@ class VideoDisplay extends React.Component {
           saveAndUpdateVideo={this.saveAndUpdateVideo}
           updateErrors={this.props.formErrorActions.updateFormErrors}
           config={this.props.config}
+          videoEditOpen={this.props.videoEditOpen}
         />
       </div>
     );
