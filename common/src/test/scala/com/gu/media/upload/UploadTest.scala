@@ -2,65 +2,48 @@ package com.gu.media.upload
 
 import org.scalatest.{FunSuite, MustMatchers}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
-import com.gu.media.upload.model.Upload.{calculateChunks, oneHundredMegabytes, twoFiveSixKilobytes}
+import com.gu.media.upload.model.Upload._
 import org.scalacheck.Gen
 
 class UploadTest extends FunSuite with MustMatchers with GeneratorDrivenPropertyChecks {
   private val oneHundredGigabytes = oneHundredMegabytes * 1024
-  private val reasonableVideoSize = Gen.choose(twoFiveSixKilobytes, oneHundredGigabytes)
-
-  test("256kb") {
-    val (start, end) :: Nil = calculateChunks(twoFiveSixKilobytes)
-
-    start must be(0)
-    end must be(twoFiveSixKilobytes)
-  }
-
-  test("large enough to chunk but last chunk is multiple of 256kb") {
-    val first :: second :: Nil = calculateChunks(oneHundredMegabytes + twoFiveSixKilobytes)
-
-    first must be((0, oneHundredMegabytes))
-    second must be(oneHundredMegabytes, oneHundredMegabytes + twoFiveSixKilobytes)
-  }
-
-  test("exact multiple of 100MB") {
-    val first :: second :: Nil = calculateChunks(oneHundredMegabytes * 2)
-
-    first must be((0, oneHundredMegabytes))
-    second must be(oneHundredMegabytes, oneHundredMegabytes * 2)
-  }
+  private val fiveMegabytes: Long = 1024 * 1024 * 5
+  private val reasonableVideoSize = Gen.choose(fiveMegabytes, oneHundredGigabytes)
 
   test("chunking") {
-    // We want 100MB chunks. YouTube mandates that chunk size must be a multiple of 256KB
-    // As such:
-    //   - the last chunk can be any size (but less than the preceding chunk)
-    //   - the penultimate chunk should always mod 256KB
-    //   - any other chunks should be exactly 100MB
     forAll(reasonableVideoSize) { (n: Long) =>
       val chunks = calculateChunks(n)
-      val backwards = chunks.reverse
+      val sizes = chunks.map { case (start, end) => end - start }
 
-      backwards match {
+      sizes.reverse match {
         case Nil =>
-          fail("Empty chunk list")
+          fail("Must have at least one chunk")
 
-        case (start, end) :: Nil =>
-          start must be(0)
-          end must be(oneHundredMegabytes)
-
-        case (lastStart, lastEnd) :: (littleStart, littleEnd) :: rest =>
-          lastEnd must be(n)
-          littleEnd must be(lastStart)
-
-          ((littleEnd - littleStart) % twoFiveSixKilobytes) must be(0)
-
-          rest.foldLeft(littleStart) { case (previousStart, (start, end)) =>
-            end must be(previousStart)
-            (end - start) must be(oneHundredMegabytes)
-
-            start
+        case last :: rest =>
+          last must be <= oneHundredMegabytes
+          rest.foreach { chunk =>
+            chunk must be(oneHundredMegabytes)
           }
       }
+    }
+  }
+
+  test("chunks follow each other") {
+    forAll(reasonableVideoSize) { (n: Long) =>
+      val chunks = calculateChunks(n)
+
+      if(chunks.size > 1) {
+        chunks.drop(1).foldLeft(chunks.head) { (last, chunk) =>
+          val (_, end) = last
+          val (start, _) = chunk
+
+          end must be(start)
+          chunk
+        }
+      }
+
+      val (_, end) = chunks.last
+      end must be(n)
     }
   }
 }
