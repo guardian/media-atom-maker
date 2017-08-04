@@ -108,12 +108,6 @@ export default class TagPicker extends React.Component {
     }
   }
 
-  showTagResults = () => {
-    this.setState({
-      showTags: true
-    });
-  }
-
   tagsToVisible = () => {
     this.setState({
       tagsVisible: true
@@ -121,6 +115,11 @@ export default class TagPicker extends React.Component {
   }
 
   onKeyDown = (e) => {
+
+    this.setState({
+      showTags: true
+    });
+
     if (e.keyCode === keyCodes.down) {
       if (this.state.selectedTagIndex === null && this.state.capiTags.length > 0) {
 
@@ -230,7 +229,6 @@ export default class TagPicker extends React.Component {
             fetchTags={this.fetchTags}
             capiTags={this.state.capiTags}
             tagsToVisible={this.tagsToVisible}
-            showTagResults={this.showTagResults}
             showTags={this.state.showTags}
             hideTagResults={this.hideTagResults}
             removeFn={this.removeFn}
@@ -251,7 +249,6 @@ export default class TagPicker extends React.Component {
         fetchTags={this.fetchTags}
         capiTags={this.state.capiTags}
         tagsToVisible={this.tagsToVisible}
-        showTagResults={this.showTagResults}
         showTags={this.state.showTags}
         hideTagResults={this.hideTagResults}
         selectedTagIndex={this.state.selectedTagIndex}
@@ -315,7 +312,6 @@ export default class TagPicker extends React.Component {
     return (
       <div className="form__row"
         onBlur={this.hideTagResults}
-        onMouseDown={this.showTagResults}
         onKeyDown={this.onKeyDown}
       >
 
