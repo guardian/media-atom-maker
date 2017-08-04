@@ -11,7 +11,12 @@ export default class TagTypes {
     return 'keyword';
   }
 
+  static get series() {
+    return 'series';
+  }
+
   static get youtube() {
     return 'youtube';
   }
+
 }

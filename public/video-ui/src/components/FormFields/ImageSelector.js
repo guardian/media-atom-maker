@@ -19,33 +19,15 @@ class ImageSelector extends React.Component {
 
   render() {
     if (this.props.fieldValue === this.props.placeholder) {
-      return <div className="form__section">Poster image not selected</div>;
+      return <div className="form__section">{this.props.placeholder}</div>;
     }
-    if (!this.props.editMode) {
-      return (
-        <div className="form__row">
-          <label className="form__label">{this.props.fieldName}</label>
-          <div className="form__imageselect">
-            <GridImageSelect
-              updateVideo={this.props.onUpdateField}
-              gridUrl={this.props.config.gridUrl}
-              createMode={true}
-              disabled={!this.props.editable}
-              fieldValue={this.props.fieldValue}
-            />
-            {this.renderImage()}
-          </div>
+    return (
+      <div className="form__row">
+        <div className="form__imageselect">
+          {this.renderImage()}
         </div>
-      );
-    } else {
-      return (
-        <div className="form__row">
-          <div className="form__imageselect">
-            {this.renderImage()}
-          </div>
-        </div>
-      );
-    }
+      </div>
+    );
   }
 }
 

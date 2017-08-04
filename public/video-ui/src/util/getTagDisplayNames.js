@@ -1,7 +1,11 @@
 import TagTypes from '../constants/TagTypes';
 
-export default function getTagDisplayNames(tags, tagType) {
+export default function getTagDisplayNames(tags) {
+
   return tags.map(tag => {
+
+    const tagType = tag.type;
+
     if (tagType === TagTypes.keyword) {
       let detailedTitle;
 
@@ -19,6 +23,11 @@ export default function getTagDisplayNames(tags, tagType) {
 
       return { id: tag.id, webTitle: detailedTitle };
     }
+
+    if (tagType === TagTypes.series) {
+      return { id: tag.id, webTitle: tag.webTitle + ' (series)' };
+    }
+
     return { id: tag.id, webTitle: tag.webTitle };
   });
 

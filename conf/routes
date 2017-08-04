@@ -61,7 +61,7 @@ GET     /reindex-preview                com.gu.atom.play.ReindexController.previ
 GET     /reindex-publish                com.gu.atom.play.ReindexController.publishedReindexJobStatus()
 
 #static assets
-GET  /assets/*file                      controllers.Assets.versioned(path="/public", file)
+GET  /assets/*file                      controllers.Assets.versioned(path="/public", file: Asset)
 
 # Auth
 GET  /reauth                            controllers.VideoUIApp.reauth
