@@ -152,13 +152,6 @@ class VideoData extends React.Component {
               <CheckBox />
             </ManagedField>
             <ManagedField
-              fieldLocation="youtubeCommentsEnabled"
-              name="Comments Enabled (YouTube)"
-              fieldDetails="Comments enabled on YouTube"
-            >
-              <CheckBox />
-            </ManagedField>
-            <ManagedField
               fieldLocation="composerCommentsEnabled"
               name="Comments Enabled (Composer)"
               fieldDetails="Comments enabled on canonical video page"
