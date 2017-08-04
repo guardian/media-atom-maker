@@ -1,7 +1,7 @@
 import React from 'react';
 import TagTypes from '../../constants/TagTypes';
 import DragSortableList from 'react-drag-sortable';
-import CapiSearch from '../CapiSearch/Capisearch';
+import CapiSearch from '../CapiSearch/CapiSearch';
 import removeTagDuplicates from '../../util/removeTagDuplicates';
 
 export default class PureTagPicker extends React.Component {

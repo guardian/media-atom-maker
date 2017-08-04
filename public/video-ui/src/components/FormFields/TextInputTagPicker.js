@@ -2,7 +2,7 @@ import React from 'react';
 import { keyCodes } from '../../constants/keyCodes';
 import UserActions from '../../constants/UserActions';
 import TagTypes from '../../constants/TagTypes';
-import CapiSearch from '../CapiSearch/Capisearch';
+import CapiSearch from '../CapiSearch/CapiSearch';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 import removeTagDuplicates from '../../util/removeTagDuplicates';
 
