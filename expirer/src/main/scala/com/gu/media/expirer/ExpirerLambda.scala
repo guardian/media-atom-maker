@@ -3,6 +3,7 @@ package com.gu.media.expirer
 import java.time.Instant
 
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
+import com.gu.contentatom.thrift.atom.media.PrivacyStatus
 import com.gu.media.CapiAccess
 import com.gu.media.lambda.LambdaBase
 import com.gu.media.logging.Logging
@@ -29,7 +30,7 @@ class ExpirerLambda extends RequestHandler[Unit, Unit]
 
     toExpire.foreach { video =>
       try {
-        setStatus(video, "Private")
+        setStatus(video, PrivacyStatus.Private)
       } catch {
         case NonFatal(err) =>
           log.error(s"Unable to expire $video", err)
