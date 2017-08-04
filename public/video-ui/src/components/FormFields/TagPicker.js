@@ -112,6 +112,10 @@ export default class TagPicker extends React.Component {
         tagsVisible: false
       });
     }
+
+    this.setState({
+      inputClearCount: this.state.inputClearCount + 1
+    });
   }
 
   tagsToVisible = () => {
