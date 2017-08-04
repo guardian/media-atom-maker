@@ -41,7 +41,7 @@ export default class TextInputTagPicker extends React.Component {
         webTitle: this.state.inputString
       };
     }
-    return [];
+    return '';
   };
 
   updateInput = e => {
@@ -83,7 +83,7 @@ export default class TextInputTagPicker extends React.Component {
 
           const newInput = this.props.tagType === TagTypes.youtube ? this.getYoutubeInputValue() : this.state.inputString;
 
-          const newFieldValue = this.props.tagValue.concat([newInput]);
+          const newFieldValue = newInput ? this.props.tagValue.concat([newInput]) : this.props.tagValue;
 
           this.props.onUpdate(newFieldValue);
           this.setState({
