@@ -115,7 +115,7 @@ export default class TextInputTagPicker extends React.Component {
     }
   };
 
-  renderValue = (field, i) => {
+  renderValue = (field, i, isLastInput = false) => {
 
     if (field.id) {
       return (
@@ -130,7 +130,7 @@ export default class TextInputTagPicker extends React.Component {
     }
     return (
       <span
-        className="form__field--multistring__value"
+        className={ !isLastInput ? "form__field--multistring__value" : "form__field--multistring__last"}
         key={`${field.id}-${i}`}
       >
         {' '}{field}{' '}
@@ -142,7 +142,7 @@ export default class TextInputTagPicker extends React.Component {
 
     return (
       <span className="form__field__tag--container">
-        {lastElement && this.renderValue(lastElement, 0)}
+        {lastElement && this.renderValue(lastElement, 0, true)}
         <input
           type="text"
           className="form__field__tag--input"
