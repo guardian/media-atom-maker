@@ -270,18 +270,22 @@ export default class TagPicker extends React.Component {
   }
 
   renderAddedTags() {
-    if (this.props.tagType === TagTypes.contributor ||
-        this.props.tagType === TagTypes.youtube) {
-      return (
-        <TagFieldValue tagValue={this.state.tagValue}/>
-      );
 
+    if (this.state.tagValue.length !== 0) {
+      if (this.props.tagType === TagTypes.contributor ||
+          this.props.tagType === TagTypes.youtube) {
+        return (
+          <TagFieldValue tagValue={this.state.tagValue}/>
+        );
+
+      }
+      return (
+        <div className="form__field__tag__list">
+          {this.renderSelectedTags()}
+        </div>
+      );
     }
-    return (
-      <div className="form__field__tag__list">
-        {this.renderSelectedTags()}
-      </div>
-    );
+    return null;
 
   }
 
