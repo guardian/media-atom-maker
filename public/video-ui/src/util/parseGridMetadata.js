@@ -68,7 +68,7 @@ export function parseComposerDataFromImage(image, trail) {
     fields: {
       alt: alt,
       imageType: 'Photograph',
-      isMandatory: true,
+      isMandatory: 'true',
       mediaApiUrl: image.mediaId,
       mediaId: mediaId,
       source: image.source
