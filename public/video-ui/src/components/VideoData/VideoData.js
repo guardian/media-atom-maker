@@ -100,6 +100,7 @@ class VideoData extends React.Component {
               name="Comissioning Desks"
               formRowClass="form__row__byline"
               tagType={TagTypes.tracking}
+              isDesired={true}
               inputPlaceholder="Search commissioning info (type '*' to show all)"
             >
               <TagPicker disableTextInput />
@@ -110,6 +111,7 @@ class VideoData extends React.Component {
               name="Composer Keywords"
               formRowClass="form__row__byline"
               tagType={TagTypes.keyword}
+              isDesired={true}
               inputPlaceholder="Search keywords (type '*' to show all)"
             >
               <TagPicker disableTextInput />

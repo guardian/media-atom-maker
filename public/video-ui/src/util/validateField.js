@@ -1,4 +1,5 @@
 import FieldNotification from '../constants/FieldNotification';
+import {requiredForComposerWarning} from '../constants/requiredForComposerWarning';
 
 const validateField = (
   fieldValue,
@@ -21,7 +22,7 @@ const validateField = (
   if (isDesired && !fieldValue) {
     return new FieldNotification(
       'desired',
-      'This field is recommended',
+      requiredForComposerWarning,
       FieldNotification.warning
     );
   }
