@@ -25,14 +25,16 @@ object ImageAsset {
     imgAsset.dimensions.map(ImageAssetDimensions.fromThrift), imgAsset.size, imgAsset.aspectRatio)
 }
 
-case class Image(assets: List[ImageAsset], master: Option[ImageAsset], mediaId: String, source: Option[String]) {
-  def asThrift = ThriftImage(assets.map(_.asThrift), master.map(_.asThrift), mediaId, source)
+case class Image(assets: List[ImageAsset], master: Option[ImageAsset], mediaId: String, source: Option[String],
+                photographer: Option[String], suppliersReference: Option[String]) {
+  def asThrift = ThriftImage(assets.map(_.asThrift), master.map(_.asThrift), mediaId, source, photographer, suppliersReference)
 }
 
 object Image {
   implicit val imageFormat = Jsonx.formatCaseClass[Image]
 
   def fromThrift(img: ThriftImage) =
-    Image(img.assets.map(ImageAsset.fromThrift).toList, img.master.map(ImageAsset.fromThrift), img.mediaId, img.source)
+    Image(img.assets.map(ImageAsset.fromThrift).toList, img.master.map(ImageAsset.fromThrift), img.mediaId, img.source,
+    img.photographer, img.suppliersReference)
 }
 
