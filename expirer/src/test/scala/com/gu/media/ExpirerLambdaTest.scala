@@ -1,6 +1,7 @@
 package com.gu.media
 
 import com.amazonaws.util.IOUtils
+import com.gu.contentatom.thrift.atom.media.PrivacyStatus
 import com.gu.media.expirer.ExpirerLambda
 import org.scalatest.{FunSuite, MustMatchers}
 import play.api.libs.json.{JsValue, Json}
@@ -59,8 +60,8 @@ class ExpirerLambdaTest extends FunSuite with MustMatchers {
       Json.parse(ret)
     }
 
-    override def setStatus(id: String, status: String): Unit = {
-      status must be("Private")
+    override def setStatus(id: String, privacyStatus: PrivacyStatus): Unit = {
+      privacyStatus must be(PrivacyStatus.Private)
       madePrivate :+= id
     }
 

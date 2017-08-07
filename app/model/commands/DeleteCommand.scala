@@ -3,6 +3,7 @@ package model.commands
 import java.util.Date
 
 import com.gu.atom.play.AtomAPIActions
+import com.gu.contentatom.thrift.atom.media.PrivacyStatus
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.media.logging.Logging
 import com.gu.media.youtube.YouTubeVideos
@@ -32,6 +33,6 @@ case class DeleteCommand(id: String, override val stores: DataStores, youTube: Y
   private def makeYouTubeVideosPrivate(assets: List[Asset]): Unit = assets.collect {
     case Asset(_, _, videoId, Youtube, _) if youTube.isManagedVideo(videoId) =>
       log.info(s"Marking $videoId as private as parent atom $id is being deleted")
-      youTube.setStatus(videoId, "Private")
+      youTube.setStatus(videoId, PrivacyStatus.Private)
   }
 }

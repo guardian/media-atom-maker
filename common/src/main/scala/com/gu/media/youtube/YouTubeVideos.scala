@@ -5,6 +5,7 @@ import java.net.URL
 
 import com.google.api.client.http.InputStreamContent
 import com.google.api.services.youtube.model.{Video, VideoProcessingDetails, VideoSnippet}
+import com.gu.contentatom.thrift.atom.media.PrivacyStatus
 import com.gu.media.logging.Logging
 import com.gu.media.util.ISO8601Duration
 
@@ -74,12 +75,12 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
       case _ => None
     }
 
-  def setStatus(id: String, status: String): Unit = {
+  def setStatus(id: String, privacyStatus: PrivacyStatus): Unit = {
     getVideo(id, "snippet,status") match {
       case Some(video) => {
         protectAgainstMistakesInDev(video)
 
-        video.getStatus.setPrivacyStatus(status)
+        video.getStatus.setPrivacyStatus(privacyStatus.name)
 
         try {
           Some(client.videos()
@@ -87,11 +88,11 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
             .setOnBehalfOfContentOwner(contentOwner)
             .execute())
 
-          log.info(s"marked asset=$id as $status")
+          log.info(s"marked asset=$id as $privacyStatus")
         }
         catch {
           case e: Throwable =>
-            log.warn(s"unable to mark asset=$id as $status", e)
+            log.warn(s"unable to mark asset=$id as $privacyStatus", e)
         }
       }
       case _ =>
