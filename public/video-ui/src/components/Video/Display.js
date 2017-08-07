@@ -13,12 +13,14 @@ import { blankVideoData } from '../../constants/blankVideoData';
 
 class VideoDisplay extends React.Component {
   componentWillMount() {
+
+    this.props.videoActions.getUsages(this.props.params.id);
+
     if (this.props.route.mode === 'create') {
       this.props.videoActions.updateVideo(blankVideoData);
       this.props.videoActions.updateVideoEditState(true);
     } else {
       this.props.videoActions.getVideo(this.props.params.id);
-      this.props.videoActions.getUsages(this.props.params.id);
     }
   }
 

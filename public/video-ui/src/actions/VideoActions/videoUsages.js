@@ -28,6 +28,11 @@ function errorReceivingVideoUsages(error) {
 export function getUsages(id) {
   return dispatch => {
     dispatch(requestVideoUsages());
+
+    if (!id) {
+      return dispatch(receiveVideoUsages([]));
+    }
+
     return VideosApi.getVideoUsages(id)
       .then(res => {
         const usagePaths = res.response.results;
