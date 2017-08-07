@@ -19,7 +19,6 @@ abstract class MediaAtomBase {
   val youtubeCategoryId: Option[String]
   val keywords: List[String]
   val license: Option[String]
-  val youtubeCommentsEnabled: Boolean
   val blockAds: Boolean
   val expiryDate: Option[Long]
 
@@ -50,7 +49,6 @@ case class MediaAtomBeforeCreation(
   youtubeCategoryId: Option[String],
   keywords: List[String],
   license: Option[String],
-  youtubeCommentsEnabled: Boolean,
   blockAds: Boolean,
   expiryDate: Option[Long],
 
@@ -86,7 +84,6 @@ case class MediaAtomBeforeCreation(
         tags = Some(tags),
         categoryId = youtubeCategoryId,
         license = license,
-        commentsEnabled = Some(youtubeCommentsEnabled),
         channelId = channelId,
         privacyStatus = privacyStatus.flatMap(_.asThrift),
         expiryDate = expiryDate,
@@ -144,7 +141,6 @@ case class MediaAtom(
   youtubeCategoryId: Option[String],
   license: Option[String],
   channelId: Option[String],
-  youtubeCommentsEnabled: Boolean = false,
   legallySensitive: Option[Boolean],
   sensitive: Option[Boolean],
   privacyStatus: Option[PrivacyStatus],
@@ -175,7 +171,6 @@ case class MediaAtom(
         tags = Some(tags),
         categoryId = youtubeCategoryId,
         license = license,
-        commentsEnabled = Some(youtubeCommentsEnabled),
         channelId = channelId,
         privacyStatus = privacyStatus.flatMap(_.asThrift),
         expiryDate = expiryDate,
@@ -232,7 +227,6 @@ object MediaAtom extends MediaAtomImplicits {
       expiryDate = data.metadata.map(_.expiryDate).getOrElse(None),
       blockAds = atom.flags.flatMap(_.blockAds).getOrElse(false),
       license = data.metadata.flatMap(_.license),
-      youtubeCommentsEnabled = data.metadata.flatMap(_.commentsEnabled).getOrElse(false),
       channelId = data.metadata.flatMap(_.channelId),
       legallySensitive = atom.flags.flatMap(_.legallySensitive),
       sensitive = atom.flags.flatMap(_.sensitive),
