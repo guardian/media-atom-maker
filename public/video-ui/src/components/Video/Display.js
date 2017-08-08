@@ -178,6 +178,7 @@ class VideoDisplay extends React.Component {
                   editable={this.props.videoEditOpen}
                   formName={formNames.videoData}
                   updateErrors={this.props.formErrorActions.updateFormErrors}
+                  updateWarnings={this.props.formErrorActions.updateFormWarnings}
                 />
               </div>
               {this.renderPreview()}
@@ -215,6 +216,8 @@ import * as updateVideoEditState
   from '../../actions/VideoActions/updateVideoEditState';
 import * as updateFormErrors
   from '../../actions/FormErrorActions/updateFormErrors';
+import * as updateFormWarnings
+  from '../../actions/FormErrorActions/updateFormWarnings';
 
 function mapStateToProps(state) {
   return {
@@ -224,7 +227,7 @@ function mapStateToProps(state) {
     composerPageWithUsage: state.pageCreate,
     publishedVideo: state.publishedVideo,
     videoEditOpen: state.videoEditOpen,
-    checkedFormFields: state.checkedFormFields
+    checkedFormFields: state.checkedFormFields,
   };
 }
 
@@ -244,7 +247,7 @@ function mapDispatchToProps(dispatch) {
       dispatch
     ),
     formErrorActions: bindActionCreators(
-      Object.assign({}, updateFormErrors),
+      Object.assign({}, updateFormErrors, updateFormWarnings),
       dispatch
     )
   };

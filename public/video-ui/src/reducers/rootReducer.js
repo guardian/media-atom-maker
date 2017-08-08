@@ -15,6 +15,7 @@ import s3Upload from './s3UploadReducer';
 import videoEditOpen from './editStateReducer';
 import plutoVideos from './plutoVideosReducer';
 import checkedFormFields from './checkedFormFieldsReducer';
+import formFieldsWarning from './formFieldsWarningReducer';
 import uploads from './uploadsReducer';
 import path from './pathReducer';
 import pluto from './plutoReducer';
@@ -33,6 +34,7 @@ export default combineReducers({
   publishedVideo,
   plutoVideos,
   checkedFormFields,
+  formFieldsWarning,
   s3Upload,
   videoEditOpen,
   uploads,

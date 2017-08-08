@@ -7,6 +7,7 @@ const validateField = (
   isDesired: false,
   customValidation: null
 ) => {
+
   if (customValidation) {
     return customValidation(fieldValue);
   }
@@ -19,8 +20,10 @@ const validateField = (
     );
   }
 
-  if (isDesired &&
-      (!fieldValue || (fieldValue instanceof Array && fieldValue.length === 0))) {
+  if (
+      isDesired &&
+      (!fieldValue || (fieldValue instanceof Array && fieldValue.length === 0))
+    ) {
     return new FieldNotification(
       'desired',
       requiredForComposerWarning,

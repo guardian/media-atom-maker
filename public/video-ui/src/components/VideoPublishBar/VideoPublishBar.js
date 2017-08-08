@@ -23,7 +23,8 @@ export default class VideoPublishBar extends React.Component {
     return (
       this.videoIsCurrentlyPublishing() ||
       this.props.videoEditOpen ||
-      !this.videoHasUnpublishedChanges()
+      !this.videoHasUnpublishedChanges() ||
+      (this.props.composerPageExists() && this.props.requiredComposerFieldsMissing())
     );
   }
 

@@ -6,13 +6,29 @@ import AdvancedActions from './Videos/AdvancedActions';
 import ComposerPageCreate from './Videos/ComposerPageCreate';
 import Icon from './Icon';
 import { Presence } from './Presence';
+import { getComposerPages } from '../util/getComposerPages';
 
 export default class Header extends React.Component {
-  state = { presence: null };
+ estate = { presence: null };
 
   publishVideo = () => {
     this.props.publishVideo(this.props.video.id);
   };
+
+
+  requiredComposerFieldsMissing = () => {
+
+    return Object.keys(this.props.formFieldsWarning).some(key => {
+
+      return this.props.formFieldsWarning[key];
+    });
+  }
+
+  composerPageExists = () => {
+    return getComposerPages(this.props.usages).length > 0;
+  };
+
+
 
   renderProgress() {
     if (this.props.s3Upload.total) {
@@ -51,7 +67,7 @@ export default class Header extends React.Component {
     );
   }
 
-  renderHeaderBack() {
+  render() {
     return (
       <div className="flex-container topbar__global">
         <Link
@@ -161,6 +177,9 @@ export default class Header extends React.Component {
             updateVideoPage={this.props.updateVideoPage}
             usages={this.props.usages}
             publishVideo={this.publishVideo}
+            formFieldsWarning={this.props.formFieldsWarning}
+            requiredComposerFieldsMissing={this.requiredComposerFieldsMissing}
+            composerPageExists={this.composerPageExists}
           />
 
           <AdvancedActions video={this.props.video || {}} />
@@ -169,6 +188,8 @@ export default class Header extends React.Component {
             videoEditOpen={this.props.videoEditOpen}
             video={this.props.video || {}}
             createVideoPage={this.props.createVideoPage}
+            requiredComposerFieldsMissing={this.requiredComposerFieldsMissing}
+            composerPageExists={this.composerPageExists}
           />
           <div className="flex-container">
             {this.renderAuditLink()}
