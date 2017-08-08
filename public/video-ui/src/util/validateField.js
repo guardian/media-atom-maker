@@ -19,7 +19,8 @@ const validateField = (
     );
   }
 
-  if (isDesired && !fieldValue) {
+  if (isDesired &&
+      (!fieldValue || (fieldValue instanceof Array && fieldValue.length === 0))) {
     return new FieldNotification(
       'desired',
       requiredForComposerWarning,

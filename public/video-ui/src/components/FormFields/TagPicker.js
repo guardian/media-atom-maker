@@ -304,6 +304,8 @@ export default class TagPicker extends React.Component {
 
   render() {
 
+    const hasWarning = this.props.hasWarning(this.props) && this.state.capiTags.length === 0;
+
     if (!this.props.editable) {
       if (!this.state.tagValue || this.state.tagValue.length === 0) {
         return (
