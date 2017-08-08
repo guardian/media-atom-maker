@@ -1,14 +1,23 @@
 .section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 1fr 33px;
+  grid-gap: 10px;
 
-  &__text {
-    margin: 0;
-  }
+  font-weight: bold;
+  font-size: 20px;
+  border-bottom: 1px solid $brandColor;
+  background-color: $color700Grey;
+}
 
-  &__btn {
-    margin: 0 5px;
-    font-family: $text-font-stack;
-  }
+.section-header + * {
+  background-color: $color625Grey;
+}
+
+.section-header,
+.section-header + * {
+  padding: 10px;
+}
+
+.section {
+  border: 2px solid orange;
 }
