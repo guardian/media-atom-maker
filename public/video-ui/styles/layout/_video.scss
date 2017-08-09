@@ -1,6 +1,30 @@
 .video-grid {
   display: grid;
   grid-gap: 10px;
+  grid-template-areas:
+    "metadata preview preview"
+    "metadata poster-image trail-image"
+    "usage usage usage";
+}
+
+.video-grid__metadata {
+  grid-area: metadata;
+}
+
+.video-grid__preview {
+  grid-area: preview;
+}
+
+.video-grid__poster-image {
+  grid-area: poster-image;
+}
+
+.video-grid__trail-image {
+  grid-area: trail-image;
+}
+
+.video-grid__usage {
+  grid-area: usage;
 }
 
 .video {

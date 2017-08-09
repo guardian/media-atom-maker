@@ -121,7 +121,7 @@ class VideoDisplay extends React.Component {
 
   renderPreview() {
     return (
-      <div className="section">
+      <div className="section video-grid__preview">
           <header className="section-header">
             Video Preview
             <Link
@@ -144,7 +144,7 @@ class VideoDisplay extends React.Component {
 
   renderMetadata() {
     return (
-      <div className="section">
+      <div className="section video-grid__metadata">
           <header className="section-header">
             Video Data
             {this.renderEditButton()}
@@ -174,7 +174,7 @@ class VideoDisplay extends React.Component {
 
   renderUsages() {
     return (
-      <div className="section">
+      <div className="section video-grid__usage">
         <header className="section-header">Usages</header>
         <VideoUsages
           video={this.props.video || {}}
@@ -194,7 +194,7 @@ class VideoDisplay extends React.Component {
 
   renderPosterImage() {
     return (
-      <div className="section">
+      <div className="section video-grid__poster-image">
         <header className="section-header">
           YouTube Poster Image
           <GridImageSelect
@@ -218,7 +218,7 @@ class VideoDisplay extends React.Component {
 
   renderTrailImage() {
     return (
-      <div className="section">
+      <div className="section video-grid__trail-image">
         <header className="section-header">
           Composer Trail Image
           <GridImageSelect
@@ -255,10 +255,10 @@ class VideoDisplay extends React.Component {
       <div className="video-grid">
         {this.renderSelectBar(video)}
         {this.renderMetadata()}
-        {this.renderUsages()}
         {this.renderPreview()}
         {this.renderPosterImage()}
         {this.renderTrailImage()}
+        {this.renderUsages()}
       </div>
     );
   }
