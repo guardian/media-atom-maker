@@ -174,7 +174,7 @@ export default class TagPicker extends React.Component {
   }
 
   onSort = (sortedList) => {
-    const newTagValues = sortedList.reduce((newTagValues, sortedValue) => {
+    const newTagValues = sortedList.reduce((sortedTagList, sortedValue) => {
 
       //For each component in the list of dragged elements,
       //we have to extract the name of the tag it represents.
@@ -182,8 +182,7 @@ export default class TagPicker extends React.Component {
 
       const tagValue = this.state.tagValue.find(value => value.webTitle === tagTitle);
 
-      newTagValues.push(tagValue);
-      return newTagValues;
+      return [...sortedTagList, tagValue];
     }, []);
 
     this.onUpdate(newTagValues);
