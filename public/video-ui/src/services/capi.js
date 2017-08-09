@@ -36,17 +36,18 @@ export default class ContentApi {
   }
 
   static getTagsByType(query, types) {
-
-    return Promise.all(types.map(type => {
-      if (query === '*') {
+    return Promise.all(
+      types.map(type => {
+        if (query === '*') {
+          return pandaReqwest({
+            url: `${ContentApi.proxyUrl}/tags?page-size=100&type=${type}` //TODO this is likely to change based on CAPI work to search by prefix on webTitle
+          });
+        }
+        const encodedQuery = encodeURIComponent(query);
         return pandaReqwest({
-          url: `${ContentApi.proxyUrl}/tags?page-size=100&type=${type}` //TODO this is likely to change based on CAPI work to search by prefix on webTitle
+          url: `${ContentApi.proxyUrl}/tags?page-size=100&type=${type}&web-title=${encodedQuery}`
         });
-      }
-      const encodedQuery = encodeURIComponent(query);
-      return pandaReqwest({
-        url: `${ContentApi.proxyUrl}/tags?page-size=100&type=${type}&web-title=${encodedQuery}`
-      });
-    }));
+      })
+    );
   }
 }
