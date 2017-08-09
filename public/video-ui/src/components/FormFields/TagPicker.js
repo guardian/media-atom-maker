@@ -156,7 +156,11 @@ export default class TagPicker extends React.Component {
 
     if (e.keyCode === keyCodes.enter && this.state.selectedTagIndex !== null) {
       const newTag = this.state.capiTags[this.state.selectedTagIndex];
-      const valueWithoutDupes = this.props.tagType === TagTypes.contributor ? removeStringTagDuplicates(newTag, this.state.tagValue) : removeTagDuplicates(newTag, this.state.tagValue);
+
+      const valueWithoutDupes = this.props.tagType === TagTypes.contributor ?
+        removeStringTagDuplicates(newTag, this.state.tagValue) :
+        removeTagDuplicates(newTag, this.state.tagValue);
+
       const newFieldValue = valueWithoutDupes.concat([newTag]);
 
       this.setState({
