@@ -3,8 +3,7 @@ export default function warnings(state = {}, action) {
     case 'FIELD_WARNINGS_UPDATE_REQUEST':
       return Object.assign({}, state, action.warning);
 
-  default:
-    return state;
+    default:
+      return state;
   }
-
 }

@@ -41,3 +41,9 @@
   text-overflow: ellipsis;
   margin-right: 10px;
 }
+
+.header__fields__missing__warning {
+  color: $dangerColor;
+  width: 180px;
+  margin-left: 5px;
+}

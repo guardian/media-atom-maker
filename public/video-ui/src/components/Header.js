@@ -9,26 +9,21 @@ import { Presence } from './Presence';
 import { getComposerPages } from '../util/getComposerPages';
 
 export default class Header extends React.Component {
- estate = { presence: null };
+  state = { presence: null };
 
   publishVideo = () => {
     this.props.publishVideo(this.props.video.id);
   };
 
-
   requiredComposerFieldsMissing = () => {
-
     return Object.keys(this.props.formFieldsWarning).some(key => {
-
       return this.props.formFieldsWarning[key];
     });
-  }
+  };
 
   composerPageExists = () => {
     return getComposerPages(this.props.usages).length > 0;
   };
-
-
 
   renderProgress() {
     if (this.props.s3Upload.total) {
@@ -67,7 +62,7 @@ export default class Header extends React.Component {
     );
   }
 
-  render() {
+  renderHeaderBack() {
     return (
       <div className="flex-container topbar__global">
         <Link
@@ -128,6 +123,26 @@ export default class Header extends React.Component {
     return false;
   }
 
+  renderComposerMissingWarning() {
+    if (!this.requiredComposerFieldsMissing()) {
+      return null;
+    }
+
+    if (this.composerPageExists()) {
+      return (
+        <div className="header__fields__missing__warning">
+          Fill in required composer fields before publishing
+        </div>
+      );
+    }
+
+    return (
+      <div className="header__fields__missing__warning">
+        Fill in required composer fields before creating video page
+      </div>
+    );
+  }
+
   render() {
     const className = this.props.isTrainingMode
       ? 'topbar topbar--training-mode flex-container'
@@ -181,7 +196,6 @@ export default class Header extends React.Component {
             requiredComposerFieldsMissing={this.requiredComposerFieldsMissing}
             composerPageExists={this.composerPageExists}
           />
-
           <AdvancedActions video={this.props.video || {}} />
           <ComposerPageCreate
             usages={this.props.usages}
@@ -191,6 +205,7 @@ export default class Header extends React.Component {
             requiredComposerFieldsMissing={this.requiredComposerFieldsMissing}
             composerPageExists={this.composerPageExists}
           />
+          {this.renderComposerMissingWarning()}
           <div className="flex-container">
             {this.renderAuditLink()}
             {this.renderHelpLink()}
