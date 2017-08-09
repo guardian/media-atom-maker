@@ -5,7 +5,7 @@
   render() {
     if (this.props.capiUnavailable) {
       return (
-        <div className="form__field--external__error">
+        <div className="form__field--external-error">
           Tags are currently unavailable
         </div>
       );
