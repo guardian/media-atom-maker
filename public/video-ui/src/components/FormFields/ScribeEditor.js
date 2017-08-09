@@ -5,6 +5,7 @@ import scribeKeyboardShortcutsPlugin from 'scribe-plugin-keyboard-shortcuts';
 import scribePluginToolbar from 'scribe-plugin-toolbar';
 import scribePluginLinkPromptCommand from 'scribe-plugin-link-prompt-command';
 import scribePluginSanitizer from 'scribe-plugin-sanitizer';
+import {keyCodes} from '../../constants/keyCodes';
 
 export default class ScribeEditorField extends React.Component {
   state = {
@@ -147,19 +148,19 @@ export class ScribeEditor extends React.Component {
 
     const allKeyboardShortcuts = {
       bold: function(event) {
-        return event.metaKey && event.keyCode === 66;
+        return event.metaKey && event.keyCode === keyCodes.b
       }, // b
       italic: function(event) {
-        return event.metaKey && event.keyCode === 73;
+        return event.metaKey && event.keyCode === keyCodes.i;
       }, // i
       linkPrompt: function(event) {
-        return event.metaKey && !event.shiftKey && event.keyCode === 75;
+        return event.metaKey && !event.shiftKey && event.keyCode === keyCodes.k;
       }, // k
       unlink: function(event) {
-        return event.metaKey && event.shiftKey && event.keyCode === 75;
+        return event.metaKey && event.shiftKey && event.keyCode === keyCodes.k;
       }, // shft + k
       insertUnorderedList: function(event) {
-        return event.altKey && event.shiftKey && event.keyCode === 66;
+        return event.altKey && event.shiftKey && event.keyCode === keyCodes.b;
       } // b
     }
 
