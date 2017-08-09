@@ -17,10 +17,9 @@ export default class CapiSearch extends React.Component {
   renderTags(tag, index) {
 
     const getTagClassName = () => {
-      const name = "form__field__tags" + (index === this.props.selectedTagIndex ? " form__field__tags--selected" : "");
-
       return "form__field__tags" + (index === this.props.selectedTagIndex ? " form__field__tags--selected" : "");
     }
+
     const addTag = () => {
 
       const valueWithoutStringDupes = this.props.removeDupes(
@@ -35,14 +34,14 @@ export default class CapiSearch extends React.Component {
     };
 
     return (
-      <a
+      <li
         className={getTagClassName()}
         key={tag.id}
         title={tag.id}
         onClick={addTag}
       >
         {' '}{tag.webTitle}{' '}
-      </a>
+      </li>
     );
   }
 
@@ -50,9 +49,9 @@ export default class CapiSearch extends React.Component {
 
     if (this.props.capiTags.length !== 0 && this.props.showTags) {
       return (
-        <div ref="list" className="form__field__tags" onMouseDown={this.props.tagsToVisible}>
+        <ul ref="list" className="form__field__tags" onMouseDown={this.props.tagsToVisible}>
           {this.props.capiTags.map((tag, index) => this.renderTags(tag, index))}
-        </div>
+        </ul>
       );
     }
 
