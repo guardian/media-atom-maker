@@ -1,10 +1,25 @@
 import React from 'react';
+import { PropTypes } from 'prop-types';
 import TagTypes from '../../constants/TagTypes';
 import DragSortableList from 'react-drag-sortable';
 import CapiSearch from '../CapiSearch/CapiSearch';
 import removeTagDuplicates from '../../util/removeTagDuplicates';
 
 export default class PureTagPicker extends React.Component {
+
+  static propTypes = {
+    tagValue: PropTypes.array.isRequired,
+    onUpdate: PropTypes.func.isRequired,
+    fetchTags: PropTypes.func.isRequired,
+    onUpdate: PropTypes.func.isRequired,
+    capiTags: PropTypes.array.isRequired,
+    tagsToVisible: PropTypes.func.isRequired,
+    showTags: PropTypes.bool.isRequired,
+    hideTagResults: PropTypes.func.isRequired,
+    selectedTagIndex: PropTypes.number,
+    inputClearCount: PropTypes.number.isRequired,
+    inputPlaceholder: PropTypes.string.isRequired
+  }
 
   state = {
     inputString: '',

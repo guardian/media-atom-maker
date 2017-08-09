@@ -1,4 +1,5 @@
 import React from 'react';
+import { PropTypes } from 'prop-types';
 import { keyCodes } from '../../constants/keyCodes';
 import UserActions from '../../constants/UserActions';
 import TagTypes from '../../constants/TagTypes';
@@ -7,6 +8,23 @@ import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 import removeTagDuplicates from '../../util/removeTagDuplicates';
 
 export default class TextInputTagPicker extends React.Component {
+
+  static propTypes = {
+    tagValue: PropTypes.array.isRequired,
+    onUpdate: PropTypes.func.isRequired,
+    fetchTags: PropTypes.func.isRequired,
+    removeFn: PropTypes.func.isRequired,
+    onUpdate: PropTypes.func.isRequired,
+    capiTags: PropTypes.array.isRequired,
+    tagsToVisible: PropTypes.func.isRequired,
+    showTags: PropTypes.bool.isRequired,
+    hideTagResults: PropTypes.func.isRequired,
+    selectedTagIndex: PropTypes.number,
+    inputClearCount: PropTypes.number.isRequired,
+    disableCapiTags: PropTypes.bool,
+    tagType: PropTypes.string,
+    fieldName: PropTypes.string
+  }
 
   state = {
     inputString: '',
