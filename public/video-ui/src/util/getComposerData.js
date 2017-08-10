@@ -1,5 +1,9 @@
 import { parseComposerDataFromImage } from './parseGridMetadata';
 
+function asBooleanString(value) {
+  return value ? 'true' : 'false';
+}
+
 export function getComposerData(video) {
   return [
     {
@@ -22,13 +26,33 @@ export function getComposerData(video) {
     },
     {
       name: 'sensitive',
-      value: video.sensitive ? 'true' : 'false',
+      value: asBooleanString(video.sensitive),
       belongsTo: 'settings'
     },
     {
       name: 'legallySensitive',
-      value: video.legallySensitive ? 'true' : 'false',
+      value: asBooleanString(video.legallySensitive),
       belongsTo: 'settings'
+    },
+    {
+      name: 'blockAds',
+      value: asBooleanString(video.blockAds),
+      belongsTo: 'settings'
+    },
+    {
+      name: 'commentable',
+      value: asBooleanString(video.composerCommentsEnabled),
+      belongsTo: 'settings'
+    },
+    {
+      name: 'relatedContentOff',
+      value: asBooleanString(video.suppressRelatedContent),
+      belongsTo: 'settings'
+    },
+    {
+      name: 'seoOptimised',
+      value: asBooleanString(video.optimisedForWeb),
+      belongsTo: 'toolSettings'
     },
     {
       name: 'byline',

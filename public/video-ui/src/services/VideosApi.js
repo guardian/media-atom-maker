@@ -140,6 +140,16 @@ export default {
         }
       }
 
+      if (data.belongsTo === 'toolSettings') {
+        return pandaReqwest({
+          url: `${composerUrl}/api/content/${pageId}/toolSettings/${data.name}`,
+          method: 'put',
+          crossOrigin: true,
+          withCredentials: true,
+          data: `"${data.value}"`
+        });
+      }
+
       if (data.value || data.belongsTo === 'settings') {
         const value = data.isFreeText
           ? data.value.split('"').join('\\"')

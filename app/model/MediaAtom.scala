@@ -6,52 +6,62 @@ import org.cvogt.play.json.Jsonx
 import util.atom.MediaAtomImplicits
 
 abstract class MediaAtomBase {
-  val title: String
+  //generic metadata
+  val title: String //aka headline
+  val description: Option[String] //aka standfirst
+  val posterImage: Option[Image]
   val category: Category
   val source: Option[String]
-  val description: Option[String]
-  val trailText: Option[String]
-  val posterImage: Option[Image]
+
+  //youtube metadata
+  val channelId: Option[String]
+  val privacyStatus: Option[PrivacyStatus]
+  val youtubeCategoryId: Option[String]
+  val keywords: List[String]
+  val license: Option[String]
+  val blockAds: Boolean
+  val expiryDate: Option[Long]
+
+  //composer metadata
   val trailImage: Option[Image]
-  // metadata
+  val trailText: Option[String]
   val tags: List[String]
   val byline: List[String]
   val commissioningDesks: List[String]
-  val keywords: List[String]
-  val youtubeCategoryId: Option[String]
-  val license: Option[String]
-  val channelId: Option[String]
-  val commentsEnabled: Boolean
   val legallySensitive: Option[Boolean]
   val sensitive: Option[Boolean]
-  val privacyStatus: Option[PrivacyStatus]
-  val expiryDate: Option[Long]
-  val blockAds: Boolean
+  val optimisedForWeb: Option[Boolean]
+  val composerCommentsEnabled: Option[Boolean]
+  val suppressRelatedContent: Option[Boolean]
 }
 
 // This is used to parse the a media atom from a create atom
 // request before an id has been added to it
 case class MediaAtomBeforeCreation(
   title: String,
+  description: Option[String],
+  posterImage: Option[Image],
   category: Category,
   source: Option[String],
-  description: Option[String],
-  trailText: Option[String],
-  posterImage: Option[Image],
+
+  channelId: Option[String],
+  privacyStatus: Option[PrivacyStatus],
+  youtubeCategoryId: Option[String],
+  keywords: List[String],
+  license: Option[String],
+  blockAds: Boolean,
+  expiryDate: Option[Long],
+
   trailImage: Option[Image],
+  trailText: Option[String],
   tags: List[String],
   byline: List[String],
   commissioningDesks: List[String],
-  keywords: List[String],
-  youtubeCategoryId: Option[String],
-  license: Option[String],
-  channelId: Option[String],
-  commentsEnabled: Boolean,
   legallySensitive: Option[Boolean],
   sensitive: Option[Boolean],
-  privacyStatus: Option[PrivacyStatus],
-  expiryDate: Option[Long],
-  blockAds: Boolean
+  optimisedForWeb: Option[Boolean],
+  composerCommentsEnabled: Option[Boolean],
+  suppressRelatedContent: Option[Boolean]
 ) extends MediaAtomBase {
 
   def asThrift(id: String, contentChangeDetails: ContentChangeDetails) = {
@@ -74,12 +84,14 @@ case class MediaAtomBeforeCreation(
         tags = Some(tags),
         categoryId = youtubeCategoryId,
         license = license,
-        commentsEnabled = Some(commentsEnabled),
         channelId = channelId,
         privacyStatus = privacyStatus.flatMap(_.asThrift),
         expiryDate = expiryDate,
         pluto = None
-      ))
+      )),
+      commentsEnabled = composerCommentsEnabled,
+      optimisedForWeb = optimisedForWeb,
+      suppressRelatedContent = suppressRelatedContent
     )
 
     ThriftAtom(
@@ -129,14 +141,15 @@ case class MediaAtom(
   youtubeCategoryId: Option[String],
   license: Option[String],
   channelId: Option[String],
-  commentsEnabled: Boolean = false,
   legallySensitive: Option[Boolean],
   sensitive: Option[Boolean],
   privacyStatus: Option[PrivacyStatus],
   expiryDate: Option[Long] = None,
-  blockAds: Boolean = false)
+  blockAds: Boolean = false,
+  composerCommentsEnabled: Option[Boolean] = Some(false),
+  optimisedForWeb: Option[Boolean] = Some(false),
+  suppressRelatedContent: Option[Boolean] = Some(false))
     extends MediaAtomBase {
-
 
   def asThrift = {
     val data = ThriftMediaAtom(
@@ -158,12 +171,14 @@ case class MediaAtom(
         tags = Some(tags),
         categoryId = youtubeCategoryId,
         license = license,
-        commentsEnabled = Some(commentsEnabled),
         channelId = channelId,
         privacyStatus = privacyStatus.flatMap(_.asThrift),
         expiryDate = expiryDate,
         pluto = plutoData.map(_.asThrift)
-      ))
+      )),
+      commentsEnabled = composerCommentsEnabled,
+      optimisedForWeb = optimisedForWeb,
+      suppressRelatedContent = suppressRelatedContent
     )
 
     ThriftAtom(
@@ -212,11 +227,13 @@ object MediaAtom extends MediaAtomImplicits {
       expiryDate = data.metadata.map(_.expiryDate).getOrElse(None),
       blockAds = atom.flags.flatMap(_.blockAds).getOrElse(false),
       license = data.metadata.flatMap(_.license),
-      commentsEnabled = data.metadata.flatMap(_.commentsEnabled).getOrElse(false),
       channelId = data.metadata.flatMap(_.channelId),
       legallySensitive = atom.flags.flatMap(_.legallySensitive),
       sensitive = atom.flags.flatMap(_.sensitive),
-      privacyStatus = data.metadata.flatMap(_.privacyStatus).flatMap(PrivacyStatus.fromThrift)
+      privacyStatus = data.metadata.flatMap(_.privacyStatus).flatMap(PrivacyStatus.fromThrift),
+      composerCommentsEnabled = data.commentsEnabled,
+      optimisedForWeb = data.optimisedForWeb,
+      suppressRelatedContent = data.suppressRelatedContent
     )
   }
 
