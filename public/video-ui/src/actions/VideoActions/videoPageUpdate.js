@@ -18,7 +18,7 @@ function receiveVideoPageUpdate(newTitle) {
 function errorReceivingVideoPageUpdate(error) {
   return {
     type: 'SHOW_ERROR',
-    message: 'Could not update a video page',
+    message: 'Could not update a composer video page. Make sure you have permissions to relaunch published content. ',
     error: error,
     receivedAt: Date.now()
   };
