@@ -47,146 +47,164 @@ class VideoData extends React.Component {
           formName={this.props.formName}
           formClass="atom__edit__form"
         >
-          <ManagedSection>
-            <ManagedField
-              fieldLocation="title"
-              name={
-                notOnManagedChannel ? 'Headline' : 'Headline (YouTube title)'
-              }
-              maxLength={fieldLengths.title}
-              isRequired={true}
-            >
-              <TextInput />
-            </ManagedField>
-            <ManagedField
-              fieldLocation="description"
-              name={
-                notOnManagedChannel
-                  ? 'Standfirst'
-                  : 'Standfirst (YouTube description)'
-              }
-              customValidation={this.props.descriptionValidator}
-              isDesired={true}
-              maxCharLength={fieldLengths.description.charMax}
-              maxLength={fieldLengths.description.max}
-            >
-              <ScribeEditorField />
-            </ManagedField>
-            <ManagedField
-              fieldLocation="trailText"
-              derivedFrom={this.props.video.description}
-              name="Trail Text"
-              maxCharLength={fieldLengths.description.charMax}
-              maxLength={fieldLengths.description.max}
-            >
-              <ScribeEditorField />
-            </ManagedField>
+          <ManagedField
+            fieldLocation="title"
+            name={
+              notOnManagedChannel ? 'Headline' : 'Headline (YouTube title)'
+            }
+            maxLength={fieldLengths.title}
+            isRequired={true}
+          >
+            <TextInput />
+          </ManagedField>
+          <ManagedField
+            fieldLocation="description"
+            name={
+              notOnManagedChannel
+                ? 'Standfirst'
+                : 'Standfirst (YouTube description)'
+            }
+            customValidation={this.props.descriptionValidator}
+            isDesired={true}
+            maxCharLength={fieldLengths.description.charMax}
+            maxLength={fieldLengths.description.max}
+          >
+            <ScribeEditorField />
+          </ManagedField>
+          <ManagedField
+            fieldLocation="trailText"
+            derivedFrom={this.props.video.description}
+            name="Trail Text"
+            maxCharLength={fieldLengths.description.charMax}
+            maxLength={fieldLengths.description.max}
+          >
+            <ScribeEditorField />
+          </ManagedField>
 
-            <ManagedField
-              fieldLocation="byline"
-              name="Byline"
-              formRowClass="form__row__byline"
-              tagType={TagTypes.contributor}
-            >
-              <TagPicker />
-            </ManagedField>
-            <ManagedField
-              fieldLocation="commissioningDesks"
-              name="Comissioning Desks"
-              formRowClass="form__row__byline"
-              tagType={TagTypes.tracking}
-              inputPlaceholder="Search commissioning info (type '*' to show all)"
-            >
-              <TagPicker disableTextInput />
-            </ManagedField>
+          <ManagedField
+            fieldLocation="byline"
+            name="Byline"
+            formRowClass="form__row__byline"
+            tagType={TagTypes.contributor}
+          >
+            <TagPicker />
+          </ManagedField>
+          <ManagedField
+            fieldLocation="commissioningDesks"
+            name="Comissioning Desks"
+            formRowClass="form__row__byline"
+            tagType={TagTypes.tracking}
+            inputPlaceholder="Search commissioning info (type '*' to show all)"
+          >
+            <TagPicker disableTextInput />
+          </ManagedField>
 
-            <ManagedField
-              fieldLocation="keywords"
-              name="Composer Keywords"
-              formRowClass="form__row__byline"
-              tagType={TagTypes.keyword}
-              inputPlaceholder="Search keywords (type '*' to show all)"
-            >
-              <TagPicker disableTextInput />
-            </ManagedField>
-            <ManagedField fieldLocation="source" name="Video Source">
-              <TextInput />
-            </ManagedField>
-          </ManagedSection>
-          <ManagedSection>
-            <ManagedField fieldLocation="expiryDate" name="Expiry Date">
-              <DatePicker />
-            </ManagedField>
-            <ManagedField
-              fieldLocation="category"
-              name="Category"
-              disabled={isHosted && hasAssets}
-            >
-              <SelectBox selectValues={videoCategories} />
-            </ManagedField>
-            <ManagedField
-              fieldLocation="privacyStatus"
-              name="Privacy Status"
-              disabled={notOnManagedChannel}
-            >
-              <SelectBox selectValues={privacyStates} />
-            </ManagedField>
-            <ManagedField
-              fieldLocation="tags"
-              name="YouTube Keywords"
-              placeholder="No keywords"
-              tagType={TagTypes.youtube}
-              disabled={notOnManagedChannel}
-            >
-              <TagPicker disableCapiTags />
-            </ManagedField>
-          </ManagedSection>
-          <ManagedSection>
-            <ManagedField
-              fieldLocation="blockAds"
-              name="Block ads"
-              fieldDetails="Ads will not be displayed with this video"
-              disabled={notOnManagedChannel}
-              tooltip={`Videos less than ${getStore().getState().config.minDurationForAds} seconds will automatically have ads blocked`}
-            >
-              <CheckBox />
-            </ManagedField>
-            <ManagedField
-              fieldLocation="composerCommentsEnabled"
-              name="Comments"
-              fieldDetails="Allow comments on Guardian video page (does not change YouTube)"
-            >
-              <CheckBox />
-            </ManagedField>
-            <ManagedField
-              fieldLocation="optimisedForWeb"
-              name="Optimised for Web"
-              fieldDetails="Optimised for Web"
-            >
-              <CheckBox />
-            </ManagedField>
-            <ManagedField
-              fieldLocation="sensitive"
-              name="Sensitive"
-              fieldDetails="Contains sensitive content"
-            >
-              <CheckBox />
-            </ManagedField>
-            <ManagedField
-              fieldLocation="legallySensitive"
-              name="Legally Sensitive"
-              fieldDetails="This content involves active criminal proceedings"
-            >
-              <CheckBox />
-            </ManagedField>
-            <ManagedField
-              fieldLocation="suppressRelatedContent"
-              name="Suppress related content"
-              fieldDetails="Suppress related content"
-            >
-              <CheckBox />
-            </ManagedField>
-          </ManagedSection>
+          <ManagedField
+            fieldLocation="keywords"
+            name="Composer Keywords"
+            formRowClass="form__row__byline"
+            tagType={TagTypes.keyword}
+            inputPlaceholder="Search keywords (type '*' to show all)"
+          >
+            <TagPicker disableTextInput />
+          </ManagedField>
+          <ManagedField fieldLocation="source" name="Video Source">
+            <TextInput />
+          </ManagedField>
+          <ManagedField
+            fieldLocation="sensitive"
+            name="Sensitive"
+            fieldDetails="Contains sensitive content"
+          >
+            <CheckBox />
+          </ManagedField>
+          <ManagedField
+            fieldLocation="legallySensitive"
+            name="Legally Sensitive"
+            fieldDetails="This content involves active criminal proceedings."
+          >
+            <CheckBox />
+          </ManagedField>
+          <ManagedField
+            fieldLocation="blockAds"
+            name="Block ads"
+            fieldDetails="Ads will not be displayed with this video"
+            disabled={notOnManagedChannel}
+            tooltip={`Videos less than ${getStore().getState().config.minDurationForAds} seconds will automatically have ads blocked`}
+          >
+            <CheckBox />
+          </ManagedField>
+          <ManagedField fieldLocation="expiryDate" name="Expiry Date">
+            <DatePicker />
+          </ManagedField>
+          <ManagedField
+            fieldLocation="category"
+            name="Category"
+            disabled={isHosted && hasAssets}
+          >
+            <SelectBox selectValues={videoCategories} />
+          </ManagedField>
+          <ManagedField
+            fieldLocation="privacyStatus"
+            name="Privacy Status"
+            disabled={notOnManagedChannel}
+          >
+            <SelectBox selectValues={privacyStates} />
+          </ManagedField>
+          <ManagedField
+            fieldLocation="tags"
+            name="YouTube Keywords"
+            placeholder="No keywords"
+            tagType={TagTypes.youtube}
+            disabled={notOnManagedChannel}
+          >
+            <TagPicker disableCapiTags />
+          </ManagedField>
+
+          <ManagedField
+            fieldLocation="blockAds"
+            name="Block ads"
+            fieldDetails="Ads will not be displayed with this video"
+            disabled={notOnManagedChannel}
+            tooltip={`Videos less than ${getStore().getState().config.minDurationForAds} seconds will automatically have ads blocked`}
+          >
+            <CheckBox />
+          </ManagedField>
+          <ManagedField
+            fieldLocation="composerCommentsEnabled"
+            name="Comments"
+            fieldDetails="Allow comments on Guardian video page (does not change YouTube)"
+          >
+            <CheckBox />
+          </ManagedField>
+          <ManagedField
+            fieldLocation="optimisedForWeb"
+            name="Optimised for Web"
+            fieldDetails="Optimised for Web"
+          >
+            <CheckBox />
+          </ManagedField>
+          <ManagedField
+            fieldLocation="sensitive"
+            name="Sensitive"
+            fieldDetails="Contains sensitive content"
+          >
+            <CheckBox />
+          </ManagedField>
+          <ManagedField
+            fieldLocation="legallySensitive"
+            name="Legally Sensitive"
+            fieldDetails="This content involves active criminal proceedings"
+          >
+            <CheckBox />
+          </ManagedField>
+          <ManagedField
+            fieldLocation="suppressRelatedContent"
+            name="Suppress related content"
+            fieldDetails="Suppress related content"
+          >
+            <CheckBox />
+          </ManagedField>
         </ManagedForm>
       </div>
     );
