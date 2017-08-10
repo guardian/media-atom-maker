@@ -21,6 +21,9 @@
   color: $textColor;
   font-size: 13px;
   width: 60px;
+  padding-top: 4px;
+  margin-bottom: 4px;
+  margin-left: 2px;
   &:focus {
     outline: none;
   }
@@ -31,7 +34,19 @@
 }
 
 .form__field__tag--container {
-  padding-top: 2px;
+  display: flex;
+}
+
+.form__field__selected__tag {
+  border: 1px solid $color400Grey;
+  margin-top: 3px;
+  padding: 3px;
+}
+
+.form__field__tag__list {
+  padding: 3px;
+  border: 1px solid $color400Grey;
+  margin-top: 3px;
 }
 
 .form__field__tag--selector {
@@ -43,7 +58,7 @@
   padding: 5px 5px;
   cursor: pointer;
   flex-wrap: wrap;
-  min-height: 35px;
+  min-height: 36px;
 }
 
 .form__field {
@@ -55,7 +70,7 @@
   background-color: $color650Grey;
   color: $cWhite;
   display: inline-block;
-  height: 35px;
+  height: 36px;
 
   &:not(:last-child) {
     margin: 0 0 10px;
@@ -99,8 +114,9 @@
     border-color: $dangerColor;
   }
 
-  &--external__error {
+  &--external-error {
     color: $dangerColor;
+    margin-top: 10px;
   }
 
   &--warning {
@@ -268,10 +284,16 @@
   cursor: pointer;
   overflow: auto;
   max-height: 250px;
+
+  &--selected {
+    background: $color800Grey;
+  }
 }
+
 
 .form__field__tag__display {
   text-decoration: underline $textColor;
+  padding: 3px;
 }
 
 .form__field--multiselect {
@@ -327,19 +349,27 @@
     cursor: pointer;
     flex-shrink: 0;
 
+  }
+}
 
-    &:after {
-      content: '×';
-      display: inline-block;
-      font-weight: normal;
-      margin-left: 4px;
-    }
+.form__field__tag__remove {
+  &:after {
+    content: '×';
+    display: inline-block;
+    font-weight: normal;
+    margin-left: 4px;
+    cursor: pointer;
   }
 }
 
 .form__field--multistring__value {
   padding-right: 2px;
   padding-top: 2px;
+}
+
+
+.form__field--multistring__last {
+  margin-top: 2px;
 }
 
 // bit specific
