@@ -45,7 +45,7 @@ export default class TagPicker extends React.Component {
 
   fetchTags = searchText => {
 
-     const tagTypes = this.props.tagType === TagTypes.keyword ? [TagTypes.series, TagTypes.keyword] : [this.props.tagType];
+     const tagTypes = this.props.tagType === TagTypes.keyword ? [TagTypes.tone, TagTypes.series, TagTypes.keyword] : [this.props.tagType];
 
     ContentApi.getTagsByType(searchText, tagTypes)
       .then(capiResponses => {
