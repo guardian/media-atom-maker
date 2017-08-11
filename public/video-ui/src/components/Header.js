@@ -121,9 +121,15 @@ export default class Header extends React.Component {
   }
 
   render() {
+    const className = this.props.isTrainingMode
+      ? 'topbar topbar--training-mode flex-container'
+      : 'topbar flex-container';
+
+    console.log(className);
+
     if (this.props.currentPath.endsWith('/upload')) {
       return (
-        <header className="topbar flex-container">
+        <header className={className}>
           {this.renderPresence()}
           {this.renderProgress()}
           {this.renderHeaderBack()}
@@ -132,7 +138,7 @@ export default class Header extends React.Component {
     }
     if (!this.props.showPublishedState) {
       return (
-        <header className="topbar flex-container">
+        <header className={className}>
           {this.renderPresence()}
           {this.renderProgress()}
 
@@ -150,7 +156,7 @@ export default class Header extends React.Component {
       );
     } else {
       return (
-        <header className="topbar flex-container">
+        <header className={className}>
           {this.renderPresence()}
           {this.renderProgress()}
           {this.renderHome()}

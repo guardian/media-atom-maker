@@ -20,6 +20,7 @@ export const routes = (
       <Route path="/videos/:id/audit" component={VideoAuditTrail} />
       <Route path="/videos/:id/upload" component={VideoUpload} />
       <Route path="/help" component={Help} />
+      <Route path="/training" component={Help} />
     </Route>
   </Router>
 );

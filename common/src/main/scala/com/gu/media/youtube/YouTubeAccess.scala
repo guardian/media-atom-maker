@@ -14,6 +14,7 @@ trait YouTubeAccess extends Settings {
   def appName: String = getMandatoryString("name")
   def contentOwner: String = getMandatoryString("youtube.contentOwner")
   val allowedChannels: List[String] = getStringList("youtube.allowedChannels")
+  val trainingChannels: List[String] = getStringList("youtube.trainingChannels")
   val disallowedVideos: List[String] = getStringList("youtube.disallowedVideos")
   val usePartnerApi: Boolean = getString("youtube.usePartnerApi").forall(_.toBoolean)
 

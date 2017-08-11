@@ -11,13 +11,14 @@ import play.api.Configuration
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.Json
 import play.api.mvc.Controller
-import util.AWSConfig
+import util.{AWSConfig, TrainingMode}
 
 class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfig: AWSConfig,
-                 permissions: MediaAtomMakerPermissionsProvider, youtube: YouTubeAccess) extends Controller with Logging {
+                 permissions: MediaAtomMakerPermissionsProvider, youtube: YouTubeAccess) extends Controller with Logging with TrainingMode {
   import authActions.AuthAction
 
   def index(id: String = "") = AuthAction.async { req =>
+    val isTrainingMode = isInTrainingMode(req)
 
     val jsFileName = "video-ui/build/app.js"
 
@@ -50,7 +51,8 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
         stage = conf.getString("stage").get,
         viewerUrl = awsConfig.viewerUrl,
         permissions,
-        minDurationForAds = youtube.minDurationForAds
+        minDurationForAds = youtube.minDurationForAds,
+        isTrainingMode = isTrainingMode
       )
 
       Ok(views.html.VideoUIApp.app(
@@ -65,6 +67,12 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
 
   def reauth = AuthAction {
     Ok("auth ok")
+  }
+
+  def training(inTraining: Boolean) = AuthAction { req =>
+    Redirect("/", FOUND).withSession(
+      req.session + ("isTrainingMode" -> inTraining.toString)
+    )
   }
 
   private def presenceConfig(user: User): Option[Presence] = {
