@@ -19,4 +19,7 @@ export default class TagTypes {
     return 'youtube';
   }
 
+  static get tone() {
+    return 'tone';
+  }
 }
