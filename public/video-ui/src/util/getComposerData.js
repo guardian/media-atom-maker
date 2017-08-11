@@ -25,6 +25,11 @@ export function getComposerData(video) {
       isFreeText: true
     },
     {
+      name: 'linkText',
+      value: video.title,
+      belongsTo: 'fields'
+    },
+    {
       name: 'sensitive',
       value: asBooleanString(video.sensitive),
       belongsTo: 'settings'
