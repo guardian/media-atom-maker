@@ -30,7 +30,7 @@ export default class TagPicker extends React.Component {
       tagsFromStringList(this.props.fieldValue, this.props.tagType)
         .then(result => {
           this.setState({
-            tagValue: getTagDisplayNames(result)
+            tagValue: result
           });
         })
         .catch(() => {
@@ -45,7 +45,7 @@ export default class TagPicker extends React.Component {
 
   fetchTags = searchText => {
 
-     const tagTypes = this.props.tagType === TagTypes.keyword ? [TagTypes.tone, TagTypes.series, TagTypes.keyword] : [this.props.tagType];
+     const tagTypes = this.props.tagType === TagTypes.keyword ? [TagTypes.series, TagTypes.keyword] : [this.props.tagType];
 
     ContentApi.getTagsByType(searchText, tagTypes)
       .then(capiResponses => {
@@ -221,7 +221,7 @@ export default class TagPicker extends React.Component {
         className="form__field__selected__tag"
       >
         <span>
-          {tag.detailedTitle}
+          {tag.webTitle}
         </span>
         <span
           className="form__field__tag__remove"
