@@ -16,7 +16,9 @@ export function tagsFromStringList(savedTags, tagType) {
           const tag = capiResponse.response.tag;
           return {
             id: tag.id,
-            webTitle: tag.webTitle
+            webTitle: tag.webTitle,
+            type: tag.type,
+            sectionName: tag.sectionName
           };
         });
       }

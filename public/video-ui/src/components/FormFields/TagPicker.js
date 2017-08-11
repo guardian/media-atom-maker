@@ -30,7 +30,7 @@ export default class TagPicker extends React.Component {
       tagsFromStringList(this.props.fieldValue, this.props.tagType)
         .then(result => {
           this.setState({
-            tagValue: result
+            tagValue: getTagDisplayNames(result)
           });
         })
         .catch(() => {
@@ -221,7 +221,7 @@ export default class TagPicker extends React.Component {
         className="form__field__selected__tag"
       >
         <span>
-          {tag.webTitle}
+          {tag.detailedTitle}
         </span>
         <span
           className="form__field__tag__remove"
