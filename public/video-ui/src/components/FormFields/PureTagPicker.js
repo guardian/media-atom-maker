@@ -18,7 +18,8 @@ export default class PureTagPicker extends React.Component {
     hideTagResults: PropTypes.func.isRequired,
     selectedTagIndex: PropTypes.number,
     inputClearCount: PropTypes.number.isRequired,
-    inputPlaceholder: PropTypes.string.isRequired
+    inputPlaceholder: PropTypes.string.isRequired,
+    updateSideEffects: PropTypes.func
   }
 
   state = {
@@ -72,6 +73,7 @@ export default class PureTagPicker extends React.Component {
           tagValue={this.props.tagValue}
           removeDupes={removeTagDuplicates}
           selectedTagIndex={this.props.selectedTagIndex}
+          updateSideEffects={this.props.updateSideEffects}
         />
 
       </div>

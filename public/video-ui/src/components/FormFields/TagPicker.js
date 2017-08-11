@@ -44,6 +44,19 @@ export default class TagPicker extends React.Component {
     }
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (this.props.tagType === TagTypes.youtube) {
+      if (this.props.fieldValue.length !== nextProps.fieldValue.length) {
+        tagsFromStringList(nextProps.fieldValue, this.props.tagType)
+        .then(result => {
+          this.setState({
+            tagValue: result
+          });
+        })
+      }
+    }
+  }
+
   fetchTags = searchText => {
 
      const tagTypes = this.props.tagType === TagTypes.keyword ? [TagTypes.tone, TagTypes.series, TagTypes.keyword] : [this.props.tagType];
@@ -171,6 +184,9 @@ export default class TagPicker extends React.Component {
 
       this.onUpdate(newFieldValue);
 
+      if (this.props.updateSideEffects) {
+        this.props.updateSideEffects(newTag);
+      }
     }
   }
 
@@ -267,6 +283,7 @@ export default class TagPicker extends React.Component {
         hideTagResults={this.hideTagResults}
         selectedTagIndex={this.state.selectedTagIndex}
         inputClearCount={this.state.inputClearCount}
+        updateSideEffects={this.props.updateSideEffects}
 
         {...this.props}
       />

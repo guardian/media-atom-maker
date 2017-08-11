@@ -40,6 +40,16 @@ class VideoDisplay extends React.Component {
     this.props.videoActions.updateVideo(video);
   };
 
+  composerKeywordsToYouTube = keywordTag => {
+    if (this.props.video.tags.every(youTubeTag => {
+      return youTubeTag !== keywordTag.webTitle
+    })) {
+      const newTags = this.props.video.tags.concat([keywordTag.webTitle]);
+      const newVideo = Object.assign({}, this.props.video, { tags: newTags });
+      this.updateVideo(newVideo);
+    }
+  }
+
   selectVideo = () => {
     window.parent.postMessage({ atomId: this.props.video.id }, '*');
   };
@@ -194,6 +204,7 @@ class VideoDisplay extends React.Component {
           updateErrors={this.props.formErrorActions.updateFormErrors}
           updateWarnings={this.props.formErrorActions.updateFormWarnings}
           validateKeywords={this.validateKeywords}
+          composerKeywordsToYouTube={this.composerKeywordsToYouTube}
         />
       </div>
     );
