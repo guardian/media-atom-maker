@@ -7,6 +7,7 @@ import VideoAuditTrail from './components/VideoAuditTrail/VideoAuditTrail';
 import VideoUpload from './components/VideoUpload/VideoUpload';
 import VideoPlutoList from './components/VideoPluto/VideoPlutoList';
 import Help from './components/Help/Help';
+import Training from './components/Training/Training';
 import ReactApp from './components/ReactApp';
 
 export const routes = (
@@ -20,7 +21,7 @@ export const routes = (
       <Route path="/videos/:id/audit" component={VideoAuditTrail} />
       <Route path="/videos/:id/upload" component={VideoUpload} />
       <Route path="/help" component={Help} />
-      <Route path="/training" component={Help} />
+      <Route path="/training" component={Training} />
     </Route>
   </Router>
 );
