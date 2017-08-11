@@ -125,8 +125,6 @@ export default class Header extends React.Component {
       ? 'topbar topbar--training-mode flex-container'
       : 'topbar flex-container';
 
-    console.log(className);
-
     if (this.props.currentPath.endsWith('/upload')) {
       return (
         <header className={className}>

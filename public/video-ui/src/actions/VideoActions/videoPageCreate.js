@@ -25,7 +25,7 @@ function errorReceivingVideoPageCreate(error) {
   };
 }
 
-export function createVideoPage(id, video, composerUrl, videoBlock) {
+export function createVideoPage(id, video, composerUrl, videoBlock, isTrainingMode) {
   return dispatch => {
     dispatch(requestVideoPageCreate());
 
@@ -34,12 +34,13 @@ export function createVideoPage(id, video, composerUrl, videoBlock) {
         const pageId = res.data.id;
         const pagePath = res.data.identifiers.path.data;
 
-        return VideosApi.addVideoToComposerPage(
-          pageId,
-          videoBlock,
-          composerUrl,
-          false
-        ).then(() => {
+        const addVideo = VideosApi.addVideoToComposerPage(pageId, videoBlock, composerUrl, false);
+
+        const postCreation = isTrainingMode
+          ? [VideosApi.preventPublication(pageId, composerUrl), addVideo]
+          : [addVideo];
+
+        return Promise.all(postCreation).then(() => {
           // it takes a little time for the new Composer page to get to CAPI,
           // so keep trying until success or timeout
           return ContentApi.getByPath(pagePath, true).then(capiResponse => {
