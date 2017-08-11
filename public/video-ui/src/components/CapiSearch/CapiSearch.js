@@ -40,7 +40,7 @@ export default class CapiSearch extends React.Component {
         title={tag.id}
         onClick={addTag}
       >
-        {' '}{tag.webTitle}{' '}
+        {' '}{tag.detailedTitle}{' '}
       </li>
     );
   }
