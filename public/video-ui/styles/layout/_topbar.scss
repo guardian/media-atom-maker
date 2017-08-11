@@ -12,6 +12,10 @@ $topbarHeight: 50px;
         $color800Grey 10px,
         $color800Grey 20px
     );
+
+    .topbar__search {
+      background-color: $color700Grey;
+    }
   }
 }
 
@@ -22,6 +26,9 @@ $topbarHeight: 50px;
   input {
     background-color: transparent;
     border: none;
+    &::placeholder {
+      color: $color400Grey;
+    }
   }
 }
 
