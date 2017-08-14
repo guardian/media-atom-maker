@@ -74,7 +74,7 @@ export default class VideoUsages extends React.Component {
 
   renderUsages() {
     return (
-      <ul className="detail__list">
+      <ul>
         {this.props.usages.map(this.renderUsage)}
       </ul>
     );
@@ -82,14 +82,12 @@ export default class VideoUsages extends React.Component {
 
   render() {
     if (!this.props.usages) {
-      return <div className="baseline-margin">Fetching Usages...</div>;
+      return <div>Fetching Usages...</div>;
     }
 
     if (this.props.usages.length === 0) {
       return (
-        <div>
-          <div className="baseline-margin">No usages found</div>
-        </div>
+        <div>No usages found</div>
       );
     } else {
       return (

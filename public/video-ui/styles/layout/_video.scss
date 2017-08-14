@@ -1,3 +1,34 @@
+.video-grid {
+  margin: 10px;
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-areas:
+    "metadata poster-image trail-image"
+    "metadata preview preview"
+    "metadata usage usage";
+}
+
+.video-grid__metadata {
+  grid-area: metadata;
+}
+
+.video-grid__preview {
+  grid-area: preview;
+}
+
+.video-grid__poster-image {
+  grid-area: poster-image;
+}
+
+.video-grid__trail-image {
+  grid-area: trail-image;
+}
+
+.video-grid__usage {
+  grid-area: usage;
+}
+
 .video {
   width: 100%;
   display: flex;
@@ -29,6 +60,11 @@
     display: block;
   }
   padding: 10px;
+
+  iframe {
+    width: 100%;
+    height: 100%;
+  }
 }
 
 .video__preview__player {

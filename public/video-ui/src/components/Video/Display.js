@@ -10,6 +10,8 @@ import FieldNotification from '../../constants/FieldNotification';
 import ReactTooltip from 'react-tooltip';
 import { getStore } from '../../util/storeAccessor';
 import { blankVideoData } from '../../constants/blankVideoData';
+import VideoPoster from '../VideoPoster/VideoPoster';
+import GridImageSelect from '../utils/GridImageSelect';
 
 class VideoDisplay extends React.Component {
   componentWillMount() {
@@ -117,31 +119,126 @@ class VideoDisplay extends React.Component {
     }
   };
 
-  renderPreview = () => {
+  renderPreview() {
     return (
-      <div className="video__detailbox">
-        <div className="video__detailbox__header__container">
-          <header className="video__detailbox__header">Video Preview</header>
-          <Link
-            className={'button ' + (this.props.videoEditOpen ? 'disabled' : '')}
-            to={`/videos/${this.props.video.id}/upload`}
-            onClick={e => this.handleAssetClick(e)}
-            data-tip="Edit Assets"
-          >
-            <Icon className="icon__edit" icon="edit" />
-            <ReactTooltip place="bottom" />
-          </Link>
-        </div>
-        <VideoPreview
-          video={this.props.video || {}}
-          saveAndUpdateVideo={this.saveAndUpdateVideo}
-          updateErrors={this.props.formErrorActions.updateFormErrors}
-          config={this.props.config}
-          videoEditOpen={this.props.videoEditOpen}
-        />
+      <div className="section video-grid__preview">
+          <header className="section-header">
+            Video Preview
+            <Link
+              className={'button ' + (this.props.videoEditOpen ? 'disabled' : '')}
+              to={`/videos/${this.props.video.id}/upload`}
+              onClick={e => this.handleAssetClick(e)}
+              data-tip="Edit Assets"
+            >
+              <Icon className="icon__edit" icon="edit" />
+              <ReactTooltip place="bottom" />
+            </Link>
+          </header>
+          <VideoPreview
+            video={this.props.video || {}}
+            config={this.props.config}
+          />
       </div>
     );
   };
+
+  renderMetadata() {
+    return (
+      <div className="section video-grid__metadata">
+          <header className="section-header">
+            Video Data
+            {this.renderEditButton()}
+          </header>
+        <VideoData
+          video={this.props.video || {}}
+          updateVideo={this.updateVideo}
+          editable={this.props.videoEditOpen}
+          formName={formNames.videoData}
+          updateErrors={this.props.formErrorActions.updateFormErrors}
+        />
+      </div>
+    );
+  }
+
+  renderSelectBar(video) {
+    return (
+      <VideoSelectBar
+        video={video}
+        onSelectVideo={this.selectVideo}
+        publishedVideo={this.props.publishedVideo}
+        embeddedMode={this.props.config.embeddedMode}
+      />
+    );
+  }
+
+  renderUsages() {
+    return (
+      <div className="section video-grid__usage">
+        <header className="section-header">Usages</header>
+        <VideoUsages
+          video={this.props.video || {}}
+          publishedVideo={this.props.publishedVideo || {}}
+          usages={this.props.usages || []}
+        />
+      </div>
+    )
+  }
+
+  saveAndUpdateVideoPoster = (poster, location) => {
+    const newVideo = Object.assign({}, this.props.video, {
+      [location]: poster
+    });
+    this.saveAndUpdateVideo(newVideo);
+  };
+
+  renderPosterImage() {
+    return (
+      <div className="section video-grid__poster-image">
+        <header className="section-header">
+          YouTube Poster Image
+          <GridImageSelect
+            updateVideo={this.saveAndUpdateVideoPoster}
+            gridUrl={this.props.config.gridUrl}
+            disabled={this.props.videoEditOpen}
+            fieldLocation="posterImage"
+          />
+        </header>
+        <VideoPoster
+          video={this.props.video || {}}
+          updateVideo={this.saveAndUpdateVideo}
+          formName={formNames.posterImage}
+          updateErrors={this.props.updateErrors}
+          fieldLocation="posterImage"
+          name="Youtube Poster Image"
+        />
+      </div>
+    );
+  }
+
+  renderTrailImage() {
+    return (
+      <div className="section video-grid__trail-image">
+        <header className="section-header">
+          Composer Trail Image
+          <GridImageSelect
+            updateVideo={this.saveAndUpdateVideoPoster}
+            gridUrl={this.props.config.gridUrl}
+            disabled={this.props.videoEditOpen || !this.props.video.posterImage}
+            isComposerImage={true}
+            posterImage={this.props.video.posterImage}
+            fieldLocation="trailImage"
+          />
+        </header>
+        <VideoPoster
+          video={this.props.video || {}}
+          updateVideo={this.saveAndUpdateVideo}
+          updateErrors={this.props.updateErrors}
+          fieldLocation="trailImage"
+          name="Composer Trail Image"
+        />
+      </div>
+    );
+  }
 
   render() {
     const video = this.props.video &&
@@ -154,48 +251,13 @@ class VideoDisplay extends React.Component {
     }
 
     return (
-      <div>
-        <VideoSelectBar
-          video={video}
-          onSelectVideo={this.selectVideo}
-          publishedVideo={this.props.publishedVideo}
-          embeddedMode={this.props.config.embeddedMode}
-        />
-
-        <div className="video">
-          <div className="video__main">
-            <div className="video__row">
-              {this.renderPreview()}
-              <div className="video__detailbox video__data">
-                <div className="video__detailbox__header__container">
-                  <header className="video__detailbox__header">
-                    Video Data
-                  </header>
-                  {this.renderEditButton()}
-                </div>
-                <VideoData
-                  video={this.props.video || {}}
-                  updateVideo={this.updateVideo}
-                  editable={this.props.videoEditOpen}
-                  formName={formNames.videoData}
-                  updateErrors={this.props.formErrorActions.updateFormErrors}
-                />
-              </div>
-            </div>
-            <div className="video__row">
-              <div className="video__detailbox">
-                <div className="video__detailbox__header__container">
-                  <header className="video__detailbox__header">Usages</header>
-                </div>
-                <VideoUsages
-                  video={this.props.video || {}}
-                  publishedVideo={this.props.publishedVideo || {}}
-                  usages={this.props.usages || []}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="video-grid">
+        {this.renderSelectBar(video)}
+        {this.renderMetadata()}
+        {this.renderPosterImage()}
+        {this.renderTrailImage()}
+        {this.renderPreview()}
+        {this.renderUsages()}
       </div>
     );
   }

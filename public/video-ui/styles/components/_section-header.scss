@@ -1,14 +1,32 @@
+.section {
+  background-color: $color625Grey;
+  display: grid;
+
+  grid-template-areas:
+    "section-header"
+    "section-content";
+
+  grid-template-rows: 55px 1fr;
+}
+
 .section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  grid-area: section-header;
 
-  &__text {
-    margin: 0;
-  }
+  display: grid;
+  grid-template-columns: 1fr 33px;
+  grid-gap: 10px;
 
-  &__btn {
-    margin: 0 5px;
-    font-family: $text-font-stack;
-  }
+  font-weight: bold;
+  font-size: 20px;
+  border-bottom: 1px solid $brandColor;
+  background-color: $color700Grey;
+}
+
+.section-header,
+.section-header + * {
+  padding: 10px;
+}
+
+.section-header + * {
+  grid-area: section-content;
 }
