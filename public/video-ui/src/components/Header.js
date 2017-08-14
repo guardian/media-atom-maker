@@ -95,7 +95,7 @@ export default class Header extends React.Component {
     return (
       <nav className="topbar__nav-link">
         <Link className="btn" to="/videos/create">
-          <Icon icon="add">Create new video</Icon>
+          <Icon icon="add">Create</Icon>
         </Link>
       </nav>
     );
