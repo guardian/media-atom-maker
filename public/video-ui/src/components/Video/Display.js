@@ -254,9 +254,9 @@ class VideoDisplay extends React.Component {
       <div className="video-grid">
         {this.renderSelectBar(video)}
         {this.renderMetadata()}
-        {this.renderPreview()}
         {this.renderPosterImage()}
         {this.renderTrailImage()}
+        {this.renderPreview()}
         {this.renderUsages()}
       </div>
     );

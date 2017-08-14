@@ -4,8 +4,8 @@
   grid-gap: 10px;
   grid-template-columns: 2fr 1fr 1fr;
   grid-template-areas:
-    "metadata preview preview"
     "metadata poster-image trail-image"
+    "metadata preview preview"
     "metadata usage usage";
 }
 
