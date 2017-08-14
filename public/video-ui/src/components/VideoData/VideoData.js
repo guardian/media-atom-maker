@@ -111,29 +111,7 @@ class VideoData extends React.Component {
           <ManagedField fieldLocation="source" name="Video Source">
             <TextInput />
           </ManagedField>
-          <ManagedField
-            fieldLocation="sensitive"
-            name="Sensitive"
-            fieldDetails="Contains sensitive content"
-          >
-            <CheckBox />
-          </ManagedField>
-          <ManagedField
-            fieldLocation="legallySensitive"
-            name="Legally Sensitive"
-            fieldDetails="This content involves active criminal proceedings."
-          >
-            <CheckBox />
-          </ManagedField>
-          <ManagedField
-            fieldLocation="blockAds"
-            name="Block ads"
-            fieldDetails="Ads will not be displayed with this video"
-            disabled={notOnManagedChannel}
-            tooltip={`Videos less than ${getStore().getState().config.minDurationForAds} seconds will automatically have ads blocked`}
-          >
-            <CheckBox />
-          </ManagedField>
+          
           <ManagedField fieldLocation="expiryDate" name="Expiry Date">
             <DatePicker />
           </ManagedField>

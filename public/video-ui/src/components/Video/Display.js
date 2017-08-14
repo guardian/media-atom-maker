@@ -150,7 +150,6 @@ class VideoDisplay extends React.Component {
             {this.renderEditButton()}
           </header>
         <VideoData
-          className="foo"
           video={this.props.video || {}}
           updateVideo={this.updateVideo}
           editable={this.props.videoEditOpen}
