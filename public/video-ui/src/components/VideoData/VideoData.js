@@ -155,6 +155,7 @@ class VideoData extends React.Component {
               fieldLocation="composerCommentsEnabled"
               name="Comments"
               fieldDetails="Allow comments on Guardian video page (does not change YouTube)"
+              disabled={notOnManagedChannel}
             >
               <CheckBox />
             </ManagedField>
@@ -162,6 +163,7 @@ class VideoData extends React.Component {
               fieldLocation="optimisedForWeb"
               name="Optimised for Web"
               fieldDetails="Optimised for Web"
+              disabled={notOnManagedChannel}
             >
               <CheckBox />
             </ManagedField>
@@ -169,6 +171,7 @@ class VideoData extends React.Component {
               fieldLocation="sensitive"
               name="Sensitive"
               fieldDetails="Contains sensitive content"
+              disabled={notOnManagedChannel}
             >
               <CheckBox />
             </ManagedField>
@@ -176,6 +179,7 @@ class VideoData extends React.Component {
               fieldLocation="legallySensitive"
               name="Legally Sensitive"
               fieldDetails="This content involves active criminal proceedings"
+              disabled={notOnManagedChannel}
             >
               <CheckBox />
             </ManagedField>
@@ -183,6 +187,7 @@ class VideoData extends React.Component {
               fieldLocation="suppressRelatedContent"
               name="Suppress related content"
               fieldDetails="Suppress related content"
+              disabled={notOnManagedChannel}
             >
               <CheckBox />
             </ManagedField>
