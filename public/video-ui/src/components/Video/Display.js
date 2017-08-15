@@ -5,6 +5,7 @@ import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoUsages from '../VideoUsages/VideoUsages';
 import VideoData from '../VideoData/VideoData';
 import Workflow from '../Workflow/Workflow';
+import WorkflowSectionPicker from '../Workflow/WorkflowSectionPicker';
 import Icon from '../Icon';
 import { formNames } from '../../constants/formNames';
 import FieldNotification from '../../constants/FieldNotification';
@@ -14,7 +15,6 @@ import { blankVideoData } from '../../constants/blankVideoData';
 
 class VideoDisplay extends React.Component {
   componentWillMount() {
-
     this.props.videoActions.getUsages(this.props.params.id);
 
     if (this.props.route.mode === 'create') {
@@ -22,6 +22,7 @@ class VideoDisplay extends React.Component {
       this.props.videoActions.updateVideoEditState(true);
     } else {
       this.props.videoActions.getVideo(this.props.params.id);
+      this.props.workflowActions.getSections();
     }
   }
 
@@ -200,7 +201,11 @@ class VideoDisplay extends React.Component {
                 <div className="video__detailbox__header__container">
                   <header className="video__detailbox__header">Workflow</header>
                 </div>
-                <Workflow video={this.props.video}/>
+                <Workflow video={this.props.video} />
+                <WorkflowSectionPicker video={this.props.video}
+                                       sections={this.props.workflow.sections}
+                                       saveVideo={_ => console.log(_)}
+                />
               </div>
             </div>
           </div>
@@ -218,6 +223,7 @@ import * as saveVideo from '../../actions/VideoActions/saveVideo';
 import * as createVideo from '../../actions/VideoActions/createVideo';
 import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as videoUsages from '../../actions/VideoActions/videoUsages';
+import * as getSections from '../../actions/WorkflowActions/getSections';
 import * as getPublishedVideo
   from '../../actions/VideoActions/getPublishedVideo';
 import * as updateVideoEditState
@@ -233,7 +239,8 @@ function mapStateToProps(state) {
     composerPageWithUsage: state.pageCreate,
     publishedVideo: state.publishedVideo,
     videoEditOpen: state.videoEditOpen,
-    checkedFormFields: state.checkedFormFields
+    checkedFormFields: state.checkedFormFields,
+    workflow: state.workflow
   };
 }
 
@@ -254,6 +261,10 @@ function mapDispatchToProps(dispatch) {
     ),
     formErrorActions: bindActionCreators(
       Object.assign({}, updateFormErrors),
+      dispatch
+    ),
+    workflowActions: bindActionCreators(
+      Object.assign({}, getSections),
       dispatch
     )
   };

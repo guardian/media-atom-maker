@@ -11,6 +11,13 @@ export default class WorkflowApi {
       url: `${WorkflowApi.workflowUrl}/api/sections`,
       crossOrigin: true,
       withCredentials: true
-    }).then(_ => _.data);
+    }).then(response => {
+      return response.data.map(section => {
+        return {
+          id: section.id,
+          title: section.name
+        };
+      });
+    });
   }
 }
