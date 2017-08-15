@@ -18,6 +18,7 @@ import checkedFormFields from './checkedFormFieldsReducer';
 import uploads from './uploadsReducer';
 import path from './pathReducer';
 import pluto from './plutoReducer';
+import workflow from './workflowReducer';
 
 export default combineReducers({
   audits,
@@ -38,5 +39,6 @@ export default combineReducers({
   uploads,
   path,
   routing: routerReducer,
-  pluto
+  pluto,
+  workflow
 });

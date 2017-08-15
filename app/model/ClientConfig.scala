@@ -27,7 +27,8 @@ case class ClientConfig(
   // permissions also validated server-side on every request
   permissions: Permissions,
   minDurationForAds: Long,
-  isTrainingMode: Boolean
+  isTrainingMode: Boolean,
+  workflowUrl: String
 )
 
 object ClientConfig {

@@ -17,6 +17,7 @@ class VideoData extends React.Component {
   hasCategories = () => this.props.youtube.categories.length !== 0;
   hasChannels = () => this.props.youtube.channels.length !== 0;
   hasPlutoProjects = () => this.props.pluto.projects.length !== 0;
+  hasWorkflowSections = () => this.props.workflow.sections.length !== 0;
 
   componentWillMount() {
     if (!this.hasCategories()) {
@@ -27,6 +28,9 @@ class VideoData extends React.Component {
     }
     if (!this.hasPlutoProjects()) {
       this.props.plutoActions.getProjects();
+    }
+    if (!this.hasWorkflowSections()) {
+      this.props.workflowActions.getSections();
     }
   }
 
@@ -204,11 +208,13 @@ import { bindActionCreators } from 'redux';
 import * as getCategories from '../../actions/YoutubeActions/getCategories';
 import * as getChannels from '../../actions/YoutubeActions/getChannels';
 import * as getProjects from '../../actions/PlutoActions/getProjects';
+import * as getSections from '../../actions/WorkflowActions/getSections';
 
 function mapStateToProps(state) {
   return {
     youtube: state.youtube,
-    pluto: state.pluto
+    pluto: state.pluto,
+    workflow: state.workflow
   };
 }
 
@@ -218,7 +224,11 @@ function mapDispatchToProps(dispatch) {
       Object.assign({}, getCategories, getChannels),
       dispatch
     ),
-    plutoActions: bindActionCreators(Object.assign({}, getProjects), dispatch)
+    plutoActions: bindActionCreators(Object.assign({}, getProjects), dispatch),
+    workflowActions: bindActionCreators(
+      Object.assign({}, getSections),
+      dispatch
+    )
   };
 }
 
