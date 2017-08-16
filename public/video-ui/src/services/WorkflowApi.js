@@ -20,4 +20,12 @@ export default class WorkflowApi {
       });
     });
   }
+
+  static getAtomInWorkflow(id) {
+    return pandaReqwest({
+      url: `${WorkflowApi.workflowUrl}/api/atom/${id}`,
+      crossOrigin: true,
+      withCredentials: true
+    }).then(response => response.data);
+  }
 }

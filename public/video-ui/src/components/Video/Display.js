@@ -5,7 +5,6 @@ import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoUsages from '../VideoUsages/VideoUsages';
 import VideoData from '../VideoData/VideoData';
 import Workflow from '../Workflow/Workflow';
-import WorkflowSectionPicker from '../Workflow/WorkflowSectionPicker';
 import Icon from '../Icon';
 import { formNames } from '../../constants/formNames';
 import FieldNotification from '../../constants/FieldNotification';
@@ -23,6 +22,7 @@ class VideoDisplay extends React.Component {
     } else {
       this.props.videoActions.getVideo(this.props.params.id);
       this.props.workflowActions.getSections();
+      this.props.workflowActions.getStatus(this.props.params.id);
     }
   }
 
@@ -201,11 +201,7 @@ class VideoDisplay extends React.Component {
                 <div className="video__detailbox__header__container">
                   <header className="video__detailbox__header">Workflow</header>
                 </div>
-                <Workflow video={this.props.video} />
-                <WorkflowSectionPicker video={this.props.video}
-                                       sections={this.props.workflow.sections}
-                                       saveVideo={_ => console.log(_)}
-                />
+                <Workflow video={this.props.video} {...this.props.workflow}/>
               </div>
             </div>
           </div>
@@ -224,6 +220,7 @@ import * as createVideo from '../../actions/VideoActions/createVideo';
 import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as videoUsages from '../../actions/VideoActions/videoUsages';
 import * as getSections from '../../actions/WorkflowActions/getSections';
+import * as getStatus from '../../actions/WorkflowActions/getStatus';
 import * as getPublishedVideo
   from '../../actions/VideoActions/getPublishedVideo';
 import * as updateVideoEditState
@@ -264,7 +261,11 @@ function mapDispatchToProps(dispatch) {
       dispatch
     ),
     workflowActions: bindActionCreators(
-      Object.assign({}, getSections),
+      Object.assign(
+        {},
+        getSections,
+        getStatus
+      ),
       dispatch
     )
   };
