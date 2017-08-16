@@ -2,12 +2,20 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import WorkflowSectionPicker from './WorkflowSectionPicker';
 
-export default class Workflow extends React.Component {
+class Workflow extends React.Component {
   static propTypes = {
-    video: PropTypes.object.isRequired,
-    status: PropTypes.object.isRequired,
-    sections: PropTypes.array.isRequired
+    video: PropTypes.object.isRequired
   };
+
+  hasSections = () => this.props.workflow.sections.length !== 0;
+
+  componentWillMount() {
+    if (!this.hasSections()){
+      this.props.workflowActions.getSections();
+    }
+
+    // this.props.workflowActions.getStatus({video: this.props.video});
+  }
 
   trackInWorkflow () {
     return true;
@@ -28,10 +36,36 @@ export default class Workflow extends React.Component {
     return (
       <div>
         {this.renderTrackInWorkflowButton()}
-        <WorkflowSectionPicker sections={this.props.sections}
+        <WorkflowSectionPicker sections={this.props.workflow.sections}
                                saveVideo={_ => console.log(_)}/>
       </div>
     );
   }
 }
 
+//REDUX CONNECTIONS
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as getSections from '../../actions/WorkflowActions/getSections';
+import * as getStatus from '../../actions/WorkflowActions/getStatus';
+
+function mapStateToProps(state) {
+  return {
+    workflow: state.workflow
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    workflowActions: bindActionCreators(
+      Object.assign(
+        {},
+        getSections,
+        getStatus
+      ),
+      dispatch
+    )
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Workflow);

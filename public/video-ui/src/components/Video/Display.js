@@ -21,8 +21,6 @@ class VideoDisplay extends React.Component {
       this.props.videoActions.updateVideoEditState(true);
     } else {
       this.props.videoActions.getVideo(this.props.params.id);
-      this.props.workflowActions.getSections();
-      this.props.workflowActions.getStatus(this.props.params.id);
     }
   }
 
@@ -201,7 +199,7 @@ class VideoDisplay extends React.Component {
                 <div className="video__detailbox__header__container">
                   <header className="video__detailbox__header">Workflow</header>
                 </div>
-                <Workflow video={this.props.video} {...this.props.workflow}/>
+                <Workflow video={this.props.video || {}} />
               </div>
             </div>
           </div>
@@ -219,8 +217,6 @@ import * as saveVideo from '../../actions/VideoActions/saveVideo';
 import * as createVideo from '../../actions/VideoActions/createVideo';
 import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as videoUsages from '../../actions/VideoActions/videoUsages';
-import * as getSections from '../../actions/WorkflowActions/getSections';
-import * as getStatus from '../../actions/WorkflowActions/getStatus';
 import * as getPublishedVideo
   from '../../actions/VideoActions/getPublishedVideo';
 import * as updateVideoEditState
@@ -236,8 +232,7 @@ function mapStateToProps(state) {
     composerPageWithUsage: state.pageCreate,
     publishedVideo: state.publishedVideo,
     videoEditOpen: state.videoEditOpen,
-    checkedFormFields: state.checkedFormFields,
-    workflow: state.workflow
+    checkedFormFields: state.checkedFormFields
   };
 }
 
@@ -258,14 +253,6 @@ function mapDispatchToProps(dispatch) {
     ),
     formErrorActions: bindActionCreators(
       Object.assign({}, updateFormErrors),
-      dispatch
-    ),
-    workflowActions: bindActionCreators(
-      Object.assign(
-        {},
-        getSections,
-        getStatus
-      ),
       dispatch
     )
   };
