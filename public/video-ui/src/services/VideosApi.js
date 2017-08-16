@@ -258,5 +258,22 @@ export default {
       }
       return '';
     });
+  },
+
+  preventPublication(composerId, composerUrl) {
+    function doEmbargoIndefinitely(stage) {
+      return pandaReqwest({
+        url: `${composerUrl}/api/content/${composerId}/${stage}/settings/embargoedIndefinitely`,
+        method: 'put',
+        crossOrigin: true,
+        withCredentials: true,
+        data: `"true"`
+      });
+    }
+
+    return Promise.all([
+      doEmbargoIndefinitely('preview'),
+      doEmbargoIndefinitely('live')
+    ]);
   }
 };

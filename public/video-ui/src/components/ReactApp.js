@@ -51,6 +51,8 @@ class ReactApp extends React.Component {
   };
 
   render() {
+    const showPublishedState = this.props.params.id || this.props.location.pathname === '/videos/create';
+
     return (
       <div className="wrap">
         <Header
@@ -59,12 +61,7 @@ class ReactApp extends React.Component {
           currentPath={this.props.location.pathname}
           video={this.props.video || {}}
           publishedVideo={this.props.publishedVideo || {}}
-          showPublishedState={
-            this.props.params.id ||
-              this.props.location.pathname === '/videos/create'
-              ? true
-              : false
-          }
+          showPublishedState={showPublishedState}
           s3Upload={this.props.s3Upload}
           publishVideo={this.props.appActions.publishVideo}
           saveState={this.props.saveState}
@@ -74,6 +71,7 @@ class ReactApp extends React.Component {
           videoEditOpen={this.props.videoEditOpen}
           usages={this.props.usages}
           presenceConfig={this.props.config.presence}
+          isTrainingMode={this.props.config.isTrainingMode}
         />
         {this.props.error
           ? <div className="error-bar">{this.props.error}</div>

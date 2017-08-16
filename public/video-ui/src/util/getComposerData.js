@@ -1,11 +1,12 @@
 import { parseComposerDataFromImage } from './parseGridMetadata';
+import { getStore } from '../util/storeAccessor';
 
 function asBooleanString(value) {
   return value ? 'true' : 'false';
 }
 
 export function getComposerData(video) {
-  return [
+  const coreFields = [
     {
       name: 'headline',
       value: video.title,
@@ -82,6 +83,19 @@ export function getComposerData(video) {
       belongsTo: 'thumbnail'
     }
   ];
+
+  const isTrainingMode = getStore().getState().config.isTrainingMode;
+
+  // block training content being published
+  const embargoedIndefinately = {
+    name: 'embargoedIndefinitely',
+    value: asBooleanString(true),
+    belongsTo: 'settings'
+  };
+
+  return !isTrainingMode
+    ? coreFields
+    : [...coreFields, embargoedIndefinately];
 }
 
 export function getRightsPayload(video) {

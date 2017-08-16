@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router';
 
 export default class Help extends React.Component {
   helpPages = [
@@ -40,6 +41,9 @@ export default class Help extends React.Component {
   renderLinkList() {
     return (
       <ul>
+        <li>
+          <Link className="button__secondary" to={'/training'}>Training</Link>
+        </li>
         {this.helpPages.map(page => (
           <li key={page.url}>{this.renderLink(page)}</li>
         ))}

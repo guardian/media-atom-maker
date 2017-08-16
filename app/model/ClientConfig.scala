@@ -12,21 +12,23 @@ object Presence {
   implicit val format: Format[Presence] = Jsonx.formatCaseClass[Presence]
 }
 
-case class ClientConfig(presence: Option[Presence],
-                        youtubeEmbedUrl: String,
-                        youtubeThumbnailUrl: String,
-                        reauthUrl: String,
-                        gridUrl: String,
-                        capiProxyUrl: String,
-                        liveCapiProxyUrl: String,
-                        composerUrl: String,
-                        ravenUrl: String,
-                        stage: String,
-                        viewerUrl: String,
-                        // permissions also validated server-side on every request
-                        permissions: Permissions,
-                        minDurationForAds: Long
-                       )
+case class ClientConfig(
+  presence: Option[Presence],
+  youtubeEmbedUrl: String,
+  youtubeThumbnailUrl: String,
+  reauthUrl: String,
+  gridUrl: String,
+  capiProxyUrl: String,
+  liveCapiProxyUrl: String,
+  composerUrl: String,
+  ravenUrl: String,
+  stage: String,
+  viewerUrl: String,
+  // permissions also validated server-side on every request
+  permissions: Permissions,
+  minDurationForAds: Long,
+  isTrainingMode: Boolean
+)
 
 object ClientConfig {
   implicit val format: Format[ClientConfig] = Jsonx.formatCaseClass[ClientConfig]
