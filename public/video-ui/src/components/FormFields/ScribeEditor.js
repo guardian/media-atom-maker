@@ -191,19 +191,19 @@ export class ScribeEditor extends React.Component {
     const allKeyboardShortcuts = {
       bold: function(event) {
         return event.metaKey && event.keyCode === keyCodes.b
-      }, // b
+      },
       italic: function(event) {
         return event.metaKey && event.keyCode === keyCodes.i;
-      }, // i
+      },
       linkPrompt: function(event) {
         return event.metaKey && !event.shiftKey && event.keyCode === keyCodes.k;
-      }, // k
+      },
       unlink: function(event) {
         return event.metaKey && event.shiftKey && event.keyCode === keyCodes.k;
-      }, // shft + k
+      },
       insertUnorderedList: function(event) {
         return event.altKey && event.shiftKey && event.keyCode === keyCodes.b;
-      } // b
+      }
     }
 
     // Create an instance of the Scribe toolbar
