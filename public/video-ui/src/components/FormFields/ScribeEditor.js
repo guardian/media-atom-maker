@@ -5,6 +5,7 @@ import scribeKeyboardShortcutsPlugin from 'scribe-plugin-keyboard-shortcuts';
 import scribePluginToolbar from 'scribe-plugin-toolbar';
 import scribePluginLinkPromptCommand from 'scribe-plugin-link-prompt-command';
 import scribePluginSanitizer from 'scribe-plugin-sanitizer';
+import {keyCodes} from '../../constants/keyCodes';
 
 export default class ScribeEditorField extends React.Component {
   state = {
@@ -76,16 +77,16 @@ export default class ScribeEditorField extends React.Component {
     }
 
     return (
-      <button
-        type="button"
-        disabled={!this.props.derivedFrom}
-        className="btn form__label__button"
-        onClick={this.updateValueFromCopy}
-      >
-        <i className="icon">edit</i>
-        <span data-tip="Copy trail text from description" />
-      </button>
-    );
+        <button
+          type="button"
+          disabled={!this.props.derivedFrom}
+          className="btn form__label__button"
+          onClick={this.updateValueFromCopy}
+        >
+          <i className="icon">edit</i>
+          <span data-tip="Copy trail text from description" />
+        </button>
+        );
   };
 
   renderLimitWarning = () => {
@@ -128,6 +129,7 @@ export default class ScribeEditorField extends React.Component {
             fieldName={this.props.fieldName}
             value={this.props.fieldValue}
             onUpdate={this.updateFieldValue}
+            allowedEdits={this.props.allowedEdits}
             copiedValue={this.state.copiedValue}
           />
           {this.renderLimitWarning()}
@@ -165,6 +167,7 @@ export class ScribeEditor extends React.Component {
     copiedValue: null
   };
 
+
   componentDidMount() {
     this.scribe = new Scribe(this.refs.editor);
 
@@ -184,29 +187,37 @@ export class ScribeEditor extends React.Component {
   }
 
   configureScribe() {
+
+    const allKeyboardShortcuts = {
+      bold: function(event) {
+        return event.metaKey && event.keyCode === keyCodes.b
+      },
+      italic: function(event) {
+        return event.metaKey && event.keyCode === keyCodes.i;
+      },
+      linkPrompt: function(event) {
+        return event.metaKey && !event.shiftKey && event.keyCode === keyCodes.k;
+      },
+      unlink: function(event) {
+        return event.metaKey && event.shiftKey && event.keyCode === keyCodes.k;
+      },
+      insertUnorderedList: function(event) {
+        return event.altKey && event.shiftKey && event.keyCode === keyCodes.b;
+      }
+    }
+
     // Create an instance of the Scribe toolbar
     this.scribe.use(scribePluginToolbar(this.refs.toolbar));
+
+    const keyboardShortcuts = this.props.allowedEdits.reduce((shortcuts, edit) => {
+      shortcuts[edit] = allKeyboardShortcuts[edit];
+      return shortcuts;
+    }, {});
 
     // Configure Scribe plugins
     this.scribe.use(scribePluginLinkPromptCommand());
     this.scribe.use(
-      scribeKeyboardShortcutsPlugin({
-        bold: function(event) {
-          return event.metaKey && event.keyCode === 66;
-        }, // b
-        italic: function(event) {
-          return event.metaKey && event.keyCode === 73;
-        }, // i
-        linkPrompt: function(event) {
-          return event.metaKey && !event.shiftKey && event.keyCode === 75;
-        }, // k
-        unlink: function(event) {
-          return event.metaKey && event.shiftKey && event.keyCode === 75;
-        }, // shft + k
-        insertUnorderedList: function(event) {
-          return event.altKey && event.shiftKey && event.keyCode === 66;
-        } // b
-      })
+      scribeKeyboardShortcutsPlugin(keyboardShortcuts)
     );
 
     this.scribe.use(
@@ -238,44 +249,38 @@ export class ScribeEditor extends React.Component {
   };
 
   render() {
+
+    const getEditButtonText = (name) => {
+      switch(name) {
+        case 'bold':
+          return 'Bold';
+        case 'italic':
+          return 'Italic';
+        case 'linkPrompt':
+          return 'Link';
+        case 'unlink':
+          return 'Unlink';
+        case 'insertUnorderedList':
+          return 'Bullet point';
+      }
+    }
+
+
     return (
       <div className="scribe__container">
         <div ref="toolbar" className="scribe__toolbar">
-          <button
-            type="button"
-            data-command-name="bold"
-            className="scribe__toolbar__item"
-          >
-            Bold
-          </button>
-          <button
-            type="button"
-            data-command-name="italic"
-            className="scribe__toolbar__item"
-          >
-            Italic
-          </button>
-          <button
-            type="button"
-            data-command-name="linkPrompt"
-            className="scribe__toolbar__item"
-          >
-            Link
-          </button>
-          <button
-            type="button"
-            data-command-name="unlink"
-            className="scribe__toolbar__item"
-          >
-            Unlink
-          </button>
-          <button
-            type="button"
-            data-command-name="insertUnorderedList"
-            className="scribe__toolbar__item"
-          >
-            Bullet point
-          </button>
+          {this.props.allowedEdits.map(edit => {
+            return (
+              <button
+                type="button"
+                data-command-name={edit}
+                className="scribe__toolbar__item"
+                key={edit}
+              >
+                {getEditButtonText(edit)}
+              </button>
+            );
+          })}
         </div>
         <div
           id={this.props.fieldName}

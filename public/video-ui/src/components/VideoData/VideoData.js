@@ -70,7 +70,9 @@ class VideoData extends React.Component {
               maxCharLength={fieldLengths.description.charMax}
               maxLength={fieldLengths.description.max}
             >
-              <ScribeEditorField />
+              <ScribeEditorField
+                allowedEdits={['bold', 'italic', 'linkPrompt', 'unlink', 'insertUnorderedList']}
+              />
             </ManagedField>
             <ManagedField
               fieldLocation="trailText"
@@ -79,7 +81,10 @@ class VideoData extends React.Component {
               maxCharLength={fieldLengths.description.charMax}
               maxLength={fieldLengths.description.max}
             >
-              <ScribeEditorField />
+              <ScribeEditorField
+                allowedEdits={['bold', 'italic']}
+
+              />
             </ManagedField>
 
             <ManagedField
