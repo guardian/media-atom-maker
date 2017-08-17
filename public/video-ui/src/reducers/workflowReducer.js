@@ -8,6 +8,10 @@ export default function workflow(state = { sections: [], status: {} }, action) {
       return Object.assign({}, state, {
         status: action.status || {}
       });
+    case 'WORKFLOW_STATUS_NOT_FOUND':
+      return Object.assign({}, state, {
+        status: action.status
+      });
     default:
       return state;
   }

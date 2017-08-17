@@ -1,4 +1,5 @@
 import WorkflowApi from '../../services/WorkflowApi';
+import { Workflow as WorkflowConstants } from '../../constants/workflow';
 
 function requestStatus() {
   return {
@@ -12,6 +13,14 @@ function receiveStatus(status) {
     type: 'WORKFLOW_STATUS_GET_RECEIVE',
     receivedAt: Date.now(),
     status: status
+  };
+}
+
+function receiveStatus404() {
+  return {
+    type: 'WORKFLOW_STATUS_NOT_FOUND',
+    receivedAt: Date.now(),
+    status: WorkflowConstants.notInWorkflow
   };
 }
 
@@ -29,6 +38,22 @@ export function getStatus(id) {
     dispatch(requestStatus());
     return WorkflowApi.getAtomInWorkflow(id)
       .then(res => dispatch(receiveStatus(res)))
-      .catch(err => dispatch(errorReceivingStatus(err)));
+      .catch(err => {
+        if (err.status !== 404) {
+          return dispatch(errorReceivingStatus(err));
+        }
+
+        try {
+          const errJson = JSON.parse(err.response);
+
+          if (errJson.errors && errJson.errors.message === 'ContentNotFound') {
+            return dispatch(receiveStatus404());
+          }
+          return dispatch(errorReceivingStatus(err));
+        } catch (e) {
+          // failed to parse response as json
+          return dispatch(errorReceivingStatus(err));
+        }
+      });
   };
 }

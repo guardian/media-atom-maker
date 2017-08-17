@@ -22,7 +22,6 @@ export default class WorkflowApi {
   }
 
   static getAtomInWorkflow({video}) {
-    console.log(video);
     return pandaReqwest({
       url: `${WorkflowApi.workflowUrl}/api/atom/${video.id}`,
       crossOrigin: true,
@@ -30,7 +29,25 @@ export default class WorkflowApi {
     }).then(response => response.data);
   }
 
-  static trackInWorkflow(video) {
+  static _getTrackInWorkflowPayload({video, status, section, prodOffice}) {
+    return {
+      contentType: 'media',
+      editorId: video.id,
+      title: video.title,
+      priority: 0,
+      needsLegal: 'NA'
+    };
+  }
 
+  static trackInWorkflow({video, status, section, prodOffice}) {
+    const payload = WorkflowApi._getTrackInWorkflowPayload({video, status, section, prodOffice});
+
+    return pandaReqwest({
+      method: 'POST',
+      url: `${WorkflowApi.workflowUrl}/api/stubs`,
+      data: payload,
+      crossOrigin: true,
+      withCredentials: true
+    });
   }
 }

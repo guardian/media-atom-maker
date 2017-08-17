@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import WorkflowSectionPicker from './WorkflowSectionPicker';
+import { Workflow as WorkflowConstants } from '../../constants/workflow';
 
 class Workflow extends React.Component {
   static propTypes = {
@@ -10,26 +11,30 @@ class Workflow extends React.Component {
   hasSections = () => this.props.workflow.sections.length !== 0;
 
   componentWillMount() {
-    if (!this.hasSections()){
+    if (!this.hasSections()) {
       this.props.workflowActions.getSections();
     }
 
-    // this.props.workflowActions.getStatus({video: this.props.video});
+    this.props.workflowActions.getStatus({ video: this.props.video });
   }
 
-  trackInWorkflow () {
-    return true;
+  trackInWorkflow() {
+    this.props.workflowActions.trackInWorkflow({
+      video: this.props.video
+    });
   }
 
   renderTrackInWorkflowButton() {
-    return (
-      <button type="button"
-              className="btn"
-              onClick={this.trackInWorkflow}
-      >
-        Track in Workflow
-      </button>
-    );
+    if (this.props.workflow.status === WorkflowConstants.notInWorkflow) {
+      return (
+        <button type="button"
+                className="btn"
+                onClick={this.trackInWorkflow}
+        >
+          Track in Workflow
+        </button>
+      );
+    }
   }
 
   render () {
@@ -48,6 +53,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getSections from '../../actions/WorkflowActions/getSections';
 import * as getStatus from '../../actions/WorkflowActions/getStatus';
+import * as trackInWorkflow from '../../actions/WorkflowActions/trackInWorkflow';
 
 function mapStateToProps(state) {
   return {
@@ -61,7 +67,8 @@ function mapDispatchToProps(dispatch) {
       Object.assign(
         {},
         getSections,
-        getStatus
+        getStatus,
+        trackInWorkflow
       ),
       dispatch
     )
