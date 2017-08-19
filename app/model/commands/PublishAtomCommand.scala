@@ -197,7 +197,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youtu
 
     youtube.updateMetadata(
       asset.id,
-      if (previewAtom.blockAds) metadata else metadata.withContentBundleTags() // content bundle tags only needed on monetized videos
+      if (previewAtom.blockAds) metadata.withoutContentBundleTags() else metadata.withContentBundleTags() // content bundle tags only needed on monetized videos
     )
 
     previewAtom

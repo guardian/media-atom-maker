@@ -118,6 +118,11 @@ package object youtube {
       this.copy(tags = contentBundledTags)
     }
 
+    def withoutContentBundleTags(): YouTubeMetadataUpdate = {
+      val noContentBundleTags = tags.filterNot(_.startsWith("gdnpfp"))
+      this.copy(tags = noContentBundleTags)
+    }
+
     private def getContentBundlingTags(): List[String] = {
       val contentBundlingMap: Map[String, String] = Map (
         "uk" -> "gdnpfpnewsuk",
