@@ -193,8 +193,6 @@ class VideoDisplay extends React.Component {
                   usages={this.props.usages || []}
                 />
               </div>
-            </div>
-            <div className="video__row">
               <div className="video__detailbox">
                 <div className="video__detailbox__header__container">
                   <header className="video__detailbox__header">Workflow</header>
