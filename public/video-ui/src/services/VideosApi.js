@@ -4,6 +4,33 @@ import { getComposerData, getRightsPayload } from '../util/getComposerData';
 import { nullifyEmptyStrings } from '../util/nullifyEmptyStrings';
 import ContentApi from './capi';
 
+function getUsages({ id, stage }) {
+  return pandaReqwest({
+    url: `${ContentApi.getUrl(stage)}/atom/media/${id}/usage`
+  }).then(res => {
+    const usagePaths = res.response.results;
+
+    // the atom usage endpoint in capi only returns article paths,
+    // lookup the articles in capi to get their fields
+    return Promise.all(
+      usagePaths.map(ContentApi.getByPath)
+    ).then(capiResponse => {
+      const usages = capiResponse.reduce((all, item) => {
+        return [...all, item.response.content];
+      }, []);
+
+      // sort by article creation date DESC
+      usages.sort(
+        (first, second) =>
+          new Date(second.fields.creationDate) -
+          new Date(first.fields.creationDate)
+      );
+
+      return usages;
+    });
+  });
+}
+
 export default {
   fetchVideos: (search, limit) => {
     let url = `/api2/atoms?limit=${limit}`;
@@ -74,9 +101,23 @@ export default {
   },
 
   getVideoUsages: videoId => {
-    const capiProxyUrl = getStore().getState().config.capiProxyUrl;
-    return pandaReqwest({
-      url: capiProxyUrl + '/atom/media/' + videoId + '/usage'
+    return Promise.all([
+      getUsages({ id: videoId, stage: ContentApi.preview }),
+      getUsages({ id: videoId, stage: ContentApi.published })
+    ]).then(data => {
+      const [previewUsages, publishedUsages] = data;
+
+      // remove Published usages from Preview response
+      const draft = [...previewUsages].filter(previewUsage => {
+        return !publishedUsages.find(publishedUsage => {
+          return publishedUsage.path === previewUsage.path;
+        });
+      });
+
+      return {
+        [ContentApi.preview]: draft,
+        [ContentApi.published]: publishedUsages
+      };
     });
   },
 

@@ -33,7 +33,7 @@ export default class VideoPublishBar extends React.Component {
   };
 
   publishVideo = () => {
-    const usages = getComposerPages(this.props.usages);
+    const usages = getComposerPages(this.props.usages.published);
 
     const videoBlock = getVideoBlock(
       this.props.video.id,

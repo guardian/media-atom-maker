@@ -197,7 +197,7 @@ class VideoDisplay extends React.Component {
                 <VideoUsages
                   video={this.props.video || {}}
                   publishedVideo={this.props.publishedVideo || {}}
-                  usages={this.props.usages || []}
+                  usages={this.props.usages || {}}
                 />
               </div>
               <div className="video__detailbox">

@@ -9,6 +9,8 @@ import {
   ComposerVideoIcon
 } from '../Icon';
 
+import ContentApi from '../../services/capi';
+
 export default class VideoUsages extends React.Component {
   getComposerUrl = () => {
     return getStore().getState().config.composerUrl;
@@ -18,7 +20,7 @@ export default class VideoUsages extends React.Component {
     return getStore().getState().config.viewerUrl;
   };
 
-  renderUsage = usage => {
+  renderUsage = ({ usage, state }) => {
     const composerLink = `${this.getComposerUrl()}/content/${usage.fields.internalComposerCode}`;
     const viewerLink = `${this.getViewerUrl()}/preview/${usage.id}`;
     const websiteLink = `https://www.theguardian.com/${usage.id}`;
@@ -40,15 +42,7 @@ export default class VideoUsages extends React.Component {
           Created:
           {' '}
           <span title={usage.fields.creationDate}>{usageDateFromNow}</span>
-          <a
-            className="usage--platform-link"
-            href={websiteLink}
-            title="Open on theguardian.com"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <FrontendIcon />
-          </a>
+
           <a
             className="usage--platform-link"
             href={composerLink}
@@ -67,42 +61,47 @@ export default class VideoUsages extends React.Component {
           >
             <ViewerIcon />
           </a>
+
+          {state === ContentApi.published
+            ? <a className="usage--platform-link"
+                 href={websiteLink}
+                 title="Open on theguardian.com"
+                 target="_blank"
+                 rel="noopener noreferrer">
+              <FrontendIcon />
+            </a>
+            : ''}
         </div>
       </li>
     );
   };
 
   renderUsages() {
-    return (
-      <ul className="detail__list">
-        {this.props.usages.map(this.renderUsage)}
-      </ul>
-    );
+    return Object.keys(this.props.usages).map(state => {
+      return (
+        <div key={`${state}-usages`}>
+          <h1>{state.toUpperCase()}</h1>
+          {this.props.usages[state].length === 0
+            ? <div className="baseline-margin">{`No ${state} usages found`}</div>
+            : <ul className="detail__list">
+                {this.props.usages[state].map(usage => this.renderUsage({usage, state}))}
+              </ul>}
+        </div>
+      );
+    });
   }
 
   render() {
-    if (!this.props.usages) {
-      return <div className="baseline-margin">Fetching Usages...</div>;
-    }
-
-    if (this.props.usages.length === 0) {
-      return (
-        <div>
-          <div className="baseline-margin">No usages found</div>
-        </div>
-      );
-    } else {
-      return (
-        <div>
-          {this.renderUsages()}
-        </div>
-      );
-    }
+    return (
+      <div>
+        {this.renderUsages()}
+      </div>
+    );
   }
 }
 
 VideoUsages.propTypes = {
-  usages: PropTypes.array.isRequired,
+  // usages: PropTypes.object.isRequired,
   video: PropTypes.object.isRequired,
   publishedVideo: PropTypes.object.isRequired
 };
