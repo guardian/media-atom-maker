@@ -1,5 +1,6 @@
 import React from 'react';
 import { getStore } from '../../util/storeAccessor';
+import ContentApi from '../../services/capi';
 
 class AdvancedActions extends React.Component {
   // the permissions are also validated on the server-side for each request
@@ -13,7 +14,13 @@ class AdvancedActions extends React.Component {
       return false;
     }
 
-    const disabled = this.props.usage.length > 0;
+    const totalUsages = Object.keys(this.props.usages).reduce((total, state) => {
+      return total + Object.keys(this.props.usages[state]).reduce((subTotal, contentType) => {
+        return subTotal + this.props.usages[state][contentType].length;
+      }, 0);
+    }, 0);
+
+    const disabled = totalUsages > 0;
     const deleteMsg = this.state.deleteDoubleCheck
       ? 'Confirm delete from database'
       : 'Delete from database';

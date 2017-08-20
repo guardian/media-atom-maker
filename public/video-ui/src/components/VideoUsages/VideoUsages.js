@@ -82,7 +82,7 @@ export default class VideoUsages extends React.Component {
 
       return (
         <div key={`${state}-usages`}>
-          <h3>{state.toUpperCase()}</h3>
+          <h3>{state.charAt(0).toUpperCase() + state.slice(1)}</h3>
           {totalUsages === 0
             ? <div className="baseline-margin">{`No ${state} usages found`}</div>
             : <ul className="detail__list">
@@ -96,7 +96,7 @@ export default class VideoUsages extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className="form__group">
         {this.renderUsages()}
       </div>
     );

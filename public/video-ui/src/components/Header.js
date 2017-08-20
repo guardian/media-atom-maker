@@ -196,7 +196,10 @@ export default class Header extends React.Component {
             requiredComposerFieldsMissing={this.requiredComposerFieldsMissing}
             composerPageExists={this.composerPageExists}
           />
-          <AdvancedActions video={this.props.video || {}} />
+          <AdvancedActions
+            video={this.props.video || {}}
+            usages={this.props.usages}
+          />
           <ComposerPageCreate
             usages={this.props.usages}
             videoEditOpen={this.props.videoEditOpen}
