@@ -69,7 +69,7 @@ class ReactApp extends React.Component {
           updateVideoPage={this.props.appActions.updateVideoPage}
           createVideoPage={this.props.appActions.createVideoPage}
           videoEditOpen={this.props.videoEditOpen}
-          usages={this.props.usages}
+          usages={this.props.usages || {}}
           presenceConfig={this.props.config.presence}
           isTrainingMode={this.props.config.isTrainingMode}
           formFieldsWarning={this.props.formFieldsWarning}

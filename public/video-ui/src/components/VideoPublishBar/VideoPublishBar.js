@@ -4,7 +4,6 @@ import { isVideoPublished, hasVideoExpired } from '../../util/isVideoPublished';
 import { hasUnpublishedChanges } from '../../util/hasUnpublishedChanges';
 import { getVideoBlock } from '../../util/getVideoBlock';
 import { getStore } from '../../util/storeAccessor';
-import { getComposerPages } from '../../util/getComposerPages';
 
 export default class VideoPublishBar extends React.Component {
   videoIsCurrentlyPublishing() {
@@ -33,7 +32,7 @@ export default class VideoPublishBar extends React.Component {
   };
 
   publishVideo = () => {
-    const usages = getComposerPages(this.props.usages.published);
+    const usages = this.props.usages.published && this.props.usages.published.video;
 
     const videoBlock = getVideoBlock(
       this.props.video.id,

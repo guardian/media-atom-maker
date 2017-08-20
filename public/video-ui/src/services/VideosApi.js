@@ -31,6 +31,17 @@ function getUsages({ id, stage }) {
   });
 }
 
+function splitUsages({ usages }) {
+  return usages.reduce((all, usage) => {
+    if (usage.type === 'video') {
+      all.video = [...all.video, usage];
+    } else {
+      all.other = [...all.other, usage];
+    }
+    return all;
+  }, {video: [], other: []});
+}
+
 export default {
   fetchVideos: (search, limit) => {
     let url = `/api2/atoms?limit=${limit}`;
@@ -110,13 +121,13 @@ export default {
       // remove Published usages from Preview response
       const draft = [...previewUsages].filter(previewUsage => {
         return !publishedUsages.find(publishedUsage => {
-          return publishedUsage.path === previewUsage.path;
+          return publishedUsage.id === previewUsage.id;
         });
       });
 
       return {
-        [ContentApi.preview]: draft,
-        [ContentApi.published]: publishedUsages
+        [ContentApi.preview]: splitUsages({usages: draft}),
+        [ContentApi.published]: splitUsages({usages: publishedUsages})
       };
     });
   },

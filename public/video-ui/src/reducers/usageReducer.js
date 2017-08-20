@@ -5,10 +5,11 @@ export default function usage(state = [], action) {
     }
     case 'VIDEO_PAGE_CREATE_POST_RECEIVE': {
       // usages are sorted creation date DESC, new usage goes to the top
-      state.unshift(action.newPage);
+      state.preview.video = [action.newPage, ...state.preview.video];
       return state;
     }
     case 'VIDEO_PAGE_UPDATE_POST_RECEIVE': {
+      debugger;
       const newState = state.map(usage => {
         usage.fields.headline = action.newTitle;
         return usage;

@@ -78,13 +78,16 @@ export default class VideoUsages extends React.Component {
 
   renderUsages() {
     return Object.keys(this.props.usages).map(state => {
+      const totalUsages = this.props.usages[state].video.length + this.props.usages[state].other.length;
+
       return (
         <div key={`${state}-usages`}>
           <h1>{state.toUpperCase()}</h1>
-          {this.props.usages[state].length === 0
+          {totalUsages === 0
             ? <div className="baseline-margin">{`No ${state} usages found`}</div>
             : <ul className="detail__list">
-                {this.props.usages[state].map(usage => this.renderUsage({usage, state}))}
+                {this.props.usages[state].video.map(usage => this.renderUsage({usage, state}))}
+                {this.props.usages[state].other.map(usage => this.renderUsage({usage, state}))}
               </ul>}
         </div>
       );

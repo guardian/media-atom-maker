@@ -198,7 +198,7 @@ export default class Header extends React.Component {
           />
           <AdvancedActions video={this.props.video || {}} />
           <ComposerPageCreate
-            usages={this.props.usages | {}}
+            usages={this.props.usages}
             videoEditOpen={this.props.videoEditOpen}
             video={this.props.video || {}}
             createVideoPage={this.props.createVideoPage}
