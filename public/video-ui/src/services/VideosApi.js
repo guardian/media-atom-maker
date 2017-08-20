@@ -139,11 +139,11 @@ export default {
     });
   },
 
-  updateComposerPage(id, video, composerUrlBase, videoBlock, usages) {
-    function getComposerUpdateRequests(id, video, composerUrlBase) {
+  updateComposerPage(video, composerUrlBase, videoBlock, usages) {
+    function getComposerUpdateRequests({ composerId, video, composerUrlBase }) {
       const rightsExpiryPayload = getRightsPayload(video);
       const rightsRequest = pandaReqwest({
-        url: `${composerUrlBase}/api/content/${id}/atom-expiry/rights`,
+        url: `${composerUrlBase}/api/content/${composerId}/atom-expiry/rights`,
         method: 'post',
         crossOrigin: true,
         withCredentials: true,
@@ -154,8 +154,8 @@ export default {
       // For both published and unpublished articles, we need to update both live and preview versions.
       const composerData = getComposerData(video);
       const dataUpdatePromises = composerData.reduce((promises, data) => {
-        promises.push(updateArticleField('preview', data, composerUrlBase, id));
-        promises.push(updateArticleField('live', data, composerUrlBase, id));
+        promises.push(updateArticleField('preview', data, composerUrlBase, composerId));
+        promises.push(updateArticleField('live', data, composerUrlBase, composerId));
 
         return promises;
       }, []);
@@ -215,27 +215,36 @@ export default {
       });
     }
 
-    return Promise.all(
-      usages.map(usage => ContentApi.getLivePage(usage.id))
-    ).then(responses => {
-      const promises = responses.map((response, index) => {
-        const fieldPromises = getComposerUpdateRequests(
-          usages[index].fields.internalComposerCode,
+    return Promise.all(Object.keys(usages).map(state => {
+      return Promise.all(usages[state].map(usage => {
+        const composerId = usage.fields.internalComposerCode;
+
+        const fieldPromises = getComposerUpdateRequests({
+          composerId,
           video,
-          composerUrlBase,
-          videoBlock
-        );
-
-        const videoPagePromise = this.addVideoToComposerPage(
-          usages[index].fields.internalComposerCode,
-          videoBlock,
           composerUrlBase
-        );
+        });
 
-        return fieldPromises.concat(videoPagePromise);
-      });
+        const videoPagePromise = this.addVideoToComposerPage({
+          composerId,
+          previewData: videoBlock,
+          composerUrlBase
+        });
 
-      return Promise.all([].concat.apply([], promises));
+        return Promise.all(fieldPromises.concat(videoPagePromise));
+      }));
+    })).then(() => {
+      return Object.keys(usages).reduce((all, state) => {
+        const updated = usages[state].map(usage => {
+          return Object.assign({}, usage, {
+            webTitle: video.title
+          });
+        });
+
+        return Object.assign({}, all, {
+          [state]: updated
+        });
+      }, {});
     });
   },
 
@@ -261,10 +270,10 @@ export default {
     });
   },
 
-  addVideoToComposerPage(pageId, previewData, composerUrl) {
+  addVideoToComposerPage({composerId, previewData, composerUrlBase}) {
     function updateMainBlock(stage, data) {
       return pandaReqwest({
-        url: `${composerUrl}/api/content/${pageId}/${stage}/mainblock`,
+        url: `${composerUrlBase}/api/content/${composerId}/${stage}/mainblock`,
         method: 'post',
         crossOrigin: true,
         withCredentials: true,

@@ -36,7 +36,7 @@ export default class VideoUsages extends React.Component {
         }
       >
         <div className="details-list__title">
-          {usage.fields.headline || usage.id}
+          {usage.webTitle || usage.id}
         </div>
         <div>
           Created:
@@ -82,7 +82,7 @@ export default class VideoUsages extends React.Component {
 
       return (
         <div key={`${state}-usages`}>
-          <h1>{state.toUpperCase()}</h1>
+          <h3>{state.toUpperCase()}</h3>
           {totalUsages === 0
             ? <div className="baseline-margin">{`No ${state} usages found`}</div>
             : <ul className="detail__list">

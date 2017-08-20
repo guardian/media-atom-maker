@@ -31,13 +31,18 @@ export function createVideoPage(id, video, composerUrl, videoBlock, isTrainingMo
 
     return VideosApi.createComposerPage(id, video, composerUrl)
       .then(res => {
-        const pageId = res.data.id;
+        const composerId = res.data.id;
         const pagePath = res.data.identifiers.path.data;
 
-        const addVideo = VideosApi.addVideoToComposerPage(pageId, videoBlock, composerUrl, false);
+        const addVideo = VideosApi.addVideoToComposerPage({
+          composerId,
+          previewData: videoBlock,
+          composerUrlBase: composerUrl,
+          state: ContentApi.preview
+        });
 
         const postCreation = isTrainingMode
-          ? [VideosApi.preventPublication(pageId, composerUrl), addVideo]
+          ? [VideosApi.preventPublication(composerId, composerUrl), addVideo]
           : [addVideo];
 
         return Promise.all(postCreation).then(() => {

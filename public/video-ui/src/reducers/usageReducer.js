@@ -9,13 +9,13 @@ export default function usage(state = [], action) {
       return state;
     }
     case 'VIDEO_PAGE_UPDATE_POST_RECEIVE': {
-      debugger;
-      const newState = state.map(usage => {
-        usage.fields.headline = action.newTitle;
-        return usage;
+      Object.keys(action.updatedUsages).forEach(contentState => {
+        state[contentState] = Object.assign({}, state[contentState], {
+          video: action.updatedUsages[contentState]
+        });
       });
 
-      return newState;
+      return state;
     }
     default: {
       return state;

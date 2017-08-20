@@ -4,6 +4,7 @@ import { isVideoPublished, hasVideoExpired } from '../../util/isVideoPublished';
 import { hasUnpublishedChanges } from '../../util/hasUnpublishedChanges';
 import { getVideoBlock } from '../../util/getVideoBlock';
 import { getStore } from '../../util/storeAccessor';
+import ContentApi from '../../services/capi';
 
 export default class VideoPublishBar extends React.Component {
   videoIsCurrentlyPublishing() {
@@ -32,7 +33,15 @@ export default class VideoPublishBar extends React.Component {
   };
 
   publishVideo = () => {
-    const usages = this.props.usages.published && this.props.usages.published.video;
+    const previewVideoPageUsages = this.props.usages[ContentApi.preview] && this.props.usages[ContentApi.preview].video || [];
+    const publishedVideoPageUsages = this.props.usages[ContentApi.published] && this.props.usages[ContentApi.published].video || [];
+
+    const usages = {
+      [ContentApi.preview]: previewVideoPageUsages,
+      [ContentApi.published]: publishedVideoPageUsages
+    };
+
+    const totalUsages = previewVideoPageUsages.length + publishedVideoPageUsages.length;
 
     const videoBlock = getVideoBlock(
       this.props.video.id,
@@ -40,9 +49,8 @@ export default class VideoPublishBar extends React.Component {
       this.props.video.source
     );
 
-    if (usages.length > 0) {
+    if (totalUsages > 0) {
       this.props.updateVideoPage(
-        this.props.video.id,
         this.props.video,
         this.getComposerUrl(),
         videoBlock,
