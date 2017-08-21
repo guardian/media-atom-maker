@@ -97,7 +97,7 @@ export default class VideoUsages extends React.Component {
 }
 
 VideoUsages.propTypes = {
-  // usages: PropTypes.object.isRequired,
+  usages: PropTypes.object.isRequired,
   video: PropTypes.object.isRequired,
   publishedVideo: PropTypes.object.isRequired
 };
