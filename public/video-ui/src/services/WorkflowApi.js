@@ -6,7 +6,7 @@ export default class WorkflowApi {
     return getStore().getState().config.workflowUrl;
   }
 
-  static workflowItemLink({ video }) {
+  static workflowItemLink() {
     //TODO link to atom in Workflow
     return `${WorkflowApi.workflowUrl}/dashboard?atom-type=media`;
   }
