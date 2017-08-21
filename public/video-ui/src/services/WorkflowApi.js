@@ -1,5 +1,6 @@
 import { pandaReqwest } from './pandaReqwest';
 import { getStore } from '../util/storeAccessor';
+import getProductionOffice from '../util/getProductionOffice';
 
 export default class WorkflowApi {
   static get workflowUrl() {
@@ -35,7 +36,9 @@ export default class WorkflowApi {
     }).then(response => response.data);
   }
 
-  static _getTrackInWorkflowPayload({ video, status, section, prodOffice }) {
+  static _getTrackInWorkflowPayload({ video, status, section }) {
+    const prodOffice = getProductionOffice();
+
     return {
       contentType: 'media',
       editorId: video.id,
@@ -48,8 +51,8 @@ export default class WorkflowApi {
     };
   }
 
-  static trackInWorkflow({ video, status, section, prodOffice }) {
-    const payload = WorkflowApi._getTrackInWorkflowPayload({ video, status, section, prodOffice });
+  static trackInWorkflow({ video, status, section }) {
+    const payload = WorkflowApi._getTrackInWorkflowPayload({ video, status, section });
 
     return pandaReqwest({
       method: 'POST',

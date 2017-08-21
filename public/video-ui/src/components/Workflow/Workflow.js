@@ -21,7 +21,6 @@ class Workflow extends React.Component {
       this.props.workflowActions.getSections();
     }
 
-    this.props.workflowActions.getProductionOffice();
     this.props.workflowActions.getStatus({ video: this.props.video });
   }
 
@@ -29,8 +28,7 @@ class Workflow extends React.Component {
     this.props.workflowActions.trackInWorkflow({
       video: this.props.video,
       section: this.props.workflow.sections.find(_ => _.id === parseInt(this.state.videoInWorkflow.section)),
-      status: 'Writers',
-      prodOffice: this.props.workflow.productionOffice
+      status: 'Writers'
     }).then(() => {
       this.props.workflowActions.getStatus({ video: this.props.video });
     });
@@ -114,7 +112,6 @@ import { bindActionCreators } from 'redux';
 import * as getSections from '../../actions/WorkflowActions/getSections';
 import * as getStatus from '../../actions/WorkflowActions/getStatus';
 import * as trackInWorkflow from '../../actions/WorkflowActions/trackInWorkflow';
-import * as getProductionOffice from '../../actions/WorkflowActions/getProductionOffice';
 
 function mapStateToProps(state) {
   return {
@@ -129,8 +126,7 @@ function mapDispatchToProps(dispatch) {
         {},
         getSections,
         getStatus,
-        trackInWorkflow,
-        getProductionOffice
+        trackInWorkflow
       ),
       dispatch
     )

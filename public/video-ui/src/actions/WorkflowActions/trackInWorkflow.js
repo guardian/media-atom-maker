@@ -24,10 +24,10 @@ function errorTrackInWorkflow(error) {
   };
 }
 
-export function trackInWorkflow({ video, status, section, prodOffice }) {
+export function trackInWorkflow({ video, status, section }) {
   return dispatch => {
     dispatch(requestTrackInWorkflow());
-    return WorkflowApi.trackInWorkflow({ video, status, section, prodOffice })
+    return WorkflowApi.trackInWorkflow({ video, status, section })
       .then(response => dispatch(receiveTrackInWorkflow(response)))
       .catch(err => dispatch(errorTrackInWorkflow(err)));
   };
