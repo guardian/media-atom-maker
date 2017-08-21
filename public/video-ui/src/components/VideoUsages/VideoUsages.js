@@ -29,14 +29,13 @@ export default class VideoUsages extends React.Component {
     return (
       <li key={usage.id} className="detail__list__item">
         <div className="details-list__title">
-
+          <span className={`usage__content-type usage__content-type--${usage.type}`}>{usage.type}</span>
           {usage.webTitle || usage.id}
         </div>
         <div>
           Created:
           {' '}
           <span title={usage.fields.creationDate}>{usageDateFromNow}</span>
-          <span className={`details-list__content-type details-list__content-type--${usage.type}`}>{usage.type}</span>
           <a
             className="usage--platform-link"
             href={composerLink}
@@ -76,9 +75,9 @@ export default class VideoUsages extends React.Component {
 
       return (
         <div key={`${state}-usages`}>
-          <h3>{state.charAt(0).toUpperCase() + state.slice(1)}</h3>
+          <h4>{state.charAt(0).toUpperCase() + state.slice(1)}</h4>
           {totalUsages === 0
-            ? <div className="baseline-margin">{`No ${state} usages found`}</div>
+            ? <div className="usage--none">{`No ${state} usages found`}</div>
             : <ul className="detail__list">
                 {this.props.usages[state].video.map(usage => this.renderUsage({usage, state}))}
                 {this.props.usages[state].other.map(usage => this.renderUsage({usage, state}))}
@@ -90,7 +89,7 @@ export default class VideoUsages extends React.Component {
 
   render() {
     return (
-      <div className="form__group">
+      <div className="usage">
         {this.renderUsages()}
       </div>
     );
