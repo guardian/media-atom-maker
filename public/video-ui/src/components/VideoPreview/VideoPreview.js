@@ -4,6 +4,7 @@ import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 import { formNames } from '../../constants/formNames';
 import VideoPoster from '../VideoPoster/VideoPoster';
 import GridImageSelect from '../utils/GridImageSelect';
+import { findSmallestAssetAboveWidth } from '../../util/imageHelpers';
 
 export default class VideoPreview extends React.Component {
 
@@ -31,7 +32,15 @@ export default class VideoPreview extends React.Component {
       return { src: asset.id, mimeType: asset.mimeType };
     });
 
-    return <VideoEmbed sources={sources} />;
+    if (this.props.video.posterImage) {
+      const poster = findSmallestAssetAboveWidth(
+        this.props.video.posterImage.assets
+      );
+
+      return <VideoEmbed sources={sources} posterUrl={poster.file}/>;
+    }
+
+    return <VideoEmbed sources={sources}/>;
   }
 
   render() {

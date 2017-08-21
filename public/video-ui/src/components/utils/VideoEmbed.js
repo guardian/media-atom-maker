@@ -1,11 +1,15 @@
 import React from 'react';
 
-export function VideoEmbed({ sources }) {
+export function VideoEmbed({ sources, posterUrl }) {
   const props = {
     className: 'video-player',
     controls: 'controls',
     preload: 'metadata'
   };
+
+  if (posterUrl) {
+    props.poster = posterUrl;
+  }
 
   if (sources.length === 1) {
     // to appease Safari
