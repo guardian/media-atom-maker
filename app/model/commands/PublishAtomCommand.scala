@@ -192,11 +192,13 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youtu
       description = description,
       tags = previewAtom.tags,
       license = previewAtom.license,
-      privacyStatus = previewAtom.privacyStatus.map(_.name))
-      .withSaneTitle()
-      .withContentBundleTags()
+      privacyStatus = previewAtom.privacyStatus.map(_.name)
+    ).withSaneTitle()
 
-    youtube.updateMetadata(asset.id, metadata)
+    youtube.updateMetadata(
+      asset.id,
+      if (previewAtom.blockAds) metadata.withoutContentBundleTags() else metadata.withContentBundleTags() // content bundle tags only needed on monetized videos
+    )
 
     previewAtom
   }
