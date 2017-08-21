@@ -5,8 +5,7 @@ import { getStore } from '../../util/storeAccessor';
 import {
   FrontendIcon,
   ComposerIcon,
-  ViewerIcon,
-  ComposerVideoIcon
+  ViewerIcon
 } from '../Icon';
 
 import ContentApi from '../../services/capi';
@@ -24,25 +23,20 @@ export default class VideoUsages extends React.Component {
     const composerLink = `${this.getComposerUrl()}/content/${usage.fields.internalComposerCode}`;
     const viewerLink = `${this.getViewerUrl()}/preview/${usage.id}`;
     const websiteLink = `https://www.theguardian.com/${usage.id}`;
-    const isVideoType = usage.type === 'video';
 
     const usageDateFromNow = moment(usage.fields.creationDate).fromNow();
 
     return (
-      <li
-        key={usage.id}
-        className={
-          isVideoType ? 'detail__list__item--video' : 'detail__list__item'
-        }
-      >
+      <li key={usage.id} className="detail__list__item">
         <div className="details-list__title">
+
           {usage.webTitle || usage.id}
         </div>
         <div>
           Created:
           {' '}
           <span title={usage.fields.creationDate}>{usageDateFromNow}</span>
-
+          <span className={`details-list__content-type details-list__content-type--${usage.type}`}>{usage.type}</span>
           <a
             className="usage--platform-link"
             href={composerLink}
@@ -50,7 +44,7 @@ export default class VideoUsages extends React.Component {
             target="_blank"
             rel="noopener noreferrer"
           >
-            {isVideoType ? <ComposerVideoIcon /> : <ComposerIcon />}
+            <ComposerIcon />
           </a>
           <a
             className="usage--platform-link"

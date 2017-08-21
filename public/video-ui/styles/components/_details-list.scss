@@ -35,3 +35,21 @@
 
 }
 
+.details-list__content-type {
+  border-radius: 20px;
+  padding: 5px;
+  margin-left: 10px;
+  color: $color900Grey;
+
+  &--video {
+    background-color: $videoType;
+  }
+
+  &--article {
+    background-color: $articleType;
+  }
+
+  &--liveblog {
+    background-color: $liveblogType;
+  }
+}
