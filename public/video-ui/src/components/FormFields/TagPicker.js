@@ -342,12 +342,12 @@ export default class TagPicker extends React.Component {
 
         <CapiUnavailable capiUnavailable={this.state.capiUnavailable} />
         {this.renderTagPicker()}
+        {this.renderAddedTags()}
         {hasWarning
           ? <p className="form__message form__message--warning">
-          {requiredForComposerWarning}
+          {this.props.notification.message}
           </p>
             : ''}
-        {this.renderAddedTags()}
       </div>
     );
   }

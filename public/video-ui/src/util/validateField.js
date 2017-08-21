@@ -23,7 +23,7 @@ const validateField = (
 
   if (
     isDesired &&
-    (!fieldValue || (fieldValue instanceof Array && fieldValue.length === 0))
+    (!fieldValue || (Array.isArray(fieldValue) && fieldValue.length === 0))
   ) {
     return new FieldNotification(
       'desired',

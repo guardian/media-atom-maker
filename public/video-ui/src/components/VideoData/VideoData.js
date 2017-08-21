@@ -114,6 +114,7 @@ class VideoData extends React.Component {
               tagType={TagTypes.keyword}
               isDesired={true}
               inputPlaceholder="Search keywords (type '*' to show all)"
+              customValidation={this.props.validateKeywords}
             >
               <TagPicker disableTextInput />
             </ManagedField>
