@@ -256,30 +256,7 @@ export default {
           })
         );
       })
-    ).then(() => {
-      return Object.keys(usages.data).reduce(
-        (all, state) => {
-          const updated = usages.data[state].video.map(usage => {
-            return Object.assign({}, usage, {
-              webTitle: video.title
-            });
-          });
-
-          // TODO avoid mutation... but how on such a deep property?!
-          all.data[state] = {
-            video: updated,
-            other: usages.data[state].other
-          };
-
-          return all;
-        },
-        {
-          data: {},
-          totalUsages: usages.totalUsages,
-          totalVideoPages: usages.totalVideoPages
-        }
-      );
-    });
+    );
   },
 
   createComposerPage(id, video, composerUrlBase) {

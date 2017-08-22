@@ -7,10 +7,10 @@ function requestVideoPageUpdate() {
   };
 }
 
-function receiveVideoPageUpdate(updatedUsages) {
+function receiveVideoPageUpdate(newTitle) {
   return {
     type: 'VIDEO_PAGE_UPDATE_POST_RECEIVE',
-    updatedUsages: updatedUsages,
+    newTitle: newTitle,
     receivedAt: Date.now()
   };
 }
@@ -34,12 +34,7 @@ export function updateVideoPage(video, composerUrl, videoBlock, usages) {
       videoBlock,
       usages
     )
-      .then(updatedUsages => {
-
-        return dispatch(receiveVideoPageUpdate(updatedUsages));
-      })
-      .catch(error => {
-        dispatch(errorReceivingVideoPageUpdate(error));
-      });
+      .then(() => dispatch(receiveVideoPageUpdate(video.title)))
+      .catch(error => dispatch(errorReceivingVideoPageUpdate(error)));
   };
 }
