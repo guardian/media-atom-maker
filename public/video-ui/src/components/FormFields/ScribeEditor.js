@@ -6,6 +6,7 @@ import scribePluginToolbar from 'scribe-plugin-toolbar';
 import scribePluginLinkPromptCommand from 'scribe-plugin-link-prompt-command';
 import scribePluginSanitizer from 'scribe-plugin-sanitizer';
 import {keyCodes} from '../../constants/keyCodes';
+import {requiredForComposerWarning} from '../../constants/requiredForComposerWarning';
 
 export default class ScribeEditorField extends React.Component {
   state = {
@@ -102,7 +103,7 @@ export default class ScribeEditorField extends React.Component {
   };
 
   renderField() {
-    const hasWarning = this.state.wordCount === 0;
+    const hasWarning = this.state.wordCount === 0  && this.props.fieldLocation === 'trailText';
 
     if (!this.props.editable) {
       if (this.state.wordCount === 0) {
@@ -136,7 +137,7 @@ export default class ScribeEditorField extends React.Component {
         </div>
         {hasWarning
           ? <p className="form__message form__message--warning">
-              This field is recommended
+            {requiredForComposerWarning}
             </p>
           : ''}
       </div>

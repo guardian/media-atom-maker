@@ -12,13 +12,22 @@ export class ManagedForm extends React.Component {
     editable: PropTypes.bool,
     formName: PropTypes.string,
     formClass: PropTypes.string,
-    updateErrors: PropTypes.func
+    updateErrors: PropTypes.func,
+    updateWarnings: PropTypes.func
   };
 
   updateFormErrors = (fieldError, fieldName) => {
     if (this.props.updateErrors) {
       this.props.updateErrors({
         [this.props.formName]: { [fieldName]: fieldError }
+      });
+    }
+  };
+
+  updateWarnings = (hasFieldWarning, fieldName) => {
+    if (this.props.updateWarnings) {
+      this.props.updateWarnings({
+        [fieldName]: hasFieldWarning
       });
     }
   };
@@ -40,6 +49,7 @@ export class ManagedForm extends React.Component {
         data: this.props.data,
         updateData: this.props.updateData,
         updateFormErrors: this.updateFormErrors,
+        updateWarnings: this.updateWarnings,
         editable: this.props.editable
       });
     });

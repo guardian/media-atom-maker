@@ -2,7 +2,6 @@ import React from 'react';
 import { getVideoBlock } from '../../util/getVideoBlock';
 import Icon from '../Icon';
 import { getStore } from '../../util/storeAccessor';
-import { getComposerPages } from '../../util/getComposerPages';
 
 export default class ComposerPageCreate extends React.Component {
   state = {
@@ -11,10 +10,6 @@ export default class ComposerPageCreate extends React.Component {
 
   getComposerUrl = () => {
     return getStore().getState().config.composerUrl;
-  };
-
-  composerPageExists = () => {
-    return getComposerPages(this.props.usages).length > 0;
   };
 
   isHosted = () => {
@@ -48,7 +43,7 @@ export default class ComposerPageCreate extends React.Component {
   };
 
   render() {
-    if (this.composerPageExists() || this.isHosted()) {
+    if (this.props.composerPageExists() || this.isHosted()) {
       return null;
     }
 
@@ -57,7 +52,7 @@ export default class ComposerPageCreate extends React.Component {
         className="button__secondary"
         onClick={this.pageCreate}
         disabled={
-          this.props.videoEditOpen || this.state.composerUpdateInProgress
+          this.props.videoEditOpen || this.state.composerUpdateInProgress || this.props.requiredComposerFieldsMissing()
         }
       >
         <Icon icon="add_to_queue" /> Create Video Page

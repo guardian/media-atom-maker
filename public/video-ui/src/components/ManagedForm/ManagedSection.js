@@ -23,6 +23,7 @@ export class ManagedSection extends React.Component {
         data: this.props.data,
         updateData: this.props.updateData,
         updateFormErrors: this.props.updateFormErrors,
+        updateWarnings: this.props.updateWarnings,
         editable: this.props.editable
       });
     });

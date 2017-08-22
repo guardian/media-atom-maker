@@ -72,6 +72,7 @@ class ReactApp extends React.Component {
           usages={this.props.usages}
           presenceConfig={this.props.config.presence}
           isTrainingMode={this.props.config.isTrainingMode}
+          formFieldsWarning={this.props.formFieldsWarning}
         />
         {this.props.error
           ? <div className="error-bar">{this.props.error}</div>
@@ -109,7 +110,8 @@ function mapStateToProps(state) {
     checkedFormFields: state.checkedFormFields,
     videoEditOpen: state.videoEditOpen,
     usages: state.usage,
-    config: state.config
+    config: state.config,
+    formFieldsWarning: state.formFieldsWarning
   };
 }
 

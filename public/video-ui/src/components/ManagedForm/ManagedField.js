@@ -3,7 +3,9 @@ import { PropTypes } from 'prop-types';
 import _get from 'lodash/fp/get';
 import _set from 'lodash/fp/set';
 import validateField from '../../util/validateField';
+import {getTextFromHtml} from '../../util/getTextFromHtml';
 import FieldNotification from '../../constants/FieldNotification';
+import {fieldsWithHtml} from '../../constants/fieldsWithHtml';
 
 export class ManagedField extends React.Component {
   static propTypes = {
@@ -14,7 +16,7 @@ export class ManagedField extends React.Component {
     ]),
     updateData: PropTypes.func,
     updateFormErrors: PropTypes.func,
-    updateFormWarnings: PropTypes.func,
+    updateWarnings: PropTypes.func,
     customValidation: PropTypes.func,
     data: PropTypes.object,
     fieldName: PropTypes.string,
@@ -26,7 +28,8 @@ export class ManagedField extends React.Component {
     fieldDetails: PropTypes.string,
     tagType: PropTypes.string,
     inputPlaceholder: PropTypes.string,
-    tooltip: PropTypes.string
+    tooltip: PropTypes.string,
+    fieldLocation: PropTypes.string
   };
 
   state = {
@@ -44,24 +47,40 @@ export class ManagedField extends React.Component {
   }
 
   checkErrorsAndWarnings(value) {
-    if (this.props.updateFormErrors) {
-      const notification = validateField(
-        value,
-        this.props.isRequired,
-        this.props.isDesired,
-        this.props.customValidation
-      );
 
+    if (value && fieldsWithHtml.includes(this.props.fieldLocation)) {
+      value = getTextFromHtml(value);
+    }
+
+    const notification = validateField(
+      value,
+      this.props.isRequired,
+      this.props.isDesired,
+      this.props.customValidation
+    );
+
+    if (this.props.updateFormErrors) {
       if (notification && notification.type === FieldNotification.error) {
         this.props.updateFormErrors(notification, this.props.fieldLocation);
       } else {
         this.props.updateFormErrors(null, this.props.fieldLocation);
       }
-
-      this.setState({
-        fieldNotification: notification
-      });
     }
+
+    if (this.props.updateWarnings) {
+
+      if (notification && notification.type === FieldNotification.warning) {
+        this.props.updateWarnings(true, this.props.fieldLocation);
+
+      } else {
+        this.props.updateWarnings(false, this.props.fieldLocation);
+
+      }
+    }
+
+    this.setState({
+      fieldNotification: notification
+    });
   }
 
   updateFn = newValue => {
@@ -140,7 +159,8 @@ export class ManagedField extends React.Component {
         maxCharLength: this.props.maxCharLength,
         tagType: this.props.tagType,
         inputPlaceholder: this.props.inputPlaceholder,
-        tooltip: this.props.tooltip
+        tooltip: this.props.tooltip,
+        fieldLocation: this.props.fieldLocation
       });
     });
     return <div className={className}>{hydratedChildren}</div>;

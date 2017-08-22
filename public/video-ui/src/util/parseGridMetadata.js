@@ -1,4 +1,5 @@
 import { getGridMediaId } from './getGridMediaId';
+import { getTextFromHtml } from './getTextFromHtml';
 
 function parseMimeType(mimeType) {
   //Normalise Mime Types coming from the grid.
@@ -57,9 +58,7 @@ export function parseComposerDataFromImage(image, trail) {
     return composerAsset;
   }
 
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = trail;
-  const alt = tempDiv.innerText;
+  const alt = getTextFromHtml(trail);
 
   return {
     assets: [getComposerMasterAsset(image.master)].concat(

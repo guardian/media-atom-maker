@@ -12,6 +12,7 @@ import CapiUnavailable from '../CapiSearch/CapiUnavailable';
 import DragSortableList from 'react-drag-sortable';
 import removeTagDuplicates from '../../util/removeTagDuplicates';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
+import {requiredForComposerWarning} from '../../constants/requiredForComposerWarning';
 
 export default class TagPicker extends React.Component {
 
@@ -304,6 +305,8 @@ export default class TagPicker extends React.Component {
 
   render() {
 
+    const hasWarning = this.props.hasWarning(this.props) && this.state.capiTags.length === 0;
+
     if (!this.props.editable) {
       if (!this.state.tagValue || this.state.tagValue.length === 0) {
         return (
@@ -340,6 +343,11 @@ export default class TagPicker extends React.Component {
         <CapiUnavailable capiUnavailable={this.state.capiUnavailable} />
         {this.renderTagPicker()}
         {this.renderAddedTags()}
+        {hasWarning
+          ? <p className="form__message form__message--warning">
+          {this.props.notification.message}
+          </p>
+            : ''}
       </div>
     );
   }

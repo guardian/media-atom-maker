@@ -68,13 +68,18 @@ class VideoDisplay extends React.Component {
     });
   };
 
-  validateDescription = description => {
-    if (!description) {
-      return new FieldNotification(
-        'required',
-        'It is recommeded you fill in this field for seo',
-        FieldNotification.warning
-      );
+  validateKeywords = keywords => {
+    if (!Array.isArray(keywords) ||
+        keywords.length === 0 ||
+        keywords.every(keyword => {
+          return keyword.match(/^tone/);
+        })
+       ) {
+        return new FieldNotification(
+          'desired',
+          'A series or a keyword tag is required for creating composer pages',
+          FieldNotification.warning
+        );
     }
     return null;
   };
@@ -178,6 +183,8 @@ class VideoDisplay extends React.Component {
                   editable={this.props.videoEditOpen}
                   formName={formNames.videoData}
                   updateErrors={this.props.formErrorActions.updateFormErrors}
+                  updateWarnings={this.props.formErrorActions.updateFormWarnings}
+                  validateKeywords={this.validateKeywords}
                 />
               </div>
               {this.renderPreview()}
@@ -215,6 +222,8 @@ import * as updateVideoEditState
   from '../../actions/VideoActions/updateVideoEditState';
 import * as updateFormErrors
   from '../../actions/FormErrorActions/updateFormErrors';
+import * as updateFormWarnings
+  from '../../actions/FormErrorActions/updateFormWarnings';
 
 function mapStateToProps(state) {
   return {
@@ -224,7 +233,7 @@ function mapStateToProps(state) {
     composerPageWithUsage: state.pageCreate,
     publishedVideo: state.publishedVideo,
     videoEditOpen: state.videoEditOpen,
-    checkedFormFields: state.checkedFormFields
+    checkedFormFields: state.checkedFormFields,
   };
 }
 
@@ -244,7 +253,7 @@ function mapDispatchToProps(dispatch) {
       dispatch
     ),
     formErrorActions: bindActionCreators(
-      Object.assign({}, updateFormErrors),
+      Object.assign({}, updateFormErrors, updateFormWarnings),
       dispatch
     )
   };

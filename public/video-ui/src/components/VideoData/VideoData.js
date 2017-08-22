@@ -44,6 +44,7 @@ class VideoData extends React.Component {
           updateData={this.props.updateVideo}
           editable={this.props.editable}
           updateErrors={this.props.updateErrors}
+          updateWarnings={this.props.updateWarnings}
           formName={this.props.formName}
           formClass="atom__edit__form"
         >
@@ -66,7 +67,6 @@ class VideoData extends React.Component {
                   : 'Standfirst (YouTube description)'
               }
               customValidation={this.props.descriptionValidator}
-              isDesired={true}
               maxCharLength={fieldLengths.description.charMax}
               maxLength={fieldLengths.description.max}
             >
@@ -80,6 +80,7 @@ class VideoData extends React.Component {
               name="Trail Text"
               maxCharLength={fieldLengths.description.charMax}
               maxLength={fieldLengths.description.max}
+              isDesired={true}
             >
               <ScribeEditorField
                 allowedEdits={['bold', 'italic']}
@@ -100,6 +101,7 @@ class VideoData extends React.Component {
               name="Comissioning Desks"
               formRowClass="form__row__byline"
               tagType={TagTypes.tracking}
+              isDesired={true}
               inputPlaceholder="Search commissioning info (type '*' to show all)"
             >
               <TagPicker disableTextInput />
@@ -110,7 +112,9 @@ class VideoData extends React.Component {
               name="Composer Keywords"
               formRowClass="form__row__byline"
               tagType={TagTypes.keyword}
+              isDesired={true}
               inputPlaceholder="Search keywords (type '*' to show all)"
+              customValidation={this.props.validateKeywords}
             >
               <TagPicker disableTextInput />
             </ManagedField>

@@ -88,13 +88,7 @@ export default {
   },
 
   updateComposerPage(id, video, composerUrlBase, videoBlock, usages) {
-    function getComposerUpdateRequests(
-      id,
-      video,
-      composerUrlBase,
-      videoBlock,
-      isLive
-    ) {
+    function getComposerUpdateRequests(id, video, composerUrlBase) {
       const rightsExpiryPayload = getRightsPayload(video);
       const rightsRequest = pandaReqwest({
         url: `${composerUrlBase}/api/content/${id}/atom-expiry/rights`,
@@ -105,14 +99,12 @@ export default {
       });
 
       // When article is in preview, composer keeps track of both the live and preview versions of an article
-      // For an uplublished article, we need to update both live and preview versions.
+      // For both published and unpublished articles, we need to update both live and preview versions.
       const composerData = getComposerData(video);
       const dataUpdatePromises = composerData.reduce((promises, data) => {
         promises.push(updateArticleField('preview', data, composerUrlBase, id));
+        promises.push(updateArticleField('live', data, composerUrlBase, id));
 
-        if (!isLive) {
-          promises.push(updateArticleField('live', data, composerUrlBase, id));
-        }
         return promises;
       }, []);
 
@@ -175,21 +167,17 @@ export default {
       usages.map(usage => ContentApi.getLivePage(usage.id))
     ).then(responses => {
       const promises = responses.map((response, index) => {
-        const isLive = response.response.status === 'ok';
-
         const fieldPromises = getComposerUpdateRequests(
           usages[index].fields.internalComposerCode,
           video,
           composerUrlBase,
-          videoBlock,
-          isLive
+          videoBlock
         );
 
         const videoPagePromise = this.addVideoToComposerPage(
           usages[index].fields.internalComposerCode,
           videoBlock,
-          composerUrlBase,
-          isLive
+          composerUrlBase
         );
 
         return fieldPromises.concat(videoPagePromise);
@@ -221,7 +209,7 @@ export default {
     });
   },
 
-  addVideoToComposerPage(pageId, previewData, composerUrl, isLive) {
+  addVideoToComposerPage(pageId, previewData, composerUrl) {
     function updateMainBlock(stage, data) {
       return pandaReqwest({
         url: `${composerUrl}/api/content/${pageId}/${stage}/mainblock`,
@@ -235,12 +223,9 @@ export default {
     // The composer client (whilst in draft) keeps both the preview and live data in sync so we must do the same
 
     return updateMainBlock('preview', previewData).then(preview => {
-      if (!isLive) {
-        const liveData = preview.data.block;
+      const liveData = preview.data.block;
 
-        return updateMainBlock('live', liveData);
-      }
-      return;
+      return updateMainBlock('live', liveData);
     });
   },
 
