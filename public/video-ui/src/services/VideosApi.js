@@ -125,9 +125,19 @@ export default {
         });
       });
 
+      const splitPreview = splitUsages({usages: draft});
+      const splitPublished = splitUsages({usages: publishedUsages});
+
       return {
-        [ContentApi.preview]: splitUsages({usages: draft}),
-        [ContentApi.published]: splitUsages({usages: publishedUsages})
+        data: {
+          [ContentApi.preview]: splitPreview,
+          [ContentApi.published]: splitPublished,
+        },
+
+        // a lot of components conditionally render based on the number of usages,
+        // rather than constantly call a utility function, let's cheat and put in in the object
+        totalUsages: previewUsages.length + publishedUsages.length,
+        totalVideoPages: splitPreview.video.length + splitPublished.video.length
       };
     });
   },
@@ -139,7 +149,7 @@ export default {
     });
   },
 
-  updateComposerPage(video, composerUrlBase, videoBlock, usages) {
+  updateCanonicalPages(video, composerUrlBase, videoBlock, usages) {
     function getComposerUpdateRequests({ composerId, video, composerUrlBase }) {
       const rightsExpiryPayload = getRightsPayload(video);
       const rightsRequest = pandaReqwest({
@@ -215,8 +225,10 @@ export default {
       });
     }
 
-    return Promise.all(Object.keys(usages).map(state => {
-      return Promise.all(usages[state].map(usage => {
+    return Promise.all(Object.keys(usages.data).map(state => {
+      const videoPageUsages = usages.data[state].video;
+
+      return Promise.all(videoPageUsages.map(usage => {
         const composerId = usage.fields.internalComposerCode;
 
         const fieldPromises = getComposerUpdateRequests({
@@ -231,20 +243,28 @@ export default {
           composerUrlBase
         });
 
-        return Promise.all(fieldPromises.concat(videoPagePromise));
+        return Promise.all([...fieldPromises, videoPagePromise]);
       }));
     })).then(() => {
-      return Object.keys(usages).reduce((all, state) => {
-        const updated = usages[state].map(usage => {
+      return Object.keys(usages.data).reduce((all, state) => {
+        const updated = usages.data[state].video.map(usage => {
           return Object.assign({}, usage, {
             webTitle: video.title
           });
         });
 
-        return Object.assign({}, all, {
-          [state]: updated
-        });
-      }, {});
+        // TODO avoid mutation... but how on such a deep property?!
+        all.data[state] = {
+          video: updated,
+          other: usages.data[state].other
+        };
+
+        return all;
+      }, {
+        data: {},
+        totalUsages: usages.totalUsages,
+        totalVideoPages: usages.totalVideoPages
+      });
     });
   },
 

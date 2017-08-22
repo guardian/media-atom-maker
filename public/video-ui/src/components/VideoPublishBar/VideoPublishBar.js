@@ -24,7 +24,7 @@ export default class VideoPublishBar extends React.Component {
       this.videoIsCurrentlyPublishing() ||
       this.props.videoEditOpen ||
       !this.videoHasUnpublishedChanges() ||
-      (this.props.composerPageExists() && this.props.requiredComposerFieldsMissing())
+      (this.props.canonicalVideoPageExists() && this.props.requiredComposerFieldsMissing())
     );
   }
 
@@ -33,28 +33,18 @@ export default class VideoPublishBar extends React.Component {
   };
 
   publishVideo = () => {
-    const previewVideoPageUsages = this.props.usages[ContentApi.preview] && this.props.usages[ContentApi.preview].video || [];
-    const publishedVideoPageUsages = this.props.usages[ContentApi.published] && this.props.usages[ContentApi.published].video || [];
-
-    const usages = {
-      [ContentApi.preview]: previewVideoPageUsages,
-      [ContentApi.published]: publishedVideoPageUsages
-    };
-
-    const totalUsages = previewVideoPageUsages.length + publishedVideoPageUsages.length;
-
     const videoBlock = getVideoBlock(
       this.props.video.id,
       this.props.video.title,
       this.props.video.source
     );
 
-    if (totalUsages > 0) {
+    if (this.props.canonicalVideoPageExists()) {
       this.props.updateVideoPage(
         this.props.video,
         this.getComposerUrl(),
         videoBlock,
-        usages
+        this.props.usages
       );
     }
 

@@ -70,8 +70,10 @@ export default class VideoUsages extends React.Component {
   };
 
   renderUsages() {
-    return Object.keys(this.props.usages).map(state => {
-      const totalUsages = this.props.usages[state].video.length + this.props.usages[state].other.length;
+    const usages = this.props.usages.data;
+
+    return Object.keys(usages).map(state => {
+      const totalUsages = usages[state].video.length + usages[state].other.length;
 
       return (
         <div key={`${state}-usages`}>
@@ -79,8 +81,8 @@ export default class VideoUsages extends React.Component {
           {totalUsages === 0
             ? <div className="usage--none">{`No ${state} usages found`}</div>
             : <ul className="detail__list">
-                {this.props.usages[state].video.map(usage => this.renderUsage({usage, state}))}
-                {this.props.usages[state].other.map(usage => this.renderUsage({usage, state}))}
+                {usages[state].video.map(usage => this.renderUsage({usage, state}))}
+                {usages[state].other.map(usage => this.renderUsage({usage, state}))}
               </ul>}
         </div>
       );

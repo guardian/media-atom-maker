@@ -43,9 +43,7 @@ export default class ComposerPageCreate extends React.Component {
   };
 
   render() {
-    const hasPublishedCanonicalPage = this.props.usages.published && this.props.usages.published.video.length > 0;
-
-    if (hasPublishedCanonicalPage || this.isHosted()) {
+    if (this.props.canonicalVideoPageExists() || this.isHosted()) {
       return null;
     }
 
