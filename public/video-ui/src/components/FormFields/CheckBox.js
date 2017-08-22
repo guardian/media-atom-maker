@@ -8,7 +8,7 @@ export default class CheckBox extends React.Component {
     return (
       <div>
         <input
-          id={this.props.fieldLocation}
+          id={this.props.fieldId || this.props.fieldLocation}
           type="checkbox"
           disabled={!this.props.editable}
           checked={checked}

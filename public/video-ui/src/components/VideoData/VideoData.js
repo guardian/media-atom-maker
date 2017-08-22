@@ -158,7 +158,8 @@ class VideoData extends React.Component {
               disabled={notOnManagedChannel}
               tooltip={`Videos less than ${getStore().getState().config.minDurationForAds} seconds will automatically have ads blocked`}
             >
-              <CheckBox />
+              {/* use a different field identifier to `fieldLocation` to ensure ad blockers don't remove it from the DOM */}
+              <CheckBox fieldId="money-please"/>
             </ManagedField>
             <ManagedField
               fieldLocation="composerCommentsEnabled"
