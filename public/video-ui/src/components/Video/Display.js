@@ -4,6 +4,7 @@ import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoUsages from '../VideoUsages/VideoUsages';
 import VideoData from '../VideoData/VideoData';
+import Workflow from '../Workflow/Workflow';
 import Icon from '../Icon';
 import { formNames } from '../../constants/formNames';
 import FieldNotification from '../../constants/FieldNotification';
@@ -13,7 +14,6 @@ import { blankVideoData } from '../../constants/blankVideoData';
 
 class VideoDisplay extends React.Component {
   componentWillMount() {
-
     this.props.videoActions.getUsages(this.props.params.id);
 
     if (this.props.route.mode === 'create') {
@@ -199,6 +199,12 @@ class VideoDisplay extends React.Component {
                   publishedVideo={this.props.publishedVideo || {}}
                   usages={this.props.usages || []}
                 />
+              </div>
+              <div className="video__detailbox">
+                <div className="video__detailbox__header__container">
+                  <header className="video__detailbox__header">Workflow</header>
+                </div>
+                <Workflow video={this.props.video || {}} />
               </div>
             </div>
           </div>

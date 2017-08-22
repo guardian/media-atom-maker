@@ -217,7 +217,8 @@ import * as getProjects from '../../actions/PlutoActions/getProjects';
 function mapStateToProps(state) {
   return {
     youtube: state.youtube,
-    pluto: state.pluto
+    pluto: state.pluto,
+    workflow: state.workflow
   };
 }
 
