@@ -32,14 +32,17 @@ function getUsages({ id, stage }) {
 }
 
 function splitUsages({ usages }) {
-  return usages.reduce((all, usage) => {
-    if (usage.type === 'video') {
-      all.video = [...all.video, usage];
-    } else {
-      all.other = [...all.other, usage];
-    }
-    return all;
-  }, {video: [], other: []});
+  return usages.reduce(
+    (all, usage) => {
+      if (usage.type === 'video') {
+        all.video = [...all.video, usage];
+      } else {
+        all.other = [...all.other, usage];
+      }
+      return all;
+    },
+    { video: [], other: [] }
+  );
 }
 
 export default {
@@ -125,13 +128,13 @@ export default {
         });
       });
 
-      const splitPreview = splitUsages({usages: draft});
-      const splitPublished = splitUsages({usages: publishedUsages});
+      const splitPreview = splitUsages({ usages: draft });
+      const splitPublished = splitUsages({ usages: publishedUsages });
 
       return {
         data: {
           [ContentApi.preview]: splitPreview,
-          [ContentApi.published]: splitPublished,
+          [ContentApi.published]: splitPublished
         },
 
         // a lot of components conditionally render based on the number of usages,
@@ -164,8 +167,12 @@ export default {
       // For both published and unpublished articles, we need to update both live and preview versions.
       const composerData = getComposerData(video);
       const dataUpdatePromises = composerData.reduce((promises, data) => {
-        promises.push(updateArticleField('preview', data, composerUrlBase, composerId));
-        promises.push(updateArticleField('live', data, composerUrlBase, composerId));
+        promises.push(
+          updateArticleField('preview', data, composerUrlBase, composerId)
+        );
+        promises.push(
+          updateArticleField('live', data, composerUrlBase, composerId)
+        );
 
         return promises;
       }, []);
@@ -225,46 +232,53 @@ export default {
       });
     }
 
-    return Promise.all(Object.keys(usages.data).map(state => {
-      const videoPageUsages = usages.data[state].video;
+    return Promise.all(
+      Object.keys(usages.data).map(state => {
+        const videoPageUsages = usages.data[state].video;
 
-      return Promise.all(videoPageUsages.map(usage => {
-        const composerId = usage.fields.internalComposerCode;
+        return Promise.all(
+          videoPageUsages.map(usage => {
+            const composerId = usage.fields.internalComposerCode;
 
-        const fieldPromises = getComposerUpdateRequests({
-          composerId,
-          video,
-          composerUrlBase
-        });
+            const fieldPromises = getComposerUpdateRequests({
+              composerId,
+              video,
+              composerUrlBase
+            });
 
-        const videoPagePromise = this.addVideoToComposerPage({
-          composerId,
-          previewData: videoBlock,
-          composerUrlBase
-        });
+            const videoPagePromise = this.addVideoToComposerPage({
+              composerId,
+              previewData: videoBlock,
+              composerUrlBase
+            });
 
-        return Promise.all([...fieldPromises, videoPagePromise]);
-      }));
-    })).then(() => {
-      return Object.keys(usages.data).reduce((all, state) => {
-        const updated = usages.data[state].video.map(usage => {
-          return Object.assign({}, usage, {
-            webTitle: video.title
+            return Promise.all([...fieldPromises, videoPagePromise]);
+          })
+        );
+      })
+    ).then(() => {
+      return Object.keys(usages.data).reduce(
+        (all, state) => {
+          const updated = usages.data[state].video.map(usage => {
+            return Object.assign({}, usage, {
+              webTitle: video.title
+            });
           });
-        });
 
-        // TODO avoid mutation... but how on such a deep property?!
-        all.data[state] = {
-          video: updated,
-          other: usages.data[state].other
-        };
+          // TODO avoid mutation... but how on such a deep property?!
+          all.data[state] = {
+            video: updated,
+            other: usages.data[state].other
+          };
 
-        return all;
-      }, {
-        data: {},
-        totalUsages: usages.totalUsages,
-        totalVideoPages: usages.totalVideoPages
-      });
+          return all;
+        },
+        {
+          data: {},
+          totalUsages: usages.totalUsages,
+          totalVideoPages: usages.totalVideoPages
+        }
+      );
     });
   },
 
@@ -290,7 +304,7 @@ export default {
     });
   },
 
-  addVideoToComposerPage({composerId, previewData, composerUrlBase}) {
+  addVideoToComposerPage({ composerId, previewData, composerUrlBase }) {
     function updateMainBlock(stage, data) {
       return pandaReqwest({
         url: `${composerUrlBase}/api/content/${composerId}/${stage}/mainblock`,

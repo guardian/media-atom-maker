@@ -51,7 +51,8 @@ class ReactApp extends React.Component {
   };
 
   render() {
-    const showPublishedState = this.props.params.id || this.props.location.pathname === '/videos/create';
+    const showPublishedState =
+      this.props.params.id || this.props.location.pathname === '/videos/create';
 
     return (
       <div className="wrap">

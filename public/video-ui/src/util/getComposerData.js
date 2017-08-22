@@ -93,9 +93,7 @@ export function getComposerData(video) {
     belongsTo: 'settings'
   };
 
-  return !isTrainingMode
-    ? coreFields
-    : [...coreFields, embargoedIndefinately];
+  return !isTrainingMode ? coreFields : [...coreFields, embargoedIndefinately];
 }
 
 export function getRightsPayload(video) {
