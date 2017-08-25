@@ -798,7 +798,7 @@ Resources:
         FailureThreshold: '3'
       HealthCheckTags:
       - Key: Name
-        Value: !Join ['', ['https://', !Ref 'DomainToMonitor', /video/videos]]
+        Value: !Join ['', ['https://', !Ref 'DomainToMonitor', /videos]]
   MediaAtomMakerVideosDown:
     Type: AWS::CloudWatch::Alarm
     Properties:
