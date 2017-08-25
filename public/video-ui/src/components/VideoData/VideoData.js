@@ -98,7 +98,7 @@ class VideoData extends React.Component {
             </ManagedField>
             <ManagedField
               fieldLocation="commissioningDesks"
-              name="Comissioning Desks"
+              name="Commissioning Desks"
               formRowClass="form__row__byline"
               tagType={TagTypes.tracking}
               isDesired={true}
