@@ -53,7 +53,7 @@ export default class VideoPreview extends React.Component {
         <div className="video__detailbox">
           <div className="video__detailbox__header__container">
             <header className="video__detailbox__header">
-              Youtube Poster Image
+              YouTube Poster Image
             </header>
             <GridImageSelect
               updateVideo={this.saveAndUpdateVideoPoster}
@@ -68,7 +68,7 @@ export default class VideoPreview extends React.Component {
             formName={formNames.posterImage}
             updateErrors={this.props.updateErrors}
             fieldLocation="posterImage"
-            name="Youtube Poster Image"
+            name="YouTube Poster Image"
           />
         </div>
         <div className="video__detailbox">
