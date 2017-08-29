@@ -29,7 +29,7 @@ export class ManagedField extends React.Component {
     tagType: PropTypes.string,
     inputPlaceholder: PropTypes.string,
     tooltip: PropTypes.string,
-    fieldLocation: PropTypes.string
+    fieldLocation: PropTypes.string,
     updateSideEffects: PropTypes.func
   };
 
@@ -161,7 +161,7 @@ export class ManagedField extends React.Component {
         tagType: this.props.tagType,
         inputPlaceholder: this.props.inputPlaceholder,
         tooltip: this.props.tooltip,
-        fieldLocation: this.props.fieldLocation
+        fieldLocation: this.props.fieldLocation,
         updateSideEffects: this.props.updateSideEffects
       });
     });

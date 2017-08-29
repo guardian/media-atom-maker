@@ -73,7 +73,6 @@ export default class PureTagPicker extends React.Component {
           tagValue={this.props.tagValue}
           removeDupes={removeTagDuplicates}
           selectedTagIndex={this.props.selectedTagIndex}
-          updateSideEffects={this.props.updateSideEffects}
         />
 
       </div>

@@ -13,6 +13,7 @@ import DragSortableList from 'react-drag-sortable';
 import removeTagDuplicates from '../../util/removeTagDuplicates';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 import {requiredForComposerWarning} from '../../constants/requiredForComposerWarning';
+import ReactTooltip from 'react-tooltip';
 
 export default class TagPicker extends React.Component {
 
@@ -184,9 +185,6 @@ export default class TagPicker extends React.Component {
 
       this.onUpdate(newFieldValue);
 
-      if (this.props.updateSideEffects) {
-        this.props.updateSideEffects(newTag);
-      }
     }
   }
 
@@ -283,7 +281,6 @@ export default class TagPicker extends React.Component {
         hideTagResults={this.hideTagResults}
         selectedTagIndex={this.state.selectedTagIndex}
         inputClearCount={this.state.inputClearCount}
-        updateSideEffects={this.props.updateSideEffects}
 
         {...this.props}
       />
@@ -316,6 +313,21 @@ export default class TagPicker extends React.Component {
         <span className="form__field__instructions">
           Press enter to add byline as text
         </span>
+      );
+    }
+  }
+
+  renderCopyButton() {
+    if (this.props.updateSideEffects) {
+      return (
+        <button
+          type="button"
+          className="btn form__label__button"
+          onClick={this.props.updateSideEffects}
+        >
+          <i className="icon">edit</i>
+          <span data-tip="Copy composer keywords to youtube keywords" />
+        </button>
       );
     }
   }
@@ -355,6 +367,7 @@ export default class TagPicker extends React.Component {
         <div className="form__label__layout">
           <label className="form__label">{this.props.fieldName}</label>
           {this.renderBylineInstructions()}
+          {this.renderCopyButton()}
         </div>
 
         <CapiUnavailable capiUnavailable={this.state.capiUnavailable} />

@@ -22,10 +22,6 @@ export default class CapiSearch extends React.Component {
 
     const addTag = () => {
 
-      if (this.props.updateSideEffects) {
-        this.props.updateSideEffects(tag);
-      }
-
       const valueWithoutStringDupes = this.props.removeDupes(
         tag,
         this.props.tagValue

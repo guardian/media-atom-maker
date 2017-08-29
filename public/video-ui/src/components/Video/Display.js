@@ -40,14 +40,19 @@ class VideoDisplay extends React.Component {
     this.props.videoActions.updateVideo(video);
   };
 
-  composerKeywordsToYouTube = keywordTag => {
-    if (this.props.video.tags.every(youTubeTag => {
-      return youTubeTag !== keywordTag.webTitle
-    })) {
-      const newTags = this.props.video.tags.concat([keywordTag.webTitle]);
-      const newVideo = Object.assign({}, this.props.video, { tags: newTags });
-      this.updateVideo(newVideo);
-    }
+  composerKeywordsToYouTube = () => {
+    const keywordsToCopy = this.props.video.keywords.reduce((tags, keywordTag) => {
+
+      if (this.props.video.tags.every(youTubeTag => {
+        return youTubeTag !== keywordTag;
+      })) {
+        return tags.concat([keywordTag]);
+      }
+      return tags;
+    }, []);
+
+    const newVideo = Object.assign({}, this.props.video, { tags: keywordsToCopy });
+    this.updateVideo(newVideo);
   }
 
   selectVideo = () => {
@@ -206,6 +211,7 @@ class VideoDisplay extends React.Component {
           validateKeywords={this.validateKeywords}
           composerKeywordsToYouTube={this.composerKeywordsToYouTube}
         />
+        <ReactTooltip place="bottom" />
       </div>
     );
   }
