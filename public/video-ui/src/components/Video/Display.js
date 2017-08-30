@@ -43,7 +43,7 @@ class VideoDisplay extends React.Component {
 
   composerKeywordsToYouTube = () => {
 
-    return Promise.all(this.props.video.keywords.map(keyword => KeywordsApi.composerTagToYouTube(keyword.split('/')[0], keyword.split('/')[1])))
+    return Promise.all(this.props.video.keywords.map(keyword => KeywordsApi.composerTagToYouTube(keyword)))
     .then(youTubeKeywords => {
 
       const oldTags = this.props.video.tags;
