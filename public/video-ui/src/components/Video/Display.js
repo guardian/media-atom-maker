@@ -12,6 +12,7 @@ import FieldNotification from '../../constants/FieldNotification';
 import ReactTooltip from 'react-tooltip';
 import { getStore } from '../../util/storeAccessor';
 import { blankVideoData } from '../../constants/blankVideoData';
+import  KeywordsApi from '../../services/KeywordsApi';
 
 class VideoDisplay extends React.Component {
   componentWillMount() {
@@ -41,18 +42,24 @@ class VideoDisplay extends React.Component {
   };
 
   composerKeywordsToYouTube = () => {
-    const keywordsToCopy = this.props.video.keywords.reduce((tags, keywordTag) => {
+    const keywordsToCopyPromises = this.props.video.keywords.reduce((tags, keywordTag) => {
 
       if (this.props.video.tags.every(youTubeTag => {
         return youTubeTag !== keywordTag;
       })) {
-        return tags.concat([keywordTag]);
+        const parts = keywordTag.split('/');
+        const tagToAdd = KeywordsApi.composerTagToYouTube(parts[0], parts[1]);
+        return tags.concat([tagToAdd]);
       }
       return tags;
     }, []);
 
-    const newVideo = Object.assign({}, this.props.video, { tags: keywordsToCopy });
-    this.updateVideo(newVideo);
+    return Promise.all(keywordsToCopyPromises)
+    .then(keywordsToCopy => {
+
+      const newVideo = Object.assign({}, this.props.video, { tags: keywordsToCopy });
+      this.updateVideo(newVideo);
+    });
   }
 
   selectVideo = () => {

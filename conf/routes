@@ -36,6 +36,7 @@ GET     /api2/pluto/projects/:id        controllers.PlutoProjectController.getPr
 POST    /api2/pluto/projects            controllers.PlutoProjectController.createProject()
 PUT     /api2/pluto/projects/:id        controllers.PlutoProjectController.updateProject(id)
 
+GET     /api2/youtube-tag/:first/:second controllers.YoutubeTagController.getById(first, second)
 # endpoint used by workflow
 OPTIONS /api2/workflow/*url             controllers.Api2.allowCORSAccess(methods = "PUT, POST, DELETE", url: String)
 POST    /api2/workflow/atoms            controllers.Api2.createWorkflowMediaAtom

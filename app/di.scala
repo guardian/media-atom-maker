@@ -61,6 +61,8 @@ class MediaAtomMaker(context: Context)
 
   private val pluto = new PlutoProjectController(hmacAuthActions, stores)
 
+  private val youtubeTags = new YoutubeTagController(hmacAuthActions)
+
   private val transcoder = new util.Transcoder(aws, defaultCacheApi)
   private val transcoderController = new controllers.Transcoder(hmacAuthActions, transcoder)
 
@@ -75,6 +77,7 @@ class MediaAtomMaker(context: Context)
     api,
     api2,
     pluto,
+    youtubeTags,
     uploads,
     youTubeController,
     transcoderController,
