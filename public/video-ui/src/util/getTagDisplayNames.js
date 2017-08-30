@@ -1,7 +1,6 @@
 import TagTypes from '../constants/TagTypes';
 
 export default function getTagDisplayNames(tags) {
-
   return tags.map(tag => {
     if (typeof tag === 'string') {
       return tag;
@@ -11,7 +10,6 @@ export default function getTagDisplayNames(tags) {
     let detailedTitle;
 
     if (tagType === TagTypes.keyword) {
-
       //Some webtitles on keyword tags are too unspecific and we need to add
       //the section name to them to know what tags they are referring to
 
@@ -23,17 +21,11 @@ export default function getTagDisplayNames(tags) {
       } else {
         detailedTitle = tag.webTitle;
       }
-    }
-
-    else if (tagType === TagTypes.series) {
+    } else if (tagType === TagTypes.series) {
       detailedTitle = tag.webTitle + ' (series)';
-    }
-
-    else if (tagType === TagTypes.tone) {
+    } else if (tagType === TagTypes.tone) {
       detailedTitle = tag.webTitle + ' (tone)';
-    }
-
-    else detailedTitle = tag.webTitle;
+    } else detailedTitle = tag.webTitle;
 
     return {
       id: tag.id,
@@ -41,5 +33,4 @@ export default function getTagDisplayNames(tags) {
       detailedTitle: detailedTitle
     };
   });
-
 }

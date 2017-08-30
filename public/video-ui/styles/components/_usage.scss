@@ -1,3 +1,30 @@
+.usage {
+  padding: 10px;
+}
+
+.usage--none {
+  font-style: italic;
+}
+
 .usage--platform-link {
   padding-left: 10px;
+}
+
+.usage__content-type {
+  border-radius: 20px;
+  padding: 3px 5px;
+  margin-right: 10px;
+  color: $color900Grey;
+
+  &--video {
+    background-color: $videoType;
+  }
+
+  &--article {
+    background-color: $articleType;
+  }
+
+  &--liveblog {
+    background-color: $liveblogType;
+  }
 }

@@ -2,6 +2,20 @@ import { pandaReqwest } from './pandaReqwest';
 import { getStore } from '../util/storeAccessor';
 
 export default class ContentApi {
+  static get published() {
+    return 'published';
+  }
+
+  static get preview() {
+    return 'preview';
+  }
+
+  static getUrl(stage) {
+    return stage === ContentApi.published
+      ? ContentApi.liveProxyUrl
+      : ContentApi.proxyUrl;
+  }
+
   static get proxyUrl() {
     return getStore().getState().config.capiProxyUrl;
   }

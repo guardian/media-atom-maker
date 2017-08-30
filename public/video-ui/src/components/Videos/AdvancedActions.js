@@ -1,5 +1,6 @@
 import React from 'react';
 import { getStore } from '../../util/storeAccessor';
+import ContentApi from '../../services/capi';
 
 class AdvancedActions extends React.Component {
   // the permissions are also validated on the server-side for each request
@@ -13,7 +14,8 @@ class AdvancedActions extends React.Component {
       return false;
     }
 
-    const disabled = this.props.usage.length > 0;
+    const disabled = this.props.usages.totalUsages > 0;
+
     const deleteMsg = this.state.deleteDoubleCheck
       ? 'Confirm delete from database'
       : 'Delete from database';
@@ -64,17 +66,10 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as deleteVideo from '../../actions/VideoActions/deleteVideo';
 
-function mapStateToProps(state) {
-  return {
-    video: state.video,
-    usage: state.usage
-  };
-}
-
 function mapDispatchToProps(dispatch) {
   return {
     videoActions: bindActionCreators(Object.assign({}, deleteVideo), dispatch)
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AdvancedActions);
+export default connect(mapDispatchToProps)(AdvancedActions);

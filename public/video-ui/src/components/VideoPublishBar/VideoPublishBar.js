@@ -4,7 +4,7 @@ import { isVideoPublished, hasVideoExpired } from '../../util/isVideoPublished';
 import { hasUnpublishedChanges } from '../../util/hasUnpublishedChanges';
 import { getVideoBlock } from '../../util/getVideoBlock';
 import { getStore } from '../../util/storeAccessor';
-import { getComposerPages } from '../../util/getComposerPages';
+import ContentApi from '../../services/capi';
 
 export default class VideoPublishBar extends React.Component {
   videoIsCurrentlyPublishing() {
@@ -24,7 +24,7 @@ export default class VideoPublishBar extends React.Component {
       this.videoIsCurrentlyPublishing() ||
       this.props.videoEditOpen ||
       !this.videoHasUnpublishedChanges() ||
-      (this.props.composerPageExists() && this.props.requiredComposerFieldsMissing())
+      (this.props.canonicalVideoPageExists() && this.props.requiredComposerFieldsMissing())
     );
   }
 
@@ -33,21 +33,18 @@ export default class VideoPublishBar extends React.Component {
   };
 
   publishVideo = () => {
-    const usages = getComposerPages(this.props.usages);
-
     const videoBlock = getVideoBlock(
       this.props.video.id,
       this.props.video.title,
       this.props.video.source
     );
 
-    if (usages.length > 0) {
+    if (this.props.canonicalVideoPageExists()) {
       this.props.updateVideoPage(
-        this.props.video.id,
         this.props.video,
         this.getComposerUrl(),
         videoBlock,
-        usages
+        this.props.usages
       );
     }
 

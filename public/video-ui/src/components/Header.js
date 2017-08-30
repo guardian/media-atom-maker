@@ -6,7 +6,6 @@ import AdvancedActions from './Videos/AdvancedActions';
 import ComposerPageCreate from './Videos/ComposerPageCreate';
 import Icon from './Icon';
 import { Presence } from './Presence';
-import { getComposerPages } from '../util/getComposerPages';
 
 export default class Header extends React.Component {
   state = { presence: null };
@@ -21,8 +20,8 @@ export default class Header extends React.Component {
     });
   };
 
-  composerPageExists = () => {
-    return getComposerPages(this.props.usages).length > 0;
+  canonicalVideoPageExists = () => {
+    return this.props.usages.totalVideoPages > 0;
   };
 
   renderProgress() {
@@ -128,7 +127,7 @@ export default class Header extends React.Component {
       return null;
     }
 
-    if (this.composerPageExists()) {
+    if (this.canonicalVideoPageExists()) {
       return (
         <div className="header__fields__missing__warning">
           Fill in required composer fields before publishing
@@ -194,16 +193,18 @@ export default class Header extends React.Component {
             publishVideo={this.publishVideo}
             formFieldsWarning={this.props.formFieldsWarning}
             requiredComposerFieldsMissing={this.requiredComposerFieldsMissing}
-            composerPageExists={this.composerPageExists}
+            canonicalVideoPageExists={this.canonicalVideoPageExists}
           />
-          <AdvancedActions video={this.props.video || {}} />
-          <ComposerPageCreate
+          <AdvancedActions
+            video={this.props.video || {}}
             usages={this.props.usages}
+          />
+          <ComposerPageCreate
             videoEditOpen={this.props.videoEditOpen}
             video={this.props.video || {}}
             createVideoPage={this.props.createVideoPage}
             requiredComposerFieldsMissing={this.requiredComposerFieldsMissing}
-            composerPageExists={this.composerPageExists}
+            canonicalVideoPageExists={this.canonicalVideoPageExists}
           />
           {this.renderComposerMissingWarning()}
           <div className="flex-container">

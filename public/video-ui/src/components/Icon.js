@@ -66,28 +66,6 @@ export class ViewerIcon extends React.Component {
   }
 }
 
-export class ComposerVideoIcon extends React.Component {
-  render() {
-    return (
-      <span className="icon svg-icon">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="128px"
-          height="107.844px"
-          viewBox="0 0 128 107.844"
-        >
-          <g>
-            <g>
-              <path d="M72.275 68.86L66.705 74.431 66.705 102.277 72.31 107.844 104.298 107.844 104.298 68.86zM123.794 70.249L109.869 84.178 109.869 92.531 123.794 106.449 128.001 106.449 128.001 70.249z" />
-            </g>
-            <path d="M31.541,52.232c0-27.828,7.418-38.244,22.121-38.244c4.996,0,8.992,1.282,11.844,2.568l6.855,16.127H85.49l-1-28.117 C78.208,1.997,67.365,0,54.521,0C27.83,0,0.001,13.988,0.001,54.662c0,37.548,22.031,52.643,50.109,53.182V93.859 C37.373,92.084,31.541,81.683,31.541,52.232z" />
-          </g>
-        </svg>
-      </span>
-    );
-  }
-}
-
 export default class Icon extends React.Component {
   renderText() {
     if (this.props.children) {

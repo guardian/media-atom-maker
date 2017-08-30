@@ -30,30 +30,12 @@ export function getUsages(id) {
     dispatch(requestVideoUsages());
 
     if (!id) {
-      return dispatch(receiveVideoUsages([]));
+      return dispatch(receiveVideoUsages({}));
     }
 
     return VideosApi.getVideoUsages(id)
-      .then(res => {
-        const usagePaths = res.response.results;
-
-        // the atom usage endpoint in capi only returns article paths,
-        // lookup the articles in capi to get their fields
-        Promise.all(usagePaths.map(ContentApi.getByPath)).then(capiResponse => {
-          const usages = capiResponse.reduce((all, item) => {
-            all.push(item.response.content);
-            return all;
-          }, []);
-
-          // sort by article creation date DESC
-          usages.sort(
-            (first, second) =>
-              new Date(second.fields.creationDate) -
-              new Date(first.fields.creationDate)
-          );
-
-          dispatch(receiveVideoUsages(usages));
-        });
+      .then(usages => {
+        dispatch(receiveVideoUsages(usages));
       })
       .catch(error => {
         dispatch(errorReceivingVideoUsages(error));

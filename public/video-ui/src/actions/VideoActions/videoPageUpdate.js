@@ -24,22 +24,17 @@ function errorReceivingVideoPageUpdate(error) {
   };
 }
 
-export function updateVideoPage(id, video, composerUrl, videoBlock, usages) {
+export function updateVideoPage(video, composerUrl, videoBlock, usages) {
   return dispatch => {
     dispatch(requestVideoPageUpdate());
 
-    return VideosApi.updateComposerPage(
-      id,
+    return VideosApi.updateCanonicalPages(
       video,
       composerUrl,
       videoBlock,
       usages
     )
-      .then(() => {
-        return dispatch(receiveVideoPageUpdate(video.title));
-      })
-      .catch(error => {
-        dispatch(errorReceivingVideoPageUpdate(error));
-      });
+      .then(() => dispatch(receiveVideoPageUpdate(video.title)))
+      .catch(error => dispatch(errorReceivingVideoPageUpdate(error)));
   };
 }
