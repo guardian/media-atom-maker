@@ -30,15 +30,14 @@ package object youtube {
     "cycling" -> "gdnpfpsportcycling",
     "boxing" -> "gdnpfpsportboxing",
     "racing" -> "gdnpfpsportracing",
-    "us sports" -> "gdnpfpsportus",
-    "other sport" -> "gdnpfpsportother",
-    "other sports" -> "gdnpfpsportother",
+    "us-sport" -> "gdnpfpsportus",
+    "sport" -> "gdnpfpsportother",
     "culture" -> "gdnpfpculture",
     "film" -> "gdnpfpculturefilm",
     "music" -> "gdnpfpculturemusic",
     "lifestyle" -> "gdnpfplifestyle",
     "food" -> "gdnpfplifestylefood",
-    "health & fitness" -> "gdnpfplifestylehealthfitness",
+    "health-and-wellbeing" -> "gdnpfplifestylehealthfitness",
     "business" -> "gdnpfpbusiness",
     "money" -> "gdnpfpmoney",
     "fashion" -> "gdnpfpfashion",
@@ -48,7 +47,7 @@ package object youtube {
     "science" -> "gdnpfpscience",
     "athletics" -> "gdnpfpsportother",
     "basketball" -> "gdnpfpsportus",
-    "sport 2.0" -> "gdnpfpsport20"
+    "sport-2-0" -> "gdnpfpsport20"
   )
 
   case class YouTubeVideoCategory(id: Int, title: String)

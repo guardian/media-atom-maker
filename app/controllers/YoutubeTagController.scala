@@ -12,14 +12,17 @@ class YoutubeTagController(val authActions: HMACAuthActions) extends Controller 
   def getById(firstPart: String, secondPart: String) = APIHMACAuthAction { implicit req =>
 
     if (contentBundlingMap.isDefinedAt(secondPart)) {
+      println("found second")
       Ok(Json.toJson(secondPart))
     }
 
     else if (contentBundlingMap.isDefinedAt(firstPart)) {
+      println("fournd first ")
       Ok(Json.toJson(firstPart))
     }
 
     else {
+      println("found nothing")
       Ok(Json.toJson(""))
     }
   }
