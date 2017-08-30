@@ -148,6 +148,65 @@ class VideoDisplay extends React.Component {
     );
   };
 
+  renderSelectBar(video) {
+    return (
+      <VideoSelectBar
+        video={video}
+        onSelectVideo={this.selectVideo}
+        publishedVideo={this.props.publishedVideo}
+        embeddedMode={this.props.config.embeddedMode}
+      />
+    );
+  }
+
+  renderMetadata() {
+    return (
+      <div className="video__detailbox video__data">
+        <div className="video__detailbox__header__container">
+          <header className="video__detailbox__header">
+            Video Data
+          </header>
+          {this.renderEditButton()}
+        </div>
+        <VideoData
+          video={this.props.video || {}}
+          updateVideo={this.updateVideo}
+          editable={this.props.videoEditOpen}
+          formName={formNames.videoData}
+          updateErrors={this.props.formErrorActions.updateFormErrors}
+          updateWarnings={this.props.formErrorActions.updateFormWarnings}
+          validateKeywords={this.validateKeywords}
+        />
+      </div>
+    );
+  }
+
+  renderUsages() {
+    return (
+      <div className="video__detailbox">
+        <div className="video__detailbox__header__container">
+          <header className="video__detailbox__header">Usages</header>
+        </div>
+        <VideoUsages
+          video={this.props.video || {}}
+          publishedVideo={this.props.publishedVideo || {}}
+          usages={this.props.usages || {}}
+        />
+      </div>
+    );
+  }
+
+  renderWorkflow() {
+    return (
+      <div className="video__detailbox">
+        <div className="video__detailbox__header__container">
+          <header className="video__detailbox__header">Workflow</header>
+        </div>
+        <Workflow video={this.props.video || {}} />
+      </div>
+    );
+  }
+
   render() {
     const video = this.props.video &&
       this.props.params.id === this.props.video.id
@@ -160,52 +219,17 @@ class VideoDisplay extends React.Component {
 
     return (
       <div>
-        <VideoSelectBar
-          video={video}
-          onSelectVideo={this.selectVideo}
-          publishedVideo={this.props.publishedVideo}
-          embeddedMode={this.props.config.embeddedMode}
-        />
+        {this.renderSelectBar(video)}
 
         <div className="video">
           <div className="video__main">
             <div className="video__row">
-              <div className="video__detailbox video__data">
-                <div className="video__detailbox__header__container">
-                  <header className="video__detailbox__header">
-                    Video Data
-                  </header>
-                  {this.renderEditButton()}
-                </div>
-                <VideoData
-                  video={this.props.video || {}}
-                  updateVideo={this.updateVideo}
-                  editable={this.props.videoEditOpen}
-                  formName={formNames.videoData}
-                  updateErrors={this.props.formErrorActions.updateFormErrors}
-                  updateWarnings={this.props.formErrorActions.updateFormWarnings}
-                  validateKeywords={this.validateKeywords}
-                />
-              </div>
+              {this.renderMetadata()}
               {this.renderPreview()}
             </div>
             <div className="video__row">
-              <div className="video__detailbox">
-                <div className="video__detailbox__header__container">
-                  <header className="video__detailbox__header">Usages</header>
-                </div>
-                <VideoUsages
-                  video={this.props.video || {}}
-                  publishedVideo={this.props.publishedVideo || {}}
-                  usages={this.props.usages || {}}
-                />
-              </div>
-              <div className="video__detailbox">
-                <div className="video__detailbox__header__container">
-                  <header className="video__detailbox__header">Workflow</header>
-                </div>
-                <Workflow video={this.props.video || {}} />
-              </div>
+              {this.renderUsages()}
+              {this.renderWorkflow()}
             </div>
           </div>
         </div>
