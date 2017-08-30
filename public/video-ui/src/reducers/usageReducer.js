@@ -24,7 +24,6 @@ export default function usage(state = initialState, action) {
 
       return Object.keys(usages).reduce(
         (all, publishState) => {
-
           const updated = usages[publishState].video.map(usage => {
             return Object.assign({}, usage, {
               webTitle: action.newTitle

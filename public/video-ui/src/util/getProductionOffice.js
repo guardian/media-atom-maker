@@ -16,10 +16,10 @@ function getTimezoneOffset() {
 
 export default function getProductionOffice() {
   const timezoneProductionOfficeMap = {
-    'SYD': 'AUS',
-    'SFO': 'US',
-    'NYC': 'US',
-    'LON': 'UK'
+    SYD: 'AUS',
+    SFO: 'US',
+    NYC: 'US',
+    LON: 'UK'
   };
 
   return timezoneProductionOfficeMap[getTimezoneOffset()];
