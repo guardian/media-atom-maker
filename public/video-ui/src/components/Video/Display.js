@@ -42,27 +42,20 @@ class VideoDisplay extends React.Component {
   };
 
   composerKeywordsToYouTube = () => {
-    const keywordsToCopyPromises = this.props.video.keywords.reduce((tags, keywordTag) => {
 
-      if (this.props.video.tags.every(youTubeTag => {
-        return youTubeTag !== keywordTag;
-      })) {
-        const parts = keywordTag.split('/');
-        const tagToAdd = KeywordsApi.composerTagToYouTube(parts[0], parts[1]);
-        return tags.concat([tagToAdd]);
-      }
-      return tags;
-    }, []);
-
-    return Promise.all(keywordsToCopyPromises)
-    .then(keywordsToCopy => {
+    return Promise.all(this.props.video.keywords.map(keyword => KeywordsApi.composerTagToYouTube(keyword.split('/')[0], keyword.split('/')[1])))
+    .then(youTubeKeywords => {
 
       const oldTags = this.props.video.tags;
-      const newVideo = Object.assign({}, this.props.video, { tags: oldTags.concat(keywordsToCopy.filter(keyword => keyword !== ''))});
+      const keywordsToCopy = youTubeKeywords.filter(keyword => {
+        return keyword !== '' &&
+          oldTags.every(oldTag => oldTag !== keyword)
+      });
+      const newVideo = Object.assign({}, this.props.video, { tags: oldTags.concat(keywordsToCopy)});
 
       this.updateVideo(newVideo);
     });
-  }
+  };
 
   selectVideo = () => {
     window.parent.postMessage({ atomId: this.props.video.id }, '*');
