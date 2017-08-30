@@ -57,7 +57,9 @@ class VideoDisplay extends React.Component {
     return Promise.all(keywordsToCopyPromises)
     .then(keywordsToCopy => {
 
-      const newVideo = Object.assign({}, this.props.video, { tags: keywordsToCopy });
+      const oldTags = this.props.video.tags;
+      const newVideo = Object.assign({}, this.props.video, { tags: oldTags.concat(keywordsToCopy.filter(keyword => keyword !== ''))});
+
       this.updateVideo(newVideo);
     });
   }
