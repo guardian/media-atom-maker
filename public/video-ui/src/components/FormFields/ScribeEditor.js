@@ -7,6 +7,7 @@ import scribePluginLinkPromptCommand from 'scribe-plugin-link-prompt-command';
 import scribePluginSanitizer from 'scribe-plugin-sanitizer';
 import {keyCodes} from '../../constants/keyCodes';
 import {requiredForComposerWarning} from '../../constants/requiredForComposerWarning';
+import ReactTooltip from 'react-tooltip';
 
 export default class ScribeEditorField extends React.Component {
   state = {
@@ -83,9 +84,10 @@ export default class ScribeEditorField extends React.Component {
           disabled={!this.props.derivedFrom}
           className="btn form__label__button"
           onClick={this.updateValueFromCopy}
+          data-tip="Copy trail text from description"
+          data-place="top"
         >
           <i className="icon">edit</i>
-          <span data-tip="Copy trail text from description" />
         </button>
         );
   };
@@ -170,6 +172,7 @@ export class ScribeEditor extends React.Component {
 
 
   componentDidMount() {
+    ReactTooltip.rebuild();
     this.scribe = new Scribe(this.refs.editor);
 
     this.configureScribe();

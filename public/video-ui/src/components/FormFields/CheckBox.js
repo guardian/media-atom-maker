@@ -22,7 +22,7 @@ export default class CheckBox extends React.Component {
 
   render() {
     return (
-      <div data-tip={this.props.tooltip}>
+      <div data-tip={this.props.editable ? this.props.tooltip : ""} data-place="top">
         <p className="details-list__title">{this.props.fieldName}</p>
         <div className="details-list__labeled-filter">
           {this.renderCheckbox()}
