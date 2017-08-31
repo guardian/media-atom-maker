@@ -52,7 +52,11 @@ export default class WorkflowApi {
   }
 
   static trackInWorkflow({ video, status, section }) {
-    const payload = WorkflowApi._getTrackInWorkflowPayload({ video, status, section });
+    const payload = WorkflowApi._getTrackInWorkflowPayload({
+      video,
+      status,
+      section
+    });
 
     return pandaReqwest({
       method: 'POST',
