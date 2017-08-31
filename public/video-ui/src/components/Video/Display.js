@@ -14,13 +14,13 @@ import { blankVideoData } from '../../constants/blankVideoData';
 
 class VideoDisplay extends React.Component {
   componentWillMount() {
-    this.props.videoActions.getUsages(this.props.params.id);
 
     if (this.props.route.mode === 'create') {
       this.props.videoActions.updateVideo(blankVideoData);
       this.props.videoActions.updateVideoEditState(true);
     } else {
       this.props.videoActions.getVideo(this.props.params.id);
+      this.props.videoActions.getUsages(this.props.params.id);
     }
   }
 
@@ -182,29 +182,37 @@ class VideoDisplay extends React.Component {
   }
 
   renderUsages() {
-    return (
-      <div className="video__detailbox">
-        <div className="video__detailbox__header__container">
-          <header className="video__detailbox__header">Usages</header>
+    if (this.props.video && this.props.video.id) {
+      return (
+        <div className="video__detailbox">
+          <div className="video__detailbox__header__container">
+            <header className="video__detailbox__header">Usages</header>
+          </div>
+          <VideoUsages
+              video={this.props.video || {}}
+              publishedVideo={this.props.publishedVideo || {}}
+              usages={this.props.usages || {}}
+          />
         </div>
-        <VideoUsages
-          video={this.props.video || {}}
-          publishedVideo={this.props.publishedVideo || {}}
-          usages={this.props.usages || {}}
-        />
-      </div>
-    );
+      );
+    } else {
+      return '';
+    }
   }
 
   renderWorkflow() {
-    return (
-      <div className="video__detailbox">
-        <div className="video__detailbox__header__container">
-          <header className="video__detailbox__header">Workflow</header>
+    if (this.props.video && this.props.video.id) {
+      return (
+        <div className="video__detailbox">
+          <div className="video__detailbox__header__container">
+            <header className="video__detailbox__header">Workflow</header>
+          </div>
+          <Workflow video={this.props.video || {}} />
         </div>
-        <Workflow video={this.props.video || {}} />
-      </div>
-    );
+      );
+    } else {
+      return '';
+    }
   }
 
   render() {
