@@ -28,6 +28,7 @@ export default class TagPicker extends React.Component {
   };
 
   componentDidMount() {
+    ReactTooltip.rebuild();
     if (this.props.fieldValue !== this.props.placeholder) {
       tagsFromStringList(this.props.fieldValue, this.props.tagType)
         .then(result => {
@@ -324,9 +325,10 @@ export default class TagPicker extends React.Component {
           type="button"
           className="btn form__label__button"
           onClick={this.props.updateSideEffects}
+          data-tip="Copy composer keywords to youtube keywords"
+          data-place="top"
         >
           <i className="icon">edit</i>
-          <span data-tip="Copy composer keywords to youtube keywords" />
         </button>
       );
     }
