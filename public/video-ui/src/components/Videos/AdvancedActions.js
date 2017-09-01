@@ -1,8 +1,14 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { getStore } from '../../util/storeAccessor';
-import ContentApi from '../../services/capi';
 
-class AdvancedActions extends React.Component {
+export default class AdvancedActions extends React.Component {
+  static propTypes = {
+    video: PropTypes.object.isRequired,
+    usages: PropTypes.object.isRequired,
+    deleteVideo: PropTypes.func.isRequired
+  };
+
   // the permissions are also validated on the server-side for each request
   permissions = getStore().getState().config.permissions;
   showActions = this.permissions.deleteAtom;
@@ -25,7 +31,7 @@ class AdvancedActions extends React.Component {
 
     const doDelete = () => {
       if (this.state.deleteDoubleCheck) {
-        this.props.videoActions.deleteVideo(this.props.video);
+        this.props.deleteVideo(this.props.video);
       } else {
         this.setState({ deleteDoubleCheck: true });
       }
@@ -60,16 +66,3 @@ class AdvancedActions extends React.Component {
     );
   }
 }
-
-//REDUX CONNECTIONS
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import * as deleteVideo from '../../actions/VideoActions/deleteVideo';
-
-function mapDispatchToProps(dispatch) {
-  return {
-    videoActions: bindActionCreators(Object.assign({}, deleteVideo), dispatch)
-  };
-}
-
-export default connect(mapDispatchToProps)(AdvancedActions);
