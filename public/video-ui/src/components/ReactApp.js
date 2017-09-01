@@ -74,6 +74,7 @@ class ReactApp extends React.Component {
           presenceConfig={this.props.config.presence}
           isTrainingMode={this.props.config.isTrainingMode}
           formFieldsWarning={this.props.formFieldsWarning}
+          deleteVideo={this.props.appActions.deleteVideo}
         />
         {this.props.error
           ? <div className="error-bar">{this.props.error}</div>
@@ -98,6 +99,7 @@ import * as getUploads from '../actions/UploadActions/getUploads';
 import * as videoPageUpdate from '../actions/VideoActions/videoPageUpdate';
 import * as videoPageCreate from '../actions/VideoActions/videoPageCreate';
 import * as videoUsages from '../actions/VideoActions/videoUsages';
+import * as deleteVideo from '../actions/VideoActions/deleteVideo';
 
 function mapStateToProps(state) {
   return {
@@ -129,7 +131,8 @@ function mapDispatchToProps(dispatch) {
         getUploads,
         videoPageUpdate,
         videoPageCreate,
-        videoUsages
+        videoUsages,
+        deleteVideo
       ),
       dispatch
     )

@@ -4,7 +4,6 @@ import { isVideoPublished, hasVideoExpired } from '../../util/isVideoPublished';
 import { hasUnpublishedChanges } from '../../util/hasUnpublishedChanges';
 import { getVideoBlock } from '../../util/getVideoBlock';
 import { getStore } from '../../util/storeAccessor';
-import ContentApi from '../../services/capi';
 
 export default class VideoPublishBar extends React.Component {
   videoIsCurrentlyPublishing() {
