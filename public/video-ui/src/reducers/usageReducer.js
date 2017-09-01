@@ -1,10 +1,6 @@
-const initialState = {
-  data: {},
-  totalUsages: 0,
-  totalVideoPages: 0
-};
+import { blankUsageData } from '../constants/blankUsageData';
 
-export default function usage(state = initialState, action) {
+export default function usage(state = blankUsageData, action) {
   switch (action.type) {
     case 'VIDEO_USAGE_GET_RECEIVE': {
       return action.usages || {};
@@ -38,7 +34,7 @@ export default function usage(state = initialState, action) {
 
           return all;
         },
-        Object.assign({}, initialState, {
+        Object.assign({}, blankUsageData, {
           totalUsages: state.totalUsages,
           totalVideoPages: state.totalVideoPages
         })
