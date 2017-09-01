@@ -1,5 +1,5 @@
 import VideosApi from '../../services/VideosApi';
-import ContentApi from '../../services/capi';
+import { blankUsageData } from '../../constants/blankUsageData';
 
 function requestVideoUsages() {
   return {
@@ -30,7 +30,7 @@ export function getUsages(id) {
     dispatch(requestVideoUsages());
 
     if (!id) {
-      return dispatch(receiveVideoUsages({}));
+      return dispatch(receiveVideoUsages(blankUsageData));
     }
 
     return VideosApi.getVideoUsages(id)
