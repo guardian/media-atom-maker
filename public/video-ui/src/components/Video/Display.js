@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../VideoPreview/VideoPreview';
+import VideoImages from '../VideoImages/VideoImages';
 import VideoUsages from '../VideoUsages/VideoUsages';
 import VideoData from '../VideoData/VideoData';
 import Workflow from '../Workflow/Workflow';
@@ -124,6 +125,24 @@ class VideoDisplay extends React.Component {
 
   renderPreview = () => {
     return (
+      <VideoPreview video={this.props.video || {}} />
+    );
+  };
+
+  renderImages() {
+    return (
+      <VideoImages
+        config={this.props.config}
+        video={this.props.video || {}}
+        saveAndUpdateVideo={this.saveAndUpdateVideo}
+        videoEditOpen={this.props.videoEditOpen}
+        updateErrors={this.props.formErrorActions.updateFormErrors}
+      />
+    );
+  }
+
+  renderPreviewAndImages() {
+    return (
       <div className="video__detailbox">
         <div className="video__detailbox__header__container">
           <header className="video__detailbox__header">Video Preview</header>
@@ -137,16 +156,13 @@ class VideoDisplay extends React.Component {
             <ReactTooltip place="bottom" />
           </Link>
         </div>
-        <VideoPreview
-          video={this.props.video || {}}
-          saveAndUpdateVideo={this.saveAndUpdateVideo}
-          updateErrors={this.props.formErrorActions.updateFormErrors}
-          config={this.props.config}
-          videoEditOpen={this.props.videoEditOpen}
-        />
+        <div className="video-preview">
+          {this.renderPreview()}
+          {this.renderImages()}
+        </div>
       </div>
     );
-  };
+  }
 
   renderSelectBar(video) {
     return (
@@ -233,7 +249,7 @@ class VideoDisplay extends React.Component {
           <div className="video__main">
             <div className="video__row">
               {this.renderMetadata()}
-              {this.renderPreview()}
+              {this.renderPreviewAndImages()}
             </div>
             <div className="video__row">
               {this.renderUsages()}
