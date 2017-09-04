@@ -27,7 +27,10 @@ class VideoDisplay extends React.Component {
 
   saveAndUpdateVideo = video => {
     if (this.props.route.mode === 'create') {
-      this.props.videoActions.createVideo(video);
+      this.props.videoActions.createVideo(video)
+        .then(() => {
+          this.props.videoActions.getUsages(this.props.video.id);
+        });
     } else {
       this.props.videoActions.saveVideo(video);
     }
