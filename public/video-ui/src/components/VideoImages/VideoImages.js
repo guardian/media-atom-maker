@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { formNames } from '../../constants/formNames';
-import VideoPoster from '../VideoPoster/VideoPoster';
+import GridImage from '../GridImage/GridImage';
 import GridImageSelect from '../utils/GridImageSelect';
 
 export default class VideoImages extends React.Component {
@@ -35,14 +35,7 @@ export default class VideoImages extends React.Component {
               fieldLocation="posterImage"
             />
           </div>
-          <VideoPoster
-            video={this.props.video || {}}
-            updateVideo={this.props.saveAndUpdateVideo}
-            formName={formNames.posterImage}
-            updateErrors={this.props.updateErrors}
-            fieldLocation="posterImage"
-            name="Main Image (YouTube poster)"
-          />
+          <GridImage image={this.props.video.posterImage} />
         </div>
         <div className="video__detailbox">
           <div className="video__detailbox__header__container">
@@ -58,13 +51,7 @@ export default class VideoImages extends React.Component {
               fieldLocation="trailImage"
             />
           </div>
-          <VideoPoster
-            video={this.props.video || {}}
-            updateVideo={this.props.saveAndUpdateVideo}
-            updateErrors={this.props.updateErrors}
-            fieldLocation="trailImage"
-            name="Composer Trail Image"
-          />
+          <GridImage image={this.props.video.trailImage} />
         </div>
       </div>
     );
