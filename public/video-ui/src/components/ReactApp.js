@@ -77,7 +77,7 @@ class ReactApp extends React.Component {
           deleteVideo={this.props.appActions.deleteVideo}
         />
         {this.props.error
-          ? <div className="error-bar">{this.props.error}</div>
+          ? <div className="error-bar" dangerouslySetInnerHTML={{ __html: this.props.error }}/>
           : false}
         <div>
           {this.props.children}
