@@ -8,13 +8,15 @@ export default function video(state = null, action) {
         : false;
 
     case 'VIDEO_CREATE_RECEIVE':
-      return action.video || false;
+      return action.video
+        ? Object.assign({}, blankVideoData, action.video)
+        : false;
 
     case 'VIDEO_UPDATE_REQUEST':
-      return action.video;
+      return Object.assign({}, blankVideoData, action.video);
 
     case 'VIDEO_SAVE_REQUEST':
-      return action.video;
+      return Object.assign({}, blankVideoData, action.video);
 
     case 'VIDEO_POPULATE_BLANK':
       return Object.assign({}, blankVideoData, {
