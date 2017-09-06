@@ -71,14 +71,14 @@ function DateSelector({ date, onChange }) {
   return <Picker {...datePickerParams} />;
 }
 
-function Editor({ date, onChange }) {
+function Editor({ date, onChange, fieldName }) {
   function reset() {
     onChange(null);
   }
 
   return (
     <div>
-      <label className="form__label">Expiry Date</label>
+      <label className="form__label">{fieldName}</label>
       <div className="expiry-date-picker">
         <div className="expiry-date-picker__date">
           <DateSelector date={date} onChange={onChange} />
@@ -99,14 +99,14 @@ function Editor({ date, onChange }) {
   );
 }
 
-function Display({ date, placeholder }) {
+function Display({ date, placeholder, fieldName }) {
   const displayString = date ? date.format(DATETIME_FORMAT) : placeholder;
   const fieldClassName = () =>
     'details-list__field' + (!date ? ' details-list__empty' : '');
 
   return (
     <div>
-      <p className="details-list__title">Expiry Date</p>
+      <p className="details-list__title">{fieldName}</p>
       <p className={fieldClassName()}>
         {displayString}
       </p>
@@ -118,7 +118,8 @@ export default function DatePicker({
   editable,
   onUpdateField,
   fieldValue,
-  placeholder
+  placeholder,
+  fieldName
 }) {
   const date = fieldValue && fieldValue !== placeholder
     ? moment(fieldValue)
@@ -127,6 +128,7 @@ export default function DatePicker({
   if (editable) {
     return (
       <Editor
+        fieldName={fieldName}
         date={date}
         onChange={newDate => {
           if (newDate) {
@@ -138,6 +140,6 @@ export default function DatePicker({
       />
     );
   } else {
-    return <Display date={date} placeholder={placeholder} />;
+    return <Display fieldName={fieldName} date={date} placeholder={placeholder} />;
   }
 }

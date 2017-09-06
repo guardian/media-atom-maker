@@ -28,8 +28,7 @@ export class ManagedField extends React.Component {
     fieldDetails: PropTypes.string,
     tagType: PropTypes.string,
     inputPlaceholder: PropTypes.string,
-    tooltip: PropTypes.string,
-    fieldLocation: PropTypes.string
+    tooltip: PropTypes.string
   };
 
   state = {

@@ -4,6 +4,8 @@ import { Workflow as WorkflowConstants } from '../../constants/workflow';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
 import WorkflowApi from '../../services/WorkflowApi';
+import DatePicker from '../FormFields/DatePicker';
+import moment from 'moment';
 
 class Workflow extends React.Component {
   static propTypes = {
@@ -28,25 +30,29 @@ class Workflow extends React.Component {
     this.props.workflowActions.trackInWorkflow({
       video: this.props.video,
       section: this.props.workflow.sections.find(_ => _.id === parseInt(this.state.videoInWorkflow.section)),
-      status: 'Writers'
+      status: 'Writers',
+      scheduledLaunchDate: this.state.videoInWorkflow.scheduledLaunchDate
     }).then(() => {
       this.props.workflowActions.getStatus({ video: this.props.video });
     });
   }
 
-  updateWorkflowSection({ section }) {
-    this.state.videoInWorkflow.section = section;
+  updateWorkflowDetails(update) {
+    Object.assign(this.state.videoInWorkflow, update);
   }
 
   renderTrackInWorkflow() {
     return (
       <div>
         <ManagedForm data={this.state.videoInWorkflow}
-                     updateData={(e) => this.updateWorkflowSection(e)}
+                     updateData={(e) => this.updateWorkflowDetails(e)}
                      editable={true}
-                     formName="WorkflowSection">
+                     formName="WorkflowDetails">
           <ManagedField fieldLocation="section" name="Section">
             <SelectBox selectValues={this.props.workflow.sections} />
+          </ManagedField>
+          <ManagedField fieldLocation="scheduledLaunchDate" name="Scheduled Launch Date">
+            <DatePicker />
           </ManagedField>
         </ManagedForm>
         <button type="button"
@@ -67,6 +73,7 @@ class Workflow extends React.Component {
             <th>Production Office</th>
             <th>Section</th>
             <th>Status</th>
+            <th>Scheduled Launch Date</th>
             <th></th>
           </tr>
         </thead>
@@ -76,6 +83,9 @@ class Workflow extends React.Component {
             <td>{this.props.workflow.status.prodOffice}</td>
             <td>{this.props.workflow.status.section}</td>
             <td>{this.props.workflow.status.status}</td>
+            <td>{this.props.workflow.status.scheduledLaunchDate
+              ? moment(this.props.workflow.status.scheduledLaunchDate).format("DD MMM YYYY HH:mm")
+              : 'n/a'}</td>
             <td>
               <a target="_blank"
                  rel="noopener noreferrer"
