@@ -5,5 +5,5 @@ export const videoCategories = [
   'Feature',
   'Hosted'
 ].map(cat => {
-  return { id: cat, title: cat };
+  return { id: cat, title: cat === 'Hosted' ? 'Hosted by' : cat };
 });
