@@ -135,7 +135,7 @@ class VideoDisplay extends React.Component {
   renderImages() {
     return (
       <VideoImages
-        config={this.props.config}
+        gridDomain={this.props.config.gridUrl}
         video={this.props.video || {}}
         saveAndUpdateVideo={this.saveAndUpdateVideo}
         videoEditOpen={this.props.videoEditOpen}

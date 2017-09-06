@@ -1,11 +1,20 @@
 import React from 'react';
 import Modal from './Modal';
+import PropTypes from 'prop-types';
 import { parseImageFromGridCrop } from '../../util/parseGridMetadata';
-import { getGridMediaId } from '../../util/getGridMediaId';
 import Logger from '../../logger';
 import Icon from '../Icon';
 
-export default class GridEmbedder extends React.Component {
+export default class GridImageSelect extends React.Component {
+  static propTypes = {
+    image: PropTypes.object.isRequired,
+    gridUrl: PropTypes.string.isRequired,
+    gridDomain: PropTypes.string.isRequired,
+    disabled: PropTypes.bool.isRequired,
+    updateVideo: PropTypes.func.isRequired,
+    fieldLocation: PropTypes.oneOf(['posterImage', 'trailImage'])
+  };
+
   state = {
     modalOpen: false
   };
@@ -39,7 +48,7 @@ export default class GridEmbedder extends React.Component {
   }
 
   onMessage = event => {
-    if (event.origin !== this.props.gridUrl) {
+    if (event.origin !== this.props.gridDomain) {
       Logger.log("didn't come from the grid");
       return;
     }
@@ -60,33 +69,18 @@ export default class GridEmbedder extends React.Component {
     this.onUpdatePosterImage(data.crop.data, data.image);
   };
 
-  getGridUrl = () => {
-
-    if (this.props.posterImage && this.props.isComposerImage) {
-      const imageGridId = getGridMediaId(this.props.posterImage);
-      return this.props.gridUrl + '/images/' + imageGridId + '/crop?cropType=landscape';
-    }
-
-    return this.props.gridUrl + '?cropType=video';
-  }
-
   render() {
-
-    const gridUrl = this.getGridUrl();
-
     return (
       <div className="gridembedder">
         <button disabled={this.props.disabled} onClick={this.toggleModal}>
           <Icon
             icon="add_to_photos"
-            className={
-              'icon__edit ' + (this.props.disabled ? 'disabled' : '')
-            }
+            className={'icon__edit ' + (this.props.disabled ? 'disabled' : '')}
           />
         </button>
 
         <Modal isOpen={this.state.modalOpen} dismiss={this.closeModal}>
-          <iframe className="gridembedder__modal" src={gridUrl} />
+          <iframe className="gridembedder__modal" src={this.props.gridUrl} />
         </Modal>
       </div>
     );

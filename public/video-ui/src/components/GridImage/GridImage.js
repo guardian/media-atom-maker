@@ -9,7 +9,9 @@ export default class GridImage extends React.Component {
 
   renderImage() {
     if (!this.props.image || this.props.image.assets.length === 0) {
-      return false;
+      return (
+        <div>no image</div>
+      );
     }
 
     const image = findSmallestAssetAboveWidth(this.props.image.assets);
