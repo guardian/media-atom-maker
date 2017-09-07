@@ -13,7 +13,10 @@ class Workflow extends React.Component {
   };
 
   state = {
-    videoInWorkflow: {}
+    videoInWorkflow: {
+      section: null,
+      scheduledLaunchDate: null
+    }
   };
 
   hasSections = () => this.props.workflow.sections.length !== 0;
@@ -51,7 +54,7 @@ class Workflow extends React.Component {
           <ManagedField fieldLocation="section" name="Section">
             <SelectBox selectValues={this.props.workflow.sections} />
           </ManagedField>
-          <ManagedField fieldLocation="scheduledLaunchDate" name="Scheduled Launch Date">
+          <ManagedField fieldLocation="scheduledLaunchDate" name="Video page scheduled launch date (optional)">
             <DatePicker />
           </ManagedField>
         </ManagedForm>

@@ -51,13 +51,19 @@ export default class WorkflowApi {
       prodOffice
     };
 
-    return scheduledLaunchDate
-      ? Object.assign({}, core, {scheduledLaunchDate: moment(scheduledLaunchDate)})
-      : core;
+    if (!scheduledLaunchDate) {
+      return core;
+    }
+
+    const momentLaunchDate = moment(scheduledLaunchDate);
+
+    return Object.assign({}, core, {
+      scheduledLaunchDate: momentLaunchDate,
+      note: `Please create a Video page, launching ${momentLaunchDate.format("DD MMM YYYY HH:mm")}`
+    });
   }
 
   static trackInWorkflow({ video, status, section, scheduledLaunchDate }) {
-    debugger;
     const payload = WorkflowApi._getTrackInWorkflowPayload({
       video,
       status,
