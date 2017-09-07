@@ -19,8 +19,4 @@ class Support(val authActions: HMACAuthActions, val capi: CapiAccess) extends Co
         InternalServerError(err)
     }
   }
-
-  def legacyVideosEndpointRedirect(path: String) = Action { request =>
-    Redirect(s"/$path?${request.rawQueryString}")
-  }
 }

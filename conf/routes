@@ -67,10 +67,6 @@ GET  /assets/*file                      controllers.Assets.versioned(path="/publ
 GET  /reauth                            controllers.VideoUIApp.reauth
 
 #video specific react frontend
-
-GET /video                              controllers.Support.legacyVideosEndpointRedirect(path = "")
-GET /video/*path                        controllers.Support.legacyVideosEndpointRedirect(path: String)
-
 GET /                                   controllers.VideoUIApp.index(id = "")
 GET /videos                             controllers.VideoUIApp.index(id = "")
 GET /videos/pluto-list                  controllers.VideoUIApp.index(id = "")
