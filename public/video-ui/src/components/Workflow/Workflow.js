@@ -54,7 +54,7 @@ class Workflow extends React.Component {
           <ManagedField fieldLocation="section" name="Section">
             <SelectBox selectValues={this.props.workflow.sections} />
           </ManagedField>
-          <ManagedField fieldLocation="scheduledLaunchDate" name="Video page scheduled launch date (optional)">
+          <ManagedField fieldLocation="scheduledLaunchDate" name="Desired launch date">
             <DatePicker />
           </ManagedField>
         </ManagedForm>
