@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "crypto": "0.0.3",
-    "elk-kinesis-logger": "0.1.0",
+    "@guardian/elk-kinesis-logger": "0.1.0",
     "hoconjs": "github:yellowblood/hocon-js",
     "reqwest": "^2.0.5",
     "xhr2": "^0.1.4"
