@@ -34,48 +34,53 @@ class VideoUpload extends React.Component {
     const activeVersion = this.props.video ? this.props.video.activeVersion : 0;
 
     return (
-      <div>
-        <div className="video__main">
-          <div className="video__main__header">
-            <div className="video__detailbox">
-              <PlutoProjectPicker
-                video={this.props.video || {}}
-                projects={this.props.pluto.projects}
-                saveVideo={this.props.videoActions.saveVideo}
-              />
-              <AddYouTubeAsset
-                video={this.props.video || {}}
-                categories={this.props.youtube.categories}
-                channels={this.props.youtube.channels}
-                uploading={uploading}
-                saveVideo={this.props.videoActions.saveVideo}
-                startUpload={this.props.uploadActions.startUpload}
-              />
-              <AddAssetFromURL
-                video={this.props.video}
-                createAsset={this.props.videoActions.createAsset}
-              />
-              <AddSelfHostedAsset
-                video={this.props.video || {}}
-                permissions={getStore().getState().config.permissions}
-                uploading={uploading}
-                startUpload={this.props.uploadActions.startUpload}
-              />
-            </div>
-            <VideoTrail
-              activeVersion={activeVersion}
-              s3Upload={this.props.s3Upload}
-              uploads={this.props.uploads}
-              selectAsset={version =>
-                this.props.videoActions.revertAsset(
-                  this.props.video.id,
-                  version
-                )}
-              getUploads={() =>
-                this.props.uploadActions.getUploads(this.props.video.id)}
-            />
-          </div>
-        </div>
+      <div className="video-upload">
+        <section className="video-upload--pluto-project">
+          <PlutoProjectPicker
+            video={this.props.video || {}}
+            projects={this.props.pluto.projects}
+            saveVideo={this.props.videoActions.saveVideo}
+          />
+        </section>
+        <section className="video-upload--uploader">
+          <AddYouTubeAsset
+            video={this.props.video || {}}
+            categories={this.props.youtube.categories}
+            channels={this.props.youtube.channels}
+            uploading={uploading}
+            saveVideo={this.props.videoActions.saveVideo}
+            startUpload={this.props.uploadActions.startUpload}
+          />
+        </section>
+        <section className="video-upload--asset-url">
+          <AddAssetFromURL
+            video={this.props.video}
+            createAsset={this.props.videoActions.createAsset}
+          />
+        </section>
+        <section className="video-upload--self-host">
+          <AddSelfHostedAsset
+            video={this.props.video || {}}
+            permissions={getStore().getState().config.permissions}
+            uploading={uploading}
+            startUpload={this.props.uploadActions.startUpload}
+          />
+        </section>
+
+        <section className="video-upload--trail">
+          <VideoTrail
+            activeVersion={activeVersion}
+            s3Upload={this.props.s3Upload}
+            uploads={this.props.uploads}
+            selectAsset={version =>
+              this.props.videoActions.revertAsset(
+                this.props.video.id,
+                version
+              )}
+            getUploads={() =>
+              this.props.uploadActions.getUploads(this.props.video.id)}
+          />
+        </section>
       </div>
     );
   }

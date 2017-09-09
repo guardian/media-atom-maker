@@ -15,7 +15,6 @@ import { blankVideoData } from '../../constants/blankVideoData';
 
 class VideoDisplay extends React.Component {
   componentWillMount() {
-
     if (this.props.route.mode === 'create') {
       this.props.videoActions.updateVideo(blankVideoData);
       this.props.videoActions.updateVideoEditState(true);
@@ -245,21 +244,22 @@ class VideoDisplay extends React.Component {
     }
 
     return (
-      <div>
-        {this.renderSelectBar(video)}
-
-        <div className="video">
-          <div className="video__main">
-            <div className="video__row">
-              {this.renderMetadata()}
-              {this.renderPreviewAndImages()}
-            </div>
-            <div className="video__row">
-              {this.renderUsages()}
-              {this.renderWorkflow()}
-            </div>
-          </div>
-        </div>
+      <div className="video-display">
+        <section className="video-display--select">
+          {this.renderSelectBar(video)}
+        </section>
+        <section className="video-display--metadata">
+          {this.renderMetadata()}
+        </section>
+        <section className="video-display--workflow">
+          {this.renderWorkflow()}
+        </section>
+        <section className="video-display--preview">
+          {this.renderPreviewAndImages()}
+        </section>
+        <section className="video-display--usage">
+          {this.renderUsages()}
+        </section>
       </div>
     );
   }

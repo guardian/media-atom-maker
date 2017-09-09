@@ -28,6 +28,6 @@ export class ManagedSection extends React.Component {
       });
     });
 
-    return <div className="form__section">{hydratedChildren}</div>;
+    return <section>{hydratedChildren}</section>;
   }
 }

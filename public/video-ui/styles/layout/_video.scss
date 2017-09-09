@@ -1,22 +1,3 @@
-.video {
-  width: 100%;
-  display: flex;
-  height: calc(100vh - #{$toolbarHeight});
-  align-items: stretch;
-}
-
-.video__main {
-  flex-grow: 1;
-  padding: 10px 15px;
-
-  background-color: $color800Grey;
-
-  &__header {
-    display: flex;
-    flex-wrap: wrap;
-  }
-}
-
 .video__row {
   display: flex;
 }
@@ -81,7 +62,6 @@
 
 .video__detailbox {
   flex: 1 0 20%;
-  margin: 10px;
   background-color: $color650Grey;
   border-top: 1px solid $color600Grey;
 
@@ -99,6 +79,7 @@
 
 .video__data {
   flex-basis: 30%;
+  height: 100%;
 }
 
 .video__detail__page {
