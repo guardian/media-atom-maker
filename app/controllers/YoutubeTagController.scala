@@ -7,9 +7,9 @@ import com.gu.media.youtube.contentBundlingMap
 
 class YoutubeTagController(val authActions: HMACAuthActions) extends Controller {
 
-  import authActions.APIHMACAuthAction
+  import authActions.APIAuthAction
 
-  def getById(id: String) = APIHMACAuthAction { implicit req =>
+  def getById(id: String) = APIAuthAction { implicit req =>
 
     val parts = id.split("/").toList.reverse
 
