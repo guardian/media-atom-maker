@@ -1,26 +1,41 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { formNames } from '../../constants/formNames';
-import VideoPoster from '../VideoPoster/VideoPoster';
+import GridImage from '../GridImage/GridImage';
 import GridImageSelect from '../utils/GridImageSelect';
+import { getGridMediaId } from '../../util/getGridMediaId';
 
 export default class VideoImages extends React.Component {
   static propTypes = {
-    config: PropTypes.object.isRequired,
+    gridDomain: PropTypes.string.isRequired,
     video: PropTypes.object.isRequired,
     saveAndUpdateVideo: PropTypes.func.isRequired,
     videoEditOpen: PropTypes.bool.isRequired,
     updateErrors: PropTypes.func.isRequired
   };
 
-  saveAndUpdateVideoPoster = (poster, location) => {
+  saveAndUpdateVideoImage = (image, location) => {
     const newVideo = Object.assign({}, this.props.video, {
-      [location]: poster
+      [location]: image
     });
     this.props.saveAndUpdateVideo(newVideo);
   };
 
+  getGridUrl(cropType) {
+    const posterImage = this.props.video.posterImage;
+
+    if (posterImage.assets.length > 0) {
+      const imageGridId = getGridMediaId(posterImage);
+      return `${this.props.gridDomain}/images/${imageGridId}/crop?cropType=${cropType}`;
+    }
+
+    return `${this.props.gridDomain}?cropType=${cropType}`;
+  }
+
   render() {
+    const trailImageDisabled =
+      this.props.videoEditOpen ||
+      this.props.video.posterImage.assets.length === 0;
+
     return (
       <div className="video__imagebox">
         <div className="video__detailbox">
@@ -29,20 +44,15 @@ export default class VideoImages extends React.Component {
               Main Image (YouTube poster)
             </header>
             <GridImageSelect
-              updateVideo={this.saveAndUpdateVideoPoster}
-              gridUrl={this.props.config.gridUrl}
+              image={this.props.video.posterImage}
+              gridUrl={this.getGridUrl('video')}
+              gridDomain={this.props.gridDomain}
               disabled={this.props.videoEditOpen}
+              updateVideo={this.saveAndUpdateVideoImage}
               fieldLocation="posterImage"
             />
           </div>
-          <VideoPoster
-            video={this.props.video || {}}
-            updateVideo={this.props.saveAndUpdateVideo}
-            formName={formNames.posterImage}
-            updateErrors={this.props.updateErrors}
-            fieldLocation="posterImage"
-            name="Main Image (YouTube poster)"
-          />
+          <GridImage image={this.props.video.posterImage} />
         </div>
         <div className="video__detailbox">
           <div className="video__detailbox__header__container">
@@ -50,21 +60,15 @@ export default class VideoImages extends React.Component {
               Composer Trail Image
             </header>
             <GridImageSelect
-              updateVideo={this.saveAndUpdateVideoPoster}
-              gridUrl={this.props.config.gridUrl}
-              disabled={this.props.videoEditOpen || !this.props.video.posterImage}
-              isComposerImage={true}
-              posterImage={this.props.video.posterImage}
+              image={this.props.video.trailImage}
+              gridUrl={this.getGridUrl('landscape')}
+              gridDomain={this.props.gridDomain}
+              disabled={trailImageDisabled}
+              updateVideo={this.saveAndUpdateVideoImage}
               fieldLocation="trailImage"
             />
           </div>
-          <VideoPoster
-            video={this.props.video || {}}
-            updateVideo={this.props.saveAndUpdateVideo}
-            updateErrors={this.props.updateErrors}
-            fieldLocation="trailImage"
-            name="Composer Trail Image"
-          />
+          <GridImage image={this.props.video.trailImage} />
         </div>
       </div>
     );

@@ -27,7 +27,7 @@ export default class VideoPreview extends React.Component {
       return { src: asset.id, mimeType: asset.mimeType };
     });
 
-    if (this.props.video.posterImage) {
+    if (this.props.video.posterImage && this.props.video.posterImage.assets.length > 0) {
       const poster = findSmallestAssetAboveWidth(
         this.props.video.posterImage.assets
       );

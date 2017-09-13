@@ -13,5 +13,11 @@ export const blankVideoData = {
   keywords: [],
   commentsEnabled: false,
   commissioningDesks: [],
-  blockAds: false
+  blockAds: false,
+  posterImage: {
+    assets: []
+  },
+  trailImage: {
+    assets: []
+  }
 };

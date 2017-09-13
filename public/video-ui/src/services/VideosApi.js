@@ -1,7 +1,7 @@
 import { pandaReqwest } from './pandaReqwest';
 import { getStore } from '../util/storeAccessor';
 import { getComposerData, getRightsPayload } from '../util/getComposerData';
-import { nullifyEmptyStrings } from '../util/nullifyEmptyStrings';
+import { cleanVideoData } from '../util/cleanVideoData';
 import ContentApi from './capi';
 
 function getUsages({ id, stage }) {
@@ -73,7 +73,7 @@ export default {
     return pandaReqwest({
       url: '/api2/atoms',
       method: 'post',
-      data: nullifyEmptyStrings(video)
+      data: cleanVideoData(video)
     });
   },
 
@@ -104,7 +104,7 @@ export default {
     return pandaReqwest({
       url: '/api2/atoms/' + videoId,
       method: 'put',
-      data: nullifyEmptyStrings(video)
+      data: cleanVideoData(video)
     });
   },
 
@@ -276,7 +276,7 @@ export default {
       crossOrigin: true,
       withCredentials: true,
       data: {
-        videoFields: nullifyEmptyStrings(videoFields)
+        videoFields: cleanVideoData(videoFields)
       }
     });
   },
