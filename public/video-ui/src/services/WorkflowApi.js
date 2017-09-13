@@ -8,8 +8,7 @@ export default class WorkflowApi {
   }
 
   static workflowItemLink() {
-    //TODO link to atom in Workflow
-    return `${WorkflowApi.workflowUrl}/dashboard?atom-type=media`;
+    return `${WorkflowApi.workflowUrl}/dashboard?editorId=${video.id}`;
   }
 
   static getSections() {
