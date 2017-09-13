@@ -23,12 +23,10 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3Client) extends Loggin
     val endpoint = s"https://www.googleapis.com/upload/youtube/v3/videos?$params"
 
     val videoTitle = s"$title-$id".take(70) // YouTube character limit
-    val description = s"Uploaded by the media-atom-maker. Pending publishing"
 
     val json = JsObject(Seq(
       "snippet" -> JsObject(Seq(
-        "title" -> JsString(videoTitle),
-        "description" -> JsString(description)
+        "title" -> JsString(videoTitle)
       )),
       "status" -> JsObject(Seq(
         "privacyStatus" -> JsString("unlisted")
