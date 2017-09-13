@@ -7,7 +7,7 @@ export default class WorkflowApi {
     return getStore().getState().config.workflowUrl;
   }
 
-  static workflowItemLink() {
+  static workflowItemLink(video) {
     return `${WorkflowApi.workflowUrl}/dashboard?editorId=${video.id}`;
   }
 

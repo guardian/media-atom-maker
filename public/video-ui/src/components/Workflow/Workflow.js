@@ -79,7 +79,7 @@ class Workflow extends React.Component {
             <td>
               <a target="_blank"
                  rel="noopener noreferrer"
-                 href={WorkflowApi.workflowItemLink()}>
+                 href={WorkflowApi.workflowItemLink(this.props.video)}>
                 Open in Workflow
               </a>
             </td>
