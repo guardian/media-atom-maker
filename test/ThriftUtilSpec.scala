@@ -61,7 +61,7 @@ class ThriftUtilSpec extends FunSpec
               }
 
               val iframe = Jsoup.parse(defaultHtml).getElementsByTag("iframe")
-              iframe.attr("src") should be(s"https://www.youtube.com/embed/$youtubeId")
+              iframe.attr("src") should be(s"https://www.youtube.com/embed/$youtubeId?showinfo=0&rel=0")
           }
       }
     }
