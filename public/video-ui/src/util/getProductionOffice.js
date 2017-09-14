@@ -3,11 +3,11 @@ import moment from 'moment';
 function getTimezoneOffset() {
   const offset = moment().utcOffset();
 
-  if (offset <= -480 && offset >= -660) {
+  if (offset <= 480 && offset >= 660) {
     return 'SYD';
-  } else if (offset <= 560 && offset >= 400) {
+  } else if (offset <= -560 && offset >= -400) {
     return 'SFO';
-  } else if (offset < 400 && offset >= 240) {
+  } else if (offset < -400 && offset >= -240) {
     return 'NYC';
   } else {
     return 'LON';
