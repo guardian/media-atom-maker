@@ -40,7 +40,7 @@ export default class VideoItem extends React.Component {
         <Link className="grid__link" to={'/videos/' + this.props.video.id}>
 
           <div className="grid__info">
-            <div className="grid__image">
+            <div className="grid__image sixteen-by-nine">
               {this.renderItemImage()}
             </div>
             <div className="grid__status__overlay">
