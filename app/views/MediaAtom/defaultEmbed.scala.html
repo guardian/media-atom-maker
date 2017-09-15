@@ -7,7 +7,7 @@
   }
 
   case (Some(YouTubeAsset(id)), _) => {
-    <iframe frameborder="0" allowfullscreen="true" src="https://www.youtube.com/embed/@id"></iframe>
+    <iframe frameborder="0" allowfullscreen="true" src="https://www.youtube.com/embed/@id?showinfo=0&rel=0"></iframe>
   }
 
   case (Some(SelfHostedAsset(sources)), maybePoster) => {

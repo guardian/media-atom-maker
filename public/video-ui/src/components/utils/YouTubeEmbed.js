@@ -3,7 +3,7 @@ import { getStore } from '../../util/storeAccessor';
 
 export function YouTubeEmbed({ id, className }) {
   const embedUrl = getStore().getState().config.youtubeEmbedUrl;
-  const src = `${embedUrl}${id}?showinfo=0`;
+  const src = `${embedUrl}${id}?showinfo=0&rel=0`;
 
   return (
     <iframe
