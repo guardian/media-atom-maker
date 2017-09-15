@@ -149,8 +149,6 @@ class VideoData extends React.Component {
             >
               <TagPicker disableCapiTags />
             </ManagedField>
-          </ManagedSection>
-          <ManagedSection>
             <ManagedField
               fieldLocation="blockAds"
               name="Block ads"
