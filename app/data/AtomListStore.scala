@@ -5,15 +5,10 @@ import java.time.Instant
 import com.gu.atom.data.PreviewDynamoDataStore
 import com.gu.media.CapiAccess
 import com.gu.media.util.TestFilters
-import model.Category.Hosted
 import model.commands.CommandExceptions.AtomDataStoreError
 import model.{Image, MediaAtom, MediaAtomList, MediaAtomSummary}
 import play.api.libs.json.{JsArray, JsValue}
 
-// TODO add `Hosted` category.
-// Although `Hosted` is a valid category, the APIs driving the React frontend perform authenticated calls to YT.
-// These only work with content that we own. `Hosted` can have third-party assets so the API calls will fail.
-// Add `Hosted` once the UI is smarter and removes features when category is `Hosted`.
 trait AtomListStore {
   def getAtoms(search: Option[String], limit: Option[Int]): MediaAtomList
 }
