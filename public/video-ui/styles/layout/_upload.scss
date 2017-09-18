@@ -1,3 +1,37 @@
+.video-upload {
+  padding: 10px;
+  display: grid;
+
+  grid-gap: 10px;
+  grid-template-columns: 450px 1fr;
+  grid-template-areas:
+    "pluto-project trail"
+    "upload trail"
+    "asset-url trail"
+    "self-host trail"
+    ". trail";
+
+  &--pluto-project {
+    grid-area: pluto-project;
+  }
+
+  &--uploader {
+    grid-area: upload;
+  }
+
+  &--asset-url {
+    grid-area: asset-url;
+  }
+
+  &--self-host {
+    grid-area: self-host;
+  }
+
+  &--trail {
+    grid-area: trail;
+  }
+}
+
 .upload {
   width: 100%;
   padding: 20px 30px;

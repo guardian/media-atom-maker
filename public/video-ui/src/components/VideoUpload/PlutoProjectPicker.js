@@ -4,7 +4,7 @@ import SelectBox from '../FormFields/SelectBox';
 
 export default function PlutoProjectPicker({ video, projects, saveVideo }) {
   return (
-    <div>
+    <div className="video__detailbox">
       <div className="video__detailbox__header__container">
         <header className="video__detailbox__header">
           Pluto

@@ -1,0 +1,33 @@
+.video-display {
+  padding: 10px;
+  display: grid;
+
+  grid-gap: 10px;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "select select"
+    "metadata workflow"
+    "metadata preview"
+    "metadata usage"
+    "metadata .";
+
+  &--select {
+    grid-area: select;
+  }
+
+  &--metadata {
+    grid-area: metadata;
+  }
+
+  &--workflow {
+    grid-area: workflow;
+  }
+
+  &--preview {
+    grid-area: preview;
+  }
+
+  &--usage {
+    grid-area: usage;
+  }
+}

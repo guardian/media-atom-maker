@@ -45,9 +45,7 @@ class VideoData extends React.Component {
           editable={this.props.editable}
           updateErrors={this.props.updateErrors}
           updateWarnings={this.props.updateWarnings}
-          formName={this.props.formName}
-          formClass="atom__edit__form"
-        >
+          formName={this.props.formName}>
           <ManagedSection>
             <ManagedField
               fieldLocation="title"
