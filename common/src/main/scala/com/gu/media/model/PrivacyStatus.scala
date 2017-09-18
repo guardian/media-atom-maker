@@ -1,4 +1,4 @@
-package model
+package com.gu.media.model
 
 import com.gu.contentatom.thrift.atom.media.{PrivacyStatus => ThriftPrivacyStatus}
 import play.api.libs.json._
@@ -26,7 +26,7 @@ object PrivacyStatus {
 
   implicit val format = Format(reads, writes)
 
-  private val types = List(Private, Unlisted, Public)
+  val all: Set[PrivacyStatus] = Set(Private, Unlisted, Public)
 
-  def fromThrift(status: ThriftPrivacyStatus): Option[PrivacyStatus] = types.find(_.name == status.name)
+  def fromThrift(status: ThriftPrivacyStatus): Option[PrivacyStatus] = all.find(_.name == status.name)
 }

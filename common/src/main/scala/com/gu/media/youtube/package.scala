@@ -2,6 +2,7 @@ package com.gu.media
 
 import com.google.api.services.youtube.model.{Channel, Video, VideoCategory}
 import com.google.api.services.youtubePartner.model.VideoAdvertisingOption
+import com.gu.media.model.PrivacyStatus
 import com.gu.media.util.ISO8601Duration
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
@@ -22,16 +23,17 @@ package object youtube {
     }
   }
 
-  case class YouTubeChannel(id: String, title: String)
+  case class YouTubeChannel(id: String, title: String, privacyStatus: Set[PrivacyStatus])
 
   object YouTubeChannel {
     implicit val reads: Reads[YouTubeChannel] = Json.reads[YouTubeChannel]
     implicit val writes: Writes[YouTubeChannel] = Json.writes[YouTubeChannel]
 
-    def build(channel: Channel): YouTubeChannel = {
+    def build(channel: Channel, allowPublic: Boolean): YouTubeChannel = {
       YouTubeChannel(
         id = channel.getId,
-        title = channel.getSnippet.getTitle
+        title = channel.getSnippet.getTitle,
+        privacyStatus = if (allowPublic) PrivacyStatus.all else Set(PrivacyStatus.Unlisted, PrivacyStatus.Private)
       )
     }
   }
@@ -65,7 +67,7 @@ package object youtube {
         privacyStatus = video.getStatus.getPrivacyStatus,
         tags = tags,
         contentBundleTags = tags.filter(t => t.startsWith("gdnpfp")),
-        channel = YouTubeChannel(id = video.getSnippet.getChannelId, title = video.getSnippet.getChannelTitle)
+        channel = YouTubeChannel(id = video.getSnippet.getChannelId, title = video.getSnippet.getChannelTitle, PrivacyStatus.all)
       )
     }
   }
