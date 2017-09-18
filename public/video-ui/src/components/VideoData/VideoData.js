@@ -9,7 +9,7 @@ import TagPicker from '../FormFields/TagPicker';
 import TagTypes from '../../constants/TagTypes';
 import { fieldLengths } from '../../constants/videoEditValidation';
 import { videoCategories } from '../../constants/videoCategories';
-import { privacyStates } from '../../constants/privacyStates';
+import PrivacyStates from '../../constants/privacyStates';
 import { channelAllowed } from '../../util/channelAllowed';
 import { getStore } from '../../util/storeAccessor';
 
@@ -36,6 +36,10 @@ class VideoData extends React.Component {
       isHosted ||
       !channelAllowed(this.props.video, this.props.youtube.channels);
     const hasAssets = this.props.video.assets.length > 0;
+
+    const privacyStates = this.props.video.channelId && this.props.youtube.channels.length > 0
+      ? this.props.youtube.channels.find(_ => _.id === this.props.video.channelId).privacyStates
+      : PrivacyStates.defaultStates;
 
     return (
       <div className="form__group">
@@ -138,7 +142,7 @@ class VideoData extends React.Component {
               name="Privacy Status"
               disabled={notOnManagedChannel}
             >
-              <SelectBox selectValues={privacyStates} />
+              <SelectBox selectValues={PrivacyStates.forForm(privacyStates)} />
             </ManagedField>
             <ManagedField
               fieldLocation="tags"

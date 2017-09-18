@@ -23,7 +23,7 @@ package object youtube {
     }
   }
 
-  case class YouTubeChannel(id: String, title: String, privacyStatus: Set[PrivacyStatus])
+  case class YouTubeChannel(id: String, title: String, privacyStates: Set[PrivacyStatus] = PrivacyStatus.all)
 
   object YouTubeChannel {
     implicit val reads: Reads[YouTubeChannel] = Json.reads[YouTubeChannel]
@@ -33,7 +33,7 @@ package object youtube {
       YouTubeChannel(
         id = channel.getId,
         title = channel.getSnippet.getTitle,
-        privacyStatus = if (allowPublic) PrivacyStatus.all else Set(PrivacyStatus.Unlisted, PrivacyStatus.Private)
+        privacyStates = if (allowPublic) PrivacyStatus.all else Set(PrivacyStatus.Unlisted, PrivacyStatus.Private)
       )
     }
   }
@@ -67,7 +67,7 @@ package object youtube {
         privacyStatus = video.getStatus.getPrivacyStatus,
         tags = tags,
         contentBundleTags = tags.filter(t => t.startsWith("gdnpfp")),
-        channel = YouTubeChannel(id = video.getSnippet.getChannelId, title = video.getSnippet.getChannelTitle, PrivacyStatus.all)
+        channel = YouTubeChannel(id = video.getSnippet.getChannelId, title = video.getSnippet.getChannelTitle)
       )
     }
   }
