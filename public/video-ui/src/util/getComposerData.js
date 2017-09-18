@@ -77,7 +77,7 @@ export function getComposerData(video) {
     },
     {
       name: 'thumbnail',
-      value: video.trailImage
+      value: (video.trailImage && video.trailImage.assets.length > 0)
         ? parseComposerDataFromImage(video.trailImage, video.trailText)
         : null,
       belongsTo: 'thumbnail'
