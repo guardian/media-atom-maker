@@ -1,6 +1,6 @@
 export default class PrivacyStates {
   static get defaultStates() {
-    return ['Public', 'Unlisted'];
+    return ['Unlisted'];
   }
 
   static forForm(states) {

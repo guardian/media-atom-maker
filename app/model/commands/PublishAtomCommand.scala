@@ -44,7 +44,13 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youtu
         val duration = youtube.getDuration(asset.id)
         val blockAds = if (duration.getOrElse(0L) < youtube.minDurationForAds) true else previewAtom.blockAds
 
-        val updatedPreviewAtom = previewAtom.copy(duration = duration, blockAds = blockAds)
+        val privacyStatus = previewAtom.channelId match {
+          case Some(channel) if youtube.strictlyUnlistedChannels.contains(channel) => Some(PrivacyStatus.Unlisted)
+          case _ => previewAtom.privacyStatus
+        }
+
+        val updatedPreviewAtom = previewAtom.copy(duration = duration, blockAds = blockAds, privacyStatus = privacyStatus)
+
         updateYouTube(updatedPreviewAtom, asset).map(atomWithYoutubeUpdates => {
           publish(atomWithYoutubeUpdates, user)
         })
