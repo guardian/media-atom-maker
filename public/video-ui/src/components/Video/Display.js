@@ -156,7 +156,6 @@ class VideoDisplay extends React.Component {
             data-tip="Edit Assets"
           >
             <Icon className="icon__edit" icon="edit" />
-            <ReactTooltip place="bottom" />
           </Link>
         </div>
         <div className="video-preview">
@@ -260,6 +259,7 @@ class VideoDisplay extends React.Component {
             </div>
           </div>
         </div>
+        <ReactTooltip />
       </div>
     );
   }
