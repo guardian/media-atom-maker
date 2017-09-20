@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import VideoSearch from './VideoSearch/VideoSearch';
 import VideoPublishBar from './VideoPublishBar/VideoPublishBar';
+import VideoPublishState from './VideoPublishState/VideoPublishState';
 import AdvancedActions from './Videos/AdvancedActions';
 import ComposerPageCreate from './Videos/ComposerPageCreate';
 import Icon from './Icon';
@@ -178,7 +179,9 @@ export default class Header extends React.Component {
         <header className={className}>
           {this.renderProgress()}
           {this.renderHome()}
+          <VideoPublishState video={this.props.publishedVideo} />
           {this.renderPresence()}
+          <div className="flex-spacer" />
           <VideoPublishBar
             className="flex-grow"
             video={this.props.video}
