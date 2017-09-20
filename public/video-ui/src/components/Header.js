@@ -112,7 +112,6 @@ export default class Header extends React.Component {
   }
 
   renderPresence() {
-    // No indicator in the UI yet, just reporting back for use in Workflow
     if (this.props.presenceConfig) {
       return (
         <Presence video={this.props.video} config={this.props.presenceConfig} />
@@ -150,20 +149,20 @@ export default class Header extends React.Component {
     if (this.props.currentPath.endsWith('/upload')) {
       return (
         <header className={className}>
-          {this.renderPresence()}
           {this.renderProgress()}
           {this.renderHeaderBack()}
+          {this.renderPresence()}
         </header>
       );
     }
     if (!this.props.showPublishedState) {
       return (
         <header className={className}>
-          {this.renderPresence()}
           {this.renderProgress()}
 
           {this.renderHome()}
           {this.renderSearch()}
+          {this.renderPresence()}
 
           <div className="flex-spacer" />
 
@@ -177,10 +176,9 @@ export default class Header extends React.Component {
     } else {
       return (
         <header className={className}>
-          {this.renderPresence()}
           {this.renderProgress()}
           {this.renderHome()}
-
+          {this.renderPresence()}
           <VideoPublishBar
             className="flex-grow"
             video={this.props.video}
