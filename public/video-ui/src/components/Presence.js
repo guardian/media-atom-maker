@@ -40,6 +40,8 @@ export class Presence extends React.Component {
   }
 
   startPresence = (atom, { domain, firstName, lastName, email }) => {
+    const subscriptionId = `media-${atom}`;
+
     const endpoint = `wss://${domain}/socket`;
 
     const client = window.presenceClient(endpoint, {
@@ -51,16 +53,18 @@ export class Presence extends React.Component {
     client.startConnection();
 
     client.on('connection.open', () => {
-      client.subscribe(`media-${atom}`);
-      client.enter(`media-${atom}`, 'document');
+      client.subscribe(subscriptionId);
+      client.enter(subscriptionId, 'document');
     });
 
     client.on('visitor-list-updated', data => {
-      this.setState(
-        Object.assign({}, this.state, {
-          visitors: data.currentState
-        })
-      );
+      if (data.subscriptionId === subscriptionId) {
+        this.setState(
+          Object.assign({}, this.state, {
+            visitors: data.currentState
+          })
+        );
+      }
     });
 
     this.setState(
