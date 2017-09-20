@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import VideoSearch from './VideoSearch/VideoSearch';
 import VideoPublishBar from './VideoPublishBar/VideoPublishBar';
+import VideoPublishState from './VideoPublishState/VideoPublishState';
 import AdvancedActions from './Videos/AdvancedActions';
 import ComposerPageCreate from './Videos/ComposerPageCreate';
 import Icon from './Icon';
@@ -112,7 +113,6 @@ export default class Header extends React.Component {
   }
 
   renderPresence() {
-    // No indicator in the UI yet, just reporting back for use in Workflow
     if (this.props.presenceConfig) {
       return (
         <Presence video={this.props.video} config={this.props.presenceConfig} />
@@ -150,20 +150,20 @@ export default class Header extends React.Component {
     if (this.props.currentPath.endsWith('/upload')) {
       return (
         <header className={className}>
-          {this.renderPresence()}
           {this.renderProgress()}
           {this.renderHeaderBack()}
+          {this.renderPresence()}
         </header>
       );
     }
     if (!this.props.showPublishedState) {
       return (
         <header className={className}>
-          {this.renderPresence()}
           {this.renderProgress()}
 
           {this.renderHome()}
           {this.renderSearch()}
+          {this.renderPresence()}
 
           <div className="flex-spacer" />
 
@@ -177,10 +177,11 @@ export default class Header extends React.Component {
     } else {
       return (
         <header className={className}>
-          {this.renderPresence()}
           {this.renderProgress()}
           {this.renderHome()}
-
+          <VideoPublishState video={this.props.publishedVideo} />
+          {this.renderPresence()}
+          <div className="flex-spacer" />
           <VideoPublishBar
             className="flex-grow"
             video={this.props.video}

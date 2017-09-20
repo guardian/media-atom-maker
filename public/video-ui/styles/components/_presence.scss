@@ -1,0 +1,18 @@
+.presence-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  align-content: space-between;
+
+  &__user {
+    display: block;
+    padding: 7px;
+    border-radius: 50%;
+    color: $color600Grey;
+    background-color: $cWhite;
+
+    &:not(:last-child) {
+      margin-right: 7px;
+    }
+  }
+}

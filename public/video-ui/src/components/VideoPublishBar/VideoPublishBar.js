@@ -1,6 +1,6 @@
 import React from 'react';
 import { saveStateVals } from '../../constants/saveStateVals';
-import { isVideoPublished, hasVideoExpired } from '../../util/isVideoPublished';
+import { isVideoPublished } from '../../util/isVideoPublished';
 import { hasUnpublishedChanges } from '../../util/hasUnpublishedChanges';
 import { getVideoBlock } from '../../util/getVideoBlock';
 import { getStore } from '../../util/storeAccessor';
@@ -78,24 +78,13 @@ export default class VideoPublishBar extends React.Component {
     );
   }
 
-  renderVideoPublishedInfo() {
-    if (hasVideoExpired(this.props.publishedVideo)) {
-      return <div className="publish__label label__expired">Expired</div>;
-    } else if (isVideoPublished(this.props.publishedVideo)) {
-      return <div className="publish__label label__live">Live</div>;
-    }
-    return <div className="publish__label label__draft">Draft</div>;
-  }
-
   render() {
     if (!this.props.video) {
       return false;
     }
 
     return (
-      <div className="flex-container flex-grow publish-bar">
-        {this.renderVideoPublishedInfo()}
-        <div className="flex-spacer" />
+      <div className="flex-container publish-bar">
         {this.renderPublishButton()}
       </div>
     );

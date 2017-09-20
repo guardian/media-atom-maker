@@ -1,7 +1,10 @@
 import React from 'react';
 
 export class Presence extends React.Component {
-  state = null;
+  state = {
+    client: null,
+    visitors: []
+  };
 
   componentDidMount() {
     if (this.props.video.id) {
@@ -14,9 +17,14 @@ export class Presence extends React.Component {
     const previous = prevProps.video.id;
 
     if (current !== previous) {
-      if (this.state) {
-        this.state.closeConnection();
-        this.setState(null);
+      if (this.state.client) {
+        this.state.client.closeConnection();
+        this.setState(
+          Object.assign({}, this.state, {
+            client: null,
+            visitors: []
+          })
+        );
       }
 
       if (current) {
@@ -26,12 +34,14 @@ export class Presence extends React.Component {
   }
 
   componentWillUnmount() {
-    if (this.state) {
-      this.state.closeConnection();
+    if (this.state.client) {
+      this.state.client.closeConnection();
     }
   }
 
   startPresence = (atom, { domain, firstName, lastName, email }) => {
+    const subscriptionId = `media-${atom}`;
+
     const endpoint = `wss://${domain}/socket`;
 
     const client = window.presenceClient(endpoint, {
@@ -43,15 +53,48 @@ export class Presence extends React.Component {
     client.startConnection();
 
     client.on('connection.open', () => {
-      client.subscribe(`media-${atom}`);
-      client.enter(`media-${atom}`, 'document');
+      client.subscribe(subscriptionId);
+      client.enter(subscriptionId, 'document');
     });
 
-    this.setState(client);
+    client.on('visitor-list-updated', data => {
+      if (data.subscriptionId === subscriptionId) {
+        this.setState(
+          Object.assign({}, this.state, {
+            visitors: data.currentState
+          })
+        );
+      }
+    });
+
+    this.setState(
+      Object.assign({}, this.state, {
+        client: client
+      })
+    );
   };
 
   render() {
     // No indicator in the UI yet, just reporting back for use in Workflow
-    return false;
+    const visitorsInThisArea = this.state.visitors.filter(
+      state => state.location === 'document'
+    );
+
+    return (
+      <ul className="presence-list">
+        {visitorsInThisArea.map(visitor => {
+          const id = visitor.clientId.connId;
+          const { firstName, lastName } = visitor.clientId.person;
+          const initials = `${firstName.slice(0, 1)}${lastName.slice(0, 1)}`;
+          const fullName = `${firstName} ${lastName}`;
+
+          return (
+            <li key={id} className="presence-list__user" title={fullName}>
+              {initials}
+            </li>
+          );
+        })}
+      </ul>
+    );
   }
 }
