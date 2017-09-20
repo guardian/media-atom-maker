@@ -25,13 +25,6 @@ export default class PlutoProjectPicker extends React.Component {
     const isHosted = video.category === 'Hosted';
     const isManaged = channelAllowed(video, channels);
 
-    const hasYouTubeAssets = video.assets.some(
-      asset => asset.platform === 'Youtube'
-    );
-
-    const editable =
-      !hasYouTubeAssets && (!video.channelId || !!video.youtubeCategoryId);
-
     const missingFields = !video.channelId || !video.youtubeCategoryId;
     const disabled = missingFields || !this.state.file || this.props.uploading;
 
@@ -47,16 +40,6 @@ export default class PlutoProjectPicker extends React.Component {
           </header>
         </div>
         <div className="form__group">
-          <ManagedForm
-            data={video}
-            updateData={this.props.saveVideo}
-            editable={editable}
-            formName="YouTubeChannel"
-          >
-            <ManagedField fieldLocation="channelId" name="YouTube Channel">
-              <SelectBox selectValues={this.props.channels} />
-            </ManagedField>
-          </ManagedForm>
           <ManagedForm
             data={video}
             updateData={this.props.saveVideo}

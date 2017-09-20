@@ -132,7 +132,7 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
     getVideo(youtubeId, "snippet") match {
       case Some(video) =>
         val channel = video.getSnippet.getChannelId
-        allowedChannels.contains(channel)
+        allChannels.contains(channel)
 
       case None =>
         false
@@ -148,7 +148,7 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
       throw new Exception(msg)
     }
 
-    if (allowedChannels.nonEmpty && !allowedChannels.contains(videoChannelId)) {
+    if (allChannels.nonEmpty && !allChannels.contains(videoChannelId)) {
       val msg = s"Failed to edit video ${video.getId} as its channel ($videoChannelId) isn't in config.youtube.allowedChannels"
       log.info(msg)
       throw new Exception(msg)

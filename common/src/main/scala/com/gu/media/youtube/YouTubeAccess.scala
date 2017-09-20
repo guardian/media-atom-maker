@@ -13,9 +13,14 @@ import scala.collection.JavaConverters._
 trait YouTubeAccess extends Settings {
   def appName: String = getMandatoryString("name")
   def contentOwner: String = getMandatoryString("youtube.contentOwner")
-  val allowedChannels: List[String] = getStringList("youtube.allowedChannels")
-  val trainingChannels: List[String] = getStringList("youtube.trainingChannels")
-  val disallowedVideos: List[String] = getStringList("youtube.disallowedVideos")
+
+  val allowedChannels: Set[String] = getStringSet("youtube.channels.allowed")
+  val strictlyUnlistedChannels: Set[String] = getStringSet("youtube.channels.unlisted")
+  val allChannels: Set[String] = allowedChannels ++ strictlyUnlistedChannels
+
+  val trainingChannels: Set[String] = getStringSet("youtube.channels.training")
+
+  val disallowedVideos: Set[String] = getStringSet("youtube.videos.disallowed")
   val usePartnerApi: Boolean = getString("youtube.usePartnerApi").forall(_.toBoolean)
 
   def clientId = getMandatoryString("youtube.clientId")
@@ -66,7 +71,9 @@ trait YouTubeAccess extends Settings {
       .setManagedByMe(true)
       .setOnBehalfOfContentOwner(contentOwner)
 
-    request.execute().getItems.asScala.toList.map(YouTubeChannel.build).sortBy(_.title)
+    request.execute().getItems.asScala.toList
+      .map(c => YouTubeChannel.build(c, allowPublic = !strictlyUnlistedChannels.contains(c.getId)))
+      .sortBy(_.title)
   }
 
   def accessToken(): String = {

@@ -8,6 +8,7 @@ import com.gu.atom.play.AtomAPIActions
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.media.Capi
 import com.gu.media.logging.Logging
+import com.gu.media.model.PrivacyStatus
 import com.gu.media.youtube.YouTubeMetadataUpdate
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
@@ -43,7 +44,13 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youtu
         val duration = youtube.getDuration(asset.id)
         val blockAds = if (duration.getOrElse(0L) < youtube.minDurationForAds) true else previewAtom.blockAds
 
-        val updatedPreviewAtom = previewAtom.copy(duration = duration, blockAds = blockAds)
+        val privacyStatus = previewAtom.channelId match {
+          case Some(channel) if youtube.strictlyUnlistedChannels.contains(channel) => Some(PrivacyStatus.Unlisted)
+          case _ => previewAtom.privacyStatus
+        }
+
+        val updatedPreviewAtom = previewAtom.copy(duration = duration, blockAds = blockAds, privacyStatus = privacyStatus)
+
         updateYouTube(updatedPreviewAtom, asset).map(atomWithYoutubeUpdates => {
           publish(atomWithYoutubeUpdates, user)
         })
@@ -98,7 +105,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youtu
 
   private def updateYouTube(previewAtom: MediaAtom, asset: Asset): Future[MediaAtom] = {
     previewAtom.channelId match {
-      case Some(channel) if youtube.allowedChannels.contains(channel) =>
+      case Some(channel) if youtube.allChannels.contains(channel) =>
         if (youtube.usePartnerApi) {
           createOrUpdateYoutubeClaim(previewAtom, asset)
         }

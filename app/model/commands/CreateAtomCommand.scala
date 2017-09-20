@@ -10,7 +10,7 @@ import com.gu.media.logging.Logging
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
-import model.{ChangeRecord, Image, MediaAtom, PrivacyStatus, MediaAtomBeforeCreation, ContentChangeDetails}
+import model.{ChangeRecord, Image, MediaAtom, MediaAtomBeforeCreation, ContentChangeDetails}
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
 

@@ -2,6 +2,7 @@ package model
 
 import com.gu.contentatom.thrift.atom.media.{MediaAtom => ThriftMediaAtom, Metadata => ThriftMetadata, PlutoData => ThriftPlutoData}
 import com.gu.contentatom.thrift.{AtomData, Atom => ThriftAtom, AtomType => ThriftAtomType, Flags => ThriftFlags}
+import com.gu.media.model.PrivacyStatus
 import org.cvogt.play.json.Jsonx
 import util.atom.MediaAtomImplicits
 

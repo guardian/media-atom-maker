@@ -1,5 +1,6 @@
 package model
 
+import com.gu.media.model.PrivacyStatus
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
