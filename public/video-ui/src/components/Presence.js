@@ -75,7 +75,6 @@ export class Presence extends React.Component {
   };
 
   render() {
-    // No indicator in the UI yet, just reporting back for use in Workflow
     const visitorsInThisArea = this.state.visitors.filter(
       state => state.location === 'document'
     );
