@@ -40,6 +40,12 @@ class VideoData extends React.Component {
       ? this.props.youtube.channels.find(_ => _.id === this.props.video.channelId).privacyStates
       : PrivacyStates.defaultStates;
 
+    const minDurationForAds = getStore().getState().config.minDurationForAds;
+
+    const tooShortForAds =
+      this.props.video.duration > 0 &&
+      this.props.video.duration < minDurationForAds;
+
     return (
       <div className="form__group">
         <ManagedForm
@@ -160,7 +166,7 @@ class VideoData extends React.Component {
               name="Block ads"
               fieldDetails="Ads will not be displayed with this video"
               disabled={!canUpdateYouTube}
-              tooltip={`Videos less than ${getStore().getState().config.minDurationForAds} seconds will automatically have ads blocked`}
+              tooltip={tooShortForAds ? `Videos less than ${minDurationForAds} seconds will automatically have ads blocked` : ''}
             >
               <CheckBox />
             </ManagedField>
