@@ -68,6 +68,8 @@ class Workflow extends React.Component {
   }
 
   renderStatusInWorkflow() {
+    const {title, prodOffice, section, status, scheduledLaunchDate } = this.props.workflow.status;
+
     return (
       <table>
         <thead>
@@ -77,18 +79,18 @@ class Workflow extends React.Component {
             <th>Section</th>
             <th>Status</th>
             <th>Scheduled Launch Date</th>
-            <th></th>
+            <th/>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>{this.props.workflow.status.title}</td>
-            <td>{this.props.workflow.status.prodOffice}</td>
-            <td>{this.props.workflow.status.section}</td>
-            <td>{this.props.workflow.status.status}</td>
-            <td>{this.props.workflow.status.scheduledLaunchDate
-              ? moment(this.props.workflow.status.scheduledLaunchDate).format("DD MMM YYYY HH:mm")
-              : 'n/a'}</td>
+            <td>{title}</td>
+            <td>
+              <span className={`production-office production-office--${prodOffice}`}>{prodOffice}</span>
+            </td>
+            <td>{section}</td>
+            <td>{status}</td>
+            <td>{scheduledLaunchDate ? moment(scheduledLaunchDate).format("DD MMM YYYY HH:mm") : 'n/a'}</td>
             <td>
               <a target="_blank"
                  rel="noopener noreferrer"

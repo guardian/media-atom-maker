@@ -24,7 +24,7 @@ function getTimezoneOffset() {
 
 export default function getProductionOffice() {
   const timezoneProductionOfficeMap = {
-    SYD: 'AUS',
+    SYD: 'AU',
     SFO: 'US',
     NYC: 'US',
     LON: 'UK'
