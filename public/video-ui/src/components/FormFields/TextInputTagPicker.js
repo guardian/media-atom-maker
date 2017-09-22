@@ -99,7 +99,7 @@ export default class TextInputTagPicker extends React.Component {
         const onlyWhitespace = !/\S/.test(this.state.inputString);
         if (!onlyWhitespace) {
 
-          const newInput = this.props.tagType === TagTypes.youtube ? this.getYoutubeInputValue() : this.state.inputString;
+          const newInput = this.props.tagType === TagTypes.youtube ? this.getYoutubeInputValue() : this.state.inputString.trim();
 
           const newFieldValue = newInput ? this.props.tagValue.concat([newInput]) : this.props.tagValue;
 
