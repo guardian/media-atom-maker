@@ -1,6 +1,5 @@
 import com.gu.atom.play.ReindexController
 import com.gu.media.aws.AwsCredentials
-import com.gu.media.youtube.YouTubeClaims
 import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider, Settings}
 import controllers._
 import data._
@@ -49,15 +48,13 @@ class MediaAtomMaker(context: Context)
   private val uploaderMessageConsumer = PlutoMessageConsumer(stores, aws)
   uploaderMessageConsumer.start(actorSystem.scheduler)(actorSystem.dispatcher)
 
-  private val api = new Api(stores, configuration, aws, hmacAuthActions, permissions)
-
   private val api2 = new Api2(stores, configuration, hmacAuthActions, youTube, aws, permissions, capi)
 
   private val stepFunctions = new StepFunctions(aws)
   private val uploads = new UploadController(hmacAuthActions, aws, stepFunctions, stores, permissions, youTube)
 
   private val support = new Support(hmacAuthActions, capi)
-  private val youTubeController = new controllers.Youtube(hmacAuthActions, youTube)
+  private val youTubeController = new Youtube(hmacAuthActions, youTube)
 
   private val pluto = new PlutoProjectController(hmacAuthActions, stores)
 
@@ -66,18 +63,14 @@ class MediaAtomMaker(context: Context)
   private val transcoder = new util.Transcoder(aws, defaultCacheApi)
   private val transcoderController = new controllers.Transcoder(hmacAuthActions, transcoder)
 
-  private val mainApp = new MainApp(stores, wsClient, configuration, hmacAuthActions, permissions, aws)
   private val videoApp = new VideoUIApp(hmacAuthActions, configuration, aws, permissions, youTube)
-
-  private val assets = new controllers.Assets(httpErrorHandler)
 
   private val login = new Login(hmacAuthActions)
   private val healthcheck = new Healthcheck(aws)
+  private val assets = new Assets(httpErrorHandler)
 
   override val router = new Routes(
     httpErrorHandler,
-    mainApp,
-    api,
     api2,
     pluto,
     uploads,
@@ -85,11 +78,11 @@ class MediaAtomMaker(context: Context)
     youtubeTags,
     transcoderController,
     reindexer,
-    assets,
     videoApp,
     support,
     login,
-    healthcheck
+    healthcheck,
+    assets
   )
 
   private def buildReindexer() = {

@@ -23,10 +23,6 @@ js_test() {
 }
 
 js_build() {
-  # angular app
-  yarn run build-angular
-
-  # react app
   yarn run build
 }
 
