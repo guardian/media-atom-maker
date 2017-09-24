@@ -66,10 +66,6 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
     }
   }
 
-  def reauth = AuthAction {
-    Ok("auth ok")
-  }
-
   def training(inTraining: Boolean) = AuthAction { req =>
     Redirect("/", FOUND).withSession(
       req.session + ("isTrainingMode" -> inTraining.toString)

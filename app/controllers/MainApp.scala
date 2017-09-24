@@ -18,19 +18,7 @@ class MainApp (override val stores: DataStores,
                kinesis: KinesisAccess)
     extends AtomController {
 
-  import authActions.{AuthAction, processGoogleCallback}
-
-  def healthcheck = Action {
-    if(kinesis.testKinesisAccess(kinesis.previewKinesisStreamName) && kinesis.testKinesisAccess(kinesis.liveKinesisStreamName)) {
-      Ok(s"ok\ngitCommitID ${app.BuildInfo.gitCommitId}")
-    } else {
-      InternalServerError("fail. cannot access CAPI kinesis streams")
-    }
-  }
-
-  def oauthCallback = Action.async { implicit req =>
-    processGoogleCallback()
-  }
+  import authActions.AuthAction
 
   def listAtoms = AuthAction { implicit req =>
     previewDataStore.listAtoms.fold(

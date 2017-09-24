@@ -69,6 +69,9 @@ class MediaAtomMaker(context: Context)
 
   private val assets = new controllers.Assets(httpErrorHandler)
 
+  private val login = new Login(hmacAuthActions)
+  private val healthcheck = new Healthcheck(aws)
+
   override val router = new Routes(
     httpErrorHandler,
     mainApp,
@@ -81,7 +84,9 @@ class MediaAtomMaker(context: Context)
     reindexer,
     assets,
     videoApp,
-    support
+    support,
+    login,
+    healthcheck
   )
 
   private def buildReindexer() = {
