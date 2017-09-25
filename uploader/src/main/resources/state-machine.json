@@ -17,7 +17,7 @@
         },
         {
           "Variable": "$.progress.retries",
-          "NumericGreaterThanEquals": 120,
+          "NumericGreaterThanEquals": 240,
           "Next": "FailS3Upload"
         }
       ],
@@ -29,7 +29,7 @@
     },
     "WaitForChunkInS3": {
       "Type": "Wait",
-      "Seconds": 1,
+      "Seconds": 5,
       "Next": "GetChunkFromS3"
     },
     "CheckNotSelfHosted": {
