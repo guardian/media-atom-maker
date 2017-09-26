@@ -237,9 +237,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youtu
       val inactiveAssets = youTubeAssets.filterNot(_.id == activeAsset.id)
 
       //TODO be better! Use the correct type rather than converting to the right type
-      val status = (
-        if(expired) { PrivacyStatus.Private } else { PrivacyStatus.Unlisted }
-        ).asThrift.get
+      val status = PrivacyStatus.Private.asThrift.get
 
       inactiveAssets.foreach { asset =>
         log.info(s"Marking asset=${asset.id} atom=${atom.id} as private")
