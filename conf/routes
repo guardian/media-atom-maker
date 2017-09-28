@@ -1,6 +1,3 @@
-GET     /healthcheck                    controllers.MainApp.healthcheck()
-
-GET     /oauthCallback                  controllers.MainApp.oauthCallback()
 GET     /atoms                          controllers.MainApp.listAtoms()
 
 GET     /api/atoms                      controllers.Api.listAtoms()
@@ -63,9 +60,6 @@ GET     /reindex-publish                com.gu.atom.play.ReindexController.publi
 #static assets
 GET  /assets/*file                      controllers.Assets.versioned(path="/public", file: Asset)
 
-# Auth
-GET  /reauth                            controllers.VideoUIApp.reauth
-
 #video specific react frontend
 GET /                                   controllers.VideoUIApp.index(id = "")
 GET /videos                             controllers.VideoUIApp.index(id = "")
@@ -81,3 +75,9 @@ GET /training/off                       controllers.VideoUIApp.training(inTraini
 #Support
 GET /support/previewCapi/*path          controllers.Support.capiProxy(path: String, queryLive: Boolean ?= false)
 GET /support/liveCapi/*path             controllers.Support.capiProxy(path: String, queryLive: Boolean ?= true)
+
+# Auth
+GET /oauthCallback                      controllers.Login.oauthCallback()
+GET /reauth                             controllers.Login.reauth
+
+GET /healthcheck                        controllers.Healthcheck.healthcheck()
