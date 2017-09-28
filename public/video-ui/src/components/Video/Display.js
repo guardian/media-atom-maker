@@ -213,7 +213,6 @@ class VideoDisplay extends React.Component {
           validateKeywords={this.validateKeywords}
           composerKeywordsToYouTube={this.composerKeywordsToYouTube}
         />
-        <ReactTooltip place="bottom" />
       </div>
     );
   }
