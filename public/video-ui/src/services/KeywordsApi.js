@@ -1,5 +1,4 @@
 import { pandaReqwest } from './pandaReqwest';
-import ContentApi from './capi';
 
 export default {
   composerTagToYouTube: (tagId) => {
