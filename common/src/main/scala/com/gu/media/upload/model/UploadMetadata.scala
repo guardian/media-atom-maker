@@ -20,7 +20,9 @@ case class PlutoSyncMetadata (
   projectId: Option[String],
   s3Key: String,
   assetVersion: Long,
-  atomId: String
+  atomId: String,
+  title: String,
+  user: String
 )
 
 sealed abstract class RuntimeUploadMetadata
