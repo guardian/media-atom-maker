@@ -3,11 +3,11 @@ package controllers
 import java.util.UUID
 
 import _root_.model.commands.CommandExceptions._
-import _root_.model.{ClientAsset, MediaAtom}
+import _root_.model.{ClientAsset, ClientAssetProcessing, MediaAtom}
 import com.amazonaws.services.stepfunctions.model.ExecutionListItem
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
-import com.gu.media.model.{SelfHostedAsset, VideoSource}
+import com.gu.media.model.{SelfHostedAsset, VideoSource, YouTubeAsset}
 import com.gu.media.upload._
 import com.gu.media.upload.model._
 import com.gu.media.youtube.YouTubeVideos
@@ -29,15 +29,14 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   private val credsGenerator = new CredentialsGenerator(awsConfig)
 
-  def list(atomId: String) = APIAuthAction {
+  def list(atomId: String) = APIAuthAction { req =>
     val atom = MediaAtom.fromThrift(getPreviewAtom(atomId))
-    val added = ClientAsset.byVersion(atom.assets, youTube.getProcessingStatus)
+    val added = ClientAsset.fromAssets(atom.assets).map(addYouTubeStatus)
 
     val runningJobs = stepFunctions.getJobs(atomId)
     val running = runningJobs.flatMap(getRunning)
 
-    val assets = running ++ added
-    Ok(Json.toJson(assets))
+    Ok(Json.toJson(running ++ added))
   }
 
   def create = LookupPermissions { implicit raw =>
@@ -48,7 +47,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
         log.info(s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}, selfHosted=${req.selfHost}")
 
         val atom = MediaAtom.fromThrift(getPreviewAtom(req.atomId))
-        val upload = buildUpload(atom, raw.user, req.size, req.selfHost, req.syncWithPluto)
+        val upload = buildUpload(atom, raw.user, req.filename, req.size, req.selfHost, req.syncWithPluto)
 
         stepFunctions.start(upload)
 
@@ -69,7 +68,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     }
   }
 
-  private def buildUpload(atom: MediaAtom, user: User, size: Long, selfHosted: Boolean, syncWithPluto: Boolean) = {
+  private def buildUpload(atom: MediaAtom, user: User, filename: String, size: Long, selfHosted: Boolean, syncWithPluto: Boolean) = {
     val uploadId = UUID.randomUUID().toString
     val id = s"${atom.id}--$uploadId"
 
@@ -92,7 +91,8 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       pluto = plutoData,
       selfHost = selfHosted,
       runtime = getRuntimeMetadata(selfHosted, atom.channelId),
-      asset = getAsset(selfHosted, atom.title, uploadId)
+      asset = getAsset(selfHosted, atom.title, uploadId),
+      originalFilename = Some(filename)
     )
 
     val progress = UploadProgress(
@@ -118,6 +118,15 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
       Some(SelfHostedAsset(List(mp4Source)))
     }
+  }
+
+  private def addYouTubeStatus(video: ClientAsset): ClientAsset = video.asset match {
+    case Some(YouTubeAsset(id)) =>
+      val status = youTube.getProcessingStatus(id).map(ClientAssetProcessing(_))
+      video.copy(processing = status)
+
+    case _ =>
+      video
   }
 
   private def getRuntimeMetadata(selfHosted: Boolean, atomChannel: Option[String]) = atomChannel match {
@@ -146,7 +155,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     val error = stepFunctions.getExecutionFailed(events)
 
     upload.map { case(state, upload) =>
-      ClientAsset(state, upload, error)
+      ClientAsset.fromUpload(state, upload, error)
     }
   }
 }

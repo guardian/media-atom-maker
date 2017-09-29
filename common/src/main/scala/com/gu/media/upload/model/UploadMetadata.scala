@@ -12,7 +12,8 @@ case class UploadMetadata(
   pluto: PlutoSyncMetadata,
   selfHost: Boolean = false,
   runtime: RuntimeUploadMetadata,
-  asset: Option[VideoAsset] = None
+  asset: Option[VideoAsset] = None,
+  originalFilename: Option[String] = None
 )
 
 case class PlutoSyncMetadata (

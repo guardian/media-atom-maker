@@ -6,66 +6,60 @@ import com.gu.media.youtube.YouTubeProcessingStatus
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
 
-case class ClientAsset(id: String, asset: Option[VideoAsset], processing: Option[ClientAssetProcessing])
+case class ClientAsset(id: String, asset: Option[VideoAsset] = None, processing: Option[ClientAssetProcessing] = None, originalFilename: Option[String] = None)
 case class ClientAssetProcessing(status: String, failed: Boolean, current: Option[Long], total: Option[Long])
 
 object ClientAsset {
   implicit val format: Format[ClientAsset] = Jsonx.formatCaseClass[ClientAsset]
 
-  def byVersion(assets: List[Asset], youTube: String => Option[YouTubeProcessingStatus]): List[ClientAsset] = {
+  def fromAssets(assets: List[Asset]): List[ClientAsset] = {
+    // Group assets by version and sort to put the newest assets first
     val versions = assets.map(_.version).distinct.sorted.reverse
+    val grouped = versions.map { v => assets.filter(_.version == v) }
 
-    versions.flatMap { version =>
-      ClientAsset(assets.filter(_.version == version), youTube)
+    grouped.map(videoFromAssets).map { case(version, video) =>
+      ClientAsset(version.toString, asset = Some(video))
     }
   }
 
-  def apply(assets: List[Asset], getProcessingStatus: String => Option[YouTubeProcessingStatus]): Option[ClientAsset] = {
-    assets.headOption.map { asset =>
-      asset.platform match {
-        case Platform.Url => selfHostedAsset(asset.version, assets)
-        case Platform.Youtube => youTubeAsset(asset.version, asset.id, getProcessingStatus)
-        case other => throw new IllegalArgumentException(s"Unsupported platform ${other.name}")
-      }
-    }
-  }
-
-  def apply(state: String, upload: Upload, error: Option[String]): ClientAsset = {
-    if(upload.metadata.selfHost) {
-      selfHostedUpload(upload.id, state, error)
+  def fromUpload(state: String, upload: Upload, error: Option[String]): ClientAsset = {
+    val base = if(upload.metadata.selfHost) {
+      selfHostedUpload(state, upload, error)
     } else {
       youTubeUpload(upload, error)
     }
+
+    base.copy(originalFilename = upload.metadata.originalFilename)
   }
 
-  private def selfHostedAsset(version: Long, assets: List[Asset]): ClientAsset = {
-    val sources = assets.collect {
-      case Asset(_, _, id, _, Some(mimeType)) => VideoSource(id, mimeType)
+  def videoFromAssets(assets: List[Asset]): (Long, VideoAsset) = {
+    assets.headOption match {
+      case Some(Asset(_, version, _, Platform.Url, _)) =>
+        val sources = assets.collect {
+          case Asset(_, _, id, _, Some(mimeType)) => VideoSource(id, mimeType)
+        }
+
+        (version, SelfHostedAsset(sources))
+
+      case Some(Asset(_, version, id, Platform.Youtube, _)) =>
+        (version, YouTubeAsset(id))
+
+      case other =>
+        throw new IllegalArgumentException(s"Unsupported platform ${other.map(_.platform.name)}")
     }
-
-    ClientAsset(version.toString, asset = Some(SelfHostedAsset(sources)), processing = None)
   }
 
-  private def selfHostedUpload(id: String, state: String, error: Option[String]): ClientAsset = {
-    ClientAsset(id, asset = None, processing = Some(ClientAssetProcessing(
-      status = error.getOrElse(state),
-      failed = error.isDefined,
-      current = None,
-      total = None
-    )))
-  }
-
-  private def youTubeAsset(version: Long, id: String, getProcessingStatus: String => Option[YouTubeProcessingStatus]): ClientAsset = {
-    val processing = getProcessingStatus(id)
-      .filterNot(_.status == "succeeded")
-      .map(ClientAssetProcessing(_))
-
-    val asset = processing match {
-      case Some(_) => None
-      case None => Some(YouTubeAsset(id))
-    }
-
-    ClientAsset(id = version.toString, asset, processing)
+  private def selfHostedUpload(state: String, upload: Upload, error: Option[String]): ClientAsset = {
+    ClientAsset(
+      id = upload.id,
+      asset = None,
+      processing = Some(ClientAssetProcessing(
+        status = error.getOrElse(state),
+        failed = error.isDefined,
+        current = None,
+        total = None
+      )
+    ))
   }
 
   private def youTubeUpload(upload: Upload, error: Option[String]): ClientAsset = {
@@ -91,7 +85,7 @@ object ClientAsset {
         )
     }
 
-    ClientAsset(id = upload.id, asset = None, Some(processing))
+    ClientAsset(id = upload.id, asset = None, Some(processing), originalFilename = None)
   }
 }
 
