@@ -47,10 +47,15 @@ class VideoDisplay extends React.Component {
     .then(youTubeKeywords => {
 
       const oldTags = this.props.video.tags;
-      const keywordsToCopy = youTubeKeywords.filter(keyword => {
-        return keyword !== '' &&
-          oldTags.every(oldTag => oldTag !== keyword)
-      });
+      const keywordsToCopy = youTubeKeywords.reduce((tagsAdded, keyword) => {
+        const allAddedTags = oldTags.concat(tagsAdded);
+        if (keyword !== '' &&
+          allAddedTags.every(oldTag => oldTag !== keyword)
+        ) {
+          tagsAdded.push(keyword);
+        }
+        return tagsAdded;
+      }, []);
       const newVideo = Object.assign({}, this.props.video, { tags: oldTags.concat(keywordsToCopy)});
 
       this.updateVideo(newVideo);
