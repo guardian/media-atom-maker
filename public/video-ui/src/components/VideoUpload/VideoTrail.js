@@ -52,13 +52,7 @@ export default class VideoTrail extends React.Component {
 
     const blocks = assets.map(upload => {
       const active = upload.id == this.props.activeVersion;
-      const props = buildAssetProps(
-        upload.id,
-        upload.asset,
-        upload.processing,
-        active,
-        this.props.selectAsset
-      );
+      const props = buildAssetProps(upload, active, this.props.selectAsset);
 
       return <Asset key={upload.id} {...props} />;
     });

@@ -70,7 +70,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   private def buildUpload(atom: MediaAtom, user: User, filename: String, size: Long, selfHosted: Boolean, syncWithPluto: Boolean) = {
     val uploadId = UUID.randomUUID().toString
-    val id = s"${atom.id}--${atom.assets.size}"
+    val id = s"${atom.id}--${atom.assets.size + 1}"
 
     val plutoData = PlutoSyncMetadata(
       enabled = syncWithPluto,

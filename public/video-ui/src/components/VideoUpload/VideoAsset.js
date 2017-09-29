@@ -35,15 +35,18 @@ function Overlay({ active }) {
   );
 }
 
-export function Asset({ content, title, href, active, activateFn }) {
-  const button = activateFn
-    ? <button className="button__secondary button__active" onClick={activateFn}>
+export function Asset(props) {
+  const button = props.activateFn
+    ? <button
+        className="button__secondary button__active"
+        onClick={props.activateFn}
+      >
         Activate
       </button>
     : false;
 
-  const link = href
-    ? <a href={href} target="_blank" rel="noopener noreferrer">
+  const link = props.href
+    ? <a href={props.href} target="_blank" rel="noopener noreferrer">
         <Icon icon="open_in_new" className="icon__assets" />
       </a>
     : false;
@@ -51,12 +54,12 @@ export function Asset({ content, title, href, active, activateFn }) {
   return (
     <div className="grid__item">
       <div className="upload__asset__video">
-        {content}
+        {props.content}
       </div>
-      <Overlay active={active} />
+      <Overlay active={props.active} />
       <div className="grid__item__footer">
         <div className="grid__item__title">
-          {title}
+          {props.title}<br />{props.description}
           {link}
           {button}
         </div>
@@ -65,17 +68,43 @@ export function Asset({ content, title, href, active, activateFn }) {
   );
 }
 
-export function buildAssetProps(id, asset, processing, active, selectAsset) {
+function buildTitle(id, asset, processing, metadata) {
+  if (processing) {
+    return `ID: ${asset.id}`;
+  }
+
+  if (metadata) {
+    const startDate = new Date(metadata.startTimestamp);
+
+    return (
+      <div>
+        {metadata.originalFilename}<br />
+        {`${startDate.getDay()}/${startDate.getMonth()}/${startDate.getFullYear()} ${startDate.getHours()}:${startDate.getMinutes()}:${startDate.getSeconds()}`}
+      </div>
+    );
+  }
+
+  if (asset.id) {
+    return `ID: ${asset.id}`;
+  }
+
+  return `Version ${id}`;
+}
+
+export function buildAssetProps(upload, active, selectAsset) {
+  const { id, asset, metadata, processing } = upload;
+  const title = buildTitle(id, asset, processing, metadata);
+
   if (processing) {
     return {
-      title: processing.status,
+      title,
       content: processing.failed
         ? UPLOAD_FAILED_MSG
         : <ProgressBar {...processing} />
     };
   } else if (asset.id) {
     return {
-      title: `ID: ${asset.id}`,
+      title,
       active,
       href: `https://www.youtube.com/watch?v=${asset.id}`,
       content: <YouTubeEmbed id={asset.id} />,
@@ -83,7 +112,7 @@ export function buildAssetProps(id, asset, processing, active, selectAsset) {
     };
   } else {
     return {
-      title: `Version ${id}`,
+      title,
       active,
       content: <VideoEmbed sources={asset.sources} />,
       activateFn: active ? null : () => selectAsset(Number(id))
