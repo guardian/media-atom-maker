@@ -137,7 +137,8 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
         video.copy(metadata = Some(
           ClientAssetMetadata(
             upload.metadata.originalFilename,
-            startTimestamp
+            startTimestamp,
+            upload.metadata.user
           )
         ))
 

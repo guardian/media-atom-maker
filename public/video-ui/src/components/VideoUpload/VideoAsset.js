@@ -74,12 +74,18 @@ function buildTitle(id, asset, processing, metadata) {
   }
 
   if (metadata) {
-    const startDate = new Date(metadata.startTimestamp);
+    const { originalFilename, startTimestamp, user } = metadata;
+    const startDate = new Date(startTimestamp);
 
     return (
       <div>
-        {metadata.originalFilename}<br />
-        {`${startDate.getDay()}/${startDate.getMonth()}/${startDate.getFullYear()} ${startDate.getHours()}:${startDate.getMinutes()}:${startDate.getSeconds()}`}
+        <em>
+          {`${startDate.getDay()}/${startDate.getMonth()}/${startDate.getFullYear()} ${startDate.getHours()}:${startDate.getMinutes()}:${startDate.getSeconds()}`}
+        </em>
+        <br />
+        <small>{user}</small>
+        <br />
+        {originalFilename}
       </div>
     );
   }
