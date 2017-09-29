@@ -6,8 +6,9 @@ import com.gu.media.youtube.YouTubeProcessingStatus
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
 
-case class ClientAsset(id: String, asset: Option[VideoAsset] = None, processing: Option[ClientAssetProcessing] = None, originalFilename: Option[String] = None)
+case class ClientAsset(id: String, asset: Option[VideoAsset] = None, processing: Option[ClientAssetProcessing] = None, metadata: Option[ClientAssetMetadata] = None)
 case class ClientAssetProcessing(status: String, failed: Boolean, current: Option[Long], total: Option[Long])
+case class ClientAssetMetadata(originalFilename: Option[String], startTimestamp: Long)
 
 object ClientAsset {
   implicit val format: Format[ClientAsset] = Jsonx.formatCaseClass[ClientAsset]
@@ -22,14 +23,17 @@ object ClientAsset {
     }
   }
 
-  def fromUpload(state: String, upload: Upload, error: Option[String]): ClientAsset = {
+  def fromUpload(state: String, startTimestamp: Long, upload: Upload, error: Option[String]): ClientAsset = {
     val base = if(upload.metadata.selfHost) {
       selfHostedUpload(state, upload, error)
     } else {
       youTubeUpload(upload, error)
     }
 
-    base.copy(originalFilename = upload.metadata.originalFilename)
+    base.copy(metadata = Some(ClientAssetMetadata(
+      originalFilename = upload.metadata.originalFilename,
+      startTimestamp = startTimestamp
+    )))
   }
 
   def videoFromAssets(assets: List[Asset]): (Long, VideoAsset) = {
@@ -85,7 +89,7 @@ object ClientAsset {
         )
     }
 
-    ClientAsset(id = upload.id, asset = None, Some(processing), originalFilename = None)
+    ClientAsset(id = upload.id, asset = None, Some(processing), metadata = None)
   }
 }
 
@@ -111,4 +115,8 @@ object ClientAssetProcessing {
     case _ =>
       status.failure.getOrElse(status.status)
   }
+}
+
+object ClientAssetMetadata {
+  implicit val format: Format[ClientAssetMetadata] = Jsonx.formatCaseClass[ClientAssetMetadata]
 }

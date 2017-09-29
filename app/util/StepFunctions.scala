@@ -10,15 +10,16 @@ import play.api.libs.json.{JsResultException, JsSuccess, Json}
 import scala.collection.JavaConverters._
 
 class StepFunctions(awsConfig: AWSConfig) {
-  def getById(id: String): Option[Upload] = {
+  def getById(id: String): Option[(Long, Upload)] = {
     val arn = s"${awsConfig.pipelineArn.replace(":stateMachine:", ":execution:")}:$id"
 
     try {
       val request = new DescribeExecutionRequest().withExecutionArn(arn)
       val result = awsConfig.stepFunctionsClient.describeExecution(request)
+
       val json = Json.parse(result.getInput)
 
-      Some(json.as[Upload])
+      Some(result.getStartDate.getTime, json.as[Upload])
     } catch {
       case _: ExecutionDoesNotExistException =>
         None

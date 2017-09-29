@@ -3,13 +3,13 @@ package controllers
 import java.util.UUID
 
 import _root_.model.commands.CommandExceptions._
-import _root_.model.{ClientAsset, ClientAssetProcessing, MediaAtom}
+import _root_.model.{ClientAsset, ClientAssetProcessing, MediaAtom, ClientAssetMetadata}
 import com.amazonaws.services.stepfunctions.model.ExecutionListItem
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
 import com.gu.media.model.{SelfHostedAsset, VideoSource, YouTubeAsset}
 import com.gu.media.upload._
-import com.gu.media.upload.model._
+import model._
 import com.gu.media.youtube.YouTubeVideos
 import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.model.User
@@ -31,7 +31,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   def list(atomId: String) = APIAuthAction { req =>
     val atom = MediaAtom.fromThrift(getPreviewAtom(atomId))
-    val added = ClientAsset.fromAssets(atom.assets).map(addYouTubeStatus).map(addOriginalFilename(atom.id, _))
+    val added = ClientAsset.fromAssets(atom.assets).map(addYouTubeStatus).map(addMetadata(atom.id, _))
 
     val runningJobs = stepFunctions.getJobs(atomId)
     val running = runningJobs.flatMap(getRunning)
@@ -129,12 +129,17 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       video
   }
 
-  private def addOriginalFilename(atomId: String, video: ClientAsset): ClientAsset = {
+  private def addMetadata(atomId: String, video: ClientAsset): ClientAsset = {
     val id = s"$atomId--${video.id}"
 
     stepFunctions.getById(id) match {
-      case Some(upload) =>
-        video.copy(originalFilename = upload.metadata.originalFilename)
+      case Some((startTimestamp, upload)) =>
+        video.copy(metadata = Some(
+          ClientAssetMetadata(
+            upload.metadata.originalFilename,
+            startTimestamp
+          )
+        ))
 
       case None =>
         video
@@ -156,18 +161,19 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
   }
 
   private def getPart(id: String, key: String): Option[UploadPart] = for {
-    upload <- stepFunctions.getById(id)
+    (_, upload) <- stepFunctions.getById(id)
     part <- upload.parts.find(_.key == key)
   } yield part
 
   private def getRunning(job: ExecutionListItem): Option[ClientAsset] = {
     val events = stepFunctions.getEventsInReverseOrder(job)
+    val startTimestamp = job.getStartDate.getTime
 
     val upload = stepFunctions.getTaskEntered(events)
     val error = stepFunctions.getExecutionFailed(events)
 
     upload.map { case(state, upload) =>
-      ClientAsset.fromUpload(state, upload, error)
+      ClientAsset.fromUpload(state, startTimestamp, upload, error)
     }
   }
 }
