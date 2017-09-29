@@ -31,7 +31,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   def list(atomId: String) = APIAuthAction { req =>
     val atom = MediaAtom.fromThrift(getPreviewAtom(atomId))
-    val added = ClientAsset.fromAssets(atom.assets).map(addYouTubeStatus)
+    val added = ClientAsset.fromAssets(atom.assets).map(addYouTubeStatus).map(addOriginalFilename(atom.id, _))
 
     val runningJobs = stepFunctions.getJobs(atomId)
     val running = runningJobs.flatMap(getRunning)
@@ -70,7 +70,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   private def buildUpload(atom: MediaAtom, user: User, filename: String, size: Long, selfHosted: Boolean, syncWithPluto: Boolean) = {
     val uploadId = UUID.randomUUID().toString
-    val id = s"${atom.id}--$uploadId"
+    val id = s"${atom.id}--${atom.assets.size}"
 
     val plutoData = PlutoSyncMetadata(
       enabled = syncWithPluto,
@@ -127,6 +127,18 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
     case _ =>
       video
+  }
+
+  private def addOriginalFilename(atomId: String, video: ClientAsset): ClientAsset = {
+    val id = s"$atomId--${video.id}"
+
+    stepFunctions.getById(id) match {
+      case Some(upload) =>
+        video.copy(originalFilename = upload.metadata.originalFilename)
+
+      case None =>
+        video
+    }
   }
 
   private def getRuntimeMetadata(selfHosted: Boolean, atomChannel: Option[String]) = atomChannel match {
