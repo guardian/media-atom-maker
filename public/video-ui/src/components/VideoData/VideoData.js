@@ -124,6 +124,7 @@ class VideoData extends React.Component {
               isDesired={true}
               inputPlaceholder="Search keywords (type '*' to show all)"
               customValidation={this.props.validateKeywords}
+              updateSideEffects={this.props.composerKeywordsToYouTube}
             >
               <TagPicker disableTextInput />
             </ManagedField>

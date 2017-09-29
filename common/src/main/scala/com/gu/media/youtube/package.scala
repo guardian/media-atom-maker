@@ -12,6 +12,44 @@ import org.joda.time.DateTime
 import com.gu.media.util.JsonDate._
 
 package object youtube {
+
+  def contentBundlingMap: Map[String, String] = Map (
+    "uk" -> "gdnpfpnewsuk",
+    "us" -> "gdnpfpnewsus",
+    "au" -> "gdnpfpnewsau",
+    "world" -> "gdnpfpnewsworld",
+    "politics" -> "gdnpfpnewspolitics",
+    "opinion" -> "gdnpfpnewsopinion",
+    "football" -> "gdnpfpsportfootball",
+    "cricket" -> "gdnpfpsportcricket",
+    "rugby-union" -> "gdnpfpsportrugbyunion",
+    "rugby-league" -> "gdnpfpsportrugbyleague",
+    "f1" -> "gdnpfpsportf1",
+    "tennis" -> "gdnpfpsporttennis",
+    "golf" -> "gdnpfpsportgolf",
+    "cycling" -> "gdnpfpsportcycling",
+    "boxing" -> "gdnpfpsportboxing",
+    "racing" -> "gdnpfpsportracing",
+    "us-sport" -> "gdnpfpsportus",
+    "sport" -> "gdnpfpsportother",
+    "culture" -> "gdnpfpculture",
+    "film" -> "gdnpfpculturefilm",
+    "music" -> "gdnpfpculturemusic",
+    "lifestyle" -> "gdnpfplifestyle",
+    "food" -> "gdnpfplifestylefood",
+    "health-and-wellbeing" -> "gdnpfplifestylehealthfitness",
+    "business" -> "gdnpfpbusiness",
+    "money" -> "gdnpfpmoney",
+    "fashion" -> "gdnpfpfashion",
+    "environment" -> "gdnpfpenvironment",
+    "technology" -> "gdnpfptechnology",
+    "travel" -> "gdnpfptravel",
+    "science" -> "gdnpfpscience",
+    "athletics" -> "gdnpfpsportother",
+    "basketball" -> "gdnpfpsportus",
+    "sport-2-0" -> "gdnpfpsport20"
+  )
+
   case class YouTubeVideoCategory(id: Int, title: String)
 
   object YouTubeVideoCategory {
@@ -126,43 +164,6 @@ package object youtube {
     }
 
     private def getContentBundlingTags(): List[String] = {
-      val contentBundlingMap: Map[String, String] = Map (
-        "uk" -> "gdnpfpnewsuk",
-        "us" -> "gdnpfpnewsus",
-        "au" -> "gdnpfpnewsau",
-        "world" -> "gdnpfpnewsworld",
-        "politics" -> "gdnpfpnewspolitics",
-        "opinion" -> "gdnpfpnewsopinion",
-        "football" -> "gdnpfpsportfootball",
-        "cricket" -> "gdnpfpsportcricket",
-        "rugby union" -> "gdnpfpsportrugbyunion",
-        "rugby league" -> "gdnpfpsportrugbyleague",
-        "f1" -> "gdnpfpsportf1",
-        "tennis" -> "gdnpfpsporttennis",
-        "golf" -> "gdnpfpsportgolf",
-        "cycling" -> "gdnpfpsportcycling",
-        "boxing" -> "gdnpfpsportboxing",
-        "racing" -> "gdnpfpsportracing",
-        "us sports" -> "gdnpfpsportus",
-        "other sport" -> "gdnpfpsportother",
-        "other sports" -> "gdnpfpsportother",
-        "culture" -> "gdnpfpculture",
-        "film" -> "gdnpfpculturefilm",
-        "music" -> "gdnpfpculturemusic",
-        "lifestyle" -> "gdnpfplifestyle",
-        "food" -> "gdnpfplifestylefood",
-        "health & fitness" -> "gdnpfplifestylehealthfitness",
-        "business" -> "gdnpfpbusiness",
-        "money" -> "gdnpfpmoney",
-        "fashion" -> "gdnpfpfashion",
-        "environment" -> "gdnpfpenvironment",
-        "technology" -> "gdnpfptechnology",
-        "travel" -> "gdnpfptravel",
-        "science" -> "gdnpfpscience",
-        "athletics" -> "gdnpfpsportother",
-        "basketball" -> "gdnpfpsportus",
-        "sport 2.0" -> "gdnpfpsport20"
-      )
 
       this.tags.flatMap { tag =>
         contentBundlingMap.get(tag.toLowerCase()) match {

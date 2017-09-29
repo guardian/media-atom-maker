@@ -13,6 +13,7 @@ import DragSortableList from 'react-drag-sortable';
 import removeTagDuplicates from '../../util/removeTagDuplicates';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 import {requiredForComposerWarning} from '../../constants/requiredForComposerWarning';
+import ReactTooltip from 'react-tooltip';
 
 export default class TagPicker extends React.Component {
 
@@ -27,6 +28,7 @@ export default class TagPicker extends React.Component {
   };
 
   componentDidMount() {
+    ReactTooltip.rebuild();
     if (this.props.fieldValue !== this.props.placeholder) {
       tagsFromStringList(this.props.fieldValue, this.props.tagType)
         .then(result => {
@@ -41,6 +43,19 @@ export default class TagPicker extends React.Component {
             capiUnavailable: true
           });
         });
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.tagType === TagTypes.youtube) {
+      if (this.props.fieldValue.length !== nextProps.fieldValue.length) {
+        tagsFromStringList(nextProps.fieldValue, this.props.tagType)
+        .then(result => {
+          this.setState({
+            tagValue: result
+          });
+        })
+      }
     }
   }
 
@@ -303,6 +318,22 @@ export default class TagPicker extends React.Component {
     }
   }
 
+  renderCopyButton() {
+    if (this.props.updateSideEffects) {
+      return (
+        <button
+          type="button"
+          className="btn form__label__button"
+          onClick={this.props.updateSideEffects}
+          data-tip="Copy composer keywords to youtube keywords"
+          data-place="top"
+        >
+          <i className="icon">edit</i>
+        </button>
+      );
+    }
+  }
+
   render() {
 
     const hasWarning = this.props.hasWarning(this.props) && this.state.capiTags.length === 0;
@@ -338,6 +369,7 @@ export default class TagPicker extends React.Component {
         <div className="form__label__layout">
           <label className="form__label">{this.props.fieldName}</label>
           {this.renderBylineInstructions()}
+          {this.renderCopyButton()}
         </div>
 
         <CapiUnavailable capiUnavailable={this.state.capiUnavailable} />

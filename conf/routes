@@ -47,6 +47,7 @@ GET     /api2/audits/:id                controllers.Api2.getAuditTrailForAtomId(
 GET     /api/youtube/categories         controllers.Youtube.listCategories()
 GET     /api/youtube/channels           controllers.Youtube.listChannels()
 GET     /api/youtube/video-info/:id     controllers.Youtube.commercialVideoInfo(id)
+GET     /api2/youtube/content-bundle/:id controllers.YoutubeTagController.getById(id)
 
 GET     /api/transcoder/jobStatus       controllers.Transcoder.jobStatus
 

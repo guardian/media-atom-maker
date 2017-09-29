@@ -12,6 +12,7 @@ import FieldNotification from '../../constants/FieldNotification';
 import ReactTooltip from 'react-tooltip';
 import { getStore } from '../../util/storeAccessor';
 import { blankVideoData } from '../../constants/blankVideoData';
+import  KeywordsApi from '../../services/KeywordsApi';
 
 class VideoDisplay extends React.Component {
   componentWillMount() {
@@ -38,6 +39,27 @@ class VideoDisplay extends React.Component {
 
   updateVideo = video => {
     this.props.videoActions.updateVideo(video);
+  };
+
+  composerKeywordsToYouTube = () => {
+
+    return Promise.all(this.props.video.keywords.map(keyword => KeywordsApi.composerTagToYouTube(keyword)))
+    .then(youTubeKeywords => {
+
+      const oldTags = this.props.video.tags;
+      const keywordsToCopy = youTubeKeywords.reduce((tagsAdded, keyword) => {
+        const allAddedTags = oldTags.concat(tagsAdded);
+        if (keyword !== '' &&
+          allAddedTags.every(oldTag => oldTag !== keyword)
+        ) {
+          tagsAdded.push(keyword);
+        }
+        return tagsAdded;
+      }, []);
+      const newVideo = Object.assign({}, this.props.video, { tags: oldTags.concat(keywordsToCopy)});
+
+      this.updateVideo(newVideo);
+    });
   };
 
   selectVideo = () => {
@@ -194,6 +216,7 @@ class VideoDisplay extends React.Component {
           updateErrors={this.props.formErrorActions.updateFormErrors}
           updateWarnings={this.props.formErrorActions.updateFormWarnings}
           validateKeywords={this.validateKeywords}
+          composerKeywordsToYouTube={this.composerKeywordsToYouTube}
         />
       </div>
     );
