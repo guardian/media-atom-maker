@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 import Icon from '../Icon';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 import { VideoEmbed } from '../utils/VideoEmbed';
@@ -74,18 +75,16 @@ function buildTitle(id, asset, processing, metadata) {
   }
 
   if (metadata) {
-    const { originalFilename, startTimestamp, user } = metadata;
-    const startDate = new Date(startTimestamp);
+    const { startTimestamp, user } = metadata;
+    const startDate = moment(startTimestamp);
 
     return (
       <div>
-        <em>
-          {`${startDate.getDay()}/${startDate.getMonth()}/${startDate.getFullYear()} ${startDate.getHours()}:${startDate.getMinutes()}:${startDate.getSeconds()}`}
-        </em>
+        <strong>
+          {startDate.format('DD/MM/YY HH:mm:ss')}
+        </strong>
         <br />
         <small>{user}</small>
-        <br />
-        {originalFilename}
       </div>
     );
   }
