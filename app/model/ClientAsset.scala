@@ -83,10 +83,10 @@ object ClientAsset {
         val total = upload.parts.length
 
         ClientAssetProcessing(
-          status = if(fullyUploaded) { "Uploading" } else { "Uploading to YouTube" },
+          status = "Uploading to YouTube",
           failed = false,
-          current = if(fullyUploaded) { None } else { Some(current) },
-          total = if(fullyUploaded) { None } else { Some(total) }
+          current = Some(current),
+          total = Some(total)
         )
     }
 

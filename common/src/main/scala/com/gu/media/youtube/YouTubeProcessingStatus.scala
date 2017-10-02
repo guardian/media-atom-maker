@@ -9,25 +9,26 @@ case class YouTubeProcessingStatus(id: String, status: String, total: Long, proc
                                    timeLeftMs: Long, failure: Option[String])
 
 object YouTubeProcessingStatus {
-  implicit val format: Format[YouTubeProcessingStatus] = Jsonx.formatCaseClass[YouTubeProcessingStatus]
-
-  def apply(video: Video): YouTubeProcessingStatus = {
+  def apply(video: Video): Option[YouTubeProcessingStatus] = {
     val base = YouTubeProcessingStatus(video.getId, status = "", total = 0, processed = 0, timeLeftMs = 0, failure = None)
 
     val summary = video.getStatus
 
     summary.getUploadStatus match {
-      case "uploaded" => parseProcessingStatus(base, video.getProcessingDetails)
-      case "failed" => base.copy(status = "failed", failure = Option(summary.getFailureReason).map(humanizeFailureReason))
+      case "uploaded" =>
+        Some(parseProcessingStatus(base, video.getProcessingDetails))
+
+      case "failed" =>
+        Some(base.copy(status = "failed", failure = Option(summary.getFailureReason).map(humanizeFailureReason)))
 
       case "rejected" =>
-        base.copy(status = "failed", failure = Option(summary.getRejectionReason).map(humanizeRejectionReason))
+        Some(base.copy(status = "failed", failure = Option(summary.getRejectionReason).map(humanizeRejectionReason)))
 
       case "processed" =>
-        base.copy(status = "succeeded")
+        None
 
       case other =>
-        base.copy(status = other)
+        Some(base.copy(status = other))
     }
   }
 

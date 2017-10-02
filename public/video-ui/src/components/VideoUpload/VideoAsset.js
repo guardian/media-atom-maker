@@ -72,8 +72,10 @@ export function Asset(props) {
 }
 
 function buildTitle(id, asset, processing, metadata) {
-  if (metadata) {
-    const { startTimestamp, user } = metadata;
+  if (processing && !processing.failed) {
+    return processing.status;
+  } else if (metadata) {
+    const { startTimestamp, user, originalFilename } = metadata;
     const startDate = moment(startTimestamp);
 
     return (
