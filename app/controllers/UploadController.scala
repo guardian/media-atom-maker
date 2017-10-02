@@ -80,7 +80,8 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       assetVersion = -1,
       atomId = atom.id,
       title = atom.title,
-      user = user.email
+      user = user.email,
+      posterImageUrl = atom.posterImage.flatMap(_.master).map(_.file)
     )
 
     val metadata = UploadMetadata(

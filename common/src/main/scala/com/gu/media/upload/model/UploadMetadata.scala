@@ -22,7 +22,8 @@ case class PlutoSyncMetadata (
   assetVersion: Long,
   atomId: String,
   title: String,
-  user: String
+  user: String,
+  posterImageUrl: Option[String]
 )
 
 sealed abstract class RuntimeUploadMetadata
