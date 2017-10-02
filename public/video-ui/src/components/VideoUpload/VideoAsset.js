@@ -71,10 +71,8 @@ export function Asset(props) {
 
 function buildTitle(id, asset, processing, metadata) {
   if (processing) {
-    return `ID: ${asset.id}`;
-  }
-
-  if (metadata) {
+    return processing.status;
+  } else if (metadata) {
     const { startTimestamp, user } = metadata;
     const startDate = moment(startTimestamp);
 
@@ -87,13 +85,11 @@ function buildTitle(id, asset, processing, metadata) {
         <small>{user}</small>
       </div>
     );
-  }
-
-  if (asset.id) {
+  } else if (asset) {
     return `ID: ${asset.id}`;
+  } else {
+    return `Version ${id}`;
   }
-
-  return `Version ${id}`;
 }
 
 export function buildAssetProps(upload, active, selectAsset) {

@@ -5,7 +5,7 @@ import java.time.Instant
 import com.amazonaws.services.stepfunctions.model._
 import com.fasterxml.jackson.core.JsonParseException
 import com.gu.media.upload.model._
-import play.api.libs.json.{JsResultException, JsSuccess, Json}
+import play.api.libs.json.{JsResultException, Json}
 
 import scala.collection.JavaConverters._
 
@@ -50,7 +50,7 @@ class StepFunctions(awsConfig: AWSConfig) {
         Some((Json.parse(cause) \ "errorMessage").as[String])
       } catch {
         case _: JsonParseException | _: JsResultException =>
-          None
+          Some(cause)
       }
     }
   }

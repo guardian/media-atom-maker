@@ -1,23 +1,21 @@
 package controllers
 
-import java.util.UUID
-
-import _root_.model.commands.CommandExceptions._
-import _root_.model.{ClientAsset, ClientAssetProcessing, MediaAtom, ClientAssetMetadata}
-import com.amazonaws.services.stepfunctions.model.ExecutionListItem
+import _root_.model.{ClientAsset, ClientAssetMetadata, ClientAssetProcessing, MediaAtom}
+import com.amazonaws.services.stepfunctions.model.{ExecutionAlreadyExistsException, ExecutionListItem}
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
-import com.gu.media.model.{SelfHostedAsset, VideoSource, YouTubeAsset}
+import com.gu.media.model.YouTubeAsset
 import com.gu.media.upload._
-import model._
+import com.gu.media.upload.model._
 import com.gu.media.youtube.YouTubeVideos
 import com.gu.pandahmac.HMACAuthActions
-import com.gu.pandomainauth.model.User
-import controllers.UploadController.CreateRequest
 import data.{DataStores, UnpackedDataStores}
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.{Format, Json}
-import util.{AWSConfig, CredentialsGenerator, StepFunctions}
+import util.{AWSConfig, CredentialsGenerator, StepFunctions, UploadBuilder}
+
+import scala.annotation.tailrec
+import scala.util.control.NonFatal
 
 class UploadController(override val authActions: HMACAuthActions, awsConfig: AWSConfig, stepFunctions: StepFunctions,
                        override val stores: DataStores, override val permissions: MediaAtomMakerPermissionsProvider,
@@ -40,16 +38,16 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
   }
 
   def create = LookupPermissions { implicit raw =>
-    parse(raw) { req: CreateRequest =>
+    parse(raw) { req: UploadRequest =>
       if(req.selfHost && !raw.permissions.addSelfHostedAsset) {
         Unauthorized(s"User ${raw.user.email} is not authorised with permissions to upload self-hosted asset")
       } else {
         log.info(s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}, selfHosted=${req.selfHost}")
 
         val atom = MediaAtom.fromThrift(getPreviewAtom(req.atomId))
-        val upload = buildUpload(atom, raw.user, req.filename, req.size, req.selfHost, req.syncWithPluto)
+        val version = if(atom.assets.isEmpty) { 1 } else { atom.assets.map(_.version).max + 1 }
 
-        stepFunctions.start(upload)
+        val upload = start(atom, raw.user.email, req, version)
 
         log.info(s"Upload created under atom ${req.atomId}. upload=${upload.id}. parts=${upload.parts.size}, selfHosted=${upload.metadata.selfHost}")
         Ok(Json.toJson(upload))
@@ -68,56 +66,15 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     }
   }
 
-  private def buildUpload(atom: MediaAtom, user: User, filename: String, size: Long, selfHosted: Boolean, syncWithPluto: Boolean) = {
-    val uploadId = UUID.randomUUID().toString
-    val id = s"${atom.id}--${atom.assets.size + 1}"
+  @tailrec
+  private def start(atom: MediaAtom, email: String, req: UploadRequest, version: Long): Upload = try {
+    val upload = UploadBuilder.build(atom, email, version, req, awsConfig)
+    stepFunctions.start(upload)
 
-    val plutoData = PlutoSyncMetadata(
-      enabled = syncWithPluto,
-      projectId = atom.plutoData.flatMap(_.projectId),
-      s3Key = CompleteUploadKey(awsConfig.userUploadFolder, id).toString,
-      assetVersion = -1,
-      atomId = atom.id,
-      title = atom.title,
-      user = user.email,
-      posterImageUrl = atom.posterImage.flatMap(_.master).map(_.file)
-    )
-
-    val metadata = UploadMetadata(
-      user = user.email,
-      bucket = awsConfig.userUploadBucket,
-      region = awsConfig.region.getName,
-      title = atom.title,
-      pluto = plutoData,
-      selfHost = selfHosted,
-      runtime = getRuntimeMetadata(selfHosted, atom.channelId),
-      asset = getAsset(selfHosted, atom.title, uploadId),
-      originalFilename = Some(filename)
-    )
-
-    val progress = UploadProgress(
-      chunksInS3 = 0,
-      chunksInYouTube = 0,
-      fullyUploaded = false,
-      fullyTranscoded = false,
-      retries = 0
-    )
-
-    val parts = chunk(id, size)
-
-    Upload(id, parts, metadata, progress)
-  }
-
-  private def getAsset(selfHosted: Boolean, title: String, uploadId: String): Option[SelfHostedAsset] = {
-    if(!selfHosted) {
-      // YouTube assets are added after they have been uploaded (once we know the ID)
-      None
-    } else {
-      val mp4Key = TranscoderOutputKey(title, uploadId, "mp4").toString
-      val mp4Source = VideoSource(mp4Key, "video/mp4")
-
-      Some(SelfHostedAsset(List(mp4Source)))
-    }
+    upload
+  } catch {
+    case _: ExecutionAlreadyExistsException =>
+      start(atom, email, req, version + 1)
   }
 
   private def addYouTubeStatus(video: ClientAsset): ClientAsset = video.asset match {
@@ -147,20 +104,6 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     }
   }
 
-  private def getRuntimeMetadata(selfHosted: Boolean, atomChannel: Option[String]) = atomChannel match {
-    case _ if selfHosted => SelfHostedUploadMetadata(List.empty)
-    case Some(channel) => YouTubeUploadMetadata(channel, uri = None)
-    case None => AtomMissingYouTubeChannel
-  }
-
-  private def chunk(uploadId: String, size: Long): List[UploadPart] = {
-    val boundaries = Upload.calculateChunks(size)
-
-    boundaries.zipWithIndex.map { case ((start, end), id) =>
-      UploadPart(UploadPartKey(awsConfig.userUploadFolder, uploadId, id).toString, start, end)
-    }
-  }
-
   private def getPart(id: String, key: String): Option[UploadPart] = for {
     (_, upload) <- stepFunctions.getById(id)
     part <- upload.parts.find(_.key == key)
@@ -180,9 +123,6 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 }
 
 object UploadController {
-  case class CreateRequest(atomId: String, filename: String, size: Long, selfHost: Boolean, syncWithPluto: Boolean)
   case class CreateResponse(id: String, region: String, bucket: String, parts: List[UploadPart])
-
-  implicit val createRequestFormat: Format[CreateRequest] = Jsonx.formatCaseClass[CreateRequest]
   implicit val createResponseFormat: Format[CreateResponse] = Jsonx.formatCaseClass[CreateResponse]
 }

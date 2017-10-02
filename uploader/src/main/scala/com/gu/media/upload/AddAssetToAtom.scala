@@ -5,6 +5,7 @@ import java.util.Date
 
 import com.gu.atom.data.PreviewDynamoDataStore
 import com.gu.atom.publish.PreviewKinesisAtomPublisher
+import com.gu.contentatom.thrift.atom.media.MediaAtom
 import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
 import com.gu.media.AuditDataStore
 import com.gu.media.aws.{DynamoAccess, KinesisAccess, UploadAccess}
@@ -26,14 +27,26 @@ class AddAssetToAtom extends LambdaWithParams[Upload, Upload] with DynamoAccess 
   override def handle(upload: Upload): Upload = {
     val atomId = upload.metadata.pluto.atomId
     val asset = getAsset(upload)
-
     val before = getAtom(atomId)
-    val after = updateAtom(before)(addAsset(_, asset))
+
+    val after = updateAtom(before) { mediaAtom =>
+      addAsset(mediaAtom, asset, getVersion(mediaAtom, upload))
+    }
 
     saveAtom(after)
     audit.auditUpdate(atomId, "media-atom-pipeline", s"Added YouTube video $asset")
 
     upload
+  }
+
+  private def getVersion(atom: MediaAtom, upload: Upload): Long = {
+    upload.metadata.version.getOrElse {
+      if (atom.assets.isEmpty) {
+        1
+      } else {
+        atom.assets.map(_.version).max + 1
+      }
+    }
   }
 
   private def getAtom(id: String): Atom = {
