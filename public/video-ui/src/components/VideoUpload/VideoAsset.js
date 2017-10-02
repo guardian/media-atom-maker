@@ -4,13 +4,15 @@ import Icon from '../Icon';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 import { VideoEmbed } from '../utils/VideoEmbed';
 
-const UPLOAD_FAILED_MSG = (
-  <p>
-    <strong>Upload Failed</strong><br />
-    You may retry your upload.<br />
-    This message will disappear after 10 minutes.
-  </p>
-);
+function UploadFailed({ msg }) {
+  return (
+    <p>
+      <strong>Upload Failed</strong>
+      <br />
+      {msg}
+    </p>
+  );
+}
 
 function ProgressBar({ current, total }) {
   return total !== undefined && current !== undefined
@@ -70,9 +72,7 @@ export function Asset(props) {
 }
 
 function buildTitle(id, asset, processing, metadata) {
-  if (processing) {
-    return processing.status;
-  } else if (metadata) {
+  if (metadata) {
     const { startTimestamp, user } = metadata;
     const startDate = moment(startTimestamp);
 
@@ -100,7 +100,7 @@ export function buildAssetProps(upload, active, selectAsset) {
     return {
       title,
       content: processing.failed
-        ? UPLOAD_FAILED_MSG
+        ? <UploadFailed msg={processing.status} />
         : <ProgressBar {...processing} />
     };
   } else if (asset.id) {

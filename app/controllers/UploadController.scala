@@ -87,7 +87,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
   }
 
   private def addMetadata(atomId: String, video: ClientAsset): ClientAsset = {
-    val id = s"$atomId--${video.id}"
+    val id = s"$atomId-${video.id}"
 
     stepFunctions.getById(id) match {
       case Some((startTimestamp, upload)) =>
