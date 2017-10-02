@@ -13,11 +13,14 @@ export default class WorkflowApi {
   }
 
   static getSections() {
-    return pandaReqwest({
+    // timeout in case the user is not logged into Workflow
+    const params = {
       url: `${WorkflowApi.workflowUrl}/api/sections`,
       crossOrigin: true,
       withCredentials: true
-    }).then(response => {
+    };
+
+    return pandaReqwest(params, 500).then(response => {
       return response.data
         .map(section => Object.assign({}, section, { title: section.name }))
         .sort((a, b) => {
@@ -36,7 +39,12 @@ export default class WorkflowApi {
     }).then(response => response.data);
   }
 
-  static _getTrackInWorkflowPayload({ video, status, section, scheduledLaunchDate }) {
+  static _getTrackInWorkflowPayload({
+    video,
+    status,
+    section,
+    scheduledLaunchDate
+  }) {
     const prodOffice = getProductionOffice();
 
     const core = {
@@ -58,7 +66,7 @@ export default class WorkflowApi {
 
     return Object.assign({}, core, {
       scheduledLaunchDate: momentLaunchDate,
-      note: `Please create a Video page, launching ${momentLaunchDate.format("DD MMM YYYY HH:mm")}`
+      note: `Please create a Video page, launching ${momentLaunchDate.format('DD MMM YYYY HH:mm')}`
     });
   }
 

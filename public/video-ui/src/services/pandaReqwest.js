@@ -8,24 +8,24 @@ function poll(reqwestBody, timeout) {
 
   function makeRequest(resolve, reject) {
     reqwest(reqwestBody).then(response => resolve(response)).fail(err => {
-      if (err.status === 419) {
-        const store = getStore();
-        const reauthUrl = store.getState().config.reauthUrl;
+      if (Number(new Date()) < endTime) {
+        if (err.status === 419) {
+          const store = getStore();
+          const reauthUrl = store.getState().config.reauthUrl;
 
-        reEstablishSession(reauthUrl, 5000).then(
-          () => {
-            setTimeout(makeRequest, interval, resolve, reject);
-          },
-          error => {
-            throw error;
-          }
-        );
-      } else {
-        if (Number(new Date()) < endTime) {
-          setTimeout(makeRequest, interval, resolve, reject);
+          reEstablishSession(reauthUrl, 5000).then(
+            () => {
+              setTimeout(makeRequest, interval, resolve, reject);
+            },
+            error => {
+              throw error;
+            }
+          );
         } else {
-          reject(err);
+          setTimeout(makeRequest, interval, resolve, reject);
         }
+      } else {
+        reject(err);
       }
     });
   }
