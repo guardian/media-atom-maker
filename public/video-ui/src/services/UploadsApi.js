@@ -20,7 +20,7 @@ export function createUpload(atomId, file, selfHost) {
       filename: file.name,
       size: file.size,
       selfHost: selfHost,
-      syncWithPluto: false // TODO change this once full Pluto integration is complete
+      syncWithPluto: true // TODO get this from config injection
     }
   });
 }

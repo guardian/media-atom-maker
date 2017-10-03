@@ -185,7 +185,7 @@ Resources:
             AWS: !Ref 'MultimediaAccountId'
       Path: /
       Policies:
-      - PolicyName: PlutoIntegrationRolePolicy
+      - PolicyName: PlutoIntegrationKinesisPolicy
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
@@ -199,6 +199,18 @@ Resources:
             Action:
             - kinesis:Get*
             - kinesis:DescribeStream
+      - PolicyName: PlutoIntegrationS3GetDeletePolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Resource:
+             - !Sub ['arn:aws:s3:::${Bucket}/*', {Bucket: !Ref 'UserUploadBucket'}]
+             - !Sub ['arn:aws:s3:::${Bucket}', {Bucket: !Ref 'UserUploadBucket'}]
+            Effect: Allow
+            Action:
+              - s3:GetObject*
+              - s3:ListBucket
+              - s3:DeleteObject
   MediaMakerInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
