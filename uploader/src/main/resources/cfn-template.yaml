@@ -45,6 +45,9 @@ Parameters:
   AlertWebhook:
     Description: "Where CloudWatch alerts are sent"
     Type: "String"
+  PlutoSendbackStreamName:
+    Description: Name (not ARN) of the Kinesis stream which passes messages back to Pluto
+    Type: String
 
 Conditions:
   CreateProdResources: !Equals [!Ref "Stage", "PROD"]
@@ -94,7 +97,14 @@ Resources:
                 Condition:
                   StringEquals:
                     ses:FromAddress: !Ref 'NotificationEmailFrom'
-
+        - PolicyName: LambdaKinesisAccessPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - kinesis:PutRecord
+                  - kinesis:PutRecords
+                Resource: !Sub ["arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/${PlutoSendbackStreamName}"]
   ContentAtomCrossAccountPolicyCODE:
     Type: AWS::IAM::Policy
     Condition: CreateCodeResources
