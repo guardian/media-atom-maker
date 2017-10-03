@@ -104,7 +104,8 @@ Resources:
                 Action:
                   - kinesis:PutRecord
                   - kinesis:PutRecords
-                Resource: !Sub ["arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/${PlutoSendbackStreamName}"]
+                Resource:
+                  - !Sub "arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/${PlutoSendbackStreamName}"
   ContentAtomCrossAccountPolicyCODE:
     Type: AWS::IAM::Policy
     Condition: CreateCodeResources
