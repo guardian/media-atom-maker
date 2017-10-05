@@ -1,6 +1,6 @@
 const AWS = require('aws-sdk');
 const FileConfig = require('./file-config');
-const ELKKinesisLogger = require('elk-kinesis-logger');
+const ELKKinesisLogger = require('@guardian/elk-kinesis-logger');
 const EnvironmentConfig = require('./environment-config');
 const HMACRequest = require('./hmac-request');
 const PlutoMessageProcessor = require('./pluto-message-processor');
