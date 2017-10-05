@@ -18,15 +18,16 @@ class PlutoUploadActions(config: Settings with DynamoAccess with KinesisAccess w
         config.sendOnKinesis(config.uploadsStreamName, plutoData.s3Key, plutoData)
 
       case None =>
-        log.info(s"Sending missing Pluto ID email user=${metadata.user} atom=${plutoData.atomId}")
-
-        mailer.sendPlutoIdMissingEmail(
-          metadata.title,
-          metadata.user,
-          config.fromEmailAddress,
-          config.replyToAddresses)
-
-        plutoStore.put(plutoData)
+        // TODO MRB: re-enable this once the project selector has been fixed
+//        log.info(s"Sending missing Pluto ID email user=${metadata.user} atom=${plutoData.atomId}")
+//
+//        mailer.sendPlutoIdMissingEmail(
+//          metadata.title,
+//          metadata.user,
+//          config.fromEmailAddress,
+//          config.replyToAddresses)
+//
+//        plutoStore.put(plutoData)
     }
   }
 }
