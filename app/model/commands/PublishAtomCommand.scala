@@ -165,7 +165,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youtu
 
   private def removeHtmlTagsForYouTube(description: String): String = {
       val html = Jsoup.parse(description)
-      html.select("a").remove()
+      html.select("a").unwrap()
       html.text()
   }
 
