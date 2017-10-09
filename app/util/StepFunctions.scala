@@ -17,9 +17,8 @@ class StepFunctions(awsConfig: AWSConfig) {
       val request = new DescribeExecutionRequest().withExecutionArn(arn)
       val result = awsConfig.stepFunctionsClient.describeExecution(request)
 
-      val json = Json.parse(result.getInput)
-
-      Some(result.getStartDate.getTime, json.as[Upload])
+      val upload = Json.parse(result.getInput).validate[Upload].asOpt
+      upload.map(result.getStartDate.getTime -> _)
     } catch {
       case _: ExecutionDoesNotExistException =>
         None
@@ -33,13 +32,13 @@ class StepFunctions(awsConfig: AWSConfig) {
     runningJobs ++ failedJobs
   }
 
-  def getTaskEntered(events: Iterable[HistoryEvent]): Option[(String, Upload)] = {
-    events.find(_.getType == "TaskStateEntered").map { event =>
-      val details = event.getStateEnteredEventDetails
-      val upload = Json.parse(details.getInput).as[Upload]
+  def getTaskEntered(events: Iterable[HistoryEvent]): Option[(String, Upload)] = for {
+    event <- events.find(_.getType == "TaskStateEntered")
 
-      (details.getName, upload)
-    }
+    details = event.getStateEnteredEventDetails
+    upload <- Json.parse(details.getInput).validate[Upload].asOpt
+  } yield {
+    details.getName -> upload
   }
 
   def getExecutionFailed(events: Iterable[HistoryEvent]): Option[String] = {

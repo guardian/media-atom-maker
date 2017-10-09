@@ -1,5 +1,5 @@
 import React from 'react';
-import { Asset, buildAssetProps } from './VideoAsset';
+import { Asset2 } from './VideoAsset';
 
 export default class VideoTrail extends React.Component {
   polling = null;
@@ -52,14 +52,18 @@ export default class VideoTrail extends React.Component {
 
     const blocks = assets.map(upload => {
       const active = upload.id == this.props.activeVersion;
-      const props = buildAssetProps(upload, active, this.props.selectAsset);
 
-      return <Asset key={upload.id} {...props} />;
+      return (
+        <Asset2
+          key={upload.id}
+          upload={upload}
+          active={active}
+          selectAsset={this.props.selectAsset}
+        />
+      );
     });
 
-    const content = blocks.length > 0
-      ? blocks
-      : <Asset content="No Assets Uploaded" />;
+    const content = blocks.length > 0 ? blocks : false;
 
     return (
       <div className="video__detail__page__trail">

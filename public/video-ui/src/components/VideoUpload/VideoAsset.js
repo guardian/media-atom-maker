@@ -4,6 +4,86 @@ import Icon from '../Icon';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 import { VideoEmbed } from '../utils/VideoEmbed';
 
+function Overlay({ active }) {
+  if (!active) {
+    return false;
+  }
+
+  return (
+    <div className="grid__status__overlay">
+      <span className="publish__label label__live label__frontpage__overlay">
+        Live
+      </span>
+    </div>
+  );
+}
+
+function Metadata({ user, startTimestamp, originalFilename }) {
+  const startDate = moment(startTimestamp).format('YYYY/MM/DD HH:mm:ss');
+
+  return (
+    <div className="upload__asset__metadata">
+      <div>{originalFilename}.BLAjghrbhebhhebhevhwbhvhjwbvhrhbhb</div>
+      <div>
+        <small>
+          {startDate}
+        </small>
+      </div>
+    </div>
+  );
+}
+
+function YouTubeVideo({ id, active, selectAsset }) {
+  const youTubeLink = `https://www.youtube.com/watch?v=${id}`;
+
+  return (
+    <div className="upload__asset__video">
+      <YouTubeEmbed id={id} />
+      <Overlay active={active} />
+      <a href={youTubeLink} target="_blank" rel="noopener noreferrer">
+        <Icon icon="open_in_new" className="icon__assets" />
+      </a>
+    </div>
+  );
+}
+
+function AssetControls({ id, active, metadata, selectAsset }) {
+  return (
+    <div className="grid__item__footer">
+      <div className="upload__asset__actions">
+        {metadata ? <Metadata {...metadata} /> : id}
+        <button className="btn" onClick={selectAsset}>
+          Activate
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export function Asset2({ upload, active, selectAsset }) {
+  let top = false;
+  let bottom = false;
+
+  if (upload.asset && upload.asset.id) {
+    top = <YouTubeVideo id={upload.asset.id} />;
+    bottom = (
+      <AssetControls
+        id={upload.asset.id}
+        active={active}
+        metadata={upload.metadata}
+        selectAsset={selectAsset}
+      />
+    );
+  }
+
+  return (
+    <div className="grid__item">
+      {top}
+      {bottom}
+    </div>
+  );
+}
+
 function UploadFailed({ msg }) {
   return (
     <p>
@@ -18,24 +98,6 @@ function ProgressBar({ current, total }) {
   return total !== undefined && current !== undefined
     ? <progress className="progress" value={current} max={total} />
     : <span className="loader" />;
-}
-
-function Overlay({ active }) {
-  if (active === undefined) {
-    return false;
-  }
-
-  const statusClass = active
-    ? 'publish__label label__live label__frontpage__overlay'
-    : 'publish__label label__frontpage__novideo label__frontpage__overlay';
-
-  const status = active ? 'Live' : 'Not Live';
-
-  return (
-    <div className="grid__status__overlay">
-      <span className={statusClass}>{status}</span>
-    </div>
-  );
 }
 
 export function Asset(props) {
@@ -58,12 +120,12 @@ export function Asset(props) {
     <div className="grid__item">
       <div className="upload__asset__video">
         {props.content}
+        {link}
       </div>
       <Overlay active={props.active} />
       <div className="grid__item__footer">
         <div className="grid__item__title">
-          {props.title}<br />{props.description}
-          {link}
+          {props.title}
           {button}
         </div>
       </div>
@@ -79,7 +141,7 @@ function buildTitle(id, asset, processing, metadata) {
     const startDate = moment(startTimestamp);
 
     return (
-      <div>
+      <div className="upload__asset__metadata">
         <strong>
           {startDate.format('DD/MM/YY HH:mm:ss')}
         </strong>
