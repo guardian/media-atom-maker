@@ -18,16 +18,38 @@ function Overlay({ active }) {
   );
 }
 
+function presenceInitials(email) {
+  const emailParts = email.split('@');
+  const names = [];
+
+  if (emailParts.length < 2) {
+    names.push(emailParts[0]);
+  } else {
+    const nameParts = emailParts[0].split('.');
+    names.push(...nameParts);
+  }
+
+  const initials = names.map(name => name.toUpperCase()[0]);
+
+  return initials.join('');
+}
+
 function Metadata({ user, startTimestamp, originalFilename }) {
+  const initials = presenceInitials(user);
   const startDate = moment(startTimestamp).format('YYYY/MM/DD HH:mm:ss');
 
   return (
     <div className="upload__asset__metadata">
-      <div>{originalFilename}.BLAjghrbhebhhebhevhwbhvhjwbvhrhbhb</div>
-      <div>
-        <small>
-          {startDate}
-        </small>
+      <div className="upload__asset__filename" title={originalFilename}>
+        {originalFilename}.BLAjghrbhebhhebhevhwbhvhjwbvhrhbhb
+      </div>
+      <div className="upload__asset__time">
+        {startDate}
+        <ul className="presence-list">
+          <li className="presence-list__user" title={user}>
+            {initials}
+          </li>
+        </ul>
       </div>
     </div>
   );
