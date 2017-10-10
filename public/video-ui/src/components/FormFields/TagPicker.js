@@ -59,9 +59,21 @@ export default class TagPicker extends React.Component {
     }
   }
 
-  fetchTags = searchText => {
+  _getTagTypes() {
+    const defaultTagTypes = [TagTypes.tone, TagTypes.series, TagTypes.keyword];
 
-     const tagTypes = this.props.tagType === TagTypes.keyword ? [TagTypes.tone, TagTypes.series, TagTypes.keyword] : [this.props.tagType];
+    switch (this.props.tagType) {
+      case TagTypes.keyword:
+        return defaultTagTypes;
+      case TagTypes.paidContent:
+        return [TagTypes.paidContent, ...defaultTagTypes];
+      default:
+        return [this.props.tagType];
+    }
+  }
+
+  fetchTags = searchText => {
+    const tagTypes = this._getTagTypes();
 
     ContentApi.getTagsByType(searchText, tagTypes)
       .then(capiResponses => {

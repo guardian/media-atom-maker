@@ -22,4 +22,8 @@ export default class TagTypes {
   static get tone() {
     return 'tone';
   }
+
+  static get paidContent() {
+    return 'paid-content';
+  }
 }
