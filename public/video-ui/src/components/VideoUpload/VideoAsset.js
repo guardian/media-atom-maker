@@ -68,25 +68,23 @@ function SelfHostedVideo({ sources, active }) {
   );
 }
 
-function UploadFailed({ msg }) {
+function UploadFailed() {
   return (
     <div className="upload">
       <p>
         <strong>Upload Failed</strong>
-        <br />
-        {msg}
       </p>
     </div>
   );
 }
 
-function AssetControls({ id, active, metadata, selectAsset }) {
-  let fileInfo = id;
+function AssetControls({ upload, active, selectAsset }) {
+  let fileInfo = upload.asset && upload.asset.id ? upload.asset.id : upload.id;
   let userInfo = false;
   let activateButton = false;
 
-  if (metadata) {
-    const { user, startTimestamp, originalFilename } = metadata;
+  if (upload.metadata) {
+    const { user, startTimestamp, originalFilename } = upload.metadata;
 
     const initials = presenceInitials(user);
     const startDate = moment(startTimestamp).format('YYYY/MM/DD HH:mm:ss');
@@ -94,7 +92,7 @@ function AssetControls({ id, active, metadata, selectAsset }) {
     fileInfo = (
       <div className="upload__metadata">
         <div className="upload__filename" title={originalFilename}>
-          {originalFilename}.wackyaonnrbjnjnejjnjn
+          {originalFilename}
         </div>
         <div className="upload__time">
           <small>{startDate}</small>
@@ -120,46 +118,52 @@ function AssetControls({ id, active, metadata, selectAsset }) {
   }
 
   return (
-    <div className="grid__item__footer">
-      <div className="upload__actions">
-        {fileInfo}
-        {userInfo}
-        {activateButton}
-      </div>
+    <div className="upload__actions">
+      {fileInfo}
+      {userInfo}
+      {activateButton}
     </div>
   );
 }
 
 export function Asset({ upload, active, selectAsset }) {
-  const controls = (
-    <AssetControls
-      id={upload.asset.id}
-      active={active}
-      metadata={upload.metadata}
-      selectAsset={selectAsset}
-    />
-  );
-
   let top = false;
   let bottom = false;
 
-  if (upload.processing && upload.processing.failed) {
-    top = <UploadFailed msg={upload.processing.statu} />;
-  } else if (upload.processing) {
-    top = <ProgressBar {...upload.processing} />;
-    bottom = upload.processing.status;
-  } else if (upload.asset && upload.asset.id) {
-    top = <YouTubeVideo id={upload.asset.id} active={active} />;
-    bottom = controls;
-  } else if (upload.asset.sources) {
-    top = <SelfHostedVideo sources={upload.asset.sources} active={active} />;
-    bottom = controls;
+  if (upload.processing) {
+    top = (
+      <div className="upload">
+        {upload.processing.failed
+          ? <UploadFailed />
+          : <ProgressBar {...upload.processing} />}
+      </div>
+    );
+
+    bottom = (
+      <div className="upload__actions">
+        {upload.processing.status}
+      </div>
+    );
+  } else if (upload.asset) {
+    top = upload.asset.id
+      ? <YouTubeVideo id={upload.asset.id} active={active} />
+      : <SelfHostedVideo sources={upload.asset.sources} active={active} />;
+
+    bottom = (
+      <AssetControls
+        upload={upload}
+        active={active}
+        selectAsset={selectAsset}
+      />
+    );
   }
 
   return (
     <div className="grid__item">
       {top}
-      {bottom}
+      <div className="grid__item__footer">
+        {bottom}
+      </div>
     </div>
   );
 }

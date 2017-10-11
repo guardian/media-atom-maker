@@ -1,6 +1,6 @@
 package controllers
 
-import _root_.model.{ClientAsset, ClientAssetMetadata, ClientAssetProcessing, MediaAtom}
+import _root_.model.{ClientAsset, ClientAssetTestData, ClientAssetMetadata, ClientAssetProcessing, MediaAtom}
 import com.amazonaws.services.stepfunctions.model.{ExecutionAlreadyExistsException, ExecutionListItem}
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
@@ -34,7 +34,8 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     val runningJobs = stepFunctions.getJobs(atomId)
     val running = runningJobs.flatMap(getRunning)
 
-    Ok(Json.toJson(running ++ added))
+//    Ok(Json.toJson(running ++ added))
+    Ok(Json.toJson(ClientAssetTestData.all))
   }
 
   def create = LookupPermissions { implicit raw =>
