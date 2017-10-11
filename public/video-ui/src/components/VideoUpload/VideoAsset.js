@@ -4,20 +4,6 @@ import Icon from '../Icon';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 import { VideoEmbed } from '../utils/VideoEmbed';
 
-function Overlay({ active }) {
-  if (!active) {
-    return false;
-  }
-
-  return (
-    <div className="grid__status__overlay">
-      <span className="publish__label label__live label__frontpage__overlay">
-        Live
-      </span>
-    </div>
-  );
-}
-
 function presenceInitials(email) {
   const emailParts = email.split('@');
   const names = [];
@@ -34,6 +20,26 @@ function presenceInitials(email) {
   return initials.join('');
 }
 
+function ProgressBar({ current, total }) {
+  return total !== undefined && current !== undefined
+    ? <progress className="progress" value={current} max={total} />
+    : <span className="loader" />;
+}
+
+function Overlay({ active }) {
+  if (!active) {
+    return false;
+  }
+
+  return (
+    <div className="grid__status__overlay">
+      <span className="publish__label label__live label__frontpage__overlay">
+        Live
+      </span>
+    </div>
+  );
+}
+
 function Metadata({ user, startTimestamp, originalFilename }) {
   const initials = presenceInitials(user);
   const startDate = moment(startTimestamp).format('YYYY/MM/DD HH:mm:ss');
@@ -41,7 +47,7 @@ function Metadata({ user, startTimestamp, originalFilename }) {
   return (
     <div className="upload__asset__metadata">
       <div className="upload__asset__filename" title={originalFilename}>
-        {originalFilename}.BLAjghrbhebhhebhevhwbhvhjwbvhrhbhb
+        {originalFilename}
       </div>
       <div className="upload__asset__time">
         {startDate}
@@ -55,7 +61,7 @@ function Metadata({ user, startTimestamp, originalFilename }) {
   );
 }
 
-function YouTubeVideo({ id, active, selectAsset }) {
+function YouTubeVideo({ id, active }) {
   const youTubeLink = `https://www.youtube.com/watch?v=${id}`;
 
   return (
@@ -65,6 +71,27 @@ function YouTubeVideo({ id, active, selectAsset }) {
       <a href={youTubeLink} target="_blank" rel="noopener noreferrer">
         <Icon icon="open_in_new" className="icon__assets" />
       </a>
+    </div>
+  );
+}
+
+function SelfHostedVideo({ sources, active }) {
+  return (
+    <div className="upload__asset__video">
+      <VideoEmbed sources={sources} />
+      <Overlay active={active} />
+    </div>
+  );
+}
+
+function UploadFailed({ msg }) {
+  return (
+    <div className="upload__asset__video">
+      <p>
+        <strong>Upload Failed</strong>
+        <br />
+        {msg}
+      </p>
     </div>
   );
 }
@@ -82,20 +109,30 @@ function AssetControls({ id, active, metadata, selectAsset }) {
   );
 }
 
-export function Asset2({ upload, active, selectAsset }) {
+export function Asset({ upload, active, selectAsset }) {
+  const controls = (
+    <AssetControls
+      id={upload.asset.id}
+      active={active}
+      metadata={upload.metadata}
+      selectAsset={selectAsset}
+    />
+  );
+
   let top = false;
   let bottom = false;
 
-  if (upload.asset && upload.asset.id) {
-    top = <YouTubeVideo id={upload.asset.id} />;
-    bottom = (
-      <AssetControls
-        id={upload.asset.id}
-        active={active}
-        metadata={upload.metadata}
-        selectAsset={selectAsset}
-      />
-    );
+  if (upload.processing && upload.processing.failed) {
+    top = <UploadFailed msg={upload.processing.statu} />;
+  } else if (upload.processing) {
+    top = <ProgressBar {...upload.processing} />;
+    bottom = upload.processing.status;
+  } else if (upload.asset && upload.asset.id) {
+    top = <YouTubeVideo id={upload.asset.id} active={active} />;
+    bottom = controls;
+  } else if (upload.asset.sources) {
+    top = <SelfHostedVideo sources={upload.asset.sources} active={active} />;
+    bottom = controls;
   }
 
   return (
@@ -104,105 +141,4 @@ export function Asset2({ upload, active, selectAsset }) {
       {bottom}
     </div>
   );
-}
-
-function UploadFailed({ msg }) {
-  return (
-    <p>
-      <strong>Upload Failed</strong>
-      <br />
-      {msg}
-    </p>
-  );
-}
-
-function ProgressBar({ current, total }) {
-  return total !== undefined && current !== undefined
-    ? <progress className="progress" value={current} max={total} />
-    : <span className="loader" />;
-}
-
-export function Asset(props) {
-  const button = props.activateFn
-    ? <button
-        className="button__secondary button__active"
-        onClick={props.activateFn}
-      >
-        Activate
-      </button>
-    : false;
-
-  const link = props.href
-    ? <a href={props.href} target="_blank" rel="noopener noreferrer">
-        <Icon icon="open_in_new" className="icon__assets" />
-      </a>
-    : false;
-
-  return (
-    <div className="grid__item">
-      <div className="upload__asset__video">
-        {props.content}
-        {link}
-      </div>
-      <Overlay active={props.active} />
-      <div className="grid__item__footer">
-        <div className="grid__item__title">
-          {props.title}
-          {button}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function buildTitle(id, asset, processing, metadata) {
-  if (processing && !processing.failed) {
-    return processing.status;
-  } else if (metadata) {
-    const { startTimestamp, user, originalFilename } = metadata;
-    const startDate = moment(startTimestamp);
-
-    return (
-      <div className="upload__asset__metadata">
-        <strong>
-          {startDate.format('DD/MM/YY HH:mm:ss')}
-        </strong>
-        <br />
-        <small>{user}</small>
-      </div>
-    );
-  } else if (asset) {
-    return `ID: ${asset.id}`;
-  } else {
-    return `Version ${id}`;
-  }
-}
-
-export function buildAssetProps(upload, active, selectAsset) {
-  const { id, asset, metadata, processing } = upload;
-  const title = buildTitle(id, asset, processing, metadata);
-
-  if (processing) {
-    return {
-      title,
-      content: processing.failed
-        ? <UploadFailed msg={processing.status} />
-        : <ProgressBar {...processing} />
-    };
-  } else if (asset.id) {
-    return {
-      title,
-      active,
-      href: `https://www.youtube.com/watch?v=${asset.id}`,
-      content: <YouTubeEmbed id={asset.id} />,
-      activateFn: active ? null : () => selectAsset(Number(id))
-    };
-  } else {
-    return {
-      title,
-      active,
-      content: <VideoEmbed sources={asset.sources} />,
-      activateFn: active ? null : () => selectAsset(Number(id))
-    };
-  }
 }
