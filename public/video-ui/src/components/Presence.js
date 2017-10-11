@@ -79,21 +79,28 @@ export class Presence extends React.Component {
       state => state.location === 'document'
     );
 
-    return (
-      <ul className="presence-list">
-        {visitorsInThisArea.map(visitor => {
-          const id = visitor.clientId.connId;
-          const { firstName, lastName } = visitor.clientId.person;
-          const initials = `${firstName.slice(0, 1)}${lastName.slice(0, 1)}`;
-          const fullName = `${firstName} ${lastName}`;
+    const multipleVisitors = visitorsInThisArea.length > 1;
 
-          return (
-            <li key={id} className="presence-list__user" title={fullName}>
-              {initials}
-            </li>
-          );
-        })}
-      </ul>
+    return (
+      <section>
+        <div className="presence-section">
+          <ul className="presence-list">
+            {visitorsInThisArea.map(visitor => {
+              const id = visitor.clientId.connId;
+              const { firstName, lastName } = visitor.clientId.person;
+              const initials = `${firstName.slice(0, 1)}${lastName.slice(0, 1)}`;
+              const fullName = `${firstName} ${lastName}`;
+
+              return (
+                <li key={id} className="presence-list__user" title={fullName}>
+                  {initials}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+        {multipleVisitors ? <div className="presence-section presence-warning">There are multiple people in this Atom. Your changes may be overwritten!</div> : ''}
+      </section>
     );
   }
 }
