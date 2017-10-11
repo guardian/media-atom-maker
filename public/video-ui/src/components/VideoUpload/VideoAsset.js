@@ -44,7 +44,7 @@ function YouTubeVideo({ id, active }) {
   const youTubeLink = `https://www.youtube.com/watch?v=${id}`;
 
   return (
-    <div className="upload__asset__video">
+    <div className="upload">
       <YouTubeEmbed id={id} />
       <Overlay active={active} />
       <a href={youTubeLink} target="_blank" rel="noopener noreferrer">
@@ -56,7 +56,7 @@ function YouTubeVideo({ id, active }) {
 
 function SelfHostedVideo({ sources, active }) {
   return (
-    <div className="upload__asset__video">
+    <div className="upload">
       <VideoEmbed sources={sources} />
       <Overlay active={active} />
     </div>
@@ -65,7 +65,7 @@ function SelfHostedVideo({ sources, active }) {
 
 function UploadFailed({ msg }) {
   return (
-    <div className="upload__asset__video">
+    <div className="upload">
       <p>
         <strong>Upload Failed</strong>
         <br />
@@ -78,6 +78,7 @@ function UploadFailed({ msg }) {
 function AssetControls({ id, active, metadata, selectAsset }) {
   let fileInfo = id;
   let userInfo = false;
+  let activateButton = false;
 
   if (metadata) {
     const { user, startTimestamp, originalFilename } = metadata;
@@ -86,11 +87,11 @@ function AssetControls({ id, active, metadata, selectAsset }) {
     const startDate = moment(startTimestamp).format('YYYY/MM/DD HH:mm:ss');
 
     fileInfo = (
-      <div className="upload__asset__metadata">
-        <div className="upload__asset__filename" title={originalFilename}>
+      <div className="upload__metadata">
+        <div className="upload__filename" title={originalFilename}>
           {originalFilename}.wackyaonnrbjnjnejjnjn
         </div>
-        <div className="upload__asset__time">
+        <div className="upload__time">
           <small>{startDate}</small>
         </div>
       </div>
@@ -105,14 +106,20 @@ function AssetControls({ id, active, metadata, selectAsset }) {
     );
   }
 
+  if (!active) {
+    activateButton = (
+      <button className="btn" onClick={selectAsset}>
+        Activate
+      </button>
+    );
+  }
+
   return (
     <div className="grid__item__footer">
-      <div className="upload__asset__actions">
+      <div className="upload__actions">
         {fileInfo}
         {userInfo}
-        <button className="btn" onClick={selectAsset}>
-          Activate
-        </button>
+        {activateButton}
       </div>
     </div>
   );

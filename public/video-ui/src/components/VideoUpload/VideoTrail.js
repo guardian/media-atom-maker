@@ -53,7 +53,7 @@ export default class VideoTrail extends React.Component {
         key={upload.id}
         upload={upload}
         active={upload.id == this.props.activeVersion}
-        selectAsset={this.props.selectAsset}
+        selectAsset={() => this.props.selectAsset(Number(upload.id))}
       />
     ));
 
