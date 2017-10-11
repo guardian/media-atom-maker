@@ -148,39 +148,54 @@ object ClientAssetTestData {
     ))
   )
 
-  val failedUpload: ClientAsset = ClientAsset(
+  def failedUpload: ClientAsset = ClientAsset(
     id = UUID.randomUUID().toString,
     processing = Some(ClientAssetProcessing(
       failed = true,
       status = "Failed to reticulate splines",
       current = None,
       total = None
+    )),
+    metadata = Some(ClientAssetMetadata(
+      originalFilename = Some("bad_file.mov"),
+      startTimestamp = 1507710322,
+      user = "dave.benson.philips@guardian.co.uk"
     ))
   )
 
-  val noProgress: ClientAsset = ClientAsset(
+  def noProgress: ClientAsset = ClientAsset(
     id = UUID.randomUUID().toString,
     processing = Some(ClientAssetProcessing(
       failed = false,
       status = "Reticulating splines",
       current = None,
       total = None
+    )),
+    metadata = Some(ClientAssetMetadata(
+      originalFilename = Some("test.mov"),
+      startTimestamp = 1507710322,
+      user = "dave.benson.philips@guardian.co.uk"
     ))
   )
 
-  val withProgress: ClientAsset = ClientAsset(
+  def withProgress: ClientAsset = ClientAsset(
     id = UUID.randomUUID().toString,
     processing = Some(ClientAssetProcessing(
       failed = false,
       status = "Reticulating splines",
       current = Some(4),
       total = Some(10)
+    )),
+    metadata = Some(ClientAssetMetadata(
+      originalFilename = Some("bad_file.mov"),
+      startTimestamp = 1507710322,
+      user = "dave.benson.philips@guardian.co.uk"
     ))
   )
 
   val all = List(
     youTubeAsset(1), youTubeAsset(2).copy(metadata = None),
     selfHostedAsset(3), selfHostedAsset(4).copy(metadata = None),
-    failedUpload, noProgress, withProgress
+    failedUpload, failedUpload.copy(metadata = None), noProgress, withProgress
   )
 }

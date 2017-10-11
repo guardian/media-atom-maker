@@ -12,7 +12,7 @@ function presenceInitials(email) {
     names.push(emailParts[0]);
   } else {
     const nameParts = emailParts[0].split('.');
-    names.push(...nameParts);
+    names.push(...nameParts.slice(0, 2));
   }
 
   const initials = names.map(name => name.toUpperCase()[0]);
@@ -20,150 +20,122 @@ function presenceInitials(email) {
   return initials.join('');
 }
 
-function ProgressBar({ current, total }) {
-  return total !== undefined && current !== undefined
-    ? <progress className="progress" value={current} max={total} />
-    : <span className="loader" />;
-}
+function AssetControls({ user, children, selectAsset }) {
+  const activateButton = selectAsset
+    ? <button className="btn" onClick={selectAsset}>
+        Activate
+      </button>
+    : false;
 
-function Overlay({ active }) {
-  if (!active) {
-    return false;
-  }
-
-  return (
-    <div className="grid__status__overlay">
-      <span className="publish__label label__live label__frontpage__overlay">
-        Active
-      </span>
-    </div>
-  );
-}
-
-function YouTubeVideo({ id, active }) {
-  const youTubeLink = `https://www.youtube.com/watch?v=${id}`;
-
-  return (
-    <div className="upload">
-      <YouTubeEmbed id={id} />
-      <Overlay active={active} />
-      <a
-        className="upload__link"
-        href={youTubeLink}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <Icon icon="open_in_new" className="icon__assets" />
-      </a>
-    </div>
-  );
-}
-
-function SelfHostedVideo({ sources, active }) {
-  return (
-    <div className="upload">
-      <VideoEmbed sources={sources} />
-      <Overlay active={active} />
-    </div>
-  );
-}
-
-function UploadFailed() {
-  return (
-    <div className="upload">
-      <p>
-        <strong>Upload Failed</strong>
-      </p>
-    </div>
-  );
-}
-
-function AssetControls({ upload, active, selectAsset }) {
-  let fileInfo = upload.asset && upload.asset.id ? upload.asset.id : upload.id;
-  let userInfo = false;
-  let activateButton = false;
-
-  if (upload.metadata) {
-    const { user, startTimestamp, originalFilename } = upload.metadata;
-
-    const initials = presenceInitials(user);
-    const startDate = moment(startTimestamp).format('YYYY/MM/DD HH:mm:ss');
-
-    fileInfo = (
-      <div className="upload__metadata">
-        <div className="upload__filename" title={originalFilename}>
-          {originalFilename}
-        </div>
-        <div className="upload__time">
-          <small>{startDate}</small>
-        </div>
-      </div>
-    );
-
-    userInfo = (
-      <ul className="presence-list">
+  const initials = user ? presenceInitials(user) : false;
+  const userCircle = initials
+    ? <ul className="presence-list">
         <li className="presence-list__user" title={user}>
           {initials}
         </li>
       </ul>
-    );
-  }
-
-  if (!active) {
-    activateButton = (
-      <button className="btn" onClick={selectAsset}>
-        Activate
-      </button>
-    );
-  }
+    : false;
 
   return (
     <div className="upload__actions">
-      {fileInfo}
-      {userInfo}
+      {children}
+      {userCircle}
       {activateButton}
     </div>
   );
 }
 
-export function Asset({ upload, active, selectAsset }) {
-  let top = false;
-  let bottom = false;
-
-  if (upload.processing) {
-    top = (
-      <div className="upload">
-        {upload.processing.failed
-          ? <UploadFailed />
-          : <ProgressBar {...upload.processing} />}
-      </div>
-    );
-
-    bottom = (
-      <div className="upload__actions">
-        {upload.processing.status}
-      </div>
-    );
-  } else if (upload.asset) {
-    top = upload.asset.id
-      ? <YouTubeVideo id={upload.asset.id} active={active} />
-      : <SelfHostedVideo sources={upload.asset.sources} active={active} />;
-
-    bottom = (
-      <AssetControls
-        upload={upload}
-        active={active}
-        selectAsset={selectAsset}
-      />
-    );
-  }
+function AssetInfo({ startTimestamp, originalFilename }) {
+  const startDate = moment(startTimestamp).format('YYYY/MM/DD HH:mm:ss');
 
   return (
-    <div className="grid__item">
-      {top}
-      <div className="grid__item__footer">
-        {bottom}
+    <div className="upload__metadata">
+      <div className="upload__filename" title={originalFilename}>
+        {originalFilename}
+      </div>
+      <div className="upload__time">
+        <small>{startDate}</small>
       </div>
     </div>
   );
+}
+
+function AssetDisplay({ id, active, sources }) {
+  const linkProps = id
+    ? {
+        className: 'upload__link',
+        href: `https://www.youtube.com/watch?v=${id}`,
+        target: '_blank',
+        rel: 'noopener noreferrer'
+      }
+    : false;
+
+  return (
+    <div className="upload">
+      {id ? <YouTubeEmbed id={id} /> : <VideoEmbed sources={sources} />}
+      {linkProps
+        ? <a {...linkProps}>
+            <Icon icon="open_in_new" className="icon__assets" />
+          </a>
+        : false}
+      {active
+        ? <div className="grid__status__overlay">
+            <span className="publish__label label__live label__frontpage__overlay">
+              Active
+            </span>
+          </div>
+        : false}
+    </div>
+  );
+}
+
+function AssetProgress({ failed, current, total }) {
+  if (failed) {
+    return (
+      <div className="upload">
+        <p>
+          <strong>Upload Failed</strong>
+        </p>
+      </div>
+    );
+  }
+
+  return total !== undefined && current !== undefined
+    ? <progress className="progress" value={current} max={total} />
+    : <span className="loader" />;
+}
+
+export function Asset({ upload, active, selectAsset }) {
+  const { asset, metadata, processing } = upload;
+  const user = metadata ? metadata.user : false;
+
+  if (processing) {
+    return (
+      <div className="grid__item">
+        <div className="upload">
+          <AssetProgress {...processing} />
+        </div>
+        <div className="grid__item__footer">
+          <AssetControls user={user}>
+            {processing.status}
+          </AssetControls>
+        </div>
+      </div>
+    );
+  }
+
+  if (asset) {
+    return (
+      <div className="grid__item">
+        <AssetDisplay active={active} id={asset.id} sources={asset.sources} />
+        <div className="grid__item__footer">
+          <AssetControls user={user} selectAsset={active ? false : selectAsset}>
+            {metadata ? <AssetInfo {...metadata} /> : false}
+          </AssetControls>
+        </div>
+      </div>
+    );
+  }
+
+  return false;
 }
