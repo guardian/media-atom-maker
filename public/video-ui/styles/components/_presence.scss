@@ -1,8 +1,13 @@
+.presence-section {
+  display: inline-block;
+}
+
 .presence-list {
   list-style: none;
   padding: 0;
   display: flex;
   align-content: space-between;
+  margin-right: 5px;
 
   &__user {
     display: block;
@@ -15,4 +20,11 @@
       margin-right: 7px;
     }
   }
+}
+
+.presence-warning {
+  color: $color200Grey;
+  background-color: $mortalDangerColor;
+  font-weight: bold;
+  padding: 5px;
 }
