@@ -32,6 +32,14 @@
   }
 }
 
+.upload__link {
+  display: none;
+}
+
+.upload:hover .upload__link {
+  display: block;
+}
+
 .loader {
     border: 5px solid $color700Grey;
     border-top: 5px solid $brandColor;

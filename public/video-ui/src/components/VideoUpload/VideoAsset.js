@@ -34,7 +34,7 @@ function Overlay({ active }) {
   return (
     <div className="grid__status__overlay">
       <span className="publish__label label__live label__frontpage__overlay">
-        Live
+        Active
       </span>
     </div>
   );
@@ -47,7 +47,12 @@ function YouTubeVideo({ id, active }) {
     <div className="upload">
       <YouTubeEmbed id={id} />
       <Overlay active={active} />
-      <a href={youTubeLink} target="_blank" rel="noopener noreferrer">
+      <a
+        className="upload__link"
+        href={youTubeLink}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         <Icon icon="open_in_new" className="icon__assets" />
       </a>
     </div>
