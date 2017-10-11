@@ -5,7 +5,6 @@ import com.amazonaws.services.stepfunctions.model.{ExecutionAlreadyExistsExcepti
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
 import com.gu.media.model.YouTubeAsset
-import com.gu.media.upload._
 import com.gu.media.upload.model._
 import com.gu.media.youtube.YouTubeVideos
 import com.gu.pandahmac.HMACAuthActions
@@ -15,7 +14,6 @@ import play.api.libs.json.{Format, Json}
 import util.{AWSConfig, CredentialsGenerator, StepFunctions, UploadBuilder}
 
 import scala.annotation.tailrec
-import scala.util.control.NonFatal
 
 class UploadController(override val authActions: HMACAuthActions, awsConfig: AWSConfig, stepFunctions: StepFunctions,
                        override val stores: DataStores, override val permissions: MediaAtomMakerPermissionsProvider,
@@ -34,8 +32,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     val runningJobs = stepFunctions.getJobs(atomId)
     val running = runningJobs.flatMap(getRunning)
 
-//    Ok(Json.toJson(running ++ added))
-    Ok(Json.toJson(ClientAssetTestData.all))
+    Ok(Json.toJson(running ++ added))
   }
 
   def create = LookupPermissions { implicit raw =>

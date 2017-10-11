@@ -22,7 +22,7 @@ function presenceInitials(email) {
 
 function AssetControls({ user, children, selectAsset }) {
   const activateButton = selectAsset
-    ? <button className="btn" onClick={selectAsset}>
+    ? <button className="btn upload__activate-btn" onClick={selectAsset}>
         Activate
       </button>
     : false;
@@ -39,21 +39,25 @@ function AssetControls({ user, children, selectAsset }) {
   return (
     <div className="upload__actions">
       {children}
-      {userCircle}
-      {activateButton}
+      <div className="upload__right">
+        {userCircle}
+        {activateButton}
+      </div>
     </div>
   );
 }
 
-function AssetInfo({ startTimestamp, originalFilename }) {
-  const startDate = moment(startTimestamp).format('YYYY/MM/DD HH:mm:ss');
+function AssetInfo({ info, timestamp }) {
+  const startDate = timestamp
+    ? moment(timestamp).format('YYYY/MM/DD HH:mm:ss')
+    : false;
 
   return (
-    <div className="upload__metadata">
-      <div className="upload__filename" title={originalFilename}>
-        {originalFilename}
+    <div className="upload__left">
+      <div className="upload__info" title={info}>
+        {info}
       </div>
-      <div className="upload__time">
+      <div>
         <small>{startDate}</small>
       </div>
     </div>
@@ -117,7 +121,7 @@ export function Asset({ upload, active, selectAsset }) {
         </div>
         <div className="grid__item__footer">
           <AssetControls user={user}>
-            {processing.status}
+            <AssetInfo info={processing.status} />
           </AssetControls>
         </div>
       </div>
@@ -125,12 +129,15 @@ export function Asset({ upload, active, selectAsset }) {
   }
 
   if (asset) {
+    const info = metadata ? metadata.originalFilename : `Version ${upload.id}`;
+    const timestamp = metadata ? metadata.startTimestamp : false;
+
     return (
       <div className="grid__item">
         <AssetDisplay active={active} id={asset.id} sources={asset.sources} />
         <div className="grid__item__footer">
           <AssetControls user={user} selectAsset={active ? false : selectAsset}>
-            {metadata ? <AssetInfo {...metadata} /> : false}
+            <AssetInfo info={info} timestamp={timestamp} />
           </AssetControls>
         </div>
       </div>

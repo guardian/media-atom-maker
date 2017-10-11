@@ -142,7 +142,7 @@ object ClientAssetTestData {
       VideoSource("https://uploads.guim.co.uk/2017%2F55%2F31%2FBarclays+Digital+Safety+%7C+Online+Shopping--6e8ed8c5-69b8-4dee-8550-dd98cd447629.mp4", "video/mp4")
     ))),
     metadata = Some(ClientAssetMetadata(
-      originalFilename = Some("Barclays Digital Safety.mp4"),
+      originalFilename = Some("Barclays Digital Safety THIS IS A MAHOUSIVE FILENAME.mp4"),
       startTimestamp = 1507710322,
       user = "barry.chuckle@guardian.co.uk"
     ))
