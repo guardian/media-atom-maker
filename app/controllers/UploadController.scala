@@ -27,12 +27,12 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   def list(atomId: String) = APIAuthAction { req =>
     val atom = MediaAtom.fromThrift(getPreviewAtom(atomId))
-    val added = ClientAsset.fromAssets(atom.assets).map(addYouTubeStatus).map(addMetadata(atom.id, _))
+    val assets = ClientAsset.fromAssets(atom.assets).map(addYouTubeStatus).map(addMetadata(atom.id, _))
 
-    val runningJobs = stepFunctions.getJobs(atomId)
-    val running = runningJobs.flatMap(getRunning)
+    val jobs = stepFunctions.getJobs(atomId)
+    val uploads = jobs.flatMap(getRunning(assets, _))
 
-    Ok(Json.toJson(running ++ added))
+    Ok(Json.toJson(uploads ++ assets))
   }
 
   def create = LookupPermissions { implicit raw =>
@@ -107,15 +107,23 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     part <- upload.parts.find(_.key == key)
   } yield part
 
-  private def getRunning(job: ExecutionListItem): Option[ClientAsset] = {
-    val events = stepFunctions.getEventsInReverseOrder(job)
-    val startTimestamp = job.getStartDate.getTime
+  private def getRunning(assets: List[ClientAsset], job: ExecutionListItem): Option[ClientAsset] = {
+    val alreadyAdded = assets.exists { asset =>
+      job.getName.endsWith(s"-${asset.id}")
+    }
 
-    val upload = stepFunctions.getTaskEntered(events)
-    val error = stepFunctions.getExecutionFailed(events)
+    if(alreadyAdded) {
+      None
+    } else {
+      val events = stepFunctions.getEventsInReverseOrder(job)
+      val startTimestamp = job.getStartDate.getTime
 
-    upload.map { case(state, upload) =>
-      ClientAsset.fromUpload(state, startTimestamp, upload, error)
+      val upload = stepFunctions.getTaskEntered(events)
+      val error = stepFunctions.getExecutionFailed(events)
+
+      upload.map { case (state, upload) =>
+        ClientAsset.fromUpload(state, startTimestamp, upload, error)
+      }
     }
   }
 }
