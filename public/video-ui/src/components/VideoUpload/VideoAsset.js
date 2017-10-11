@@ -40,27 +40,6 @@ function Overlay({ active }) {
   );
 }
 
-function Metadata({ user, startTimestamp, originalFilename }) {
-  const initials = presenceInitials(user);
-  const startDate = moment(startTimestamp).format('YYYY/MM/DD HH:mm:ss');
-
-  return (
-    <div className="upload__asset__metadata">
-      <div className="upload__asset__filename" title={originalFilename}>
-        {originalFilename}
-      </div>
-      <div className="upload__asset__time">
-        {startDate}
-        <ul className="presence-list">
-          <li className="presence-list__user" title={user}>
-            {initials}
-          </li>
-        </ul>
-      </div>
-    </div>
-  );
-}
-
 function YouTubeVideo({ id, active }) {
   const youTubeLink = `https://www.youtube.com/watch?v=${id}`;
 
@@ -97,10 +76,40 @@ function UploadFailed({ msg }) {
 }
 
 function AssetControls({ id, active, metadata, selectAsset }) {
+  let fileInfo = id;
+  let userInfo = false;
+
+  if (metadata) {
+    const { user, startTimestamp, originalFilename } = metadata;
+
+    const initials = presenceInitials(user);
+    const startDate = moment(startTimestamp).format('YYYY/MM/DD HH:mm:ss');
+
+    fileInfo = (
+      <div className="upload__asset__metadata">
+        <div className="upload__asset__filename" title={originalFilename}>
+          {originalFilename}.wackyaonnrbjnjnejjnjn
+        </div>
+        <div className="upload__asset__time">
+          <small>{startDate}</small>
+        </div>
+      </div>
+    );
+
+    userInfo = (
+      <ul className="presence-list">
+        <li className="presence-list__user" title={user}>
+          {initials}
+        </li>
+      </ul>
+    );
+  }
+
   return (
     <div className="grid__item__footer">
       <div className="upload__asset__actions">
-        {metadata ? <Metadata {...metadata} /> : id}
+        {fileInfo}
+        {userInfo}
         <button className="btn" onClick={selectAsset}>
           Activate
         </button>
