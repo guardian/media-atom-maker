@@ -17,7 +17,7 @@ class ClientAssetTest extends FunSuite with MustMatchers {
 
   val parts = List(UploadPart("1", 0, 10), UploadPart("2", 10, 20))
 
-  test("Group assets by version (newest first)") {
+  test("Group assets by version (latest first)") {
     val assets = List(mp4.copy(version = 1), m3u8.copy(version = 1), ytAsset.copy(version = 2))
     val output = ClientAsset.fromAssets(assets)
 

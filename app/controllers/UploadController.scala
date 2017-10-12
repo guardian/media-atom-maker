@@ -1,16 +1,18 @@
 package controllers
 
-import _root_.model.{ClientAsset, ClientAssetTestData, ClientAssetMetadata, ClientAssetProcessing, MediaAtom}
+import _root_.model.{ClientAsset, ClientAssetMetadata, ClientAssetProcessing, ClientAssetTestData, MediaAtom}
 import com.amazonaws.services.stepfunctions.model.{ExecutionAlreadyExistsException, ExecutionListItem}
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
 import com.gu.media.model.YouTubeAsset
 import com.gu.media.upload.model._
+import com.gu.media.util.MediaAtomHelpers
 import com.gu.media.youtube.YouTubeVideos
 import com.gu.pandahmac.HMACAuthActions
 import data.{DataStores, UnpackedDataStores}
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.{Format, Json}
+import util.atom.MediaAtomImplicits
 import util.{AWSConfig, CredentialsGenerator, StepFunctions, UploadBuilder}
 
 import scala.annotation.tailrec
@@ -19,7 +21,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
                        override val stores: DataStores, override val permissions: MediaAtomMakerPermissionsProvider,
                        youTube: YouTubeVideos)
 
-  extends AtomController with Logging with JsonRequestParsing with UnpackedDataStores {
+  extends AtomController with Logging with JsonRequestParsing with UnpackedDataStores with MediaAtomImplicits {
 
   import authActions.APIAuthAction
 
@@ -42,8 +44,9 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       } else {
         log.info(s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}, selfHosted=${req.selfHost}")
 
-        val atom = MediaAtom.fromThrift(getPreviewAtom(req.atomId))
-        val version = if(atom.assets.isEmpty) { 1 } else { atom.assets.map(_.version).max + 1 }
+        val thriftAtom = getPreviewAtom(req.atomId)
+        val atom = MediaAtom.fromThrift(thriftAtom)
+        val version = MediaAtomHelpers.getNextAssetVersion(thriftAtom.tdata)
 
         val upload = start(atom, raw.user.email, req, version)
 
