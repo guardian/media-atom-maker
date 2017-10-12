@@ -120,7 +120,7 @@ class VideoData extends React.Component {
               fieldLocation="keywords"
               name="Composer Keywords"
               formRowClass="form__row__byline"
-              tagType={TagTypes.keyword}
+              tagType={isHosted ? TagTypes.paidContentKeywords : TagTypes.keyword}
               isDesired={true}
               inputPlaceholder="Search keywords (type '*' to show all)"
               customValidation={this.props.validateKeywords}
