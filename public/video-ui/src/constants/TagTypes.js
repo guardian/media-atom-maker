@@ -23,7 +23,7 @@ export default class TagTypes {
     return 'tone';
   }
 
-  static get paidContent() {
+  static get paidContentKeywords() {
     return 'paid-content';
   }
 }

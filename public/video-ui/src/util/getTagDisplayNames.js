@@ -25,7 +25,7 @@ export default function getTagDisplayNames(tags) {
       detailedTitle = tag.webTitle + ' (series)';
     } else if (tagType === TagTypes.tone) {
       detailedTitle = tag.webTitle + ' (tone)';
-    } else if (tagType === TagTypes.paidContent) {
+    } else if (tagType === TagTypes.paidContentKeywords) {
       detailedTitle = tag.webTitle + ' (paid-content)';
     } else detailedTitle = tag.webTitle;
 
