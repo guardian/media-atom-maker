@@ -21,9 +21,11 @@ class MainApp (override val stores: DataStores,
   import authActions.AuthAction
 
   def listAtoms = AuthAction { implicit req =>
+    val gaPropertyId = conf.getString("gaPropertyId")
+
     previewDataStore.listAtoms.fold(
       err => InternalServerError(err.msg),
-      atoms => Ok(displayAtomList())
+      atoms => Ok(displayAtomList(gaPropertyId))
     )
   }
 }
