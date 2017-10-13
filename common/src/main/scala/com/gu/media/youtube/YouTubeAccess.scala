@@ -73,14 +73,7 @@ trait YouTubeAccess extends Settings {
       .setOnBehalfOfContentOwner(contentOwner)
 
     request.execute().getItems.asScala.toList
-      .map(channel => {
-        val channelId = channel.getId
-
-        YouTubeChannel.build(
-          this,
-          channel
-        )
-      })
+      .map(YouTubeChannel.build(this, _))
       .sortBy(_.title)
   }
 
