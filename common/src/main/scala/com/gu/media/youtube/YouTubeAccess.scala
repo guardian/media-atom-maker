@@ -77,9 +77,8 @@ trait YouTubeAccess extends Settings {
         val channelId = channel.getId
 
         YouTubeChannel.build(
-          channel,
-          allowPublic = !strictlyUnlistedChannels.contains(channelId),
-          isCommercial = commercialChannels.contains(channelId)
+          this,
+          channel
         )
       })
       .sortBy(_.title)

@@ -23,13 +23,8 @@ trait YouTube extends Logging with YouTubeAccess with YouTubeVideos with YouTube
   def getCommercialVideoInfo(videoId: String) = {
     getVideo(videoId, "snippet,contentDetails,status").map(video => {
       val channelId = video.getSnippet.getChannelId
-
-      val channel = YouTubeChannel(
-        id = channelId,
-        title = video.getSnippet.getChannelTitle,
-        privacyStates = if (strictlyUnlistedChannels.contains(channelId)) Set(PrivacyStatus.Unlisted, PrivacyStatus.Private) else PrivacyStatus.all,
-        isCommercial = commercialChannels.contains(channelId)
-      )
+      val channelTitle = video.getSnippet.getChannelTitle
+      val channel = YouTubeChannel.build(this, channelId, channelTitle)
 
       val advertisingOptions = getAdvertisingOptions(videoId)
       YouTubeVideoCommercialInfo.build(video, advertisingOptions, channel)
