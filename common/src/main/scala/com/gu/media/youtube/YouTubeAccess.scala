@@ -16,7 +16,8 @@ trait YouTubeAccess extends Settings {
 
   val allowedChannels: Set[String] = getStringSet("youtube.channels.allowed")
   val strictlyUnlistedChannels: Set[String] = getStringSet("youtube.channels.unlisted")
-  val allChannels: Set[String] = allowedChannels ++ strictlyUnlistedChannels
+  val commercialChannels: Set[String] = getStringSet("youtube.channels.commercial")
+  val allChannels: Set[String] = allowedChannels ++ strictlyUnlistedChannels ++ commercialChannels
 
   val trainingChannels: Set[String] = getStringSet("youtube.channels.training")
 
@@ -72,7 +73,7 @@ trait YouTubeAccess extends Settings {
       .setOnBehalfOfContentOwner(contentOwner)
 
     request.execute().getItems.asScala.toList
-      .map(c => YouTubeChannel.build(c, allowPublic = !strictlyUnlistedChannels.contains(c.getId)))
+      .map(YouTubeChannel.build(this, _))
       .sortBy(_.title)
   }
 

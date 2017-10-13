@@ -1,6 +1,7 @@
 package util
 
 import com.gu.media.logging.Logging
+import com.gu.media.model.PrivacyStatus
 import com.gu.media.youtube._
 import com.typesafe.config.Config
 import play.api.cache.CacheApi
@@ -21,8 +22,12 @@ trait YouTube extends Logging with YouTubeAccess with YouTubeVideos with YouTube
 
   def getCommercialVideoInfo(videoId: String) = {
     getVideo(videoId, "snippet,contentDetails,status").map(video => {
+      val channelId = video.getSnippet.getChannelId
+      val channelTitle = video.getSnippet.getChannelTitle
+      val channel = YouTubeChannel.build(this, channelId, channelTitle)
+
       val advertisingOptions = getAdvertisingOptions(videoId)
-      YouTubeVideoCommercialInfo.build(video, advertisingOptions)
+      YouTubeVideoCommercialInfo.build(video, advertisingOptions, channel)
     })
   }
 }

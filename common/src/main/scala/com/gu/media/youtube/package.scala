@@ -61,17 +61,30 @@ package object youtube {
     }
   }
 
-  case class YouTubeChannel(id: String, title: String, privacyStates: Set[PrivacyStatus] = PrivacyStatus.all)
+  case class YouTubeChannel(
+    id: String,
+    title: String,
+    privacyStates: Set[PrivacyStatus] = PrivacyStatus.all,
+    isCommercial: Boolean
+  )
 
   object YouTubeChannel {
     implicit val reads: Reads[YouTubeChannel] = Json.reads[YouTubeChannel]
     implicit val writes: Writes[YouTubeChannel] = Json.writes[YouTubeChannel]
 
-    def build(channel: Channel, allowPublic: Boolean): YouTubeChannel = {
+    def build(youtubeAccess: YouTubeAccess, channel: Channel): YouTubeChannel = {
+      val id = channel.getId
+      val title = channel.getSnippet.getTitle
+
+      build(youtubeAccess, id, title)
+    }
+
+    def build(youtubeAccess: YouTubeAccess, id: String, title: String): YouTubeChannel = {
       YouTubeChannel(
-        id = channel.getId,
-        title = channel.getSnippet.getTitle,
-        privacyStates = if (allowPublic) PrivacyStatus.all else Set(PrivacyStatus.Unlisted, PrivacyStatus.Private)
+        id = id,
+        title = title,
+        privacyStates = if (youtubeAccess.strictlyUnlistedChannels.contains(id)) Set(PrivacyStatus.Unlisted, PrivacyStatus.Private) else PrivacyStatus.all,
+        isCommercial = youtubeAccess.commercialChannels.contains(id)
       )
     }
   }
@@ -91,7 +104,7 @@ package object youtube {
     implicit val reads: Reads[YouTubeVideoDetail] = Json.reads[YouTubeVideoDetail]
     implicit val writes: Writes[YouTubeVideoDetail] = Json.writes[YouTubeVideoDetail]
 
-    def build(video: Video): YouTubeVideoDetail = {
+    def build(video: Video, channel: YouTubeChannel): YouTubeVideoDetail = {
       val tags: Seq[String] = video.getSnippet.getTags match {
         case null => List()
         case t => t.asScala
@@ -105,7 +118,7 @@ package object youtube {
         privacyStatus = video.getStatus.getPrivacyStatus,
         tags = tags,
         contentBundleTags = tags.filter(t => t.startsWith("gdnpfp")),
-        channel = YouTubeChannel(id = video.getSnippet.getChannelId, title = video.getSnippet.getChannelTitle)
+        channel = channel
       )
     }
   }
@@ -131,9 +144,9 @@ package object youtube {
     implicit val reads: Reads[YouTubeVideoCommercialInfo] = Json.reads[YouTubeVideoCommercialInfo]
     implicit val writes: Writes[YouTubeVideoCommercialInfo] = Json.writes[YouTubeVideoCommercialInfo]
 
-    def build(video: Video, videoAdvertisingOption: VideoAdvertisingOption): YouTubeVideoCommercialInfo = {
+    def build(video: Video, videoAdvertisingOption: VideoAdvertisingOption, channel: YouTubeChannel): YouTubeVideoCommercialInfo = {
       YouTubeVideoCommercialInfo (
-        video = YouTubeVideoDetail.build(video),
+        video = YouTubeVideoDetail.build(video, channel),
         advertising = YouTubeAdvertising.build(videoAdvertisingOption)
       )
     }
