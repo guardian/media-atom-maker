@@ -10,8 +10,7 @@ import TagTypes from '../../constants/TagTypes';
 import { fieldLengths } from '../../constants/videoEditValidation';
 import { videoCategories } from '../../constants/videoCategories';
 import PrivacyStates from '../../constants/privacyStates';
-import { channelAllowed } from '../../util/channelAllowed';
-import { getStore } from '../../util/storeAccessor';
+import VideoUtils from '../../util/video';
 
 class VideoData extends React.Component {
   hasCategories = () => this.props.youtube.categories.length !== 0;
@@ -31,20 +30,13 @@ class VideoData extends React.Component {
   }
 
   render() {
-    const isHosted = this.props.video.category === 'Hosted';
-    const hasAssets = this.props.video.assets.length > 0;
-
-    const canUpdateYouTube = channelAllowed(this.props.video, this.props.youtube.channels);
-
-    const privacyStates = this.props.video.channelId && this.props.youtube.channels.length > 0 && canUpdateYouTube
-      ? this.props.youtube.channels.find(_ => _.id === this.props.video.channelId).privacyStates
-      : PrivacyStates.defaultStates;
-
-    const minDurationForAds = getStore().getState().config.minDurationForAds;
-
-    const tooShortForAds =
-      this.props.video.duration > 0 &&
-      this.props.video.duration < minDurationForAds;
+    const isYoutubeAtom = VideoUtils.isYoutube(this.props.video);
+    const isCommercialType = VideoUtils.isCommercialType(this.props.video);
+    const hasAssets = VideoUtils.hasAssets(this.props.video);
+    const isEligibleForAds = VideoUtils.isEligibleForAds(this.props.video);
+    const hasYoutubeWriteAccess = VideoUtils.hasYoutubeWriteAccess(this.props.video);
+    const availableChannels = VideoUtils.getAvailableChannels(this.props.video);
+    const availablePrivacyStates = VideoUtils.getAvailablePrivacyStates(this.props.video);
 
     return (
       <div className="form__group">
@@ -61,7 +53,7 @@ class VideoData extends React.Component {
             <ManagedField
               fieldLocation="title"
               name={
-                canUpdateYouTube ? 'Headline (YouTube title)' : 'Headline'
+                isYoutubeAtom ? 'Headline (YouTube title)' : 'Headline'
               }
               maxLength={fieldLengths.title}
               isRequired={true}
@@ -71,7 +63,7 @@ class VideoData extends React.Component {
             <ManagedField
               fieldLocation="description"
               name={
-                canUpdateYouTube
+                isYoutubeAtom
                   ? 'Standfirst (YouTube description)'
                   : 'Standfirst'
               }
@@ -120,7 +112,7 @@ class VideoData extends React.Component {
               fieldLocation="keywords"
               name="Composer Keywords"
               formRowClass="form__row__byline"
-              tagType={isHosted ? TagTypes.paidContentKeywords : TagTypes.keyword}
+              tagType={isCommercialType ? TagTypes.commercial : TagTypes.keyword}
               isDesired={true}
               inputPlaceholder="Search keywords (type '*' to show all)"
               customValidation={this.props.validateKeywords}
@@ -139,26 +131,26 @@ class VideoData extends React.Component {
             <ManagedField
               fieldLocation="category"
               name="Category"
-              disabled={isHosted && hasAssets}
+              disabled={hasAssets}
             >
               <SelectBox selectValues={videoCategories} />
             </ManagedField>
-            <ManagedField fieldLocation="channelId" name="YouTube Channel" disabled={isHosted || hasAssets}>
-              <SelectBox selectValues={this.props.youtube.channels} />
+            <ManagedField fieldLocation="channelId" name="YouTube Channel" disabled={hasAssets}>
+              <SelectBox selectValues={availableChannels} />
             </ManagedField>
             <ManagedField
               fieldLocation="privacyStatus"
               name="Privacy Status"
-              disabled={!canUpdateYouTube}
+              disabled={!isYoutubeAtom || !hasYoutubeWriteAccess}
             >
-              <SelectBox selectValues={PrivacyStates.forForm(privacyStates)} />
+              <SelectBox selectValues={PrivacyStates.forForm(availablePrivacyStates)} />
             </ManagedField>
             <ManagedField
               fieldLocation="tags"
               name="YouTube Keywords"
               placeholder="No keywords"
               tagType={TagTypes.youtube}
-              disabled={!canUpdateYouTube}
+              disabled={!isYoutubeAtom}
             >
               <TagPicker disableCapiTags />
             </ManagedField>
@@ -166,8 +158,8 @@ class VideoData extends React.Component {
               fieldLocation="blockAds"
               name="Block ads"
               fieldDetails="Ads will not be displayed with this video"
-              disabled={!canUpdateYouTube}
-              tooltip={tooShortForAds ? `Videos less than ${minDurationForAds} seconds will automatically have ads blocked` : ''}
+              disabled={!isYoutubeAtom || !isEligibleForAds}
+              tooltip={!isEligibleForAds ? `Not eligible for pre-roll.` : ''}
             >
               <CheckBox />
             </ManagedField>
@@ -175,7 +167,6 @@ class VideoData extends React.Component {
               fieldLocation="composerCommentsEnabled"
               name="Comments"
               fieldDetails="Allow comments on Guardian video page (does not change YouTube)"
-              disabled={!canUpdateYouTube}
             >
               <CheckBox />
             </ManagedField>
@@ -183,7 +174,6 @@ class VideoData extends React.Component {
               fieldLocation="optimisedForWeb"
               name="Optimised for Web"
               fieldDetails="Optimised for Web"
-              disabled={!canUpdateYouTube}
             >
               <CheckBox />
             </ManagedField>
@@ -191,7 +181,6 @@ class VideoData extends React.Component {
               fieldLocation="sensitive"
               name="Sensitive"
               fieldDetails="Contains sensitive content"
-              disabled={!canUpdateYouTube}
             >
               <CheckBox />
             </ManagedField>
@@ -199,7 +188,6 @@ class VideoData extends React.Component {
               fieldLocation="legallySensitive"
               name="Legally Sensitive"
               fieldDetails="This content involves active criminal proceedings"
-              disabled={!canUpdateYouTube}
             >
               <CheckBox />
             </ManagedField>
@@ -207,7 +195,6 @@ class VideoData extends React.Component {
               fieldLocation="suppressRelatedContent"
               name="Suppress related content"
               fieldDetails="Suppress related content"
-              disabled={!canUpdateYouTube}
             >
               <CheckBox />
             </ManagedField>

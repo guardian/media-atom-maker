@@ -65,8 +65,8 @@ export default class TagPicker extends React.Component {
     switch (this.props.tagType) {
       case TagTypes.keyword:
         return defaultTagTypes;
-      case TagTypes.paidContentKeywords:
-        return [TagTypes.paidContentKeywords, ...defaultTagTypes];
+      case TagTypes.commercial:
+        return [TagTypes.commercial, ...defaultTagTypes];
       default:
         return [this.props.tagType];
     }

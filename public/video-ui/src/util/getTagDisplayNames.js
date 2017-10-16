@@ -20,7 +20,7 @@ export default function getTagDisplayNames(tags) {
       const appendTagTypes = [
         TagTypes.series,
         TagTypes.tone,
-        TagTypes.paidContentKeywords
+        TagTypes.commercial
       ];
 
       tagForDisplay.detailedTitle = appendTagTypes.includes(tagType)
