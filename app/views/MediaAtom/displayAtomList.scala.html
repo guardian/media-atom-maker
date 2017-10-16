@@ -1,3 +1,5 @@
+@(maybeGaPropertyId: Option[String])
+
 <html ng-app="mediaAtomApp">
     <head>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
@@ -14,5 +16,22 @@
     </head>
     <body>
         <div data-ng-view></div>
+
+        @defining(maybeGaPropertyId) {
+          case Some(gaPropertyId) => {
+            <!-- Global site tag (gtag.js) - Google Analytics -->
+            <script async src="https://www.googletagmanager.com/gtag/js?id=@gaPropertyId"></script>
+            <script>
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+
+              gtag('config', '@gaPropertyId');
+            </script>
+          }
+          case _ => {
+
+          }
+        }
     </body>
 </html>
