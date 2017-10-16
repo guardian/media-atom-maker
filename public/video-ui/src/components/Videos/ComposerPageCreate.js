@@ -12,9 +12,13 @@ export default class ComposerPageCreate extends React.Component {
     return getStore().getState().config.composerUrl;
   };
 
+  getComposerId = () => getStore().getState().usage.data.preview.video[0].fields.internalComposerCode;
+
   isHosted = () => {
     return this.props.video.category === 'Hosted';
   };
+
+  openComposerPage = () => window.open(`${this.getComposerUrl()}/content/${this.getComposerId()}`, '_blank');
 
   pageCreate = () => {
     this.setState({
@@ -43,19 +47,18 @@ export default class ComposerPageCreate extends React.Component {
   };
 
   render() {
-    if (this.props.canonicalVideoPageExists() || this.isHosted()) {
-      return null;
-    }
+    const { canonicalVideoPageExists, videoEditOpen, requiredComposerFieldsMissing } = this.props;
+    const showOpenPage = canonicalVideoPageExists() || this.isHosted();
 
     return (
       <button
         className="button__secondary"
-        onClick={this.pageCreate}
+        onClick={showOpenPage ? this.openComposerPage : this.pageCreate}
         disabled={
-          this.props.videoEditOpen || this.state.composerUpdateInProgress || this.props.requiredComposerFieldsMissing()
+          videoEditOpen || this.state.composerUpdateInProgress || requiredComposerFieldsMissing()
         }
       >
-        <Icon icon="add_to_queue" /> Create Video Page
+        { showOpenPage ? <span>Open Composer Page</span> : <span><Icon icon="add_to_queue" /> Create Video Page</span> }
       </button>
     );
   }
