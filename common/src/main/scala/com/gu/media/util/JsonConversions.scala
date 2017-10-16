@@ -156,9 +156,10 @@ object JsonConversions {
       (__ \ "labels").write[Seq[String]] and
       (__ \ "defaultHtml").write[String] and
       (__ \ "data").write[AtomData] and
-      (__ \ "contentChangeDetails").write[ContentChangeDetails]
+      (__ \ "contentChangeDetails").write[ContentChangeDetails] and
+      (__ \ "scheduledLaunchDate").writeNullable[Long]
 
   ) { atom: Atom =>
-    (atom.id, atom.atomType, atom.labels, atom.defaultHtml, atom.data, atom.contentChangeDetails)
+    (atom.id, atom.atomType, atom.labels, atom.defaultHtml, atom.data, atom.contentChangeDetails, atom.scheduledLaunchDate)
   }
 }

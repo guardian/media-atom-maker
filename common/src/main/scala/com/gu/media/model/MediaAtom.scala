@@ -12,6 +12,7 @@ abstract class MediaAtomBase {
   val posterImage: Option[Image]
   val category: Category
   val source: Option[String]
+  val scheduledLaunchDate: Option[Long]
 
   //youtube metadata
   val channelId: Option[String]
@@ -43,6 +44,7 @@ case class MediaAtomBeforeCreation(
   posterImage: Option[Image],
   category: Category,
   source: Option[String],
+  scheduledLaunchDate: Option[Long],
 
   channelId: Option[String],
   privacyStatus: Option[PrivacyStatus],
@@ -106,7 +108,8 @@ case class MediaAtomBeforeCreation(
         legallySensitive = legallySensitive,
         blockAds = Some(blockAds),
         sensitive = sensitive
-      ))
+      )),
+      scheduledLaunchDate = scheduledLaunchDate
     )
   }
 }
@@ -145,6 +148,7 @@ case class MediaAtom(
   sensitive: Option[Boolean],
   privacyStatus: Option[PrivacyStatus],
   expiryDate: Option[Long] = None,
+  scheduledLaunchDate: Option[Long] = None,
   blockAds: Boolean = false,
   composerCommentsEnabled: Option[Boolean] = Some(false),
   optimisedForWeb: Option[Boolean] = Some(false),
@@ -189,6 +193,7 @@ case class MediaAtom(
       title = Some(title),
       data = AtomData.Media(data),
       contentChangeDetails = contentChangeDetails.asThrift,
+      scheduledLaunchDate = scheduledLaunchDate,
       flags = Some(ThriftFlags(
         legallySensitive = legallySensitive,
         blockAds = Some(blockAds),
@@ -203,6 +208,7 @@ object MediaAtom extends MediaAtomImplicits {
 
   def fromThrift(atom: ThriftAtom) = {
     val data = atom.tdata
+    val date: Option[Long] = atom.scheduledLaunchDate
 
     MediaAtom(
       id = atom.id,
@@ -225,6 +231,7 @@ object MediaAtom extends MediaAtomImplicits {
       keywords = data.keywords.map(_.toList).getOrElse(Nil),
       youtubeCategoryId = data.metadata.map(_.categoryId).getOrElse(None),
       expiryDate = data.metadata.map(_.expiryDate).getOrElse(None),
+      scheduledLaunchDate = atom.scheduledLaunchDate,
       blockAds = atom.flags.flatMap(_.blockAds).getOrElse(false),
       license = data.metadata.flatMap(_.license),
       channelId = data.metadata.flatMap(_.channelId),
