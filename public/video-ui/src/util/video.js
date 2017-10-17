@@ -26,6 +26,11 @@ export default class VideoUtils {
       return false;
     }
 
+    // no active assets, could be youtube if we wanted
+    if (!activeAsset) {
+      return true;
+    }
+    
     return activeAsset.platform === 'Youtube';
   }
 
