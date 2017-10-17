@@ -12,7 +12,7 @@ export default class AddYouTubeAsset extends React.Component {
       return;
     }
 
-    if (event.target.files.length == 0) {
+    if (event.target.files.length === 0) {
       this.setState({ file: null });
     } else {
       this.setState({ file: event.target.files[0] });
