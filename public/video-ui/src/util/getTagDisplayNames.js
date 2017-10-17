@@ -7,32 +7,27 @@ export default function getTagDisplayNames(tags) {
     }
 
     const tagType = tag.type;
-    let detailedTitle;
+
+    const tagForDisplay = {id: tag.id, webTitle: tag.webTitle};
 
     if (tagType === TagTypes.keyword) {
       //Some webtitles on keyword tags are too unspecific and we need to add
       //the section name to them to know what tags they are referring to
+      tagForDisplay.detailedTitle = tag.webTitle !== tag.sectionName
+        ? `${tag.webTitle} (${tag.sectionName})`
+        : tag.webTitle;
+    } else {
+      const appendTagTypes = [
+        TagTypes.series,
+        TagTypes.tone,
+        TagTypes.paidContentKeywords
+      ];
 
-      if (
-        tag.webTitle !== tag.sectionName &&
-        tag.webTitle.split(' ').length <= 2
-      ) {
-        detailedTitle = tag.webTitle + ' (' + tag.sectionName + ')';
-      } else {
-        detailedTitle = tag.webTitle;
-      }
-    } else if (tagType === TagTypes.series) {
-      detailedTitle = tag.webTitle + ' (series)';
-    } else if (tagType === TagTypes.tone) {
-      detailedTitle = tag.webTitle + ' (tone)';
-    } else if (tagType === TagTypes.paidContentKeywords) {
-      detailedTitle = tag.webTitle + ' (paid-content)';
-    } else detailedTitle = tag.webTitle;
+      tagForDisplay.detailedTitle = appendTagTypes.includes(tagType)
+        ? `${tag.webTitle} (${tagType})`
+        : tag.webTitle;
+    }
 
-    return {
-      id: tag.id,
-      webTitle: tag.webTitle,
-      detailedTitle: detailedTitle
-    };
+    return tagForDisplay;
   });
 }
