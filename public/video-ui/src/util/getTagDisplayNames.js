@@ -7,7 +7,6 @@ export default function getTagDisplayNames(tags) {
     }
 
     const tagType = tag.type;
-
     const tagForDisplay = {id: tag.id, webTitle: tag.webTitle};
 
     if (tagType === TagTypes.keyword) {
@@ -20,7 +19,7 @@ export default function getTagDisplayNames(tags) {
       const appendTagTypes = [
         TagTypes.series,
         TagTypes.tone,
-        TagTypes.paidContentKeywords
+        TagTypes.commercial
       ];
 
       tagForDisplay.detailedTitle = appendTagTypes.includes(tagType)
