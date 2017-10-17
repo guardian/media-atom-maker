@@ -1,6 +1,6 @@
 package controllers
 
-import _root_.model.{ClientAsset, ClientAssetMetadata, ClientAssetProcessing, ClientAssetTestData, MediaAtom}
+import _root_.model.{ClientAsset, ClientAssetMetadata, ClientAssetProcessing, MediaAtom}
 import com.amazonaws.services.stepfunctions.model.{ExecutionAlreadyExistsException, ExecutionListItem}
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging

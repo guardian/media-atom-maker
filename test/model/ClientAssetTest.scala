@@ -72,14 +72,10 @@ class ClientAssetTest extends FunSuite with MustMatchers {
 
   test("Upload with original filename") {
     val progress = UploadProgress(chunksInS3 = 2, chunksInYouTube = 2, fullyUploaded = true, fullyTranscoded = false, retries = 0)
-    val metadata = blank(selfHost = false).copy(originalFilename = Some("test.mp4"))
+    val metadata = UploadMetadata("", "", "", "", null, null, originalFilename = Some("test.mp4"))
     val upload = Upload("test", parts, metadata, progress)
 
-    val actual = ClientAsset.fromUpload("test", upload, error = None)
-    actual.originalFilename must contain("test.mp4")
-  }
-
-  private def blank(selfHost: Boolean): UploadMetadata = {
-    UploadMetadata("", "", "", "", null, selfHost, null, None)
+    val actual = ClientAsset.fromUpload("test", 1234, upload, error = None)
+    actual.metadata.get.originalFilename must contain("test.mp4")
   }
 }
