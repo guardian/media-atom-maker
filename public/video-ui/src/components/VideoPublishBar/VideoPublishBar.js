@@ -4,6 +4,7 @@ import { isVideoPublished } from '../../util/isVideoPublished';
 import { hasUnpublishedChanges } from '../../util/hasUnpublishedChanges';
 import { getVideoBlock } from '../../util/getVideoBlock';
 import { getStore } from '../../util/storeAccessor';
+import ScheduledLaunch from '../../components/scheduledLaunch/scheduledLaunch';
 
 export default class VideoPublishBar extends React.Component {
   videoIsCurrentlyPublishing() {
@@ -85,6 +86,12 @@ export default class VideoPublishBar extends React.Component {
 
     return (
       <div className="flex-container publish-bar">
+        <ScheduledLaunch
+          video={this.props.video}
+          requiredComposerFieldsMissing={this.props.requiredComposerFieldsMissing}
+          updateVideo={this.props.updateVideo}
+          saveVideo={this.props.saveVideo}
+        />
         {this.renderPublishButton()}
       </div>
     );
