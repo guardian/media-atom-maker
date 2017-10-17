@@ -61,8 +61,17 @@
   }
 }
 
+
 .icon__spacing {
   margin-right: 5px;
+}
+
+.icon__cancel {
+  background-color: transparent;
+    &:hover{
+      color: $cWhite;
+      background-color: transparent;
+    }
 }
 
 .icon__back {

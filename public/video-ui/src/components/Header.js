@@ -196,6 +196,7 @@ export default class Header extends React.Component {
             requiredComposerFieldsMissing={this.requiredComposerFieldsMissing}
             canonicalVideoPageExists={this.canonicalVideoPageExists}
             updateVideo={this.props.updateVideo}
+            saveVideo={this.props.saveVideo}
           />
           <AdvancedActions
             video={this.props.video || {}}

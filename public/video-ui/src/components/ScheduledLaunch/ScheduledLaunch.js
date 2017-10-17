@@ -1,58 +1,86 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Icon from '../Icon';
-import { ManagedForm, ManagedField } from '../ManagedForm';
 import DatePicker from '../FormFields/DatePicker';
+import moment from 'moment';
 
 export default class ScheduledLaunch extends React.Component {
-
   static propTypes = {
     video: PropTypes.object.isRequired,
-    updateVideo: PropTypes.func.isRequired,
     saveVideo: PropTypes.func.isRequired,
+    videoEditOpen: PropTypes.bool.isRequired
+  };
+
+  state = {
+    selectedDate: null,
+    showDatePicker: false,
+    showScheduleButton: true
+  };
+
+  saveScheduledLaunch = () => {
+    const video = this.props.video;
+    this.props.saveVideo(Object.assign({}, video, { scheduledLaunchDate: this.state.selectedDate }));
+    this.setState({ showDatePicker: false });
   }
 
-  scheduleAtom() {
-    console.log('scheduling atom!');
+  removeScheduledLaunch = () => {
+    const video = this.props.video;
+    this.props.saveVideo(Object.assign({}, video, { scheduledLaunchDate: null }));
+    this.setState({ showDatePicker: false });
   }
 
-  renderScheduledLaunchPicker() {
-
-    return (
-      <ManagedForm
-        data={this.props.video}
-        editable={true}
-        updateData={(e) => this.props.updateVideo(e)}
-      >
-        <ManagedField fieldLocation="scheduledLaunch" name="">
-          <DatePicker />
-        </ManagedField>
-      </ManagedForm>
-    );
-  }
-
-  renderSetScheduledLaunchButton() {
-
-  }
 
   render() {
-
-    if (!this.props.video || !this.props.video.scheduledLaunchDate) {
-      return (
-        <div>
-          <button
-            onClick={this.scheduleAtom}
-          >
-            Schedule
-          </button>
-          { this.renderScheduledLaunchPicker() }
-        </div>
-      );
-    }
-
+    const { video, video: { scheduledLaunchDate }, videoEditOpen } = this.props;
+    const { selectedDate } = this.state;
+    const showDatePicker = this.state.showDatePicker && !videoEditOpen;
+    const isFutureDate = selectedDate && moment(selectedDate).isAfter(moment());
     return (
-      <div>
-        Scheduled launch set
+      <div className="flex-container topbar__scheduler">
+        { scheduledLaunchDate && !showDatePicker && <span className="topbar__launch-label">Scheduled launch: {moment(scheduledLaunchDate).format('Do MMM YYYY HH:MM')}</span> }
+        {
+          showDatePicker &&
+          <DatePicker
+            editable={true}
+            onUpdateField={(date) => this.setState({ selectedDate: date })}
+            fieldValue={selectedDate}
+            placeholder="Set a date..."
+          />
+        }
+        { showDatePicker && selectedDate && !isFutureDate && 
+          <span className="topbar__alert">Date must be in the future!</span>
+        }
+        {
+          !showDatePicker &&
+          <button
+            className="btn"
+            onClick={() => this.setState({ showDatePicker: true })}
+            disabled={!video || videoEditOpen}
+          >
+            {scheduledLaunchDate ? "Reschedule" : "Schedule Launch"}
+          </button>
+        }
+        {
+          showDatePicker &&
+          <button
+            className="button__secondary--confirm"
+            onClick={() => this.saveScheduledLaunch()}
+            disabled={!selectedDate || !isFutureDate}
+          >
+            Save
+          </button>
+        }
+        {
+          scheduledLaunchDate && showDatePicker &&
+          <button className="button__secondary--remove" onClick={() => this.removeScheduledLaunch()}>
+            Remove
+          </button>
+        }
+        {
+          showDatePicker &&
+          <button className="button__secondary--cancel" onClick={() => this.setState({ showDatePicker: false })}>
+            Cancel
+          </button>
+        }
       </div>
     );
   }

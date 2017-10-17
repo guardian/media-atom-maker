@@ -83,13 +83,11 @@ export default class VideoPublishBar extends React.Component {
     if (!this.props.video) {
       return false;
     }
-
     return (
       <div className="flex-container publish-bar">
         <ScheduledLaunch
           video={this.props.video}
-          requiredComposerFieldsMissing={this.props.requiredComposerFieldsMissing}
-          updateVideo={this.props.updateVideo}
+          videoEditOpen={this.props.videoEditOpen}
           saveVideo={this.props.saveVideo}
         />
         {this.renderPublishButton()}
