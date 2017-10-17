@@ -10,16 +10,17 @@ case class UploadMetadata(
   region: String,
   title: String,
   pluto: PlutoSyncMetadata,
-  selfHost: Boolean = false,
   runtime: RuntimeUploadMetadata,
-  asset: Option[VideoAsset] = None
+  version: Option[Long] = None,
+  selfHost: Boolean = false,
+  asset: Option[VideoAsset] = None,
+  originalFilename: Option[String] = None
 )
 
 case class PlutoSyncMetadata (
   enabled: Boolean,
   projectId: Option[String],
   s3Key: String,
-  assetVersion: Long,
   atomId: String,
   title: String,
   user: String,

@@ -9,7 +9,7 @@ import com.gu.media.model.{SelfHostedAsset, VideoSource, YouTubeAsset}
 class MediaAtomHelpersTest extends FunSuite with MustMatchers {
   test("add YouTube asset") {
     val newAtom = updateAtom(atom()) { mediaAtom =>
-      addAsset(mediaAtom, YouTubeAsset("L9CMNVzMHJ8"))
+      addAsset(mediaAtom, YouTubeAsset("L9CMNVzMHJ8"), version = 2)
     }
 
     val expected = Seq(
@@ -28,7 +28,7 @@ class MediaAtomHelpersTest extends FunSuite with MustMatchers {
     )
 
     val newAtom = updateAtom(atom()) { mediaAtom =>
-      addAsset(mediaAtom, newAsset)
+      addAsset(mediaAtom, newAsset, version = 2)
     }
 
     val expected = Seq(

@@ -1,104 +1,43 @@
 .upload {
-  width: 100%;
-  padding: 20px 30px;
-  background-color: $color800Grey;
-
-  &__header {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px;
-
-    background-color: $color650Grey;
-    border-top: 1px solid $color600Grey;
-    border-bottom: 1px solid $color625Grey;
-  }
-
-  &__content {
-    display: flex;
-    height: 100%;
-  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 150px;
+  color: white;
 
   &__actions {
-    flex: 0 0 20%;
-  }
-
-  &__actions--non-empty {
-    border-right: 1px solid $color700Grey;
-  }
-
-  &__action:not(:last-child) {
-    border-bottom: 1px solid $color625Grey;
-  }
-
-  &__assets {
-    flex: 3 0 0;
-
-    margin: 10px 30px;
-    padding: 10px;
-
     display: flex;
-    flex-flow: row wrap;
-
-    background-color: $bodyBgColor;
+    padding: 8px 10px;
+    justify-content: space-between;
+    align-items: center;
   }
 
-  &__asset {
-    margin: 10px;
+  &__left {
+    overflow: hidden;
+  }
+
+  &__right {
+    display: flex;
+  }
+
+  &__info {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     color: white;
-    display: inline-block;
-
-    &__video {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 150px;
-      color: white;
-
-      img {
-        width: 100%;
-      }
-    }
-
-    &__empty {
-      background-color: $color900Grey;
-      height: 140px;
-      text-align: center;
-    }
-
-    &__running {
-      background-color: $color900Grey;
-      height: 140px;
-
-      span {
-        position: absolute;
-      }
-
-      svg {
-        position: absolute;
-      }
-    }
-
-    &__caption {
-      height: 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: left;
-      background-color: $color650Grey;
-      font-size: 15px;
-      padding: 8px 10px;
-
-      a {
-        text-decoration: none;
-      }
-    }
   }
 
-  label {
-    display: block;
-    font-weight: bold;
-    margin: 0 0 5px;
-    padding: 8px 0 0;
+  &__activate-btn {
+    margin-left: 5px;
   }
+}
+
+.upload__link {
+  display: none;
+}
+
+.upload:hover .upload__link {
+  display: block;
 }
 
 .loader {

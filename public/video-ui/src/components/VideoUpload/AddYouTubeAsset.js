@@ -4,7 +4,7 @@ import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
 import { channelAllowed } from '../../util/channelAllowed';
 
-export default class PlutoProjectPicker extends React.Component {
+export default class AddYouTubeAsset extends React.Component {
   state = { file: null };
 
   setFile = event => {

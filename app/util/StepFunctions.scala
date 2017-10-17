@@ -5,20 +5,20 @@ import java.time.Instant
 import com.amazonaws.services.stepfunctions.model._
 import com.fasterxml.jackson.core.JsonParseException
 import com.gu.media.upload.model._
-import play.api.libs.json.{JsResultException, JsSuccess, Json}
+import play.api.libs.json.{JsResultException, Json}
 
 import scala.collection.JavaConverters._
 
 class StepFunctions(awsConfig: AWSConfig) {
-  def getById(id: String): Option[Upload] = {
+  def getById(id: String): Option[(Long, Upload)] = {
     val arn = s"${awsConfig.pipelineArn.replace(":stateMachine:", ":execution:")}:$id"
 
     try {
       val request = new DescribeExecutionRequest().withExecutionArn(arn)
       val result = awsConfig.stepFunctionsClient.describeExecution(request)
-      val json = Json.parse(result.getInput)
 
-      Some(json.as[Upload])
+      val upload = Json.parse(result.getInput).validate[Upload].asOpt
+      upload.map(result.getStartDate.getTime -> _)
     } catch {
       case _: ExecutionDoesNotExistException =>
         None
@@ -32,13 +32,13 @@ class StepFunctions(awsConfig: AWSConfig) {
     runningJobs ++ failedJobs
   }
 
-  def getTaskEntered(events: Iterable[HistoryEvent]): Option[(String, Upload)] = {
-    events.find(_.getType == "TaskStateEntered").map { event =>
-      val details = event.getStateEnteredEventDetails
-      val upload = Json.parse(details.getInput).as[Upload]
+  def getTaskEntered(events: Iterable[HistoryEvent]): Option[(String, Upload)] = for {
+    event <- events.find(_.getType == "TaskStateEntered")
 
-      (details.getName, upload)
-    }
+    details = event.getStateEnteredEventDetails
+    upload <- Json.parse(details.getInput).validate[Upload].asOpt
+  } yield {
+    details.getName -> upload
   }
 
   def getExecutionFailed(events: Iterable[HistoryEvent]): Option[String] = {
@@ -49,7 +49,7 @@ class StepFunctions(awsConfig: AWSConfig) {
         Some((Json.parse(cause) \ "errorMessage").as[String])
       } catch {
         case _: JsonParseException | _: JsResultException =>
-          None
+          Some(cause)
       }
     }
   }

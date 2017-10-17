@@ -28,7 +28,7 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
         .setId(videoId)
         .setOnBehalfOfContentOwner(contentOwner)
 
-      request.execute().getItems.asScala.headOption.map(YouTubeProcessingStatus(_))
+      request.execute().getItems.asScala.headOption.flatMap(YouTubeProcessingStatus(_))
     } else {
       None
     }

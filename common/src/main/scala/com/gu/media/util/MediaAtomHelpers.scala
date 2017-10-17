@@ -15,8 +15,15 @@ object MediaAtomHelpers {
     )
   }
 
-  def addAsset(mediaAtom: MediaAtom, asset: VideoAsset): MediaAtom = {
-    val version = getNextVersion(mediaAtom.assets)
+  def getNextAssetVersion(mediaAtom: MediaAtom): Long = {
+    if (mediaAtom.assets.isEmpty) {
+      1
+    } else {
+      mediaAtom.assets.map(_.version).max + 1
+    }
+  }
+
+  def addAsset(mediaAtom: MediaAtom, asset: VideoAsset, version: Long): MediaAtom = {
     val assets = getAssets(asset, version)
 
     mediaAtom.copy(assets = assets ++ mediaAtom.assets)
@@ -34,13 +41,5 @@ object MediaAtomHelpers {
       }
 
       assets
-  }
-
-  private def getNextVersion(assets: Seq[Asset]): Long = {
-    if(assets.isEmpty) {
-      1
-    } else {
-      assets.map(_.version).max + 1
-    }
   }
 }
