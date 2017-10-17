@@ -42,7 +42,15 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youtu
     getActiveAsset(previewAtom) match {
       case Some(asset) if asset.platform == Youtube =>
         val duration = youtube.getDuration(asset.id)
-        val blockAds = if (duration.getOrElse(0L) < youtube.minDurationForAds) true else previewAtom.blockAds
+
+        val blockAds = previewAtom.category match {
+          case Category.Hosted | Category.Paid => {
+            true
+          }
+          case _ => {
+            if (duration.getOrElse(0L) < youtube.minDurationForAds) true else previewAtom.blockAds
+          }
+        }
 
         val privacyStatus = previewAtom.channelId match {
           case Some(channel) if youtube.strictlyUnlistedChannels.contains(channel) => Some(PrivacyStatus.Unlisted)
