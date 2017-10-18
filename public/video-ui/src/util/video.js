@@ -71,6 +71,6 @@ export default class VideoUtils {
       return false;
     }
 
-    return atom.duration > 0 && atom.duration < minDurationForAds;
+    return atom.duration > 0 && atom.duration > minDurationForAds;
   }
 }
