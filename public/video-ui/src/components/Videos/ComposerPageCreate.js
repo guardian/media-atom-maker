@@ -12,13 +12,21 @@ export default class ComposerPageCreate extends React.Component {
     return getStore().getState().config.composerUrl;
   };
 
-  getComposerId = () => getStore().getState().usage.data.preview.video[0].fields.internalComposerCode;
+  getComposerId = () => {
+    const usages = getStore().getState().usage.data;
+    if (usages.preview.video.length && !usages.published.video.length) {
+      return usages.preview.video[0].fields.internalComposerCode;
+    }
+    else {
+      console.log("Could not find composer id");
+    }
+  }
 
   isHosted = () => {
     return this.props.video.category === 'Hosted';
   };
 
-  openComposerPage = () => window.open(`${this.getComposerUrl()}/content/${this.getComposerId()}`, '_blank');
+  getComposerLink = () => `${this.getComposerUrl()}/content/${this.getComposerId()}`;
 
   pageCreate = () => {
     this.setState({
@@ -49,17 +57,20 @@ export default class ComposerPageCreate extends React.Component {
   render() {
     const { canonicalVideoPageExists, videoEditOpen, requiredComposerFieldsMissing } = this.props;
     const showOpenPage = canonicalVideoPageExists() || this.isHosted();
-
-    return (
-      <button
-        className="button__secondary"
-        onClick={showOpenPage ? this.openComposerPage : this.pageCreate}
-        disabled={
-          videoEditOpen || this.state.composerUpdateInProgress || requiredComposerFieldsMissing()
-        }
-      >
-        { showOpenPage ? <span>Open Composer Page</span> : <span><Icon icon="add_to_queue" /> Create Video Page</span> }
-      </button>
-    );
+    
+    if (showOpenPage) {
+      return <a className="button__secondary" href={this.getComposerLink()} target="_blank">Open in Composer</a>;
+    } 
+    else {
+      return (
+        <button
+          className="button__secondary"
+          onClick={this.pageCreate}
+          disabled={videoEditOpen || this.state.composerUpdateInProgress || requiredComposerFieldsMissing()}
+        >
+          <span><Icon icon="add_to_queue" /> Create Video Page</span>
+        </button>
+      );
+    }
   }
 }
