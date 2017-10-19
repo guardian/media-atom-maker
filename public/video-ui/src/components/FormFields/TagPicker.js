@@ -14,6 +14,8 @@ import removeTagDuplicates from '../../util/removeTagDuplicates';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 import {requiredForComposerWarning} from '../../constants/requiredForComposerWarning';
 import ReactTooltip from 'react-tooltip';
+import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
+import YouTubeKeywords from '../../constants/youTubeKeywords';
 
 export default class TagPicker extends React.Component {
 
@@ -330,6 +332,17 @@ export default class TagPicker extends React.Component {
     }
   }
 
+  renderCharCount() {
+    if (this.props.tagType === TagTypes.youtube) {
+      const charCount = getYouTubeTagCharCount(this.props.fieldValue);
+      return (
+        <span>
+          Character count: {charCount} / {YouTubeKeywords.maxCharacters}
+        </span>
+      );
+    }
+  }
+
   renderCopyButton() {
     if (this.props.updateSideEffects) {
       return (
@@ -349,6 +362,7 @@ export default class TagPicker extends React.Component {
   render() {
 
     const hasWarning = this.props.hasWarning(this.props) && this.state.capiTags.length === 0;
+    const hasError = this.props.hasError(this.props);
 
     if (!this.props.editable) {
       if (!this.state.tagValue || this.state.tagValue.length === 0) {
@@ -382,6 +396,7 @@ export default class TagPicker extends React.Component {
           <label className="form__label">{this.props.fieldName}</label>
           {this.renderBylineInstructions()}
           {this.renderCopyButton()}
+          {this.renderCharCount()}
         </div>
 
         <CapiUnavailable capiUnavailable={this.state.capiUnavailable} />
@@ -389,6 +404,11 @@ export default class TagPicker extends React.Component {
         {this.renderAddedTags()}
         {hasWarning
           ? <p className="form__message form__message--warning">
+          {this.props.notification.message}
+          </p>
+            : ''}
+        {hasError
+          ? <p className="form__message form__message--error">
           {this.props.notification.message}
           </p>
             : ''}

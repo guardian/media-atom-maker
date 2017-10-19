@@ -13,6 +13,8 @@ import ReactTooltip from 'react-tooltip';
 import { getStore } from '../../util/storeAccessor';
 import { blankVideoData } from '../../constants/blankVideoData';
 import  KeywordsApi from '../../services/KeywordsApi';
+import YouTubeKeywords from '../../constants/youTubeKeywords';
+import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
 
 class VideoDisplay extends React.Component {
   componentWillMount() {
@@ -107,6 +109,22 @@ class VideoDisplay extends React.Component {
           FieldNotification.warning
         );
     }
+    return null;
+  };
+
+  validateYouTubeKeywords = youTubeKeywords => {
+    const charLimit = YouTubeKeywords.maxCharacters;
+    const numberOfChars = getYouTubeTagCharCount(youTubeKeywords);
+
+    if (numberOfChars > charLimit) {
+
+      return new FieldNotification(
+        'required',
+        `Maximum characters allowed in YouTube keywords is ${charLimit}.`,
+        FieldNotification.error
+      );
+    }
+
     return null;
   };
 
@@ -216,6 +234,7 @@ class VideoDisplay extends React.Component {
           updateErrors={this.props.formErrorActions.updateFormErrors}
           updateWarnings={this.props.formErrorActions.updateFormWarnings}
           validateKeywords={this.validateKeywords}
+          validateYouTubeKeywords={this.validateYouTubeKeywords}
           composerKeywordsToYouTube={this.composerKeywordsToYouTube}
         />
       </div>

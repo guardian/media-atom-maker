@@ -151,6 +151,7 @@ class VideoData extends React.Component {
               placeholder="No keywords"
               tagType={TagTypes.youtube}
               disabled={!isYoutubeAtom}
+              customValidation={this.props.validateYouTubeKeywords}
             >
               <TagPicker disableCapiTags />
             </ManagedField>
