@@ -153,110 +153,19 @@ export default {
   },
 
   updateCanonicalPages(video, composerUrlBase, videoBlock, usages) {
-    function getComposerUpdateRequests({ composerId, video, composerUrlBase }) {
-      const rightsExpiryPayload = getRightsPayload(video);
-      const rightsRequest = pandaReqwest({
-        url: `${composerUrlBase}/api/content/${composerId}/atom-expiry/rights`,
-        method: 'post',
-        crossOrigin: true,
-        withCredentials: true,
-        data: rightsExpiryPayload
-      });
+    const composerData = getComposerData(video);
+    composerData.videoBlock = videoBlock;
+    //TODO: what to do about video block??
 
-      // When article is in preview, composer keeps track of both the live and preview versions of an article
-      // For both published and unpublished articles, we need to update both live and preview versions.
-      const composerData = getComposerData(video);
-      const dataUpdatePromises = composerData.reduce((promises, data) => {
-        promises.push(
-          updateArticleField('preview', data, composerUrlBase, composerId)
-        );
-        promises.push(
-          updateArticleField('live', data, composerUrlBase, composerId)
-        );
+    return pandaReqwest({
+      url: `${composerUrl}/api/content/${pageId}/video-page`,
+      method: 'put',
+      crossOrigin: true,
+      withCredentials: true,
+      data: cleanVideoData(composerData)
+    });
 
-        return promises;
-      }, []);
 
-      dataUpdatePromises.push(rightsRequest);
-      return dataUpdatePromises;
-    }
-
-    function updateArticleField(stage, data, composerUrl, pageId) {
-      if (data.belongsTo === 'thumbnail') {
-        if (data.value) {
-          return pandaReqwest({
-            url: `${composerUrl}/api/content/${pageId}/${stage}/thumbnail`,
-            method: 'put',
-            crossOrigin: true,
-            withCredentials: true,
-            data: data.value
-          });
-        } else {
-          return pandaReqwest({
-            url: `${composerUrl}/api/content/${pageId}/${stage}/thumbnail`,
-            method: 'delete',
-            crossOrigin: true,
-            withCredentials: true
-          });
-        }
-      }
-
-      if (data.belongsTo === 'toolSettings') {
-        return pandaReqwest({
-          url: `${composerUrl}/api/content/${pageId}/toolSettings/${data.name}`,
-          method: 'put',
-          crossOrigin: true,
-          withCredentials: true,
-          data: `"${data.value}"`
-        });
-      }
-
-      if (data.value || data.belongsTo === 'settings') {
-        const value = data.isFreeText
-          ? data.value.split('"').join('\\"')
-          : data.value;
-        return pandaReqwest({
-          url: `${composerUrl}/api/content/${pageId}/${stage}/${data.belongsTo}/${data.name}`,
-          method: 'put',
-          crossOrigin: true,
-          withCredentials: true,
-          data: `"${value}"`
-        });
-      }
-
-      return pandaReqwest({
-        url: `${composerUrl}/api/content/${pageId}/${stage}/${data.belongsTo}/${data.name}`,
-        method: 'delete',
-        crossOrigin: true,
-        withCredentials: true
-      });
-    }
-
-    return Promise.all(
-      Object.keys(usages.data).map(state => {
-        const videoPageUsages = usages.data[state].video;
-
-        return Promise.all(
-          videoPageUsages.map(usage => {
-            const composerId = usage.fields.internalComposerCode;
-
-            const fieldPromises = getComposerUpdateRequests({
-              composerId,
-              video,
-              composerUrlBase
-            });
-
-            const videoPagePromise = this.addVideoToComposerPage({
-              composerId,
-              previewData: videoBlock,
-              composerUrlBase
-            });
-
-            return Promise.all([...fieldPromises, videoPagePromise]);
-          })
-        );
-      })
-    );
   },
 
   createComposerPage(id, video, composerUrlBase) {
@@ -265,19 +174,13 @@ export default {
     const composerUrl =
       composerUrlBase +
       '/api/content?atomPoweredVideo=true&originatingSystem=MediaAtomMaker&type=video';
-    const videoFields = composerData.reduce((fields, data) => {
-      fields[data.name] = data.value;
-      return fields;
-    }, {});
 
     return pandaReqwest({
       url: composerUrl,
       method: 'post',
       crossOrigin: true,
       withCredentials: true,
-      data: {
-        videoFields: cleanVideoData(videoFields)
-      }
+      data: cleanVideoData(composerData)
     });
   },
 
