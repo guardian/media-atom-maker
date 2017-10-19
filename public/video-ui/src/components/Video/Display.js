@@ -14,6 +14,7 @@ import { getStore } from '../../util/storeAccessor';
 import { blankVideoData } from '../../constants/blankVideoData';
 import  KeywordsApi from '../../services/KeywordsApi';
 import YouTubeKeywords from '../../constants/youTubeKeywords';
+import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
 
 class VideoDisplay extends React.Component {
   componentWillMount() {
@@ -113,22 +114,17 @@ class VideoDisplay extends React.Component {
 
   validateYouTubeKeywords = youTubeKeywords => {
     const charLimit = YouTubeKeywords.maxCharacters;
+    const numberOfChars = getYouTubeTagCharCount(youTubeKeywords);
 
-    if (Array.isArray(youTubeKeywords)) {
-      const numberOfChars = youTubeKeywords.reduce((charCount, keyword) => {
-        return charCount += keyword.length;
-      }, 0);
+    if (numberOfChars > charLimit) {
 
-      if (numberOfChars > charLimit) {
-
-        return new FieldNotification(
-          'required',
-          `Maximum characters allowed in youTube tags is ${charLimit}.`,
-          FieldNotification.error
-        );
-      }
-      return null;
+      return new FieldNotification(
+        'required',
+        `Maximum characters allowed in YouTube keywords is ${charLimit}.`,
+        FieldNotification.error
+      );
     }
+
     return null;
   };
 
