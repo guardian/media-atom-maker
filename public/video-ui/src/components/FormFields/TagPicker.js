@@ -349,6 +349,7 @@ export default class TagPicker extends React.Component {
   render() {
 
     const hasWarning = this.props.hasWarning(this.props) && this.state.capiTags.length === 0;
+    const hasError = this.props.hasError(this.props);
 
     if (!this.props.editable) {
       if (!this.state.tagValue || this.state.tagValue.length === 0) {
@@ -389,6 +390,11 @@ export default class TagPicker extends React.Component {
         {this.renderAddedTags()}
         {hasWarning
           ? <p className="form__message form__message--warning">
+          {this.props.notification.message}
+          </p>
+            : ''}
+        {hasError
+          ? <p className="form__message form__message--error">
           {this.props.notification.message}
           </p>
             : ''}

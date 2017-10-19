@@ -13,6 +13,7 @@ import ReactTooltip from 'react-tooltip';
 import { getStore } from '../../util/storeAccessor';
 import { blankVideoData } from '../../constants/blankVideoData';
 import  KeywordsApi from '../../services/KeywordsApi';
+import YouTubeKeywords from '../../constants/youTubeKeywords';
 
 class VideoDisplay extends React.Component {
   componentWillMount() {
@@ -106,6 +107,27 @@ class VideoDisplay extends React.Component {
           'A series or a keyword tag is required for creating composer pages',
           FieldNotification.warning
         );
+    }
+    return null;
+  };
+
+  validateYouTubeKeywords = youTubeKeywords => {
+    const charLimit = YouTubeKeywords.maxCharacters;
+
+    if (Array.isArray(youTubeKeywords)) {
+      const numberOfChars = youTubeKeywords.reduce((charCount, keyword) => {
+        return charCount += keyword.length;
+      }, 0);
+
+      if (numberOfChars > charLimit) {
+
+        return new FieldNotification(
+          'required',
+          `Maximum characters allowed in youTube tags is ${charLimit}.`,
+          FieldNotification.error
+        );
+      }
+      return null;
     }
     return null;
   };
@@ -216,6 +238,7 @@ class VideoDisplay extends React.Component {
           updateErrors={this.props.formErrorActions.updateFormErrors}
           updateWarnings={this.props.formErrorActions.updateFormWarnings}
           validateKeywords={this.validateKeywords}
+          validateYouTubeKeywords={this.validateYouTubeKeywords}
           composerKeywordsToYouTube={this.composerKeywordsToYouTube}
         />
       </div>

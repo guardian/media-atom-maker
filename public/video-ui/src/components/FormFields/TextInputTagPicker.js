@@ -181,7 +181,8 @@ r         onChange={this.updateInput}
       : this.props.tagValue[valueLength - 1];
 
     return (
-      <div className="form__field__tag--selector">
+      <div className={'form__field__tag--selector ' +
+        (this.props.hasError(this.props) ? 'form__field--error' : '')}>
         {valueLength
           ? this.props.tagValue.map((value, i) => {
               if (i < valueLength - 1) {
