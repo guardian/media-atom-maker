@@ -21,7 +21,7 @@ class IntegrationTestBase extends FunSuite with Matchers with Eventually with In
 
   val targetBaseUrl: String = Config.targetBaseUrl
 
-  def apiUri(atomId: String): String = s"$targetBaseUrl/api/atom/$atomId"
+  def apiUri(atomId: String): String = s"$targetBaseUrl/api2/atoms/$atomId"
 
   // For clean-up after tests
   private var atomIds = List.empty[String]
