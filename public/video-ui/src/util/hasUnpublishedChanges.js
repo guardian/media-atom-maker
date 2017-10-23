@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { appUpdatedFields } from '../constants/appUpdatedFields';
+import { imageFields } from '../constants/imageFields';
 
 export function hasUnpublishedChanges(
   previewVideo,
@@ -14,7 +15,11 @@ export function hasUnpublishedChanges(
     return true;
   }
 
-  const allFields = editableFields.concat(appUpdatedFields);
+  const allFields = [
+    ...editableFields,
+    ...appUpdatedFields,
+    ...imageFields
+  ];
 
   return !allFields.every(key => {
     return _.isEqual(previewVideo[key], publishedVideo[key]);
