@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import DatePicker from '../FormFields/DatePicker';
 import moment from 'moment';
+import Icon from '../Icon';
 
 export default class ScheduledLaunch extends React.Component {
   static propTypes = {
@@ -36,7 +37,7 @@ export default class ScheduledLaunch extends React.Component {
     const isFutureDate = selectedDate && moment(selectedDate).isAfter(moment());
     return (
       <div className="flex-container topbar__scheduler">
-        { scheduledLaunchDate && !showDatePicker && <span className="topbar__launch-label">Scheduled launch: {moment(scheduledLaunchDate).format('Do MMM YYYY HH:MM')}</span> }
+        { scheduledLaunchDate && !showDatePicker && <span className="topbar__launch-label">Scheduled: {moment(scheduledLaunchDate).format('Do MMM YYYY HH:MM')}</span> }
         {
           showDatePicker &&
           <DatePicker
@@ -56,7 +57,7 @@ export default class ScheduledLaunch extends React.Component {
             onClick={() => this.setState({ showDatePicker: true })}
             disabled={!video || videoEditOpen}
           >
-            {scheduledLaunchDate ? "Reschedule" : "Schedule Launch"}
+            {scheduledLaunchDate ? 'Reschedule' : 'Schedule'}
           </button>
         }
         {

@@ -18,13 +18,13 @@
     /* Support for Firefox. */
     -moz-osx-font-smoothing: grayscale;
 
-    vertical-align: middle;
+    vertical-align: text-top;
     align-self: center;
 
   &--text {
     margin-left: 5px;
   }
-
+  
   &:link {
     text-decoration: none;
   }

@@ -14,8 +14,7 @@ class Workflow extends React.Component {
 
   state = {
     videoInWorkflow: {
-      section: null,
-      scheduledLaunchDate: null
+      section: null
     }
   };
 
@@ -34,7 +33,7 @@ class Workflow extends React.Component {
       video: this.props.video,
       section: this.props.workflow.sections.find(_ => _.id === parseInt(this.state.videoInWorkflow.section)),
       status: 'Writers',
-      scheduledLaunchDate: this.state.videoInWorkflow.scheduledLaunchDate
+      scheduledLaunchDate: this.props.video.scheduledLaunchDate
     }).then(() => {
       this.props.workflowActions.getStatus({ video: this.props.video });
     });
@@ -54,9 +53,6 @@ class Workflow extends React.Component {
           <ManagedField fieldLocation="section" name="Section">
             <SelectBox selectValues={this.props.workflow.sections} />
           </ManagedField>
-          <ManagedField fieldLocation="scheduledLaunchDate" name="Desired launch date">
-            <DatePicker />
-          </ManagedField>
         </ManagedForm>
         <button type="button"
                 className="btn"
@@ -68,7 +64,7 @@ class Workflow extends React.Component {
   }
 
   renderStatusInWorkflow() {
-    const {title, prodOffice, section, status, scheduledLaunchDate } = this.props.workflow.status;
+    const {title, prodOffice, section, status } = this.props.workflow.status;
 
     return (
       <table>
@@ -78,7 +74,6 @@ class Workflow extends React.Component {
             <th>Production Office</th>
             <th>Section</th>
             <th>Status</th>
-            <th>Scheduled Launch Date</th>
             <th/>
           </tr>
         </thead>
@@ -90,7 +85,6 @@ class Workflow extends React.Component {
             </td>
             <td>{section}</td>
             <td>{status}</td>
-            <td>{scheduledLaunchDate ? moment(scheduledLaunchDate).format("DD MMM YYYY HH:mm") : 'n/a'}</td>
             <td>
               <a target="_blank"
                  rel="noopener noreferrer"

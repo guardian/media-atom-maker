@@ -1,24 +1,28 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { findSmallestAssetAboveWidth } from '../../util/imageHelpers';
+import moment from 'moment';
+import Icon from '../Icon';
 
 export default class VideoItem extends React.Component {
   renderPill() {
     switch (this.props.video.status) {
       case 'Expired':
-        return <div className="publish__label label__expired">Expired</div>;
+        return <span className="publish__label label__expired">Expired</span>;
       case 'Active':
         return (
           <span className="publish__label label__live label__frontpage__overlay">
             Active
           </span>
         );
-      default:
+      case 'No Video':
         return (
           <span className="publish__label label__frontpage__novideo label__frontpage__overlay">
             No Video
           </span>
         );
+      default:
+        return '';
     }
   }
 
@@ -35,9 +39,10 @@ export default class VideoItem extends React.Component {
   }
 
   render() {
+    const video = this.props.video;
     return (
       <li className="grid__item">
-        <Link className="grid__link" to={'/videos/' + this.props.video.id}>
+        <Link className="grid__link" to={'/videos/' + video.id}>
 
           <div className="grid__info">
             <div className="grid__image sixteen-by-nine">
@@ -45,10 +50,17 @@ export default class VideoItem extends React.Component {
             </div>
             <div className="grid__status__overlay">
               {this.renderPill()}
+              {
+                video.scheduledLaunchDate ?
+                  <span className="publish__label label__frontpage__scheduledLaunch label__frontpage__overlay">
+                    <Icon icon="access_time">{moment(video.scheduledLaunchDate).format('D MMM HH:mm')}</Icon>
+                </span>
+                : ''
+              }
             </div>
             <div className="grid__item__footer">
               <span className="grid__item__title">
-                {this.props.video.title}
+                {video.title}
               </span>
             </div>
           </div>

@@ -47,13 +47,16 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
       val expiryDate = (atom \ "expiryDate").asOpt[Long]
       val activeVersion = (atom \ "activeVersion").asOpt[Long]
 
+
+      val scheduledLaunchDate = (atom \ "scheduledLaunchDate").asOpt[Long]
+
       val versions = (atom \ "assets").as[JsArray].value.map { asset =>
         (asset \ "version").as[Long]
       }
 
       val state = AtomListStore.getState(expiryDate, activeVersion, versions.toSet)
 
-      Some(MediaAtomSummary(id, state, title, posterImage))
+      Some(MediaAtomSummary(id, state, title, posterImage, scheduledLaunchDate))
     }
   }
 }
@@ -93,7 +96,7 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore) extends AtomListS
     val versions = atom.assets.map(_.version).toSet
     val state = AtomListStore.getState(atom.expiryDate, atom.activeVersion, versions)
 
-    MediaAtomSummary(atom.id, state, atom.title, atom.posterImage)
+    MediaAtomSummary(atom.id, state, atom.title, atom.posterImage, atom.scheduledLaunchDate)
   }
 }
 

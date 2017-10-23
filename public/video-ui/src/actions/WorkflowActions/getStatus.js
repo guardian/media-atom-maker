@@ -33,10 +33,10 @@ function errorReceivingStatus(error) {
   };
 }
 
-export function getStatus(id) {
+export function getStatus(video) {
   return dispatch => {
     dispatch(requestStatus());
-    return WorkflowApi.getAtomInWorkflow(id)
+    return WorkflowApi.getAtomInWorkflow(video)
       .then(res => dispatch(receiveStatus(res)))
       .catch(err => {
         if (err.status !== 404) {
