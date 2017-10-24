@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 import { getStore } from './storeAccessor';
 import PrivacyStates from '../constants/privacyStates';
 
@@ -30,7 +32,7 @@ export default class VideoUtils {
     if (!activeAsset) {
       return true;
     }
-    
+
     return activeAsset.platform === 'Youtube';
   }
 
@@ -72,5 +74,16 @@ export default class VideoUtils {
     }
 
     return atom.duration > 0 && atom.duration > minDurationForAds;
+  }
+
+  static isRecentlyModified({ contentChangeDetails }) {
+    if (! contentChangeDetails) {
+      return false;
+    }
+
+    const lastModified = moment(contentChangeDetails.lastModified.date);
+    const diff = moment().diff(lastModified, 'days');
+
+    return diff < 1;
   }
 }
