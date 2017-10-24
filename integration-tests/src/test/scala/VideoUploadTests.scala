@@ -78,7 +78,7 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
     )
 
     eventually {
-      val assets = (Json.parse(gutoolsGet(apiEndpoint).body().string()) \ "data" \ "assets").as[JsArray].value
+      val assets = (Json.parse(gutoolsGet(apiEndpoint).body().string()) \ "assets").as[JsArray].value
       assets should not be empty
 
       val asset = assets.head

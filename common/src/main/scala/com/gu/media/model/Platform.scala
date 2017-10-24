@@ -1,4 +1,4 @@
-package model
+package com.gu.media.model
 
 import com.gu.contentatom.thrift.atom.media.{Platform => ThriftPlatform}
 import play.api.libs.json._

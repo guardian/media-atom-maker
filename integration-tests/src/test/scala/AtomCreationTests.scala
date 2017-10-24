@@ -1,8 +1,11 @@
+import com.gu.media.model.{Asset, AssetType, Platform}
 import integration.IntegrationTestBase
 import integration.services.Config
 import org.scalatest.CancelAfterFailure
 import org.scalatest.exceptions.TestFailedException
-import play.api.libs.json.Json
+import play.api.libs.json.{JsResult, Json}
+
+import scala.collection.immutable
 
 class AtomCreationTests extends IntegrationTestBase with CancelAfterFailure {
   var atomId = ""
@@ -32,7 +35,7 @@ class AtomCreationTests extends IntegrationTestBase with CancelAfterFailure {
     assetResponse.code() should be(200)
 
     eventually {
-      val assets = (Json.parse(gutoolsGet(apiEndpoint).body().string()) \ "data" \ "assets") (0)
+      val assets = (Json.parse(gutoolsGet(apiEndpoint).body().string()) \ "assets") (0)
       (assets \ "id").get.as[String] should be(Config.assetId)
     }
   }
@@ -43,7 +46,11 @@ class AtomCreationTests extends IntegrationTestBase with CancelAfterFailure {
     currentAssetResponse.code() should be(200)
 
     eventually {
-      (Json.parse(gutoolsGet(apiEndpoint).body().string()) \ "defaultHtml").get.as[String] should not be ("<div></div>")
+      val response = Json.parse(gutoolsGet(apiEndpoint).body().string())
+      val activeVersion = (response \ "activeVersion").as[Long]
+      val assets: List[Asset] = (response \ "assets").as[List[Asset]]
+      val expected = Asset(AssetType.Video, activeVersion, Config.assetId, Platform.Youtube, None)
+      assets.contains(expected) should be (true)
     }
   }
 

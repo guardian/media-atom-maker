@@ -1,10 +1,10 @@
 package model.commands
 
 import com.gu.media.logging.Logging
+import com.gu.media.model.Platform.Youtube
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.MediaAtom
-import model.Platform.Youtube
 import model.commands.CommandExceptions._
 import util._
 import util.atom.MediaAtomImplicits

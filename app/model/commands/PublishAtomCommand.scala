@@ -8,11 +8,11 @@ import com.gu.atom.play.AtomAPIActions
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.media.Capi
 import com.gu.media.logging.Logging
-import com.gu.media.model.PrivacyStatus
+import com.gu.media.model.{Asset, PrivacyStatus}
 import com.gu.media.youtube.YouTubeMetadataUpdate
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
-import model.Platform.Youtube
+import com.gu.media.model.Platform.Youtube
 import model._
 import model.commands.CommandExceptions._
 import org.jsoup.Jsoup

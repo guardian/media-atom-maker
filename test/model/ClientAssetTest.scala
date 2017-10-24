@@ -1,6 +1,6 @@
 package model
 
-import com.gu.media.model.{SelfHostedAsset, VideoSource, YouTubeAsset}
+import com.gu.media.model._
 import com.gu.media.upload.model._
 import com.gu.media.youtube.YouTubeProcessingStatus
 import org.scalatest.{FunSuite, MustMatchers}
