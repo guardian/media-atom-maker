@@ -1,16 +1,3 @@
-GET     /atoms                          controllers.MainApp.listAtoms()
-
-GET     /api/atoms                      controllers.Api.listAtoms()
-GET     /api/atom/:id                   controllers.Api.getMediaAtom(id)
-GET     /api/published-atom/:id         controllers.Api.getPublishedMediaAtom(id)
-GET     /api/config-values              controllers.Api.getConfigValues()
-POST    /api/atom                       controllers.Api.createMediaAtom()
-PUT     /api/atom/:id                   controllers.Api.updateMediaAtom(id)
-PUT     /api/atom/:id/asset             controllers.Api.addAsset(id)
-PUT     /api/atom/:id/revert/:version   controllers.Api.revertAtom(id, version: Long)
-
-PUT     /api/atom/:id/publish           controllers.Api.publishAtom(id)
-
 POST    /api2/atoms                     controllers.Api2.createMediaAtom
 # optional limit
 GET     /api2/atoms                     controllers.Api2.getMediaAtoms(search: Option[String], limit: Option[Int])
@@ -52,14 +39,10 @@ GET     /api2/youtube/content-bundle/:id controllers.YoutubeTagController.getByI
 GET     /api/transcoder/jobStatus       controllers.Transcoder.jobStatus
 
 # reindex
-
 POST    /reindex-preview                com.gu.atom.play.ReindexController.newPreviewReindexJob()
 POST    /reindex-publish                com.gu.atom.play.ReindexController.newPublishedReindexJob()
 GET     /reindex-preview                com.gu.atom.play.ReindexController.previewReindexJobStatus()
 GET     /reindex-publish                com.gu.atom.play.ReindexController.publishedReindexJobStatus()
-
-#static assets
-GET  /assets/*file                      controllers.Assets.versioned(path="/public", file: Asset)
 
 #video specific react frontend
 GET /                                   controllers.VideoUIApp.index(id = "")
@@ -77,8 +60,11 @@ GET /training/off                       controllers.VideoUIApp.training(inTraini
 GET /support/previewCapi/*path          controllers.Support.capiProxy(path: String, queryLive: Boolean ?= false)
 GET /support/liveCapi/*path             controllers.Support.capiProxy(path: String, queryLive: Boolean ?= true)
 
-# Auth
-GET /oauthCallback                      controllers.Login.oauthCallback()
-GET /reauth                             controllers.Login.reauth
 
-GET /healthcheck                        controllers.Healthcheck.healthcheck()
+GET   /oauthCallback                    controllers.Login.oauthCallback()
+GET   /reauth                           controllers.Login.reauth
+
+GET   /healthcheck                      controllers.Healthcheck.healthcheck()
+
+#static assets
+GET  /assets/*file                      controllers.Assets.versioned(path="/public", file: Asset)

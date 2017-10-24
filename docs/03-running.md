@@ -2,14 +2,6 @@
 
 Media Atom Maker requires Node 6.X, so ensure you're running that version, or run `nvm use` first.
 
-## (legacy) Angular App
-Once running, the Angular App can be seen [here](https://video.local.dev-gutools.co.uk/atoms)
-
-To run the Angular App:
-
-- Generate javascript files by running `gulp watch`
-- Start sbt by running `./sbt app/run`
-
 ## React App
 Once running, the React App can be seen [here](https://video.local.dev-gutools.co.uk/videos)
 

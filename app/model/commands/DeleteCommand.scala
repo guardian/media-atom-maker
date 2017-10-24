@@ -6,10 +6,11 @@ import com.gu.atom.play.AtomAPIActions
 import com.gu.contentatom.thrift.atom.media.PrivacyStatus
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.media.logging.Logging
+import com.gu.media.model.Asset
 import com.gu.media.youtube.YouTubeVideos
 import data.DataStores
-import model.Platform.Youtube
-import model.{Asset, MediaAtom}
+import com.gu.media.model.Platform.Youtube
+import model.MediaAtom
 
 case class DeleteCommand(id: String, override val stores: DataStores, youTube: YouTubeVideos)
   extends Command with AtomAPIActions with Logging {
