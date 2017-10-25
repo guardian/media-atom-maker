@@ -32,7 +32,9 @@ export function parseImageFromGridCrop(cropData, imageData) {
     assets: cropData.assets.map(asset => parseAsset(asset, aspectRatio)),
     master: parseAsset(cropData.master, aspectRatio),
     mediaId: cropData.specification.uri,
-    source: imageData.data.metadata.credit
+    source: imageData.data.metadata.credit,
+    suppliersReference: imageData.data.metadata.suppliersReference,
+    photographer: imageData.data.metadata.byline
   };
 }
 
@@ -70,7 +72,9 @@ export function parseComposerDataFromImage(image, trail) {
       isMandatory: 'true',
       mediaApiUrl: image.mediaId,
       mediaId: mediaId,
-      source: image.source
+      source: image.source,
+      suppliersReference: image.suppliersReference,
+      photographer: image.photographer
     }
   };
 }
