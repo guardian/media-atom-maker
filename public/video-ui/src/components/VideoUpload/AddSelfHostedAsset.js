@@ -1,7 +1,7 @@
 import React from 'react';
 import Icon from '../Icon';
 
-export default class PlutoProjectPicker extends React.Component {
+export default class AddSelfHostedAsset extends React.Component {
   state = { file: null };
 
   setFile = event => {
@@ -9,7 +9,7 @@ export default class PlutoProjectPicker extends React.Component {
       return;
     }
 
-    if (event.target.files.length == 0) {
+    if (event.target.files.length === 0) {
       this.setState({ file: null });
     } else {
       this.setState({ file: event.target.files[0] });
@@ -27,7 +27,7 @@ export default class PlutoProjectPicker extends React.Component {
       <div className="video__detailbox video__detailbox__assets">
         <div className="video__detailbox__header__container">
           <header className="video__detailbox__header">
-            Guardian Hosted Video
+            Self-Hosted Video
           </header>
         </div>
         <div className="form__group">
@@ -42,14 +42,14 @@ export default class PlutoProjectPicker extends React.Component {
             className="btn button__secondary__assets"
             disabled={!this.state.file || uploading}
             onClick={() =>
-              startUpload(
-                video.id,
-                this.state.file,
-                true // not self hosted
-              )}
+              startUpload({
+                id: video.id,
+                file: this.state.file,
+                selfHost: true
+              })}
           >
             <Icon icon="backup">
-              Upload To Guardian Hosted
+              Upload
             </Icon>
           </button>
         </div>
