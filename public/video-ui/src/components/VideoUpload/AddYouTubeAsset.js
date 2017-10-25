@@ -72,11 +72,11 @@ export default class AddYouTubeAsset extends React.Component {
                   className="btn button__secondary__assets"
                   disabled={disabled}
                   onClick={() =>
-                    startUpload(
-                      video.id,
-                      this.state.file,
-                      false // not self hosted
-                    )}
+                    startUpload({
+                      id: video.id,
+                      file: this.state.file,
+                      selfHost: false
+                    })}
                 >
                   <Icon icon="backup">
                     Upload To YouTube

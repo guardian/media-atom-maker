@@ -33,7 +33,7 @@ function uploadError(error) {
   };
 }
 
-export function startUpload(id, file, selfHost) {
+export function startUpload({id, file, selfHost}) {
   return dispatch => {
     createUpload(id, file, selfHost).then(upload => {
       dispatch(uploadStarted(upload));
