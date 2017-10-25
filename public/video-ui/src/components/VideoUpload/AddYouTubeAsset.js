@@ -3,6 +3,7 @@ import Icon from '../Icon';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
 import { channelAllowed } from '../../util/channelAllowed';
+import VideoUtils from "../../util/video";
 
 export default class AddYouTubeAsset extends React.Component {
   state = { file: null };
@@ -20,15 +21,14 @@ export default class AddYouTubeAsset extends React.Component {
   };
 
   render() {
-    const { video, channels, startUpload } = this.props;
+    const { video, startUpload } = this.props;
 
-    const isHosted = video.category === 'Hosted';
-    const isManaged = channelAllowed(video, channels);
+    const hasYoutubeWriteAccess = VideoUtils.hasYoutubeWriteAccess(this.props.video);
 
     const missingFields = !video.channelId || !video.youtubeCategoryId;
     const disabled = missingFields || !this.state.file || this.props.uploading;
 
-    if (isHosted || !isManaged) {
+    if (!hasYoutubeWriteAccess) {
       return false;
     }
 
