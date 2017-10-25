@@ -60,6 +60,7 @@ export default class AddYouTubeAsset extends React.Component {
                   type="file"
                   onChange={this.setFile}
                   disabled={this.props.uploading}
+                  accept="video/*,.mxf"
                 />
               </p>
             </div>
