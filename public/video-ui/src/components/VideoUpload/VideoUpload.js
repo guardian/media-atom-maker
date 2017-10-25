@@ -63,6 +63,7 @@ class VideoUpload extends React.Component {
               />
             </div>
             <VideoTrail
+              video={this.props.video}
               activeVersion={activeVersion}
               s3Upload={this.props.s3Upload}
               uploads={this.props.uploads}

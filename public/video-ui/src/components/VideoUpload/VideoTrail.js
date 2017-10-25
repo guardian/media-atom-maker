@@ -1,17 +1,22 @@
 import React from 'react';
 import { Asset } from './VideoAsset';
+import VideoUtils from '../../util/video';
 
 export default class VideoTrail extends React.Component {
   polling = null;
 
-  constructor(props) {
-    super(props);
+  componentWillReceiveProps() {
+    const isRecentlyModified = VideoUtils.isRecentlyModified(this.props.video);
 
-    this.polling = setInterval(() => this.pollIfRequired(), 5000);
+    if (!this.polling && isRecentlyModified) {
+      this.polling = setInterval(() => this.pollIfRequired(), 5000);
+    }
   }
 
   componentWillUnmount() {
-    clearInterval(this.polling);
+    if (this.polling) {
+      clearInterval(this.polling);
+    }
   }
 
   pollIfRequired = () => {
@@ -52,7 +57,7 @@ export default class VideoTrail extends React.Component {
       <Asset
         key={upload.id}
         upload={upload}
-        active={upload.id == this.props.activeVersion}
+        active={upload.id === this.props.activeVersion}
         selectAsset={() => this.props.selectAsset(Number(upload.id))}
       />
     ));
