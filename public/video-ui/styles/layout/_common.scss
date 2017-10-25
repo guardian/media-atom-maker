@@ -15,3 +15,17 @@
     height: 100%;
   }
 }
+
+.responsive {
+  &--primary {
+    @media only screen and (max-width: $large-screen) {
+      font-size: large;
+    }
+  }
+
+  &--optional {
+    @media only screen and (max-width: $large-screen) {
+      display: none;
+    }
+  }
+}
