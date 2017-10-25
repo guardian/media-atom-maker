@@ -36,6 +36,7 @@ export default class AddSelfHostedAsset extends React.Component {
             type="file"
             onChange={this.setFile}
             disabled={uploading}
+            accept="video/*,.mxf"
           />
           <button
             type="button"
