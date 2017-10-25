@@ -12,7 +12,7 @@ object UploadBuilder {
     val id = s"${atom.id}-$version"
 
     val plutoData = PlutoSyncMetadata(
-      enabled = if(aws.stage == "DEV") { false } else { request.syncWithPluto },
+      enabled = aws.syncWithPluto,
       projectId = atom.plutoData.flatMap(_.projectId),
       s3Key = CompleteUploadKey(aws.userUploadFolder, id).toString,
       atomId = atom.id,
