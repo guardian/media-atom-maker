@@ -19,8 +19,7 @@ export function createUpload(atomId, file, selfHost) {
       atomId: atomId,
       filename: file.name,
       size: file.size,
-      selfHost: selfHost,
-      syncWithPluto: true
+      selfHost: selfHost
     }
   });
 }
