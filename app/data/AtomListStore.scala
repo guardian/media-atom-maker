@@ -4,7 +4,7 @@ import java.time.Instant
 
 import com.gu.atom.data.PreviewDynamoDataStore
 import com.gu.media.CapiAccess
-import com.gu.media.model.{Image, MediaAtom}
+import com.gu.media.model.{Image, MediaAtom, ContentChangeDetails}
 import com.gu.media.util.TestFilters
 import model.commands.CommandExceptions.AtomDataStoreError
 import model.{MediaAtomList, MediaAtomSummary}
@@ -48,7 +48,7 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
       val activeVersion = (atom \ "activeVersion").asOpt[Long]
 
 
-      val scheduledLaunchDate = (atom \ "scheduledLaunchDate").asOpt[Long]
+      val contentChangeDetails = (wrapper \ "contentChangeDetails").as[ContentChangeDetails]
 
       val versions = (atom \ "assets").as[JsArray].value.map { asset =>
         (asset \ "version").as[Long]
@@ -56,7 +56,7 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
 
       val state = AtomListStore.getState(expiryDate, activeVersion, versions.toSet)
 
-      Some(MediaAtomSummary(id, state, title, posterImage, scheduledLaunchDate))
+      Some(MediaAtomSummary(id, state, title, posterImage, contentChangeDetails))
     }
   }
 }
@@ -96,7 +96,7 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore) extends AtomListS
     val versions = atom.assets.map(_.version).toSet
     val state = AtomListStore.getState(atom.expiryDate, atom.activeVersion, versions)
 
-    MediaAtomSummary(atom.id, state, atom.title, atom.posterImage, atom.scheduledLaunchDate)
+    MediaAtomSummary(atom.id, state, atom.title, atom.posterImage, atom.contentChangeDetails)
   }
 }
 

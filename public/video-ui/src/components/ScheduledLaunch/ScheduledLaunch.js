@@ -19,25 +19,39 @@ export default class ScheduledLaunch extends React.Component {
 
   saveScheduledLaunch = () => {
     const video = this.props.video;
-    this.props.saveVideo(Object.assign({}, video, { scheduledLaunchDate: this.state.selectedDate }));
+    this.props.saveVideo(Object.assign({}, video, {
+        contentChangeDetails: Object.assign({}, video.contentChangeDetails, {
+          scheduledLaunch: Object.assign({}, video.contentChangeDetails.scheduledLaunch, {
+            date: this.state.selectedDate
+          })
+        })
+      })
+    );
     this.setState({ showDatePicker: false });
   }
 
   removeScheduledLaunch = () => {
     const video = this.props.video;
-    this.props.saveVideo(Object.assign({}, video, { scheduledLaunchDate: null }));
+      this.props.saveVideo(Object.assign({}, video, {
+        contentChangeDetails: Object.assign({}, video.contentChangeDetails, {
+          scheduledLaunch: null
+        })
+      })
+    );
     this.setState({ showDatePicker: false });
   }
 
 
   render() {
-    const { video, video: { scheduledLaunchDate }, videoEditOpen } = this.props;
+    const { video, video: { contentChangeDetails }, videoEditOpen } = this.props;
     const { selectedDate } = this.state;
     const showDatePicker = this.state.showDatePicker && !videoEditOpen;
     const isFutureDate = selectedDate && moment(selectedDate).isAfter(moment());
+    const scheduledLaunch = contentChangeDetails && contentChangeDetails.scheduledLaunch && contentChangeDetails.scheduledLaunch.date;
+    console.log(scheduledLaunch)
     return (
       <div className="flex-container topbar__scheduler">
-        { scheduledLaunchDate && !showDatePicker && <span className="topbar__launch-label">Scheduled: {moment(scheduledLaunchDate).format('Do MMM YYYY HH:MM')}</span> }
+        {scheduledLaunch && !showDatePicker && <span className="topbar__launch-label">Scheduled: {moment(scheduledLaunch).format('Do MMM YYYY HH:mm')}</span> }
         {
           showDatePicker &&
           <DatePicker
@@ -57,7 +71,7 @@ export default class ScheduledLaunch extends React.Component {
             onClick={() => this.setState({ showDatePicker: true })}
             disabled={!video || videoEditOpen}
           >
-            {scheduledLaunchDate ? 'Reschedule' : 'Schedule'}
+            {scheduledLaunch ? 'Reschedule' : 'Schedule'}
           </button>
         }
         {
@@ -71,7 +85,7 @@ export default class ScheduledLaunch extends React.Component {
           </button>
         }
         {
-          scheduledLaunchDate && showDatePicker &&
+          scheduledLaunch && showDatePicker &&
           <button className="button__secondary--remove" onClick={() => this.removeScheduledLaunch()}>
             Remove
           </button>

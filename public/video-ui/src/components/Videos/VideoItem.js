@@ -40,6 +40,7 @@ export default class VideoItem extends React.Component {
 
   render() {
     const video = this.props.video;
+    const scheduledLaunch = video.contentChangeDetails.scheduledLaunch && video.contentChangeDetails.scheduledLaunch.date;
     return (
       <li className="grid__item">
         <Link className="grid__link" to={'/videos/' + video.id}>
@@ -51,9 +52,9 @@ export default class VideoItem extends React.Component {
             <div className="grid__status__overlay">
               {this.renderPill()}
               {
-                video.scheduledLaunchDate ?
+                scheduledLaunch ?
                   <span className="publish__label label__frontpage__scheduledLaunch label__frontpage__overlay">
-                    <Icon icon="access_time">{moment(video.scheduledLaunchDate).format('D MMM HH:mm')}</Icon>
+                    <Icon textClass="--always-show" icon="access_time">{moment(scheduledLaunch).format('D MMM HH:mm')}</Icon>
                 </span>
                 : ''
               }

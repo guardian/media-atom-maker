@@ -133,13 +133,15 @@ object JsonConversions {
     (__ \ "lastModified").writeNullable[ChangeRecord] and
     (__ \ "created").writeNullable[ChangeRecord] and
     (__ \ "published").writeNullable[ChangeRecord] and
-    (__ \ "revision").write[Long]
+    (__ \ "revision").write[Long] and
+    (__ \ "scheduledLaunch").writeNullable[ChangeRecord]
     ) { contentChangeDetails: ContentChangeDetails =>
     (
       contentChangeDetails.lastModified,
       contentChangeDetails.created,
       contentChangeDetails.published,
-      contentChangeDetails.revision
+      contentChangeDetails.revision,
+      contentChangeDetails.scheduledLaunch
       )
   }
 
@@ -156,10 +158,9 @@ object JsonConversions {
       (__ \ "labels").write[Seq[String]] and
       (__ \ "defaultHtml").write[String] and
       (__ \ "data").write[AtomData] and
-      (__ \ "contentChangeDetails").write[ContentChangeDetails] and
-      (__ \ "scheduledLaunchDate").writeNullable[Long]
+      (__ \ "contentChangeDetails").write[ContentChangeDetails]
 
   ) { atom: Atom =>
-    (atom.id, atom.atomType, atom.labels, atom.defaultHtml, atom.data, atom.contentChangeDetails, atom.scheduledLaunchDate)
+    (atom.id, atom.atomType, atom.labels, atom.defaultHtml, atom.data, atom.contentChangeDetails)
   }
 }

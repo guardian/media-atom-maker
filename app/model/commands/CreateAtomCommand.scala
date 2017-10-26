@@ -1,6 +1,7 @@
 package model.commands
 
 import java.util.Date
+import org.joda.time.DateTime
 import java.util.UUID._
 
 import com.gu.atom.data.IDConflictError
@@ -25,12 +26,13 @@ case class CreateAtomCommand(data: MediaAtomBeforeCreation, override val stores:
   def process() = {
     val atomId = randomUUID().toString
     val createdChangeRecord = Some(ChangeRecord.now(user))
-
+    val scheduledLaunchDate: Option[DateTime] = data.contentChangeDetails.scheduledLaunch.map(scheduledLaunch => new DateTime(scheduledLaunch.date))
     val details = media.model.ContentChangeDetails(
       lastModified = createdChangeRecord,
       created = createdChangeRecord,
       published = None,
-      revision = 1L
+      revision = 1L,
+      scheduledLaunch = scheduledLaunchDate.map(ChangeRecord.build(_, user))
     )
 
     log.info(s"Request to create new atom $atomId [${data.title}]")

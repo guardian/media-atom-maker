@@ -10,6 +10,7 @@ import data.DataStores
 import model.commands.CommandExceptions._
 import com.gu.media.model.{ChangeRecord, MediaAtom}
 import com.gu.media.util.MediaAtomImplicits
+import org.joda.time.DateTime
 
 import scala.util.{Failure, Success}
 
@@ -34,9 +35,12 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
 
     val changeRecord = ChangeRecord.now(user)
 
+    val scheduledLaunchDate: Option[DateTime] = atom.contentChangeDetails.scheduledLaunch.map(scheduledLaunch => new DateTime(scheduledLaunch.date))
+
     val details = atom.contentChangeDetails.copy(
       revision = existingAtom.contentChangeDetails.revision + 1,
-      lastModified = Some(changeRecord)
+      lastModified = Some(changeRecord),
+      scheduledLaunch = scheduledLaunchDate.map(ChangeRecord.build(_, user))
     )
     val thrift = atom.copy(contentChangeDetails = details).asThrift
 
