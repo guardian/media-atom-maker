@@ -13,7 +13,7 @@ export function getUploads(atomId) {
 
 export function createUpload(atomId, file, selfHost) {
   return pandaReqwest({
-    url: `/api2/uploads?atomId=${atomId}`,
+    url: `/api2/uploads`,
     method: 'post',
     data: {
       atomId: atomId,
