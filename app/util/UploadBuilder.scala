@@ -1,5 +1,7 @@
 package util
 
+import java.time.Instant
+
 import com.gu.media.aws.{AwsAccess, UploadAccess}
 import com.gu.media.model.{SelfHostedAsset, VideoSource}
 import com.gu.media.upload.{CompleteUploadKey, TranscoderOutputKey, UploadPartKey}
@@ -31,7 +33,8 @@ object UploadBuilder {
       runtime = getRuntimeMetadata(request.selfHost, atom.channelId),
       asset = getAsset(request.selfHost, atom.title, id),
       originalFilename = Some(request.filename),
-      version = Some(version)
+      version = Some(version),
+      startTimestamp = Some(Instant.now().getEpochSecond)
     )
 
     val progress = UploadProgress(

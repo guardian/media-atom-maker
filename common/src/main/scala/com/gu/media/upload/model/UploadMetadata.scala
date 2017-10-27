@@ -14,7 +14,8 @@ case class UploadMetadata(
   version: Option[Long] = None,
   selfHost: Boolean = false,
   asset: Option[VideoAsset] = None,
-  originalFilename: Option[String] = None
+  originalFilename: Option[String] = None,
+  startTimestamp: Option[Long] = None // unix timestamp
 )
 
 case class PlutoSyncMetadata (

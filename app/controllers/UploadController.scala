@@ -90,7 +90,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
   }
 
   private def getPart(id: String, key: String): Option[UploadPart] = for {
-    (_, upload) <- stepFunctions.getById(id)
+    upload <- stepFunctions.getById(id)
     part <- upload.parts.find(_.key == key)
   } yield part
 

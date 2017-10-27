@@ -10,7 +10,7 @@ import play.api.libs.json.{JsResultException, Json}
 import scala.collection.JavaConverters._
 
 class StepFunctions(awsConfig: AWSConfig) {
-  def getById(id: String): Option[(Long, Upload)] = {
+  def getById(id: String): Option[Upload] = {
     val arn = s"${awsConfig.pipelineArn.replace(":stateMachine:", ":execution:")}:$id"
 
     try {
@@ -18,7 +18,7 @@ class StepFunctions(awsConfig: AWSConfig) {
       val result = awsConfig.stepFunctionsClient.describeExecution(request)
 
       val upload = Json.parse(result.getInput).validate[Upload].asOpt
-      upload.map(result.getStartDate.getTime -> _)
+      upload.map(fillInStartTimestamp(result, _))
     } catch {
       case _: ExecutionDoesNotExistException =>
         None
@@ -87,5 +87,17 @@ class StepFunctions(awsConfig: AWSConfig) {
     val end = e.getStopDate.toInstant.toEpochMilli
 
     (now - end) < (1000 * 60 * 10)
+  }
+
+  private def fillInStartTimestamp(result: DescribeExecutionResult, upload: Upload): Upload = {
+    if(upload.metadata.startTimestamp.isEmpty) {
+      upload.copy(
+        metadata = upload.metadata.copy(
+          startTimestamp = Some(result.getStartDate.getTime)
+        )
+      )
+    } else {
+      upload
+    }
   }
 }

@@ -13,11 +13,11 @@ class UploadDecorator(aws: DynamoAccess with UploadAccess, stepFunctions: StepFu
     val id = s"$atomId-${video.id}"
 
     getUpload(id) match {
-      case Some((startTimestamp, upload)) =>
+      case Some(upload) =>
         video.copy(metadata = Some(
           ClientAssetMetadata(
             upload.metadata.originalFilename,
-            startTimestamp,
+            upload.metadata.startTimestamp.getOrElse(0),
             upload.metadata.user
           )
         ))
@@ -27,13 +27,10 @@ class UploadDecorator(aws: DynamoAccess with UploadAccess, stepFunctions: StepFu
     }
   }
 
-  private def getUpload(id: String): Option[(Long, Upload)] = {
-    // TODO MRB: startTimestamp
-    stepFunctions.getById(id) orElse {
-      val op = table.get('id -> id)
-      val result = Scanamo.exec(aws.dynamoDB)(op)
+  private def getUpload(id: String): Option[Upload] = {
+    val op = table.get('id -> id)
+    val result = Scanamo.exec(aws.dynamoDB)(op).flatMap(_.right.toOption)
 
-      result.flatMap(_.right.toOption)
-    }.map((0, _))
+    result orElse { stepFunctions.getById(id) }
   }
 }
