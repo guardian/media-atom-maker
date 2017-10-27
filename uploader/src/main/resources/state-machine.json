@@ -110,7 +110,7 @@
           "Next": "SendToTranscoder"
         }
       ],
-      "Default": "Complete"
+      "Default": "AddUploadDataToCache"
     },
     "SendToTranscoder": {
       "Type": "Task",
@@ -141,6 +141,11 @@
     "AddSelfHostedAssetToAtom": {
       "Type": "Task",
       "Resource": "${AddAssetToAtom.Arn}",
+      "Next": "AddUploadDataToCache"
+    },
+    "AddUploadDataToCache": {
+      "Type": "Task",
+      "Resource": "${AddUploadDataToCache.Arn}",
       "Next": "Complete"
     },
     "Complete": {
