@@ -15,7 +15,7 @@ trait UploadAccess { this: Settings with AwsAccess =>
   val pipelineName: String = s"VideoPipeline$stage"
   lazy val pipelineArn: String = getPipelineArn()
 
-  val cacheTableName: String = s"$app-cache-$stage"
+  val cacheTableName: String = s"media-atom-pipeline-cache-$stage"
 
   lazy val uploadSTSClient = createUploadSTSClient()
 
