@@ -67,12 +67,15 @@ export default class VideoUtils {
   }
 
   static isEligibleForAds(atom) {
-    const minDurationForAds = getStore().getState().config.minDurationForAds;
-
     if (VideoUtils.isCommercialType(atom)) {
       return false;
     }
 
+    if (!VideoUtils.hasAssets(atom)) {
+      return true;
+    }
+
+    const minDurationForAds = getStore().getState().config.minDurationForAds;
     return atom.duration > 0 && atom.duration > minDurationForAds;
   }
 
