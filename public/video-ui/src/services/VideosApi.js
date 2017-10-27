@@ -1,6 +1,6 @@
 import { pandaReqwest } from './pandaReqwest';
 import { getStore } from '../util/storeAccessor';
-import { getComposerData, getRightsPayload } from '../util/getComposerData';
+import { getComposerData } from '../util/getComposerData';
 import { cleanVideoData } from '../util/cleanVideoData';
 import ContentApi from './capi';
 
@@ -154,18 +154,27 @@ export default {
 
   updateCanonicalPages(video, composerUrlBase, videoBlock, usages) {
     const composerData = getComposerData(video);
-    composerData.videoBlock = videoBlock;
-    //TODO: what to do about video block??
+    return Promise.all(
+      Object.keys(usages.data).map(state => {
+        const videoPageUsages = usages.data[state].video;
 
-    return pandaReqwest({
-      url: `${composerUrl}/api/content/${pageId}/video-page`,
-      method: 'put',
-      crossOrigin: true,
-      withCredentials: true,
-      data: cleanVideoData(composerData)
-    });
+        return videoPageUsages.map(usage => {
 
+          const pageId = usage.fields.internalComposerCode;
 
+          return pandaReqwest({
+            url: `${composerUrlBase}/api/content/${pageId}/videopage`,
+            method: 'put',
+            crossOrigin: true,
+            withCredentials: true,
+            data: {
+              videoFields: cleanVideoData(composerData),
+              videoBlock: videoBlock
+            }
+          });
+        });
+      })
+    );
   },
 
   createComposerPage(id, video, composerUrlBase) {
@@ -180,7 +189,9 @@ export default {
       method: 'post',
       crossOrigin: true,
       withCredentials: true,
-      data: cleanVideoData(composerData)
+      data: {
+        videoFields: cleanVideoData(composerData)
+      }
     });
   },
 
