@@ -46,7 +46,7 @@
           "Next": "UploadChunkToYouTube"
         }
       ],
-      "Default": "MoveToNextChunk"
+      "Default": "MoveToNextUploadedChunk"
     },
     "UploadChunkToYouTube": {
       "Type": "Task",
@@ -56,9 +56,9 @@
         "IntervalSeconds": 10,
         "MaxAttempts": 3
       }],
-      "Next": "MoveToNextChunk"
+      "Next": "MoveToNextUploadedChunk"
     },
-    "MoveToNextChunk": {
+    "MoveToNextUploadedChunk": {
       "Type": "Choice",
       "Choices": [
         {
@@ -78,32 +78,32 @@
           "Next": "AddYouTubeAssetToAtom"
         }
       ],
-      "Default": "CreateCompleteVideoInS3"
+      "Default": "MultipartCopyChunkInS3"
     },
     "AddYouTubeAssetToAtom": {
       "Type": "Task",
       "Resource": "${AddAssetToAtom.Arn}",
-      "Next": "CreateCompleteVideoInS3"
+      "Next": "MultipartCopyChunkInS3"
     },
-    "CreateCompleteVideoInS3": {
+    "MultipartCopyChunkInS3": {
       "Type": "Task",
-      "Resource": "${CreateCompleteVideoInS3.Arn}",
-      "Next": "CopyNextChunk"
+      "Resource": "${MultipartCopyChunkInS3.Arn}",
+      "Next": "MoveToNextChunkToCopy"
     },
-    "CopyNextChunk": {
+    "MoveToNextChunkToCopy": {
       "Type": "Choice",
       "Choices": [
         {
           "Variable": "$.progress.copyProgress.fullyCopied",
           "BooleanEquals": true,
-          "Next": "DeletePartsFromS3"
+          "Next": "CompleteMultipartCopy"
         }
       ],
-      "Default": "CreateCompleteVideoInS3"
+      "Default": "MultipartCopyChunkInS3"
     },
-    "DeletePartsFromS3": {
+    "CompleteMultipartCopy": {
       "Type": "Task",
-      "Resource": "${DeletePartsFromS3.Arn}",
+      "Resource": "${CompleteMultipartCopy.Arn}",
       "Next": "CheckSyncWithPluto"
     },
     "CheckSyncWithPluto": {

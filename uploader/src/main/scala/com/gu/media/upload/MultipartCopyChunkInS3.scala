@@ -6,7 +6,7 @@ import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
 import com.gu.media.upload.model.{CopyETag, CopyProgress, Upload}
 
-class CreateCompleteVideoInS3 extends LambdaWithParams[Upload, Upload] with S3Access with Logging {
+class MultipartCopyChunkInS3 extends LambdaWithParams[Upload, Upload] with S3Access with Logging {
   override def handle(upload: Upload): Upload = {
     upload.copy(
       progress = upload.progress.copy(
