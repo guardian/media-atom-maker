@@ -20,5 +20,7 @@ class DeletePartsFromS3 extends LambdaWithParams[Upload, Upload] with S3Access w
           log.warn(s"Unable to delete part $part: $err")
       }
     }
+
+    upload
   }
 }

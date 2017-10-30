@@ -88,6 +88,22 @@
     "CreateCompleteVideoInS3": {
       "Type": "Task",
       "Resource": "${CreateCompleteVideoInS3.Arn}",
+      "Next": "CopyNextChunk"
+    },
+    "CopyNextChunk": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.progress.copyProgress.fullyCopied",
+          "BooleanEquals": true,
+          "Next": "DeletePartsFromS3"
+        }
+      ],
+      "Default": "CreateCompleteVideoInS3"
+    },
+    "DeletePartsFromS3": {
+      "Type": "Task",
+      "Resource": "${DeletePartsFromS3.Arn}",
       "Next": "CheckSyncWithPluto"
     },
     "CheckSyncWithPluto": {

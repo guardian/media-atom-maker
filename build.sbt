@@ -79,6 +79,9 @@ lazy val uploader = (project in file("uploader"))
       "CreateCompleteVideoInS3" -> LambdaConfig(
         description = "Uses multipart copy to combine all the chunks in S3 into a single key"
       ),
+      "DeletePartsFromS3" -> LambdaConfig(
+        description = "Removes chunks from S3 once they have been combined"
+      ),
       "SendToPluto" -> LambdaConfig(
         description = "Sends a complete video to Pluto for ingestion"
       ),

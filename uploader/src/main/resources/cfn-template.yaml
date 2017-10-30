@@ -168,6 +168,8 @@ Resources:
 
   {{CreateCompleteVideoInS3}}
 
+  {{DeletePartsFromS3}}
+
   {{SendToPluto}}
 
   {{SendToTranscoder}}
