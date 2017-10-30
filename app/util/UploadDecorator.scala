@@ -17,7 +17,7 @@ class UploadDecorator(aws: DynamoAccess with UploadAccess, stepFunctions: StepFu
         video.copy(metadata = Some(
           ClientAssetMetadata(
             upload.metadata.originalFilename,
-            upload.metadata.startTimestamp.getOrElse(0),
+            upload.metadata.startTimestamp,
             upload.metadata.user
           )
         ))
