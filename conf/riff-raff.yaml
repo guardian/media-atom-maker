@@ -53,5 +53,6 @@ deployments:
         - "media-atom-pipeline-SendToTranscoder-"
         - "media-atom-pipeline-GetTranscodingProgress-"
         - "media-atom-pipeline-AddAssetToAtom-"
+        - "media-atom-pipeline-AddUploadDataToCache-"
     dependencies:
       - media-atom-pipeline-cloudformation
