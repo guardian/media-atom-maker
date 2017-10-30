@@ -34,7 +34,7 @@ object UploadBuilder {
       asset = getAsset(request.selfHost, atom.title, id),
       originalFilename = Some(request.filename),
       version = Some(version),
-      startTimestamp = Some(Instant.now().getEpochSecond)
+      startTimestamp = Some(Instant.now().toEpochMilli)
     )
 
     val progress = UploadProgress(
