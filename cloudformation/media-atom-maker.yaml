@@ -728,6 +728,9 @@ Resources:
           Effect: Allow
           Resource: !Join ['', ['arn:aws:dynamodb:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId',
               ':table/', !Ref 'PlutoProjectDynamoTable']]
+        - Action: dynamodb:*
+          Effect: Allow
+          Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/media-atom-pipeline-cache-${Stage}"
       Roles:
       - !Ref 'DistributionRole'
   PanDomainPolicy:

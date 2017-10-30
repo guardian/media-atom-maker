@@ -1,7 +1,12 @@
 {
   "Comment": "A pipeline for uploading video to YouTube or an S3 bucket",
-  "StartAt": "GetChunkFromS3",
+  "StartAt": "AddInitialUploadDataToCache",
   "States": {
+    "AddInitialUploadDataToCache": {
+      "Type": "Task",
+      "Resource": "${AddUploadDataToCache.Arn}",
+      "Next": "GetChunkFromS3"
+    },
     "GetChunkFromS3": {
       "Type": "Task",
       "Resource": "${GetChunkFromS3.Arn}",
@@ -110,7 +115,7 @@
           "Next": "SendToTranscoder"
         }
       ],
-      "Default": "Complete"
+      "Default": "AddCompleteUploadDataToCache"
     },
     "SendToTranscoder": {
       "Type": "Task",
@@ -141,6 +146,11 @@
     "AddSelfHostedAssetToAtom": {
       "Type": "Task",
       "Resource": "${AddAssetToAtom.Arn}",
+      "Next": "AddCompleteUploadDataToCache"
+    },
+    "AddCompleteUploadDataToCache": {
+      "Type": "Task",
+      "Resource": "${AddUploadDataToCache.Arn}",
       "Next": "Complete"
     },
     "Complete": {

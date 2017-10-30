@@ -10,7 +10,7 @@ import play.api.libs.json.Format
 
 case class ClientAsset(id: String, asset: Option[VideoAsset] = None, processing: Option[ClientAssetProcessing] = None, metadata: Option[ClientAssetMetadata] = None)
 case class ClientAssetProcessing(status: String, failed: Boolean, current: Option[Long], total: Option[Long])
-case class ClientAssetMetadata(originalFilename: Option[String], startTimestamp: Long, user: String)
+case class ClientAssetMetadata(originalFilename: Option[String], startTimestamp: Option[Long], user: String)
 
 object ClientAsset {
   implicit val format: Format[ClientAsset] = Jsonx.formatCaseClass[ClientAsset]
@@ -34,7 +34,7 @@ object ClientAsset {
 
     base.copy(metadata = Some(ClientAssetMetadata(
       originalFilename = upload.metadata.originalFilename,
-      startTimestamp = startTimestamp,
+      startTimestamp = Some(startTimestamp),
       user = upload.metadata.user
     )))
   }
@@ -80,7 +80,6 @@ object ClientAsset {
         )
 
       case None =>
-        val fullyUploaded = upload.progress.fullyUploaded
         val current = upload.progress.chunksInYouTube
         val total = upload.parts.length
 

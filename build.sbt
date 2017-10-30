@@ -90,6 +90,9 @@ lazy val uploader = (project in file("uploader"))
       ),
       "AddAssetToAtom" -> LambdaConfig(
         description = "Adds the resulting asset to the atom"
+      ),
+      "AddUploadDataToCache" -> LambdaConfig(
+        description = "Adds the upload information to a Dynamo table so it is preserved even if the pipeline changes"
       )
     ),
 

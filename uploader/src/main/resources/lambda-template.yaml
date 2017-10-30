@@ -13,7 +13,7 @@
       Variables:
         REGION: !Ref AWS::Region
         STACK: !Ref Stack
-        APP: "media-atom-uploader"
+        APP: !Ref App
         STAGE: !Ref Stage
         CONFIG_BUCKET: !Ref ConfigBucket
         CONFIG_KEY: !Sub

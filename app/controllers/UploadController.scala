@@ -1,6 +1,6 @@
 package controllers
 
-import _root_.model.{ClientAsset, ClientAssetMetadata, ClientAssetProcessing, MediaAtom}
+import _root_.model.{ClientAsset, ClientAssetProcessing, MediaAtom}
 import com.amazonaws.services.stepfunctions.model.{ExecutionAlreadyExistsException, ExecutionListItem}
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
@@ -12,8 +12,8 @@ import com.gu.pandahmac.HMACAuthActions
 import data.{DataStores, UnpackedDataStores}
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.{Format, Json}
+import util._
 import util.atom.MediaAtomImplicits
-import util.{AWSConfig, CredentialsGenerator, StepFunctions, UploadBuilder}
 
 import scala.annotation.tailrec
 
@@ -26,10 +26,12 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
   import authActions.APIAuthAction
 
   private val credsGenerator = new CredentialsGenerator(awsConfig)
+  private val uploadDecorator = new UploadDecorator(awsConfig, stepFunctions)
 
   def list(atomId: String) = APIAuthAction { req =>
     val atom = MediaAtom.fromThrift(getPreviewAtom(atomId))
-    val assets = ClientAsset.fromAssets(atom.assets).map(addYouTubeStatus).map(addMetadata(atom.id, _))
+    val withStatus = ClientAsset.fromAssets(atom.assets).map(addYouTubeStatus)
+    val assets = withStatus.map { asset => uploadDecorator.addMetadata(atom.id, asset) }
 
     val jobs = stepFunctions.getJobs(atomId)
     val uploads = jobs.flatMap(getRunning(assets, _))
@@ -87,26 +89,8 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       video
   }
 
-  private def addMetadata(atomId: String, video: ClientAsset): ClientAsset = {
-    val id = s"$atomId-${video.id}"
-
-    stepFunctions.getById(id) match {
-      case Some((startTimestamp, upload)) =>
-        video.copy(metadata = Some(
-          ClientAssetMetadata(
-            upload.metadata.originalFilename,
-            startTimestamp,
-            upload.metadata.user
-          )
-        ))
-
-      case None =>
-        video
-    }
-  }
-
   private def getPart(id: String, key: String): Option[UploadPart] = for {
-    (_, upload) <- stepFunctions.getById(id)
+    upload <- stepFunctions.getById(id)
     part <- upload.parts.find(_.key == key)
   } yield part
 
