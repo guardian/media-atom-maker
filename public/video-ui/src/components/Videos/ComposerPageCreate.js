@@ -12,9 +12,22 @@ export default class ComposerPageCreate extends React.Component {
     return getStore().getState().config.composerUrl;
   };
 
+  getComposerId = () => {
+    const usages = getStore().getState().usage.data;
+    const videoPages = [...usages.preview.video, ...usages.published.video];
+    if (videoPages.length !== 0) {
+      return videoPages[0].fields.internalComposerCode;
+    }
+    else {
+      console.log("Could not find composer id");
+    }
+  }
+
   isHosted = () => {
     return this.props.video.category === 'Hosted';
   };
+
+  getComposerLink = () => `${this.getComposerUrl()}/content/${this.getComposerId()}`;
 
   pageCreate = () => {
     this.setState({
@@ -43,20 +56,22 @@ export default class ComposerPageCreate extends React.Component {
   };
 
   render() {
-    if (this.props.canonicalVideoPageExists() || this.isHosted()) {
-      return null;
+    const { canonicalVideoPageExists, videoEditOpen, requiredComposerFieldsMissing } = this.props;
+    const showOpenPage = canonicalVideoPageExists() || this.isHosted();
+    
+    if (showOpenPage) {
+      return <a className="button__secondary" href={this.getComposerLink()} target="_blank">Open in Composer</a>;
+    } 
+    else {
+      return (
+        <button
+          className="button__secondary"
+          onClick={this.pageCreate}
+          disabled={videoEditOpen || this.state.composerUpdateInProgress || requiredComposerFieldsMissing()}
+        >
+          <span><Icon icon="add_to_queue" /> Create Video Page</span>
+        </button>
+      );
     }
-
-    return (
-      <button
-        className="button__secondary"
-        onClick={this.pageCreate}
-        disabled={
-          this.props.videoEditOpen || this.state.composerUpdateInProgress || this.props.requiredComposerFieldsMissing()
-        }
-      >
-        <Icon icon="add_to_queue" /> Create Video Page
-      </button>
-    );
   }
 }
