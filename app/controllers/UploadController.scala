@@ -58,14 +58,16 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     }
   }
 
-  def credentials(id: String, key: String) = LookupPermissions { implicit req =>
-    getPart(id, key) match {
-      case Some(part) =>
-        val credentials = credsGenerator.forKey(part.key)
-        Ok(Json.toJson(credentials))
+  def credentials() = LookupPermissions { implicit raw =>
+    parse(raw) { credentialsRequest: UploadCredentialsRequest =>
+      getPart(credentialsRequest) match {
+        case Some(part) =>
+          val credentials = credsGenerator.forKey(part.key)
+          Ok(Json.toJson(credentials))
 
-      case None =>
-        NotFound
+        case None =>
+          NotFound
+      }
     }
   }
 
@@ -89,9 +91,9 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       video
   }
 
-  private def getPart(id: String, key: String): Option[UploadPart] = for {
-    upload <- stepFunctions.getById(id)
-    part <- upload.parts.find(_.key == key)
+  private def getPart(credentialsRequest: UploadCredentialsRequest): Option[UploadPart] = for {
+    upload <- stepFunctions.getById(credentialsRequest.atomId)
+    part <- upload.parts.find(_.key == credentialsRequest.key)
   } yield part
 
   private def getRunning(assets: List[ClientAsset], job: ExecutionListItem): Option[ClientAsset] = {

@@ -27,7 +27,7 @@ POST    /api2/workflow/atoms            controllers.Api2.createWorkflowMediaAtom
 # user uploaded videos
 GET     /api2/uploads                   controllers.UploadController.list(atomId)
 POST    /api2/uploads                   controllers.UploadController.create
-POST    /api2/uploads/:id/credentials   controllers.UploadController.credentials(id, key)
+POST    /api2/uploads/credentials       controllers.UploadController.credentials
 
 GET     /api2/audits/:id                controllers.Api2.getAuditTrailForAtomId(id)
 

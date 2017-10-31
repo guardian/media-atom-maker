@@ -26,8 +26,12 @@ export function createUpload(atomId, file, selfHost) {
 
 function getCredentials(id, key) {
   return pandaReqwest({
-    url: `/api2/uploads/${id}/credentials?key=${key}`,
-    method: 'post'
+    url: `/api2/uploads/credentials`,
+    method: 'post',
+    data: {
+      atomId: id,
+      key: key
+    }
   });
 }
 
