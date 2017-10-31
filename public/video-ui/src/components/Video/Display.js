@@ -22,6 +22,7 @@ class VideoDisplay extends React.Component {
     if (this.props.route.mode === 'create') {
       this.props.videoActions.updateVideo(blankVideoData);
       this.props.videoActions.updateVideoEditState(true);
+      this.props.videoActions.getUsages();
     } else {
       this.props.videoActions.getVideo(this.props.params.id);
       this.props.videoActions.getUsages(this.props.params.id);
