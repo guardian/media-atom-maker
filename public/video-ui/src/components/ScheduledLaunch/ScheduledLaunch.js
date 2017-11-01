@@ -48,7 +48,6 @@ export default class ScheduledLaunch extends React.Component {
     const showDatePicker = this.state.showDatePicker && !videoEditOpen;
     const isFutureDate = selectedDate && moment(selectedDate).isAfter(moment());
     const scheduledLaunch = contentChangeDetails && contentChangeDetails.scheduledLaunch && contentChangeDetails.scheduledLaunch.date;
-    console.log(scheduledLaunch)
     return (
       <div className="flex-container topbar__scheduler">
         {scheduledLaunch && !showDatePicker && <span className="topbar__launch-label">Scheduled: {moment(scheduledLaunch).format('Do MMM YYYY HH:mm')}</span> }

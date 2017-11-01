@@ -14,7 +14,8 @@ export const blankVideoData = {
   commentsEnabled: false,
   commissioningDesks: [],
   contentChangeDetails: {
-    revision: 0
+    revision: 0,
+    scheduledLaunch: null
   },
   blockAds: false,
   posterImage: {

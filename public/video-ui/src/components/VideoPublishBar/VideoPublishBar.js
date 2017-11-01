@@ -21,6 +21,7 @@ export default class VideoPublishBar extends React.Component {
 
   isPublishingDisabled() {
     return (
+      this.props.video.contentChangeDetails.scheduledLaunch ||
       this.videoIsCurrentlyPublishing() ||
       this.props.videoEditOpen ||
       !this.videoHasUnpublishedChanges() ||
