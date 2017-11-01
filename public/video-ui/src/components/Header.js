@@ -197,6 +197,7 @@ export default class Header extends React.Component {
             canonicalVideoPageExists={this.canonicalVideoPageExists}
             updateVideo={this.props.updateVideo}
             saveVideo={this.props.saveVideo}
+            query={this.props.query}
           />
           <AdvancedActions
             video={this.props.video || {}}
