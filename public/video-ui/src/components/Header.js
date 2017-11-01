@@ -7,6 +7,7 @@ import AdvancedActions from './Videos/AdvancedActions';
 import ComposerPageCreate from './Videos/ComposerPageCreate';
 import Icon from './Icon';
 import { Presence } from './Presence';
+import RequiredForComposer from '../constants/requiredForComposer';
 
 export default class Header extends React.Component {
   state = { presence: null };
@@ -189,12 +190,10 @@ export default class Header extends React.Component {
             editableFields={this.props.editableFields}
             saveState={this.props.saveState}
             videoEditOpen={this.props.videoEditOpen}
-            updateVideoPage={this.props.updateVideoPage}
             usages={this.props.usages}
             publishVideo={this.publishVideo}
             formFieldsWarning={this.props.formFieldsWarning}
             requiredComposerFieldsMissing={this.requiredComposerFieldsMissing}
-            canonicalVideoPageExists={this.canonicalVideoPageExists}
             updateVideo={this.props.updateVideo}
             saveVideo={this.props.saveVideo}
             query={this.props.query}
