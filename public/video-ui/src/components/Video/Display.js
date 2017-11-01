@@ -128,6 +128,13 @@ class VideoDisplay extends React.Component {
           return keyword.match(/^tone/);
         })
        ) {
+        if (this.canonicalVideoPageExists()) {
+          return new FieldNotification(
+            'error',
+            'A series or a keyword tag is required for updating composer pages',
+            FieldNotification.error
+          );
+        }
         return new FieldNotification(
           'desired',
           'A series or a keyword tag is required for creating composer pages',
@@ -261,6 +268,7 @@ class VideoDisplay extends React.Component {
           validateKeywords={this.validateKeywords}
           validateYouTubeKeywords={this.validateYouTubeKeywords}
           composerKeywordsToYouTube={this.composerKeywordsToYouTube}
+          canonicalVideoPageExists={this.canonicalVideoPageExists()}
         />
       </div>
     );

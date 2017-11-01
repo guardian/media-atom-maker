@@ -81,7 +81,8 @@ class VideoData extends React.Component {
               name="Trail Text"
               maxCharLength={fieldLengths.description.charMax}
               maxLength={fieldLengths.description.max}
-              isDesired={true}
+              isDesired={this.props.canonicalVideoPageExists ? false : true}
+              isRequired={this.props.canonicalVideoPageExists ? true : false}
             >
               <ScribeEditorField
                 allowedEdits={['bold', 'italic']}
@@ -102,7 +103,8 @@ class VideoData extends React.Component {
               name="Commissioning Desks"
               formRowClass="form__row__byline"
               tagType={TagTypes.tracking}
-              isDesired={true}
+              isDesired={this.props.canonicalVideoPageExists ? false : true}
+              isRequired={this.props.canonicalVideoPageExists ? true : false}
               inputPlaceholder="Search commissioning info (type '*' to show all)"
             >
               <TagPicker disableTextInput />

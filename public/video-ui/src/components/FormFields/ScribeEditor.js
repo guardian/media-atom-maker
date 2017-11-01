@@ -6,7 +6,7 @@ import scribePluginToolbar from 'scribe-plugin-toolbar';
 import scribePluginLinkPromptCommand from 'scribe-plugin-link-prompt-command';
 import scribePluginSanitizer from 'scribe-plugin-sanitizer';
 import {keyCodes} from '../../constants/keyCodes';
-import {requiredForComposerWarning} from '../../constants/requiredForComposerWarning';
+import RequiredForComposer from '../../constants/requiredForComposer';
 import ReactTooltip from 'react-tooltip';
 
 export default class ScribeEditorField extends React.Component {
@@ -106,6 +106,7 @@ export default class ScribeEditorField extends React.Component {
 
   renderField() {
     const hasWarning = this.state.wordCount === 0  && this.props.fieldLocation === 'trailText';
+    const hasError = false;
 
     if (!this.props.editable) {
       if (this.state.wordCount === 0) {
@@ -139,7 +140,12 @@ export default class ScribeEditorField extends React.Component {
         </div>
         {hasWarning
           ? <p className="form__message form__message--warning">
-            {requiredForComposerWarning}
+            {RequiredForComposer.warning}
+            </p>
+          : ''}
+        {hasError
+          ? <p className="form__message form__message--warning">
+            {RequiredForComposer.error}
             </p>
           : ''}
       </div>
