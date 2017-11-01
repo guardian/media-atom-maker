@@ -105,8 +105,9 @@ export default class ScribeEditorField extends React.Component {
   };
 
   renderField() {
-    const hasWarning = this.state.wordCount === 0  && this.props.fieldLocation === 'trailText';
-    const hasError = false;
+    const requiresValidation = this.state.wordCount === 0  && this.props.fieldLocation === 'trailText';
+    const hasWarning = requiresValidation && this.props.isDesired;
+    const hasError = requiresValidation && this.props.isRequired;
 
     if (!this.props.editable) {
       if (this.state.wordCount === 0) {
@@ -144,7 +145,7 @@ export default class ScribeEditorField extends React.Component {
             </p>
           : ''}
         {hasError
-          ? <p className="form__message form__message--warning">
+          ? <p className="form__message form__message--error">
             {RequiredForComposer.error}
             </p>
           : ''}

@@ -81,12 +81,13 @@ class VideoData extends React.Component {
               name="Trail Text"
               maxCharLength={fieldLengths.description.charMax}
               maxLength={fieldLengths.description.max}
-              isDesired={this.props.canonicalVideoPageExists ? false : true}
+              isDesired={!this.props.canonicalVideoPageExists ? false : true}
               isRequired={this.props.canonicalVideoPageExists ? true : false}
             >
               <ScribeEditorField
                 allowedEdits={['bold', 'italic']}
-
+                isDesired={this.props.canonicalVideoPageExists ? false : true}
+                isRequired={this.props.canonicalVideoPageExists ? true : false}
               />
             </ManagedField>
 
