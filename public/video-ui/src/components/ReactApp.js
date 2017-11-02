@@ -67,6 +67,7 @@ class ReactApp extends React.Component {
           publishVideo={this.props.appActions.publishVideo}
           saveState={this.props.saveState}
           editableFields={this.getEditableFields()}
+          updateVideoPage={this.props.appActions.updateVideoPage}
           createVideoPage={this.props.appActions.createVideoPage}
           videoEditOpen={this.props.videoEditOpen}
           usages={this.props.usages || {}}
@@ -98,6 +99,7 @@ import * as getPublishedVideo from '../actions/VideoActions/getPublishedVideo';
 import * as publishVideo from '../actions/VideoActions/publishVideo';
 import * as saveVideo from '../actions/VideoActions/saveVideo';
 import * as getUploads from '../actions/UploadActions/getUploads';
+import * as videoPageUpdate from '../actions/VideoActions/videoPageUpdate';
 import * as videoPageCreate from '../actions/VideoActions/videoPageCreate';
 import * as videoUsages from '../actions/VideoActions/videoUsages';
 import * as deleteVideo from '../actions/VideoActions/deleteVideo';
@@ -131,6 +133,7 @@ function mapDispatchToProps(dispatch) {
         publishVideo,
         saveVideo,
         getUploads,
+        videoPageUpdate,
         videoPageCreate,
         videoUsages,
         deleteVideo,

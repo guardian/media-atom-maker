@@ -50,11 +50,15 @@ class VideoDisplay extends React.Component {
             this.props.video.source
           );
 
+          const updateLive = this.props.usages.data.published.video.length === 0;
+          const updatePreview = true;
+
           this.props.videoActions.updateVideoPage(
             this.props.video,
             this.getComposerUrl(),
             videoBlock,
-            this.props.usages
+            this.props.usages,
+            'preview'
           );
         }
       });
