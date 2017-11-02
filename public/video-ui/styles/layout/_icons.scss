@@ -18,8 +18,12 @@
     /* Support for Firefox. */
     -moz-osx-font-smoothing: grayscale;
 
-    vertical-align: bottom;
     align-self: center;
+    vertical-align: text-bottom;
+
+    @media only screen and (max-width: $large-screen) {
+      vertical-align: bottom;
+    }
 
   &--text {
     margin-left: 5px;

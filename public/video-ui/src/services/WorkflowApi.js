@@ -1,7 +1,7 @@
 import { pandaReqwest } from './pandaReqwest';
 import { getStore } from '../util/storeAccessor';
 import getProductionOffice from '../util/getProductionOffice';
-import VideoUtils from '../util/video';
+// import VideoUtils from '../util/video';
 import moment from 'moment';
 
 export default class WorkflowApi {

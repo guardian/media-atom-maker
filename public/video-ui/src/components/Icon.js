@@ -82,9 +82,9 @@ export default class Icon extends React.Component {
     props.className = props.className
       ? `${props.className} responsive`
       : 'responsive';
-
+      
     return (
-      <span {...props}>
+      <span className={props.className}>
         <i className="icon responsive--primary">{props.icon}</i>
         {this.renderText()}
       </span>
