@@ -2,6 +2,7 @@ import { pandaReqwest } from './pandaReqwest';
 import { getStore } from '../util/storeAccessor';
 import getProductionOffice from '../util/getProductionOffice';
 import VideoUtils from '../util/video';
+import moment from 'moment';
 
 export default class WorkflowApi {
   static get workflowUrl() {
@@ -39,30 +40,40 @@ export default class WorkflowApi {
     }).then(response => response.data);
   }
 
-  static _getTrackInWorkflowPayload({ video, status, section }) {
+  static _getTrackInWorkflowPayload({ video, status, section, scheduledLaunchDate }) {
     const prodOffice = getProductionOffice();
 
-    const scheduledLaunchDate = VideoUtils.getScheduledLaunch(video);
+    // const scheduledLaunchDate = VideoUtils.getScheduledLaunch(video);
     const core = {
       contentType: 'media',
       editorId: video.id,
       title: video.title,
       priority: 0,
-      scheduledLaunchDate,
+      // scheduledLaunchDate,
       needsLegal: 'NA',
       section,
       status,
       prodOffice
     };
-       
-    return core;
+
+    if (!scheduledLaunchDate) {
+      return core;
+    }
+
+    const momentLaunchDate = moment(scheduledLaunchDate);
+
+    return Object.assign({}, core, {
+      scheduledLaunchDate: momentLaunchDate,
+      note: `Please create a Video page, launching ${momentLaunchDate.format('DD MMM YYYY HH:mm')}`
+    });
   }
 
-  static trackInWorkflow({ video, status, section }) {
+  static trackInWorkflow({ video, status, section, scheduledLaunchDate }) {
     const payload = WorkflowApi._getTrackInWorkflowPayload({
       video,
       status,
-      section
+      section,
+      scheduledLaunchDate
     });
 
     return pandaReqwest({
