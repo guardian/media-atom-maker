@@ -8,6 +8,7 @@ import ComposerPageCreate from './Videos/ComposerPageCreate';
 import Icon from './Icon';
 import { Presence } from './Presence';
 import RequiredForComposer from '../constants/requiredForComposer';
+import { canonicalVideoPageExists } from '../util/canonicalVideoPageExists';
 
 export default class Header extends React.Component {
   state = { presence: null };
@@ -20,10 +21,6 @@ export default class Header extends React.Component {
     return Object.keys(this.props.formFieldsWarning).some(key => {
       return this.props.formFieldsWarning[key];
     });
-  };
-
-  canonicalVideoPageExists = () => {
-    return this.props.usages.totalVideoPages > 0;
   };
 
   renderProgress() {
@@ -128,7 +125,7 @@ export default class Header extends React.Component {
       return null;
     }
 
-    if (this.canonicalVideoPageExists()) {
+    if (canonicalVideoPageExists(this.props.usages)) {
       return (
         <div className="header__fields__missing__warning">
           Fill in required composer fields before publishing
@@ -208,7 +205,7 @@ export default class Header extends React.Component {
             video={this.props.video || {}}
             createVideoPage={this.props.createVideoPage}
             requiredComposerFieldsMissing={this.requiredComposerFieldsMissing}
-            canonicalVideoPageExists={this.canonicalVideoPageExists}
+            usages={this.props.usages}
           />
           {this.renderComposerMissingWarning()}
           <div className="flex-container">
