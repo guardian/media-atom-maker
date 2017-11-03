@@ -8,7 +8,7 @@ import com.gu.atom.play.AtomAPIActions
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.media.Capi
 import com.gu.media.logging.Logging
-import com.gu.media.model.{Asset, PrivacyStatus}
+import com.gu.media.model.{Asset, ChangeRecord, ImageAsset, PrivacyStatus}
 import com.gu.media.youtube.YouTubeMetadataUpdate
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores

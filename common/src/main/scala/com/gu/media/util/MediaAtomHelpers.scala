@@ -15,12 +15,16 @@ object MediaAtomHelpers {
     )
   }
 
-  def getNextAssetVersion(mediaAtom: MediaAtom): Long = {
+  def getCurrentAssetVersion(mediaAtom: MediaAtom): Option[Long] = {
     if (mediaAtom.assets.isEmpty) {
-      1
+      None
     } else {
-      mediaAtom.assets.map(_.version).max + 1
+      Some(mediaAtom.assets.map(_.version).max)
     }
+  }
+
+  def getNextAssetVersion(mediaAtom: MediaAtom): Long = {
+    getCurrentAssetVersion(mediaAtom).getOrElse(0L) + 1
   }
 
   def addAsset(mediaAtom: MediaAtom, asset: VideoAsset, version: Long): MediaAtom = {

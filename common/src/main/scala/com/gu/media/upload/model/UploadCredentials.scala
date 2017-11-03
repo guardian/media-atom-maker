@@ -8,3 +8,7 @@ case class UploadCredentials(temporaryAccessId: String, temporarySecretKey: Stri
 object UploadCredentials {
   implicit val format: Format[UploadCredentials] = Jsonx.formatCaseClass[UploadCredentials]
 }
+
+case class UploadCredentialsRequest (
+  atomId: String
+)
