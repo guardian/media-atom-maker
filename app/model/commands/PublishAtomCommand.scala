@@ -219,21 +219,25 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youtu
   }
 
   private def updateYoutubeThumbnail(atom: MediaAtom, asset: Asset): Future[MediaAtom] = Future{
-    val master = atom.posterImage.flatMap(_.master).get
-    val MAX_SIZE = 2000000
-    val img: ImageAsset = if (master.size.get < MAX_SIZE) {
-      master
-    } else {
-      // Get the biggest crop which is still less than MAX_SIZE
-      atom.posterImage.map(
-        _.assets
-          .filter(a => a.size.nonEmpty && a.size.get < MAX_SIZE)
-          .maxBy(_.size.get)
-      ).get
-    }
+    atom.posterImage.flatMap(_.master) match {
+      case Some(master) => {
+        val MAX_SIZE = 2000000
+        val img: ImageAsset = if (master.size.get < MAX_SIZE) {
+          master
+        } else {
+          // Get the biggest crop which is still less than MAX_SIZE
+          atom.posterImage.map(
+            _.assets
+              .filter(a => a.size.nonEmpty && a.size.get < MAX_SIZE)
+              .maxBy(_.size.get)
+          ).get
+        }
 
-    youtube.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
-    atom
+        youtube.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
+        atom
+      }
+      case None => atom
+    }
   }
 
   private def updateInactiveAssets(atom: MediaAtom): Unit = {
