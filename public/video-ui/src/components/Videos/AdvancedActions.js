@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { getStore } from '../../util/storeAccessor';
+import Icon from '../Icon';
 
 export default class AdvancedActions extends React.Component {
   static propTypes = {
@@ -45,7 +46,9 @@ export default class AdvancedActions extends React.Component {
             onClick={doDelete}
             disabled={disabled}
           >
-            {deleteMsg}
+            <Icon icon={this.state.deleteDoubleCheck ? 'delete_forever' : 'delete'}>
+              {deleteMsg}
+            </Icon>
           </button>
         </span>
       </li>

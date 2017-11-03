@@ -96,7 +96,7 @@ export default class Header extends React.Component {
           className="button__secondary"
           to={auditLink}
         >
-          View audit trail
+          <Icon icon="history">View audit trail</Icon>
         </Link>
       </nav>
     );
