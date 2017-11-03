@@ -1,10 +1,10 @@
 package controllers
 
-import _root_.model.{ClientAsset, ClientAssetProcessing, MediaAtom}
+import model.MediaAtom
 import com.amazonaws.services.stepfunctions.model.{ExecutionAlreadyExistsException, ExecutionListItem}
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
-import com.gu.media.model.YouTubeAsset
+import com.gu.media.model.{ClientAsset, ClientAssetProcessing, YouTubeAsset}
 import com.gu.media.upload.model._
 import com.gu.media.util.MediaAtomHelpers
 import com.gu.media.youtube.YouTubeVideos
