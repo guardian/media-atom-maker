@@ -1,7 +1,7 @@
-package model
+package com.gu.media.model
 
-import org.cvogt.play.json.Jsonx
 import com.gu.contentatom.thrift.{Image => ThriftImage, ImageAsset => ThriftImageAsset, ImageAssetDimensions => ThriftImageAssetDimensions}
+import org.cvogt.play.json.Jsonx
 
 case class ImageAssetDimensions(height: Int, width: Int) {
   def asThrift = ThriftImageAssetDimensions(height, width)

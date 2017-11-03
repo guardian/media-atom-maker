@@ -1,4 +1,4 @@
-package model
+package com.gu.media.model
 
 import com.gu.contentatom.thrift.{ContentChangeDetails => ThriftContentChangeDetails}
 import org.cvogt.play.json.Jsonx

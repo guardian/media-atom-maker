@@ -8,8 +8,9 @@ import com.gu.pandomainauth.model.{User => PandaUser}
 import com.gu.media.logging.Logging
 import data.DataStores
 import model.commands.CommandExceptions._
-import model.{ChangeRecord, MediaAtom}
+import model.MediaAtom
 import util.atom.MediaAtomImplicits
+import com.gu.media.model.ChangeRecord
 
 import scala.util.{Failure, Success}
 
