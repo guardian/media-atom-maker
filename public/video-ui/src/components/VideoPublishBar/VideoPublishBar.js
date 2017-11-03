@@ -5,7 +5,6 @@ import { hasUnpublishedChanges } from '../../util/hasUnpublishedChanges';
 import { getStore } from '../../util/storeAccessor';
 import ScheduledLaunch from '../../components/ScheduledLaunch/ScheduledLaunch';
 import { getVideoBlock } from '../../util/getVideoBlock';
-import { publishedCanonicalVideoPageExists } from '../../util/publishedCanonicalVideoPageExists';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 
 export default class VideoPublishBar extends React.Component {
@@ -35,9 +34,18 @@ export default class VideoPublishBar extends React.Component {
     return getStore().getState().config.composerUrl;
   };
 
+  publishedCanonicalVideoPageExists() {
+    return this.props.usages &&
+      this.props.usages.data &&
+      this.props.usages.data.published &&
+      this.props.usages.data.published.video &&
+      this.props.usages.data.published.video.length > 0;
+
+  }
+
   publishVideo = () => {
 
-    if (publishedCanonicalVideoPageExists(this.props.usages)) {
+    if (this.publishedCanonicalVideoPageExists()) {
 
       const videoBlock = getVideoBlock(
         this.props.video.id,
