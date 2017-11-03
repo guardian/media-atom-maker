@@ -1,10 +1,10 @@
 package util
 
 import com.gu.media.aws.{DynamoAccess, UploadAccess}
+import com.gu.media.model.{ClientAsset, ClientAssetMetadata}
 import com.gu.media.upload.model.Upload
 import com.gu.scanamo.{Scanamo, Table}
 import com.gu.scanamo.syntax._
-import model.{ClientAsset, ClientAssetMetadata}
 
 class UploadDecorator(aws: DynamoAccess with UploadAccess, stepFunctions: StepFunctions) {
   private val table = Table[Upload](aws.cacheTableName)

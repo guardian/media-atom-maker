@@ -1,8 +1,5 @@
-package model
+package com.gu.media.model
 
-import java.util.UUID
-
-import com.gu.media.model._
 import com.gu.media.upload.model.Upload
 import com.gu.media.youtube.YouTubeProcessingStatus
 import org.cvogt.play.json.Jsonx
