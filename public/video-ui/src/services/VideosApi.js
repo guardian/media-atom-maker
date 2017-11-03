@@ -1,6 +1,6 @@
 import { pandaReqwest } from './pandaReqwest';
 import { getStore } from '../util/storeAccessor';
-import { getComposerData, getRightsPayload } from '../util/getComposerData';
+import { getComposerData } from '../util/getComposerData';
 import { cleanVideoData } from '../util/cleanVideoData';
 import ContentApi from './capi';
 
@@ -153,108 +153,26 @@ export default {
   },
 
   updateCanonicalPages(video, composerUrlBase, videoBlock, usages) {
-    function getComposerUpdateRequests({ composerId, video, composerUrlBase }) {
-      const rightsExpiryPayload = getRightsPayload(video);
-      const rightsRequest = pandaReqwest({
-        url: `${composerUrlBase}/api/content/${composerId}/atom-expiry/rights`,
-        method: 'post',
-        crossOrigin: true,
-        withCredentials: true,
-        data: rightsExpiryPayload
-      });
-
-      // When article is in preview, composer keeps track of both the live and preview versions of an article
-      // For both published and unpublished articles, we need to update both live and preview versions.
-      const composerData = getComposerData(video);
-      const dataUpdatePromises = composerData.reduce((promises, data) => {
-        promises.push(
-          updateArticleField('preview', data, composerUrlBase, composerId)
-        );
-        promises.push(
-          updateArticleField('live', data, composerUrlBase, composerId)
-        );
-
-        return promises;
-      }, []);
-
-      dataUpdatePromises.push(rightsRequest);
-      return dataUpdatePromises;
-    }
-
-    function updateArticleField(stage, data, composerUrl, pageId) {
-      if (data.belongsTo === 'thumbnail') {
-        if (data.value) {
-          return pandaReqwest({
-            url: `${composerUrl}/api/content/${pageId}/${stage}/thumbnail`,
-            method: 'put',
-            crossOrigin: true,
-            withCredentials: true,
-            data: data.value
-          });
-        } else {
-          return pandaReqwest({
-            url: `${composerUrl}/api/content/${pageId}/${stage}/thumbnail`,
-            method: 'delete',
-            crossOrigin: true,
-            withCredentials: true
-          });
-        }
-      }
-
-      if (data.belongsTo === 'toolSettings') {
-        return pandaReqwest({
-          url: `${composerUrl}/api/content/${pageId}/toolSettings/${data.name}`,
-          method: 'put',
-          crossOrigin: true,
-          withCredentials: true,
-          data: `"${data.value}"`
-        });
-      }
-
-      if (data.value || data.belongsTo === 'settings') {
-        const value = data.isFreeText
-          ? data.value.split('"').join('\\"')
-          : data.value;
-        return pandaReqwest({
-          url: `${composerUrl}/api/content/${pageId}/${stage}/${data.belongsTo}/${data.name}`,
-          method: 'put',
-          crossOrigin: true,
-          withCredentials: true,
-          data: `"${value}"`
-        });
-      }
-
-      return pandaReqwest({
-        url: `${composerUrl}/api/content/${pageId}/${stage}/${data.belongsTo}/${data.name}`,
-        method: 'delete',
-        crossOrigin: true,
-        withCredentials: true
-      });
-    }
-
+    const composerData = getComposerData(video);
     return Promise.all(
       Object.keys(usages.data).map(state => {
         const videoPageUsages = usages.data[state].video;
 
-        return Promise.all(
-          videoPageUsages.map(usage => {
-            const composerId = usage.fields.internalComposerCode;
+        return videoPageUsages.map(usage => {
 
-            const fieldPromises = getComposerUpdateRequests({
-              composerId,
-              video,
-              composerUrlBase
-            });
+          const pageId = usage.fields.internalComposerCode;
 
-            const videoPagePromise = this.addVideoToComposerPage({
-              composerId,
-              previewData: videoBlock,
-              composerUrlBase
-            });
-
-            return Promise.all([...fieldPromises, videoPagePromise]);
-          })
-        );
+          return pandaReqwest({
+            url: `${composerUrlBase}/api/content/${pageId}/videopage`,
+            method: 'put',
+            crossOrigin: true,
+            withCredentials: true,
+            data: {
+              videoFields: cleanVideoData(composerData),
+              videoBlock: videoBlock
+            }
+          });
+        });
       })
     );
   },
@@ -265,10 +183,6 @@ export default {
     const composerUrl =
       composerUrlBase +
       '/api/content?atomPoweredVideo=true&originatingSystem=MediaAtomMaker&type=video';
-    const videoFields = composerData.reduce((fields, data) => {
-      fields[data.name] = data.value;
-      return fields;
-    }, {});
 
     return pandaReqwest({
       url: composerUrl,
@@ -276,7 +190,7 @@ export default {
       crossOrigin: true,
       withCredentials: true,
       data: {
-        videoFields: cleanVideoData(videoFields)
+        videoFields: cleanVideoData(composerData)
       }
     });
   },
