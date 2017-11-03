@@ -1,19 +1,17 @@
 package controllers
 
-import model.MediaAtom
 import com.amazonaws.services.stepfunctions.model.{ExecutionAlreadyExistsException, ExecutionListItem}
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
-import com.gu.media.model.{ClientAsset, ClientAssetProcessing, YouTubeAsset}
+import com.gu.media.model.{ClientAsset, ClientAssetProcessing, MediaAtom, YouTubeAsset}
 import com.gu.media.upload.model._
-import com.gu.media.util.MediaAtomHelpers
+import com.gu.media.util.{MediaAtomHelpers, MediaAtomImplicits}
 import com.gu.media.youtube.YouTubeVideos
 import com.gu.pandahmac.HMACAuthActions
 import data.{DataStores, UnpackedDataStores}
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.{Format, Json}
 import util._
-import util.atom.MediaAtomImplicits
 
 import scala.annotation.tailrec
 

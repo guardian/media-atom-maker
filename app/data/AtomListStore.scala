@@ -4,10 +4,10 @@ import java.time.Instant
 
 import com.gu.atom.data.PreviewDynamoDataStore
 import com.gu.media.CapiAccess
-import com.gu.media.model.Image
+import com.gu.media.model.{Image, MediaAtom}
 import com.gu.media.util.TestFilters
 import model.commands.CommandExceptions.AtomDataStoreError
-import model.{MediaAtom, MediaAtomList, MediaAtomSummary}
+import model.{MediaAtomList, MediaAtomSummary}
 import play.api.libs.json.{JsArray, JsValue}
 
 trait AtomListStore {

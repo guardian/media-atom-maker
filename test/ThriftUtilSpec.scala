@@ -2,9 +2,9 @@ package test
 
 import com.gu.contentatom.thrift._
 import com.gu.contentatom.thrift.atom.media._
+import com.gu.media.util.ThriftUtil
 import org.jsoup.Jsoup
 import org.scalatest.{FunSpec, Inside, Matchers}
-import util.ThriftUtil
 
 import scala.xml.XML
 

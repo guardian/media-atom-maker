@@ -1,10 +1,10 @@
 package model.commands
 
 import com.gu.media.logging.Logging
+import com.gu.media.model.MediaAtom
+import com.gu.media.util.MediaAtomImplicits
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
-import model.MediaAtom
-import util.atom.MediaAtomImplicits
 
 class SetPlutoIdCommand(atomId: String, plutoId: String, override val stores: DataStores, user: PandaUser)
 

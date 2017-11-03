@@ -10,10 +10,9 @@ import com.gu.media.logging.Logging
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
-import model.{MediaAtom, MediaAtomBeforeCreation}
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
-import com.gu.media.model.ChangeRecord
+import com.gu.media.model.{ChangeRecord, MediaAtom, MediaAtomBeforeCreation}
 
 import scala.util.{Failure, Success}
 
