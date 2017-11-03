@@ -2,7 +2,8 @@ export function isVideoPublished(video) {
   if (!video) {
     return false;
   }
-  return Object.keys(video).length !== 0;
+
+  return video.contentChangeDetails && video.contentChangeDetails.published;
 }
 
 export function hasVideoExpired(video) {
