@@ -4,7 +4,7 @@ export default function video(state = null, action) {
   switch (action.type) {
     case 'VIDEO_GET_RECEIVE':
       return action.video
-        ? Object.assign({}, blankVideoData, action.video)
+        ? Object.assign({}, blankVideoData, {source: null}, action.video)
         : false;
 
     case 'VIDEO_CREATE_RECEIVE':
