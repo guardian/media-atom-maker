@@ -20,7 +20,7 @@ object Category {
   val categoryReads = Reads[Category](json => {
     json.as[String] match {
       case "Documentary" => JsSuccess(Documentary)
-      case "Explainer" => JsSuccess(Documentary)
+      case "Explainer" => JsSuccess(Explainer)
       case "Feature" => JsSuccess(Feature)
       case "Hosted" => JsSuccess(Hosted)
       case "News" => JsSuccess(News)
