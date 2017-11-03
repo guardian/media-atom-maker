@@ -11,8 +11,8 @@ case class Permissions(deleteAtom: Boolean, addSelfHostedAsset: Boolean)
 object Permissions {
   implicit val format: Format[Permissions] = Jsonx.formatCaseClass[Permissions]
 
-  val app = "media-atom-maker"
-  val deleteAtom = Permission("delete_media_atom", app, defaultVal = PermissionDenied)
+  val app = "atom-maker"
+  val deleteAtom = Permission("delete_atom", app, defaultVal = PermissionDenied)
   val addSelfHostedAsset = Permission("add_self_hosted_asset", app, defaultVal = PermissionDenied)
 }
 
