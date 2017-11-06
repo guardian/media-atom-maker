@@ -5,6 +5,10 @@ import { cleanVideoData } from '../util/cleanVideoData';
 import ContentApi from './capi';
 import { getVideoBlock } from '../util/getVideoBlock';
 
+function getComposerUrl() {
+  return getStore().getState().config.composerUrl;
+};
+
 function getUsages({ id, stage }) {
   return pandaReqwest({
     url: `${ContentApi.getUrl(stage)}/atom/media/${id}/usage`
@@ -153,8 +157,9 @@ export default {
     });
   },
 
-  updateCanonicalPages(video, composerUrlBase, usages, updatesTo) {
+  updateCanonicalPages(video, usages, updatesTo) {
     const composerData = getComposerData(video);
+    const composerUrlBase = getComposerUrl();
     const videoBlock = getVideoBlock(
       video.id,
       video.title,
