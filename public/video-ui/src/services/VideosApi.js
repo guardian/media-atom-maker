@@ -3,6 +3,7 @@ import { getStore } from '../util/storeAccessor';
 import { getComposerData } from '../util/getComposerData';
 import { cleanVideoData } from '../util/cleanVideoData';
 import ContentApi from './capi';
+import { getVideoBlock } from '../util/getVideoBlock';
 
 function getUsages({ id, stage }) {
   return pandaReqwest({
@@ -152,8 +153,14 @@ export default {
     });
   },
 
-  updateCanonicalPages(video, composerUrlBase, videoBlock, usages, updatesTo) {
+  updateCanonicalPages(video, composerUrlBase, usages, updatesTo) {
     const composerData = getComposerData(video);
+    const videoBlock = getVideoBlock(
+      video.id,
+      video.title,
+      video.source
+    );
+
     return Promise.all(
       Object.keys(usages.data).map(state => {
         const videoPageUsages = usages.data[state].video;
@@ -200,7 +207,14 @@ export default {
     });
   },
 
-  addVideoToComposerPage({ composerId, previewData, composerUrlBase}) {
+  addVideoToComposerPage({ composerId, composerUrlBase, video}) {
+
+    const previewData = getVideoBlock(
+      video.id,
+      video.title,
+      video.source
+    );
+
     function updateMainBlock(stage, data) {
       return pandaReqwest({
         url: `${composerUrlBase}/api/content/${composerId}/${stage}/mainblock`,

@@ -15,7 +15,6 @@ import { blankVideoData } from '../../constants/blankVideoData';
 import KeywordsApi from '../../services/KeywordsApi';
 import YouTubeKeywords from '../../constants/youTubeKeywords';
 import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
-import { getVideoBlock } from '../../util/getVideoBlock';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 
 class VideoDisplay extends React.Component {
@@ -41,27 +40,7 @@ class VideoDisplay extends React.Component {
           this.props.videoActions.getUsages(this.props.video.id);
         });
     } else {
-      this.props.videoActions.saveVideo(video)
-      .then(() => {
-        if (canonicalVideoPageExists(this.props.usages)) {
-          const videoBlock = getVideoBlock(
-            this.props.video.id,
-            this.props.video.title,
-            this.props.video.source
-          );
-
-          const updateLive = this.props.usages.data.published.video.length === 0;
-          const updatePreview = true;
-
-          this.props.videoActions.updateVideoPage(
-            this.props.video,
-            this.getComposerUrl(),
-            videoBlock,
-            this.props.usages,
-            'preview'
-          );
-        }
-      });
+      this.props.videoActions.saveVideo(video, this.getComposerUrl())
     }
   };
 

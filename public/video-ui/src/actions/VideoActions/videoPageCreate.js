@@ -25,7 +25,7 @@ function errorReceivingVideoPageCreate(error) {
   };
 }
 
-export function createVideoPage(id, video, composerUrl, videoBlock, isTrainingMode) {
+export function createVideoPage(id, video, composerUrl, isTrainingMode) {
   return dispatch => {
     dispatch(requestVideoPageCreate());
 
@@ -36,9 +36,8 @@ export function createVideoPage(id, video, composerUrl, videoBlock, isTrainingMo
 
         const addVideo = VideosApi.addVideoToComposerPage({
           composerId,
-          previewData: videoBlock,
           composerUrlBase: composerUrl,
-          state: ContentApi.preview
+          video
         });
 
         const postCreation = isTrainingMode

@@ -35,18 +35,11 @@ export default class ComposerPageCreate extends React.Component {
       composerUpdateInProgress: true
     });
 
-    const videoBlock = getVideoBlock(
-      this.props.video.id,
-      this.props.video.title,
-      this.props.video.source
-    );
-
     return this.props
       .createVideoPage(
         this.props.video.id,
         this.props.video,
         this.getComposerUrl(),
-        videoBlock,
         getStore().getState().config.isTrainingMode
       )
       .then(() => {
