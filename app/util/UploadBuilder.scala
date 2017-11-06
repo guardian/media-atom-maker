@@ -3,10 +3,9 @@ package util
 import java.time.Instant
 
 import com.gu.media.aws.{AwsAccess, UploadAccess}
-import com.gu.media.model.{SelfHostedAsset, VideoSource}
+import com.gu.media.model.{MediaAtom, SelfHostedAsset, VideoSource}
 import com.gu.media.upload.{CompleteUploadKey, TranscoderOutputKey, UploadPartKey}
 import com.gu.media.upload.model._
-import model.MediaAtom
 import model.commands.CommandExceptions.AtomMissingYouTubeChannel
 
 object UploadBuilder {

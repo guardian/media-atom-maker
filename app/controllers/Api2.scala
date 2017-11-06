@@ -7,14 +7,15 @@ import com.gu.media.upload.model.PlutoSyncMetadata
 import com.gu.media.youtube.YouTubeClaims
 import com.gu.media.Capi
 import com.gu.pandahmac.HMACAuthActions
-import _root_.util.{ActivateAssetRequest, YouTube}
+import util.{ActivateAssetRequest, YouTube}
+import com.gu.media.model.{MediaAtom, MediaAtomBeforeCreation}
+import com.gu.media.util.MediaAtomImplicits
 import data.DataStores
 import model.commands.CommandExceptions._
 import model.commands._
-import model.{MediaAtom, WorkflowMediaAtom, MediaAtomBeforeCreation}
+import model.WorkflowMediaAtom
 import play.api.Configuration
 import util.{AWSConfig, CORSable}
-import util.atom.MediaAtomImplicits
 import play.api.libs.json._
 import play.api.mvc._
 

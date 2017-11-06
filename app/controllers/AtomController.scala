@@ -10,7 +10,7 @@ import data.UnpackedDataStores
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.{JsObject, JsString}
 import play.api.mvc._
-import util.ThriftUtil._
+import com.gu.media.util.ThriftUtil._
 
 import scala.concurrent.Future
 

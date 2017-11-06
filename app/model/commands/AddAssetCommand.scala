@@ -4,13 +4,13 @@ import com.gu.contentatom.thrift.Atom
 import com.gu.contentatom.thrift.atom.media.Category.Hosted
 import com.gu.contentatom.thrift.atom.media.{Asset, Metadata, Platform, MediaAtom => ThriftMediaAtom}
 import com.gu.media.logging.Logging
+import com.gu.media.model.MediaAtom
+import com.gu.media.util.{MediaAtomImplicits, ThriftUtil}
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
-import model.MediaAtom
-import model.MediaAtom.fromThrift
+import com.gu.media.model.MediaAtom.fromThrift
 import model.commands.CommandExceptions._
-import util.{ThriftUtil, YouTube}
-import util.atom.MediaAtomImplicits
+import util.YouTube
 
 case class AddAssetCommand(atomId: String, videoUri: String, override val stores: DataStores,
                            youTube: YouTube, user: PandaUser)

@@ -1,15 +1,14 @@
-package util
+package com.gu.media.util
 
 import java.net.URI
 import java.util.UUID.randomUUID
 
 import com.gu.contentatom.thrift.atom.media.{Category, _}
 import com.gu.contentatom.thrift.{ContentChangeDetails, _}
-import data.JsonConversions._
-import play.api.mvc.{BodyParser, BodyParsers}
-import util.atom.MediaAtomImplicits._
 import play.api.libs.json._
-
+import play.api.mvc.{BodyParser, BodyParsers}
+import com.gu.media.util.MediaAtomImplicits._
+import com.gu.media.util.JsonConversions._
 import scala.concurrent.ExecutionContext
 import scala.util.Try
 

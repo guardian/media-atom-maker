@@ -1,8 +1,8 @@
-package util.atom
+package com.gu.media.util
 
 import com.gu.atom.util._
 import com.gu.contentatom.thrift._
-import com.gu.contentatom.thrift.atom.media.Platform.{Url, Youtube}
+import com.gu.contentatom.thrift.atom.media.Platform.Youtube
 import com.gu.contentatom.thrift.atom.media._
 import com.gu.media.model.{SelfHostedAsset, VideoAsset, VideoSource, YouTubeAsset}
 
@@ -18,11 +18,29 @@ trait MediaAtomImplicits extends AtomImplicits[MediaAtom] {
     }
   }
 
+  // why not use a Play template? `common` doesn't have a dependency on Play
   def defaultMediaHtml(atom: MediaAtom): String = {
     val asset = getActiveAsset(atom)
     val posterUrl = atom.posterUrl
 
-    views.html.MediaAtom.defaultEmbed(asset, posterUrl).toString()
+    (asset, posterUrl) match {
+      case (None, Some(poster)) => {
+        s"""<img src="$poster"/>"""
+      }
+      case (Some(YouTubeAsset(id)), _) => {
+        s"""<iframe frameborder="0" allowfullscreen="true" src="https://www.youtube.com/embed/$id?showinfo=0&rel=0"></iframe>"""
+      }
+      case (Some(SelfHostedAsset(sources)), poster) => {
+        s"""
+           |<video controls="controls" preload="metadata" ${if (poster.isDefined) s"""poster="${poster.get}""""}>
+           | ${sources.map(s => s"""<source type="${s.mimeType}" src="${s.src}"/>""")}
+           |</video>
+        """.stripMargin
+      }
+      case (None, None) => {
+        "<div />"
+      }
+    }
   }
 
   private def getActiveAsset(atom: MediaAtom): Option[VideoAsset] = {

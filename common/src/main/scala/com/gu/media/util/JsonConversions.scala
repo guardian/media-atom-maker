@@ -1,4 +1,4 @@
-package data
+package com.gu.media.util
 
 import com.gu.contentatom.thrift._
 import com.gu.contentatom.thrift.atom.media._
