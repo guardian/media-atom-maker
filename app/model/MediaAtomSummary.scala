@@ -1,6 +1,6 @@
 package model
 
-import com.gu.media.model.Image
+import com.gu.media.model.{Image, ContentChangeDetails}
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
 
