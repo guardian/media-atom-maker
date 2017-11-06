@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import DatePicker from '../FormFields/DatePicker';
 import moment from 'moment';
-import Icon from '../Icon';
 
 export default class ScheduledLaunch extends React.Component {
   static propTypes = {
@@ -77,7 +76,7 @@ export default class ScheduledLaunch extends React.Component {
           showDatePicker &&
           <button
             className="button__secondary--confirm"
-            onClick={() => this.saveScheduledLaunch()}
+            onClick={this.saveScheduledLaunch}
             disabled={!selectedDate || !isFutureDate}
           >
             Save
@@ -85,7 +84,7 @@ export default class ScheduledLaunch extends React.Component {
         }
         {
           scheduledLaunch && showDatePicker &&
-          <button className="button__secondary--remove" onClick={() => this.removeScheduledLaunch()}>
+          <button className="button__secondary--remove" onClick={this.removeScheduledLaunch}>
             Remove
           </button>
         }
