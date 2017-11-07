@@ -4869,6 +4869,12 @@ sax@1.2.1, sax@>=0.6.0, sax@^1.2.1, sax@~1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.1.tgz#7b8e656190b228e81a66aea748480d828cd2d37a"
 
+scribe-editor@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/scribe-editor/-/scribe-editor-3.3.0.tgz#10762ab343ac104c061df41a41bbcc4c7e2a5408"
+  dependencies:
+    immutable "~3.8.1"
+
 scribe-plugin-keyboard-shortcuts@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/scribe-plugin-keyboard-shortcuts/-/scribe-plugin-keyboard-shortcuts-0.1.1.tgz#fb4b377512e905312ae0255b451201afc4500694"
@@ -4889,12 +4895,6 @@ scribe-plugin-sanitizer@^0.1.10:
 scribe-plugin-toolbar@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/scribe-plugin-toolbar/-/scribe-plugin-toolbar-1.0.0.tgz#3da21eb9f632a508ef44f6f7936aee274fac1c34"
-
-scribe@guardian/scribe#fcf4e16:
-  version "3.2.0"
-  resolved "https://codeload.github.com/guardian/scribe/tar.gz/fcf4e16"
-  dependencies:
-    immutable "~3.8.1"
 
 scss-tokenizer@^0.1.2:
   version "0.1.2"
