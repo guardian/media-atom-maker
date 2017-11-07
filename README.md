@@ -1,4 +1,6 @@
-[![Known Vulnerabilities](https://snyk.io/test/github/guardian/media-atom-maker/badge.svg)](https://snyk.io/test/github/guardian/media-atom-maker)
+(JS) [![Known Vulnerabilities](https://snyk.io/test/github/guardian/media-atom-maker/badge.svg)](https://snyk.io/test/github/guardian/media-atom-maker)
+
+(SBT) [![Known Vulnerabilities](https://snyk.io/test/github/guardian/media-atom-maker/badge.svg?targetFile=build.sbt)](https://snyk.io/test/github/guardian/media-atom-maker?targetFile=build.sbt)
 
 # Media Atom Maker
 This is a Play app for editing media atoms, and a publisher that pushes media atoms into a Kinesis stream.
