@@ -166,7 +166,9 @@ Resources:
 
   {{UploadChunkToYouTube}}
 
-  {{CreateCompleteVideoInS3}}
+  {{MultipartCopyChunkInS3}}
+
+  {{CompleteMultipartCopy}}
 
   {{SendToPluto}}
 
