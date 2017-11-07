@@ -518,7 +518,7 @@ Resources:
   ExpirerLambdaTrigger:
     Type: AWS::Events::Rule
     Properties:
-      ScheduleExpression: cron(0/15 * * * ? *)
+      ScheduleExpression: cron(0/1 * * * ? *)
       Targets:
       - Arn: !GetAtt [ExpirerLambda, Arn]
         Id: ExpirerLambda
