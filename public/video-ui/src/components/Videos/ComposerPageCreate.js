@@ -39,7 +39,6 @@ export default class ComposerPageCreate extends React.Component {
       .createVideoPage(
         this.props.video.id,
         this.props.video,
-        this.getComposerUrl(),
         getStore().getState().config.isTrainingMode
       )
       .then(() => {

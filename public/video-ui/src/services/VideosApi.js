@@ -194,8 +194,9 @@ export default {
     );
   },
 
-  createComposerPage(id, video, composerUrlBase) {
+  createComposerPage(id, video) {
     const composerData = getComposerData(video);
+    const composerUrlBase = getComposerUrl();
 
     const composerUrl =
       composerUrlBase +
@@ -212,7 +213,9 @@ export default {
     });
   },
 
-  addVideoToComposerPage({ composerId, composerUrlBase, video}) {
+  addVideoToComposerPage({ composerId, video}) {
+
+    const composerUrlBase = getComposerUrl();
 
     const previewData = getVideoBlock(
       video.id,
@@ -255,7 +258,10 @@ export default {
     });
   },
 
-  preventPublication(composerId, composerUrl) {
+  preventPublication(composerId) {
+
+    const composerUrlBase = getComposerUrl();
+
     function doEmbargoIndefinitely(stage) {
       return pandaReqwest({
         url: `${composerUrl}/api/content/${composerId}/${stage}/settings/embargoedIndefinitely`,

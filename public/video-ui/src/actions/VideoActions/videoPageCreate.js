@@ -25,23 +25,22 @@ function errorReceivingVideoPageCreate(error) {
   };
 }
 
-export function createVideoPage(id, video, composerUrl, isTrainingMode) {
+export function createVideoPage(id, video, isTrainingMode) {
   return dispatch => {
     dispatch(requestVideoPageCreate());
 
-    return VideosApi.createComposerPage(id, video, composerUrl)
+    return VideosApi.createComposerPage(id, video)
       .then(res => {
         const composerId = res.data.id;
         const pagePath = res.data.identifiers.path.data;
 
         const addVideo = VideosApi.addVideoToComposerPage({
           composerId,
-          composerUrlBase: composerUrl,
           video
         });
 
         const postCreation = isTrainingMode
-          ? [VideosApi.preventPublication(composerId, composerUrl), addVideo]
+          ? [VideosApi.preventPublication(composerId), addVideo]
           : [addVideo];
 
         return Promise.all(postCreation).then(() => {
