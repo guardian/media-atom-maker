@@ -75,6 +75,9 @@ class ReactApp extends React.Component {
           isTrainingMode={this.props.config.isTrainingMode}
           formFieldsWarning={this.props.formFieldsWarning}
           deleteVideo={this.props.appActions.deleteVideo}
+          updateVideo={this.props.appActions.updateVideo}
+          saveVideo={this.props.appActions.saveVideo}
+          query={this.props.location.query}
         />
         {this.props.error
           ? <div className="error-bar" dangerouslySetInnerHTML={{ __html: this.props.error }}/>
@@ -100,6 +103,7 @@ import * as videoPageUpdate from '../actions/VideoActions/videoPageUpdate';
 import * as videoPageCreate from '../actions/VideoActions/videoPageCreate';
 import * as videoUsages from '../actions/VideoActions/videoUsages';
 import * as deleteVideo from '../actions/VideoActions/deleteVideo';
+import * as updateVideo from '../actions/VideoActions/updateVideo';
 
 function mapStateToProps(state) {
   return {
@@ -132,7 +136,8 @@ function mapDispatchToProps(dispatch) {
         videoPageUpdate,
         videoPageCreate,
         videoUsages,
-        deleteVideo
+        deleteVideo,
+        updateVideo,
       ),
       dispatch
     )

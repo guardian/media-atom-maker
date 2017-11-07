@@ -1,6 +1,7 @@
 import { pandaReqwest } from './pandaReqwest';
 import { getStore } from '../util/storeAccessor';
 import getProductionOffice from '../util/getProductionOffice';
+// import VideoUtils from '../util/video';
 import moment from 'moment';
 
 export default class WorkflowApi {
@@ -39,19 +40,16 @@ export default class WorkflowApi {
     }).then(response => response.data);
   }
 
-  static _getTrackInWorkflowPayload({
-    video,
-    status,
-    section,
-    scheduledLaunchDate
-  }) {
+  static _getTrackInWorkflowPayload({ video, status, section, scheduledLaunchDate }) {
     const prodOffice = getProductionOffice();
 
+    // const scheduledLaunchDate = VideoUtils.getScheduledLaunch(video);
     const core = {
       contentType: 'media',
       editorId: video.id,
       title: video.title,
       priority: 0,
+      // scheduledLaunchDate,
       needsLegal: 'NA',
       section,
       status,

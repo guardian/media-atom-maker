@@ -78,3 +78,21 @@ $topbarHeight: 50px;
   height: $topbarHeight;
   margin-right: 0;
 }
+
+.topbar__scheduler {
+  padding-right: 10px;
+  justify-content: flex-end;
+}
+
+.topbar__scheduler > button {
+  margin-left: 10px;
+}
+
+.topbar__alert {
+  color: $cRedE3;
+  margin: 0 10px 0 10px;
+}
+
+.topbar__launch-label {
+  margin: 0 20px;
+}

@@ -12,6 +12,7 @@ abstract class MediaAtomBase {
   val posterImage: Option[Image]
   val category: Category
   val source: Option[String]
+  val contentChangeDetails: ContentChangeDetails
 
   //youtube metadata
   val channelId: Option[String]
@@ -43,6 +44,7 @@ case class MediaAtomBeforeCreation(
   posterImage: Option[Image],
   category: Category,
   source: Option[String],
+  contentChangeDetails: ContentChangeDetails,
 
   channelId: Option[String],
   privacyStatus: Option[PrivacyStatus],

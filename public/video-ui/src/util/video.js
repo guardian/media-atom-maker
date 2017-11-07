@@ -80,7 +80,7 @@ export default class VideoUtils {
   }
 
   static isRecentlyModified({ contentChangeDetails }) {
-    if (! contentChangeDetails) {
+    if (!contentChangeDetails) {
       return false;
     }
 
@@ -88,5 +88,10 @@ export default class VideoUtils {
     const diff = moment().diff(lastModified, 'days');
 
     return diff < 1;
+  }
+
+  static getScheduledLaunch({ contentChangeDetails }) {
+    const scheduledLaunch = contentChangeDetails.scheduledLaunch;
+    return scheduledLaunch ? moment(scheduledLaunch.date) : null;
   }
 }

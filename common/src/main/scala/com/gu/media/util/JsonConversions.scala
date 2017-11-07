@@ -133,13 +133,15 @@ object JsonConversions {
     (__ \ "lastModified").writeNullable[ChangeRecord] and
     (__ \ "created").writeNullable[ChangeRecord] and
     (__ \ "published").writeNullable[ChangeRecord] and
-    (__ \ "revision").write[Long]
+    (__ \ "revision").write[Long] and
+    (__ \ "scheduledLaunch").writeNullable[ChangeRecord]
     ) { contentChangeDetails: ContentChangeDetails =>
     (
       contentChangeDetails.lastModified,
       contentChangeDetails.created,
       contentChangeDetails.published,
-      contentChangeDetails.revision
+      contentChangeDetails.revision,
+      contentChangeDetails.scheduledLaunch
       )
   }
 

@@ -55,9 +55,9 @@ class ThriftUtilSpec extends FunSpec
       inside(parseRequest(makeParams("uri" -> youtubeUrl))) {
         case Right(atom) =>
           inside(atom) {
-            case Atom(_, AtomType.Media, Nil, defaultHtml, _, changeDetails, None, _) =>
+            case Atom(_, AtomType.Media, Nil, defaultHtml, _, changeDetails, None, _, _) =>
               changeDetails should matchPattern {
-                case ContentChangeDetails(None, None, None, 1L, None) =>
+                case ContentChangeDetails(None, None, None, 1L, None, None) =>
               }
 
               val iframe = Jsoup.parse(defaultHtml).getElementsByTag("iframe")

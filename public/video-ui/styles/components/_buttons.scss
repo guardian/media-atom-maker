@@ -20,6 +20,15 @@ button {
   &__assets {
     margin: 5px;
   }
+  &--confirm {
+    @include buttonClass($cGreen33, $color500Grey, $cWhite, $color800Grey);
+  }
+  &--remove {
+    @include buttonClass($cRedE3, $color500Grey, $cWhite, $color800Grey);
+  }
+  &--cancel {
+    @include buttonClass($color400Grey, $cWhite, $color800Grey, $color500Grey);
+  }
 }
 
 .button__active {

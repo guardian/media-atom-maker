@@ -18,13 +18,17 @@
     /* Support for Firefox. */
     -moz-osx-font-smoothing: grayscale;
 
-    vertical-align: middle;
     align-self: center;
+    vertical-align: text-bottom;
+
+    @media only screen and (max-width: $large-screen) {
+      vertical-align: bottom;
+    }
 
   &--text {
     margin-left: 5px;
   }
-
+  
   &:link {
     text-decoration: none;
   }
@@ -61,8 +65,17 @@
   }
 }
 
+
 .icon__spacing {
   margin-right: 5px;
+}
+
+.icon__cancel {
+  background-color: transparent;
+    &:hover{
+      color: $cWhite;
+      background-color: transparent;
+    }
 }
 
 .icon__back {

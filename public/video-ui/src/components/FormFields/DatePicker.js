@@ -3,11 +3,12 @@ import Picker from 'react-datepicker';
 import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 import Icon from '../Icon';
+import _range from 'lodash/fp/range';
 
-const DATE_FORMAT = 'YYYY/MM/DD';
+const DATE_FORMAT = 'DD MMM YYYY';
 const DATETIME_FORMAT = `${DATE_FORMAT} HH:mm`;
 
-const MINUTES = [0, 15, 30, 45].map(minute =>
+const MINUTES = _range(0, 60).map(minute =>
   moment().minute(minute).format('mm')
 );
 const HOURS = [...new Array(24).keys()].map(hour =>
@@ -78,7 +79,7 @@ function Editor({ date, onChange, fieldName }) {
 
   return (
     <div>
-      <label className="form__label">{fieldName}</label>
+      {fieldName && <label className="form__label">{fieldName}</label>}
       <div className="expiry-date-picker">
         <div className="expiry-date-picker__date">
           <DateSelector date={date} onChange={onChange} />
@@ -89,11 +90,14 @@ function Editor({ date, onChange, fieldName }) {
         <div className="expiry-date-picker__number">
           <MinuteSelector date={date} onChange={onChange} />
         </div>
-        <Icon
-          icon="cancel"
-          className="icon__edit expiry-date-picker__reset"
-          onClick={reset}
-        />
+        {
+          date &&
+            <Icon
+            icon="cancel"
+            className="icon__edit icon__cancel"
+            onClick={reset}
+          />
+        }
       </div>
     </div>
   );
@@ -130,6 +134,7 @@ export default function DatePicker({
       <Editor
         fieldName={fieldName}
         date={date}
+        placeholder={placeholder}
         onChange={newDate => {
           if (newDate) {
             onUpdateField(newDate.valueOf());
