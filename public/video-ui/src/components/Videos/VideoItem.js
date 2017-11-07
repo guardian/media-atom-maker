@@ -54,7 +54,7 @@ export default class VideoItem extends React.Component {
               {
                 scheduledLaunch ?
                   <span className="publish__label label__frontpage__scheduledLaunch label__frontpage__overlay">
-                    <Icon textClass="--always-show" icon="access_time">{moment(scheduledLaunch).format('D MMM HH:mm')}</Icon>
+                    <Icon textClass="always-show" icon="access_time">{moment(scheduledLaunch).format('D MMM HH:mm')}</Icon>
                 </span>
                 : ''
               }

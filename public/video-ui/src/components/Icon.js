@@ -69,7 +69,7 @@ export class ViewerIcon extends React.Component {
 export default class Icon extends React.Component {
   renderText() {
     if (this.props.children) {
-      return <span className={`icon--text responsive--${this.props.textClass ? this.props.textClass : 'optional'}`}>{this.props.children}</span>;
+      return <span className={`icon--text responsive--${this.props.textClass || 'optional'}`}>{this.props.children}</span>;
     }
   }
 
