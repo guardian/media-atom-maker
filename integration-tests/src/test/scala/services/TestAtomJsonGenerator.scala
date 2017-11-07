@@ -20,6 +20,9 @@ trait TestAtomJsonGenerator {
       "keywords": [],
       "commentsEnabled": false,
       "blockAds": false,
+      "contentChangeDetails": {
+        "revision": 0
+      },
       "posterImage": {
         "assets": [
           {
