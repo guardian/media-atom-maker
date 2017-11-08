@@ -18,8 +18,9 @@ trait AwsAccess { this: Settings =>
     .getOrElse(defaultRegion)
 
   // These are injected as environment variables when running in a Lambda (unfortunately they cannot be tagged)
-  final val stack: Option[String] = readTag("Stack")
-  final val app: String = readTag("App").getOrElse("media-atom-maker")
-  final val stage: String = readTag("Stage").getOrElse("DEV")
+  final val stage = sys.env.getOrElse("STAGE", readTag("Stage").getOrElse("DEV"))
   final val isDev: Boolean = stage == "DEV"
+
+  final val stack: Option[String] = if (isDev) Some("media-atom-maker") else readTag("Stack")
+  final val app: String = if (isDev) "media-atom-maker" else readTag("App").getOrElse("media-atom-maker")
 }

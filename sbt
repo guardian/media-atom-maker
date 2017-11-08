@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export STAGE=DEV
+
 # Debug option
 DEBUG_PARAMS=""
 for arg in "$@"
