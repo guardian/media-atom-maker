@@ -80,14 +80,12 @@ export default class VideoUtils {
   }
 
   static isRecentlyModified({ contentChangeDetails }) {
-    if (!contentChangeDetails) {
-      return false;
+    if (contentChangeDetails && contentChangeDetails.lastModified) {
+      const lastModified = moment(contentChangeDetails.lastModified.date);
+      const diff = moment().diff(lastModified, 'days');
+      return diff < 1;
     }
-
-    const lastModified = moment(contentChangeDetails.lastModified.date);
-    const diff = moment().diff(lastModified, 'days');
-
-    return diff < 1;
+    return false;
   }
 
   static getScheduledLaunch({ contentChangeDetails }) {
