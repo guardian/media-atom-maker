@@ -3,7 +3,7 @@ import play.sbt.PlayImport
 
 object Dependencies {
   val scroogeVersion = "4.12.0"
-  val awsVersion = "1.11.227"
+  val awsVersion = "1.11.125"
   val pandaVersion = "0.4.0"
   val mockitoVersion = "2.0.97-beta"
   val atomMakerVersion = "1.1.9"
