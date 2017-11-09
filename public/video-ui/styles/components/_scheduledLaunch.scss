@@ -1,0 +1,28 @@
+.scheduleOptionsWrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 80px;
+}
+
+.scheduleOptions {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  list-style: none;
+  z-index: 1;
+}
+
+.scheduleButton {
+  width: 100%;
+}
+
+.scheduledSummary{
+  font-weight: bold;
+  &--scheduledLaunch {
+    color: $cYellow;
+  }
+  &--embargo {
+    color: $dangerColor;
+  }
+}

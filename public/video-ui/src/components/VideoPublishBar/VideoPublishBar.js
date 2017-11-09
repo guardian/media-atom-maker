@@ -21,6 +21,7 @@ export default class VideoPublishBar extends React.Component {
   isPublishingDisabled() {
     return (
       this.props.video.contentChangeDetails && this.props.video.contentChangeDetails.scheduledLaunch ||
+      this.props.video.contentChangeDetails && this.props.video.contentChangeDetails.embargo ||
       this.videoIsCurrentlyPublishing() ||
       this.props.videoEditOpen ||
       !this.videoHasUnpublishedChanges() ||
@@ -51,6 +52,9 @@ export default class VideoPublishBar extends React.Component {
     this.props.publishVideo();
   };
 
+  hasPublishedVideoUsages = () =>
+    this.props.usages.data.published.video.length > 0;
+
   renderPublishButtonText() {
     if (this.videoIsCurrentlyPublishing()) {
       return <span>Publishing</span>;
@@ -80,12 +84,14 @@ export default class VideoPublishBar extends React.Component {
   }
 
   renderScheduler = () =>
-    this.props.query.showScheduler === "true" &&
-    <ScheduledLaunch
-      video={this.props.video}
-      videoEditOpen={this.props.videoEditOpen}
-      saveVideo={this.props.saveVideo}
-    />;
+    this.props.query.showScheduler === 'true' && (
+      <ScheduledLaunch
+        video={this.props.video}
+        videoEditOpen={this.props.videoEditOpen}
+        saveVideo={this.props.saveVideo}
+        hasPublishedVideoUsages={this.hasPublishedVideoUsages}
+      />
+    );
 
   render() {
     if (!this.props.video) {

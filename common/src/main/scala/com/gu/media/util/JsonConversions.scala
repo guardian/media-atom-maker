@@ -135,6 +135,7 @@ object JsonConversions {
     (__ \ "published").writeNullable[ChangeRecord] and
     (__ \ "revision").write[Long] and
     (__ \ "scheduledLaunch").writeNullable[ChangeRecord] and
+    (__ \ "embargo").writeNullable[ChangeRecord] and
     (__ \ "expiry").writeNullable[ChangeRecord]
     ) { contentChangeDetails: ContentChangeDetails =>
     (
@@ -143,6 +144,7 @@ object JsonConversions {
       contentChangeDetails.published,
       contentChangeDetails.revision,
       contentChangeDetails.scheduledLaunch,
+      contentChangeDetails.embargo,
       contentChangeDetails.expiry
       )
   }

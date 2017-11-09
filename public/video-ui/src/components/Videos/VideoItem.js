@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { findSmallestAssetAboveWidth } from '../../util/imageHelpers';
-import moment from 'moment';
 import Icon from '../Icon';
+import ReactTooltip from 'react-tooltip';
+import VideoUtils from '../../util/video';
+import { impossiblyDistantDate } from '../../constants/dates';
 
 export default class VideoItem extends React.Component {
   renderPill() {
@@ -40,29 +42,51 @@ export default class VideoItem extends React.Component {
 
   render() {
     const video = this.props.video;
-    const scheduledLaunch = video.contentChangeDetails.scheduledLaunch && video.contentChangeDetails.scheduledLaunch.date;
+    const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
+    const embargo = VideoUtils.getEmbargo(video);
+    const hasPreventedPublication = embargo && embargo.valueOf() >= impossiblyDistantDate;
     return (
       <li className="grid__item">
         <Link className="grid__link" to={'/videos/' + video.id}>
-
           <div className="grid__info">
             <div className="grid__image sixteen-by-nine">
               {this.renderItemImage()}
             </div>
             <div className="grid__status__overlay">
+              <ReactTooltip />
               {this.renderPill()}
-              {
-                scheduledLaunch ?
-                  <span className="publish__label label__frontpage__scheduledLaunch label__frontpage__overlay">
-                    <Icon textClass="always-show" icon="access_time">{moment(scheduledLaunch).format('D MMM HH:mm')}</Icon>
+              {embargo && (
+                <span
+                  data-tip={
+                    hasPreventedPublication
+                      ? 'This video has been embargoed indefinitely'
+                      : `Embargoed until ${embargo.format(
+                          'Do MMM YYYY HH:mm'
+                        )}`
+                  }
+                  className="publish__label label__frontpage__embargo label__frontpage__overlay"
+                >
+                  <Icon textClass="always-show" icon="not_interested">
+                    {hasPreventedPublication
+                      ? 'Embargoed indefinitely'
+                      : embargo.format('D MMM HH:mm')}
+                  </Icon>
                 </span>
-                : ''
-              }
+              )}
+              {scheduledLaunch && (
+                <span
+                  data-tip={`Scheduled to launch ${
+                    scheduledLaunch.format('Do MMM YYYY HH:mm')}`}
+                  className="publish__label label__frontpage__scheduledLaunch label__frontpage__overlay"
+                >
+                  <Icon textClass="always-show" icon="access_time">
+                    {scheduledLaunch.format('D MMM HH:mm')}
+                  </Icon>
+                </span>
+              )}
             </div>
             <div className="grid__item__footer">
-              <span className="grid__item__title">
-                {video.title}
-              </span>
+              <span className="grid__item__title">{video.title}</span>
             </div>
           </div>
         </Link>
