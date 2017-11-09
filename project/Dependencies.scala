@@ -3,7 +3,7 @@ import play.sbt.PlayImport
 
 object Dependencies {
   val scroogeVersion = "4.12.0"
-  val awsVersion = "1.11.125"
+  val awsVersion = "1.11.227"
   val pandaVersion = "0.4.0"
   val mockitoVersion = "2.0.97-beta"
   val atomMakerVersion = "1.1.9"
@@ -12,7 +12,7 @@ object Dependencies {
   val scanamoVersion = "0.9.1" // to match what we get from atom-publisher-lib transitively
 
   val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0"
-  val jacksonDatabind = "com.fasterxml.jackson.core" % "jackson-databind" % "2.7.0"
+  val jacksonDatabind = "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.2"
   val playJsonExtensions = "org.cvogt" %% "play-json-extensions" % "0.8.0"
   val okHttp = "com.squareup.okhttp" % "okhttp" % "2.4.0"
   val diff = "ai.x" %% "diff" % "1.2.0"
@@ -39,7 +39,7 @@ object Dependencies {
   val awsSES = "com.amazonaws" % "aws-java-sdk-ses" % awsVersion
 
   val logstashLogbackEncoder = "net.logstash.logback" % "logstash-logback-encoder" % "4.8"
-  val kinesisLogbackAppender = "com.gu" % "kinesis-logback-appender" % "1.3.0"
+  val kinesisLogbackAppender = "com.gu" % "kinesis-logback-appender" % "1.4.2"
 
   val permissionsClient = "com.gu" %% "editorial-permissions-client" % "0.7"
 
