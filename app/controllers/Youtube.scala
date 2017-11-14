@@ -1,5 +1,6 @@
 package controllers
 
+import com.gu.media.youtube.YouTubeChannel
 import com.gu.pandahmac.HMACAuthActions
 import play.api.libs.json.Json
 import play.api.mvc.Controller
@@ -15,11 +16,13 @@ class Youtube (val authActions: HMACAuthActions, youtube: YouTube) extends Contr
 
   def listChannels() = AuthAction { req =>
     val isTrainingMode = isInTrainingMode(req)
+    val user = req.user
 
     val channels = if (isTrainingMode) {
-      youtube.channels.filter(c => youtube.trainingChannels.contains(c.id))
+
+      youtube.channelsWithData.filter(c => youtube.trainingChannels.contains(c.id))
     } else {
-      youtube.channels.filter(c => youtube.allChannels.contains(c.id))
+      youtube.channelsWithData.filter(c => youtube.allChannels.contains(c.id))
     }
 
     Ok(Json.toJson(channels))

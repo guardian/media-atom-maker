@@ -5,6 +5,7 @@ import com.gu.media.model.PrivacyStatus
 import com.gu.media.youtube._
 import com.typesafe.config.Config
 import play.api.cache.CacheApi
+import com.gu.pandomainauth.model.{User => PandaUser}
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -16,8 +17,12 @@ trait YouTube extends Logging with YouTubeAccess with YouTubeVideos with YouTube
     cache.getOrElse("categories", duration) { super.categories }
   }
 
-  override def channels: List[YouTubeChannel] = {
+  override def channels(): List[YouTubeChannel] = {
     cache.getOrElse("channels", duration) { super.channels }
+  }
+
+  override def channelsWithData(): List[YouTubeChannelWithData] = {
+    cache.getOrElse("channelsWithData", duration) { super.channelsWithData }
   }
 
   def getCommercialVideoInfo(videoId: String) = {

@@ -72,9 +72,15 @@ trait YouTubeAccess extends Settings {
       .setManagedByMe(true)
       .setOnBehalfOfContentOwner(contentOwner)
 
+    val channels =  request.execute().getItems.asScala.toList
+
     request.execute().getItems.asScala.toList
       .map(YouTubeChannel.build(this, _))
-      .sortBy(_.title)
+  }
+
+  def channelsWithData: List[YouTubeChannelWithData] = {
+    channels.map(channel => YouTubeChannelWithData.build(this, channel.id, channel.title))
+    .sortBy(_.title)
   }
 
   def accessToken(): String = {
