@@ -66,7 +66,7 @@ export default class WorkflowApi {
       commentable: video.commentsEnabled,
       commissioningDesks: video.commissioningDesks.join(),
       lastModified: lastModifiedDate,
-      published: contentChangeDetails.published != undefined,
+      published: !!contentChangeDetails.published,
       timePublished: publishedDate,
       headline: video.title,
       sensitive: video.sensitive,
