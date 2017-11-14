@@ -43,17 +43,35 @@ export default class WorkflowApi {
   static _getTrackInWorkflowPayload({ video, status, section, scheduledLaunchDate }) {
     const prodOffice = getProductionOffice();
 
-    // const scheduledLaunchDate = VideoUtils.getScheduledLaunch(video);
+    const { contentChangeDetails } = video;
+
+    const publishedDate = contentChangeDetails.published
+      ? moment(contentChangeDetails.published.date)
+      : null;
+
+    const lastModifiedDate = contentChangeDetails.lastModified
+      ? moment(contentChangeDetails.lastModified.date)
+      : null;
+
     const core = {
       contentType: 'media',
       editorId: video.id,
       title: video.title,
       priority: 0,
-      // scheduledLaunchDate,
       needsLegal: 'NA',
       section,
       status,
-      prodOffice
+      prodOffice,
+      commentable: video.commentsEnabled,
+      commissioningDesks: video.commissioningDesks.join(),
+      lastModified: lastModifiedDate,
+      published: !!contentChangeDetails.published,
+      timePublished: publishedDate,
+      headline: video.title,
+      sensitive: video.sensitive,
+      legallySensitive: video.legallySensitive,
+      optimisedForWeb: video.optimisedForWeb,
+      path: 'atom/media/' + video.id
     };
 
     if (!scheduledLaunchDate) {
