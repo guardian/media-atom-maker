@@ -72,11 +72,17 @@ package object youtube {
     implicit val reads: Reads[YouTubeChannelWithData] = Json.reads[YouTubeChannelWithData]
     implicit val writes: Writes[YouTubeChannelWithData] = Json.writes[YouTubeChannelWithData]
 
-    def build(youtubeAccess: YouTubeAccess, id: String, title: String): YouTubeChannelWithData = {
+    private def getPrivacyStates(id: String, canSetAllVideosPublic: Boolean, youtubeAccess: YouTubeAccess): Set[PrivacyStatus] = {
+      if (youtubeAccess.strictlyUnlistedChannels.contains(id) && !canSetAllVideosPublic)
+        Set(PrivacyStatus.Unlisted, PrivacyStatus.Private)
+      else PrivacyStatus.all
+    }
+
+    def build(youtubeAccess: YouTubeAccess, id: String, title: String, setAllVideosPublic: Boolean): YouTubeChannelWithData = {
       YouTubeChannelWithData(
         id = id,
         title = title,
-        privacyStates = if (youtubeAccess.strictlyUnlistedChannels.contains(id)) Set(PrivacyStatus.Unlisted, PrivacyStatus.Private) else PrivacyStatus.all,
+        privacyStates = getPrivacyStates(id, setAllVideosPublic, youtubeAccess),
         isCommercial = youtubeAccess.commercialChannels.contains(id)
       )
     }

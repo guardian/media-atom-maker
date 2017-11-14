@@ -54,7 +54,7 @@ class MediaAtomMaker(context: Context)
   private val uploads = new UploadController(hmacAuthActions, aws, stepFunctions, stores, permissions, youTube)
 
   private val support = new Support(hmacAuthActions, capi)
-  private val youTubeController = new Youtube(hmacAuthActions, youTube)
+  private val youTubeController = new Youtube(hmacAuthActions, youTube, permissions)
 
   private val pluto = new PlutoProjectController(hmacAuthActions, stores)
 
