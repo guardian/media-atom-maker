@@ -58,7 +58,6 @@ export default class WorkflowApi {
       editorId: video.id,
       title: video.title,
       priority: 0,
-      // scheduledLaunchDate,
       needsLegal: 'NA',
       section,
       status,
