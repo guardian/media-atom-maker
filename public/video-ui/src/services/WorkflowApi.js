@@ -43,13 +43,15 @@ export default class WorkflowApi {
   static _getTrackInWorkflowPayload({ video, status, section, scheduledLaunchDate }) {
     const prodOffice = getProductionOffice();
 
-    const published = video.contentChangeDetails.published;
-    let publishedDate = null;
-    if(published) publishedDate = moment(published.date);
+    const { contentChangeDetails } = video;
 
-    const lastModified = video.contentChangeDetails.lastModified;
-    let lastModifiedDate = null;
-    if(lastModified) lastModifiedDate = moment(lastModified.date);
+    const publishedDate = contentChangeDetails.published
+      ? moment(contentChangeDetails.published.date)
+      : null;
+
+    const lastModifiedDate = contentChangeDetails.lastModified
+      ? moment(contentChangeDetails.lastModified.date)
+      : null;
 
     const core = {
       contentType: 'media',
@@ -64,7 +66,7 @@ export default class WorkflowApi {
       commentable: video.commentsEnabled,
       commissioningDesks: video.commissioningDesks.join(),
       lastModified: lastModifiedDate,
-      published: published != undefined,
+      published: contentChangeDetails.published != undefined,
       timePublished: publishedDate,
       headline: video.title,
       sensitive: video.sensitive,
