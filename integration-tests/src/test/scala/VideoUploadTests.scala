@@ -12,10 +12,13 @@ import com.squareup.okhttp.Response
 import integration.IntegrationTestBase
 import integration.services.Config
 import org.scalatest.CancelAfterFailure
-import org.scalatest.time.{Minutes, Seconds, Span}
+import org.scalatest.concurrent.PatienceConfiguration.{Interval, Timeout}
+import org.scalatest.time.{Minutes, Seconds, Span, Units}
 import play.api.Logger
 import play.api.libs.json.{JsArray, JsValue, Json}
 import services.AWS
+
+import scala.util.control.NonFatal
 
 class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
   val s3 = accountCredentialsS3Client()
@@ -72,12 +75,7 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
   }
 
   test("Add asset to atom") {
-    implicit val patienceConfig = PatienceConfig(
-      timeout = Span(10, Minutes),
-      interval = Span(10, Seconds)
-    )
-
-    eventually {
+    within(10, Minutes) {
       val assets = (Json.parse(gutoolsGet(apiEndpoint).body().string()) \ "assets").as[JsArray].value
       assets should not be empty
 
@@ -91,9 +89,9 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
   test("Create complete video in S3") {
     completeKey should not be empty
 
-    eventually {
-      s3.doesObjectExist(uploadBucket, completeKey) should be(true)
-      s3.deleteObject(uploadBucket, completeKey)
+    within(2, Minutes) {
+      doesObjectExist(uploadBucket, completeKey) should be(true)
+      deleteObject(uploadBucket, completeKey)
     }
   }
 
@@ -123,5 +121,26 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
     val awsCredentialsProvider = new AWSStaticCredentialsProvider(awsCredentials)
 
     Region.getRegion(Regions.EU_WEST_1).createClient(classOf[AmazonS3Client], awsCredentialsProvider, null)
+  }
+
+  private def within(length: Long, units: Units)(fn: => Unit): Unit = {
+    eventually(Timeout(Span(length, units)), Interval(Span(10, Seconds))) {
+      fn
+    }
+  }
+
+  private def doesObjectExist(uploadBucket: String, completeKey: String): Boolean = try {
+    s3.doesObjectExist(uploadBucket, completeKey)
+  } catch {
+    case NonFatal(_) =>
+      // Handle Forbidden errors we get if the complete video is not available yet
+      false
+  }
+
+  private def deleteObject(uploadBucket: String, completeKey: String) = try {
+    s3.deleteObject(uploadBucket, completeKey)
+  } catch {
+    case NonFatal(e) =>
+      Logger.error(s"Unable to delete $uploadBucket/$completeKey", e)
   }
 }
