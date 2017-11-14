@@ -59,7 +59,7 @@ export default class ContentApi {
         }
         const encodedQuery = encodeURIComponent(query);
         return pandaReqwest({
-          url: `${ContentApi.proxyUrl}/tags?page-size=100&type=${type}&web-title=${encodedQuery}`
+          url: `${ContentApi.proxyUrl}/tags?page-size=200&type=${type}&web-title=${encodedQuery}`
         });
       })
     );
