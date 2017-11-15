@@ -22,7 +22,7 @@ export default class WorkflowApi {
     };
 
     return pandaReqwest(params, 500).then(response => {
-      return response.data
+      return JSON.parse(response).data
         .map(section => Object.assign({}, section, { title: section.name }))
         .sort((a, b) => {
           if (a.title.toLowerCase() < b.title.toLowerCase()) return -1;
@@ -37,7 +37,7 @@ export default class WorkflowApi {
       url: `${WorkflowApi.workflowUrl}/api/atom/${video.id}`,
       crossOrigin: true,
       withCredentials: true
-    }).then(response => response.data);
+    }).then(response => JSON.parse(response).data);
   }
 
   static _getTrackInWorkflowPayload({ video, status, section, scheduledLaunchDate }) {
