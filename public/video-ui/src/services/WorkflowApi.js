@@ -13,6 +13,13 @@ export default class WorkflowApi {
     return `${WorkflowApi.workflowUrl}/dashboard?editorId=${video.id}`;
   }
 
+  static _getResponseAsJson(response) {
+    if (typeof response === 'string') {
+      return JSON.parse(response);
+    }
+    return response;
+  }
+
   static getSections() {
     // timeout in case the user is not logged into Workflow
     const params = {
@@ -22,7 +29,7 @@ export default class WorkflowApi {
     };
 
     return pandaReqwest(params, 500).then(response => {
-      return JSON.parse(response).data
+      return WorkflowApi._getResponseAsJson(response).data
         .map(section => Object.assign({}, section, { title: section.name }))
         .sort((a, b) => {
           if (a.title.toLowerCase() < b.title.toLowerCase()) return -1;
@@ -37,7 +44,7 @@ export default class WorkflowApi {
       url: `${WorkflowApi.workflowUrl}/api/atom/${video.id}`,
       crossOrigin: true,
       withCredentials: true
-    }).then(response => JSON.parse(response).data);
+    }).then(response => WorkflowApi._getResponseAsJson(response).data);
   }
 
   static _getTrackInWorkflowPayload({ video, status, section, scheduledLaunchDate }) {
