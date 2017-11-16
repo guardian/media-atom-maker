@@ -172,9 +172,16 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youtu
   }
 
   private def removeHtmlTagsForYouTube(description: String): String = {
+
       val html = Jsoup.parse(description)
+
+      //Extracting the text removes line breaks
+      //We add them back in before each paragraph except
+      //for the first and before each list element
+      html.select("p:gt(0), li").prepend("\\n");
       html.select("a").unwrap()
-      html.text()
+      val text = html.text()
+      html.text().replace("\\n", "\n")
   }
 
   private def getComposerLinkText(atomId: String): String = {
@@ -190,7 +197,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youtu
     })
 
     composerPage match {
-      case Some(page) => "\n View the video at https://www.theguardian.com/" + page
+      case Some(page) => "\nView the video at https://www.theguardian.com/" + page
       case None => ""
     }
   }
@@ -200,7 +207,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youtu
     val description = previewAtom.description.map(description => {
       removeHtmlTagsForYouTube(description) + getComposerLinkText(previewAtom.id)
     })
-
+    
     val metadata = YouTubeMetadataUpdate(
       title = Some(previewAtom.title),
       categoryId = previewAtom.youtubeCategoryId,
