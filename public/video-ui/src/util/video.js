@@ -46,7 +46,10 @@ export default class VideoUtils {
     return stateChannels.find(_ => _.id === channelId);
   }
 
-  static hasYoutubeWriteAccess({ channelId }) {
+  static hasYoutubeWriteAccess({ channelId, privacyStatus }, availablePrivacyStates) {
+    if (!!privacyStatus && !availablePrivacyStates.includes(privacyStatus)) {
+      return false;
+    }
     return !!VideoUtils.getYoutubeChannel({ channelId });
   }
 
