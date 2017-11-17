@@ -19,11 +19,7 @@ trait YouTube extends Logging with YouTubeAccess with YouTubeVideos with YouTube
   override def channels: List[YouTubeChannel] = {
     cache.getOrElse("channels", duration) { super.channels }
   }
-
-  override def channelsWithData(setAllVideosPublic: Boolean): List[YouTubeChannelWithData] = {
-    super.channelsWithData(setAllVideosPublic)
-  }
-
+  
   def getCommercialVideoInfo(videoId: String) = {
     getVideo(videoId, "snippet,contentDetails,status").map(video => {
       val channelId = video.getSnippet.getChannelId
