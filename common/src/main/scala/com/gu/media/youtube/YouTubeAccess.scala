@@ -74,6 +74,10 @@ trait YouTubeAccess extends Settings {
 
     request.execute().getItems.asScala.toList
       .map(YouTubeChannel.build(this, _))
+  }
+
+  def channelsWithData(setAllVideosPublic: Boolean): List[YouTubeChannelWithData] = {
+    channels.map(channel => YouTubeChannelWithData.build(this, channel.id, channel.title, setAllVideosPublic))
       .sortBy(_.title)
   }
 
