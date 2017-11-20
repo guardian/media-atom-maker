@@ -29,8 +29,7 @@ object CommandExceptions extends Results {
   def AtomMissingYouTubeChannel = throw new CommandException("Atom is missing YouTube channel", 400)
   def YouTubeVideoDoesNotExist(id: String) = throw new CommandException(s"YouTube video $id does not exist", 400)
   def IncorrectYouTubeChannel = throw new CommandException(s"New video is not on the same YouTube channel", 400)
-  def NotHostedAtom = throw new CommandException(s"Third party videos can only be added to Hosted atoms", 400)
-  def GuardianVideoOnHostedAtom = throw new CommandException(s"Videos on the Guardian channels cannot be added to Hosted atoms", 400)
+  def NotGLabsAtom = throw new CommandException(s"Third party videos can only be added to GLabs Atoms", 400)
 
   // Add exceptions here as required
   def commandExceptionAsResult: PartialFunction[Throwable, Result] = {
