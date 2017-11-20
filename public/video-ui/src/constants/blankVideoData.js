@@ -22,6 +22,5 @@ export const blankVideoData = {
   },
   trailImage: {
     assets: []
-  },
-  source: 'The Guardian'
+  }
 };
