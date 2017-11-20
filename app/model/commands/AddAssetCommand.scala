@@ -1,8 +1,7 @@
 package model.commands
 
 import com.gu.contentatom.thrift.Atom
-import com.gu.contentatom.thrift.atom.media.Category.Hosted
-import com.gu.contentatom.thrift.atom.media.{Asset, Metadata, Platform, MediaAtom => ThriftMediaAtom}
+import com.gu.contentatom.thrift.atom.media.{Asset, Metadata, Platform, MediaAtom => ThriftMediaAtom, Category => ThriftCategory}
 import com.gu.media.logging.Logging
 import com.gu.media.model.MediaAtom
 import com.gu.media.util.{MediaAtomImplicits, ThriftUtil}
@@ -62,30 +61,23 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
   }
 
   private def getYouTubeChannel(asset: Asset, atom: ThriftMediaAtom): String = {
-    val existingChannel = atom.metadata.flatMap(_.channelId)
+    val maybeChannel = atom.metadata.flatMap(_.channelId)
+    val maybeVideo = youTube.getVideo(asset.id, "snippet")
 
-    if(!youTube.isGuardianVideo(asset.id) && atom.category != Hosted) {
-      NotHostedAtom
-    }
-
-    if(youTube.isGuardianVideo(asset.id) && atom.category == Hosted) {
-      GuardianVideoOnHostedAtom
-    }
-
-    (youTube.getVideo(asset.id, "snippet"), existingChannel) match {
-      case (None, _) =>
-        YouTubeVideoDoesNotExist(asset.id)
-
-      case (Some(video), Some(channel)) if video.getSnippet.getChannelId != channel =>
-        if(atom.assets.isEmpty) {
-          // that's fine, no assets yet
-          video.getSnippet.getChannelId
-        } else {
-          IncorrectYouTubeChannel
+    (maybeChannel, maybeVideo) match {
+      case (_, None) => YouTubeVideoDoesNotExist(asset.id)
+      case (None, Some(video)) => {
+        // only GLabs atoms can have third party videos
+        atom.category match {
+          case ThriftCategory.Hosted | ThriftCategory.Paid => video.getSnippet.getChannelId
+          case _ => NotGLabsAtom
         }
-
-      case (Some(video), _) =>
-        video.getSnippet.getChannelId
+      }
+      case (Some(channel), Some(video)) => {
+        // new asset must match the atom's channel
+        val videoChannel = video.getSnippet.getChannelId
+        if (channel == videoChannel) videoChannel else IncorrectYouTubeChannel
+      }
     }
   }
 
