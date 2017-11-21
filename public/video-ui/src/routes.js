@@ -1,5 +1,5 @@
 import React from 'react';
-import { Router, Route, browserHistory, IndexRedirect } from 'react-router';
+import { Router, Route, browserHistory, IndexRedirect, Redirect } from 'react-router';
 
 import Videos from './components/Videos/Videos';
 import VideoDisplay from './components/Video/Display';
@@ -15,11 +15,12 @@ export const routes = (
     <Route path="/" component={ReactApp}>
       <IndexRedirect to="/videos" />
       <Route path="/videos" component={Videos} />
-      <Route path="/videos/create" component={VideoDisplay} mode="create" />
+      <Redirect from="/videos/create" to="/create" />
       <Route path="/videos/pluto-list" component={VideoPlutoList} />
       <Route path="/videos/:id" component={VideoDisplay} />
       <Route path="/videos/:id/audit" component={VideoAuditTrail} />
       <Route path="/videos/:id/upload" component={VideoUpload} />
+      <Route path="/create" component={VideoDisplay} mode="create" />
       <Route path="/help" component={Help} />
       <Route path="/training" component={Training} />
     </Route>
