@@ -6,7 +6,7 @@ import java.util.Date
 
 import com.gu.atom.play.AtomAPIActions
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
-import com.gu.media.Capi
+import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider}
 import com.gu.media.logging.Logging
 import com.gu.media.model._
 import com.gu.media.youtube.YouTubeMetadataUpdate
@@ -23,7 +23,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-case class PublishAtomCommand(id: String, override val stores: DataStores, youtube: YouTube, user: PandaUser, capi: Capi)
+case class PublishAtomCommand(
+  id: String,
+  override val stores: DataStores,
+  youtube: YouTube,
+  user: PandaUser,
+  capi: Capi,
+  permissions: MediaAtomMakerPermissionsProvider)
   extends Command with AtomAPIActions with Logging {
 
   type T = Future[MediaAtom]
@@ -52,17 +58,28 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youtu
           }
         }
 
-        val privacyStatus = previewAtom.channelId match {
-          case Some(channel) if youtube.strictlyUnlistedChannels.contains(channel) => Some(PrivacyStatus.Unlisted)
-          case _ => previewAtom.privacyStatus
+        val privacyStatus: Future[PrivacyStatus] = (previewAtom.channelId, previewAtom.privacyStatus) match {
+          case (Some(channel), Some(status)) if youtube.unlistedWithoutPermissionChannels.contains(channel) && status == PrivacyStatus.Public => {
+            permissions.getStatusPermissions(user.email).map(permissions => {
+              val hasMakePublicPermission = permissions.setVideosOnAllChannelsPublic
+
+              if (hasMakePublicPermission){
+                PrivacyStatus.Public
+              } else {
+                log.info(s"User ${user.email} does not have permission to publish atom ${previewAtom.id} as Public, setting as Unlisted")
+                PrivacyStatus.Unlisted
+              }
+            })
+          }
+          case (_, _) => Future.successful(previewAtom.privacyStatus.getOrElse(PrivacyStatus.Unlisted))
         }
 
-        val updatedPreviewAtom = previewAtom.copy(duration = duration, blockAds = blockAds, privacyStatus = privacyStatus)
-
-        updateYouTube(updatedPreviewAtom, asset).map(atomWithYoutubeUpdates => {
-          publish(atomWithYoutubeUpdates, user)
+        privacyStatus.flatMap(status => {
+          val updatedPreviewAtom = previewAtom.copy(duration = duration, blockAds = blockAds, privacyStatus = Some(status))
+          updateYouTube(updatedPreviewAtom, asset).map(atomWithYoutubeUpdates => {
+            publish(atomWithYoutubeUpdates, user)
+          })
         })
-
       case _ =>
         Future.successful(publish(previewAtom, user))
     }
@@ -207,7 +224,7 @@ case class PublishAtomCommand(id: String, override val stores: DataStores, youtu
     val description = previewAtom.description.map(description => {
       removeHtmlTagsForYouTube(description) + getComposerLinkText(previewAtom.id)
     })
-    
+
     val metadata = YouTubeMetadataUpdate(
       title = Some(previewAtom.title),
       categoryId = previewAtom.youtubeCategoryId,

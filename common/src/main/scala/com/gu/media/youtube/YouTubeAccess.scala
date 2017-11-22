@@ -15,9 +15,9 @@ trait YouTubeAccess extends Settings {
   def contentOwner: String = getMandatoryString("youtube.contentOwner")
 
   val allowedChannels: Set[String] = getStringSet("youtube.channels.allowed")
-  val strictlyUnlistedChannels: Set[String] = getStringSet("youtube.channels.unlisted")
+  val unlistedWithoutPermissionChannels: Set[String] = getStringSet("youtube.channels.unlisted")
   val commercialChannels: Set[String] = getStringSet("youtube.channels.commercial")
-  val allChannels: Set[String] = allowedChannels ++ strictlyUnlistedChannels ++ commercialChannels
+  val allChannels: Set[String] = allowedChannels ++ unlistedWithoutPermissionChannels ++ commercialChannels
 
   val trainingChannels: Set[String] = getStringSet("youtube.channels.training")
 
@@ -76,8 +76,8 @@ trait YouTubeAccess extends Settings {
       .map(YouTubeChannel.build(this, _))
   }
 
-  def channelsWithData(setAllVideosPublic: Boolean): List[YouTubeChannelWithData] = {
-    channels.map(channel => YouTubeChannelWithData.build(this, channel.id, channel.title, setAllVideosPublic))
+  def channelsWithData(hasMakePublicPermission: Boolean): List[YouTubeChannelWithData] = {
+    channels.map(channel => YouTubeChannelWithData.build(this, channel.id, channel.title, hasMakePublicPermission))
       .sortBy(_.title)
   }
 

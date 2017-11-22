@@ -22,12 +22,12 @@ class Youtube (val authActions: HMACAuthActions, youtube: YouTube, permissions: 
     val user = req.user
 
     permissions.getStatusPermissions(user.email).map(permissions => {
-      val setAllVideosPublic = permissions.setVideosOnAllChannelsPublic
+      val hasMakePublicPermission = permissions.setVideosOnAllChannelsPublic
 
       val channels = if (isTrainingMode) {
-        youtube.channelsWithData(setAllVideosPublic).filter(c => youtube.trainingChannels.contains(c.id))
+        youtube.channelsWithData(hasMakePublicPermission).filter(c => youtube.trainingChannels.contains(c.id))
       } else {
-        youtube.channelsWithData(setAllVideosPublic).filter(c => youtube.allChannels.contains(c.id))
+        youtube.channelsWithData(hasMakePublicPermission).filter(c => youtube.allChannels.contains(c.id))
       }
 
       Ok(Json.toJson(channels))
