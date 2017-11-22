@@ -36,7 +36,7 @@ class VideoData extends React.Component {
     const isEligibleForAds = VideoUtils.isEligibleForAds(this.props.video);
     const availableChannels = VideoUtils.getAvailableChannels(this.props.video);
     const availablePrivacyStates = VideoUtils.getAvailablePrivacyStates(this.props.video);
-    const hasYoutubeWriteAccess = VideoUtils.hasYoutubeWriteAccess(this.props.video, availablePrivacyStates);
+    const hasYoutubeWriteAccess = VideoUtils.hasYoutubeWriteAccess(this.props.video);
 
     return (
       <div className="form__group">
