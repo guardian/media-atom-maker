@@ -56,7 +56,7 @@ class MediaAtomMaker(context: Context)
   private val support = new Support(hmacAuthActions, capi)
   private val youTubeController = new Youtube(hmacAuthActions, youTube, permissions)
 
-  private val pluto = new PlutoProjectController(hmacAuthActions, stores)
+  private val plutoController = new PlutoController(hmacAuthActions, stores)
 
   private val youtubeTags = new YoutubeTagController(hmacAuthActions)
 
@@ -72,7 +72,7 @@ class MediaAtomMaker(context: Context)
   override val router = new Routes(
     httpErrorHandler,
     api2,
-    pluto,
+    plutoController,
     uploads,
     youTubeController,
     youtubeTags,

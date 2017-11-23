@@ -9,15 +9,15 @@ POST    /api2/atoms/:id/assets          controllers.Api2.addAsset(id)
 PUT     /api2/atom/:id/publish          controllers.Api2.publishMediaAtom(id)
 PUT     /api2/atom/:id/asset-active     controllers.Api2.setActiveAsset(id)
 
-PUT     /api2/pluto/:id                 controllers.Api2.sendToPluto(id)
-GET     /api2/pluto                     controllers.Api2.getPlutoAtoms()
+PUT     /api2/atoms/:id/pluto           controllers.Api2.sendToPluto(id)
+GET     /api2/atoms/pluto/missing       controllers.Api2.getPlutoAtoms()
 
 DELETE  /api2/atom/:id                  controllers.Api2.deleteAtom(id)
 
-GET     /api2/pluto/projects            controllers.PlutoProjectController.listProjects()
-GET     /api2/pluto/projects/:id        controllers.PlutoProjectController.getProject(id)
-POST    /api2/pluto/projects            controllers.PlutoProjectController.createProject()
-PUT     /api2/pluto/projects/:id        controllers.PlutoProjectController.updateProject(id)
+GET     /api2/pluto/commissions         controllers.PlutoController.getCommissions()
+GET     /api2/pluto/commissions/:id/projects  controllers.PlutoController.getProjectsByCommissionId(id)
+GET     /api2/pluto/projects            controllers.PlutoController.getProjects()
+PUT     /api2/pluto/projects            controllers.PlutoController.upsertProject()
 
 # endpoint used by workflow
 OPTIONS /api2/workflow/*url             controllers.Api2.allowCORSAccess(methods = "PUT, POST, DELETE", url: String)

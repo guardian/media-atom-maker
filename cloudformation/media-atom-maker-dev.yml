@@ -79,6 +79,9 @@ Resources:
                   - !Sub
                     - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
                     - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "PlutoProjectDynamoTable" }
+                  - !Sub
+                    - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
+                    - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "PlutoCommissionDynamoTable" }
   MediaAtomUser:
     Type: "AWS::IAM::User"
     Properties:
@@ -175,7 +178,31 @@ Resources:
     Type: "AWS::DynamoDB::Table"
     Properties:
       TableName: !Join ["-", [Ref: App, Ref: Stage, "pluto-projects-table"]]
-
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+        - AttributeName: "commissionId"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "id"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      GlobalSecondaryIndexes:
+        - IndexName: "commission-index"
+          KeySchema:
+            - AttributeName: "commissionId"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+  PlutoCommissionDynamoTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: !Join ["-", [Ref: App, Ref: Stage, "pluto-commissions-table"]]
       AttributeDefinitions:
         - AttributeName: "id"
           AttributeType: "S"
@@ -185,7 +212,6 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
-
   UserUploadBucket:
     Type: "AWS::S3::Bucket"
     Properties:

@@ -20,6 +20,7 @@ trait DynamoAccess { this: Settings with AwsAccess =>
 
   private def getTableName(name: String): String = s"$app-$stage-$name-table"
 
+  lazy val plutoCommissionTableName: String = getTableName("pluto-commissions")
   lazy val plutoProjectTableName: String = getTableName("pluto-projects")
 
   lazy val dynamoDB: AmazonDynamoDBClient = region.createClient(
