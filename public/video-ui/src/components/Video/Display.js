@@ -77,7 +77,10 @@ class VideoDisplay extends React.Component {
   };
 
   cannotEditStatus = () => {
-    return this.props.video.expiryDate <= Date.now();
+    return (
+      this.props.video.contentChangeDetails.expiry &&
+      this.props.video.contentChangeDetails.expiry.date <= Date.now()
+    );
   };
 
   getComposerUrl = () => {

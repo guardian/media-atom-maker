@@ -7,9 +7,14 @@ export function isVideoPublished(video) {
 }
 
 export function hasVideoExpired(video) {
-  if (!video || !video.expiryDate) {
+  if (
+    !video ||
+    !video.contentChangeDetails ||
+    !video.contentChangeDetails.expiry ||
+    !video.contentChangeDetails.expiry.date
+  ) {
     return false;
   }
 
-  return video.expiryDate < Date.now();
+  return video.contentChangeDetails.expiry.date < Date.now();
 }
