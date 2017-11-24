@@ -130,18 +130,6 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
     }
   }
 
-  def setPlutoId(atomId: String) = APIHMACAuthAction { implicit req =>
-    implicit val readCommand: Reads[SetPlutoIdCommand] =
-      (JsPath \ "plutoId").read[String].map { plutoId =>
-        new SetPlutoIdCommand(atomId, plutoId, stores, req.user)
-      }
-
-    parse(req) { command: SetPlutoIdCommand =>
-      val atom = command.process()
-      Ok(Json.toJson(atom))
-    }
-  }
-
   def getAuditTrailForAtomId(id: String) = APIAuthAction { implicit req =>
     Ok(Json.toJson(auditDataStore.getAuditTrailForAtomId(id)))
   }
