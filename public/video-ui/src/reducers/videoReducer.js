@@ -10,8 +10,6 @@ export default function video(state = null, action) {
         the new expiry value is initialised to the saved one. This won't be necessary
         once we remove the old field
         */
-        // video.contentChangeDetails.expiry.date =
-        //   !newExpiryDate && video.expiryDate;
         const newExpiryDate =
           video.contentChangeDetails.expiry &&
           video.contentChangeDetails.expiry.date;
