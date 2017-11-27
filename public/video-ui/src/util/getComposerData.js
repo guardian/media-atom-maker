@@ -20,7 +20,7 @@ export function getComposerData(video) {
     thumbnail: video.trailImage && video.trailImage.assets.length > 0
       ? parseComposerDataFromImage(video.trailImage, video.trailText)
       : null,
-    expiryDate: video.expiryDate,
+    expiryDate: (video.contentChangeDetails && video.contentChangeDetails.expiry && video.contentChangeDetails.expiry.date) || video.expiryDate,
     embargoedIndefinitely: isTrainingMode ? true : false
   };
 }

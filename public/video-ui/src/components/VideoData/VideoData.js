@@ -125,7 +125,7 @@ class VideoData extends React.Component {
             </ManagedField>
           </ManagedSection>
           <ManagedSection>
-            <ManagedField fieldLocation="expiryDate" name="Expiry Date">
+            <ManagedField fieldLocation="contentChangeDetails.expiry.date" name="Expiry Date">
               <DatePicker />
             </ManagedField>
             <ManagedField
