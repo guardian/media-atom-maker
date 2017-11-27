@@ -15,7 +15,6 @@ import VideoUtils from '../../util/video';
 class VideoData extends React.Component {
   hasCategories = () => this.props.youtube.categories.length !== 0;
   hasChannels = () => this.props.youtube.channels.length !== 0;
-  hasPlutoProjects = () => this.props.pluto.projects.length !== 0;
 
   componentWillMount() {
     if (!this.hasCategories()) {
@@ -23,9 +22,6 @@ class VideoData extends React.Component {
     }
     if (!this.hasChannels()) {
       this.props.youtubeActions.getChannels();
-    }
-    if (!this.hasPlutoProjects()) {
-      this.props.plutoActions.getProjects();
     }
   }
 
@@ -214,12 +210,10 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getCategories from '../../actions/YoutubeActions/getCategories';
 import * as getChannels from '../../actions/YoutubeActions/getChannels';
-import * as getProjects from '../../actions/PlutoActions/getProjects';
 
 function mapStateToProps(state) {
   return {
     youtube: state.youtube,
-    pluto: state.pluto,
     workflow: state.workflow
   };
 }
@@ -229,8 +223,7 @@ function mapDispatchToProps(dispatch) {
     youtubeActions: bindActionCreators(
       Object.assign({}, getCategories, getChannels),
       dispatch
-    ),
-    plutoActions: bindActionCreators(Object.assign({}, getProjects), dispatch)
+    )
   };
 }
 

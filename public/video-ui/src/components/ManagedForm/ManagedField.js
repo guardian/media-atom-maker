@@ -104,6 +104,10 @@ export class ManagedField extends React.Component {
         _set(this.props.fieldLocation, null, this.props.data)
       );
     }
+
+    if (this.props.updateSideEffects) {
+      this.props.updateSideEffects(this.props.data);
+    }
   };
 
   getFieldValue(value) {

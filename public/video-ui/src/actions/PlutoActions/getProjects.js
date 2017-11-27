@@ -24,10 +24,10 @@ function errorReceivingProjects(error) {
   };
 }
 
-export function getProjects() {
+export function getProjects({commissionId}) {
   return dispatch => {
     dispatch(requestProjects());
-    return getPlutoProjects()
+    return getPlutoProjects({commissionId})
       .then(res => {
         dispatch(receiveProjects(res));
       })
