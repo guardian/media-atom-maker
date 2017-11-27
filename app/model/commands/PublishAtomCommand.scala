@@ -265,9 +265,6 @@ case class PublishAtomCommand(
   }
 
   private def updateInactiveAssets(atom: MediaAtom): Unit = {
-    val nowMillis = Instant.now().toEpochMilli
-    val expired = atom.expiryDate.exists(_ < nowMillis)
-
     MediaAtom.getActiveYouTubeAsset(atom).foreach { activeAsset =>
       val youTubeAssets = atom.assets.filter(_.platform == Youtube)
       val inactiveAssets = youTubeAssets.filterNot(_.id == activeAsset.id)

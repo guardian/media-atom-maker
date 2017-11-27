@@ -43,8 +43,7 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
     if (title.startsWith(TestFilters.testAtomBaseName)) None /* This filters out test atoms created by the Integration Tests, as we don't want them to be user facing */
     else {
       val posterImage = (atom \ "posterImage").asOpt[Image]
-
-      val expiryDate = (atom \ "expiryDate").asOpt[Long]
+      val expiryDate = (wrapper \ "contentChangeDetails" \ "expiry" \ "date").asOpt[Long]
       val activeVersion = (atom \ "activeVersion").asOpt[Long]
 
 
