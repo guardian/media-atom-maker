@@ -2,7 +2,7 @@ import React from 'react';
 import VideoTrail from './VideoTrail';
 import { getStore } from '../../util/storeAccessor';
 import AddAssetFromURL from './AddAssetFromURL';
-import PlutoProjectPicker from './PlutoProjectPicker';
+import PlutoProjectPicker from '../Pluto/PlutoProjectPicker';
 import AddSelfHostedAsset from './AddSelfHostedAsset';
 import AddYouTubeAsset from './AddYouTubeAsset';
 
