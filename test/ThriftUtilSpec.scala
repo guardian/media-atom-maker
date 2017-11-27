@@ -57,7 +57,7 @@ class ThriftUtilSpec extends FunSpec
           inside(atom) {
             case Atom(_, AtomType.Media, Nil, defaultHtml, _, changeDetails, None, _, _) =>
               changeDetails should matchPattern {
-                case ContentChangeDetails(None, None, None, 1L, None, None) =>
+                case ContentChangeDetails(None, None, None, 1L, None, None, None, None) =>
               }
 
               val iframe = Jsoup.parse(defaultHtml).getElementsByTag("iframe")
