@@ -44,7 +44,7 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
     else {
       val posterImage = (atom \ "posterImage").asOpt[Image]
 
-      val expiryDate = (wrapper \ "contentChangeDetails" \ "expiry" \ "date").asOpt[Long]
+      val expiryDate = (atom \ "expiryDate").asOpt[Long]
       val activeVersion = (atom \ "activeVersion").asOpt[Long]
 
 

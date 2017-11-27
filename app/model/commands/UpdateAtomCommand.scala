@@ -36,7 +36,7 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
     val changeRecord = ChangeRecord.now(user)
 
     val scheduledLaunchDate: Option[DateTime] = atom.contentChangeDetails.scheduledLaunch.map(scheduledLaunch => new DateTime(scheduledLaunch.date))
-    val expiry: Option[DateTime] = atom.contentChangeDetails.expiry.map(expiry => new DateTime(expiry.date))
+    val expiry: Option[DateTime] = atom.expiryDate.map(expiry => new DateTime(expiry))
 
     val details = atom.contentChangeDetails.copy(
       revision = existingAtom.contentChangeDetails.revision + 1,

@@ -27,7 +27,7 @@ case class CreateAtomCommand(data: MediaAtomBeforeCreation, override val stores:
     val atomId = randomUUID().toString
     val createdChangeRecord = Some(ChangeRecord.now(user))
     val scheduledLaunchDate: Option[DateTime] = data.contentChangeDetails.scheduledLaunch.map(scheduledLaunch => new DateTime(scheduledLaunch.date))
-    val expiry: Option[DateTime] = data.contentChangeDetails.expiry.map(expiry => new DateTime(expiry.date))
+    val expiry: Option[DateTime] = data.expiryDate.map(expiry => new DateTime(expiry))
     val details = media.model.ContentChangeDetails(
       lastModified = createdChangeRecord,
       created = createdChangeRecord,
