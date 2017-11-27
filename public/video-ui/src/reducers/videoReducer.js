@@ -4,17 +4,18 @@ export default function video(state = null, action) {
   switch (action.type) {
     case 'VIDEO_GET_RECEIVE':
       if (action.video) {
-        let video = Object.assign({}, blankVideoData, action.video);
+        const video = Object.assign({}, blankVideoData, action.video);
         /*
         this is necessary to make sure that if the old expiryDate field already exists in the db,
         the new expiry value is initialised to the saved one. This won't be necessary
         once we remove the old field
         */
         const newExpiryDate =
-          video.contentChangeDetails.expiry &&
-          video.contentChangeDetails.expiry.date;
+          action.video.contentChangeDetails.expiry &&
+          action.video.contentChangeDetails.expiry.date;
+
         if (!newExpiryDate && video.expiryDate) {
-          video = Object.assign({}, video, {
+          return Object.assign({}, video, {
             contentChangeDetails: Object.assign(
               {},
               video.contentChangeDetails,
@@ -25,8 +26,9 @@ export default function video(state = null, action) {
               }
             )
           });
+        } else {
+          return video;
         }
-        return video;
       } else {
         return false;
       }
