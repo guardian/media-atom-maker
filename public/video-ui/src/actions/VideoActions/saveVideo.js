@@ -41,7 +41,7 @@ function errorVideoSave(error) {
   };
 }
 
-export function saveVideo(video, composerUrl) {
+export function saveVideo(video) {
   return dispatch => {
     dispatch(requestVideoSave(video));
     return VideosApi.saveVideo(video.id, video)
@@ -53,7 +53,6 @@ export function saveVideo(video, composerUrl) {
       dispatch(receiveVideoUsages(usages));
       return VideosApi.updateCanonicalPages(
         video,
-        composerUrl,
         usages,
         'preview'
       )

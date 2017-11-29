@@ -10,7 +10,6 @@ import Icon from '../Icon';
 import { formNames } from '../../constants/formNames';
 import FieldNotification from '../../constants/FieldNotification';
 import ReactTooltip from 'react-tooltip';
-import { getStore } from '../../util/storeAccessor';
 import { blankVideoData } from '../../constants/blankVideoData';
 import KeywordsApi from '../../services/KeywordsApi';
 import YouTubeKeywords from '../../constants/youTubeKeywords';
@@ -29,10 +28,6 @@ class VideoDisplay extends React.Component {
     }
   }
 
-  getComposerUrl = () => {
-    return getStore().getState().config.composerUrl;
-  };
-
   saveAndUpdateVideo = video => {
     if (this.props.route.mode === 'create') {
       this.props.videoActions.createVideo(video)
@@ -40,7 +35,7 @@ class VideoDisplay extends React.Component {
           this.props.videoActions.getUsages(this.props.video.id);
         });
     } else {
-      this.props.videoActions.saveVideo(video, this.getComposerUrl())
+      this.props.videoActions.saveVideo(video)
     }
   };
 
@@ -83,10 +78,6 @@ class VideoDisplay extends React.Component {
 
   cannotEditStatus = () => {
     return this.props.video.expiryDate <= Date.now();
-  };
-
-  getComposerUrl = () => {
-    return getStore().getState().config.composerUrl;
   };
 
   cannotCloseEditForm = () => {

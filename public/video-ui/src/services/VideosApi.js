@@ -7,7 +7,7 @@ import { getVideoBlock } from '../util/getVideoBlock';
 
 function getComposerUrl() {
   return getStore().getState().config.composerUrl;
-};
+}
 
 function getUsages({ id, stage }) {
   return pandaReqwest({
@@ -160,22 +160,16 @@ export default {
   updateCanonicalPages(video, usages, updatesTo) {
     const composerData = getComposerData(video);
     const composerUrlBase = getComposerUrl();
-    const videoBlock = getVideoBlock(
-      video.id,
-      video.title,
-      video.source
-    );
+    const videoBlock = getVideoBlock(video.id, video.title, video.source);
 
     return Promise.all(
       Object.keys(usages.data).map(state => {
         const videoPageUsages = usages.data[state].video;
 
         return videoPageUsages.map(usage => {
-
           const pageId = usage.fields.internalComposerCode;
 
           if (updatesTo === state) {
-
             return pandaReqwest({
               url: `${composerUrlBase}/api/content/${pageId}/videopage`,
               method: 'put',
@@ -213,15 +207,10 @@ export default {
     });
   },
 
-  addVideoToComposerPage({ composerId, video}) {
-
+  addVideoToComposerPage({ composerId, video }) {
     const composerUrlBase = getComposerUrl();
 
-    const previewData = getVideoBlock(
-      video.id,
-      video.title,
-      video.source
-    );
+    const previewData = getVideoBlock(video.id, video.title, video.source);
 
     function updateMainBlock(stage, data) {
       return pandaReqwest({
@@ -259,8 +248,7 @@ export default {
   },
 
   preventPublication(composerId) {
-
-    const composerUrlBase = getComposerUrl();
+    const composerUrl = getComposerUrl();
 
     function doEmbargoIndefinitely(stage) {
       return pandaReqwest({

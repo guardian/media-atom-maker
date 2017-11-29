@@ -2,7 +2,6 @@ import React from 'react';
 import { saveStateVals } from '../../constants/saveStateVals';
 import { isVideoPublished } from '../../util/isVideoPublished';
 import { hasUnpublishedChanges } from '../../util/hasUnpublishedChanges';
-import { getStore } from '../../util/storeAccessor';
 import ScheduledLaunch from '../../components/ScheduledLaunch/ScheduledLaunch';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 
@@ -29,10 +28,6 @@ export default class VideoPublishBar extends React.Component {
     );
   }
 
-  getComposerUrl = () => {
-    return getStore().getState().config.composerUrl;
-  };
-
   publishedCanonicalVideoPageExists() {
     return this.props.usages &&
       this.props.usages.data &&
@@ -48,7 +43,6 @@ export default class VideoPublishBar extends React.Component {
 
       this.props.updateVideoPage(
         this.props.video,
-        this.getComposerUrl(),
         this.props.usages,
         'published'
       );
