@@ -47,9 +47,15 @@ export default class VideoUtils {
   }
 
   static hasYoutubeWriteAccess({ channelId, privacyStatus }) {
-    const availablePrivacyStates = VideoUtils.getAvailablePrivacyStates({channelId});
+    const availablePrivacyStates = VideoUtils.getAvailablePrivacyStates({
+      channelId
+    });
 
-    if (!!privacyStatus && availablePrivacyStates && !availablePrivacyStates.includes(privacyStatus)) {
+    if (
+      !!privacyStatus &&
+      availablePrivacyStates &&
+      !availablePrivacyStates.includes(privacyStatus)
+    ) {
       return false;
     }
     return !!VideoUtils.getYoutubeChannel({ channelId });

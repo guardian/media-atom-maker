@@ -159,7 +159,6 @@ export default {
         const videoPageUsages = usages.data[state].video;
 
         return videoPageUsages.map(usage => {
-
           const pageId = usage.fields.internalComposerCode;
 
           return pandaReqwest({
