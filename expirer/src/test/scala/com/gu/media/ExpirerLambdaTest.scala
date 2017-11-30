@@ -23,14 +23,6 @@ class ExpirerLambdaTest extends FunSuite with MustMatchers {
     lambda.madePrivate must be(List("one"))
   }
 
-  test("Not touch other atoms") {
-    val result = capiResult("one-live-atom-one-expired-atom.json")
-    val lambda = new TestExpirerLambda(List(result))
-
-    lambda.handleRequest((), null)
-    lambda.madePrivate must be(List("one"))
-  }
-
   test("Not touch third party videos") {
     val result = capiResult("one-expired-atom-two-yt-assets.json")
     val lambda = new TestExpirerLambda(List(result), isMyVideo = false)
@@ -50,8 +42,6 @@ class ExpirerLambdaTest extends FunSuite with MustMatchers {
 
   class TestExpirerLambda(var capiResults: List[String], isMyVideo: Boolean = true) extends ExpirerLambda with TestSettings {
     var madePrivate = List.empty[String]
-
-    override def expireInParallel = false
 
     override def capiQuery(query: String, isLive: Boolean = false): JsValue = {
       val ret = capiResults.head
