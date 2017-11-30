@@ -15,11 +15,7 @@ export function hasUnpublishedChanges(
     return true;
   }
 
-  const allFields = [
-    ...editableFields,
-    ...appUpdatedFields,
-    ...imageFields
-  ];
+  const allFields = [...editableFields, ...appUpdatedFields, ...imageFields];
 
   return !allFields.every(key => {
     return _.isEqual(previewVideo[key], publishedVideo[key]);

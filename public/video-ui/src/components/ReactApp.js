@@ -80,7 +80,10 @@ class ReactApp extends React.Component {
           query={this.props.location.query}
         />
         {this.props.error
-          ? <div className="error-bar" dangerouslySetInnerHTML={{ __html: this.props.error }}/>
+          ? <div
+              className="error-bar"
+              dangerouslySetInnerHTML={{ __html: this.props.error }}
+            />
           : false}
         <div>
           {this.props.children}
@@ -137,7 +140,7 @@ function mapDispatchToProps(dispatch) {
         videoPageCreate,
         videoUsages,
         deleteVideo,
-        updateVideo,
+        updateVideo
       ),
       dispatch
     )

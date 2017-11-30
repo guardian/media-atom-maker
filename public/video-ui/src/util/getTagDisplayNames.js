@@ -7,7 +7,7 @@ export default function getTagDisplayNames(tags) {
     }
 
     const tagType = tag.type;
-    const tagForDisplay = {id: tag.id, webTitle: tag.webTitle};
+    const tagForDisplay = { id: tag.id, webTitle: tag.webTitle };
 
     if (tagType === TagTypes.keyword) {
       //Some webtitles on keyword tags are too unspecific and we need to add
