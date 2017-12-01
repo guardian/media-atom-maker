@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import _set from 'lodash/fp/set';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
 
@@ -23,8 +24,12 @@ class PlutoProjectPicker extends React.Component {
   }
 
   onCommissionSelection() {
-    const {plutoData} = this.props.video;
-    this.props.plutoActions.getProjects(plutoData);
+    this.props.saveVideo(
+      _set('plutoData.projectId', null, this.props.video)
+    ).then(() => {
+      const {plutoData} = this.props.video;
+      this.props.plutoActions.getProjects(plutoData);
+    });
   }
 
   render() {

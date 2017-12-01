@@ -95,19 +95,13 @@ export class ManagedField extends React.Component {
 
     this.checkErrorsAndWarnings(newValue);
 
-    if (newValue !== '') {
-      this.props.updateData(
-        _set(this.props.fieldLocation, newValue, this.props.data)
-      );
-    } else {
-      this.props.updateData(
-        _set(this.props.fieldLocation, null, this.props.data)
-      );
-    }
-
-    if (this.props.updateSideEffects) {
-      this.props.updateSideEffects(this.props.data);
-    }
+    this.props.updateData(
+      _set(this.props.fieldLocation, newValue === '' ? null : newValue, this.props.data)
+    ).then(() => {
+      if (this.props.updateSideEffects) {
+        this.props.updateSideEffects(this.props.data);
+      }
+    });
   };
 
   getFieldValue(value) {
