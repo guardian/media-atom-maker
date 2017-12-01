@@ -3,7 +3,7 @@ package data
 import com.gu.atom.data._
 import com.gu.atom.publish._
 import com.gu.contentatom.thrift.Atom
-import com.gu.media.pluto.PlutoProjectDataStore
+import com.gu.media.pluto.{PlutoCommissionDataStore, PlutoProjectDataStore}
 import com.gu.media.{AuditDataStore, CapiAccess, PlutoDataStore}
 import model.commands.CommandExceptions._
 import util.AWSConfig
@@ -28,7 +28,8 @@ class DataStores(aws: AWSConfig, capi: CapiAccess)  {
   val reindexPublished: PublishedKinesisAtomReindexer =
     new PublishedKinesisAtomReindexer(aws.publishedKinesisReindexStreamName, aws.crossAccountKinesisClient)
 
-  val plutoProjectStore: PlutoProjectDataStore = new PlutoProjectDataStore(aws)
+  val plutoCommissionStore: PlutoCommissionDataStore = new PlutoCommissionDataStore(aws)
+  val plutoProjectStore: PlutoProjectDataStore = new PlutoProjectDataStore(aws, plutoCommissionStore)
 
   val atomListStore = AtomListStore(aws.stage, capi, preview)
 

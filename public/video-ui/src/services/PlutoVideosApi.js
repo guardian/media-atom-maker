@@ -3,13 +3,13 @@ import { pandaReqwest } from './pandaReqwest';
 export default {
   fetchPlutoVideos: () => {
     return pandaReqwest({
-      url: '/api2/pluto'
+      url: '/api2/atoms/pluto/missing'
     });
   },
 
   sendToPluto: (atomId, projectId) => {
     return pandaReqwest({
-      url: '/api2/pluto/' + atomId,
+      url: `/api2/atoms/${atomId}/pluto`,
       method: 'put',
       data: { plutoId: projectId }
     });
