@@ -2,7 +2,7 @@ import React from 'react';
 import VideoTrail from './VideoTrail';
 import { getStore } from '../../util/storeAccessor';
 import AddAssetFromURL from './AddAssetFromURL';
-import PlutoProjectPicker from './PlutoProjectPicker';
+import PlutoProjectPicker from '../Pluto/PlutoProjectPicker';
 import AddSelfHostedAsset from './AddSelfHostedAsset';
 import AddYouTubeAsset from './AddYouTubeAsset';
 
@@ -13,14 +13,9 @@ class VideoUpload extends React.Component {
     this.props.youtube.categories.length !== 0;
   hasChannels = () =>
     this.props.youtube && this.props.youtube.channels.length !== 0;
-  hasPlutoProjects = () =>
-    this.props.pluto && this.props.pluto.projects.length !== 0;
 
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
-    if (!this.hasPlutoProjects()) {
-      this.props.plutoActions.getProjects();
-    }
     if (!this.hasCategories()) {
       this.props.youtubeActions.getCategories();
     }
@@ -40,7 +35,6 @@ class VideoUpload extends React.Component {
             <div className="video__detailbox">
               <PlutoProjectPicker
                 video={this.props.video || {}}
-                projects={this.props.pluto.projects}
                 saveVideo={this.props.videoActions.saveVideo}
               />
               <AddYouTubeAsset
@@ -91,7 +85,6 @@ import * as getUpload from '../../actions/UploadActions/getUploads';
 import * as s3UploadActions from '../../actions/UploadActions/s3Upload';
 import * as createAsset from '../../actions/VideoActions/createAsset';
 import * as revertAsset from '../../actions/VideoActions/revertAsset';
-import * as getProjects from '../../actions/PlutoActions/getProjects';
 import * as getCategories from '../../actions/YoutubeActions/getCategories';
 import * as getChannels from '../../actions/YoutubeActions/getChannels';
 
@@ -100,7 +93,6 @@ function mapStateToProps(state) {
     video: state.video,
     s3Upload: state.s3Upload,
     uploads: state.uploads,
-    pluto: state.pluto,
     youtube: state.youtube
   };
 }
@@ -118,8 +110,7 @@ function mapDispatchToProps(dispatch) {
     youtubeActions: bindActionCreators(
       Object.assign({}, getCategories, getChannels),
       dispatch
-    ),
-    plutoActions: bindActionCreators(Object.assign({}, getProjects), dispatch)
+    )
   };
 }
 
