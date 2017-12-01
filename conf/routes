@@ -16,6 +16,7 @@ DELETE  /api2/atom/:id                  controllers.Api2.deleteAtom(id)
 
 GET     /api2/pluto/commissions         controllers.PlutoController.getCommissions()
 GET     /api2/pluto/commissions/:id/projects  controllers.PlutoController.getProjectsByCommissionId(id)
+GET     /api2/pluto/projects            controllers.PlutoController.getProjects()
 PUT     /api2/pluto/projects            controllers.PlutoController.upsertProject()
 
 # endpoint used by workflow
