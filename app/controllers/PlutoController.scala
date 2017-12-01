@@ -20,6 +20,11 @@ class PlutoController(
     Ok(Json.toJson(plutoCommissions))
   }
 
+  def getProjects() = APIHMACAuthAction {
+    val plutoProjects = stores.plutoProjectStore.list()
+    Ok(Json.toJson(plutoProjects))
+  }
+
   def getProjectsByCommissionId(id: String) = APIAuthAction {
     val plutoProjects = stores.plutoProjectStore.getByCommissionId(id)
     Ok(Json.toJson(plutoProjects))
