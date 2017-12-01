@@ -213,7 +213,7 @@ class VideoDisplay extends React.Component {
 
   renderSelectBar(video) {
 
-    const videoToSelect = isVideoPublished(this.props.publishedVideo) ?
+    const videoToSelect = isVideoPublished(this.props.video) ?
       this.props.publishedVideo : this.props.video;
 
     return (
