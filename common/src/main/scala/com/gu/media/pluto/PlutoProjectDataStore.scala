@@ -18,23 +18,6 @@ class PlutoProjectDataStore(aws: DynamoAccess, plutoCommissionDataStore: PlutoCo
   private val table = Table[PlutoProject](aws.plutoProjectTableName)
   private val commmissionIndex = table.index("commission-index")
 
-  def list(): List[PlutoProject] = {
-    val op = table.scan()
-
-    val results = Scanamo.exec(aws.dynamoDB)(op)
-
-    results.collect {
-      case Left(error) => {
-        log.error(s"failed to list pluto projects")
-        throw PlutoProjectDataStoreException(error.toString)
-      }
-      case Right(plutoProject) => {
-        plutoProject
-      }
-    }
-  }
-
-
   def getByCommissionId(commissionId: String): List[PlutoProject] = {
     val op = commmissionIndex.query('commissionId -> commissionId)
 
