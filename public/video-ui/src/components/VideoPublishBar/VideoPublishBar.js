@@ -2,9 +2,8 @@ import React from 'react';
 import { saveStateVals } from '../../constants/saveStateVals';
 import { isVideoPublished } from '../../util/isVideoPublished';
 import { hasUnpublishedChanges } from '../../util/hasUnpublishedChanges';
-import { getVideoBlock } from '../../util/getVideoBlock';
-import { getStore } from '../../util/storeAccessor';
 import ScheduledLaunch from '../../components/ScheduledLaunch/ScheduledLaunch';
+import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 
 export default class VideoPublishBar extends React.Component {
   videoIsCurrentlyPublishing() {
@@ -25,27 +24,27 @@ export default class VideoPublishBar extends React.Component {
       this.videoIsCurrentlyPublishing() ||
       this.props.videoEditOpen ||
       !this.videoHasUnpublishedChanges() ||
-      (this.props.canonicalVideoPageExists() && this.props.requiredComposerFieldsMissing())
+      (canonicalVideoPageExists(this.props.usages) && this.props.requiredComposerFieldsMissing())
     );
   }
 
-  getComposerUrl = () => {
-    return getStore().getState().config.composerUrl;
-  };
+  publishedCanonicalVideoPageExists() {
+    return this.props.usages &&
+      this.props.usages.data &&
+      this.props.usages.data.published &&
+      this.props.usages.data.published.video &&
+      this.props.usages.data.published.video.length > 0;
+
+  }
 
   publishVideo = () => {
-    const videoBlock = getVideoBlock(
-      this.props.video.id,
-      this.props.video.title,
-      this.props.video.source
-    );
 
-    if (this.props.canonicalVideoPageExists()) {
+    if (this.publishedCanonicalVideoPageExists()) {
+
       this.props.updateVideoPage(
         this.props.video,
-        this.getComposerUrl(),
-        videoBlock,
-        this.props.usages
+        this.props.usages,
+        'published'
       );
     }
 

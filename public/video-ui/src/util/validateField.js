@@ -1,33 +1,42 @@
 import FieldNotification from '../constants/FieldNotification';
-import {
-  requiredForComposerWarning
-} from '../constants/requiredForComposerWarning';
+import RequiredForComposer from '../constants/requiredForComposer';
 
 const validateField = (
   fieldValue,
   isRequired: false,
   isDesired: false,
-  customValidation: null
+  customValidation: null,
+  composerValidation: false
 ) => {
   if (customValidation) {
     return customValidation(fieldValue);
   }
 
-  if (isRequired && !fieldValue) {
+  function fieldValueMissing() {
+    if (!fieldValue) {
+      return true;
+    }
+
+    if (Array.isArray(fieldValue) && fieldValue.length === 0) {
+      return true;
+    }
+
+    return false;
+  }
+
+  if (isRequired && fieldValueMissing()) {
     return new FieldNotification(
       'required',
-      'This field is required',
+      composerValidation ? RequiredForComposer.error : 'This field is required',
       FieldNotification.error
     );
   }
-
   if (
-    isDesired &&
-    (!fieldValue || (Array.isArray(fieldValue) && fieldValue.length === 0))
+    isDesired && fieldValueMissing()
   ) {
     return new FieldNotification(
       'desired',
-      requiredForComposerWarning,
+      composerValidation ? RequiredForComposer.warning : 'This field is desired',
       FieldNotification.warning
     );
   }

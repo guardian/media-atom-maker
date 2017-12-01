@@ -12,7 +12,6 @@ import CapiUnavailable from '../CapiSearch/CapiUnavailable';
 import DragSortableList from 'react-drag-sortable';
 import removeTagDuplicates from '../../util/removeTagDuplicates';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
-import {requiredForComposerWarning} from '../../constants/requiredForComposerWarning';
 import ReactTooltip from 'react-tooltip';
 import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
 import YouTubeKeywords from '../../constants/youTubeKeywords';

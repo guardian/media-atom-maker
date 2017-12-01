@@ -7,6 +7,7 @@ import AdvancedActions from './Videos/AdvancedActions';
 import ComposerPageCreate from './Videos/ComposerPageCreate';
 import Icon from './Icon';
 import { Presence } from './Presence';
+import { canonicalVideoPageExists } from '../util/canonicalVideoPageExists';
 
 export default class Header extends React.Component {
   state = { presence: null };
@@ -19,10 +20,6 @@ export default class Header extends React.Component {
     return Object.keys(this.props.formFieldsWarning).some(key => {
       return this.props.formFieldsWarning[key];
     });
-  };
-
-  canonicalVideoPageExists = () => {
-    return this.props.usages.totalVideoPages > 0;
   };
 
   renderProgress() {
@@ -127,7 +124,7 @@ export default class Header extends React.Component {
       return null;
     }
 
-    if (this.canonicalVideoPageExists()) {
+    if (canonicalVideoPageExists(this.props.usages)) {
       return (
         <div className="header__fields__missing__warning">
           Fill in required composer fields before publishing
@@ -190,11 +187,10 @@ export default class Header extends React.Component {
             saveState={this.props.saveState}
             videoEditOpen={this.props.videoEditOpen}
             updateVideoPage={this.props.updateVideoPage}
+            requiredComposerFieldsMissing={this.requiredComposerFieldsMissing}
             usages={this.props.usages}
             publishVideo={this.publishVideo}
             formFieldsWarning={this.props.formFieldsWarning}
-            requiredComposerFieldsMissing={this.requiredComposerFieldsMissing}
-            canonicalVideoPageExists={this.canonicalVideoPageExists}
             updateVideo={this.props.updateVideo}
             saveVideo={this.props.saveVideo}
             query={this.props.query}
@@ -209,7 +205,7 @@ export default class Header extends React.Component {
             video={this.props.video || {}}
             createVideoPage={this.props.createVideoPage}
             requiredComposerFieldsMissing={this.requiredComposerFieldsMissing}
-            canonicalVideoPageExists={this.canonicalVideoPageExists}
+            usages={this.props.usages}
           />
           {this.renderComposerMissingWarning()}
           <div className="flex-container">

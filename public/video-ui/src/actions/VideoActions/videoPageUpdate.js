@@ -1,4 +1,5 @@
 import VideosApi from '../../services/VideosApi';
+import { getVideoBlock } from '../../util/getVideoBlock';
 
 function requestVideoPageUpdate() {
   return {
@@ -24,15 +25,15 @@ function errorReceivingVideoPageUpdate({error, message}) {
   };
 }
 
-export function updateVideoPage(video, composerUrl, videoBlock, usages) {
+export function updateVideoPage(video, usages, updatesTo) {
+
   return dispatch => {
     dispatch(requestVideoPageUpdate());
 
     return VideosApi.updateCanonicalPages(
       video,
-      composerUrl,
-      videoBlock,
-      usages
+      usages,
+      updatesTo
     )
       .then(() => dispatch(receiveVideoPageUpdate(video.title)))
       .catch(error => {

@@ -6,6 +6,7 @@ import validateField from '../../util/validateField';
 import {getTextFromHtml} from '../../util/getTextFromHtml';
 import FieldNotification from '../../constants/FieldNotification';
 import {fieldsWithHtml} from '../../constants/fieldsWithHtml';
+import RequiredForComposer from '../../constants/requiredForComposer';
 
 export class ManagedField extends React.Component {
   static propTypes = {
@@ -53,11 +54,14 @@ export class ManagedField extends React.Component {
       value = getTextFromHtml(value);
     }
 
+    const composerValidation = RequiredForComposer.fields.includes(this.props.fieldLocation);
+
     const notification = validateField(
       value,
       this.props.isRequired,
       this.props.isDesired,
-      this.props.customValidation
+      this.props.customValidation,
+      composerValidation
     );
 
     if (this.props.updateFormErrors) {

@@ -3,6 +3,11 @@ import { getStore } from '../util/storeAccessor';
 import { getComposerData } from '../util/getComposerData';
 import { cleanVideoData } from '../util/cleanVideoData';
 import ContentApi from './capi';
+import { getVideoBlock } from '../util/getVideoBlock';
+
+function getComposerUrl() {
+  return getStore().getState().config.composerUrl;
+}
 
 function getUsages({ id, stage }) {
   return pandaReqwest({
@@ -152,8 +157,11 @@ export default {
     });
   },
 
-  updateCanonicalPages(video, composerUrlBase, videoBlock, usages) {
+  updateCanonicalPages(video, usages, updatesTo) {
     const composerData = getComposerData(video);
+    const composerUrlBase = getComposerUrl();
+    const videoBlock = getVideoBlock(video.id, video.title, video.source);
+
     return Promise.all(
       Object.keys(usages.data).map(state => {
         const videoPageUsages = usages.data[state].video;
@@ -161,23 +169,28 @@ export default {
         return videoPageUsages.map(usage => {
           const pageId = usage.fields.internalComposerCode;
 
-          return pandaReqwest({
-            url: `${composerUrlBase}/api/content/${pageId}/videopage`,
-            method: 'put',
-            crossOrigin: true,
-            withCredentials: true,
-            data: {
-              videoFields: cleanVideoData(composerData),
-              videoBlock: videoBlock
-            }
-          });
+          if (updatesTo === state) {
+            return pandaReqwest({
+              url: `${composerUrlBase}/api/content/${pageId}/videopage`,
+              method: 'put',
+              crossOrigin: true,
+              withCredentials: true,
+              data: {
+                videoFields: cleanVideoData(composerData),
+                videoBlock: videoBlock
+              }
+            });
+          }
+
+          return Promise.resolve();
         });
       })
     );
   },
 
-  createComposerPage(id, video, composerUrlBase) {
+  createComposerPage(id, video) {
     const composerData = getComposerData(video);
+    const composerUrlBase = getComposerUrl();
 
     const composerUrl =
       composerUrlBase +
@@ -194,7 +207,11 @@ export default {
     });
   },
 
-  addVideoToComposerPage({ composerId, previewData, composerUrlBase }) {
+  addVideoToComposerPage({ composerId, video }) {
+    const composerUrlBase = getComposerUrl();
+
+    const previewData = getVideoBlock(video.id, video.title, video.source);
+
     function updateMainBlock(stage, data) {
       return pandaReqwest({
         url: `${composerUrlBase}/api/content/${composerId}/${stage}/mainblock`,
@@ -230,7 +247,9 @@ export default {
     });
   },
 
-  preventPublication(composerId, composerUrl) {
+  preventPublication(composerId) {
+    const composerUrl = getComposerUrl();
+
     function doEmbargoIndefinitely(stage) {
       return pandaReqwest({
         url: `${composerUrl}/api/content/${composerId}/${stage}/settings/embargoedIndefinitely`,

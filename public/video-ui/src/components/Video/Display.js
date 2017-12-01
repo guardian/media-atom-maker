@@ -10,11 +10,11 @@ import Icon from '../Icon';
 import { formNames } from '../../constants/formNames';
 import FieldNotification from '../../constants/FieldNotification';
 import ReactTooltip from 'react-tooltip';
-import { getStore } from '../../util/storeAccessor';
 import { blankVideoData } from '../../constants/blankVideoData';
 import KeywordsApi from '../../services/KeywordsApi';
 import YouTubeKeywords from '../../constants/youTubeKeywords';
 import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
+import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 
 class VideoDisplay extends React.Component {
   componentWillMount() {
@@ -35,7 +35,7 @@ class VideoDisplay extends React.Component {
           this.props.videoActions.getUsages(this.props.video.id);
         });
     } else {
-      this.props.videoActions.saveVideo(video);
+      this.props.videoActions.saveVideo(video)
     }
   };
 
@@ -80,10 +80,6 @@ class VideoDisplay extends React.Component {
     return this.props.video.expiryDate <= Date.now();
   };
 
-  getComposerUrl = () => {
-    return getStore().getState().config.composerUrl;
-  };
-
   cannotCloseEditForm = () => {
     const formName = formNames.videoData;
 
@@ -103,6 +99,13 @@ class VideoDisplay extends React.Component {
           return keyword.match(/^tone/);
         })
        ) {
+        if (canonicalVideoPageExists(this.props.usages)) {
+          return new FieldNotification(
+            'error',
+            'A series or a keyword tag is required for updating composer pages',
+            FieldNotification.error
+          );
+        }
         return new FieldNotification(
           'desired',
           'A series or a keyword tag is required for creating composer pages',
@@ -236,6 +239,7 @@ class VideoDisplay extends React.Component {
           validateKeywords={this.validateKeywords}
           validateYouTubeKeywords={this.validateYouTubeKeywords}
           composerKeywordsToYouTube={this.composerKeywordsToYouTube}
+          canonicalVideoPageExists={canonicalVideoPageExists(this.props.usages)}
         />
       </div>
     );
@@ -323,6 +327,8 @@ import * as updateFormErrors
   from '../../actions/FormErrorActions/updateFormErrors';
 import * as updateFormWarnings
   from '../../actions/FormErrorActions/updateFormWarnings';
+import * as videoPageUpdate
+  from '../../actions/VideoActions/videoPageUpdate';
 
 function mapStateToProps(state) {
   return {
@@ -347,7 +353,8 @@ function mapDispatchToProps(dispatch) {
         updateVideo,
         videoUsages,
         getPublishedVideo,
-        updateVideoEditState
+        updateVideoEditState,
+        videoPageUpdate
       ),
       dispatch
     ),

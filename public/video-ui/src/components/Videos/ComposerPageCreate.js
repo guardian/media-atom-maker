@@ -2,6 +2,7 @@ import React from 'react';
 import { getVideoBlock } from '../../util/getVideoBlock';
 import Icon from '../Icon';
 import { getStore } from '../../util/storeAccessor';
+import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 
 export default class ComposerPageCreate extends React.Component {
   state = {
@@ -34,18 +35,10 @@ export default class ComposerPageCreate extends React.Component {
       composerUpdateInProgress: true
     });
 
-    const videoBlock = getVideoBlock(
-      this.props.video.id,
-      this.props.video.title,
-      this.props.video.source
-    );
-
     return this.props
       .createVideoPage(
         this.props.video.id,
         this.props.video,
-        this.getComposerUrl(),
-        videoBlock,
         getStore().getState().config.isTrainingMode
       )
       .then(() => {
@@ -56,8 +49,9 @@ export default class ComposerPageCreate extends React.Component {
   };
 
   render() {
-    const { canonicalVideoPageExists, videoEditOpen, requiredComposerFieldsMissing } = this.props;
-    const showOpenPage = canonicalVideoPageExists() || this.isHosted();
+
+    const { usages, videoEditOpen, requiredComposerFieldsMissing } = this.props;
+    const showOpenPage = canonicalVideoPageExists(usages) || this.isHosted();
 
     if (showOpenPage) {
       return (
@@ -66,6 +60,7 @@ export default class ComposerPageCreate extends React.Component {
         </a>
       );
     }
+
     else {
       return (
         <button
