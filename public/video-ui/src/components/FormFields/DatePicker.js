@@ -3,12 +3,11 @@ import Picker from 'react-datepicker';
 import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 import Icon from '../Icon';
-import _range from 'lodash/fp/range';
 
 const DATE_FORMAT = 'DD MMM YYYY';
 const DATETIME_FORMAT = `${DATE_FORMAT} HH:mm`;
 
-const MINUTES = _range(0, 60).map(minute =>
+const MINUTES = [0, 15, 30, 45].map(minute =>
   moment().minute(minute).format('mm')
 );
 const HOURS = [...new Array(24).keys()].map(hour =>
