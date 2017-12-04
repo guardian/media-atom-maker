@@ -15,6 +15,7 @@ import KeywordsApi from '../../services/KeywordsApi';
 import YouTubeKeywords from '../../constants/youTubeKeywords';
 import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
+import { isVideoPublished } from '../../util/isVideoPublished';
 
 class VideoDisplay extends React.Component {
   componentWillMount() {
@@ -211,11 +212,14 @@ class VideoDisplay extends React.Component {
   }
 
   renderSelectBar(video) {
+
+    const videoToSelect = isVideoPublished(this.props.video) ?
+      this.props.publishedVideo : this.props.video;
+
     return (
       <VideoSelectBar
-        video={video}
+        video={videoToSelect}
         onSelectVideo={this.selectVideo}
-        publishedVideo={this.props.publishedVideo}
         embeddedMode={this.props.config.embeddedMode}
       />
     );
