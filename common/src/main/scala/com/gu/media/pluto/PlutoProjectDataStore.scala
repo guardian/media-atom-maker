@@ -31,7 +31,7 @@ class PlutoProjectDataStore(aws: DynamoAccess, plutoCommissionDataStore: PlutoCo
       case Right(plutoProject) => {
         plutoProject
       }
-    }
+    }.sortBy(_.title)
   }
 
   def upsert(plutoUpsertRequest: PlutoUpsertRequest): PlutoProject = {

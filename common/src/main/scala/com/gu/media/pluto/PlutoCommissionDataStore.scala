@@ -22,7 +22,7 @@ class PlutoCommissionDataStore(aws: DynamoAccess) extends Logging {
       case Right(commission) => {
         commission
       }
-    }
+    }.sortBy(_.title)
   }
 
   def upsert(plutoUpsertRequest: PlutoUpsertRequest): PutItemResult = {
