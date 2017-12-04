@@ -98,10 +98,12 @@ export default class TagPicker extends React.Component {
     this.setState({
       tagValue: newValue
     });
-    this.props.onUpdateField(tagsToStringList(newValue));
+    return this.props.onUpdateField(tagsToStringList(newValue))
+    .then(() => {
 
-    this.setState({
-      capiTags: []
+      return this.setState({
+        capiTags: []
+      });
     });
   };
 

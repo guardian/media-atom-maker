@@ -41,6 +41,7 @@ class VideoDisplay extends React.Component {
 
   updateVideo = video => {
     this.props.videoActions.updateVideo(video);
+    return Promise.resolve();
   };
 
   composerKeywordsToYouTube = () => {

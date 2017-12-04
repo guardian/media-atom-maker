@@ -103,9 +103,11 @@ export default class TextInputTagPicker extends React.Component {
 
           const newFieldValue = newInput ? this.props.tagValue.concat([newInput]) : this.props.tagValue;
 
-          this.props.onUpdate(newFieldValue);
-          this.setState({
-            inputString: '',
+          this.props.onUpdate(newFieldValue)
+          .then(() => {
+            this.setState({
+              inputString: '',
+            });
           });
         }
       }
