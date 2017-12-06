@@ -103,4 +103,8 @@ export default class VideoUtils {
     const scheduledLaunch = contentChangeDetails.scheduledLaunch;
     return scheduledLaunch ? moment(scheduledLaunch.date) : null;
   }
+
+  static canUploadToYouTube({ youtubeCategoryId, channelId, privacyStatus }) {
+    return !!youtubeCategoryId && !!channelId && !!privacyStatus;
+  }
 }
