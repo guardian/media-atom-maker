@@ -3,8 +3,8 @@ package util
 import java.time.Instant
 
 import com.gu.media.aws.{AwsAccess, UploadAccess}
-import com.gu.media.model.{MediaAtom, SelfHostedAsset, VideoSource}
-import com.gu.media.upload.{CompleteUploadKey, TranscoderOutputKey, UploadPartKey}
+import com.gu.media.model.{MediaAtom, PlutoSyncMetadata, SelfHostedAsset, VideoSource}
+import com.gu.media.upload.{TranscoderOutputKey, UploadPartKey}
 import com.gu.media.upload.model._
 import model.commands.CommandExceptions.AtomMissingYouTubeChannel
 
@@ -12,15 +12,7 @@ object UploadBuilder {
   def build(atom: MediaAtom, email: String, version: Long, request: UploadRequest, aws: AwsAccess with UploadAccess): Upload = {
     val id = s"${atom.id}-$version"
 
-    val plutoData = PlutoSyncMetadata(
-      enabled = aws.syncWithPluto,
-      projectId = atom.plutoData.flatMap(_.projectId),
-      s3Key = CompleteUploadKey(aws.userUploadFolder, id).toString,
-      atomId = atom.id,
-      title = atom.title,
-      user = email,
-      posterImageUrl = atom.posterImage.flatMap(_.master).map(_.file)
-    )
+    val plutoData = PlutoSyncMetadata.build(id, atom, aws, email)
 
     val metadata = UploadMetadata(
       user = email,

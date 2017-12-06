@@ -6,12 +6,11 @@ import com.amazonaws.services.s3.model.PutObjectResult
 import com.gu.atom.play.AtomAPIActions
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
-import com.gu.media.upload.model.PlutoSyncMetadata
 import com.gu.media.youtube.YouTubeClaims
 import com.gu.media.Capi
 import com.gu.pandahmac.HMACAuthActions
 import util.{ActivateAssetRequest, YouTube}
-import com.gu.media.model.{MediaAtom, MediaAtomBeforeCreation}
+import com.gu.media.model.{MediaAtom, MediaAtomBeforeCreation, PlutoSyncMetadata}
 import com.gu.media.util.{MediaAtomHelpers, MediaAtomImplicits}
 import data.DataStores
 import model.commands.CommandExceptions._
