@@ -95,3 +95,16 @@ export function uploadParts(upload, parts, file, progressFn) {
     uploadPartRecursive(parts);
   });
 }
+
+export function uploadPacFile({ id, file }) {
+  const formData = new FormData();
+  formData.append('pac-file', file);
+
+  return pandaReqwest({
+    url: `/api2/atom/${id}/pac-file`,
+    method: 'post',
+    data: formData,
+    contentType: 'multipart/form-data',
+    processData: false
+  });
+}

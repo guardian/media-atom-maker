@@ -1,11 +1,11 @@
 package com.gu.media.util
 
 import com.gu.contentatom.thrift.{Atom, AtomData}
-import com.gu.contentatom.thrift.atom.media.{Asset, AssetType, MediaAtom, Platform}
-import com.gu.media.model.{SelfHostedAsset, VideoAsset, VideoSource, YouTubeAsset}
+import com.gu.contentatom.thrift.atom.media.{Asset, AssetType, Platform, MediaAtom => ThriftMediaAtom}
+import com.gu.media.model._
 
 object MediaAtomHelpers {
-  def updateAtom(atom: Atom)(fn: MediaAtom => MediaAtom): Atom = {
+  def updateAtom(atom: Atom)(fn: ThriftMediaAtom => ThriftMediaAtom): Atom = {
     val before = atom.data.asInstanceOf[AtomData.Media].media
     val after = fn(before)
 
@@ -23,11 +23,19 @@ object MediaAtomHelpers {
     }
   }
 
-  def getNextAssetVersion(mediaAtom: MediaAtom): Long = {
+  def getCurrentAssetVersion(mediaAtom: ThriftMediaAtom): Option[Long] = {
+    if (mediaAtom.assets.isEmpty) {
+      None
+    } else {
+      Some(mediaAtom.assets.map(_.version).max)
+    }
+  }
+
+  def getNextAssetVersion(mediaAtom: ThriftMediaAtom): Long = {
     getCurrentAssetVersion(mediaAtom).getOrElse(0L) + 1
   }
 
-  def addAsset(mediaAtom: MediaAtom, asset: VideoAsset, version: Long): MediaAtom = {
+  def addAsset(mediaAtom: ThriftMediaAtom, asset: VideoAsset, version: Long): ThriftMediaAtom = {
     val assets = getAssets(asset, version)
 
     mediaAtom.copy(assets = assets ++ mediaAtom.assets)

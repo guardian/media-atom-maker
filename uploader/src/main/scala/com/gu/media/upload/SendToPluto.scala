@@ -14,7 +14,7 @@ class SendToPluto extends LambdaWithParams[Upload, Upload]
   private val pluto = new PlutoUploadActions(this)
 
   override def handle(upload: Upload): Upload = {
-    pluto.sendToPluto(upload.metadata)
+    pluto.sendToPluto(upload.metadata.pluto)
     upload
   }
 }

@@ -34,6 +34,8 @@ class VideoData extends React.Component {
     const availablePrivacyStates = VideoUtils.getAvailablePrivacyStates(this.props.video);
     const hasYoutubeWriteAccess = VideoUtils.hasYoutubeWriteAccess(this.props.video);
 
+    const { categories }= this.props.youtube;
+
     return (
       <div className="form__group">
         <ManagedForm
@@ -143,6 +145,9 @@ class VideoData extends React.Component {
               disabled={!isYoutubeAtom || !hasYoutubeWriteAccess}
             >
               <SelectBox selectValues={PrivacyStates.forForm(availablePrivacyStates)} />
+            </ManagedField>
+            <ManagedField fieldLocation="youtubeCategoryId" name="YouTube Category">
+              <SelectBox selectValues={categories} />
             </ManagedField>
             <ManagedField
               fieldLocation="tags"

@@ -1,15 +1,17 @@
 package controllers
 
+import java.io.File
+
+import com.amazonaws.services.s3.model.PutObjectResult
 import com.gu.atom.play.AtomAPIActions
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
-import com.gu.media.upload.model.PlutoSyncMetadata
 import com.gu.media.youtube.YouTubeClaims
 import com.gu.media.Capi
 import com.gu.pandahmac.HMACAuthActions
 import util.{ActivateAssetRequest, YouTube}
-import com.gu.media.model.{MediaAtom, MediaAtomBeforeCreation}
-import com.gu.media.util.MediaAtomImplicits
+import com.gu.media.model.{MediaAtom, MediaAtomBeforeCreation, PlutoSyncMetadata}
+import com.gu.media.util.{MediaAtomHelpers, MediaAtomImplicits}
 import data.DataStores
 import model.commands.CommandExceptions._
 import model.commands._
@@ -181,5 +183,29 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
       Ok("Added pluto project to atom")
 
     }
+  }
+
+  def uploadPacFile(id: String) = APIAuthAction(parse.multipartFormData) { request =>
+    request.body.file("pac-file").map { file =>
+      val atom = getPreviewAtom(id)
+      val mediaAtom: MediaAtom = MediaAtom.fromThrift(atom)
+
+      try {
+        val pacFileUpload = PacFileUploadCommand(
+          mediaAtom,
+          file.ref.file,
+          stores,
+          request.user,
+          awsConfig
+        ).process()
+
+        Ok(Json.toJson(pacFileUpload))
+      }
+      catch {
+        commandExceptionAsResult
+      }
+    }.getOrElse(
+      BadRequest
+    )
   }
 }

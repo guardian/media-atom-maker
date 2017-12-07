@@ -2,7 +2,7 @@ package com.gu.media.upload.model
 
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
-import com.gu.media.model.VideoAsset
+import com.gu.media.model.{PlutoSyncMetadata, VideoAsset}
 
 case class UploadMetadata(
   user: String,
@@ -18,26 +18,12 @@ case class UploadMetadata(
   startTimestamp: Option[Long] = None // unix timestamp
 )
 
-case class PlutoSyncMetadata (
-  enabled: Boolean,
-  projectId: Option[String],
-  s3Key: String,
-  atomId: String,
-  title: String,
-  user: String,
-  posterImageUrl: Option[String]
-)
-
 sealed abstract class RuntimeUploadMetadata
 case class YouTubeUploadMetadata(channel: String, uri: Option[String]) extends RuntimeUploadMetadata
 case class SelfHostedUploadMetadata(jobs: List[String]) extends RuntimeUploadMetadata
 
 object UploadMetadata {
   implicit val format: Format[UploadMetadata] = Jsonx.formatCaseClass[UploadMetadata]
-}
-
-object PlutoSyncMetadata {
-  implicit val format: Format[PlutoSyncMetadata] = Jsonx.formatCaseClass[PlutoSyncMetadata]
 }
 
 object RuntimeUploadMetadata {
