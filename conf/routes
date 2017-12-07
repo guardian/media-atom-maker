@@ -7,6 +7,9 @@ PUT     /api2/atoms/:id                 controllers.Api2.putMediaAtom(id)
 POST    /api2/atoms/:id/assets          controllers.Api2.addAsset(id)
 POST    /api2/atom/:id/pac-file         controllers.Api2.uploadPacFile(id)
 
+POST     /api2/retroexpire/published     controllers.Api2.postPublishedDatastore()
+POST     /api2/retroexpire/preview       controllers.Api2.postPreviewDatastore()
+
 PUT     /api2/atom/:id/publish          controllers.Api2.publishMediaAtom(id)
 PUT     /api2/atom/:id/asset-active     controllers.Api2.setActiveAsset(id)
 

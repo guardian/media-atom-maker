@@ -108,6 +108,20 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
     }
   }
 
+  def postPublishedDatastore() = APIHMACAuthAction { implicit req =>
+      val command = ExpiryFieldPublishedCommand(stores, req.user)
+      val updatedAtoms = command.process()
+
+      Ok(Json.toJson(updatedAtoms))
+  }
+
+  def postPreviewDatastore() = APIHMACAuthAction { implicit req =>
+    val command = ExpiryFieldPreviewCommand(stores, req.user)
+    val updatedAtoms = command.process()
+
+    Ok(Json.toJson(updatedAtoms))
+  }
+
   def addAsset(atomId: String) = APIHMACAuthAction { implicit req =>
     implicit val readCommand: Reads[AddAssetCommand] =
       (JsPath \ "uri").read[String].map { videoUri =>
