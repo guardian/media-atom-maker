@@ -1,0 +1,29 @@
+{
+  "response": {
+    "currentPage": 1,
+    "pages": 1,
+    "results": [
+      {
+        "data": {
+          "media": {
+            "assets": [
+              {
+                "platform": "youtube",
+                "id": "one"
+              },
+              {
+                "platform": "totally_real_video_hosting.biz",
+                "id": "two"
+              }
+            ]
+          }
+        },
+        "contentChangeDetails": {
+          "scheduledLaunch": {
+            "date": 1488551229752
+          }
+        }
+      }
+    ]
+  }
+}

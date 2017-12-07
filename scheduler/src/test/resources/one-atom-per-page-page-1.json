@@ -1,0 +1,25 @@
+{
+  "response": {
+    "currentPage": 1,
+    "pages": 2,
+    "results": [
+      {
+        "data": {
+          "media": {
+            "assets": [
+              {
+                "platform": "youtube",
+                "id": "one"
+              }
+            ]
+          }
+        },
+        "contentChangeDetails": {
+          "scheduledLaunch": {
+            "date": 1488551229752
+          }
+        }
+      }
+    ]
+  }
+}
