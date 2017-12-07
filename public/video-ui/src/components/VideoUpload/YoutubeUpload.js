@@ -1,6 +1,5 @@
 import React from 'react';
 import Icon from '../Icon';
-import { ManagedForm } from '../ManagedForm';
 import VideoUtils from '../../util/video';
 
 export default class YoutubeUpload extends React.Component {
@@ -18,6 +17,14 @@ export default class YoutubeUpload extends React.Component {
     }
   };
 
+  renderWarning() {
+    return (
+      <span className="form__message form__message--warning">
+        A YouTube channel and category need to be set before uploading a video
+      </span>
+    );
+  }
+
   render() {
     const { video, startUpload } = this.props;
 
@@ -31,35 +38,29 @@ export default class YoutubeUpload extends React.Component {
           </header>
         </div>
         <div className="form__group">
-          <ManagedForm
-            data={video}
-            updateData={this.props.saveVideo}
-            editable={true}
-            formName="YouTubeUpload"
+          {!canUploadToYouTube ? this.renderWarning() : ''}
+          <input
+            className="form__field"
+            type="file"
+            onChange={this.setFile}
+            disabled={!canUploadToYouTube || this.props.uploading}
+            accept="video/*,.mxf"
+          />
+          <button
+            type="button"
+            className="btn button__secondary__assets"
+            disabled={!canUploadToYouTube || this.props.uploading || !this.state.file}
+            onClick={() =>
+              startUpload({
+                id: video.id,
+                file: this.state.file,
+                selfHost: false
+              })}
           >
-            <input
-              className="form__field"
-              type="file"
-              onChange={this.setFile}
-              disabled={!canUploadToYouTube || this.props.uploading}
-              accept="video/*,.mxf"
-            />
-            <button
-              type="button"
-              className="btn button__secondary__assets"
-              disabled={!canUploadToYouTube || this.props.uploading || !this.state.file}
-              onClick={() =>
-                startUpload({
-                  id: video.id,
-                  file: this.state.file,
-                  selfHost: false
-                })}
-            >
-              <Icon icon="backup">
-                Upload To YouTube
-              </Icon>
-            </button>
-          </ManagedForm>
+            <Icon icon="backup">
+              Upload To YouTube
+            </Icon>
+          </button>
         </div>
       </div>
     );
