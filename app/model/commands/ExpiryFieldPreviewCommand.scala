@@ -34,34 +34,42 @@ case class ExpiryFieldPreviewCommand(override val stores: DataStores, user: Pand
   }
 
   def reIndex(atom: MediaAtom) = {
-    log.info(s"Request to update atom ${atom.id}")
     val expiry: Option[DateTime] = atom.expiryDate.map(expiry => new DateTime(expiry))
 
-    val details = atom.contentChangeDetails.copy(
-      expiry = expiry.map(ChangeRecord.build(_, user)),
-      revision = atom.contentChangeDetails.revision + 1
-    )
-    val thrift = atom.copy(contentChangeDetails = details).asThrift
+    expiry match {
+      case Some(_) => {
+        log.info(s"Request to update atom ${atom.id}")
+
+        val details = atom.contentChangeDetails.copy(
+          expiry = expiry.map(ChangeRecord.build(_, user)),
+          revision = atom.contentChangeDetails.revision + 1
+        )
+        val thrift = atom.copy(contentChangeDetails = details).asThrift
 
 
-    previewDataStore.updateAtom(thrift).fold(
-      err => {
-        log.error(s"Unable to update atom ${atom.id}", err)
-        AtomUpdateFailed(err.msg)
-      },
-      _ => {
-        val event = ContentAtomEvent(thrift, EventType.Update, new Date().getTime)
+        previewDataStore.updateAtom(thrift).fold(
+          err => {
+            log.error(s"Unable to update atom ${atom.id}", err)
+            AtomUpdateFailed(err.msg)
+          },
+          _ => {
+            val event = ContentAtomEvent(thrift, EventType.Update, new Date().getTime)
 
-        previewPublisher.publishAtomEvent(event) match {
-          case Success(_) => {
-            log.info(s"Successfully updated atom ${atom.id}")
-            MediaAtom.fromThrift(thrift)
+            previewPublisher.publishAtomEvent(event) match {
+              case Success(_) => {
+                log.info(s"Successfully updated atom ${atom.id}")
+                MediaAtom.fromThrift(thrift)
+              }
+              case Failure(err) =>
+                log.error(s"Unable to publish updated atom ${atom.id}", err)
+                AtomPublishFailed(s"could not publish: ${err.toString}")
+            }
           }
-          case Failure(err) =>
-            log.error(s"Unable to publish updated atom ${atom.id}", err)
-            AtomPublishFailed(s"could not publish: ${err.toString}")
-        }
+        )
       }
-    )
+      case None => {
+        atom
+      }
+    }
   }
 }
