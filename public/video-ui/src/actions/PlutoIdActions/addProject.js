@@ -1,4 +1,4 @@
-import PlutoVideosApi from '../../services/PlutoVideosApi';
+import VideosApi from '../../services/VideosApi';
 
 function requestAddProject() {
   return {
@@ -7,10 +7,10 @@ function requestAddProject() {
   };
 }
 
-function receiveAddProject(videoId) {
+function receiveAddProject(video) {
   return {
     type: 'ADD_PROJECT_RECEIVE',
-    videoId: videoId,
+    video: video,
     receivedAt: Date.now()
   };
 }
@@ -27,10 +27,9 @@ function errorReceivingAddProject(error) {
 export function addProject(video) {
   return dispatch => {
     dispatch(requestAddProject());
-    return PlutoVideosApi.sendToPluto(video.id, video.plutoProjectId)
-      .then(() => {
-        dispatch(receiveAddProject(video.id));
-      })
+
+    return VideosApi.saveVideo(video.id, video)
+      .then(() => dispatch(receiveAddProject(video)))
       .catch(error => dispatch(errorReceivingAddProject(error)));
   };
 }

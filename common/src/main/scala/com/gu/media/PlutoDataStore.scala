@@ -1,16 +1,16 @@
 package com.gu.media
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
-import com.gu.media.model.PlutoSyncMetadata
+import com.gu.media.model.PlutoSyncMetadataMessage
 import com.gu.scanamo.syntax._
 import com.gu.scanamo.{Scanamo, Table}
 
 
 class PlutoDataStore(client: AmazonDynamoDBClient, dynamoTableName: String) {
 
-  val table = Table[PlutoSyncMetadata](dynamoTableName)
+  val table = Table[PlutoSyncMetadataMessage](dynamoTableName)
 
-  def getUploadsWithAtomId(id: String): List[PlutoSyncMetadata] = {
+  def getUploadsWithAtomId(id: String): List[PlutoSyncMetadataMessage] = {
     val atomIdIndex = table.index("atom-id")
     val results = Scanamo.exec(client)(atomIdIndex.query('atomId -> id))
 
@@ -22,7 +22,7 @@ class PlutoDataStore(client: AmazonDynamoDBClient, dynamoTableName: String) {
     results.collect { case Right(result) => result }
   }
 
-  def get(id: String): Option[PlutoSyncMetadata] = {
+  def get(id: String): Option[PlutoSyncMetadataMessage] = {
     val operation = table.get('id -> id)
     val result = Scanamo.exec(client)(operation)
 
@@ -32,7 +32,7 @@ class PlutoDataStore(client: AmazonDynamoDBClient, dynamoTableName: String) {
     }
   }
 
-  def list(): List[PlutoSyncMetadata] = {
+  def list(): List[PlutoSyncMetadataMessage] = {
     val operation = table.scan()
     val allResults = Scanamo.exec(client)(operation)
 
@@ -44,7 +44,7 @@ class PlutoDataStore(client: AmazonDynamoDBClient, dynamoTableName: String) {
     allResults.collect { case Right(result) => result}
   }
 
-  def put(item: PlutoSyncMetadata) = {
+  def put(item: PlutoSyncMetadataMessage) = {
     val result = Scanamo.put(client)(dynamoTableName)(item)
   }
 

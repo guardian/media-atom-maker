@@ -10,7 +10,7 @@ import com.gu.media.youtube.YouTubeClaims
 import com.gu.media.Capi
 import com.gu.pandahmac.HMACAuthActions
 import util.{ActivateAssetRequest, YouTube}
-import com.gu.media.model.{MediaAtom, MediaAtomBeforeCreation, PlutoSyncMetadata}
+import com.gu.media.model.{MediaAtom, MediaAtomBeforeCreation, PlutoSyncMetadataMessage}
 import com.gu.media.util.{MediaAtomHelpers, MediaAtomImplicits}
 import data.DataStores
 import model.commands.CommandExceptions._
@@ -71,7 +71,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
   }
 
   def publishMediaAtom(id: String) = APIHMACAuthAction.async(parse.empty) { implicit req =>
-      val command = PublishAtomCommand(id, stores, youtube, req.user, capi, permissions)
+      val command = PublishAtomCommand(id, stores, youtube, req.user, capi, permissions, awsConfig)
 
       val updatedAtom: Future[MediaAtom] = command.process()
 
@@ -101,7 +101,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
 
   def updateMediaAtom(id: String) = APIAuthAction { implicit req =>
     parse(req) { atom: MediaAtom =>
-      val command = UpdateAtomCommand(id, atom, stores, req.user)
+      val command = UpdateAtomCommand(id, atom, stores, req.user, awsConfig)
       val updatedAtom = command.process()
 
       Ok(Json.toJson(updatedAtom))
@@ -111,7 +111,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
   def addAsset(atomId: String) = APIAuthAction { implicit req =>
     implicit val readCommand: Reads[AddAssetCommand] =
       (JsPath \ "uri").read[String].map { videoUri =>
-        AddAssetCommand(atomId, videoUri, stores, youtube, req.user)
+        AddAssetCommand(atomId, videoUri, stores, youtube, req.user, awsConfig)
       }
 
     parse(req) { command: AddAssetCommand =>
@@ -125,7 +125,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
 
   def setActiveAsset(atomId: String) = APIAuthAction { implicit req =>
     parse(req) { request: ActivateAssetRequest =>
-      val command = ActiveAssetCommand(atomId, request, stores, youtube, req.user)
+      val command = ActiveAssetCommand(atomId, request, stores, youtube, req.user, awsConfig)
       val atom = command.process()
 
       Ok(Json.toJson(atom))
@@ -148,16 +148,18 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
 
   def getPlutoAtoms = APIAuthAction {  implicit req =>
 
-    val unprocessedAssetResponses: List[PlutoSyncMetadata] = stores.pluto.list()
+    val unprocessedAssetResponses: List[PlutoSyncMetadataMessage] = stores.pluto.list()
 
     val uploadsWithoutPlutoId = unprocessedAssetResponses.foldRight(Map[String, MediaAtom]())((upload, acc) => {
       if (!acc.contains(upload.atomId)) {
         previewDataStore.getAtom(upload.atomId) match {
           case Right(atom) => {
             val mediaAtom = MediaAtom.fromThrift(atom)
+
             mediaAtom.plutoData match {
+              case Some(plutoData) if plutoData.projectId.isEmpty => acc ++ Map(upload.atomId -> mediaAtom)
+              case Some(_) => acc
               case None => acc ++ Map(upload.atomId -> mediaAtom)
-              case Some(string) => acc
             }
           }
           case Left(error) => {
@@ -168,21 +170,6 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
       } else acc
     }).values
     Ok(Json.toJson(uploadsWithoutPlutoId))
-  }
-
-  def sendToPluto(id: String) = APIAuthAction { implicit req =>
-
-    implicit val readCommand: Reads[AddPlutoProjectCommand] =
-
-      (JsPath \ "plutoId").read[String].map { plutoId =>
-        new AddPlutoProjectCommand(id, plutoId, stores, req.user, awsConfig)
-      }
-
-    parse(req) { command: AddPlutoProjectCommand =>
-      command.process()
-      Ok("Added pluto project to atom")
-
-    }
   }
 
   def uploadPacFile(id: String) = APIAuthAction(parse.multipartFormData) { request =>

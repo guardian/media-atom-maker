@@ -6,30 +6,48 @@ import com.gu.media.upload.CompleteUploadKey
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
 
-sealed trait PlutoIntegrationData {
+sealed trait PlutoIntegrationMessage {
   val `type`: String
   val atomId: String
   def partitionKey: String
 }
 
-case class PacFileData (
+case class AtomAssignedProjectMessage(
+  `type`: String,
+  atomId: String,
+  commissionId: String,
+  projectId: String
+) extends PlutoIntegrationMessage {
+  override def partitionKey: String = atomId
+}
+
+object AtomAssignedProjectMessage {
+  implicit val format: Format[AtomAssignedProjectMessage] = Jsonx.formatCaseClass[AtomAssignedProjectMessage]
+
+  def build(atom: MediaAtom): AtomAssignedProjectMessage = {
+    val plutoData = atom.plutoData.get
+    AtomAssignedProjectMessage("project-assigned", atom.id, plutoData.commissionId.get, plutoData.projectId.get)
+  }
+}
+
+case class PacFileMessage(
   `type`: String,
   atomId: String,
   s3Bucket: String,
   s3Path: String
-) extends PlutoIntegrationData {
+) extends PlutoIntegrationMessage {
   override def partitionKey: String = s3Path
 }
 
-object PacFileData {
-  implicit val format: Format[PacFileData] = Jsonx.formatCaseClass[PacFileData]
+object PacFileMessage {
+  implicit val format: Format[PacFileMessage] = Jsonx.formatCaseClass[PacFileMessage]
 
-  def build(atom: MediaAtom, putRequest: PutObjectRequest): PacFileData = {
-    PacFileData("pac-file-upload", atom.id, putRequest.getBucketName, putRequest.getKey)
+  def build(atom: MediaAtom, putRequest: PutObjectRequest): PacFileMessage = {
+    PacFileMessage("pac-file-upload", atom.id, putRequest.getBucketName, putRequest.getKey)
   }
 }
 
-case class PlutoSyncMetadata (
+case class PlutoSyncMetadataMessage(
   `type`: String,
   enabled: Boolean,
   projectId: Option[String],
@@ -38,15 +56,15 @@ case class PlutoSyncMetadata (
   title: String,
   user: String,
   posterImageUrl: Option[String]
-) extends PlutoIntegrationData {
+) extends PlutoIntegrationMessage {
   override def partitionKey: String = s3Key
 }
 
-object PlutoSyncMetadata {
-  implicit val format: Format[PlutoSyncMetadata] = Jsonx.formatCaseClass[PlutoSyncMetadata]
+object PlutoSyncMetadataMessage {
+  implicit val format: Format[PlutoSyncMetadataMessage] = Jsonx.formatCaseClass[PlutoSyncMetadataMessage]
 
-  def build(uploadId: String, atom: MediaAtom, awsAccess: AwsAccess with UploadAccess, email: String): PlutoSyncMetadata = {
-    PlutoSyncMetadata(
+  def build(uploadId: String, atom: MediaAtom, awsAccess: AwsAccess with UploadAccess, email: String): PlutoSyncMetadataMessage = {
+    PlutoSyncMetadataMessage(
       "video-upload",
       awsAccess.syncWithPluto,
       atom.plutoData.flatMap(_.projectId),
@@ -59,6 +77,6 @@ object PlutoSyncMetadata {
   }
 }
 
-object PlutoIntegrationData {
-  implicit val format: Format[PlutoIntegrationData] = Jsonx.formatSealed[PlutoIntegrationData]
+object PlutoIntegrationMessage {
+  implicit val format: Format[PlutoIntegrationMessage] = Jsonx.formatSealed[PlutoIntegrationMessage]
 }

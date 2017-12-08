@@ -10,7 +10,6 @@ POST    /api2/atom/:id/pac-file         controllers.Api2.uploadPacFile(id)
 PUT     /api2/atom/:id/publish          controllers.Api2.publishMediaAtom(id)
 PUT     /api2/atom/:id/asset-active     controllers.Api2.setActiveAsset(id)
 
-PUT     /api2/atoms/:id/pluto           controllers.Api2.sendToPluto(id)
 GET     /api2/atoms/pluto/missing       controllers.Api2.getPlutoAtoms()
 
 DELETE  /api2/atom/:id                  controllers.Api2.deleteAtom(id)

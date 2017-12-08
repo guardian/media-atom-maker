@@ -2,14 +2,14 @@ package com.gu.media.upload.model
 
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
-import com.gu.media.model.{PlutoSyncMetadata, VideoAsset}
+import com.gu.media.model.{PlutoSyncMetadataMessage, VideoAsset}
 
 case class UploadMetadata(
   user: String,
   bucket: String,
   region: String,
   title: String,
-  pluto: PlutoSyncMetadata,
+  pluto: PlutoSyncMetadataMessage,
   runtime: RuntimeUploadMetadata,
   version: Option[Long] = None,
   selfHost: Boolean = false,

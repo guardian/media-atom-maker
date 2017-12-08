@@ -17,7 +17,7 @@ import model._
 import model.commands.CommandExceptions._
 import org.jsoup.Jsoup
 import play.api.libs.json.JsValue
-import util.YouTube
+import util.{AWSConfig, YouTube}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -29,7 +29,8 @@ case class PublishAtomCommand(
   youtube: YouTube,
   user: PandaUser,
   capi: Capi,
-  permissions: MediaAtomMakerPermissionsProvider)
+  permissions: MediaAtomMakerPermissionsProvider,
+  awsConfig: AWSConfig)
   extends Command with AtomAPIActions with Logging {
 
   type T = Future[MediaAtom]
@@ -126,7 +127,7 @@ case class PublishAtomCommand(
     )
 
     auditDataStore.auditPublish(id, getUsername(user))
-    UpdateAtomCommand(id, updatedAtom, stores, user).process()
+    UpdateAtomCommand(id, updatedAtom, stores, user, awsConfig).process()
 
     val publishedAtom = publishAtomToLive(updatedAtom)
     updateInactiveAssets(publishedAtom)
