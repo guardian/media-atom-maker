@@ -21,16 +21,12 @@ class SchedulerLambda extends RequestHandler[Unit, Unit]
   with YouTubeAccess
   with YouTubeVideos {
 
-  def scheduleInParallel = true // disabled in unit tests
-
   override def handleRequest(input: Unit, context: Context): Unit = {
     val now = Instant.now()
     val oneDayAgo = Instant.now().minus(1, ChronoUnit.DAYS)
     val assets = getVideosFromScheduledAtoms(1, 100, oneDayAgo, now, Set.empty).filter(isManagedVideo)
 
-    val toLaunch = if(scheduleInParallel) { assets.par } else { assets }
-
-    toLaunch.foreach { video =>
+    assets.foreach { video =>
       try {
         setStatus(video, PrivacyStatus.Public)
       } catch {
@@ -42,7 +38,7 @@ class SchedulerLambda extends RequestHandler[Unit, Unit]
 
   @tailrec
   private def getVideosFromScheduledAtoms(page: Int, pageSize: Int, oneDayAgo: Instant, now: Instant, before: Set[String]): Set[String] = {
-    val url = s"atoms?types=media&page-size=$pageSize&from-date=$oneDayAgo&to-date=$now&use-date=scheduled-launch"
+    val url = s"atoms?types=media&page-size=$pageSize&page=$page&from-date=$oneDayAgo&to-date=$now&use-date=scheduled-launch"
     val response = (capiQuery(url) \ "response").get
     val currentPage = (response \ "currentPage").as[Int]
     val pages = (response \ "pages").as[Int]
@@ -58,22 +54,17 @@ class SchedulerLambda extends RequestHandler[Unit, Unit]
 
   private def getScheduledVideos(atom: JsValue): Set[String] = {
     val scheduledLaunchDate = (atom \ "contentChangeDetails" \ "scheduledLaunch" \ "date").as[Long]
+    val embargoDate = (atom \ "contentChangeDetails" \ "embargo" \ "date").asOpt[Long].getOrElse(Long.MinValue)
 
-    (atom \ "contentChangeDetails" \ "embargo" \ "date").asOpt[Long] match {
-      case Some(embargoDate) if embargoDate < scheduledLaunchDate =>
-        val assets = (atom \ "data" \ "media" \ "assets").as[JsArray]
-        val videos = assets.value.filter { asset => (asset \ "platform").as[String] == "youtube" }
-        val ids = videos.map { asset => (asset \ "id").as[String] }
+    if (embargoDate < scheduledLaunchDate) {
+      val assets = (atom \ "data" \ "media" \ "assets").as[JsArray]
+      val videos = assets.value.filter { asset => (asset \ "platform").as[String] == "youtube" }
+      val ids = videos.map { asset => (asset \ "id").as[String] }
 
-        ids.toSet
-      case None =>
-        val assets = (atom \ "data" \ "media" \ "assets").as[JsArray]
-        val videos = assets.value.filter { asset => (asset \ "platform").as[String] == "youtube" }
-        val ids = videos.map { asset => (asset \ "id").as[String] }
-
-        ids.toSet
-      case _ =>
-        Set.empty
+      ids.toSet
+    } else {
+      Set.empty
     }
+
   }
 }

@@ -59,8 +59,6 @@ class SchedulerLambdaTest extends FunSuite with MustMatchers {
   class TestSchedulerLambda(var capiResults: List[String], isMyVideo: Boolean = true) extends SchedulerLambda with TestSettings {
     var madePublic = List.empty[String]
 
-    override def scheduleInParallel = false
-
     override def capiQuery(query: String, isLive: Boolean = false): JsValue = {
       val ret = capiResults.head
       capiResults = capiResults.tail
