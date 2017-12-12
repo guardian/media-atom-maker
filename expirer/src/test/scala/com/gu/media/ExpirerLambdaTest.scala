@@ -43,7 +43,7 @@ class ExpirerLambdaTest extends FunSuite with MustMatchers {
   class TestExpirerLambda(var capiResults: List[String], isMyVideo: Boolean = true) extends ExpirerLambda with TestSettings {
     var madePrivate = List.empty[String]
 
-    override def capiQuery(query: String, isLive: Boolean = false): JsValue = {
+    override def capiQuery(path: String, qs: Map[String, String], queryLive: Boolean = false): JsValue = {
       val ret = capiResults.head
       capiResults = capiResults.tail
 

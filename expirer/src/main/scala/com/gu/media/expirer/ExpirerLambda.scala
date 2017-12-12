@@ -38,9 +38,17 @@ class ExpirerLambda extends RequestHandler[Unit, Unit]
   }
 
   @tailrec
-  private def getVideosFromExpiredAtoms(page: Int, pageSize: Int, oneDayAgo: Instant, now: Instant, before: Set[String]): Set[String] = {
-    val url = s"atoms?types=media&page-size=$pageSize&page=$page&from-date=$oneDayAgo&to-date=$now&use-date=expiry"
-    val response = (capiQuery(url) \ "response").get
+  private def getVideosFromExpiredAtoms(page: Int, pageSize: Int, fromDate: Instant, toDate: Instant, before: Set[String]): Set[String] = {
+    val qs: Map[String, String] = Map(
+      "types" -> "media",
+      "page-size" -> pageSize.toString,
+      "page" -> page.toString,
+      "from-date" -> fromDate.toString,
+      "to-date" -> toDate.toString,
+      "use-date" -> "expiry"
+    )
+
+    val response = (capiQuery("atoms", qs) \ "response").get
     val currentPage = (response \ "currentPage").as[Int]
     val pages = (response \ "pages").as[Int]
 
@@ -48,7 +56,7 @@ class ExpirerLambda extends RequestHandler[Unit, Unit]
     val after = results.foldLeft(before) { (acc, atom) => acc ++ getExpiredVideos(atom) }
 
     if(currentPage < pages)
-      getVideosFromExpiredAtoms(page + 1, pageSize, oneDayAgo, now, after)
+      getVideosFromExpiredAtoms(page + 1, pageSize, fromDate, toDate, after)
     else
       after
   }

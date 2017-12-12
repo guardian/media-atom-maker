@@ -9,10 +9,10 @@ class Support(val authActions: HMACAuthActions, val capi: CapiAccess) extends Co
   import authActions.APIAuthAction
 
   def capiProxy(path: String, queryLive: Boolean) = APIAuthAction { request =>
-    val query = s"$path?${request.rawQueryString}"
+    val qs: Map[String, Seq[String]] = request.queryString
 
     try {
-      val result = capi.capiQuery(query, queryLive)
+      val result = capi.complexCapiQuery(path, qs, queryLive)
       Ok(result)
     } catch {
       case CapiException(err, _) =>
