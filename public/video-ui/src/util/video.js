@@ -107,4 +107,9 @@ export default class VideoUtils {
   static canUploadToYouTube({ youtubeCategoryId, channelId, privacyStatus }) {
     return !!youtubeCategoryId && !!channelId && !!privacyStatus;
   }
+
+  static getEmbargo({ contentChangeDetails }) {
+    const embargo = contentChangeDetails.embargo;
+    return embargo ? moment(embargo.date) : null;
+  }
 }

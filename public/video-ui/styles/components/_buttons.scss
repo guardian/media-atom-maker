@@ -46,6 +46,11 @@ button {
     margin-left: 5px;
     padding: 7px;
   }
+  
+  &--list {
+    width: 80px;
+    padding: 7px;
+  }
 }
 
 .btn + .btn {
