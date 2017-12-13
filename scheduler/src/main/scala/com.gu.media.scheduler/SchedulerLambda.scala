@@ -1,6 +1,5 @@
 package com.gu.media.scheduler
 
-import java.net.URI
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -20,7 +19,7 @@ class SchedulerLambda extends RequestHandler[Unit, Unit]
   with Logging
   with CapiAccess {
 
-  private val hmacClient = new HMACClient("media-atom-expirer-lambda", this)
+  private val hmacClient = new HMACClient("media-atom-scheduler-lambda", this)
 
   override def handleRequest(input: Unit, context: Context): Unit = {
     val now = Instant.now()

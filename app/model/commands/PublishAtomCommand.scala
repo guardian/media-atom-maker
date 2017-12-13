@@ -91,7 +91,7 @@ case class PublishAtomCommand(
   private def getPrivacyStatus(previewAtom: MediaAtom) = {
     val privacyStatus: Future[PrivacyStatus] = (previewAtom.channelId, previewAtom.privacyStatus) match {
       case (Some(channel), Some(status)) if youtube.unlistedWithoutPermissionChannels.contains(channel) && status == PrivacyStatus.Public => {
-        permissions.getStatusPermissions(user.email).map(permissions => {
+        permissions.getStatusPermissions(user).map(permissions => {
           val hasMakePublicPermission = permissions.setVideosOnAllChannelsPublic
 
           if (hasMakePublicPermission) {
