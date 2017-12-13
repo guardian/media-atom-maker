@@ -88,10 +88,6 @@ export default class VideoPublishBar extends React.Component {
       return;
     }
 
-    if (this.props.query.showScheduler !== 'true') {
-      return;
-    }
-    
     return (
       <ScheduledLaunch
         video={this.props.video}
