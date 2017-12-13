@@ -45,44 +45,66 @@ case class PublishAtomCommand(
       AtomPublishFailed("Atom status set to private")
     }
 
-    getActiveAsset(previewAtom) match {
-      case Some(asset) if asset.platform == Youtube =>
-        val duration = youtube.getDuration(asset.id)
+    val contentChangeDetails = thriftPreviewAtom.contentChangeDetails
+    val now = Instant.now().toEpochMilli
 
-        val blockAds = previewAtom.category match {
-          case Category.Hosted | Category.Paid => {
-            true
-          }
-          case _ => {
-            if (duration.getOrElse(0L) < youtube.minDurationForAds) true else previewAtom.blockAds
-          }
-        }
+    (contentChangeDetails.scheduledLaunch, contentChangeDetails.embargo) match {
+      case (_, Some(embargo)) => {
+        log.error(s"Unable to publish atom with embargo date. atom=${previewAtom.id} embargo=${embargo.date}")
+        AtomPublishFailed("Atom embargoed")
+      }
+      case (Some(schedule), _) if schedule.date > now => {
+        log.error(s"Unable to publish atom as schedule time in the future. atom=${previewAtom.id} schedule=${schedule.date} now=$now")
+        AtomPublishFailed("Atom scheduled for the future")
+      }
+      case (Some(schedule), Some(embargo)) if schedule.date < embargo.date => {
+        log.error(s"Unable to publish atom as embargoed after schedule. atom=${previewAtom.id} schedule=${schedule.date} embargo=${embargo.date}")
+        AtomPublishFailed("Embargo set after schedule")
+      }
+      case (_, _) => {
+        getActiveAsset(previewAtom) match {
+          case Some(asset) if asset.platform == Youtube =>
+            val duration = youtube.getDuration(asset.id)
+            val blockAds = getBlockAds(previewAtom, duration)
+            val privacyStatus: Future[PrivacyStatus] = getPrivacyStatus(previewAtom)
 
-        val privacyStatus: Future[PrivacyStatus] = (previewAtom.channelId, previewAtom.privacyStatus) match {
-          case (Some(channel), Some(status)) if youtube.unlistedWithoutPermissionChannels.contains(channel) && status == PrivacyStatus.Public => {
-            permissions.getStatusPermissions(user.email).map(permissions => {
-              val hasMakePublicPermission = permissions.setVideosOnAllChannelsPublic
-
-              if (hasMakePublicPermission){
-                PrivacyStatus.Public
-              } else {
-                log.info(s"User ${user.email} does not have permission to publish atom ${previewAtom.id} as Public, setting as Unlisted")
-                PrivacyStatus.Unlisted
-              }
+            privacyStatus.flatMap(status => {
+              val updatedPreviewAtom = previewAtom.copy(duration = duration, blockAds = blockAds, privacyStatus = Some(status))
+              updateYouTube(updatedPreviewAtom, asset).map(atomWithYoutubeUpdates => {
+                publish(atomWithYoutubeUpdates, user)
+              })
             })
-          }
-          case (_, _) => Future.successful(previewAtom.privacyStatus.getOrElse(PrivacyStatus.Unlisted))
+          case _ => Future.successful(publish(previewAtom, user))
         }
-
-        privacyStatus.flatMap(status => {
-          val updatedPreviewAtom = previewAtom.copy(duration = duration, blockAds = blockAds, privacyStatus = Some(status))
-          updateYouTube(updatedPreviewAtom, asset).map(atomWithYoutubeUpdates => {
-            publish(atomWithYoutubeUpdates, user)
-          })
-        })
-      case _ =>
-        Future.successful(publish(previewAtom, user))
+      }
     }
+
+  }
+
+  private def getBlockAds(previewAtom: MediaAtom, duration: Option[Long]): Boolean = {
+    previewAtom.category match {
+      case Category.Hosted | Category.Paid => true
+      case _ => if (duration.getOrElse(0L) < youtube.minDurationForAds) true else previewAtom.blockAds
+    }
+  }
+
+  private def getPrivacyStatus(previewAtom: MediaAtom) = {
+    val privacyStatus: Future[PrivacyStatus] = (previewAtom.channelId, previewAtom.privacyStatus) match {
+      case (Some(channel), Some(status)) if youtube.unlistedWithoutPermissionChannels.contains(channel) && status == PrivacyStatus.Public => {
+        permissions.getStatusPermissions(user.email).map(permissions => {
+          val hasMakePublicPermission = permissions.setVideosOnAllChannelsPublic
+
+          if (hasMakePublicPermission) {
+            PrivacyStatus.Public
+          } else {
+            log.info(s"User ${user.email} does not have permission to publish atom ${previewAtom.id} as Public, setting as Unlisted")
+            PrivacyStatus.Unlisted
+          }
+        })
+      }
+      case (_, _) => Future.successful(previewAtom.privacyStatus.getOrElse(PrivacyStatus.Unlisted))
+    }
+    privacyStatus
   }
 
   private def publish(atom: MediaAtom, user: PandaUser): MediaAtom = {
