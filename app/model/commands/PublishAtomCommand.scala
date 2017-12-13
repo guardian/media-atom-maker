@@ -49,7 +49,7 @@ case class PublishAtomCommand(
     val now = Instant.now().toEpochMilli
 
     (contentChangeDetails.scheduledLaunch, contentChangeDetails.embargo) match {
-      case (_, Some(embargo)) => {
+      case (_, Some(embargo)) if embargo.date > now => {
         log.error(s"Unable to publish atom with embargo date. atom=${previewAtom.id} embargo=${embargo.date}")
         AtomPublishFailed("Atom embargoed")
       }
