@@ -1,14 +1,15 @@
 package com.gu.media.scheduler
 
+import java.net.URI
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
-import com.gu.contentatom.thrift.atom.media.PrivacyStatus
 import com.gu.media.CapiAccess
 import com.gu.media.lambda.LambdaBase
 import com.gu.media.logging.Logging
-import com.gu.media.youtube.{YouTubeAccess, YouTubeVideos}
+import com.gu.media.model.MediaAtom
+import com.gu.media.util.HMACClient
 import play.api.libs.json.{JsArray, JsValue}
 
 import scala.annotation.tailrec
@@ -17,54 +18,41 @@ import scala.util.control.NonFatal
 class SchedulerLambda extends RequestHandler[Unit, Unit]
   with LambdaBase
   with Logging
-  with CapiAccess
-  with YouTubeAccess
-  with YouTubeVideos {
+  with CapiAccess {
+
+  private val hmacClient = new HMACClient("media-atom-expirer-lambda", this)
 
   override def handleRequest(input: Unit, context: Context): Unit = {
     val now = Instant.now()
     val oneDayAgo = Instant.now().minus(1, ChronoUnit.DAYS)
-    val assets = getVideosFromScheduledAtoms(1, 100, oneDayAgo, now, Set.empty).filter(isManagedVideo)
+    val atomIds = getScheduledAtoms(1, 100, oneDayAgo, now, Set.empty)
 
-    assets.foreach { video =>
+    atomIds.foreach { atomId =>
       try {
-        setStatus(video, PrivacyStatus.Public)
+        val publishedAtom = hmacClient.put(buildUri(s"api2/atom/$atomId/publish")).as[MediaAtom]
+        log.info(s"Published scheduled atom. atom=${publishedAtom.id} scheduledLaunch=${publishedAtom.contentChangeDetails.scheduledLaunch.map(_.date)}")
       } catch {
         case NonFatal(err) =>
-          log.error(s"Unable to launch $video", err)
+          log.error(s"Unable to launch atom. atom=$atomId", err)
       }
     }
   }
 
   @tailrec
-  private def getVideosFromScheduledAtoms(page: Int, pageSize: Int, oneDayAgo: Instant, now: Instant, before: Set[String]): Set[String] = {
-    val url = s"atoms?types=media&page-size=$pageSize&page=$page&from-date=$oneDayAgo&to-date=$now&use-date=scheduled-launch"
+  private def getScheduledAtoms(page: Int, pageSize: Int, fromDate: Instant, toDate: Instant, accumulator: Set[String]): Set[String] = {
+    val url = s"atoms?types=media&page-size=$pageSize&page=$page&from-date=$fromDate&to-date=$toDate&use-date=scheduled-launch"
+
     val response = (capiQuery(url) \ "response").get
     val currentPage = (response \ "currentPage").as[Int]
     val pages = (response \ "pages").as[Int]
 
-    val results = (response \ "results").as[JsArray].value
-    val after = results.foldLeft(before) { (acc, atom) => acc ++ getScheduledVideos(atom) }
+    val results: Seq[JsValue] = (response \ "results").as[JsArray].value
+
+    val after = accumulator ++ results.map(js => (js \ "id").as[String])
 
     if(currentPage < pages)
-      getVideosFromScheduledAtoms(page + 1, pageSize, oneDayAgo, now, after)
+      getScheduledAtoms(page + 1, pageSize, fromDate, toDate, after)
     else
       after
-  }
-
-  private def getScheduledVideos(atom: JsValue): Set[String] = {
-    val scheduledLaunchDate = (atom \ "contentChangeDetails" \ "scheduledLaunch" \ "date").as[Long]
-    val embargoDate = (atom \ "contentChangeDetails" \ "embargo" \ "date").asOpt[Long].getOrElse(Long.MinValue)
-
-    if (embargoDate < scheduledLaunchDate) {
-      val assets = (atom \ "data" \ "media" \ "assets").as[JsArray]
-      val videos = assets.value.filter { asset => (asset \ "platform").as[String] == "youtube" }
-      val ids = videos.map { asset => (asset \ "id").as[String] }
-
-      ids.toSet
-    } else {
-      Set.empty
-    }
-
   }
 }

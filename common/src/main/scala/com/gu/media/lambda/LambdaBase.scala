@@ -5,10 +5,10 @@ import java.util.Locale
 
 import com.amazonaws.services.s3.AmazonS3Client
 import com.gu.media.Settings
-import com.gu.media.aws.{AwsAccess, AwsCredentials}
+import com.gu.media.aws.{AwsAccess, AwsCredentials, HMACSettings}
 import com.typesafe.config.{Config, ConfigFactory}
 
-trait LambdaBase extends Settings with AwsAccess {
+trait LambdaBase extends Settings with AwsAccess with HMACSettings {
   final override def regionName = sys.env.get("REGION")
   final override def readTag(tag: String) = sys.env.get(tag.toUpperCase(Locale.ENGLISH))
 
