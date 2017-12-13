@@ -70,7 +70,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
     }
   }
 
-  def publishMediaAtom(id: String) = APIHMACAuthAction.async { implicit req =>
+  def publishMediaAtom(id: String) = APIHMACAuthAction.async(parse.empty) { implicit req =>
       val command = PublishAtomCommand(id, stores, youtube, req.user, capi, permissions)
 
       val updatedAtom: Future[MediaAtom] = command.process()

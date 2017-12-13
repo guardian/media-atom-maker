@@ -39,7 +39,6 @@ class HMACClient(
   }
 
   def put(uri: URI): JsValue = {
-    // 🤢 a PUT request needs a body, even if it is empty
     val emptyBody = RequestBody.create(MediaType.parse("application/json"), Array.emptyByteArray)
     put(uri, emptyBody)
   }
