@@ -526,7 +526,7 @@ Resources:
                 Key: !FindInMap [LambdaBuilds, Scheduler, !Ref 'Stage']}]
             - !Sub ['arn:aws:s3:::${Bucket}/${Key}', {Bucket: !Ref 'ConfigBucket',
                 Key: !FindInMap [LambdaConfig, Scheduler, !Ref 'Stage']}]
-ExpirerLambda:
+  ExpirerLambda:
     Type: AWS::Lambda::Function
     Properties:
       Description: Expires atoms
@@ -582,20 +582,20 @@ ExpirerLambda:
         Role: !GetAtt [SchedulerRole, Arn]
         Runtime: java8
         Timeout: 300
-    SchedulerLambdaTrigger:
-      Type: AWS::Events::Rule
-      Properties:
-        ScheduleExpression: cron(0/15 * * * ? *)
-        Targets:
-        - Arn: !GetAtt [SchedulerLambda, Arn]
-          Id: SchedulerLambda
-    SchedulerLambdaPermission:
-      Type: AWS::Lambda::Permission
-      Properties:
-        Action: lambda:InvokeFunction
-        FunctionName: !Ref 'SchedulerLambda'
-        Principal: events.amazonaws.com
-        SourceArn: !GetAtt [SchedulerLambdaTrigger, Arn]
+  SchedulerLambdaTrigger:
+    Type: AWS::Events::Rule
+    Properties:
+      ScheduleExpression: cron(0/15 * * * ? *)
+      Targets:
+      - Arn: !GetAtt [SchedulerLambda, Arn]
+        Id: SchedulerLambda
+  SchedulerLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref 'SchedulerLambda'
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt [SchedulerLambdaTrigger, Arn]
   MediaAtomMakerLoadBalancer:
     Type: AWS::ElasticLoadBalancing::LoadBalancer
     Properties:
