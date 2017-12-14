@@ -20,7 +20,7 @@ export default class YoutubeUpload extends React.Component {
   renderWarning() {
     return (
       <span className="form__message form__message--warning">
-        A YouTube channel and category need to be set before uploading a video
+        A YouTube channel, category and privacy status are needed before uploading a video
       </span>
     );
   }
