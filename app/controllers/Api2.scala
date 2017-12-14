@@ -34,7 +34,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
     with JsonRequestParsing
     with Logging {
 
-  import authActions.{APIAuthAction, APIHMACAuthAction}
+  import authActions.APIAuthAction
 
   def allowCORSAccess(methods: String, args: Any*) = CORSable(awsConfig.workflowUrl) {
     Action { implicit req =>
@@ -48,7 +48,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
     Ok(Json.toJson(atoms))
   }
 
-  def getMediaAtom(id: String) = APIHMACAuthAction {
+  def getMediaAtom(id: String) = APIAuthAction {
     try {
       val atom = getPreviewAtom(id)
       Ok(Json.toJson(MediaAtom.fromThrift(atom)))
@@ -99,7 +99,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
       }
     }
 
-  def putMediaAtom(id: String) = APIHMACAuthAction { implicit req =>
+  def updateMediaAtom(id: String) = APIAuthAction { implicit req =>
     parse(req) { atom: MediaAtom =>
       val command = UpdateAtomCommand(id, atom, stores, req.user)
       val updatedAtom = command.process()
@@ -108,7 +108,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
     }
   }
 
-  def addAsset(atomId: String) = APIHMACAuthAction { implicit req =>
+  def addAsset(atomId: String) = APIAuthAction { implicit req =>
     implicit val readCommand: Reads[AddAssetCommand] =
       (JsPath \ "uri").read[String].map { videoUri =>
         AddAssetCommand(atomId, videoUri, stores, youtube, req.user)
@@ -123,7 +123,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
 
   private def atomUrl(id: String) = s"/atom/$id"
 
-  def setActiveAsset(atomId: String) = APIHMACAuthAction { implicit req =>
+  def setActiveAsset(atomId: String) = APIAuthAction { implicit req =>
     parse(req) { request: ActivateAssetRequest =>
       val command = ActiveAssetCommand(atomId, request, stores, youtube, req.user)
       val atom = command.process()
