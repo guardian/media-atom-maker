@@ -116,7 +116,9 @@ case class PublishAtomCommand(
       contentChangeDetails = atom.contentChangeDetails.copy(
         published = changeRecord,
         lastModified = changeRecord,
-        revision = atom.contentChangeDetails.revision + 1
+        revision = atom.contentChangeDetails.revision + 1,
+        scheduledLaunch = None,
+        embargo = None
       )
     )
 
