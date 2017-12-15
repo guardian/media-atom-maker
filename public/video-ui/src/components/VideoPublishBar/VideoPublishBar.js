@@ -83,8 +83,16 @@ export default class VideoPublishBar extends React.Component {
     );
   }
 
-  renderScheduler = () =>
-    this.props.query.showScheduler === 'true' && (
+  renderScheduler() {
+    if (isVideoPublished(this.props.publishedVideo)) {
+      return;
+    }
+
+    if (this.props.query.showScheduler !== 'true') {
+      return;
+    }
+    
+    return (
       <ScheduledLaunch
         video={this.props.video}
         videoEditOpen={this.props.videoEditOpen}
@@ -92,6 +100,7 @@ export default class VideoPublishBar extends React.Component {
         hasPublishedVideoUsages={this.hasPublishedVideoUsages}
       />
     );
+  }
 
   render() {
     if (!this.props.video) {
