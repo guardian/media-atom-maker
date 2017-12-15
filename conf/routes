@@ -3,7 +3,7 @@ POST    /api2/atoms                     controllers.Api2.createMediaAtom
 GET     /api2/atoms                     controllers.Api2.getMediaAtoms(search: Option[String], limit: Option[Int])
 GET     /api2/atoms/:id/published       controllers.Api2.getPublishedMediaAtom(id)
 GET     /api2/atoms/:id                 controllers.Api2.getMediaAtom(id)
-PUT     /api2/atoms/:id                 controllers.Api2.putMediaAtom(id)
+PUT     /api2/atoms/:id                 controllers.Api2.updateMediaAtom(id)
 POST    /api2/atoms/:id/assets          controllers.Api2.addAsset(id)
 POST    /api2/atom/:id/pac-file         controllers.Api2.uploadPacFile(id)
 
