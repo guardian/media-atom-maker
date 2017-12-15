@@ -124,11 +124,23 @@ lazy val expirer = (project in file("expirer"))
 
   )
 
+lazy val scheduler = (project in file("scheduler"))
+  .dependsOn(common % "compile->compile;test->test")
+  .enablePlugins(JavaAppPackaging)
+  .settings(commonSettings,
+    name := "media-atom-scheduler",
+    libraryDependencies ++= Dependencies.expirerDependencies,
+
+    topLevelDirectory in Universal := None,
+    packageName in Universal := normalizedName.value
+
+  )
+
 val jsTargetDir = "target/riffraff/packages"
 val plutoMessageIngestion = "pluto-message-ingestion"
 
 lazy val root = (project in file("root"))
-  .aggregate(common, app, uploader, expirer)
+  .aggregate(common, app, uploader, expirer, scheduler)
   .enablePlugins(RiffRaffArtifact)
   .settings(
     riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
@@ -138,6 +150,7 @@ lazy val root = (project in file("root"))
       (packageBin in Debian in app).value -> s"${(name in app).value}/${(name in app).value}.deb",
       (packageBin in Universal in uploader).value -> s"media-atom-upload-actions/${(packageBin in Universal in uploader).value.getName}",
       (packageBin in Universal in expirer).value -> s"${(name in expirer).value}/${(packageBin in Universal in expirer).value.getName}",
+      (packageBin in Universal in scheduler).value -> s"${(name in scheduler).value}/${(packageBin in Universal in scheduler).value.getName}",
       (baseDirectory in Global in app).value / s"$plutoMessageIngestion/$jsTargetDir/$plutoMessageIngestion/$plutoMessageIngestion.zip" -> s"$plutoMessageIngestion/$plutoMessageIngestion.zip",
       (baseDirectory in Global in app).value / "conf/riff-raff.yaml" -> "riff-raff.yaml",
       (resourceManaged in Compile in uploader).value / "media-atom-pipeline.yaml" -> "media-atom-pipeline-cloudformation/media-atom-pipeline.yaml"

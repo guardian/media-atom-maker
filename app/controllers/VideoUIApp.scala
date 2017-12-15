@@ -37,7 +37,7 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
 
     val composerUrl = awsConfig.composerUrl
 
-    permissions.getAll(req.user.email).map { permissions =>
+    permissions.getAll(req.user).map { permissions =>
       val clientConfig = ClientConfig(
         presence = presenceConfig(req.user),
         youtubeEmbedUrl = "https://www.youtube.com/embed/",

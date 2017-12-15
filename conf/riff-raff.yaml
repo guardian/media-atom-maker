@@ -26,6 +26,11 @@ deployments:
     parameters:
       functionNames: [media-atom-maker-expirer-]
       fileName: media-atom-expirer.zip
+  media-atom-scheduler:
+    template: lambda
+    parameters:
+      functionNames: [media-atom-maker-scheduler-]
+      fileName: media-atom-scheduler.zip
   pluto-message-ingestion:
     template: lambda
     parameters:

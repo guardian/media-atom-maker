@@ -100,11 +100,17 @@ Mappings:
     Expirer:
       CODE: media-service/CODE/media-atom-expirer/media-atom-expirer.zip
       PROD: media-service/PROD/media-atom-expirer/media-atom-expirer.zip
+    Scheduler:
+      CODE: media-service/CODE/media-atom-scheduler/media-atom-scheduler.zip
+      PROD: media-service/PROD/media-atom-scheduler/media-atom-scheduler.zip
     PlutoMessageIngestion:
       CODE: media-service/CODE/pluto-message-ingestion/pluto-message-ingestion.zip
       PROD: media-service/PROD/pluto-message-ingestion/pluto-message-ingestion.zip
   LambdaConfig:
     Expirer:
+      CODE: CODE/media-atom-maker.private.conf
+      PROD: PROD/media-atom-maker.private.conf
+    Scheduler:
       CODE: CODE/media-atom-maker.private.conf
       PROD: PROD/media-atom-maker.private.conf
 Resources:
@@ -401,6 +407,7 @@ Resources:
           Resource: '*'
       Roles:
       - !Ref 'ExpirerRole'
+      - !Ref 'SchedulerRole'
       - !Ref 'PlutoMessageIngestionRole'
   CrossAccountAccessPolicy:
     Type: AWS::IAM::Policy
@@ -485,29 +492,6 @@ Resources:
             - lambda.amazonaws.com
       Path: /
       Policies:
-      - PolicyName: UploaderPolicy
-        PolicyDocument:
-          Statement:
-          - Effect: Allow
-            Action:
-            - s3:GetObject
-            Resource:
-            - !Sub ['arn:aws:s3:::${Bucket}/${Key}', {Bucket: !Ref 'BuildBucket',
-                Key: !FindInMap [LambdaBuilds, Expirer, !Ref 'Stage']}]
-            - !Sub ['arn:aws:s3:::${Bucket}/${Key}', {Bucket: !Ref 'ConfigBucket',
-                Key: !FindInMap [LambdaConfig, Expirer, !Ref 'Stage']}]
-  ExpirerRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-        - Effect: Allow
-          Action: sts:AssumeRole
-          Principal:
-            Service:
-            - lambda.amazonaws.com
-      Path: /
-      Policies:
       - PolicyName: ExpirerPolicy
         PolicyDocument:
           Statement:
@@ -519,6 +503,29 @@ Resources:
                 Key: !FindInMap [LambdaBuilds, Expirer, !Ref 'Stage']}]
             - !Sub ['arn:aws:s3:::${Bucket}/${Key}', {Bucket: !Ref 'ConfigBucket',
                 Key: !FindInMap [LambdaConfig, Expirer, !Ref 'Stage']}]
+  SchedulerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Action: sts:AssumeRole
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+      Path: /
+      Policies:
+      - PolicyName: SchedulerPolicy
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+            - s3:GetObject
+            Resource:
+            - !Sub ['arn:aws:s3:::${Bucket}/${Key}', {Bucket: !Ref 'BuildBucket',
+                Key: !FindInMap [LambdaBuilds, Scheduler, !Ref 'Stage']}]
+            - !Sub ['arn:aws:s3:::${Bucket}/${Key}', {Bucket: !Ref 'ConfigBucket',
+                Key: !FindInMap [LambdaConfig, Scheduler, !Ref 'Stage']}]
   ExpirerLambda:
     Type: AWS::Lambda::Function
     Properties:
@@ -554,6 +561,41 @@ Resources:
       FunctionName: !Ref 'ExpirerLambda'
       Principal: events.amazonaws.com
       SourceArn: !GetAtt [ExpirerLambdaTrigger, Arn]
+  SchedulerLambda:
+      Type: AWS::Lambda::Function
+      Properties:
+        Description: Launches scheduled atoms
+        FunctionName: !Join ['-', [media-atom-maker-scheduler, !Ref 'Stage']]
+        Handler: com.gu.media.scheduler.SchedulerLambda::handleRequest
+        Code:
+          S3Bucket: !Ref 'BuildBucket'
+          S3Key: !FindInMap [LambdaBuilds, Scheduler, !Ref 'Stage']
+        Environment:
+          Variables:
+            REGION: !Ref 'AWS::Region'
+            STACK: !Ref 'Stack'
+            APP: media-atom-scheduler
+            STAGE: !Ref 'Stage'
+            CONFIG_BUCKET: !Ref 'ConfigBucket'
+            CONFIG_KEY: !FindInMap [LambdaConfig, Scheduler, !Ref 'Stage']
+        MemorySize: 256
+        Role: !GetAtt [SchedulerRole, Arn]
+        Runtime: java8
+        Timeout: 300
+  SchedulerLambdaTrigger:
+    Type: AWS::Events::Rule
+    Properties:
+      ScheduleExpression: cron(0/15 * * * ? *)
+      Targets:
+      - Arn: !GetAtt [SchedulerLambda, Arn]
+        Id: SchedulerLambda
+  SchedulerLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref 'SchedulerLambda'
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt [SchedulerLambdaTrigger, Arn]
   MediaAtomMakerLoadBalancer:
     Type: AWS::ElasticLoadBalancing::LoadBalancer
     Properties:

@@ -21,7 +21,7 @@ class Youtube (val authActions: HMACAuthActions, youtube: YouTube, permissions: 
     val isTrainingMode = isInTrainingMode(req)
     val user = req.user
 
-    permissions.getStatusPermissions(user.email).map(permissions => {
+    permissions.getStatusPermissions(user).map(permissions => {
       val hasMakePublicPermission = permissions.setVideosOnAllChannelsPublic
 
       val channels = if (isTrainingMode) {
