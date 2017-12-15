@@ -1,7 +1,9 @@
 package model.commands
 
+import java.net.URI
+
 import com.gu.contentatom.thrift.Atom
-import com.gu.contentatom.thrift.atom.media.{Asset, Metadata, Platform, MediaAtom => ThriftMediaAtom, Category => ThriftCategory}
+import com.gu.contentatom.thrift.atom.media.{Asset, Metadata, Platform, Category => ThriftCategory, MediaAtom => ThriftMediaAtom}
 import com.gu.media.logging.Logging
 import com.gu.media.model.MediaAtom
 import com.gu.media.util.{MediaAtomImplicits, ThriftUtil}
@@ -33,39 +35,52 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
         AssetAlreadyAdded
 
       case YouTubeId(videoId) =>
-        addAsset(atom, mediaAtom, currentAssets, videoId)
+        addYoutubeAsset(atom, mediaAtom, currentAssets, videoId)
+
+      case S3UploaderUri(s3UploaderUri) => addS3UploaderAsset(atom, mediaAtom, currentAssets, s3UploaderUri)
 
       case _ =>
         NotYoutubeAsset
     }
   }
 
-  private def addAsset(atom: Atom, mediaAtom: ThriftMediaAtom, currentAssets: Seq[Asset], videoId: String) = {
+  private def addAsset(atom: Atom, mediaAtom: ThriftMediaAtom, currentAssets: Seq[Asset], assetId: String, metadata: Option[Metadata]) = {
     val version = getNextAssetVersionNumber(currentAssets)
 
     val newAsset = ThriftUtil.parseAsset(uri = videoUri, version = version, mimeType = None)
-      .fold(err => AssetParseFailed, identity)
+      .fold(_ => AssetParseFailed, identity)
 
-    val channel = getYouTubeChannel(newAsset, mediaAtom)
-    val metadata = mediaAtom.metadata.getOrElse(Metadata()).copy(channelId = Some(channel))
+    val updatedMetadata: Metadata = metadata.getOrElse(mediaAtom.metadata.getOrElse(Metadata()))
 
-    val updatedAtom = atom
-      .withData(mediaAtom.copy(
+    val updatedAtom = atom.withData(
+      mediaAtom.copy(
         assets = newAsset +: currentAssets,
-        metadata = Some(metadata)
-      ))
+        metadata = Some(updatedMetadata)
+      )
+    )
 
-    log.info(s"Adding new asset $videoUri to $atomId")
+    log.info(s"Adding new asset to atom. atom=$atomId asset=$assetId")
 
     UpdateAtomCommand(atomId, fromThrift(updatedAtom), stores, user).process()
   }
 
-  private def getYouTubeChannel(asset: Asset, atom: ThriftMediaAtom): String = {
+  private def addYoutubeAsset(atom: Atom, mediaAtom: ThriftMediaAtom, currentAssets: Seq[Asset], videoId: String) = {
+    val channel = getYouTubeChannel(videoId, mediaAtom)
+    val metadata: Metadata = mediaAtom.metadata.getOrElse(Metadata()).copy(channelId = Some(channel))
+
+    addAsset(atom, mediaAtom, currentAssets, videoId, Some(metadata))
+  }
+
+  private def addS3UploaderAsset(atom: Atom, mediaAtom: ThriftMediaAtom, currentAssets: Seq[Asset], s3UploderUri: URI) = {
+    addAsset(atom, mediaAtom, currentAssets, s3UploderUri.toString, None)
+  }
+
+  private def getYouTubeChannel(videoId: String, atom: ThriftMediaAtom): String = {
     val maybeChannel = atom.metadata.flatMap(_.channelId)
-    val maybeVideo = youTube.getVideo(asset.id, "snippet")
+    val maybeVideo = youTube.getVideo(videoId, "snippet")
 
     (maybeChannel, maybeVideo) match {
-      case (_, None) => YouTubeVideoDoesNotExist(asset.id)
+      case (_, None) => YouTubeVideoDoesNotExist(videoId)
       case (None, Some(video)) => {
         // only GLabs atoms can have third party videos
         atom.category match {
@@ -101,6 +116,26 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
 
         case _ =>
           None
+      }
+    }
+  }
+
+  // HACK: this is *really* horrible! We should really use the `VideoAsset` case class...
+  private case object S3UploaderUri {
+    def unapply(url: String): Option[URI] = {
+      val platform = ThriftUtil.parsePlatform(url)
+
+      platform match {
+        case (Right(Platform.Url)) => {
+          try {
+            val uri = URI.create(url)
+            if (uri.getScheme == "https" && uri.getHost == "uploads.guim.co.uk") Some(uri) else None
+          }
+          catch {
+            case _: Throwable => None
+          }
+        }
+        case _ => None
       }
     }
   }
