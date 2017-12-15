@@ -48,20 +48,24 @@ case class PublishAtomCommand(
     val contentChangeDetails = thriftPreviewAtom.contentChangeDetails
     val now = Instant.now().toEpochMilli
 
-    (contentChangeDetails.scheduledLaunch, contentChangeDetails.embargo) match {
-      case (_, Some(embargo)) if embargo.date > now => {
+    (contentChangeDetails.expiry, contentChangeDetails.scheduledLaunch, contentChangeDetails.embargo) match {
+      case (Some(expiry), _, _) if expiry.date <= now => {
+        log.error(s"Unable to publish expired atom. atom=${previewAtom.id} expiry=${expiry.date}")
+        AtomPublishFailed("Atom has expired")
+      }
+      case (_, _, Some(embargo)) if embargo.date > now => {
         log.error(s"Unable to publish atom with embargo date. atom=${previewAtom.id} embargo=${embargo.date}")
         AtomPublishFailed("Atom embargoed")
       }
-      case (Some(schedule), _) if schedule.date > now => {
+      case (_, Some(schedule), _) if schedule.date > now => {
         log.error(s"Unable to publish atom as schedule time in the future. atom=${previewAtom.id} schedule=${schedule.date} now=$now")
         AtomPublishFailed("Atom scheduled for the future")
       }
-      case (Some(schedule), Some(embargo)) if schedule.date < embargo.date => {
+      case (_, Some(schedule), Some(embargo)) if schedule.date < embargo.date => {
         log.error(s"Unable to publish atom as embargoed after schedule. atom=${previewAtom.id} schedule=${schedule.date} embargo=${embargo.date}")
         AtomPublishFailed("Embargo set after schedule")
       }
-      case (_, _) => {
+      case (_, _, _) => {
         getActiveAsset(previewAtom) match {
           case Some(asset) if asset.platform == Youtube =>
             val duration = youtube.getDuration(asset.id)
