@@ -41,7 +41,7 @@ class AtomCreationTests extends IntegrationTestBase with CancelAfterFailure {
   }
 
   test("Make an asset current for an existing atom") {
-    val currentAssetResponse = gutoolsPut(s"$targetBaseUrl/api2/atom/$atomId/asset-active", Some(jsonBody(s"""{"youtubeId":"${Config.assetId}"}""")))
+    val currentAssetResponse = gutoolsPut(s"$targetBaseUrl/api2/atom/$atomId/asset-active", Some(jsonBody(s"""{"atomId": "$atomId", "version": 1}""")))
 
     currentAssetResponse.code() should be(200)
 
