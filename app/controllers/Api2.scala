@@ -157,9 +157,8 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
             val mediaAtom = MediaAtom.fromThrift(atom)
 
             mediaAtom.plutoData match {
-              case Some(plutoData) if plutoData.projectId.isEmpty => acc ++ Map(upload.atomId -> mediaAtom)
-              case Some(_) => acc
-              case None => acc ++ Map(upload.atomId -> mediaAtom)
+              case Some(plutoData) if plutoData.projectId.isDefined => acc
+              case _ => acc ++ Map(upload.atomId -> mediaAtom)
             }
           }
           case Left(error) => {
