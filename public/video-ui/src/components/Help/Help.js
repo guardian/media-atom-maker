@@ -8,6 +8,10 @@ export default class Help extends React.Component {
       text: 'How to use this Tool'
     },
     {
+      url: 'https://docs.google.com/a/guardian.co.uk/document/d/1pZ1fh5aX9HRkDv9bNWQvRJZgaNuhmddRqpIkMrmM0FA/edit?usp=sharing',
+      text: 'How to schedule Atoms'
+    },
+    {
       url: 'https://goo.gl/forms/0KoeGOW64584Bydm2',
       text: 'Contact the Team'
     },
