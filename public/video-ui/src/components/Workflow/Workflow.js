@@ -42,6 +42,7 @@ class Workflow extends React.Component {
 
   updateWorkflowDetails(update) {
     Object.assign(this.state.videoInWorkflow, update);
+    return Promise.resolve();
   }
 
   renderTrackInWorkflow() {
