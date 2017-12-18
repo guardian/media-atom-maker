@@ -9,51 +9,44 @@ import data.DataStores
 import model.commands.CommandExceptions._
 import util._
 
-case class ActiveAssetCommand(atomId: String, params: ActivateAssetRequest, stores: DataStores,
-                              youTube: YouTube, user: PandaUser)
-  extends Command
-    with MediaAtomImplicits
-    with Logging {
+case class ActiveAssetCommand(
+  atomId: String,
+  activateAssetRequest: ActivateAssetRequest,
+  stores: DataStores,
+  youtube: YouTube,
+  user: PandaUser
+) extends Command with MediaAtomImplicits with Logging {
 
   type T = MediaAtom
 
   def process(): T = {
-    log.info(s"Request to $params in $atomId")
+    log.info(s"Request to set active asset atom=$atomId version=${activateAssetRequest.version}")
+
+    if (atomId != activateAssetRequest.atomId) {
+      AtomIdConflict
+    }
 
     val atom = getPreviewAtom(atomId)
     val mediaAtom = MediaAtom.fromThrift(atom)
 
-    getVersion(mediaAtom) match {
-      case Some(version) =>
-        val duration = getYouTubeId(version, mediaAtom).flatMap(youTube.getDuration)
-        val updatedAtom = mediaAtom.copy(activeVersion = Some(version), duration = duration)
+    val assetsToActivate = mediaAtom.assets.filter(_.version == activateAssetRequest.version)
 
-        log.info(s"$params in $atomId")
-        UpdateAtomCommand(atomId, updatedAtom, stores, user).process()
+    if (assetsToActivate.nonEmpty) {
+      val duration = assetsToActivate.find(_.platform == Youtube) match {
+        case Some(asset) => youtube.getDuration(asset.id)
+        case None => mediaAtom.duration
+      }
 
-      case None =>
-        log.info(s"Cannot $params. No asset has that version")
-        AssetVersionConflict
+      val updatedAtom = mediaAtom.copy(
+        activeVersion = Some(activateAssetRequest.version),
+        duration = duration
+      )
+
+      log.info(s"Setting active asset atom=$atomId version=${activateAssetRequest.version}")
+      UpdateAtomCommand(atomId, updatedAtom, stores, user).process()
+    } else {
+      log.info(s"Cannot set active asset. No asset has that version atom=$atomId version=${activateAssetRequest.version}")
+      AssetVersionConflict
     }
-  }
-
-  private def getVersion(atom: MediaAtom): Option[Long] = params match {
-    case ActivateAssetByVersion(version) =>
-      atom.assets.collectFirst {
-        case asset if asset.version == version =>
-          version
-      }
-
-    case ActivateYouTubeAssetById(id) =>
-      atom.assets.collectFirst {
-        case asset if asset.platform == Youtube && asset.id == id =>
-          asset.version
-      }
-  }
-
-  private def getYouTubeId(version: Long, atom: MediaAtom): Option[String] = {
-    atom.assets
-      .find(_.version == version)
-      .map(_.id)
   }
 }

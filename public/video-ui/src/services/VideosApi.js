@@ -101,7 +101,7 @@ export default {
     return pandaReqwest({
       url: '/api2/atom/' + atomId + '/asset-active',
       method: 'put',
-      data: { version }
+      data: { atomId, version }
     });
   },
 

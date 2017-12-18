@@ -68,12 +68,11 @@ case class PublishAtomCommand(
       case (_, _, _) => {
         getActiveAsset(previewAtom) match {
           case Some(asset) if asset.platform == Youtube =>
-            val duration = youtube.getDuration(asset.id)
-            val blockAds = getBlockAds(previewAtom, duration)
+            val blockAds = getBlockAds(previewAtom, previewAtom.duration)
             val privacyStatus: Future[PrivacyStatus] = getPrivacyStatus(previewAtom)
 
             privacyStatus.flatMap(status => {
-              val updatedPreviewAtom = previewAtom.copy(duration = duration, blockAds = blockAds, privacyStatus = Some(status))
+              val updatedPreviewAtom = previewAtom.copy(blockAds = blockAds, privacyStatus = Some(status))
               updateYouTube(updatedPreviewAtom, asset).map(atomWithYoutubeUpdates => {
                 publish(atomWithYoutubeUpdates, user)
               })
