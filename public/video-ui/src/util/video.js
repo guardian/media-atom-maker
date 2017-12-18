@@ -112,4 +112,12 @@ export default class VideoUtils {
     const embargo = contentChangeDetails.embargo;
     return embargo ? moment(embargo.date) : null;
   }
+
+  static isPublished({contentChangeDetails}) {
+    return !!contentChangeDetails.published;
+  }
+
+  static hasExpired({contentChangeDetails}) {
+    return !!contentChangeDetails.expiry;
+  }
 }
