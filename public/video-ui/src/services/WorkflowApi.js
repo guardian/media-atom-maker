@@ -3,6 +3,7 @@ import { getStore } from '../util/storeAccessor';
 import getProductionOffice from '../util/getProductionOffice';
 import VideoUtils from '../util/video';
 import moment from 'moment';
+import { impossiblyDistantDate }  from '../constants/dates';
 
 export default class WorkflowApi {
   static get workflowUrl() {
@@ -67,7 +68,10 @@ export default class WorkflowApi {
       : null;
 
     const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
-    const embargo = VideoUtils.getEmbargo(video);
+    const embargoDate = VideoUtils.getEmbargo(video);
+
+    const [embargo, indefiniteEmbargo] =
+      (embargoDate && embargoDate >= impossiblyDistantDate) ? [null, true] : [embargoDate, false];
 
     return {
       contentType: 'media',
@@ -89,7 +93,8 @@ export default class WorkflowApi {
       optimisedForWeb: video.optimisedForWeb,
       path: 'atom/media/' + video.id,
       scheduledLaunchDate: scheduledLaunch,
-      embargoedUntil: embargo
+      embargoedUntil: embargo,
+      embargoedIndefinitely: indefiniteEmbargo
     };
   }
 
