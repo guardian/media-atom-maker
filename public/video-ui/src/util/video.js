@@ -118,6 +118,6 @@ export default class VideoUtils {
   }
 
   static hasExpired({contentChangeDetails}) {
-    return !!contentChangeDetails.expiry && contentChangeDetails.expiry.date >= Date.now();
+    return !!contentChangeDetails.expiry && contentChangeDetails.expiry.date <= Date.now();
   }
 }
