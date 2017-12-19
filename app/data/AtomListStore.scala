@@ -55,9 +55,7 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
         (asset \ "version").as[Long]
       }
 
-      val state = AtomListStore.getState(expiryDate, activeVersion, versions.toSet)
-
-      Some(MediaAtomSummary(id, state, title, posterImage, contentChangeDetails))
+      Some(MediaAtomSummary(id, title, posterImage, contentChangeDetails))
     }
   }
 }
@@ -95,9 +93,8 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore) extends AtomListS
 
   private def fromAtom(atom: MediaAtom): MediaAtomSummary = {
     val versions = atom.assets.map(_.version).toSet
-    val state = AtomListStore.getState(atom.expiryDate, atom.activeVersion, versions)
 
-    MediaAtomSummary(atom.id, state, atom.title, atom.posterImage, atom.contentChangeDetails)
+    MediaAtomSummary(atom.id, atom.title, atom.posterImage, atom.contentChangeDetails)
   }
 }
 
@@ -106,23 +103,5 @@ object AtomListStore {
   def apply(stage: String, capi: CapiAccess, store: PreviewDynamoDataStore): AtomListStore = stage match {
     case "DEV" => new DynamoBackedAtomListStore(store)
     case _ => new CapiBackedAtomListStore(capi)
-  }
-
-  def getState(expiryDate: Option[Long], activeVersion: Option[Long], versions: Set[Long]): String = {
-    val now = Instant.now().toEpochMilli
-    val hasExpired = expiryDate.exists(_ < now)
-
-    val hasVideo = activeVersion match {
-      case Some(version) => versions.contains(version)
-      case None => false
-    }
-
-    if(hasExpired) {
-      "Expired"
-    } else if(hasVideo) {
-      "Active"
-    } else {
-      "No Video"
-    }
   }
 }

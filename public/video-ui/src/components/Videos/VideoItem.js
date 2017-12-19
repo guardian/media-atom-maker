@@ -7,24 +7,25 @@ import VideoUtils from '../../util/video';
 import { impossiblyDistantDate } from '../../constants/dates';
 
 export default class VideoItem extends React.Component {
-  renderPill() {
-    switch (this.props.video.status) {
-      case 'Expired':
-        return <span className="publish__label label__expired">Expired</span>;
-      case 'Active':
-        return (
-          <span className="publish__label label__live label__frontpage__overlay">
-            Active
-          </span>
-        );
-      case 'No Video':
-        return (
-          <span className="publish__label label__frontpage__novideo label__frontpage__overlay">
-            No Video
-          </span>
-        );
-      default:
-        return '';
+  renderPublishStatus() {
+    if (VideoUtils.hasExpired(this.props.video)) {
+      return (
+        <span className="publish__label label__expired">Expired</span>
+      );
+    }
+
+    if (VideoUtils.isPublished(this.props.video)) {
+      return (
+        <span className="publish__label label__live label__frontpage__overlay">
+          Published
+        </span>
+      );
+    } else {
+      return (
+        <span className="publish__label label__draft label__frontpage__overlay">
+          Draft
+        </span>
+      )
     }
   }
 
@@ -54,7 +55,7 @@ export default class VideoItem extends React.Component {
             </div>
             <div className="grid__status__overlay">
               <ReactTooltip />
-              {this.renderPill()}
+              {this.renderPublishStatus()}
               {embargo && (
                 <span
                   data-tip={
