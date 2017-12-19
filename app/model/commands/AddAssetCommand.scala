@@ -1,7 +1,7 @@
 package model.commands
 
 import com.gu.contentatom.thrift.Atom
-import com.gu.contentatom.thrift.atom.media.{Asset, Metadata, Platform, MediaAtom => ThriftMediaAtom, Category => ThriftCategory}
+import com.gu.contentatom.thrift.atom.media.{Asset, Metadata, Platform, Category => ThriftCategory, MediaAtom => ThriftMediaAtom}
 import com.gu.media.logging.Logging
 import com.gu.media.model.MediaAtom
 import com.gu.media.util.{MediaAtomImplicits, ThriftUtil}
@@ -9,10 +9,10 @@ import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import com.gu.media.model.MediaAtom.fromThrift
 import model.commands.CommandExceptions._
-import util.YouTube
+import util.{AWSConfig, YouTube}
 
 case class AddAssetCommand(atomId: String, videoUri: String, override val stores: DataStores,
-                           youTube: YouTube, user: PandaUser)
+                           youTube: YouTube, user: PandaUser, awsConfig: AWSConfig)
     extends Command
     with MediaAtomImplicits
     with Logging {
@@ -57,7 +57,7 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
 
     log.info(s"Adding new asset $videoUri to $atomId")
 
-    UpdateAtomCommand(atomId, fromThrift(updatedAtom), stores, user).process()
+    UpdateAtomCommand(atomId, fromThrift(updatedAtom), stores, user, awsConfig).process()
   }
 
   private def getYouTubeChannel(asset: Asset, atom: ThriftMediaAtom): String = {

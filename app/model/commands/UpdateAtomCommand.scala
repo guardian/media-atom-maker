@@ -8,13 +8,15 @@ import com.gu.pandomainauth.model.{User => PandaUser}
 import com.gu.media.logging.Logging
 import data.DataStores
 import model.commands.CommandExceptions._
-import com.gu.media.model.{ChangeRecord, MediaAtom}
+import com.gu.media.model.{AtomAssignedProjectMessage, ChangeRecord, MediaAtom}
+import com.gu.media.upload.PlutoUploadActions
 import com.gu.media.util.MediaAtomImplicits
 import org.joda.time.DateTime
+import util.AWSConfig
 
 import scala.util.{Failure, Success}
 
-case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: DataStores, user: PandaUser)
+case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: DataStores, user: PandaUser, awsConfig: AWSConfig)
     extends Command
     with MediaAtomImplicits
     with Logging {
@@ -60,8 +62,12 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
           case Success(_) => {
             auditDataStore.auditUpdate(id, getUsername(user), diffString)
 
+            val existingMediaAtom = MediaAtom.fromThrift(existingAtom)
+            val updatedMediaAtom = MediaAtom.fromThrift(thrift)
+            processPlutoData(existingMediaAtom, updatedMediaAtom)
+
             log.info(s"Successfully updated atom ${atom.id}")
-            MediaAtom.fromThrift(thrift)
+            updatedMediaAtom
           }
           case Failure(err) =>
             log.error(s"Unable to publish updated atom ${atom.id}", err)
@@ -69,6 +75,20 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
         }
       }
     )
+  }
+
+  private def processPlutoData(oldAtom: MediaAtom, newAtom: MediaAtom) = {
+    (oldAtom.plutoData.flatMap(_.projectId), newAtom.plutoData.flatMap(_.projectId)) match {
+      case (Some(oldProject), Some(newProject)) if oldProject != newProject => notifyPluto(newAtom)
+      case (None, Some(_)) => notifyPluto(newAtom)
+      case (_, _) => None
+    }
+  }
+
+  private def notifyPluto(newAtom: MediaAtom) = {
+    val plutoActions = new PlutoUploadActions(awsConfig)
+    val message = AtomAssignedProjectMessage.build(newAtom)
+    plutoActions.sendToPluto(message)
   }
 
   private val interestingFields = List("title", "category", "description", "duration", "source", "youtubeCategoryId", "license", "commentsEnabled", "channelId", "legallySensitive")

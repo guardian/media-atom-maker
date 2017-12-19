@@ -10,32 +10,31 @@ class PlutoUploadActions(config: Settings with DynamoAccess with KinesisAccess w
   private val mailer = new Mailer(config.sesClient, config.getMandatoryString("host"))
   private val plutoStore = new PlutoDataStore(config.dynamoDB, config.manualPlutoDynamo)
 
-  def sendToPluto(plutoIntegrationData: PlutoIntegrationData): Unit = {
-    plutoIntegrationData match {
-      case plutoData: PlutoSyncMetadata => {
+  def sendToPluto(plutoIntegrationMessage: PlutoIntegrationMessage): Unit = {
+    plutoIntegrationMessage match {
+      case plutoData: PlutoSyncMetadataMessage => {
         plutoData.projectId match {
-          case Some(_) => sendKinesisMessage(plutoIntegrationData)
+          case Some(_) => sendKinesisMessage(plutoIntegrationMessage)
           case None => {
             plutoStore.put(plutoData)
-            
-            // TODO MRB: re-enable this once the project selector has been fixed
-            //        log.info(s"Sending missing Pluto ID email user=${metadata.user} atom=${plutoData.atomId}")
-            //
-            //        mailer.sendPlutoIdMissingEmail(
-            //          metadata.title,
-            //          metadata.user,
-            //          config.fromEmailAddress,
-            //          config.replyToAddresses)
-            //
+
+            log.info(s"Sending missing Pluto ID email user=${plutoData.user} atom=${plutoData.atomId}")
+
+            mailer.sendPlutoIdMissingEmail(
+              plutoData.title,
+              plutoData.user,
+              config.fromEmailAddress,
+              config.replyToAddresses
+            )
           }
         }
       }
-      case _ => sendKinesisMessage(plutoIntegrationData)
+      case _ => sendKinesisMessage(plutoIntegrationMessage)
     }
   }
 
-  private def sendKinesisMessage(plutoIntegrationData: PlutoIntegrationData): Unit = {
-    log.info(s"writing message to pluto integration stream: type=${plutoIntegrationData.`type`} atomId=${plutoIntegrationData.atomId} content=${plutoIntegrationData}")
-    config.sendOnKinesis(config.plutoIntegrationOutgoingStream, plutoIntegrationData.partitionKey, plutoIntegrationData)
+  private def sendKinesisMessage(plutoIntegrationMessage: PlutoIntegrationMessage): Unit = {
+    log.info(s"writing message to pluto integration stream: type=${plutoIntegrationMessage.`type`} atomId=${plutoIntegrationMessage.atomId} content=$plutoIntegrationMessage")
+    config.sendOnKinesis(config.plutoIntegrationOutgoingStream, plutoIntegrationMessage.partitionKey, plutoIntegrationMessage)
   }
 }

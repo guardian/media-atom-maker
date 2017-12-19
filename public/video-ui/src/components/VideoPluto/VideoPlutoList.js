@@ -1,5 +1,5 @@
 import React from 'react';
-import VideoPlutoAdd from './VideoPlutoAdd';
+import PlutoProjectPicker from '../Pluto/PlutoProjectPicker';
 
 class VideoPlutoList extends React.Component {
   componentWillMount() {
@@ -14,9 +14,9 @@ class VideoPlutoList extends React.Component {
         <td>{video.title}</td>
         <td><a href={videoLink}>video page</a></td>
         <td>
-          <VideoPlutoAdd
+          <PlutoProjectPicker
             video={video}
-            onProjectAdd={this.props.plutoVideoActions.addProject}
+            saveVideo={this.props.plutoVideoActions.addProject}
           />
         </td>
       </tr>
