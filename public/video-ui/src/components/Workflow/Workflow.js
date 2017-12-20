@@ -38,7 +38,10 @@ class Workflow extends React.Component {
   }
 
   updateWorkflowDetails(update) {
-    Object.assign(this.state.videoInWorkflow, update);
+    this.setState({
+      videoInWorkflow: update
+    });
+
     return Promise.resolve();
   }
 
@@ -55,7 +58,8 @@ class Workflow extends React.Component {
         </ManagedForm>
         <button type="button"
                 className="btn"
-                onClick={() => this.trackInWorkflow()}>
+                onClick={() => this.trackInWorkflow()}
+                disabled={!this.state.videoInWorkflow.section}>
           Track in Workflow
         </button>
       </div>
