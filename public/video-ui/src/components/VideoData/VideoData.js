@@ -162,7 +162,7 @@ class VideoData extends React.Component {
             <ManagedField
               fieldLocation="blockAds"
               name="Block ads"
-              fieldDetails="Ads will not be displayed with this video"
+              fieldDetails={isCommercialType ? 'Block ads on Composer page': 'Ads will not be displayed with this video'}
               disabled={!isYoutubeAtom || !isEligibleForAds}
               tooltip={!isEligibleForAds ? `Not eligible for pre-roll.` : ''}
             >

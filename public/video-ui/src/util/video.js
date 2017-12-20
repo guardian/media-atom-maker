@@ -78,11 +78,11 @@ export default class VideoUtils {
   }
 
   static isEligibleForAds(atom) {
-    if (VideoUtils.isCommercialType(atom)) {
-      return false;
+    if (!VideoUtils.hasAssets(atom)) {
+      return true;
     }
 
-    if (!VideoUtils.hasAssets(atom)) {
+    if (VideoUtils.isCommercialType(atom)) {
       return true;
     }
 
