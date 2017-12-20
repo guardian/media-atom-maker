@@ -43,8 +43,8 @@ export default class VideoItem extends React.Component {
 
   render() {
     const video = this.props.video;
-    const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
-    const embargo = VideoUtils.getEmbargo(video);
+    const scheduledLaunch = VideoUtils.getScheduledLaunchAsDate(video);
+    const embargo = VideoUtils.getEmbargoAsDate(video);
     const hasPreventedPublication = embargo && embargo.valueOf() >= impossiblyDistantDate;
     return (
       <li className="grid__item">

@@ -10,6 +10,7 @@ import {
 } from '../../util/dateHelpers';
 import { impossiblyDistantDate }  from '../../constants/dates';
 import datesProperties from '../../constants/datesProperties';
+import VideoUtils from '../../util/video';
 
 export default class ScheduledLaunch extends React.Component {
   static propTypes = {
@@ -29,12 +30,9 @@ export default class ScheduledLaunch extends React.Component {
   };
 
   componentWillReceiveProps(nextProps) {
-    const embargo =
-      nextProps.video.contentChangeDetails.embargo &&
-      nextProps.video.contentChangeDetails.embargo.date;
-    const scheduledLaunch =
-      nextProps.video.contentChangeDetails.scheduledLaunch &&
-      nextProps.video.contentChangeDetails.scheduledLaunch.date;
+    const embargo = VideoUtils.getEmbargo(nextProps.video);
+    const scheduledLaunch = VideoUtils.getScheduledLaunch(nextProps.video);
+
     this.setState({ selectedScheduleDate: scheduledLaunch || embargo });
     this.setState({ selectedEmbargoDate: embargo || scheduledLaunch });
   }
@@ -45,15 +43,9 @@ export default class ScheduledLaunch extends React.Component {
       return;
     }
 
-    const { video: { contentChangeDetails } } = this.props;
-    const scheduledLaunch =
-      contentChangeDetails &&
-      contentChangeDetails.scheduledLaunch &&
-      contentChangeDetails.scheduledLaunch.date;
-    const embargo =
-      contentChangeDetails &&
-      contentChangeDetails.embargo &&
-      contentChangeDetails.embargo.date;
+    const { video } = this.props;
+    const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
+    const embargo = VideoUtils.getEmbargo(video);
 
     if (
       propertyName === datesProperties.selectedEmbargoDate &&
@@ -267,7 +259,6 @@ export default class ScheduledLaunch extends React.Component {
   render() {
     const {
       video,
-      video: { contentChangeDetails },
       videoEditOpen,
       hasPublishedVideoUsages
     } = this.props;
@@ -279,14 +270,8 @@ export default class ScheduledLaunch extends React.Component {
     } = this.state;
     const showDatePicker = this.state.showDatePicker && !videoEditOpen;
     const invalidDateError = this.state.invalidDateError;
-    const scheduledLaunch =
-      contentChangeDetails &&
-      contentChangeDetails.scheduledLaunch &&
-      contentChangeDetails.scheduledLaunch.date;
-    const embargo =
-      contentChangeDetails &&
-      contentChangeDetails.embargo &&
-      contentChangeDetails.embargo.date;
+    const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
+    const embargo = VideoUtils.getEmbargo(video);
     const hasPreventedPublication = embargo && embargo >= impossiblyDistantDate;
 
     return (

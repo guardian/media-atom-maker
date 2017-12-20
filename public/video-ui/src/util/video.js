@@ -99,18 +99,30 @@ export default class VideoUtils {
     return false;
   }
 
-  static getScheduledLaunch({ contentChangeDetails }) {
-    const scheduledLaunch = contentChangeDetails.scheduledLaunch;
-    return scheduledLaunch ? moment(scheduledLaunch.date) : null;
-  }
-
   static canUploadToYouTube({ youtubeCategoryId, channelId, privacyStatus }) {
     return !!youtubeCategoryId && !!channelId && !!privacyStatus;
   }
 
+  static getScheduledLaunch({ contentChangeDetails }) {
+    return contentChangeDetails &&
+      contentChangeDetails.scheduledLaunch &&
+      contentChangeDetails.scheduledLaunch.date
+  }
+
   static getEmbargo({ contentChangeDetails }) {
-    const embargo = contentChangeDetails.embargo;
-    return embargo ? moment(embargo.date) : null;
+    return contentChangeDetails &&
+      contentChangeDetails.embargo &&
+      contentChangeDetails.embargo.date
+  }
+
+  static getScheduledLaunchAsDate(video) {
+    const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
+    return scheduledLaunch ? moment(scheduledLaunch) : null;
+  }
+
+  static getEmbargoAsDate(video) {
+    const embargo = VideoUtils.getEmbargo(video);
+    return embargo ? moment(embargo) : null;
   }
 
   static isPublished({contentChangeDetails}) {

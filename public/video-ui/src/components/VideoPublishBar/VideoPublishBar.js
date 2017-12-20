@@ -4,6 +4,7 @@ import { isVideoPublished } from '../../util/isVideoPublished';
 import { hasUnpublishedChanges } from '../../util/hasUnpublishedChanges';
 import ScheduledLaunch from '../../components/ScheduledLaunch/ScheduledLaunch';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
+import VideoUtils from '../../util/video';
 
 export default class VideoPublishBar extends React.Component {
   videoIsCurrentlyPublishing() {
@@ -20,8 +21,8 @@ export default class VideoPublishBar extends React.Component {
 
   isPublishingDisabled() {
     return (
-      this.props.video.contentChangeDetails && this.props.video.contentChangeDetails.scheduledLaunch ||
-      this.props.video.contentChangeDetails && this.props.video.contentChangeDetails.embargo ||
+      VideoUtils.getScheduledLaunch(this.props.video) ||
+      VideoUtils.getEmbargo(this.props.video) ||
       this.videoIsCurrentlyPublishing() ||
       this.props.videoEditOpen ||
       !this.videoHasUnpublishedChanges() ||

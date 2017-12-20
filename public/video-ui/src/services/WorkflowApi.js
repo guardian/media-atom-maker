@@ -67,8 +67,8 @@ export default class WorkflowApi {
       ? moment(contentChangeDetails.lastModified.date)
       : null;
 
-    const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
-    const embargoDate = VideoUtils.getEmbargo(video);
+    const scheduledLaunch = VideoUtils.getScheduledLaunchAsDate(video);
+    const embargoDate = VideoUtils.getEmbargoAsDate(video);
 
     const [embargo, indefiniteEmbargo] =
       (embargoDate && embargoDate >= impossiblyDistantDate) ? [null, true] : [embargoDate, false];

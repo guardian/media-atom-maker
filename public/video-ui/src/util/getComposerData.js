@@ -1,14 +1,15 @@
 import { parseComposerDataFromImage } from './parseGridMetadata';
 import { getStore } from '../util/storeAccessor';
 import { impossiblyDistantDate }  from '../constants/dates';
+import VideoUtils from '../util/video';
 
 export function getComposerData(video) {
 
   const isTrainingMode = getStore().getState().config.isTrainingMode;
 
   const expiryDate = video.contentChangeDetails && video.contentChangeDetails.expiry && video.contentChangeDetails.expiry.date
-  const scheduledLaunch = video.contentChangeDetails && video.contentChangeDetails.scheduledLaunch && video.contentChangeDetails.scheduledLaunch.date
-  const embargo = video.contentChangeDetails && video.contentChangeDetails.embargo && video.contentChangeDetails.embargo.date
+  const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
+  const embargo = VideoUtils.getEmbargo(video);
   const isEmbargoedIndefinitely = isTrainingMode || (embargo && embargo >= impossiblyDistantDate);
   const embargoedUntil = embargo && embargo < impossiblyDistantDate ? embargo : null;
 
