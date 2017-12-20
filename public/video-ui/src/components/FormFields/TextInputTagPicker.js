@@ -50,6 +50,7 @@ export default class TextInputTagPicker extends React.Component {
 
   getYoutubeInputValue = () => {
     return this.state.inputString.split(',')
+      .filter(keyword => keyword.length !== 0)
       .map(keyword => keyword.trim())
       .reduce((keywordsAsObjects, keyword) => {
         if (
