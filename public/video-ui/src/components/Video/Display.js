@@ -150,8 +150,10 @@ class VideoDisplay extends React.Component {
             className={
               'icon__done ' + (this.cannotCloseEditForm() ? 'disabled' : '')
             }
-            icon="done"
-          />
+            icon="save"
+          >
+            Save changes
+          </Icon>
         </button>
       );
     } else {

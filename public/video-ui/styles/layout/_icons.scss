@@ -28,7 +28,7 @@
   &--text {
     margin-left: 5px;
   }
-  
+
   &:link {
     text-decoration: none;
   }
@@ -38,13 +38,16 @@
 .icon__edit,
 .icon__assets {
   background-color: $color600Grey;
-  width: 33px;
+  min-width: 33px;
   height: 33px;
-  font-size: $iconSize;
   cursor: pointer;
   display:flex;
   justify-content:center;
   align-items: center;
+
+  i.icon {
+    font-size: $iconSize;
+  }
 }
 
 .icon__assets {
@@ -98,7 +101,7 @@
 
 .icon__done {
   background-color: $brandColor;
-  font-size: $iconSize;
+  padding: 0 10px;
   color: $color800Grey;
   &:hover {
     background-color: darken($brandColor, 5%);
