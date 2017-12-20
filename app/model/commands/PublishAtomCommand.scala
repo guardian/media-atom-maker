@@ -230,14 +230,14 @@ case class PublishAtomCommand(
   }
 
   private def getComposerLinkText(atomId: String): String = {
+    val path = s"/atom/media/$atomId/usage"
+    val emptyQs: Map[String, String] = Map()
 
-
-    val usages: JsValue = (capi.capiQuery("/atom/media/" + atomId + "/usage", true) \ "response" \ "results").get
+    val usages: JsValue = (capi.capiQuery(path, emptyQs, queryLive = true) \ "response" \ "results").get
     val usagesList = usages.as[List[String]]
 
     val composerPage = usagesList.find(usage => {
-      val query = capi.capiQuery(usage, true)
-      val contentType = (capi.capiQuery(usage, true) \ "response" \ "content" \ "type").get.as[String]
+      val contentType = (capi.capiQuery(usage, emptyQs, queryLive = true) \ "response" \ "content" \ "type").get.as[String]
       contentType == "video"
     })
 

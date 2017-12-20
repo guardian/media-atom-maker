@@ -17,14 +17,29 @@ trait AtomListStore {
 class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
   override def getAtoms(search: Option[String], limit: Option[Int]): MediaAtomList = {
     // CAPI max page size is 200
-    val cappedLimit = limit.map(Math.min(200, _))
+    val cappedLimit: Option[Int] = limit.map(Math.min(200, _))
 
-    val base = "atoms?types=media&order-by=newest"
-    val searchPart = search.map { q => s"&searchFields=data.title&q=$q" }.getOrElse("")
-    val pageSizePart = cappedLimit.map { l => s"&page-size=$l" }.getOrElse("")
+    val base: Map[String, String] = Map(
+      "types" -> "media",
+      "order-by" -> "newest"
+    )
 
-    val query = base + searchPart + pageSizePart
-    val response = capi.capiQuery(query)
+    val baseWithSearch = search match {
+      case Some(q) => base ++ Map(
+        "q" -> q,
+        "searchFields" -> "data.title"
+      )
+      case None => base
+    }
+
+    val baseWithSearchAndLimit = cappedLimit match {
+      case Some(pageSize) => baseWithSearch ++ Map(
+        "page-size" -> pageSize.toString
+      )
+      case None => baseWithSearch
+    }
+
+    val response = capi.capiQuery("atoms", baseWithSearchAndLimit)
 
     val total = (response \ "response" \ "total").as[Int]
     val results = (response \ "response" \ "results").as[JsArray]
