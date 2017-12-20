@@ -49,17 +49,24 @@ export default class TextInputTagPicker extends React.Component {
   }
 
   getYoutubeInputValue = () => {
-    if (
-      this.props.tagValue.every(value => {
-        return value.id !== this.state.inputString;
-      })
-    ) {
-      return {
-        id: this.state.inputString,
-        webTitle: this.state.inputString
-      };
-    }
-    return '';
+    return this.state.inputString.split(',')
+      .map(keyword => keyword.trim())
+      .reduce((keywordsAsObjects, keyword) => {
+        if (
+          this.props.tagValue.every(value => {
+            return value.id !== keyword;
+          })
+        ) {
+          keywordsAsObjects.push(
+            {
+              id: keyword,
+              webTitle: keyword
+            }
+          );
+        }
+
+        return keywordsAsObjects;
+      }, []);
   };
 
   updateInput = e => {
@@ -99,9 +106,9 @@ export default class TextInputTagPicker extends React.Component {
         const onlyWhitespace = !/\S/.test(this.state.inputString);
         if (!onlyWhitespace) {
 
-          const newInput = this.props.tagType === TagTypes.youtube ? this.getYoutubeInputValue() : this.state.inputString.trim();
+          const newInput = this.props.tagType === TagTypes.youtube ? this.getYoutubeInputValue() : [this.state.inputString.trim()];
 
-          const newFieldValue = newInput ? this.props.tagValue.concat([newInput]) : this.props.tagValue;
+          const newFieldValue = this.props.tagValue.concat(newInput);
 
           this.props.onUpdate(newFieldValue)
           .then(() => {
