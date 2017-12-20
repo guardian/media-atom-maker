@@ -39,9 +39,16 @@ class SchedulerLambda extends RequestHandler[Unit, Unit]
 
   @tailrec
   private def getScheduledAtoms(page: Int, pageSize: Int, fromDate: Instant, toDate: Instant, accumulator: Set[String]): Set[String] = {
-    val url = s"atoms?types=media&page-size=$pageSize&page=$page&from-date=$fromDate&to-date=$toDate&use-date=scheduled-launch"
+    val qs: Map[String, String] = Map(
+      "types" -> "media",
+      "page-size" -> pageSize.toString,
+      "page" -> page.toString,
+      "from-date" -> fromDate.toString,
+      "to-date" -> toDate.toString,
+      "use-date" -> "scheduled-launch"
+    )
 
-    val response = (capiQuery(url) \ "response").get
+    val response = (capiQuery("atoms", qs) \ "response").get
     val currentPage = (response \ "currentPage").as[Int]
     val pages = (response \ "pages").as[Int]
 
