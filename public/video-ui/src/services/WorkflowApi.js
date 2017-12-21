@@ -42,6 +42,18 @@ export default class WorkflowApi {
     });
   }
 
+  static getStatuses() {
+    const params = {
+      url: `${WorkflowApi.workflowUrl}/api/statuses`,
+      crossOrigin: true,
+      withCredentials: true
+    };
+
+    return pandaReqwest(params, 500).then(response => {
+      return WorkflowApi._getResponseAsJson(response).data;
+    });
+  }
+
   static getAtomInWorkflow({ video }) {
     return pandaReqwest({
       url: `${WorkflowApi.workflowUrl}/api/atom/${video.id}`,

@@ -4,7 +4,6 @@ import { Workflow as WorkflowConstants } from '../../constants/workflow';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
 import WorkflowApi from '../../services/WorkflowApi';
-import moment from 'moment';
 
 class Workflow extends React.Component {
   static propTypes = {
@@ -18,10 +17,15 @@ class Workflow extends React.Component {
   };
 
   hasSections = () => this.props.workflow.sections.length !== 0;
+  hasStatuses = () => this.props.workflow.statuses.length !== 0;
 
   componentWillMount() {
     if (!this.hasSections()) {
       this.props.workflowActions.getSections();
+    }
+
+    if (!this.hasStatuses()) {
+      this.props.workflowActions.getStatuses();
     }
 
     this.props.workflowActions.getStatus({ video: this.props.video });
@@ -67,13 +71,12 @@ class Workflow extends React.Component {
   }
 
   renderStatusInWorkflow() {
-    const {title, prodOffice, section, status } = this.props.workflow.status;
+    const {prodOffice, section, status} = this.props.workflow.status;
 
     return (
       <table>
         <thead>
           <tr>
-            <th>Title</th>
             <th>Production Office</th>
             <th>Section</th>
             <th>Status</th>
@@ -82,7 +85,6 @@ class Workflow extends React.Component {
         </thead>
         <tbody>
           <tr>
-            <td>{title}</td>
             <td>
               <span className={`production-office production-office--${prodOffice}`}>{prodOffice}</span>
             </td>
@@ -122,6 +124,7 @@ class Workflow extends React.Component {
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getSections from '../../actions/WorkflowActions/getSections';
+import * as getStatuses from '../../actions/WorkflowActions/getStatuses';
 import * as getStatus from '../../actions/WorkflowActions/getStatus';
 import * as trackInWorkflow from '../../actions/WorkflowActions/trackInWorkflow';
 
@@ -137,6 +140,7 @@ function mapDispatchToProps(dispatch) {
       Object.assign(
         {},
         getSections,
+        getStatuses,
         getStatus,
         trackInWorkflow
       ),
