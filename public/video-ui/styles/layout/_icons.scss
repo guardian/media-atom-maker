@@ -36,7 +36,8 @@
 
 .icon__done,
 .icon__edit,
-.icon__assets {
+.icon__assets,
+.icon__cancel {
   background-color: $color600Grey;
   min-width: 33px;
   height: 33px;
@@ -74,11 +75,7 @@
 }
 
 .icon__cancel {
-  background-color: transparent;
-    &:hover{
-      color: $cWhite;
-      background-color: transparent;
-    }
+  padding: 0 10px;
 }
 
 .icon__back {

@@ -10,9 +10,13 @@ export default function workflow(state = { sections: [], statuses: [], status: {
       });
     case 'WORKFLOW_STATUS_GET_RECEIVE':
       return Object.assign({}, state, {
-        status: action.status || {}
+        status: Object.assign({}, {isTrackedInWorkflow: true}, action.status) || {}
       });
     case 'WORKFLOW_STATUS_NOT_FOUND':
+      return Object.assign({}, state, {
+        status: Object.assign({}, {isTrackedInWorkflow: false}, action.status)
+      });
+    case 'WORKFLOW_VIDEO_UPDATE_REQUEST':
       return Object.assign({}, state, {
         status: action.status
       });

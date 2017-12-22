@@ -273,15 +273,8 @@ class VideoDisplay extends React.Component {
   renderWorkflow() {
     if (this.props.video && this.props.video.id) {
       return (
-        <div className="video__detailbox">
-          <div className="video__detailbox__header__container">
-            <header className="video__detailbox__header">Workflow</header>
-          </div>
-          <Workflow video={this.props.video || {}} />
-        </div>
+        <Workflow video={this.props.video}/>
       );
-    } else {
-      return '';
     }
   }
 
@@ -344,7 +337,7 @@ function mapStateToProps(state) {
     composerPageWithUsage: state.pageCreate,
     publishedVideo: state.publishedVideo,
     videoEditOpen: state.videoEditOpen,
-    checkedFormFields: state.checkedFormFields,
+    checkedFormFields: state.checkedFormFields
   };
 }
 

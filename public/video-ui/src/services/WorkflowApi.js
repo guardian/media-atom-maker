@@ -32,7 +32,11 @@ export default class WorkflowApi {
     return pandaReqwest(params, 500).then(response => {
       return WorkflowApi._getResponseAsJson(response)
         .data.map(section =>
-          Object.assign({}, section, { title: section.name })
+          Object.assign({}, section, {
+            id: section.name,
+            title: section.name,
+            workflowId: section.id
+          })
         )
         .sort((a, b) => {
           if (a.title.toLowerCase() < b.title.toLowerCase()) return -1;
@@ -50,13 +54,17 @@ export default class WorkflowApi {
     };
 
     return pandaReqwest(params, 500).then(response => {
-      return WorkflowApi._getResponseAsJson(response).data;
+      return WorkflowApi._getResponseAsJson(response).data
+        .filter(status => status.toLowerCase() !== 'stub')
+        .map(status =>
+          Object.assign({}, {id: status, title: status})
+        );
     });
   }
 
-  static getAtomInWorkflow({ video }) {
+  static getAtomInWorkflow({ id }) {
     return pandaReqwest({
-      url: `${WorkflowApi.workflowUrl}/api/atom/${video.id}`,
+      url: `${WorkflowApi.workflowUrl}/api/atom/${id}`,
       crossOrigin: true,
       withCredentials: true
     }).then(response => WorkflowApi._getResponseAsJson(response).data);
@@ -120,6 +128,20 @@ export default class WorkflowApi {
     return pandaReqwest({
       method: 'POST',
       url: `${WorkflowApi.workflowUrl}/api/stubs`,
+      data: payload,
+      crossOrigin: true,
+      withCredentials: true
+    });
+  }
+
+  static updateStatus({id, status}) {
+    const payload = {
+      data: status
+    };
+
+    return pandaReqwest({
+      method: 'PUT',
+      url: `${WorkflowApi.workflowUrl}/api/stubs/${id}/status`,
       data: payload,
       crossOrigin: true,
       withCredentials: true
