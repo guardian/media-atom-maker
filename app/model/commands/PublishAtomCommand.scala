@@ -69,7 +69,7 @@ case class PublishAtomCommand(
       case (_, _, _) => {
         getActiveAsset(previewAtom) match {
           case Some(asset) if asset.platform == Youtube =>
-            val blockAds = getBlockAds(previewAtom, previewAtom.duration)
+            val blockAds = getAtomBlockAds(previewAtom)
             val privacyStatus: Future[PrivacyStatus] = getPrivacyStatus(previewAtom)
 
             privacyStatus.flatMap(status => {
@@ -85,10 +85,12 @@ case class PublishAtomCommand(
 
   }
 
-  private def getBlockAds(previewAtom: MediaAtom, duration: Option[Long]): Boolean = {
+  private def getAtomBlockAds(previewAtom: MediaAtom): Boolean = {
     previewAtom.category match {
-      case Category.Hosted | Category.Paid => true
-      case _ => if (duration.getOrElse(0L) < youtube.minDurationForAds) true else previewAtom.blockAds
+      // GLabs atoms will always have ads blocked on YouTube,
+      // so the thrift field maps to the Composer page and we don't need to check the video duration
+      case Category.Hosted | Category.Paid => previewAtom.blockAds
+      case _ => if (previewAtom.duration.getOrElse(0L) < youtube.minDurationForAds) true else previewAtom.blockAds
     }
   }
 
@@ -173,16 +175,15 @@ case class PublishAtomCommand(
     }
   }
 
-  private def noClaimsToUpdate(previewAtom: MediaAtom, publishedAtom: MediaAtom): Boolean = {
-
+  private def hasNewAssets(previewAtom: MediaAtom, publishedAtom: MediaAtom): Boolean = {
     val previewVersion = previewAtom.activeVersion.get
-    val noNewAssets = publishedAtom.activeVersion match {
-      case None => false
+
+    publishedAtom.activeVersion match {
+      case None => true
       case Some(publishedVersion) => {
-        publishedVersion == previewVersion
+        publishedVersion != previewVersion
       }
     }
-    previewAtom.blockAds == publishedAtom.blockAds && noNewAssets
   }
 
   private def createOrUpdateYoutubeClaim(previewAtom: MediaAtom, asset: Asset): Future[MediaAtom] = Future{
@@ -190,27 +191,39 @@ case class PublishAtomCommand(
       val thriftPublishedAtom = getPublishedAtom(id)
       val publishedAtom = MediaAtom.fromThrift(thriftPublishedAtom)
 
-      if (noClaimsToUpdate(previewAtom, publishedAtom)) {
-        log.info(s"No change to BlockAds field, not editing YouTube Claim")
+      if (!hasNewAssets(previewAtom, publishedAtom)) {
+        log.info(s"No change to assets, not editing YouTube Claim")
+        previewAtom
       } else {
-        log.info(s"BlockAds changed from ${publishedAtom.blockAds} to ${previewAtom.blockAds}. Updating YouTube Claim")
-        youtube.createOrUpdateClaim(
-          previewAtom.id,
-          asset.id,
-          previewAtom.blockAds
-        )
+        previewAtom.category match {
+          case Category.Hosted | Category.Paid => {
+            log.info(s"Blocking YouTube ads on GLabs atom")
+            youtube.createOrUpdateClaim(previewAtom.id, asset.id, blockAds = true)
+            previewAtom
+          }
+          case _ => {
+            if (previewAtom.blockAds == publishedAtom.blockAds) {
+              log.info(s"No change to BlockAds field, not editing YouTube Claim")
+              previewAtom
+            } else {
+              log.info(s"BlockAds changed from ${publishedAtom.blockAds} to ${previewAtom.blockAds}. Updating YouTube Claim")
+              youtube.createOrUpdateClaim(previewAtom.id, asset.id, previewAtom.blockAds)
+              previewAtom
+            }
+          }
+        }
       }
-      previewAtom
-
     } catch {
       case CommandException(_, 404) => {
         // atom hasn't been published yet
         log.info(s"Unable to find Published atom. Creating YouTube Claim")
-        youtube.createOrUpdateClaim(
-          previewAtom.id,
-          asset.id,
-          previewAtom.blockAds
-        )
+
+        val blockAds = previewAtom.category match {
+          case Category.Hosted | Category.Paid => true
+          case _ => previewAtom.blockAds
+        }
+
+        youtube.createOrUpdateClaim(previewAtom.id, asset.id, blockAds)
         previewAtom
       }
     }
