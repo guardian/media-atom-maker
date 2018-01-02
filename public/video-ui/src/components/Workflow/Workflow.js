@@ -1,10 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Workflow as WorkflowConstants } from '../../constants/workflow';
-import { ManagedForm, ManagedField } from '../ManagedForm';
-import SelectBox from '../FormFields/SelectBox';
-import WorkflowApi from '../../services/WorkflowApi';
-import moment from 'moment';
+import WorkflowForm from './WorkflowForm';
+import Icon from '../Icon';
 
 class Workflow extends React.Component {
   static propTypes = {
@@ -12,118 +9,138 @@ class Workflow extends React.Component {
   };
 
   state = {
-    videoInWorkflow: {
-      section: null
-    }
+    editing: false
   };
 
-  hasSections = () => this.props.workflow.sections.length !== 0;
+  hasSections = () => this.props.workflow.sections.length > 0;
+  hasStatuses = () => this.props.workflow.statuses.length > 0;
 
   componentWillMount() {
     if (!this.hasSections()) {
       this.props.workflowActions.getSections();
     }
 
-    this.props.workflowActions.getStatus({ video: this.props.video });
-  }
-
-  trackInWorkflow() {
-    this.props.workflowActions.trackInWorkflow({
-      video: this.props.video,
-      section: this.props.workflow.sections.find(_ => _.id === parseInt(this.state.videoInWorkflow.section)),
-      status: 'Writers'
-    }).then(() => {
-      this.props.workflowActions.getStatus({ video: this.props.video });
-    });
-  }
-
-  updateWorkflowDetails(update) {
-    this.setState({
-      videoInWorkflow: update
-    });
-
-    return Promise.resolve();
-  }
-
-  renderTrackInWorkflow() {
-    return (
-      <div>
-        <ManagedForm data={this.state.videoInWorkflow}
-                     updateData={(e) => this.updateWorkflowDetails(e)}
-                     editable={true}
-                     formName="WorkflowDetails">
-          <ManagedField fieldLocation="section" name="Section">
-            <SelectBox selectValues={this.props.workflow.sections} />
-          </ManagedField>
-        </ManagedForm>
-        <button type="button"
-                className="btn"
-                onClick={() => this.trackInWorkflow()}
-                disabled={!this.state.videoInWorkflow.section}>
-          Track in Workflow
-        </button>
-      </div>
-    );
-  }
-
-  renderStatusInWorkflow() {
-    const {title, prodOffice, section, status } = this.props.workflow.status;
-
-    return (
-      <table>
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Production Office</th>
-            <th>Section</th>
-            <th>Status</th>
-            <th/>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{title}</td>
-            <td>
-              <span className={`production-office production-office--${prodOffice}`}>{prodOffice}</span>
-            </td>
-            <td>{section}</td>
-            <td>{status}</td>
-            <td>
-              <a target="_blank"
-                 rel="noopener noreferrer"
-                 href={WorkflowApi.workflowItemLink(this.props.video)}>
-                Open in Workflow
-              </a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    );
-  }
-
-  render () {
-    if (this.props.workflow.status === WorkflowConstants.notInWorkflow) {
-      return (
-        <div className="form__group">
-          {this.renderTrackInWorkflow()}
-        </div>
-      );
+    if (!this.hasStatuses()) {
+      this.props.workflowActions.getStatuses();
     }
 
+    this.props.workflowActions.getStatus(this.props.video);
+  }
+
+  updateLocalData = e => {
+    this.props.workflowActions.localUpdateWorkflowStatus(e);
+    return Promise.resolve(e);
+  };
+
+  sendToWorkflow() {
+    return this.props.workflowActions.trackInWorkflow({
+      video: this.props.video,
+      section: this.props.workflow.sections.find(_ => _.id === this.props.workflow.status.section),
+      status: this.props.workflow.status.status
+    });
+  }
+
+  updateStatus() {
+    return this.props.workflowActions.updateWorkflowStatus({
+      workflowItem: this.props.workflow.status
+    });
+  }
+
+  saveInWorkflow() {
+    const wfPromise = this.props.workflow.status.isTrackedInWorkflow
+      ? this.updateStatus()
+      : this.sendToWorkflow();
+
+    wfPromise.then(() => {
+      this.props.workflowActions.getStatus(this.props.video);
+    });
+  }
+
+  manageEditingState({ editing, save = false }) {
+    if (save) {
+      this.saveInWorkflow();
+    } else {
+      this.props.workflowActions.getStatus(this.props.video);
+    }
+
+    this.setState({ editing: editing });
+  }
+
+  renderViewInWorkflowLink() {
+    if (this.props.workflow.status.isTrackedInWorkflow) {
+      return (
+        <a className="button inline-block"
+           target="_blank"
+           rel="noopener noreferrer"
+           href={WorkflowApi.workflowItemLink(this.props.video)}>
+          <Icon icon="open_in_new" className="icon__edit"/>
+        </a>
+      );
+    }
+  }
+
+  renderFormButtons() {
+    if (!this.state.editing) {
+      return (
+        <span>
+          {this.renderViewInWorkflowLink()}
+          <button onClick={() => this.manageEditingState({editing: true})}>
+            <Icon icon="edit" className="icon__edit"/>
+          </button>
+        </span>
+      );
+    } else {
+      const canSave = this.props.workflow.status.section && this.props.workflow.status.status;
+
+      return (
+        <span>
+          <button
+            onClick={() => this.manageEditingState({editing: false, save: true})}
+            disabled={!canSave}
+          >
+            <Icon icon="save" className={`icon__done ${canSave ? '' : 'disabled'}`}>
+              Save changes
+            </Icon>
+          </button>
+          <button onClick={() => this.manageEditingState({editing: false})}>
+            <Icon icon="cancel" className="icon__cancel">Cancel</Icon>
+          </button>
+        </span>
+      );
+    }
+  }
+
+  render() {
     return (
-      <div className="form__group">
-        {this.renderStatusInWorkflow()}
+      <div className="video__detailbox">
+        <div className="video__detailbox__header__container">
+          <header className="video__detailbox__header">Workflow</header>
+          {this.renderFormButtons()}
+        </div>
+        <div className="form__group">
+          <WorkflowForm
+            editable={this.state.editing}
+            video={this.props.video || {}}
+            workflowSections={this.props.workflow.sections || []}
+            workflowStatuses={this.props.workflow.statuses || []}
+            workflowStatus={this.props.workflow.status}
+            updateData={this.updateLocalData}
+          />
+        </div>
       </div>
     );
   }
 }
 
-//REDUX CONNECTIONS
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as getSections from '../../actions/WorkflowActions/getSections';
 import * as getStatus from '../../actions/WorkflowActions/getStatus';
+import * as getSections from '../../actions/WorkflowActions/getSections';
+import * as getStatuses from '../../actions/WorkflowActions/getStatuses';
 import * as trackInWorkflow from '../../actions/WorkflowActions/trackInWorkflow';
+import * as updateWorkflowStatus from '../../actions/WorkflowActions/updateWorkflowStatus';
+import * as localUpdateWorkflowStatus from '../../actions/WorkflowActions/localUpdateWorkflowStatus';
+import WorkflowApi from "../../services/WorkflowApi";
 
 function mapStateToProps(state) {
   return {
@@ -136,9 +153,12 @@ function mapDispatchToProps(dispatch) {
     workflowActions: bindActionCreators(
       Object.assign(
         {},
-        getSections,
         getStatus,
-        trackInWorkflow
+        getSections,
+        getStatuses,
+        trackInWorkflow,
+        updateWorkflowStatus,
+        localUpdateWorkflowStatus
       ),
       dispatch
     )

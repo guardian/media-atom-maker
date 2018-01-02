@@ -1,5 +1,5 @@
 import WorkflowApi from '../../services/WorkflowApi';
-import { Workflow as WorkflowConstants } from '../../constants/workflow';
+import { blankWorkflowStatusData } from '../../constants/blankWorkflowStatusData';
 
 function requestStatus() {
   return {
@@ -20,7 +20,7 @@ function receiveStatus404() {
   return {
     type: 'WORKFLOW_STATUS_NOT_FOUND',
     receivedAt: Date.now(),
-    status: WorkflowConstants.notInWorkflow
+    status: blankWorkflowStatusData
   };
 }
 
