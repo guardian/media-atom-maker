@@ -11,6 +11,7 @@ trait UploadAccess { this: Settings with AwsAccess =>
   val userUploadFolder: String = getMandatoryString("aws.upload.folder")
   val userUploadRole: String = getMandatoryString("aws.upload.role")
   val syncWithPluto: Boolean = getBoolean("pluto.sync").getOrElse(false)
+  val integrationTestUser: String = getMandatoryString("integration.test.user")
 
   val pipelineName: String = s"VideoPipeline$stage"
   lazy val pipelineArn: String = getPipelineArn()

@@ -64,9 +64,11 @@ object PlutoSyncMetadataMessage {
   implicit val format: Format[PlutoSyncMetadataMessage] = Jsonx.formatCaseClass[PlutoSyncMetadataMessage]
 
   def build(uploadId: String, atom: MediaAtom, awsAccess: AwsAccess with UploadAccess, email: String): PlutoSyncMetadataMessage = {
+    val syncWithPluto = email != awsAccess.integrationTestUser && awsAccess.syncWithPluto
+
     PlutoSyncMetadataMessage(
       "video-upload",
-      awsAccess.syncWithPluto,
+      enabled = syncWithPluto,
       atom.plutoData.flatMap(_.projectId),
       CompleteUploadKey(awsAccess.userUploadFolder, uploadId).toString,
       atom.id,
