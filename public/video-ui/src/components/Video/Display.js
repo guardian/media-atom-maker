@@ -228,7 +228,7 @@ class VideoDisplay extends React.Component {
 
   renderMetadata() {
     return (
-      <div className="video__detailbox video__data">
+      <div className="video__detailbox">
         <div className="video__detailbox__header__container">
           <header className="video__detailbox__header">
             Video Data
