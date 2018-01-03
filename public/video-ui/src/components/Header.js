@@ -153,6 +153,17 @@ export default class Header extends React.Component {
         </header>
       );
     }
+
+    if (this.props.currentPath.endsWith('/create')) {
+      return (
+        <header className={className}>
+          {this.renderHome()}
+          <div className="flex-spacer" />
+          {this.renderHelpLink()}
+        </header>
+      );
+    }
+
     if (!this.props.showPublishedState) {
       return (
         <header className={className}>
