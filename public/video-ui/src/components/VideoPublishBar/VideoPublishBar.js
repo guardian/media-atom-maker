@@ -53,7 +53,7 @@ export default class VideoPublishBar extends React.Component {
     this.props.publishVideo();
   };
 
-  hasPublishedVideoUsages = () =>
+  hasPublishedVideoPageUsages = () =>
     this.props.usages.data.published.video.length > 0;
 
   renderPublishButtonText() {
@@ -94,7 +94,7 @@ export default class VideoPublishBar extends React.Component {
         video={this.props.video}
         videoEditOpen={this.props.videoEditOpen}
         saveVideo={this.props.saveVideo}
-        hasPublishedVideoUsages={this.hasPublishedVideoUsages}
+        hasPublishedVideoPageUsages={this.hasPublishedVideoPageUsages}
       />
     );
   }

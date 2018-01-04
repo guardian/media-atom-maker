@@ -11,12 +11,14 @@ import {
 import { impossiblyDistantDate }  from '../../constants/dates';
 import datesProperties from '../../constants/datesProperties';
 import VideoUtils from '../../util/video';
+import ReactTooltip from 'react-tooltip';
 
 export default class ScheduledLaunch extends React.Component {
   static propTypes = {
     video: PropTypes.object.isRequired,
     saveVideo: PropTypes.func.isRequired,
-    videoEditOpen: PropTypes.bool.isRequired
+    videoEditOpen: PropTypes.bool.isRequired,
+    hasPublishedVideoPageUsages: PropTypes.func.isRequired
   };
 
   state = {
@@ -130,6 +132,18 @@ export default class ScheduledLaunch extends React.Component {
     this.setState({ showDatePicker: false, [propertyName]: null });
   };
 
+  getNoScheduleReason = () => {
+    if (!this.props.video.title) {
+      return 'You must add a title before scheduling';
+    }
+
+    if (this.props.hasPublishedVideoPageUsages()) {
+      return 'The atom cannot be scheduled because it has a published video page';
+    }
+
+    return null;
+  }
+
   /* Render functions */
 
   renderScheduleOptions = (video, videoEditOpen, scheduledLaunch, embargo) => {
@@ -242,25 +256,33 @@ export default class ScheduledLaunch extends React.Component {
     </button>
   )
 
-  renderSchedulerButton = (showScheduleOptions) => (
-    <button
-      className="btn btn--list"
-      onClick={() =>
-        this.setState({
-          showScheduleOptions: !showScheduleOptions,
-          propertyName: null
-        })
-      }
-    >
-      <Icon icon="access_time" />
-    </button>
-  )
+  renderSchedulerButton = (showScheduleOptions) => {
+
+    const notAbleToScheduleReason = this.getNoScheduleReason();
+
+    return (
+      <div data-tip={notAbleToScheduleReason}>
+        <button
+          disabled={!!notAbleToScheduleReason}
+          className="btn btn--list"
+          onClick={() =>
+            this.setState({
+              showScheduleOptions: !showScheduleOptions,
+              propertyName: null
+            })
+          }
+        >
+          <Icon icon="access_time" />
+        </button>
+      </div>
+    );
+  }
 
   render() {
     const {
       video,
       videoEditOpen,
-      hasPublishedVideoUsages
+      hasPublishedVideoPageUsages
     } = this.props;
     const {
       selectedScheduleDate,
@@ -286,8 +308,7 @@ export default class ScheduledLaunch extends React.Component {
           )}
         {this.renderDatePicker(showDatePicker, propertyName, selectedScheduleDate, selectedEmbargoDate)}
         {showDatePicker && this.renderAlert(invalidDateError)}
-        {!hasPublishedVideoUsages() &&
-          !showDatePicker && (
+        {!showDatePicker && (
             <div className="scheduleOptionsWrapper">
             {this.renderSchedulerButton(showScheduleOptions)}
               {showScheduleOptions &&
@@ -304,6 +325,7 @@ export default class ScheduledLaunch extends React.Component {
           (propertyName === datesProperties.selectedEmbargoDate && embargo)) &&
           showDatePicker && this.renderRemoveButton(propertyName)}
         {showDatePicker && this.renderCancelButton()}
+        <ReactTooltip />
       </div>
     );
   }
