@@ -36,7 +36,8 @@ class Workflow extends React.Component {
     return this.props.workflowActions.trackInWorkflow({
       video: this.props.video,
       section: this.props.workflow.sections.find(_ => _.id === this.props.workflow.status.section),
-      status: this.props.workflow.status.status
+      status: this.props.workflow.status.status,
+      note: this.props.workflow.status.note
     });
   }
 

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
 import TextInput from '../FormFields/TextInput';
+import TextAreaInput from '../FormFields/TextAreaInput';
 
 export default class WorkflowForm extends React.Component {
   static propTypes = {
@@ -40,6 +41,12 @@ export default class WorkflowForm extends React.Component {
           name="Status"
           disabled={!this.props.editable}>
           <SelectBox selectValues={this.props.workflowStatuses} />
+        </ManagedField>
+        <ManagedField
+          fieldLocation="note"
+          name="Note"
+          disabled={!this.props.editable || this.props.workflowStatus.isTrackedInWorkflow}>
+          <TextAreaInput />
         </ManagedField>
       </ManagedForm>
     );
