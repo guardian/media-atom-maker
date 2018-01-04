@@ -21,6 +21,7 @@ class PlutoUploadActions(config: Settings with DynamoAccess with KinesisAccess w
             log.info(s"Sending missing Pluto ID email user=${plutoData.user} atom=${plutoData.atomId}")
 
             mailer.sendPlutoIdMissingEmail(
+              plutoData.atomId,
               plutoData.title,
               plutoData.user,
               config.fromEmailAddress,
