@@ -17,7 +17,8 @@ export default class ScheduledLaunch extends React.Component {
   static propTypes = {
     video: PropTypes.object.isRequired,
     saveVideo: PropTypes.func.isRequired,
-    videoEditOpen: PropTypes.bool.isRequired
+    videoEditOpen: PropTypes.bool.isRequired,
+    hasPublishedVideoPageUsages: PropTypes.func.isRequired
   };
 
   state = {
