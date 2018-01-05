@@ -1,4 +1,10 @@
-@(title: String, isHotReloading: Boolean)(content: Html)
+@(
+  title: String,
+  isHotReloading: Boolean,
+  autotrackJsLocation: String,
+  maybeGaPropertyId: Option[String]
+)(content: Html)
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -12,6 +18,34 @@
       <link rel="stylesheet" type="text/css" href="@routes.Assets.versioned("video-ui/build/main.css")"/>
     }
 
+    @defining(maybeGaPropertyId) {
+      case Some(gaPropertyId) => {
+        <!-- Google Analytics -->
+        <script>
+          window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+          ga('create', '@gaPropertyId', 'auto');
+
+          ga('require', 'cleanUrlTracker');
+          ga('require', 'eventTracker');
+          ga('require', 'impressionTracker');
+          ga('require', 'maxScrollTracker');
+          ga('require', 'mediaQueryTracker');
+          ga('require', 'outboundFormTracker');
+          ga('require', 'outboundLinkTracker');
+          ga('require', 'pageVisibilityTracker');
+          ga('require', 'socialWidgetTracker');
+          ga('require', 'urlChangeTracker');
+
+          ga('send', 'pageview');
+        </script>
+        <script async src='https://www.google-analytics.com/analytics.js'></script>
+        <script async src='@autotrackJsLocation'></script>
+        <!-- End Google Analytics -->
+      }
+      case _ => {
+
+      }
+    }
   </head>
   <body>
     @content

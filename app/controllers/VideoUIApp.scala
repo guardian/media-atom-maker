@@ -21,6 +21,7 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
     val isTrainingMode = isInTrainingMode(req)
 
     val jsFileName = "video-ui/build/app.js"
+    val autotrackJsLocation = routes.Assets.versioned("video-ui/build/autotrack.js").toString
 
     val jsAssetHost = sys.env.get("JS_ASSET_HOST")
 
@@ -59,10 +60,12 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
       Ok(views.html.VideoUIApp.app(
         title = "Media Atom Maker",
         jsLocation,
+        autotrackJsLocation,
         presenceJsLocation = clientConfig.presence.map(_.jsLocation),
         Json.toJson(clientConfig).toString(),
-        isHotReloading)
-      )
+        isHotReloading,
+        awsConfig.gaPropertyId
+      ))
     }
   }
 

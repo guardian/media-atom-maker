@@ -23,6 +23,7 @@ js_test() {
 }
 
 js_build() {
+  yarn run build-autotrack
   yarn run build
 }
 
