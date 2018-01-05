@@ -73,7 +73,8 @@ export default class WorkflowApi {
   static _getTrackInWorkflowPayload({
     video,
     status,
-    section
+    section,
+    note
   }) {
     const prodOffice = getProductionOffice();
 
@@ -114,15 +115,17 @@ export default class WorkflowApi {
       path: 'atom/media/' + video.id,
       scheduledLaunchDate: scheduledLaunch,
       embargoedUntil: embargo,
-      embargoedIndefinitely: indefiniteEmbargo
+      embargoedIndefinitely: indefiniteEmbargo,
+      note
     };
   }
 
-  static trackInWorkflow({ video, status, section }) {
+  static trackInWorkflow({ video, status, section, note }) {
     const payload = WorkflowApi._getTrackInWorkflowPayload({
       video,
       status,
-      section
+      section,
+      note
     });
 
     return pandaReqwest({
