@@ -35,6 +35,8 @@ class AWSConfig(override val config: Config, override val credentials: AwsCreden
 
   lazy val gridUrl = getMandatoryString("grid.url")
 
+  lazy val gaPropertyId: Option[String] = getString("gaPropertyId")
+
   lazy val expiryPollerName = "Expiry"
   lazy val expiryPollerLastName = "Poller"
 
