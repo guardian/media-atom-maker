@@ -11,7 +11,7 @@ import com.gu.media.util.MediaAtomHelpers
 import data.{DataStores, UnpackedDataStores}
 import play.api.libs.json.Json
 import play.api.mvc.Controller
-import com.gu.media.model.{MediaAtom, MediaAtomBeforeCreation, PlutoSyncMetadataMessage}
+import com.gu.media.model.{MediaAtom, MediaAtomBeforeCreation, PlutoResyncMetadataMessage}
 import com.typesafe.config.{Config, ConfigFactory}
 import util.AWSConfig
 
@@ -59,12 +59,12 @@ class PlutoController(
 
       atom.plutoData match {
         case Some(data)=>
-          pluto.sendToPluto(PlutoSyncMetadataMessage.build(
+          pluto.sendToPluto(PlutoResyncMetadataMessage.build(
             versionWithId,
             atom,
             awsConfig,
             "system@video.gutools.co.uk"
-          ),shouldSendEmail=false)
+          ))
           Ok(Json.toJson(atom))
         case None=>
           BadRequest(s"$id does not have pluto data attached")
