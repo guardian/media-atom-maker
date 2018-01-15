@@ -10,7 +10,7 @@ class PlutoUploadActions(config: Settings with DynamoAccess with KinesisAccess w
   private val mailer = new Mailer(config.sesClient, config.getMandatoryString("host"))
   private val plutoStore = new PlutoDataStore(config.dynamoDB, config.manualPlutoDynamo)
 
-  def sendToPluto(plutoIntegrationMessage: PlutoIntegrationMessage): Unit = {
+  def sendToPluto(plutoIntegrationMessage: PlutoIntegrationMessage, shouldSendEmail:Boolean=true): Unit = {
     plutoIntegrationMessage match {
       case plutoData: PlutoSyncMetadataMessage => {
         plutoData.projectId match {
@@ -18,15 +18,17 @@ class PlutoUploadActions(config: Settings with DynamoAccess with KinesisAccess w
           case None => {
             plutoStore.put(plutoData)
 
-            log.info(s"Sending missing Pluto ID email user=${plutoData.user} atom=${plutoData.atomId}")
+            if(shouldSendEmail) {
+              log.info(s"Sending missing Pluto ID email user=${plutoData.user} atom=${plutoData.atomId}")
 
-            mailer.sendPlutoIdMissingEmail(
-              plutoData.atomId,
-              plutoData.title,
-              plutoData.user,
-              config.fromEmailAddress,
-              config.replyToAddresses
-            )
+              mailer.sendPlutoIdMissingEmail(
+                plutoData.atomId,
+                plutoData.title,
+                plutoData.user,
+                config.fromEmailAddress,
+                config.replyToAddresses
+              )
+            }
           }
         }
       }

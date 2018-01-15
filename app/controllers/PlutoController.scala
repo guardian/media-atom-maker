@@ -7,32 +7,25 @@ import com.gu.media.logging.Logging
 import com.gu.media.pluto.PlutoUpsertRequest
 import com.gu.media.upload.PlutoUploadActions
 import com.gu.pandahmac.HMACAuthActions
+import com.gu.media.util.MediaAtomHelpers
 import data.{DataStores, UnpackedDataStores}
 import play.api.libs.json.Json
 import play.api.mvc.Controller
 import com.gu.media.model.{MediaAtom, MediaAtomBeforeCreation, PlutoSyncMetadataMessage}
 import com.typesafe.config.{Config, ConfigFactory}
+import util.AWSConfig
 
 class PlutoController(
   val config:Config,
-  val credentials:AwsCredentials,
+  val awsConfig:AWSConfig,
   val authActions: HMACAuthActions,
   override val stores: DataStores
 ) extends Controller
   with UnpackedDataStores
   with JsonRequestParsing
-  with Settings
-  with AwsAccess
-  with DynamoAccess
-  with KinesisAccess
-  with SESSettings
-with UploadAccess
   with Logging {
 
   import authActions.{APIAuthAction, APIHMACAuthAction}
-
-  final override def regionName = sys.env.get("REGION")
-  final override def readTag(tag: String) = sys.env.get(tag.toUpperCase(Locale.ENGLISH))
 
   def getCommissions() = APIAuthAction {
     val plutoCommissions = stores.plutoCommissionStore.list()
@@ -53,18 +46,25 @@ with UploadAccess
 
   def resendAtomMessage(id: String) = APIHMACAuthAction {
     val settings = com.gu.media.Settings(this.config)
-    val pluto = new PlutoUploadActions(this)
+    val pluto = new PlutoUploadActions(awsConfig)
     try {
       val atomContent = getPreviewAtom(id)
       val atom = MediaAtom.fromThrift(atomContent)
+      val versionWithId = MediaAtomHelpers.getCurrentAssetVersion(atom) match {
+        case Some(versionNumber)=>id + s"-$versionNumber"
+        case None=>
+          log.error("Requested re-index on an atom with no currentAssetVersion, this could indicate a problem.")
+          id
+      }
+
       atom.plutoData match {
         case Some(data)=>
           pluto.sendToPluto(PlutoSyncMetadataMessage.build(
-            id,
+            versionWithId,
             atom,
-            this,
+            awsConfig,
             "system@video.gutools.co.uk"
-          ))
+          ),shouldSendEmail=false)
           Ok(Json.toJson(atom))
         case None=>
           BadRequest(s"$id does not have pluto data attached")
