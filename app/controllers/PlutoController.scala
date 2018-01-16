@@ -1,6 +1,5 @@
 package controllers
 
-import java.util.Locale
 import com.gu.media.aws._
 import com.gu.media.Settings
 import com.gu.media.logging.Logging
@@ -14,6 +13,7 @@ import play.api.mvc.Controller
 import com.gu.media.model.{MediaAtom, MediaAtomBeforeCreation, PlutoResyncMetadataMessage}
 import com.typesafe.config.{Config, ConfigFactory}
 import util.AWSConfig
+import model.commands.CommandExceptions._
 
 class PlutoController(
   val config:Config,
@@ -45,8 +45,7 @@ class PlutoController(
   }
 
   def resendAtomMessage(id: String) = APIHMACAuthAction {
-    val settings = com.gu.media.Settings(this.config)
-    val pluto = new PlutoUploadActions(awsConfig)
+
     try {
       val atomContent = getPreviewAtom(id)
       val atom = MediaAtom.fromThrift(atomContent)
@@ -59,6 +58,7 @@ class PlutoController(
 
       atom.plutoData match {
         case Some(data)=>
+          val pluto = new PlutoUploadActions(awsConfig)
           pluto.sendToPluto(PlutoResyncMetadataMessage.build(
             versionWithId,
             atom,
@@ -70,7 +70,7 @@ class PlutoController(
           BadRequest(s"$id does not have pluto data attached")
       }
     } catch {
-      case excep:Throwable=>InternalServerError(excep.toString)
+      commandExceptionAsResult
     }
   }
 }
