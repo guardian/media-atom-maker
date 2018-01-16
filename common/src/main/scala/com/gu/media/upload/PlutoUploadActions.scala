@@ -18,15 +18,19 @@ class PlutoUploadActions(config: Settings with DynamoAccess with KinesisAccess w
           case None => {
             plutoStore.put(plutoData)
 
-            log.info(s"Sending missing Pluto ID email user=${plutoData.user} atom=${plutoData.atomId}")
+            val shouldSendEmailReminder = plutoData.user != config.integrationTestUser && config.syncWithPluto
 
-            mailer.sendPlutoIdMissingEmail(
-              plutoData.atomId,
-              plutoData.title,
-              plutoData.user,
-              config.fromEmailAddress,
-              config.replyToAddresses
-            )
+            if (shouldSendEmailReminder) {
+              log.info(s"Sending missing Pluto ID email user=${plutoData.user} atom=${plutoData.atomId}")
+
+              mailer.sendPlutoIdMissingEmail(
+                plutoData.atomId,
+                plutoData.title,
+                plutoData.user,
+                config.fromEmailAddress,
+                config.replyToAddresses
+              )
+            }
           }
         }
       }
@@ -35,7 +39,9 @@ class PlutoUploadActions(config: Settings with DynamoAccess with KinesisAccess w
   }
 
   private def sendKinesisMessage(plutoIntegrationMessage: PlutoIntegrationMessage): Unit = {
-    log.info(s"writing message to pluto integration stream: type=${plutoIntegrationMessage.`type`} atomId=${plutoIntegrationMessage.atomId} content=$plutoIntegrationMessage")
-    config.sendOnKinesis(config.plutoIntegrationOutgoingStream, plutoIntegrationMessage.partitionKey, plutoIntegrationMessage)
+    if (config.syncWithPluto) {
+      log.info(s"writing message to pluto integration stream: type=${plutoIntegrationMessage.`type`} atomId=${plutoIntegrationMessage.atomId} content=$plutoIntegrationMessage")
+      config.sendOnKinesis(config.plutoIntegrationOutgoingStream, plutoIntegrationMessage.partitionKey, plutoIntegrationMessage)
+    }
   }
 }
