@@ -81,12 +81,10 @@ object PlutoSyncMetadataMessage {
 
 case class PlutoResyncMetadataMessage(
    `type`: String,
-    enabled: Boolean,
     projectId: Option[String],
     s3Key: String,
     atomId: String,
     title: String,
-    user: String,
     posterImageUrl: Option[String]
  ) extends PlutoIntegrationMessage {
   override def partitionKey: String = s3Key
@@ -95,17 +93,13 @@ case class PlutoResyncMetadataMessage(
 object PlutoResyncMetadataMessage {
   implicit val format: Format[PlutoResyncMetadataMessage] = Jsonx.formatCaseClass[PlutoResyncMetadataMessage]
 
-  def build(uploadId: String, atom: MediaAtom, awsAccess: AwsAccess with UploadAccess, email: String): PlutoResyncMetadataMessage = {
-    val syncWithPluto = email != awsAccess.integrationTestUser && awsAccess.syncWithPluto
-
+  def build(uploadId: String, atom: MediaAtom, awsAccess: AwsAccess with UploadAccess): PlutoResyncMetadataMessage = {
     PlutoResyncMetadataMessage(
       "video-upload-resync",
-      enabled = syncWithPluto,
       atom.plutoData.flatMap(_.projectId),
       CompleteUploadKey(awsAccess.userUploadFolder, uploadId).toString,
       atom.id,
       atom.title,
-      email,
       atom.posterImage.flatMap(_.master).map(_.file)
     )
   }

@@ -62,8 +62,7 @@ class PlutoController(
           pluto.sendToPluto(PlutoResyncMetadataMessage.build(
             versionWithId,
             atom,
-            awsConfig,
-            "system@video.gutools.co.uk"
+            awsConfig
           ))
           Ok(Json.toJson(atom))
         case None=>
