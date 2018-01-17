@@ -18,6 +18,8 @@ trait KinesisAccess { this: Settings with AwsAccess with Logging =>
 
   val plutoIntegrationOutgoingStream: String = getMandatoryString("aws.kinesis.uploadsStreamName")
 
+  val syncWithPluto: Boolean = getBoolean("pluto.sync").getOrElse(false)
+
   lazy val crossAccountKinesisClient = region.createClient(classOf[AmazonKinesisClient], credentials.crossAccount, null)
   lazy val kinesisClient = region.createClient(classOf[AmazonKinesisClient], credentials.instance, null)
 

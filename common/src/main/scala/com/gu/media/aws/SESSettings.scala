@@ -12,4 +12,5 @@ trait SESSettings { this: Settings with AwsAccess =>
 
   val replyToAddresses = getMandatoryString("aws.ses.replyToAddresses").split(",")
 
+  val integrationTestUser: String = getMandatoryString("integration.test.user")
 }
