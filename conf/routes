@@ -42,6 +42,8 @@ POST    /reindex-publish                com.gu.atom.play.ReindexController.newPu
 GET     /reindex-preview                com.gu.atom.play.ReindexController.previewReindexJobStatus()
 GET     /reindex-publish                com.gu.atom.play.ReindexController.publishedReindexJobStatus()
 
+POST    /api2/pluto/resend/:id               controllers.PlutoController.resendAtomMessage(id)
+
 #video specific react frontend
 GET /                                   controllers.VideoUIApp.index(id = "")
 GET /videos                             controllers.VideoUIApp.index(id = "")

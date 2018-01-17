@@ -56,7 +56,7 @@ class MediaAtomMaker(context: Context)
   private val support = new Support(hmacAuthActions, capi)
   private val youTubeController = new Youtube(hmacAuthActions, youTube, permissions)
 
-  private val plutoController = new PlutoController(hmacAuthActions, stores)
+  private val plutoController = new PlutoController(config, aws, hmacAuthActions, stores)
 
   private val youtubeTags = new YoutubeTagController(hmacAuthActions)
 

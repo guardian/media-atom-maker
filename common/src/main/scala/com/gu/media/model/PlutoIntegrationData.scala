@@ -75,6 +75,32 @@ object PlutoSyncMetadataMessage {
   }
 }
 
+case class PlutoResyncMetadataMessage(
+   `type`: String,
+    projectId: Option[String],
+    s3Key: String,
+    atomId: String,
+    title: String,
+    posterImageUrl: Option[String]
+ ) extends PlutoIntegrationMessage {
+  override def partitionKey: String = s3Key
+}
+
+object PlutoResyncMetadataMessage {
+  implicit val format: Format[PlutoResyncMetadataMessage] = Jsonx.formatCaseClass[PlutoResyncMetadataMessage]
+
+  def build(uploadId: String, atom: MediaAtom, awsAccess: AwsAccess with UploadAccess): PlutoResyncMetadataMessage = {
+    PlutoResyncMetadataMessage(
+      "video-upload-resync",
+      atom.plutoData.flatMap(_.projectId),
+      CompleteUploadKey(awsAccess.userUploadFolder, uploadId).toString,
+      atom.id,
+      atom.title,
+      atom.posterImage.flatMap(_.master).map(_.file)
+    )
+  }
+}
+
 object PlutoIntegrationMessage {
   implicit val format: Format[PlutoIntegrationMessage] = Jsonx.formatSealed[PlutoIntegrationMessage]
 }
