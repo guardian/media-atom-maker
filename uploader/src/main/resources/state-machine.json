@@ -104,18 +104,7 @@
     "CompleteMultipartCopy": {
       "Type": "Task",
       "Resource": "${CompleteMultipartCopy.Arn}",
-      "Next": "CheckSyncWithPluto"
-    },
-    "CheckSyncWithPluto": {
-      "Type": "Choice",
-      "Choices": [
-        {
-          "Variable": "$.metadata.pluto.enabled",
-          "BooleanEquals": true,
-          "Next": "SendToPluto"
-        }
-      ],
-      "Default": "CheckSelfHosted"
+      "Next": "SendToPluto"
     },
     "SendToPluto": {
       "Type": "Task",
