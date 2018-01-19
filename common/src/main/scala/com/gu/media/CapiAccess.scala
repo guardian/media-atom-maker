@@ -5,21 +5,33 @@ import java.net.URLEncoder
 import java.net.URI
 import java.util.concurrent.TimeUnit
 
-import com.squareup.okhttp.{Credentials, OkHttpClient, Request}
+import com.amazonaws.auth.profile.ProfileCredentialsProvider
+import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, STSAssumeRoleSessionCredentialsProvider}
+import com.gu.contentapi.client.IAMSigner
+import com.squareup.okhttp.{Headers, OkHttpClient, Request}
 import com.typesafe.config.Config
 import play.api.libs.json.{JsValue, Json}
+import collection.JavaConverters._
 
 trait CapiAccess { this: Settings =>
-  def capiPreviewUser = getMandatoryString("capi.previewUser")
-  def capiPreviewPassword = getMandatoryString("capi.previewPassword")
-  def previewCapiUrl = getMandatoryString("capi.previewUrl")
+  def previewCapiIAMUrl = getMandatoryString("capi.previewIAMUrl")
+  def previewCapiRole = getMandatoryString("capi.previewRole")
   def liveCapiUrl = getMandatoryString("capi.liveUrl")
+
+  private val capiPreviewCredentials: AWSCredentialsProvider = {
+    new AWSCredentialsProviderChain(
+      new ProfileCredentialsProvider("capi"),
+      new STSAssumeRoleSessionCredentialsProvider.Builder(previewCapiRole, "capi").build()
+    )
+  }
+
+  private val signer = new IAMSigner(capiPreviewCredentials, sys.env.getOrElse("REGION", "eu-west-1"))
 
   private val httpClient = new OkHttpClient()
   httpClient.setConnectTimeout(5, TimeUnit.SECONDS)
 
   private def getUrl(path: String, qs: Map[String, Seq[String]], queryLive: Boolean): URI = {
-    val capiDomain = if (queryLive) liveCapiUrl else previewCapiUrl
+    val capiDomain = if (queryLive) liveCapiUrl else previewCapiIAMUrl
     val queryString = qs.map(pair => {
       val key = pair._1
       val value = URLEncoder.encode(pair._2.mkString(","), "UTF-8")
@@ -42,9 +54,11 @@ trait CapiAccess { this: Settings =>
   def complexCapiQuery(path: String, qs: Map[String, Seq[String]], queryLive: Boolean = false): JsValue = {
     val uri = getUrl(path, qs, queryLive)
 
+    val headers: Map[String,String] = if (queryLive) Map.empty else signer.addIAMHeaders(Map.empty, uri.toURL.toString)
+
     val req = new Request.Builder()
       .url(uri.toURL)
-      .header("Authorization", Credentials.basic(capiPreviewUser, capiPreviewPassword))
+      .headers(Headers.of(headers.asJava))
       .build
 
     try {
