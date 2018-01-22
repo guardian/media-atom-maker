@@ -80,6 +80,9 @@ Parameters:
   TranscoderPipelineId:
     Description: Name of the pipeline that will transcode videos for self-hosted route
     Type: String
+  CapiPreviewRole:
+    Type: String
+    Description: ARN of the CAPI preview role
 Mappings:
   StageMap:
     PROD:
@@ -889,6 +892,20 @@ Resources:
       Statistic: Minimum
       AlarmActions:
       - !Ref 'AlertTopic'
+
+  AssumeCapiPreviewRolePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: assume-capi-preview-role
+      PolicyDocument:
+        Statement:
+        - Effect: Allow
+          Action: sts:AssumeRole
+          Resource:
+            Ref: CapiPreviewRole
+      Roles:
+      - !Ref 'DistributionRole'
+
 Outputs:
   UserUploadRole:
     Value: !Ref 'LimitedUploadRole'

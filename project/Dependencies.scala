@@ -20,6 +20,8 @@ object Dependencies {
 
   val scanamo = "com.gu" %% "scanamo" % scanamoVersion
 
+  val capiAws = "com.gu" %% "content-api-client-aws" % "0.2"
+
   val scalaTest = "org.scalatest" %% "scalatest" % "2.2.6" % "test"
   val scalaTestPlusPlay = "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % "test"
   val mockito = "org.mockito" %  "mockito-core" % mockitoVersion % "test"
@@ -84,7 +86,8 @@ object Dependencies {
 
   val commonDependencies = panda ++ googleApi ++ atomMaker ++ Seq(
     typesafeConfig, awsLambdaCore, awsS3, awsDynamo, playJsonExtensions, logstashLogbackEncoder, kinesisLogbackAppender,
-    awsTranscoder, scanamo, okHttp, scalaTest, scalaCheck, awsSQS, awsSNS, permissionsClient, awsStepFunctions, awsSES
+    awsTranscoder, scanamo, okHttp, scalaTest, scalaCheck, awsSQS, awsSNS, permissionsClient, awsStepFunctions, awsSES,
+    capiAws
   ) ++ partnerApiDepencies
 
   val appDependencies = panda ++ slf4j ++ atomMaker ++ Seq(
