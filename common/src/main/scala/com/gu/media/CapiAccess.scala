@@ -1,16 +1,16 @@
 package com.gu.media
 
 import java.io.IOException
-import java.net.URLEncoder
 import java.net.URI
 import java.util.concurrent.TimeUnit
 
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, STSAssumeRoleSessionCredentialsProvider}
-import com.gu.contentapi.client.IAMSigner
+import com.gu.contentapi.client.{IAMSigner, IAMEncoder}
 import com.squareup.okhttp.{Headers, OkHttpClient, Request}
 import com.typesafe.config.Config
 import play.api.libs.json.{JsValue, Json}
+
 import collection.JavaConverters._
 
 trait CapiAccess { this: Settings =>
@@ -32,11 +32,7 @@ trait CapiAccess { this: Settings =>
 
   private def getUrl(path: String, qs: Map[String, Seq[String]], queryLive: Boolean): URI = {
     val capiDomain = if (queryLive) liveCapiUrl else previewCapiIAMUrl
-    val queryString = qs.map(pair => {
-      val key = pair._1
-      val value = URLEncoder.encode(pair._2.mkString(","), "UTF-8")
-      s"$key=$value"
-    }).mkString("&")
+    val queryString = IAMEncoder.encodeParams(qs)
 
     URI.create(s"$capiDomain/$path?$queryString")
   }
@@ -54,7 +50,8 @@ trait CapiAccess { this: Settings =>
   def complexCapiQuery(path: String, qs: Map[String, Seq[String]], queryLive: Boolean = false): JsValue = {
     val uri = getUrl(path, qs, queryLive)
 
-    val headers: Map[String,String] = if (queryLive) Map.empty else signer.addIAMHeaders(Map.empty, uri.toURL.toString)
+    val headers: Map[String,String] =
+      if (queryLive) Map.empty else signer.addIAMHeaders(Map.empty[String,String], uri)
 
     val req = new Request.Builder()
       .url(uri.toURL)
