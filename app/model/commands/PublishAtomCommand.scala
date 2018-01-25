@@ -281,7 +281,7 @@ case class PublishAtomCommand(
       if (previewAtom.blockAds) metadata.withoutContentBundleTags() else metadata.withContentBundleTags() // content bundle tags only needed on monetized videos
     )
 
-    YouTubeMessage(previewAtom.id, asset.id, "Atom publish", youtubeMetadataUpdate).logMessage
+    YouTubeMessage(previewAtom.id, asset.id, "YouTube Metadata Update", youtubeMetadataUpdate).logMessage
 
     previewAtom
   }
@@ -302,7 +302,7 @@ case class PublishAtomCommand(
         }
 
         val thumbnailUpdate = youtube.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
-        YouTubeMessage(atom.id, asset.id, "Thumbnail update", thumbnailUpdate).logMessage
+        YouTubeMessage(atom.id, asset.id, "YouTube Thumbnail Update", thumbnailUpdate).logMessage
         atom
       }
       case None => atom
