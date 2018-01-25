@@ -49,82 +49,96 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
 
   def updateMetadata(id: String, metadata: YouTubeMetadataUpdate): Either[String, String] =
     getVideo(id, "snippet, status") match {
-      case Some(video) =>
-        try {
-          protectAgainstMistakesInDev(video)
+      case Some(video) => {
 
-          val oldSnippet = video.getSnippet
+        findMistakesInDev(video) match {
+          case None => {
 
-          val newSnippet = new VideoSnippet()
-          newSnippet.setTags(metadata.tags.asJava)
-          newSnippet.setTitle(metadata.title.getOrElse(oldSnippet.getTitle))
-          newSnippet.setCategoryId(metadata.categoryId.getOrElse(oldSnippet.getCategoryId))
-          newSnippet.setDescription(metadata.description.getOrElse(oldSnippet.getDescription))
+            val oldSnippet = video.getSnippet
 
-          val status = video.getStatus
-          metadata.license.foreach(status.setLicense)
-          metadata.privacyStatus.map(_.toLowerCase).foreach(status.setPrivacyStatus)
+            val newSnippet = new VideoSnippet()
+            newSnippet.setTags(metadata.tags.asJava)
+            newSnippet.setTitle(metadata.title.getOrElse(oldSnippet.getTitle))
+            newSnippet.setCategoryId(metadata.categoryId.getOrElse(oldSnippet.getCategoryId))
+            newSnippet.setDescription(metadata.description.getOrElse(oldSnippet.getDescription))
 
-          video.setSnippet(newSnippet)
-          video.setStatus(status)
+            val status = video.getStatus
+            metadata.license.foreach(status.setLicense)
+            metadata.privacyStatus.map(_.toLowerCase).foreach(status.setPrivacyStatus)
 
-          val prettyMetadata = YouTubeMetadataUpdate.prettyToString(metadata)
+            video.setSnippet(newSnippet)
+            video.setStatus(status)
 
-          client.videos()
-            .update("snippet, status", video)
-            .setOnBehalfOfContentOwner(contentOwner)
-            .execute()
+            val prettyMetadata = YouTubeMetadataUpdate.prettyToString(metadata)
+            try {
+              client.videos()
+                .update("snippet, status", video)
+                .setOnBehalfOfContentOwner(contentOwner)
+                .execute()
 
-          Either.right(prettyMetadata)
-        }
-        catch {
-          case e: Throwable => {
-            Either.left(s"unable to update video=$id" + e)
+              Either.right(prettyMetadata)
+            }
+            catch {
+              case e: Throwable => {
+                Either.left(s"unable to update video=$id" + e)
+              }
+            }
           }
+          case Some(error) => Either.left(error)
         }
-
+      }
       case _ => Either.left("could not find video to publish")
     }
 
   def setStatus(id: String, privacyStatus: PrivacyStatus): Either[String, String] = {
     getVideo(id, "snippet,status") match {
       case Some(video) => {
-        protectAgainstMistakesInDev(video)
+        findMistakesInDev(video) match {
+          case None => {
 
-        video.getStatus.setPrivacyStatus(privacyStatus.name)
 
-        try {
-          client.videos()
-            .update("snippet, status", video)
-            .setOnBehalfOfContentOwner(contentOwner)
-            .execute()
+            video.getStatus.setPrivacyStatus(privacyStatus.name)
 
-          Right(s"marked privacy status as $privacyStatus")
-        }
-        catch {
-          case e: Throwable =>
-            Left(s"unable to mark privacy status as $privacyStatus" + e)
+            try {
+              client.videos()
+                .update("snippet, status", video)
+                .setOnBehalfOfContentOwner(contentOwner)
+                .execute()
+
+              Right(s"marked privacy status as $privacyStatus")
+            }
+            catch {
+              case e: Throwable =>
+                Left(s"unable to mark privacy status as $privacyStatus" + e)
+            }
+          }
+          case Some(error) => Left(error)
         }
       }
       case _ => Right(s"no privacy status to update")
     }
   }
 
-  def updateThumbnail(id: String, thumbnailUrl: URL, mimeType: String): Option[Video] = {
+  def updateThumbnail(id: String, thumbnailUrl: URL, mimeType: String): Either[String, String] = {
     getVideo(id, "snippet") match {
       case Some(video) => {
-        protectAgainstMistakesInDev(video)
+        findMistakesInDev(video) match {
+          case None => {
 
-        val content = new InputStreamContent(mimeType, new BufferedInputStream(thumbnailUrl.openStream()))
-        val set = client.thumbnails().set(id, content).setOnBehalfOfContentOwner(contentOwner)
 
-        // If we want some way of monitoring and resuming thumbnail uploads then we can change this to be `false`
-        set.getMediaHttpUploader.setDirectUploadEnabled(true)
-        set.execute()
+            val content = new InputStreamContent(mimeType, new BufferedInputStream(thumbnailUrl.openStream()))
+            val set = client.thumbnails().set(id, content).setOnBehalfOfContentOwner(contentOwner)
 
-        Some(video)
+            // If we want some way of monitoring and resuming thumbnail uploads then we can change this to be `false`
+            set.getMediaHttpUploader.setDirectUploadEnabled(true)
+            set.execute()
+
+            Right("Updated video")
+          }
+          case Some(error) => Left(error)
+        }
       }
-      case _ => None
+      case _ => Left("Could not update thumbnail because could not find video")
     }
   }
 
@@ -150,19 +164,17 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
     }
   }
 
-  private def protectAgainstMistakesInDev(video: Video) = {
+  private def findMistakesInDev(video: Video): Option[String] = {
     val videoChannelId = video.getSnippet.getChannelId
 
     if (disallowedVideos.contains(video.getId)) {
-      val msg = s"Failed to edit video ${video.getId} as its in config.youtube.disallowedVideos"
-      log.info(msg)
-      throw new Exception(msg)
+      Some(s"Failed to edit as its in config.youtube.disallowedVideos")
     }
 
     if (allChannels.nonEmpty && !allChannels.contains(videoChannelId)) {
-      val msg = s"Failed to edit video ${video.getId} as its channel ($videoChannelId) isn't in config.youtube.allowedChannels"
-      log.info(msg)
-      throw new Exception(msg)
+      Some(s"Failed to edit as its channel ($videoChannelId) isn't in config.youtube.allowedChannels")
     }
+
+    None
   }
 }

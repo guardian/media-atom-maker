@@ -301,7 +301,8 @@ case class PublishAtomCommand(
           ).get
         }
 
-        youtube.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
+        val thumbnailUpdate = youtube.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
+        YouTubeMessage(atom.id, asset.id, "Thumbnail update", thumbnailUpdate).logMessage
         atom
       }
       case None => atom
