@@ -18,6 +18,7 @@ import model.commands.CommandExceptions._
 import org.jsoup.Jsoup
 import play.api.libs.json.JsValue
 import util.{AWSConfig, YouTube}
+import cats.syntax.either._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -260,7 +261,7 @@ case class PublishAtomCommand(
     }
   }
 
-  private def updateYoutubeMetadata(previewAtom: MediaAtom, asset: Asset) = {
+  private def updateYoutubeMetadata(previewAtom: MediaAtom, asset: Asset): MediaAtom = {
 
     val description = previewAtom.description.map(description => {
       removeHtmlTagsForYouTube(description) + getComposerLinkText(previewAtom.id)
@@ -275,10 +276,12 @@ case class PublishAtomCommand(
       privacyStatus = previewAtom.privacyStatus.map(_.name)
     ).withSaneTitle()
 
-    youtube.updateMetadata(
+    val youtubeMetadataUpdate: Either[String, String] = youtube.updateMetadata(
       asset.id,
       if (previewAtom.blockAds) metadata.withoutContentBundleTags() else metadata.withContentBundleTags() // content bundle tags only needed on monetized videos
     )
+
+    YouTubeMessage(previewAtom.id, asset.id, youtubeMetadataUpdate).logMessage
 
     previewAtom
   }

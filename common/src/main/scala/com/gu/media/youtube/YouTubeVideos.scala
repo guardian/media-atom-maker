@@ -8,6 +8,7 @@ import com.google.api.services.youtube.model.{Video, VideoProcessingDetails, Vid
 import com.gu.contentatom.thrift.atom.media.PrivacyStatus
 import com.gu.media.logging.Logging
 import com.gu.media.util.ISO8601Duration
+import cats.syntax.either._
 
 import scala.collection.JavaConverters._
 
@@ -46,33 +47,43 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
     }
   }
 
-  def updateMetadata(id: String, metadata: YouTubeMetadataUpdate): Option[Video] =
+  def updateMetadata(id: String, metadata: YouTubeMetadataUpdate): Either[String, String] =
     getVideo(id, "snippet, status") match {
       case Some(video) =>
-        protectAgainstMistakesInDev(video)
+        try {
+          protectAgainstMistakesInDev(video)
 
-        val oldSnippet = video.getSnippet
+          val oldSnippet = video.getSnippet
 
-        val newSnippet = new VideoSnippet()
-        newSnippet.setTags(metadata.tags.asJava)
-        newSnippet.setTitle(metadata.title.getOrElse(oldSnippet.getTitle))
-        newSnippet.setCategoryId(metadata.categoryId.getOrElse(oldSnippet.getCategoryId))
-        newSnippet.setDescription(metadata.description.getOrElse(oldSnippet.getDescription))
+          val newSnippet = new VideoSnippet()
+          newSnippet.setTags(metadata.tags.asJava)
+          newSnippet.setTitle(metadata.title.getOrElse(oldSnippet.getTitle))
+          newSnippet.setCategoryId(metadata.categoryId.getOrElse(oldSnippet.getCategoryId))
+          newSnippet.setDescription(metadata.description.getOrElse(oldSnippet.getDescription))
 
-        val status = video.getStatus
-        metadata.license.foreach(status.setLicense)
-        metadata.privacyStatus.map(_.toLowerCase).foreach(status.setPrivacyStatus)
+          val status = video.getStatus
+          metadata.license.foreach(status.setLicense)
+          metadata.privacyStatus.map(_.toLowerCase).foreach(status.setPrivacyStatus)
 
-        video.setSnippet(newSnippet)
-        video.setStatus(status)
+          video.setSnippet(newSnippet)
+          video.setStatus(status)
 
-        log.info(s"Updating YouTube metadata for $id:\n${YouTubeMetadataUpdate.prettyToString(metadata)}")
+          val prettyMetadata = YouTubeMetadataUpdate.prettyToString(metadata)
 
-        Some(client.videos()
-          .update("snippet, status", video)
-          .setOnBehalfOfContentOwner(contentOwner)
-          .execute())
-      case _ => None
+          client.videos()
+            .update("snippet, status", video)
+            .setOnBehalfOfContentOwner(contentOwner)
+            .execute()
+
+          Either.right(prettyMetadata)
+        }
+        catch {
+          case e: Throwable => {
+            Either.left(s"unable to update video=$id" + e)
+          }
+        }
+
+      case _ => Either.left("could not find video to publish")
     }
 
   def setStatus(id: String, privacyStatus: PrivacyStatus): Unit = {
