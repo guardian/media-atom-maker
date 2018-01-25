@@ -50,9 +50,10 @@ class ExpirerLambdaTest extends FunSuite with MustMatchers {
       Json.parse(ret)
     }
 
-    override def setStatus(id: String, privacyStatus: PrivacyStatus): Unit = {
+    override def setStatus(id: String, privacyStatus: PrivacyStatus): Either[String, String] = {
       privacyStatus must be(PrivacyStatus.Private)
       madePrivate :+= id
+      Right("")
     }
 
     override def isManagedVideo(youtubeId: String): Boolean = {
