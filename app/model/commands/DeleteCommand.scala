@@ -10,6 +10,7 @@ import com.gu.media.model.{Asset, MediaAtom}
 import com.gu.media.youtube.YouTubeVideos
 import data.DataStores
 import com.gu.media.model.Platform.Youtube
+import model.YouTubeMessage
 
 case class DeleteCommand(id: String, override val stores: DataStores, youTube: YouTubeVideos)
   extends Command with AtomAPIActions with Logging {
@@ -32,7 +33,7 @@ case class DeleteCommand(id: String, override val stores: DataStores, youTube: Y
 
   private def makeYouTubeVideosPrivate(assets: List[Asset]): Unit = assets.collect {
     case Asset(_, _, videoId, Youtube, _) if youTube.isManagedVideo(videoId) =>
-      log.info(s"Marking $videoId as private as parent atom $id is being deleted")
-      youTube.setStatus(videoId, PrivacyStatus.Private)
+      val privacyStatusUpdate = youTube.setStatus(videoId, PrivacyStatus.Private)
+      YouTubeMessage(id, videoId, "Atom deletion", privacyStatusUpdate).logMessage
   }
 }

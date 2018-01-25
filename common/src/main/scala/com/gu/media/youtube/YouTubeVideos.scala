@@ -86,7 +86,7 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
       case _ => Either.left("could not find video to publish")
     }
 
-  def setStatus(id: String, privacyStatus: PrivacyStatus): Unit = {
+  def setStatus(id: String, privacyStatus: PrivacyStatus): Either[String, String] = {
     getVideo(id, "snippet,status") match {
       case Some(video) => {
         protectAgainstMistakesInDev(video)
@@ -94,19 +94,19 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
         video.getStatus.setPrivacyStatus(privacyStatus.name)
 
         try {
-          Some(client.videos()
+          client.videos()
             .update("snippet, status", video)
             .setOnBehalfOfContentOwner(contentOwner)
-            .execute())
+            .execute()
 
-          log.info(s"marked asset=$id as $privacyStatus")
+          Right(s"marked privacy status as $privacyStatus")
         }
         catch {
           case e: Throwable =>
-            log.warn(s"unable to mark asset=$id as $privacyStatus", e)
+            Left(s"unable to mark privacy status as $privacyStatus" + e)
         }
       }
-      case _ =>
+      case _ => Right(s"no privacy status to update")
     }
   }
 

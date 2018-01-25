@@ -281,7 +281,7 @@ case class PublishAtomCommand(
       if (previewAtom.blockAds) metadata.withoutContentBundleTags() else metadata.withContentBundleTags() // content bundle tags only needed on monetized videos
     )
 
-    YouTubeMessage(previewAtom.id, asset.id, youtubeMetadataUpdate).logMessage
+    YouTubeMessage(previewAtom.id, asset.id, "Atom publish", youtubeMetadataUpdate).logMessage
 
     previewAtom
   }
@@ -318,8 +318,8 @@ case class PublishAtomCommand(
       val status = PrivacyStatus.Private.asThrift.get
 
       inactiveAssets.foreach { asset =>
-        log.info(s"Marking asset=${asset.id} atom=${atom.id} as private")
-        youtube.setStatus(asset.id, status)
+        val privacyStatusUpdate = youtube.setStatus(asset.id, status)
+        YouTubeMessage(id, asset.id, "Atom deletion", privacyStatusUpdate).logMessage
       }
     }
   }
