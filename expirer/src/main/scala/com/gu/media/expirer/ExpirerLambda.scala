@@ -48,7 +48,7 @@ class ExpirerLambda extends RequestHandler[Unit, Unit]
       "use-date" -> "expiry"
     )
 
-    val response = (capiQuery("atoms", qs) \ "response").get
+    val response = (capiQuery("atoms", qs, queryLive = true) \ "response").get
     val currentPage = (response \ "currentPage").as[Int]
     val pages = (response \ "pages").as[Int]
 
