@@ -283,7 +283,10 @@ case class PublishAtomCommand(
 
     YouTubeMessage(previewAtom.id, asset.id, "YouTube Metadata Update", youtubeMetadataUpdate).logMessage
 
-    previewAtom
+    youtubeMetadataUpdate match {
+      case Right(_) => previewAtom
+      case Left =>  AtomPublishFailed("Error in updating metadata")
+    }
   }
 
   private def updateYoutubeThumbnail(atom: MediaAtom, asset: Asset): Future[MediaAtom] = Future{
