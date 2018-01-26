@@ -116,6 +116,9 @@ Mappings:
     Scheduler:
       CODE: CODE/media-atom-maker.private.conf
       PROD: PROD/media-atom-maker.private.conf
+Conditions:
+  ProdOnlyResource: !Equals [!Ref Stage, PROD]
+
 Resources:
   PlutoProjectDynamoTable:
     Type: AWS::DynamoDB::Table
@@ -844,6 +847,90 @@ Resources:
       Subscription:
       - Endpoint: !Ref 'AlertWebhook'
         Protocol: https
+  ExpirerLambdaInvocationAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: ProdOnlyResource
+    Properties:
+      AlarmName: media-atom-expirer-invocation-alarm
+      AlarmDescription: No Invocation for 60 minutes
+      Dimensions:
+        - Name: FunctionName
+          Value: !Join ['-', [media-atom-maker-expirer, !Ref 'Stage']]
+      Statistic: Average
+      Threshold: 0
+      Period: 1800
+      EvaluationPeriods: 1
+      MetricName: Invocations
+      ComparisonOperator: LessThanOrEqualToThreshold
+      Namespace: AWS/Lambda
+      TreatMissingData: missing
+      InsufficientDataActions:
+      - !Ref 'AlertTopic'
+      AlarmActions:
+      - !Ref 'AlertTopic'
+  SchedulerLambdaInvocationAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: ProdOnlyResource
+    Properties:
+      AlarmName: media-atom-scheduler-invocation-alarm
+      AlarmDescription: No Invocation for 60 minutes
+      Dimensions:
+        - Name: FunctionName
+          Value: !Join ['-', [media-atom-maker-scheduler, !Ref 'Stage']]
+      Statistic: Average
+      Threshold: 0
+      Period: 3600
+      EvaluationPeriods: 1
+      MetricName: Invocations
+      ComparisonOperator: LessThanOrEqualToThreshold
+      Namespace: AWS/Lambda
+      TreatMissingData: missing
+      InsufficientDataActions:
+      - !Ref 'AlertTopic'
+      AlarmActions:
+      - !Ref 'AlertTopic'
+  ExpirerLambdaErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: ProdOnlyResource
+    Properties:
+      AlarmName: media-atom-expirer-error-alarm
+      AlarmDescription: Media atom expirer lambda error count
+      Dimensions:
+        - Name: FunctionName
+          Value: !Join ['-', [media-atom-maker-expirer, !Ref 'Stage']]
+      Statistic: Average
+      Threshold: 1
+      Period: 900
+      EvaluationPeriods: 2
+      MetricName: Errors
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Namespace: AWS/Lambda
+      TreatMissingData: missing
+      InsufficientDataActions:
+      - !Ref 'AlertTopic'
+      AlarmActions:
+      - !Ref 'AlertTopic'
+  SchedulerLambdaErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: ProdOnlyResource
+    Properties:
+      AlarmName: media-atom-scheduler-error-alarm
+      AlarmDescription: Media atom scheduler lambda error count
+      Dimensions:
+        - Name: FunctionName
+          Value: !Join ['-', [media-atom-maker-scheduler, !Ref 'Stage']]
+      Statistic: Average
+      Threshold: 1
+      Period: 900
+      EvaluationPeriods: 2
+      MetricName: Errors
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Namespace: AWS/Lambda
+      TreatMissingData: missing
+      InsufficientDataActions:
+      - !Ref 'AlertTopic'
+      AlarmActions:
+      - !Ref 'AlertTopic'
   MediaAtomMakerLatency:
     Type: AWS::CloudWatch::Alarm
     Properties:
