@@ -905,6 +905,7 @@ Resources:
             Ref: CapiPreviewRole
       Roles:
       - !Ref 'DistributionRole'
+      - !Ref 'SchedulerRole'
 
 Outputs:
   UserUploadRole:
