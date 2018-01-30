@@ -192,23 +192,21 @@ case class PublishAtomCommand(
       val publishedAtom = MediaAtom.fromThrift(thriftPublishedAtom)
 
       if (!hasNewAssets(previewAtom, publishedAtom)) {
-        log.info(s"No change to assets, not editing YouTube Claim")
+        YouTubeMessage(previewAtom.id, "N/A", "Claim Update", "No change to assets, not editing YouTube Claim").logMessage
         previewAtom
       } else {
         previewAtom.category match {
           case Category.Hosted | Category.Paid => {
-            log.info(s"Blocking YouTube ads on GLabs atom")
-            youtube.createOrUpdateClaim(previewAtom.id, asset.id, blockAds = true)
-            previewAtom
+            val claimUpdate = youtube.createOrUpdateClaim(previewAtom.id, asset.id, blockAds = true)
+            handleYouTubeMessages(claimUpdate, "YouTube Claim Update: Block ads on Glabs atom", previewAtom, asset.id)
           }
           case _ => {
             if (previewAtom.blockAds == publishedAtom.blockAds) {
-              log.info(s"No change to BlockAds field, not editing YouTube Claim")
+              YouTubeMessage(previewAtom.id, "N/A", "Claim Update", "No change to BlockAds field, not editing YouTube Claim").logMessage
               previewAtom
             } else {
-              log.info(s"BlockAds changed from ${publishedAtom.blockAds} to ${previewAtom.blockAds}. Updating YouTube Claim")
-              youtube.createOrUpdateClaim(previewAtom.id, asset.id, previewAtom.blockAds)
-              previewAtom
+              val claimUpdate = youtube.createOrUpdateClaim(previewAtom.id, asset.id, previewAtom.blockAds)
+              handleYouTubeMessages(claimUpdate, "YouTube Claim Update: block ads updated", previewAtom, asset.id)
             }
           }
         }
@@ -216,15 +214,14 @@ case class PublishAtomCommand(
     } catch {
       case CommandException(_, 404) => {
         // atom hasn't been published yet
-        log.info(s"Unable to find Published atom. Creating YouTube Claim")
 
         val blockAds = previewAtom.category match {
           case Category.Hosted | Category.Paid => true
           case _ => previewAtom.blockAds
         }
 
-        youtube.createOrUpdateClaim(previewAtom.id, asset.id, blockAds)
-        previewAtom
+        val claimUpdate = youtube.createOrUpdateClaim(previewAtom.id, asset.id, blockAds)
+        handleYouTubeMessages(claimUpdate, "YouTube Claim Update: creatign a claim", previewAtom, asset.id)
       }
     }
   }
@@ -275,23 +272,12 @@ case class PublishAtomCommand(
       privacyStatus = previewAtom.privacyStatus.map(_.name)
     ).withSaneTitle()
 
-    val youtubeMetadataUpdate: Either[VideoUpdateError, String] = youtube.updateMetadata(
+    val youTubeMetadataUpdate: Either[VideoUpdateError, String] = youtube.updateMetadata(
       asset.id,
       if (previewAtom.blockAds) metadata.withoutContentBundleTags() else metadata.withContentBundleTags() // content bundle tags only needed on monetized videos
     )
 
-
-
-    youtubeMetadataUpdate match {
-      case Right(message: String) => {
-        YouTubeMessage(previewAtom.id, asset.id, "YouTube Metadata Update", message).logMessage
-        previewAtom
-      }
-      case Left(error: VideoUpdateError) =>  {
-        YouTubeMessage(previewAtom.id, asset.id, "YouTube Metadata Update", error.errorToLog, isError = true).logMessage
-        AtomPublishFailed(s"Error in updating metadata: ${error.getErrorToClient()}")
-      }
-    }
+    handleYouTubeMessages(youTubeMetadataUpdate, "YouTube Metadata Update", previewAtom, asset.id)
   }
 
   private def updateYoutubeThumbnail(atom: MediaAtom, asset: Asset): Future[MediaAtom] = Future{
@@ -311,16 +297,7 @@ case class PublishAtomCommand(
 
         val thumbnailUpdate = youtube.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
 
-        thumbnailUpdate match {
-          case Right(message: String) => {
-            YouTubeMessage(atom.id, asset.id, "YouTube Thumbnail Update", message).logMessage
-            atom
-          }
-          case Left(error: VideoUpdateError) => {
-            YouTubeMessage(atom.id, asset.id, "YouTube Thumbnail Update", error.errorToLog, isError = true).logMessage
-            AtomPublishFailed(s"Error in updating thumbnail ${error.getErrorToClient()}")
-          }
-        }
+        handleYouTubeMessages(thumbnailUpdate, "YouTube Thumbnail Update", atom, asset.id)
       }
       case None => atom
     }
@@ -337,14 +314,7 @@ case class PublishAtomCommand(
 
       inactiveAssets.foreach { asset =>
         val privacyStatusUpdate = youtube.setStatus(asset.id, status)
-        privacyStatusUpdate match {
-          case Right(message: String) => {
-            YouTubeMessage(atom.id, asset.id, "YouTube Privacy Status Update", message).logMessage
-          }
-          case Left(error: VideoUpdateError) => {
-            YouTubeMessage(atom.id, asset.id, "YouTube Privacy Status Update", error.errorToLog, isError = true).logMessage
-          }
-        }
+        handleYouTubeMessages(privacyStatusUpdate, "YouTube Privacy Status Update", atom, asset.id)
       }
     }
   }
@@ -353,4 +323,18 @@ case class PublishAtomCommand(
     version <- atom.activeVersion
     asset <- atom.assets.find(_.version == version)
   } yield asset
+
+  private def handleYouTubeMessages(message: Either[VideoUpdateError, String], updateType: String, atom: MediaAtom, assetId: String): MediaAtom = {
+    message match {
+      case Right(okMessage: String) => {
+        YouTubeMessage(atom.id, assetId, updateType, okMessage).logMessage
+        atom
+      }
+      case Left(error: VideoUpdateError) => {
+        YouTubeMessage(atom.id, assetId, updateType, error.errorToLog, isError = true).logMessage
+        AtomPublishFailed(s"Error in $updateType: ${error.errorToLog}")
+      }
+    }
+
+  }
 }

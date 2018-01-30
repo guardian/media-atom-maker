@@ -8,7 +8,6 @@ import com.google.api.services.youtube.model.{Video, VideoProcessingDetails, Vid
 import com.gu.contentatom.thrift.atom.media.PrivacyStatus
 import com.gu.media.logging.Logging
 import com.gu.media.util.ISO8601Duration
-import cats.syntax.either._
 import play.api.libs.json.Json
 import com.google.api.client.googleapis.json.{GoogleJsonError, GoogleJsonResponseException}
 import com.gu.media.model.VideoUpdateError
@@ -79,20 +78,20 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
                 .setOnBehalfOfContentOwner(contentOwner)
                 .execute()
 
-              Either.right(prettyMetadata)
+              Right(prettyMetadata)
             }
             catch {
               case e: GoogleJsonResponseException => {
                 val error: GoogleJsonError = e.getDetails
                 val message = error
-                Either.left(VideoUpdateError(error.toString, Some(error.getMessage)))
+                Left(VideoUpdateError(error.toString, Some(error.getMessage)))
               }
             }
           }
-          case Some(error) => Either.left(VideoUpdateError(error))
+          case Some(error) => Left(VideoUpdateError(error))
         }
       }
-      case _ => Either.left(VideoUpdateError("could not find video to publish"))
+      case _ => Left(VideoUpdateError("could not find video to publish"))
     }
 
   def setStatus(id: String, privacyStatus: PrivacyStatus): Either[VideoUpdateError, String] = {
@@ -115,7 +114,7 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
             catch {
               case e: GoogleJsonResponseException =>
                 val error: GoogleJsonError = e.getDetails
-                Either.left(VideoUpdateError(error.getMessage, Some(error.toString)))
+                Left(VideoUpdateError(error.getMessage, Some(error.toString)))
             }
           }
           case Some(error) => Left(VideoUpdateError(error))
