@@ -109,7 +109,7 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
                 .setOnBehalfOfContentOwner(contentOwner)
                 .execute()
 
-              Right(s"marked privacy status as $privacyStatus")
+              Right(s"marked privacy status as ${privacyStatus.name}")
             }
             catch {
               case e: GoogleJsonResponseException =>
