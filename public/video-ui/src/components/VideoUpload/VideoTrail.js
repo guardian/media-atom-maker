@@ -35,7 +35,7 @@ export default class VideoTrail extends React.Component {
       ret.push({
         id: 's3Upload',
         processing: {
-          status: 'Uploading to S3',
+          status: 'Starting upload...',
           failed: false,
           current: this.props.s3Upload.progress,
           total: this.props.s3Upload.total
