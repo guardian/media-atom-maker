@@ -2,6 +2,10 @@
 
 Media Atom Maker requires Node 6.X, so ensure you're running that version, or run `nvm use` first.
 
+## Credentials
+
+You need media-service credentials and capi `API Gateway invocation` credentials to run the app.
+
 ## React App
 Once running, the React App can be seen [here](https://video.local.dev-gutools.co.uk/videos)
 
