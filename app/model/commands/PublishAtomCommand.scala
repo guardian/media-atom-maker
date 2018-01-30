@@ -18,7 +18,6 @@ import model.commands.CommandExceptions._
 import org.jsoup.Jsoup
 import play.api.libs.json.JsValue
 import util.{AWSConfig, YouTube}
-import cats.syntax.either._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -276,16 +275,22 @@ case class PublishAtomCommand(
       privacyStatus = previewAtom.privacyStatus.map(_.name)
     ).withSaneTitle()
 
-    val youtubeMetadataUpdate: Either[String, String] = youtube.updateMetadata(
+    val youtubeMetadataUpdate: Either[VideoUpdateError, String] = youtube.updateMetadata(
       asset.id,
       if (previewAtom.blockAds) metadata.withoutContentBundleTags() else metadata.withContentBundleTags() // content bundle tags only needed on monetized videos
     )
 
-    YouTubeMessage(previewAtom.id, asset.id, "YouTube Metadata Update", youtubeMetadataUpdate).logMessage
+
 
     youtubeMetadataUpdate match {
-      case Right(_) => previewAtom
-      case Left =>  AtomPublishFailed("Error in updating metadata")
+      case Right(message: String) => {
+        YouTubeMessage(previewAtom.id, asset.id, "YouTube Metadata Update", message).logMessage
+        previewAtom
+      }
+      case Left(error: VideoUpdateError) =>  {
+        YouTubeMessage(previewAtom.id, asset.id, "YouTube Metadata Update", error.errorToLog, isError = true).logMessage
+        AtomPublishFailed(s"Error in updating metadata: ${error.getErrorToClient()}")
+      }
     }
   }
 
@@ -305,8 +310,17 @@ case class PublishAtomCommand(
         }
 
         val thumbnailUpdate = youtube.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
-        YouTubeMessage(atom.id, asset.id, "YouTube Thumbnail Update", thumbnailUpdate).logMessage
-        atom
+
+        thumbnailUpdate match {
+          case Right(message: String) => {
+            YouTubeMessage(atom.id, asset.id, "YouTube Thumbnail Update", message).logMessage
+            atom
+          }
+          case Left(error: VideoUpdateError) => {
+            YouTubeMessage(atom.id, asset.id, "YouTube Thumbnail Update", error.errorToLog, isError = true).logMessage
+            AtomPublishFailed(s"Error in updating thumbnail ${error.getErrorToClient()}")
+          }
+        }
       }
       case None => atom
     }
@@ -323,7 +337,14 @@ case class PublishAtomCommand(
 
       inactiveAssets.foreach { asset =>
         val privacyStatusUpdate = youtube.setStatus(asset.id, status)
-        YouTubeMessage(id, asset.id, "Atom deletion", privacyStatusUpdate).logMessage
+        privacyStatusUpdate match {
+          case Right(message: String) => {
+            YouTubeMessage(atom.id, asset.id, "YouTube Privacy Status Update", message).logMessage
+          }
+          case Left(error: VideoUpdateError) => {
+            YouTubeMessage(atom.id, asset.id, "YouTube Privacy Status Update", error.errorToLog, isError = true).logMessage
+          }
+        }
       }
     }
   }

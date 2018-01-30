@@ -9,6 +9,9 @@ import com.gu.contentatom.thrift.atom.media.PrivacyStatus
 import com.gu.media.logging.Logging
 import com.gu.media.util.ISO8601Duration
 import cats.syntax.either._
+import play.api.libs.json.Json
+import com.google.api.client.googleapis.json.{GoogleJsonError, GoogleJsonResponseException}
+import com.gu.media.model.VideoUpdateError
 
 import scala.collection.JavaConverters._
 
@@ -47,7 +50,7 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
     }
   }
 
-  def updateMetadata(id: String, metadata: YouTubeMetadataUpdate): Either[String, String] =
+  def updateMetadata(id: String, metadata: YouTubeMetadataUpdate): Either[VideoUpdateError, String] =
     getVideo(id, "snippet, status") match {
       case Some(video) => {
 
@@ -79,18 +82,20 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
               Either.right(prettyMetadata)
             }
             catch {
-              case e: Throwable => {
-                Either.left(s"unable to update video=$id" + e)
+              case e: GoogleJsonResponseException => {
+                val error: GoogleJsonError = e.getDetails
+                val message = error
+                Either.left(VideoUpdateError(error.toString, Some(error.getMessage)))
               }
             }
           }
-          case Some(error) => Either.left(error)
+          case Some(error) => Either.left(VideoUpdateError(error))
         }
       }
-      case _ => Either.left("could not find video to publish")
+      case _ => Either.left(VideoUpdateError("could not find video to publish"))
     }
 
-  def setStatus(id: String, privacyStatus: PrivacyStatus): Either[String, String] = {
+  def setStatus(id: String, privacyStatus: PrivacyStatus): Either[VideoUpdateError, String] = {
     getVideo(id, "snippet,status") match {
       case Some(video) => {
         findMistakesInDev(video) match {
@@ -108,18 +113,19 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
               Right(s"marked privacy status as $privacyStatus")
             }
             catch {
-              case e: Throwable =>
-                Left(s"unable to mark privacy status as $privacyStatus" + e)
+              case e: GoogleJsonResponseException =>
+                val error: GoogleJsonError = e.getDetails
+                Either.left(VideoUpdateError(error.getMessage, Some(error.toString)))
             }
           }
-          case Some(error) => Left(error)
+          case Some(error) => Left(VideoUpdateError(error))
         }
       }
       case _ => Right(s"no privacy status to update")
     }
   }
 
-  def updateThumbnail(id: String, thumbnailUrl: URL, mimeType: String): Either[String, String] = {
+  def updateThumbnail(id: String, thumbnailUrl: URL, mimeType: String): Either[VideoUpdateError, String] = {
     getVideo(id, "snippet") match {
       case Some(video) => {
         findMistakesInDev(video) match {
@@ -135,10 +141,10 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
 
             Right("Updated video")
           }
-          case Some(error) => Left(error)
+          case Some(error) => Left(VideoUpdateError("Could not update video thumbnail", Some(error)))
         }
       }
-      case _ => Left("Could not update thumbnail because could not find video")
+      case _ => Left(VideoUpdateError("Could not update thumbnail because could not find video"))
     }
   }
 
