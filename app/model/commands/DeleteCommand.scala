@@ -37,10 +37,10 @@ case class DeleteCommand(id: String, override val stores: DataStores, youTube: Y
 
       privacyStatusUpdate match {
         case Right(message: String) => {
-          YouTubeMessage(id, videoId, "YouTube Deletion", message).logMessage
+          YouTubeMessage(id, videoId, "Atom Deletion", message).logMessage
         }
         case Left(error: VideoUpdateError) => {
-          YouTubeMessage(id, videoId, "YouTube Deletion", error.errorToLog, isError = true).logMessage
+          YouTubeMessage(id, videoId, "Atom Deletion", error.errorToLog, isError = true).logMessage
         }
       }
   }
