@@ -285,7 +285,9 @@ class VideoDisplay extends React.Component {
         <div className="video__detailbox__header__container">
           <header className="video__detailbox__header">Suggest this Video</header>
         </div>
-        <Targeting video={this.props.video || {}} />
+        <div className="form__group">
+          <Targeting video={this.props.video || {}} />
+        </div>
       </div>
     );
   }
