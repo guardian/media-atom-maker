@@ -49,6 +49,13 @@ class VideoData extends React.Component {
         >
           <ManagedSection>
             <ManagedField
+              fieldLocation="contentChangeDetails.created.user.email"
+              name="Created by"
+              disabled={true}
+            >
+              <TextInput />
+            </ManagedField>
+            <ManagedField
               fieldLocation="title"
               name={
                 isYoutubeAtom ? 'Headline (YouTube title)' : 'Headline'
