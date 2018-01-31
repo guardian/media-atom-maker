@@ -150,11 +150,11 @@ case class PublishAtomCommand(
           }
           case Left(err) =>
             log.error("Unable to update datastore after publish", err)
-            AtomPublishFailed(s"Could not update published datastore after publish: ${err.toString}")
+            AtomPublishFailed(s"Could not save published atom")
         }
       case Failure(err) =>
         log.error("Unable to publish atom to kinesis", err)
-        AtomPublishFailed(s"Could not publish atom (live kinesis event failed): ${err.toString}")
+        AtomPublishFailed(s"Could not publish atom")
     }
   }
 
@@ -332,7 +332,7 @@ case class PublishAtomCommand(
       }
       case Left(error: VideoUpdateError) => {
         YouTubeMessage(atom.id, assetId, updateType, error.errorToLog, isError = true).logMessage
-        AtomPublishFailed(s"Error in $updateType: ${error.errorToLog}")
+        AtomPublishFailed(s"Error in $updateType: ${error.getErrorToClient()}")
       }
     }
 
