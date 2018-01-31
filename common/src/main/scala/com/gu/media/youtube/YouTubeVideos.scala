@@ -100,7 +100,6 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
         findMistakesInDev(video) match {
           case None => {
 
-
             video.getStatus.setPrivacyStatus(privacyStatus.name)
 
             try {
@@ -129,7 +128,6 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
       case Some(video) => {
         findMistakesInDev(video) match {
           case None => {
-
 
             val content = new InputStreamContent(mimeType, new BufferedInputStream(thumbnailUrl.openStream()))
             val set = client.thumbnails().set(id, content).setOnBehalfOfContentOwner(contentOwner)
@@ -172,13 +170,11 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
   private def findMistakesInDev(video: Video): Option[String] = {
     val videoChannelId = video.getSnippet.getChannelId
 
-    if (disallowedVideos.contains(video.getId)) {
-      Some(s"Failed to edit as its in config.youtube.disallowedVideos")
-    }
+    if (disallowedVideos.contains(video.getId)) Some(s"Failed to edit as its in config.youtube.disallowedVideos")
 
-    if (allChannels.nonEmpty && !allChannels.contains(videoChannelId)) {
+
+    if (allChannels.nonEmpty && !allChannels.contains(videoChannelId))
       Some(s"Failed to edit as its channel ($videoChannelId) isn't in config.youtube.allowedChannels")
-    }
 
     None
   }
