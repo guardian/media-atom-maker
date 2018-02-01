@@ -35,7 +35,9 @@ class Targeting extends React.Component {
       <div>
         {this.props.targetsLoaded &&
           (!this.props.target ? (
-            <button onClick={this.createTarget}>Create targeting</button>
+            <button className="btn" onClick={this.createTarget}>
+              Create targeting
+            </button>
           ) : (
             <ManagedForm
               data={this.props.target} // use the first target only
