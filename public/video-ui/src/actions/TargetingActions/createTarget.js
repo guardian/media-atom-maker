@@ -11,7 +11,7 @@ function receiveCreateTarget(targets) {
   return {
     type: 'TARGETING_POST_RECEIVE',
     receivedAt: Date.now(),
-    targets: targets
+    targets: [targets]
   };
 }
 
