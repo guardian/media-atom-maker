@@ -1,8 +1,10 @@
 package com.gu.media.youtube
 
+import com.google.api.client.googleapis.json.{GoogleJsonError, GoogleJsonResponseException}
 import com.google.api.services.youtubePartner.YouTubePartner
 import com.google.api.services.youtubePartner.model._
 import com.gu.media.logging.Logging
+import com.gu.media.model.VideoUpdateError
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
@@ -110,7 +112,7 @@ trait YouTubeClaims { this: YouTubeAccess with Logging =>
     }
   }
 
-  def createOrUpdateClaim(atomId: String, videoId: String, blockAds: Boolean): Claim = {
+  def createOrUpdateClaim(atomId: String, videoId: String, blockAds: Boolean): Either[VideoUpdateError, String] = {
 
     val request: YouTubePartner#ClaimSearch#List = partnerClient
       .claimSearch()
@@ -126,21 +128,21 @@ trait YouTubeClaims { this: YouTubeAccess with Logging =>
           val claim = partnerClient.claims().get(claimSnippet.getId).execute()
           val claimId = claim.getId
           val assetId = claim.getAssetId
-          log.info(s"updating claim for claim=$claimId asset=$assetId video=$videoId")
           updateClaim(claimId, assetId, videoId, blockAds)
+          Right(s"updating claim for claim=$claimId asset=$assetId")
         }
         case None => {
-          log.info(s"no partner claim found, creating claim for video=$videoId")
-          createVideoClaim(atomId, blockAds, videoId)
+          val claim = createVideoClaim(atomId, blockAds, videoId)
+          Right(s"no partner claim found, created a new claim ${claim.getId}")
         }
 
       }
     }
 
     catch {
-      case e: Throwable => {
-        log.warn(s"unable to create or update claims for video=$videoId", e)
-        throw e
+      case e: GoogleJsonResponseException => {
+        val error: GoogleJsonError = e.getDetails
+        Left(VideoUpdateError(error.toString, Some(error.getMessage)))
       }
     }
   }

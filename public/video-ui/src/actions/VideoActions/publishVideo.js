@@ -19,8 +19,7 @@ function receiveVideoPublish(video) {
 function errorVideoPublish(error) {
   return {
     type: 'SHOW_ERROR',
-    message: 'Could not publish video',
-    error: error,
+    message: error.responseText,
     receivedAt: Date.now()
   };
 }
