@@ -3,7 +3,7 @@ import React from 'react';
 export default class CheckBox extends React.Component {
   renderCheckbox() {
     const checked =
-      this.props.fieldValue && this.props.fieldValue !== this.props.placeholder;
+      !!this.props.fieldValue && this.props.fieldValue !== this.props.placeholder;
 
     return (
       <div>
