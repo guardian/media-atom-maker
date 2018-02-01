@@ -1,14 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import TagPicker from '../FormFields/TagPicker';
+import TextInput from '../FormFields/TextInput';
 import TagTypes from '../../constants/TagTypes';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import Icon from '../Icon';
 import * as createTarget from '../../actions/TargetingActions/createTarget';
 import * as getTargets from '../../actions/TargetingActions/getTargets';
 import * as deleteTarget from '../../actions/TargetingActions/deleteTarget';
 import * as updateTarget from '../../actions/TargetingActions/updateTarget';
+
+const isDeleting = (target, deleting) => deleting.indexOf(target.id) > -1;
 
 class Targeting extends React.Component {
   static propTypes = {
@@ -30,47 +34,73 @@ class Targeting extends React.Component {
     return Promise.resolve(target);
   };
 
+  deleteTarget = target => {
+    this.props.targetingActions.deleteTarget(target);
+  };
+
   render() {
     return (
       <div>
-        {this.props.targetsLoaded &&
-          (!this.props.target ? (
-            <button className="btn" onClick={this.createTarget}>
-              Create targeting
-            </button>
-          ) : (
-            <ManagedForm
-              data={this.props.target}
-              updateData={this.updateTarget}
-              editable={true}
-              formName="TargetingForm"
-              formClass="atom__edit__form"
+        {this.props.targetsLoaded && (
+          <div>
+            {this.props.targets.map(target => (
+              <div key={target.id} className="targeting__form">
+                <ManagedForm
+                  data={target}
+                  updateData={this.updateTarget}
+                  editable={true}
+                  formName="TargetingForm"
+                >
+                  <ManagedField
+                    fieldLocation="title"
+                    name="Title"
+                    disabled={isDeleting(target, this.props.deleting)}
+                  >
+                    <TextInput />
+                  </ManagedField>
+                    <ManagedField
+                      fieldLocation="tagPaths"
+                      name="Tracking tags"
+                      formRowClass="form__row__byline"
+                      tagType={TagTypes.tracking}
+                      isDesired={false}
+                      isRequired={false}
+                      inputPlaceholder="Search commissioning info (type '*' to show all)"
+                    >
+                      <TagPicker disableTextInput />
+                    </ManagedField>
+                </ManagedForm>
+                {!isDeleting(target, this.props.deleting) && (
+                  <button
+                    className="button__secondary--cancel"
+                    onClick={() =>this.deleteTarget(target)}
+                  >
+                    <Icon icon="delete" /> Delete
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              className="button__secondary--confirm"
+              onClick={this.createTarget}
             >
-              <ManagedField
-                fieldLocation="tagPaths"
-                name="Tracking tags"
-                formRowClass="form__row__byline"
-                tagType={TagTypes.tracking}
-                isDesired={false}
-                isRequired={false}
-                inputPlaceholder="Search commissioning info (type '*' to show all)"
-              >
-                <TagPicker disableTextInput />
-              </ManagedField>
-            </ManagedForm>
-          ))}
+              <Icon icon="add" />
+            </button>
+          </div>
+        )}
       </div>
     );
   }
 }
 
 function mapStateToProps(state) {
-  const { targeting: { targets: currentTargets } } = state;
+  const { targeting: { targets: currentTargets, deleting } } = state;
   const targetsLoaded = !!currentTargets;
-  const target = (currentTargets || [])[0]; // use the first target only
+  const targets = currentTargets || []; // use the first target only
   return {
     targetsLoaded,
-    target
+    targets,
+    deleting
   };
 }
 
