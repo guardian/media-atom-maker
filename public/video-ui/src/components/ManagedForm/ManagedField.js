@@ -12,8 +12,8 @@ export class ManagedField extends React.Component {
   static propTypes = {
     fieldLocation: PropTypes.string.isRequired,
     children: PropTypes.oneOfType([
-      PropTypes.element,
-      PropTypes.arrayOf(PropTypes.element)
+      PropTypes.node,
+      PropTypes.arrayOf(PropTypes.node)
     ]),
     updateData: PropTypes.func,
     updateFormErrors: PropTypes.func,
@@ -30,7 +30,6 @@ export class ManagedField extends React.Component {
     tagType: PropTypes.string,
     inputPlaceholder: PropTypes.string,
     tooltip: PropTypes.string,
-    fieldLocation: PropTypes.string,
     updateSideEffects: PropTypes.func
   };
 

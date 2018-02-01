@@ -25,6 +25,22 @@ class VideoData extends React.Component {
     }
   }
 
+  getCreatedByField = () => {
+    if (this.props.video.id) {
+      return (
+        <ManagedField
+          fieldLocation="contentChangeDetails.created.user.email"
+          name="Created by"
+          disabled={true}
+        >
+          <TextInput />
+        </ManagedField>
+      );
+    }
+    return null;
+  }
+
+
   render() {
     const isYoutubeAtom = VideoUtils.isYoutube(this.props.video);
     const isCommercialType = VideoUtils.isCommercialType(this.props.video);
@@ -48,6 +64,7 @@ class VideoData extends React.Component {
           formClass="atom__edit__form"
         >
           <ManagedSection>
+            {this.getCreatedByField()}
             <ManagedField
               fieldLocation="title"
               name={

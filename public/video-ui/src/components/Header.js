@@ -220,7 +220,6 @@ export default class Header extends React.Component {
           />
           {this.renderComposerMissingWarning()}
           <div className="flex-container">
-            {this.renderAuditLink()}
             {this.renderHelpLink()}
           </div>
 

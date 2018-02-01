@@ -6,8 +6,8 @@ export class ManagedSection extends React.Component {
     data: PropTypes.object,
     updateData: PropTypes.func,
     children: PropTypes.oneOfType([
-      PropTypes.element,
-      PropTypes.arrayOf(PropTypes.element)
+      PropTypes.node,
+      PropTypes.arrayOf(PropTypes.node)
     ]),
     editable: PropTypes.bool,
     updateErrors: PropTypes.func
@@ -19,13 +19,16 @@ export class ManagedSection extends React.Component {
 
   render() {
     const hydratedChildren = React.Children.map(this.props.children, child => {
-      return React.cloneElement(child, {
-        data: this.props.data,
-        updateData: this.props.updateData,
-        updateFormErrors: this.props.updateFormErrors,
-        updateWarnings: this.props.updateWarnings,
-        editable: this.props.editable
-      });
+
+      if (child) {
+        return React.cloneElement(child, {
+          data: this.props.data,
+          updateData: this.props.updateData,
+          updateFormErrors: this.props.updateFormErrors,
+          updateWarnings: this.props.updateWarnings,
+          editable: this.props.editable
+        });
+      } return null;
     });
 
     return <div className="form__section">{hydratedChildren}</div>;
