@@ -40,7 +40,7 @@ class Targeting extends React.Component {
             </button>
           ) : (
             <ManagedForm
-              data={this.props.target} // use the first target only
+              data={this.props.target}
               updateData={this.updateTarget}
               editable={true}
               formName="TargetingForm"
@@ -67,7 +67,7 @@ class Targeting extends React.Component {
 function mapStateToProps(state) {
   const { targeting: { targets: currentTargets } } = state;
   const targetsLoaded = !!currentTargets;
-  const target = (currentTargets || [])[0];
+  const target = (currentTargets || [])[0]; // use the first target only
   return {
     targetsLoaded,
     target
