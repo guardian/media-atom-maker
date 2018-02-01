@@ -26,6 +26,18 @@ export default class TargetingApi {
     return pandaReqwest(params);
   }
 
+  static updateTarget({ id, ...data }) {
+    const params = {
+      url: `${TargetingApi.targetingUrl}/api/suggestions/${id}`,
+      method: 'put',
+      data,
+      crossOrigin: true,
+      withCredentials: true
+    };
+
+    return pandaReqwest(params);
+  }
+
   static deleteTarget({id}) {
     const params = {
       method: 'delete',

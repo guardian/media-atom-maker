@@ -8,9 +8,7 @@ import { bindActionCreators } from 'redux';
 import * as createTarget from '../../actions/TargetingActions/createTarget';
 import * as getTargets from '../../actions/TargetingActions/getTargets';
 import * as deleteTarget from '../../actions/TargetingActions/deleteTarget';
-
-const logArgs = (...args) => console.log(...args);
-const logArgsAync = (...args) => Promise.resolve(logArgs(...args));
+import * as updateTarget from '../../actions/TargetingActions/updateTarget';
 
 class Targeting extends React.Component {
   static propTypes = {
@@ -18,51 +16,66 @@ class Targeting extends React.Component {
   };
 
   componentWillMount() {
+    // Reset for each video every time we mount (state will only contain one
+    // video's data)
     this.props.targetingActions.getTargets(this.props.video);
   }
 
+  createTarget = () => {
+    this.props.targetingActions.createTarget(this.props.video);
+  };
+
+  updateTarget = target => {
+    this.props.targetingActions.updateTarget(target);
+    return Promise.resolve(target);
+  };
+
   render() {
     return (
-      <ManagedForm
-        data={this.props.video}
-        updateData={logArgsAync}
-        editable={true}
-        updateErrors={(...args) => console.log(args)}
-        updateWarnings={(...args) => console.log(args)}
-        formName={this.props.formName}
-        formClass="atom__edit__form"
-      >
-        <ManagedField
-          fieldLocation="commissioningDesks"
-          name="Tracking tags"
-          formRowClass="form__row__byline"
-          tagType={TagTypes.tracking}
-          isDesired={false}
-          isRequired={false}
-          inputPlaceholder="Search commissioning info (type '*' to show all)"
-        >
-          <TagPicker />
-        </ManagedField>
-      </ManagedForm>
+      <div>
+        {this.props.targetsLoaded &&
+          (!this.props.target ? (
+            <button onClick={this.createTarget}>Create targeting</button>
+          ) : (
+            <ManagedForm
+              data={this.props.target} // use the first target only
+              updateData={this.updateTarget}
+              editable={true}
+              formName="TargetingForm"
+              formClass="atom__edit__form"
+            >
+              <ManagedField
+                fieldLocation="tagPaths"
+                name="Tracking tags"
+                formRowClass="form__row__byline"
+                tagType={TagTypes.tracking}
+                isDesired={false}
+                isRequired={false}
+                inputPlaceholder="Search commissioning info (type '*' to show all)"
+              >
+                <TagPicker disableTextInput />
+              </ManagedField>
+            </ManagedForm>
+          ))}
+      </div>
     );
   }
 }
 
 function mapStateToProps(state) {
+  const { targeting: { targets: currentTargets } } = state;
+  const targetsLoaded = !!currentTargets;
+  const target = (currentTargets || [])[0];
   return {
-    targeting: state.targeting
+    targetsLoaded,
+    target
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     targetingActions: bindActionCreators(
-      Object.assign(
-        {},
-        createTarget,
-        getTargets,
-        deleteTarget
-      ),
+      Object.assign({}, createTarget, getTargets, deleteTarget, updateTarget),
       dispatch
     )
   };
