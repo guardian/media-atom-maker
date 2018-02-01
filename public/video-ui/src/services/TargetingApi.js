@@ -6,16 +6,11 @@ export default class TargetingApi {
     return getStore().getState().config.targetingUrl;
   }
 
-  static get getEmail() {
-    return getStore().getState().config.presence.email;
-  }
-
-  static createTarget({id, title, tags, expiryDate}) {
+  static createTarget({id, title, expiryDate}) {
     const coreData = {
       title,
-      tagPaths: tags,
-      url : `/atom/media/${id}`,
-      createdBy: TargetingApi.getEmail()
+      tagPaths: [],
+      url : `/atom/media/${id}`
     };
 
     const data = Object.assign({}, coreData, expiryDate ? {activeUntil: expiryDate} : {});
