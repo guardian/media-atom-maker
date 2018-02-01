@@ -221,7 +221,7 @@ case class PublishAtomCommand(
         }
 
         val claimUpdate = youtube.createOrUpdateClaim(previewAtom.id, asset.id, blockAds)
-        handleYouTubeMessages(claimUpdate, "YouTube Claim Update: creatign a claim", previewAtom, asset.id)
+        handleYouTubeMessages(claimUpdate, "YouTube Claim Update: creating a claim", previewAtom, asset.id)
       }
     }
   }
