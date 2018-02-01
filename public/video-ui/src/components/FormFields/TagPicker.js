@@ -76,22 +76,28 @@ export default class TagPicker extends React.Component {
   fetchTags = searchText => {
     const tagTypes = this._getTagTypes();
 
-    ContentApi.getTagsByType(searchText, tagTypes)
-      .then(capiResponses => {
-        const tags = capiResponses.reduce((tags, capiResponse) => {
-          return tags.concat(getTagDisplayNames(capiResponse.response.results));
-        }, []);
-
-        this.setState({
-          capiTags: tags
-        });
-      })
-      .catch(() => {
-        this.setState({
-          capiTags: [],
-          capiUnavailable: true
-        });
+    if (!searchText) {
+      this.setState({
+        capiTags: []
       });
+    } else {
+      ContentApi.getTagsByType(searchText, tagTypes)
+        .then(capiResponses => {
+          const tags = capiResponses.reduce((tags, capiResponse) => {
+            return tags.concat(getTagDisplayNames(capiResponse.response.results));
+          }, []);
+
+          this.setState({
+            capiTags: tags
+          });
+        })
+        .catch(() => {
+          this.setState({
+            capiTags: [],
+            capiUnavailable: true
+          });
+        });
+    }
   }
 
   onUpdate = newValue => {
