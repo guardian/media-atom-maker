@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import TagPicker from '../FormFields/TagPicker';
 import TextInput from '../FormFields/TextInput';
+import DatePicker from '../FormFields/DatePicker';
 import TagTypes from '../../constants/TagTypes';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import { connect } from 'react-redux';
@@ -58,6 +59,7 @@ class Targeting extends React.Component {
                   >
                     <TextInput />
                   </ManagedField>
+                  {!isDeleting(target, this.props.deleting) && (
                     <ManagedField
                       fieldLocation="tagPaths"
                       name="Tracking tags"
@@ -69,6 +71,12 @@ class Targeting extends React.Component {
                     >
                       <TagPicker disableTextInput />
                     </ManagedField>
+                  )}
+                  {!isDeleting(target, this.props.deleting) && (
+                    <ManagedField fieldLocation="activeUntil" name="ActiveUntil">
+                      <DatePicker canCancel={false} dayOnly />
+                    </ManagedField>
+                  )}
                 </ManagedForm>
                 {!isDeleting(target, this.props.deleting) && (
                   <button

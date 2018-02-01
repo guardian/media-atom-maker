@@ -71,7 +71,7 @@ function DateSelector({ date, onChange }) {
   return <Picker {...datePickerParams} />;
 }
 
-function Editor({ date, onChange, fieldName }) {
+function Editor({ date, onChange, fieldName, canCancel, dayOnly }) {
   function reset() {
     onChange(null);
   }
@@ -83,14 +83,17 @@ function Editor({ date, onChange, fieldName }) {
         <div className="expiry-date-picker__date">
           <DateSelector date={date} onChange={onChange} />
         </div>
-        <div className="expiry-date-picker__number">
-          <HourSelector date={date} onChange={onChange} />
-        </div>
-        <div className="expiry-date-picker__number">
-          <MinuteSelector date={date} onChange={onChange} />
-        </div>
-        {
-          date &&
+        {!dayOnly && (
+          <div className="expiry-date-picker__number">
+            <HourSelector date={date} onChange={onChange} />
+          </div>
+        )}
+        {!dayOnly && (
+          <div className="expiry-date-picker__number">
+            <MinuteSelector date={date} onChange={onChange} />
+          </div>
+        )}
+        {date && canCancel &&
             <Icon
             icon="cancel"
             className="icon__edit icon__cancel"
@@ -122,7 +125,9 @@ export default function DatePicker({
   onUpdateField,
   fieldValue,
   placeholder,
-  fieldName
+  fieldName,
+  dayOnly,
+  canCancel = true
 }) {
   const date = fieldValue && fieldValue !== placeholder
     ? moment(fieldValue)
@@ -134,6 +139,8 @@ export default function DatePicker({
         fieldName={fieldName}
         date={date}
         placeholder={placeholder}
+        canCancel={canCancel}
+        dayOnly={dayOnly}
         onChange={newDate => {
           if (newDate) {
             onUpdateField(newDate.valueOf());

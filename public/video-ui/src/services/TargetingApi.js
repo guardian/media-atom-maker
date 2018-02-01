@@ -1,5 +1,8 @@
 import {getStore} from '../util/storeAccessor';
 import { pandaReqwest } from './pandaReqwest';
+import moment from 'moment';
+
+const getFortnight = () => moment().add('days', 14).valueOf();
 
 export default class TargetingApi {
   static get targetingUrl() {
@@ -7,13 +10,12 @@ export default class TargetingApi {
   }
 
   static createTarget({id, title, expiryDate}) {
-    const coreData = {
+    const data = {
       title,
       tagPaths: [],
-      url : `/atom/media/${id}`
+      url : `/atom/media/${id}`,
+      activeUntil: expiryDate || getFortnight()
     };
-
-    const data = Object.assign({}, coreData, expiryDate ? {activeUntil: expiryDate} : {});
 
     const params = {
       url: `${TargetingApi.targetingUrl}/api/suggestions`,
