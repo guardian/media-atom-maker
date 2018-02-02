@@ -8,10 +8,6 @@ Parameters:
     Description: Published code dynamo table
     Type: String
     Default: published-media-atom-maker-CODE
-  AuditAtomMakerCodeTable:
-    Description: Code audit dynamo table
-    Type: String
-    Default: audit-media-atom-maker-CODE
   ManualPlutoAtomMakerCodeTable:
     Description: Code manual pluto dynamo table
     Type: String
@@ -43,37 +39,6 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: '5'
         WriteCapacityUnits: '5'
-  AuditMediaAtomMakerCode:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: !Ref 'AuditAtomMakerCodeTable'
-      AttributeDefinitions:
-      - AttributeName: atomId
-        AttributeType: S
-      - AttributeName: operation
-        AttributeType: S
-      - AttributeName: date
-        AttributeType: N
-      KeySchema:
-      - AttributeName: atomId
-        KeyType: HASH
-      - AttributeName: date
-        KeyType: RANGE
-      ProvisionedThroughput:
-        ReadCapacityUnits: '5'
-        WriteCapacityUnits: '5'
-      GlobalSecondaryIndexes:
-      - IndexName: operation-date-index
-        KeySchema:
-        - AttributeName: operation
-          KeyType: HASH
-        - AttributeName: date
-          KeyType: RANGE
-        Projection:
-          ProjectionType: ALL
-        ProvisionedThroughput:
-          ReadCapacityUnits: '5'
-          WriteCapacityUnits: '5'
   ManualPlutoMediaAtomMakerCode:
     Type: AWS::DynamoDB::Table
     Properties:
