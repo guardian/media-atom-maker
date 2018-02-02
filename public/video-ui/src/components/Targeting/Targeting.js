@@ -88,11 +88,8 @@ class Targeting extends React.Component {
                 )}
               </div>
             ))}
-            <button
-              className="button__secondary--confirm"
-              onClick={this.createTarget}
-            >
-              <Icon icon="add" />
+            <button className="btn" onClick={this.createTarget}>
+              <Icon icon="add" /> Add suggestion
             </button>
           </div>
         )}
