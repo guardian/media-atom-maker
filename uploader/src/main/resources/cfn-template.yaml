@@ -29,9 +29,6 @@ Parameters:
   MediaAtomTable:
     Description: "The Dynamo table where preview media atoms are stored"
     Type: "String"
-  AuditTable:
-    Description: "The Dynamo table where the audit trail is stored"
-    Type: "String"
   ContentAtomArn:
     Description: "ARN of the cross account role to access the content atom kinesis stream"
     Type: "String"
@@ -85,7 +82,6 @@ Resources:
                 Action: ["dynamodb:*"]
                 Resource:
                   - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${MediaAtomTable}"
-                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${AuditTable}"
                   - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ManualPlutoTable}"
                   - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${App}-cache-${Stage}"
               - Effect: "Allow"
