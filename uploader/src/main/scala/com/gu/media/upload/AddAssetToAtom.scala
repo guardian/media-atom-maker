@@ -7,7 +7,6 @@ import com.gu.atom.data.PreviewDynamoDataStore
 import com.gu.atom.publish.PreviewKinesisAtomPublisher
 import com.gu.contentatom.thrift.atom.media.MediaAtom
 import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
-import com.gu.media.AuditDataStore
 import com.gu.media.aws.{DynamoAccess, KinesisAccess, UploadAccess}
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
