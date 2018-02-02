@@ -11,7 +11,7 @@ import com.gu.media.AuditDataStore
 import com.gu.media.aws.{DynamoAccess, KinesisAccess, UploadAccess}
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
-import com.gu.media.model.{SelfHostedAsset, YouTubeAsset}
+import com.gu.media.model.{AuditMessage, SelfHostedAsset, YouTubeAsset}
 import com.gu.media.upload.model.Upload
 import com.gu.media.util.MediaAtomHelpers
 import com.gu.media.util.MediaAtomHelpers._
@@ -22,7 +22,6 @@ class AddAssetToAtom extends LambdaWithParams[Upload, Upload] with DynamoAccess 
   private val selfHostedOrigin: String = getMandatoryString("aws.upload.selfHostedOrigin")
 
   private val store = new PreviewDynamoDataStore(dynamoDB, dynamoTableName)
-  private val audit = new AuditDataStore(dynamoDB, auditDynamoTableName)
   private val publisher = new PreviewKinesisAtomPublisher(previewKinesisStreamName, crossAccountKinesisClient)
 
   override def handle(upload: Upload): Upload = {
@@ -37,7 +36,7 @@ class AddAssetToAtom extends LambdaWithParams[Upload, Upload] with DynamoAccess 
     }
 
     saveAtom(after)
-    audit.auditUpdate(atomId, "media-atom-pipeline", s"Added YouTube video $asset")
+    AuditMessage(atomId, "Update", "media-atom-pipeline", Some(s"Added YouTube video $asset")).logMessage()
 
     upload
   }

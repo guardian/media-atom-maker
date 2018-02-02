@@ -11,7 +11,7 @@ import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
 import model.WorkflowMediaAtom
-import com.gu.media.model.{ChangeRecord, MediaAtom}
+import com.gu.media.model.{ChangeRecord, MediaAtom, AuditMessage}
 
 import scala.util.{Failure, Success}
 
@@ -57,9 +57,7 @@ case class CreateWorkflowAtomCommand(workflowMediaAtom: WorkflowMediaAtom, overr
       )
     )
 
-    auditDataStore.auditCreate(atom.id, getUsername(user))
-
-    log.info(s"Creating new atom $atomId [${workflowMediaAtom.title}] from Workflow")
+    AuditMessage(atomId, "Workflow Create", getUsername(user)).logMessage()
 
     previewDataStore.createAtom(atom).fold({
         case IDConflictError =>

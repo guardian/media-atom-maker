@@ -132,10 +132,6 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
     }
   }
 
-  def getAuditTrailForAtomId(id: String) = APIAuthAction { implicit req =>
-    Ok(Json.toJson(auditDataStore.getAuditTrailForAtomId(id)))
-  }
-
   def deleteAtom(id: String) = CanDeleteAtom { implicit req =>
     try {
       DeleteCommand(id, stores, youtube).process()

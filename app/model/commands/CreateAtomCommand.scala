@@ -14,6 +14,7 @@ import model.commands.CommandExceptions._
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
 import com.gu.media.model.{ChangeRecord, MediaAtom, MediaAtomBeforeCreation}
+import com.gu.media.model.AuditMessage
 
 import scala.util.{Failure, Success}
 
@@ -43,9 +44,7 @@ case class CreateAtomCommand(data: MediaAtomBeforeCreation, override val stores:
 
     val atom = data.asThrift(atomId, details)
 
-    auditDataStore.auditCreate(atom.id, getUsername(user))
-
-    log.info(s"Creating new atom $atomId [${data.title}]")
+    AuditMessage(atom.id, "Create", getUsername(user)).logMessage()
 
     previewDataStore.createAtom(atom).fold({
         case IDConflictError =>

@@ -4,7 +4,7 @@ import com.gu.atom.data._
 import com.gu.atom.publish._
 import com.gu.contentatom.thrift.Atom
 import com.gu.media.pluto.{PlutoCommissionDataStore, PlutoProjectDataStore}
-import com.gu.media.{AuditDataStore, CapiAccess, PlutoDataStore}
+import com.gu.media.{CapiAccess, PlutoDataStore}
 import model.commands.CommandExceptions._
 import util.AWSConfig
 
@@ -13,7 +13,6 @@ class DataStores(aws: AWSConfig, capi: CapiAccess)  {
   val preview = new PreviewDynamoDataStore(aws.dynamoDB, aws.dynamoTableName)
   val published = new PublishedDynamoDataStore(aws.dynamoDB, aws.publishedDynamoTableName)
 
-  val audit: AuditDataStore = new AuditDataStore(aws.dynamoDB, aws.auditDynamoTableName)
   val pluto: PlutoDataStore = new PlutoDataStore(aws.dynamoDB, aws.manualPlutoDynamo)
 
   val livePublisher: LiveKinesisAtomPublisher =
@@ -41,7 +40,6 @@ trait UnpackedDataStores {
   // To avoid renaming references in code
   val previewDataStore: PreviewDataStore = stores.preview
   val publishedDataStore: PublishedDataStore = stores.published
-  val auditDataStore: AuditDataStore = stores.audit
 
   val previewPublisher: PreviewAtomPublisher = stores.previewPublisher
   val livePublisher: LiveAtomPublisher = stores.livePublisher
