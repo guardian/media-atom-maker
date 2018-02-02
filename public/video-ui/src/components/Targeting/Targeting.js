@@ -104,7 +104,7 @@ class Targeting extends React.Component {
 function mapStateToProps(state) {
   const { targeting: { targets: currentTargets, deleting } } = state;
   const targetsLoaded = !!currentTargets;
-  const targets = currentTargets || []; // use the first target only
+  const targets = currentTargets || [];
   return {
     targetsLoaded,
     targets,
