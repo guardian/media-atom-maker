@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import TagPicker from '../FormFields/TagPicker';
-import TextInput from '../FormFields/TextInput';
 import DatePicker from '../FormFields/DatePicker';
 import TagTypes from '../../constants/TagTypes';
 import { ManagedForm, ManagedField } from '../ManagedForm';
@@ -14,6 +13,28 @@ import * as deleteTarget from '../../actions/TargetingActions/deleteTarget';
 import * as updateTarget from '../../actions/TargetingActions/updateTarget';
 
 const isDeleting = (target, deleting) => deleting.indexOf(target.id) > -1;
+
+const TargetPrefix = ({ targetIndex, targetCount }) =>
+  targetIndex === 0 ? (
+    <span>{targetCount > targetIndex + 1 ? 'Either an ' : 'An '}</span>
+  ) : (
+    <span>
+      ... <strong className="highlight">or</strong> an
+    </span>
+  );
+
+const TargetSuffix = ({ targetIndex, targetCount }) => (
+  <span>{targetCount > targetIndex + 1 ? ' ...' : '.'}</span>
+);
+
+const TargetDescription = props => (
+  <p>
+    <TargetPrefix {...props} /> article must match
+    <strong className="highlight"> all </strong>
+    of the tags in this rule to suggest this video
+    <TargetSuffix {...props} />
+  </p>
+);
 
 class Targeting extends React.Component {
   static propTypes = {
@@ -44,40 +65,39 @@ class Targeting extends React.Component {
       <div>
         {this.props.targetsLoaded && (
           <div>
-            {this.props.targets.map(target => (
+            <p>A targeting rule will allow this video to be suggested for certain articles.</p>
+            {this.props.targets.map((target, index) => (
               <div key={target.id} className="targeting__form">
-                <ManagedForm
-                  data={target}
-                  updateData={this.updateTarget}
-                  editable={true}
-                  formName="TargetingForm"
-                >
-                  <ManagedField
-                    fieldLocation="title"
-                    name="Title"
-                    disabled={isDeleting(target, this.props.deleting)}
+                {!isDeleting(target, this.props.deleting) && (
+                  <ManagedForm
+                    data={target}
+                    updateData={this.updateTarget}
+                    editable={true}
+                    formName="TargetingForm"
                   >
-                    <TextInput />
-                  </ManagedField>
-                  {!isDeleting(target, this.props.deleting) && (
+                    <TargetDescription
+                      targetIndex={index}
+                      targetCount={this.props.targets.length}
+                    />
                     <ManagedField
                       fieldLocation="tagPaths"
-                      name="Tracking tags"
+                      name="Targeting tags"
                       formRowClass="form__row__byline"
                       tagType={TagTypes.tracking}
                       isDesired={false}
                       isRequired={false}
-                      inputPlaceholder="Search commissioning info (type '*' to show all)"
+                      inputPlaceholder="Target these tags (type '*' to show all)"
                     >
                       <TagPicker disableTextInput />
                     </ManagedField>
-                  )}
-                  {!isDeleting(target, this.props.deleting) && (
-                    <ManagedField fieldLocation="activeUntil" name="ActiveUntil">
+                    <ManagedField
+                      fieldLocation="activeUntil"
+                      name="Active until"
+                    >
                       <DatePicker canCancel={false} dayOnly />
                     </ManagedField>
-                  )}
-                </ManagedForm>
+                  </ManagedForm>
+                )}
                 {!isDeleting(target, this.props.deleting) && (
                   <button
                     className="button__secondary--cancel"
@@ -89,7 +109,7 @@ class Targeting extends React.Component {
               </div>
             ))}
             <button className="btn" onClick={this.createTarget}>
-              <Icon icon="add" /> Add suggestion
+              <Icon icon="add" /> Add targeting rule
             </button>
           </div>
         )}
