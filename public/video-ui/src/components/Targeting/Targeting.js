@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import TagPicker from '../FormFields/TagPicker';
-import TextInput from '../FormFields/TextInput';
 import DatePicker from '../FormFields/DatePicker';
 import TagTypes from '../../constants/TagTypes';
 import { ManagedForm, ManagedField } from '../ManagedForm';
@@ -44,25 +43,29 @@ class Targeting extends React.Component {
       <div>
         {this.props.targetsLoaded && (
           <div>
-            {this.props.targets.map(target => (
+            <h3>Targeting rules</h3>
+            {this.props.targets.map((target, index) => (
               <div key={target.id} className="targeting__form">
-                <ManagedForm
-                  data={target}
-                  updateData={this.updateTarget}
-                  editable={true}
-                  formName="TargetingForm"
-                >
-                  <ManagedField
-                    fieldLocation="title"
-                    name="Title"
-                    disabled={isDeleting(target, this.props.deleting)}
+                {!isDeleting(target, this.props.deleting) && (
+                  <ManagedForm
+                    data={target}
+                    updateData={this.updateTarget}
+                    editable={true}
+                    formName="TargetingForm"
                   >
-                    <TextInput />
-                  </ManagedField>
-                  {!isDeleting(target, this.props.deleting) && (
+                    <p>
+                      {index === 0 ? (
+                        <span>An</span>
+                      ) : (
+                        <span>... <strong className="highlight">or</strong> an</span>
+                      )} article must match
+                      <strong className="highlight"> all </strong>
+                      of the tags in this group to suggest this atom
+                      {this.props.targets.length > index + 1 ? ' ...' : '.'}
+                    </p>
                     <ManagedField
                       fieldLocation="tagPaths"
-                      name="Tracking tags"
+                      name="Targeting tags"
                       formRowClass="form__row__byline"
                       tagType={TagTypes.tracking}
                       isDesired={false}
@@ -71,13 +74,11 @@ class Targeting extends React.Component {
                     >
                       <TagPicker disableTextInput />
                     </ManagedField>
-                  )}
-                  {!isDeleting(target, this.props.deleting) && (
                     <ManagedField fieldLocation="activeUntil" name="ActiveUntil">
                       <DatePicker canCancel={false} dayOnly />
                     </ManagedField>
-                  )}
-                </ManagedForm>
+                  </ManagedForm>
+                )}
                 {!isDeleting(target, this.props.deleting) && (
                   <button
                     className="button__secondary--cancel"
@@ -89,7 +90,7 @@ class Targeting extends React.Component {
               </div>
             ))}
             <button className="btn" onClick={this.createTarget}>
-              <Icon icon="add" /> Add suggestion
+              <Icon icon="add" /> Add targeting rule
             </button>
           </div>
         )}

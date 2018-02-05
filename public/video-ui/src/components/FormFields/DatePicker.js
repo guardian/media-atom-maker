@@ -62,6 +62,7 @@ function DateSelector({ date, onChange }) {
     selected: date,
     minDate: moment(),
     dateFormat: DATE_FORMAT,
+    readOnly: true,
     onChange: newDate => {
       const base = date ? date : moment().hours(0).minutes(0);
       onChange(newDate.hours(base.hours()).minutes(base.minutes()));

@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { ManagedField } from './ManagedField';
+import { ManagedSection } from './ManagedSection';
 
 export class ManagedForm extends React.Component {
   static propTypes = {
@@ -15,6 +17,8 @@ export class ManagedForm extends React.Component {
     updateErrors: PropTypes.func,
     updateWarnings: PropTypes.func
   };
+
+  static managedTypes = [ManagedField, ManagedSection];
 
   updateFormErrors = (fieldError, fieldName) => {
     if (this.props.updateErrors) {
@@ -44,15 +48,20 @@ export class ManagedForm extends React.Component {
   };
 
   render() {
-    const hydratedChildren = React.Children.map(this.props.children, child => {
-      return React.cloneElement(child, {
-        data: this.props.data,
-        updateData: this.props.updateData,
-        updateFormErrors: this.updateFormErrors,
-        updateWarnings: this.updateWarnings,
-        editable: this.props.editable
-      });
-    });
+    const hydratedChildren = React.Children.map(
+      this.props.children,
+      child =>
+        // pass down the props to managed children only
+        ManagedForm.managedTypes.indexOf(child.type) > -1
+          ? React.cloneElement(child, {
+              data: this.props.data,
+              updateData: this.props.updateData,
+              updateFormErrors: this.updateFormErrors,
+              updateWarnings: this.updateWarnings,
+              editable: this.props.editable
+            })
+          : child
+    );
 
     return <div className={this.getFormClass()}>{hydratedChildren}</div>;
   }
