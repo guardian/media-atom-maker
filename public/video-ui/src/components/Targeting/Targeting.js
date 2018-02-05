@@ -43,7 +43,7 @@ class Targeting extends React.Component {
       <div>
         {this.props.targetsLoaded && (
           <div>
-            <h3>Targeting rules</h3>
+            <p>A targeting rule will allow this video to be suggested for certain articles.</p>
             {this.props.targets.map((target, index) => (
               <div key={target.id} className="targeting__form">
                 {!isDeleting(target, this.props.deleting) && (
@@ -55,12 +55,17 @@ class Targeting extends React.Component {
                   >
                     <p>
                       {index === 0 ? (
-                        <span>An</span>
+                        <span>
+                          {this.props.targets.length > index + 1
+                            ? 'Either an '
+                            : 'An '}
+                        </span>
                       ) : (
-                        <span>... <strong className="highlight">or</strong> an</span>
-                      )} article must match
+                        <span>... <strong className="highlight">or</strong> an </span>
+                      )}
+                      article must match
                       <strong className="highlight"> all </strong>
-                      of the tags in this group to suggest this atom
+                      of the tags in this rule to suggest this atom
                       {this.props.targets.length > index + 1 ? ' ...' : '.'}
                     </p>
                     <ManagedField
