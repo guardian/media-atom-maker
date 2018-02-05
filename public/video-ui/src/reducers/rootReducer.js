@@ -20,6 +20,7 @@ import uploads from './uploadsReducer';
 import path from './pathReducer';
 import pluto from './plutoReducer';
 import workflow from './workflowReducer';
+import targeting from './targetingReducer';
 
 export default combineReducers({
   audits,
@@ -42,5 +43,6 @@ export default combineReducers({
   path,
   routing: routerReducer,
   pluto,
-  workflow
+  workflow,
+  targeting
 });

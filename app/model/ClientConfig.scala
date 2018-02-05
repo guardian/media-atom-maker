@@ -28,7 +28,8 @@ case class ClientConfig(
   permissions: Permissions,
   minDurationForAds: Long,
   isTrainingMode: Boolean,
-  workflowUrl: String
+  workflowUrl: String,
+  targetingUrl: String
 )
 
 object ClientConfig {

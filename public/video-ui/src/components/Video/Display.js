@@ -6,6 +6,7 @@ import VideoImages from '../VideoImages/VideoImages';
 import VideoUsages from '../VideoUsages/VideoUsages';
 import VideoData from '../VideoData/VideoData';
 import Workflow from '../Workflow/Workflow';
+import Targeting from '../Targeting/Targeting';
 import Icon from '../Icon';
 import { formNames } from '../../constants/formNames';
 import FieldNotification from '../../constants/FieldNotification';
@@ -278,6 +279,19 @@ class VideoDisplay extends React.Component {
     }
   }
 
+  renderTargeting() {
+    return (
+      <div className="video__detailbox">
+        <div className="video__detailbox__header__container">
+          <header className="video__detailbox__header">Suggest this Video</header>
+        </div>
+        <div className="form__group">
+          <Targeting video={this.props.video || {}} />
+        </div>
+      </div>
+    );
+  }
+
   render() {
     const video = this.props.video &&
       this.props.params.id === this.props.video.id
@@ -299,6 +313,7 @@ class VideoDisplay extends React.Component {
               {this.renderPreviewAndImages()}
             </div>
             <div className="video__row">
+              {this.renderTargeting()}
               {this.renderUsages()}
               {this.renderWorkflow()}
             </div>
