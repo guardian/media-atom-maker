@@ -191,8 +191,8 @@ case class PublishAtomCommand(
       val thriftPublishedAtom = getPublishedAtom(id)
       val publishedAtom = MediaAtom.fromThrift(thriftPublishedAtom)
 
-      if (!hasNewAssets(previewAtom, publishedAtom)) {
-        YouTubeMessage(previewAtom.id, "N/A", "Claim Update", "No change to assets, not editing YouTube Claim").logMessage
+      if (!hasNewAssets(previewAtom, publishedAtom) && (previewAtom.blockAds == publishedAtom.blockAds)) {
+        YouTubeMessage(previewAtom.id, "N/A", "Claim Update", "No change to assets or BlockAds field, not editing YouTube Claim").logMessage
         previewAtom
       } else {
         previewAtom.category match {
@@ -201,13 +201,8 @@ case class PublishAtomCommand(
             handleYouTubeMessages(claimUpdate, "YouTube Claim Update: Block ads on Glabs atom", previewAtom, asset.id)
           }
           case _ => {
-            if (previewAtom.blockAds == publishedAtom.blockAds) {
-              YouTubeMessage(previewAtom.id, "N/A", "Claim Update", "No change to BlockAds field, not editing YouTube Claim").logMessage
-              previewAtom
-            } else {
-              val claimUpdate = youtube.createOrUpdateClaim(previewAtom.id, asset.id, previewAtom.blockAds)
-              handleYouTubeMessages(claimUpdate, "YouTube Claim Update: block ads updated", previewAtom, asset.id)
-            }
+            val claimUpdate = youtube.createOrUpdateClaim(previewAtom.id, asset.id, previewAtom.blockAds)
+            handleYouTubeMessages(claimUpdate, "YouTube Claim Update: block ads updated", previewAtom, asset.id)
           }
         }
       }
