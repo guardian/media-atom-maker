@@ -84,7 +84,7 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
               case e: GoogleJsonResponseException => {
                 val error: GoogleJsonError = e.getDetails
                 val message = error
-                Left(VideoUpdateError(error.toString, Some(error.getMessage)))
+                Left(VideoUpdateError(error.toString + "metadata: " + prettyMetadata, Some(error.getMessage)))
               }
             }
           }
