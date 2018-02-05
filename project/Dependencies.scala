@@ -20,7 +20,7 @@ object Dependencies {
 
   val scanamo = "com.gu" %% "scanamo" % scanamoVersion
 
-  val capiAws = "com.gu" %% "content-api-client-aws" % "0.3"
+  val capiAws = "com.gu" %% "content-api-client-aws" % "0.5"
 
   val scalaTest = "org.scalatest" %% "scalatest" % "2.2.6" % "test"
   val scalaTestPlusPlay = "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % "test"
