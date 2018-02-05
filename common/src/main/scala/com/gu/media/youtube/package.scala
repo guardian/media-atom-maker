@@ -221,7 +221,7 @@ package object youtube {
       Map(
         "title" -> metadata.title,
         "description" -> metadata.description,
-        "tags" -> metadata.tags,
+        "tags" -> Some(metadata.tags),
         "categoryId" -> metadata.categoryId,
         "license" -> metadata.license,
         "privacyStatus" -> metadata.privacyStatus.map(_.toString)
