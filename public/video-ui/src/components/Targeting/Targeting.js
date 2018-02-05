@@ -14,6 +14,28 @@ import * as updateTarget from '../../actions/TargetingActions/updateTarget';
 
 const isDeleting = (target, deleting) => deleting.indexOf(target.id) > -1;
 
+const TargetPrefix = ({ targetIndex, targetCount }) =>
+  targetIndex === 0 ? (
+    <span>{targetCount > targetIndex + 1 ? 'Either an ' : 'An '}</span>
+  ) : (
+    <span>
+      ... <strong className="highlight">or</strong> an
+    </span>
+  );
+
+const TargetSuffix = ({ targetIndex, targetCount }) => (
+  <span>{targetCount > targetIndex + 1 ? ' ...' : '.'}</span>
+);
+
+const TargetDescription = props => (
+  <p>
+    <TargetPrefix {...props} /> article must match
+    <strong className="highlight"> all </strong>
+    of the tags in this rule to suggest this video
+    <TargetSuffix {...props} />
+  </p>
+);
+
 class Targeting extends React.Component {
   static propTypes = {
     video: PropTypes.object.isRequired
@@ -53,21 +75,10 @@ class Targeting extends React.Component {
                     editable={true}
                     formName="TargetingForm"
                   >
-                    <p>
-                      {index === 0 ? (
-                        <span>
-                          {this.props.targets.length > index + 1
-                            ? 'Either an '
-                            : 'An '}
-                        </span>
-                      ) : (
-                        <span>... <strong className="highlight">or</strong> an </span>
-                      )}
-                      article must match
-                      <strong className="highlight"> all </strong>
-                      of the tags in this rule to suggest this atom
-                      {this.props.targets.length > index + 1 ? ' ...' : '.'}
-                    </p>
+                    <TargetDescription
+                      targetIndex={index}
+                      targetCount={this.props.targets.length}
+                    />
                     <ManagedField
                       fieldLocation="tagPaths"
                       name="Targeting tags"
@@ -75,11 +86,14 @@ class Targeting extends React.Component {
                       tagType={TagTypes.tracking}
                       isDesired={false}
                       isRequired={false}
-                      inputPlaceholder="Search commissioning info (type '*' to show all)"
+                      inputPlaceholder="Target these tags (type '*' to show all)"
                     >
                       <TagPicker disableTextInput />
                     </ManagedField>
-                    <ManagedField fieldLocation="activeUntil" name="ActiveUntil">
+                    <ManagedField
+                      fieldLocation="activeUntil"
+                      name="Active until"
+                    >
                       <DatePicker canCancel={false} dayOnly />
                     </ManagedField>
                   </ManagedForm>
