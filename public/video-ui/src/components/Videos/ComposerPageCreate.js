@@ -3,6 +3,7 @@ import { getVideoBlock } from '../../util/getVideoBlock';
 import Icon from '../Icon';
 import { getStore } from '../../util/storeAccessor';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
+import ErrorMessages from '../../constants/ErrorMessages';
 
 export default class ComposerPageCreate extends React.Component {
   state = {
@@ -26,6 +27,10 @@ export default class ComposerPageCreate extends React.Component {
 
   isHosted = () => {
     return this.props.video.category === 'Hosted';
+  };
+
+  usageErrorsExist = () => {
+    return this.props.error === ErrorMessages.usages;
   };
 
   getComposerLink = () => `${this.getComposerUrl()}/content/${this.getComposerId()}`;
@@ -62,14 +67,18 @@ export default class ComposerPageCreate extends React.Component {
     }
 
     else {
+      const helpMsg = this.usageErrorsExist() ? 'Cannot create a video page because of errors in fetching video usages' : '';
+
       return (
-        <button
-          className="button__secondary"
-          onClick={this.pageCreate}
-          disabled={videoEditOpen || this.state.composerUpdateInProgress || requiredComposerFieldsMissing()}
-        >
+        <span data-tip={helpMsg}>
+          <button
+            className="button__secondary"
+            onClick={this.pageCreate}
+            disabled={videoEditOpen || this.state.composerUpdateInProgress || requiredComposerFieldsMissing() || this.usageErrorsExist()}
+          >
           <Icon icon="add_to_queue">Create Video Page</Icon>
         </button>
+      </span>
       );
     }
   }

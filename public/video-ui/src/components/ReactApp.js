@@ -77,6 +77,7 @@ class ReactApp extends React.Component {
           updateVideo={this.props.appActions.updateVideo}
           saveVideo={this.props.appActions.saveVideo}
           query={this.props.location.query}
+          error={this.props.error}
         />
         {this.props.error
           ? <div
