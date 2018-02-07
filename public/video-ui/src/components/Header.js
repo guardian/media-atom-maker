@@ -217,6 +217,7 @@ export default class Header extends React.Component {
             createVideoPage={this.props.createVideoPage}
             requiredComposerFieldsMissing={this.requiredComposerFieldsMissing}
             usages={this.props.usages}
+            error={this.props.error}
           />
           {this.renderComposerMissingWarning()}
           <div className="flex-container">

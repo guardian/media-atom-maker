@@ -1,5 +1,6 @@
 import VideosApi from '../../services/VideosApi';
 import { blankUsageData } from '../../constants/blankUsageData';
+import ErrorMessages from '../../constants/ErrorMessages';
 
 function requestVideoUsages() {
   return {
@@ -19,7 +20,7 @@ function receiveVideoUsages(usages) {
 function errorReceivingVideoUsages(error) {
   return {
     type: 'SHOW_ERROR',
-    message: 'Could not get video usages',
+    message: ErrorMessages.usages,
     error: error,
     receivedAt: Date.now()
   };
