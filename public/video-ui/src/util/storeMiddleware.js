@@ -16,6 +16,16 @@ export const storeMiddleware = ({ dispatch, getState }) => next => action => {
     });
 
     dispatch({
+      type: 'USAGE_UPDATE_BLANK',
+      receivedAt: Date.now()
+    });
+
+    dispatch({
+      type: 'CLEAR_ERROR',
+      receivedAt: Date.now()
+    });
+
+    dispatch({
       type: 'VIDEO_EDIT_STATE_REQUEST',
       state: false,
       receivedAt: Date.now()

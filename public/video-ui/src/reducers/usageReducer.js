@@ -40,6 +40,9 @@ export default function usage(state = blankUsageData, action) {
         })
       );
     }
+    case 'USAGE_UPDATE_BLANK': {
+      return Object.assign({}, state, blankUsageData);
+    }
     default: {
       return state;
     }
