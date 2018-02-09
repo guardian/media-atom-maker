@@ -13,7 +13,7 @@ import scala.collection.JavaConverters._
 //Videos are either tracked or monetized: https://support.google.com/youtube/answer/107383?hl=en-GB
 trait YouTubeClaims { this: YouTubeAccess with Logging =>
 
-  private def createAsset(title: String, videoId: String, atomId: String): Asset = {
+  private def createAsset(title: String, videoId: String, atomId: String): Either[VideoUpdateError, Asset] = {
 
     val metadata = new Metadata()
       .setTitle(title)
@@ -24,16 +24,22 @@ trait YouTubeClaims { this: YouTubeAccess with Logging =>
       .setMetadata(metadata)
       .setType("web")
 
-    val createdAsset = partnerClient.assets()
-      .insert(asset)
-      .setOnBehalfOfContentOwner(contentOwner)
-      .execute()
+    try {
+      val createdAsset = partnerClient.assets()
+        .insert(asset)
+        .setOnBehalfOfContentOwner(contentOwner)
+        .execute()
 
-    createdAsset
-
+      Right(createdAsset)
+    } catch {
+      case e: GoogleJsonResponseException => {
+        val error: GoogleJsonError = e.getDetails
+        Left(VideoUpdateError(s"Error in creating an asset: ${error.toString()}", Some(error.getMessage)))
+      }
+    }
   }
 
-  private def setOwnership(assetId: String): RightsOwnership = {
+  private def setOwnership(assetId: String): Either[VideoUpdateError, RightsOwnership] = {
 
     val territoryOwners = new TerritoryOwners()
       .setOwner(contentOwner)
@@ -41,16 +47,25 @@ trait YouTubeClaims { this: YouTubeAccess with Logging =>
       .setType("exclude")
       .setTerritories(List[String]())
 
-    val ownership: RightsOwnership = new RightsOwnership().setGeneral(List(territoryOwners))
+    val createdOwnership: RightsOwnership = new RightsOwnership().setGeneral(List(territoryOwners))
 
-    partnerClient.ownership()
-      .update(assetId, ownership)
-      .setOnBehalfOfContentOwner(contentOwner)
-      .execute()
+    try {
+      val ownership = partnerClient.ownership()
+        .update(assetId, createdOwnership)
+        .setOnBehalfOfContentOwner(contentOwner)
+        .execute()
+
+      Right(ownership)
+    } catch {
+      case e: GoogleJsonResponseException => {
+        val error: GoogleJsonError = e.getDetails
+        Left(VideoUpdateError(s"Error in setting claim ownership: ${error.toString()}", Some(error.getMessage)))
+      }
+    }
 
   }
 
-  private def claimVideo(assetId: String, videoId: String, policy: Policy): Claim = {
+  private def claimVideo(assetId: String, videoId: String, policy: Policy): Either[VideoUpdateError, String] = {
 
     val claim = new Claim()
       .setAssetId(assetId)
@@ -58,10 +73,22 @@ trait YouTubeClaims { this: YouTubeAccess with Logging =>
       .setPolicy(policy)
       .setContentType("audiovisual")
 
-    partnerClient.claims()
-      .insert(claim)
-      .setOnBehalfOfContentOwner(contentOwner)
-      .execute()
+    try {
+
+      val newClaim: Claim = partnerClient.claims()
+        .insert(claim)
+        .setOnBehalfOfContentOwner(contentOwner)
+        .execute()
+
+      Right(s"No partner claim found, claimed video ${videoId} with a new claim ${newClaim.getId}")
+
+    } catch {
+      case e: GoogleJsonResponseException => {
+        val error: GoogleJsonError = e.getDetails
+        Left(VideoUpdateError(s"Error in claiming video with new claim: ${error.toString()}", Some(error.getMessage)))
+      }
+    }
+
   }
 
   private def getNewPolicy(blockAds: Boolean): Policy = {
@@ -72,15 +99,21 @@ trait YouTubeClaims { this: YouTubeAccess with Logging =>
       policy.setId(monetizationPolicyId)
   }
 
-  private def createVideoClaim(atomId: String, blockAds: Boolean, videoId: String): Claim = {
+  private def createVideoClaim(atomId: String, blockAds: Boolean, videoId: String): Either[VideoUpdateError, String] = {
     val policy = getNewPolicy(blockAds)
     val assetTitle = s"media-atom-maker_atom=${atomId}_video=${videoId}"
-    val assetId = createAsset(assetTitle, videoId, atomId).getId
-    setOwnership(assetId)
-    claimVideo(assetId, videoId, policy)
+    createAsset(assetTitle, videoId, atomId) match {
+      case Right(asset) => {
+        val assetId = asset.getId
+        setOwnership(assetId) match {
+          case Right(ownership) => claimVideo(assetId, videoId, policy)
+          case Left(error) => Left(error)
+        }
+      } case Left(error) => Left(error)
+    }
   }
 
-  private def updateClaim(claimId: String, assetId: String, videoId: String, blockAds: Boolean): Claim = {
+  private def updateClaim(claimId: String, assetId: String, videoId: String, blockAds: Boolean): Either[VideoUpdateError, String] = {
     val policy = getNewPolicy(blockAds)
 
     val claim = new Claim()
@@ -89,10 +122,21 @@ trait YouTubeClaims { this: YouTubeAccess with Logging =>
       .setPolicy(policy)
       .setContentType("audiovisual")
 
-    partnerClient.claims
-      .patch(claimId, claim)
-      .setOnBehalfOfContentOwner(contentOwner)
-      .execute()
+    try {
+
+      partnerClient.claims
+        .patch(claimId, claim)
+        .setOnBehalfOfContentOwner(contentOwner)
+        .execute()
+
+      Right(s"Updated claim for claim=$claimId asset=$assetId")
+
+    } catch {
+      case e: GoogleJsonResponseException => {
+        val error: GoogleJsonError = e.getDetails
+        Left(VideoUpdateError(s"Error in claiming a video: ${error.toString()}", Some(error.getMessage)))
+      }
+    }
   }
 
   private def getPagedVideoClaims(request: YouTubePartner#ClaimSearch#List, items: List[ClaimSnippet]):
@@ -129,13 +173,8 @@ trait YouTubeClaims { this: YouTubeAccess with Logging =>
           val claimId = claim.getId
           val assetId = claim.getAssetId
           updateClaim(claimId, assetId, videoId, blockAds)
-          Right(s"updating claim for claim=$claimId asset=$assetId")
         }
-        case None => {
-          val claim = createVideoClaim(atomId, blockAds, videoId)
-          Right(s"no partner claim found, created a new claim ${claim.getId}")
-        }
-
+        case None => createVideoClaim(atomId, blockAds, videoId)
       }
     }
 
