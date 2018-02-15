@@ -27,8 +27,6 @@ GET     /api2/uploads                   controllers.UploadController.list(atomId
 POST    /api2/uploads                   controllers.UploadController.create
 POST    /api2/uploads/:id/credentials   controllers.UploadController.credentials(id, key)
 
-GET     /api2/audits/:id                controllers.Api2.getAuditTrailForAtomId(id)
-
 GET     /api/youtube/categories         controllers.Youtube.listCategories()
 GET     /api/youtube/channels           controllers.Youtube.listChannels()
 GET     /api/youtube/video-info/:id     controllers.Youtube.commercialVideoInfo(id)
@@ -49,7 +47,6 @@ GET /                                   controllers.VideoUIApp.index(id = "")
 GET /videos                             controllers.VideoUIApp.index(id = "")
 GET /videos/pluto-list                  controllers.VideoUIApp.index(id = "")
 GET /videos/:id                         controllers.VideoUIApp.index(id)
-GET /videos/:id/audit                   controllers.VideoUIApp.index(id)
 GET /videos/:id/upload                  controllers.VideoUIApp.index(id)
 GET /create                             controllers.VideoUIApp.index(id = "")
 GET /help                               controllers.VideoUIApp.index(id = "")

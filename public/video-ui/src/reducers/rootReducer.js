@@ -1,6 +1,5 @@
 import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
-import audits from './auditReducer';
 import config from './configReducer';
 import error from './errorReducer';
 import video from './videoReducer';
@@ -23,7 +22,6 @@ import workflow from './workflowReducer';
 import targeting from './targetingReducer';
 
 export default combineReducers({
-  audits,
   config,
   error,
   video,

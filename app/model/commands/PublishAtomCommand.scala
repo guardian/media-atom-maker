@@ -18,6 +18,7 @@ import model.commands.CommandExceptions._
 import org.jsoup.Jsoup
 import play.api.libs.json.JsValue
 import util.{AWSConfig, YouTube}
+import com.gu.media.model.AuditMessage
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -128,7 +129,7 @@ case class PublishAtomCommand(
       )
     )
 
-    auditDataStore.auditPublish(id, getUsername(user))
+    AuditMessage(id, "Publish", getUsername(user)).logMessage()
     UpdateAtomCommand(id, updatedAtom, stores, user, awsConfig).process()
 
     val publishedAtom = publishAtomToLive(updatedAtom)

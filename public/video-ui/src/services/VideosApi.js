@@ -113,12 +113,6 @@ export default {
     });
   },
 
-  fetchAudits: atomId => {
-    return pandaReqwest({
-      url: '/api2/audits/' + atomId
-    });
-  },
-
   getVideoUsages: videoId => {
     return Promise.all([
       getUsages({ id: videoId, stage: ContentApi.preview }),

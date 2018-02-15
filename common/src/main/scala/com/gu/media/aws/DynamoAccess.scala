@@ -9,11 +9,7 @@ trait DynamoAccess { this: Settings with AwsAccess =>
   )
 
   lazy val publishedDynamoTableName: String = getMandatoryString("aws.dynamo.publishedTableName")
-
-  lazy val auditDynamoTableName: String = sys.env.getOrElse("AUDIT_TABLE_NAME",
-    getMandatoryString("aws.dynamo.auditTableName")
-  )
-
+  
   lazy val manualPlutoDynamo: String = sys.env.getOrElse("PLUTO_TABLE_NAME",
     getMandatoryString("aws.dynamo.plutoTableName")
   )

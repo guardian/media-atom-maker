@@ -8,7 +8,7 @@ import com.gu.pandomainauth.model.{User => PandaUser}
 import com.gu.media.logging.Logging
 import data.DataStores
 import model.commands.CommandExceptions._
-import com.gu.media.model.{AtomAssignedProjectMessage, ChangeRecord, MediaAtom}
+import com.gu.media.model.{AtomAssignedProjectMessage, ChangeRecord, MediaAtom, AuditMessage}
 import com.gu.media.upload.PlutoUploadActions
 import com.gu.media.util.MediaAtomImplicits
 import org.joda.time.DateTime
@@ -60,13 +60,13 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
 
         previewPublisher.publishAtomEvent(event) match {
           case Success(_) => {
-            auditDataStore.auditUpdate(id, getUsername(user), diffString)
 
             val existingMediaAtom = MediaAtom.fromThrift(existingAtom)
             val updatedMediaAtom = MediaAtom.fromThrift(thrift)
             processPlutoData(existingMediaAtom, updatedMediaAtom)
 
-            log.info(s"Successfully updated atom ${atom.id}")
+            AuditMessage(atom.id, "Update", getUsername(user), Some(diffString)).logMessage()
+
             updatedMediaAtom
           }
           case Failure(err) =>

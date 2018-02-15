@@ -84,21 +84,6 @@ export default class Header extends React.Component {
     );
   }
 
-  renderAuditLink() {
-    const auditLink = '/videos/' + this.props.video.id + '/audit';
-    return (
-      <nav className="topbar__nav-link topbar__functional">
-        <Link
-          activeClassName="topbar__nav-link--active"
-          className="button__secondary"
-          to={auditLink}
-        >
-          <Icon icon="history">View audit trail</Icon>
-        </Link>
-      </nav>
-    );
-  }
-
   renderCreateVideo() {
     return (
       <nav className="topbar__nav-link">
