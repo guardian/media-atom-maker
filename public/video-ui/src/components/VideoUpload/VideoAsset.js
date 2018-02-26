@@ -20,10 +20,18 @@ function presenceInitials(email) {
   return initials.join('');
 }
 
-function AssetControls({ user, children, selectAsset }) {
-  const activateButton = selectAsset
+function AssetControls({ user, children, isActive, selectAsset, deleteAsset }) {
+  const activateButton = !isActive
     ? <button className="btn upload__activate-btn" onClick={selectAsset}>
         Activate
+      </button>
+    : false;
+
+  const deleteButton = !isActive
+    ? <button className="btn label__delete" onClick={deleteAsset}>
+        <Icon icon="delete_forever">
+          Delete
+        </Icon>
       </button>
     : false;
 
@@ -42,6 +50,7 @@ function AssetControls({ user, children, selectAsset }) {
       <div className="upload__right">
         {userCircle}
         {activateButton}
+        {deleteButton}
       </div>
     </div>
   );
@@ -64,7 +73,7 @@ function AssetInfo({ info, timestamp }) {
   );
 }
 
-function AssetDisplay({ id, active, sources }) {
+function AssetDisplay({ id, isActive, sources }) {
   const linkProps = id
     ? {
         className: 'upload__link',
@@ -82,7 +91,7 @@ function AssetDisplay({ id, active, sources }) {
             <Icon icon="open_in_new" className="icon__assets" />
           </a>
         : false}
-      {active
+      {isActive
         ? <div className="grid__status__overlay">
             <span className="publish__label label__live label__frontpage__overlay">
               Active
@@ -109,7 +118,7 @@ function AssetProgress({ failed, current, total }) {
     : <span className="loader" />;
 }
 
-export function Asset({ upload, active, selectAsset }) {
+export function Asset({ upload, isActive, selectAsset, deleteAsset }) {
   const { asset, metadata, processing } = upload;
   const user = metadata ? metadata.user : false;
 
@@ -134,9 +143,9 @@ export function Asset({ upload, active, selectAsset }) {
 
     return (
       <div className="grid__item">
-        <AssetDisplay active={active} id={asset.id} sources={asset.sources} />
+        <AssetDisplay isActive={isActive} id={asset.id} sources={asset.sources} />
         <div className="grid__item__footer">
-          <AssetControls user={user} selectAsset={active ? false : selectAsset}>
+          <AssetControls user={user} isActive={isActive} selectAsset={selectAsset} deleteAsset={deleteAsset}>
             <AssetInfo info={info} timestamp={timestamp} />
           </AssetControls>
         </div>

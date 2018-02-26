@@ -75,6 +75,7 @@ class VideoUpload extends React.Component {
               activeVersion={activeVersion}
               s3Upload={this.props.s3Upload}
               uploads={this.props.uploads}
+              deleteAsset={this.props.videoActions.deleteAsset}
               selectAsset={version =>
                 this.props.videoActions.revertAsset(
                   this.props.video.id,
@@ -99,6 +100,7 @@ import * as getUpload from '../../actions/UploadActions/getUploads';
 import * as s3UploadActions from '../../actions/UploadActions/s3Upload';
 import * as createAsset from '../../actions/VideoActions/createAsset';
 import * as revertAsset from '../../actions/VideoActions/revertAsset';
+import * as deleteAsset from '../../actions/VideoActions/deleteAsset';
 import * as getCategories from '../../actions/YoutubeActions/getCategories';
 import * as getChannels from '../../actions/YoutubeActions/getChannels';
 
@@ -114,7 +116,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     videoActions: bindActionCreators(
-      Object.assign({}, getVideo, saveVideo, createAsset, revertAsset),
+      Object.assign({}, getVideo, saveVideo, createAsset, revertAsset, deleteAsset),
       dispatch
     ),
     uploadActions: bindActionCreators(

@@ -20,7 +20,8 @@
   background-color: $brandColor;
 }
 
-.label__expired {
+.label__expired,
+.label__delete {
   background-color: $cRedE3;
   color: $cWhite;
 }

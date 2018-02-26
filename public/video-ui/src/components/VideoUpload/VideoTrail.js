@@ -57,8 +57,9 @@ export default class VideoTrail extends React.Component {
       <Asset
         key={upload.id}
         upload={upload}
-        active={parseInt(upload.id) === this.props.activeVersion}
+        isActive={parseInt(upload.id) === this.props.activeVersion}
         selectAsset={() => this.props.selectAsset(Number(upload.id))}
+        deleteAsset={() => this.props.deleteAsset(this.props.video, upload.asset.id)}
       />
     ));
 
