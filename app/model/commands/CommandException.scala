@@ -20,6 +20,7 @@ object CommandExceptions extends Results {
   def AssetAlreadyAdded = throw new CommandException("Asset has already been added to this atom", 400)
   def AssetParseFailed = throw new CommandException("Failed to parse asset", 400)
   def AssetNotFound = throw new CommandException("Asset not found", 404)
+  def CannotDeleteActiveAsset = throw new CommandException("Cannot delete active asset", 400)
 
   def AssetNotFound(assetId: String) = throw new CommandException(s"Asset with id $assetId not found", 404)
   def YoutubeException(err: String) = throw new CommandException(s"Exception when trying to reach YouTube: $err", 400)

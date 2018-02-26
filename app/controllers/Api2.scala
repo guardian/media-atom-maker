@@ -10,7 +10,7 @@ import com.gu.media.youtube.YouTubeClaims
 import com.gu.media.Capi
 import com.gu.pandahmac.HMACAuthActions
 import util.{ActivateAssetRequest, YouTube}
-import com.gu.media.model.{MediaAtom, MediaAtomBeforeCreation, PlutoSyncMetadataMessage}
+import com.gu.media.model.{Asset, MediaAtom, MediaAtomBeforeCreation, PlutoSyncMetadataMessage}
 import com.gu.media.util.{MediaAtomHelpers, MediaAtomImplicits}
 import data.DataStores
 import model.commands.CommandExceptions._
@@ -120,6 +120,17 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
     }
   }
 
+  def deleteAsset(atomId: String) = APIAuthAction(parse.json) { implicit req =>
+    try {
+      val asset = req.body.as[Asset]
+      val command = DeleteAssetCommand(atomId, asset, stores, req.user, awsConfig)
+      val atom = command.process()
+      Ok(Json.toJson(atom))
+    }
+    catch {
+      commandExceptionAsResult
+    }
+  }
 
   private def atomUrl(id: String) = s"/atom/$id"
 
