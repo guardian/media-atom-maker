@@ -3,6 +3,7 @@ import moment from 'moment';
 import Icon from '../Icon';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 import { VideoEmbed } from '../utils/VideoEmbed';
+import DeleteButton from '../DeleteButton';
 
 function presenceInitials(email) {
   const emailParts = email.split('@');
@@ -28,11 +29,10 @@ function AssetControls({ user, children, isActive, selectAsset, deleteAsset }) {
     : false;
 
   const deleteButton = !isActive
-    ? <button className="btn label__delete" onClick={deleteAsset}>
-        <Icon icon="delete_forever">
-          Delete
-        </Icon>
-      </button>
+    ? <DeleteButton
+        tooltip="Remove asset from Atom (does not affect YouTube.com)"
+        onDelete={deleteAsset}
+      />
     : false;
 
   const initials = user ? presenceInitials(user) : false;
