@@ -1,5 +1,5 @@
 export default class YouTubeKeywords {
   static get maxCharacters() {
-    return 450;
+    return 430;
   }
 }
