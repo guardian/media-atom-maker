@@ -74,9 +74,14 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
         }
       }
       case (Some(channel), Some(video)) => {
-        // new asset must match the atom's channel
         val videoChannel = video.getSnippet.getChannelId
-        if (channel == videoChannel) videoChannel else IncorrectYouTubeChannel
+
+        if (channel != videoChannel) {
+          log.info(s"Atom channel updating. New asset ${asset.id} on channel $videoChannel, atom on channel $channel")
+        }
+
+        // new asset must be on a Guardian channel
+        if (!youTube.channels.exists(_.id == videoChannel)) IncorrectYouTubeChannel else videoChannel
       }
     }
   }
