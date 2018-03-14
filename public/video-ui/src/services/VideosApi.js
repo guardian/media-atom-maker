@@ -151,6 +151,14 @@ export default {
     });
   },
 
+  deleteAsset(video, asset) {
+    return pandaReqwest({
+      url: `/api2/atoms/${video.id}/assets`,
+      method: 'delete',
+      data: asset
+    });
+  },
+
   updateCanonicalPages(video, usages, updatesTo) {
     const composerData = getComposerData(video);
     const composerUrlBase = getComposerUrl();

@@ -14,23 +14,6 @@ button {
   }
 }
 
-.button__secondary {
-  @include buttonClass($color800Grey, $color500Grey, $color300Grey, $color800Grey);
-
-  &__assets {
-    margin: 5px;
-  }
-  &--confirm {
-    @include buttonClass($cGreen33, $color500Grey, $cWhite, $color800Grey);
-  }
-  &--remove {
-    @include buttonClass($cRedE3, $color500Grey, $cWhite, $color800Grey);
-  }
-  &--cancel {
-    @include buttonClass($color400Grey, $cWhite, $color800Grey, $color500Grey);
-  }
-}
-
 .button__active {
   @include buttonClass($brandColor, $color500Grey, $color800Grey, $color800Grey);
   position: absolute;
@@ -46,10 +29,30 @@ button {
     margin-left: 5px;
     padding: 7px;
   }
-  
+
   &--list {
     width: 80px;
     padding: 7px;
+  }
+}
+
+.button__secondary {
+  @include buttonClass($color800Grey, $color500Grey, $color300Grey, $color800Grey);
+
+  &__assets {
+    margin: 5px;
+  }
+  &--confirm {
+    @include buttonClass($cGreen33, $color500Grey, $cWhite, $color800Grey);
+  }
+  &--remove {
+    @include buttonClass($cRedE3, $color500Grey, $cWhite, $color800Grey);
+  }
+  &--remove-confirm {
+    @include buttonClass($mortalDangerColor, $color500Grey, $cWhite, $color800Grey);
+  }
+  &--cancel {
+    @include buttonClass($color400Grey, $cWhite, $color800Grey, $color500Grey);
   }
 }
 

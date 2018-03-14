@@ -33,6 +33,9 @@ export default function video(state = null, action) {
         assets: action.video.assets
       });
 
+    case 'ASSET_DELETE_RECEIVE':
+      return Object.assign({}, blankVideoData, action.video);
+
     default:
       return state;
   }
