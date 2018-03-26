@@ -18,7 +18,7 @@ case class AtomAssignedProjectMessage(
   commissionId: String,
   projectId: String,
   title: String,
-  user: String
+  user: Option[String]
 ) extends PlutoIntegrationMessage {
   override def partitionKey: String = atomId
 }
@@ -28,10 +28,12 @@ object AtomAssignedProjectMessage {
 
   def build(atom: MediaAtom): AtomAssignedProjectMessage = {
     val plutoData = atom.plutoData.get
-    val email = atom.contentChangeDetails.created match {
-      case Some(changeRecord)=>changeRecord.user.getOrElse("unknown_user").toString
-      case None=>"unknown_user"
-    }
+
+    val email = for {
+      created <- atom.contentChangeDetails.created
+      user <- created.user
+      user_email <- user.email
+    } yield user_email
 
     AtomAssignedProjectMessage("project-assigned", atom.id, plutoData.commissionId.get, plutoData.projectId.get, atom.title, email)
   }
