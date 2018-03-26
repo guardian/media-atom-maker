@@ -32,8 +32,7 @@ object AtomAssignedProjectMessage {
     val email = for {
       created <- atom.contentChangeDetails.created
       user <- created.user
-      user_email <- user.email
-    } yield user_email
+    } yield user.email
 
     AtomAssignedProjectMessage("project-assigned", atom.id, plutoData.commissionId.get, plutoData.projectId.get, atom.title, email)
   }
