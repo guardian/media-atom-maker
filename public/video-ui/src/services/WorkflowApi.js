@@ -3,7 +3,7 @@ import { getStore } from '../util/storeAccessor';
 import getProductionOffice from '../util/getProductionOffice';
 import VideoUtils from '../util/video';
 import moment from 'moment';
-import { impossiblyDistantDate } from '../constants/dates';
+import { impossiblyDistantDate }  from '../constants/dates';
 
 export default class WorkflowApi {
   static get workflowUrl() {
@@ -54,9 +54,11 @@ export default class WorkflowApi {
     };
 
     return pandaReqwest(params, 500).then(response => {
-      return WorkflowApi._getResponseAsJson(response)
-        .data.filter(status => status.toLowerCase() !== 'stub')
-        .map(status => Object.assign({}, { id: status, title: status }));
+      return WorkflowApi._getResponseAsJson(response).data
+        .filter(status => status.toLowerCase() !== 'stub')
+        .map(status =>
+          Object.assign({}, {id: status, title: status})
+        );
     });
   }
 
@@ -68,7 +70,12 @@ export default class WorkflowApi {
     }).then(response => WorkflowApi._getResponseAsJson(response).data);
   }
 
-  static _getTrackInWorkflowPayload({ video, status, section, note }) {
+  static _getTrackInWorkflowPayload({
+    video,
+    status,
+    section,
+    note
+  }) {
     const prodOffice = getProductionOffice();
 
     const { contentChangeDetails } = video;
@@ -84,10 +91,8 @@ export default class WorkflowApi {
     const scheduledLaunch = VideoUtils.getScheduledLaunchAsDate(video);
     const embargoDate = VideoUtils.getEmbargoAsDate(video);
 
-    const [embargo, indefiniteEmbargo] = embargoDate &&
-      embargoDate >= impossiblyDistantDate
-      ? [null, true]
-      : [embargoDate, false];
+    const [embargo, indefiniteEmbargo] =
+      (embargoDate && embargoDate >= impossiblyDistantDate) ? [null, true] : [embargoDate, false];
 
     return {
       contentType: 'media',
@@ -132,7 +137,7 @@ export default class WorkflowApi {
     });
   }
 
-  static updateStatus({ id, status }) {
+  static updateStatus({id, status}) {
     const payload = {
       data: status
     };
