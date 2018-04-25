@@ -44,7 +44,7 @@ class Workflow extends React.Component {
   updateStatus() {
     return this.props.workflowActions.updateWorkflowStatus({
       workflowItem: this.props.workflow.status
-    });
+    })
   }
 
   saveInWorkflow() {

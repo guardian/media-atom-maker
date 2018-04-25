@@ -27,7 +27,10 @@ function errorUpdatingStatus(error) {
 export function updateWorkflowStatus({ workflowItem }) {
   return dispatch => {
     dispatch(requestStatusUpdate());
-    return WorkflowApi.updateStatus(workflowItem)
+    return Promise.all([
+      WorkflowApi.updateStatus(workflowItem),
+      WorkflowApi.updateNote(workflowItem)
+    ])
       .then(response => dispatch(receiveStatusUpdate(response)))
       .catch(err => dispatch(errorUpdatingStatus(err)));
   };
