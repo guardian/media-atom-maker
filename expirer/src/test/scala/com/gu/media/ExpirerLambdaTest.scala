@@ -14,6 +14,7 @@ class ExpirerLambdaTest extends FunSuite with MustMatchers {
 
     lambda.handleRequest((), null)
     lambda.madePrivate must be(List("one", "two"))
+    lambda.claimUpdated must be(List("one", "two"))
   }
 
   test("Not touch other assets") {
@@ -22,6 +23,7 @@ class ExpirerLambdaTest extends FunSuite with MustMatchers {
 
     lambda.handleRequest((), null)
     lambda.madePrivate must be(List("one"))
+    lambda.claimUpdated must be(List("one"))
   }
 
   test("Not touch third party videos") {
@@ -30,6 +32,7 @@ class ExpirerLambdaTest extends FunSuite with MustMatchers {
 
     lambda.handleRequest((), null)
     lambda.madePrivate mustBe empty
+    lambda.claimUpdated mustBe empty
   }
 
   test("Iterate through CAPI pages") {
@@ -39,10 +42,12 @@ class ExpirerLambdaTest extends FunSuite with MustMatchers {
 
     lambda.handleRequest((), null)
     lambda.madePrivate must be(List("one", "two"))
+    lambda.claimUpdated must be(List("one", "two"))
   }
 
   class TestExpirerLambda(var capiResults: List[String], isMyVideo: Boolean = true) extends ExpirerLambda with TestSettings {
     var madePrivate = List.empty[String]
+    var claimUpdated = List.empty[String]
 
     override def capiQuery(path: String, qs: Map[String, String], queryLive: Boolean = false): JsValue = {
       val ret = capiResults.head
@@ -54,6 +59,11 @@ class ExpirerLambdaTest extends FunSuite with MustMatchers {
     override def setStatus(id: String, privacyStatus: PrivacyStatus): Either[VideoUpdateError, String] = {
       privacyStatus must be(PrivacyStatus.Private)
       madePrivate :+= id
+      Right("")
+    }
+
+    override def createOrUpdateClaim(atomId: String, assetId: String, blockAds: Boolean) = {
+      claimUpdated :+= assetId
       Right("")
     }
 
