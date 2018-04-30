@@ -150,4 +150,18 @@ export default class WorkflowApi {
       withCredentials: true
     });
   }
+
+  static updateNote({ id, note }) {
+    const payload = {
+      data: note
+    };
+
+    return pandaReqwest({
+      method: 'PUT',
+      url: `${WorkflowApi.workflowUrl}/api/stubs/${id}/note`,
+      data: payload,
+      crossOrigin: true,
+      withCredentials: true
+    });
+  }
 }

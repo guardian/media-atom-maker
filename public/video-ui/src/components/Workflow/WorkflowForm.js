@@ -39,7 +39,7 @@ export default class WorkflowForm extends React.Component {
         <ManagedField
           fieldLocation="note"
           name="Note"
-          disabled={!this.props.editable || this.props.workflowStatus.isTrackedInWorkflow}>
+          disabled={!this.props.editable}>
           <TextAreaInput />
         </ManagedField>
         <ManagedField

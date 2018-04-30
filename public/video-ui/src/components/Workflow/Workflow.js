@@ -28,7 +28,7 @@ class Workflow extends React.Component {
   }
 
   updateLocalData = e => {
-    this.props.workflowActions.localUpdateWorkflowStatus(e);
+    this.props.workflowActions.localUpdateWorkflowData(e);
     return Promise.resolve(e);
   };
 
@@ -41,15 +41,15 @@ class Workflow extends React.Component {
     });
   }
 
-  updateStatus() {
-    return this.props.workflowActions.updateWorkflowStatus({
+  updateData() {
+    return this.props.workflowActions.updateWorkflowData({
       workflowItem: this.props.workflow.status
-    });
+    })
   }
 
   saveInWorkflow() {
     const wfPromise = this.props.workflow.status.isTrackedInWorkflow
-      ? this.updateStatus()
+      ? this.updateData()
       : this.sendToWorkflow();
 
     wfPromise.then(() => {
@@ -139,8 +139,8 @@ import * as getStatus from '../../actions/WorkflowActions/getStatus';
 import * as getSections from '../../actions/WorkflowActions/getSections';
 import * as getStatuses from '../../actions/WorkflowActions/getStatuses';
 import * as trackInWorkflow from '../../actions/WorkflowActions/trackInWorkflow';
-import * as updateWorkflowStatus from '../../actions/WorkflowActions/updateWorkflowStatus';
-import * as localUpdateWorkflowStatus from '../../actions/WorkflowActions/localUpdateWorkflowStatus';
+import * as updateWorkflowData from '../../actions/WorkflowActions/updateWorkflowData';
+import * as localUpdateWorkflowData from '../../actions/WorkflowActions/localUpdateWorkflowData';
 import WorkflowApi from "../../services/WorkflowApi";
 
 function mapStateToProps(state) {
@@ -158,8 +158,8 @@ function mapDispatchToProps(dispatch) {
         getSections,
         getStatuses,
         trackInWorkflow,
-        updateWorkflowStatus,
-        localUpdateWorkflowStatus
+        updateWorkflowData,
+        localUpdateWorkflowData
       ),
       dispatch
     )
