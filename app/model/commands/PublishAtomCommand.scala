@@ -202,8 +202,12 @@ case class PublishAtomCommand(
             handleYouTubeMessages(claimUpdate, "YouTube Claim Update: Block ads on Glabs atom", previewAtom, asset.id)
           }
           case _ => {
-            val claimUpdate = youtube.createOrUpdateClaim(previewAtom.id, asset.id, previewAtom.blockAds)
-            handleYouTubeMessages(claimUpdate, "YouTube Claim Update: block ads updated", previewAtom, asset.id)
+            val activeAssetClaimUpdate = youtube.createOrUpdateClaim(previewAtom.id, asset.id, previewAtom.blockAds)
+            handleYouTubeMessages(activeAssetClaimUpdate, "YouTube Claim Update: block ads updated", previewAtom, asset.id)
+            val oldActiveAsset = getActiveAsset(publishedAtom).get
+            val oldActiveAssetClaimUpdate = youtube.createOrUpdateClaim(previewAtom.id, oldActiveAsset.id, blockAds = true)
+            handleYouTubeMessages(oldActiveAssetClaimUpdate, "YouTube Claim Update: ads blocked on previous active asset",
+              previewAtom, oldActiveAsset.id)
           }
         }
       }
