@@ -1,16 +1,12 @@
 package com.gu.media.youtube
 
-import java.io.BufferedInputStream
-import java.net.URL
-
+import com.google.api.client.googleapis.json.{GoogleJsonError, GoogleJsonResponseException}
 import com.google.api.client.http.InputStreamContent
-import com.google.api.services.youtube.model.{Video, VideoProcessingDetails, VideoSnippet}
+import com.google.api.services.youtube.model.{Video, VideoSnippet}
 import com.gu.contentatom.thrift.atom.media.PrivacyStatus
 import com.gu.media.logging.Logging
-import com.gu.media.util.ISO8601Duration
-import play.api.libs.json.Json
-import com.google.api.client.googleapis.json.{GoogleJsonError, GoogleJsonResponseException}
 import com.gu.media.model.VideoUpdateError
+import com.gu.media.util.ISO8601Duration
 
 import scala.collection.JavaConverters._
 
@@ -123,14 +119,12 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
     }
   }
 
-  def updateThumbnail(id: String, thumbnailUrl: URL, mimeType: String): Either[VideoUpdateError, String] = {
+  def updateThumbnail(id: String, thumbnail: InputStreamContent): Either[VideoUpdateError, String] = {
     getVideo(id, "snippet") match {
       case Some(video) => {
         findMistakesInDev(video) match {
           case None => {
-
-            val content = new InputStreamContent(mimeType, new BufferedInputStream(thumbnailUrl.openStream()))
-            val set = client.thumbnails().set(id, content).setOnBehalfOfContentOwner(contentOwner)
+            val set = client.thumbnails().set(id, thumbnail).setOnBehalfOfContentOwner(contentOwner)
 
             // If we want some way of monitoring and resuming thumbnail uploads then we can change this to be `false`
             set.getMediaHttpUploader.setDirectUploadEnabled(true)

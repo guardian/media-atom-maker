@@ -16,7 +16,7 @@ import data.DataStores
 import model.commands.CommandExceptions._
 import model.commands._
 import model.WorkflowMediaAtom
-import play.api.Configuration
+import play.api.{Configuration, Environment}
 import util.{AWSConfig, CORSable}
 import play.api.libs.json._
 import play.api.mvc._
@@ -26,7 +26,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class Api2 (override val stores: DataStores, conf: Configuration, override val authActions: HMACAuthActions,
             youtube: YouTube, awsConfig: AWSConfig,
-            override val permissions: MediaAtomMakerPermissionsProvider, capi: Capi)
+            override val permissions: MediaAtomMakerPermissionsProvider, capi: Capi, env: Environment)
 
   extends MediaAtomImplicits
     with AtomAPIActions
@@ -71,7 +71,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
   }
 
   def publishMediaAtom(id: String) = APIHMACAuthAction.async(parse.empty) { implicit req =>
-      val command = PublishAtomCommand(id, stores, youtube, req.user, capi, permissions, awsConfig)
+      val command = PublishAtomCommand(id, stores, youtube, req.user, capi, permissions, awsConfig, env)
 
       val updatedAtom: Future[MediaAtom] = command.process()
 
