@@ -13,26 +13,35 @@ import play.api.Environment
 object Thumbnail {
   // YouTube have a file size limit of 2MB
   // see https://developers.google.com/youtube/v3/docs/thumbnails/set
-  // get a slightly smaller file from Grid, so we can add a branding overlay
+  // use a slightly smaller file from Grid so we can add a branding overlay
   private val MAX_SIZE = 1.8 * 1000 * 1000
 
-  private def getGridImage(imageAsset: ImageAsset): BufferedImage =
+  // amount of padding (px) on left and bottom of logo
+  private val PADDING = 50
+
+  private def getGridImageAsset(image: Image): ImageAsset = {
+    image.assets
+      .filter(asset => asset.size.nonEmpty && asset.size.get < MAX_SIZE)
+      .maxBy(_.size.get)
+  }
+
+  private def imageAssetToBufferedImage(imageAsset: ImageAsset): BufferedImage =
     ImageIO.read(new URL(imageAsset.file))
 
-  private def getWatermark(env: Environment): BufferedImage =
+  private def getLogo(env: Environment): BufferedImage =
     ImageIO.read(env.getFile(s"conf/logo.png"))
 
-  private def overlayImages(bgImage: BufferedImage, fgImage: BufferedImage): ByteArrayInputStream = {
+  private def overlayImages(bgImage: BufferedImage, logo: BufferedImage): ByteArrayInputStream = {
+    val logoWidth = List(bgImage.getWidth() / 3, logo.getWidth()).min
+    val logoHeight = logo.getHeight() / (logo.getWidth() / logoWidth)
+
+    val logoX = PADDING
+    val logoY = bgImage.getHeight() - logoHeight - PADDING
+
     val graphics = bgImage.createGraphics
     graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
     graphics.drawImage(bgImage, 0, 0, null)
-
-    val padding = 50
-    val maxWidth = List(bgImage.getWidth() / 3, fgImage.getWidth()).min
-    val maxHeight = fgImage.getHeight() / (fgImage.getWidth() / maxWidth)
-
-    graphics.drawImage(fgImage, padding, bgImage.getHeight() - maxHeight - padding, maxWidth, maxHeight, null)
-
+    graphics.drawImage(logo, logoX, logoY, logoWidth, logoHeight, null)
     graphics.dispose()
 
     val os = new ByteArrayOutputStream()
@@ -41,12 +50,9 @@ object Thumbnail {
   }
 
   def getVideoThumbnail(image: Image, env: Environment): InputStreamContent = {
-    val imageAsset = image.assets
-      .filter(asset => asset.size.nonEmpty && asset.size.get < MAX_SIZE)
-      .maxBy(_.size.get)
-
-    val gridImage = getGridImage(imageAsset)
-    val watermark = getWatermark(env)
+    val imageAsset = getGridImageAsset(image)
+    val gridImage = imageAssetToBufferedImage(imageAsset)
+    val watermark = getLogo(env)
 
     new InputStreamContent(
       imageAsset.mimeType.get,
