@@ -16,7 +16,7 @@ case class BrandedThumbnailGenerator(logoFile: File) {
   private val MAX_SIZE = 1.8 * 1000 * 1000
 
   // amount of padding (px) on left and bottom of logo
-  private val PADDING = 50
+  private val PADDING = 80
 
   private lazy val logo = ImageIO.read(logoFile)
 
@@ -34,7 +34,7 @@ case class BrandedThumbnailGenerator(logoFile: File) {
     val logoHeight: Double = logo.getHeight() / (logo.getWidth() / logoWidth)
 
     val logoX = PADDING
-    val logoY = (bgImage.getHeight() - logoHeight).toInt - PADDING
+    val logoY = bgImage.getHeight() - logoHeight.toInt - PADDING
 
     val graphics = bgImage.createGraphics
     graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
