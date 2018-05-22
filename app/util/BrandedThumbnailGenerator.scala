@@ -8,9 +8,8 @@ import java.net.URL
 import com.google.api.client.http.InputStreamContent
 import com.gu.media.model.{Image, ImageAsset}
 import javax.imageio.ImageIO
-import play.api.Environment
 
-object Thumbnail {
+case class BrandedThumbnailGenerator(logoFile: File) {
   // YouTube have a file size limit of 2MB
   // see https://developers.google.com/youtube/v3/docs/thumbnails/set
   // use a slightly smaller file from Grid so we can add a branding overlay
@@ -18,6 +17,8 @@ object Thumbnail {
 
   // amount of padding (px) on left and bottom of logo
   private val PADDING = 50
+
+  private lazy val logo = ImageIO.read(logoFile)
 
   private def getGridImageAsset(image: Image): ImageAsset = {
     image.assets
@@ -28,10 +29,7 @@ object Thumbnail {
   private def imageAssetToBufferedImage(imageAsset: ImageAsset): BufferedImage =
     ImageIO.read(new URL(imageAsset.file))
 
-  private def getLogo(env: Environment): BufferedImage =
-    ImageIO.read(env.getFile(s"conf/logo.png"))
-
-  private def overlayImages(bgImage: BufferedImage, logo: BufferedImage): ByteArrayInputStream = {
+  private def overlayImages(bgImage: BufferedImage): ByteArrayInputStream = {
     val logoWidth = List(bgImage.getWidth() / 3, logo.getWidth()).min
     val logoHeight = logo.getHeight() / (logo.getWidth() / logoWidth)
 
@@ -49,14 +47,13 @@ object Thumbnail {
     new ByteArrayInputStream(os.toByteArray)
   }
 
-  def getVideoThumbnail(image: Image, env: Environment): InputStreamContent = {
+  def getThumbnail(image: Image): InputStreamContent = {
     val imageAsset = getGridImageAsset(image)
     val gridImage = imageAssetToBufferedImage(imageAsset)
-    val watermark = getLogo(env)
 
     new InputStreamContent(
       imageAsset.mimeType.get,
-      new BufferedInputStream(overlayImages(gridImage, watermark))
+      new BufferedInputStream(overlayImages(gridImage))
     )
   }
 }

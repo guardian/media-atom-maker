@@ -1,33 +1,32 @@
 package controllers
 
-import java.io.File
-
-import com.amazonaws.services.s3.model.PutObjectResult
 import com.gu.atom.play.AtomAPIActions
-import com.gu.media.MediaAtomMakerPermissionsProvider
+import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider}
 import com.gu.media.logging.Logging
-import com.gu.media.youtube.YouTubeClaims
-import com.gu.media.Capi
-import com.gu.pandahmac.HMACAuthActions
-import util.{ActivateAssetRequest, YouTube}
 import com.gu.media.model.{Asset, MediaAtom, MediaAtomBeforeCreation, PlutoSyncMetadataMessage}
-import com.gu.media.util.{MediaAtomHelpers, MediaAtomImplicits}
+import com.gu.media.util.MediaAtomImplicits
+import com.gu.pandahmac.HMACAuthActions
 import data.DataStores
+import model.WorkflowMediaAtom
 import model.commands.CommandExceptions._
 import model.commands._
-import model.WorkflowMediaAtom
-import play.api.{Configuration, Environment}
-import util.{AWSConfig, CORSable}
+import play.api.Configuration
+import util._
 import play.api.libs.json._
 import play.api.mvc._
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
-class Api2 (override val stores: DataStores, conf: Configuration, override val authActions: HMACAuthActions,
-            youtube: YouTube, awsConfig: AWSConfig,
-            override val permissions: MediaAtomMakerPermissionsProvider, capi: Capi, env: Environment)
-
+class Api2 (
+  override val stores: DataStores,
+  conf: Configuration,
+  override val authActions: HMACAuthActions,
+  youtube: YouTube,
+  awsConfig: AWSConfig,
+  override val permissions: MediaAtomMakerPermissionsProvider,
+  capi: Capi,
+  thumbnailGenerator: BrandedThumbnailGenerator)
   extends MediaAtomImplicits
     with AtomAPIActions
     with AtomController
@@ -71,7 +70,7 @@ class Api2 (override val stores: DataStores, conf: Configuration, override val a
   }
 
   def publishMediaAtom(id: String) = APIHMACAuthAction.async(parse.empty) { implicit req =>
-      val command = PublishAtomCommand(id, stores, youtube, req.user, capi, permissions, awsConfig, env)
+      val command = PublishAtomCommand(id, stores, youtube, req.user, capi, permissions, awsConfig, thumbnailGenerator)
 
       val updatedAtom: Future[MediaAtom] = command.process()
 

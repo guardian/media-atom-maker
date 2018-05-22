@@ -15,9 +15,8 @@ import data.DataStores
 import model._
 import model.commands.CommandExceptions._
 import org.jsoup.Jsoup
-import play.api.Environment
 import play.api.libs.json.JsValue
-import util.{AWSConfig, Thumbnail, YouTube}
+import util.{AWSConfig, BrandedThumbnailGenerator, YouTube}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -31,7 +30,7 @@ case class PublishAtomCommand(
   capi: Capi,
   permissions: MediaAtomMakerPermissionsProvider,
   awsConfig: AWSConfig,
-  env: Environment)
+  thumbnailGenerator: BrandedThumbnailGenerator)
   extends Command with AtomAPIActions with Logging {
 
   type T = Future[MediaAtom]
@@ -283,7 +282,7 @@ case class PublishAtomCommand(
   private def updateYoutubeThumbnail(atom: MediaAtom, asset: Asset): Future[MediaAtom] = Future{
     atom.posterImage match {
       case Some(image) => {
-        val thumbnail = Thumbnail.getVideoThumbnail(image, env)
+        val thumbnail = thumbnailGenerator.getThumbnail(image)
         val thumbnailUpdate = youtube.updateThumbnail(asset.id, thumbnail)
 
         handleYouTubeMessages(thumbnailUpdate, "YouTube Thumbnail Update", atom, asset.id)
