@@ -48,7 +48,9 @@ class MediaAtomMaker(context: Context)
   private val uploaderMessageConsumer = PlutoMessageConsumer(stores, aws)
   uploaderMessageConsumer.start(actorSystem.scheduler)(actorSystem.dispatcher)
 
-  private val api2 = new Api2(stores, configuration, hmacAuthActions, youTube, aws, permissions, capi)
+  private val thumbnailGenerator = BrandedThumbnailGenerator(environment.getFile(s"conf/logo.png"))
+
+  private val api2 = new Api2(stores, configuration, hmacAuthActions, youTube, aws, permissions, capi, thumbnailGenerator)
 
   private val stepFunctions = new StepFunctions(aws)
   private val uploads = new UploadController(hmacAuthActions, aws, stepFunctions, stores, permissions, youTube)

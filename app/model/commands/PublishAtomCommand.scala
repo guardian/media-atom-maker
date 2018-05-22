@@ -1,24 +1,22 @@
 package model.commands
 
-import java.net.URL
 import java.time.Instant
 import java.util.Date
 
 import com.gu.atom.play.AtomAPIActions
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
-import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider}
 import com.gu.media.logging.Logging
-import com.gu.media.model._
+import com.gu.media.model.Platform.Youtube
+import com.gu.media.model.{AuditMessage, _}
 import com.gu.media.youtube.YouTubeMetadataUpdate
+import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider}
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
-import com.gu.media.model.Platform.Youtube
 import model._
 import model.commands.CommandExceptions._
 import org.jsoup.Jsoup
 import play.api.libs.json.JsValue
-import util.{AWSConfig, YouTube}
-import com.gu.media.model.AuditMessage
+import util.{AWSConfig, BrandedThumbnailGenerator, YouTube}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -31,7 +29,8 @@ case class PublishAtomCommand(
   user: PandaUser,
   capi: Capi,
   permissions: MediaAtomMakerPermissionsProvider,
-  awsConfig: AWSConfig)
+  awsConfig: AWSConfig,
+  thumbnailGenerator: BrandedThumbnailGenerator)
   extends Command with AtomAPIActions with Logging {
 
   type T = Future[MediaAtom]
@@ -281,21 +280,10 @@ case class PublishAtomCommand(
   }
 
   private def updateYoutubeThumbnail(atom: MediaAtom, asset: Asset): Future[MediaAtom] = Future{
-    atom.posterImage.flatMap(_.master) match {
-      case Some(master) => {
-        val MAX_SIZE = 2000000
-        val img: ImageAsset = if (master.size.get < MAX_SIZE) {
-          master
-        } else {
-          // Get the biggest crop which is still less than MAX_SIZE
-          atom.posterImage.map(
-            _.assets
-              .filter(a => a.size.nonEmpty && a.size.get < MAX_SIZE)
-              .maxBy(_.size.get)
-          ).get
-        }
-
-        val thumbnailUpdate = youtube.updateThumbnail(asset.id, new URL(img.file), img.mimeType.get)
+    atom.posterImage match {
+      case Some(image) => {
+        val thumbnail = thumbnailGenerator.getThumbnail(image)
+        val thumbnailUpdate = youtube.updateThumbnail(asset.id, thumbnail)
 
         handleYouTubeMessages(thumbnailUpdate, "YouTube Thumbnail Update", atom, asset.id)
       }
