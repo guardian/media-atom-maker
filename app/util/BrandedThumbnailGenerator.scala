@@ -30,16 +30,16 @@ case class BrandedThumbnailGenerator(logoFile: File) {
     ImageIO.read(new URL(imageAsset.file))
 
   private def overlayImages(bgImage: BufferedImage): ByteArrayInputStream = {
-    val logoWidth = List(bgImage.getWidth() / 3, logo.getWidth()).min
-    val logoHeight = logo.getHeight() / (logo.getWidth() / logoWidth)
+    val logoWidth: Double = List(bgImage.getWidth() / 3.0, logo.getWidth()).min
+    val logoHeight: Double = logo.getHeight() / (logo.getWidth() / logoWidth)
 
     val logoX = PADDING
-    val logoY = bgImage.getHeight() - logoHeight - PADDING
+    val logoY = (bgImage.getHeight() - logoHeight).toInt - PADDING
 
     val graphics = bgImage.createGraphics
     graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
     graphics.drawImage(bgImage, 0, 0, null)
-    graphics.drawImage(logo, logoX, logoY, logoWidth, logoHeight, null)
+    graphics.drawImage(logo, logoX, logoY, logoWidth.toInt, logoHeight.toInt, null)
     graphics.dispose()
 
     val os = new ByteArrayOutputStream()
