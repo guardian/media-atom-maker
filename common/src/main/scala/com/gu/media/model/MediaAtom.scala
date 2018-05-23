@@ -34,6 +34,10 @@ abstract class MediaAtomBase {
   val optimisedForWeb: Option[Boolean]
   val composerCommentsEnabled: Option[Boolean]
   val suppressRelatedContent: Option[Boolean]
+
+  def isOnCommercialChannel(commercialChannels: Set[String]): Option[Boolean] = {
+    channelId.map(commercialChannels.contains)
+  }
 }
 
 // This is used to parse the a media atom from a create atom

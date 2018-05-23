@@ -26,7 +26,7 @@ class Api2 (
   awsConfig: AWSConfig,
   override val permissions: MediaAtomMakerPermissionsProvider,
   capi: Capi,
-  thumbnailGenerator: BrandedThumbnailGenerator)
+  thumbnailGenerator: ThumbnailGenerator)
   extends MediaAtomImplicits
     with AtomAPIActions
     with AtomController
