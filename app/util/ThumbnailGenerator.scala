@@ -9,7 +9,7 @@ import com.google.api.client.http.InputStreamContent
 import com.gu.media.model.{Image, ImageAsset}
 import javax.imageio.ImageIO
 
-case class BrandedThumbnailGenerator(logoFile: File) {
+case class ThumbnailGenerator(logoFile: File) {
   // YouTube have a file size limit of 2MB
   // see https://developers.google.com/youtube/v3/docs/thumbnails/set
   // use a slightly smaller file from Grid so we can add a branding overlay
@@ -47,13 +47,24 @@ case class BrandedThumbnailGenerator(logoFile: File) {
     new ByteArrayInputStream(os.toByteArray)
   }
 
-  def getThumbnail(image: Image): InputStreamContent = {
+  def getBrandedThumbnail(image: Image): InputStreamContent = {
     val imageAsset = getGridImageAsset(image)
     val gridImage = imageAssetToBufferedImage(imageAsset)
 
     new InputStreamContent(
-      imageAsset.mimeType.get,
+      imageAsset.mimeType.getOrElse("image/jpeg"),
       new BufferedInputStream(overlayImages(gridImage))
+    )
+  }
+
+  def getThumbnail(image: Image): InputStreamContent = {
+    val imageAsset = getGridImageAsset(image)
+    val mimeType = imageAsset.mimeType.getOrElse("image/jpeg")
+    val url = new URL(imageAsset.file)
+
+    new InputStreamContent(
+      mimeType,
+      new BufferedInputStream(url.openStream())
     )
   }
 }
