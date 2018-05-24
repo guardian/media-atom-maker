@@ -4,7 +4,7 @@
   "repository": "git@github.com:guardian/media-atom-maker.git",
   "author": "The Guardian <digitalcms.dev@theguardian.com>",
   "description": "Ingesting messages sent from Pluto via a Kinesis stream",
-  "cloudformation": "../cloudformation/media-atom-maker.yaml",
+  "cloudformation": false,
   "riffraffFile": "../conf/riff-raff.yaml",
   "packageName": "media-service:media-atom-maker:pluto-message-ingestion",
   "isAwsLambda": true,
