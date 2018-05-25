@@ -8,6 +8,7 @@ import java.net.URL
 import com.google.api.client.http.InputStreamContent
 import com.gu.media.model.{Image, ImageAsset}
 import javax.imageio.ImageIO
+import play.api.Logger
 
 case class ThumbnailGenerator(logoFile: File) {
   // YouTube have a file size limit of 2MB
@@ -29,7 +30,7 @@ case class ThumbnailGenerator(logoFile: File) {
   private def imageAssetToBufferedImage(imageAsset: ImageAsset): BufferedImage =
     ImageIO.read(new URL(imageAsset.file))
 
-  private def overlayImages(bgImage: BufferedImage): ByteArrayInputStream = {
+  private def overlayImages(bgImage: BufferedImage, bgImageMimeType: String): ByteArrayInputStream = {
     val logoWidth: Double = List(bgImage.getWidth() / 3.0, logo.getWidth()).min
     val logoHeight: Double = logo.getHeight() / (logo.getWidth() / logoWidth)
 
@@ -39,21 +40,34 @@ case class ThumbnailGenerator(logoFile: File) {
     val graphics = bgImage.createGraphics
     graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
     graphics.drawImage(bgImage, 0, 0, null)
+    Logger.info(s"Creating branded thumbnail. Grid image dimensions width:${bgImage.getWidth()} height:${bgImage.getHeight()}. Logo dimensions width:${logoWidth.toInt} height:${logoHeight.toInt}. Logo coordinates x:$logoX y:$logoY")
     graphics.drawImage(logo, logoX, logoY, logoWidth.toInt, logoHeight.toInt, null)
     graphics.dispose()
 
     val os = new ByteArrayOutputStream()
-    ImageIO.write(bgImage, "jpg", os)
+
+    // Although this list isn't exhaustive of all image types,
+    // it is exhaustive of the current formats supported by Grid.
+    // NB: Grid only returns mime-type as image/* for the master crop,
+    // smaller crop renditions are just `jpg` or `png`.
+    // TODO find a better way to convert mime-type to ImageIO write format
+    val imageIOWriteFormat = bgImageMimeType match {
+      case "image/png" | "png" => "png"
+      case _ => "jpg"
+    }
+
+    ImageIO.write(bgImage, imageIOWriteFormat, os)
     new ByteArrayInputStream(os.toByteArray)
   }
 
   def getBrandedThumbnail(image: Image): InputStreamContent = {
     val imageAsset = getGridImageAsset(image)
     val gridImage = imageAssetToBufferedImage(imageAsset)
+    val mimeType = imageAsset.mimeType.getOrElse("image/jpeg")
 
     new InputStreamContent(
-      imageAsset.mimeType.getOrElse("image/jpeg"),
-      new BufferedInputStream(overlayImages(gridImage))
+      mimeType,
+      new BufferedInputStream(overlayImages(gridImage, mimeType))
     )
   }
 
