@@ -238,28 +238,10 @@ case class PublishAtomCommand(
       html.text().replace("\\n", "\n")
   }
 
-  private def getComposerLinkText(atomId: String): String = {
-    val path = s"/atom/media/$atomId/usage"
-    val emptyQs: Map[String, String] = Map()
-
-    val usages: JsValue = (capi.capiQuery(path, emptyQs, queryLive = true) \ "response" \ "results").get
-    val usagesList = usages.as[List[String]]
-
-    val composerPage = usagesList.find(usage => {
-      val contentType = (capi.capiQuery(usage, emptyQs, queryLive = true) \ "response" \ "content" \ "type").get.as[String]
-      contentType == "video"
-    })
-
-    composerPage match {
-      case Some(page) => "\nView the video at https://www.theguardian.com/" + page
-      case None => ""
-    }
-  }
-
   private def updateYoutubeMetadata(previewAtom: MediaAtom, asset: Asset): MediaAtom = {
 
     val description = previewAtom.description.map(description => {
-      removeHtmlTagsForYouTube(description) + getComposerLinkText(previewAtom.id)
+      removeHtmlTagsForYouTube(description)
     })
 
     val metadata = YouTubeMetadataUpdate(
