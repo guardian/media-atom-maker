@@ -8,6 +8,7 @@ import java.net.URL
 import com.google.api.client.http.InputStreamContent
 import com.gu.media.model.{Image, ImageAsset}
 import javax.imageio.ImageIO
+import play.api.Logger
 
 case class ThumbnailGenerator(logoFile: File) {
   // YouTube have a file size limit of 2MB
@@ -36,6 +37,7 @@ case class ThumbnailGenerator(logoFile: File) {
     val logoX = PADDING
     val logoY = bgImage.getHeight() - logoHeight.toInt - PADDING
 
+    Logger.info(s"Creating branded thumbnail. Grid image dimensions: ${bgImage.getWidth()}x${bgImage.getHeight()}. Calculated logo dimensions: ${logoWidth}x$logoHeight")
     val graphics = bgImage.createGraphics
     graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
     graphics.drawImage(bgImage, 0, 0, null)
@@ -48,13 +50,20 @@ case class ThumbnailGenerator(logoFile: File) {
   }
 
   def getBrandedThumbnail(image: Image): InputStreamContent = {
-    val imageAsset = getGridImageAsset(image)
-    val gridImage = imageAssetToBufferedImage(imageAsset)
+    try {
+      val imageAsset = getGridImageAsset(image)
+      val gridImage = imageAssetToBufferedImage(imageAsset)
 
-    new InputStreamContent(
-      imageAsset.mimeType.getOrElse("image/jpeg"),
-      new BufferedInputStream(overlayImages(gridImage))
-    )
+      new InputStreamContent(
+        imageAsset.mimeType.getOrElse("image/jpeg"),
+        new BufferedInputStream(overlayImages(gridImage))
+      )
+    } catch {
+      case e: Throwable => {
+        Logger.error(s"Failed to create branded thumbnail. ${e.getMessage}", e)
+        getThumbnail(image)
+      }
+    }
   }
 
   def getThumbnail(image: Image): InputStreamContent = {
