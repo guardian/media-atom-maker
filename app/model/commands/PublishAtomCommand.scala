@@ -284,7 +284,7 @@ case class PublishAtomCommand(
       case Some(image) => {
         val thumbnail = atom.isOnCommercialChannel(youtube.commercialChannels) match {
           case Some(isCommercial) if isCommercial => thumbnailGenerator.getThumbnail(image)
-          case _ => thumbnailGenerator.getBrandedThumbnail(image)
+          case _ => thumbnailGenerator.getBrandedThumbnail(image, atom.id)
         }
 
         val thumbnailUpdate = youtube.updateThumbnail(asset.id, thumbnail)

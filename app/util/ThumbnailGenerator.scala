@@ -30,7 +30,7 @@ case class ThumbnailGenerator(logoFile: File) {
   private def imageAssetToBufferedImage(imageAsset: ImageAsset): BufferedImage =
     ImageIO.read(new URL(imageAsset.file))
 
-  private def overlayImages(bgImage: BufferedImage, bgImageMimeType: String): ByteArrayInputStream = {
+  private def overlayImages(bgImage: BufferedImage, bgImageMimeType: String, atomId: String): ByteArrayInputStream = {
     val logoWidth: Double = List(bgImage.getWidth() / 3.0, logo.getWidth()).min
     val logoHeight: Double = logo.getHeight() / (logo.getWidth() / logoWidth)
 
@@ -40,7 +40,7 @@ case class ThumbnailGenerator(logoFile: File) {
     val graphics = bgImage.createGraphics
     graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
     graphics.drawImage(bgImage, 0, 0, null)
-    Logger.info(s"Creating branded thumbnail. Grid image dimensions width:${bgImage.getWidth()} height:${bgImage.getHeight()}. Logo dimensions width:${logoWidth.toInt} height:${logoHeight.toInt}. Logo coordinates x:$logoX y:$logoY")
+    Logger.info(s"Creating branded thumbnail for atom $atomId. Image dims ${bgImage.getWidth()} x ${bgImage.getHeight()}. Logo dims ${logoWidth.toInt} x ${logoHeight.toInt} (x:$logoX, y:$logoY)")
     graphics.drawImage(logo, logoX, logoY, logoWidth.toInt, logoHeight.toInt, null)
     graphics.dispose()
 
@@ -60,14 +60,14 @@ case class ThumbnailGenerator(logoFile: File) {
     new ByteArrayInputStream(os.toByteArray)
   }
 
-  def getBrandedThumbnail(image: Image): InputStreamContent = {
+  def getBrandedThumbnail(image: Image, atomId: String): InputStreamContent = {
     val imageAsset = getGridImageAsset(image)
     val gridImage = imageAssetToBufferedImage(imageAsset)
     val mimeType = imageAsset.mimeType.getOrElse("image/jpeg")
 
     new InputStreamContent(
       mimeType,
-      new BufferedInputStream(overlayImages(gridImage, mimeType))
+      new BufferedInputStream(overlayImages(gridImage, mimeType, atomId))
     )
   }
 
