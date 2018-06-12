@@ -34,6 +34,10 @@ button {
     width: 80px;
     padding: 7px;
   }
+
+  &--complete {
+    background-color: $cGreen33;
+  }
 }
 
 .button__secondary {
