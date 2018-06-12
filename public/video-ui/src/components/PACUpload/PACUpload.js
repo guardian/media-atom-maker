@@ -31,7 +31,9 @@ export default class PACUpload extends React.Component {
 
         this.setState({
           file: file,
-          isValid: xml.documentElement.nodeName === FINAL_CUT_XML_NODE
+          isValid: xml.documentElement.nodeName === FINAL_CUT_XML_NODE,
+          uploaded: false,
+          uploading: false
         });
       };
 
@@ -54,6 +56,10 @@ export default class PACUpload extends React.Component {
       return 'No file chosen';
     }
 
+    if (this.state.uploaded) {
+      return 'Uploaded';
+    }
+
     if (this.state.isValid) {
       return 'Upload';
     }
@@ -65,7 +71,20 @@ export default class PACUpload extends React.Component {
 
   getButtonClassName() {
     const base = 'btn';
-    return this.state.uploading ? `${base} ${base}--loading` : base;
+
+    if (this.state.uploaded) {
+      return `${base} ${base}--complete`
+    }
+
+    if (this.state.uploading) {
+      return `${base} ${base}--loading`;
+    }
+
+    return base;
+  }
+
+  getButtonIcon() {
+    return this.state.uploaded ? 'done' : 'file_upload'
   }
 
   render() {
@@ -81,10 +100,10 @@ export default class PACUpload extends React.Component {
                  onChange={e => this.validate(e.target.files)}/>
           <button type="button"
                   className={this.getButtonClassName()}
-                  disabled={this.state.uploading || !this.state.isValid}
+                  disabled={this.state.uploading || !this.state.isValid || this.state.uploaded}
                   onClick={() => this.uploadFile()}
           >
-            <Icon icon="file_upload">
+            <Icon icon={this.getButtonIcon()}>
               {this.getUploadButtonText()}
             </Icon>
           </button>
