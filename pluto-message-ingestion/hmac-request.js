@@ -50,6 +50,10 @@ class HMACRequest {
   put(remoteUrl, data) {
     return this._request(remoteUrl, 'PUT', data);
   }
+
+  delete(remoteUrl) {
+    return this._request(remoteUrl, 'DELETE');
+  }
 }
 
 module.exports = HMACRequest;
