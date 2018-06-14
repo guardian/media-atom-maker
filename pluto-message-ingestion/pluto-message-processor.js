@@ -1,3 +1,5 @@
+const DELETE_KEY = '(DELETE)';
+
 class PlutoMessageProcessor {
   constructor({ hostname, hmacRequest, logger }) {
     this.hostname = hostname;
@@ -9,6 +11,10 @@ class PlutoMessageProcessor {
     const upsertMessageTypes = ['project-created', 'project-updated'];
 
     if (upsertMessageTypes.includes(message.type)) {
+      if (message.commissionTitle === DELETE_KEY) {
+        return this._deleteProject(message)
+      }
+
       return this._upsertProject(message);
     }
 
@@ -33,6 +39,11 @@ class PlutoMessageProcessor {
     );
 
     return diff.size === 0;
+  }
+
+  _deleteProject({commissionId}) {
+    const remoteUrl = `${this.hostname}/api2/pluto/commissions/${commissionId}`;
+    return this.hmacRequest.delete(remoteUrl);
   }
 
   _upsertProject(message) {
