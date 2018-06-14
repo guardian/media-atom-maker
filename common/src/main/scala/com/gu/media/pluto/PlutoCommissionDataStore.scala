@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.model.PutItemResult
 import com.gu.media.aws.DynamoAccess
 import com.gu.media.logging.Logging
 import com.gu.scanamo.{Scanamo, Table}
+import com.gu.scanamo.syntax._
 
 case class PlutoCommissionDataStoreException(err: String) extends Exception(err)
 
@@ -30,5 +31,10 @@ class PlutoCommissionDataStore(aws: DynamoAccess) extends Logging {
     log.info(s"upserting pluto commission ${commission.id}")
     val op = table.put(commission)
     Scanamo.exec(aws.dynamoDB)(op)
+  }
+
+  def delete(commissionId: String) = {
+    log.info(s"deleting commission $commissionId")
+    Scanamo.delete(aws.dynamoDB)(table.name)('id -> commissionId)
   }
 }

@@ -37,6 +37,12 @@ class PlutoController(
     Ok(Json.toJson(plutoProjects))
   }
 
+  def deleteCommission(id: String) = APIHMACAuthAction {
+    stores.plutoProjectStore.deleteByCommissionId(id)
+    stores.plutoCommissionStore.delete(id)
+    Accepted
+  }
+
   def upsertProject() = APIHMACAuthAction { implicit req =>
     parse[PlutoUpsertRequest](req) { data: PlutoUpsertRequest => {
       val project = stores.plutoProjectStore.upsert(data)

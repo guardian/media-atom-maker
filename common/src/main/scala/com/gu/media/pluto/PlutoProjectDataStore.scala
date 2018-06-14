@@ -43,4 +43,9 @@ class PlutoProjectDataStore(aws: DynamoAccess, plutoCommissionDataStore: PlutoCo
     Scanamo.exec(aws.dynamoDB)(op)
     project
   }
+
+  def deleteByCommissionId(commissionId: String) = {
+    log.info(s"deleting all pluto projects for commission $commissionId")
+    getByCommissionId(commissionId).map(project => Scanamo.delete(aws.dynamoDB)(table.name)('id -> project.id))
+  }
 }

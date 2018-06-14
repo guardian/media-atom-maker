@@ -19,6 +19,7 @@ GET     /api2/atoms/pluto/missing       controllers.Api2.getPlutoAtoms()
 
 GET     /api2/pluto/commissions         controllers.PlutoController.getCommissions()
 GET     /api2/pluto/commissions/:id/projects  controllers.PlutoController.getProjectsByCommissionId(id)
+DELETE  /api2/pluto/commissions/:id     controllers.PlutoController.deleteCommission(id)
 PUT     /api2/pluto/projects            controllers.PlutoController.upsertProject()
 POST    /api2/pluto/resend/:id          controllers.PlutoController.resendAtomMessage(id)
 
