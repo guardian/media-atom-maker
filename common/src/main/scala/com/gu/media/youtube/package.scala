@@ -73,7 +73,7 @@ package object youtube {
     implicit val writes: Writes[YouTubeChannelWithData] = Json.writes[YouTubeChannelWithData]
 
     private def getPrivacyStates(id: String, hasMakePublicPermission: Boolean, youtubeAccess: YouTubeAccess): Set[PrivacyStatus] = {
-      if (!youtubeAccess.unlistedWithoutPermissionChannels.contains(id)) {
+      if (!youtubeAccess.channelsRequiringPermission.contains(id)) {
         PrivacyStatus.all
       } else {
         if (hasMakePublicPermission) PrivacyStatus.all else Set(PrivacyStatus.Unlisted, PrivacyStatus.Private)
