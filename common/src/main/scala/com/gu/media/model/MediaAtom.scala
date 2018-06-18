@@ -202,6 +202,15 @@ case class MediaAtom(
       ))
     )
   }
+
+  def getActiveAsset(): Option[Asset] = activeVersion.flatMap(activeVersion => assets.find(_.version == activeVersion))
+
+  def getActiveYouTubeAsset(): Option[Asset] = {
+    getActiveAsset() match {
+      case Some(asset) if asset.platform == Platform.Youtube => Some(asset)
+      case _ => None
+    }
+  }
 }
 
 object MediaAtom extends MediaAtomImplicits {
@@ -241,15 +250,5 @@ object MediaAtom extends MediaAtomImplicits {
       optimisedForWeb = data.optimisedForWeb,
       suppressRelatedContent = data.suppressRelatedContent
     )
-  }
-
-  def getActiveYouTubeAsset(mediaAtom: MediaAtom): Option[Asset] = {
-    val assets = mediaAtom.assets
-    val activeAsset = mediaAtom.activeVersion.flatMap(activeVersion => assets.find(_.version == activeVersion))
-
-    activeAsset match {
-      case Some(asset) if asset.platform == Platform.Youtube => Some(asset)
-      case _ => None
-    }
   }
 }
