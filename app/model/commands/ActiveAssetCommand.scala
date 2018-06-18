@@ -1,5 +1,6 @@
 package model.commands
 
+import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
 import com.gu.media.model.MediaAtom
 import com.gu.media.model.Platform.Youtube
@@ -9,18 +10,21 @@ import data.DataStores
 import model.commands.CommandExceptions._
 import util._
 
+import scala.concurrent.Future
+
 case class ActiveAssetCommand(
   atomId: String,
   activateAssetRequest: ActivateAssetRequest,
   stores: DataStores,
   youtube: YouTube,
   user: PandaUser,
-  awsConfig: AWSConfig
+  awsConfig: AWSConfig,
+  permissions: MediaAtomMakerPermissionsProvider
 ) extends Command with MediaAtomImplicits with Logging {
 
-  type T = MediaAtom
+  type T = Future[MediaAtom]
 
-  def process(): T = {
+  def process(): Future[MediaAtom] = {
     log.info(s"Request to set active asset atom=$atomId version=${activateAssetRequest.version}")
 
     if (atomId != activateAssetRequest.atomId) {
@@ -44,7 +48,7 @@ case class ActiveAssetCommand(
       )
 
       log.info(s"Setting active asset atom=$atomId version=${activateAssetRequest.version}")
-      UpdateAtomCommand(atomId, updatedAtom, stores, user, awsConfig, youtube).process()
+      UpdateAtomCommand(atomId, updatedAtom, stores, user, awsConfig, youtube, permissions).process()
     } else {
       log.info(s"Cannot set active asset. No asset has that version atom=$atomId version=${activateAssetRequest.version}")
       AssetVersionConflict

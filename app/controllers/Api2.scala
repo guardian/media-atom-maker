@@ -33,7 +33,7 @@ class Api2 (
     with JsonRequestParsing
     with Logging {
 
-  import authActions.{APIAuthAction, APIHMACAuthAction}
+  import authActions.{APIAuthAction, APIHMACAuthAction, AuthAction}
 
   def allowCORSAccess(methods: String, args: Any*) = CORSable(awsConfig.workflowUrl) {
     Action { implicit req =>
@@ -100,8 +100,7 @@ class Api2 (
 
   def updateMediaAtom(id: String) = APIAuthAction { implicit req =>
     parse(req) { atom: MediaAtom =>
-      val command = UpdateAtomCommand(id, atom, stores, req.user, awsConfig, youtube)
-      val updatedAtom = command.process()
+      val updatedAtom = UpdateAtomCommand(id, atom, stores, req.user, awsConfig, youtube, permissions).process()
 
       Ok(Json.toJson(updatedAtom))
     }
@@ -110,7 +109,7 @@ class Api2 (
   def addAsset(atomId: String) = APIAuthAction { implicit req =>
     implicit val readCommand: Reads[AddAssetCommand] =
       (JsPath \ "uri").read[String].map { videoUri =>
-        AddAssetCommand(atomId, videoUri, stores, youtube, req.user, awsConfig)
+        AddAssetCommand(atomId, videoUri, stores, youtube, req.user, awsConfig, permissions)
       }
 
     parse(req) { command: AddAssetCommand =>
@@ -122,7 +121,7 @@ class Api2 (
   def deleteAsset(atomId: String) = APIAuthAction(parse.json) { implicit req =>
     try {
       val asset = req.body.as[Asset]
-      val command = DeleteAssetCommand(atomId, asset, stores, req.user, awsConfig, youtube)
+      val command = DeleteAssetCommand(atomId, asset, stores, req.user, awsConfig, youtube, permissions)
       val atom = command.process()
       Ok(Json.toJson(atom))
     }
@@ -135,7 +134,7 @@ class Api2 (
 
   def setActiveAsset(atomId: String) = APIAuthAction { implicit req =>
     parse(req) { request: ActivateAssetRequest =>
-      val command = ActiveAssetCommand(atomId, request, stores, youtube, req.user, awsConfig)
+      val command = ActiveAssetCommand(atomId, request, stores, youtube, req.user, awsConfig, permissions)
       val atom = command.process()
 
       Ok(Json.toJson(atom))

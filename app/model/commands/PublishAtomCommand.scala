@@ -41,9 +41,6 @@ case class PublishAtomCommand(
     val thriftPreviewAtom = getPreviewAtom(id)
     val previewAtom = MediaAtom.fromThrift(thriftPreviewAtom)
 
-    val thriftPublishedAtom = getPublishedAtom(id)
-    val publishedAtom = MediaAtom.fromThrift(thriftPublishedAtom)
-
     if(previewAtom.privacyStatus.contains(PrivacyStatus.Private)) {
       log.error(s"Unable to publish atom ${previewAtom.id}, privacy status is set to private")
       AtomPublishFailed("Atom status set to private")
@@ -72,37 +69,13 @@ case class PublishAtomCommand(
       case (_, _, _) => {
         previewAtom.getActiveYouTubeAsset() match {
           case Some(asset) => {
-            val privacyStatus: Future[PrivacyStatus] = getPrivacyStatus(previewAtom, publishedAtom)
-
-            privacyStatus.flatMap(status => {
-              val updatedPreviewAtom = previewAtom.copy(privacyStatus = Some(status))
-              updateYouTube(updatedPreviewAtom, asset).map(atomWithYoutubeUpdates => {
-                publish(atomWithYoutubeUpdates, user)
-              })
+            updateYouTube(previewAtom, asset).map(atomWithYoutubeUpdates => {
+              publish(atomWithYoutubeUpdates, user)
             })
           }
           case _ => Future.successful(publish(previewAtom, user))
         }
       }
-    }
-
-  }
-
-  private def getPrivacyStatus(previewAtom: MediaAtom, publishedAtom: MediaAtom): Future[PrivacyStatus] = {
-    previewAtom.channelId match {
-      case Some(channel) if youtube.channelsRequiringPermission.contains(channel) => {
-        permissions.getStatusPermissions(user).map(permissions => {
-          val canChangeVideoStatus = permissions.setVideosOnAllChannelsPublic
-
-          if (canChangeVideoStatus) {
-            previewAtom.privacyStatus.getOrElse(PrivacyStatus.Unlisted)
-          } else {
-            // don't have permission to change the status, use the published atom status
-            publishedAtom.privacyStatus.getOrElse(PrivacyStatus.Unlisted)
-          }
-        })
-      }
-      case _ => Future.successful(previewAtom.privacyStatus.getOrElse(PrivacyStatus.Unlisted))
     }
   }
 
@@ -122,7 +95,7 @@ case class PublishAtomCommand(
     )
 
     AuditMessage(id, "Publish", getUsername(user)).logMessage()
-    UpdateAtomCommand(id, updatedAtom, stores, user, awsConfig, youtube).process()
+    UpdateAtomCommand(id, updatedAtom, stores, user, awsConfig, youtube, permissions).process()
 
     val publishedAtom = publishAtomToLive(updatedAtom)
     updateInactiveAssets(publishedAtom)
