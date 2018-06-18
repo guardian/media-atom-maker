@@ -41,8 +41,7 @@ case class PublishAtomCommand(
     val thriftPreviewAtom = getPreviewAtom(id)
     val previewAtom = MediaAtom.fromThrift(thriftPreviewAtom)
 
-    val thriftPublishedAtom = getPublishedAtom(id)
-    val publishedAtom = MediaAtom.fromThrift(thriftPublishedAtom)
+    val publishedAtom = getPublishedAtom()
 
     if(previewAtom.privacyStatus.contains(PrivacyStatus.Private)) {
       log.error(s"Unable to publish atom ${previewAtom.id}, privacy status is set to private")
@@ -86,7 +85,15 @@ case class PublishAtomCommand(
         }
       }
     }
+  }
 
+  private def getPublishedAtom(): Option[MediaAtom] = {
+    try {
+      val thriftPublishedAtom = getPublishedAtom(id)
+      Some(MediaAtom.fromThrift(thriftPublishedAtom))
+    } catch {
+      case _: Throwable => None
+    }
   }
 
   private def getAtomBlockAds(previewAtom: MediaAtom): Boolean = {
@@ -98,9 +105,9 @@ case class PublishAtomCommand(
     }
   }
 
-  private def getPrivacyStatus(previewAtom: MediaAtom, publishedAtom: MediaAtom): Future[PrivacyStatus] = {
-    previewAtom.channelId match {
-      case Some(channel) if youtube.channelsRequiringPermission.contains(channel) => {
+  private def getPrivacyStatus(previewAtom: MediaAtom, maybePublishedAtom: Option[MediaAtom]): Future[PrivacyStatus] = {
+    (previewAtom.channelId, maybePublishedAtom) match {
+      case (Some(channel), Some(publishedAtom)) if youtube.channelsRequiringPermission.contains(channel) => {
         permissions.getStatusPermissions(user).map(permissions => {
           val canChangeVideoStatus = permissions.setVideosOnAllChannelsPublic
 
