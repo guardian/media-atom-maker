@@ -67,8 +67,8 @@ case class PublishAtomCommand(
         AtomPublishFailed("Embargo set after schedule")
       }
       case (_, _, _) => {
-        getActiveAsset(previewAtom) match {
-          case Some(asset) if asset.platform == Youtube =>
+        previewAtom.getActiveYouTubeAsset() match {
+          case Some(asset) => {
             val blockAds = getAtomBlockAds(previewAtom)
             val privacyStatus: Future[PrivacyStatus] = getPrivacyStatus(previewAtom)
 
@@ -78,6 +78,7 @@ case class PublishAtomCommand(
                 publish(atomWithYoutubeUpdates, user)
               })
             })
+          }
           case _ => Future.successful(publish(previewAtom, user))
         }
       }
@@ -203,7 +204,7 @@ case class PublishAtomCommand(
           case _ => {
             val activeAssetClaimUpdate = youtube.createOrUpdateClaim(previewAtom.id, asset.id, previewAtom.blockAds)
             handleYouTubeMessages(activeAssetClaimUpdate, "YouTube Claim Update: block ads updated", previewAtom, asset.id)
-            val oldActiveAsset = getActiveAsset(publishedAtom).get
+            val oldActiveAsset = publishedAtom.getActiveAsset().get
             val oldActiveAssetClaimUpdate = youtube.createOrUpdateClaim(previewAtom.id, oldActiveAsset.id, blockAds = true)
             handleYouTubeMessages(oldActiveAssetClaimUpdate, "YouTube Claim Update: ads blocked on previous active asset",
               previewAtom, oldActiveAsset.id)
@@ -297,7 +298,7 @@ case class PublishAtomCommand(
 
   private def updateInactiveAssets(atom: MediaAtom): Unit = {
 
-    MediaAtom.getActiveYouTubeAsset(atom).foreach { activeAsset =>
+    atom.getActiveYouTubeAsset().foreach { activeAsset =>
       val youTubeAssets = atom.assets.filter(_.platform == Youtube)
       val inactiveAssets = youTubeAssets.filterNot(_.id == activeAsset.id)
 
@@ -310,11 +311,6 @@ case class PublishAtomCommand(
       }
     }
   }
-
-  private def getActiveAsset(atom: MediaAtom): Option[Asset] = for {
-    version <- atom.activeVersion
-    asset <- atom.assets.find(_.version == version)
-  } yield asset
 
   private def handleYouTubeMessages(message: Either[VideoUpdateError, String], updateType: String, atom: MediaAtom, assetId: String): MediaAtom = {
     message match {
