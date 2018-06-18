@@ -41,6 +41,9 @@ case class PublishAtomCommand(
     val thriftPreviewAtom = getPreviewAtom(id)
     val previewAtom = MediaAtom.fromThrift(thriftPreviewAtom)
 
+    val thriftPublishedAtom = getPublishedAtom(id)
+    val publishedAtom = MediaAtom.fromThrift(thriftPublishedAtom)
+
     if(previewAtom.privacyStatus.contains(PrivacyStatus.Private)) {
       log.error(s"Unable to publish atom ${previewAtom.id}, privacy status is set to private")
       AtomPublishFailed("Atom status set to private")
@@ -70,7 +73,7 @@ case class PublishAtomCommand(
         previewAtom.getActiveYouTubeAsset() match {
           case Some(asset) => {
             val blockAds = getAtomBlockAds(previewAtom)
-            val privacyStatus: Future[PrivacyStatus] = getPrivacyStatus(previewAtom)
+            val privacyStatus: Future[PrivacyStatus] = getPrivacyStatus(previewAtom, publishedAtom)
 
             privacyStatus.flatMap(status => {
               val updatedPreviewAtom = previewAtom.copy(blockAds = blockAds, privacyStatus = Some(status))
@@ -95,23 +98,22 @@ case class PublishAtomCommand(
     }
   }
 
-  private def getPrivacyStatus(previewAtom: MediaAtom) = {
-    val privacyStatus: Future[PrivacyStatus] = (previewAtom.channelId, previewAtom.privacyStatus) match {
-      case (Some(channel), Some(status)) if youtube.unlistedWithoutPermissionChannels.contains(channel) && status == PrivacyStatus.Public => {
+  private def getPrivacyStatus(previewAtom: MediaAtom, publishedAtom: MediaAtom): Future[PrivacyStatus] = {
+    previewAtom.channelId match {
+      case Some(channel) if youtube.channelsRequiringPermission.contains(channel) => {
         permissions.getStatusPermissions(user).map(permissions => {
-          val hasMakePublicPermission = permissions.setVideosOnAllChannelsPublic
+          val canChangeVideoStatus = permissions.setVideosOnAllChannelsPublic
 
-          if (hasMakePublicPermission) {
-            PrivacyStatus.Public
+          if (canChangeVideoStatus) {
+            previewAtom.privacyStatus.getOrElse(PrivacyStatus.Unlisted)
           } else {
-            log.info(s"User ${user.email} does not have permission to publish atom ${previewAtom.id} as Public, setting as Unlisted")
-            PrivacyStatus.Unlisted
+            // don't have permission to change the status, use the published atom status
+            publishedAtom.privacyStatus.getOrElse(PrivacyStatus.Unlisted)
           }
         })
       }
-      case (_, _) => Future.successful(previewAtom.privacyStatus.getOrElse(PrivacyStatus.Unlisted))
+      case _ => Future.successful(previewAtom.privacyStatus.getOrElse(PrivacyStatus.Unlisted))
     }
-    privacyStatus
   }
 
   private def publish(atom: MediaAtom, user: PandaUser): MediaAtom = {
