@@ -77,7 +77,7 @@ case class PublishAtomCommand(
             val privacyStatus: Future[PrivacyStatus] = getPrivacyStatus(previewAtom, publishedAtom)
 
             privacyStatus.flatMap(status => {
-              val updatedPreviewAtom = previewAtom.copy(blockAds = blockAds, privacyStatus = Some(status))
+              val updatedPreviewAtom = previewAtom.copy(privacyStatus = Some(status))
               updateYouTube(publishedAtom, updatedPreviewAtom, asset).map(atomWithYoutubeUpdates => {
                 sendWorldCupNotification(atomWithYoutubeUpdates, publishedAtom)
                 publish(atomWithYoutubeUpdates, user)
@@ -108,9 +108,9 @@ case class PublishAtomCommand(
     }
   }
 
-  private def getPrivacyStatus(previewAtom: MediaAtom, maybePublishedAtom: Option[MediaAtom]): Future[PrivacyStatus] = {
-    (previewAtom.channelId, maybePublishedAtom) match {
-      case (Some(channel), Some(publishedAtom)) if youtube.channelsRequiringPermission.contains(channel) => {
+  private def getPrivacyStatus(previewAtom: MediaAtom, publishedAtom: MediaAtom): Future[PrivacyStatus] = {
+    previewAtom.channelId match {
+      case Some(channel) if youtube.channelsRequiringPermission.contains(channel) => {
         permissions.getStatusPermissions(user).map(permissions => {
           val canChangeVideoStatus = permissions.setVideosOnAllChannelsPublic
 

@@ -39,7 +39,8 @@ case class UpdateAtomCommand(
     log.info(s"Update atom changes ${upcomingMediaAtom.id}: $diffString")
 
     val thriftAtom = upcomingMediaAtom.copy(
-      contentChangeDetails = getContentChangeDetails(existingMediaAtom)
+      contentChangeDetails = getContentChangeDetails(existingMediaAtom),
+      blockAds = getAtomBlockAds()
     ).asThrift
 
     previewDataStore.updateAtom(thriftAtom).fold(
@@ -64,6 +65,15 @@ case class UpdateAtomCommand(
         }
       }
     )
+  }
+
+  private def getAtomBlockAds(): Boolean = {
+    upcomingMediaAtom.category match {
+      // GLabs atoms will always have ads blocked on YouTube,
+      // so the thrift field maps to the Composer page and we don't need to check the video duration
+      case Category.Hosted | Category.Paid => upcomingMediaAtom.blockAds
+      case _ => if (upcomingMediaAtom.duration.getOrElse(0L) < youtube.minDurationForAds) true else upcomingMediaAtom.blockAds
+    }
   }
 
   private def getContentChangeDetails(existingMediaAtom: MediaAtom): ContentChangeDetails = {
