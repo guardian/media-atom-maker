@@ -72,11 +72,10 @@ case class PublishAtomCommand(
       case (_, _, _) => {
         previewAtom.getActiveYouTubeAsset() match {
           case Some(asset) => {
-            val blockAds = getAtomBlockAds(previewAtom)
             val privacyStatus: Future[PrivacyStatus] = getPrivacyStatus(previewAtom, publishedAtom)
 
             privacyStatus.flatMap(status => {
-              val updatedPreviewAtom = previewAtom.copy(blockAds = blockAds, privacyStatus = Some(status))
+              val updatedPreviewAtom = previewAtom.copy(privacyStatus = Some(status))
               updateYouTube(updatedPreviewAtom, asset).map(atomWithYoutubeUpdates => {
                 publish(atomWithYoutubeUpdates, user)
               })
@@ -87,15 +86,6 @@ case class PublishAtomCommand(
       }
     }
 
-  }
-
-  private def getAtomBlockAds(previewAtom: MediaAtom): Boolean = {
-    previewAtom.category match {
-      // GLabs atoms will always have ads blocked on YouTube,
-      // so the thrift field maps to the Composer page and we don't need to check the video duration
-      case Category.Hosted | Category.Paid => previewAtom.blockAds
-      case _ => if (previewAtom.duration.getOrElse(0L) < youtube.minDurationForAds) true else previewAtom.blockAds
-    }
   }
 
   private def getPrivacyStatus(previewAtom: MediaAtom, publishedAtom: MediaAtom): Future[PrivacyStatus] = {
