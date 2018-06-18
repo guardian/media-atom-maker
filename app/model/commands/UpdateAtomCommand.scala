@@ -4,6 +4,7 @@ import java.util.Date
 
 import ai.x.diff.DiffShow
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
+import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.pandomainauth.model.{User => PandaUser}
 import com.gu.media.logging.Logging
 import data.DataStores
@@ -14,6 +15,8 @@ import com.gu.media.util.MediaAtomImplicits
 import org.joda.time.DateTime
 import util.{AWSConfig, YouTube}
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 case class UpdateAtomCommand(
@@ -22,11 +25,12 @@ case class UpdateAtomCommand(
   override val stores: DataStores,
   user: PandaUser,
   awsConfig: AWSConfig,
-  youtube: YouTube
+  youtube: YouTube,
+  permissions: MediaAtomMakerPermissionsProvider
 ) extends Command with MediaAtomImplicits with Logging {
-  type T = MediaAtom
+  type T = Future[MediaAtom]
 
-  def process(): T = {
+  def process(): Future[MediaAtom] = {
     log.info(s"Request to update atom ${upcomingMediaAtom.id}")
 
     if (id != upcomingMediaAtom.id) {
@@ -38,33 +42,38 @@ case class UpdateAtomCommand(
     val diffString = createDiffString(existingMediaAtom, upcomingMediaAtom)
     log.info(s"Update atom changes ${upcomingMediaAtom.id}: $diffString")
 
-    val thriftAtom = upcomingMediaAtom.copy(
-      contentChangeDetails = getContentChangeDetails(existingMediaAtom),
-      blockAds = getAtomBlockAds()
-    ).asThrift
+    val privacyStatus: Future[PrivacyStatus] = getPrivacyStatus(existingMediaAtom)
 
-    previewDataStore.updateAtom(thriftAtom).fold(
-      err => {
-        log.error(s"Unable to update atom ${upcomingMediaAtom.id}", err)
-        AtomUpdateFailed(err.msg)
-      },
-      _ => {
-        val event = ContentAtomEvent(thriftAtom, EventType.Update, new Date().getTime)
+    privacyStatus.map(status => {
+      val thriftAtom = upcomingMediaAtom.copy(
+        contentChangeDetails = getContentChangeDetails(existingMediaAtom),
+        blockAds = getAtomBlockAds(),
+        privacyStatus = Some(status)
+      ).asThrift
 
-        previewPublisher.publishAtomEvent(event) match {
-          case Success(_) => {
-            val updatedMediaAtom = MediaAtom.fromThrift(thriftAtom)
-            processPlutoData(existingMediaAtom, updatedMediaAtom)
-            AuditMessage(upcomingMediaAtom.id, "Update", getUsername(user), Some(diffString)).logMessage()
+      previewDataStore.updateAtom(thriftAtom).fold(
+        err => {
+          log.error(s"Unable to update atom ${upcomingMediaAtom.id}", err)
+          AtomUpdateFailed(err.msg)
+        },
+        _ => {
+          val event = ContentAtomEvent(thriftAtom, EventType.Update, new Date().getTime)
 
-            updatedMediaAtom
+          previewPublisher.publishAtomEvent(event) match {
+            case Success(_) => {
+              val updatedMediaAtom = MediaAtom.fromThrift(thriftAtom)
+              processPlutoData(existingMediaAtom, updatedMediaAtom)
+              AuditMessage(upcomingMediaAtom.id, "Update", getUsername(user), Some(diffString)).logMessage()
+
+              updatedMediaAtom
+            }
+            case Failure(err) =>
+              log.error(s"Unable to publish updated atom ${upcomingMediaAtom.id}", err)
+              AtomPublishFailed(s"could not publish: ${err.toString}")
           }
-          case Failure(err) =>
-            log.error(s"Unable to publish updated atom ${upcomingMediaAtom.id}", err)
-            AtomPublishFailed(s"could not publish: ${err.toString}")
         }
-      }
-    )
+      )
+    })
   }
 
   private def getAtomBlockAds(): Boolean = {
@@ -73,6 +82,24 @@ case class UpdateAtomCommand(
       // so the thrift field maps to the Composer page and we don't need to check the video duration
       case Category.Hosted | Category.Paid => upcomingMediaAtom.blockAds
       case _ => if (upcomingMediaAtom.duration.getOrElse(0L) < youtube.minDurationForAds) true else upcomingMediaAtom.blockAds
+    }
+  }
+
+  private def getPrivacyStatus(existingMediaAtom: MediaAtom): Future[PrivacyStatus] = {
+    upcomingMediaAtom.channelId match {
+      case Some(channel) if youtube.channelsRequiringPermission.contains(channel) => {
+        permissions.getStatusPermissions(user).map(permissions => {
+          val canChangeVideoStatus = permissions.setVideosOnAllChannelsPublic
+
+          if (canChangeVideoStatus) {
+            upcomingMediaAtom.privacyStatus.getOrElse(PrivacyStatus.Unlisted)
+          } else {
+            // don't have permission to change the status, use the published atom status
+            existingMediaAtom.privacyStatus.getOrElse(PrivacyStatus.Unlisted)
+          }
+        })
+      }
+      case _ => Future.successful(upcomingMediaAtom.privacyStatus.getOrElse(PrivacyStatus.Unlisted))
     }
   }
 

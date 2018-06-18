@@ -73,15 +73,9 @@ case class PublishAtomCommand(
           case Some(asset) => {
             val publishedAtom = getPublishedAtom()
 
-            val blockAds = getAtomBlockAds(previewAtom)
-            val privacyStatus: Future[PrivacyStatus] = getPrivacyStatus(previewAtom, publishedAtom)
-
-            privacyStatus.flatMap(status => {
-              val updatedPreviewAtom = previewAtom.copy(privacyStatus = Some(status))
-              updateYouTube(publishedAtom, updatedPreviewAtom, asset).map(atomWithYoutubeUpdates => {
-                sendWorldCupNotification(atomWithYoutubeUpdates, publishedAtom)
-                publish(atomWithYoutubeUpdates, user)
-              })
+            updateYouTube(publishedAtom, previewAtom, asset).map(atomWithYoutubeUpdates => {
+              sendWorldCupNotification(atomWithYoutubeUpdates, publishedAtom)
+              publish(atomWithYoutubeUpdates, user)
             })
           }
           case _ => Future.successful(publish(previewAtom, user))
@@ -96,33 +90,6 @@ case class PublishAtomCommand(
       Some(MediaAtom.fromThrift(thriftPublishedAtom))
     } catch {
       case _: Throwable => None
-    }
-  }
-
-  private def getAtomBlockAds(previewAtom: MediaAtom): Boolean = {
-    previewAtom.category match {
-      // GLabs atoms will always have ads blocked on YouTube,
-      // so the thrift field maps to the Composer page and we don't need to check the video duration
-      case Category.Hosted | Category.Paid => previewAtom.blockAds
-      case _ => if (previewAtom.duration.getOrElse(0L) < youtube.minDurationForAds) true else previewAtom.blockAds
-    }
-  }
-
-  private def getPrivacyStatus(previewAtom: MediaAtom, publishedAtom: MediaAtom): Future[PrivacyStatus] = {
-    previewAtom.channelId match {
-      case Some(channel) if youtube.channelsRequiringPermission.contains(channel) => {
-        permissions.getStatusPermissions(user).map(permissions => {
-          val canChangeVideoStatus = permissions.setVideosOnAllChannelsPublic
-
-          if (canChangeVideoStatus) {
-            previewAtom.privacyStatus.getOrElse(PrivacyStatus.Unlisted)
-          } else {
-            // don't have permission to change the status, use the published atom status
-            publishedAtom.privacyStatus.getOrElse(PrivacyStatus.Unlisted)
-          }
-        })
-      }
-      case _ => Future.successful(previewAtom.privacyStatus.getOrElse(PrivacyStatus.Unlisted))
     }
   }
 
@@ -142,7 +109,7 @@ case class PublishAtomCommand(
     )
 
     AuditMessage(id, "Publish", getUsername(user)).logMessage()
-    UpdateAtomCommand(id, updatedAtom, stores, user, awsConfig, youtube).process()
+    UpdateAtomCommand(id, updatedAtom, stores, user, awsConfig, youtube, permissions).process()
 
     val publishedAtom = publishAtomToLive(updatedAtom)
     updateInactiveAssets(publishedAtom)
@@ -171,13 +138,13 @@ case class PublishAtomCommand(
 
   private def publishAtomToLive(mediaAtom: MediaAtom): MediaAtom = {
     val atom = mediaAtom.asThrift
-    val event = ContentAtomEvent(atom, EventType.Update, (new Date()).getTime())
+    val event = ContentAtomEvent(atom, EventType.Update, new Date().getTime)
 
     livePublisher.publishAtomEvent(event) match {
       case Success(_) =>
         publishedDataStore.updateAtom(atom) match {
           case Right(_) => {
-            log.info(s"Successfully published atom: ${id}")
+            log.info(s"Successfully published atom: $id")
             MediaAtom.fromThrift(atom)
           }
           case Left(err) =>
