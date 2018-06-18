@@ -98,46 +98,46 @@ class Api2 (
       }
     }
 
-  def updateMediaAtom(id: String) = APIAuthAction { implicit req =>
-    parse(req) { atom: MediaAtom =>
-      val updatedAtom = UpdateAtomCommand(id, atom, stores, req.user, awsConfig, youtube, permissions).process()
-
-      Ok(Json.toJson(updatedAtom))
+  def updateMediaAtom(id: String) = APIAuthAction.async { implicit req =>
+    parseAsync(req) { atom: MediaAtom =>
+      UpdateAtomCommand(id, atom, stores, req.user, awsConfig, youtube, permissions).process().map { updatedAtom =>
+        Ok(Json.toJson(updatedAtom))
+      }
     }
   }
 
-  def addAsset(atomId: String) = APIAuthAction { implicit req =>
+  def addAsset(atomId: String) = APIAuthAction.async { implicit req =>
     implicit val readCommand: Reads[AddAssetCommand] =
       (JsPath \ "uri").read[String].map { videoUri =>
         AddAssetCommand(atomId, videoUri, stores, youtube, req.user, awsConfig, permissions)
       }
 
-    parse(req) { command: AddAssetCommand =>
-      val atom = command.process()
-      Ok(Json.toJson(atom))
+    parseAsync(req) { command: AddAssetCommand =>
+      command.process().map { atom =>
+        Ok(Json.toJson(atom))
+      }
     }
   }
 
-  def deleteAsset(atomId: String) = APIAuthAction(parse.json) { implicit req =>
-    try {
-      val asset = req.body.as[Asset]
+  def deleteAsset(atomId: String) = APIAuthAction.async { implicit req =>
+    parseAsync(req) { asset: Asset =>
       val command = DeleteAssetCommand(atomId, asset, stores, req.user, awsConfig, youtube, permissions)
-      val atom = command.process()
-      Ok(Json.toJson(atom))
-    }
-    catch {
-      commandExceptionAsResult
+
+      command.process().map { atom =>
+        Ok(Json.toJson(atom))
+      }
     }
   }
 
   private def atomUrl(id: String) = s"/atom/$id"
 
-  def setActiveAsset(atomId: String) = APIAuthAction { implicit req =>
-    parse(req) { request: ActivateAssetRequest =>
+  def setActiveAsset(atomId: String) = APIAuthAction.async { implicit req =>
+    parseAsync(req) { request: ActivateAssetRequest =>
       val command = ActiveAssetCommand(atomId, request, stores, youtube, req.user, awsConfig, permissions)
-      val atom = command.process()
 
-      Ok(Json.toJson(atom))
+      command.process().map { atom =>
+        Ok(Json.toJson(atom))
+      }
     }
   }
 
