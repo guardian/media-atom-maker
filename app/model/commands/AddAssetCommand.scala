@@ -57,7 +57,7 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
 
     log.info(s"Adding new asset $videoUri to $atomId")
 
-    UpdateAtomCommand(atomId, fromThrift(updatedAtom), stores, user, awsConfig).process()
+    UpdateAtomCommand(atomId, fromThrift(updatedAtom), stores, user, awsConfig, youTube).process()
   }
 
   private def getYouTubeChannel(asset: Asset, atom: ThriftMediaAtom): String = {

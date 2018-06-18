@@ -100,7 +100,7 @@ class Api2 (
 
   def updateMediaAtom(id: String) = APIAuthAction { implicit req =>
     parse(req) { atom: MediaAtom =>
-      val command = UpdateAtomCommand(id, atom, stores, req.user, awsConfig)
+      val command = UpdateAtomCommand(id, atom, stores, req.user, awsConfig, youtube)
       val updatedAtom = command.process()
 
       Ok(Json.toJson(updatedAtom))
@@ -122,7 +122,7 @@ class Api2 (
   def deleteAsset(atomId: String) = APIAuthAction(parse.json) { implicit req =>
     try {
       val asset = req.body.as[Asset]
-      val command = DeleteAssetCommand(atomId, asset, stores, req.user, awsConfig)
+      val command = DeleteAssetCommand(atomId, asset, stores, req.user, awsConfig, youtube)
       val atom = command.process()
       Ok(Json.toJson(atom))
     }

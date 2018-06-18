@@ -142,7 +142,7 @@ case class PublishAtomCommand(
     )
 
     AuditMessage(id, "Publish", getUsername(user)).logMessage()
-    UpdateAtomCommand(id, updatedAtom, stores, user, awsConfig).process()
+    UpdateAtomCommand(id, updatedAtom, stores, user, awsConfig, youtube).process()
 
     val publishedAtom = publishAtomToLive(updatedAtom)
     updateInactiveAssets(publishedAtom)

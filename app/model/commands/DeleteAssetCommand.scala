@@ -6,14 +6,15 @@ import com.gu.media.util.MediaAtomImplicits
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
-import util.AWSConfig
+import util.{AWSConfig, YouTube}
 
 case class DeleteAssetCommand(
   atomId: String,
   asset: Asset,
   stores: DataStores,
   user: PandaUser,
-  awsConfig: AWSConfig
+  awsConfig: AWSConfig,
+  youtube: YouTube
 ) extends Command with MediaAtomImplicits with Logging {
   type T = MediaAtom
 
@@ -35,7 +36,7 @@ case class DeleteAssetCommand(
         assets = mediaAtom.assets.filterNot(_.id == asset.id)
       )
 
-      UpdateAtomCommand(atomId, updatedAtom, stores, user, awsConfig).process()
+      UpdateAtomCommand(atomId, updatedAtom, stores, user, awsConfig, youtube).process()
     } else {
       AssetNotFound
     }

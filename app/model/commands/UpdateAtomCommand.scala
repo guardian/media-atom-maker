@@ -8,73 +8,81 @@ import com.gu.pandomainauth.model.{User => PandaUser}
 import com.gu.media.logging.Logging
 import data.DataStores
 import model.commands.CommandExceptions._
-import com.gu.media.model.{AtomAssignedProjectMessage, ChangeRecord, MediaAtom, AuditMessage}
+import com.gu.media.model._
 import com.gu.media.upload.PlutoUploadActions
 import com.gu.media.util.MediaAtomImplicits
 import org.joda.time.DateTime
-import util.AWSConfig
+import util.{AWSConfig, YouTube}
 
 import scala.util.{Failure, Success}
 
-case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: DataStores, user: PandaUser, awsConfig: AWSConfig)
-    extends Command
-    with MediaAtomImplicits
-    with Logging {
-
+case class UpdateAtomCommand(
+  id: String,
+  upcomingMediaAtom: MediaAtom,
+  override val stores: DataStores,
+  user: PandaUser,
+  awsConfig: AWSConfig,
+  youtube: YouTube
+) extends Command with MediaAtomImplicits with Logging {
   type T = MediaAtom
 
   def process(): T = {
-    log.info(s"Request to update atom ${atom.id}")
+    log.info(s"Request to update atom ${upcomingMediaAtom.id}")
 
-    if (id != atom.id) {
+    if (id != upcomingMediaAtom.id) {
       AtomIdConflict
     }
 
-    val existingAtom = getPreviewAtom(atom.id)
+    val existingMediaAtom = getExistingMediaAtom()
 
-    val diffString = createDiffString(MediaAtom.fromThrift(existingAtom), atom)
-    log.info(s"Update atom changes ${atom.id}: $diffString")
+    val diffString = createDiffString(existingMediaAtom, upcomingMediaAtom)
+    log.info(s"Update atom changes ${upcomingMediaAtom.id}: $diffString")
 
-    val changeRecord = ChangeRecord.now(user)
+    val thriftAtom = upcomingMediaAtom.copy(
+      contentChangeDetails = getContentChangeDetails(existingMediaAtom)
+    ).asThrift
 
-    val scheduledLaunchDate: Option[DateTime] = atom.contentChangeDetails.scheduledLaunch.map(scheduledLaunch => new DateTime(scheduledLaunch.date))
-    val embargo: Option[DateTime] = atom.contentChangeDetails.embargo.map(embargo => new DateTime(embargo.date))
-    val expiry: Option[DateTime] = atom.expiryDate.map(expiry => new DateTime(expiry))
-
-    val details = atom.contentChangeDetails.copy(
-      revision = existingAtom.contentChangeDetails.revision + 1,
-      lastModified = Some(changeRecord),
-      scheduledLaunch = scheduledLaunchDate.map(ChangeRecord.build(_, user)),
-      embargo = embargo.map(ChangeRecord.build(_, user)),
-      expiry = expiry.map(ChangeRecord.build(_, user))
-    )
-    val thrift = atom.copy(contentChangeDetails = details).asThrift
-
-    previewDataStore.updateAtom(thrift).fold(
+    previewDataStore.updateAtom(thriftAtom).fold(
       err => {
-        log.error(s"Unable to update atom ${atom.id}", err)
+        log.error(s"Unable to update atom ${upcomingMediaAtom.id}", err)
         AtomUpdateFailed(err.msg)
       },
       _ => {
-        val event = ContentAtomEvent(thrift, EventType.Update, new Date().getTime)
+        val event = ContentAtomEvent(thriftAtom, EventType.Update, new Date().getTime)
 
         previewPublisher.publishAtomEvent(event) match {
           case Success(_) => {
-
-            val existingMediaAtom = MediaAtom.fromThrift(existingAtom)
-            val updatedMediaAtom = MediaAtom.fromThrift(thrift)
+            val updatedMediaAtom = MediaAtom.fromThrift(thriftAtom)
             processPlutoData(existingMediaAtom, updatedMediaAtom)
-
-            AuditMessage(atom.id, "Update", getUsername(user), Some(diffString)).logMessage()
+            AuditMessage(upcomingMediaAtom.id, "Update", getUsername(user), Some(diffString)).logMessage()
 
             updatedMediaAtom
           }
           case Failure(err) =>
-            log.error(s"Unable to publish updated atom ${atom.id}", err)
+            log.error(s"Unable to publish updated atom ${upcomingMediaAtom.id}", err)
             AtomPublishFailed(s"could not publish: ${err.toString}")
         }
       }
     )
+  }
+
+  private def getContentChangeDetails(existingMediaAtom: MediaAtom): ContentChangeDetails = {
+    val scheduledLaunchDate: Option[DateTime] = upcomingMediaAtom.contentChangeDetails.scheduledLaunch.map(scheduledLaunch => new DateTime(scheduledLaunch.date))
+    val embargo: Option[DateTime] = upcomingMediaAtom.contentChangeDetails.embargo.map(embargo => new DateTime(embargo.date))
+    val expiry: Option[DateTime] = upcomingMediaAtom.expiryDate.map(expiry => new DateTime(expiry))
+
+    upcomingMediaAtom.contentChangeDetails.copy(
+      revision = existingMediaAtom.contentChangeDetails.revision + 1,
+      lastModified = Some(ChangeRecord.now(user)),
+      scheduledLaunch = scheduledLaunchDate.map(ChangeRecord.build(_, user)),
+      embargo = embargo.map(ChangeRecord.build(_, user)),
+      expiry = expiry.map(ChangeRecord.build(_, user))
+    )
+  }
+
+  private def getExistingMediaAtom(): MediaAtom = {
+    val existingAtomAsThrift = getPreviewAtom(upcomingMediaAtom.id)
+    MediaAtom.fromThrift(existingAtomAsThrift)
   }
 
   private def processPlutoData(oldAtom: MediaAtom, newAtom: MediaAtom) = {
