@@ -13,7 +13,7 @@ export default class VideoPublishState extends React.Component {
     }
 
     if (isVideoPublished(this.props.video)) {
-      return <div className="publish__label label__live">Live</div>;
+      return <div className="publish__label label__live">Published</div>;
     }
 
     return <div className="publish__label label__draft">Draft</div>;
