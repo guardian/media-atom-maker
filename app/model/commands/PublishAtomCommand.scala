@@ -8,6 +8,7 @@ import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.media.logging.Logging
 import com.gu.media.model.Platform.Youtube
 import com.gu.media.model.{AuditMessage, _}
+import com.gu.media.ses.Mailer
 import com.gu.media.youtube.YouTubeMetadataUpdate
 import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider}
 import com.gu.pandomainauth.model.{User => PandaUser}
@@ -15,7 +16,6 @@ import data.DataStores
 import model._
 import model.commands.CommandExceptions._
 import org.jsoup.Jsoup
-import play.api.libs.json.JsValue
 import util.{AWSConfig, ThumbnailGenerator, YouTube}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -35,13 +35,13 @@ case class PublishAtomCommand(
 
   type T = Future[MediaAtom]
 
+  private lazy val mailer = new Mailer(awsConfig)
+
   def process(): T = {
     log.info(s"Request to publish atom $id")
 
     val thriftPreviewAtom = getPreviewAtom(id)
     val previewAtom = MediaAtom.fromThrift(thriftPreviewAtom)
-
-    val publishedAtom = getPublishedAtom()
 
     if(previewAtom.privacyStatus.contains(PrivacyStatus.Private)) {
       log.error(s"Unable to publish atom ${previewAtom.id}, privacy status is set to private")
@@ -71,12 +71,15 @@ case class PublishAtomCommand(
       case (_, _, _) => {
         previewAtom.getActiveYouTubeAsset() match {
           case Some(asset) => {
+            val publishedAtom = getPublishedAtom()
+
             val blockAds = getAtomBlockAds(previewAtom)
             val privacyStatus: Future[PrivacyStatus] = getPrivacyStatus(previewAtom, publishedAtom)
 
             privacyStatus.flatMap(status => {
               val updatedPreviewAtom = previewAtom.copy(blockAds = blockAds, privacyStatus = Some(status))
-              updateYouTube(updatedPreviewAtom, asset).map(atomWithYoutubeUpdates => {
+              updateYouTube(publishedAtom, updatedPreviewAtom, asset).map(atomWithYoutubeUpdates => {
+                sendWorldCupNotification(atomWithYoutubeUpdates, publishedAtom)
                 publish(atomWithYoutubeUpdates, user)
               })
             })
@@ -143,8 +146,27 @@ case class PublishAtomCommand(
 
     val publishedAtom = publishAtomToLive(updatedAtom)
     updateInactiveAssets(publishedAtom)
-
     publishedAtom
+  }
+
+  private def sendWorldCupNotification(previewAtom: MediaAtom, maybePublishedAtom: Option[MediaAtom]) = {
+    val previewAtomHasTags = previewAtom.tags.contains("2018 world cup") || previewAtom.tags.contains("world cup 2018")
+
+    if (previewAtomHasTags) {
+      maybePublishedAtom match {
+        case Some(publishedAtom) => {
+          val publishedHasTags = publishedAtom.tags.contains("2018 world cup") || publishedAtom.tags.contains("world cup 2018")
+
+          // Send an email if:
+          // - a new asset has been added to the atom
+          // - the tag metadata has been added to an existing asset
+          if (hasNewAssets(previewAtom, publishedAtom) || !publishedHasTags) {
+            mailer.sendWorldCupEmail(previewAtom)
+          }
+        }
+        case _ => mailer.sendWorldCupEmail(previewAtom)
+      }
+    }
   }
 
   private def publishAtomToLive(mediaAtom: MediaAtom): MediaAtom = {
@@ -168,11 +190,11 @@ case class PublishAtomCommand(
     }
   }
 
-  private def updateYouTube(previewAtom: MediaAtom, asset: Asset): Future[MediaAtom] = {
+  private def updateYouTube(publishedAtom: Option[MediaAtom], previewAtom: MediaAtom, asset: Asset): Future[MediaAtom] = {
     previewAtom.channelId match {
       case Some(channel) if youtube.allChannels.contains(channel) =>
         if (youtube.usePartnerApi) {
-          createOrUpdateYoutubeClaim(previewAtom, asset)
+          createOrUpdateYoutubeClaim(publishedAtom, previewAtom, asset)
         }
         updateYoutubeMetadata(previewAtom, asset)
         updateYoutubeThumbnail(previewAtom, asset)
@@ -196,34 +218,31 @@ case class PublishAtomCommand(
     }
   }
 
-  private def createOrUpdateYoutubeClaim(previewAtom: MediaAtom, asset: Asset): Future[MediaAtom] = Future{
-    try {
-      val thriftPublishedAtom = getPublishedAtom(id)
-      val publishedAtom = MediaAtom.fromThrift(thriftPublishedAtom)
-
-      if (!hasNewAssets(previewAtom, publishedAtom) && (previewAtom.blockAds == publishedAtom.blockAds)) {
-        YouTubeMessage(previewAtom.id, "N/A", "Claim Update", "No change to assets or BlockAds field, not editing YouTube Claim").logMessage
-        previewAtom
-      } else {
-        previewAtom.category match {
-          case Category.Hosted | Category.Paid => {
-            val claimUpdate = youtube.createOrUpdateClaim(previewAtom.id, asset.id, blockAds = true)
-            handleYouTubeMessages(claimUpdate, "YouTube Claim Update: Block ads on Glabs atom", previewAtom, asset.id)
-          }
-          case _ => {
-            val activeAssetClaimUpdate = youtube.createOrUpdateClaim(previewAtom.id, asset.id, previewAtom.blockAds)
-            handleYouTubeMessages(activeAssetClaimUpdate, "YouTube Claim Update: block ads updated", previewAtom, asset.id)
-            val oldActiveAsset = publishedAtom.getActiveAsset().get
-            val oldActiveAssetClaimUpdate = youtube.createOrUpdateClaim(previewAtom.id, oldActiveAsset.id, blockAds = true)
-            handleYouTubeMessages(oldActiveAssetClaimUpdate, "YouTube Claim Update: ads blocked on previous active asset",
-              previewAtom, oldActiveAsset.id)
+  private def createOrUpdateYoutubeClaim(maybePublishedAtom: Option[MediaAtom], previewAtom: MediaAtom, asset: Asset): Future[MediaAtom] = Future{
+    maybePublishedAtom match {
+      case Some(publishedAtom) => {
+        if (!hasNewAssets(previewAtom, publishedAtom) && (previewAtom.blockAds == publishedAtom.blockAds)) {
+          YouTubeMessage(previewAtom.id, "N/A", "Claim Update", "No change to assets or BlockAds field, not editing YouTube Claim").logMessage
+          previewAtom
+        } else {
+          previewAtom.category match {
+            case Category.Hosted | Category.Paid => {
+              val claimUpdate = youtube.createOrUpdateClaim(previewAtom.id, asset.id, blockAds = true)
+              handleYouTubeMessages(claimUpdate, "YouTube Claim Update: Block ads on Glabs atom", previewAtom, asset.id)
+            }
+            case _ => {
+              val activeAssetClaimUpdate = youtube.createOrUpdateClaim(previewAtom.id, asset.id, previewAtom.blockAds)
+              handleYouTubeMessages(activeAssetClaimUpdate, "YouTube Claim Update: block ads updated", previewAtom, asset.id)
+              val oldActiveAsset = publishedAtom.getActiveAsset().get
+              val oldActiveAssetClaimUpdate = youtube.createOrUpdateClaim(previewAtom.id, oldActiveAsset.id, blockAds = true)
+              handleYouTubeMessages(oldActiveAssetClaimUpdate, "YouTube Claim Update: ads blocked on previous active asset",
+                previewAtom, oldActiveAsset.id)
+            }
           }
         }
       }
-    } catch {
-      case CommandException(_, 404) => {
+      case _ => {
         // atom hasn't been published yet
-
         val blockAds = previewAtom.category match {
           case Category.Hosted | Category.Paid => true
           case _ => previewAtom.blockAds
