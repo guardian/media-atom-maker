@@ -10,7 +10,11 @@ trait SESSettings { this: Settings with AwsAccess =>
 
   val fromEmailAddress = getMandatoryString("aws.ses.fromEmailAddress")
 
-  val replyToAddresses = getMandatoryString("aws.ses.replyToAddresses").split(",")
+  val replyToAddresses: Seq[String] = getMandatoryString("aws.ses.replyToAddresses").split(",").toSeq
 
   val integrationTestUser: String = getMandatoryString("integration.test.user")
+
+  val host: String = getMandatoryString("host")
+
+  val worldCupEmailRecipients = getMandatoryString("aws.ses.worldCupRecipients").split(",").toSeq
 }

@@ -7,7 +7,7 @@ import com.gu.media.ses.Mailer
 import com.gu.media.{PlutoDataStore, Settings}
 
 class PlutoUploadActions(config: Settings with DynamoAccess with KinesisAccess with SESSettings) extends Logging {
-  private val mailer = new Mailer(config.sesClient, config.getMandatoryString("host"))
+  private val mailer = new Mailer(config)
   private val plutoStore = new PlutoDataStore(config.dynamoDB, config.manualPlutoDynamo)
 
   def sendToPluto(plutoIntegrationMessage: PlutoIntegrationMessage): Unit = {
@@ -26,9 +26,7 @@ class PlutoUploadActions(config: Settings with DynamoAccess with KinesisAccess w
               mailer.sendPlutoIdMissingEmail(
                 plutoData.atomId,
                 plutoData.title,
-                plutoData.user,
-                config.fromEmailAddress,
-                config.replyToAddresses
+                plutoData.user
               )
             }
           }
