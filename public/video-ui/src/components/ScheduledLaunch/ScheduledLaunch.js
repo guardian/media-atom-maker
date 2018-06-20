@@ -271,6 +271,7 @@ export default class ScheduledLaunch extends React.Component {
               propertyName: null
             })
           }
+          data-tip="Delay publication..."
         >
           <Icon icon="access_time" />
           <Icon icon="expand_more" />
