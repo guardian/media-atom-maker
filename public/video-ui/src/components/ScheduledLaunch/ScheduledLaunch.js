@@ -153,7 +153,7 @@ export default class ScheduledLaunch extends React.Component {
         {!hasPreventedPublication && (
           <li>
             <button
-              className="btn btn--list"
+              className="btn btn--list-item"
               onClick={() => this.onSelectOption(datesProperties.selectedScheduleDate)}
               disabled={!video || videoEditOpen}
             >
@@ -164,7 +164,7 @@ export default class ScheduledLaunch extends React.Component {
         {!hasPreventedPublication && (
           <li>
             <button
-              className="btn btn--list"
+              className="btn btn--list-item"
               onClick={() => this.onSelectOption(datesProperties.selectedEmbargoDate)}
               disabled={!video || videoEditOpen}
             >
@@ -176,7 +176,7 @@ export default class ScheduledLaunch extends React.Component {
           !scheduledLaunch && (
             <li>
               <button
-                className="btn btn--list"
+                className="btn btn--list-item"
                 onClick={() => this.preventPublication()}
                 disabled={!video || videoEditOpen}
               >
@@ -187,7 +187,7 @@ export default class ScheduledLaunch extends React.Component {
         {hasPreventedPublication && (
           <li>
             <button
-              className="btn btn--list"
+              className="btn btn--list-item"
               onClick={() => {
                 this.removeDate(datesProperties.selectedEmbargoDate);
                 this.setState({ showScheduleOptions: false });
@@ -273,6 +273,7 @@ export default class ScheduledLaunch extends React.Component {
           }
         >
           <Icon icon="access_time" />
+          <Icon icon="expand_more" />
         </button>
       </div>
     );

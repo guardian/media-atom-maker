@@ -30,9 +30,17 @@ button {
     padding: 7px;
   }
 
-  &--list {
+  &--list,
+  &--list-item {
     width: 80px;
-    padding: 7px;
+  }
+
+  &--list {
+    @include buttonClass($color200Grey, $color500Grey, $color800Grey, $color800Grey);
+  }
+
+  &--list-item {
+    margin-top: 5px;
   }
 
   &--complete {
