@@ -61,10 +61,11 @@ export default class VideoPublishBar extends React.Component {
       return <span>Publishing</span>;
     }
 
-    if (
-      isVideoPublished(this.props.publishedVideo) &&
-      !this.videoHasUnpublishedChanges()
-    ) {
+    if (isVideoPublished(this.props.publishedVideo)){
+      if (this.videoHasUnpublishedChanges()) {
+        return <span>Save and launch</span>;
+      }
+
       return <span>Published</span>;
     }
 
