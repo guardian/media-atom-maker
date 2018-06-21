@@ -16,14 +16,6 @@ export default class Help extends React.Component {
       text: 'Contact the Team'
     },
     {
-      url: 'https://goo.gl/g2FUxn',
-      text: 'Publishing without Pluto'
-    },
-    {
-      url: 'https://docs.google.com/document/d/1Ey9BcoeUsZSTnVomQCRnGwdlO7akVceJZUYJihPd4xk/edit#',
-      text: 'HOW TO FIX - Media Atom Maker creating invalid Composer Pages'
-    },
-    {
       url: 'https://docs.google.com/document/d/1jJuO09QO4GaYC0yirh8Mce2fOd2u0IdTXPF4OmtvD9M/edit#',
       text: 'Commercial FAQs'
     }
