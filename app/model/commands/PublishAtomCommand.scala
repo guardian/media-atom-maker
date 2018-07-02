@@ -177,7 +177,7 @@ case class PublishAtomCommand(
       case Success(_) =>
         publishedDataStore.updateAtom(atom) match {
           case Right(_) => {
-            log.info(s"Successfully published atom: ${id}")
+            log.info(s"Successfully published atom: ${id} (revision ${atom.contentChangeDetails.revision})")
             MediaAtom.fromThrift(atom)
           }
           case Left(err) =>
