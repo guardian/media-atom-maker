@@ -17,6 +17,7 @@ import YouTubeKeywords from '../../constants/youTubeKeywords';
 import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 import { isVideoPublished } from '../../util/isVideoPublished';
+import VideoUtils from '../../util/video';
 
 class VideoDisplay extends React.Component {
   componentWillMount() {
@@ -192,10 +193,17 @@ class VideoDisplay extends React.Component {
   }
 
   renderPreviewAndImages() {
+    const isYoutube = VideoUtils.isYoutube(this.props.video);
+    const activeAsset = VideoUtils.getActiveAsset(this.props.video);
+    const youtubeAsset = isYoutube && activeAsset;
+
     return (
       <div className="video__detailbox">
         <div className="video__detailbox__header__container">
-          <header className="video__detailbox__header">Video Preview</header>
+          <header className="video__detailbox__header">
+            Video Preview
+            {youtubeAsset ? ` (${youtubeAsset.id})` : ``}
+          </header>
           <Link
             className={'button ' + (this.props.videoEditOpen ? 'disabled' : '')}
             to={`/videos/${this.props.video.id}/upload`}
