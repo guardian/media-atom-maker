@@ -35,8 +35,6 @@ case class PublishAtomCommand(
 
   type T = Future[MediaAtom]
 
-  private lazy val mailer = new Mailer(awsConfig)
-
   def process(): T = {
     log.info(s"Request to publish atom $id")
 
@@ -79,7 +77,6 @@ case class PublishAtomCommand(
             privacyStatus.flatMap(status => {
               val updatedPreviewAtom = previewAtom.copy(blockAds = blockAds, privacyStatus = Some(status))
               updateYouTube(publishedAtom, updatedPreviewAtom, asset).map(atomWithYoutubeUpdates => {
-                sendWorldCupNotification(atomWithYoutubeUpdates, publishedAtom)
                 publish(atomWithYoutubeUpdates, user)
               })
             })
@@ -147,26 +144,6 @@ case class PublishAtomCommand(
     val publishedAtom = publishAtomToLive(updatedAtom)
     updateInactiveAssets(publishedAtom)
     publishedAtom
-  }
-
-  private def sendWorldCupNotification(previewAtom: MediaAtom, maybePublishedAtom: Option[MediaAtom]) = {
-    val previewAtomHasTags = previewAtom.tags.contains("2018 world cup") || previewAtom.tags.contains("world cup 2018")
-
-    if (previewAtomHasTags) {
-      maybePublishedAtom match {
-        case Some(publishedAtom) => {
-          val publishedHasTags = publishedAtom.tags.contains("2018 world cup") || publishedAtom.tags.contains("world cup 2018")
-
-          // Send an email if:
-          // - a new asset has been added to the atom
-          // - the tag metadata has been added to an existing asset
-          if (hasNewAssets(previewAtom, publishedAtom) || !publishedHasTags) {
-            mailer.sendWorldCupEmail(previewAtom)
-          }
-        }
-        case _ => mailer.sendWorldCupEmail(previewAtom)
-      }
-    }
   }
 
   private def publishAtomToLive(mediaAtom: MediaAtom): MediaAtom = {
