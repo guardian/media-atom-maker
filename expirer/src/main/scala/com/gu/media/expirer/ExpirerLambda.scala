@@ -8,7 +8,7 @@ import com.gu.contentatom.thrift.atom.media.PrivacyStatus
 import com.gu.media.CapiAccess
 import com.gu.media.lambda.LambdaBase
 import com.gu.media.logging.Logging
-import com.gu.media.youtube.{YouTubeAccess, YouTubeVideos, YouTubeClaims}
+import com.gu.media.youtube.{YouTubeAccess, YouTubeVideos, YouTubePartnerApi}
 import play.api.libs.json.{JsArray, JsValue}
 
 import scala.annotation.tailrec
@@ -20,7 +20,7 @@ class ExpirerLambda extends RequestHandler[Unit, Unit]
   with CapiAccess
   with YouTubeAccess
   with YouTubeVideos
-  with YouTubeClaims {
+  with YouTubePartnerApi {
 
 
   override def handleRequest(input: Unit, context: Context): Unit = {

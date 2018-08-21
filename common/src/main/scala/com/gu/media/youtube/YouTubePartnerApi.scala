@@ -5,16 +5,17 @@ import com.google.api.services.youtubePartner.YouTubePartner
 import com.google.api.services.youtubePartner.model._
 import com.gu.media.logging.Logging
 import com.gu.media.model.VideoUpdateError
+import com.gu.media.util.MAMLogger
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 
 //This class contains functionality to add usage policies to published videos.
 //Videos are either tracked or monetized: https://support.google.com/youtube/answer/107383?hl=en-GB
-trait YouTubeClaims { this: YouTubeAccess with Logging =>
+trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
 
   private def createAsset(title: String, videoId: String, atomId: String): Either[VideoUpdateError, Asset] = {
-
+    MAMLogger.info(s"Creating YouTube asset for $videoId", atomId, videoId)
     val metadata = new Metadata()
       .setTitle(title)
       .setDescription(videoId)
@@ -29,18 +30,19 @@ trait YouTubeClaims { this: YouTubeAccess with Logging =>
         .insert(asset)
         .setOnBehalfOfContentOwner(contentOwner)
         .execute()
-
+      MAMLogger.info(s"YouTube asset created successfully for $videoId", atomId, videoId)
       Right(createdAsset)
     } catch {
       case e: GoogleJsonResponseException => {
         val error: GoogleJsonError = e.getDetails
+        MAMLogger.error(s"Failed to create asset for $videoId. ${error.toString} ${error.getMessage}", atomId, videoId)
         Left(VideoUpdateError(s"Error in creating an asset: ${error.toString()}", Some(error.getMessage)))
       }
     }
   }
 
-  private def setOwnership(assetId: String): Either[VideoUpdateError, RightsOwnership] = {
-
+  private def setOwnership(atomId: String, videoId: String, assetId: String): Either[VideoUpdateError, RightsOwnership] = {
+    MAMLogger.info(s"Setting ownership for YouTube asset $assetId", atomId, videoId)
     val territoryOwners = new TerritoryOwners()
       .setOwner(contentOwner)
       .setRatio(100.0)
@@ -54,19 +56,20 @@ trait YouTubeClaims { this: YouTubeAccess with Logging =>
         .update(assetId, createdOwnership)
         .setOnBehalfOfContentOwner(contentOwner)
         .execute()
-
+      MAMLogger.info(s"Successfully set ownership of asset $assetId", atomId, videoId)
       Right(ownership)
     } catch {
       case e: GoogleJsonResponseException => {
         val error: GoogleJsonError = e.getDetails
+        MAMLogger.error(s"Failed to set ownership of asset $assetId. ${error.toString} ${error.getMessage}", atomId, videoId)
         Left(VideoUpdateError(s"Error in setting claim ownership: ${error.toString()}", Some(error.getMessage)))
       }
     }
 
   }
 
-  private def claimVideo(assetId: String, videoId: String, policy: Policy): Either[VideoUpdateError, String] = {
-
+  private def claimVideo(atomId: String, assetId: String, videoId: String, policy: Policy): Either[VideoUpdateError, String] = {
+    MAMLogger.info(s"Claiming video $videoId", atomId, videoId)
     val claim = new Claim()
       .setAssetId(assetId)
       .setVideoId(videoId)
@@ -74,17 +77,17 @@ trait YouTubeClaims { this: YouTubeAccess with Logging =>
       .setContentType("audiovisual")
 
     try {
-
       val newClaim: Claim = partnerClient.claims()
         .insert(claim)
         .setOnBehalfOfContentOwner(contentOwner)
         .execute()
-
+      MAMLogger.info(s"Successfully claimed video $videoId", atomId, videoId)
       Right(s"No partner claim found, claimed video ${videoId} with a new claim ${newClaim.getId}")
 
     } catch {
       case e: GoogleJsonResponseException => {
         val error: GoogleJsonError = e.getDetails
+        MAMLogger.error(s"Failed to claim video $videoId. ${error.toString} ${error.getMessage}", atomId, videoId)
         Left(VideoUpdateError(s"Error in claiming video with new claim: ${error.toString()}", Some(error.getMessage)))
       }
     }
@@ -105,15 +108,16 @@ trait YouTubeClaims { this: YouTubeAccess with Logging =>
     createAsset(assetTitle, videoId, atomId) match {
       case Right(asset) => {
         val assetId = asset.getId
-        setOwnership(assetId) match {
-          case Right(ownership) => claimVideo(assetId, videoId, policy)
+        setOwnership(atomId, videoId, assetId) match {
+          case Right(ownership) => claimVideo(atomId, assetId, videoId, policy)
           case Left(error) => Left(error)
         }
       } case Left(error) => Left(error)
     }
   }
 
-  private def updateClaim(claimId: String, assetId: String, videoId: String, blockAds: Boolean): Either[VideoUpdateError, String] = {
+  private def updateClaim(atomId: String, claimId: String, assetId: String, videoId: String, blockAds: Boolean): Either[VideoUpdateError, String] = {
+    MAMLogger.info(s"Updating claim for $videoId", atomId, videoId)
     val policy = getNewPolicy(blockAds)
 
     val claim = new Claim()
@@ -123,17 +127,18 @@ trait YouTubeClaims { this: YouTubeAccess with Logging =>
       .setContentType("audiovisual")
 
     try {
-
       partnerClient.claims
         .patch(claimId, claim)
         .setOnBehalfOfContentOwner(contentOwner)
         .execute()
 
+      MAMLogger.info(s"Successfully updated claim for $videoId, setting blockAds to $blockAds", atomId, videoId)
       Right(s"Updated claim for claim=$claimId asset=$assetId")
 
     } catch {
       case e: GoogleJsonResponseException => {
         val error: GoogleJsonError = e.getDetails
+        MAMLogger.error(s"Failed to update claim. ${error.toString} ${error.getMessage}", atomId, videoId)
         Left(VideoUpdateError(s"Error in claiming a video: ${error.toString()}", Some(error.getMessage)))
       }
     }
@@ -157,7 +162,6 @@ trait YouTubeClaims { this: YouTubeAccess with Logging =>
   }
 
   def createOrUpdateClaim(atomId: String, videoId: String, blockAds: Boolean): Either[VideoUpdateError, String] = {
-
     val request: YouTubePartner#ClaimSearch#List = partnerClient
       .claimSearch()
       .list
@@ -172,15 +176,20 @@ trait YouTubeClaims { this: YouTubeAccess with Logging =>
           val claim = partnerClient.claims().get(claimSnippet.getId).execute()
           val claimId = claim.getId
           val assetId = claim.getAssetId
-          updateClaim(claimId, assetId, videoId, blockAds)
+          MAMLogger.info(s"Updating an existing claim for $videoId", atomId, videoId)
+          updateClaim(atomId, claimId, assetId, videoId, blockAds)
         }
-        case None => createVideoClaim(atomId, blockAds, videoId)
+        case None => {
+          MAMLogger.info(s"No existing claim found for $videoId", atomId, videoId)
+          createVideoClaim(atomId, blockAds, videoId)
+        }
       }
     }
 
     catch {
       case e: GoogleJsonResponseException => {
         val error: GoogleJsonError = e.getDetails
+        MAMLogger.error(s"Failed to create or claim video $videoId. ${error.toString} ${error.getMessage}", atomId, videoId)
         Left(VideoUpdateError(error.toString, Some(error.getMessage)))
       }
     }
