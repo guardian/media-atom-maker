@@ -8,7 +8,7 @@ import play.api.cache.CacheApi
 
 import scala.concurrent.duration.FiniteDuration
 
-trait YouTube extends Logging with YouTubeAccess with YouTubeVideos with YouTubeClaims {
+trait YouTube extends Logging with YouTubeAccess with YouTubeVideos with YouTubePartnerApi {
   val cache: CacheApi
   val duration: FiniteDuration
 

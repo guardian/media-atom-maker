@@ -12,7 +12,7 @@ import scala.collection.JavaConverters._
 
 //This class contains functionality to add usage policies to published videos.
 //Videos are either tracked or monetized: https://support.google.com/youtube/answer/107383?hl=en-GB
-trait YouTubeClaims { this: YouTubeAccess with Logging =>
+trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
 
   private def createAsset(title: String, videoId: String, atomId: String): Either[VideoUpdateError, Asset] = {
     MAMLogger.info(s"Creating YouTube asset for $videoId", atomId, videoId)
@@ -117,6 +117,7 @@ trait YouTubeClaims { this: YouTubeAccess with Logging =>
   }
 
   private def updateClaim(atomId: String, claimId: String, assetId: String, videoId: String, blockAds: Boolean): Either[VideoUpdateError, String] = {
+    MAMLogger.info(s"Updating claim for $videoId", atomId, videoId)
     val policy = getNewPolicy(blockAds)
 
     val claim = new Claim()
@@ -131,7 +132,7 @@ trait YouTubeClaims { this: YouTubeAccess with Logging =>
         .setOnBehalfOfContentOwner(contentOwner)
         .execute()
 
-      MAMLogger.info(s"Updated claim for $videoId, setting blockAds to $blockAds", atomId, videoId)
+      MAMLogger.info(s"Successfully updated claim for $videoId, setting blockAds to $blockAds", atomId, videoId)
       Right(s"Updated claim for claim=$claimId asset=$assetId")
 
     } catch {
