@@ -144,38 +144,29 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
     }
   }
 
-  private def getPagedVideoClaims(request: YouTubePartner#ClaimSearch#List, items: List[ClaimSnippet]):
-    List[ClaimSnippet] = {
+  private def getPartnerClaim(videoId: String): Option[ClaimSnippet] = {
+    val response = partnerClient
+      .claimSearch()
+      .list
+      .setVideoId(videoId)
+      .setOnBehalfOfContentOwner(contentOwner)
+      .setIncludeThirdPartyClaims(false)
+      .setPartnerUploaded(true)
+      .execute()
 
-    val response = request.execute()
-
-    val allItems = if (response.getPageInfo.getTotalResults == 0) items
-      else items ++ response.getItems.asScala.toList
-
-    response.getNextPageToken match {
-      case null => allItems
-      case token => {
-        val nextRequest = request.setPageToken(token)
-        getPagedVideoClaims(nextRequest, allItems)
-      }
+    if (response.getPageInfo.getTotalResults == 0) {
+      None
+    } else {
+      response.getItems.asScala.toList.headOption
     }
   }
 
   def createOrUpdateClaim(atomId: String, videoId: String, blockAds: Boolean): Either[VideoUpdateError, String] = {
-    val request: YouTubePartner#ClaimSearch#List = partnerClient
-      .claimSearch()
-      .list
-      .setVideoId(videoId)
-
     try {
-
-      val videoClaims = getPagedVideoClaims(request, List())
-
-      videoClaims.find(claimSnippet => !claimSnippet.getThirdPartyClaim) match {
+      getPartnerClaim(videoId) match {
         case Some(claimSnippet) => {
-          val claim = partnerClient.claims().get(claimSnippet.getId).execute()
-          val claimId = claim.getId
-          val assetId = claim.getAssetId
+          val claimId = claimSnippet.getId
+          val assetId = claimSnippet.getAssetId
           MAMLogger.info(s"Updating an existing claim for $videoId", atomId, videoId)
           updateClaim(atomId, claimId, assetId, videoId, blockAds)
         }
