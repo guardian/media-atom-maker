@@ -15,6 +15,4 @@ trait SESSettings { this: Settings with AwsAccess =>
   val integrationTestUser: String = getMandatoryString("integration.test.user")
 
   val host: String = getMandatoryString("host")
-
-  val worldCupEmailRecipients = getMandatoryString("aws.ses.worldCupRecipients").split(",").toSeq
 }
