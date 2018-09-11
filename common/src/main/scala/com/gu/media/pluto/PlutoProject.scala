@@ -27,8 +27,7 @@ case class PlutoProject (
   status: String,
   commissionId: String,
   commissionTitle: String, //TODO remove this once migrated
-  productionOffice: String,
-  created: DateTime
+  productionOffice: String
 )
 
 object PlutoProject {
@@ -41,8 +40,7 @@ object PlutoProject {
       status = plutoUpsertRequest.status,
       commissionId = plutoUpsertRequest.commissionId,
       commissionTitle = plutoUpsertRequest.commissionTitle,
-      productionOffice = plutoUpsertRequest.productionOffice,
-      created = plutoUpsertRequest.created
+      productionOffice = plutoUpsertRequest.productionOffice
     )
   }
 }
@@ -54,7 +52,6 @@ case class PlutoUpsertRequest (
   title: String,
   status: String,
   productionOffice: String,
-  created: DateTime,
   commissionId: String,
   commissionTitle: String
 )
