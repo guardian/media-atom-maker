@@ -208,12 +208,10 @@ Resources:
     Properties:
       AssumeRolePolicyDocument:
         Statement:
-          -
-            Effect: "Allow"
+          - Effect: Allow
+            Action: sts:AssumeRole
             Principal:
-              AWS:
-                !GetAtt MediaAtomUser.Arn
-            Action: [ "sts:AssumeRole" ]
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
       Path: "/"
       Policies:
         -
@@ -243,34 +241,9 @@ Resources:
           Action: ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
           Resource: "*"
       Roles:
-        - !Ref ExpirerRole
-        - !Ref SchedulerRole
+        - !Ref LambdaRole
 
-  SchedulerRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-        - Effect: "Allow"
-          Action: "sts:AssumeRole"
-          Principal:
-            Service:
-            - ["lambda.amazonaws.com"]
-      Path: /
-      Policies:
-      - PolicyName: "SchedulerPolicy"
-        PolicyDocument:
-          Statement:
-          - Effect: "Allow"
-            Action:
-            - ["s3:GetObject"]
-            Resource:
-            - !Sub ['arn:aws:s3:::${Bucket}/${Key}', {Bucket: !Ref 'BuildBucket',
-                Key: !FindInMap [LambdaBuilds, Scheduler, DEV]}]
-            - !Sub ['arn:aws:s3:::${Bucket}/${Key}', {Bucket: !Ref 'ConfigBucket',
-                Key: !FindInMap [LambdaConfig, Scheduler, DEV]}]
-
-  ExpirerRole:
+  LambdaRole:
     Type: "AWS::IAM::Role"
     Properties:
       AssumeRolePolicyDocument:
@@ -311,7 +284,7 @@ Resources:
           CONFIG_BUCKET: !Ref ConfigBucket
           CONFIG_KEY: !FindInMap [LambdaConfig, Expirer, DEV]
       MemorySize: 256
-      Role: !GetAtt ExpirerRole.Arn
+      Role: !GetAtt LambdaRole.Arn
       Runtime: "java8"
       Timeout: 300
 
@@ -332,7 +305,7 @@ Resources:
           CONFIG_BUCKET: !Ref ConfigBucket
           CONFIG_KEY: !FindInMap [LambdaConfig, Scheduler, DEV]
       MemorySize: 256
-      Role: !GetAtt SchedulerRole.Arn
+      Role: !GetAtt LambdaRole.Arn
       Runtime: "java8"
       Timeout: 300
   ExpirerLambdaTrigger:

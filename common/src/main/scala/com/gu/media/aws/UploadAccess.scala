@@ -29,7 +29,7 @@ trait UploadAccess { this: Settings with AwsAccess =>
       throw new IllegalArgumentException("aws.upload.role must be in ARN format: arn:aws:iam::<account>:role/<role_name>")
     }
 
-    region.createClient(classOf[AWSSecurityTokenServiceClient], credentials.upload, null)
+    region.createClient(classOf[AWSSecurityTokenServiceClient], credentials.instance, null)
   }
 
   private def getPipelineArn() = {

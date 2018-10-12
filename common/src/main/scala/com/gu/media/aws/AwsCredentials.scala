@@ -5,8 +5,7 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.services.securitytoken.{AWSSecurityTokenServiceClient}
 import com.gu.media.Settings
 
-case class AwsCredentials(instance: AWSCredentialsProvider, crossAccount: AWSCredentialsProvider,
-                          upload: AWSCredentialsProvider)
+case class AwsCredentials(instance: AWSCredentialsProvider, crossAccount: AWSCredentialsProvider)
 
 object AwsCredentials {
   def dev(settings: Settings): AwsCredentials = {
@@ -17,30 +16,19 @@ object AwsCredentials {
     //   val crossAccount = new ProfileCredentialsProvider("composer")
     val crossAccount = instance
 
-    val upload = devUpload(settings)
-
-    AwsCredentials(instance, crossAccount, upload)
+    AwsCredentials(instance, crossAccount)
   }
 
   def app(settings: Settings): AwsCredentials = {
     val instance = InstanceProfileCredentialsProvider.getInstance()
     val crossAccount = assumeCrossAccountRole(instance, settings)
 
-    AwsCredentials(instance, crossAccount, upload = instance)
+    AwsCredentials(instance, crossAccount)
   }
 
   def lambda(): AwsCredentials = {
     val instance = new EnvironmentVariableCredentialsProvider()
-    AwsCredentials(instance, crossAccount = instance, upload = instance)
-  }
-
-  private def devUpload(settings: Settings): AWSCredentialsProvider = {
-    // Only required in dev (because federated credentials such as those from Janus cannot do STS requests).
-    // Instance profile credentials are sufficient when deployed.
-    val accessKey = settings.getMandatoryString("aws.upload.accessKey", "This is the AwsId output of the dev cloudformation")
-    val secretKey = settings.getMandatoryString("aws.upload.secretKey", "This is the AwsSecret output of the dev cloudformation")
-
-    new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey))
+    AwsCredentials(instance, crossAccount = instance)
   }
 
   private def assumeCrossAccountRole(instance: AWSCredentialsProvider, settings: Settings): AWSCredentialsProvider = {
