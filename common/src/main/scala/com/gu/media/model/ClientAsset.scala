@@ -111,6 +111,8 @@ object ClientAssetProcessing {
     case YouTubeProcessingStatus(_, "processing", _, _, timeLeftMs, _) =>
       s"YouTube Processing (${timeLeftMs / 1000}s left)"
 
+    case YouTubeProcessingStatus(_, "live", _, _, _, _) => "YouTube Live Stream"
+
     case _ =>
       status.failure.getOrElse(status.status)
   }

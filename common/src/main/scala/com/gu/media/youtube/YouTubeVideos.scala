@@ -23,7 +23,7 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
   def getProcessingStatus(videoId: String): Option[YouTubeProcessingStatus] = {
     if(isGuardianVideo(videoId)) {
       val request = client.videos()
-        .list("status,processingDetails")
+        .list("snippet,status,processingDetails")
         .setId(videoId)
         .setOnBehalfOfContentOwner(contentOwner)
 
