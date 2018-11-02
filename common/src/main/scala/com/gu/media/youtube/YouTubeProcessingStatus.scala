@@ -4,6 +4,8 @@ import com.google.api.services.youtube.model.{Video, VideoProcessingDetails}
 import org.cvogt.play.json.Jsonx
 import play.api.libs.json.Format
 
+import scala.util.Try
+
 // failure only set is status is "failed"
 case class YouTubeProcessingStatus(id: String, status: String, total: Long, processed: Long,
                                    timeLeftMs: Long, failure: Option[String])
@@ -12,23 +14,34 @@ object YouTubeProcessingStatus {
   def apply(video: Video): Option[YouTubeProcessingStatus] = {
     val base = YouTubeProcessingStatus(video.getId, status = "", total = 0, processed = 0, timeLeftMs = 0, failure = None)
 
-    val summary = video.getStatus
+    if (isLiveStream(video)) {
+      Some(base.copy(status = "live"))
+    } else {
+      val summary = video.getStatus
 
-    summary.getUploadStatus match {
-      case "uploaded" =>
-        Some(parseProcessingStatus(base, video.getProcessingDetails))
+      summary.getUploadStatus match {
+        case "uploaded" =>
+          Some(parseProcessingStatus(base, video.getProcessingDetails))
 
-      case "failed" =>
-        Some(base.copy(status = "failed", failure = Option(summary.getFailureReason).map(humanizeFailureReason)))
+        case "failed" =>
+          Some(base.copy(status = "failed", failure = Option(summary.getFailureReason).map(humanizeFailureReason)))
 
-      case "rejected" =>
-        Some(base.copy(status = "failed", failure = Option(summary.getRejectionReason).map(humanizeRejectionReason)))
+        case "rejected" =>
+          Some(base.copy(status = "failed", failure = Option(summary.getRejectionReason).map(humanizeRejectionReason)))
 
-      case "processed" =>
-        None
+        case "processed" =>
+          None
 
-      case other =>
-        Some(base.copy(status = other))
+        case other =>
+          Some(base.copy(status = other))
+      }
+    }
+  }
+
+  private def isLiveStream(video: Video): Boolean = {
+    Try(video.getSnippet.getLiveBroadcastContent).toOption match {
+      case Some("live") => true
+      case _ => false
     }
   }
 

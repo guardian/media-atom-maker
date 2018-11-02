@@ -129,7 +129,7 @@ export function Asset({ upload, isActive, selectAsset, deleteAsset }) {
           <AssetProgress {...processing} />
         </div>
         <div className="grid__item__footer">
-          <AssetControls user={user}>
+          <AssetControls user={user} selectAsset={selectAsset} deleteAsset={deleteAsset}>
             <AssetInfo info={processing.status} />
           </AssetControls>
         </div>
