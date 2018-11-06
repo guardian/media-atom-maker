@@ -55,7 +55,7 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
         metadata = Some(metadata)
       ))
 
-    log.info(s"Adding new asset $videoUri to $atomId")
+    log.info(s"Adding new asset $videoUri to $atomId. New asset: $newAsset. Assets before: [${currentAssets.mkString(",")}]")
 
     UpdateAtomCommand(atomId, fromThrift(updatedAtom), stores, user, awsConfig).process()
   }

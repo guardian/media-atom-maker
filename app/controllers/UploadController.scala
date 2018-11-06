@@ -75,6 +75,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     upload
   } catch {
     case _: ExecutionAlreadyExistsException =>
+      log.warn(s"Execution already exists for version $version on atom ${atom.id}")
       start(atom, email, req, version + 1)
   }
 

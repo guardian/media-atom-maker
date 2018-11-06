@@ -46,7 +46,7 @@ case class ActiveAssetCommand(
       log.info(s"Setting active asset atom=$atomId version=${activateAssetRequest.version}")
       UpdateAtomCommand(atomId, updatedAtom, stores, user, awsConfig).process()
     } else {
-      log.info(s"Cannot set active asset. No asset has that version atom=$atomId version=${activateAssetRequest.version}")
+      log.info(s"Cannot set active asset. No asset has that version atom=$atomId version=${activateAssetRequest.version} assets=[${mediaAtom.assets.mkString(",")}]")
       AssetVersionConflict
     }
   }
