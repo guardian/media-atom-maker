@@ -11,6 +11,9 @@ case class AuditMessage(atomId: String, auditType: String, user: String, descrip
     Logger.logger.info(createMarkers(), "Media Atom Audit")
   }
 
+  def logMessageToCloudwatch(): Unit = {
+    Logger.logger.info(s"Media Atom Audit: atomId=$atomId auditType: $auditType user: $user description: ${description.getOrElse("none")}")
+  }
 
   private def createMarkers() =
     Markers.appendEntries((

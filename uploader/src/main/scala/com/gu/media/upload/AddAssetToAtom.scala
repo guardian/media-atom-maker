@@ -35,7 +35,7 @@ class AddAssetToAtom extends LambdaWithParams[Upload, Upload] with DynamoAccess 
     }
 
     saveAtom(after)
-    AuditMessage(atomId, "Update", "media-atom-pipeline", Some(s"Added YouTube video $asset")).logMessage()
+    AuditMessage(atomId, "Update", "media-atom-pipeline", Some(s"Added YouTube video $asset")).logMessageToCloudwatch()
 
     upload
   }
