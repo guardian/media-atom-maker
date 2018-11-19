@@ -73,7 +73,7 @@
     "scribe-editor": "^3.3.0",
     "scribe-plugin-keyboard-shortcuts": "^0.1.1",
     "scribe-plugin-link-prompt-command": "^1.0.0",
-    "scribe-plugin-sanitizer": "^0.1.10",
+    "scribe-plugin-sanitizer": "^0.1.11",
     "scribe-plugin-toolbar": "^1.0.0",
     "valid-url": "^1.0.9"
   },
