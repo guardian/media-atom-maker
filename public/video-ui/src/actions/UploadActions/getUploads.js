@@ -12,7 +12,7 @@ function runningUploads(uploads) {
 function errorGettingUploads(error) {
   return {
     type: 'SHOW_ERROR',
-    message: `Could not get uploads: ${error}`,
+    message: "Could not get uploads",
     error: error,
     receivedAt: Date.now()
   };
