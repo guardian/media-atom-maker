@@ -14,6 +14,7 @@ import play.api.libs.json.{Format, Json}
 import util._
 
 import scala.annotation.tailrec
+import scala.util.control.NonFatal
 
 class UploadController(override val authActions: HMACAuthActions, awsConfig: AWSConfig, stepFunctions: StepFunctions,
                        override val stores: DataStores, override val permissions: MediaAtomMakerPermissionsProvider,
@@ -80,8 +81,14 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   private def addYouTubeStatus(video: ClientAsset): ClientAsset = video.asset match {
     case Some(YouTubeAsset(id)) =>
-      val status = youTube.getProcessingStatus(id).map(ClientAssetProcessing(_))
-      video.copy(processing = status)
+      try {
+        val status = youTube.getProcessingStatus(id).map(ClientAssetProcessing(_))
+        video.copy(processing = status)
+      } catch {
+        case NonFatal(e) =>
+          log.error(s"Unable to get YouTube status for ${video.id}", e)
+          video
+      }
 
     case _ =>
       video

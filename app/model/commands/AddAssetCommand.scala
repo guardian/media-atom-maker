@@ -47,7 +47,7 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
       .fold(err => AssetParseFailed, identity)
 
     val channel = getYouTubeChannel(newAsset, mediaAtom)
-    val metadata = mediaAtom.metadata.getOrElse(Metadata()).copy(channelId = Some(channel))
+    val metadata = mediaAtom.metadata.getOrElse(Metadata()).copy(channelId = channel)
 
     val updatedAtom = atom
       .withData(mediaAtom.copy(
@@ -60,19 +60,25 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
     UpdateAtomCommand(atomId, fromThrift(updatedAtom), stores, user, awsConfig).process()
   }
 
-  private def getYouTubeChannel(asset: Asset, atom: ThriftMediaAtom): String = {
+  private def getYouTubeChannel(asset: Asset, atom: ThriftMediaAtom): Option[String] = {
     val maybeChannel = atom.metadata.flatMap(_.channelId)
     val maybeVideo = youTube.getVideo(asset.id, "snippet")
 
+
     (maybeChannel, maybeVideo) match {
-      case (_, None) => YouTubeVideoDoesNotExist(asset.id)
+      case (_, None) => Some(YouTubeVideoDoesNotExist(asset.id))
+
       case (None, Some(video)) => {
         // only GLabs atoms can have third party videos
         atom.category match {
-          case ThriftCategory.Hosted | ThriftCategory.Paid => video.getSnippet.getChannelId
-          case _ => NotGLabsAtom
+          case ThriftCategory.Hosted | ThriftCategory.Paid => Some(video.getSnippet.getChannelId)
+          case _ => {
+            if (youTube.cannotReachYoutube) None
+            else NotGLabsAtom
+          }
         }
       }
+
       case (Some(channel), Some(video)) => {
         val videoChannel = video.getSnippet.getChannelId
 
@@ -81,7 +87,7 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
         }
 
         // new asset must be on a Guardian channel
-        if (!youTube.channels.exists(_.id == videoChannel)) IncorrectYouTubeChannel else videoChannel
+        if (!youTube.channels.exists(_.id == videoChannel)) IncorrectYouTubeChannel else Some(videoChannel)
       }
     }
   }

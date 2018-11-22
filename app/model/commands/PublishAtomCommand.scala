@@ -175,8 +175,13 @@ case class PublishAtomCommand(
         }
         updateYoutubeMetadata(previewAtom, asset)
         updateYoutubeThumbnail(previewAtom, asset)
+
       case Some(_) =>
         // third party YouTube video that we do not have permission to edit
+        Future.successful(previewAtom)
+
+      case None if youtube.cannotReachYoutube =>
+        // the atom will be missing a channel because we couldn't query YouTube at all
         Future.successful(previewAtom)
 
       case None =>
