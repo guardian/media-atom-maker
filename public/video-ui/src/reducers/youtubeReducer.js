@@ -9,7 +9,7 @@ export default function youtube(
       });
     case 'YT_CHANNELS_GET_RECEIVE':
       return Object.assign({}, state, {
-        channels: action.channels
+        channels: action.channels || []
       });
     default:
       return state;
