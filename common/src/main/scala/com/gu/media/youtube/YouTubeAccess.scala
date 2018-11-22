@@ -14,6 +14,7 @@ trait YouTubeAccess extends Settings {
   def appName: String = getMandatoryString("name")
   def contentOwner: String = getMandatoryString("youtube.contentOwner")
 
+  val cannotReachYoutube: Boolean = getBoolean("youtube.isDown").getOrElse(false)
   val allowedChannels: Set[String] = getStringSet("youtube.channels.allowed")
   val channelsRequiringPermission: Set[String] = getStringSet("youtube.channels.unlisted")
   val commercialChannels: Set[String] = getStringSet("youtube.channels.commercial")
