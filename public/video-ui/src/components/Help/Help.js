@@ -18,6 +18,10 @@ export default class Help extends React.Component {
     {
       url: 'https://docs.google.com/document/d/1jJuO09QO4GaYC0yirh8Mce2fOd2u0IdTXPF4OmtvD9M/edit#',
       text: 'Commercial FAQs'
+    },
+    {
+      url: 'https://docs.google.com/document/d/1UZewPvXCuYwWkTlUy-fSN5r1Tdcg2XfBsXP4poMNfhw/edit',
+      text: 'Useful YouTube Contacts'
     }
   ];
 
