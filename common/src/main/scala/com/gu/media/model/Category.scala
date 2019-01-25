@@ -16,6 +16,7 @@ object Category {
   case object Hosted extends Category { val name = "Hosted" }
   case object News extends Category { val name = "News" }
   case object Paid extends Category { val name = "Paid" }
+  case object Livestream extends Category { val name = "Livestream" }
 
   val categoryReads = Reads[Category](json => {
     json.as[String] match {
@@ -25,6 +26,7 @@ object Category {
       case "Hosted" => JsSuccess(Hosted)
       case "News" => JsSuccess(News)
       case "Paid" => JsSuccess(Paid)
+      case "Livestream" => JsSuccess(Livestream)
     }
   })
 
@@ -34,7 +36,7 @@ object Category {
 
   implicit val categoryFormat = Format(categoryReads, categoryWrites)
 
-  private val types = List(Documentary, Explainer, Feature, Hosted, News, Paid)
+  private val types = List(Documentary, Explainer, Feature, Hosted, News, Paid, Livestream)
 
   def fromThrift(cat: ThriftCategory) = types.find(_.name == cat.name).get
 }

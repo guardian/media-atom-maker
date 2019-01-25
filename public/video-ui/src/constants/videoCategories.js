@@ -2,7 +2,8 @@ const editorialCategories = [
   'News',
   'Documentary',
   'Explainer',
-  'Feature'
+  'Feature',
+  'Livestream'
 ].map(cat => ({ id: cat, title: cat }));
 
 // id matches the thrift enum
