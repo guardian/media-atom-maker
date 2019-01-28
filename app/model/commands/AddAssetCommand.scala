@@ -8,6 +8,7 @@ import com.gu.media.util.{MAMLogger, MediaAtomImplicits, ThriftUtil}
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import com.gu.media.model.MediaAtom.fromThrift
+import com.gu.media.youtube.YoutubeUrl
 import model.commands.CommandExceptions._
 import util.{AWSConfig, YouTube}
 
@@ -116,7 +117,7 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
       val platform = ThriftUtil.parsePlatform(videoUri)
 
       (platform, videoUri) match {
-        case (Right(Platform.Youtube), ThriftUtil.youtube(videoId)) =>
+        case (Right(Platform.Youtube), YoutubeUrl(videoId)) =>
           Some(videoId)
 
         case _ =>
