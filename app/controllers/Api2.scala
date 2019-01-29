@@ -6,6 +6,7 @@ import com.gu.media.logging.Logging
 import com.gu.media.model.{Asset, MediaAtom, MediaAtomBeforeCreation, PlutoSyncMetadataMessage}
 import com.gu.media.util.MediaAtomImplicits
 import com.gu.pandahmac.HMACAuthActions
+import com.gu.pandomainauth.model.User
 import data.DataStores
 import model.WorkflowMediaAtom
 import model.commands.CommandExceptions._
@@ -67,6 +68,16 @@ class Api2 (
       case err: CommandException =>
         commandExceptionAsResult(err)
     }
+  }
+
+  def resetDurationFromActive(id: String) = APIAuthAction { implicit req =>
+    val previewAtom = MediaAtom.fromThrift(getPreviewAtom(id))
+    val updatedAtom = previewAtom.getActiveYouTubeAsset()
+      .flatMap(asset => youtube.getDuration(asset.id))
+      .map(duration => updateAtom(previewAtom.copy(duration = Some(duration)), req.user))
+      .getOrElse(previewAtom)
+
+    Ok(Json.toJson(updatedAtom))
   }
 
   def publishMediaAtom(id: String) = APIHMACAuthAction.async(parse.empty) { implicit req =>
@@ -200,4 +211,9 @@ class Api2 (
       BadRequest
     )
   }
+
+  private def updateAtom(
+    atom: MediaAtom,
+    user: User
+  ) = UpdateAtomCommand(atom.id, atom, stores, user, awsConfig).process()
 }

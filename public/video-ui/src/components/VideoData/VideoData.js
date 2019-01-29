@@ -11,6 +11,7 @@ import { fieldLengths } from '../../constants/videoEditValidation';
 import { videoCategories } from '../../constants/videoCategories';
 import PrivacyStates from '../../constants/privacyStates';
 import VideoUtils from '../../util/video';
+import VideosApi from '../../services/VideosApi';
 
 class VideoData extends React.Component {
   hasCategories = () => this.props.youtube.categories.length !== 0;
@@ -140,6 +141,20 @@ class VideoData extends React.Component {
             </ManagedField>
             <ManagedField fieldLocation="source" name="Video Source">
               <TextInput />
+            </ManagedField>
+            <button
+              type="button"
+              disabled={!this.props.video.hasOwnProperty('activeVersion')}
+              onClick={() => {
+                VideosApi.resetDurationFromActive(this.props.video.id).then(video => {
+                  this.props.updateVideo(video);
+                });
+              }}
+            >
+              Update duration from active video
+            </button>
+            <ManagedField fieldLocation="duration" name="Video Duration">
+              <TextInput map={num => parseInt(num, 10)} />
             </ManagedField>
           </ManagedSection>
           <ManagedSection>
