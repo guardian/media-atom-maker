@@ -93,7 +93,7 @@ export default class Icon extends React.Component {
       : 'responsive';
 
     return (
-      <span className={props.className}>
+      <span className={`${props.className} ${this.props.disabled ? 'disabled' : ''}`}>
         <i className="icon responsive--primary" onClick={props.onClick}>{props.icon}</i>
         {this.renderText()}
       </span>

@@ -142,20 +142,6 @@ class VideoData extends React.Component {
             <ManagedField fieldLocation="source" name="Video Source">
               <TextInput />
             </ManagedField>
-            <button
-              type="button"
-              disabled={!this.props.video.hasOwnProperty('activeVersion')}
-              onClick={() => {
-                VideosApi.resetDurationFromActive(this.props.video.id).then(video => {
-                  this.props.updateVideo(video);
-                });
-              }}
-            >
-              Update duration from active video
-            </button>
-            <ManagedField fieldLocation="duration" name="Video Duration">
-              <TextInput map={num => parseInt(num, 10)} />
-            </ManagedField>
           </ManagedSection>
           <ManagedSection>
             <ManagedField fieldLocation="expiryDate" name="Expiry Date">
@@ -235,6 +221,28 @@ class VideoData extends React.Component {
             >
               <CheckBox />
             </ManagedField>
+            <ManagedField fieldLocation="duration" name="Video Duration (seconds)">
+              <TextInput map={num => parseInt(num, 10)} />
+            </ManagedField>
+            {!this.props.editable && (
+              <button
+                title="Refresh video duration from active YouTube video"
+                type="button"
+                disabled={!this.props.video.hasOwnProperty('activeVersion')}
+                data-tip="Refresh video duration from active YouTube video"
+                onClick={() => {
+                  VideosApi.resetDurationFromActive(this.props.video.id).then(video => {
+                    this.props.updateVideo(video);
+                  });
+                }}
+              >
+                <Icon
+                  icon="refresh"
+                  className="icon__edit"
+                  disabled={!this.props.video.hasOwnProperty('activeVersion')}
+                />
+              </button>
+            )}
           </ManagedSection>
         </ManagedForm>
       </div>
@@ -247,6 +255,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getCategories from '../../actions/YoutubeActions/getCategories';
 import * as getChannels from '../../actions/YoutubeActions/getChannels';
+import Icon from '../Icon';
 
 function mapStateToProps(state) {
   return {
