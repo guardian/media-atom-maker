@@ -52,7 +52,7 @@ function splitUsages({ usages }) {
 
 export default {
   fetchVideos: (search, limit) => {
-    let url = `/api2/atoms?limit=${limit}`;
+    let url = `/api/atoms?limit=${limit}`;
     if (search) {
       url += `&search=${search}`;
     }
@@ -64,19 +64,19 @@ export default {
 
   fetchVideo: videoId => {
     return pandaReqwest({
-      url: '/api2/atoms/' + videoId
+      url: '/api/atoms/' + videoId
     });
   },
 
   fetchPublishedVideo: videoId => {
     return pandaReqwest({
-      url: '/api2/atoms/' + videoId + '/published'
+      url: '/api/atoms/' + videoId + '/published'
     });
   },
 
   createVideo: video => {
     return pandaReqwest({
-      url: '/api2/atoms',
+      url: '/api/atoms',
       method: 'post',
       data: cleanVideoData(video)
     });
@@ -84,14 +84,14 @@ export default {
 
   publishVideo: videoId => {
     return pandaReqwest({
-      url: '/api2/atom/' + videoId + '/publish',
+      url: '/api/atom/' + videoId + '/publish',
       method: 'put'
     });
   },
 
   createAsset: (asset, videoId) => {
     return pandaReqwest({
-      url: '/api2/atoms/' + videoId + '/assets',
+      url: '/api/atoms/' + videoId + '/assets',
       method: 'post',
       data: asset
     });
@@ -99,7 +99,7 @@ export default {
 
   revertAsset: (atomId, version) => {
     return pandaReqwest({
-      url: '/api2/atom/' + atomId + '/asset-active',
+      url: '/api/atom/' + atomId + '/asset-active',
       method: 'put',
       data: { atomId, version }
     });
@@ -107,7 +107,7 @@ export default {
 
   saveVideo: (videoId, video) => {
     return pandaReqwest({
-      url: '/api2/atoms/' + videoId,
+      url: '/api/atoms/' + videoId,
       method: 'put',
       data: cleanVideoData(video)
     });
@@ -115,7 +115,7 @@ export default {
 
   resetDurationFromActive: videoId =>
     pandaReqwest({
-      url: `/api2/atom/${videoId}/reset-duration-from-active`,
+      url: `/api/atom/${videoId}/reset-duration-from-active`,
       method: 'put'
     }),
 
@@ -152,14 +152,14 @@ export default {
 
   deleteVideo: videoId => {
     return pandaReqwest({
-      url: '/api2/atom/' + videoId,
+      url: '/api/atom/' + videoId,
       method: 'delete'
     });
   },
 
   deleteAsset(video, asset) {
     return pandaReqwest({
-      url: `/api2/atoms/${video.id}/assets`,
+      url: `/api/atoms/${video.id}/assets`,
       method: 'delete',
       data: asset
     });

@@ -21,7 +21,7 @@ class IntegrationTestBase extends FunSuite with Matchers with Eventually with In
 
   val targetBaseUrl: String = Config.targetBaseUrl
 
-  def apiUri(atomId: String): String = s"$targetBaseUrl/api2/atoms/$atomId"
+  def apiUri(atomId: String): String = s"$targetBaseUrl/api/atoms/$atomId"
 
   // For clean-up after tests
   private var atomIds = List.empty[String]
@@ -37,7 +37,7 @@ class IntegrationTestBase extends FunSuite with Matchers with Eventually with In
       expiryDate = Instant.now.toEpochMilli + (100 * 60 * 60 * 24)
     )
 
-    val response = gutoolsPost(s"$targetBaseUrl/api2/atoms", jsonBody(json))
+    val response = gutoolsPost(s"$targetBaseUrl/api/atoms", jsonBody(json))
 
     response.code() should be(201)
 
@@ -63,7 +63,7 @@ class IntegrationTestBase extends FunSuite with Matchers with Eventually with In
   override def afterAll(): Unit = {
     atomIds.foreach { id =>
       Logger.info(s"Deleting atom $id")
-      gutoolsDelete(s"$targetBaseUrl/api2/atom/$id")
+      gutoolsDelete(s"$targetBaseUrl/api/atom/$id")
     }
 
     if(youTubeIds.nonEmpty) {

@@ -50,7 +50,7 @@ class MediaAtomMaker(context: Context)
 
   private val thumbnailGenerator = ThumbnailGenerator(environment.getFile(s"conf/logo.png"))
 
-  private val api2 = new Api2(stores, configuration, hmacAuthActions, youTube, aws, permissions, capi, thumbnailGenerator)
+  private val api = new Api(stores, configuration, hmacAuthActions, youTube, aws, permissions, capi, thumbnailGenerator)
 
   private val stepFunctions = new StepFunctions(aws)
   private val uploads = new UploadController(hmacAuthActions, aws, stepFunctions, stores, permissions, youTube)
@@ -73,7 +73,7 @@ class MediaAtomMaker(context: Context)
 
   override val router = new Routes(
     httpErrorHandler,
-    api2,
+    api,
     plutoController,
     uploads,
     youTubeController,
