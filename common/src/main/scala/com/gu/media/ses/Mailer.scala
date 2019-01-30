@@ -15,8 +15,6 @@ class Mailer(config: Settings with SESSettings) {
         |<div>The video “$atomTitle” that you uploaded via Media Atom Maker recently, does not have a Pluto project associated with it.</div>
         |<div>Please visit ${getLinkTag(s"${getAtomUrl(atomId)}/upload", "this address")} to set its Pluto project.
         |<div>Without a project, the video won’t be archived and won't maintain a link to its original Adobe Premiere project and assets.</div>
-        |
-        |<div>For a complete list of incomplete Atoms, ${getLinkTag(s"https://${config.host}/videos/pluto-list", "click here")}.
       """.stripMargin
 
     sendEmail(List(sendTo), "Failed Pluto Video Ingest - Action Required", emailBody)

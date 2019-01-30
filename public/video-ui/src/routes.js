@@ -4,7 +4,6 @@ import { Router, Route, browserHistory, IndexRedirect, Redirect } from 'react-ro
 import Videos from './components/Videos/Videos';
 import VideoDisplay from './components/Video/Display';
 import VideoUpload from './components/VideoUpload/VideoUpload';
-import VideoPlutoList from './components/VideoPluto/VideoPlutoList';
 import Help from './components/Help/Help';
 import Training from './components/Training/Training';
 import ReactApp from './components/ReactApp';
@@ -15,7 +14,6 @@ export const routes = (
       <IndexRedirect to="/videos" />
       <Route path="/videos" component={Videos} />
       <Redirect from="/videos/create" to="/create" />
-      <Route path="/videos/pluto-list" component={VideoPlutoList} />
       <Route path="/videos/:id" component={VideoDisplay} />
       <Route path="/videos/:id/upload" component={VideoUpload} />
       <Route path="/create" component={VideoDisplay} mode="create" />
