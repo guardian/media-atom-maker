@@ -152,31 +152,6 @@ class Api2 (
     }
   }
 
-  def getPlutoAtoms = APIAuthAction {  implicit req =>
-
-    val unprocessedAssetResponses: List[PlutoSyncMetadataMessage] = stores.pluto.list()
-
-    val uploadsWithoutPlutoId = unprocessedAssetResponses.foldRight(Map[String, MediaAtom]())((upload, acc) => {
-      if (!acc.contains(upload.atomId)) {
-        previewDataStore.getAtom(upload.atomId) match {
-          case Right(atom) => {
-            val mediaAtom = MediaAtom.fromThrift(atom)
-
-            mediaAtom.plutoData match {
-              case Some(plutoData) if plutoData.projectId.isDefined => acc
-              case _ => acc ++ Map(upload.atomId -> mediaAtom)
-            }
-          }
-          case Left(error) => {
-            log.error(s"Error in fetching atom ${upload.atomId} corresponding to s3Key ${upload.s3Key}" + error.msg)
-            acc
-          }
-        }
-      } else acc
-    }).values
-    Ok(Json.toJson(uploadsWithoutPlutoId))
-  }
-
   def uploadPacFile(id: String) = APIAuthAction(parse.multipartFormData) { request =>
     request.body.file("pac-file").map { file =>
       val atom = getPreviewAtom(id)

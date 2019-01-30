@@ -32,18 +32,6 @@ class PlutoDataStore(client: AmazonDynamoDBClient, dynamoTableName: String) {
     }
   }
 
-  def list(): List[PlutoSyncMetadataMessage] = {
-    val operation = table.scan()
-    val allResults = Scanamo.exec(client)(operation)
-
-    val errors = allResults.collect { case Left(err) => err }
-    if (errors.nonEmpty) {
-      throw DynamoPlutoTableException(errors.mkString(","))
-    }
-
-    allResults.collect { case Right(result) => result}
-  }
-
   def put(item: PlutoSyncMetadataMessage) = {
     val result = Scanamo.put(client)(dynamoTableName)(item)
   }

@@ -15,8 +15,6 @@ PUT     /api2/atom/:id/asset-active     controllers.Api2.setActiveAsset(id)
 
 POST    /api2/atom/:id/pac-file         controllers.Api2.uploadPacFile(id)
 
-GET     /api2/atoms/pluto/missing       controllers.Api2.getPlutoAtoms()
-
 GET     /api2/pluto/commissions         controllers.PlutoController.getCommissions()
 GET     /api2/pluto/commissions/:id/projects  controllers.PlutoController.getProjectsByCommissionId(id)
 DELETE  /api2/pluto/commissions/:id     controllers.PlutoController.deleteCommission(id)
@@ -48,7 +46,6 @@ GET     /reindex-publish                com.gu.atom.play.ReindexController.publi
 #video specific react frontend
 GET /                                   controllers.VideoUIApp.index(id = "")
 GET /videos                             controllers.VideoUIApp.index(id = "")
-GET /videos/pluto-list                  controllers.VideoUIApp.index(id = "")
 GET /videos/:id                         controllers.VideoUIApp.index(id)
 GET /videos/:id/upload                  controllers.VideoUIApp.index(id)
 GET /create                             controllers.VideoUIApp.index(id = "")
