@@ -1,6 +1,7 @@
 import React from 'react';
 import { ManagedForm, ManagedField, ManagedSection } from '../ManagedForm';
 import TextInput from '../FormFields/TextInput';
+import DurationInput from '../FormFields/DurationInput';
 import ScribeEditorField from '../FormFields/ScribeEditor';
 import SelectBox from '../FormFields/SelectBox';
 import CheckBox from '../FormFields/CheckBox';
@@ -221,8 +222,8 @@ class VideoData extends React.Component {
             >
               <CheckBox />
             </ManagedField>
-            <ManagedField fieldLocation="duration" name="Video Duration (seconds)">
-              <TextInput map={num => parseInt(num, 10)} />
+            <ManagedField fieldLocation="duration" name="Video Duration (mm:ss)">
+              <DurationInput />
             </ManagedField>
             {!this.props.editable && (
               <button

@@ -1,7 +1,5 @@
 import React from 'react';
 
-const id = val => val;
-
 export default class TextInput extends React.Component {
   renderField = () => {
     if (!this.props.editable) {
@@ -27,8 +25,6 @@ export default class TextInput extends React.Component {
 
     const hasError = this.props.hasError(this.props);
 
-    const map = this.props.map || id;
-
     return (
       <div className="form__row">
         <label className="form__label">{this.props.fieldName}</label>
@@ -39,7 +35,7 @@ export default class TextInput extends React.Component {
           type="text"
           value={this.props.fieldValue}
           onChange={e => {
-            this.props.onUpdateField(map(e.target.value));
+            this.props.onUpdateField(e.target.value);
           }}
         />
         {hasError
