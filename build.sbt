@@ -3,6 +3,52 @@ import com.typesafe.sbt.packager.archetypes.ServerLoader.Systemd
 import com.typesafe.sbt.packager.debian.DebianPlugin.autoImport.debianPackageDependencies
 import sbt.Keys._
 import StateMachine._
+import play.sbt.PlayImport
+
+val scroogeVersion = "4.12.0"
+val awsVersion = "1.11.125"
+val pandaVersion = "0.5.1"
+val pandaHmacVersion = "1.2.0"
+val atomMakerVersion = "1.1.21"
+val slf4jVersion = "1.7.21"
+val typesafeConfigVersion = "1.3.0" // to match what we get from Play transitively
+val scanamoVersion = "0.9.1" // to match what we get from atom-publisher-lib transitively
+
+val scalaLoggingVersion = "3.4.0"
+val jacksonDatabindVersion = "2.9.2"
+val playJsonExtensionsVersion = "0.8.0"
+val okHttpVersion = "2.4.0"
+val diffVersion = "1.2.0"
+
+val capiAwsVersion = "0.5"
+
+val scalaTestVersion = "2.2.6"
+val scalaTestPlusPlayVersion = "1.5.1"
+val mockitoVersion = "2.0.97-beta"
+val scalaXmlVersion = "1.0.5"
+val scalaCheckVersion = "1.12.5" // to match ScalaTest version
+
+val awsLambdaCoreVersion = "1.1.0"
+val awsLambdaEventsVersion = "1.3.0"
+
+val logstashLogbackEncoderVersion = "4.8"
+val kinesisLogbackAppenderVersion = "1.4.2"
+
+val permissionsClientVersion = "0.7"
+
+val guavaVersion = "17.0"
+val googleHttpJacksonVersion = "1.22.0"
+val googleOauthVersion = "1.20.0"
+val googleBugsVersion = "1.3.9"
+val googleHttpVersion = "1.22.0"
+val commonsLoggingVersion = "1.1.1"
+val apacheHttpClientVersion = "4.0.1"
+val apacheHttpCoreVersion = "4.0.1"
+
+val googleApiClientVersion = "1.22.0"
+val youTubeApiClientVersion = "v3-rev178-1.22.0"
+
+val jsoupVersion = "1.8.3"
 
 lazy val commonSettings = Seq(
   scalaVersion in ThisBuild := "2.11.8",
@@ -24,15 +70,66 @@ lazy val common = (project in file("common"))
     unmanagedBase := baseDirectory.value / "common" / "lib",
     unmanagedJars in Compile += file("common/lib/google-api-services-youtubePartner-v1-rev20160726-java-1.22.0-sources.jar"),
     unmanagedJars in Compile += file("common/lib/google-api-services-youtubePartner-v1-rev20160726-java-1.22.0.jar"),
-    libraryDependencies ++= Dependencies.commonDependencies
+    libraryDependencies ++= Seq(
+      "com.google.api-client" %  "google-api-client" % googleApiClientVersion,
+      "com.google.apis" % "google-api-services-youtube" % youTubeApiClientVersion,
+      "com.gu" %% "pan-domain-auth-play_2-5" % pandaVersion,
+      "com.gu" %% "pan-domain-auth-verification" % pandaVersion,
+      "com.gu" %% "pan-domain-auth-core" % pandaVersion,
+      "com.gu" %% "panda-hmac" % pandaHmacVersion,
+      PlayImport.ws,
+      "com.gu" %% "atom-publisher-lib" % atomMakerVersion,
+      "com.gu" %% "atom-publisher-lib" % atomMakerVersion % "test" classifier "tests",
+      "com.gu" %% "atom-manager-play" % atomMakerVersion,
+      "com.gu"  %% "atom-manager-play" % atomMakerVersion % "test" classifier "tests",
+      "com.google.guava" % "guava-jdk5" % guavaVersion,
+      "com.google.http-client" % "google-http-client-jackson2" % googleHttpJacksonVersion,
+      "com.google.oauth-client" % "google-oauth-client-jetty" % googleOauthVersion,
+      "com.google.code.findbugs" % "jsr305" % googleBugsVersion,
+      "com.google.http-client" % "google-http-client" % googleHttpVersion,
+      "commons-logging" % "commons-logging" % commonsLoggingVersion,
+      "org.apache.httpcomponents" % "httpclient" % apacheHttpClientVersion,
+      "org.apache.httpcomponents" % "httpcore" % apacheHttpCoreVersion,
+      "com.typesafe" % "config" % typesafeConfigVersion,
+      "com.amazonaws" % "aws-lambda-java-core" % awsLambdaCoreVersion,
+      "com.amazonaws" % "aws-java-sdk-s3" % awsVersion,
+      "com.amazonaws" % "aws-java-sdk-dynamodb" % awsVersion,
+      "org.cvogt" %% "play-json-extensions" % playJsonExtensionsVersion,
+      "net.logstash.logback" % "logstash-logback-encoder" % logstashLogbackEncoderVersion,
+      "com.gu" % "kinesis-logback-appender" % kinesisLogbackAppenderVersion,
+      "com.amazonaws" % "aws-java-sdk-elastictranscoder" % awsVersion,
+      "com.gu" %% "scanamo" % scanamoVersion,
+      "com.squareup.okhttp" % "okhttp" % okHttpVersion,
+      "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test", // to match ScalaTest version
+      "com.amazonaws" % "aws-java-sdk-sns" % awsVersion,
+      "com.amazonaws" % "aws-java-sdk-sqs" % awsVersion,
+      "com.gu" %% "editorial-permissions-client" % permissionsClientVersion,
+      "com.amazonaws" % "aws-java-sdk-stepfunctions" % awsVersion,
+      "com.amazonaws" % "aws-java-sdk-ses" % awsVersion,
+      "com.gu" %% "content-api-client-aws" % capiAwsVersion,
+      "org.scalatest" %% "scalatest" % scalaTestVersion % "test"
+    )
   )
 
 lazy val app = (project in file("."))
-  .dependsOn(common)
+  .dependsOn(common % "compile->compile;test->test")
   .enablePlugins(PlayScala, SbtWeb, BuildInfoPlugin, JDebPackaging)
   .settings(commonSettings,
     name := "media-atom-maker",
-    libraryDependencies ++= Dependencies.appDependencies,
+    libraryDependencies ++= Seq(
+      "org.slf4j" % "slf4j-api" % slf4jVersion,
+      "org.slf4j" % "jcl-over-slf4j" % slf4jVersion,
+      PlayImport.cache,
+      "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
+      "com.fasterxml.jackson.core" % "jackson-databind" % jacksonDatabindVersion,
+      "ai.x" %% "diff" % diffVersion,
+      "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
+      "com.amazonaws" % "aws-java-sdk-ec2" % awsVersion,
+      "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestPlusPlayVersion % "test",
+      "org.mockito" %  "mockito-core" % mockitoVersion % "test",
+      "org.scala-lang.modules" %% "scala-xml" % scalaXmlVersion   % "test",
+      "org.jsoup" % "jsoup" % jsoupVersion
+    ),
 
     aggregate in run := false,
 
@@ -64,8 +161,10 @@ lazy val uploader = (project in file("uploader"))
   .enablePlugins(JavaAppPackaging)
   .settings(commonSettings,
     name := "media-atom-uploader",
-    libraryDependencies ++= Dependencies.uploaderDependencies,
-
+    libraryDependencies ++= Seq(
+      "net.logstash.logback" % "logstash-logback-encoder" % logstashLogbackEncoderVersion,
+      "com.amazonaws" % "aws-lambda-java-events" % awsLambdaEventsVersion
+    ),
     topLevelDirectory in Universal := None,
     packageName in Universal := normalizedName.value,
 
@@ -106,7 +205,6 @@ lazy val integrationTests = (project in file("integration-tests"))
   .dependsOn(common)
   .settings(commonSettings,
     name := "integration-tests",
-    libraryDependencies ++= Dependencies.integrationTestDependencies,
     logBuffered in Test := false,
     parallelExecution in Test := false
   )
@@ -117,8 +215,6 @@ lazy val expirer = (project in file("expirer"))
   .enablePlugins(JavaAppPackaging)
   .settings(commonSettings,
     name := "media-atom-expirer",
-    libraryDependencies ++= Dependencies.expirerDependencies,
-
     topLevelDirectory in Universal := None,
     packageName in Universal := normalizedName.value
 
@@ -129,8 +225,6 @@ lazy val scheduler = (project in file("scheduler"))
   .enablePlugins(JavaAppPackaging)
   .settings(commonSettings,
     name := "media-atom-scheduler",
-    libraryDependencies ++= Dependencies.expirerDependencies,
-
     topLevelDirectory in Universal := None,
     packageName in Universal := normalizedName.value
 
