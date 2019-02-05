@@ -40,7 +40,22 @@ class VideoData extends React.Component {
       );
     }
     return null;
-  }
+  };
+
+  getModifiedByField = () => {
+    if (this.props.video.id) {
+      return (
+        <ManagedField
+          fieldLocation="contentChangeDetails.lastModified.user.email"
+          name="Last modified by"
+          disabled={true}
+        >
+          <TextInput />
+        </ManagedField>
+      );
+    }
+    return null;
+  };
 
 
   render() {
@@ -67,6 +82,7 @@ class VideoData extends React.Component {
         >
           <ManagedSection>
             {this.getCreatedByField()}
+            {this.getModifiedByField()}
             <ManagedField
               fieldLocation="title"
               name={
