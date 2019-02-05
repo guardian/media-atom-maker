@@ -147,6 +147,7 @@ export class ManagedField extends React.Component {
         fieldValue: this.getFieldValue(
           _get(this.props.fieldLocation, this.props.data)
         ),
+        rawFieldValue: _get(this.props.fieldLocation, this.props.data),
         onUpdateField: this.updateFn,
         editable,
         maxLength: this.props.maxLength,

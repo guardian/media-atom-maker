@@ -5,7 +5,7 @@ import {
 } from '../../util/durationHelpers';
 
 const getStateFromProps = props => {
-  const dur = props.fieldValue || 0;
+  const dur = props.rawFieldValue || 0;
 
   const { mins, secs } = durationToMinAndSecs(dur);
 
@@ -66,7 +66,7 @@ export default class DurationInput extends React.Component {
             }
           >
             {' '}
-            {secondsToDurationStr(this.props.fieldValue)}
+            {secondsToDurationStr(this.props.rawFieldValue)}
           </p>
         </div>
       );
