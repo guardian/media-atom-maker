@@ -140,6 +140,16 @@
   &--textarea {
     height: inherit;
   }
+
+  &--inline {
+    display: inline-block;
+    width: auto;
+  }
+}
+
+.form__description {
+  display: inline-block;
+  margin: 5px 0;
 }
 
 .form__label {

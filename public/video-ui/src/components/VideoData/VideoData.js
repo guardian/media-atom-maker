@@ -1,6 +1,7 @@
 import React from 'react';
 import { ManagedForm, ManagedField, ManagedSection } from '../ManagedForm';
 import TextInput from '../FormFields/TextInput';
+import DurationInput from '../FormFields/DurationInput';
 import ScribeEditorField from '../FormFields/ScribeEditor';
 import SelectBox from '../FormFields/SelectBox';
 import CheckBox from '../FormFields/CheckBox';
@@ -11,6 +12,7 @@ import { fieldLengths } from '../../constants/videoEditValidation';
 import { videoCategories } from '../../constants/videoCategories';
 import PrivacyStates from '../../constants/privacyStates';
 import VideoUtils from '../../util/video';
+import VideosApi from '../../services/VideosApi';
 
 class VideoData extends React.Component {
   hasCategories = () => this.props.youtube.categories.length !== 0;
@@ -220,6 +222,28 @@ class VideoData extends React.Component {
             >
               <CheckBox />
             </ManagedField>
+            <ManagedField fieldLocation="duration" name="Video Duration (mm:ss)">
+              <DurationInput />
+            </ManagedField>
+            {!this.props.editable && (
+              <button
+                title="Refresh video duration from active YouTube video"
+                type="button"
+                disabled={!this.props.video.hasOwnProperty('activeVersion')}
+                data-tip="Refresh video duration from active YouTube video"
+                onClick={() => {
+                  VideosApi.resetDurationFromActive(this.props.video.id).then(video => {
+                    this.props.updateVideo(video);
+                  });
+                }}
+              >
+                <Icon
+                  icon="refresh"
+                  className="icon__edit"
+                  disabled={!this.props.video.hasOwnProperty('activeVersion')}
+                />
+              </button>
+            )}
           </ManagedSection>
         </ManagedForm>
       </div>
@@ -232,6 +256,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getCategories from '../../actions/YoutubeActions/getCategories';
 import * as getChannels from '../../actions/YoutubeActions/getChannels';
+import Icon from '../Icon';
 
 function mapStateToProps(state) {
   return {

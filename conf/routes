@@ -12,6 +12,7 @@ PUT     /api2/atom/:id/publish          controllers.Api2.publishMediaAtom(id)
 POST    /api2/atoms/:id/assets          controllers.Api2.addAsset(id)
 DELETE  /api2/atoms/:id/assets          controllers.Api2.deleteAsset(id)
 PUT     /api2/atom/:id/asset-active     controllers.Api2.setActiveAsset(id)
+PUT     /api2/atom/:id/reset-duration-from-active     controllers.Api2.resetDurationFromActive(id)
 
 POST    /api2/atom/:id/pac-file         controllers.Api2.uploadPacFile(id)
 

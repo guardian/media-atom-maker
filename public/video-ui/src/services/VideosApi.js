@@ -113,6 +113,12 @@ export default {
     });
   },
 
+  resetDurationFromActive: videoId =>
+    pandaReqwest({
+      url: `/api2/atom/${videoId}/reset-duration-from-active`,
+      method: 'put'
+    }),
+
   getVideoUsages: videoId => {
     return Promise.all([
       getUsages({ id: videoId, stage: ContentApi.preview }),
