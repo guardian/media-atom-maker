@@ -7,13 +7,13 @@ const AWS = window.AWS;
 
 export function getUploads(atomId) {
   return pandaReqwest({
-    url: `/api2/uploads?atomId=${atomId}`
+    url: `/api/uploads?atomId=${atomId}`
   });
 }
 
 export function createUpload(atomId, file, selfHost) {
   return pandaReqwest({
-    url: `/api2/uploads`,
+    url: `/api/uploads`,
     method: 'post',
     data: {
       atomId: atomId,
@@ -26,7 +26,7 @@ export function createUpload(atomId, file, selfHost) {
 
 function getCredentials(id, key) {
   return pandaReqwest({
-    url: `/api2/uploads/${id}/credentials?key=${key}`,
+    url: `/api/uploads/${id}/credentials?key=${key}`,
     method: 'post'
   });
 }
@@ -101,7 +101,7 @@ export function uploadPacFile({ id, file }) {
   formData.append('pac-file', file);
 
   return pandaReqwest({
-    url: `/api2/atom/${id}/pac-file`,
+    url: `/api/atom/${id}/pac-file`,
     method: 'post',
     data: formData,
     contentType: 'multipart/form-data',

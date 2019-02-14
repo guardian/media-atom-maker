@@ -1,40 +1,40 @@
 # optional limit
-GET     /api2/atoms                     controllers.Api2.getMediaAtoms(search: Option[String], limit: Option[Int])
-POST    /api2/atoms                     controllers.Api2.createMediaAtom
+GET     /api/atoms                     controllers.Api.getMediaAtoms(search: Option[String], limit: Option[Int])
+POST    /api/atoms                     controllers.Api.createMediaAtom
 
-GET     /api2/atoms/:id                 controllers.Api2.getMediaAtom(id)
-PUT     /api2/atoms/:id                 controllers.Api2.updateMediaAtom(id)
-DELETE  /api2/atom/:id                  controllers.Api2.deleteAtom(id)
+GET     /api/atoms/:id                 controllers.Api.getMediaAtom(id)
+PUT     /api/atoms/:id                 controllers.Api.updateMediaAtom(id)
+DELETE  /api/atom/:id                  controllers.Api.deleteAtom(id)
 
-GET     /api2/atoms/:id/published       controllers.Api2.getPublishedMediaAtom(id)
-PUT     /api2/atom/:id/publish          controllers.Api2.publishMediaAtom(id)
+GET     /api/atoms/:id/published       controllers.Api.getPublishedMediaAtom(id)
+PUT     /api/atom/:id/publish          controllers.Api.publishMediaAtom(id)
 
-POST    /api2/atoms/:id/assets          controllers.Api2.addAsset(id)
-DELETE  /api2/atoms/:id/assets          controllers.Api2.deleteAsset(id)
-PUT     /api2/atom/:id/asset-active     controllers.Api2.setActiveAsset(id)
-PUT     /api2/atom/:id/reset-duration-from-active     controllers.Api2.resetDurationFromActive(id)
+POST    /api/atoms/:id/assets          controllers.Api.addAsset(id)
+DELETE  /api/atoms/:id/assets          controllers.Api.deleteAsset(id)
+PUT     /api/atom/:id/asset-active     controllers.Api.setActiveAsset(id)
+PUT     /api/atom/:id/reset-duration-from-active     controllers.Api.resetDurationFromActive(id)
 
-POST    /api2/atom/:id/pac-file         controllers.Api2.uploadPacFile(id)
+POST    /api/atom/:id/pac-file         controllers.Api.uploadPacFile(id)
 
-GET     /api2/pluto/commissions         controllers.PlutoController.getCommissions()
-GET     /api2/pluto/commissions/:id/projects  controllers.PlutoController.getProjectsByCommissionId(id)
-DELETE  /api2/pluto/commissions/:id     controllers.PlutoController.deleteCommission(id)
-PUT     /api2/pluto/projects            controllers.PlutoController.upsertProject()
-POST    /api2/pluto/resend/:id          controllers.PlutoController.resendAtomMessage(id)
+GET     /api/pluto/commissions         controllers.PlutoController.getCommissions()
+GET     /api/pluto/commissions/:id/projects  controllers.PlutoController.getProjectsByCommissionId(id)
+DELETE  /api/pluto/commissions/:id     controllers.PlutoController.deleteCommission(id)
+PUT     /api/pluto/projects            controllers.PlutoController.upsertProject()
+POST    /api/pluto/resend/:id          controllers.PlutoController.resendAtomMessage(id)
 
 # endpoint used by workflow
-OPTIONS /api2/workflow/*url             controllers.Api2.allowCORSAccess(methods = "PUT, POST, DELETE", url: String)
-POST    /api2/workflow/atoms            controllers.Api2.createWorkflowMediaAtom
+OPTIONS /api/workflow/*url             controllers.Api.allowCORSAccess(methods = "PUT, POST, DELETE", url: String)
+POST    /api/workflow/atoms            controllers.Api.createWorkflowMediaAtom
 
 # user uploaded videos
-GET     /api2/uploads                   controllers.UploadController.list(atomId)
-POST    /api2/uploads                   controllers.UploadController.create
-POST    /api2/uploads/:id/credentials   controllers.UploadController.credentials(id, key)
+GET     /api/uploads                   controllers.UploadController.list(atomId)
+POST    /api/uploads                   controllers.UploadController.create
+POST    /api/uploads/:id/credentials   controllers.UploadController.credentials(id, key)
 
 GET     /api/youtube/categories         controllers.Youtube.listCategories()
 GET     /api/youtube/channels           controllers.Youtube.listChannels()
 GET     /api/youtube/video-info/:id     controllers.Youtube.commercialVideoInfo(id)
-GET     /api2/youtube/content-bundle/:id controllers.YoutubeTagController.getById(id)
+GET     /api/youtube/content-bundle/:id controllers.YoutubeTagController.getById(id)
 
 GET     /api/transcoder/jobStatus       controllers.Transcoder.jobStatus
 

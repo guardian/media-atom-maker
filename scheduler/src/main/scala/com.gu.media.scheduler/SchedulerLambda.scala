@@ -28,7 +28,7 @@ class SchedulerLambda extends RequestHandler[Unit, Unit]
 
     atomIds.foreach { atomId =>
       try {
-        val publishedAtom = hmacClient.put(buildUri(s"api2/atom/$atomId/publish")).as[MediaAtom]
+        val publishedAtom = hmacClient.put(buildUri(s"api/atom/$atomId/publish")).as[MediaAtom]
         log.info(s"Published scheduled atom. atom=${publishedAtom.id} scheduledLaunch=${publishedAtom.contentChangeDetails.scheduledLaunch.map(_.date)}")
       } catch {
         case NonFatal(err) =>

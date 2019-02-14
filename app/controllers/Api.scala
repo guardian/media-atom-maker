@@ -19,7 +19,7 @@ import play.api.mvc._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class Api2 (
+class Api(
   override val stores: DataStores,
   conf: Configuration,
   override val authActions: HMACAuthActions,

@@ -44,7 +44,7 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
     val source = s3.getObject(Config.testVideoBucket, Config.testVideo)
     val json = generateUploadRequest(atomId, source.getObjectMetadata.getContentLength)
 
-    val response = gutoolsPost(s"$targetBaseUrl/api2/uploads?atomId=$atomId", jsonBody(json))
+    val response = gutoolsPost(s"$targetBaseUrl/api/uploads?atomId=$atomId", jsonBody(json))
     val responseJson = Json.parse(response.body().string())
 
     response.code() should be(200)
@@ -60,7 +60,7 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
 
     uploadParts.foreach { case(uploadKey, start, end) =>
       Logger.info(s"Getting credentials for $uploadKey")
-      val credentials = gutoolsPost(s"$targetBaseUrl/api2/uploads/$uploadId/credentials?key=$uploadKey", emptyBody)
+      val credentials = gutoolsPost(s"$targetBaseUrl/api/uploads/$uploadId/credentials?key=$uploadKey", emptyBody)
       val temporaryClient = stsCredentialsS3Client(credentials)
 
       val length = end - start

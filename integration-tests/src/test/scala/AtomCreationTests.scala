@@ -25,12 +25,12 @@ class AtomCreationTests extends IntegrationTestBase with CancelAfterFailure {
       gutoolsGet(apiEndpoint).code() should be(200)
     }
 
-    Json.parse(gutoolsGet(s"$targetBaseUrl/api2/atoms/$atomId/published").body().string()).toString() should be("{}")
+    Json.parse(gutoolsGet(s"$targetBaseUrl/api/atoms/$atomId/published").body().string()).toString() should be("{}")
   }
 
 
   test("Add an asset to an existing atom") {
-    val assetResponse = gutoolsPost(s"$targetBaseUrl/api2/atoms/$atomId/assets", jsonBody(s"""{"uri":"${Config.asset}"}"""))
+    val assetResponse = gutoolsPost(s"$targetBaseUrl/api/atoms/$atomId/assets", jsonBody(s"""{"uri":"${Config.asset}"}"""))
 
     assetResponse.code() should be(200)
 
@@ -41,7 +41,7 @@ class AtomCreationTests extends IntegrationTestBase with CancelAfterFailure {
   }
 
   test("Make an asset current for an existing atom") {
-    val currentAssetResponse = gutoolsPut(s"$targetBaseUrl/api2/atom/$atomId/asset-active", Some(jsonBody(s"""{"atomId": "$atomId", "version": 1}""")))
+    val currentAssetResponse = gutoolsPut(s"$targetBaseUrl/api/atom/$atomId/asset-active", Some(jsonBody(s"""{"atomId": "$atomId", "version": 1}""")))
 
     currentAssetResponse.code() should be(200)
 
@@ -55,7 +55,7 @@ class AtomCreationTests extends IntegrationTestBase with CancelAfterFailure {
   }
 
   test("Publishing an existing atom") {
-    val response = gutoolsPut(s"$targetBaseUrl/api2/atom/$atomId/publish")
+    val response = gutoolsPut(s"$targetBaseUrl/api/atom/$atomId/publish")
 
     response.code() match {
       case 200 => eventually {
