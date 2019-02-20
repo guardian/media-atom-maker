@@ -42,7 +42,7 @@ class PlutoMessageProcessor {
   }
 
   _deleteProject({commissionId}) {
-    const remoteUrl = `${this.hostname}/api2/pluto/commissions/${commissionId}`;
+    const remoteUrl = `${this.hostname}/api/pluto/commissions/${commissionId}`;
     return this.hmacRequest.delete(remoteUrl);
   }
 
@@ -59,7 +59,7 @@ class PlutoMessageProcessor {
 
       const project = Object.assign({}, message);
 
-      const remoteUrl = `${this.hostname}/api2/pluto/projects`;
+      const remoteUrl = `${this.hostname}/api/pluto/projects`;
 
       this.hmacRequest
         .put(remoteUrl, project)
