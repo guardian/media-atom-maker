@@ -22,6 +22,8 @@ abstract class MediaAtomBase {
   val license: Option[String]
   val blockAds: Boolean
   val expiryDate: Option[Long]
+  val youtubeTitle: String,
+  val youtubeDescription: Option[String],
 
   //composer metadata
   val trailImage: Option[Image]
@@ -57,6 +59,8 @@ case class MediaAtomBeforeCreation(
   license: Option[String],
   blockAds: Boolean,
   expiryDate: Option[Long],
+  youtubeTitle: String,
+  youtubeDescription: Option[String],
 
   trailImage: Option[Image],
   trailText: Option[String],
