@@ -85,9 +85,15 @@ class VideoData extends React.Component {
             {this.getModifiedByField()}
             <ManagedField
               fieldLocation="title"
-              name={
-                isYoutubeAtom ? 'Headline (YouTube title)' : 'Headline'
-              }
+              name="Headline"
+              maxLength={fieldLengths.title}
+              isRequired={true}
+            >
+              <TextInput />
+            </ManagedField>
+            <ManagedField
+              fieldLocation="youtubeTitle"
+              name="YouTube Title"
               maxLength={fieldLengths.title}
               isRequired={true}
             >
@@ -95,11 +101,7 @@ class VideoData extends React.Component {
             </ManagedField>
             <ManagedField
               fieldLocation="description"
-              name={
-                isYoutubeAtom
-                  ? 'Standfirst (YouTube description)'
-                  : 'Standfirst'
-              }
+              name="Standfirst"
               customValidation={this.props.descriptionValidator}
               maxCharLength={fieldLengths.description.charMax}
               maxLength={fieldLengths.description.max}
@@ -107,6 +109,14 @@ class VideoData extends React.Component {
               <ScribeEditorField
                 allowedEdits={['bold', 'italic', 'linkPrompt', 'unlink', 'insertUnorderedList']}
               />
+            </ManagedField>
+            <ManagedField
+              fieldLocation="youtubeDescription"
+              name="YouTube Description"
+              maxCharLength={fieldLengths.description.charMax}
+              maxLength={fieldLengths.description.max}
+            >
+              <TextInput />
             </ManagedField>
             <ManagedField
               fieldLocation="trailText"

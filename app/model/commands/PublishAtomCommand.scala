@@ -15,6 +15,7 @@ import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model._
 import model.commands.CommandExceptions._
+import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import util.{AWSConfig, ThumbnailGenerator, YouTube}
 
@@ -236,29 +237,11 @@ case class PublishAtomCommand(
     }
   }
 
-  private def removeHtmlTagsForYouTube(description: String): String = {
-
-      val html = Jsoup.parse(description)
-
-      //Extracting the text removes line breaks
-      //We add them back in before each paragraph except
-      //for the first and before each list element
-      html.select("p:gt(0), li").prepend("\\n");
-      html.select("a").unwrap()
-      val text = html.text()
-      html.text().replace("\\n", "\n")
-  }
-
   private def updateYoutubeMetadata(previewAtom: MediaAtom, asset: Asset): MediaAtom = {
-
-    val description = previewAtom.description.map(description => {
-      removeHtmlTagsForYouTube(description)
-    })
-
     val metadata = YouTubeMetadataUpdate(
-      title = Some(previewAtom.title),
+      title = Some(previewAtom.youtubeTitle),
       categoryId = previewAtom.youtubeCategoryId,
-      description = description,
+      description = previewAtom.youtubeDescription,
       tags = previewAtom.tags,
       license = previewAtom.license,
       privacyStatus = previewAtom.privacyStatus.map(_.name)
