@@ -29,7 +29,8 @@ export function updateWorkflowData({ workflowItem }) {
     dispatch(requestDataUpdate());
     return Promise.all([
       WorkflowApi.updateStatus(workflowItem),
-      WorkflowApi.updateNote(workflowItem)
+      WorkflowApi.updateNote(workflowItem),
+      WorkflowApi.updatePriority(workflowItem)
     ])
       .then(response => dispatch(receiveDataUpdate(response)))
       .catch(err => dispatch(errorUpdatingData(err)));

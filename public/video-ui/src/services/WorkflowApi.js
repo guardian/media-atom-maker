@@ -62,6 +62,18 @@ export default class WorkflowApi {
     });
   }
 
+  static getPriorities() {
+    const params = {
+      url: `${WorkflowApi.workflowUrl}/api/priorities`,
+      crossOrigin: true,
+      withCredentials: true
+    };
+
+    return pandaReqwest(params, 500).then(response => {
+      return WorkflowApi._getResponseAsJson(response);
+    });
+  }
+
   static getAtomInWorkflow({ id }) {
     return pandaReqwest({
       url: `${WorkflowApi.workflowUrl}/api/atom/${id}`,
@@ -159,6 +171,20 @@ export default class WorkflowApi {
     return pandaReqwest({
       method: 'PUT',
       url: `${WorkflowApi.workflowUrl}/api/stubs/${id}/note`,
+      data: payload,
+      crossOrigin: true,
+      withCredentials: true
+    });
+  }
+
+  static updatePriority({ id, priority }) {
+    const payload = {
+      data: priority
+    };
+
+    return pandaReqwest({
+      method: 'PUT',
+      url: `${WorkflowApi.workflowUrl}/api/stubs/${id}/priority`,
       data: payload,
       crossOrigin: true,
       withCredentials: true

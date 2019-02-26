@@ -1,4 +1,4 @@
-export default function workflow(state = { sections: [], statuses: [], status: {} }, action) {
+export default function workflow(state = { sections: [], statuses: [], status: {}, priorities: [] }, action) {
   switch (action.type) {
     case 'WORKFLOW_SECTIONS_GET_RECEIVE':
       return Object.assign({}, state, {
@@ -7,6 +7,10 @@ export default function workflow(state = { sections: [], statuses: [], status: {
     case 'WORKFLOW_STATUSES_GET_RECEIVE':
       return Object.assign({}, state, {
         statuses: action.statuses || []
+      });
+    case 'WORKFLOW_PRIORITIES_GET_RECEIVE':
+      return Object.assign({}, state, {
+        priorities: action.priorities || []
       });
     case 'WORKFLOW_STATUS_GET_RECEIVE':
       return Object.assign({}, state, {

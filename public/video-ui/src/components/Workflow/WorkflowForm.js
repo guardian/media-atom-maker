@@ -11,6 +11,7 @@ export default class WorkflowForm extends React.Component {
     video: PropTypes.object.isRequired,
     workflowSections: PropTypes.array.isRequired,
     workflowStatuses: PropTypes.array.isRequired,
+    workflowPriorities: PropTypes.array.isRequired,
     workflowStatus: PropTypes.object.isRequired,
     updateData: PropTypes.func.isRequired
   };
@@ -47,6 +48,16 @@ export default class WorkflowForm extends React.Component {
           name="Status"
           disabled={!this.props.editable}>
           <SelectBox selectValues={this.props.workflowStatuses} />
+        </ManagedField>
+        <ManagedField
+          fieldLocation="priority"
+          name="Priority"
+          disabled={!this.props.editable}>
+          <SelectBox selectValues={
+            this.props.workflowPriorities.map(({ name, value }) => {
+              return { id: value, title: name };
+            })}
+          />
         </ManagedField>
       </ManagedForm>
     );
