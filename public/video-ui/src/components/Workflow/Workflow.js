@@ -14,6 +14,7 @@ class Workflow extends React.Component {
 
   hasSections = () => this.props.workflow.sections.length > 0;
   hasStatuses = () => this.props.workflow.statuses.length > 0;
+  hasPriorities = () => this.props.workflow.priorities.length > 0;
 
   componentWillMount() {
     if (!this.hasSections()) {
@@ -22,6 +23,10 @@ class Workflow extends React.Component {
 
     if (!this.hasStatuses()) {
       this.props.workflowActions.getStatuses();
+    }
+
+    if (!this.hasPriorities()) {
+      this.props.workflowActions.getPriorities();
     }
 
     this.props.workflowActions.getStatus(this.props.video);
@@ -124,6 +129,7 @@ class Workflow extends React.Component {
             video={this.props.video || {}}
             workflowSections={this.props.workflow.sections || []}
             workflowStatuses={this.props.workflow.statuses || []}
+            workflowPriorities={this.props.workflow.priorities}
             workflowStatus={this.props.workflow.status}
             updateData={this.updateLocalData}
           />
@@ -138,6 +144,7 @@ import { bindActionCreators } from 'redux';
 import * as getStatus from '../../actions/WorkflowActions/getStatus';
 import * as getSections from '../../actions/WorkflowActions/getSections';
 import * as getStatuses from '../../actions/WorkflowActions/getStatuses';
+import * as getPriorities from '../../actions/WorkflowActions/getPriorities';
 import * as trackInWorkflow from '../../actions/WorkflowActions/trackInWorkflow';
 import * as updateWorkflowData from '../../actions/WorkflowActions/updateWorkflowData';
 import * as localUpdateWorkflowData from '../../actions/WorkflowActions/localUpdateWorkflowData';
@@ -157,6 +164,7 @@ function mapDispatchToProps(dispatch) {
         getStatus,
         getSections,
         getStatuses,
+        getPriorities,
         trackInWorkflow,
         updateWorkflowData,
         localUpdateWorkflowData
