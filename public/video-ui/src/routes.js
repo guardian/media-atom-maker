@@ -4,7 +4,7 @@ import { Router, Route, browserHistory, IndexRedirect, Redirect } from 'react-ro
 import Videos from './components/Videos/Videos';
 import VideoDisplay from './components/Video/Display';
 import VideoUpload from './components/VideoUpload/VideoUpload';
-import Help from './components/Help/Help';
+import Help from './pages/Help';
 import Training from './components/Training/Training';
 import ReactApp from './components/ReactApp';
 
