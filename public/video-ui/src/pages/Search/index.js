@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import VideoItem from './VideoItem';
+import VideoItem from '../../components/VideoItem';
 import { frontPageSize } from '../../constants/frontPageSize';
 
 class Videos extends React.Component {
