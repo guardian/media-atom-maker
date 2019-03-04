@@ -5,6 +5,7 @@ import VideoPreview from '../../components/VideoPreview/VideoPreview';
 import VideoImages from '../../components/VideoImages/VideoImages';
 import VideoUsages from '../../components/VideoUsages/VideoUsages';
 import VideoData from '../../components/VideoData/VideoData';
+import YoutubeData from '../../components/YoutubeData';
 import Workflow from '../../components/Workflow/Workflow';
 import Targeting from '../../components/Targeting/Targeting';
 import Icon from '../../components/Icon';
@@ -18,6 +19,11 @@ import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 import { isVideoPublished } from '../../util/isVideoPublished';
 import VideoUtils from '../../util/video';
+import ContentChangeDetails from '../../components/ContentChangeDetails';
+import Flags from '../../components/Flags';
+import DurationReset from '../../components/DurationReset';
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import 'react-tabs/style/react-tabs.css';
 
 class VideoDisplay extends React.Component {
   componentWillMount() {
@@ -32,12 +38,11 @@ class VideoDisplay extends React.Component {
 
   saveAndUpdateVideo = video => {
     if (this.props.route.mode === 'create') {
-      this.props.videoActions.createVideo(video)
-        .then(() => {
-          this.props.videoActions.getUsages(this.props.video.id);
-        });
+      this.props.videoActions.createVideo(video).then(() => {
+        this.props.videoActions.getUsages(this.props.video.id);
+      });
     } else {
-      this.props.videoActions.saveVideo(video)
+      this.props.videoActions.saveVideo(video);
     }
   };
 
@@ -47,21 +52,25 @@ class VideoDisplay extends React.Component {
   };
 
   composerKeywordsToYouTube = () => {
-
-    return Promise.all(this.props.video.keywords.map(keyword => KeywordsApi.composerTagToYouTube(keyword)))
-    .then(youTubeKeywords => {
-
+    return Promise.all(
+      this.props.video.keywords.map(keyword =>
+        KeywordsApi.composerTagToYouTube(keyword)
+      )
+    ).then(youTubeKeywords => {
       const oldTags = this.props.video.tags;
       const keywordsToCopy = youTubeKeywords.reduce((tagsAdded, keyword) => {
         const allAddedTags = oldTags.concat(tagsAdded);
-        if (keyword !== '' &&
+        if (
+          keyword !== '' &&
           allAddedTags.every(oldTag => oldTag !== keyword)
         ) {
           tagsAdded.push(keyword);
         }
         return tagsAdded;
       }, []);
-      const newVideo = Object.assign({}, this.props.video, { tags: oldTags.concat(keywordsToCopy)});
+      const newVideo = Object.assign({}, this.props.video, {
+        tags: oldTags.concat(keywordsToCopy)
+      });
 
       this.updateVideo(newVideo);
     });
@@ -96,24 +105,25 @@ class VideoDisplay extends React.Component {
   };
 
   validateKeywords = keywords => {
-    if (!Array.isArray(keywords) ||
-        keywords.length === 0 ||
-        keywords.every(keyword => {
-          return keyword.match(/^tone/);
-        })
-       ) {
-        if (canonicalVideoPageExists(this.props.usages)) {
-          return new FieldNotification(
-            'error',
-            'A series or a keyword tag is required for updating composer pages',
-            FieldNotification.error
-          );
-        }
+    if (
+      !Array.isArray(keywords) ||
+      keywords.length === 0 ||
+      keywords.every(keyword => {
+        return keyword.match(/^tone/);
+      })
+    ) {
+      if (canonicalVideoPageExists(this.props.usages)) {
         return new FieldNotification(
-          'desired',
-          'A series or a keyword tag is required for creating composer pages',
-          FieldNotification.warning
+          'error',
+          'A series or a keyword tag is required for updating composer pages',
+          FieldNotification.error
         );
+      }
+      return new FieldNotification(
+        'desired',
+        'A series or a keyword tag is required for creating composer pages',
+        FieldNotification.warning
+      );
     }
     return null;
   };
@@ -123,7 +133,6 @@ class VideoDisplay extends React.Component {
     const numberOfChars = getYouTubeTagCharCount(youTubeKeywords);
 
     if (numberOfChars > charLimit) {
-
       return new FieldNotification(
         'required',
         `Maximum characters allowed in YouTube keywords is ${charLimit}.`,
@@ -140,7 +149,7 @@ class VideoDisplay extends React.Component {
     }
   };
 
-  renderEditButton = () => {
+  renderVideoDataEditButton = () => {
     if (this.props && this.props.videoEditOpen) {
       return (
         <button
@@ -175,9 +184,7 @@ class VideoDisplay extends React.Component {
   };
 
   renderPreview = () => {
-    return (
-      <VideoPreview video={this.props.video || {}} />
-    );
+    return <VideoPreview video={this.props.video || {}} />;
   };
 
   renderImages() {
@@ -222,9 +229,9 @@ class VideoDisplay extends React.Component {
   }
 
   renderSelectBar(video) {
-
-    const videoToSelect = isVideoPublished(this.props.video) ?
-      this.props.publishedVideo : this.props.video;
+    const videoToSelect = isVideoPublished(this.props.video)
+      ? this.props.publishedVideo
+      : this.props.video;
 
     return (
       <VideoSelectBar
@@ -235,15 +242,35 @@ class VideoDisplay extends React.Component {
     );
   }
 
-  renderMetadata() {
+  renderUsages({ video, publishedVideo, usages }) {
+    if (video.id) {
+      return (
+        <VideoUsages
+          video={video || {}}
+          publishedVideo={publishedVideo || {}}
+          usages={usages || {}}
+        />
+      );
+    } else {
+      return '';
+    }
+  }
+
+  renderWorkflow({ video }) {
+    if (video.id) {
+      return <Workflow video={video} />;
+    }
+  }
+
+  renderTargeting({ video }) {
+    if (video.id) {
+      return <Targeting video={video} />;
+    }
+  }
+
+  renderVideoData() {
     return (
-      <div className="video__detailbox">
-        <div className="video__detailbox__header__container">
-          <header className="video__detailbox__header">
-            Video Data
-          </header>
-          {this.renderEditButton()}
-        </div>
+      <div>
         <VideoData
           video={this.props.video || {}}
           updateVideo={this.updateVideo}
@@ -252,7 +279,6 @@ class VideoDisplay extends React.Component {
           updateErrors={this.props.formErrorActions.updateFormErrors}
           updateWarnings={this.props.formErrorActions.updateFormWarnings}
           validateKeywords={this.validateKeywords}
-          validateYouTubeKeywords={this.validateYouTubeKeywords}
           composerKeywordsToYouTube={this.composerKeywordsToYouTube}
           canonicalVideoPageExists={canonicalVideoPageExists(this.props.usages)}
         />
@@ -260,42 +286,72 @@ class VideoDisplay extends React.Component {
     );
   }
 
-  renderUsages() {
-    if (this.props.video && this.props.video.id) {
-      return (
-        <div className="video__detailbox">
-          <div className="video__detailbox__header__container">
-            <header className="video__detailbox__header">Usages</header>
-          </div>
-          <VideoUsages
-              video={this.props.video || {}}
-              publishedVideo={this.props.publishedVideo || {}}
-              usages={this.props.usages || {}}
-          />
-        </div>
-      );
-    } else {
-      return '';
-    }
+  renderYoutubeData() {
+    return (
+      <YoutubeData
+        video={this.props.video || {}}
+        updateVideo={this.updateVideo}
+        editable={this.props.videoEditOpen}
+        formName={formNames.youtubeData}
+        updateErrors={this.props.formErrorActions.updateFormErrors}
+        updateWarnings={this.props.formErrorActions.updateFormWarnings}
+        validateYouTubeKeywords={this.validateYouTubeKeywords}
+      />
+    );
   }
 
-  renderWorkflow() {
-    if (this.props.video && this.props.video.id) {
-      return (
-        <Workflow video={this.props.video}/>
-      );
-    }
+  renderManagement() {
+    return (
+      <div>
+        <ContentChangeDetails
+          video={this.props.video || {}}
+          updateVideo={this.updateVideo}
+        />
+        <DurationReset
+          video={this.props.video || {}}
+          editable={this.props.videoEditOpen}
+        />
+        <Flags
+          video={this.props.video || {}}
+          updateVideo={this.updateVideo}
+          editable={this.props.videoEditOpen}
+          formName={formNames.flags}
+          updateErrors={this.props.formErrorActions.updateFormErrors}
+          updateWarnings={this.props.formErrorActions.updateFormWarnings}
+        />
+        {this.renderWorkflow(this.props)}
+      </div>
+    );
   }
 
-  renderTargeting() {
+  renderTabs() {
     return (
       <div className="video__detailbox">
-        <div className="video__detailbox__header__container">
-          <header className="video__detailbox__header">Suggest this Video</header>
-        </div>
-        <div className="form__group">
-          <Targeting video={this.props.video || {}} />
-        </div>
+        <Tabs>
+          <TabList>
+            <Tab>Video Data</Tab>
+            <Tab>YouTube Data</Tab>
+            <Tab>Management</Tab>
+            <Tab>Usages</Tab>
+            <Tab>Targeting</Tab>
+          </TabList>
+          <TabPanel>
+            {this.renderVideoDataEditButton()}
+            {this.renderVideoData()}
+          </TabPanel>
+          <TabPanel>
+            {this.renderYoutubeData()}
+          </TabPanel>
+          <TabPanel>
+            {this.renderManagement()}
+          </TabPanel>
+          <TabPanel>
+            {this.renderUsages(this.props)}
+          </TabPanel>
+          <TabPanel>
+            {this.renderTargeting(this.props)}
+          </TabPanel>
+        </Tabs>
       </div>
     );
   }
@@ -317,13 +373,8 @@ class VideoDisplay extends React.Component {
         <div className="video">
           <div className="video__main">
             <div className="video__row">
-              {this.renderMetadata()}
+              {this.renderTabs()}
               {this.renderPreviewAndImages()}
-            </div>
-            <div className="video__row">
-              {this.renderTargeting()}
-              {this.renderUsages()}
-              {this.renderWorkflow()}
             </div>
           </div>
         </div>
@@ -349,8 +400,7 @@ import * as updateFormErrors
   from '../../actions/FormErrorActions/updateFormErrors';
 import * as updateFormWarnings
   from '../../actions/FormErrorActions/updateFormWarnings';
-import * as videoPageUpdate
-  from '../../actions/VideoActions/videoPageUpdate';
+import * as videoPageUpdate from '../../actions/VideoActions/videoPageUpdate';
 
 function mapStateToProps(state) {
   return {

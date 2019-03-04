@@ -1,4 +1,6 @@
 export const formNames = {
   posterImage: 'posterImage',
-  videoData: 'dataForm'
+  videoData: 'dataForm',
+  youtubeData: 'youtubeDataForm',
+  flags: 'flags'
 };
