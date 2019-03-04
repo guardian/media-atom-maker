@@ -1,11 +1,11 @@
 import React from 'react';
-import VideoTrail from './VideoTrail';
+import VideoTrail from '../../components/VideoUpload/VideoTrail';
 import { getStore } from '../../util/storeAccessor';
-import AddAssetFromURL from './AddAssetFromURL';
-import PlutoProjectPicker from '../Pluto/PlutoProjectPicker';
-import AddSelfHostedAsset from './AddSelfHostedAsset';
-import YoutubeUpload from './YoutubeUpload';
-import PACUpload from '../PACUpload/PACUpload';
+import AddAssetFromURL from '../../components/VideoUpload/AddAssetFromURL';
+import PlutoProjectPicker from '../../components/Pluto/PlutoProjectPicker';
+import AddSelfHostedAsset from '../../components/VideoUpload/AddSelfHostedAsset';
+import YoutubeUpload from '../../components/VideoUpload/YoutubeUpload';
+import PACUpload from '../../components/PACUpload/PACUpload';
 
 class VideoUpload extends React.Component {
   hasCategories = () =>
