@@ -3,7 +3,7 @@ import { Router, Route, browserHistory, IndexRedirect, Redirect } from 'react-ro
 
 import Search from './pages/Search';
 import VideoDisplay from './components/Video/Display';
-import VideoUpload from './components/VideoUpload/VideoUpload';
+import Upload from './pages/Upload/';
 import Help from './pages/Help';
 import Training from './pages/Training';
 import ReactApp from './components/ReactApp';
@@ -15,7 +15,7 @@ export const routes = (
       <Route path="/videos" component={Search} />
       <Redirect from="/videos/create" to="/create" />
       <Route path="/videos/:id" component={VideoDisplay} />
-      <Route path="/videos/:id/upload" component={VideoUpload} />
+      <Route path="/videos/:id/upload" component={Upload} />
       <Route path="/create" component={VideoDisplay} mode="create" />
       <Route path="/help" component={Help} />
       <Route path="/training" component={Training} />
