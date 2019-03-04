@@ -5,7 +5,7 @@ import Videos from './components/Videos/Videos';
 import VideoDisplay from './components/Video/Display';
 import VideoUpload from './components/VideoUpload/VideoUpload';
 import Help from './pages/Help';
-import Training from './components/Training/Training';
+import Training from './pages/Training';
 import ReactApp from './components/ReactApp';
 
 export const routes = (

@@ -19,6 +19,6 @@ export default class Training extends React.Component {
           </li>
         </ul>
       </div>
-    )
+    );
   }
 }
