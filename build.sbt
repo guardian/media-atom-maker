@@ -202,7 +202,7 @@ lazy val uploader = (project in file("uploader"))
   )
 
 lazy val integrationTests = (project in file("integration-tests"))
-  .dependsOn(common)
+  .dependsOn(common % "compile->compile;test->test")
   .settings(commonSettings,
     name := "integration-tests",
     logBuffered in Test := false,
