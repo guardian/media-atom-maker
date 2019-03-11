@@ -22,10 +22,16 @@ import VideoUtils from '../../util/video';
 import ContentChangeDetails from '../../components/ContentChangeDetails';
 import Flags from '../../components/Flags';
 import DurationReset from '../../components/DurationReset';
+import EditSaveCancel from '../../components/EditSaveCancel';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 
 class VideoDisplay extends React.Component {
+  state = {
+    editingFurniture: false,
+    editingYoutubeData: false
+  };
+
   componentWillMount() {
     if (this.props.route.mode === 'create') {
       this.props.videoActions.updateVideo(blankVideoData);
@@ -149,38 +155,42 @@ class VideoDisplay extends React.Component {
     }
   };
 
-  renderVideoDataEditButton = () => {
-    if (this.props && this.props.videoEditOpen) {
-      return (
-        <button
-          disabled={this.cannotCloseEditForm()}
-          onClick={() => this.manageEditingState()}
-        >
-          <Icon
-            className={
-              'icon__done ' + (this.cannotCloseEditForm() ? 'disabled' : '')
-            }
-            icon="save"
-          >
-            Save changes
-          </Icon>
-        </button>
-      );
-    } else {
-      return (
-        <button
-          disabled={this.props.videoEditOpen}
-          onClick={() => this.manageEditingState()}
-        >
-          <Icon
-            className={
-              'icon__edit ' + (this.props.videoEditOpen ? 'disabled' : '')
-            }
-            icon="edit"
-          />
-        </button>
-      );
-    }
+  setEditingFurniture(editing) {
+    this.setState({ editingFurniture: editing });
+    this.props.videoActions.updateVideoEditState(editing);
+  }
+
+  renderFurnitureEditButton = ({ video }) => {
+    return (
+      <EditSaveCancel
+        onEdit={() => this.setEditingFurniture(true)}
+        onCancel={() => this.setEditingFurniture(false)}
+        onSave={() => {
+          this.setEditingFurniture(false);
+          this.saveAndUpdateVideo(video);
+        }}
+        canSave={() => !this.cannotCloseEditForm()}
+      />
+    );
+  };
+
+  setEditingYoutubeData(editing) {
+    this.setState({ editingYoutubeData: editing });
+    this.props.videoActions.updateVideoEditState(editing);
+  }
+
+  renderYoutubeEditButton = ({ video }) => {
+    return (
+      <EditSaveCancel
+        onEdit={() => this.setEditingYoutubeData(true)}
+        onCancel={() => this.setEditingYoutubeData(false)}
+        onSave={() => {
+          this.setEditingYoutubeData(false);
+          this.saveAndUpdateVideo(video);
+        }}
+        canSave={() => true}
+      />
+    );
   };
 
   renderPreview = () => {
@@ -228,16 +238,14 @@ class VideoDisplay extends React.Component {
     );
   }
 
-  renderSelectBar(video) {
-    const videoToSelect = isVideoPublished(this.props.video)
-      ? this.props.publishedVideo
-      : this.props.video;
+  renderSelectBar({ video, publishedVideo, config: { embeddedMode } }) {
+    const videoToSelect = isVideoPublished(video) ? publishedVideo : video;
 
     return (
       <VideoSelectBar
         video={videoToSelect}
         onSelectVideo={this.selectVideo}
-        embeddedMode={this.props.config.embeddedMode}
+        embeddedMode={embeddedMode}
       />
     );
   }
@@ -270,19 +278,30 @@ class VideoDisplay extends React.Component {
 
   renderVideoData() {
     return (
-      <div>
-        <VideoData
-          video={this.props.video || {}}
-          updateVideo={this.updateVideo}
-          editable={this.props.videoEditOpen}
-          formName={formNames.videoData}
-          updateErrors={this.props.formErrorActions.updateFormErrors}
-          updateWarnings={this.props.formErrorActions.updateFormWarnings}
-          validateKeywords={this.validateKeywords}
-          composerKeywordsToYouTube={this.composerKeywordsToYouTube}
-          canonicalVideoPageExists={canonicalVideoPageExists(this.props.usages)}
-        />
-      </div>
+      <VideoData
+        video={this.props.video || {}}
+        updateVideo={this.updateVideo}
+        editable={this.props.videoEditOpen}
+        formName={formNames.videoData}
+        updateErrors={this.props.formErrorActions.updateFormErrors}
+        updateWarnings={this.props.formErrorActions.updateFormWarnings}
+        validateKeywords={this.validateKeywords}
+        composerKeywordsToYouTube={this.composerKeywordsToYouTube}
+        canonicalVideoPageExists={canonicalVideoPageExists(this.props.usages)}
+      />
+    );
+  }
+
+  renderFlags() {
+    return (
+      <Flags
+        video={this.props.video || {}}
+        updateVideo={this.updateVideo}
+        editable={this.props.videoEditOpen}
+        formName={formNames.flags}
+        updateErrors={this.props.formErrorActions.updateFormErrors}
+        updateWarnings={this.props.formErrorActions.updateFormWarnings}
+      />
     );
   }
 
@@ -291,7 +310,7 @@ class VideoDisplay extends React.Component {
       <YoutubeData
         video={this.props.video || {}}
         updateVideo={this.updateVideo}
-        editable={this.props.videoEditOpen}
+        editable={this.state.editingYoutubeData}
         formName={formNames.youtubeData}
         updateErrors={this.props.formErrorActions.updateFormErrors}
         updateWarnings={this.props.formErrorActions.updateFormWarnings}
@@ -311,14 +330,6 @@ class VideoDisplay extends React.Component {
           video={this.props.video || {}}
           editable={this.props.videoEditOpen}
         />
-        <Flags
-          video={this.props.video || {}}
-          updateVideo={this.updateVideo}
-          editable={this.props.videoEditOpen}
-          formName={formNames.flags}
-          updateErrors={this.props.formErrorActions.updateFormErrors}
-          updateWarnings={this.props.formErrorActions.updateFormWarnings}
-        />
         {this.renderWorkflow(this.props)}
       </div>
     );
@@ -326,33 +337,33 @@ class VideoDisplay extends React.Component {
 
   renderTabs() {
     return (
-      <div className="video__detailbox">
-        <Tabs>
-          <TabList>
-            <Tab>Video Data</Tab>
-            <Tab>YouTube Data</Tab>
-            <Tab>Management</Tab>
-            <Tab>Usages</Tab>
-            <Tab>Targeting</Tab>
-          </TabList>
-          <TabPanel>
-            {this.renderVideoDataEditButton()}
-            {this.renderVideoData()}
-          </TabPanel>
-          <TabPanel>
-            {this.renderYoutubeData()}
-          </TabPanel>
-          <TabPanel>
-            {this.renderManagement()}
-          </TabPanel>
-          <TabPanel>
-            {this.renderUsages(this.props)}
-          </TabPanel>
-          <TabPanel>
-            {this.renderTargeting(this.props)}
-          </TabPanel>
-        </Tabs>
-      </div>
+      <Tabs className="video__detailbox">
+        <TabList>
+          <Tab disabled={this.state.editingYoutubeData}>Furniture</Tab>
+          <Tab disabled={this.state.editingFurniture}>YouTube Furniture</Tab>
+          <Tab disabled={!this.props.video.id || this.state.editingFurniture || this.state.editingYoutubeData}>Management</Tab>
+          <Tab disabled={!this.props.video.id || this.state.editingFurniture || this.state.editingYoutubeData}>Usages</Tab>
+          <Tab disabled={!this.props.video.id || this.state.editingFurniture || this.state.editingYoutubeData}>Targeting</Tab>
+        </TabList>
+        <TabPanel>
+          {this.renderFurnitureEditButton(this.props)}
+          {this.renderVideoData()}
+          {this.renderFlags()}
+        </TabPanel>
+        <TabPanel>
+          {this.renderYoutubeEditButton(this.props)}
+          {this.renderYoutubeData()}
+        </TabPanel>
+        <TabPanel>
+          {this.renderManagement()}
+        </TabPanel>
+        <TabPanel>
+          {this.renderUsages(this.props)}
+        </TabPanel>
+        <TabPanel>
+          {this.renderTargeting(this.props)}
+        </TabPanel>
+      </Tabs>
     );
   }
 
@@ -368,7 +379,7 @@ class VideoDisplay extends React.Component {
 
     return (
       <div>
-        {this.renderSelectBar(video)}
+        {this.renderSelectBar(this.props)}
 
         <div className="video">
           <div className="video__main">
