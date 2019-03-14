@@ -62,16 +62,6 @@ class Workflow extends React.Component {
     });
   }
 
-  manageEditingState({ editing, save = false }) {
-    if (save) {
-      this.saveInWorkflow();
-    } else {
-      this.props.workflowActions.getStatus(this.props.video);
-    }
-
-    this.setState({ editing: editing });
-  }
-
   renderViewInWorkflowLink() {
     if (this.props.workflow.status.isTrackedInWorkflow) {
       return (
@@ -85,55 +75,19 @@ class Workflow extends React.Component {
     }
   }
 
-  renderFormButtons() {
-    if (!this.state.editing) {
-      return (
-        <span>
-          {this.renderViewInWorkflowLink()}
-          <button onClick={() => this.manageEditingState({editing: true})}>
-            <Icon icon="edit" className="icon__edit"/>
-          </button>
-        </span>
-      );
-    } else {
-      const canSave = this.props.workflow.status.section && this.props.workflow.status.status;
-
-      return (
-        <span>
-          <button
-            onClick={() => this.manageEditingState({editing: false, save: true})}
-            disabled={!canSave}
-          >
-            <Icon icon="save" className={`icon__done ${canSave ? '' : 'disabled'}`}>
-              Save changes
-            </Icon>
-          </button>
-          <button onClick={() => this.manageEditingState({editing: false})}>
-            <Icon icon="cancel" className="icon__cancel">Cancel</Icon>
-          </button>
-        </span>
-      );
-    }
-  }
-
   render() {
     return (
-      <div className="video__detailbox">
-        <div className="video__detailbox__header__container">
-          <header className="video__detailbox__header">Workflow</header>
-          {this.renderFormButtons()}
-        </div>
-        <div className="form__group">
-          <WorkflowForm
-            editable={this.state.editing}
-            video={this.props.video || {}}
-            workflowSections={this.props.workflow.sections || []}
-            workflowStatuses={this.props.workflow.statuses || []}
-            workflowPriorities={this.props.workflow.priorities}
-            workflowStatus={this.props.workflow.status}
-            updateData={this.updateLocalData}
-          />
-        </div>
+      <div>
+        {this.renderViewInWorkflowLink()}
+        <WorkflowForm
+          editable={this.props.editable}
+          video={this.props.video || {}}
+          workflowSections={this.props.workflow.sections || []}
+          workflowStatuses={this.props.workflow.statuses || []}
+          workflowPriorities={this.props.workflow.priorities}
+          workflowStatus={this.props.workflow.status}
+          updateData={this.updateLocalData}
+        />
       </div>
     );
   }

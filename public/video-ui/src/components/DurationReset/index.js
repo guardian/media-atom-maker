@@ -4,9 +4,9 @@ import Icon from '../Icon';
 
 class DurationReset extends React.Component {
   render() {
-    const { video, updateVideo, editable } = this.props;
+    const { video, updateVideo } = this.props;
 
-    if (!video || !video.id || editable) {
+    if (!video || !video.id) {
       return null;
     }
 

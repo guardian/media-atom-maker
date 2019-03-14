@@ -28,7 +28,7 @@ class ContentChangeDetails extends React.Component {
   };
 
   render() {
-    const { video, updateVideo } = this.props;
+    const { video } = this.props;
 
     if (!video || !video.id) {
       return null;
@@ -36,7 +36,7 @@ class ContentChangeDetails extends React.Component {
 
     return (
       <div className="form__group">
-        <ManagedForm updateData={updateVideo}>
+        <ManagedForm updateData={() => console.log()}>
           {this.getCreatedByField(video)}
           {this.getModifiedByField(video)}
         </ManagedForm>

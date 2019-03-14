@@ -350,22 +350,6 @@ export default class TagPicker extends React.Component {
     }
   }
 
-  renderCopyButton() {
-    if (this.props.updateSideEffects) {
-      return (
-        <button
-          type="button"
-          className="btn form__label__button"
-          onClick={this.props.updateSideEffects}
-          data-tip="Copy composer keywords to youtube keywords"
-          data-place="top"
-        >
-          <i className="icon">edit</i>
-        </button>
-      );
-    }
-  }
-
   render() {
 
     const hasWarning = this.props.hasWarning(this.props) && this.state.capiTags.length === 0;
@@ -402,7 +386,6 @@ export default class TagPicker extends React.Component {
         <div className="form__label__layout">
           <label className="form__label">{this.props.fieldName}</label>
           {this.renderBylineInstructions()}
-          {this.renderCopyButton()}
           {this.renderCharCount()}
         </div>
 
