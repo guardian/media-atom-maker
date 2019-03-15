@@ -10,7 +10,6 @@ import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 import { isVideoPublished } from '../../util/isVideoPublished';
 import VideoUtils from '../../util/video';
 import { Tabs, TabList } from 'react-tabs';
-import 'react-tabs/style/react-tabs.css';
 import { FurnitureTab, FurnitureTabPanel } from './tabs/Furniture';
 import { WorkflowTab, WorkflowTabPanel } from './tabs/Workflow';
 import {

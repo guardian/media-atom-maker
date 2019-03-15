@@ -1,0 +1,31 @@
+.react-tabs__tab-list {
+  border-bottom: 1px solid #aaa;
+  margin: 0 0 10px;
+  padding: 0;
+}
+
+.react-tabs__tab {
+  display: inline-block;
+  border: 1px solid $color600Grey;
+  border-bottom: 3px solid transparent;
+  position: relative;
+  list-style: none;
+  padding: 6px 12px;
+  cursor: pointer;
+
+  &:nth-child(2) {
+    border-left: none;
+    border-right: none;
+  }
+
+  &--selected {
+    background-color: $color600Grey;
+    border-bottom: 3px solid $brandColor;
+    color: $color100Grey;
+  }
+
+  &--disabled {
+    color: $color600Grey;
+    cursor: default;
+  }
+}
