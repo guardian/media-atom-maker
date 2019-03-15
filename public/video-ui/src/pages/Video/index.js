@@ -9,12 +9,9 @@ import Workflow from '../../components/Workflow/Workflow';
 import Targeting from '../../components/Targeting/Targeting';
 import Icon from '../../components/Icon';
 import { formNames } from '../../constants/formNames';
-import FieldNotification from '../../constants/FieldNotification';
 import ReactTooltip from 'react-tooltip';
 import { blankVideoData } from '../../constants/blankVideoData';
 import KeywordsApi from '../../services/KeywordsApi';
-import YouTubeKeywords from '../../constants/youTubeKeywords';
-import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 import { isVideoPublished } from '../../util/isVideoPublished';
 import VideoUtils from '../../util/video';
@@ -93,22 +90,6 @@ class VideoDisplay extends React.Component {
       const value = errors[field];
       return value !== null;
     });
-  };
-
-  validateYouTubeKeywords = youTubeKeywords => {
-    const charLimit = YouTubeKeywords.maxCharacters;
-    const numberOfChars = getYouTubeTagCharCount(youTubeKeywords);
-
-    if (numberOfChars > charLimit) {
-
-      return new FieldNotification(
-        'required',
-        `Maximum characters allowed in YouTube keywords is ${charLimit}.`,
-        FieldNotification.error
-      );
-    }
-
-    return null;
   };
 
   handleAssetClick = e => {
@@ -228,7 +209,6 @@ class VideoDisplay extends React.Component {
           formName={formNames.videoData}
           updateErrors={this.props.formErrorActions.updateFormErrors}
           updateWarnings={this.props.formErrorActions.updateFormWarnings}
-          validateYouTubeKeywords={this.validateYouTubeKeywords}
           composerKeywordsToYouTube={this.composerKeywordsToYouTube}
           canonicalVideoPageExists={canonicalVideoPageExists(this.props.usages)}
         />
