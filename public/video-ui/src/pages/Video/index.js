@@ -4,20 +4,28 @@ import VideoSelectBar from '../../components/VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../../components/VideoPreview/VideoPreview';
 import VideoImages from '../../components/VideoImages/VideoImages';
 import VideoUsages from '../../components/VideoUsages/VideoUsages';
-import VideoData from '../../components/VideoData/VideoData';
 import Workflow from '../../components/Workflow/Workflow';
 import Targeting from '../../components/Targeting/Targeting';
 import Icon from '../../components/Icon';
-import { formNames } from '../../constants/formNames';
-import FieldNotification from '../../constants/FieldNotification';
 import ReactTooltip from 'react-tooltip';
 import { blankVideoData } from '../../constants/blankVideoData';
-import KeywordsApi from '../../services/KeywordsApi';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 import { isVideoPublished } from '../../util/isVideoPublished';
 import VideoUtils from '../../util/video';
+import { Tabs, TabList } from 'react-tabs';
+import { FurnitureTab, FurnitureTabPanel } from './tabs/Furniture';
+import {
+  YoutubeFurnitureTab,
+  YoutubeFurnitureTabPanel
+} from './tabs/YoutubeFurniture';
+import {ManagementTab, ManagementTabPanel} from "./tabs/Management";
 
 class VideoDisplay extends React.Component {
+  state = {
+    editingFurniture: false,
+    editingYoutubeData: false
+  };
+
   componentWillMount() {
     if (this.props.route.mode === 'create') {
       this.props.videoActions.updateVideo(blankVideoData);
@@ -44,115 +52,13 @@ class VideoDisplay extends React.Component {
     return Promise.resolve();
   };
 
-  composerKeywordsToYouTube = () => {
-
-    return Promise.all(this.props.video.keywords.map(keyword => KeywordsApi.composerTagToYouTube(keyword)))
-    .then(youTubeKeywords => {
-
-      const oldTags = this.props.video.tags;
-      const keywordsToCopy = youTubeKeywords.reduce((tagsAdded, keyword) => {
-        const allAddedTags = oldTags.concat(tagsAdded);
-        if (keyword !== '' &&
-          allAddedTags.every(oldTag => oldTag !== keyword)
-        ) {
-          tagsAdded.push(keyword);
-        }
-        return tagsAdded;
-      }, []);
-      const newVideo = Object.assign({}, this.props.video, { tags: oldTags.concat(keywordsToCopy)});
-
-      this.updateVideo(newVideo);
-    });
-  };
-
   selectVideo = () => {
     window.parent.postMessage({ atomId: this.props.video.id }, '*');
-  };
-
-  manageEditingState = () => {
-    if (this.props.videoEditOpen) {
-      this.saveAndUpdateVideo(this.props.video);
-    }
-
-    this.props.videoActions.updateVideoEditState(!this.props.videoEditOpen);
-  };
-
-  cannotEditStatus = () => {
-    return this.props.video.expiryDate <= Date.now();
-  };
-
-  cannotCloseEditForm = () => {
-    const formName = formNames.videoData;
-
-    const errors = this.props.checkedFormFields[formName]
-      ? this.props.checkedFormFields[formName]
-      : {};
-    return Object.keys(errors).some(field => {
-      const value = errors[field];
-      return value !== null;
-    });
-  };
-
-  validateKeywords = keywords => {
-    if (!Array.isArray(keywords) ||
-        keywords.length === 0 ||
-        keywords.every(keyword => {
-          return keyword.match(/^tone/);
-        })
-       ) {
-        if (canonicalVideoPageExists(this.props.usages)) {
-          return new FieldNotification(
-            'error',
-            'A series or a keyword tag is required for updating composer pages',
-            FieldNotification.error
-          );
-        }
-        return new FieldNotification(
-          'desired',
-          'A series or a keyword tag is required for creating composer pages',
-          FieldNotification.warning
-        );
-    }
-    return null;
   };
 
   handleAssetClick = e => {
     if (this.props.videoEditOpen) {
       e.preventDefault();
-    }
-  };
-
-  renderEditButton = () => {
-    if (this.props && this.props.videoEditOpen) {
-      return (
-        <button
-          disabled={this.cannotCloseEditForm()}
-          onClick={() => this.manageEditingState()}
-        >
-          <Icon
-            className={
-              'icon__done ' + (this.cannotCloseEditForm() ? 'disabled' : '')
-            }
-            icon="save"
-          >
-            Save changes
-          </Icon>
-        </button>
-      );
-    } else {
-      return (
-        <button
-          disabled={this.props.videoEditOpen}
-          onClick={() => this.manageEditingState()}
-        >
-          <Icon
-            className={
-              'icon__edit ' + (this.props.videoEditOpen ? 'disabled' : '')
-            }
-            icon="edit"
-          />
-        </button>
-      );
     }
   };
 
@@ -217,27 +123,58 @@ class VideoDisplay extends React.Component {
     );
   }
 
-  renderMetadata() {
+  updateEditingState({ key, editing, saving = false }) {
+    this.setState({[key]: editing});
+    this.props.videoActions.updateVideoEditState(editing);
+
+    if (saving) {
+      this.saveAndUpdateVideo(this.props.video);
+    }
+  }
+
+  renderTabs() {
+    const { videoEditOpen, video } = this.props;
+
+    const {
+      editingFurniture,
+      editingYoutubeData
+    } = this.state;
+
+    const furnitureDisabled = videoEditOpen && editingYoutubeData;
+    const ytFurnitureDisabled = videoEditOpen && editingFurniture;
+
     return (
-      <div className="video__detailbox">
-        <div className="video__detailbox__header__container">
-          <header className="video__detailbox__header">
-            Video Data
-          </header>
-          {this.renderEditButton()}
-        </div>
-        <VideoData
-          video={this.props.video || {}}
+      <Tabs className="video__detailbox">
+        <TabList>
+          <FurnitureTab disabled={furnitureDisabled}/>
+          <YoutubeFurnitureTab disabled={ytFurnitureDisabled}/>
+          <ManagementTab disabled={videoEditOpen}/>
+        </TabList>
+        <FurnitureTabPanel
+          editing={editingFurniture}
+          onEdit={() => this.updateEditingState({key: 'editingFurniture', editing: true})}
+          onCancel={() => this.updateEditingState({key: 'editingFurniture', editing: false})}
+          onSave={() =>
+            this.updateEditingState({key: 'editingFurniture', editing: false, saving: true})}
+          video={video}
           updateVideo={this.updateVideo}
-          editable={this.props.videoEditOpen}
-          formName={formNames.videoData}
           updateErrors={this.props.formErrorActions.updateFormErrors}
           updateWarnings={this.props.formErrorActions.updateFormWarnings}
-          validateKeywords={this.validateKeywords}
-          composerKeywordsToYouTube={this.composerKeywordsToYouTube}
           canonicalVideoPageExists={canonicalVideoPageExists(this.props.usages)}
         />
-      </div>
+        <YoutubeFurnitureTabPanel
+          editing={editingYoutubeData}
+          onEdit={() => this.updateEditingState({key: 'editingYoutubeData', editing: true})}
+          onCancel={() => this.updateEditingState({key: 'editingYoutubeData', editing: false})}
+          onSave={() =>
+            this.updateEditingState({key: 'editingYoutubeData', editing: false, saving: true})}
+          video={video}
+          updateVideo={this.updateVideo}
+          updateErrors={this.props.formErrorActions.updateFormErrors}
+          updateWarnings={this.props.formErrorActions.updateFormWarnings}
+        />
+        <ManagementTabPanel video={video} updateVideo={this.updateVideo}/>
+      </Tabs>
     );
   }
 
@@ -298,7 +235,7 @@ class VideoDisplay extends React.Component {
         <div className="video">
           <div className="video__main">
             <div className="video__row">
-              {this.renderMetadata()}
+              {this.renderTabs()}
               {this.renderPreviewAndImages()}
             </div>
             <div className="video__row">
