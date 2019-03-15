@@ -13,8 +13,6 @@ import FieldNotification from '../../constants/FieldNotification';
 import ReactTooltip from 'react-tooltip';
 import { blankVideoData } from '../../constants/blankVideoData';
 import KeywordsApi from '../../services/KeywordsApi';
-import YouTubeKeywords from '../../constants/youTubeKeywords';
-import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 import { isVideoPublished } from '../../util/isVideoPublished';
 import VideoUtils from '../../util/video';
@@ -115,22 +113,6 @@ class VideoDisplay extends React.Component {
           FieldNotification.warning
         );
     }
-    return null;
-  };
-
-  validateYouTubeKeywords = youTubeKeywords => {
-    const charLimit = YouTubeKeywords.maxCharacters;
-    const numberOfChars = getYouTubeTagCharCount(youTubeKeywords);
-
-    if (numberOfChars > charLimit) {
-
-      return new FieldNotification(
-        'required',
-        `Maximum characters allowed in YouTube keywords is ${charLimit}.`,
-        FieldNotification.error
-      );
-    }
-
     return null;
   };
 
@@ -252,7 +234,6 @@ class VideoDisplay extends React.Component {
           updateErrors={this.props.formErrorActions.updateFormErrors}
           updateWarnings={this.props.formErrorActions.updateFormWarnings}
           validateKeywords={this.validateKeywords}
-          validateYouTubeKeywords={this.validateYouTubeKeywords}
           composerKeywordsToYouTube={this.composerKeywordsToYouTube}
           canonicalVideoPageExists={canonicalVideoPageExists(this.props.usages)}
         />
