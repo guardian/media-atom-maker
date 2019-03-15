@@ -4,32 +4,17 @@ import Icon from '../Icon';
 
 class EditSaveCancel extends React.Component {
   static propTypes = {
+    editing: PropTypes.bool.isRequired,
     onEdit: PropTypes.func.isRequired,
     onSave: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
     canSave: PropTypes.func.isRequired,
+    canCancel: PropTypes.func.isRequired
   };
-
-  state = {
-    editing: false
-  };
-
-  updateEditingState({ editing, save }) {
-    this.setState({editing: editing});
-    this.props.onEdit(editing);
-
-    if (!editing) {
-      if (save) {
-        this.props.onSave();
-      } else {
-        this.props.onCancel();
-      }
-    }
-  }
 
   renderEditButton() {
     return (
-      <button onClick={() => this.updateEditingState({ editing: true })}>
+      <button onClick={this.props.onEdit}>
         <Icon icon="edit" className="icon__edit">
           Edit
         </Icon>
@@ -39,10 +24,11 @@ class EditSaveCancel extends React.Component {
 
   renderSaveButton() {
     return (
-      <button
-        onClick={() => this.updateEditingState({editing: false, save: true})}
-        disabled={!this.props.canSave()}>
-        <Icon icon="save" className={`icon__done ${this.props.canSave() ? '' : 'disabled'}`}>
+      <button onClick={this.props.onSave} disabled={!this.props.canSave()}>
+        <Icon
+          icon="save"
+          className={`icon__done ${this.props.canSave() ? '' : 'disabled'}`}
+        >
           Save changes
         </Icon>
       </button>
@@ -51,14 +37,19 @@ class EditSaveCancel extends React.Component {
 
   renderCancelButton() {
     return (
-      <button onClick={() => this.updateEditingState({editing: false, save: false})}>
-        <Icon icon="cancel" className="icon__cancel">Cancel</Icon>
+      <button onClick={this.props.onCancel}>
+        <Icon
+          icon="cancel"
+          className={`icon__cancel ${this.props.canCancel() ? '' : 'disabled'}`}
+        >
+          Cancel
+        </Icon>
       </button>
     );
   }
 
   render() {
-    const { editing } = this.state;
+    const { editing } = this.props;
 
     if (editing) {
       return (

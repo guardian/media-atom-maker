@@ -44,10 +44,12 @@ export class WorkflowTabPanel extends React.Component {
     return (
       <TabPanel {...rest}>
         <EditSaveCancel
+          editing={editing}
           onEdit={onEdit}
           onSave={onSave}
           onCancel={onCancel}
-          canSave={() => canSave}
+          canSave={() => canSave || false}
+          canCancel={() => true}
         />
         <Workflow video={video} editable={editing} />
       </TabPanel>

@@ -55,10 +55,6 @@ class YoutubeFurniture extends React.Component {
       updateWarnings,
     } = this.props;
 
-    if (!video || !video.id) {
-      return;
-    }
-
     const { categories } = this.props.youtube;
 
     const isYoutubeAtom = VideoUtils.isYoutube(video);

@@ -73,10 +73,12 @@ export class FurnitureTabPanel extends React.Component {
     return (
       <TabPanel {...rest}>
         <EditSaveCancel
+          editing={editing}
           onEdit={onEdit}
           onSave={onSave}
           onCancel={onCancel}
           canSave={() => true}
+          canCancel={() => !!video.id}
         />
 
         <VideoData

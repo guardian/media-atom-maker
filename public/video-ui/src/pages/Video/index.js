@@ -28,9 +28,12 @@ class VideoDisplay extends React.Component {
   };
 
   componentWillMount() {
-    if (this.props.route.mode === 'create') {
+    const isCreateMode = this.props.route.mode === 'create';
+
+    if (isCreateMode) {
       this.props.videoActions.updateVideo(blankVideoData);
       this.props.videoActions.updateVideoEditState(true);
+      this.updateEditingState({key: 'editingFurniture', editing: true});
     } else {
       this.props.videoActions.getVideo(this.props.params.id);
       this.props.videoActions.getUsages(this.props.params.id);
@@ -162,21 +165,22 @@ class VideoDisplay extends React.Component {
     const furnitureDisabled = videoEditOpen && (editingYoutubeData || editingWorkflow);
     const ytFurnitureDisabled = videoEditOpen && (editingFurniture || editingWorkflow);
     const workflowDisabled = videoEditOpen && (editingFurniture || editingYoutubeData);
+    const isCreateMode = this.props.route.mode === 'create';
 
     return (
       <Tabs className="video__detailbox">
         <TabList>
           <FurnitureTab disabled={furnitureDisabled}/>
           <YoutubeFurnitureTab disabled={ytFurnitureDisabled}/>
-          <WorkflowTab disabled={workflowDisabled} />
-          <UsageTab disabled={videoEditOpen} />
-          <TargetingTab disabled={videoEditOpen} />
-          <ManagementTab disabled={videoEditOpen}/>
+          <WorkflowTab disabled={workflowDisabled || isCreateMode} />
+          <UsageTab disabled={videoEditOpen || isCreateMode} />
+          <TargetingTab disabled={videoEditOpen || isCreateMode} />
+          <ManagementTab disabled={videoEditOpen || isCreateMode}/>
         </TabList>
         <FurnitureTabPanel
           editing={editingFurniture}
           onEdit={() => this.updateEditingState({key: 'editingFurniture', editing: true})}
-          onCancel={() => this.updateEditingState({key: 'editingFurniture', editing: false})}
+          onCancel={() => !isCreateMode && this.updateEditingState({key: 'editingFurniture', editing: false})}
           onSave={() => {
             this.updateEditingState({key: 'editingFurniture', editing: false});
             this.saveAndUpdateVideo(video);
