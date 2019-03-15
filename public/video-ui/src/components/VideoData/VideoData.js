@@ -62,7 +62,6 @@ class VideoData extends React.Component {
     const isYoutubeAtom = VideoUtils.isYoutube(this.props.video);
     const isCommercialType = VideoUtils.isCommercialType(this.props.video);
     const hasAssets = VideoUtils.hasAssets(this.props.video);
-    const isEligibleForAds = VideoUtils.isEligibleForAds(this.props.video);
     const availableChannels = VideoUtils.getAvailableChannels(this.props.video);
     const availablePrivacyStates = VideoUtils.getAvailablePrivacyStates(this.props.video);
     const hasYoutubeWriteAccess = VideoUtils.hasYoutubeWriteAccess(this.props.video);
@@ -194,50 +193,13 @@ class VideoData extends React.Component {
             >
               <TagPicker disableCapiTags />
             </ManagedField>
-            <ManagedField
-              fieldLocation="blockAds"
-              name="Block ads"
-              fieldDetails={isCommercialType ? 'Block ads on Composer page': 'Ads will not be displayed with this video'}
-              disabled={!isYoutubeAtom || !isEligibleForAds}
-              tooltip={!isEligibleForAds ? `Not eligible for pre-roll.` : ''}
-            >
-              <CheckBox />
-            </ManagedField>
-            <ManagedField
-              fieldLocation="composerCommentsEnabled"
-              name="Comments"
-              fieldDetails="Allow comments on Guardian video page (does not change YouTube)"
-            >
-              <CheckBox />
-            </ManagedField>
-            <ManagedField
-              fieldLocation="optimisedForWeb"
-              name="Optimised for Web"
-              fieldDetails="Optimised for Web"
-            >
-              <CheckBox />
-            </ManagedField>
-            <ManagedField
-              fieldLocation="sensitive"
-              name="Sensitive"
-              fieldDetails="Contains sensitive content"
-            >
-              <CheckBox />
-            </ManagedField>
-            <ManagedField
-              fieldLocation="legallySensitive"
-              name="Legally Sensitive"
-              fieldDetails="This content involves active criminal proceedings"
-            >
-              <CheckBox />
-            </ManagedField>
-            <ManagedField
-              fieldLocation="suppressRelatedContent"
-              name="Suppress related content"
-              fieldDetails="Suppress related content"
-            >
-              <CheckBox />
-            </ManagedField>
+            <Flags
+              video={this.props.video}
+              editable={this.props.editable}
+              updateVideo={this.props.updateVideo}
+              updateErrors={this.props.updateErrors}
+              updateWarnings={this.props.updateWarnings}
+            />
             <ManagedField fieldLocation="duration" name="Video Duration (mm:ss)">
               <DurationInput />
             </ManagedField>
@@ -273,6 +235,7 @@ import { bindActionCreators } from 'redux';
 import * as getCategories from '../../actions/YoutubeActions/getCategories';
 import * as getChannels from '../../actions/YoutubeActions/getChannels';
 import Icon from '../Icon';
+import Flags from "../Flags";
 
 function mapStateToProps(state) {
   return {

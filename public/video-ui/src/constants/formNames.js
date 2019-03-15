@@ -1,4 +1,5 @@
 export const formNames = {
   posterImage: 'posterImage',
-  videoData: 'dataForm'
+  videoData: 'dataForm',
+  flags: 'flags'
 };
