@@ -13,6 +13,7 @@ import { videoCategories } from '../../constants/videoCategories';
 import PrivacyStates from '../../constants/privacyStates';
 import VideoUtils from '../../util/video';
 import VideosApi from '../../services/VideosApi';
+import DurationReset from "../DurationReset";
 
 class VideoData extends React.Component {
   hasCategories = () => this.props.youtube.categories.length !== 0;
@@ -204,23 +205,7 @@ class VideoData extends React.Component {
               <DurationInput />
             </ManagedField>
             {!this.props.editable && (
-              <button
-                title="Refresh video duration from active YouTube video"
-                type="button"
-                disabled={!this.props.video.hasOwnProperty('activeVersion')}
-                data-tip="Refresh video duration from active YouTube video"
-                onClick={() => {
-                  VideosApi.resetDurationFromActive(this.props.video.id).then(video => {
-                    this.props.updateVideo(video);
-                  });
-                }}
-              >
-                <Icon
-                  icon="refresh"
-                  className="icon__edit"
-                  disabled={!this.props.video.hasOwnProperty('activeVersion')}
-                />
-              </button>
+              <DurationReset video={this.props.video} updateVideo={this.props.updateVideo}/>
             )}
           </ManagedSection>
         </ManagedForm>
