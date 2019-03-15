@@ -6,7 +6,7 @@ import { ManagedSection } from './ManagedSection';
 export class ManagedForm extends React.Component {
   static propTypes = {
     data: PropTypes.object,
-    updateData: PropTypes.func.isRequired,
+    updateData: PropTypes.func,
     children: PropTypes.oneOfType([
       PropTypes.element,
       PropTypes.arrayOf(PropTypes.element)
