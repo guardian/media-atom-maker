@@ -3,7 +3,6 @@ import { Link } from 'react-router';
 import VideoSelectBar from '../../components/VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../../components/VideoPreview/VideoPreview';
 import VideoImages from '../../components/VideoImages/VideoImages';
-import Targeting from '../../components/Targeting/Targeting';
 import Icon from '../../components/Icon';
 import ReactTooltip from 'react-tooltip';
 import { blankVideoData } from '../../constants/blankVideoData';
@@ -19,6 +18,7 @@ import {
 import {ManagementTab, ManagementTabPanel} from "./tabs/Management";
 import { WorkflowTab, WorkflowTabPanel } from './tabs/Workflow';
 import { UsageTab, UsageTabPanel } from './tabs/Usage';
+import { TargetingTab, TargetingTabPanel } from './tabs/Targeting';
 
 class VideoDisplay extends React.Component {
   state = {
@@ -170,6 +170,7 @@ class VideoDisplay extends React.Component {
           <YoutubeFurnitureTab disabled={ytFurnitureDisabled}/>
           <WorkflowTab disabled={workflowDisabled} />
           <UsageTab disabled={videoEditOpen} />
+          <TargetingTab disabled={videoEditOpen} />
           <ManagementTab disabled={videoEditOpen}/>
         </TabList>
         <FurnitureTabPanel
@@ -215,21 +216,9 @@ class VideoDisplay extends React.Component {
           publishedVideo={publishedVideo || {}}
           usages={usages || {}}
         />
+        <TargetingTabPanel video={video} />
         <ManagementTabPanel video={video} updateVideo={this.updateVideo}/>
       </Tabs>
-    );
-  }
-
-  renderTargeting() {
-    return (
-      <div className="video__detailbox">
-        <div className="video__detailbox__header__container">
-          <header className="video__detailbox__header">Suggest this Video</header>
-        </div>
-        <div className="form__group">
-          <Targeting video={this.props.video || {}} />
-        </div>
-      </div>
     );
   }
 
@@ -252,9 +241,6 @@ class VideoDisplay extends React.Component {
             <div className="video__row">
               {this.renderTabs()}
               {this.renderPreviewAndImages()}
-            </div>
-            <div className="video__row">
-              {this.renderTargeting()}
             </div>
           </div>
         </div>
