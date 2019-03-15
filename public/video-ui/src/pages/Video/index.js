@@ -3,7 +3,6 @@ import { Link } from 'react-router';
 import VideoSelectBar from '../../components/VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../../components/VideoPreview/VideoPreview';
 import VideoImages from '../../components/VideoImages/VideoImages';
-import VideoUsages from '../../components/VideoUsages/VideoUsages';
 import Targeting from '../../components/Targeting/Targeting';
 import Icon from '../../components/Icon';
 import ReactTooltip from 'react-tooltip';
@@ -19,6 +18,7 @@ import {
 } from './tabs/YoutubeFurniture';
 import {ManagementTab, ManagementTabPanel} from "./tabs/Management";
 import { WorkflowTab, WorkflowTabPanel } from './tabs/Workflow';
+import { UsageTab, UsageTabPanel } from './tabs/Usage';
 
 class VideoDisplay extends React.Component {
   state = {
@@ -151,7 +151,7 @@ class VideoDisplay extends React.Component {
   }
 
   renderTabs() {
-    const { videoEditOpen, video, workflow } = this.props;
+    const { videoEditOpen, video, workflow, publishedVideo, usages } = this.props;
 
     const {
       editingFurniture,
@@ -169,6 +169,7 @@ class VideoDisplay extends React.Component {
           <FurnitureTab disabled={furnitureDisabled}/>
           <YoutubeFurnitureTab disabled={ytFurnitureDisabled}/>
           <WorkflowTab disabled={workflowDisabled} />
+          <UsageTab disabled={videoEditOpen} />
           <ManagementTab disabled={videoEditOpen}/>
         </TabList>
         <FurnitureTabPanel
@@ -177,7 +178,7 @@ class VideoDisplay extends React.Component {
           onCancel={() => this.updateEditingState({key: 'editingFurniture', editing: false})}
           onSave={() => {
             this.updateEditingState({key: 'editingFurniture', editing: false});
-            this.saveAndUpdateVideo(this.props.video);
+            this.saveAndUpdateVideo(video);
           }}
           video={video}
           updateVideo={this.updateVideo}
@@ -191,7 +192,7 @@ class VideoDisplay extends React.Component {
           onCancel={() => this.updateEditingState({key: 'editingYoutubeData', editing: false})}
           onSave={() => {
             this.updateEditingState({key: 'editingYoutubeData', editing: false});
-            this.saveAndUpdateVideo(this.props.video);
+            this.saveAndUpdateVideo(video);
           }}
           video={video}
           updateVideo={this.updateVideo}
@@ -209,28 +210,14 @@ class VideoDisplay extends React.Component {
           video={video}
           workflow={workflow}
         />
+        <UsageTabPanel
+          video={video}
+          publishedVideo={publishedVideo || {}}
+          usages={usages || {}}
+        />
         <ManagementTabPanel video={video} updateVideo={this.updateVideo}/>
       </Tabs>
     );
-  }
-
-  renderUsages() {
-    if (this.props.video && this.props.video.id) {
-      return (
-        <div className="video__detailbox">
-          <div className="video__detailbox__header__container">
-            <header className="video__detailbox__header">Usages</header>
-          </div>
-          <VideoUsages
-              video={this.props.video || {}}
-              publishedVideo={this.props.publishedVideo || {}}
-              usages={this.props.usages || {}}
-          />
-        </div>
-      );
-    } else {
-      return '';
-    }
   }
 
   renderTargeting() {
@@ -268,7 +255,6 @@ class VideoDisplay extends React.Component {
             </div>
             <div className="video__row">
               {this.renderTargeting()}
-              {this.renderUsages()}
             </div>
           </div>
         </div>
