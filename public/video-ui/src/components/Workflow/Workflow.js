@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import WorkflowForm from './WorkflowForm';
 import Icon from '../Icon';
+import EditSaveCancel from '../EditSaveCancel';
 
 class Workflow extends React.Component {
   static propTypes = {
@@ -73,7 +74,7 @@ class Workflow extends React.Component {
   }
 
   renderViewInWorkflowLink() {
-    if (this.props.workflow.status.isTrackedInWorkflow) {
+    if (this.props.workflow.status.isTrackedInWorkflow && !this.state.editing) {
       return (
         <a className="button inline-block"
            target="_blank"
@@ -85,43 +86,21 @@ class Workflow extends React.Component {
     }
   }
 
-  renderFormButtons() {
-    if (!this.state.editing) {
-      return (
-        <span>
-          {this.renderViewInWorkflowLink()}
-          <button onClick={() => this.manageEditingState({editing: true})}>
-            <Icon icon="edit" className="icon__edit"/>
-          </button>
-        </span>
-      );
-    } else {
-      const canSave = this.props.workflow.status.section && this.props.workflow.status.status;
-
-      return (
-        <span>
-          <button
-            onClick={() => this.manageEditingState({editing: false, save: true})}
-            disabled={!canSave}
-          >
-            <Icon icon="save" className={`icon__done ${canSave ? '' : 'disabled'}`}>
-              Save changes
-            </Icon>
-          </button>
-          <button onClick={() => this.manageEditingState({editing: false})}>
-            <Icon icon="cancel" className="icon__cancel">Cancel</Icon>
-          </button>
-        </span>
-      );
-    }
-  }
-
   render() {
+    const canSave = this.props.workflow.status.section && this.props.workflow.status.status;
     return (
       <div className="video__detailbox">
         <div className="video__detailbox__header__container">
           <header className="video__detailbox__header">Workflow</header>
-          {this.renderFormButtons()}
+          <div>
+            {this.renderViewInWorkflowLink()}
+            <EditSaveCancel
+              onEdit={() => this.manageEditingState({editing: true})}
+              onSave={() => this.manageEditingState({editing: false, save: true})}
+              onCancel={() => this.manageEditingState({editing: false})}
+              canSave={() => canSave}
+            />
+          </div>
         </div>
         <div className="form__group">
           <WorkflowForm
