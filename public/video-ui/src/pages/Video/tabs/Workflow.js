@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Tab, TabPanel } from 'react-tabs';
 import EditSaveCancel from '../../../components/EditSaveCancel';
 import Workflow from '../../../components/Workflow/Workflow';
+import WorkflowLink from '../../../components/Workflow/WorkflowLink';
 
 export class WorkflowTab extends React.Component {
   static tabsRole = Tab.tabsRole;
@@ -24,8 +25,9 @@ export class WorkflowTabPanel extends React.Component {
     onEdit: PropTypes.func.isRequired,
     onSave: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
+    canSave: PropTypes.func.isRequired,
     video: PropTypes.object.isRequired,
-    workflow: PropTypes.object.isRequired
+    isTrackedInWorkflow: PropTypes.bool.isRequired
   };
 
   render() {
@@ -34,12 +36,11 @@ export class WorkflowTabPanel extends React.Component {
       onEdit,
       onSave,
       onCancel,
+      canSave,
       video,
-      workflow,
+      isTrackedInWorkflow,
       ...rest
     } = this.props;
-
-    const canSave = workflow.status.section && workflow.status.status;
 
     return (
       <TabPanel {...rest}>
@@ -48,9 +49,9 @@ export class WorkflowTabPanel extends React.Component {
           onEdit={onEdit}
           onSave={onSave}
           onCancel={onCancel}
-          canSave={() => canSave || false}
-          canCancel={() => true}
+          canSave={canSave}
         />
+        {isTrackedInWorkflow && !editing && <WorkflowLink video={video} />}
         <Workflow video={video} editable={editing} />
       </TabPanel>
     );

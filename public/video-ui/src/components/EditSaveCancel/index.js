@@ -9,7 +9,7 @@ class EditSaveCancel extends React.Component {
     onSave: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
     canSave: PropTypes.func.isRequired,
-    canCancel: PropTypes.func.isRequired
+    canCancel: PropTypes.func
   };
 
   renderEditButton() {
@@ -36,11 +36,13 @@ class EditSaveCancel extends React.Component {
   }
 
   renderCancelButton() {
+    const { canCancel, onCancel } = this.props;
+
     return (
-      <button onClick={this.props.onCancel}>
+      <button onClick={onCancel}>
         <Icon
           icon="cancel"
-          className={`icon__cancel ${this.props.canCancel() ? '' : 'disabled'}`}
+          className={`icon__cancel ${canCancel ? (canCancel() ? '' : 'disabled') : ''}`}
         >
           Cancel
         </Icon>

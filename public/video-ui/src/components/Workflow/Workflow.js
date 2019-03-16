@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import WorkflowForm from './WorkflowForm';
-import Icon from '../Icon';
 
 class Workflow extends React.Component {
   static propTypes = {
@@ -34,35 +33,19 @@ class Workflow extends React.Component {
     return Promise.resolve(e);
   };
 
-  renderViewInWorkflowLink() {
-    if (this.props.workflow.status.isTrackedInWorkflow && !this.props.editable) {
-      return (
-        <a className="button inline-block"
-           target="_blank"
-           rel="noopener noreferrer"
-           href={WorkflowApi.workflowItemLink(this.props.video)}>
-          <Icon icon="open_in_new" className="icon__edit"/>
-        </a>
-      );
-    }
-  }
-
   render() {
-    const {editable, video} = this.props;
+    const { editable, video } = this.props;
 
     return (
-      <div>
-        {this.renderViewInWorkflowLink()}
-        <WorkflowForm
-          editable={editable}
-          video={video}
-          workflowSections={this.props.workflow.sections || []}
-          workflowStatuses={this.props.workflow.statuses || []}
-          workflowPriorities={this.props.workflow.priorities}
-          workflowStatus={this.props.workflow.status}
-          updateData={this.updateLocalData}
-        />
-      </div>
+      <WorkflowForm
+        editable={editable}
+        video={video}
+        workflowSections={this.props.workflow.sections || []}
+        workflowStatuses={this.props.workflow.statuses || []}
+        workflowPriorities={this.props.workflow.priorities}
+        workflowStatus={this.props.workflow.status}
+        updateData={this.updateLocalData}
+      />
     );
   }
 }
@@ -73,8 +56,8 @@ import * as getStatus from '../../actions/WorkflowActions/getStatus';
 import * as getSections from '../../actions/WorkflowActions/getSections';
 import * as getStatuses from '../../actions/WorkflowActions/getStatuses';
 import * as getPriorities from '../../actions/WorkflowActions/getPriorities';
-import * as localUpdateWorkflowData from '../../actions/WorkflowActions/localUpdateWorkflowData';
-import WorkflowApi from "../../services/WorkflowApi";
+import * as localUpdateWorkflowData
+  from '../../actions/WorkflowActions/localUpdateWorkflowData';
 
 function mapStateToProps(state) {
   return {

@@ -6,7 +6,6 @@ import VideoImages from '../../components/VideoImages/VideoImages';
 import Icon from '../../components/Icon';
 import ReactTooltip from 'react-tooltip';
 import { blankVideoData } from '../../constants/blankVideoData';
-import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 import { isVideoPublished } from '../../util/isVideoPublished';
 import VideoUtils from '../../util/video';
 import { Tabs, TabList } from 'react-tabs';
@@ -15,13 +14,14 @@ import {
   YoutubeFurnitureTab,
   YoutubeFurnitureTabPanel
 } from './tabs/YoutubeFurniture';
-import {ManagementTab, ManagementTabPanel} from "./tabs/Management";
+import { ManagementTab, ManagementTabPanel } from './tabs/Management';
 import { WorkflowTab, WorkflowTabPanel } from './tabs/Workflow';
 import { UsageTab, UsageTabPanel } from './tabs/Usage';
 import { TargetingTab, TargetingTabPanel } from './tabs/Targeting';
 
 class VideoDisplay extends React.Component {
   state = {
+    isCreateMode: false,
     editingFurniture: false,
     editingYoutubeData: false,
     editingWorkflow: false
@@ -29,25 +29,36 @@ class VideoDisplay extends React.Component {
 
   componentWillMount() {
     const isCreateMode = this.props.route.mode === 'create';
+    this.setState({ isCreateMode: isCreateMode });
 
     if (isCreateMode) {
       this.props.videoActions.updateVideo(blankVideoData);
       this.props.videoActions.updateVideoEditState(true);
-      this.updateEditingState({key: 'editingFurniture', editing: true});
+      this.updateEditingState({ key: 'editingFurniture', editing: true });
     } else {
-      this.props.videoActions.getVideo(this.props.params.id);
+      this.getVideo();
       this.props.videoActions.getUsages(this.props.params.id);
+      this.getWorkflowState();
     }
   }
 
+  getVideo() {
+    this.props.videoActions.getVideo(this.props.params.id);
+  }
+
+  getWorkflowState() {
+    this.props.workflowActions.getStatus(this.props.video);
+  }
+
   saveAndUpdateVideo = video => {
-    if (this.props.route.mode === 'create') {
-      this.props.videoActions.createVideo(video)
-        .then(() => {
-          this.props.videoActions.getUsages(this.props.video.id);
-        });
+    const { isCreateMode } = this.state;
+
+    if (isCreateMode) {
+      this.props.videoActions.createVideo(video).then(() => {
+        this.props.videoActions.getUsages(this.props.video.id);
+      });
     } else {
-      this.props.videoActions.saveVideo(video)
+      this.props.videoActions.saveVideo(video);
     }
   };
 
@@ -67,9 +78,7 @@ class VideoDisplay extends React.Component {
   };
 
   renderPreview = () => {
-    return (
-      <VideoPreview video={this.props.video || {}} />
-    );
+    return <VideoPreview video={this.props.video || {}} />;
   };
 
   renderImages() {
@@ -114,9 +123,9 @@ class VideoDisplay extends React.Component {
   }
 
   renderSelectBar(video) {
-
-    const videoToSelect = isVideoPublished(this.props.video) ?
-      this.props.publishedVideo : this.props.video;
+    const videoToSelect = isVideoPublished(this.props.video)
+      ? this.props.publishedVideo
+      : this.props.video;
 
     return (
       <VideoSelectBar
@@ -129,76 +138,128 @@ class VideoDisplay extends React.Component {
 
   saveInWorkflow() {
     const { video } = this.props;
-    const { trackedInWorkflow, sections, status: { status, section, note} } = this.props.workflow;
-    const { getStatus, trackInWorkflow, updateWorkflowData } = this.props.workflowActions;
+    const {
+      trackedInWorkflow,
+      sections,
+      status: { status, section, note }
+    } = this.props.workflow;
+    const {
+      getStatus,
+      trackInWorkflow,
+      updateWorkflowData
+    } = this.props.workflowActions;
 
-    const createWorkflowItem = () => trackInWorkflow({
-      video: video,
-      section: sections.find(_ => _.id === section),
-      status: status,
-      note: note
-    });
+    const createWorkflowItem = () =>
+      trackInWorkflow({
+        video: video,
+        section: sections.find(_ => _.id === section),
+        status: status,
+        note: note
+      });
 
-    const updateWorkflowItem = () => updateWorkflowData({
-      workflowItem: this.props.workflow.status
-    });
+    const updateWorkflowItem = () =>
+      updateWorkflowData({
+        workflowItem: this.props.workflow.status
+      });
 
-    const wfPromise = trackedInWorkflow ? updateWorkflowItem() : createWorkflowItem();
+    const wfPromise = trackedInWorkflow
+      ? updateWorkflowItem()
+      : createWorkflowItem();
 
     wfPromise.then(() => getStatus(video));
   }
 
   updateEditingState({ key, editing }) {
-    this.setState({[key]: editing});
+    this.setState({ [key]: editing });
     this.props.videoActions.updateVideoEditState(editing);
   }
 
+  formHasErrors = formName => {
+    const errors = this.props.checkedFormFields[formName]
+      ? this.props.checkedFormFields[formName]
+      : {};
+
+    return Object.keys(errors).some(field => {
+      const value = errors[field];
+      return value !== null;
+    });
+  };
+
   renderTabs() {
-    const { videoEditOpen, video, workflow, publishedVideo, usages } = this.props;
+    const {
+      videoEditOpen,
+      video,
+      workflow,
+      publishedVideo,
+      usages
+    } = this.props;
 
     const {
+      isCreateMode,
       editingFurniture,
       editingYoutubeData,
       editingWorkflow
     } = this.state;
 
-    const furnitureDisabled = videoEditOpen && (editingYoutubeData || editingWorkflow);
-    const ytFurnitureDisabled = videoEditOpen && (editingFurniture || editingWorkflow);
-    const workflowDisabled = videoEditOpen && (editingFurniture || editingYoutubeData);
-    const isCreateMode = this.props.route.mode === 'create';
+    const furnitureDisabled =
+      videoEditOpen && (editingYoutubeData || editingWorkflow);
+    const ytFurnitureDisabled =
+      videoEditOpen && (editingFurniture || editingWorkflow);
+    const workflowDisabled =
+      videoEditOpen && (editingFurniture || editingYoutubeData);
 
     return (
       <Tabs className="video__detailbox">
         <TabList>
-          <FurnitureTab disabled={furnitureDisabled}/>
-          <YoutubeFurnitureTab disabled={ytFurnitureDisabled}/>
+          <FurnitureTab disabled={furnitureDisabled} />
+          <YoutubeFurnitureTab disabled={ytFurnitureDisabled} />
           <WorkflowTab disabled={workflowDisabled || isCreateMode} />
           <UsageTab disabled={videoEditOpen || isCreateMode} />
           <TargetingTab disabled={videoEditOpen || isCreateMode} />
-          <ManagementTab disabled={videoEditOpen || isCreateMode}/>
+          <ManagementTab disabled={videoEditOpen || isCreateMode} />
         </TabList>
         <FurnitureTabPanel
           editing={editingFurniture}
-          onEdit={() => this.updateEditingState({key: 'editingFurniture', editing: true})}
-          onCancel={() => !isCreateMode && this.updateEditingState({key: 'editingFurniture', editing: false})}
+          onEdit={() =>
+            this.updateEditingState({ key: 'editingFurniture', editing: true })}
+          onCancel={() => {
+            !isCreateMode && this.updateEditingState({key: 'editingFurniture', editing: false});
+            this.getVideo();
+          }}
           onSave={() => {
-            this.updateEditingState({key: 'editingFurniture', editing: false});
+            this.updateEditingState({
+              key: 'editingFurniture',
+              editing: false
+            });
             this.saveAndUpdateVideo(video);
           }}
+          canSave={() => !this.formHasErrors(formNames.videoData)}
+          canCancel={() => !isCreateMode}
           video={video}
           updateVideo={this.updateVideo}
           updateErrors={this.props.formErrorActions.updateFormErrors}
           updateWarnings={this.props.formErrorActions.updateFormWarnings}
-          canonicalVideoPageExists={canonicalVideoPageExists(this.props.usages)}
+          usages={usages}
         />
         <YoutubeFurnitureTabPanel
           editing={editingYoutubeData}
-          onEdit={() => this.updateEditingState({key: 'editingYoutubeData', editing: true})}
-          onCancel={() => this.updateEditingState({key: 'editingYoutubeData', editing: false})}
-          onSave={() => {
+          onEdit={() =>
+            this.updateEditingState({
+              key: 'editingYoutubeData',
+              editing: true
+            })}
+          onCancel={() => {
             this.updateEditingState({key: 'editingYoutubeData', editing: false});
+            this.getVideo();
+          }}
+          onSave={() => {
+            this.updateEditingState({
+              key: 'editingYoutubeData',
+              editing: false
+            });
             this.saveAndUpdateVideo(video);
           }}
+          canSave={() => !this.formHasErrors(formNames.youtubeFurniture)}
           video={video}
           updateVideo={this.updateVideo}
           updateErrors={this.props.formErrorActions.updateFormErrors}
@@ -206,14 +267,19 @@ class VideoDisplay extends React.Component {
         />
         <WorkflowTabPanel
           editing={editingWorkflow}
-          onEdit={() => this.updateEditingState({key: 'editingWorkflow', editing: true})}
-          onCancel={() => this.updateEditingState({key: 'editingWorkflow', editing: false})}
+          onEdit={() =>
+            this.updateEditingState({ key: 'editingWorkflow', editing: true })}
+          onCancel={() => {
+            this.updateEditingState({ key: 'editingWorkflow', editing: false });
+            this.getWorkflowState();
+          }}
           onSave={() => {
-            this.updateEditingState({key: 'editingWorkflow', editing: false});
+            this.updateEditingState({ key: 'editingWorkflow', editing: false });
             this.saveInWorkflow();
           }}
+          canSave={() => workflow.status.section && workflow.status.status}
           video={video}
-          workflow={workflow}
+          isTrackedInWorkflow={workflow.status.isTrackedInWorkflow || false}
         />
         <UsageTabPanel
           video={video}
@@ -221,7 +287,7 @@ class VideoDisplay extends React.Component {
           usages={usages || {}}
         />
         <TargetingTabPanel video={video} />
-        <ManagementTabPanel video={video} updateVideo={this.updateVideo}/>
+        <ManagementTabPanel video={video} updateVideo={this.updateVideo} />
       </Tabs>
     );
   }
@@ -270,11 +336,13 @@ import * as updateFormErrors
   from '../../actions/FormErrorActions/updateFormErrors';
 import * as updateFormWarnings
   from '../../actions/FormErrorActions/updateFormWarnings';
-import * as videoPageUpdate
-  from '../../actions/VideoActions/videoPageUpdate';
+import * as videoPageUpdate from '../../actions/VideoActions/videoPageUpdate';
 import * as getStatus from '../../actions/WorkflowActions/getStatus';
-import * as trackInWorkflow from '../../actions/WorkflowActions/trackInWorkflow';
-import * as updateWorkflowData from '../../actions/WorkflowActions/updateWorkflowData';
+import * as trackInWorkflow
+  from '../../actions/WorkflowActions/trackInWorkflow';
+import * as updateWorkflowData
+  from '../../actions/WorkflowActions/updateWorkflowData';
+import { formNames } from '../../constants/formNames';
 
 function mapStateToProps(state) {
   return {

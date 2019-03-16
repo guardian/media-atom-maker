@@ -2,11 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Tab, TabPanel } from 'react-tabs';
 import EditSaveCancel from '../../../components/EditSaveCancel';
-import YoutubeFuniture from '../../../components/YoutubeFurniture';
-import { formNames } from '../../../constants/formNames';
-import YouTubeKeywords from '../../../constants/youTubeKeywords';
-import { getYouTubeTagCharCount } from '../../../util/getYouTubeTagCharCount';
-import FieldNotification from '../../../constants/FieldNotification';
+import YoutubeFurniture from '../../../components/YoutubeFurniture';
 
 export class YoutubeFurnitureTab extends React.Component {
   static tabsRole = Tab.tabsRole;
@@ -28,6 +24,7 @@ export class YoutubeFurnitureTabPanel extends React.Component {
     onEdit: PropTypes.func.isRequired,
     onSave: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
+    canSave: PropTypes.func.isRequired,
     video: PropTypes.object.isRequired,
     updateVideo: PropTypes.func.isRequired,
     updateErrors: PropTypes.func.isRequired,
@@ -40,6 +37,7 @@ export class YoutubeFurnitureTabPanel extends React.Component {
       onEdit,
       onSave,
       onCancel,
+      canSave,
       video,
       updateVideo,
       updateErrors,
@@ -54,10 +52,9 @@ export class YoutubeFurnitureTabPanel extends React.Component {
           onEdit={onEdit}
           onSave={onSave}
           onCancel={onCancel}
-          canSave={() => true}
-          canCancel={() => true}
+          canSave={canSave}
         />
-        <YoutubeFuniture
+        <YoutubeFurniture
           video={video}
           editable={editing}
           updateVideo={updateVideo}

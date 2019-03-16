@@ -6,10 +6,11 @@ import TagTypes from '../../constants/TagTypes';
 import TagPicker from '../FormFields/TagPicker';
 import SelectBox from '../FormFields/SelectBox';
 import PrivacyStates from '../../constants/privacyStates';
-import {formNames} from "../../constants/formNames";
-import YouTubeKeywords from "../../constants/youTubeKeywords";
-import {getYouTubeTagCharCount} from "../../util/getYouTubeTagCharCount";
-import FieldNotification from "../../constants/FieldNotification";
+import { formNames } from '../../constants/formNames';
+import YouTubeKeywords from '../../constants/youTubeKeywords';
+import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
+import FieldNotification from '../../constants/FieldNotification';
+import KeywordsApi from '../../services/KeywordsApi';
 
 class YoutubeFurniture extends React.Component {
   static propTypes = {
@@ -39,11 +40,39 @@ class YoutubeFurniture extends React.Component {
 
     return characterCountExceeded
       ? new FieldNotification(
-        'required',
-        `Maximum characters allowed in YouTube keywords is ${charLimit}.`,
-        FieldNotification.error
-      )
+          'required',
+          `Maximum characters allowed in YouTube keywords is ${charLimit}.`,
+          FieldNotification.error
+        )
       : null;
+  };
+
+  composerKeywordsToYouTube = () => {
+    const { video, updateVideo } = this.props;
+    const { keywords, tags } = video;
+
+    return Promise.all(
+      keywords.map(keyword => KeywordsApi.composerTagToYouTube(keyword))
+    ).then(youTubeKeywords => {
+      const keywordsToCopy = youTubeKeywords.reduce((tagsAdded, keyword) => {
+        const allAddedTags = tags.concat(tagsAdded);
+
+        if (
+          keyword !== '' &&
+          allAddedTags.every(oldTag => oldTag !== keyword)
+        ) {
+          tagsAdded.push(keyword);
+        }
+
+        return tagsAdded;
+      }, []);
+
+      const newVideo = Object.assign({}, video, {
+        tags: tags.concat(keywordsToCopy)
+      });
+
+      updateVideo(newVideo);
+    });
   };
 
   render() {
@@ -52,7 +81,7 @@ class YoutubeFurniture extends React.Component {
       editable,
       updateVideo,
       updateErrors,
-      updateWarnings,
+      updateWarnings
     } = this.props;
 
     const { categories } = this.props.youtube;
@@ -73,7 +102,11 @@ class YoutubeFurniture extends React.Component {
         formName={formNames.youtubeFurniture}
         formClass="atom__edit__form"
       >
-        <ManagedField fieldLocation="channelId" name="Channel" disabled={hasAssets}>
+        <ManagedField
+          fieldLocation="channelId"
+          name="Channel"
+          disabled={hasAssets}
+        >
           <SelectBox selectValues={availableChannels} />
         </ManagedField>
         <ManagedField
@@ -95,6 +128,7 @@ class YoutubeFurniture extends React.Component {
           tagType={TagTypes.youtube}
           disabled={!isYoutubeAtom}
           customValidation={this.validateYouTubeKeywords}
+          updateSideEffects={this.composerKeywordsToYouTube}
         >
           <TagPicker disableCapiTags />
         </ManagedField>

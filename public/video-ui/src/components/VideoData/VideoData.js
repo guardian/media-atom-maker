@@ -10,12 +10,37 @@ import TagTypes from '../../constants/TagTypes';
 import { fieldLengths } from '../../constants/videoEditValidation';
 import { videoCategories } from '../../constants/videoCategories';
 import VideoUtils from '../../util/video';
+import FieldNotification from '../../constants/FieldNotification';
+import { formNames } from '../../constants/formNames';
+import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 
 export default class VideoData extends React.Component {
+  validateKeywords = keywords => {
+    if (
+      !Array.isArray(keywords) ||
+      keywords.length === 0 ||
+      keywords.every(keyword => keyword.match(/^tone/))
+    ) {
+      if (canonicalVideoPageExists(this.props.usages)) {
+        return new FieldNotification(
+          'error',
+          'A series or a keyword tag is required for updating composer pages',
+          FieldNotification.error
+        );
+      }
+      return new FieldNotification(
+        'desired',
+        'A series or a keyword tag is required for creating composer pages',
+        FieldNotification.warning
+      );
+    }
+    return null;
+  };
+
   render() {
-    const isYoutubeAtom = VideoUtils.isYoutube(this.props.video);
     const isCommercialType = VideoUtils.isCommercialType(this.props.video);
     const hasAssets = VideoUtils.hasAssets(this.props.video);
+    const hasCanonicalPage = canonicalVideoPageExists(this.props.usages);
 
     return (
       <ManagedForm
@@ -24,14 +49,12 @@ export default class VideoData extends React.Component {
         editable={this.props.editable}
         updateErrors={this.props.updateErrors}
         updateWarnings={this.props.updateWarnings}
-        formName={this.props.formName}
+        formName={formNames.videoData}
         formClass="atom__edit__form"
       >
         <ManagedField
           fieldLocation="title"
-          name={
-            isYoutubeAtom ? 'Headline (YouTube title)' : 'Headline'
-          }
+          name="Headline"
           maxLength={fieldLengths.title}
           isRequired={true}
         >
@@ -39,17 +62,18 @@ export default class VideoData extends React.Component {
         </ManagedField>
         <ManagedField
           fieldLocation="description"
-          name={
-            isYoutubeAtom
-              ? 'Standfirst (YouTube description)'
-              : 'Standfirst'
-          }
-          customValidation={this.props.descriptionValidator}
+          name="Standfirst"
           maxCharLength={fieldLengths.description.charMax}
           maxLength={fieldLengths.description.max}
         >
           <ScribeEditorField
-            allowedEdits={['bold', 'italic', 'linkPrompt', 'unlink', 'insertUnorderedList']}
+            allowedEdits={[
+              'bold',
+              'italic',
+              'linkPrompt',
+              'unlink',
+              'insertUnorderedList'
+            ]}
           />
         </ManagedField>
         <ManagedField
@@ -58,13 +82,13 @@ export default class VideoData extends React.Component {
           name="Trail Text"
           maxCharLength={fieldLengths.description.charMax}
           maxLength={fieldLengths.description.max}
-          isDesired={!this.props.canonicalVideoPageExists}
-          isRequired={this.props.canonicalVideoPageExists}
+          isDesired={!hasCanonicalPage}
+          isRequired={hasCanonicalPage}
         >
           <ScribeEditorField
             allowedEdits={['bold', 'italic']}
-            isDesired={!this.props.canonicalVideoPageExists}
-            isRequired={this.props.canonicalVideoPageExists}
+            isDesired={!hasCanonicalPage}
+            isRequired={hasCanonicalPage}
           />
         </ManagedField>
 
@@ -81,8 +105,8 @@ export default class VideoData extends React.Component {
           name="Commissioning Desks"
           formRowClass="form__row__byline"
           tagType={TagTypes.tracking}
-          isDesired={!this.props.canonicalVideoPageExists}
-          isRequired={this.props.canonicalVideoPageExists}
+          isDesired={!hasCanonicalPage}
+          isRequired={hasCanonicalPage}
           inputPlaceholder="Search commissioning info (type '*' to show all)"
         >
           <TagPicker disableTextInput />
@@ -96,7 +120,6 @@ export default class VideoData extends React.Component {
           isDesired={true}
           inputPlaceholder="Search keywords (type '*' to show all)"
           customValidation={this.props.validateKeywords}
-          updateSideEffects={this.props.composerKeywordsToYouTube}
         >
           <TagPicker disableTextInput />
         </ManagedField>
