@@ -19,6 +19,7 @@ import {
 import { WorkflowTab, WorkflowTabPanel } from './tabs/Workflow';
 import { UsageTab, UsageTabPanel } from './tabs/Usage';
 import { TargetingTab, TargetingTabPanel } from './tabs/Targeting';
+import { ManagementTab, ManagementTabPanel } from './tabs/Management';
 
 class VideoDisplay extends React.Component {
   state = {
@@ -223,6 +224,7 @@ class VideoDisplay extends React.Component {
           <WorkflowTab disabled={workflowDisabled || isCreateMode} />
           <UsageTab disabled={videoEditOpen || isCreateMode} />
           <TargetingTab disabled={videoEditOpen || isCreateMode} />
+          <ManagementTab disabled={videoEditOpen || isCreateMode} />
         </TabList>
         <FurnitureTabPanel
           editing={editingFurniture}
@@ -301,6 +303,7 @@ class VideoDisplay extends React.Component {
           usages={usages || {}}
         />
         <TargetingTabPanel video={video} />
+        <ManagementTabPanel video={video} updateVideo={this.updateVideo} />
       </Tabs>
     );
   }

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Tab, TabPanel } from 'react-tabs';
 import EditSaveCancel from '../../../components/EditSaveCancel';
 import VideoData from '../../../components/VideoData/VideoData';
+import Flags from '../../../components/Flags';
 
 export class FurnitureTab extends React.Component {
   static tabsRole = Tab.tabsRole;
@@ -67,6 +68,14 @@ export class FurnitureTabPanel extends React.Component {
           updateErrors={updateErrors}
           updateWarnings={updateWarnings}
           canonicalVideoPageExists={canonicalVideoPageExists}
+        />
+
+        <Flags
+          video={video}
+          editable={editing}
+          updateVideo={updateVideo}
+          updateErrors={updateErrors}
+          updateWarnings={updateWarnings}
         />
       </TabPanel>
     );
