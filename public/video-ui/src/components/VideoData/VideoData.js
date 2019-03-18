@@ -24,8 +24,7 @@ export default class VideoData extends React.Component {
     editable: PropTypes.bool.isRequired,
     updateErrors: PropTypes.func.isRequired,
     updateWarnings: PropTypes.func.isRequired,
-    canonicalVideoPageExists: PropTypes.bool.isRequired,
-    composerKeywordsToYouTube: PropTypes.func.isRequired
+    canonicalVideoPageExists: PropTypes.bool.isRequired
   };
 
   validateKeywords = keywords => {
@@ -58,8 +57,7 @@ export default class VideoData extends React.Component {
       updateErrors,
       updateWarnings,
       editable,
-      canonicalVideoPageExists,
-      composerKeywordsToYouTube
+      canonicalVideoPageExists
     } = this.props;
 
     const isYoutubeAtom = VideoUtils.isYoutube(video);
@@ -148,7 +146,6 @@ export default class VideoData extends React.Component {
               isDesired={true}
               inputPlaceholder="Search keywords (type '*' to show all)"
               customValidation={this.validateKeywords}
-              updateSideEffects={composerKeywordsToYouTube}
             >
               <TagPicker disableTextInput />
             </ManagedField>

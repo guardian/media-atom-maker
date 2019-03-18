@@ -29,8 +29,7 @@ export class FurnitureTabPanel extends React.Component {
     updateVideo: PropTypes.func.isRequired,
     updateErrors: PropTypes.func.isRequired,
     updateWarnings: PropTypes.func.isRequired,
-    canonicalVideoPageExists: PropTypes.bool.isRequired,
-    composerKeywordsToYouTube: PropTypes.func.isRequired
+    canonicalVideoPageExists: PropTypes.bool.isRequired
   };
 
   render() {
@@ -45,7 +44,6 @@ export class FurnitureTabPanel extends React.Component {
       updateErrors,
       updateWarnings,
       canonicalVideoPageExists,
-      composerKeywordsToYouTube,
       ...rest
     } = this.props;
 
@@ -66,7 +64,6 @@ export class FurnitureTabPanel extends React.Component {
           updateErrors={updateErrors}
           updateWarnings={updateWarnings}
           canonicalVideoPageExists={canonicalVideoPageExists}
-          composerKeywordsToYouTube={composerKeywordsToYouTube}
         />
       </TabPanel>
     );

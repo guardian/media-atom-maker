@@ -10,7 +10,6 @@ import Icon from '../../components/Icon';
 import { formNames } from '../../constants/formNames';
 import ReactTooltip from 'react-tooltip';
 import { blankVideoData } from '../../constants/blankVideoData';
-import KeywordsApi from '../../services/KeywordsApi';
 import { isVideoPublished } from '../../util/isVideoPublished';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 import VideoUtils from '../../util/video';
@@ -51,27 +50,6 @@ class VideoDisplay extends React.Component {
   updateVideo = video => {
     this.props.videoActions.updateVideo(video);
     return Promise.resolve();
-  };
-
-  composerKeywordsToYouTube = () => {
-
-    return Promise.all(this.props.video.keywords.map(keyword => KeywordsApi.composerTagToYouTube(keyword)))
-    .then(youTubeKeywords => {
-
-      const oldTags = this.props.video.tags;
-      const keywordsToCopy = youTubeKeywords.reduce((tagsAdded, keyword) => {
-        const allAddedTags = oldTags.concat(tagsAdded);
-        if (keyword !== '' &&
-          allAddedTags.every(oldTag => oldTag !== keyword)
-        ) {
-          tagsAdded.push(keyword);
-        }
-        return tagsAdded;
-      }, []);
-      const newVideo = Object.assign({}, this.props.video, { tags: oldTags.concat(keywordsToCopy)});
-
-      this.updateVideo(newVideo);
-    });
   };
 
   selectVideo = () => {
@@ -248,7 +226,6 @@ class VideoDisplay extends React.Component {
           updateErrors={this.props.formErrorActions.updateFormErrors}
           updateWarnings={this.props.formErrorActions.updateFormWarnings}
           canonicalVideoPageExists={canonicalVideoPageExists(usages)}
-          composerKeywordsToYouTube={this.composerKeywordsToYouTube}
         />
         <YoutubeFurnitureTabPanel
           editing={editingYoutubeFurniture}

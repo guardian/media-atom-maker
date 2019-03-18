@@ -10,6 +10,7 @@ import {formNames} from "../../constants/formNames";
 import YouTubeKeywords from "../../constants/youTubeKeywords";
 import {getYouTubeTagCharCount} from "../../util/getYouTubeTagCharCount";
 import FieldNotification from "../../constants/FieldNotification";
+import KeywordsApi from '../../services/KeywordsApi';
 
 class YoutubeFurniture extends React.Component {
   static propTypes = {
@@ -44,6 +45,26 @@ class YoutubeFurniture extends React.Component {
         FieldNotification.error
       )
       : null;
+  };
+
+  composerKeywordsToYouTube = () => {
+    const { video, updateVideo } = this.props;
+
+    return Promise.all(
+      video.keywords.map(keyword => KeywordsApi.composerTagToYouTube(keyword))
+    )
+      .then(youTubeKeywords => {
+        const oldTags = video.tags;
+        const keywordsToCopy = youTubeKeywords.reduce((tagsAdded, keyword) => {
+          const allAddedTags = oldTags.concat(tagsAdded);
+          if (keyword !== '' && allAddedTags.every(oldTag => oldTag !== keyword)) {
+            tagsAdded.push(keyword);
+          }
+          return tagsAdded;
+        }, []);
+        const newVideo = Object.assign({}, video, { tags: oldTags.concat(keywordsToCopy)});
+        updateVideo(newVideo);
+      });
   };
 
   render() {
@@ -95,6 +116,7 @@ class YoutubeFurniture extends React.Component {
           tagType={TagTypes.youtube}
           disabled={!isYoutubeAtom}
           customValidation={this.validateYouTubeKeywords}
+          updateSideEffects={this.composerKeywordsToYouTube}
         >
           <TagPicker disableCapiTags />
         </ManagedField>
