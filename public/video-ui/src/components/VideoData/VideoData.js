@@ -14,7 +14,6 @@ import VideoUtils from '../../util/video';
 import DurationReset from "../DurationReset";
 import Flags from "../Flags";
 import ContentChangeDetails from "../ContentChangeDetails";
-import YoutubeFurniture from '../YoutubeFurniture';
 import {formNames} from "../../constants/formNames";
 import FieldNotification from "../../constants/FieldNotification";
 
@@ -168,13 +167,6 @@ export default class VideoData extends React.Component {
             >
               <SelectBox selectValues={videoCategories} />
             </ManagedField>
-            <YoutubeFurniture
-              video={video}
-              editable={editable}
-              updateVideo={updateVideo}
-              updateErrors={updateErrors}
-              updateWarnings={updateWarnings}
-            />
             <Flags
               video={video}
               editable={editable}
