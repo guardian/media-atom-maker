@@ -16,6 +16,7 @@ import DurationReset from "../DurationReset";
 import Flags from "../Flags";
 import ContentChangeDetails from "../ContentChangeDetails";
 import {formNames} from "../../constants/formNames";
+import FieldNotification from "../../constants/FieldNotification";
 
 class VideoData extends React.Component {
   static propTypes = {
@@ -25,7 +26,6 @@ class VideoData extends React.Component {
     updateErrors: PropTypes.func.isRequired,
     updateWarnings: PropTypes.func.isRequired,
     canonicalVideoPageExists: PropTypes.bool.isRequired,
-    validateKeywords: PropTypes.func.isRequired,
     composerKeywordsToYouTube: PropTypes.func.isRequired,
     validateYouTubeKeywords: PropTypes.func.isRequired
   };
@@ -42,6 +42,29 @@ class VideoData extends React.Component {
     }
   }
 
+  validateKeywords = keywords => {
+    if (!Array.isArray(keywords) ||
+      keywords.length === 0 ||
+      keywords.every(keyword => {
+        return keyword.match(/^tone/);
+      })
+    ) {
+      if (this.props.canonicalVideoPageExists) {
+        return new FieldNotification(
+          'error',
+          'A series or a keyword tag is required for updating composer pages',
+          FieldNotification.error
+        );
+      }
+      return new FieldNotification(
+        'desired',
+        'A series or a keyword tag is required for creating composer pages',
+        FieldNotification.warning
+      );
+    }
+    return null;
+  };
+
   render() {
     const {
       video,
@@ -50,7 +73,6 @@ class VideoData extends React.Component {
       updateWarnings,
       editable,
       canonicalVideoPageExists,
-      validateKeywords,
       composerKeywordsToYouTube,
       validateYouTubeKeywords
     } = this.props;
@@ -145,7 +167,7 @@ class VideoData extends React.Component {
               tagType={isCommercialType ? TagTypes.commercial : TagTypes.keyword}
               isDesired={true}
               inputPlaceholder="Search keywords (type '*' to show all)"
-              customValidation={validateKeywords}
+              customValidation={this.validateKeywords}
               updateSideEffects={composerKeywordsToYouTube}
             >
               <TagPicker disableTextInput />
