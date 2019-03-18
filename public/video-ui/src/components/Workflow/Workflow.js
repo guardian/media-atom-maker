@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import WorkflowForm from './WorkflowForm';
-import Icon from '../Icon';
 import EditSaveCancel from '../EditSaveCancel';
+import WorkflowLink from './WorkflowLink';
 
 class Workflow extends React.Component {
   static propTypes = {
@@ -76,12 +76,7 @@ class Workflow extends React.Component {
   renderViewInWorkflowLink() {
     if (this.props.workflow.status.isTrackedInWorkflow && !this.state.editing) {
       return (
-        <a className="button inline-block"
-           target="_blank"
-           rel="noopener noreferrer"
-           href={WorkflowApi.workflowItemLink(this.props.video)}>
-          <Icon icon="open_in_new" className="icon__edit"/>
-        </a>
+        <WorkflowLink video={this.props.video}/>
       );
     }
   }
@@ -127,7 +122,6 @@ import * as getPriorities from '../../actions/WorkflowActions/getPriorities';
 import * as trackInWorkflow from '../../actions/WorkflowActions/trackInWorkflow';
 import * as updateWorkflowData from '../../actions/WorkflowActions/updateWorkflowData';
 import * as localUpdateWorkflowData from '../../actions/WorkflowActions/localUpdateWorkflowData';
-import WorkflowApi from "../../services/WorkflowApi";
 
 function mapStateToProps(state) {
   return {
