@@ -38,6 +38,7 @@ class VideoDisplay extends React.Component {
     } else {
       this.getVideo();
       this.getWorkflowState();
+      this.getUsages();
     }
   }
 
@@ -47,6 +48,10 @@ class VideoDisplay extends React.Component {
 
   getWorkflowState() {
     this.props.workflowActions.getStatus(this.props.video);
+  }
+
+  getUsages() {
+    this.props.videoActions.getUsages(this.props.params.id);
   }
 
   saveAndUpdateVideo = video => {
