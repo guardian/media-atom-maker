@@ -95,6 +95,7 @@ class Workflow extends React.Component {
           <div>
             {this.renderViewInWorkflowLink()}
             <EditSaveCancel
+              editing={this.state.editing}
               onEdit={() => this.manageEditingState({editing: true})}
               onSave={() => this.manageEditingState({editing: false, save: true})}
               onCancel={() => this.manageEditingState({editing: false})}
