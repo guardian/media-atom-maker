@@ -25,6 +25,7 @@ export class FurnitureTabPanel extends React.Component {
     onSave: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
     canSave: PropTypes.func.isRequired,
+    canCancel: PropTypes.func.isRequired,
     video: PropTypes.object.isRequired,
     updateVideo: PropTypes.func.isRequired,
     updateErrors: PropTypes.func.isRequired,
@@ -39,6 +40,7 @@ export class FurnitureTabPanel extends React.Component {
       onSave,
       onCancel,
       canSave,
+      canCancel,
       video,
       updateVideo,
       updateErrors,
@@ -55,6 +57,7 @@ export class FurnitureTabPanel extends React.Component {
           onSave={onSave}
           onCancel={onCancel}
           canSave={canSave}
+          canCancel={canCancel}
         />
 
         <VideoData

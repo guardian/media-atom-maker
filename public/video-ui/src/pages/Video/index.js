@@ -22,28 +22,38 @@ import {
 
 class VideoDisplay extends React.Component {
   state = {
+    isCreateMode: false,
     editingFurniture: false,
     editingYoutubeFurniture: false
   };
 
   componentWillMount() {
-    if (this.props.route.mode === 'create') {
+    const isCreateMode = this.props.route.mode === 'create';
+    this.setState({ isCreateMode: isCreateMode });
+
+    if (isCreateMode) {
       this.props.videoActions.updateVideo(blankVideoData);
-      this.props.videoActions.updateVideoEditState(true);
+      this.updateEditingState({ key: 'editingFurniture', editing: true });
     } else {
-      this.props.videoActions.getVideo(this.props.params.id);
+      this.getVideo();
       this.props.videoActions.getUsages(this.props.params.id);
     }
   }
 
+  getVideo() {
+    this.props.videoActions.getVideo(this.props.params.id);
+  }
+
   saveAndUpdateVideo = video => {
-    if (this.props.route.mode === 'create') {
-      this.props.videoActions.createVideo(video)
-        .then(() => {
-          this.props.videoActions.getUsages(this.props.video.id);
-        });
+    const { isCreateMode } = this.state;
+
+    if (isCreateMode) {
+      this.props.videoActions.createVideo(video).then(() => {
+        this.setState({ isCreateMode: false });
+        this.props.videoActions.getUsages(this.props.video.id);
+      });
     } else {
-      this.props.videoActions.saveVideo(video)
+      this.props.videoActions.saveVideo(video);
     }
   };
 
@@ -187,6 +197,7 @@ class VideoDisplay extends React.Component {
     } = this.props;
 
     const {
+      isCreateMode,
       editingFurniture,
       editingYoutubeFurniture
     } = this.state;
@@ -208,7 +219,7 @@ class VideoDisplay extends React.Component {
             })
           }
           onCancel={() => {
-            this.updateEditingState({
+            !isCreateMode && this.updateEditingState({
               key: 'editingFurniture', editing: false
             });
             this.getVideo();
@@ -221,6 +232,7 @@ class VideoDisplay extends React.Component {
             this.saveAndUpdateVideo(video);
           }}
           canSave={() => !this.formHasErrors(formNames.videoData)}
+          canCancel={() => !isCreateMode}
           video={video}
           updateVideo={this.updateVideo}
           updateErrors={this.props.formErrorActions.updateFormErrors}
