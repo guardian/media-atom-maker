@@ -95,29 +95,6 @@ class VideoDisplay extends React.Component {
     });
   };
 
-  validateKeywords = keywords => {
-    if (!Array.isArray(keywords) ||
-        keywords.length === 0 ||
-        keywords.every(keyword => {
-          return keyword.match(/^tone/);
-        })
-       ) {
-        if (canonicalVideoPageExists(this.props.usages)) {
-          return new FieldNotification(
-            'error',
-            'A series or a keyword tag is required for updating composer pages',
-            FieldNotification.error
-          );
-        }
-        return new FieldNotification(
-          'desired',
-          'A series or a keyword tag is required for creating composer pages',
-          FieldNotification.warning
-        );
-    }
-    return null;
-  };
-
   validateYouTubeKeywords = youTubeKeywords => {
     const charLimit = YouTubeKeywords.maxCharacters;
     const numberOfChars = getYouTubeTagCharCount(youTubeKeywords);
@@ -251,7 +228,6 @@ class VideoDisplay extends React.Component {
           formName={formNames.videoData}
           updateErrors={this.props.formErrorActions.updateFormErrors}
           updateWarnings={this.props.formErrorActions.updateFormWarnings}
-          validateKeywords={this.validateKeywords}
           validateYouTubeKeywords={this.validateYouTubeKeywords}
           composerKeywordsToYouTube={this.composerKeywordsToYouTube}
           canonicalVideoPageExists={canonicalVideoPageExists(this.props.usages)}
