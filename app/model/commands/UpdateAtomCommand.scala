@@ -9,6 +9,7 @@ import com.gu.media.logging.Logging
 import data.DataStores
 import model.commands.CommandExceptions._
 import com.gu.media.model.{AtomAssignedProjectMessage, ChangeRecord, MediaAtom, AuditMessage}
+import com.gu.contentatom.thrift.{ChangeRecord => ThriftChangeRecord}
 import com.gu.media.upload.PlutoUploadActions
 import com.gu.media.util.MediaAtomImplicits
 import org.joda.time.DateTime
@@ -23,6 +24,9 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
 
   type T = MediaAtom
 
+  def getDateIfPublished(dateRecord: Option[ChangeRecord], published: Option[ThriftChangeRecord]): Option[DateTime] =
+    published.flatMap(_ => dateRecord.map(date => new DateTime(date)))
+
   def process(): T = {
     log.info(s"Request to update atom ${atom.id}")
 
@@ -36,9 +40,12 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
     log.info(s"Update atom changes ${atom.id}: $diffString")
 
     val changeRecord = ChangeRecord.now(user)
+    val atomIsPublished = existingAtom.contentChangeDetails.published
 
-    val scheduledLaunchDate: Option[DateTime] = atom.contentChangeDetails.scheduledLaunch.map(scheduledLaunch => new DateTime(scheduledLaunch.date))
-    val embargo: Option[DateTime] = atom.contentChangeDetails.embargo.map(embargo => new DateTime(embargo.date))
+    val scheduledLaunchDate: Option[DateTime] = getDateIfPublished(atom.contentChangeDetails.scheduledLaunch, atomIsPublished)
+
+    val embargo: Option[DateTime] = getDateIfPublished(atom.contentChangeDetails.embargo, atomIsPublished)
+
     val expiry: Option[DateTime] = atom.expiryDate.map(expiry => new DateTime(expiry))
 
     val details = atom.contentChangeDetails.copy(
