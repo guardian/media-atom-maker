@@ -57,7 +57,6 @@ export default class VideoData extends React.Component {
       canonicalVideoPageExists
     } = this.props;
 
-    const isYoutubeAtom = VideoUtils.isYoutube(video);
     const isCommercialType = VideoUtils.isCommercialType(video);
     const hasAssets = VideoUtils.hasAssets(video);
 
@@ -73,9 +72,7 @@ export default class VideoData extends React.Component {
       >
         <ManagedField
           fieldLocation="title"
-          name={
-            isYoutubeAtom ? 'Headline (YouTube title)' : 'Headline'
-          }
+          name="Headline"
           maxLength={fieldLengths.title}
           isRequired={true}
         >
@@ -83,12 +80,7 @@ export default class VideoData extends React.Component {
         </ManagedField>
         <ManagedField
           fieldLocation="description"
-          name={
-            isYoutubeAtom
-              ? 'Standfirst (YouTube description)'
-              : 'Standfirst'
-          }
-          customValidation={this.props.descriptionValidator}
+          name="Standfirst"
           maxCharLength={fieldLengths.description.charMax}
           maxLength={fieldLengths.description.max}
         >

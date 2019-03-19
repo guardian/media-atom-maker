@@ -45,6 +45,16 @@ object JsonConversions {
     (__ \ "masterId").writeNullable[String]
   ) {pluto: PlutoData => (pluto.commissionId, pluto.projectId, pluto.masterId )}
 
+  implicit val youtubeReads: Reads[YoutubeData] = (
+    (__ \ "title").read[String] and
+      (__ \ "description").readNullable[String]
+    )(YoutubeData.apply _)
+
+  implicit val youtubeWrites: Writes[YoutubeData] = (
+    (__ \ "title").write[String] and
+      (__ \ "description").writeNullable[String]
+    ) { youtubeData: YoutubeData => (youtubeData.title, youtubeData.description) }
+
   implicit val mediaMetadata: Writes[Metadata] = (
     (__ \ "tags").writeNullable[Seq[String]] and
     (__ \ "categoryId").writeNullable[String] and
@@ -53,20 +63,20 @@ object JsonConversions {
     (__ \ "channelId").writeNullable[String] and
     (__ \ "privacyStatus").writeNullable[PrivacyStatus] and
     (__ \ "expiryDate").writeNullable[Long] and
-    (__ \ "pluto").writeNullable[PlutoData]
+    (__ \ "pluto").writeNullable[PlutoData] and
+    (__ \ "youtube").writeNullable[YoutubeData]
 
-  ) { metadata: Metadata =>
-      (
-        metadata.tags,
-        metadata.categoryId,
-        metadata.license,
-        metadata.commentsEnabled,
-        metadata.channelId,
-        metadata.privacyStatus,
-        metadata.expiryDate,
-        metadata.pluto
-        )
-  }
+  ) { metadata: Metadata => (
+      metadata.tags,
+      metadata.categoryId,
+      metadata.license,
+      metadata.commentsEnabled,
+      metadata.channelId,
+      metadata.privacyStatus,
+      metadata.expiryDate,
+      metadata.pluto,
+      metadata.youtube
+  )}
 
   implicit val mediaMetadataRead: Reads[Metadata] = (
     (__ \ "tags").readNullable[Seq[String]] and
@@ -76,7 +86,8 @@ object JsonConversions {
     (__ \ "channelId").readNullable[String] and
     (__ \ "privacyStatus").readNullable[PrivacyStatus] and
     (__ \ "expiryDate").readNullable[Long] and
-    (__ \ "pluto").readNullable[PlutoData]
+    (__ \ "pluto").readNullable[PlutoData] and
+    (__ \ "youtube").readNullable[YoutubeData]
   )(Metadata.apply _)
 
   implicit val atomDataMedia = (
