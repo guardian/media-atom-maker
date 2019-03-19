@@ -10,15 +10,15 @@ import TagPicker from '../FormFields/TagPicker';
 import TagTypes from '../../constants/TagTypes';
 import { fieldLengths } from '../../constants/videoEditValidation';
 import { videoCategories } from '../../constants/videoCategories';
-import PrivacyStates from '../../constants/privacyStates';
 import VideoUtils from '../../util/video';
 import DurationReset from "../DurationReset";
 import Flags from "../Flags";
 import ContentChangeDetails from "../ContentChangeDetails";
+import YoutubeFurniture from '../YoutubeFurniture';
 import {formNames} from "../../constants/formNames";
 import FieldNotification from "../../constants/FieldNotification";
 
-class VideoData extends React.Component {
+export default class VideoData extends React.Component {
   static propTypes = {
     video: PropTypes.object.isRequired,
     updateVideo: PropTypes.func.isRequired,
@@ -26,21 +26,8 @@ class VideoData extends React.Component {
     updateErrors: PropTypes.func.isRequired,
     updateWarnings: PropTypes.func.isRequired,
     canonicalVideoPageExists: PropTypes.bool.isRequired,
-    composerKeywordsToYouTube: PropTypes.func.isRequired,
-    validateYouTubeKeywords: PropTypes.func.isRequired
+    composerKeywordsToYouTube: PropTypes.func.isRequired
   };
-
-  hasCategories = () => this.props.youtube.categories.length !== 0;
-  hasChannels = () => this.props.youtube.channels.length !== 0;
-
-  componentWillMount() {
-    if (!this.hasCategories()) {
-      this.props.youtubeActions.getCategories();
-    }
-    if (!this.hasChannels()) {
-      this.props.youtubeActions.getChannels();
-    }
-  }
 
   validateKeywords = keywords => {
     if (!Array.isArray(keywords) ||
@@ -73,18 +60,12 @@ class VideoData extends React.Component {
       updateWarnings,
       editable,
       canonicalVideoPageExists,
-      composerKeywordsToYouTube,
-      validateYouTubeKeywords
+      composerKeywordsToYouTube
     } = this.props;
 
     const isYoutubeAtom = VideoUtils.isYoutube(video);
     const isCommercialType = VideoUtils.isCommercialType(video);
     const hasAssets = VideoUtils.hasAssets(video);
-    const availableChannels = VideoUtils.getAvailableChannels(video);
-    const availablePrivacyStates = VideoUtils.getAvailablePrivacyStates(video);
-    const hasYoutubeWriteAccess = VideoUtils.hasYoutubeWriteAccess(video);
-
-    const { categories } = this.props.youtube;
 
     return (
       <div className="form__group">
@@ -187,29 +168,13 @@ class VideoData extends React.Component {
             >
               <SelectBox selectValues={videoCategories} />
             </ManagedField>
-            <ManagedField fieldLocation="channelId" name="YouTube Channel" disabled={hasAssets}>
-              <SelectBox selectValues={availableChannels} />
-            </ManagedField>
-            <ManagedField
-              fieldLocation="privacyStatus"
-              name="Privacy Status"
-              disabled={!isYoutubeAtom || !hasYoutubeWriteAccess}
-            >
-              <SelectBox selectValues={PrivacyStates.forForm(availablePrivacyStates)} />
-            </ManagedField>
-            <ManagedField fieldLocation="youtubeCategoryId" name="YouTube Category">
-              <SelectBox selectValues={categories} />
-            </ManagedField>
-            <ManagedField
-              fieldLocation="tags"
-              name="YouTube Keywords"
-              placeholder="No keywords"
-              tagType={TagTypes.youtube}
-              disabled={!isYoutubeAtom}
-              customValidation={validateYouTubeKeywords}
-            >
-              <TagPicker disableCapiTags />
-            </ManagedField>
+            <YoutubeFurniture
+              video={video}
+              editable={editable}
+              updateVideo={updateVideo}
+              updateErrors={updateErrors}
+              updateWarnings={updateWarnings}
+            />
             <Flags
               video={video}
               editable={editable}
@@ -229,27 +194,3 @@ class VideoData extends React.Component {
     );
   }
 }
-
-//REDUX CONNECTIONS
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import * as getCategories from '../../actions/YoutubeActions/getCategories';
-import * as getChannels from '../../actions/YoutubeActions/getChannels';
-
-function mapStateToProps(state) {
-  return {
-    youtube: state.youtube,
-    workflow: state.workflow
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    youtubeActions: bindActionCreators(
-      Object.assign({}, getCategories, getChannels),
-      dispatch
-    )
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(VideoData);
