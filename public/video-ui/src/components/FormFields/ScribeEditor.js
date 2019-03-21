@@ -8,6 +8,7 @@ import scribePluginSanitizer from 'scribe-plugin-sanitizer';
 import {keyCodes} from '../../constants/keyCodes';
 import RequiredForComposer from '../../constants/requiredForComposer';
 import ReactTooltip from 'react-tooltip';
+import Icon from "../Icon";
 
 export default class ScribeEditorField extends React.Component {
   state = {
@@ -170,7 +171,8 @@ export class ScribeEditor extends React.Component {
   static propTypes = {
     fieldName: PropTypes.string,
     value: PropTypes.string,
-    onUpdate: PropTypes.func
+    onUpdate: PropTypes.func,
+    allowedEdits: PropTypes.array
   };
 
   state = {
@@ -261,21 +263,20 @@ export class ScribeEditor extends React.Component {
 
   render() {
 
-    const getEditButtonText = (name) => {
+    const getEditButtonIcon = (name) => {
       switch(name) {
         case 'bold':
-          return 'Bold';
+          return 'format_bold';
         case 'italic':
-          return 'Italic';
+          return 'format_italic';
         case 'linkPrompt':
-          return 'Link';
+          return 'link';
         case 'unlink':
-          return 'Unlink';
+          return 'link_off';
         case 'insertUnorderedList':
-          return 'Bullet point';
+          return 'format_list_bulleted';
       }
-    }
-
+    };
 
     return (
       <div className="scribe__container">
@@ -288,7 +289,7 @@ export class ScribeEditor extends React.Component {
                 className="scribe__toolbar__item"
                 key={edit}
               >
-                {getEditButtonText(edit)}
+                <Icon icon={getEditButtonIcon(edit)} />
               </button>
             );
           })}

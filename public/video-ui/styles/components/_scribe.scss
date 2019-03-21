@@ -1,11 +1,8 @@
 .scribe__toolbar {
-  display: flex;
   width: 100%;
 }
 
 .scribe__toolbar__item {
-  flex-basis: auto;
-  flex-grow: 1;
   padding: 10px;
   font-size: 12px;
   background-color: $color650Grey;
@@ -20,8 +17,12 @@
   }
 
   &:hover {
-    background-color: $darkGreyBgColor;
-    color: $color800Grey;
+    background-color: $color625Grey;
+    color: $brandColor;
+  }
+
+  i.icon {
+    font-size: $iconSize;
   }
 }
 
