@@ -14,10 +14,10 @@ export default class TextAreaInput extends React.Component {
                   this.props.fieldValue
                 )
                   ? 'details-list__empty'
-                  : '')
+                  : 'details-list__field--text-area')
             }
           >
-            {' '}{this.props.fieldValue}
+            {this.props.fieldValue}
           </p>
         </div>
       );
