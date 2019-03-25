@@ -148,9 +148,8 @@ class VideoDisplay extends React.Component {
     const { video } = this.props;
 
     const {
-      trackedInWorkflow,
       sections,
-      status: { status, section, note }
+      status: { status, section, note, isTrackedInWorkflow }
     } = this.props.workflow;
 
     const {
@@ -172,7 +171,7 @@ class VideoDisplay extends React.Component {
         workflowItem: this.props.workflow.status
       });
 
-    const wfPromise = trackedInWorkflow
+    const wfPromise = isTrackedInWorkflow
       ? updateWorkflowItem()
       : createWorkflowItem();
 
