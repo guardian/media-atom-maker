@@ -3,7 +3,6 @@ import { Link } from 'react-router';
 import VideoSelectBar from '../../components/VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../../components/VideoPreview/VideoPreview';
 import VideoImages from '../../components/VideoImages/VideoImages';
-import VideoUsages from '../../components/VideoUsages/VideoUsages';
 import Targeting from '../../components/Targeting/Targeting';
 import Icon from '../../components/Icon';
 import { formNames } from '../../constants/formNames';
@@ -19,6 +18,7 @@ import {
   YoutubeFurnitureTabPanel
 } from './tabs/YoutubeFurniture';
 import { WorkflowTab, WorkflowTabPanel } from './tabs/Workflow';
+import { UsageTab, UsageTabPanel } from './tabs/Usage';
 
 class VideoDisplay extends React.Component {
   state = {
@@ -38,6 +38,7 @@ class VideoDisplay extends React.Component {
     } else {
       this.getVideo();
       this.getWorkflowState();
+      this.getUsages();
     }
   }
 
@@ -47,6 +48,10 @@ class VideoDisplay extends React.Component {
 
   getWorkflowState() {
     this.props.workflowActions.getStatus(this.props.video);
+  }
+
+  getUsages() {
+    this.props.videoActions.getUsages(this.props.params.id);
   }
 
   saveAndUpdateVideo = video => {
@@ -138,25 +143,6 @@ class VideoDisplay extends React.Component {
     );
   }
 
-  renderUsages() {
-    if (this.props.video && this.props.video.id) {
-      return (
-        <div className="video__detailbox">
-          <div className="video__detailbox__header__container">
-            <header className="video__detailbox__header">Usages</header>
-          </div>
-          <VideoUsages
-              video={this.props.video || {}}
-              publishedVideo={this.props.publishedVideo || {}}
-              usages={this.props.usages || {}}
-          />
-        </div>
-      );
-    } else {
-      return '';
-    }
-  }
-
   renderTargeting() {
     return (
       <div className="video__detailbox">
@@ -227,7 +213,8 @@ class VideoDisplay extends React.Component {
       videoEditOpen,
       video,
       usages,
-      workflow
+      workflow,
+      publishedVideo
     } = this.props;
 
     const {
@@ -247,6 +234,7 @@ class VideoDisplay extends React.Component {
           <FurnitureTab disabled={furnitureDisabled} />
           <YoutubeFurnitureTab disabled={ytFurnitureDisabled} />
           <WorkflowTab disabled={workflowDisabled || isCreateMode} />
+          <UsageTab disabled={videoEditOpen || isCreateMode} />
         </TabList>
         <FurnitureTabPanel
           editing={editingFurniture}
@@ -319,6 +307,11 @@ class VideoDisplay extends React.Component {
           video={video}
           isTrackedInWorkflow={workflow.status.isTrackedInWorkflow || false}
         />
+        <UsageTabPanel
+          video={video}
+          publishedVideo={publishedVideo || {}}
+          usages={usages || {}}
+        />
       </Tabs>
     );
   }
@@ -345,7 +338,6 @@ class VideoDisplay extends React.Component {
             </div>
             <div className="video__row">
               {this.renderTargeting()}
-              {this.renderUsages()}
             </div>
           </div>
         </div>
