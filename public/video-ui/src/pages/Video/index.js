@@ -4,7 +4,6 @@ import VideoSelectBar from '../../components/VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../../components/VideoPreview/VideoPreview';
 import VideoImages from '../../components/VideoImages/VideoImages';
 import VideoUsages from '../../components/VideoUsages/VideoUsages';
-import Workflow from '../../components/Workflow/Workflow';
 import Targeting from '../../components/Targeting/Targeting';
 import Icon from '../../components/Icon';
 import { formNames } from '../../constants/formNames';
@@ -19,12 +18,14 @@ import {
   YoutubeFurnitureTab,
   YoutubeFurnitureTabPanel
 } from './tabs/YoutubeFurniture';
+import { WorkflowTab, WorkflowTabPanel } from './tabs/Workflow';
 
 class VideoDisplay extends React.Component {
   state = {
     isCreateMode: false,
     editingFurniture: false,
-    editingYoutubeFurniture: false
+    editingYoutubeFurniture: false,
+    editingWorkflow: false
   };
 
   componentWillMount() {
@@ -36,12 +37,16 @@ class VideoDisplay extends React.Component {
       this.updateEditingState({ key: 'editingFurniture', editing: true });
     } else {
       this.getVideo();
-      this.props.videoActions.getUsages(this.props.params.id);
+      this.getWorkflowState();
     }
   }
 
   getVideo() {
     this.props.videoActions.getVideo(this.props.params.id);
+  }
+
+  getWorkflowState() {
+    this.props.workflowActions.getStatus(this.props.video);
   }
 
   saveAndUpdateVideo = video => {
@@ -152,14 +157,6 @@ class VideoDisplay extends React.Component {
     }
   }
 
-  renderWorkflow() {
-    if (this.props.video && this.props.video.id) {
-      return (
-        <Workflow video={this.props.video}/>
-      );
-    }
-  }
-
   renderTargeting() {
     return (
       <div className="video__detailbox">
@@ -172,6 +169,42 @@ class VideoDisplay extends React.Component {
       </div>
     );
   }
+
+  saveInWorkflow() {
+    const { video } = this.props;
+
+    const {
+      trackedInWorkflow,
+      sections,
+      status: { status, section, note }
+    } = this.props.workflow;
+
+    const {
+      getStatus,
+      trackInWorkflow,
+      updateWorkflowData
+    } = this.props.workflowActions;
+
+    const createWorkflowItem = () =>
+      trackInWorkflow({
+        video: video,
+        section: sections.find(_ => _.id === section),
+        status: status,
+        note: note
+      });
+
+    const updateWorkflowItem = () =>
+      updateWorkflowData({
+        workflowItem: this.props.workflow.status
+      });
+
+    const wfPromise = trackedInWorkflow
+      ? updateWorkflowItem()
+      : createWorkflowItem();
+
+    wfPromise.then(() => getStatus(video));
+  }
+
 
   updateEditingState({ key, editing }) {
     this.setState({ [key]: editing });
@@ -193,23 +226,27 @@ class VideoDisplay extends React.Component {
     const {
       videoEditOpen,
       video,
-      usages
+      usages,
+      workflow
     } = this.props;
 
     const {
       isCreateMode,
       editingFurniture,
-      editingYoutubeFurniture
+      editingYoutubeFurniture,
+      editingWorkflow
     } = this.state;
 
-    const furnitureDisabled = videoEditOpen && editingYoutubeFurniture;
-    const ytFurnitureDisabled = videoEditOpen && editingFurniture;
+    const furnitureDisabled = videoEditOpen && (editingYoutubeFurniture || editingWorkflow);
+    const ytFurnitureDisabled = videoEditOpen && (editingFurniture || editingWorkflow);
+    const workflowDisabled = videoEditOpen && (editingFurniture || editingYoutubeFurniture);
 
     return (
       <Tabs className="video__detailbox">
         <TabList>
           <FurnitureTab disabled={furnitureDisabled} />
           <YoutubeFurnitureTab disabled={ytFurnitureDisabled} />
+          <WorkflowTab disabled={workflowDisabled || isCreateMode} />
         </TabList>
         <FurnitureTabPanel
           editing={editingFurniture}
@@ -266,6 +303,22 @@ class VideoDisplay extends React.Component {
           updateErrors={this.props.formErrorActions.updateFormErrors}
           updateWarnings={this.props.formErrorActions.updateFormWarnings}
         />
+        <WorkflowTabPanel
+          editing={editingWorkflow}
+          onEdit={() =>
+            this.updateEditingState({ key: 'editingWorkflow', editing: true })}
+          onCancel={() => {
+            this.updateEditingState({ key: 'editingWorkflow', editing: false });
+            this.getWorkflowState();
+          }}
+          onSave={() => {
+            this.updateEditingState({ key: 'editingWorkflow', editing: false });
+            this.saveInWorkflow();
+          }}
+          canSave={() => workflow.status.section && workflow.status.status}
+          video={video}
+          isTrackedInWorkflow={workflow.status.isTrackedInWorkflow || false}
+        />
       </Tabs>
     );
   }
@@ -293,7 +346,6 @@ class VideoDisplay extends React.Component {
             <div className="video__row">
               {this.renderTargeting()}
               {this.renderUsages()}
-              {this.renderWorkflow()}
             </div>
           </div>
         </div>
@@ -321,6 +373,11 @@ import * as updateFormWarnings
   from '../../actions/FormErrorActions/updateFormWarnings';
 import * as videoPageUpdate
   from '../../actions/VideoActions/videoPageUpdate';
+import * as getStatus from '../../actions/WorkflowActions/getStatus';
+import * as trackInWorkflow
+  from '../../actions/WorkflowActions/trackInWorkflow';
+import * as updateWorkflowData
+  from '../../actions/WorkflowActions/updateWorkflowData';
 
 function mapStateToProps(state) {
   return {
@@ -330,7 +387,8 @@ function mapStateToProps(state) {
     composerPageWithUsage: state.pageCreate,
     publishedVideo: state.publishedVideo,
     videoEditOpen: state.videoEditOpen,
-    checkedFormFields: state.checkedFormFields
+    checkedFormFields: state.checkedFormFields,
+    workflow: state.workflow
   };
 }
 
@@ -352,6 +410,10 @@ function mapDispatchToProps(dispatch) {
     ),
     formErrorActions: bindActionCreators(
       Object.assign({}, updateFormErrors, updateFormWarnings),
+      dispatch
+    ),
+    workflowActions: bindActionCreators(
+      Object.assign({}, getStatus, trackInWorkflow, updateWorkflowData),
       dispatch
     )
   };
