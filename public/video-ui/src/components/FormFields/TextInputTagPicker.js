@@ -5,7 +5,6 @@ import UserActions from '../../constants/UserActions';
 import TagTypes from '../../constants/TagTypes';
 import CapiSearch from '../CapiSearch/CapiSearch';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
-import removeTagDuplicates from '../../util/removeTagDuplicates';
 
 export default class TextInputTagPicker extends React.Component {
 
@@ -14,7 +13,6 @@ export default class TextInputTagPicker extends React.Component {
     onUpdate: PropTypes.func.isRequired,
     fetchTags: PropTypes.func.isRequired,
     removeFn: PropTypes.func.isRequired,
-    onUpdate: PropTypes.func.isRequired,
     capiTags: PropTypes.array.isRequired,
     tagsToVisible: PropTypes.func.isRequired,
     showTags: PropTypes.bool.isRequired,
@@ -24,7 +22,7 @@ export default class TextInputTagPicker extends React.Component {
     disableCapiTags: PropTypes.bool,
     tagType: PropTypes.string,
     fieldName: PropTypes.string
-  }
+  };
 
   state = {
     inputString: '',
@@ -40,33 +38,30 @@ export default class TextInputTagPicker extends React.Component {
   }
 
   selectNewTag = (newFieldValue) => {
-
       this.setState({
         inputString: ''
       });
 
       this.props.onUpdate(newFieldValue);
-  }
+  };
 
   getYoutubeInputValue = () => {
+    const existingValueSet = new Set(this.props.tagValue.map(_ => _.id));
+    const newValueSet = new Set();
+
     return this.state.inputString.split(',')
-      .filter(keyword => keyword.length !== 0)
-      .map(keyword => keyword.trim())
-      .reduce((keywordsAsObjects, keyword) => {
-        if (
-          this.props.tagValue.every(value => {
-            return value.id !== keyword;
-          })
-        ) {
-          keywordsAsObjects.push(
-            {
-              id: keyword,
-              webTitle: keyword
-            }
-          );
+      .filter(candidate => candidate.length !== 0)
+      .map(candidate => candidate.trim())
+      .reduce((acc, candidate) => {
+        const lowerCaseCandidate = candidate.toLowerCase();
+        const isNewValue = !existingValueSet.has(lowerCaseCandidate) && !newValueSet.has(lowerCaseCandidate);
+
+        if (isNewValue) {
+          acc.push({ id: candidate, webTitle: candidate});
         }
 
-        return keywordsAsObjects;
+        newValueSet.add(candidate);
+        return acc;
       }, []);
   };
 
