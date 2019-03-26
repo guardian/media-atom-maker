@@ -1,6 +1,7 @@
 package com.gu.media.model
 
-import com.gu.contentatom.thrift.atom.media.{MediaAtom => ThriftMediaAtom, Metadata => ThriftMetadata}
+import com.gu.contentatom.thrift.atom.media.{MediaAtom => ThriftMediaAtom, Metadata => ThriftMetadata, YoutubeData => ThriftYoutubeData}
+import play.api.libs.json.Format
 import com.gu.contentatom.thrift.{AtomData, Atom => ThriftAtom, AtomType => ThriftAtomType, Flags => ThriftFlags}
 import com.gu.media.util.MediaAtomImplicits
 import org.cvogt.play.json.Jsonx
@@ -22,6 +23,8 @@ abstract class MediaAtomBase {
   val license: Option[String]
   val blockAds: Boolean
   val expiryDate: Option[Long]
+  val youtubeTitle: String
+  val youtubeDescription: Option[String]
 
   //composer metadata
   val trailImage: Option[Image]
@@ -93,7 +96,8 @@ case class MediaAtomBeforeCreation(
         channelId = channelId,
         privacyStatus = privacyStatus.flatMap(_.asThrift),
         expiryDate = expiryDate,
-        pluto = None
+        pluto = None,
+        youtube = Some(ThriftYoutubeData(youtubeTitle, youtubeDescription))
       )),
       commentsEnabled = composerCommentsEnabled,
       optimisedForWeb = optimisedForWeb,
@@ -115,10 +119,14 @@ case class MediaAtomBeforeCreation(
       ))
     )
   }
+
+  // when creating an atom, use the `title` (headline) and `description` (standfirst) as the initial `youtubeTitle` and `youtubeDescription`
+  override val youtubeTitle: String = title
+  override val youtubeDescription: Option[String] = description
 }
 
 object MediaAtomBeforeCreation {
-  implicit val mediaAtomBeforeCreationFormat = Jsonx.formatCaseClass[MediaAtomBeforeCreation]
+  implicit val mediaAtomBeforeCreationFormat: Format[MediaAtomBeforeCreation] = Jsonx.formatCaseClass[MediaAtomBeforeCreation]
 }
 
 // Note: This is *NOT* structured like the thrift representation
@@ -151,6 +159,8 @@ case class MediaAtom(
   sensitive: Option[Boolean],
   privacyStatus: Option[PrivacyStatus],
   expiryDate: Option[Long] = None,
+  youtubeTitle: String,
+  youtubeDescription: Option[String],
   blockAds: Boolean = false,
   composerCommentsEnabled: Option[Boolean] = Some(false),
   optimisedForWeb: Option[Boolean] = Some(false),
@@ -180,7 +190,8 @@ case class MediaAtom(
         channelId = channelId,
         privacyStatus = privacyStatus.flatMap(_.asThrift),
         expiryDate = expiryDate,
-        pluto = plutoData.map(_.asThrift)
+        pluto = plutoData.map(_.asThrift),
+        youtube = Some(ThriftYoutubeData(youtubeTitle, youtubeDescription))
       )),
       commentsEnabled = composerCommentsEnabled,
       optimisedForWeb = optimisedForWeb,
@@ -219,6 +230,14 @@ object MediaAtom extends MediaAtomImplicits {
   def fromThrift(atom: ThriftAtom) = {
     val data = atom.tdata
 
+    val youtubeDescription: Option[String] = data.metadata.flatMap(_.youtube) match {
+      case Some(d) => d.description match {
+        case Some(x) => Some(x)
+        case _ => data.description
+      }
+      case _ => data.description
+    }
+
     MediaAtom(
       id = atom.id,
       labels = atom.labels.toList,
@@ -238,8 +257,8 @@ object MediaAtom extends MediaAtomImplicits {
       byline = data.byline.map(_.toList).getOrElse(Nil),
       commissioningDesks = data.commissioningDesks.map(_.toList).getOrElse(Nil),
       keywords = data.keywords.map(_.toList).getOrElse(Nil),
-      youtubeCategoryId = data.metadata.map(_.categoryId).getOrElse(None),
-      expiryDate = data.metadata.map(_.expiryDate).getOrElse(None),
+      youtubeCategoryId = data.metadata.flatMap(_.categoryId),
+      expiryDate = data.metadata.flatMap(_.expiryDate),
       blockAds = atom.flags.flatMap(_.blockAds).getOrElse(false),
       license = data.metadata.flatMap(_.license),
       channelId = data.metadata.flatMap(_.channelId),
@@ -248,7 +267,9 @@ object MediaAtom extends MediaAtomImplicits {
       privacyStatus = data.metadata.flatMap(_.privacyStatus).flatMap(PrivacyStatus.fromThrift),
       composerCommentsEnabled = data.commentsEnabled,
       optimisedForWeb = data.optimisedForWeb,
-      suppressRelatedContent = data.suppressRelatedContent
+      suppressRelatedContent = data.suppressRelatedContent,
+      youtubeTitle = data.metadata.flatMap(_.youtube).map(_.title).getOrElse(data.title),
+      youtubeDescription = youtubeDescription
     )
   }
 }

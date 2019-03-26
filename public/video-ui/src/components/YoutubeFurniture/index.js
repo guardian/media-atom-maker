@@ -11,6 +11,9 @@ import YouTubeKeywords from "../../constants/youTubeKeywords";
 import {getYouTubeTagCharCount} from "../../util/getYouTubeTagCharCount";
 import FieldNotification from "../../constants/FieldNotification";
 import KeywordsApi from '../../services/KeywordsApi';
+import {fieldLengths} from "../../constants/videoEditValidation";
+import TextInput from "../FormFields/TextInput";
+import TextAreaInput from "../FormFields/TextAreaInput";
 
 class YoutubeFurniture extends React.Component {
   static propTypes = {
@@ -108,6 +111,23 @@ class YoutubeFurniture extends React.Component {
         </ManagedField>
         <ManagedField fieldLocation="youtubeCategoryId" name="Category">
           <SelectBox selectValues={categories} />
+        </ManagedField>
+        <ManagedField
+          fieldLocation="youtubeTitle"
+          name="Title"
+          maxLength={fieldLengths.title}
+          isRequired={true}
+        >
+          <TextInput />
+        </ManagedField>
+        <ManagedField
+          fieldLocation="youtubeDescription"
+          name="Description"
+          maxCharLength={fieldLengths.description.charMax}
+          maxLength={fieldLengths.description.max}
+          isRequired={false}
+        >
+          <TextAreaInput />
         </ManagedField>
         <ManagedField
           fieldLocation="tags"

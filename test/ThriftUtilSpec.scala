@@ -72,7 +72,7 @@ class ThriftUtilSpec extends FunSpec
       inside(parseMediaAtom(makeParams("uri" -> youtubeUrl, "metadata" -> meta))) {
         case Right(MediaAtom(assets, Some(1L), "unknown", Category.News, None, None, None, None, None, metadata, None,
         None, None, None, None, None, None, None, None)) =>
-          metadata should matchPattern { case Some(Metadata(_, _, _, Some(true), Some("channelId"), Some(PrivacyStatus.Private), Some(1), _)) => }
+          metadata should matchPattern { case Some(Metadata(_, _, _, Some(true), Some("channelId"), Some(PrivacyStatus.Private), Some(1), _, _)) => }
       }
     }
   }
