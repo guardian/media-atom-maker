@@ -236,9 +236,10 @@ object MediaAtom extends MediaAtomImplicits {
     //for the first and before each list element
     html.select("p:gt(0), li")
         .prepend("\\n")
-        .select("a").unwrap()
-        .text()
-        .replace("\\n", "\n")
+        .select("a")
+        .unwrap()
+
+    html.text().replace("\\n", "\n")
   }
 
   def fromThrift(atom: ThriftAtom) = {
