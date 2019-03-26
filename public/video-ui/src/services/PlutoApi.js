@@ -11,3 +11,20 @@ export function getPlutoProjects({commissionId}) {
     url: `/api/pluto/commissions/${commissionId}/projects`
   });
 }
+
+export function getPlutoProjectLink(projectId) {
+  // `plutoSources` lifted from flexible-content
+  // https://github.com/guardian/flexible-content/blob/master/composer/src/js/controllers/content/video/body-block.js
+  const plutoDev = { prefix: 'VX-', domain: 'pluto-dev' };
+
+  const plutoSources = [
+    { prefix: 'KP-', domain: 'pluto' },
+    { prefix: 'BK-', domain: 'pluto-dr' },
+    plutoDev
+  ];
+
+  const plutoSource = plutoSources.find(source => projectId.startsWith(source)) || plutoDev;
+
+  // pluto isn't accessible over https
+  return `http://${plutoSource.domain}/project/${projectId}`;
+}
