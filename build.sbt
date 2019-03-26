@@ -107,7 +107,8 @@ lazy val common = (project in file("common"))
       "com.amazonaws" % "aws-java-sdk-stepfunctions" % awsVersion,
       "com.amazonaws" % "aws-java-sdk-ses" % awsVersion,
       "com.gu" %% "content-api-client-aws" % capiAwsVersion,
-      "org.scalatest" %% "scalatest" % scalaTestVersion % "test"
+      "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
+      "org.jsoup" % "jsoup" % jsoupVersion
     )
   )
 
@@ -127,8 +128,7 @@ lazy val app = (project in file("."))
       "com.amazonaws" % "aws-java-sdk-ec2" % awsVersion,
       "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestPlusPlayVersion % "test",
       "org.mockito" %  "mockito-core" % mockitoVersion % "test",
-      "org.scala-lang.modules" %% "scala-xml" % scalaXmlVersion   % "test",
-      "org.jsoup" % "jsoup" % jsoupVersion
+      "org.scala-lang.modules" %% "scala-xml" % scalaXmlVersion   % "test"
     ),
 
     aggregate in run := false,
