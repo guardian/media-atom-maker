@@ -112,6 +112,20 @@
   }
 }
 
+.icon__cancel {
+  background-color: $color100Grey;
+  margin-left: 5px;
+
+  &:hover {
+    background-color: darken($color100Grey, 5%);
+  }
+
+  &.disabled {
+    cursor: default;
+    opacity: 0.4;
+  }
+}
+
 .svg-icon {
   svg {
     width: $iconSize;
