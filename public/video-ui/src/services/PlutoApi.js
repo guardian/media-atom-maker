@@ -23,7 +23,7 @@ export function getPlutoProjectLink(projectId) {
     plutoDev
   ];
 
-  const plutoSource = plutoSources.find(source => projectId.startsWith(source)) || plutoDev;
+  const plutoSource = plutoSources.find(source => projectId.startsWith(source.prefix)) || plutoDev;
 
   // pluto isn't accessible over https
   return `http://${plutoSource.domain}/project/${projectId}`;
