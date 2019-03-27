@@ -123,8 +123,8 @@ class YoutubeFurniture extends React.Component {
         <ManagedField
           fieldLocation="youtubeDescription"
           name="Description"
-          maxCharLength={fieldLengths.description.charMax}
-          maxLength={fieldLengths.description.max}
+          maxCharLength={fieldLengths.youtubeDescription.charMax}
+          maxLength={fieldLengths.youtubeDescription.charMax}
           isRequired={false}
         >
           <TextAreaInput />
