@@ -6,6 +6,7 @@ import PlutoProjectPicker from '../../components/Pluto/PlutoProjectPicker';
 import AddSelfHostedAsset from '../../components/VideoUpload/AddSelfHostedAsset';
 import YoutubeUpload from '../../components/VideoUpload/YoutubeUpload';
 import PACUpload from '../../components/PACUpload/PACUpload';
+import PlutoProjectLink from '../../components/Pluto/PlutoProjectLink';
 
 class VideoUpload extends React.Component {
   hasCategories = () =>
@@ -29,6 +30,8 @@ class VideoUpload extends React.Component {
     const uploading = this.props.s3Upload.total > 0;
     const activeVersion = this.props.video ? this.props.video.activeVersion : 0;
 
+    const projectId = this.props.video.plutoData && this.props.video.plutoData.projectId;
+
     return (
       <div>
         <div className="video__main">
@@ -41,6 +44,7 @@ class VideoUpload extends React.Component {
                   </header>
                 </div>
                 <div className="form__group">
+                  { projectId && <PlutoProjectLink projectId={projectId}/> }
                   <PlutoProjectPicker
                     video={this.props.video || {}}
                     saveVideo={this.props.videoActions.saveVideo}
