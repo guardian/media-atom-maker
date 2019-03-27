@@ -24,8 +24,11 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
 
   type T = MediaAtom
 
-  def getDateIfPublished(dateRecord: Option[ChangeRecord], published: Option[ThriftChangeRecord]): Option[DateTime] =
-    published.flatMap(_ => dateRecord.map(date => new DateTime(date)))
+  def getDateIfNotPublished(dateRecord: Option[ChangeRecord], published: Option[ThriftChangeRecord]): Option[DateTime] =
+    published match {
+      case Some(_) => None
+      case None => dateRecord.map(_.date)
+    }
 
   def process(): T = {
     log.info(s"Request to update atom ${atom.id}")
@@ -42,9 +45,9 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
     val changeRecord = ChangeRecord.now(user)
     val atomIsPublished = existingAtom.contentChangeDetails.published
 
-    val scheduledLaunchDate: Option[DateTime] = getDateIfPublished(atom.contentChangeDetails.scheduledLaunch, atomIsPublished)
+    val scheduledLaunchDate: Option[DateTime] = getDateIfNotPublished(atom.contentChangeDetails.scheduledLaunch, atomIsPublished)
 
-    val embargo: Option[DateTime] = getDateIfPublished(atom.contentChangeDetails.embargo, atomIsPublished)
+    val embargo: Option[DateTime] = getDateIfNotPublished(atom.contentChangeDetails.embargo, atomIsPublished)
 
     val expiry: Option[DateTime] = atom.expiryDate.map(expiry => new DateTime(expiry))
 
