@@ -8,5 +8,8 @@ export const fieldLengths = {
   trail: {
     max: 1000,
     charMax: 2000
+  },
+  youtubeDescription: {
+    charMax: 5000
   }
 };
