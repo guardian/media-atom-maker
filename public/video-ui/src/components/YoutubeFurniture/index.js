@@ -36,6 +36,16 @@ class YoutubeFurniture extends React.Component {
     }
   }
 
+  validateYouTubeDescription = description => {
+    return description.match(/<|>/)
+      ? new FieldNotification(
+        'required',
+        `'<' and '>' are not allowed in YouTube descriptions`,
+        FieldNotification.error
+      )
+      : null;
+  };
+
   validateYouTubeKeywords = youTubeKeywords => {
     const charLimit = YouTubeKeywords.maxCharacters;
     const numberOfChars = getYouTubeTagCharCount(youTubeKeywords);
@@ -126,6 +136,7 @@ class YoutubeFurniture extends React.Component {
           maxCharLength={fieldLengths.youtubeDescription.charMax}
           maxLength={fieldLengths.youtubeDescription.charMax}
           isRequired={false}
+          customValidation={this.validateYouTubeDescription}
         >
           <TextAreaInput />
         </ManagedField>
