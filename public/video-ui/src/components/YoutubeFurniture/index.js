@@ -37,7 +37,7 @@ class YoutubeFurniture extends React.Component {
   }
 
   validateYouTubeDescription = description => {
-    return description.match(/<|>/)
+    return description && description.match(/<|>/)
       ? new FieldNotification(
         'required',
         `'<' and '>' are not allowed in YouTube descriptions`,
