@@ -4,8 +4,8 @@ import com.gu.contentatom.thrift.atom.media.{MediaAtom => ThriftMediaAtom, Metad
 import play.api.libs.json.Format
 import com.gu.contentatom.thrift.{AtomData, Atom => ThriftAtom, AtomType => ThriftAtomType, Flags => ThriftFlags}
 import com.gu.media.util.MediaAtomImplicits
+import com.gu.media.youtube.YoutubeDescription
 import org.cvogt.play.json.Jsonx
-import org.jsoup.Jsoup
 
 abstract class MediaAtomBase {
   //generic metadata
@@ -123,7 +123,7 @@ case class MediaAtomBeforeCreation(
 
   // when creating an atom, use the `title` (headline) and `description` (standfirst) as the initial `youtubeTitle` and `youtubeDescription`
   override val youtubeTitle: String = title
-  override val youtubeDescription: Option[String] = description
+  override val youtubeDescription: Option[String] = YoutubeDescription.clean(description)
 }
 
 object MediaAtomBeforeCreation {
@@ -228,26 +228,12 @@ case class MediaAtom(
 object MediaAtom extends MediaAtomImplicits {
   implicit val mediaAtomFormat = Jsonx.formatCaseClass[MediaAtom]
 
-  private def removeHtmlTagsForYouTube(description: String): String = {
-    val html = Jsoup.parse(description)
-
-    //Extracting the text removes line breaks
-    //We add them back in before each paragraph except
-    //for the first and before each list element
-    html.select("p:gt(0), li")
-        .prepend("\\n")
-        .select("a")
-        .unwrap()
-
-    html.text().replace("\\n", "\n")
-  }
-
   def fromThrift(atom: ThriftAtom) = {
     val data = atom.tdata
 
     val youtubeDescription: Option[String] = data.metadata.flatMap(_.youtube) match {
       case Some(youtubeData) if youtubeData.description.isDefined => youtubeData.description
-      case _ => data.description.map(removeHtmlTagsForYouTube)
+      case _ => YoutubeDescription.clean(data.description)
     }
 
     MediaAtom(
