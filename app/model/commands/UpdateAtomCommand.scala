@@ -51,8 +51,6 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
 
     val expiry: Option[DateTime] = atom.expiryDate.map(expiry => new DateTime(expiry))
 
-    log.info(s"New embargo date: $embargo")
-
     val details = atom.contentChangeDetails.copy(
       revision = existingAtom.contentChangeDetails.revision + 1,
       lastModified = Some(changeRecord),
@@ -61,6 +59,8 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
       expiry = expiry.map(ChangeRecord.build(_, user))
     )
     val thrift = atom.copy(contentChangeDetails = details).asThrift
+
+    log.info(s"Thrift to be sent to CAPI: $thrift")
 
     previewDataStore.updateAtom(thrift).fold(
       err => {
