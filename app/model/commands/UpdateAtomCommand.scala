@@ -101,7 +101,7 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
     plutoActions.sendToPluto(message)
   }
 
-  private val interestingFields = List("title", "category", "description", "duration", "source", "youtubeCategoryId", "license", "commentsEnabled", "channelId", "legallySensitive")
+  private val interestingFields = List("title", "category", "description", "duration", "source", "youtubeCategoryId", "license", "commentsEnabled", "channelId", "legallySensitive", "contentChangeDetails")
 
   // We don't use HTTP patch so diffing has to be done manually
   def createDiffString(before: MediaAtom, after: MediaAtom): String = {
