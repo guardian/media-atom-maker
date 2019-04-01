@@ -51,6 +51,8 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
 
     val expiry: Option[DateTime] = atom.expiryDate.map(expiry => new DateTime(expiry))
 
+    log.info(s"New embargo date: $embargo")
+
     val details = atom.contentChangeDetails.copy(
       revision = existingAtom.contentChangeDetails.revision + 1,
       lastModified = Some(changeRecord),
@@ -69,8 +71,7 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
         val event = ContentAtomEvent(thrift, EventType.Update, new Date().getTime)
 
         previewPublisher.publishAtomEvent(event) match {
-          case Success(_) => {
-
+          case Success(_) =>
             val existingMediaAtom = MediaAtom.fromThrift(existingAtom)
             val updatedMediaAtom = MediaAtom.fromThrift(thrift)
             processPlutoData(existingMediaAtom, updatedMediaAtom)
@@ -78,7 +79,6 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
             AuditMessage(atom.id, "Update", getUsername(user), Some(diffString)).logMessage()
 
             updatedMediaAtom
-          }
           case Failure(err) =>
             log.error(s"Unable to publish updated atom ${atom.id}", err)
             AtomPublishFailed(s"could not publish: ${err.toString}")
@@ -101,7 +101,7 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
     plutoActions.sendToPluto(message)
   }
 
-  private val interestingFields = List("title", "category", "description", "duration", "source", "youtubeCategoryId", "license", "commentsEnabled", "channelId", "legallySensitive", "contentChangeDetails")
+  private val interestingFields = List("title", "category", "description", "duration", "source", "youtubeCategoryId", "license", "commentsEnabled", "channelId", "legallySensitive")
 
   // We don't use HTTP patch so diffing has to be done manually
   def createDiffString(before: MediaAtom, after: MediaAtom): String = {
