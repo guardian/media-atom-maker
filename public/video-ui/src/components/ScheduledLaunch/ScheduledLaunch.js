@@ -148,6 +148,7 @@ export default class ScheduledLaunch extends React.Component {
 
   renderScheduleOptions = (video, videoEditOpen, scheduledLaunch, embargo) => {
     const hasPreventedPublication = embargo && embargo >= impossiblyDistantDate;
+    // We don't currently allow setting of embargo dates
     return (
       <ul className="scheduleOptions">
         {!hasPreventedPublication && (
@@ -161,14 +162,14 @@ export default class ScheduledLaunch extends React.Component {
             </button>
           </li>
         )}
-        {!hasPreventedPublication && (
+        {!hasPreventedPublication && embargo && (
           <li>
             <button
               className="btn btn--list-item"
               onClick={() => this.onSelectOption(datesProperties.selectedEmbargoDate)}
               disabled={!video || videoEditOpen}
             >
-              {embargo ? 'Edit embargo' : 'Embargo until...'}
+              Edit embargo
             </button>
           </li>
         )}
