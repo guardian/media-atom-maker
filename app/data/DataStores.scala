@@ -3,23 +3,34 @@ package data
 import com.gu.atom.data._
 import com.gu.atom.publish._
 import com.gu.contentatom.thrift.Atom
+import com.gu.media.aws.SNSAccess
 import com.gu.media.pluto.{PlutoCommissionDataStore, PlutoProjectDataStore}
 import com.gu.media.{CapiAccess, PlutoDataStore}
 import model.commands.CommandExceptions._
-import util.AWSConfig
+import util.{AWSConfig, NotifyingAtomPublisher}
 
-class DataStores(aws: AWSConfig, capi: CapiAccess)  {
+class DataStores(aws: AWSConfig with SNSAccess, capi: CapiAccess)  {
 
   val preview = new PreviewDynamoDataStore(aws.dynamoDB, aws.dynamoTableName)
   val published = new PublishedDynamoDataStore(aws.dynamoDB, aws.publishedDynamoTableName)
 
   val pluto: PlutoDataStore = new PlutoDataStore(aws.dynamoDB, aws.manualPlutoDynamo)
 
-  val livePublisher: LiveKinesisAtomPublisher =
-    new LiveKinesisAtomPublisher(aws.liveKinesisStreamName, aws.crossAccountKinesisClient)
+  val livePublisher: NotifyingAtomPublisher =
+    new NotifyingAtomPublisher(
+      isLive = true,
+      topicArn = aws.capiContentEventsTopicName,
+      underlying = new LiveKinesisAtomPublisher(aws.liveKinesisStreamName, aws.crossAccountKinesisClient),
+      sns = aws.snsClient
+    )
 
-  val previewPublisher: PreviewKinesisAtomPublisher =
-    new PreviewKinesisAtomPublisher(aws.previewKinesisStreamName, aws.crossAccountKinesisClient)
+  val previewPublisher: NotifyingAtomPublisher =
+    new NotifyingAtomPublisher(
+      isLive = false,
+      topicArn = aws.capiContentEventsTopicName,
+      underlying = new LiveKinesisAtomPublisher(aws.previewKinesisStreamName, aws.crossAccountKinesisClient),
+      sns = aws.snsClient
+    )
 
   val reindexPreview: PreviewAtomReindexer =
     new PreviewKinesisAtomReindexer(aws.previewKinesisReindexStreamName, aws.crossAccountKinesisClient)
@@ -41,8 +52,8 @@ trait UnpackedDataStores {
   val previewDataStore: PreviewDataStore = stores.preview
   val publishedDataStore: PublishedDataStore = stores.published
 
-  val previewPublisher: PreviewAtomPublisher = stores.previewPublisher
-  val livePublisher: LiveAtomPublisher = stores.livePublisher
+  val previewPublisher: AtomPublisher = stores.previewPublisher
+  val livePublisher: AtomPublisher = stores.livePublisher
 
   def getPreviewAtom(atomId: String): Atom  = previewDataStore.getAtom(atomId) match {
     case Right(atom) => atom
