@@ -21,7 +21,7 @@ class NotifyingAtomPublisher(isLive: Boolean, topicArn: String, underlying: Atom
   }
 }
 
-case class SimpleContentUpdate( composerId: String,
+case class SimpleContentUpdate( id: String,
                                 whatChanged: String,
                                 eventTime: DateTime,
                                 revision: Option[Long],
@@ -35,7 +35,7 @@ object SimpleContentUpdate {
   implicit val writes: Writes[SimpleContentUpdate] = Json.writes[SimpleContentUpdate]
 
   def fromEvent(event: ContentAtomEvent, isLive: Boolean): SimpleContentUpdate = SimpleContentUpdate(
-    composerId = s"${event.atom.atomType.toString}/${event.atom.id}",
+    id = s"${event.atom.atomType.toString}/${event.atom.id}",
     whatChanged = if(event.eventType == EventType.Takedown) { "takeDown" } else { "update" },
     eventTime = new DateTime(event.eventCreationTime, DateTimeZone.UTC),
     revision = Some(event.atom.contentChangeDetails.revision),
