@@ -30,7 +30,7 @@ case class PublishAtomCommand(
   permissions: MediaAtomMakerPermissionsProvider,
   awsConfig: AWSConfig,
   thumbnailGenerator: ThumbnailGenerator)
-  extends Command with AtomAPIActions with Logging {
+  extends Command with Logging {
 
   type T = Future[MediaAtom]
 

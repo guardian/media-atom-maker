@@ -29,7 +29,6 @@ class Api(
   capi: Capi,
   thumbnailGenerator: ThumbnailGenerator)
   extends MediaAtomImplicits
-    with AtomAPIActions
     with AtomController
     with JsonRequestParsing
     with Logging {

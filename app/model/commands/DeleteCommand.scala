@@ -13,7 +13,7 @@ import model.YouTubeMessage
 import util.YouTube
 
 case class DeleteCommand(id: String, override val stores: DataStores, youTube: YouTube)
-  extends Command with AtomAPIActions with Logging {
+  extends Command with Logging {
 
   type T = Unit
 

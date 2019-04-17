@@ -21,6 +21,7 @@ class AWSConfig(override val config: Config, override val credentials: AwsCreden
     with ElasticTranscodeAccess
     with KinesisLogging
     with SQSAccess
+    with SNSAccess
     with SESSettings {
 
   lazy val ec2Client = AmazonEC2ClientBuilder
