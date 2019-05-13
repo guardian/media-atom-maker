@@ -9,10 +9,10 @@ val scroogeVersion = "4.12.0"
 val awsVersion = "1.11.125"
 val pandaVersion = "0.5.1"
 val pandaHmacVersion = "1.2.0"
-val atomMakerVersion = "1.1.22"
+val atomMakerVersion = "1.2.1"
 val slf4jVersion = "1.7.21"
 val typesafeConfigVersion = "1.3.0" // to match what we get from Play transitively
-val scanamoVersion = "0.9.1" // to match what we get from atom-publisher-lib transitively
+val scanamoVersion = "1.0.0-M9" // to match what we get from atom-publisher-lib transitively
 
 val scalaLoggingVersion = "3.4.0"
 val jacksonDatabindVersion = "2.9.2"
@@ -98,7 +98,7 @@ lazy val common = (project in file("common"))
       "net.logstash.logback" % "logstash-logback-encoder" % logstashLogbackEncoderVersion,
       "com.gu" % "kinesis-logback-appender" % kinesisLogbackAppenderVersion,
       "com.amazonaws" % "aws-java-sdk-elastictranscoder" % awsVersion,
-      "com.gu" %% "scanamo" % scanamoVersion,
+      "org.scanamo" %% "scanamo" % scanamoVersion,
       "com.squareup.okhttp" % "okhttp" % okHttpVersion,
       "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test", // to match ScalaTest version
       "com.amazonaws" % "aws-java-sdk-sns" % awsVersion,

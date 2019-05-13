@@ -1,10 +1,12 @@
 package com.gu.media
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
+import com.amazonaws.services.dynamodbv2.model.DeleteItemResult
 import com.gu.media.model.PlutoSyncMetadataMessage
-import com.gu.scanamo.syntax._
-import com.gu.scanamo.{Scanamo, Table}
-
+import org.scanamo.error.DynamoReadError
+import org.scanamo.syntax._
+import org.scanamo.{Scanamo, Table}
+import org.scanamo.auto._
 
 class PlutoDataStore(client: AmazonDynamoDBClient, dynamoTableName: String) {
 
@@ -32,11 +34,11 @@ class PlutoDataStore(client: AmazonDynamoDBClient, dynamoTableName: String) {
     }
   }
 
-  def put(item: PlutoSyncMetadataMessage) = {
-    val result = Scanamo.put(client)(dynamoTableName)(item)
+  def put(item: PlutoSyncMetadataMessage): Option[Either[DynamoReadError, PlutoSyncMetadataMessage]] = {
+    Scanamo.exec(client)(table.put(item))
   }
 
-  def delete(id: String) = {
+  def delete(id: String): DeleteItemResult = {
     Scanamo.exec(client)(table.delete('id -> id))
   }
 
