@@ -2,10 +2,11 @@ package com.gu.media.pluto
 
 import com.gu.media.aws.DynamoAccess
 import com.gu.media.logging.Logging
-import com.gu.scanamo.{Scanamo, Table}
-import com.gu.scanamo.DynamoFormat._
-import com.gu.scanamo.DynamoFormat
-import com.gu.scanamo.syntax._
+import org.scanamo.{Scanamo, Table}
+import org.scanamo.DynamoFormat._
+import org.scanamo.DynamoFormat
+import org.scanamo.syntax._
+import org.scanamo.auto._
 import org.joda.time.{DateTime, DateTimeZone}
 
 case class PlutoProjectDataStoreException(err: String) extends Exception(err)
@@ -46,6 +47,6 @@ class PlutoProjectDataStore(aws: DynamoAccess, plutoCommissionDataStore: PlutoCo
 
   def deleteByCommissionId(commissionId: String) = {
     log.info(s"deleting all pluto projects for commission $commissionId")
-    getByCommissionId(commissionId).map(project => Scanamo.delete(aws.dynamoDB)(table.name)('id -> project.id))
+    getByCommissionId(commissionId).map(project => Scanamo.exec(aws.dynamoDB)(table.delete('id -> project.id)))
   }
 }

@@ -2,8 +2,9 @@ package com.gu.media
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.gu.media.model.PlutoSyncMetadataMessage
-import com.gu.scanamo.syntax._
-import com.gu.scanamo.{Scanamo, Table}
+import org.scanamo.syntax._
+import org.scanamo.auto._
+import org.scanamo.{Scanamo, Table}
 
 
 class PlutoDataStore(client: AmazonDynamoDBClient, dynamoTableName: String) {
@@ -33,7 +34,7 @@ class PlutoDataStore(client: AmazonDynamoDBClient, dynamoTableName: String) {
   }
 
   def put(item: PlutoSyncMetadataMessage) = {
-    val result = Scanamo.put(client)(dynamoTableName)(item)
+    val result = Scanamo.exec(client)(table.put(item))
   }
 
   def delete(id: String) = {
