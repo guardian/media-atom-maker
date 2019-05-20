@@ -26,8 +26,7 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
 
     val baseWithSearch = search match {
       case Some(q) => base ++ Map(
-        "q" -> q,
-        "searchFields" -> "data.title"
+        "q" -> q
       )
       case None => base
     }
