@@ -6,7 +6,7 @@ import com.gu.media.Settings
 
 trait SNSAccess { this: Settings with AwsAccess =>
 
-  lazy val capiContentEventsTopicName = getMandatoryString("aws.sns.content.capi.topicname")
+  lazy val capiContentEventsTopicName = getString("aws.sns.content.capi.topicname")
 
   lazy val snsClient =
     AmazonSNSClientBuilder.standard()
