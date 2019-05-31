@@ -16,21 +16,31 @@ class DataStores(aws: AWSConfig with SNSAccess, capi: CapiAccess)  {
 
   val pluto: PlutoDataStore = new PlutoDataStore(aws.dynamoDB, aws.manualPlutoDynamo)
 
-  val livePublisher: NotifyingAtomPublisher =
-    new NotifyingAtomPublisher(
-      isLive = true,
-      topicArn = aws.capiContentEventsTopicName,
-      underlying = new LiveKinesisAtomPublisher(aws.liveKinesisStreamName, aws.crossAccountKinesisClient),
-      sns = aws.snsClient
-    )
+  val livePublisher: AtomPublisher = aws.capiContentEventsTopicName match {
+    case Some(capiContentEventsTopicName) =>
+      new NotifyingAtomPublisher(
+        isLive = true,
+        topicArn = capiContentEventsTopicName,
+        underlying = new LiveKinesisAtomPublisher(aws.liveKinesisStreamName, aws.crossAccountKinesisClient),
+        sns = aws.snsClient
+      )
 
-  val previewPublisher: NotifyingAtomPublisher =
-    new NotifyingAtomPublisher(
-      isLive = false,
-      topicArn = aws.capiContentEventsTopicName,
-      underlying = new LiveKinesisAtomPublisher(aws.previewKinesisStreamName, aws.crossAccountKinesisClient),
-      sns = aws.snsClient
-    )
+    case None =>
+      new LiveKinesisAtomPublisher(aws.liveKinesisStreamName, aws.crossAccountKinesisClient)
+  }
+
+  val previewPublisher: AtomPublisher = aws.capiContentEventsTopicName match {
+    case Some(capiContentEventsTopicName) =>
+      new NotifyingAtomPublisher(
+        isLive = true,
+        topicArn = capiContentEventsTopicName,
+        underlying = new PreviewKinesisAtomPublisher(aws.previewKinesisStreamName, aws.crossAccountKinesisClient),
+        sns = aws.snsClient
+      )
+
+    case None =>
+      new PreviewKinesisAtomPublisher(aws.previewKinesisStreamName, aws.crossAccountKinesisClient)
+  }
 
   val reindexPreview: PreviewAtomReindexer =
     new PreviewKinesisAtomReindexer(aws.previewKinesisReindexStreamName, aws.crossAccountKinesisClient)
