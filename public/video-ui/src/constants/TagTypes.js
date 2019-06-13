@@ -26,4 +26,8 @@ export default class TagTypes {
   static get commercial() {
     return 'paid-content';
   }
+  
+  static get blog() {
+    return 'blog';
+  }
 }
