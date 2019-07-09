@@ -158,7 +158,6 @@ export class ManagedField extends React.Component {
         hasError: this.hasError,
         hasWarning: this.hasWarning,
         displayPlaceholder: this.displayPlaceholder,
-        derivedFrom: this.props.derivedFrom,
         maxCharLength: this.props.maxCharLength,
         tagType: this.props.tagType,
         inputPlaceholder: this.props.inputPlaceholder,

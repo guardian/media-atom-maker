@@ -12,8 +12,7 @@ import Icon from "../Icon";
 
 export default class ScribeEditorField extends React.Component {
   state = {
-    wordCount: 0,
-    copiedValue: null
+    wordCount: 0
   };
 
   componentDidMount() {
@@ -21,10 +20,9 @@ export default class ScribeEditorField extends React.Component {
   }
 
   updateValueFromCopy = () => {
-    this.props.onUpdateField(this.props.derivedFrom);
-    this.setState({
-      copiedValue: this.props.derivedFrom
-    });
+    console.error("TODO MRB: re-implement");
+    // TODO MRB: do we still need to fire onUpdateField?
+    // this.props.onUpdateField(this.props.derivedFrom);
   };
 
   getWords = text => {
@@ -74,23 +72,10 @@ export default class ScribeEditorField extends React.Component {
     }
   };
 
+  // TODO MRB: replace this with a custom button at a higher level
+  // It already has a specific tool tip!
   renderCopyButton = () => {
-    if (this.props.derivedFrom === undefined || !this.props.editable) {
-      return null;
-    }
-
-    return (
-        <button
-          type="button"
-          disabled={!this.props.derivedFrom}
-          className="btn form__label__button"
-          onClick={this.updateValueFromCopy}
-          data-tip="Copy trail text from description"
-          data-place="top"
-        >
-          <i className="icon">edit</i>
-        </button>
-        );
+    return null;
   };
 
   renderLimitWarning = () => {
@@ -136,7 +121,6 @@ export default class ScribeEditorField extends React.Component {
             value={this.props.fieldValue}
             onUpdate={this.updateFieldValue}
             allowedEdits={this.props.allowedEdits}
-            copiedValue={this.state.copiedValue}
           />
           {this.renderLimitWarning()}
         </div>
@@ -175,10 +159,6 @@ export class ScribeEditor extends React.Component {
     allowedEdits: PropTypes.array
   };
 
-  state = {
-    copiedValue: null
-  };
-
 
   componentDidMount() {
     ReactTooltip.rebuild();
@@ -188,15 +168,6 @@ export class ScribeEditor extends React.Component {
 
     this.scribe.on('content-changed', this.onContentChange);
     this.refs.editor.innerHTML = this.props.value;
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.copiedValue !== this.state.copiedValue) {
-      this.refs.editor.innerHTML = nextProps.copiedValue;
-      this.setState({
-        copiedValue: nextProps.copiedValue
-      });
-    }
   }
 
   configureScribe() {

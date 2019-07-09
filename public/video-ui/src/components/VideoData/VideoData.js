@@ -90,7 +90,6 @@ export default class VideoData extends React.Component {
         </ManagedField>
         <ManagedField
           fieldLocation="trailText"
-          derivedFrom={video.description}
           name="Trail Text"
           maxCharLength={fieldLengths.description.charMax}
           maxLength={fieldLengths.description.max}
