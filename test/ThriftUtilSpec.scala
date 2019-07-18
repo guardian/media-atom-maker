@@ -20,7 +20,7 @@ class ThriftUtilSpec extends FunSpec
       params.map { case (k, v) => (k, List(v)) }.toMap
 
     val youtubeId  =  "7H9Z4sn8csA"
-    val youtubeUrl = s"https://www.youtube.com/watch?v=${youtubeId}"
+    val youtubeUrl = s"https://www.youtube-nocookie.com/watch?v=${youtubeId}"
 
     it("should result in error if uri param is invalid") {
       assert(parseRequest(makeParams("uri" -> "gobbldeygook")).isLeft)
@@ -61,7 +61,7 @@ class ThriftUtilSpec extends FunSpec
               }
 
               val iframe = Jsoup.parse(defaultHtml).getElementsByTag("iframe")
-              iframe.attr("src") should be(s"https://www.youtube.com/embed/$youtubeId?showinfo=0&rel=0")
+              iframe.attr("src") should be(s"https://www.youtube-nocookie.com/embed/$youtubeId?showinfo=0&rel=0")
           }
       }
     }
