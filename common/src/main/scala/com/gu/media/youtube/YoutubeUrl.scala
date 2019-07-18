@@ -1,7 +1,7 @@
 package com.gu.media.youtube
 
 object YoutubeUrl {
-  private val re = "^https://(?:www.youtube(?:\\-nocookie).com/(?:watch\\?v=|embed/)|youtu.be/)([a-zA-Z0-9_-]{11}).*$".r
+  private val re = "^https://(?:www.youtube(?:\\-nocookie)?.com/(?:watch\\?v=|embed/)|youtu.be/)([a-zA-Z0-9_-]{11}).*$".r
 
   def unapply(url: String): Option[String] = parse(url)
 
