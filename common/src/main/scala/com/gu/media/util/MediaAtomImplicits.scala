@@ -28,7 +28,7 @@ trait MediaAtomImplicits extends AtomImplicits[MediaAtom] {
         s"""<img src="$poster"/>"""
       }
       case (Some(YouTubeAsset(id)), _) => {
-        s"""<iframe frameborder="0" allowfullscreen="true" src="https://www.youtube.com/embed/$id?showinfo=0&rel=0"></iframe>"""
+        s"""<iframe frameborder="0" allowfullscreen="true" src="https://www.youtube-nocookie.com/embed/$id?showinfo=0&rel=0"></iframe>"""
       }
       case (Some(SelfHostedAsset(sources)), poster) => {
         s"""
