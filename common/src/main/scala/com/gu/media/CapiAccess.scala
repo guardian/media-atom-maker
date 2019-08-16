@@ -17,6 +17,7 @@ trait CapiAccess { this: Settings =>
   def previewCapiIAMUrl = getMandatoryString("capi.previewIAMUrl")
   def previewCapiRole = getMandatoryString("capi.previewRole")
   def liveCapiUrl = getMandatoryString("capi.liveUrl")
+  def liveCapiApiKey = getMandatoryString("capi.liveApiKey")
 
   private val capiPreviewCredentials: AWSCredentialsProvider = {
     new AWSCredentialsProviderChain(
@@ -32,7 +33,13 @@ trait CapiAccess { this: Settings =>
 
   private def getUrl(path: String, qs: Map[String, Seq[String]], queryLive: Boolean): URI = {
     val capiDomain = if (queryLive) liveCapiUrl else previewCapiIAMUrl
-    val queryString = IAMEncoder.encodeParams(qs)
+    val queryString = IAMEncoder.encodeParams(
+      if (queryLive) {
+        qs + ("api-key" -> Seq(liveCapiApiKey))
+      } else {
+        qs
+      }
+    )
 
     URI.create(s"$capiDomain/$path?$queryString")
   }
