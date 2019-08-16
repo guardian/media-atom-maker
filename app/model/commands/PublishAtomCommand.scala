@@ -9,7 +9,7 @@ import com.gu.media.logging.Logging
 import com.gu.media.model.Platform.Youtube
 import com.gu.media.model.{AuditMessage, _}
 import com.gu.media.ses.Mailer
-import com.gu.media.youtube.YouTubeMetadataUpdate
+import com.gu.media.youtube.{YouTubeMetadataUpdate, YoutubeDescription}
 import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider}
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
@@ -74,7 +74,22 @@ case class PublishAtomCommand(
             val privacyStatus: Future[PrivacyStatus] = getPrivacyStatus(previewAtom, publishedAtom)
 
             privacyStatus.flatMap(status => {
-              val updatedPreviewAtom = previewAtom.copy(blockAds = blockAds, privacyStatus = Some(status))
+              val updatedPreviewAtom = if (publishedAtom.isDefined) {
+                previewAtom.copy(
+                  blockAds = blockAds,
+                  privacyStatus = Some(status)
+                )
+              } else {
+                // on first publish, set YouTube title and description to that of the Atom
+                // this is because there's no guarantee that the YouTube furniture gets subbed before publication and can result in draft furniture being used
+                previewAtom.copy(
+                  blockAds = blockAds,
+                  privacyStatus = Some(status),
+                  youtubeTitle = previewAtom.title,
+                  youtubeDescription = YoutubeDescription.clean(previewAtom.description)
+                )
+              }
+
               updateYouTube(publishedAtom, updatedPreviewAtom, asset).map(atomWithYoutubeUpdates => {
                 publish(atomWithYoutubeUpdates, user)
               })
