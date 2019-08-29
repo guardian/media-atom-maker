@@ -149,7 +149,7 @@ class VideoDisplay extends React.Component {
 
     const {
       sections,
-      status: { status, section, note, isTrackedInWorkflow }
+      status: { status, section, note, isTrackedInWorkflow, prodOffice }
     } = this.props.workflow;
 
     const {
@@ -163,7 +163,8 @@ class VideoDisplay extends React.Component {
         video: video,
         section: sections.find(_ => _.id === section),
         status: status,
-        note: note
+        note: note,
+        prodOffice: prodOffice
       });
 
     const updateWorkflowItem = () =>
@@ -292,7 +293,7 @@ class VideoDisplay extends React.Component {
             this.updateEditingState({ key: 'editingWorkflow', editing: false });
             this.saveInWorkflow();
           }}
-          canSave={() => workflow.status.section && workflow.status.status}
+          canSave={() => workflow.status.section && workflow.status.status && workflow.status.prodOffice}
           video={video}
           isTrackedInWorkflow={workflow.status.isTrackedInWorkflow || false}
         />

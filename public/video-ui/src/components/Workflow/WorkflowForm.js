@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
-import TextInput from '../FormFields/TextInput';
 import TextAreaInput from '../FormFields/TextAreaInput';
 
 export default class WorkflowForm extends React.Component {
@@ -13,6 +12,7 @@ export default class WorkflowForm extends React.Component {
     workflowStatuses: PropTypes.array.isRequired,
     workflowPriorities: PropTypes.array.isRequired,
     workflowStatus: PropTypes.object.isRequired,
+    workflowProductionOffices: PropTypes.array.isRequired,
     updateData: PropTypes.func.isRequired
   };
 
@@ -27,9 +27,9 @@ export default class WorkflowForm extends React.Component {
         <ManagedField
           fieldLocation="prodOffice"
           name="Production Office"
-          disabled={true}
+          disabled={!this.props.editable}
         >
-          <TextInput />
+          <SelectBox selectValues={this.props.workflowProductionOffices} />
         </ManagedField>
         <ManagedField
           fieldLocation="section"

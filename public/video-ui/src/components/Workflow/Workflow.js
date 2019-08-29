@@ -48,6 +48,11 @@ class Workflow extends React.Component {
         workflowStatuses={this.props.workflow.statuses || []}
         workflowPriorities={this.props.workflow.priorities}
         workflowStatus={this.props.workflow.status}
+        workflowProductionOffices={[
+          { id: 'UK', title: 'UK' },
+          { id: 'US', title: 'US' },
+          { id: 'AU', title: 'AU' }
+        ]}
         updateData={this.updateLocalData}
       />
     );
