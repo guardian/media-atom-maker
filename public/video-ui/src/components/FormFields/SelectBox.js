@@ -10,11 +10,19 @@ export default class SelectBox extends React.Component {
 
   renderDefaultOption = () => {
     if (this.props.displayDefault || !this.props.fieldValue) {
-      return (
-        <option value={null}>
-          {this.props.defaultOption || 'Please select...'}
-        </option>
-      );
+      if (this.props.defaultOption) {
+        return (
+          <option value={this.props.defaultOption.id || null}>
+            {this.props.defaultOption.title || 'Please select...'}
+          </option>
+        );
+      } else {
+        return (
+          <option value={null}>
+            {'Please select...'}
+          </option>
+        );
+      }
     }
   };
 
@@ -58,7 +66,7 @@ export default class SelectBox extends React.Component {
           {...this.props.input}
           className={
             'form__field form__field--select ' +
-              (hasError ? 'form__field--error' : '')
+            (hasError ? 'form__field--error' : '')
           }
           value={this.props.fieldValue}
           onChange={e => {
@@ -67,7 +75,7 @@ export default class SelectBox extends React.Component {
         >
 
           {this.renderDefaultOption()}
-          {this.props.selectValues.map(function(value) {
+          {this.props.selectValues.map(function (value) {
             return (
               <option value={value.id} key={value.id}>{value.title}</option>
             );
@@ -75,8 +83,8 @@ export default class SelectBox extends React.Component {
         </select>
         {hasError
           ? <p className="form__message form__message--error">
-              {this.props.notification.message}
-            </p>
+            {this.props.notification.message}
+          </p>
           : ''}
       </div>
     );

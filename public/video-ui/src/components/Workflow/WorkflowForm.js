@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
 import TextAreaInput from '../FormFields/TextAreaInput';
+import getProductionOffice from '../../util/getProductionOffice';
 
 export default class WorkflowForm extends React.Component {
   static propTypes = {
@@ -17,6 +18,9 @@ export default class WorkflowForm extends React.Component {
   };
 
   render() {
+    const assumedProdOffice = getProductionOffice(); // guess default by user's timezone
+    const defaultProdOffice = { title: assumedProdOffice, id: assumedProdOffice };
+    const otherProdOffices = this.props.workflowProductionOffices.filter(office => office.id !== defaultProdOffice.id);
     return (
       <ManagedForm
         data={this.props.workflowStatus}
@@ -29,7 +33,11 @@ export default class WorkflowForm extends React.Component {
           name="Production Office"
           disabled={!this.props.editable}
         >
-          <SelectBox selectValues={this.props.workflowProductionOffices} />
+          <SelectBox
+            defaultOption={defaultProdOffice}
+            selectValues={otherProdOffices}
+            displayDefault={true}
+          />
         </ManagedField>
         <ManagedField
           fieldLocation="section"
