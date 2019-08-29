@@ -293,7 +293,7 @@ class VideoDisplay extends React.Component {
             this.updateEditingState({ key: 'editingWorkflow', editing: false });
             this.saveInWorkflow();
           }}
-          canSave={() => workflow.status.section && workflow.status.status && workflow.status.prodOffice}
+          canSave={() => workflow.status.section && workflow.status.status}
           video={video}
           isTrackedInWorkflow={workflow.status.isTrackedInWorkflow || false}
         />
