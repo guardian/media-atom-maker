@@ -1,9 +1,8 @@
 import { pandaReqwest } from './pandaReqwest';
 import { getStore } from '../util/storeAccessor';
-import getProductionOffice from '../util/getProductionOffice';
 import VideoUtils from '../util/video';
 import moment from 'moment';
-import { impossiblyDistantDate }  from '../constants/dates';
+import { impossiblyDistantDate } from '../constants/dates';
 
 export default class WorkflowApi {
   static get workflowUrl() {
@@ -57,7 +56,7 @@ export default class WorkflowApi {
       return WorkflowApi._getResponseAsJson(response).data
         .filter(status => status.toLowerCase() !== 'stub')
         .map(status =>
-          Object.assign({}, {id: status, title: status})
+          Object.assign({}, { id: status, title: status })
         );
     });
   }
@@ -86,9 +85,9 @@ export default class WorkflowApi {
     video,
     status,
     section,
-    note
+    note,
+    prodOffice
   }) {
-    const prodOffice = getProductionOffice();
 
     const { contentChangeDetails } = video;
 
@@ -132,12 +131,13 @@ export default class WorkflowApi {
     };
   }
 
-  static trackInWorkflow({ video, status, section, note }) {
+  static trackInWorkflow({ video, status, section, note, prodOffice }) {
     const payload = WorkflowApi._getTrackInWorkflowPayload({
       video,
       status,
       section,
-      note
+      note,
+      prodOffice
     });
 
     return pandaReqwest({
@@ -149,7 +149,21 @@ export default class WorkflowApi {
     });
   }
 
-  static updateStatus({id, status}) {
+  static updateProdOffice({ id, prodOffice }) {
+    const payload = {
+      data: prodOffice
+    };
+
+    return pandaReqwest({
+      method: 'PUT',
+      url: `${WorkflowApi.workflowUrl}/api/stubs/${id}/prodOffice`,
+      data: payload,
+      crossOrigin: true,
+      withCredentials: true
+    });
+  }
+
+  static updateStatus({ id, status }) {
     const payload = {
       data: status
     };
