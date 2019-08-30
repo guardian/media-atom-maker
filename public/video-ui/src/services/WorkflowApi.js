@@ -178,6 +178,8 @@ export default class WorkflowApi {
   }
 
   static updateNote({ id, note }) {
+    if (!note) return; //property is optional so may be null
+
     const payload = {
       data: note
     };
@@ -192,6 +194,8 @@ export default class WorkflowApi {
   }
 
   static updatePriority({ id, priority }) {
+    if (!priority) return; //property is optional so may be null
+
     const payload = {
       data: priority
     };
