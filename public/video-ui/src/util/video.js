@@ -77,12 +77,20 @@ export default class VideoUtils {
     return ['Hosted', 'Paid'].includes(category);
   }
 
+  static isLiveStream({ category }) {
+    return category === 'Livestream';
+  }
+
   static isEligibleForAds(atom) {
     if (!VideoUtils.hasAssets(atom)) {
       return true;
     }
 
     if (VideoUtils.isCommercialType(atom)) {
+      return true;
+    }
+
+    if (VideoUtils.isLiveStream(atom)) {
       return true;
     }
 
