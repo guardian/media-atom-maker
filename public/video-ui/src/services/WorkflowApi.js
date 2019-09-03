@@ -86,7 +86,8 @@ export default class WorkflowApi {
     status,
     section,
     note,
-    prodOffice
+    prodOffice,
+    priority
   }) {
 
     const { contentChangeDetails } = video;
@@ -105,11 +106,12 @@ export default class WorkflowApi {
     const [embargo, indefiniteEmbargo] =
       (embargoDate && embargoDate >= impossiblyDistantDate) ? [null, true] : [embargoDate, false];
 
+
     return {
       contentType: 'media',
       editorId: video.id,
       title: video.title,
-      priority: 0,
+      priority: priority,
       needsLegal: 'NA',
       section,
       status,
@@ -131,13 +133,14 @@ export default class WorkflowApi {
     };
   }
 
-  static trackInWorkflow({ video, status, section, note, prodOffice }) {
+  static trackInWorkflow({ video, status, section, note, prodOffice, priority }) {
     const payload = WorkflowApi._getTrackInWorkflowPayload({
       video,
       status,
       section,
       note,
-      prodOffice
+      prodOffice,
+      priority
     });
 
     return pandaReqwest({
@@ -194,7 +197,7 @@ export default class WorkflowApi {
   }
 
   static updatePriority({ id, priority }) {
-    if (!priority) return; //property is optional so may be null
+    if (priority === null) return; //property is optional so may be null, but 0 is a valid value
 
     const payload = {
       data: priority
