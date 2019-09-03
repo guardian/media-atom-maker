@@ -149,7 +149,7 @@ class VideoDisplay extends React.Component {
 
     const {
       sections,
-      status: { status, section, note, isTrackedInWorkflow, prodOffice }
+      status: { status, section, note, isTrackedInWorkflow, prodOffice, priority }
     } = this.props.workflow;
 
     const {
@@ -164,7 +164,8 @@ class VideoDisplay extends React.Component {
         section: sections.find(_ => _.id === section),
         status: status,
         note: note,
-        prodOffice: prodOffice
+        prodOffice: prodOffice,
+        priority: priority
       });
 
     const updateWorkflowItem = () =>
