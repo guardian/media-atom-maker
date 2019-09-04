@@ -46,7 +46,9 @@ class Workflow extends React.Component {
         video={video}
         workflowSections={this.props.workflow.sections || []}
         workflowStatuses={this.props.workflow.statuses || []}
-        workflowPriorities={this.props.workflow.priorities}
+        workflowPriorities={
+          this.props.workflow.priorities.map(({ name, value }) => ({ id: value, title: name })) || []
+        }
         workflowStatus={this.props.workflow.status}
         workflowProductionOffices={[
           { id: 'UK', title: 'UK' },
