@@ -20,6 +20,11 @@ export default class WorkflowApi {
     return response;
   }
 
+  //clean up the workflow data so that the priority field number, which can be 0, is converted to a string
+  static _cleanUpWorkflowData(workflowData) {
+    return { ...workflowData, priority: workflowData.priority.toString() };
+  }
+
   static getSections() {
     // timeout in case the user is not logged into Workflow
     const params = {
@@ -73,18 +78,13 @@ export default class WorkflowApi {
     });
   }
 
-  //clean up the workflow data so that the priority field number, which can be 0, is converted to a string
-  static cleanUpWorkflowData(workflowData) {
-    return { ...workflowData, priority: workflowData.priority.toString() };
-  }
-
   static getAtomInWorkflow({ id }) {
     return pandaReqwest({
       url: `${WorkflowApi.workflowUrl}/api/atom/${id}`,
       crossOrigin: true,
       withCredentials: true
     }).then(response => WorkflowApi._getResponseAsJson(response).data)
-      .then(jsonRes => this.cleanUpWorkflowData(jsonRes));
+      .then(jsonRes => WorkflowApi._cleanUpWorkflowData(jsonRes));
   }
 
   static _getTrackInWorkflowPayload({
