@@ -53,13 +53,12 @@ export default class WorkflowForm extends React.Component {
           fieldLocation="priority"
           name="Priority"
           disabled={!this.props.editable}>
-          <SelectBox selectValues={
-            this.props.workflowPriorities.map(({ name, value }) => {
-              return { id: value, title: name };
-            })}
+          <SelectBox selectValues={this.props.workflowPriorities}
           />
         </ManagedField>
       </ManagedForm>
     );
   }
 }
+
+
