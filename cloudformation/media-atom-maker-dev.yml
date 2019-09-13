@@ -412,6 +412,7 @@ Resources:
     Type: "AWS::SNS::Topic"
     Properties:
       TopicName: !Sub "${PlutoTopicName}-${Stage}"
+      KmsMasterKeyId: 'alias/aws/sns'
       Subscription:
         - Endpoint: !GetAtt PlutoQueue.Arn
           Protocol: sqs
