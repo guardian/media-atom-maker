@@ -1,5 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: "Media atom maker development"
+
 Parameters:
   Domain:
     Description: "The domain name where the app is running"
@@ -239,9 +240,13 @@ Resources:
       PolicyName: "LambdaCloudWatchLoggingPolicy"
       PolicyDocument:
         Statement:
-          Effect: "Allow"
-          Action: ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
-          Resource: "*"
+          -
+            Effect: "Allow"
+            Action:
+              - "logs:CreateLogGroup"
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+            Resource: "*"
       Roles:
         - !Ref ExpirerRole
         - !Ref SchedulerRole
@@ -251,24 +256,26 @@ Resources:
     Properties:
       AssumeRolePolicyDocument:
         Statement:
-        - Effect: "Allow"
-          Action: "sts:AssumeRole"
-          Principal:
-            Service:
-            - ["lambda.amazonaws.com"]
-      Path: /
+          -
+            Effect: "Allow"
+            Action: "sts:AssumeRole"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+      Path: "/"
       Policies:
-      - PolicyName: "SchedulerPolicy"
-        PolicyDocument:
-          Statement:
-          - Effect: "Allow"
-            Action:
-            - ["s3:GetObject"]
-            Resource:
-            - !Sub ['arn:aws:s3:::${Bucket}/${Key}', {Bucket: !Ref 'BuildBucket',
-                Key: !FindInMap [LambdaBuilds, Scheduler, DEV]}]
-            - !Sub ['arn:aws:s3:::${Bucket}/${Key}', {Bucket: !Ref 'ConfigBucket',
-                Key: !FindInMap [LambdaConfig, Scheduler, DEV]}]
+        -
+          PolicyName: "SchedulerPolicy"
+          PolicyDocument:
+            Statement:
+              -
+                Effect: "Allow"
+                Action: "s3:GetObject"
+                Resource:
+                  - !Sub ['arn:aws:s3:::${Bucket}/${Key}', {Bucket: !Ref 'BuildBucket',
+                      Key: !FindInMap [LambdaBuilds, Scheduler, DEV]}]
+                  - !Sub ['arn:aws:s3:::${Bucket}/${Key}', {Bucket: !Ref 'ConfigBucket',
+                      Key: !FindInMap [LambdaConfig, Scheduler, DEV]}]
 
   ExpirerRole:
     Type: "AWS::IAM::Role"
@@ -412,6 +419,7 @@ Resources:
     Type: "AWS::SNS::Topic"
     Properties:
       TopicName: !Sub "${PlutoTopicName}-${Stage}"
+      KmsMasterKeyId: 'alias/aws/sns'
       Subscription:
         - Endpoint: !GetAtt PlutoQueue.Arn
           Protocol: sqs

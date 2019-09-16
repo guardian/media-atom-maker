@@ -232,6 +232,7 @@ Resources:
     Condition: CreateProdResources
     Properties:
       DisplayName: !Join ['-', [!Ref 'Stage', Alerts]]
+      KmsMasterKeyId: 'alias/aws/sns'
       Subscription:
       - Endpoint: !Ref 'AlertWebhook'
         Protocol: https

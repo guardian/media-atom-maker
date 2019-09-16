@@ -13,10 +13,10 @@ during packaging.
 
 You will need the AWS CLI and `jq` installed.
 
-Run:
+Run in root:
 
 ```
-uploader/packageBin
+sbt uploader/packageBin
 ```
 
 This will compile both the cloud-formation template and the lambda code.
@@ -49,7 +49,7 @@ statelint uploader/src/main/resources/state-machine.json
 ```
 
 We do not specify the lambda ARN directly in the JSON so you will always see the following error:
- 
+
 ```
 State Machine.States.GetChunkFromS3.Resource is "${GetChunkFromS3.Arn}" but should be A URI
 ```
@@ -118,7 +118,7 @@ case class LambdaConfig(description: String, timeout: Int = 60, memorySize: Int 
 
 - Further edit [StateMachines.scala](https://github.com/guardian/media-atom-maker/blob/mbarton/step-functions/project/StateMachines.scala)
  adding the variable to the `compileTemplate` task:
- 
+
 ```scala
 val instance = lambdaTemplate
   .replace("{{name}}", name)
