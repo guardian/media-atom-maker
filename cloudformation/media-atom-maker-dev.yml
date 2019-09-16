@@ -427,7 +427,7 @@ Resources:
     Type: "AWS::SQS::Queue"
     Properties:
       QueueName: !Sub ${PlutoQueueName}-${Stage}
-      KmsMasterKeyId: 'alias/aws/sns'
+      KmsMasterKeyId: 'alias/aws/sqs'
   PlutoQueuePolicy:
     Type: "AWS::SQS::QueuePolicy"
     Properties:
