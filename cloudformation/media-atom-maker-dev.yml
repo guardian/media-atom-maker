@@ -419,7 +419,7 @@ Resources:
     Type: "AWS::SNS::Topic"
     Properties:
       TopicName: !Sub "${PlutoTopicName}-${Stage}"
-      KmsMasterKeyId: 'alias/aws/sns'
+      KmsMasterKeyId: !Sub "alias/media-atom-maker/sns-to-sqs-${Stage}"
       Subscription:
         - Endpoint: !GetAtt PlutoQueue.Arn
           Protocol: sqs
@@ -427,6 +427,41 @@ Resources:
     Type: "AWS::SQS::Queue"
     Properties:
       QueueName: !Sub ${PlutoQueueName}-${Stage}
+      KmsMasterKeyId: !Sub "alias/media-atom-maker/sns-to-sqs-${Stage}"
+  KmsKeySqsQueueFromSns:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: "Shared key so the SQS queue can read from the SNS Topic"
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: SNS-to-SQS-Key
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - kms:*
+            Resource: "*"
+          - Effect: Allow
+            Principal:
+              Service: sqs.amazonaws.com
+            Action:
+              - kms:GenerateDataKey*
+              - kms:Decrypt
+            Resource: "*"
+          - Effect: Allow
+            Principal:
+              Service: sns.amazonaws.com
+            Action:
+              - kms:GenerateDataKey*
+              - kms:Decrypt
+            Resource: "*"
+  KmsKeySqsQueueFromSnsAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub "alias/media-atom-maker/sns-to-sqs-${Stage}"
+      TargetKeyId:
+        Ref: KmsKeySqsQueueFromSns
   PlutoQueuePolicy:
     Type: "AWS::SQS::QueuePolicy"
     Properties:
