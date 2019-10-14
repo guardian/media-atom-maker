@@ -64,7 +64,7 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
 
     previewDataStore.updateAtom(thrift).fold(
       err => {
-        log.error(s"Unable to update atom id=${atom.id} new_content=$newAtom", err)
+        log.error(s"Unable to update atom id=${atom.id} in ${awsConfig.dynamoTableName} new_content=$newAtom", err)
         AtomUpdateFailed(err.msg)
       },
       _ => {
@@ -79,7 +79,7 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
 
             AuditMessage(atom.id, "Update", getUsername(user), Some(diffString)).logMessage()
 
-            log.info(s"atom ${atom.id} updated successfully to $updatedMediaAtom")
+            log.info(s"atom ${atom.id} updated successfully in ${awsConfig.dynamoTableName} to $updatedMediaAtom")
 
             updatedMediaAtom
           }
