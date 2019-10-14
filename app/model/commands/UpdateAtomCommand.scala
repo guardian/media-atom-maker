@@ -58,11 +58,13 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
       embargo = embargo.map(ChangeRecord.build(_, user)),
       expiry = expiry.map(ChangeRecord.build(_, user))
     )
-    val thrift = atom.copy(contentChangeDetails = details).asThrift
+
+    val newAtom = atom.copy(contentChangeDetails = details)
+    val thrift = newAtom.asThrift
 
     previewDataStore.updateAtom(thrift).fold(
       err => {
-        log.error(s"Unable to update atom ${atom.id}", err)
+        log.error(s"Unable to update atom with id ${atom.id} in ${awsConfig.dynamoTableName} table to new content $newAtom", err)
         AtomUpdateFailed(err.msg)
       },
       _ => {
@@ -77,10 +79,12 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
 
             AuditMessage(atom.id, "Update", getUsername(user), Some(diffString)).logMessage()
 
+            log.info(s"atom with id ${atom.id} updated successfully in ${awsConfig.dynamoTableName} table to $updatedMediaAtom")
+
             updatedMediaAtom
           }
           case Failure(err) =>
-            log.error(s"Unable to publish updated atom ${atom.id}", err)
+            log.error(s"Unable to publish updated atom id=${atom.id} new_content=$newAtom", err)
             AtomPublishFailed(s"could not publish: ${err.toString}")
         }
       }
