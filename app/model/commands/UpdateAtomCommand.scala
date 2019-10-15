@@ -3,22 +3,24 @@ package model.commands
 import java.util.Date
 
 import ai.x.diff.DiffShow
-import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
-import com.gu.pandomainauth.model.{User => PandaUser}
+import com.gu.atom.data.AtomSerializer
+import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType, ChangeRecord => ThriftChangeRecord}
+import com.gu.fezziwig.CirceScroogeMacros.encodeThriftStruct
 import com.gu.media.logging.Logging
-import data.DataStores
-import model.commands.CommandExceptions._
-import com.gu.media.model.{AtomAssignedProjectMessage, ChangeRecord, MediaAtom, AuditMessage}
-import com.gu.contentatom.thrift.{ChangeRecord => ThriftChangeRecord}
+import com.gu.media.model.{AtomAssignedProjectMessage, AuditMessage, ChangeRecord, MediaAtom}
 import com.gu.media.upload.PlutoUploadActions
 import com.gu.media.util.MediaAtomImplicits
+import com.gu.pandomainauth.model.{User => PandaUser}
+import data.DataStores
+import io.circe.syntax._
+import model.commands.CommandExceptions._
 import org.joda.time.DateTime
 import util.AWSConfig
 
 import scala.util.{Failure, Success}
 
 case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: DataStores, user: PandaUser, awsConfig: AWSConfig)
-    extends Command
+  extends Command
     with MediaAtomImplicits
     with Logging {
 
@@ -60,11 +62,14 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
     )
 
     val newAtom = atom.copy(contentChangeDetails = details)
-    val thrift = newAtom.asThrift
+    val thrift: Atom = newAtom.asThrift
+    val newAtomAsJson = AtomSerializer.toJson(thrift)
+
+    log.info(s"Attempting to update atom ${atom.id} in ${awsConfig.dynamoTableName} to new atom: $newAtomAsJson")
 
     previewDataStore.updateAtom(thrift).fold(
       err => {
-        log.error(s"Unable to update atom with id ${atom.id} in ${awsConfig.dynamoTableName} table to new content $newAtom", err)
+        log.error(s"Unable to update atom with id ${atom.id} in ${awsConfig.dynamoTableName} table to new content: $newAtomAsJson", err)
         AtomUpdateFailed(err.msg)
       },
       _ => {
@@ -79,7 +84,7 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
 
             AuditMessage(atom.id, "Update", getUsername(user), Some(diffString)).logMessage()
 
-            log.info(s"atom with id ${atom.id} updated successfully in ${awsConfig.dynamoTableName} table to $updatedMediaAtom")
+            log.info(s"atom with id ${atom.id} updated successfully in ${awsConfig.dynamoTableName} table to new content: $newAtomAsJson")
 
             updatedMediaAtom
           }
