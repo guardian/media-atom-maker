@@ -5,14 +5,12 @@ import java.util.Date
 import ai.x.diff.DiffShow
 import com.gu.atom.data.AtomSerializer
 import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType, ChangeRecord => ThriftChangeRecord}
-import com.gu.fezziwig.CirceScroogeMacros.encodeThriftStruct
 import com.gu.media.logging.Logging
 import com.gu.media.model.{AtomAssignedProjectMessage, AuditMessage, ChangeRecord, MediaAtom}
 import com.gu.media.upload.PlutoUploadActions
 import com.gu.media.util.MediaAtomImplicits
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
-import io.circe.syntax._
 import model.commands.CommandExceptions._
 import org.joda.time.DateTime
 import util.AWSConfig
