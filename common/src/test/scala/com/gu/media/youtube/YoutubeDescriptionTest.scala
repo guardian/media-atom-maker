@@ -32,4 +32,9 @@ class YoutubeDescriptionTest extends FunSuite with MustMatchers {
 
     YoutubeDescription.clean(testHtml) must be(expected)
   }
+
+  test("ignore html without text") {
+    val htmlWithoutText = Some("<p><br></p>")
+    YoutubeDescription.clean(htmlWithoutText) must be(None)
+  }
 }

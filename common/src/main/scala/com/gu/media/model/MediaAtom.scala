@@ -4,7 +4,7 @@ import com.gu.contentatom.thrift.atom.media.{MediaAtom => ThriftMediaAtom, Metad
 import play.api.libs.json.Format
 import com.gu.contentatom.thrift.{AtomData, Atom => ThriftAtom, AtomType => ThriftAtomType, Flags => ThriftFlags}
 import com.gu.media.util.MediaAtomImplicits
-import com.gu.media.youtube.YoutubeDescription
+import com.gu.media.youtube.{MediaAtomYoutubeDescriptionHandler, YoutubeDescription}
 import org.cvogt.play.json.Jsonx
 
 abstract class MediaAtomBase {
@@ -231,10 +231,7 @@ object MediaAtom extends MediaAtomImplicits {
   def fromThrift(atom: ThriftAtom) = {
     val data = atom.tdata
 
-    val youtubeDescription: Option[String] = data.metadata.flatMap(_.youtube) match {
-      case Some(youtubeData) if youtubeData.description.isDefined => youtubeData.description
-      case _ => YoutubeDescription.clean(data.description)
-    }
+    val youtubeDescription: Option[String] = MediaAtomYoutubeDescriptionHandler.extractYoutubeDescriptionFrom(data)
 
     MediaAtom(
       id = atom.id,

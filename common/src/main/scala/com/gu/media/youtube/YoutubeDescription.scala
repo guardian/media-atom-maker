@@ -4,7 +4,7 @@ import org.jsoup.Jsoup
 
 object YoutubeDescription {
   def clean(maybeDirtyDescription: Option[String]): Option[String] = {
-    maybeDirtyDescription.map(dirtyDescription => {
+    val desc = maybeDirtyDescription.map(dirtyDescription => {
       val html = Jsoup.parse(dirtyDescription)
 
       //Extracting the text removes line breaks
@@ -17,5 +17,8 @@ object YoutubeDescription {
 
       html.text().replace("\\n", "\n")
     })
+
+    if (desc.isDefined && desc.get.isEmpty) return None
+    desc
   }
 }
