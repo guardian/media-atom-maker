@@ -10,7 +10,7 @@ object MediaAtomYoutubeDescriptionHandler extends MediaAtomImplicits {
 
   private implicit val mediaAtomFormat = Jsonx.formatCaseClass[MediaAtom]
 
-  def extractYoutubeDescriptionFrom(data: ThriftMediaAtom): Option[String] = {
+  def getYoutubeDescription(data: ThriftMediaAtom): Option[String] = {
 
     val youtubeDescription: Option[String] = data.metadata.flatMap(_.youtube) match {
       case Some(youtubeData) if youtubeData.description.isDefined => youtubeData.description

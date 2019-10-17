@@ -231,7 +231,7 @@ object MediaAtom extends MediaAtomImplicits {
   def fromThrift(atom: ThriftAtom) = {
     val data = atom.tdata
 
-    val youtubeDescription: Option[String] = MediaAtomYoutubeDescriptionHandler.extractYoutubeDescriptionFrom(data)
+    val youtubeDescription: Option[String] = MediaAtomYoutubeDescriptionHandler.getYoutubeDescription(data)
 
     MediaAtom(
       id = atom.id,
