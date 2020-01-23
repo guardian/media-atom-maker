@@ -3,7 +3,7 @@ package com.gu.media.youtube
 import com.google.api.client.googleapis.json.{GoogleJsonError, GoogleJsonResponseException}
 import com.google.api.services.youtubePartner.YouTubePartner
 import com.google.api.services.youtubePartner.model._
-import com.gu.media.logging.Logging
+import com.gu.media.logging.{Logging, YoutubeApiType, YoutubeRequestLogger, YoutubeRequestType}
 import com.gu.media.model.VideoUpdateError
 import com.gu.media.util.MAMLogger
 
@@ -26,10 +26,12 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
       .setType("web")
 
     try {
-      val createdAsset = partnerClient.assets()
+      val request = partnerClient.assets()
         .insert(asset)
         .setOnBehalfOfContentOwner(contentOwner)
-        .execute()
+
+      YoutubeRequestLogger.logRequest(YoutubeApiType.PartnerApi, YoutubeRequestType.CreateAsset)
+      val createdAsset = request.execute()
       MAMLogger.info(s"YouTube asset created successfully for $videoId", atomId, videoId)
       Right(createdAsset)
     } catch {
@@ -52,10 +54,12 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
     val createdOwnership: RightsOwnership = new RightsOwnership().setGeneral(List(territoryOwners))
 
     try {
-      val ownership = partnerClient.ownership()
+      val request = partnerClient.ownership()
         .update(assetId, createdOwnership)
         .setOnBehalfOfContentOwner(contentOwner)
-        .execute()
+
+      YoutubeRequestLogger.logRequest(YoutubeApiType.PartnerApi, YoutubeRequestType.SetOwnership)
+      val ownership = request.execute()
       MAMLogger.info(s"Successfully set ownership of asset $assetId", atomId, videoId)
       Right(ownership)
     } catch {
@@ -77,10 +81,12 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
       .setContentType("audiovisual")
 
     try {
-      val newClaim: Claim = partnerClient.claims()
+      val request = partnerClient.claims()
         .insert(claim)
         .setOnBehalfOfContentOwner(contentOwner)
-        .execute()
+
+      YoutubeRequestLogger.logRequest(YoutubeApiType.PartnerApi, YoutubeRequestType.CreateVideoClaim)
+      val newClaim: Claim = request.execute()
       MAMLogger.info(s"Successfully claimed video $videoId", atomId, videoId)
       Right(s"No partner claim found, claimed video ${videoId} with a new claim ${newClaim.getId}")
 
@@ -127,10 +133,12 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
       .setContentType("audiovisual")
 
     try {
-      partnerClient.claims
+      val request = partnerClient.claims
         .patch(claimId, claim)
         .setOnBehalfOfContentOwner(contentOwner)
-        .execute()
+
+      YoutubeRequestLogger.logRequest(YoutubeApiType.PartnerApi, YoutubeRequestType.UpdateVideoClaim)
+      request.execute()
 
       MAMLogger.info(s"Successfully updated claim for $videoId, setting blockAds to $blockAds", atomId, videoId)
       Right(s"Updated claim for claim=$claimId asset=$assetId")
@@ -145,14 +153,16 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
   }
 
   private def getPartnerClaim(videoId: String): Option[ClaimSnippet] = {
-    val response = partnerClient
+    val request = partnerClient
       .claimSearch()
       .list
       .setVideoId(videoId)
       .setOnBehalfOfContentOwner(contentOwner)
       .setIncludeThirdPartyClaims(false)
       .setPartnerUploaded(true)
-      .execute()
+
+    YoutubeRequestLogger.logRequest(YoutubeApiType.PartnerApi, YoutubeRequestType.GetVideoClaim)
+    val response = request.execute()
 
     if (response.getPageInfo.getTotalResults == 0) {
       None
@@ -187,6 +197,8 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
   }
 
   def getAdvertisingOptions(videoId: String): VideoAdvertisingOption = {
-    partnerClient.videoAdvertisingOptions().get(videoId).execute()
+    val request = partnerClient.videoAdvertisingOptions().get(videoId)
+    YoutubeRequestLogger.logRequest(YoutubeApiType.PartnerApi, YoutubeRequestType.GetVideoAdvertisingOptions)
+    request.execute()
   }
 }

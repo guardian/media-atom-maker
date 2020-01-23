@@ -3,7 +3,7 @@ package com.gu.media.youtube
 import java.io.InputStream
 
 import com.amazonaws.services.s3.AmazonS3Client
-import com.gu.media.logging.Logging
+import com.gu.media.logging.{Logging, YoutubeApiType, YoutubeRequestLogger, YoutubeRequestType}
 import com.gu.media.model.YouTubeAsset
 import com.gu.media.upload.model.{Upload, UploadPart}
 import com.gu.media.util.InputStreamRequestBody
@@ -44,6 +44,7 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3Client) extends Loggin
       .post(body)
       .build()
 
+    YoutubeRequestLogger.logRequest(YoutubeApiType.UploadApi, YoutubeRequestType.StartVideoUpload)
     val response = http.newCall(request).execute()
 
     if(response.code() == 200) {
@@ -96,6 +97,7 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3Client) extends Loggin
       .post(body)
       .build()
 
+    YoutubeRequestLogger.logRequest(YoutubeApiType.UploadApi, YoutubeRequestType.UploadVideoChunk)
     val response = http.newCall(request).execute()
     parseResult(response.body().string())
   }

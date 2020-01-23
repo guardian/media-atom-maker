@@ -50,6 +50,8 @@ val youTubeApiClientVersion = "v3-rev178-1.22.0"
 
 val jsoupVersion = "1.8.3"
 
+val enumeratumVersion = "1.5.15"
+
 lazy val commonSettings = Seq(
   scalaVersion in ThisBuild := "2.11.8",
   organization in ThisBuild := "com.gu",
@@ -108,7 +110,8 @@ lazy val common = (project in file("common"))
       "com.amazonaws" % "aws-java-sdk-ses" % awsVersion,
       "com.gu" %% "content-api-client-aws" % capiAwsVersion,
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
-      "org.jsoup" % "jsoup" % jsoupVersion
+      "org.jsoup" % "jsoup" % jsoupVersion,
+      "com.beachape" %% "enumeratum" % enumeratumVersion
     )
   )
 

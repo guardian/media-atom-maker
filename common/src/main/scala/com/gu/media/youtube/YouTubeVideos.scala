@@ -7,17 +7,19 @@ import com.gu.contentatom.thrift.atom.media.PrivacyStatus
 import com.gu.media.logging.Logging
 import com.gu.media.model.VideoUpdateError
 import com.gu.media.util.ISO8601Duration
+import com.gu.media.logging.{YoutubeApiType, YoutubeRequestLogger, YoutubeRequestType}
 
 import scala.collection.JavaConverters._
 
 trait YouTubeVideos { this: YouTubeAccess with Logging =>
   def getVideo(youtubeId: String, part: String): Option[Video] = {
-    client.videos()
+    val request = client.videos()
       .list(part)
       .setId(youtubeId)
       .setOnBehalfOfContentOwner(contentOwner)
-      .execute()
-      .getItems.asScala.toList.headOption
+
+    YoutubeRequestLogger.logRequest(YoutubeApiType.DataApi, YoutubeRequestType.GetVideo)
+    request.execute().getItems.asScala.toList.headOption
   }
 
   def getProcessingStatus(videoId: String): Option[YouTubeProcessingStatus] = {
@@ -27,6 +29,7 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
         .setId(videoId)
         .setOnBehalfOfContentOwner(contentOwner)
 
+      YoutubeRequestLogger.logRequest(YoutubeApiType.DataApi, YoutubeRequestType.GetProcessingStatus)
       request.execute().getItems.asScala.headOption.flatMap(YouTubeProcessingStatus(_))
     } else {
       None
@@ -69,10 +72,12 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
 
             val prettyMetadata = YouTubeMetadataUpdate.prettyToString(metadata)
             try {
-              client.videos()
+              val request = client.videos()
                 .update("snippet, status", video)
                 .setOnBehalfOfContentOwner(contentOwner)
-                .execute()
+
+              YoutubeRequestLogger.logRequest(YoutubeApiType.DataApi, YoutubeRequestType.UpdateVideoMetadata)
+              request.execute()
 
               Right(prettyMetadata)
             }
@@ -99,10 +104,12 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
             video.getStatus.setPrivacyStatus(privacyStatus.name)
 
             try {
-              client.videos()
+              val request = client.videos()
                 .update("snippet, status", video)
                 .setOnBehalfOfContentOwner(contentOwner)
-                .execute()
+
+              YoutubeRequestLogger.logRequest(YoutubeApiType.DataApi, YoutubeRequestType.UpdateVideoPrivacyStatus)
+              request.execute()
 
               Right(s"marked privacy status as ${privacyStatus.name}")
             }
@@ -128,6 +135,8 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
 
             // If we want some way of monitoring and resuming thumbnail uploads then we can change this to be `false`
             set.getMediaHttpUploader.setDirectUploadEnabled(true)
+
+            YoutubeRequestLogger.logRequest(YoutubeApiType.DataApi, YoutubeRequestType.UpdateVideoThumbnail)
             set.execute()
 
             Right("Updated video")
