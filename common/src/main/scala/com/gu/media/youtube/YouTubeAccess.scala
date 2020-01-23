@@ -6,6 +6,7 @@ import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.youtube.{YouTubeScopes, YouTube => YouTubeClient}
 import com.google.api.services.youtubePartner.YouTubePartner
 import com.gu.media.Settings
+import com.gu.media.logging.{YoutubeApiType, YoutubeRequestLogger, YoutubeRequestType}
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
@@ -60,6 +61,7 @@ trait YouTubeAccess extends Settings {
       .list("snippet")
       .setRegionCode("GB")
 
+    YoutubeRequestLogger.logRequest(YoutubeApiType.DataApi, YoutubeRequestType.ListCategories)
     request.execute.getItems.asScala.toList
       .filter(_.getSnippet.getAssignable)
       .map(YouTubeVideoCategory.build)
@@ -73,6 +75,7 @@ trait YouTubeAccess extends Settings {
       .setManagedByMe(true)
       .setOnBehalfOfContentOwner(contentOwner)
 
+    YoutubeRequestLogger.logRequest(YoutubeApiType.DataApi, YoutubeRequestType.ListChannels)
     request.execute().getItems.asScala.toList
       .map(YouTubeChannel.build(this, _))
   }

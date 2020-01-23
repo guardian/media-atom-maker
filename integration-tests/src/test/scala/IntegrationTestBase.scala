@@ -10,6 +10,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.youtube.YouTube
+import com.gu.media.logging.{YoutubeApiType, YoutubeRequestLogger, YoutubeRequestType}
 import com.gu.media.util.TestFilters
 import integration.services.{Config, GuHttp, TestAtomJsonGenerator}
 import org.scalatest.concurrent.{Eventually, IntegrationPatience}
@@ -72,10 +73,12 @@ class IntegrationTestBase extends FunSuite with Matchers with Eventually with In
       youTubeIds.foreach { id =>
         Logger.info(s"Deleting YouTube video $id")
 
-        client.videos()
+        val request = client.videos()
           .delete(id)
           .setOnBehalfOfContentOwner(Config.youTube.contentOwner)
-          .execute()
+
+        YoutubeRequestLogger.logRequest(YoutubeApiType.DataApi, YoutubeRequestType.DeleteVideo)
+        request.execute()
       }
     }
 
