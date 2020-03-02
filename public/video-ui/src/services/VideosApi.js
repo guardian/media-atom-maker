@@ -11,7 +11,7 @@ function getComposerUrl() {
 
 function getUsages({ id, stage }) {
   return pandaReqwest({
-    url: `${ContentApi.getUrl(stage)}/atom/media/${id}/usage`
+    url: `${ContentApi.getUrl(stage)}/atom/media/${id}/usage?page-size=100`
   }).then(res => {
     const usagePaths = res.response.results;
 
