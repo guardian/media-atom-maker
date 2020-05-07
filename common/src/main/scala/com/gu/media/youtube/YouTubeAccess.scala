@@ -19,7 +19,8 @@ trait YouTubeAccess extends Settings {
   val allowedChannels: Set[String] = getStringSet("youtube.channels.allowed")
   val channelsRequiringPermission: Set[String] = getStringSet("youtube.channels.unlisted")
   val commercialChannels: Set[String] = getStringSet("youtube.channels.commercial")
-  val allChannels: Set[String] = allowedChannels ++ channelsRequiringPermission ++ commercialChannels
+  val borderedChannels: Set[String] = getStringSet("youtube.channels.bordered")
+  val allChannels: Set[String] = allowedChannels ++ channelsRequiringPermission ++ commercialChannels ++ borderedChannels
 
   val trainingChannels: Set[String] = getStringSet("youtube.channels.training")
 

@@ -42,6 +42,8 @@ abstract class MediaAtomBase {
   def isOnCommercialChannel(commercialChannels: Set[String]): Option[Boolean] = {
     channelId.map(commercialChannels.contains)
   }
+
+  def shouldAddThumbnailBorder(borderedChannels: Set[String]): Boolean = channelId.exists(borderedChannels.contains)
 }
 
 // This is used to parse the a media atom from a create atom
