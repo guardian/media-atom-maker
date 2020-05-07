@@ -45,18 +45,20 @@ case class ThumbnailGenerator(logoFile: File) {
 
     if(withBorder) {
       val borderThickness = 40
+      val borderOffset = borderThickness / 2
+
       val hexColour = "#C70000"
       val colour = Color.decode(hexColour)
-
-      Logger.info(s"Adding a ${borderThickness}px $hexColour border to thumbnail for atom $atomId")
 
       val currentStroke = graphics.getStroke
 
       graphics.setStroke(new BasicStroke(borderThickness))
       graphics.setColor(colour)
-      graphics.drawRect(0, 0, bgImage.getWidth, bgImage.getHeight)
+      graphics.drawRect(borderOffset, borderOffset, bgImage.getWidth - borderThickness, bgImage.getHeight - borderThickness)
 
       graphics.setStroke(currentStroke)
+
+      Logger.info(s"Added a ${borderThickness}px $hexColour border to thumbnail for atom $atomId")
     }
 
     graphics.dispose()
