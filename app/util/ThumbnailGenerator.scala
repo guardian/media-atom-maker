@@ -1,6 +1,6 @@
 package util
 
-import java.awt.{BasicStroke, Color, RenderingHints}
+import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 import java.io._
 import java.net.URL
@@ -30,7 +30,7 @@ case class ThumbnailGenerator(logoFile: File) {
   private def imageAssetToBufferedImage(imageAsset: ImageAsset): BufferedImage =
     ImageIO.read(new URL(imageAsset.file))
 
-  private def overlayImages(bgImage: BufferedImage, bgImageMimeType: String, atomId: String, withBorder: Boolean): ByteArrayInputStream = {
+  private def overlayImages(bgImage: BufferedImage, bgImageMimeType: String, atomId: String): ByteArrayInputStream = {
     val logoWidth: Double = List(bgImage.getWidth() / 3.0, logo.getWidth()).min
     val logoHeight: Double = logo.getHeight() / (logo.getWidth() / logoWidth)
 
@@ -42,25 +42,6 @@ case class ThumbnailGenerator(logoFile: File) {
     graphics.drawImage(bgImage, 0, 0, null)
     Logger.info(s"Creating branded thumbnail for atom $atomId. Image dims ${bgImage.getWidth()} x ${bgImage.getHeight()}. Logo dims ${logoWidth.toInt} x ${logoHeight.toInt} (x:$logoX, y:$logoY)")
     graphics.drawImage(logo, logoX, logoY, logoWidth.toInt, logoHeight.toInt, null)
-
-    if(withBorder) {
-      val borderThickness = 40
-      val borderOffset = borderThickness / 2
-
-      val hexColour = "#C70000"
-      val colour = Color.decode(hexColour)
-
-      val currentStroke = graphics.getStroke
-
-      graphics.setStroke(new BasicStroke(borderThickness))
-      graphics.setColor(colour)
-      graphics.drawRect(borderOffset, borderOffset, bgImage.getWidth - borderThickness, bgImage.getHeight - borderThickness)
-
-      graphics.setStroke(currentStroke)
-
-      Logger.info(s"Added a ${borderThickness}px $hexColour border to thumbnail for atom $atomId")
-    }
-
     graphics.dispose()
 
     val os = new ByteArrayOutputStream()
@@ -79,14 +60,14 @@ case class ThumbnailGenerator(logoFile: File) {
     new ByteArrayInputStream(os.toByteArray)
   }
 
-  def getBrandedThumbnail(image: Image, atomId: String, withBorder: Boolean): InputStreamContent = {
+  def getBrandedThumbnail(image: Image, atomId: String): InputStreamContent = {
     val imageAsset = getGridImageAsset(image)
     val gridImage = imageAssetToBufferedImage(imageAsset)
     val mimeType = imageAsset.mimeType.getOrElse("image/jpeg")
 
     new InputStreamContent(
       mimeType,
-      new BufferedInputStream(overlayImages(gridImage, mimeType, atomId, withBorder))
+      new BufferedInputStream(overlayImages(gridImage, mimeType, atomId))
     )
   }
 
