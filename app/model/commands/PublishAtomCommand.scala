@@ -272,7 +272,7 @@ case class PublishAtomCommand(
     atom.posterImage match {
       case Some(image) => {
         val thumbnail = atom.isOnCommercialChannel(youtube.commercialChannels) match {
-          case Some(isCommercial) if isCommercial => thumbnailGenerator.getThumbnail(image)
+          case Some(isCommercial) if isCommercial => thumbnailGenerator.getThumbnail(image, atom.id)
           case _ => thumbnailGenerator.getBrandedThumbnail(image, atom.id)
         }
 

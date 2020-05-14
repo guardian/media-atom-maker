@@ -21,10 +21,14 @@ case class ThumbnailGenerator(logoFile: File) {
 
   private lazy val logo = ImageIO.read(logoFile)
 
-  private def getGridImageAsset(image: Image): ImageAsset = {
-    image.assets
+  private def getGridImageAsset(image: Image, atomId: String): ImageAsset = {
+    val highestQualityImage = image.assets
       .filter(asset => asset.size.nonEmpty && asset.size.get < MAX_SIZE)
       .maxBy(_.size.get)
+
+    Logger.info(s"${highestQualityImage.file} (${highestQualityImage.size.get} bytes) chosen as the highest quality image under $MAX_SIZE bytes for the YouTube thumbnail for atom $atomId")
+
+    highestQualityImage
   }
 
   private def imageAssetToBufferedImage(imageAsset: ImageAsset): BufferedImage =
@@ -61,7 +65,7 @@ case class ThumbnailGenerator(logoFile: File) {
   }
 
   def getBrandedThumbnail(image: Image, atomId: String): InputStreamContent = {
-    val imageAsset = getGridImageAsset(image)
+    val imageAsset = getGridImageAsset(image, atomId)
     val gridImage = imageAssetToBufferedImage(imageAsset)
     val mimeType = imageAsset.mimeType.getOrElse("image/jpeg")
 
@@ -71,8 +75,8 @@ case class ThumbnailGenerator(logoFile: File) {
     )
   }
 
-  def getThumbnail(image: Image): InputStreamContent = {
-    val imageAsset = getGridImageAsset(image)
+  def getThumbnail(image: Image, atomId: String): InputStreamContent = {
+    val imageAsset = getGridImageAsset(image, atomId)
     val mimeType = imageAsset.mimeType.getOrElse("image/jpeg")
     val url = new URL(imageAsset.file)
 
