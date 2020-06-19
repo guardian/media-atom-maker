@@ -45,6 +45,9 @@ Parameters:
   PlutoSendbackStreamName:
     Description: Name (not ARN) of the Kinesis stream which passes messages back to Pluto
     Type: String
+  PlutoSendbackStreamKmsKey:
+    Description: ARN of the KMS key used to encrypt messages sent to pluto
+    Type: String
 
 Conditions:
   CreateProdResources: !Equals [!Ref "Stage", "PROD"]
@@ -103,6 +106,9 @@ Resources:
                   - kinesis:PutRecords
                 Resource:
                   - !Sub "arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/${PlutoSendbackStreamName}"
+              - Effect: Allow
+                Action: kms:GenerateDataKey
+                Resource: !Ref PlutoSendbackStreamKmsKey
 
   ContentAtomCrossAccountPolicyCODE:
     Type: AWS::IAM::Policy
