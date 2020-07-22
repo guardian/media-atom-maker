@@ -57,9 +57,6 @@ export default class ComposerPageCreate extends React.Component {
 
     const { usages, videoEditOpen, requiredComposerFieldsMissing } = this.props;
 
-    if (this.isHosted() && !canonicalVideoPageExists(usages)) {
-      return null;
-    }
 
     if (canonicalVideoPageExists(usages)) {
       return (
@@ -67,9 +64,9 @@ export default class ComposerPageCreate extends React.Component {
           <Icon icon="pageview">Open in Composer</Icon>
         </a>
       );
-    }
-
-    else {
+    } else if (this.isHosted()) {
+      return null;
+    } else {
       const helpMsg = this.usageErrorsExist() ? 'Cannot create a video page because of errors in fetching video usages' : '';
 
       return (
