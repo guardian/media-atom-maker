@@ -8,6 +8,7 @@ import ComposerPageCreate from './Videos/ComposerPageCreate';
 import Icon from './Icon';
 import { Presence } from './Presence';
 import { canonicalVideoPageExists } from '../util/canonicalVideoPageExists';
+import VideoUtils from '../util/video';
 
 export default class Header extends React.Component {
   state = { presence: null };
@@ -109,6 +110,15 @@ export default class Header extends React.Component {
       return null;
     }
 
+    if (VideoUtils.isHosted(this.props.video)) {
+      return (
+        <div className="header__fields__missing__warning">
+          Hosted video pages need a call to action. Please create this video in
+          Composer
+        </div>
+      );
+    }
+
     if (canonicalVideoPageExists(this.props.usages)) {
       return (
         <div className="header__fields__missing__warning">
@@ -164,7 +174,6 @@ export default class Header extends React.Component {
             {this.renderCreateVideo()}
             {this.renderHelpLink()}
           </div>
-
         </header>
       );
     } else {

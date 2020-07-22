@@ -81,6 +81,10 @@ export default class VideoUtils {
     return category === 'Livestream';
   }
 
+  static isHosted({ category }) {
+    return category === 'Hosted';
+  }
+
   static isEligibleForAds(atom) {
     if (!VideoUtils.hasAssets(atom)) {
       return true;
@@ -133,11 +137,11 @@ export default class VideoUtils {
     return embargo ? moment(embargo) : null;
   }
 
-  static isPublished({contentChangeDetails}) {
+  static isPublished({ contentChangeDetails }) {
     return !!contentChangeDetails.published;
   }
 
-  static hasExpired({contentChangeDetails}) {
+  static hasExpired({ contentChangeDetails }) {
     return !!contentChangeDetails.expiry && contentChangeDetails.expiry.date <= Date.now();
   }
 }

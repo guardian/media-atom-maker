@@ -56,9 +56,12 @@ export default class ComposerPageCreate extends React.Component {
   render() {
 
     const { usages, videoEditOpen, requiredComposerFieldsMissing } = this.props;
-    const showOpenPage = canonicalVideoPageExists(usages) || this.isHosted();
 
-    if (showOpenPage) {
+    if (this.isHosted() && !canonicalVideoPageExists(usages)) {
+      return null;
+    }
+
+    if (canonicalVideoPageExists(usages)) {
       return (
         <a className="button__secondary" href={this.getComposerLink()} target="_blank">
           <Icon icon="pageview">Open in Composer</Icon>
@@ -76,9 +79,9 @@ export default class ComposerPageCreate extends React.Component {
             onClick={this.pageCreate}
             disabled={videoEditOpen || this.state.composerUpdateInProgress || requiredComposerFieldsMissing() || this.usageErrorsExist()}
           >
-          <Icon icon="add_to_queue">Create Video Page</Icon>
-        </button>
-      </span>
+            <Icon icon="add_to_queue">Create Video Page</Icon>
+          </button>
+        </span>
       );
     }
   }
