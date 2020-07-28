@@ -5,7 +5,7 @@ Ensure you have the following installed:
 - awscli
 - Java 8
 - nginx
-- node v6+
+- node v10+
 - npm
 - yarn
 - nvm (optional)
@@ -36,7 +36,7 @@ http {
     include mime.types;
     include sites-enabled/*;
     client_max_body_size 20m;
-    
+
     server_names_hash_bucket_size 128;
 
     default_type  application/octet-stream;
