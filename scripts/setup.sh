@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 
+set -e
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+
 printf "\n\rSetting up Media Atom Maker dependencies... \n\r\n\r"
+
+check_node_version() {
+  "${DIR}/check-node-version.sh"
+}
 
 installed() {
   hash "$1" 2>/dev/null
@@ -20,6 +28,7 @@ install_deps_and_build() {
 }
 
 main() {
+  check_node_version
   install_yarn
   install_deps_and_build
   printf "\n\rDone.\n\r\n\r"
