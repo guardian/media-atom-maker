@@ -11,6 +11,7 @@ import data.DataStores
 import model.WorkflowMediaAtom
 import model.commands.CommandExceptions._
 import model.commands._
+import net.logstash.logback.marker.{LogstashMarker, Markers}
 import play.api.Configuration
 import util._
 import play.api.libs.json._
@@ -18,6 +19,7 @@ import play.api.mvc._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.collection.JavaConverters._
 
 class Api(
   override val stores: DataStores,
@@ -132,6 +134,16 @@ class Api(
   def deleteAsset(atomId: String) = APIAuthAction(parse.json) { implicit req =>
     try {
       val asset = req.body.as[Asset]
+
+      val markers: LogstashMarker = Markers.appendEntries(Map(
+        "userId" -> req.user.email,
+        "atomId" -> atomId,
+        "assetId" -> asset.id,
+        "assetVersion" -> asset.version
+      ).asJava)
+
+      log.info(markers, s"request to delete asset version ${asset.version} on atom $atomId")
+
       val command = DeleteAssetCommand(atomId, asset, stores, req.user, awsConfig)
       val atom = command.process()
       Ok(Json.toJson(atom))
