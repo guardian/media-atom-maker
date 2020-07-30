@@ -6,7 +6,9 @@ import com.gu.media.util.MediaAtomImplicits
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
+import net.logstash.logback.marker.{LogstashMarker, Markers}
 import util.AWSConfig
+import scala.collection.JavaConverters._
 
 case class DeleteAssetCommand(
   atomId: String,
@@ -21,15 +23,23 @@ case class DeleteAssetCommand(
     val atom = getPreviewAtom(atomId)
     val mediaAtom = MediaAtom.fromThrift(atom)
 
-    val assetsToDelete = mediaAtom.assets.filter(_.id == asset.id)
+    val assetsToDelete: Option[Asset] = mediaAtom.assets.find(_.id == asset.id)
+
+    val markers: LogstashMarker = Markers.appendEntries(Map(
+      "userId" -> user.email,
+      "atomId" -> atomId,
+      "assetId" -> asset.id,
+      "assetVersion" -> asset.version
+    ).asJava)
 
     if (assetsToDelete.nonEmpty) {
-      mediaAtom.activeVersion.foreach(v => {
-        if (asset.version == v) {
-          log.info("Cannot delete active asset")
+      mediaAtom.activeVersion match {
+        case Some(activeVersion) if assetsToDelete.get.version == activeVersion => {
+          log.warn(markers, s"Cannot delete asset version ${asset.version} on atom $atomId because it is active")
           CannotDeleteActiveAsset
         }
-      })
+        case _ =>
+      }
 
       val updatedAtom = mediaAtom.copy(
         assets = mediaAtom.assets.filterNot(_.id == asset.id)
@@ -37,6 +47,7 @@ case class DeleteAssetCommand(
 
       UpdateAtomCommand(atomId, updatedAtom, stores, user, awsConfig).process()
     } else {
+      log.warn(markers, s"Asset version ${asset.version} does not exist on atom $atomId so cannot be deleted")
       AssetNotFound
     }
   }
