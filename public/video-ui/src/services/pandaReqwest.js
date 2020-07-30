@@ -1,33 +1,35 @@
-import reqwest from 'reqwest';
-import { reEstablishSession } from 'babel?presets[]=es2015!panda-session';
-import { getStore } from '../util/storeAccessor';
+import reqwest from "reqwest";
+import { reEstablishSession } from "babel-loader?presets[]=es2015!panda-session";
+import { getStore } from "../util/storeAccessor";
 
 function poll(reqwestBody, timeout) {
   const endTime = Number(new Date()) + timeout;
   const interval = 100;
 
   function makeRequest(resolve, reject) {
-    reqwest(reqwestBody).then(response => resolve(response)).fail(err => {
-      if (Number(new Date()) < endTime) {
-        if (err.status === 419) {
-          const store = getStore();
-          const reauthUrl = store.getState().config.reauthUrl;
+    reqwest(reqwestBody)
+      .then((response) => resolve(response))
+      .fail((err) => {
+        if (Number(new Date()) < endTime) {
+          if (err.status === 419) {
+            const store = getStore();
+            const reauthUrl = store.getState().config.reauthUrl;
 
-          reEstablishSession(reauthUrl, 5000).then(
-            () => {
-              setTimeout(makeRequest, interval, resolve, reject);
-            },
-            error => {
-              throw error;
-            }
-          );
+            reEstablishSession(reauthUrl, 5000).then(
+              () => {
+                setTimeout(makeRequest, interval, resolve, reject);
+              },
+              (error) => {
+                throw error;
+              }
+            );
+          } else {
+            setTimeout(makeRequest, interval, resolve, reject);
+          }
         } else {
-          setTimeout(makeRequest, interval, resolve, reject);
+          reject(err);
         }
-      } else {
-        reject(err);
-      }
-    });
+      });
   }
 
   return new Promise(makeRequest);
@@ -35,10 +37,10 @@ function poll(reqwestBody, timeout) {
 
 // when `timeout` > 0, the request will be retried every 100ms until success or timeout
 export function pandaReqwest(reqwestBody, timeout = 0) {
-  const payload = Object.assign({ method: 'get' }, reqwestBody);
+  const payload = Object.assign({ method: "get" }, reqwestBody);
 
   if (payload.data) {
-    payload.contentType = payload.contentType || 'application/json';
+    payload.contentType = payload.contentType || "application/json";
 
     // prettier-ignore
     if (payload.contentType === 'application/json' && typeof payload.data === 'object') {
@@ -49,7 +51,7 @@ export function pandaReqwest(reqwestBody, timeout = 0) {
 
   return new Promise((resolve, reject) => {
     poll(payload, timeout)
-      .then(response => resolve(response))
-      .catch(error => reject(error));
+      .then((response) => resolve(response))
+      .catch((error) => reject(error));
   });
 }

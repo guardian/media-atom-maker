@@ -25,15 +25,6 @@ module.exports = {
   },
   "parser": "babel-eslint",
   "rules": {
-    // prettier settings
-    "prettier/prettier": [
-      "error",
-      {
-        singleQuote: true,
-        bracketSpacing: true,
-        tabWidth: 2
-      }
-    ],
     "react/prop-types": "off",
     "jsx-quotes": ["error", "prefer-double"],
     "prefer-const": "error",
