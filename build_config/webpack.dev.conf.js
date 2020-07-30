@@ -1,22 +1,21 @@
-var path = require('path');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 module.exports = {
-  devtool: 'source-map',
+  devtool: "source-map",
   module: {
     loaders: [
       {
-        test:    /\.js$/,
+        test: /\.js$/,
         exclude: /node_modules/,
-        loader: 'babel-loader?cacheDirectory=true'
+        loader: "babel-loader?cacheDirectory=true"
       },
       {
         test: /\.scss$/,
-        loader: ExtractTextPlugin.extract('style-loader', 'css-loader?sourceMap!sass-loader?sourceMap')
+        use: ["style-loader", "css-loader?sourceMap!sass-loader?sourceMap"]
       },
       {
         test: /\.css$/,
-        loader: ExtractTextPlugin.extract('style-loader', 'css-loader?sourceMap')
+        use: ["style-loader", "css-loader?sourceMap"]
       },
       {
         test: /\.woff(2)?(\?v=[0-9].[0-9].[0-9])?$/,
@@ -28,28 +27,17 @@ module.exports = {
       }
     ],
     // http://andrewhfarmer.com/aws-sdk-with-webpack/
-    noParse: [
-      /aws\-sdk/,
-    ]
+    noParse: [/aws\-sdk/]
   },
-  resolveLoader: {
-    root: path.join(__dirname, '..', 'node_modules')
-  },
-
-  sassLoader: {
-    includePaths: [path.resolve(__dirname, '../style')]
-  },
-
+  resolveLoader: {},
   resolve: {
-    extensions: ['', '.js', '.jsx', '.json', '.scss']
+    extensions: [".js", ".jsx", ".json", ".scss"]
   },
 
-  plugins: [
-    new ExtractTextPlugin('main.css')
-  ],
+  plugins: [new ExtractTextPlugin("main.css")],
   node: {
-    fs: 'empty',
-    net: 'empty',
-    tls: 'empty'
+    fs: "empty",
+    net: "empty",
+    tls: "empty"
   }
 };

@@ -24,7 +24,7 @@ install_yarn() {
 install_deps_and_build() {
   yarn install
   printf "\n\Compiling Javascript... \n\r\n\r"
-  yarn run build
+  yarn build
 }
 
 main() {
