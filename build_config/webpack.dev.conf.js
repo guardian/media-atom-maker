@@ -1,43 +1,50 @@
-var ExtractTextPlugin = require("extract-text-webpack-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
-  devtool: "source-map",
+  entry: './public/video-ui/src/app.js',
+  mode: 'development',
+  devtool: 'source-map',
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: "babel-loader?cacheDirectory=true"
+        loader: 'babel-loader?cacheDirectory=true'
       },
       {
-        test: /\.scss$/,
-        use: ["style-loader", "css-loader?sourceMap!sass-loader?sourceMap"]
-      },
-      {
-        test: /\.css$/,
-        use: ["style-loader", "css-loader?sourceMap"]
+        test: /\.(sa|sc|c)ss$/,
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader
+          },
+          'css-loader',
+          'sass-loader'
+        ]
       },
       {
         test: /\.woff(2)?(\?v=[0-9].[0-9].[0-9])?$/,
-        loader: "url-loader?mimetype=application/font-woff"
+        loader: 'url-loader',
+        options: {
+          mimetype: 'application/font-woff'
+        }
       },
       {
-        test: /\.(ttf|eot|svg|gif)(\?v=[0-9].[0-9].[0-9])?$/,
-        loader: "file-loader?name=[name].[ext]"
+        test: /\.(ttf|eot|svg|gif|png)(\?v=[0-9].[0-9].[0-9])?$/,
+        loader: 'file-loader',
+        options: {
+          name: '[name].[ext]'
+        }
       }
     ],
     // http://andrewhfarmer.com/aws-sdk-with-webpack/
     noParse: [/aws\-sdk/]
   },
-  resolveLoader: {},
-  resolve: {
-    extensions: [".js", ".jsx", ".json", ".scss"]
-  },
-
-  plugins: [new ExtractTextPlugin("main.css")],
-  node: {
-    fs: "empty",
-    net: "empty",
-    tls: "empty"
-  }
+  resolve: { extensions: ['.js', '.jsx', '.json', '.scss'] },
+  plugins: [
+    new MiniCssExtractPlugin({
+      filename: '[name].css',
+      chunkFilename: '[id].css',
+      ignoreOrder: false // Enable to remove warnings about conflicting order
+    })
+  ]
 };

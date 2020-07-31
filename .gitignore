@@ -7,3 +7,5 @@ node_modules
 .DS_Store
 public/video-ui/build
 integration-tests/src/test/conf/*
+yarn-error.log
+dist

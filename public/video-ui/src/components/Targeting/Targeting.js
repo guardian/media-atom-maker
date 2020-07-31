@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import TagPicker from '../FormFields/TagPicker';
-import DatePicker from '../FormFields/DatePicker';
+import CustomDatePicker from '../FormFields/DatePicker';
 import TagTypes from '../../constants/TagTypes';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import { connect } from 'react-redux';
@@ -65,7 +65,10 @@ class Targeting extends React.Component {
       <div>
         {this.props.targetsLoaded && (
           <div>
-            <p>A targeting rule will allow this video to be suggested for certain articles.</p>
+            <p>
+              A targeting rule will allow this video to be suggested for certain
+              articles.
+            </p>
             {this.props.targets.map((target, index) => (
               <div key={target.id} className="targeting__form">
                 {!isDeleting(target, this.props.deleting) && (
@@ -94,14 +97,14 @@ class Targeting extends React.Component {
                       fieldLocation="activeUntil"
                       name="Active until"
                     >
-                      <DatePicker canCancel={false} dayOnly />
+                      <CustomDatePicker canCancel={false} dayOnly />
                     </ManagedField>
                   </ManagedForm>
                 )}
                 {!isDeleting(target, this.props.deleting) && (
                   <button
                     className="button__secondary--cancel"
-                    onClick={() =>this.deleteTarget(target)}
+                    onClick={() => this.deleteTarget(target)}
                   >
                     <Icon icon="delete" /> Delete
                   </button>
@@ -119,7 +122,9 @@ class Targeting extends React.Component {
 }
 
 function mapStateToProps(state) {
-  const { targeting: { targets: currentTargets, deleting } } = state;
+  const {
+    targeting: { targets: currentTargets, deleting }
+  } = state;
   const targetsLoaded = !!currentTargets;
   const targets = currentTargets || [];
   return {

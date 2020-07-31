@@ -99,7 +99,7 @@
 
   // Because select elements are THE WORST
   &--select {
-    background: url(/assets/video-ui/images/arrow.png) $color650Grey no-repeat right 10px center;
+    background: url(../images/arrow.png) $color650Grey no-repeat right 10px center;
     background-size: 10px 10px;
     margin-right: 40px;
     -webkit-appearance: none;
@@ -124,7 +124,7 @@
 
   &--loading {
     background: {
-      image: url(/assets/video-ui/images/progress-spinner.gif);
+      image: url(../images/progress-spinner.gif);
       position: center right 10px;
       repeat: no-repeat;
       size: 16px 16px;
@@ -262,7 +262,7 @@
   top: 0;
   cursor: pointer;
   font-size: 0;
-  background: url(/assets/video-ui/images/edit-icon.svg) $darkBrandColor no-repeat center;
+  background: url(../images/edit-icon.svg) $darkBrandColor no-repeat center;
   background-size: 15px 15px;
   width: 20px;
   height: 20px;
