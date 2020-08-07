@@ -7,6 +7,7 @@ import CapiSearch from '../CapiSearch/CapiSearch';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 
 export default class TextInputTagPicker extends React.Component {
+
   static propTypes = {
     tagValue: PropTypes.array.isRequired,
     onUpdate: PropTypes.func.isRequired,
@@ -25,41 +26,38 @@ export default class TextInputTagPicker extends React.Component {
 
   state = {
     inputString: '',
-    lastAction: UserActions.other
+    lastAction: UserActions.other,
   };
 
   componentWillReceiveProps(nextProps) {
     if (this.props.inputClearCount !== nextProps.inputClearCount) {
       this.setState({
-        inputString: ''
+        inputString: '',
       });
     }
   }
 
-  selectNewTag = newFieldValue => {
-    this.setState({
-      inputString: ''
-    });
+  selectNewTag = (newFieldValue) => {
+      this.setState({
+        inputString: ''
+      });
 
-    this.props.onUpdate(newFieldValue);
+      this.props.onUpdate(newFieldValue);
   };
 
   getYoutubeInputValue = () => {
     const existingValueSet = new Set(this.props.tagValue.map(_ => _.id));
     const newValueSet = new Set();
 
-    return this.state.inputString
-      .split(',')
+    return this.state.inputString.split(',')
       .filter(candidate => candidate.length !== 0)
       .map(candidate => candidate.trim())
       .reduce((acc, candidate) => {
         const lowerCaseCandidate = candidate.toLowerCase();
-        const isNewValue =
-          !existingValueSet.has(lowerCaseCandidate) &&
-          !newValueSet.has(lowerCaseCandidate);
+        const isNewValue = !existingValueSet.has(lowerCaseCandidate) && !newValueSet.has(lowerCaseCandidate);
 
         if (isNewValue) {
-          acc.push({ id: candidate, webTitle: candidate });
+          acc.push({ id: candidate, webTitle: candidate});
         }
 
         newValueSet.add(candidate);
@@ -68,7 +66,7 @@ export default class TextInputTagPicker extends React.Component {
   };
 
   updateInput = e => {
-    // If the user did not add new text input, we update the tag search
+      // If the user did not add new text input, we update the tag search
     if (this.state.lastAction === UserActions.delete) {
       const length = this.props.tagValue.length;
       const lastInput = this.props.tagValue[length - 1];
@@ -92,29 +90,31 @@ export default class TextInputTagPicker extends React.Component {
         const searchText = e.target.value;
 
         this.props.fetchTags(searchText);
+
       }
     }
   };
 
   processTagInput = e => {
     if (e.keyCode === keyCodes.enter) {
+
       if (this.props.selectedTagIndex === null) {
         const onlyWhitespace = !/\S/.test(this.state.inputString);
         if (!onlyWhitespace) {
-          const newInput =
-            this.props.tagType === TagTypes.youtube
-              ? this.getYoutubeInputValue()
-              : [this.state.inputString.trim()];
+
+          const newInput = this.props.tagType === TagTypes.youtube ? this.getYoutubeInputValue() : [this.state.inputString.trim()];
 
           const newFieldValue = this.props.tagValue.concat(newInput);
 
-          this.props.onUpdate(newFieldValue).then(() => {
+          this.props.onUpdate(newFieldValue)
+          .then(() => {
             this.setState({
-              inputString: ''
+              inputString: '',
             });
           });
         }
       }
+
     } else if (e.keyCode === keyCodes.backspace) {
       if (this.state.inputString.length === 0) {
         const lastInput = this.props.tagValue[this.props.tagValue.length - 1];
@@ -139,6 +139,7 @@ export default class TextInputTagPicker extends React.Component {
   };
 
   renderValue = (field, i, isLastInput = false) => {
+
     if (field.id) {
       return (
         <span
@@ -152,20 +153,16 @@ export default class TextInputTagPicker extends React.Component {
     }
     return (
       <span
-        className={
-          !isLastInput
-            ? 'form__field--multistring__value'
-            : 'form__field--multistring__last'
-        }
+        className={ !isLastInput ? "form__field--multistring__value" : "form__field--multistring__last"}
         key={`${field.id}-${i}`}
       >
-        {' '}
-        {field}{' '}
+        {' '}{field}{' '}
       </span>
     );
   };
 
   renderTextInputElement(lastElement) {
+
     return (
       <span className="form__field__tag--container">
         {lastElement && this.renderValue(lastElement, 0, true)}
@@ -174,7 +171,7 @@ export default class TextInputTagPicker extends React.Component {
           className="form__field__tag--input"
           id={this.props.fieldName}
           onKeyDown={this.processTagInput}
-          onChange={this.updateInput}
+r         onChange={this.updateInput}
           value={this.state.inputString}
         />
       </span>
@@ -182,19 +179,15 @@ export default class TextInputTagPicker extends React.Component {
   }
 
   renderInputElements() {
+
     const valueLength = this.props.tagValue.length;
-    const lastElement =
-      !valueLength || valueLength === 0
-        ? null
-        : this.props.tagValue[valueLength - 1];
+    const lastElement = !valueLength || valueLength === 0
+      ? null
+      : this.props.tagValue[valueLength - 1];
 
     return (
-      <div
-        className={
-          'form__field__tag--selector ' +
-          (this.props.hasError(this.props) ? 'form__field--error' : '')
-        }
-      >
+      <div className={'form__field__tag--selector ' +
+        (this.props.hasError(this.props) ? 'form__field--error' : '')}>
         {valueLength
           ? this.props.tagValue.map((value, i) => {
               if (i < valueLength - 1) {
@@ -204,6 +197,7 @@ export default class TextInputTagPicker extends React.Component {
           : ''}
 
         {this.renderTextInputElement(lastElement)}
+
       </div>
     );
   }
@@ -211,6 +205,7 @@ export default class TextInputTagPicker extends React.Component {
   render() {
     return (
       <div>
+
         {this.renderInputElements()}
 
         <CapiSearch
@@ -222,7 +217,8 @@ export default class TextInputTagPicker extends React.Component {
           removeDupes={removeStringTagDuplicates}
           selectedTagIndex={this.props.selectedTagIndex}
         />
+
       </div>
     );
   }
-}
+};

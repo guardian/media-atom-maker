@@ -12,11 +12,10 @@ class Videos extends React.Component {
     this.props.videoActions.getVideos(this.props.searchTerm, this.props.limit);
   }
 
-  componentWillReceiveProps(newProps) {
+  componentDidUpdate(prevProps) {
     const oldSearch = this.props.searchTerm;
-    const newSearch = newProps.searchTerm;
-
-    if (oldSearch !== newSearch) {
+    const newSearch = prevProps.searchTerm;
+    if (newSearch !== oldSearch) {
       this.props.videoActions.getVideos(newSearch, this.props.limit);
     }
   }
@@ -92,4 +91,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Videos);
+export default connect(mapStateToProps, mapDispatchToProps)(React.memo(Videos));

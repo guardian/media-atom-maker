@@ -5,22 +5,19 @@ import Header from './Header';
 class ReactApp extends React.Component {
   constructor(props) {
     super(props);
-  }
-
-  state = {
-    fetchedVideoFor: ''
-  };
-
-  componentWillMount() {
     if (this.props.params.id) {
       this.props.appActions.getVideo(this.props.params.id);
       this.props.appActions.getPublishedVideo(this.props.params.id);
       this.props.appActions.getUploads(this.props.params.id);
       this.props.appActions.getUsages(this.props.params.id);
     }
+
+    this.state = {
+      fetchedVideoFor: ''
+    };
   }
 
-  componentWillReceiveProps() {
+  componentDidUpdate() {
     if (
       this.props.params.id &&
       (!this.props.video || this.props.params.id !== this.props.video.id) &&
@@ -147,4 +144,7 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ReactApp);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(React.memo(ReactApp));

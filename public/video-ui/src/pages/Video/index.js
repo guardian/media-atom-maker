@@ -22,18 +22,18 @@ import { TargetingTab, TargetingTabPanel } from './tabs/Targeting';
 import { ManagementTab, ManagementTabPanel } from './tabs/Management';
 
 class VideoDisplay extends React.Component {
-  state = {
-    isCreateMode: false,
-    editingFurniture: false,
-    editingYoutubeFurniture: false,
-    editingWorkflow: false
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      isCreateMode: props.route.mode === 'create',
+      editingFurniture: false,
+      editingYoutubeFurniture: false,
+      editingWorkflow: false
+    };
+  }
 
-  componentWillMount() {
-    const isCreateMode = this.props.route.mode === 'create';
-    this.setState({ isCreateMode: isCreateMode });
-
-    if (isCreateMode) {
+  componentDidMount() {
+    if (this.state.isCreateMode) {
       this.props.videoActions.updateVideo(blankVideoData);
       this.updateEditingState({ key: 'editingFurniture', editing: true });
     } else {
@@ -179,7 +179,6 @@ class VideoDisplay extends React.Component {
 
     wfPromise.then(() => getStatus(video));
   }
-
 
   updateEditingState({ key, editing }) {
     this.setState({ [key]: editing });

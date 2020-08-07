@@ -1,13 +1,17 @@
 import React from 'react';
-import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 
-export default class CapiSearch extends React.Component {
-  componentWillReceiveProps(nextProps) {
+class CapiSearch extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  componentDidUpdate(prevProps) {
+    const nextProps = this.props;
+
     if (
       nextProps.selectedTagIndex !== null &&
-      this.props.selectedTagIndex !== nextProps.selectedTagIndex
+      prevProps.selectedTagIndex !== nextProps.selectedTagIndex
     ) {
-      const selectedTag = this.props.capiTags[nextProps.selectedTagIndex];
       const listNode = this.refs.list;
       const elementHeight = listNode.children[0].offsetHeight;
       if (listNode) {
@@ -70,3 +74,5 @@ export default class CapiSearch extends React.Component {
     return null;
   }
 }
+
+export default React.memo(CapiSearch);
