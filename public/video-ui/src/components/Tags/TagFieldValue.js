@@ -2,7 +2,6 @@ import React from 'react';
 
 export default class TagFieldValue extends React.Component {
   renderFieldValue(value, index) {
-    console.log(value);
     if (value.detailedTitle) {
       return (
         <span key={`${value.id}-${index}`}>
