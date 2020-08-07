@@ -2,7 +2,7 @@
 // Imports
 //
 
-var path    = require('path');
+var path = require('path');
 var webpack = require('webpack');
 
 //
@@ -18,66 +18,58 @@ var host = 'https://' + addr;
 //
 
 module.exports = {
-    port:  port,
-    addr:  addr,
-    host:  host,
-    devServer: { inline: true },
-    entry: {
-        'assets/video-ui/build/app': [
-            'webpack-dev-server/client?' + host,
-            'webpack/hot/dev-server',
-            path.join(__dirname, '..', 'public', 'video-ui', 'src', 'app.js')
-        ]
-    },
-    output: {
-        path:       path.join(__dirname, '..', 'public', 'video-ui', 'build'),
-        publicPath: host + '/assets/video-ui/build/',
-        filename:   'app.js'
-    },
-    resolveLoader: {
-        modulesDirectories: ['node_modules']
-    },
-    module: {
-        loaders: [
-            {
-                test:    /\.jsx?$/,
-                exclude: /node_modules/,
-                loader: 'babel-loader?cacheDirectory=true',
-                options: {
-                  plugins: ['react-hot-loader/babel']
-                }
-            },
-            {
-                test:   require.resolve('react'),
-                loader: 'expose?React'
-            },
-            {
-                test: /\.scss$/,
-                loaders: ['style', 'css', 'sass']
-            },
-            {
-                test: /\.css$/,
-                loaders: ['style', 'css']
-            },
-            {
-                test: /\.woff(2)?(\?v=[0-9].[0-9].[0-9])?$/,
-                loader: "url-loader?mimetype=application/font-woff"
-            },
-            {
-                test: /\.(ttf|eot|svg|gif)(\?v=[0-9].[0-9].[0-9])?$/,
-                loader: "file-loader?name=[name].[ext]"
-            }
-        ],
-        // http://andrewhfarmer.com/aws-sdk-with-webpack/
-        noParse: [
-          /aws\-sdk/,
-        ]
-    },
-    plugins: [
-        new webpack.HotModuleReplacementPlugin()
+  mode: 'development',
+  devServer: { inline: true, port: port, address: addr, host: host },
+  entry: {
+    'assets/video-ui/build/app': [
+      'webpack-dev-server/client?' + host,
+      'webpack/hot/dev-server',
+      path.join(__dirname, '..', 'public', 'video-ui', 'src', 'app.js')
+    ]
+  },
+  output: {
+    path: path.join(__dirname, '..', 'public', 'video-ui', 'build'),
+    publicPath: host + '/assets/video-ui/build/',
+    filename: 'app.js'
+  },
+  module: {
+    rules: [
+      {
+        test: /\.jsx?$/,
+        exclude: /node_modules/,
+        loader: 'babel-loader?cacheDirectory=true',
+        options: {
+          plugins: ['react-hot-loader/babel']
+        }
+      },
+      {
+        test: require.resolve('react'),
+        loader: 'expose-loader?React'
+      },
+      {
+        test: /\.scss$/,
+        use: ['style-loader', 'css-loader', 'sass-loader']
+      },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader']
+      },
+      {
+        test: /\.woff(2)?(\?v=[0-9].[0-9].[0-9])?$/,
+        loader: 'url-loader?mimetype=application/font-woff'
+      },
+      {
+        test: /\.(ttf|eot|svg|gif|png)(\?v=[0-9].[0-9].[0-9])?$/,
+        loader: 'file-loader?name=[name].[ext]'
+      }
     ],
-    resolve: {
-        // Allows require('file') instead of require('file.js|x')
-        extensions: ['', '.js', '.jsx', '.json']
-    }
+    // http://andrewhfarmer.com/aws-sdk-with-webpack/
+    noParse: [/aws\-sdk/]
+  },
+  plugins: [new webpack.HotModuleReplacementPlugin()],
+  resolve: {
+    modules: ['node_modules'],
+    // Allows require('file') instead of require('file.js|x')
+    extensions: ['.js', '.jsx', '.json']
+  }
 };

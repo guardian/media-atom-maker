@@ -1,11 +1,11 @@
 import React from 'react';
-import Picker from 'react-datepicker';
+import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 import Icon from '../Icon';
 
-const DATE_FORMAT = 'DD MMM YYYY';
-const DATETIME_FORMAT = `${DATE_FORMAT} HH:mm`;
+const DATE_FORMAT = 'dd MMM yyyy';
+const DATETIME_FORMAT = `DD MMM yyyy HH:mm`;
 
 const MINUTES = [0, 15, 30, 45].map(minute =>
   moment().minute(minute).format('mm')
@@ -21,7 +21,11 @@ function Selector({ values, value, disabled, onChange }) {
   };
 
   const options = values.map(value => {
-    return <option key={value} value={value}>{value}</option>;
+    return (
+      <option key={value} value={value}>
+        {value}
+      </option>
+    );
   });
 
   const params = {
@@ -57,19 +61,23 @@ function MinuteSelector({ date, onChange }) {
 }
 
 function DateSelector({ date, onChange }) {
+  const minDate = moment().toDate();
   const datePickerParams = {
     className: 'form__field',
-    selected: date,
-    minDate: moment(),
+    selected: date ? date.toDate() : null,
+    minDate,
     dateFormat: DATE_FORMAT,
-    readOnly: true,
+    readOnly: false,
     onChange: newDate => {
       const base = date ? date : moment().hours(0).minutes(0);
-      onChange(newDate.hours(base.hours()).minutes(base.minutes()));
+      const onChangeDate = moment(newDate)
+        .hours(base.hours())
+        .minutes(base.minutes());
+      onChange(onChangeDate);
     }
   };
 
-  return <Picker {...datePickerParams} />;
+  return <DatePicker {...datePickerParams} />;
 }
 
 function Editor({ date, onChange, fieldName, canCancel, dayOnly }) {
@@ -94,13 +102,13 @@ function Editor({ date, onChange, fieldName, canCancel, dayOnly }) {
             <MinuteSelector date={date} onChange={onChange} />
           </div>
         )}
-        {date && canCancel &&
-            <Icon
+        {date && canCancel && (
+          <Icon
             icon="cancel"
             className="icon__edit icon__cancel"
             onClick={reset}
           />
-        }
+        )}
       </div>
     </div>
   );
@@ -114,14 +122,12 @@ function Display({ date, placeholder, fieldName }) {
   return (
     <div>
       <p className="details-list__title">{fieldName}</p>
-      <p className={fieldClassName()}>
-        {displayString}
-      </p>
+      <p className={fieldClassName()}>{displayString}</p>
     </div>
   );
 }
 
-export default function DatePicker({
+export default function CustomDatePicker({
   editable,
   onUpdateField,
   fieldValue,
@@ -130,9 +136,8 @@ export default function DatePicker({
   dayOnly,
   canCancel = true
 }) {
-  const date = fieldValue && fieldValue !== placeholder
-    ? moment(fieldValue)
-    : null;
+  const date =
+    fieldValue && fieldValue !== placeholder ? moment(fieldValue) : null;
 
   if (editable) {
     return (
@@ -152,6 +157,8 @@ export default function DatePicker({
       />
     );
   } else {
-    return <Display fieldName={fieldName} date={date} placeholder={placeholder} />;
+    return (
+      <Display fieldName={fieldName} date={date} placeholder={placeholder} />
+    );
   }
 }

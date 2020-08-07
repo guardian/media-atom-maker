@@ -3,10 +3,10 @@ import RequiredForComposer from '../constants/requiredForComposer';
 
 const validateField = (
   fieldValue,
-  isRequired: false,
-  isDesired: false,
-  customValidation: null,
-  composerValidation: false
+  isRequired = false,
+  isDesired = false,
+  customValidation = null,
+  composerValidation = false
 ) => {
   if (customValidation) {
     return customValidation(fieldValue);
@@ -31,12 +31,12 @@ const validateField = (
       FieldNotification.error
     );
   }
-  if (
-    isDesired && fieldValueMissing()
-  ) {
+  if (isDesired && fieldValueMissing()) {
     return new FieldNotification(
       'desired',
-      composerValidation ? RequiredForComposer.warning : 'This field is desired',
+      composerValidation
+        ? RequiredForComposer.warning
+        : 'This field is desired',
       FieldNotification.warning
     );
   }

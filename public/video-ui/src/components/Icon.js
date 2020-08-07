@@ -6,15 +6,19 @@ export function GuardianLogo() {
       xmlns="http://www.w3.org/2000/svg"
       width="128"
       height="128"
-      viewBox="0 0 128 128">
-        <defs>
-          <clipPath id="a">
-            <path fill="none" d="M0 0h128v128H0z"/>
-          </clipPath>
-        </defs>
-        <g clip-path="url(#a)">
-          <path fill="#1d1d1b" d="M64 0a64 64 0 1 0 64 64A64.1 64.1 0 0 0 64 0m10.9 15.8c9 1.3 18.9 7 22.7 11v18.6h-2L74.9 17.9zM68.1 17h-.3C53.3 17 45 37.1 45.4 64.2c-.4 27.1 7.9 47.2 22.4 47.2h.3v2.1a48.3 48.3 0 0 1-51-49.3 48.3 48.3 0 0 1 51-49.3zm36.4 51.5l-6.9 2.9v30.7a52.7 52.7 0 0 1-22.7 11.1V70.8l-6.8-2.5v-1.9h36.4z"/>
-        </g>
+      viewBox="0 0 128 128"
+    >
+      <defs>
+        <clipPath id="a">
+          <path fill="none" d="M0 0h128v128H0z" />
+        </clipPath>
+      </defs>
+      <g clipPath="url(#a)">
+        <path
+          fill="#1d1d1b"
+          d="M64 0a64 64 0 1 0 64 64A64.1 64.1 0 0 0 64 0m10.9 15.8c9 1.3 18.9 7 22.7 11v18.6h-2L74.9 17.9zM68.1 17h-.3C53.3 17 45 37.1 45.4 64.2c-.4 27.1 7.9 47.2 22.4 47.2h.3v2.1a48.3 48.3 0 0 1-51-49.3 48.3 48.3 0 0 1 51-49.3zm36.4 51.5l-6.9 2.9v30.7a52.7 52.7 0 0 1-22.7 11.1V70.8l-6.8-2.5v-1.9h36.4z"
+        />
+      </g>
     </svg>
   );
 }
@@ -74,7 +78,9 @@ export default class Icon extends React.Component {
     if (this.props.children) {
       return (
         <span
-          className={`icon--text responsive--${this.props.textClass || 'optional'}`}
+          className={`icon--text responsive--${
+            this.props.textClass || 'optional'
+          }`}
         >
           {this.props.children}
         </span>
@@ -93,8 +99,14 @@ export default class Icon extends React.Component {
       : 'responsive';
 
     return (
-      <span className={`${props.className} ${this.props.disabled ? 'disabled' : ''}`}>
-        <i className="icon responsive--primary" onClick={props.onClick}>{props.icon}</i>
+      <span
+        className={`${props.className} ${
+          this.props.disabled ? 'disabled' : ''
+        }`}
+      >
+        <i className="icon responsive--primary" onClick={props.onClick}>
+          {props.icon}
+        </i>
         {this.renderText()}
       </span>
     );

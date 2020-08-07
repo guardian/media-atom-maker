@@ -1,49 +1,56 @@
-const webpack = require("webpack");
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const webpack = require('webpack');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
+  mode: 'production',
+  devtool: false,
+  performance: { hints: 'warning' },
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: "babel-loader"
+        loader: 'babel-loader',
+        options: {
+          presets: ['@babel/preset-env']
+        }
       },
       {
-        test: /\.scss$/,
-        use: ["style-loader", "css-loader", "sass-loader"]
-      },
-      {
-        test: /\.css$/,
-        use: ["style-loader", "css-loader"]
+        test: /\.(sa|sc|c)ss$/,
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader
+          },
+          'css-loader',
+          'sass-loader'
+        ]
       },
       {
         test: /\.woff(2)?(\?v=[0-9].[0-9].[0-9])?$/,
-        loader: "url-loader?mimetype=application/font-woff"
+        loader: 'url-loader?mimetype=application/font-woff'
       },
       {
-        test: /\.(ttf|eot|svg|gif)(\?v=[0-9].[0-9].[0-9])?$/,
-        loader: "file-loader?name=[name].[ext]"
+        test: /\.(ttf|eot|svg|gif|png)(\?v=[0-9].[0-9].[0-9])?$/,
+        loader: 'file-loader?name=[name].[ext]'
       }
     ],
     // http://andrewhfarmer.com/aws-sdk-with-webpack/
     noParse: [/aws\-sdk/]
   },
   plugins: [
-    new ExtractTextPlugin("main.css"),
+    new MiniCssExtractPlugin({
+      filename: '[name].css',
+      chunkFilename: '[id].css',
+      ignoreOrder: false // Enable to remove warnings about conflicting order
+    }),
     new webpack.DefinePlugin({
-      "process.env": {
+      'process.env': {
         NODE_ENV: '"production"'
       }
     }),
-    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false
-      }
-    })
+    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)
   ],
   resolve: {
-    extensions: [".js", ".jsx", ".json"]
+    extensions: ['.js', '.jsx', '.json']
   }
 };
