@@ -15,14 +15,10 @@ const getStateFromProps = props => {
   };
 };
 
-export default class DurationInput extends React.Component {
+class DurationInput extends React.Component {
   constructor(props) {
     super(props);
     this.state = getStateFromProps(this.props);
-  }
-
-  componentWillReceiveProps(props) {
-    this.setState(getStateFromProps(props));
   }
 
   updateDuration() {
@@ -118,3 +114,5 @@ export default class DurationInput extends React.Component {
     return <div>{this.renderField()}</div>;
   }
 }
+
+export default React.memo(DurationInput);

@@ -6,16 +6,26 @@ import TagTypes from '../../constants/TagTypes';
 import TagPicker from '../FormFields/TagPicker';
 import SelectBox from '../FormFields/SelectBox';
 import PrivacyStates from '../../constants/privacyStates';
-import {formNames} from "../../constants/formNames";
-import YouTubeKeywords from "../../constants/youTubeKeywords";
-import {getYouTubeTagCharCount} from "../../util/getYouTubeTagCharCount";
-import FieldNotification from "../../constants/FieldNotification";
+import { formNames } from '../../constants/formNames';
+import YouTubeKeywords from '../../constants/youTubeKeywords';
+import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
+import FieldNotification from '../../constants/FieldNotification';
 import KeywordsApi from '../../services/KeywordsApi';
-import {fieldLengths} from "../../constants/videoEditValidation";
-import TextInput from "../FormFields/TextInput";
-import TextAreaInput from "../FormFields/TextAreaInput";
+import { fieldLengths } from '../../constants/videoEditValidation';
+import TextInput from '../FormFields/TextInput';
+import TextAreaInput from '../FormFields/TextAreaInput';
 
 class YoutubeFurniture extends React.Component {
+  constructor(props) {
+    super(props);
+    if (!this.hasCategories()) {
+      this.props.youtubeActions.getCategories();
+    }
+    if (!this.hasChannels()) {
+      this.props.youtubeActions.getChannels();
+    }
+  }
+
   static propTypes = {
     video: PropTypes.object.isRequired,
     editable: PropTypes.bool.isRequired,
@@ -26,15 +36,6 @@ class YoutubeFurniture extends React.Component {
 
   hasCategories = () => this.props.youtube.categories.length !== 0;
   hasChannels = () => this.props.youtube.channels.length !== 0;
-
-  componentWillMount() {
-    if (!this.hasCategories()) {
-      this.props.youtubeActions.getCategories();
-    }
-    if (!this.hasChannels()) {
-      this.props.youtubeActions.getChannels();
-    }
-  }
 
   validateYouTubeDescription = description => {
     return description && description.match(/<|>/)

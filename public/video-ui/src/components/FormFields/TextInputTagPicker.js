@@ -171,7 +171,7 @@ export default class TextInputTagPicker extends React.Component {
           className="form__field__tag--input"
           id={this.props.fieldName}
           onKeyDown={this.processTagInput}
-r         onChange={this.updateInput}
+          onChange={this.updateInput}
           value={this.state.inputString}
         />
       </span>

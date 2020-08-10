@@ -3,17 +3,28 @@ import PropTypes from 'prop-types';
 import DatePicker from '../FormFields/DatePicker';
 import Icon from '../Icon';
 import ScheduleRecap from '../ScheduleRecap/ScheduleRecap';
-import {
-  isFutureDate,
-  isSameOrAfter,
-  isAfter
-} from '../../util/dateHelpers';
-import { impossiblyDistantDate }  from '../../constants/dates';
+import { isFutureDate, isSameOrAfter, isAfter } from '../../util/dateHelpers';
+import { impossiblyDistantDate } from '../../constants/dates';
 import datesProperties from '../../constants/datesProperties';
 import VideoUtils from '../../util/video';
 import ReactTooltip from 'react-tooltip';
 
-export default class ScheduledLaunch extends React.Component {
+class ScheduledLaunch extends React.Component {
+  constructor(props) {
+    super(props);
+    const embargo = VideoUtils.getEmbargo(props.video);
+    const scheduledLaunch = VideoUtils.getScheduledLaunch(props.video);
+    this.state = {
+      selectedScheduleDate: scheduledLaunch || embargo,
+      selectedEmbargoDate: embargo || scheduledLaunch,
+      showDatePicker: false,
+      propertyName: null,
+      showScheduleButton: true,
+      showScheduleOptions: false,
+      invalidDateError: null
+    };
+  }
+
   static propTypes = {
     video: PropTypes.object.isRequired,
     saveVideo: PropTypes.func.isRequired,
@@ -30,14 +41,6 @@ export default class ScheduledLaunch extends React.Component {
     showScheduleOptions: false,
     invalidDateError: null
   };
-
-  componentWillReceiveProps(nextProps) {
-    const embargo = VideoUtils.getEmbargo(nextProps.video);
-    const scheduledLaunch = VideoUtils.getScheduledLaunch(nextProps.video);
-
-    this.setState({ selectedScheduleDate: scheduledLaunch || embargo });
-    this.setState({ selectedEmbargoDate: embargo || scheduledLaunch });
-  }
 
   validateDate = (date, propertyName) => {
     if (!date) {
@@ -105,7 +108,10 @@ export default class ScheduledLaunch extends React.Component {
   };
 
   saveDate = propertyName => {
-    const key = propertyName === datesProperties.selectedScheduleDate ? 'scheduledLaunch' : 'embargo';
+    const key =
+      propertyName === datesProperties.selectedScheduleDate
+        ? 'scheduledLaunch'
+        : 'embargo';
     const video = this.props.video;
     this.props.saveVideo(
       Object.assign({}, video, {
@@ -333,3 +339,5 @@ export default class ScheduledLaunch extends React.Component {
     );
   }
 }
+
+export default React.memo(ScheduledLaunch);

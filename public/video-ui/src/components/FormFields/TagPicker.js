@@ -2,7 +2,6 @@ import React from 'react';
 import ContentApi from '../../services/capi';
 import { tagsFromStringList, tagsToStringList } from '../../util/tagParsers';
 import { keyCodes } from '../../constants/keyCodes';
-import UserActions from '../../constants/UserActions';
 import TagTypes from '../../constants/TagTypes';
 import getTagDisplayNames from '../../util/getTagDisplayNames';
 import TextInputTagPicker from './TextInputTagPicker';
@@ -16,17 +15,35 @@ import ReactTooltip from 'react-tooltip';
 import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
 import YouTubeKeywords from '../../constants/youTubeKeywords';
 
-export default class TagPicker extends React.Component {
+class TagPicker extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      capiTags: [],
+      tagValue: [],
+      capiUnavailable: false,
+      showTags: true,
+      tagsVisible: false,
+      selectedTagIndex: null,
+      inputClearCount: 0
+    };
+  }
 
-  state = {
-    capiTags: [],
-    tagValue: [],
-    capiUnavailable: false,
-    showTags: true,
-    tagsVisible: false,
-    selectedTagIndex: null,
-    inputClearCount: 0
-  };
+  componentDidUpdate(prevProps) {
+    const nextProps = this.props;
+
+    if (prevProps.tagType === TagTypes.youtube) {
+      if (prevProps.fieldValue.length !== nextProps.fieldValue.length) {
+        tagsFromStringList(nextProps.fieldValue, prevProps.tagType).then(
+          result => {
+            this.setState({
+              tagValue: result
+            });
+          }
+        );
+      }
+    }
+  }
 
   componentDidMount() {
     ReactTooltip.rebuild();
@@ -44,19 +61,6 @@ export default class TagPicker extends React.Component {
             capiUnavailable: true
           });
         });
-    }
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (this.props.tagType === TagTypes.youtube) {
-      if (this.props.fieldValue.length !== nextProps.fieldValue.length) {
-        tagsFromStringList(nextProps.fieldValue, this.props.tagType)
-        .then(result => {
-          this.setState({
-            tagValue: result
-          });
-        })
-      }
     }
   }
 
@@ -206,7 +210,6 @@ export default class TagPicker extends React.Component {
       });
 
       this.onUpdate(newFieldValue);
-
     }
   }
 
@@ -326,7 +329,6 @@ export default class TagPicker extends React.Component {
       );
     }
     return null;
-
   }
 
   renderBylineInstructions() {
@@ -423,3 +425,5 @@ export default class TagPicker extends React.Component {
     );
   }
 }
+
+export default React.memo(TagPicker);

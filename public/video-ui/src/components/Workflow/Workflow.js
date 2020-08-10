@@ -16,7 +16,7 @@ class Workflow extends React.Component {
   hasStatuses = () => this.props.workflow.statuses.length > 0;
   hasPriorities = () => this.props.workflow.priorities.length > 0;
 
-  componentWillMount() {
+  componentDidMount() {
     if (!this.hasSections()) {
       this.props.workflowActions.getSections();
     }
