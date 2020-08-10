@@ -1,15 +1,11 @@
 import React from 'react';
 import { PropTypes } from 'prop-types';
-import TagTypes from '../../constants/TagTypes';
-import DragSortableList from 'react-drag-sortable';
 import CapiSearch from '../CapiSearch/CapiSearch';
 import removeTagDuplicates from '../../util/removeTagDuplicates';
 
-export default class PureTagPicker extends React.Component {
-
+class PureTagPicker extends React.Component {
   static propTypes = {
     tagValue: PropTypes.array.isRequired,
-    onUpdate: PropTypes.func.isRequired,
     fetchTags: PropTypes.func.isRequired,
     onUpdate: PropTypes.func.isRequired,
     capiTags: PropTypes.array.isRequired,
@@ -26,8 +22,8 @@ export default class PureTagPicker extends React.Component {
     inputString: '',
   };
 
-  componentWillReceiveProps(nextProps) {
-    if (this.props.inputClearCount !== nextProps.inputClearCount) {
+  componentDidUpdate(prevProps) {
+    if (prevProps.inputClearCount !== this.props.inputClearCount) {
       this.setState({
         inputString: '',
       });
@@ -78,4 +74,6 @@ export default class PureTagPicker extends React.Component {
       </div>
     );
   }
-};
+}
+
+export default React.memo(PureTagPicker);

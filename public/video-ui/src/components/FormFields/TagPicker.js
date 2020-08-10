@@ -2,7 +2,6 @@ import React from 'react';
 import ContentApi from '../../services/capi';
 import { tagsFromStringList, tagsToStringList } from '../../util/tagParsers';
 import { keyCodes } from '../../constants/keyCodes';
-import UserActions from '../../constants/UserActions';
 import TagTypes from '../../constants/TagTypes';
 import getTagDisplayNames from '../../util/getTagDisplayNames';
 import TextInputTagPicker from './TextInputTagPicker';

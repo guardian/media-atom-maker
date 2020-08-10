@@ -37,15 +37,14 @@ const TargetDescription = props => (
 );
 
 class Targeting extends React.Component {
+  constructor(props) {
+    super(props);
+    this.props.targetingActions.getTargets(this.props.video);
+  }
+
   static propTypes = {
     video: PropTypes.object.isRequired
   };
-
-  componentWillMount() {
-    // Reset for each video every time we mount (state will only contain one
-    // video's data)
-    this.props.targetingActions.getTargets(this.props.video);
-  }
 
   createTarget = () => {
     this.props.targetingActions.createTarget(this.props.video);
