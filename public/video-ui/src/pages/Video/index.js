@@ -30,9 +30,7 @@ class VideoDisplay extends React.Component {
       editingYoutubeFurniture: false,
       editingWorkflow: false
     };
-  }
 
-  componentDidMount() {
     if (this.state.isCreateMode) {
       this.props.videoActions.updateVideo(blankVideoData);
       this.updateEditingState({ key: 'editingFurniture', editing: true });
