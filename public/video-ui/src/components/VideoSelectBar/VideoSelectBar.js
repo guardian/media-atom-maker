@@ -37,11 +37,15 @@ export default class VideoSelectBar extends React.Component {
       return false;
     }
 
+    const title = this.props.video && this.props.video.title
+      ? this.props.video.title
+      : "Title missing";
+
     return (
       <div className="bar info-bar">
         <div className="bar__image">{this.renderItemImage()}</div>
         <div>
-          <span className="grid__item__title">{this.props.video.title}</span>
+          <span className="grid__item__title">{title}</span>
           {this.renderEmbedButton()}
         </div>
       </div>
