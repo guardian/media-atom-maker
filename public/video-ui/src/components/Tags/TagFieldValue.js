@@ -13,10 +13,10 @@ export default class TagFieldValue extends React.Component {
     }
 
     if (index === 0 || value === ',') {
-      return value;
+      return value.webTitle || value;
     }
 
-    return ` ${value}`;
+    return ` ${value.webTitle || value}`;
   }
 
   render() {
