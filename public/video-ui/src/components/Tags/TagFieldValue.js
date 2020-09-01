@@ -10,6 +10,9 @@ export default class TagFieldValue extends React.Component {
           </span>{' '}
         </span>
       );
+    } else if (value.webTitle) {
+      // In YouTube Furniture tab, the `keyword` field passes an object with webTitle to this component
+      return value.webTitle;
     }
 
     if (index === 0 || value === ',') {
