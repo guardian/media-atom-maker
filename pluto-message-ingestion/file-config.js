@@ -1,5 +1,5 @@
 const AWS = require('aws-sdk');
-const parseHocon = require('hoconjs/build/hoconjs');
+const parseHocon = require('hocon-parser');
 
 const EnvironmentConfig = require('./environment-config');
 
