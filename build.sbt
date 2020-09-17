@@ -136,9 +136,7 @@ lazy val app = (project in file("."))
 
     aggregate in run := false,
 
-    javaOptions in Universal ++= Seq(
-      "-Dpidfile.path=/dev/null"
-    ),
+    bashScriptConfigLocation := Some("/etc/gu/media-atom-maker.ini"),
 
     buildInfoKeys := Seq[BuildInfoKey](
       name,
