@@ -190,6 +190,9 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
 
   def createOrUpdateClaim(atomId: String, videoId: String, blockAds: Boolean): Either[VideoUpdateError, String] = {
     try {
+      if(!blockAds) {
+        updateTheVideoAdvertisingOptions(videoId)
+      }
       getPartnerClaim(videoId) match {
         case Some(claimSnippet) => {
           val claimId = claimSnippet.getId
@@ -202,7 +205,6 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
           createVideoClaim(atomId, blockAds, videoId)
         }
       }
-      updateTheVideoAdvertisingOptions(videoId)
     }
 
     catch {
