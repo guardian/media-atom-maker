@@ -173,13 +173,15 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
     }
   }
 
-  private def updateTheVideoAdvertisingOptions(videoId: String): Either[VideoUpdateError, String] = {
+  private def updateTheVideoAdvertisingOptions(videoId: String, atomId: String): Either[VideoUpdateError, String] = {
     val formats: util.List[String] = List("trueview_instream", "long", "overlay", "product_listing", "standard_instream", "third_party", "display").asJava
     val advertisingOption: VideoAdvertisingOption = new VideoAdvertisingOption().setAdFormats(formats)
     try {
-      val request = partnerClient.videoAdvertisingOptions().update(videoId, advertisingOption)
+      MAMLogger.info(s"About to update video advertising options for ${videoId}",atomId,videoId)
+      val request = partnerClient.videoAdvertisingOptions().update(videoId, advertisingOption).setOnBehalfOfContentOwner(contentOwner)
       YoutubeRequestLogger.logRequest(YoutubeApiType.PartnerApi, YoutubeRequestType.UpdateVideoAdvertisingOptions)
       request.execute()
+      MAMLogger.info(s"Updated video advertising options for ${videoId}",atomId, videoId)
       Right(s"Updated advertising options on video $videoId")
     } catch {
       case e: GoogleJsonResponseException =>
@@ -191,7 +193,7 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
   def createOrUpdateClaim(atomId: String, videoId: String, blockAds: Boolean): Either[VideoUpdateError, String] = {
     try {
       if(!blockAds) {
-        updateTheVideoAdvertisingOptions(videoId)
+        updateTheVideoAdvertisingOptions(videoId, atomId)
       }
       getPartnerClaim(videoId) match {
         case Some(claimSnippet) => {
