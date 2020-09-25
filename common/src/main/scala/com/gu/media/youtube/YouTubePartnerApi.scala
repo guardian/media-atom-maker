@@ -1,5 +1,7 @@
 package com.gu.media.youtube
 
+import java.util
+
 import com.google.api.client.googleapis.json.{GoogleJsonError, GoogleJsonResponseException}
 import com.google.api.services.youtubePartner.YouTubePartner
 import com.google.api.services.youtubePartner.model._
@@ -171,6 +173,21 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
     }
   }
 
+  private def updateTheVideoAdvertisingOptions(videoId: String): Either[VideoUpdateError, String] = {
+    val formats: util.List[String] = List("trueview_instream", "long", "overlay", "product_listing", "standard_instream", "third_party", "display").asJava
+    val advertisingOption: VideoAdvertisingOption = new VideoAdvertisingOption().setAdFormats(formats)
+    try {
+      val request = partnerClient.videoAdvertisingOptions().update(videoId, advertisingOption)
+      YoutubeRequestLogger.logRequest(YoutubeApiType.PartnerApi, YoutubeRequestType.UpdateVideoAdvertisingOptions)
+      request.execute()
+      Right(s"Updated advertising options on video $videoId")
+    } catch {
+      case e: GoogleJsonResponseException =>
+        val error: GoogleJsonError = e.getDetails
+        Left(VideoUpdateError(s"Error in updating the advertising options on video $videoId, ${error.toString}", Some(error.getMessage)))
+    }
+  }
+
   def createOrUpdateClaim(atomId: String, videoId: String, blockAds: Boolean): Either[VideoUpdateError, String] = {
     try {
       getPartnerClaim(videoId) match {
@@ -185,6 +202,7 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
           createVideoClaim(atomId, blockAds, videoId)
         }
       }
+      updateTheVideoAdvertisingOptions(videoId)
     }
 
     catch {
