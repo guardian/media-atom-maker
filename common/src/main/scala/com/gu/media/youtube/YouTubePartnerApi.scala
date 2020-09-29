@@ -1,5 +1,7 @@
 package com.gu.media.youtube
 
+import java.util
+
 import com.google.api.client.googleapis.json.{GoogleJsonError, GoogleJsonResponseException}
 import com.google.api.services.youtubePartner.YouTubePartner
 import com.google.api.services.youtubePartner.model._
@@ -171,8 +173,29 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
     }
   }
 
+  private def updateTheVideoAdvertisingOptions(videoId: String, atomId: String): Either[VideoUpdateError, String] = {
+    // All possible formats can be found on YouTube developer docs: https://developers.google.com/youtube/partner/docs/v1/videoAdvertisingOptions#properties
+    val formats: util.List[String] = List("standard_instream","trueview_instream","display").asJava
+    val advertisingOption: VideoAdvertisingOption = new VideoAdvertisingOption().setAdFormats(formats)
+    try {
+      MAMLogger.info(s"About to update video advertising options for ${videoId}",atomId,videoId)
+      val request = partnerClient.videoAdvertisingOptions().update(videoId, advertisingOption).setOnBehalfOfContentOwner(contentOwner)
+      YoutubeRequestLogger.logRequest(YoutubeApiType.PartnerApi, YoutubeRequestType.UpdateVideoAdvertisingOptions)
+      request.execute()
+      MAMLogger.info(s"Updated video advertising options for ${videoId}",atomId, videoId)
+      Right(s"Updated advertising options on video $videoId")
+    } catch {
+      case e: GoogleJsonResponseException =>
+        val error: GoogleJsonError = e.getDetails
+        Left(VideoUpdateError(s"Error in updating the advertising options on video $videoId, ${error.toString}", Some(error.getMessage)))
+    }
+  }
+
   def createOrUpdateClaim(atomId: String, videoId: String, blockAds: Boolean): Either[VideoUpdateError, String] = {
     try {
+      if(!blockAds) {
+        updateTheVideoAdvertisingOptions(videoId, atomId)
+      }
       getPartnerClaim(videoId) match {
         case Some(claimSnippet) => {
           val claimId = claimSnippet.getId

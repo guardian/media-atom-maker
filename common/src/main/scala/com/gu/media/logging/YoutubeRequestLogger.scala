@@ -36,6 +36,7 @@ object YoutubeRequestType extends Enum[YoutubeRequestType] {
   case object UpdateVideoClaim extends YoutubeRequestType
   case object GetVideoClaim extends YoutubeRequestType
   case object GetVideoAdvertisingOptions extends YoutubeRequestType
+  case object UpdateVideoAdvertisingOptions extends YoutubeRequestType
 
   case object DeleteVideo extends YoutubeRequestType
 
