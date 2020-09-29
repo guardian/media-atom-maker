@@ -174,6 +174,7 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
   }
 
   private def updateTheVideoAdvertisingOptions(videoId: String, atomId: String): Either[VideoUpdateError, String] = {
+    // All possible formats can be found on YouTube developer docs: https://developers.google.com/youtube/partner/docs/v1/videoAdvertisingOptions#properties
     val formats: util.List[String] = List("standard_instream","trueview_instream","display").asJava
     val advertisingOption: VideoAdvertisingOption = new VideoAdvertisingOption().setAdFormats(formats)
     try {
