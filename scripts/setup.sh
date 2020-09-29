@@ -21,6 +21,10 @@ install_yarn() {
   fi
 }
 
+setup_nginx() {
+  dev-nginx setup-app ${DIR}/../nginx/nginx-mappings.yml
+}
+
 install_deps_and_build() {
   yarn install
   printf "\n\Compiling Javascript... \n\r\n\r"
@@ -30,6 +34,7 @@ install_deps_and_build() {
 main() {
   check_node_version
   install_yarn
+  setup_nginx
   install_deps_and_build
   printf "\n\rDone.\n\r\n\r"
 }
