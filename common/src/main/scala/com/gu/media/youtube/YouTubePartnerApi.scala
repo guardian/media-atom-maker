@@ -174,7 +174,7 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
   }
 
   private def updateTheVideoAdvertisingOptions(videoId: String, atomId: String): Either[VideoUpdateError, String] = {
-    val formats: util.List[String] = List("trueview_instream", "long", "overlay", "product_listing", "standard_instream", "third_party", "display").asJava
+    val formats: util.List[String] = List("standard_instream","trueview_instream","display").asJava
     val advertisingOption: VideoAdvertisingOption = new VideoAdvertisingOption().setAdFormats(formats)
     try {
       MAMLogger.info(s"About to update video advertising options for ${videoId}",atomId,videoId)
