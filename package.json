@@ -57,7 +57,7 @@
     "moment": "^2.27.0",
     "panda-session": "^0.1.6",
     "prop-types": "^15.5.10",
-    "querystringify": "2.0.0",
+    "querystringify": "2.2.0",
     "raven-js": "^3.9.1",
     "react": "^16.13.1",
     "react-datepicker": "^3.1.3",
