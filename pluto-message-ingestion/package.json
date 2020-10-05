@@ -17,7 +17,7 @@
     "build": "npm run test && npm run build-artefact"
   },
   "dependencies": {
-    "@guardian/elk-kinesis-logger": "0.1.0",
+    "@guardian/elk-kinesis-logger": "0.5.0",
     "crypto": "0.0.3",
     "hocon-parser": "^1.0.1",
     "reqwest": "^2.0.5",
