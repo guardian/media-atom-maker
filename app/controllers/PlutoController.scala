@@ -3,7 +3,7 @@ package controllers
 import com.gu.media.aws._
 import com.gu.media.Settings
 import com.gu.media.logging.Logging
-import com.gu.media.pluto.PlutoUpsertRequest
+import com.gu.media.pluto.{PlutoCommissionDataStoreException, PlutoUpsertRequest}
 import com.gu.media.upload.PlutoUploadActions
 import com.gu.pandahmac.HMACAuthActions
 import com.gu.media.util.MediaAtomHelpers
@@ -32,9 +32,33 @@ class PlutoController(
     Ok(Json.toJson(plutoCommissions))
   }
 
+  def getCommission(commissionId: String) = APIAuthAction {
+    stores.plutoCommissionStore.getById(commissionId) match {
+      case Some(Right(commission)) => Ok(Json.toJson(commission))
+      case Some(Left(error)) =>
+        log.error(s"failed to get pluto commission with ID $commissionId", error)
+        ServiceUnavailable
+      case None =>
+        log.warn(s"no commission with ID $commissionId")
+        NotFound
+    }
+  }
+
   def getProjectsByCommissionId(id: String) = APIAuthAction {
     val plutoProjects = stores.plutoProjectStore.getByCommissionId(id)
     Ok(Json.toJson(plutoProjects))
+  }
+
+  def getProject(projectId:String) = APIAuthAction {
+    stores.plutoProjectStore.getById(projectId) match {
+      case Some(Right(project)) => Ok(Json.toJson(project))
+      case Some(Left(error)) =>
+        log.error(s"failed to get pluto project with ID $projectId", error)
+        ServiceUnavailable
+      case None =>
+        log.warn(s"no project with ID $projectId")
+        NotFound
+    }
   }
 
   def deleteCommission(id: String) = APIHMACAuthAction {

@@ -17,9 +17,11 @@ PUT     /api/atom/:id/reset-duration-from-active     controllers.Api.resetDurati
 POST    /api/atom/:id/pac-file         controllers.Api.uploadPacFile(id)
 
 GET     /api/pluto/commissions         controllers.PlutoController.getCommissions()
+GET     /api/pluto/commissions/:id     controllers.PlutoController.getCommission(id)
 GET     /api/pluto/commissions/:id/projects  controllers.PlutoController.getProjectsByCommissionId(id)
 DELETE  /api/pluto/commissions/:id     controllers.PlutoController.deleteCommission(id)
 PUT     /api/pluto/projects            controllers.PlutoController.upsertProject()
+GET     /api/pluto/projects/:id        controllers.PlutoController.getProject(id)
 POST    /api/pluto/resend/:id          controllers.PlutoController.resendAtomMessage(id)
 
 # endpoint used by workflow

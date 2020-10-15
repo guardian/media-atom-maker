@@ -13,6 +13,11 @@ case class PlutoCommissionDataStoreException(err: String) extends Exception(err)
 class PlutoCommissionDataStore(aws: DynamoAccess) extends Logging {
   private val table = Table[PlutoCommission](aws.plutoCommissionTableName)
 
+  def getById(commissionId: String): Option[Either[DynamoReadError, PlutoCommission]] = {
+    log.info(s"getting commission $commissionId")
+    Scanamo.exec(aws.dynamoDB)(table.get('id -> commissionId))
+  }
+
   def list(): List[PlutoCommission] = {
     val op = table.scan()
     val results = Scanamo.exec(aws.dynamoDB)(op)
