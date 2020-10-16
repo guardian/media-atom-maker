@@ -5,10 +5,18 @@ import org.joda.time.DateTime
 import play.api.libs.json._
 import com.gu.media.util.JsonDate._
 
+sealed trait PlutoItem {
+  val id: String
+}
+
+object PlutoItem {
+  def numericIdsOnlyFilter(item: PlutoItem): Boolean = item.id.matches("[0-9]+")
+}
+
 case class PlutoCommission (
   id: String,
   title: String
-)
+) extends PlutoItem
 
 object PlutoCommission {
   implicit val format: Format[PlutoCommission] = Jsonx.formatCaseClass[PlutoCommission]
@@ -28,7 +36,7 @@ case class PlutoProject (
   commissionId: String,
   commissionTitle: String, //TODO remove this once migrated
   productionOffice: String
-)
+) extends PlutoItem
 
 object PlutoProject {
   implicit val format: Format[PlutoProject] = Jsonx.formatCaseClass[PlutoProject]

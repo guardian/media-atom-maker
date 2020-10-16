@@ -3,8 +3,9 @@ package com.gu.media.pluto
 import com.amazonaws.services.dynamodbv2.model.DeleteItemResult
 import com.gu.media.aws.DynamoAccess
 import com.gu.media.logging.Logging
+import com.gu.media.pluto.PlutoItem.numericIdsOnlyFilter
 import org.scanamo.{Scanamo, Table}
-import org.scanamo.DynamoFormat._
+import org.scanamo.DynamoFormat.{enumDynamoFormatCNil, _}
 import org.scanamo.DynamoFormat
 import org.scanamo.syntax._
 import org.joda.time.{DateTime, DateTimeZone}
@@ -36,7 +37,7 @@ class PlutoProjectDataStore(aws: DynamoAccess, plutoCommissionDataStore: PlutoCo
         throw PlutoProjectDataStoreException(error.toString)
       case Right(plutoProject) =>
         plutoProject
-    }.sortBy(_.title)
+    }.filter(numericIdsOnlyFilter).sortBy(_.title)
   }
 
   def upsert(plutoUpsertRequest: PlutoUpsertRequest): PlutoProject = {

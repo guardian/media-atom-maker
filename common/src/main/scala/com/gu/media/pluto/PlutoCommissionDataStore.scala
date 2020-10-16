@@ -3,6 +3,7 @@ package com.gu.media.pluto
 import com.amazonaws.services.dynamodbv2.model.DeleteItemResult
 import com.gu.media.aws.DynamoAccess
 import com.gu.media.logging.Logging
+import com.gu.media.pluto.PlutoItem.numericIdsOnlyFilter
 import org.scanamo.error.DynamoReadError
 import org.scanamo.syntax._
 import org.scanamo.{Scanamo, Table}
@@ -28,7 +29,7 @@ class PlutoCommissionDataStore(aws: DynamoAccess) extends Logging {
         throw PlutoCommissionDataStoreException(error.toString)
       case Right(commission) =>
         commission
-    }.sortBy(_.title)
+    }.filter(numericIdsOnlyFilter).sortBy(_.title)
   }
 
   def upsert(plutoUpsertRequest: PlutoUpsertRequest): Option[Either[DynamoReadError, PlutoCommission]] = {
