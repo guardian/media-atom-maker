@@ -4,11 +4,10 @@ import com.amazonaws.services.dynamodbv2.model.DeleteItemResult
 import com.gu.media.aws.DynamoAccess
 import com.gu.media.logging.Logging
 import com.gu.media.pluto.PlutoItem.numericIdsOnlyFilter
-import org.scanamo.{Scanamo, Table}
-import org.scanamo.DynamoFormat.{enumDynamoFormatCNil, _}
-import org.scanamo.DynamoFormat
-import org.scanamo.syntax._
 import org.joda.time.{DateTime, DateTimeZone}
+import org.scanamo.DynamoFormat._
+import org.scanamo.syntax._
+import org.scanamo.{DynamoFormat, Scanamo, Table}
 import org.scanamo.auto._
 
 case class PlutoProjectDataStoreException(err: String) extends Exception(err)
