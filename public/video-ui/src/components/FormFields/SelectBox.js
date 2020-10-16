@@ -1,5 +1,7 @@
 import React from 'react';
 
+const pleaseSelect = "Please select..."
+
 export default class SelectBox extends React.Component {
   getClassName = () => {
     return (
@@ -12,19 +14,20 @@ export default class SelectBox extends React.Component {
     if (this.props.displayDefault || !this.props.fieldValue) {
       return (
         <option value={null}>
-          {this.props.defaultOption || 'Please select...'}
+          {this.props.defaultOption || pleaseSelect}
         </option>
       );
     }
   };
 
   renderField = () => {
+    const matchingValues = this.props.selectValues.filter(
+      fieldValue =>
+        this.props.fieldValue &&
+        fieldValue.id.toString() === this.props.fieldValue.toString()
+    );
+
     if (!this.props.editable) {
-      const matchingValues = this.props.selectValues.filter(
-        fieldValue =>
-          this.props.fieldValue &&
-          fieldValue.id.toString() === this.props.fieldValue.toString()
-      );
 
       const displayValue = matchingValues.length
         ? matchingValues[0].title
@@ -65,7 +68,11 @@ export default class SelectBox extends React.Component {
             this.props.onUpdateField(e.target.value);
           }}
         >
-
+          {this.props.fieldValue && matchingValues.length===0 && (
+            <option value={this.props.fieldValue.id} key={this.props.fieldValue.id}>
+              {pleaseSelect}
+            </option>
+          )}
           {this.renderDefaultOption()}
           {this.props.selectValues.map(function (value) {
             return (
