@@ -20,6 +20,7 @@ import { WorkflowTab, WorkflowTabPanel } from './tabs/Workflow';
 import { UsageTab, UsageTabPanel } from './tabs/Usage';
 import { TargetingTab, TargetingTabPanel } from './tabs/Targeting';
 import { ManagementTab, ManagementTabPanel } from './tabs/Management';
+import { PlutoTab, PlutoTabPanel } from './tabs/Pluto';
 
 class VideoDisplay extends React.Component {
   constructor(props) {
@@ -223,6 +224,7 @@ class VideoDisplay extends React.Component {
           <UsageTab disabled={videoEditOpen || isCreateMode} />
           <TargetingTab disabled={videoEditOpen || isCreateMode} />
           <ManagementTab disabled={videoEditOpen || isCreateMode} />
+          <PlutoTab disabled={videoEditOpen || isCreateMode} />
         </TabList>
         <FurnitureTabPanel
           editing={editingFurniture}
@@ -302,6 +304,7 @@ class VideoDisplay extends React.Component {
         />
         <TargetingTabPanel video={video} />
         <ManagementTabPanel video={video} updateVideo={this.updateVideo} />
+        <PlutoTabPanel video={video} />
       </Tabs>
     );
   }

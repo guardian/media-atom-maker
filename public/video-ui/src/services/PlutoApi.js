@@ -12,6 +12,12 @@ export function getPlutoProjects({commissionId}) {
   });
 }
 
+export function getPlutoItemById(id, itemType) {
+  return pandaReqwest({
+    url: `/api/pluto/${itemType}s/${id}`
+  });
+}
+
 export function getPlutoProjectLink(projectId) {
   // `plutoSources` lifted from flexible-content
   // https://github.com/guardian/flexible-content/blob/master/composer/src/js/controllers/content/video/body-block.js
