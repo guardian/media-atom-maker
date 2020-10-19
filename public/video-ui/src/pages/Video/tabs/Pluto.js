@@ -30,9 +30,8 @@ export class PlutoTabPanel extends React.Component {
       <TabPanel {...rest}>
         <div className="form__group">
           {
-            video.plutoData ?
-              <PlutoProjectLink projectId={video.plutoData.projectId}/> :
-              null
+            video.plutoData &&
+              <PlutoProjectLink projectId={video.plutoData.projectId}/>
           }
 
           <header className="video__detailbox__header">Commission</header>
