@@ -18,19 +18,12 @@ export function getPlutoItemById(id, itemType) {
   });
 }
 
+/**
+ * return a link to the given pluto project as a string.
+ * since we have changed the form of the pluto ID, we can't now detect which environment the item is from
+ * based on the ID so this is a static string for the time being.  Needs some thought about how to support prod/dev in future.
+ * @param projectId
+ */
 export function getPlutoProjectLink(projectId) {
-  // `plutoSources` lifted from flexible-content
-  // https://github.com/guardian/flexible-content/blob/master/composer/src/js/controllers/content/video/body-block.js
-  const plutoDev = { prefix: 'VX-', domain: 'pluto-dev' };
-
-  const plutoSources = [
-    { prefix: 'KP-', domain: 'pluto' },
-    { prefix: 'BK-', domain: 'pluto-dr' },
-    plutoDev
-  ];
-
-  const plutoSource = plutoSources.find(source => projectId.startsWith(source.prefix)) || plutoDev;
-
-  // pluto isn't accessible over https
-  return `http://${plutoSource.domain}/project/${projectId}`;
+  return `https://pluto.gnm.int/pluto-core/project/${projectId}`
 }

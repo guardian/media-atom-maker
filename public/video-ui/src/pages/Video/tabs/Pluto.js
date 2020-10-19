@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import { Tab, TabPanel } from 'react-tabs';
 import {getPlutoItemById} from "../../../services/PlutoApi";
+import PlutoProjectLink from "../../../components/Pluto/PlutoProjectLink";
 
 export class PlutoTab extends React.Component {
   static tabsRole = Tab.tabsRole;
@@ -28,6 +29,10 @@ export class PlutoTabPanel extends React.Component {
     return (
       <TabPanel {...rest}>
         <div className="form__group">
+          {
+            video.plutoData &&
+              <PlutoProjectLink projectId={video.plutoData.projectId}/>
+          }
 
           <header className="video__detailbox__header">Commission</header>
           <ReadOnlyPlutoItem id={video.plutoData && video.plutoData.commissionId} itemType="commission" />
