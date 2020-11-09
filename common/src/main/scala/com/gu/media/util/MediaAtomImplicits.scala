@@ -33,7 +33,7 @@ trait MediaAtomImplicits extends AtomImplicits[MediaAtom] {
       case (Some(SelfHostedAsset(sources)), poster) => {
         s"""
            |<video controls="controls" preload="metadata" ${if (poster.isDefined) s"""poster="${poster.get}""""}>
-           | ${sources.map(s => s"""<source type="${s.mimeType}" src="${s.src}"/>""")}
+           | ${sources.map(s => s"""<source type="${s.mimeType}" src="${s.src}"/>""").mkString}
            |</video>
         """.stripMargin
       }
