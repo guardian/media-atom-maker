@@ -88,7 +88,7 @@ class VideoDisplay extends React.Component {
     );
   };
 
-  renderImages() {
+  renderImages(youtubeAsset) {
     return (
       <VideoImages
         gridDomain={this.props.config.gridUrl}
@@ -96,6 +96,7 @@ class VideoDisplay extends React.Component {
         saveAndUpdateVideo={this.saveAndUpdateVideo}
         videoEditOpen={this.props.videoEditOpen}
         updateErrors={this.props.formErrorActions.updateFormErrors}
+        youtubeAsset={youtubeAsset}
       />
     );
   }
@@ -123,7 +124,7 @@ class VideoDisplay extends React.Component {
         </div>
         <div className="video-preview">
           {this.renderPreview()}
-          {this.renderImages()}
+          {this.renderImages(youtubeAsset)}
         </div>
       </div>
     );

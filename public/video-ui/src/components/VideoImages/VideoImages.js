@@ -10,7 +10,8 @@ export default class VideoImages extends React.Component {
     video: PropTypes.object.isRequired,
     saveAndUpdateVideo: PropTypes.func.isRequired,
     videoEditOpen: PropTypes.bool.isRequired,
-    updateErrors: PropTypes.func.isRequired
+    updateErrors: PropTypes.func.isRequired,
+    youtubeAsset: PropTypes.object
   };
 
   saveAndUpdateVideoImage = (image, location) => {
@@ -53,6 +54,10 @@ export default class VideoImages extends React.Component {
             />
           </div>
           <GridImage image={this.props.video.posterImage} />
+          {this.props.youtubeAsset && <>
+            WARNING: due to a YouTube bug, thumbnails are sometimes failing to save correctly. So please double check and update manually{" "}
+            <a href={`https://studio.youtube.com/video/${this.props.youtubeAsset.id}/edit`} target="_blank" rel="noopener">here</a>
+          </>}
         </div>
         <div className="video__detailbox">
           <div className="video__detailbox__header__container">
