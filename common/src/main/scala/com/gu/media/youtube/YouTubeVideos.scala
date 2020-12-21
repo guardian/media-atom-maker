@@ -8,6 +8,7 @@ import com.gu.media.logging.Logging
 import com.gu.media.model.VideoUpdateError
 import com.gu.media.util.ISO8601Duration
 import com.gu.media.logging.{YoutubeApiType, YoutubeRequestLogger, YoutubeRequestType}
+import net.logstash.logback.marker.Markers
 
 import scala.collection.JavaConverters._
 
@@ -131,13 +132,23 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
       case Some(video) => {
         findMistakesInDev(video) match {
           case None => {
-            val set = client.thumbnails().set(id, thumbnail).setOnBehalfOfContentOwner(contentOwner)
+            val setOperation = client.thumbnails().set(id, thumbnail).setOnBehalfOfContentOwner(contentOwner)
 
             // If we want some way of monitoring and resuming thumbnail uploads then we can change this to be `false`
-            set.getMediaHttpUploader.setDirectUploadEnabled(true)
+            setOperation.getMediaHttpUploader.setDirectUploadEnabled(true)
 
             YoutubeRequestLogger.logRequest(YoutubeApiType.DataApi, YoutubeRequestType.UpdateVideoThumbnail)
-            set.execute()
+            try{
+              setOperation.execute()
+            }
+            catch {
+              case exception: Throwable =>
+                log.error(
+                  "Failed to update thumbnail",
+                  exception
+                )
+                throw exception;
+            }
 
             Right("Updated video")
           }

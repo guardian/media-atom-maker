@@ -276,9 +276,14 @@ case class PublishAtomCommand(
           case _ => thumbnailGenerator.getBrandedThumbnail(image, atom.id)
         }
 
-        val thumbnailUpdate = youtube.updateThumbnail(asset.id, thumbnail)
+        try {
+          val thumbnailUpdate = youtube.updateThumbnail(asset.id, thumbnail)
 
-        handleYouTubeMessages(thumbnailUpdate, "YouTube Thumbnail Update", atom, asset.id)
+          handleYouTubeMessages(thumbnailUpdate, "YouTube Thumbnail Update", atom, asset.id)
+        }
+        catch {
+          case _: Throwable => atom // if any problems updating thumbnail, don't prevent publish just return previous state
+        }
       }
       case None => atom
     }
