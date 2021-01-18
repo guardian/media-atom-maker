@@ -79,15 +79,15 @@ class PlutoController(
       val atomContent = getPreviewAtom(id)
       val atom = MediaAtom.fromThrift(atomContent)
 
-      if(MediaAtomHelpers.getCurrentAssetVersion(atom).isEmpty){
-        log.warn("Requested re-index on an atom with no currentAssetVersion, returning 404")
-        NotFound(Json.toJson(Map("status"->"notfound", "detail"->"atom had no current version, resync was probably sent too early")))
-      }
-
-      val versionWithId = id + s"-${MediaAtomHelpers.getCurrentAssetVersion(atom).get}"
-
-      atom.plutoData match {
-        case Some(data)=>
+      (MediaAtomHelpers.getCurrentAssetVersion(atom), atom.plutoData) match {
+        case (None, _) =>
+          log.warn("Requested re-index on an atom with no currentAssetVersion, returning 400")
+          BadRequest(Json.toJson(Map("status" -> "notfound", "detail" -> "atom had no current version, resync was probably sent too early")))
+        case (_, None) =>
+          log.warn("Requested re-index on an item with no pluto data, returning bad request")
+          BadRequest(Json.toJson(Map("status"->"bad_data", "detail"->s"$id does not have pluto data attached")))
+        case (Some(currentAssetVersion), Some(plutoData)) =>
+          val versionWithId = id + s"-$currentAssetVersion"
           val pluto = new PlutoUploadActions(awsConfig)
           pluto.sendToPluto(PlutoResyncMetadataMessage.build(
             versionWithId,
@@ -95,8 +95,6 @@ class PlutoController(
             awsConfig
           ))
           Ok(Json.toJson(atom))
-        case None=>
-          BadRequest(s"$id does not have pluto data attached")
       }
     } catch {
       commandExceptionAsResult
