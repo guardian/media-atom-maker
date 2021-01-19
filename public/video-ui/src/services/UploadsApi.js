@@ -5,6 +5,18 @@ import { errorDetails } from '../util/errorDetails';
 import 'aws-sdk/dist/aws-sdk';
 const AWS = window.AWS;
 
+// The timeout for individual upload requests. Defaults to 120s. This
+// default causes problems on slow connections – for example, w/ a 0.5mbps
+// upload speed (3.75MB/minute), uploads for 8mb chunks will never complete.
+AWS.config.httpOptions.timeout = 240_000; // in ms
+const httpOptions = {
+  // The number of multipart uploads to run concurrently. Defaults to 4,
+  // which has caused problems with slow connections timing out requests
+  // prematurely. We judge allowing uploads on slow connections to be
+  // more valuable than a minor boost in upload speed due to concurrent uploads.
+  queueSize: 1
+};
+
 export function getUploads(atomId) {
   return pandaReqwest({
     url: `/api/uploads?atomId=${atomId}`
@@ -63,7 +75,7 @@ function uploadPart(upload, part, file, progressFn) {
       ACL: 'private',
       Metadata: { original: file.name }
     };
-    const request = s3.upload(params);
+    const request = s3.upload(params, httpOptions);
 
     request.on('httpUploadProgress', event => {
       progressFn(part.start + event.loaded);
