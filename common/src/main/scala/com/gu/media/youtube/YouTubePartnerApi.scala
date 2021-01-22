@@ -1,12 +1,11 @@
 package com.gu.media.youtube
 
 import java.util
-
 import com.google.api.client.googleapis.json.{GoogleJsonError, GoogleJsonResponseException}
 import com.google.api.services.youtubePartner.YouTubePartner
 import com.google.api.services.youtubePartner.model._
 import com.gu.media.logging.{Logging, YoutubeApiType, YoutubeRequestLogger, YoutubeRequestType}
-import com.gu.media.model.VideoUpdateError
+import com.gu.media.model.{AdSettings, VideoUpdateError}
 import com.gu.media.util.MAMLogger
 
 import scala.collection.JavaConversions._
@@ -173,12 +172,12 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
     }
   }
 
-  private def updateTheVideoAdvertisingOptions(videoId: String, atomId: String): Either[VideoUpdateError, String] = {
+  private def updateTheVideoAdvertisingOptions(videoId: String, atomId: String, enableMidroll: Boolean): Either[VideoUpdateError, String] = {
     // All possible formats can be found on YouTube developer docs: https://developers.google.com/youtube/partner/docs/v1/videoAdvertisingOptions#properties
     val formats: List[String] = List("standard_instream","trueview_instream","display")
 
     // see https://developers.google.com/youtube/partner/docs/v1/videoAdvertisingOptions#breakPosition[]
-    val breakPositions: List[String] = List("preroll", "midroll")
+    val breakPositions: List[String] = if(enableMidroll) List("preroll", "midroll") else List("preroll")
 
     val advertisingOption: VideoAdvertisingOption =
       new VideoAdvertisingOption()
@@ -200,21 +199,21 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
     }
   }
 
-  def createOrUpdateClaim(atomId: String, videoId: String, blockAds: Boolean): Either[VideoUpdateError, String] = {
+  def createOrUpdateClaim(atomId: String, videoId: String, adSettings: AdSettings): Either[VideoUpdateError, String] = {
     try {
-      if(!blockAds) {
-        updateTheVideoAdvertisingOptions(videoId, atomId)
+      if(!adSettings.blockAds) {
+        updateTheVideoAdvertisingOptions(videoId, atomId, adSettings.enableMidroll)
       }
       getPartnerClaim(videoId) match {
         case Some(claimSnippet) => {
           val claimId = claimSnippet.getId
           val assetId = claimSnippet.getAssetId
           MAMLogger.info(s"Updating an existing claim for $videoId", atomId, videoId)
-          updateClaim(atomId, claimId, assetId, videoId, blockAds)
+          updateClaim(atomId, claimId, assetId, videoId, adSettings.blockAds)
         }
         case None => {
           MAMLogger.info(s"No existing claim found for $videoId", atomId, videoId)
-          createVideoClaim(atomId, blockAds, videoId)
+          createVideoClaim(atomId, adSettings.blockAds, videoId)
         }
       }
     }

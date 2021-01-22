@@ -2,13 +2,13 @@ package com.gu.media.expirer
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import com.gu.contentatom.thrift.atom.media.PrivacyStatus
 import com.gu.media.CapiAccess
 import com.gu.media.lambda.LambdaBase
 import com.gu.media.logging.Logging
-import com.gu.media.youtube.{YouTubeAccess, YouTubeVideos, YouTubePartnerApi}
+import com.gu.media.model.AdSettings
+import com.gu.media.youtube.{YouTubeAccess, YouTubePartnerApi, YouTubeVideos}
 import play.api.libs.json.{JsArray, JsValue}
 
 import scala.annotation.tailrec
@@ -36,7 +36,7 @@ class ExpirerLambda extends RequestHandler[Unit, Unit]
       atomWithAssets.assetIds.foreach { assetId =>
         try {
           setStatus(assetId, PrivacyStatus.Private)
-          createOrUpdateClaim(atomWithAssets.atomId, assetId, blockAds = true)
+          createOrUpdateClaim(atomWithAssets.atomId, assetId, AdSettings.NONE)
         } catch {
           case NonFatal(err) =>
             log.error(s"Error when expiring video $assetId in atom ${atomWithAssets.atomId}", err)

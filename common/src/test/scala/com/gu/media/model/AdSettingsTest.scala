@@ -1,6 +1,5 @@
-package model
+package com.gu.media.model
 
-import com.gu.media.model.{Category, ContentChangeDetails, MediaAtom}
 import org.scalatest.{FunSuite, MustMatchers}
 
 class AdSettingsTest extends FunSuite with MustMatchers {

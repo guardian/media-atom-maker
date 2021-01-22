@@ -34,6 +34,7 @@ trait YouTubeAccess extends Settings {
   def trackingPolicyId = getMandatoryString("youtube.trackingPolicyId")
 
   def minDurationForAds: Long = getString("youtube.minDurationForAds").getOrElse("30").toLong
+  val minDurationForMidroll: Long = 8 * 60L // 8 minutes
 
   private val httpTransport = new NetHttpTransport()
   private val jacksonFactory = new JacksonFactory()

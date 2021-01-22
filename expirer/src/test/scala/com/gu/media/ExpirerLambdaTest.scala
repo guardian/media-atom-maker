@@ -3,7 +3,7 @@ package com.gu.media
 import com.amazonaws.util.IOUtils
 import com.gu.contentatom.thrift.atom.media.PrivacyStatus
 import com.gu.media.expirer.ExpirerLambda
-import com.gu.media.model.VideoUpdateError
+import com.gu.media.model.{AdSettings, VideoUpdateError}
 import org.scalatest.{FunSuite, MustMatchers}
 import play.api.libs.json.{JsValue, Json}
 
@@ -62,7 +62,7 @@ class ExpirerLambdaTest extends FunSuite with MustMatchers {
       Right("")
     }
 
-    override def createOrUpdateClaim(atomId: String, assetId: String, blockAds: Boolean) = {
+    override def createOrUpdateClaim(atomId: String, assetId: String, adSettings: AdSettings) = {
       claimUpdated :+= assetId
       Right("")
     }

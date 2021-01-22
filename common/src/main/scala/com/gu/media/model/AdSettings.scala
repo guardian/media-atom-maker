@@ -1,6 +1,4 @@
-package model
-
-import com.gu.media.model.{Category, MediaAtom}
+package com.gu.media.model
 
 case class AdSettings(blockAds: Boolean, enableMidroll: Boolean)
 
