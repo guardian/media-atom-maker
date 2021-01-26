@@ -35,6 +35,10 @@ trait YouTubeAccess extends Settings {
 
   def minDurationForAds: Long = getString("youtube.minDurationForAds").getOrElse("30").toLong
 
+  // Videos need to be at least 8 minutes to be eligible for midroll advertising
+  // see https://support.google.com/youtube/answer/6175006?hl=en-GB
+  val minDurationForMidroll: Long = 8 * 60L
+
   private val httpTransport = new NetHttpTransport()
   private val jacksonFactory = new JacksonFactory()
 

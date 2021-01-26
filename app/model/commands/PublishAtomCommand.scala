@@ -1,14 +1,9 @@
 package model.commands
 
-import java.time.Instant
-import java.util.Date
-
-import com.gu.atom.play.AtomAPIActions
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.media.logging.Logging
 import com.gu.media.model.Platform.Youtube
 import com.gu.media.model.{AuditMessage, _}
-import com.gu.media.ses.Mailer
 import com.gu.media.youtube.{YouTubeMetadataUpdate, YoutubeDescription}
 import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider}
 import com.gu.pandomainauth.model.{User => PandaUser}
@@ -17,6 +12,8 @@ import model._
 import model.commands.CommandExceptions._
 import util.{AWSConfig, ThumbnailGenerator, YouTube}
 
+import java.time.Instant
+import java.util.Date
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
@@ -70,20 +67,20 @@ case class PublishAtomCommand(
           case Some(asset) => {
             val publishedAtom = getPublishedAtom()
 
-            val blockAds = getAtomBlockAds(previewAtom)
+            val adSettings = AdSettings(youtube.minDurationForAds, youtube.minDurationForMidroll, previewAtom)
             val privacyStatus: Future[PrivacyStatus] = getPrivacyStatus(previewAtom, publishedAtom)
 
             privacyStatus.flatMap(status => {
               val updatedPreviewAtom = if (publishedAtom.isDefined) {
                 previewAtom.copy(
-                  blockAds = blockAds,
+                  blockAds = adSettings.blockAds,
                   privacyStatus = Some(status)
                 )
               } else {
                 // on first publish, set YouTube title and description to that of the Atom
                 // this is because there's no guarantee that the YouTube furniture gets subbed before publication and can result in draft furniture being used
                 previewAtom.copy(
-                  blockAds = blockAds,
+                  blockAds = adSettings.blockAds,
                   privacyStatus = Some(status),
                   youtubeTitle = previewAtom.title,
                   youtubeDescription = YoutubeDescription.clean(previewAtom.description)
@@ -107,15 +104,6 @@ case class PublishAtomCommand(
       Some(MediaAtom.fromThrift(thriftPublishedAtom))
     } catch {
       case _: Throwable => None
-    }
-  }
-
-  private def getAtomBlockAds(previewAtom: MediaAtom): Boolean = {
-    previewAtom.category match {
-      // GLabs atoms will always have ads blocked on YouTube,
-      // so the thrift field maps to the Composer page and we don't need to check the video duration
-      case Category.Hosted | Category.Paid => previewAtom.blockAds
-      case _ => if (previewAtom.duration.getOrElse(0L) < youtube.minDurationForAds) true else previewAtom.blockAds
     }
   }
 
@@ -223,28 +211,25 @@ case class PublishAtomCommand(
         } else {
           previewAtom.category match {
             case Category.Hosted | Category.Paid => {
-              val claimUpdate = youtube.createOrUpdateClaim(previewAtom.id, asset.id, blockAds = true)
+              val claimUpdate = youtube.createOrUpdateClaim(previewAtom.id, asset.id, AdSettings.NONE)
               handleYouTubeMessages(claimUpdate, "YouTube Claim Update: Block ads on Glabs atom", previewAtom, asset.id)
             }
             case _ => {
-              val activeAssetClaimUpdate = youtube.createOrUpdateClaim(previewAtom.id, asset.id, previewAtom.blockAds)
+              val adSettings = AdSettings(youtube.minDurationForAds, youtube.minDurationForMidroll, previewAtom)
+              val activeAssetClaimUpdate = youtube.createOrUpdateClaim(previewAtom.id, asset.id, adSettings)
               handleYouTubeMessages(activeAssetClaimUpdate, "YouTube Claim Update: block ads updated", previewAtom, asset.id)
               val oldActiveAsset = publishedAtom.getActiveAsset().get
-              val oldActiveAssetClaimUpdate = youtube.createOrUpdateClaim(previewAtom.id, oldActiveAsset.id, blockAds = true)
+              val oldActiveAssetClaimUpdate = youtube.createOrUpdateClaim(previewAtom.id, oldActiveAsset.id, AdSettings.NONE)
               handleYouTubeMessages(oldActiveAssetClaimUpdate, "YouTube Claim Update: ads blocked on previous active asset",
                 previewAtom, oldActiveAsset.id)
             }
           }
         }
       }
+      // atom hasn't been published yet
       case _ => {
-        // atom hasn't been published yet
-        val blockAds = previewAtom.category match {
-          case Category.Hosted | Category.Paid => true
-          case _ => previewAtom.blockAds
-        }
-
-        val claimUpdate = youtube.createOrUpdateClaim(previewAtom.id, asset.id, blockAds)
+        val adSettings = AdSettings(youtube.minDurationForAds, youtube.minDurationForMidroll, previewAtom)
+        val claimUpdate = youtube.createOrUpdateClaim(previewAtom.id, asset.id, adSettings)
         handleYouTubeMessages(claimUpdate, "YouTube Claim Update: creating a claim", previewAtom, asset.id)
       }
     }
