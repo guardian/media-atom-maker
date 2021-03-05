@@ -49,7 +49,7 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
     val newAsset = ThriftUtil.parseAsset(uri = videoUri, version = version, mimeType = None)
       .fold(err => AssetParseFailed, identity)
 
-    val channel = getYouTubeChannel(newAsset, mediaAtom)
+    val channel = getYouTubeChannel(newAsset, mediaAtom, atom.id)
     val metadata = mediaAtom.metadata.getOrElse(Metadata()).copy(channelId = channel)
 
     val updatedAtom = atom
@@ -63,42 +63,54 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
     UpdateAtomCommand(atomId, fromThrift(updatedAtom), stores, user, awsConfig).process()
   }
 
-  private def getYouTubeChannel(asset: Asset, atom: ThriftMediaAtom): Option[String] = {
+  private def getYouTubeChannel(asset: Asset, atom: ThriftMediaAtom, atomId: String): Option[String] = {
     val existingChannel = atom.metadata.flatMap(_.channelId)
 
-    try {
-      val maybeVideo = youTube.getVideo(asset.id, "snippet")
+    def ensureIsGuardianChannel(videoChannel: String) = {
+      if (youTube.channels.exists(_.id == videoChannel)) Some(videoChannel) else IncorrectYouTubeChannel
+    }
 
-      (existingChannel, maybeVideo) match {
-        case (_, None) =>
-          Some(YouTubeVideoDoesNotExist(asset.id))
+    if (youTube.cannotReachYoutube) {
+      log.info(s"Config says cannot reach Youtube")
+      None
+    }
+    else {
+      try {
+        val maybeVideo = youTube.getVideo(asset.id, "snippet")
 
-        case (None, Some(video)) => {
-          // only GLabs atoms can have third party videos
-          atom.category match {
-            case ThriftCategory.Hosted | ThriftCategory.Paid => Some(video.getSnippet.getChannelId)
-            case _ => {
-              if (youTube.cannotReachYoutube) None
-              else NotGLabsAtom
+        (existingChannel, maybeVideo) match {
+          case (_, None) =>
+            Some(YouTubeVideoDoesNotExist(asset.id))
+
+          case (None, Some(video)) => {
+            val videoChannel = video.getSnippet.getChannelId
+
+            atom.category match {
+              // only GLabs atoms can have third party videos
+              case ThriftCategory.Hosted | ThriftCategory.Paid => Some(videoChannel)
+              case _ => {
+                log.info(s"Atom $atomId does not have a channel, so falling back to channel provided by video ${asset.id}")
+                ensureIsGuardianChannel(videoChannel)
+              }
             }
           }
-        }
 
-        case (Some(channel), Some(video)) => {
-          val videoChannel = video.getSnippet.getChannelId
+          case (Some(channel), Some(video)) => {
+            val videoChannel = video.getSnippet.getChannelId
 
-          if (channel != videoChannel) {
-            log.info(s"Atom channel updating. New asset ${asset.id} on channel $videoChannel, atom on channel $channel")
+            if (channel != videoChannel) {
+              log.info(s"Atom channel updating. New asset ${asset.id} on channel $videoChannel, atom on channel $channel")
+            }
+
+            // new asset must be on a Guardian channel
+            ensureIsGuardianChannel(videoChannel)
           }
-
-          // new asset must be on a Guardian channel
-          if (!youTube.channels.exists(_.id == videoChannel)) IncorrectYouTubeChannel else Some(videoChannel)
         }
+      } catch {
+        case NonFatal(e) =>
+          MAMLogger.error("Unable to lookup YouTube channel", atomId, asset.id, e)
+          existingChannel
       }
-    } catch {
-      case NonFatal(e) =>
-        MAMLogger.error("Unable to lookup YouTube channel", atomId, asset.id, e)
-        existingChannel
     }
   }
 
