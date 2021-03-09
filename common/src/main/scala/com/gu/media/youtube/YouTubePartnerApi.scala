@@ -153,7 +153,7 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
     }
   }
 
-  private def getPartnerClaim(videoId: String): Option[ClaimSnippet] = {
+  private def getPartnerClaim(atomId: String, videoId: String): Option[ClaimSnippet] = {
     val request = partnerClient
       .claimSearch()
       .list
@@ -165,7 +165,11 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
     YoutubeRequestLogger.logRequest(YoutubeApiType.PartnerApi, YoutubeRequestType.GetVideoClaim)
     val response = request.execute()
 
-    if (response.getPageInfo.getTotalResults == 0) {
+    if(response == null || response.getPageInfo == null || response.getPageInfo.getTotalResults == null || response.getItems == null) {
+      MAMLogger.error(s"null response when trying to list partner claims. response = ${response}", atomId, videoId)
+      None
+    }
+    else if (response.getPageInfo.getTotalResults == 0) {
       None
     } else {
       response.getItems.asScala.toList.headOption
@@ -204,7 +208,7 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
       if(!adSettings.blockAds) {
         updateTheVideoAdvertisingOptions(videoId, atomId, adSettings.enableMidroll)
       }
-      getPartnerClaim(videoId) match {
+      getPartnerClaim(atomId, videoId) match {
         case Some(claimSnippet) => {
           val claimId = claimSnippet.getId
           val assetId = claimSnippet.getAssetId
