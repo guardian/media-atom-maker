@@ -17,6 +17,7 @@ setupNvm() {
 }
 
 buildPlutoLambda(){
+  echo "##teamcity[compilationStarted compiler='pluto-lambda']"
   pushd pluto-message-ingestion
 
   # The pluto lambda uses a different version of node from main app.
@@ -29,9 +30,11 @@ buildPlutoLambda(){
   yarn
   yarn build
   popd
+  echo "##teamcity[compilationFinished compiler='pluto-lambda']"
 }
 
-buildApp() {
+buildJsApp() {
+  echo "##teamcity[compilationStarted compiler='js-app']"
   nvm install
   nvm use
   npm install -g yarn
@@ -41,12 +44,20 @@ buildApp() {
   yarn test
   yarn run build-autotrack
   yarn run build
+  echo "##teamcity[compilationFinished compiler='js-app']"
+}
+
+buildScalaApp() {
+  echo "##teamcity[compilationStarted compiler='sbt']"
+  sbt clean compile test riffRaffUpload
+  echo "##teamcity[compilationFinished compiler='sbt']"
 }
 
 main() {
   setupNvm
   buildPlutoLambda
-  buildApp
+  buildJsApp
+  buildScalaApp
 }
 
 main
