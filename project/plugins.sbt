@@ -14,7 +14,7 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-digest" % "1.1.1")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-gzip" % "1.0.0")
 
-addSbtPlugin("com.gu" % "sbt-riffraff-artifact" % "0.9.7")
+addSbtPlugin("com.gu" % "sbt-riffraff-artifact" % "1.1.9")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.1.5")
 
