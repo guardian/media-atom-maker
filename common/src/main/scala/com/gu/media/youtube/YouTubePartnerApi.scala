@@ -165,14 +165,19 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
     YoutubeRequestLogger.logRequest(YoutubeApiType.PartnerApi, YoutubeRequestType.GetVideoClaim)
     val response = request.execute()
 
-    if(response == null || response.getPageInfo == null || response.getPageInfo.getTotalResults == null || response.getItems == null) {
+    if(response == null) {
       MAMLogger.error(s"null response when trying to list partner claims. response = ${response}", atomId, videoId)
       None
     }
-    else if (response.getPageInfo.getTotalResults == 0) {
-      None
-    } else {
+    else if (response.getItems != null){
       response.getItems.asScala.toList.headOption
+    }
+    else if (response.getPageInfo != null && response.getPageInfo.getTotalResults == 0) {
+      None
+    }
+    else {
+      MAMLogger.error(s"part of response was null when trying to list partner claims. response = ${response}", atomId, videoId)
+      None
     }
   }
 
