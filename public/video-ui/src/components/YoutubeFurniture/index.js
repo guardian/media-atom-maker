@@ -96,7 +96,6 @@ class YoutubeFurniture extends React.Component {
     const availableChannels = VideoUtils.getAvailableChannels(video);
     const availablePrivacyStates = VideoUtils.getAvailablePrivacyStates(video);
     const hasYoutubeWriteAccess = VideoUtils.hasYoutubeWriteAccess(video);
-    const hasAssets = VideoUtils.hasAssets(video);
 
     return (
       <ManagedForm
@@ -108,7 +107,7 @@ class YoutubeFurniture extends React.Component {
         formName={formNames.youtubeFurniture}
         formClass="atom__edit__form"
       >
-        <ManagedField fieldLocation="channelId" name="Channel" disabled={hasAssets}>
+        <ManagedField fieldLocation="channelId" name="Channel">
           <SelectBox selectValues={availableChannels} />
         </ManagedField>
         <ManagedField
