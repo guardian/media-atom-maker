@@ -70,6 +70,8 @@ lazy val common = (project in file("common"))
   .settings(commonSettings,
     name := "media-atom-common",
     unmanagedBase := baseDirectory.value / "common" / "lib",
+    //YouTube Content ID API - Client Libraries. Only available to be download as JAR files.
+    //Latest can be found here: https://developers.google.com/youtube/partner/client_libraries
     unmanagedJars in Compile += file("common/lib/google-api-services-youtubePartner-v1-rev20190401-1.25.0-sources.jar"),
     unmanagedJars in Compile += file("common/lib/google-api-services-youtubePartner-v1-rev20190401-1.25.0.jar"),
     libraryDependencies ++= Seq(
