@@ -37,15 +37,15 @@ val kinesisLogbackAppenderVersion = "1.4.2"
 val permissionsClientVersion = "0.7"
 
 val guavaVersion = "17.0"
-val googleHttpJacksonVersion = "1.22.0"
-val googleOauthVersion = "1.20.0"
+val googleHttpJacksonVersion = "1.25.0"
+val googleOauthVersion = "1.25.0"
 val googleBugsVersion = "1.3.9"
-val googleHttpVersion = "1.22.0"
+val googleHttpVersion = "1.25.0"
 val commonsLoggingVersion = "1.1.1"
 val apacheHttpClientVersion = "4.0.1"
 val apacheHttpCoreVersion = "4.0.1"
 
-val googleApiClientVersion = "1.22.0"
+val googleApiClientVersion = "1.25.0"
 val youTubeApiClientVersion = "v3-rev178-1.22.0"
 
 val jsoupVersion = "1.8.3"
@@ -70,8 +70,8 @@ lazy val common = (project in file("common"))
   .settings(commonSettings,
     name := "media-atom-common",
     unmanagedBase := baseDirectory.value / "common" / "lib",
-    unmanagedJars in Compile += file("common/lib/google-api-services-youtubePartner-v1-rev20160726-java-1.22.0-sources.jar"),
-    unmanagedJars in Compile += file("common/lib/google-api-services-youtubePartner-v1-rev20160726-java-1.22.0.jar"),
+    unmanagedJars in Compile += file("common/lib/google-api-services-youtubePartner-v1-rev20190401-1.25.0-sources.jar"),
+    unmanagedJars in Compile += file("common/lib/google-api-services-youtubePartner-v1-rev20190401-1.25.0.jar"),
     libraryDependencies ++= Seq(
       "com.google.api-client" %  "google-api-client" % googleApiClientVersion,
       "com.google.apis" % "google-api-services-youtube" % youTubeApiClientVersion,
