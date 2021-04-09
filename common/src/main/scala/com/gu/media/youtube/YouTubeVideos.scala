@@ -78,7 +78,7 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
 
               YoutubeRequestLogger.logRequest(YoutubeApiType.DataApi, YoutubeRequestType.UpdateVideoMetadata)
               request.execute()
-
+              log.info(s"Youtube video updated: ${video.getId}")
               Right(prettyMetadata)
             }
             catch {

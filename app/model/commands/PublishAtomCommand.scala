@@ -249,7 +249,7 @@ case class PublishAtomCommand(
       asset.id,
       if (previewAtom.blockAds) metadata.withoutContentBundleTags() else metadata.withContentBundleTags() // content bundle tags only needed on monetized videos
     )
-
+    log.info(s"updateYoutubeMetadata: update complete, result: ${youTubeMetadataUpdate}")
     handleYouTubeMessages(youTubeMetadataUpdate, "YouTube Metadata Update", previewAtom, asset.id)
   }
 
