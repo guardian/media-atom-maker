@@ -11,28 +11,25 @@ class PlutoUploadActions(config: Settings with DynamoAccess with KinesisAccess w
   private val plutoStore = new PlutoDataStore(config.dynamoDB, config.manualPlutoDynamo)
 
   def sendToPluto(plutoIntegrationMessage: PlutoIntegrationMessage): Unit = {
+
+    sendKinesisMessage(plutoIntegrationMessage)
+
     plutoIntegrationMessage match {
-      case plutoData: PlutoSyncMetadataMessage => {
-        plutoData.projectId match {
-          case Some(_) => sendKinesisMessage(plutoIntegrationMessage)
-          case None => {
-            plutoStore.put(plutoData)
+      case plutoData: PlutoSyncMetadataMessage if plutoData.projectId.isEmpty => {
+        plutoStore.put(plutoData)
 
-            val shouldSendEmailReminder = plutoData.user != config.integrationTestUser && config.syncWithPluto
+        val shouldSendEmailReminder = plutoData.user != config.integrationTestUser && config.syncWithPluto
 
-            if (shouldSendEmailReminder) {
-              log.info(s"Sending missing Pluto ID email user=${plutoData.user} atom=${plutoData.atomId}")
+        if (shouldSendEmailReminder) {
+          log.info(s"Sending missing Pluto ID email user=${plutoData.user} atom=${plutoData.atomId}")
 
-              mailer.sendPlutoIdMissingEmail(
-                plutoData.atomId,
-                plutoData.title,
-                plutoData.user
-              )
-            }
-          }
+          mailer.sendPlutoIdMissingEmail(
+            plutoData.atomId,
+            plutoData.title,
+            plutoData.user
+          )
         }
       }
-      case _ => sendKinesisMessage(plutoIntegrationMessage)
     }
   }
 
