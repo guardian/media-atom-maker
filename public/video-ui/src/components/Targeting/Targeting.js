@@ -85,7 +85,7 @@ class Targeting extends React.Component {
                       fieldLocation="tagPaths"
                       name="Targeting tags"
                       formRowClass="form__row__byline"
-                      tagType={TagTypes.tracking}
+                      tagType={TagTypes.keyword}
                       isDesired={false}
                       isRequired={false}
                       inputPlaceholder="Target these tags (type '*' to show all)"
