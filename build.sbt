@@ -8,7 +8,7 @@ import play.sbt.PlayImport
 val scroogeVersion = "4.12.0"
 val awsVersion = "1.11.125"
 val pandaVersion = "0.5.1"
-val pandaHmacVersion = "1.2.0"
+val pandaHmacVersion = "1.2.2"
 val atomMakerVersion = "1.2.2"
 val slf4jVersion = "1.7.21"
 val typesafeConfigVersion = "1.3.0" // to match what we get from Play transitively
@@ -56,7 +56,7 @@ lazy val commonSettings = Seq(
   scalaVersion in ThisBuild := "2.11.8",
   organization in ThisBuild := "com.gu",
 
-  resolvers ++= Seq("Guardian Bintray" at "https://dl.bintray.com/guardian/editorial-tools",
+  resolvers ++= Seq(
     "Sonatype OSS" at "http://oss.sonatype.org/content/repositories/releases/",
     "Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
   ),
@@ -80,7 +80,7 @@ lazy val common = (project in file("common"))
       "com.gu" %% "pan-domain-auth-play_2-5" % pandaVersion,
       "com.gu" %% "pan-domain-auth-verification" % pandaVersion,
       "com.gu" %% "pan-domain-auth-core" % pandaVersion,
-      "com.gu" %% "panda-hmac" % pandaHmacVersion,
+      "com.gu" %% "panda-hmac-play_2-5" % pandaHmacVersion,
       PlayImport.ws,
       "com.gu" %% "atom-publisher-lib" % atomMakerVersion,
       "com.gu" %% "atom-publisher-lib" % atomMakerVersion % "test" classifier "tests",
