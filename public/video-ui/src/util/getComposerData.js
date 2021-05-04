@@ -32,6 +32,7 @@ export function getComposerData(video) {
       : null,
     expiryDate: expiryDate,
     scheduledLaunch: scheduledLaunch,
+    requestedScheduledLaunch: scheduledLaunch,
     embargoedUntil: embargoedUntil,
     embargoedIndefinitely: isEmbargoedIndefinitely
   };
