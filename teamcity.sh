@@ -29,6 +29,10 @@ buildPlutoLambda(){
 
   yarn
   yarn build
+
+  #This should fail if the zip doesn't exist
+  ls -lah ./target/riffraff/packages/pluto-message-ingestion/pluto-message-ingestion.zip
+
   popd
   echo "##teamcity[compilationFinished compiler='pluto-lambda']"
 }
