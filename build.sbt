@@ -248,7 +248,7 @@ lazy val root = (project in file("root"))
       (packageBin in Universal in uploader).value -> s"media-atom-upload-actions/${(packageBin in Universal in uploader).value.getName}",
       (packageBin in Universal in expirer).value -> s"${(name in expirer).value}/${(packageBin in Universal in expirer).value.getName}",
       (packageBin in Universal in scheduler).value -> s"${(name in scheduler).value}/${(packageBin in Universal in scheduler).value.getName}",
-      (baseDirectory in Global in app).value / s"$plutoMessageIngestion/$jsTargetDir/$plutoMessageIngestion/$plutoMessageIngestion.js" -> s"$plutoMessageIngestion/$plutoMessageIngestion.js",
+      (baseDirectory in Global in app).value / s"$plutoMessageIngestion/$jsTargetDir/$plutoMessageIngestion/index.js" -> s"$plutoMessageIngestion/$plutoMessageIngestion.js",
       (baseDirectory in Global in app).value / "conf/riff-raff.yaml" -> "riff-raff.yaml",
       (resourceManaged in Compile in uploader).value / "media-atom-pipeline.yaml" -> "media-atom-pipeline-cloudformation/media-atom-pipeline.yaml"
     )
