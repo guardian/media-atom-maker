@@ -7,10 +7,9 @@
   "packageName": "media-service:media-atom-maker:pluto-message-ingestion",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint *.js --fix",
-    "test": "npm run lint",
-    "build-artefact": "ncc build -m -e aws-sdk -o ./target/riffraff/packages/pluto-message-ingestion/",
-    "build": "npm run test && npm run build-artefact"
+    "lint": "eslint *.js",
+    "lint-fix": "yarn lint --fix",
+    "build": "yarn lint && ncc-zip build -m -e aws-sdk -o ./target/pluto-message-ingestion.zip"
   },
   "dependencies": {
     "@guardian/elk-kinesis-logger": "0.1.0",
@@ -30,6 +29,7 @@
     "eslint-plugin-prettier": "^2.0.1",
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^3.0.1",
+    "ncc-zip": "^1.0.0",
     "prettier-eslint-cli": "^3.4.1"
   }
 }

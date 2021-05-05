@@ -29,7 +29,6 @@ buildPlutoLambda(){
 
   yarn
   yarn build
-
   popd
   echo "##teamcity[compilationFinished compiler='pluto-lambda']"
 }

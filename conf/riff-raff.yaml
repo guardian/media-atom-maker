@@ -35,7 +35,7 @@ deployments:
     template: lambda
     parameters:
       functionNames: [pluto-message-ingestion-]
-      fileName: pluto-message-ingestion.js
+      fileName: pluto-message-ingestion.zip
 
   media-atom-pipeline-cloudformation:
     type: cloud-formation
