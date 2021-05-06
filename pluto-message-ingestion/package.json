@@ -9,7 +9,7 @@
   "scripts": {
     "lint": "eslint *.js",
     "lint-fix": "yarn lint --fix",
-    "build": "yarn lint && ncc-zip build -m -e aws-sdk -o ./target/pluto-message-ingestion.zip"
+    "build": "yarn lint && mkdir -p target && ncc-zip build -m -e aws-sdk -o ./target/pluto-message-ingestion.zip"
   },
   "dependencies": {
     "@guardian/elk-kinesis-logger": "0.1.0",
