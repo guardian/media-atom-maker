@@ -12,7 +12,7 @@ class PlutoMessageProcessor {
 
     if (upsertMessageTypes.includes(message.type)) {
       if (message.commissionTitle === DELETE_KEY) {
-        return this._deleteProject(message)
+        return this._deleteProject(message);
       }
 
       return this._upsertProject(message);
@@ -41,7 +41,7 @@ class PlutoMessageProcessor {
     return diff.size === 0;
   }
 
-  _deleteProject({commissionId}) {
+  _deleteProject({ commissionId }) {
     const remoteUrl = `${this.hostname}/api/pluto/commissions/${commissionId}`;
     return this.hmacRequest.delete(remoteUrl);
   }
