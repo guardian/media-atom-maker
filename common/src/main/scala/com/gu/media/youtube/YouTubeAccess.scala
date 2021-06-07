@@ -1,17 +1,19 @@
 package com.gu.media.youtube
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
+import com.google.api.client.http.{HttpRequest, HttpRequestInitializer}
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
-import com.google.api.services.youtube.{YouTubeScopes, YouTube => YouTubeClient}
+import com.google.api.services.youtube.{YouTubeRequest, YouTubeRequestInitializer, YouTubeScopes, YouTube => YouTubeClient}
 import com.google.api.services.youtubePartner.YouTubePartner
 import com.gu.media.Settings
-import com.gu.media.logging.{YoutubeApiType, YoutubeRequestLogger, YoutubeRequestType}
+import com.gu.media.logging.{Logging, YoutubeApiType, YoutubeRequestLogger, YoutubeRequestType}
+import net.logstash.logback.marker.{LogstashMarker, Markers}
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 
-trait YouTubeAccess extends Settings {
+trait YouTubeAccess extends Settings with Logging {
   def appName: String = getMandatoryString("name")
   def contentOwner: String = getMandatoryString("youtube.contentOwner")
 
@@ -49,10 +51,23 @@ trait YouTubeAccess extends Settings {
     .build
     .setRefreshToken(refreshToken)
 
+  private val youTubeRequestLogger = new YouTubeRequestInitializer{
+    override def initializeYouTubeRequest(request: YouTubeRequest[_]): Unit = {
+      super.initializeYouTubeRequest(request)
+      val markers: LogstashMarker = Markers.appendEntries(Map(
+        "uri" -> request.getUriTemplate,
+        "content" -> request.getHttpContent,
+        "method" -> request.getRequestMethod
+      ).asJava)
+      log.info(markers, "YouTube Client Request")
+    }
+  }
+
   private val partnerCredentials = credentials.createScoped(List(YouTubeScopes.YOUTUBEPARTNER))
 
   // lazy to avoid initialising when in test
   lazy val client: YouTubeClient = new YouTubeClient.Builder(httpTransport, jacksonFactory, credentials)
+    .setYouTubeRequestInitializer(youTubeRequestLogger)
     .setApplicationName(appName)
     .build
 
