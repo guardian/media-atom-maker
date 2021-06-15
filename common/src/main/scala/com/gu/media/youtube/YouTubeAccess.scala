@@ -1,11 +1,10 @@
 package com.gu.media.youtube
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
-import com.google.api.client.http.{HttpRequest, HttpRequestInitializer}
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.youtube.{YouTubeRequest, YouTubeRequestInitializer, YouTubeScopes, YouTube => YouTubeClient}
-import com.google.api.services.youtubePartner.YouTubePartner
+import com.google.api.services.youtubePartner.{YouTubePartner, YouTubePartnerRequest, YouTubePartnerRequestInitializer}
 import com.gu.media.Settings
 import com.gu.media.logging.{Logging, YoutubeApiType, YoutubeRequestLogger, YoutubeRequestType}
 import net.logstash.logback.marker.{LogstashMarker, Markers}
@@ -71,7 +70,20 @@ trait YouTubeAccess extends Settings with Logging {
     .setApplicationName(appName)
     .build
 
+  private val youTubePartnerRequestLogger = new YouTubePartnerRequestInitializer {
+    override def initializeYouTubePartnerRequest(request: YouTubePartnerRequest[_]): Unit = {
+      super.initializeYouTubePartnerRequest(request)
+      val markers: LogstashMarker = Markers.appendEntries(Map(
+        "uri" -> request.getUriTemplate,
+        "content" -> request.getHttpContent,
+        "method" -> request.getRequestMethod
+      ).asJava)
+      log.info(markers, "YouTube Partner Client Request")
+    }
+  }
+
   lazy val partnerClient: YouTubePartner = new YouTubePartner.Builder(httpTransport, jacksonFactory, partnerCredentials)
+    .setYouTubePartnerRequestInitializer(youTubePartnerRequestLogger)
     .setApplicationName(appName)
     .build()
 
