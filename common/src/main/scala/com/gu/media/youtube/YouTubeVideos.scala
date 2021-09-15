@@ -137,9 +137,17 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
             set.getMediaHttpUploader.setDirectUploadEnabled(true)
 
             YoutubeRequestLogger.logRequest(YoutubeApiType.DataApi, YoutubeRequestType.UpdateVideoThumbnail)
-            set.execute()
 
-            Right("Updated video")
+            try {
+              set.execute()
+              Right("Updated video")
+            }
+            catch {
+              case e: Throwable => {
+                log.error("Error updating Youtube thumbnail", e)
+                Right("Could not update video thumbnail")
+              }
+            }
           }
           case Some(error) => Left(VideoUpdateError("Could not update video thumbnail", Some(error)))
         }
