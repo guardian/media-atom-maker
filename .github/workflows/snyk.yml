@@ -29,7 +29,6 @@ jobs:
         with:
           args: --org=guardian --project-name=${{ github.repository }} --file=./yarn.lock
           command: ${{ env.SNYK_COMMAND }}
-
   scala:
     runs-on: ubuntu-latest
     env:
