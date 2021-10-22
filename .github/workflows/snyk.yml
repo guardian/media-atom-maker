@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  node:
+  skyk-node:
     runs-on: ubuntu-latest
     env:
       SNYK_COMMAND: test
@@ -27,9 +27,9 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --org=guardian --project-name=${{ github.repository }} --file=./yarn.lock
+          args: --org=guardian-ed-tools --project-name=${{ github.repository }} --file=./yarn.lock
           command: ${{ env.SNYK_COMMAND }}
-  scala:
+  snyk-scala:
     runs-on: ubuntu-latest
     env:
       SNYK_COMMAND: test
@@ -46,5 +46,5 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --org=guardian --project-name=${{ github.repository }}
+          args: --org=guardian-ed-tools --project-name=${{ github.repository }}
           command: ${{ env.SNYK_COMMAND }}
