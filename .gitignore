@@ -1,5 +1,7 @@
 logs
 .idea/
+.metals/
+.vscode/
 target/
 .dynamodb-local
 public/dist
