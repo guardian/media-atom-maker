@@ -46,5 +46,5 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --org=guardian --project-name=${{ github.repository }}
+          args: --org=guardian --project-name=${{ github.repository }} --file=./build.sbt
           command: ${{ env.SNYK_COMMAND }}
