@@ -30,4 +30,7 @@ addSbtPlugin("com.localytics" % "sbt-dynamodb" % "1.4.0")
 
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.6.1")
 
+addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.9.2")
+
 libraryDependencies += "org.vafer" % "jdeb" % "1.3" artifacts (Artifact("jdeb", "jar", "jar"))
+
