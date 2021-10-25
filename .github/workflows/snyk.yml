@@ -27,7 +27,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --org=guardian-ed-tools --project-name=${{ github.repository }} --file=./yarn.lock
+          args: --org=guardian --project-name=${{ github.repository }} --file=./yarn.lock
           command: ${{ env.SNYK_COMMAND }}
   snyk-scala:
     runs-on: ubuntu-latest
@@ -46,5 +46,5 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --org=guardian-ed-tools --project-name=${{ github.repository }}
+          args: --org=guardian --project-name=${{ github.repository }}
           command: ${{ env.SNYK_COMMAND }}
