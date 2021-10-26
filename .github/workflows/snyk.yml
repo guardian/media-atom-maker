@@ -7,41 +7,36 @@ on:
   schedule:
     - cron: "0 6 * * *"
   push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
-  skyk-node:
+  snyk-monitor:
     runs-on: ubuntu-latest
     env:
-      SNYK_COMMAND: test
+      SNYK_COMMAND: monitor
     steps:
       - name: Checkout branch
         uses: actions/checkout@v2
 
-      - name: Set command to monitor
-        if: github.ref == 'refs/heads/main'
-        run: echo "SNYK_COMMAND=monitor" >> $GITHUB_ENV
-
-      - name: Run Snyk to check for Node vulnerabilities
+      - name: Run Snyk to monitor for Node vulnerabilities in project root
         uses: snyk/actions/node@0.3.0
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           args: --org=guardian --project-name=${{ github.repository }} --file=./yarn.lock
           command: ${{ env.SNYK_COMMAND }}
-  snyk-scala:
-    runs-on: ubuntu-latest
-    env:
-      SNYK_COMMAND: test
-    steps:
-      - name: Checkout branch
-        uses: actions/checkout@v2
 
-      - name: Set command to monitor
-        if: github.ref == 'refs/heads/main'
-        run: echo "SNYK_COMMAND=monitor" >> $GITHUB_ENV
+      - name: Run Snyk to check for Node vulnerabilities in Pluto message ingestion
+        uses: snyk/actions/node@0.3.0
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --org=guardian --project-name=${{ github.repository }} --file=./pluto-message-ingestion/yarn.lock
+          command: ${{ env.SNYK_COMMAND }}
 
-      - name: Run Snyk to check for vulnerabilities
+      - name: Run Snyk to monitor Scala vulnerabilities
         uses: snyk/actions/scala@0.3.0
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
