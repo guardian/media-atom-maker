@@ -33,7 +33,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --org=guardian --project-name=${{ github.repository }} --file=./pluto-message-ingestion/yarn.lock
+          args: --org=guardian --project-name=${{ github.repository }}/pluto-message-ingestion --file=./pluto-message-ingestion/yarn.lock
           command: ${{ env.SNYK_COMMAND }}
 
       - name: Run Snyk to monitor Scala vulnerabilities
