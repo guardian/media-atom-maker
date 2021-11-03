@@ -48,7 +48,8 @@ class Flags extends React.Component {
           disabled={!isYoutubeAtom || !isEligibleForAds}
           tooltip={!isEligibleForAds ? `Not eligible for pre-roll.` : ''}
         >
-          <CheckBox />
+          {/* use a different field identifier to `fieldLocation` to ensure ad blockers don't remove it from the DOM */}
+          <CheckBox fieldId="what-a-time-to-be-alive"/>
         </ManagedField>
         <ManagedField
           fieldLocation="composerCommentsEnabled"
