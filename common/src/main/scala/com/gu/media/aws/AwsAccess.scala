@@ -9,6 +9,7 @@ trait AwsAccess { this: Settings =>
   def readTag(tag: String): Option[String]
 
   val credentials: AwsCredentials
+  val loggingCredentials: AwsCredentials
   // To avoid renaming references everywhere
   def credsProvider: AWSCredentialsProvider = credentials.instance
 
