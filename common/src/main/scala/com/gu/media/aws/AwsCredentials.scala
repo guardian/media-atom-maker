@@ -49,20 +49,20 @@ object AwsCredentials {
     val crossAccountRoleArn = settings.getMandatoryString("aws.kinesis.stsCapiRoleToAssume",
       "Role to assume to access CAPI streams (in format arn:aws:iam::<account>:role/<role_name>)")
 
-    assumeAccountRole(instance, crossAccountRoleArn)
+    assumeAccountRole(instance, crossAccountRoleArn, "capi")
   }
 
   private def assumeLoggingRole(instance: AWSCredentialsProvider, settings: Settings) = {
     val loggingRoleArn = settings.getMandatoryString("aws.kinesis.stsLoggingRoleToAssume",
       "Role to assume to access logging stream (in format arn:aws:iam::<account>:role/<role_name>)")
 
-    assumeAccountRole(instance, loggingRoleArn)
+    assumeAccountRole(instance, loggingRoleArn, "logging")
   }
 
-  private def assumeAccountRole(instance: AWSCredentialsProvider, roleArn: String): AWSCredentialsProvider = {
+  private def assumeAccountRole(instance: AWSCredentialsProvider, roleArn: String, sessionNameSuffix: String): AWSCredentialsProvider = {
     val securityTokens = new AWSSecurityTokenServiceClient(instance)
 
-    new STSAssumeRoleSessionCredentialsProvider.Builder(roleArn, "media-atom-maker")
+    new STSAssumeRoleSessionCredentialsProvider.Builder(roleArn, s"media-atom-maker-${sessionNameSuffix}")
       .withStsClient(securityTokens).build()
   }
 }
