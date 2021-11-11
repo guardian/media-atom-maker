@@ -15,6 +15,7 @@ trait KinesisLogging { this: Settings with AwsAccess =>
 
     for {
       _stack <- stack
+      loggingCredentials <- credentials.logging
       stream <- getString("aws.kinesis.logging")
     } yield {
       rootLogger.info(s"bootstrapping kinesis appender with $stack -> $app -> $stage")
@@ -27,7 +28,7 @@ trait KinesisLogging { this: Settings with AwsAccess =>
       appender.setStreamName(stream)
       appender.setContext(context)
       appender.setLayout(Logging.layout(context, _stack, app, stage))
-      appender.setCredentialsProvider(credentials.crossAccount)
+      appender.setCredentialsProvider(loggingCredentials)
       appender.start()
 
       rootLogger.addAppender(appender)

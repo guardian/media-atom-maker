@@ -46,7 +46,7 @@ object AwsCredentials {
   }
 
   private def assumeCrossAccountRole(instance: AWSCredentialsProvider, settings: Settings) = {
-    val crossAccountRoleArn = settings.getMandatoryString("aws.kinesis.stsRoleToAssume",
+    val crossAccountRoleArn = settings.getMandatoryString("aws.kinesis.stsCapiRoleToAssume",
       "Role to assume to access CAPI streams (in format arn:aws:iam::<account>:role/<role_name>)")
 
     assumeAccountRole(instance, crossAccountRoleArn)
