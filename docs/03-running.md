@@ -1,6 +1,6 @@
 # Running
 
-Media Atom Maker requires Node 6.X, so ensure you're running that version, or run `nvm use` first.
+Media Atom Maker requires Node 14.X, so ensure you're running that version, or run `nvm use` first.
 
 ## Credentials
 
