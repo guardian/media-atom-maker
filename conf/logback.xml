@@ -17,11 +17,11 @@
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
- </appender>
+  </appender>
 
- <appender name="ASYNCSTDOUT" class="ch.qos.logback.classic.AsyncAppender">
-     <appender-ref ref="STDOUT" />
- </appender>
+  <appender name="ASYNCSTDOUT" class="ch.qos.logback.classic.AsyncAppender">
+    <appender-ref ref="STDOUT" />
+  </appender>
 
   <logger name="play" level="INFO" />
   <logger name="com.google.api.client.http.HttpTransport" level="WARN" />
