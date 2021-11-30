@@ -32,7 +32,6 @@ val awsLambdaCoreVersion = "1.1.0"
 val awsLambdaEventsVersion = "1.3.0"
 
 val logstashLogbackEncoderVersion = "4.8"
-val kinesisLogbackAppenderVersion = "1.4.2"
 
 val permissionsClientVersion = "0.7"
 
@@ -100,7 +99,7 @@ lazy val common = (project in file("common"))
       "com.amazonaws" % "aws-java-sdk-dynamodb" % awsVersion,
       "org.cvogt" %% "play-json-extensions" % playJsonExtensionsVersion,
       "net.logstash.logback" % "logstash-logback-encoder" % logstashLogbackEncoderVersion,
-      "com.gu" % "kinesis-logback-appender" % kinesisLogbackAppenderVersion,
+      "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
       "com.amazonaws" % "aws-java-sdk-elastictranscoder" % awsVersion,
       "org.scanamo" %% "scanamo" % scanamoVersion,
       "com.squareup.okhttp" % "okhttp" % okHttpVersion,
