@@ -6,7 +6,7 @@ import com.amazonaws.services.securitytoken.{AWSSecurityTokenServiceClient}
 import com.gu.media.Settings
 
 case class AwsCredentials(instance: AWSCredentialsProvider, crossAccount: AWSCredentialsProvider,
-                          upload: AWSCredentialsProvider, logging: Option[AWSCredentialsProvider] = None)
+                          upload: AWSCredentialsProvider)
 
 object AwsCredentials {
   def dev(settings: Settings): AwsCredentials = {
@@ -26,9 +26,8 @@ object AwsCredentials {
     val instance = InstanceProfileCredentialsProvider.getInstance()
 
     val crossAccount = assumeCrossAccountRole(instance, settings)
-    val loggingCreds = assumeLoggingRole(instance, settings)
 
-    AwsCredentials(instance, crossAccount, upload = instance, Some(loggingCreds))
+    AwsCredentials(instance, crossAccount, upload = instance)
   }
 
   def lambda(): AwsCredentials = {
@@ -50,13 +49,6 @@ object AwsCredentials {
       "Role to assume to access CAPI streams (in format arn:aws:iam::<account>:role/<role_name>)")
 
     assumeAccountRole(instance, crossAccountRoleArn, "capi")
-  }
-
-  private def assumeLoggingRole(instance: AWSCredentialsProvider, settings: Settings) = {
-    val loggingRoleArn = settings.getMandatoryString("aws.kinesis.stsLoggingRoleToAssume",
-      "Role to assume to access logging stream (in format arn:aws:iam::<account>:role/<role_name>)")
-
-    assumeAccountRole(instance, loggingRoleArn, "logging")
   }
 
   private def assumeAccountRole(instance: AWSCredentialsProvider, roleArn: String, sessionNameSuffix: String): AWSCredentialsProvider = {

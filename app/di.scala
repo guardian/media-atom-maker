@@ -34,7 +34,6 @@ class MediaAtomMaker(context: Context)
   private val hmacAuthActions = new PanDomainAuthActions(wsClient, configuration, new DefaultApplicationLifecycle)
 
   private val aws = new AWSConfig(config, credentials)
-  aws.startKinesisLogging("media-atom-maker")
 
   private val capi = new Capi(config)
 

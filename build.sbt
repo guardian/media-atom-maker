@@ -32,7 +32,6 @@ val awsLambdaCoreVersion = "1.1.0"
 val awsLambdaEventsVersion = "1.3.0"
 
 val logstashLogbackEncoderVersion = "4.8"
-val kinesisLogbackAppenderVersion = "1.4.2"
 
 val permissionsClientVersion = "0.7"
 
@@ -100,7 +99,7 @@ lazy val common = (project in file("common"))
       "com.amazonaws" % "aws-java-sdk-dynamodb" % awsVersion,
       "org.cvogt" %% "play-json-extensions" % playJsonExtensionsVersion,
       "net.logstash.logback" % "logstash-logback-encoder" % logstashLogbackEncoderVersion,
-      "com.gu" % "kinesis-logback-appender" % kinesisLogbackAppenderVersion,
+      "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
       "com.amazonaws" % "aws-java-sdk-elastictranscoder" % awsVersion,
       "org.scanamo" %% "scanamo" % scanamoVersion,
       "com.squareup.okhttp" % "okhttp" % okHttpVersion,
@@ -113,7 +112,8 @@ lazy val common = (project in file("common"))
       "com.gu" %% "content-api-client-aws" % capiAwsVersion,
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
       "org.jsoup" % "jsoup" % jsoupVersion,
-      "com.beachape" %% "enumeratum" % enumeratumVersion
+      "com.beachape" %% "enumeratum" % enumeratumVersion,
+      "net.logstash.logback" % "logstash-logback-encoder" % "6.6"
     )
   )
 
@@ -247,6 +247,8 @@ lazy val root = (project in file("root"))
       (packageBin in Universal in scheduler).value -> s"${(name in scheduler).value}/${(packageBin in Universal in scheduler).value.getName}",
       (baseDirectory in Global in app).value / "pluto-message-ingestion/target/pluto-message-ingestion.zip" -> "pluto-message-ingestion/pluto-message-ingestion.zip",
       (baseDirectory in Global in app).value / "conf/riff-raff.yaml" -> "riff-raff.yaml",
+      (baseDirectory in Global in app).value / "fluentbit/td-agent-bit.conf" -> "media-atom-maker/fluentbit/td-agent-bit.conf",
+      (baseDirectory in Global in app).value / "fluentbit/parsers.conf" -> "media-atom-maker/fluentbit/parsers.conf",
       (resourceManaged in Compile in uploader).value / "media-atom-pipeline.yaml" -> "media-atom-pipeline-cloudformation/media-atom-pipeline.yaml"
     )
   )
