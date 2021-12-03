@@ -27,7 +27,7 @@ class KinesisMessageProcessor {
             stage: EnvironmentConfig.stage,
             stack: EnvironmentConfig.stack,
             app: EnvironmentConfig.app,
-            roleArn: config.aws.kinesis.stsRoleToAssume,
+            roleArn: config.aws.kinesis.stsLoggingRoleToAssume,
             streamName: config.aws.kinesis.logging
           });
 
