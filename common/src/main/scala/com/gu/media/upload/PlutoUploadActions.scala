@@ -30,6 +30,8 @@ class PlutoUploadActions(config: Settings with DynamoAccess with KinesisAccess w
           )
         }
       }
+      case _=>
+        //there is nothing extra to do for AtomAssignedProjectMessage, PacFileMessage, or PlutoResyncMetadataMessage
     }
   }
 
