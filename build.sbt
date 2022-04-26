@@ -12,7 +12,7 @@ val scanamoVersion = "1.0.0-M9" // to match what we get from atom-publisher-lib 
 
 val scalaLoggingVersion = "3.4.0"
 val jacksonDatabindVersion = "2.9.2"
-val playJsonExtensionsVersion = "0.8.0"
+val playJsonExtensionsVersion = "0.10.0"
 val okHttpVersion = "2.4.0"
 val diffVersion = "1.2.0"
 
@@ -93,7 +93,7 @@ lazy val common = (project in file("common"))
       "com.amazonaws" % "aws-lambda-java-core" % awsLambdaCoreVersion,
       "com.amazonaws" % "aws-java-sdk-s3" % awsVersion,
       "com.amazonaws" % "aws-java-sdk-dynamodb" % awsVersion,
-      "org.cvogt" %% "play-json-extensions" % playJsonExtensionsVersion,
+      "ai.x" %% "play-json-extensions" % playJsonExtensionsVersion,
       "net.logstash.logback" % "logstash-logback-encoder" % logstashLogbackEncoderVersion,
       "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
       "com.amazonaws" % "aws-java-sdk-elastictranscoder" % awsVersion,

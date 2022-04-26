@@ -2,7 +2,7 @@ package com.gu.media.model
 
 import com.gu.media.upload.model.Upload
 import com.gu.media.youtube.YouTubeProcessingStatus
-import org.cvogt.play.json.Jsonx
+import ai.x.play.json.Jsonx
 import play.api.libs.json.Format
 
 case class ClientAsset(id: String, asset: Option[VideoAsset] = None, processing: Option[ClientAssetProcessing] = None, metadata: Option[ClientAssetMetadata] = None)

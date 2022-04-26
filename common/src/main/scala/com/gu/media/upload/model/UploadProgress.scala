@@ -1,6 +1,6 @@
 package com.gu.media.upload.model
 
-import org.cvogt.play.json.Jsonx
+import ai.x.play.json.Jsonx
 import play.api.libs.json.Format
 
 case class UploadProgress(chunksInS3: Int, chunksInYouTube: Int, fullyUploaded: Boolean, fullyTranscoded: Boolean,

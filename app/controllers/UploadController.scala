@@ -9,7 +9,7 @@ import com.gu.media.util.{MediaAtomHelpers, MediaAtomImplicits}
 import com.gu.media.youtube.YouTubeVideos
 import com.gu.pandahmac.HMACAuthActions
 import data.{DataStores, UnpackedDataStores}
-import org.cvogt.play.json.Jsonx
+import ai.x.play.json.Jsonx
 import play.api.libs.json.{Format, Json}
 import util._
 

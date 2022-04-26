@@ -1,6 +1,6 @@
 package com.gu.media.model
 
-import org.cvogt.play.json.Jsonx
+import ai.x.play.json.Jsonx
 import play.api.libs.json.Format
 
 case class VideoSource(src: String, mimeType: String)

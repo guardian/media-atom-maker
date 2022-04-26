@@ -2,7 +2,7 @@ package com.gu.media.model
 
 import com.gu.contentatom.thrift.{ChangeRecord => ThriftChangeRecord}
 import com.gu.pandomainauth.model.{User => PandaUser}
-import org.cvogt.play.json.Jsonx
+import ai.x.play.json.Jsonx
 import org.joda.time.DateTime
 import play.api.libs.json.Format
 

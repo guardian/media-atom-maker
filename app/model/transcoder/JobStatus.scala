@@ -1,6 +1,6 @@
 package model.transcoder
 
-import org.cvogt.play.json.Jsonx
+import ai.x.play.json.Jsonx
 
 case class JobStatus(key: String, status: String, statusDetail: Option[String])
 

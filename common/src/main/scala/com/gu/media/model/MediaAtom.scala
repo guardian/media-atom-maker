@@ -5,7 +5,7 @@ import play.api.libs.json.Format
 import com.gu.contentatom.thrift.{AtomData, Atom => ThriftAtom, AtomType => ThriftAtomType, Flags => ThriftFlags}
 import com.gu.media.util.MediaAtomImplicits
 import com.gu.media.youtube.{MediaAtomYoutubeDescriptionHandler, YoutubeDescription}
-import org.cvogt.play.json.Jsonx
+import ai.x.play.json.Jsonx
 
 abstract class MediaAtomBase {
   //generic metadata
