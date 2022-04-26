@@ -12,15 +12,6 @@ fileExists() {
 }
 
 changeNodeVersion() {
-    BREW_NVM_SH="$(brew --prefix nvm)/nvm.sh"
-
-    if fileExists "$BREW_NVM_SH"; then
-        echo -e "${red}NVM was installed using brew, this is unsupported."
-        echo -e "Uninstall it using brew uninstall nvm and then"
-        echo -e "Install it from https://github.com/creationix/nvm#installation${plain}"
-        exit 1
-    fi
-
     if [[ -z "${NVM_DIR}" ]]; then
         echo -e "${red}NVM not found. NVM is required to run this project"
         echo -e "Install it from https://github.com/creationix/nvm#installation${plain}"
