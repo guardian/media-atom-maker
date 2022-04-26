@@ -5,21 +5,13 @@ set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 red='\x1B[0;31m'
+plain='\x1b[0m'
 
 fileExists() {
   test -e "$1"
 }
 
 changeNodeVersion() {
-    BREW_NVM_SH="$(brew --prefix nvm)/nvm.sh"
-
-    if fileExists "$BREW_NVM_SH"; then
-        echo -e "${red}NVM was installed using brew, this is unsupported."
-        echo -e "Uninstall it using brew uninstall nvm and then"
-        echo -e "Install it from https://github.com/creationix/nvm#installation${plain}"
-        exit 1
-    fi
-
     if [[ -z "${NVM_DIR}" ]]; then
         echo -e "${red}NVM not found. NVM is required to run this project"
         echo -e "Install it from https://github.com/creationix/nvm#installation${plain}"
@@ -37,7 +29,7 @@ checkNodeMatchesNvm() {
 
     if [[ "v${DESIRED_NODE_VERSION}" != "${NODE_MAJOR_VERSION}"* ]]; then
         echo -e "${red}Your node version ${NODE_MAJOR_VERSION}" does not match "${DESIRED_NODE_VERSION}"
-        echo -e "${red}Please run 'nvm use' to get the desired node version"
+        echo -e "Please run 'nvm use' to get the desired node version${plain}"
         exit 1
     fi
 }
