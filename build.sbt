@@ -115,7 +115,7 @@ lazy val common = (project in file("common"))
 
 lazy val app = (project in file("."))
   .dependsOn(common % "compile->compile;test->test")
-  .enablePlugins(PlayScala, SbtWeb, BuildInfoPlugin, JDebPackaging)
+  .enablePlugins(PlayScala, SbtWeb, JDebPackaging, SystemdPlugin)
   .settings(commonSettings,
     name := "media-atom-maker",
     libraryDependencies ++= Seq(
@@ -146,7 +146,6 @@ lazy val app = (project in file("."))
     ),
 
     buildInfoPackage := "app",
-    serverLoading in Debian := Systemd,
 
     debianPackageDependencies := Seq("openjdk-8-jre-headless"),
     maintainer := "Digital CMS <digitalcms.dev@guardian.co.uk>",
