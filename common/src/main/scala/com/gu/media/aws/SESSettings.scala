@@ -1,12 +1,15 @@
 package com.gu.media.aws
 
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient
+import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder
 import com.gu.media.Settings
 
 trait SESSettings { this: Settings with AwsAccess =>
 
-  lazy val sesClient = region.createClient(classOf[AmazonSimpleEmailServiceClient],
-    credsProvider, null)
+  lazy val sesClient = AmazonSimpleEmailServiceClientBuilder
+    .standard()
+    .withCredentials(credsProvider)
+    .withRegion(region.getName)
+    .build()
 
   val fromEmailAddress = getMandatoryString("aws.ses.fromEmailAddress")
 

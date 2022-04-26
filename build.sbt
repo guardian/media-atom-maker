@@ -6,7 +6,7 @@ import StateMachine._
 import play.sbt.PlayImport
 
 val scroogeVersion = "4.12.0"
-val awsVersion = "1.11.125"
+val awsVersion = "1.11.678"
 val pandaVersion = "0.5.1"
 val pandaHmacVersion = "1.2.2"
 val atomMakerVersion = "1.2.2"

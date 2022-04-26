@@ -3,7 +3,7 @@ package com.gu.media.lambda
 import java.io.InputStreamReader
 import java.util.Locale
 
-import com.amazonaws.services.s3.AmazonS3Client
+import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.gu.media.Settings
 import com.gu.media.aws.{AwsAccess, AwsCredentials, HMACSettings}
 import com.typesafe.config.{Config, ConfigFactory}
@@ -22,7 +22,11 @@ trait LambdaBase extends Settings with AwsAccess with HMACSettings {
   private def downloadConfig(): Config = {
     (sys.env.get("CONFIG_BUCKET"), sys.env.get("CONFIG_KEY")) match {
       case (Some(bucket), Some(key)) =>
-        val defaultRegionS3 = defaultRegion.createClient(classOf[AmazonS3Client], credentials.instance, null)
+        val defaultRegionS3 = AmazonS3ClientBuilder
+          .standard()
+          .withCredentials(credentials.instance)
+          .withRegion(region.getName)
+          .build()
 
         val obj = defaultRegionS3.getObject(bucket, key)
         val rawConfig = obj.getObjectContent
