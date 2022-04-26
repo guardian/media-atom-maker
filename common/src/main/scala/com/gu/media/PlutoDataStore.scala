@@ -1,6 +1,6 @@
 package com.gu.media
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
 import com.amazonaws.services.dynamodbv2.model.DeleteItemResult
 import com.gu.media.model.PlutoSyncMetadataMessage
 import org.scanamo.error.DynamoReadError
@@ -8,7 +8,7 @@ import org.scanamo.syntax._
 import org.scanamo.{Scanamo, Table}
 import org.scanamo.auto._
 
-class PlutoDataStore(client: AmazonDynamoDBClient, dynamoTableName: String) {
+class PlutoDataStore(client: AmazonDynamoDB, dynamoTableName: String) {
 
   val table = Table[PlutoSyncMetadataMessage](dynamoTableName)
 
