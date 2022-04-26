@@ -1,9 +1,5 @@
-import com.typesafe.sbt.SbtNativePackager.autoImport.maintainer
-import com.typesafe.sbt.packager.archetypes.ServerLoader.Systemd
-import com.typesafe.sbt.packager.debian.DebianPlugin.autoImport.debianPackageDependencies
-import sbt.Keys._
 import StateMachine._
-import play.sbt.PlayImport
+import sbtbuildinfo.BuildInfoPlugin.autoImport.{BuildInfoKey, buildInfoKeys}
 
 val scroogeVersion = "4.12.0"
 val awsVersion = "1.11.678"
@@ -76,11 +72,11 @@ lazy val common = (project in file("common"))
     libraryDependencies ++= Seq(
       "com.google.api-client" %  "google-api-client" % googleApiClientVersion,
       "com.google.apis" % "google-api-services-youtube" % youTubeApiClientVersion,
-      "com.gu" %% "pan-domain-auth-play_2-5" % pandaVersion,
+      "com.gu" %% "pan-domain-auth-play_2-6" % pandaVersion,
       "com.gu" %% "pan-domain-auth-verification" % pandaVersion,
       "com.gu" %% "pan-domain-auth-core" % pandaVersion,
       "com.gu" %% "panda-hmac-play_2-5" % pandaHmacVersion,
-      PlayImport.ws,
+      ws,
       "com.gu" %% "atom-publisher-lib" % atomMakerVersion,
       "com.gu" %% "atom-publisher-lib" % atomMakerVersion % "test" classifier "tests",
       "com.gu" %% "atom-manager-play" % atomMakerVersion,
@@ -125,7 +121,7 @@ lazy val app = (project in file("."))
     libraryDependencies ++= Seq(
       "org.slf4j" % "slf4j-api" % slf4jVersion,
       "org.slf4j" % "jcl-over-slf4j" % slf4jVersion,
-      PlayImport.cache,
+      ehcache,
       "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
       "com.fasterxml.jackson.core" % "jackson-databind" % jacksonDatabindVersion,
       "ai.x" %% "diff" % diffVersion,
