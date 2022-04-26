@@ -5,6 +5,7 @@ set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 red='\x1B[0;31m'
+plain='\x1b[0m'
 
 fileExists() {
   test -e "$1"
@@ -37,7 +38,7 @@ checkNodeMatchesNvm() {
 
     if [[ "v${DESIRED_NODE_VERSION}" != "${NODE_MAJOR_VERSION}"* ]]; then
         echo -e "${red}Your node version ${NODE_MAJOR_VERSION}" does not match "${DESIRED_NODE_VERSION}"
-        echo -e "${red}Please run 'nvm use' to get the desired node version"
+        echo -e "Please run 'nvm use' to get the desired node version${plain}"
         exit 1
     fi
 }
