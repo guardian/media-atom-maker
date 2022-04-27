@@ -5,12 +5,11 @@ import controllers._
 import data._
 import play.api.ApplicationLoader.Context
 import play.api._
-import play.api.cache.EhCacheComponents
 import play.api.inject.DefaultApplicationLifecycle
 import play.api.libs.ws.ahc.AhcWSComponents
 import router.Routes
 import util._
-import scala.concurrent.duration._
+import java.time.Duration
 
 class MediaAtomMakerLoader extends ApplicationLoader {
   override def load(context: Context): Application = new MediaAtomMaker(context).application
@@ -18,8 +17,7 @@ class MediaAtomMakerLoader extends ApplicationLoader {
 
 class MediaAtomMaker(context: Context)
   extends BuiltInComponentsFromContext(context)
-    with AhcWSComponents
-    with EhCacheComponents {
+    with AhcWSComponents {
 
   // required to start logging (https://www.playframework.com/documentation/2.5.x/ScalaCompileTimeDependencyInjection)
   LoggerConfigurator(context.environment.classLoader).foreach(_.configure(context.environment))
@@ -42,7 +40,7 @@ class MediaAtomMaker(context: Context)
 
   private val reindexer = buildReindexer()
 
-  private val youTube = YouTube(config, defaultCacheApi, 1.day)
+  private val youTube = YouTube(config, Duration.ofDays(1))
 
   private val uploaderMessageConsumer = PlutoMessageConsumer(stores, aws)
   uploaderMessageConsumer.start(actorSystem.scheduler)(actorSystem.dispatcher)
@@ -61,7 +59,7 @@ class MediaAtomMaker(context: Context)
 
   private val youtubeTags = new YoutubeTagController(hmacAuthActions)
 
-  private val transcoder = new util.Transcoder(aws, defaultCacheApi)
+  private val transcoder = new util.Transcoder(aws)
   private val transcoderController = new controllers.Transcoder(hmacAuthActions, transcoder)
 
   private val videoApp = new VideoUIApp(hmacAuthActions, configuration, aws, permissions, youTube)
