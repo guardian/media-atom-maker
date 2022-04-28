@@ -9,9 +9,9 @@ import java.time.Duration
 trait YouTube extends Logging with YouTubeAccess with YouTubeVideos with YouTubePartnerApi {
   val duration: Duration
 
-  private val categoriesCache = Memoize(super.categories, duration)
+  private lazy val categoriesCache = Memoize(super.categories, duration)
 
-  private val channelsCache = Memoize(super.channels, duration)
+  private lazy val channelsCache = Memoize(super.channels, duration)
 
   override def categories: List[YouTubeVideoCategory] =
     categoriesCache.get

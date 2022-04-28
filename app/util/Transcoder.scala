@@ -8,7 +8,7 @@ import java.time.Duration
 
 class Transcoder(awsConfig: AWSConfig) {
 
-  private val transcoderJobsCache = Memoize(updateJobsStatus(), Duration.ofSeconds(20))
+  private lazy val transcoderJobsCache = Memoize(updateJobsStatus(), Duration.ofSeconds(20))
 
   def getJobsStatus = transcoderJobsCache.get
 
