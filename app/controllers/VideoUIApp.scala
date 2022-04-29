@@ -11,6 +11,7 @@ import play.api.Configuration
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 import util.{AWSConfig, TrainingMode}
+import views.html.helper.CSRF
 
 import scala.concurrent.ExecutionContext
 
@@ -21,7 +22,7 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
 
   implicit lazy val executionContext: ExecutionContext = defaultExecutionContext
 
-  def index(id: String = ""): Action[AnyContent] = AuthAction.async { req =>
+  def index(id: String = ""): Action[AnyContent] = AuthAction.async { implicit req =>
     val isTrainingMode = isInTrainingMode(req)
 
     val jsFileName = "video-ui/build/app.js"
@@ -69,7 +70,8 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
         presenceJsLocation = clientConfig.presence.map(_.jsLocation),
         Json.toJson(clientConfig).toString(),
         isHotReloading,
-        awsConfig.gaPropertyId
+        awsConfig.gaPropertyId,
+        Some(CSRF.getToken.value)
       ))
     }
   }

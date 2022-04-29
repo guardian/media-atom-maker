@@ -5,10 +5,11 @@
   presenceJsLocation: Option[String],
   clientConfigJson: String,
   isHotReloading: Boolean,
-  maybeGaPropertyId: Option[String]
+  maybeGaPropertyId: Option[String],
+  csrf: Option[String] = None
 )
 
-@layout(title, isHotReloading, autotrackJsLocation, maybeGaPropertyId) {
+@layout(title, isHotReloading, autotrackJsLocation, maybeGaPropertyId, csrf) {
     <div id="react-mount" class="main">
         <h1>Loading...</h1>
     </div>
