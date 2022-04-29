@@ -9,10 +9,9 @@ import controllers._
 import data._
 import play.api.ApplicationLoader.Context
 import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext, Configuration, LoggerConfigurator, Mode}
-import play.api.inject.DefaultApplicationLifecycle
 import play.api.libs.ws.WSClient
 import play.api.libs.ws.ahc.AhcWSComponents
-import play.api.mvc.ControllerComponents
+import play.api.mvc.{ControllerComponents, EssentialFilter}
 import play.filters.HttpFiltersComponents
 import router.Routes
 import util._
@@ -32,7 +31,7 @@ class MediaAtomMaker(context: Context)
   // required to start logging (https://www.playframework.com/documentation/2.5.x/ScalaCompileTimeDependencyInjection)
   LoggerConfigurator(context.environment.classLoader).foreach(_.configure(context.environment))
 
-  override lazy val httpFilters = super.httpFilters.filterNot(_ == allowedHostsFilter)
+  override lazy val httpFilters: Seq[EssentialFilter] = super.httpFilters.filterNot(_ == allowedHostsFilter)
 
   private val config = configuration.underlying
 
@@ -85,20 +84,20 @@ class MediaAtomMaker(context: Context)
   private val stepFunctions = new StepFunctions(aws)
   private val uploads = new UploadController(hmacAuthActions, aws, stepFunctions, stores, permissions, youTube, controllerComponents)
 
-  private val support = new Support(hmacAuthActions, capi)
-  private val youTubeController = new Youtube(hmacAuthActions, youTube, permissions)
+  private val support = new Support(hmacAuthActions, capi, controllerComponents)
+  private val youTubeController = new Youtube(hmacAuthActions, youTube, permissions, controllerComponents)
 
   private val plutoController = new PlutoController(config, aws, hmacAuthActions, stores, controllerComponents)
 
-  private val youtubeTags = new YoutubeTagController(hmacAuthActions)
+  private val youtubeTags = new YoutubeTagController(hmacAuthActions, controllerComponents)
 
   private val transcoder = new util.Transcoder(aws)
-  private val transcoderController = new controllers.Transcoder(hmacAuthActions, transcoder)
+  private val transcoderController = new controllers.Transcoder(hmacAuthActions, transcoder, controllerComponents)
 
-  private val videoApp = new VideoUIApp(hmacAuthActions, configuration, aws, permissions, youTube)
+  private val videoApp = new VideoUIApp(hmacAuthActions, configuration, aws, permissions, youTube, controllerComponents)
 
-  private val login = new Login(hmacAuthActions)
-  private val healthcheck = new Healthcheck(aws)
+  private val login = new Login(hmacAuthActions, controllerComponents)
+  private val healthcheck = new Healthcheck(aws, controllerComponents)
   override lazy val assets = new Assets(httpErrorHandler, assetsMetadata)
 
   override val router = new Routes(

@@ -8,16 +8,20 @@ import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.model.User
 import model.{ClientConfig, Presence}
 import play.api.Configuration
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.Json
-import play.api.mvc.Controller
+import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 import util.{AWSConfig, TrainingMode}
 
+import scala.concurrent.ExecutionContext
+
 class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfig: AWSConfig,
-                 permissions: MediaAtomMakerPermissionsProvider, youtube: YouTubeAccess) extends Controller with Logging with TrainingMode {
+                 permissions: MediaAtomMakerPermissionsProvider, youtube: YouTubeAccess,
+                 val controllerComponents: ControllerComponents) extends BaseController with Logging with TrainingMode {
   import authActions.AuthAction
 
-  def index(id: String = "") = AuthAction.async { req =>
+  implicit lazy val executionContext: ExecutionContext = defaultExecutionContext
+
+  def index(id: String = ""): Action[AnyContent] = AuthAction.async { req =>
     val isTrainingMode = isInTrainingMode(req)
 
     val jsFileName = "video-ui/build/app.js"
@@ -48,8 +52,8 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
         capiProxyUrl = "/support/previewCapi",
         liveCapiProxyUrl = "/support/liveCapi",
         composerUrl = composerUrl,
-        ravenUrl = conf.getString("raven.url").get,
-        stage = conf.getString("stage").get,
+        ravenUrl = conf.get[String]("raven.url"),
+        stage = conf.get[String]("stage"),
         viewerUrl = awsConfig.viewerUrl,
         permissions,
         minDurationForAds = youtube.minDurationForAds,
@@ -70,14 +74,14 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
     }
   }
 
-  def training(inTraining: Boolean) = AuthAction { req =>
+  def training(inTraining: Boolean): Action[AnyContent] = AuthAction { req =>
     Redirect("/", FOUND).withSession(
       req.session + ("isTrainingMode" -> inTraining.toString)
     )
   }
 
   private def presenceConfig(user: User): Option[Presence] = {
-    conf.getString("presence.domain") match {
+    conf.getOptional[String]("presence.domain") match {
       case Some(origin) =>
         Some(Presence(origin, user.firstName, user.lastName, user.email))
       case None =>

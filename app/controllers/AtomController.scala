@@ -7,7 +7,6 @@ import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.action.UserRequest
 import com.gu.pandomainauth.model.User
 import data.UnpackedDataStores
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.{JsObject, JsString}
 import play.api.mvc._
 import com.gu.media.util.ThriftUtil._
@@ -19,6 +18,8 @@ trait AtomController extends BaseController with UnpackedDataStores {
   val permissions: MediaAtomMakerPermissionsProvider
 
   val controllerComponents: ControllerComponents
+
+  implicit lazy val ec: ExecutionContext = defaultExecutionContext
 
   /* if the creation of the thrift data from the request fails, reply
    * with the error. Otherwise delegate to `success`, which can avoid

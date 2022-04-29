@@ -184,7 +184,7 @@ class Api(
       try {
         val pacFileUpload = PacFileUploadCommand(
           mediaAtom,
-          file.ref.file,
+          file.ref,
           stores,
           request.user,
           awsConfig

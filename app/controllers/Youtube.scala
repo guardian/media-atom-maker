@@ -3,14 +3,15 @@ package controllers
 import com.gu.media.youtube.YouTubeChannel
 import com.gu.pandahmac.HMACAuthActions
 import play.api.libs.json.Json
-import play.api.mvc.Controller
+import play.api.mvc.{BaseController, ControllerComponents}
 import util.{TrainingMode, YouTube}
 import model.commands.CommandExceptions._
 import com.gu.media.MediaAtomMakerPermissionsProvider
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class Youtube (val authActions: HMACAuthActions, youtube: YouTube, permissions: MediaAtomMakerPermissionsProvider)
-  extends Controller with TrainingMode {
+class Youtube (val authActions: HMACAuthActions, youtube: YouTube, permissions: MediaAtomMakerPermissionsProvider, val controllerComponents: ControllerComponents)
+  extends BaseController with TrainingMode {
   import authActions.AuthAction
 
   def listCategories() = AuthAction {

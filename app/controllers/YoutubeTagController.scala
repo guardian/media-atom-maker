@@ -2,10 +2,10 @@ package controllers
 
 import com.gu.pandahmac.HMACAuthActions
 import play.api.libs.json.Json
-import play.api.mvc.Controller
+import play.api.mvc.{BaseController, ControllerComponents}
 import com.gu.media.youtube.contentBundlingMap
 
-class YoutubeTagController(val authActions: HMACAuthActions) extends Controller {
+class YoutubeTagController(val authActions: HMACAuthActions, val controllerComponents: ControllerComponents) extends BaseController {
 
   import authActions.APIAuthAction
 

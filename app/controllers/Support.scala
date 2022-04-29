@@ -1,11 +1,11 @@
 package controllers
 
-import com.gu.media.{CapiException, CapiAccess}
+import com.gu.media.{CapiAccess, CapiException}
 import com.gu.pandahmac.HMACAuthActions
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{Action, BaseController, ControllerComponents}
 
 
-class Support(val authActions: HMACAuthActions, val capi: CapiAccess) extends Controller {
+class Support(val authActions: HMACAuthActions, val capi: CapiAccess, val controllerComponents: ControllerComponents) extends BaseController {
   import authActions.APIAuthAction
 
   def capiProxy(path: String, queryLive: Boolean) = APIAuthAction { request =>
