@@ -2,7 +2,7 @@ package com.gu.media.youtube
 
 import java.io.InputStream
 
-import com.amazonaws.services.s3.AmazonS3Client
+import com.amazonaws.services.s3.AmazonS3
 import com.gu.media.logging.{Logging, YoutubeApiType, YoutubeRequestLogger, YoutubeRequestType}
 import com.gu.media.model.YouTubeAsset
 import com.gu.media.upload.model.{Upload, UploadPart}
@@ -11,7 +11,7 @@ import com.gu.media.youtube.YouTubeUploader.{MoveToNextChunk, UploadError, Video
 import com.squareup.okhttp.{MediaType, OkHttpClient, Request, RequestBody}
 import play.api.libs.json.{JsObject, JsString, Json}
 
-class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3Client) extends Logging {
+class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3) extends Logging {
   private val JSON = MediaType.parse("application/json; charset=utf-8")
   private val VIDEO = MediaType.parse("video/*")
 

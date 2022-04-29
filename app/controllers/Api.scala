@@ -29,7 +29,9 @@ class Api(
   awsConfig: AWSConfig,
   override val permissions: MediaAtomMakerPermissionsProvider,
   capi: Capi,
-  thumbnailGenerator: ThumbnailGenerator)
+  thumbnailGenerator: ThumbnailGenerator,
+  override val controllerComponents: ControllerComponents
+)
   extends MediaAtomImplicits
     with AtomController
     with JsonRequestParsing

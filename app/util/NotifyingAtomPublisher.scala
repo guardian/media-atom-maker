@@ -6,6 +6,8 @@ import com.gu.atom.publish.AtomPublisher
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.JodaWrites._
+import play.api.libs.json.JodaReads._
 
 import scala.util.Try
 

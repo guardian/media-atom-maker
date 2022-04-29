@@ -3,9 +3,9 @@ package controllers
 import model.commands.CommandExceptions.commandExceptionAsResult
 import play.api.Logger
 import play.api.libs.json.{JsError, JsSuccess, Reads}
-import play.api.mvc.{AnyContent, Controller, Request, Result}
+import play.api.mvc.{AnyContent, BaseController, Request, Result}
 
-trait JsonRequestParsing { this: Controller =>
+trait JsonRequestParsing { this: BaseController =>
   def parse[T](raw: Request[AnyContent])(fn: T => Result)(implicit reads: Reads[T]): Result = try {
     raw.body.asJson match {
       case Some(rawJson) =>

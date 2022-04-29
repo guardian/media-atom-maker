@@ -4,7 +4,7 @@ import sbtbuildinfo.BuildInfoPlugin.autoImport.{BuildInfoKey, buildInfoKeys}
 val scroogeVersion = "4.12.0"
 val awsVersion = "1.11.678"
 val pandaVersion = "0.5.1"
-val pandaHmacVersion = "1.2.2"
+val pandaHmacVersion = "2.0.0"
 val atomMakerVersion = "1.2.5"
 val slf4jVersion = "1.7.21"
 val typesafeConfigVersion = "1.3.0" // to match what we get from Play transitively
@@ -75,7 +75,7 @@ lazy val common = (project in file("common"))
       "com.gu" %% "pan-domain-auth-play_2-6" % pandaVersion,
       "com.gu" %% "pan-domain-auth-verification" % pandaVersion,
       "com.gu" %% "pan-domain-auth-core" % pandaVersion,
-      "com.gu" %% "panda-hmac-play_2-5" % pandaHmacVersion,
+      "com.gu" %% "panda-hmac-play_2-6" % pandaHmacVersion,
       ws,
       "com.typesafe.play" %% "play-json-joda" % "2.6.0",
       "com.gu" %% "atom-publisher-lib" % atomMakerVersion,
@@ -117,7 +117,7 @@ lazy val common = (project in file("common"))
 
 lazy val app = (project in file("."))
   .dependsOn(common % "compile->compile;test->test")
-  .enablePlugins(PlayScala, SbtWeb, JDebPackaging, SystemdPlugin)
+  .enablePlugins(PlayScala, SbtWeb, JDebPackaging, SystemdPlugin, BuildInfoPlugin)
   .settings(commonSettings,
     name := "media-atom-maker",
     libraryDependencies ++= Seq(

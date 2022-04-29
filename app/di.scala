@@ -1,14 +1,22 @@
+import com.amazonaws.auth._
+import com.amazonaws.auth.profile.ProfileCredentialsProvider
+import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain}
 import com.gu.atom.play.ReindexController
 import com.gu.media.aws.AwsCredentials
 import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider, Settings}
+import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import controllers._
 import data._
 import play.api.ApplicationLoader.Context
-import play.api._
+import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext, Configuration, LoggerConfigurator, Mode}
 import play.api.inject.DefaultApplicationLifecycle
+import play.api.libs.ws.WSClient
 import play.api.libs.ws.ahc.AhcWSComponents
+import play.api.mvc.ControllerComponents
+import play.filters.HttpFiltersComponents
 import router.Routes
 import util._
+
 import java.time.Duration
 
 class MediaAtomMakerLoader extends ApplicationLoader {
@@ -17,10 +25,14 @@ class MediaAtomMakerLoader extends ApplicationLoader {
 
 class MediaAtomMaker(context: Context)
   extends BuiltInComponentsFromContext(context)
-    with AhcWSComponents {
+    with AhcWSComponents
+    with AssetsComponents
+    with HttpFiltersComponents {
 
   // required to start logging (https://www.playframework.com/documentation/2.5.x/ScalaCompileTimeDependencyInjection)
   LoggerConfigurator(context.environment.classLoader).foreach(_.configure(context.environment))
+
+  override lazy val httpFilters = super.httpFilters.filterNot(_ == allowedHostsFilter)
 
   private val config = configuration.underlying
 
@@ -29,7 +41,28 @@ class MediaAtomMaker(context: Context)
     case _ => AwsCredentials.app(Settings(config))
   }
 
-  private val hmacAuthActions = new PanDomainAuthActions(wsClient, configuration, new DefaultApplicationLifecycle)
+  val awsCredentialsProvider: AWSCredentialsProvider =
+    new AWSCredentialsProviderChain(
+      new ProfileCredentialsProvider(configuration.getOptional[String]("panda.awsCredsProfile").getOrElse("panda")),
+      new InstanceProfileCredentialsProvider(false)
+    )
+
+  val panDomainSettings = new PanDomainAuthSettingsRefresher(
+    domain = configuration.get[String]("panda.domain"),
+    system = "video",
+    actorSystem,
+    awsCredentialsProvider
+  )
+
+  private val hmacAuthActions = new PanDomainAuthActions {
+    override def conf: Configuration = configuration
+
+    override def wsClient: WSClient = wsClient
+
+    override def controllerComponents: ControllerComponents = controllerComponents
+
+    override def panDomainSettings: PanDomainAuthSettingsRefresher = panDomainSettings
+  }
 
   private val aws = new AWSConfig(config, credentials)
 
@@ -47,15 +80,15 @@ class MediaAtomMaker(context: Context)
 
   private val thumbnailGenerator = ThumbnailGenerator(environment.getFile(s"conf/logo.png"))
 
-  private val api = new Api(stores, configuration, hmacAuthActions, youTube, aws, permissions, capi, thumbnailGenerator)
+  private val api = new Api(stores, configuration, hmacAuthActions, youTube, aws, permissions, capi, thumbnailGenerator, controllerComponents)
 
   private val stepFunctions = new StepFunctions(aws)
-  private val uploads = new UploadController(hmacAuthActions, aws, stepFunctions, stores, permissions, youTube)
+  private val uploads = new UploadController(hmacAuthActions, aws, stepFunctions, stores, permissions, youTube, controllerComponents)
 
   private val support = new Support(hmacAuthActions, capi)
   private val youTubeController = new Youtube(hmacAuthActions, youTube, permissions)
 
-  private val plutoController = new PlutoController(config, aws, hmacAuthActions, stores)
+  private val plutoController = new PlutoController(config, aws, hmacAuthActions, stores, controllerComponents)
 
   private val youtubeTags = new YoutubeTagController(hmacAuthActions)
 
@@ -66,7 +99,7 @@ class MediaAtomMaker(context: Context)
 
   private val login = new Login(hmacAuthActions)
   private val healthcheck = new Healthcheck(aws)
-  private val assets = new Assets(httpErrorHandler)
+  override lazy val assets = new Assets(httpErrorHandler, assetsMetadata)
 
   override val router = new Routes(
     httpErrorHandler,
@@ -87,7 +120,7 @@ class MediaAtomMaker(context: Context)
   private def buildReindexer() = {
     // pass the parameters manually since the reindexer is part of the atom-maker lib
     new ReindexController(stores.preview, stores.published, stores.reindexPreview, stores.reindexPublished,
-      configuration, actorSystem)
+      configuration, controllerComponents, actorSystem)
 
   }
 }

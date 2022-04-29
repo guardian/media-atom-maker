@@ -9,7 +9,7 @@ import com.gu.pandahmac.HMACAuthActions
 import com.gu.media.util.MediaAtomHelpers
 import data.{DataStores, UnpackedDataStores}
 import play.api.libs.json.Json
-import play.api.mvc.Controller
+import play.api.mvc.{BaseController, ControllerComponents}
 import com.gu.media.model.{MediaAtom, MediaAtomBeforeCreation, PlutoResyncMetadataMessage}
 import com.typesafe.config.{Config, ConfigFactory}
 import util.AWSConfig
@@ -19,8 +19,9 @@ class PlutoController(
   val config:Config,
   val awsConfig:AWSConfig,
   val authActions: HMACAuthActions,
-  override val stores: DataStores
-) extends Controller
+  override val stores: DataStores,
+  val controllerComponents: ControllerComponents
+) extends BaseController
   with UnpackedDataStores
   with JsonRequestParsing
   with Logging {

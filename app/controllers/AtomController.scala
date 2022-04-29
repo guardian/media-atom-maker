@@ -12,11 +12,13 @@ import play.api.libs.json.{JsObject, JsString}
 import play.api.mvc._
 import com.gu.media.util.ThriftUtil._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-trait AtomController extends Controller with UnpackedDataStores {
+trait AtomController extends BaseController with UnpackedDataStores {
   val authActions: HMACAuthActions
   val permissions: MediaAtomMakerPermissionsProvider
+
+  val controllerComponents: ControllerComponents
 
   /* if the creation of the thrift data from the request fails, reply
    * with the error. Otherwise delegate to `success`, which can avoid
@@ -35,7 +37,7 @@ trait AtomController extends Controller with UnpackedDataStores {
 
   import authActions.APIAuthAction
 
-  object LookupPermissions extends ActionBuilder[UploadUserRequest] {
+  object LookupPermissions extends ActionBuilder[UploadUserRequest, AnyContent] {
     override def invokeBlock[A](request: Request[A], block: UploadUserRequest[A] => Future[Result]): Future[Result] = {
       APIAuthAction.invokeBlock(request, { req: UserRequest[A] =>
         permissions.getAll(req.user).flatMap { p =>
@@ -43,9 +45,13 @@ trait AtomController extends Controller with UnpackedDataStores {
         }
       })
     }
+
+    override def parser: BodyParser[AnyContent] = controllerComponents.parsers.defaultBodyParser
+
+    override protected def executionContext: ExecutionContext = controllerComponents.executionContext
   }
 
-  class PermissionedAction(permission: Permission) extends ActionBuilder[UserRequest] {
+  class PermissionedAction(permission: Permission) extends ActionBuilder[UserRequest, AnyContent] {
     override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] = {
       APIAuthAction.invokeBlock(request, { req: UserRequest[A] =>
 
@@ -59,10 +65,14 @@ trait AtomController extends Controller with UnpackedDataStores {
         }
       })
     }
+
+    override def parser: BodyParser[AnyContent] = controllerComponents.parsers.defaultBodyParser
+
+    override protected def executionContext: ExecutionContext = controllerComponents.executionContext
   }
 
 
-  val CanDeleteAtom: ActionBuilder[UserRequest] = new PermissionedAction(deleteAtom)
+  val CanDeleteAtom: ActionBuilder[UserRequest, AnyContent] = new PermissionedAction(deleteAtom)
 
   case class UploadUserRequest[A](val user: User, request: Request[A], permissions: Permissions) extends WrappedRequest[A](request)
 
