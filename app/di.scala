@@ -55,13 +55,13 @@ class MediaAtomMaker(context: Context)
   )
 
   private val hmacAuthActions = new PanDomainAuthActions {
-    override def conf: Configuration = configuration
+    override def conf: Configuration = MediaAtomMaker.this.configuration
 
-    override def wsClient: WSClient = wsClient
+    override def wsClient: WSClient = MediaAtomMaker.this.wsClient
 
-    override def controllerComponents: ControllerComponents = controllerComponents
+    override def controllerComponents: ControllerComponents = MediaAtomMaker.this.controllerComponents
 
-    override def panDomainSettings: PanDomainAuthSettingsRefresher = panDomainSettings
+    override def panDomainSettings: PanDomainAuthSettingsRefresher = MediaAtomMaker.this.panDomainSettings
   }
 
   private val aws = new AWSConfig(config, credentials)
