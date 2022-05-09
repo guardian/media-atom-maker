@@ -2,14 +2,15 @@ package util
 
 import com.amazonaws.services.elastictranscoder.model.ListJobsByPipelineRequest
 import model.transcoder.JobStatus
-import play.api.cache.CacheApi
 
 import scala.collection.JavaConverters._
-import scala.concurrent.duration._
+import java.time.Duration
 
-class Transcoder(awsConfig: AWSConfig, cache: CacheApi) {
+class Transcoder(awsConfig: AWSConfig) {
 
-  def getJobsStatus = cache.getOrElse[List[JobStatus]]("transcoderJobs", 20.seconds){updateJobsStatus()}
+  private lazy val transcoderJobsCache = Memoize(updateJobsStatus(), Duration.ofSeconds(20))
+
+  def getJobsStatus = transcoderJobsCache.get
 
   private def updateJobsStatus() = {
     val pipelineRequest: ListJobsByPipelineRequest = new ListJobsByPipelineRequest()

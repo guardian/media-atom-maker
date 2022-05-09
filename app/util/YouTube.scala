@@ -1,24 +1,23 @@
 package util
 
 import com.gu.media.logging.Logging
-import com.gu.media.model.PrivacyStatus
 import com.gu.media.youtube._
 import com.typesafe.config.Config
-import play.api.cache.CacheApi
 
-import scala.concurrent.duration.FiniteDuration
+import java.time.Duration
 
 trait YouTube extends Logging with YouTubeAccess with YouTubeVideos with YouTubePartnerApi {
-  val cache: CacheApi
-  val duration: FiniteDuration
+  val duration: Duration
 
-  override def categories: List[YouTubeVideoCategory] = {
-    cache.getOrElse("categories", duration) { super.categories }
-  }
+  private lazy val categoriesCache = Memoize(super.categories, duration)
 
-  override def channels: List[YouTubeChannel] = {
-    cache.getOrElse("channels", duration) { super.channels }
-  }
+  private lazy val channelsCache = Memoize(super.channels, duration)
+
+  override def categories: List[YouTubeVideoCategory] =
+    categoriesCache.get
+
+  override def channels: List[YouTubeChannel] =
+    channelsCache.get
 
   def getCommercialVideoInfo(videoId: String) = {
     getVideo(videoId, "snippet,contentDetails,status").map(video => {
@@ -33,9 +32,8 @@ trait YouTube extends Logging with YouTubeAccess with YouTubeVideos with YouTube
 }
 
 object YouTube {
-  def apply(_config: Config, _cache: CacheApi, _duration: FiniteDuration): YouTube = new YouTube {
+  def apply(_config: Config, _duration: Duration): YouTube = new YouTube {
     override def config: Config = _config
-    override val cache: CacheApi = _cache
-    override val duration: FiniteDuration = _duration
+    override val duration: Duration = _duration
   }
 }
