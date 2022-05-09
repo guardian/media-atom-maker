@@ -6,7 +6,7 @@
   clientConfigJson: String,
   isHotReloading: Boolean,
   maybeGaPropertyId: Option[String],
-  csrf: Option[String] = None
+  csrf: String
 )
 
 @layout(title, isHotReloading, autotrackJsLocation, maybeGaPropertyId, csrf) {

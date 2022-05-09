@@ -71,7 +71,7 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
         Json.toJson(clientConfig).toString(),
         isHotReloading,
         awsConfig.gaPropertyId,
-        Some(CSRF.getToken.value)
+        CSRF.getToken.value
       ))
     }
   }
