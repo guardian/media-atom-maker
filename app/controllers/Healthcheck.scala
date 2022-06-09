@@ -2,9 +2,9 @@ package controllers
 
 import com.amazonaws.util.EC2MetadataUtils
 import com.gu.media.aws.{AwsAccess, KinesisAccess}
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{Action, BaseController, ControllerComponents}
 
-class Healthcheck(val kinesis: AwsAccess with KinesisAccess) extends Controller {
+class Healthcheck(val kinesis: AwsAccess with KinesisAccess, val controllerComponents: ControllerComponents) extends BaseController {
   def healthcheck = Action {
     val instanceId = EC2MetadataUtils.getInstanceId
     val isRunningInAws = instanceId != null

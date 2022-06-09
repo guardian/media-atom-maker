@@ -1,22 +1,18 @@
-import com.typesafe.sbt.SbtNativePackager.autoImport.maintainer
-import com.typesafe.sbt.packager.archetypes.ServerLoader.Systemd
-import com.typesafe.sbt.packager.debian.DebianPlugin.autoImport.debianPackageDependencies
-import sbt.Keys._
 import StateMachine._
-import play.sbt.PlayImport
+import sbtbuildinfo.BuildInfoPlugin.autoImport.{BuildInfoKey, buildInfoKeys}
 
 val scroogeVersion = "4.12.0"
-val awsVersion = "1.11.125"
+val awsVersion = "1.11.678"
 val pandaVersion = "0.5.1"
-val pandaHmacVersion = "1.2.2"
-val atomMakerVersion = "1.2.2"
+val pandaHmacVersion = "2.0.0"
+val atomMakerVersion = "1.2.5"
 val slf4jVersion = "1.7.21"
 val typesafeConfigVersion = "1.3.0" // to match what we get from Play transitively
 val scanamoVersion = "1.0.0-M9" // to match what we get from atom-publisher-lib transitively
 
 val scalaLoggingVersion = "3.4.0"
 val jacksonDatabindVersion = "2.9.2"
-val playJsonExtensionsVersion = "0.8.0"
+val playJsonExtensionsVersion = "0.10.0"
 val okHttpVersion = "2.4.0"
 val diffVersion = "1.2.0"
 
@@ -76,11 +72,12 @@ lazy val common = (project in file("common"))
     libraryDependencies ++= Seq(
       "com.google.api-client" %  "google-api-client" % googleApiClientVersion,
       "com.google.apis" % "google-api-services-youtube" % youTubeApiClientVersion,
-      "com.gu" %% "pan-domain-auth-play_2-5" % pandaVersion,
+      "com.gu" %% "pan-domain-auth-play_2-6" % pandaVersion,
       "com.gu" %% "pan-domain-auth-verification" % pandaVersion,
       "com.gu" %% "pan-domain-auth-core" % pandaVersion,
-      "com.gu" %% "panda-hmac-play_2-5" % pandaHmacVersion,
-      PlayImport.ws,
+      "com.gu" %% "panda-hmac-play_2-6" % pandaHmacVersion,
+      ws,
+      "com.typesafe.play" %% "play-json-joda" % "2.6.0",
       "com.gu" %% "atom-publisher-lib" % atomMakerVersion,
       "com.gu" %% "atom-publisher-lib" % atomMakerVersion % "test" classifier "tests",
       "com.gu" %% "atom-manager-play" % atomMakerVersion,
@@ -97,7 +94,8 @@ lazy val common = (project in file("common"))
       "com.amazonaws" % "aws-lambda-java-core" % awsLambdaCoreVersion,
       "com.amazonaws" % "aws-java-sdk-s3" % awsVersion,
       "com.amazonaws" % "aws-java-sdk-dynamodb" % awsVersion,
-      "org.cvogt" %% "play-json-extensions" % playJsonExtensionsVersion,
+      "com.amazonaws" % "aws-java-sdk-kinesis" % awsVersion,
+      "ai.x" %% "play-json-extensions" % playJsonExtensionsVersion,
       "net.logstash.logback" % "logstash-logback-encoder" % logstashLogbackEncoderVersion,
       "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
       "com.amazonaws" % "aws-java-sdk-elastictranscoder" % awsVersion,
@@ -119,13 +117,13 @@ lazy val common = (project in file("common"))
 
 lazy val app = (project in file("."))
   .dependsOn(common % "compile->compile;test->test")
-  .enablePlugins(PlayScala, SbtWeb, BuildInfoPlugin, JDebPackaging)
+  .enablePlugins(PlayScala, SbtWeb, JDebPackaging, SystemdPlugin, BuildInfoPlugin)
   .settings(commonSettings,
     name := "media-atom-maker",
     libraryDependencies ++= Seq(
       "org.slf4j" % "slf4j-api" % slf4jVersion,
       "org.slf4j" % "jcl-over-slf4j" % slf4jVersion,
-      PlayImport.cache,
+      ehcache,
       "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
       "com.fasterxml.jackson.core" % "jackson-databind" % jacksonDatabindVersion,
       "ai.x" %% "diff" % diffVersion,
@@ -150,7 +148,6 @@ lazy val app = (project in file("."))
     ),
 
     buildInfoPackage := "app",
-    serverLoading in Debian := Systemd,
 
     debianPackageDependencies := Seq("openjdk-8-jre-headless"),
     maintainer := "Digital CMS <digitalcms.dev@guardian.co.uk>",

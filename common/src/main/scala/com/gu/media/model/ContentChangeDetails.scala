@@ -1,7 +1,7 @@
 package com.gu.media.model
 
 import com.gu.contentatom.thrift.{ContentChangeDetails => ThriftContentChangeDetails}
-import org.cvogt.play.json.Jsonx
+import ai.x.play.json.Jsonx
 
 case class ContentChangeDetails(
   lastModified: Option[ChangeRecord],

@@ -1,7 +1,7 @@
 package com.gu.media.model
 
 import com.gu.contentatom.thrift.atom.media.{PlutoData => ThriftPlutoData}
-import org.cvogt.play.json.Jsonx
+import ai.x.play.json.Jsonx
 import play.api.libs.json.Format
 
 case class PlutoData (

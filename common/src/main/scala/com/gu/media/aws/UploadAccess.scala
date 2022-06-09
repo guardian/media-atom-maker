@@ -1,7 +1,7 @@
 package com.gu.media.aws
 
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClient
-import com.amazonaws.services.stepfunctions.AWSStepFunctionsClient
+import com.amazonaws.services.stepfunctions.AWSStepFunctionsClientBuilder
 import com.amazonaws.services.stepfunctions.model.ListStateMachinesRequest
 import com.gu.media.Settings
 import scala.collection.JavaConverters._
@@ -18,11 +18,11 @@ trait UploadAccess { this: Settings with AwsAccess =>
 
   lazy val uploadSTSClient = createUploadSTSClient()
 
-  lazy val stepFunctionsClient = region.createClient(
-    classOf[AWSStepFunctionsClient],
-    credsProvider,
-    null
-  )
+  lazy val stepFunctionsClient = AWSStepFunctionsClientBuilder
+    .standard()
+    .withCredentials(credsProvider)
+    .withRegion(region.getName)
+    .build()
 
   private def createUploadSTSClient() = {
     if(!userUploadRole.startsWith("arn:")) {

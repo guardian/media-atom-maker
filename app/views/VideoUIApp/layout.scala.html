@@ -2,7 +2,8 @@
   title: String,
   isHotReloading: Boolean,
   autotrackJsLocation: String,
-  maybeGaPropertyId: Option[String]
+  maybeGaPropertyId: Option[String],
+  csrf: String
 )(content: Html)
 
 <!DOCTYPE html>
@@ -46,6 +47,12 @@
 
       }
     }
+    <script type="text/javascript">
+            window.guardian = window.guardian || {};
+            if(!window.guardian.csrf) {
+              window.guardian.csrf = {token: "@csrf"}
+            }
+    </script>
   </head>
   <body>
     @content

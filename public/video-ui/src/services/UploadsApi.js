@@ -27,6 +27,9 @@ export function createUpload(atomId, file, selfHost) {
   return pandaReqwest({
     url: `/api/uploads`,
     method: 'post',
+    headers: {
+      'Csrf-Token': window.guardian.csrf.token
+    },
     data: {
       atomId: atomId,
       filename: file.name,
@@ -39,7 +42,10 @@ export function createUpload(atomId, file, selfHost) {
 function getCredentials(id, key) {
   return pandaReqwest({
     url: `/api/uploads/${id}/credentials?key=${key}`,
-    method: 'post'
+    method: 'post',
+    headers: {
+      'Csrf-Token': window.guardian.csrf.token
+    }
   });
 }
 
@@ -115,6 +121,9 @@ export function uploadPacFile({ id, file }) {
   return pandaReqwest({
     url: `/api/atom/${id}/pac-file`,
     method: 'post',
+    headers: {
+      'Csrf-Token': window.guardian.csrf.token
+    },
     data: formData,
     contentType: 'multipart/form-data',
     processData: false

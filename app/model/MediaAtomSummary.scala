@@ -1,7 +1,7 @@
 package model
 
 import com.gu.media.model.{Image, ContentChangeDetails}
-import org.cvogt.play.json.Jsonx
+import ai.x.play.json.Jsonx
 import play.api.libs.json.Format
 
 case class MediaAtomList(total: Int, atoms: List[MediaAtomSummary])

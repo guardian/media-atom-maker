@@ -2,7 +2,7 @@ package com.gu.media
 
 import com.amazonaws.auth.AWSCredentialsProvider
 import com.gu.editorial.permissions.client._
-import org.cvogt.play.json.Jsonx
+import ai.x.play.json.Jsonx
 import play.api.libs.json.Format
 import com.gu.pandomainauth.model.{User => PandaUser}
 import scala.concurrent.Future

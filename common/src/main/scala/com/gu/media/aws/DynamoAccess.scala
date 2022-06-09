@@ -1,6 +1,6 @@
 package com.gu.media.aws
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder
 import com.gu.media.Settings
 
 trait DynamoAccess { this: Settings with AwsAccess =>
@@ -9,7 +9,7 @@ trait DynamoAccess { this: Settings with AwsAccess =>
   )
 
   lazy val publishedDynamoTableName: String = getMandatoryString("aws.dynamo.publishedTableName")
-  
+
   lazy val manualPlutoDynamo: String = sys.env.getOrElse("PLUTO_TABLE_NAME",
     getMandatoryString("aws.dynamo.plutoTableName")
   )
@@ -19,9 +19,9 @@ trait DynamoAccess { this: Settings with AwsAccess =>
   lazy val plutoCommissionTableName: String = getTableName("pluto-commissions")
   lazy val plutoProjectTableName: String = getTableName("pluto-projects")
 
-  lazy val dynamoDB: AmazonDynamoDBClient = region.createClient(
-    classOf[AmazonDynamoDBClient],
-    credsProvider,
-    null
-  )
+  lazy val dynamoDB = AmazonDynamoDBClientBuilder
+    .standard()
+    .withCredentials(credsProvider)
+    .withRegion(region.getName)
+    .build()
 }

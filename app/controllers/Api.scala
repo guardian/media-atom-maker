@@ -29,7 +29,9 @@ class Api(
   awsConfig: AWSConfig,
   override val permissions: MediaAtomMakerPermissionsProvider,
   capi: Capi,
-  thumbnailGenerator: ThumbnailGenerator)
+  thumbnailGenerator: ThumbnailGenerator,
+  override val controllerComponents: ControllerComponents
+)
   extends MediaAtomImplicits
     with AtomController
     with JsonRequestParsing
@@ -182,7 +184,7 @@ class Api(
       try {
         val pacFileUpload = PacFileUploadCommand(
           mediaAtom,
-          file.ref.file,
+          file.ref,
           stores,
           request.user,
           awsConfig

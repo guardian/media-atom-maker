@@ -2,9 +2,11 @@ package com.gu.media.model
 
 import com.gu.contentatom.thrift.{ChangeRecord => ThriftChangeRecord}
 import com.gu.pandomainauth.model.{User => PandaUser}
-import org.cvogt.play.json.Jsonx
+import ai.x.play.json.Jsonx
 import org.joda.time.DateTime
 import play.api.libs.json.Format
+import play.api.libs.json.JodaWrites._
+import play.api.libs.json.JodaReads._
 
 case class ChangeRecord(date: DateTime, user: Option[User]) {
   def asThrift = ThriftChangeRecord(date.getMillis, user.map(_.asThrift))

@@ -11,7 +11,7 @@ import com.gu.media.logging.Logging
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
-import org.cvogt.play.json.Jsonx
+import ai.x.play.json.Jsonx
 import play.api.libs.json.Format
 import com.gu.media.model.{ChangeRecord, MediaAtom, MediaAtomBeforeCreation}
 import com.gu.media.model.AuditMessage

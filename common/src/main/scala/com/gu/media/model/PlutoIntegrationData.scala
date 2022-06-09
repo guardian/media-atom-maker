@@ -3,7 +3,7 @@ package com.gu.media.model
 import com.amazonaws.services.s3.model.PutObjectRequest
 import com.gu.media.aws.{AwsAccess, UploadAccess}
 import com.gu.media.upload.CompleteUploadKey
-import org.cvogt.play.json.Jsonx
+import ai.x.play.json.Jsonx
 import play.api.libs.json.Format
 
 sealed trait PlutoIntegrationMessage {

@@ -1,7 +1,7 @@
 package com.gu.media.youtube
 
 import com.google.api.services.youtube.model.{Video, VideoProcessingDetails}
-import org.cvogt.play.json.Jsonx
+import ai.x.play.json.Jsonx
 import play.api.libs.json.Format
 
 import scala.util.Try

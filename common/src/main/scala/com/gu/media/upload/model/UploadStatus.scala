@@ -1,7 +1,7 @@
 package com.gu.media.upload.model
 
 import com.gu.media.model.VideoAsset
-import org.cvogt.play.json.Jsonx
+import ai.x.play.json.Jsonx
 import play.api.libs.json.Format
 
 case class UploadStatus(id: String, status: String, asset: Option[VideoAsset], current: Option[Int], total: Option[Int], failed: Boolean)

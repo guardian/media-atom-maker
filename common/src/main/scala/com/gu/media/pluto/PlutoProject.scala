@@ -1,6 +1,6 @@
 package com.gu.media.pluto
 
-import org.cvogt.play.json.Jsonx
+import ai.x.play.json.Jsonx
 import org.joda.time.DateTime
 import play.api.libs.json._
 import com.gu.media.util.JsonDate._

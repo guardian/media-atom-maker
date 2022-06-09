@@ -78,6 +78,9 @@ export default {
     return pandaReqwest({
       url: '/api/atoms',
       method: 'post',
+      headers: {
+        'Csrf-Token': window.guardian.csrf.token
+      },
       data: cleanVideoData(video)
     });
   },
@@ -85,7 +88,10 @@ export default {
   publishVideo: videoId => {
     return pandaReqwest({
       url: '/api/atom/' + videoId + '/publish',
-      method: 'put'
+      method: 'put',
+      headers: {
+        'Csrf-Token': window.guardian.csrf.token
+      }
     });
   },
 
@@ -93,6 +99,9 @@ export default {
     return pandaReqwest({
       url: '/api/atoms/' + videoId + '/assets',
       method: 'post',
+      headers: {
+        'Csrf-Token': window.guardian.csrf.token
+      },
       data: asset
     });
   },
@@ -101,6 +110,9 @@ export default {
     return pandaReqwest({
       url: '/api/atom/' + atomId + '/asset-active',
       method: 'put',
+      headers: {
+        'Csrf-Token': window.guardian.csrf.token
+      },
       data: { atomId, version }
     });
   },
@@ -109,6 +121,9 @@ export default {
     return pandaReqwest({
       url: '/api/atoms/' + videoId,
       method: 'put',
+      headers: {
+        'Csrf-Token': window.guardian.csrf.token
+      },
       data: cleanVideoData(video)
     });
   },
@@ -116,7 +131,10 @@ export default {
   resetDurationFromActive: videoId =>
     pandaReqwest({
       url: `/api/atom/${videoId}/reset-duration-from-active`,
-      method: 'put'
+      method: 'put',
+      headers: {
+        'Csrf-Token': window.guardian.csrf.token
+      }
     }),
 
   getVideoUsages: videoId => {
@@ -153,6 +171,9 @@ export default {
   deleteVideo: videoId => {
     return pandaReqwest({
       url: '/api/atom/' + videoId,
+      headers: {
+        'Csrf-Token': window.guardian.csrf.token
+      },
       method: 'delete'
     });
   },
@@ -161,6 +182,9 @@ export default {
     return pandaReqwest({
       url: `/api/atoms/${video.id}/assets`,
       method: 'delete',
+      headers: {
+        'Csrf-Token': window.guardian.csrf.token
+      },
       data: asset
     });
   },

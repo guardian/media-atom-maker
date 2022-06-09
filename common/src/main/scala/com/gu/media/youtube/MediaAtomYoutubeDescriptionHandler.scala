@@ -3,7 +3,7 @@ package com.gu.media.youtube
 import com.gu.contentatom.thrift.atom.media.{MediaAtom => ThriftMediaAtom}
 import com.gu.media.model.MediaAtom
 import com.gu.media.util.MediaAtomImplicits
-import org.cvogt.play.json.Jsonx
+import ai.x.play.json.Jsonx
 
 
 object MediaAtomYoutubeDescriptionHandler extends MediaAtomImplicits {

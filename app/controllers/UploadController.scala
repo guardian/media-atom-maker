@@ -9,8 +9,9 @@ import com.gu.media.util.{MediaAtomHelpers, MediaAtomImplicits}
 import com.gu.media.youtube.YouTubeVideos
 import com.gu.pandahmac.HMACAuthActions
 import data.{DataStores, UnpackedDataStores}
-import org.cvogt.play.json.Jsonx
+import ai.x.play.json.Jsonx
 import play.api.libs.json.{Format, Json}
+import play.api.mvc.ControllerComponents
 import util._
 
 import scala.annotation.tailrec
@@ -18,7 +19,7 @@ import scala.util.control.NonFatal
 
 class UploadController(override val authActions: HMACAuthActions, awsConfig: AWSConfig, stepFunctions: StepFunctions,
                        override val stores: DataStores, override val permissions: MediaAtomMakerPermissionsProvider,
-                       youTube: YouTubeVideos)
+                       youTube: YouTubeVideos, override val controllerComponents: ControllerComponents)
 
   extends AtomController with Logging with JsonRequestParsing with UnpackedDataStores with MediaAtomImplicits {
 
