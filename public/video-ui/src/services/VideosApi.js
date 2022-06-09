@@ -231,9 +231,6 @@ export default {
     return pandaReqwest({
       url: composerUrl,
       method: 'post',
-      headers: {
-        'Csrf-Token': window.guardian.csrf.token
-      },
       crossOrigin: true,
       withCredentials: true,
       data: {
