@@ -28,10 +28,6 @@ trait YouTubeAccess extends Settings with Logging {
   val disallowedVideos: Set[String] = getStringSet("youtube.videos.disallowed")
   val usePartnerApi: Boolean = getString("youtube.usePartnerApi").forall(_.toBoolean)
 
-  def clientId = getMandatoryString("youtube.clientId")
-  def clientSecret = getMandatoryString("youtube.clientSecret")
-  def refreshToken = getMandatoryString("youtube.refreshToken")
-
   def monetizationPolicyId = getMandatoryString("youtube.monetizationPolicyId")
   def trackingPolicyId = getMandatoryString("youtube.trackingPolicyId")
 
