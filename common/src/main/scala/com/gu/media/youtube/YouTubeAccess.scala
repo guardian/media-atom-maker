@@ -46,6 +46,7 @@ trait YouTubeAccess extends Settings with Logging {
   private val jacksonFactory = new JacksonFactory()
 
 
+  // This needs to be lazy so that the tests don't attempt to initialise the credentials
   private lazy val credentials: GoogleCredential = GoogleCredential.fromStream(
     new FileInputStream(serviceAccountCertPath)
   ).createScoped(YouTubeScopes.all())
@@ -62,6 +63,7 @@ trait YouTubeAccess extends Settings with Logging {
     }
   }
 
+  // This needs to be lazy so that the tests don't attempt to initialise the credentials
   private lazy val partnerCredentials = credentials.createScoped(List(YouTubeScopes.YOUTUBEPARTNER))
 
   // lazy to avoid initialising when in test
