@@ -41,9 +41,9 @@ function Selector({ values, value, disabled, onChange }) {
 function HourSelector({ date, onChange }) {
   const dateMoment = moment(date);
   const params = {
-    values: dateMoment ? HOURS : EMPTY,
-    value: dateMoment ? dateMoment.format('HH') : ' ',
-    disabled: !dateMoment,
+    values: date ? HOURS : EMPTY,
+    value: date ? dateMoment.format('HH') : ' ',
+    disabled: !date,
     onChange: newHour => onChange(dateMoment.hours(newHour))
   };
 
@@ -53,9 +53,9 @@ function HourSelector({ date, onChange }) {
 function MinuteSelector({ date, onChange }) {
   const dateMoment = moment(date);
   const params = {
-    values: dateMoment ? MINUTES : EMPTY,
-    value: dateMoment ? dateMoment.format('mm') : ' ',
-    disabled: !dateMoment,
+    values: date ? MINUTES : EMPTY,
+    value: date ? dateMoment.format('mm') : ' ',
+    disabled: !date,
     onChange: newMinute => onChange(dateMoment.minutes(newMinute))
   };
 
@@ -72,7 +72,7 @@ function DateSelector({ date, onChange }) {
     dateFormat: DATE_FORMAT,
     readOnly: false,
     onChange: newDate => {
-      const base = dateMoment ? dateMoment : moment().hours(0).minutes(0);
+      const base = date ? dateMoment : moment().hours(0).minutes(0);
       const onChangeDate = moment(newDate)
         .hours(base.hours())
         .minutes(base.minutes());
@@ -119,7 +119,7 @@ function Editor({ date, onChange, fieldName, canCancel, dayOnly }) {
 
 function Display({ date, placeholder, fieldName }) {
   const dateMoment = moment(date);
-  const displayString = dateMoment ? dateMoment.format(DATETIME_FORMAT) : placeholder;
+  const displayString = date ? dateMoment.format(DATETIME_FORMAT) : placeholder;
   const fieldClassName = () =>
     'details-list__field' + (!date ? ' details-list__empty' : '');
 
