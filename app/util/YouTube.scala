@@ -1,5 +1,6 @@
 package util
 
+import com.gu.media.aws.AwsAccess
 import com.gu.media.logging.Logging
 import com.gu.media.youtube._
 import com.typesafe.config.Config
@@ -32,7 +33,8 @@ trait YouTube extends Logging with YouTubeAccess with YouTubeVideos with YouTube
 }
 
 object YouTube {
-  def apply(_config: Config, _duration: Duration): YouTube = new YouTube {
+  def apply(stage: String, _config: Config, _duration: Duration): YouTube = new YouTube {
+    override def stage: String = this.stage
     override def config: Config = _config
     override val duration: Duration = _duration
   }

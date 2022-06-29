@@ -28,12 +28,14 @@ trait YouTubeAccess extends Settings with Logging {
   val disallowedVideos: Set[String] = getStringSet("youtube.videos.disallowed")
   val usePartnerApi: Boolean = getString("youtube.usePartnerApi").forall(_.toBoolean)
 
+  def stage: String
+
   def monetizationPolicyId = getMandatoryString("youtube.monetizationPolicyId")
   def trackingPolicyId = getMandatoryString("youtube.trackingPolicyId")
 
   def minDurationForAds: Long = getString("youtube.minDurationForAds").getOrElse("30").toLong
 
-  def serviceAccountCertPath = getMandatoryString("stage") match {
+  def serviceAccountCertPath = stage match {
     case "PROD" | "CODE" => "/etc/gu/youtube-service-account.json"
     case _ => System.getProperty("user.home") + "/.gu/youtube-service-account.json"
   }

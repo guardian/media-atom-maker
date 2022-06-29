@@ -72,7 +72,7 @@ class MediaAtomMaker(context: Context)
 
   private val reindexer = buildReindexer()
 
-  private val youTube = YouTube(config, Duration.ofDays(1))
+  private val youTube = YouTube(aws.stage, config, Duration.ofDays(1))
 
   private val uploaderMessageConsumer = PlutoMessageConsumer(stores, aws)
   uploaderMessageConsumer.start(actorSystem.scheduler)(actorSystem.dispatcher)
