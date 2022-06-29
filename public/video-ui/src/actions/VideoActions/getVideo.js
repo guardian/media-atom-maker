@@ -1,5 +1,6 @@
 import VideosApi from '../../services/VideosApi';
 import Logger from '../../logger';
+import moment from 'moment';
 
 function requestVideo(id) {
   return {
@@ -32,6 +33,11 @@ export function getVideo(id) {
     dispatch(requestVideo(id));
     return VideosApi.fetchVideo(id)
       .then(res => {
+        // We and downstream consumers expect the scheduled launch to be an integer, but our API provides a string representation
+        const scheduledLaunch = res?.contentChangeDetails?.scheduledLaunch?.date;
+        if (scheduledLaunch) {
+          res.contentChangeDetails.scheduledLaunch.date = moment(scheduledLaunch).valueOf();
+        }
         dispatch(receiveVideo(res));
       })
       .catch(error => dispatch(errorReceivingVideo(error)));

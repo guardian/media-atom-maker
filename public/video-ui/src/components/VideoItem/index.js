@@ -5,6 +5,7 @@ import Icon from '../Icon';
 import ReactTooltip from 'react-tooltip';
 import VideoUtils from '../../util/video';
 import { impossiblyDistantDate } from '../../constants/dates';
+import moment from 'moment';
 
 export default class VideoItem extends React.Component {
   renderPublishStatus() {
@@ -43,8 +44,10 @@ export default class VideoItem extends React.Component {
 
   render() {
     const video = this.props.video;
-    const scheduledLaunch = VideoUtils.getScheduledLaunchAsDate(video);
-    const embargo = VideoUtils.getEmbargoAsDate(video);
+    const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
+    const scheduledLaunchMoment = moment(scheduledLaunch);
+    const embargo = VideoUtils.getEmbargo(video);
+    const embargoMoment = moment(embargo);
     const hasPreventedPublication = embargo && embargo.valueOf() >= impossiblyDistantDate;
     return (
       <li className="grid__item">
@@ -61,7 +64,7 @@ export default class VideoItem extends React.Component {
                   data-tip={
                     hasPreventedPublication
                       ? 'This video has been embargoed indefinitely'
-                      : `Embargoed until ${embargo.format(
+                      : `Embargoed until ${embargoMoment.format(
                           'Do MMM YYYY HH:mm'
                         )}`
                   }
@@ -70,18 +73,18 @@ export default class VideoItem extends React.Component {
                   <Icon textClass="always-show" icon="not_interested">
                     {hasPreventedPublication
                       ? 'Embargoed indefinitely'
-                      : embargo.format('D MMM HH:mm')}
+                      : embargoMoment.format('D MMM HH:mm')}
                   </Icon>
                 </span>
               )}
               {scheduledLaunch && (
                 <span
                   data-tip={`Scheduled to launch ${
-                    scheduledLaunch.format('Do MMM YYYY HH:mm')}`}
+                    scheduledLaunchMoment.format('Do MMM YYYY HH:mm')}`}
                   className="publish__label label__frontpage__scheduledLaunch label__frontpage__overlay"
                 >
                   <Icon textClass="always-show" icon="access_time">
-                    {scheduledLaunch.format('D MMM HH:mm')}
+                    {scheduledLaunchMoment.format('D MMM HH:mm')}
                   </Icon>
                 </span>
               )}

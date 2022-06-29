@@ -39,22 +39,24 @@ function Selector({ values, value, disabled, onChange }) {
 }
 
 function HourSelector({ date, onChange }) {
+  const dateMoment = moment(date);
   const params = {
-    values: date ? HOURS : EMPTY,
-    value: date ? date.format('HH') : ' ',
-    disabled: !date,
-    onChange: newHour => onChange(date.hours(newHour))
+    values: dateMoment ? HOURS : EMPTY,
+    value: dateMoment ? dateMoment.format('HH') : ' ',
+    disabled: !dateMoment,
+    onChange: newHour => onChange(dateMoment.hours(newHour))
   };
 
   return <Selector {...params} />;
 }
 
 function MinuteSelector({ date, onChange }) {
+  const dateMoment = moment(date);
   const params = {
-    values: date ? MINUTES : EMPTY,
-    value: date ? date.format('mm') : ' ',
-    disabled: !date,
-    onChange: newMinute => onChange(date.minutes(newMinute))
+    values: dateMoment ? MINUTES : EMPTY,
+    value: dateMoment ? dateMoment.format('mm') : ' ',
+    disabled: !dateMoment,
+    onChange: newMinute => onChange(dateMoment.minutes(newMinute))
   };
 
   return <Selector {...params} />;
@@ -62,14 +64,15 @@ function MinuteSelector({ date, onChange }) {
 
 function DateSelector({ date, onChange }) {
   const minDate = moment().toDate();
+  const dateMoment = moment(date);
   const datePickerParams = {
     className: 'form__field',
-    selected: date ? date.toDate() : null,
+    selected: date ? dateMoment.toDate() : null,
     minDate,
     dateFormat: DATE_FORMAT,
     readOnly: false,
     onChange: newDate => {
-      const base = date ? date : moment().hours(0).minutes(0);
+      const base = dateMoment ? dateMoment : moment().hours(0).minutes(0);
       const onChangeDate = moment(newDate)
         .hours(base.hours())
         .minutes(base.minutes());
@@ -115,7 +118,8 @@ function Editor({ date, onChange, fieldName, canCancel, dayOnly }) {
 }
 
 function Display({ date, placeholder, fieldName }) {
-  const displayString = date ? date.format(DATETIME_FORMAT) : placeholder;
+  const dateMoment = moment(date);
+  const displayString = dateMoment ? dateMoment.format(DATETIME_FORMAT) : placeholder;
   const fieldClassName = () =>
     'details-list__field' + (!date ? ' details-list__empty' : '');
 
@@ -137,8 +141,7 @@ export default function CustomDatePicker({
   canCancel = true
 }) {
   const date =
-    fieldValue && fieldValue !== placeholder ? moment(fieldValue) : null;
-
+    fieldValue && fieldValue !== placeholder ? moment(fieldValue).valueOf() : null;
   if (editable) {
     return (
       <Editor
