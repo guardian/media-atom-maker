@@ -4,8 +4,8 @@ import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 import Icon from '../Icon';
 
-const DATE_FORMAT = 'dd MMM yyyy';
-const DATETIME_FORMAT = `DD MMM yyyy HH:mm`;
+const DATE_FORMAT = 'dd MMM YYYY';
+const DATETIME_FORMAT = `DD MMM YYYY HH:mm`;
 
 const MINUTES = [0, 15, 30, 45].map(minute =>
   moment().minute(minute).format('mm')
