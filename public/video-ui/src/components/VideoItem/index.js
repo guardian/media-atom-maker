@@ -48,7 +48,7 @@ export default class VideoItem extends React.Component {
     const scheduledLaunchMoment = moment(scheduledLaunch);
     const embargo = VideoUtils.getEmbargo(video);
     const embargoMoment = moment(embargo);
-    const hasPreventedPublication = embargo && embargo.valueOf() >= impossiblyDistantDate;
+    const hasPreventedPublication = embargo && embargoMoment.valueOf() >= impossiblyDistantDate;
     return (
       <li className="grid__item">
         <Link className="grid__link" to={'/videos/' + video.id}>
