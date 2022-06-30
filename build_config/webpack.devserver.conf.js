@@ -43,6 +43,11 @@ module.exports = {
         }
       },
       {
+        test: /\.tsx?$/,
+        use: 'ts-loader?transpileOnly=true',
+        exclude: /node_modules/
+      },
+      {
         test: require.resolve('react'),
         loader: 'expose-loader?React'
       },
@@ -70,6 +75,6 @@ module.exports = {
   resolve: {
     modules: ['node_modules'],
     // Allows require('file') instead of require('file.js|x')
-    extensions: ['.js', '.jsx', '.json']
+    extensions: ['.js', '.jsx', '.json', '.ts', '.tsx']
   }
 };

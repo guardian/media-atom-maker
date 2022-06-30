@@ -12,6 +12,11 @@ module.exports = {
         loader: 'babel-loader?cacheDirectory=true'
       },
       {
+        test: /\.tsx?$/,
+        use: 'ts-loader?transpileOnly=true',
+        exclude: /node_modules/
+      },
+      {
         test: /\.(sa|sc|c)ss$/,
         use: [
           {
@@ -39,7 +44,7 @@ module.exports = {
     // http://andrewhfarmer.com/aws-sdk-with-webpack/
     noParse: [/aws\-sdk/]
   },
-  resolve: { extensions: ['.js', '.jsx', '.json', '.scss'] },
+  resolve: { extensions: ['.js', '.jsx', '.json', '.scss', '.tsx', '.ts'] },
   plugins: [
     new MiniCssExtractPlugin({
       filename: '[name].css',

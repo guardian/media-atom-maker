@@ -16,6 +16,11 @@ module.exports = {
         }
       },
       {
+        test: /\.tsx?$/,
+        use: 'ts-loader?transpileOnly=true',
+        exclude: /node_modules/
+      },
+      {
         test: /\.(sa|sc|c)ss$/,
         use: [
           {
@@ -51,6 +56,6 @@ module.exports = {
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)
   ],
   resolve: {
-    extensions: ['.js', '.jsx', '.json']
+    extensions: ['.js', '.jsx', '.json', '.ts', '.tsx']
   }
 };
