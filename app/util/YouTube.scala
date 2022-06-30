@@ -33,9 +33,12 @@ trait YouTube extends Logging with YouTubeAccess with YouTubeVideos with YouTube
 }
 
 object YouTube {
-  def apply(stage: String, _config: Config, _duration: Duration): YouTube = new YouTube {
-    override def stage: String = this.stage
-    override def config: Config = _config
-    override val duration: Duration = _duration
+  def apply(stage: String, _config: Config, _duration: Duration): YouTube = {
+    val _stage = stage
+    new YouTube {
+      override def stage: String = _stage
+      override def config: Config = _config
+      override val duration: Duration = _duration
+    }
   }
 }
