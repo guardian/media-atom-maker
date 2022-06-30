@@ -38,6 +38,10 @@ export function getVideo(id) {
         if (scheduledLaunch) {
           res.contentChangeDetails.scheduledLaunch.date = moment(scheduledLaunch).valueOf();
         }
+        const embargo = res?.contentChangeDetails?.embargo?.date;
+        if (embargo) {
+          res.contentChangeDetails.embargo.date = moment(embargo).valueOf();
+        }
         dispatch(receiveVideo(res));
       })
       .catch(error => dispatch(errorReceivingVideo(error)));
