@@ -1,7 +1,7 @@
 package com.gu.media.upload
 
 import com.gu.media.aws.{DynamoAccess, S3Access}
-import com.gu.media.lambda.LambdaWithParams
+import com.gu.media.lambda.{LambdaWithParams, LambdaYoutubeCredentials}
 import com.gu.media.logging.Logging
 import com.gu.media.upload.model.{Upload, YouTubeUploadMetadata}
 import com.gu.media.youtube.{YouTubeAccess, YouTubeUploader}
@@ -9,6 +9,7 @@ import com.gu.media.youtube.{YouTubeAccess, YouTubeUploader}
 class UploadChunkToYouTube extends LambdaWithParams[Upload, Upload]
   with Logging
   with YouTubeAccess
+  with LambdaYoutubeCredentials
   with S3Access
   with DynamoAccess
 {

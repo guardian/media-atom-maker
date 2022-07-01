@@ -1,6 +1,6 @@
 package util
 
-import com.gu.media.aws.AwsAccess
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.gu.media.logging.Logging
 import com.gu.media.youtube._
 import com.typesafe.config.Config
@@ -33,10 +33,10 @@ trait YouTube extends Logging with YouTubeAccess with YouTubeVideos with YouTube
 }
 
 object YouTube {
-  def apply(stage: String, _config: Config, _duration: Duration): YouTube = {
-    val _stage = stage
+
+  def apply(_config: Config, _duration: Duration, _credentials: GoogleCredential): YouTube = {
     new YouTube {
-      override def stage: String = _stage
+      override def youtubeCredentials: GoogleCredential = _credentials
       override def config: Config = _config
       override val duration: Duration = _duration
     }

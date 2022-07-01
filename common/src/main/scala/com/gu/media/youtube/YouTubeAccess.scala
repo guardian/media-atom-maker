@@ -28,17 +28,10 @@ trait YouTubeAccess extends Settings with Logging {
   val disallowedVideos: Set[String] = getStringSet("youtube.videos.disallowed")
   val usePartnerApi: Boolean = getString("youtube.usePartnerApi").forall(_.toBoolean)
 
-  def stage: String
-
   def monetizationPolicyId = getMandatoryString("youtube.monetizationPolicyId")
   def trackingPolicyId = getMandatoryString("youtube.trackingPolicyId")
 
   def minDurationForAds: Long = getString("youtube.minDurationForAds").getOrElse("30").toLong
-
-  def serviceAccountCertPath = stage match {
-    case "PROD" | "CODE" => "/etc/gu/youtube-service-account.json"
-    case _ => System.getProperty("user.home") + "/.gu/youtube-service-account.json"
-  }
 
   // Videos need to be at least 8 minutes to be eligible for midroll advertising
   // see https://support.google.com/youtube/answer/6175006?hl=en-GB
@@ -47,11 +40,10 @@ trait YouTubeAccess extends Settings with Logging {
   private val httpTransport = new NetHttpTransport()
   private val jacksonFactory = new JacksonFactory()
 
+  def youtubeCredentials: GoogleCredential
 
   // This needs to be lazy so that the tests don't attempt to initialise the credentials
-  private lazy val credentials: GoogleCredential = GoogleCredential.fromStream(
-    new FileInputStream(serviceAccountCertPath)
-  ).createScoped(YouTubeScopes.all())
+  lazy val scopedCredentials = youtubeCredentials.createScoped(YouTubeScopes.all())
 
   private val youTubeRequestLogger = new YouTubeRequestInitializer{
     override def initializeYouTubeRequest(request: YouTubeRequest[_]): Unit = {
@@ -66,10 +58,10 @@ trait YouTubeAccess extends Settings with Logging {
   }
 
   // This needs to be lazy so that the tests don't attempt to initialise the credentials
-  private lazy val partnerCredentials = credentials.createScoped(List(YouTubeScopes.YOUTUBEPARTNER))
+  private lazy val partnerCredentials = youtubeCredentials.createScoped(List(YouTubeScopes.YOUTUBEPARTNER))
 
   // lazy to avoid initialising when in test
-  lazy val client: YouTubeClient = new YouTubeClient.Builder(httpTransport, jacksonFactory, credentials)
+  lazy val client: YouTubeClient = new YouTubeClient.Builder(httpTransport, jacksonFactory, scopedCredentials)
     .setYouTubeRequestInitializer(youTubeRequestLogger)
     .setApplicationName(appName)
     .build
@@ -121,7 +113,7 @@ trait YouTubeAccess extends Settings with Logging {
   }
 
   def accessToken(): String = {
-    credentials.refreshToken()
-    credentials.getAccessToken
+    scopedCredentials.refreshToken()
+    scopedCredentials.getAccessToken
   }
 }
