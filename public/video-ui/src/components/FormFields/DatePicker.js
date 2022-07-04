@@ -4,8 +4,8 @@ import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 import Icon from '../Icon';
 
-const DATE_FORMAT = 'dd MMM YYYY';
-const DATETIME_FORMAT = `DD MMM YYYY HH:mm`;
+const REACT_DATEPICKER_DATE_FORMAT = 'dd MMM yyyy';
+const MOMENT_DATETIME_FORMAT = `DD MMM YYYY HH:mm`;
 
 const MINUTES = [0, 15, 30, 45].map(minute =>
   moment().minute(minute).format('mm')
@@ -69,7 +69,7 @@ function DateSelector({ date, onChange }) {
     className: 'form__field',
     selected: date ? dateMoment.toDate() : null,
     minDate,
-    dateFormat: DATE_FORMAT,
+    dateFormat: REACT_DATEPICKER_DATE_FORMAT,
     readOnly: false,
     onChange: newDate => {
       const base = date ? dateMoment : moment().hours(0).minutes(0);
@@ -119,7 +119,7 @@ function Editor({ date, onChange, fieldName, canCancel, dayOnly }) {
 
 function Display({ date, placeholder, fieldName }) {
   const dateMoment = moment(date);
-  const displayString = date ? dateMoment.format(DATETIME_FORMAT) : placeholder;
+  const displayString = date ? dateMoment.format(MOMENT_DATETIME_FORMAT) : placeholder;
   const fieldClassName = () =>
     'details-list__field' + (!date ? ' details-list__empty' : '');
 
