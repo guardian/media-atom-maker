@@ -1,4 +1,5 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 module.exports = {
   entry: './public/video-ui/src/app.js',
@@ -50,6 +51,11 @@ module.exports = {
       filename: '[name].css',
       chunkFilename: '[id].css',
       ignoreOrder: false // Enable to remove warnings about conflicting order
+    }),
+    new ForkTsCheckerWebpackPlugin({
+      compilerOptions: {
+          noEmit: true
+      }
     })
   ]
 };
