@@ -4,8 +4,8 @@ import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 import Icon from '../Icon';
 
-const DATE_FORMAT = 'dd MMM yyyy';
-const DATETIME_FORMAT = `DD MMM yyyy HH:mm`;
+const REACT_DATEPICKER_DATE_FORMAT = 'dd MMM yyyy';
+const MOMENT_DATETIME_FORMAT = `DD MMM YYYY HH:mm`;
 
 const MINUTES = [0, 15, 30, 45].map(minute =>
   moment().minute(minute).format('mm')
@@ -39,22 +39,24 @@ function Selector({ values, value, disabled, onChange }) {
 }
 
 function HourSelector({ date, onChange }) {
+  const dateMoment = moment(date);
   const params = {
     values: date ? HOURS : EMPTY,
-    value: date ? date.format('HH') : ' ',
+    value: date ? dateMoment.format('HH') : ' ',
     disabled: !date,
-    onChange: newHour => onChange(date.hours(newHour))
+    onChange: newHour => onChange(dateMoment.hours(newHour))
   };
 
   return <Selector {...params} />;
 }
 
 function MinuteSelector({ date, onChange }) {
+  const dateMoment = moment(date);
   const params = {
     values: date ? MINUTES : EMPTY,
-    value: date ? date.format('mm') : ' ',
+    value: date ? dateMoment.format('mm') : ' ',
     disabled: !date,
-    onChange: newMinute => onChange(date.minutes(newMinute))
+    onChange: newMinute => onChange(dateMoment.minutes(newMinute))
   };
 
   return <Selector {...params} />;
@@ -62,14 +64,15 @@ function MinuteSelector({ date, onChange }) {
 
 function DateSelector({ date, onChange }) {
   const minDate = moment().toDate();
+  const dateMoment = moment(date);
   const datePickerParams = {
     className: 'form__field',
-    selected: date ? date.toDate() : null,
+    selected: date ? dateMoment.toDate() : null,
     minDate,
-    dateFormat: DATE_FORMAT,
+    dateFormat: REACT_DATEPICKER_DATE_FORMAT,
     readOnly: false,
     onChange: newDate => {
-      const base = date ? date : moment().hours(0).minutes(0);
+      const base = date ? dateMoment : moment().hours(0).minutes(0);
       const onChangeDate = moment(newDate)
         .hours(base.hours())
         .minutes(base.minutes());
@@ -115,7 +118,8 @@ function Editor({ date, onChange, fieldName, canCancel, dayOnly }) {
 }
 
 function Display({ date, placeholder, fieldName }) {
-  const displayString = date ? date.format(DATETIME_FORMAT) : placeholder;
+  const dateMoment = moment(date);
+  const displayString = date ? dateMoment.format(MOMENT_DATETIME_FORMAT) : placeholder;
   const fieldClassName = () =>
     'details-list__field' + (!date ? ' details-list__empty' : '');
 
@@ -137,8 +141,7 @@ export default function CustomDatePicker({
   canCancel = true
 }) {
   const date =
-    fieldValue && fieldValue !== placeholder ? moment(fieldValue) : null;
-
+    fieldValue && fieldValue !== placeholder ? moment(fieldValue).valueOf() : null;
   if (editable) {
     return (
       <Editor
