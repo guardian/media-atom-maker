@@ -1,4 +1,5 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 module.exports = {
   entry: './public/video-ui/src/app.js',
@@ -10,6 +11,11 @@ module.exports = {
         test: /\.js$/,
         exclude: /node_modules/,
         loader: 'babel-loader?cacheDirectory=true'
+      },
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader?transpileOnly=true',
+        exclude: /node_modules/
       },
       {
         test: /\.(sa|sc|c)ss$/,
@@ -39,12 +45,17 @@ module.exports = {
     // http://andrewhfarmer.com/aws-sdk-with-webpack/
     noParse: [/aws\-sdk/]
   },
-  resolve: { extensions: ['.js', '.jsx', '.json', '.scss'] },
+  resolve: { extensions: ['.js', '.jsx', '.json', '.scss', '.tsx', '.ts'] },
   plugins: [
     new MiniCssExtractPlugin({
       filename: '[name].css',
       chunkFilename: '[id].css',
       ignoreOrder: false // Enable to remove warnings about conflicting order
+    }),
+    new ForkTsCheckerWebpackPlugin({
+      compilerOptions: {
+          noEmit: true
+      }
     })
   ]
 };

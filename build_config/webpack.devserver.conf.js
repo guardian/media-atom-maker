@@ -4,6 +4,7 @@
 
 var path = require('path');
 var webpack = require('webpack');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 //
 // Config
@@ -43,6 +44,11 @@ module.exports = {
         }
       },
       {
+        test: /\.tsx?$/,
+        use: 'ts-loader?transpileOnly=true',
+        exclude: /node_modules/
+      },
+      {
         test: require.resolve('react'),
         loader: 'expose-loader?React'
       },
@@ -66,10 +72,16 @@ module.exports = {
     // http://andrewhfarmer.com/aws-sdk-with-webpack/
     noParse: [/aws\-sdk/]
   },
-  plugins: [new webpack.HotModuleReplacementPlugin()],
+  plugins: [
+    new webpack.HotModuleReplacementPlugin(),
+    new ForkTsCheckerWebpackPlugin({
+      compilerOptions: {
+          noEmit: true
+      }
+  })],
   resolve: {
     modules: ['node_modules'],
     // Allows require('file') instead of require('file.js|x')
-    extensions: ['.js', '.jsx', '.json']
+    extensions: ['.js', '.jsx', '.json', '.ts', '.tsx']
   }
 };
