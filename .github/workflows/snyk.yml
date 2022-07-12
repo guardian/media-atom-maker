@@ -1,45 +1,18 @@
-# This action runs every day at 6 AM and on every push
-# If the branch it's running on is main then it will run snyk monitor (reports vulnerabilities to snyk.io)
-# Otherwise it will run snyk test
+# This action runs snyk monitor on every push to main
 name: Snyk
 
 on:
-  schedule:
-    - cron: "0 6 * * *"
   push:
     branches:
       - main
   workflow_dispatch:
 
 jobs:
-  snyk-monitor:
-    runs-on: ubuntu-latest
-    env:
-      SNYK_COMMAND: monitor
-    steps:
-      - name: Checkout branch
-        uses: actions/checkout@v2
-
-      - name: Run Snyk to monitor for Node vulnerabilities in project root
-        uses: snyk/actions/node@0.3.0
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --org=guardian --project-name=${{ github.repository }} --file=./yarn.lock
-          command: ${{ env.SNYK_COMMAND }}
-
-      - name: Run Snyk to check for Node vulnerabilities in Pluto message ingestion
-        uses: snyk/actions/node@0.3.0
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --org=guardian --project-name=${{ github.repository }}/pluto-message-ingestion --file=./pluto-message-ingestion/yarn.lock
-          command: ${{ env.SNYK_COMMAND }}
-
-      - name: Run Snyk to monitor Scala vulnerabilities
-        uses: snyk/actions/scala@0.3.0
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --org=guardian --project-name=${{ github.repository }} --file=./build.sbt
-          command: ${{ env.SNYK_COMMAND }}
+  security:
+    uses: guardian/.github/.github/workflows/sbt-node-snyk.yml@main
+    with:
+      DEBUG: true
+      ORG: guardian
+      SKIP_NODE: false
+    secrets:
+       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
