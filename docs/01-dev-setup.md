@@ -21,7 +21,7 @@ We use a shared DEV stack, with a shared config. Fetch it by running:
 ./scripts/fetch-dev-config.sh
 ```
 
-There is a chance that the IAM key used for local development (media-atom-maker-DEV) has been disabled if it has not been rotated in a while. If this is the case, and you need the key, rotate the IAM key and store the new key in the corresponding config file in S3.
+There is a chance that the IAM key used for local development (media-atom-maker-DEV) has been disabled if it has not been rotated in a while. If this is the case, and you need the key, you will need to rotate the IAM key. To do this, increment the serial property in the CloudFormation template, and update the stack with the new template. This will generate the new IAM key, which you should update in the dev config file in S3 (under the settings `upload.accessKey` and `upload.secretKey`).
 
 Next, setup nginx and install client side requirements by running:
 
