@@ -1,6 +1,7 @@
 import com.amazonaws.auth._
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain}
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.gu.atom.play.ReindexController
 import com.gu.media.aws.AwsCredentials
 import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider, Settings}
@@ -16,6 +17,7 @@ import play.filters.HttpFiltersComponents
 import router.Routes
 import util._
 
+import java.io.FileInputStream
 import java.time.Duration
 
 class MediaAtomMakerLoader extends ApplicationLoader {
@@ -72,7 +74,15 @@ class MediaAtomMaker(context: Context)
 
   private val reindexer = buildReindexer()
 
-  private val youTube = YouTube(config, Duration.ofDays(1))
+  private def serviceAccountCertPath = aws.stage match {
+    case "PROD" | "CODE" => "/etc/gu/youtube-service-account.json"
+    case _ => System.getProperty("user.home") + "/.gu/youtube-service-account.json"
+  }
+
+  private val youtubeCredentials: GoogleCredential = GoogleCredential
+    .fromStream(new FileInputStream(serviceAccountCertPath))
+
+  private val youTube = YouTube(config, Duration.ofDays(1), youtubeCredentials)
 
   private val uploaderMessageConsumer = PlutoMessageConsumer(stores, aws)
   uploaderMessageConsumer.start(actorSystem.scheduler)(actorSystem.dispatcher)
