@@ -42,6 +42,10 @@ export function getVideo(id) {
         if (embargo) {
           res.contentChangeDetails.embargo.date = moment(embargo).valueOf();
         }
+        const expiry = res?.contentChangeDetails?.expiry?.date;
+        if (expiry) {
+          res.contentChangeDetails.expiry.date = moment(expiry).valueOf();
+        }
         dispatch(receiveVideo(res));
       })
       .catch(error => dispatch(errorReceivingVideo(error)));
