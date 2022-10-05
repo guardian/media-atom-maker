@@ -11,3 +11,5 @@ public/video-ui/build
 integration-tests/src/test/conf/*
 yarn-error.log
 dist
+metals.sbt
+.bloop
