@@ -18,11 +18,11 @@ val diffVersion = "1.2.0"
 
 val capiAwsVersion = "0.5"
 
-val scalaTestVersion = "2.2.6"
-val scalaTestPlusPlayVersion = "1.5.1"
+val scalaTestVersion = "3.0.0"
+val scalaTestPlusPlayVersion = "2.0.0"
 val mockitoVersion = "2.0.97-beta"
 val scalaXmlVersion = "1.0.5"
-val scalaCheckVersion = "1.12.5" // to match ScalaTest version
+val scalaCheckVersion = "1.13.1" // to match ScalaTest version
 
 val awsLambdaCoreVersion = "1.1.0"
 val awsLambdaEventsVersion = "1.3.0"
