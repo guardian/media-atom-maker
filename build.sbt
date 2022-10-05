@@ -3,18 +3,18 @@ import sbtbuildinfo.BuildInfoPlugin.autoImport.{BuildInfoKey, buildInfoKeys}
 
 val scroogeVersion = "4.12.0"
 val awsVersion = "1.11.678"
-val pandaVersion = "0.5.1"
+val pandaVersion = "0.7.2"
 val pandaHmacVersion = "2.0.0"
-val atomMakerVersion = "1.2.5"
+val atomMakerVersion = "1.2.6-SNAPSHOT"
 val slf4jVersion = "1.7.21"
 val typesafeConfigVersion = "1.3.0" // to match what we get from Play transitively
 val scanamoVersion = "1.0.0-M9" // to match what we get from atom-publisher-lib transitively
 
-val scalaLoggingVersion = "3.4.0"
+val scalaLoggingVersion = "3.9.5"
 val jacksonDatabindVersion = "2.9.2"
 val playJsonExtensionsVersion = "0.10.0"
 val okHttpVersion = "2.4.0"
-val diffVersion = "1.2.0"
+val diffVersion = "2.0.1"
 
 val capiAwsVersion = "0.5"
 
@@ -29,7 +29,7 @@ val awsLambdaEventsVersion = "1.3.0"
 
 val logstashLogbackEncoderVersion = "4.8"
 
-val permissionsClientVersion = "0.7"
+val permissionsClientVersion = "0.8"
 
 val guavaVersion = "17.0"
 val googleHttpJacksonVersion = "1.25.0"
@@ -48,7 +48,7 @@ val jsoupVersion = "1.8.3"
 val enumeratumVersion = "1.5.15"
 
 lazy val commonSettings = Seq(
-  scalaVersion in ThisBuild := "2.11.8",
+  scalaVersion in ThisBuild := "2.12.17",
   scalacOptions ++= Seq("-feature", "-deprecation"/*, "-Xfatal-warnings"*/),
   organization in ThisBuild := "com.gu",
 
@@ -97,6 +97,7 @@ lazy val common = (project in file("common"))
       "com.amazonaws" % "aws-java-sdk-dynamodb" % awsVersion,
       "com.amazonaws" % "aws-java-sdk-kinesis" % awsVersion,
       "ai.x" %% "play-json-extensions" % playJsonExtensionsVersion,
+      "ch.qos.logback" % "logback-classic" % "1.3.3",
       "net.logstash.logback" % "logstash-logback-encoder" % logstashLogbackEncoderVersion,
       "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
       "com.amazonaws" % "aws-java-sdk-elastictranscoder" % awsVersion,
