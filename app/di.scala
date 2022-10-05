@@ -3,7 +3,7 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain}
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.gu.atom.play.ReindexController
-import com.gu.media.aws.AwsCredentials
+import com.gu.media.aws.{AwsCredentials, S3Access}
 import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider, Settings}
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import controllers._
@@ -42,17 +42,20 @@ class MediaAtomMaker(context: Context)
     case _ => AwsCredentials.app(Settings(config))
   }
 
-  val awsCredentialsProvider: AWSCredentialsProvider =
+  val pandaAwsCredentialsProvider: AWSCredentialsProvider =
     new AWSCredentialsProviderChain(
       new ProfileCredentialsProvider(configuration.getOptional[String]("panda.awsCredsProfile").getOrElse("panda")),
       new InstanceProfileCredentialsProvider(false)
     )
 
+  private lazy val domain = configuration.get[String]("panda.domain")
+
   val panDomainSettings = new PanDomainAuthSettingsRefresher(
-    domain = configuration.get[String]("panda.domain"),
+    domain = domain,
     system = "video",
-    actorSystem,
-    awsCredentialsProvider
+    bucketName = configuration.getOptional[String]("panda.bucketName").getOrElse("pan-domain-auth-settings"),
+    settingsFileKey = configuration.getOptional[String]("panda.settingsFileKey").getOrElse(s"$domain.settings"),
+    s3Client = S3Access.buildClient(pandaAwsCredentialsProvider, "eu-west-1")
   )
 
   private val hmacAuthActions = new PanDomainAuthActions {

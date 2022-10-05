@@ -3,8 +3,8 @@ import sbtbuildinfo.BuildInfoPlugin.autoImport.{BuildInfoKey, buildInfoKeys}
 
 val scroogeVersion = "4.12.0"
 val awsVersion = "1.11.678"
-val pandaVersion = "0.7.2"
-val pandaHmacVersion = "2.0.0"
+val pandaVersion = "0.9.2"
+val pandaHmacVersion = "2.1.0"
 val atomMakerVersion = "1.2.6-SNAPSHOT"
 val slf4jVersion = "1.7.21"
 val typesafeConfigVersion = "1.3.0" // to match what we get from Play transitively
@@ -12,14 +12,14 @@ val scanamoVersion = "1.0.0-M9" // to match what we get from atom-publisher-lib 
 
 val scalaLoggingVersion = "3.9.5"
 val jacksonDatabindVersion = "2.9.2"
-val playJsonExtensionsVersion = "0.10.0"
+val playJsonExtensionsVersion = "0.40.2"
 val okHttpVersion = "2.4.0"
 val diffVersion = "2.0.1"
 
 val capiAwsVersion = "0.5"
 
 val scalaTestVersion = "3.0.8"
-val scalaTestPlusPlayVersion = "3.1.3"
+val scalaTestPlusPlayVersion = "4.0.3"
 val mockitoVersion = "2.0.97-beta"
 val scalaXmlVersion = "1.0.5"
 val scalaCheckVersion = "1.14.0" // to match ScalaTest version
@@ -73,12 +73,12 @@ lazy val common = (project in file("common"))
     libraryDependencies ++= Seq(
       "com.google.api-client" %  "google-api-client" % googleApiClientVersion,
       "com.google.apis" % "google-api-services-youtube" % youTubeApiClientVersion,
-      "com.gu" %% "pan-domain-auth-play_2-6" % pandaVersion,
+      "com.gu" %% "pan-domain-auth-play_2-7" % pandaVersion,
       "com.gu" %% "pan-domain-auth-verification" % pandaVersion,
       "com.gu" %% "pan-domain-auth-core" % pandaVersion,
-      "com.gu" %% "panda-hmac-play_2-6" % pandaHmacVersion,
+      "com.gu" %% "panda-hmac-play_2-7" % pandaHmacVersion,
       ws,
-      "com.typesafe.play" %% "play-json-joda" % "2.6.0",
+      "com.typesafe.play" %% "play-json-joda" % "2.7.4",
       "com.gu" %% "atom-publisher-lib" % atomMakerVersion,
       "com.gu" %% "atom-publisher-lib" % atomMakerVersion % "test" classifier "tests",
       "com.gu" %% "atom-manager-play" % atomMakerVersion,
