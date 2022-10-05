@@ -18,11 +18,11 @@ val diffVersion = "1.2.0"
 
 val capiAwsVersion = "0.5"
 
-val scalaTestVersion = "3.0.0"
-val scalaTestPlusPlayVersion = "2.0.0"
+val scalaTestVersion = "3.0.8"
+val scalaTestPlusPlayVersion = "3.1.3"
 val mockitoVersion = "2.0.97-beta"
 val scalaXmlVersion = "1.0.5"
-val scalaCheckVersion = "1.13.1" // to match ScalaTest version
+val scalaCheckVersion = "1.14.0" // to match ScalaTest version
 
 val awsLambdaCoreVersion = "1.1.0"
 val awsLambdaEventsVersion = "1.3.0"
@@ -49,7 +49,7 @@ val enumeratumVersion = "1.5.15"
 
 lazy val commonSettings = Seq(
   scalaVersion in ThisBuild := "2.11.8",
-  scalacOptions ++= Seq("-feature", "-deprecation", "-Xfatal-warnings"),
+  scalacOptions ++= Seq("-feature", "-deprecation"/*, "-Xfatal-warnings"*/),
   organization in ThisBuild := "com.gu",
 
   resolvers ++= Seq(
