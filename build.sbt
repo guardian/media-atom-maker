@@ -49,6 +49,7 @@ val enumeratumVersion = "1.5.15"
 
 lazy val commonSettings = Seq(
   scalaVersion in ThisBuild := "2.11.8",
+  scalacOptions ++= Seq("-feature", "-deprecation", "-Xfatal-warnings"),
   organization in ThisBuild := "com.gu",
 
   resolvers ++= Seq(
