@@ -7,11 +7,9 @@ val awsVersion = "1.11.678"
 val pandaVersion = "0.9.2"
 val pandaHmacVersion = "2.1.0"
 val atomMakerVersion = "1.2.6-SNAPSHOT"
-val slf4jVersion = "1.7.21"
 val typesafeConfigVersion = "1.3.0" // to match what we get from Play transitively
 val scanamoVersion = "1.0.0-M9" // to match what we get from atom-publisher-lib transitively
 
-val scalaLoggingVersion = "3.9.5"
 val jacksonDatabindVersion = "2.9.2"
 val playJsonExtensionsVersion = "0.40.2"
 val okHttpVersion = "2.4.0"
@@ -28,6 +26,7 @@ val scalaCheckVersion = "1.14.0" // to match ScalaTest version
 val awsLambdaCoreVersion = "1.1.0"
 val awsLambdaEventsVersion = "1.3.0"
 
+val logbackClassicVersion = "1.2.3"
 val logstashLogbackEncoderVersion = "4.8"
 
 val permissionsClientVersion = "0.8"
@@ -49,7 +48,7 @@ val jsoupVersion = "1.8.3"
 val enumeratumVersion = "1.5.15"
 
 lazy val commonSettings = Seq(
-  scalaVersion in ThisBuild := "2.12.17",
+  scalaVersion in ThisBuild := "2.12.16",
   scalacOptions ++= Seq("-feature", "-deprecation"/*, "-Xfatal-warnings"*/),
   organization in ThisBuild := "com.gu",
 
@@ -98,8 +97,7 @@ lazy val common = (project in file("common"))
       "com.amazonaws" % "aws-java-sdk-dynamodb" % awsVersion,
       "com.amazonaws" % "aws-java-sdk-kinesis" % awsVersion,
       "ai.x" %% "play-json-extensions" % playJsonExtensionsVersion,
-      "ch.qos.logback" % "logback-classic" % "1.3.3",
-      "net.logstash.logback" % "logstash-logback-encoder" % logstashLogbackEncoderVersion,
+      "ch.qos.logback" % "logback-classic" % logbackClassicVersion,
       "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
       "com.amazonaws" % "aws-java-sdk-elastictranscoder" % awsVersion,
       "org.scanamo" %% "scanamo" % scanamoVersion,
@@ -124,10 +122,7 @@ lazy val app = (project in file("."))
   .settings(commonSettings,
     name := "media-atom-maker",
     libraryDependencies ++= Seq(
-      "org.slf4j" % "slf4j-api" % slf4jVersion,
-      "org.slf4j" % "jcl-over-slf4j" % slf4jVersion,
       ehcache,
-      "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
       "com.fasterxml.jackson.core" % "jackson-databind" % jacksonDatabindVersion,
       "ai.x" %% "diff" % diffVersion,
       "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,

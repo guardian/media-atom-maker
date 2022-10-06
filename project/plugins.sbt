@@ -22,5 +22,3 @@ addSbtPlugin("com.localytics" % "sbt-dynamodb" % "2.0.3")
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.7.0")
 
 libraryDependencies += "org.vafer" % "jdeb" % "1.6" artifacts (Artifact("jdeb", "jar", "jar"))
-
-addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.9.2")
