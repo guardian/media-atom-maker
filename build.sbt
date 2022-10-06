@@ -1,5 +1,6 @@
 import StateMachine._
 import sbtbuildinfo.BuildInfoPlugin.autoImport.{BuildInfoKey, buildInfoKeys}
+import scala.sys.process._
 
 val scroogeVersion = "4.12.0"
 val awsVersion = "1.11.678"
@@ -53,8 +54,8 @@ lazy val commonSettings = Seq(
   organization in ThisBuild := "com.gu",
 
   resolvers ++= Seq(
-    "Sonatype OSS" at "http://oss.sonatype.org/content/repositories/releases/",
-    "Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
+    "Sonatype OSS" at "https://oss.sonatype.org/content/repositories/releases/",
+    "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
   ),
 
   // silly SBT command to work-around lack of support for root projects that are not in the "root" folder
@@ -142,11 +143,11 @@ lazy val app = (project in file("."))
 
     buildInfoKeys := Seq[BuildInfoKey](
       name,
-      BuildInfoKey.constant("gitCommitId", Option(System.getenv("BUILD_VCS_NUMBER")) getOrElse(try {
+      "gitCommitId" -> Option(System.getenv("BUILD_VCS_NUMBER")).getOrElse(try {
         "git rev-parse HEAD".!!.trim
       } catch {
         case e: Exception => "unknown"
-      }))
+      })
     ),
 
     buildInfoPackage := "app",
