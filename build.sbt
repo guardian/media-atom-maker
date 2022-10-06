@@ -4,7 +4,7 @@ import scala.sys.process._
 
 val scroogeVersion = "4.12.0"
 val awsVersion = "1.11.678"
-val pandaVersion = "0.9.2"
+val pandaVersion = "1.2.0"
 val pandaHmacVersion = "2.1.0"
 val atomMakerVersion = "1.2.6-SNAPSHOT"
 val typesafeConfigVersion = "1.3.0" // to match what we get from Play transitively
@@ -31,16 +31,14 @@ val logstashLogbackEncoderVersion = "4.8"
 
 val permissionsClientVersion = "0.8"
 
-val guavaVersion = "17.0"
-val googleHttpJacksonVersion = "1.25.0"
-val googleOauthVersion = "1.25.0"
-val googleBugsVersion = "1.3.9"
-val googleHttpVersion = "1.25.0"
+val guavaVersion = "31.1-jre"
+val googleOauthVersion = "1.33.3"
+val googleHttpJacksonVersion = "1.41.7"
 val commonsLoggingVersion = "1.1.1"
 val apacheHttpClientVersion = "4.0.1"
 val apacheHttpCoreVersion = "4.0.1"
 
-val googleApiClientVersion = "1.25.0"
+val googleApiClientVersion = "1.34.0"
 val youTubeApiClientVersion = "v3-rev178-1.22.0"
 
 val jsoupVersion = "1.8.3"
@@ -72,6 +70,7 @@ lazy val common = (project in file("common"))
     unmanagedJars in Compile += file("common/lib/google-api-services-youtubePartner-v1-rev20190401-1.25.0.jar"),
     libraryDependencies ++= Seq(
       "com.google.api-client" %  "google-api-client" % googleApiClientVersion,
+      "com.google.http-client" % "google-http-client-jackson2" % googleHttpJacksonVersion,
       "com.google.apis" % "google-api-services-youtube" % youTubeApiClientVersion,
       "com.gu" %% "pan-domain-auth-play_2-7" % pandaVersion,
       "com.gu" %% "pan-domain-auth-verification" % pandaVersion,
@@ -83,11 +82,8 @@ lazy val common = (project in file("common"))
       "com.gu" %% "atom-publisher-lib" % atomMakerVersion % "test" classifier "tests",
       "com.gu" %% "atom-manager-play" % atomMakerVersion,
       "com.gu"  %% "atom-manager-play" % atomMakerVersion % "test" classifier "tests",
-      "com.google.guava" % "guava-jdk5" % guavaVersion,
-      "com.google.http-client" % "google-http-client-jackson2" % googleHttpJacksonVersion,
+      "com.google.guava" % "guava" % guavaVersion,
       "com.google.oauth-client" % "google-oauth-client-jetty" % googleOauthVersion,
-      "com.google.code.findbugs" % "jsr305" % googleBugsVersion,
-      "com.google.http-client" % "google-http-client" % googleHttpVersion,
       "commons-logging" % "commons-logging" % commonsLoggingVersion,
       "org.apache.httpcomponents" % "httpclient" % apacheHttpClientVersion,
       "org.apache.httpcomponents" % "httpcore" % apacheHttpCoreVersion,
