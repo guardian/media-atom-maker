@@ -17,6 +17,7 @@ To run the React App with hot-reloading, run:
 ```bash
 ./scripts/client-dev.sh
 ```
+It will be served at https://video.local.dev-gutools.co.uk/videos
 
 ### Without hot-reloading
 To run the React App without hot-reloading, run:
