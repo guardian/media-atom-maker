@@ -46,9 +46,9 @@ val jsoupVersion = "1.8.3"
 val enumeratumVersion = "1.5.15"
 
 lazy val commonSettings = Seq(
-  scalaVersion in ThisBuild := "2.12.16",
+  ThisBuild / scalaVersion := "2.12.16",
   scalacOptions ++= Seq("-feature", "-deprecation"/*, "-Xfatal-warnings"*/),
-  organization in ThisBuild := "com.gu",
+  ThisBuild / organization := "com.gu",
 
   resolvers ++= Seq(
     "Sonatype OSS" at "https://oss.sonatype.org/content/repositories/releases/",
@@ -57,7 +57,7 @@ lazy val commonSettings = Seq(
 
   // silly SBT command to work-around lack of support for root projects that are not in the "root" folder
   // https://github.com/sbt/sbt/issues/2405
-  onLoad in Global := (onLoad in Global).value andThen (Command.process("project root", _))
+  Global / onLoad := (Global/ onLoad).value andThen (Command.process("project root", _))
 )
 
 lazy val common = (project in file("common"))
@@ -66,8 +66,8 @@ lazy val common = (project in file("common"))
     unmanagedBase := baseDirectory.value / "common" / "lib",
     //YouTube Content ID API - Client Libraries. Only available to be download as JAR files.
     //Latest can be found here: https://developers.google.com/youtube/partner/client_libraries
-    unmanagedJars in Compile += file("common/lib/google-api-services-youtubePartner-v1-rev20190401-1.25.0-sources.jar"),
-    unmanagedJars in Compile += file("common/lib/google-api-services-youtubePartner-v1-rev20190401-1.25.0.jar"),
+    Compile / unmanagedJars += file("common/lib/google-api-services-youtubePartner-v1-rev20190401-1.25.0-sources.jar"),
+    Compile / unmanagedJars += file("common/lib/google-api-services-youtubePartner-v1-rev20190401-1.25.0.jar"),
     libraryDependencies ++= Seq(
       "com.google.api-client" %  "google-api-client" % googleApiClientVersion,
       "com.google.http-client" % "google-http-client-jackson2" % googleHttpJacksonVersion,
@@ -128,7 +128,7 @@ lazy val app = (project in file("."))
       "org.scala-lang.modules" %% "scala-xml" % scalaXmlVersion   % "test"
     ),
 
-    aggregate in run := false,
+    run / aggregate := false,
 
     bashScriptConfigLocation := Some("/etc/gu/media-atom-maker.ini"),
 
@@ -159,10 +159,10 @@ lazy val uploader = (project in file("uploader"))
       "net.logstash.logback" % "logstash-logback-encoder" % logstashLogbackEncoderVersion,
       "com.amazonaws" % "aws-lambda-java-events" % awsLambdaEventsVersion
     ),
-    topLevelDirectory in Universal := None,
-    packageName in Universal := normalizedName.value,
+    Universal / topLevelDirectory := None,
+    Universal / packageName := normalizedName.value,
 
-    lambdas in Compile := Map(
+    Compile / lambdas := Map(
       "GetChunkFromS3" -> LambdaConfig(
         description = "Checks to see if a chunk of video has been uploaded to S3"
       ),
@@ -192,15 +192,15 @@ lazy val uploader = (project in file("uploader"))
       )
     ),
 
-    resourceGenerators in Compile += compileTemplate.taskValue
+    Compile / resourceGenerators += compileTemplate.taskValue
   )
 
 lazy val integrationTests = (project in file("integration-tests"))
   .dependsOn(common % "compile->compile;test->test")
   .settings(commonSettings,
     name := "integration-tests",
-    logBuffered in Test := false,
-    parallelExecution in Test := false
+    Test / logBuffered := false,
+    Test / parallelExecution := false
   )
 
 
@@ -209,8 +209,8 @@ lazy val expirer = (project in file("expirer"))
   .enablePlugins(JavaAppPackaging)
   .settings(commonSettings,
     name := "media-atom-expirer",
-    topLevelDirectory in Universal := None,
-    packageName in Universal := normalizedName.value
+    Universal / topLevelDirectory := None,
+    Universal / packageName := normalizedName.value
 
   )
 
@@ -219,8 +219,8 @@ lazy val scheduler = (project in file("scheduler"))
   .enablePlugins(JavaAppPackaging)
   .settings(commonSettings,
     name := "media-atom-scheduler",
-    topLevelDirectory in Universal := None,
-    packageName in Universal := normalizedName.value
+    Universal / topLevelDirectory := None,
+    Universal / packageName := normalizedName.value
 
   )
 
@@ -232,14 +232,14 @@ lazy val root = (project in file("root"))
     riffRaffUploadManifestBucket := Option("riffraff-builds"),
     riffRaffManifestProjectName := "media-service:media-atom-maker",
     riffRaffArtifactResources := Seq(
-      (packageBin in Debian in app).value -> s"${(name in app).value}/${(name in app).value}.deb",
-      (packageBin in Universal in uploader).value -> s"media-atom-upload-actions/${(packageBin in Universal in uploader).value.getName}",
-      (packageBin in Universal in expirer).value -> s"${(name in expirer).value}/${(packageBin in Universal in expirer).value.getName}",
-      (packageBin in Universal in scheduler).value -> s"${(name in scheduler).value}/${(packageBin in Universal in scheduler).value.getName}",
-      (baseDirectory in Global in app).value / "pluto-message-ingestion/target/pluto-message-ingestion.zip" -> "pluto-message-ingestion/pluto-message-ingestion.zip",
-      (baseDirectory in Global in app).value / "conf/riff-raff.yaml" -> "riff-raff.yaml",
-      (baseDirectory in Global in app).value / "fluentbit/td-agent-bit.conf" -> "media-atom-maker/fluentbit/td-agent-bit.conf",
-      (baseDirectory in Global in app).value / "fluentbit/parsers.conf" -> "media-atom-maker/fluentbit/parsers.conf",
-      (resourceManaged in Compile in uploader).value / "media-atom-pipeline.yaml" -> "media-atom-pipeline-cloudformation/media-atom-pipeline.yaml"
+      (app / Debian / packageBin).value -> s"${(app / name).value}/${(app / name).value}.deb",
+      (uploader / Universal / packageBin).value -> s"media-atom-upload-actions/${(uploader / Universal / packageBin).value.getName}",
+      (expirer / Universal / packageBin).value -> s"${(expirer / name).value}/${(expirer / Universal / packageBin).value.getName}",
+      (scheduler / Universal / packageBin).value -> s"${(scheduler / name).value}/${(scheduler / Universal / packageBin).value.getName}",
+      (app / baseDirectory).value / "pluto-message-ingestion/target/pluto-message-ingestion.zip" -> "pluto-message-ingestion/pluto-message-ingestion.zip",
+      (app / baseDirectory).value / "conf/riff-raff.yaml" -> "riff-raff.yaml",
+      (app / baseDirectory).value / "fluentbit/td-agent-bit.conf" -> "media-atom-maker/fluentbit/td-agent-bit.conf",
+      (app / baseDirectory).value / "fluentbit/parsers.conf" -> "media-atom-maker/fluentbit/parsers.conf",
+      (uploader / Compile / resourceManaged).value / "media-atom-pipeline.yaml" -> "media-atom-pipeline-cloudformation/media-atom-pipeline.yaml"
     )
   )

@@ -13,3 +13,4 @@ yarn-error.log
 dist
 metals.sbt
 .bloop
+.bsp/
