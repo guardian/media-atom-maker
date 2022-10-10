@@ -1,16 +1,13 @@
 package integration
 
-import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Paths}
-import java.nio.file.StandardOpenOption._
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
+
 import java.time.Instant
 import java.util.UUID
-
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.google.api.client.http.javanet.NetHttpTransport
-import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.youtube.YouTube
-import com.gu.media.logging.{YoutubeApiType, YoutubeRequestLogger, YoutubeRequestType}
+import com.gu.media.logging.{Logging, YoutubeApiType, YoutubeRequestLogger, YoutubeRequestType}
 import com.gu.media.util.TestFilters
 import integration.services.{Config, GuHttp, TestAtomJsonGenerator}
 import org.scalatest.concurrent.{Eventually, IntegrationPatience}
@@ -18,7 +15,7 @@ import org.scalatest.{BeforeAndAfterAll, FunSuite, Matchers}
 import play.api.Logger
 import play.api.libs.json.Json
 
-class IntegrationTestBase extends FunSuite with Matchers with Eventually with IntegrationPatience with GuHttp with TestAtomJsonGenerator with BeforeAndAfterAll {
+class IntegrationTestBase extends FunSuite with Matchers with Eventually with IntegrationPatience with GuHttp with TestAtomJsonGenerator with BeforeAndAfterAll with Logging {
 
   val targetBaseUrl: String = Config.targetBaseUrl
 
@@ -44,7 +41,7 @@ class IntegrationTestBase extends FunSuite with Matchers with Eventually with In
 
     val atomId = (Json.parse(response.body().string()) \ "id").get.as[String]
 
-    Logger.info(s"Adding $atomId to Atom Store")
+    log.info(s"Adding $atomId to Atom Store")
     atomIds :+= atomId
     atomId
   }
@@ -87,16 +84,16 @@ class IntegrationTestBase extends FunSuite with Matchers with Eventually with In
 
   private def youTubeClient(): YouTube = {
     val httpTransport = new NetHttpTransport()
-    val jacksonFactory = new JacksonFactory()
+    val jsonFactory = new GsonFactory()
 
     val credentials = new GoogleCredential.Builder()
       .setTransport(httpTransport)
-      .setJsonFactory(jacksonFactory)
+      .setJsonFactory(jsonFactory)
       .setClientSecrets(Config.youTube.clientId, Config.youTube.clientSecret)
       .build
       .setRefreshToken(Config.youTube.refreshToken)
 
-    new YouTube.Builder(httpTransport, jacksonFactory, credentials)
+    new YouTube.Builder(httpTransport, jsonFactory, credentials)
       .setApplicationName(Config.youTube.name)
       .build
   }

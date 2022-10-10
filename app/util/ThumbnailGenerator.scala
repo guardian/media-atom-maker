@@ -4,13 +4,14 @@ import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 import java.io._
 import java.net.URL
-
 import com.google.api.client.http.InputStreamContent
+import com.gu.media.logging.Logging
 import com.gu.media.model.{Image, ImageAsset}
+
 import javax.imageio.ImageIO
 import play.api.Logger
 
-case class ThumbnailGenerator(logoFile: File) {
+case class ThumbnailGenerator(logoFile: File) extends Logging {
   // YouTube have a file size limit of 2MB
   // see https://developers.google.com/youtube/v3/docs/thumbnails/set
   // use a slightly smaller file from Grid so we can add a branding overlay
@@ -39,7 +40,7 @@ case class ThumbnailGenerator(logoFile: File) {
     val graphics = bgImage.createGraphics
     graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
     graphics.drawImage(bgImage, 0, 0, null)
-    Logger.info(s"Creating branded thumbnail for atom $atomId. Image dims ${bgImage.getWidth()} x ${bgImage.getHeight()}. Logo dims ${logoWidth.toInt} x ${logoHeight.toInt} (x:$logoX, y:$logoY)")
+    log.info(s"Creating branded thumbnail for atom $atomId. Image dims ${bgImage.getWidth()} x ${bgImage.getHeight()}. Logo dims ${logoWidth.toInt} x ${logoHeight.toInt} (x:$logoX, y:$logoY)")
     graphics.drawImage(logo, logoX, logoY, logoWidth.toInt, logoHeight.toInt, null)
     graphics.dispose()
 
