@@ -2,7 +2,6 @@ package controllers
 
 import com.gu.media.logging.Logging
 import model.commands.CommandExceptions.commandExceptionAsResult
-import play.api.Logger
 import play.api.libs.json.{JsError, JsSuccess, Reads}
 import play.api.mvc.{AnyContent, BaseController, Request, Result}
 
