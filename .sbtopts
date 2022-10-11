@@ -1,5 +1,5 @@
 -J-Xms512M
 -J-Xmx1536M
--J-Xss1M
+-J-Xss4M
 -J-XX:+CMSClassUnloadingEnabled
 -J-Dhttp.port=9001
