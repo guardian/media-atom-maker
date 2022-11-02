@@ -176,12 +176,10 @@ case class PublishAtomCommand(
           createOrUpdateYoutubeClaim(publishedAtom, previewAtom, asset)
         }
         updateYoutubeMetadata(previewAtom, asset)
-        try {
-          updateYoutubeThumbnail(previewAtom, asset)
-        } catch {
+        updateYoutubeThumbnail(previewAtom, asset).recover {
           case e: Throwable =>
             log.error("failed to update thumbnail; skipping", e)
-            Future.successful(previewAtom)
+            previewAtom
         }
 
       case Some(_) =>
