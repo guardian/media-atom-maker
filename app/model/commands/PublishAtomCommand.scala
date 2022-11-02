@@ -176,7 +176,11 @@ case class PublishAtomCommand(
           createOrUpdateYoutubeClaim(publishedAtom, previewAtom, asset)
         }
         updateYoutubeMetadata(previewAtom, asset)
-        updateYoutubeThumbnail(previewAtom, asset)
+        updateYoutubeThumbnail(previewAtom, asset).recover {
+          case e: Throwable =>
+            log.error("failed to update thumbnail; skipping", e)
+            previewAtom
+        }
 
       case Some(_) =>
         // third party YouTube video that we do not have permission to edit
