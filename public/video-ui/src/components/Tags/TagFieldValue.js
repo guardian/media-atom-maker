@@ -2,6 +2,7 @@ import React from 'react';
 
 export default class TagFieldValue extends React.Component {
   renderFieldValue(value, index) {
+    console.log(value);
     if (value.detailedTitle) {
       return (
         <span key={`${value.id}-${index}`}>
@@ -23,7 +24,7 @@ export default class TagFieldValue extends React.Component {
   }
   getRenderedValues(){
     const values = this.props.tagValue.map(this.renderFieldValue);
-    if (values.every(value => typeof value === "string")){
+    if (values.every(value => typeof value === "string" && !value.includes(','))){
       // E.g. a list of YouTube keywords
       return values.join(',');
     } else return values;
