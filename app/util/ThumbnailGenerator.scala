@@ -16,9 +16,6 @@ case class ThumbnailGenerator(logoFile: File) {
   // use a slightly smaller file from Grid so we can add a branding overlay
   private val MAX_SIZE = 1.8 * 1000 * 1000
 
-  // amount of padding (px) on left and bottom of logo
-  private val PADDING = 80
-
   private lazy val logo = ImageIO.read(logoFile)
 
   private def getGridImageAsset(image: Image): ImageAsset = {
@@ -34,6 +31,7 @@ case class ThumbnailGenerator(logoFile: File) {
     val logoWidth: Double = List(bgImage.getWidth() / 3.0, logo.getWidth()).min
     val logoHeight: Double = logo.getHeight() / (logo.getWidth() / logoWidth)
 
+    val PADDING = (logoHeight/8).toInt
     val logoX = PADDING
     val logoY = bgImage.getHeight() - logoHeight.toInt - PADDING
 
