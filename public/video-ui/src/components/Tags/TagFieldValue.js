@@ -23,6 +23,6 @@ export default class TagFieldValue extends React.Component {
   }
 
   render() {
-    return <span>{this.props.tagValue.map(this.renderFieldValue)}</span>;
+    return <span>{this.props.tagValue.map(this.renderFieldValue).join(',')}</span>;
   }
 }
