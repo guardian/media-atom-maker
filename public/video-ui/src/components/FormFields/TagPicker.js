@@ -318,7 +318,10 @@ class TagPicker extends React.Component {
       if (this.props.tagType === TagTypes.contributor ||
           this.props.tagType === TagTypes.youtube) {
         return (
-          <TagFieldValue tagValue={this.state.tagValue}/>
+          <TagFieldValue 
+            tagValue={this.state.tagValue}
+            tagType={this.props.tagType}
+          />
         );
 
       }
@@ -389,7 +392,7 @@ class TagPicker extends React.Component {
           <p className="details-list__title">{this.props.fieldName}</p>
           <CapiUnavailable capiUnavailable={this.state.capiUnavailable} />
           <p className="details-list__field ">
-            <TagFieldValue tagValue={this.state.tagValue}/>
+            <TagFieldValue tagValue={this.state.tagValue} tagType={this.props.tagType}/>
           </p>
         </div>
       );
