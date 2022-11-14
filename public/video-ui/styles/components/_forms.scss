@@ -58,6 +58,9 @@
   cursor: pointer;
   flex-wrap: wrap;
   min-height: 36px;
+  .form__field__tag--container, .form__field__tag--container input {
+    flex-grow: 1;
+  }
 }
 
 .form__field {

@@ -21,8 +21,15 @@ export default class TagFieldValue extends React.Component {
 
     return ` ${value}`;
   }
+  getRenderedValues(){
+    const values = this.props.tagValue.map(this.renderFieldValue);
+    if (values.every(value => typeof value === "string" && !value.includes(','))){
+      // E.g. a list of YouTube keywords
+      return values.join(',');
+    } else return values;
+  }
 
   render() {
-    return <span>{this.props.tagValue.map(this.renderFieldValue)}</span>;
+    return <span>{this.getRenderedValues()}</span>;
   }
 }
