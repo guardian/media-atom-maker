@@ -17,7 +17,6 @@ import util._
 import play.api.libs.json._
 import play.api.mvc._
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.collection.JavaConverters._
 

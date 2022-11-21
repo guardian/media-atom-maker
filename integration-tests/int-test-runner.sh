@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Only use this runner when wanting to alert to Slack
-./sbt integrationTests/test
+sbt integrationTests/test
 export STATUS=$?
 
 if [[ $STATUS = 1 ]]

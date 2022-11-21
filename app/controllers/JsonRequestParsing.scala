@@ -1,11 +1,11 @@
 package controllers
 
+import com.gu.media.logging.Logging
 import model.commands.CommandExceptions.commandExceptionAsResult
-import play.api.Logger
 import play.api.libs.json.{JsError, JsSuccess, Reads}
 import play.api.mvc.{AnyContent, BaseController, Request, Result}
 
-trait JsonRequestParsing { this: BaseController =>
+trait JsonRequestParsing extends Logging { this: BaseController =>
   def parse[T](raw: Request[AnyContent])(fn: T => Result)(implicit reads: Reads[T]): Result = try {
     raw.body.asJson match {
       case Some(rawJson) =>
@@ -17,12 +17,12 @@ trait JsonRequestParsing { this: BaseController =>
             val errorsByPath = errors.flatMap { case(p, e) => e.map(p -> _) } // flatten
             val msg = errorsByPath.map { case(p, e) => s"$p -> $e" }.mkString("\n")
 
-            Logger.info(s"Error parsing request: $msg - ${raw.body}")
+            log.info(s"Error parsing request: $msg - ${raw.body}")
             BadRequest(msg)
         }
 
       case None =>
-        Logger.info(s"Error parsing request: ${raw.body}")
+        log.info(s"Error parsing request: ${raw.body}")
         BadRequest("Unable to parse body as JSON")
     }
   } catch {

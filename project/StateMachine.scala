@@ -7,11 +7,11 @@ object StateMachine {
   val lambdas = settingKey[Map[String, LambdaConfig]]("The lambdas to include in the state machine")
 
   val compileTemplate = Def.task {
-    val template = IO.read((resourceDirectory in Compile).value / "cfn-template.yaml")
-    val lambdaTemplate = IO.read((resourceDirectory in Compile).value / "lambda-template.yaml")
-    val stateMachine = IO.read((resourceDirectory in Compile).value / "state-machine.json")
+    val template = IO.read((Compile / resourceDirectory).value / "cfn-template.yaml")
+    val lambdaTemplate = IO.read((Compile / resourceDirectory).value / "lambda-template.yaml")
+    val stateMachine = IO.read((Compile / resourceDirectory).value / "state-machine.json")
 
-    val withLambdas = (lambdas in Compile).value.foldLeft(template) {
+    val withLambdas = (Compile / lambdas).value.foldLeft(template) {
       case (tmpl, (name, LambdaConfig(description, timeout))) =>
         val instance = lambdaTemplate
           .replace("{{name}}", name)
@@ -22,7 +22,7 @@ object StateMachine {
     }
 
     val compiled = replace("{{state_machine}}", stateMachine, withLambdas)
-    val output = (resourceManaged in Compile).value / "media-atom-pipeline.yaml"
+    val output = (Compile / resourceManaged).value / "media-atom-pipeline.yaml"
 
     IO.write(output, compiled)
 

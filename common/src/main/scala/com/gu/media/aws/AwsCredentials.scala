@@ -2,7 +2,7 @@ package com.gu.media.aws
 
 import com.amazonaws.auth._
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.services.securitytoken.{AWSSecurityTokenServiceClient}
+import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder
 import com.gu.media.Settings
 
 case class AwsCredentials(instance: AWSCredentialsProvider, crossAccount: AWSCredentialsProvider,
@@ -52,7 +52,7 @@ object AwsCredentials {
   }
 
   private def assumeAccountRole(instance: AWSCredentialsProvider, roleArn: String, sessionNameSuffix: String): AWSCredentialsProvider = {
-    val securityTokens = new AWSSecurityTokenServiceClient(instance)
+    val securityTokens = AWSSecurityTokenServiceClientBuilder.standard().withCredentials(instance).build()
 
     new STSAssumeRoleSessionCredentialsProvider.Builder(roleArn, s"media-atom-maker-${sessionNameSuffix}")
       .withStsClient(securityTokens).build()

@@ -1,17 +1,14 @@
 package com.gu.media.util
 
+import com.gu.contentatom.thrift.atom.media._
+import com.gu.contentatom.thrift._
+import com.gu.media.util.JsonConversions._
+import com.gu.media.util.MediaAtomImplicits._
+import com.gu.media.youtube.YoutubeUrl
+import play.api.libs.json._
+
 import java.net.URI
 import java.util.UUID.randomUUID
-
-import com.gu.contentatom.thrift.atom.media.{Category, _}
-import com.gu.contentatom.thrift.{ContentChangeDetails, _}
-import play.api.libs.json._
-import play.api.mvc.{BodyParser, BodyParsers}
-import com.gu.media.util.MediaAtomImplicits._
-import com.gu.media.util.JsonConversions._
-import com.gu.media.youtube.YoutubeUrl
-
-import scala.concurrent.ExecutionContext
 import scala.util.Try
 
 object ThriftUtil {
@@ -118,26 +115,6 @@ object ThriftUtil {
     }
   }
 
-  def getSingleRequiredParam(params: Map[String, Seq[String]], name: String): ThriftResult[String] =
-    getSingleParam(params, name).toRight(s"Missing param $name")
-
-  def atomBodyParser(implicit ec: ExecutionContext): BodyParser[ThriftResult[Atom]] =
-    BodyParsers.parse.urlFormEncoded map { urlParams =>
-      parseRequest(urlParams)
-    }
-
-  def assetBodyParser(implicit ec: ExecutionContext): BodyParser[ThriftResult[Asset]] =
-    BodyParsers.parse.urlFormEncoded map { urlParams =>
-
-      def opt(s: String): Option[String] = if (s.isEmpty) None else Some(s)
-
-      for {
-        uri <- getSingleRequiredParam(urlParams, "uri").right
-        mimeType <- getSingleRequiredParam(urlParams, "mimetype").right
-        version <- getSingleRequiredParam(urlParams, "version").right
-        asset <- parseAsset(uri, opt(mimeType), version.toLong).right
-      } yield asset
-    }
 }
 
 object Url {

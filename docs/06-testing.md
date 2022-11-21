@@ -4,7 +4,7 @@
 To run unit tests, run:
 
 ```bash
-./sbt test
+sbt test
 ```
 
 ## Blackbox tests
@@ -17,5 +17,5 @@ To run the blackbox tests against a deployed environment, first download the con
 Then run the tests:
 
 ```bash
-./sbt integrationTests/test
+sbt integrationTests/test
 ```

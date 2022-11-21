@@ -1,16 +1,15 @@
 package model
 
+import com.gu.media.logging.Logging
 import net.logstash.logback.marker.Markers
-import org.joda.time.DateTime
-import play.api.Logger
 
 import scala.collection.JavaConverters._
 
-case class YouTubeMessage(atomId: String, videoId: String, reason: String, message: String, isError: Boolean = false) {
+case class YouTubeMessage(atomId: String, videoId: String, reason: String, message: String, isError: Boolean = false) extends Logging {
 
   def logMessage()   =
-    if (isError) Logger.logger.error(createMarkers(), "YouTube Video update")
-    else Logger.logger.info(createMarkers(), "YouTube Video update")
+    if (isError) log.error(createMarkers(), "YouTube Video update")
+    else log.info(createMarkers(), "YouTube Video update")
 
 
 
