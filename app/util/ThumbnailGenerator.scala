@@ -9,7 +9,6 @@ import com.gu.media.logging.Logging
 import com.gu.media.model.{Image, ImageAsset}
 
 import javax.imageio.ImageIO
-import play.api.Logger
 
 case class ThumbnailGenerator(logoFile: File) extends Logging {
   // YouTube have a file size limit of 2MB

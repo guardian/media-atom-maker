@@ -12,7 +12,6 @@ import com.gu.media.util.TestFilters
 import integration.services.{Config, GuHttp, TestAtomJsonGenerator}
 import org.scalatest.concurrent.{Eventually, IntegrationPatience}
 import org.scalatest.{BeforeAndAfterAll, FunSuite, Matchers}
-import play.api.Logger
 import play.api.libs.json.Json
 
 class IntegrationTestBase extends FunSuite with Matchers with Eventually with IntegrationPatience with GuHttp with TestAtomJsonGenerator with BeforeAndAfterAll with Logging {
@@ -60,7 +59,7 @@ class IntegrationTestBase extends FunSuite with Matchers with Eventually with In
 
   override def afterAll(): Unit = {
     atomIds.foreach { id =>
-      Logger.info(s"Deleting atom $id")
+      log.info(s"Deleting atom $id")
       gutoolsDelete(s"$targetBaseUrl/api/atom/$id")
     }
 
@@ -68,7 +67,7 @@ class IntegrationTestBase extends FunSuite with Matchers with Eventually with In
       val client = youTubeClient()
 
       youTubeIds.foreach { id =>
-        Logger.info(s"Deleting YouTube video $id")
+        log.info(s"Deleting YouTube video $id")
 
         val request = client.videos()
           .delete(id)

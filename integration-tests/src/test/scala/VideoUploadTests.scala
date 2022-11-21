@@ -1,26 +1,24 @@
 import java.io.{FilterInputStream, InputStream}
 import java.time.Instant
 import java.util.UUID
-
 import com.amazonaws.auth.{AWSStaticCredentialsProvider, BasicSessionCredentials}
 import com.amazonaws.regions.{Region, Regions}
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.ObjectMetadata
 import com.google.common.io.ByteStreams
-import com.gu.media.util.TestFilters
+import com.gu.media.logging.Logging
 import com.squareup.okhttp.Response
 import integration.IntegrationTestBase
 import integration.services.Config
 import org.scalatest.CancelAfterFailure
 import org.scalatest.concurrent.PatienceConfiguration.{Interval, Timeout}
 import org.scalatest.time.{Minutes, Seconds, Span, Units}
-import play.api.Logger
 import play.api.libs.json.{JsArray, JsValue, Json}
 import services.AWS
 
 import scala.util.control.NonFatal
 
-class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
+class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure with Logging {
   val s3 = accountCredentialsS3Client()
 
   var atomId: String = ""
@@ -59,7 +57,7 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
     val source = s3.getObject(Config.testVideoBucket, Config.testVideo).getObjectContent
 
     uploadParts.foreach { case(uploadKey, start, end) =>
-      Logger.info(s"Getting credentials for $uploadKey")
+      log.info(s"Getting credentials for $uploadKey")
       val credentials = gutoolsPost(s"$targetBaseUrl/api/uploads/$uploadId/credentials?key=$uploadKey", emptyBody)
       val temporaryClient = stsCredentialsS3Client(credentials)
 
@@ -69,7 +67,7 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
       val metadata = new ObjectMetadata()
       metadata.setContentLength(length)
 
-      Logger.info(s"Uploading $uploadKey")
+      log.info(s"Uploading $uploadKey")
       temporaryClient.putObject(uploadBucket, uploadKey, part, metadata)
     }
   }
@@ -141,6 +139,6 @@ class VideoUploadTests extends IntegrationTestBase with CancelAfterFailure {
     s3.deleteObject(uploadBucket, completeKey)
   } catch {
     case NonFatal(e) =>
-      Logger.error(s"Unable to delete $uploadBucket/$completeKey", e)
+      log.error(s"Unable to delete $uploadBucket/$completeKey", e)
   }
 }

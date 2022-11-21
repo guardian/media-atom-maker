@@ -1,14 +1,14 @@
 package com.gu.media.model;
 
+import com.gu.media.logging.Logging
 import net.logstash.logback.marker.Markers
-import play.api.Logger
 
 import scala.collection.JavaConverters._
 
-case class AuditMessage(atomId: String, auditType: String, user: String, description: Option[String] = None) {
+case class AuditMessage(atomId: String, auditType: String, user: String, description: Option[String] = None) extends Logging{
 
   def logMessage() {
-    Logger.logger.info(createMarkers(), "Media Atom Audit")
+    log.info(createMarkers(), "Media Atom Audit")
   }
 
 
