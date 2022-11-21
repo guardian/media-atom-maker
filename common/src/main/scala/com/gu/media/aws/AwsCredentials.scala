@@ -2,7 +2,7 @@ package com.gu.media.aws
 
 import com.amazonaws.auth._
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.services.securitytoken.{AWSSecurityTokenServiceClient, AWSSecurityTokenServiceClientBuilder}
+import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder
 import com.gu.media.Settings
 
 case class AwsCredentials(instance: AWSCredentialsProvider, crossAccount: AWSCredentialsProvider,
