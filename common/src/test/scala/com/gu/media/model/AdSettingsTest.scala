@@ -26,6 +26,7 @@ class AdSettingsTest extends FunSuite with MustMatchers {
     trailText = None,
     posterImage = None,
     trailImage = None,
+    youtubeOverrideImage = None,
     tags = List.empty,
     byline = List.empty,
     commissioningDesks = List.empty,

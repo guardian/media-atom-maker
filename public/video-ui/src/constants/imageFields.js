@@ -1,1 +1,1 @@
-export const imageFields = ['posterImage', 'trailImage'];
+export const imageFields = ['posterImage', 'trailImage', 'youtubeOverrideImage'];

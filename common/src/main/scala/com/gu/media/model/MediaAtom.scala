@@ -26,6 +26,7 @@ abstract class MediaAtomBase {
   val expiryDate: Option[Long]
   val youtubeTitle: String
   val youtubeDescription: Option[String]
+  val youtubeOverrideImage: Option[Image]
 
   //composer metadata
   val trailImage: Option[Image]
@@ -61,6 +62,7 @@ case class MediaAtomBeforeCreation(
   license: Option[String],
   blockAds: Boolean,
   expiryDate: Option[Long],
+  youtubeOverrideImage: Option[Image],
 
   trailImage: Option[Image],
   trailText: Option[String],
@@ -87,6 +89,7 @@ case class MediaAtomBeforeCreation(
       trailText = trailText,
       posterImage = posterImage.map(_.asThrift),
       trailImage = trailImage.map(_.asThrift),
+      youtubeOverrideImage = youtubeOverrideImage.map(_.asThrift),
       byline = Some(byline),
       commissioningDesks = Some(commissioningDesks),
       keywords = Some(keywords),
@@ -148,6 +151,7 @@ case class MediaAtom(
   trailText: Option[String],
   posterImage: Option[Image],
   trailImage: Option[Image],
+  youtubeOverrideImage: Option[Image],
   // metadata
   tags: List[String],
   byline: List[String],
@@ -181,6 +185,7 @@ case class MediaAtom(
       trailText = trailText,
       posterImage = posterImage.map(_.asThrift),
       trailImage = trailImage.map(_.asThrift),
+      youtubeOverrideImage = youtubeOverrideImage.map(_.asThrift),
       byline = Some(byline),
       commissioningDesks = Some(commissioningDesks),
       keywords = Some(keywords),
@@ -246,6 +251,7 @@ object MediaAtom extends MediaAtomImplicits {
       source = data.source,
       posterImage = data.posterImage.map(Image.fromThrift),
       trailImage = data.trailImage.map(Image.fromThrift),
+      youtubeOverrideImage = data.youtubeOverrideImage.map(Image.fromThrift),
       description = data.description,
       trailText = data.trailText,
       tags = data.metadata.flatMap(_.tags.map(_.toList)).getOrElse(Nil),
