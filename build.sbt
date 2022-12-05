@@ -38,7 +38,7 @@ val commonsLoggingVersion = "1.1.1"
 val apacheHttpClientVersion = "4.0.1"
 val apacheHttpCoreVersion = "4.0.1"
 
-val googleApiClientVersion = "1.34.0"
+val googleApiClientVersion = "1.13.0"
 val youTubeApiClientVersion = "v3-rev178-1.22.0"
 
 val jsoupVersion = "1.8.3"
@@ -69,7 +69,7 @@ lazy val common = (project in file("common"))
     Compile / unmanagedJars += file("common/lib/google-api-services-youtubePartner-v1-rev20190401-1.25.0-sources.jar"),
     Compile / unmanagedJars += file("common/lib/google-api-services-youtubePartner-v1-rev20190401-1.25.0.jar"),
     libraryDependencies ++= Seq(
-      "com.google.api-client" %  "google-api-client" % googleApiClientVersion,
+      "com.google.api-client" %  "google-auth-library" % googleApiClientVersion,
       "com.google.http-client" % "google-http-client-jackson2" % googleHttpJacksonVersion,
       "com.google.apis" % "google-api-services-youtube" % youTubeApiClientVersion,
       "com.gu" %% "pan-domain-auth-play_2-7" % pandaVersion,
