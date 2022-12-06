@@ -6,11 +6,10 @@ val scroogeVersion = "4.12.0"
 val awsVersion = "1.11.678"
 val pandaVersion = "1.2.0"
 val pandaHmacVersion = "2.1.0"
-val atomMakerVersion = "1.3.1"
+val atomMakerVersion = "1.3.2-SNAPSHOT"
 val typesafeConfigVersion = "1.3.0" // to match what we get from Play transitively
-val scanamoVersion = "1.0.0-M9" // to match what we get from atom-publisher-lib transitively
+val scanamoVersion = "1.0.0-M9"
 
-val jacksonDatabindVersion = "2.9.2"
 val playJsonExtensionsVersion = "0.40.2"
 val okHttpVersion = "2.4.0"
 val diffVersion = "2.0.1"
@@ -45,6 +44,9 @@ val jsoupVersion = "1.8.3"
 
 val enumeratumVersion = "1.5.15"
 
+lazy val jacksonVersion = "2.13.4"
+lazy val jacksonDatabindVersion = "2.13.4.2"
+
 lazy val commonSettings = Seq(
   ThisBuild / scalaVersion := "2.12.16",
   scalacOptions ++= Seq("-feature", "-deprecation"/*, "-Xfatal-warnings"*/),
@@ -60,6 +62,19 @@ lazy val commonSettings = Seq(
   Global / onLoad := (Global/ onLoad).value andThen (Command.process("project root", _))
 )
 
+// these Jackson dependencies are required to resolve issues in Play 2.8.x https://github.com/orgs/playframework/discussions/11222
+val jacksonOverrides = Seq(
+  "com.fasterxml.jackson.core" % "jackson-core",
+  "com.fasterxml.jackson.core" % "jackson-annotations",
+  "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8",
+  "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310",
+  "com.fasterxml.jackson.module" %% "jackson-module-scala",
+).map(_ % jacksonVersion)
+
+val jacksonDatabindOverrides = Seq(
+  "com.fasterxml.jackson.core" % "jackson-databind" % jacksonDatabindVersion
+)
+
 lazy val common = (project in file("common"))
   .settings(commonSettings,
     name := "media-atom-common",
@@ -72,10 +87,10 @@ lazy val common = (project in file("common"))
       "com.google.api-client" %  "google-api-client" % googleApiClientVersion,
       "com.google.http-client" % "google-http-client-jackson2" % googleHttpJacksonVersion,
       "com.google.apis" % "google-api-services-youtube" % youTubeApiClientVersion,
-      "com.gu" %% "pan-domain-auth-play_2-7" % pandaVersion,
+      "com.gu" %% "pan-domain-auth-play_2-8" % pandaVersion,
       "com.gu" %% "pan-domain-auth-verification" % pandaVersion,
       "com.gu" %% "pan-domain-auth-core" % pandaVersion,
-      "com.gu" %% "panda-hmac-play_2-7" % pandaHmacVersion,
+      "com.gu" %% "panda-hmac-play_2-8" % pandaHmacVersion,
       ws,
       "com.typesafe.play" %% "play-json-joda" % "2.7.4",
       "com.gu" %% "atom-publisher-lib" % atomMakerVersion,
@@ -109,7 +124,7 @@ lazy val common = (project in file("common"))
       "org.jsoup" % "jsoup" % jsoupVersion,
       "com.beachape" %% "enumeratum" % enumeratumVersion,
       "net.logstash.logback" % "logstash-logback-encoder" % "6.6"
-    )
+    ) ++ jacksonOverrides ++ jacksonDatabindOverrides
   )
 
 lazy val app = (project in file("."))
