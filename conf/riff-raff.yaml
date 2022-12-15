@@ -4,7 +4,6 @@ templates:
   lambda:
     type: aws-lambda
     parameters:
-      bucket: atom-maker-dist
       prefixStack: false
 deployments:
   media-atom-maker-ami-update:
@@ -16,8 +15,6 @@ deployments:
           AmigoStage: PROD
   media-atom-maker:
     type: autoscaling
-    parameters:
-      bucket: atom-maker-dist
     dependencies:
       - media-atom-maker-ami-update
 
