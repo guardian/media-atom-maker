@@ -1,15 +1,13 @@
 @(
   title: String,
   jsFileLocation: String,
-  autotrackJsLocation: String,
   presenceJsLocation: Option[String],
   clientConfigJson: String,
   isHotReloading: Boolean,
-  maybeGaPropertyId: Option[String],
   csrf: String
 )
 
-@layout(title, isHotReloading, autotrackJsLocation, maybeGaPropertyId, csrf) {
+@layout(title, isHotReloading, csrf) {
     <div id="react-mount" class="main">
         <h1>Loading...</h1>
     </div>
