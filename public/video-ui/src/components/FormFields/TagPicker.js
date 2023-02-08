@@ -8,7 +8,7 @@ import TextInputTagPicker from './TextInputTagPicker';
 import PureTagPicker from './PureTagPicker';
 import TagFieldValue from '../Tags/TagFieldValue';
 import CapiUnavailable from '../CapiSearch/CapiUnavailable';
-import DragSortableList from 'react-drag-sortable';
+import { DraggableTagList } from './DraggableTagList';
 import removeTagDuplicates from '../../util/removeTagDuplicates';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 import ReactTooltip from 'react-tooltip';
@@ -146,7 +146,7 @@ class TagPicker extends React.Component {
 
     if (!tagsVisible) {
       this.setState({
-        showTags: false,
+        showTags: false
       });
     } else {
       this.setState({
@@ -213,21 +213,6 @@ class TagPicker extends React.Component {
     }
   }
 
-  onSort = (sortedList) => {
-    const newTagValues = sortedList.reduce((sortedTagList, sortedValue) => {
-
-      //For each component in the list of dragged elements,
-      //we have to extract the name of the tag it represents.
-      const tagTitle = sortedValue.content.props.children[0].props.children;
-
-      const tagValue = this.state.tagValue.find(value => value.detailedTitle === tagTitle);
-
-      return [...sortedTagList, tagValue];
-    }, []);
-
-    this.onUpdate(newTagValues);
-  }
-
   renderSelectedTags = () => {
 
     if (this.props.tagType !== TagTypes.keyword) {
@@ -236,21 +221,12 @@ class TagPicker extends React.Component {
       );
     }
 
-    const tagItems = this.state.tagValue.map((value, index) => {
-      return {
-        content: this.renderTag(value, index)
-      }
-    });
-
     return (
-        <DragSortableList
-          items={tagItems}
-          moveTransitionDuration={0.3}
-          dropBackTransitionDuration={0.3}
-          type="vertical"
-          onSort={this.onSort}
-          placeholder={<span></span>}
-        />
+      <DraggableTagList
+        tags={this.state.tagValue}
+        setTags={this.onUpdate}
+        removeFn={this.removeFn}
+      />
     );
   }
 
@@ -318,7 +294,7 @@ class TagPicker extends React.Component {
       if (this.props.tagType === TagTypes.contributor ||
           this.props.tagType === TagTypes.youtube) {
         return (
-          <TagFieldValue 
+          <TagFieldValue
             tagValue={this.state.tagValue}
             tagType={this.props.tagType}
           />
