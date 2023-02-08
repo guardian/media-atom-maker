@@ -63,9 +63,16 @@ const TagElement = ({
   >
     <span>{tag.detailedTitle}</span>
     <span
+      tabIndex={0}
+      role="button"
       data-no-dnd="true"
       className="form__field__tag__remove"
       onClick={() => removeFn(tag)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter"){
+          removeFn(tag);
+        }
+      }}
     ></span>
   </div>
 );
@@ -83,24 +90,13 @@ const shouldHandleEvent = (element: HTMLElement) => {
   return true;
 };
 
-// We use custom sensors because we don't want the drag to overrule the 'remove tag' button
-// event listeners
+// We use a custom mouse sensor because we don't want the drag listener to
+// overrule the 'remove tag' button event listener
 class CustomMouseSensor extends MouseSensor {
   static activators = [
     {
       eventName: 'onMouseDown' as const,
       handler: ({ nativeEvent: event }: React.MouseEvent) => {
-        return shouldHandleEvent(event.target as HTMLElement);
-      }
-    }
-  ];
-}
-
-class CustomKeyboardSensor extends KeyboardSensor {
-  static activators = [
-    {
-      eventName: 'onKeyDown' as const,
-      handler: ({ nativeEvent: event }: React.KeyboardEvent<Element>) => {
         return shouldHandleEvent(event.target as HTMLElement);
       }
     }
@@ -118,7 +114,7 @@ export const DraggableTagList = ({
 }) => {
   const sensors = useSensors(
     useSensor(CustomMouseSensor),
-    useSensor(CustomKeyboardSensor, {
+    useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates
     })
   );
