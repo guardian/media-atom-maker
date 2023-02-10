@@ -9,6 +9,7 @@ import {keyCodes} from '../../constants/keyCodes';
 import RequiredForComposer from '../../constants/requiredForComposer';
 import ReactTooltip from 'react-tooltip';
 import Icon from "../Icon";
+import { RichTextInput } from './RichTextInput';
 
 export default class ScribeEditorField extends React.Component {
   state = {
@@ -131,12 +132,13 @@ export default class ScribeEditorField extends React.Component {
         <div
           className={(this.props.formRowClass || 'form__row') + ' scribe__row'}
         >
-          <ScribeEditor
+          <RichTextInput
             fieldName={this.props.fieldName}
             value={this.props.fieldValue}
             onUpdate={this.updateFieldValue}
             allowedEdits={this.props.allowedEdits}
             copiedValue={this.state.copiedValue}
+            config={this.props.config}
           />
           {this.renderLimitWarning()}
         </div>

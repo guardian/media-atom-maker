@@ -13,6 +13,7 @@ import { videoCategories } from '../../constants/videoCategories';
 import VideoUtils from '../../util/video';
 import {formNames} from "../../constants/formNames";
 import FieldNotification from "../../constants/FieldNotification";
+import { trailTextConfig, standfirstConfig } from "../FormFields/richtext/create-schema";
 
 export default class VideoData extends React.Component {
   static propTypes = {
@@ -86,6 +87,7 @@ export default class VideoData extends React.Component {
         >
           <ScribeEditorField
             allowedEdits={['bold', 'italic', 'linkPrompt', 'unlink', 'insertUnorderedList']}
+            config={standfirstConfig}
           />
         </ManagedField>
         <ManagedField
@@ -101,6 +103,7 @@ export default class VideoData extends React.Component {
             allowedEdits={['bold', 'italic']}
             isDesired={!canonicalVideoPageExists}
             isRequired={canonicalVideoPageExists}
+            config={trailTextConfig}
           />
         </ManagedField>
 
