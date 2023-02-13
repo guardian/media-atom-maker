@@ -4,6 +4,7 @@ import { Mark, MarkType, NodeType, Schema } from "prosemirror-model";
 import { wrapInList } from "prosemirror-schema-list";
 import { Command, EditorState } from "prosemirror-state";
 import { icons } from "./icons";
+import { isInNode } from "./lists";
 import { toggleBulletListCommand } from "./MenuView";
 import { linkItemCommand, newLinkItemCommand, unlinkItemCommand } from "./utils/command-helpers";
 
@@ -67,7 +68,11 @@ const listItem = (schema: Schema) => (markType: MarkType, options: Partial<MenuI
 };
 
 const wrapListItem = (schema: Schema) => (nodeType: NodeType, options: Partial<MenuItemSpec>) => {
-  return cmdItem(toggleBulletListCommand(schema), options);
+  const passedOptions: Partial<MenuItemSpec> = {
+    active: (state) => { return isInNode(state, nodeType);},
+    ...options
+  };
+  return cmdItem(toggleBulletListCommand(schema), passedOptions);
 };
 
 export const buildMenuItems = (schema: Schema) => {
@@ -86,8 +91,7 @@ export const buildMenuItems = (schema: Schema) => {
     markMenu.push(wrapListItem(schema)(schema.nodes.bullet_list, {
       title: "Bullet list",
       label: "format_list_bulleted",
-      enable: () => true,
-      active: () => true
+      enable: () => true
     }));
   }
 
