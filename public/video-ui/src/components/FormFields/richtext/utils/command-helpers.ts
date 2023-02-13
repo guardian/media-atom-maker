@@ -1,6 +1,7 @@
 import { parseURL, linkValidator } from './link-validator';
-import { MarkType } from 'prosemirror-model';
-import { EditorState, Transaction } from 'prosemirror-state';
+import { Mark, MarkType } from 'prosemirror-model';
+import { Command, EditorState, Transaction } from 'prosemirror-state';
+import { EditorView } from 'prosemirror-view';
 
 // These prosemirror-helper functions are a simplified version of what we use in Composer, and have been lifted and shifted from that repo
 
@@ -23,6 +24,91 @@ export const unlinkItemCommand = (mark: MarkType) => (
   dispatch(state.tr.removeMark(from, to, mark));
 };
 
+function markExtend (state: EditorState, markType: MarkType) {
+  let markStart, mark: boolean|Mark = false;
+  state.doc.nodesBetween(state.selection.from, state.selection.to, (node, pos) => {
+    if (mark !== false) {return false;}
+    const foundMark = markType.isInSet(node.marks);
+    if (foundMark) {markStart = pos; mark = foundMark;}
+  });
+
+  const $start = state.doc.resolve(markStart);
+  let startIndex = $start.index(),
+      endIndex = $start.indexAfter();
+
+  while (startIndex > 0 && markType.isInSet($start.parent.child(startIndex - 1).marks)) startIndex--;
+  while (
+    endIndex < $start.parent.childCount &&
+    markType.isInSet($start.parent.child(endIndex).marks)
+  ) { endIndex++; }
+  let startPos = $start.start(),
+      endPos = startPos;
+
+  for (let i = 0; i < endIndex; i++) {
+    const size = $start.parent.child(i).nodeSize;
+    if (i < startIndex) startPos += size;
+    endPos += size;
+  }
+  return { from: startPos, to: endPos, mark };
+}
+
+function markActive(state: EditorState, markType: MarkType) {
+  const {from, $from, to, empty} = state.selection;
+  if (empty) return markType.isInSet(state.storedMarks || $from.marks());
+  else return state.doc.rangeHasMark(from, to, markType);
+}
+
+// const newLinkCommand = (markType: MarkType) => (state: EditorState, dispatch: (tr: Transaction) => void, view: EditorView) => {
+//   if (markActive(state, markType)) {
+//     // Edit link
+//     const {from, to, mark} = markExtend(state, markType);
+//     openPrompt({
+//       title: "Edit link",
+//       fields: {
+//         href: new TextField({
+//           label: "Link target",
+//           required: true,
+//           value: mark.attrs.href
+//         }),
+//         title: new TextField({
+//           label: "Title",
+//           value: mark.attrs.title
+//         })
+//       },
+//       callback(attrs) {
+//         const updateMark = view.state.tr
+//           .removeMark(from, to, mark.type)
+//           .addMark(from, to, mark.type.create(attrs));
+//         view.dispatch(updateMark);
+//         view.focus();
+//         view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(from), view.state.doc.resolve(to))));
+//   },
+//       remove() {
+//         view.dispatch(view.state.tr.removeMark(from, to, mark.type));
+//         view.focus();
+//         view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(from), view.state.doc.resolve(to))));
+//       }
+//     });
+//     return true;
+//   } else {
+//     // createlink
+//     openPrompt({
+//       title: "Create a link",
+//       fields: {
+//         href: new TextField({
+//           label: "Link target",
+//           required: true
+//         }),
+//         title: new TextField({label: "Title"})
+//       },
+//       callback(attrs) {
+//         toggleMark(markType, attrs)(view.state, view.dispatch);
+//         view.focus();
+//       }
+//     });
+//   }
+// };
+
 export const linkItemCommand = (markType: MarkType) => (passedUrl: string | null = null) => (
   state: EditorState,
   dispatch: (tr: Transaction) => void
@@ -40,19 +126,42 @@ export const linkItemCommand = (markType: MarkType) => (passedUrl: string | null
         state.tr.addMark(from, to, markType.create({ href: parsedUrl }))
       );
     } else {
-      window.alert(message);
+      if (message!== "Empty URL provided"){
+        window.alert(message);
+      }
     }
   }
 };
 
-const promptForLink = (state: EditorState, markType: MarkType): {from: number, to: number, url: string} | undefined => {
+export const newLinkItemCommand = (markType: MarkType, customPrompt?: string, defaultValue?: string): Command => (
+  state: EditorState,
+  dispatch: (tr: Transaction) => void
+) => {
+  const maybeUrlResult = promptForLink(state, markType, customPrompt, defaultValue);
+
+  if (maybeUrlResult && maybeUrlResult.from !== undefined && maybeUrlResult.to !== undefined) {
+    const { from, to, url } = maybeUrlResult;
+    const { valid, message, link } = linkValidator(url);
+    if (valid) {
+      const parsedUrl = parseURL(url);
+      dispatch(
+        state.tr.addMark(from, to, markType.create({ href: parsedUrl }))
+      );
+    } else {
+      return newLinkItemCommand(markType, `${message} - please check your link and try again.`, link)(state, dispatch);
+    }
+  }
+  return false;
+};
+
+const promptForLink = (state: EditorState, markType: MarkType, customPrompt?: string, defaultValue?: string): {from: number, to: number, url: string} | undefined => {
   const { from, to, href } = getCurrentHrefAndEditRange(state, markType);
 
   if (from === to && !href) {
     return undefined;
   }
 
-  const url = window.prompt('Enter a link', href || '');
+  const url = window.prompt(customPrompt || 'Enter a link', href || defaultValue || '');
   return {
     from,
     to,

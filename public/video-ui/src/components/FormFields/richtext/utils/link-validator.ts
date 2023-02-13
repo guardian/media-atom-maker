@@ -1,4 +1,4 @@
-// These prosemirror-helper functions are a simplified version of what we use in Composer, and have been lifted and shifted from that repo
+import { isUri } from 'valid-url';
 
 const FUZZY_MATCHERS = [
   {
@@ -21,8 +21,8 @@ const FUZZY_MATCHERS = [
     regexp: /.+/,
     message:
       'The URL you entered appears to be a link. ' +
-      'Do you want to add the required “http://” prefix?',
-    action: (link: string) => `http://${link.trim()}`
+      'Do you want to add the required “https://” prefix?',
+    action: (link: string) => `https://${link.trim()}`
   }
 ];
 
@@ -49,8 +49,7 @@ export const parseURL = (rawLink: string, confirm = window.confirm) => {
   }
 };
 
-const isEdToolsDomain = (parsedUrl: URL) => {
-  // TODO: consider how comprehensive this is. should there be other tools?
+const isEdToolsDomain = (rawLink: string) => {
   const edToolsDomains = [
     'composer.gutools.co.uk',
     'preview.gutools.co.uk',
@@ -58,48 +57,35 @@ const isEdToolsDomain = (parsedUrl: URL) => {
   ];
 
   return (
-    parsedUrl.hostname &&
-    (edToolsDomains.some((d) => parsedUrl.hostname === d) ||
-      /\.gnl/.test(parsedUrl.hostname))
+    edToolsDomains.some(domain => rawLink.includes(domain))
   );
 };
 
-export const linkValidator = (
-  rawLink: string
-): { valid: boolean; message?: string } => {
-  const parsedUrl = new URL(rawLink);
-
-  if (isEdToolsDomain(parsedUrl)) {
+export const linkValidator = (rawLink: string) => {
+  if (rawLink === ""){
+    return {valid: false, message: "Empty URL provided", link: rawLink};
+  }
+  if (isEdToolsDomain(rawLink)) {
     return {
       valid: false,
       message:
-        'This is a preview link, which can only be accessed by Guardian staff, not readers. Please check and update your link and try again'
+        'This is a preview link, which can only be accessed by Guardian staff, not readers.',
+      link: rawLink
     };
   }
 
-  if (parsedUrl.hostname === 'dashboard.ophan.co.uk') {
+  if (rawLink === 'dashboard.ophan.co.uk') {
     return {
       valid: false,
       message:
-        'This link can only be accessed by Guardian staff, not readers. Please check and update your link and try again'
+        'This link can only be accessed by Guardian staff, not readers.',
+      link: rawLink
     };
   }
-
-  if (rawLink.includes('.')) {
-    const possibleUrl = new URL(`https://${rawLink}`);
-    if (possibleUrl.hostname) {
-      return { valid: true };
-    }
+  if (isUri(rawLink)){
+    return {valid: true};
+  } else {
+    if (isUri(`https://${rawLink}`)) return {valid: false, message: `A valid URL should start with 'https://' or 'http://'.`, link: rawLink};
+    return {valid: false, message: `The link you entered was invalid.`, link: rawLink};
   }
-
-  if (!parsedUrl.hostname) {
-    return {
-      valid: false,
-      message: `"${rawLink}" is not a valid url, please check and try again`
-    };
-  }
-
-  return {
-    valid: true
-  };
 };

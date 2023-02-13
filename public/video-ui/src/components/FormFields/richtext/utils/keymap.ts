@@ -4,6 +4,7 @@ import { Schema } from 'prosemirror-model';
 import { undo, redo } from 'prosemirror-history';
 import { undoInputRule } from 'prosemirror-inputrules';
 import { EditorState, Transaction } from 'prosemirror-state';
+import { toggleBulletListCommand } from '../MenuView';
 
 // These prosemirror-helper functions are a simplified version of what we use in Composer, and have been lifted and shifted from that repo
 
@@ -54,6 +55,10 @@ export const buildKeymap = (schema: Schema, init = {}, mapKeys: MapObject) => {
 
   if (schema.marks.strong) {
     bind('Mod-b', toggleMark(schema.marks.strong));
+  }
+
+  if (schema.marks.bullet_list) {
+    bind('Mod-m', toggleBulletListCommand(schema));
   }
 
   if (schema.marks.em) {

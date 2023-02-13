@@ -12,18 +12,6 @@ interface RichTextInputProps {
 }
 
 const RichTextInput = ({ value, onUpdate, config, label }: RichTextInputProps) => {
-  // const config = {
-  //     allowedNodes: [ "text", "hard_break"],
-  //     allowedMarks: [
-  //         "strong",
-  //         "strike",
-  //         "subscript",
-  //         "superscript",
-  //         "em",
-  //         "link"
-  //     ],
-  //     inlineOnly: true
-  // };
   const schema = createSchema(config);
 
   const editorEl = useRef<HTMLDivElement>(null);
@@ -47,7 +35,7 @@ const RichTextInput = ({ value, onUpdate, config, label }: RichTextInputProps) =
         </label>
       )}
       <div className="prosemirror__input">
-        {editorView && <MenuView edView={editorView} schema={schema} />}
+        {/* {editorView && <MenuView edView={editorView} schema={schema} />} */}
         <div
           className="ProseMirror-example-setup-style"
           ref={editorEl}

@@ -1,7 +1,7 @@
 import OrderedMap from "orderedmap";
 import { MarkSpec, NodeSpec, Schema } from "prosemirror-model";
 import { schema } from "prosemirror-schema-basic";
-import { bulletList, listItem } from "prosemirror-schema-list";
+import { addListNodes, bulletList, listItem } from "prosemirror-schema-list";
 import _ from 'lodash';
 
 export type EditorConfig = {
@@ -66,8 +66,8 @@ const listNodeSpecs = OrderedMap.from({
   bullet_list: bulletList
 });
 
-export const basicSchema = new Schema({
-  nodes: schema.spec.nodes.append(listNodeSpecs),
+export const basicSchemaWithLists = new Schema({
+  nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
   marks: schema.spec.marks
 });
 
@@ -106,14 +106,13 @@ export const createSchema = <Config extends EditorConfig>(
     ? BaseInlineEditorNodeSpec
     : BaseBlockEditorNodeSpec;
 
-  const filteredNodes = nodes.append(filterNodes(basicSchema.spec.nodes, allowedNodes));
+  const filteredNodeSpec = nodes.append(filterNodes(basicSchemaWithLists.spec.nodes, allowedNodes));
 
-  const marks: MarkSpec =
-      allowedMarks ? filterMarks(basicSchema.spec.marks, allowedMarks) : basicSchema.spec.marks;
+  const markSpec: MarkSpec = filterMarks(basicSchemaWithLists.spec.marks, allowedMarks)
 
   const schema = new Schema({
-    nodes: filteredNodes,
-    marks
+    nodes: filteredNodeSpec,
+    marks: markSpec
   });
 
   return schema;

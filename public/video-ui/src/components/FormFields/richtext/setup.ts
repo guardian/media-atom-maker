@@ -5,11 +5,14 @@ import { EditorView } from 'prosemirror-view';
 import { EditorState, Transaction } from 'prosemirror-state';
 import { RefObject } from 'react';
 import { history } from 'prosemirror-history';
+import { menuBar } from 'prosemirror-menu'
+import { buildMenuItems } from './menu';
 
 const createBasePlugins = (s: Schema) => {
   const plugins = [
     keymap(buildKeymap(s, {}, {})),
-    history({ depth: 100, newGroupDelay: 500 })
+    history({ depth: 100, newGroupDelay: 500 }),
+    menuBar({content: buildMenuItems(s)})
   ];
   return plugins;
 };
@@ -33,7 +36,6 @@ export const createEditorView = (
       ed.updateState(state);
 
       if (transactions.some((tr: Transaction) => tr.docChanged)) {
-        console.log(state.doc.content);
         const serializer = DOMSerializer.fromSchema(schema);
         const outputHtml = serializer.serializeFragment(state.doc.content);
         // to format the outputHtml as an html string rather than a document fragment, we are creating a temporary div, adding it as a child, then using innerHTML which returns an html string

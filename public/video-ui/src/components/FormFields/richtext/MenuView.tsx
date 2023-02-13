@@ -11,16 +11,17 @@ import { Command, EditorState, Transaction } from 'prosemirror-state';
 import { undo, redo } from 'prosemirror-history';
 import { NodeSpec, NodeType, Schema } from 'prosemirror-model';
 import { bulletList, listItem, wrapInList } from 'prosemirror-schema-list';
+import { createListToggleCommand } from './lists';
 
 
-const wrapListItemCommand = (nodeType: NodeType, options: Record<string, string>) => {
-  return wrapInList(nodeType, (options as any).attrs);
-};
+// const wrapListItemCommand = (nodeType: NodeType, options: Record<string, string>) => {
+//   return wrapInList(nodeType, (options as any).attrs);
+// };
 
-const wrapListCommand = (nodeType: NodeType) => wrapListItemCommand(nodeType, {
-  title: "Wrap in bullet list",
-  icon: icons.removeFormatting
-});
+export const toggleBulletListCommand = (schema: Schema) => createListToggleCommand(
+  schema.nodes.list_item,
+  schema.nodes.bullet_list
+);
 
 export const MenuView = ({ edView, schema }: { edView: EditorView, schema: Schema }) => {
   const linkEl = document.createElement('i');
@@ -67,18 +68,19 @@ export const MenuView = ({ edView, schema }: { edView: EditorView, schema: Schem
       dom: icons.unlink,
       title: 'remove-link',
       markName: 'link'
-    },
-    {
-      command: wrapListCommand(schema.nodes.bullet_list),
-      dom: icons.unlink,
-      title: 'bullet-list',
-      nodeName: 'bullet_list'
     }
   ];
   const filteredMarkItems = optionalMenuItems.filter(menuItem => menuItem.markName && Object.keys(schema.marks).includes(menuItem.markName));
-  const filteredNodeItems = optionalMenuItems.filter(menuItem => menuItem.nodeName && Object.keys(schema.nodes).includes(menuItem.nodeName));
-  const menuItems = [...filteredMarkItems, ...filteredNodeItems, ...compulsaryMenuItems];
-  console.log({...schema})
+  if (schema.nodes.bullet_list){
+    filteredMarkItems.push({
+      command: toggleBulletListCommand(schema),
+      dom: icons.unlink,
+      title: 'bullet-list',
+      markName: 'bullet-list'
+    });
+  }
+  const menuItems = [...filteredMarkItems, ...compulsaryMenuItems];
+
   return (
     <div className="prosemirror__menuBar">
       {menuItems.map((item, i) => {
