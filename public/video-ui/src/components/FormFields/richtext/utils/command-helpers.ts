@@ -52,62 +52,11 @@ function markExtend (state: EditorState, markType: MarkType) {
   return { from: startPos, to: endPos, mark };
 }
 
-function markActive(state: EditorState, markType: MarkType) {
+export const markActive = (state: EditorState, markType: MarkType) => {
   const {from, $from, to, empty} = state.selection;
   if (empty) return markType.isInSet(state.storedMarks || $from.marks());
   else return state.doc.rangeHasMark(from, to, markType);
 }
-
-// const newLinkCommand = (markType: MarkType) => (state: EditorState, dispatch: (tr: Transaction) => void, view: EditorView) => {
-//   if (markActive(state, markType)) {
-//     // Edit link
-//     const {from, to, mark} = markExtend(state, markType);
-//     openPrompt({
-//       title: "Edit link",
-//       fields: {
-//         href: new TextField({
-//           label: "Link target",
-//           required: true,
-//           value: mark.attrs.href
-//         }),
-//         title: new TextField({
-//           label: "Title",
-//           value: mark.attrs.title
-//         })
-//       },
-//       callback(attrs) {
-//         const updateMark = view.state.tr
-//           .removeMark(from, to, mark.type)
-//           .addMark(from, to, mark.type.create(attrs));
-//         view.dispatch(updateMark);
-//         view.focus();
-//         view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(from), view.state.doc.resolve(to))));
-//   },
-//       remove() {
-//         view.dispatch(view.state.tr.removeMark(from, to, mark.type));
-//         view.focus();
-//         view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(from), view.state.doc.resolve(to))));
-//       }
-//     });
-//     return true;
-//   } else {
-//     // createlink
-//     openPrompt({
-//       title: "Create a link",
-//       fields: {
-//         href: new TextField({
-//           label: "Link target",
-//           required: true
-//         }),
-//         title: new TextField({label: "Title"})
-//       },
-//       callback(attrs) {
-//         toggleMark(markType, attrs)(view.state, view.dispatch);
-//         view.focus();
-//       }
-//     });
-//   }
-// };
 
 export const linkItemCommand = (markType: MarkType) => (passedUrl: string | null = null) => (
   state: EditorState,

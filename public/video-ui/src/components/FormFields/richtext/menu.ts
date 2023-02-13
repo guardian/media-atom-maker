@@ -6,7 +6,7 @@ import { Command, EditorState } from "prosemirror-state";
 import { icons } from "./icons";
 import { isInNode } from "./lists";
 import { toggleBulletListCommand } from "./MenuView";
-import { linkItemCommand, newLinkItemCommand, unlinkItemCommand } from "./utils/command-helpers";
+import { newLinkItemCommand, unlinkItemCommand } from "./utils/command-helpers";
 
 export const cmdItem = (cmd: Command, options: Partial<MenuItemSpec>) => {
   const passedOptions = {
