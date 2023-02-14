@@ -39,7 +39,7 @@ export const standfirstConfig = {
 
 const BaseInlineEditorNodeSpec = OrderedMap.from<NodeSpec>({
   doc: {
-      content: "inline+",
+      content: "inline*",
       toDOM: () => ["div", 0]
   },
   text: schema.nodes.text

@@ -14,7 +14,10 @@ import { RichTextInput } from './RichTextInput';
 export default class ScribeEditorField extends React.Component {
   state = {
     wordCount: 0,
-    copiedValue: null
+    copiedValue: {
+      text: null,
+      seed: null
+    }
   };
 
   componentDidMount() {
@@ -24,7 +27,7 @@ export default class ScribeEditorField extends React.Component {
   updateValueFromCopy = () => {
     this.props.onUpdateField(this.props.derivedFrom);
     this.setState({
-      copiedValue: this.props.derivedFrom
+      copiedValue: {text: this.props.derivedFrom, seed: Math.random()}
     });
   };
 
@@ -139,6 +142,7 @@ export default class ScribeEditorField extends React.Component {
             allowedEdits={this.props.allowedEdits}
             copiedValue={this.state.copiedValue}
             config={this.props.config}
+            shouldAcceptCopiedText={!!this.props.derivedFrom}
           />
           {this.renderLimitWarning()}
         </div>
@@ -169,139 +173,139 @@ export default class ScribeEditorField extends React.Component {
   }
 }
 
-export class ScribeEditor extends React.Component {
-  static propTypes = {
-    fieldName: PropTypes.string,
-    value: PropTypes.string,
-    onUpdate: PropTypes.func,
-    allowedEdits: PropTypes.array
-  };
+// export class ScribeEditor extends React.Component {
+//   static propTypes = {
+//     fieldName: PropTypes.string,
+//     value: PropTypes.string,
+//     onUpdate: PropTypes.func,
+//     allowedEdits: PropTypes.array
+//   };
 
-  state = {
-    copiedValue: null
-  };
+//   state = {
+//     copiedValue: null
+//   };
 
 
-  componentDidMount() {
-    ReactTooltip.rebuild();
-    this.scribe = new Scribe(this.refs.editor);
+//   componentDidMount() {
+//     ReactTooltip.rebuild();
+//     this.scribe = new Scribe(this.refs.editor);
 
-    this.configureScribe();
+//     this.configureScribe();
 
-    this.scribe.on('content-changed', this.onContentChange);
-    this.refs.editor.innerHTML = this.props.value;
-  }
+//     this.scribe.on('content-changed', this.onContentChange);
+//     this.refs.editor.innerHTML = this.props.value;
+//   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.copiedValue !== this.state.copiedValue) {
-      this.refs.editor.innerHTML = nextProps.copiedValue;
-      this.setState({
-        copiedValue: nextProps.copiedValue
-      });
-    }
-  }
+//   componentWillReceiveProps(nextProps) {
+//     if (nextProps.copiedValue !== this.state.copiedValue) {
+//       this.refs.editor.innerHTML = nextProps.copiedValue;
+//       this.setState({
+//         copiedValue: nextProps.copiedValue
+//       });
+//     }
+//   }
 
-  configureScribe() {
+//   configureScribe() {
 
-    const allKeyboardShortcuts = {
-      bold: function(event) {
-        return event.metaKey && event.keyCode === keyCodes.b
-      },
-      italic: function(event) {
-        return event.metaKey && event.keyCode === keyCodes.i;
-      },
-      linkPrompt: function(event) {
-        return event.metaKey && !event.shiftKey && event.keyCode === keyCodes.k;
-      },
-      unlink: function(event) {
-        return event.metaKey && event.shiftKey && event.keyCode === keyCodes.k;
-      },
-      insertUnorderedList: function(event) {
-        return event.altKey && event.shiftKey && event.keyCode === keyCodes.b;
-      }
-    }
+//     const allKeyboardShortcuts = {
+//       bold: function(event) {
+//         return event.metaKey && event.keyCode === keyCodes.b
+//       },
+//       italic: function(event) {
+//         return event.metaKey && event.keyCode === keyCodes.i;
+//       },
+//       linkPrompt: function(event) {
+//         return event.metaKey && !event.shiftKey && event.keyCode === keyCodes.k;
+//       },
+//       unlink: function(event) {
+//         return event.metaKey && event.shiftKey && event.keyCode === keyCodes.k;
+//       },
+//       insertUnorderedList: function(event) {
+//         return event.altKey && event.shiftKey && event.keyCode === keyCodes.b;
+//       }
+//     }
 
-    // Create an instance of the Scribe toolbar
-    this.scribe.use(scribePluginToolbar(this.refs.toolbar));
+//     // Create an instance of the Scribe toolbar
+//     this.scribe.use(scribePluginToolbar(this.refs.toolbar));
 
-    const keyboardShortcuts = this.props.allowedEdits.reduce((shortcuts, edit) => {
-      shortcuts[edit] = allKeyboardShortcuts[edit];
-      return shortcuts;
-    }, {});
+//     const keyboardShortcuts = this.props.allowedEdits.reduce((shortcuts, edit) => {
+//       shortcuts[edit] = allKeyboardShortcuts[edit];
+//       return shortcuts;
+//     }, {});
 
-    // Configure Scribe plugins
-    this.scribe.use(scribePluginLinkPromptCommand());
-    this.scribe.use(
-      scribeKeyboardShortcutsPlugin(keyboardShortcuts)
-    );
+//     // Configure Scribe plugins
+//     this.scribe.use(scribePluginLinkPromptCommand());
+//     this.scribe.use(
+//       scribeKeyboardShortcutsPlugin(keyboardShortcuts)
+//     );
 
-    this.scribe.use(
-      scribePluginSanitizer({
-        tags: {
-          p: {},
-          i: {},
-          b: {},
-          a: {
-            href: true
-          },
-          ul: {},
-          ol: {},
-          li: {}
-        }
-      })
-    );
-  }
+//     this.scribe.use(
+//       scribePluginSanitizer({
+//         tags: {
+//           p: {},
+//           i: {},
+//           b: {},
+//           a: {
+//             href: true
+//           },
+//           ul: {},
+//           ol: {},
+//           li: {}
+//         }
+//       })
+//     );
+//   }
 
-  shouldComponentUpdate(nextProps) {
-    return nextProps.value !== this.refs.editor.innerHTML;
-  }
+//   shouldComponentUpdate(nextProps) {
+//     return nextProps.value !== this.refs.editor.innerHTML;
+//   }
 
-  onContentChange = () => {
-    const newContent = this.refs.editor.innerHTML;
-    if (newContent !== this.props.value) {
-      this.props.onUpdate(newContent);
-    }
-  };
+//   onContentChange = () => {
+//     const newContent = this.refs.editor.innerHTML;
+//     if (newContent !== this.props.value) {
+//       this.props.onUpdate(newContent);
+//     }
+//   };
 
-  render() {
+//   render() {
 
-    const getEditButtonIcon = (name) => {
-      switch(name) {
-        case 'bold':
-          return 'format_bold';
-        case 'italic':
-          return 'format_italic';
-        case 'linkPrompt':
-          return 'link';
-        case 'unlink':
-          return 'link_off';
-        case 'insertUnorderedList':
-          return 'format_list_bulleted';
-      }
-    };
+//     const getEditButtonIcon = (name) => {
+//       switch(name) {
+//         case 'bold':
+//           return 'format_bold';
+//         case 'italic':
+//           return 'format_italic';
+//         case 'linkPrompt':
+//           return 'link';
+//         case 'unlink':
+//           return 'link_off';
+//         case 'insertUnorderedList':
+//           return 'format_list_bulleted';
+//       }
+//     };
 
-    return (
-      <div className="scribe__container">
-        <div ref="toolbar" className="scribe__toolbar">
-          {this.props.allowedEdits.map(edit => {
-            return (
-              <button
-                type="button"
-                data-command-name={edit}
-                className="scribe__toolbar__item"
-                key={edit}
-              >
-                <Icon icon={getEditButtonIcon(edit)} />
-              </button>
-            );
-          })}
-        </div>
-        <div
-          id={this.props.fieldName}
-          ref="editor"
-          className="scribe__editor"
-        />
-      </div>
-    );
-  }
-}
+//     return (
+//       <div className="scribe__container">
+//         <div ref="toolbar" className="scribe__toolbar">
+//           {this.props.allowedEdits.map(edit => {
+//             return (
+//               <button
+//                 type="button"
+//                 data-command-name={edit}
+//                 className="scribe__toolbar__item"
+//                 key={edit}
+//               >
+//                 <Icon icon={getEditButtonIcon(edit)} />
+//               </button>
+//             );
+//           })}
+//         </div>
+//         <div
+//           id={this.props.fieldName}
+//           ref="editor"
+//           className="scribe__editor"
+//         />
+//       </div>
+//     );
+//   }
+// }

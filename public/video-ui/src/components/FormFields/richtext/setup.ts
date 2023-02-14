@@ -32,7 +32,9 @@ export const createEditorView = (
   }
   const ed: EditorView = new EditorView(editorEl.current, {
     state: EditorState.create({
-      doc: DOMParser.fromSchema(schema).parse(contentEl),
+      doc: DOMParser.fromSchema(schema).parse(contentEl, {
+        preserveWhitespace: true
+      }),
       plugins: createBasePlugins(schema, config)
     }),
     dispatchTransaction: (transaction: Transaction) => {
