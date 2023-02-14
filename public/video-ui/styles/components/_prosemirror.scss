@@ -1,107 +1,105 @@
-.ProseMirror-textblock-dropdown {
-  min-width: 3em;
+// .ProseMirror-textblock-dropdown {
+//   min-width: 3em;
+// }
+
+// .ProseMirror-menu {
+//   margin: 0;
+//   line-height: 1;
+// }
+
+.ProseMirror p {
+  margin: 0px
 }
 
-.ProseMirror-menu {
-  margin: 0;
-  line-height: 1;
-}
+// .ProseMirror-tooltip .ProseMirror-menu {
+//   width: -webkit-fit-content;
+//   width: fit-content;
+//   white-space: pre;
+// }
 
-.ProseMirror-tooltip .ProseMirror-menu {
-  width: -webkit-fit-content;
-  width: fit-content;
-  white-space: pre;
-}
+// .ProseMirror-menuseparator {
+//   border-right: 1px solid #ddd;
+//   margin-right: 3px;
+// }
 
-.ProseMirror-menuitem {
-  margin-right: 3px;
-  display: inline-block;
-  font-family: 'Material Icons';
-}
+// .ProseMirror-menu-dropdown, .ProseMirror-menu-dropdown-menu {
+//   font-size: 90%;
+//   white-space: nowrap;
+// }
 
-.ProseMirror-menuseparator {
-  border-right: 1px solid #ddd;
-  margin-right: 3px;
-}
+// .ProseMirror-menu-dropdown {
+//   vertical-align: 1px;
+//   cursor: pointer;
+//   position: relative;
+//   padding-right: 15px;
+// }
 
-.ProseMirror-menu-dropdown, .ProseMirror-menu-dropdown-menu {
-  font-size: 90%;
-  white-space: nowrap;
-}
+// .ProseMirror-menu-dropdown-wrap {
+//   padding: 1px 0 1px 4px;
+//   display: inline-block;
+//   position: relative;
+// }
 
-.ProseMirror-menu-dropdown {
-  vertical-align: 1px;
-  cursor: pointer;
-  position: relative;
-  padding-right: 15px;
-}
+// .ProseMirror-menu-dropdown:after {
+//   content: "";
+//   border-left: 4px solid transparent;
+//   border-right: 4px solid transparent;
+//   border-top: 4px solid currentColor;
+//   opacity: .6;
+//   position: absolute;
+//   right: 4px;
+//   top: calc(50% - 2px);
+// }
 
-.ProseMirror-menu-dropdown-wrap {
-  padding: 1px 0 1px 4px;
-  display: inline-block;
-  position: relative;
-}
+// .ProseMirror-menu-dropdown-menu, .ProseMirror-menu-submenu {
+//   position: absolute;
+//   background: white;
+//   color: #666;
+//   border: 1px solid #aaa;
+//   padding: 2px;
+// }
 
-.ProseMirror-menu-dropdown:after {
-  content: "";
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  border-top: 4px solid currentColor;
-  opacity: .6;
-  position: absolute;
-  right: 4px;
-  top: calc(50% - 2px);
-}
+// .ProseMirror-menu-dropdown-menu {
+//   z-index: 15;
+//   min-width: 6em;
+// }
 
-.ProseMirror-menu-dropdown-menu, .ProseMirror-menu-submenu {
-  position: absolute;
-  background: white;
-  color: #666;
-  border: 1px solid #aaa;
-  padding: 2px;
-}
+// .ProseMirror-menu-dropdown-item {
+//   cursor: pointer;
+//   padding: 2px 8px 2px 4px;
+// }
 
-.ProseMirror-menu-dropdown-menu {
-  z-index: 15;
-  min-width: 6em;
-}
+// .ProseMirror-menu-dropdown-item:hover {
+//   background: #f2f2f2;
+// }
 
-.ProseMirror-menu-dropdown-item {
-  cursor: pointer;
-  padding: 2px 8px 2px 4px;
-}
+// .ProseMirror-menu-submenu-wrap {
+//   position: relative;
+//   margin-right: -4px;
+// }
 
-.ProseMirror-menu-dropdown-item:hover {
-  background: #f2f2f2;
-}
+// .ProseMirror-menu-submenu-label:after {
+//   content: "";
+//   border-top: 4px solid transparent;
+//   border-bottom: 4px solid transparent;
+//   border-left: 4px solid currentColor;
+//   opacity: .6;
+//   position: absolute;
+//   right: 4px;
+//   top: calc(50% - 4px);
+// }
 
-.ProseMirror-menu-submenu-wrap {
-  position: relative;
-  margin-right: -4px;
-}
+// .ProseMirror-menu-submenu {
+//   display: none;
+//   min-width: 4em;
+//   left: 100%;
+//   top: -3px;
+// }
 
-.ProseMirror-menu-submenu-label:after {
-  content: "";
-  border-top: 4px solid transparent;
-  border-bottom: 4px solid transparent;
-  border-left: 4px solid currentColor;
-  opacity: .6;
-  position: absolute;
-  right: 4px;
-  top: calc(50% - 4px);
-}
-
-.ProseMirror-menu-submenu {
-  display: none;
-  min-width: 4em;
-  left: 100%;
-  top: -3px;
-}
-
-.ProseMirror-menu-active {
-  background: #eee;
-  border-radius: 4px;
-}
+// .ProseMirror-menu-active {
+//   background: #eee;
+//   border-radius: 4px;
+// }
 
 .ProseMirror-menu-disabled {
   opacity: .3;
@@ -111,21 +109,21 @@
   display: block;
 }
 
-.ProseMirror-menubar {
-  border-top-left-radius: inherit;
-  border-top-right-radius: inherit;
-  position: relative;
-  min-height: 1em;
-  color: #666;
-  padding: 1px 6px;
-  top: 0; left: 0; right: 0;
-  border-bottom: 1px solid silver;
-  background: white;
-  z-index: 10;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  overflow: visible;
-}
+// .ProseMirror-menubar {
+//   border-top-left-radius: inherit;
+//   border-top-right-radius: inherit;
+//   position: relative;
+//   min-height: 1em;
+//   color: #666;
+//   padding: 1px 6px;
+//   top: 0; left: 0; right: 0;
+//   border-bottom: 1px solid silver;
+//   // background: white;
+//   z-index: 10;
+//   -moz-box-sizing: border-box;
+//   box-sizing: border-box;
+//   overflow: visible;
+// }
 
 .ProseMirror-icon {
   display: inline-block;
@@ -148,7 +146,7 @@
   vertical-align: text-top;
 }
 
-.ProseMirror-example-setup-style {
+.ProseMirror {
   width: 100%;
   padding: 20px;
   background: #393939;
@@ -159,7 +157,7 @@
   width: 100%;
 }
 
-.prosemirror__menuBar {
+.ProseMirror-menubar {
   display: flex;
   flex-direction: row;
 }
@@ -171,28 +169,13 @@
 .prosemirror__iconBox:hover svg {
   fill: #ffbc01;
 }
-.prosemirror__iconBox {
-  // width: 30px;
-  // height: 25px;
-  // padding: 4px;
-  // background: transparent;
-  // text-align: center;
-  // border: 1px solid black;
-  // background-color: white;
-  // :hover {
-  //   background-color: gainsboro;
-  //   cursor: pointer;
-  // }
-  // svg {
-  //   height: 100%;
-  //   fill: black;
-  // }
-  width: 32px;
-  height: 32px;
-  padding: 10px;
-  font-size: 12px;
+.ProseMirror-menuitem {
+  width: 36px;
+  height: 36px;
+  font-size: 16px;
   background-color: $color650Grey;
   color: $color300Grey;
+  font-family: 'Material Icons';
   border: {
     left: 1px solid $color500Grey;
     top: 1px solid $color500Grey;
@@ -205,16 +188,17 @@
   &:hover {
     background-color: $color625Grey;
     color: $brandColor;
+    cursor: pointer;
   }
 
-  i.icon {
-    font-size: $iconSize;
+  div {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    line-height: 36px;
   }
+}
 
-  svg {
-      height: 100%;
-      width: 100%;
-      fill: white;
-      font-size: $iconSize;
-    }
+.ProseMirror-menu-active {
+  color: $brandColor;
 }

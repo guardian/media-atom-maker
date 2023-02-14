@@ -57,12 +57,12 @@ export const MenuView = ({ edView, schema }: { edView: EditorView, schema: Schem
       title: 'italic',
       markName: 'em'
     },
-    {
-      command: linkItemCommand(schema.marks.link)(),
-      dom: icons.link,
-      title: 'add-link',
-      markName: 'link'
-    },
+    // {
+    //   command: linkItemCommand(schema.marks.link)(),
+    //   dom: icons.link,
+    //   title: 'add-link',
+    //   markName: 'link'
+    // },
     {
       command: unlinkItemCommand(schema.marks.link),
       dom: icons.unlink,

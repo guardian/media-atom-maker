@@ -23,7 +23,7 @@ const RichTextInput = ({ value, onUpdate, config, label }: RichTextInputProps) =
     // Editor view takes an HTML Node therefore this string value needs to be converted into a node by placing in a div
     const contentNode = document.createElement('div');
     contentNode.innerHTML = value;
-    const edView = createEditorView(onUpdate, editorEl, contentNode, schema);
+    const edView = createEditorView(onUpdate, editorEl, contentNode, schema, config);
     setEditorView(edView);
   }, []);
 

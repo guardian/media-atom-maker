@@ -1,10 +1,11 @@
-import { toggleMark } from 'prosemirror-commands';
+import { chainCommands, createParagraphNear, liftEmptyBlock, newlineInCode, splitBlockKeepMarks, toggleMark } from 'prosemirror-commands';
 import { linkItemCommand, unlinkItemCommand } from './command-helpers';
 import { Schema } from 'prosemirror-model';
 import { undo, redo } from 'prosemirror-history';
 import { undoInputRule } from 'prosemirror-inputrules';
 import { EditorState, Transaction } from 'prosemirror-state';
 import { toggleBulletListCommand } from '../MenuView';
+import { EditorConfig } from '../create-schema';
 
 // These prosemirror-helper functions are a simplified version of what we use in Composer, and have been lifted and shifted from that repo
 
@@ -28,7 +29,14 @@ const createAddHardBreak = (schema: Schema) => (
   return true;
 };
 
-export const buildKeymap = (schema: Schema, init = {}, mapKeys: MapObject) => {
+const addParagraph = chainCommands(
+      newlineInCode,
+      createParagraphNear,
+      liftEmptyBlock,
+      splitBlockKeepMarks
+  );
+
+export const buildKeymap = (schema: Schema, init = {}, mapKeys: MapObject, config: EditorConfig) => {
   const keys: MapObject = init;
   const bind = (key: string, cmd: any) => {
     if (mapKeys) {
@@ -51,7 +59,11 @@ export const buildKeymap = (schema: Schema, init = {}, mapKeys: MapObject) => {
     bind('Mod-y', redo);
   }
 
-  bind('Enter', createAddHardBreak(schema));
+  if (config.inlineOnly === true){
+    bind('Enter', createAddHardBreak(schema));
+  } else {
+    bind('Enter', addParagraph);
+  }
 
   if (schema.marks.strong) {
     bind('Mod-b', toggleMark(schema.marks.strong));
@@ -66,7 +78,7 @@ export const buildKeymap = (schema: Schema, init = {}, mapKeys: MapObject) => {
   }
 
   if (schema.marks.link) {
-    bind('Mod-k', linkItemCommand(schema.marks.link)());
+    bind('Mod-k', linkItemCommand(schema.marks.link));
     bind('Shift-Mod-k', unlinkItemCommand(schema.marks.link));
   }
 

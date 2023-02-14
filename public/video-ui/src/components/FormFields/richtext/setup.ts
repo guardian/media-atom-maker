@@ -7,12 +7,13 @@ import { RefObject } from 'react';
 import { history } from 'prosemirror-history';
 import { menuBar } from 'prosemirror-menu'
 import { buildMenuItems } from './menu';
+import { EditorConfig } from './create-schema';
 
-const createBasePlugins = (s: Schema) => {
+const createBasePlugins = (schema: Schema, config: EditorConfig) => {
   const plugins = [
-    keymap(buildKeymap(s, {}, {})),
+    keymap(buildKeymap(schema, {}, {}, config)),
     history({ depth: 100, newGroupDelay: 500 }),
-    menuBar({content: buildMenuItems(s)})
+    menuBar({content: buildMenuItems(schema)})
   ];
   return plugins;
 };
@@ -21,7 +22,8 @@ export const createEditorView = (
   onChange: (str: string) => void,
   editorEl: RefObject<HTMLDivElement>,
   contentEl: HTMLDivElement,
-  schema: Schema
+  schema: Schema,
+  config: EditorConfig
 ) => {
   if (!editorEl.current) {
     return;
@@ -29,7 +31,7 @@ export const createEditorView = (
   const ed: EditorView = new EditorView(editorEl.current, {
     state: EditorState.create({
       doc: DOMParser.fromSchema(schema).parse(contentEl),
-      plugins: createBasePlugins(schema)
+      plugins: createBasePlugins(schema, config)
     }),
     dispatchTransaction: (transaction: Transaction) => {
       const { state, transactions } = ed.state.applyTransaction(transaction);

@@ -6,7 +6,7 @@ import { Command, EditorState } from "prosemirror-state";
 import { icons } from "./icons";
 import { isInNode } from "./lists";
 import { toggleBulletListCommand } from "./MenuView";
-import { newLinkItemCommand, unlinkItemCommand } from "./utils/command-helpers";
+import { linkItemCommand, unlinkItemCommand } from "./utils/command-helpers";
 
 export const cmdItem = (cmd: Command, options: Partial<MenuItemSpec>) => {
   const passedOptions = {
@@ -38,7 +38,7 @@ const linkItem = (markType: MarkType, options: Partial<MenuItemSpec>) => {
   const passedOptions: MenuItemSpec = {
     active: (state) => { return !!markActive(state, markType); },
     enable: (state) => { return true; },
-    run: newLinkItemCommand(markType),
+    run: linkItemCommand(markType),
     label: options.title as string,
     ...options
   };

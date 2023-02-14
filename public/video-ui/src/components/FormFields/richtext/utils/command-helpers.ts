@@ -58,31 +58,7 @@ export const markActive = (state: EditorState, markType: MarkType) => {
   else return state.doc.rangeHasMark(from, to, markType);
 }
 
-export const linkItemCommand = (markType: MarkType) => (passedUrl: string | null = null) => (
-  state: EditorState,
-  dispatch: (tr: Transaction) => void
-) => {
-  const maybeUrlResult = passedUrl
-    ? { url: passedUrl, from: state.selection.from, to: state.selection.to }
-    : promptForLink(state, markType);
-
-  if (maybeUrlResult && maybeUrlResult.from !== undefined && maybeUrlResult.to !== undefined) {
-    const { from, to, url } = maybeUrlResult;
-    const { valid, message } = linkValidator(url);
-    if (valid) {
-      const parsedUrl = parseURL(url);
-      dispatch(
-        state.tr.addMark(from, to, markType.create({ href: parsedUrl }))
-      );
-    } else {
-      if (message!== "Empty URL provided"){
-        window.alert(message);
-      }
-    }
-  }
-};
-
-export const newLinkItemCommand = (markType: MarkType, customPrompt?: string, defaultValue?: string): Command => (
+export const linkItemCommand = (markType: MarkType, customPrompt?: string, defaultValue?: string): Command => (
   state: EditorState,
   dispatch: (tr: Transaction) => void
 ) => {
@@ -97,7 +73,7 @@ export const newLinkItemCommand = (markType: MarkType, customPrompt?: string, de
         state.tr.addMark(from, to, markType.create({ href: parsedUrl }))
       );
     } else {
-      return newLinkItemCommand(markType, `${message} - please check your link and try again.`, link)(state, dispatch);
+      return linkItemCommand(markType, `${message} - please check your link and try again.`, link)(state, dispatch);
     }
   }
   return false;
