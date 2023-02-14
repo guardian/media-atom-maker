@@ -36,7 +36,7 @@ export const markItem = (markType: MarkType, options: Partial<MenuItemSpec>) => 
 const linkItem = (markType: MarkType, options: Partial<MenuItemSpec>) => {
   const passedOptions: MenuItemSpec = {
     active: (state) => { return !!markActive(state, markType); },
-    enable: (state) => { return true; },
+    enable: (state) => { return !state.selection.empty; },
     run: linkItemCommand(markType),
     label: options.title as string,
     ...options
