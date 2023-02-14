@@ -2,7 +2,6 @@ import { chainCommands, createParagraphNear, liftEmptyBlock, newlineInCode, spli
 import { linkItemCommand, unlinkItemCommand } from './command-helpers';
 import { Schema } from 'prosemirror-model';
 import { undo, redo } from 'prosemirror-history';
-import { undoInputRule } from 'prosemirror-inputrules';
 import { EditorState, Transaction } from 'prosemirror-state';
 import { EditorConfig } from '../create-schema';
 import { toggleBulletListCommand } from '../lists';

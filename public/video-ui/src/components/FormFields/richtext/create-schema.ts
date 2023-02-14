@@ -67,7 +67,7 @@ const listNodeSpecs = OrderedMap.from({
 });
 
 export const basicSchemaWithLists = new Schema({
-  nodes: addListNodes(schema.spec.nodes, "paragraph *", "paragraph"),
+  nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
   marks: schema.spec.marks
 });
 
