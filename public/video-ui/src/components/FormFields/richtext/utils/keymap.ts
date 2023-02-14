@@ -6,6 +6,7 @@ import { undoInputRule } from 'prosemirror-inputrules';
 import { EditorState, Transaction } from 'prosemirror-state';
 import { EditorConfig } from '../create-schema';
 import { toggleBulletListCommand } from '../lists';
+import { splitListItem } from 'prosemirror-schema-list';
 
 // These prosemirror-helper functions are a simplified version of what we use in Composer, and have been lifted and shifted from that repo
 
@@ -61,7 +62,10 @@ export const buildKeymap = (schema: Schema, init = {}, mapKeys: MapObject, confi
   if (config.inlineOnly === true){
     bind('Enter', createAddHardBreak(schema));
   } else {
-    bind('Enter', addParagraph);
+    bind(
+      "Enter",
+      splitListItem(schema.nodes.list_item)
+  );
   }
 
   if (schema.marks.strong) {
