@@ -1,7 +1,13 @@
-import { NodeType } from "prosemirror-model";
+import { NodeType, Schema } from "prosemirror-model";
 import { liftListItem, wrapInList } from "prosemirror-schema-list";
 import { Command, EditorState, Transaction } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
+
+
+export const toggleBulletListCommand = (schema: Schema) => createListToggleCommand(
+  schema.nodes.list_item,
+  schema.nodes.bullet_list
+);
 
 export function isInNode(
   state: EditorState,

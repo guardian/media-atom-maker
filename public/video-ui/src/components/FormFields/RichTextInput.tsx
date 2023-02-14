@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { EditorView } from 'prosemirror-view';
 import { createEditorView } from './richtext/setup';
-import { MenuView } from './richtext/MenuView';
 import { createSchema, EditorConfig } from './richtext/create-schema';
 
 interface RichTextInputProps {
@@ -35,7 +34,6 @@ const RichTextInput = ({ value, onUpdate, config, label }: RichTextInputProps) =
         </label>
       )}
       <div className="prosemirror__input">
-        {/* {editorView && <MenuView edView={editorView} schema={schema} />} */}
         <div
           className="ProseMirror-example-setup-style"
           ref={editorEl}

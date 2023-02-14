@@ -4,8 +4,7 @@ import { Mark, MarkType, NodeType, Schema } from "prosemirror-model";
 import { wrapInList } from "prosemirror-schema-list";
 import { Command, EditorState } from "prosemirror-state";
 import { icons } from "./icons";
-import { isInNode } from "./lists";
-import { toggleBulletListCommand } from "./MenuView";
+import { isInNode, toggleBulletListCommand } from "./lists";
 import { linkItemCommand, unlinkItemCommand } from "./utils/command-helpers";
 
 export const cmdItem = (cmd: Command, options: Partial<MenuItemSpec>) => {
@@ -50,17 +49,6 @@ const unlinkItem = (markType: MarkType, options: Partial<MenuItemSpec>) => {
     active: (state) => { return !!markActive(state, markType); },
     enable: (state) => { return !!markActive(state, markType); },
     run: unlinkItemCommand(markType),
-    label: options.title as string,
-    ...options
-  };
-  return new MenuItem(passedOptions);
-};
-
-const listItem = (schema: Schema) => (markType: MarkType, options: Partial<MenuItemSpec>) => {
-  const passedOptions: MenuItemSpec = {
-    active: (state) => { return !!markActive(state, markType); },
-    enable: (state) => { return !!markActive(state, markType); },
-    run: toggleBulletListCommand(schema),
     label: options.title as string,
     ...options
   };
