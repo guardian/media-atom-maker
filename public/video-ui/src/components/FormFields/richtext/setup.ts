@@ -8,10 +8,12 @@ import { history } from 'prosemirror-history';
 import { menuBar } from 'prosemirror-menu'
 import { buildMenuItems } from './menu';
 import { EditorConfig } from './create-schema';
+import { baseKeymap } from 'prosemirror-commands';
 
 const createBasePlugins = (schema: Schema, config: EditorConfig) => {
   const plugins = [
     keymap(buildKeymap(schema, {}, {}, config)),
+    keymap(baseKeymap),
     history({ depth: 100, newGroupDelay: 500 }),
     menuBar({content: buildMenuItems(schema)})
   ];

@@ -53,7 +53,6 @@ export const buildKeymap = (schema: Schema, init = {}, mapKeys: MapObject, confi
 
   bind('Mod-z', undo);
   bind('Shift-Mod-z', redo);
-  bind('Backspace', undoInputRule);
 
   if (!mac) {
     bind('Mod-y', redo);
