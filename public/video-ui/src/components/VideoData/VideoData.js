@@ -86,7 +86,6 @@ export default class VideoData extends React.Component {
           maxLength={fieldLengths.description.max}
         >
           <EditorField
-            allowedEdits={['bold', 'italic', 'linkPrompt', 'unlink', 'insertUnorderedList']}
             config={standfirstConfig}
           />
         </ManagedField>
@@ -100,7 +99,6 @@ export default class VideoData extends React.Component {
           isRequired={canonicalVideoPageExists}
         >
           <EditorField
-            allowedEdits={['bold', 'italic']}
             isDesired={!canonicalVideoPageExists}
             isRequired={canonicalVideoPageExists}
             config={trailTextConfig}

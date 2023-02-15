@@ -1,9 +1,33 @@
 import React from 'react';
 import RequiredForComposer from '../../constants/requiredForComposer';
+import { EditorConfig } from './richtext/config';
 import { RichTextInput } from './RichTextInput';
 
-export default class EditorField extends React.Component {
-  state = {
+type EditorState = {
+  wordCount: number;
+  copiedValue: {
+    text: string | null;
+    seed: number | null;
+  }
+  isTooLong?: boolean;
+}
+type EditorProps = {
+  fieldValue: string;
+  derivedFrom: string;
+  onUpdateField: (string: string) => any;
+  maxLength: number;
+  maxCharLength: number;
+  editable: boolean;
+  fieldLocation: string;
+  fieldName: string;
+  config: EditorConfig;
+  placeholder: string;
+  isDesired?: boolean;
+  isRequired?: boolean;
+}
+
+export default class EditorField extends React.Component<EditorProps, EditorState> {
+  state: EditorState = {
     wordCount: 0,
     copiedValue: {
       text: null,
@@ -22,7 +46,7 @@ export default class EditorField extends React.Component {
     });
   };
 
-  getWords = text => {
+  getWords = (text: string) => {
     if (!text) {
       return [];
     }
@@ -34,7 +58,7 @@ export default class EditorField extends React.Component {
       .filter(_ => _.length !== 0);
   };
 
-  updateWordCount = text => {
+  updateWordCount = (text: string) => {
     const count = text ? this.getWords(text).length : 0;
 
     this.setState({
@@ -43,7 +67,7 @@ export default class EditorField extends React.Component {
     });
   };
 
-  isTooLong = value => {
+  isTooLong = (value: string) => {
     const wordLength = this.getWords(value).reduce((length, word) => {
       length += word.length;
       return length;
@@ -54,7 +78,7 @@ export default class EditorField extends React.Component {
     );
   };
 
-  updateFieldValue = value => {
+  updateFieldValue = (value: string) => {
     if (!this.isTooLong(value)) {
       this.setState({
         isTooLong: false
@@ -104,7 +128,6 @@ export default class EditorField extends React.Component {
     const requiresValidation = this.state.wordCount === 0  && this.props.fieldLocation === 'trailText';
     const hasWarning = requiresValidation && this.props.isDesired;
     const hasError = requiresValidation && this.props.isRequired;
-
     if (!this.props.editable) {
       if (this.state.wordCount === 0) {
         return (
@@ -124,13 +147,11 @@ export default class EditorField extends React.Component {
     return (
       <div>
         <div
-          className={(this.props.formRowClass || 'form__row') + ' editor__row'}
+          className={'form__row editor__row'}
         >
           <RichTextInput
-            fieldName={this.props.fieldName}
             value={this.props.fieldValue}
             onUpdate={this.updateFieldValue}
-            allowedEdits={this.props.allowedEdits}
             copiedValue={this.state.copiedValue}
             config={this.props.config}
             shouldAcceptCopiedText={!!this.props.derivedFrom}
