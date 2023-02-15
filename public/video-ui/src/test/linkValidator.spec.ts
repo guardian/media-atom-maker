@@ -1,5 +1,5 @@
 import * as fc from 'fast-check';
-import { linkValidator, parseURL } from '../components/FormFields/richtext/utils/link-validator';
+import { linkValidator, parseURL } from '../components/FormFields/richtext/utils/linkValidator';
 
 const parse = (url: string, agreeable: boolean) => {
   return parseURL(url, () => agreeable);

@@ -1,4 +1,4 @@
-import { parseURL, linkValidator } from './link-validator';
+import { parseURL, linkValidator } from './linkValidator';
 import { Mark, MarkType } from 'prosemirror-model';
 import { Command, EditorState, Transaction } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
