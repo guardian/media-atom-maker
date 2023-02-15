@@ -24,39 +24,11 @@ export const unlinkItemCommand = (mark: MarkType) => (
   dispatch(state.tr.removeMark(from, to, mark));
 };
 
-function markExtend (state: EditorState, markType: MarkType) {
-  let markStart, mark: boolean|Mark = false;
-  state.doc.nodesBetween(state.selection.from, state.selection.to, (node, pos) => {
-    if (mark !== false) {return false;}
-    const foundMark = markType.isInSet(node.marks);
-    if (foundMark) {markStart = pos; mark = foundMark;}
-  });
-
-  const $start = state.doc.resolve(markStart);
-  let startIndex = $start.index(),
-      endIndex = $start.indexAfter();
-
-  while (startIndex > 0 && markType.isInSet($start.parent.child(startIndex - 1).marks)) startIndex--;
-  while (
-    endIndex < $start.parent.childCount &&
-    markType.isInSet($start.parent.child(endIndex).marks)
-  ) { endIndex++; }
-  let startPos = $start.start(),
-      endPos = startPos;
-
-  for (let i = 0; i < endIndex; i++) {
-    const size = $start.parent.child(i).nodeSize;
-    if (i < startIndex) startPos += size;
-    endPos += size;
-  }
-  return { from: startPos, to: endPos, mark };
-}
-
 export const markActive = (state: EditorState, markType: MarkType) => {
   const {from, $from, to, empty} = state.selection;
   if (empty) return markType.isInSet(state.storedMarks || $from.marks());
   else return state.doc.rangeHasMark(from, to, markType);
-}
+};
 
 export const linkItemCommand = (markType: MarkType, customPrompt?: string, defaultValue?: string): Command => (
   state: EditorState,
@@ -76,6 +48,7 @@ export const linkItemCommand = (markType: MarkType, customPrompt?: string, defau
       return linkItemCommand(markType, `${message} - please check your link and try again.`, link)(state, dispatch);
     }
   }
+
   return false;
 };
 
@@ -102,7 +75,7 @@ const promptForLink = (state: EditorState, markType: MarkType, customPrompt?: st
  * end of the selection rightwards - it doesn't check for contiguous marks within
  * the selection. It will behave oddly if this isn't the case.
  */
-function getExpandedSelectionForMark(state: EditorState, currentMark: any) {
+const getExpandedSelectionForMark = (state: EditorState, currentMark: any) => {
   if (!currentMark) {
     return { from: state.selection.from, to: state.selection.to, href: null };
   }
@@ -135,7 +108,7 @@ function getExpandedSelectionForMark(state: EditorState, currentMark: any) {
   const href = currentMark.attrs ? currentMark.attrs.href : null;
 
   return { from: startPos, to: endPos, href };
-}
+};
 
 // if not in a link this will return the selection on `from` and `to` and a null
 // on `href` on the return object, otherwise it will return the href and the
@@ -145,7 +118,7 @@ const getCurrentHrefAndEditRange = (state: EditorState, markType: MarkType) => {
   return getExpandedSelectionForMark(state, currentMark);
 };
 
-export function markEnabled(state: EditorState, type: MarkType) {
+const markEnabled = (state: EditorState, type: MarkType) => {
   const { from, $from, to, empty } = state.selection;
 
   if (empty) {
@@ -153,9 +126,9 @@ export function markEnabled(state: EditorState, type: MarkType) {
   } else {
     return state.doc.rangeHasMark(from, to, type);
   }
-}
+};
 
-export function areMarksEqualForSelection(state: EditorState, type: MarkType) {
+const areMarksEqualForSelection = (state: EditorState, type: MarkType) => {
   const { from, to, empty } = state.selection;
   const mark = type.isInSet(
     state.storedMarks || state.doc.resolve(from + 1).marks()
@@ -170,13 +143,4 @@ export function areMarksEqualForSelection(state: EditorState, type: MarkType) {
     }
   }
   return mark;
-}
-
-export function removeAllMarksFromSelection(
-  state: EditorState,
-  dispatch: (tr: Transaction) => void
-) {
-  dispatch(
-    state.tr.removeMark(state.selection.$from.pos, state.selection.$to.pos)
-  );
-}
+};
