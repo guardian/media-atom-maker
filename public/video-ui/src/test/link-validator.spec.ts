@@ -1,5 +1,5 @@
 import * as fc from 'fast-check';
-import { linkValidator, parseURL } from '../link-validator';
+import { linkValidator, parseURL } from '../components/FormFields/richtext/utils/link-validator';
 
 const parse = (url: string, agreeable: boolean) => {
   return parseURL(url, () => agreeable);
@@ -13,19 +13,19 @@ describe('Validate links', () => {
       })
     );
   });
-  it('for any arbitrary valid domain (without protocol prefix), return valid', () => {
+  it('for any arbitrary valid domain (without protocol prefix), return invalid', () => {
     fc.assert(
       fc.property(fc.domain(), (domain) => {
-        expect(linkValidator(domain).valid).toBe(true);
+        expect(linkValidator(domain).valid).toBe(false);
       })
     );
   });
   it('for any arbitrary non-link string, return invalid', () => {
     fc.assert(
-      fc.property(fc.hexaString({minLength: 0, maxLength: 1000}), (str) => {
+      fc.property(fc.hexaString({minLength: 1, maxLength: 1000}), (str) => {
         expect(linkValidator(str).valid).toBe(false);
         expect(linkValidator(str).message).toBe(
-          `"${str}" is not a valid url, please check and try again`
+          `A valid URL should start with 'https://' or 'http://'.`
         );
       })
     );
@@ -50,7 +50,7 @@ describe('Parse potential link types', () => {
   it('should identify and parse web domains', () => {
     fc.assert(
       fc.property(fc.domain(), (domain) => {
-        expect(parse(domain, true)).toBe(`http://${domain}`);
+        expect(parse(domain, true)).toBe(`https://${domain}`);
       })
     );
   });

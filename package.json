@@ -64,6 +64,7 @@
     "@dnd-kit/sortable": "^7.0.2",
     "@dnd-kit/utilities": "^3.2.1",
     "aws-sdk": "^2.1309.0",
+    "fast-check": "^3.6.3",
     "fork-ts-checker-webpack-plugin": "^5.2.1",
     "moment": "^2.29.4",
     "panda-session": "^0.1.6",
