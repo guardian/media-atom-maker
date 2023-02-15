@@ -1,6 +1,7 @@
 import React from 'react';
 import RequiredForComposer from '../../constants/requiredForComposer';
 import { EditorConfig } from './richtext/config';
+import { getWords, isTooLong } from './richtext/utils/richTextHelpers';
 import { RichTextInput } from './RichTextInput';
 
 type EditorState = {
@@ -46,20 +47,8 @@ export default class EditorField extends React.Component<EditorProps, EditorStat
     });
   };
 
-  getWords = (text: string) => {
-    if (!text) {
-      return [];
-    }
-
-    return text
-      .trim()
-      .replace(/<(?:.|\n)*?>/gm, '')
-      .split(/\s+/)
-      .filter(_ => _.length !== 0);
-  };
-
   updateWordCount = (text: string) => {
-    const count = text ? this.getWords(text).length : 0;
+    const count = text ? getWords(text).length : 0;
 
     this.setState({
       wordCount: count,
@@ -67,19 +56,8 @@ export default class EditorField extends React.Component<EditorProps, EditorStat
     });
   };
 
-  isTooLong = (value: string) => {
-    const wordLength = this.getWords(value).reduce((length, word) => {
-      length += word.length;
-      return length;
-    }, 0);
-    return (
-      wordLength > this.props.maxLength ||
-      value.length > this.props.maxCharLength
-    );
-  };
-
   updateFieldValue = (value: string) => {
-    if (!this.isTooLong(value)) {
+    if (!isTooLong(value, this.props.maxLength, this.props.maxCharLength)) {
       this.setState({
         isTooLong: false
       });
