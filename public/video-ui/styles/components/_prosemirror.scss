@@ -13,7 +13,7 @@
 .ProseMirror-icon {
   display: inline-block;
   line-height: .8;
-  vertical-align: -2px; /* Compensate for padding */
+  vertical-align: -2px;
   padding: 2px 8px;
   cursor: pointer;
 }
@@ -36,7 +36,7 @@
   padding: 20px;
   background: #393939;
   border: 1px solid #898984;
-  white-space: pre;
+  white-space: pre-wrap;
 }
 
 .prosemirror__input {
@@ -87,4 +87,8 @@
 
 .ProseMirror-menu-active {
   color: $brandColor;
+}
+
+.form__message__text--error {
+  color: $dangerColor;
 }
