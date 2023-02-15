@@ -5,10 +5,10 @@ import { EditorView } from 'prosemirror-view';
 import { EditorState, Transaction } from 'prosemirror-state';
 import { RefObject } from 'react';
 import { history } from 'prosemirror-history';
-import { menuBar } from 'prosemirror-menu'
+import { menuBar } from 'prosemirror-menu';
 import { buildMenuItems } from './menu';
-import { EditorConfig } from './create-schema';
 import { baseKeymap } from 'prosemirror-commands';
+import { EditorConfig } from './config';
 
 const createBasePlugins = (schema: Schema, config: EditorConfig) => {
   const plugins = [

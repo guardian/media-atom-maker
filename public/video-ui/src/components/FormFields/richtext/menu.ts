@@ -1,10 +1,8 @@
 import { toggleMark } from "prosemirror-commands";
 import { MenuElement, MenuItem, MenuItemSpec } from "prosemirror-menu";
-import { Mark, MarkType, NodeType, Schema } from "prosemirror-model";
-import { wrapInList } from "prosemirror-schema-list";
+import { MarkType, NodeType, Schema } from "prosemirror-model";
 import { Command, EditorState } from "prosemirror-state";
-import { icons } from "./icons";
-import { isInNode, toggleBulletListCommand } from "./lists";
+import { isInNode, toggleBulletListCommand } from "./utils/listsHelpers";
 import { linkItemCommand, unlinkItemCommand } from "./utils/command-helpers";
 
 export const cmdItem = (cmd: Command, options: Partial<MenuItemSpec>) => {

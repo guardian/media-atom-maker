@@ -1,9 +1,10 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { EditorView } from 'prosemirror-view';
 import { createEditorView } from './richtext/setup';
-import { createSchema, EditorConfig } from './richtext/create-schema';
+import { createSchema } from './richtext/create-schema';
 import { AllSelection, Transaction } from 'prosemirror-state';
 import { DOMParser as parseDOM, Node } from 'prosemirror-model';
+import { EditorConfig } from './richtext/config';
 
 
 interface RichTextInputProps {

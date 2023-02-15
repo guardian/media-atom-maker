@@ -91,11 +91,6 @@
     "redux": "^4.2.1",
     "redux-thunk": "^2.4.2",
     "reqwest": "^2.0.5",
-    "scribe-editor": "^3.3.0",
-    "scribe-plugin-keyboard-shortcuts": "^0.1.1",
-    "scribe-plugin-link-prompt-command": "^1.0.0",
-    "scribe-plugin-sanitizer": "^0.1.11",
-    "scribe-plugin-toolbar": "^1.0.0",
     "ts-loader": "8.2.0",
     "typescript": "^4.7.4",
     "valid-url": "^1.0.9"

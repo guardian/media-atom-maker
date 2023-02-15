@@ -1,17 +1,8 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import Scribe from 'scribe-editor';
-import scribeKeyboardShortcutsPlugin from 'scribe-plugin-keyboard-shortcuts';
-import scribePluginToolbar from 'scribe-plugin-toolbar';
-import scribePluginLinkPromptCommand from 'scribe-plugin-link-prompt-command';
-import scribePluginSanitizer from 'scribe-plugin-sanitizer';
-import {keyCodes} from '../../constants/keyCodes';
 import RequiredForComposer from '../../constants/requiredForComposer';
-import ReactTooltip from 'react-tooltip';
-import Icon from "../Icon";
 import { RichTextInput } from './RichTextInput';
 
-export default class ScribeEditorField extends React.Component {
+export default class EditorField extends React.Component {
   state = {
     wordCount: 0,
     copiedValue: {
@@ -124,7 +115,7 @@ export default class ScribeEditorField extends React.Component {
       }
       return (
         <div
-          className="details-list__field details-list__field--scribe"
+          className="details-list__field details-list__field-with-content"
           dangerouslySetInnerHTML={{ __html: this.props.fieldValue }}
         />
       );
@@ -133,7 +124,7 @@ export default class ScribeEditorField extends React.Component {
     return (
       <div>
         <div
-          className={(this.props.formRowClass || 'form__row') + ' scribe__row'}
+          className={(this.props.formRowClass || 'form__row') + ' editor__row'}
         >
           <RichTextInput
             fieldName={this.props.fieldName}

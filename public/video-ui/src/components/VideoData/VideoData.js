@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import TextInput from '../FormFields/TextInput';
 import DurationInput from '../FormFields/DurationInput';
-import ScribeEditorField from '../FormFields/ScribeEditor';
+import EditorField from '../FormFields/RichTextEditor';
 import SelectBox from '../FormFields/SelectBox';
 import DatePicker from '../FormFields/DatePicker';
 import TagPicker from '../FormFields/TagPicker';
@@ -13,7 +13,7 @@ import { videoCategories } from '../../constants/videoCategories';
 import VideoUtils from '../../util/video';
 import {formNames} from "../../constants/formNames";
 import FieldNotification from "../../constants/FieldNotification";
-import { trailTextConfig, standfirstConfig } from "../FormFields/richtext/create-schema";
+import { trailTextConfig, standfirstConfig } from "../FormFields/richtext/config";
 
 export default class VideoData extends React.Component {
   static propTypes = {
@@ -85,7 +85,7 @@ export default class VideoData extends React.Component {
           maxCharLength={fieldLengths.description.charMax}
           maxLength={fieldLengths.description.max}
         >
-          <ScribeEditorField
+          <EditorField
             allowedEdits={['bold', 'italic', 'linkPrompt', 'unlink', 'insertUnorderedList']}
             config={standfirstConfig}
           />
@@ -99,7 +99,7 @@ export default class VideoData extends React.Component {
           isDesired={!canonicalVideoPageExists}
           isRequired={canonicalVideoPageExists}
         >
-          <ScribeEditorField
+          <EditorField
             allowedEdits={['bold', 'italic']}
             isDesired={!canonicalVideoPageExists}
             isRequired={canonicalVideoPageExists}

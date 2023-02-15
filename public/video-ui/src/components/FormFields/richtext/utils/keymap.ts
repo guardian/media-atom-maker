@@ -3,9 +3,9 @@ import { linkItemCommand, unlinkItemCommand } from './command-helpers';
 import { Schema } from 'prosemirror-model';
 import { undo, redo } from 'prosemirror-history';
 import { EditorState, Transaction } from 'prosemirror-state';
-import { EditorConfig } from '../create-schema';
-import { toggleBulletListCommand } from '../lists';
+import { toggleBulletListCommand } from './listsHelpers';
 import { splitListItem } from 'prosemirror-schema-list';
+import { EditorConfig } from '../config';
 
 // These prosemirror-helper functions are a simplified version of what we use in Composer, and have been lifted and shifted from that repo
 

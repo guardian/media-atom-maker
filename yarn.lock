@@ -5275,10 +5275,6 @@ html-escaper@^2.0.0:
   resolved "https://registry.yarnpkg.com/html-escaper/-/html-escaper-2.0.2.tgz#dfd60027da36a36dfcbe236262c00a5822681453"
   integrity sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==
 
-html-janitor@^2.0.4:
-  version "2.0.4"
-  resolved "https://registry.yarnpkg.com/html-janitor/-/html-janitor-2.0.4.tgz#ae5a115cdf3331cd5501edd7b5471b18ea44cdbb"
-
 http-deceiver@^1.2.7:
   version "1.2.7"
   resolved "https://registry.yarnpkg.com/http-deceiver/-/http-deceiver-1.2.7.tgz#fa7168944ab9a519d337cb0bec7284dc3e723d87"
@@ -5389,10 +5385,6 @@ ignore@^5.2.0:
   version "5.2.4"
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-5.2.4.tgz#a291c0c6178ff1b960befe47fcdec301674a6324"
   integrity sha512-MAb38BcSbH0eHNBxn7ql2NH/kX33OkB3lZ1BNdh7ENeRChHTYsTvWrMubiIAMNS2llXEEgZ1MUOBtXChP3kaFQ==
-
-immutable@~3.8.1:
-  version "3.8.1"
-  resolved "https://registry.yarnpkg.com/immutable/-/immutable-3.8.1.tgz#200807f11ab0f72710ea485542de088075f68cd2"
 
 import-fresh@^3.0.0:
   version "3.2.1"
@@ -6630,14 +6622,6 @@ locate-path@^5.0.0:
   integrity sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g==
   dependencies:
     p-locate "^4.1.0"
-
-lodash-amd@~2.4.1:
-  version "2.4.1"
-  resolved "https://registry.yarnpkg.com/lodash-amd/-/lodash-amd-2.4.1.tgz#f8e1ceceeb818f7f3284ec0c3581d63c51f3ec63"
-
-lodash-amd@~3.5.0:
-  version "3.5.0"
-  resolved "https://registry.yarnpkg.com/lodash-amd/-/lodash-amd-3.5.0.tgz#a08aaafc6d8fb8e72253fab837f4ffb7d1c7ecdd"
 
 lodash.memoize@4.x:
   version "4.1.2"
@@ -8815,34 +8799,6 @@ schema-utils@^1.0.0:
     ajv "^6.1.0"
     ajv-errors "^1.0.0"
     ajv-keywords "^3.1.0"
-
-scribe-editor@^3.3.0:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/scribe-editor/-/scribe-editor-3.3.0.tgz#10762ab343ac104c061df41a41bbcc4c7e2a5408"
-  dependencies:
-    immutable "~3.8.1"
-
-scribe-plugin-keyboard-shortcuts@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/scribe-plugin-keyboard-shortcuts/-/scribe-plugin-keyboard-shortcuts-0.1.1.tgz#fb4b377512e905312ae0255b451201afc4500694"
-  dependencies:
-    lodash-amd "~2.4.1"
-
-scribe-plugin-link-prompt-command@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/scribe-plugin-link-prompt-command/-/scribe-plugin-link-prompt-command-1.0.0.tgz#c2c4afe0e55350dbceb746592f7e9cb7654a6058"
-
-scribe-plugin-sanitizer@^0.1.11:
-  version "0.1.11"
-  resolved "https://registry.yarnpkg.com/scribe-plugin-sanitizer/-/scribe-plugin-sanitizer-0.1.11.tgz#76cf004313e504414297c18fa7a16da1e897fe43"
-  integrity sha512-u0PVk54Ys/SORmh7edK7VoYMA14CMFXjvLBSYUmFF//IpPYa1gdJxQ0pcPiOs0KxWWq2yFGOjHZ43R5lH2q60A==
-  dependencies:
-    html-janitor "^2.0.4"
-    lodash-amd "~3.5.0"
-
-scribe-plugin-toolbar@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/scribe-plugin-toolbar/-/scribe-plugin-toolbar-1.0.0.tgz#3da21eb9f632a508ef44f6f7936aee274fac1c34"
 
 scss-tokenizer@^0.2.3:
   version "0.2.3"
