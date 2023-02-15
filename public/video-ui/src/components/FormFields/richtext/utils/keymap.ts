@@ -7,8 +7,6 @@ import { toggleBulletListCommand } from './listsHelpers';
 import { splitListItem } from 'prosemirror-schema-list';
 import { EditorConfig } from '../config';
 
-// These prosemirror-helper functions are a simplified version of what we use in Composer, and have been lifted and shifted from that repo
-
 interface MapObject {
   [key: string]: any;
 }
@@ -28,13 +26,6 @@ const createAddHardBreak = (schema: Schema) => (
   }
   return true;
 };
-
-const addParagraph = chainCommands(
-      newlineInCode,
-      createParagraphNear,
-      liftEmptyBlock,
-      splitBlockKeepMarks
-  );
 
 export const buildKeymap = (schema: Schema, init = {}, mapKeys: MapObject, config: EditorConfig) => {
   const keys: MapObject = init;

@@ -39,5 +39,5 @@ export function createListToggleCommand(
           const wrap = wrapCommand(view && view.state || state, dispatch);
           return unwrap || wrap;
       }
-  }
+  };
 }

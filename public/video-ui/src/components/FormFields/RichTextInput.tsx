@@ -1,10 +1,11 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { EditorView } from 'prosemirror-view';
 import { createEditorView } from './richtext/setup';
-import { createSchema } from './richtext/create-schema';
+import { createSchema } from './richtext/createSchema';
 import { AllSelection, Transaction } from 'prosemirror-state';
 import { DOMParser as parseDOM, Node } from 'prosemirror-model';
 import { EditorConfig } from './richtext/config';
+import { paragraphToWhitespace } from './richtext/utils/richTextHelpers';
 
 
 interface RichTextInputProps {
@@ -19,7 +20,7 @@ interface RichTextInputProps {
   shouldAcceptCopiedText: boolean;
 }
 
-const RichTextInput = ({ value, onUpdate, config, label, copiedValue, shouldAcceptCopiedText = false }: RichTextInputProps) => {
+export const RichTextInput = ({ value, onUpdate, config, label, copiedValue, shouldAcceptCopiedText = false }: RichTextInputProps) => {
   const schema = createSchema(config);
 
   const editorEl = useRef<HTMLDivElement>(null);
@@ -34,16 +35,6 @@ const RichTextInput = ({ value, onUpdate, config, label, copiedValue, shouldAcce
     const edView = createEditorView(onUpdate, editorEl, contentNode, schema, config);
     setEditorView(edView);
   }, []);
-
-  const paragraphToWhitespace = (string: string) => {
-    // Only the first paragraph tag
-    string = string.replace("<p>","");
-    // Replace subsequent paragraph tags with hard breaks
-    string = string.replace(/<p>/g,"<br>");
-    // Remove all paragraph closing tags
-    string = string.replace(/<\/p>/g,"");
-    return `${string}`;
-  };
 
   const setContent = (tr: Transaction, node: Node): Transaction => {
     const sel = new AllSelection(tr.doc);
@@ -84,5 +75,3 @@ const RichTextInput = ({ value, onUpdate, config, label, copiedValue, shouldAcce
     </>
   );
 };
-
-export { RichTextInput };
