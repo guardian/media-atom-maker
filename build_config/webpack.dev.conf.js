@@ -53,8 +53,10 @@ module.exports = {
       ignoreOrder: false // Enable to remove warnings about conflicting order
     }),
     new ForkTsCheckerWebpackPlugin({
-      compilerOptions: {
-          noEmit: true
+      typescript: {
+        compilerOptions: {
+            noEmit: true
+        }
       }
     })
   ]
