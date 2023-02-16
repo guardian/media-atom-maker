@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import TextInput from '../FormFields/TextInput';
 import DurationInput from '../FormFields/DurationInput';
-import EditorField from '../FormFields/RichTextEditor';
+import RichTextField from '../FormFields/RichTextField';
 import SelectBox from '../FormFields/SelectBox';
 import DatePicker from '../FormFields/DatePicker';
 import TagPicker from '../FormFields/TagPicker';
@@ -85,7 +85,7 @@ export default class VideoData extends React.Component {
           maxCharLength={fieldLengths.description.charMax}
           maxLength={fieldLengths.description.max}
         >
-          <EditorField
+          <RichTextField
             config={standfirstConfig}
           />
         </ManagedField>
@@ -98,7 +98,7 @@ export default class VideoData extends React.Component {
           isDesired={!canonicalVideoPageExists}
           isRequired={canonicalVideoPageExists}
         >
-          <EditorField
+          <RichTextField
             isDesired={!canonicalVideoPageExists}
             isRequired={canonicalVideoPageExists}
             config={trailTextConfig}
