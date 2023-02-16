@@ -38,5 +38,5 @@ var wpServer = new WebpackDevServer(webpack(wpConfig), {
 //wpServer.use('/public', express.static('public'));
 
 wpServer.listen(wpConfig.port, wpConfig.addr, function() {
-    console.log('WebpackDevServer listening on port %d', wpConfig.port);
+    console.log('WebpackDevServer listening on port %d', wpConfig.devServer.port);
 });
