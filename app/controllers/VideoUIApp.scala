@@ -25,7 +25,7 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
   def index(id: String = ""): Action[AnyContent] = AuthAction.async { implicit req =>
     val isTrainingMode = isInTrainingMode(req)
 
-    val jsFileName = "video-ui/build/app.js"
+    val jsFileName = "video-ui/build/main.js"
 
     val jsAssetHost = sys.env.get("JS_ASSET_HOST")
 
