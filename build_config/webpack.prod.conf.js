@@ -32,11 +32,14 @@ module.exports = {
       },
       {
         test: /\.woff(2)?(\?v=[0-9].[0-9].[0-9])?$/,
-        loader: 'url-loader?mimetype=application/font-woff'
+        loader: 'url-loader',
+        options: {
+          mimetype: 'application/font-woff'
+        }
       },
       {
         test: /\.(ttf|eot|svg|gif|png)(\?v=[0-9].[0-9].[0-9])?$/,
-        loader: 'file-loader?name=[name].[ext]'
+        type: "asset/inline"
       }
     ],
     // http://andrewhfarmer.com/aws-sdk-with-webpack/
