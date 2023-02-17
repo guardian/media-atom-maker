@@ -2,7 +2,7 @@
   "name": "media-atom-maker",
   "description": "media atom editor",
   "scripts": {
-    "build": "webpack -p ./public/video-ui/src/app.js -o ./public/video-ui/build/ --config ./build_config/webpack.prod.conf.js",
+    "build": "webpack --mode=production ./public/video-ui/src/app.js -o ./public/video-ui/build/ --config ./build_config/webpack.prod.conf.js",
     "build-dev": "webpack -o ./public/video-ui/build/ --config ./build_config/webpack.dev.conf.js --watch",
     "client-dev": "node ./webpack-dev-server.js",
     "lint": "eslint public/video-ui/src/**/*.js",

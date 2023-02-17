@@ -56,7 +56,10 @@ module.exports = {
         NODE_ENV: '"production"'
       }
     }),
-    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^\.\/locale$/,
+      contextRegExp: /moment$/
+    })
   ],
   resolve: {
     extensions: ['.js', '.jsx', '.json', '.ts', '.tsx']
