@@ -31,7 +31,7 @@ val logstashLogbackEncoderVersion = "4.8"
 val permissionsClientVersion = "0.8"
 
 val guavaVersion = "31.1-jre"
-val googleOauthVersion = "1.33.3"
+val googleOauthVersion = "1.34.1"
 val googleHttpJacksonVersion = "1.41.7"
 val commonsLoggingVersion = "1.1.1"
 val apacheHttpClientVersion = "4.0.1"
@@ -40,12 +40,12 @@ val apacheHttpCoreVersion = "4.0.1"
 val googleApiClientVersion = "1.34.0"
 val youTubeApiClientVersion = "v3-rev178-1.22.0"
 
-val jsoupVersion = "1.8.3"
+val jsoupVersion = "1.15.4"
 
 val enumeratumVersion = "1.5.15"
 
-lazy val jacksonVersion = "2.13.4"
-lazy val jacksonDatabindVersion = "2.13.4.2"
+lazy val jacksonVersion = "2.14.2"
+lazy val jacksonDatabindVersion = "2.14.2"
 
 lazy val commonSettings = Seq(
   ThisBuild / scalaVersion := "2.12.16",
