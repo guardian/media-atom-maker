@@ -42,6 +42,10 @@
   padding: 3px;
 }
 
+.form__field__selected__tag__draggable {
+  cursor: grab;
+}
+
 .form__field__tag__list {
   padding: 3px;
   border: 1px solid $color400Grey;

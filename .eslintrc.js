@@ -1,19 +1,16 @@
 module.exports = {
-  env: {
-    browser: true,
-    es6: true,
-    jest: true
-  },
-  extends: ['eslint:recommended', 'plugin:react/recommended', 'prettier'],
-  plugins: ['react', 'prettier'],
+  parser: '@typescript-eslint/parser',
+  extends: [
+    'plugin:react/recommended',
+  ],
   parserOptions: {
-    ecmaVersion: 6,
+    ecmaVersion: 2020,
     sourceType: 'module',
     ecmaFeatures: {
       jsx: true
-    }
+    },
   },
-  parser: 'babel-eslint',
+  plugins: ['react', 'prettier'],
   rules: {
     'react/prop-types': 'off',
     'jsx-quotes': ['error', 'prefer-double'],
