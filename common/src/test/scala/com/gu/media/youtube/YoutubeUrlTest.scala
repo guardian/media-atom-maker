@@ -31,6 +31,14 @@ class YoutubeUrlTest extends FunSuite with MustMatchers {
     YoutubeUrl.parse("https://www.youtube.com/embed/CqUDO-livlc?rel=0&autoplay=1") must be(Some("CqUDO-livlc"))
   }
 
+  test("Extract video id from YouTube live URL with extra param") {
+    YoutubeUrl.parse("https://www.youtube.com/live/CqUDO-livlc?feature=share") must be(Some("CqUDO-livlc"))
+  }
+
+  test("Extract video id from YouTube live URL missing www.") {
+    YoutubeUrl.parse("https://youtube.com/live/CqUDO-livlc?feature=share") must be(Some("CqUDO-livlc"))
+  }
+
   test("Fail to extract video id from invalid URL") {
     YoutubeUrl.parse("https://www.foo.com/watch?v=CqUDO-livlc") must be(None)
   }
