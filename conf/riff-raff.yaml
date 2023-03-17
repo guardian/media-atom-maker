@@ -12,7 +12,7 @@ deployments:
       app: media-atom-maker
       parameters:
         amiTags:
-          Recipe: editorial-tools-focal-java8
+          Recipe: editorial-tools-focal-java8-ARM
           AmigoStage: PROD
   media-atom-maker:
     type: autoscaling
