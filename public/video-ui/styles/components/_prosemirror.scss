@@ -1,0 +1,95 @@
+.ProseMirror p {
+  margin: 0px
+}
+
+.ProseMirror-menu-disabled {
+  opacity: .3;
+}
+
+.ProseMirror-menu-submenu-wrap:hover .ProseMirror-menu-submenu, .ProseMirror-menu-submenu-wrap-active .ProseMirror-menu-submenu {
+  display: block;
+}
+
+.ProseMirror-icon {
+  display: inline-block;
+  line-height: .8;
+  vertical-align: -2px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.ProseMirror-menu-disabled.ProseMirror-icon {
+  cursor: default;
+}
+
+.ProseMirror-icon svg {
+  fill: currentColor;
+  height: 1em;
+}
+
+.ProseMirror-icon span {
+  vertical-align: text-top;
+}
+
+.ProseMirror {
+  width: 100%;
+  padding: 20px;
+  background: #393939;
+  border: 1px solid #898984;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.prosemirror__input {
+  width: 100%;
+}
+
+.ProseMirror-menubar {
+  display: flex;
+  flex-direction: row;
+}
+
+.prosemirror__iconBox:hover {
+  cursor: pointer;
+}
+
+.prosemirror__iconBox:hover svg {
+  fill: #ffbc01;
+}
+.ProseMirror-menuitem {
+  width: 36px;
+  height: 36px;
+  font-size: 16px;
+  background-color: $color650Grey;
+  color: $color300Grey;
+  font-family: 'Material Icons';
+  border: {
+    left: 1px solid $color500Grey;
+    top: 1px solid $color500Grey;
+  }
+
+  &:last-child {
+    border-right: 1px solid $color500Grey;
+  }
+
+  &:hover {
+    background-color: $color625Grey;
+    color: $brandColor;
+    cursor: pointer;
+  }
+
+  div {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    line-height: 36px;
+  }
+}
+
+.ProseMirror-menu-active {
+  color: $brandColor;
+}
+
+.form__message__text--error {
+  color: $dangerColor;
+}
