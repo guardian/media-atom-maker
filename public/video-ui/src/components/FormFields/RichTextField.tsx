@@ -6,10 +6,6 @@ import { RichTextEditor } from './RichTextEditor';
 
 type EditorState = {
   wordCount: number;
-  copiedValue: {
-    text: string | null;
-    seed: number | null;
-  }
   isTooLong?: boolean;
 }
 type EditorProps = {
@@ -30,10 +26,6 @@ type EditorProps = {
 export default class RichTextField extends React.Component<EditorProps, EditorState> {
   state: EditorState = {
     wordCount: 0,
-    copiedValue: {
-      text: null,
-      seed: null
-    }
   };
 
   componentDidMount() {
@@ -42,9 +34,6 @@ export default class RichTextField extends React.Component<EditorProps, EditorSt
 
   updateValueFromCopy = () => {
     this.props.onUpdateField(this.props.derivedFrom);
-    this.setState({
-      copiedValue: {text: this.props.derivedFrom, seed: Math.random()}
-    });
   };
 
   updateWordCount = (text: string) => {
@@ -130,7 +119,6 @@ export default class RichTextField extends React.Component<EditorProps, EditorSt
           <RichTextEditor
             value={this.props.fieldValue}
             onUpdate={this.updateFieldValue}
-            copiedValue={this.state.copiedValue}
             config={this.props.config}
             shouldAcceptCopiedText={!!this.props.derivedFrom}
           />

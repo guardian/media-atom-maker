@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { EditorView } from 'prosemirror-view';
 import { createEditorView } from './richtext/setup';
 import { createSchema } from './richtext/createSchema';
@@ -13,17 +13,19 @@ interface RichTextEditorProps {
   onUpdate: (str: string) => void;
   config: EditorConfig;
   label?: string;
-  copiedValue?: {
-    text: string,
-    seed: number
-  }
   shouldAcceptCopiedText: boolean;
 }
 
-export const RichTextEditor = ({ value, onUpdate, config, label, copiedValue, shouldAcceptCopiedText = false }: RichTextEditorProps) => {
+export const RichTextEditor = ({ value, onUpdate, config, label, shouldAcceptCopiedText = false }: RichTextEditorProps) => {
   const schema = createSchema(config);
 
   const editorEl = useRef<HTMLDivElement>(null);
+  const localOnUpdate = useCallback((str: string) => {
+    setLocalValue(str);
+    onUpdate(str);
+  }, [onUpdate]);
+
+  const [localValue, setLocalValue] = useState<string>(value);
   const [editorView, setEditorView] = useState<EditorView | undefined>(
     undefined
   );
@@ -32,31 +34,23 @@ export const RichTextEditor = ({ value, onUpdate, config, label, copiedValue, sh
     // Editor view takes an HTML Node therefore this string value needs to be converted into a node by placing in a div
     const contentNode = document.createElement('div');
     contentNode.innerHTML = value;
-    const edView = createEditorView(onUpdate, editorEl, contentNode, schema, config);
+    const edView = createEditorView(localOnUpdate, editorEl, contentNode, schema, config);
     setEditorView(edView);
   }, []);
 
-  const setContent = (tr: Transaction, node: Node): Transaction => {
-    const sel = new AllSelection(tr.doc);
-    sel.replaceWith(tr, node);
-    return tr;
-  };
-
   useEffect(() => {
-    if (copiedValue.text && editorView && shouldAcceptCopiedText){
-      const parser = parseDOM.fromSchema(schema);
-      const domParser = new DOMParser();
-      const dom = domParser.parseFromString("", "text/html").body;
-      const doc = parser.parse(dom);
-      // Empty the text content of the derived field (trail text)
-      editorView.dispatch(
-          setContent(editorView.state.tr, doc)
-      );
-      // Add the new content to that field
-      const valueWithParagraphsAsHardBreaks = paragraphToWhitespace(copiedValue.text);
-      editorView.pasteHTML(valueWithParagraphsAsHardBreaks);
+    const shouldUpdateFromIncomingValue = value !== localValue;
+    if (!editorView || !shouldAcceptCopiedText || !shouldUpdateFromIncomingValue) {
+      return;
     }
-  }, [copiedValue.text, copiedValue.seed]);
+
+    // Clear the current document
+    const selectAll = editorView.state.tr.setSelection(new AllSelection(editorView.state.doc));
+    editorView.dispatch(selectAll);
+
+    const valueWithParagraphsAsHardBreaks = paragraphToWhitespace(value);
+    editorView.pasteHTML(valueWithParagraphsAsHardBreaks);
+  }, [value]);
 
   return (
     <>

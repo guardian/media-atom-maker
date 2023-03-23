@@ -5,7 +5,7 @@ export const paragraphToWhitespace = (string: string): string => {
   string = string.replace(/<p>/g,"<br>");
   // Remove all paragraph closing tags
   string = string.replace(/<\/p>/g,"");
-  return `${string}`;
+  return string;
 };
 
 export const getWords = (text: string): string[] => {
