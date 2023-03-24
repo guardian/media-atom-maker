@@ -32,7 +32,7 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
     val logoHeight: Double = logo.getHeight() / (logo.getWidth() / logoWidth)
 
     // amount of padding (px) on left and bottom of logo
-    val PADDING = (logoHeight/8).toInt
+    val PADDING = (logoHeight/4).toInt
     val logoX = PADDING
     val logoY = bgImage.getHeight() - logoHeight.toInt - PADDING
 
