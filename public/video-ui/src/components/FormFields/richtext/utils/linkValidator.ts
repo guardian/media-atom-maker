@@ -62,7 +62,7 @@ const isEdToolsDomain = (rawLink: string) => {
 };
 
 export const linkValidator = (rawLink: string) => {
-  if (rawLink === ""){
+  if (!rawLink){
     return {valid: false, message: "Empty URL provided", link: rawLink};
   }
   if (isEdToolsDomain(rawLink)) {
