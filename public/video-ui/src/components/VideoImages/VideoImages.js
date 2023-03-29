@@ -38,10 +38,10 @@ export default class VideoImages extends React.Component {
 
     return (
       <div className="video__imagebox">
-        <div className="video__detailbox">
+        <div className="video__images">
           <div className="video__detailbox__header__container">
             <header className="video__detailbox__header">
-              Main Image (YouTube poster)
+              Main Image
             </header>
             <GridImageSelect
               image={this.props.video.posterImage}
@@ -49,12 +49,12 @@ export default class VideoImages extends React.Component {
               gridDomain={this.props.gridDomain}
               disabled={this.props.videoEditOpen}
               updateVideo={this.saveAndUpdateVideoImage}
-              fieldLocation="posterImage" 
+              fieldLocation="posterImage"
             />
           </div>
           <GridImage image={this.props.video.posterImage} />
         </div>
-        <div className="video__detailbox">
+        <div className="video__images">
           <div className="video__detailbox__header__container">
             <header className="video__detailbox__header">
               Composer Trail Image
@@ -65,15 +65,15 @@ export default class VideoImages extends React.Component {
               gridDomain={this.props.gridDomain}
               disabled={trailImageDisabled}
               updateVideo={this.saveAndUpdateVideoImage}
-              fieldLocation="trailImage" 
+              fieldLocation="trailImage"
             />
           </div>
           <GridImage image={this.props.video.trailImage} />
         </div>
-        <div className="video__detailbox">
+        <div className="video__images">
           <div className="video__detailbox__header__container">
             <header className="video__detailbox__header">
-              Youtube Thumbnail Image Override
+              Youtube Thumbnail Image
             </header>
             <GridImageSelect
               image={this.props.video.youtubeOverrideImage}
@@ -81,7 +81,7 @@ export default class VideoImages extends React.Component {
               gridDomain={this.props.gridDomain}
               disabled={this.props.videoEditOpen}
               updateVideo={this.saveAndUpdateVideoImage}
-              fieldLocation="youtubeOverrideImage" 
+              fieldLocation="youtubeOverrideImage"
             />
           </div>
           <GridImage image={this.props.video.youtubeOverrideImage} />
