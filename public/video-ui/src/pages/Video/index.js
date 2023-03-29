@@ -103,7 +103,7 @@ class VideoDisplay extends React.Component {
   renderDescription(){
     return (
       <div>
-        <p className="video__images_heading">How are these fields used?</p>
+        <p className="video__images_heading">How are these images used?</p>
         <div>
           <table class="video__images_description_table">
             <thead>
