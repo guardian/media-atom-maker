@@ -10,7 +10,14 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: 'babel-loader?cacheDirectory=true'
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              cacheDirectory: true
+            }
+          }
+        ]
       },
       {
         test: /\.tsx?$/,
@@ -36,10 +43,7 @@ module.exports = {
       },
       {
         test: /\.(ttf|eot|svg|gif|png)(\?v=[0-9].[0-9].[0-9])?$/,
-        loader: 'file-loader',
-        options: {
-          name: '[name].[ext]'
-        }
+        type: "asset/inline"
       }
     ],
     // http://andrewhfarmer.com/aws-sdk-with-webpack/

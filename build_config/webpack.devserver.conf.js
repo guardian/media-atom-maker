@@ -5,6 +5,7 @@
 var path = require('path');
 var webpack = require('webpack');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 //
 // Config
@@ -31,16 +32,17 @@ module.exports = {
   output: {
     path: path.join(__dirname, '..', 'public', 'video-ui', 'build'),
     publicPath: host + '/assets/video-ui/build/',
-    filename: 'app.js'
+    filename: 'main.js'
   },
   module: {
     rules: [
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
-        loader: 'babel-loader?cacheDirectory=true',
+        loader: 'babel-loader',
         options: {
-          plugins: ['react-hot-loader/babel']
+          plugins: ['react-hot-loader/babel'],
+          cacheDirectory: true
         }
       },
       {
@@ -50,7 +52,12 @@ module.exports = {
       },
       {
         test: require.resolve('react'),
-        loader: 'expose-loader?React'
+        use: {
+          loader: 'expose-loader',
+          options: {
+            exposes: ["React"]
+          }
+        }
       },
       {
         test: /\.scss$/,
@@ -62,11 +69,14 @@ module.exports = {
       },
       {
         test: /\.woff(2)?(\?v=[0-9].[0-9].[0-9])?$/,
-        loader: 'url-loader?mimetype=application/font-woff'
+        loader: 'url-loader',
+        options: {
+          mimetype: 'application/font-woff'
+        }
       },
       {
         test: /\.(ttf|eot|svg|gif|png)(\?v=[0-9].[0-9].[0-9])?$/,
-        loader: 'file-loader?name=[name].[ext]'
+        type: "asset/inline"
       }
     ],
     // http://andrewhfarmer.com/aws-sdk-with-webpack/
@@ -74,11 +84,19 @@ module.exports = {
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
+    new MiniCssExtractPlugin({
+      filename: '[name].css',
+      chunkFilename: '[id].css',
+      ignoreOrder: false // Enable to remove warnings about conflicting order
+    }),
     new ForkTsCheckerWebpackPlugin({
-      compilerOptions: {
-          noEmit: true
+      typescript: {
+        compilerOptions: {
+            noEmit: true
+        }
       }
-  })],
+    })
+  ],
   resolve: {
     modules: ['node_modules'],
     // Allows require('file') instead of require('file.js|x')
