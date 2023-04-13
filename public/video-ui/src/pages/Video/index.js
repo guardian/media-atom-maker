@@ -117,7 +117,11 @@ class VideoDisplay extends React.Component {
               <tr>
                 <td>Used as the preview image for a video in articles and on video pages.</td>
                 <td>Used as an article trail image when specified. (Otherwise Main Image is used).</td>
-                <td>Used on YouTube when specified. (Otherwise Main Image is used).</td>
+                <td>
+                  Used on YouTube when specified. (Otherwise Main Image is used).
+                  <br/>
+                  The atom must be published for the override to take effect. Changes can take up to fifteen minutes to apply.
+                </td>
               </tr>
             </tbody>
           </table>
