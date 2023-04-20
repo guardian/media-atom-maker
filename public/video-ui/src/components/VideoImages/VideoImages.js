@@ -41,7 +41,7 @@ export default class VideoImages extends React.Component {
         <div className="video__images">
           <div className="video__detailbox__header__container">
             <header className="video__detailbox__header">
-              Main Image
+              Guardian Video Thumbnail Image
             </header>
             <GridImageSelect
               image={this.props.video.posterImage}
@@ -73,7 +73,7 @@ export default class VideoImages extends React.Component {
         <div className="video__images">
           <div className="video__detailbox__header__container">
             <header className="video__detailbox__header">
-              Youtube Thumbnail Image
+              Youtube Video Thumbnail Image
             </header>
             <GridImageSelect
               image={this.props.video.youtubeOverrideImage}

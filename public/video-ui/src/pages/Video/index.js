@@ -108,9 +108,9 @@ class VideoDisplay extends React.Component {
           <table class="video__images_description_table">
             <thead>
               <tr>
-                <th scope="row">Main Image</th>
+                <th scope="row">Guardian Video Thumbnail Image</th>
                 <th scope="row">Composer Trail Image</th>
-                <th scope="row">Youtube Image Override</th>
+                <th scope="row">Youtube Video Thumbnail Image</th>
               </tr>
             </thead>
             <tbody>
