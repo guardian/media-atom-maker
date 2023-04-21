@@ -7,7 +7,7 @@ export function cleanVideoData(data) {
     }
   });
 
-  ['posterImage', 'trailImage'].forEach(image => {
+  ['posterImage', 'trailImage', 'youtubeOverrideImage'].forEach(image => {
     if (
       cleanedData[image] &&
       cleanedData[image].assets &&

@@ -32,6 +32,7 @@ class MediaAtomTest extends FunSuite with MustMatchers {
     channelId = None,
     privacyStatus = None,
     youtubeCategoryId = None,
+    youtubeOverrideImage = None,
     keywords = List.empty,
     license = None,
     blockAds = false,

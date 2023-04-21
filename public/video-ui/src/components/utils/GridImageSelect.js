@@ -12,7 +12,7 @@ export default class GridImageSelect extends React.Component {
     gridDomain: PropTypes.string.isRequired,
     disabled: PropTypes.bool.isRequired,
     updateVideo: PropTypes.func.isRequired,
-    fieldLocation: PropTypes.oneOf(['posterImage', 'trailImage'])
+    fieldLocation: PropTypes.oneOf(['posterImage', 'trailImage', 'youtubeOverrideImage'])
   };
 
   state = {

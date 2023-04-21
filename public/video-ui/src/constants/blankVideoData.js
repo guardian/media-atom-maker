@@ -22,5 +22,8 @@ export const blankVideoData = {
   },
   trailImage: {
     assets: []
+  },
+  youtubeOverrideImage: {
+    assets: []
   }
 };

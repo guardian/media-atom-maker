@@ -38,10 +38,10 @@ export default class VideoImages extends React.Component {
 
     return (
       <div className="video__imagebox">
-        <div className="video__detailbox">
+        <div className="video__images">
           <div className="video__detailbox__header__container">
             <header className="video__detailbox__header">
-              Main Image (YouTube poster)
+              Guardian Video Thumbnail Image
             </header>
             <GridImageSelect
               image={this.props.video.posterImage}
@@ -54,7 +54,7 @@ export default class VideoImages extends React.Component {
           </div>
           <GridImage image={this.props.video.posterImage} />
         </div>
-        <div className="video__detailbox">
+        <div className="video__images">
           <div className="video__detailbox__header__container">
             <header className="video__detailbox__header">
               Composer Trail Image
@@ -69,6 +69,22 @@ export default class VideoImages extends React.Component {
             />
           </div>
           <GridImage image={this.props.video.trailImage} />
+        </div>
+        <div className="video__images">
+          <div className="video__detailbox__header__container">
+            <header className="video__detailbox__header">
+              Youtube Video Thumbnail Image
+            </header>
+            <GridImageSelect
+              image={this.props.video.youtubeOverrideImage}
+              gridUrl={this.getGridUrl('video')}
+              gridDomain={this.props.gridDomain}
+              disabled={this.props.videoEditOpen}
+              updateVideo={this.saveAndUpdateVideoImage}
+              fieldLocation="youtubeOverrideImage"
+            />
+          </div>
+          <GridImage image={this.props.video.youtubeOverrideImage} />
         </div>
       </div>
     );

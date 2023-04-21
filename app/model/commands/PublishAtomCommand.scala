@@ -253,19 +253,22 @@ case class PublishAtomCommand(
     handleYouTubeMessages(youTubeMetadataUpdate, "YouTube Metadata Update", previewAtom, asset.id)
   }
 
+  private def setYoutubeThumbnail(atom: MediaAtom, image: Image, asset: Asset): MediaAtom = {
+    val thumbnail = atom.isOnCommercialChannel(youtube.commercialChannels) match {
+      case Some(isCommercial) if isCommercial => thumbnailGenerator.getThumbnail(image)
+      case _ => thumbnailGenerator.getBrandedThumbnail(image, atom.id)
+    }
+
+    val thumbnailUpdate = youtube.updateThumbnail(asset.id, thumbnail)
+
+    handleYouTubeMessages(thumbnailUpdate, "YouTube Thumbnail Update", atom, asset.id)
+  }
+
   private def updateYoutubeThumbnail(atom: MediaAtom, asset: Asset): Future[MediaAtom] = Future{
-    atom.posterImage match {
-      case Some(image) => {
-        val thumbnail = atom.isOnCommercialChannel(youtube.commercialChannels) match {
-          case Some(isCommercial) if isCommercial => thumbnailGenerator.getThumbnail(image)
-          case _ => thumbnailGenerator.getBrandedThumbnail(image, atom.id)
-        }
-
-        val thumbnailUpdate = youtube.updateThumbnail(asset.id, thumbnail)
-
-        handleYouTubeMessages(thumbnailUpdate, "YouTube Thumbnail Update", atom, asset.id)
-      }
-      case None => atom
+    (atom.youtubeOverrideImage, atom.posterImage) match {
+      case (Some(youtubeOverrideImage), _) => setYoutubeThumbnail(atom, youtubeOverrideImage, asset)
+      case (None, Some(posterImage)) => setYoutubeThumbnail(atom, posterImage, asset)
+      case (None, None) => atom
     }
   }
 

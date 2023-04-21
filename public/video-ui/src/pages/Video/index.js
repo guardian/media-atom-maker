@@ -100,6 +100,36 @@ class VideoDisplay extends React.Component {
     );
   }
 
+  renderDescription(){
+    return (
+      <div>
+        <p className="video__images_heading">How are these images used?</p>
+        <div>
+          <table class="video__images_description_table">
+            <thead>
+              <tr>
+                <th scope="row">Guardian Video Thumbnail Image</th>
+                <th scope="row">Composer Trail Image</th>
+                <th scope="row">Youtube Video Thumbnail Image</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Used as the preview image for a video in articles and on video pages.</td>
+                <td>Used as an article trail image when specified. (Otherwise Main Image is used).</td>
+                <td>
+                  Used on YouTube when specified. (Otherwise Main Image is used).
+                  <br/>
+                  The atom must be published for the override to take effect. Changes can take up to fifteen minutes to apply.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )
+  }
+
   renderPreviewAndImages() {
     const isYoutube = VideoUtils.isYoutube(this.props.video);
     const activeAsset = VideoUtils.getActiveAsset(this.props.video);
@@ -124,6 +154,7 @@ class VideoDisplay extends React.Component {
         <div className="video-preview">
           {this.renderPreview()}
           {this.renderImages()}
+          {this.renderDescription()}
         </div>
       </div>
     );

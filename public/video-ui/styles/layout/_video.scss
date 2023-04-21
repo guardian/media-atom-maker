@@ -54,12 +54,14 @@
 
 .video__imagebox {
   display: flex;
+  gap: 10px;
 }
 
 .video__detailbox__header__container {
   display: flex;
   justify-content: space-between;
   padding: 10px;
+  margin-right: 4px;
 }
 
 .video__detailbox {
@@ -104,4 +106,42 @@
 
 .video-player {
   max-width: 100%;
+}
+
+.video__images {
+  width: 33%;
+  flex: 1 0 20%;
+  margin-top: 10px;
+  background-color: #393939;
+  border-top: 1px solid #666666;
+}
+
+.video__images_description_table {
+  border-spacing: 0px;
+}
+
+.video__images_description_table th, .video__images_description_table td {
+  padding: 0px 8px 8px 0px;
+  width: 33%;
+  vertical-align: top;
+}
+
+.video__images_description_table th:last-of-type, .video__images_description_table td:last-of-type {
+  padding: 0px;
+}
+
+.video__images_description_table td {
+  color: $cWhite;
+}
+
+.video__images_heading {
+  font-weight: 700;
+  margin: 0 0 5px;
+  padding: 8px 0 0;
+  border-top: 1px solid #3e3e3e;
+  text-align: left;
+}
+
+.video__images_description {
+  color: $color500Grey;
 }
