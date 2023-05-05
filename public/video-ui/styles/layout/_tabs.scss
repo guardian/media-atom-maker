@@ -38,7 +38,11 @@
 
   &--disabled {
     color: $color600Grey;
-    cursor: default;
+    &:hover {
+      color: $color600Grey;
+      background-color: $color650Grey;
+      cursor: not-allowed;
+    }
   }
 }
 
