@@ -7,7 +7,7 @@
 .react-tabs__tab {
   display: inline-block;
   border: 1px solid $color600Grey;
-  border-bottom: 4px solid transparent;
+  border-top: 0px;
   position: relative;
   list-style: none;
   padding: 10px 20px;
@@ -27,7 +27,8 @@
 
   &--selected {
     background-color: $color600Grey;
-    border-bottom: 4px solid $brandColor;
+    box-shadow: inset 0px -4px 0px 0px $brandColor;
+    border-bottom-color: $brandColor;
     color: $brandColor;
 
     &:hover {
