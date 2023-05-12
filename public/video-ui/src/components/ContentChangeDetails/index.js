@@ -11,13 +11,13 @@ class ContentChangeDetails extends React.Component {
   };
 
   getTextField = (path, caption) => (
-    <ManagedField fieldLocation={path} name={caption} disabled={true}>
+    <ManagedField fieldLocation={path} name={caption}>
       <TextInput />
     </ManagedField>
   );
 
   getDateField = (path, caption) => (
-    <ManagedField fieldLocation={path} name={caption} disabled={true}>
+    <ManagedField fieldLocation={path} name={caption} className="unhide">
       <DatePicker />
     </ManagedField>
   );
