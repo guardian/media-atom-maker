@@ -21,10 +21,8 @@ export default class AddAssetFromURL extends React.Component {
 
     return (
       <div className="video__detailbox video__detailbox__assets">
-        <div className="video__detailbox__header__container">
-          <header className="video__detailbox__header">Asset URL</header>
-        </div>
         <div className="form__group">
+          <header className="video__detailbox__header video__detailbox__header-with-border">Asset URL</header>
           <div className="form__row">
             <div>
               <input

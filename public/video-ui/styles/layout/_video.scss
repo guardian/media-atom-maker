@@ -72,10 +72,16 @@
   border-top: 1px solid $color600Grey;
 
   &__header {
-    color: $color500Grey;
+    color: $color400Grey;
     font-weight: bold;
     display: block;
     font-size: $fontsize__detailbox;
+    margin-bottom: 8px;
+    &-with-border {
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #444;
+    }
   }
 
   &__assets {
