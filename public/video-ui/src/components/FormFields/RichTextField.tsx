@@ -69,12 +69,12 @@ export default class RichTextField extends React.Component<EditorProps, EditorSt
         <button
           type="button"
           disabled={!this.props.derivedFrom}
-          className="btn form__label__button"
+          className="btn form__label__button form__label__copy-button"
           onClick={this.updateValueFromCopy}
           data-tip="Copy trail text from description"
           data-place="top"
         >
-          <i className="icon">edit</i>
+          Copy from standfirst
         </button>
         );
   };
@@ -141,7 +141,7 @@ export default class RichTextField extends React.Component<EditorProps, EditorSt
   render() {
     return (
       <div className="form__row">
-        <div className="form__label__layout">
+        <div className="form__label__layout form__label__layout__rich-text">
           <label className="form__label">{this.props.fieldName}</label>
           {this.renderCopyButton()}
         </div>
