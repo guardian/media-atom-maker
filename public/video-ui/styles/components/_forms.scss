@@ -215,61 +215,10 @@
   max-height: 250px;
 }
 
-.form-checkbox {
-  padding: 12px 35px;
-  font-size: 13px;
-  position: relative;
-  display: inline-block;
-  border: 1px solid $greyBorderColor;
-
-  &:after, &:before {
-    color: $cWhite;
-    width: 50%;
-    height: 100%;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  &:after {
-    content: 'No';
-    right: 0;
-    background: $color600Grey;
-  }
-
-  &:before {
-    content: 'Yes';
-    left: 0;
-    background: #47af37;
-  }
-
-  &__toggle {
-    display: block;
-    width: 50%;
-    height: 100%;
+.form-checkbox{
+  &:hover {
+    filter: brightness(90%);
     cursor: pointer;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    left: 0;
-    z-index: 1;
-    background: $cWhite;
-
-    &:hover {
-      background-color: $color200Grey;
-    }
-  }
-
-  &__input {
-    visibility: hidden;
-    &:checked + .form-checkbox__toggle {
-      right: 0;
-      left: auto;
-    }
   }
 }
 

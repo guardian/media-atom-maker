@@ -15,6 +15,7 @@ export default class CheckBox extends React.Component {
           onChange={e => {
             this.props.onUpdateField(e.target.checked);
           }}
+          className='form-checkbox'
         />
       </div>
     );
