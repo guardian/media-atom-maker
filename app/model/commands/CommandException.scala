@@ -39,6 +39,7 @@ object CommandExceptions extends Results {
   def commandExceptionAsResult: PartialFunction[Throwable, Result] = {
     case CommandException(msg, 400) => BadRequest(msg)
     case CommandException(msg, 404) => NotFound(msg)
+    case CommandException(msg, 409) => Conflict(msg)
     case CommandException(msg, 500) => InternalServerError(msg)
     case YouTubeError(msg, true) => InternalServerError(msg)
     case YouTubeError(msg, false) => InternalServerError(msg).withHeaders("X-No-Alerts" -> "true")
