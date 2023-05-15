@@ -114,6 +114,10 @@
     border-radius: 0;
     text-indent: .01px;
     text-overflow: '';
+    &:hover {
+      cursor: pointer;
+      background-color: $color625Grey;
+    }
   }
 
   &--error {
@@ -189,7 +193,7 @@
 .form__image {
   padding: 10px;
   text-align: center;
-  background-color: $color700Grey;
+  background-color: inherit;
 }
 
 
