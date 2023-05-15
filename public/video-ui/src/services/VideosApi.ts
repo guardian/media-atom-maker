@@ -27,8 +27,8 @@ function getUsages({ id, stage }) {
       // sort by article creation date DESC
       usages.sort(
         (first, second) =>
-          new Date(second.fields.creationDate) -
-          new Date(first.fields.creationDate)
+          new Date(second.fields.creationDate).getDate() -
+          new Date(first.fields.creationDate).getDate()
       );
 
       return usages;
