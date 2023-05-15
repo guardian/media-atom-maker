@@ -2,25 +2,76 @@ import { pandaReqwest } from './pandaReqwest';
 import { getStore } from '../util/storeAccessor';
 import { getComposerData } from '../util/getComposerData';
 import { cleanVideoData } from '../util/cleanVideoData';
-import ContentApi from './capi';
-import { getVideoBlock } from '../util/getVideoBlock';
+import ContentApi, {CapiContent, Stage} from './capi';
+import {ContentAtom, getVideoBlock} from '../util/getVideoBlock';
+
+export type ComposerStage = 'live' | 'preview'
+
+export type AssetType = 'Audio' | 'Video'
+
+export type Platform = 'Youtube' | 'Facebook' | 'Dailymotion' | 'Mainstream' | 'Url'
+
+export type Asset = {
+  assetType: AssetType;
+  version: number;
+  id: string;
+  platform: Platform;
+  mimeType?: string;
+}
+
+export type Video = {
+  id: string;
+  labels: string[];
+  contentChangeDetails: unknown;
+  assets: Asset[];
+  activeVersion?: number;
+  title: string;
+  category: unknown;
+  plutoData?: unknown;
+  duration?: number;
+  source?: string;
+  description?: string;
+  trailText?: string;
+  posterImage?: unknown;
+  trailImage?: unknown;
+  youtubeOverrideImage: unknown;
+  tags: string[];
+  byline: string[];
+  commissioningDesks: string[];
+  keywords: string[];
+  youtubeCategoryId?: string;
+  license?: string;
+  channelId?: string;
+  legallySensitive: Boolean;
+  sensitive?: Boolean;
+  privacyStatus?: unknown;
+  expiryDate?: number;
+  youtubeTitle: string;
+  youtubeDescription?: string;
+  blockAds: Boolean;
+  composerCommentsEnabled?: Boolean;
+  optimisedForWeb?: Boolean;
+  suppressRelatedContent?: Boolean;
+}
+
+export type VideoWithoutId = Omit<Video, 'id'>
 
 function getComposerUrl() {
   return getStore().getState().config.composerUrl;
 }
 
-function getUsages({ id, stage }) {
+function getUsages({ id, stage }: {id: String, stage: Stage}): Promise<CapiContent[]> {
   return pandaReqwest({
     url: `${ContentApi.getUrl(stage)}/atom/media/${id}/usage?page-size=100`
   }).then(res => {
-    const usagePaths = res.response.results;
+    const usagePaths: string[] = res.response.results;
 
     // the atom usage endpoint in capi only returns article paths,
     // lookup the articles in capi to get their fields
     return Promise.all(
       usagePaths.map((path) => ContentApi.getByPath(path))
     ).then(capiResponse => {
-      const usages = capiResponse.reduce((all, item) => {
+      const usages = capiResponse.reduce((all: CapiContent[], item) => {
         return [...all, item.response.content];
       }, []);
 
@@ -36,7 +87,7 @@ function getUsages({ id, stage }) {
   });
 }
 
-function splitUsages({ usages }) {
+function splitUsages({ usages }: {usages: CapiContent[]}) {
   return usages.reduce(
     (all, usage) => {
       if (usage.type === 'video') {
@@ -51,7 +102,7 @@ function splitUsages({ usages }) {
 }
 
 export default {
-  fetchVideos: (search, limit) => {
+  fetchVideos: (search: string, limit: number) => {
     let url = `/api/atoms?limit=${limit}`;
     if (search) {
       url += `&search=${search}`;
@@ -62,82 +113,82 @@ export default {
     });
   },
 
-  fetchVideo: videoId => {
+  fetchVideo: (videoId: string) => {
     return pandaReqwest({
       url: '/api/atoms/' + videoId
     });
   },
 
-  fetchPublishedVideo: videoId => {
+  fetchPublishedVideo: (videoId: string) => {
     return pandaReqwest({
       url: '/api/atoms/' + videoId + '/published'
     });
   },
 
-  createVideo: video => {
+  createVideo: (video: VideoWithoutId) => {
     return pandaReqwest({
       url: '/api/atoms',
       method: 'post',
       headers: {
-        'Csrf-Token': window.guardian.csrf.token
+        'Csrf-Token': (window as any).guardian.csrf.token
       },
       data: cleanVideoData(video)
     });
   },
 
-  publishVideo: videoId => {
+  publishVideo: (videoId: string) => {
     return pandaReqwest({
       url: '/api/atom/' + videoId + '/publish',
       method: 'put',
       headers: {
-        'Csrf-Token': window.guardian.csrf.token
+        'Csrf-Token': (window as any).guardian.csrf.token
       }
     });
   },
 
-  createAsset: (asset, videoId) => {
+  createAsset: (asset: { uri: string }, videoId: string) => {
     return pandaReqwest({
       url: '/api/atoms/' + videoId + '/assets',
       method: 'post',
       headers: {
-        'Csrf-Token': window.guardian.csrf.token
+        'Csrf-Token': (window as any).guardian.csrf.token
       },
       data: asset
     });
   },
 
-  revertAsset: (atomId, version) => {
+  revertAsset: (atomId: string, version: number) => {
     return pandaReqwest({
       url: '/api/atom/' + atomId + '/asset-active',
       method: 'put',
       headers: {
-        'Csrf-Token': window.guardian.csrf.token
+        'Csrf-Token': (window as any).guardian.csrf.token
       },
       data: { atomId, version }
     });
   },
 
-  saveVideo: (videoId, video) => {
+  saveVideo: (videoId: string, video: VideoWithoutId) => {
     return pandaReqwest({
       url: '/api/atoms/' + videoId,
       method: 'put',
       headers: {
-        'Csrf-Token': window.guardian.csrf.token
+        'Csrf-Token': (window as any).guardian.csrf.token
       },
       data: cleanVideoData(video)
     });
   },
 
-  resetDurationFromActive: videoId =>
+  resetDurationFromActive: (videoId: string) =>
     pandaReqwest({
       url: `/api/atom/${videoId}/reset-duration-from-active`,
       method: 'put',
       headers: {
-        'Csrf-Token': window.guardian.csrf.token
+        'Csrf-Token': (window as any).guardian.csrf.token
       }
     }),
 
-  getVideoUsages: videoId => {
+  getVideoUsages: (videoId: string) => {
     return Promise.all([
       getUsages({ id: videoId, stage: ContentApi.preview }),
       getUsages({ id: videoId, stage: ContentApi.published })
@@ -168,35 +219,35 @@ export default {
     });
   },
 
-  deleteVideo: videoId => {
+  deleteVideo: (videoId: string) => {
     return pandaReqwest({
       url: '/api/atom/' + videoId,
       headers: {
-        'Csrf-Token': window.guardian.csrf.token
+        'Csrf-Token': (window as any).guardian.csrf.token
       },
       method: 'delete'
     });
   },
 
-  deleteAsset(video, asset) {
+  deleteAsset(video: Video, asset: Asset) {
     return pandaReqwest({
       url: `/api/atoms/${video.id}/assets`,
       method: 'delete',
       headers: {
-        'Csrf-Token': window.guardian.csrf.token
+        'Csrf-Token': (window as any).guardian.csrf.token
       },
       data: asset
     });
   },
 
-  updateCanonicalPages(video, usages, updatesTo) {
+  updateCanonicalPages(video: Video, usages: { data: Record<string, { video: CapiContent[] }> }, updatesTo: Stage) {
     const composerData = getComposerData(video);
     const composerUrlBase = getComposerUrl();
     const videoBlock = getVideoBlock(video.id, video.title, video.source);
 
     return Promise.all(
       Object.keys(usages.data).map(state => {
-        const videoPageUsages = usages.data[state].video;
+        const videoPageUsages: CapiContent[] = usages.data[state].video;
 
         return videoPageUsages.map(usage => {
           const pageId = usage.fields.internalComposerCode;
@@ -220,7 +271,7 @@ export default {
     );
   },
 
-  createComposerPage(id, video) {
+  createComposerPage(id: string, video: VideoWithoutId) {
     const composerData = getComposerData(video);
     const composerUrlBase = getComposerUrl();
 
@@ -239,12 +290,12 @@ export default {
     });
   },
 
-  addVideoToComposerPage({ composerId, video }) {
+  addVideoToComposerPage({ composerId, video }: {composerId: string, video: any}) {
     const composerUrlBase = getComposerUrl();
 
     const previewData = getVideoBlock(video.id, video.title, video.source);
 
-    function updateMainBlock(stage, data) {
+    function updateMainBlock(stage: ComposerStage, data: { elements: ContentAtom[] }) {
       return pandaReqwest({
         url: `${composerUrlBase}/api/content/${composerId}/${stage}/mainblock`,
         method: 'post',
@@ -263,7 +314,7 @@ export default {
     });
   },
 
-  fetchComposerId(capiId) {
+  fetchComposerId(capiId: string) {
     const capiProxyUrl = getStore().getState().config.capiProxyUrl;
     return pandaReqwest({
       url: capiProxyUrl + '/' + capiId + '?show-fields=all'
@@ -279,10 +330,10 @@ export default {
     });
   },
 
-  preventPublication(composerId) {
+  preventPublication(composerId: string) {
     const composerUrl = getComposerUrl();
 
-    function doEmbargoIndefinitely(stage) {
+    function doEmbargoIndefinitely(stage: ComposerStage) {
       return pandaReqwest({
         url: `${composerUrl}/api/content/${composerId}/${stage}/settings/embargoedIndefinitely`,
         method: 'put',

@@ -1,4 +1,19 @@
-export function getVideoBlock(id, title, source) {
+export type ContentAtom = {
+  elementType: 'content-atom';
+  fields: {
+    id: string;
+    atomType: 'media';
+    required: 'true' | 'false';
+    title: string;
+    published: string;
+    isMandatory: 'true' | 'false';
+    editorialLink: string;
+    source: string;
+  };
+  assets: unknown[];
+}
+
+export function getVideoBlock(id: string, title: string, source: string): { elements: ContentAtom[] } {
   return {
     elements: [
       {
