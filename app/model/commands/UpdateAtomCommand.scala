@@ -51,12 +51,22 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
 
     val expiry: Option[DateTime] = atom.expiryDate.map(expiry => new DateTime(expiry))
 
+    def updateIfChanged(newDate: Option[DateTime], changeRecord: Option[ThriftChangeRecord]): Option[ChangeRecord] = {
+      if (changeRecord.map(_.date) == newDate) {
+        changeRecord.map(ChangeRecord.fromThrift)
+      } else {
+        newDate.map(ChangeRecord.build(_, user))
+      }
+    }
+
+    val existingChangeDetails = existingAtom.contentChangeDetails
+
     val details = atom.contentChangeDetails.copy(
       revision = existingAtom.contentChangeDetails.revision + 1,
       lastModified = Some(changeRecord),
-      scheduledLaunch = scheduledLaunchDate.map(ChangeRecord.build(_, user)),
-      embargo = embargo.map(ChangeRecord.build(_, user)),
-      expiry = expiry.map(ChangeRecord.build(_, user))
+      scheduledLaunch = updateIfChanged(scheduledLaunchDate, existingChangeDetails.scheduledLaunch),
+      embargo = updateIfChanged(embargo, existingChangeDetails.embargo),
+      expiry = updateIfChanged(expiry, existingChangeDetails.expiry)
     )
 
     val newAtom = atom.copy(contentChangeDetails = details)
