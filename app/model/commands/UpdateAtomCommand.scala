@@ -1,9 +1,8 @@
 package model.commands
 
 import java.util.Date
-
 import ai.x.diff.DiffShow
-import com.gu.atom.data.AtomSerializer
+import com.gu.atom.data.{AtomSerializer, VersionConflictError}
 import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType, ChangeRecord => ThriftChangeRecord}
 import com.gu.media.logging.Logging
 import com.gu.media.model.{AtomAssignedProjectMessage, AuditMessage, ChangeRecord, MediaAtom}
@@ -66,9 +65,13 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
     log.info(s"Attempting to update atom ${atom.id} in ${awsConfig.dynamoTableName} to new atom: $newAtomAsJson")
 
     previewDataStore.updateAtom(thrift).fold(
-      err => {
-        log.error(s"Unable to update atom with id ${atom.id} in ${awsConfig.dynamoTableName} table to new content: $newAtomAsJson", err)
-        AtomUpdateFailed(err.msg)
+      {
+        case err: VersionConflictError =>
+          log.warn(s"Unable to update atom due to version conflict with id ${atom.id} in ${awsConfig.dynamoTableName} table to new content: $newAtomAsJson", err)
+          AtomUpdateConflictError(err.msg)
+        case err =>
+          log.error(s"Unable to update atom with id ${atom.id} in ${awsConfig.dynamoTableName} table to new content: $newAtomAsJson", err)
+          AtomUpdateFailed(err.msg)
       },
       _ => {
         val event = ContentAtomEvent(thrift, EventType.Update, new Date().getTime)

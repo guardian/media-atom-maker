@@ -32,10 +32,10 @@ function receiveVideoUsages(usages) {
   };
 }
 
-function errorVideoSave(error) {
+function errorVideoSave(error, message) {
   return {
     type: 'SHOW_ERROR',
-    message: 'Could not save video',
+    message,
     error: error,
     receivedAt: Date.now()
   };
@@ -58,6 +58,11 @@ export function saveVideo(video) {
       )
       .then(() => dispatch(receiveVideoPageUpdate(video.title)))
     })
-    .catch(error => dispatch(errorVideoSave(error)));
+    .catch(error => {
+      const defaultError = 'Could not save video';
+      const conflictError = 'Could not save video as another user (or tab) is currently editing this video';
+      const message = error.status === 409 ? conflictError : defaultError;
+      dispatch(errorVideoSave(error, message));
+    });
   };
 }

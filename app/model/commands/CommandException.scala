@@ -25,6 +25,7 @@ object CommandExceptions extends Results {
   def AssetNotFound(assetId: String) = throw new CommandException(s"Asset with id $assetId not found", 404)
   def YoutubeException(err: String) = throw new CommandException(s"Exception when trying to reach YouTube: $err", 400)
   def AtomUpdateFailed(err: String) = throw new CommandException(s"Failed to update atom: $err", 500)
+  def AtomUpdateConflictError(err: String) = throw new CommandException(s"Failed to update atom: $err", 409)
   def AtomPublishFailed(err: String) = throw new CommandException(s"Failed to publish atom: $err", 500)
 
   def AtomMissingYouTubeChannel = throw new CommandException("Atom is missing YouTube channel", 400)
