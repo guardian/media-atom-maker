@@ -24,7 +24,7 @@ export default class VideoImages extends React.Component {
     const posterImage = this.props.video.posterImage;
 
     const queryParam = cropType == "verticalvideo" ?
-      'cropType=verticalvideo&customRatio=verticalvideo,9,16' :
+      `cropType=landscape,${cropType}&customRatio=${cropType},9,16` :
       `cropType=${cropType}`;
 
     if (posterImage.assets.length > 0) {
