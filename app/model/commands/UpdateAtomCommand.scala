@@ -52,7 +52,7 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
     val expiry: Option[DateTime] = atom.expiryDate.map(expiry => new DateTime(expiry))
 
     def updateIfChanged(newDate: Option[DateTime], changeRecord: Option[ThriftChangeRecord]): Option[ChangeRecord] = {
-      if (changeRecord.map(_.date) == newDate) {
+      if (changeRecord.map(_.date) == newDate.map(_.getMillis)) {
         changeRecord.map(ChangeRecord.fromThrift)
       } else {
         newDate.map(ChangeRecord.build(_, user))
