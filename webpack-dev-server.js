@@ -13,9 +13,11 @@ var wpConfig         = require('./build_config/webpack.devserver.conf.js');
 var wpServer = new WebpackDevServer(webpack(wpConfig), {
   contentBase:  wpConfig.output.path,
   publicPath:   '/assets/video-ui/build/',
+  public: "video-assets.local.dev-gutools.co.uk",
   hot:          true,
   progress:     true,
   noInfo:       true,
+  disableHostCheck: true,
   clientLogLevel: "info",
   watchOptions: {
     aggregateTimeout: 300,
