@@ -90,23 +90,26 @@ export default class PACUpload extends React.Component {
   render() {
     return (
       <section className="video__detailbox">
-        <header className="video__detailbox__header">
-          Upload PAC Form XML
-        </header>
         <div className="form__group">
-          <input type="file"
-                 accept=".xml"
-                 disabled={this.state.uploading}
-                 onChange={e => this.validate(e.target.files)}/>
-          <button type="button"
-                  className={this.getButtonClassName()}
-                  disabled={this.state.uploading || !this.state.isValid || this.state.uploaded}
-                  onClick={() => this.uploadFile()}
-          >
-            <Icon icon={this.getButtonIcon()}>
-              {this.getUploadButtonText()}
-            </Icon>
-          </button>
+          <header className="video__detailbox__header video__detailbox__header-with-border">
+            Upload PAC Form XML
+          </header>
+          <div className="form__row">
+            <input type="file"
+                  className="form__field__file"
+                  accept=".xml"
+                  disabled={this.state.uploading}
+                  onChange={e => this.validate(e.target.files)}/>
+            <button type="button"
+                    className={this.getButtonClassName()}
+                    disabled={this.state.uploading || !this.state.isValid || this.state.uploaded}
+                    onClick={() => this.uploadFile()}
+            >
+              <Icon icon={this.getButtonIcon()}>
+                {this.getUploadButtonText()}
+              </Icon>
+            </button>
+          </div>
         </div>
       </section>
     );

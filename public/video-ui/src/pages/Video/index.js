@@ -148,7 +148,7 @@ class VideoDisplay extends React.Component {
             onClick={e => this.handleAssetClick(e)}
             data-tip="Edit Assets"
           >
-            <Icon className="icon__edit" icon="edit" />
+            <Icon className={"icon__edit"  + (this.props.videoEditOpen ? ' icon__edit__disabled' : '')} icon="edit" />
           </Link>
         </div>
         <div className="video-preview">

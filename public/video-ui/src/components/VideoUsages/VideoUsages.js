@@ -77,9 +77,9 @@ export default class VideoUsages extends React.Component {
 
       return (
         <div key={`${state}-usages`}>
-          <h4>{`${state.charAt(0).toUpperCase() + state.slice(1)} (Total: ${totalUsages})`}</h4>
+          <p className='details-list__title'>{`${state.charAt(0).toUpperCase() + state.slice(1)} (Total: ${totalUsages})`}</p>
           {totalUsages === 0
-            ? <div className="usage--none">{`No ${state} usages found`}</div>
+            ? <p className="usage--none details-list__field">{`No ${state} usages found`}</p>
             : <ul className="detail__list">
                 {usages[state].video.map(usage => this.renderUsage({usage, state}))}
                 {usages[state].other.map(usage => this.renderUsage({usage, state}))}

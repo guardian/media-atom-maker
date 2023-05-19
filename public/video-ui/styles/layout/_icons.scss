@@ -67,6 +67,13 @@
   &.disabled {
     @include disabled;
   }
+  &__disabled {
+    @include disabled;
+    &:hover {
+      background-color: $color600Grey;
+      cursor: not-allowed;
+    }
+  }
 }
 
 

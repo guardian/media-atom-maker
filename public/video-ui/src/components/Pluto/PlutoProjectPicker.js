@@ -43,6 +43,9 @@ class PlutoProjectPicker extends React.Component {
         editable={true}
         formName="Pluto"
       >
+        <header className="video__detailbox__header">
+          Pluto
+        </header>
         <ManagedField
           fieldLocation="plutoData.commissionId"
           name="Commission"

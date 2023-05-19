@@ -38,11 +38,6 @@ class VideoUpload extends React.Component {
           <div className="video__main__header">
             <div className="video__detailbox">
               <div>
-                <div className="video__detailbox__header__container">
-                  <header className="video__detailbox__header">
-                    Pluto
-                  </header>
-                </div>
                 <div className="form__group">
                   { projectId && <PlutoProjectLink projectId={projectId}/> }
                   <PlutoProjectPicker

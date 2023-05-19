@@ -51,9 +51,6 @@ button {
 .button__secondary {
   @include buttonClass($color800Grey, $color500Grey, $color300Grey, $color800Grey);
 
-  &__assets {
-    margin: 5px;
-  }
   &--confirm {
     @include buttonClass($cGreen33, $color500Grey, $cWhite, $color800Grey);
   }
