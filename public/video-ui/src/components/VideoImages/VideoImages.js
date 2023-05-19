@@ -74,7 +74,7 @@ export default class VideoImages extends React.Component {
             </header>
             <GridImageSelect
               image={this.props.video.trailImage}
-              gridUrl={this.hasVerticalVideoTag() ? this.getGridUrl('verticalvideo'): this.getGridUrl('landscape')}
+              gridUrl={this.getGridUrl('landscape')}
               gridDomain={this.props.gridDomain}
               disabled={trailImageDisabled}
               updateVideo={this.saveAndUpdateVideoImage}
