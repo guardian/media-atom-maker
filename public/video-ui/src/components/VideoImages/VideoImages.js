@@ -37,10 +37,7 @@ export default class VideoImages extends React.Component {
   }
 
   hasVerticalVideoTag() {
-
     const tags = this.props.video.keywords || [];
-    console.log("tags:");
-    console.log(tags.includes('media/series/vertical-video'));
     return tags.includes('media/series/vertical-video');
   }
 
