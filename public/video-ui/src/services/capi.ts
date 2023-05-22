@@ -1,16 +1,37 @@
 import { pandaReqwest } from './pandaReqwest';
 import { getStore } from '../util/storeAccessor';
 
+export type Stage = 'published' | 'preview'
+
+export type CapiResponse<TContent> = {
+  content: TContent | undefined;
+};
+
+export type CapiContentResponse = CapiResponse<CapiContent>;
+
+export type CapiContent = {
+  id: string;
+  type: string;
+  fields: {
+    creationDate: string;
+    internalComposerCode: string;
+  };
+};
+
+type ApiReponse<T> = {
+  response: T
+}
+
 export default class ContentApi {
-  static get published() {
+  static get published(): Stage {
     return 'published';
   }
 
-  static get preview() {
+  static get preview(): Stage {
     return 'preview';
   }
 
-  static getUrl(stage) {
+  static getUrl(stage: Stage) {
     return stage === ContentApi.published
       ? ContentApi.liveProxyUrl
       : ContentApi.proxyUrl;
@@ -24,7 +45,7 @@ export default class ContentApi {
     return getStore().getState().config.liveCapiProxyUrl;
   }
 
-  static search(query) {
+  static search(query: string) {
     const encodedQuery = encodeURIComponent(query);
 
     return pandaReqwest({
@@ -32,7 +53,7 @@ export default class ContentApi {
     });
   }
 
-  static getByPath(path, retry = false) {
+  static getByPath(path: string, retry = false): Promise<ApiReponse<CapiContentResponse>> {
     const retryTimeout = retry ? 10 * 1000 : 0; // retry up to 10 seconds
 
     return pandaReqwest(
@@ -43,13 +64,13 @@ export default class ContentApi {
     );
   }
 
-  static getLivePage(id) {
+  static getLivePage(id: string) {
     return pandaReqwest({
       url: `${ContentApi.liveProxyUrl}/${id}`
     });
   }
 
-  static getTagsByType(query, types) {
+  static getTagsByType(query: string, types: string[]) {
     return Promise.all(
       types.map(type => {
         if (query === '*') {
