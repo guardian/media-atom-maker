@@ -38,9 +38,14 @@ export default class VideoPreview extends React.Component {
     return <VideoEmbed sources={sources}/>;
   }
 
+  hasVerticalVideoTag() {
+    const tags = this.props.video.keywords || [];
+    return tags.includes('media/series/vertical-video');
+  }
+
   render() {
     return (
-      <div className="sixteen-by-nine">
+      <div className={this.hasVerticalVideoTag() ? "nine-by-sixteen" : "sixteen-by-nine"}>
         {this.renderPreview()}
       </div>
     );
