@@ -126,3 +126,13 @@ val instance = lambdaTemplate
   .replace("{{timeout}}", timeout.toString)
   .replace("{{memorySize}}", memorySize.toString)
 ```
+
+## Troubleshooting
+### Common Errors
+`Dynamo was unable to process this request. Error message Requested resource not found`
+- Check the table parameters. The `MediaAtomTable` and `ManualPlutoTable` parameters in `media-atom-pipeline-<ENV>` should match the output values in `media-atom-maker-<ENV>`.
+
+`403 when starting YouTube upload: Exceeded Quota`
+- Check the quotas in youtube. If an API has been inactive for over 90 days, [youtube may reduce the quota to 0](https://developers.google.com/youtube/terms/developer-policies). The Dev pipeline uses the code youtube service user for this reason.
+
+

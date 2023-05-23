@@ -7,6 +7,7 @@ case class Asset(assetType: AssetType,
                  version: Long,
                  id: String,
                  platform: Platform,
+                //  aspectRatio: Option[String],
                  mimeType: Option[String]) {
   def asThrift = ThriftAsset.apply(AssetType.Video.asThrift, version, id, platform.asThrift, mimeType)
 }
