@@ -6,7 +6,7 @@ resolvers += "Typesafe repository" at "https://repo.typesafe.com/typesafe/maven-
 addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.0-RC12")
 
 // Use the Play sbt plugin for Play projects
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.8")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.19")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-digest" % "1.1.4")
 
