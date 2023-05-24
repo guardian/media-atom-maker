@@ -42,8 +42,8 @@ object MediaAtomHelpers {
   }
 
   private def getAssets(asset: VideoAsset, version: Long): List[Asset] = asset match {
-    case YouTubeAsset(id, fileDetails) =>
-      val asset = Asset(AssetType.Video, version, id, Platform.Youtube, mimeType = None, aspectRatio = fileDetails.videoStream[0].aspectRatio
+    case YouTubeAsset(id, aspectRatio) =>
+      val asset = Asset(AssetType.Video, version, id, Platform.Youtube, mimeType = None, aspectRatio = aspectRatio)
 
       List(asset)
 

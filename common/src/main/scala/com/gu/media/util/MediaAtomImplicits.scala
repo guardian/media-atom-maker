@@ -27,7 +27,7 @@ trait MediaAtomImplicits extends AtomImplicits[MediaAtom] {
       case (None, Some(poster)) => {
         s"""<img src="$poster"/>"""
       }
-      case (Some(YouTubeAsset(id)), _) => {
+      case (Some(YouTubeAsset(id, aspectRatio)), _) => {
         s"""<iframe frameborder="0" allowfullscreen="true" src="https://www.youtube-nocookie.com/embed/$id?showinfo=0&rel=0"></iframe>"""
       }
       case (Some(SelfHostedAsset(sources)), poster) => {
@@ -47,11 +47,11 @@ trait MediaAtomImplicits extends AtomImplicits[MediaAtom] {
     atom.activeVersion.map { version =>
       atom.assets.filter(_.version == version) match {
         case asset :: Nil if asset.platform == Youtube =>
-          YouTubeAsset(asset.id)
+          YouTubeAsset(asset.id, asset.aspectRatio)
 
         case assets =>
           val sources = assets.collect {
-            case Asset(_, _, id, _, Some(mimeType)) => VideoSource(id, mimeType)
+            case Asset(_, _, id, _, Some(mimeType), _) => VideoSource(id, mimeType)
           }
 
           SelfHostedAsset(sources.toList)

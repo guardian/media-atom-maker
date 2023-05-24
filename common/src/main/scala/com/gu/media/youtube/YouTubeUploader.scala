@@ -1,15 +1,35 @@
 package com.gu.media.youtube
 
 import java.io.InputStream
-
 import com.amazonaws.services.s3.AmazonS3
 import com.gu.media.logging.{Logging, YoutubeApiType, YoutubeRequestLogger, YoutubeRequestType}
-import com.gu.media.model.YouTubeAsset
+import com.gu.media.model.{YouTubeAsset}
 import com.gu.media.upload.model.{Upload, UploadPart}
 import com.gu.media.util.InputStreamRequestBody
-import com.gu.media.youtube.YouTubeUploader.{MoveToNextChunk, UploadError, VideoFullyUploaded}
+import com.gu.media.youtube.YouTubeUploader.{FileDetails, MoveToNextChunk, UploadError, VideoFullyUploaded}
 import com.squareup.okhttp.{MediaType, OkHttpClient, Request, RequestBody}
-import play.api.libs.json.{JsObject, JsString, Json}
+import play.api.libs.json.{JsObject, JsString, JsValue, Json}
+
+object YouTubeUploader {
+  sealed trait Result
+  case object MoveToNextChunk extends Result
+  object VideoStream {
+        implicit val videoStreamFormat = Json.format[VideoStream]
+  }
+
+  case class VideoStream(aspectRatio: Double)
+    object FileDetails {
+      implicit val fileDetailsFormat = Json.format[FileDetails]
+    }
+  case class FileDetails(videoStreams: List[VideoStream])
+
+
+
+
+  case class VideoFullyUploaded(videoId: String, fileDetails: FileDetails) extends Result
+  case class UploadError(error: String) extends Result
+}
+
 
 class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3) extends Logging {
   private val JSON = MediaType.parse("application/json; charset=utf-8")
@@ -63,10 +83,16 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3) extends Logging {
     val input = s3.getObject(upload.metadata.bucket, key).getObjectContent
 
     uploadChunk(uploadUri, input, start, end, total) match {
-      case VideoFullyUploaded(videoId) =>
+      case VideoFullyUploaded(videoId, fileDetails) =>
+        val aspectRatio = if (fileDetails.videoStreams(0).aspectRatio == 0.5625) {
+          Some("16:9")
+        } else {
+          None
+        }
+
         upload.copy(
           progress = upload.progress.copy(chunksInYouTube = upload.progress.chunksInYouTube + 1),
-          metadata = upload.metadata.copy(asset = Some(YouTubeAsset(videoId)))
+          metadata = upload.metadata.copy(asset = Some(YouTubeAsset(videoId, aspectRatio) ))
         )
 
       case MoveToNextChunk if part == upload.parts.last =>
@@ -108,7 +134,7 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3) extends Logging {
     } else {
       val json = Json.parse(result)
 
-      ((json \ "id").asOpt[String], (json \ "error").asOpt[JsObject]) match {
+      ((json \ "id").asOpt[String],  (json \ "error").asOpt[JsObject]) match {
         case (_, Some(error)) =>
           val code = (error \ "code").as[Int]
           val message = (error \ "message").as[String]
@@ -116,7 +142,8 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3) extends Logging {
           UploadError(s"YouTube upload error $code: $message")
 
         case (Some(id), None) =>
-          VideoFullyUploaded(id)
+          val fileDetails: FileDetails = (json \ "fileDetails").as[FileDetails]
+          VideoFullyUploaded(id, fileDetails)
 
         case (None, None) =>
           UploadError(s"Unable to parse YouTube response $result")
@@ -125,9 +152,3 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3) extends Logging {
   }
 }
 
-object YouTubeUploader {
-  sealed trait Result
-  case object MoveToNextChunk extends Result
-  case class VideoFullyUploaded(videoId: String) extends Result
-  case class UploadError(error: String) extends Result
-}

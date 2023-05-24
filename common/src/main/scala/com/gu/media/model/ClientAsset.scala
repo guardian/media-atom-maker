@@ -38,15 +38,15 @@ object ClientAsset {
 
   def videoFromAssets(assets: List[Asset]): (Long, VideoAsset) = {
     assets.headOption match {
-      case Some(Asset(_, version, _, Platform.Url, _)) =>
+      case Some(Asset(_, version, _, Platform.Url, _, _)) =>
         val sources = assets.collect {
-          case Asset(_, _, id, _, Some(mimeType)) => VideoSource(id, mimeType)
+          case Asset(_, _, id, _, Some(mimeType), _) => VideoSource(id, mimeType)
         }
 
         (version, SelfHostedAsset(sources))
 
-      case Some(Asset(_, version, id, Platform.Youtube, _)) =>
-        (version, YouTubeAsset(id))
+      case Some(Asset(_, version, id, Platform.Youtube, _, aspectRatio)) =>
+        (version, YouTubeAsset(id, aspectRatio ))
 
       case other =>
         throw new IllegalArgumentException(s"Unsupported platform ${other.map(_.platform.name)}")

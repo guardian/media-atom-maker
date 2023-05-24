@@ -26,10 +26,11 @@ object JsonConversions {
     (__ \ "version").write[Long] and
     (__ \ "platform").write[String] and
     (__ \ "assetType").write[String] and
-    (__ \ "mimeType").writeNullable[String]
+    (__ \ "mimeType").writeNullable[String] and
+    (__ \ "aspectRatio").writeNullable[String]
   ) { asset: Asset =>
     asset match {
-      case Asset(assetType, version, id, platform, mimeType) => (id, version, platform.name, assetType.name, mimeType)
+      case Asset(assetType, version, id, platform, mimeType, aspectRatio) => (id, version, platform.name, assetType.name, mimeType, aspectRatio)
     }
   }
 

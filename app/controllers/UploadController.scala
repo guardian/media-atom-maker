@@ -81,7 +81,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
   }
 
   private def addYouTubeStatus(video: ClientAsset): ClientAsset = video.asset match {
-    case Some(YouTubeAsset(id)) =>
+    case Some(YouTubeAsset(id, aspectRatio)) =>
       try {
         val status = youTube.getProcessingStatus(id).map(ClientAssetProcessing(_))
         video.copy(processing = status)
