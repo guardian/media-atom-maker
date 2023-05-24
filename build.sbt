@@ -37,7 +37,7 @@ val commonsLoggingVersion = "1.1.1"
 val apacheHttpClientVersion = "4.0.1"
 val apacheHttpCoreVersion = "4.0.1"
 
-val googleApiClientVersion = "1.34.0"
+val googleApiClientVersion = "1.35.2"
 val youTubeApiClientVersion = "v3-rev178-1.22.0"
 
 val jsoupVersion = "1.8.3"
