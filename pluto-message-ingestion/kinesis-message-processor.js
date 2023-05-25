@@ -24,12 +24,12 @@ class KinesisMessageProcessor {
         .then(config => {
           this.hmacRequest = new HMACRequest({
             serviceName: EnvironmentConfig.app,
-            secret: config.secret,
+            secret: config.secret
           });
 
           this.plutoMessageProcessor = new PlutoMessageProcessor({
             hostname: `https://${config.host}`,
-            hmacRequest: this.hmacRequest,
+            hmacRequest: this.hmacRequest
           });
         })
         .catch(err => {
@@ -41,7 +41,7 @@ class KinesisMessageProcessor {
   close() {
     return new Promise((resolve, reject) => {
       Promise.all(this._messages)
-        .then(() =>  resolve('done'))
+        .then(() => resolve('done'))
         .catch(err => reject(err));
     });
   }

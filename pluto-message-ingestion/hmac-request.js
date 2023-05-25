@@ -37,7 +37,8 @@ class HMACRequest {
       requestBody.data = JSON.stringify(data);
     }
 
-    console.log({message: `Making ${method} request to ${remoteUrl}`, data});
+    // eslint-disable-next-line no-console
+    console.log({ message: `Making ${method} request to ${remoteUrl}`, data });
 
     return reqwest(requestBody);
   }

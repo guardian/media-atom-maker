@@ -48,8 +48,9 @@ class PlutoMessageProcessor {
   _upsertProject(message) {
     return new Promise((resolve, reject) => {
       if (!PlutoMessageProcessor._isValidMessage(message)) {
+        // eslint-disable-next-line no-console
         console.error({
-          error: 'invalid message, props missing', 
+          error: 'invalid message, props missing',
           data: {
             message
           }
@@ -66,8 +67,9 @@ class PlutoMessageProcessor {
       this.hmacRequest
         .put(remoteUrl, project)
         .then(resp => {
+          // eslint-disable-next-line no-console
           console.log({
-            message: 'successfully upserted project', 
+            message: 'successfully upserted project',
             response: resp
           });
           resolve(resp);
@@ -78,8 +80,11 @@ class PlutoMessageProcessor {
             response: err.response,
             project: project
           };
-
-          console.error({message: 'failed to upsert project', extraDetail: logDetail});
+          // eslint-disable-next-line no-console
+          console.error({
+            message: 'failed to upsert project',
+            extraDetail: logDetail
+          });
           reject(err);
         });
     });
