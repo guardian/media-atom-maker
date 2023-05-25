@@ -2,13 +2,6 @@
 # yarn lockfile v1
 
 
-"@guardian/elk-kinesis-logger@0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@guardian/elk-kinesis-logger/-/elk-kinesis-logger-0.1.0.tgz#93fa667ec7a53a4630c96495ae6413ccbc27d282"
-  integrity sha1-k/pmfselOkYwyWSVrmQTzLwn0oI=
-  dependencies:
-    aws-sdk "^2.38.0"
-
 "@types/json5@^0.0.29":
   version "0.0.29"
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
@@ -169,7 +162,7 @@ async@^3.2.0:
   resolved "https://registry.yarnpkg.com/async/-/async-3.2.0.tgz#b3a2685c5ebb641d3de02d161002c60fc9f85720"
   integrity sha512-TR2mEZFVOj2pLStYxLht7TyfuRzaydfpxr3k9RpHIzMgw7A64dzsdqCxH1WJyQdoe8T10nDXd9wnEigmiuHIZw==
 
-aws-sdk@^2.35.0, aws-sdk@^2.38.0:
+aws-sdk@^2.35.0:
   version "2.730.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.730.0.tgz#5b2775bb0c3cd7764031a17a9bcac3f1aafc385e"
   integrity sha512-hYHplsbgUDP0XuaVJaHx2L/nC0E1i+4dGlkAQpkJz3qQ4NDfLnrbUFsA2g3AyWAsrnjrBNCkexPvwnV82Qng1g==

@@ -1,10 +1,9 @@
 const DELETE_KEY = '(DELETE)';
 
 class PlutoMessageProcessor {
-  constructor({ hostname, hmacRequest, logger }) {
+  constructor({ hostname, hmacRequest }) {
     this.hostname = hostname;
     this.hmacRequest = hmacRequest;
-    this.logger = logger;
   }
 
   process(message) {
@@ -49,8 +48,11 @@ class PlutoMessageProcessor {
   _upsertProject(message) {
     return new Promise((resolve, reject) => {
       if (!PlutoMessageProcessor._isValidMessage(message)) {
-        this.logger.log('invalid message, props missing', {
-          message: message
+        console.error({
+          error: 'invalid message, props missing', 
+          data: {
+            message
+          }
         });
 
         // `resolve` to remove message from Kinesis
@@ -64,7 +66,8 @@ class PlutoMessageProcessor {
       this.hmacRequest
         .put(remoteUrl, project)
         .then(resp => {
-          this.logger.log('successfully upserted project', {
+          console.log({
+            message: 'successfully upserted project', 
             response: resp
           });
           resolve(resp);
@@ -76,7 +79,7 @@ class PlutoMessageProcessor {
             project: project
           };
 
-          this.logger.error('failed to upsert project', logDetail);
+          console.error({message: 'failed to upsert project', extraDetail: logDetail});
           reject(err);
         });
     });

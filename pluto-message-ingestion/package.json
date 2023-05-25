@@ -12,7 +12,6 @@
     "build": "yarn lint && mkdir -p target && ncc-zip build -m -e aws-sdk -o ./target/pluto-message-ingestion.zip"
   },
   "dependencies": {
-    "@guardian/elk-kinesis-logger": "0.1.0",
     "crypto": "0.0.3",
     "hocon-parser": "^1.0.1",
     "reqwest": "^2.0.5",
