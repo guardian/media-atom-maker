@@ -6,11 +6,11 @@ import com.gu.media.youtube.YouTubeProcessingStatus
 import org.scalatest.{FunSuite, MustMatchers}
 
 class ClientAssetTest extends FunSuite with MustMatchers {
-  val ytAsset = Asset(AssetType.Video, 1, "12345", Platform.Youtube, None)
+  val ytAsset = Asset(AssetType.Video, 1, "12345", Platform.Youtube, None, Some("16:9"))
   val ytProcessing = YouTubeProcessingStatus("1", "processing", 0, 0, 0, None)
 
-  val mp4 = Asset(AssetType.Video, 1, "test.mp4", Platform.Url, Some("video/mp4"))
-  val m3u8 = Asset(AssetType.Video, 1, "test.m3u8", Platform.Url, Some("video/m3u8"))
+  val mp4 = Asset(AssetType.Video, 1, "test.mp4", Platform.Url, Some("video/mp4"), Some("16:9"))
+  val m3u8 = Asset(AssetType.Video, 1, "test.m3u8", Platform.Url, Some("video/m3u8"), Some("16:9"))
   val selfHostedAsset = SelfHostedAsset(List(
     VideoSource(mp4.id, mp4.mimeType.get), VideoSource(m3u8.id, m3u8.mimeType.get)
   ))
