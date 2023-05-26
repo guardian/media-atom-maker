@@ -44,6 +44,11 @@ export class Presence extends React.Component {
 
     const endpoint = `wss://${domain}/socket`;
 
+    if (!window.presenceClient){
+      setTimeout(() => { this.startPresence(atom, { domain, firstName, lastName, email })}, 500);
+      return;
+    }
+
     const client = window.presenceClient(endpoint, {
       firstName,
       lastName,

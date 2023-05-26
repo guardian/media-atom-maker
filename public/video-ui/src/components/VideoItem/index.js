@@ -6,6 +6,7 @@ import ReactTooltip from 'react-tooltip';
 import VideoUtils from '../../util/video';
 import { impossiblyDistantDate } from '../../constants/dates';
 import moment from 'moment';
+import { Presence } from '../Presence'
 
 export default class VideoItem extends React.Component {
   renderPublishStatus() {
@@ -51,6 +52,7 @@ export default class VideoItem extends React.Component {
     const hasPreventedPublication = embargo && embargoMoment.valueOf() >= impossiblyDistantDate;
     return (
       <li className="grid__item">
+        <Presence video={video} config={() => {console.log(getStore().getState().config); getStore().getState().config.presence;}} />
         <Link className="grid__link" to={'/videos/' + video.id}>
           <div className="grid__info">
             <div className="grid__image sixteen-by-nine">
