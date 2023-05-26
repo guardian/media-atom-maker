@@ -13,7 +13,8 @@ exports.handler = (event, context, callback) => {
         const payload = new Buffer(record.kinesis.data, 'base64').toString(
           'utf8'
         );
-
+        console.log({record})
+        console.log({payload})
         try {
           const jsonPayload = JSON.parse(payload);
           kinesisMessageProcessor.process(jsonPayload);
