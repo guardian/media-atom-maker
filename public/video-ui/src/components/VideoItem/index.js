@@ -7,6 +7,8 @@ import VideoUtils from '../../util/video';
 import { impossiblyDistantDate } from '../../constants/dates';
 import moment from 'moment';
 import { Presence } from '../Presence'
+import { getStore } from '../../util/storeAccessor';
+
 
 export default class VideoItem extends React.Component {
   renderPublishStatus() {
@@ -50,9 +52,12 @@ export default class VideoItem extends React.Component {
     const embargo = VideoUtils.getEmbargo(video);
     const embargoMoment = moment(embargo);
     const hasPreventedPublication = embargo && embargoMoment.valueOf() >= impossiblyDistantDate;
+    const config = getStore().getState().config;
+    const presenceConfig = config.presence;
+    console.log(config)
     return (
       <li className="grid__item">
-        <Presence video={video} config={() => {console.log(getStore().getState().config); getStore().getState().config.presence;}} />
+        {presenceConfig ? <Presence video={video} config={presenceConfig} /> : null}
         <Link className="grid__link" to={'/videos/' + video.id}>
           <div className="grid__info">
             <div className="grid__image sixteen-by-nine">

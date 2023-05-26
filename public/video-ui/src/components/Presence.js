@@ -7,6 +7,7 @@ export class Presence extends React.Component {
   };
 
   componentDidMount() {
+    console.log(this.props.config)
     if (this.props.video.id) {
       this.startPresence(this.props.video.id, this.props.config);
     }
@@ -59,7 +60,9 @@ export class Presence extends React.Component {
 
     client.on('connection.open', () => {
       client.subscribe(subscriptionId);
-      client.enter(subscriptionId, 'document');
+      if (window.location.pathname != "/videos"){
+        client.enter(subscriptionId, 'document');
+      }
     });
 
     client.on('visitor-list-updated', data => {
@@ -80,6 +83,7 @@ export class Presence extends React.Component {
   };
 
   render() {
+    console.log({visitors: this.state.visitors})
     const visitorsInThisArea = this.state.visitors.filter(
       state => state.location === 'document'
     );
