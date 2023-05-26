@@ -31,6 +31,8 @@ class KinesisMessageProcessor {
             hostname: `https://${config.host}`,
             hmacRequest: this.hmacRequest
           });
+
+          resolve();
         })
         .catch(err => {
           reject(`Failed to read config file. ${err}`);
