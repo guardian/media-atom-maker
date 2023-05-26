@@ -8,7 +8,7 @@ import com.gu.media.upload.model.{Upload, UploadPart}
 import com.gu.media.util.InputStreamRequestBody
 import com.gu.media.youtube.YouTubeUploader.{FileDetails, MoveToNextChunk, UploadError, VideoFullyUploaded}
 import com.squareup.okhttp.{MediaType, OkHttpClient, Request, RequestBody}
-import play.api.libs.json.{JsObject, JsString, JsValue, Json}
+import play.api.libs.json.{JsObject, JsString, Json}
 
 object YouTubeUploader {
   sealed trait Result
@@ -39,7 +39,7 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3) extends Logging {
 
   def startUpload(title: String, channel: String, id: String, size: Long): String = {
     val contentOwnerParams = s"onBehalfOfContentOwner=${youTube.contentOwner}&onBehalfOfContentOwnerChannel=$channel"
-    val params = s"uploadType=resumable&part=snippet,statistics,status&$contentOwnerParams"
+    val params = s"uploadType=resumable&part=snippet,fileDetails,statistics,status&$contentOwnerParams"
     val endpoint = s"https://www.googleapis.com/upload/youtube/v3/videos?$params"
 
     val videoTitle = s"$title-$id".take(70) // YouTube character limit
