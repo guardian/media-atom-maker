@@ -56,6 +56,8 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3) extends Logging {
     ))
 
     val body = RequestBody.create(JSON, Json.stringify(json))
+    log.info(s"endpoint is: ${endpoint}")
+    log.info(s"body is: ${Json.stringify(json)}")
     val request = new Request.Builder()
       .url(endpoint)
       .addHeader("Authorization", "Bearer " + youTube.accessToken())
