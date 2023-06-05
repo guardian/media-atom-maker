@@ -23,7 +23,11 @@ exports.handler = (event, context, callback) => {
           const jsonPayload = JSON.parse(payload);
           kinesisMessageProcessor.process(jsonPayload);
         } catch (e) {
-          callback(`Failed to parse kinesis message as JSON: ${payload}`);
+          // eslint-disable-next-line no-console
+          console.error(
+            `Failed to parse kinesis message as JSON: ${payload}. Removing from the stream.`
+          );
+          callback(null, 'Message removed from stream due to invalid data.');
         }
       });
 
