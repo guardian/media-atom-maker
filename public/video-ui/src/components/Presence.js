@@ -40,14 +40,17 @@ export class Presence extends React.Component {
     }
   }
 
-  startPresence = (atom, { domain, firstName, lastName, email }) => {
+  startPresence = (atom, { domain, firstName, lastName, email }, remainingAttempts) => {
     const subscriptionId = `media-${atom}`;
 
     const endpoint = `wss://${domain}/socket`;
 
-    if (!window.presenceClient){
-      setTimeout(() => { this.startPresence(atom, { domain, firstName, lastName, email })}, 500);
+    if (!window.presenceClient && remainingAttempts !== 0){
+      const newRemainingAttempts = remainingAttempts ? remainingAttempts - 1 : 5;
+      setTimeout(() => { this.startPresence(atom, { domain, firstName, lastName, email }, newRemainingAttempts)}, 500);
       return;
+    } else if (remainingAttempts === 0){
+      console.error("Failed to connect to Presence 5 times. Will no longer attempt to connect.")
     }
 
     const client = window.presenceClient(endpoint, {

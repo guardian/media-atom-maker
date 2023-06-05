@@ -54,10 +54,24 @@ export default class VideoItem extends React.Component {
     const hasPreventedPublication = embargo && embargoMoment.valueOf() >= impossiblyDistantDate;
     const config = getStore().getState().config;
     const presenceConfig = config.presence;
-    console.log(config)
     return (
       <li className="grid__item">
-        {presenceConfig ? <Presence video={video} config={presenceConfig} /> : null}
+        <div className="presence-section">
+          <ul className="presence-list">
+            {this.props.presences.map(presence => {
+              const id = presence.clientId.connId;
+              const { firstName, lastName } = presence.clientId.person;
+              const initials = `${firstName.slice(0, 1)}${lastName.slice(0, 1)}`;
+              const fullName = `${firstName} ${lastName}`;
+
+              return (
+                <li key={id} className="presence-list__user" title={fullName}>
+                  {initials}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
         <Link className="grid__link" to={'/videos/' + video.id}>
           <div className="grid__info">
             <div className="grid__image sixteen-by-nine">
