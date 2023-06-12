@@ -7,7 +7,6 @@ export class Presence extends React.Component {
   };
 
   componentDidMount() {
-    console.log(this.props.config)
     if (this.props.video.id) {
       this.startPresence(this.props.video.id, this.props.config);
     }
@@ -40,18 +39,10 @@ export class Presence extends React.Component {
     }
   }
 
-  startPresence = (atom, { domain, firstName, lastName, email }, remainingAttempts) => {
+  startPresence = (atom, { domain, firstName, lastName, email }) => {
     const subscriptionId = `media-${atom}`;
 
     const endpoint = `wss://${domain}/socket`;
-
-    if (!window.presenceClient && remainingAttempts !== 0){
-      const newRemainingAttempts = remainingAttempts ? remainingAttempts - 1 : 5;
-      setTimeout(() => { this.startPresence(atom, { domain, firstName, lastName, email }, newRemainingAttempts)}, 500);
-      return;
-    } else if (remainingAttempts === 0){
-      console.error("Failed to connect to Presence 5 times. Will no longer attempt to connect.")
-    }
 
     const client = window.presenceClient(endpoint, {
       firstName,
@@ -63,9 +54,7 @@ export class Presence extends React.Component {
 
     client.on('connection.open', () => {
       client.subscribe(subscriptionId);
-      if (window.location.pathname != "/videos"){
-        client.enter(subscriptionId, 'document');
-      }
+      client.enter(subscriptionId, 'document');
     });
 
     client.on('visitor-list-updated', data => {
@@ -86,7 +75,6 @@ export class Presence extends React.Component {
   };
 
   render() {
-    console.log({visitors: this.state.visitors})
     const visitorsInThisArea = this.state.visitors.filter(
       state => state.location === 'document'
     );
