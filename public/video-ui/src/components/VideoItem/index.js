@@ -6,7 +6,6 @@ import ReactTooltip from 'react-tooltip';
 import VideoUtils from '../../util/video';
 import { impossiblyDistantDate } from '../../constants/dates';
 import moment from 'moment';
-import { Presence } from '../Presence'
 import { getStore } from '../../util/storeAccessor';
 
 
