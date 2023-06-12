@@ -56,8 +56,8 @@ export default class VideoItem extends React.Component {
     const presenceConfig = config.presence;
     return (
       <li className="grid__item">
-        <div className="presence-section">
-          <ul className="presence-list">
+        <div className="presence-section presence-section-front">
+          <ul className="presence-list presence-list-front">
             {this.props.presences.map(presence => {
               const id = presence.clientId.connId;
               const { firstName, lastName } = presence.clientId.person;
@@ -65,7 +65,7 @@ export default class VideoItem extends React.Component {
               const fullName = `${firstName} ${lastName}`;
 
               return (
-                <li key={id} className="presence-list__user" title={fullName}>
+                <li key={id} className="presence-list__user presence-list-front__user" title={fullName}>
                   {initials}
                 </li>
               );
