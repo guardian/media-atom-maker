@@ -109,7 +109,6 @@ const Videos = ({videos, total, videoActions, searchTerm, limit}: VideosProps) =
         // We dump the data to a queue (which is picked up by a useEffect rather than directly modifying videoPresences 
         // so we don't need to depend on videoPresences, which led to some cyclicality
         setPresencesQueue(data);
-        console.log('hello')
       }
     });
     setClient(presenceClient);
