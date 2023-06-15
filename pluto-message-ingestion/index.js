@@ -34,7 +34,7 @@ exports.handler = (event, context, callback) => {
           callback(null, 'Done');
         })
         .catch(err => {
-          logForElk({ err }, 'error');
+          logForElk({ message: err }, 'error');
           callback(`Error. ${err}`);
         });
     })

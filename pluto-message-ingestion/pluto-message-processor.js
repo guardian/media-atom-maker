@@ -52,7 +52,7 @@ class PlutoMessageProcessor {
       if (!PlutoMessageProcessor._isValidMessage(message)) {
         logForElk(
           {
-            error: 'invalid message, props missing',
+            message: 'invalid message, props missing',
             data: {
               message
             }
