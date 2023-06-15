@@ -6,6 +6,8 @@ import ReactTooltip from 'react-tooltip';
 import VideoUtils from '../../util/video';
 import { impossiblyDistantDate } from '../../constants/dates';
 import moment from 'moment';
+import { getStore } from '../../util/storeAccessor';
+
 
 export default class VideoItem extends React.Component {
   renderPublishStatus() {
@@ -49,8 +51,26 @@ export default class VideoItem extends React.Component {
     const embargo = VideoUtils.getEmbargo(video);
     const embargoMoment = moment(embargo);
     const hasPreventedPublication = embargo && embargoMoment.valueOf() >= impossiblyDistantDate;
+    const config = getStore().getState().config;
+    const presenceConfig = config.presence;
     return (
       <li className="grid__item">
+        <div className="presence-section presence-section-front">
+          <ul className="presence-list presence-list-front">
+            {this.props.presences.map(presence => {
+              const id = presence.clientId.connId;
+              const { firstName, lastName } = presence.clientId.person;
+              const initials = `${firstName.slice(0, 1)}${lastName.slice(0, 1)}`;
+              const fullName = `${firstName} ${lastName}`;
+
+              return (
+                <li key={id} className="presence-list__user presence-list-front__user" title={fullName}>
+                  {initials}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
         <Link className="grid__link" to={'/videos/' + video.id}>
           <div className="grid__info">
             <div className="grid__image sixteen-by-nine">
