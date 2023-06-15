@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const KinesisMessageProcessor = require('./kinesis-message-processor');
+const logForElk = require('./logger');
 
 exports.handler = (event, context, callback) => {
   const kinesisMessageProcessor = new KinesisMessageProcessor();
@@ -17,9 +18,11 @@ exports.handler = (event, context, callback) => {
           const jsonPayload = JSON.parse(payload);
           kinesisMessageProcessor.process(jsonPayload);
         } catch (e) {
-          // eslint-disable-next-line no-console
-          console.error(
-            `Failed to parse kinesis message as JSON: ${payload}. Removing from the stream.`
+          logForElk(
+            {
+              message: `Failed to parse kinesis message as JSON: ${payload}. Removing from the stream.`
+            },
+            'error'
           );
           callback(null, 'Message removed from stream due to invalid data.');
         }
@@ -31,8 +34,7 @@ exports.handler = (event, context, callback) => {
           callback(null, 'Done');
         })
         .catch(err => {
-          // eslint-disable-next-line no-console
-          console.log(err);
+          logForElk({ err }, 'error');
           callback(`Error. ${err}`);
         });
     })

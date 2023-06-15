@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const reqwest = require('reqwest');
 const url = require('url');
+const logForElk = require('./logger');
 
 class HMACRequest {
   constructor({ serviceName, secret }) {
@@ -37,8 +38,10 @@ class HMACRequest {
       requestBody.data = JSON.stringify(data);
     }
 
-    // eslint-disable-next-line no-console
-    console.log({ message: `Making ${method} request to ${remoteUrl}`, data });
+    logForElk(
+      { message: `Making ${method} request to ${remoteUrl}`, data },
+      'info'
+    );
 
     return reqwest(requestBody);
   }
