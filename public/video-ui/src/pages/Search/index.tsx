@@ -116,8 +116,7 @@ const Videos = ({videos, total, videoActions, searchTerm, limit}: VideosProps) =
   };
 
   const getPresencesForVideo = (videoId: string): Presence[] => {
-    const presencesForVideo = videoPresences.filter(videoPresence => videoPresence.mediaId === `media-${videoId}`)
-    return presencesForVideo.length ? presencesForVideo[0].presences : []
+    return videoPresences.filter(videoPresence => videoPresence.mediaId === `media-${videoId}`).flatMap(videoPresence => videoPresence.presences);
   }
 
   useEffect(() => {
