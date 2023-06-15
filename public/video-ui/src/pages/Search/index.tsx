@@ -75,6 +75,7 @@ const Videos = ({videos, total, videoActions, searchTerm, limit}: VideosProps) =
   const [videoPresences, setVideoPresences] = useState<VideoPresences[]>([]);
   const [client, setClient] = useState<PresenceClient>(null);
   const [presencesQueue, setPresencesQueue] = useState<PresenceData>(null);
+  const [prevSearch, setPrevSearch] = useState("");
 
   const showMore = () => {
     videoActions.getVideos(
@@ -101,7 +102,7 @@ const Videos = ({videos, total, videoActions, searchTerm, limit}: VideosProps) =
         const initialState = visitorData.data.subscribedTo
           .map(subscribedTo => {return {mediaId: subscribedTo.subscriptionId, presences: subscribedTo.currentState} as VideoPresences})
           .filter(presence => presence.presences.length)
-        setVideoPresences([...initialState])
+        setVideoPresences(initialState)
       }
     })
     presenceClient.on('visitor-list-updated', data => {
@@ -149,6 +150,13 @@ const Videos = ({videos, total, videoActions, searchTerm, limit}: VideosProps) =
       setPresencesQueue(null);
     }
   }, [presencesQueue, videoPresences])
+
+  useEffect(() => {
+    if (searchTerm !== prevSearch) {
+      setPrevSearch(searchTerm)
+      videoActions.getVideos(searchTerm, limit);
+    }
+  }, [searchTerm, prevSearch])
 
   return (
     <div>
