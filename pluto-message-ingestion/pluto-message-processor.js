@@ -1,10 +1,11 @@
+const logForElk = require('./logger');
+
 const DELETE_KEY = '(DELETE)';
 
 class PlutoMessageProcessor {
-  constructor({ hostname, hmacRequest, logger }) {
+  constructor({ hostname, hmacRequest }) {
     this.hostname = hostname;
     this.hmacRequest = hmacRequest;
-    this.logger = logger;
   }
 
   process(message) {
@@ -49,9 +50,15 @@ class PlutoMessageProcessor {
   _upsertProject(message) {
     return new Promise((resolve, reject) => {
       if (!PlutoMessageProcessor._isValidMessage(message)) {
-        this.logger.log('invalid message, props missing', {
-          message: message
-        });
+        logForElk(
+          {
+            message: 'invalid message, props missing',
+            data: {
+              message
+            }
+          },
+          'error'
+        );
 
         // `resolve` to remove message from Kinesis
         resolve('invalid message, props missing');
@@ -64,9 +71,13 @@ class PlutoMessageProcessor {
       this.hmacRequest
         .put(remoteUrl, project)
         .then(resp => {
-          this.logger.log('successfully upserted project', {
-            response: resp
-          });
+          logForElk(
+            {
+              message: 'successfully upserted project',
+              response: resp
+            },
+            'log'
+          );
           resolve(resp);
         })
         .catch(err => {
@@ -75,8 +86,13 @@ class PlutoMessageProcessor {
             response: err.response,
             project: project
           };
-
-          this.logger.error('failed to upsert project', logDetail);
+          logForElk(
+            {
+              message: 'failed to upsert project',
+              extraDetail: logDetail
+            },
+            'error'
+          );
           reject(err);
         });
     });
