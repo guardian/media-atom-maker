@@ -1,4 +1,6 @@
-export function isVideoPublished(video) {
+import { Video } from "../services/VideosApi";
+
+export function isVideoPublished(video: Video) {
   if (!video) {
     return false;
   }
@@ -6,7 +8,7 @@ export function isVideoPublished(video) {
   return video.contentChangeDetails && video.contentChangeDetails.published;
 }
 
-export function hasVideoExpired(video) {
+export function hasVideoExpired(video: Video) {
   if (!video || !video.expiryDate) {
     return false;
   }

@@ -22,7 +22,7 @@ export type Asset = {
 export type Video = {
   id: string;
   labels: string[];
-  contentChangeDetails: unknown;
+  contentChangeDetails: { published?: boolean};
   assets: Asset[];
   activeVersion?: number;
   title: string;

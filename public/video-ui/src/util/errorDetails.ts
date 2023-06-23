@@ -1,4 +1,4 @@
-export function errorDetails(error) {
+export function errorDetails(error: Error) {
   if (error instanceof XMLHttpRequest) {
     let text = `${error.status}`;
 

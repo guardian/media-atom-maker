@@ -1,10 +1,10 @@
 import moment from 'moment';
 
-function isBetween({ value, lower, upper }) {
+const isBetween = ({ value, lower, upper }: {value: number, lower: number, upper: number}) => {
   return value >= lower && value <= upper;
 }
 
-function getTimezoneOffset() {
+const getTimezoneOffset = () => {
   const offset = moment().utcOffset();
 
   if (isBetween({ value: offset, lower: 480, upper: 660 })) {

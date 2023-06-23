@@ -1,4 +1,11 @@
-export function channelAllowed(video, channels) {
+import { Video } from "../services/VideosApi";
+
+export type Channel = {
+  id: string,
+  privacyState: string[]
+}
+
+export const channelAllowed = (video: Video, channels: Channel[]) => {
   if (!video.channelId) {
     return true;
   }
