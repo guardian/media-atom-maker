@@ -19,6 +19,9 @@ jobs:
         with:
           java-version: "8"
           distribution: "corretto"
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
       - name: Build Pluto lambda
         run: |
           ./scripts/pluto-ci.sh
