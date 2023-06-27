@@ -27,7 +27,7 @@ export class Presence extends React.Component {
         );
       }
 
-      if (current) {
+      if (current && window.presenceClient) {
         this.startPresence(current, this.props.config);
       }
     }
