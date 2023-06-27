@@ -23,7 +23,7 @@ export default class VideoImages extends React.Component {
   getGridUrl(cropType) {
     const posterImage = this.props.video.posterImage;
 
-    const queryParam = cropType == "verticalvideo" ?
+    const queryParam = cropType == "verticalVideo" ?
       `cropType=${cropType}&customRatio=${cropType},9,16` :
       `cropType=${cropType}`;
 
@@ -55,7 +55,7 @@ export default class VideoImages extends React.Component {
             </header>
             <GridImageSelect
               image={this.props.video.posterImage}
-              gridUrl={this.hasVerticalVideoTag() ? this.getGridUrl('verticalvideo'): this.getGridUrl('video')}
+              gridUrl={this.hasVerticalVideoTag() ? this.getGridUrl('verticalVideo'): this.getGridUrl('video')}
               gridDomain={this.props.gridDomain}
               disabled={this.props.videoEditOpen}
               updateVideo={this.saveAndUpdateVideoImage}
@@ -87,7 +87,7 @@ export default class VideoImages extends React.Component {
             </header>
             <GridImageSelect
               image={this.props.video.youtubeOverrideImage}
-              gridUrl={this.hasVerticalVideoTag() ? this.getGridUrl('verticalvideo'): this.getGridUrl('video')}
+              gridUrl={this.hasVerticalVideoTag() ? this.getGridUrl('verticalVideo'): this.getGridUrl('video')}
               gridDomain={this.props.gridDomain}
               disabled={this.props.videoEditOpen}
               updateVideo={this.saveAndUpdateVideoImage}
