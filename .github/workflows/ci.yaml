@@ -1,4 +1,4 @@
-name: Media Atom Maker CI
+name: CI
 on:
   workflow_dispatch:
   push:
