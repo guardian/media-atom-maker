@@ -23,12 +23,22 @@ export default class VideoImages extends React.Component {
   getGridUrl(cropType) {
     const posterImage = this.props.video.posterImage;
 
+    const queryParam = cropType == "verticalVideo" ?
+      `cropType=${cropType}&customRatio=${cropType},9,16` :
+      `cropType=${cropType}`;
+
     if (posterImage.assets.length > 0) {
       const imageGridId = getGridMediaId(posterImage);
-      return `${this.props.gridDomain}/images/${imageGridId}?cropType=${cropType}`;
+
+      return `${this.props.gridDomain}/images/${imageGridId}?${queryParam}`;
     }
 
-    return `${this.props.gridDomain}?cropType=${cropType}`;
+    return `${this.props.gridDomain}?${queryParam}`;
+  }
+
+  hasVerticalVideoTag() {
+    const tags = this.props.video.keywords || [];
+    return tags.includes('media/series/vertical-video');
   }
 
   render() {
@@ -45,7 +55,7 @@ export default class VideoImages extends React.Component {
             </header>
             <GridImageSelect
               image={this.props.video.posterImage}
-              gridUrl={this.getGridUrl('video')}
+              gridUrl={this.hasVerticalVideoTag() ? this.getGridUrl('verticalVideo'): this.getGridUrl('video')}
               gridDomain={this.props.gridDomain}
               disabled={this.props.videoEditOpen}
               updateVideo={this.saveAndUpdateVideoImage}
@@ -77,7 +87,7 @@ export default class VideoImages extends React.Component {
             </header>
             <GridImageSelect
               image={this.props.video.youtubeOverrideImage}
-              gridUrl={this.getGridUrl('video')}
+              gridUrl={this.hasVerticalVideoTag() ? this.getGridUrl('verticalVideo'): this.getGridUrl('video')}
               gridDomain={this.props.gridDomain}
               disabled={this.props.videoEditOpen}
               updateVideo={this.saveAndUpdateVideoImage}
