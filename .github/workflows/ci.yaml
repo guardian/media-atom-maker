@@ -19,9 +19,10 @@ jobs:
         with:
           java-version: "8"
           distribution: "corretto"
-      - uses: actions/setup-node@v3
+      - name: Setup Node
+        uses: guardian/actions-setup-node@v2.4.1
         with:
-          node-version: 14
+          cache: "yarn"
       - name: Build Pluto lambda
         run: |
           ./scripts/pluto-ci.sh
