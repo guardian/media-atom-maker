@@ -39,7 +39,7 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3) extends Logging {
 
   def startUpload(title: String, channel: String, id: String, size: Long): String = {
     val contentOwnerParams = s"onBehalfOfContentOwner=${youTube.contentOwner}&onBehalfOfContentOwnerChannel=$channel"
-    val params = s"uploadType=resumable&part=snippet,fileDetails,statistics,status&$contentOwnerParams"
+    val params = s"uploadType=resumable&part=snippet,statistics,status&$contentOwnerParams"
     val endpoint = s"https://www.googleapis.com/upload/youtube/v3/videos?$params"
 
     val videoTitle = s"$title-$id".take(70) // YouTube character limit
@@ -56,8 +56,8 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3) extends Logging {
     ))
 
     val body = RequestBody.create(JSON, Json.stringify(json))
-    log.info(s"endpoint is: ${endpoint}")
-    log.info(s"body is: ${Json.stringify(json)}")
+
+    //log.info(s"body is: ${Json.stringify(json)}")
     val request = new Request.Builder()
       .url(endpoint)
       .addHeader("Authorization", "Bearer " + youTube.accessToken())
@@ -117,8 +117,12 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3) extends Logging {
 
     val body = new InputStreamRequestBody(VIDEO, input, size)
 
+    val sections = uri.split("status")
+    val newUrl = s"${sections(0)}status,fileDetails${sections(1)}"
+    log.info(s"endpoint is: ${newUrl}")
+
     val request = new Request.Builder()
-      .url(uri)
+      .url(newUrl)
       .addHeader("Authorization", "Bearer " + youTube.accessToken())
       .addHeader("Content-Length", size.toString)
       .addHeader(s"Content-Range", s"bytes $range/$total")
