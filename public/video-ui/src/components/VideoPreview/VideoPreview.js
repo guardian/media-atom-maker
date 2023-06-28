@@ -40,7 +40,7 @@ export default class VideoPreview extends React.Component {
 
   hasVerticalVideoTag() {
     const tags = this.props.video.keywords || [];
-    return tags.includes('media/series/vertical-video');
+    return tags.includes('tone/vertical-video');
   }
 
   render() {
