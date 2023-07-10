@@ -1,6 +1,7 @@
 package controllers
 
 
+import com.gu.editorial.permissions.client.{Permission, PermissionDenied, PermissionsUser}
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
 import com.gu.media.youtube.YouTubeAccess
@@ -66,6 +67,7 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
         title = "Media Atom Maker",
         jsLocation,
         presenceJsLocation = clientConfig.presence.map(_.jsLocation),
+        pinboardJsLocation = if(permissions.pinboard) awsConfig.pinboardLoaderUrl else None,
         Json.toJson(clientConfig).toString(),
         isHotReloading,
         CSRF.getToken.value

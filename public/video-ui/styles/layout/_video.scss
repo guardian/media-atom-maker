@@ -64,6 +64,8 @@
   justify-content: space-between;
   padding: 10px;
   margin-right: 4px;
+  gap: 10px;
+  align-items: center;
 }
 
 .video__detailbox {
@@ -72,6 +74,7 @@
   border-top: 1px solid $color600Grey;
 
   &__header {
+    flex-grow: 1;
     color: $color400Grey;
     font-weight: bold;
     display: block;

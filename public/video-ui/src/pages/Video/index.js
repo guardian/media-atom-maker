@@ -105,7 +105,7 @@ class VideoDisplay extends React.Component {
       <div>
         <p className="video__images_heading">How are these images used?</p>
         <div>
-          <table class="video__images_description_table">
+          <table className="video__images_description_table">
             <thead>
               <tr>
                 <th scope="row">Guardian Video Thumbnail Image</th>
@@ -142,6 +142,12 @@ class VideoDisplay extends React.Component {
             Video Preview
             {youtubeAsset ? ` (${youtubeAsset.id})` : ``}
           </header>
+          <asset-handle data-source="mam"
+                        data-source-type="video"
+                        data-thumbnail={this.props.video?.posterImage?.assets?.[0]?.file}
+                        data-external-url={VideoUtils.isYoutube(this.props.video) && getYouTubeEmbedUrl(VideoUtils.getActiveAsset(this.props.video)?.id)}
+                        data-embeddable-url={window.location.href}>
+          </asset-handle>
           <Link
             className={'button ' + (this.props.videoEditOpen ? 'disabled' : '')}
             to={`/videos/${this.props.video.id}/upload`}
@@ -391,6 +397,7 @@ import * as trackInWorkflow
   from '../../actions/WorkflowActions/trackInWorkflow';
 import * as updateWorkflowData
   from '../../actions/WorkflowActions/updateWorkflowData';
+import {getYouTubeEmbedUrl} from "../../components/utils/YouTubeEmbed";
 
 function mapStateToProps(state) {
   return {

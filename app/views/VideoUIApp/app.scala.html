@@ -2,6 +2,7 @@
   title: String,
   jsFileLocation: String,
   presenceJsLocation: Option[String],
+  pinboardJsLocation: Option[String],
   clientConfigJson: String,
   isHotReloading: Boolean,
   csrf: String
@@ -22,5 +23,8 @@
 
     <script src="@jsFileLocation"></script>
 
+    @pinboardJsLocation.map { pinboardJs =>
+      <script async src="@pinboardJs" ></script>
+    }
 
 }

@@ -50,10 +50,14 @@ class Api(
     Ok(Json.toJson(atoms))
   }
 
-  def getMediaAtom(id: String) = APIAuthAction {
+  def getMediaAtom(id: String) = APIAuthAction {req =>
     try {
+      val maybeCorsValue = req.headers.get("Origin").filter(_.endsWith("gutools.co.uk"))
       val atom = getPreviewAtom(id)
-      Ok(Json.toJson(MediaAtom.fromThrift(atom)))
+      Ok(Json.toJson(MediaAtom.fromThrift(atom))).withHeaders(
+        "Access-Control-Allow-Origin" -> maybeCorsValue.getOrElse(""),
+        "Access-Control-Allow-Credentials" -> maybeCorsValue.isDefined.toString
+      )
     } catch {
       commandExceptionAsResult
     }
