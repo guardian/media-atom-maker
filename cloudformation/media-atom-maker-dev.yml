@@ -96,7 +96,7 @@ Resources:
     Type: "AWS::IAM::AccessKey"
     Properties:
       UserName: {"Ref": "MediaAtomUser"}
-      Serial: 3
+      Serial: 4
   MediaAtomsDynamoTable:
     Type: "AWS::DynamoDB::Table"
     Properties:
