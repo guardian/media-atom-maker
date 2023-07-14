@@ -32,9 +32,9 @@ class ReactApp extends React.Component {
     }
   }
 
-  updateSearchTerm = searchTerm => {
-    this.props.appActions.updateSearchTerm(searchTerm);
-  };
+  updateSearchTerm = this.props.appActions.updateSearchTerm;
+
+  updateShouldUseCreatedDateForSort = this.props.appActions.updateShouldUseCreatedDateForSort;
 
   getEditableFields = () => {
     const allFields = this.props.checkedFormFields;
@@ -53,6 +53,7 @@ class ReactApp extends React.Component {
     return (
       <div className="wrap">
         <Header
+          updateShouldUseCreatedDateForSort={this.updateShouldUseCreatedDateForSort}
           updateSearchTerm={this.updateSearchTerm}
           searchTerm={this.props.searchTerm}
           currentPath={this.props.location.pathname}
@@ -94,6 +95,7 @@ class ReactApp extends React.Component {
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as updateSearchTerm from '../actions/SearchActions/updateSearchTerm';
+import * as updateShouldUseCreatedDateForSort from '../actions/SearchActions/updateShouldUseCreatedDateForSort';
 import * as getVideo from '../actions/VideoActions/getVideo';
 import * as getPublishedVideo from '../actions/VideoActions/getPublishedVideo';
 import * as publishVideo from '../actions/VideoActions/publishVideo';
@@ -108,6 +110,7 @@ import * as updateVideo from '../actions/VideoActions/updateVideo';
 function mapStateToProps(state) {
   return {
     searchTerm: state.searchTerm,
+    shouldUseCreatedDateForSort: state.shouldUseCreatedDateForSort,
     saveState: state.saveState,
     video: state.video,
     publishedVideo: state.publishedVideo,
@@ -128,6 +131,7 @@ function mapDispatchToProps(dispatch) {
       Object.assign(
         {},
         updateSearchTerm,
+        updateShouldUseCreatedDateForSort,
         getVideo,
         getPublishedVideo,
         publishVideo,

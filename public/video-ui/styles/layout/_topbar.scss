@@ -50,6 +50,12 @@ $topbarHeight: 50px;
 .topbar__global {
   margin-right: 10px;
 }
+.topbar__global select {
+  font-family: inherit;
+  background: none;
+  color: inherit;
+  padding: 3px;
+}
 
 .topbar__functional {
   margin-left: 20px;

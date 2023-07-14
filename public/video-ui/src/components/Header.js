@@ -60,6 +60,20 @@ export default class Header extends React.Component {
     );
   }
 
+  renderSortBy() {
+    return (
+      <div className="flex-container topbar__global">
+        <span>Sort by:&nbsp;</span>
+        <select
+          onChange={event => this.props.updateShouldUseCreatedDateForSort(event.target.value === "true")}
+        >
+          <option value="false">Last Modified (default)</option>
+          <option value="true">Created</option>
+        </select>
+      </div>
+    )
+  }
+
   renderHeaderBack() {
     return (
       <div className="flex-container topbar__global">
@@ -169,6 +183,8 @@ export default class Header extends React.Component {
           {this.renderPresence()}
 
           <div className="flex-spacer" />
+
+          {this.renderSortBy()}
 
           <div className="flex-container">
             {this.renderCreateVideo()}
