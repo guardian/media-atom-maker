@@ -86,7 +86,7 @@ export default class Header extends React.Component {
           }}
         >
           <option value="false">Last Modified (default)</option>
-          <option value="true">Created</option>
+          <option value="true">Created (newest first)</option>
         </select>
       </div>
     );
