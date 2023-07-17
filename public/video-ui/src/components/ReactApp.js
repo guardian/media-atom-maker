@@ -32,10 +32,6 @@ class ReactApp extends React.Component {
     }
   }
 
-  updateSearchTerm = this.props.appActions.updateSearchTerm;
-
-  updateShouldUseCreatedDateForSort = this.props.appActions.updateShouldUseCreatedDateForSort;
-
   getEditableFields = () => {
     const allFields = this.props.checkedFormFields;
 
@@ -53,8 +49,9 @@ class ReactApp extends React.Component {
     return (
       <div className="wrap">
         <Header
-          updateShouldUseCreatedDateForSort={this.updateShouldUseCreatedDateForSort}
-          updateSearchTerm={this.updateSearchTerm}
+          shouldUseCreatedDateForSort={this.props.shouldUseCreatedDateForSort}
+          updateShouldUseCreatedDateForSort={this.props.appActions.updateShouldUseCreatedDateForSort}
+          updateSearchTerm={this.props.appActions.updateSearchTerm}
           searchTerm={this.props.searchTerm}
           currentPath={this.props.location.pathname}
           video={this.props.video || {}}
