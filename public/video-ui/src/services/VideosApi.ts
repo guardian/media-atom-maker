@@ -102,10 +102,13 @@ function splitUsages({ usages }: {usages: CapiContent[]}) {
 }
 
 export default {
-  fetchVideos: (search: string, limit: number) => {
+  fetchVideos: (search: string, limit: number, shouldUseCreatedDateForSort: boolean) => {
     let url = `/api/atoms?limit=${limit}`;
     if (search) {
       url += `&search=${search}`;
+    }
+    if(shouldUseCreatedDateForSort) {
+      url += '&shouldUseCreatedDateForSort=true';
     }
 
     return pandaReqwest({
