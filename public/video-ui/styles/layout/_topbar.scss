@@ -5,6 +5,9 @@ $topbarHeight: 50px;
   top: 0;
   z-index: 1;
 
+  justify-content: right;
+  flex-wrap: wrap;
+
   background: $color700Grey;
   border-bottom: 1px solid $greyBorderColor;
 
