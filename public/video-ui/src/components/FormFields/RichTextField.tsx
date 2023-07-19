@@ -12,8 +12,7 @@ type EditorProps = {
   fieldValue: string;
   derivedFrom: string;
   onUpdateField: (string: string) => any;
-  maxLength: number;
-  maxCharLength: number;
+  maxWordLength: number;
   editable: boolean;
   fieldLocation: string;
   fieldName: string;
@@ -46,7 +45,7 @@ export default class RichTextField extends React.Component<EditorProps, EditorSt
   };
 
   updateFieldValue = (value: string) => {
-    if (!isTooLong(value, this.props.maxLength, this.props.maxCharLength)) {
+    if (!isTooLong(value, this.props.maxWordLength)) {
       this.setState({
         isTooLong: false
       });

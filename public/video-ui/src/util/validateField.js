@@ -8,7 +8,6 @@ const validateField = (
   customValidation = null,
   composerValidation = false,
   maxLength,
-  name
 ) => {
   if (customValidation) {
     return customValidation(fieldValue);
@@ -51,7 +50,7 @@ const validateField = (
     return false;
   }
 
-  if (name === "Headline" && fieldValueTooLong()) {
+  if (maxLength && fieldValueTooLong()) {
     return new FieldNotification(
       'too long',
       'You have reached the maximum character length',
