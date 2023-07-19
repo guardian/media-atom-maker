@@ -21,13 +21,12 @@ export const getWords = (text: string): string[] => {
     .filter(_ => _.length !== 0);
 };
 
-export const isTooLong = (value: string, maxLength: number, maxCharLength: number): boolean => {
+export const isTooLong = (value: string, maxWordLength: number): boolean => {
   const wordLength = getWords(value).reduce((length, word) => {
     length += word.length;
     return length;
   }, 0);
   return (
-    wordLength > maxLength ||
-    value.length > maxCharLength
+    wordLength > maxWordLength
   );
 };

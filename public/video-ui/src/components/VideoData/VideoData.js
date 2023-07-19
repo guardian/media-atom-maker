@@ -82,8 +82,8 @@ export default class VideoData extends React.Component {
         <ManagedField
           fieldLocation="description"
           name="Standfirst"
-          maxCharLength={fieldLengths.description.charMax}
-          maxLength={fieldLengths.description.max}
+          maxLength={fieldLengths.description.charMax}
+          maxWordLength={fieldLengths.description.max}
         >
           <RichTextField
             config={standfirstConfig}
@@ -93,8 +93,8 @@ export default class VideoData extends React.Component {
           fieldLocation="trailText"
           derivedFrom={video.description}
           name="Trail Text"
-          maxCharLength={fieldLengths.description.charMax}
-          maxLength={fieldLengths.description.max}
+          maxLength={fieldLengths.description.charMax}
+          maxWordLength={fieldLengths.description.max}
           isDesired={!canonicalVideoPageExists}
           isRequired={canonicalVideoPageExists}
         >
