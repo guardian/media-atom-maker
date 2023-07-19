@@ -7,7 +7,7 @@ const validateField = (
   isDesired = false,
   customValidation = null,
   composerValidation = false,
-  maxLength,
+  maxLength
 ) => {
   if (customValidation) {
     return customValidation(fieldValue);
