@@ -76,10 +76,14 @@ lazy val common = (project in file("common"))
   .settings(commonSettings,
     name := "media-atom-common",
     unmanagedBase := baseDirectory.value / "common" / "lib",
-    //YouTube Content ID API - Client Libraries. Only available to be download as JAR files.
-    //Latest can be found here: https://developers.google.com/youtube/partner/client_libraries
-    Compile / unmanagedJars += file("common/lib/google-api-services-youtubePartner-v1-rev20230804-2.0.0-sources.jar"),
+    // YouTube Content ID API - Client Libraries. Not available for download.
+    // Follow the instructions in the scripts/youtubepartner-api-gen directory to
+    // regenerate+update these.
     Compile / unmanagedJars += file("common/lib/google-api-services-youtubePartner-v1-rev20230804-2.0.0.jar"),
+    // Attaching source jars doesn't work as you'd expect :(
+    // If you try to cmd+click to the definition of any classes from youtubePartner-api, Intellij will offer you an option to
+    // "attach sources" -> do that and select the file below.
+    //Compile / unmanagedJars += file("common/lib/google-api-services-youtubePartner-v1-rev20230804-2.0.0-sources.jar"),
     libraryDependencies ++= Seq(
       "com.google.api-client" %  "google-api-client" % googleApiClientVersion,
       "com.google.http-client" % "google-http-client-jackson2" % googleHttpJacksonVersion,
