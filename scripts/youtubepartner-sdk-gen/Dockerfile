@@ -15,4 +15,4 @@ RUN python2 -m pip install --require-hashes -r generator_requirements.txt
 
 #CMD generate_library
 
-CMD python2 -m googleapis.codegen --input=/data/youtubepartner.v1.json --language=java --language_variant=1.31.0 --output_dir=/data/output
+CMD python2 -m googleapis.codegen --input=/data/youtubepartner.v1.json --language=java --language_variant=2.0.0 --output_dir=/data/output

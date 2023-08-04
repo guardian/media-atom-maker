@@ -28,14 +28,14 @@ val logbackClassicVersion = "1.2.3"
 val logstashLogbackEncoderVersion = "4.8"
 
 val guavaVersion = "31.1-jre"
-val googleOauthVersion = "1.33.3"
-val googleHttpJacksonVersion = "1.41.7"
+val googleOauthVersion = "1.34.1"
+val googleHttpJacksonVersion = "1.43.3"
 val commonsLoggingVersion = "1.1.1"
 val apacheHttpClientVersion = "4.0.1"
 val apacheHttpCoreVersion = "4.0.1"
 
-val googleApiClientVersion = "1.35.2"
-val youTubeApiClientVersion = "v3-rev20220719-1.32.1"
+val googleApiClientVersion = "2.2.0"
+val youTubeApiClientVersion = "v3-rev20230123-2.0.0"
 
 val jsoupVersion = "1.16.1"
 
@@ -78,8 +78,8 @@ lazy val common = (project in file("common"))
     unmanagedBase := baseDirectory.value / "common" / "lib",
     //YouTube Content ID API - Client Libraries. Only available to be download as JAR files.
     //Latest can be found here: https://developers.google.com/youtube/partner/client_libraries
-    Compile / unmanagedJars += file("common/lib/google-api-services-youtubePartner-v1-rev20230803-1.32.1-sources.jar"),
-    Compile / unmanagedJars += file("common/lib/google-api-services-youtubePartner-v1-rev20230803-1.32.1.jar"),
+    Compile / unmanagedJars += file("common/lib/google-api-services-youtubePartner-v1-rev20230804-2.0.0-sources.jar"),
+    Compile / unmanagedJars += file("common/lib/google-api-services-youtubePartner-v1-rev20230804-2.0.0.jar"),
     libraryDependencies ++= Seq(
       "com.google.api-client" %  "google-api-client" % googleApiClientVersion,
       "com.google.http-client" % "google-http-client-jackson2" % googleHttpJacksonVersion,
@@ -95,6 +95,7 @@ lazy val common = (project in file("common"))
       "com.gu" %% "atom-manager-play" % atomMakerVersion,
       "com.gu"  %% "atom-manager-play" % atomMakerVersion % "test" classifier "tests",
       "com.google.guava" % "guava" % guavaVersion,
+      // FIXME do we need oauth-client-jetty?
       "com.google.oauth-client" % "google-oauth-client-jetty" % googleOauthVersion,
       "commons-logging" % "commons-logging" % commonsLoggingVersion,
       "org.apache.httpcomponents" % "httpclient" % apacheHttpClientVersion,
