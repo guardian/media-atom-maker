@@ -84,7 +84,7 @@ trait YouTubeAccess extends Settings with Logging {
 
   def categories: List[YouTubeVideoCategory] = {
     val request = client.videoCategories()
-      .list("snippet")
+      .list(List("snippet").asJava)
       .setRegionCode("GB")
 
     YoutubeRequestLogger.logRequest(YoutubeApiType.DataApi, YoutubeRequestType.ListCategories)
@@ -96,7 +96,7 @@ trait YouTubeAccess extends Settings with Logging {
 
   def channels: List[YouTubeChannel] = {
     val request = client.channels()
-      .list("snippet")
+      .list(List("snippet").asJava)
       .setMaxResults(50L)
       .setManagedByMe(true)
       .setOnBehalfOfContentOwner(contentOwner)

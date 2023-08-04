@@ -35,7 +35,7 @@ val apacheHttpClientVersion = "4.0.1"
 val apacheHttpCoreVersion = "4.0.1"
 
 val googleApiClientVersion = "1.35.2"
-val youTubeApiClientVersion = "v3-rev178-1.22.0"
+val youTubeApiClientVersion = "v3-rev20220719-1.32.1"
 
 val jsoupVersion = "1.16.1"
 

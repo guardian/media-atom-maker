@@ -76,7 +76,7 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
     }
     else {
       try {
-        val maybeVideo = youTube.getVideo(asset.id, "snippet")
+        val maybeVideo = youTube.getVideo(asset.id, List("snippet"))
 
         (existingChannel, maybeVideo) match {
           case (_, None) =>
