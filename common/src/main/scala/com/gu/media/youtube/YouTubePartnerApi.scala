@@ -2,8 +2,8 @@ package com.gu.media.youtube
 
 import java.util
 import com.google.api.client.googleapis.json.{GoogleJsonError, GoogleJsonResponseException}
-import com.google.api.services.youtubePartner.YouTubePartner
-import com.google.api.services.youtubePartner.model._
+import com.google.api.services.youtubePartner.v1.YouTubePartner
+import com.google.api.services.youtubePartner.v1.model._
 import com.gu.media.logging.{Logging, YoutubeApiType, YoutubeRequestLogger, YoutubeRequestType}
 import com.gu.media.model.{AdSettings, VideoUpdateError}
 import com.gu.media.util.MAMLogger

@@ -78,8 +78,8 @@ lazy val common = (project in file("common"))
     unmanagedBase := baseDirectory.value / "common" / "lib",
     //YouTube Content ID API - Client Libraries. Only available to be download as JAR files.
     //Latest can be found here: https://developers.google.com/youtube/partner/client_libraries
-    Compile / unmanagedJars += file("google-api-services-youtubePartner-v1-rev20230803-1.32.1-sources.jar"),
-    Compile / unmanagedJars += file("google-api-services-youtubePartner-v1-rev20230803-1.32.1.jar"),
+    Compile / unmanagedJars += file("common/lib/google-api-services-youtubePartner-v1-rev20230803-1.32.1-sources.jar"),
+    Compile / unmanagedJars += file("common/lib/google-api-services-youtubePartner-v1-rev20230803-1.32.1.jar"),
     libraryDependencies ++= Seq(
       "com.google.api-client" %  "google-api-client" % googleApiClientVersion,
       "com.google.http-client" % "google-http-client-jackson2" % googleHttpJacksonVersion,
