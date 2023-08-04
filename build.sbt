@@ -99,8 +99,6 @@ lazy val common = (project in file("common"))
       "com.gu" %% "atom-manager-play" % atomMakerVersion,
       "com.gu"  %% "atom-manager-play" % atomMakerVersion % "test" classifier "tests",
       "com.google.guava" % "guava" % guavaVersion,
-      // FIXME do we need oauth-client-jetty?
-      "com.google.oauth-client" % "google-oauth-client-jetty" % googleOauthVersion,
       "commons-logging" % "commons-logging" % commonsLoggingVersion,
       "org.apache.httpcomponents" % "httpclient" % apacheHttpClientVersion,
       "org.apache.httpcomponents" % "httpcore" % apacheHttpCoreVersion,
