@@ -19,10 +19,31 @@ export type Asset = {
   mimeType?: string;
 }
 
+export type User = {
+  email: string;
+  firstName?: string;
+  lastName?: string
+}
+
+export type ChangeRecord = {
+  date: string, // UNIX timestamp, ms
+  user?: User
+}
+
+export type ContentChangeDetails = {
+  lastModified?: ChangeRecord,
+  created?: ChangeRecord,
+  published?: ChangeRecord,
+  revision: number,
+  scheduledLaunch?: ChangeRecord,
+  embargo?: ChangeRecord,
+  expiry?: ChangeRecord
+}
+
 export type Video = {
   id: string;
   labels: string[];
-  contentChangeDetails: unknown;
+  contentChangeDetails: ContentChangeDetails;
   assets: Asset[];
   activeVersion?: number;
   title: string;
@@ -60,7 +81,7 @@ function getComposerUrl() {
   return getStore().getState().config.composerUrl;
 }
 
-function getUsages({ id, stage }: {id: String, stage: Stage}): Promise<CapiContent[]> {
+function getUsages({ id, stage }: {id: string, stage: Stage}): Promise<CapiContent[]> {
   return pandaReqwest({
     url: `${ContentApi.getUrl(stage)}/atom/media/${id}/usage?page-size=100`
   }).then(res => {
