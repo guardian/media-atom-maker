@@ -21,6 +21,9 @@ export default function video(state = null, action) {
     case 'VIDEO_SAVE_RECEIVE':
       return Object.assign({}, blankVideoData, action.video);
 
+    case 'VIDEO_PUBLISH_RECEIVE':
+      return Object.assign({}, blankVideoData, action.publishedVideo);
+
     case 'VIDEO_POPULATE_BLANK':
       return Object.assign({}, blankVideoData, {
         type: 'media'
