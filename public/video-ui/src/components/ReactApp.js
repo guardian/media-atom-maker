@@ -32,17 +32,6 @@ class ReactApp extends React.Component {
     }
   }
 
-  getEditableFields = () => {
-    const allFields = this.props.checkedFormFields;
-
-    const editableFormFields = Object.keys(
-      allFields
-    ).reduce((fields, formName) => {
-      return fields.concat(Object.keys(this.props.checkedFormFields[formName]));
-    }, []);
-    return editableFormFields;
-  };
-
   render() {
     const showPublishedState = this.props.params.id;
 
@@ -60,7 +49,6 @@ class ReactApp extends React.Component {
           s3Upload={this.props.s3Upload}
           publishVideo={this.props.appActions.publishVideo}
           saveState={this.props.saveState}
-          editableFields={this.getEditableFields()}
           updateVideoPage={this.props.appActions.updateVideoPage}
           createVideoPage={this.props.appActions.createVideoPage}
           videoEditOpen={this.props.videoEditOpen}
@@ -114,7 +102,6 @@ function mapStateToProps(state) {
     error: state.error,
     uploads: state.uploads,
     s3Upload: state.s3Upload,
-    checkedFormFields: state.checkedFormFields,
     videoEditOpen: state.videoEditOpen,
     usages: state.usage,
     config: state.config,
