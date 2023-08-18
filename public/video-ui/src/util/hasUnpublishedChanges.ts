@@ -15,5 +15,5 @@ export function hasUnpublishedChanges(
     return true;
   }
 
-  return previewVideo.contentChangeDetails.revision > publishedVideo.contentChangeDetails.revision;
+  return previewVideo.contentChangeDetails?.revision > publishedVideo.contentChangeDetails?.revision;
 }
