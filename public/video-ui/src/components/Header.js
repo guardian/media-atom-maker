@@ -222,7 +222,6 @@ export default class Header extends React.Component {
             className="flex-grow"
             video={this.props.video}
             publishedVideo={this.props.publishedVideo}
-            editableFields={this.props.editableFields}
             saveState={this.props.saveState}
             videoEditOpen={this.props.videoEditOpen}
             updateVideoPage={this.props.updateVideoPage}
