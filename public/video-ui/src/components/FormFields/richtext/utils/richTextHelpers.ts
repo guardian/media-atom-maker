@@ -22,10 +22,7 @@ export const getWords = (text: string): string[] => {
 };
 
 export const isTooLong = (value: string, maxWordLength: number): boolean => {
-  const wordLength = getWords(value).reduce((length, word) => {
-    length += word.length;
-    return length;
-  }, 0);
+  const wordLength = getWords(value).length;
   return (
     wordLength > maxWordLength
   );
