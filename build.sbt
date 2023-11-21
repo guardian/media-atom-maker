@@ -253,8 +253,6 @@ lazy val root = (project in file("root"))
       (scheduler / Universal / packageBin).value -> s"${(scheduler / name).value}/${(scheduler / Universal / packageBin).value.getName}",
       (app / baseDirectory).value / "pluto-message-ingestion/target/pluto-message-ingestion.zip" -> "pluto-message-ingestion/pluto-message-ingestion.zip",
       (app / baseDirectory).value / "conf/riff-raff.yaml" -> "riff-raff.yaml",
-      (app / baseDirectory).value / "fluentbit/td-agent-bit.conf" -> "media-atom-maker/fluentbit/td-agent-bit.conf",
-      (app / baseDirectory).value / "fluentbit/parsers.conf" -> "media-atom-maker/fluentbit/parsers.conf",
       (uploader / Compile / resourceManaged).value / "media-atom-pipeline.yaml" -> "media-atom-pipeline-cloudformation/media-atom-pipeline.yaml"
     )
   )
