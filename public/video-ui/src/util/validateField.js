@@ -6,7 +6,8 @@ const validateField = (
   isRequired = false,
   isDesired = false,
   customValidation = null,
-  composerValidation = false
+  composerValidation = false,
+  maxLength
 ) => {
   if (customValidation) {
     return customValidation(fieldValue);
@@ -38,6 +39,22 @@ const validateField = (
         ? RequiredForComposer.warning
         : 'This field is desired',
       FieldNotification.warning
+    );
+  }
+
+  function fieldValueTooLong() {
+    if (fieldValue && fieldValue.length === maxLength) {
+      return true;
+    }
+
+    return false;
+  }
+
+  if (maxLength && fieldValueTooLong()) {
+    return new FieldNotification(
+      'too long',
+      'You have reached the maximum character length',
+      FieldNotification.error
     );
   }
 

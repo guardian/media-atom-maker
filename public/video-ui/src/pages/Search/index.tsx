@@ -13,13 +13,14 @@ type Video = {
 }
 
 type VideosProps = {
-  videos: Video[], 
-  total: number, 
+  videos: Video[],
+  total: number,
   videoActions: {
-    getVideos: (searchTerm: string, limit: number) => null;
+    getVideos: (searchTerm: string, limit: number, shouldUseCreatedDateForSort: boolean) => null;
   },
   searchTerm: string,
-  limit: number
+  limit: number,
+  shouldUseCreatedDateForSort: boolean
 }
 
 type PresenceConfig = {
@@ -70,7 +71,7 @@ const MoreLink = ({ onClick }: {onClick: () => void} ) => {
   </div>)
 }
 
-const Videos = ({videos, total, videoActions, searchTerm, limit}: VideosProps) => {
+const Videos = ({videos, total, videoActions, searchTerm, limit, shouldUseCreatedDateForSort}: VideosProps) => {
   const [mediaIds, setMediaIds] = useState<string[]>([]);
   const [videoPresences, setVideoPresences] = useState<VideoPresences[]>([]);
   const [client, setClient] = useState<PresenceClient>(null);
@@ -80,7 +81,8 @@ const Videos = ({videos, total, videoActions, searchTerm, limit}: VideosProps) =
   const showMore = () => {
     videoActions.getVideos(
       searchTerm,
-      limit + frontPageSize
+      limit + frontPageSize,
+      shouldUseCreatedDateForSort
     );
   };
 
@@ -97,7 +99,7 @@ const Videos = ({videos, total, videoActions, searchTerm, limit}: VideosProps) =
       email
     }) as PresenceClient
     presenceClient.startConnection();
-    presenceClient.on('visitor-list-subscribe', visitorData => { 
+    presenceClient.on('visitor-list-subscribe', visitorData => {
       if (visitorData.data.subscribedTo){
         const initialState = visitorData.data.subscribedTo
           .map(subscribedTo => {return {mediaId: subscribedTo.subscriptionId, presences: subscribedTo.currentState} as VideoPresences})
@@ -107,7 +109,7 @@ const Videos = ({videos, total, videoActions, searchTerm, limit}: VideosProps) =
     })
     presenceClient.on('visitor-list-updated', data => {
       if (data.subscriptionId && data.currentState){
-        // We dump the data to a queue (which is picked up by a useEffect rather than directly modifying videoPresences 
+        // We dump the data to a queue (which is picked up by a useEffect rather than directly modifying videoPresences
         // so we don't need to depend on videoPresences, which led to some cyclicality
         setPresencesQueue(data);
       }
@@ -120,14 +122,14 @@ const Videos = ({videos, total, videoActions, searchTerm, limit}: VideosProps) =
   }
 
   useEffect(() => {
-    videoActions.getVideos(searchTerm, limit);
+    videoActions.getVideos(searchTerm, limit, shouldUseCreatedDateForSort);
     const config = getStore().getState().config;
     const presenceConfig = config.presence;
     if (presenceConfig){
       startPresence(presenceConfig);
     }
   }, [])
-   
+
   useEffect(() => {
     const newMediaIds = videos.map(video => `media-${video.id}`)
     setMediaIds(newMediaIds)
@@ -140,7 +142,7 @@ const Videos = ({videos, total, videoActions, searchTerm, limit}: VideosProps) =
       client.on('connection.open', () => {
         client.subscribe(mediaIds);
       });
-    } 
+    }
   }, [mediaIds, client]);
 
   useEffect(() => {
@@ -153,9 +155,13 @@ const Videos = ({videos, total, videoActions, searchTerm, limit}: VideosProps) =
   useEffect(() => {
     if (searchTerm !== prevSearch) {
       setPrevSearch(searchTerm)
-      videoActions.getVideos(searchTerm, limit);
+      videoActions.getVideos(searchTerm, limit, shouldUseCreatedDateForSort);
     }
   }, [searchTerm, prevSearch])
+
+  useEffect(() => {
+    videoActions.getVideos(searchTerm, limit, shouldUseCreatedDateForSort);
+  }, [shouldUseCreatedDateForSort])
 
   return (
     <div>
@@ -170,7 +176,7 @@ const Videos = ({videos, total, videoActions, searchTerm, limit}: VideosProps) =
       {videos.length === total ? null : <MoreLink onClick={showMore}></MoreLink>}
     </div>
   )
-  
+
 }
 
 //REDUX CONNECTIONS
@@ -178,12 +184,13 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getVideos from '../../actions/VideoActions/getVideos';
 
-function mapStateToProps(state: {videos: {entries: number, total: number, limit: number}, searchTerm: string}) {
+function mapStateToProps(state: {videos: {entries: number, total: number, limit: number}, searchTerm: string, shouldUseCreatedDateForSort: boolean}) {
   return {
     videos: state.videos.entries,
     total: state.videos.total,
     limit: state.videos.limit,
-    searchTerm: state.searchTerm
+    searchTerm: state.searchTerm,
+    shouldUseCreatedDateForSort: state.shouldUseCreatedDateForSort
   };
 }
 

@@ -134,7 +134,7 @@ class YoutubeFurniture extends React.Component {
         <ManagedField
           fieldLocation="youtubeDescription"
           name="Description"
-          maxCharLength={fieldLengths.youtubeDescription.charMax}
+          maxWordLength={fieldLengths.youtubeDescription.charMax}
           maxLength={fieldLengths.youtubeDescription.charMax}
           isRequired={false}
           customValidation={this.validateYouTubeDescription}

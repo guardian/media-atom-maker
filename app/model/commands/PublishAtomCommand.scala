@@ -134,16 +134,15 @@ case class PublishAtomCommand(
       contentChangeDetails = atom.contentChangeDetails.copy(
         published = changeRecord,
         lastModified = changeRecord,
-        revision = atom.contentChangeDetails.revision + 1,
         scheduledLaunch = None,
         embargo = None
       )
     )
 
     AuditMessage(id, "Publish", getUsername(user)).logMessage()
-    UpdateAtomCommand(id, updatedAtom, stores, user, awsConfig).process()
+    val updatedAtomToPublish = UpdateAtomCommand(id, updatedAtom, stores, user, awsConfig).process()
 
-    val publishedAtom = publishAtomToLive(updatedAtom)
+    val publishedAtom = publishAtomToLive(updatedAtomToPublish)
     updateInactiveAssets(publishedAtom)
     publishedAtom
   }

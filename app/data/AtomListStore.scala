@@ -11,18 +11,18 @@ import model.{MediaAtomList, MediaAtomSummary}
 import play.api.libs.json.{JsArray, JsValue}
 
 trait AtomListStore {
-  def getAtoms(search: Option[String], limit: Option[Int]): MediaAtomList
+  def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean): MediaAtomList
 }
 
 class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
-  override def getAtoms(search: Option[String], limit: Option[Int]): MediaAtomList = {
+  override def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean): MediaAtomList = {
     // CAPI max page size is 200
     val cappedLimit: Option[Int] = limit.map(Math.min(200, _))
 
     val base: Map[String, String] = Map(
       "types" -> "media",
       "order-by" -> "newest"
-    )
+    ) ++ (if(shouldUseCreatedDateForSort) Map("order-date" -> "first-publication") else Map.empty)
 
     val baseWithSearch = search match {
       case Some(q) => base ++ Map(
@@ -76,7 +76,7 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
 }
 
 class DynamoBackedAtomListStore(store: PreviewDynamoDataStore) extends AtomListStore {
-  override def getAtoms(search: Option[String], limit: Option[Int]): MediaAtomList = {
+  override def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean): MediaAtomList = {
     // We must filter the entire list of atoms rather than use Dynamo limit to ensure stable iteration order.
     // Without it, the front page will shuffle around when clicking the Load More button.
     store.listAtoms match {
@@ -84,12 +84,16 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore) extends AtomListS
         AtomDataStoreError(err.msg)
 
       case Right(atoms) =>
-        def created(atom: MediaAtom) = atom.contentChangeDetails.created.map(_.date.getMillis)
+        def sortField(atom: MediaAtom) =
+          if(shouldUseCreatedDateForSort)
+            atom.contentChangeDetails.created
+          else
+            atom.contentChangeDetails.lastModified
 
         val mediaAtoms = atoms
           .map(MediaAtom.fromThrift)
           .toList
-          .sortBy(created)
+          .sortBy(sortField(_).map(_.date.getMillis))
           .reverse // newest atoms first
 
         val filteredAtoms = search match {

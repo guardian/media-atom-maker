@@ -1,7 +1,7 @@
 package util
 
 import java.awt.RenderingHints
-import java.awt.image.BufferedImage
+import java.awt.image.{BufferedImage, ColorConvertOp}
 import java.io._
 import java.net.URL
 import com.google.api.client.http.InputStreamContent
@@ -24,8 +24,11 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
       .maxBy(_.size.get)
   }
 
-  private def imageAssetToBufferedImage(imageAsset: ImageAsset): BufferedImage =
-    ImageIO.read(new URL(imageAsset.file))
+  private def imageAssetToBufferedImage(imageAsset: ImageAsset): BufferedImage = {
+    val image = ImageIO.read(new URL(imageAsset.file))
+    val rgbImage = new BufferedImage(image.getWidth, image.getHeight, BufferedImage.TYPE_3BYTE_BGR)
+    new ColorConvertOp(null).filter(image, rgbImage)
+  }
 
   private def overlayImages(bgImage: BufferedImage, bgImageMimeType: String, atomId: String): ByteArrayInputStream = {
     val logoWidth: Double = List(bgImage.getWidth() / 3.0, logo.getWidth()).min

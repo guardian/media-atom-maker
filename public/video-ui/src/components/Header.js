@@ -1,14 +1,15 @@
 import React from 'react';
-import { Link } from 'react-router';
+import {Link} from 'react-router';
 import VideoSearch from './VideoSearch/VideoSearch';
 import VideoPublishBar from './VideoPublishBar/VideoPublishBar';
 import VideoPublishState from './VideoPublishState/VideoPublishState';
 import AdvancedActions from './Videos/AdvancedActions';
 import ComposerPageCreate from './Videos/ComposerPageCreate';
 import Icon from './Icon';
-import { Presence } from './Presence';
-import { canonicalVideoPageExists } from '../util/canonicalVideoPageExists';
+import {Presence} from './Presence';
+import {canonicalVideoPageExists} from '../util/canonicalVideoPageExists';
 import VideoUtils from '../util/video';
+import {QUERY_PARAM_shouldUseCreatedDateForSort} from "../constants/queryParams";
 
 export default class Header extends React.Component {
   state = { presence: null };
@@ -56,6 +57,37 @@ export default class Header extends React.Component {
     return (
       <div className="flex-container topbar__global">
         <VideoSearch {...this.props} />
+      </div>
+    );
+  }
+
+  renderSortBy() {
+    return (
+      <div className="flex-container topbar__global">
+        <span>Sort by:&nbsp;</span>
+        <select
+          value={this.props.shouldUseCreatedDateForSort?.toString()}
+          onChange={event => {
+            const shouldUseCreatedDateForSort = event.target.value === "true";
+
+            this.props.updateShouldUseCreatedDateForSort(shouldUseCreatedDateForSort);
+
+            const url = new URL(window.location.href);
+            if (shouldUseCreatedDateForSort) {
+              url.searchParams.set(QUERY_PARAM_shouldUseCreatedDateForSort, "true");
+            } else {
+              url.searchParams.delete(QUERY_PARAM_shouldUseCreatedDateForSort);
+            }
+            window.history.replaceState(
+              window.history.state,
+              document.title,
+              url.toString()
+            );
+          }}
+        >
+          <option value="false">Last Modified (default)</option>
+          <option value="true">Created (newest first)</option>
+        </select>
       </div>
     );
   }
@@ -170,6 +202,8 @@ export default class Header extends React.Component {
 
           <div className="flex-spacer" />
 
+          {this.renderSortBy()}
+
           <div className="flex-container">
             {this.renderCreateVideo()}
             {this.renderHelpLink()}
@@ -188,7 +222,6 @@ export default class Header extends React.Component {
             className="flex-grow"
             video={this.props.video}
             publishedVideo={this.props.publishedVideo}
-            editableFields={this.props.editableFields}
             saveState={this.props.saveState}
             videoEditOpen={this.props.videoEditOpen}
             updateVideoPage={this.props.updateVideoPage}

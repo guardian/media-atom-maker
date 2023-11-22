@@ -20,6 +20,7 @@ import path from './pathReducer';
 import pluto from './plutoReducer';
 import workflow from './workflowReducer';
 import targeting from './targetingReducer';
+import shouldUseCreatedDateForSort from "./shouldUseCreatedDateForSortReducer";
 
 export default combineReducers({
   config,
@@ -28,6 +29,7 @@ export default combineReducers({
   videos,
   saveState,
   searchTerm,
+  shouldUseCreatedDateForSort,
   youtube,
   usage,
   pageCreate,

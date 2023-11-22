@@ -29,6 +29,7 @@ class AWSConfig(override val config: Config, override val credentials: AwsCreden
     .withCredentials(credentials.instance)
     .build()
 
+  lazy val pinboardLoaderUrl = getString("panda.domain").map(domain => s"https://pinboard.$domain/pinboard.loader.js")
   lazy val composerUrl = getMandatoryString("flexible.url")
   lazy val workflowUrl = getMandatoryString("workflow.url")
   lazy val viewerUrl = getMandatoryString("viewer.url")

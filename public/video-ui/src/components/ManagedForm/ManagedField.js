@@ -60,7 +60,8 @@ export class ManagedField extends React.Component {
       this.props.isRequired,
       this.props.isDesired,
       this.props.customValidation,
-      composerValidation
+      composerValidation,
+      this.props.maxLength,
     );
 
     if (this.props.updateFormErrors) {
@@ -159,7 +160,7 @@ export class ManagedField extends React.Component {
         hasWarning: this.hasWarning,
         displayPlaceholder: this.displayPlaceholder,
         derivedFrom: this.props.derivedFrom,
-        maxCharLength: this.props.maxCharLength,
+        maxWordLength: this.props.maxWordLength,
         tagType: this.props.tagType,
         inputPlaceholder: this.props.inputPlaceholder,
         tooltip: this.props.tooltip,

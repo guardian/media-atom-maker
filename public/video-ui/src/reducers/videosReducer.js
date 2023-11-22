@@ -9,7 +9,8 @@ export default function videos(
       return {
         entries: state.entries,
         total: state.total,
-        limit: action.limit
+        limit: action.limit,
+        shouldUseCreatedDateForSort: action.shouldUseCreatedDateForSort
       };
     case 'VIDEOS_GET_RECEIVE':
       return {

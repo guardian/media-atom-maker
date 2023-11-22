@@ -5,6 +5,9 @@ $topbarHeight: 50px;
   top: 0;
   z-index: 1;
 
+  justify-content: right;
+  flex-wrap: wrap;
+
   background: $color700Grey;
   border-bottom: 1px solid $greyBorderColor;
 
@@ -49,6 +52,12 @@ $topbarHeight: 50px;
 
 .topbar__global {
   margin-right: 10px;
+}
+.topbar__global select {
+  font-family: inherit;
+  background: none;
+  color: inherit;
+  padding: 3px;
 }
 
 .topbar__functional {
