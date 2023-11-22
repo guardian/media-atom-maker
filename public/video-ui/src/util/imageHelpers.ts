@@ -1,4 +1,15 @@
-export function findSmallestAsset(assetsArray) {
+export type Image = {
+  mediaId: string,
+  source: string,
+  size: number,
+  dimensions: {
+    width: number,
+    height: number
+  },
+  // There are probably more properties
+}
+
+export function findSmallestAsset(assetsArray: Image[]) {
   return assetsArray.reduce((smallestAsset, newAsset) => {
     if (newAsset.size < smallestAsset.size) {
       return newAsset;
@@ -8,7 +19,7 @@ export function findSmallestAsset(assetsArray) {
   });
 }
 
-export function findSmallestAssetAboveWidth(assetsArray, minSize = 250) {
+export function findSmallestAssetAboveWidth(assetsArray: Image[], minSize = 250) {
   // Grid provides various versions of a crop
   // their widths are fixed and typically 140, 500, 1000, 2000px
   // use the first one that's above `minSize` in width
