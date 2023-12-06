@@ -14,7 +14,7 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
   // YouTube have a file size limit of 2MB
   // see https://developers.google.com/youtube/v3/docs/thumbnails/set
   // use a slightly smaller file from Grid so we can add a branding overlay
-  private val MAX_SIZE = 1.8 * 1000 * 1000
+  private val MAX_SIZE = 1.7 * 1000 * 1000
 
   private lazy val logo = ImageIO.read(logoFile)
 
