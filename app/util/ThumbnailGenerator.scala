@@ -30,7 +30,7 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
     new ColorConvertOp(null).filter(image, rgbImage)
   }
 
-  private def overlayImages(bgImage: BufferedImage, bgImageMimeType: String, atomId: String): ByteArrayInputStream = {
+  private def overlayImages(bgImage: BufferedImage, atomId: String): BufferedImage = {
     val logoWidth: Double = List(bgImage.getWidth() / 3.0, logo.getWidth()).min
     val logoHeight: Double = logo.getHeight() / (logo.getWidth() / logoWidth)
 
@@ -42,27 +42,36 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
     val graphics = bgImage.createGraphics
     graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
     graphics.drawImage(bgImage, 0, 0, null)
-    log.info(s"Creating branded thumbnail for atom $atomId. Image dims ${bgImage.getWidth()} x ${bgImage.getHeight()}. Logo dims ${logoWidth.toInt} x ${logoHeight.toInt} (x:$logoX, y:$logoY)")
+    log.info(
+      s"Creating branded thumbnail for atom $atomId. Image dims ${bgImage.getWidth()} x ${bgImage.getHeight()}. Logo dims ${logoWidth.toInt} x ${logoHeight.toInt} (x:$logoX, y:$logoY)"
+    )
     graphics.drawImage(logo, logoX, logoY, logoWidth.toInt, logoHeight.toInt, null)
     graphics.dispose()
 
-    val originalWidth = bgImage.getWidth
-    val originalHeight = bgImage.getHeight
+    bgImage
+  }
+
+  private def rescaleImage(image: BufferedImage): BufferedImage = {
+    val originalWidth = image.getWidth
+    val originalHeight = image.getHeight
     val portrait = originalHeight > originalWidth
     val landscape = !portrait
     val reasonableSize = 2560.toDouble
-    val rescaled = if ((landscape && originalWidth <= reasonableSize) || (portrait && originalHeight <= reasonableSize)) {
+
+    if ((landscape && originalWidth <= reasonableSize) || (portrait && originalHeight <= reasonableSize)) {
       // image is a reasonable size, return without scaling
-      bgImage
+      image
     } else {
       // image is oversized; resize down to 2560 on longest side
       val scale = reasonableSize / (if (portrait) originalHeight else originalWidth).toDouble
       val transform = AffineTransform.getScaleInstance(scale, scale)
       val op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR)
 
-      op.filter(bgImage, null) // null forces op to create a new BufferedImage instance for the result
+      op.filter(image, null) // null forces op to create a new BufferedImage instance for the result
     }
+  }
 
+  private def streamImage(image: BufferedImage, mimeType: String): ByteArrayInputStream = {
     val os = new ByteArrayOutputStream()
 
     // Although this list isn't exhaustive of all image types,
@@ -70,12 +79,12 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
     // NB: Grid only returns mime-type as image/* for the master crop,
     // smaller crop renditions are just `jpg` or `png`.
     // TODO find a better way to convert mime-type to ImageIO write format
-    val imageIOWriteFormat = bgImageMimeType match {
+    val imageIOWriteFormat = mimeType match {
       case "image/png" | "png" => "png"
       case _ => "jpg"
     }
 
-    ImageIO.write(rescaled, imageIOWriteFormat, os)
+    ImageIO.write(image, imageIOWriteFormat, os)
     new ByteArrayInputStream(os.toByteArray)
   }
 
@@ -84,9 +93,12 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
     val gridImage = imageAssetToBufferedImage(imageAsset)
     val mimeType = imageAsset.mimeType.getOrElse("image/jpeg")
 
+    val brandedImage = overlayImages(gridImage, atomId)
+    val scaledImage = rescaleImage(brandedImage)
+
     new InputStreamContent(
       mimeType,
-      new BufferedInputStream(overlayImages(gridImage, mimeType, atomId))
+      new BufferedInputStream(streamImage(scaledImage, mimeType))
     )
   }
 
