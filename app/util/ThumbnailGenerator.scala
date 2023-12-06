@@ -1,13 +1,14 @@
 package util
 
 import java.awt.RenderingHints
-import java.awt.image.{BufferedImage, ColorConvertOp}
+import java.awt.image.{AffineTransformOp, BufferedImage, ColorConvertOp}
 import java.io._
 import java.net.URL
 import com.google.api.client.http.InputStreamContent
 import com.gu.media.logging.Logging
 import com.gu.media.model.{Image, ImageAsset}
 
+import java.awt.geom.AffineTransform
 import javax.imageio.ImageIO
 
 case class ThumbnailGenerator(logoFile: File) extends Logging {
@@ -18,11 +19,10 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
 
   private lazy val logo = ImageIO.read(logoFile)
 
-  private def getGridImageAsset(image: Image): ImageAsset = {
+  private def getGridImageAsset(image: Image): ImageAsset =
     image.assets
       .filter(asset => asset.size.nonEmpty && asset.size.get < MAX_SIZE)
       .maxBy(_.size.get)
-  }
 
   private def imageAssetToBufferedImage(imageAsset: ImageAsset): BufferedImage = {
     val image = ImageIO.read(new URL(imageAsset.file))
@@ -46,6 +46,23 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
     graphics.drawImage(logo, logoX, logoY, logoWidth.toInt, logoHeight.toInt, null)
     graphics.dispose()
 
+    val originalWidth = bgImage.getWidth
+    val originalHeight = bgImage.getHeight
+    val portrait = originalHeight > originalWidth
+    val landscape = !portrait
+    val reasonableSize = 2560.toDouble
+    val rescaled = if ((landscape && originalWidth <= reasonableSize) || (portrait && originalHeight <= reasonableSize)) {
+      // image is a reasonable size, return without scaling
+      bgImage
+    } else {
+      // image is oversized; resize down to 2560 on longest side
+      val scale = reasonableSize / (if (portrait) originalHeight else originalWidth).toDouble
+      val transform = AffineTransform.getScaleInstance(scale, scale)
+      val op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR)
+
+      op.filter(bgImage, null) // null forces op to create a new BufferedImage instance for the result
+    }
+
     val os = new ByteArrayOutputStream()
 
     // Although this list isn't exhaustive of all image types,
@@ -58,7 +75,7 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
       case _ => "jpg"
     }
 
-    ImageIO.write(bgImage, imageIOWriteFormat, os)
+    ImageIO.write(rescaled, imageIOWriteFormat, os)
     new ByteArrayInputStream(os.toByteArray)
   }
 
