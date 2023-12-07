@@ -65,12 +65,16 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
       val transform = AffineTransform.getScaleInstance(scale, scale)
       val op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR)
 
-      op.filter(image, null) // null forces op to create a new BufferedImage instance for the result
+      val width = (originalWidth * scale).toInt
+      val height = (originalHeight * scale).toInt
+
+      val dest = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR)
+      op.filter(image, dest)
     }
   }
 
   private def streamImage(image: BufferedImage, mimeType: String): ByteArrayInputStream = {
-    val os = new ByteArrayOutputStream()
+    val os = new ByteArrayOutputStream(500000)
 
     // Although this list isn't exhaustive of all image types,
     // it is exhaustive of the current formats supported by Grid.
