@@ -12,17 +12,14 @@ import java.awt.geom.AffineTransform
 import javax.imageio.ImageIO
 
 case class ThumbnailGenerator(logoFile: File) extends Logging {
-  // YouTube have a file size limit of 2MB
-  // see https://developers.google.com/youtube/v3/docs/thumbnails/set
-  // use a slightly smaller file from Grid so we can add a branding overlay
-  private val MAX_SIZE = 1.7 * 1000 * 1000
-
   private lazy val logo = ImageIO.read(logoFile)
 
   private def getGridImageAsset(image: Image): ImageAsset =
-    image.assets
-      .filter(asset => asset.size.nonEmpty && asset.size.get < MAX_SIZE)
-      .maxBy(_.size.get)
+    image.master.getOrElse(
+      image.assets
+        .filter(asset => asset.size.nonEmpty)
+        .maxBy(_.size.get)
+    )
 
   private def imageAssetToBufferedImage(imageAsset: ImageAsset): BufferedImage = {
     val image = ImageIO.read(new URL(imageAsset.file))
@@ -30,7 +27,7 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
     new ColorConvertOp(null).filter(image, rgbImage)
   }
 
-  private def overlayImages(bgImage: BufferedImage, atomId: String): BufferedImage = {
+  private def overlayImages(atomId: String)(bgImage: BufferedImage): BufferedImage = {
     val logoWidth: Double = List(bgImage.getWidth() / 3.0, logo.getWidth()).min
     val logoHeight: Double = logo.getHeight() / (logo.getWidth() / logoWidth)
 
@@ -51,7 +48,7 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
     bgImage
   }
 
-  private def rescaleImage(image: BufferedImage): BufferedImage = {
+  private def rescaleImage(atomId: String)(image: BufferedImage): BufferedImage = {
     val originalWidth = image.getWidth
     val originalHeight = image.getHeight
     val portrait = originalHeight > originalWidth
@@ -64,6 +61,7 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
     } else {
       // image is oversized; resize down to 2560 on longest side
       val scale = reasonableSize / (if (portrait) originalHeight else originalWidth).toDouble
+      log.info(s"Scaling thumbnail for atom $atomId. From $originalWidth x $originalHeight by $scale")
       val transform = AffineTransform.getScaleInstance(scale, scale)
       val op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR)
 
@@ -88,28 +86,22 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
     new ByteArrayInputStream(os.toByteArray)
   }
 
-  def getBrandedThumbnail(image: Image, atomId: String): InputStreamContent = {
+  private def processImage(image: Image, ops: (BufferedImage => BufferedImage)*): InputStreamContent = {
     val imageAsset = getGridImageAsset(image)
     val gridImage = imageAssetToBufferedImage(imageAsset)
     val mimeType = imageAsset.mimeType.getOrElse("image/jpeg")
 
-    val brandedImage = overlayImages(gridImage, atomId)
-    val scaledImage = rescaleImage(brandedImage)
+    val finalImage = Function.chain(ops).apply(gridImage)
 
     new InputStreamContent(
       mimeType,
-      new BufferedInputStream(streamImage(scaledImage, mimeType))
+      new BufferedInputStream(streamImage(finalImage, mimeType))
     )
   }
 
-  def getThumbnail(image: Image): InputStreamContent = {
-    val imageAsset = getGridImageAsset(image)
-    val mimeType = imageAsset.mimeType.getOrElse("image/jpeg")
-    val url = new URL(imageAsset.file)
+  def getBrandedThumbnail(image: Image, atomId: String): InputStreamContent =
+    processImage(image, overlayImages(atomId), rescaleImage(atomId))
 
-    new InputStreamContent(
-      mimeType,
-      new BufferedInputStream(url.openStream())
-    )
-  }
+  def getThumbnail(image: Image, atomId: String): InputStreamContent =
+    processImage(image, rescaleImage(atomId))
 }
