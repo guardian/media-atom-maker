@@ -9,7 +9,7 @@ import com.gu.media.logging.Logging
 import com.gu.media.model.{Image, ImageAsset}
 
 import java.awt.geom.AffineTransform
-import javax.imageio.{ImageIO, ImageWriteParam}
+import javax.imageio.{IIOImage, ImageIO, ImageWriteParam}
 
 // uncomment for a handy script to generate test thumbnails
 //object ThumbnailGenerator {
@@ -34,7 +34,7 @@ import javax.imageio.{ImageIO, ImageWriteParam}
 //  def main(args: Array[String]): Unit = {
 //    val gen = ThumbnailGenerator(new File("conf/logo.png"))
 //
-//    val i = crop_to_image("abe3d2241a263d5609070c2e98400f2e9ab235c2/666_259_574_344")
+//    val i = crop_to_image("37cd7546a51efaca7a556729cf6c940515925609/0_0_3175_1786")
 //
 //    val bt = gen.getBrandedThumbnail(i, "abc").getInputStream
 //
@@ -48,6 +48,7 @@ import javax.imageio.{ImageIO, ImageWriteParam}
 case class ThumbnailGenerator(logoFile: File) extends Logging {
   private lazy val logo = ImageIO.read(logoFile)
   private final val MAX_RES = 1920.toDouble
+  private final val JPEG_QUAL = 0.95f
 
   private def getGridImageAsset(image: Image): ImageAsset =
     image.master.getOrElse(
@@ -104,13 +105,13 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
     val writer = ImageIO.getImageWritersByFormatName("jpg").next
     val writeParam = writer.getDefaultWriteParam
     writeParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT)
-    writeParam.setCompressionQuality(1.0f)
+    writeParam.setCompressionQuality(JPEG_QUAL)
 
-    val os = new ByteArrayOutputStream(500000)
+    val os = new ByteArrayOutputStream(1000 * 1000)
     val ios = ImageIO.createImageOutputStream(os)
     writer.setOutput(ios)
 
-    try writer.write(image)
+    try writer.write(null, new IIOImage(image, null, null), writeParam)
     finally {
       writer.dispose()
       ios.flush()
@@ -120,26 +121,14 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
     finally os.close()
   }
 
-  private def writePng(image: BufferedImage): Array[Byte] = {
-    val os = new ByteArrayOutputStream(500000)
-    try {
-      ImageIO.write(image, "png", os)
-      os.toByteArray
-    } finally os.close()
-  }
+  private def streamImage(image: BufferedImage): ByteArrayInputStream = {
+    // Although grid handles 3 image types, crops cannot be tiffs, and we
+    // transform pngs into jpgs to simplify things and be more confident that
+    // we'll stay under youtube's 2MB limit. Obvious downside would be that we
+    // can't have transparent jpegs, but that's alright because we don't want
+    // transparent thumbs on youtube (do they even support them?)
 
-  private def streamImage(image: BufferedImage, mimeType: String): ByteArrayInputStream = {
-    // Although this list isn't exhaustive of all image types,
-    // it is exhaustive of the current formats supported by Grid.
-    // NB: Grid only returns mime-type as image/* for the master crop,
-    // smaller crop renditions are just `jpg` or `png`.
-    // TODO find a better way to convert mime-type to ImageIO write format
-    val writefn: BufferedImage => Array[Byte] = mimeType match {
-      case "image/png" | "png" => writePng
-      case _ => writeJpeg
-    }
-
-    val bytes = writefn(image)
+    val bytes = writeJpeg(image)
     new ByteArrayInputStream(bytes)
   }
 
@@ -152,7 +141,7 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
 
     new InputStreamContent(
       mimeType,
-      new BufferedInputStream(streamImage(finalImage, mimeType))
+      new BufferedInputStream(streamImage(finalImage))
     )
   }
 
