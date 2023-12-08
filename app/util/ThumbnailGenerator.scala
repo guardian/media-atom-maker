@@ -9,7 +9,8 @@ import com.gu.media.logging.Logging
 import com.gu.media.model.{Image, ImageAsset}
 
 import java.awt.geom.AffineTransform
-import javax.imageio.ImageIO
+import javax.imageio.{ImageIO, ImageWriteParam}
+
 // uncomment for a handy script to generate test thumbnails
 //object ThumbnailGenerator {
 //  import java.nio.file.{Files, StandardCopyOption}
@@ -99,21 +100,47 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
     op.filter(image, dest)
   }
 
-  private def streamImage(image: BufferedImage, mimeType: String): ByteArrayInputStream = {
-    val os = new ByteArrayOutputStream(500000)
+  private def writeJpeg(image: BufferedImage): Array[Byte] = {
+    val writer = ImageIO.getImageWritersByFormatName("jpg").next
+    val writeParam = writer.getDefaultWriteParam
+    writeParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT)
+    writeParam.setCompressionQuality(1.0f)
 
+    val os = new ByteArrayOutputStream(500000)
+    val ios = ImageIO.createImageOutputStream(os)
+    writer.setOutput(ios)
+
+    try writer.write(image)
+    finally {
+      writer.dispose()
+      ios.flush()
+    }
+
+    try os.toByteArray
+    finally os.close()
+  }
+
+  private def writePng(image: BufferedImage): Array[Byte] = {
+    val os = new ByteArrayOutputStream(500000)
+    try {
+      ImageIO.write(image, "png", os)
+      os.toByteArray
+    } finally os.close()
+  }
+
+  private def streamImage(image: BufferedImage, mimeType: String): ByteArrayInputStream = {
     // Although this list isn't exhaustive of all image types,
     // it is exhaustive of the current formats supported by Grid.
     // NB: Grid only returns mime-type as image/* for the master crop,
     // smaller crop renditions are just `jpg` or `png`.
     // TODO find a better way to convert mime-type to ImageIO write format
-    val imageIOWriteFormat = mimeType match {
-      case "image/png" | "png" => "png"
-      case _ => "jpg"
+    val writefn: BufferedImage => Array[Byte] = mimeType match {
+      case "image/png" | "png" => writePng
+      case _ => writeJpeg
     }
 
-    ImageIO.write(image, imageIOWriteFormat, os)
-    new ByteArrayInputStream(os.toByteArray)
+    val bytes = writefn(image)
+    new ByteArrayInputStream(bytes)
   }
 
   private def processImage(image: Image, ops: (BufferedImage => BufferedImage)*): InputStreamContent = {
