@@ -10,6 +10,39 @@ import com.gu.media.model.{Image, ImageAsset}
 
 import java.awt.geom.AffineTransform
 import javax.imageio.ImageIO
+// uncomment for a handy script to generate test thumbnails
+//object ThumbnailGenerator {
+//  import java.nio.file.{Files, StandardCopyOption}
+//  import com.gu.media.model.ImageAssetDimensions
+//  def crop_to_image(cropstring: String): Image = {
+//    val Array(mediaId, cropId) = cropstring.split("/")
+//    val Array(x, y, width, height) = cropId.split("_")
+//
+//    Image(
+//      assets = Nil,
+//      master = Some(ImageAsset(
+//        mimeType = Some("image/jpeg"),
+//        file = s"https://media.guim.co.uk/$cropstring/master/$width.jpg",
+//        dimensions = Some(ImageAssetDimensions(height.toInt, width.toInt)),
+//        size = None, aspectRatio = None
+//      )),
+//      mediaId = mediaId,
+//      source = None
+//    )
+//  }
+//  def main(args: Array[String]): Unit = {
+//    val gen = ThumbnailGenerator(new File("conf/logo.png"))
+//
+//    val i = crop_to_image("abe3d2241a263d5609070c2e98400f2e9ab235c2/666_259_574_344")
+//
+//    val bt = gen.getBrandedThumbnail(i, "abc").getInputStream
+//
+//    val of = new File("out.jpeg").toPath
+//    Files.copy(bt, of, StandardCopyOption.REPLACE_EXISTING)
+//
+//    bt.close()
+//  }
+//}
 
 case class ThumbnailGenerator(logoFile: File) extends Logging {
   private lazy val logo = ImageIO.read(logoFile)
