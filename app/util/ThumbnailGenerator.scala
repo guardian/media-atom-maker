@@ -47,6 +47,7 @@ import javax.imageio.{ImageIO, ImageWriteParam}
 
 case class ThumbnailGenerator(logoFile: File) extends Logging {
   private lazy val logo = ImageIO.read(logoFile)
+  private final val MAX_RES = 1920.toDouble
 
   private def getGridImageAsset(image: Image): ImageAsset =
     image.master.getOrElse(
@@ -86,14 +87,13 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
     val originalWidth = image.getWidth
     val originalHeight = image.getHeight
     val portrait = originalHeight > originalWidth
-    val reasonableSize = 2560.toDouble
 
-    val scale = reasonableSize / (if (portrait) originalHeight else originalWidth).toDouble
+    val scale = MAX_RES / (if (portrait) originalHeight else originalWidth).toDouble
     val transform = AffineTransform.getScaleInstance(scale, scale)
     val op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BICUBIC)
 
-    val width = (originalWidth * scale).toInt
-    val height = (originalHeight * scale).toInt
+    val width = math.round(originalWidth * scale).toInt
+    val height = math.round(originalHeight * scale).toInt
 
     log.info(s"Scaling thumbnail for atom $atomId. From ${originalWidth}x$originalHeight by $scale to ${width}x$height")
     val dest = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR)
