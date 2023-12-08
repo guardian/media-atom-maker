@@ -85,25 +85,18 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
     val originalWidth = image.getWidth
     val originalHeight = image.getHeight
     val portrait = originalHeight > originalWidth
-    val landscape = !portrait
     val reasonableSize = 2560.toDouble
 
-    if ((landscape && originalWidth <= reasonableSize) || (portrait && originalHeight <= reasonableSize)) {
-      // image is a reasonable size, return without scaling
-      image
-    } else {
-      // image is oversized; resize down to 2560 on longest side
-      val scale = reasonableSize / (if (portrait) originalHeight else originalWidth).toDouble
-      log.info(s"Scaling thumbnail for atom $atomId. From $originalWidth x $originalHeight by $scale")
-      val transform = AffineTransform.getScaleInstance(scale, scale)
-      val op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR)
+    val scale = reasonableSize / (if (portrait) originalHeight else originalWidth).toDouble
+    val transform = AffineTransform.getScaleInstance(scale, scale)
+    val op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BICUBIC)
 
-      val width = (originalWidth * scale).toInt
-      val height = (originalHeight * scale).toInt
+    val width = (originalWidth * scale).toInt
+    val height = (originalHeight * scale).toInt
 
-      val dest = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR)
-      op.filter(image, dest)
-    }
+    log.info(s"Scaling thumbnail for atom $atomId. From ${originalWidth}x$originalHeight by $scale to ${width}x$height")
+    val dest = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR)
+    op.filter(image, dest)
   }
 
   private def streamImage(image: BufferedImage, mimeType: String): ByteArrayInputStream = {
@@ -137,7 +130,7 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
   }
 
   def getBrandedThumbnail(image: Image, atomId: String): InputStreamContent =
-    processImage(image, overlayImages(atomId), rescaleImage(atomId))
+    processImage(image, rescaleImage(atomId), overlayImages(atomId))
 
   def getThumbnail(image: Image, atomId: String): InputStreamContent =
     processImage(image, rescaleImage(atomId))
