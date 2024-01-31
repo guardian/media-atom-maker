@@ -1,6 +1,5 @@
 package controllers
 
-import com.gu.editorial.permissions.client.{Permission, PermissionGranted, PermissionsUser}
 import com.gu.media.Permissions._
 import com.gu.media.{MediaAtomMakerPermissionsProvider, Permissions}
 import com.gu.pandahmac.HMACAuthActions
@@ -10,6 +9,7 @@ import data.UnpackedDataStores
 import play.api.libs.json.{JsObject, JsString}
 import play.api.mvc._
 import com.gu.media.util.ThriftUtil._
+import com.gu.permissions.PermissionDefinition
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -41,9 +41,7 @@ trait AtomController extends BaseController with UnpackedDataStores {
   object LookupPermissions extends ActionBuilder[UploadUserRequest, AnyContent] {
     override def invokeBlock[A](request: Request[A], block: UploadUserRequest[A] => Future[Result]): Future[Result] = {
       APIAuthAction.invokeBlock(request, { req: UserRequest[A] =>
-        permissions.getAll(req.user).flatMap { p =>
-          block(new UploadUserRequest(req.user, request, p))
-        }
+        block(UploadUserRequest(req.user, request, permissions.getAll(req.user)))
       })
     }
 
@@ -52,18 +50,11 @@ trait AtomController extends BaseController with UnpackedDataStores {
     override protected def executionContext: ExecutionContext = controllerComponents.executionContext
   }
 
-  class PermissionedAction(permission: Permission) extends ActionBuilder[UserRequest, AnyContent] {
+  class PermissionedAction(permission: PermissionDefinition) extends ActionBuilder[UserRequest, AnyContent] {
     override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] = {
       APIAuthAction.invokeBlock(request, { req: UserRequest[A] =>
-
-          permissions.get(permission)(PermissionsUser(req.user.email)).flatMap {
-            case PermissionGranted =>
-              block(req)
-
-            case _ =>
-              Future.successful(Unauthorized(s"User ${req.user.email} is not authorised for permission ${permission.name}"))
-
-        }
+        if (permissions.hasPermission(permission, req.user)) block(req)
+        else Future.successful(Unauthorized(s"User ${req.user.email} is not authorised for permission ${permission.name}"))
       })
     }
 
