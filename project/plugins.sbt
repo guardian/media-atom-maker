@@ -1,8 +1,4 @@
-// The Typesafe repository
-resolvers += "Typesafe repository" at "https://repo.typesafe.com/typesafe/maven-releases/"
-
-// a, faster, alternative dependancy resolver to ivy
-// https://github.com/coursier/coursier#sbt-plugin
+// This early version of coursier needs to be removed, but right now doing so exposes dependency conflicts...
 addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.0-RC12")
 
 // Use the Play sbt plugin for Play projects
@@ -12,7 +8,7 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-digest" % "1.1.4")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-gzip" % "1.0.2")
 
-addSbtPlugin("com.gu" % "sbt-riffraff-artifact" % "1.1.17")
+addSbtPlugin("com.gu" % "sbt-riffraff-artifact" % "1.1.18")
 
 // for creating test cases that use a local dynamodb
 
@@ -26,12 +22,11 @@ libraryDependencies += "org.vafer" % "jdeb" % "1.6" artifacts (Artifact("jdeb", 
 addDependencyTreePlugin
 
 /*
-   Because scala-xml has not be updated to 2.x in sbt yet but has in sbt-native-packager
+   scala-xml has been updated to 2.x in sbt, but not in other sbt plugins like sbt-native-packager
    See: https://github.com/scala/bug/issues/12632
-
-   This effectively overrides the safeguards (early-semver) put in place by the library authors ensuring binary compatibility.
-   We consider this a safe operation because it only affects the compilation of build.sbt, not of the application build itself
+   This is effectively overrides the safeguards (early-semver) put in place by the library authors ensuring binary compatibility.
+   We consider this a safe operation because when set under `projects/` (ie *not* in `build.sbt` itself) it only affects the
+   compilation of build.sbt, not of the application build itself.
+   Once the build has succeeded, there is no further risk (ie of a runtime exception due to clashing versions of `scala-xml`).
  */
-libraryDependencySchemes ++= Seq(
-  "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
-)
+libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
