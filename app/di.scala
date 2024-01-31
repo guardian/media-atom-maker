@@ -73,7 +73,7 @@ class MediaAtomMaker(context: Context)
   private val capi = new Capi(config)
 
   private val stores = new DataStores(aws, capi)
-  private val permissions = new MediaAtomMakerPermissionsProvider(aws.stage, aws.credentials.instance.awsV1Creds)
+  private val permissions = new MediaAtomMakerPermissionsProvider(aws.stage, aws.region.getName, aws.credentials.instance.awsV1Creds)
 
   private val reindexer = buildReindexer()
 

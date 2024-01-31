@@ -24,7 +24,7 @@ case class PublishAtomCommand(
   youtube: YouTube,
   user: PandaUser,
   capi: Capi,
-  permissions: MediaAtomMakerPermissionsProvider,
+  permissionsProvider: MediaAtomMakerPermissionsProvider,
   awsConfig: AWSConfig,
   thumbnailGenerator: ThumbnailGenerator)
   extends Command with Logging {
@@ -64,34 +64,31 @@ case class PublishAtomCommand(
       }
       case (_, _, _) => {
         previewAtom.getActiveYouTubeAsset() match {
-          case Some(asset) => {
+          case Some(asset) =>
             val publishedAtom = getPublishedAtom()
 
             val adSettings = AdSettings(youtube.minDurationForAds, youtube.minDurationForMidroll, previewAtom)
-            val privacyStatus: Future[PrivacyStatus] = getPrivacyStatus(previewAtom, publishedAtom)
+            val status = getResultingPrivacyStatus(previewAtom, publishedAtom)
 
-            privacyStatus.flatMap(status => {
-              val updatedPreviewAtom = if (publishedAtom.isDefined) {
-                previewAtom.copy(
-                  blockAds = adSettings.blockAds,
-                  privacyStatus = Some(status)
-                )
-              } else {
-                // on first publish, set YouTube title and description to that of the Atom
-                // this is because there's no guarantee that the YouTube furniture gets subbed before publication and can result in draft furniture being used
-                previewAtom.copy(
-                  blockAds = adSettings.blockAds,
-                  privacyStatus = Some(status),
-                  youtubeTitle = previewAtom.title,
-                  youtubeDescription = YoutubeDescription.clean(previewAtom.description)
-                )
-              }
+            val updatedPreviewAtom = if (publishedAtom.isDefined) {
+              previewAtom.copy(
+                blockAds = adSettings.blockAds,
+                privacyStatus = Some(status)
+              )
+            } else {
+              // on first publish, set YouTube title and description to that of the Atom
+              // this is because there's no guarantee that the YouTube furniture gets subbed before publication and can result in draft furniture being used
+              previewAtom.copy(
+                blockAds = adSettings.blockAds,
+                privacyStatus = Some(status),
+                youtubeTitle = previewAtom.title,
+                youtubeDescription = YoutubeDescription.clean(previewAtom.description)
+              )
+            }
 
-              updateYouTube(publishedAtom, updatedPreviewAtom, asset).map(atomWithYoutubeUpdates => {
-                publish(atomWithYoutubeUpdates, user)
-              })
-            })
-          }
+            updateYouTube(publishedAtom, updatedPreviewAtom, asset).map { atomWithYoutubeUpdates =>
+              publish(atomWithYoutubeUpdates, user)
+            }
           case _ => Future.successful(publish(previewAtom, user))
         }
       }
@@ -107,23 +104,16 @@ case class PublishAtomCommand(
     }
   }
 
-  private def getPrivacyStatus(previewAtom: MediaAtom, maybePublishedAtom: Option[MediaAtom]): Future[PrivacyStatus] = {
-    (previewAtom.channelId, maybePublishedAtom) match {
-      case (Some(channel), Some(publishedAtom)) if youtube.channelsRequiringPermission.contains(channel) => {
-        permissions.getStatusPermissions(user).map(permissions => {
-          val canChangeVideoStatus = permissions.setVideosOnAllChannelsPublic
+  private def getResultingPrivacyStatus(previewAtom: MediaAtom, maybePublishedAtom: Option[MediaAtom]): PrivacyStatus = {
+    val atomToTakePrivacyStatusFrom =
+      if (userCanMakeVideoPublic(previewAtom, user)) previewAtom else maybePublishedAtom.getOrElse(previewAtom)
 
-          if (canChangeVideoStatus) {
-            previewAtom.privacyStatus.getOrElse(PrivacyStatus.Unlisted)
-          } else {
-            // don't have permission to change the status, use the published atom status
-            publishedAtom.privacyStatus.getOrElse(PrivacyStatus.Unlisted)
-          }
-        })
-      }
-      case _ => Future.successful(previewAtom.privacyStatus.getOrElse(PrivacyStatus.Unlisted))
-    }
+    atomToTakePrivacyStatusFrom.privacyStatus.getOrElse(PrivacyStatus.Unlisted)
   }
+
+  private def userCanMakeVideoPublic(atom: MediaAtom, user: PandaUser): Boolean =
+    !atom.channelId.exists(youtube.channelsRequiringPermission) ||
+    permissionsProvider.getStatusPermissions(user).setVideosOnAllChannelsPublic
 
   private def publish(atom: MediaAtom, user: PandaUser): MediaAtom = {
     log.info(s"Publishing atom $id")
