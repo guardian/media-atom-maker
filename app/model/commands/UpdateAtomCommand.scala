@@ -11,6 +11,7 @@ import com.gu.media.util.MediaAtomImplicits
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
+import model.commands.UpdateAtomCommand.createDiffString
 import org.joda.time.DateTime
 import util.AWSConfig
 
@@ -120,7 +121,9 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
     val message = AtomAssignedProjectMessage.build(newAtom)
     plutoActions.sendToPluto(message)
   }
+}
 
+object UpdateAtomCommand {
   private val interestingFields = List("title", "category", "description", "duration", "source", "youtubeCategoryId", "license", "commentsEnabled", "channelId", "legallySensitive")
 
   // We don't use HTTP patch so diffing has to be done manually
