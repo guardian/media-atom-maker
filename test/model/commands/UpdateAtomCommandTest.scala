@@ -40,18 +40,18 @@ class UpdateAtomCommandTest extends FunSuite with MustMatchers {
   )
 
   test("Diff output when nothing changes") {
-    createDiffString(mediaAtomFixture, mediaAtomFixture) must be("Updated atom fields (category = News$,, channelId = None,, description = Some( \"Example description\" ),, duration = Some( 1 ),, legallySensitive = None,, license = None,, source = Some( \"source\" ),, title = \"title\",, youtubeCategoryId = None,, youtubeTitle = \"title\")")
+    createDiffString(mediaAtomFixture, mediaAtomFixture) must be("Updated atom fields")
   }
 
   test("Diff output when description changes") {
     createDiffString(mediaAtomFixture, mediaAtomFixture.copy(description = Some("New description"))) must be(
-      "Updated atom fields (MediaAtom( ..., description = Some( \u001B\"Example description\"\u001B -> \u001B\"New description\"\u001B ) ))"
+      "Updated atom fields (description: Example description -> New description)"
     )
   }
 
   test("Diff output when description is removed") {
     createDiffString(mediaAtomFixture, mediaAtomFixture.copy(description = None)) must be(
-      "Updated atom fields (MediaAtom( ..., description = \u001BSome( \"Example description\" )\u001B -> \u001BNone\u001B ))"
+      "Updated atom fields (description: Example description -> [NONE])"
     )
   }
 }
