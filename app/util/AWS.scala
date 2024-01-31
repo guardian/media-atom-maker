@@ -26,7 +26,7 @@ class AWSConfig(override val config: Config, override val credentials: AwsCreden
   lazy val ec2Client = AmazonEC2ClientBuilder
     .standard()
     .withRegion(region.getName)
-    .withCredentials(credentials.instance)
+    .withCredentials(credentials.instance.awsV1Creds)
     .build()
 
   lazy val pinboardLoaderUrl = getString("panda.domain").map(domain => s"https://pinboard.$domain/pinboard.loader.js")
@@ -43,7 +43,7 @@ class AWSConfig(override val config: Config, override val credentials: AwsCreden
   lazy val expiryPollerName = "Expiry"
   lazy val expiryPollerLastName = "Poller"
 
-  final override def regionName = getString("aws.region")
+  final override def region = AwsAccess.regionFrom(this)
 
   final override def readTag(tagName: String) = {
     val tagsResult = ec2Client.describeTags(

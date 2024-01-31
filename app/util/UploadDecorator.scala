@@ -3,9 +3,9 @@ package util
 import com.gu.media.aws.{DynamoAccess, UploadAccess}
 import com.gu.media.model.{ClientAsset, ClientAssetMetadata}
 import com.gu.media.upload.model.Upload
-import org.scanamo.{Scanamo, Table}
+import org.scanamo.Table
 import org.scanamo.syntax._
-import org.scanamo.auto._
+import org.scanamo.generic.auto._
 
 class UploadDecorator(aws: DynamoAccess with UploadAccess, stepFunctions: StepFunctions) {
   private val table = Table[Upload](aws.cacheTableName)
@@ -28,10 +28,6 @@ class UploadDecorator(aws: DynamoAccess with UploadAccess, stepFunctions: StepFu
     }
   }
 
-  private def getUpload(id: String): Option[Upload] = {
-    val op = table.get('id -> id)
-    val result = Scanamo.exec(aws.dynamoDB)(op).flatMap(_.right.toOption)
-
-    result orElse { stepFunctions.getById(id) }
-  }
+  private def getUpload(id: String): Option[Upload] =
+    aws.scanamo.exec(table.get("id" === id)).flatMap(_.toOption) orElse { stepFunctions.getById(id) }
 }

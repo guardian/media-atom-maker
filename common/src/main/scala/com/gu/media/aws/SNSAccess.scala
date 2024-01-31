@@ -11,6 +11,6 @@ trait SNSAccess { this: Settings with AwsAccess =>
   lazy val snsClient =
     AmazonSNSClientBuilder.standard()
       .withRegion(Regions.fromName(region.getName))
-      .withCredentials(credentials.instance)
+      .withCredentials(credentials.instance.awsV1Creds)
       .build()
 }
