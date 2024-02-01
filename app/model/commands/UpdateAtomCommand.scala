@@ -1,7 +1,6 @@
 package model.commands
 
 import java.util.Date
-import ai.x.diff.DiffShow
 import com.gu.atom.data.{AtomSerializer, VersionConflictError}
 import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType, ChangeRecord => ThriftChangeRecord}
 import com.gu.media.logging.Logging
@@ -11,6 +10,7 @@ import com.gu.media.util.MediaAtomImplicits
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
+import model.commands.UpdateAtomCommand.createDiffString
 import org.joda.time.DateTime
 import util.AWSConfig
 
@@ -120,23 +120,32 @@ case class UpdateAtomCommand(id: String, atom: MediaAtom, override val stores: D
     val message = AtomAssignedProjectMessage.build(newAtom)
     plutoActions.sendToPluto(message)
   }
+}
 
-  private val interestingFields = List("title", "category", "description", "duration", "source", "youtubeCategoryId", "license", "commentsEnabled", "channelId", "legallySensitive")
+object UpdateAtomCommand {
+  private val interestingFields = Seq[(String, MediaAtom => Option[Any])](
+    ("title", a => Some(a.title)),
+    ("category", a => Some(a.category)),
+    ("description", _.description),
+    ("duration", _.duration),
+    ("source", _.source),
+    ("youtubeCategoryId", _.youtubeCategoryId),
+    ("license", _.license),
+    ("commentsEnabled", _.composerCommentsEnabled),
+    ("channelId", _.channelId),
+    ("legallySensitive", _.legallySensitive)
+  )
 
   // We don't use HTTP patch so diffing has to be done manually
   def createDiffString(before: MediaAtom, after: MediaAtom): String = {
-    val fieldDiffs = DiffShow.diff[MediaAtom](before, after).string
-      .replaceAll("\\[*[0-9]+m", "") // Clean out the silly console coloring stuff
-      .split('\n')
-      .map(_.trim())
-      .filter(line => !line.contains("ERROR")) // More silly stuff from diffing library
-      .filter(line => interestingFields.exists(line.contains))
-      .mkString(", ")
+    val changedFields = for {
+      (name, extractor) <- interestingFields
+      distinctValues = Seq(extractor(before), extractor(after)).distinct
+      if distinctValues.size > 1
+    } yield s"$name: ${distinctValues.map(_.getOrElse("[NONE]")).mkString(" -> ")}"
 
-    if (fieldDiffs == "") { // There's a change, but in some field we're not interested in (or rather, unable to format nicely)
+    if (changedFields.isEmpty) { // There's a change, but in some field we're not interested in (or rather, unable to format nicely)
       "Updated atom fields"
-    } else {
-      s"Updated atom fields ($fieldDiffs)"
-    }
+    } else s"Updated atom fields (${changedFields.mkString(", ")})"
   }
 }

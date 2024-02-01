@@ -12,8 +12,6 @@ val scanamoVersion = "1.0.0-M9"
 
 val playJsonExtensionsVersion = "0.40.2"
 val okHttpVersion = "2.4.0"
-val diffVersion = "2.0.1"
-
 val capiAwsVersion = "0.5"
 
 val scalaTestVersion = "3.0.8"
@@ -135,7 +133,6 @@ lazy val app = (project in file("."))
     libraryDependencies ++= Seq(
       ehcache,
       "com.fasterxml.jackson.core" % "jackson-databind" % jacksonDatabindVersion,
-      "ai.x" %% "diff" % diffVersion,
       "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
       "com.amazonaws" % "aws-java-sdk-ec2" % awsVersion,
       "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestPlusPlayVersion % "test",
