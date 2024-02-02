@@ -67,7 +67,7 @@ object JsonConversions {
     (__ \ "youtube").writeNullable[YoutubeData]
 
   ) { metadata: Metadata => (
-      metadata.tags,
+      metadata.tags.map(_.toSeq),
       metadata.categoryId,
       metadata.license,
       metadata.commentsEnabled,
@@ -107,7 +107,7 @@ object JsonConversions {
     (__ \ "metadata").writeNullable[Metadata]
     ) { mediaAtom: MediaAtom =>
     (
-      mediaAtom.assets,
+      mediaAtom.assets.toSeq,
       mediaAtom.activeVersion,
       mediaAtom.title,
       mediaAtom.category,
@@ -117,9 +117,9 @@ object JsonConversions {
       mediaAtom.description,
       mediaAtom.trailText,
       mediaAtom.source,
-      mediaAtom.byline,
-      mediaAtom.commissioningDesks,
-      mediaAtom.keywords,
+      mediaAtom.byline.map(_.toSeq),
+      mediaAtom.commissioningDesks.map(_.toSeq),
+      mediaAtom.keywords.map(_.toSeq),
       mediaAtom.metadata
       )
   }
@@ -176,6 +176,6 @@ object JsonConversions {
       (__ \ "contentChangeDetails").write[ContentChangeDetails]
 
   ) { atom: Atom =>
-    (atom.id, atom.atomType, atom.labels, atom.defaultHtml, atom.data, atom.contentChangeDetails)
+    (atom.id, atom.atomType, atom.labels.toSeq, atom.defaultHtml, atom.data, atom.contentChangeDetails)
   }
 }

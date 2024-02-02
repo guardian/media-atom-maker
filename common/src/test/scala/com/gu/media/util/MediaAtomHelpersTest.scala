@@ -42,7 +42,7 @@ class MediaAtomHelpersTest extends FunSuite with MustMatchers {
   }
 
   private def assets(atom: Atom): Seq[Asset] = {
-    atom.data.asInstanceOf[AtomData.Media].media.assets
+    atom.data.asInstanceOf[AtomData.Media].media.assets.toSeq
   }
 
   private def asset(): Asset = Asset(
