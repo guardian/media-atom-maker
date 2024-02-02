@@ -1,20 +1,20 @@
 package com.gu.media.aws
 
-import com.amazonaws.auth._
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder
 import com.gu.media.Settings
 
-case class AwsCredentials(instance: AWSCredentialsProvider, crossAccount: AWSCredentialsProvider,
-                          upload: AWSCredentialsProvider)
+case class AwsCredentials(
+  instance: CredentialsForBothSdkVersions,
+  crossAccount: CredentialsForBothSdkVersions,
+  upload: CredentialsForBothSdkVersions
+)
 
 object AwsCredentials {
   def dev(settings: Settings): AwsCredentials = {
     val profile = settings.getMandatoryString("aws.profile")
-    val instance = new ProfileCredentialsProvider(profile)
+    val instance = CredentialsForBothSdkVersions.profile(profile)
 
     // To enable publishing to CAPI code from DEV, update the kinesis streams in config and uncomment below:
-    //   val crossAccount = new ProfileCredentialsProvider("composer")
+    //   val crossAccount = AwsCredentialsProvidersForBothSdkVersions.profile("composer")
     val crossAccount = instance
 
     val upload = devUpload(settings)
@@ -23,7 +23,7 @@ object AwsCredentials {
   }
 
   def app(settings: Settings): AwsCredentials = {
-    val instance = InstanceProfileCredentialsProvider.getInstance()
+    val instance = CredentialsForBothSdkVersions.instance()
 
     val crossAccount = assumeCrossAccountRole(instance, settings)
 
@@ -31,30 +31,23 @@ object AwsCredentials {
   }
 
   def lambda(): AwsCredentials = {
-    val instance = new EnvironmentVariableCredentialsProvider()
+    val instance = CredentialsForBothSdkVersions.environmentVariables()
     AwsCredentials(instance, crossAccount = instance, upload = instance)
   }
 
-  private def devUpload(settings: Settings): AWSCredentialsProvider = {
+  private def devUpload(settings: Settings): CredentialsForBothSdkVersions = {
     // Only required in dev (because federated credentials such as those from Janus cannot do STS requests).
     // Instance profile credentials are sufficient when deployed.
     val accessKey = settings.getMandatoryString("aws.upload.accessKey", "This is the AwsId output of the dev cloudformation")
     val secretKey = settings.getMandatoryString("aws.upload.secretKey", "This is the AwsSecret output of the dev cloudformation")
 
-    new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey))
+    CredentialsForBothSdkVersions.static(accessKey, secretKey)
   }
 
-  private def assumeCrossAccountRole(instance: AWSCredentialsProvider, settings: Settings) = {
+  private def assumeCrossAccountRole(instance: CredentialsForBothSdkVersions, settings: Settings): CredentialsForBothSdkVersions = {
     val crossAccountRoleArn = settings.getMandatoryString("aws.kinesis.stsCapiRoleToAssume",
       "Role to assume to access CAPI streams (in format arn:aws:iam::<account>:role/<role_name>)")
 
-    assumeAccountRole(instance, crossAccountRoleArn, "capi")
-  }
-
-  private def assumeAccountRole(instance: AWSCredentialsProvider, roleArn: String, sessionNameSuffix: String): AWSCredentialsProvider = {
-    val securityTokens = AWSSecurityTokenServiceClientBuilder.standard().withCredentials(instance).build()
-
-    new STSAssumeRoleSessionCredentialsProvider.Builder(roleArn, s"media-atom-maker-${sessionNameSuffix}")
-      .withStsClient(securityTokens).build()
+    instance.assumeAccountRole(crossAccountRoleArn, "capi", AwsAccess.regionFrom(settings).getName)
   }
 }

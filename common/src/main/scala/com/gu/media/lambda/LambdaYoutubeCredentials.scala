@@ -10,7 +10,7 @@ trait LambdaYoutubeCredentials { self: AwsAccess =>
       case (Some(bucket), Some(key)) =>
         val defaultRegionS3 = AmazonS3ClientBuilder
           .standard()
-          .withCredentials(credentials.instance)
+          .withCredentials(credentials.instance.awsV1Creds)
           .withRegion(region.getName)
           .build()
 

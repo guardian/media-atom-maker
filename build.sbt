@@ -4,11 +4,12 @@ import scala.sys.process._
 
 val scroogeVersion = "4.12.0"
 val awsVersion = "1.11.678"
+val awsV2Version = "2.21.17"
 val pandaVersion = "1.2.0"
 val pandaHmacVersion = "2.1.0"
 val atomMakerVersion = "1.3.4"
 val typesafeConfigVersion = "1.4.0" // to match what we get from Play transitively
-val scanamoVersion = "1.0.0-M9"
+val scanamoVersion = "1.0.0-M28"
 
 val playJsonExtensionsVersion = "0.40.2"
 val okHttpVersion = "2.4.0"
@@ -102,10 +103,12 @@ lazy val common = (project in file("common"))
       "com.amazonaws" % "aws-lambda-java-core" % awsLambdaCoreVersion,
       "com.amazonaws" % "aws-java-sdk-s3" % awsVersion,
       "com.amazonaws" % "aws-java-sdk-dynamodb" % awsVersion,
+      "software.amazon.awssdk" % "dynamodb" % awsV2Version,
       "com.amazonaws" % "aws-java-sdk-kinesis" % awsVersion,
       "ai.x" %% "play-json-extensions" % playJsonExtensionsVersion,
       "ch.qos.logback" % "logback-classic" % logbackClassicVersion,
       "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
+      "software.amazon.awssdk" % "sts" % awsV2Version,
       "com.amazonaws" % "aws-java-sdk-elastictranscoder" % awsVersion,
       "org.scanamo" %% "scanamo" % scanamoVersion,
       "com.squareup.okhttp" % "okhttp" % okHttpVersion,
@@ -132,6 +135,7 @@ lazy val app = (project in file("."))
       ehcache,
       "com.fasterxml.jackson.core" % "jackson-databind" % jacksonDatabindVersion,
       "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
+      "software.amazon.awssdk" % "sts" % awsV2Version,
       "com.amazonaws" % "aws-java-sdk-ec2" % awsVersion,
       "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestPlusPlayVersion % "test",
       "org.mockito" %  "mockito-core" % mockitoVersion % "test",
