@@ -8,7 +8,7 @@ import data.DataStores
 import model.commands.CommandExceptions._
 import net.logstash.logback.marker.{LogstashMarker, Markers}
 import util.AWSConfig
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 case class DeleteAssetCommand(
   atomId: String,

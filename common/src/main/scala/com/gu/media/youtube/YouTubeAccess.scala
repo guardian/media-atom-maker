@@ -10,8 +10,7 @@ import com.gu.media.logging.{Logging, YoutubeApiType, YoutubeRequestLogger, Yout
 import net.logstash.logback.marker.{LogstashMarker, Markers}
 
 import java.io.FileInputStream
-import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait YouTubeAccess extends Settings with Logging {
   def appName: String = getMandatoryString("name")

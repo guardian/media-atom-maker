@@ -7,7 +7,7 @@ import com.gu.media.logging.Logging
 import com.gu.media.upload.model.{CopyETag, CopyProgress, Upload}
 
 import scala.util.control.NonFatal
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class CompleteMultipartCopy extends LambdaWithParams[Upload, Upload] with S3Access with Logging {
   override def handle(upload: Upload) = {

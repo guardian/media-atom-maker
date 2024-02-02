@@ -4,7 +4,7 @@ import enumeratum.EnumEntry.Hyphencase
 import enumeratum.{Enum, EnumEntry}
 import net.logstash.logback.marker.{LogstashMarker, Markers}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 sealed trait YoutubeApiType extends EnumEntry with Hyphencase
 

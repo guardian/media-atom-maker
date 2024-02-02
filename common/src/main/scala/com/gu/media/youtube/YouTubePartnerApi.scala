@@ -8,8 +8,7 @@ import com.gu.media.logging.{Logging, YoutubeApiType, YoutubeRequestLogger, Yout
 import com.gu.media.model.{AdSettings, VideoUpdateError}
 import com.gu.media.util.MAMLogger
 
-import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 //This class contains functionality to add usage policies to published videos.
 //Videos are either tracked or monetized: https://support.google.com/youtube/answer/107383?hl=en-GB

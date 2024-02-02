@@ -18,7 +18,7 @@ import play.api.libs.json._
 import play.api.mvc._
 
 import scala.concurrent.Future
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class Api(
   override val stores: DataStores,

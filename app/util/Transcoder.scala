@@ -3,7 +3,7 @@ package util
 import com.amazonaws.services.elastictranscoder.model.ListJobsByPipelineRequest
 import model.transcoder.JobStatus
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import java.time.Duration
 
 class Transcoder(awsConfig: AWSConfig) {

@@ -5,7 +5,7 @@ import com.gu.media.aws.SESSettings
 import com.gu.media.model.MediaAtom
 import com.gu.media.Settings
 
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 
 class Mailer(config: Settings with SESSettings) {
   def sendPlutoIdMissingEmail(atomId: String, atomTitle: String, sendTo: String): SendEmailResult = {
