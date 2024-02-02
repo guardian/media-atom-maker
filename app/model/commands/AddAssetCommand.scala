@@ -28,7 +28,7 @@ case class AddAssetCommand(atomId: String, videoUri: String, override val stores
     val atom = getPreviewAtom(atomId)
 
     val mediaAtom = atom.tdata
-    val currentAssets: Seq[Asset] = mediaAtom.assets
+    val currentAssets: Seq[Asset] = mediaAtom.assets.toSeq
 
     videoUri match {
       case YouTubeId(videoId) if assetAlreadyExists(videoId, currentAssets) =>

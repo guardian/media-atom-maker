@@ -52,7 +52,7 @@ class SchedulerLambda extends RequestHandler[Unit, Unit]
     val currentPage = (response \ "currentPage").as[Int]
     val pages = (response \ "pages").as[Int]
 
-    val results: Seq[JsValue] = (response \ "results").as[JsArray].value
+    val results: Seq[JsValue] = (response \ "results").as[JsArray].value.toSeq
 
     val after = accumulator ++ results.map(js => (js \ "id").as[String])
 
