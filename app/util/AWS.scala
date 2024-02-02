@@ -8,7 +8,7 @@ import com.gu.media.aws._
 import com.gu.media.logging.{Logging}
 import com.typesafe.config.Config
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class AWSConfig(override val config: Config, override val credentials: AwsCredentials)
   extends Settings

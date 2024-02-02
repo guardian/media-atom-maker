@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonParseException
 import com.gu.media.upload.model._
 import play.api.libs.json.{JsResultException, Json}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class StepFunctions(awsConfig: AWSConfig) {
   def getById(id: String): Option[Upload] = {

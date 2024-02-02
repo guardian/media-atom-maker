@@ -3,7 +3,7 @@ package com.gu.media.util
 import com.gu.media.logging.Logging
 import net.logstash.logback.marker.Markers
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object MAMLogger extends Logging {
   private def atomIdMarker(atomId: String) = Map("atomId" -> atomId)

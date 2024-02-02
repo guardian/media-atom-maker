@@ -4,7 +4,7 @@ import com.google.api.client.googleapis.json.{GoogleJsonError, GoogleJsonRespons
 import com.google.api.client.http.{HttpHeaders, HttpResponseException}
 import com.gu.media.logging.Logging
 import play.api.mvc.{Result, Results}
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 case class CommandException(msg: String, responseCode: Int) extends RuntimeException(msg)
 

@@ -6,7 +6,7 @@ import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
 import com.gu.media.upload.model.{SelfHostedUploadMetadata, Upload}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class GetTranscodingProgress extends LambdaWithParams[Upload, Upload] with ElasticTranscodeAccess with Logging {
   override def handle(upload: Upload): Upload = {

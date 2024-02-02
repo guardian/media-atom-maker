@@ -8,7 +8,7 @@ import com.amazonaws.services.sqs.model.{DeleteMessageRequest, ReceiveMessageReq
 import scala.concurrent.ExecutionContext
 import com.gu.media.logging.Logging
 import data.DataStores
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import play.api.libs.json._
 
 case class PlutoMessageConsumer(val stores: DataStores, awsConfig: AWSConfig)

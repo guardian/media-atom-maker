@@ -7,7 +7,7 @@ import com.gu.media.util.ISO8601Duration
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import org.joda.time.DateTime
 import com.gu.media.util.JsonDate._
 
