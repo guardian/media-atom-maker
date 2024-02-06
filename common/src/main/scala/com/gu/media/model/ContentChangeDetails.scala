@@ -2,6 +2,7 @@ package com.gu.media.model
 
 import com.gu.contentatom.thrift.{ContentChangeDetails => ThriftContentChangeDetails}
 import ai.x.play.json.Jsonx
+import play.api.libs.json.Format
 
 case class ContentChangeDetails(
   lastModified: Option[ChangeRecord],
@@ -16,7 +17,7 @@ case class ContentChangeDetails(
 }
 
 object ContentChangeDetails {
-  implicit val contentChangeDetailsFormat = Jsonx.formatCaseClass[ContentChangeDetails]
+  implicit val contentChangeDetailsFormat: Format[ContentChangeDetails] = Jsonx.formatCaseClass[ContentChangeDetails]
 
   def fromThrift(ccd: ThriftContentChangeDetails) = ContentChangeDetails(
     ccd.lastModified.map(ChangeRecord.fromThrift),

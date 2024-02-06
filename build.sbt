@@ -5,20 +5,18 @@ import scala.sys.process._
 val scroogeVersion = "4.12.0"
 val awsVersion = "1.11.678"
 val awsV2Version = "2.21.17"
-val pandaVersion = "1.2.0"
-val pandaHmacVersion = "2.1.0"
-val atomMakerVersion = "1.3.4"
+val pandaVersion = "3.0.1"
+val atomMakerVersion = "2.0.0-PREVIEW.fix-tests-under-java-17.2024-01-18T1039.b4d55b3d"
 val typesafeConfigVersion = "1.4.0" // to match what we get from Play transitively
 val scanamoVersion = "1.0.0-M28"
 
 val playJsonExtensionsVersion = "0.40.2"
 val okHttpVersion = "2.4.0"
-val capiAwsVersion = "0.5"
 
 val scalaTestVersion = "3.0.8"
 val scalaTestPlusPlayVersion = "4.0.3"
 val mockitoVersion = "2.0.97-beta"
-val scalaXmlVersion = "1.0.5"
+val scalaXmlVersion = "2.2.0"
 val scalaCheckVersion = "1.14.0" // to match ScalaTest version
 
 val awsLambdaCoreVersion = "1.1.0"
@@ -51,10 +49,7 @@ lazy val commonSettings = Seq(
   scalacOptions ++= Seq("-feature", "-deprecation", "-release:11"),
   ThisBuild / organization := "com.gu",
 
-  resolvers ++= Seq(
-    "Sonatype OSS" at "https://oss.sonatype.org/content/repositories/releases/",
-    "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
-  ),
+  resolvers ++= Resolver.sonatypeOssRepos("releases"),
 
   // silly SBT command to work-around lack of support for root projects that are not in the "root" folder
   // https://github.com/sbt/sbt/issues/2405
@@ -86,10 +81,10 @@ lazy val common = (project in file("common"))
       "com.google.api-client" %  "google-api-client" % googleApiClientVersion,
       "com.google.http-client" % "google-http-client-jackson2" % googleHttpJacksonVersion,
       "com.google.apis" % "google-api-services-youtube" % youTubeApiClientVersion,
-      "com.gu" %% "pan-domain-auth-play_2-8" % pandaVersion,
+      "com.gu" %% "pan-domain-auth-play_2-9" % pandaVersion,
       "com.gu" %% "pan-domain-auth-verification" % pandaVersion,
       "com.gu" %% "pan-domain-auth-core" % pandaVersion,
-      "com.gu" %% "panda-hmac-play_2-8" % pandaHmacVersion,
+      "com.gu" %% "panda-hmac-play_2-9" % pandaVersion,
       ws,
       "com.typesafe.play" %% "play-json-joda" % "2.7.4",
       "com.gu" %% "atom-publisher-lib" % atomMakerVersion,
@@ -120,7 +115,7 @@ lazy val common = (project in file("common"))
       "com.gu" %% "editorial-permissions-client" % "2.15",
       "com.amazonaws" % "aws-java-sdk-stepfunctions" % awsVersion,
       "com.amazonaws" % "aws-java-sdk-ses" % awsVersion,
-      "com.gu" %% "content-api-client-aws" % capiAwsVersion,
+      "com.gu" %% "content-api-client-aws" % "0.7.2",
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
       "org.jsoup" % "jsoup" % jsoupVersion,
       "com.beachape" %% "enumeratum" % enumeratumVersion,

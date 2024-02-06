@@ -57,7 +57,7 @@ trait YouTubeAccess extends Settings with Logging {
   }
 
   // This needs to be lazy so that the tests don't attempt to initialise the credentials
-  private lazy val partnerCredentials = youtubeCredentials.createScoped(List(YouTubeScopes.YOUTUBEPARTNER))
+  private lazy val partnerCredentials = youtubeCredentials.createScoped(Seq(YouTubeScopes.YOUTUBEPARTNER).asJava)
 
   // lazy to avoid initialising when in test
   lazy val client: YouTubeClient = new YouTubeClient.Builder(httpTransport, jacksonFactory, scopedCredentials)

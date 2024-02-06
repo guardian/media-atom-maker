@@ -26,13 +26,13 @@ class Mailer(config: Settings with SESSettings) {
 
   private def sendEmail(recipients: Seq[String], subject: String, body: String): SendEmailResult = {
     config.sesClient.sendEmail(new SendEmailRequest()
-      .withDestination(new Destination().withToAddresses(recipients))
+      .withDestination(new Destination().withToAddresses(recipients.asJava))
       .withMessage(new Message()
         .withSubject(new Content(s"[Media Atom Maker] $subject"))
         .withBody(new Body().withHtml(new Content(body)))
       )
       .withSource(config.fromEmailAddress)
-      .withReplyToAddresses(config.replyToAddresses)
+      .withReplyToAddresses(config.replyToAddresses.asJava)
     )
   }
 

@@ -195,7 +195,7 @@ case class PublishAtomCommand(
     maybePublishedAtom match {
       case Some(publishedAtom) => {
         if (!hasNewAssets(previewAtom, publishedAtom) && (previewAtom.blockAds == publishedAtom.blockAds)) {
-          YouTubeMessage(previewAtom.id, "N/A", "Claim Update", "No change to assets or BlockAds field, not editing YouTube Claim").logMessage
+          YouTubeMessage(previewAtom.id, "N/A", "Claim Update", "No change to assets or BlockAds field, not editing YouTube Claim").logMessage()
           previewAtom
         } else {
           previewAtom.category match {
@@ -280,11 +280,11 @@ case class PublishAtomCommand(
   private def handleYouTubeMessages(message: Either[VideoUpdateError, String], updateType: String, atom: MediaAtom, assetId: String): MediaAtom = {
     message match {
       case Right(okMessage: String) => {
-        YouTubeMessage(atom.id, assetId, updateType, okMessage).logMessage
+        YouTubeMessage(atom.id, assetId, updateType, okMessage).logMessage()
         atom
       }
       case Left(error: VideoUpdateError) => {
-        YouTubeMessage(atom.id, assetId, updateType, error.errorToLog, isError = true).logMessage
+        YouTubeMessage(atom.id, assetId, updateType, error.errorToLog, isError = true).logMessage()
         AtomPublishFailed(s"Error in $updateType: ${error.getErrorToClient()}")
       }
     }

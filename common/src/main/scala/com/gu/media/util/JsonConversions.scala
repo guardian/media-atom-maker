@@ -7,13 +7,13 @@ import play.api.libs.json._
 
 object JsonConversions {
 
-  implicit val atomType = Writes[AtomType](at => JsString(at.name.toLowerCase))
+  implicit val atomType: Writes[AtomType] = Writes[AtomType](at => JsString(at.name.toLowerCase))
 
-  implicit val category = Writes[Category](category => JsString(category.name.toLowerCase))
+  implicit val category: Writes[Category] = Writes[Category](category => JsString(category.name.toLowerCase))
 
-  implicit val privacyStatusWrites = Writes[PrivacyStatus](ps => JsString(ps.name.toLowerCase))
+  implicit val privacyStatusWrites: Writes[PrivacyStatus] = Writes[PrivacyStatus](ps => JsString(ps.name.toLowerCase))
 
-  implicit val privacyStatusReads = Reads[PrivacyStatus](json => {
+  implicit val privacyStatusReads: Reads[PrivacyStatus] = Reads[PrivacyStatus](json => {
     json.as[String] match {
       case "private" => JsSuccess(PrivacyStatus.Private)
       case "unlisted" => JsSuccess(PrivacyStatus.Unlisted)
@@ -90,7 +90,7 @@ object JsonConversions {
     (__ \ "youtube").readNullable[YoutubeData]
   )(Metadata.apply _)
 
-  implicit val atomDataMedia = (
+  implicit val atomDataMedia: Writes[MediaAtom] = (
     (__ \ "assets").write[Seq[Asset]] and
     (__ \ "activeVersion").writeNullable[Long] and
     (__ \ "title").write[String] and
@@ -124,23 +124,23 @@ object JsonConversions {
       )
   }
 
-  implicit val atomData = Writes[AtomData] {
+  implicit val atomData: Writes[AtomData] = Writes[AtomData] {
     case AtomData.Media(mediaAtom) => Json.toJson(mediaAtom)
     case _ => JsString("unknown")
   }
 
-  implicit val userWrites = (
+  implicit val userWrites: Writes[User] = (
     (__ \ "email").write[String] and
     (__ \ "firstName").writeNullable[String] and
     (__ \ "lastName").writeNullable[String]
     ) { user: User => (user.email, user.firstName, user.lastName) }
 
-  implicit val changeRecordWrites = (
+  implicit val changeRecordWrites: Writes[ChangeRecord] = (
     (__ \ "date").write[Long] and
     (__ \ "user").writeNullable[User]
     ) { changeRecord: ChangeRecord => (changeRecord.date, changeRecord.user) }
 
-  implicit val contentChangeDetailsWrites = (
+  implicit val contentChangeDetailsWrites: Writes[ContentChangeDetails] = (
     (__ \ "lastModified").writeNullable[ChangeRecord] and
     (__ \ "created").writeNullable[ChangeRecord] and
     (__ \ "published").writeNullable[ChangeRecord] and
