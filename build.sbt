@@ -10,7 +10,7 @@ val atomMakerVersion = "1.3.4"
 val typesafeConfigVersion = "1.4.0" // to match what we get from Play transitively
 val scanamoVersion = "1.0.0-M9"
 
-val playJsonExtensionsVersion = "0.40.2"
+val playJsonExtensionsVersion = "0.42.0"
 val okHttpVersion = "2.4.0"
 val capiAwsVersion = "0.5"
 

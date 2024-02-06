@@ -1,6 +1,7 @@
 package com.gu.media.model
 
 import com.gu.contentatom.thrift.atom.media.{Asset => ThriftAsset}
+import ai.x.play.json.Encoders._
 import ai.x.play.json.Jsonx
 
 case class Asset(assetType: AssetType,

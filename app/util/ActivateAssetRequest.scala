@@ -1,5 +1,6 @@
 package util
 
+import ai.x.play.json.Encoders._
 import ai.x.play.json.Jsonx
 import play.api.libs.json._
 

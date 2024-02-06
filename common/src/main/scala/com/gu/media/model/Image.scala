@@ -1,6 +1,7 @@
 package com.gu.media.model
 
 import com.gu.contentatom.thrift.{Image => ThriftImage, ImageAsset => ThriftImageAsset, ImageAssetDimensions => ThriftImageAssetDimensions}
+import ai.x.play.json.Encoders._
 import ai.x.play.json.Jsonx
 
 case class ImageAssetDimensions(height: Int, width: Int) {
