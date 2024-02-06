@@ -4,7 +4,7 @@ import com.gu.contentatom.thrift.atom.media.{MediaAtom => ThriftMediaAtom}
 import com.gu.media.model.MediaAtom
 import com.gu.media.util.MediaAtomImplicits
 import ai.x.play.json.Jsonx
-
+import ai.x.play.json.Encoders._
 
 object MediaAtomYoutubeDescriptionHandler extends MediaAtomImplicits {
 

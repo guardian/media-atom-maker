@@ -1,11 +1,12 @@
 package com.gu.media.model
 
+import ai.x.play.json.Encoders._
+import ai.x.play.json.Jsonx
 import com.gu.contentatom.thrift.atom.media.{MediaAtom => ThriftMediaAtom, Metadata => ThriftMetadata, YoutubeData => ThriftYoutubeData}
 import play.api.libs.json.Format
 import com.gu.contentatom.thrift.{AtomData, Atom => ThriftAtom, AtomType => ThriftAtomType, Flags => ThriftFlags}
 import com.gu.media.util.MediaAtomImplicits
 import com.gu.media.youtube.{MediaAtomYoutubeDescriptionHandler, YoutubeDescription}
-import ai.x.play.json.Jsonx
 
 abstract class MediaAtomBase {
   //generic metadata

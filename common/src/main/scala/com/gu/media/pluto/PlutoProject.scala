@@ -1,5 +1,6 @@
 package com.gu.media.pluto
 
+import ai.x.play.json.Encoders._
 import ai.x.play.json.Jsonx
 import org.joda.time.DateTime
 import play.api.libs.json._
