@@ -1,6 +1,8 @@
-import StateMachine._
+import StateMachine.*
 import sbtbuildinfo.BuildInfoPlugin.autoImport.{BuildInfoKey, buildInfoKeys}
-import scala.sys.process._
+
+import scala.collection.immutable.Seq
+import scala.sys.process.*
 
 val scroogeVersion = "4.12.0"
 val awsVersion = "1.11.678"
@@ -44,7 +46,7 @@ lazy val jacksonDatabindVersion = "2.13.4.2"
 
 lazy val commonSettings = Seq(
   ThisBuild / scalaVersion := "2.13.11", // 2.13.12 blocked by https://github.com/scala/bug/issues/12862
-  scalacOptions ++= Seq("-feature", "-deprecation"/*, "-Xfatal-warnings"*/),
+  scalacOptions ++= Seq("-feature", "-deprecation", "-release:11"),
   ThisBuild / organization := "com.gu",
 
   resolvers ++= Resolver.sonatypeOssRepos("releases"),
@@ -155,7 +157,6 @@ lazy val app = (project in file("."))
 
     buildInfoPackage := "app",
 
-    debianPackageDependencies := Seq("openjdk-8-jre-headless"),
     maintainer := "Digital CMS <digitalcms.dev@guardian.co.uk>",
     packageSummary := "media-atom-maker",
     packageDescription := """making media atoms""",
