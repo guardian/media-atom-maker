@@ -1,5 +1,6 @@
 package com.gu.media.model
 
+import ai.x.play.json.Encoders._
 import com.gu.contentatom.thrift.{ChangeRecord => ThriftChangeRecord}
 import com.gu.pandomainauth.model.{User => PandaUser}
 import ai.x.play.json.Jsonx

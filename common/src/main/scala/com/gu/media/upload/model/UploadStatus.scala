@@ -3,6 +3,7 @@ package com.gu.media.upload.model
 import com.gu.media.model.VideoAsset
 import ai.x.play.json.Jsonx
 import play.api.libs.json.Format
+import ai.x.play.json.Encoders._
 
 case class UploadStatus(id: String, status: String, asset: Option[VideoAsset], current: Option[Int], total: Option[Int], failed: Boolean)
 

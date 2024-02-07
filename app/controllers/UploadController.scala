@@ -1,5 +1,6 @@
 package controllers
 
+import ai.x.play.json.Encoders._
 import com.amazonaws.services.stepfunctions.model.{ExecutionAlreadyExistsException, ExecutionListItem}
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging

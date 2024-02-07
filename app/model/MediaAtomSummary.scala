@@ -1,6 +1,7 @@
 package model
 
 import com.gu.media.model.{Image, ContentChangeDetails}
+import ai.x.play.json.Encoders._
 import ai.x.play.json.Jsonx
 import play.api.libs.json.Format
 
