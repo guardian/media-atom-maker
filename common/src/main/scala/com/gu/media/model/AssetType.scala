@@ -20,7 +20,7 @@ object AssetType {
     }
   })
 
-  val assetTypeWrites = Writes[AssetType] (cat => {
+  val assetTypeWrites: Writes[AssetType] = Writes[AssetType] (cat => {
     JsString(cat.name)
   })
 

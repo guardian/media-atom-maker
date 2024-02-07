@@ -7,7 +7,7 @@ import scala.jdk.CollectionConverters._
 
 case class AuditMessage(atomId: String, auditType: String, user: String, description: Option[String] = None) extends Logging{
 
-  def logMessage() {
+  def logMessage(): Unit = {
     log.info(createMarkers(), "Media Atom Audit")
   }
 

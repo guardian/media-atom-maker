@@ -180,10 +180,10 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
 
   private def updateTheVideoAdvertisingOptions(videoId: String, atomId: String, enableMidroll: Boolean): Either[VideoUpdateError, String] = {
     // All possible formats can be found on YouTube developer docs: https://developers.google.com/youtube/partner/docs/v1/videoAdvertisingOptions#properties
-    val formats: List[String] = List("standard_instream","trueview_instream","display")
+    val formats = Seq("standard_instream","trueview_instream","display")
 
     // see https://developers.google.com/youtube/partner/docs/v1/videoAdvertisingOptions#breakPosition[]
-    val breakPositions: List[String] = if(enableMidroll) List("preroll", "midroll") else List("preroll")
+    val breakPositions = Seq("preroll") ++ Option.when(enableMidroll)("midroll")
 
     val advertisingOption: VideoAdvertisingOption =
       new VideoAdvertisingOption()

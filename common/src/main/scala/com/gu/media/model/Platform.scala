@@ -25,7 +25,7 @@ object Platform {
     }
   })
 
-  val platformWrites = Writes[Platform] (cat => {
+  val platformWrites: Writes[Platform] = Writes[Platform] (cat => {
     JsString(cat.name)
   })
 

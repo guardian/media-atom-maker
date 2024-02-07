@@ -12,12 +12,11 @@ val scanamoVersion = "1.0.0-M28"
 
 val playJsonExtensionsVersion = "0.42.0"
 val okHttpVersion = "2.4.0"
-val capiAwsVersion = "0.5"
 
 val scalaTestVersion = "3.0.8"
 val scalaTestPlusPlayVersion = "4.0.3"
 val mockitoVersion = "2.0.97-beta"
-val scalaXmlVersion = "1.0.5"
+val scalaXmlVersion = "2.2.0"
 val scalaCheckVersion = "1.14.0" // to match ScalaTest version
 
 val awsLambdaCoreVersion = "1.1.0"
@@ -44,14 +43,11 @@ lazy val jacksonVersion = "2.13.4"
 lazy val jacksonDatabindVersion = "2.13.4.2"
 
 lazy val commonSettings = Seq(
-  ThisBuild / scalaVersion := "2.12.16",
+  ThisBuild / scalaVersion := "2.13.11", // 2.13.12 blocked by https://github.com/scala/bug/issues/12862
   scalacOptions ++= Seq("-feature", "-deprecation"/*, "-Xfatal-warnings"*/),
   ThisBuild / organization := "com.gu",
 
-  resolvers ++= Seq(
-    "Sonatype OSS" at "https://oss.sonatype.org/content/repositories/releases/",
-    "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
-  ),
+  resolvers ++= Resolver.sonatypeOssRepos("releases"),
 
   // silly SBT command to work-around lack of support for root projects that are not in the "root" folder
   // https://github.com/sbt/sbt/issues/2405
@@ -120,7 +116,7 @@ lazy val common = (project in file("common"))
       "com.gu" %% "editorial-permissions-client" % "2.15",
       "com.amazonaws" % "aws-java-sdk-stepfunctions" % awsVersion,
       "com.amazonaws" % "aws-java-sdk-ses" % awsVersion,
-      "com.gu" %% "content-api-client-aws" % capiAwsVersion,
+      "com.gu" %% "content-api-client-aws" % "0.7.3",
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
       "org.jsoup" % "jsoup" % jsoupVersion,
       "com.beachape" %% "enumeratum" % enumeratumVersion,
