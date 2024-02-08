@@ -21,12 +21,12 @@ trait KinesisAccess { this: Settings with AwsAccess with Logging =>
   val syncWithPluto: Boolean = getBoolean("pluto.sync").getOrElse(false)
 
   lazy val crossAccountKinesisClient = AmazonKinesisClientBuilder.standard()
-    .withCredentials(credentials.crossAccount)
+    .withCredentials(credentials.crossAccount.awsV1Creds)
     .withRegion(region.getName)
     .build()
 
   lazy val kinesisClient = AmazonKinesisClientBuilder.standard()
-    .withCredentials(credentials.instance)
+    .withCredentials(credentials.instance.awsV1Creds)
     .withRegion(region.getName)
     .build()
 

@@ -8,7 +8,7 @@ import com.gu.media.{PlutoDataStore, Settings}
 
 class PlutoUploadActions(config: Settings with DynamoAccess with KinesisAccess with SESSettings) extends Logging {
   private val mailer = new Mailer(config)
-  private val plutoStore = new PlutoDataStore(config.dynamoDB, config.manualPlutoDynamo)
+  private val plutoStore = new PlutoDataStore(config.scanamo, config.manualPlutoDynamo)
 
   def sendToPluto(plutoIntegrationMessage: PlutoIntegrationMessage): Unit = {
 

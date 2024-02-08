@@ -14,7 +14,7 @@ class DataStores(aws: AWSConfig with SNSAccess, capi: CapiAccess)  {
   val preview = new PreviewDynamoDataStore(aws.dynamoDB, aws.dynamoTableName)
   val published = new PublishedDynamoDataStore(aws.dynamoDB, aws.publishedDynamoTableName)
 
-  val pluto: PlutoDataStore = new PlutoDataStore(aws.dynamoDB, aws.manualPlutoDynamo)
+  val pluto: PlutoDataStore = new PlutoDataStore(aws.scanamo, aws.manualPlutoDynamo)
 
   val livePublisher: AtomPublisher = aws.capiContentEventsTopicName match {
     case Some(capiContentEventsTopicName) =>

@@ -2,6 +2,9 @@ package com.gu.media.aws
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder
 import com.gu.media.Settings
+import com.gu.media.aws.AwsV2Util.buildSync
+import org.scanamo.Scanamo
+import software.amazon.awssdk.services.dynamodb.{DynamoDbClient, DynamoDbClientBuilder}
 
 trait DynamoAccess { this: Settings with AwsAccess =>
   lazy val dynamoTableName: String = sys.env.getOrElse("ATOM_TABLE_NAME",
@@ -24,4 +27,9 @@ trait DynamoAccess { this: Settings with AwsAccess =>
     .withCredentials(credsProvider)
     .withRegion(region.getName)
     .build()
+
+  lazy val dynamoDbSdkV2: DynamoDbClient =
+    buildSync[DynamoDbClient, DynamoDbClientBuilder](DynamoDbClient.builder(), credentials.instance.awsV2Creds, awsV2Region)
+
+  lazy val scanamo: Scanamo = Scanamo(dynamoDbSdkV2)
 }
