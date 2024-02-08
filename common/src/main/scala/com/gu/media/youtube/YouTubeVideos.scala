@@ -12,10 +12,10 @@ import com.gu.media.logging.{YoutubeApiType, YoutubeRequestLogger, YoutubeReques
 import scala.collection.JavaConverters._
 
 trait YouTubeVideos { this: YouTubeAccess with Logging =>
-  def getVideo(youtubeId: String, part: String): Option[Video] = {
+  def getVideo(youtubeId: String, part: List[String]): Option[Video] = {
     val request = client.videos()
-      .list(part)
-      .setId(youtubeId)
+      .list(part.asJava)
+      .setId(List(youtubeId).asJava)
       .setOnBehalfOfContentOwner(contentOwner)
 
     YoutubeRequestLogger.logRequest(YoutubeApiType.DataApi, YoutubeRequestType.GetVideo)
@@ -25,8 +25,8 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
   def getProcessingStatus(videoId: String): Option[YouTubeProcessingStatus] = {
     if(isGuardianVideo(videoId)) {
       val request = client.videos()
-        .list("snippet,status,processingDetails")
-        .setId(videoId)
+        .list(List("snippet", "status", "processingDetails").asJava)
+        .setId(List(videoId).asJava)
         .setOnBehalfOfContentOwner(contentOwner)
 
       YoutubeRequestLogger.logRequest(YoutubeApiType.DataApi, YoutubeRequestType.GetProcessingStatus)
@@ -37,7 +37,7 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
   }
 
   def getDuration(youtubeId: String): Option[Long] = {
-    getVideo(youtubeId, "contentDetails") match {
+    getVideo(youtubeId, List("contentDetails")) match {
       case Some(video) => {
         // YouTube API returns duration is in ISO 8601 format
         // https://developers.google.com/youtube/v3/docs/videos#contentDetails.duration
@@ -49,7 +49,7 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
   }
 
   def updateMetadata(id: String, metadata: YouTubeMetadataUpdate): Either[VideoUpdateError, String] =
-    getVideo(id, "snippet, status") match {
+    getVideo(id, List("snippet", "status")) match {
       case Some(video) => {
 
         findMistakesInDev(video) match {
@@ -73,7 +73,7 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
             val prettyMetadata = YouTubeMetadataUpdate.prettyToString(metadata)
             try {
               val request = client.videos()
-                .update("snippet, status", video)
+                .update(List("snippet", "status").asJava, video)
                 .setOnBehalfOfContentOwner(contentOwner)
 
               YoutubeRequestLogger.logRequest(YoutubeApiType.DataApi, YoutubeRequestType.UpdateVideoMetadata)
@@ -96,7 +96,7 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
     }
 
   def setStatus(id: String, privacyStatus: PrivacyStatus): Either[VideoUpdateError, String] = {
-    getVideo(id, "snippet,status") match {
+    getVideo(id, List("snippet","status")) match {
       case Some(video) => {
         findMistakesInDev(video) match {
           case None => {
@@ -105,7 +105,7 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
 
             try {
               val request = client.videos()
-                .update("snippet, status", video)
+                .update(List("snippet", "status").asJava, video)
                 .setOnBehalfOfContentOwner(contentOwner)
 
               YoutubeRequestLogger.logRequest(YoutubeApiType.DataApi, YoutubeRequestType.UpdateVideoPrivacyStatus)
@@ -127,7 +127,7 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
   }
 
   def updateThumbnail(id: String, thumbnail: InputStreamContent): Either[VideoUpdateError, String] = {
-    getVideo(id, "snippet") match {
+    getVideo(id, List("snippet")) match {
       case Some(video) => {
         findMistakesInDev(video) match {
           case None => {
@@ -149,7 +149,7 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
   }
 
   def isGuardianVideo(youtubeId: String): Boolean = {
-    getVideo(youtubeId, "snippet") match {
+    getVideo(youtubeId, List("snippet")) match {
       case Some(video) =>
         val channel = video.getSnippet.getChannelId
         channels.exists(_.id == channel)
@@ -160,7 +160,7 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
   }
 
   def isManagedVideo(youtubeId: String): Boolean = {
-    getVideo(youtubeId, "snippet") match {
+    getVideo(youtubeId, List("snippet")) match {
       case Some(video) =>
         val channel = video.getSnippet.getChannelId
         allChannels.contains(channel)

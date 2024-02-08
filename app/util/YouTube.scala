@@ -21,7 +21,7 @@ trait YouTube extends Logging with YouTubeAccess with YouTubeVideos with YouTube
     channelsCache.get
 
   def getCommercialVideoInfo(videoId: String) = {
-    getVideo(videoId, "snippet,contentDetails,status").map(video => {
+    getVideo(videoId, List("snippet", "contentDetails", "status")).map(video => {
       val channelId = video.getSnippet.getChannelId
       val channelTitle = video.getSnippet.getChannelTitle
       val channel = YouTubeChannel.build(this, channelId, channelTitle)

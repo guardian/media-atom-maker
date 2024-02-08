@@ -5,7 +5,7 @@ import scala.sys.process._
 val scroogeVersion = "4.12.0"
 val awsVersion = "1.11.678"
 val awsV2Version = "2.21.17"
-val pandaVersion = "1.2.0"
+val pandaVersion = "1.3.0"
 val pandaHmacVersion = "2.1.0"
 val atomMakerVersion = "1.3.4"
 val typesafeConfigVersion = "1.4.0" // to match what we get from Play transitively
@@ -28,14 +28,14 @@ val logbackClassicVersion = "1.2.3"
 val logstashLogbackEncoderVersion = "4.8"
 
 val guavaVersion = "31.1-jre"
-val googleOauthVersion = "1.33.3"
-val googleHttpJacksonVersion = "1.41.7"
+val googleOauthVersion = "1.34.1"
+val googleHttpJacksonVersion = "1.43.3"
 val commonsLoggingVersion = "1.1.1"
 val apacheHttpClientVersion = "4.0.1"
 val apacheHttpCoreVersion = "4.0.1"
 
-val googleApiClientVersion = "1.35.2"
-val youTubeApiClientVersion = "v3-rev178-1.22.0"
+val googleApiClientVersion = "2.2.0"
+val youTubeApiClientVersion = "v3-rev20230123-2.0.0"
 
 val jsoupVersion = "1.16.1"
 
@@ -76,10 +76,14 @@ lazy val common = (project in file("common"))
   .settings(commonSettings,
     name := "media-atom-common",
     unmanagedBase := baseDirectory.value / "common" / "lib",
-    //YouTube Content ID API - Client Libraries. Only available to be download as JAR files.
-    //Latest can be found here: https://developers.google.com/youtube/partner/client_libraries
-    Compile / unmanagedJars += file("common/lib/google-api-services-youtubePartner-v1-rev20190401-1.25.0-sources.jar"),
-    Compile / unmanagedJars += file("common/lib/google-api-services-youtubePartner-v1-rev20190401-1.25.0.jar"),
+    // YouTube Content ID API - Client Libraries. Not available for download.
+    // Follow the instructions in the scripts/youtubepartner-api-gen directory to
+    // regenerate+update these.
+    Compile / unmanagedJars += file("common/lib/google-api-services-youtubePartner-v1-rev20230804-2.0.0.jar"),
+    // Attaching source jars doesn't work as you'd expect :(
+    // If you try to cmd+click to the definition of any classes from youtubePartner-api, Intellij will offer you an option to
+    // "attach sources" -> do that and select the file below.
+    //Compile / unmanagedJars += file("common/lib/google-api-services-youtubePartner-v1-rev20230804-2.0.0-sources.jar"),
     libraryDependencies ++= Seq(
       "com.google.api-client" %  "google-api-client" % googleApiClientVersion,
       "com.google.http-client" % "google-http-client-jackson2" % googleHttpJacksonVersion,
@@ -95,7 +99,6 @@ lazy val common = (project in file("common"))
       "com.gu" %% "atom-manager-play" % atomMakerVersion,
       "com.gu"  %% "atom-manager-play" % atomMakerVersion % "test" classifier "tests",
       "com.google.guava" % "guava" % guavaVersion,
-      "com.google.oauth-client" % "google-oauth-client-jetty" % googleOauthVersion,
       "commons-logging" % "commons-logging" % commonsLoggingVersion,
       "org.apache.httpcomponents" % "httpclient" % apacheHttpClientVersion,
       "org.apache.httpcomponents" % "httpcore" % apacheHttpCoreVersion,

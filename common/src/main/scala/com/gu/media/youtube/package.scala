@@ -1,7 +1,7 @@
 package com.gu.media
 
 import com.google.api.services.youtube.model.{Channel, Video, VideoCategory}
-import com.google.api.services.youtubePartner.model.VideoAdvertisingOption
+import com.google.api.services.youtubePartner.v1.model.VideoAdvertisingOption
 import com.gu.media.model.PrivacyStatus
 import com.gu.media.util.ISO8601Duration
 import play.api.libs.functional.syntax._
