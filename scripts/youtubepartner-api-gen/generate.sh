@@ -13,7 +13,7 @@ docker run --rm -v "$SCRIPT_DIR"/output:/data/output youtube-partner-api-gen
 
 pushd output
 
-mvn package source:jar
+mvn -Dmaven.javadoc.skip=true package source:jar
 
 echo Build complete: your jars are here:
 
