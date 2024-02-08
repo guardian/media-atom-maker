@@ -1,7 +1,6 @@
 package controllers
 
 
-import com.gu.editorial.permissions.client.{Permission, PermissionDenied, PermissionsUser}
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
 import com.gu.media.youtube.YouTubeAccess
@@ -17,13 +16,13 @@ import views.html.helper.CSRF
 import scala.concurrent.ExecutionContext
 
 class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfig: AWSConfig,
-                 permissions: MediaAtomMakerPermissionsProvider, youtube: YouTubeAccess,
+                 permissionsProvider: MediaAtomMakerPermissionsProvider, youtube: YouTubeAccess,
                  val controllerComponents: ControllerComponents) extends BaseController with Logging with TrainingMode {
   import authActions.AuthAction
 
   implicit lazy val executionContext: ExecutionContext = defaultExecutionContext
 
-  def index(id: String = ""): Action[AnyContent] = AuthAction.async { implicit req =>
+  def index(id: String = ""): Action[AnyContent] = AuthAction { implicit req =>
     val isTrainingMode = isInTrainingMode(req)
 
     val jsFileName = "video-ui/build/main.js"
@@ -43,36 +42,35 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
 
     val composerUrl = awsConfig.composerUrl
 
-    permissions.getAll(req.user).map { permissions =>
-      val clientConfig = ClientConfig(
-        presence = presenceConfig(req.user),
-        youtubeEmbedUrl = "https://www.youtube.com/embed/",
-        youtubeThumbnailUrl = "https://img.youtube.com/vi/",
-        reauthUrl = "/reauth",
-        gridUrl = awsConfig.gridUrl,
-        capiProxyUrl = "/support/previewCapi",
-        liveCapiProxyUrl = "/support/liveCapi",
-        composerUrl = composerUrl,
-        ravenUrl = conf.get[String]("raven.url"),
-        stage = conf.get[String]("stage"),
-        viewerUrl = awsConfig.viewerUrl,
-        permissions,
-        minDurationForAds = youtube.minDurationForAds,
-        isTrainingMode = isTrainingMode,
-        workflowUrl = awsConfig.workflowUrl,
-        targetingUrl = awsConfig.targetingUrl
-      )
+    val permissions = permissionsProvider.getAll(req.user)
+    val clientConfig = ClientConfig(
+      presence = presenceConfig(req.user),
+      youtubeEmbedUrl = "https://www.youtube.com/embed/",
+      youtubeThumbnailUrl = "https://img.youtube.com/vi/",
+      reauthUrl = "/reauth",
+      gridUrl = awsConfig.gridUrl,
+      capiProxyUrl = "/support/previewCapi",
+      liveCapiProxyUrl = "/support/liveCapi",
+      composerUrl = composerUrl,
+      ravenUrl = conf.get[String]("raven.url"),
+      stage = conf.get[String]("stage"),
+      viewerUrl = awsConfig.viewerUrl,
+      permissions,
+      minDurationForAds = youtube.minDurationForAds,
+      isTrainingMode = isTrainingMode,
+      workflowUrl = awsConfig.workflowUrl,
+      targetingUrl = awsConfig.targetingUrl
+    )
 
-      Ok(views.html.VideoUIApp.app(
-        title = "Media Atom Maker",
-        jsLocation,
-        presenceJsLocation = clientConfig.presence.map(_.jsLocation),
-        pinboardJsLocation = if(permissions.pinboard) awsConfig.pinboardLoaderUrl else None,
-        Json.toJson(clientConfig).toString(),
-        isHotReloading,
-        CSRF.getToken.value
-      ))
-    }
+    Ok(views.html.VideoUIApp.app(
+      title = "Media Atom Maker",
+      jsLocation,
+      presenceJsLocation = clientConfig.presence.map(_.jsLocation),
+      pinboardJsLocation = if(permissions.pinboard) awsConfig.pinboardLoaderUrl else None,
+      Json.toJson(clientConfig).toString(),
+      isHotReloading,
+      CSRF.getToken.value
+    ))
   }
 
   def training(inTraining: Boolean): Action[AnyContent] = AuthAction { req =>

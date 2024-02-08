@@ -27,8 +27,6 @@ val awsLambdaEventsVersion = "1.3.0"
 val logbackClassicVersion = "1.2.3"
 val logstashLogbackEncoderVersion = "4.8"
 
-val permissionsClientVersion = "0.8"
-
 val guavaVersion = "31.1-jre"
 val googleOauthVersion = "1.33.3"
 val googleHttpJacksonVersion = "1.41.7"
@@ -117,7 +115,7 @@ lazy val common = (project in file("common"))
       "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test", // to match ScalaTest version
       "com.amazonaws" % "aws-java-sdk-sns" % awsVersion,
       "com.amazonaws" % "aws-java-sdk-sqs" % awsVersion,
-      "com.gu" %% "editorial-permissions-client" % permissionsClientVersion,
+      "com.gu" %% "editorial-permissions-client" % "2.15",
       "com.amazonaws" % "aws-java-sdk-stepfunctions" % awsVersion,
       "com.amazonaws" % "aws-java-sdk-ses" % awsVersion,
       "com.gu" %% "content-api-client-aws" % capiAwsVersion,

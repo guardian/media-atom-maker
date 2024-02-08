@@ -1,65 +1,49 @@
 package com.gu.media
 
 import com.amazonaws.auth.AWSCredentialsProvider
-import com.gu.editorial.permissions.client._
+import com.gu.permissions._
 import ai.x.play.json.Jsonx
 import ai.x.play.json.Encoders._
 import play.api.libs.json.Format
 import com.gu.pandomainauth.model.{User => PandaUser}
-import scala.concurrent.Future
+import com.gu.permissions.PermissionDefinition
+
 
 case class Permissions(
-  deleteAtom: Boolean,
-  addSelfHostedAsset: Boolean,
-  setVideosOnAllChannelsPublic: Boolean,
-  pinboard: Boolean
+  deleteAtom: Boolean = false,
+  addSelfHostedAsset: Boolean = false,
+  setVideosOnAllChannelsPublic: Boolean = false,
+  pinboard: Boolean = false
 )
 object Permissions {
   implicit val format: Format[Permissions] = Jsonx.formatCaseClass[Permissions]
 
   val app = "atom-maker"
-  val deleteAtom = Permission("delete_atom", app, defaultVal = PermissionDenied)
-  val addSelfHostedAsset = Permission("add_self_hosted_asset", app, defaultVal = PermissionDenied)
-  val setVideosOnAllChannelsPublic = Permission("set_videos_on_all_channels_public", app, defaultVal = PermissionDenied)
-  val pinboard = Permission("pinboard", "pinboard", defaultVal = PermissionDenied)
+  val deleteAtom = PermissionDefinition("delete_atom", app)
+  val addSelfHostedAsset = PermissionDefinition("add_self_hosted_asset", app)
+  val setVideosOnAllChannelsPublic = PermissionDefinition("set_videos_on_all_channels_public", app)
+  val pinboard = PermissionDefinition("pinboard", "pinboard")
 }
 
-class MediaAtomMakerPermissionsProvider(stage: String, credsProvider: AWSCredentialsProvider) extends PermissionsProvider {
+class MediaAtomMakerPermissionsProvider(stage: String, region: String, credsProvider: AWSCredentialsProvider) {
   import Permissions._
 
-  implicit def config = PermissionsConfig(
-    app = "media-atom-maker",
-    all = Seq(deleteAtom, addSelfHostedAsset, setVideosOnAllChannelsPublic, pinboard),
-    s3BucketPrefix = if(stage == "PROD") "PROD" else "CODE",
-    awsCredentials = credsProvider
+  private val permissions: PermissionsProvider = PermissionsProvider(PermissionsConfig(stage, region, credsProvider))
+
+  def getAll(user: PandaUser): Permissions = Permissions(
+    deleteAtom = hasPermission(deleteAtom, user),
+    addSelfHostedAsset = hasPermission(addSelfHostedAsset, user),
+    setVideosOnAllChannelsPublic = hasPermission(setVideosOnAllChannelsPublic, user),
+    pinboard = hasPermission(pinboard, user)
   )
 
-  def getAll(user: PandaUser): Future[Permissions] = for {
-    deleteAtom <- hasPermission(deleteAtom, user)
-    selfHostedMediaAtom <- hasPermission(addSelfHostedAsset, user)
-    publicStatusPermissions <- hasPermission(setVideosOnAllChannelsPublic, user)
-    pinboard <- hasPermission(pinboard, user)
-  } yield Permissions(deleteAtom, selfHostedMediaAtom, publicStatusPermissions, pinboard)
+  def getStatusPermissions(user: PandaUser): Permissions =
+    Permissions(setVideosOnAllChannelsPublic = hasPermission(setVideosOnAllChannelsPublic, user))
 
-  def getStatusPermissions(user: PandaUser): Future[Permissions] = for {
-    publicStatus <- hasPermission(setVideosOnAllChannelsPublic, user)
-  } yield {
-    Permissions(deleteAtom = false, addSelfHostedAsset = false, publicStatus, pinboard = false)
-  }
-
-  private def hasPermission(permission: Permission, user: PandaUser): Future[Boolean] = {
-    user.email match {
-      // TODO be better
-      // HACK: HMAC authenticated users are a `PandaUser` without an email
-      case "" if user.firstName == "media-atom-scheduler-lambda" => {
-        Future.successful(true)
-      }
-      case _ => {
-        get(permission)(PermissionsUser(user.email)).map {
-          case PermissionGranted => true
-          case _ => false
-        }
-      }
-    }
+  def hasPermission(permission: PermissionDefinition, user: PandaUser): Boolean = user.email match {
+    // TODO be better
+    // HACK: HMAC authenticated users are a `PandaUser` without an email
+    case "" if user.firstName == "media-atom-scheduler-lambda" => true
+    case _ => permissions.hasPermission(permission, user.email)
   }
 }
