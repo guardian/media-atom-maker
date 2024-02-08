@@ -17,7 +17,7 @@ class YouTubeSDKCompatibilityCheckSpec extends FunSpec {
     }
 
     it("should NOT throw an exception creating a com.google.api.services.youtubePartner.YouTubePartner client") {
-      new com.google.api.services.youtubePartner.YouTubePartner(transport, jsonFactory, httpRequestInitializer)
+      new com.google.api.services.youtubePartner.v1.YouTubePartner(transport, jsonFactory, httpRequestInitializer)
     }
   }
 }
