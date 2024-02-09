@@ -4,7 +4,6 @@ import com.gu.contentatom.thrift._
 import com.gu.contentatom.thrift.atom.media._
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
-import play.api.libs.functional.FunctionalBuilder
 
 object JsonConversions {
 
@@ -159,13 +158,6 @@ object JsonConversions {
       contentChangeDetails.embargo,
       contentChangeDetails.expiry
       )
-  }
-
-  implicit val flagsWrites: Flags => FunctionalBuilder[OWrites]#CanBuild3[Option[Boolean],Boolean,Option[Boolean]] = {flags: Flags =>
-    (__ \ "legallySensitive").writeNullable[Boolean] and
-      (__ \ "blockAds").write[Boolean] and
-      (__ \ "sensitive").writeNullable[Boolean]
-
   }
 
   implicit val atomWrites: Writes[Atom] = (
