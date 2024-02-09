@@ -9,7 +9,7 @@ import com.gu.media.model.VideoUpdateError
 import com.gu.media.util.ISO8601Duration
 import com.gu.media.logging.{YoutubeApiType, YoutubeRequestLogger, YoutubeRequestType}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait YouTubeVideos { this: YouTubeAccess with Logging =>
   def getVideo(youtubeId: String, part: List[String]): Option[Video] = {

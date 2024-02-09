@@ -5,10 +5,12 @@ import com.gu.media.model.MediaAtom
 import com.gu.media.util.MediaAtomImplicits
 import ai.x.play.json.Jsonx
 import ai.x.play.json.Encoders._
+import play.api.libs.json.Format
+
 
 object MediaAtomYoutubeDescriptionHandler extends MediaAtomImplicits {
 
-  private implicit val mediaAtomFormat = Jsonx.formatCaseClass[MediaAtom]
+  private implicit val mediaAtomFormat: Format[MediaAtom] = Jsonx.formatCaseClass[MediaAtom]
 
   def getYoutubeDescription(data: ThriftMediaAtom): Option[String] = {
 

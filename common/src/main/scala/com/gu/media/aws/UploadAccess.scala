@@ -5,7 +5,7 @@ import com.amazonaws.services.stepfunctions.AWSStepFunctionsClientBuilder
 import com.amazonaws.services.stepfunctions.model.ListStateMachinesRequest
 import com.gu.media.Settings
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait UploadAccess { this: Settings with AwsAccess =>
   val userUploadBucket: String = getMandatoryString("aws.upload.bucket")

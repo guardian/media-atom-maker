@@ -5,7 +5,7 @@ import com.gu.media.aws.SESSettings
 import com.gu.media.model.MediaAtom
 import com.gu.media.Settings
 
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 
 class Mailer(config: Settings with SESSettings) {
   def sendPlutoIdMissingEmail(atomId: String, atomTitle: String, sendTo: String): SendEmailResult = {
@@ -26,13 +26,13 @@ class Mailer(config: Settings with SESSettings) {
 
   private def sendEmail(recipients: Seq[String], subject: String, body: String): SendEmailResult = {
     config.sesClient.sendEmail(new SendEmailRequest()
-      .withDestination(new Destination().withToAddresses(recipients))
+      .withDestination(new Destination().withToAddresses(recipients.asJava))
       .withMessage(new Message()
         .withSubject(new Content(s"[Media Atom Maker] $subject"))
         .withBody(new Body().withHtml(new Content(body)))
       )
       .withSource(config.fromEmailAddress)
-      .withReplyToAddresses(config.replyToAddresses)
+      .withReplyToAddresses(config.replyToAddresses.asJava)
     )
   }
 

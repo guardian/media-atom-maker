@@ -20,11 +20,11 @@ object AssetType {
     }
   })
 
-  val assetTypeWrites = Writes[AssetType] (cat => {
+  val assetTypeWrites: Writes[AssetType] = Writes[AssetType] (cat => {
     JsString(cat.name)
   })
 
-  implicit val assetTypeFormat = Format(assetTypeReads, assetTypeWrites)
+  implicit val assetTypeFormat: Format[AssetType] = Format(assetTypeReads, assetTypeWrites)
 
   private val types = List(Audio, Video)
 

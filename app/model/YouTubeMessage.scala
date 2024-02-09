@@ -3,7 +3,7 @@ package model
 import com.gu.media.logging.Logging
 import net.logstash.logback.marker.Markers
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 case class YouTubeMessage(atomId: String, videoId: String, reason: String, message: String, isError: Boolean = false) extends Logging {
 

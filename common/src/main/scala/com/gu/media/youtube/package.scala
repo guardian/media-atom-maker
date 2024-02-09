@@ -7,7 +7,7 @@ import com.gu.media.util.ISO8601Duration
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import org.joda.time.DateTime
 import com.gu.media.util.JsonDate._
 
@@ -130,10 +130,7 @@ package object youtube {
     implicit val writes: Writes[YouTubeVideoDetail] = Json.writes[YouTubeVideoDetail]
 
     def build(video: Video, channel: YouTubeChannel): YouTubeVideoDetail = {
-      val tags: Seq[String] = video.getSnippet.getTags match {
-        case null => List()
-        case t => t.asScala
-      }
+      val tags: Seq[String] = Option(video.getSnippet.getTags).toSeq.flatMap(_.asScala)
 
       YouTubeVideoDetail(
         id = video.getId,
@@ -157,8 +154,8 @@ package object youtube {
     def build(videoAdvertisingOption: VideoAdvertisingOption): YouTubeAdvertising = {
       YouTubeAdvertising(
         id = videoAdvertisingOption.getId,
-        adFormats = videoAdvertisingOption.getAdFormats.asScala,
-        adBreaks = videoAdvertisingOption.getAdBreaks.asScala.map(_.getPosition)
+        adFormats = videoAdvertisingOption.getAdFormats.asScala.toSeq,
+        adBreaks = videoAdvertisingOption.getAdBreaks.asScala.toSeq.map(_.getPosition)
       )
     }
   }
