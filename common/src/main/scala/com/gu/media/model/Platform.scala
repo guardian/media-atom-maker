@@ -29,7 +29,7 @@ object Platform {
     JsString(cat.name)
   })
 
-  implicit val platformFormat = Format(platformReads, platformWrites)
+  implicit val platformFormat: Format[Platform] = Format(platformReads, platformWrites)
 
   private val types = List(Youtube, Facebook, Dailymotion, Mainstream, Url)
 

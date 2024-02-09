@@ -24,7 +24,7 @@ object PrivacyStatus {
 
   val writes: Writes[PrivacyStatus] = Writes[PrivacyStatus](p => JsString(p.name))
 
-  implicit val format = Format(reads, writes)
+  implicit val format: Format[PrivacyStatus] = Format(reads, writes)
 
   val all: Set[PrivacyStatus] = Set(Private, Unlisted, Public)
 

@@ -34,7 +34,7 @@ object Category {
     JsString(cat.name)
   })
 
-  implicit val categoryFormat = Format(categoryReads, categoryWrites)
+  implicit val categoryFormat: Format[Category] = Format(categoryReads, categoryWrites)
 
   private val types = List(Documentary, Explainer, Feature, Hosted, News, Paid, Livestream)
 

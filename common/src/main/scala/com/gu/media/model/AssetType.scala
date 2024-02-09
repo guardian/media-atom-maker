@@ -24,7 +24,7 @@ object AssetType {
     JsString(cat.name)
   })
 
-  implicit val assetTypeFormat = Format(assetTypeReads, assetTypeWrites)
+  implicit val assetTypeFormat: Format[AssetType] = Format(assetTypeReads, assetTypeWrites)
 
   private val types = List(Audio, Video)
 
