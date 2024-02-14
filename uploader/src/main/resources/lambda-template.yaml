@@ -26,5 +26,5 @@
         PLUTO_TABLE_NAME: !Ref 'ManualPlutoTable'
     MemorySize: 512
     Role: !GetAtt LambdaExecutionRole.Arn
-    Runtime: "java8"
+    Runtime: "java11"
     Timeout: {{timeout}}
