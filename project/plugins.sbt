@@ -1,6 +1,3 @@
-// This early version of coursier needs to be removed, but right now doing so exposes dependency conflicts...
-addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.0-RC12")
-
 // Use the Play sbt plugin for Play projects
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.19")
 
