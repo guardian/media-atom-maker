@@ -41,7 +41,7 @@ val jsoupVersion = "1.16.1"
 
 val enumeratumVersion = "1.7.3"
 
-lazy val jacksonVersion = "2.13.4"
+lazy val jacksonVersion = "2.13.5"
 lazy val jacksonDatabindVersion = "2.13.4.2"
 
 lazy val commonSettings = Seq(
