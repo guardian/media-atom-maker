@@ -15,7 +15,7 @@ val scanamoVersion = "1.0.0-M28"
 val playJsonExtensionsVersion = "0.42.0"
 val okHttpVersion = "2.7.5"
 
-val scalaTestVersion = "3.0.8"
+val scalaTestVersion = "3.0.9"
 val scalaTestPlusPlayVersion = "4.0.3"
 val mockitoVersion = "2.0.111-beta"
 val scalaXmlVersion = "2.2.0"
