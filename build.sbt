@@ -39,7 +39,7 @@ val youTubeApiClientVersion = "v3-rev20230123-2.0.0"
 
 val jsoupVersion = "1.16.1"
 
-val enumeratumVersion = "1.5.15"
+val enumeratumVersion = "1.7.3"
 
 lazy val jacksonVersion = "2.13.4"
 lazy val jacksonDatabindVersion = "2.13.4.2"
