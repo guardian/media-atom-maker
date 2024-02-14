@@ -32,7 +32,7 @@ val googleOauthVersion = "1.34.1"
 val googleHttpJacksonVersion = "1.44.1"
 val commonsLoggingVersion = "1.1.3"
 val apacheHttpClientVersion = "4.0.3"
-val apacheHttpCoreVersion = "4.0.1"
+val apacheHttpCoreVersion = "4.4.16"
 
 val googleApiClientVersion = "2.3.0"
 val youTubeApiClientVersion = "v3-rev20240211-2.0.0"
