@@ -90,7 +90,7 @@ lazy val common = (project in file("common"))
       "com.gu" %% "pan-domain-auth-core" % pandaVersion,
       "com.gu" %% "panda-hmac-play_2-9" % pandaVersion,
       ws,
-      "com.typesafe.play" %% "play-json-joda" % "2.7.4",
+      "com.typesafe.play" %% "play-json-joda" % "2.10.4",
       "com.gu" %% "atom-publisher-lib" % atomMakerVersion,
       "com.gu" %% "atom-publisher-lib" % atomMakerVersion % "test" classifier "tests",
       "com.gu" %% "atom-manager-play" % atomMakerVersion,
