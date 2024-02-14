@@ -16,7 +16,7 @@ val playJsonExtensionsVersion = "0.42.0"
 val okHttpVersion = "2.7.5"
 
 val scalaTestVersion = "3.0.9"
-val scalaTestPlusPlayVersion = "4.0.3"
+val scalaTestPlusPlayVersion = "7.0.1"
 val mockitoVersion = "2.0.111-beta"
 val scalaXmlVersion = "2.2.0"
 val scalaCheckVersion = "1.14.3" // to match ScalaTest version
