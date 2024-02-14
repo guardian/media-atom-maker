@@ -29,7 +29,7 @@ val logstashLogbackEncoderVersion = "4.8"
 
 val guavaVersion = "33.0.0-jre"
 val googleOauthVersion = "1.34.1"
-val googleHttpJacksonVersion = "1.43.3"
+val googleHttpJacksonVersion = "1.44.1"
 val commonsLoggingVersion = "1.1.1"
 val apacheHttpClientVersion = "4.0.1"
 val apacheHttpCoreVersion = "4.0.1"
