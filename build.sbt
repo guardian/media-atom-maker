@@ -8,7 +8,7 @@ val scroogeVersion = "4.12.0"
 val awsVersion = "1.11.678"
 val awsV2Version = "2.21.17"
 val pandaVersion = "3.0.1"
-val atomMakerVersion = "1.3.4"
+val atomMakerVersion = "2.0.0"
 val typesafeConfigVersion = "1.4.0" // to match what we get from Play transitively
 val scanamoVersion = "1.0.0-M28"
 
@@ -85,10 +85,10 @@ lazy val common = (project in file("common"))
       "com.google.api-client" %  "google-api-client" % googleApiClientVersion,
       "com.google.http-client" % "google-http-client-jackson2" % googleHttpJacksonVersion,
       "com.google.apis" % "google-api-services-youtube" % youTubeApiClientVersion,
-      "com.gu" %% "pan-domain-auth-play_2-8" % pandaVersion,
+      "com.gu" %% "pan-domain-auth-play_2-9" % pandaVersion,
       "com.gu" %% "pan-domain-auth-verification" % pandaVersion,
       "com.gu" %% "pan-domain-auth-core" % pandaVersion,
-      "com.gu" %% "panda-hmac-play_2-8" % pandaVersion,
+      "com.gu" %% "panda-hmac-play_2-9" % pandaVersion,
       ws,
       "com.typesafe.play" %% "play-json-joda" % "2.7.4",
       "com.gu" %% "atom-publisher-lib" % atomMakerVersion,
