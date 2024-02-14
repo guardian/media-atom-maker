@@ -10,7 +10,7 @@ val awsV2Version = "2.21.17"
 val pandaVersion = "3.0.1"
 val atomMakerVersion = "2.0.0"
 val typesafeConfigVersion = "1.4.3" // to match what we get from Play transitively
-val scanamoVersion = "1.0.0-M28"
+val scanamoVersion = "1.0.0-M30"
 
 val playJsonExtensionsVersion = "0.42.0"
 val okHttpVersion = "2.7.5"
