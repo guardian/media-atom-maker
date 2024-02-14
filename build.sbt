@@ -42,7 +42,7 @@ val jsoupVersion = "1.16.1"
 val enumeratumVersion = "1.7.3"
 
 lazy val jacksonVersion = "2.13.5"
-lazy val jacksonDatabindVersion = "2.13.4.2"
+lazy val jacksonDatabindVersion = "2.13.5"
 
 lazy val commonSettings = Seq(
   ThisBuild / scalaVersion := "2.13.11", // 2.13.12 blocked by https://github.com/scala/bug/issues/12862
