@@ -21,7 +21,7 @@ val mockitoVersion = "2.0.97-beta"
 val scalaXmlVersion = "2.2.0"
 val scalaCheckVersion = "1.14.0" // to match ScalaTest version
 
-val awsLambdaCoreVersion = "1.1.0"
+val awsLambdaCoreVersion = "1.2.3"
 val awsLambdaEventsVersion = "1.3.0"
 
 val logbackClassicVersion = "1.2.3"
