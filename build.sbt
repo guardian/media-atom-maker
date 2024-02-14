@@ -37,7 +37,7 @@ val apacheHttpCoreVersion = "4.4.16"
 val googleApiClientVersion = "2.3.0"
 val youTubeApiClientVersion = "v3-rev20240211-2.0.0"
 
-val jsoupVersion = "1.16.1"
+val jsoupVersion = "1.16.2"
 
 val enumeratumVersion = "1.7.3"
 
