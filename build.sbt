@@ -122,7 +122,7 @@ lazy val common = (project in file("common"))
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
       "org.jsoup" % "jsoup" % jsoupVersion,
       "com.beachape" %% "enumeratum" % enumeratumVersion,
-      "net.logstash.logback" % "logstash-logback-encoder" % "6.6"
+      "net.logstash.logback" % "logstash-logback-encoder" % "7.4"
     ) ++ jacksonOverrides ++ jacksonDatabindOverrides
   )
 
