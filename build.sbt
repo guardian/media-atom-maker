@@ -45,7 +45,7 @@ lazy val jacksonVersion = "2.13.5"
 lazy val jacksonDatabindVersion = "2.13.5"
 
 lazy val commonSettings = Seq(
-  ThisBuild / scalaVersion := "2.13.11", // 2.13.12 blocked by https://github.com/scala/bug/issues/12862
+  ThisBuild / scalaVersion := "2.13.12", // 2.13.12 blocked by https://github.com/scala/bug/issues/12862
   scalacOptions ++= Seq("-feature", "-deprecation", "-release:11"),
   ThisBuild / organization := "com.gu",
 
