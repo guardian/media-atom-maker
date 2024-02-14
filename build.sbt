@@ -5,8 +5,8 @@ import scala.collection.immutable.Seq
 import scala.sys.process.*
 
 val scroogeVersion = "4.12.0"
-val awsVersion = "1.11.678"
-val awsV2Version = "2.21.17"
+val awsVersion = "1.11.1034"
+val awsV2Version = "2.21.46"
 val pandaVersion = "3.0.1"
 val atomMakerVersion = "2.0.0"
 val typesafeConfigVersion = "1.4.0" // to match what we get from Play transitively
@@ -21,8 +21,8 @@ val mockitoVersion = "2.0.97-beta"
 val scalaXmlVersion = "2.2.0"
 val scalaCheckVersion = "1.14.0" // to match ScalaTest version
 
-val awsLambdaCoreVersion = "1.1.0"
-val awsLambdaEventsVersion = "1.3.0"
+val awsLambdaCoreVersion = "1.2.3"
+val awsLambdaEventsVersion = "3.11.4"
 
 val logbackClassicVersion = "1.2.3"
 val logstashLogbackEncoderVersion = "4.8"
