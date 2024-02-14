@@ -31,7 +31,7 @@ val guavaVersion = "33.0.0-jre"
 val googleOauthVersion = "1.34.1"
 val googleHttpJacksonVersion = "1.44.1"
 val commonsLoggingVersion = "1.1.3"
-val apacheHttpClientVersion = "4.0.1"
+val apacheHttpClientVersion = "4.0.3"
 val apacheHttpCoreVersion = "4.0.1"
 
 val googleApiClientVersion = "2.3.0"
