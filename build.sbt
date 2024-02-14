@@ -22,7 +22,7 @@ val scalaXmlVersion = "2.2.0"
 val scalaCheckVersion = "1.14.0" // to match ScalaTest version
 
 val awsLambdaCoreVersion = "1.2.3"
-val awsLambdaEventsVersion = "1.3.0"
+val awsLambdaEventsVersion = "3.11.4"
 
 val logbackClassicVersion = "1.2.3"
 val logstashLogbackEncoderVersion = "4.8"
