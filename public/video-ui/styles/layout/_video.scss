@@ -110,6 +110,11 @@
 
     .grid__item {
       width: 400px;
+      height: 300px;
+
+      .upload {
+        height: 250px;
+      }
     }
   }
 }

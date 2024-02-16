@@ -92,7 +92,7 @@ function AssetDisplay({ id, isActive, sources }) {
 
   return (
     <div className="upload">
-      {id ? <YouTubeEmbed id={id} /> : <VideoEmbed sources={sources} />}
+      {id ? <YouTubeEmbed id={id} largePreview={true}/> : <VideoEmbed sources={sources} />}
       {linkProps
         ? <a {...linkProps}>
             <Icon icon="open_in_new" className="icon__assets" />
