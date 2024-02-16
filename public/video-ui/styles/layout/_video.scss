@@ -110,6 +110,10 @@
 
     .grid__item {
       width: 400px;
+
+      .presence-list {
+        display: none;
+      }
     }
   }
 }
