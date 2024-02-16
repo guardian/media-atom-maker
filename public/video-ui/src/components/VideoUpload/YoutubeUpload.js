@@ -31,7 +31,7 @@ export default class YoutubeUpload extends React.Component {
           <div className="form__row">
             <input
               className="form__field__file"
-              type="file"m
+              type="file"
               onChange={this.setFile}
               disabled={!canUploadToYouTube || this.props.uploading}
               accept="video/*,.mxf"
