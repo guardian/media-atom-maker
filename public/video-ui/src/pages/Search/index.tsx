@@ -126,7 +126,6 @@ const Videos = ({videos, total, videoActions, searchTerm, page, shouldUseCreated
   }
 
   useEffect(() => {
-    videoActions.getVideos(searchTerm, currentPage, shouldUseCreatedDateForSort);
     const config = getStore().getState().config;
     const presenceConfig = config.presence;
     if (presenceConfig){
@@ -163,7 +162,8 @@ const Videos = ({videos, total, videoActions, searchTerm, page, shouldUseCreated
       setPrevSearch(searchTerm)
       videoActions.getVideos(searchTerm, newPage, shouldUseCreatedDateForSort);
     }
-  }, [searchTerm, prevSearch])
+  }, [searchTerm, prevSearch]
+  )
 
   useEffect(() => {
     videoActions.getVideos(searchTerm, currentPage, shouldUseCreatedDateForSort);

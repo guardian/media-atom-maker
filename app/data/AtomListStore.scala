@@ -31,7 +31,8 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
 
     val baseWithSearchAndLimit = page match {
       case Some(page) => baseWithSearch ++ Map(
-        "page" -> page.toString
+        "page" -> page.toString,
+        "page-size" -> 50.toString
       )
       case None => baseWithSearch
     }
