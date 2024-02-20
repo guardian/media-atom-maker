@@ -123,8 +123,8 @@ function splitUsages({ usages }: {usages: CapiContent[]}) {
 }
 
 export default {
-  fetchVideos: (search: string, limit: number, shouldUseCreatedDateForSort: boolean) => {
-    let url = `/api/atoms?limit=${limit}`;
+  fetchVideos: (search: string, page: number, shouldUseCreatedDateForSort: boolean) => {
+    let url = `/api/atoms?page=${page}`;
     if (search) {
       url += `&search=${search}`;
     }

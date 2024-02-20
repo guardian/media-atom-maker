@@ -16,10 +16,10 @@ type VideosProps = {
   videos: Video[],
   total: number,
   videoActions: {
-    getVideos: (searchTerm: string, limit: number, shouldUseCreatedDateForSort: boolean) => null;
+    getVideos: (searchTerm: string, page: number, shouldUseCreatedDateForSort: boolean) => null;
   },
   searchTerm: string,
-  limit: number,
+  page: number,
   shouldUseCreatedDateForSort: boolean
 }
 
@@ -71,17 +71,21 @@ const MoreLink = ({ onClick }: {onClick: () => void} ) => {
   </div>)
 }
 
-const Videos = ({videos, total, videoActions, searchTerm, limit, shouldUseCreatedDateForSort}: VideosProps) => {
+const Videos = ({videos, total, videoActions, searchTerm, page, shouldUseCreatedDateForSort}: VideosProps) => {
   const [mediaIds, setMediaIds] = useState<string[]>([]);
   const [videoPresences, setVideoPresences] = useState<VideoPresences[]>([]);
   const [client, setClient] = useState<PresenceClient>(null);
   const [presencesQueue, setPresencesQueue] = useState<PresenceData>(null);
   const [prevSearch, setPrevSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(page || 1);
 
   const showMore = () => {
+    const newPage = currentPage + 1;
+    setCurrentPage(newPage);
+
     videoActions.getVideos(
       searchTerm,
-      limit + frontPageSize,
+      newPage,
       shouldUseCreatedDateForSort
     );
   };
@@ -122,7 +126,7 @@ const Videos = ({videos, total, videoActions, searchTerm, limit, shouldUseCreate
   }
 
   useEffect(() => {
-    videoActions.getVideos(searchTerm, limit, shouldUseCreatedDateForSort);
+    videoActions.getVideos(searchTerm, currentPage, shouldUseCreatedDateForSort);
     const config = getStore().getState().config;
     const presenceConfig = config.presence;
     if (presenceConfig){
@@ -154,13 +158,15 @@ const Videos = ({videos, total, videoActions, searchTerm, limit, shouldUseCreate
 
   useEffect(() => {
     if (searchTerm !== prevSearch) {
+      const newPage = 1;
+      setCurrentPage(newPage);
       setPrevSearch(searchTerm)
-      videoActions.getVideos(searchTerm, limit, shouldUseCreatedDateForSort);
+      videoActions.getVideos(searchTerm, newPage, shouldUseCreatedDateForSort);
     }
   }, [searchTerm, prevSearch])
 
   useEffect(() => {
-    videoActions.getVideos(searchTerm, limit, shouldUseCreatedDateForSort);
+    videoActions.getVideos(searchTerm, currentPage, shouldUseCreatedDateForSort);
   }, [shouldUseCreatedDateForSort])
 
   return (

@@ -1,7 +1,8 @@
 import { frontPageSize } from '../constants/frontPageSize';
+import {videoStore} from "../util/videoStore";
 
 export default function videos(
-  state = { entries: [], total: 0, limit: frontPageSize },
+  state = { entries: [], total: 0, page: frontPageSize },
   action
 ) {
   switch (action.type) {
@@ -9,14 +10,14 @@ export default function videos(
       return {
         entries: state.entries,
         total: state.total,
-        limit: action.limit,
+        page: action.page,
         shouldUseCreatedDateForSort: action.shouldUseCreatedDateForSort
       };
     case 'VIDEOS_GET_RECEIVE':
       return {
-        entries: action.videos || [],
+        entries: videoStore.addVideos(action.videos || []),
         total: action.total,
-        limit: state.limit
+        page: state.page
       };
     default:
       return state;

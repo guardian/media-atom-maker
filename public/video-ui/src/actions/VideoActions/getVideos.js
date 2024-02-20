@@ -1,10 +1,10 @@
 import VideosApi from '../../services/VideosApi';
 
-function requestVideos(search, limit, shouldUseCreatedDateForSort) {
+function requestVideos(search, page, shouldUseCreatedDateForSort) {
   return {
     type: 'VIDEOS_GET_REQUEST',
     search,
-    limit,
+    page,
     shouldUseCreatedDateForSort,
     receivedAt: Date.now()
   };
@@ -28,10 +28,10 @@ function errorReceivingVideos(error) {
   };
 }
 
-export function getVideos(search, limit, shouldUseCreatedDateForSort) {
+export function getVideos(search, page, shouldUseCreatedDateForSort) {
   return dispatch => {
-    dispatch(requestVideos(search, limit, shouldUseCreatedDateForSort));
-    return VideosApi.fetchVideos(search, limit, shouldUseCreatedDateForSort)
+    dispatch(requestVideos(search, page, shouldUseCreatedDateForSort));
+    return VideosApi.fetchVideos(search, page, shouldUseCreatedDateForSort)
       .then(res => {
         dispatch(receiveVideos(res.total, res.atoms));
       })

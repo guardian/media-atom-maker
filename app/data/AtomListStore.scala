@@ -11,14 +11,11 @@ import model.{MediaAtomList, MediaAtomSummary}
 import play.api.libs.json.{JsArray, JsValue}
 
 trait AtomListStore {
-  def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean): MediaAtomList
+  def getAtoms(search: Option[String], page: Option[Int], shouldUseCreatedDateForSort: Boolean): MediaAtomList
 }
 
 class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
-  override def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean): MediaAtomList = {
-    // CAPI max page size is 200
-    val cappedLimit: Option[Int] = limit.map(Math.min(200, _))
-
+  override def getAtoms(search: Option[String], page: Option[Int], shouldUseCreatedDateForSort: Boolean): MediaAtomList = {
     val base: Map[String, String] = Map(
       "types" -> "media",
       "order-by" -> "newest"
@@ -32,9 +29,9 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
       case None => base
     }
 
-    val baseWithSearchAndLimit = cappedLimit match {
-      case Some(pageSize) => baseWithSearch ++ Map(
-        "page-size" -> pageSize.toString
+    val baseWithSearchAndLimit = page match {
+      case Some(page) => baseWithSearch ++ Map(
+        "page" -> page.toString
       )
       case None => baseWithSearch
     }
@@ -76,7 +73,7 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
 }
 
 class DynamoBackedAtomListStore(store: PreviewDynamoDataStore) extends AtomListStore {
-  override def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean): MediaAtomList = {
+  override def getAtoms(search: Option[String], page: Option[Int], shouldUseCreatedDateForSort: Boolean): MediaAtomList = {
     // We must filter the entire list of atoms rather than use Dynamo limit to ensure stable iteration order.
     // Without it, the front page will shuffle around when clicking the Load More button.
     store.listAtoms match {
@@ -101,9 +98,9 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore) extends AtomListS
           case None => mediaAtoms
         }
 
-        val limitedAtoms = limit match {
-          case Some(l) => filteredAtoms.take(l)
-          case None => filteredAtoms
+        val limitedAtoms = page match {
+          case Some(page) => filteredAtoms.toArray.slice(50 * (page - 1), (50 * (page - 1)) + 50).toList
+          case None => filteredAtoms.toArray.slice(0, 50).toList
         }
 
         MediaAtomList(filteredAtoms.size, limitedAtoms.map(fromAtom))
