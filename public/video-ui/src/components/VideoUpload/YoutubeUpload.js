@@ -17,21 +17,13 @@ export default class YoutubeUpload extends React.Component {
     }
   };
 
-  renderWarning() {
-    return (
-      <p className="form__message form__message--warning">
-        A YouTube channel, category and privacy status are needed before uploading a video
-      </p>
-    );
-  }
-
   render() {
     const { video, startUpload } = this.props;
 
     const canUploadToYouTube = VideoUtils.canUploadToYouTube(video);
 
     return (
-      <div className="video__detailbox video__detailbox__assets">   
+      <div className="video__detailbox video__detailbox__assets">
         <div className="form__group">
           <header className="video__detailbox__header video__detailbox__header-with-border">
             Upload to YouTube
@@ -44,6 +36,11 @@ export default class YoutubeUpload extends React.Component {
               disabled={!canUploadToYouTube || this.props.uploading}
               accept="video/*,.mxf"
             />
+            { !canUploadToYouTube ?
+              <p className="form__message form__message--warning">
+              A YouTube channel, category and privacy status are needed before uploading a video. Please set these in the YouTube furniture tab.
+              </p> : null
+            }
             <button
               type="button"
               className="btn button__secondary__assets"

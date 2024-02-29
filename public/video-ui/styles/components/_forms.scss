@@ -102,6 +102,16 @@
         cursor: pointer;
       }
     }
+
+    &:disabled {
+      &::file-selector-button {
+        background-color: #888888;
+        &:hover {
+          background-color: #888888;
+          cursor: not-allowed;
+        }
+      }
+    }
   }
 
   // Placeholder styling, separated because if one selector is invalid, the browser will ignore the rest
