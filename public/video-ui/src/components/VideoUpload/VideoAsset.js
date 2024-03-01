@@ -21,24 +21,17 @@ function presenceInitials(email) {
   return initials.join('');
 }
 
-function AssetControls({ user, children, isActive, selectAsset, deleteAsset, processing }) {
+function AssetControls({ user, children, isActive, selectAsset, deleteAsset }) {
   const activateButton = !isActive
-
-    ? <button
-        className="btn upload__activate-btn"
-        onClick={selectAsset}
-        disabled={!!processing}
-        data-tip={processing ? "Cannot activate video during processing" : null}
-      >
+    ? <button className="btn upload__activate-btn" onClick={selectAsset}>
         Activate
       </button>
     : false;
 
   const deleteButton = !isActive
     ? <DeleteButton
-        tooltip={processing ? "Cannot delete video during processing" : "Remove asset from Atom (does not affect YouTube.com)"}
+        tooltip="Remove asset from Atom (does not affect YouTube.com)"
         onDelete={deleteAsset}
-        disabled={!!processing}
       />
     : false;
 
@@ -92,7 +85,7 @@ function AssetDisplay({ id, isActive, sources }) {
 
   return (
     <div className="upload">
-      {id ? <YouTubeEmbed id={id} largePreview={true}/> : <VideoEmbed sources={sources} />}
+      {id ? <YouTubeEmbed id={id} /> : <VideoEmbed sources={sources} />}
       {linkProps
         ? <a {...linkProps}>
             <Icon icon="open_in_new" className="icon__assets" />
@@ -100,7 +93,6 @@ function AssetDisplay({ id, isActive, sources }) {
         : false}
       {isActive
         ? <div className="grid__status__overlay">
-
             <span className="publish__label label__live label__frontpage__overlay">
               Active
             </span>
@@ -129,6 +121,7 @@ function AssetProgress({ failed, current, total }) {
 export function Asset({ upload, isActive, selectAsset, deleteAsset }) {
   const { asset, metadata, processing } = upload;
   const user = metadata ? metadata.user : false;
+
   if (processing) {
     return (
       <div className="grid__item">
@@ -136,7 +129,7 @@ export function Asset({ upload, isActive, selectAsset, deleteAsset }) {
           <AssetProgress {...processing} />
         </div>
         <div className="grid__item__footer">
-          <AssetControls user={user} selectAsset={selectAsset} deleteAsset={deleteAsset} processing={processing}>
+          <AssetControls user={user} selectAsset={selectAsset} deleteAsset={deleteAsset}>
             <AssetInfo info={processing.status} />
           </AssetControls>
         </div>

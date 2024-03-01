@@ -6,7 +6,7 @@ export const getYouTubeEmbedUrl = (id) => {
   const embedUrl = getStore().getState().config.youtubeEmbedUrl;
   return `${embedUrl}${id}?showinfo=0&rel=0`;
 }
-export function YouTubeEmbed({ id, className, largePreview }) {
+export function YouTubeEmbed({ id, className }) {
   return (
     <iframe
       type="text/html"
@@ -14,8 +14,6 @@ export function YouTubeEmbed({ id, className, largePreview }) {
       src={getYouTubeEmbedUrl(id)}
       allowFullScreen
       frameBorder="0"
-      height={largePreview ? "250px" : undefined}
-      width={largePreview ? "400px" : undefined}
     />
   );
 }
