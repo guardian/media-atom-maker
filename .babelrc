@@ -10,6 +10,6 @@
     "@babel/plugin-transform-object-assign",
     "@babel/plugin-transform-class-properties",
     "@babel/plugin-transform-modules-commonjs",
-    "@babel/transform-object-rest-spread"
+    "@babel/plugin-transform-object-rest-spread"
   ]
 }
