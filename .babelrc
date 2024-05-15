@@ -8,8 +8,8 @@
   ],
   "plugins": [
     "@babel/plugin-transform-object-assign",
-    "@babel/plugin-proposal-class-properties",
-    "transform-es2015-modules-commonjs",
-    "@babel/plugin-proposal-object-rest-spread"
+    "@babel/plugin-transform-class-properties",
+    "@babel/plugin-transform-modules-commonjs",
+    "@babel/plugin-transform-object-rest-spread"
   ]
 }
