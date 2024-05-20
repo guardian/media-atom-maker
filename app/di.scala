@@ -58,6 +58,10 @@ class MediaAtomMaker(context: Context)
     s3Client = S3Access.buildClient(pandaAwsCredentialsProvider, "eu-west-1")
   )
 
+  private val aws = new AWSConfig(config, credentials)
+
+  private val permissions = new MediaAtomMakerPermissionsProvider(aws.stage, aws.region.getName, aws.credentials.instance.awsV1Creds)
+
   private val hmacAuthActions = new PanDomainAuthActions {
     override def conf: Configuration = MediaAtomMaker.this.configuration
 
@@ -66,14 +70,13 @@ class MediaAtomMaker(context: Context)
     override def controllerComponents: ControllerComponents = MediaAtomMaker.this.controllerComponents
 
     override def panDomainSettings: PanDomainAuthSettingsRefresher = MediaAtomMaker.this.panDomainSettings
-  }
 
-  private val aws = new AWSConfig(config, credentials)
+    override val permissionsProvider = permissions
+  }
 
   private val capi = new Capi(config)
 
   private val stores = new DataStores(aws, capi)
-  private val permissions = new MediaAtomMakerPermissionsProvider(aws.stage, aws.region.getName, aws.credentials.instance.awsV1Creds)
 
   private val reindexer = buildReindexer()
 
