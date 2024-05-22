@@ -19,6 +19,7 @@ object Permissions {
   implicit val format: Format[Permissions] = Jsonx.formatCaseClass[Permissions]
 
   val app = "atom-maker"
+  val basicAccess = PermissionDefinition("media_atom_maker_access", app)
   val deleteAtom = PermissionDefinition("delete_atom", app)
   val addSelfHostedAsset = PermissionDefinition("add_self_hosted_asset", app)
   val setVideosOnAllChannelsPublic = PermissionDefinition("set_videos_on_all_channels_public", app)
@@ -45,5 +46,11 @@ class MediaAtomMakerPermissionsProvider(stage: String, region: String, credsProv
     // HACK: HMAC authenticated users are a `PandaUser` without an email
     case "" if user.firstName == "media-atom-scheduler-lambda" => true
     case _ => permissions.hasPermission(permission, user.email)
+  }
+
+  def hasAnyAtomMakerPermission(user: PandaUser): Boolean = {
+    permissions.listPermissions(user.email).exists {
+      case (PermissionDefinition(_, app), isActive) => app == Permissions.app && isActive
+    }
   }
 }
