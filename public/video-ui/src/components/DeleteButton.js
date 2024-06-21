@@ -6,8 +6,7 @@ import Icon from './Icon';
 export default class DeleteButton extends React.Component {
   static propTypes = {
     tooltip: PropTypes.string.isRequired,
-    onDelete: PropTypes.func.isRequired,
-    disabled: PropTypes.bool
+    onDelete: PropTypes.func.isRequired
   };
 
   state = {
@@ -28,7 +27,6 @@ export default class DeleteButton extends React.Component {
         className="btn button__secondary--remove-confirm"
         onClick={this.props.onDelete}
         data-tip="Confirm delete. This cannot be undone."
-        disabled={this.props.disabled}
       >
         <Icon icon="delete_forever">Confirm delete</Icon>
       </button>
@@ -40,8 +38,7 @@ export default class DeleteButton extends React.Component {
       <button
         className="btn button__secondary--remove"
         onClick={() => this.changeState()}
-        data-tip={ this.props.tooltip}
-        disabled={this.props.disabled}
+        data-tip={this.props.tooltip}
       >
         <Icon icon="delete">Delete</Icon>
       </button>
