@@ -107,6 +107,15 @@
     margin-top: 20px;
     padding-left: 20px;
     flex: 8;
+
+    .grid__item {
+      width: 400px;
+      height: 300px;
+
+      .upload {
+        height: 250px;
+      }
+    }
   }
 }
 

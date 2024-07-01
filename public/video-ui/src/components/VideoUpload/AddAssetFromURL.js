@@ -25,6 +25,12 @@ export default class AddAssetFromURL extends React.Component {
           <header className="video__detailbox__header video__detailbox__header-with-border">Asset URL</header>
           <div className="form__row">
             <div>
+              <p className="form__message form__message--warning">
+                This should only be used as a backup if the &apos;Upload to YouTube&apos; option is not available.
+              </p>
+              <p className="form__message form__message--warning">
+                Using an Asset URL from an existing YouTube video will not pass video data to our video commissioning and syndication tool, Pluto.
+              </p>
               <input
                 className="form__field"
                 type="text"

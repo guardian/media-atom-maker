@@ -18,12 +18,13 @@
 
   &__right {
     display: flex;
+    height: 38px;
   }
 
   &__info {
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: normal;
     color: white;
   }
 
