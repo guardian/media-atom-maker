@@ -11,25 +11,13 @@ var wpConfig         = require('./build_config/webpack.devserver.conf.js');
 //
 
 var wpServer = new WebpackDevServer(webpack(wpConfig), {
-  contentBase:  wpConfig.output.path,
-  publicPath:   '/assets/video-ui/build/',
-  public: "video-assets.local.dev-gutools.co.uk",
-  hot:          true,
-  progress:     true,
-  noInfo:       true,
-  disableHostCheck: true,
-  clientLogLevel: "info",
-  watchOptions: {
-    aggregateTimeout: 300,
-    poll:             1000
+  static: {
+    directory: wpConfig.output.path
   },
-  quiet:   false,
+  hot: true,
   headers: {
     'X-Custom-Header': 'yes',
     'Access-Control-Allow-Origin' : '*'
-  },
-  stats:   {
-    colors: true
   }
 });
 

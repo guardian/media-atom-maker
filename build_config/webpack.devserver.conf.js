@@ -21,11 +21,30 @@ var host = 'https://' + addr;
 
 module.exports = {
   mode: 'development',
-  devServer: { inline: true, port: port, address: addr, host: host },
+  devServer: {
+    inline: true,
+    port: port,
+    address: addr,
+    host: host,
+    allowedHosts: 'all',
+    stats:   {
+      colors: true
+    },
+    watchOptions: {
+      aggregateTimeout: 300,
+      poll:             1000
+    },
+    client: {
+      progress: true,
+      logging: "info"
+    },
+    devMiddleWare: {
+      publicPath: "/assets/video-ui/build/"
+    }
+  },
   entry: {
     'assets/video-ui/build/app': [
       'webpack-dev-server/client?' + host,
-      'webpack/hot/dev-server',
       path.join(__dirname, '..', 'public', 'video-ui', 'src', 'app.js')
     ]
   },
@@ -83,7 +102,6 @@ module.exports = {
     noParse: [/aws\-sdk/]
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
     new MiniCssExtractPlugin({
       filename: '[name].css',
       chunkFilename: '[id].css',
