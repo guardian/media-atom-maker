@@ -15,20 +15,15 @@ trait PanDomainAuthActions extends HMACAuthActions with Logging {
       (authedUser.user.emailDomain == "guardian.co.uk") &&
       (authedUser.multiFactor)
 
-    val hasBasicAccessExplicitly = permissionsProvider.hasPermission(Permissions.basicAccess, authedUser.user)
-    val hasAnyAtomMakerPermission = permissionsProvider.hasAnyAtomMakerPermission(authedUser.user)
+    val hasBasicAccess = permissionsProvider.hasPermission(Permissions.basicAccess, authedUser.user)
 
-    if(!isValid) {
+    if (!isValid) {
       log.warn(s"User ${authedUser.user.email} is not valid")
-    }
-    else if (!hasAnyAtomMakerPermission) {
-      log.warn(s"User ${authedUser.user.email} does not have any MAM permissions")
-    }
-    else if (!hasBasicAccessExplicitly) {
+    } else if (!hasBasicAccess) {
       log.warn(s"User ${authedUser.user.email} does not have media_atom_maker_access permission but does have other MAM permissions")
     }
 
-    isValid
+    isValid && hasBasicAccess
   }
 
   override def authCallbackUrl: String = "https://" + conf.get[String]("host") + "/oauthCallback"
