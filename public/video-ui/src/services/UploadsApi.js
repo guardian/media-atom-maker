@@ -61,7 +61,8 @@ function getS3(bucket, region, credentials) {
     apiVersion: '2006-03-01',
     credentials: awsCredentials,
     params: { Bucket: bucket },
-    region: region
+    region: region,
+    useAccelerateEndpoint: true
   });
 }
 
