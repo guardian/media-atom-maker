@@ -21,9 +21,9 @@ describe("getWords", () => {
 });
 
 describe("isTooLong", () => {
-  it('Should return false for phrases less than the character and word limit', () => {
+  it('Should return false for phrases less than the word limit', () => {
     const tooLongString = "So it goes";
-    const maxWords = 100;
+    const maxWords = 3;
 
     const isTooLongResult = isTooLong(tooLongString, maxWords);
 
