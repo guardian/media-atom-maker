@@ -9,8 +9,6 @@ module.exports = {
     'prettier'
   ],
   'plugins': [
-    'standard',
-    'promise',
     'prettier'
   ],
   'parserOptions': {
