@@ -60,7 +60,12 @@ class MediaAtomMaker(context: Context)
 
   private val aws = new AWSConfig(config, credentials)
 
-  private val permissions = new MediaAtomMakerPermissionsProvider(aws.stage, aws.region.getName, aws.credentials.instance.awsV1Creds)
+  private val permissionsStage = aws.stage match {
+    case "PROD" => "PROD"
+    case _ => "CODE"
+  }
+
+  private val permissions = new MediaAtomMakerPermissionsProvider(permissionsStage, aws.region.getName, aws.credentials.instance.awsV1Creds)
 
   private val hmacAuthActions = new PanDomainAuthActions {
     override def conf: Configuration = MediaAtomMaker.this.configuration
