@@ -83,7 +83,6 @@ module.exports = {
     noParse: [/aws\-sdk/]
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
     new MiniCssExtractPlugin({
       filename: '[name].css',
       chunkFilename: '[id].css',

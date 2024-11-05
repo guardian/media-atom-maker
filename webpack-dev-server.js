@@ -1,44 +1,43 @@
 //
 // Imports
 //
-var path             = require('path');
-var webpack          = require('webpack');
-var WebpackDevServer = require('webpack-dev-server');
-var wpConfig         = require('./build_config/webpack.devserver.conf.js');
+const path = require('path');
+const webpack = require('webpack');
+const WebpackDevServer = require('webpack-dev-server');
+const wpConfig = require('./build_config/webpack.devserver.conf.js');
 
 //
 // Webpack
 //
 
-var wpServer = new WebpackDevServer(webpack(wpConfig), {
-  contentBase:  wpConfig.output.path,
-  publicPath:   '/assets/video-ui/build/',
-  public: "video-assets.local.dev-gutools.co.uk",
-  hot:          true,
-  progress:     true,
-  noInfo:       true,
-  disableHostCheck: true,
-  clientLogLevel: "info",
-  watchOptions: {
-    aggregateTimeout: 300,
-    poll:             1000
-  },
-  quiet:   false,
+const options = {
+  hot: true,
+  allowedHosts: "all",
   headers: {
-    'X-Custom-Header': 'yes',
-    'Access-Control-Allow-Origin' : '*'
+    "X-Custom-Header": "yes",
+    "Access-Control-Allow-Origin" : "*"
   },
-  stats:   {
-    colors: true
-  }
-});
+  devMiddleware: {
+    stats:   {
+      colors: true
+    },
+    publicPath: "/assets/video-ui/build/"
+  },
+  client: {
+    logging: "info",
+    progress: true,
+    webSocketURL: "ws://video-assets.local.dev-gutools.co.uk:80"
+  },
+  static: {
+    watch: true,
+    directory: path.join(__dirname, '..', 'static', 'video-ui', 'build')
+  },
+  port: wpConfig.devServer.port
+};
 
-//
-// Exports
-//
+const wpServer = new WebpackDevServer(options, webpack(wpConfig));
 
-//wpServer.use('/public', express.static('public'));
-
-wpServer.listen(wpConfig.devServer.port, wpConfig.devServer.address, function() {
-    console.log('WebpackDevServer listening on port %d', wpConfig.devServer.port);
-});
+(async () => {
+  await wpServer.start();
+  console.log(`Dev server is listening on port ${wpConfig.devServer.port}`);
+})();
