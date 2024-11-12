@@ -3,6 +3,7 @@
       "noImplicitAny": true,
       "module": "commonjs",
       "target": "es2019",
+      "outDir": "public/video-ui/build",
       "jsx": "react",
       "alwaysStrict": true,
       "allowJs": true,
@@ -16,6 +17,9 @@
       "forceConsistentCasingInFileNames": true,
   },
   "include": [
-      "public/video-ui/src/**/*",
+      "video-ui/src/**/*",
+  ],
+  "exclude": [
+      "public/video-ui/build/**/*"
   ]
 }
