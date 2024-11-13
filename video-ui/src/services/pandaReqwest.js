@@ -1,43 +1,51 @@
-import reqwest from 'reqwest';
-import { reEstablishSession } from 'babel-loader';
+import { reEstablishSession } from 'panda-session';
 import { getStore } from '../util/storeAccessor';
 
-function poll(reqwestBody, timeout) {
-  const endTime = Number(new Date()) + timeout;
-  const interval = 100;
+function checkStatus(res) {
+  if (res.status >= 200 && res.status < 300) {
+    return res;
+  } else {
+    throw res;
+  }
+}
 
-  function makeRequest(resolve, reject) {
-    reqwest(reqwestBody)
-      .then(response => resolve(response))
-      .fail(err => {
-        if (Number(new Date()) < endTime) {
-          if (err.status === 419) {
+export function pandaFetch(url, body) {
+  return new Promise(function(resolve, reject) {
+    fetch(url, body)
+        .then(checkStatus)
+        .then(response => response.json())
+        .then(res => {
+          console.log({res})
+          resolve(res)}
+        )
+        .catch(err => {
+          if (err.status == 419) {
             const store = getStore();
-            const reauthUrl = store.getState().config.reauthUrl;
+            var reauthUrl = store.getState().config.reauthUrl;
 
             reEstablishSession(reauthUrl, 5000).then(
-              () => {
-                setTimeout(makeRequest, interval, resolve, reject);
-              },
-              error => {
-                throw error;
-              }
-            );
-          } else {
-            setTimeout(makeRequest, interval, resolve, reject);
-          }
-        } else {
-          reject(err);
-        }
-      });
-  }
+                () => {
+                  fetch(url, body)
+                  .then(checkStatus)
+                  .then(res => resolve(res))
+                  .catch(err => reject(err));
+                },
+                error => {
+                  throw error;
+                });
 
-  return new Promise(makeRequest);
+          } else {
+            console.log(err)
+            reject(err);
+          }
+        });
+  });
 }
 
 // when `timeout` > 0, the request will be retried every 100ms until success or timeout
 export function pandaReqwest(reqwestBody, timeout = 0) {
   const payload = Object.assign({ method: 'get' }, reqwestBody);
+  console.log(payload);
 
   if (payload.data) {
     payload.contentType = payload.contentType || 'application/json';
@@ -49,9 +57,7 @@ export function pandaReqwest(reqwestBody, timeout = 0) {
     }
   }
 
-  return new Promise((resolve, reject) => {
-    poll(payload, timeout)
-      .then(response => resolve(response))
-      .catch(error => reject(error));
-  });
+  const promise = pandaFetch(reqwestBody.url, payload);
+  console.log(promise);
+  return promise;
 }
