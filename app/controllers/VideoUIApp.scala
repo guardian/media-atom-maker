@@ -40,6 +40,7 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
       routes.Assets.versioned(jsFileName).toString
     }
 
+    val stage = conf.get[String]("stage")
     val composerUrl = awsConfig.composerUrl
 
     val permissions = permissionsProvider.getAll(req.user)
@@ -53,7 +54,7 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
       liveCapiProxyUrl = "/support/liveCapi",
       composerUrl = composerUrl,
       ravenUrl = conf.get[String]("raven.url"),
-      stage = conf.get[String]("stage"),
+      stage,
       viewerUrl = awsConfig.viewerUrl,
       permissions,
       minDurationForAds = youtube.minDurationForAds,
@@ -69,7 +70,8 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
       pinboardJsLocation = if(permissions.pinboard) awsConfig.pinboardLoaderUrl else None,
       Json.toJson(clientConfig).toString(),
       isHotReloading,
-      CSRF.getToken.value
+      CSRF.getToken.value,
+      stage,
     ))
   }
 

@@ -5,7 +5,8 @@
   pinboardJsLocation: Option[String],
   clientConfigJson: String,
   isHotReloading: Boolean,
-  csrf: String
+  csrf: String,
+  stage: String
 )
 
 @layout(title, isHotReloading, csrf) {
@@ -20,8 +21,26 @@
     @presenceJsLocation.map { presenceJs =>
       <script src="@presenceJs"></script>
     }
+    <script type="module">window.global = window</script>
 
-    <script type="module" src="@jsFileLocation"></script>
+    @if(stage == "DEV") {
+        <!-- Connect directly to Vite dev server in development -->
+        <!-- See https://vitejs.dev/guide/backend-integration.html -->
+      <script type="module">
+        import RefreshRuntime from 'http://localhost:5173/@@react-refresh'
+
+        RefreshRuntime.injectIntoGlobalHook(window)
+        window.$RefreshReg$ = () => {
+        }
+        window.$RefreshSig$ = () => (type) => type
+        window.__vite_plugin_react_preamble_installed__ = true
+      </script>
+      <script type="module" src="http://localhost:5173/@@vite/client"></script>
+      <script type="module" src="http://localhost:5173/video-ui/src/app.jsx"></script>
+    } else {
+      <link rel="stylesheet" type="text/css" href="/build/index.css">
+      <script type="module" src="@jsFileLocation"></script>
+    }
 
     @pinboardJsLocation.map { pinboardJs =>
       <script async src="@pinboardJs" ></script>
