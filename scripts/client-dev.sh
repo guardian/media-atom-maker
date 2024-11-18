@@ -18,8 +18,6 @@ set_node_version() {
 }
 
 set_node_version
-# printf "\n\rRemoving compiled css file... \n\r\n\r"
-# rm video-ui/build/main.css 2> /dev/null
 printf "\n\rStarting Vite Dev Server... \n\r\n\r"
 yarn run client-dev &
 printf "\n\rStarting Play App... \n\r\n\r"
