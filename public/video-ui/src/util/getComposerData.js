@@ -1,7 +1,7 @@
 import { parseComposerDataFromImage } from './parseGridMetadata';
-import { getStore } from '../util/storeAccessor';
+import { getStore } from './storeAccessor';
 import { impossiblyDistantDate }  from '../constants/dates';
-import VideoUtils from '../util/video';
+import VideoUtils from './video';
 
 export function getComposerData(video) {
 

@@ -23,4 +23,4 @@ set_node_version
 printf "\n\rStarting Vite Dev Server... \n\r\n\r"
 yarn run client-dev &
 printf "\n\rStarting Play App... \n\r\n\r"
-sbt $@ app/run
+RELOADING=HOT sbt $@ app/run
