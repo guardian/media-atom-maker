@@ -15,6 +15,5 @@ metals.sbt
 .bloop
 .bsp/
 .java-version
-video-ui/build
 **/manifest.json
 .vite

@@ -6,7 +6,6 @@
   clientConfigJson: String,
   isHotReloading: Boolean,
   csrf: String,
-  stage: String
 )
 
 @layout(title, isHotReloading, csrf) {
@@ -23,7 +22,7 @@
     }
     <script type="module">window.global = window</script>
 
-    @if(stage == "DEV") {
+    @if(isHotReloading) {
         <!-- Connect directly to Vite dev server in development -->
         <!-- See https://vitejs.dev/guide/backend-integration.html -->
       <script type="module">
@@ -36,7 +35,7 @@
         window.__vite_plugin_react_preamble_installed__ = true
       </script>
       <script type="module" src="http://localhost:5173/@@vite/client"></script>
-      <script type="module" src="http://localhost:5173/video-ui/src/app.jsx"></script>
+      <script type="module" src="http://localhost:5173/public/video-ui/src/app.jsx"></script>
     } else {
       <link rel="stylesheet" type="text/css" href="/build/index.css">
       <script type="module" src="@jsFileLocation"></script>

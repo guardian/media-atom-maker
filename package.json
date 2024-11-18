@@ -3,14 +3,13 @@
   "description": "media atom editor",
   "scripts": {
     "build": "tsc && vite build",
-    "build-dev": "webpack -o ./video-ui/build/ --config ./build_config/webpack.dev.conf.js --watch",
     "client-dev": "vite",
-    "lint": "eslint video-ui/src/**/*.js",
+    "lint": "eslint public/video-ui/src/**/*.(js|ts)*",
     "test": "jest"
   },
   "jest": {
     "roots": [
-      "video-ui/src/test"
+      "public/video-ui/src/test"
     ],
     "preset": "ts-jest/presets/js-with-ts"
   },
