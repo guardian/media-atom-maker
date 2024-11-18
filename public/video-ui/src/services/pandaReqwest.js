@@ -9,15 +9,19 @@ const checkStatus = (res) => {
   }
 }
 
-export const pandaFetch = (url, body) => {
-  return new Promise(function(resolve, reject) {
+export const poll = (url, body, timeout) => {
+  const endTime = Number(new Date()) + timeout;
+  const interval = 100;
+
+  const makeRequest = (resolve, reject) => {
     fetch(url, body)
-        .then(checkStatus)
-        .then(response => response.json())
-        .then(res => {
-          resolve(res)}
-        )
-        .catch(err => {
+      .then(checkStatus)
+      .then(response => response.json())
+      .then(res => {
+        resolve(res)}
+      )
+      .catch(err => {
+        if (Number(new Date()) < endTime) {
           if (err.status == 419) {
             const store = getStore();
             const reauthUrl = store.getState().config.reauthUrl;
@@ -32,15 +36,20 @@ export const pandaFetch = (url, body) => {
                 error => {
                   throw error;
                 });
-
           } else {
-            reject(err);
+            setTimeout(makeRequest, interval, resolve, reject);
           }
-        });
-  });
-}
+        } else {
+          reject(err);
+        }
+      });
+  };
 
-export const pandaReqwest = (reqwestBody) => {
+  return new Promise(makeRequest);
+};
+
+// when `timeout` > 0, the request will be retried every 100ms until success or timeout
+export const pandaReqwest = (reqwestBody, timeout = 0) => {
   const payload = Object.assign({ method: 'get' }, reqwestBody);
 
   if (payload.data) {
@@ -53,5 +62,5 @@ export const pandaReqwest = (reqwestBody) => {
     }
   }
 
-  return pandaFetch(reqwestBody.url, payload);
+  return poll(reqwestBody.url, payload, timeout);
 }
