@@ -64,7 +64,7 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
       pinboardJsLocation = if(permissions.pinboard) awsConfig.pinboardLoaderUrl else None,
       Json.toJson(clientConfig).toString(),
       isHotReloading,
-      CSRF.getToken.value,
+      CSRF.getToken.value
     ))
   }
 
