@@ -4,7 +4,7 @@
   "scripts": {
     "build": "tsc && vite build",
     "client-dev": "vite",
-    "lint": "eslint public/video-ui/src/**/*.(js|ts)*",
+    "lint": "eslint public/video-ui/src/**/** --ext .js,.ts --no-error-on-unmatched-pattern",
     "test": "jest"
   },
   "jest": {
