@@ -22,16 +22,13 @@ export const poll = (url, body, timeout) => {
       )
       .catch(err => {
         if (Number(new Date()) < endTime) {
-          if (err.status == 419) {
+          if (err.status === 419 || err.status == 401) {
             const store = getStore();
             const reauthUrl = store.getState().config.reauthUrl;
-
+            console.log({reauthUrl})
             reEstablishSession(reauthUrl, 5000).then(
                 () => {
-                  fetch(url, body)
-                  .then(checkStatus)
-                  .then(res => resolve(res))
-                  .catch(err => reject(err));
+                  setTimeout(makeRequest, interval, resolve, reject);
                 },
                 error => {
                   throw error;
@@ -40,6 +37,8 @@ export const poll = (url, body, timeout) => {
             setTimeout(makeRequest, interval, resolve, reject);
           }
         } else {
+          console.log("ERROR:")
+          console.error(err);
           reject(err);
         }
       });
@@ -50,7 +49,7 @@ export const poll = (url, body, timeout) => {
 
 // when `timeout` > 0, the request will be retried every 100ms until success or timeout
 export const pandaReqwest = (reqwestBody, timeout = 0) => {
-  const payload = Object.assign({ method: 'get' }, reqwestBody);
+  const payload = Object.assign({ method: 'get', credentials: 'include' }, reqwestBody);
 
   if (payload.data) {
     payload.contentType = payload.contentType || 'application/json';

@@ -38,18 +38,16 @@ export function getStatus(video) {
     dispatch(requestStatus());
     return WorkflowApi.getAtomInWorkflow(video)
       .then(res => dispatch(receiveStatus(res)))
-      .catch(err => {
-        if (err.status !== 404) {
-          return dispatch(errorReceivingStatus(err));
+      .catch(error => {
+        if (error.status !== 404) {
+          return dispatch(errorReceivingStatus(error));
         }
-
         try {
-          const errJson = JSON.parse(err.response);
-
-          if (errJson.errors && errJson.errors.message === 'ContentNotFound') {
-            return dispatch(receiveStatus404());
-          }
-          return dispatch(errorReceivingStatus(err));
+          error.json().then(errorBody => {
+            if (errorBody.errors && errorBody.errors.message === 'ContentNotFound') {
+              return dispatch(receiveStatus404());
+            }
+          });
         } catch (e) {
           // failed to parse response as json
           return dispatch(errorReceivingStatus(err));
