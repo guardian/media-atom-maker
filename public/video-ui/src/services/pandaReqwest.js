@@ -56,8 +56,14 @@ export const pandaReqwest = (reqwestBody, timeout = 0) => {
 
     // prettier-ignore
     if (payload.contentType === 'application/json' && typeof payload.data === 'object') {
-
-      payload.data = JSON.stringify(payload.data);
+      if (payload.headers){
+        payload.headers["Content-Type"] = "application/json";
+      } else {
+        payload.headers ={
+          "Content-Type": "application/json"
+        };
+      }
+      payload.body = JSON.stringify(payload.data);
     }
   }
 
