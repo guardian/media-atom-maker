@@ -25,7 +25,6 @@ export const poll = (url, body, timeout) => {
           if (err.status === 419 || err.status == 401) {
             const store = getStore();
             const reauthUrl = store.getState().config.reauthUrl;
-            console.log({reauthUrl})
             reEstablishSession(reauthUrl, 5000).then(
                 () => {
                   setTimeout(makeRequest, interval, resolve, reject);
@@ -37,8 +36,6 @@ export const poll = (url, body, timeout) => {
             setTimeout(makeRequest, interval, resolve, reject);
           }
         } else {
-          console.log("ERROR:")
-          console.error(err);
           reject(err);
         }
       });
@@ -59,7 +56,7 @@ export const pandaReqwest = (reqwestBody, timeout = 0) => {
       if (payload.headers){
         payload.headers["Content-Type"] = "application/json";
       } else {
-        payload.headers ={
+        payload.headers = {
           "Content-Type": "application/json"
         };
       }
