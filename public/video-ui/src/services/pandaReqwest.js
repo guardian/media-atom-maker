@@ -16,10 +16,15 @@ export const poll = (url, body, timeout) => {
   const makeRequest = (resolve, reject) => {
     fetch(url, body)
       .then(checkStatus)
-      .then(response => response.json())
+      .then(response => {
+        if (response.headers.get("content-type") === "application/json"){
+          return response.json();
+        }
+        return response.text();
+      })
       .then(res => {
-        resolve(res)}
-      )
+        resolve(res);
+      })
       .catch(err => {
         if (Number(new Date()) < endTime) {
           if (err.status === 419 || err.status == 401) {
