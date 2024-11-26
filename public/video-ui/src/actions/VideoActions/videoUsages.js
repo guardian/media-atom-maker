@@ -39,7 +39,6 @@ export function getUsages(id) {
         dispatch(receiveVideoUsages(usages));
       })
       .catch(error => {
-        console.log({usagesError: error})
         dispatch(errorReceivingVideoUsages(error));
       });
   };
