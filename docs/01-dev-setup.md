@@ -3,9 +3,9 @@
 ## Requirements
 Ensure you have the following installed:
 - awscli
-- Java 8
+- Java (version specified in .tool-versions)
 - nginx
-- node v14.18.1
+- node (version specified in .nvmrc)
 - npm
 - yarn
 - nvm
