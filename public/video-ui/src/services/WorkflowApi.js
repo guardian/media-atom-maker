@@ -148,6 +148,7 @@ export default class WorkflowApi {
       prodOffice,
       priority
     });
+
     return pandaReqwest({
       method: 'POST',
       url: `${WorkflowApi.workflowUrl}/api/stubs`,
