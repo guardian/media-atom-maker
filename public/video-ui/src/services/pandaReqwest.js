@@ -17,7 +17,9 @@ export const poll = (url, body, timeout) => {
     fetch(url, body)
       .then(checkStatus)
       .then(response => {
-        if (response.headers.get("content-type") === "application/json"){
+        const contentTypeHeader = response.headers.get("content-type");
+
+        if (contentTypeHeader && contentTypeHeader.includes("application/json")){
           return response.json();
         }
         return response.text();
