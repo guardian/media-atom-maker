@@ -25,20 +25,15 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
   def index(id: String = ""): Action[AnyContent] = AuthAction { implicit req =>
     val isTrainingMode = isInTrainingMode(req)
 
-    val jsFileName = "video-ui/build/main.js"
+    val jsFileName = "video-ui/build/app.js"
 
-    val jsAssetHost = sys.env.get("JS_ASSET_HOST")
-
-    val isHotReloading = jsAssetHost match {
-      case Some(_) if awsConfig.isDev => true
+    val isHotReloading = sys.env.get("RELOADING") match {
+      case Some("HOT") if awsConfig.isDev => true
       case _ => false
     }
 
-    val jsLocation = if (isHotReloading) {
-      jsAssetHost.get + jsFileName
-    } else {
-      routes.Assets.versioned(jsFileName).toString
-    }
+    val jsLocation = routes.Assets.versioned(jsFileName).toString
+
 
     val composerUrl = awsConfig.composerUrl
 

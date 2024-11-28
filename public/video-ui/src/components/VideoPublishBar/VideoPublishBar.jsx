@@ -2,7 +2,7 @@ import React from 'react';
 import { saveStateVals } from '../../constants/saveStateVals';
 import { isVideoPublished } from '../../util/isVideoPublished';
 import { hasUnpublishedChanges } from '../../util/hasUnpublishedChanges';
-import ScheduledLaunch from '../../components/ScheduledLaunch/ScheduledLaunch';
+import ScheduledLaunch from '../ScheduledLaunch/ScheduledLaunch';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 import VideoUtils from '../../util/video';
 

@@ -12,7 +12,7 @@ for arg in "$@"; do
 done
 
 "${DIR}/check-node-version.sh"
-yarn run build-dev &
+yarn run build &
 
 if [ "$IS_DEBUG" == 1 ]; then
   sbt -jvm-debug 9100 $@ app/run
@@ -20,7 +20,7 @@ else
   sbt $@ app/run
 fi
 
-# catches script exit events and kills the `yarn run build-dev` process and its children
+# catches script exit events and kills the `yarn run build` process and its children
 # https://stackoverflow.com/a/22644006
 trap "exit" INT TERM
 trap "kill 0" EXIT

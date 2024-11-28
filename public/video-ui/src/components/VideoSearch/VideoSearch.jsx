@@ -1,6 +1,6 @@
 import React from 'react';
 import { saveStateVals } from '../../constants/saveStateVals';
-import Icon from '../../components/Icon';
+import Icon from '../Icon';
 
 export default class VideoSearch extends React.Component {
   onSearch = e => {
