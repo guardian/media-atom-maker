@@ -33,7 +33,7 @@ class PlutoMessageProcessor {
       'created'
     ]);
 
-    const messageKeys = new Set([Object.keys(message)]);
+    const messageKeys = new Set(Object.keys(message));
 
     const diff = new Set(
       [...requiredKeys].filter(key => !messageKeys.has(key))
