@@ -19,13 +19,13 @@ class PureTagPicker extends React.Component {
   }
 
   state = {
-    inputString: '',
+    inputString: ''
   };
 
   componentDidUpdate(prevProps) {
     if (prevProps.inputClearCount !== this.props.inputClearCount) {
       this.setState({
-        inputString: '',
+        inputString: ''
       });
     }
   }

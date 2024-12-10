@@ -16,7 +16,7 @@ class VideoUpload extends React.Component {
   hasChannels = () =>
     this.props.youtube && this.props.youtube.channels.length !== 0;
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
     if (!this.hasCategories()) {
       this.props.youtubeActions.getCategories();

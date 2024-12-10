@@ -5,7 +5,7 @@ import VideoUtils from '../../util/video';
 export default class VideoTrail extends React.Component {
   polling = null;
 
-  componentWillReceiveProps() {
+  UNSAFE_componentWillReceiveProps() {
     const isRecentlyModified = VideoUtils.isRecentlyModified(this.props.video);
 
     if (!this.polling && isRecentlyModified) {

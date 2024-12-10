@@ -12,7 +12,7 @@ class PlutoProjectPicker extends React.Component {
 
   hasPlutoCommissions = () => this.props.pluto && this.props.pluto.commissions.length !== 0;
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     if (!this.hasPlutoCommissions()) {
       this.props.plutoActions.getCommissions().then(() => {
         const {plutoData} = this.props.video;
@@ -73,7 +73,7 @@ import * as getProjects from '../../actions/PlutoActions/getProjects';
 
 function mapStateToProps(state) {
   return {
-    pluto: state.pluto,
+    pluto: state.pluto
   };
 }
 
