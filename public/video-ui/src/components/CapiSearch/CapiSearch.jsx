@@ -3,6 +3,7 @@ import React from 'react';
 class CapiSearch extends React.Component {
   constructor(props) {
     super(props);
+    this.listNode = React.createRef();
   }
 
   componentDidUpdate(prevProps) {
@@ -12,9 +13,10 @@ class CapiSearch extends React.Component {
       nextProps.selectedTagIndex !== null &&
       prevProps.selectedTagIndex !== nextProps.selectedTagIndex
     ) {
-      const listNode = this.refs.list;
-      const elementHeight = listNode.children[0].offsetHeight;
-      if (listNode) {
+      const listNode = this.listNode.current;
+      if (listNode && listNode.children && listNode.children[0]) {
+        const elementHeight = listNode.children[0].offsetHeight;
+
         listNode.scrollTop =
           elementHeight *
           (nextProps.selectedTagIndex === 0
@@ -62,7 +64,7 @@ class CapiSearch extends React.Component {
     if (this.props.capiTags.length !== 0 && this.props.showTags) {
       return (
         <ul
-          ref="list"
+          ref={this.listNode}
           className="form__field__tags"
           onMouseDown={this.props.tagsToVisible}
         >
