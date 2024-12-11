@@ -17,5 +17,10 @@ module.exports = {
     'prefer-const': 'error',
     semi: ['warn', 'always'],
     'comma-dangle': ['error', 'never']
+  },
+  settings: {
+    react: {
+      version: 'detect'
+    }
   }
 };

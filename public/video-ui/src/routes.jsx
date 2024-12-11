@@ -3,7 +3,7 @@ import { Router, Route, browserHistory, IndexRedirect, Redirect } from 'react-ro
 
 import Search from './pages/Search';
 import Video from './pages/Video';
-import Upload from './pages/Upload/';
+import Upload from './pages/Upload';
 import Help from './pages/Help';
 import Training from './pages/Training';
 import ReactApp from './components/ReactApp';

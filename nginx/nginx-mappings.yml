@@ -2,6 +2,3 @@ name: video
 mappings:
   - prefix: video
     port: 9001
-  - prefix: video-assets
-    port: 9002
-    websocket: /sockjs-node
