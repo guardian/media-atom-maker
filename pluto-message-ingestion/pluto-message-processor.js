@@ -33,7 +33,7 @@ class PlutoMessageProcessor {
       'created'
     ]);
 
-    const messageKeys = new Set([Object.keys(message)]);
+    const messageKeys = new Set(Object.keys(message));
 
     const diff = new Set(
       [...requiredKeys].filter(key => !messageKeys.has(key))
@@ -61,7 +61,7 @@ class PlutoMessageProcessor {
         );
 
         // `resolve` to remove message from Kinesis
-        resolve('invalid message, props missing');
+        return resolve('invalid message, props missing');
       }
 
       const project = Object.assign({}, message);
