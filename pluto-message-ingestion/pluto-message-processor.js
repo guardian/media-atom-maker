@@ -61,7 +61,7 @@ class PlutoMessageProcessor {
         );
 
         // `resolve` to remove message from Kinesis
-        resolve('invalid message, props missing');
+        return resolve('invalid message, props missing');
       }
 
       const project = Object.assign({}, message);
