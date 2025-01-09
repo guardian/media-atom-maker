@@ -2,12 +2,20 @@ import { parseComposerDataFromImage } from './parseGridMetadata';
 import { getStore } from './storeAccessor';
 import { impossiblyDistantDate }  from '../constants/dates';
 import VideoUtils from './video';
+import moment from 'moment';
+
+export const getDateAsNumber = (date) => {
+  if (typeof date === "string"){
+    return moment(date).valueOf();
+  }
+  else return date;
+};
 
 export function getComposerData(video) {
 
   const isTrainingMode = getStore().getState().config.isTrainingMode;
-
   const expiryDate = video.contentChangeDetails && video.contentChangeDetails.expiry && video.contentChangeDetails.expiry.date
+  const cleanedExpiryDate = getDateAsNumber(expiryDate);
   const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
   const embargo = VideoUtils.getEmbargo(video);
   const isEmbargoedIndefinitely = isTrainingMode || (embargo && embargo >= impossiblyDistantDate);
@@ -30,7 +38,7 @@ export function getComposerData(video) {
     thumbnail: video.trailImage && video.trailImage.assets.length > 0
       ? parseComposerDataFromImage(video.trailImage, video.trailText)
       : null,
-    expiryDate: expiryDate,
+    expiryDate: cleanedExpiryDate,
     scheduledLaunch: scheduledLaunch,
     requestedScheduledLaunch: scheduledLaunch,
     embargoedUntil: embargoedUntil,
