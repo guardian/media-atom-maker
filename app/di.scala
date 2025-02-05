@@ -74,7 +74,7 @@ class MediaAtomMaker(context: Context)
 
     override def controllerComponents: ControllerComponents = MediaAtomMaker.this.controllerComponents
 
-    override def panDomainSettings: PanDomainAuthSettingsRefresher = MediaAtomMaker.this.panDomainSettings
+    override val panDomainSettings: PanDomainAuthSettingsRefresher = MediaAtomMaker.this.panDomainSettings
 
     override val permissionsProvider = permissions
   }
