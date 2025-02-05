@@ -5,7 +5,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.gu.atom.play.ReindexController
 import com.gu.media.aws.{AwsCredentials, S3Access}
 import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider, Settings}
-import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
+import com.gu.pandomainauth.{PanDomainAuthSettingsRefresher, S3BucketLoader}
 import controllers._
 import data._
 import play.api.ApplicationLoader.Context
@@ -50,12 +50,13 @@ class MediaAtomMaker(context: Context)
 
   private lazy val domain = configuration.get[String]("panda.domain")
 
-  val panDomainSettings = new PanDomainAuthSettingsRefresher(
+  val panDomainSettings = PanDomainAuthSettingsRefresher(
     domain = domain,
     system = "video",
-    bucketName = configuration.getOptional[String]("panda.bucketName").getOrElse("pan-domain-auth-settings"),
-    settingsFileKey = configuration.getOptional[String]("panda.settingsFileKey").getOrElse(s"$domain.settings"),
-    s3Client = S3Access.buildClient(pandaAwsCredentialsProvider, "eu-west-1")
+    S3BucketLoader.forAwsSdkV1(
+      S3Access.buildClient(pandaAwsCredentialsProvider, "eu-west-1"),
+      configuration.getOptional[String]("panda.bucketName").getOrElse("pan-domain-auth-settings")
+    ),
   )
 
   private val aws = new AWSConfig(config, credentials)
