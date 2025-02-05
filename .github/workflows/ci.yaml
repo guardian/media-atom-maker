@@ -17,7 +17,7 @@ jobs:
         with:
           role-to-assume: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
           aws-region: eu-west-1
-      # See https://github.com/guardian/setup-java
+      # See https://github.com/guardian/setup-scala
       - name: Setup Java and sbt
         uses: guardian/setup-scala@v1
       - uses: actions/setup-node@v3
