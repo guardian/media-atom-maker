@@ -7,26 +7,49 @@ jobs:
   CI:
     runs-on: ubuntu-latest
     permissions:
+      # id-token and pull-requests required by actions-riff-raff
       id-token: write
+      pull-requests: write
       contents: read
     steps:
       - uses: actions/checkout@v2
-      - uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-to-assume: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
-          aws-region: eu-west-1
       # See https://github.com/guardian/setup-java
       - name: Setup Java and sbt
         uses: guardian/setup-scala@v1
       - uses: actions/setup-node@v3
         with:
-          node-version-file: ".nvmrc"
+          node-version-file: '.nvmrc'
       - name: Build Pluto lambda
         run: |
           ./scripts/pluto-ci.sh
       - name: Build Media Atom Maker
         run: |
           ./scripts/app-ci.sh
-      - name: Compile Scala and upload artifacts to RiffRaff
+      - name: Compile Scala and produce artefacts
         run: |
           ./scripts/scala-ci.sh
+
+      - name: Upload artefacts to Riff Raff’s S3 buckets
+        uses: guardian/actions-riff-raff@v4
+        with:
+          app: datawrapper-import
+          projectName: 'media-service:media-atom-maker'
+          roleArn: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          configPath: conf/riff-raff.yaml
+          contentDirectories: |
+            pluto-message-ingestion:
+              - pluto-message-ingestion/target/pluto-message-ingestion.zip
+            media-atom-pipeline-cloudformation:
+              - media-atom-pipeline-yaml
+            media-atom-upload-actions:
+              - target/uploader
+            expirer:
+              - target/expirer
+            scheduler:
+              - target/scheduler
+            cdk.out:
+              - cdk/cdk.out/DatawrapperImport-useast-1-CODE.template.json
+              - cdk/cdk.out/DatawrapperImport-useast-1-PROD.template.json
+            datawrapper-import:
+              - target/validating-copy-lambda.jar
