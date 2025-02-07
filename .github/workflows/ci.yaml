@@ -1,8 +1,10 @@
 name: CI
 on:
   workflow_dispatch:
-  push:
-
+  pull_request:
+  push: # Do not rely on `push` for PR CI - see https://github.com/guardian/mobile-apps-api/pull/2741#issuecomment-1777653733
+    branches:
+      - main # Optimal for GHA workflow caching - see https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#restrictions-for-accessing-a-cache
 jobs:
   CI:
     runs-on: ubuntu-latest
@@ -15,7 +17,7 @@ jobs:
         with:
           role-to-assume: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
           aws-region: eu-west-1
-      # See https://github.com/guardian/setup-java
+      # See https://github.com/guardian/setup-scala
       - name: Setup Java and sbt
         uses: guardian/setup-scala@v1
       - uses: actions/setup-node@v3
