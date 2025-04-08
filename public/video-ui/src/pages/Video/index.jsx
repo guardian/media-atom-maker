@@ -359,6 +359,7 @@ class VideoDisplay extends React.Component {
     return (
       <div>
         {this.renderSelectBar(video)}
+        <pinboard-preselect data-composer-id={getComposerId() ?? "unknown"} data-tool="media-atom-maker"></pinboard-preselect>
 
         <div className="video">
           <div className="video__main">
@@ -398,6 +399,7 @@ import * as trackInWorkflow
 import * as updateWorkflowData
   from '../../actions/WorkflowActions/updateWorkflowData';
 import {getYouTubeEmbedUrl} from "../../components/utils/YouTubeEmbed";
+import {getComposerId} from "../../util/getComposerData";
 
 function mapStateToProps(state) {
   return {

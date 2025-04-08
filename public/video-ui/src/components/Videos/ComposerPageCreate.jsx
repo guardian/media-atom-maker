@@ -23,7 +23,7 @@ export default class ComposerPageCreate extends React.Component {
     else {
       console.log("Could not find composer id");
     }
-  }
+  };
 
   isHosted = () => {
     return this.props.video.category === 'Hosted';
