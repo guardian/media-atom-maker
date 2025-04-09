@@ -45,3 +45,14 @@ export function getComposerData(video) {
     embargoedIndefinitely: isEmbargoedIndefinitely
   };
 }
+
+export function getComposerId() {
+  const usages = getStore().getState().usage.data;
+  const videoPages = [...usages.preview.video, ...usages.published.video];
+  if (videoPages.length !== 0) {
+    return videoPages[0].fields.internalComposerCode;
+  }
+  else {
+    console.log("Could not find composer id");
+  }
+}

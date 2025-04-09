@@ -46,6 +46,9 @@ export default class VideoImages extends React.Component {
       this.props.videoEditOpen ||
       this.props.video.posterImage.assets.length === 0;
 
+    // mediaId is in fact the media _URI_; the ID will be the last field when string is split on /
+    const mediaId = this.props.video?.trailImage?.mediaId?.split('/')?.pop();
+
     return (
       <div className="video__imagebox">
         <div className="video__images">
@@ -79,6 +82,7 @@ export default class VideoImages extends React.Component {
             />
           </div>
           <GridImage image={this.props.video.trailImage} />
+          <pinboard-suggest-alternate-crops data-media-id={mediaId}></pinboard-suggest-alternate-crops>
         </div>
         <div className="video__images">
           <div className="video__detailbox__header__container">
