@@ -11,7 +11,7 @@ exports.handler = (event, context, callback) => {
     .then(() => {
       event.Records.forEach(record => {
         // Kinesis data is base64 encoded so decode here
-        const payload = new Buffer(record.kinesis.data, 'base64').toString(
+        const payload = Buffer.from(record.kinesis.data, 'base64').toString(
           'utf8'
         );
         try {
