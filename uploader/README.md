@@ -16,7 +16,7 @@ You will need the AWS CLI and `jq` installed.
 Run in root:
 
 ```
-sbt uploader/packageBin
+sbt uploader/universal:packageBin
 ```
 
 This will compile both the cloud-formation template and the lambda code.
