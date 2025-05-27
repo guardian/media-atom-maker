@@ -16,7 +16,8 @@ case class UploadMetadata(
   selfHost: Boolean = false,
   asset: Option[VideoAsset] = None,
   originalFilename: Option[String] = None,
-  startTimestamp: Option[Long] = None // unix timestamp
+  startTimestamp: Option[Long] = None, // unix timestamp
+  subtitlesS3Key: Option[String] = None
 )
 
 sealed abstract class RuntimeUploadMetadata
