@@ -2,7 +2,6 @@ package com.gu.media.util
 
 import com.gu.contentatom.thrift.{Atom, AtomData}
 import com.gu.contentatom.thrift.atom.media.{Asset, AssetType, Platform, MediaAtom => ThriftMediaAtom}
-import com.gu.media.model.AssetType.Subtitles
 import com.gu.media.model._
 
 object MediaAtomHelpers {
@@ -28,7 +27,7 @@ object MediaAtomHelpers {
     if (mediaAtom.assets.isEmpty) {
       None
     } else {
-      Some(mediaAtom.assets.filterNot(_.assetType == Subtitles).map(_.version).max)
+      Some(mediaAtom.assets.map(_.version).max)
     }
   }
 

@@ -22,7 +22,7 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
     upload.metadata.asset match {
       case Some(SelfHostedAsset(sources)) =>
         val outputs = getOutputs(sources)
-        val jobs = outputs.map { case output => sendToTranscoder(input, upload.metadata.subtitlesS3Key, output) }
+        val jobs = outputs.map { case output => sendToTranscoder(input, output) }
 
         val metadata = upload.metadata.copy(runtime = SelfHostedUploadMetadata(jobs))
         upload.copy(metadata = metadata, progress = upload.progress.copy(fullyTranscoded = false))
@@ -32,21 +32,9 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
     }
   }
 
-  private def sendToTranscoder(input: String, subtitles: Option[String], output: String): String = {
-    val baseJobInput = new Input()
+  private def sendToTranscoder(input: String, output: String): String = {
+    val jobInput = new Input()
       .withFileInput(input)
-
-    val jobInput = subtitles.map(subs => baseJobInput
-      .withCaptionSelectors(Map(
-        "Captions Selector 1" -> new CaptionSelector()
-          .withSourceSettings(new CaptionSourceSettings()
-            .withSourceType("SRT")
-            .withFileSourceSettings(new FileSourceSettings()
-              .withSourceFile(subs)
-            )
-          )
-      ).asJava)
-    ).getOrElse(baseJobInput)
 
     val outputGroupSettings = new OutputGroupSettings()
       .withHlsGroupSettings(new HlsGroupSettings()
@@ -54,7 +42,7 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
       )
     val outputGroup = new OutputGroup().withOutputGroupSettings(outputGroupSettings)
 
-    val jobTemplate = s"media-atom-maker-transcoder-${stage}${if (subtitles.isDefined) "-with-subtitles"}"
+    val jobTemplate = s"media-atom-maker-transcoder-${stage}"
 
     val createJobRequest = new CreateJobRequest()
       .withRole("arn:aws:iam::563563610310:role/service-role/MediaConvert_DF_Test_Role") // todo

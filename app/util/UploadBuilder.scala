@@ -2,7 +2,6 @@ package util
 
 import java.time.Instant
 import com.gu.media.aws.{AwsAccess, UploadAccess}
-import com.gu.media.model.AssetType.Subtitles
 import com.gu.media.model.{MediaAtom, PlutoSyncMetadataMessage, SelfHostedAsset, VideoSource}
 import com.gu.media.upload.{TranscoderOutputKey, UploadPartKey}
 import com.gu.media.upload.model._
@@ -25,8 +24,7 @@ object UploadBuilder {
       asset = getAsset(request.selfHost, atom.title, id),
       originalFilename = Some(request.filename),
       version = Some(version),
-      startTimestamp = Some(Instant.now().toEpochMilli),
-      subtitlesS3Key = atom.assets.find(asset => asset.assetType == Subtitles && asset.version  == version).map(_.id)
+      startTimestamp = Some(Instant.now().toEpochMilli)
     )
 
     val progress = UploadProgress(
