@@ -125,11 +125,6 @@
     "SendToTranscoder": {
       "Type": "Task",
       "Resource": "${SendToTranscoder.Arn}",
-      "Next": "SendToTranscoderV2"
-    },
-    "SendToTranscoderV2": {
-      "Type": "Task",
-      "Resource": "${SendToTranscoderV2.Arn}",
       "Next": "GetTranscodingProgress"
     },
     "GetTranscodingProgress": {
@@ -143,7 +138,7 @@
         {
           "Variable": "$.progress.fullyTranscoded",
           "BooleanEquals": true,
-          "Next": "GetTranscodingProgressV2"
+          "Next": "SendToTranscoderV2"
         }
       ],
       "Default": "WaitForTranscoder"
@@ -152,6 +147,11 @@
       "Type": "Wait",
       "Seconds": 10,
       "Next": "GetTranscodingProgress"
+    },
+    "SendToTranscoderV2": {
+      "Type": "Task",
+      "Resource": "${SendToTranscoderV2.Arn}",
+      "Next": "GetTranscodingProgressV2"
     },
     "GetTranscodingProgressV2": {
       "Type": "Task",
@@ -169,7 +169,7 @@
       ],
       "Default": "WaitForTranscoderV2"
     },
-    "WaitForTranscoder": {
+    "WaitForTranscoderV2": {
       "Type": "Wait",
       "Seconds": 10,
       "Next": "GetTranscodingProgressV2"
