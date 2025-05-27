@@ -47,11 +47,7 @@ object UploadBuilder {
     } else {
       val mp4Key = TranscoderOutputKey(title, id, "mp4").toString
       val mp4Source = VideoSource(mp4Key, "video/mp4")
-      val hlsKey = TranscoderOutputKey(title, id, "m3u8").toString
-      val hlsSource = VideoSource(mp4Key, "video/m3u8")
-
-
-      Some(SelfHostedAsset(List(mp4Source, hlsSource)))
+      Some(SelfHostedAsset(List(mp4Source)))
     }
   }
 
