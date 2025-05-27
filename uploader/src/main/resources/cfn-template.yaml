@@ -90,6 +90,12 @@ Resources:
               - Effect: "Allow"
                 Action: ["elastictranscoder:CreateJob", "elastictranscoder:ReadJob"]
                 Resource: "arn:aws:elastictranscoder:*"
+              - Effect: "Allow"
+                Action: [ "mediaconvert:*" ]
+                Resource: "*"
+              - Effect: "Allow"
+                Action: [ "iam:PassRole" ]
+                Resource: "arn:aws:iam::563563610310:role/service-role/MediaConvert_DF_Test_Role"
               - Effect: Allow
                 Action:
                 - ses:SendEmail
