@@ -54,9 +54,10 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
   private def getOutputs(sources: List[VideoSource]): List[OutputGroup] = {
     sources.map {
       case VideoSource(output, "video/mp4") =>
+        val filenameWithoutMp4 = if (output.endsWith(".mp4")) output.dropRight(4) else output
         val outputGroupSettings = new OutputGroupSettings()
           .withFileGroupSettings(new FileGroupSettings()
-            .withDestination(s"s3://${destinationBucket}/media-convert-testing/$output")
+            .withDestination(s"s3://${destinationBucket}/media-convert-testing/$filenameWithoutMp4")
           )
         new OutputGroup().withOutputGroupSettings(outputGroupSettings)
 
