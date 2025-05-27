@@ -182,7 +182,11 @@ Resources:
 
   {{SendToTranscoder}}
 
+  {{SendToTranscoderV2}}
+
   {{GetTranscodingProgress}}
+
+  {{GetTranscodingProgressV2}}
 
   {{AddAssetToAtom}}
 
