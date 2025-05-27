@@ -8,6 +8,8 @@ trait MediaConvertAccess { this: Settings with AwsAccess =>
 
   lazy val mediaConvertRole = getMandatoryString("aws.mediaconvert.role")
 
+  lazy val destinationBucket = getMandatoryString("aws.mediaconvert.destination")
+
   lazy val mediaConvertClient = AWSMediaConvertClientBuilder
     .standard()
     .withCredentials(credsProvider)
