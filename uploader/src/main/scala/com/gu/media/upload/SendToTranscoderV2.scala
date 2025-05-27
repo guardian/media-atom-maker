@@ -56,14 +56,14 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
       case VideoSource(output, "video/mp4") =>
         val outputGroupSettings = new OutputGroupSettings()
           .withFileGroupSettings(new FileGroupSettings()
-            .withDestination(output)
+            .withDestination(s"s3://${destinationBucket}/media-convert-testing/$output")
           )
         new OutputGroup().withOutputGroupSettings(outputGroupSettings)
 
       case VideoSource(output, "application/vnd.apple.mpegurl") =>
         val outputGroupSettings = new OutputGroupSettings()
           .withHlsGroupSettings(new HlsGroupSettings()
-            .withDestination(output)
+            .withDestination(s"s3://${destinationBucket}/media-convert-testing/$output")
           )
         new OutputGroup().withOutputGroupSettings(outputGroupSettings)
 
