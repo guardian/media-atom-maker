@@ -6,7 +6,6 @@ import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
 import com.gu.media.upload.model.{SelfHostedUploadMetadata, Upload}
 
-// this seems to work (tested locally in sbt console)
 class GetTranscodingProgressV2 extends LambdaWithParams[Upload, Upload] with MediaConvertAccess with Logging {
   override def handle(upload: Upload): Upload = {
     upload.metadata.runtime match {
