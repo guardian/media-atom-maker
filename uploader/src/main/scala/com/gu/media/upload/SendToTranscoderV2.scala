@@ -1,6 +1,6 @@
 package com.gu.media.upload
 
-import com.amazonaws.services.mediaconvert.model.{CaptionSelector, CaptionSourceSettings, CreateJobRequest, FileGroupSettings, FileSourceSettings, HlsGroupSettings, Input, JobSettings, OutputGroup, OutputGroupSettings}
+import com.amazonaws.services.mediaconvert.model.{CreateJobRequest, FileGroupSettings, HlsGroupSettings, Input, JobSettings, OutputGroup, OutputGroupSettings}
 import com.gu.media.aws.MediaConvertAccess
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
