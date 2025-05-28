@@ -26,6 +26,9 @@ Parameters:
   UploadBucketName:
     Description: "The S3 bucket where videos are uploaded to"
     Type: "String"
+  DestinationBucketName:
+    Description: "The S3 bucket where transcoded videos are stored"
+    Type: "String"
   MediaAtomTable:
     Description: "The Dynamo table where preview media atoms are stored"
     Type: "String"
@@ -95,7 +98,7 @@ Resources:
                 Resource: "*"
               - Effect: "Allow"
                 Action: [ "iam:PassRole" ]
-                Resource: "arn:aws:iam::563563610310:role/service-role/MediaConvert_DF_Test_Role"
+                Resource: !GetAtt [ MediaConvertRole, Arn ]
               - Effect: Allow
                 Action:
                 - ses:SendEmail
@@ -167,6 +170,26 @@ Resources:
                 Action:
                   - "lambda:InvokeFunction"
                 Resource: "*"
+
+  MediaConvertRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      Path: "/"
+      Policies:
+        - PolicyName: "S3AccessPolicy"
+          PolicyDocument:
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "s3:Get*"
+                  - "s3:List*"
+                Resource:
+                  - !Sub [ "arn:aws:s3:::${Bucket}/*", { "Bucket": !Ref UploadBucketName } ]
+              - Effect: "Allow"
+                Action:
+                  - "s3:Put*"
+                Resource:
+                  - !Sub [ "arn:aws:s3:::${Bucket}/media-convert-testing/*", { "Bucket": !Ref DestinationBucketName } ]
 
   # The following entries are filled in based on the LambdaConfig entries in build.sbt.
 
