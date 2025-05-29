@@ -199,6 +199,46 @@ Resources:
                   - "s3:Put*"
                 Resource:
                   - !Sub [ "arn:aws:s3:::${Bucket}/media-convert-testing/*", { "Bucket": !Ref DestinationBucketName } ]
+  MediaConvertJobTemplate:
+    Type: AWS::MediaConvert::JobTemplate
+    Properties:
+      Description: Media Atom Maker pipeline
+      Name: !Sub "media-atom-maker-transcoder-${Stage}"
+      SettingsJson:
+        TimecodeConfig:
+          Source: ZEROBASED
+        OutputGroups:
+          - Name: File Group
+            Outputs:
+              - ContainerSettings:
+                  Container: MP4
+                  Mp4Settings: { }
+                VideoDescription:
+                  CodecSettings:
+                    Codec: H_264
+                    H264Settings:
+                      Bitrate: 2400000
+                AudioDescriptions:
+                  - CodecSettings:
+                      Codec: AAC
+                      AacSettings:
+                        Bitrate: 96000
+                        CodingMode: CODING_MODE_2_0
+                        SampleRate: 48000
+            OutputGroupSettings:
+              Type: FILE_GROUP_SETTINGS
+              FileGroupSettings: { }
+        FollowSource: 1
+        Inputs:
+          - AudioSelectors:
+              Audio Selector 1:
+                DefaultSelection: DEFAULT
+            VideoSelector: { }
+            TimecodeSource: ZEROBASED
+      Tags:
+        App: !Ref App
+        Stack: !Ref Stack
+        Stage: !Ref Stage
 
   # The following entries are filled in based on the LambdaConfig entries in build.sbt.
 
