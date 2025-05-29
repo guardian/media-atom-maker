@@ -15,5 +15,5 @@ STACK_JSON=$(aws cloudformation describe-stack-resources --stack-name ${PIPELINE
 LAMBDAS=($(echo ${STACK_JSON} | jq -r "$JQ_FILTER"))
 
 for LAMBDA in "${LAMBDAS[@]}"; do
-  aws lambda update-function-code --function-name ${LAMBDA} --s3-bucket ${BUILD_BUCKET} --s3-key ${LAMBDA_PACKAGE_KEY} --profile ${PROFILE} --region ${REGION}
+  aws lambda update-function-code --function-name ${LAMBDA} --s3-bucket ${BUILD_BUCKET} --s3-key ${LAMBDA_PACKAGE_KEY} --profile ${PROFILE} --region ${REGION} | jq .RevisionId
 done
