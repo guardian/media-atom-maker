@@ -415,6 +415,9 @@ Resources:
     Properties:
       Name: !Sub "${UploadsStreamName}-${Stage}"
       ShardCount: 1
+      StreamEncryption:
+        EncryptionType: KMS
+        KeyId: !Ref KmsKeyKinesisStreamAlias
   PlutoTopic:
     Type: "AWS::SNS::Topic"
     Properties:
@@ -462,6 +465,29 @@ Resources:
       AliasName: !Sub "alias/media-atom-maker/sns-to-sqs-${Stage}"
       TargetKeyId:
         Ref: KmsKeySqsQueueFromSns
+
+  KmsKeyKinesisStream:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: "Shared key for encryption the kinesis stream"
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: Kinesis-Stream-Key
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - kms:*
+            Resource: "*"
+
+  KmsKeyKinesisStreamAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub "alias/media-atom-maker/kinesis-${Stage}"
+      TargetKeyId:
+        Ref: KmsKeyKinesisStream
+
   PlutoQueuePolicy:
     Type: "AWS::SQS::QueuePolicy"
     Properties:
