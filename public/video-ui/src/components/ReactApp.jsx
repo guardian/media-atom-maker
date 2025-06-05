@@ -32,6 +32,20 @@ class ReactApp extends React.Component {
     }
   }
 
+  componentDidMount() {
+    window.addEventListener('keyup', this.handleKeyUp);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keyup', this.handleKeyUp);
+  }
+
+  handleKeyUp = (event) => {
+    if (window.self !== window.top) {
+      window.parent.postMessage({ eventKey: event.key }, '*');
+    }
+  };
+
   render() {
     const showPublishedState = this.props.params.id;
 
