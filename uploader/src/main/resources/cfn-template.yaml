@@ -218,13 +218,19 @@ Resources:
                     Codec: H_264
                     H264Settings:
                       Bitrate: 2400000
+                      CodecProfile: BASELINE
+                      EntropyEncoding: CAVLC # This is only specified because it is required if you chose CodecProfile: BASELINE
+                      NumberBFramesBetweenReferenceFrames: 0 # This is only specified because it is required if you chose CodecProfile: BASELINE
+                      FramerateControl: SPECIFIED
+                      FramerateNumerator: 30000
+                      FramerateDenominator: 1001
                 AudioDescriptions:
                   - CodecSettings:
                       Codec: AAC
                       AacSettings:
-                        Bitrate: 96000
+                        Bitrate: 160000
                         CodingMode: CODING_MODE_2_0
-                        SampleRate: 48000
+                        SampleRate: 44100
             OutputGroupSettings:
               Type: FILE_GROUP_SETTINGS
               FileGroupSettings: { }
