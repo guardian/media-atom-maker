@@ -7,19 +7,10 @@ import { browserHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 import { configureStore } from './util/configureStore';
 import { setStore } from './util/storeAccessor';
+import { extractConfigFromPage } from './util/config';
 import { routes } from './routes';
 
 import '../styles/main.scss';
-
-function extractConfigFromPage() {
-  const configEl = document.getElementById('config');
-
-  if (!configEl) {
-    return {};
-  }
-
-  return JSON.parse(configEl.innerHTML);
-}
 
 const store = configureStore();
 syncHistoryWithStore(browserHistory, store);
