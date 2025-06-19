@@ -94,7 +94,7 @@ Resources:
                 Action: ["elastictranscoder:CreateJob", "elastictranscoder:ReadJob"]
                 Resource: "arn:aws:elastictranscoder:*"
               - Effect: "Allow"
-                Action: [ "mediaconvert:*" ]
+                Action: [ "mediaconvert:CreateJob", "mediaconvert:GetJob" ]
                 Resource: "*"
               - Effect: "Allow"
                 Action: [ "iam:PassRole" ]
