@@ -138,7 +138,7 @@
         {
           "Variable": "$.progress.fullyTranscoded",
           "BooleanEquals": true,
-          "Next": "AddSelfHostedAssetToAtom"
+          "Next": "SendToTranscoderV2"
         }
       ],
       "Default": "WaitForTranscoder"
@@ -147,6 +147,32 @@
       "Type": "Wait",
       "Seconds": 10,
       "Next": "GetTranscodingProgress"
+    },
+    "SendToTranscoderV2": {
+      "Type": "Task",
+      "Resource": "${SendToTranscoderV2.Arn}",
+      "Next": "GetTranscodingProgressV2"
+    },
+    "GetTranscodingProgressV2": {
+      "Type": "Task",
+      "Resource": "${GetTranscodingProgressV2.Arn}",
+      "Next": "CheckTranscodingCompleteV2"
+    },
+    "CheckTranscodingCompleteV2": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.progress.fullyTranscoded",
+          "BooleanEquals": true,
+          "Next": "AddSelfHostedAssetToAtom"
+        }
+      ],
+      "Default": "WaitForTranscoderV2"
+    },
+    "WaitForTranscoderV2": {
+      "Type": "Wait",
+      "Seconds": 10,
+      "Next": "GetTranscodingProgressV2"
     },
     "AddSelfHostedAssetToAtom": {
       "Type": "Task",

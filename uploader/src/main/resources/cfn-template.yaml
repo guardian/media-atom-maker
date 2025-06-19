@@ -26,6 +26,9 @@ Parameters:
   UploadBucketName:
     Description: "The S3 bucket where videos are uploaded to"
     Type: "String"
+  DestinationBucketName:
+    Description: "The S3 bucket where transcoded videos are stored"
+    Type: "String"
   MediaAtomTable:
     Description: "The Dynamo table where preview media atoms are stored"
     Type: "String"
@@ -90,6 +93,12 @@ Resources:
               - Effect: "Allow"
                 Action: ["elastictranscoder:CreateJob", "elastictranscoder:ReadJob"]
                 Resource: "arn:aws:elastictranscoder:*"
+              - Effect: "Allow"
+                Action: [ "mediaconvert:CreateJob", "mediaconvert:GetJob" ]
+                Resource: "*"
+              - Effect: "Allow"
+                Action: [ "iam:PassRole" ]
+                Resource: !GetAtt [ MediaConvertRole, Arn ]
               - Effect: Allow
                 Action:
                 - ses:SendEmail
@@ -162,6 +171,81 @@ Resources:
                   - "lambda:InvokeFunction"
                 Resource: "*"
 
+  MediaConvertRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - "mediaconvert.amazonaws.com"
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: "S3AccessPolicy"
+          PolicyDocument:
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "s3:Get*"
+                  - "s3:List*"
+                Resource:
+                  - !Sub [ "arn:aws:s3:::${Bucket}/*", { "Bucket": !Ref UploadBucketName } ]
+              - Effect: "Allow"
+                Action:
+                  - "s3:Put*"
+                Resource:
+                  - !Sub [ "arn:aws:s3:::${Bucket}/media-convert-testing/*", { "Bucket": !Ref DestinationBucketName } ]
+  MediaConvertJobTemplate:
+    Type: AWS::MediaConvert::JobTemplate
+    Properties:
+      Description: Media Atom Maker pipeline
+      Name: !Sub "media-atom-maker-transcoder-${Stage}"
+      SettingsJson:
+        TimecodeConfig:
+          Source: ZEROBASED
+        OutputGroups:
+          - Name: File Group
+            Outputs:
+              - ContainerSettings:
+                  Container: MP4
+                  Mp4Settings: { }
+                VideoDescription:
+                  CodecSettings:
+                    Codec: H_264
+                    H264Settings:
+                      Bitrate: 2400000
+                      CodecProfile: BASELINE
+                      EntropyEncoding: CAVLC # This is only specified because it is required if you chose CodecProfile: BASELINE
+                      NumberBFramesBetweenReferenceFrames: 0 # This is only specified because it is required if you chose CodecProfile: BASELINE
+                      FramerateControl: SPECIFIED
+                      FramerateNumerator: 30000
+                      FramerateDenominator: 1001
+                AudioDescriptions:
+                  - CodecSettings:
+                      Codec: AAC
+                      AacSettings:
+                        Bitrate: 160000
+                        CodingMode: CODING_MODE_2_0
+                        SampleRate: 44100
+            OutputGroupSettings:
+              Type: FILE_GROUP_SETTINGS
+              FileGroupSettings: { }
+        FollowSource: 1
+        Inputs:
+          - AudioSelectors:
+              Audio Selector 1:
+                DefaultSelection: DEFAULT
+            VideoSelector: { }
+            TimecodeSource: ZEROBASED
+      Tags:
+        App: !Ref App
+        Stack: !Ref Stack
+        Stage: !Ref Stage
+
   # The following entries are filled in based on the LambdaConfig entries in build.sbt.
 
   {{GetChunkFromS3}}
@@ -176,7 +260,11 @@ Resources:
 
   {{SendToTranscoder}}
 
+  {{SendToTranscoderV2}}
+
   {{GetTranscodingProgress}}
+
+  {{GetTranscodingProgressV2}}
 
   {{AddAssetToAtom}}
 

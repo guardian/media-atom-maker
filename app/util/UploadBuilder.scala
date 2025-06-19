@@ -1,7 +1,6 @@
 package util
 
 import java.time.Instant
-
 import com.gu.media.aws.{AwsAccess, UploadAccess}
 import com.gu.media.model.{MediaAtom, PlutoSyncMetadataMessage, SelfHostedAsset, VideoSource}
 import com.gu.media.upload.{TranscoderOutputKey, UploadPartKey}
@@ -48,7 +47,6 @@ object UploadBuilder {
     } else {
       val mp4Key = TranscoderOutputKey(title, id, "mp4").toString
       val mp4Source = VideoSource(mp4Key, "video/mp4")
-
       Some(SelfHostedAsset(List(mp4Source)))
     }
   }

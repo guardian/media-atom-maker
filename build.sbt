@@ -110,6 +110,7 @@ lazy val common = (project in file("common"))
       "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
       "software.amazon.awssdk" % "sts" % awsV2Version,
       "com.amazonaws" % "aws-java-sdk-elastictranscoder" % awsVersion,
+      "com.amazonaws" % "aws-java-sdk-mediaconvert" % awsVersion,
       "org.scanamo" %% "scanamo" % scanamoVersion,
       "com.squareup.okhttp" % "okhttp" % okHttpVersion,
       "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test", // to match ScalaTest version
@@ -194,8 +195,14 @@ lazy val uploader = (project in file("uploader"))
       "SendToTranscoder" -> LambdaConfig(
         description = "Sends a complete video to the AWS transcoder"
       ),
+      "SendToTranscoderV2" -> LambdaConfig(
+        description = "Sends a complete video to the AWS MediaConvert transcoder"
+      ),
       "GetTranscodingProgress" -> LambdaConfig(
         description = "Polls the AWS transcoder"
+      ),
+      "GetTranscodingProgressV2" -> LambdaConfig(
+        description = "Polls the AWS MediaConvert transcoder"
       ),
       "AddAssetToAtom" -> LambdaConfig(
         description = "Adds the resulting asset to the atom"
