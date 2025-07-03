@@ -12,7 +12,7 @@ val atomMakerVersion = "2.0.0"
 val typesafeConfigVersion = "1.4.0" // to match what we get from Play transitively
 val scanamoVersion = "1.0.0-M28"
 
-val playJsonExtensionsVersion = "0.42.0"
+val playJsonExtensionsVersion = "1.0.3"
 val okHttpVersion = "2.4.0"
 
 val scalaTestVersion = "3.0.8"
@@ -41,11 +41,10 @@ val jsoupVersion = "1.16.1"
 
 val enumeratumVersion = "1.5.15"
 
-lazy val jacksonVersion = "2.13.4"
-lazy val jacksonDatabindVersion = "2.13.4.2"
+lazy val jacksonVersion = "2.19.1"
 
 lazy val commonSettings = Seq(
-  ThisBuild / scalaVersion := "2.13.11", // 2.13.12 blocked by https://github.com/scala/bug/issues/12862
+  ThisBuild / scalaVersion := "2.13.16",
   scalacOptions ++= Seq("-feature", "-deprecation", "-release:11"),
   ThisBuild / organization := "com.gu",
 
@@ -53,21 +52,22 @@ lazy val commonSettings = Seq(
 
   // silly SBT command to work-around lack of support for root projects that are not in the "root" folder
   // https://github.com/sbt/sbt/issues/2405
-  Global / onLoad := (Global/ onLoad).value andThen (Command.process("project root", _))
+  Global / onLoad := (Global/ onLoad).value andThen (Command.process("project root", _)),
+
+  dependencyOverrides ++= jacksonOverrides
 )
 
-// these Jackson dependencies are required to resolve issues in Play 2.8.x https://github.com/orgs/playframework/discussions/11222
 val jacksonOverrides = Seq(
   "com.fasterxml.jackson.core" % "jackson-core",
   "com.fasterxml.jackson.core" % "jackson-annotations",
+  "com.fasterxml.jackson.core" % "jackson-databind",
+  "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor",
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8",
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310",
+  "com.fasterxml.jackson.module" % "jackson-module-parameter-names",
   "com.fasterxml.jackson.module" %% "jackson-module-scala",
 ).map(_ % jacksonVersion)
 
-val jacksonDatabindOverrides = Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % jacksonDatabindVersion
-)
 
 lazy val common = (project in file("common"))
   .settings(commonSettings,
@@ -105,7 +105,7 @@ lazy val common = (project in file("common"))
       "com.amazonaws" % "aws-java-sdk-dynamodb" % awsVersion,
       "software.amazon.awssdk" % "dynamodb" % awsV2Version,
       "com.amazonaws" % "aws-java-sdk-kinesis" % awsVersion,
-      "ai.x" %% "play-json-extensions" % playJsonExtensionsVersion,
+      "com.gu" %% "play-json-extensions" % playJsonExtensionsVersion,
       "ch.qos.logback" % "logback-classic" % logbackClassicVersion,
       "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
       "software.amazon.awssdk" % "sts" % awsV2Version,
@@ -124,7 +124,7 @@ lazy val common = (project in file("common"))
       "org.jsoup" % "jsoup" % jsoupVersion,
       "com.beachape" %% "enumeratum" % enumeratumVersion,
       "net.logstash.logback" % "logstash-logback-encoder" % "6.6"
-    ) ++ jacksonOverrides ++ jacksonDatabindOverrides
+    )
   )
 
 lazy val app = (project in file("."))
@@ -134,7 +134,6 @@ lazy val app = (project in file("."))
     name := "media-atom-maker",
     libraryDependencies ++= Seq(
       ehcache,
-      "com.fasterxml.jackson.core" % "jackson-databind" % jacksonDatabindVersion,
       "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
       "software.amazon.awssdk" % "sts" % awsV2Version,
       "com.amazonaws" % "aws-java-sdk-ec2" % awsVersion,

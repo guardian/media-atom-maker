@@ -2,8 +2,8 @@ package com.gu.media
 
 import com.amazonaws.auth.AWSCredentialsProvider
 import com.gu.permissions._
-import ai.x.play.json.Jsonx
-import ai.x.play.json.Encoders._
+import com.gu.ai.x.play.json.Jsonx
+import com.gu.ai.x.play.json.Encoders._
 import play.api.libs.json.Format
 import com.gu.pandomainauth.model.{User => PandaUser}
 import com.gu.permissions.PermissionDefinition

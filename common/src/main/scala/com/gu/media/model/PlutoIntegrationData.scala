@@ -3,8 +3,8 @@ package com.gu.media.model
 import com.amazonaws.services.s3.model.PutObjectRequest
 import com.gu.media.aws.{AwsAccess, UploadAccess}
 import com.gu.media.upload.CompleteUploadKey
-import ai.x.play.json.Jsonx
-import ai.x.play.json.Encoders._
+import com.gu.ai.x.play.json.Jsonx
+import com.gu.ai.x.play.json.Encoders._
 import play.api.libs.json.Format
 
 sealed trait PlutoIntegrationMessage {

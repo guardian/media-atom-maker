@@ -1,8 +1,8 @@
 package com.gu.media.model
 
-import ai.x.play.json.Encoders._
+import com.gu.ai.x.play.json.Encoders._
 import com.gu.contentatom.thrift.atom.media.{PlutoData => ThriftPlutoData}
-import ai.x.play.json.Jsonx
+import com.gu.ai.x.play.json.Jsonx
 import play.api.libs.json.Format
 
 case class PlutoData (

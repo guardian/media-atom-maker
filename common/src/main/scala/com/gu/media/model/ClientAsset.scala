@@ -1,9 +1,9 @@
 package com.gu.media.model
 
-import ai.x.play.json.Encoders._
+import com.gu.ai.x.play.json.Encoders._
 import com.gu.media.upload.model.Upload
 import com.gu.media.youtube.YouTubeProcessingStatus
-import ai.x.play.json.Jsonx
+import com.gu.ai.x.play.json.Jsonx
 import play.api.libs.json.Format
 
 case class ClientAsset(id: String, asset: Option[VideoAsset] = None, processing: Option[ClientAssetProcessing] = None, metadata: Option[ClientAssetMetadata] = None)
