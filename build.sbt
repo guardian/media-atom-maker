@@ -12,7 +12,7 @@ val atomMakerVersion = "2.0.0"
 val typesafeConfigVersion = "1.4.0" // to match what we get from Play transitively
 val scanamoVersion = "1.0.0-M28"
 
-val playJsonExtensionsVersion = "0.42.0"
+val playJsonExtensionsVersion = "1.0.3"
 val okHttpVersion = "2.4.0"
 
 val scalaTestVersion = "3.0.8"
@@ -45,7 +45,7 @@ lazy val jacksonVersion = "2.13.4"
 lazy val jacksonDatabindVersion = "2.13.4.2"
 
 lazy val commonSettings = Seq(
-  ThisBuild / scalaVersion := "2.13.11", // 2.13.12 blocked by https://github.com/scala/bug/issues/12862
+  ThisBuild / scalaVersion := "2.13.16",
   scalacOptions ++= Seq("-feature", "-deprecation", "-release:11"),
   ThisBuild / organization := "com.gu",
 
@@ -105,7 +105,7 @@ lazy val common = (project in file("common"))
       "com.amazonaws" % "aws-java-sdk-dynamodb" % awsVersion,
       "software.amazon.awssdk" % "dynamodb" % awsV2Version,
       "com.amazonaws" % "aws-java-sdk-kinesis" % awsVersion,
-      "ai.x" %% "play-json-extensions" % playJsonExtensionsVersion,
+      "com.gu" %% "play-json-extensions" % playJsonExtensionsVersion,
       "ch.qos.logback" % "logback-classic" % logbackClassicVersion,
       "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
       "software.amazon.awssdk" % "sts" % awsV2Version,

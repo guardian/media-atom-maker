@@ -3,8 +3,8 @@ package com.gu.media.youtube
 import com.gu.contentatom.thrift.atom.media.{MediaAtom => ThriftMediaAtom}
 import com.gu.media.model.MediaAtom
 import com.gu.media.util.MediaAtomImplicits
-import ai.x.play.json.Jsonx
-import ai.x.play.json.Encoders._
+import com.gu.ai.x.play.json.Jsonx
+import com.gu.ai.x.play.json.Encoders._
 import play.api.libs.json.Format
 
 

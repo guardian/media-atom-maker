@@ -1,6 +1,6 @@
 package controllers
 
-import ai.x.play.json.Encoders._
+import com.gu.ai.x.play.json.Encoders._
 import com.amazonaws.services.stepfunctions.model.{ExecutionAlreadyExistsException, ExecutionListItem}
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
@@ -10,7 +10,7 @@ import com.gu.media.util.{MediaAtomHelpers, MediaAtomImplicits}
 import com.gu.media.youtube.YouTubeVideos
 import com.gu.pandahmac.HMACAuthActions
 import data.{DataStores, UnpackedDataStores}
-import ai.x.play.json.Jsonx
+import com.gu.ai.x.play.json.Jsonx
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.ControllerComponents
 import util._
