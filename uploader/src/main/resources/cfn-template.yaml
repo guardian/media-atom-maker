@@ -214,6 +214,7 @@ Resources:
                   Container: MP4
                   Mp4Settings: { }
                 VideoDescription:
+                  Height: 720
                   CodecSettings:
                     Codec: H_264
                     H264Settings:
