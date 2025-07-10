@@ -18,6 +18,7 @@ deployments:
     type: autoscaling
     parameters:
       bucket: atom-maker-dist
+      asgMigrationInProgress: true
     dependencies:
       - media-atom-maker-ami-update
 
