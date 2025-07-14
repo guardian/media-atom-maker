@@ -192,13 +192,9 @@ Resources:
                 Action:
                   - "s3:Get*"
                   - "s3:List*"
-                Resource:
-                  - !Sub [ "arn:aws:s3:::${Bucket}/*", { "Bucket": !Ref UploadBucketName } ]
-              - Effect: "Allow"
-                Action:
                   - "s3:Put*"
                 Resource:
-                  - !Sub [ "arn:aws:s3:::${Bucket}/media-convert-testing/*", { "Bucket": !Ref DestinationBucketName } ]
+                  - !Sub [ "arn:aws:s3:::${Bucket}/*", { "Bucket": !Ref UploadBucketName } ]
   MediaConvertJobTemplate:
     Type: AWS::MediaConvert::JobTemplate
     Properties:
