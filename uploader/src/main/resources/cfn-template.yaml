@@ -268,11 +268,7 @@ Resources:
 
   {{SendToPluto}}
 
-  {{SendToTranscoder}}
-
   {{SendToTranscoderV2}}
-
-  {{GetTranscodingProgress}}
 
   {{GetTranscodingProgressV2}}
 
