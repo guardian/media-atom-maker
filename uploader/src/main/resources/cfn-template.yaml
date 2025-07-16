@@ -214,13 +214,18 @@ Resources:
                   Container: MP4
                   Mp4Settings: { }
                 VideoDescription:
+                  Width: 1280
                   Height: 720
+                  ScalingBehavior: FIT_NO_UPSCALE
                   CodecSettings:
                     Codec: H_264
                     H264Settings:
                       Bitrate: 2400000
+                      RateControlMode: CBR
                       CodecProfile: BASELINE
+                      CodecLevel: LEVEL_3_1
                       EntropyEncoding: CAVLC # This is only specified because it is required if you chose CodecProfile: BASELINE
+                      NumberReferenceFrames: 3
                       NumberBFramesBetweenReferenceFrames: 0 # This is only specified because it is required if you chose CodecProfile: BASELINE
                       FramerateControl: SPECIFIED
                       FramerateNumerator: 30000
@@ -232,6 +237,8 @@ Resources:
                         Bitrate: 160000
                         CodingMode: CODING_MODE_2_0
                         SampleRate: 44100
+                        CodecProfile: LC
+                    AudioSourceName: Audio Selector 1
             OutputGroupSettings:
               Type: FILE_GROUP_SETTINGS
               FileGroupSettings: { }
