@@ -60,3 +60,13 @@ export function startPacFileUpload({id, file}) {
     });
   };
 }
+
+/**
+ * startSubtitleFileUpload
+ *
+ * export function startSubtitleFileUpload({atomId, file})
+ *
+ * - add new function to be called from UI
+ * - fn will be similar to startPacFileUpload
+ * - will call new fn UploadsApi.uploadSubtitleFile()
+ */

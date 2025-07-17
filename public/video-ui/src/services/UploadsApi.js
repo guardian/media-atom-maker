@@ -130,3 +130,12 @@ export function uploadPacFile({ id, file }) {
     processData: false
   });
 }
+
+/**
+ * uploadSubtitleFile
+ *
+ * export function uploadSubtitleFile({ id, file })
+ * - add new function to be called from s3Uploads.js
+ * - based on uploadPacFile()
+ * - calling a new endpoint /api/atom/${id}/subtitle-file
+ */
