@@ -70,6 +70,27 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     }
   }
 
+  /**
+   * def uploadSubtitleFile(atomId: String, version: Int)
+   * @param atomId
+   * @param version
+   * @return
+   *
+   * - new method based on Api.uploadPacFile() and UploadController.create()
+   * - see how PacFileUploadCommand uploads the file to S3
+   * - PacFileUploadCommand also notifies Pluto - what, if anything, do we have to tell Pluto?
+   * - this method would also be the trigger for the reprocessing in the state machine
+   * - the state machine would be responsible for updating the models (media atom & pipeline cache) to include the
+   *     subtitle source asset and m3u8 output asset
+   * - should we modify the existing state machine or create a new one?  Considerations would be
+   *    - first state machine step is to save the upload (pipeline cache) model to dynamo - in our case the model, keyed
+   *       on atom id and version, will already exist and we want to modify it to add the subtitle file as a source asset.
+   *    - many of the initial steps are concerned with waiting for the multipart video upload, so we would want to skip
+   *       to the transcoding step
+   *
+   */
+
+
   @tailrec
   private def start(atom: MediaAtom, email: String, req: UploadRequest, version: Long): Upload = try {
     val upload = UploadBuilder.build(atom, email, version, req, awsConfig)
