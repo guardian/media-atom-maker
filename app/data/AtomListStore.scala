@@ -1,28 +1,30 @@
 package data
 
 import java.time.Instant
-
 import com.gu.atom.data.PreviewDynamoDataStore
 import com.gu.media.CapiAccess
-import com.gu.media.model.{Image, MediaAtom, ContentChangeDetails}
+import com.gu.media.model.Platform.Url
+import com.gu.media.model.{ContentChangeDetails, Image, MediaAtom, SelfHostedAsset, VideoAsset, YouTubeAsset}
 import com.gu.media.util.TestFilters
 import model.commands.CommandExceptions.AtomDataStoreError
 import model.{MediaAtomList, MediaAtomSummary}
 import play.api.libs.json.{JsArray, JsValue}
 
 trait AtomListStore {
-  def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean): MediaAtomList
+  def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean, filterForSelfHosted: Boolean): MediaAtomList
 }
 
 class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
-  override def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean): MediaAtomList = {
+  override def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean, filterForSelfHosted: Boolean = false): MediaAtomList = {
     // CAPI max page size is 200
     val cappedLimit: Option[Int] = limit.map(Math.min(200, _))
 
     val base: Map[String, String] = Map(
       "types" -> "media",
       "order-by" -> "newest"
-    ) ++ (if(shouldUseCreatedDateForSort) Map("order-date" -> "first-publication") else Map.empty)
+    ) ++
+      (if(shouldUseCreatedDateForSort) Map("order-date" -> "first-publication") else Map.empty) ++
+      (if(filterForSelfHosted) Map("media_platform" -> "url") else Map.empty)
 
     val baseWithSearch = search match {
       case Some(q) => base ++ Map(
@@ -76,7 +78,7 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
 }
 
 class DynamoBackedAtomListStore(store: PreviewDynamoDataStore) extends AtomListStore {
-  override def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean): MediaAtomList = {
+  override def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean, filterForSelfHosted: Boolean): MediaAtomList = {
     // We must filter the entire list of atoms rather than use Dynamo limit to ensure stable iteration order.
     // Without it, the front page will shuffle around when clicking the Load More button.
     store.listAtoms match {
@@ -96,10 +98,15 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore) extends AtomListS
           .sortBy(sortField(_).map(_.date.getMillis))
           .reverse // newest atoms first
 
-        val filteredAtoms = search match {
-          case Some(str) => mediaAtoms.filter(_.title.contains(str))
-          case None => mediaAtoms
-        }
+        val searchTermFilter = (atom: MediaAtom) => atom.title.contains(search.get)
+        val selfHostedFilter = (atom: MediaAtom) => atom.assets.exists(_.platform == Url)
+
+        val filters = List(
+          if (filterForSelfHosted) Some(selfHostedFilter) else None,
+          if (search.isDefined) Some(searchTermFilter) else None
+        ).flatten
+
+        val filteredAtoms = filters.foldLeft(mediaAtoms)((atoms, f) => atoms.filter(f))
 
         val limitedAtoms = limit match {
           case Some(l) => filteredAtoms.take(l)
