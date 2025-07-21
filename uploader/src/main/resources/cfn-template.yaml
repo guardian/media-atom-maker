@@ -259,7 +259,6 @@ Resources:
               - ContainerSettings:
                   Container: M3U8
                   M3u8Settings: { }
-                  NameModifier: "captions"
                   CaptionDescriptions:
                     - LanguageCode: ENG
                       CaptionSelectorName: "Caption Selector 1"
