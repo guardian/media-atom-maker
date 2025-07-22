@@ -1,0 +1,1291 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "A pipeline for uploading video to YouTube or an S3 bucket"
+
+# This template is separate from the main one and is managed as a sub-deployment in riff-raff.yaml.
+# The main app looks up the resources by STAGE relying on the naming convention.
+
+Parameters:
+  BuildBucket:
+    Description: "The S3 bucket where builds live"
+    Type: "String"
+  ConfigBucket:
+    Description: "The S3 bucket where configuration lives"
+    Type: "String"
+  App:
+    Description: "App name"
+    Type: "String"
+    Default: "media-atom-pipeline"
+  Stack:
+    Description: "Stack name"
+    Type: "String"
+    Default: "media-service"
+  Stage:
+    Description: "Stage name"
+    Type: "String"
+    Default: "DEV"
+  UploadBucketName:
+    Description: "The S3 bucket where videos are uploaded to"
+    Type: "String"
+  DestinationBucketName:
+    Description: "The S3 bucket where transcoded videos are stored"
+    Type: "String"
+  MediaAtomTable:
+    Description: "The Dynamo table where preview media atoms are stored"
+    Type: "String"
+  ContentAtomArn:
+    Description: "ARN of the cross account role to access the content atom kinesis stream"
+    Type: "String"
+  ManualPlutoTable:
+    Description: "The Dynamo table to store videos that must be manually synced with Pluto"
+    Type: "String"
+  NotificationEmailFrom:
+    Description: "email address where notifications of missing pluto ids are sent from"
+    Type: "String"
+    Default: "digitalcms.dev@guardian.co.uk"
+  AlertWebhook:
+    Description: "Where CloudWatch alerts are sent"
+    Type: "String"
+  PlutoSendbackStreamName:
+    Description: Name (not ARN) of the Kinesis stream which passes messages back to Pluto
+    Type: String
+  PlutoSendbackStreamKmsKey:
+    Description: ARN of the KMS key used to encrypt messages sent to pluto
+    Type: String
+
+Conditions:
+  CreateProdResources: !Equals [!Ref "Stage", "PROD"]
+  CreateCodeResources: !Equals [!Ref "Stage", "CODE"]
+  CreateDevResources:  !Equals [!Ref "Stage", "DEV"]
+
+Resources:
+  LambdaExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: "LambdaExecutionPolicy"
+          PolicyDocument:
+            Statement:
+              - Effect: "Allow"
+                Action: ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
+                Resource: "*"
+              - Effect: "Allow"
+                Action: ["s3:GetObject"]
+                Resource: !Sub ["arn:aws:s3:::${Bucket}/*", { "Bucket": !Ref ConfigBucket }]
+              - Effect: "Allow"
+                Action: ["s3:*"]
+                Resource:
+                  - !Sub ["arn:aws:s3:::${Bucket}", { "Bucket": !Ref UploadBucketName }]
+                  - !Sub ["arn:aws:s3:::${Bucket}/*", { "Bucket": !Ref UploadBucketName }]
+              - Effect: "Allow"
+                Action: ["dynamodb:*"]
+                Resource:
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${MediaAtomTable}"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ManualPlutoTable}"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${App}-cache-${Stage}"
+              - Effect: "Allow"
+                Action: ["elastictranscoder:CreateJob", "elastictranscoder:ReadJob"]
+                Resource: "arn:aws:elastictranscoder:*"
+              - Effect: "Allow"
+                Action: [ "mediaconvert:CreateJob", "mediaconvert:GetJob" ]
+                Resource: "*"
+              - Effect: "Allow"
+                Action: [ "iam:PassRole" ]
+                Resource: !GetAtt [ MediaConvertRole, Arn ]
+              - Effect: Allow
+                Action:
+                  - ses:SendEmail
+                Resource: '*'
+                Condition:
+                  StringEquals:
+                    ses:FromAddress: !Ref 'NotificationEmailFrom'
+        - PolicyName: LambdaKinesisAccessPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - kinesis:PutRecord
+                  - kinesis:PutRecords
+                Resource:
+                  - !Sub "arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/${PlutoSendbackStreamName}"
+              - Effect: Allow
+                Action: kms:GenerateDataKey
+                Resource: !Ref PlutoSendbackStreamKmsKey
+
+  ContentAtomCrossAccountPolicyCODE:
+    Type: AWS::IAM::Policy
+    Condition: CreateCodeResources
+    Properties:
+      PolicyName: CrossAccountAccessPolicy
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Resource:
+              - !Ref 'ContentAtomArn'
+      Roles:
+        - !Ref 'LambdaExecutionRole'
+
+  ContentAtomCrossAccountPolicyPROD:
+    Type: AWS::IAM::Policy
+    Condition: CreateProdResources
+    Properties:
+      PolicyName: CrossAccountAccessPolicy
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Resource:
+              - !Ref 'ContentAtomArn'
+      Roles:
+        - !Ref 'LambdaExecutionRole'
+
+  StatesExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - !Sub states.${AWS::Region}.amazonaws.com
+            Action: "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: StatesExecutionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "lambda:InvokeFunction"
+                Resource: "*"
+
+  MediaConvertRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - "mediaconvert.amazonaws.com"
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: "S3AccessPolicy"
+          PolicyDocument:
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "s3:Get*"
+                  - "s3:List*"
+                Resource:
+                  - !Sub [ "arn:aws:s3:::${Bucket}/*", { "Bucket": !Ref UploadBucketName } ]
+              - Effect: "Allow"
+                Action:
+                  - "s3:Put*"
+                Resource:
+                  - !Sub [ "arn:aws:s3:::${Bucket}/media-convert-testing/*", { "Bucket": !Ref DestinationBucketName } ]
+  MediaConvertJobTemplate:
+    Type: AWS::MediaConvert::JobTemplate
+    Properties:
+      Description: Media Atom Maker pipeline
+      Name: !Sub "media-atom-maker-transcoder-${Stage}"
+      SettingsJson:
+        TimecodeConfig:
+          Source: ZEROBASED
+        OutputGroups:
+          - Name: File Group
+            Outputs:
+              - ContainerSettings:
+                  Container: MP4
+                  Mp4Settings: { }
+                VideoDescription:
+                  Height: 720
+                  CodecSettings:
+                    Codec: H_264
+                    H264Settings:
+                      Bitrate: 2400000
+                      CodecProfile: BASELINE
+                      EntropyEncoding: CAVLC # This is only specified because it is required if you chose CodecProfile: BASELINE
+                      NumberBFramesBetweenReferenceFrames: 0 # This is only specified because it is required if you chose CodecProfile: BASELINE
+                      FramerateControl: SPECIFIED
+                      FramerateNumerator: 30000
+                      FramerateDenominator: 1001
+                AudioDescriptions:
+                  - CodecSettings:
+                      Codec: AAC
+                      AacSettings:
+                        Bitrate: 160000
+                        CodingMode: CODING_MODE_2_0
+                        SampleRate: 44100
+            OutputGroupSettings:
+              Type: FILE_GROUP_SETTINGS
+              FileGroupSettings: { }
+          - Name: Apple HLS
+            Outputs:
+              - ContainerSettings:
+                  Container: M3U8
+                  M3u8Settings: { }
+                VideoDescription:
+                  Height: 720
+                  Sharpness: 75
+                  CodecSettings:
+                    Codec: H_264
+                    H264Settings:
+                      FramerateDenominator: 1001
+                      MaxBitrate: 6400000
+                      EntropyEncoding: CABAC
+                      FramerateControl: SPECIFIED
+                      RateControlMode: QVBR
+                      QvbrSettings:
+                        MaxAverageBitrate: 2400000
+                      CodecProfile: HIGH
+                      FramerateNumerator: 30000
+                      SaliencyAwareEncoding: PREFERRED
+              - ContainerSettings:
+                  Container: M3U8
+                  M3u8Settings: { }
+                  CaptionDescriptions:
+                    - LanguageCode: ENG
+                      CaptionSelectorName: "Caption Selector 1"
+                      DestinationSettings:
+                        DestinationType: WEBVTT
+                        WebvttDestinationSettings: { }
+            OutputGroupSettings:
+              Type: HLS_GROUP_SETTINGS
+              SegmentLength: 10
+              MinSegmentLength: 0
+        FollowSource: 1
+        Inputs:
+          - AudioSelectors:
+              Audio Selector 1:
+                DefaultSelection: DEFAULT
+            VideoSelector: { }
+            TimecodeSource: ZEROBASED
+      Tags:
+        App: !Ref App
+        Stack: !Ref Stack
+        Stage: !Ref Stage
+
+  # The following entries are filled in based on the LambdaConfig entries in build.sbt.
+
+  GetChunkFromS3:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !Sub "${App}-GetChunkFromS3-${Stage}"
+      Description: "Checks to see if a chunk of video has been uploaded to S3"
+      Handler: "com.gu.media.upload.GetChunkFromS3::handleRequest"
+      Code:
+        S3Bucket: !Ref BuildBucket
+        S3Key: !Sub
+          - "media-service/${Stage}/media-atom-upload-actions/media-atom-uploader.zip"
+          - { Stage: !Ref Stage }
+      Environment:
+        Variables:
+          REGION: !Ref AWS::Region
+          STACK: !Ref Stack
+          APP: !Ref App
+          STAGE: !Ref Stage
+          CONFIG_BUCKET: !Ref ConfigBucket
+          CONFIG_KEY: !Sub
+            - "${Stage}/media-atom-maker.private.conf"
+            - { Stage: !Ref Stage }
+          CREDENTIALS_KEY: !Sub
+            - "${Stage}/youtube-service-account.json"
+            - { Stage: !Ref Stage }
+          ATOM_TABLE_NAME: !Ref 'MediaAtomTable'
+          PLUTO_TABLE_NAME: !Ref 'ManualPlutoTable'
+          MEDIA_CONVERT_ROLE: !GetAtt MediaConvertRole.Arn
+      MemorySize: 512
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: "java11"
+      Timeout: 300
+
+  UploadChunkToYouTube:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !Sub "${App}-UploadChunkToYouTube-${Stage}"
+      Description: "Uploads a chunk of video to YouTube"
+      Handler: "com.gu.media.upload.UploadChunkToYouTube::handleRequest"
+      Code:
+        S3Bucket: !Ref BuildBucket
+        S3Key: !Sub
+          - "media-service/${Stage}/media-atom-upload-actions/media-atom-uploader.zip"
+          - { Stage: !Ref Stage }
+      Environment:
+        Variables:
+          REGION: !Ref AWS::Region
+          STACK: !Ref Stack
+          APP: !Ref App
+          STAGE: !Ref Stage
+          CONFIG_BUCKET: !Ref ConfigBucket
+          CONFIG_KEY: !Sub
+            - "${Stage}/media-atom-maker.private.conf"
+            - { Stage: !Ref Stage }
+          CREDENTIALS_KEY: !Sub
+            - "${Stage}/youtube-service-account.json"
+            - { Stage: !Ref Stage }
+          ATOM_TABLE_NAME: !Ref 'MediaAtomTable'
+          PLUTO_TABLE_NAME: !Ref 'ManualPlutoTable'
+          MEDIA_CONVERT_ROLE: !GetAtt MediaConvertRole.Arn
+      MemorySize: 512
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: "java11"
+      Timeout: 300
+
+  MultipartCopyChunkInS3:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !Sub "${App}-MultipartCopyChunkInS3-${Stage}"
+      Description: "Uses multipart copy to combine all the chunks in S3 into a single key"
+      Handler: "com.gu.media.upload.MultipartCopyChunkInS3::handleRequest"
+      Code:
+        S3Bucket: !Ref BuildBucket
+        S3Key: !Sub
+          - "media-service/${Stage}/media-atom-upload-actions/media-atom-uploader.zip"
+          - { Stage: !Ref Stage }
+      Environment:
+        Variables:
+          REGION: !Ref AWS::Region
+          STACK: !Ref Stack
+          APP: !Ref App
+          STAGE: !Ref Stage
+          CONFIG_BUCKET: !Ref ConfigBucket
+          CONFIG_KEY: !Sub
+            - "${Stage}/media-atom-maker.private.conf"
+            - { Stage: !Ref Stage }
+          CREDENTIALS_KEY: !Sub
+            - "${Stage}/youtube-service-account.json"
+            - { Stage: !Ref Stage }
+          ATOM_TABLE_NAME: !Ref 'MediaAtomTable'
+          PLUTO_TABLE_NAME: !Ref 'ManualPlutoTable'
+          MEDIA_CONVERT_ROLE: !GetAtt MediaConvertRole.Arn
+      MemorySize: 512
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: "java11"
+      Timeout: 300
+
+  CompleteMultipartCopy:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !Sub "${App}-CompleteMultipartCopy-${Stage}"
+      Description: "Finishes the multipart copy and deletes the source chunks from S3"
+      Handler: "com.gu.media.upload.CompleteMultipartCopy::handleRequest"
+      Code:
+        S3Bucket: !Ref BuildBucket
+        S3Key: !Sub
+          - "media-service/${Stage}/media-atom-upload-actions/media-atom-uploader.zip"
+          - { Stage: !Ref Stage }
+      Environment:
+        Variables:
+          REGION: !Ref AWS::Region
+          STACK: !Ref Stack
+          APP: !Ref App
+          STAGE: !Ref Stage
+          CONFIG_BUCKET: !Ref ConfigBucket
+          CONFIG_KEY: !Sub
+            - "${Stage}/media-atom-maker.private.conf"
+            - { Stage: !Ref Stage }
+          CREDENTIALS_KEY: !Sub
+            - "${Stage}/youtube-service-account.json"
+            - { Stage: !Ref Stage }
+          ATOM_TABLE_NAME: !Ref 'MediaAtomTable'
+          PLUTO_TABLE_NAME: !Ref 'ManualPlutoTable'
+          MEDIA_CONVERT_ROLE: !GetAtt MediaConvertRole.Arn
+      MemorySize: 512
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: "java11"
+      Timeout: 300
+
+  SendToPluto:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !Sub "${App}-SendToPluto-${Stage}"
+      Description: "Sends a complete video to Pluto for ingestion"
+      Handler: "com.gu.media.upload.SendToPluto::handleRequest"
+      Code:
+        S3Bucket: !Ref BuildBucket
+        S3Key: !Sub
+          - "media-service/${Stage}/media-atom-upload-actions/media-atom-uploader.zip"
+          - { Stage: !Ref Stage }
+      Environment:
+        Variables:
+          REGION: !Ref AWS::Region
+          STACK: !Ref Stack
+          APP: !Ref App
+          STAGE: !Ref Stage
+          CONFIG_BUCKET: !Ref ConfigBucket
+          CONFIG_KEY: !Sub
+            - "${Stage}/media-atom-maker.private.conf"
+            - { Stage: !Ref Stage }
+          CREDENTIALS_KEY: !Sub
+            - "${Stage}/youtube-service-account.json"
+            - { Stage: !Ref Stage }
+          ATOM_TABLE_NAME: !Ref 'MediaAtomTable'
+          PLUTO_TABLE_NAME: !Ref 'ManualPlutoTable'
+          MEDIA_CONVERT_ROLE: !GetAtt MediaConvertRole.Arn
+      MemorySize: 512
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: "java11"
+      Timeout: 300
+
+  SendToTranscoder:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !Sub "${App}-SendToTranscoder-${Stage}"
+      Description: "Sends a complete video to the AWS transcoder"
+      Handler: "com.gu.media.upload.SendToTranscoder::handleRequest"
+      Code:
+        S3Bucket: !Ref BuildBucket
+        S3Key: !Sub
+          - "media-service/${Stage}/media-atom-upload-actions/media-atom-uploader.zip"
+          - { Stage: !Ref Stage }
+      Environment:
+        Variables:
+          REGION: !Ref AWS::Region
+          STACK: !Ref Stack
+          APP: !Ref App
+          STAGE: !Ref Stage
+          CONFIG_BUCKET: !Ref ConfigBucket
+          CONFIG_KEY: !Sub
+            - "${Stage}/media-atom-maker.private.conf"
+            - { Stage: !Ref Stage }
+          CREDENTIALS_KEY: !Sub
+            - "${Stage}/youtube-service-account.json"
+            - { Stage: !Ref Stage }
+          ATOM_TABLE_NAME: !Ref 'MediaAtomTable'
+          PLUTO_TABLE_NAME: !Ref 'ManualPlutoTable'
+          MEDIA_CONVERT_ROLE: !GetAtt MediaConvertRole.Arn
+      MemorySize: 512
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: "java11"
+      Timeout: 300
+
+  SendToTranscoderV2:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !Sub "${App}-SendToTranscoderV2-${Stage}"
+      Description: "Sends a complete video to the AWS MediaConvert transcoder"
+      Handler: "com.gu.media.upload.SendToTranscoderV2::handleRequest"
+      Code:
+        S3Bucket: !Ref BuildBucket
+        S3Key: !Sub
+          - "media-service/${Stage}/media-atom-upload-actions/media-atom-uploader.zip"
+          - { Stage: !Ref Stage }
+      Environment:
+        Variables:
+          REGION: !Ref AWS::Region
+          STACK: !Ref Stack
+          APP: !Ref App
+          STAGE: !Ref Stage
+          CONFIG_BUCKET: !Ref ConfigBucket
+          CONFIG_KEY: !Sub
+            - "${Stage}/media-atom-maker.private.conf"
+            - { Stage: !Ref Stage }
+          CREDENTIALS_KEY: !Sub
+            - "${Stage}/youtube-service-account.json"
+            - { Stage: !Ref Stage }
+          ATOM_TABLE_NAME: !Ref 'MediaAtomTable'
+          PLUTO_TABLE_NAME: !Ref 'ManualPlutoTable'
+          MEDIA_CONVERT_ROLE: !GetAtt MediaConvertRole.Arn
+      MemorySize: 512
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: "java11"
+      Timeout: 300
+
+  GetTranscodingProgress:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !Sub "${App}-GetTranscodingProgress-${Stage}"
+      Description: "Polls the AWS transcoder"
+      Handler: "com.gu.media.upload.GetTranscodingProgress::handleRequest"
+      Code:
+        S3Bucket: !Ref BuildBucket
+        S3Key: !Sub
+          - "media-service/${Stage}/media-atom-upload-actions/media-atom-uploader.zip"
+          - { Stage: !Ref Stage }
+      Environment:
+        Variables:
+          REGION: !Ref AWS::Region
+          STACK: !Ref Stack
+          APP: !Ref App
+          STAGE: !Ref Stage
+          CONFIG_BUCKET: !Ref ConfigBucket
+          CONFIG_KEY: !Sub
+            - "${Stage}/media-atom-maker.private.conf"
+            - { Stage: !Ref Stage }
+          CREDENTIALS_KEY: !Sub
+            - "${Stage}/youtube-service-account.json"
+            - { Stage: !Ref Stage }
+          ATOM_TABLE_NAME: !Ref 'MediaAtomTable'
+          PLUTO_TABLE_NAME: !Ref 'ManualPlutoTable'
+          MEDIA_CONVERT_ROLE: !GetAtt MediaConvertRole.Arn
+      MemorySize: 512
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: "java11"
+      Timeout: 300
+
+  GetTranscodingProgressV2:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !Sub "${App}-GetTranscodingProgressV2-${Stage}"
+      Description: "Polls the AWS MediaConvert transcoder"
+      Handler: "com.gu.media.upload.GetTranscodingProgressV2::handleRequest"
+      Code:
+        S3Bucket: !Ref BuildBucket
+        S3Key: !Sub
+          - "media-service/${Stage}/media-atom-upload-actions/media-atom-uploader.zip"
+          - { Stage: !Ref Stage }
+      Environment:
+        Variables:
+          REGION: !Ref AWS::Region
+          STACK: !Ref Stack
+          APP: !Ref App
+          STAGE: !Ref Stage
+          CONFIG_BUCKET: !Ref ConfigBucket
+          CONFIG_KEY: !Sub
+            - "${Stage}/media-atom-maker.private.conf"
+            - { Stage: !Ref Stage }
+          CREDENTIALS_KEY: !Sub
+            - "${Stage}/youtube-service-account.json"
+            - { Stage: !Ref Stage }
+          ATOM_TABLE_NAME: !Ref 'MediaAtomTable'
+          PLUTO_TABLE_NAME: !Ref 'ManualPlutoTable'
+          MEDIA_CONVERT_ROLE: !GetAtt MediaConvertRole.Arn
+      MemorySize: 512
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: "java11"
+      Timeout: 300
+
+  AddAssetToAtom:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !Sub "${App}-AddAssetToAtom-${Stage}"
+      Description: "Adds the resulting asset to the atom"
+      Handler: "com.gu.media.upload.AddAssetToAtom::handleRequest"
+      Code:
+        S3Bucket: !Ref BuildBucket
+        S3Key: !Sub
+          - "media-service/${Stage}/media-atom-upload-actions/media-atom-uploader.zip"
+          - { Stage: !Ref Stage }
+      Environment:
+        Variables:
+          REGION: !Ref AWS::Region
+          STACK: !Ref Stack
+          APP: !Ref App
+          STAGE: !Ref Stage
+          CONFIG_BUCKET: !Ref ConfigBucket
+          CONFIG_KEY: !Sub
+            - "${Stage}/media-atom-maker.private.conf"
+            - { Stage: !Ref Stage }
+          CREDENTIALS_KEY: !Sub
+            - "${Stage}/youtube-service-account.json"
+            - { Stage: !Ref Stage }
+          ATOM_TABLE_NAME: !Ref 'MediaAtomTable'
+          PLUTO_TABLE_NAME: !Ref 'ManualPlutoTable'
+          MEDIA_CONVERT_ROLE: !GetAtt MediaConvertRole.Arn
+      MemorySize: 512
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: "java11"
+      Timeout: 300
+
+  AddUploadDataToCache:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !Sub "${App}-AddUploadDataToCache-${Stage}"
+      Description: "Adds the upload information to a Dynamo table so it is preserved even if the pipeline changes"
+      Handler: "com.gu.media.upload.AddUploadDataToCache::handleRequest"
+      Code:
+        S3Bucket: !Ref BuildBucket
+        S3Key: !Sub
+          - "media-service/${Stage}/media-atom-upload-actions/media-atom-uploader.zip"
+          - { Stage: !Ref Stage }
+      Environment:
+        Variables:
+          REGION: !Ref AWS::Region
+          STACK: !Ref Stack
+          APP: !Ref App
+          STAGE: !Ref Stage
+          CONFIG_BUCKET: !Ref ConfigBucket
+          CONFIG_KEY: !Sub
+            - "${Stage}/media-atom-maker.private.conf"
+            - { Stage: !Ref Stage }
+          CREDENTIALS_KEY: !Sub
+            - "${Stage}/youtube-service-account.json"
+            - { Stage: !Ref Stage }
+          ATOM_TABLE_NAME: !Ref 'MediaAtomTable'
+          PLUTO_TABLE_NAME: !Ref 'ManualPlutoTable'
+          MEDIA_CONVERT_ROLE: !GetAtt MediaConvertRole.Arn
+      MemorySize: 512
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: "java11"
+      Timeout: 300
+
+  # Remembers completed uploads since the data is deleted if the pipeline definition is updated
+  VideoPipelineCache:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: !Sub "${App}-cache-${Stage}"
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: '5'
+        WriteCapacityUnits: '5'
+      Tags:
+        - Key: devx-backup-enabled
+          Value: true
+
+  VideoPipelinePROD:
+    Type: "AWS::StepFunctions::StateMachine"
+    Condition: CreateProdResources
+    Properties:
+      DefinitionString:
+        !Sub
+        - |-
+          {
+            "Comment": "A pipeline for uploading video to YouTube or an S3 bucket",
+            "StartAt": "AddInitialUploadDataToCache",
+            "States": {
+              "AddInitialUploadDataToCache": {
+                "Type": "Task",
+                "Resource": "${AddUploadDataToCache.Arn}",
+                "Next": "GetChunkFromS3"
+              },
+              "GetChunkFromS3": {
+                "Type": "Task",
+                "Resource": "${GetChunkFromS3.Arn}",
+                "Next": "CheckChunkInS3"
+              },
+              "CheckChunkInS3": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.progress.retries",
+                    "NumericEquals": 0,
+                    "Next": "CheckNotSelfHosted"
+                  },
+                  {
+                    "Variable": "$.progress.retries",
+                    "NumericGreaterThanEquals": 240,
+                    "Next": "FailS3Upload"
+                  }
+                ],
+                "Default": "WaitForChunkInS3"
+              },
+              "FailS3Upload": {
+                "Type": "Fail",
+                "Cause": "Timed out waiting for chunks in S3"
+              },
+              "WaitForChunkInS3": {
+                "Type": "Wait",
+                "Seconds": 5,
+                "Next": "GetChunkFromS3"
+              },
+              "CheckNotSelfHosted": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.metadata.selfHost",
+                    "BooleanEquals": false,
+                    "Next": "UploadChunkToYouTube"
+                  }
+                ],
+                "Default": "MoveToNextUploadedChunk"
+              },
+              "UploadChunkToYouTube": {
+                "Type": "Task",
+                "Resource": "${UploadChunkToYouTube.Arn}",
+                "Retry": [{
+                  "ErrorEquals": ["States.TaskFailed"],
+                  "IntervalSeconds": 10,
+                  "MaxAttempts": 3
+                }],
+                "Next": "MoveToNextUploadedChunk"
+              },
+              "MoveToNextUploadedChunk": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.progress.fullyUploaded",
+                    "BooleanEquals": true,
+                    "Next": "CheckYouTubeHosted"
+                  }
+                ],
+                "Default": "GetChunkFromS3"
+              },
+              "CheckYouTubeHosted": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.metadata.selfHost",
+                    "BooleanEquals": false,
+                    "Next": "AddYouTubeAssetToAtom"
+                  }
+                ],
+                "Default": "MultipartCopyChunkInS3"
+              },
+              "AddYouTubeAssetToAtom": {
+                "Type": "Task",
+                "Resource": "${AddAssetToAtom.Arn}",
+                "Next": "MultipartCopyChunkInS3"
+              },
+              "MultipartCopyChunkInS3": {
+                "Type": "Task",
+                "Resource": "${MultipartCopyChunkInS3.Arn}",
+                "Next": "MoveToNextChunkToCopy"
+              },
+              "MoveToNextChunkToCopy": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.progress.copyProgress.fullyCopied",
+                    "BooleanEquals": true,
+                    "Next": "CompleteMultipartCopy"
+                  }
+                ],
+                "Default": "MultipartCopyChunkInS3"
+              },
+              "CompleteMultipartCopy": {
+                "Type": "Task",
+                "Resource": "${CompleteMultipartCopy.Arn}",
+                "Next": "SendToPluto"
+              },
+              "SendToPluto": {
+                "Type": "Task",
+                "Resource": "${SendToPluto.Arn}",
+                "Next": "CheckSelfHosted"
+              },
+              "CheckSelfHosted": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.metadata.selfHost",
+                    "BooleanEquals": true,
+                    "Next": "SendToTranscoder"
+                  }
+                ],
+                "Default": "AddCompleteUploadDataToCache"
+              },
+              "SendToTranscoder": {
+                "Type": "Task",
+                "Resource": "${SendToTranscoder.Arn}",
+                "Next": "GetTranscodingProgress"
+              },
+              "GetTranscodingProgress": {
+                "Type": "Task",
+                "Resource": "${GetTranscodingProgress.Arn}",
+                "Next": "CheckTranscodingComplete"
+              },
+              "CheckTranscodingComplete": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.progress.fullyTranscoded",
+                    "BooleanEquals": true,
+                    "Next": "SendToTranscoderV2"
+                  }
+                ],
+                "Default": "WaitForTranscoder"
+              },
+              "WaitForTranscoder": {
+                "Type": "Wait",
+                "Seconds": 10,
+                "Next": "GetTranscodingProgress"
+              },
+              "SendToTranscoderV2": {
+                "Type": "Task",
+                "Resource": "${SendToTranscoderV2.Arn}",
+                "Next": "GetTranscodingProgressV2"
+              },
+              "GetTranscodingProgressV2": {
+                "Type": "Task",
+                "Resource": "${GetTranscodingProgressV2.Arn}",
+                "Next": "CheckTranscodingCompleteV2"
+              },
+              "CheckTranscodingCompleteV2": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.progress.fullyTranscoded",
+                    "BooleanEquals": true,
+                    "Next": "AddSelfHostedAssetToAtom"
+                  }
+                ],
+                "Default": "WaitForTranscoderV2"
+              },
+              "WaitForTranscoderV2": {
+                "Type": "Wait",
+                "Seconds": 10,
+                "Next": "GetTranscodingProgressV2"
+              },
+              "AddSelfHostedAssetToAtom": {
+                "Type": "Task",
+                "Resource": "${AddAssetToAtom.Arn}",
+                "Next": "AddCompleteUploadDataToCache"
+              },
+              "AddCompleteUploadDataToCache": {
+                "Type": "Task",
+                "Resource": "${AddUploadDataToCache.Arn}",
+                "Next": "Complete"
+              },
+              "Complete": {
+                "Type": "Pass",
+                "End": true
+              }
+            }
+          }
+        -
+          {}
+      RoleArn: !GetAtt [ StatesExecutionRole, Arn ]
+
+  VideoPipelineCODE:
+    Type: "AWS::StepFunctions::StateMachine"
+    Condition: CreateCodeResources
+    Properties:
+      DefinitionString:
+        !Sub
+        - |-
+          {
+            "Comment": "A pipeline for uploading video to YouTube or an S3 bucket",
+            "StartAt": "AddInitialUploadDataToCache",
+            "States": {
+              "AddInitialUploadDataToCache": {
+                "Type": "Task",
+                "Resource": "${AddUploadDataToCache.Arn}",
+                "Next": "GetChunkFromS3"
+              },
+              "GetChunkFromS3": {
+                "Type": "Task",
+                "Resource": "${GetChunkFromS3.Arn}",
+                "Next": "CheckChunkInS3"
+              },
+              "CheckChunkInS3": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.progress.retries",
+                    "NumericEquals": 0,
+                    "Next": "CheckNotSelfHosted"
+                  },
+                  {
+                    "Variable": "$.progress.retries",
+                    "NumericGreaterThanEquals": 240,
+                    "Next": "FailS3Upload"
+                  }
+                ],
+                "Default": "WaitForChunkInS3"
+              },
+              "FailS3Upload": {
+                "Type": "Fail",
+                "Cause": "Timed out waiting for chunks in S3"
+              },
+              "WaitForChunkInS3": {
+                "Type": "Wait",
+                "Seconds": 5,
+                "Next": "GetChunkFromS3"
+              },
+              "CheckNotSelfHosted": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.metadata.selfHost",
+                    "BooleanEquals": false,
+                    "Next": "UploadChunkToYouTube"
+                  }
+                ],
+                "Default": "MoveToNextUploadedChunk"
+              },
+              "UploadChunkToYouTube": {
+                "Type": "Task",
+                "Resource": "${UploadChunkToYouTube.Arn}",
+                "Retry": [{
+                  "ErrorEquals": ["States.TaskFailed"],
+                  "IntervalSeconds": 10,
+                  "MaxAttempts": 3
+                }],
+                "Next": "MoveToNextUploadedChunk"
+              },
+              "MoveToNextUploadedChunk": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.progress.fullyUploaded",
+                    "BooleanEquals": true,
+                    "Next": "CheckYouTubeHosted"
+                  }
+                ],
+                "Default": "GetChunkFromS3"
+              },
+              "CheckYouTubeHosted": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.metadata.selfHost",
+                    "BooleanEquals": false,
+                    "Next": "AddYouTubeAssetToAtom"
+                  }
+                ],
+                "Default": "MultipartCopyChunkInS3"
+              },
+              "AddYouTubeAssetToAtom": {
+                "Type": "Task",
+                "Resource": "${AddAssetToAtom.Arn}",
+                "Next": "MultipartCopyChunkInS3"
+              },
+              "MultipartCopyChunkInS3": {
+                "Type": "Task",
+                "Resource": "${MultipartCopyChunkInS3.Arn}",
+                "Next": "MoveToNextChunkToCopy"
+              },
+              "MoveToNextChunkToCopy": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.progress.copyProgress.fullyCopied",
+                    "BooleanEquals": true,
+                    "Next": "CompleteMultipartCopy"
+                  }
+                ],
+                "Default": "MultipartCopyChunkInS3"
+              },
+              "CompleteMultipartCopy": {
+                "Type": "Task",
+                "Resource": "${CompleteMultipartCopy.Arn}",
+                "Next": "SendToPluto"
+              },
+              "SendToPluto": {
+                "Type": "Task",
+                "Resource": "${SendToPluto.Arn}",
+                "Next": "CheckSelfHosted"
+              },
+              "CheckSelfHosted": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.metadata.selfHost",
+                    "BooleanEquals": true,
+                    "Next": "SendToTranscoder"
+                  }
+                ],
+                "Default": "AddCompleteUploadDataToCache"
+              },
+              "SendToTranscoder": {
+                "Type": "Task",
+                "Resource": "${SendToTranscoder.Arn}",
+                "Next": "GetTranscodingProgress"
+              },
+              "GetTranscodingProgress": {
+                "Type": "Task",
+                "Resource": "${GetTranscodingProgress.Arn}",
+                "Next": "CheckTranscodingComplete"
+              },
+              "CheckTranscodingComplete": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.progress.fullyTranscoded",
+                    "BooleanEquals": true,
+                    "Next": "SendToTranscoderV2"
+                  }
+                ],
+                "Default": "WaitForTranscoder"
+              },
+              "WaitForTranscoder": {
+                "Type": "Wait",
+                "Seconds": 10,
+                "Next": "GetTranscodingProgress"
+              },
+              "SendToTranscoderV2": {
+                "Type": "Task",
+                "Resource": "${SendToTranscoderV2.Arn}",
+                "Next": "GetTranscodingProgressV2"
+              },
+              "GetTranscodingProgressV2": {
+                "Type": "Task",
+                "Resource": "${GetTranscodingProgressV2.Arn}",
+                "Next": "CheckTranscodingCompleteV2"
+              },
+              "CheckTranscodingCompleteV2": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.progress.fullyTranscoded",
+                    "BooleanEquals": true,
+                    "Next": "AddSelfHostedAssetToAtom"
+                  }
+                ],
+                "Default": "WaitForTranscoderV2"
+              },
+              "WaitForTranscoderV2": {
+                "Type": "Wait",
+                "Seconds": 10,
+                "Next": "GetTranscodingProgressV2"
+              },
+              "AddSelfHostedAssetToAtom": {
+                "Type": "Task",
+                "Resource": "${AddAssetToAtom.Arn}",
+                "Next": "AddCompleteUploadDataToCache"
+              },
+              "AddCompleteUploadDataToCache": {
+                "Type": "Task",
+                "Resource": "${AddUploadDataToCache.Arn}",
+                "Next": "Complete"
+              },
+              "Complete": {
+                "Type": "Pass",
+                "End": true
+              }
+            }
+          }
+        -
+          {}
+      RoleArn: !GetAtt [ StatesExecutionRole, Arn ]
+
+  VideoPipelineDEV:
+    Type: "AWS::StepFunctions::StateMachine"
+    Condition: CreateDevResources
+    Properties:
+      DefinitionString:
+        !Sub
+        - |-
+          {
+            "Comment": "A pipeline for uploading video to YouTube or an S3 bucket",
+            "StartAt": "AddInitialUploadDataToCache",
+            "States": {
+              "AddInitialUploadDataToCache": {
+                "Type": "Task",
+                "Resource": "${AddUploadDataToCache.Arn}",
+                "Next": "GetChunkFromS3"
+              },
+              "GetChunkFromS3": {
+                "Type": "Task",
+                "Resource": "${GetChunkFromS3.Arn}",
+                "Next": "CheckChunkInS3"
+              },
+              "CheckChunkInS3": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.progress.retries",
+                    "NumericEquals": 0,
+                    "Next": "CheckNotSelfHosted"
+                  },
+                  {
+                    "Variable": "$.progress.retries",
+                    "NumericGreaterThanEquals": 240,
+                    "Next": "FailS3Upload"
+                  }
+                ],
+                "Default": "WaitForChunkInS3"
+              },
+              "FailS3Upload": {
+                "Type": "Fail",
+                "Cause": "Timed out waiting for chunks in S3"
+              },
+              "WaitForChunkInS3": {
+                "Type": "Wait",
+                "Seconds": 5,
+                "Next": "GetChunkFromS3"
+              },
+              "CheckNotSelfHosted": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.metadata.selfHost",
+                    "BooleanEquals": false,
+                    "Next": "UploadChunkToYouTube"
+                  }
+                ],
+                "Default": "MoveToNextUploadedChunk"
+              },
+              "UploadChunkToYouTube": {
+                "Type": "Task",
+                "Resource": "${UploadChunkToYouTube.Arn}",
+                "Retry": [{
+                  "ErrorEquals": ["States.TaskFailed"],
+                  "IntervalSeconds": 10,
+                  "MaxAttempts": 3
+                }],
+                "Next": "MoveToNextUploadedChunk"
+              },
+              "MoveToNextUploadedChunk": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.progress.fullyUploaded",
+                    "BooleanEquals": true,
+                    "Next": "CheckYouTubeHosted"
+                  }
+                ],
+                "Default": "GetChunkFromS3"
+              },
+              "CheckYouTubeHosted": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.metadata.selfHost",
+                    "BooleanEquals": false,
+                    "Next": "AddYouTubeAssetToAtom"
+                  }
+                ],
+                "Default": "MultipartCopyChunkInS3"
+              },
+              "AddYouTubeAssetToAtom": {
+                "Type": "Task",
+                "Resource": "${AddAssetToAtom.Arn}",
+                "Next": "MultipartCopyChunkInS3"
+              },
+              "MultipartCopyChunkInS3": {
+                "Type": "Task",
+                "Resource": "${MultipartCopyChunkInS3.Arn}",
+                "Next": "MoveToNextChunkToCopy"
+              },
+              "MoveToNextChunkToCopy": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.progress.copyProgress.fullyCopied",
+                    "BooleanEquals": true,
+                    "Next": "CompleteMultipartCopy"
+                  }
+                ],
+                "Default": "MultipartCopyChunkInS3"
+              },
+              "CompleteMultipartCopy": {
+                "Type": "Task",
+                "Resource": "${CompleteMultipartCopy.Arn}",
+                "Next": "SendToPluto"
+              },
+              "SendToPluto": {
+                "Type": "Task",
+                "Resource": "${SendToPluto.Arn}",
+                "Next": "CheckSelfHosted"
+              },
+              "CheckSelfHosted": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.metadata.selfHost",
+                    "BooleanEquals": true,
+                    "Next": "SendToTranscoder"
+                  }
+                ],
+                "Default": "AddCompleteUploadDataToCache"
+              },
+              "SendToTranscoder": {
+                "Type": "Task",
+                "Resource": "${SendToTranscoder.Arn}",
+                "Next": "GetTranscodingProgress"
+              },
+              "GetTranscodingProgress": {
+                "Type": "Task",
+                "Resource": "${GetTranscodingProgress.Arn}",
+                "Next": "CheckTranscodingComplete"
+              },
+              "CheckTranscodingComplete": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.progress.fullyTranscoded",
+                    "BooleanEquals": true,
+                    "Next": "SendToTranscoderV2"
+                  }
+                ],
+                "Default": "WaitForTranscoder"
+              },
+              "WaitForTranscoder": {
+                "Type": "Wait",
+                "Seconds": 10,
+                "Next": "GetTranscodingProgress"
+              },
+              "SendToTranscoderV2": {
+                "Type": "Task",
+                "Resource": "${SendToTranscoderV2.Arn}",
+                "Next": "GetTranscodingProgressV2"
+              },
+              "GetTranscodingProgressV2": {
+                "Type": "Task",
+                "Resource": "${GetTranscodingProgressV2.Arn}",
+                "Next": "CheckTranscodingCompleteV2"
+              },
+              "CheckTranscodingCompleteV2": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.progress.fullyTranscoded",
+                    "BooleanEquals": true,
+                    "Next": "AddSelfHostedAssetToAtom"
+                  }
+                ],
+                "Default": "WaitForTranscoderV2"
+              },
+              "WaitForTranscoderV2": {
+                "Type": "Wait",
+                "Seconds": 10,
+                "Next": "GetTranscodingProgressV2"
+              },
+              "AddSelfHostedAssetToAtom": {
+                "Type": "Task",
+                "Resource": "${AddAssetToAtom.Arn}",
+                "Next": "AddCompleteUploadDataToCache"
+              },
+              "AddCompleteUploadDataToCache": {
+                "Type": "Task",
+                "Resource": "${AddUploadDataToCache.Arn}",
+                "Next": "Complete"
+              },
+              "Complete": {
+                "Type": "Pass",
+                "End": true
+              }
+            }
+          }
+        -
+          {}
+      RoleArn: !GetAtt [ StatesExecutionRole, Arn ]
+
+  AlertTopic:
+    Type: AWS::SNS::Topic
+    Condition: CreateProdResources
+    Properties:
+      DisplayName: !Join ['-', [!Ref 'Stage', Alerts]]
+      KmsMasterKeyId: 'alias/aws/sns'
+      Subscription:
+        - Endpoint: !Ref 'AlertWebhook'
+          Protocol: https
+
+  UploadFailedAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: CreateProdResources
+    Properties:
+      AlarmDescription: Video upload failed
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: '1'
+      Namespace: AWS/States
+      MetricName: ExecutionsFailed
+      Dimensions:
+        - Name: StateMachineArn
+          Value: !Ref 'VideoPipelinePROD'
+      Period: '60'
+      EvaluationPeriods: '1'
+      Statistic: Maximum
+      AlarmActions:
+        - !Ref 'AlertTopic'
