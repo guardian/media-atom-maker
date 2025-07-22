@@ -22,35 +22,30 @@ function presenceInitials(email) {
 }
 
 function AssetControls({ user, children, isActive, selectAsset, deleteAsset }) {
-  const activateButton = !isActive
-    ? <button className="btn upload__activate-btn" onClick={selectAsset}>
-        Activate
-      </button>
-    : false;
+  const userCircle = <ul className="presence-list">
+    <li className="presence-list__user" title={user}>
+      {presenceInitials(user)}
+    </li>
+  </ul>
 
-  const deleteButton = !isActive
-    ? <DeleteButton
-        tooltip="Remove asset from Atom (does not affect YouTube.com)"
-        onDelete={deleteAsset}
-      />
-    : false;
+  const activateButton =
+    <button className="btn upload__activate-btn" onClick={selectAsset}>
+      Activate
+    </button>
 
-  const initials = user ? presenceInitials(user) : false;
-  const userCircle = initials
-    ? <ul className="presence-list">
-        <li className="presence-list__user" title={user}>
-          {initials}
-        </li>
-      </ul>
-    : false;
+
+  const deleteButton = <DeleteButton
+    tooltip="Remove asset from Atom (does not affect YouTube.com)"
+    onDelete={deleteAsset}
+  />
 
   return (
     <div className="upload__actions">
       {children}
       <div className="upload__right">
-        {userCircle}
-        {activateButton}
-        {deleteButton}
+        {user && userCircle}
+        {!isActive && activateButton}
+        {!isActive && deleteButton}
       </div>
     </div>
   );
