@@ -240,6 +240,7 @@ Resources:
               - ContainerSettings:
                   Container: M3U8
                   M3u8Settings: { }
+                NameModifier: "hls"
                 VideoDescription:
                   Height: 720
                   Sharpness: 75
@@ -280,6 +281,14 @@ Resources:
                 DefaultSelection: DEFAULT
             VideoSelector: { }
             TimecodeSource: ZEROBASED
+            CaptionSelectors:
+              Caption Selector 1:
+                SourceSettings:
+                  SourceType: WEBVTT
+                  WebvttHlsSourceSettings:
+                    RenditionGroupId: "captions"
+                    RenditionName: "English"
+                    RenditionLanguageCode: "EN"
       Tags:
         App: !Ref App
         Stack: !Ref Stack
