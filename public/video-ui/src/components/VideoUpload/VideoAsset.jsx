@@ -66,31 +66,26 @@ function AssetInfo({ info, timestamp }) {
   );
 }
 
-function AssetDisplay({ id, isActive, sources }) {
-  const linkProps = id
-    ? {
-        className: 'upload__link',
-        href: `https://www.youtube.com/watch?v=${id}`,
-        target: '_blank',
-        rel: 'noopener noreferrer'
-      }
-    : false;
+function AssetDisplay({id, isActive, sources}) {
+  const embed = id ? <YouTubeEmbed id={id} largePreview={true}/> : <VideoEmbed sources={sources}/>
 
   return (
     <div className="upload">
-      {id ? <YouTubeEmbed id={id} largePreview={true}/> : <VideoEmbed sources={sources} />}
-      {linkProps
-        ? <a {...linkProps}>
-            <Icon icon="open_in_new" className="icon__assets" />
-          </a>
-        : false}
-      {isActive
-        ? <div className="grid__status__overlay">
+      {embed}
+      {id &&
+        <a className={'upload__link'}
+           href={`https://www.youtube.com/watch?v=${id}`}
+           target={'_blank'}
+           rel={'noopener noreferrer'}>
+          <Icon icon="open_in_new" className="icon__assets"/>
+        </a>}
+      {isActive &&
+        <div className="grid__status__overlay">
             <span className="publish__label label__live label__frontpage__overlay">
               Active
             </span>
-          </div>
-        : false}
+        </div>
+      }
     </div>
   );
 }
