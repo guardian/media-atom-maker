@@ -105,10 +105,10 @@ function AssetProgress({ failed, current, total }) {
       </div>
     );
   }
-
-  return total !== undefined && current !== undefined
-    ? <progress className="progress" value={current} max={total} />
-    : <span className="loader" />;
+  if (total !== undefined && current !== undefined) {
+    return <progress className="progress" value={current} max={total} />
+  }
+  return <span className="loader" />;
 }
 
 export function Asset({ upload, isActive, selectAsset, deleteAsset }) {
