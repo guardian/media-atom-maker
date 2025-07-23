@@ -5,7 +5,7 @@ export function VideoEmbed({
   posterUrl
 }: {
   sources: { src: string; mimeType: string }[];
-  posterUrl: string;
+  posterUrl?: string;
 }) {
   if (!sources.length) return null;
 
