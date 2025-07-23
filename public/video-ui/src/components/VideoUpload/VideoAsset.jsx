@@ -108,7 +108,9 @@ function AssetProgress({ failed, current, total }) {
 
 export function Asset({ upload, isActive, selectAsset, deleteAsset }) {
   const { asset, metadata, processing } = upload;
-  const user = metadata ? metadata.user : false;
+  const user =  metadata?.user;
+  const info = metadata?.originalFilename || `Version ${upload.id}`;
+  const timestamp =  metadata?.startTimestamp || false;
 
   if (processing) {
     return (
@@ -126,9 +128,6 @@ export function Asset({ upload, isActive, selectAsset, deleteAsset }) {
   }
 
   if (asset) {
-    const info = metadata ? metadata.originalFilename : `Version ${upload.id}`;
-    const timestamp = metadata ? metadata.startTimestamp : false;
-
     return (
       <div className="grid__item">
         <AssetDisplay isActive={isActive} id={asset.id} sources={asset.sources} />
@@ -141,5 +140,5 @@ export function Asset({ upload, isActive, selectAsset, deleteAsset }) {
     );
   }
 
-  return false;
+  return null;
 }
