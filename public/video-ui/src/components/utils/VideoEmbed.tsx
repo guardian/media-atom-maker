@@ -1,13 +1,20 @@
 import React from 'react';
 
-export function VideoEmbed({ sources, posterUrl }) {
+export function VideoEmbed({
+  sources,
+  posterUrl
+}: {
+  sources: { src: string; mimeType: string }[];
+  posterUrl: string;
+}) {
+  if (!sources.length) return null;
+
   const videoProps = {
     className: 'video-player',
-    controls: 'controls',
+    controls: true,
     preload: 'metadata',
-    ...(posterUrl && { poster: posterUrl}),
+    ...(posterUrl && { poster: posterUrl })
   };
-
 
   if (sources.length === 1) {
     // to appease Safari
