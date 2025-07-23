@@ -108,7 +108,7 @@ function AssetProgress({ failed, current, total }) {
 
 export function Asset({ upload, isActive, selectAsset, deleteAsset }) {
   const { asset, metadata, processing } = upload;
-  const user =  metadata?.user;
+  const user =  metadata.user;
   const info = metadata?.originalFilename || `Version ${upload.id}`;
   const timestamp =  metadata?.startTimestamp || false;
 
