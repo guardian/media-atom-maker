@@ -52,9 +52,7 @@ function AssetControls({ user, children, isActive, selectAsset, deleteAsset }) {
 }
 
 function AssetInfo({ info, timestamp }) {
-  const startDate = timestamp
-    ? moment(timestamp).format('YYYY/MM/DD HH:mm:ss')
-    : false;
+  const dateTime = timestamp && moment(timestamp).format('YYYY/MM/DD HH:mm:ss')
 
   return (
     <div className="upload__left">
@@ -62,7 +60,7 @@ function AssetInfo({ info, timestamp }) {
         {info}
       </div>
       <div>
-        <small>{startDate}</small>
+        <small>{dateTime}</small>
       </div>
     </div>
   );
