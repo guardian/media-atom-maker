@@ -230,6 +230,7 @@ Resources:
                       FramerateControl: SPECIFIED
                       FramerateNumerator: 30000
                       FramerateDenominator: 1001
+                      HrdBufferSize: 16800000
                 AudioDescriptions:
                   - CodecSettings:
                       Codec: AAC
