@@ -221,7 +221,9 @@ Resources:
                     Codec: H_264
                     H264Settings:
                       Bitrate: 2400000
-                      RateControlMode: CBR
+                      RateControlMode: QVBR
+                      QvbrSettings:
+                        QvbrQualityLevel: 10
                       CodecProfile: BASELINE
                       CodecLevel: LEVEL_3_1
                       EntropyEncoding: CAVLC # This is only specified because it is required if you chose CodecProfile: BASELINE
