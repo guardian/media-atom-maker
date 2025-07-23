@@ -26,7 +26,10 @@ function errorAssetDelete(error) {
   };
 }
 
+//TODO: Work out how to delete self hosted videos which do not have an id.
 export function deleteAsset(video, assetId) {
+  if (!assetId) return dispatch(errorAssetDelete("no asset ID provided"));
+
   return dispatch => {
     dispatch(requestAssetDelete(assetId));
 
