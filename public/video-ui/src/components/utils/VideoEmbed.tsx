@@ -1,10 +1,11 @@
 import React from 'react';
+import {VideoSource} from "../VideoUpload/VideoAsset";
 
 export function VideoEmbed({
   sources,
   posterUrl
 }: {
-  sources: { src: string; mimeType: string }[];
+  sources: VideoSource[];
   posterUrl?: string;
 }) {
   if (!sources.length) return null;
