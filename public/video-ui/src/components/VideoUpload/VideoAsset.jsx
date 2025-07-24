@@ -70,7 +70,7 @@ function AssetDisplay({id, isActive, sources}) {
   const embed = id ? <YouTubeEmbed id={id} largePreview={true}/> : <VideoEmbed sources={sources}/>
 
   return (
-    <div>
+    <div className={"video-trail__upload"}>
       {embed}
       {id &&
         <a className={'upload__link'}
