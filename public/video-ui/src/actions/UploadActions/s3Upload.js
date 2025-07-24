@@ -60,3 +60,7 @@ export function startPacFileUpload({id, file}) {
     });
   };
 }
+
+export function startSubtitleFileUpload({ file, assetId, version }) {
+  console.log(assetId, version, file)
+}
