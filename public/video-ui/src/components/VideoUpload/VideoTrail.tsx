@@ -1,9 +1,20 @@
 import React from 'react';
 import { Asset } from './VideoAsset';
 import VideoUtils from '../../util/video';
+import { Upload } from './VideoUpload';
+import { Video } from '../../services/VideosApi';
 
-export default class VideoTrail extends React.Component {
-  polling = null;
+interface Props {
+  video: Video;
+  uploads: Upload[];
+  getUploads: () => void;
+  s3Upload: any;
+  activeVersion: number;
+  selectAsset: (id: number) => void;
+  deleteAsset: (video: unknown, id: string) => void;
+}
+export class VideoTrail extends React.Component<Props> {
+  polling: NodeJS.Timeout | null = null;
 
   componentWillReceiveProps() {
     const isRecentlyModified = VideoUtils.isRecentlyModified(this.props.video);
@@ -28,8 +39,8 @@ export default class VideoTrail extends React.Component {
     });
   };
 
-  getAssets = () => {
-    const ret = [];
+  getAssets = (): Upload[] => {
+    const ret: Upload[] = [];
 
     if (this.props.s3Upload.total) {
       ret.push({
@@ -53,15 +64,19 @@ export default class VideoTrail extends React.Component {
   };
 
   render() {
-    const blocks = this.getAssets().map(upload => (
-      <Asset
-        key={upload.id}
-        upload={upload}
-        isActive={parseInt(upload.id) === this.props.activeVersion}
-        selectAsset={() => this.props.selectAsset(Number(upload.id))}
-        deleteAsset={() => this.props.deleteAsset(this.props.video, upload.asset.id)}
-      />
-    ));
+    const blocks = this.getAssets().map((upload: Upload) => {
+      return (
+        <Asset
+          key={upload.id}
+          upload={upload}
+          isActive={parseInt(upload.id) === this.props.activeVersion}
+          selectAsset={() => this.props.selectAsset(Number(upload.id))}
+          deleteAsset={() =>
+            this.props.deleteAsset(this.props.video, upload.asset?.id)
+          }
+        />
+      );
+    });
 
     const content = blocks.length > 0 ? blocks : false;
 
@@ -71,9 +86,7 @@ export default class VideoTrail extends React.Component {
           <header className="video__detailbox__header">Video trail</header>
         </div>
         <div className="grid">
-          <div className="grid__list grid__list__trail">
-            {content}
-          </div>
+          <div className="grid__list grid__list__trail">{content}</div>
         </div>
       </div>
     );

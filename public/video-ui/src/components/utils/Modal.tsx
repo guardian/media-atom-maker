@@ -1,7 +1,14 @@
 import React from 'react';
 
-export default class Modal extends React.Component {
-  preventClosingClick(event) {
+
+interface Props {
+  isOpen: boolean
+  dismiss: () => void
+  children: JSX.Element
+}
+
+export default class Modal extends React.Component<Props> {
+  preventClosingClick(event: React.MouseEvent<HTMLDivElement>) {
     event.stopPropagation();
   }
 
