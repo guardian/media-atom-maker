@@ -141,16 +141,15 @@ function SubtitleActions({ subtitles, onUpload, onDelete}) {
     reader.onload = function(e) {
       const text = e.target.result;
 
-      // check basic format of srt or vtt file
-      const isSRTFormat = /\d+\s+\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}/.test(text);
-      const isVTTFormat = /^WEBVTT/m.test(text) && /-->/m.test(text);
+      const isSRTFormat = /\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}/.test(text);
+      const isVTTFormat = /^WEBVTT/m.test(text) &&
+        /\d{2}:\d{2}:\d{2}\.\d{3} --> \d{2}:\d{2}:\d{2}\.\d{3}/.test(text);
 
       if ((isSRT && !isSRTFormat) || (isVTT && !isVTTFormat)) {
         alert('The file content does not match the expected subtitle format.');
         return;
       }
 
-      // Passed validation
       onUpload(file);
     };
   };
@@ -186,8 +185,6 @@ export function Asset({upload, isActive, selectAsset, deleteAsset, startSubtitle
   const info = metadata?.originalFilename || `Version ${upload.id}`;
   const timestamp =  metadata?.startTimestamp || false;
 
-  // used for testing
-  // const subtitles = {title: 'World leader talking to camera with a long file name so it goes across two lines .mp4', dateTime: "10th june"}
  const subtitles = asset.sources.find(source => source.mimeType === "WEBVTT")
 
 
@@ -218,8 +215,7 @@ export function Asset({upload, isActive, selectAsset, deleteAsset, startSubtitle
         </div>
 
 
-        {
-          // permissions?.addSubtitles &&
+        { permissions?.addSubtitles &&
 
           <div className="video-trail__item__subtitles">
               <div className="subtitle__container">
