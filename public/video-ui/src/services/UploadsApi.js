@@ -148,8 +148,7 @@ export function uploadSubtitleFile({ id, version, file }) {
     headers: {
       'Csrf-Token': window.guardian.csrf.token
     },
-    data: formData,
-    contentType: 'multipart/form-data',
+    body: formData,
     processData: false
   });
 }

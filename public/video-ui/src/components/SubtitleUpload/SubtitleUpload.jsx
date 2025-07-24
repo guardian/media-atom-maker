@@ -20,11 +20,16 @@ export default class SubtitleUpload extends React.Component {
   };
 
   validate(files) {
+    console.log("calling validate");
     if (files.length === 1) {
+      console.log("files: ", files);
       const file = files[0];
+      console.log("file: ", file);
       const reader = new FileReader();
 
       reader.onload = e => {
+        console.log("onload: ", file);
+
         const content = e.target.result;
 
         this.setState({
@@ -33,6 +38,7 @@ export default class SubtitleUpload extends React.Component {
           uploaded: false,
           uploading: false
         });
+        console.log("state: ", this.state);
       };
 
       reader.readAsText(file);
@@ -45,7 +51,7 @@ export default class SubtitleUpload extends React.Component {
     const version = activeVersion; // temp for test ui
 
     this.setState({ uploading: true });
-    console.log("uploading "+id+"-"+version+"------"+JSON.stringify(this.props.video));
+    console.log("uploading "+id+"-"+version+"------", file);
     this.props.startUpload({id, version, file})
       .then(_ => this.setState({uploading: false, uploaded: true}))
       .catch(e => this.setState({uploading: false, uploaded: false, error: e}));
@@ -53,11 +59,11 @@ export default class SubtitleUpload extends React.Component {
 
   getUploadButtonText() {
     if (!this.state.file) {
-      return 'No file chosen '+JSON.stringify(this.props.video);
+      return 'No file chosen';
     }
 
     if (this.state.uploaded) {
-      return 'Uploaded '+JSON.stringify(this.props.video);
+      return 'Uploaded';
     }
 
     if (this.state.isValid) {

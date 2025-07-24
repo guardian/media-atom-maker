@@ -92,30 +92,35 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
    *
    */
   def uploadSubtitleFile(atomId: String, version: Int) =
-    APIAuthAction.apply(parse.multipartFormData) { request =>
-    request.body.file("subtitle-file").map { file =>
-      val atom = getPreviewAtom(atomId)
-      val mediaAtom: MediaAtom = MediaAtom.fromThrift(atom)
+    LookupPermissions { implicit raw =>
+      log.info("raw request " + raw)
+      Ok(Json.parse("{}"))
+    }
 
-      try {
-        SubtitleFileUploadCommand(
-          mediaAtom,
-          version,
-          file.ref,
-          stores,
-          request.user,
-          awsConfig
-        ).process()
-
-        Ok(Json.parse("{}"))
-      }
-      catch {
-        commandExceptionAsResult
-      }
-    }.getOrElse(
-      BadRequest
-    )
-  }
+//  APIAuthAction.apply(parse.multipartFormData) { request =>
+//    request.body.file("subtitle-file").map { file =>
+//      val atom = getPreviewAtom(atomId)
+//      val mediaAtom: MediaAtom = MediaAtom.fromThrift(atom)
+//
+//      try {
+//        SubtitleFileUploadCommand(
+//          mediaAtom,
+//          version,
+//          file.ref,
+//          stores,
+//          request.user,
+//          awsConfig
+//        ).process()
+//
+//        Ok(Json.parse("{}"))
+//      }
+//      catch {
+//        commandExceptionAsResult
+//      }
+//    }.getOrElse(
+//      BadRequest
+//    )
+//  }
 
   @tailrec
   private def start(atom: MediaAtom, email: String, req: UploadRequest, version: Long): Upload = try {
