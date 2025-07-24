@@ -24,7 +24,7 @@ function presenceInitials(email) {
 
 function AssetControls({ user, children, isActive, selectAsset, deleteAsset }) {
     const userCircle =
-        <div className="video__grid__presence_indicator" title={user}>
+        <div className="video-trail__presence_indicator" title={user}>
                 {presenceInitials(user)}
         </div>
 
@@ -70,7 +70,7 @@ function AssetDisplay({id, isActive, sources}) {
   const embed = id ? <YouTubeEmbed id={id} largePreview={true}/> : <VideoEmbed sources={sources}/>
 
   return (
-    <div className="video__grid__upload">
+    <div>
       {embed}
       {id &&
         <a className={'upload__link'}
@@ -80,7 +80,7 @@ function AssetDisplay({id, isActive, sources}) {
           <Icon icon="open_in_new" className="icon__assets"/>
         </a>}
       {isActive &&
-        <div className="video__grid__status__overlay">
+        <div className="video-trail__status__overlay">
             <span className="publish__label label__live label__frontpage__overlay">
               Active
             </span>
@@ -179,19 +179,22 @@ function SubtitleActions({ subtitles, onUpload, onDelete}) {
 }
 
 export function Asset({upload, isActive, selectAsset, deleteAsset, startSubtitleFileUpload, deleteSubtitle,permissions}) {
+ console.log({upload})
+
   const { asset, metadata, processing } = upload;
   const user =  metadata?.user ?? "";
   const info = metadata?.originalFilename || `Version ${upload.id}`;
   const timestamp =  metadata?.startTimestamp || false;
+
   const subtitles = {title: 'World leader talking to camera with a long file name so it goes across two lines .mp4', dateTime: "10th june"}
 
   if (processing) {
     return (
-      <div className="video__grid__item">
+      <div className="video-trail__item">
         <div className="upload">
           <AssetProgress {...processing} />
         </div>
-        <div className="video__grid__item__footer">
+        <div className="video-trail__item__details">
           <AssetControls user={user} selectAsset={selectAsset} deleteAsset={deleteAsset}>
             <AssetInfo info={processing.status} />
           </AssetControls>
@@ -202,9 +205,9 @@ export function Asset({upload, isActive, selectAsset, deleteAsset, startSubtitle
 
   if (asset) {
     return (
-      <div className="video__grid__item">
+      <div className="video-trail__item">
         <AssetDisplay isActive={isActive} id={asset.id} sources={asset.sources} />
-        <div className="video__grid__item__details">
+        <div className="video-trail__item__details">
           <AssetControls user={user} isActive={isActive} selectAsset={selectAsset} deleteAsset={deleteAsset}>
             <AssetInfo info={info} timestamp={timestamp} />
           </AssetControls>
@@ -212,9 +215,10 @@ export function Asset({upload, isActive, selectAsset, deleteAsset, startSubtitle
         </div>
 
 
-        {permissions?.addSubtitles &&
+        {
+          permissions?.addSubtitles &&
 
-          <div className="video__grid__item__subtitles">
+          <div className="video-trail__item__subtitles">
               <div className="subtitle__container">
                   <SubtitlesIcon />
                   <SubtitleDetails subtitles={subtitles} />
