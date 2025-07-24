@@ -23,11 +23,10 @@ function presenceInitials(email) {
 }
 
 function AssetControls({ user, children, isActive, selectAsset, deleteAsset }) {
-  const userCircle = <ul className="presence-list">
-    <li className="presence-list__user" title={user}>
-      {presenceInitials(user)}
-    </li>
-  </ul>
+    const userCircle =
+        <div className="video__grid__presence_indicator" title={user}>
+                {presenceInitials(user)}
+        </div>
 
   const activateButton =
     <button className="btn upload__activate-btn" onClick={selectAsset}>
