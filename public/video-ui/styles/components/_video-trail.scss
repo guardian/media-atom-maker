@@ -3,8 +3,15 @@
   display:inline-block;
   position:relative;
   border-top: 1px solid $brandColor;
-  width: 300px;
+  width: 400px;
   margin: 8px;
+
+}
+
+.video-trail__upload{
+  display: flex;
+  height:250px;
+  color: #fff;
 }
 
 .video-trail__status__overlay {
