@@ -6,6 +6,7 @@ import { VideoEmbed } from '../utils/VideoEmbed';
 import DeleteButton from '../DeleteButton';
 
 function presenceInitials(email) {
+  if (!email) return;
   const emailParts = email.split('@');
   const names = [];
 
@@ -108,7 +109,7 @@ function AssetProgress({ failed, current, total }) {
 
 export function Asset({ upload, isActive, selectAsset, deleteAsset }) {
   const { asset, metadata, processing } = upload;
-  const user =  metadata.user;
+  const user =  metadata?.user ?? "";
   const info = metadata?.originalFilename || `Version ${upload.id}`;
   const timestamp =  metadata?.startTimestamp || false;
 
