@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from 'moment';
-import Icon from '../Icon';
+import Icon, {SubtitlesIcon} from '../Icon';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 import { VideoEmbed } from '../utils/VideoEmbed';
 import DeleteButton from '../DeleteButton';
@@ -106,12 +106,40 @@ function AssetProgress({ failed, current, total }) {
   return <span className="loader" />;
 }
 
+function SubtitleDetails({ subtitles }) {
+    if (!subtitles) {
+        return <div className="subtitle__placeholder">No Subtitle File Attached</div>;
+    }
+
+    const { title, timestamp } = subtitles;
+    const dateTime = moment(timestamp).format('YYYY/MM/DD HH:mm:ss')
+
+    return (
+        <div className="subtitle__details">
+            <div className="subtitle__title">{title}</div>
+            <div className="subtitle__datetime">{dateTime}</div>
+        </div>
+    );
+}
+function SubtitleActions({ onUpload, onDelete, title}) {
+    return (
+        <div className="subtitle__actions">
+            <button className="btn upload__activate-btn" onClick={onUpload}>
+                <Icon icon="backup">
+                    {title}
+                </Icon>
+            </button>
+            <button className="subtitle__delete-btn" onClick={onDelete}>Delete Subtitle File</button>
+        </div>
+    );
+}
+
 export function Asset({ upload, isActive, selectAsset, deleteAsset }) {
   const { asset, metadata, processing } = upload;
   const user =  metadata?.user ?? "";
   const info = metadata?.originalFilename || `Version ${upload.id}`;
   const timestamp =  metadata?.startTimestamp || false;
-
+  const subtitles = {title: 'World leader talking to camera with a long file name so it goes across two lines .mp4', dateTime: "10th june"}
   if (processing) {
     return (
       <div className="video__grid__item">
@@ -131,11 +159,20 @@ export function Asset({ upload, isActive, selectAsset, deleteAsset }) {
     return (
       <div className="video__grid__item">
         <AssetDisplay isActive={isActive} id={asset.id} sources={asset.sources} />
-        <div className="video__grid__item__footer">
+        <div className="video__grid__item__details">
           <AssetControls user={user} isActive={isActive} selectAsset={selectAsset} deleteAsset={deleteAsset}>
             <AssetInfo info={info} timestamp={timestamp} />
           </AssetControls>
+
         </div>
+
+          <div className="video__grid__item__subtitles">
+              <div className="subtitle__container">
+                  <SubtitlesIcon />
+                  <SubtitleDetails subtitles={subtitles} />
+              </div>
+              <SubtitleActions title={subtitles ? "Replace" : "Upload"} onUpload={() => {}} onDelete={() => {}} />
+          </div>
       </div>
     );
   }
