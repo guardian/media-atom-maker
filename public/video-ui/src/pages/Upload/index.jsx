@@ -1,5 +1,5 @@
 import React from 'react';
-import VideoTrail from '../../components/VideoUpload/VideoTrail';
+import { VideoTrail } from '../../components/VideoUpload/VideoTrail';
 import { getStore } from '../../util/storeAccessor';
 import AddAssetFromURL from '../../components/VideoUpload/AddAssetFromURL';
 import PlutoProjectPicker from '../../components/Pluto/PlutoProjectPicker';
@@ -30,7 +30,8 @@ class VideoUpload extends React.Component {
     const uploading = this.props.s3Upload.total > 0;
     const activeVersion = this.props.video ? this.props.video.activeVersion : 0;
 
-    const projectId = this.props.video.plutoData && this.props.video.plutoData.projectId;
+    const projectId =
+      this.props.video.plutoData && this.props.video.plutoData.projectId;
 
     return (
       <div>
@@ -39,7 +40,7 @@ class VideoUpload extends React.Component {
             <div className="video__detailbox">
               <div>
                 <div className="form__group">
-                  { projectId && <PlutoProjectLink projectId={projectId}/> }
+                  {projectId && <PlutoProjectLink projectId={projectId} />}
                   <PlutoProjectPicker
                     video={this.props.video || {}}
                     saveVideo={this.props.videoActions.saveVideo}
@@ -79,9 +80,11 @@ class VideoUpload extends React.Component {
                 this.props.videoActions.revertAsset(
                   this.props.video.id,
                   version
-                )}
+                )
+              }
               getUploads={() =>
-                this.props.uploadActions.getUploads(this.props.video.id)}
+                this.props.uploadActions.getUploads(this.props.video.id)
+              }
             />
           </div>
         </div>
@@ -115,7 +118,14 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     videoActions: bindActionCreators(
-      Object.assign({}, getVideo, saveVideo, createAsset, revertAsset, deleteAsset),
+      Object.assign(
+        {},
+        getVideo,
+        saveVideo,
+        createAsset,
+        revertAsset,
+        deleteAsset
+      ),
       dispatch
     ),
     uploadActions: bindActionCreators(

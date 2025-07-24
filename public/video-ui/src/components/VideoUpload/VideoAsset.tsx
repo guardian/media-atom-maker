@@ -4,75 +4,10 @@ import Icon from '../Icon';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 import { VideoEmbed } from '../utils/VideoEmbed';
 import DeleteButton from '../DeleteButton';
-
-type RuntimeUploadMetadata = YouTubeUploadMetadata | SelfHostedUploadMetadata;
-
-type YouTubeUploadMetadata = {
-  type: 'YouTubeUploadMetadata';
-  channel: string;
-  uri?: string;
-};
-
-type SelfHostedUploadMetadata = {
-  type: 'SelfHostedUploadMetadata';
-  jobs: string[];
-};
-
-type PlutoSyncMetadataMessage = {
-  type: string;
-  projectId?: string;
-  s3Key: string;
-  atomId: string;
-  title: string;
-  user: string;
-  posterImageUrl?: string;
-};
-
-type UploadMetaData = {
-  user: string;
-  bucket: string;
-  region: string;
-  title: string;
-  pluto: PlutoSyncMetadataMessage;
-  selfHost: boolean;
-  runtime: RuntimeUploadMetadata;
-  originalFilename?: string;
-  version?: number;
-  startTimestamp?: number;
-};
-
-export type VideoProcessing = {
-  status: string;
-  failed: boolean;
-  current?: string | number | readonly string[];
-  total?: string | number;
-};
-
-export type VideoUpload = {
-  id: string;
-  processing: VideoProcessing;
-  metadata: UploadMetaData;
-  asset: VideoAsset;
-};
-
-export type VideoSource = {
-  src: string;
-  mimeType: string;
-};
-
-export type YouTubeAsset = {
-  type: 'YouTubeAsset';
-  id: string;
-};
-
-export type SelfHostedAsset = {
-  type: 'SelfHostedAsset';
-  sources: VideoSource[];
-};
-
-export type VideoAsset = YouTubeAsset | SelfHostedAsset;
+import { Source, Upload } from './VideoUpload';
 
 function presenceInitials(email: string) {
+  if (!email) return;
   const emailParts = email.split('@');
   const names = [];
 
@@ -156,7 +91,7 @@ function AssetDisplay({
 }: {
   id?: string;
   isActive: boolean;
-  sources: VideoSource[];
+  sources?: Source[];
 }) {
   const embed = id ? (
     <YouTubeEmbed id={id} largePreview={true} />
@@ -218,13 +153,11 @@ export function Asset({
   selectAsset,
   deleteAsset
 }: {
-  upload: VideoUpload;
+  upload: Upload;
   isActive: boolean;
   selectAsset: () => void;
   deleteAsset: () => void;
 }) {
-  console.log(typeof upload, { upload });
-
   const { asset, metadata, processing } = upload;
   const user = metadata.user;
   const info = metadata?.originalFilename || `Version ${upload.id}`;
@@ -255,8 +188,8 @@ export function Asset({
       <div className="grid__item">
         <AssetDisplay
           isActive={isActive}
-          id={asset.type === 'YouTubeAsset' && asset.id}
-          sources={asset.type === 'SelfHostedAsset' && asset.sources}
+          id={asset.id}
+          sources={asset.sources}
         />
         <div className="grid__item__footer">
           <AssetControls
