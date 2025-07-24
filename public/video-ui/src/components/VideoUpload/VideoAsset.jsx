@@ -178,7 +178,7 @@ function SubtitleActions({ subtitles, onUpload, onDelete}) {
     );
 }
 
-export function Asset({upload, isActive, selectAsset, deleteAsset, startSubtitleFileUpload, deleteSubtitle}) {
+export function Asset({upload, isActive, selectAsset, deleteAsset, startSubtitleFileUpload, deleteSubtitle,permissions}) {
   const { asset, metadata, processing } = upload;
   const user =  metadata?.user ?? "";
   const info = metadata?.originalFilename || `Version ${upload.id}`;
@@ -211,6 +211,9 @@ export function Asset({upload, isActive, selectAsset, deleteAsset, startSubtitle
 
         </div>
 
+
+        {permissions?.addSubtitles &&
+
           <div className="video__grid__item__subtitles">
               <div className="subtitle__container">
                   <SubtitlesIcon />
@@ -218,6 +221,7 @@ export function Asset({upload, isActive, selectAsset, deleteAsset, startSubtitle
               </div>
               <SubtitleActions subtitles={subtitles} onUpload={(file) =>  startSubtitleFileUpload({ file, id: asset.sources[0].src, version: upload.id })} onDelete={deleteSubtitle} />
           </div>
+        }
       </div>
     );
   }
