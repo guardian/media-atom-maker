@@ -1,4 +1,4 @@
-import { createUpload, uploadParts, uploadPacFile} from '../../services/UploadsApi';
+import { createUpload, uploadParts, uploadPacFile, uploadSubtitleFile} from '../../services/UploadsApi';
 import { errorDetails } from '../../util/errorDetails';
 
 function uploadStarted(upload) {
@@ -61,12 +61,13 @@ export function startPacFileUpload({id, file}) {
   };
 }
 
-/**
- * startSubtitleFileUpload
- *
- * export function startSubtitleFileUpload({atomId, file})
- *
- * - add new function to be called from UI
- * - fn will be similar to startPacFileUpload
- * - will call new fn UploadsApi.uploadSubtitleFile()
- */
+export function startSubtitleFileUpload({id, version, file}) {
+  return dispatch => {
+    return uploadSubtitleFile({id, version, file}).then(() => {
+      dispatch(uploadComplete());
+    }).catch(err => {
+      dispatch(uploadError(errorDetails(err)));
+    });
+  };
+}
+

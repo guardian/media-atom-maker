@@ -6,6 +6,7 @@ import PlutoProjectPicker from '../../components/Pluto/PlutoProjectPicker';
 import AddSelfHostedAsset from '../../components/VideoUpload/AddSelfHostedAsset';
 import YoutubeUpload from '../../components/VideoUpload/YoutubeUpload';
 import PACUpload from '../../components/PACUpload/PACUpload';
+import SubtitleUpload from "../../components/SubtitleUpload/SubtitleUpload";
 import PlutoProjectLink from '../../components/Pluto/PlutoProjectLink';
 
 class VideoUpload extends React.Component {
@@ -56,6 +57,10 @@ class VideoUpload extends React.Component {
               />
               <PACUpload
                 startUpload={this.props.uploadActions.startPacFileUpload}
+                video={this.props.video}
+              />
+              <SubtitleUpload
+                startUpload={this.props.uploadActions.startSubtitleFileUpload}
                 video={this.props.video}
               />
               <AddAssetFromURL
