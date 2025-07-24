@@ -121,25 +121,46 @@ function SubtitleDetails({ subtitles }) {
         </div>
     );
 }
-function SubtitleActions({ onUpload, onDelete, title}) {
+function SubtitleActions({ subtitles, onUpload, onDelete}) {
+  const fileInputRef = React.useRef();
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      onUpload(file);
+    }
+  };
+
+    const handleClick = () => {
+      fileInputRef.current?.click();
+    };
+
     return (
-        <div className="subtitle__actions">
-            <button className="btn upload__activate-btn" onClick={onUpload}>
-                <Icon icon="backup">
-                    {title}
-                </Icon>
-            </button>
-            <button className="subtitle__delete-btn" onClick={onDelete}>Delete Subtitle File</button>
-        </div>
+      <div className="subtitle__actions">
+        <input
+          type="file"
+          ref={fileInputRef}
+          accept=".srt"
+          style={{ display: 'none' }}
+          onChange={handleFileChange}
+        />
+        <button className="btn upload__activate-btn" onClick={handleClick}>
+          <Icon icon="backup">
+            {subtitles ? "Replace" : "Upload"}
+          </Icon>
+        </button>
+        {subtitles && <button className="subtitle__delete-btn" onClick={onDelete}>Delete Subtitle File</button>}
+      </div>
     );
 }
 
-export function Asset({ upload, isActive, selectAsset, deleteAsset }) {
+export function Asset({upload, isActive, selectAsset, deleteAsset, startSubtitleFileUpload, deleteSubtitle}) {
   const { asset, metadata, processing } = upload;
   const user =  metadata?.user ?? "";
   const info = metadata?.originalFilename || `Version ${upload.id}`;
   const timestamp =  metadata?.startTimestamp || false;
   const subtitles = {title: 'World leader talking to camera with a long file name so it goes across two lines .mp4', dateTime: "10th june"}
+
   if (processing) {
     return (
       <div className="video__grid__item">
@@ -171,7 +192,7 @@ export function Asset({ upload, isActive, selectAsset, deleteAsset }) {
                   <SubtitlesIcon />
                   <SubtitleDetails subtitles={subtitles} />
               </div>
-              <SubtitleActions title={subtitles ? "Replace" : "Upload"} onUpload={() => {}} onDelete={() => {}} />
+              <SubtitleActions subtitles={subtitles} onUpload={(file) =>  startSubtitleFileUpload({ file, assetId: asset.sources[0].src, version: upload.id })} onDelete={deleteSubtitle} />
           </div>
       </div>
     );
