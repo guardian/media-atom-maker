@@ -108,7 +108,7 @@ function AssetProgress({ failed, current, total }) {
 
 function SubtitleDetails({ subtitles }) {
     if (!subtitles) {
-        return <div className="subtitle__placeholder">No Subtitle File Attached</div>;
+        return <div className="subtitle__title">No Subtitle File Attached</div>;
     }
 
     const { title, timestamp } = subtitles;
@@ -179,14 +179,17 @@ function SubtitleActions({ subtitles, onUpload, onDelete}) {
 }
 
 export function Asset({upload, isActive, selectAsset, deleteAsset, startSubtitleFileUpload, deleteSubtitle,permissions}) {
- console.log({upload})
 
   const { asset, metadata, processing } = upload;
+
   const user =  metadata?.user ?? "";
   const info = metadata?.originalFilename || `Version ${upload.id}`;
   const timestamp =  metadata?.startTimestamp || false;
 
-  const subtitles = {title: 'World leader talking to camera with a long file name so it goes across two lines .mp4', dateTime: "10th june"}
+  // used for testing
+  // const subtitles = {title: 'World leader talking to camera with a long file name so it goes across two lines .mp4', dateTime: "10th june"}
+ const subtitles = asset.sources.find(source => source.mimeType === "WEBVTT")
+
 
   if (processing) {
     return (
@@ -216,7 +219,7 @@ export function Asset({upload, isActive, selectAsset, deleteAsset, startSubtitle
 
 
         {
-          permissions?.addSubtitles &&
+          // permissions?.addSubtitles &&
 
           <div className="video-trail__item__subtitles">
               <div className="subtitle__container">
