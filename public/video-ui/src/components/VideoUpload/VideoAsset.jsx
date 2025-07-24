@@ -6,6 +6,7 @@ import { VideoEmbed } from '../utils/VideoEmbed';
 import DeleteButton from '../DeleteButton';
 
 function presenceInitials(email) {
+  if (!email) return;
   const emailParts = email.split('@');
   const names = [];
 
@@ -22,44 +23,37 @@ function presenceInitials(email) {
 }
 
 function AssetControls({ user, children, isActive, selectAsset, deleteAsset }) {
-  const activateButton = !isActive
-    ? <button className="btn upload__activate-btn" onClick={selectAsset}>
-        Activate
-      </button>
-    : false;
+  const userCircle = <ul className="presence-list">
+    <li className="presence-list__user" title={user}>
+      {presenceInitials(user)}
+    </li>
+  </ul>
 
-  const deleteButton = !isActive
-    ? <DeleteButton
-        tooltip="Remove asset from Atom (does not affect YouTube.com)"
-        onDelete={deleteAsset}
-      />
-    : false;
+  const activateButton =
+    <button className="btn upload__activate-btn" onClick={selectAsset}>
+      Activate
+    </button>
 
-  const initials = user ? presenceInitials(user) : false;
-  const userCircle = initials
-    ? <ul className="presence-list">
-        <li className="presence-list__user" title={user}>
-          {initials}
-        </li>
-      </ul>
-    : false;
+
+  const deleteButton = <DeleteButton
+    tooltip="Remove asset from Atom (does not affect YouTube.com)"
+    onDelete={deleteAsset}
+  />
 
   return (
     <div className="upload__actions">
       {children}
       <div className="upload__right">
-        {userCircle}
-        {activateButton}
-        {deleteButton}
+        {user && userCircle}
+        {!isActive && activateButton}
+        {!isActive && deleteButton}
       </div>
     </div>
   );
 }
 
 function AssetInfo({ info, timestamp }) {
-  const startDate = timestamp
-    ? moment(timestamp).format('YYYY/MM/DD HH:mm:ss')
-    : false;
+  const dateTime = timestamp && moment(timestamp).format('YYYY/MM/DD HH:mm:ss')
 
   return (
     <div className="upload__left">
@@ -67,37 +61,32 @@ function AssetInfo({ info, timestamp }) {
         {info}
       </div>
       <div>
-        <small>{startDate}</small>
+        <small>{dateTime}</small>
       </div>
     </div>
   );
 }
 
-function AssetDisplay({ id, isActive, sources }) {
-  const linkProps = id
-    ? {
-        className: 'upload__link',
-        href: `https://www.youtube.com/watch?v=${id}`,
-        target: '_blank',
-        rel: 'noopener noreferrer'
-      }
-    : false;
+function AssetDisplay({id, isActive, sources}) {
+  const embed = id ? <YouTubeEmbed id={id} largePreview={true}/> : <VideoEmbed sources={sources}/>
 
   return (
     <div className="upload">
-      {id ? <YouTubeEmbed id={id} largePreview={true}/> : <VideoEmbed sources={sources} />}
-      {linkProps
-        ? <a {...linkProps}>
-            <Icon icon="open_in_new" className="icon__assets" />
-          </a>
-        : false}
-      {isActive
-        ? <div className="grid__status__overlay">
+      {embed}
+      {id &&
+        <a className={'upload__link'}
+           href={`https://www.youtube.com/watch?v=${id}`}
+           target={'_blank'}
+           rel={'noopener noreferrer'}>
+          <Icon icon="open_in_new" className="icon__assets"/>
+        </a>}
+      {isActive &&
+        <div className="grid__status__overlay">
             <span className="publish__label label__live label__frontpage__overlay">
               Active
             </span>
-          </div>
-        : false}
+        </div>
+      }
     </div>
   );
 }
@@ -112,15 +101,17 @@ function AssetProgress({ failed, current, total }) {
       </div>
     );
   }
-
-  return total !== undefined && current !== undefined
-    ? <progress className="progress" value={current} max={total} />
-    : <span className="loader" />;
+  if (total !== undefined && current !== undefined) {
+    return <progress className="progress" value={current} max={total} />
+  }
+  return <span className="loader" />;
 }
 
 export function Asset({ upload, isActive, selectAsset, deleteAsset }) {
   const { asset, metadata, processing } = upload;
-  const user = metadata ? metadata.user : false;
+  const user =  metadata?.user ?? "";
+  const info = metadata?.originalFilename || `Version ${upload.id}`;
+  const timestamp =  metadata?.startTimestamp || false;
 
   if (processing) {
     return (
@@ -138,9 +129,6 @@ export function Asset({ upload, isActive, selectAsset, deleteAsset }) {
   }
 
   if (asset) {
-    const info = metadata ? metadata.originalFilename : `Version ${upload.id}`;
-    const timestamp = metadata ? metadata.startTimestamp : false;
-
     return (
       <div className="grid__item">
         <AssetDisplay isActive={isActive} id={asset.id} sources={asset.sources} />
@@ -153,5 +141,5 @@ export function Asset({ upload, isActive, selectAsset, deleteAsset }) {
     );
   }
 
-  return false;
+  return null;
 }
