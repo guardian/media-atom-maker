@@ -70,7 +70,7 @@ function AssetDisplay({id, isActive, sources}) {
   const embed = id ? <YouTubeEmbed id={id} largePreview={true}/> : <VideoEmbed sources={sources}/>
 
   return (
-    <div className="upload">
+    <div className="video__grid__upload">
       {embed}
       {id &&
         <a className={'upload__link'}
@@ -80,7 +80,7 @@ function AssetDisplay({id, isActive, sources}) {
           <Icon icon="open_in_new" className="icon__assets"/>
         </a>}
       {isActive &&
-        <div className="grid__status__overlay">
+        <div className="video__grid__status__overlay">
             <span className="publish__label label__live label__frontpage__overlay">
               Active
             </span>
@@ -114,11 +114,11 @@ export function Asset({ upload, isActive, selectAsset, deleteAsset }) {
 
   if (processing) {
     return (
-      <div className="grid__item">
+      <div className="video__grid__item">
         <div className="upload">
           <AssetProgress {...processing} />
         </div>
-        <div className="grid__item__footer">
+        <div className="video__grid__item__footer">
           <AssetControls user={user} selectAsset={selectAsset} deleteAsset={deleteAsset}>
             <AssetInfo info={processing.status} />
           </AssetControls>
@@ -129,9 +129,9 @@ export function Asset({ upload, isActive, selectAsset, deleteAsset }) {
 
   if (asset) {
     return (
-      <div className="grid__item">
+      <div className="video__grid__item">
         <AssetDisplay isActive={isActive} id={asset.id} sources={asset.sources} />
-        <div className="grid__item__footer">
+        <div className="video__grid__item__footer">
           <AssetControls user={user} isActive={isActive} selectAsset={selectAsset} deleteAsset={deleteAsset}>
             <AssetInfo info={info} timestamp={timestamp} />
           </AssetControls>
