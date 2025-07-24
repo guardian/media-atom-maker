@@ -83,6 +83,7 @@ class VideoUpload extends React.Component {
               getUploads={() =>
                 this.props.uploadActions.getUploads(this.props.video.id)}
               startSubtitleFileUpload={this.props.uploadActions.startSubtitleFileUpload}
+              permissions={getStore().getState().config.permissions}
             />
           </div>
         </div>
