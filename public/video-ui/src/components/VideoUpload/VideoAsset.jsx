@@ -126,9 +126,33 @@ function SubtitleActions({ subtitles, onUpload, onDelete}) {
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    if (file) {
-      onUpload(file);
+
+    if (!file) return;
+    const isSRT = file.name.endsWith('.srt') || file.type === 'application/x-subrip';
+    const isVTT = file.name.endsWith('.vtt') || file.type === 'text/vtt';
+
+
+    if (!isSRT && !isVTT) {
+      alert('Invalid file type. Please upload a .srt or .vtt subtitle file.');
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const text = e.target.result;
+
+      // check basic format of srt or vtt file
+      const isSRTFormat = /\d+\s+\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}/.test(text);
+      const isVTTFormat = /^WEBVTT/m.test(text) && /-->/m.test(text);
+
+      if ((isSRT && !isSRTFormat) || (isVTT && !isVTTFormat)) {
+        alert('The file content does not match the expected subtitle format.');
+        return;
+      }
+
+      // Passed validation
+      onUpload(file);
+    };
   };
 
     const handleClick = () => {
