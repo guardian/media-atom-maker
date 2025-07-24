@@ -1,6 +1,6 @@
 
 .video__grid__item {
-  display:flex;
+  display:inline-block;
   flex-direction: column;
   position:relative;
   border-top: 1px solid $brandColor;
@@ -29,7 +29,7 @@
 .video__grid__item__details {
   width: 100%;
   background-color: $color700Grey;
-
+  height:80px
 }
 .video__grid__item__subtitles {
   border-top: 1px solid $brandColor;
