@@ -93,30 +93,33 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
    *
    */
   def uploadSubtitleFile(atomId: String, version: Int): Action[MultipartFormData[Files.TemporaryFile]] =
-    LookupPermissions(parse.multipartFormData) { implicit request =>
-      // TODO: check permissions
-      request.body.file("subtitle-file").map { file =>
-        val atom = getPreviewAtom(atomId)
-        val mediaAtom: MediaAtom = MediaAtom.fromThrift(atom)
+    LookupPermissions(parse.multipartFormData) { implicit req =>
+      if(!req.permissions.addSubtitles) {
+        Unauthorized(s"User ${req.user.email} is not authorised to upload subtitle asset")
+      } else {
+        req.body.file("subtitle-file").map { file =>
+          val atom = getPreviewAtom(atomId)
+          val mediaAtom: MediaAtom = MediaAtom.fromThrift(atom)
 
-        try {
-          SubtitleFileUploadCommand(
-            mediaAtom,
-            version,
-            file,
-            stores,
-            request.user,
-            awsConfig
-          ).process()
+          try {
+            SubtitleFileUploadCommand(
+              mediaAtom,
+              version,
+              file,
+              stores,
+              req.user,
+              awsConfig
+            ).process()
 
-          Ok(Json.parse("{}"))
-        }
-        catch {
-          commandExceptionAsResult
-        }
-    }.getOrElse(
-      BadRequest
-    )
+            Ok(Json.parse("{}"))
+          }
+          catch {
+            commandExceptionAsResult
+          }
+        }.getOrElse(
+          BadRequest
+        )
+      }
   }
 
   @tailrec
