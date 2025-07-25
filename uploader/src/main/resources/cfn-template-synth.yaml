@@ -196,6 +196,13 @@ Resources:
                   - !Sub [ "arn:aws:s3:::${Bucket}/*", { "Bucket": !Ref UploadBucketName } ]
               - Effect: "Allow"
                 Action:
+                  - "s3:Get*"
+                  - "s3:List*"
+                  - "s3:Put*"
+                Resource:
+                  - "arn:aws:s3:::df-test-73fd4751-036d-47ab-bf22-541446acf447"
+              - Effect: "Allow"
+                Action:
                   - "s3:Put*"
                 Resource:
                   - !Sub [ "arn:aws:s3:::${Bucket}/media-convert-testing/*", { "Bucket": !Ref DestinationBucketName } ]
@@ -275,7 +282,7 @@ Resources:
             OutputGroupSettings:
               Type: HLS_GROUP_SETTINGS
               HlsGroupSettings:
-                Destination: "s3://df-test-73fd4751-036d-47ab-bf22-541446acf447/run-4/"
+                Destination: "s3://df-test-73fd4751-036d-47ab-bf22-541446acf447/run-5/"
                 SegmentLength: 10
                 MinSegmentLength: 0
         FollowSource: 1
