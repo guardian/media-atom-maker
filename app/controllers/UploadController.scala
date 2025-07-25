@@ -13,8 +13,9 @@ import data.{DataStores, UnpackedDataStores}
 import com.gu.ai.x.play.json.Jsonx
 import model.commands.CommandExceptions.commandExceptionAsResult
 import model.commands.SubtitleFileUploadCommand
+import play.api.libs.Files
 import play.api.libs.json.{Format, Json}
-import play.api.mvc.ControllerComponents
+import play.api.mvc.{Action, ControllerComponents, MultipartFormData}
 import util._
 
 import scala.annotation.tailrec
@@ -91,36 +92,32 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
    *       to the transcoding step
    *
    */
-  def uploadSubtitleFile(atomId: String, version: Int) =
-    LookupPermissions { implicit raw =>
-      log.info("raw request " + raw)
-      Ok(Json.parse("{}"))
-    }
+  def uploadSubtitleFile(atomId: String, version: Int): Action[MultipartFormData[Files.TemporaryFile]] =
+    LookupPermissions(parse.multipartFormData) { implicit request =>
+      // TODO: check permissions
+      request.body.file("subtitle-file").map { file =>
+        val atom = getPreviewAtom(atomId)
+        val mediaAtom: MediaAtom = MediaAtom.fromThrift(atom)
 
-//  APIAuthAction.apply(parse.multipartFormData) { request =>
-//    request.body.file("subtitle-file").map { file =>
-//      val atom = getPreviewAtom(atomId)
-//      val mediaAtom: MediaAtom = MediaAtom.fromThrift(atom)
-//
-//      try {
-//        SubtitleFileUploadCommand(
-//          mediaAtom,
-//          version,
-//          file.ref,
-//          stores,
-//          request.user,
-//          awsConfig
-//        ).process()
-//
-//        Ok(Json.parse("{}"))
-//      }
-//      catch {
-//        commandExceptionAsResult
-//      }
-//    }.getOrElse(
-//      BadRequest
-//    )
-//  }
+        try {
+          SubtitleFileUploadCommand(
+            mediaAtom,
+            version,
+            file,
+            stores,
+            request.user,
+            awsConfig
+          ).process()
+
+          Ok(Json.parse("{}"))
+        }
+        catch {
+          commandExceptionAsResult
+        }
+    }.getOrElse(
+      BadRequest
+    )
+  }
 
   @tailrec
   private def start(atom: MediaAtom, email: String, req: UploadRequest, version: Long): Upload = try {
