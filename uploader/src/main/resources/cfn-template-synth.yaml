@@ -200,7 +200,7 @@ Resources:
                   - "s3:List*"
                   - "s3:Put*"
                 Resource:
-                  - "arn:aws:s3:::df-test-73fd4751-036d-47ab-bf22-541446acf447"
+                  - "arn:aws:s3:::df-test-73fd4751-036d-47ab-bf22-541446acf447/*"
               - Effect: "Allow"
                 Action:
                   - "s3:Put*"
