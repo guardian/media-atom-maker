@@ -1,0 +1,44 @@
+
+.video-trail__item {
+  display:inline-block;
+  position:relative;
+  border-top: 1px solid $brandColor;
+  width: 400px;
+  margin: 8px;
+
+}
+
+.video-trail__upload{
+  display: flex;
+  height:250px;
+  color: #fff;
+}
+
+.video-trail__status__overlay {
+    position: absolute;
+    right: 5px;
+    top: 10px
+}
+
+.video-trail__item__details {
+  width: 100%;
+  background-color: $color700Grey;
+  height:80px
+}
+.video-trail__item__subtitles {
+  border-top: 1px solid $brandColor;
+  background-color: $color600Grey;
+  padding: 24px 12px 12px 12px;
+}
+
+.video-trail__presence_indicator {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 5px;
+  width:40px;
+  border-radius: 50%;
+  color: $color600Grey;
+  background-color: $cWhite;
+}
