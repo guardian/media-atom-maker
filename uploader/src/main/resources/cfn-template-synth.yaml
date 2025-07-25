@@ -262,6 +262,10 @@ Resources:
                         Bitrate: 160000
                         CodingMode: CODING_MODE_2_0
                         SampleRate: 44100
+              - ContainerSettings:
+                  Container: M3U8
+                  M3u8Settings: { }
+                NameModifier: "captions"
                 CaptionDescriptions:
                   - LanguageCode: ENG
                     CaptionSelectorName: "Caption Selector 1"
@@ -271,7 +275,7 @@ Resources:
             OutputGroupSettings:
               Type: HLS_GROUP_SETTINGS
               HlsGroupSettings:
-                Destination: !Sub [ "s3://${Bucket}/media-convert-testing/hls/${Stage}/", { "Bucket": !Ref DestinationBucketName, "Stage": !Ref Stage } ]
+                Destination: "s3://df-test-73fd4751-036d-47ab-bf22-541446acf447/run-4/"
                 SegmentLength: 10
                 MinSegmentLength: 0
         FollowSource: 1
@@ -284,11 +288,9 @@ Resources:
             CaptionSelectors:
               Caption Selector 1:
                 SourceSettings:
-                  SourceType: WEBVTT
-                  WebvttHlsSourceSettings:
-                    RenditionGroupId: "captions"
-                    RenditionName: "English"
-                    RenditionLanguageCode: "EN"
+                  SourceType: SRT
+                  FileSourceSettings:
+                    SourceFile: "s3://df-test-73fd4751-036d-47ab-bf22-541446acf447/different.srt"
       Tags:
         App: !Ref App
         Stack: !Ref Stack
