@@ -296,8 +296,6 @@ Resources:
               Caption Selector 1:
                 SourceSettings:
                   SourceType: NULL_SOURCE
-                  FileSourceSettings:
-                    SourceFile: "s3://df-test-73fd4751-036d-47ab-bf22-541446acf447/different.srt"
       Tags:
         App: !Ref App
         Stack: !Ref Stack
