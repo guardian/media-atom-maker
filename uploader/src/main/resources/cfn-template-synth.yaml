@@ -282,7 +282,6 @@ Resources:
             OutputGroupSettings:
               Type: HLS_GROUP_SETTINGS
               HlsGroupSettings:
-                Destination: "s3://df-test-73fd4751-036d-47ab-bf22-541446acf447/run-6/"
                 SegmentLength: 10
                 MinSegmentLength: 0
         FollowSource: 1
