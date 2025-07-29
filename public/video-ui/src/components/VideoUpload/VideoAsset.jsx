@@ -152,6 +152,8 @@ function SubtitleActions({ subtitles, onUpload, onDelete}) {
 
       onUpload(file);
     };
+
+    reader.readAsText(file);
   };
 
     const handleClick = () => {
@@ -177,7 +179,7 @@ function SubtitleActions({ subtitles, onUpload, onDelete}) {
     );
 }
 
-export function Asset({upload, isActive, selectAsset, deleteAsset, startSubtitleFileUpload, deleteSubtitle,permissions}) {
+export function Asset({videoId, upload, isActive, selectAsset, deleteAsset, startSubtitleFileUpload, deleteSubtitle, permissions}) {
 
   const { asset, metadata, processing } = upload;
 
@@ -221,7 +223,7 @@ export function Asset({upload, isActive, selectAsset, deleteAsset, startSubtitle
                   <SubtitlesIcon />
                   <SubtitleDetails subtitles={subtitles} />
               </div>
-              <SubtitleActions subtitles={subtitles} onUpload={(file) =>  startSubtitleFileUpload({ file, id: asset.sources[0].src, version: upload.id })} onDelete={deleteSubtitle} />
+              <SubtitleActions subtitles={subtitles} onUpload={(file) =>  startSubtitleFileUpload({ file, id: videoId, version: upload.id })} onDelete={deleteSubtitle} />
           </div>
         }
       </div>
