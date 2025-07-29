@@ -45,7 +45,6 @@ export default class VideoTrail extends React.Component {
 
     this.props.uploads.forEach(upload => {
       if (upload.id !== this.props.s3Upload.id) {
-        console.log("upload >> ", upload)
         ret.push(upload);
       }
     });
@@ -53,13 +52,12 @@ export default class VideoTrail extends React.Component {
     return ret;
   };
 
-
-
   render() {
     const blocks = this.getAssets().map(upload => {
       return (
         <Asset
           key={upload.id}
+          videoId={this.props.video.id}
           upload={upload}
           isActive={parseInt(upload.id) === this.props.activeVersion}
           selectAsset={() => this.props.selectAsset(Number(upload.id))}
