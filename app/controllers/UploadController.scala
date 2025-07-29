@@ -11,8 +11,11 @@ import com.gu.media.youtube.YouTubeVideos
 import com.gu.pandahmac.HMACAuthActions
 import data.{DataStores, UnpackedDataStores}
 import com.gu.ai.x.play.json.Jsonx
+import model.commands.CommandExceptions.commandExceptionAsResult
+import model.commands.SubtitleFileUploadCommand
+import play.api.libs.Files
 import play.api.libs.json.{Format, Json}
-import play.api.mvc.ControllerComponents
+import play.api.mvc.{Action, ControllerComponents, MultipartFormData}
 import util._
 
 import scala.annotation.tailrec
@@ -68,6 +71,55 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       case None =>
         NotFound
     }
+  }
+
+  /**
+   * def uploadSubtitleFile(atomId: String, version: Int)
+   * @param atomId
+   * @param version
+   * @return
+   *
+   * - new method based on Api.uploadPacFile() and UploadController.create()
+   * - see how PacFileUploadCommand uploads the file to S3
+   * - PacFileUploadCommand also notifies Pluto - what, if anything, do we have to tell Pluto?
+   * - this method would also be the trigger for the reprocessing in the state machine
+   * - the state machine would be responsible for updating the models (media atom & pipeline cache) to include the
+   *     subtitle source asset and m3u8 output asset
+   * - should we modify the existing state machine or create a new one?  Considerations would be
+   *    - first state machine step is to save the upload (pipeline cache) model to dynamo - in our case the model, keyed
+   *       on atom id and version, will already exist and we want to modify it to add the subtitle file as a source asset.
+   *    - many of the initial steps are concerned with waiting for the multipart video upload, so we would want to skip
+   *       to the transcoding step
+   *
+   */
+  def uploadSubtitleFile(atomId: String, version: Int): Action[MultipartFormData[Files.TemporaryFile]] =
+    LookupPermissions(parse.multipartFormData) { implicit req =>
+      if(!req.permissions.addSubtitles) {
+        Unauthorized(s"User ${req.user.email} is not authorised to upload subtitle asset")
+      } else {
+        req.body.file("subtitle-file").map { file =>
+          val atom = getPreviewAtom(atomId)
+          val mediaAtom: MediaAtom = MediaAtom.fromThrift(atom)
+
+          try {
+            SubtitleFileUploadCommand(
+              mediaAtom,
+              version,
+              file,
+              stores,
+              req.user,
+              awsConfig
+            ).process()
+
+            Ok(Json.parse("{}"))
+          }
+          catch {
+            commandExceptionAsResult
+          }
+        }.getOrElse(
+          BadRequest
+        )
+      }
   }
 
   @tailrec

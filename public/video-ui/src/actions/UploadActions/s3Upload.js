@@ -1,4 +1,4 @@
-import {createUpload, uploadParts, uploadPacFile, uploadSubtitleFile} from '../../services/UploadsApi';
+import { createUpload, uploadParts, uploadPacFile, uploadSubtitleFile} from '../../services/UploadsApi';
 import { errorDetails } from '../../util/errorDetails';
 
 function uploadStarted(upload) {
@@ -61,7 +61,6 @@ export function startPacFileUpload({id, file}) {
   };
 }
 
-
 export function startSubtitleFileUpload({id, version, file}) {
   return dispatch => {
     return uploadSubtitleFile({id, version, file}).then(() => {
@@ -71,3 +70,4 @@ export function startSubtitleFileUpload({id, version, file}) {
     });
   };
 }
+
