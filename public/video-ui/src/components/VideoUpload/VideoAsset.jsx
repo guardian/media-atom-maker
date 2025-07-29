@@ -185,8 +185,7 @@ export function Asset({upload, isActive, selectAsset, deleteAsset, startSubtitle
   const info = metadata?.originalFilename || `Version ${upload.id}`;
   const timestamp =  metadata?.startTimestamp || false;
 
- const subtitles = asset.sources.find(source => source.mimeType === "WEBVTT")
-
+  const subtitles = asset?.sources?.find(source => source.mimeType === "WEBVTT")
 
   if (processing) {
     return (
