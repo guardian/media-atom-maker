@@ -2,8 +2,9 @@ package model.commands
 
 import com.amazonaws.services.s3.model.{ObjectMetadata, PutObjectRequest, PutObjectResult}
 import com.gu.media.logging.Logging
-import com.gu.media.model.{MediaAtom, PacFileMessage}
+import com.gu.media.model.{MediaAtom, PacFileMessage, SelfHostedAsset, VideoAsset, VideoSource}
 import com.gu.media.upload.PlutoUploadActions
+import com.gu.media.upload.model.Upload
 import com.gu.media.util.MediaAtomHelpers
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
@@ -15,19 +16,18 @@ import util.AWSConfig
 import java.io.File
 
 case class SubtitleFileUploadCommand(
-  mediaAtom: MediaAtom,
-  version: Int,
+  upload: Upload,
   file: MultipartFormData.FilePart[Files.TemporaryFile],
   override val stores: DataStores,
   user: PandaUser,
   awsConfig: AWSConfig
 ) extends Command with Logging {
 
-  override type T = Unit
+  override type T = Upload
 
-  override def process(): Unit = {
+  override def process(): Upload = {
 
-    val key = s"${awsConfig.userUploadFolder}/${mediaAtom.id}-$version/${file.filename}"
+    val key = s"${awsConfig.userUploadFolder}/${upload.id}/${file.filename}"
 
     val metadata = new ObjectMetadata
     file.contentType.foreach(metadata.setContentType)
@@ -37,8 +37,20 @@ case class SubtitleFileUploadCommand(
 
     awsConfig.s3Client.putObject(request) match {
       case _: PutObjectResult =>
-        // ??
+        // add file to upload asset's list of sources
+        addSourceToAsset(upload, VideoSource(key, metadata.getContentType))
       case _ => SubtitleFileUploadFailed
     }
   }
+
+  def addSourceToAsset(upload: Upload, source: VideoSource): Upload =
+    upload.metadata.asset match {
+      case Some(asset: SelfHostedAsset) =>
+        val updatedAsset = Some(asset.copy(sources = asset.sources :+ source))
+        val updatedMetadata = upload.metadata.copy(asset = updatedAsset)
+        upload.copy(metadata = updatedMetadata)
+      case _ =>
+        upload
+  }
+
 }
