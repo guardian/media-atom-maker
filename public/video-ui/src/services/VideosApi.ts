@@ -172,7 +172,7 @@ export default {
   },
 
   createAsset: (asset: { uri: string }, videoId: string) => {
-    return pandaReqwest<Video>({
+    return pandaReqwest<Video, { uri: string }>({
       url: '/api/atoms/' + videoId + '/assets',
       method: 'post',
       headers: {
@@ -183,7 +183,7 @@ export default {
   },
 
   revertAsset: (atomId: string, version: number) => {
-    return pandaReqwest<Video>({
+    return pandaReqwest<Video, { atomId: string, version: number }>({
       url: '/api/atom/' + atomId + '/asset-active',
       method: 'put',
       headers: {
@@ -255,7 +255,7 @@ export default {
   },
 
   deleteAsset(video: Video, asset: Asset) {
-    return pandaReqwest<Video>({
+    return pandaReqwest<Video, Asset>({
       url: `/api/atoms/${video.id}/assets`,
       method: 'delete',
       headers: {
