@@ -1,6 +1,17 @@
 import { reEstablishSession } from 'panda-session';
 import { getStore } from '../util/storeAccessor';
 
+type ReqwestBody<RequestBodyType = any> = {
+  url: string | URL
+  headers?: Record<string, string>;
+  data?: RequestBodyType;
+  contentType?: string;
+  crossOrigin?: boolean
+  withCredentials?: boolean
+  method?: string
+  body?: string
+}
+
 const checkStatus = (res: Response) => {
   if (res.status >= 200 && res.status < 300) {
     return res;
@@ -10,8 +21,7 @@ const checkStatus = (res: Response) => {
 };
 
 
-
-const poll = <ResponseBodyType = any>(url: string | URL | Request, body: RequestInit, timeout: number) => {
+const poll = <ResponseBodyType = any>(url: string | URL | Request, body: ReqwestBody, timeout: number) => {
   const endTime = Number(new Date()) + timeout;
   const interval = 100;
 
@@ -53,19 +63,9 @@ const poll = <ResponseBodyType = any>(url: string | URL | Request, body: Request
   return new Promise(makeRequest);
 };
 
-// https://github.com/ded/reqwest?tab=readme-ov-file#options - library that project used to use?
-type ReqwestBody<RequestBodyType = any> = RequestInit & {
-  url: string | URL | Request, // to do - might always be string
-  headers?: Record<string, string>;
-  data?: RequestBodyType;
-  type?: 'html' | 'xml' | 'json' | 'jsonp' // to we 
-  contentType?: string; // define enum of acceptable values?
-  crossOrigin?: boolean
-  withCredentials?: boolean
-}
 
 // when `timeout` > 0, the request will be retried every 100ms until success or timeout
-export const pandaReqwest = <ResponseBodyType = any, RequestBodyType = any >(reqwestBody: ReqwestBody<RequestBodyType>, timeout = 0) => {
+export const pandaReqwest = <ResponseBodyType = any, RequestBodyType = any>(reqwestBody: ReqwestBody<RequestBodyType>, timeout = 0) => {
   const payload = Object.assign({ method: 'get', credentials: 'include' }, reqwestBody);
 
   if (payload.data) {
