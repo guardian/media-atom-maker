@@ -11,15 +11,21 @@ import com.gu.media.youtube.YouTubeVideos
 import com.gu.pandahmac.HMACAuthActions
 import data.{DataStores, UnpackedDataStores}
 import com.gu.ai.x.play.json.Jsonx
+import com.gu.media.aws.UploadAccess
+import com.gu.pandomainauth.model.User
 import model.commands.CommandExceptions.commandExceptionAsResult
 import model.commands.SubtitleFileUploadCommand
+import org.scanamo
+import org.scanamo.Table
+import org.scanamo.generic.auto._
 import play.api.libs.Files
 import play.api.libs.json.{Format, Json}
-import play.api.mvc.{Action, ControllerComponents, MultipartFormData}
+import play.api.mvc.{Action, ControllerComponents, MultipartFormData, Result}
 import util._
 
 import scala.annotation.tailrec
 import scala.util.control.NonFatal
+
 
 class UploadController(override val authActions: HMACAuthActions, awsConfig: AWSConfig, stepFunctions: StepFunctions,
                        override val stores: DataStores, override val permissions: MediaAtomMakerPermissionsProvider,
@@ -94,33 +100,39 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
    */
   def uploadSubtitleFile(atomId: String, version: Int): Action[MultipartFormData[Files.TemporaryFile]] =
     LookupPermissions(parse.multipartFormData) { implicit req =>
-      if(!req.permissions.addSubtitles) {
+      if (!req.permissions.addSubtitles) {
         Unauthorized(s"User ${req.user.email} is not authorised to upload subtitle asset")
       } else {
-        req.body.file("subtitle-file").map { file =>
-          val atom = getPreviewAtom(atomId)
-          val mediaAtom: MediaAtom = MediaAtom.fromThrift(atom)
-
+        val result = for {
+          file <- req.body.file("subtitle-file")
+          upload <- stepFunctions.getById(s"$atomId-$version")
+        } yield
           try {
-            SubtitleFileUploadCommand(
-              mediaAtom,
-              version,
+            val updatedUpload = SubtitleFileUploadCommand(
+              upload,
               file,
               stores,
               req.user,
               awsConfig
             ).process()
 
+            // TODO: we need to trigger the state machine to run and reprocess the video with subtitles
+            //       so saving the upload record would probably be part of the state machine.
+            //       For now we save it here
+            val table = Table[Upload](awsConfig.cacheTableName)
+            awsConfig.scanamo.exec(table.put(updatedUpload))
+
             Ok(Json.parse("{}"))
           }
           catch {
             commandExceptionAsResult
           }
-        }.getOrElse(
+
+        result.getOrElse(
           BadRequest
         )
       }
-  }
+    }
 
   @tailrec
   private def start(atom: MediaAtom, email: String, req: UploadRequest, version: Long): Upload = try {
