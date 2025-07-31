@@ -1,5 +1,5 @@
 import {getStore} from '../util/storeAccessor';
-import { pandaReqwest } from './pandaReqwest';
+import { apiRequest } from './apiRequest';
 import moment from 'moment';
 
 const getFortnight = () => moment().add('days', 14).valueOf();
@@ -25,7 +25,7 @@ export default class TargetingApi {
       withCredentials: true
     };
 
-    return pandaReqwest(params);
+    return apiRequest(params);
   }
 
   static updateTarget({ id, ...data }) {
@@ -37,7 +37,7 @@ export default class TargetingApi {
       withCredentials: true
     };
 
-    return pandaReqwest(params);
+    return apiRequest(params);
   }
 
   static deleteTarget({id}) {
@@ -48,7 +48,7 @@ export default class TargetingApi {
       withCredentials: true
     };
 
-    return pandaReqwest(params);
+    return apiRequest(params);
   }
 
   static getTargets({id}) {
@@ -58,6 +58,6 @@ export default class TargetingApi {
       withCredentials: true
     };
 
-    return pandaReqwest(params);
+    return apiRequest(params);
   }
 }

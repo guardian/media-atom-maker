@@ -1,7 +1,7 @@
 import { reEstablishSession } from 'panda-session';
 import { getStore } from '../util/storeAccessor';
 
-type ReqwestBody<RequestBodyType = any> = {
+type RequestConfig<RequestBodyType = any> = {
   url: string | URL
   headers?: Record<string, string>;
   data?: RequestBodyType;
@@ -21,12 +21,12 @@ const checkStatus = (res: Response) => {
 };
 
 
-const poll = <ResponseBodyType = any>(url: string | URL | Request, body: ReqwestBody, timeout: number) => {
+const poll = <ResponseBodyType = any>(url: string | URL | Request, config: RequestConfig, timeout: number) => {
   const endTime = Number(new Date()) + timeout;
   const interval = 100;
 
   const makeRequest = (resolve: (value: ResponseBodyType) => void, reject: (reason?: any) => void) => {
-    fetch(url, body)
+    fetch(url, config)
       .then(checkStatus)
       .then(response => {
         const contentTypeHeader = response.headers.get("content-type");
@@ -65,8 +65,8 @@ const poll = <ResponseBodyType = any>(url: string | URL | Request, body: Reqwest
 
 
 // when `timeout` > 0, the request will be retried every 100ms until success or timeout
-export const pandaReqwest = <ResponseBodyType = any, RequestBodyType = any>(reqwestBody: ReqwestBody<RequestBodyType>, timeout = 0) => {
-  const payload = Object.assign({ method: 'get', credentials: 'include' }, reqwestBody);
+export const apiRequest = <ResponseBodyType = any, RequestBodyType = any>(requestConfig: RequestConfig<RequestBodyType>, timeout = 0) => {
+  const payload = Object.assign({ method: 'get', credentials: 'include' }, requestConfig);
 
   if (payload.data) {
     payload.contentType = payload.contentType || 'application/json';
@@ -84,5 +84,5 @@ export const pandaReqwest = <ResponseBodyType = any, RequestBodyType = any>(reqw
     }
   }
 
-  return poll<ResponseBodyType>(reqwestBody.url, payload, timeout);
+  return poll<ResponseBodyType>(requestConfig.url, payload, timeout);
 };

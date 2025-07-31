@@ -1,9 +1,9 @@
-import { pandaReqwest } from './pandaReqwest';
+import { apiRequest } from './apiRequest';
 
 export default {
   composerTagToYouTube: (tagId: string) => {
     const encodedId = encodeURIComponent(tagId);
-    return pandaReqwest<string[]>({
+    return apiRequest<string[]>({
       url: '/api/youtube/content-bundle/' + encodedId,
       method: 'get'
     });
