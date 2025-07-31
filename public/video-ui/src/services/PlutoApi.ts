@@ -1,4 +1,4 @@
-import { pandaReqwest } from './pandaReqwest';
+import { apiRequest } from './apiRequest';
 
 type PlutoItemType = 'commissions' | 'projects'
 
@@ -17,19 +17,19 @@ type PlutoProject = {
 }
 
 export function getPlutoCommissions() {
-  return pandaReqwest<PlutoCommission[]>({
+  return apiRequest<PlutoCommission[]>({
     url: '/api/pluto/commissions'
   });
 }
 
 export function getPlutoProjects({ commissionId }: { commissionId: string }) {
-  return pandaReqwest<PlutoProject[]>({
+  return apiRequest<PlutoProject[]>({
     url: `/api/pluto/commissions/${commissionId}/projects`
   });
 }
 
 export function getPlutoItemById(id: string, itemType: PlutoItemType) {
-  return pandaReqwest<PlutoProject | PlutoCommission>({
+  return apiRequest<PlutoProject | PlutoCommission>({
     url: `/api/pluto/${itemType}s/${id}`
   });
 }

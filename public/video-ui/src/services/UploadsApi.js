@@ -1,4 +1,4 @@
-import { pandaReqwest } from './pandaReqwest';
+import { apiRequest } from './apiRequest';
 import { errorDetails } from '../util/errorDetails';
 
 // See http://andrewhfarmer.com/aws-sdk-with-webpack/ for why this is strange
@@ -18,13 +18,13 @@ const httpOptions = {
 };
 
 export function getUploads(atomId) {
-  return pandaReqwest({
+  return apiRequest({
     url: `/api/uploads?atomId=${atomId}`
   });
 }
 
 export function createUpload(atomId, file, selfHost) {
-  return pandaReqwest({
+  return apiRequest({
     url: `/api/uploads`,
     method: 'post',
     headers: {
@@ -40,7 +40,7 @@ export function createUpload(atomId, file, selfHost) {
 }
 
 function getCredentials(id, key) {
-  return pandaReqwest({
+  return apiRequest({
     url: `/api/uploads/${id}/credentials?key=${key}`,
     method: 'post',
     headers: {
@@ -119,7 +119,7 @@ export function uploadPacFile({ id, file }) {
   const formData = new FormData();
   formData.append('pac-file', file);
 
-  return pandaReqwest({
+  return apiRequest({
     url: `/api/atom/${id}/pac-file`,
     method: 'post',
     headers: {
