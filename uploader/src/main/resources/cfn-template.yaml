@@ -215,16 +215,25 @@ Resources:
                   Mp4Settings: { }
                 VideoDescription:
                   Height: 720
+                  Sharpness: 75
                   CodecSettings:
                     Codec: H_264
                     H264Settings:
-                      Bitrate: 2400000
-                      CodecProfile: BASELINE
-                      EntropyEncoding: CAVLC # This is only specified because it is required if you chose CodecProfile: BASELINE
-                      NumberBFramesBetweenReferenceFrames: 0 # This is only specified because it is required if you chose CodecProfile: BASELINE
-                      FramerateControl: SPECIFIED
-                      FramerateNumerator: 30000
                       FramerateDenominator: 1001
+                      MaxBitrate: 6400000
+                      EntropyEncoding: CABAC
+                      FramerateControl: SPECIFIED
+                      RateControlMode: QVBR
+                      QvbrSettings:
+                        MaxAverageBitrate: 2400000
+                      CodecProfile: HIGH
+                      FramerateNumerator: 30000
+                      SaliencyAwareEncoding: PREFERRED
+                      SceneChangeDetect: TRANSITION_DETECTION
+                      QualityTuningLevel: MULTI_PASS_HQ
+                      NumberBFramesBetweenReferenceFrames: 0
+                      BandwidthReductionFilter:
+                        Strength: AUTO
                 AudioDescriptions:
                   - CodecSettings:
                       Codec: AAC
