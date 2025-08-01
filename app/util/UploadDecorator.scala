@@ -53,6 +53,6 @@ class UploadDecorator(aws: DynamoAccess with UploadAccess, stepFunctions: StepFu
     video.copy(metadata = updatedMetadata, asset = updatedAsset)
   }
 
-  private def getUpload(id: String): Option[Upload] =
+  def getUpload(id: String): Option[Upload] =
     aws.scanamo.exec(table.get("id" === id)).flatMap(_.toOption) orElse { stepFunctions.getById(id) }
 }

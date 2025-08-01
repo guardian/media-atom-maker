@@ -2,18 +2,14 @@ package model.commands
 
 import com.amazonaws.services.s3.model.{ObjectMetadata, PutObjectRequest, PutObjectResult}
 import com.gu.media.logging.Logging
-import com.gu.media.model.{MediaAtom, PacFileMessage, SelfHostedAsset, VideoAsset, VideoSource}
-import com.gu.media.upload.PlutoUploadActions
+import com.gu.media.model.{SelfHostedAsset, VideoSource}
 import com.gu.media.upload.model.Upload
-import com.gu.media.util.MediaAtomHelpers
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
 import play.api.libs.Files
 import play.api.mvc.MultipartFormData
 import util.AWSConfig
-
-import java.io.File
 
 case class SubtitleFileUploadCommand(
   upload: Upload,
@@ -50,7 +46,7 @@ case class SubtitleFileUploadCommand(
     }
   }
 
-  def addSourceToAsset(upload: Upload, source: VideoSource): Upload =
+  private def addSourceToAsset(upload: Upload, source: VideoSource): Upload =
     upload.metadata.asset match {
       case Some(asset: SelfHostedAsset) =>
         val updatedAsset = Some(asset.copy(sources = asset.sources :+ source))
