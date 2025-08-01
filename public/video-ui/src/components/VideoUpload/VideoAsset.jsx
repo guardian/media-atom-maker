@@ -221,7 +221,7 @@ export function Asset({videoId, upload, isActive, selectAsset, deleteAsset, star
                   <SubtitlesIcon />
                   <SubtitleDetails subtitles={subtitles} />
               </div>
-              <SubtitleActions subtitles={subtitles} onUpload={(file) =>  startSubtitleFileUpload({ file, id: videoId, version: upload.id })} onDelete={deleteSubtitle} />
+              <SubtitleActions subtitles={subtitles} onUpload={(file) => startSubtitleFileUpload({ file, id: videoId, version: upload.id })} onDelete={() => deleteSubtitle({ id: videoId, version: upload.id })} />
           </div>
         }
       </div>

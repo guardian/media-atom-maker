@@ -12,9 +12,10 @@ import com.gu.pandahmac.HMACAuthActions
 import data.{DataStores, UnpackedDataStores}
 import com.gu.ai.x.play.json.Jsonx
 import model.commands.CommandExceptions.commandExceptionAsResult
-import model.commands.SubtitleFileUploadCommand
+import model.commands.{SubtitleFileDeleteCommand, SubtitleFileUploadCommand}
 import org.scanamo.Table
 import org.scanamo.generic.auto._
+import org.scanamo.syntax._
 import play.api.libs.Files
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.{Action, ControllerComponents, MultipartFormData, Result}
@@ -76,25 +77,6 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     }
   }
 
-  /**
-   * def uploadSubtitleFile(atomId: String, version: Int)
-   * @param atomId
-   * @param version
-   * @return
-   *
-   * - new method based on Api.uploadPacFile() and UploadController.create()
-   * - see how PacFileUploadCommand uploads the file to S3
-   * - PacFileUploadCommand also notifies Pluto - what, if anything, do we have to tell Pluto?
-   * - this method would also be the trigger for the reprocessing in the state machine
-   * - the state machine would be responsible for updating the models (media atom & pipeline cache) to include the
-   *     subtitle source asset and m3u8 output asset
-   * - should we modify the existing state machine or create a new one?  Considerations would be
-   *    - first state machine step is to save the upload (pipeline cache) model to dynamo - in our case the model, keyed
-   *       on atom id and version, will already exist and we want to modify it to add the subtitle file as a source asset.
-   *    - many of the initial steps are concerned with waiting for the multipart video upload, so we would want to skip
-   *       to the transcoding step
-   *
-   */
   def uploadSubtitleFile(atomId: String, version: Int): Action[MultipartFormData[Files.TemporaryFile]] =
     LookupPermissions(parse.multipartFormData) { implicit req =>
       if (!req.permissions.addSubtitles) {
@@ -102,7 +84,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       } else {
         val result = for {
           file <- req.body.file("subtitle-file")
-          upload <- stepFunctions.getById(s"$atomId-$version")
+          upload <- uploadDecorator.getUpload(s"$atomId-$version")
         } yield
           try {
             val updatedUpload = SubtitleFileUploadCommand(
@@ -113,13 +95,9 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
               awsConfig
             ).process()
 
-            // TODO: we need to trigger the state machine to run and reprocess the video with subtitles
-            //       so saving the upload record would probably be part of the state machine.
-            //       For now we save it here
-            val table = Table[Upload](awsConfig.cacheTableName)
-            awsConfig.scanamo.exec(table.put(updatedUpload))
+            reprocess(updatedUpload)
 
-            Ok(Json.parse("{}"))
+            Ok
           }
           catch {
             commandExceptionAsResult
@@ -131,6 +109,36 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       }
     }
 
+  def deleteSubtitleFile(atomId: String, version: Int) =
+    LookupPermissions { implicit req =>
+      if (!req.permissions.addSubtitles) {
+        Unauthorized(s"User ${req.user.email} is not authorised to upload subtitle asset")
+      } else {
+        log.info(s"Request to delete subtitle file under atom=$atomId version=$version")
+        uploadDecorator.getUpload(s"$atomId-$version") match {
+          case Some(upload) =>
+            try {
+              val updatedUpload = SubtitleFileDeleteCommand(
+                upload,
+                stores,
+                req.user,
+                awsConfig
+              ).process()
+
+              reprocess(updatedUpload)
+
+              Ok
+            }
+            catch {
+              commandExceptionAsResult
+            }
+          case _ =>
+            NotFound
+        }
+      }
+
+  }
+
   @tailrec
   private def start(atom: MediaAtom, email: String, req: UploadRequest, version: Long): Upload = try {
     val upload = UploadBuilder.build(atom, email, version, req, awsConfig)
@@ -140,6 +148,14 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
   } catch {
     case _: ExecutionAlreadyExistsException =>
       start(atom, email, req, version + 1)
+  }
+
+  private def reprocess(upload: Upload): Unit = {
+    // TODO: we need to trigger the state machine to run and reprocess the video with subtitles
+    //       so saving the upload record would probably be part of the state machine.
+    //       For now we save it here
+    val table = Table[Upload](awsConfig.cacheTableName)
+    awsConfig.scanamo.exec(table.put(upload))
   }
 
   private def addYouTubeStatus(video: ClientAsset): ClientAsset = video.asset match {

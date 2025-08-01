@@ -1,4 +1,4 @@
-import { createUpload, uploadParts, uploadPacFile, uploadSubtitleFile} from '../../services/UploadsApi';
+import { createUpload, uploadParts, uploadPacFile, uploadSubtitleFile, deleteSubtitleFile} from '../../services/UploadsApi';
 import { errorDetails } from '../../util/errorDetails';
 
 function uploadStarted(upload) {
@@ -71,3 +71,12 @@ export function startSubtitleFileUpload({id, version, file}) {
   };
 }
 
+export function deleteSubtitle({id, version}) {
+  return dispatch => {
+    return deleteSubtitleFile({id, version}).then(() => {
+      dispatch(uploadComplete());
+    }).catch(err => {
+      dispatch(uploadError(errorDetails(err)));
+    });
+  };
+}

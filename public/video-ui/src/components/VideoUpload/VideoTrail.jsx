@@ -63,7 +63,7 @@ export default class VideoTrail extends React.Component {
           selectAsset={() => this.props.selectAsset(Number(upload.id))}
           deleteAsset={() => this.props.deleteAsset(this.props.video, upload.asset.id)}
           startSubtitleFileUpload={this.props.startSubtitleFileUpload}
-          deleteSubtitle={() => this.props.deleteSubtitle()}
+          deleteSubtitle={this.props.deleteSubtitle}
           permissions={this.props.permissions}
         />
       )
