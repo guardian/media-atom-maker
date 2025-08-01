@@ -7,5 +7,5 @@ cd pluto-message-ingestion
 # The pluto lambda uses a different version of node from main app
 # so we run it separately
 
-yarn
+yarn install --frozen-lockfile
 yarn build

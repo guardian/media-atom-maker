@@ -2,7 +2,7 @@
 
 set -e
 
-yarn install --force --non-interactive
+yarn install --frozen-lockfile
 yarn lint
 yarn test
 yarn run build
