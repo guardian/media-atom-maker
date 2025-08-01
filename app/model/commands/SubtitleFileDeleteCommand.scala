@@ -1,13 +1,22 @@
 package model.commands
 
-import com.amazonaws.services.s3.model.DeleteObjectRequest
 import com.gu.media.logging.Logging
-import com.gu.media.model.{SelfHostedAsset, VideoSource}
+import com.gu.media.model.VideoSource
 import com.gu.media.upload.model.Upload
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
-import util.AWSConfig
+import util.{AWSConfig, SubtitleUtil}
 
+/**
+ * given an upload record from the dynamo pipeline cache table, this command will remove any referenced subtitle files
+ * from S3 and the upload record.
+ * Returns an updated upload record containing references to the existing video sources.
+ *
+ * @param upload
+ * @param stores
+ * @param user
+ * @param awsConfig
+ */
 case class SubtitleFileDeleteCommand(
   upload: Upload,
   override val stores: DataStores,
@@ -19,39 +28,12 @@ case class SubtitleFileDeleteCommand(
 
   override def process(): Upload = {
 
-    val subtitleMimeTypes = Seq("application/x-subrip", "text/vtt")
+    val selfHostedSources: List[VideoSource] = SubtitleUtil.selfHostedSources(upload)
 
-    val subtitleSource = upload.metadata.asset.flatMap {
-      case asset: SelfHostedAsset => asset.sources.find(s => subtitleMimeTypes.contains(s.mimeType))
-      case _ => None
-    }
+    // remove subtitle files from S3
+    SubtitleUtil.deleteSubtitlesFromUserUploadBucket(selfHostedSources, awsConfig)
 
-    subtitleSource match {
-      case Some(source) =>
-        // remove subtitle file from s3
-        try {
-          val request = new DeleteObjectRequest(awsConfig.userUploadBucket, source.src)
-          awsConfig.s3Client.deleteObject(request)
-        } catch {
-          case e: Throwable =>
-            log.warn("error deleting subtitle file", e)
-        }
-
-        // remove subtitle file from upload asset's list of sources
-        removeSourceFromAsset(upload, source)
-
-      case _ =>
-        upload
-    }
+    // remove subtitle files from upload asset's list of sources
+    SubtitleUtil.updateSourcesOnUpload(upload, selfHostedSources.filterNot(SubtitleUtil.isSubtitleSource))
   }
-
-  private def removeSourceFromAsset(upload: Upload, source: VideoSource): Upload =
-    upload.metadata.asset match {
-      case Some(asset: SelfHostedAsset) =>
-        val updatedAsset = Some(asset.copy(sources = asset.sources.filterNot(_ == source)))
-        val updatedMetadata = upload.metadata.copy(asset = updatedAsset)
-        upload.copy(metadata = updatedMetadata)
-      case _ =>
-        upload
-    }
 }
