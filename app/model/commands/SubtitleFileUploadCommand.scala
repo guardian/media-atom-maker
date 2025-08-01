@@ -2,15 +2,26 @@ package model.commands
 
 import com.amazonaws.services.s3.model.{ObjectMetadata, PutObjectRequest, PutObjectResult}
 import com.gu.media.logging.Logging
-import com.gu.media.model.{SelfHostedAsset, VideoSource}
+import com.gu.media.model.VideoSource
 import com.gu.media.upload.model.Upload
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
 import play.api.libs.Files
 import play.api.mvc.MultipartFormData
-import util.AWSConfig
+import util.{AWSConfig, SubtitleUtil}
 
+/**
+ * given an upload record from the dynamo pipeline cache table, this command will add the given file to S3,
+ * removing any exising subtitle files.
+ * Returns an updated upload record referencing the existing video sources and the new subtitle file.
+ *
+ * @param upload
+ * @param file
+ * @param stores
+ * @param user
+ * @param awsConfig
+ */
 case class SubtitleFileUploadCommand(
   upload: Upload,
   file: MultipartFormData.FilePart[Files.TemporaryFile],
@@ -23,37 +34,25 @@ case class SubtitleFileUploadCommand(
 
   override def process(): Upload = {
 
-    val key = s"${awsConfig.userUploadFolder}/${upload.id}/${file.filename}"
+    val selfHostedSources = SubtitleUtil.selfHostedSources(upload)
+    val videoSources = selfHostedSources.filterNot(SubtitleUtil.isSubtitleSource)
 
-    val fileExt = file.filename.split("\\.").last.toLowerCase
-    val contentType = fileExt match {
-      case "srt" => "application/x-subrip"
-      case "vtt" => "text/vtt"
-      case _ => "application/octet-stream"
-    }
+    // remove any existing subtitle files from S3
+    SubtitleUtil.deleteSubtitlesFromUserUploadBucket(selfHostedSources, awsConfig)
+
+    val key = s"${awsConfig.userUploadFolder}/${upload.id}/${file.filename}"
 
     val metadata = new ObjectMetadata
     metadata.addUserMetadata("user", getUsername(user))
-    metadata.setContentType(contentType)
+    metadata.setContentType(SubtitleUtil.contentTypeForFilename(file.filename))
 
     val request = new PutObjectRequest(awsConfig.userUploadBucket, key, file.ref).withMetadata(metadata)
 
     awsConfig.s3Client.putObject(request) match {
       case _: PutObjectResult =>
-        // add file to upload asset's list of sources
-        addSourceToAsset(upload, VideoSource(key, metadata.getContentType))
+        // add subtitle file to upload asset's list of sources
+        SubtitleUtil.updateSourcesOnUpload(upload, videoSources :+ VideoSource(key, metadata.getContentType))
       case _ => SubtitleFileUploadFailed
     }
   }
-
-  private def addSourceToAsset(upload: Upload, source: VideoSource): Upload =
-    upload.metadata.asset match {
-      case Some(asset: SelfHostedAsset) =>
-        val updatedAsset = Some(asset.copy(sources = asset.sources :+ source))
-        val updatedMetadata = upload.metadata.copy(asset = updatedAsset)
-        upload.copy(metadata = updatedMetadata)
-      case _ =>
-        upload
-  }
-
 }
