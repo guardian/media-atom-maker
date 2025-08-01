@@ -29,9 +29,16 @@ case class SubtitleFileUploadCommand(
 
     val key = s"${awsConfig.userUploadFolder}/${upload.id}/${file.filename}"
 
+    val fileExt = file.filename.split("\\.").last.toLowerCase
+    val contentType = fileExt match {
+      case "srt" => "application/x-subrip"
+      case "vtt" => "text/vtt"
+      case _ => "application/octet-stream"
+    }
+
     val metadata = new ObjectMetadata
-    file.contentType.foreach(metadata.setContentType)
     metadata.addUserMetadata("user", getUsername(user))
+    metadata.setContentType(contentType)
 
     val request = new PutObjectRequest(awsConfig.userUploadBucket, key, file.ref).withMetadata(metadata)
 

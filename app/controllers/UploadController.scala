@@ -11,11 +11,8 @@ import com.gu.media.youtube.YouTubeVideos
 import com.gu.pandahmac.HMACAuthActions
 import data.{DataStores, UnpackedDataStores}
 import com.gu.ai.x.play.json.Jsonx
-import com.gu.media.aws.UploadAccess
-import com.gu.pandomainauth.model.User
 import model.commands.CommandExceptions.commandExceptionAsResult
 import model.commands.SubtitleFileUploadCommand
-import org.scanamo
 import org.scanamo.Table
 import org.scanamo.generic.auto._
 import play.api.libs.Files
@@ -41,7 +38,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
   def list(atomId: String) = APIAuthAction { req =>
     val atom = MediaAtom.fromThrift(getPreviewAtom(atomId))
     val withStatus = ClientAsset.fromAssets(atom.assets).map(addYouTubeStatus)
-    val assets = withStatus.map { asset => uploadDecorator.addMetadata(atom.id, asset) }
+    val assets = withStatus.map { asset => uploadDecorator.addMetadataAndSources(atom.id, asset) }
 
     val jobs = stepFunctions.getJobs(atomId)
     val uploads = jobs.flatMap(getRunning(assets, _))
