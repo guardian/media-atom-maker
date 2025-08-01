@@ -32,6 +32,8 @@ POST    /api/workflow/atoms            controllers.Api.createWorkflowMediaAtom
 GET     /api/uploads                   controllers.UploadController.list(atomId)
 POST    /api/uploads                   controllers.UploadController.create
 POST    /api/uploads/:id/credentials   controllers.UploadController.credentials(id, key)
+POST    /api/uploads/:id/:version/subtitle-file    controllers.UploadController.uploadSubtitleFile(id, version: Int)
+DELETE  /api/uploads/:id/:version/subtitle-file    controllers.UploadController.deleteSubtitleFile(id, version: Int)
 
 GET     /api/youtube/categories         controllers.Youtube.listCategories()
 GET     /api/youtube/channels           controllers.Youtube.listChannels()

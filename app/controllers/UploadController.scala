@@ -11,12 +11,19 @@ import com.gu.media.youtube.YouTubeVideos
 import com.gu.pandahmac.HMACAuthActions
 import data.{DataStores, UnpackedDataStores}
 import com.gu.ai.x.play.json.Jsonx
+import model.commands.CommandExceptions.commandExceptionAsResult
+import model.commands.{SubtitleFileDeleteCommand, SubtitleFileUploadCommand}
+import org.scanamo.Table
+import org.scanamo.generic.auto._
+import org.scanamo.syntax._
+import play.api.libs.Files
 import play.api.libs.json.{Format, Json}
-import play.api.mvc.ControllerComponents
+import play.api.mvc.{Action, ControllerComponents, MultipartFormData, Result}
 import util._
 
 import scala.annotation.tailrec
 import scala.util.control.NonFatal
+
 
 class UploadController(override val authActions: HMACAuthActions, awsConfig: AWSConfig, stepFunctions: StepFunctions,
                        override val stores: DataStores, override val permissions: MediaAtomMakerPermissionsProvider,
@@ -32,7 +39,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
   def list(atomId: String) = APIAuthAction { req =>
     val atom = MediaAtom.fromThrift(getPreviewAtom(atomId))
     val withStatus = ClientAsset.fromAssets(atom.assets).map(addYouTubeStatus)
-    val assets = withStatus.map { asset => uploadDecorator.addMetadata(atom.id, asset) }
+    val assets = withStatus.map { asset => uploadDecorator.addMetadataAndSources(atom.id, asset) }
 
     val jobs = stepFunctions.getJobs(atomId)
     val uploads = jobs.flatMap(getRunning(assets, _))
@@ -70,6 +77,68 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     }
   }
 
+  def uploadSubtitleFile(atomId: String, version: Int): Action[MultipartFormData[Files.TemporaryFile]] =
+    LookupPermissions(parse.multipartFormData) { implicit req =>
+      if (!req.permissions.addSubtitles) {
+        Unauthorized(s"User ${req.user.email} is not authorised to upload subtitle asset")
+      } else {
+        val result = for {
+          file <- req.body.file("subtitle-file")
+          upload <- uploadDecorator.getUpload(s"$atomId-$version")
+        } yield
+          try {
+            val updatedUpload = SubtitleFileUploadCommand(
+              upload,
+              file,
+              stores,
+              req.user,
+              awsConfig
+            ).process()
+
+            reprocess(updatedUpload)
+
+            Ok
+          }
+          catch {
+            commandExceptionAsResult
+          }
+
+        result.getOrElse(
+          BadRequest
+        )
+      }
+    }
+
+  def deleteSubtitleFile(atomId: String, version: Int) =
+    LookupPermissions { implicit req =>
+      if (!req.permissions.addSubtitles) {
+        Unauthorized(s"User ${req.user.email} is not authorised to upload subtitle asset")
+      } else {
+        log.info(s"Request to delete subtitle file under atom=$atomId version=$version")
+        uploadDecorator.getUpload(s"$atomId-$version") match {
+          case Some(upload) =>
+            try {
+              val updatedUpload = SubtitleFileDeleteCommand(
+                upload,
+                stores,
+                req.user,
+                awsConfig
+              ).process()
+
+              reprocess(updatedUpload)
+
+              Ok
+            }
+            catch {
+              commandExceptionAsResult
+            }
+          case _ =>
+            NotFound
+        }
+      }
+
+  }
+
   @tailrec
   private def start(atom: MediaAtom, email: String, req: UploadRequest, version: Long): Upload = try {
     val upload = UploadBuilder.build(atom, email, version, req, awsConfig)
@@ -79,6 +148,14 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
   } catch {
     case _: ExecutionAlreadyExistsException =>
       start(atom, email, req, version + 1)
+  }
+
+  private def reprocess(upload: Upload): Unit = {
+    // TODO: we need to trigger the state machine to run and reprocess the video with subtitles
+    //       so saving the upload record would probably be part of the state machine.
+    //       For now we save it here
+    val table = Table[Upload](awsConfig.cacheTableName)
+    awsConfig.scanamo.exec(table.put(upload))
   }
 
   private def addYouTubeStatus(video: ClientAsset): ClientAsset = video.asset match {
