@@ -111,13 +111,11 @@ function SubtitleDetails({ subtitles }) {
         return <div className="subtitle__title">No Subtitle File Attached</div>;
     }
 
-    const { title, timestamp } = subtitles;
-    const dateTime = moment(timestamp).format('YYYY/MM/DD HH:mm:ss')
+    const filename = subtitles.src.replace(/^.*[\\/]/, '');
 
     return (
         <div className="subtitle__details">
-            <div className="subtitle__title">{title}</div>
-            <div className="subtitle__datetime">{dateTime}</div>
+            <div className="subtitle__title">{filename}</div>
         </div>
     );
 }
@@ -187,7 +185,7 @@ export function Asset({videoId, upload, isActive, selectAsset, deleteAsset, star
   const info = metadata?.originalFilename || `Version ${upload.id}`;
   const timestamp =  metadata?.startTimestamp || false;
 
-  const subtitles = asset?.sources?.find(source => source.mimeType === "WEBVTT")
+  const subtitles = asset?.sources?.find(source => source.mimeType === "application/x-subrip" || source.mimeType === "text/vtt")
 
   if (processing) {
     return (
