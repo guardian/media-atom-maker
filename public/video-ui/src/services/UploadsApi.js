@@ -152,3 +152,14 @@ export function uploadSubtitleFile({ id, version, file }) {
     processData: false
   });
 }
+
+export function deleteSubtitleFile({ id, version }) {
+  return pandaReqwest({
+    url: `/api/uploads/${id}/${version}/subtitle-file`,
+    method: 'delete',
+    headers: {
+      'Csrf-Token': window.guardian.csrf.token
+    },
+    processData: false
+  });
+}
