@@ -1,4 +1,4 @@
-import { pandaReqwest } from './pandaReqwest';
+import { apiRequest } from './apiRequest';
 import { getStore } from '../util/storeAccessor';
 
 export type Stage = 'published' | 'preview'
@@ -48,7 +48,7 @@ export default class ContentApi {
   static search(query: string) {
     const encodedQuery = encodeURIComponent(query);
 
-    return pandaReqwest({
+    return apiRequest({
       url: `${ContentApi.proxyUrl}/atoms?types=media&q=${encodedQuery}&searchFields=data.title`
     });
   }
@@ -56,7 +56,7 @@ export default class ContentApi {
   static getByPath(path: string, retry = false): Promise<ApiReponse<CapiContentResponse>> {
     const retryTimeout = retry ? 10 * 1000 : 0; // retry up to 10 seconds
 
-    return pandaReqwest(
+    return apiRequest(
       {
         url: `${ContentApi.proxyUrl}/${path}?show-fields=all`
       },
@@ -65,7 +65,7 @@ export default class ContentApi {
   }
 
   static getLivePage(id: string) {
-    return pandaReqwest({
+    return apiRequest({
       url: `${ContentApi.liveProxyUrl}/${id}`
     });
   }
@@ -74,12 +74,12 @@ export default class ContentApi {
     return Promise.all(
       types.map(type => {
         if (query === '*') {
-          return pandaReqwest({
+          return apiRequest({
             url: `${ContentApi.proxyUrl}/tags?page-size=100&type=${type}` //TODO this is likely to change based on CAPI work to search by prefix on webTitle
           });
         }
         const encodedQuery = encodeURIComponent(query);
-        return pandaReqwest({
+        return apiRequest({
           url: `${ContentApi.proxyUrl}/tags?page-size=200&type=${type}&web-title=${encodedQuery}`
         });
       })

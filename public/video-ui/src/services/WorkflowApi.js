@@ -1,4 +1,4 @@
-import { pandaReqwest } from './pandaReqwest';
+import { apiRequest } from './apiRequest';
 import { getStore } from '../util/storeAccessor';
 import VideoUtils from '../util/video';
 import moment from 'moment';
@@ -33,7 +33,7 @@ export default class WorkflowApi {
       withCredentials: true
     };
 
-    return pandaReqwest(params, 500).then(response => {
+    return apiRequest(params, 500).then(response => {
       return WorkflowApi._getResponseAsJson(response)
         .data.map(section =>
           Object.assign({}, section, {
@@ -57,7 +57,7 @@ export default class WorkflowApi {
       withCredentials: true
     };
 
-    return pandaReqwest(params, 500).then(response => {
+    return apiRequest(params, 500).then(response => {
       return WorkflowApi._getResponseAsJson(response).data
         .filter(status => status.toLowerCase() !== 'stub')
         .map(status =>
@@ -73,13 +73,13 @@ export default class WorkflowApi {
       withCredentials: true
     };
 
-    return pandaReqwest(params, 500).then(response => {
+    return apiRequest(params, 500).then(response => {
       return WorkflowApi._getResponseAsJson(response);
     });
   }
 
   static getAtomInWorkflow({ id }) {
-    return pandaReqwest({
+    return apiRequest({
       url: `${WorkflowApi.workflowUrl}/api/atom/${id}`,
       crossOrigin: true,
       withCredentials: true
@@ -149,7 +149,7 @@ export default class WorkflowApi {
       priority
     });
 
-    return pandaReqwest({
+    return apiRequest({
       method: 'POST',
       url: `${WorkflowApi.workflowUrl}/api/stubs`,
       data: payload,
@@ -163,7 +163,7 @@ export default class WorkflowApi {
       data: prodOffice
     };
 
-    return pandaReqwest({
+    return apiRequest({
       method: 'PUT',
       url: `${WorkflowApi.workflowUrl}/api/stubs/${id}/prodOffice`,
       data: payload,
@@ -177,7 +177,7 @@ export default class WorkflowApi {
       data: status
     };
 
-    return pandaReqwest({
+    return apiRequest({
       method: 'PUT',
       url: `${WorkflowApi.workflowUrl}/api/stubs/${id}/status`,
       data: payload,
@@ -193,7 +193,7 @@ export default class WorkflowApi {
       data: note
     };
 
-    return pandaReqwest({
+    return apiRequest({
       method: 'PUT',
       url: `${WorkflowApi.workflowUrl}/api/stubs/${id}/note`,
       data: payload,
@@ -209,7 +209,7 @@ export default class WorkflowApi {
       data: priority
     };
 
-    return pandaReqwest({
+    return apiRequest({
       method: 'PUT',
       url: `${WorkflowApi.workflowUrl}/api/stubs/${id}/priority`,
       data: payload,
