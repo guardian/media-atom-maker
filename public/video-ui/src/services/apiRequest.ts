@@ -21,7 +21,7 @@ const checkStatus = (res: Response) => {
 };
 
 
-const poll = <ResponseBodyType = any>(url: string | URL | Request, config: RequestConfig, timeout: number) => {
+const fetchWithReAuth = <ResponseBodyType = any>(url: string | URL, config: RequestConfig, timeout: number) => {
   const endTime = Number(new Date()) + timeout;
   const interval = 100;
 
@@ -84,5 +84,5 @@ export const apiRequest = <ResponseBodyType = any, RequestBodyType = any>(reques
     }
   }
 
-  return poll<ResponseBodyType>(requestConfig.url, payload, timeout);
+  return fetchWithReAuth<ResponseBodyType>(requestConfig.url, payload, timeout);
 };
