@@ -1,7 +1,7 @@
 import { reEstablishSession } from 'panda-session';
 import { getStore } from '../util/storeAccessor';
 
-type RequestConfig<RequestBodyType = any> = {
+type RequestConfig<RequestBodyType = unknown> = {
   url: string | URL
   headers?: Record<string, string>;
   data?: RequestBodyType;
@@ -21,11 +21,11 @@ const checkStatus = (res: Response) => {
 };
 
 
-const fetchWithReAuth = <ResponseBodyType = any>(url: string | URL, config: RequestConfig, timeout: number) => {
+const fetchWithReAuth = <ResponseBodyType>(url: string | URL, config: RequestConfig, timeout: number) => {
   const endTime = Number(new Date()) + timeout;
   const interval = 100;
 
-  const makeRequest = (resolve: (value: ResponseBodyType) => void, reject: (reason?: any) => void) => {
+  const makeRequest = (resolve: (value: ResponseBodyType) => void, reject: (reason?: unknown) => void) => {
     fetch(url, config)
       .then(checkStatus)
       .then(response => {
@@ -65,7 +65,10 @@ const fetchWithReAuth = <ResponseBodyType = any>(url: string | URL, config: Requ
 
 
 // when `timeout` > 0, the request will be retried every 100ms until success or timeout
-export const apiRequest = <ResponseBodyType = any, RequestBodyType = any>(requestConfig: RequestConfig<RequestBodyType>, timeout = 0) => {
+export const apiRequest = <ResponseBodyType = unknown, RequestBodyType = unknown>(
+  requestConfig: RequestConfig<RequestBodyType>,
+  timeout = 0
+) => {
   const payload = Object.assign({ method: 'get', credentials: 'include' }, requestConfig);
 
   if (payload.data) {

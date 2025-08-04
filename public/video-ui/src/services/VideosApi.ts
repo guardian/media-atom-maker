@@ -321,7 +321,8 @@ export default {
     const previewData = getVideoBlock(video.id, video.title, video.source);
 
     function updateMainBlock(stage: ComposerStage, data: { elements: ContentAtom[] }) {
-      return apiRequest({
+
+      return apiRequest<{ data: { block: any } }>({
         url: `${composerUrlBase}/api/content/${composerId}/${stage}/mainblock`,
         method: 'post',
         crossOrigin: true,
