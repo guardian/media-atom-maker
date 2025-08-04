@@ -1,6 +1,6 @@
 package com.gu.media.upload
 
-import com.amazonaws.services.mediaconvert.model.{CreateJobRequest, FileGroupSettings, HlsGroupSettings, Input, JobSettings, OutputGroup, OutputGroupSettings}
+import com.amazonaws.services.mediaconvert.model.{CaptionSelector, CaptionSourceSettings, CreateJobRequest, FileGroupSettings, HlsGroupSettings, Input, JobSettings, OutputGroup, OutputGroupSettings}
 import com.gu.media.aws.MediaConvertAccess
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
@@ -30,8 +30,14 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
   }
 
   private def sendToTranscoder(input: String, outputs: List[OutputGroup]): String = {
+    val captionSourceSettings = new CaptionSourceSettings().withSourceType("NULL_SOURCE")
+    val captionSelectors = Map(
+      "Caption Selector 1" -> new CaptionSelector().withSourceSettings(captionSourceSettings)
+    ).asJava
+
     val jobInput = new Input()
       .withFileInput(input)
+      .withCaptionSelectors(captionSelectors)
 
     val jobTemplate = s"media-atom-maker-transcoder-${stage}"
 
@@ -52,21 +58,33 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
   }
 
   private def getOutputs(sources: List[VideoSource]): List[OutputGroup] = {
-    sources.map {
+    sources.flatMap {
       case VideoSource(output, "video/mp4") =>
         val filenameWithoutMp4 = if (output.endsWith(".mp4")) output.dropRight(4) else output
-        val outputGroupSettings = new OutputGroupSettings()
+
+        val outputGroupMp4Settings = new OutputGroupSettings()
           .withFileGroupSettings(new FileGroupSettings()
             .withDestination(s"s3://${destinationBucket}/media-convert-testing/$filenameWithoutMp4")
           )
-        new OutputGroup().withOutputGroupSettings(outputGroupSettings)
+        val outputGroupMp4 = new OutputGroup().withOutputGroupSettings(outputGroupMp4Settings)
+
+        val outputGroupHlsSettings = new OutputGroupSettings()
+          .withHlsGroupSettings(new HlsGroupSettings()
+            .withDestination(s"s3://${destinationBucket}/media-convert-testing/$filenameWithoutMp4")
+            .withSegmentLength(10)
+            .withMinSegmentLength(0)
+          )
+        val outputGroupHls = new OutputGroup().withOutputGroupSettings(outputGroupHlsSettings)
+
+        List(outputGroupMp4, outputGroupHls)
 
       case VideoSource(output, "application/vnd.apple.mpegurl") =>
         val outputGroupSettings = new OutputGroupSettings()
           .withHlsGroupSettings(new HlsGroupSettings()
             .withDestination(s"s3://${destinationBucket}/media-convert-testing/$output")
           )
-        new OutputGroup().withOutputGroupSettings(outputGroupSettings)
+        val outputGroup = new OutputGroup().withOutputGroupSettings(outputGroupSettings)
+        List(outputGroup)
 
       case VideoSource(_, other) =>
         throw new IllegalArgumentException(s"Unsupported mime type $other")
