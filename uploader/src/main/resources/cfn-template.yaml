@@ -208,7 +208,7 @@ Resources:
         TimecodeConfig:
           Source: ZEROBASED
         OutputGroups:
-          - Name: File Group
+          - Name: MP4
             Outputs:
               - ContainerSettings:
                   Container: MP4
@@ -257,6 +257,46 @@ Resources:
             OutputGroupSettings:
               Type: FILE_GROUP_SETTINGS
               FileGroupSettings: { }
+          - Name: Apple HLS
+            Outputs:
+              - ContainerSettings:
+                  Container: M3U8
+                  M3u8Settings: { }
+                NameModifier: "hls"
+                VideoDescription:
+                  Height: 720
+                  Sharpness: 75
+                  CodecSettings:
+                    Codec: H_264
+                    H264Settings:
+                      FramerateDenominator: 1001
+                      MaxBitrate: 6400000
+                      EntropyEncoding: CABAC
+                      FramerateControl: SPECIFIED
+                      RateControlMode: QVBR
+                      CodecProfile: HIGH
+                      FramerateNumerator: 30000
+                      SaliencyAwareEncoding: PREFERRED
+                AudioDescriptions:
+                  - CodecSettings:
+                      Codec: AAC
+                      AacSettings:
+                        Bitrate: 160000
+                        CodingMode: CODING_MODE_2_0
+                        SampleRate: 44100
+              - ContainerSettings:
+                  Container: M3U8
+                  M3u8Settings: { }
+                NameModifier: "captions"
+                CaptionDescriptions:
+                  - LanguageCode: ENG
+                    CaptionSelectorName: "Caption Selector 1"
+                    DestinationSettings:
+                      DestinationType: WEBVTT
+                      WebvttDestinationSettings: { }
+            OutputGroupSettings:
+              Type: HLS_GROUP_SETTINGS
+              HlsGroupSettings: { }
         FollowSource: 1
         Inputs:
           - DynamicAudioSelectors: # Only adds audio track if video has audio
