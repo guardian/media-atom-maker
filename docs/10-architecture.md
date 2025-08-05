@@ -24,6 +24,9 @@ graph LR
     MediaAtomMaker <--> PublishedMedia[(PublishedMedia<br/>AtomMaker<br/>dynamo<br/>table)]
     MediaAtomMaker --> MediaAtomMakerUpload[[Media Atom<br/>Maker Upload<br/>S3 bucket]]
     MediaAtomMaker --> uploads-to-pluto
+    User(((User)))
+    User --> ClientSide
+    User --> Pluto
     ClientSide[Client Side UI<br/>React<br/>]
     ClientSide --> MediaAtomMaker
     ClientSide --> MediaAtomMakerUpload
