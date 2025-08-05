@@ -58,34 +58,22 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
   }
 
   private def getOutputs(sources: List[VideoSource]): List[OutputGroup] = {
-    sources.flatMap {
+    sources.map {
       case VideoSource(output, "video/mp4") =>
         val filenameWithoutMp4 = if (output.endsWith(".mp4")) output.dropRight(4) else output
-
         val outputGroupMp4Settings = new OutputGroupSettings()
           .withFileGroupSettings(new FileGroupSettings()
             .withDestination(s"s3://${destinationBucket}/media-convert-testing/$filenameWithoutMp4")
           )
-        val outputGroupMp4 = new OutputGroup().withOutputGroupSettings(outputGroupMp4Settings)
-
+        new OutputGroup().withOutputGroupSettings(outputGroupMp4Settings)
+      case VideoSource(output, "application/vnd.apple.mpegurl") =>
         val outputGroupHlsSettings = new OutputGroupSettings()
           .withHlsGroupSettings(new HlsGroupSettings()
-            .withDestination(s"s3://${destinationBucket}/media-convert-testing/$filenameWithoutMp4")
+            .withDestination(s"s3://${destinationBucket}/media-convert-testing/$output")
             .withSegmentLength(10)
             .withMinSegmentLength(0)
           )
-        val outputGroupHls = new OutputGroup().withOutputGroupSettings(outputGroupHlsSettings)
-
-        List(outputGroupMp4, outputGroupHls)
-
-      case VideoSource(output, "application/vnd.apple.mpegurl") =>
-        val outputGroupSettings = new OutputGroupSettings()
-          .withHlsGroupSettings(new HlsGroupSettings()
-            .withDestination(s"s3://${destinationBucket}/media-convert-testing/$output")
-          )
-        val outputGroup = new OutputGroup().withOutputGroupSettings(outputGroupSettings)
-        List(outputGroup)
-
+        new OutputGroup().withOutputGroupSettings(outputGroupHlsSettings)
       case VideoSource(_, other) =>
         throw new IllegalArgumentException(s"Unsupported mime type $other")
     }
