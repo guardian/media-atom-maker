@@ -61,17 +61,19 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
     sources.map {
       case VideoSource(output, "video/mp4") =>
         val filenameWithoutMp4 = if (output.endsWith(".mp4")) output.dropRight(4) else output
-        val outputGroupMp4Settings = new OutputGroupSettings()
+        val outputGroupSettings = new OutputGroupSettings()
           .withFileGroupSettings(new FileGroupSettings()
             .withDestination(s"s3://${destinationBucket}/media-convert-testing/$filenameWithoutMp4")
           )
-        new OutputGroup().withOutputGroupSettings(outputGroupMp4Settings)
+        new OutputGroup().withOutputGroupSettings(outputGroupSettings)
+
       case VideoSource(output, "application/vnd.apple.mpegurl") =>
-        val outputGroupHlsSettings = new OutputGroupSettings()
+        val outputGroupSettings = new OutputGroupSettings()
           .withHlsGroupSettings(new HlsGroupSettings()
             .withDestination(s"s3://${destinationBucket}/media-convert-testing/$output")
           )
-        new OutputGroup().withOutputGroupSettings(outputGroupHlsSettings)
+        new OutputGroup().withOutputGroupSettings(outputGroupSettings)
+
       case VideoSource(_, other) =>
         throw new IllegalArgumentException(s"Unsupported mime type $other")
     }
