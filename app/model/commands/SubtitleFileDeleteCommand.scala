@@ -1,7 +1,6 @@
 package model.commands
 
 import com.gu.media.logging.Logging
-import com.gu.media.model.VideoSource
 import com.gu.media.upload.model.Upload
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
@@ -28,12 +27,10 @@ case class SubtitleFileDeleteCommand(
 
   override def process(): Upload = {
 
-    val selfHostedSources: List[VideoSource] = SubtitleUtil.selfHostedSources(upload)
-
     // remove subtitle files from S3
-    SubtitleUtil.deleteSubtitlesFromUserUploadBucket(selfHostedSources, awsConfig)
+    SubtitleUtil.deleteSubtitlesFromUserUploadBucket(upload, awsConfig)
 
     // remove subtitle files from upload asset's list of sources
-    SubtitleUtil.updateSourcesOnUpload(upload, selfHostedSources.filterNot(SubtitleUtil.isSubtitleSource))
+    SubtitleUtil.updateSubtitleSourceOnUpload(upload, None)
   }
 }
