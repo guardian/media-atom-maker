@@ -4,52 +4,54 @@
 
 ```mermaid
 graph LR
-  Pluto((Pluto)):::External
-  YouTube((YouTube)):::External
-  CAPI((CAPI)):::External
-  Composer((Composer))
-  uploads-to-pluto{{uploads-to-pluto<br/>Kinesis}}:::Stream
-  media-atom-maker-ingested-videos{{media-atom-maker-ingested-videos<br/>SQS}}:::Stream
-  PlutoIntegrationIncomingStream{{PlutoIntegrationIncomingStream<br/>Kinesis}}:::Stream
-  uploads-to-pluto --> Pluto
-  Pluto --> media-atom-maker-ingested-videos
-  Pluto --> PlutoIntegrationIncomingStream
-  SendToPluto[SendToPluto<br/>lambda] --> uploads-to-pluto
-  media-atom-maker-ingested-videos -->|Akka Actor| MediaAtomMaker{Media Atom Maker<br/>Scala Play<br/>EC2}
-  PlutoIntegrationIncomingStream --> PlutoMessage[Pluto Message<br/>Ingestion<br/>Lambda]
-  PlutoMessage --> MediaAtomMaker
-  MediaAtomMaker <--> PlutoCommissions[(Pluto<br/>Commissions<br/>dynamo<br/>table)]
-  MediaAtomMaker <--> PlutoProjects[(Pluto<br/>Projects<br/>dynamo<br/>table)]
-  MediaAtomMaker <--> MediaAtomMakerProd[(MediaAtom<br/>Maker<br/>dynamo<br/>table)]
-  MediaAtomMaker <--> PublishedMedia[(PublishedMedia<br/>AtomMaker<br/>dynamo<br/>table)]
-  MediaAtomMaker --> MediaAtomMakerUpload[[Media Atom<br/>Maker Upload<br/>S3 bucket]]
-  ClientSide[Client Side UI<br/>React<br/>]
-  ClientSide --> MediaAtomMaker
-  ClientSide --> MediaAtomMakerUpload
-  ClientSide -->|API| Composer
-  MediaAtomMakerUpload --> Uploader
-  Uploader[Uploader<br/>Step Function]
-  Uploader --> SendToPluto
-  Uploader --> YouTube
-  Uploader --> UploadsOrigin[[uploads-<br/>origin.guim.co.uk<br/>S3 bucket]]
-  Uploader --> ManualPluto[(ManualPluto<br/>MediaAtomMaker<br/>dynamo<br/>table)]
-  ManualPluto --> uploads-to-pluto
-  UploadsOrigin --> CAPI
-  MediaAtomMaker --> PublishAtom[Publish Atom<br/>SNS Topic]
-  Scheduler[Scheduler lambda<br/>Every 15 minutes]
-  Scheduler --> MediaAtomMaker
-  CAPI --> Scheduler
-  PublishAtom --> CAPI
-  Expirer[Expirer lambda<br/>Every 15 minutes]
-  CAPI --> Expirer
-  Expirer --> YouTube
-  classDef External padding: 50px, width: 200px, font-size: 25px
-  classDef Stream stroke-dasharray: 5 5
+    Pluto((Pluto)):::External
+    YouTube((YouTube)):::External
+    CAPI((CAPI)):::External
+    Composer((Composer))
+    uploads-to-pluto{{uploads-to-pluto<br/>Kinesis}}:::Stream
+    media-atom-maker-ingested-videos{{media-atom-maker-ingested-videos<br/>SQS}}:::Stream
+    PlutoIntegrationIncomingStream{{PlutoIntegrationIncomingStream<br/>Kinesis}}:::Stream
+    uploads-to-pluto --> Pluto
+    Pluto --> media-atom-maker-ingested-videos
+    Pluto --> PlutoIntegrationIncomingStream
+    SendToPluto[SendToPluto<br/>lambda] --> uploads-to-pluto
+    media-atom-maker-ingested-videos -->|Akka Actor| MediaAtomMaker{Media Atom Maker<br/>Scala Play<br/>EC2}
+    PlutoIntegrationIncomingStream --> PlutoMessage[Pluto Message<br/>Ingestion<br/>Lambda]
+    PlutoMessage --> MediaAtomMaker
+    MediaAtomMaker <--> PlutoCommissions[(Pluto<br/>Commissions<br/>dynamo<br/>table)]
+    MediaAtomMaker <--> PlutoProjects[(Pluto<br/>Projects<br/>dynamo<br/>table)]
+    MediaAtomMaker <--> MediaAtomMakerProd[(MediaAtom<br/>Maker<br/>dynamo<br/>table)]
+    MediaAtomMaker <--> PublishedMedia[(PublishedMedia<br/>AtomMaker<br/>dynamo<br/>table)]
+    MediaAtomMaker --> MediaAtomMakerUpload[[Media Atom<br/>Maker Upload<br/>S3 bucket]]
+    MediaAtomMaker --> uploads-to-pluto
+    ClientSide[Client Side UI<br/>React<br/>]
+    ClientSide --> MediaAtomMaker
+    ClientSide --> MediaAtomMakerUpload
+    ClientSide -->|API| Composer
+    MediaAtomMakerUpload --> Uploader
+    Uploader[Uploader<br/>Step Function]
+    Uploader --> SendToPluto
+    Uploader --> YouTube
+    Uploader --> UploadsOrigin[[uploads-<br/>origin.guim.co.uk<br/>S3 bucket]]
+    Uploader --> ManualPluto[(ManualPluto<br/>MediaAtomMaker<br/>dynamo<br/>table)]
+    ManualPluto --> uploads-to-pluto
+    UploadsOrigin --> CAPI
+    MediaAtomMaker --> PublishAtom[Publish Atom<br/>SNS Topic]
+    Scheduler[Scheduler lambda<br/>Every 15 minutes]
+    Scheduler --> MediaAtomMaker
+    CAPI --> Scheduler
+    PublishAtom --> CAPI
+    Expirer[Expirer lambda<br/>Every 15 minutes]
+    CAPI --> Expirer
+    Expirer --> YouTube
+    classDef External padding: 50px, width: 200px, font-size: 25px
+    classDef Stream stroke-dasharray: 5 5
 ```
 
 ## Design
 
-Media Atom Maker (MAM) is architected as a collection of resource, primarily a Scala Play App with a React frontend that
+Media Atom Maker (MAM) is architected as a collection of resources, primarily a Scala Play App with a React frontend
+that
 facilitates the management and publishing of video content, particularly via YouTube. This system is built using various
 AWS services, including S3 for uploads, Lambdas and Step Functions, and DynamoDB for content state management, and it
 integrates with Composer, YouTube, the Content API (CAPI), and Pluto for content publishing workflows.
@@ -94,6 +96,9 @@ Media Atom Maker and Pluto communicate via Kinesis and SQS to transmit updates a
 Commissions and Projects are ingested via the Pluto Message Ingestion Kinesis stream and stored in DynamoDB. These can
 then be applied to media atoms to provide navigation between content and their assets.
 
+Media Atom Maker events are sent to Pluto via the Upload To Pluto Kinesis stream. These include notifications of when
+videos are uploaded, and when Pluto projects are assigned to atoms
+
 [Pluto Message Ingestion](../pluto-message-ingestion/README.md)
 
 ### CAPI
@@ -108,14 +113,16 @@ request to the media atom maker backend API to publish them.
 
 ### YouTube
 
-YouTube is the main host for Guardian media content.
+YouTube is the main host for Guardian media content. Media Atom Maker communicates with YouTube via its APIs.
 
 [Documentation](08-youtube.md)
 
 ### Composer
 
 Composer is the Guardian's digital CMS. Media Atom Maker makes calls to the Composer API in order to create content
-pages
-for media atoms.
+pages for media atoms.
+
+It also allows videos to be embedded into Composer content using an iFrame interface of the MAM UI to choose the right
+atom.
 
 [Documentation](09-composer-integration.md)
