@@ -29,23 +29,11 @@ class UploadDecorator(aws: DynamoAccess with UploadAccess, stepFunctions: StepFu
     )
   }
 
-  private def getUploadSources(upload: Upload): List[VideoSource] = {
-    upload.metadata.asset match {
-      case Some(selfHostedAsset: SelfHostedAsset) =>
-        selfHostedAsset.sources
-      case _ =>
-        Nil
-    }
-  }
-
   private def withMetadataAndSources(video: ClientAsset, upload: Upload): ClientAsset = {
     val updatedMetadata = Some(getUploadMetadata(upload))
     val updatedAsset = video.asset match {
       case Some(selfHostedAsset: SelfHostedAsset) =>
-        val existingSources: List[VideoSource] = selfHostedAsset.sources
-        val subtitleSources: List[VideoSource] = getUploadSources(upload).filter(_.mimeType == "application/x-subrip")
-        val updatedSources = existingSources ++ subtitleSources.filterNot(existingSources.contains)
-        // ...
+        val updatedSources = selfHostedAsset.sources ++ upload.metadata.subtitleSource
         Some(selfHostedAsset.copy(sources = updatedSources))
       case asset =>
         asset

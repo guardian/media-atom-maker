@@ -34,11 +34,8 @@ case class SubtitleFileUploadCommand(
 
   override def process(): Upload = {
 
-    val selfHostedSources = SubtitleUtil.selfHostedSources(upload)
-    val videoSources = selfHostedSources.filterNot(SubtitleUtil.isSubtitleSource)
-
     // remove any existing subtitle files from S3
-    SubtitleUtil.deleteSubtitlesFromUserUploadBucket(selfHostedSources, awsConfig)
+    SubtitleUtil.deleteSubtitlesFromUserUploadBucket(upload, awsConfig)
 
     val key = s"${awsConfig.userUploadFolder}/${upload.id}/${file.filename}"
 
@@ -51,7 +48,7 @@ case class SubtitleFileUploadCommand(
     awsConfig.s3Client.putObject(request) match {
       case _: PutObjectResult =>
         // add subtitle file to upload asset's list of sources
-        SubtitleUtil.updateSourcesOnUpload(upload, videoSources :+ VideoSource(key, metadata.getContentType))
+        SubtitleUtil.updateSubtitleSourceOnUpload(upload, Some(VideoSource(key, metadata.getContentType)))
       case _ => SubtitleFileUploadFailed
     }
   }
