@@ -51,10 +51,9 @@ graph LR
 ## Design
 
 Media Atom Maker (MAM) is architected as a collection of resources, primarily a Scala Play App with a React frontend
-that
-facilitates the management and publishing of video content, particularly via YouTube. This system is built using various
-AWS services, including S3 for uploads, Lambdas and Step Functions, and DynamoDB for content state management, and it
-integrates with Composer, YouTube, the Content API (CAPI), and Pluto for content publishing workflows.
+that facilitates the management and publishing of video content, typically hosted in YouTube. This system is built using
+various AWS services, including S3 buckets, Lambdas, Step Functions, and DynamoDB for content state management. It
+integrates with Composer, YouTube, the Content API (CAPI), and Pluto for content its publishing workflows.
 
 ### EC2 Backend
 
@@ -81,7 +80,7 @@ The application has several cloudformation stacks:
 - media-atom-maker-{Stage} – Primary resources stack
 - media-atom-maker-{Stage}-dynamo – DynamoDB tables (AtomMaker, PublishedAtomMaker and ManualPlutoAtomMaker)
 - media-atom-pipeline-{Stage} – Uploader step function resources
-- media-atom-maker-DEV – Resource for integration with local testing (different template to the production stack)
+- media-atom-maker-DEV – Resource for integration with local testing (different template to the primary stack)
 
 ## Integrations
 
