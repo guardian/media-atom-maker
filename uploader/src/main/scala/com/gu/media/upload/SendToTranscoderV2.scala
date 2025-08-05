@@ -70,8 +70,6 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
         val outputGroupHlsSettings = new OutputGroupSettings()
           .withHlsGroupSettings(new HlsGroupSettings()
             .withDestination(s"s3://${destinationBucket}/media-convert-testing/$output")
-            .withSegmentLength(10)
-            .withMinSegmentLength(0)
           )
         new OutputGroup().withOutputGroupSettings(outputGroupHlsSettings)
       case VideoSource(_, other) =>
