@@ -30,6 +30,13 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
   }
 
   private def sendToTranscoder(input: String, outputs: List[OutputGroup]): String = {
+
+    // if we have subtitle source
+    // create caption source settings with SourceType as SRT
+    // and FileSourceSettings with SourceFile set to s3 path of the subtitle file
+    // prepended with s3://${upload.metadata.bucket}
+
+
     val captionSourceSettings = new CaptionSourceSettings().withSourceType("NULL_SOURCE")
     val captionSelectors = Map(
       "Caption Selector 1" -> new CaptionSelector().withSourceSettings(captionSourceSettings)
