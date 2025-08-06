@@ -123,6 +123,7 @@ function SubtitleActions({ subtitles, onUpload, onDelete}) {
   const fileInputRef = React.useRef();
 
   const handleFileChange = (event) => {
+    const input = event.target;
     const file = event.target.files[0];
 
     if (!file) return;
@@ -132,6 +133,7 @@ function SubtitleActions({ subtitles, onUpload, onDelete}) {
 
     if (!isSRT && !isVTT) {
       alert('Invalid file type. Please upload a .srt or .vtt subtitle file.');
+      input.value = '';
       return;
     }
 
@@ -145,10 +147,12 @@ function SubtitleActions({ subtitles, onUpload, onDelete}) {
 
       if ((isSRT && !isSRTFormat) || (isVTT && !isVTTFormat)) {
         alert('The file content does not match the expected subtitle format.');
+        input.value = '';
         return;
       }
 
       onUpload(file);
+      input.value = '';
     };
 
     reader.readAsText(file);
