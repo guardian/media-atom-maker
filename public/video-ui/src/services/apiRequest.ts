@@ -1,25 +1,37 @@
 import { reEstablishSession } from 'panda-session';
 import { getStore } from '../util/storeAccessor';
 
-const checkStatus = (res) => {
+type RequestConfig<RequestBodyType = unknown> = {
+  url: string | URL
+  headers?: Record<string, string>;
+  data?: RequestBodyType;
+  contentType?: string;
+  crossOrigin?: boolean
+  withCredentials?: boolean
+  method?: string
+  body?: string
+}
+
+const checkStatus = (res: Response) => {
   if (res.status >= 200 && res.status < 300) {
     return res;
   } else {
     throw res;
   }
-}
+};
 
-export const poll = (url, body, timeout) => {
+
+const fetchWithReAuth = <ResponseBodyType>(url: string | URL, config: RequestConfig, timeout: number) => {
   const endTime = Number(new Date()) + timeout;
   const interval = 100;
 
-  const makeRequest = (resolve, reject) => {
-    fetch(url, body)
+  const makeRequest = (resolve: (value: ResponseBodyType) => void, reject: (reason?: unknown) => void) => {
+    fetch(url, config)
       .then(checkStatus)
       .then(response => {
         const contentTypeHeader = response.headers.get("content-type");
 
-        if (contentTypeHeader && contentTypeHeader.includes("application/json")){
+        if (contentTypeHeader && contentTypeHeader.includes("application/json")) {
           return response.json();
         }
         return response.text();
@@ -33,12 +45,12 @@ export const poll = (url, body, timeout) => {
             const store = getStore();
             const reauthUrl = store.getState().config.reauthUrl;
             reEstablishSession(reauthUrl, 5000).then(
-                () => {
-                  setTimeout(makeRequest, interval, resolve, reject);
-                },
-                error => {
-                  throw error;
-                });
+              () => {
+                setTimeout(makeRequest, interval, resolve, reject);
+              },
+              error => {
+                throw error;
+              });
           } else {
             setTimeout(makeRequest, interval, resolve, reject);
           }
@@ -51,16 +63,20 @@ export const poll = (url, body, timeout) => {
   return new Promise(makeRequest);
 };
 
+
 // when `timeout` > 0, the request will be retried every 100ms until success or timeout
-export const pandaReqwest = (reqwestBody, timeout = 0) => {
-  const payload = Object.assign({ method: 'get', credentials: 'include' }, reqwestBody);
+export const apiRequest = <ResponseBodyType = unknown, RequestBodyType = unknown>(
+  requestConfig: RequestConfig<RequestBodyType>,
+  timeout = 0
+) => {
+  const payload = Object.assign({ method: 'get', credentials: 'include' }, requestConfig);
 
   if (payload.data) {
     payload.contentType = payload.contentType || 'application/json';
 
     // prettier-ignore
     if (payload.contentType === 'application/json' && typeof payload.data === 'object') {
-      if (payload.headers){
+      if (payload.headers) {
         payload.headers["Content-Type"] = "application/json";
       } else {
         payload.headers = {
@@ -71,5 +87,5 @@ export const pandaReqwest = (reqwestBody, timeout = 0) => {
     }
   }
 
-  return poll(reqwestBody.url, payload, timeout);
-}
+  return fetchWithReAuth<ResponseBodyType>(requestConfig.url, payload, timeout);
+};

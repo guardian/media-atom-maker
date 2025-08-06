@@ -4,7 +4,8 @@ templates:
   lambda:
     type: aws-lambda
     parameters:
-      bucket: atom-maker-dist
+      bucketSsmLookup: true
+      bucketSsmKey: /media-atom-maker/artifact.bucket
       prefixStack: false
 deployments:
   media-atom-maker-ami-update:
@@ -17,7 +18,8 @@ deployments:
   media-atom-maker:
     type: autoscaling
     parameters:
-      bucket: atom-maker-dist
+      bucketSsmLookup: true
+      bucketSsmKey: /media-atom-maker/artifact.bucket
     dependencies:
       - media-atom-maker-ami-update
 

@@ -1,19 +1,19 @@
-import { pandaReqwest } from './pandaReqwest';
+import { apiRequest } from './apiRequest';
 
 export function getYoutubeCategories() {
-  return pandaReqwest({
+  return apiRequest({
     url: '/api/youtube/categories'
   });
 }
 
 export function getYoutubeChannels() {
-  return pandaReqwest({
+  return apiRequest({
     url: '/api/youtube/channels'
   });
 }
 
 export function getProcessingStatus(videoIds) {
-  return pandaReqwest({
+  return apiRequest({
     url: `/api/youtube/processingStatus?videoIds=${videoIds.join(',')}`
   });
 }

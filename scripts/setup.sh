@@ -26,7 +26,7 @@ setup_nginx() {
 }
 
 install_deps_and_build() {
-  yarn install
+  yarn install --frozen-lockfile
   printf "\n\Compiling Javascript... \n\r\n\r"
   yarn build
 }
