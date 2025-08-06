@@ -2,12 +2,12 @@ import { apiRequest } from './apiRequest';
 
 type PlutoItemType = 'commissions' | 'projects'
 
-type PlutoCommission = {
+export type PlutoCommission = {
   id: string,
   title: string
 }
 
-type PlutoProject = {
+export type PlutoProject = {
   id: string,
   title: string,
   status: string,
