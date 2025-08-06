@@ -31,6 +31,11 @@ export default class VideoTrail extends React.Component {
   getAssets = () => {
     const ret = [];
 
+     if (this.props.s3Upload.status === "complete") {
+       this.props.getUploads()
+       this.props.resetS3UploadStatus(); // reset status to 'idle'
+     }
+
     if (this.props.s3Upload.total) {
       ret.push({
         id: 's3Upload',
