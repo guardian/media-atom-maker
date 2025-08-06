@@ -10,11 +10,9 @@ import PlutoProjectLink from '../../components/Pluto/PlutoProjectLink';
 
 class VideoUpload extends React.Component {
   hasCategories = () =>
-    this.props &&
-    this.props.youtube &&
-    this.props.youtube.categories.length !== 0;
+    this.props.youtube?.categories?.length !== 0;
   hasChannels = () =>
-    this.props.youtube && this.props.youtube.channels.length !== 0;
+    this.props.youtube?.channels?.length !== 0;
 
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
@@ -28,9 +26,9 @@ class VideoUpload extends React.Component {
 
   render() {
     const uploading = this.props.s3Upload.total > 0;
-    const activeVersion = this.props.video ? this.props.video.activeVersion : 0;
+    const activeVersion = this.props.video?.activeVersion  ?? 0;
 
-    const projectId = this.props.video.plutoData && this.props.video.plutoData.projectId;
+    const projectId = this.props.video?.plutoData?.projectId;
 
     return (
       <div>
@@ -80,8 +78,11 @@ class VideoUpload extends React.Component {
                   this.props.video.id,
                   version
                 )}
-              getUploads={() =>
-                this.props.uploadActions.getUploads(this.props.video.id)}
+              getUploads={() => {
+                this.props.uploadActions.getUploads(this.props.video.id)
+                this.props.uploadActions.resetS3Upload(); // reset status to 'idle'
+
+              }}
               startSubtitleFileUpload={this.props.uploadActions.startSubtitleFileUpload}
               deleteSubtitle={this.props.uploadActions.deleteSubtitle}
               permissions={getStore().getState().config.permissions}
