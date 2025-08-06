@@ -1,6 +1,6 @@
 package com.gu.media.upload
 
-import com.amazonaws.services.mediaconvert.model.{CaptionSelector, CaptionSourceSettings, CreateJobRequest, FileGroupSettings, HlsGroupSettings, Input, JobSettings, OutputGroup, OutputGroupSettings}
+import com.amazonaws.services.mediaconvert.model.{CaptionSelector, CaptionSourceSettings, CreateJobRequest, FileGroupSettings, FileSourceSettings, HlsGroupSettings, Input, JobSettings, OutputGroup, OutputGroupSettings}
 import com.gu.media.aws.MediaConvertAccess
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
@@ -14,12 +14,13 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
   with Logging
 {
   override def handle(upload: Upload): Upload = {
-    val input = s"s3://${upload.metadata.bucket}/${upload.metadata.pluto.s3Key}"
+    val videoInput = s"s3://${upload.metadata.bucket}/${upload.metadata.pluto.s3Key}"
+    val maybeSubtitlesInput = upload.metadata.subtitleSource.map(subtitleSource => s"s3://${upload.metadata.bucket}/${subtitleSource.src}")
 
     upload.metadata.asset match {
       case Some(SelfHostedAsset(sources)) =>
         val outputs = getOutputs(sources)
-        val jobs = sendToTranscoder(input, outputs)
+        val jobs = sendToTranscoder(videoInput, maybeSubtitlesInput, outputs)
 
         val metadata = upload.metadata.copy(runtime = SelfHostedUploadMetadata(List(jobs)))
         upload.copy(metadata = metadata, progress = upload.progress.copy(fullyTranscoded = false))
@@ -29,21 +30,23 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
     }
   }
 
-  private def sendToTranscoder(input: String, outputs: List[OutputGroup]): String = {
+  private def sendToTranscoder(videoInput: String, maybeSubtitlesInput: Option[String], outputs: List[OutputGroup]): String = {
+    val captionSourceSettings = maybeSubtitlesInput match {
+      case Some(subtitlesInput) =>
+        new CaptionSourceSettings()
+          .withSourceType("SRT")
+          .withFileSourceSettings(new FileSourceSettings()
+            .withSourceFile(subtitlesInput)
+          )
+      case None => new CaptionSourceSettings().withSourceType("NULL_SOURCE")
+    }
 
-    // if we have subtitle source
-    // create caption source settings with SourceType as SRT
-    // and FileSourceSettings with SourceFile set to s3 path of the subtitle file
-    // prepended with s3://${upload.metadata.bucket}
-
-
-    val captionSourceSettings = new CaptionSourceSettings().withSourceType("NULL_SOURCE")
     val captionSelectors = Map(
       "Caption Selector 1" -> new CaptionSelector().withSourceSettings(captionSourceSettings)
     ).asJava
 
     val jobInput = new Input()
-      .withFileInput(input)
+      .withFileInput(videoInput)
       .withCaptionSelectors(captionSelectors)
 
     val jobTemplate = s"media-atom-maker-transcoder-${stage}"
@@ -59,7 +62,7 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
     val job = mediaConvertClient.createJob(createJobRequest).getJob
     val id = job.getId
 
-    log.info(s"Sent $input to mediaconvert (id: $id)")
+    log.info(s"Sent $videoInput to mediaconvert (id: $id)")
 
     id
   }
