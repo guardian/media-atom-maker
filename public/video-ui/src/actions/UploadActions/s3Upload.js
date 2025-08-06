@@ -80,3 +80,7 @@ export function deleteSubtitle({id, version}) {
     });
   };
 }
+
+export function resetS3Upload() {
+  return { type: 'UPLOAD_RESET' };
+}
