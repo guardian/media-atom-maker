@@ -1,4 +1,5 @@
 const EMPTY = { id: null, progress: 0, total: 0 };
+const EMPTY = { id: null, progress: 0, total: 0, status: 'idle' };
 
 // This key covers the first part of a video upload where we put the video into S3 from the client browser.
 // We hold that progress in a separate state key from the progress of uploading to YouTube on the server side.
@@ -10,19 +11,25 @@ export default function s3Upload(state = EMPTY, action) {
       return Object.assign({}, state, {
         id: action.upload.id,
         total: total
+        total: total,
+        status: 'uploading'
       });
     }
 
     case 'UPLOAD_PROGRESS':
       return Object.assign({}, state, { progress: action.progress });
+      return Object.assign({}, state, { progress: action.progress, status: 'uploading' });
 
     case 'UPLOAD_COMPLETE':
       return EMPTY;
+      return {...EMPTY, status: 'complete'};
 
     case 'SHOW_ERROR':
       return EMPTY;
+      return {...EMPTY, status: 'error'};
 
-    default:
+
+      default:
       return state;
   }
 }
