@@ -3,8 +3,27 @@ import PropTypes from 'prop-types';
 import _set from 'lodash/fp/set';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
+import { PlutoCommission, PlutoProject } from '../../services/PlutoApi';
+import { KnownAction } from '../../actions';
 
-class PlutoProjectPicker extends React.Component {
+type PlutoData = any;
+
+type Props = {
+  pluto: {
+    commissions: PlutoCommission[],
+    projects: PlutoProject[],
+  },
+  plutoActions: {
+    getCommissions: { (): { (dispatch: Dispatch<KnownAction>): Promise<void> } };
+    getProjects: { (plutoData: PlutoData): void }
+  }
+  video: {
+    plutoData: PlutoData
+  }
+  saveVideo: { (plutoData: PlutoData): Promise<void> }
+}
+
+class PlutoProjectPicker extends React.Component<Props> {
   static propTypes = {
     video: PropTypes.object.isRequired,
     saveVideo: PropTypes.func.isRequired
@@ -12,10 +31,13 @@ class PlutoProjectPicker extends React.Component {
 
   hasPlutoCommissions = () => this.props.pluto && this.props.pluto.commissions.length !== 0;
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
+
     if (!this.hasPlutoCommissions()) {
+      console.log('this.props.plutoActions.getCommissions',this.props.plutoActions.getCommissions);
+      // exisitng bug?
       this.props.plutoActions.getCommissions().then(() => {
-        const {plutoData} = this.props.video;
+        const { plutoData } = this.props.video;
         if (plutoData.commissionId) {
           this.props.plutoActions.getProjects(plutoData);
         }
@@ -27,14 +49,14 @@ class PlutoProjectPicker extends React.Component {
     this.props.saveVideo(
       _set('plutoData.projectId', null, this.props.video)
     ).then(() => {
-      const {plutoData} = this.props.video;
+      const { plutoData } = this.props.video;
       this.props.plutoActions.getProjects(plutoData);
     });
   }
 
   render() {
-    const {video, saveVideo} = this.props;
-    const {commissions, projects} = this.props.pluto;
+    const { video, saveVideo } = this.props;
+    const { commissions, projects } = this.props.pluto;
 
     return (
       <ManagedForm
@@ -52,14 +74,14 @@ class PlutoProjectPicker extends React.Component {
           isRequired={false}
           updateSideEffects={() => this.onCommissionSelection()}
         >
-          <SelectBox selectValues={commissions}/>
+          <SelectBox selectValues={commissions} />
         </ManagedField>
         <ManagedField
           fieldLocation="plutoData.projectId"
           name="Project"
           isRequired={false}
         >
-          <SelectBox selectValues={projects}/>
+          <SelectBox selectValues={projects} />
         </ManagedField>
       </ManagedForm>
     );
@@ -67,17 +89,18 @@ class PlutoProjectPicker extends React.Component {
 }
 
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { bindActionCreators, Dispatch } from 'redux';
 import * as getCommissions from '../../actions/PlutoActions/getCommissions';
 import * as getProjects from '../../actions/PlutoActions/getProjects';
 
-function mapStateToProps(state) {
+
+function mapStateToProps(state: { pluto: Props['pluto'] }) {
   return {
-    pluto: state.pluto,
+    pluto: state.pluto
   };
 }
 
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch: Dispatch) {
   return {
     plutoActions: bindActionCreators(
       Object.assign(
