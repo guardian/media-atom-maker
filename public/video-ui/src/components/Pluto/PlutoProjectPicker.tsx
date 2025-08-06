@@ -4,7 +4,6 @@ import _set from 'lodash/fp/set';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
 import { PlutoCommission, PlutoProject } from '../../services/PlutoApi';
-import { KnownAction } from '../../actions';
 
 type PlutoData = any;
 
@@ -14,7 +13,7 @@ type Props = {
     projects: PlutoProject[],
   },
   plutoActions: {
-    getCommissions: { (): { (dispatch: Dispatch<KnownAction>): Promise<void> } };
+    getCommissions: { (): Promise<void> };
     getProjects: { (plutoData: PlutoData): void }
   }
   video: {
@@ -34,8 +33,6 @@ class PlutoProjectPicker extends React.Component<Props> {
   UNSAFE_componentWillMount() {
 
     if (!this.hasPlutoCommissions()) {
-      console.log('this.props.plutoActions.getCommissions',this.props.plutoActions.getCommissions);
-      // exisitng bug?
       this.props.plutoActions.getCommissions().then(() => {
         const { plutoData } = this.props.video;
         if (plutoData.commissionId) {
@@ -90,8 +87,8 @@ class PlutoProjectPicker extends React.Component<Props> {
 
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import * as getCommissions from '../../actions/PlutoActions/getCommissions';
-import * as getProjects from '../../actions/PlutoActions/getProjects';
+import { getCommissions } from '../../actions/PlutoActions/getCommissions';
+import { getProjects } from '../../actions/PlutoActions/getProjects';
 
 
 function mapStateToProps(state: { pluto: Props['pluto'] }) {
@@ -102,12 +99,13 @@ function mapStateToProps(state: { pluto: Props['pluto'] }) {
 
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
-    plutoActions: bindActionCreators(
-      Object.assign(
-        {},
-        getCommissions,
-        getProjects
-      ),
+    plutoActions: bindActionCreators<{
+      getCommissions: typeof getCommissions;
+      getProjects: typeof getProjects;
+    }, Props['plutoActions']>(
+      {
+        getCommissions, getProjects
+      },
       dispatch
     )
   };
