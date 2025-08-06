@@ -142,7 +142,7 @@ export function uploadSubtitleFile({ id, version, file }) {
   const formData = new FormData();
   formData.append('subtitle-file', file);
 
-  return pandaReqwest({
+  return apiRequest({
     url: `/api/uploads/${id}/${version}/subtitle-file`,
     method: 'post',
     headers: {
@@ -154,7 +154,7 @@ export function uploadSubtitleFile({ id, version, file }) {
 }
 
 export function deleteSubtitleFile({ id, version }) {
-  return pandaReqwest({
+  return apiRequest({
     url: `/api/uploads/${id}/${version}/subtitle-file`,
     method: 'delete',
     headers: {
