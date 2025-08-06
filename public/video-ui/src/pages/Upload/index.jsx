@@ -80,12 +80,11 @@ class VideoUpload extends React.Component {
                 )}
               getUploads={() => {
                 this.props.uploadActions.getUploads(this.props.video.id)
-                this.props.uploadActions.resetS3Upload(); // reset status to 'idle'
-
               }}
               startSubtitleFileUpload={this.props.uploadActions.startSubtitleFileUpload}
               deleteSubtitle={this.props.uploadActions.deleteSubtitle}
               permissions={getStore().getState().config.permissions}
+              resetS3UploadStatus={this.props.uploadActions.resetS3UploadStatus}
             />
           </div>
         </div>
