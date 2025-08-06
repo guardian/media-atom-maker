@@ -43,6 +43,8 @@ graph LR
     Scheduler[Scheduler lambda<br/>Every 15 minutes]
     Scheduler --> MediaAtomMaker
     CAPI --> Scheduler
+    CAPI --> LaunchDetector[LaunchDetector<br/>EC2 Instance <br/>Watches for atom changes]
+    LaunchDetector -->|HTTP requests| Pluto
     PublishAtom --> CAPI
     Expirer[Expirer lambda<br/>Every 15 minutes]
     CAPI --> Expirer
@@ -99,7 +101,10 @@ Commissions and Projects are ingested via the Pluto Message Ingestion Kinesis st
 then be applied to media atoms to provide navigation between content and their assets.
 
 Media Atom Maker events are sent to Pluto via the Upload To Pluto Kinesis stream. These include notifications of when
-videos are uploaded, and when Pluto projects are assigned to atoms
+videos are uploaded, and when Pluto projects are assigned to atoms.
+
+There is also an EC2 [LaunchDetector service](https://github.com/guardian/multimedia-launchdetector-v3) which watches CAPI's firehose stream for atom changes and makes HTTP
+requests to Pluto services.
 
 [Pluto Message Ingestion](../pluto-message-ingestion/README.md)
 
@@ -110,7 +115,7 @@ Media atoms are published via CAPI using the Publish Atom SNS topic.
 The Expirer lambda periodically checks the state of media atoms in CAPI and if they are expired updates their status in
 YouTube to private.
 
-The Scheduler lambda periodically checks the state of media atoms in CAPI and if they are scheduled for launch sends a
+The Scheduler lambda periodically checks the state of media atoms in preview CAPI and if they are scheduled for launch sends a
 request to the media atom maker backend API to publish them.
 
 ### YouTube
