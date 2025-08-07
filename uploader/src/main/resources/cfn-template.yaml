@@ -228,7 +228,7 @@ Resources:
                         QvbrQualityLevelFineTune: 0.66 # Fine-tuned through manual testing
                       ParNumerator: 1 # 1:1 pixel aspect ratio
                       ParDenominator: 1 # 1:1 pixel aspect ratio
-                      HrdBufferSize: 0, # Default to smallest possible buffer size (i.e. double the avg bitrate, 2 seconds); means a quick start good for auto-playing videos
+                      HrdBufferSize: 10000000, # HrdBufferSize / Bitrate gives a buffer duration of 2-4 seconds; longer duration gives better quality at expense of file size
                       HrdBufferInitialFillPercentage: 90 # Default
                       GopSizeUnits: SECONDS,
                       GopSize: 2, # 2 seconds
