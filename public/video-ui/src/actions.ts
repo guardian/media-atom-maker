@@ -1,4 +1,4 @@
-import { PlutoCommission } from "./services/PlutoApi";
+import { PlutoCommission, PlutoProject } from "./services/PlutoApi";
 
 
 type ShowError = {
@@ -19,6 +19,17 @@ type PlutoCommissionsGetReceive = {
     commissions: PlutoCommission[]
 }
 
-type KnownAction = ShowError | PlutoCommissionsGetRequest | PlutoCommissionsGetReceive
+type PlutoProjectGetRequest = {
+    type: 'PLUTO_PROJECTS_GET_REQUEST',
+    receivedAt: number,
+}
+
+type PlutoProjectsGetReceive = {
+    type: 'PLUTO_PROJECTS_GET_RECEIVE',
+    receivedAt: number,
+    projects: PlutoProject[],
+}
+
+type KnownAction = ShowError | PlutoCommissionsGetRequest | PlutoCommissionsGetReceive | PlutoProjectGetRequest | PlutoProjectsGetReceive
 
 export { KnownAction };

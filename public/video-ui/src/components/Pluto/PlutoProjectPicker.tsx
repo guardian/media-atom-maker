@@ -97,15 +97,14 @@ function mapStateToProps(state: { pluto: Props['pluto'] }) {
   };
 }
 
+const actionCreators = {
+  getCommissions, getProjects
+};
+
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
-    plutoActions: bindActionCreators<{
-      getCommissions: typeof getCommissions;
-      getProjects: typeof getProjects;
-    }, Props['plutoActions']>(
-      {
-        getCommissions, getProjects
-      },
+    plutoActions: bindActionCreators<typeof actionCreators, Props['plutoActions']>(
+      actionCreators,
       dispatch
     )
   };
