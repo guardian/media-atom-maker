@@ -99,7 +99,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
             // reprocessing will also save the upload to the DB, but saving it here first improves UI responsiveness
             saveUploadToDb(updatedUpload)
 
-            val reprocessingUpload = reprocess(updatedUpload)
+            val reprocessingUpload = processSubtitleChange(updatedUpload)
 
             log.info(s"Upload being reprocessed after subtitle upload ${upload.id}")
             Ok(Json.toJson(reprocessingUpload))
@@ -133,7 +133,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
               // reprocessing will also save the upload to the DB, but saving it here first improves UI responsiveness
               saveUploadToDb(updatedUpload)
 
-              val reprocessingUpload = reprocess(updatedUpload)
+              val reprocessingUpload = processSubtitleChange(updatedUpload)
 
               log.info(s"Upload being reprocessed after subtitle deletion ${upload.id}")
               Ok(Json.toJson(reprocessingUpload))
@@ -164,8 +164,8 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
    * @param upload
    * @return
    */
-  private def reprocess(upload: Upload): Upload = {
-    val rerunUpload = UploadBuilder.buildForReprocessing(upload)
+  private def processSubtitleChange(upload: Upload): Upload = {
+    val rerunUpload = UploadBuilder.buildForSubtitleChange(upload)
     val executionName = s"${rerunUpload.id}-re-run-${Instant.now().toEpochMilli}"
     stepFunctions.start(rerunUpload, Some(executionName))
 
