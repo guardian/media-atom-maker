@@ -13,11 +13,12 @@ class ReactApp extends React.Component {
     }
 
     this.state = {
-      fetchedVideoFor: ''
+      fetchedVideoFor: '',
+      errorKey: 0
     };
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     if (
       this.props.params.id &&
       (!this.props.video || this.props.params.id !== this.props.video.id) &&
@@ -29,6 +30,11 @@ class ReactApp extends React.Component {
       this.setState({
         fetchedVideoFor: this.props.params.id
       });
+    }
+
+    if(this.props.error && prevProps.saveState.saving !== this.props.saveState.saving && !this.props.saveState.saving) {
+      document.body.scrollIntoView({block: 'start', behavior: 'smooth'});
+      this.setState((prev) => {prev.errorKey++;});
     }
   }
 
@@ -78,7 +84,8 @@ class ReactApp extends React.Component {
         />
         {this.props.error
           ? <div
-              className="error-bar"
+              key={this.state.errorKey}
+              className={`error-bar error-bar--animate`}
               dangerouslySetInnerHTML={{ __html: this.props.error }}
             />
           : false}
