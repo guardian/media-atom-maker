@@ -9,15 +9,17 @@ export default class VideoImages extends React.Component {
     gridDomain: PropTypes.string.isRequired,
     video: PropTypes.object.isRequired,
     saveAndUpdateVideo: PropTypes.func.isRequired,
+    updateVideo: PropTypes.func.isRequired,
     videoEditOpen: PropTypes.bool.isRequired,
     updateErrors: PropTypes.func.isRequired
   };
 
   saveAndUpdateVideoImage = (image, location) => {
+    const revertVideo = Object.assign({}, this.props.video);
     const newVideo = Object.assign({}, this.props.video, {
       [location]: image
     });
-    this.props.saveAndUpdateVideo(newVideo);
+    this.props.saveAndUpdateVideo(newVideo).catch(() => this.props.updateVideo(revertVideo));
   };
 
   getGridUrl(cropType) {
