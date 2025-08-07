@@ -215,25 +215,36 @@ Resources:
                   Mp4Settings: { }
                 VideoDescription:
                   Height: 720
-                  Sharpness: 75
+                  Sharpness: 100 # Sharpest possible
                   CodecSettings:
                     Codec: H_264
                     H264Settings:
-                      FramerateDenominator: 1001
-                      MaxBitrate: 6400000
-                      EntropyEncoding: CABAC
-                      FramerateControl: SPECIFIED
-                      RateControlMode: QVBR
+                      RateControlMode: QVBR # Best quality
+                      QualityTuningLevel: MULTI_PASS_HQ # Best quality
+                      MaxBitrate: 4800000 # Migrated from Elastic Transcoder
                       QvbrSettings:
-                        MaxAverageBitrate: 2400000
-                      CodecProfile: HIGH
-                      FramerateNumerator: 30000
-                      SaliencyAwareEncoding: PREFERRED
-                      SceneChangeDetect: TRANSITION_DETECTION
-                      QualityTuningLevel: MULTI_PASS_HQ
-                      NumberBFramesBetweenReferenceFrames: 0
+                        MaxAverageBitrate: 2400000 # Twice average to give room for encoder's decisions
+                        QvbrQualityLevel: 8 # 1-10, 10 is best quality
+                        QvbrQualityLevelFineTune: 0.66 # Fine-tuned through manual testing
+                      ParNumerator: 1 # 1:1 pixel aspect ratio
+                      ParDenominator: 1 # 1:1 pixel aspect ratio
+                      HrdBufferSize: 0, # Default to smallest possible buffer size (i.e. double the avg bitrate, 2 seconds); means a quick start good for auto-playing videos
+                      HrdBufferInitialFillPercentage: 90 # Default
+                      GopSizeUnits: SECONDS,
+                      GopSize: 2, # 2 seconds
+                      NumberBFramesBetweenReferenceFrames: 1 # 0-15, smaller number gives better quality, higher bitrate and larger file size
+                      SceneChangeDetect: DISABLED # Should reduce any interference for videos which loop back to the start
+                      CodecProfile: HIGH # Good support for hardware decoding; required by HLS
+                      CodecLevel: AUTO # Recommended by HLS, effectively 3.1
+                      EntropyEncoding: CABAC # Best quality
+                      Slices: 1 # Slices improve encoding speed at the expense of quality - so minimise to 1 slice
+                      SaliencyAwareEncoding: PREFERRED # Best quality
                       BandwidthReductionFilter:
-                        Strength: AUTO
+                        Strength: OFF # Having this on reduces detail
+                      AdaptiveQuantization: HIGH # Best quality
+                      SpatialAdaptiveQuantization: ENABLED # Best quality
+                      TemporalAdaptiveQuantization: ENABLED # Best quality
+                      FlickerAdaptiveQuantization: ENABLED # Best quality
                 AudioDescriptions:
                   - CodecSettings:
                       Codec: AAC
