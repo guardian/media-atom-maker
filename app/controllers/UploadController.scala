@@ -13,6 +13,8 @@ import data.{DataStores, UnpackedDataStores}
 import com.gu.ai.x.play.json.Jsonx
 import model.commands.CommandExceptions.commandExceptionAsResult
 import model.commands.{SubtitleFileDeleteCommand, SubtitleFileUploadCommand}
+import org.scanamo.Table
+import org.scanamo.generic.auto._
 import play.api.libs.Files
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents, MultipartFormData, Result}
@@ -94,6 +96,9 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
               awsConfig
             ).process()
 
+            // reprocessing will also save the upload to the DB, but saving it here first improves UI responsiveness
+            saveUploadToDb(updatedUpload)
+
             val reprocessingUpload = reprocess(updatedUpload)
 
             log.info(s"Upload being reprocessed after subtitle upload ${upload.id}")
@@ -124,6 +129,9 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
                 req.user,
                 awsConfig
               ).process()
+
+              // reprocessing will also save the upload to the DB, but saving it here first improves UI responsiveness
+              saveUploadToDb(updatedUpload)
 
               val reprocessingUpload = reprocess(updatedUpload)
 
@@ -202,6 +210,11 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
         ClientAsset.fromUpload(state, startTimestamp, upload, error)
       }
     }
+  }
+
+  private def saveUploadToDb(upload: Upload): Unit = {
+    val table = Table[Upload](awsConfig.cacheTableName)
+    awsConfig.scanamo.exec(table.put(upload))
   }
 }
 
