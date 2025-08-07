@@ -48,9 +48,12 @@ class SendToTranscoder extends LambdaWithParams[Upload, Upload]
   }
 
   private def getOutputs(sources: List[VideoSource]): List[(String, String)] = {
-    sources.map {
+    sources.flatMap {
       case VideoSource(output, "video/mp4") =>
-        (output, "1351620000001-000010") // generic 720p
+        Some(output, "1351620000001-000010") // generic 720p
+
+      case VideoSource(_, "application/vnd.apple.mpegurl") =>
+        None // ignore without error for now
 
       case VideoSource(_, other) =>
         throw new IllegalArgumentException(s"Unsupported mime type $other")
