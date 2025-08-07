@@ -2,6 +2,7 @@ import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
 import config from './configReducer';
 import error from './errorReducer';
+import errorKey from './errorKeyReducer';
 import video from './videoReducer';
 import publishedVideo from './publishedVideoReducer';
 import videos from './videosReducer';
@@ -25,6 +26,7 @@ import shouldUseCreatedDateForSort from "./shouldUseCreatedDateForSortReducer";
 export default combineReducers({
   config,
   error,
+  errorKey,
   video,
   videos,
   saveState,
