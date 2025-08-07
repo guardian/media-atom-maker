@@ -229,10 +229,10 @@ Resources:
                       ParControl: SPECIFIED # Use the pixel aspect ratio specified below
                       ParNumerator: 1 # 1:1 pixel aspect ratio
                       ParDenominator: 1 # 1:1 pixel aspect ratio
-                      HrdBufferSize: 10000000, # HrdBufferSize / Bitrate gives a buffer duration of 2-4 seconds; longer duration gives better quality at expense of file size
+                      HrdBufferSize: 10000000 # HrdBufferSize / Bitrate gives a buffer duration of 2-4 seconds; longer duration gives better quality at expense of file size
                       HrdBufferInitialFillPercentage: 90 # Default
-                      GopSizeUnits: SECONDS,
-                      GopSize: 2, # 2 seconds
+                      GopSizeUnits: SECONDS
+                      GopSize: 2 # 2 seconds
                       NumberBFramesBetweenReferenceFrames: 1 # 0-15, smaller number gives better quality, higher bitrate and larger file size
                       SceneChangeDetect: DISABLED # Should reduce any interference for videos which loop back to the start
                       CodecProfile: HIGH # Good support for hardware decoding; required by HLS
