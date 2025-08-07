@@ -1,11 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import _set from 'lodash/fp/set';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
 import { PlutoCommission, PlutoProject } from '../../services/PlutoApi';
-
-type PlutoData = any;
+import { Video } from '../../services/VideosApi';
 
 type Props = {
   pluto: {
@@ -14,13 +12,19 @@ type Props = {
   },
   plutoActions: {
     getCommissions: { (): Promise<void> };
-    getProjects: { (plutoData: PlutoData): void }
+    getProjects: { (plutoData: { commissionId: string }): void }
   }
-  video: {
-    plutoData: PlutoData
-  }
-  saveVideo: { (plutoData: PlutoData): Promise<void> }
+  video: Video;
+  saveVideo: { (video: Video): Promise<void> }
 }
+
+const cloneVideoWithoutPlutoProjectId = (video: Video): Video => {
+  const clone = structuredClone(video);
+  if (clone.plutoData) {
+    delete clone.plutoData.projectId;
+  }
+  return clone;
+};
 
 class PlutoProjectPicker extends React.Component<Props> {
   static propTypes = {
@@ -34,9 +38,9 @@ class PlutoProjectPicker extends React.Component<Props> {
 
     if (!this.hasPlutoCommissions()) {
       this.props.plutoActions.getCommissions().then(() => {
-        const { plutoData } = this.props.video;
-        if (plutoData.commissionId) {
-          this.props.plutoActions.getProjects(plutoData);
+        const commissionId = this.props.video.plutoData?.commissionId;
+        if (commissionId) {
+          this.props.plutoActions.getProjects({ commissionId });
         }
       });
     }
@@ -44,10 +48,15 @@ class PlutoProjectPicker extends React.Component<Props> {
 
   onCommissionSelection() {
     this.props.saveVideo(
-      _set('plutoData.projectId', null, this.props.video)
+      cloneVideoWithoutPlutoProjectId(this.props.video)
     ).then(() => {
-      const { plutoData } = this.props.video;
-      this.props.plutoActions.getProjects(plutoData);
+      // commissionId is expected to be set since this method is a side effect
+      // of a commissionId being selected, but testing to maintain
+      // type safety.
+      const commissionId = this.props.video.plutoData?.commissionId;
+      if (commissionId) {
+        this.props.plutoActions.getProjects({ commissionId });
+      }
     });
   }
 

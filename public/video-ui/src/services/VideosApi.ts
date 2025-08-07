@@ -40,6 +40,10 @@ export type ContentChangeDetails = {
   expiry?: ChangeRecord
 }
 
+// TO DO - commissionId and projectId are the only properties referenced in
+// the client side code - investigate if are there any others.
+export type PlutoData = { commissionId?: string, projectId?: string };
+
 export type Video = {
   id: string;
   labels: string[];
@@ -48,7 +52,7 @@ export type Video = {
   activeVersion?: number;
   title: string;
   category: unknown;
-  plutoData?: unknown;
+  plutoData?: PlutoData;
   duration?: number;
   source?: string;
   description?: string;
