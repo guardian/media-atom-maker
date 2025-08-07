@@ -240,8 +240,7 @@ Resources:
                       EntropyEncoding: CABAC # Best quality
                       Slices: 1 # Slices improve encoding speed at the expense of quality - so minimise to 1 slice
                       SaliencyAwareEncoding: PREFERRED # Best quality
-                      BandwidthReductionFilter:
-                        Strength: OFF # Having this on reduces detail
+                      BandwidthReductionFilter: {} # Having this on reduces detail - so leave it off
                       AdaptiveQuantization: HIGH # Best quality
                       SpatialAdaptiveQuantization: ENABLED # Best quality
                       TemporalAdaptiveQuantization: ENABLED # Best quality
