@@ -42,6 +42,12 @@ type AddProjectReceive = {
     video: Video,
 }
 
+/**
+ * A union of the Action types that dispatched from ts tiles.
+ * 
+ * This is not yet a complete list of all the actions the application handles as
+ * some actions dispatched from js files.
+ */
 type KnownAction =
     ShowError |
     PlutoCommissionsGetRequest |
