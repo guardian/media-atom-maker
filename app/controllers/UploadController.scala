@@ -42,9 +42,17 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     val assets = withStatus.map { asset => uploadDecorator.addMetadataAndSources(atom.id, asset) }
 
     val jobs = stepFunctions.getJobs(atomId)
-    val uploads = jobs.flatMap(getRunning(assets, _))
+    val jobsAsAssets = jobs.flatMap(getRunning(assets, atomId, _))
 
-    Ok(Json.toJson(uploads ++ assets))
+    // if multiple jobs for same id, only keep the latest
+    val jobsByVersion = jobsAsAssets.groupBy(_.id)
+    val latestJobsAsAssets = jobsByVersion.map { case (_, job) => job.maxBy(startTime) }
+
+    // remove any assets that are represented by running/recent jobs
+    val jobVersions = jobsByVersion.keys.toSet
+    val filteredAssets = assets.filterNot( asset => jobVersions.contains(asset.id))
+
+    Ok(Json.toJson(latestJobsAsAssets ++ filteredAssets))
   }
 
   def create: Action[AnyContent] = LookupPermissions { implicit raw =>
@@ -192,25 +200,33 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     part <- upload.parts.find(_.key == key)
   } yield part
 
-  private def getRunning(assets: List[ClientAsset], job: ExecutionListItem): Option[ClientAsset] = {
-    val alreadyAdded = assets.exists { asset =>
-      job.getName.endsWith(s"-${asset.id}")
+  private def getRunning(assets: List[ClientAsset], atomId: String, job: ExecutionListItem): Option[ClientAsset] = {
+    val existingAsset = assets.find { asset =>
+      val version = asset.id
+      job.getName.contains(s"$atomId-$version")
     }
 
-    if(alreadyAdded) {
-      None
-    } else {
-      val events = stepFunctions.getEventsInReverseOrder(job)
-      val startTimestamp = job.getStartDate.getTime
+    val events = stepFunctions.getEventsInReverseOrder(job)
+    val startTimestamp = job.getStartDate.getTime
 
-      val upload = stepFunctions.getTaskEntered(events)
-      val error = stepFunctions.getExecutionFailed(events)
+    val upload = stepFunctions.getTaskEntered(events)
+    val error = stepFunctions.getExecutionFailed(events)
 
-      upload.map { case (state, upload) =>
-        ClientAsset.fromUpload(state, startTimestamp, upload, error)
-      }
+    val jobAsAsset = upload.map { case (state, upload) =>
+      ClientAsset.fromUpload(state, startTimestamp, upload, error)
+    }
+
+    existingAsset match {
+      case Some(asset) =>
+        // merge job's processing info with existing asset
+        jobAsAsset.map(_.copy(id = asset.id, asset = asset.asset))
+      case None =>
+        // return the running job as an asset
+        jobAsAsset.map( asset => asset.copy(id = asset.id.split("-").last))
     }
   }
+
+  private def startTime(asset: ClientAsset): Long = asset.metadata.flatMap(_.startTimestamp).getOrElse(0)
 
   private def saveUploadToDb(upload: Upload): Unit = {
     val table = Table[Upload](awsConfig.cacheTableName)
