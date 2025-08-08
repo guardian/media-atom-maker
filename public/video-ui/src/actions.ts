@@ -1,3 +1,4 @@
+import { boolean } from "fast-check";
 import { PlutoCommission, PlutoProject } from "./services/PlutoApi";
 import { Video } from "./services/VideosApi";
 
@@ -42,6 +43,18 @@ type AddProjectReceive = {
     video: Video,
 }
 
+type UpdateSearchTerm = {
+    type: 'UPDATE_SEARCH_TERM';
+    searchTerm: string;
+    receivedAt: number;
+}
+
+type UpdateShouldUseCreatedDateForSort = {
+    type: 'UPDATE_SHOULD_USE_CREATED_DATE_FOR_SORT';
+    receivedAt: number;
+    shouldUseCreatedDateForSort: boolean;
+}
+
 /**
  * A union of the Action types that dispatched from ts tiles.
  * 
@@ -55,6 +68,7 @@ type KnownAction =
     PlutoProjectGetRequest |
     PlutoProjectsGetReceive |
     AddProjectRequest |
-    AddProjectReceive;
+    AddProjectReceive |
+    UpdateSearchTerm | UpdateShouldUseCreatedDateForSort;
 
 export { KnownAction };
