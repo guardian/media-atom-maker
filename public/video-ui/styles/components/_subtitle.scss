@@ -1,0 +1,35 @@
+.subtitle__container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.subtitle__details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.subtitle__title {
+  font-weight: 500;
+  font-size: 14px;
+  color: $color100Grey;
+
+}
+
+.subtitle__datetime {
+  font-size: 0.8rem;
+  color: $color300Grey;
+}
+
+.subtitle__actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.subtitle__delete-btn {
+  text-decoration: underline;
+  color: #FFFFFF;
+  font-size: 12px
+}

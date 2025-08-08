@@ -31,6 +31,11 @@ export default class VideoTrail extends React.Component {
   getAssets = () => {
     const ret = [];
 
+     if (this.props.s3Upload.status === "complete") {
+       this.props.getUploads()
+       this.props.resetS3UploadStatus(); // reset status to 'idle'
+     }
+
     if (this.props.s3Upload.total) {
       ret.push({
         id: 's3Upload',
@@ -53,15 +58,21 @@ export default class VideoTrail extends React.Component {
   };
 
   render() {
-    const blocks = this.getAssets().map(upload => (
-      <Asset
-        key={upload.id}
-        upload={upload}
-        isActive={parseInt(upload.id) === this.props.activeVersion}
-        selectAsset={() => this.props.selectAsset(Number(upload.id))}
-        deleteAsset={() => this.props.deleteAsset(this.props.video, upload.asset.id)}
-      />
-    ));
+    const blocks = this.getAssets().map(upload => {
+      return (
+        <Asset
+          key={upload.id}
+          videoId={this.props.video.id}
+          upload={upload}
+          isActive={parseInt(upload.id) === this.props.activeVersion}
+          selectAsset={() => this.props.selectAsset(Number(upload.id))}
+          deleteAsset={() => this.props.deleteAsset(this.props.video, upload.asset.id)}
+          startSubtitleFileUpload={this.props.startSubtitleFileUpload}
+          deleteSubtitle={this.props.deleteSubtitle}
+          permissions={this.props.permissions}
+        />
+      )
+    });
 
     const content = blocks.length > 0 ? blocks : false;
 
