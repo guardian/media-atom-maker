@@ -1,21 +1,23 @@
-import { getPlutoCommissions } from '../../services/PlutoApi';
+import { Dispatch } from 'redux';
+import { KnownAction } from '../../actions';
+import { getPlutoCommissions, PlutoCommission } from '../../services/PlutoApi';
 
-function requestCommissions() {
+function requestCommissions(): KnownAction {
   return {
     type: 'PLUTO_COMMISSIONS_GET_REQUEST',
     receivedAt: Date.now()
   };
 }
 
-function receiveCommissions(response) {
+function receiveCommissions(commissions: PlutoCommission[]): KnownAction {
   return {
     type: 'PLUTO_COMMISSIONS_GET_RECEIVE',
     receivedAt: Date.now(),
-    commissions: response
+    commissions
   };
 }
 
-function errorReceivingCommissions(error) {
+function errorReceivingCommissions(error: unknown): KnownAction {
   return {
     type: 'SHOW_ERROR',
     message: 'Could not get Pluto Commissions',
@@ -25,11 +27,11 @@ function errorReceivingCommissions(error) {
 }
 
 export function getCommissions() {
-  return dispatch => {
+  return (dispatch: Dispatch<KnownAction>) => {
     dispatch(requestCommissions());
     return getPlutoCommissions()
-      .then(res => {
-        dispatch(receiveCommissions(res));
+      .then(commissions => {
+        dispatch(receiveCommissions(commissions));
       })
       .catch(err => {
         dispatch(errorReceivingCommissions(err));
