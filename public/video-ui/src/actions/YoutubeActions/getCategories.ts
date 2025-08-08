@@ -1,14 +1,16 @@
-import { getYoutubeCategories } from '../../services/YoutubeApi';
+import { getYoutubeCategories, YouTubeVideoCategory } from '../../services/YoutubeApi';
 import Logger from '../../logger';
+import { KnownAction } from '../../actions';
+import { Dispatch } from 'redux';
 
-function requestCategories() {
+function requestCategories(): KnownAction {
   return {
     type: 'YT_CATEGORIES_GET_REQUEST',
     receivedAt: Date.now()
   };
 }
 
-function receiveCategories(categories) {
+function receiveCategories(categories: YouTubeVideoCategory[]): KnownAction {
   return {
     type: 'YT_CATEGORIES_GET_RECEIVE',
     categories: categories,
@@ -16,7 +18,7 @@ function receiveCategories(categories) {
   };
 }
 
-function errorReceivingCategories(error) {
+function errorReceivingCategories(error: unknown): KnownAction {
   Logger.error(error);
   return {
     type: 'SHOW_ERROR',
@@ -27,11 +29,11 @@ function errorReceivingCategories(error) {
 }
 
 export function getCategories() {
-  return dispatch => {
+  return (dispatch: Dispatch<KnownAction>) => {
     dispatch(requestCategories());
     return getYoutubeCategories()
-      .then(res => {
-        dispatch(receiveCategories(res));
+      .then(categories => {
+        dispatch(receiveCategories(categories));
       })
       .catch(error => {
         dispatch(errorReceivingCategories(error));

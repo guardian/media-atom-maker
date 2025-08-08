@@ -1,7 +1,11 @@
-import { boolean } from "fast-check";
 import { PlutoCommission, PlutoProject } from "./services/PlutoApi";
 import { Video } from "./services/VideosApi";
+import { YouTubeChannelWithData, YouTubeVideoCategory } from "./services/YoutubeApi";
 
+type ActionBase<Type extends string> = {
+    type: Type,
+    receivedAt: number,
+}
 
 type ShowError = {
     type: 'SHOW_ERROR',
@@ -55,6 +59,16 @@ type UpdateShouldUseCreatedDateForSort = {
     shouldUseCreatedDateForSort: boolean;
 }
 
+type YtChannelsGetRequest = ActionBase<'YT_CHANNELS_GET_REQUEST'>
+type YtChannelsGetReceive = ActionBase<'YT_CHANNELS_GET_RECEIVE'> & {
+    channels: YouTubeChannelWithData[];
+}
+
+type YtCategoriesGetRequest = ActionBase<"YT_CATEGORIES_GET_REQUEST">
+type YtCategoriesGetReceive = ActionBase<"YT_CATEGORIES_GET_RECEIVE"> & {
+    categories: YouTubeVideoCategory[]
+}
+
 /**
  * A union of the Action types that dispatched from ts tiles.
  * 
@@ -69,6 +83,11 @@ type KnownAction =
     PlutoProjectsGetReceive |
     AddProjectRequest |
     AddProjectReceive |
-    UpdateSearchTerm | UpdateShouldUseCreatedDateForSort;
+    UpdateSearchTerm | 
+    UpdateShouldUseCreatedDateForSort | 
+    YtChannelsGetRequest | 
+    YtChannelsGetReceive | 
+    YtCategoriesGetRequest | 
+    YtCategoriesGetReceive;
 
 export { KnownAction };
