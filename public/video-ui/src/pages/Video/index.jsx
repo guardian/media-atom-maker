@@ -58,12 +58,12 @@ class VideoDisplay extends React.Component {
     const { isCreateMode } = this.state;
 
     if (isCreateMode) {
-      this.props.videoActions.createVideo(video).then(() => {
+      return this.props.videoActions.createVideo(video).then(() => {
         this.setState({ isCreateMode: false });
         this.props.videoActions.getUsages(this.props.video.id);
       });
     } else {
-      this.props.videoActions.saveVideo(video);
+      return this.props.videoActions.saveVideo(video);
     }
   };
 
@@ -213,7 +213,7 @@ class VideoDisplay extends React.Component {
       ? updateWorkflowItem()
       : createWorkflowItem();
 
-    wfPromise.then(() => getStatus(video));
+    return wfPromise.then(() => getStatus(video));
   }
 
   updateEditingState({ key, editing }) {
@@ -277,11 +277,17 @@ class VideoDisplay extends React.Component {
             this.getVideo();
           }}
           onSave={() => {
-            this.updateEditingState({
-              key: 'editingFurniture',
-              editing: false
-            });
-            this.saveAndUpdateVideo(video);
+            this.saveAndUpdateVideo(video)
+              .then(() => {
+                this.updateEditingState({
+                  key: 'editingFurniture',
+                  editing: false
+                });
+              })
+              .catch(() => {
+                // Keep editing state as true on save failure
+                // Error handling is done in the saveVideo action
+              });
           }}
           canSave={() => !this.formHasErrors(formNames.videoData)}
           canCancel={() => !isCreateMode}
@@ -306,11 +312,17 @@ class VideoDisplay extends React.Component {
             this.getVideo();
           }}
           onSave={() => {
-            this.updateEditingState({
-              key: 'editingYoutubeFurniture',
-              editing: false
-            });
-            this.saveAndUpdateVideo(video);
+            this.saveAndUpdateVideo(video)
+              .then(() => {
+                this.updateEditingState({
+                  key: 'editingYoutubeFurniture',
+                  editing: false
+                });
+              })
+              .catch(() => {
+                // Keep editing state as true on save failure
+                // Error handling is done in the saveVideo action
+              });
           }}
           canSave={() => !this.formHasErrors(formNames.youtubeFurniture)}
           video={video}
@@ -327,8 +339,14 @@ class VideoDisplay extends React.Component {
             this.getWorkflowState();
           }}
           onSave={() => {
-            this.updateEditingState({ key: 'editingWorkflow', editing: false });
-            this.saveInWorkflow();
+            this.saveInWorkflow()
+              .then(() => {
+                this.updateEditingState({ key: 'editingWorkflow', editing: false });
+              })
+              .catch(() => {
+                // Keep editing state as true on save failure
+                // Error handling should be implemented in workflow actions
+              });
           }}
           canSave={() => workflow.status.section && workflow.status.status}
           video={video}

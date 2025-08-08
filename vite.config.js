@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react()],
   publicDir: false, // This feature is deactivated because the 'public' dir also has a special meaning for the Play framework
   build: {
+    sourcemap: "inline",
     manifest: true,
     rollupOptions: {
       input: './public/video-ui/src/app.jsx',
