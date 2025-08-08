@@ -226,6 +226,7 @@ Resources:
                         MaxAverageBitrate: 2400000 # Twice average to give room for encoder's decisions
                         QvbrQualityLevel: 8 # 1-10, 10 is best quality
                         QvbrQualityLevelFineTune: 0.66 # Fine-tuned through manual testing
+                      FramerateControl: INITIALIZE_FROM_SOURCE # Follow the source frame rate (default)
                       ParControl: SPECIFIED # Use the pixel aspect ratio specified below
                       ParNumerator: 1 # 1:1 pixel aspect ratio
                       ParDenominator: 1 # 1:1 pixel aspect ratio
