@@ -1,22 +1,42 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import { ManagedField, ManagedForm } from '../ManagedForm';
-import VideoUtils from '../../util/video';
-import TagTypes from '../../constants/TagTypes';
-import TagPicker from '../FormFields/TagPicker';
-import SelectBox from '../FormFields/SelectBox';
-import PrivacyStates from '../../constants/privacyStates';
-import { formNames } from '../../constants/formNames';
-import YouTubeKeywords from '../../constants/youTubeKeywords';
-import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
+import React from 'react';
 import FieldNotification from '../../constants/FieldNotification';
-import KeywordsApi from '../../services/KeywordsApi';
+import { formNames } from '../../constants/formNames';
+import PrivacyStates from '../../constants/privacyStates';
+import TagTypes from '../../constants/TagTypes';
 import { fieldLengths } from '../../constants/videoEditValidation';
-import TextInput from '../FormFields/TextInput';
+import YouTubeKeywords from '../../constants/youTubeKeywords';
+import KeywordsApi from '../../services/KeywordsApi';
+import { Video } from '../../services/VideosApi';
+import { YouTubeChannelWithData, YouTubeVideoCategory } from '../../services/YoutubeApi';
+import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
+import VideoUtils from '../../util/video';
+import SelectBox from '../FormFields/SelectBox';
+import TagPicker from '../FormFields/TagPicker';
 import TextAreaInput from '../FormFields/TextAreaInput';
+import TextInput from '../FormFields/TextInput';
+import { ManagedField, ManagedForm } from '../ManagedForm';
 
-class YoutubeFurniture extends React.Component {
-  constructor(props) {
+type Props = {
+  youtubeActions: {
+    getCategories: { (): Promise<void> };
+    getChannels: { (): Promise<void> };
+  },
+  youtube: {
+    categories: YouTubeVideoCategory[],
+    channels: YouTubeChannelWithData[],
+  },
+  video: Video,
+
+  editable: boolean,
+  updateVideo: { (video: Video): Promise<void> },
+  updateErrors: { (errors: Record<string, Record<string, string>>): void },
+  updateWarnings: { (warnings: Record<string, boolean>): void }
+
+}
+
+class YoutubeFurniture extends React.Component<Props> {
+  constructor(props: Props) {
     super(props);
     if (!this.hasCategories()) {
       this.props.youtubeActions.getCategories();
@@ -37,7 +57,7 @@ class YoutubeFurniture extends React.Component {
   hasCategories = () => this.props.youtube.categories.length !== 0;
   hasChannels = () => this.props.youtube.channels.length !== 0;
 
-  validateYouTubeDescription = description => {
+  validateYouTubeDescription = (description: string) => {
     return description && description.match(/<|>/)
       ? new FieldNotification(
         'required',
@@ -47,9 +67,9 @@ class YoutubeFurniture extends React.Component {
       : null;
   };
 
-  validateYouTubeKeywords = youTubeKeywords => {
+  validateYouTubeKeywords = (youTubeKeywords?: string[]) => {
     const charLimit = YouTubeKeywords.maxCharacters;
-    const numberOfChars = getYouTubeTagCharCount(youTubeKeywords);
+    const numberOfChars: number = getYouTubeTagCharCount(youTubeKeywords);
     const characterCountExceeded = numberOfChars > charLimit;
 
     return characterCountExceeded
@@ -76,7 +96,7 @@ class YoutubeFurniture extends React.Component {
           }
           return tagsAdded;
         }, []);
-        const newVideo = Object.assign({}, video, { tags: oldTags.concat(keywordsToCopy)});
+        const newVideo = Object.assign({}, video, { tags: oldTags.concat(keywordsToCopy) });
         updateVideo(newVideo);
       });
   };
@@ -87,15 +107,17 @@ class YoutubeFurniture extends React.Component {
       editable,
       updateVideo,
       updateErrors,
-      updateWarnings,
+      updateWarnings
     } = this.props;
 
     const { categories } = this.props.youtube;
 
     const isYoutubeAtom = VideoUtils.isYoutube(video);
     const availableChannels = VideoUtils.getAvailableChannels(video);
-    const availablePrivacyStates = VideoUtils.getAvailablePrivacyStates(video);
-    const hasYoutubeWriteAccess = VideoUtils.hasYoutubeWriteAccess(video);
+    // the parser is interpreting the destructuring pattern in getAvailablePrivacyStates and hasYoutubeWriteAccess
+    // as implying the properties of Video are required, but the functions actually allow for them being undefined.
+    const availablePrivacyStates = VideoUtils.getAvailablePrivacyStates(video as Video & { channelId: string | undefined });
+    const hasYoutubeWriteAccess = VideoUtils.hasYoutubeWriteAccess(video as Video & { channelId: string | undefined, privacyStatus: unknown | undefined });
     const isChannelSelectionDisabled = VideoUtils.hasAssets(video) && video.channelId;
 
     return (
@@ -159,20 +181,26 @@ class YoutubeFurniture extends React.Component {
 
 //REDUX CONNECTIONS
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import * as getCategories from '../../actions/YoutubeActions/getCategories';
-import * as getChannels from '../../actions/YoutubeActions/getChannels';
+import { bindActionCreators, Dispatch } from 'redux';
+import { getCategories } from '../../actions/YoutubeActions/getCategories';
+import { getChannels } from '../../actions/YoutubeActions/getChannels';
+import { KnownAction } from '../../actions';
 
-function mapStateToProps(state) {
+function mapStateToProps(state: { youtube: Props['youtube'] }) {
   return {
     youtube: state.youtube
   };
 }
 
-function mapDispatchToProps(dispatch) {
+const actionCreators = {
+  getCategories,
+  getChannels
+};
+
+function mapDispatchToProps(dispatch: Dispatch<KnownAction>) {
   return {
-    youtubeActions: bindActionCreators(
-      Object.assign({}, getCategories, getChannels),
+    youtubeActions: bindActionCreators<typeof actionCreators, Props['youtubeActions']>(
+      actionCreators,
       dispatch
     )
   };
