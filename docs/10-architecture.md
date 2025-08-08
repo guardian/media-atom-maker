@@ -6,7 +6,7 @@
 graph LR
     Pluto((Pluto)):::External
     YouTube((YouTube)):::External
-    CAPI(("`[CAPI](https://github.com/guardian/content-api/tree/df055a2b98e994563bec00d46abdfd3d7a45f547/)`")):::External
+    CAPI(("`<a href="https://github.com/guardian/content-api/tree/df055a2b98e994563bec00d46abdfd3d7a45f547/">CAPI</a>`")):::External
     Composer((Composer))
     uploads-to-pluto{{uploads-to-pluto<br/>Kinesis}}:::Stream
     media-atom-maker-ingested-videos{{media-atom-maker-ingested-videos<br/>SQS}}:::Stream
