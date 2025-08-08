@@ -12,8 +12,16 @@
       "Type": "Choice",
       "Choices": [
         {
-          "Variable": "$.progress.copyProgress.fullyCopied",
-          "BooleanEquals": true,
+          "And": [
+            {
+              "Variable": "$.progress.copyProgress",
+              "IsPresent": true
+            },
+            {
+              "Variable": "$.progress.copyProgress.fullyCopied",
+              "BooleanEquals": true
+            }
+          ],
           "Next": "CheckSelfHosted"
         }
       ],
