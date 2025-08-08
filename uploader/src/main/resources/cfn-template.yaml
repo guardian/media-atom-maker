@@ -240,13 +240,14 @@ Resources:
                       EntropyEncoding: CABAC # Best quality
                       Slices: 1 # Slices improve encoding speed at the expense of quality - so minimise to 1 slice
                       SaliencyAwareEncoding: PREFERRED # Best quality
-                      BandwidthReductionFilter: {} # Having this on reduces detail - so leave it off
+                      BandwidthReductionFilter: { } # Having this on reduces detail - so leave it off
                       AdaptiveQuantization: HIGH # Best quality
                       SpatialAdaptiveQuantization: ENABLED # Best quality
                       TemporalAdaptiveQuantization: ENABLED # Best quality
                       FlickerAdaptiveQuantization: ENABLED # Best quality
                 AudioDescriptions:
-                  - CodecSettings:
+                  - AudioSourceName: Dynamic Audio Selector 1
+                    CodecSettings:
                       Codec: AAC
                       AacSettings:
                         Bitrate: 160000
@@ -257,9 +258,8 @@ Resources:
               FileGroupSettings: { }
         FollowSource: 1
         Inputs:
-          - AudioSelectors:
-              Audio Selector 1:
-                DefaultSelection: DEFAULT
+          - DynamicAudioSelectors: # Only adds audio track if video has audio
+              Dynamic Audio Selector 1: { }
             VideoSelector: { }
             TimecodeSource: ZEROBASED
       Tags:
