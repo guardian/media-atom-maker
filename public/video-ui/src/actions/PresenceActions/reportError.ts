@@ -3,7 +3,7 @@ import { Dispatch } from "redux";
 const getPresenceClientError = (error: unknown) => ({
     type: 'SHOW_ERROR',
     receivedAt: Date.now(),
-    message: 'Failed to create start the Presence Client',
+    message: 'Failed to start the Presence Client',
     error: error
 });
 
