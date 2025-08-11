@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import FieldNotification from '../../constants/FieldNotification';
 import { formNames } from '../../constants/formNames';
@@ -45,14 +44,6 @@ class YoutubeFurniture extends React.Component<Props> {
       this.props.youtubeActions.getChannels();
     }
   }
-
-  static propTypes = {
-    video: PropTypes.object.isRequired,
-    editable: PropTypes.bool.isRequired,
-    updateVideo: PropTypes.func.isRequired,
-    updateErrors: PropTypes.func.isRequired,
-    updateWarnings: PropTypes.func.isRequired
-  };
 
   hasCategories = () => this.props.youtube.categories.length !== 0;
   hasChannels = () => this.props.youtube.channels.length !== 0;
