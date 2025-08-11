@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
 import { PlutoCommission, PlutoProject } from '../../services/PlutoApi';
@@ -27,10 +26,6 @@ const cloneVideoWithoutPlutoProjectId = (video: Video): Video => {
 };
 
 class PlutoProjectPicker extends React.Component<Props> {
-  static propTypes = {
-    video: PropTypes.object.isRequired,
-    saveVideo: PropTypes.func.isRequired
-  };
 
   hasPlutoCommissions = () => this.props.pluto && this.props.pluto.commissions.length !== 0;
 

@@ -7,55 +7,35 @@ type ActionBase<Type extends string> = {
     receivedAt: number,
 }
 
-type ShowError = {
-    type: 'SHOW_ERROR',
+type ShowError = ActionBase<'SHOW_ERROR'> & {
     message: string,
-    receivedAt: number,
     error: unknown
 }
 
-type PlutoCommissionsGetRequest = {
-    type: 'PLUTO_COMMISSIONS_GET_REQUEST',
-    receivedAt: number,
-}
+type PlutoCommissionsGetRequest = ActionBase<'PLUTO_COMMISSIONS_GET_REQUEST'>
 
-type PlutoCommissionsGetReceive = {
-    type: 'PLUTO_COMMISSIONS_GET_RECEIVE',
-    receivedAt: number,
+type PlutoCommissionsGetReceive = ActionBase<'PLUTO_COMMISSIONS_GET_RECEIVE'> & {
     commissions: PlutoCommission[]
 }
 
-type PlutoProjectGetRequest = {
-    type: 'PLUTO_PROJECTS_GET_REQUEST',
-    receivedAt: number,
-}
+type PlutoProjectGetRequest = ActionBase<'PLUTO_PROJECTS_GET_REQUEST'>
 
-type PlutoProjectsGetReceive = {
-    type: 'PLUTO_PROJECTS_GET_RECEIVE',
-    receivedAt: number,
+type PlutoProjectsGetReceive = ActionBase<'PLUTO_PROJECTS_GET_RECEIVE'> & {
     projects: PlutoProject[],
 }
 
-type AddProjectRequest = {
-    type: 'ADD_PROJECT_REQUEST',
-    receivedAt: number,
+type AddProjectRequest = ActionBase<'ADD_PROJECT_REQUEST'> & {
 }
 
-type AddProjectReceive = {
-    type: 'ADD_PROJECT_RECEIVE',
-    receivedAt: number,
+type AddProjectReceive = ActionBase<'ADD_PROJECT_RECEIVE'> & {
     video: Video,
 }
 
-type UpdateSearchTerm = {
-    type: 'UPDATE_SEARCH_TERM';
+type UpdateSearchTerm = ActionBase<'UPDATE_SEARCH_TERM'> & {
     searchTerm: string;
-    receivedAt: number;
 }
 
-type UpdateShouldUseCreatedDateForSort = {
-    type: 'UPDATE_SHOULD_USE_CREATED_DATE_FOR_SORT';
-    receivedAt: number;
+type UpdateShouldUseCreatedDateForSort = ActionBase<'UPDATE_SHOULD_USE_CREATED_DATE_FOR_SORT'> & {
     shouldUseCreatedDateForSort: boolean;
 }
 
@@ -83,11 +63,11 @@ type KnownAction =
     PlutoProjectsGetReceive |
     AddProjectRequest |
     AddProjectReceive |
-    UpdateSearchTerm | 
-    UpdateShouldUseCreatedDateForSort | 
-    YtChannelsGetRequest | 
-    YtChannelsGetReceive | 
-    YtCategoriesGetRequest | 
+    UpdateSearchTerm |
+    UpdateShouldUseCreatedDateForSort |
+    YtChannelsGetRequest |
+    YtChannelsGetReceive |
+    YtCategoriesGetRequest |
     YtCategoriesGetReceive;
 
 export { KnownAction };
