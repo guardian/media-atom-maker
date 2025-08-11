@@ -2,50 +2,50 @@ import { PlutoCommission, PlutoProject } from "./services/PlutoApi";
 import { Video } from "./services/VideosApi";
 import { YouTubeChannelWithData, YouTubeVideoCategory } from "./services/YoutubeApi";
 
-type ActionBase<Type extends string> = {
-    type: Type,
-    receivedAt: number,
+type BaseAction<TypeName extends string> = {
+    type: TypeName;
+    receivedAt: number;
 }
 
-type ShowError = ActionBase<'SHOW_ERROR'> & {
-    message: string,
-    error: unknown
+type ShowError = BaseAction<'SHOW_ERROR'> & {
+    message: string;
+    error: unknown;
 }
 
-type PlutoCommissionsGetRequest = ActionBase<'PLUTO_COMMISSIONS_GET_REQUEST'>
+type PlutoCommissionsGetRequest = BaseAction<'PLUTO_COMMISSIONS_GET_REQUEST'>
 
-type PlutoCommissionsGetReceive = ActionBase<'PLUTO_COMMISSIONS_GET_RECEIVE'> & {
+type PlutoCommissionsGetReceive = BaseAction<'PLUTO_COMMISSIONS_GET_RECEIVE'> & {
     commissions: PlutoCommission[]
 }
 
-type PlutoProjectGetRequest = ActionBase<'PLUTO_PROJECTS_GET_REQUEST'>
+type PlutoProjectGetRequest = BaseAction<'PLUTO_PROJECTS_GET_REQUEST'>
 
-type PlutoProjectsGetReceive = ActionBase<'PLUTO_PROJECTS_GET_RECEIVE'> & {
-    projects: PlutoProject[],
+type PlutoProjectsGetReceive = BaseAction<'PLUTO_PROJECTS_GET_RECEIVE'> & {
+    projects: PlutoProject[]
 }
 
-type AddProjectRequest = ActionBase<'ADD_PROJECT_REQUEST'> & {
+type AddProjectRequest = BaseAction<'ADD_PROJECT_REQUEST'> & {
 }
 
-type AddProjectReceive = ActionBase<'ADD_PROJECT_RECEIVE'> & {
-    video: Video,
+type AddProjectReceive = BaseAction<'ADD_PROJECT_RECEIVE'> & {
+    video: Video
 }
 
-type UpdateSearchTerm = ActionBase<'UPDATE_SEARCH_TERM'> & {
+type UpdateSearchTerm = BaseAction<'UPDATE_SEARCH_TERM'> & {
     searchTerm: string;
 }
 
-type UpdateShouldUseCreatedDateForSort = ActionBase<'UPDATE_SHOULD_USE_CREATED_DATE_FOR_SORT'> & {
+type UpdateShouldUseCreatedDateForSort = BaseAction<'UPDATE_SHOULD_USE_CREATED_DATE_FOR_SORT'> & {
     shouldUseCreatedDateForSort: boolean;
 }
 
-type YtChannelsGetRequest = ActionBase<'YT_CHANNELS_GET_REQUEST'>
-type YtChannelsGetReceive = ActionBase<'YT_CHANNELS_GET_RECEIVE'> & {
+type YtChannelsGetRequest = BaseAction<'YT_CHANNELS_GET_REQUEST'>
+type YtChannelsGetReceive = BaseAction<'YT_CHANNELS_GET_RECEIVE'> & {
     channels: YouTubeChannelWithData[];
 }
 
-type YtCategoriesGetRequest = ActionBase<"YT_CATEGORIES_GET_REQUEST">
-type YtCategoriesGetReceive = ActionBase<"YT_CATEGORIES_GET_RECEIVE"> & {
+type YtCategoriesGetRequest = BaseAction<"YT_CATEGORIES_GET_REQUEST">
+type YtCategoriesGetReceive = BaseAction<"YT_CATEGORIES_GET_RECEIVE"> & {
     categories: YouTubeVideoCategory[]
 }
 
