@@ -44,34 +44,39 @@ export class Presence extends React.Component {
 
     const endpoint = `wss://${domain}/socket`;
 
-    const client = window.presenceClient(endpoint, {
-      firstName,
-      lastName,
-      email
-    });
+    try {
+      const client = window.presenceClient(endpoint, {
+        firstName,
+        lastName,
+        email
+      });
 
-    client.startConnection();
+      client.startConnection();
 
-    client.on('connection.open', () => {
-      client.subscribe(subscriptionId);
-      client.enter(subscriptionId, 'document');
-    });
+      client.on('connection.open', () => {
+        client.subscribe(subscriptionId);
+        client.enter(subscriptionId, 'document');
+      });
 
-    client.on('visitor-list-updated', data => {
-      if (data.subscriptionId === subscriptionId) {
-        this.setState(
-          Object.assign({}, this.state, {
-            visitors: data.currentState
-          })
-        );
-      }
-    });
+      client.on('visitor-list-updated', data => {
+        if (data.subscriptionId === subscriptionId) {
+          this.setState(
+            Object.assign({}, this.state, {
+              visitors: data.currentState
+            })
+          );
+        }
+      });
 
-    this.setState(
-      Object.assign({}, this.state, {
-        client: client
-      })
-    );
+      this.setState(
+        Object.assign({}, this.state, {
+          client: client
+        })
+      );
+    } catch (err) {
+      console.error('Failed to instantiate Presence client', err);
+      this.props.reportPresenceClientError(err);
+    }
   };
 
   render() {
@@ -101,8 +106,8 @@ export class Presence extends React.Component {
         </div>
         {multipleVisitors
           ? <div className="presence-section presence-warning">
-              There are multiple people in this Atom. Your changes may be overwritten!
-            </div>
+            There are multiple people in this Atom. Your changes may be overwritten!
+          </div>
           : ''}
       </section>
     );

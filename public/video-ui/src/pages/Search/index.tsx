@@ -18,6 +18,9 @@ type VideosProps = {
   videoActions: {
     getVideos: (searchTerm: string, limit: number, shouldUseCreatedDateForSort: boolean) => null;
   },
+  presenceActions: {
+    reportPresenceClientError: (err: unknown) => null
+  },
   searchTerm: string,
   limit: number,
   shouldUseCreatedDateForSort: boolean
@@ -58,20 +61,20 @@ type PresenceData = {
 }
 
 type PresenceClient = {
-  on: (string: string, f: (data?: PresenceData ) => void) => void;
+  on: (string: string, f: (data?: PresenceData) => void) => void;
   subscribe: (mediaIds: string[]) => void;
   startConnection: () => void;
 }
 
-const MoreLink = ({ onClick }: {onClick: () => void} ) => {
+const MoreLink = ({ onClick }: { onClick: () => void }) => {
   return (<div>
     <button className="btn video__load_more" onClick={onClick}>
       Load More
     </button>
-  </div>)
-}
+  </div>);
+};
 
-const Videos = ({videos, total, videoActions, searchTerm, limit, shouldUseCreatedDateForSort}: VideosProps) => {
+const Videos = ({ videos, total, videoActions, searchTerm, limit, shouldUseCreatedDateForSort, presenceActions }: VideosProps) => {
   const [mediaIds, setMediaIds] = useState<string[]>([]);
   const [videoPresences, setVideoPresences] = useState<VideoPresences[]>([]);
   const [client, setClient] = useState<PresenceClient>(null);
@@ -88,52 +91,57 @@ const Videos = ({videos, total, videoActions, searchTerm, limit, shouldUseCreate
 
   const startPresence = ({ domain, firstName, lastName, email }: PresenceConfig) => {
     const endpoint = `wss://${domain}/socket`;
-    if (!window.presenceClient){
-      console.error("Failed to connect to Presence as client was not available in window.")
+    if (!window.presenceClient) {
+      console.error("Failed to connect to Presence as client was not available in window.");
       return;
     }
 
-    const presenceClient = window.presenceClient(endpoint, {
-      firstName,
-      lastName,
-      email
-    }) as PresenceClient
-    presenceClient.startConnection();
-    presenceClient.on('visitor-list-subscribe', visitorData => {
-      if (visitorData.data.subscribedTo){
-        const initialState = visitorData.data.subscribedTo
-          .map(subscribedTo => {return {mediaId: subscribedTo.subscriptionId, presences: subscribedTo.currentState} as VideoPresences})
-          .filter(presence => presence.presences.length)
-        setVideoPresences(initialState)
-      }
-    })
-    presenceClient.on('visitor-list-updated', data => {
-      if (data.subscriptionId && data.currentState){
-        // We dump the data to a queue (which is picked up by a useEffect rather than directly modifying videoPresences
-        // so we don't need to depend on videoPresences, which led to some cyclicality
-        setPresencesQueue(data);
-      }
-    });
-    setClient(presenceClient);
+    try {
+      const presenceClient = window.presenceClient(endpoint, {
+        firstName,
+        lastName,
+        email
+      }) as PresenceClient;
+      presenceClient.startConnection();
+      presenceClient.on('visitor-list-subscribe', visitorData => {
+        if (visitorData.data.subscribedTo) {
+          const initialState = visitorData.data.subscribedTo
+            .map(subscribedTo => { return { mediaId: subscribedTo.subscriptionId, presences: subscribedTo.currentState } as VideoPresences; })
+            .filter(presence => presence.presences.length);
+          setVideoPresences(initialState);
+        }
+      });
+      presenceClient.on('visitor-list-updated', data => {
+        if (data.subscriptionId && data.currentState) {
+          // We dump the data to a queue (which is picked up by a useEffect rather than directly modifying videoPresences
+          // so we don't need to depend on videoPresences, which led to some cyclicality
+          setPresencesQueue(data);
+        }
+      });
+      setClient(presenceClient);
+    } catch (err: unknown) {
+      console.error('Failed to instantiate Presence client', err);
+      presenceActions.reportPresenceClientError(err);
+    }
   };
 
   const getPresencesForVideo = (videoId: string): Presence[] => {
     return videoPresences.filter(videoPresence => videoPresence.mediaId === `media-${videoId}`).flatMap(videoPresence => videoPresence.presences);
-  }
+  };
 
   useEffect(() => {
     videoActions.getVideos(searchTerm, limit, shouldUseCreatedDateForSort);
     const config = getStore().getState().config;
     const presenceConfig = config.presence;
-    if (presenceConfig){
+    if (presenceConfig) {
       startPresence(presenceConfig);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    const newMediaIds = videos.map(video => `media-${video.id}`)
-    setMediaIds(newMediaIds)
-  }, [videos])
+    const newMediaIds = videos.map(video => `media-${video.id}`);
+    setMediaIds(newMediaIds);
+  }, [videos]);
 
   useEffect(() => {
     if (client && mediaIds.length > 0) {
@@ -146,45 +154,46 @@ const Videos = ({videos, total, videoActions, searchTerm, limit, shouldUseCreate
   }, [mediaIds, client]);
 
   useEffect(() => {
-    if (presencesQueue){
-      setVideoPresences([...videoPresences.filter(videoPresence => videoPresence.mediaId !== presencesQueue.subscriptionId), {mediaId: presencesQueue.subscriptionId, presences: presencesQueue.currentState}])
+    if (presencesQueue) {
+      setVideoPresences([...videoPresences.filter(videoPresence => videoPresence.mediaId !== presencesQueue.subscriptionId), { mediaId: presencesQueue.subscriptionId, presences: presencesQueue.currentState }]);
       setPresencesQueue(null);
     }
-  }, [presencesQueue, videoPresences])
+  }, [presencesQueue, videoPresences]);
 
   useEffect(() => {
     if (searchTerm !== prevSearch) {
-      setPrevSearch(searchTerm)
+      setPrevSearch(searchTerm);
       videoActions.getVideos(searchTerm, limit, shouldUseCreatedDateForSort);
     }
-  }, [searchTerm, prevSearch])
+  }, [searchTerm, prevSearch]);
 
   useEffect(() => {
     videoActions.getVideos(searchTerm, limit, shouldUseCreatedDateForSort);
-  }, [shouldUseCreatedDateForSort])
+  }, [shouldUseCreatedDateForSort]);
 
   return (
     <div>
       <div className="grid">
         {videos.length ? <ul className="grid__list">
           {videos.map(video => (
-            <VideoItem key={video.id} video={video} presences={getPresencesForVideo(video.id)}/>
+            <VideoItem key={video.id} video={video} presences={getPresencesForVideo(video.id)} />
           ))}
         </ul> : <p className="grid__message">No videos found</p>
         }
       </div>
       {videos.length === total ? null : <MoreLink onClick={showMore}></MoreLink>}
     </div>
-  )
+  );
 
-}
+};
 
 //REDUX CONNECTIONS
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getVideos from '../../actions/VideoActions/getVideos';
+import * as reportPresenceClientError from '../../actions/PresenceActions/reportError';
 
-function mapStateToProps(state: {videos: {entries: number, total: number, limit: number}, searchTerm: string, shouldUseCreatedDateForSort: boolean}) {
+function mapStateToProps(state: { videos: { entries: number, total: number, limit: number }, searchTerm: string, shouldUseCreatedDateForSort: boolean }) {
   return {
     videos: state.videos.entries,
     total: state.videos.total,
@@ -197,7 +206,8 @@ function mapStateToProps(state: {videos: {entries: number, total: number, limit:
 // @ts-ignore
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideos), dispatch)
+    videoActions: bindActionCreators(Object.assign({}, getVideos), dispatch),
+    presenceActions: bindActionCreators(Object.assign({}, reportPresenceClientError), dispatch)
   };
 }
 
