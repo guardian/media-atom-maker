@@ -1,44 +1,32 @@
 import { PlutoCommission, PlutoProject } from "./services/PlutoApi";
 import { Video } from "./services/VideosApi";
 
+type BaseAction<TypeName extends string> = {
+    type: TypeName;
+    receivedAt: number;
+}
 
-type ShowError = {
-    type: 'SHOW_ERROR',
+type ShowError = BaseAction<'SHOW_ERROR'> & {
     message: string,
-    receivedAt: number,
     error: unknown
 }
 
-type PlutoCommissionsGetRequest = {
-    type: 'PLUTO_COMMISSIONS_GET_REQUEST',
-    receivedAt: number,
-}
+type PlutoCommissionsGetRequest = BaseAction<'PLUTO_COMMISSIONS_GET_REQUEST'>
 
-type PlutoCommissionsGetReceive = {
-    type: 'PLUTO_COMMISSIONS_GET_RECEIVE',
-    receivedAt: number,
+type PlutoCommissionsGetReceive = BaseAction<'PLUTO_COMMISSIONS_GET_RECEIVE'> & {
     commissions: PlutoCommission[]
 }
 
-type PlutoProjectGetRequest = {
-    type: 'PLUTO_PROJECTS_GET_REQUEST',
-    receivedAt: number,
-}
+type PlutoProjectGetRequest = BaseAction<'PLUTO_PROJECTS_GET_REQUEST'>
 
-type PlutoProjectsGetReceive = {
-    type: 'PLUTO_PROJECTS_GET_RECEIVE',
-    receivedAt: number,
+type PlutoProjectsGetReceive = BaseAction<'PLUTO_PROJECTS_GET_RECEIVE'> & {
     projects: PlutoProject[],
 }
 
-type AddProjectRequest = {
-    type: 'ADD_PROJECT_REQUEST',
-    receivedAt: number,
+type AddProjectRequest = BaseAction<'ADD_PROJECT_REQUEST'> & {
 }
 
-type AddProjectReceive = {
-    type: 'ADD_PROJECT_RECEIVE',
-    receivedAt: number,
+type AddProjectReceive = BaseAction<'ADD_PROJECT_RECEIVE'> & {
     video: Video,
 }
 
