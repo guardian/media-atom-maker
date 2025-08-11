@@ -2,20 +2,22 @@ import moment from 'moment';
 
 import { getStore } from './storeAccessor';
 import PrivacyStates from '../constants/privacyStates';
+import { Video } from '../services/VideosApi';
+import { YouTubeChannelWithData } from '../services/YoutubeApi';
 
 export default class VideoUtils {
-  static hasAssets({ assets }) {
+  static hasAssets({ assets }: Video) {
     return assets.length > 0;
   }
 
-  static getActiveAsset({ assets, activeVersion }) {
+  static getActiveAsset({ assets, activeVersion }: Video) {
     if (activeVersion) {
       const active = assets.filter(_ => _.version === activeVersion);
       return active.length === 1 ? active[0] : active;
     }
   }
 
-  static isYoutube(atom) {
+  static isYoutube(atom: Video) {
     // no assets, could be youtube if we wanted
     if (!VideoUtils.hasAssets(atom)) {
       return true;
@@ -36,56 +38,55 @@ export default class VideoUtils {
     return activeAsset.platform === 'Youtube';
   }
 
-  static getYoutubeChannel({ channelId }) {
+  static getYoutubeChannel({ channelId }: Video) {
     if (!channelId) {
       return false;
     }
 
     const state = getStore().getState();
-    const stateChannels = state.youtube.channels;
+    const stateChannels = state.youtube.channels as YouTubeChannelWithData[];
     return stateChannels.find(_ => _.id === channelId);
   }
 
-  static hasYoutubeWriteAccess({ channelId, privacyStatus }) {
-    const availablePrivacyStates = VideoUtils.getAvailablePrivacyStates({
-      channelId
-    });
+  static hasYoutubeWriteAccess(video: Video) {
+    const { privacyStatus } = video;
+    const availablePrivacyStates = VideoUtils.getAvailablePrivacyStates(video);
 
     if (
       !!privacyStatus &&
       availablePrivacyStates &&
-      !availablePrivacyStates.includes(privacyStatus)
+      !availablePrivacyStates.includes(privacyStatus as string)
     ) {
       return false;
     }
-    return !!VideoUtils.getYoutubeChannel({ channelId });
+    return !!VideoUtils.getYoutubeChannel(video);
   }
 
-  static getAvailableChannels({ category }) {
+  static getAvailableChannels(video: Video) {
     const state = getStore().getState();
-    const stateChannels = state.youtube.channels;
-    const isCommercialType = VideoUtils.isCommercialType({ category });
+    const stateChannels = state.youtube.channels as YouTubeChannelWithData[];
+    const isCommercialType = VideoUtils.isCommercialType(video);
     return stateChannels.filter(_ => _.isCommercial === isCommercialType);
   }
 
-  static getAvailablePrivacyStates({ channelId }) {
-    const channel = VideoUtils.getYoutubeChannel({ channelId });
+  static getAvailablePrivacyStates(video: Video) {
+    const channel = VideoUtils.getYoutubeChannel(video);
     return channel ? channel.privacyStates : PrivacyStates.defaultStates;
   }
 
-  static isCommercialType({ category }) {
-    return ['Hosted', 'Paid'].includes(category);
+  static isCommercialType({ category }: Video) {
+    return (['Hosted', 'Paid'] as unknown[]).includes(category);
   }
 
-  static isLiveStream({ category }) {
+  static isLiveStream({ category }: Video) {
     return category === 'Livestream';
   }
 
-  static isHosted({ category }) {
+  static isHosted({ category }: Video) {
     return category === 'Hosted';
   }
 
-  static isEligibleForAds(atom) {
+  static isEligibleForAds(atom: Video) {
     if (!VideoUtils.hasAssets(atom)) {
       return true;
     }
@@ -102,7 +103,7 @@ export default class VideoUtils {
     return atom.duration > 0 && atom.duration >= minDurationForAds;
   }
 
-  static isRecentlyModified({ contentChangeDetails }) {
+  static isRecentlyModified({ contentChangeDetails }: Video) {
     if (contentChangeDetails && contentChangeDetails.lastModified) {
       const lastModified = moment(contentChangeDetails.lastModified.date);
       const diff = moment().diff(lastModified, 'days');
@@ -111,37 +112,37 @@ export default class VideoUtils {
     return false;
   }
 
-  static canUploadToYouTube({ youtubeCategoryId, channelId, privacyStatus }) {
+  static canUploadToYouTube({ youtubeCategoryId, channelId, privacyStatus }: Video) {
     return !!youtubeCategoryId && !!channelId && !!privacyStatus;
   }
 
-  static getScheduledLaunch({ contentChangeDetails }) {
+  static getScheduledLaunch({ contentChangeDetails }: Video) {
     return contentChangeDetails &&
       contentChangeDetails.scheduledLaunch &&
-      contentChangeDetails.scheduledLaunch.date
+      contentChangeDetails.scheduledLaunch.date;
   }
 
-  static getEmbargo({ contentChangeDetails }) {
+  static getEmbargo({ contentChangeDetails }:Video) {
     return contentChangeDetails &&
       contentChangeDetails.embargo &&
-      contentChangeDetails.embargo.date
+      contentChangeDetails.embargo.date;
   }
 
-  static getScheduledLaunchAsDate(video) {
+  static getScheduledLaunchAsDate(video:Video) {
     const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
     return scheduledLaunch ? moment(scheduledLaunch) : null;
   }
 
-  static getEmbargoAsDate(video) {
+  static getEmbargoAsDate(video:Video) {
     const embargo = VideoUtils.getEmbargo(video);
     return embargo ? moment(embargo) : null;
   }
 
-  static isPublished({ contentChangeDetails }) {
+  static isPublished({ contentChangeDetails }:Video) {
     return !!contentChangeDetails.published;
   }
 
-  static hasExpired({ contentChangeDetails }) {
+  static hasExpired({ contentChangeDetails }: Video) {
     return !!contentChangeDetails.expiry && contentChangeDetails.expiry.date <= Date.now();
   }
 }

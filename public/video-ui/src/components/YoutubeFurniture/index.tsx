@@ -116,8 +116,8 @@ class YoutubeFurniture extends React.Component<Props> {
     const availableChannels = VideoUtils.getAvailableChannels(video);
     // the parser is interpreting the destructuring pattern in getAvailablePrivacyStates and hasYoutubeWriteAccess
     // as implying the properties of Video are required, but the functions actually allow for them being undefined.
-    const availablePrivacyStates = VideoUtils.getAvailablePrivacyStates(video as Video & { channelId: string | undefined });
-    const hasYoutubeWriteAccess = VideoUtils.hasYoutubeWriteAccess(video as Video & { channelId: string | undefined, privacyStatus: unknown | undefined });
+    const availablePrivacyStates = VideoUtils.getAvailablePrivacyStates(video);
+    const hasYoutubeWriteAccess = VideoUtils.hasYoutubeWriteAccess(video);
     const isChannelSelectionDisabled = VideoUtils.hasAssets(video) && video.channelId;
 
     return (

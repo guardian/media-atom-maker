@@ -3,7 +3,7 @@ export default class PrivacyStates {
     return ['Unlisted'];
   }
 
-  static forForm(states) {
+  static forForm(states: string[]) {
     return states.filter(_ => _ !== 'Private').map(state => {
       return { id: state, title: state };
     });
