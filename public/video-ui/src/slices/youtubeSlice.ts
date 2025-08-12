@@ -1,8 +1,13 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import {getYoutubeCategories, getYoutubeChannels} from "../services/YoutubeApi";
+import {
+  getYoutubeCategories,
+  getYoutubeChannels,
+  YouTubeChannelWithData,
+  YouTubeVideoCategory
+} from "../services/YoutubeApi";
 import Logger from "../logger";
 
-const initialState: { categories: unknown[], channels: unknown[] } = { categories: [], channels: [] };
+const initialState: { categories: YouTubeVideoCategory[], channels: YouTubeChannelWithData[] } = { categories: [], channels: [] };
 
 const errorReceivingCategories = (error: unknown) => {
   return {
@@ -51,10 +56,10 @@ const youtubeSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchCategories.fulfilled, (state, action) => {
-        state.categories = action.payload as any;
+        state.categories = action.payload;
       })
       .addCase(fetchChannels.fulfilled, (state, action) => {
-        state.channels = action.payload as any;
+        state.channels = action.payload;
       });
   }
 });
