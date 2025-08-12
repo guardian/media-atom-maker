@@ -5,14 +5,14 @@ import qs from 'querystringify';
 import Raven from 'raven-js';
 import { browserHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
-import { configureStore } from './util/configureStore';
+import { getStore } from './util/configureStore';
 import { setStore } from './util/storeAccessor';
 import { extractConfigFromPage } from './util/config';
 import { routes } from './routes';
 
 import '../styles/main.scss';
 
-const store = configureStore();
+const store = getStore();
 syncHistoryWithStore(browserHistory, store);
 const config = extractConfigFromPage();
 
