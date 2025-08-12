@@ -1,5 +1,5 @@
-import { PlutoCommission, PlutoProject } from "./services/PlutoApi";
-import { Video } from "./services/VideosApi";
+import { PlutoCommission, PlutoProject } from "../services/PlutoApi";
+import { Video } from "../services/VideosApi";
 
 type BaseAction<TypeName extends string> = {
     type: TypeName;
