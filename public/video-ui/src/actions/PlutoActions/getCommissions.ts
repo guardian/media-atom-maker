@@ -1,5 +1,5 @@
 import { Dispatch } from 'redux';
-import { KnownAction } from '../../actions';
+import { KnownAction } from '../actions';
 import { getPlutoCommissions, PlutoCommission } from '../../services/PlutoApi';
 
 function requestCommissions(): KnownAction {

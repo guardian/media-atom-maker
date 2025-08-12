@@ -11,7 +11,7 @@ type Props = {
   },
   plutoActions: {
     getCommissions: { (): Promise<void> };
-    getProjects: { (plutoData: { commissionId: string }): void }
+    getProjects: { (commissionId: string): void }
   }
   video: Video;
   saveVideo: { (video: Video): Promise<void> }
@@ -35,7 +35,7 @@ class PlutoProjectPicker extends React.Component<Props> {
       this.props.plutoActions.getCommissions().then(() => {
         const commissionId = this.props.video.plutoData?.commissionId;
         if (commissionId) {
-          this.props.plutoActions.getProjects({ commissionId });
+          this.props.plutoActions.getProjects(commissionId);
         }
       });
     }
@@ -50,7 +50,7 @@ class PlutoProjectPicker extends React.Component<Props> {
       // type safety.
       const commissionId = this.props.video.plutoData?.commissionId;
       if (commissionId) {
-        this.props.plutoActions.getProjects({ commissionId });
+        this.props.plutoActions.getProjects(commissionId);
       }
     });
   }

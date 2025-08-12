@@ -1,4 +1,4 @@
-import { KnownAction } from "../../actions";
+import { KnownAction } from "../actions";
 
 export function updateSearchTerm(searchTerm: string): KnownAction {
   return {

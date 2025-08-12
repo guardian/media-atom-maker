@@ -1,6 +1,6 @@
 import { Dispatch } from 'redux';
 import { getYoutubeChannels, YouTubeChannelWithData } from '../../services/YoutubeApi';
-import { KnownAction } from '../../actions';
+import { KnownAction } from '../actions';
 
 function requestChannels(): KnownAction {
   return {

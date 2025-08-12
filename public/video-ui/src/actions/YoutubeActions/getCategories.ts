@@ -1,6 +1,6 @@
 import { getYoutubeCategories, YouTubeVideoCategory } from '../../services/YoutubeApi';
 import Logger from '../../logger';
-import { KnownAction } from '../../actions';
+import { KnownAction } from '../actions';
 import { Dispatch } from 'redux';
 
 function requestCategories(): KnownAction {

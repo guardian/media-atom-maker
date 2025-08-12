@@ -175,7 +175,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { getCategories } from '../../actions/YoutubeActions/getCategories';
 import { getChannels } from '../../actions/YoutubeActions/getChannels';
-import { KnownAction } from '../../actions';
+import { KnownAction } from '../../actions/actions';
+
 
 function mapStateToProps(state: { youtube: Props['youtube'] }) {
   return {

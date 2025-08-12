@@ -1,6 +1,6 @@
-import { PlutoCommission, PlutoProject } from "./services/PlutoApi";
-import { Video } from "./services/VideosApi";
-import { YouTubeChannelWithData, YouTubeVideoCategory } from "./services/YoutubeApi";
+import { PlutoCommission, PlutoProject } from "../services/PlutoApi";
+import { Video } from "../services/VideosApi";
+import { YouTubeChannelWithData, YouTubeVideoCategory } from "../services/YoutubeApi";
 
 type BaseAction<TypeName extends string> = {
     type: TypeName;
@@ -50,7 +50,7 @@ type YtCategoriesGetReceive = BaseAction<"YT_CATEGORIES_GET_RECEIVE"> & {
 }
 
 /**
- * A union of the Action types that dispatched from ts tiles.
+ * A union of the Action types that dispatched from ts files.
  * 
  * This is not yet a complete list of all the actions the application handles as
  * some actions dispatched from js files.

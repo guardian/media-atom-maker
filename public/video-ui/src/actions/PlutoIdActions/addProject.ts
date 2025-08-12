@@ -1,5 +1,5 @@
 import { Dispatch } from 'redux';
-import { KnownAction } from '../../actions';
+import { KnownAction } from '../actions';
 import VideosApi, { Video } from '../../services/VideosApi';
 
 function requestAddProject(): KnownAction {
