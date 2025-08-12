@@ -130,7 +130,11 @@ export default class Header extends React.Component {
   renderPresence() {
     if (this.props.presenceConfig) {
       return (
-        <Presence video={this.props.video} config={this.props.presenceConfig} />
+        <Presence 
+          video={this.props.video} 
+          config={this.props.presenceConfig} 
+          reportPresenceClientError={this.props.reportPresenceClientError}
+        />
       );
     }
 

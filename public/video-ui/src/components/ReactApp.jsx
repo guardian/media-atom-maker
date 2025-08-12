@@ -58,6 +58,7 @@ class ReactApp extends React.Component {
         <Header
           shouldUseCreatedDateForSort={this.props.shouldUseCreatedDateForSort}
           updateShouldUseCreatedDateForSort={this.props.appActions.updateShouldUseCreatedDateForSort}
+          reportPresenceClientError={this.props.appActions.reportPresenceClientError}
           updateSearchTerm={this.props.appActions.updateSearchTerm}
           searchTerm={this.props.searchTerm}
           currentPath={this.props.location.pathname}
@@ -110,6 +111,7 @@ import * as videoPageCreate from '../actions/VideoActions/videoPageCreate';
 import * as videoUsages from '../actions/VideoActions/videoUsages';
 import * as deleteVideo from '../actions/VideoActions/deleteVideo';
 import * as updateVideo from '../actions/VideoActions/updateVideo';
+import * as reportPresenceClientError from '../actions/PresenceActions/reportError';
 
 function mapStateToProps(state) {
   return {
@@ -145,7 +147,8 @@ function mapDispatchToProps(dispatch) {
         videoPageCreate,
         videoUsages,
         deleteVideo,
-        updateVideo
+        updateVideo,
+        reportPresenceClientError
       ),
       dispatch
     )

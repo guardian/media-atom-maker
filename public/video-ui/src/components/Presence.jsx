@@ -1,4 +1,5 @@
 import React from 'react';
+import { safelyStartPresence } from '../services/presence';
 
 export class Presence extends React.Component {
   state = {
@@ -39,38 +40,37 @@ export class Presence extends React.Component {
     }
   }
 
-  startPresence = (atom, { domain, firstName, lastName, email }) => {
+  startPresence = (atom, presenceConfig) => {
     const subscriptionId = `media-${atom}`;
+    const component = this;
 
-    const endpoint = `wss://${domain}/socket`;
+    safelyStartPresence(
+      (presenceClient) => {
+        presenceClient.startConnection();
 
-    const client = window.presenceClient(endpoint, {
-      firstName,
-      lastName,
-      email
-    });
+        presenceClient.on('connection.open', () => {
+          presenceClient.subscribe(subscriptionId);
+          presenceClient.enter(subscriptionId, 'document');
+        });
 
-    client.startConnection();
+        presenceClient.on('visitor-list-updated', data => {
+          if (data.subscriptionId === subscriptionId) {
+            component.setState(
+              Object.assign({}, component.state, {
+                visitors: data.currentState
+              })
+            );
+          }
+        });
 
-    client.on('connection.open', () => {
-      client.subscribe(subscriptionId);
-      client.enter(subscriptionId, 'document');
-    });
-
-    client.on('visitor-list-updated', data => {
-      if (data.subscriptionId === subscriptionId) {
-        this.setState(
-          Object.assign({}, this.state, {
-            visitors: data.currentState
+        component.setState(
+          Object.assign({}, component.state, {
+            client: presenceClient
           })
         );
-      }
-    });
-
-    this.setState(
-      Object.assign({}, this.state, {
-        client: client
-      })
+      },
+      this.props.reportPresenceClientError,
+      presenceConfig
     );
   };
 
@@ -101,8 +101,8 @@ export class Presence extends React.Component {
         </div>
         {multipleVisitors
           ? <div className="presence-section presence-warning">
-              There are multiple people in this Atom. Your changes may be overwritten!
-            </div>
+            There are multiple people in this Atom. Your changes may be overwritten!
+          </div>
           : ''}
       </section>
     );
