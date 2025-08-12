@@ -40,6 +40,11 @@ export type ContentChangeDetails = {
   expiry?: ChangeRecord
 }
 
+export type PlutoData = { 
+  commissionId?: string, 
+  projectId?: string 
+};
+
 export type Video = {
   id: string;
   labels: string[];
@@ -48,7 +53,7 @@ export type Video = {
   activeVersion?: number;
   title: string;
   category: unknown;
-  plutoData?: unknown;
+  plutoData?: PlutoData;
   duration?: number;
   source?: string;
   description?: string;

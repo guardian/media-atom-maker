@@ -3,7 +3,11 @@ import PropTypes from 'prop-types';
 import Icon from '../Icon';
 import { getPlutoProjectLink } from '../../services/PlutoApi';
 
-export default class PlutoProjectLink extends React.Component {
+interface Props {
+  projectId: string
+}
+
+export default class PlutoProjectLink extends React.Component<Props> {
   static propTypes = {
     projectId: PropTypes.string.isRequired
   };
