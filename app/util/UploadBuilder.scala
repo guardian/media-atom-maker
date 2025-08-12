@@ -46,8 +46,7 @@ object UploadBuilder {
    * @return
    */
   def buildForSubtitleChange(upload: Upload): Upload = {
-    // ensure that only m3u8 output is requested
-    val updatedAsset = getAsset(upload.metadata.selfHost, upload.metadata.title, upload.id, includeMp4 = false)
+    val updatedAsset = getAsset(upload.metadata.selfHost, upload.metadata.title, upload.id)
     upload.copy(
       metadata = upload.metadata.copy(asset = updatedAsset),
       progress = upload.progress.copy(fullyTranscoded = false)
