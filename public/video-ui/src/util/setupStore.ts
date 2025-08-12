@@ -5,7 +5,7 @@ import { storeMiddleware } from './storeMiddleware';
 import reducers from '../reducers/reducers';
 import {configureStore} from "@reduxjs/toolkit";
 
-export function getStore() {
+export function setupStore() {
   return configureStore({
     reducer: reducers,
     middleware: (getDefaultMiddleware) => {
@@ -14,5 +14,5 @@ export function getStore() {
           storeMiddleware
         );
     }
-  })
+  });
 }

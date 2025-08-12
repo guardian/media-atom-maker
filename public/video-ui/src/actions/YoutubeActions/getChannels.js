@@ -1,19 +1,5 @@
 import { getYoutubeChannels } from '../../services/YoutubeApi';
-
-function requestChannels() {
-  return {
-    type: 'YT_CHANNELS_GET_REQUEST',
-    receivedAt: Date.now()
-  };
-}
-
-function receiveChannels(channels) {
-  return {
-    type: 'YT_CHANNELS_GET_RECEIVE',
-    channels: channels,
-    receivedAt: Date.now()
-  };
-}
+import {channelsReceived} from "../../slices/youtubeSlice";
 
 function errorReceivingCatetories(error) {
   return {
@@ -26,9 +12,9 @@ function errorReceivingCatetories(error) {
 
 export function getChannels() {
   return dispatch => {
-    dispatch(requestChannels());
     return getYoutubeChannels()
-      .catch(error => dispatch(errorReceivingCatetories(error)))
-      .then(channels => dispatch(receiveChannels(channels)));
+      .then(channels => dispatch(channelsReceived(channels)))
+      .catch(error => dispatch(errorReceivingCatetories(error)));
+
   };
 }
