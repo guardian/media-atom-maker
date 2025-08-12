@@ -17,10 +17,10 @@ class VideoUpload extends React.Component {
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
     if (!this.hasCategories()) {
-      this.props.youtubeActions.getCategories();
+      this.props.youtubeActions.fetchCategories();
     }
     if (!this.hasChannels()) {
-      this.props.youtubeActions.getChannels();
+      this.props.youtubeActions.fetchChannels();
     }
   }
 
@@ -103,8 +103,7 @@ import * as s3UploadActions from '../../actions/UploadActions/s3Upload';
 import * as createAsset from '../../actions/VideoActions/createAsset';
 import * as revertAsset from '../../actions/VideoActions/revertAsset';
 import * as deleteAsset from '../../actions/VideoActions/deleteAsset';
-import * as getCategories from '../../actions/YoutubeActions/getCategories';
-import * as getChannels from '../../actions/YoutubeActions/getChannels';
+import {fetchCategories, fetchChannels} from "../../slices/youtubeSlice";
 
 function mapStateToProps(state) {
   return {
@@ -126,7 +125,7 @@ function mapDispatchToProps(dispatch) {
       dispatch
     ),
     youtubeActions: bindActionCreators(
-      Object.assign({}, getCategories, getChannels),
+      {fetchChannels, fetchCategories},
       dispatch
     )
   };
