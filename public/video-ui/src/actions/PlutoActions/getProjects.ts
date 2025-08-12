@@ -26,7 +26,7 @@ function errorReceivingProjects(error: unknown): KnownAction {
   };
 }
 
-export function getProjects({ commissionId }: { commissionId: string }) {
+export function getProjects(commissionId: string) {
   return (dispatch: Dispatch<KnownAction>) => {
     dispatch(requestProjects());
     return getPlutoProjects({ commissionId })
