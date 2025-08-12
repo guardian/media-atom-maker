@@ -16,6 +16,10 @@
     border-radius: 50%;
     color: $color600Grey;
     background-color: $cWhite;
+    height: 30px;
+    aspect-ratio: 1;
+    text-align: center;
+    font-size: 12px;
 
     &:not(:last-child) {
       margin-right: 7px;
@@ -52,11 +56,9 @@
   &__user {
     pointer-events: auto;
     display: block;
-    padding: 5px;
     border-radius: 50%;
     color: $color600Grey;
     background-color: $cWhite;
-    height: 32px;
 
     &:not(:last-child) {
       margin-right: 7px;
