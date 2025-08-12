@@ -198,7 +198,7 @@ Resources:
                 Action:
                   - "s3:Put*"
                 Resource:
-                  - !Sub [ "arn:aws:s3:::${Bucket}/media-convert-testing/*", { "Bucket": !Ref DestinationBucketName } ]
+                  - !Sub [ "arn:aws:s3:::${Bucket}/*", { "Bucket": !Ref DestinationBucketName } ]
   MediaConvertJobTemplate:
     Type: AWS::MediaConvert::JobTemplate
     Properties:
@@ -215,18 +215,40 @@ Resources:
                   Mp4Settings: { }
                 VideoDescription:
                   Height: 720
+                  Sharpness: 100 # Sharpest possible
                   CodecSettings:
                     Codec: H_264
                     H264Settings:
-                      Bitrate: 2400000
-                      CodecProfile: BASELINE
-                      EntropyEncoding: CAVLC # This is only specified because it is required if you chose CodecProfile: BASELINE
-                      NumberBFramesBetweenReferenceFrames: 0 # This is only specified because it is required if you chose CodecProfile: BASELINE
-                      FramerateControl: SPECIFIED
-                      FramerateNumerator: 30000
-                      FramerateDenominator: 1001
+                      RateControlMode: QVBR # Best quality
+                      QualityTuningLevel: MULTI_PASS_HQ # Best quality
+                      MaxBitrate: 4800000 # Migrated from Elastic Transcoder
+                      QvbrSettings:
+                        MaxAverageBitrate: 2400000 # Twice average to give room for encoder's decisions
+                        QvbrQualityLevel: 8 # 1-10, 10 is best quality
+                        QvbrQualityLevelFineTune: 0.66 # Fine-tuned through manual testing
+                      FramerateControl: INITIALIZE_FROM_SOURCE # Follow the source frame rate (default)
+                      ParControl: SPECIFIED # Use the pixel aspect ratio specified below
+                      ParNumerator: 1 # 1:1 pixel aspect ratio
+                      ParDenominator: 1 # 1:1 pixel aspect ratio
+                      HrdBufferSize: 10000000 # HrdBufferSize / Bitrate gives a buffer duration of 2-4 seconds; longer duration gives better quality at expense of file size
+                      HrdBufferInitialFillPercentage: 90 # Default
+                      GopSizeUnits: SECONDS
+                      GopSize: 2 # 2 seconds
+                      NumberBFramesBetweenReferenceFrames: 1 # 0-15, smaller number gives better quality, higher bitrate and larger file size
+                      SceneChangeDetect: DISABLED # Should reduce any interference for videos which loop back to the start
+                      CodecProfile: HIGH # Good support for hardware decoding; required by HLS
+                      CodecLevel: AUTO # Recommended by HLS, effectively 3.1
+                      EntropyEncoding: CABAC # Best quality
+                      Slices: 1 # Slices improve encoding speed at the expense of quality - so minimise to 1 slice
+                      SaliencyAwareEncoding: PREFERRED # Best quality
+                      BandwidthReductionFilter: { } # Having this on reduces detail - so leave it off
+                      AdaptiveQuantization: HIGH # Best quality
+                      SpatialAdaptiveQuantization: ENABLED # Best quality
+                      TemporalAdaptiveQuantization: ENABLED # Best quality
+                      FlickerAdaptiveQuantization: ENABLED # Best quality
                 AudioDescriptions:
-                  - CodecSettings:
+                  - AudioSourceName: Dynamic Audio Selector 1
+                    CodecSettings:
                       Codec: AAC
                       AacSettings:
                         Bitrate: 160000
@@ -237,9 +259,8 @@ Resources:
               FileGroupSettings: { }
         FollowSource: 1
         Inputs:
-          - AudioSelectors:
-              Audio Selector 1:
-                DefaultSelection: DEFAULT
+          - DynamicAudioSelectors: # Only adds audio track if video has audio
+              Dynamic Audio Selector 1: { }
             VideoSelector: { }
             TimecodeSource: ZEROBASED
       Tags:
@@ -259,11 +280,7 @@ Resources:
 
   {{SendToPluto}}
 
-  {{SendToTranscoder}}
-
   {{SendToTranscoderV2}}
-
-  {{GetTranscodingProgress}}
 
   {{GetTranscodingProgressV2}}
 

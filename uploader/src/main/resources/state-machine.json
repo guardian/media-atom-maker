@@ -137,36 +137,10 @@
         {
           "Variable": "$.metadata.selfHost",
           "BooleanEquals": true,
-          "Next": "SendToTranscoder"
-        }
-      ],
-      "Default": "AddCompleteUploadDataToCache"
-    },
-    "SendToTranscoder": {
-      "Type": "Task",
-      "Resource": "${SendToTranscoder.Arn}",
-      "Next": "GetTranscodingProgress"
-    },
-    "GetTranscodingProgress": {
-      "Type": "Task",
-      "Resource": "${GetTranscodingProgress.Arn}",
-      "Next": "CheckTranscodingComplete"
-    },
-    "CheckTranscodingComplete": {
-      "Type": "Choice",
-      "Choices": [
-        {
-          "Variable": "$.progress.fullyTranscoded",
-          "BooleanEquals": true,
           "Next": "SendToTranscoderV2"
         }
       ],
-      "Default": "WaitForTranscoder"
-    },
-    "WaitForTranscoder": {
-      "Type": "Wait",
-      "Seconds": 10,
-      "Next": "GetTranscodingProgress"
+      "Default": "AddCompleteUploadDataToCache"
     },
     "SendToTranscoderV2": {
       "Type": "Task",
