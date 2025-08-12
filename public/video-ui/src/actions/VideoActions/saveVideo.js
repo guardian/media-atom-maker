@@ -45,24 +45,29 @@ export function saveVideo(video) {
   return dispatch => {
     dispatch(requestVideoSave(video));
     return VideosApi.saveVideo(video.id, video)
-    .then(res => {
-      dispatch(receiveVideoSave(res))
-      return VideosApi.getVideoUsages(video.id)
-    })
-    .then(usages => {
-      dispatch(receiveVideoUsages(usages));
-      return VideosApi.updateCanonicalPages(
-        video,
-        usages,
-        'preview'
-      )
-      .then(() => dispatch(receiveVideoPageUpdate(video.title)))
-    })
-    .catch(error => {
-      const defaultError = 'Could not save video';
-      const conflictError = 'Could not save video as another user (or tab) is currently editing this video';
-      const message = error.status === 409 ? conflictError : defaultError;
-      dispatch(errorVideoSave(error, message));
-    });
+      .then(res => {
+        dispatch(receiveVideoSave(res));
+        return VideosApi.getVideoUsages(video.id)
+          .then(usages => {
+            dispatch(receiveVideoUsages(usages));
+            return VideosApi.updateCanonicalPages(
+              video,
+              usages,
+              'preview'
+            );
+          })
+          .then(() => dispatch(receiveVideoPageUpdate(video.title)))
+          .catch(error => {
+            const message = 'Could not update canonical page';
+            dispatch(errorVideoSave(error, message));
+          });
+      })
+      .catch(error => {
+        const defaultError = 'Could not save video';
+        const conflictError = 'Could not save video as another user (or tab) is currently editing this video';
+        const message = error.status === 409 ? conflictError : defaultError;
+        dispatch(errorVideoSave(error, message));
+        throw error;
+      });
   };
 }

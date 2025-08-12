@@ -1,4 +1,4 @@
-import { createUpload, uploadParts, uploadPacFile} from '../../services/UploadsApi';
+import { createUpload, uploadParts, uploadPacFile, uploadSubtitleFile, deleteSubtitleFile} from '../../services/UploadsApi';
 import { errorDetails } from '../../util/errorDetails';
 
 function uploadStarted(upload) {
@@ -59,4 +59,28 @@ export function startPacFileUpload({id, file}) {
       dispatch(uploadError(errorDetails(err)));
     });
   };
+}
+
+export function startSubtitleFileUpload({id, version, file}) {
+  return dispatch => {
+    return uploadSubtitleFile({id, version, file}).then(() => {
+      dispatch(uploadComplete());
+    }).catch(err => {
+      dispatch(uploadError(errorDetails(err)));
+    });
+  };
+}
+
+export function deleteSubtitle({id, version}) {
+  return dispatch => {
+    return deleteSubtitleFile({id, version}).then(() => {
+      dispatch(uploadComplete());
+    }).catch(err => {
+      dispatch(uploadError(errorDetails(err)));
+    });
+  };
+}
+
+export function resetS3UploadStatus() {
+  return { type: 'UPLOAD_RESET' };
 }

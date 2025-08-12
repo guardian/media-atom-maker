@@ -130,3 +130,36 @@ export function uploadPacFile({ id, file }) {
     processData: false
   });
 }
+
+/**
+ * uploads a text file containing subtitles to the given version of the video atom
+ * @param id - atom id
+ * @param version - video asset version to associate the subtitles with
+ * @param file - the local file to upload
+ * @returns {Promise}
+ */
+export function uploadSubtitleFile({ id, version, file }) {
+  const formData = new FormData();
+  formData.append('subtitle-file', file);
+
+  return apiRequest({
+    url: `/api/uploads/${id}/${version}/subtitle-file`,
+    method: 'post',
+    headers: {
+      'Csrf-Token': window.guardian.csrf.token
+    },
+    body: formData,
+    processData: false
+  });
+}
+
+export function deleteSubtitleFile({ id, version }) {
+  return apiRequest({
+    url: `/api/uploads/${id}/${version}/subtitle-file`,
+    method: 'delete',
+    headers: {
+      'Csrf-Token': window.guardian.csrf.token
+    },
+    processData: false
+  });
+}

@@ -17,7 +17,7 @@ class ReactApp extends React.Component {
     };
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     if (
       this.props.params.id &&
       (!this.props.video || this.props.params.id !== this.props.video.id) &&
@@ -29,6 +29,10 @@ class ReactApp extends React.Component {
       this.setState({
         fetchedVideoFor: this.props.params.id
       });
+    }
+
+    if(this.props.errorKey !== prevProps.errorKey ) {
+      document.body.scrollIntoView({block: 'start', behavior: 'smooth'});
     }
   }
 
@@ -78,7 +82,8 @@ class ReactApp extends React.Component {
         />
         {this.props.error
           ? <div
-              className="error-bar"
+              key={this.props.errorKey}
+              className={`error-bar error-bar--animate`}
               dangerouslySetInnerHTML={{ __html: this.props.error }}
             />
           : false}
@@ -114,6 +119,7 @@ function mapStateToProps(state) {
     video: state.video,
     publishedVideo: state.publishedVideo,
     error: state.error,
+    errorKey: state.errorKey,
     uploads: state.uploads,
     s3Upload: state.s3Upload,
     videoEditOpen: state.videoEditOpen,

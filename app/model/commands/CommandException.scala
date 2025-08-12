@@ -34,6 +34,7 @@ object CommandExceptions extends Results {
   def NotGLabsAtom = throw new CommandException(s"Third party videos can only be added to GLabs Atoms", 400)
 
   def PacFileUploadFailed = throw new CommandException("Failed to upload pac file", 500)
+  def SubtitleFileUploadFailed = throw new CommandException("Failed to upload subtitle file", 500)
 
   // Add exceptions here as required
   def commandExceptionAsResult: PartialFunction[Throwable, Result] = {
