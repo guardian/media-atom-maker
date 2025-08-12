@@ -23,7 +23,7 @@ import workflow from './workflowReducer';
 import targeting from './targetingReducer';
 import shouldUseCreatedDateForSort from "./shouldUseCreatedDateForSortReducer";
 
-export default combineReducers({
+export default {
   config,
   error,
   errorKey,
@@ -47,4 +47,4 @@ export default combineReducers({
   pluto,
   workflow,
   targeting
-});
+};
