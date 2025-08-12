@@ -1,20 +1,6 @@
 import { getYoutubeCategories } from '../../services/YoutubeApi';
 import Logger from '../../logger';
-
-function requestCategories() {
-  return {
-    type: 'YT_CATEGORIES_GET_REQUEST',
-    receivedAt: Date.now()
-  };
-}
-
-function receiveCategories(categories) {
-  return {
-    type: 'YT_CATEGORIES_GET_RECEIVE',
-    categories: categories,
-    receivedAt: Date.now()
-  };
-}
+import {categoriesReceived} from "../../slices/youtubeSlice";
 
 function errorReceivingCategories(error) {
   Logger.error(error);
@@ -28,10 +14,9 @@ function errorReceivingCategories(error) {
 
 export function getCategories() {
   return dispatch => {
-    dispatch(requestCategories());
     return getYoutubeCategories()
       .then(res => {
-        dispatch(receiveCategories(res));
+        dispatch(categoriesReceived(res));
       })
       .catch(error => {
         dispatch(errorReceivingCategories(error));
