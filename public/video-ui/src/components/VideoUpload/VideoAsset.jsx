@@ -167,7 +167,7 @@ function SubtitleActions({ subtitles, onUpload, onDelete}) {
         <input
           type="file"
           ref={fileInputRef}
-          accept=".srt"
+          accept=".srt,.vtt"
           style={{ display: 'none' }}
           onChange={handleFileChange}
         />
