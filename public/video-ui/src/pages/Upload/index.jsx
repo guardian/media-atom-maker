@@ -103,7 +103,7 @@ import * as s3UploadActions from '../../actions/UploadActions/s3Upload';
 import * as createAsset from '../../actions/VideoActions/createAsset';
 import * as revertAsset from '../../actions/VideoActions/revertAsset';
 import * as deleteAsset from '../../actions/VideoActions/deleteAsset';
-import { fetchCategories, fetchChannels } from "../../slices/youtubeSlice";
+import { fetchCategories, fetchChannels } from "../../slices/youtube";
 
 function mapStateToProps(state) {
   return {

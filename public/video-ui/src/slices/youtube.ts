@@ -23,12 +23,11 @@ const errorReceivingCategories = (error: unknown) => {
 
 export const fetchCategories = createAsyncThunk(
   'youtube/fetchCategories',
-  async (_, { dispatch }) => {
-    return await getYoutubeCategories().catch(error => {
+  (_, { dispatch }) =>
+    getYoutubeCategories().catch(error => {
       dispatch(errorReceivingCategories(error));
       throw error;
-    });
-  }
+    })
 );
 
 const errorReceivingChannels = (error: unknown) => {
@@ -42,15 +41,14 @@ const errorReceivingChannels = (error: unknown) => {
 
 export const fetchChannels = createAsyncThunk(
   'youtube/fetchChannels',
-  async (_, { dispatch }) => {
-    return await getYoutubeChannels().catch(error => {
+  (_, { dispatch }) =>
+    getYoutubeChannels().catch(error => {
       dispatch(errorReceivingChannels(error));
       throw error;
-    });
-  }
+    })
 );
 
-const youtubeSlice = createSlice({
+const youtube = createSlice({
   name: 'youtube',
   initialState,
   reducers: {},
@@ -65,4 +63,4 @@ const youtubeSlice = createSlice({
   }
 });
 
-export default youtubeSlice.reducer;
+export default youtube.reducer;
