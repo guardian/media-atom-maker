@@ -33,6 +33,14 @@
   }
 }
 
+.upload__progress {
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  height: 250px;
+  color: white;
+}
+
 .upload__link {
   display: none;
 }

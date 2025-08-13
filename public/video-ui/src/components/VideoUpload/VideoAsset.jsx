@@ -203,11 +203,10 @@ export function Asset({videoId, upload, isActive, selectAsset, deleteAsset, star
   if (processing && asset) {
     return (
       <div className="video-trail__item">
-        <div className="upload">
+        <div className="upload__progress">
           <AssetProgress {...processing} />
+          <p>{processing.status}</p>
         </div>
-        <div></div>
-        <div className="upload">{processing.status}</div>
         <div className="video-trail__item__details">
           <AssetControls user={user} selectAsset={selectAsset} deleteAsset={deleteAsset}>
             <AssetInfo info={info} timestamp={timestamp} />
