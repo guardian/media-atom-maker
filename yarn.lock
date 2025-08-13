@@ -3803,6 +3803,10 @@ history@^3.0.0:
     query-string "^4.2.2"
     warning "^3.0.0"
 
+"hoconjs@github:yellowblood/hocon-js":
+  version "1.0.1"
+  resolved "https://codeload.github.com/yellowblood/hocon-js/tar.gz/e6a6f1e2834d73d50c64968a4eea721d38154799"
+
 hoist-non-react-statics@^3.3.0, hoist-non-react-statics@^3.3.2:
   version "3.3.2"
   resolved "https://registry.npmjs.org/hoist-non-react-statics/-/hoist-non-react-statics-3.3.2.tgz"
