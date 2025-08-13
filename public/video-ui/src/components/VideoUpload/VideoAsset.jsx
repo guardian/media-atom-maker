@@ -70,7 +70,7 @@ function AssetDisplay({id, isActive, sources}) {
   const embed = id ? <YouTubeEmbed id={id} largePreview={true}/> : <VideoEmbed sources={sources}/>
 
   return (
-    <div className={"video-trail__upload"}>
+    <div className={"video-trail__asset"}>
       {embed}
       {id &&
         <a className={'upload__link'}
@@ -93,7 +93,7 @@ function AssetDisplay({id, isActive, sources}) {
 function AssetProgress({ failed, current, total }) {
   if (failed) {
     return (
-      <div className="upload">
+      <div>
         <p>
           <strong>Upload Failed</strong>
         </p>
@@ -203,11 +203,10 @@ export function Asset({videoId, upload, isActive, selectAsset, deleteAsset, star
   if (processing && asset) {
     return (
       <div className="video-trail__item">
-        <div className="upload">
+        <div className="video-trail__upload">
           <AssetProgress {...processing} />
+          <div>{processing.status}</div>
         </div>
-        <div></div>
-        <div className="upload">{processing.status}</div>
         <div className="video-trail__item__details">
           <AssetControls user={user} selectAsset={selectAsset} deleteAsset={deleteAsset}>
             <AssetInfo info={info} timestamp={timestamp} />
@@ -221,7 +220,7 @@ export function Asset({videoId, upload, isActive, selectAsset, deleteAsset, star
   if (processing) {
     return (
       <div className="video-trail__item">
-        <div className="upload">
+        <div className="video-trail__upload">
           <AssetProgress {...processing} />
         </div>
         <div className="video-trail__item__details">
