@@ -2,11 +2,10 @@ package com.gu.media.upload
 
 import java.net.URLEncoder
 import java.util.Date
-
 import com.gu.atom.data.PreviewDynamoDataStore
 import com.gu.atom.publish.PreviewKinesisAtomPublisher
 import com.gu.contentatom.thrift.atom.media.MediaAtom
-import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
+import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType, User}
 import com.gu.media.aws.{DynamoAccess, KinesisAccess, UploadAccess}
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
@@ -27,8 +26,9 @@ class AddAssetToAtom extends LambdaWithParams[Upload, Upload] with DynamoAccess 
     val atomId = upload.metadata.pluto.atomId
     val asset = getAsset(upload)
     val before = getAtom(atomId)
+    val user = getUser(upload.metadata.user)
 
-    val after = updateAtom(before) { mediaAtom =>
+    val after = updateAtom(before, user) { mediaAtom =>
       val version = upload.metadata.version.getOrElse(MediaAtomHelpers.getNextAssetVersion(mediaAtom))
 
       addAsset(mediaAtom, asset, version)
