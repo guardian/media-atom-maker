@@ -1,13 +1,16 @@
-import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import {
   getYoutubeCategories,
   getYoutubeChannels,
   YouTubeChannelWithData,
   YouTubeVideoCategory
-} from "../services/YoutubeApi";
-import Logger from "../logger";
+} from '../services/YoutubeApi';
+import Logger from '../logger';
 
-const initialState: { categories: YouTubeVideoCategory[], channels: YouTubeChannelWithData[] } = { categories: [], channels: [] };
+const initialState: {
+  categories: YouTubeVideoCategory[];
+  channels: YouTubeChannelWithData[];
+} = { categories: [], channels: [] };
 
 const errorReceivingCategories = (error: unknown) => {
   return {
@@ -20,12 +23,11 @@ const errorReceivingCategories = (error: unknown) => {
 
 export const fetchCategories = createAsyncThunk(
   'youtube/fetchCategories',
-  async (_, {dispatch}) => {
+  async (_, { dispatch }) => {
     return await getYoutubeCategories().catch(error => {
-        dispatch(errorReceivingCategories(error));
+      dispatch(errorReceivingCategories(error));
       throw error;
-      }
-    );
+    });
   }
 );
 
@@ -40,12 +42,11 @@ const errorReceivingChannels = (error: unknown) => {
 
 export const fetchChannels = createAsyncThunk(
   'youtube/fetchChannels',
-  async (_, {dispatch}) => {
+  async (_, { dispatch }) => {
     return await getYoutubeChannels().catch(error => {
-        dispatch(errorReceivingChannels(error));
-        throw error;
-      }
-    );
+      dispatch(errorReceivingChannels(error));
+      throw error;
+    });
   }
 );
 
@@ -53,7 +54,7 @@ const youtubeSlice = createSlice({
   name: 'youtube',
   initialState,
   reducers: {},
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
       .addCase(fetchCategories.fulfilled, (state, action) => {
         state.categories = action.payload;

@@ -160,7 +160,7 @@ class YoutubeFurniture extends React.Component {
 //REDUX CONNECTIONS
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import {fetchCategories, fetchChannels} from "../../slices/youtubeSlice";
+import { fetchCategories, fetchChannels } from "../../slices/youtubeSlice";
 
 function mapStateToProps(state) {
   return {
@@ -171,7 +171,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     youtubeActions: bindActionCreators(
-      {fetchChannels, fetchCategories},
+      { fetchChannels, fetchCategories },
       dispatch
     )
   };
