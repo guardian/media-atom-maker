@@ -160,7 +160,7 @@ class YoutubeFurniture extends React.Component {
 //REDUX CONNECTIONS
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { fetchCategories, fetchChannels } from "../../slices/youtubeSlice";
+import { fetchCategories, fetchChannels } from "../../slices/youtube";
 
 function mapStateToProps(state) {
   return {
