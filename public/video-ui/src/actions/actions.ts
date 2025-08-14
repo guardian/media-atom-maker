@@ -1,6 +1,5 @@
 import { PlutoCommission, PlutoProject } from "../services/PlutoApi";
 import { Video } from "../services/VideosApi";
-import { Action } from "@reduxjs/toolkit";
 
 type BaseAction<TypeName extends string> = {
     type: TypeName;
@@ -31,14 +30,9 @@ type AddProjectReceive = BaseAction<'ADD_PROJECT_RECEIVE'> & {
     video: Video,
 }
 
-export const isAddProjectAction = (action: Action): action is AddProjectReceive => {
-  return action.type === 'ADD_PROJECT_RECEIVE';
-}
-
-
 /**
  * A union of the Action types that dispatched from ts files.
- *
+ * 
  * This is not yet a complete list of all the actions the application handles as
  * some actions dispatched from js files.
  */
