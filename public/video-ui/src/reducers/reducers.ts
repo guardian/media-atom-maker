@@ -12,7 +12,7 @@ import usage from './usageReducer';
 import pageCreate from './composerPageReducer';
 import s3Upload from './s3UploadReducer';
 import videoEditOpen from './editStateReducer';
-import plutoVideos from '../slices/plutoVideos';
+import plutoVideos from './plutoVideosReducer';
 import checkedFormFields from './checkedFormFieldsReducer';
 import formFieldsWarning from './formFieldsWarningReducer';
 import uploads from './uploadsReducer';
