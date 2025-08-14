@@ -1,17 +1,21 @@
 package com.gu.media.util
 
-import com.gu.contentatom.thrift.{Atom, AtomData}
+import com.gu.contentatom.thrift.{Atom, AtomData, ChangeRecord, User}
 import com.gu.contentatom.thrift.atom.media.{Asset, AssetType, Platform, MediaAtom => ThriftMediaAtom}
 import com.gu.media.model._
+import org.joda.time.DateTime
 
 object MediaAtomHelpers {
-  def updateAtom(atom: Atom)(fn: ThriftMediaAtom => ThriftMediaAtom): Atom = {
+  def updateAtom(atom: Atom, user: User)(fn: ThriftMediaAtom => ThriftMediaAtom): Atom = {
     val before = atom.data.asInstanceOf[AtomData.Media].media
     val after = fn(before)
 
     atom.copy(
       data = AtomData.Media(after),
-      contentChangeDetails = atom.contentChangeDetails.copy(revision = atom.contentChangeDetails.revision + 1)
+      contentChangeDetails = atom.contentChangeDetails.copy(
+        lastModified = Some(ChangeRecord(DateTime.now().getMillis, Some(user))),
+        revision = atom.contentChangeDetails.revision + 1
+      )
     )
   }
 
@@ -38,7 +42,22 @@ object MediaAtomHelpers {
   def addAsset(mediaAtom: ThriftMediaAtom, asset: VideoAsset, version: Long): ThriftMediaAtom = {
     val assets = getAssets(asset, version)
 
-    mediaAtom.copy(assets = assets ++ mediaAtom.assets)
+    // remove any existing assets that have the same version
+    val atomAssets = mediaAtom.assets.filter( a => a.version != version)
+    val updatedAssets = assets ++ atomAssets
+
+    mediaAtom.copy(assets = updatedAssets)
+  }
+
+  def getUser(email: String): User = {
+    email match {
+      case s"$firstname.$lastname.$_@$_" =>
+        User(email, Some(firstname.capitalize), Some(lastname.capitalize))
+      case s"$firstname.$lastname@$_" =>
+        User(email, Some(firstname.capitalize), Some(lastname.capitalize))
+      case _ =>
+        User(email)
+    }
   }
 
   private def getAssets(asset: VideoAsset, version: Long): List[Asset] = asset match {

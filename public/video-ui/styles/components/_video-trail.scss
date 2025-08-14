@@ -8,10 +8,18 @@
 
 }
 
+.video-trail__asset{
+  display: flex;
+  height: 250px;
+}
+
 .video-trail__upload{
   display: flex;
-  height:250px;
-  color: #fff;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 250px;
+  row-gap: 20px;
 }
 
 .video-trail__status__overlay {

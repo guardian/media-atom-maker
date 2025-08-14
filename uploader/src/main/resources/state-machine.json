@@ -5,7 +5,27 @@
     "AddInitialUploadDataToCache": {
       "Type": "Task",
       "Resource": "${AddUploadDataToCache.Arn}",
-      "Next": "GetChunkFromS3"
+      "Next": "CheckReprocess"
+    },
+    "CheckReprocess": {
+      "Comment": "If the pipeline is being re-run and file has already been uploaded, skip to the transcoding task",
+      "Type": "Choice",
+      "Choices": [
+        {
+          "And": [
+            {
+              "Variable": "$.progress.copyProgress",
+              "IsPresent": true
+            },
+            {
+              "Variable": "$.progress.copyProgress.fullyCopied",
+              "BooleanEquals": true
+            }
+          ],
+          "Next": "CheckSelfHosted"
+        }
+      ],
+      "Default": "GetChunkFromS3"
     },
     "GetChunkFromS3": {
       "Type": "Task",

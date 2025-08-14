@@ -24,7 +24,7 @@ This will compile both the cloud-formation template and the lambda code.
 The cloud-formation template will be output at:
 
 ```
-uploader/target/scala-2.11/resource_managed/main/media-atom-pipeline.yaml
+uploader/target/scala-2.13/resource_managed/main/media-atom-pipeline.yaml
 ```
 
 Use the AWS console to update the DEV stack with the new template. Unfortunately this

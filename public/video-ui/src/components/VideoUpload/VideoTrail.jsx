@@ -37,6 +37,7 @@ export default class VideoTrail extends React.Component {
      }
 
     if (this.props.s3Upload.total) {
+      // create an item to represent the current upload
       ret.push({
         id: 's3Upload',
         processing: {
@@ -49,7 +50,11 @@ export default class VideoTrail extends React.Component {
     }
 
     this.props.uploads.forEach(upload => {
-      if (upload.id !== this.props.s3Upload.id) {
+      // prevent duplication by omitting currently uploading item
+      // s3Upload.id: <atomId>-<version>
+      // upload.id: <version>
+      const id = this.props.video.id + "-" + upload.id
+      if (id !== this.props.s3Upload.id) {
         ret.push(upload);
       }
     });
