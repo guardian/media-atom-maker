@@ -17,7 +17,7 @@ import checkedFormFields from './checkedFormFieldsReducer';
 import formFieldsWarning from './formFieldsWarningReducer';
 import uploads from './uploadsReducer';
 import path from './pathReducer';
-import pluto from './plutoReducer';
+import pluto from '../slices/pluto';
 import workflow from './workflowReducer';
 import targeting from './targetingReducer';
 import shouldUseCreatedDateForSort from './shouldUseCreatedDateForSortReducer';
