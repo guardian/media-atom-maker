@@ -46,33 +46,6 @@ export default class VideoUtils {
     return stateChannels.find(_ => _.id === channelId);
   }
 
-  static hasYoutubeWriteAccess({ channelId, privacyStatus }) {
-    const availablePrivacyStates = VideoUtils.getAvailablePrivacyStates({
-      channelId
-    });
-
-    if (
-      !!privacyStatus &&
-      availablePrivacyStates &&
-      !availablePrivacyStates.includes(privacyStatus)
-    ) {
-      return false;
-    }
-    return !!VideoUtils.getYoutubeChannel({ channelId });
-  }
-
-  static getAvailableChannels({ category }) {
-    const state = getStore().getState();
-    const stateChannels = state.youtube.channels;
-    const isCommercialType = VideoUtils.isCommercialType({ category });
-    return stateChannels.filter(_ => _.isCommercial === isCommercialType);
-  }
-
-  static getAvailablePrivacyStates({ channelId }) {
-    const channel = VideoUtils.getYoutubeChannel({ channelId });
-    return channel ? channel.privacyStates : PrivacyStates.defaultStates;
-  }
-
   static isCommercialType({ category }) {
     return ['Hosted', 'Paid'].includes(category);
   }

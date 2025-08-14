@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Tab, TabPanel } from 'react-tabs';
 import EditSaveCancel from '../../../components/EditSaveCancel';
-import YoutubeFurniture from '../../../components/YoutubeFurniture';
+import { YoutubeFurniture } from '../../../components/YoutubeFurniture';
 
 export class YoutubeFurnitureTab extends React.Component {
   static tabsRole = Tab.tabsRole;

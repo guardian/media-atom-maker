@@ -21,6 +21,7 @@ import pluto from './plutoReducer';
 import workflow from './workflowReducer';
 import targeting from './targetingReducer';
 import shouldUseCreatedDateForSort from './shouldUseCreatedDateForSortReducer';
+import {youtubeApi} from "../slices/youtubeSlice";
 
 export default {
   config,
@@ -32,6 +33,7 @@ export default {
   searchTerm,
   shouldUseCreatedDateForSort,
   youtube,
+  [youtubeApi.reducerPath]: youtubeApi.reducer,
   usage,
   pageCreate,
   publishedVideo,
