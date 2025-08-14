@@ -61,7 +61,15 @@ class AddAssetToAtom extends LambdaWithParams[Upload, Upload] with DynamoAccess 
 
       case Some(SelfHostedAsset(sources)) =>
         SelfHostedAsset(sources.map { source =>
-          source.copy(src = s"$selfHostedOrigin/${URLEncoder.encode(source.src, "UTF-8")}")
+          val parts = source.src.split("/")
+          parts.length match {
+            case 1 =>
+              source.copy(src = s"$selfHostedOrigin/${URLEncoder.encode(source.src, "UTF-8")}")
+            case _ =>
+              val filename = parts.last
+              val path = parts.dropRight(1).mkString("/")
+              source.copy(src = s"$selfHostedOrigin/$path/${URLEncoder.encode(filename, "UTF-8")}")
+          }
         })
 
       case None =>
