@@ -254,6 +254,14 @@ Resources:
                         Bitrate: 160000
                         CodingMode: CODING_MODE_2_0
                         SampleRate: 44100
+              - ContainerSettings:
+                  Container: RAW
+                VideoDescription:
+                  CodecSettings:
+                    Codec: FRAME_CAPTURE
+                    FrameCaptureSettings:
+                      MaxCaptures: 1
+                      Quality: 95
             OutputGroupSettings:
               Type: FILE_GROUP_SETTINGS
               FileGroupSettings: { }
