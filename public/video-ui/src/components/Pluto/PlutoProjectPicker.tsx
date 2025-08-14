@@ -10,8 +10,8 @@ type Props = {
     projects: PlutoProject[],
   },
   plutoActions: {
-    getCommissions: { (): Promise<void> };
-    getProjects: { (commissionId: string): void }
+    fetchCommissions: { (): Promise<void> };
+    fetchProjects: { (commissionId: string): void }
   }
   video: Video;
   saveVideo: { (video: Video): Promise<void> }
@@ -30,12 +30,11 @@ class PlutoProjectPicker extends React.Component<Props> {
   hasPlutoCommissions = () => this.props.pluto && this.props.pluto.commissions.length !== 0;
 
   UNSAFE_componentWillMount() {
-
     if (!this.hasPlutoCommissions()) {
-      this.props.plutoActions.getCommissions().then(() => {
+      this.props.plutoActions.fetchCommissions().then(() => {
         const commissionId = this.props.video.plutoData?.commissionId;
         if (commissionId) {
-          this.props.plutoActions.getProjects(commissionId);
+          this.props.plutoActions.fetchProjects(commissionId);
         }
       });
     }
@@ -50,7 +49,7 @@ class PlutoProjectPicker extends React.Component<Props> {
       // type safety.
       const commissionId = this.props.video.plutoData?.commissionId;
       if (commissionId) {
-        this.props.plutoActions.getProjects(commissionId);
+        this.props.plutoActions.fetchProjects(commissionId);
       }
     });
   }
@@ -91,8 +90,7 @@ class PlutoProjectPicker extends React.Component<Props> {
 
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { getCommissions } from '../../actions/PlutoActions/getCommissions';
-import { getProjects } from '../../actions/PlutoActions/getProjects';
+import { fetchCommissions, fetchProjects } from '../../slices/pluto';
 
 
 function mapStateToProps(state: { pluto: Props['pluto'] }) {
@@ -102,7 +100,8 @@ function mapStateToProps(state: { pluto: Props['pluto'] }) {
 }
 
 const actionCreators = {
-  getCommissions, getProjects
+  fetchCommissions, 
+  fetchProjects
 };
 
 function mapDispatchToProps(dispatch: Dispatch) {
