@@ -15,15 +15,12 @@ case class CompleteUploadKey(folder: String, id: String) {
   override def toString = s"$folder/$id/complete"
 }
 
-case class TranscoderOutputKey(prefix: String, title: String, id: String, extension: Option[String]) {
-  override def toString = extension match {
-    case Some(ext) => s"$prefix/$title--$id.$ext"
-    case None => s"$prefix/$title--$id"
-  }
+case class TranscoderOutputKey(prefix: String, title: String, id: String, extension: String) {
+  override def toString = s"$prefix/$title--$id.$extension"
 }
 
 object TranscoderOutputKey {
-  def apply(title: String, id: String, extension: Option[String]): TranscoderOutputKey = {
+  def apply(title: String, id: String, extension: String): TranscoderOutputKey = {
     val now = ZonedDateTime.now(ZoneOffset.UTC)
     val prefix = now.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
 

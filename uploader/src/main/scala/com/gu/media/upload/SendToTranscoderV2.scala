@@ -80,9 +80,10 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
         new OutputGroup().withOutputGroupSettings(outputGroupSettings)
 
       case VideoSource(output, "application/vnd.apple.mpegurl") =>
+        val filenameWithoutM3u8 = if (output.endsWith(".m3u8")) output.dropRight(5) else output
         val outputGroupSettings = new OutputGroupSettings()
           .withHlsGroupSettings(new HlsGroupSettings()
-            .withDestination(s"s3://${destinationBucket}/$output")
+            .withDestination(s"s3://${destinationBucket}/$filenameWithoutM3u8")
             .withSegmentLength(10)
             .withMinSegmentLength(0)
           )
