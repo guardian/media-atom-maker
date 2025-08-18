@@ -239,8 +239,11 @@ class VideoDisplay extends React.Component {
       video,
       usages,
       workflow,
-      publishedVideo
+      publishedVideo,
+      saveState
     } = this.props;
+
+    const { saving } = this.props.saveState;
 
     const {
       isCreateMode,
@@ -290,8 +293,8 @@ class VideoDisplay extends React.Component {
                 // Error handling is done in the saveVideo action
               });
           }}
-          canSave={() => !this.formHasErrors(formNames.videoData)}
-          canCancel={() => !isCreateMode}
+          canSave={() => !this.formHasErrors(formNames.videoData) && !saving}
+          canCancel={() => !isCreateMode && !saving}
           video={video}
           updateVideo={this.updateVideo}
           updateErrors={this.props.formErrorActions.updateFormErrors}
@@ -325,7 +328,8 @@ class VideoDisplay extends React.Component {
                 // Error handling is done in the saveVideo action
               });
           }}
-          canSave={() => !this.formHasErrors(formNames.youtubeFurniture)}
+          canSave={() => !this.formHasErrors(formNames.youtubeFurniture) && !saving}
+          canCancel={() => !saving}
           video={video}
           updateVideo={this.updateVideo}
           updateErrors={this.props.formErrorActions.updateFormErrors}
@@ -349,7 +353,8 @@ class VideoDisplay extends React.Component {
                 // Error handling should be implemented in workflow actions
               });
           }}
-          canSave={() => workflow.status.section && workflow.status.status}
+          canSave={() => workflow.status.section && workflow.status.status && !saving}
+          canCancel={() => !saving}
           video={video}
           isTrackedInWorkflow={workflow.status.isTrackedInWorkflow || false}
         />
@@ -419,6 +424,7 @@ import * as updateWorkflowData
   from '../../actions/WorkflowActions/updateWorkflowData';
 import {getYouTubeEmbedUrl} from "../../components/utils/YouTubeEmbed";
 import {getComposerId} from "../../util/getComposerData";
+import {saveStateVals} from "../../constants/saveStateVals";
 
 function mapStateToProps(state) {
   return {
@@ -429,7 +435,8 @@ function mapStateToProps(state) {
     publishedVideo: state.publishedVideo,
     videoEditOpen: state.videoEditOpen,
     checkedFormFields: state.checkedFormFields,
-    workflow: state.workflow
+    workflow: state.workflow,
+    saveState: state.saveState
   };
 }
 
