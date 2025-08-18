@@ -17,6 +17,11 @@
   &__trail {
     text-align: left;
   }
+
+  &__wrap {
+    display: flex;
+    flex-wrap: wrap;
+  }
 }
 
 .grid__item {
