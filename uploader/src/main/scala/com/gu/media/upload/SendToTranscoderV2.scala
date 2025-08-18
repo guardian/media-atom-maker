@@ -75,7 +75,7 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
         val filenameWithoutMp4 = if (output.endsWith(".mp4")) output.dropRight(4) else output
         val outputGroupSettings = new OutputGroupSettings()
           .withFileGroupSettings(new FileGroupSettings()
-            .withDestination(UploadKey(destinationBucket, filenameWithoutMp4).toS3Uri)
+            .withDestination(UploadUri(destinationBucket, filenameWithoutMp4).toString)
           )
         new OutputGroup().withOutputGroupSettings(outputGroupSettings)
 
@@ -83,7 +83,7 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
         val filenameWithoutM3u8 = if (output.endsWith(".m3u8")) output.dropRight(5) else output
         val outputGroupSettings = new OutputGroupSettings()
           .withHlsGroupSettings(new HlsGroupSettings()
-            .withDestination(UploadKey(destinationBucket, filenameWithoutM3u8).toS3Uri)
+            .withDestination(UploadUri(destinationBucket, filenameWithoutM3u8).toString)
             .withSegmentLength(10)
             .withMinSegmentLength(0)
           )
