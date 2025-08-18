@@ -7,6 +7,10 @@ case class UploadKey(folder: String, id: String) {
   override def toString = s"$folder/$id"
 }
 
+case class UploadUri(bucket: String, key: String) {
+  override def toString: String = s"s3://$bucket/$key"
+}
+
 case class UploadPartKey(folder: String, id: String, part: Int) {
   override def toString = s"$folder/$id/parts/$part"
 }
@@ -27,6 +31,11 @@ object TranscoderOutputKey {
     val prefix = now.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
 
     TranscoderOutputKey(prefix, title, id, extension)
+  }
+
+  def apply(title: String, atomId: String, version: Long, subtitleVersion: Long, extension: String): TranscoderOutputKey = {
+    val id = s"$atomId-$version.$subtitleVersion"
+    TranscoderOutputKey(title, id, extension)
   }
 
   def stripSpecialCharsInPath(path: String): String =

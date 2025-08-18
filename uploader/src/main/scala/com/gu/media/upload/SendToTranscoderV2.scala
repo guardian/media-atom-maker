@@ -14,8 +14,8 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
   with Logging
 {
   override def handle(upload: Upload): Upload = {
-    val videoInput = s"s3://${upload.metadata.bucket}/${upload.metadata.pluto.s3Key}"
-    val maybeSubtitlesInput = upload.metadata.subtitleSource.map(subtitleSource => s"s3://${upload.metadata.bucket}/${subtitleSource.src}")
+    val videoInput = Upload.videoInputUri(upload)
+    val maybeSubtitlesInput = Upload.subtitleInputUri(upload)
 
     upload.metadata.asset match {
       case Some(SelfHostedAsset(sources)) =>
@@ -30,13 +30,13 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
     }
   }
 
-  private def sendToTranscoder(videoInput: String, maybeSubtitlesInput: Option[String], outputs: List[OutputGroup]): String = {
+  private def sendToTranscoder(videoInput: UploadUri, maybeSubtitlesInput: Option[UploadUri], outputs: List[OutputGroup]): String = {
     val captionSourceSettings = maybeSubtitlesInput match {
       case Some(subtitlesInput) =>
         new CaptionSourceSettings()
           .withSourceType("SRT")
           .withFileSourceSettings(new FileSourceSettings()
-            .withSourceFile(subtitlesInput)
+            .withSourceFile(subtitlesInput.toString)
           )
       case None => new CaptionSourceSettings().withSourceType("NULL_SOURCE")
     }
@@ -46,7 +46,7 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
     ).asJava
 
     val jobInput = new Input()
-      .withFileInput(videoInput)
+      .withFileInput(videoInput.toString)
       .withCaptionSelectors(captionSelectors)
 
     val jobTemplate = s"media-atom-maker-transcoder-${stage}"
@@ -75,7 +75,7 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
         val filenameWithoutMp4 = if (output.endsWith(".mp4")) output.dropRight(4) else output
         val outputGroupSettings = new OutputGroupSettings()
           .withFileGroupSettings(new FileGroupSettings()
-            .withDestination(s"s3://${destinationBucket}/$filenameWithoutMp4")
+            .withDestination(UploadKey(destinationBucket, filenameWithoutMp4).toS3Uri)
           )
         new OutputGroup().withOutputGroupSettings(outputGroupSettings)
 
@@ -83,7 +83,7 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
         val filenameWithoutM3u8 = if (output.endsWith(".m3u8")) output.dropRight(5) else output
         val outputGroupSettings = new OutputGroupSettings()
           .withHlsGroupSettings(new HlsGroupSettings()
-            .withDestination(s"s3://${destinationBucket}/$filenameWithoutM3u8")
+            .withDestination(UploadKey(destinationBucket, filenameWithoutM3u8).toS3Uri)
             .withSegmentLength(10)
             .withMinSegmentLength(0)
           )

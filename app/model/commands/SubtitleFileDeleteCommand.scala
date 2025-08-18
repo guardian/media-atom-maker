@@ -23,14 +23,10 @@ case class SubtitleFileDeleteCommand(
   awsConfig: AWSConfig
 ) extends Command with Logging {
 
-  override type T = Upload
+  override type T = Unit
 
-  override def process(): Upload = {
-
+  override def process(): Unit = {
     // remove subtitle files from S3
     SubtitleUtil.deleteSubtitlesFromUserUploadBucket(upload, awsConfig)
-
-    // remove subtitle files from upload asset's list of sources
-    SubtitleUtil.updateSubtitleSourceOnUpload(upload, None)
   }
 }

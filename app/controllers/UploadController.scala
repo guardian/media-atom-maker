@@ -4,7 +4,7 @@ import com.gu.ai.x.play.json.Encoders._
 import com.amazonaws.services.stepfunctions.model.{ExecutionAlreadyExistsException, ExecutionListItem}
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
-import com.gu.media.model.{ClientAsset, ClientAssetProcessing, MediaAtom, YouTubeAsset}
+import com.gu.media.model.{ClientAsset, ClientAssetProcessing, MediaAtom, VideoSource, YouTubeAsset}
 import com.gu.media.upload.model._
 import com.gu.media.util.{MediaAtomHelpers, MediaAtomImplicits}
 import com.gu.media.youtube.YouTubeVideos
@@ -110,7 +110,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
           upload <- uploadDecorator.getUpload(s"$atomId-$version")
         } yield
           try {
-            val updatedUpload = SubtitleFileUploadCommand(
+            val subtitleSource = SubtitleFileUploadCommand(
               upload,
               file,
               stores,
@@ -118,13 +118,16 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
               awsConfig
             ).process()
 
-            // reprocessing will also save the upload to the DB, but saving it here first improves UI responsiveness
-            saveUploadToDb(updatedUpload)
+            // add subtitle file to upload asset's list of sources
+            val rerunUpload = UploadBuilder.buildForSubtitleChange(upload, Some(subtitleSource))
 
-            val reprocessingUpload = processSubtitleChange(updatedUpload)
+            // reprocessing will also save the upload to the DB, but saving it here first improves UI responsiveness
+            saveUploadToDb(rerunUpload)
+
+            processSubtitleChange(rerunUpload)
 
             log.info(s"Upload being reprocessed after subtitle upload ${upload.id}")
-            Ok(Json.toJson(reprocessingUpload))
+            Ok(Json.toJson(rerunUpload))
           }
           catch {
             commandExceptionAsResult
@@ -145,20 +148,23 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
         uploadDecorator.getUpload(s"$atomId-$version") match {
           case Some(upload) =>
             try {
-              val updatedUpload = SubtitleFileDeleteCommand(
+              SubtitleFileDeleteCommand(
                 upload,
                 stores,
                 req.user,
                 awsConfig
               ).process()
 
-              // reprocessing will also save the upload to the DB, but saving it here first improves UI responsiveness
-              saveUploadToDb(updatedUpload)
+              // remove subtitle files from upload asset's list of sources
+              val rerunUpload = UploadBuilder.buildForSubtitleChange(upload, None)
 
-              val reprocessingUpload = processSubtitleChange(updatedUpload)
+              // reprocessing will also save the upload to the DB, but saving it here first improves UI responsiveness
+              saveUploadToDb(rerunUpload)
+
+              processSubtitleChange(rerunUpload)
 
               log.info(s"Upload being reprocessed after subtitle deletion ${upload.id}")
-              Ok(Json.toJson(reprocessingUpload))
+              Ok(Json.toJson(rerunUpload))
             }
             catch {
               commandExceptionAsResult
@@ -186,12 +192,9 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
    * @param upload
    * @return
    */
-  private def processSubtitleChange(upload: Upload): Upload = {
-    val rerunUpload = UploadBuilder.buildForSubtitleChange(upload)
-    val executionName = s"${rerunUpload.id}-re-run-${Instant.now().toEpochMilli}"
-    stepFunctions.start(rerunUpload, Some(executionName))
-
-    rerunUpload
+  private def processSubtitleChange(upload: Upload): Unit = {
+    val executionName = s"${upload.id}.${upload.metadata.subtitleVersion.getOrElse(1L)}"
+    stepFunctions.start(upload, Some(executionName))
   }
 
   private def addYouTubeStatus(video: ClientAsset): ClientAsset = video.asset match {
