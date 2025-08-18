@@ -10,6 +10,10 @@ class UploadKeyTest extends FlatSpec with Matchers {
     UploadKey("my-path/with/slashes", "my-file").toString shouldBe "my-path/with/slashes/my-file"
   }
 
+  "UploadUri" should "create an s3:// uri" in {
+    UploadUri("my-bucket", "my-key").toString shouldBe "s3://my-bucket/my-key"
+  }
+
   "UploadPartKey" should "create a numbered key containing the id" in {
     UploadPartKey("my-folder", id = "123xyz", part = 24).toString shouldBe "my-folder/123xyz/parts/24"
   }
@@ -27,6 +31,10 @@ class UploadKeyTest extends FlatSpec with Matchers {
     val key = TranscoderOutputKey("my-title", id = "123xyz", extension = "m3u8")
     key.toString should fullyMatch regex """\d{4}/\d{2}/\d{2}/my-title--123xyz.m3u8"""
   }
+
+  "TranscoderOutputKey" should "include major and minor versions for the atom" in {
+    val key = TranscoderOutputKey("my-title", atomId = "123xyz", version = 2, subtitleVersion = 10, extension = "m3u8")
+    key.toString should fullyMatch regex """\d{4}/\d{2}/\d{2}/my-title--123xyz-2.10.m3u8"""
 
   "TranscoderOutputKey" should "replace special characters with underscores" in {
     TranscoderOutputKey("2025/08/20", "Loop: Japan fireball", id = "1c44ce4e-760a-4312-a803-40939aeea355-2.0", extension = "m3u8")

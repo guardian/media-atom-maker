@@ -1,5 +1,7 @@
 package com.gu.media.upload
 
+import com.gu.media.model.{PlutoSyncMetadataMessage, VideoSource}
+import com.gu.media.upload.model.{SelfHostedUploadMetadata, Upload, UploadMetadata, UploadProgress}
 import org.scalatest.{FunSuite, MustMatchers}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import com.gu.media.upload.model.Upload._
@@ -46,4 +48,42 @@ class UploadTest extends FunSuite with MustMatchers with GeneratorDrivenProperty
       end must be(n)
     }
   }
+
+  test("videoInputUri returns s3 uri from upload metadata") {
+    val metadata = UploadMetadata(user = "me", bucket = "upload-bucket", region = "local", title = "my-video",
+      pluto = plutoMessage, runtime = SelfHostedUploadMetadata(Nil))
+    val upload = Upload("123xyz", Nil, metadata, progress)
+
+    Upload.videoInputUri(upload).toString mustBe "s3://upload-bucket/uploads/123xyz-1/complete"
+  }
+
+  test("subtitleInputUri returns s3 uri from upload metadata if there is a subtitleSource") {
+    val metadata = UploadMetadata(user = "me", bucket = "upload-bucket", region = "local", title = "my-video",
+      pluto = plutoMessage, runtime = SelfHostedUploadMetadata(Nil), subtitleVersion = Some(12),
+      subtitleSource = Some(VideoSource("uploads/123xyz-1/subtitles.srt", "video/mp4")))
+    val upload = Upload("123xyz", Nil, metadata, progress)
+
+    Upload.subtitleInputUri(upload).map(_.toString) must contain("s3://upload-bucket/uploads/123xyz-1/subtitles.srt")
+  }
+
+  test("subtitleInputUri returns None if there is no subtitleSource") {
+    val metadata = UploadMetadata(user = "me", bucket = "upload-bucket", region = "local", title = "my-video",
+      pluto = plutoMessage, runtime = SelfHostedUploadMetadata(Nil))
+    val upload = Upload("123xyz", Nil, metadata, progress)
+
+    Upload.subtitleInputUri(upload).map(_.toString) mustBe empty
+  }
+
+  private def plutoMessage = PlutoSyncMetadataMessage(
+    "video-upload",
+    projectId = Some("project"),
+    s3Key = "uploads/123xyz-1/complete",
+    atomId = "123xyz",
+    title = "my-video",
+    user = "me",
+    posterImageUrl = None
+  )
+
+  private def progress = UploadProgress(4, 0, fullyUploaded = true, fullyTranscoded = true, 0, None)
+
 }
