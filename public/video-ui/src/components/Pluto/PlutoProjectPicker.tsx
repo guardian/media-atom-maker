@@ -1,21 +1,19 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
-import { PlutoCommission, PlutoProject } from '../../services/PlutoApi';
 import { Video } from '../../services/VideosApi';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  fetchCommissions,
+  fetchProjects,
+  PlutoState
+} from '../../slices/pluto';
+import { AppDispatch, RootState } from '../../util/setupStore';
 
 type Props = {
-  pluto: {
-    commissions: PlutoCommission[],
-    projects: PlutoProject[],
-  },
-  plutoActions: {
-    fetchCommissions: typeof fetchCommissions,
-    fetchProjects: typeof fetchProjects,
-  }
   video: Video;
-  saveVideo: { (video: Video): Promise<void> }
-}
+  saveVideo: { (video: Video): Promise<void> };
+};
 
 const cloneVideoWithoutPlutoProjectId = (video: Video): Video => {
   const clone = structuredClone(video);
@@ -25,89 +23,59 @@ const cloneVideoWithoutPlutoProjectId = (video: Video): Video => {
   return clone;
 };
 
-class PlutoProjectPicker extends React.Component<Props> {
+export const PlutoProjectPicker = ({ video, saveVideo }: Props) => {
+  const dispatch = useDispatch<AppDispatch>();
 
-  hasPlutoCommissions = () => this.props.pluto && this.props.pluto.commissions.length !== 0;
+  const { commissions, projects } = useSelector<RootState, PlutoState>(
+    ({ pluto }) => pluto
+  );
 
-  UNSAFE_componentWillMount() {
-    if (!this.hasPlutoCommissions()) {
-      this.props.plutoActions.fetchCommissions();
-      const commissionId = this.props.video.plutoData?.commissionId;
-      if (commissionId) {
-        this.props.plutoActions.fetchProjects(commissionId);
-      }
+  useEffect(() => {
+    dispatch(fetchCommissions());
+  }, []);
+
+  useEffect(() => {
+    const commissionId = video.plutoData?.commissionId;
+    if (commissionId) {
+      dispatch(fetchProjects(video.plutoData.commissionId));
     }
-  }
+  }, [video.plutoData?.commissionId]);
 
-  onCommissionSelection() {
-    this.props.saveVideo(
-      cloneVideoWithoutPlutoProjectId(this.props.video)
-    ).then(() => {
+  const onCommissionSelection = () => {
+    saveVideo(cloneVideoWithoutPlutoProjectId(video)).then(() => {
       // commissionId is expected to be set since this method is a side effect
       // of a commissionId being selected, but testing to maintain
       // type safety.
-      const commissionId = this.props.video.plutoData?.commissionId;
+      const commissionId = video.plutoData?.commissionId;
       if (commissionId) {
-        this.props.plutoActions.fetchProjects(commissionId);
+        dispatch(fetchProjects(commissionId));
       }
     });
-  }
+  };
 
-  render() {
-    const { video, saveVideo } = this.props;
-    const { commissions, projects } = this.props.pluto;
-
-    return (
-      <ManagedForm
-        data={video}
-        updateData={saveVideo}
-        editable={true}
-        formName="Pluto"
+  return (
+    <ManagedForm
+      data={video}
+      updateData={saveVideo}
+      editable={true}
+      formName="Pluto"
+    >
+      <header className="video__detailbox__header">Pluto</header>
+      <ManagedField
+        fieldLocation="plutoData.commissionId"
+        name="Commission"
+        isRequired={false}
+        updateSideEffects={onCommissionSelection}
       >
-        <header className="video__detailbox__header">
-          Pluto
-        </header>
-        <ManagedField
-          fieldLocation="plutoData.commissionId"
-          name="Commission"
-          isRequired={false}
-          updateSideEffects={() => this.onCommissionSelection()}
-        >
-          <SelectBox selectValues={commissions} />
-        </ManagedField>
-        <ManagedField
-          fieldLocation="plutoData.projectId"
-          name="Project"
-          isRequired={false}
-        >
-          <SelectBox selectValues={projects} />
-        </ManagedField>
-      </ManagedForm>
-    );
-  };
-}
-
-import { connect } from 'react-redux';
-import { bindActionCreators, Dispatch } from 'redux';
-import { fetchCommissions, fetchProjects } from '../../slices/pluto';
-
-
-function mapStateToProps(state: { pluto: Props['pluto'] }) {
-  return {
-    pluto: state.pluto
-  };
-}
-
-function mapDispatchToProps(dispatch: Dispatch) {
-  return {
-    plutoActions: bindActionCreators(
-      {
-        fetchCommissions,
-        fetchProjects
-      },
-      dispatch
-    )
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(PlutoProjectPicker);
+        <SelectBox selectValues={commissions} />
+      </ManagedField>
+      <ManagedField
+        fieldLocation="plutoData.projectId"
+        name="Project"
+        isRequired={false}
+      >
+        <SelectBox selectValues={projects} />
+      </ManagedField>
+    </ManagedForm>
+  );
+};

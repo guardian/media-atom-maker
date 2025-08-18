@@ -16,3 +16,6 @@ export function setupStore() {
     }
   });
 }
+
+export type RootState = ReturnType<ReturnType<typeof setupStore>['getState']>;
+export type AppDispatch = ReturnType<typeof setupStore>['dispatch'];
