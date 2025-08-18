@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest
 import com.gu.media.logging.Logging
 import com.gu.media.model.VideoSource
 import com.gu.media.upload.model.Upload
+import util.UploadBuilder.getAsset
 
 /**
  * These functions help to manipulate the subtitle source file given an `upload` object, which represents the
@@ -36,8 +37,7 @@ object SubtitleUtil extends Logging {
     }
   }
 
-  def updateSubtitleSourceOnUpload(upload: Upload, newSubtitleSource: Option[VideoSource]): Upload = {
-    val updatedMetadata = upload.metadata.copy(subtitleSource = newSubtitleSource)
-    upload.copy(metadata = updatedMetadata)
+  def getNextSubtitleVersion(upload: Upload): Long = {
+    upload.metadata.subtitleVersion.map(v => v + 1).getOrElse(1L)
   }
 }

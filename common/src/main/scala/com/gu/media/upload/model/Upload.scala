@@ -2,6 +2,7 @@ package com.gu.media.upload.model
 
 import com.gu.ai.x.play.json.Jsonx
 import com.gu.ai.x.play.json.Encoders._
+import com.gu.media.upload.UploadUri
 import play.api.libs.json.Format
 
 // All data is conceptually immutable except UploadProgress
@@ -23,6 +24,12 @@ object Upload {
         bigChunks :+ (start, start + remainder)
     }
   }
+
+  def videoInputUri(upload: Upload): UploadUri =
+    UploadUri(upload.metadata.bucket, upload.metadata.pluto.s3Key)
+
+  def subtitleInputUri(upload: Upload): Option[UploadUri] =
+    upload.metadata.subtitleSource.map(s => UploadUri(upload.metadata.bucket, s.src))
 
   private def chunksOfExactly(chunkSize: Long, size: Long): (List[(Long, Long)], Long) = {
     val numParts = (size / chunkSize).toInt
