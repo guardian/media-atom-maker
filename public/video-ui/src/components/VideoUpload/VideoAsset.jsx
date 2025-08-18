@@ -189,9 +189,10 @@ export function Asset({videoId, upload, isActive, selectAsset, deleteAsset, star
   const info = metadata?.originalFilename || `Version ${upload.id}`;
   const timestamp =  metadata?.startTimestamp || false;
 
+  const isSelfHosted = asset && asset.sources;
   const subtitles = asset?.sources?.find(source => source.mimeType === "application/x-subrip" || source.mimeType === "text/vtt")
 
-  const subtitlePanel = permissions?.addSubtitles &&
+  const subtitlePanel = isSelfHosted && permissions?.addSubtitles &&
     <div className="video-trail__item__subtitles">
       <div className="subtitle__container">
         <SubtitlesIcon />
