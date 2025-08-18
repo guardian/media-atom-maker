@@ -10,8 +10,8 @@ type Props = {
     projects: PlutoProject[],
   },
   plutoActions: {
-    fetchCommissions: { (): Promise<void> };
-    fetchProjects: { (commissionId: string): void }
+    fetchCommissions: typeof fetchCommissions,
+    fetchProjects: typeof fetchProjects,
   }
   video: Video;
   saveVideo: { (video: Video): Promise<void> }
@@ -31,12 +31,11 @@ class PlutoProjectPicker extends React.Component<Props> {
 
   UNSAFE_componentWillMount() {
     if (!this.hasPlutoCommissions()) {
-      this.props.plutoActions.fetchCommissions().then(() => {
-        const commissionId = this.props.video.plutoData?.commissionId;
-        if (commissionId) {
-          this.props.plutoActions.fetchProjects(commissionId);
-        }
-      });
+      this.props.plutoActions.fetchCommissions();
+      const commissionId = this.props.video.plutoData?.commissionId;
+      if (commissionId) {
+        this.props.plutoActions.fetchProjects(commissionId);
+      }
     }
   }
 
@@ -99,15 +98,13 @@ function mapStateToProps(state: { pluto: Props['pluto'] }) {
   };
 }
 
-const actionCreators = {
-  fetchCommissions, 
-  fetchProjects
-};
-
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
-    plutoActions: bindActionCreators<typeof actionCreators, Props['plutoActions']>(
-      actionCreators,
+    plutoActions: bindActionCreators(
+      {
+        fetchCommissions,
+        fetchProjects
+      },
       dispatch
     )
   };

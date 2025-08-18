@@ -35,8 +35,8 @@ export const fetchCommissions = createAsyncThunk('pluto/fetchCommissions', (_, {
     })
 );
 
-export const fetchProjects = createAsyncThunk<PlutoProject[], { commissionId: string }>('pluto/fetchProjects', (video, { dispatch }) =>
-    getPlutoProjects(video).catch(error => {
+export const fetchProjects = createAsyncThunk<PlutoProject[], string>('pluto/fetchProjects', (commissionId, { dispatch }) =>
+    getPlutoProjects({ commissionId }).catch(error => {
         dispatch(errorReceivingProjects(error));
         throw error;
     })
