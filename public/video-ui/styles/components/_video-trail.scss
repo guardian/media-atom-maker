@@ -10,7 +10,14 @@
 .video-trail__asset{
   display: flex;
   height: 250px;
+  width: 100%;
 }
+
+.video-trail__asset .video-player {
+  width: 100%;
+  height: 100%;
+}
+
 
 .video-trail__upload{
   display: flex;
