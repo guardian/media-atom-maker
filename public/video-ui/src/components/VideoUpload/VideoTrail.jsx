@@ -87,7 +87,7 @@ export default class VideoTrail extends React.Component {
           <header className="video__detailbox__header">Video trail</header>
         </div>
         <div className="grid">
-          <div className="grid__list grid__list__trail">
+          <div className="grid__list grid__list__trail grid__list__wrap">
             {content}
           </div>
         </div>
