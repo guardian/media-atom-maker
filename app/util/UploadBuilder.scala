@@ -66,7 +66,6 @@ object UploadBuilder {
       val mp4Key = TranscoderOutputKey(title, id, "mp4").toString
       val mp4Source = if (includeMp4) Some(VideoSource(mp4Key, "video/mp4")) else None
 
-      // m3u8 has multiple file extensions, let it sort itself out
       val m3u8Key = TranscoderOutputKey(title, id, "m3u8").toString
       val m3u8Source = if (includeM3u8) Some(VideoSource(m3u8Key, "application/vnd.apple.mpegurl")) else None
       val sources = mp4Source ++ m3u8Source
