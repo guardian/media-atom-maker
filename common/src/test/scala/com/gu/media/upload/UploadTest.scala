@@ -50,28 +50,35 @@ class UploadTest extends FunSuite with MustMatchers with GeneratorDrivenProperty
   }
 
   test("videoInputUri returns s3 uri from upload metadata") {
-    val metadata = UploadMetadata(user = "me", bucket = "upload-bucket", region = "local", title = "my-video",
-      pluto = plutoMessage, runtime = SelfHostedUploadMetadata(Nil))
-    val upload = Upload("123xyz", Nil, metadata, progress)
+    val upload = Upload("123xyz", Nil, metadataWithoutSubtitle, progress)
 
     Upload.videoInputUri(upload).toString mustBe "s3://upload-bucket/uploads/123xyz-1/complete"
   }
 
   test("subtitleInputUri returns s3 uri from upload metadata if there is a subtitleSource") {
-    val metadata = UploadMetadata(user = "me", bucket = "upload-bucket", region = "local", title = "my-video",
-      pluto = plutoMessage, runtime = SelfHostedUploadMetadata(Nil), subtitleVersion = Some(12),
-      subtitleSource = Some(VideoSource("uploads/123xyz-1/subtitles.srt", "video/mp4")))
-    val upload = Upload("123xyz", Nil, metadata, progress)
+    val upload = Upload("123xyz", Nil, metadataWithSubtitle, progress)
 
     Upload.subtitleInputUri(upload).map(_.toString) must contain("s3://upload-bucket/uploads/123xyz-1/subtitles.srt")
   }
 
   test("subtitleInputUri returns None if there is no subtitleSource") {
-    val metadata = UploadMetadata(user = "me", bucket = "upload-bucket", region = "local", title = "my-video",
-      pluto = plutoMessage, runtime = SelfHostedUploadMetadata(Nil))
-    val upload = Upload("123xyz", Nil, metadata, progress)
+    val upload = Upload("123xyz", Nil, metadataWithoutSubtitle, progress)
 
     Upload.subtitleInputUri(upload).map(_.toString) mustBe empty
+  }
+
+  test("getCurrentSubtitleVersion return stored version or zero as default") {
+    val upload1 = Upload("123xyz", Nil, metadataWithSubtitle, progress)
+    Upload.getCurrentSubtitleVersion(upload1) mustBe 12L
+    val upload2 = Upload("123xyz", Nil, metadataWithoutSubtitle, progress)
+    Upload.getCurrentSubtitleVersion(upload2) mustBe 0L
+  }
+
+  test("getNextSubtitleVersion return stored version + 1 or one as default") {
+    val upload1 = Upload("123xyz", Nil, metadataWithSubtitle, progress)
+    Upload.getNextSubtitleVersion(upload1) mustBe 13L
+    val upload2 = Upload("123xyz", Nil, metadataWithoutSubtitle, progress)
+    Upload.getNextSubtitleVersion(upload2) mustBe 1L
   }
 
   private def plutoMessage = PlutoSyncMetadataMessage(
@@ -86,4 +93,12 @@ class UploadTest extends FunSuite with MustMatchers with GeneratorDrivenProperty
 
   private def progress = UploadProgress(4, 0, fullyUploaded = true, fullyTranscoded = true, 0, None)
 
+  private def metadataWithSubtitle = UploadMetadata(
+    user = "me", bucket = "upload-bucket", region = "local", title = "my-video",
+    pluto = plutoMessage, runtime = SelfHostedUploadMetadata(Nil), subtitleVersion = Some(12),
+    subtitleSource = Some(VideoSource("uploads/123xyz-1/subtitles.srt", "video/mp4")))
+
+  private def metadataWithoutSubtitle = UploadMetadata(
+    user = "me", bucket = "upload-bucket", region = "local", title = "my-video",
+    pluto = plutoMessage, runtime = SelfHostedUploadMetadata(Nil))
 }

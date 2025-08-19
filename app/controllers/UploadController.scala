@@ -193,7 +193,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
    * @return
    */
   private def processSubtitleChange(upload: Upload): Unit = {
-    val executionName = s"${upload.id}.${upload.metadata.subtitleVersion.getOrElse(1L)}"
+    val executionName = s"${upload.id}.${Upload.getCurrentSubtitleVersion(upload)}"
     stepFunctions.start(upload, Some(executionName))
   }
 
