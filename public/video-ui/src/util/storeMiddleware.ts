@@ -1,7 +1,8 @@
 import { clearError } from '../slices/error';
 import { updatePath } from "../slices/path";
+import { Middleware } from "redux";
 
-export const storeMiddleware =
+export const storeMiddleware: Middleware =
   ({ dispatch, getState }) =>
   next =>
   action => {
