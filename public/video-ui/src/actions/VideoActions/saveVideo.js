@@ -1,4 +1,5 @@
 import VideosApi from '../../services/VideosApi';
+import { showError } from "../../slices/error";
 
 function requestVideoSave(video) {
   return {
@@ -32,15 +33,6 @@ function receiveVideoUsages(usages) {
   };
 }
 
-function errorVideoSave(error, message) {
-  return {
-    type: 'SHOW_ERROR',
-    message,
-    error: error,
-    receivedAt: Date.now()
-  };
-}
-
 export function saveVideo(video) {
   return dispatch => {
     dispatch(requestVideoSave(video));
@@ -57,16 +49,15 @@ export function saveVideo(video) {
             );
           })
           .then(() => dispatch(receiveVideoPageUpdate(video.title)))
-          .catch(error => {
-            const message = 'Could not update canonical page';
-            dispatch(errorVideoSave(error, message));
+          .catch(() => {
+            dispatch(showError('Could not update canonical page'));
           });
       })
       .catch(error => {
         const defaultError = 'Could not save video';
         const conflictError = 'Could not save video as another user (or tab) is currently editing this video';
         const message = error.status === 409 ? conflictError : defaultError;
-        dispatch(errorVideoSave(error, message));
+        dispatch(showError(message));
         throw error;
       });
   };
