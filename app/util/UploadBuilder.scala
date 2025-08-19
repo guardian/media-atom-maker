@@ -6,7 +6,6 @@ import com.gu.media.model.{MediaAtom, PlutoSyncMetadataMessage, SelfHostedAsset,
 import com.gu.media.upload.{TranscoderOutputKey, UploadPartKey}
 import com.gu.media.upload.model._
 import model.commands.CommandExceptions.AtomMissingYouTubeChannel
-import util.SubtitleUtil.getNextSubtitleVersion
 
 object UploadBuilder {
   def build(atom: MediaAtom, email: String, version: Long, request: UploadRequest, aws: AwsAccess with UploadAccess): Upload = {
@@ -48,7 +47,7 @@ object UploadBuilder {
    */
   def buildForSubtitleChange(upload: Upload, newSubtitleSource: Option[VideoSource]): Upload = {
     val version = upload.metadata.version.getOrElse(1L)
-    val newSubtitleVersion = getNextSubtitleVersion(upload)
+    val newSubtitleVersion = Upload.getNextSubtitleVersion(upload)
     val updatedAsset = getAsset(upload.metadata.selfHost, upload.metadata.title, upload.metadata.pluto.atomId, version, newSubtitleVersion)
     upload.copy(
       metadata = upload.metadata.copy(asset = updatedAsset, subtitleSource = newSubtitleSource, subtitleVersion = Some(newSubtitleVersion)),
