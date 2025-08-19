@@ -2,31 +2,29 @@ import React from 'react';
 import VideoTrail from '../../components/VideoUpload/VideoTrail';
 import { getStore } from '../../util/storeAccessor';
 import AddAssetFromURL from '../../components/VideoUpload/AddAssetFromURL';
-import PlutoProjectPicker from '../../components/Pluto/PlutoProjectPicker';
+import { PlutoProjectPicker } from '../../components/Pluto/PlutoProjectPicker';
 import AddSelfHostedAsset from '../../components/VideoUpload/AddSelfHostedAsset';
 import YoutubeUpload from '../../components/VideoUpload/YoutubeUpload';
 import PACUpload from '../../components/PACUpload/PACUpload';
 import PlutoProjectLink from '../../components/Pluto/PlutoProjectLink';
 
 class VideoUpload extends React.Component {
-  hasCategories = () =>
-    this.props.youtube?.categories?.length !== 0;
-  hasChannels = () =>
-    this.props.youtube?.channels?.length !== 0;
+  hasCategories = () => this.props.youtube?.categories?.length !== 0;
+  hasChannels = () => this.props.youtube?.channels?.length !== 0;
 
   componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
     if (!this.hasCategories()) {
-      this.props.youtubeActions.getCategories();
+      this.props.youtubeActions.fetchCategories();
     }
     if (!this.hasChannels()) {
-      this.props.youtubeActions.getChannels();
+      this.props.youtubeActions.fetchChannels();
     }
   }
 
   render() {
     const uploading = this.props.s3Upload.total > 0;
-    const activeVersion = this.props.video?.activeVersion  ?? 0;
+    const activeVersion = this.props.video?.activeVersion ?? 0;
 
     const projectId = this.props.video?.plutoData?.projectId;
 
@@ -37,7 +35,7 @@ class VideoUpload extends React.Component {
             <div className="video__detailbox">
               <div>
                 <div className="form__group">
-                  { projectId && <PlutoProjectLink projectId={projectId}/> }
+                  {projectId && <PlutoProjectLink projectId={projectId} />}
                   <PlutoProjectPicker
                     video={this.props.video || {}}
                     saveVideo={this.props.videoActions.saveVideo}
@@ -77,11 +75,14 @@ class VideoUpload extends React.Component {
                 this.props.videoActions.revertAsset(
                   this.props.video.id,
                   version
-                )}
+                )
+              }
               getUploads={() => {
-                this.props.uploadActions.getUploads(this.props.video.id)
+                this.props.uploadActions.getUploads(this.props.video.id);
               }}
-              startSubtitleFileUpload={this.props.uploadActions.startSubtitleFileUpload}
+              startSubtitleFileUpload={
+                this.props.uploadActions.startSubtitleFileUpload
+              }
               deleteSubtitle={this.props.uploadActions.deleteSubtitle}
               permissions={getStore().getState().config.permissions}
               resetS3UploadStatus={this.props.uploadActions.resetS3UploadStatus}
@@ -103,8 +104,7 @@ import * as s3UploadActions from '../../actions/UploadActions/s3Upload';
 import * as createAsset from '../../actions/VideoActions/createAsset';
 import * as revertAsset from '../../actions/VideoActions/revertAsset';
 import * as deleteAsset from '../../actions/VideoActions/deleteAsset';
-import * as getCategories from '../../actions/YoutubeActions/getCategories';
-import * as getChannels from '../../actions/YoutubeActions/getChannels';
+import { fetchCategories, fetchChannels } from '../../slices/youtube';
 
 function mapStateToProps(state) {
   return {
@@ -118,7 +118,14 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     videoActions: bindActionCreators(
-      Object.assign({}, getVideo, saveVideo, createAsset, revertAsset, deleteAsset),
+      Object.assign(
+        {},
+        getVideo,
+        saveVideo,
+        createAsset,
+        revertAsset,
+        deleteAsset
+      ),
       dispatch
     ),
     uploadActions: bindActionCreators(
@@ -126,7 +133,7 @@ function mapDispatchToProps(dispatch) {
       dispatch
     ),
     youtubeActions: bindActionCreators(
-      Object.assign({}, getCategories, getChannels),
+      { fetchChannels, fetchCategories },
       dispatch
     )
   };

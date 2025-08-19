@@ -19,10 +19,10 @@ class YoutubeFurniture extends React.Component {
   constructor(props) {
     super(props);
     if (!this.hasCategories()) {
-      this.props.youtubeActions.getCategories();
+      this.props.youtubeActions.fetchCategories();
     }
     if (!this.hasChannels()) {
-      this.props.youtubeActions.getChannels();
+      this.props.youtubeActions.fetchChannels();
     }
   }
 
@@ -160,8 +160,7 @@ class YoutubeFurniture extends React.Component {
 //REDUX CONNECTIONS
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as getCategories from '../../actions/YoutubeActions/getCategories';
-import * as getChannels from '../../actions/YoutubeActions/getChannels';
+import { fetchCategories, fetchChannels } from "../../slices/youtube";
 
 function mapStateToProps(state) {
   return {
@@ -172,7 +171,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     youtubeActions: bindActionCreators(
-      Object.assign({}, getCategories, getChannels),
+      { fetchChannels, fetchCategories },
       dispatch
     )
   };
