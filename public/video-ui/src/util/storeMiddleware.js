@@ -1,34 +1,36 @@
-export const storeMiddleware = ({ dispatch, getState }) => next => action => {
-  const prevState = getState();
-  next(action);
-  getState();
+import { clearError } from '../slices/error';
 
-  if (prevState.path !== location.pathname) {
-    dispatch({
-      type: 'PATH_UPDATE',
-      path: location.pathname,
-      receivedAt: Date.now()
-    });
+export const storeMiddleware =
+  ({ dispatch, getState }) =>
+  next =>
+  action => {
+    const prevState = getState();
+    next(action);
+    getState();
 
-    dispatch({
-      type: 'VIDEO_POPULATE_BLANK',
-      receivedAt: Date.now()
-    });
+    if (prevState.path !== location.pathname) {
+      dispatch({
+        type: 'PATH_UPDATE',
+        path: location.pathname,
+        receivedAt: Date.now()
+      });
 
-    dispatch({
-      type: 'USAGE_UPDATE_BLANK',
-      receivedAt: Date.now()
-    });
+      dispatch({
+        type: 'VIDEO_POPULATE_BLANK',
+        receivedAt: Date.now()
+      });
 
-    dispatch({
-      type: 'CLEAR_ERROR',
-      receivedAt: Date.now()
-    });
+      dispatch({
+        type: 'USAGE_UPDATE_BLANK',
+        receivedAt: Date.now()
+      });
 
-    dispatch({
-      type: 'VIDEO_EDIT_STATE_REQUEST',
-      state: false,
-      receivedAt: Date.now()
-    });
-  }
-};
+      dispatch(clearError());
+
+      dispatch({
+        type: 'VIDEO_EDIT_STATE_REQUEST',
+        state: false,
+        receivedAt: Date.now()
+      });
+    }
+  };
