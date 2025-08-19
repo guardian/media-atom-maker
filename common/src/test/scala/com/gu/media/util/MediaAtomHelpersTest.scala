@@ -9,7 +9,7 @@ import org.joda.time.DateTime
 
 class MediaAtomHelpersTest extends FunSuite with MustMatchers {
   test("add YouTube asset") {
-    val now = DateTime.now().getMillis
+    val startTime = DateTime.now().getMillis
     val newAtom = updateAtom(atom(), user()) { mediaAtom =>
       addAsset(mediaAtom, YouTubeAsset("L9CMNVzMHJ8"), version = 2)
     }
@@ -20,7 +20,7 @@ class MediaAtomHelpersTest extends FunSuite with MustMatchers {
     )
 
     newAtom.contentChangeDetails.lastModified must not be empty
-    newAtom.contentChangeDetails.lastModified.get.date must be >= now
+    newAtom.contentChangeDetails.lastModified.get.date must be >= startTime
     newAtom.contentChangeDetails.lastModified.get.user must not be empty
     newAtom.contentChangeDetails.lastModified.get.user.get.email must be ("jo.blogs@guardian.co.uk")
     newAtom.contentChangeDetails.lastModified.get.user.get.firstName must contain ("Jo")
