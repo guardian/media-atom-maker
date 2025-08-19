@@ -78,4 +78,10 @@ class ClientAssetTest extends FunSuite with MustMatchers {
     val actual = ClientAsset.fromUpload("test", 1234, upload, error = None)
     actual.metadata.get.originalFilename must contain("test.mp4")
   }
+
+  test("convert client asset id back to version number") {
+    ClientAsset.getVersion(ClientAsset("1")) mustBe 1L
+    ClientAsset.getVersion(ClientAsset("10")) mustBe 10L
+    ClientAsset.getVersion(ClientAsset("foo")) mustBe 0L
+  }
 }
