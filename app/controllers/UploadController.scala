@@ -64,7 +64,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     val filteredAtomAssets = atomAssets.filterNot( asset => jobVersions.contains(asset.id))
 
     // sort newest version first
-    val clientAssets = (latestJobAssets ++ filteredAtomAssets).sortBy(_.id).reverse
+    val clientAssets = (latestJobAssets ++ filteredAtomAssets).sortBy(ClientAsset.getVersion).reverse
 
     Ok(Json.toJson(clientAssets))
   }
