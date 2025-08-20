@@ -2,7 +2,6 @@ package util
 
 import com.amazonaws.services.s3.model.DeleteObjectRequest
 import com.gu.media.logging.Logging
-import com.gu.media.model.VideoSource
 import com.gu.media.upload.model.Upload
 
 /**
@@ -34,10 +33,5 @@ object SubtitleUtil extends Logging {
           log.warn("error deleting subtitle file", e)
       }
     }
-  }
-
-  def updateSubtitleSourceOnUpload(upload: Upload, newSubtitleSource: Option[VideoSource]): Upload = {
-    val updatedMetadata = upload.metadata.copy(subtitleSource = newSubtitleSource)
-    upload.copy(metadata = updatedMetadata)
   }
 }

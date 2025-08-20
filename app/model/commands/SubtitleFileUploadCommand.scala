@@ -30,9 +30,9 @@ case class SubtitleFileUploadCommand(
   awsConfig: AWSConfig
 ) extends Command with Logging {
 
-  override type T = Upload
+  override type T = VideoSource
 
-  override def process(): Upload = {
+  override def process(): VideoSource = {
 
     // remove any existing subtitle files from S3
     SubtitleUtil.deleteSubtitlesFromUserUploadBucket(upload, awsConfig)
@@ -47,8 +47,7 @@ case class SubtitleFileUploadCommand(
 
     awsConfig.s3Client.putObject(request) match {
       case _: PutObjectResult =>
-        // add subtitle file to upload asset's list of sources
-        SubtitleUtil.updateSubtitleSourceOnUpload(upload, Some(VideoSource(key, metadata.getContentType)))
+        VideoSource(key, metadata.getContentType)
       case _ => SubtitleFileUploadFailed
     }
   }
