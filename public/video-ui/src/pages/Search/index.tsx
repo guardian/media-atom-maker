@@ -86,7 +86,7 @@ const Videos = ({ videos, total, videoActions, searchTerm, limit, shouldUseCreat
 
   useEffect(() => {
     videoActions.getVideos(searchTerm, limit, shouldUseCreatedDateForSort);
-    const config = getStore().getState().config.config;
+    const config = getStore().getState().config;
     const presenceConfig = config.presence;
     if (presenceConfig) {
       startPresence(presenceConfig);

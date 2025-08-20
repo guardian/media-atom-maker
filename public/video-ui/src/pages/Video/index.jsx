@@ -429,7 +429,7 @@ import {saveStateVals} from "../../constants/saveStateVals";
 function mapStateToProps(state) {
   return {
     video: state.video,
-    config: state.config.config,
+    config: state.config,
     usages: state.usage,
     composerPageWithUsage: state.pageCreate,
     publishedVideo: state.publishedVideo,

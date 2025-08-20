@@ -38,11 +38,11 @@ export default class ContentApi {
   }
 
   static get proxyUrl() {
-    return getStore().getState().config.config.capiProxyUrl;
+    return getStore().getState().config.capiProxyUrl;
   }
 
   static get liveProxyUrl() {
-    return getStore().getState().config.config.liveCapiProxyUrl;
+    return getStore().getState().config.liveCapiProxyUrl;
   }
 
   static search(query: string) {

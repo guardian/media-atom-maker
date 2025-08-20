@@ -43,7 +43,7 @@ const fetchWithReAuth = <ResponseBodyType>(url: string | URL, config: RequestCon
         if (Number(new Date()) < endTime) {
           if (err.status === 419 || err.status == 401) {
             const store = getStore();
-            const reauthUrl = store.getState().config.config.reauthUrl;
+            const reauthUrl = store.getState().config.reauthUrl;
             reEstablishSession(reauthUrl, 5000).then(
               () => {
                 setTimeout(makeRequest, interval, resolve, reject);

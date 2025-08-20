@@ -20,16 +20,14 @@ export type AppConfig = {
     embeddedMode?: unknown; // TO DO - look at how this is set
 }
 
-export type ConfigState = {
-    config: AppConfig
-};
+export type ConfigState = AppConfig;
 
 
 type ConfigRecievedAction = Action<"config/setConfig"> & {
     payload: AppConfig
 }
 
-const initialState: ConfigState = { config: { permissions: {} } };
+const initialState: ConfigState = { permissions: {} };
 
 
 const config = createSlice({
@@ -37,7 +35,7 @@ const config = createSlice({
     initialState,
     reducers: {
         setConfig(state: ConfigState, action: ConfigRecievedAction) {
-            state.config = action.payload;
+            Object.assign(state, action.payload);
         }
     }
 });

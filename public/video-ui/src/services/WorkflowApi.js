@@ -6,7 +6,7 @@ import { impossiblyDistantDate } from '../constants/dates';
 
 export default class WorkflowApi {
   static get workflowUrl() {
-    return getStore().getState().config.config.workflowUrl;
+    return getStore().getState().config.workflowUrl;
   }
 
   static workflowItemLink(video) {

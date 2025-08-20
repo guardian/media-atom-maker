@@ -98,7 +98,7 @@ export default class VideoUtils {
       return true;
     }
 
-    const minDurationForAds = getStore().getState().config.config.minDurationForAds;
+    const minDurationForAds = getStore().getState().config.minDurationForAds;
     return atom.duration > 0 && atom.duration >= minDurationForAds;
   }
 
