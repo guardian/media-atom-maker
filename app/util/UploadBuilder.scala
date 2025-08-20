@@ -46,11 +46,11 @@ object UploadBuilder {
    * @return
    */
   def buildForSubtitleChange(upload: Upload, newSubtitleSource: Option[VideoSource]): Upload = {
-    val version = upload.metadata.version.getOrElse(1L)
-    val newSubtitleVersion = Upload.getNextSubtitleVersion(upload)
-    val updatedAsset = getAsset(upload.metadata.selfHost, upload.metadata.title, upload.metadata.pluto.atomId, version, newSubtitleVersion)
+    val majorVersion = upload.metadata.version.getOrElse(1L)
+    val minorVersion = Upload.getNextSubtitleVersion(upload)
+    val updatedAsset = getAsset(upload.metadata.selfHost, upload.metadata.title, upload.metadata.pluto.atomId, majorVersion, minorVersion)
     upload.copy(
-      metadata = upload.metadata.copy(asset = updatedAsset, subtitleSource = newSubtitleSource, subtitleVersion = Some(newSubtitleVersion)),
+      metadata = upload.metadata.copy(asset = updatedAsset, subtitleSource = newSubtitleSource, subtitleVersion = Some(minorVersion)),
       progress = upload.progress.copy(fullyTranscoded = false)
     )
   }
