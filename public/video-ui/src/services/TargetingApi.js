@@ -6,7 +6,7 @@ const getFortnight = () => moment().add('days', 14).valueOf();
 
 export default class TargetingApi {
   static get targetingUrl() {
-    return getStore().getState().config2.config.targetingUrl;
+    return getStore().getState().config.config.targetingUrl;
   }
 
   static createTarget({id, title, expiryDate}) {

@@ -1,5 +1,5 @@
 import { routerReducer } from 'react-router-redux';
-import config2 from '../slices/config';
+import config from '../slices/config';
 import error from './errorReducer';
 import errorKey from './errorKeyReducer';
 import video from './videoReducer';
@@ -23,7 +23,7 @@ import targeting from './targetingReducer';
 import shouldUseCreatedDateForSort from './shouldUseCreatedDateForSortReducer';
 
 export default {
-  config2,
+  config,
   error,
   errorKey,
   video,

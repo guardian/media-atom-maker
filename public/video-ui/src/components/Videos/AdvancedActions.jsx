@@ -11,7 +11,7 @@ export default class AdvancedActions extends React.Component {
   };
 
   // the permissions are also validated on the server-side for each request
-  permissions = getStore().getState().config2.config.permissions;
+  permissions = getStore().getState().config.config.permissions;
   showActions = this.permissions.deleteAtom;
 
   state = { deleteDoubleCheck: false };

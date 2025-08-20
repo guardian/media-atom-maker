@@ -3,7 +3,7 @@ import { getStore } from '../../util/storeAccessor';
 
 export default class Training extends React.Component {
   render() {
-    const trainingModeState = getStore().getState().config2.config.isTrainingMode
+    const trainingModeState = getStore().getState().config.config.isTrainingMode
       ? 'on'
       : 'off';
 

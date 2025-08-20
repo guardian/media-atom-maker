@@ -11,7 +11,7 @@ export default class ComposerPageCreate extends React.Component {
   };
 
   getComposerUrl = () => {
-    return getStore().getState().config2.config.composerUrl;
+    return getStore().getState().config.config.composerUrl;
   };
 
   getComposerId = () => {
@@ -44,7 +44,7 @@ export default class ComposerPageCreate extends React.Component {
       .createVideoPage(
         this.props.video.id,
         this.props.video,
-        getStore().getState().config2.config.isTrainingMode
+        getStore().getState().config.config.isTrainingMode
       )
       .then(() => {
         this.setState({

@@ -126,7 +126,7 @@ function mapStateToProps(state) {
     s3Upload: state.s3Upload,
     videoEditOpen: state.videoEditOpen,
     usages: state.usage,
-    config: state.config2.config,
+    config: state.config.config,
     formFieldsWarning: state.formFieldsWarning
   };
 }

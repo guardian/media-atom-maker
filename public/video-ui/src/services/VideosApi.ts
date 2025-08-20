@@ -85,7 +85,7 @@ type MediaAtomSummary = Pick<Video, 'id' | 'title' | 'contentChangeDetails' | 'p
 export type VideoWithoutId = Omit<Video, 'id'>
 
 function getComposerUrl() {
-  return getStore().getState().config2.config.composerUrl;
+  return getStore().getState().config.config.composerUrl;
 }
 function getUsages({ id, stage }: { id: string, stage: Stage }): Promise<CapiContent[]> {
   return apiRequest<{ response: { results: string[] } }>({
@@ -346,7 +346,7 @@ export default {
   },
 
   fetchComposerId(capiId: string): Promise<string> {
-    const capiProxyUrl = getStore().getState().config2.config.capiProxyUrl;
+    const capiProxyUrl = getStore().getState().config.config.capiProxyUrl;
     return apiRequest<{ response: CapiContentResponse }>({
       url: capiProxyUrl + '/' + capiId + '?show-fields=all'
     }).then(resp => {
