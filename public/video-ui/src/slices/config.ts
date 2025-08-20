@@ -17,7 +17,7 @@ export type AppConfig = {
     isTrainingMode?: string;
     workflowUrl?: string;
     targetingUrl?: string;
-    embeddedMode?: unknown; // TO DO - look at how this is set
+    embeddedMode?: string;
 }
 
 export type ConfigState = AppConfig;
