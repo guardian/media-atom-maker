@@ -6,6 +6,8 @@ import com.gu.media.youtube.YouTubeProcessingStatus
 import com.gu.ai.x.play.json.Jsonx
 import play.api.libs.json.Format
 
+import scala.util.Try
+
 case class ClientAsset(id: String, asset: Option[VideoAsset] = None, processing: Option[ClientAssetProcessing] = None, metadata: Option[ClientAssetMetadata] = None)
 case class ClientAssetProcessing(status: String, failed: Boolean, current: Option[Long], total: Option[Long])
 case class ClientAssetMetadata(originalFilename: Option[String], startTimestamp: Option[Long], user: String)
@@ -53,6 +55,16 @@ object ClientAsset {
         throw new IllegalArgumentException(s"Unsupported platform ${other.map(_.platform.name)}")
     }
   }
+
+  /**
+   * The client asset's id is a string representation of its major version within the atom.
+   * This method converts the id to a numeric version e.g. to allow sorting
+   *
+   * @param clientAsset
+   * @return the string id as a numeric version, or zero if it can't be converted
+   */
+  def getVersion(clientAsset: ClientAsset): Long =
+    Try(clientAsset.id.toLong).toOption.getOrElse(0L)
 
   private def selfHostedUpload(state: String, upload: Upload, error: Option[String]): ClientAsset = {
     ClientAsset(
