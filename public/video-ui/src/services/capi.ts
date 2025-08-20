@@ -46,6 +46,10 @@ export default class ContentApi {
     return getStore().getState().config.liveCapiProxyUrl;
   }
 
+  static get tagManagerUrl() {
+    return getStore().getState().config.tagManagerUrl;
+  }
+
   static search(query: string) {
     const encodedQuery = encodeURIComponent(query);
 
@@ -73,7 +77,7 @@ export default class ContentApi {
 
   static getTagsByType(query: string, types: string[]) {
     return apiRequest({
-      url: `${ContentApi.tagmanager}/hyper/tags?query=${query}&limit=150&type=${types.join(",")}`,
+      url: `${ContentApi.tagManagerUrl}/hyper/tags?query=${query}&limit=150&type=${types.join(",")}`,
     });
   }
 }
