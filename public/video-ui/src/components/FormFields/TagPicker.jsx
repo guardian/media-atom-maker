@@ -14,6 +14,7 @@ import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 import ReactTooltip from 'react-tooltip';
 import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
 import YouTubeKeywords from '../../constants/youTubeKeywords';
+import debounce from "lodash/debounce";
 
 class TagPicker extends React.Component {
   constructor(props) {
@@ -87,8 +88,8 @@ class TagPicker extends React.Component {
     } else {
       ContentApi.getTagsByType(searchText, tagTypes)
         .then(capiResponses => {
-          const tags = capiResponses.reduce((tags, capiResponse) => {
-            return tags.concat(getTagDisplayNames(capiResponse.response.results));
+          const tags = capiResponses.data.reduce((tags, {data}) => {
+            return tags.concat(getTagDisplayNames([data]));
           }, []);
 
           this.setState({
@@ -103,6 +104,8 @@ class TagPicker extends React.Component {
         });
     }
   }
+
+  debouncedFetchTags = debounce(this.fetchTags, 500)
 
   onUpdate = newValue => {
     this.setState({
@@ -255,7 +258,7 @@ class TagPicker extends React.Component {
           <TextInputTagPicker
             tagValue={this.state.tagValue}
             onUpdate={this.onUpdate}
-            fetchTags={this.fetchTags}
+            fetchTags={this.debouncedFetchTags}
             capiTags={this.state.capiTags}
             tagsToVisible={this.tagsToVisible}
             showTags={this.state.showTags}
@@ -275,7 +278,7 @@ class TagPicker extends React.Component {
       <PureTagPicker
         tagValue={this.state.tagValue}
         onUpdate={this.onUpdate}
-        fetchTags={this.fetchTags}
+        fetchTags={this.debouncedFetchTags}
         capiTags={this.state.capiTags}
         tagsToVisible={this.tagsToVisible}
         showTags={this.state.showTags}
