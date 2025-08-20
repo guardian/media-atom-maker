@@ -54,7 +54,8 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
       minDurationForAds = youtube.minDurationForAds,
       isTrainingMode = isTrainingMode,
       workflowUrl = awsConfig.workflowUrl,
-      targetingUrl = awsConfig.targetingUrl
+      targetingUrl = awsConfig.targetingUrl,
+      tagManagerUrl = awsConfig.tagManagerUrl
     )
 
     Ok(views.html.VideoUIApp.app(
