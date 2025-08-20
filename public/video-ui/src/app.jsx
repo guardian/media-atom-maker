@@ -1,16 +1,16 @@
+import qs from 'querystringify';
+import Raven from 'raven-js';
 import React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
-import qs from 'querystringify';
-import Raven from 'raven-js';
 import { browserHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
+import '../styles/main.scss';
+import { routes } from './routes';
+import { setConfig } from './slices/config';
+import { extractConfigFromPage } from './util/config';
 import { setupStore } from './util/setupStore';
 import { setStore } from './util/storeAccessor';
-import { extractConfigFromPage } from './util/config';
-import { routes } from './routes';
-
-import '../styles/main.scss';
 
 const store = setupStore();
 syncHistoryWithStore(browserHistory, store);
@@ -21,13 +21,20 @@ if (config.stage === 'PROD') Raven.config(config.ravenUrl).install();
 
 setStore(store);
 
+const configToDispatch = Object.assign({}, extractConfigFromPage(), {
+    embeddedMode: qs.parse(location.search).embeddedMode
+  });
+
 store.dispatch({
   type: 'CONFIG_RECEIVED',
-  config: Object.assign({}, extractConfigFromPage(), {
-    embeddedMode: qs.parse(location.search).embeddedMode
-  }),
+  config: configToDispatch,
   receivedAt: Date.now()
 });
+
+store.dispatch(
+  setConfig(configToDispatch)
+);
+
 
 store.dispatch({
   type: 'PATH_UPDATE',
