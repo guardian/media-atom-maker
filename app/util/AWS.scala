@@ -40,6 +40,8 @@ class AWSConfig(override val config: Config, override val credentials: AwsCreden
 
   lazy val targetingUrl = getMandatoryString("targeting.url")
 
+  lazy val tagManagerUrl = getMandatoryString("tagManager.url")
+
   lazy val expiryPollerName = "Expiry"
   lazy val expiryPollerLastName = "Poller"
 
