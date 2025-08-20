@@ -60,7 +60,7 @@ class VideoUpload extends React.Component {
               />
               <AddSelfHostedAsset
                 video={this.props.video || {}}
-                permissions={getStore().getState().config.permissions}
+                permissions={getStore().getState().config2.config.permissions}
                 uploading={uploading}
                 startUpload={this.props.uploadActions.startVideoUpload}
               />
@@ -84,7 +84,7 @@ class VideoUpload extends React.Component {
                 this.props.uploadActions.startSubtitleFileUpload
               }
               deleteSubtitle={this.props.uploadActions.deleteSubtitle}
-              permissions={getStore().getState().config.permissions}
+              permissions={getStore().getState().config2.config.permissions}
               resetS3UploadStatus={this.props.uploadActions.resetS3UploadStatus}
             />
           </div>

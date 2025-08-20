@@ -1,5 +1,4 @@
 import { routerReducer } from 'react-router-redux';
-import config from './configReducer';
 import config2 from '../slices/config';
 import error from './errorReducer';
 import errorKey from './errorKeyReducer';
@@ -24,7 +23,6 @@ import targeting from './targetingReducer';
 import shouldUseCreatedDateForSort from './shouldUseCreatedDateForSortReducer';
 
 export default {
-  config,
   config2,
   error,
   errorKey,

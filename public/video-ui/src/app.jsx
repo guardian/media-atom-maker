@@ -21,18 +21,10 @@ if (config.stage === 'PROD') Raven.config(config.ravenUrl).install();
 
 setStore(store);
 
-const configToDispatch = Object.assign({}, extractConfigFromPage(), {
-    embeddedMode: qs.parse(location.search).embeddedMode
-  });
-
-store.dispatch({
-  type: 'CONFIG_RECEIVED',
-  config: configToDispatch,
-  receivedAt: Date.now()
-});
-
 store.dispatch(
-  setConfig(configToDispatch)
+  setConfig(Object.assign({}, extractConfigFromPage(), {
+    embeddedMode: qs.parse(location.search).embeddedMode
+  }))
 );
 
 

@@ -37,7 +37,6 @@ const config = createSlice({
     initialState,
     reducers: {
         setConfig(state: ConfigState, action: ConfigRecievedAction) {
-            console.log('redux', action);
             state.config = action.payload;
         }
     }

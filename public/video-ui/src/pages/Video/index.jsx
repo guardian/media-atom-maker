@@ -128,7 +128,7 @@ class VideoDisplay extends React.Component {
           </table>
         </div>
       </div>
-    )
+    );
   }
 
   renderPreviewAndImages() {
@@ -429,7 +429,7 @@ import {saveStateVals} from "../../constants/saveStateVals";
 function mapStateToProps(state) {
   return {
     video: state.video,
-    config: state.config,
+    config: state.config2.config,
     usages: state.usage,
     composerPageWithUsage: state.pageCreate,
     publishedVideo: state.publishedVideo,

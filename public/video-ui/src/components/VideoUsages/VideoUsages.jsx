@@ -12,11 +12,11 @@ import ContentApi from '../../services/capi';
 
 export default class VideoUsages extends React.Component {
   getComposerUrl = () => {
-    return getStore().getState().config.composerUrl;
+    return getStore().getState().config2.config.composerUrl;
   };
 
   getViewerUrl = () => {
-    return getStore().getState().config.viewerUrl;
+    return getStore().getState().config2.config.viewerUrl;
   };
 
   renderUsage = ({ usage, state }) => {
