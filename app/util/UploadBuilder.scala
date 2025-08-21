@@ -40,14 +40,36 @@ object UploadBuilder {
     Upload(id, parts, metadata, progress)
   }
 
-  private def getAsset(selfHosted: Boolean, title: String, id: String): Option[SelfHostedAsset] = {
+  /**
+   * Prepare an existing upload to be re-run in the state machine so that subtitles can be added or removed
+   * @param upload
+   * @return
+   */
+  def buildForSubtitleChange(upload: Upload): Upload = {
+    val updatedAsset = getAsset(upload.metadata.selfHost, upload.metadata.title, upload.id)
+    upload.copy(
+      metadata = upload.metadata.copy(asset = updatedAsset),
+      progress = upload.progress.copy(fullyTranscoded = false)
+    )
+  }
+
+  private def getAsset(
+        selfHosted: Boolean,
+        title: String,
+        id: String,
+        includeMp4: Boolean = true,
+        includeM3u8: Boolean = true): Option[SelfHostedAsset] = {
     if(!selfHosted) {
       // YouTube assets are added after they have been uploaded (once we know the ID)
       None
     } else {
       val mp4Key = TranscoderOutputKey(title, id, "mp4").toString
-      val mp4Source = VideoSource(mp4Key, "video/mp4")
-      Some(SelfHostedAsset(List(mp4Source)))
+      val mp4Source = if (includeMp4) Some(VideoSource(mp4Key, "video/mp4")) else None
+
+      val m3u8Key = TranscoderOutputKey(title, id, "m3u8").toString
+      val m3u8Source = if (includeM3u8) Some(VideoSource(m3u8Key, "application/vnd.apple.mpegurl")) else None
+      val sources = mp4Source ++ m3u8Source
+      Some(SelfHostedAsset(sources.toList))
     }
   }
 
