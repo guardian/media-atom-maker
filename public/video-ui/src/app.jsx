@@ -1,16 +1,17 @@
-import qs from 'querystringify';
-import Raven from 'raven-js';
 import React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
+import qs from 'querystringify';
+import Raven from 'raven-js';
 import { browserHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
-import '../styles/main.scss';
-import { routes } from './routes';
 import { setConfig } from './slices/config';
-import { extractConfigFromPage } from './util/config';
 import { setupStore } from './util/setupStore';
 import { setStore } from './util/storeAccessor';
+import { extractConfigFromPage } from './util/config';
+import { routes } from './routes';
+
+import '../styles/main.scss';
 
 const store = setupStore();
 syncHistoryWithStore(browserHistory, store);
