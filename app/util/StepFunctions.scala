@@ -54,9 +54,10 @@ class StepFunctions(awsConfig: AWSConfig) {
     }
   }
 
-  def start(upload: Upload): Unit = {
+  def start(upload: Upload, withCustomName: Option[String] = None): Unit = {
+    val executionName = withCustomName.getOrElse(upload.id)
     val stepFunctionsRequest = new StartExecutionRequest()
-      .withName(upload.id)
+      .withName(executionName)
       .withStateMachineArn(awsConfig.pipelineArn)
       .withInput(Json.stringify(Json.toJson(upload)))
 
