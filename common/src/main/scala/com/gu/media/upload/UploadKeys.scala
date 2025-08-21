@@ -7,6 +7,10 @@ case class UploadKey(folder: String, id: String) {
   override def toString = s"$folder/$id"
 }
 
+case class UploadUri(bucket: String, key: String) {
+  override def toString: String = s"s3://$bucket/$key"
+}
+
 case class UploadPartKey(folder: String, id: String, part: Int) {
   override def toString = s"$folder/$id/parts/$part"
 }
@@ -16,7 +20,9 @@ case class CompleteUploadKey(folder: String, id: String) {
 }
 
 case class TranscoderOutputKey(prefix: String, title: String, id: String, extension: String) {
-  override def toString = s"$prefix/$title--$id.$extension"
+  private val path = TranscoderOutputKey.stripSpecialCharsInPath(s"$prefix")
+  private val filename = TranscoderOutputKey.stripSpecialCharsInFilename(s"$title--$id.$extension")
+  override def toString = s"$path/$filename"
 }
 
 object TranscoderOutputKey {
@@ -26,4 +32,10 @@ object TranscoderOutputKey {
 
     TranscoderOutputKey(prefix, title, id, extension)
   }
+
+  def stripSpecialCharsInPath(path: String): String =
+    path.replaceAll("[^0-9a-zA-Z-/]", "_") // allows slash
+
+  def stripSpecialCharsInFilename(filename: String): String =
+    filename.replaceAll("[^0-9a-zA-Z-.]", "_") // allows dot
 }
