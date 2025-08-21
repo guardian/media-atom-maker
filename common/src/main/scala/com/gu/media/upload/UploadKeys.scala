@@ -7,10 +7,6 @@ case class UploadKey(folder: String, id: String) {
   override def toString = s"$folder/$id"
 }
 
-case class UploadUri(bucket: String, key: String) {
-  override def toString: String = s"s3://$bucket/$key"
-}
-
 case class UploadPartKey(folder: String, id: String, part: Int) {
   override def toString = s"$folder/$id/parts/$part"
 }
