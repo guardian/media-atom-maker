@@ -32,10 +32,10 @@ export default class VideoPreview extends React.Component {
         this.props.video.posterImage.assets
       );
 
-      return <VideoEmbed sources={sources} posterUrl={poster.file}/>;
+      return <VideoEmbed sources={sources.reverse()} posterUrl={poster.file}/>;
     }
 
-    return <VideoEmbed sources={sources}/>;
+    return <VideoEmbed sources={sources.reverse()}/>;
   }
 
   hasVerticalVideoTag() {
