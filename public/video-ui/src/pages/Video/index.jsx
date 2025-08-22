@@ -128,7 +128,7 @@ class VideoDisplay extends React.Component {
           </table>
         </div>
       </div>
-    )
+    );
   }
 
   renderPreviewAndImages() {

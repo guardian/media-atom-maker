@@ -57,10 +57,9 @@ export default class ComposerPageCreate extends React.Component {
 
     const { usages, videoEditOpen, requiredComposerFieldsMissing } = this.props;
 
-
     if (canonicalVideoPageExists(usages)) {
       return (
-        <a className="button__secondary" href={this.getComposerLink()} target="_blank">
+        <a className="button__secondary" href={this.getComposerLink()} target="_blank" rel="noreferrer">
           <Icon icon="pageview">Open in Composer</Icon>
         </a>
       );

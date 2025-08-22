@@ -28,7 +28,7 @@ export default class VideoItem extends React.Component {
         <span className="publish__label label__draft label__frontpage__overlay">
           Draft
         </span>
-      )
+      );
     }
   }
 
@@ -51,8 +51,6 @@ export default class VideoItem extends React.Component {
     const embargo = VideoUtils.getEmbargo(video);
     const embargoMoment = moment(embargo);
     const hasPreventedPublication = embargo && embargoMoment.valueOf() >= impossiblyDistantDate;
-    const config = getStore().getState().config;
-    const presenceConfig = config.presence;
     return (
       <li className="grid__item">
         <div className="presence-section presence-section-front">

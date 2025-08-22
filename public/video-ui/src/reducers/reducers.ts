@@ -1,5 +1,5 @@
 import { routerReducer } from 'react-router-redux';
-import config from './configReducer';
+import config from '../slices/config';
 import error from './errorReducer';
 import errorKey from './errorKeyReducer';
 import video from './videoReducer';
