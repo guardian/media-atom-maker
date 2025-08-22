@@ -13,8 +13,10 @@ const path = createSlice({
     initialState,
     reducers: {
         updatePath(state, action: UpdatePathAction) {
-            state = action.payload;
-            return state;
+            if (state === action.payload) {
+                return state;
+            }
+            return action.payload;
         }
     }
 });

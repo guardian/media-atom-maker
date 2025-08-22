@@ -6,11 +6,6 @@ export const storeMiddleware = ({ dispatch, getState }) => next => action => {
   getState();
 
   if (prevState.path !== location.pathname) {
-    dispatch({
-      type: 'PATH_UPDATE',
-      path: location.pathname,
-      receivedAt: Date.now()
-    });
     dispatch(
       updatePath(location.pathname)
     );

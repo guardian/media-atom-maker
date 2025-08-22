@@ -29,13 +29,6 @@ store.dispatch(
   }))
 );
 
-
-store.dispatch({
-  type: 'PATH_UPDATE',
-  path: location.pathname,
-  receivedAt: Date.now()
-});
-
 store.dispatch(
   updatePath(location.pathname)
 );
