@@ -16,6 +16,7 @@ import checkedFormFields from './checkedFormFieldsReducer';
 import formFieldsWarning from './formFieldsWarningReducer';
 import uploads from './uploadsReducer';
 import path from './pathReducer';
+import path2 from '../slices/path';
 import pluto from '../slices/pluto';
 import workflow from './workflowReducer';
 import targeting from './targetingReducer';
@@ -40,6 +41,7 @@ export default {
   videoEditOpen,
   uploads,
   path,
+  path2,
   routing: routerReducer,
   pluto,
   workflow,

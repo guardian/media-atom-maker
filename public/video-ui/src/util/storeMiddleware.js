@@ -1,3 +1,5 @@
+import { updatePath } from "../slices/path";
+
 export const storeMiddleware = ({ dispatch, getState }) => next => action => {
   const prevState = getState();
   next(action);
@@ -9,6 +11,9 @@ export const storeMiddleware = ({ dispatch, getState }) => next => action => {
       path: location.pathname,
       receivedAt: Date.now()
     });
+    dispatch(
+      updatePath(location.pathname)
+    );
 
     dispatch({
       type: 'VIDEO_POPULATE_BLANK',
