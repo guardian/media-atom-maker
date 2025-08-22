@@ -12,7 +12,6 @@ import usage from './usageReducer';
 import pageCreate from './composerPageReducer';
 import s3Upload from './s3UploadReducer';
 import videoEditOpen from './editStateReducer';
-import plutoVideos from './plutoVideosReducer';
 import checkedFormFields from './checkedFormFieldsReducer';
 import formFieldsWarning from './formFieldsWarningReducer';
 import uploads from './uploadsReducer';
@@ -35,7 +34,6 @@ export default {
   usage,
   pageCreate,
   publishedVideo,
-  plutoVideos,
   checkedFormFields,
   formFieldsWarning,
   s3Upload,
