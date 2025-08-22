@@ -1,6 +1,20 @@
 import React from 'react';
 
 export default class TextInput extends React.Component {
+
+  // Not ideal, but fixes an obscure bug which was causing the cursor to scroll
+  // to the bottom on character input
+  shouldComponentUpdate(nextProps) {
+    return (
+      this.props.fieldValue !== nextProps.fieldValue ||
+      this.props.editable !== nextProps.editable ||
+      this.props.fieldName !== nextProps.fieldName ||
+      this.props.maxLength !== nextProps.maxLength ||
+      this.props.notification !== nextProps.notification ||
+      this.props.placeholder !== nextProps.placeholder
+    );
+  }
+
   renderField = () => {
     if (!this.props.editable) {
       return (

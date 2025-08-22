@@ -1,14 +1,16 @@
 package com.gu.media.util
 
 import com.gu.contentatom.thrift.atom.media._
-import com.gu.contentatom.thrift.{Atom, AtomData, AtomType, ContentChangeDetails}
+import com.gu.contentatom.thrift.{Atom, AtomData, AtomType, ContentChangeDetails, User}
 import org.scalatest.{FunSuite, MustMatchers}
 import MediaAtomHelpers._
 import com.gu.media.model.{SelfHostedAsset, VideoSource, YouTubeAsset}
+import org.joda.time.DateTime
 
 class MediaAtomHelpersTest extends FunSuite with MustMatchers {
   test("add YouTube asset") {
-    val newAtom = updateAtom(atom()) { mediaAtom =>
+    val startTime = DateTime.now().getMillis
+    val newAtom = updateAtom(atom(), user()) { mediaAtom =>
       addAsset(mediaAtom, YouTubeAsset("L9CMNVzMHJ8"), version = 2)
     }
 
@@ -17,6 +19,12 @@ class MediaAtomHelpersTest extends FunSuite with MustMatchers {
       asset()
     )
 
+    newAtom.contentChangeDetails.lastModified must not be empty
+    newAtom.contentChangeDetails.lastModified.get.date must be >= startTime
+    newAtom.contentChangeDetails.lastModified.get.user must not be empty
+    newAtom.contentChangeDetails.lastModified.get.user.get.email must be ("jo.blogs@guardian.co.uk")
+    newAtom.contentChangeDetails.lastModified.get.user.get.firstName must contain ("Jo")
+    newAtom.contentChangeDetails.lastModified.get.user.get.lastName must contain ("Blogs")
     newAtom.contentChangeDetails.revision must be(2)
     assets(newAtom) must be(expected)
   }
@@ -27,7 +35,7 @@ class MediaAtomHelpersTest extends FunSuite with MustMatchers {
       VideoSource("test.m3u8", "video/m3u8"))
     )
 
-    val newAtom = updateAtom(atom()) { mediaAtom =>
+    val newAtom = updateAtom(atom(), user()) { mediaAtom =>
       addAsset(mediaAtom, newAsset, version = 2)
     }
 
@@ -39,6 +47,26 @@ class MediaAtomHelpersTest extends FunSuite with MustMatchers {
 
     newAtom.contentChangeDetails.revision must be(2)
     assets(newAtom) must be(expected)
+  }
+
+  test("get user name from email") {
+    getUser("first.last@guardian.co.uk") must be (User("first.last@guardian.co.uk", Some("First"), Some("Last")))
+    getUser("first.last.foo.bar@guardian.co.uk") must be (User("first.last.foo.bar@guardian.co.uk", Some("First"), Some("Last")))
+    getUser("nodots@guardian.co.uk") must be (User("nodots@guardian.co.uk", None, None))
+  }
+
+  test("url-encode self-hosted asset keys to urls") {
+    val asset = SelfHostedAsset(List(
+      VideoSource("url encode me.mp4", "video/mp4"),
+      VideoSource("url encode me.m3u8", "video/m3u8"),
+      VideoSource("2025/08/18/My Title--0653ffba-35f4-4883-b961-3139cdaf6c8b-1.0.m3u8", "video/m3u8"))
+    )
+
+    urlEncodeSources(asset, "https://gu.com/videos") mustBe SelfHostedAsset(List(
+      VideoSource("https://gu.com/videos/url+encode+me.mp4", "video/mp4"),
+      VideoSource("https://gu.com/videos/url+encode+me.m3u8", "video/m3u8"),
+      VideoSource("https://gu.com/videos/2025/08/18/My+Title--0653ffba-35f4-4883-b961-3139cdaf6c8b-1.0.m3u8", "video/m3u8"))
+    )
   }
 
   private def assets(atom: Atom): Seq[Asset] = {
@@ -65,5 +93,11 @@ class MediaAtomHelpersTest extends FunSuite with MustMatchers {
       category = Category.Feature
     )),
     contentChangeDetails = ContentChangeDetails(revision = 1)
+  )
+
+  private def user(): User = User(
+    "jo.blogs@guardian.co.uk",
+    Some("Jo"),
+    Some("Blogs")
   )
 }

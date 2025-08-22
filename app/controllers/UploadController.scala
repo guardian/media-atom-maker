@@ -15,12 +15,12 @@ import model.commands.CommandExceptions.commandExceptionAsResult
 import model.commands.{SubtitleFileDeleteCommand, SubtitleFileUploadCommand}
 import org.scanamo.Table
 import org.scanamo.generic.auto._
-import org.scanamo.syntax._
 import play.api.libs.Files
 import play.api.libs.json.{Format, Json}
-import play.api.mvc.{Action, ControllerComponents, MultipartFormData, Result}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, MultipartFormData, Result}
 import util._
 
+import java.time.Instant
 import scala.annotation.tailrec
 import scala.util.control.NonFatal
 
@@ -36,18 +36,40 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
   private val credsGenerator = new CredentialsGenerator(awsConfig)
   private val uploadDecorator = new UploadDecorator(awsConfig, stepFunctions)
 
-  def list(atomId: String) = APIAuthAction { req =>
+  /**
+   * prepares a list of CLientAssets that represent the multiple versioned assets for the atom to be displayed in the client.
+   * The list is made up of existing assets in the atom (atomAssets) plus assets derived from any state machine upload
+   * jobs that are currently running (jobAssets).
+   * If an upload is running for an existing asset, then the asset info is merged into the job asset so that the job
+   * progress can be seen in the client.
+   * Finally, the two sets of assets are deduplicated, so there is one asset per version and sorted so that newest
+   * assets are first.
+   * @param atomId
+   * @return
+   */
+  def list(atomId: String): Action[AnyContent] = APIAuthAction { req =>
     val atom = MediaAtom.fromThrift(getPreviewAtom(atomId))
     val withStatus = ClientAsset.fromAssets(atom.assets).map(addYouTubeStatus)
-    val assets = withStatus.map { asset => uploadDecorator.addMetadataAndSources(atom.id, asset) }
+    val atomAssets = withStatus.map { asset => uploadDecorator.addMetadataAndSources(atom.id, asset) }
 
     val jobs = stepFunctions.getJobs(atomId)
-    val uploads = jobs.flatMap(getRunning(assets, _))
+    val jobAssets = jobs.flatMap(getRunning(atomAssets, atomId, _))
 
-    Ok(Json.toJson(uploads ++ assets))
+    // if multiple jobs for same version, only keep the latest
+    val jobsByVersion = jobAssets.groupBy(_.id)
+    val latestJobAssets = jobsByVersion.map { case (_, job) => job.maxBy(startTime) }.toList
+
+    // remove any atom assets that are represented by running/recent job assets
+    val jobVersions = jobsByVersion.keys.toSet
+    val filteredAtomAssets = atomAssets.filterNot( asset => jobVersions.contains(asset.id))
+
+    // sort newest version first
+    val clientAssets = (latestJobAssets ++ filteredAtomAssets).sortBy(ClientAsset.getVersion).reverse
+
+    Ok(Json.toJson(clientAssets))
   }
 
-  def create = LookupPermissions { implicit raw =>
+  def create: Action[AnyContent] = LookupPermissions { implicit raw =>
     parse(raw) { req: UploadRequest =>
       if(req.selfHost && !raw.permissions.addSelfHostedAsset) {
         Unauthorized(s"User ${raw.user.email} is not authorised with permissions to upload self-hosted asset")
@@ -66,7 +88,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     }
   }
 
-  def credentials(id: String, key: String) = LookupPermissions { implicit req =>
+  def credentials(id: String, key: String): Action[AnyContent] = LookupPermissions { implicit req =>
     getPart(id, key) match {
       case Some(part) =>
         val credentials = credsGenerator.forKey(part.key)
@@ -82,6 +104,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       if (!req.permissions.addSubtitles) {
         Unauthorized(s"User ${req.user.email} is not authorised to upload subtitle asset")
       } else {
+        log.info(s"Request to upload subtitle file under atom=$atomId version=$version")
         val result = for {
           file <- req.body.file("subtitle-file")
           upload <- uploadDecorator.getUpload(s"$atomId-$version")
@@ -95,9 +118,13 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
               awsConfig
             ).process()
 
-            reprocess(updatedUpload)
+            // reprocessing will also save the upload to the DB, but saving it here first improves UI responsiveness
+            saveUploadToDb(updatedUpload)
 
-            Ok
+            val reprocessingUpload = processSubtitleChange(updatedUpload)
+
+            log.info(s"Upload being reprocessed after subtitle upload ${upload.id}")
+            Ok(Json.toJson(reprocessingUpload))
           }
           catch {
             commandExceptionAsResult
@@ -109,7 +136,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       }
     }
 
-  def deleteSubtitleFile(atomId: String, version: Int) =
+  def deleteSubtitleFile(atomId: String, version: Int): Action[AnyContent] =
     LookupPermissions { implicit req =>
       if (!req.permissions.addSubtitles) {
         Unauthorized(s"User ${req.user.email} is not authorised to upload subtitle asset")
@@ -125,9 +152,13 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
                 awsConfig
               ).process()
 
-              reprocess(updatedUpload)
+              // reprocessing will also save the upload to the DB, but saving it here first improves UI responsiveness
+              saveUploadToDb(updatedUpload)
 
-              Ok
+              val reprocessingUpload = processSubtitleChange(updatedUpload)
+
+              log.info(s"Upload being reprocessed after subtitle deletion ${upload.id}")
+              Ok(Json.toJson(reprocessingUpload))
             }
             catch {
               commandExceptionAsResult
@@ -150,12 +181,17 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       start(atom, email, req, version + 1)
   }
 
-  private def reprocess(upload: Upload): Unit = {
-    // TODO: we need to trigger the state machine to run and reprocess the video with subtitles
-    //       so saving the upload record would probably be part of the state machine.
-    //       For now we save it here
-    val table = Table[Upload](awsConfig.cacheTableName)
-    awsConfig.scanamo.exec(table.put(upload))
+  /**
+   * re-run an existing upload through the state machine to reprocess the video after subtitle changes
+   * @param upload
+   * @return
+   */
+  private def processSubtitleChange(upload: Upload): Upload = {
+    val rerunUpload = UploadBuilder.buildForSubtitleChange(upload)
+    val executionName = s"${rerunUpload.id}-re-run-${Instant.now().toEpochMilli}"
+    stepFunctions.start(rerunUpload, Some(executionName))
+
+    rerunUpload
   }
 
   private def addYouTubeStatus(video: ClientAsset): ClientAsset = video.asset match {
@@ -178,24 +214,37 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     part <- upload.parts.find(_.key == key)
   } yield part
 
-  private def getRunning(assets: List[ClientAsset], job: ExecutionListItem): Option[ClientAsset] = {
-    val alreadyAdded = assets.exists { asset =>
-      job.getName.endsWith(s"-${asset.id}")
+  private def getRunning(assets: List[ClientAsset], atomId: String, job: ExecutionListItem): Option[ClientAsset] = {
+    val existingAsset = assets.find { asset =>
+      val version = asset.id
+      job.getName.contains(s"$atomId-$version")
     }
 
-    if(alreadyAdded) {
-      None
-    } else {
-      val events = stepFunctions.getEventsInReverseOrder(job)
-      val startTimestamp = job.getStartDate.getTime
+    val events = stepFunctions.getEventsInReverseOrder(job)
+    val startTimestamp = job.getStartDate.getTime
 
-      val upload = stepFunctions.getTaskEntered(events)
-      val error = stepFunctions.getExecutionFailed(events)
+    val upload = stepFunctions.getTaskEntered(events)
+    val error = stepFunctions.getExecutionFailed(events)
 
-      upload.map { case (state, upload) =>
-        ClientAsset.fromUpload(state, startTimestamp, upload, error)
-      }
+    val jobAsAsset = upload.map { case (state, upload) =>
+      ClientAsset.fromUpload(state, startTimestamp, upload, error)
     }
+
+    existingAsset match {
+      case Some(asset) =>
+        // merge job's processing info with existing asset
+        jobAsAsset.map(_.copy(id = asset.id, asset = asset.asset))
+      case None =>
+        // return the running job as an asset
+        jobAsAsset.map( asset => asset.copy(id = asset.id.split("-").last))
+    }
+  }
+
+  private def startTime(asset: ClientAsset): Long = asset.metadata.flatMap(_.startTimestamp).getOrElse(0)
+
+  private def saveUploadToDb(upload: Upload): Unit = {
+    val table = Table[Upload](awsConfig.cacheTableName)
+    awsConfig.scanamo.exec(table.put(upload))
   }
 }
 

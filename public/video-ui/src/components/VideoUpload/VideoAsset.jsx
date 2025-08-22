@@ -70,7 +70,7 @@ function AssetDisplay({id, isActive, sources}) {
   const embed = id ? <YouTubeEmbed id={id} largePreview={true}/> : <VideoEmbed sources={sources}/>
 
   return (
-    <div className={"video-trail__upload"}>
+    <div className={"video-trail__asset"}>
       {embed}
       {id &&
         <a className={'upload__link'}
@@ -93,7 +93,7 @@ function AssetDisplay({id, isActive, sources}) {
 function AssetProgress({ failed, current, total }) {
   if (failed) {
     return (
-      <div className="upload">
+      <div>
         <p>
           <strong>Upload Failed</strong>
         </p>
@@ -189,12 +189,39 @@ export function Asset({videoId, upload, isActive, selectAsset, deleteAsset, star
   const info = metadata?.originalFilename || `Version ${upload.id}`;
   const timestamp =  metadata?.startTimestamp || false;
 
+  const isSelfHosted = asset && asset.sources;
   const subtitles = asset?.sources?.find(source => source.mimeType === "application/x-subrip" || source.mimeType === "text/vtt")
+
+  const subtitlePanel = isSelfHosted && permissions?.addSubtitles &&
+    <div className="video-trail__item__subtitles">
+      <div className="subtitle__container">
+        <SubtitlesIcon />
+        <SubtitleDetails subtitles={subtitles} />
+      </div>
+      <SubtitleActions subtitles={subtitles} onUpload={(file) => startSubtitleFileUpload({ file, id: videoId, version: upload.id })} onDelete={() => deleteSubtitle({ id: videoId, version: upload.id })} />
+    </div>;
+
+  if (processing && asset) {
+    return (
+      <div className="video-trail__item">
+        <div className="video-trail__upload">
+          <AssetProgress {...processing} />
+          <div>{processing.status}</div>
+        </div>
+        <div className="video-trail__item__details">
+          <AssetControls user={user} selectAsset={selectAsset} deleteAsset={deleteAsset}>
+            <AssetInfo info={info} timestamp={timestamp} />
+          </AssetControls>
+        </div>
+        { subtitlePanel }
+      </div>
+    );
+  }
 
   if (processing) {
     return (
       <div className="video-trail__item">
-        <div className="upload">
+        <div className="video-trail__upload">
           <AssetProgress {...processing} />
         </div>
         <div className="video-trail__item__details">
@@ -216,18 +243,7 @@ export function Asset({videoId, upload, isActive, selectAsset, deleteAsset, star
           </AssetControls>
 
         </div>
-
-
-        { permissions?.addSubtitles &&
-
-          <div className="video-trail__item__subtitles">
-              <div className="subtitle__container">
-                  <SubtitlesIcon />
-                  <SubtitleDetails subtitles={subtitles} />
-              </div>
-              <SubtitleActions subtitles={subtitles} onUpload={(file) => startSubtitleFileUpload({ file, id: videoId, version: upload.id })} onDelete={() => deleteSubtitle({ id: videoId, version: upload.id })} />
-          </div>
-        }
+        { subtitlePanel }
       </div>
     );
   }

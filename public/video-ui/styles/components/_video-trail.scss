@@ -1,6 +1,5 @@
 
 .video-trail__item {
-  display:inline-block;
   position:relative;
   border-top: 1px solid $brandColor;
   width: 400px;
@@ -8,10 +7,25 @@
 
 }
 
+.video-trail__asset{
+  display: flex;
+  height: 250px;
+  width: 100%;
+}
+
+.video-trail__asset .video-player {
+  width: 100%;
+  height: 100%;
+}
+
+
 .video-trail__upload{
   display: flex;
-  height:250px;
-  color: #fff;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 250px;
+  row-gap: 20px;
 }
 
 .video-trail__status__overlay {
