@@ -12,10 +12,7 @@ const path = createSlice({
     name: 'path',
     initialState,
     reducers: {
-        updatePath(state, action: UpdatePathAction) {
-            if (state === action.payload) {
-                return state;
-            }
+        updatePath(_state, action: UpdatePathAction) {
             return action.payload;
         }
     }
