@@ -71,25 +71,37 @@ class PlutoMessageProcessor {
       this.hmacRequest
         .put(remoteUrl, project)
         .then(resp => {
-          logForElk(
-            {
-              message: 'successfully upserted project',
-              response: resp
-            },
-            'log'
-          );
-          resolve(resp);
+          if (resp.ok) {
+            logForElk(
+              {
+                message: 'successfully upserted project',
+                response: resp.body,
+                project
+              },
+              'log'
+            );
+            resolve(resp);
+          } else {
+            logForElk({
+              message: 'failed to upsert project',
+              extraDetail: {
+                status: resp.status,
+                response: resp.body,
+                project
+              }
+            });
+            reject(resp);
+          }
         })
         .catch(err => {
-          const logDetail = {
-            status: err.status,
-            response: err.response,
-            project: project
-          };
           logForElk(
             {
-              message: 'failed to upsert project',
-              extraDetail: logDetail
+              message: 'failed to upsert project - request failed',
+              extraDetail: {
+                project,
+                stack_trace: err.stack || undefined,
+                error: err.toString ? err.toString() : err
+              }
             },
             'error'
           );
