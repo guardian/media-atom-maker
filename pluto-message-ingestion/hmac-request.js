@@ -1,5 +1,4 @@
 const crypto = require('crypto');
-const reqwest = require('reqwest');
 const url = require('url');
 const logForElk = require('./logger');
 
@@ -23,19 +22,18 @@ class HMACRequest {
     const date = new Date().toUTCString();
     const token = this._getToken(remoteUrl, date);
 
-    const requestBody = {
-      url: remoteUrl,
-      method: method,
-      contentType: 'application/json',
+    const request = {
       headers: {
+        'Content-Type': 'application/json',
         'X-Gu-Tools-HMAC-Date': date,
         'X-Gu-Tools-HMAC-Token': token,
         'X-Gu-Tools-Service-Name': this.serviceName
-      }
+      },
+      method
     };
 
     if (Object.keys(data).length > 0) {
-      requestBody.data = JSON.stringify(data);
+      request.data = JSON.stringify(data);
     }
 
     logForElk(
@@ -43,11 +41,7 @@ class HMACRequest {
       'info'
     );
 
-    return reqwest(requestBody);
-  }
-
-  post(remoteUrl, data) {
-    return this._request(remoteUrl, 'POST', data);
+    return fetch(remoteUrl, request);
   }
 
   put(remoteUrl, data) {
