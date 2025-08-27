@@ -10,6 +10,7 @@ import { setupStore } from './util/setupStore';
 import { setStore } from './util/storeAccessor';
 import { extractConfigFromPage } from './util/config';
 import { routes } from './routes';
+import { updatePath } from './slices/path';
 
 import '../styles/main.scss';
 
@@ -28,12 +29,9 @@ store.dispatch(
   }))
 );
 
-
-store.dispatch({
-  type: 'PATH_UPDATE',
-  path: location.pathname,
-  receivedAt: Date.now()
-});
+store.dispatch(
+  updatePath(location.pathname)
+);
 
 render(
   <Provider store={store}>

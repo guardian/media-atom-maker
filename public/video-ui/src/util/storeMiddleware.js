@@ -1,14 +1,14 @@
+import { updatePath } from "../slices/path";
+
 export const storeMiddleware = ({ dispatch, getState }) => next => action => {
   const prevState = getState();
   next(action);
   getState();
 
   if (prevState.path !== location.pathname) {
-    dispatch({
-      type: 'PATH_UPDATE',
-      path: location.pathname,
-      receivedAt: Date.now()
-    });
+    dispatch(
+      updatePath(location.pathname)
+    );
 
     dispatch({
       type: 'VIDEO_POPULATE_BLANK',
