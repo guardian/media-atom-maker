@@ -86,7 +86,7 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
       val subtitleSource = VideoSource("uploads/61e7a4c3-cb36-492d-889c-163abdae68e4-2/subtitle.srt", "application/x-subrip")
       val subtitleUpload = UploadBuilder.buildForSubtitleChange(completedVideoUpload, Some(subtitleSource))
 
-      // we expect the modified upload record to have bumped the minor version on the m3u8 filename,
+      // we expect the modified upload record to have bumped the subtitle version on the m3u8 filename,
       // stored the subtitle source and version and set the progress to not fully transcoded
       val expectedAsset = SelfHostedAsset(sources = List(
         VideoSource(src = "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.0.mp4", mimeType = "video/mp4"),
@@ -121,7 +121,7 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
       // remove subtitles
       val subtitlesRemovedUpload = UploadBuilder.buildForSubtitleChange(subtitleUpload, newSubtitleSource = None)
 
-      // we expect the modified upload record to have bumped the minor version on the m3u8 filename,
+      // we expect the modified upload record to have bumped the subtitle version on the m3u8 filename,
       // removed the subtitle source and set the progress to not fully transcoded
       val expectedAsset = SelfHostedAsset(sources = List(
         VideoSource(src = "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.0.mp4", mimeType = "video/mp4"),

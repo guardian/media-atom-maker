@@ -27,9 +27,9 @@ class AddAssetToAtom extends LambdaWithParams[Upload, Upload] with DynamoAccess 
     val user = getUser(upload.metadata.user)
 
     val after = updateAtom(before, user) { mediaAtom =>
-      val version = upload.metadata.version.getOrElse(MediaAtomHelpers.getNextAssetVersion(mediaAtom))
+      val assetVersion = upload.metadata.version.getOrElse(MediaAtomHelpers.getNextAssetVersion(mediaAtom))
 
-      addAsset(mediaAtom, asset, version)
+      addAsset(mediaAtom, asset, assetVersion)
     }
 
     saveAtom(after)

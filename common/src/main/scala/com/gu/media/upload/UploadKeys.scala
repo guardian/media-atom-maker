@@ -35,8 +35,8 @@ object TranscoderOutputKey {
     TranscoderOutputKey(currentDate, title, id, extension)
   }
 
-  def apply(title: String, atomId: String, version: Long, subtitleVersion: Long, extension: String): TranscoderOutputKey = {
-    val id = s"$atomId-$version.$subtitleVersion"
+  def apply(title: String, atomId: String, assetVersion: Long, subtitleVersion: Long, extension: String): TranscoderOutputKey = {
+    val id = s"$atomId-$assetVersion.$subtitleVersion"
     TranscoderOutputKey(title, id, extension)
   }
 

@@ -57,7 +57,7 @@ object ClientAsset {
   }
 
   /**
-   * The client asset's id is a string representation of its major version within the atom.
+   * The client asset's id is a string representation of the asset's version within the atom.
    * This method converts the id to a numeric version e.g. to allow sorting
    *
    * @param clientAsset

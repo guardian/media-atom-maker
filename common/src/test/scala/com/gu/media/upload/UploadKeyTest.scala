@@ -32,8 +32,8 @@ class UploadKeyTest extends AnyFlatSpec with Matchers {
     key.toString should fullyMatch regex """\d{4}/\d{2}/\d{2}/my-title--123xyz.m3u8"""
   }
 
-  "TranscoderOutputKey" should "include major and minor versions for the atom" in {
-    val key = TranscoderOutputKey("my-title", atomId = "123xyz", version = 2, subtitleVersion = 10, extension = "m3u8")
+  "TranscoderOutputKey" should "include asset and subtitle versions for the atom" in {
+    val key = TranscoderOutputKey("my-title", atomId = "123xyz", assetVersion = 2, subtitleVersion = 10, extension = "m3u8")
     key.toString should fullyMatch regex """\d{4}/\d{2}/\d{2}/my-title--123xyz-2.10.m3u8"""
   }
 

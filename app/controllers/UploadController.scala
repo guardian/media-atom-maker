@@ -55,7 +55,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     val jobs = stepFunctions.getJobs(atomId)
     val jobAssets = jobs.flatMap(getRunning(atomAssets, atomId, _))
 
-    // if multiple jobs for same version, only keep the latest
+    // if multiple jobs for same asset version, only keep the latest
     val jobsByVersion = jobAssets.groupBy(_.id)
     val latestJobAssets = jobsByVersion.map { case (_, job) => job.maxBy(startTime) }.toList
 
@@ -63,7 +63,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     val jobVersions = jobsByVersion.keys.toSet
     val filteredAtomAssets = atomAssets.filterNot( asset => jobVersions.contains(asset.id))
 
-    // sort newest version first
+    // sort newest asset version first
     val clientAssets = (latestJobAssets ++ filteredAtomAssets).sortBy(ClientAsset.getVersion).reverse
 
     Ok(Json.toJson(clientAssets))
@@ -78,9 +78,9 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
         val thriftAtom = getPreviewAtom(req.atomId)
         val atom = MediaAtom.fromThrift(thriftAtom)
-        val version = MediaAtomHelpers.getNextAssetVersion(thriftAtom.tdata)
+        val assetVersion = MediaAtomHelpers.getNextAssetVersion(thriftAtom.tdata)
 
-        val upload = start(atom, raw.user.email, req, version)
+        val upload = start(atom, raw.user.email, req, assetVersion)
 
         log.info(s"Upload created under atom ${req.atomId}. upload=${upload.id}. parts=${upload.parts.size}, selfHosted=${upload.metadata.selfHost}")
         Ok(Json.toJson(upload))
@@ -99,15 +99,15 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     }
   }
 
-  def uploadSubtitleFile(atomId: String, version: Int): Action[MultipartFormData[Files.TemporaryFile]] =
+  def uploadSubtitleFile(atomId: String, assetVersion: Int): Action[MultipartFormData[Files.TemporaryFile]] =
     LookupPermissions(parse.multipartFormData) { implicit req =>
       if (!req.permissions.addSubtitles) {
         Unauthorized(s"User ${req.user.email} is not authorised to upload subtitle asset")
       } else {
-        log.info(s"Request to upload subtitle file under atom=$atomId version=$version")
+        log.info(s"Request to upload subtitle file under atom=$atomId assetVersion=$assetVersion")
         val result = for {
           file <- req.body.file("subtitle-file")
-          upload <- uploadDecorator.getUpload(s"$atomId-$version")
+          upload <- uploadDecorator.getUpload(s"$atomId-$assetVersion")
         } yield
           try {
             val subtitleSource = SubtitleFileUploadCommand(
@@ -139,13 +139,13 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       }
     }
 
-  def deleteSubtitleFile(atomId: String, version: Int): Action[AnyContent] =
+  def deleteSubtitleFile(atomId: String, assetVersion: Int): Action[AnyContent] =
     LookupPermissions { implicit req =>
       if (!req.permissions.addSubtitles) {
         Unauthorized(s"User ${req.user.email} is not authorised to upload subtitle asset")
       } else {
-        log.info(s"Request to delete subtitle file under atom=$atomId version=$version")
-        uploadDecorator.getUpload(s"$atomId-$version") match {
+        log.info(s"Request to delete subtitle file under atom=$atomId assetVersion=$assetVersion")
+        uploadDecorator.getUpload(s"$atomId-$assetVersion") match {
           case Some(upload) =>
             try {
               SubtitleFileDeleteCommand(
@@ -177,14 +177,14 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
   }
 
   @tailrec
-  private def start(atom: MediaAtom, email: String, req: UploadRequest, version: Long): Upload = try {
-    val upload = UploadBuilder.build(atom, email, version, req, awsConfig)
+  private def start(atom: MediaAtom, email: String, req: UploadRequest, assetVersion: Long): Upload = try {
+    val upload = UploadBuilder.build(atom, email, assetVersion, req, awsConfig)
     stepFunctions.start(upload)
 
     upload
   } catch {
     case _: ExecutionAlreadyExistsException =>
-      start(atom, email, req, version + 1)
+      start(atom, email, req, assetVersion + 1)
   }
 
   /**
@@ -219,8 +219,8 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   private def getRunning(assets: List[ClientAsset], atomId: String, job: ExecutionListItem): Option[ClientAsset] = {
     val existingAsset = assets.find { asset =>
-      val version = asset.id
-      job.getName.contains(s"$atomId-$version")
+      val assetVersion = asset.id
+      job.getName.contains(s"$atomId-$assetVersion")
     }
 
     val events = stepFunctions.getEventsInReverseOrder(job)
