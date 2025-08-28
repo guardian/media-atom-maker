@@ -18,9 +18,17 @@ export function VideoEmbed({ sources, posterUrl }) {
     return (
       <video {...props}>
         {sources.map(source => {
-          return (
-            <source key={source.src} src={source.src} type={source.mimeType} />
-          );
+          if (source.mimeType == "application/vnd.apple.mpegurl") {
+            const src = "/assets/video-ui/subtitles.vtt";
+            return (
+              <track default kind="subtitles" src={src} />
+            );
+          } else {
+            return (
+              // <source key={source.src} src={source.src} type={source.mimeType}/>
+              <source src="https://uploads.guimcode.co.uk/2025/08/22/Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-1.mp4" type="video/mp4" />
+            );
+          }
         })}
       </video>
     );
