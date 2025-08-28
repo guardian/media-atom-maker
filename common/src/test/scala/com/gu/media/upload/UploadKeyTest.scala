@@ -35,6 +35,7 @@ class UploadKeyTest extends FlatSpec with Matchers {
   "TranscoderOutputKey" should "include major and minor versions for the atom" in {
     val key = TranscoderOutputKey("my-title", atomId = "123xyz", version = 2, subtitleVersion = 10, extension = "m3u8")
     key.toString should fullyMatch regex """\d{4}/\d{2}/\d{2}/my-title--123xyz-2.10.m3u8"""
+  }
 
   "TranscoderOutputKey" should "replace special characters with underscores" in {
     TranscoderOutputKey("2025/08/20", "Loop: Japan fireball", id = "1c44ce4e-760a-4312-a803-40939aeea355-2.0", extension = "m3u8")
