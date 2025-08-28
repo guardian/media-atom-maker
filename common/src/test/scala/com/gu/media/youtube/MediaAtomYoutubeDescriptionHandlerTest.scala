@@ -2,9 +2,10 @@ package com.gu.media.youtube
 
 import com.gu.contentatom.thrift.atom.media.{Category => ThriftMediaCategory, MediaAtom => ThriftMediaAtom}
 import com.gu.media.youtube.MediaAtomYoutubeDescriptionHandler.getYoutubeDescription
-import org.scalatest.{FunSuite, MustMatchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.must.Matchers
 
-class MediaAtomYoutubeDescriptionHandlerTest extends FunSuite with MustMatchers {
+class MediaAtomYoutubeDescriptionHandlerTest extends AnyFunSuite with Matchers {
 
   val thriftAtomData = ThriftMediaAtom(
     title = "a title",

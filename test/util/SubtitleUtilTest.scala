@@ -1,8 +1,9 @@
 package util
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class SubtitleUtilTest extends FlatSpec with Matchers {
+class SubtitleUtilTest extends AnyFlatSpec with Matchers {
 
   "contentTypeForFilename" should "return the content type based on file extension" in {
     SubtitleUtil.contentTypeForFilename("filename.srt") shouldBe "application/x-subrip"

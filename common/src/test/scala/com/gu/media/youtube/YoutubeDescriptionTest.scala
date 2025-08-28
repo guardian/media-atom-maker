@@ -1,8 +1,9 @@
 package com.gu.media.youtube
 
-import org.scalatest.{FunSuite, MustMatchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.must.Matchers
 
-class YoutubeDescriptionTest extends FunSuite with MustMatchers {
+class YoutubeDescriptionTest extends AnyFunSuite with Matchers {
   test("cleaning nothing") {
     YoutubeDescription.clean(None) must be(None)
   }

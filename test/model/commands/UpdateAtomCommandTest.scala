@@ -2,9 +2,10 @@ package model.commands
 
 import com.gu.media.model.{Category, ContentChangeDetails, MediaAtom}
 import model.commands.UpdateAtomCommand.createDiffString
-import org.scalatest.{FunSuite, MustMatchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.must.Matchers
 
-class UpdateAtomCommandTest extends FunSuite with MustMatchers {
+class UpdateAtomCommandTest extends AnyFunSuite with Matchers {
   val mediaAtomFixture: MediaAtom = MediaAtom(
     id = "123",
     labels = List.empty,

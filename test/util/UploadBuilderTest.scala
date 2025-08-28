@@ -8,10 +8,11 @@ import com.gu.media.aws.{AwsAccess, AwsCredentials, UploadAccess}
 import com.gu.media.model.{MediaAtom, PlutoSyncMetadataMessage, SelfHostedAsset, VideoSource}
 import com.gu.media.upload.model.{CopyProgress, SelfHostedUploadMetadata, UploadMetadata, UploadPart, UploadProgress, UploadRequest}
 import com.typesafe.config.Config
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 import play.api.Configuration
 
-class UploadBuilderTest extends FlatSpec with Matchers {
+class UploadBuilderTest extends AnyFlatSpec with Matchers {
 
   private val atomId = "61e7a4c3-cb36-492d-889c-163abdae68e4"
   private val regionName = "eu-west-1"

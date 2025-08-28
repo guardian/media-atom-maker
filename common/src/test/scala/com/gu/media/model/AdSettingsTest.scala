@@ -1,8 +1,9 @@
 package com.gu.media.model
 
-import org.scalatest.{FunSuite, MustMatchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.must.Matchers
 
-class AdSettingsTest extends FunSuite with MustMatchers {
+class AdSettingsTest extends AnyFunSuite with Matchers {
   private val initialAtom = MediaAtom(
     id = "test",
     labels = List.empty,

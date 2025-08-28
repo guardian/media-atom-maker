@@ -1,9 +1,9 @@
 package com.gu.media.upload
 
-import org.scalatest.Matchers.regex
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class UploadKeyTest extends FlatSpec with Matchers {
+class UploadKeyTest extends AnyFlatSpec with Matchers {
 
   "UploadKey" should "link a path and filename" in {
     UploadKey("my-path", "my-file").toString shouldBe "my-path/my-file"

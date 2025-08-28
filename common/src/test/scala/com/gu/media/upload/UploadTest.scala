@@ -2,12 +2,13 @@ package com.gu.media.upload
 
 import com.gu.media.model.{PlutoSyncMetadataMessage, VideoSource}
 import com.gu.media.upload.model.{SelfHostedUploadMetadata, Upload, UploadMetadata, UploadProgress}
-import org.scalatest.{FunSuite, MustMatchers}
-import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import com.gu.media.upload.model.Upload._
 import org.scalacheck.Gen
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.must.Matchers
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
-class UploadTest extends FunSuite with MustMatchers with GeneratorDrivenPropertyChecks {
+class UploadTest extends AnyFunSuite with Matchers with ScalaCheckDrivenPropertyChecks {
   private val oneHundredGigabytes = oneHundredMegabytes * 1024
   private val fiveMegabytes: Long = 1024 * 1024 * 5
   private val reasonableVideoSize = Gen.choose(fiveMegabytes, oneHundredGigabytes)

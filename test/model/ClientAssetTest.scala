@@ -3,9 +3,10 @@ package model
 import com.gu.media.model._
 import com.gu.media.upload.model._
 import com.gu.media.youtube.YouTubeProcessingStatus
-import org.scalatest.{FunSuite, MustMatchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.must.Matchers
 
-class ClientAssetTest extends FunSuite with MustMatchers {
+class ClientAssetTest extends AnyFunSuite with Matchers {
   val ytAsset = Asset(AssetType.Video, 1, "12345", Platform.Youtube, None)
   val ytProcessing = YouTubeProcessingStatus("1", "processing", 0, 0, 0, None)
 

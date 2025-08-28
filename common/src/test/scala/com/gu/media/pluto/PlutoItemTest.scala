@@ -1,9 +1,10 @@
 package com.gu.media.pluto
 
 import com.gu.media.pluto.PlutoItem.numericIdsOnlyFilter
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class PlutoItemTest extends FunSuite with Matchers {
+class PlutoItemTest extends AnyFunSuite with Matchers {
 
   test("numericIdsOnlyFilter must filter out items with non-numeric IDs") {
     val numericItems = List(

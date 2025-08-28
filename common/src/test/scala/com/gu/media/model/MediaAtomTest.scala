@@ -1,10 +1,11 @@
 package com.gu.media.model
 
-import org.scalatest.{FunSuite, MustMatchers}
 import com.gu.contentatom.thrift.{AtomData, Atom => ThriftAtom, AtomType => ThriftAtomType, ContentChangeDetails => ThriftContentChangeDetails}
 import com.gu.contentatom.thrift.atom.media.{Category => ThriftMediaCategory, MediaAtom => ThriftMediaAtom, Metadata => ThriftMetaData, YoutubeData => ThriftYoutubeData}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.must.Matchers
 
-class MediaAtomTest extends FunSuite with MustMatchers {
+class MediaAtomTest extends AnyFunSuite with Matchers {
   private val htmlDescription =
     """
       |<p>
