@@ -4,10 +4,11 @@ import com.amazonaws.util.IOUtils
 import com.gu.contentatom.thrift.atom.media.PrivacyStatus
 import com.gu.media.expirer.ExpirerLambda
 import com.gu.media.model.{AdSettings, VideoUpdateError}
-import org.scalatest.{FunSuite, MustMatchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.{JsValue, Json}
 
-class ExpirerLambdaTest extends FunSuite with MustMatchers {
+class ExpirerLambdaTest extends AnyFunSuite with Matchers {
   test("Make YouTube assets private") {
     val result = capiResult("one-expired-atom-two-yt-assets.json")
     val lambda = new TestExpirerLambda(List(result))

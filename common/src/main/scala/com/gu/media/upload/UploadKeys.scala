@@ -26,11 +26,13 @@ case class TranscoderOutputKey(prefix: String, title: String, id: String, extens
 }
 
 object TranscoderOutputKey {
-  def apply(title: String, id: String, extension: String): TranscoderOutputKey = {
+  def currentDate: String = {
     val now = ZonedDateTime.now(ZoneOffset.UTC)
-    val prefix = now.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
+    now.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
+  }
 
-    TranscoderOutputKey(prefix, title, id, extension)
+  def apply(title: String, id: String, extension: String): TranscoderOutputKey = {
+    TranscoderOutputKey(currentDate, title, id, extension)
   }
 
   def apply(title: String, atomId: String, version: Long, subtitleVersion: Long, extension: String): TranscoderOutputKey = {
