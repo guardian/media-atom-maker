@@ -26,7 +26,7 @@ export const routes = (
     <Route path="/" component={ReactApp}>
       <IndexRedirect to="/videos" />
       <Route path="/videos" component={Search} onEnter={sendTelemetry} />
-      <Redirect from="/videos/create" to="/create" onEnter={sendTelemetry} />
+      <Redirect from="/videos/create" to="/create" />
       <Route path="/videos/:id" component={Video} onEnter={sendTelemetry} />
       <Route path="/videos/:id/upload" component={Upload} onEnter={sendTelemetry} />
       <Route path="/create" component={Video} mode="create" onEnter={sendTelemetry} />
