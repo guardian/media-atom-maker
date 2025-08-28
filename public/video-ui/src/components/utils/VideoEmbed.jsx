@@ -16,12 +16,12 @@ export function VideoEmbed({ sources, posterUrl }) {
     return <video src={sources[0].src} {...props} />;
   } else {
     return (
-      <video {...props}>
+      <video {...props} crossOrigin="anonymous">
         {sources.map(source => {
           if (source.mimeType == "application/vnd.apple.mpegurl") {
-            const src = "/assets/video-ui/subtitles.vtt";
+            const src = "https://uploads.guimcode.co.uk/2025/08/22/Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-1captions_00001.vtt";
             return (
-              <track default kind="subtitles" src={src} />
+              <track default kind="subtitles" src={src}/>
             );
           } else {
             return (
