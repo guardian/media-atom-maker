@@ -1,5 +1,5 @@
 import React from 'react';
-import ContentApi from '../../services/capi';
+import TagManager from '../../services/tagmanager';
 import { tagsFromStringList, tagsToStringList } from '../../util/tagParsers';
 import { keyCodes } from '../../constants/keyCodes';
 import TagTypes from '../../constants/TagTypes';
@@ -86,7 +86,7 @@ class TagPicker extends React.Component {
         capiTags: []
       });
     } else {
-      ContentApi.getTagsByType(searchText, tagTypes)
+      TagManager.getTagsByType(searchText, tagTypes)
         .then(capiResponses => {
           const tags = capiResponses.data.reduce((tags, {data}) => {
             return tags.concat(getTagDisplayNames([data]));
