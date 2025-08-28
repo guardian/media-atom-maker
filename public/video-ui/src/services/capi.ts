@@ -77,7 +77,7 @@ export default class ContentApi {
 
   static getTagsByType(query: string, types: string[]) {
     return apiRequest({
-      url: `${ContentApi.tagManagerUrl}/hyper/tags?query=${query}&limit=150&type=${types.join(",")}`,
+      url: `${ContentApi.tagManagerUrl}/hyper/tags?query=${query}&limit=150&type=${types.join(",")}`
     });
   }
 }
