@@ -1,0 +1,25 @@
+WEBVTT	#Elemental Media Engine(TM) 2.18.0.0
+X-TIMESTAMP-MAP=LOCAL:00:00:00.000,MPEGTS:183265
+
+00:00:00.000 --> 00:00:02.500
+Welcome to the Example Subtitle File!
+
+00:00:03.000 --> 00:00:06.000
+This is a demonstration of SRT subtitles.
+
+00:00:07.000 --> 00:00:10.500
+You can use SRT files to add subtitles to your videos.
+
+00:00:12.000 --> 00:00:15.000
+Each subtitle entry consists of a number, a timecode,
+and the subtitle text.
+
+00:00:16.000 --> 00:00:20.000
+The timecode format is hours:minutes:seconds,milliseconds.
+
+00:00:21.000 --> 00:00:25.000
+You can adjust the timing to match your video.
+
+00:00:26.000 --> 00:00:30.000
+Make sure the subtitle text is clear and readable.
+
