@@ -53,8 +53,8 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
       upload.metadata.version should contain (2L)
       upload.metadata.selfHost shouldBe true
       upload.metadata.asset shouldBe Some(SelfHostedAsset(sources = List(
+        VideoSource(src = "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.0.m3u8", mimeType = "application/vnd.apple.mpegurl"),
         VideoSource(src = "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.0.mp4", mimeType = "video/mp4"),
-        VideoSource(src = "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.0.m3u8", mimeType = "application/vnd.apple.mpegurl")
       )))
       upload.metadata.originalFilename should contain ("my-video.mp4")
       upload.metadata.startTimestamp should not be empty
@@ -89,8 +89,8 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
       // we expect the modified upload record to have bumped the subtitle version on the m3u8 filename,
       // stored the subtitle source and version and set the progress to not fully transcoded
       val expectedAsset = SelfHostedAsset(sources = List(
+        VideoSource(src = "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.1.m3u8", mimeType = "application/vnd.apple.mpegurl"),
         VideoSource(src = "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.0.mp4", mimeType = "video/mp4"),
-        VideoSource(src = "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.1.m3u8", mimeType = "application/vnd.apple.mpegurl")
       ))
       val expectedMetadata = completedVideoUpload.metadata.copy(
         asset = Some(expectedAsset),
@@ -124,8 +124,8 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
       // we expect the modified upload record to have bumped the subtitle version on the m3u8 filename,
       // removed the subtitle source and set the progress to not fully transcoded
       val expectedAsset = SelfHostedAsset(sources = List(
+        VideoSource(src = "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.2.m3u8", mimeType = "application/vnd.apple.mpegurl"),
         VideoSource(src = "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.0.mp4", mimeType = "video/mp4"),
-        VideoSource(src = "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.2.m3u8", mimeType = "application/vnd.apple.mpegurl")
       ))
       val expectedMetadata = subtitlesRemovedUpload.metadata.copy(
         asset = Some(expectedAsset),
