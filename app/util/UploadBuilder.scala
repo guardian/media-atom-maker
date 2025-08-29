@@ -74,8 +74,8 @@ object UploadBuilder {
       // m3u8 output changes when subtitles are processed, so s3 key includes a subtitle version
       val m3u8Key = TranscoderOutputKey(title, atomId, assetVersion, subtitleVersion, "m3u8").toString
       val m3u8Source = if (includeM3u8) Some(VideoSource(m3u8Key, "application/vnd.apple.mpegurl")) else None
-      val sources = mp4Source ++ m3u8Source
-      Some(SelfHostedAsset(sources.toList))
+      val sources = m3u8Source ++ mp4Source
+        Some(SelfHostedAsset(sources.toList))
     }
   }
 
