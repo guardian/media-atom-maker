@@ -4,11 +4,13 @@ import com.gu.contentatom.thrift._
 import com.gu.contentatom.thrift.atom.media._
 import com.gu.media.util.ThriftUtil
 import org.jsoup.Jsoup
-import org.scalatest.{FunSpec, Inside, Matchers}
+import org.scalatest.Inside
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
 import scala.xml.XML
 
-class ThriftUtilSpec extends FunSpec
+class ThriftUtilSpec extends AnyFunSpec
     with Matchers
     with Inside {
 

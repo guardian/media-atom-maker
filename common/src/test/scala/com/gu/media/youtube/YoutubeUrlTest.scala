@@ -1,8 +1,9 @@
 package com.gu.media.youtube
 
-import org.scalatest.{FunSuite, MustMatchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.must.Matchers
 
-class YoutubeUrlTest extends FunSuite with MustMatchers {
+class YoutubeUrlTest extends AnyFunSuite with Matchers {
   test("Extract video id from standard YouTube URL") {
     YoutubeUrl.parse("https://www.youtube.com/watch?v=CqUDO-livlc") must be(Some("CqUDO-livlc"))
   }

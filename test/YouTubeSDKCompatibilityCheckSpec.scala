@@ -3,9 +3,9 @@ import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.http.{HttpRequestInitializer, HttpTransport}
 import com.google.api.client.json.JsonFactory
 import com.google.api.client.json.gson.GsonFactory
-import org.scalatest.FunSpec
+import org.scalatest.funspec.AnyFunSpec
 
-class YouTubeSDKCompatibilityCheckSpec extends FunSpec {
+class YouTubeSDKCompatibilityCheckSpec extends AnyFunSpec {
 
   val transport: HttpTransport = new NetHttpTransport()
   val jsonFactory: JsonFactory = GsonFactory.getDefaultInstance

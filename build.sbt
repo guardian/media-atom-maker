@@ -15,11 +15,11 @@ val scanamoVersion = "1.0.0-M28"
 val playJsonExtensionsVersion = "1.0.3"
 val okHttpVersion = "2.4.0"
 
-val scalaTestVersion = "3.0.8"
-val scalaTestPlusPlayVersion = "4.0.3"
-val mockitoVersion = "2.0.97-beta"
+val scalaTestVersion = "3.2.19"
+val scalaTestPlusPlayVersion = "7.0.2"
+val mockitoVersion = "2.0.0"
 val scalaXmlVersion = "2.2.0"
-val scalaCheckVersion = "1.14.0" // to match ScalaTest version
+val scalaCheckVersion = "1.18.0" // to match ScalaTest version
 
 val awsLambdaCoreVersion = "1.1.0"
 val awsLambdaEventsVersion = "1.3.0"
@@ -121,6 +121,7 @@ lazy val common = (project in file("common"))
       "com.amazonaws" % "aws-java-sdk-ses" % awsVersion,
       "com.gu" %% "content-api-client-aws" % "0.7.3",
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
+      "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0" % "test",
       "org.jsoup" % "jsoup" % jsoupVersion,
       "com.beachape" %% "enumeratum" % enumeratumVersion,
       "net.logstash.logback" % "logstash-logback-encoder" % "6.6"
@@ -138,7 +139,7 @@ lazy val app = (project in file("."))
       "software.amazon.awssdk" % "sts" % awsV2Version,
       "com.amazonaws" % "aws-java-sdk-ec2" % awsVersion,
       "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestPlusPlayVersion % "test",
-      "org.mockito" %  "mockito-core" % mockitoVersion % "test",
+      "org.mockito" %%  "mockito-scala" % mockitoVersion % "test",
       "org.scala-lang.modules" %% "scala-xml" % scalaXmlVersion   % "test"
     ),
 

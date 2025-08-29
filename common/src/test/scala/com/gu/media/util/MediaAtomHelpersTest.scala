@@ -2,12 +2,13 @@ package com.gu.media.util
 
 import com.gu.contentatom.thrift.atom.media._
 import com.gu.contentatom.thrift.{Atom, AtomData, AtomType, ContentChangeDetails, User}
-import org.scalatest.{FunSuite, MustMatchers}
 import MediaAtomHelpers._
 import com.gu.media.model.{SelfHostedAsset, VideoSource, YouTubeAsset}
 import org.joda.time.DateTime
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.must.Matchers
 
-class MediaAtomHelpersTest extends FunSuite with MustMatchers {
+class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
   test("add YouTube asset") {
     val startTime = DateTime.now().getMillis
     val newAtom = updateAtom(atom(), user()) { mediaAtom =>
