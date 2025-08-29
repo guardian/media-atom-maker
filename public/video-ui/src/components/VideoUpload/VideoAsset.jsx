@@ -106,12 +106,10 @@ function AssetProgress({ failed, current, total }) {
   return <span className="loader" />;
 }
 
-function SubtitleDetails({ subtitles }) {
-    if (!subtitles) {
+function SubtitleDetails({ filename }) {
+    if (!filename) {
         return <div className="subtitle__title">No Subtitle File Attached</div>;
     }
-
-    const filename = subtitles.src.replace(/^.*[\\/]/, '');
 
     return (
         <div className="subtitle__details">
@@ -119,7 +117,7 @@ function SubtitleDetails({ subtitles }) {
         </div>
     );
 }
-function SubtitleActions({ subtitles, onUpload, onDelete}) {
+function SubtitleActions({ filename, onUpload, onDelete}) {
   const fileInputRef = React.useRef();
 
   const handleFileChange = (event) => {
@@ -173,10 +171,10 @@ function SubtitleActions({ subtitles, onUpload, onDelete}) {
         />
         <button className="btn upload__activate-btn" onClick={handleClick}>
           <Icon icon="backup">
-            {subtitles ? "Replace" : "Upload"}
+            {filename ? "Replace" : "Upload"}
           </Icon>
         </button>
-        {subtitles && <button className="subtitle__delete-btn" onClick={onDelete}>Delete Subtitle File</button>}
+        {filename && <button className="subtitle__delete-btn" onClick={onDelete}>Delete Subtitle File</button>}
       </div>
     );
 }
@@ -190,15 +188,15 @@ export function Asset({videoId, upload, isActive, selectAsset, deleteAsset, star
   const timestamp =  metadata?.startTimestamp || false;
 
   const isSelfHosted = asset && asset.sources;
-  const subtitles = asset?.sources?.find(source => source.mimeType === "application/x-subrip" || source.mimeType === "text/vtt")
+  const subtitleFilename = metadata?.subtitleFilename;
 
   const subtitlePanel = isSelfHosted && permissions?.addSubtitles &&
     <div className="video-trail__item__subtitles">
       <div className="subtitle__container">
         <SubtitlesIcon />
-        <SubtitleDetails subtitles={subtitles} />
+        <SubtitleDetails filename={subtitleFilename} />
       </div>
-      <SubtitleActions subtitles={subtitles} onUpload={(file) => startSubtitleFileUpload({ file, id: videoId, version: upload.id })} onDelete={() => deleteSubtitle({ id: videoId, version: upload.id })} />
+      <SubtitleActions filename={subtitleFilename} onUpload={(file) => startSubtitleFileUpload({ file, id: videoId, version: upload.id })} onDelete={() => deleteSubtitle({ id: videoId, version: upload.id })} />
     </div>;
 
   if (processing && asset) {

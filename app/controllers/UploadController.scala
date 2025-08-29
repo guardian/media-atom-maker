@@ -50,7 +50,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
   def list(atomId: String): Action[AnyContent] = APIAuthAction { req =>
     val atom = MediaAtom.fromThrift(getPreviewAtom(atomId))
     val withStatus = ClientAsset.fromAssets(atom.assets).map(addYouTubeStatus)
-    val atomAssets = withStatus.map { asset => uploadDecorator.addMetadataAndSources(atom.id, asset) }
+    val atomAssets = withStatus.map { asset => uploadDecorator.addMetadata(atom.id, asset) }
 
     val jobs = stepFunctions.getJobs(atomId)
     val jobAssets = jobs.flatMap(getRunning(atomAssets, atomId, _))
