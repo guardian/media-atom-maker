@@ -20,7 +20,7 @@ export default function saveState(
     case 'ASSET_REVERT_REQUEST':
       return Object.assign({}, state, {
         saving: saveStateVals.inprogress,
-        changingActiveAsset: true
+        activatingAssetNumber: action.assetVersion
       });
     case 'VIDEO_SAVE_REQUEST':
       return Object.assign({}, state, {
@@ -38,7 +38,7 @@ export default function saveState(
     case 'ASSET_REVERT_RECEIVE':
       return Object.assign({}, state, {
         saving: false,
-        changingActiveAsset: false
+        activatingAssetNumber: undefined
       });
     case 'VIDEO_SAVE_RECEIVE':
       return Object.assign({}, state, {

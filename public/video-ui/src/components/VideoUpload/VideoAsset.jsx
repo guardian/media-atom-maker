@@ -22,15 +22,15 @@ function presenceInitials(email) {
   return initials.join('');
 }
 
-function AssetControls({ user, children, isActive, selectAsset, deleteAsset, changingActiveAsset }) {
+function AssetControls({ user, children, isActive, selectAsset, deleteAsset, activatingAssetNumber }) {
     const userCircle =
         <div className="video-trail__presence_indicator" title={user}>
                 {presenceInitials(user)}
         </div>;
 
   const activateButton =
-    <button className="btn upload__activate-btn" 
-      disabled={!!changingActiveAsset} 
+    <button className="btn upload__activate-btn"
+      disabled={typeof activatingAssetNumber === "number"}
       onClick={selectAsset}>
       Activate
     </button>;
@@ -184,15 +184,15 @@ function SubtitleActions({ subtitles, onUpload, onDelete}) {
 }
 
 export function Asset({
-  videoId, 
-  upload, 
-  isActive, 
-  selectAsset, 
-  deleteAsset, 
-  startSubtitleFileUpload, 
-  deleteSubtitle, 
-  permissions, 
-  changingActiveAsset
+  videoId,
+  upload,
+  isActive,
+  selectAsset,
+  deleteAsset,
+  startSubtitleFileUpload,
+  deleteSubtitle,
+  permissions,
+  activatingAssetNumber,
 }) {
 
   const { asset, metadata, processing } = upload;
@@ -221,7 +221,7 @@ export function Asset({
           <div>{processing.status}</div>
         </div>
         <div className="video-trail__item__details">
-          <AssetControls user={user} selectAsset={selectAsset} deleteAsset={deleteAsset} changingActiveAsset={changingActiveAsset}>
+          <AssetControls user={user} selectAsset={selectAsset} deleteAsset={deleteAsset} activatingAssetNumber={activatingAssetNumber}>
             <AssetInfo info={info} timestamp={timestamp} />
           </AssetControls>
         </div>

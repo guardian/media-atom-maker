@@ -64,16 +64,14 @@ export default class VideoTrail extends React.Component {
 
   render() {
     const blocks = this.getAssets().map(upload => {
-      console.log({uploadId: upload.id, activeVersion: this.props.activeVersion});
       return (
         <Asset
           key={upload.id}
           videoId={this.props.video.id}
           upload={upload}
           isActive={parseInt(upload.id) === this.props.activeVersion}
-          selectAsset={() => { 
-            console.log('selectAsset', this.props.changingActiveAsset, upload.id);
-            if (this.props.changingActiveAsset) {
+          selectAsset={() => {
+            if (typeof this.props.activatingAssetNumber=== "number") {
               return;
             }
             return this.props.selectAsset(Number(upload.id));
@@ -82,7 +80,7 @@ export default class VideoTrail extends React.Component {
           startSubtitleFileUpload={this.props.startSubtitleFileUpload}
           deleteSubtitle={this.props.deleteSubtitle}
           permissions={this.props.permissions}
-          changingActiveAsset={this.props.changingActiveAsset}
+          activatingAssetNumber={this.props.activatingAssetNumber}
         />
       );
     });
@@ -93,7 +91,6 @@ export default class VideoTrail extends React.Component {
       <div className="video__detail__page__trail">
         <div className="video__detailbox__header__container">
           <header className="video__detailbox__header">Video trail</header>
-          <div>{this.props.changingActiveAsset ? 'changing' : 'not changing'}</div>
         </div>
         <div className="grid">
           <div className="grid__list grid__list__trail grid__list__wrap">
