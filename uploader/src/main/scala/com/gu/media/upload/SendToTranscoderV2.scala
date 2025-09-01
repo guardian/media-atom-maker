@@ -70,11 +70,7 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
   }
 
   private def getOutputs(sources: List[VideoSource]): List[OutputGroup] = {
-    // to match the job template, output groups should be in order:
-    //    (0) File group settings (video/mp4),
-    //    (1) HLS Group Settings (application/vnd.apple.mpegurl)
-    val orderedSources = sources.sortBy(_.mimeType).reverse
-    orderedSources.map {
+    sources.map {
       case VideoSource(output, "video/mp4") =>
         val filenameWithoutMp4 = if (output.endsWith(".mp4")) output.dropRight(4) else output
         val outputGroupSettings = new OutputGroupSettings()
