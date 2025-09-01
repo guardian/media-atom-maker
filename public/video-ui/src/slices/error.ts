@@ -5,11 +5,11 @@ import Raven from "raven-js";
 const SHOW_ERROR = 'SHOW_ERROR' as const;
 type ShowError = AnyAction & { type: typeof SHOW_ERROR; message: string };
 
-export const showError: (message: string, error?: Error) => ShowError = (
+export const showError: (message: string, error?: unknown) => ShowError = (
   message,
   error = undefined
 ) => {
-  if (error) {
+  if (error && error instanceof Error) {
     Raven.captureException(error);
   }
 

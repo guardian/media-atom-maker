@@ -18,7 +18,7 @@ export const fetchCommissions = createAsyncThunk(
   'pluto/fetchCommissions',
   (_, { dispatch }) =>
     getPlutoCommissions().catch(error => {
-      dispatch(showError('Could not get Pluto Commissions'));
+      dispatch(showError('Could not get Pluto Commissions', error));
       throw error;
     })
 );
@@ -27,7 +27,7 @@ export const fetchProjects = createAsyncThunk<PlutoProject[], string>(
   'pluto/fetchProjects',
   (commissionId, { dispatch }) =>
     getPlutoProjects({ commissionId }).catch(error => {
-      dispatch(showError('Could not get Pluto Projects'));
+      dispatch(showError('Could not get Pluto Projects', error));
       throw error;
     })
 );
