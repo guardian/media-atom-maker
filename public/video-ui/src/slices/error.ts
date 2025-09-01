@@ -27,6 +27,10 @@ type ErrorState = false | string;
 
 const initialState = false as ErrorState;
 
+
+// Currently this slice users Extra Reducers to all for support of actions without
+// `domain/action` type formats. Once all consuming code which dispatches error actions
+// is using the new functions we can use the standard reducer pattern.
 const error = createSlice({
   name: 'error',
   initialState,
