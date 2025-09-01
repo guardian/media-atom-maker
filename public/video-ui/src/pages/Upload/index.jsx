@@ -70,7 +70,7 @@ class VideoUpload extends React.Component {
               activeVersion={activeVersion}
               s3Upload={this.props.s3Upload}
               uploads={this.props.uploads}
-              deleteAsset={this.props.videoActions.deleteAsset}
+              deleteAsset={this.props.videoActions.deleteAssets}
               selectAsset={version =>
                 this.props.videoActions.revertAsset(
                   this.props.video.id,
@@ -85,7 +85,11 @@ class VideoUpload extends React.Component {
               }
               deleteSubtitle={this.props.uploadActions.deleteSubtitle}
               permissions={getStore().getState().config.permissions}
+              setS3UploadPostProcessingStatus={
+                this.props.uploadActions.setS3UploadPostProcessingStatus
+              }
               resetS3UploadStatus={this.props.uploadActions.resetS3UploadStatus}
+              getVideo={this.props.videoActions.getVideo}
             />
           </div>
         </div>

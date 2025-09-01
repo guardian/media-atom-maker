@@ -11,6 +11,7 @@ PUT     /api/atom/:id/publish          controllers.Api.publishMediaAtom(id)
 
 POST    /api/atoms/:id/assets          controllers.Api.addAsset(id)
 DELETE  /api/atoms/:id/assets          controllers.Api.deleteAsset(id)
+DELETE  /api/atoms/:id/asset-list      controllers.Api.deleteAssetList(id)
 PUT     /api/atom/:id/asset-active     controllers.Api.setActiveAsset(id)
 PUT     /api/atom/:id/reset-duration-from-active     controllers.Api.resetDurationFromActive(id)
 

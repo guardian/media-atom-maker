@@ -31,10 +31,16 @@ export default class VideoTrail extends React.Component {
   getAssets = () => {
     const ret = [];
 
-     if (this.props.s3Upload.status === "complete") {
-       this.props.getUploads()
-       this.props.resetS3UploadStatus(); // reset status to 'idle'
-     }
+    if (this.props.s3Upload.status === "complete") {
+      this.props.getUploads()
+      this.props.setS3UploadPostProcessingStatus(); // reset status to 'post processing'
+    }
+    if (this.props.uploads.every(upload => {
+      return !upload.processing;
+    }) && this.props.s3Upload.status === "post-processing") {
+      this.props.getVideo(this.props.video.id);
+      this.props.resetS3UploadStatus();
+    }
 
     if (this.props.s3Upload.total) {
       // create an item to represent the current upload
@@ -63,6 +69,19 @@ export default class VideoTrail extends React.Component {
   };
 
   render() {
+    const deleteAsset = async (asset) => {
+      if (asset.id) {
+        this.props.deleteAsset(this.props.video, [asset.id]);
+      }
+      else {
+        const assetsToDelete = asset?.sources?.map(source => {
+          return source.src;
+        });
+        if (assetsToDelete?.length > 0) {
+          this.props.deleteAsset(this.props.video, assetsToDelete);
+        }
+      }
+    }
     const blocks = this.getAssets().map(upload => {
       return (
         <Asset
@@ -71,7 +90,7 @@ export default class VideoTrail extends React.Component {
           upload={upload}
           isActive={parseInt(upload.id) === this.props.activeVersion}
           selectAsset={() => this.props.selectAsset(Number(upload.id))}
-          deleteAsset={() => this.props.deleteAsset(this.props.video, upload.asset.id)}
+          deleteAsset={() => deleteAsset(upload.asset)}
           startSubtitleFileUpload={this.props.startSubtitleFileUpload}
           deleteSubtitle={this.props.deleteSubtitle}
           permissions={this.props.permissions}
