@@ -32,7 +32,7 @@ export default class VideoTrail extends React.Component {
     const ret = [];
 
      if (this.props.s3Upload.status === "complete") {
-       this.props.getUploads()
+       this.props.getUploads();
        this.props.resetS3UploadStatus(); // reset status to 'idle'
      }
 
@@ -53,7 +53,7 @@ export default class VideoTrail extends React.Component {
       // prevent duplication by omitting currently uploading item
       // s3Upload.id: <atomId>-<version>
       // upload.id: <version>
-      const id = this.props.video.id + "-" + upload.id
+      const id = this.props.video.id + "-" + upload.id;
       if (id !== this.props.s3Upload.id) {
         ret.push(upload);
       }
@@ -64,19 +64,27 @@ export default class VideoTrail extends React.Component {
 
   render() {
     const blocks = this.getAssets().map(upload => {
+      console.log({uploadId: upload.id, activeVersion: this.props.activeVersion});
       return (
         <Asset
           key={upload.id}
           videoId={this.props.video.id}
           upload={upload}
           isActive={parseInt(upload.id) === this.props.activeVersion}
-          selectAsset={() => this.props.selectAsset(Number(upload.id))}
+          selectAsset={() => { 
+            console.log('selectAsset', this.props.changingActiveAsset, upload.id);
+            if (this.props.changingActiveAsset) {
+              return;
+            }
+            return this.props.selectAsset(Number(upload.id));
+          }}
           deleteAsset={() => this.props.deleteAsset(this.props.video, upload.asset.id)}
           startSubtitleFileUpload={this.props.startSubtitleFileUpload}
           deleteSubtitle={this.props.deleteSubtitle}
           permissions={this.props.permissions}
+          changingActiveAsset={this.props.changingActiveAsset}
         />
-      )
+      );
     });
 
     const content = blocks.length > 0 ? blocks : false;
@@ -85,6 +93,7 @@ export default class VideoTrail extends React.Component {
       <div className="video__detail__page__trail">
         <div className="video__detailbox__header__container">
           <header className="video__detailbox__header">Video trail</header>
+          <div>{this.props.changingActiveAsset ? 'changing' : 'not changing'}</div>
         </div>
         <div className="grid">
           <div className="grid__list grid__list__trail grid__list__wrap">

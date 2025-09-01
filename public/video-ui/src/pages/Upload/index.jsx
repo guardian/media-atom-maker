@@ -86,6 +86,7 @@ class VideoUpload extends React.Component {
               deleteSubtitle={this.props.uploadActions.deleteSubtitle}
               permissions={getStore().getState().config.permissions}
               resetS3UploadStatus={this.props.uploadActions.resetS3UploadStatus}
+              changingActiveAsset={getStore().getState().saveState?.changingActiveAsset}
             />
           </div>
         </div>

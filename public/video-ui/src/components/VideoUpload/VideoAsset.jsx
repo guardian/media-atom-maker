@@ -22,22 +22,24 @@ function presenceInitials(email) {
   return initials.join('');
 }
 
-function AssetControls({ user, children, isActive, selectAsset, deleteAsset }) {
+function AssetControls({ user, children, isActive, selectAsset, deleteAsset, changingActiveAsset }) {
     const userCircle =
         <div className="video-trail__presence_indicator" title={user}>
                 {presenceInitials(user)}
-        </div>
+        </div>;
 
   const activateButton =
-    <button className="btn upload__activate-btn" onClick={selectAsset}>
+    <button className="btn upload__activate-btn" 
+      disabled={!!changingActiveAsset} 
+      onClick={selectAsset}>
       Activate
-    </button>
+    </button>;
 
 
   const deleteButton = <DeleteButton
     tooltip="Remove asset from Atom (does not affect YouTube.com)"
     onDelete={deleteAsset}
-  />
+  />;
 
   return (
     <div className="upload__actions">
@@ -52,7 +54,7 @@ function AssetControls({ user, children, isActive, selectAsset, deleteAsset }) {
 }
 
 function AssetInfo({ info, timestamp }) {
-  const dateTime = timestamp && moment(timestamp).format('YYYY/MM/DD HH:mm:ss')
+  const dateTime = timestamp && moment(timestamp).format('YYYY/MM/DD HH:mm:ss');
 
   return (
     <div className="upload__left">
@@ -67,7 +69,7 @@ function AssetInfo({ info, timestamp }) {
 }
 
 function AssetDisplay({id, isActive, sources}) {
-  const embed = id ? <YouTubeEmbed id={id} largePreview={true}/> : <VideoEmbed sources={sources}/>
+  const embed = id ? <YouTubeEmbed id={id} largePreview={true}/> : <VideoEmbed sources={sources}/>;
 
   return (
     <div className={"video-trail__asset"}>
@@ -101,7 +103,7 @@ function AssetProgress({ failed, current, total }) {
     );
   }
   if (total !== undefined && current !== undefined) {
-    return <progress className="progress" value={current} max={total} />
+    return <progress className="progress" value={current} max={total} />;
   }
   return <span className="loader" />;
 }
@@ -181,7 +183,17 @@ function SubtitleActions({ subtitles, onUpload, onDelete}) {
     );
 }
 
-export function Asset({videoId, upload, isActive, selectAsset, deleteAsset, startSubtitleFileUpload, deleteSubtitle, permissions}) {
+export function Asset({
+  videoId, 
+  upload, 
+  isActive, 
+  selectAsset, 
+  deleteAsset, 
+  startSubtitleFileUpload, 
+  deleteSubtitle, 
+  permissions, 
+  changingActiveAsset
+}) {
 
   const { asset, metadata, processing } = upload;
 
@@ -190,7 +202,7 @@ export function Asset({videoId, upload, isActive, selectAsset, deleteAsset, star
   const timestamp =  metadata?.startTimestamp || false;
 
   const isSelfHosted = asset && asset.sources;
-  const subtitles = asset?.sources?.find(source => source.mimeType === "application/x-subrip" || source.mimeType === "text/vtt")
+  const subtitles = asset?.sources?.find(source => source.mimeType === "application/x-subrip" || source.mimeType === "text/vtt");
 
   const subtitlePanel = isSelfHosted && permissions?.addSubtitles &&
     <div className="video-trail__item__subtitles">
@@ -209,7 +221,7 @@ export function Asset({videoId, upload, isActive, selectAsset, deleteAsset, star
           <div>{processing.status}</div>
         </div>
         <div className="video-trail__item__details">
-          <AssetControls user={user} selectAsset={selectAsset} deleteAsset={deleteAsset}>
+          <AssetControls user={user} selectAsset={selectAsset} deleteAsset={deleteAsset} changingActiveAsset={changingActiveAsset}>
             <AssetInfo info={info} timestamp={timestamp} />
           </AssetControls>
         </div>
