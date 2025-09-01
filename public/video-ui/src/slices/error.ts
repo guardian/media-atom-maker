@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { Action, AnyAction } from 'redux';
+import Raven from "raven-js";
 
 const SHOW_ERROR = 'SHOW_ERROR' as const;
 type ShowError = AnyAction & { type: typeof SHOW_ERROR; message: string };
@@ -9,7 +10,7 @@ export const showError: (message: string, error?: Error) => ShowError = (
   error = undefined
 ) => {
   if (error) {
-    console.error(error);
+    Raven.captureException(error);
   }
 
   return {
