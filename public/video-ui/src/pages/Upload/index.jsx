@@ -86,7 +86,7 @@ class VideoUpload extends React.Component {
               deleteSubtitle={this.props.uploadActions.deleteSubtitle}
               permissions={getStore().getState().config.permissions}
               resetS3UploadStatus={this.props.uploadActions.resetS3UploadStatus}
-              changingActiveAsset={getStore().getState().saveState?.changingActiveAsset}
+              changingActiveAsset={this.props.saveState?.changingActiveAsset}
             />
           </div>
         </div>
@@ -112,7 +112,8 @@ function mapStateToProps(state) {
     video: state.video,
     s3Upload: state.s3Upload,
     uploads: state.uploads,
-    youtube: state.youtube
+    youtube: state.youtube,
+    saveState: state.saveState
   };
 }
 

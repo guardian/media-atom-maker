@@ -10,7 +10,9 @@ function requestRevertAsset(assetVersion) {
 }
 
 function receiveRevertAsset(video) {
-  browserHistory.push('/videos/' + video.id);
+  // TO DO - should this navigate happen acfter the update is successful
+  // decide what works best for UI
+  // browserHistory.push('/videos/' + video.id);
   return {
     type: 'ASSET_REVERT_RECEIVE',
     video: video,
