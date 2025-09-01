@@ -12,6 +12,7 @@ case class SelfHostedAsset(sources: List[VideoSource]) extends VideoAsset
 
 object VideoSource {
   implicit val format: Format[VideoSource] = Jsonx.formatCaseClass[VideoSource]
+  def filename(source: VideoSource): String = source.src.split("/").last
 }
 
 object VideoAsset {

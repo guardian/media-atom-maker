@@ -34,7 +34,7 @@ object ClientAsset {
 
     base.copy(metadata = Some(ClientAssetMetadata(
       originalFilename = upload.metadata.originalFilename,
-      subtitleFilename = upload.metadata.subtitleSource.map(_.src.split("/").last),
+      subtitleFilename = upload.metadata.subtitleSource.map(VideoSource.filename),
       startTimestamp = Some(startTimestamp),
       user = upload.metadata.user
     )))
