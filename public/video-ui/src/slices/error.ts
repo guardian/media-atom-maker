@@ -10,7 +10,7 @@ export const showError: (message: string, error?: unknown) => ShowError = (
   error = undefined
 ) => {
   if (error && error instanceof Error) {
-    Raven.captureException(error);
+    Raven.captureException(error, { tags: { message } });
   }
 
   return {
