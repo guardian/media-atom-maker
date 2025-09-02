@@ -1,7 +1,6 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
-import qs from 'querystringify';
 import Raven from 'raven-js';
 import { browserHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
@@ -25,7 +24,7 @@ setStore(store);
 
 store.dispatch(
   setConfig(Object.assign({}, extractConfigFromPage(), {
-    embeddedMode: qs.parse(location.search).embeddedMode
+    embeddedMode: new URLSearchParams(location.search).get("embeddedMode")
   }))
 );
 

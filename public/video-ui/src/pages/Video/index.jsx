@@ -26,7 +26,7 @@ class VideoDisplay extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isCreateMode: props.route.mode === 'create',
+      isCreateMode: props.route.props?.mode === 'create',
       editingFurniture: false,
       editingYoutubeFurniture: false,
       editingWorkflow: false
