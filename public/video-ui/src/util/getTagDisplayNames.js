@@ -30,8 +30,8 @@ export default function getTagDisplayNames(tags) {
     }
 
     return {
-      id: tag.path,
-      webTitle: tag.externalName,
+      id: tag.id,
+      webTitle: tag.webTitle,
       detailedTitle: tag.internalName ? tag.internalName : getLegacyDetailedTitle(tag)
     };
   });

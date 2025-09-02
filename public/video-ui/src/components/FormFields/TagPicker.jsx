@@ -78,6 +78,14 @@ class TagPicker extends React.Component {
     }
   }
 
+  getTagFromTagManger = tag => {
+    return {
+      id: tag.path,
+      webTitle: tag.externalName,
+      detailedTitle: tag.internalName
+    };
+  }
+
   fetchTags = searchText => {
     const tagTypes = this._getTagTypes();
 
@@ -87,9 +95,10 @@ class TagPicker extends React.Component {
       });
     } else {
       TagManager.getTagsByType(searchText, tagTypes)
-        .then(capiResponses => {
-          const tags = capiResponses.data.reduce((tags, {data}) => {
-            return tags.concat(getTagDisplayNames([data]));
+        .then(response => {
+
+           const tags = response.data.reduce((tags, {data}) => {
+            return tags.concat(getTagFromTagManger(data));
           }, []);
 
           this.setState({
