@@ -15,7 +15,7 @@ export function VideoEmbed({ sources, posterUrl }) {
     // to appease Safari
     return <video src={sources[0].src} {...props} />;
   } else {
-    const {subtitleTrack, sortedSources} = includeSubtitles(sources);
+    const {videoSources, subtitleTrack} = prepareSourcesAndSubtitles(sources);
 
     if (subtitleTrack) {
       // need to use CORS to load subtitle track
@@ -24,7 +24,7 @@ export function VideoEmbed({ sources, posterUrl }) {
 
     return (
       <video {...props}>
-        {sortedSources.map(source => {
+        {videoSources.map(source => {
           return (
             <source key={source.src} src={source.src} type={source.mimeType}/>
           );
@@ -35,15 +35,15 @@ export function VideoEmbed({ sources, posterUrl }) {
   }
 }
 
-function includeSubtitles(sources) {
+function prepareSourcesAndSubtitles(sources) {
   // if m3u8 and mp4 are both present, put m3u8 first and add subtitle track for browsers that don't support m3u8
   const m3u8 = sources.find(source => source.mimeType === "application/vnd.apple.mpegurl");
   const mp4 = sources.find(source => source.mimeType === "video/mp4");
-  const sortedSources =
+  const videoSources =
     (m3u8 && mp4) ? [m3u8].concat(sources.filter(source => source !== m3u8)) : sources;
   const subtitleTrack =
     (m3u8 && mp4) ? <track default kind="subtitles" src={getVttName(m3u8.src)}/> : undefined;
-  return {subtitleTrack, sortedSources};
+  return {videoSources, subtitleTrack};
 }
 
 function getVttName(m3u8Src) {
