@@ -19,7 +19,7 @@ syncHistoryWithStore(browserHistory, store);
 const config = extractConfigFromPage();
 
 // publish uncaught errors to sentry.io
-if (config.stage === 'PROD') Raven.config(config.ravenUrl).install();
+if (config.stage !== 'DEV') Raven.config(config.ravenUrl).install();
 
 setStore(store);
 
