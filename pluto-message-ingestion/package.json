@@ -1,6 +1,7 @@
 {
   "name": "pluto-message-ingestion",
   "version": "0.0.0",
+  "type": "module",
   "repository": "git@github.com:guardian/media-atom-maker.git",
   "author": "The Guardian <digitalcms.dev@theguardian.com>",
   "description": "Ingesting messages sent from Pluto via a Kinesis stream",
