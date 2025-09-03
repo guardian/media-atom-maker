@@ -69,16 +69,23 @@ export default class VideoTrail extends React.Component {
   };
 
   render() {
-    const deleteAsset = async (asset) => {
+    const deleteAssetsInUpload = async (asset) => {
       if (asset.id) {
-        this.props.deleteAsset(this.props.video, [asset.id]);
+        // if "asset.id" property exists, it should be a Youtube video asset.
+        // There should be one asset for Youtube video and we can delete
+        // it from the atom with this "asset.id"
+        this.props.deleteAssets(this.props.video, [asset.id]);
       }
       else {
+        // if "asset.id" property does not exist, it should be a self-hosting
+        // video asset.  There may be multiple assets for a self-hosted video.
+        // We can extract the asset IDs from the "src" property of each member
+        // of the "sources" property.
         const assetsToDelete = asset?.sources?.map(source => {
           return source.src;
         });
         if (assetsToDelete?.length > 0) {
-          this.props.deleteAsset(this.props.video, assetsToDelete);
+          this.props.deleteAssets(this.props.video, assetsToDelete);
         }
       }
     }
@@ -90,7 +97,7 @@ export default class VideoTrail extends React.Component {
           upload={upload}
           isActive={parseInt(upload.id) === this.props.activeVersion}
           selectAsset={() => this.props.selectAsset(Number(upload.id))}
-          deleteAsset={() => deleteAsset(upload.asset)}
+          deleteAsset={() => deleteAssetsInUpload(upload.asset)}
           startSubtitleFileUpload={this.props.startSubtitleFileUpload}
           deleteSubtitle={this.props.deleteSubtitle}
           permissions={this.props.permissions}

@@ -70,7 +70,7 @@ class VideoUpload extends React.Component {
               activeVersion={activeVersion}
               s3Upload={this.props.s3Upload}
               uploads={this.props.uploads}
-              deleteAsset={this.props.videoActions.deleteAssets}
+              deleteAssets={this.props.videoActions.deleteAssets}
               selectAsset={version =>
                 this.props.videoActions.revertAsset(
                   this.props.video.id,

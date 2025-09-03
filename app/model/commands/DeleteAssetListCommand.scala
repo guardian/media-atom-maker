@@ -38,6 +38,7 @@ case class DeleteAssetListCommand(
         mediaAtom.activeVersion match {
           case Some(activeVersion) if asset.version == activeVersion => {
             log.warn(markers, s"Cannot delete asset version ${asset.version} on atom $atomId because it is active")
+            CannotDeleteActiveAsset
           }
           case _ =>
         }
