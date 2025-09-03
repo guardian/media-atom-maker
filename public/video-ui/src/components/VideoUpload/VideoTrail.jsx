@@ -81,9 +81,7 @@ export default class VideoTrail extends React.Component {
         // video asset.  There may be multiple assets for a self-hosted video.
         // We can extract the asset IDs from the "src" property of each member
         // of the "sources" property.
-        const assetsToDelete = asset?.sources?.map(source => {
-          return source.src;
-        });
+        const assetsToDelete = asset?.sources?.map(source => source.src);
         if (assetsToDelete?.length > 0) {
           this.props.deleteAssets(this.props.video, assetsToDelete);
         }
