@@ -10,7 +10,7 @@ import scala.util.Try
 
 case class ClientAsset(id: String, asset: Option[VideoAsset] = None, processing: Option[ClientAssetProcessing] = None, metadata: Option[ClientAssetMetadata] = None)
 case class ClientAssetProcessing(status: String, failed: Boolean, current: Option[Long], total: Option[Long])
-case class ClientAssetMetadata(originalFilename: Option[String], startTimestamp: Option[Long], user: String)
+case class ClientAssetMetadata(originalFilename: Option[String], subtitleFilename: Option[String], startTimestamp: Option[Long], user: String)
 
 object ClientAsset {
   implicit val format: Format[ClientAsset] = Jsonx.formatCaseClass[ClientAsset]
@@ -34,6 +34,7 @@ object ClientAsset {
 
     base.copy(metadata = Some(ClientAssetMetadata(
       originalFilename = upload.metadata.originalFilename,
+      subtitleFilename = upload.metadata.subtitleSource.map(VideoSource.filename),
       startTimestamp = Some(startTimestamp),
       user = upload.metadata.user
     )))

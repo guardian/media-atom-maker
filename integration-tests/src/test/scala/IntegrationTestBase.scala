@@ -11,10 +11,12 @@ import com.gu.media.logging.{Logging, YoutubeApiType, YoutubeRequestLogger, Yout
 import com.gu.media.util.TestFilters
 import integration.services.{Config, GuHttp, TestAtomJsonGenerator}
 import org.scalatest.concurrent.{Eventually, IntegrationPatience}
-import org.scalatest.{BeforeAndAfterAll, FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.{BeforeAndAfterAll}
 import play.api.libs.json.Json
 
-class IntegrationTestBase extends FunSuite with Matchers with Eventually with IntegrationPatience with GuHttp with TestAtomJsonGenerator with BeforeAndAfterAll with Logging {
+class IntegrationTestBase extends AnyFunSuite with Matchers with Eventually with IntegrationPatience with GuHttp with TestAtomJsonGenerator with BeforeAndAfterAll with Logging {
 
   val targetBaseUrl: String = Config.targetBaseUrl
 
