@@ -26,6 +26,14 @@ class EnvironmentConfig {
   static get profile() {
     return process.env.PROFILE || 'media-service';
   }
+
+  static get hostSecretName() {
+    return `${this.stack}/${this.stage}/media-atom-maker/hostname`;
+  }
+
+  static get hmacSecretName() {
+    return `${this.stack}/${this.stage}/media-atom-maker/hmac-secret`;
+  }
 }
 
 module.exports = EnvironmentConfig;
