@@ -7,14 +7,12 @@ type VideoState = {
   entries: MediaAtomSummary[];
   total: number;
   limit: number;
-  shouldUseCreatedDateForSort: boolean;
 };
 
 const initialState: VideoState = {
   entries: [],
   total: 0,
-  limit: frontPageSize,
-  shouldUseCreatedDateForSort: false
+  limit: frontPageSize
 };
 
 export const fetchVideos = createAsyncThunk<
@@ -39,8 +37,6 @@ const videos = createSlice({
     builder
       .addCase(fetchVideos.pending, (state, action) => {
         state.limit = action.meta.arg.limit;
-        state.shouldUseCreatedDateForSort =
-          action.meta.arg.shouldUseCreatedDateForSort;
       })
       .addCase(fetchVideos.fulfilled, (state, action) => {
         state.total = action.payload.total;
