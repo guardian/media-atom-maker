@@ -184,7 +184,7 @@ export function Asset({videoId, upload, isActive, selectAsset, deleteAsset, star
   const { asset, metadata, processing } = upload;
 
   const user =  metadata?.user ?? "";
-  const info = metadata?.originalFilename || `Version ${upload.id}`;
+  const info = `${metadata?.originalFilename || 'untitled'} - Asset ${upload.id}`;
   const timestamp =  metadata?.startTimestamp || false;
 
   const isSelfHosted = asset && asset.sources;
