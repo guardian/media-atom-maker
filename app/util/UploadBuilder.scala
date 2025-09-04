@@ -73,11 +73,11 @@ object UploadBuilder {
     } else {
       // mp4 output doesn't change with subtitle processing, so s3 key stays at subtitle version 0
       val mp4Key = TranscoderOutputKey(title, atomId, assetVersion, 0, "mp4").toString
-      val mp4Source = if (includeMp4) Some(VideoSource(mp4Key, "video/mp4")) else None
+      val mp4Source = if (includeMp4) Some(VideoSource(mp4Key, VideoSource.mimeTypeMp4)) else None
 
       // m3u8 output changes when subtitles are processed, so s3 key includes a subtitle version
       val m3u8Key = TranscoderOutputKey(title, atomId, assetVersion, subtitleVersion, "m3u8").toString
-      val m3u8Source = if (includeM3u8) Some(VideoSource(m3u8Key, "application/vnd.apple.mpegurl")) else None
+      val m3u8Source = if (includeM3u8) Some(VideoSource(m3u8Key, VideoSource.mimeTypeM3u8)) else None
       val sources = mp4Source ++ m3u8Source
       Some(SelfHostedAsset(sources.toList))
     }
