@@ -29,7 +29,7 @@ export default function video(state = null, action) {
         type: 'media'
       });
 
-    case 'ASSET_REVERT_REQUEST':
+    case 'ASSET_REVERT_RECEIVE':
       return Object.assign({}, state, {
         activeVersion: action.assetVersion
       });
