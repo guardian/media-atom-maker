@@ -3,7 +3,7 @@ import { PropTypes } from 'prop-types';
 import { keyCodes } from '../../constants/keyCodes';
 import UserActions from '../../constants/UserActions';
 import TagTypes from '../../constants/TagTypes';
-import CapiSearch from '../CapiSearch/CapiSearch';
+import TagSearch from '../TagSearch/TagSearch';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 
 export default class TextInputTagPicker extends React.Component {
@@ -208,7 +208,7 @@ export default class TextInputTagPicker extends React.Component {
 
         {this.renderInputElements()}
 
-        <CapiSearch
+        <TagSearch
           capiTags={this.props.capiTags}
           showTags={this.props.showTags}
           tagsToVisible={this.props.tagsToVisible}

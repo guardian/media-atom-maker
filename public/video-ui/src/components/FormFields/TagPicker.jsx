@@ -7,7 +7,7 @@ import getTagDisplayNames from '../../util/getTagDisplayNames';
 import TextInputTagPicker from './TextInputTagPicker';
 import PureTagPicker from './PureTagPicker';
 import TagFieldValue from '../Tags/TagFieldValue';
-import CapiUnavailable from '../CapiSearch/CapiUnavailable';
+import TagUnavailable from '../TagSearch/TagUnavailable';
 import { DraggableTagList } from './DraggableTagList';
 import removeTagDuplicates from '../../util/removeTagDuplicates';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
@@ -78,7 +78,7 @@ class TagPicker extends React.Component {
     }
   }
 
-  getTagFromTagManger = tag => {
+  getTagFromTagManager = tag => {
     return {
       id: tag.path,
       webTitle: tag.externalName,
@@ -97,8 +97,8 @@ class TagPicker extends React.Component {
       TagManager.getTagsByType(searchText, tagTypes)
         .then(response => {
 
-           const tags = response.data.reduce((tags, {data}) => {
-            return tags.concat(getTagFromTagManger(data));
+          const tags = response.data.reduce((tags, {data}) => {
+            return tags.concat(this.getTagFromTagManager(data));
           }, []);
 
           this.setState({
@@ -378,7 +378,7 @@ class TagPicker extends React.Component {
       return (
         <div>
           <p className="details-list__title">{this.props.fieldName}</p>
-          <CapiUnavailable capiUnavailable={this.state.capiUnavailable} />
+          <TagUnavailable capiUnavailable={this.state.capiUnavailable} />
           <p className="details-list__field ">
             <TagFieldValue tagValue={this.state.tagValue} tagType={this.props.tagType}/>
           </p>
@@ -399,7 +399,7 @@ class TagPicker extends React.Component {
           {this.renderCharCount()}
         </div>
 
-        <CapiUnavailable capiUnavailable={this.state.capiUnavailable} />
+        <TagUnavailable capiUnavailable={this.state.capiUnavailable} />
         {this.renderTagPicker()}
         {this.renderAddedTags()}
         {hasWarning

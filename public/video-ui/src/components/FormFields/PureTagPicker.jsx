@@ -1,6 +1,6 @@
 import React from 'react';
 import { PropTypes } from 'prop-types';
-import CapiSearch from '../CapiSearch/CapiSearch';
+import TagSearch from '../TagSearch/TagSearch';
 import removeTagDuplicates from '../../util/removeTagDuplicates';
 
 class PureTagPicker extends React.Component {
@@ -61,7 +61,7 @@ class PureTagPicker extends React.Component {
         />
 
 
-        <CapiSearch
+        <TagSearch
           capiTags={this.props.capiTags}
           showTags={this.props.showTags}
           tagsToVisible={this.props.tagsToVisible}

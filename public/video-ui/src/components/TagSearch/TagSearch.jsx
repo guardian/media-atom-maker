@@ -1,6 +1,6 @@
 import React from 'react';
 
-class CapiSearch extends React.Component {
+class TagSearch extends React.Component {
   constructor(props) {
     super(props);
   }
@@ -75,4 +75,4 @@ class CapiSearch extends React.Component {
   }
 }
 
-export default React.memo(CapiSearch);
+export default React.memo(TagSearch);
