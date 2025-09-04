@@ -54,7 +54,7 @@ function AssetControls({
     activatingAssetNumber: number,
     isActivating: boolean
   }) {
-  const className = isActivating ? 'btn upload__activate-btn btn--loading' : 'btn upload__activate-btn';
+  const className = isActivating ? 'btn btn--loading' : 'btn';
 
   const userCircle =
     <div className="video-trail__presence_indicator" title={user}>

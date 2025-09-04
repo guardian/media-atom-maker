@@ -19,6 +19,8 @@
   &__right {
     display: flex;
     height: 38px;
+    flex-shrink: 0;
+    gap: 5px;
   }
 
   &__info {
