@@ -9,8 +9,15 @@
   },
   "jest": {
     "roots": [
-      "public/video-ui/src/test"
+      "public/video-ui/src"
     ],
+    "collectCoverageFrom": [
+      "public/video-ui/src/**/*.{j,t}s{,x}"
+    ],
+    "transformIgnorePatterns": [
+      "node_modules/(?!panda-session)"
+    ],
+    "testEnvironment": "jest-fixed-jsdom",
     "preset": "ts-jest/presets/js-with-ts"
   },
   "devDependencies": {
@@ -23,6 +30,10 @@
     "@babel/preset-env": "^7.23.2",
     "@babel/preset-react": "^7.23.2",
     "@babel/preset-typescript": "^7.23.2",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^12.1.5",
+    "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^28.1.3",
     "@types/lodash": "^4.14.191",
     "@types/react": "^18.0.27",
@@ -43,6 +54,8 @@
     "eslint-plugin-react": "7.35.0",
     "hoconjs": "github:yellowblood/hocon-js",
     "jest": "29.7.0",
+    "jest-environment-jsdom": "^30.1.2",
+    "jest-fixed-jsdom": "^0.0.10",
     "lodash": "4.17.21",
     "prettier": "3.3.3",
     "ts-jest": "29.1.5",
