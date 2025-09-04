@@ -1,11 +1,28 @@
-import React from 'react';
+import React, { ReactNode, ChangeEventHandler } from 'react';
 import moment from 'moment';
 import Icon, { SubtitlesIcon } from '../Icon';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 import { VideoEmbed } from '../utils/VideoEmbed';
 import DeleteButton from '../DeleteButton';
 
-function presenceInitials(email) {
+type Upload = {
+  id: string,
+  asset: any;
+  processing?: {
+    status: string,
+    failed: boolean,
+    current?: number,
+    total?: number
+  };
+  metadata?: {
+    originalFilename?: string;
+    subtitleFilename?: string;
+    startTimestamp?: number;
+    user: string
+  }
+}
+
+function presenceInitials(email: string) {
   if (!email) return;
   const emailParts = email.split('@');
   const names = [];
@@ -22,7 +39,16 @@ function presenceInitials(email) {
   return initials.join('');
 }
 
-function AssetControls({ user, children, isActive, selectAsset, deleteAsset, activatingAssetNumber, isActivating }) {
+function AssetControls({
+  user, children, isActive, selectAsset, deleteAsset, activatingAssetNumber, isActivating }: {
+    user: string
+    isActive?: boolean,
+    selectAsset: { (): void },
+    deleteAsset: { (): void },
+    children: ReactNode,
+    activatingAssetNumber: number,
+    isActivating: boolean
+  }) {
   const className = isActivating ? 'btn upload__activate-btn btn--loading' : 'btn upload__activate-btn';
 
   const userCircle =
@@ -31,7 +57,7 @@ function AssetControls({ user, children, isActive, selectAsset, deleteAsset, act
     </div>;
 
   const activateButton =
-    <button className={className} style={{paddingRight:20}}
+    <button className={className} style={{ paddingRight: 20 }}
       disabled={typeof activatingAssetNumber === "number"}
       onClick={selectAsset}>
       Activate
@@ -55,7 +81,7 @@ function AssetControls({ user, children, isActive, selectAsset, deleteAsset, act
   );
 }
 
-function AssetInfo({ info, timestamp }) {
+function AssetInfo({ info, timestamp }: { info: string, timestamp?: number | false }) {
   const dateTime = timestamp && moment(timestamp).format('YYYY/MM/DD HH:mm:ss');
 
   return (
@@ -70,8 +96,8 @@ function AssetInfo({ info, timestamp }) {
   );
 }
 
-function AssetDisplay({ id, isActive, sources }) {
-  const embed = id ? <YouTubeEmbed id={id} largePreview={true} /> : <VideoEmbed sources={sources} />;
+function AssetDisplay({ id, isActive, sources }: { id?: string | number, isActive: boolean, sources: unknown[] }) {
+  const embed = id ? <YouTubeEmbed id={id} largePreview={true} className={undefined} /> : <VideoEmbed sources={sources} posterUrl={undefined} />;
 
   return (
     <div className={"video-trail__asset"}>
@@ -94,7 +120,7 @@ function AssetDisplay({ id, isActive, sources }) {
   );
 }
 
-function AssetProgress({ failed, current, total }) {
+function AssetProgress({ failed, current, total }: Upload["processing"]) {
   if (failed) {
     return (
       <div>
@@ -110,7 +136,7 @@ function AssetProgress({ failed, current, total }) {
   return <span className="loader" />;
 }
 
-function SubtitleDetails({ filename }) {
+function SubtitleDetails({ filename }: { filename: string }) {
   if (!filename) {
     return <div className="subtitle__title">No Subtitle File Attached</div>;
   }
@@ -121,10 +147,14 @@ function SubtitleDetails({ filename }) {
     </div>
   );
 }
-function SubtitleActions({ filename, onUpload, onDelete }) {
+function SubtitleActions({ filename, onUpload, onDelete }: {
+  filename: string;
+  onUpload: { (file: File): void }
+  onDelete: { (): void }
+}) {
   const fileInputRef = React.useRef();
 
-  const handleFileChange = (event) => {
+  const handleFileChange: ChangeEventHandler<HTMLInputElement> = (event) => {
     const input = event.target;
     const file = event.target.files[0];
 
@@ -141,7 +171,7 @@ function SubtitleActions({ filename, onUpload, onDelete }) {
 
     const reader = new FileReader();
     reader.onload = function (e) {
-      const text = e.target.result;
+      const text = e.target.result as string;
 
       const isSRTFormat = /\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}/.test(text);
       const isVTTFormat = /^WEBVTT/m.test(text) &&
@@ -161,7 +191,7 @@ function SubtitleActions({ filename, onUpload, onDelete }) {
   };
 
   const handleClick = () => {
-    fileInputRef.current?.click();
+    (fileInputRef.current as HTMLInputElement)?.click();
   };
 
   return (
@@ -193,6 +223,16 @@ export function Asset({
   deleteSubtitle,
   permissions,
   activatingAssetNumber
+}: {
+  videoId: string;
+  upload: Upload;
+  isActive: boolean;
+  selectAsset: { (): void },
+  deleteAsset: { (): void },
+  startSubtitleFileUpload: { (input: { file: File, id: string, version: string }): void };
+  deleteSubtitle: { (input: { id: string, version: string }): void };
+  permissions: Record<string, boolean>;
+  activatingAssetNumber: number;
 }) {
   const { asset, metadata, processing } = upload;
 
@@ -209,7 +249,10 @@ export function Asset({
         <SubtitlesIcon />
         <SubtitleDetails filename={subtitleFilename} />
       </div>
-      <SubtitleActions filename={subtitleFilename} onUpload={(file) => startSubtitleFileUpload({ file, id: videoId, version: upload.id })} onDelete={() => deleteSubtitle({ id: videoId, version: upload.id })} />
+      <SubtitleActions
+        filename={subtitleFilename}
+        onUpload={(file) => startSubtitleFileUpload({ file, id: videoId, version: upload.id })}
+        onDelete={() => deleteSubtitle({ id: videoId, version: upload.id })} />
     </div>;
 
   if (processing && asset) {
