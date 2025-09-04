@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from 'moment';
-import Icon, {SubtitlesIcon} from '../Icon';
+import Icon, { SubtitlesIcon } from '../Icon';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 import { VideoEmbed } from '../utils/VideoEmbed';
 import DeleteButton from '../DeleteButton';
@@ -22,14 +22,16 @@ function presenceInitials(email) {
   return initials.join('');
 }
 
-function AssetControls({ user, children, isActive, selectAsset, deleteAsset, activatingAssetNumber }) {
-    const userCircle =
-        <div className="video-trail__presence_indicator" title={user}>
-                {presenceInitials(user)}
-        </div>;
+function AssetControls({ user, children, isActive, selectAsset, deleteAsset, activatingAssetNumber, isActivating }) {
+  const className = isActivating ? 'btn upload__activate-btn btn--loading' : 'btn upload__activate-btn';
+
+  const userCircle =
+    <div className="video-trail__presence_indicator" title={user}>
+      {presenceInitials(user)}
+    </div>;
 
   const activateButton =
-    <button className="btn upload__activate-btn"
+    <button className={className} style={{paddingRight:20}}
       disabled={typeof activatingAssetNumber === "number"}
       onClick={selectAsset}>
       Activate
@@ -68,24 +70,24 @@ function AssetInfo({ info, timestamp }) {
   );
 }
 
-function AssetDisplay({id, isActive, sources}) {
-  const embed = id ? <YouTubeEmbed id={id} largePreview={true}/> : <VideoEmbed sources={sources}/>;
+function AssetDisplay({ id, isActive, sources }) {
+  const embed = id ? <YouTubeEmbed id={id} largePreview={true} /> : <VideoEmbed sources={sources} />;
 
   return (
     <div className={"video-trail__asset"}>
       {embed}
       {id &&
         <a className={'upload__link'}
-           href={`https://www.youtube.com/watch?v=${id}`}
-           target={'_blank'}
-           rel={'noopener noreferrer'}>
-          <Icon icon="open_in_new" className="icon__assets"/>
+          href={`https://www.youtube.com/watch?v=${id}`}
+          target={'_blank'}
+          rel={'noopener noreferrer'}>
+          <Icon icon="open_in_new" className="icon__assets" />
         </a>}
       {isActive &&
         <div className="video-trail__status__overlay">
-            <span className="publish__label label__live label__frontpage__overlay">
-              Active
-            </span>
+          <span className="publish__label label__live label__frontpage__overlay">
+            Active
+          </span>
         </div>
       }
     </div>
@@ -109,17 +111,17 @@ function AssetProgress({ failed, current, total }) {
 }
 
 function SubtitleDetails({ filename }) {
-    if (!filename) {
-        return <div className="subtitle__title">No Subtitle File Attached</div>;
-    }
+  if (!filename) {
+    return <div className="subtitle__title">No Subtitle File Attached</div>;
+  }
 
-    return (
-        <div className="subtitle__details">
-            <div className="subtitle__title">{filename}</div>
-        </div>
-    );
+  return (
+    <div className="subtitle__details">
+      <div className="subtitle__title">{filename}</div>
+    </div>
+  );
 }
-function SubtitleActions({ filename, onUpload, onDelete}) {
+function SubtitleActions({ filename, onUpload, onDelete }) {
   const fileInputRef = React.useRef();
 
   const handleFileChange = (event) => {
@@ -138,7 +140,7 @@ function SubtitleActions({ filename, onUpload, onDelete}) {
     }
 
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function (e) {
       const text = e.target.result;
 
       const isSRTFormat = /\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}/.test(text);
@@ -158,27 +160,27 @@ function SubtitleActions({ filename, onUpload, onDelete}) {
     reader.readAsText(file);
   };
 
-    const handleClick = () => {
-      fileInputRef.current?.click();
-    };
+  const handleClick = () => {
+    fileInputRef.current?.click();
+  };
 
-    return (
-      <div className="subtitle__actions">
-        <input
-          type="file"
-          ref={fileInputRef}
-          accept=".srt,.vtt"
-          style={{ display: 'none' }}
-          onChange={handleFileChange}
-        />
-        <button className="btn upload__activate-btn" onClick={handleClick}>
-          <Icon icon="backup">
-            {filename ? "Replace" : "Upload"}
-          </Icon>
-        </button>
-        {filename && <button className="subtitle__delete-btn" onClick={onDelete}>Delete Subtitle File</button>}
-      </div>
-    );
+  return (
+    <div className="subtitle__actions">
+      <input
+        type="file"
+        ref={fileInputRef}
+        accept=".srt,.vtt"
+        style={{ display: 'none' }}
+        onChange={handleFileChange}
+      />
+      <button className="btn upload__activate-btn" onClick={handleClick}>
+        <Icon icon="backup">
+          {filename ? "Replace" : "Upload"}
+        </Icon>
+      </button>
+      {filename && <button className="subtitle__delete-btn" onClick={onDelete}>Delete Subtitle File</button>}
+    </div>
+  );
 }
 
 export function Asset({
@@ -192,12 +194,11 @@ export function Asset({
   permissions,
   activatingAssetNumber
 }) {
-
   const { asset, metadata, processing } = upload;
 
-  const user =  metadata?.user ?? "";
+  const user = metadata?.user ?? "";
   const info = metadata?.originalFilename || `Version ${upload.id}`;
-  const timestamp =  metadata?.startTimestamp || false;
+  const timestamp = metadata?.startTimestamp || false;
 
   const isSelfHosted = asset && asset.sources;
   const subtitleFilename = metadata?.subtitleFilename;
@@ -219,11 +220,16 @@ export function Asset({
           <div>{processing.status}</div>
         </div>
         <div className="video-trail__item__details">
-          <AssetControls user={user} selectAsset={selectAsset} deleteAsset={deleteAsset} activatingAssetNumber={activatingAssetNumber}>
+          <AssetControls
+            user={user}
+            selectAsset={selectAsset}
+            deleteAsset={deleteAsset}
+            isActivating={activatingAssetNumber === Number(upload.id)}
+            activatingAssetNumber={activatingAssetNumber}>
             <AssetInfo info={info} timestamp={timestamp} />
           </AssetControls>
         </div>
-        { subtitlePanel }
+        {subtitlePanel}
       </div>
     );
   }
@@ -235,7 +241,12 @@ export function Asset({
           <AssetProgress {...processing} />
         </div>
         <div className="video-trail__item__details">
-          <AssetControls user={user} selectAsset={selectAsset} deleteAsset={deleteAsset}>
+          <AssetControls
+            user={user}
+            selectAsset={selectAsset}
+            deleteAsset={deleteAsset}
+            isActivating={activatingAssetNumber === Number(upload.id)}
+            activatingAssetNumber={activatingAssetNumber}>
             <AssetInfo info={processing.status} />
           </AssetControls>
         </div>
@@ -248,12 +259,18 @@ export function Asset({
       <div className="video-trail__item">
         <AssetDisplay isActive={isActive} id={asset.id} sources={asset.sources} />
         <div className="video-trail__item__details">
-          <AssetControls user={user} isActive={isActive} selectAsset={selectAsset} deleteAsset={deleteAsset}>
+          <AssetControls
+            user={user}
+            isActive={isActive}
+            selectAsset={selectAsset}
+            deleteAsset={deleteAsset}
+            isActivating={activatingAssetNumber === Number(upload.id)}
+            activatingAssetNumber={activatingAssetNumber}
+          >
             <AssetInfo info={info} timestamp={timestamp} />
           </AssetControls>
-
         </div>
-        { subtitlePanel }
+        {subtitlePanel}
       </div>
     );
   }
