@@ -79,7 +79,8 @@ export default function saveState(
     case 'SHOW_ERROR':
       return Object.assign({}, state, {
         saving: false,
-        publishing: false
+        publishing: false,
+        activatingAssetNumber: undefined
       });
 
     default:
