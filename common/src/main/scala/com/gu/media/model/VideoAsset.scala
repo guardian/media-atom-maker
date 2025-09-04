@@ -15,6 +15,8 @@ object VideoSource {
   def filename(source: VideoSource): String = source.src.split("/").last
   val mimeTypeMp4 = "video/mp4"
   val mimeTypeM3u8 = "application/vnd.apple.mpegurl"
+  val mimeTypeVtt = "text/vtt"
+  val captionsSuffix = "captions_00001.vtt"
 }
 
 object VideoAsset {
