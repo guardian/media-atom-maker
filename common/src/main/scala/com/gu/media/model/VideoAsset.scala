@@ -13,6 +13,8 @@ case class SelfHostedAsset(sources: List[VideoSource]) extends VideoAsset
 object VideoSource {
   implicit val format: Format[VideoSource] = Jsonx.formatCaseClass[VideoSource]
   def filename(source: VideoSource): String = source.src.split("/").last
+  val mimeTypeMp4 = "video/mp4"
+  val mimeTypeM3u8 = "application/vnd.apple.mpegurl"
 }
 
 object VideoAsset {
