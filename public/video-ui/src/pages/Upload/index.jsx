@@ -107,7 +107,7 @@ import * as getUpload from '../../actions/UploadActions/getUploads';
 import * as s3UploadActions from '../../actions/UploadActions/s3Upload';
 import * as createAsset from '../../actions/VideoActions/createAsset';
 import * as revertAsset from '../../actions/VideoActions/revertAsset';
-import * as deleteAsset from '../../actions/VideoActions/deleteAsset';
+import * as allDeleteAssetActions from '../../actions/VideoActions/deleteAsset';
 import { fetchCategories, fetchChannels } from '../../slices/youtube';
 
 function mapStateToProps(state) {
@@ -128,7 +128,7 @@ function mapDispatchToProps(dispatch) {
         saveVideo,
         createAsset,
         revertAsset,
-        deleteAsset
+        allDeleteAssetActions
       ),
       dispatch
     ),
