@@ -5,9 +5,14 @@ import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 import { VideoEmbed } from '../utils/VideoEmbed';
 import DeleteButton from '../DeleteButton';
 
+
+// TO DO - move these definitions to public/video-ui/src/services/UploadsApi.js
+// when converted to typescript
+type YouTubeAsset = { id: string, sources?: undefined };
+type SelfHostedAsset = { id?: undefined, sources: unknown[] }
 type Upload = {
   id: string,
-  asset: any;
+  asset?: YouTubeAsset | SelfHostedAsset;
   processing?: {
     status: string,
     failed: boolean,
