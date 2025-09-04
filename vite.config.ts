@@ -9,7 +9,7 @@ export default defineConfig({
     sourcemap: "inline",
     manifest: true,
     rollupOptions: {
-      input: './public/video-ui/src/app.jsx',
+      input: './public/video-ui/src/app.tsx',
       output: {
         entryFileNames: `[name].js`,
         chunkFileNames: `[name].js`,

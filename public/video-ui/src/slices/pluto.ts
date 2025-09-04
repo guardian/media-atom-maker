@@ -5,7 +5,7 @@ import {
   PlutoCommission,
   PlutoProject
 } from '../services/PlutoApi';
-import { KnownAction } from '../actions/actions';
+import { showError } from './error';
 
 export type PlutoState = {
   commissions: PlutoCommission[];
@@ -14,29 +14,11 @@ export type PlutoState = {
 
 const initialState: PlutoState = { commissions: [], projects: [] };
 
-function errorReceivingCommissions(error: unknown): KnownAction {
-  return {
-    type: 'SHOW_ERROR',
-    message: 'Could not get Pluto Commissions',
-    receivedAt: Date.now(),
-    error: error
-  };
-}
-
-function errorReceivingProjects(error: unknown): KnownAction {
-  return {
-    type: 'SHOW_ERROR',
-    message: 'Could not get Pluto Projects',
-    receivedAt: Date.now(),
-    error: error
-  };
-}
-
 export const fetchCommissions = createAsyncThunk(
   'pluto/fetchCommissions',
   (_, { dispatch }) =>
     getPlutoCommissions().catch(error => {
-      dispatch(errorReceivingCommissions(error));
+      dispatch(showError('Could not get Pluto Commissions', error));
       throw error;
     })
 );
@@ -45,7 +27,7 @@ export const fetchProjects = createAsyncThunk<PlutoProject[], string>(
   'pluto/fetchProjects',
   (commissionId, { dispatch }) =>
     getPlutoProjects({ commissionId }).catch(error => {
-      dispatch(errorReceivingProjects(error));
+      dispatch(showError('Could not get Pluto Projects', error));
       throw error;
     })
 );
