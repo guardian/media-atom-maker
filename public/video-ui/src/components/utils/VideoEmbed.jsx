@@ -36,17 +36,15 @@ export function VideoEmbed({ sources, posterUrl }) {
 }
 
 function prepareSourcesAndSubtitles(sources) {
-  // if m3u8 and mp4 are both present, put m3u8 first and add subtitle track for browsers that don't support m3u8
+  // if m3u8 and mp4 are both present, put m3u8 first
   const m3u8 = sources.find(source => source.mimeType === "application/vnd.apple.mpegurl");
   const mp4 = sources.find(source => source.mimeType === "video/mp4");
   const videoSources =
     (m3u8 && mp4) ? [m3u8].concat(sources.filter(source => source !== m3u8)) : sources;
-  const subtitleTrack =
-    (m3u8 && mp4) ? <track default kind="subtitles" src={getVttName(m3u8.src)}/> : undefined;
-  return {videoSources, subtitleTrack};
-}
 
-function getVttName(m3u8Src) {
-  // captions suffix is an assumption based on MediaConvert output we've seen
-  return m3u8Src.replace(/.m3u8$/, "captions_00001.vtt");
+  // add subtitle track for browsers that don't support m3u8
+  const subtitles = sources.find(source => source.assetType === "subtitles");
+  const subtitleTrack =
+    (m3u8 && mp4 && subtitles) ? <track default kind="subtitles" src={subtitles.src}/> : undefined;
+  return {videoSources, subtitleTrack};
 }
