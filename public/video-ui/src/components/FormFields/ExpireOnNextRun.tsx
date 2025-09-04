@@ -2,7 +2,7 @@ import React from 'react';
 
 type EditorProps = {
   fieldValue: string;
-  onUpdateField: (string: string|number) => any;
+  onUpdateField: (string: number) => void;
   editable: boolean;
   fieldLocation: string;
   fieldName: string;
