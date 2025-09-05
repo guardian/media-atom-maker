@@ -42,3 +42,22 @@ export function deleteAsset(video, assetId) {
       .catch(err => dispatch(errorAssetDelete(err)));
   };
 }
+
+export function deleteAssets(video, assetIds) {
+  return dispatch => {
+    assetIds.forEach((assetId) => {
+      dispatch(requestAssetDelete(assetId));
+    });
+
+    const assets = video.assets.filter(_ => assetIds.includes(_.id));
+
+    return VideosApi.deleteAssetList(video, assets)
+      .then(res => {
+        dispatch(receiveAssetDelete(res));
+
+        // Pull down the latest changes from the server because uploads and assets are managed differently
+        dispatch(getUploads(video.id));
+      })
+      .catch(err => dispatch(errorAssetDelete(err)));
+  };
+}
