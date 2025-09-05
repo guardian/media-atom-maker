@@ -47,12 +47,12 @@ export default class DeleteButton extends React.Component {
 
   render() {
     return (
-      <span className="margin-left">
+      <>
         <ReactTooltip />
         {this.state.confirmDelete
           ? this.renderConfirmDelete()
           : this.renderDelete()}
-      </span>
+      </>
     );
   }
 }

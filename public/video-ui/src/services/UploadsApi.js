@@ -1,6 +1,8 @@
 import { apiRequest } from './apiRequest';
 import { errorDetails } from '../util/errorDetails';
 
+// TO DO - convert to typescript, use defintion of `Upload` at public/video-ui/src/components/VideoUpload/VideoAsset.tsx
+
 // See http://andrewhfarmer.com/aws-sdk-with-webpack/ for why this is strange
 import 'aws-sdk/dist/aws-sdk';
 const AWS = window.AWS;

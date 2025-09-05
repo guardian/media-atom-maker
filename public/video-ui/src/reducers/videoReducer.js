@@ -31,7 +31,7 @@ export default function video(state = null, action) {
 
     case 'ASSET_REVERT_RECEIVE':
       return Object.assign({}, state, {
-        activeVersion: action.assetVersion
+        activeVersion: action.video.activeVersion
       });
 
     case 'ASSET_CREATE_RECEIVE':

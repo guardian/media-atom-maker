@@ -8,7 +8,7 @@
   text-decoration: none;
 
   &:hover:not(:disabled) {
-    background: darken($btnBackground, 5);
+    background-color: darken($btnBackground, 5);
   }
 
   &:disabled {
