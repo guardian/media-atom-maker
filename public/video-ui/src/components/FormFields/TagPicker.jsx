@@ -1,5 +1,5 @@
 import React from 'react';
-import ContentApi from '../../services/capi';
+import TagManager from '../../services/tagmanager';
 import { tagsFromStringList, tagsToStringList } from '../../util/tagParsers';
 import { keyCodes } from '../../constants/keyCodes';
 import TagTypes from '../../constants/TagTypes';
@@ -7,13 +7,14 @@ import getTagDisplayNames from '../../util/getTagDisplayNames';
 import TextInputTagPicker from './TextInputTagPicker';
 import PureTagPicker from './PureTagPicker';
 import TagFieldValue from '../Tags/TagFieldValue';
-import CapiUnavailable from '../CapiSearch/CapiUnavailable';
+import TagUnavailable from '../TagSearch/TagUnavailable';
 import { DraggableTagList } from './DraggableTagList';
 import removeTagDuplicates from '../../util/removeTagDuplicates';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 import ReactTooltip from 'react-tooltip';
 import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
 import YouTubeKeywords from '../../constants/youTubeKeywords';
+import debounce from "lodash/debounce";
 
 class TagPicker extends React.Component {
   constructor(props) {
@@ -77,6 +78,14 @@ class TagPicker extends React.Component {
     }
   }
 
+  getTagFromTagManager = tag => {
+    return {
+      id: tag.path,
+      webTitle: tag.externalName,
+      detailedTitle: tag.internalName
+    };
+  }
+
   fetchTags = searchText => {
     const tagTypes = this._getTagTypes();
 
@@ -85,10 +94,11 @@ class TagPicker extends React.Component {
         capiTags: []
       });
     } else {
-      ContentApi.getTagsByType(searchText, tagTypes)
-        .then(capiResponses => {
-          const tags = capiResponses.reduce((tags, capiResponse) => {
-            return tags.concat(getTagDisplayNames(capiResponse.response.results));
+      TagManager.getTagsByType(searchText, tagTypes)
+        .then(response => {
+
+          const tags = response.data.reduce((tags, {data}) => {
+            return tags.concat(this.getTagFromTagManager(data));
           }, []);
 
           this.setState({
@@ -103,6 +113,8 @@ class TagPicker extends React.Component {
         });
     }
   }
+
+  debouncedFetchTags = debounce(this.fetchTags, 500)
 
   onUpdate = newValue => {
     this.setState({
@@ -255,7 +267,7 @@ class TagPicker extends React.Component {
           <TextInputTagPicker
             tagValue={this.state.tagValue}
             onUpdate={this.onUpdate}
-            fetchTags={this.fetchTags}
+            fetchTags={this.debouncedFetchTags}
             capiTags={this.state.capiTags}
             tagsToVisible={this.tagsToVisible}
             showTags={this.state.showTags}
@@ -275,7 +287,7 @@ class TagPicker extends React.Component {
       <PureTagPicker
         tagValue={this.state.tagValue}
         onUpdate={this.onUpdate}
-        fetchTags={this.fetchTags}
+        fetchTags={this.debouncedFetchTags}
         capiTags={this.state.capiTags}
         tagsToVisible={this.tagsToVisible}
         showTags={this.state.showTags}
@@ -366,7 +378,7 @@ class TagPicker extends React.Component {
       return (
         <div>
           <p className="details-list__title">{this.props.fieldName}</p>
-          <CapiUnavailable capiUnavailable={this.state.capiUnavailable} />
+          <TagUnavailable capiUnavailable={this.state.capiUnavailable} />
           <p className="details-list__field ">
             <TagFieldValue tagValue={this.state.tagValue} tagType={this.props.tagType}/>
           </p>
@@ -387,7 +399,7 @@ class TagPicker extends React.Component {
           {this.renderCharCount()}
         </div>
 
-        <CapiUnavailable capiUnavailable={this.state.capiUnavailable} />
+        <TagUnavailable capiUnavailable={this.state.capiUnavailable} />
         {this.renderTagPicker()}
         {this.renderAddedTags()}
         {hasWarning

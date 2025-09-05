@@ -1,5 +1,6 @@
 import { apiRequest } from './apiRequest';
 import { getStore } from '../util/storeAccessor';
+import debounce from "lodash/debounce";
 
 export type Stage = 'published' | 'preview'
 
@@ -68,21 +69,5 @@ export default class ContentApi {
     return apiRequest({
       url: `${ContentApi.liveProxyUrl}/${id}`
     });
-  }
-
-  static getTagsByType(query: string, types: string[]) {
-    return Promise.all(
-      types.map(type => {
-        if (query === '*') {
-          return apiRequest({
-            url: `${ContentApi.proxyUrl}/tags?page-size=100&type=${type}` //TODO this is likely to change based on CAPI work to search by prefix on webTitle
-          });
-        }
-        const encodedQuery = encodeURIComponent(query);
-        return apiRequest({
-          url: `${ContentApi.proxyUrl}/tags?page-size=200&type=${type}&web-title=${encodedQuery}`
-        });
-      })
-    );
   }
 }
