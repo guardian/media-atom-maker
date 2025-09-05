@@ -4,7 +4,7 @@ import error from '../slices/error';
 import errorKey from './errorKeyReducer';
 import video from './videoReducer';
 import publishedVideo from './publishedVideoReducer';
-import videos from './videosReducer';
+import videos from '../slices/videos';
 import saveState from './saveStateReducer';
 import searchTerm from './searchTermReducer';
 import youtube from '../slices/youtube';
