@@ -142,7 +142,7 @@ class VideoDisplay extends React.Component {
           <header className="video__detailbox__header">
             Video Preview
             <br/>
-            {youtubeAsset ? `Asset ${activeAsset.version} (${youtubeAsset.id})` : ``}
+            {youtubeAsset ?  (<div className= "video-asset"><p className= "video-asset-number">Asset {activeAsset.version}:</p> <p>( {youtubeAsset.id} ) </p></div>): ``}
           </header>
           <asset-handle data-source="mam"
                         data-source-type="video"
