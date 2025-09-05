@@ -81,6 +81,10 @@ export function deleteSubtitle({id, version}) {
   };
 }
 
+export function setS3UploadPostProcessingStatus() {
+  return { type: 'UPLOAD_POST_PROCESSING' };
+}
+
 export function resetS3UploadStatus() {
   return { type: 'UPLOAD_RESET' };
 }

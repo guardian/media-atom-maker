@@ -17,6 +17,9 @@ export default function s3Upload(state = EMPTY, action) {
     case 'UPLOAD_PROGRESS':
       return Object.assign({}, state, { progress: action.progress, status: 'uploading' });
 
+    case 'UPLOAD_POST_PROCESSING':
+      return {...EMPTY, status: 'post-processing'};
+
     case 'UPLOAD_COMPLETE':
       return {...EMPTY, status: 'complete'};
 
