@@ -40,9 +40,9 @@ export type ContentChangeDetails = {
   expiry?: ChangeRecord
 }
 
-export type PlutoData = { 
-  commissionId?: string, 
-  projectId?: string 
+export type PlutoData = {
+  commissionId?: string,
+  projectId?: string
 };
 
 export type Video = {
@@ -267,6 +267,17 @@ export default {
         'Csrf-Token': (window as any).guardian.csrf.token
       },
       data: asset
+    });
+  },
+
+  deleteAssetList(video: Video, assets: Asset[]) {
+    return apiRequest<Video, Asset[]>({
+      url: `/api/atoms/${video.id}/asset-list`,
+      method: 'delete',
+      headers: {
+        'Csrf-Token': (window as any).guardian.csrf.token
+      },
+      data: assets
     });
   },
 

@@ -70,7 +70,7 @@ class VideoUpload extends React.Component {
               activeVersion={activeVersion}
               s3Upload={this.props.s3Upload}
               uploads={this.props.uploads}
-              deleteAsset={this.props.videoActions.deleteAsset}
+              deleteAssets={this.props.videoActions.deleteAssets}
               selectAsset={version =>
                 this.props.videoActions.revertAsset(
                   this.props.video.id,
@@ -85,7 +85,11 @@ class VideoUpload extends React.Component {
               }
               deleteSubtitle={this.props.uploadActions.deleteSubtitle}
               permissions={getStore().getState().config.permissions}
+              setS3UploadPostProcessingStatus={
+                this.props.uploadActions.setS3UploadPostProcessingStatus
+              }
               resetS3UploadStatus={this.props.uploadActions.resetS3UploadStatus}
+              getVideo={this.props.videoActions.getVideo}
             />
           </div>
         </div>
@@ -103,7 +107,7 @@ import * as getUpload from '../../actions/UploadActions/getUploads';
 import * as s3UploadActions from '../../actions/UploadActions/s3Upload';
 import * as createAsset from '../../actions/VideoActions/createAsset';
 import * as revertAsset from '../../actions/VideoActions/revertAsset';
-import * as deleteAsset from '../../actions/VideoActions/deleteAsset';
+import * as allDeleteAssetActions from '../../actions/VideoActions/deleteAsset';
 import { fetchCategories, fetchChannels } from '../../slices/youtube';
 
 function mapStateToProps(state) {
@@ -124,7 +128,7 @@ function mapDispatchToProps(dispatch) {
         saveVideo,
         createAsset,
         revertAsset,
-        deleteAsset
+        allDeleteAssetActions
       ),
       dispatch
     ),
