@@ -8,7 +8,7 @@ val scroogeVersion = "4.12.0"
 val awsVersion = "1.11.1034"
 val awsV2Version = "2.32.26"
 val pandaVersion = "7.0.0"
-val atomMakerVersion = "2.0.0"
+val atomMakerVersion = "4.0.0"
 val typesafeConfigVersion = "1.4.0" // to match what we get from Play transitively
 val scanamoVersion = "1.0.0-M28"
 
@@ -90,7 +90,7 @@ lazy val common = (project in file("common"))
       "com.gu" %% "pan-domain-auth-core" % pandaVersion,
       "com.gu" %% "panda-hmac-play_2-9" % pandaVersion,
       ws,
-      "com.typesafe.play" %% "play-json-joda" % "2.7.4",
+      "org.playframework" %% "play-json-joda" % "3.0.5",
       "com.gu" %% "atom-publisher-lib" % atomMakerVersion,
       "com.gu" %% "atom-publisher-lib" % atomMakerVersion % "test" classifier "tests",
       "com.gu" %% "atom-manager-play" % atomMakerVersion,
