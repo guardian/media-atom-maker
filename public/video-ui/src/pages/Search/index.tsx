@@ -11,9 +11,6 @@ type Video = {
 type VideosProps = {
   videos: Video[],
   total: number,
-  videoActions: {
-    getVideos: (searchTerm: string, limit: number, shouldUseCreatedDateForSort: boolean) => null;
-  },
   presenceActions: {
     reportPresenceClientError: (err: unknown) => void
   },
@@ -37,19 +34,21 @@ const MoreLink = ({ onClick }: { onClick: () => void }) => {
   </div>);
 };
 
-const Videos = ({ videos, total, videoActions, searchTerm, limit, shouldUseCreatedDateForSort, presenceActions }: VideosProps) => {
+const Videos = ({ videos, total, searchTerm, limit, shouldUseCreatedDateForSort, presenceActions }: VideosProps) => {
   const [mediaIds, setMediaIds] = useState<string[]>([]);
   const [videoPresences, setVideoPresences] = useState<VideoPresences[]>([]);
   const [client, setClient] = useState<PresenceClient>(null);
   const [presencesQueue, setPresencesQueue] = useState<PresenceData>(null);
   const [prevSearch, setPrevSearch] = useState("");
 
+  const dispatch = useDispatch<AppDispatch>();
+
   const showMore = () => {
-    videoActions.getVideos(
-      searchTerm,
-      limit + frontPageSize,
+    dispatch(fetchVideos({
+      search: searchTerm,
+      limit: limit + frontPageSize,
       shouldUseCreatedDateForSort
-    );
+    }));
   };
 
   const startPresence = (presenceConfig: PresenceConfig) => {
@@ -85,7 +84,7 @@ const Videos = ({ videos, total, videoActions, searchTerm, limit, shouldUseCreat
   };
 
   useEffect(() => {
-    videoActions.getVideos(searchTerm, limit, shouldUseCreatedDateForSort);
+    dispatch(fetchVideos({search: searchTerm, limit, shouldUseCreatedDateForSort}));
     const config = getStore().getState().config;
     const presenceConfig = config.presence;
     if (presenceConfig) {
@@ -118,12 +117,12 @@ const Videos = ({ videos, total, videoActions, searchTerm, limit, shouldUseCreat
   useEffect(() => {
     if (searchTerm !== prevSearch) {
       setPrevSearch(searchTerm);
-      videoActions.getVideos(searchTerm, limit, shouldUseCreatedDateForSort);
+      dispatch(fetchVideos({search: searchTerm, limit, shouldUseCreatedDateForSort}));
     }
   }, [searchTerm, prevSearch]);
 
   useEffect(() => {
-    videoActions.getVideos(searchTerm, limit, shouldUseCreatedDateForSort);
+    dispatch(fetchVideos({search: searchTerm, limit, shouldUseCreatedDateForSort}));
   }, [shouldUseCreatedDateForSort]);
 
   return (
@@ -143,10 +142,11 @@ const Videos = ({ videos, total, videoActions, searchTerm, limit, shouldUseCreat
 };
 
 //REDUX CONNECTIONS
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as reportPresenceClientError from '../../actions/PresenceActions/reportError';
-import * as getVideos from '../../actions/VideoActions/getVideos';
+import { fetchVideos } from '../../slices/videos';
+import { AppDispatch } from "../../util/setupStore";
 
 function mapStateToProps(state: { videos: { entries: number, total: number, limit: number }, searchTerm: string, shouldUseCreatedDateForSort: boolean }) {
   return {
@@ -161,7 +161,6 @@ function mapStateToProps(state: { videos: { entries: number, total: number, limi
 // @ts-ignore
 function mapDispatchToProps(dispatch) {
   return {
-    videoActions: bindActionCreators(Object.assign({}, getVideos), dispatch),
     presenceActions: bindActionCreators(Object.assign({}, reportPresenceClientError), dispatch)
   };
 }
