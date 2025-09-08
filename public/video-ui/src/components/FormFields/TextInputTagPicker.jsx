@@ -13,7 +13,7 @@ export default class TextInputTagPicker extends React.Component {
     onUpdate: PropTypes.func.isRequired,
     fetchTags: PropTypes.func.isRequired,
     removeFn: PropTypes.func.isRequired,
-    capiTags: PropTypes.array.isRequired,
+    searchResultTags: PropTypes.array.isRequired,
     tagsToVisible: PropTypes.func.isRequired,
     showTags: PropTypes.bool.isRequired,
     hideTagResults: PropTypes.func.isRequired,
@@ -209,7 +209,7 @@ export default class TextInputTagPicker extends React.Component {
         {this.renderInputElements()}
 
         <TagSearch
-          capiTags={this.props.capiTags}
+          searchResultTags={this.props.searchResultTags}
           showTags={this.props.showTags}
           tagsToVisible={this.props.tagsToVisible}
           selectNewTag={this.selectNewTag}

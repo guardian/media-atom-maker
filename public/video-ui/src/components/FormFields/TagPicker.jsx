@@ -20,7 +20,7 @@ class TagPicker extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      capiTags: [],
+      searchResultTags: [],
       tagValue: [],
       capiUnavailable: false,
       showTags: true,
@@ -91,7 +91,7 @@ class TagPicker extends React.Component {
 
     if (!searchText) {
       this.setState({
-        capiTags: []
+        searchResultTags: []
       });
     } else {
       TagManager.getTagsByType(searchText, tagTypes)
@@ -102,12 +102,12 @@ class TagPicker extends React.Component {
           }, []);
 
           this.setState({
-            capiTags: tags
+            searchResultTags: tags
           });
         })
         .catch(() => {
           this.setState({
-            capiTags: [],
+            searchResultTags: [],
             capiUnavailable: true
           });
         });
@@ -124,7 +124,7 @@ class TagPicker extends React.Component {
     .then(() => {
 
       return this.setState({
-        capiTags: []
+        searchResultTags: []
       });
     });
   };
@@ -184,14 +184,14 @@ class TagPicker extends React.Component {
     });
 
     if (e.keyCode === keyCodes.down) {
-      if (this.state.selectedTagIndex === null && this.state.capiTags.length > 0) {
+      if (this.state.selectedTagIndex === null && this.state.searchResultTags.length > 0) {
 
         this.setState({
           selectedTagIndex: 0
         });
 
     } else {
-        if (this.state.selectedTagIndex < this.state.capiTags.length - 1) {
+        if (this.state.selectedTagIndex < this.state.searchResultTags.length - 1) {
           this.setState({
             selectedTagIndex: this.state.selectedTagIndex + 1
           });
@@ -208,7 +208,7 @@ class TagPicker extends React.Component {
     }
 
     if (e.keyCode === keyCodes.enter && this.state.selectedTagIndex !== null) {
-      const newTag = this.state.capiTags[this.state.selectedTagIndex];
+      const newTag = this.state.searchResultTags[this.state.selectedTagIndex];
 
       const valueWithoutDupes = this.props.tagType === TagTypes.contributor ?
         removeStringTagDuplicates(newTag, this.state.tagValue) :
@@ -268,7 +268,7 @@ class TagPicker extends React.Component {
             tagValue={this.state.tagValue}
             onUpdate={this.onUpdate}
             fetchTags={this.debouncedFetchTags}
-            capiTags={this.state.capiTags}
+            searchResultTags={this.state.searchResultTags}
             tagsToVisible={this.tagsToVisible}
             showTags={this.state.showTags}
             hideTagResults={this.hideTagResults}
@@ -288,7 +288,7 @@ class TagPicker extends React.Component {
         tagValue={this.state.tagValue}
         onUpdate={this.onUpdate}
         fetchTags={this.debouncedFetchTags}
-        capiTags={this.state.capiTags}
+        searchResultTags={this.state.searchResultTags}
         tagsToVisible={this.tagsToVisible}
         showTags={this.state.showTags}
         hideTagResults={this.hideTagResults}
@@ -361,7 +361,7 @@ class TagPicker extends React.Component {
 
   render() {
 
-    const hasWarning = this.props.hasWarning(this.props) && this.state.capiTags.length === 0;
+    const hasWarning = this.props.hasWarning(this.props) && this.state.searchResultTags.length === 0;
     const hasError = this.props.hasError(this.props);
 
     if (!this.props.editable) {

@@ -8,7 +8,7 @@ class PureTagPicker extends React.Component {
     tagValue: PropTypes.array.isRequired,
     fetchTags: PropTypes.func.isRequired,
     onUpdate: PropTypes.func.isRequired,
-    capiTags: PropTypes.array.isRequired,
+    searchResultTags: PropTypes.array.isRequired,
     tagsToVisible: PropTypes.func.isRequired,
     showTags: PropTypes.bool.isRequired,
     hideTagResults: PropTypes.func.isRequired,
@@ -62,7 +62,7 @@ class PureTagPicker extends React.Component {
 
 
         <TagSearch
-          capiTags={this.props.capiTags}
+          searchResultTags={this.props.searchResultTags}
           showTags={this.props.showTags}
           tagsToVisible={this.props.tagsToVisible}
           selectNewTag={this.selectNewTag}
