@@ -11,11 +11,11 @@ import model.{MediaAtomList, MediaAtomSummary}
 import play.api.libs.json.{JsArray, JsValue}
 
 trait AtomListStore {
-  def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean, filterForSelfHosted: Boolean): MediaAtomList
+  def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean, shouldFilterForSelfHosted: Boolean): MediaAtomList
 }
 
 class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
-  override def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean, filterForSelfHosted: Boolean = false): MediaAtomList = {
+  override def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean, shouldFilterForSelfHosted: Boolean = false): MediaAtomList = {
     // CAPI max page size is 200
     val cappedLimit: Option[Int] = limit.map(Math.min(200, _))
 
@@ -24,7 +24,7 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
       "order-by" -> "newest"
     ) ++
       (if(shouldUseCreatedDateForSort) Map("order-date" -> "first-publication") else Map.empty) ++
-      (if(filterForSelfHosted) Map("media_platform" -> "url") else Map.empty)
+      (if(shouldFilterForSelfHosted) Map("media_platform" -> "url") else Map.empty)
 
     val baseWithSearch = search match {
       case Some(q) => base ++ Map(
@@ -78,7 +78,7 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
 }
 
 class DynamoBackedAtomListStore(store: PreviewDynamoDataStore) extends AtomListStore {
-  override def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean, filterForSelfHosted: Boolean): MediaAtomList = {
+  override def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean, shouldFilterForSelfHosted: Boolean): MediaAtomList = {
     // We must filter the entire list of atoms rather than use Dynamo limit to ensure stable iteration order.
     // Without it, the front page will shuffle around when clicking the Load More button.
     store.listAtoms match {
@@ -102,7 +102,7 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore) extends AtomListS
         val selfHostedFilter = (atom: MediaAtom) => atom.assets.exists(_.platform == Url)
 
         val filters = List(
-          if (filterForSelfHosted) Some(selfHostedFilter) else None,
+          if (shouldFilterForSelfHosted) Some(selfHostedFilter) else None,
           if (search.isDefined) Some(searchTermFilter) else None
         ).flatten
 

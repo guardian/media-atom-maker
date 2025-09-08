@@ -56,6 +56,8 @@ class ReactApp extends React.Component {
     return (
       <div className="wrap">
         <Header
+          shouldFilterForSelfHosted={this.props.shouldFilterForSelfHosted}
+          updateShouldFilterForSelfHosted={this.props.appActions.updateShouldFilterForSelfHosted}
           shouldUseCreatedDateForSort={this.props.shouldUseCreatedDateForSort}
           updateShouldUseCreatedDateForSort={this.props.appActions.updateShouldUseCreatedDateForSort}
           reportPresenceClientError={this.props.appActions.reportPresenceClientError}
@@ -101,6 +103,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as updateSearchTerm from '../actions/SearchActions/updateSearchTerm';
 import * as updateShouldUseCreatedDateForSort from '../actions/SearchActions/updateShouldUseCreatedDateForSort';
+import * as updateShouldFilterForSelfHosted from "../actions/SearchActions/updateShouldFilterForSelfHosted";
 import * as getVideo from '../actions/VideoActions/getVideo';
 import * as getPublishedVideo from '../actions/VideoActions/getPublishedVideo';
 import * as publishVideo from '../actions/VideoActions/publishVideo';
@@ -138,6 +141,7 @@ function mapDispatchToProps(dispatch) {
         {},
         updateSearchTerm,
         updateShouldUseCreatedDateForSort,
+        updateShouldFilterForSelfHosted,
         getVideo,
         getPublishedVideo,
         publishVideo,
