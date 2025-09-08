@@ -1,18 +1,18 @@
-const AWS = require('aws-sdk');
-const parseHocon = require('hocon-parser');
+import { S3 } from 'aws-sdk';
+import parseHocon from 'hocon-parser';
 
-const EnvironmentConfig = require('./environment-config');
+import { bucket, stage } from './environment-config';
 
 const FILE_NAME = 'media-atom-maker.private.conf';
 
 class FileConfig {
   static read() {
     return new Promise((resolve, reject) => {
-      const s3 = new AWS.S3();
+      const s3 = new S3();
 
       const params = {
-        Bucket: EnvironmentConfig.bucket,
-        Key: `${EnvironmentConfig.stage}/${FILE_NAME}`
+        Bucket: bucket,
+        Key: `${stage}/${FILE_NAME}`
       };
 
       s3.getObject(params, (err, data) => {
@@ -28,4 +28,4 @@ class FileConfig {
   }
 }
 
-module.exports = FileConfig;
+export default FileConfig;
