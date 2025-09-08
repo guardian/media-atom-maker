@@ -44,6 +44,7 @@ export class YoutubeFurnitureTabPanel extends React.Component {
       updateVideo,
       updateErrors,
       updateWarnings,
+      canCancel, // pulling out so it isn't passed to TabPanel, which causes an error
       ...rest
     } = this.props;
 
