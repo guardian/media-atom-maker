@@ -1,5 +1,5 @@
 import React from 'react';
-import TagManager from '../../services/tagmanager';
+import { getTagsByType } from '../../services/tagmanager';
 import { tagsFromStringList, tagsToStringList } from '../../util/tagParsers';
 import { keyCodes } from '../../constants/keyCodes';
 import TagTypes from '../../constants/TagTypes';
@@ -94,7 +94,7 @@ class TagPicker extends React.Component {
         searchResultTags: []
       });
     } else {
-      TagManager.getTagsByType(searchText, tagTypes)
+      getTagsByType(this.props.tagManagerUrl, searchText, tagTypes)
         .then(response => {
 
           const tags = response.data.reduce((tags, {data}) => {
@@ -417,4 +417,13 @@ class TagPicker extends React.Component {
   }
 }
 
-export default React.memo(TagPicker);
+//REDUX CONNECTIONS
+import { connect } from 'react-redux';
+
+function mapStateToProps(state) {
+  return {
+    tagManagerUrl: state.config.tagManagerUrl
+  };
+}
+
+export default connect(mapStateToProps)(TagPicker);
