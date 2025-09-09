@@ -69,22 +69,17 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     val jobAssets = jobs.flatMap(jobAsAsset)
     log.info("jobAssets: "+jobAssets)
 
-    // if multiple jobs for same asset version, only keep the latest
-    val jobsByVersion = jobAssets.groupBy(_.id)
-    val latestJobAssets = jobsByVersion.map { case (_, job) => job.maxBy(startTime) }.toList
-    log.info("latestJobAssets: "+latestJobAssets)
-
     // merge existing assets into jobs
-    val mergedJobAssets = latestJobAssets.map(getRunning(atomAssets, _))
+    val mergedJobAssets = jobAssets.map(getRunning(atomAssets, _))
     log.info("mergedJobAssets: "+mergedJobAssets)
 
-    // remove any atom assets that are represented by running/recent job assets
-    val jobVersions = mergedJobAssets.map(_.id)
-    val filteredAtomAssets = atomAssets.filterNot( asset => jobVersions.contains(asset.id))
-    log.info("filteredAtomAssets: "+filteredAtomAssets)
+    // if multiple jobs for same asset version, only keep the latest
+    val assetsByVersion = (atomAssets ++ mergedJobAssets).groupBy(_.id)
+    val latestAssets = assetsByVersion.map { case (_, job) => job.maxBy(startTime) }.toList
+    log.info("latestAssets: "+latestAssets)
 
     // sort newest asset version first
-    (mergedJobAssets ++ filteredAtomAssets).sortBy(ClientAsset.getVersion).reverse
+    latestAssets.sortBy(ClientAsset.getVersion).reverse
   }
 
   def create: Action[AnyContent] = LookupPermissions { implicit raw =>
@@ -235,13 +230,6 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     part <- upload.parts.find(_.key == key)
   } yield part
 
-  private def jobIsNewerThanAsset(jobAsset: ClientAsset, asset: ClientAsset): Boolean = {
-    // if the asset doesn't have a timestamp for some reason, assume the job is newer
-    val assetTimestamp = asset.metadata.flatMap(_.startTimestamp).getOrElse(0L)
-    val jobTimestamp = jobAsset.metadata.flatMap(_.startTimestamp).getOrElse(1L)
-    jobTimestamp > assetTimestamp
-  }
-
   private def jobAsAsset(job: ExecutionListItem): Option[ClientAsset] = {
     val events = stepFunctions.getEventsInReverseOrder(job)
     val startTimestamp = job.getStartDate.getTime
@@ -255,16 +243,13 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     }
   }
 
-  private def getRunning(assets: List[ClientAsset], jobAsset: ClientAsset): ClientAsset = {
-    val existingAsset = assets.find(_.id == jobAsset.id)
+  private def getRunning(atomAssets: List[ClientAsset], jobAsset: ClientAsset): ClientAsset = {
+    val existingAsset = atomAssets.find(_.id == jobAsset.id)
 
     existingAsset match {
-      case Some(asset) if jobIsNewerThanAsset(jobAsset, asset) =>
+      case Some(asset) =>
         // merge job's processing info with existing asset
         jobAsset.copy(asset = asset.asset)
-      case Some(asset) =>
-        // discard old job and use existing asset
-        asset
       case None =>
         // return the running job as an asset
         jobAsset
