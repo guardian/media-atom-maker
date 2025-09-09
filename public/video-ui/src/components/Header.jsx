@@ -89,7 +89,7 @@ export default class Header extends React.Component {
           <option value="true">Loops</option>
         </select>
       </div>
-    )
+    );
   }
 
   renderSortBy() {
