@@ -40,126 +40,128 @@ class UploadControllerTest extends AnyFlatSpec with Matchers {
   val uploadController = new UploadController(
     mockAuthActions, mackAwsConfig, mockStepFunctions, mockDataStores, mockPermissions, mockYouTube, stubControllerComponents)
 
-  val upload1 = Upload("ace3fcf6-1378-41db-9d21-f3fc07072ab2-1", Nil,
-    UploadMetadata(
-      "jo.blogs@guardian.co.uk", "bucket", "region", "title", null, null,
-      originalFilename = Some("Japan fireball.mp4"),
-      subtitleSource = Some(VideoSource("different.srt", "application/x-subrip")),
-      startTimestamp = Some(1755775526136L),
-      selfHost = true
-    ),
-    UploadProgress(1, 0, true, true, 0)
-  )
-  val upload2 = Upload("ace3fcf6-1378-41db-9d21-f3fc07072ab2-2", Nil,
-    UploadMetadata(
-      "jo.blogs@guardian.co.uk", "bucket", "region", "title", null, null,
-      originalFilename = Some("file_example_MP4_480_1_5MG.mp4"),
-      subtitleSource = Some(VideoSource("different (1).srt", "application/x-subrip")),
-      startTimestamp = Some(1756903791627L),
-      selfHost = true
-    ),
-    UploadProgress(1, 0, true, true, 0)
-  )
+  val videoFiles = List("Japan fireball.mp4", "file_example_MP4_480_1_5MG.mp4")
+  val subtitleFiles = List("different.srt", "different (1).srt")
 
-  val clientAssetMetadata1 = ClientAssetMetadata(
-    Some("Japan fireball.mp4"),
-    Some("different.srt"),
-    Some(1755775526136L),
-    "jo.blogs@guardian.co.uk"
-  )
-  val clientAssetMetadata2 = ClientAssetMetadata(
-    Some("file_example_MP4_480_1_5MG.mp4"),
-    Some("different (1).srt"),
-    Some(1756903791627L),
-    "jo.blogs@guardian.co.uk"
-  )
+//  val upload1 = Upload("ace3fcf6-1378-41db-9d21-f3fc07072ab2-1", Nil,
+//    UploadMetadata(
+//      "jo.blogs@guardian.co.uk", "bucket", "region", "title", null, null,
+//      originalFilename = Some("Japan fireball.mp4"),
+//      subtitleSource = Some(VideoSource("different.srt", "application/x-subrip")),
+//      startTimestamp = Some(1755775526136L),
+//      selfHost = true
+//    ),
+//    UploadProgress(1, 0, true, true, 0)
+//  )
+//  val upload2 = Upload("ace3fcf6-1378-41db-9d21-f3fc07072ab2-2", Nil,
+//    UploadMetadata(
+//      "jo.blogs@guardian.co.uk", "bucket", "region", "title", null, null,
+//      originalFilename = Some("file_example_MP4_480_1_5MG.mp4"),
+//      subtitleSource = Some(VideoSource("different (1).srt", "application/x-subrip")),
+//      startTimestamp = Some(1756903791627L),
+//      selfHost = true
+//    ),
+//    UploadProgress(1, 0, true, true, 0)
+//  )
+//
+//  val clientAssetMetadata1 = ClientAssetMetadata(
+//    Some("Japan fireball.mp4"),
+//    Some("different.srt"),
+//    Some(1755775526136L),
+//    "jo.blogs@guardian.co.uk"
+//  )
+//  val clientAssetMetadata2 = ClientAssetMetadata(
+//    Some("file_example_MP4_480_1_5MG.mp4"),
+//    Some("different (1).srt"),
+//    Some(1756903791627L),
+//    "jo.blogs@guardian.co.uk"
+//  )
 
   "list" should "prepare a list of ClientAssets from the existing atom when no jobs are running or failed" in {
-    mockAtom(atomAssets(2, 1) ++ atomAssets(1, 13))
-    mockUploads(List(upload1, upload2))
+    mockAtom(atomAssets(2, 1) ++ atomAssets(1, 13), lastModified = "2025-09-03T12:52:22Z")
+    mockUploads(List(upload(1, 13, "2025-08-21T11:25:26Z"), upload(2, 1, "2025-09-03T12:49:51Z")))
     mockJobs(Nil)
 
     val expected = List(
-      ClientAsset("2", Some(selfHostedAsset(2, 1)), processing = None, Some(clientAssetMetadata2)),
-      ClientAsset("1", Some(selfHostedAsset(1, 13)), processing = None, Some(clientAssetMetadata1))
+      ClientAsset("2", Some(selfHostedAsset(2, 1)), processing = None, Some(clientAssetMetadata(2, 1, "2025-09-03T12:49:51Z"))),
+      ClientAsset("1", Some(selfHostedAsset(1, 13)), processing = None, Some(clientAssetMetadata(1, 13, "2025-08-21T11:25:26Z")))
     )
 
     uploadController.clientAssetsForAtom("ace3fcf6-1378-41db-9d21-f3fc07072ab2") shouldBe expected
   }
 
   it should "derive a new asset from the running job when a new video upload is in progress" in {
-    mockAtom(atomAssets(1, 13))
-    mockUploads(List(upload1))
+    mockAtom(atomAssets(1, 13), lastModified = "2025-09-03T12:52:22Z")
+    mockUploads(List(upload(1, 13, "2025-08-21T11:25:26Z")))
 
-    val jobStartTime = "2025-09-03T12:49:51Z"
-    val job2running = videoUploadJob(2, ExecutionStatus.RUNNING, jobStartTime)
+    val job2running = videoUploadJob(2, ExecutionStatus.RUNNING, started = "2025-09-03T12:59:51Z")
     mockJobs(List(job2running))
-    when(mockStepFunctions.getTaskEntered(any())).thenReturn(Some("AddInitialUploadDataToCache" -> upload2))
+    when(mockStepFunctions.getTaskEntered(any())).thenReturn(Some("AddInitialUploadDataToCache" -> upload(2, 0, "2025-09-03T12:49:51Z")))
     when(mockStepFunctions.getExecutionFailed(any())).thenReturn(None)
 
     val expectedProcessing = ClientAssetProcessing("AddInitialUploadDataToCache", failed = false, None, None)
-    val expectedMetadata = clientAssetMetadata2.copy(startTimestamp = Some(millis(jobStartTime)))
+    val expectedMetadata = clientAssetMetadata(2, 0, "2025-09-03T12:59:51Z")
     val expected = List(
       ClientAsset("2", asset = None, Some(expectedProcessing), Some(expectedMetadata)),
-      ClientAsset("1", Some(selfHostedAsset(1, 13)), processing = None, Some(clientAssetMetadata1))
+      ClientAsset("1", Some(selfHostedAsset(1, 13)), processing = None, Some(clientAssetMetadata(1, 13, "2025-08-21T11:25:26Z")))
     )
 
     uploadController.clientAssetsForAtom("ace3fcf6-1378-41db-9d21-f3fc07072ab2") shouldBe expected
   }
 
   it should "update an existing asset with progress of the running job when a subtitle is being uploaded" in {
-    mockAtom(atomAssets(2, 1) ++ atomAssets(1, 13))
-    mockUploads(List(upload1, upload2))
+    mockAtom(atomAssets(2, 1) ++ atomAssets(1, 13), lastModified = "2025-09-03T12:52:22Z")
+    mockUploads(List(upload(1, 13, "2025-08-21T11:25:26Z"), upload(2, 1, "2025-09-03T12:49:51Z")))
 
-    val jobStartTime = "2025-09-03T12:59:51Z"
-    val job2running = subtitleUploadJob(2, 2, ExecutionStatus.RUNNING, jobStartTime)
+    val job2running = subtitleUploadJob(2, 2, ExecutionStatus.RUNNING, started = "2025-09-03T12:59:51Z")
     mockJobs(List(job2running))
-    when(mockStepFunctions.getTaskEntered(any())).thenReturn(Some("AddInitialUploadDataToCache" -> upload2))
+    when(mockStepFunctions.getTaskEntered(any())).thenReturn(Some("AddInitialUploadDataToCache" -> upload(2, 2, "2025-09-03T12:59:51Z")))
     when(mockStepFunctions.getExecutionFailed(any())).thenReturn(None)
 
     val expectedProcessing = ClientAssetProcessing("AddInitialUploadDataToCache", failed = false, None, None)
-    val expectedMetadata = clientAssetMetadata2.copy(startTimestamp = Some(millis(jobStartTime)))
+    val expectedMetadata = clientAssetMetadata(2, 1, "2025-09-03T12:59:51Z")
     val expected = List(
       ClientAsset("2", Some(selfHostedAsset(2, 1)), Some(expectedProcessing), Some(expectedMetadata)),
-      ClientAsset("1", Some(selfHostedAsset(1, 13)), None, Some(clientAssetMetadata1))
+      ClientAsset("1", Some(selfHostedAsset(1, 13)), processing = None, Some(clientAssetMetadata(1, 13, "2025-08-21T11:25:26Z")))
     )
 
     uploadController.clientAssetsForAtom("ace3fcf6-1378-41db-9d21-f3fc07072ab2") shouldBe expected
   }
 
   it should "update an existing asset with progress of the running job when processing fails" in {
-    mockAtom(atomAssets(2, 1) ++ atomAssets(1, 13))
-    mockUploads(List(upload1, upload2))
+    mockAtom(atomAssets(2, 1) ++ atomAssets(1, 13), lastModified = "2025-09-03T12:52:22Z")
+    mockUploads(List(upload(1, 13, "2025-08-21T11:25:26Z"), upload(2, 1, "2025-09-03T12:49:51Z")))
 
-    val jobStartTime = "2025-09-03T13:09:51Z"
-    val job2failed = subtitleUploadJob(2, 2, ExecutionStatus.FAILED, jobStartTime)
+    val job2failed = subtitleUploadJob(2, 2, ExecutionStatus.FAILED, started = "2025-09-03T12:59:51Z")
     mockJobs(List(job2failed))
-    when(mockStepFunctions.getTaskEntered(any())).thenReturn(Some("GetTranscodingProgressV2" -> upload2))
+    when(mockStepFunctions.getTaskEntered(any())).thenReturn(Some("GetTranscodingProgressV2" -> upload(2, 2, "2025-09-03T12:59:51Z")))
     when(mockStepFunctions.getExecutionFailed(any())).thenReturn(Some("Job failed"))
 
     val expectedProcessing = ClientAssetProcessing("Job failed", failed = true, None, None)
-    val expectedMetadata = clientAssetMetadata2.copy(startTimestamp = Some(millis(jobStartTime)))
+    val expectedMetadata = clientAssetMetadata(2, 1, "2025-09-03T12:59:51Z")
     val expected = List(
       ClientAsset("2", Some(selfHostedAsset(2, 1)), Some(expectedProcessing), Some(expectedMetadata)),
-      ClientAsset("1", Some(selfHostedAsset(1, 13)), None, Some(clientAssetMetadata1))
+      ClientAsset("1", Some(selfHostedAsset(1, 13)), None, Some(clientAssetMetadata(1, 13, "2025-08-21T11:25:26Z")))
     )
 
     uploadController.clientAssetsForAtom("ace3fcf6-1378-41db-9d21-f3fc07072ab2") shouldBe expected
   }
 
   it should "return the existing assets when a successful upload has followed a failed upload" in {
-    mockAtom(atomAssets(2, 3) ++ atomAssets(1, 13))
-    mockUploads(List(upload1, upload2))
+    // asset has been successfully updated to v2.3
+    mockAtom(atomAssets(2, 3) ++ atomAssets(1, 13), lastModified = "2025-09-03T13:05:22Z")
+    mockUploads(List(upload(1, 13, "2025-08-21T11:25:26Z"), upload(2, 3, "2025-09-03T13:02:00Z")))
 
-    val job2failed = subtitleUploadJob(2, 2, ExecutionStatus.FAILED, "2025-09-03T13:09:51Z")
-    val job2succeeded = subtitleUploadJob(2, 3, ExecutionStatus.SUCCEEDED, "2025-09-03T13:19:51Z")
-    mockJobs(List(job2failed, job2succeeded))
-    when(mockStepFunctions.getTaskEntered(any())).thenReturn(Some("GetTranscodingProgressV2" -> upload2))
+    // but failed job for v2.2 is still hanging around
+    val job2failed = subtitleUploadJob(2, 2, ExecutionStatus.FAILED, started = "2025-09-03T12:59:51Z")
+    mockJobs(List(job2failed))
+    when(mockStepFunctions.getTaskEntered(any())).thenReturn(Some("GetTranscodingProgressV2" -> upload(2, 2, "2025-09-03T12:59:51Z")))
     when(mockStepFunctions.getExecutionFailed(any())).thenReturn(Some("Job failed"))
 
+    // result should ignore the failed job
     val expected = List(
-      ClientAsset("2", Some(selfHostedAsset(2, 3)), None, Some(clientAssetMetadata2)),
-      ClientAsset("1", Some(selfHostedAsset(1, 13)), None, Some(clientAssetMetadata1))
+      ClientAsset("2", Some(selfHostedAsset(2, 3)), None, Some(clientAssetMetadata(2, 3, "2025-09-03T13:02:00Z"))),
+      ClientAsset("1", Some(selfHostedAsset(1, 13)), None, Some(clientAssetMetadata(1, 13, "2025-08-21T11:25:26Z")))
     )
 
     uploadController.clientAssetsForAtom("ace3fcf6-1378-41db-9d21-f3fc07072ab2") shouldBe expected
@@ -167,16 +169,16 @@ class UploadControllerTest extends AnyFlatSpec with Matchers {
 
   private def millis(isoDateTime: String): Long = DateTime.parse(isoDateTime).getMillis
 
-  private def mockAtom(assets: List[Asset]): Unit = {
+  private def mockAtom(assets: List[Asset], lastModified: String): Unit = {
     val atom = MediaAtom("ace3fcf6-1378-41db-9d21-f3fc07072ab2",
       List(),
       ContentChangeDetails(Some(
         ChangeRecord(
-          DateTime.parse("2025-09-03T13:52:22.526+01:00"),
+          DateTime.parse(lastModified),
           Some(User("jo.blogs@guardian.co.uk",Some("Jo"),Some("Blogs")))
         )),
         Some(ChangeRecord(
-          DateTime.parse("2025-08-21T12:24:20.411+01:00"),
+          DateTime.parse("2025-08-21T11:24:20Z"),
           Some(User("jo.blogs@guardian.co.uk",Some("Jo"),Some("Blogs")))
         )),
         None,16,None,None,None
@@ -210,24 +212,46 @@ class UploadControllerTest extends AnyFlatSpec with Matchers {
       Platform.Url, Some("application/vnd.apple.mpegurl"))
   )
 
-  private def videoUploadJob(assetVersion: Int, status: ExecutionStatus, isoStartDateTime: String) = new ExecutionListItem()
+  private def videoUploadJob(assetVersion: Int, status: ExecutionStatus, started: String) = new ExecutionListItem()
     .withExecutionArn(s"arn:aws:states:eu-west-1:xxxxx:execution:VideoPipelineDEV-PGZ5E0CNI0QG:ace3fcf6-1378-41db-9d21-f3fc07072ab2-$assetVersion")
     .withStateMachineArn("arn:aws:states:eu-west-1:xxxxx:stateMachine:VideoPipelineDEV-PGZ5E0CNI0QG")
     .withName(s"ace3fcf6-1378-41db-9d21-f3fc07072ab2-$assetVersion")
     .withStatus(status)
-    .withStartDate(java.util.Date.from(Instant.parse(isoStartDateTime)))
+    .withStartDate(java.util.Date.from(Instant.parse(started)))
 
-  private def subtitleUploadJob(assetVersion: Int, subtitleVersion: Int, status: ExecutionStatus, isoStartDateTime: String) = new ExecutionListItem()
+  private def subtitleUploadJob(assetVersion: Int, subtitleVersion: Int, status: ExecutionStatus, started: String) = new ExecutionListItem()
     .withExecutionArn(s"arn:aws:states:eu-west-1:xxxxx:execution:VideoPipelineDEV-PGZ5E0CNI0QG:ace3fcf6-1378-41db-9d21-f3fc07072ab2-$assetVersion.$subtitleVersion")
     .withStateMachineArn("arn:aws:states:eu-west-1:xxxxx:stateMachine:VideoPipelineDEV-PGZ5E0CNI0QG")
     .withName(s"ace3fcf6-1378-41db-9d21-f3fc07072ab2-$assetVersion.$subtitleVersion")
     .withStatus(status)
-    .withStartDate(java.util.Date.from(Instant.parse(isoStartDateTime)))
+    .withStartDate(java.util.Date.from(Instant.parse(started)))
 
   private def selfHostedAsset(assetVersion: Int, subtitleVersion: Int) = SelfHostedAsset(List(
     VideoSource(s"https://uploads.guimcode.co.uk/2025/09/03/Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-$assetVersion.0.mp4","video/mp4"),
     VideoSource(s"https://uploads.guimcode.co.uk/2025/09/03/Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-$assetVersion.$subtitleVersion.m3u8","application/vnd.apple.mpegurl")
   ))
 
+  private def upload(videoVersion: Int, subtitleVersion: Int, started: String) = {
+    Upload(s"ace3fcf6-1378-41db-9d21-f3fc07072ab2-$videoVersion", Nil,
+      UploadMetadata(
+        "jo.blogs@guardian.co.uk", "bucket", "region", "title", null, null,
+        originalFilename = Some(videoFiles(videoVersion-1)),
+        subtitleSource = if (subtitleVersion > 0)
+          Some(VideoSource(subtitleFiles(videoVersion-1), "application/x-subrip"))
+        else
+          None,
+        subtitleVersion = if (subtitleVersion > 0) Some(subtitleVersion) else None,
+        startTimestamp = Some(millis(started)),
+        selfHost = true
+      ),
+      UploadProgress(1, 0, true, true, 0)
+    )
+  }
 
+  private def clientAssetMetadata(videoVersion: Int, subtitleVersion: Int, started: String) = ClientAssetMetadata(
+    originalFilename = Some(videoFiles(videoVersion-1)),
+    subtitleFilename = if (subtitleVersion > 0) Some(subtitleFiles(videoVersion-1)) else None,
+    startTimestamp = Some(millis(started)),
+    user = "jo.blogs@guardian.co.uk"
+  )
 }

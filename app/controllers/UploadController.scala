@@ -230,29 +230,42 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     part <- upload.parts.find(_.key == key)
   } yield part
 
-  private def getRunning(assets: List[ClientAsset], atomId: String, job: ExecutionListItem): Option[ClientAsset] = {
-    val existingAsset = assets.find { asset =>
-      val assetVersion = asset.id
-      job.getName.contains(s"$atomId-$assetVersion")
-    }
+  private def jobIsNewerThanAsset(job: ExecutionListItem, asset: ClientAsset): Boolean = {
+    // if the asset doesn't have a timestamp for some reason, assume the job is newer
+    val assetTimestamp = asset.metadata.flatMap(_.startTimestamp).getOrElse(0L)
+    job.getStartDate.getTime > assetTimestamp
+  }
 
+  private def jobAsAsset(job: ExecutionListItem): Option[ClientAsset] = {
     val events = stepFunctions.getEventsInReverseOrder(job)
     val startTimestamp = job.getStartDate.getTime
 
     val upload = stepFunctions.getTaskEntered(events)
     val error = stepFunctions.getExecutionFailed(events)
 
-    val jobAsAsset = upload.map { case (state, upload) =>
-      ClientAsset.fromUpload(state, startTimestamp, upload, error)
+    upload.map { case (state, upload) =>
+      val assetVersion = upload.id.split("-").last
+      ClientAsset.fromUpload(state, startTimestamp, upload, error).copy(id = assetVersion)
     }
+  }
 
-    existingAsset match {
-      case Some(asset) =>
-        // merge job's processing info with existing asset
-        jobAsAsset.map(_.copy(id = asset.id, asset = asset.asset))
-      case None =>
-        // return the running job as an asset
-        jobAsAsset.map( asset => asset.copy(id = asset.id.split("-").last))
+  private def getRunning(assets: List[ClientAsset], atomId: String, job: ExecutionListItem): Option[ClientAsset] = {
+    val maybeJobAsset = jobAsAsset(job)
+
+    maybeJobAsset.map { jobAsset =>
+      val existingAsset = assets.find(_.id == jobAsset.id)
+
+      existingAsset match {
+        case Some(asset) if jobIsNewerThanAsset(job, asset) =>
+          // merge job's processing info with existing asset
+          jobAsset.copy(asset = asset.asset)
+        case Some(asset) =>
+          // discard old job and use existing asset
+          asset
+        case None =>
+          // return the running job as an asset
+          jobAsset
+      }
     }
   }
 
