@@ -36,15 +36,18 @@ export function VideoEmbed({ sources, posterUrl }) {
 }
 
 function prepareSourcesAndSubtitles(sources) {
+  const videoSources = sources.filter(source => source.mimeType !== "text/vtt");
+
   // if m3u8 and mp4 are both present, put m3u8 first
-  const m3u8 = sources.find(source => source.mimeType === "application/vnd.apple.mpegurl");
-  const mp4 = sources.find(source => source.mimeType === "video/mp4");
-  const videoSources =
-    (m3u8 && mp4) ? [m3u8].concat(sources.filter(source => source !== m3u8)) : sources;
+  const m3u8 = videoSources.find(source => source.mimeType === "application/vnd.apple.mpegurl");
+  const mp4 = videoSources.find(source => source.mimeType === "video/mp4");
+
+  const sortedSources =
+    (m3u8 && mp4) ? [m3u8].concat(videoSources.filter(source => source !== m3u8)) : videoSources;
 
   // add subtitle track for browsers that don't support m3u8
-  const subtitles = sources.find(source => source.assetType === "subtitles");
+  const vtt = sources.find(source => source.mimeType === "text/vtt");
   const subtitleTrack =
-    (m3u8 && mp4 && subtitles) ? <track default kind="subtitles" src={subtitles.src}/> : undefined;
-  return {videoSources, subtitleTrack};
+    (m3u8 && mp4 && vtt) ? <track default kind="subtitles" src={vtt.src}/> : undefined;
+  return {videoSources: sortedSources, subtitleTrack};
 }
