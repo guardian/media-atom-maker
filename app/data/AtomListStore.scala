@@ -15,7 +15,7 @@ trait AtomListStore {
 }
 
 class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
-  override def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean, shouldFilterForSelfHosted: Boolean = false): MediaAtomList = {
+  override def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean, shouldFilterForSelfHosted: Boolean): MediaAtomList = {
     // CAPI max page size is 200
     val cappedLimit: Option[Int] = limit.map(Math.min(200, _))
 
@@ -24,7 +24,7 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
       "order-by" -> "newest"
     ) ++
       (if(shouldUseCreatedDateForSort) Map("order-date" -> "first-publication") else Map.empty) ++
-      (if(shouldFilterForSelfHosted) Map("media_platform" -> "url") else Map.empty)
+      (if(shouldFilterForSelfHosted) Map("media-platform" -> "url") else Map.empty)
 
     val baseWithSearch = search match {
       case Some(q) => base ++ Map(
