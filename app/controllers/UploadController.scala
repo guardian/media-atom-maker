@@ -20,7 +20,6 @@ import play.api.libs.json.{Format, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents, MultipartFormData, Result}
 import util._
 
-import java.time.Instant
 import scala.annotation.tailrec
 import scala.util.control.NonFatal
 
@@ -37,7 +36,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
   private val uploadDecorator = new UploadDecorator(awsConfig, stepFunctions)
 
   /**
-   * prepares a list of CLientAssets that represent the multiple versioned assets for the atom to be displayed in the client.
+   * prepares a list of ClientAssets that represent the multiple versioned assets for the atom to be displayed in the client.
    * The list is made up of existing assets in the atom (atomAssets) plus assets derived from any state machine upload
    * jobs that are currently running (jobAssets).
    * If an upload is running for an existing asset, then the asset info is merged into the job asset so that the job
@@ -48,25 +47,39 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
    * @return
    */
   def list(atomId: String): Action[AnyContent] = APIAuthAction { req =>
+
+    log.info(s"list atomId: "+atomId)
+    val clientAssets = clientAssetsForAtom(atomId)
+    log.info("clientAssets: "+clientAssets)
+
+    Ok(Json.toJson(clientAssets))
+  }
+
+  def clientAssetsForAtom(atomId: String): List[ClientAsset] = {
     val atom = MediaAtom.fromThrift(getPreviewAtom(atomId))
+    log.info("atom: "+atom)
     val withStatus = ClientAsset.fromAssets(atom.assets).map(addYouTubeStatus)
+    log.info("withStatus: "+withStatus)
     val atomAssets = withStatus.map { asset => uploadDecorator.addMetadata(atom.id, asset) }
+    log.info("atomAssets: "+atomAssets)
 
     val jobs = stepFunctions.getJobs(atomId)
+    log.info("jobs: "+jobs)
     val jobAssets = jobs.flatMap(getRunning(atomAssets, atomId, _))
+    log.info("jobAssets: "+jobAssets)
 
     // if multiple jobs for same asset version, only keep the latest
     val jobsByVersion = jobAssets.groupBy(_.id)
     val latestJobAssets = jobsByVersion.map { case (_, job) => job.maxBy(startTime) }.toList
+    log.info("latestJobAssets: "+latestJobAssets)
 
     // remove any atom assets that are represented by running/recent job assets
     val jobVersions = jobsByVersion.keys.toSet
     val filteredAtomAssets = atomAssets.filterNot( asset => jobVersions.contains(asset.id))
+    log.info("filteredAtomAssets: "+filteredAtomAssets)
 
     // sort newest asset version first
-    val clientAssets = (latestJobAssets ++ filteredAtomAssets).sortBy(ClientAsset.getVersion).reverse
-
-    Ok(Json.toJson(clientAssets))
+    (latestJobAssets ++ filteredAtomAssets).sortBy(ClientAsset.getVersion).reverse
   }
 
   def create: Action[AnyContent] = LookupPermissions { implicit raw =>
