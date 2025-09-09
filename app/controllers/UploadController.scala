@@ -69,7 +69,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     val jobAssets = jobs.flatMap(jobAsAsset)
     log.info("jobAssets: "+jobAssets)
 
-    // merge existing assets into jobs
+    // merge existing assets with running/failed jobs
     val mergedJobAssets = jobAssets.map(getRunning(atomAssets, _))
     log.info("mergedJobAssets: "+mergedJobAssets)
 
