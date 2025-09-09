@@ -140,7 +140,7 @@ class VideoDisplay extends React.Component {
       <div className="video__detailbox">
         <div className="video__detailbox__header__container">
           <header className="video__detailbox__header">
-            <h2>Video Preview</h2>
+            <h3>Video Preview</h3>
             {youtubeAsset &&  (
               <p className= "video-asset">
                 <span className= "video-asset-number">Asset {activeAsset.version}:</span>
