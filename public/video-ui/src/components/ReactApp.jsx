@@ -120,6 +120,7 @@ function mapStateToProps(state) {
   return {
     searchTerm: state.searchTerm,
     shouldUseCreatedDateForSort: state.shouldUseCreatedDateForSort,
+    shouldFilterForSelfHosted: state.shouldFilterForSelfHosted,
     saveState: state.saveState,
     video: state.video,
     publishedVideo: state.publishedVideo,
