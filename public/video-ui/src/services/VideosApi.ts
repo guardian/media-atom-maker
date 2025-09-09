@@ -47,6 +47,7 @@ export type PlutoData = {
 
 export type Video = {
   id: string;
+  type?: string;
   labels: string[];
   contentChangeDetails: ContentChangeDetails;
   assets: Asset[];
@@ -68,7 +69,7 @@ export type Video = {
   youtubeCategoryId?: string;
   license?: string;
   channelId?: string;
-  legallySensitive: Boolean;
+  legallySensitive?: Boolean;
   sensitive?: Boolean;
   privacyStatus?: unknown;
   expiryDate?: number;
