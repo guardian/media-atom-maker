@@ -1,6 +1,6 @@
  import React from 'react';
 
- export default class CapiUnavailable extends React.Component {
+ export default class TagUnavailable extends React.Component {
 
   render() {
     if (this.props.capiUnavailable) {

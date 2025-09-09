@@ -69,20 +69,4 @@ export default class ContentApi {
       url: `${ContentApi.liveProxyUrl}/${id}`
     });
   }
-
-  static getTagsByType(query: string, types: string[]) {
-    return Promise.all(
-      types.map(type => {
-        if (query === '*') {
-          return apiRequest({
-            url: `${ContentApi.proxyUrl}/tags?page-size=100&type=${type}` //TODO this is likely to change based on CAPI work to search by prefix on webTitle
-          });
-        }
-        const encodedQuery = encodeURIComponent(query);
-        return apiRequest({
-          url: `${ContentApi.proxyUrl}/tags?page-size=200&type=${type}&web-title=${encodedQuery}`
-        });
-      })
-    );
-  }
 }

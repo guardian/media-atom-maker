@@ -3,7 +3,7 @@ import { PropTypes } from 'prop-types';
 import { keyCodes } from '../../constants/keyCodes';
 import UserActions from '../../constants/UserActions';
 import TagTypes from '../../constants/TagTypes';
-import CapiSearch from '../CapiSearch/CapiSearch';
+import TagSearch from '../TagSearch/TagSearch';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 
 export default class TextInputTagPicker extends React.Component {
@@ -13,7 +13,7 @@ export default class TextInputTagPicker extends React.Component {
     onUpdate: PropTypes.func.isRequired,
     fetchTags: PropTypes.func.isRequired,
     removeFn: PropTypes.func.isRequired,
-    capiTags: PropTypes.array.isRequired,
+    searchResultTags: PropTypes.array.isRequired,
     tagsToVisible: PropTypes.func.isRequired,
     showTags: PropTypes.bool.isRequired,
     hideTagResults: PropTypes.func.isRequired,
@@ -208,8 +208,8 @@ export default class TextInputTagPicker extends React.Component {
 
         {this.renderInputElements()}
 
-        <CapiSearch
-          capiTags={this.props.capiTags}
+        <TagSearch
+          searchResultTags={this.props.searchResultTags}
           showTags={this.props.showTags}
           tagsToVisible={this.props.tagsToVisible}
           selectNewTag={this.selectNewTag}

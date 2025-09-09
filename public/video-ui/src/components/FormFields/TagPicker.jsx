@@ -1,5 +1,5 @@
 import React from 'react';
-import ContentApi from '../../services/capi';
+import { getTagsByType } from '../../services/tagmanager';
 import { tagsFromStringList, tagsToStringList } from '../../util/tagParsers';
 import { keyCodes } from '../../constants/keyCodes';
 import TagTypes from '../../constants/TagTypes';
@@ -7,19 +7,20 @@ import getTagDisplayNames from '../../util/getTagDisplayNames';
 import TextInputTagPicker from './TextInputTagPicker';
 import PureTagPicker from './PureTagPicker';
 import TagFieldValue from '../Tags/TagFieldValue';
-import CapiUnavailable from '../CapiSearch/CapiUnavailable';
+import TagUnavailable from '../TagSearch/TagUnavailable';
 import { DraggableTagList } from './DraggableTagList';
 import removeTagDuplicates from '../../util/removeTagDuplicates';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 import ReactTooltip from 'react-tooltip';
 import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
 import YouTubeKeywords from '../../constants/youTubeKeywords';
+import debounce from "lodash/debounce";
 
 class TagPicker extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      capiTags: [],
+      searchResultTags: [],
       tagValue: [],
       capiUnavailable: false,
       showTags: true,
@@ -77,32 +78,43 @@ class TagPicker extends React.Component {
     }
   }
 
+  getTagFromTagManager = tag => {
+    return {
+      id: tag.path,
+      webTitle: tag.externalName,
+      detailedTitle: tag.internalName
+    };
+  }
+
   fetchTags = searchText => {
     const tagTypes = this._getTagTypes();
 
     if (!searchText) {
       this.setState({
-        capiTags: []
+        searchResultTags: []
       });
     } else {
-      ContentApi.getTagsByType(searchText, tagTypes)
-        .then(capiResponses => {
-          const tags = capiResponses.reduce((tags, capiResponse) => {
-            return tags.concat(getTagDisplayNames(capiResponse.response.results));
+      getTagsByType(this.props.tagManagerUrl, searchText, tagTypes)
+        .then(response => {
+
+          const tags = response.data.reduce((tags, {data}) => {
+            return tags.concat(this.getTagFromTagManager(data));
           }, []);
 
           this.setState({
-            capiTags: tags
+            searchResultTags: tags
           });
         })
         .catch(() => {
           this.setState({
-            capiTags: [],
+            searchResultTags: [],
             capiUnavailable: true
           });
         });
     }
   }
+
+  debouncedFetchTags = debounce(this.fetchTags, 500)
 
   onUpdate = newValue => {
     this.setState({
@@ -112,7 +124,7 @@ class TagPicker extends React.Component {
     .then(() => {
 
       return this.setState({
-        capiTags: []
+        searchResultTags: []
       });
     });
   };
@@ -172,14 +184,14 @@ class TagPicker extends React.Component {
     });
 
     if (e.keyCode === keyCodes.down) {
-      if (this.state.selectedTagIndex === null && this.state.capiTags.length > 0) {
+      if (this.state.selectedTagIndex === null && this.state.searchResultTags.length > 0) {
 
         this.setState({
           selectedTagIndex: 0
         });
 
     } else {
-        if (this.state.selectedTagIndex < this.state.capiTags.length - 1) {
+        if (this.state.selectedTagIndex < this.state.searchResultTags.length - 1) {
           this.setState({
             selectedTagIndex: this.state.selectedTagIndex + 1
           });
@@ -196,7 +208,7 @@ class TagPicker extends React.Component {
     }
 
     if (e.keyCode === keyCodes.enter && this.state.selectedTagIndex !== null) {
-      const newTag = this.state.capiTags[this.state.selectedTagIndex];
+      const newTag = this.state.searchResultTags[this.state.selectedTagIndex];
 
       const valueWithoutDupes = this.props.tagType === TagTypes.contributor ?
         removeStringTagDuplicates(newTag, this.state.tagValue) :
@@ -255,8 +267,8 @@ class TagPicker extends React.Component {
           <TextInputTagPicker
             tagValue={this.state.tagValue}
             onUpdate={this.onUpdate}
-            fetchTags={this.fetchTags}
-            capiTags={this.state.capiTags}
+            fetchTags={this.debouncedFetchTags}
+            searchResultTags={this.state.searchResultTags}
             tagsToVisible={this.tagsToVisible}
             showTags={this.state.showTags}
             hideTagResults={this.hideTagResults}
@@ -275,8 +287,8 @@ class TagPicker extends React.Component {
       <PureTagPicker
         tagValue={this.state.tagValue}
         onUpdate={this.onUpdate}
-        fetchTags={this.fetchTags}
-        capiTags={this.state.capiTags}
+        fetchTags={this.debouncedFetchTags}
+        searchResultTags={this.state.searchResultTags}
         tagsToVisible={this.tagsToVisible}
         showTags={this.state.showTags}
         hideTagResults={this.hideTagResults}
@@ -349,7 +361,7 @@ class TagPicker extends React.Component {
 
   render() {
 
-    const hasWarning = this.props.hasWarning(this.props) && this.state.capiTags.length === 0;
+    const hasWarning = this.props.hasWarning(this.props) && this.state.searchResultTags.length === 0;
     const hasError = this.props.hasError(this.props);
 
     if (!this.props.editable) {
@@ -366,7 +378,7 @@ class TagPicker extends React.Component {
       return (
         <div>
           <p className="details-list__title">{this.props.fieldName}</p>
-          <CapiUnavailable capiUnavailable={this.state.capiUnavailable} />
+          <TagUnavailable capiUnavailable={this.state.capiUnavailable} />
           <p className="details-list__field ">
             <TagFieldValue tagValue={this.state.tagValue} tagType={this.props.tagType}/>
           </p>
@@ -387,7 +399,7 @@ class TagPicker extends React.Component {
           {this.renderCharCount()}
         </div>
 
-        <CapiUnavailable capiUnavailable={this.state.capiUnavailable} />
+        <TagUnavailable capiUnavailable={this.state.capiUnavailable} />
         {this.renderTagPicker()}
         {this.renderAddedTags()}
         {hasWarning
@@ -405,4 +417,13 @@ class TagPicker extends React.Component {
   }
 }
 
-export default React.memo(TagPicker);
+//REDUX CONNECTIONS
+import { connect } from 'react-redux';
+
+function mapStateToProps(state) {
+  return {
+    tagManagerUrl: state.config.tagManagerUrl
+  };
+}
+
+export default connect(mapStateToProps)(TagPicker);
