@@ -80,7 +80,7 @@ export type Video = {
   suppressRelatedContent?: Boolean;
 }
 
-type MediaAtomSummary = Pick<Video, 'id' | 'title' | 'contentChangeDetails' | 'posterImage'>
+export type MediaAtomSummary = Pick<Video, 'id' | 'title' | 'contentChangeDetails' | 'posterImage'>
 
 export type VideoWithoutId = Omit<Video, 'id'>
 
