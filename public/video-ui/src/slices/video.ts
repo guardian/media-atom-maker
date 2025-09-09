@@ -1,6 +1,6 @@
 import { Video } from '../services/VideosApi';
 import { blankVideoData } from '../constants/blankVideoData';
-import { createSlice, Action } from '@reduxjs/toolkit';
+import { createSlice, Action, PayloadAction } from '@reduxjs/toolkit';
 
 const initialState: null | false | Video = null;
 
@@ -12,10 +12,8 @@ const isVideoAction = (action: Action): action is VideoAction => {
   return [
     'VIDEO_GET_RECEIVE',
     'VIDEO_CREATE_RECEIVE',
-    'VIDEO_UPDATE_REQUEST',
     'VIDEO_SAVE_REQUEST',
     'VIDEO_SAVE_RECEIVE',
-    'ASSET_DELETE_RECEIVE'
   ].includes(action.type);
 };
 
@@ -42,7 +40,11 @@ const isAssertCreateAction = (action: Action): action is AssertCreateAction => {
 const video = createSlice({
   name: 'video',
   initialState,
-  reducers: {},
+  reducers: {
+    setVideo: (state, action: PayloadAction<Video>) => {
+      return action.payload;
+    }
+  },
   extraReducers: builder => {
     builder
       .addCase('VIDEO_POPULATE_BLANK', _ => ({
@@ -72,3 +74,5 @@ const video = createSlice({
 });
 
 export default video.reducer;
+
+export const { setVideo } = video.actions;

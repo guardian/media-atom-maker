@@ -1,18 +1,11 @@
 import VideosApi from '../../services/VideosApi';
-import {getUploads} from "../UploadActions/getUploads";
+import { getUploads } from "../UploadActions/getUploads";
+import { setVideo } from "../../slices/video";
 
 function requestAssetDelete(assetId) {
   return {
     type: 'ASSET_DELETE_REQUEST',
     assetId,
-    receivedAt: Date.now()
-  };
-}
-
-function receiveAssetDelete(video) {
-  return {
-    type: 'ASSET_DELETE_RECEIVE',
-    video: video,
     receivedAt: Date.now()
   };
 }
@@ -34,7 +27,7 @@ export function deleteAsset(video, assetId) {
 
     return VideosApi.deleteAsset(video, asset)
       .then(res => {
-        dispatch(receiveAssetDelete(res));
+        dispatch(setVideo(res));
 
         // Pull down the latest changes from the server because uploads and assets are managed differently
         dispatch(getUploads(video.id));
@@ -53,7 +46,7 @@ export function deleteAssets(video, assetIds) {
 
     return VideosApi.deleteAssetList(video, assets)
       .then(res => {
-        dispatch(receiveAssetDelete(res));
+        dispatch(setVideo(res));
 
         // Pull down the latest changes from the server because uploads and assets are managed differently
         dispatch(getUploads(video.id));
