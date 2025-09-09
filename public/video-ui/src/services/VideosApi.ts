@@ -84,6 +84,12 @@ export type MediaAtomSummary = Pick<Video, 'id' | 'title' | 'contentChangeDetail
 
 export type VideoWithoutId = Omit<Video, 'id'>
 
+export type PathSyncCheckReport = {
+  previousPath?: string;
+  proposedPath: string;
+  updateRequired: boolean
+}
+
 function getComposerUrl() {
   return getStore().getState().config.composerUrl;
 }
@@ -389,5 +395,15 @@ export default {
       doEmbargoIndefinitely('preview'),
       doEmbargoIndefinitely('live')
     ]);
+  },
+
+  fetchComposerPathReport(composerId: string) {
+    const composerUrl = getComposerUrl();
+    return apiRequest<PathSyncCheckReport>({
+      url: `${composerUrl}/api/content/${composerId}/sync-path`,
+      method: 'get',
+      crossOrigin: true,
+      withCredentials: true
+    });
   }
 };
