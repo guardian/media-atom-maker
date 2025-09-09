@@ -1,6 +1,6 @@
 import React from 'react';
 import { PropTypes } from 'prop-types';
-import CapiSearch from '../CapiSearch/CapiSearch';
+import TagSearch from '../TagSearch/TagSearch';
 import removeTagDuplicates from '../../util/removeTagDuplicates';
 
 class PureTagPicker extends React.Component {
@@ -8,7 +8,7 @@ class PureTagPicker extends React.Component {
     tagValue: PropTypes.array.isRequired,
     fetchTags: PropTypes.func.isRequired,
     onUpdate: PropTypes.func.isRequired,
-    capiTags: PropTypes.array.isRequired,
+    searchResultTags: PropTypes.array.isRequired,
     tagsToVisible: PropTypes.func.isRequired,
     showTags: PropTypes.bool.isRequired,
     hideTagResults: PropTypes.func.isRequired,
@@ -61,8 +61,8 @@ class PureTagPicker extends React.Component {
         />
 
 
-        <CapiSearch
-          capiTags={this.props.capiTags}
+        <TagSearch
+          searchResultTags={this.props.searchResultTags}
           showTags={this.props.showTags}
           tagsToVisible={this.props.tagsToVisible}
           selectNewTag={this.selectNewTag}
