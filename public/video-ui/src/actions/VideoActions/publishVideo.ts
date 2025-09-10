@@ -1,7 +1,8 @@
-import VideosApi, {Video} from '../../services/VideosApi';
-import { setPublishing } from "../../slices/saveState";
-import { showError } from "../../slices/error";
-import { AppDispatch } from "../../util/setupStore";
+import VideosApi, { Video } from '../../services/VideosApi';
+import { setPublishing } from '../../slices/saveState';
+import { showError } from '../../slices/error';
+import { AppDispatch } from '../../util/setupStore';
+import { setVideo } from '../../slices/video';
 
 function receiveVideoPublish(video: Video) {
   return {
@@ -17,7 +18,8 @@ export function publishVideo(videoId: string) {
     return VideosApi.publishVideo(videoId)
       .then(res => {
         dispatch(setPublishing(false));
-        dispatch(receiveVideoPublish(res))
+        dispatch(setVideo(res));
+        dispatch(receiveVideoPublish(res));
       })
       .catch(error => dispatch(showError(error.responseText, error)));
   };

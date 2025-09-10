@@ -1,7 +1,7 @@
 import VideosApi from '../../services/VideosApi';
 import { blankUsageData } from '../../constants/blankUsageData';
 import ErrorMessages from '../../constants/ErrorMessages';
-import {setFetchingUsage} from "../../slices/saveState";
+import { setFetchingUsage } from '../../slices/saveState';
 
 function receiveVideoUsages(usages) {
   return {
