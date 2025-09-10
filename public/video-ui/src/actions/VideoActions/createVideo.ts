@@ -1,5 +1,7 @@
 import { browserHistory } from 'react-router';
-import VideosApi from '../../services/VideosApi';
+import VideosApi, { Video } from '../../services/VideosApi';
+import { showError } from "../../slices/error";
+import { AppDispatch } from "../../util/setupStore";
 
 function requestVideoCreate() {
   return {
@@ -8,7 +10,7 @@ function requestVideoCreate() {
   };
 }
 
-function receiveVideoCreate(video) {
+function receiveVideoCreate(video: Video) {
   browserHistory.push('/videos/' + video.id);
   return {
     type: 'VIDEO_CREATE_RECEIVE',
@@ -17,20 +19,11 @@ function receiveVideoCreate(video) {
   };
 }
 
-function errorVideoCreate(error) {
-  return {
-    type: 'SHOW_ERROR',
-    message: 'Could not create video',
-    error: error,
-    receivedAt: Date.now()
-  };
-}
-
-export function createVideo(video) {
-  return dispatch => {
+export function createVideo(video: Video) {
+  return (dispatch: AppDispatch) => {
     dispatch(requestVideoCreate());
     return VideosApi.createVideo(video)
       .then(res => dispatch(receiveVideoCreate(res)))
-      .catch(error => dispatch(errorVideoCreate(error)));
+      .catch(error => dispatch(showError('Could not create video', error)));
   };
 }
