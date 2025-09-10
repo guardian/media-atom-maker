@@ -17,7 +17,7 @@
     "transformIgnorePatterns": [
       "node_modules/(?!panda-session)"
     ],
-    "testEnvironment": "jsdom",
+    "testEnvironment": "jest-fixed-jsdom",
     "preset": "ts-jest/presets/js-with-ts"
   },
   "devDependencies": {
@@ -55,7 +55,9 @@
     "hoconjs": "github:yellowblood/hocon-js",
     "jest": "29.7.0",
     "jest-environment-jsdom": "^30.1.2",
+    "jest-fixed-jsdom": "^0.0.10",
     "lodash": "4.17.21",
+    "msw": "^2.11.1",
     "prettier": "3.3.3",
     "ts-jest": "29.1.5",
     "typescript": "^4.7.4",
