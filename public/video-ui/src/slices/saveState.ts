@@ -1,17 +1,16 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import {setAssets} from "./video";
 
 const initialState: {
-  saving: boolean,
-  publishing: boolean,
-  fetchingUsages: boolean,
-  addingAsset: boolean,
-  activatingAssetNumber?: number
+  saving: boolean;
+  publishing: boolean;
+  fetchingUsages: boolean;
+  addingAsset: boolean;
+  activatingAssetNumber?: number;
 } = {
   saving: false,
   publishing: false,
   fetchingUsages: false,
-  addingAsset: false,
+  addingAsset: false
 };
 
 const saveState = createSlice({
@@ -30,24 +29,33 @@ const saveState = createSlice({
     setAddingAsset: (state, { payload }: PayloadAction<boolean>) => {
       state.addingAsset = payload;
     },
-    setActivatingAssetNumber: (state, { payload }: PayloadAction<number | undefined>) => {
+    setActivatingAssetNumber: (
+      state,
+      { payload }: PayloadAction<number | undefined>
+    ) => {
       state.saving = payload !== undefined;
       state.activatingAssetNumber = payload;
-    },
+    }
   },
   extraReducers: builder => {
-    builder.addCase('SHOW_ERROR', (state) => {
+    builder.addCase('SHOW_ERROR', state => {
       state = {
         saving: false,
         publishing: false,
         fetchingUsages: false,
         addingAsset: false,
         activatingAssetNumber: undefined
-      }
-    })
+      };
+    });
   }
 });
 
 export default saveState.reducer;
 
-export const { setSaving, setPublishing, setFetchingUsage, setAddingAsset, setActivatingAssetNumber } = saveState.actions;
+export const {
+  setSaving,
+  setPublishing,
+  setFetchingUsage,
+  setAddingAsset,
+  setActivatingAssetNumber
+} = saveState.actions;
