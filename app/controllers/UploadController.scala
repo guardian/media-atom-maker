@@ -47,36 +47,25 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
    * @return
    */
   def list(atomId: String): Action[AnyContent] = APIAuthAction { req =>
-
-    log.info(s"list atomId: "+atomId)
     val clientAssets = clientAssetsForAtom(atomId)
-    log.info("clientAssets: "+clientAssets)
 
     Ok(Json.toJson(clientAssets))
   }
 
   private[controllers] def clientAssetsForAtom(atomId: String): List[ClientAsset] = {
     val atom = MediaAtom.fromThrift(getPreviewAtom(atomId))
-    log.info("atom: "+atom)
     val withStatus = ClientAsset.fromAssets(atom.assets).map(addYouTubeStatus)
-    log.info("withStatus: "+withStatus)
     val atomAssets = withStatus.map { asset => uploadDecorator.addMetadata(atom.id, asset) }
-    log.info("atomAssets: "+atomAssets)
 
     val jobs = stepFunctions.getJobs(atomId)
-    log.info("jobs: "+jobs)
-
     val jobAssets = jobs.flatMap(jobAsAsset)
-    log.info("jobAssets: "+jobAssets)
 
     // merge existing assets with running/failed jobs
     val mergedJobAssets = jobAssets.map(getRunning(atomAssets, _))
-    log.info("mergedJobAssets: "+mergedJobAssets)
 
     // if multiple jobs for same asset version, only keep the latest
     val assetsByVersion = (atomAssets ++ mergedJobAssets).groupBy(_.id)
     val latestAssets = assetsByVersion.map { case (_, job) => job.maxBy(startTime) }.toList
-    log.info("latestAssets: "+latestAssets)
 
     // sort newest asset version first
     latestAssets.sortBy(ClientAsset.getVersion).reverse
