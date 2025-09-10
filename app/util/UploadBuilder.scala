@@ -50,7 +50,8 @@ object UploadBuilder {
     val subtitleVersion = Upload.getNextSubtitleVersion(upload)
     val updatedAsset = getAsset(upload.metadata.selfHost, upload.metadata.title, upload.metadata.pluto.atomId, assetVersion, subtitleVersion)
     upload.copy(
-      metadata = upload.metadata.copy(asset = updatedAsset, subtitleSource = newSubtitleSource, subtitleVersion = Some(subtitleVersion)),
+      metadata = upload.metadata.copy(asset = updatedAsset, subtitleSource = newSubtitleSource,
+        subtitleVersion = Some(subtitleVersion), startTimestamp = Some(Instant.now().toEpochMilli)),
       progress = upload.progress.copy(fullyTranscoded = false)
     )
   }
