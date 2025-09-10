@@ -1,6 +1,7 @@
 import VideosApi from '../../services/VideosApi';
 import Logger from '../../logger';
 import moment from 'moment';
+import {setSaving} from "../../slices/saveState";
 
 function requestVideo(id) {
   return {
@@ -30,6 +31,7 @@ function errorReceivingVideo(error) {
 
 export function getVideo(id) {
   return dispatch => {
+    dispatch(setSaving(true));
     dispatch(requestVideo(id));
     return VideosApi.fetchVideo(id)
       .then(res => {
@@ -46,6 +48,7 @@ export function getVideo(id) {
         if (expiry) {
           res.contentChangeDetails.expiry.date = moment(expiry).valueOf();
         }
+        dispatch(setSaving(false));
         dispatch(receiveVideo(res));
       })
       .catch(error => dispatch(errorReceivingVideo(error)));

@@ -1,5 +1,6 @@
 import VideosApi from '../../services/VideosApi';
 import { showError } from '../../slices/error';
+import {setSaving} from "../../slices/saveState";
 
 function requestVideoSave(video) {
   return {
@@ -35,9 +36,11 @@ function receiveVideoUsages(usages) {
 
 export function saveVideo(video) {
   return dispatch => {
+    dispatch(setSaving(true));
     dispatch(requestVideoSave(video));
     return VideosApi.saveVideo(video.id, video)
       .then(res => {
+        dispatch(setSaving(false));
         dispatch(receiveVideoSave(res));
         return VideosApi.getVideoUsages(video.id)
           .then(usages => {
