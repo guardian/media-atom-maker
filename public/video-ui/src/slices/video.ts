@@ -32,6 +32,10 @@ const video = createSlice({
     setVideo: (_, { payload }: PayloadAction<Video>) => {
       return payload;
     },
+    setVideoBlank: (_) => ({
+      ...blankVideoData,
+      type: 'media'
+    }),
     setActiveAsset: (state, { payload }: PayloadAction<Video>) => ({
       ...(state || blankVideoData),
       activeVersion: payload.activeVersion
@@ -43,10 +47,6 @@ const video = createSlice({
   },
   extraReducers: builder => {
     builder
-      .addCase('VIDEO_POPULATE_BLANK', _ => ({
-        ...blankVideoData,
-        type: 'media'
-      }))
       .addMatcher(isPublishVideoAction, (_, { publishedVideo }) => ({
         ...blankVideoData,
         ...publishedVideo
@@ -63,4 +63,4 @@ const video = createSlice({
 
 export default video.reducer;
 
-export const { setVideo, setActiveAsset, setAssets } = video.actions;
+export const { setVideo, setVideoBlank, setActiveAsset, setAssets } = video.actions;

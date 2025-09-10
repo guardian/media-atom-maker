@@ -34,10 +34,3 @@ export function createVideo(video) {
       .catch(error => dispatch(errorVideoCreate(error)));
   };
 }
-
-export function populateEmptyVideo() {
-  return {
-    type: 'VIDEO_POPULATE_BLANK',
-    receivedAt: Date.now()
-  };
-}
