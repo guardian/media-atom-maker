@@ -13,7 +13,7 @@ const isVideoAction = (action: Action): action is VideoAction => {
     'VIDEO_GET_RECEIVE',
     'VIDEO_CREATE_RECEIVE',
     'VIDEO_SAVE_REQUEST',
-    'VIDEO_SAVE_RECEIVE',
+    'VIDEO_SAVE_RECEIVE'
   ].includes(action.type);
 };
 
@@ -25,25 +25,21 @@ const isPublishVideoAction = (action: Action): action is PublishVideoAction => {
   return 'VIDEO_PUBLISH_RECEIVE' === action.type;
 };
 
-interface AssertRevertAction extends VideoAction, Action {}
-
-const isAssertRevertAction = (action: Action): action is AssertRevertAction => {
-  return 'ASSET_REVERT_RECEIVE' === action.type;
-};
-
-interface AssertCreateAction extends VideoAction, Action {}
-
-const isAssertCreateAction = (action: Action): action is AssertCreateAction => {
-  return 'VIDEO_PUBLISH_RECEIVE' === action.type;
-};
-
 const video = createSlice({
   name: 'video',
   initialState,
   reducers: {
-    setVideo: (state, action: PayloadAction<Video>) => {
-      return action.payload;
-    }
+    setVideo: (_, { payload }: PayloadAction<Video>) => {
+      return payload;
+    },
+    setActiveAsset: (state, { payload }: PayloadAction<Video>) => ({
+      ...(state || blankVideoData),
+      activeVersion: payload.activeVersion
+    }),
+    setAssets: (state, { payload }: PayloadAction<Video>) => ({
+      ...(state || blankVideoData),
+      assets: payload.assets
+    })
   },
   extraReducers: builder => {
     builder
@@ -54,14 +50,6 @@ const video = createSlice({
       .addMatcher(isPublishVideoAction, (_, { publishedVideo }) => ({
         ...blankVideoData,
         ...publishedVideo
-      }))
-      .addMatcher(isAssertRevertAction, (state, { video }) => ({
-        ...(state || blankVideoData),
-        activeVersion: video.activeVersion
-      }))
-      .addMatcher(isAssertCreateAction, (state, { video }) => ({
-        ...(state || blankVideoData),
-        assets: video.assets
       }))
       .addMatcher(isVideoAction, (_, { video }) => {
         if (video) {
@@ -75,4 +63,4 @@ const video = createSlice({
 
 export default video.reducer;
 
-export const { setVideo } = video.actions;
+export const { setVideo, setActiveAsset, setAssets } = video.actions;
