@@ -1,9 +1,10 @@
-import VideosApi from '../../services/VideosApi';
+import VideosApi, { Video } from '../../services/VideosApi';
 import { getUploads } from "../UploadActions/getUploads";
 import { setVideo } from "../../slices/video";
 import { showError } from "../../slices/error";
+import {AppDispatch} from "../../util/setupStore";
 
-function requestAssetDelete(assetId) {
+function requestAssetDelete(assetId: string) {
   return {
     type: 'ASSET_DELETE_REQUEST',
     assetId,
@@ -11,8 +12,8 @@ function requestAssetDelete(assetId) {
   };
 }
 
-export function deleteAsset(video, assetId) {
-  return dispatch => {
+export function deleteAsset(video: Video, assetId: string) {
+  return (dispatch: AppDispatch) => {
     dispatch(requestAssetDelete(assetId));
 
     const asset = video.assets.find(_ => _.id === assetId);
@@ -28,8 +29,8 @@ export function deleteAsset(video, assetId) {
   };
 }
 
-export function deleteAssets(video, assetIds) {
-  return dispatch => {
+export function deleteAssets(video: Video, assetIds: string[]) {
+  return (dispatch: AppDispatch) => {
     assetIds.forEach((assetId) => {
       dispatch(requestAssetDelete(assetId));
     });
