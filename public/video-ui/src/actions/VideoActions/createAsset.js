@@ -3,7 +3,7 @@ import { getVideo } from './getVideo';
 import { getUploads } from '../UploadActions/getUploads';
 import { setAssets } from "../../slices/video";
 import { showError } from "../../slices/error";
-import {setAddingAsset} from "../../slices/saveState";
+import { setAddingAsset } from "../../slices/saveState";
 
 export function createAsset(asset, video) {
   return dispatch => {

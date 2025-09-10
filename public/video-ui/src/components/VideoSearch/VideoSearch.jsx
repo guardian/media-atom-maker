@@ -1,5 +1,4 @@
 import React from 'react';
-import { saveStateVals } from '../../constants/saveStateVals';
 import Icon from '../Icon';
 
 export default class VideoSearch extends React.Component {
@@ -8,7 +7,7 @@ export default class VideoSearch extends React.Component {
   };
 
   searchInProgress = () => {
-    return this.props.saving === saveStateVals.inprogress;
+    return this.props.saving;
   };
 
   render() {
