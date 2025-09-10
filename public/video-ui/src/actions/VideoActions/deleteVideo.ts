@@ -1,7 +1,7 @@
 import { browserHistory } from 'react-router';
-import VideosApi, {Video} from '../../services/VideosApi';
-import {showError} from "../../slices/error";
-import { AppDispatch } from "../../util/setupStore";
+import VideosApi, { Video } from '../../services/VideosApi';
+import { showError } from '../../slices/error';
+import { AppDispatch } from '../../util/setupStore';
 
 export function deleteVideo(video: Video) {
   return (dispatch: AppDispatch) => {
