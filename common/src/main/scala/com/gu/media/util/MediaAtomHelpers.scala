@@ -115,6 +115,12 @@ object MediaAtomHelpers {
         Asset(AssetType.Video, version, src, Platform.Url, Some(mimeType))
       }
 
-      assets
+      val subtitleAssets = sources.collect {
+        case VideoSource(src, VideoSource.mimeTypeM3u8) =>
+          val subtitleSrc = src.dropRight(5) + VideoSource.captionsSuffix
+          Asset(AssetType.Subtitles, version, subtitleSrc, Platform.Url, Some(VideoSource.mimeTypeVtt))
+      }
+
+      assets ++ subtitleAssets
   }
 }
