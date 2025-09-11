@@ -1,4 +1,5 @@
 import { saveStateVals } from '../constants/saveStateVals';
+import { setActiveAsset, setAssets } from "../slices/video";
 
 export default function saveState(
   state = {
@@ -35,7 +36,7 @@ export default function saveState(
       return Object.assign({}, state, {
         saving: false
       });
-    case 'ASSET_REVERT_RECEIVE':
+    case setActiveAsset.type:
       return Object.assign({}, state, {
         saving: false,
         activatingAssetNumber: undefined
@@ -62,7 +63,7 @@ export default function saveState(
       return Object.assign({}, state, {
         addingAsset: saveStateVals.inprogress
       });
-    case 'ASSET_CREATE_RECEIVE':
+    case setAssets.type:
       return Object.assign({}, state, {
         addingAsset: false
       });

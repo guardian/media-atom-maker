@@ -2,7 +2,7 @@ import { routerReducer } from 'react-router-redux';
 import config from '../slices/config';
 import error from '../slices/error';
 import errorKey from './errorKeyReducer';
-import video from './videoReducer';
+import video from '../slices/video';
 import publishedVideo from './publishedVideoReducer';
 import videos from '../slices/videos';
 import saveState from './saveStateReducer';

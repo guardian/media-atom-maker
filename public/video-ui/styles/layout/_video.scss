@@ -85,6 +85,7 @@
       padding-bottom: 6px;
       border-bottom: 1px solid #444;
     }
+
   }
 
   &__assets {
@@ -126,6 +127,17 @@
 .video-player {
   max-width: 100%;
 }
+
+.video-asset {
+  display: inline-flex;
+  gap: 12px;
+  margin: 0;
+}
+.video-asset-number {
+  font-style: oblique;
+  color: $brandColor;
+}
+
 
 .video__images {
   width: 33%;

@@ -242,7 +242,7 @@ export function Asset({
   const { asset, metadata, processing } = upload;
 
   const user = metadata?.user ?? "";
-  const info = metadata?.originalFilename || `Version ${upload.id}`;
+  const info = `Asset ${upload.id} - ${metadata?.originalFilename || '(no filename)'}`;
   const timestamp = metadata?.startTimestamp || false;
 
   const isSelfHosted = asset && asset.sources;

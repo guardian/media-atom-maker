@@ -1,6 +1,7 @@
 import { Dispatch } from "redux";
 import { browserHistory } from 'react-router';
 import VideosApi, { Video } from '../../services/VideosApi';
+import { setActiveAsset } from "../../slices/video";
 
 function requestRevertAsset(assetVersion: number) {
   return {
@@ -12,11 +13,7 @@ function requestRevertAsset(assetVersion: number) {
 
 function receiveRevertAsset(video: Video) {
   browserHistory.push('/videos/' + video.id);
-  return {
-    type: 'ASSET_REVERT_RECEIVE',
-    video: video,
-    receivedAt: Date.now()
-  };
+  return setActiveAsset(video);
 }
 
 function errorRevertAsset(error: Error) {
