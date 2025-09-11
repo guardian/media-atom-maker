@@ -378,7 +378,7 @@ class VideoDisplay extends React.Component {
 
   render() {
     const video = this.props.video &&
-      this.props.params.id === this.props.video.id
+      (this.props.params.id === this.props.video.id || this.state.isCreateMode)
       ? this.props.video
       : undefined;
 

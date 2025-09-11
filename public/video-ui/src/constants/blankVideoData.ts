@@ -1,9 +1,13 @@
-export const blankVideoData = {
+import { Video } from "../services/VideosApi";
+
+export const blankVideoData: Video = {
+  id: '',
   title: '',
   description: '',
   category: 'News',
   duration: 0,
   channelId: '',
+  youtubeTitle: '',
   youtubeCategoryId: '',
   privacyStatus: '',
   assets: [],
@@ -11,7 +15,8 @@ export const blankVideoData = {
   tags: [],
   byline: [],
   keywords: [],
-  commentsEnabled: false,
+  labels: [],
+  composerCommentsEnabled: false,
   commissioningDesks: [],
   contentChangeDetails: {
     revision: 0
