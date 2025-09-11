@@ -12,14 +12,17 @@ type RequestConfig<RequestBodyType = unknown> = {
   body?: string
 }
 
-const checkStatus = (res: Response) => {
+const checkStatus = async (res: Response) => {
   if (res.status >= 200 && res.status < 300) {
     return res;
-  } else {
+  } else if (res.status === 400) {
+    const body = await res.text();
+    throw { res: res, body: body };
+  }
+  else {
     throw res;
   }
 };
-
 
 const fetchWithReAuth = <ResponseBodyType>(url: string | URL, config: RequestConfig, timeout: number) => {
   const endTime = Number(new Date()) + timeout;

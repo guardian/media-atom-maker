@@ -16,10 +16,10 @@ function receiveRevertAsset(video: Video) {
   return setActiveAsset(video);
 }
 
-function errorRevertAsset(error: Error) {
+function errorRevertAsset(error: Error , body?:string) {
   return {
     type: 'SHOW_ERROR',
-    message: 'Could not revert the asset',
+    message: 'Failed to activate asset due to ' + body,
     error: error,
     receivedAt: Date.now()
   };
@@ -30,6 +30,7 @@ export function revertAsset(atomId: string, version: number) {
     dispatch(requestRevertAsset(version));
     return VideosApi.revertAsset(atomId, version)
       .then(video => dispatch(receiveRevertAsset(video)))
-      .catch(error => dispatch(errorRevertAsset(error)));
+      .catch(error => {
+        dispatch(errorRevertAsset(error.res, error.body))});
   };
 }
