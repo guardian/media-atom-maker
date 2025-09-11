@@ -1,3 +1,4 @@
+import { getComposerId } from '../components/Videos/ComposerPathChecker';
 import { blankUsageData } from '../constants/blankUsageData';
 
 export default function usage(state = blankUsageData, action) {
@@ -43,6 +44,18 @@ export default function usage(state = blankUsageData, action) {
     case 'USAGE_UPDATE_BLANK': {
       return Object.assign({}, state, blankUsageData);
     }
+
+    case 'RECEIVE_COMPOSER_PATH_REPORT': {
+      const { pathSyncCheckReport, composerId } = action;
+      const actionIsForCurrentPage = composerId === getComposerId(state);
+      if (!actionIsForCurrentPage) {
+        return state;
+      }
+      return Object.assign({}, state, {
+        pathSyncCheckReport
+      });
+    }
+
     default: {
       return state;
     }

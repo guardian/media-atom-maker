@@ -10,6 +10,7 @@ import {Presence} from './Presence';
 import {canonicalVideoPageExists} from '../util/canonicalVideoPageExists';
 import VideoUtils from '../util/video';
 import {QUERY_PARAM_shouldUseCreatedDateForSort} from "../constants/queryParams";
+import { ComposerPathChecker } from './Videos/ComposerPathChecker';
 
 export default class Header extends React.Component {
   state = { presence: null };
@@ -250,6 +251,7 @@ export default class Header extends React.Component {
             usages={this.props.usages}
             error={this.props.error}
           />
+          <ComposerPathChecker fetchComposerPathReport={this.props.fetchComposerPathReport} />
           {this.renderComposerMissingWarning()}
           <div className="flex-container">
             {this.renderHelpLink()}
