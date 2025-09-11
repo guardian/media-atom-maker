@@ -80,6 +80,7 @@ class ReactApp extends React.Component {
           saveVideo={this.props.appActions.saveVideo}
           query={this.props.location.query}
           error={this.props.error}
+          fetchComposerPathReport={this.props.appActions.fetchComposerPathReport}
         />
         {this.props.error
           ? <div
@@ -112,6 +113,7 @@ import * as videoUsages from '../actions/VideoActions/videoUsages';
 import * as deleteVideo from '../actions/VideoActions/deleteVideo';
 import * as updateVideo from '../actions/VideoActions/updateVideo';
 import * as reportPresenceClientError from '../actions/PresenceActions/reportError';
+import * as fetchComposerPathReport from '../actions/VideoActions/fetchComposerPathReport';
 
 function mapStateToProps(state) {
   return {
@@ -148,7 +150,8 @@ function mapDispatchToProps(dispatch) {
         videoUsages,
         deleteVideo,
         updateVideo,
-        reportPresenceClientError
+        reportPresenceClientError,
+        fetchComposerPathReport
       ),
       dispatch
     )
