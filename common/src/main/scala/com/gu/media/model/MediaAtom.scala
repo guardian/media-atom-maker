@@ -41,6 +41,7 @@ abstract class MediaAtomBase {
   val optimisedForWeb: Option[Boolean]
   val composerCommentsEnabled: Option[Boolean]
   val suppressRelatedContent: Option[Boolean]
+  val autoloopVideoOnPageLoad: Option[Boolean]
 
   def isOnCommercialChannel(commercialChannels: Set[String]): Option[Boolean] = {
     channelId.map(commercialChannels.contains)
@@ -75,7 +76,8 @@ case class MediaAtomBeforeCreation(
   sensitive: Option[Boolean],
   optimisedForWeb: Option[Boolean],
   composerCommentsEnabled: Option[Boolean],
-  suppressRelatedContent: Option[Boolean]
+  suppressRelatedContent: Option[Boolean],
+  autoloopVideoOnPageLoad: Option[Boolean]
 ) extends MediaAtomBase {
 
   def asThrift(id: String, contentChangeDetails: ContentChangeDetails) = {
@@ -108,6 +110,7 @@ case class MediaAtomBeforeCreation(
       commentsEnabled = composerCommentsEnabled,
       optimisedForWeb = optimisedForWeb,
       suppressRelatedContent = suppressRelatedContent
+      autoloopVideoOnPageLoad = autoloopVideoOnPageLoad
     )
 
     ThriftAtom(
@@ -171,7 +174,8 @@ case class MediaAtom(
   blockAds: Boolean = false,
   composerCommentsEnabled: Option[Boolean] = Some(false),
   optimisedForWeb: Option[Boolean] = Some(false),
-  suppressRelatedContent: Option[Boolean] = Some(false))
+  suppressRelatedContent: Option[Boolean] = Some(false),
+  autoloopVideoOnPageLoad: Option[Boolean] = Some(false))
     extends MediaAtomBase {
 
   def asThrift = {
@@ -203,7 +207,8 @@ case class MediaAtom(
       )),
       commentsEnabled = composerCommentsEnabled,
       optimisedForWeb = optimisedForWeb,
-      suppressRelatedContent = suppressRelatedContent
+      suppressRelatedContent = suppressRelatedContent,
+      autoloopVideoOnPageLoad = autoloopVideoOnPageLoad
     )
 
     ThriftAtom(
@@ -271,6 +276,7 @@ object MediaAtom extends MediaAtomImplicits {
       composerCommentsEnabled = data.commentsEnabled,
       optimisedForWeb = data.optimisedForWeb,
       suppressRelatedContent = data.suppressRelatedContent,
+      autoloopVideoOnPageLoad = data.autoloopVideoOnPageLoad,
       youtubeTitle = data.metadata.flatMap(_.youtube).map(_.title).getOrElse(data.title),
       youtubeDescription = youtubeDescription
     )
