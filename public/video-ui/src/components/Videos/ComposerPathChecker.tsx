@@ -6,7 +6,7 @@ import { RootState } from '../../util/setupStore';
 import { CapiContent } from '../../services/capi';
 
 
-function getCapiContent(usage: UsageData): CapiContent | undefined {
+function getCapiContent({usage}: {usage: UsageData}): CapiContent | undefined {
     const [firstContent] = [...usage.data.preview.video, ...usage.data.published.video];
     return firstContent;
 }
@@ -14,14 +14,16 @@ function getCapiContent(usage: UsageData): CapiContent | undefined {
 
 export const ComposerPathChecker = () => {
     const dispatch = useDispatch();
-    const maybeCapiContent = useSelector<RootState, CapiContent>(({ usage }) => getCapiContent(usage));
-    const composerPathPathState = useSelector<RootState, ComposerPathPathState>(({ composerPagePaths }) => composerPagePaths);
+    const maybeCapiContent = useSelector<RootState, CapiContent>(getCapiContent);
     const composerId = maybeCapiContent?.fields.internalComposerCode;
+
+    const composerPathPathState = useSelector<RootState, ComposerPathPathState>(({ composerPagePaths }) => composerPagePaths);
     const {
         updateRequired = false,
         previousPath = undefined,
         proposedPath = undefined
     } = composerPathPathState.pathSyncCheckReports[composerId] ?? {};
+    const isPending = composerPathPathState.pendingChecks.includes(composerId);
 
     useEffect(() => {
         if (!composerId) {
@@ -35,19 +37,20 @@ export const ComposerPathChecker = () => {
     }
 
     const handleButton = () => {
-        if (!composerId) {
+        if (!composerId || isPending) {
             return;
         }
         dispatch(fetchComposerPathReport(composerId));
     };
 
     const indicatorClassName = updateRequired ? 'topbar__path-sync-indicator topbar__path-sync-indicator--out-of-sync' : 'topbar__path-sync-indicator';
+    const buttonClassName = isPending ? "btn btn--loading" : "btn btn--space-for-loading";
 
     return (
         <div className="flex-container topbar__path-sync" >
-            <button className="btn"
+            <button className={buttonClassName}
                 title={previousPath && `current path: ${previousPath}`}
-                disabled={!composerId}
+                disabled={!composerId || isPending}
                 onClick={handleButton}>
                 check for path changes
             </button>

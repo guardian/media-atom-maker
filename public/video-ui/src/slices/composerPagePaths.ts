@@ -4,10 +4,12 @@ import { showError } from './error';
 
 export type ComposerPathPathState = {
   pathSyncCheckReports: Record<string, PathSyncCheckReport>
+  pendingChecks: string[]
 }
 
 const initialState: ComposerPathPathState = {
-  pathSyncCheckReports: {}
+  pathSyncCheckReports: {},
+  pendingChecks: []
 };
 
 
@@ -30,7 +32,12 @@ const composerPagePaths = createSlice({
   reducers: {},
   extraReducers: builder => {
     builder
+      .addCase(fetchComposerPathReport.pending, (state, action) => {
+        state.pendingChecks.push(action.meta.arg);
+        return state;
+      })
       .addCase(fetchComposerPathReport.fulfilled, (state, action) => {
+        state.pendingChecks = state.pendingChecks.filter(id => id !== action.meta.arg);
         state.pathSyncCheckReports[action.meta.arg] = action.payload;
         return state;
       });
