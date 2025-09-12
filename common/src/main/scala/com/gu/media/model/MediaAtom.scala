@@ -109,7 +109,7 @@ case class MediaAtomBeforeCreation(
       )),
       commentsEnabled = composerCommentsEnabled,
       optimisedForWeb = optimisedForWeb,
-      suppressRelatedContent = suppressRelatedContent
+      suppressRelatedContent = suppressRelatedContent,
       autoloopVideoOnPageLoad = autoloopVideoOnPageLoad
     )
 
