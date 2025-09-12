@@ -19,6 +19,7 @@ import pluto from '../slices/pluto';
 import workflow from './workflowReducer';
 import targeting from './targetingReducer';
 import shouldUseCreatedDateForSort from './shouldUseCreatedDateForSortReducer';
+import composerPagePaths from '../slices/composerPagePaths';
 
 export default {
   config,
@@ -41,5 +42,6 @@ export default {
   routing: routerReducer,
   pluto,
   workflow,
-  targeting
+  targeting,
+  composerPagePaths
 };

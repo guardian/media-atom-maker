@@ -251,7 +251,7 @@ export default class Header extends React.Component {
             usages={this.props.usages}
             error={this.props.error}
           />
-          <ComposerPathChecker fetchComposerPathReport={this.props.fetchComposerPathReport} />
+          <ComposerPathChecker />
           {this.renderComposerMissingWarning()}
           <div className="flex-container">
             {this.renderHelpLink()}
