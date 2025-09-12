@@ -9,7 +9,6 @@ import saveState from './saveStateReducer';
 import searchTerm from './searchTermReducer';
 import youtube from '../slices/youtube';
 import usage from './usageReducer';
-import pageCreate from './composerPageReducer';
 import s3Upload from './s3UploadReducer';
 import videoEditOpen from './editStateReducer';
 import checkedFormFields from './checkedFormFieldsReducer';
@@ -32,7 +31,6 @@ export default {
   shouldUseCreatedDateForSort,
   youtube,
   usage,
-  pageCreate,
   publishedVideo,
   checkedFormFields,
   formFieldsWarning,
