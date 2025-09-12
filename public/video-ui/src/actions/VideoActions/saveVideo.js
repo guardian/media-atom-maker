@@ -1,26 +1,12 @@
 import VideosApi from '../../services/VideosApi';
 import { showError } from '../../slices/error';
-
-function requestVideoSave(video) {
-  return {
-    type: 'VIDEO_SAVE_REQUEST',
-    video: video,
-    receivedAt: Date.now()
-  };
-}
+import { setSaving } from '../../slices/saveState';
+import { setVideo } from '../../slices/video';
 
 function receiveVideoPageUpdate(newTitle) {
   return {
     type: 'VIDEO_PAGE_UPDATE_POST_RECEIVE',
     newTitle: newTitle,
-    receivedAt: Date.now()
-  };
-}
-
-function receiveVideoSave(video) {
-  return {
-    type: 'VIDEO_SAVE_RECEIVE',
-    video: video,
     receivedAt: Date.now()
   };
 }
@@ -35,10 +21,12 @@ function receiveVideoUsages(usages) {
 
 export function saveVideo(video) {
   return dispatch => {
-    dispatch(requestVideoSave(video));
+    dispatch(setSaving(true));
+    dispatch(setVideo(video));
     return VideosApi.saveVideo(video.id, video)
       .then(res => {
-        dispatch(receiveVideoSave(res));
+        dispatch(setSaving(false));
+        dispatch(setVideo(res));
         return VideosApi.getVideoUsages(video.id)
           .then(usages => {
             dispatch(receiveVideoUsages(usages));
