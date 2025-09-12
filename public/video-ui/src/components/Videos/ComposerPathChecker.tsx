@@ -1,22 +1,18 @@
 import React, { useEffect } from 'react';
 import { useStore } from 'react-redux';
+import { UsageData } from '../../reducers/usageReducer';
 
 interface Props {
     fetchComposerPathReport: { (composerId: string): void }
 }
 
 
-export function getComposerId(usage: any) {
-    try {
-        const usages = usage?.data;
-        const videoPages = [...usages.preview.video, ...usages.published.video];
-        if (videoPages.length !== 0) {
-            return videoPages[0].fields.internalComposerCode;
-        }
-        return undefined;
-    } catch (err) {
-        return undefined;
+function getComposerId(usage: UsageData): string | undefined {
+    const [firstContent] = [...usage.data.preview.video, ...usage.data.published.video];
+    if (firstContent) {
+        return firstContent.fields.internalComposerCode;
     }
+    return undefined;
 }
 
 
