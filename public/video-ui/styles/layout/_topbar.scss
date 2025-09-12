@@ -110,3 +110,19 @@ $topbarHeight: 50px;
 .topbar__launch-label {
   margin: 0 20px;
 }
+
+.topbar__path-sync {
+  gap: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.topbar__path-sync-indicator {
+  color: $cWhite;
+  background-color: $cGreen00;
+  padding: 1px 8px;
+  border-radius: 16px;
+}
+.topbar__path-sync-indicator--out-of-sync {
+  background-color: $dangerColor;
+}

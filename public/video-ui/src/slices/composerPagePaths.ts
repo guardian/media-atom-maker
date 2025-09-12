@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import VideosApi, { PathSyncCheckReport } from '../services/VideosApi';
 import { showError } from './error';
 
-type ComposerPathPathState = {
+export type ComposerPathPathState = {
   pathSyncCheckReports: Record<string, PathSyncCheckReport>
 }
 
