@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { useStore } from 'react-redux';
-import { PathSyncCheckReport } from '../../services/VideosApi';
 
 interface Props {
     fetchComposerPathReport: { (composerId: string): void }
@@ -25,7 +24,7 @@ export const ComposerPathChecker = ({ fetchComposerPathReport }: Props) => {
 
     const store = useStore();
     const composerId = getComposerId(store.getState().usage);
-    const report = store.getState().usage.pathSyncCheckReport as undefined | PathSyncCheckReport;
+    const report = store.getState().usage.pathSyncCheckReports[composerId];
 
     const handleButton = () => {
         if (!composerId) {

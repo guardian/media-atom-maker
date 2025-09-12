@@ -1,4 +1,3 @@
-import { getComposerId } from '../components/Videos/ComposerPathChecker';
 import { blankUsageData } from '../constants/blankUsageData';
 import { CapiContent, Stage as CapiStage } from '../services/capi';
 import { PathSyncCheckReport } from '../services/VideosApi';
@@ -12,7 +11,7 @@ export type UsageData = {
 
   totalUsages: number,
   totalVideoPages: number,
-  pathSyncCheckReport?: PathSyncCheckReport
+  pathSyncCheckReports: Record<string, PathSyncCheckReport>
 }
 
 
@@ -28,18 +27,23 @@ type Action =
   {
     type: 'VIDEO_PAGE_UPDATE_POST_RECEIVE'
     newTitle: string
-  } | {
+  } |
+  {
     type: 'USAGE_UPDATE_BLANK'
-  } | {
+  } |
+  {
     type: 'RECEIVE_COMPOSER_PATH_REPORT'
     composerId: string;
     pathSyncCheckReport: PathSyncCheckReport
-  }
+  };
 
 export default function usage(state = blankUsageData, action: Action) {
   switch (action.type) {
     case 'VIDEO_USAGE_GET_RECEIVE': {
-      return action.usages || {};
+      return {
+        ...action.usages,
+        pathSyncCheckReports: state.pathSyncCheckReports
+      };
     }
     case 'VIDEO_PAGE_CREATE_POST_RECEIVE': {
       // TODO avoid mutation... but how on such a deep property?!
@@ -72,7 +76,8 @@ export default function usage(state = blankUsageData, action: Action) {
         },
         Object.assign({}, blankUsageData, {
           totalUsages: state.totalUsages,
-          totalVideoPages: state.totalVideoPages
+          totalVideoPages: state.totalVideoPages,
+          pathSyncCheckReport: state.pathSyncCheckReports
         })
       );
     }
@@ -82,12 +87,11 @@ export default function usage(state = blankUsageData, action: Action) {
 
     case 'RECEIVE_COMPOSER_PATH_REPORT': {
       const { pathSyncCheckReport, composerId } = action;
-      const actionIsForCurrentPage = composerId === getComposerId(state);
-      if (!actionIsForCurrentPage) {
-        return state;
-      }
       return Object.assign({}, state, {
-        pathSyncCheckReport
+        pathSyncCheckReports: {
+          ...state.pathSyncCheckReports,
+          [composerId]: pathSyncCheckReport
+        }
       });
     }
 

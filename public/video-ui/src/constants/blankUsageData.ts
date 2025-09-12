@@ -14,5 +14,6 @@ export const blankUsageData: UsageData = {
   },
 
   totalUsages: 0,
-  totalVideoPages: 0
+  totalVideoPages: 0,
+  pathSyncCheckReports: {}
 };
