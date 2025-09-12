@@ -1,6 +1,5 @@
 import { blankUsageData } from '../constants/blankUsageData';
 import { CapiContent, Stage as CapiStage } from '../services/capi';
-import { PathSyncCheckReport } from '../services/VideosApi';
 
 
 export type UsageData = {
@@ -11,7 +10,6 @@ export type UsageData = {
 
   totalUsages: number,
   totalVideoPages: number,
-  pathSyncCheckReports: Record<string, PathSyncCheckReport>
 }
 
 
@@ -30,19 +28,13 @@ type Action =
   } |
   {
     type: 'USAGE_UPDATE_BLANK'
-  } |
-  {
-    type: 'RECEIVE_COMPOSER_PATH_REPORT'
-    composerId: string;
-    pathSyncCheckReport: PathSyncCheckReport
   };
 
 export default function usage(state = blankUsageData, action: Action) {
   switch (action.type) {
     case 'VIDEO_USAGE_GET_RECEIVE': {
       return {
-        ...action.usages,
-        pathSyncCheckReports: state.pathSyncCheckReports
+        ...action.usages
       };
     }
     case 'VIDEO_PAGE_CREATE_POST_RECEIVE': {
@@ -76,25 +68,13 @@ export default function usage(state = blankUsageData, action: Action) {
         },
         Object.assign({}, blankUsageData, {
           totalUsages: state.totalUsages,
-          totalVideoPages: state.totalVideoPages,
-          pathSyncCheckReport: state.pathSyncCheckReports
+          totalVideoPages: state.totalVideoPages
         })
       );
     }
     case 'USAGE_UPDATE_BLANK': {
       return Object.assign({}, state, blankUsageData);
     }
-
-    case 'RECEIVE_COMPOSER_PATH_REPORT': {
-      const { pathSyncCheckReport, composerId } = action;
-      return Object.assign({}, state, {
-        pathSyncCheckReports: {
-          ...state.pathSyncCheckReports,
-          [composerId]: pathSyncCheckReport
-        }
-      });
-    }
-
     default: {
       return state;
     }
