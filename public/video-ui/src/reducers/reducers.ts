@@ -20,6 +20,7 @@ import workflow from './workflowReducer';
 import targeting from './targetingReducer';
 import shouldUseCreatedDateForSort from './shouldUseCreatedDateForSortReducer';
 import composerPagePaths from '../slices/composerPagePaths';
+import shouldFilterForSelfHosted from "./shouldFilterForSelfHostedReducer";
 
 export default {
   config,
@@ -30,6 +31,7 @@ export default {
   saveState,
   searchTerm,
   shouldUseCreatedDateForSort,
+  shouldFilterForSelfHosted,
   youtube,
   usage,
   publishedVideo,
