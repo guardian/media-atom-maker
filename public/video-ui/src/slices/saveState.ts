@@ -39,13 +39,11 @@ const saveState = createSlice({
   },
   extraReducers: builder => {
     builder.addCase('SHOW_ERROR', state => {
-      state = {
-        saving: false,
-        publishing: false,
-        fetchingUsages: false,
-        addingAsset: false,
-        activatingAssetNumber: undefined
-      };
+      state.saving = false;
+      state.publishing = false;
+      state.fetchingUsages = false;
+      state.addingAsset = false;
+      state.activatingAssetNumber = undefined;
     });
   }
 });
