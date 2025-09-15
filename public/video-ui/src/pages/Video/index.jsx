@@ -1,5 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router';
+import { getYouTubeEmbedUrl } from "../../components/utils/YouTubeEmbed";
+import { getComposerId } from "../../util/getComposerData";
+import { ComposerPathChecker } from '../../components/Videos/ComposerPathChecker';
 import VideoSelectBar from '../../components/VideoSelectBar/VideoSelectBar';
 import VideoPreview from '../../components/VideoPreview/VideoPreview';
 import VideoImages from '../../components/VideoImages/VideoImages';
@@ -21,6 +24,7 @@ import { UsageTab, UsageTabPanel } from './tabs/Usage';
 import { TargetingTab, TargetingTabPanel } from './tabs/Targeting';
 import { ManagementTab, ManagementTabPanel } from './tabs/Management';
 import { PlutoTab, PlutoTabPanel } from './tabs/Pluto';
+
 
 class VideoDisplay extends React.Component {
   constructor(props) {
@@ -169,7 +173,6 @@ class VideoDisplay extends React.Component {
           {this.renderImages()}
           {this.renderDescription()}
         </div>
-
         <div className="video__detailbox__footer__container">
           <ComposerPathChecker />
         </div>
@@ -432,10 +435,7 @@ import * as trackInWorkflow
   from '../../actions/WorkflowActions/trackInWorkflow';
 import * as updateWorkflowData
   from '../../actions/WorkflowActions/updateWorkflowData';
-import { getYouTubeEmbedUrl } from "../../components/utils/YouTubeEmbed";
-import { getComposerId } from "../../util/getComposerData";
-import { saveStateVals } from "../../constants/saveStateVals";
-import { ComposerPathChecker } from '../../components/Videos/ComposerPathChecker';
+
 
 function mapStateToProps(state) {
   return {
