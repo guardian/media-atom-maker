@@ -101,7 +101,7 @@ class VideoDisplay extends React.Component {
     );
   }
 
-  renderDescription(){
+  renderDescription() {
     return (
       <div>
         <p className="video__images_heading">How are these images used?</p>
@@ -120,7 +120,7 @@ class VideoDisplay extends React.Component {
                 <td>Used as an article trail image when specified. (Otherwise Main Image is used).</td>
                 <td>
                   Used on YouTube when specified. (Otherwise Main Image is used).
-                  <br/>
+                  <br />
                   The atom must be published for the override to take effect. Changes can take up to fifteen minutes to apply.
                 </td>
               </tr>
@@ -141,19 +141,19 @@ class VideoDisplay extends React.Component {
         <div className="video__detailbox__header__container">
           <header className="video__detailbox__header">
             <h3>Video Preview</h3>
-            {youtubeAsset &&  (
-              <p className= "video-asset">
-                <span className= "video-asset-number">Asset {activeAsset.version}:</span>
+            {youtubeAsset && (
+              <p className="video-asset">
+                <span className="video-asset-number">Asset {activeAsset.version}:</span>
                 <span>({youtubeAsset.id})</span>
               </p>
             )
             }
           </header>
           <asset-handle data-source="mam"
-                        data-source-type="video"
-                        data-thumbnail={this.props.video?.posterImage?.assets?.[0]?.file}
-                        data-external-url={VideoUtils.isYoutube(this.props.video) && getYouTubeEmbedUrl(VideoUtils.getActiveAsset(this.props.video)?.id)}
-                        data-embeddable-url={window.location.href}>
+            data-source-type="video"
+            data-thumbnail={this.props.video?.posterImage?.assets?.[0]?.file}
+            data-external-url={VideoUtils.isYoutube(this.props.video) && getYouTubeEmbedUrl(VideoUtils.getActiveAsset(this.props.video)?.id)}
+            data-embeddable-url={window.location.href}>
           </asset-handle>
           <Link
             className={'button ' + (this.props.videoEditOpen ? 'disabled' : '')}
@@ -161,13 +161,19 @@ class VideoDisplay extends React.Component {
             onClick={e => this.handleAssetClick(e)}
             data-tip="Edit Assets"
           >
-            <Icon className={"icon__edit"  + (this.props.videoEditOpen ? ' icon__edit__disabled' : '')} icon="edit" />
+            <Icon className={"icon__edit" + (this.props.videoEditOpen ? ' icon__edit__disabled' : '')} icon="edit" />
           </Link>
         </div>
         <div className="video-preview">
           {this.renderPreview()}
           {this.renderImages()}
           {this.renderDescription()}
+        </div>
+
+        <div className="video__detailbox__footer__container">
+          <footer>
+            <ComposerPathChecker />
+          </footer>
         </div>
       </div>
     );
@@ -428,9 +434,10 @@ import * as trackInWorkflow
   from '../../actions/WorkflowActions/trackInWorkflow';
 import * as updateWorkflowData
   from '../../actions/WorkflowActions/updateWorkflowData';
-import {getYouTubeEmbedUrl} from "../../components/utils/YouTubeEmbed";
-import {getComposerId} from "../../util/getComposerData";
-import {saveStateVals} from "../../constants/saveStateVals";
+import { getYouTubeEmbedUrl } from "../../components/utils/YouTubeEmbed";
+import { getComposerId } from "../../util/getComposerData";
+import { saveStateVals } from "../../constants/saveStateVals";
+import { ComposerPathChecker } from '../../components/Videos/ComposerPathChecker';
 
 function mapStateToProps(state) {
   return {
