@@ -45,8 +45,8 @@ class Api(
     }
   }
 
-  def getMediaAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean) = APIAuthAction {
-    val atoms = stores.atomListStore.getAtoms(search, limit, shouldUseCreatedDateForSort)
+  def getMediaAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean, shouldFilterForSelfHosted: Boolean) = APIAuthAction {
+    val atoms = stores.atomListStore.getAtoms(search, limit, shouldUseCreatedDateForSort, shouldFilterForSelfHosted)
     Ok(Json.toJson(atoms))
   }
 
