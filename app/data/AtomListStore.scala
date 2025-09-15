@@ -98,13 +98,17 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore) extends AtomListS
           .sortBy(sortField(_).map(_.date.getMillis))
           .reverse // newest atoms first
 
-        val searchTermFilter = (atom: MediaAtom) => atom.title.contains(search.get)
-        val selfHostedFilter = (atom: MediaAtom) => atom.assets.exists(_.platform == Url)
+        val searchTermFilter = search match {
+          case Some(str) => Some((atom: MediaAtom) => atom.title.contains(str))
+          case None => None
+        }
 
-        val filters = List(
-          if (shouldFilterForSelfHosted) Some(selfHostedFilter) else None,
-          if (search.isDefined) Some(searchTermFilter) else None
-        ).flatten
+        val selfHostedFilter = shouldFilterForSelfHosted match {
+          case true => Some((atom: MediaAtom) => atom.assets.exists(_.platform == Url))
+          case false => None
+        }
+
+        val filters = List(searchTermFilter, selfHostedFilter).flatten
 
         val filteredAtoms = filters.foldLeft(mediaAtoms)((atoms, f) => atoms.filter(f))
 
