@@ -1,9 +1,41 @@
 import { blankUsageData } from '../constants/blankUsageData';
+import { CapiContent, Stage as CapiStage } from '../services/capi';
 
-export default function usage(state = blankUsageData, action) {
+
+export type UsageData = {
+  data: Record<CapiStage, {
+    video: CapiContent[];
+    other: CapiContent[];
+  }>;
+
+  totalUsages: number,
+  totalVideoPages: number,
+}
+
+
+type Action =
+  {
+    type: 'VIDEO_USAGE_GET_RECEIVE'
+    usages: UsageData
+  } |
+  {
+    type: 'VIDEO_PAGE_CREATE_POST_RECEIVE',
+    newPage: CapiContent
+  } |
+  {
+    type: 'VIDEO_PAGE_UPDATE_POST_RECEIVE'
+    newTitle: string
+  } |
+  {
+    type: 'USAGE_UPDATE_BLANK'
+  };
+
+export default function usage(state = blankUsageData, action: Action) {
   switch (action.type) {
     case 'VIDEO_USAGE_GET_RECEIVE': {
-      return action.usages || {};
+      return {
+        ...action.usages
+      };
     }
     case 'VIDEO_PAGE_CREATE_POST_RECEIVE': {
       // TODO avoid mutation... but how on such a deep property?!
@@ -18,7 +50,7 @@ export default function usage(state = blankUsageData, action) {
     case 'VIDEO_PAGE_UPDATE_POST_RECEIVE': {
       const usages = state.data;
 
-      return Object.keys(usages).reduce(
+      return (Object.keys(usages) as CapiStage[]).reduce(
         (all, publishState) => {
           const updated = usages[publishState].video.map(usage => {
             return Object.assign({}, usage, {

@@ -1,12 +1,13 @@
-import ContentApi from '../services/capi';
+import type { UsageData } from "../reducers/usageReducer";
 
-export const blankUsageData = {
+
+export const blankUsageData: UsageData = {
   data: {
-    [ContentApi.preview]: {
+    published: {
       video: [],
       other: []
     },
-    [ContentApi.published]: {
+    preview: {
       video: [],
       other: []
     }

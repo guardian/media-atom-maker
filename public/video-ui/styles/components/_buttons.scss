@@ -69,6 +69,10 @@ button {
   margin-left: 5px;
 }
 
+.btn--space-for-loading {
+  padding-right: 20px;
+}
+
 .btn--loading {
   background: {
     image: url(../images/progress-spinner.gif);

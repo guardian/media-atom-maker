@@ -9,7 +9,6 @@ import saveState from './saveStateReducer';
 import searchTerm from './searchTermReducer';
 import youtube from '../slices/youtube';
 import usage from './usageReducer';
-import pageCreate from './composerPageReducer';
 import s3Upload from './s3UploadReducer';
 import videoEditOpen from './editStateReducer';
 import checkedFormFields from './checkedFormFieldsReducer';
@@ -20,6 +19,7 @@ import pluto from '../slices/pluto';
 import workflow from './workflowReducer';
 import targeting from './targetingReducer';
 import shouldUseCreatedDateForSort from './shouldUseCreatedDateForSortReducer';
+import composerPagePaths from '../slices/composerPagePaths';
 import shouldFilterForSelfHosted from "./shouldFilterForSelfHostedReducer";
 
 export default {
@@ -34,7 +34,6 @@ export default {
   shouldFilterForSelfHosted,
   youtube,
   usage,
-  pageCreate,
   publishedVideo,
   checkedFormFields,
   formFieldsWarning,
@@ -45,5 +44,6 @@ export default {
   routing: routerReducer,
   pluto,
   workflow,
-  targeting
+  targeting,
+  composerPagePaths
 };
