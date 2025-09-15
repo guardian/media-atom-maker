@@ -112,7 +112,7 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore) extends AtomListS
         }
 
         val mediaPlatformFilter = mediaPlatform match {
-          case Some(mPlatform) => Some((atom: MediaAtom) => atom.assets.exists(_.platform.name.toLowerCase == mPlatform))
+          case Some(mPlatform) => Some((atom: MediaAtom) => atom.assets.exists(_.platform.name.toLowerCase == mPlatform.toLowerCase))
           case _ => None
         }
 
