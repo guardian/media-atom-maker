@@ -18,6 +18,7 @@ export type AppConfig = {
   workflowUrl?: string;
   targetingUrl?: string;
   embeddedMode?: string;
+  tagManagerUrl?: string;
 };
 
 export type ConfigState = AppConfig;

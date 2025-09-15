@@ -158,6 +158,29 @@ class Api(
     }
   }
 
+  def deleteAssetList(atomId: String) = APIAuthAction(parse.json) { implicit req =>
+    try {
+      val assets = req.body.as[Seq[Asset]]
+      val assetsVersion = assets.map(_.version).mkString(",")
+
+      val markers: LogstashMarker = Markers.appendEntries(Map(
+        "userId" -> req.user.email,
+        "atomId" -> atomId,
+        "assetId" -> assets.map(_.id).mkString(","),
+        "assetVersion" -> assetsVersion
+      ).asJava)
+
+      log.info(markers, s"request to delete asset version ${assetsVersion} on atom $atomId")
+
+      val command = DeleteAssetListCommand(atomId, assets, stores, req.user, awsConfig)
+      val atom = command.process()
+      Ok(Json.toJson(atom))
+    }
+    catch {
+      commandExceptionAsResult
+    }
+  }
+
   private def atomUrl(id: String) = s"/atom/$id"
 
   def setActiveAsset(atomId: String) = APIAuthAction { implicit req =>

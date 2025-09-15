@@ -30,7 +30,8 @@ case class ClientConfig(
   minDurationForAds: Long,
   isTrainingMode: Boolean,
   workflowUrl: String,
-  targetingUrl: String
+  targetingUrl: String,
+  tagManagerUrl: String
 )
 
 object ClientConfig {

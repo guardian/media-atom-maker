@@ -1,6 +1,6 @@
 import React from 'react';
 
-class CapiSearch extends React.Component {
+class TagSearch extends React.Component {
   constructor(props) {
     super(props);
   }
@@ -59,14 +59,14 @@ class CapiSearch extends React.Component {
   }
 
   render() {
-    if (this.props.capiTags.length !== 0 && this.props.showTags) {
+    if (this.props.searchResultTags.length !== 0 && this.props.showTags) {
       return (
         <ul
           ref="list"
           className="form__field__tags"
           onMouseDown={this.props.tagsToVisible}
         >
-          {this.props.capiTags.map((tag, index) => this.renderTags(tag, index))}
+          {this.props.searchResultTags.map((tag, index) => this.renderTags(tag, index))}
         </ul>
       );
     }
@@ -75,4 +75,4 @@ class CapiSearch extends React.Component {
   }
 }
 
-export default React.memo(CapiSearch);
+export default React.memo(TagSearch);

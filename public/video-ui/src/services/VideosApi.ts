@@ -40,13 +40,14 @@ export type ContentChangeDetails = {
   expiry?: ChangeRecord
 }
 
-export type PlutoData = { 
-  commissionId?: string, 
-  projectId?: string 
+export type PlutoData = {
+  commissionId?: string,
+  projectId?: string
 };
 
 export type Video = {
   id: string;
+  type?: string;
   labels: string[];
   contentChangeDetails: ContentChangeDetails;
   assets: Asset[];
@@ -68,7 +69,7 @@ export type Video = {
   youtubeCategoryId?: string;
   license?: string;
   channelId?: string;
-  legallySensitive: Boolean;
+  legallySensitive?: Boolean;
   sensitive?: Boolean;
   privacyStatus?: unknown;
   expiryDate?: number;
@@ -80,7 +81,7 @@ export type Video = {
   suppressRelatedContent?: Boolean;
 }
 
-type MediaAtomSummary = Pick<Video, 'id' | 'title' | 'contentChangeDetails' | 'posterImage'>
+export type MediaAtomSummary = Pick<Video, 'id' | 'title' | 'contentChangeDetails' | 'posterImage'>
 
 export type VideoWithoutId = Omit<Video, 'id'>
 
@@ -267,6 +268,17 @@ export default {
         'Csrf-Token': (window as any).guardian.csrf.token
       },
       data: asset
+    });
+  },
+
+  deleteAssetList(video: Video, assets: Asset[]) {
+    return apiRequest<Video, Asset[]>({
+      url: `/api/atoms/${video.id}/asset-list`,
+      method: 'delete',
+      headers: {
+        'Csrf-Token': (window as any).guardian.csrf.token
+      },
+      data: assets
     });
   },
 

@@ -1,7 +1,7 @@
 package util
 
 import data.UnpackedDataStores
-import akka.actor.{ActorSystem, Scheduler}
+import org.apache.pekko.actor.{ActorSystem, Scheduler}
 import scala.annotation.tailrec
 import scala.concurrent.duration._
 import com.amazonaws.services.sqs.model.{DeleteMessageRequest, ReceiveMessageRequest, Message}

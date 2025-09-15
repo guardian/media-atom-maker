@@ -1,4 +1,5 @@
 import { saveStateVals } from '../constants/saveStateVals';
+import { setActiveAsset, setAssets } from "../slices/video";
 
 export default function saveState(
   state = {
@@ -19,7 +20,8 @@ export default function saveState(
       });
     case 'ASSET_REVERT_REQUEST':
       return Object.assign({}, state, {
-        saving: saveStateVals.inprogress
+        saving: saveStateVals.inprogress,
+        activatingAssetNumber: action.assetVersion
       });
     case 'VIDEO_SAVE_REQUEST':
       return Object.assign({}, state, {
@@ -34,9 +36,10 @@ export default function saveState(
       return Object.assign({}, state, {
         saving: false
       });
-    case 'ASSET_REVERT_RECEIVE':
+    case setActiveAsset.type:
       return Object.assign({}, state, {
-        saving: false
+        saving: false,
+        activatingAssetNumber: undefined
       });
     case 'VIDEO_SAVE_RECEIVE':
       return Object.assign({}, state, {
@@ -60,7 +63,7 @@ export default function saveState(
       return Object.assign({}, state, {
         addingAsset: saveStateVals.inprogress
       });
-    case 'ASSET_CREATE_RECEIVE':
+    case setAssets.type:
       return Object.assign({}, state, {
         addingAsset: false
       });
@@ -77,7 +80,8 @@ export default function saveState(
     case 'SHOW_ERROR':
       return Object.assign({}, state, {
         saving: false,
-        publishing: false
+        publishing: false,
+        activatingAssetNumber: undefined
       });
 
     default:
