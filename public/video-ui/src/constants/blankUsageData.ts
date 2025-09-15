@@ -1,4 +1,4 @@
-import type { UsageData } from "../reducers/usageReducer";
+import type { UsageData } from "../slices/usage";
 
 
 export const blankUsageData: UsageData = {

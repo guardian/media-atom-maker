@@ -4,7 +4,7 @@ import { getComposerData } from '../util/getComposerData';
 import { cleanVideoData } from '../util/cleanVideoData';
 import ContentApi, { CapiContent, CapiContentResponse, Stage } from './capi';
 import { ContentAtom, getVideoBlock } from '../util/getVideoBlock';
-import type { UsageData } from '../reducers/usageReducer';
+import type { UsageData } from '../slices/usage';
 
 export type ComposerStage = 'live' | 'preview'
 
