@@ -2,14 +2,14 @@ import { Video } from '../services/VideosApi';
 import { blankVideoData } from '../constants/blankVideoData';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-const initialState: null | false | Video = null;
+const initialState: Video = blankVideoData;
 
 const video = createSlice({
   name: 'video',
   initialState,
   reducers: {
-    setVideo: (_, { payload }: PayloadAction<Video | undefined>) =>
-      payload ? payload : false,
+    setVideo: (_, { payload }: PayloadAction<Video>) =>
+      ({...blankVideoData, ...payload}),
     setVideoBlank: _ => ({
       ...blankVideoData,
       type: 'media'
