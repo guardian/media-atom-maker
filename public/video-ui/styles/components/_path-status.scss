@@ -1,0 +1,18 @@
+.path-status {
+  gap: 10px;
+
+  &__indicator {
+    color: $cWhite;
+    background-color: $cGreen00;
+    padding: 1px 8px;
+    border-radius: 16px;
+  }
+
+  &__indicator--out-of-sync {
+    background-color: $dangerColor;
+  }
+
+  &__warning {
+    color: $dangerColor;
+  }
+}

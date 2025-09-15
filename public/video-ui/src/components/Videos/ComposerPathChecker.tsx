@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { UsageData } from '../../reducers/usageReducer';
+import { CapiContent } from '../../services/capi';
 import { ComposerPathPathState, fetchComposerPathReport } from '../../slices/composerPagePaths';
 import { RootState } from '../../util/setupStore';
-import { CapiContent } from '../../services/capi';
 
 
-function getCapiContent({usage}: {usage: UsageData}): CapiContent | undefined {
+function getCapiContent({ usage }: { usage: UsageData }): CapiContent | undefined {
     const [firstContent] = [...usage.data.preview.video, ...usage.data.published.video];
     return firstContent;
 }
@@ -20,8 +20,7 @@ export const ComposerPathChecker = () => {
     const composerPathPathState = useSelector<RootState, ComposerPathPathState>(({ composerPagePaths }) => composerPagePaths);
     const {
         updateRequired = false,
-        previousPath = undefined,
-        proposedPath = undefined
+        previousPath: composerPath = undefined
     } = composerPathPathState.pathSyncCheckReports[composerId] ?? {};
     const isPending = composerPathPathState.pendingChecks.includes(composerId);
 
@@ -43,22 +42,29 @@ export const ComposerPathChecker = () => {
         dispatch(fetchComposerPathReport(composerId));
     };
 
-    const indicatorClassName = updateRequired ? 'topbar__path-sync-indicator topbar__path-sync-indicator--out-of-sync' : 'topbar__path-sync-indicator';
     const buttonClassName = isPending ? "btn btn--loading" : "btn btn--space-for-loading";
 
     return (
-        <div className="flex-container topbar__path-sync" >
-            <button className={buttonClassName}
-                title={previousPath && `current path: ${previousPath}`}
-                disabled={!composerId || isPending}
-                onClick={handleButton}>
-                check for path changes
-            </button>
+        <div>
+            <div className="details-list">
+                <p className="details-list__title">Composer Path:</p>
+                <p className="details-list__field">{composerPath}</p>
+            </div>
+            <div className="flex-container path-status">
+                <button className={buttonClassName}
+                    disabled={!composerId || isPending}
+                    onClick={handleButton}>
+                    check for changes
+                </button>
 
-            <div className={indicatorClassName}
-                title={updateRequired ? `update to: ${proposedPath}` : undefined}
-            >
-                {updateRequired ? 'out of sync' : 'path ok'}
+                {updateRequired && (
+                    <>
+                        <div className="path-status__indicator path-status__indicator--out-of-sync">!</div>
+                        <div className="path-status__warning">
+                            <span>The Composer page for this video needs its path updating.</span>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );

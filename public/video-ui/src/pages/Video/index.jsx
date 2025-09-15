@@ -171,9 +171,7 @@ class VideoDisplay extends React.Component {
         </div>
 
         <div className="video__detailbox__footer__container">
-          <footer>
-            <ComposerPathChecker />
-          </footer>
+          <ComposerPathChecker />
         </div>
       </div>
     );
