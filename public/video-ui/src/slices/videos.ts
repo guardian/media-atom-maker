@@ -17,11 +17,11 @@ const initialState: VideoState = {
 
 export const fetchVideos = createAsyncThunk<
   { total: number; atoms: MediaAtomSummary[] },
-  { search: string; limit: number; shouldUseCreatedDateForSort: boolean; shouldFilterForSelfHosted: boolean; }
+  { search: string; limit: number; shouldUseCreatedDateForSort: boolean; mediaPlatformFilter: string; }
 >(
   'videos/fetchVideos',
-  ({ search, limit, shouldUseCreatedDateForSort, shouldFilterForSelfHosted }, { dispatch }) =>
-    VideosApi.fetchVideos(search, limit, shouldUseCreatedDateForSort, shouldFilterForSelfHosted).catch(
+  ({ search, limit, shouldUseCreatedDateForSort, mediaPlatformFilter }, { dispatch }) =>
+    VideosApi.fetchVideos(search, limit, shouldUseCreatedDateForSort, mediaPlatformFilter).catch(
       (error: unknown) => {
         dispatch(showError('Could not get videos', error));
         throw error;

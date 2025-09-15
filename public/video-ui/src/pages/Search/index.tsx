@@ -17,7 +17,7 @@ type VideosProps = {
   searchTerm: string,
   limit: number,
   shouldUseCreatedDateForSort: boolean,
-  shouldFilterForSelfHosted: boolean
+  mediaPlatformFilter: string
 }
 
 
@@ -35,7 +35,7 @@ const MoreLink = ({ onClick }: { onClick: () => void }) => {
   </div>);
 };
 
-const Videos = ({ videos, total, searchTerm, limit, shouldUseCreatedDateForSort, shouldFilterForSelfHosted, presenceActions }: VideosProps) => {
+const Videos = ({ videos, total, searchTerm, limit, shouldUseCreatedDateForSort, mediaPlatformFilter, presenceActions }: VideosProps) => {
   const [mediaIds, setMediaIds] = useState<string[]>([]);
   const [videoPresences, setVideoPresences] = useState<VideoPresences[]>([]);
   const [client, setClient] = useState<PresenceClient>(null);
@@ -49,7 +49,7 @@ const Videos = ({ videos, total, searchTerm, limit, shouldUseCreatedDateForSort,
       search: searchTerm,
       limit: limit + frontPageSize,
       shouldUseCreatedDateForSort,
-      shouldFilterForSelfHosted
+      mediaPlatformFilter
     }));
   };
 
@@ -86,7 +86,7 @@ const Videos = ({ videos, total, searchTerm, limit, shouldUseCreatedDateForSort,
   };
 
   useEffect(() => {
-    dispatch(fetchVideos({search: searchTerm, limit, shouldUseCreatedDateForSort, shouldFilterForSelfHosted}));
+    dispatch(fetchVideos({search: searchTerm, limit, shouldUseCreatedDateForSort, mediaPlatformFilter}));
     const config = getStore().getState().config;
     const presenceConfig = config.presence;
     if (presenceConfig) {
@@ -119,13 +119,13 @@ const Videos = ({ videos, total, searchTerm, limit, shouldUseCreatedDateForSort,
   useEffect(() => {
     if (searchTerm !== prevSearch) {
       setPrevSearch(searchTerm);
-      dispatch(fetchVideos({search: searchTerm, limit, shouldUseCreatedDateForSort, shouldFilterForSelfHosted}));
+      dispatch(fetchVideos({search: searchTerm, limit, shouldUseCreatedDateForSort, mediaPlatformFilter}));
     }
   }, [searchTerm, prevSearch]);
 
   useEffect(() => {
-    dispatch(fetchVideos({search: searchTerm, limit, shouldUseCreatedDateForSort, shouldFilterForSelfHosted}));
-  }, [shouldUseCreatedDateForSort, shouldFilterForSelfHosted]);
+    dispatch(fetchVideos({search: searchTerm, limit, shouldUseCreatedDateForSort, mediaPlatformFilter}));
+  }, [shouldUseCreatedDateForSort, mediaPlatformFilter]);
 
   return (
     <div>
@@ -150,14 +150,14 @@ import * as reportPresenceClientError from '../../actions/PresenceActions/report
 import { fetchVideos } from '../../slices/videos';
 import { AppDispatch } from "../../util/setupStore";
 
-function mapStateToProps(state: { videos: { entries: number, total: number, limit: number }, searchTerm: string, shouldUseCreatedDateForSort: boolean, shouldFilterForSelfHosted: boolean }) {
+function mapStateToProps(state: { videos: { entries: number, total: number, limit: number }, searchTerm: string, shouldUseCreatedDateForSort: boolean, mediaPlatformFilter: string }) {
   return {
     videos: state.videos.entries,
     total: state.videos.total,
     limit: state.videos.limit,
     searchTerm: state.searchTerm,
     shouldUseCreatedDateForSort: state.shouldUseCreatedDateForSort,
-    shouldFilterForSelfHosted: state.shouldFilterForSelfHosted
+    mediaPlatformFilter: state.mediaPlatformFilter
   };
 }
 

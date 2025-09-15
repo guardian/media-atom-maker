@@ -20,7 +20,7 @@ import pluto from '../slices/pluto';
 import workflow from './workflowReducer';
 import targeting from './targetingReducer';
 import shouldUseCreatedDateForSort from './shouldUseCreatedDateForSortReducer';
-import shouldFilterForSelfHosted from "./shouldFilterForSelfHostedReducer";
+import mediaPlatformFilter from "./mediaPlatformReducer";
 
 export default {
   config,
@@ -31,7 +31,7 @@ export default {
   saveState,
   searchTerm,
   shouldUseCreatedDateForSort,
-  shouldFilterForSelfHosted,
+  mediaPlatformFilter,
   youtube,
   usage,
   pageCreate,

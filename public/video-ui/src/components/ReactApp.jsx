@@ -56,8 +56,8 @@ class ReactApp extends React.Component {
     return (
       <div className="wrap">
         <Header
-          shouldFilterForSelfHosted={this.props.shouldFilterForSelfHosted}
-          updateShouldFilterForSelfHosted={this.props.appActions.updateShouldFilterForSelfHosted}
+          mediaPlatformFilter={this.props.mediaPlatformFilter}
+          updateMediaPlatformFilter={this.props.appActions.updateMediaPlatformFilter}
           shouldUseCreatedDateForSort={this.props.shouldUseCreatedDateForSort}
           updateShouldUseCreatedDateForSort={this.props.appActions.updateShouldUseCreatedDateForSort}
           reportPresenceClientError={this.props.appActions.reportPresenceClientError}
@@ -103,7 +103,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as updateSearchTerm from '../actions/SearchActions/updateSearchTerm';
 import * as updateShouldUseCreatedDateForSort from '../actions/SearchActions/updateShouldUseCreatedDateForSort';
-import * as updateShouldFilterForSelfHosted from "../actions/SearchActions/updateShouldFilterForSelfHosted";
+import * as updateMediaPlatformFilter from "../actions/SearchActions/updateMediaPlatformFilter";
 import * as getVideo from '../actions/VideoActions/getVideo';
 import * as getPublishedVideo from '../actions/VideoActions/getPublishedVideo';
 import * as publishVideo from '../actions/VideoActions/publishVideo';
@@ -120,7 +120,7 @@ function mapStateToProps(state) {
   return {
     searchTerm: state.searchTerm,
     shouldUseCreatedDateForSort: state.shouldUseCreatedDateForSort,
-    shouldFilterForSelfHosted: state.shouldFilterForSelfHosted,
+    mediaPlatformFilter: state.mediaPlatformFilter,
     saveState: state.saveState,
     video: state.video,
     publishedVideo: state.publishedVideo,
@@ -142,7 +142,7 @@ function mapDispatchToProps(dispatch) {
         {},
         updateSearchTerm,
         updateShouldUseCreatedDateForSort,
-        updateShouldFilterForSelfHosted,
+        updateMediaPlatformFilter,
         getVideo,
         getPublishedVideo,
         publishVideo,
