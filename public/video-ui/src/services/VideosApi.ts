@@ -4,6 +4,7 @@ import { getComposerData } from '../util/getComposerData';
 import { cleanVideoData } from '../util/cleanVideoData';
 import ContentApi, { CapiContent, CapiContentResponse, Stage } from './capi';
 import { ContentAtom, getVideoBlock } from '../util/getVideoBlock';
+import type { UsageData } from '../reducers/usageReducer';
 
 export type ComposerStage = 'live' | 'preview'
 
@@ -222,7 +223,7 @@ export default {
       }
     }),
 
-  getVideoUsages: (videoId: string) => {
+  getVideoUsages: (videoId: string):Promise<UsageData> => {
     return Promise.all([
       getUsages({ id: videoId, stage: ContentApi.preview }),
       getUsages({ id: videoId, stage: ContentApi.published })
@@ -241,8 +242,8 @@ export default {
 
       return {
         data: {
-          [ContentApi.preview]: splitPreview,
-          [ContentApi.published]: splitPublished
+          'preview': splitPreview,
+          'published': splitPublished
         },
 
         // a lot of components conditionally render based on the number of usages,
