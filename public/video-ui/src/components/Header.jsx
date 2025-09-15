@@ -9,7 +9,7 @@ import Icon from './Icon';
 import {Presence} from './Presence';
 import {canonicalVideoPageExists} from '../util/canonicalVideoPageExists';
 import VideoUtils from '../util/video';
-import {QUERY_PARAM_shouldFilterForSelfHosted, QUERY_PARAM_shouldUseCreatedDateForSort} from "../constants/queryParams";
+import {QUERY_PARAM_mediaPlatformFilter, QUERY_PARAM_shouldUseCreatedDateForSort} from "../constants/queryParams";
 
 export default class Header extends React.Component {
   state = { presence: null };
@@ -66,17 +66,17 @@ export default class Header extends React.Component {
       <div className="flex-container topbar__global">
         <span>Filter for:&nbsp;</span>
         <select
-          value={this.props.shouldFilterForSelfHosted?.toString()}
+          value={this.props.mediaPlatformFilter?.toString()}
           onChange={event => {
-            const shouldFilterForSelfHosted = event.target.value === "true";
+            const mediaPlatformFilter = event.target.value || null;
 
-            this.props.updateShouldFilterForSelfHosted(shouldFilterForSelfHosted);
+            this.props.updateMediaPlatformFilter(mediaPlatformFilter);
 
             const url = new URL(window.location.href);
-            if (shouldFilterForSelfHosted) {
-              url.searchParams.set(QUERY_PARAM_shouldFilterForSelfHosted, "true");
+            if (mediaPlatformFilter) {
+              url.searchParams.set(QUERY_PARAM_mediaPlatformFilter, mediaPlatformFilter);
             } else {
-              url.searchParams.delete(QUERY_PARAM_shouldFilterForSelfHosted);
+              url.searchParams.delete(QUERY_PARAM_mediaPlatformFilter);
             }
             window.history.replaceState(
               window.history.state,
@@ -85,8 +85,9 @@ export default class Header extends React.Component {
             );
           }}
         >
-          <option value="false">All videos</option>
-          <option value="true">Loops</option>
+          <option value="">All videos</option>
+          <option value="url">Loops</option>
+          <option value="youtube">YouTube</option>
         </select>
       </div>
     );
