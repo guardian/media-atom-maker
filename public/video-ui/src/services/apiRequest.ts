@@ -20,7 +20,6 @@ const checkStatus = (res: Response) => {
   }
 };
 
-
 const fetchWithReAuth = <ResponseBodyType>(url: string | URL, config: RequestConfig, timeout: number) => {
   const endTime = Number(new Date()) + timeout;
   const interval = 100;
