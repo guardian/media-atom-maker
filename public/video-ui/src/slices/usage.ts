@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { blankUsageData } from '../constants/blankUsageData';
 import ErrorMessages from '../constants/ErrorMessages';
 import { CapiContent, Stage as CapiStage } from '../services/capi';
 import VideosApi from '../services/VideosApi';
@@ -24,7 +23,21 @@ export type UsageData = {
     totalVideoPages: number,
 }
 
-const getInitialState = () => structuredClone(blankUsageData);
+const getInitialState = (): UsageData => ({
+    data: {
+        published: {
+            video: [],
+            other: []
+        },
+        preview: {
+            video: [],
+            other: []
+        }
+    },
+
+    totalUsages: 0,
+    totalVideoPages: 0
+});
 
 export const fetchUsages = createAsyncThunk<
     UsageData,
