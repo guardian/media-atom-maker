@@ -95,7 +95,7 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
 
       // sort media platforms so the current one is first
       val sortedMediaPlatforms = currentMediaPlatform match {
-        case Some(current) => (current :: mediaPlatforms.filter(_ != current)).distinct
+        case Some(current) => current :: mediaPlatforms.filter(_ != current)
         case None => mediaPlatforms
       }
 
@@ -156,7 +156,7 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore) extends AtomListS
 
     // sort media platforms so the current one is first
     val sortedMediaPlatforms = currentMediaPlatform match {
-      case Some(current) => (current :: mediaPlatforms.filter(_ != current)).distinct
+      case Some(current) => current :: mediaPlatforms.filter(_ != current)
       case None => mediaPlatforms
     }
 
