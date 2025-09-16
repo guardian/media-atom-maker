@@ -242,8 +242,8 @@ export default {
 
       return {
         data: {
-          'preview': splitPreview,
-          'published': splitPublished
+          preview: splitPreview,
+          published: splitPublished
         },
 
         // a lot of components conditionally render based on the number of usages,

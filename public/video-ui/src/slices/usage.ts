@@ -14,7 +14,6 @@ const VIDEO_PAGE_UPDATE_POST_RECEIVE = 'VIDEO_PAGE_UPDATE_POST_RECEIVE' as const
 type PageUpdateRecieveAction = AnyAction & { type: typeof VIDEO_PAGE_UPDATE_POST_RECEIVE; newTitle: string };
 
 
-
 export type UsageData = {
     data: Record<CapiStage, {
         video: CapiContent[];
@@ -55,11 +54,7 @@ const usage = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchUsages.pending, (_state, action) => {
-                console.log('pending', action);
-            })
             .addCase(fetchUsages.fulfilled, (state, action) => {
-                console.log('fulfilled', action);
                 state.data = action.payload.data;
                 state.totalUsages = action.payload.totalUsages;
                 state.totalVideoPages = action.payload.totalVideoPages;
