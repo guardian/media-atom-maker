@@ -12,14 +12,10 @@ type RequestConfig<RequestBodyType = unknown> = {
   body?: string
 }
 
-const checkStatus = async (res: Response) => {
+const checkStatus = (res: Response) => {
   if (res.status >= 200 && res.status < 300) {
     return res;
-  } else if (res.status === 400) {
-    const body = await res.text();
-    throw { res: res, body: body };
-  }
-  else {
+  } else {
     throw res;
   }
 };
