@@ -64,7 +64,7 @@ class Workflow extends React.Component {
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getStatus from '../../actions/WorkflowActions/getStatus';
-import * as getSections from '../../actions/WorkflowActions/getSections';
+import {getSections} from '../../slices/workflow';
 import * as getStatuses from '../../actions/WorkflowActions/getStatuses';
 import * as getPriorities from '../../actions/WorkflowActions/getPriorities';
 import * as localUpdateWorkflowData from '../../actions/WorkflowActions/localUpdateWorkflowData';
