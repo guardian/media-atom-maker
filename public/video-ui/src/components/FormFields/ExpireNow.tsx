@@ -31,7 +31,7 @@ export const ExpireNowComponent = (props:ExpireNowComponentProps ) => {
               Expire Now
             </button>
             <p className="form__message form__message--warning">
-              This will set the expiry date to the next run of the process, which runs regularly.Expiring the video will make it private for viewing in Youtube, so it will not be available in the video page.
+              This will set the expiry date to the next run of the process, which runs regularly.
             </p>
           </div>
         )}
