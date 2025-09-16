@@ -286,19 +286,19 @@ export default {
     });
   },
 
-  updateCanonicalPages(video: Video, usages: { data: Record<string, { video: CapiContent[] }> }, updatesTo: Stage) {
+  updateCanonicalPages(video: Video, usages: UsageData, updatesTo: Stage) {
     const composerData = getComposerData(video);
     const composerUrlBase = getComposerUrl();
     const videoBlock = getVideoBlock(video.id, video.title, video.source);
 
     return Promise.all(
-      Object.keys(usages.data).map(state => {
-        const videoPageUsages: CapiContent[] = usages.data[state].video;
+      (Object.keys(usages.data) as Stage[]).map(stage => {
+        const videoPageUsages: CapiContent[] = usages.data[stage].video;
 
         return videoPageUsages.map(usage => {
           const pageId = usage.fields.internalComposerCode;
 
-          if (updatesTo === state) {
+          if (updatesTo === stage) {
             return apiRequest({
               url: `${composerUrlBase}/api/content/${pageId}/videopage`,
               method: 'put',
