@@ -1,19 +1,11 @@
 import VideosApi from '../../services/VideosApi';
 import { showError } from '../../slices/error';
-import { fetchUsages } from '../../slices/usage';
+import { fetchUsages, updateVideoUsageWebTitle } from '../../slices/usage';
 
 function requestVideoSave(video) {
   return {
     type: 'VIDEO_SAVE_REQUEST',
     video: video,
-    receivedAt: Date.now()
-  };
-}
-
-function receiveVideoPageUpdate(newTitle) {
-  return {
-    type: 'VIDEO_PAGE_UPDATE_POST_RECEIVE',
-    newTitle: newTitle,
     receivedAt: Date.now()
   };
 }
@@ -38,7 +30,7 @@ export function saveVideo(video) {
             return VideosApi.updateCanonicalPages(video, fetchUsagesFulfilledAction.payload, 'preview');
           })
           .then(() => {
-            dispatch(receiveVideoPageUpdate(video.title));
+            dispatch(updateVideoUsageWebTitle(video.title));
           })
           .catch(error => () => {
             dispatch(showError('Could not update canonical page', error));

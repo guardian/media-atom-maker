@@ -225,10 +225,12 @@ export default {
 
   getVideoUsages: (videoId: string):Promise<UsageData> => {
     return Promise.all([
-      getUsages({ id: videoId, stage: ContentApi.preview }),
-      getUsages({ id: videoId, stage: ContentApi.published })
+      getUsages({ id: videoId, stage: ContentApi.preview })
+      // getUsages({ id: videoId, stage: ContentApi.published })
     ]).then(data => {
-      const [previewUsages, publishedUsages] = data;
+      const [previewUsages] = data;
+
+      const publishedUsages = [] as typeof previewUsages;
 
       // remove Published usages from Preview response
       const draft = [...previewUsages].filter(previewUsage => {

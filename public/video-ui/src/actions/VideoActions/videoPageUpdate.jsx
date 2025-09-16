@@ -1,17 +1,10 @@
 import VideosApi from '../../services/VideosApi';
-import { getVideoBlock } from '../../util/getVideoBlock';
+import { updateVideoUsageWebTitle } from '../../slices/usage';
+
 
 function requestVideoPageUpdate() {
   return {
     type: 'VIDEO_PAGE_UPDATE_POST_REQUEST',
-    receivedAt: Date.now()
-  };
-}
-
-function receiveVideoPageUpdate(newTitle) {
-  return {
-    type: 'VIDEO_PAGE_UPDATE_POST_RECEIVE',
-    newTitle: newTitle,
     receivedAt: Date.now()
   };
 }
@@ -35,7 +28,7 @@ export function updateVideoPage(video, usages, updatesTo) {
       usages,
       updatesTo
     )
-      .then(() => dispatch(receiveVideoPageUpdate(video.title)))
+      .then(() => dispatch(updateVideoUsageWebTitle(video.title)))
       .catch(error => {
         const unknownError = 'An unknown error occurred. Please contact the Developers';
 

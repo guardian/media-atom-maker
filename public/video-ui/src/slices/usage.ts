@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { Action, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import ErrorMessages from '../constants/ErrorMessages';
 import { CapiContent, Stage as CapiStage } from '../services/capi';
 import VideosApi from '../services/VideosApi';
@@ -8,9 +8,6 @@ import { AnyAction } from 'redux';
 
 const VIDEO_PAGE_CREATE_POST_RECEIVE = 'VIDEO_PAGE_CREATE_POST_RECEIVE' as const;
 type PageCreationRecieveAction = AnyAction & { type: typeof VIDEO_PAGE_CREATE_POST_RECEIVE; newPage: CapiContent };
-
-const VIDEO_PAGE_UPDATE_POST_RECEIVE = 'VIDEO_PAGE_UPDATE_POST_RECEIVE' as const;
-type PageUpdateRecieveAction = AnyAction & { type: typeof VIDEO_PAGE_UPDATE_POST_RECEIVE; newTitle: string };
 
 
 export type UsageData = {
@@ -63,6 +60,11 @@ const usage = createSlice({
             state.data = initialState.data;
             state.totalUsages = initialState.totalUsages;
             state.totalVideoPages = initialState.totalVideoPages;
+        },
+        updateVideoUsageWebTitle(state, action: Action & { payload: string }) {
+            const updateWebtitle = (usage: CapiContent): CapiContent => ({ ...usage, webTitle: action.payload });
+            state.data.preview.video = state.data.preview.video.map(updateWebtitle);
+            state.data.published.video = state.data.published.video.map(updateWebtitle);
         }
     },
     extraReducers: (builder) => {
@@ -76,11 +78,6 @@ const usage = createSlice({
                 state.data.preview.video = [action.newPage, ...state.data.preview.video];
                 state.totalUsages = state.totalUsages + 1;
                 state.totalVideoPages = state.totalVideoPages + 1;
-            })
-            .addCase<'VIDEO_PAGE_UPDATE_POST_RECEIVE', PageUpdateRecieveAction>('VIDEO_PAGE_UPDATE_POST_RECEIVE', (state, action) => {
-                const updateWebtitle = (usage: CapiContent):CapiContent => ({ ...usage, webTitle: action.newTitle });
-                state.data.preview.video = state.data.preview.video.map(updateWebtitle);
-                state.data.published.video = state.data.published.video.map(updateWebtitle);
             });
     }
 });
@@ -88,4 +85,4 @@ const usage = createSlice({
 
 export default usage.reducer;
 
-export const { setUsageToBlank } = usage.actions;
+export const { setUsageToBlank, updateVideoUsageWebTitle } = usage.actions;
