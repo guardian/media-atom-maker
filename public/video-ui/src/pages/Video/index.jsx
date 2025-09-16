@@ -419,7 +419,7 @@ import * as getPublishedVideo
   from '../../actions/VideoActions/getPublishedVideo';
 import * as videoPageUpdate
   from '../../actions/VideoActions/videoPageUpdate';
-import * as getStatus from '../../actions/WorkflowActions/getStatus';
+import { getStatus } from '../../slices/workflow';
 import * as trackInWorkflow
   from '../../actions/WorkflowActions/trackInWorkflow';
 import * as updateWorkflowData
