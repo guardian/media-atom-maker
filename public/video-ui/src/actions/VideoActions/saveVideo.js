@@ -34,10 +34,12 @@ export function saveVideo(video) {
       .then(res => {
         dispatch(receiveVideoSave(res));
         return dispatch(fetchUsages(video.id))
-          .then(usages => {
-            return VideosApi.updateCanonicalPages(video, usages, 'preview');
+          .then(fetchUsagesFulfilledAction => {
+            return VideosApi.updateCanonicalPages(video, fetchUsagesFulfilledAction.payload, 'preview');
           })
-          .then(() => dispatch(receiveVideoPageUpdate(video.title)))
+          .then(() => {
+            dispatch(receiveVideoPageUpdate(video.title));
+          })
           .catch(error => () => {
             dispatch(showError('Could not update canonical page', error));
           });

@@ -78,7 +78,7 @@ const usage = createSlice({
                 state.totalVideoPages = state.totalVideoPages + 1;
             })
             .addCase<'VIDEO_PAGE_UPDATE_POST_RECEIVE', PageUpdateRecieveAction>('VIDEO_PAGE_UPDATE_POST_RECEIVE', (state, action) => {
-                const updateWebtitle = (usage: CapiContent) => ({ ...usage, webtitle: action.newTitle });
+                const updateWebtitle = (usage: CapiContent):CapiContent => ({ ...usage, webTitle: action.newTitle });
                 state.data.preview.video = state.data.preview.video.map(updateWebtitle);
                 state.data.published.video = state.data.published.video.map(updateWebtitle);
             });

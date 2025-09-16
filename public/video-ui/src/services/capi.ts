@@ -16,7 +16,7 @@ export type CapiContent = {
     creationDate: string;
     internalComposerCode: string;
   };
-  webtitle?: string;
+  webTitle?: string;
 };
 
 type ApiReponse<T> = {
