@@ -1,5 +1,5 @@
 # optional limit
-GET     /api/atoms                     controllers.Api.getMediaAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean?=false)
+GET     /api/atoms                     controllers.Api.getMediaAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean?=false, mediaPlatform: Option[String])
 POST    /api/atoms                     controllers.Api.createMediaAtom
 
 GET     /api/atoms/:id                 controllers.Api.getMediaAtom(id)

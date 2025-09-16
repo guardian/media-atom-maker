@@ -9,7 +9,7 @@ import Icon from './Icon';
 import {Presence} from './Presence';
 import {canonicalVideoPageExists} from '../util/canonicalVideoPageExists';
 import VideoUtils from '../util/video';
-import {QUERY_PARAM_shouldUseCreatedDateForSort} from "../constants/queryParams";
+import {QUERY_PARAM_mediaPlatformFilter, QUERY_PARAM_shouldUseCreatedDateForSort} from "../constants/queryParams";
 
 export default class Header extends React.Component {
   state = { presence: null };
@@ -57,6 +57,38 @@ export default class Header extends React.Component {
     return (
       <div className="flex-container topbar__global">
         <VideoSearch {...this.props} />
+      </div>
+    );
+  }
+
+  renderFilterBy() {
+    return (
+      <div className="flex-container topbar__global">
+        <span>Filter for:&nbsp;</span>
+        <select
+          value={this.props.mediaPlatformFilter?.toString()}
+          onChange={event => {
+            const mediaPlatformFilter = event.target.value || null;
+
+            this.props.updateMediaPlatformFilter(mediaPlatformFilter);
+
+            const url = new URL(window.location.href);
+            if (mediaPlatformFilter) {
+              url.searchParams.set(QUERY_PARAM_mediaPlatformFilter, mediaPlatformFilter);
+            } else {
+              url.searchParams.delete(QUERY_PARAM_mediaPlatformFilter);
+            }
+            window.history.replaceState(
+              window.history.state,
+              document.title,
+              url.toString()
+            );
+          }}
+        >
+          <option value="">All videos</option>
+          <option value="url">Loops</option>
+          <option value="youtube">YouTube</option>
+        </select>
       </div>
     );
   }
@@ -130,9 +162,9 @@ export default class Header extends React.Component {
   renderPresence() {
     if (this.props.presenceConfig) {
       return (
-        <Presence 
-          video={this.props.video} 
-          config={this.props.presenceConfig} 
+        <Presence
+          video={this.props.video}
+          config={this.props.presenceConfig}
           reportPresenceClientError={this.props.reportPresenceClientError}
         />
       );
@@ -206,6 +238,7 @@ export default class Header extends React.Component {
 
           <div className="flex-spacer" />
 
+          {this.renderFilterBy()}
           {this.renderSortBy()}
 
           <div className="flex-container">
