@@ -467,7 +467,7 @@ function mapDispatchToProps(dispatch) {
       dispatch
     ),
     workflowActions: bindActionCreators(
-      Object.assign({}, getStatus, trackInWorkflow, updateWorkflowData),
+      { getStatus, ...trackInWorkflow, ...updateWorkflowData },
       dispatch
     )
   };

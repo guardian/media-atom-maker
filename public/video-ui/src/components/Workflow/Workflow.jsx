@@ -77,14 +77,13 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     workflowActions: bindActionCreators(
-      Object.assign(
-        {},
+      {
         getStatus,
         getSections,
-        getStatuses,
-        getPriorities,
-        localUpdateWorkflowData
-      ),
+        ...getStatuses,
+        ...getPriorities,
+        ...localUpdateWorkflowData
+      },
       dispatch
     )
   };
