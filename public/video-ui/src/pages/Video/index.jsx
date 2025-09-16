@@ -412,7 +412,7 @@ import * as getVideo from '../../actions/VideoActions/getVideo';
 import * as saveVideo from '../../actions/VideoActions/saveVideo';
 import * as createVideo from '../../actions/VideoActions/createVideo';
 import * as updateVideo from '../../actions/VideoActions/updateVideo';
-import * as videoUsages from '../../actions/VideoActions/videoUsages';
+import { fetchUsages } from '../../slices/usage';
 import * as getPublishedVideo
   from '../../actions/VideoActions/getPublishedVideo';
 import * as updateVideoEditState
@@ -455,7 +455,7 @@ function mapDispatchToProps(dispatch) {
         saveVideo,
         createVideo,
         updateVideo,
-        videoUsages,
+        { getUsages: fetchUsages },
         getPublishedVideo,
         updateVideoEditState,
         videoPageUpdate

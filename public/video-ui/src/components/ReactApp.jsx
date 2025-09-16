@@ -31,8 +31,8 @@ class ReactApp extends React.Component {
       });
     }
 
-    if(this.props.errorKey !== prevProps.errorKey ) {
-      document.body.scrollIntoView({block: 'start', behavior: 'smooth'});
+    if (this.props.errorKey !== prevProps.errorKey) {
+      document.body.scrollIntoView({ block: 'start', behavior: 'smooth' });
     }
   }
 
@@ -85,10 +85,10 @@ class ReactApp extends React.Component {
         />
         {this.props.error
           ? <div
-              key={this.props.errorKey}
-              className={`error-bar error-bar--animate`}
-              dangerouslySetInnerHTML={{ __html: this.props.error }}
-            />
+            key={this.props.errorKey}
+            className={`error-bar error-bar--animate`}
+            dangerouslySetInnerHTML={{ __html: this.props.error }}
+          />
           : false}
         <div>
           {this.props.children}
@@ -111,7 +111,7 @@ import * as saveVideo from '../actions/VideoActions/saveVideo';
 import * as getUploads from '../actions/UploadActions/getUploads';
 import * as videoPageUpdate from '../actions/VideoActions/videoPageUpdate';
 import * as videoPageCreate from '../actions/VideoActions/videoPageCreate';
-import * as videoUsages from '../actions/VideoActions/videoUsages';
+import { fetchUsages } from '../slices/usage';
 import * as deleteVideo from '../actions/VideoActions/deleteVideo';
 import * as updateVideo from '../actions/VideoActions/updateVideo';
 import * as reportPresenceClientError from '../actions/PresenceActions/reportError';
@@ -150,7 +150,7 @@ function mapDispatchToProps(dispatch) {
         getUploads,
         videoPageUpdate,
         videoPageCreate,
-        videoUsages,
+        { getUsages: fetchUsages },
         deleteVideo,
         updateVideo,
         reportPresenceClientError

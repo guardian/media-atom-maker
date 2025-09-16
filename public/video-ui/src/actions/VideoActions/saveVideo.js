@@ -1,5 +1,6 @@
 import VideosApi from '../../services/VideosApi';
 import { showError } from '../../slices/error';
+import { fetchUsages } from '../../slices/usage';
 
 function requestVideoSave(video) {
   return {
@@ -25,13 +26,6 @@ function receiveVideoSave(video) {
   };
 }
 
-function receiveVideoUsages(usages) {
-  return {
-    type: 'VIDEO_USAGE_GET_RECEIVE',
-    usages: usages,
-    receivedAt: Date.now()
-  };
-}
 
 export function saveVideo(video) {
   return dispatch => {
@@ -39,9 +33,8 @@ export function saveVideo(video) {
     return VideosApi.saveVideo(video.id, video)
       .then(res => {
         dispatch(receiveVideoSave(res));
-        return VideosApi.getVideoUsages(video.id)
+        return dispatch(fetchUsages(video.id))
           .then(usages => {
-            dispatch(receiveVideoUsages(usages));
             return VideosApi.updateCanonicalPages(video, usages, 'preview');
           })
           .then(() => dispatch(receiveVideoPageUpdate(video.title)))

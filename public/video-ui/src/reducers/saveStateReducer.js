@@ -45,9 +45,8 @@ export default function saveState(
       return Object.assign({}, state, {
         saving: false
       });
+      
     //Publish States
-
-
     case 'VIDEO_PUBLISH_REQUEST':
       return Object.assign({}, state, {
         publishing: saveStateVals.inprogress
@@ -56,9 +55,8 @@ export default function saveState(
       return Object.assign({}, state, {
         publishing: false
       });
+      
     // Adding asset states
-
-
     case 'ASSET_CREATE_REQUEST':
       return Object.assign({}, state, {
         addingAsset: saveStateVals.inprogress
@@ -67,12 +65,13 @@ export default function saveState(
       return Object.assign({}, state, {
         addingAsset: false
       });
-    // Checkign usages state
-    case 'VIDEO_USAGE_GET_REQUEST':
+
+    // Checking usages state
+    case 'usage/fetchUsages/pending':
       return Object.assign({}, state, {
         fetchingUsages: true
       });
-    case 'VIDEO_USAGE_GET_RECEIVE':
+    case 'usage/fetchUsages/fulfilled':
       return Object.assign({}, state, {
         fetchingUsages: false
       });
