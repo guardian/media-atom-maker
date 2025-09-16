@@ -16,6 +16,7 @@ import uploads from './uploadsReducer';
 import path from '../slices/path';
 import pluto from '../slices/pluto';
 import workflow from './workflowReducer';
+import workflowSlice from '../slices/workflow';
 import targeting from './targetingReducer';
 
 export default {
@@ -37,5 +38,6 @@ export default {
   routing: routerReducer,
   pluto,
   workflow,
+  workflowSlice,
   targeting
 };
