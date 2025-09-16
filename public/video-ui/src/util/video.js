@@ -144,4 +144,8 @@ export default class VideoUtils {
   static hasExpired({ contentChangeDetails }) {
     return !!contentChangeDetails.expiry && contentChangeDetails.expiry.date <= Date.now();
   }
+
+  static getMediaPlatform(atomSummary) {
+    return atomSummary?.mediaPlatform?.toLowerCase() || null;
+  }
 }

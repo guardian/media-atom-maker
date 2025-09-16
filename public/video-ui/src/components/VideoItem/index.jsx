@@ -1,12 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { findSmallestAssetAboveWidth } from '../../util/imageHelpers';
-import Icon from '../Icon';
+import Icon, {LoopingIcon, YoutubeIcon} from '../Icon';
 import ReactTooltip from 'react-tooltip';
 import VideoUtils from '../../util/video';
 import { impossiblyDistantDate } from '../../constants/dates';
 import moment from 'moment';
-import { getStore } from '../../util/storeAccessor';
 
 
 export default class VideoItem extends React.Component {
@@ -46,6 +45,7 @@ export default class VideoItem extends React.Component {
 
   render() {
     const video = this.props.video;
+    const mediaPlatform = VideoUtils.getMediaPlatform(video);
     const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
     const scheduledLaunchMoment = moment(scheduledLaunch);
     const embargo = VideoUtils.getEmbargo(video);
@@ -107,6 +107,16 @@ export default class VideoItem extends React.Component {
                 </span>
               )}
             </div>
+            {mediaPlatform === 'youtube' && (
+              <div className="platform__icon">
+                  <YoutubeIcon />
+              </div>
+            )}
+            {mediaPlatform === 'url' && (
+              <div className="platform__icon">
+                  <LoopingIcon />
+              </div>
+            )}
             <div className="grid__item__footer">
               <span className="grid__item__title">{video.title}</span>
             </div>

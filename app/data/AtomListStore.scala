@@ -80,7 +80,16 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
         (asset \ "version").as[Long]
       }
 
-      Some(MediaAtomSummary(id, title, posterImage, contentChangeDetails))
+      val currentAsset = (atom \ "assets").as[JsArray].value.find { asset =>
+        val assetVersion = (asset \ "version").as[Long]
+        activeVersion.contains(assetVersion)
+      }
+
+      val mediaPlatform = currentAsset.flatMap { asset =>
+        (asset \ "platform").asOpt[String]
+      }
+
+      Some(MediaAtomSummary(id, title, posterImage, contentChangeDetails, mediaPlatform))
     }
   }
 }
@@ -131,8 +140,10 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore) extends AtomListS
 
   private def fromAtom(atom: MediaAtom): MediaAtomSummary = {
     val versions = atom.assets.map(_.version).toSet
+    val currentAsset = atom.assets.find(asset => asset.version == atom.activeVersion.getOrElse(versions.max))
+    val mediaPlatform = currentAsset.map(_.platform.name)
 
-    MediaAtomSummary(atom.id, atom.title, atom.posterImage, atom.contentChangeDetails)
+    MediaAtomSummary(atom.id, atom.title, atom.posterImage, atom.contentChangeDetails, mediaPlatform)
   }
 }
 
