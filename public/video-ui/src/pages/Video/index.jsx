@@ -51,7 +51,7 @@ class VideoDisplay extends React.Component {
   }
 
   getUsages() {
-    this.props.videoActions.getUsages(this.props.params.id);
+    this.props.videoActions.fetchUsages(this.props.params.id);
   }
 
   saveAndUpdateVideo = video => {
@@ -60,7 +60,7 @@ class VideoDisplay extends React.Component {
     if (isCreateMode) {
       return this.props.videoActions.createVideo(video).then(() => {
         this.setState({ isCreateMode: false });
-        this.props.videoActions.getUsages(this.props.video.id);
+        this.props.videoActions.fetchUsages(this.props.video.id);
       });
     } else {
       return this.props.videoActions.saveVideo(video);
@@ -455,7 +455,7 @@ function mapDispatchToProps(dispatch) {
         saveVideo,
         createVideo,
         updateVideo,
-        { getUsages: fetchUsages },
+        { fetchUsages },
         getPublishedVideo,
         updateVideoEditState,
         videoPageUpdate

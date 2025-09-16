@@ -9,7 +9,7 @@ class ReactApp extends React.Component {
       this.props.appActions.getVideo(this.props.params.id);
       this.props.appActions.getPublishedVideo(this.props.params.id);
       this.props.appActions.getUploads(this.props.params.id);
-      this.props.appActions.getUsages(this.props.params.id);
+      this.props.appActions.fetchUsages(this.props.params.id);
     }
 
     this.state = {
@@ -150,7 +150,7 @@ function mapDispatchToProps(dispatch) {
         getUploads,
         videoPageUpdate,
         videoPageCreate,
-        { getUsages: fetchUsages },
+        { fetchUsages },
         deleteVideo,
         updateVideo,
         reportPresenceClientError
