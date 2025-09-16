@@ -86,7 +86,7 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
       }
 
       val mediaPlatform = currentAsset.flatMap { asset =>
-        (asset \ "platform").asOpt[String]
+        (asset \ "platform").asOpt[String].map(_.toLowerCase)
       }
 
       Some(MediaAtomSummary(id, title, posterImage, contentChangeDetails, mediaPlatform))
@@ -141,7 +141,7 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore) extends AtomListS
   private def fromAtom(atom: MediaAtom): MediaAtomSummary = {
     val versions = atom.assets.map(_.version).toSet
     val currentAsset = atom.assets.find(asset => asset.version == atom.activeVersion.getOrElse(versions.max))
-    val mediaPlatform = currentAsset.map(_.platform.name)
+    val mediaPlatform = currentAsset.map(_.platform.name).map(_.toLowerCase)
 
     MediaAtomSummary(atom.id, atom.title, atom.posterImage, atom.contentChangeDetails, mediaPlatform)
   }

@@ -146,6 +146,6 @@ export default class VideoUtils {
   }
 
   static getMediaPlatform(atomSummary) {
-    return atomSummary?.mediaPlatform?.toLowerCase() || null;
+    return atomSummary?.mediaPlatform || null;
   }
 }
