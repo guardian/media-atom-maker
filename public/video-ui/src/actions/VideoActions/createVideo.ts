@@ -10,6 +10,7 @@ export function createVideo(video: Video) {
     dispatch(setSaving(true));
     return VideosApi.createVideo(video)
       .then(res => {
+        browserHistory.push('/videos/' + res.id);
         dispatch(setSaving(false));
         dispatch(setVideo(res));
       })
