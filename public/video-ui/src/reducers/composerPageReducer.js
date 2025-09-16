@@ -1,10 +1,10 @@
 export default function usage(state = {}, action) {
   switch (action.type) {
-    case 'VIDEO_PAGE_CREATE_POST_RECEIVE': {
-      const videoId = action.newPage.videoId;
+    case 'usage/addNewlyCreatedVideoUsage': {
+      const videoId = action.payload.videoId;
       state[videoId] = {
-        composerId: action.newPage.composerId,
-        usage: action.newPage.usage
+        composerId: action.payload.composerId,
+        usage: action.payload.usage
       };
       return Object.assign({}, state);
     }

@@ -1,17 +1,11 @@
 import VideosApi from '../../services/VideosApi';
 import ContentApi from '../../services/capi';
+import { addNewlyCreatedVideoUsage } from '../../slices/usage';
+
 
 function requestVideoPageCreate() {
   return {
     type: 'VIDEO_PAGE_CREATE_POST_REQUEST',
-    receivedAt: Date.now()
-  };
-}
-
-function receiveVideoPageCreate(capiPage) {
-  return {
-    type: 'VIDEO_PAGE_CREATE_POST_RECEIVE',
-    newPage: capiPage,
     receivedAt: Date.now()
   };
 }
@@ -48,7 +42,7 @@ export function createVideoPage(id, video, isTrainingMode) {
           // so keep trying until success or timeout
           return ContentApi.getByPath(pagePath, true).then(capiResponse => {
             return dispatch(
-              receiveVideoPageCreate(capiResponse.response.content)
+              addNewlyCreatedVideoUsage(capiResponse.response.content)
             );
           });
         });
