@@ -45,7 +45,8 @@ export default class VideoItem extends React.Component {
 
   render() {
     const video = this.props.video;
-    const mediaPlatform = VideoUtils.getMediaPlatform(video);
+    const mediaPlatforms = VideoUtils.getMediaPlatforms(video);
+    const currentMediaPlatform = VideoUtils.getCurrentMediaPlatform(video);
     const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
     const scheduledLaunchMoment = moment(scheduledLaunch);
     const embargo = VideoUtils.getEmbargo(video);
@@ -107,16 +108,26 @@ export default class VideoItem extends React.Component {
                 </span>
               )}
             </div>
-            {mediaPlatform === 'youtube' && (
-              <div className="platform__icon">
-                  <YoutubeIcon />
-              </div>
-            )}
-            {mediaPlatform === 'url' && (
-              <div className="platform__icon">
-                  <LoopingIcon />
-              </div>
-            )}
+            <div className="platform__icons">
+              {mediaPlatforms.map(platform => {
+                const classes = ["platform__icon", platform === currentMediaPlatform ? "platform__icon__active" : ""].join(" ");
+                if (platform === 'youtube') {
+                  return (
+                    <div key={platform} className={classes}>
+                      <YoutubeIcon />
+                    </div>
+                  );
+                }
+                if (platform === 'url') {
+                  return (
+                    <div key={platform} className={classes}>
+                      <LoopingIcon />
+                    </div>
+                  );
+                }
+                return null;
+              })}
+            </div>
             <div className="grid__item__footer">
               <span className="grid__item__title">{video.title}</span>
             </div>

@@ -12,7 +12,8 @@ case class MediaAtomSummary(
   title: String,
   posterImage: Option[Image],
   contentChangeDetails: ContentChangeDetails,
-  mediaPlatform: Option[String]
+  mediaPlatforms: List[String],
+  currentMediaPlatform: Option[String]
 )
 
 object MediaAtomList {

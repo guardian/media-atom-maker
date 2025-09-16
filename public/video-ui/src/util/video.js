@@ -145,7 +145,11 @@ export default class VideoUtils {
     return !!contentChangeDetails.expiry && contentChangeDetails.expiry.date <= Date.now();
   }
 
-  static getMediaPlatform(atomSummary) {
-    return atomSummary?.mediaPlatform || null;
+  static getMediaPlatforms(atomSummary) {
+    return atomSummary?.mediaPlatforms || [];
+  }
+
+  static getCurrentMediaPlatform(atomSummary) {
+    return atomSummary?.currentMediaPlatform || null;
   }
 }
