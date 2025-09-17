@@ -104,16 +104,16 @@ const workflow = createSlice({
   },
   extraReducers: builder => builder
     .addCase(getSections.fulfilled, (state, action) => {
-      state.sections = action.payload.sections || []
+      state.sections = action.payload || []
     })
     .addCase(getStatus.fulfilled, (state, action) => {
       state.status = { isTrackedInWorkflow: true, ...action.payload.status }
     })
     .addCase(getStatuses.fulfilled, (state, action) => {
-      state.statuses = action.payload.statuses || []
+      state.statuses = action.payload || []
     })
     .addCase(getPriorities.fulfilled, (state, action) => {
-      state.priorities = action.payload.priorities || []
+      state.priorities = action.payload || []
     })
 })
 
