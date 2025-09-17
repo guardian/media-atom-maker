@@ -63,8 +63,7 @@ class Workflow extends React.Component {
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getPriorities, getSections, getStatus, getStatuses } from '../../slices/workflow';
-import * as localUpdateWorkflowData from '../../actions/WorkflowActions/localUpdateWorkflowData';
+import { getPriorities, getSections, getStatus, getStatuses, localUpdateWorkflowData } from '../../slices/workflow';
 
 function mapStateToProps(state) {
   return {
@@ -80,7 +79,7 @@ function mapDispatchToProps(dispatch) {
         getSections,
         getStatuses,
         getPriorities,
-        ...localUpdateWorkflowData
+        localUpdateWorkflowData
       },
       dispatch
     )
