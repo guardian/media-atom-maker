@@ -18,7 +18,6 @@ import path from '../slices/path';
 import pluto from '../slices/pluto';
 import workflow from './workflowReducer';
 import targeting from './targetingReducer';
-import shouldUseCreatedDateForSort from './shouldUseCreatedDateForSortReducer';
 import mediaPlatformFilter from "./mediaPlatformReducer";
 
 export default {
@@ -28,7 +27,6 @@ export default {
   videos,
   saveState,
   search,
-  shouldUseCreatedDateForSort,
   mediaPlatformFilter,
   youtube,
   usage,

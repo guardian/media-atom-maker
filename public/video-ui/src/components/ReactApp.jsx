@@ -102,7 +102,6 @@ class ReactApp extends React.Component {
 //REDUX CONNECTIONS
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as updateShouldUseCreatedDateForSort from '../actions/SearchActions/updateShouldUseCreatedDateForSort';
 import * as updateMediaPlatformFilter from "../actions/SearchActions/updateMediaPlatformFilter";
 import * as getVideo from '../actions/VideoActions/getVideo';
 import * as getPublishedVideo from '../actions/VideoActions/getPublishedVideo';
@@ -115,7 +114,7 @@ import * as videoUsages from '../actions/VideoActions/videoUsages';
 import * as deleteVideo from '../actions/VideoActions/deleteVideo';
 import * as updateVideo from '../actions/VideoActions/updateVideo';
 import * as reportPresenceClientError from '../actions/PresenceActions/reportError';
-import { updateSearchTerm } from "../slices/search";
+import { updateSearchTerm, updateShouldUseCreatedDateForSort } from "../slices/search";
 
 function mapStateToProps(state) {
   return {
@@ -139,8 +138,7 @@ function mapDispatchToProps(dispatch) {
   return {
     appActions: bindActionCreators(
       Object.assign(
-        { updateSearchTerm },
-        updateShouldUseCreatedDateForSort,
+        { updateSearchTerm, updateShouldUseCreatedDateForSort },
         updateMediaPlatformFilter,
         getVideo,
         getPublishedVideo,
