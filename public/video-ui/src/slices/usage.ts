@@ -44,11 +44,13 @@ export const fetchUsages = createAsyncThunk<
             data => {
                 const { preview, published } = data;
                 // a lot of components conditionally render based on the number of usages,
-                // rather than constantly call a utility function, let's cheat and put in in the state
+                // rather than constantly call a utility function, they use the stateful value.
+                // It should be possible to refactor those components to derive the number
+                // from the data so the value does not need to be in the UsageState.
                 const totalVideoPages = preview.video.length + published.video.length;
                 const totalUsages = totalVideoPages + preview.other.length + published.other.length;
                 return {
-                    data: data,
+                    data,
                     totalUsages,
                     totalVideoPages,
                     isFetching: false
