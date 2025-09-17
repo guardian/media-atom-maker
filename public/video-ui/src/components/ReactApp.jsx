@@ -85,10 +85,11 @@ class ReactApp extends React.Component {
         />
         {this.props.error.message
           ? <div
-              key={this.props.error.key}
-              className={`error-bar error-bar--animate`}
-              dangerouslySetInnerHTML={{ __html: this.props.error.message }}
-            />
+            key={this.props.error.key}
+            className={`error-bar error-bar--animate`}
+          >
+            {this.props.error.message}
+          </div>
           : false}
         <div>
           {this.props.children}
