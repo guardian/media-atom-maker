@@ -1,10 +1,10 @@
 import { createSlice, Action, PayloadAction } from '@reduxjs/toolkit';
 
 export type CheckedFormFieldsState = {
-  [key: string]: any;
+  [key: string]: Record<string, string | null | undefined>;
 };
 
-type UpdateCheckedFormFieldsAction = PayloadAction<Record<string, any>>
+type UpdateCheckedFormFieldsAction = PayloadAction<Record<string, Record<string, string | null | undefined>>>
 
 const initialState : CheckedFormFieldsState = {};
 const checkedFormFields = createSlice({
@@ -15,9 +15,7 @@ const checkedFormFields = createSlice({
       const formName = Object.keys(action.payload)[0];
       const newFormErrors = action.payload[formName];
       const currentFormErrors =  state[formName] || {};
-      const updatedFormErrors = Object.assign({}, currentFormErrors, newFormErrors);
-      const updatedForm = { [formName]: updatedFormErrors };
-      return Object.assign({}, state,updatedForm);
+      state[formName] = { ...currentFormErrors, ...newFormErrors };
     }
   }
 });
