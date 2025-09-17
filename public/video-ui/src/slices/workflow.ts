@@ -37,7 +37,7 @@ export const getStatus = createAsyncThunk<{status: Status}, {id: unknown}>(
         try {
           error.json().then(errorBody => {
             if (errorBody.errors && errorBody.errors.message === 'ContentNotFound') {
-              return dispatch(receiveStatus404());
+              return dispatch(workflow.actions.statusNotFound(defaultWorkflowStatusData()));
             }
           });
         } catch (e) {
@@ -81,15 +81,6 @@ function errorReceivingStatuses(error: unknown) {
   );
 }
 
-function receiveStatus404() {
-  return {
-    type: 'WORKFLOW_STATUS_NOT_FOUND',
-    receivedAt: Date.now(),
-    status: defaultWorkflowStatusData()
-  };
-}
-
-
 const initialState: WorkflowState = {
   sections: [],
   statuses: [],
@@ -103,6 +94,12 @@ const workflow = createSlice({
   reducers: {
     localUpdateWorkflowData(state, action) {
       state.status = action.payload
+    },
+    statusNotFound(state, action) {
+      state.status = {
+        isTrackedInWorkflow: false,
+        ...action.payload
+      }
     }
   },
   extraReducers: builder => builder
