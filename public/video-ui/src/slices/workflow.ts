@@ -100,7 +100,11 @@ const initialState: WorkflowState = {
 const workflow = createSlice({
   name: 'workflow',
   initialState,
-  reducers: {},
+  reducers: {
+    localUpdateWorkflowData(state, action) {
+      state.status = action.payload
+    }
+  },
   extraReducers: builder => builder
     .addCase(getSections.fulfilled, (state, action) => {
       state.sections = action.payload.sections || []
@@ -115,5 +119,7 @@ const workflow = createSlice({
       state.priorities = action.payload.priorities || []
     })
 })
+
+export const { localUpdateWorkflowData } = workflow.actions
 
 export default workflow.reducer
