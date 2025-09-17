@@ -14,7 +14,7 @@ type Status = object
 
 export const getSections = createAsyncThunk(
   'workflow/getSections',
-  ({}, { dispatch }) => WorkflowApi.getSections().catch(
+  (_, { dispatch }) => WorkflowApi.getSections().catch(
     (error: unknown) => {
       dispatch(
         showError(
@@ -51,12 +51,12 @@ export const getStatus = createAsyncThunk<{status: Status}, {id: unknown}>(
 
 export const getStatuses = createAsyncThunk(
   'workflow/getStatuses',
-  ({}, { dispatch }) => WorkflowApi.getStatuses().catch(err => dispatch(errorReceivingStatuses(err)))
+  (_, { dispatch }) => WorkflowApi.getStatuses().catch(err => dispatch(errorReceivingStatuses(err)))
 )
 
 export const getPriorities = createAsyncThunk(
   'workflow/getPriorities',
-  ({}, { dispatch }) => WorkflowApi.getPriorities().catch(err => dispatch(errorReceivingPriorities(err)))
+  (_, { dispatch }) => WorkflowApi.getPriorities().catch(err => dispatch(errorReceivingPriorities(err)))
 )
 
 function errorReceivingPriorities(error: unknown) {
