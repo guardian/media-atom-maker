@@ -31,7 +31,7 @@ class ReactApp extends React.Component {
       });
     }
 
-    if(this.props.errorKey !== prevProps.errorKey ) {
+    if(this.props.error.key !== prevProps.error.key ) {
       document.body.scrollIntoView({block: 'start', behavior: 'smooth'});
     }
   }
@@ -83,11 +83,11 @@ class ReactApp extends React.Component {
           query={this.props.location.query}
           error={this.props.error}
         />
-        {this.props.error
+        {this.props.error.message
           ? <div
-              key={this.props.errorKey}
+              key={this.props.error.key}
               className={`error-bar error-bar--animate`}
-              dangerouslySetInnerHTML={{ __html: this.props.error }}
+              dangerouslySetInnerHTML={{ __html: this.props.error.message }}
             />
           : false}
         <div>
@@ -125,7 +125,6 @@ function mapStateToProps(state) {
     video: state.video,
     publishedVideo: state.publishedVideo,
     error: state.error,
-    errorKey: state.errorKey,
     uploads: state.uploads,
     s3Upload: state.s3Upload,
     videoEditOpen: state.videoEditOpen,
