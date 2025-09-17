@@ -48,7 +48,7 @@ class MediaAtomTest extends AnyFunSuite with Matchers {
     optimisedForWeb = None,
     composerCommentsEnabled = None,
     suppressRelatedContent = None,
-    autoloopVideoOnPageLoad = None
+    isLoopingVideo = None
   )
 
   test("test youtube description of MediaAtomBeforeCreation with empty description") {
