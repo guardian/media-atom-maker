@@ -26,9 +26,9 @@ export const getSections = createAsyncThunk(
   )
 )
 
-export const getStatus = createAsyncThunk<{status: Status}, { video: { id: unknown } }>(
+export const getStatus = createAsyncThunk<{status: Status}, {id: unknown}>(
   'workflow/getStatus',
-  ({ video }, { dispatch }) => WorkflowApi.getAtomInWorkflow(video).catch(
+  (video, { dispatch }) => WorkflowApi.getAtomInWorkflow(video).catch(
     (error: Response | any) => {
       if (error instanceof Response) {
         if (error.status !== 404) {
