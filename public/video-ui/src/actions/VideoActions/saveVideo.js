@@ -1,30 +1,16 @@
 import VideosApi from '../../services/VideosApi';
 import { showError } from '../../slices/error';
 import { fetchUsages, updateVideoUsageWebTitle } from '../../slices/usage';
-
-function requestVideoSave(video) {
-  return {
-    type: 'VIDEO_SAVE_REQUEST',
-    video: video,
-    receivedAt: Date.now()
-  };
-}
-
-function receiveVideoSave(video) {
-  return {
-    type: 'VIDEO_SAVE_RECEIVE',
-    video: video,
-    receivedAt: Date.now()
-  };
-}
+import { setSaving } from '../../slices/saveState';
+import { setVideo } from '../../slices/video';
 
 
 export function saveVideo(video) {
   return dispatch => {
-    dispatch(requestVideoSave(video));
+    dispatch(setSaving(true));
+    dispatch(setVideo(video));
     return VideosApi.saveVideo(video.id, video)
       .then(res => {
-        dispatch(receiveVideoSave(res));
         return dispatch(fetchUsages(video.id))
           .then(fetchUsagesFulfilledAction => {
             return VideosApi.updateCanonicalPages(video, fetchUsagesFulfilledAction.payload, 'preview');

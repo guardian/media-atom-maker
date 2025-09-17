@@ -430,7 +430,6 @@ import * as updateWorkflowData
   from '../../actions/WorkflowActions/updateWorkflowData';
 import {getYouTubeEmbedUrl} from "../../components/utils/YouTubeEmbed";
 import {getComposerId} from "../../util/getComposerData";
-import {saveStateVals} from "../../constants/saveStateVals";
 
 function mapStateToProps(state) {
   return {

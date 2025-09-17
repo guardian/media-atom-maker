@@ -3,6 +3,7 @@ import ErrorMessages from '../constants/ErrorMessages';
 import { CapiContent, Stage as CapiStage } from '../services/capi';
 import VideosApi from '../services/VideosApi';
 import { showError } from './error';
+import { setFetchingUsage } from './saveState';
 
 export type UsageData = {
     data: Record<CapiStage, {
@@ -35,14 +36,18 @@ export const fetchUsages = createAsyncThunk<
     string
 >(
     'usage/fetchUsages',
-    (id, { dispatch }) =>
-        VideosApi.getVideoUsages(id)
+    (id, { dispatch }) => {
+        dispatch(setFetchingUsage(true));
+        return VideosApi.getVideoUsages(id)
             .catch(
                 (error: unknown) => {
                     dispatch(showError(ErrorMessages.usages, error));
                     throw error;
                 }
-            )
+            ).finally(() => {
+               dispatch( setFetchingUsage(false));
+            });
+    }
 );
 
 const usage = createSlice({
