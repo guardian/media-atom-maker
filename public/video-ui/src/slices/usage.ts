@@ -4,18 +4,20 @@ import { CapiContent, Stage as CapiStage } from '../services/capi';
 import VideosApi from '../services/VideosApi';
 import { showError } from './error';
 
-export type UsageData = {
-    data: Record<CapiStage, {
-        video: CapiContent[];
-        other: CapiContent[];
-    }>;
 
+export type UsageData = Record<CapiStage, {
+    video: CapiContent[];
+    other: CapiContent[];
+}>;
+
+export type UsageState = {
+    data: UsageData;
     totalUsages: number,
     totalVideoPages: number,
     isFetching: boolean,
 }
 
-const getInitialState = (): UsageData => ({
+const getInitialState = (): UsageState => ({
     data: {
         published: {
             video: [],
@@ -33,12 +35,26 @@ const getInitialState = (): UsageData => ({
 });
 
 export const fetchUsages = createAsyncThunk<
-    UsageData,
+    UsageState,
     string
 >(
     'usage/fetchUsages',
     (id, { dispatch }) => {
-        return VideosApi.getVideoUsages(id)
+        return VideosApi.getVideoUsages(id).then(
+            data => {
+                const { preview, published } = data;
+                // a lot of components conditionally render based on the number of usages,
+                // rather than constantly call a utility function, let's cheat and put in in the state
+                const totalVideoPages = preview.video.length + published.video.length;
+                const totalUsages = totalVideoPages + preview.other.length + published.other.length;
+                return {
+                    data: data,
+                    totalUsages,
+                    totalVideoPages,
+                    isFetching: false
+                };
+            }
+        )
             .catch(
                 (error: unknown) => {
                     dispatch(showError(ErrorMessages.usages, error));
