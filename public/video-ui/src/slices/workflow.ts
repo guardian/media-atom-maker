@@ -49,10 +49,35 @@ export const getStatus = createAsyncThunk<{status: Status}, {id: unknown}>(
   )
 )
 
+export const getStatuses = createAsyncThunk(
+  'workflow/getStatuses',
+  ({}, { dispatch }) => WorkflowApi.getStatuses().catch(err => dispatch(errorReceivingStatuses(err)))
+)
+
+export const getPriorities = createAsyncThunk(
+  'workflow/getPriorities',
+  ({}, { dispatch }) => WorkflowApi.getPriorities().catch(err => dispatch(errorReceivingPriorities(err)))
+)
+
+function errorReceivingPriorities(error: unknown) {
+  return showError(
+    `Could not get Workflow priorities. <a href="${WorkflowApi.workflowUrl}" target="_blank" rel="noopener">Open Workflow to get a cookie.</a>`,
+    error,
+  );
+}
+
+
 function errorReceivingStatus(error: unknown) {
   return showError(
     'Cannot get Atom status in Workflow',
     error,
+  );
+}
+
+function errorReceivingStatuses(error: unknown) {
+  return showError(
+    `Could not get Workflow statuses. <a href="${WorkflowApi.workflowUrl}" target="_blank" rel="noopener">Open Workflow to get a cookie.</a>`,
+    error
   );
 }
 
@@ -81,8 +106,14 @@ const workflow = createSlice({
       state.sections = action.payload.sections || []
     })
     .addCase(getStatus.fulfilled, (state, action) => {
-    state.status = {isTrackedInWorkflow: true, ...action.payload.status}
-  })
+      state.status = { isTrackedInWorkflow: true, ...action.payload.status }
+    })
+    .addCase(getStatuses.fulfilled, (state, action) => {
+      state.statuses = action.payload.statuses || []
+    })
+    .addCase(getPriorities.fulfilled, (state, action) => {
+      state.priorities = action.payload.priorities || []
+    })
 })
 
 export default workflow.reducer
