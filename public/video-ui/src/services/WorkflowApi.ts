@@ -4,28 +4,45 @@ import VideoUtils from '../util/video';
 import moment from 'moment';
 import { impossiblyDistantDate } from '../constants/dates';
 
+type WorkflowData = {
+  priority: number
+}
+
+export type Section = {
+  name: string,
+  selected: boolean,
+  id: number,
+}
+
+export type Status = string
+
+export type Priority = {
+  name: string,
+  value: number,
+}
+
 export default class WorkflowApi {
   static get workflowUrl() {
     return getStore().getState().config.workflowUrl;
   }
 
-  static workflowItemLink(video) {
+  static workflowItemLink(video: {id: string}) {
     return `${WorkflowApi.workflowUrl}/dashboard?editorId=${video.id}`;
   }
 
-  static _getResponseAsJson(response) {
+  static _getResponseAsJson<A>(response: string | unknown): A {
     if (typeof response === 'string') {
       return JSON.parse(response);
     }
-    return response;
+    throw new Error(`Error calling Workflow API – expected string response from  but got: ${response}`);
   }
 
   //clean up the workflow data so that the priority field number, which can be 0, is converted to a string
-  static _cleanUpWorkflowData(workflowData) {
+  static _cleanUpWorkflowData(workflowData: WorkflowData) {
     return { ...workflowData, priority: workflowData.priority.toString() };
   }
 
-  static getSections() {
+  static async getSections(): Promise<Section[]> {
     // timeout in case the user is not logged into Workflow
     const params = {
       url: `${WorkflowApi.workflowUrl}/api/sections`,
@@ -33,21 +50,21 @@ export default class WorkflowApi {
       withCredentials: true
     };
 
-    return apiRequest(params, 500).then(response => {
-      return WorkflowApi._getResponseAsJson(response)
-        .data.map(section =>
-          Object.assign({}, section, {
-            id: section.name,
-            title: section.name,
-            workflowId: section.id
-          })
-        )
-        .sort((a, b) => {
-          if (a.title.toLowerCase() < b.title.toLowerCase()) return -1;
-          if (a.title.toLowerCase() > b.title.toLowerCase()) return 1;
-          return 0;
-        });
-    });
+    const response = await apiRequest(params, 500);
+    return WorkflowApi._getResponseAsJson<Section[]>(response)
+      .data.map(section => Object.assign({}, section, {
+        id: section.name,
+        title: section.name,
+        workflowId: section.id
+      })
+      )
+      .sort((a, b) => {
+        if (a.title.toLowerCase() < b.title.toLowerCase())
+          return -1;
+        if (a.title.toLowerCase() > b.title.toLowerCase())
+          return 1;
+        return 0;
+      });
   }
 
   static getStatuses() {

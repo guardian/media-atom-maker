@@ -1,16 +1,15 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import WorkflowApi from "../services/WorkflowApi";
+import WorkflowApi, { Status } from "../services/WorkflowApi";
+import { Section } from "../services/WorkflowApi";
 import { showError } from "./error";
 import { defaultWorkflowStatusData } from '../constants/defaultWorkflowStatusData';
 
 type WorkflowState = {
-  sections: unknown[];
-  statuses: unknown[];
-  status: Status;
+  sections: Section[];
+  statuses: Status[];
+  status: object;
   priorities: unknown[];
 };
-
-type Status = object
 
 export const getSections = createAsyncThunk(
   'workflow/getSections',
@@ -26,7 +25,7 @@ export const getSections = createAsyncThunk(
   )
 )
 
-export const getStatus = createAsyncThunk<{status: Status}, {id: unknown}>(
+export const getStatus = createAsyncThunk<{status: object}, {id: string}>(
   'workflow/getStatus',
   (video, { dispatch }) => WorkflowApi.getAtomInWorkflow(video).catch(
     (error: Response | any) => {
