@@ -13,7 +13,7 @@ import pageCreate from './composerPageReducer';
 import s3Upload from './s3UploadReducer';
 import videoEditOpen from './editStateReducer';
 import checkedFormFields from './checkedFormFieldsReducer';
-import formFieldsWarning from './formFieldsWarningReducer';
+import formFieldsWarning from '../slices/formFieldsWarning';
 import uploads from './uploadsReducer';
 import path from '../slices/path';
 import pluto from '../slices/pluto';
