@@ -62,7 +62,7 @@ class ReactApp extends React.Component {
           updateShouldUseCreatedDateForSort={this.props.appActions.updateShouldUseCreatedDateForSort}
           reportPresenceClientError={this.props.appActions.reportPresenceClientError}
           updateSearchTerm={this.props.appActions.updateSearchTerm}
-          searchTerm={this.props.searchTerm}
+          search={this.props.search}
           currentPath={this.props.location.pathname}
           video={this.props.video || {}}
           publishedVideo={this.props.publishedVideo || {}}
@@ -102,7 +102,6 @@ class ReactApp extends React.Component {
 //REDUX CONNECTIONS
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as updateSearchTerm from '../actions/SearchActions/updateSearchTerm';
 import * as updateShouldUseCreatedDateForSort from '../actions/SearchActions/updateShouldUseCreatedDateForSort';
 import * as updateMediaPlatformFilter from "../actions/SearchActions/updateMediaPlatformFilter";
 import * as getVideo from '../actions/VideoActions/getVideo';
@@ -116,10 +115,11 @@ import * as videoUsages from '../actions/VideoActions/videoUsages';
 import * as deleteVideo from '../actions/VideoActions/deleteVideo';
 import * as updateVideo from '../actions/VideoActions/updateVideo';
 import * as reportPresenceClientError from '../actions/PresenceActions/reportError';
+import { updateSearchTerm } from "../slices/search";
 
 function mapStateToProps(state) {
   return {
-    searchTerm: state.searchTerm,
+    search: state.search,
     shouldUseCreatedDateForSort: state.shouldUseCreatedDateForSort,
     mediaPlatformFilter: state.mediaPlatformFilter,
     saveState: state.saveState,
@@ -139,8 +139,7 @@ function mapDispatchToProps(dispatch) {
   return {
     appActions: bindActionCreators(
       Object.assign(
-        {},
-        updateSearchTerm,
+        { updateSearchTerm },
         updateShouldUseCreatedDateForSort,
         updateMediaPlatformFilter,
         getVideo,

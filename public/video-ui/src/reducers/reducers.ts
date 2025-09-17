@@ -5,7 +5,7 @@ import video from '../slices/video';
 import publishedVideo from './publishedVideoReducer';
 import videos from '../slices/videos';
 import saveState from '../slices/saveState';
-import searchTerm from './searchTermReducer';
+import search from '../slices/search';
 import youtube from '../slices/youtube';
 import usage from './usageReducer';
 import pageCreate from './composerPageReducer';
@@ -27,7 +27,7 @@ export default {
   video,
   videos,
   saveState,
-  searchTerm,
+  search,
   shouldUseCreatedDateForSort,
   mediaPlatformFilter,
   youtube,

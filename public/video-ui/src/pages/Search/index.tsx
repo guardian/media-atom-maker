@@ -14,7 +14,7 @@ type VideosProps = {
   presenceActions: {
     reportPresenceClientError: (err: unknown) => void
   },
-  searchTerm: string,
+  search: Search,
   limit: number,
   shouldUseCreatedDateForSort: boolean,
   mediaPlatformFilter: string
@@ -35,7 +35,7 @@ const MoreLink = ({ onClick }: { onClick: () => void }) => {
   </div>);
 };
 
-const Videos = ({ videos, total, searchTerm, limit, shouldUseCreatedDateForSort, mediaPlatformFilter, presenceActions }: VideosProps) => {
+const Videos = ({ videos, total, search: {searchTerm}, limit, shouldUseCreatedDateForSort, mediaPlatformFilter, presenceActions }: VideosProps) => {
   const [mediaIds, setMediaIds] = useState<string[]>([]);
   const [videoPresences, setVideoPresences] = useState<VideoPresences[]>([]);
   const [client, setClient] = useState<PresenceClient>(null);
@@ -149,13 +149,14 @@ import { bindActionCreators } from 'redux';
 import * as reportPresenceClientError from '../../actions/PresenceActions/reportError';
 import { fetchVideos } from '../../slices/videos';
 import { AppDispatch } from "../../util/setupStore";
+import { Search } from "../../slices/search";
 
-function mapStateToProps(state: { videos: { entries: number, total: number, limit: number }, searchTerm: string, shouldUseCreatedDateForSort: boolean, mediaPlatformFilter: string }) {
+function mapStateToProps(state: { videos: { entries: number, total: number, limit: number }, search: Search, shouldUseCreatedDateForSort: boolean, mediaPlatformFilter: string }) {
   return {
     videos: state.videos.entries,
     total: state.videos.total,
     limit: state.videos.limit,
-    searchTerm: state.searchTerm,
+    search: state.search,
     shouldUseCreatedDateForSort: state.shouldUseCreatedDateForSort,
     mediaPlatformFilter: state.mediaPlatformFilter
   };
