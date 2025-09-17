@@ -1,12 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { findSmallestAssetAboveWidth } from '../../util/imageHelpers';
-import Icon from '../Icon';
+import Icon, {LoopingIcon, YoutubeIcon} from '../Icon';
 import ReactTooltip from 'react-tooltip';
 import VideoUtils from '../../util/video';
 import { impossiblyDistantDate } from '../../constants/dates';
 import moment from 'moment';
-import { getStore } from '../../util/storeAccessor';
 
 
 export default class VideoItem extends React.Component {
@@ -46,6 +45,8 @@ export default class VideoItem extends React.Component {
 
   render() {
     const video = this.props.video;
+    const mediaPlatforms = VideoUtils.getMediaPlatforms(video);
+    const currentMediaPlatform = VideoUtils.getCurrentMediaPlatform(video);
     const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
     const scheduledLaunchMoment = moment(scheduledLaunch);
     const embargo = VideoUtils.getEmbargo(video);
@@ -106,6 +107,26 @@ export default class VideoItem extends React.Component {
                   </Icon>
                 </span>
               )}
+            </div>
+            <div className="platform__icons">
+              {mediaPlatforms.map(platform => {
+                const classes = ["platform__icon", platform === currentMediaPlatform ? "platform__icon__active" : ""].join(" ");
+                if (platform === 'youtube') {
+                  return (
+                    <div key={platform} className={classes}>
+                      <YoutubeIcon />
+                    </div>
+                  );
+                }
+                if (platform === 'url') {
+                  return (
+                    <div key={platform} className={classes}>
+                      <LoopingIcon />
+                    </div>
+                  );
+                }
+                return null;
+              })}
             </div>
             <div className="grid__item__footer">
               <span className="grid__item__title">{video.title}</span>

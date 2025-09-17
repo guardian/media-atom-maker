@@ -52,3 +52,24 @@
   width: 180px;
   margin-left: 5px;
 }
+
+.platform__icons {
+  position: absolute;
+  bottom: 64px;
+  right: 5px;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-end;
+  column-gap: 4px;
+}
+
+.platform__icon, .platform__icon svg {
+  height: 32px;
+  color: white;
+  opacity: 0.5;
+}
+
+.platform__icon__active, .platform__icon__active svg {
+  opacity: 1;
+}
+

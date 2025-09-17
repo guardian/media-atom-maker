@@ -80,7 +80,26 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
         (asset \ "version").as[Long]
       }
 
-      Some(MediaAtomSummary(id, title, posterImage, contentChangeDetails))
+      val mediaPlatforms = (atom \ "assets").as[JsArray].value.flatMap { asset =>
+        (asset \ "platform").asOpt[String].map(_.toLowerCase)
+      }.toList.distinct
+
+      val currentAsset = (atom \ "assets").as[JsArray].value.find { asset =>
+        val assetVersion = (asset \ "version").as[Long]
+        activeVersion.contains(assetVersion)
+      }
+
+      val currentMediaPlatform = currentAsset.flatMap { asset =>
+        (asset \ "platform").asOpt[String].map(_.toLowerCase)
+      }
+
+      // sort media platforms so the current one is first
+      val sortedMediaPlatforms = currentMediaPlatform match {
+        case Some(current) => current :: mediaPlatforms.filter(_ != current)
+        case None => mediaPlatforms
+      }
+
+      Some(MediaAtomSummary(id, title, posterImage, contentChangeDetails, sortedMediaPlatforms, currentMediaPlatform))
     }
   }
 }
@@ -131,8 +150,17 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore) extends AtomListS
 
   private def fromAtom(atom: MediaAtom): MediaAtomSummary = {
     val versions = atom.assets.map(_.version).toSet
+    val currentAsset = atom.assets.find(asset => asset.version == atom.activeVersion.getOrElse(versions.max))
+    val mediaPlatforms = atom.assets.map(_.platform.name.toLowerCase).distinct
+    val currentMediaPlatform = currentAsset.map(_.platform.name).map(_.toLowerCase)
 
-    MediaAtomSummary(atom.id, atom.title, atom.posterImage, atom.contentChangeDetails)
+    // sort media platforms so the current one is first
+    val sortedMediaPlatforms = currentMediaPlatform match {
+      case Some(current) => current :: mediaPlatforms.filter(_ != current)
+      case None => mediaPlatforms
+    }
+
+    MediaAtomSummary(atom.id, atom.title, atom.posterImage, atom.contentChangeDetails, sortedMediaPlatforms, currentMediaPlatform)
   }
 }
 

@@ -21,6 +21,6 @@ export function revertAsset(atomId: string, version: number) {
         dispatch(setActivatingAssetNumber());
         dispatch(receiveRevertAsset(video));
       })
-      .catch(error => dispatch(showError('Could not revert the asset', error)));
+      .catch(error => dispatch(showError('Failed to activate asset', error)));
   };
 }
