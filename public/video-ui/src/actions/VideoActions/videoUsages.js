@@ -1,13 +1,7 @@
 import VideosApi from '../../services/VideosApi';
 import { blankUsageData } from '../../constants/blankUsageData';
 import ErrorMessages from '../../constants/ErrorMessages';
-
-function requestVideoUsages() {
-  return {
-    type: 'VIDEO_USAGE_GET_REQUEST',
-    receivedAt: Date.now()
-  };
-}
+import { setFetchingUsage } from '../../slices/saveState';
 
 function receiveVideoUsages(usages) {
   return {
@@ -28,7 +22,7 @@ function errorReceivingVideoUsages(error) {
 
 export function getUsages(id) {
   return dispatch => {
-    dispatch(requestVideoUsages());
+    dispatch(setFetchingUsage(true));
 
     if (!id) {
       return dispatch(receiveVideoUsages(blankUsageData));
@@ -36,6 +30,7 @@ export function getUsages(id) {
 
     return VideosApi.getVideoUsages(id)
       .then(usages => {
+        dispatch(setFetchingUsage(false));
         dispatch(receiveVideoUsages(usages));
       })
       .catch(error => {

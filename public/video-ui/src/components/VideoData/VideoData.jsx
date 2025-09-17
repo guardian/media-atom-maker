@@ -14,6 +14,7 @@ import VideoUtils from '../../util/video';
 import {formNames} from "../../constants/formNames";
 import FieldNotification from "../../constants/FieldNotification";
 import { trailTextConfig, standfirstConfig } from "../FormFields/richtext/config";
+import { ExpireNowComponent } from "../FormFields/ExpireNow";
 
 export default class VideoData extends React.Component {
   static propTypes = {
@@ -141,6 +142,7 @@ export default class VideoData extends React.Component {
         </ManagedField>
         <ManagedField fieldLocation="expiryDate" name="Expiry Date">
           <DatePicker />
+          <ExpireNowComponent fieldName={video.fieldName} editable={editable} onUpdateField={video.onUpdateField} fieldValue={video.fieldValue} />
         </ManagedField>
         <ManagedField
           fieldLocation="category"
