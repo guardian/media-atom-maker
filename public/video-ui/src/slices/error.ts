@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { Action, AnyAction } from 'redux';
-import Raven from "raven-js";
+import Raven from 'raven-js';
 
 const SHOW_ERROR = 'SHOW_ERROR' as const;
 type ShowError = AnyAction & { type: typeof SHOW_ERROR; message: string };
@@ -23,10 +23,15 @@ export const clearError: () => Action<'CLEAR_ERROR'> = () => ({
   type: 'CLEAR_ERROR'
 });
 
-type ErrorState = false | string;
+interface Error {
+  message: false | string;
+  key: number;
+}
 
-const initialState = false as ErrorState;
-
+const initialState: Error = {
+  message: false,
+  key: 0
+};
 
 // Currently this slice users Extra Reducers to all for support of actions without
 // `domain/action` type formats. Once all consuming code which dispatches error actions
@@ -38,9 +43,14 @@ const error = createSlice({
   extraReducers: builder => ({
     showError: builder.addCase<'SHOW_ERROR', ShowError>(
       'SHOW_ERROR',
-      (state, { message }: ShowError) => (state = message)
+      (state, { message }: ShowError) => {
+        state.message = message;
+        state.key++;
+      }
     ),
-    clearError: builder.addCase('CLEAR_ERROR', state => (state = false))
+    clearError: builder.addCase('CLEAR_ERROR', state => {
+      state.message = false;
+    })
   })
 });
 
