@@ -1,5 +1,4 @@
 import React from 'react';
-import { saveStateVals } from '../../constants/saveStateVals';
 import { isVideoPublished } from '../../util/isVideoPublished';
 import { hasUnpublishedChanges } from '../../util/hasUnpublishedChanges';
 import ScheduledLaunch from '../ScheduledLaunch/ScheduledLaunch';
@@ -8,7 +7,7 @@ import VideoUtils from '../../util/video';
 
 export default class VideoPublishBar extends React.Component {
   videoIsCurrentlyPublishing() {
-    return this.props.saveState.publishing === saveStateVals.inprogress;
+    return this.props.saveState.publishing;
   }
 
   videoHasUnpublishedChanges() {
