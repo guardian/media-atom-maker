@@ -3,7 +3,6 @@ import ErrorMessages from '../constants/ErrorMessages';
 import { CapiContent, Stage as CapiStage } from '../services/capi';
 import VideosApi from '../services/VideosApi';
 import { showError } from './error';
-import { setFetchingUsage } from './saveState';
 
 export type UsageData = {
     data: Record<CapiStage, {
@@ -13,6 +12,7 @@ export type UsageData = {
 
     totalUsages: number,
     totalVideoPages: number,
+    isFetching: boolean,
 }
 
 const getInitialState = (): UsageData => ({
@@ -28,7 +28,8 @@ const getInitialState = (): UsageData => ({
     },
 
     totalUsages: 0,
-    totalVideoPages: 0
+    totalVideoPages: 0,
+    isFetching: false
 });
 
 export const fetchUsages = createAsyncThunk<
@@ -37,16 +38,13 @@ export const fetchUsages = createAsyncThunk<
 >(
     'usage/fetchUsages',
     (id, { dispatch }) => {
-        dispatch(setFetchingUsage(true));
         return VideosApi.getVideoUsages(id)
             .catch(
                 (error: unknown) => {
                     dispatch(showError(ErrorMessages.usages, error));
                     throw error;
                 }
-            ).finally(() => {
-               dispatch( setFetchingUsage(false));
-            });
+            );
     }
 );
 
@@ -73,7 +71,11 @@ const usage = createSlice({
     },
     extraReducers: (builder) => {
         builder
+            .addCase(fetchUsages.pending, (state) => {
+                state.isFetching = true;
+            })
             .addCase(fetchUsages.fulfilled, (state, action) => {
+                state.isFetching = false;
                 state.data = action.payload.data;
                 state.totalUsages = action.payload.totalUsages;
                 state.totalVideoPages = action.payload.totalVideoPages;
