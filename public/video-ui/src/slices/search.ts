@@ -1,17 +1,22 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { QUERY_PARAM_shouldUseCreatedDateForSort } from '../constants/queryParams';
+import {
+  QUERY_PARAM_mediaPlatformFilter,
+  QUERY_PARAM_shouldUseCreatedDateForSort
+} from '../constants/queryParams';
 
 export interface Search {
   searchTerm: string;
   shouldUseCreatedDateForSort: boolean;
+  mediaPlatformFilter: string;
 }
+
+const searchParams = new URLSearchParams(window.location.search);
 
 const initialState: Search = {
   searchTerm: '',
   shouldUseCreatedDateForSort:
-    new URLSearchParams(window.location.search).get(
-      QUERY_PARAM_shouldUseCreatedDateForSort
-    ) === 'true'
+    searchParams.get(QUERY_PARAM_shouldUseCreatedDateForSort) === 'true',
+  mediaPlatformFilter: searchParams.get(QUERY_PARAM_mediaPlatformFilter)
 };
 
 const search = createSlice({
@@ -26,11 +31,17 @@ const search = createSlice({
       { payload }: PayloadAction<boolean>
     ) => {
       state.shouldUseCreatedDateForSort = payload;
+    },
+    updateMediaPlatformFilter: (state, { payload }: PayloadAction<string>) => {
+      state.mediaPlatformFilter = payload;
     }
   }
 });
 
 export default search.reducer;
 
-export const { updateSearchTerm, updateShouldUseCreatedDateForSort } =
-  search.actions;
+export const {
+  updateSearchTerm,
+  updateShouldUseCreatedDateForSort,
+  updateMediaPlatformFilter
+} = search.actions;

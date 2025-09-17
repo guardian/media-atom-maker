@@ -18,7 +18,6 @@ import path from '../slices/path';
 import pluto from '../slices/pluto';
 import workflow from './workflowReducer';
 import targeting from './targetingReducer';
-import mediaPlatformFilter from "./mediaPlatformReducer";
 
 export default {
   config,
@@ -27,7 +26,6 @@ export default {
   videos,
   saveState,
   search,
-  mediaPlatformFilter,
   youtube,
   usage,
   pageCreate,

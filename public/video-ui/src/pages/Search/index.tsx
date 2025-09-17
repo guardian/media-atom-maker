@@ -16,7 +16,6 @@ type VideosProps = {
   },
   search: Search,
   limit: number,
-  mediaPlatformFilter: string
 }
 
 
@@ -34,7 +33,7 @@ const MoreLink = ({ onClick }: { onClick: () => void }) => {
   </div>);
 };
 
-const Videos = ({ videos, total, search: {searchTerm, shouldUseCreatedDateForSort}, limit, mediaPlatformFilter, presenceActions }: VideosProps) => {
+const Videos = ({ videos, total, search: {searchTerm, shouldUseCreatedDateForSort, mediaPlatformFilter}, limit, presenceActions }: VideosProps) => {
   const [mediaIds, setMediaIds] = useState<string[]>([]);
   const [videoPresences, setVideoPresences] = useState<VideoPresences[]>([]);
   const [client, setClient] = useState<PresenceClient>(null);
@@ -150,13 +149,12 @@ import { fetchVideos } from '../../slices/videos';
 import { AppDispatch } from "../../util/setupStore";
 import { Search } from "../../slices/search";
 
-function mapStateToProps(state: { videos: { entries: number, total: number, limit: number }, search: Search, mediaPlatformFilter: string }) {
+function mapStateToProps(state: { videos: { entries: number, total: number, limit: number }, search: Search}) {
   return {
     videos: state.videos.entries,
     total: state.videos.total,
     limit: state.videos.limit,
-    search: state.search,
-    mediaPlatformFilter: state.mediaPlatformFilter
+    search: state.search
   };
 }
 

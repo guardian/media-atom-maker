@@ -56,7 +56,6 @@ class ReactApp extends React.Component {
     return (
       <div className="wrap">
         <Header
-          mediaPlatformFilter={this.props.mediaPlatformFilter}
           updateMediaPlatformFilter={this.props.appActions.updateMediaPlatformFilter}
           shouldUseCreatedDateForSort={this.props.shouldUseCreatedDateForSort}
           updateShouldUseCreatedDateForSort={this.props.appActions.updateShouldUseCreatedDateForSort}
@@ -102,7 +101,6 @@ class ReactApp extends React.Component {
 //REDUX CONNECTIONS
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as updateMediaPlatformFilter from "../actions/SearchActions/updateMediaPlatformFilter";
 import * as getVideo from '../actions/VideoActions/getVideo';
 import * as getPublishedVideo from '../actions/VideoActions/getPublishedVideo';
 import * as publishVideo from '../actions/VideoActions/publishVideo';
@@ -114,13 +112,12 @@ import * as videoUsages from '../actions/VideoActions/videoUsages';
 import * as deleteVideo from '../actions/VideoActions/deleteVideo';
 import * as updateVideo from '../actions/VideoActions/updateVideo';
 import * as reportPresenceClientError from '../actions/PresenceActions/reportError';
-import { updateSearchTerm, updateShouldUseCreatedDateForSort } from "../slices/search";
+import { updateSearchTerm, updateShouldUseCreatedDateForSort, updateMediaPlatformFilter } from "../slices/search";
 
 function mapStateToProps(state) {
   return {
     search: state.search,
     shouldUseCreatedDateForSort: state.shouldUseCreatedDateForSort,
-    mediaPlatformFilter: state.mediaPlatformFilter,
     saveState: state.saveState,
     video: state.video,
     publishedVideo: state.publishedVideo,
@@ -138,7 +135,7 @@ function mapDispatchToProps(dispatch) {
   return {
     appActions: bindActionCreators(
       Object.assign(
-        { updateSearchTerm, updateShouldUseCreatedDateForSort },
+        { updateSearchTerm, updateShouldUseCreatedDateForSort, updateMediaPlatformFilter },
         updateMediaPlatformFilter,
         getVideo,
         getPublishedVideo,
