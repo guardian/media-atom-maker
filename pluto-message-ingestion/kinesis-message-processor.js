@@ -1,8 +1,8 @@
 const AWS = require('aws-sdk');
-const FileConfig = require('./file-config');
 const EnvironmentConfig = require('./environment-config');
 const HMACRequest = require('./hmac-request');
 const PlutoMessageProcessor = require('./pluto-message-processor');
+const { readSecretConfig } = require('./secrets-manager');
 
 class KinesisMessageProcessor {
   constructor() {
@@ -20,15 +20,15 @@ class KinesisMessageProcessor {
 
   open() {
     return new Promise((resolve, reject) => {
-      FileConfig.read()
-        .then(config => {
+      readSecretConfig()
+        .then(({ hmacSecret, host }) => {
           this.hmacRequest = new HMACRequest({
             serviceName: EnvironmentConfig.app,
-            secret: config.secret
+            secret: hmacSecret
           });
 
           this.plutoMessageProcessor = new PlutoMessageProcessor({
-            hostname: `https://${config.host}`,
+            hostname: `https://${host}`,
             hmacRequest: this.hmacRequest
           });
 
