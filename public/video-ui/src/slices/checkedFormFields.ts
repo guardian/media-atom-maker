@@ -10,7 +10,7 @@ const checkedFormFields = createSlice({
   name: 'checkedFormFields',
   initialState,
   reducers: {
-    updateFormErrors(state :CheckedFormFieldsState, action: UpdateCheckedFormFieldsAction) {
+    updateFormErrors(state: CheckedFormFieldsState, action: UpdateCheckedFormFieldsAction) {
       const formName = Object.keys(action.payload)[0];
       const newFormErrors = action.payload[formName];
       const currentFormErrors =  state[formName] || {};
