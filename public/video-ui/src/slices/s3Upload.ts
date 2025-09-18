@@ -1,4 +1,4 @@
-import { createSlice,  PayloadAction } from '@reduxjs/toolkit';
+import { createSlice,PayloadAction } from '@reduxjs/toolkit';
 
 export interface S3UploadState {
   id: string | null;
@@ -40,7 +40,7 @@ const s3Upload = createSlice({
       }),
       s3UploadReset: _=> ({
        ... initialState
-      }),
+      })
   }
 });
 
