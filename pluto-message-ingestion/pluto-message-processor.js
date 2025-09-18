@@ -1,4 +1,4 @@
-const logForElk = require('./logger');
+import logForElk from './logger';
 
 const DELETE_KEY = '(DELETE)';
 
@@ -99,4 +99,4 @@ class PlutoMessageProcessor {
   }
 }
 
-module.exports = PlutoMessageProcessor;
+export default PlutoMessageProcessor;
