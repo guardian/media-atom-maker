@@ -11,7 +11,7 @@ import youtube from '../slices/youtube';
 import usage from './usageReducer';
 import pageCreate from './composerPageReducer';
 import s3Upload from './s3UploadReducer';
-import videoEditOpen from './editStateReducer';
+import videoEditOpen from '../slices/videoEditOpen';
 import checkedFormFields from './checkedFormFieldsReducer';
 import formFieldsWarning from './formFieldsWarningReducer';
 import uploads from './uploadsReducer';
