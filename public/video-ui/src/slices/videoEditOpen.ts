@@ -1,4 +1,4 @@
-import {createSlice, Action, PayloadAction} from '@reduxjs/toolkit';
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 
 
 const initialState: boolean = false;
@@ -7,7 +7,7 @@ const videoEditOpen = createSlice({
   initialState,
   reducers: {
     updateVideoEditState(state:boolean, action: PayloadAction<boolean>) {
-     return  action.payload
+     return action.payload;
     }
   }
 });
