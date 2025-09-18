@@ -9,7 +9,7 @@ import search from '../slices/search';
 import youtube from '../slices/youtube';
 import usage from './usageReducer';
 import pageCreate from './composerPageReducer';
-import s3Upload from './s3UploadReducer';
+import s3Upload from '../slices/s3Upload';
 import videoEditOpen from './editStateReducer';
 import checkedFormFields from './checkedFormFieldsReducer';
 import formFieldsWarning from './formFieldsWarningReducer';

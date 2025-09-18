@@ -85,10 +85,10 @@ class VideoUpload extends React.Component {
               }
               deleteSubtitle={this.props.uploadActions.deleteSubtitle}
               permissions={getStore().getState().config.permissions}
-              setS3UploadPostProcessingStatus={
-                this.props.uploadActions.setS3UploadPostProcessingStatus
+              s3UploadPostProcessing={
+                this.props.uploadActions.s3UploadPostProcessing
               }
-              resetS3UploadStatus={this.props.uploadActions.resetS3UploadStatus}
+              s3UploadReset={this.props.uploadActions.s3UploadReset}
               activatingAssetNumber={this.props.saveState?.activatingAssetNumber}
               getVideo={this.props.videoActions.getVideo}
             />
@@ -110,6 +110,7 @@ import * as createAsset from '../../actions/VideoActions/createAsset';
 import * as revertAsset from '../../actions/VideoActions/revertAsset';
 import * as allDeleteAssetActions from '../../actions/VideoActions/deleteAsset';
 import { fetchCategories, fetchChannels } from '../../slices/youtube';
+import {s3UploadPostProcessing, s3UploadReset} from "../../slices/s3Upload";
 
 function mapStateToProps(state) {
   return {
@@ -135,7 +136,7 @@ function mapDispatchToProps(dispatch) {
       dispatch
     ),
     uploadActions: bindActionCreators(
-      Object.assign({}, s3UploadActions, getUpload),
+      Object.assign({s3UploadPostProcessing,s3UploadReset}, s3UploadActions ,getUpload),
       dispatch
     ),
     youtubeActions: bindActionCreators(
