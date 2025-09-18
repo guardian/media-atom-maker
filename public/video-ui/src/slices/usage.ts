@@ -1,4 +1,4 @@
-import { Action, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import ErrorMessages from '../constants/ErrorMessages';
 import { CapiContent, Stage as CapiStage } from '../services/capi';
 import VideosApi from '../services/VideosApi';
@@ -76,12 +76,12 @@ const usage = createSlice({
             state.totalUsages = initialState.totalUsages;
             state.totalVideoPages = initialState.totalVideoPages;
         },
-        updateVideoUsageWebTitle(state, action: Action & { payload: string }) {
+        updateVideoUsageWebTitle(state, action: PayloadAction<string>) {
             const updateWebtitle = (usage: CapiContent): CapiContent => ({ ...usage, webTitle: action.payload });
             state.data.preview.video = state.data.preview.video.map(updateWebtitle);
             state.data.published.video = state.data.published.video.map(updateWebtitle);
         },
-        addNewlyCreatedVideoUsage(state, action: Action & { payload: CapiContent }) {
+        addNewlyCreatedVideoUsage(state, action: PayloadAction<CapiContent>) {
             state.data.preview.video = [action.payload, ...state.data.preview.video];
             state.totalUsages = state.totalUsages + 1;
             state.totalVideoPages = state.totalVideoPages + 1;

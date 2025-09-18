@@ -1,19 +1,11 @@
 import VideosApi from '../../services/VideosApi';
+import { showError } from '../../slices/error';
 import { updateVideoUsageWebTitle } from '../../slices/usage';
 
 
 function requestVideoPageUpdate() {
   return {
     type: 'VIDEO_PAGE_UPDATE_POST_REQUEST',
-    receivedAt: Date.now()
-  };
-}
-
-function errorReceivingVideoPageUpdate({error, message}) {
-  return {
-    type: 'SHOW_ERROR',
-    message: message,
-    error: error,
     receivedAt: Date.now()
   };
 }
@@ -40,9 +32,9 @@ export function updateVideoPage(video, usages, updatesTo) {
             ? `Could not update a Composer video page. You do not have sufficient Composer permissions (most likely <code>sensitivity_controls</code>). Please contact Central Production`
             : unknownError;
 
-          dispatch(errorReceivingVideoPageUpdate({error, message}));
+          dispatch(showError(message, error));
         } catch (e) {
-          dispatch(errorReceivingVideoPageUpdate({error, message}));
+          dispatch(showError(message, error));
         }
       });
   };

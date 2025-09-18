@@ -1,20 +1,12 @@
 import VideosApi from '../../services/VideosApi';
 import ContentApi from '../../services/capi';
+import { showError } from '../../slices/error';
 import { addNewlyCreatedVideoUsage } from '../../slices/usage';
 
 
 function requestVideoPageCreate() {
   return {
     type: 'VIDEO_PAGE_CREATE_POST_REQUEST',
-    receivedAt: Date.now()
-  };
-}
-
-function errorReceivingVideoPageCreate(error) {
-  return {
-    type: 'SHOW_ERROR',
-    message: 'Could not create a video page',
-    error: error,
     receivedAt: Date.now()
   };
 }
@@ -48,7 +40,7 @@ export function createVideoPage(id, video, isTrainingMode) {
         });
       })
       .catch(error => {
-        dispatch(errorReceivingVideoPageCreate(error));
+        dispatch(showError('Could not create a video page', error));
       });
   };
 }
