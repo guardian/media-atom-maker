@@ -436,7 +436,6 @@ function mapStateToProps(state) {
     video: state.video,
     config: state.config,
     usages: state.usage,
-    composerPageWithUsage: state.pageCreate,
     publishedVideo: state.publishedVideo,
     videoEditOpen: state.videoEditOpen,
     checkedFormFields: state.checkedFormFields,
