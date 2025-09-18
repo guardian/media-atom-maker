@@ -4,13 +4,12 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface VideoState {
   video: Video;
-  publishedVideo?: Video;
-  isSaving: boolean;
+  publishedVideo: Video;
 }
 
 const initialState: VideoState = {
   video: blankVideoData,
-  isSaving: false,
+  publishedVideo: null
 };
 
 const video = createSlice({
@@ -18,35 +17,45 @@ const video = createSlice({
   initialState,
   reducers: {
     setVideo: (state, { payload }: PayloadAction<Video>) => {
-      state.video = ({...blankVideoData, ...payload})
+      state.video = { ...blankVideoData, ...payload };
+    },
+    setPublishedVideo: (state, { payload }: PayloadAction<Video>) => {
+      state.video = { ...blankVideoData, ...payload };
+      state.publishedVideo = { ...state.video };
     },
     setVideoBlank: state => {
-
-        state.video = {
-      ...blankVideoData,
+      state.video = {
+        ...blankVideoData,
         type: 'media'
-      }
+      };
     },
     setActiveAsset: (state, { payload }: PayloadAction<Video>) => {
       state.video = {
-      ...(state.video || blankVideoData),
-      activeVersion: payload.activeVersion
-     }
+        ...(state.video || blankVideoData),
+        activeVersion: payload.activeVersion
+      };
     },
     setAssets: (state, { payload }: PayloadAction<Video>) => {
-      state.video = {...(state.video || blankVideoData),
+      state.video = {
+        ...(state.video || blankVideoData),
         assets: payload.assets
-      }
+      };
     }
   },
   selectors: {
-    selectVideo: ({video}) => video
+    selectVideo: ({ video }) => video,
+    selectPublishedVideo: ({ publishedVideo }) => publishedVideo
   }
 });
 
 export default video.reducer;
 
-export const { setVideo, setVideoBlank, setActiveAsset, setAssets } =
-  video.actions;
+export const {
+  setVideo,
+  setPublishedVideo,
+  setVideoBlank,
+  setActiveAsset,
+  setAssets
+} = video.actions;
 
-export const {selectVideo} = video.selectors;
+export const { selectVideo, selectPublishedVideo } = video.selectors;

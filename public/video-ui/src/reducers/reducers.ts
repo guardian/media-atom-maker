@@ -29,7 +29,6 @@ export default {
   youtube,
   usage,
   pageCreate,
-  publishedVideo,
   checkedFormFields,
   formFieldsWarning,
   s3Upload,
