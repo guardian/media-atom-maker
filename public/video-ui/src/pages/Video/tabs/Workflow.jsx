@@ -37,6 +37,7 @@ export class WorkflowTabPanel extends React.Component {
       onSave,
       onCancel,
       canSave,
+      canCancel,
       video,
       isTrackedInWorkflow,
       ...rest
@@ -50,6 +51,7 @@ export class WorkflowTabPanel extends React.Component {
           onSave={onSave}
           onCancel={onCancel}
           canSave={canSave}
+          canCancel={canCancel}
         />
         {isTrackedInWorkflow && !editing && <WorkflowLink video={video} />}
         <Workflow video={video} editable={editing} />
