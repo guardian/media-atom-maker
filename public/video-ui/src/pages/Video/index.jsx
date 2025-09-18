@@ -427,7 +427,7 @@ import {getComposerId} from "../../util/getComposerData";
 import {updateFormWarnings} from "../../slices/formFieldsWarning";
 import {updateVideoEditState} from "../../slices/editState";
 import {updateFormErrors} from "../../slices/checkedFormFields";
-import {selectVideo} from "../../slices/video";
+import {selectPublishedVideo, selectVideo} from "../../slices/video";
 
 function mapStateToProps(state) {
   return {
@@ -435,7 +435,7 @@ function mapStateToProps(state) {
     config: state.config,
     usages: state.usage,
     composerPageWithUsage: state.pageCreate,
-    publishedVideo: state.publishedVideo,
+    publishedVideo: selectPublishedVideo(state),
     videoEditOpen: state.videoEditOpen,
     checkedFormFields: state.checkedFormFields,
     workflow: state.workflow,

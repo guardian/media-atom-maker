@@ -2,7 +2,6 @@ import { routerReducer } from 'react-router-redux';
 import config from '../slices/config';
 import error from '../slices/error';
 import video from '../slices/video';
-import publishedVideo from './publishedVideoReducer';
 import videos from '../slices/videos';
 import saveState from '../slices/saveState';
 import search from '../slices/search';
@@ -29,7 +28,6 @@ export default {
   youtube,
   usage,
   pageCreate,
-  publishedVideo,
   checkedFormFields,
   formFieldsWarning,
   s3Upload,
