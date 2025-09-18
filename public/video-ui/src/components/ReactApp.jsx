@@ -113,13 +113,14 @@ import * as deleteVideo from '../actions/VideoActions/deleteVideo';
 import * as updateVideo from '../actions/VideoActions/updateVideo';
 import * as reportPresenceClientError from '../actions/PresenceActions/reportError';
 import { updateSearchTerm, updateShouldUseCreatedDateForSort, updateMediaPlatformFilter } from "../slices/search";
+import { selectVideo } from "../slices/video";
 
 function mapStateToProps(state) {
   return {
     search: state.search,
     shouldUseCreatedDateForSort: state.shouldUseCreatedDateForSort,
     saveState: state.saveState,
-    video: state.video,
+    video: selectVideo(state),
     publishedVideo: state.publishedVideo,
     error: state.error,
     uploads: state.uploads,

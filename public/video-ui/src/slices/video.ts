@@ -2,26 +2,45 @@ import { Video } from '../services/VideosApi';
 import { blankVideoData } from '../constants/blankVideoData';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-const initialState: Video = blankVideoData;
+interface VideoState {
+  video: Video;
+  publishedVideo?: Video;
+  isSaving: boolean;
+}
+
+const initialState: VideoState = {
+  video: blankVideoData,
+  isSaving: false,
+};
 
 const video = createSlice({
   name: 'video',
   initialState,
   reducers: {
-    setVideo: (_, { payload }: PayloadAction<Video>) =>
-      ({...blankVideoData, ...payload}),
-    setVideoBlank: _ => ({
+    setVideo: (state, { payload }: PayloadAction<Video>) => {
+      state.video = ({...blankVideoData, ...payload})
+    },
+    setVideoBlank: state => {
+
+        state.video = {
       ...blankVideoData,
-      type: 'media'
-    }),
-    setActiveAsset: (state, { payload }: PayloadAction<Video>) => ({
-      ...(state || blankVideoData),
+        type: 'media'
+      }
+    },
+    setActiveAsset: (state, { payload }: PayloadAction<Video>) => {
+      state.video = {
+      ...(state.video || blankVideoData),
       activeVersion: payload.activeVersion
-    }),
-    setAssets: (state, { payload }: PayloadAction<Video>) => ({
-      ...(state || blankVideoData),
-      assets: payload.assets
-    })
+     }
+    },
+    setAssets: (state, { payload }: PayloadAction<Video>) => {
+      state.video = {...(state.video || blankVideoData),
+        assets: payload.assets
+      }
+    }
+  },
+  selectors: {
+    selectVideo: ({video}) => video
   }
 });
 
@@ -29,3 +48,5 @@ export default video.reducer;
 
 export const { setVideo, setVideoBlank, setActiveAsset, setAssets } =
   video.actions;
+
+export const {selectVideo} = video.selectors;

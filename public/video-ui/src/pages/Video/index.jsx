@@ -430,10 +430,11 @@ import * as updateWorkflowData
   from '../../actions/WorkflowActions/updateWorkflowData';
 import {getYouTubeEmbedUrl} from "../../components/utils/YouTubeEmbed";
 import {getComposerId} from "../../util/getComposerData";
+import {selectVideo} from "../../slices/video";
 
 function mapStateToProps(state) {
   return {
-    video: state.video,
+    video: selectVideo(state),
     config: state.config,
     usages: state.usage,
     composerPageWithUsage: state.pageCreate,
