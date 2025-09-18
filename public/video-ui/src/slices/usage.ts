@@ -35,28 +35,12 @@ const getInitialState = (): UsageState => ({
 });
 
 export const fetchUsages = createAsyncThunk<
-    UsageState,
+    UsageData,
     string
 >(
     'usage/fetchUsages',
     (id, { dispatch }) => {
-        return VideosApi.getVideoUsages(id).then(
-            data => {
-                const { preview, published } = data;
-                // a lot of components conditionally render based on the number of usages,
-                // rather than constantly call a utility function, they use the stateful value.
-                // It should be possible to refactor those components to derive the number
-                // from the data so the value does not need to be in the UsageState.
-                const totalVideoPages = preview.video.length + published.video.length;
-                const totalUsages = totalVideoPages + preview.other.length + published.other.length;
-                return {
-                    data,
-                    totalUsages,
-                    totalVideoPages,
-                    isFetching: false
-                };
-            }
-        )
+        return VideosApi.getVideoUsages(id)
             .catch(
                 (error: unknown) => {
                     dispatch(showError(ErrorMessages.usages, error));
@@ -92,11 +76,16 @@ const usage = createSlice({
             .addCase(fetchUsages.pending, (state) => {
                 state.isFetching = true;
             })
-            .addCase(fetchUsages.fulfilled, (state, action) => {
+            .addCase(fetchUsages.fulfilled, (state, {payload}) => {
                 state.isFetching = false;
-                state.data = action.payload.data;
-                state.totalUsages = action.payload.totalUsages;
-                state.totalVideoPages = action.payload.totalVideoPages;
+                state.data = payload;
+
+                const { preview, published } = payload;
+                const totalVideoPages = preview.video.length + published.video.length;
+                const totalUsages = totalVideoPages + preview.other.length + published.other.length;
+
+                state.totalUsages = totalUsages;
+                state.totalVideoPages = totalVideoPages;
             });
     }
 });

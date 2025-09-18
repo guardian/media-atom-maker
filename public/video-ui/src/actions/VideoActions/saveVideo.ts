@@ -1,6 +1,6 @@
 import VideosApi, { Video } from '../../services/VideosApi';
 import { showError } from '../../slices/error';
-import { fetchUsages, updateVideoUsageWebTitle, UsageState } from '../../slices/usage';
+import { fetchUsages, updateVideoUsageWebTitle, UsageData } from '../../slices/usage';
 import { setSaving } from '../../slices/saveState';
 import { setVideo } from '../../slices/video';
 import { Action, ThunkDispatch } from '@reduxjs/toolkit';
@@ -16,12 +16,10 @@ export function saveVideo(video: Video) {
       .then(res => {
         return dispatch(fetchUsages(video.id))
           .then(fetchUsagesAction => {
-            console.log(fetchUsagesAction);
             if (fetchUsagesAction.meta.requestStatus === 'rejected') {
               throw new Error('fetchUsagesFulfilledAction rejected');
             }
-
-            return VideosApi.updateCanonicalPages(video, fetchUsagesAction.payload as UsageState, 'preview');
+            return VideosApi.updateCanonicalPages(video, fetchUsagesAction.payload as UsageData, 'preview');
           })
           .then(() => {
             dispatch(updateVideoUsageWebTitle(video.title));
