@@ -5,7 +5,7 @@ import video from '../slices/video';
 import publishedVideo from './publishedVideoReducer';
 import videos from '../slices/videos';
 import saveState from '../slices/saveState';
-import searchTerm from './searchTermReducer';
+import search from '../slices/search';
 import youtube from '../slices/youtube';
 import usage from './usageReducer';
 import pageCreate from './composerPageReducer';
@@ -18,8 +18,6 @@ import path from '../slices/path';
 import pluto from '../slices/pluto';
 import workflow from './workflowReducer';
 import targeting from './targetingReducer';
-import shouldUseCreatedDateForSort from './shouldUseCreatedDateForSortReducer';
-import mediaPlatformFilter from "./mediaPlatformReducer";
 
 export default {
   config,
@@ -27,9 +25,7 @@ export default {
   video,
   videos,
   saveState,
-  searchTerm,
-  shouldUseCreatedDateForSort,
-  mediaPlatformFilter,
+  search,
   youtube,
   usage,
   pageCreate,
