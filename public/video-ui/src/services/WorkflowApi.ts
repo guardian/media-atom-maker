@@ -1,12 +1,8 @@
 import { apiRequest } from './apiRequest';
 import { getStore } from '../util/storeAccessor';
 import VideoUtils from '../util/video';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 import { impossiblyDistantDate } from '../constants/dates';
-
-type WorkflowData = {
-  priority: number
-}
 
 export type Section = {
   name: string,
@@ -16,9 +12,83 @@ export type Section = {
 
 export type Status = string
 
+export type ExpandedStatus = {
+  id: string,
+  title: string
+}
+
 export type Priority = {
   name: string,
   value: number,
+}
+
+type Stub<Priority> = {
+  contentType: string,
+  editorId?: string,
+  priority: Priority
+  title: string,
+  needsLegal: NeedsLegal,
+  section: string,
+  prodOffice: string,
+  commissioningDesks?: string,
+  note?: string
+}
+
+type NeedsLegal = 'NA' | 'Complete' | 'Required'
+
+type ExternalData<Date> = {
+  status: Status,
+  commentable?: boolean,
+  lastModified?: Date,
+  published?: boolean,
+  timePublished?: Date,
+  headline?: string,
+  sensitive?: boolean,
+  legallySensitive?: boolean,
+  optimisedForWeb?: boolean,
+  path?: string,
+  scheduledLaunchDate?: Date,
+  embargoedUntil?: Date,
+  embargoedIndefinitely?: boolean,
+}
+
+type FlatStub<Date> = Omit<Stub<string>, "externalData"> & ExternalData<Date>
+
+type WorkflowDetails = {
+    video: {
+      id?: string,
+      title: string,
+      contentChangeDetails: {
+        published: {
+          date: string
+        },
+        lastModified: {
+          date: string
+        }
+      },
+      commentsEnabled?: boolean,
+      commissioningDesks: string[],
+      sensitive?: boolean,
+      legallySensitive?: boolean,
+      optimisedForWeb?: boolean,
+    },
+    status: string,
+    section: string,
+    note: string,
+    prodOffice: string,
+    priority?: string
+  }
+
+type ContentUpdate = {
+  stubId: number,
+  stubRowsUpdated?: number,
+  collaboratorRowsUpdated?: number,
+}
+
+type ApiResponse<T> = {
+  status: string,
+  statusCode: number,
+  data: T,
 }
 
 export default class WorkflowApi {
@@ -30,19 +100,12 @@ export default class WorkflowApi {
     return `${WorkflowApi.workflowUrl}/dashboard?editorId=${video.id}`;
   }
 
-  static _getResponseAsJson<A>(response: string | unknown): A {
-    if (typeof response === 'string') {
-      return JSON.parse(response);
-    }
-    throw new Error(`Error calling Workflow API – expected string response from  but got: ${response}`);
-  }
-
   //clean up the workflow data so that the priority field number, which can be 0, is converted to a string
-  static _cleanUpWorkflowData(workflowData: WorkflowData) {
+  static _cleanUpWorkflowData(workflowData: Stub<number>): Stub<string> {
     return { ...workflowData, priority: workflowData.priority.toString() };
   }
 
-  static async getSections(): Promise<Section[]> {
+  static getSections(): Promise<Section[]> {
     // timeout in case the user is not logged into Workflow
     const params = {
       url: `${WorkflowApi.workflowUrl}/api/sections`,
@@ -50,68 +113,66 @@ export default class WorkflowApi {
       withCredentials: true
     };
 
-    const response = await apiRequest(params, 500);
-    return WorkflowApi._getResponseAsJson<Section[]>(response)
-      .data.map(section => Object.assign({}, section, {
+    return apiRequest<ApiResponse<Section[]>>(params, 500).then(response =>
+      response.data.map(section => Object.assign({}, section, {
         id: section.name,
         title: section.name,
         workflowId: section.id
       })
-      )
-      .sort((a, b) => {
+      ).sort((a, b) => {
         if (a.title.toLowerCase() < b.title.toLowerCase())
           return -1;
         if (a.title.toLowerCase() > b.title.toLowerCase())
           return 1;
         return 0;
-      });
+      }));
   }
 
-  static getStatuses() {
+  static getStatuses(): Promise<ExpandedStatus[]> {
     const params = {
       url: `${WorkflowApi.workflowUrl}/api/statuses`,
       crossOrigin: true,
       withCredentials: true
     };
 
-    return apiRequest(params, 500).then(response => {
-      return WorkflowApi._getResponseAsJson(response).data
+    return apiRequest<{data: Status[]}>(params, 500).then(response =>
+      response.data
         .filter(status => status.toLowerCase() !== 'stub')
-        .map(status =>
-          Object.assign({}, { id: status, title: status })
-        );
-    });
+        .map(status_1 => Object.assign({}, { id: status_1, title: status_1 })
+        )
+    );
   }
 
-  static getPriorities() {
+  static getPriorities(): Promise<Priority[]> {
     const params = {
       url: `${WorkflowApi.workflowUrl}/api/priorities`,
       crossOrigin: true,
       withCredentials: true
     };
 
-    return apiRequest(params, 500).then(response => {
-      return WorkflowApi._getResponseAsJson(response);
-    });
+    return apiRequest<Priority[]>(params, 500);
   }
 
-  static getAtomInWorkflow({ id }) {
-    return apiRequest({
+
+  static getAtomInWorkflow({ id }: {id: string}): Promise<Stub<string>> {
+    return apiRequest<{data: Stub<number>}>({
       url: `${WorkflowApi.workflowUrl}/api/atom/${id}`,
       crossOrigin: true,
       withCredentials: true
-    }).then(response => WorkflowApi._getResponseAsJson(response).data)
+    }).then(response => response.data)
       .then(jsonRes => WorkflowApi._cleanUpWorkflowData(jsonRes));
   }
 
-  static _getTrackInWorkflowPayload({
-    video,
-    status,
-    section,
-    note,
-    prodOffice,
-    priority
-  }) {
+  static _getTrackInWorkflowPayload(
+    {
+      video,
+      status,
+      section,
+      note,
+      prodOffice,
+      priority
+    }: WorkflowDetails
+  ): FlatStub<Moment> {
 
     const { contentChangeDetails } = video;
 
@@ -127,7 +188,7 @@ export default class WorkflowApi {
     const embargoDate = VideoUtils.getEmbargoAsDate(video);
 
     const [embargo, indefiniteEmbargo] =
-      (embargoDate && embargoDate >= impossiblyDistantDate) ? [null, true] : [embargoDate, false];
+      (embargoDate && embargoDate.valueOf() >= impossiblyDistantDate) ? [null, true] : [embargoDate, false];
 
 
     return {
@@ -156,7 +217,7 @@ export default class WorkflowApi {
     };
   }
 
-  static trackInWorkflow({ video, status, section, note, prodOffice, priority }) {
+  static trackInWorkflow({ video, status, section, note, prodOffice, priority }: WorkflowDetails): Promise<ApiResponse<ContentUpdate>> {
     const payload = WorkflowApi._getTrackInWorkflowPayload({
       video,
       status,
@@ -166,7 +227,7 @@ export default class WorkflowApi {
       priority
     });
 
-    return apiRequest({
+    return apiRequest<ApiResponse<ContentUpdate>, FlatStub<Moment>>({
       method: 'POST',
       url: `${WorkflowApi.workflowUrl}/api/stubs`,
       data: payload,
@@ -175,12 +236,12 @@ export default class WorkflowApi {
     });
   }
 
-  static updateProdOffice({ id, prodOffice }) {
+  static updateProdOffice({ id, prodOffice }: {id: string, prodOffice: string}): Promise<ApiResponse<number>> {
     const payload = {
       data: prodOffice
     };
 
-    return apiRequest({
+    return apiRequest<ApiResponse<number>, {data: string}>({
       method: 'PUT',
       url: `${WorkflowApi.workflowUrl}/api/stubs/${id}/prodOffice`,
       data: payload,
@@ -189,12 +250,12 @@ export default class WorkflowApi {
     });
   }
 
-  static updateStatus({ id, status }) {
+  static updateStatus({ id, status }: {id: string, status: string}): Promise<ApiResponse<number>> {
     const payload = {
       data: status
     };
 
-    return apiRequest({
+    return apiRequest<ApiResponse<number>, {data: string}>({
       method: 'PUT',
       url: `${WorkflowApi.workflowUrl}/api/stubs/${id}/status`,
       data: payload,
@@ -203,14 +264,14 @@ export default class WorkflowApi {
     });
   }
 
-  static updateNote({ id, note }) {
+  static updateNote({ id, note }: {id: string, note: string}): Promise<ApiResponse<number>> {
     if (!note) return; //property is optional so may be null
 
     const payload = {
       data: note
     };
 
-    return apiRequest({
+    return apiRequest<ApiResponse<number>, {data: string}>({
       method: 'PUT',
       url: `${WorkflowApi.workflowUrl}/api/stubs/${id}/note`,
       data: payload,
@@ -219,14 +280,14 @@ export default class WorkflowApi {
     });
   }
 
-  static updatePriority({ id, priority }) {
+  static updatePriority({ id, priority }: {id: string, priority: string}): Promise<ApiResponse<number>> {
     if (priority === null) return; //property is optional so may be null, but 0 is a valid value
 
     const payload = {
       data: priority
     };
 
-    return apiRequest({
+    return apiRequest<ApiResponse<number>, {data: string}>({
       method: 'PUT',
       url: `${WorkflowApi.workflowUrl}/api/stubs/${id}/priority`,
       data: payload,
