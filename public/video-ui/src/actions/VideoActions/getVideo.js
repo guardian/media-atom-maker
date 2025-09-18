@@ -1,42 +1,20 @@
 import VideosApi from '../../services/VideosApi';
-import Logger from '../../logger';
 import moment from 'moment';
-
-function requestVideo(id) {
-  return {
-    type: 'VIDEO_GET_REQUEST',
-    id: id,
-    receivedAt: Date.now()
-  };
-}
-
-function receiveVideo(video) {
-  return {
-    type: 'VIDEO_GET_RECEIVE',
-    video: video,
-    receivedAt: Date.now()
-  };
-}
-
-function errorReceivingVideo(error) {
-  Logger.error(error);
-  return {
-    type: 'SHOW_ERROR',
-    message: 'Could not get video',
-    error: error,
-    receivedAt: Date.now()
-  };
-}
+import { setSaving } from '../../slices/saveState';
+import { showError } from '../../slices/error';
+import { setVideo } from '../../slices/video';
 
 export function getVideo(id) {
   return dispatch => {
-    dispatch(requestVideo(id));
+    dispatch(setSaving(true));
     return VideosApi.fetchVideo(id)
       .then(res => {
         // We and downstream consumers expect the scheduled launch to be an integer, but our API provides a string representation
-        const scheduledLaunch = res?.contentChangeDetails?.scheduledLaunch?.date;
+        const scheduledLaunch =
+          res?.contentChangeDetails?.scheduledLaunch?.date;
         if (scheduledLaunch) {
-          res.contentChangeDetails.scheduledLaunch.date = moment(scheduledLaunch).valueOf();
+          res.contentChangeDetails.scheduledLaunch.date =
+            moment(scheduledLaunch).valueOf();
         }
         const embargo = res?.contentChangeDetails?.embargo?.date;
         if (embargo) {
@@ -46,8 +24,9 @@ export function getVideo(id) {
         if (expiry) {
           res.contentChangeDetails.expiry.date = moment(expiry).valueOf();
         }
-        dispatch(receiveVideo(res));
+        dispatch(setSaving(false));
+        dispatch(setVideo(res));
       })
-      .catch(error => dispatch(errorReceivingVideo(error)));
+      .catch(error => dispatch(showError('Could not get video', error)));
   };
 }

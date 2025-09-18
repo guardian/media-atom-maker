@@ -8,7 +8,8 @@ import com.gu.media.upload.model._
 import model.commands.CommandExceptions.AtomMissingYouTubeChannel
 
 object UploadBuilder {
-  def build(atom: MediaAtom, email: String, assetVersion: Long, request: UploadRequest, aws: AwsAccess with UploadAccess): Upload = {
+  def build( atom: MediaAtom,
+             email: String, assetVersion: Long, request: UploadRequest, aws: AwsAccess with UploadAccess): Upload = {
     val id = s"${atom.id}-$assetVersion"
 
     val plutoData = PlutoSyncMetadataMessage.build(id, atom, aws, email)
@@ -24,7 +25,7 @@ object UploadBuilder {
       asset = getAsset(request.selfHost, atom.title, atom.id, assetVersion, subtitleVersion = 0),
       originalFilename = Some(request.filename),
       version = Some(assetVersion),
-      startTimestamp = Some(Instant.now().toEpochMilli)
+      startTimestamp = Some(currentTimestamp)
     )
 
     val progress = UploadProgress(
@@ -50,10 +51,13 @@ object UploadBuilder {
     val subtitleVersion = Upload.getNextSubtitleVersion(upload)
     val updatedAsset = getAsset(upload.metadata.selfHost, upload.metadata.title, upload.metadata.pluto.atomId, assetVersion, subtitleVersion)
     upload.copy(
-      metadata = upload.metadata.copy(asset = updatedAsset, subtitleSource = newSubtitleSource, subtitleVersion = Some(subtitleVersion)),
+      metadata = upload.metadata.copy(asset = updatedAsset, subtitleSource = newSubtitleSource,
+        subtitleVersion = Some(subtitleVersion), startTimestamp = Some(currentTimestamp)),
       progress = upload.progress.copy(fullyTranscoded = false)
     )
   }
+
+  private[util] def currentTimestamp: Long = Instant.now().toEpochMilli
 
   private def getAsset(
                         selfHosted: Boolean,

@@ -211,6 +211,12 @@
   gap: 12px;
 }
 
+.form__label__layout__expire-now-button{
+  display:inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .form__message {
   font-size: 13px;
   margin-top: 10px;
@@ -221,6 +227,10 @@
 
   &--warning {
     color: $brandColor;
+  }
+
+  &--display {
+    color: $color300Grey;
   }
 
 }

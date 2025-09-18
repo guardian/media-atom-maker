@@ -1,5 +1,4 @@
 import React from 'react';
-import { saveStateVals } from '../../constants/saveStateVals';
 
 export default class SaveButton extends React.Component {
   isDisabled = () => {
@@ -31,7 +30,7 @@ export default class SaveButton extends React.Component {
         type="button"
         disabled={this.isDisabled()}
         className={
-          (this.props.saveState.saving == saveStateVals.inprogress
+          (this.props.saveState.saving
             ? 'btn--loading '
             : '') + 'btn'
         }

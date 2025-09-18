@@ -1,28 +1,38 @@
 package data
 
-import java.time.Instant
-
 import com.gu.atom.data.PreviewDynamoDataStore
 import com.gu.media.CapiAccess
-import com.gu.media.model.{Image, MediaAtom, ContentChangeDetails}
+import com.gu.media.model.{ContentChangeDetails, Image, MediaAtom}
 import com.gu.media.util.TestFilters
 import model.commands.CommandExceptions.AtomDataStoreError
 import model.{MediaAtomList, MediaAtomSummary}
 import play.api.libs.json.{JsArray, JsValue}
 
 trait AtomListStore {
-  def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean): MediaAtomList
+  def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean, mediaPlatform: Option[String]): MediaAtomList
 }
 
 class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
-  override def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean): MediaAtomList = {
+  override def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean, mediaPlatform: Option[String]): MediaAtomList = {
     // CAPI max page size is 200
     val cappedLimit: Option[Int] = limit.map(Math.min(200, _))
+
+    val dateSorter = shouldUseCreatedDateForSort match {
+      case true => Map("order-date" -> "first-publication")
+      case false => Map.empty
+    }
+
+    val mediaPlatformFilter = mediaPlatform match {
+      case Some(mPlatform) => Map("media-platform" -> mPlatform)
+      case _ => Map.empty
+    }
 
     val base: Map[String, String] = Map(
       "types" -> "media",
       "order-by" -> "newest"
-    ) ++ (if(shouldUseCreatedDateForSort) Map("order-date" -> "first-publication") else Map.empty)
+    ) ++
+      dateSorter ++
+      mediaPlatformFilter
 
     val baseWithSearch = search match {
       case Some(q) => base ++ Map(
@@ -70,13 +80,32 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
         (asset \ "version").as[Long]
       }
 
-      Some(MediaAtomSummary(id, title, posterImage, contentChangeDetails))
+      val mediaPlatforms = (atom \ "assets").as[JsArray].value.flatMap { asset =>
+        (asset \ "platform").asOpt[String].map(_.toLowerCase)
+      }.toList.distinct
+
+      val currentAsset = (atom \ "assets").as[JsArray].value.find { asset =>
+        val assetVersion = (asset \ "version").as[Long]
+        activeVersion.contains(assetVersion)
+      }
+
+      val currentMediaPlatform = currentAsset.flatMap { asset =>
+        (asset \ "platform").asOpt[String].map(_.toLowerCase)
+      }
+
+      // sort media platforms so the current one is first
+      val sortedMediaPlatforms = currentMediaPlatform match {
+        case Some(current) => current :: mediaPlatforms.filter(_ != current)
+        case None => mediaPlatforms
+      }
+
+      Some(MediaAtomSummary(id, title, posterImage, contentChangeDetails, sortedMediaPlatforms, currentMediaPlatform))
     }
   }
 }
 
 class DynamoBackedAtomListStore(store: PreviewDynamoDataStore) extends AtomListStore {
-  override def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean): MediaAtomList = {
+  override def getAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean, mediaPlatform: Option[String]): MediaAtomList = {
     // We must filter the entire list of atoms rather than use Dynamo limit to ensure stable iteration order.
     // Without it, the front page will shuffle around when clicking the Load More button.
     store.listAtoms match {
@@ -96,10 +125,19 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore) extends AtomListS
           .sortBy(sortField(_).map(_.date.getMillis))
           .reverse // newest atoms first
 
-        val filteredAtoms = search match {
-          case Some(str) => mediaAtoms.filter(_.title.contains(str))
-          case None => mediaAtoms
+        val searchTermFilter = search match {
+          case Some(str) => Some((atom: MediaAtom) => atom.title.contains(str))
+          case None => None
         }
+
+        val mediaPlatformFilter = mediaPlatform match {
+          case Some(mPlatform) => Some((atom: MediaAtom) => atom.assets.exists(_.platform.name.toLowerCase == mPlatform.toLowerCase))
+          case _ => None
+        }
+
+        val filters = List(searchTermFilter, mediaPlatformFilter).flatten
+
+        val filteredAtoms = filters.foldLeft(mediaAtoms)((atoms, f) => atoms.filter(f))
 
         val limitedAtoms = limit match {
           case Some(l) => filteredAtoms.take(l)
@@ -112,8 +150,17 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore) extends AtomListS
 
   private def fromAtom(atom: MediaAtom): MediaAtomSummary = {
     val versions = atom.assets.map(_.version).toSet
+    val currentAsset = atom.assets.find(asset => asset.version == atom.activeVersion.getOrElse(versions.max))
+    val mediaPlatforms = atom.assets.map(_.platform.name.toLowerCase).distinct
+    val currentMediaPlatform = currentAsset.map(_.platform.name).map(_.toLowerCase)
 
-    MediaAtomSummary(atom.id, atom.title, atom.posterImage, atom.contentChangeDetails)
+    // sort media platforms so the current one is first
+    val sortedMediaPlatforms = currentMediaPlatform match {
+      case Some(current) => current :: mediaPlatforms.filter(_ != current)
+      case None => mediaPlatforms
+    }
+
+    MediaAtomSummary(atom.id, atom.title, atom.posterImage, atom.contentChangeDetails, sortedMediaPlatforms, currentMediaPlatform)
   }
 }
 

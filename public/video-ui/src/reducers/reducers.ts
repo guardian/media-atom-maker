@@ -1,11 +1,10 @@
 import { routerReducer } from 'react-router-redux';
 import config from '../slices/config';
 import error from '../slices/error';
-import errorKey from './errorKeyReducer';
 import video from '../slices/video';
 import publishedVideo from './publishedVideoReducer';
 import videos from '../slices/videos';
-import saveState from './saveStateReducer';
+import saveState from '../slices/saveState';
 import searchTerm from './searchTermReducer';
 import youtube from '../slices/youtube';
 import usage from './usageReducer';
@@ -20,16 +19,17 @@ import pluto from '../slices/pluto';
 import workflow from './workflowReducer';
 import targeting from './targetingReducer';
 import shouldUseCreatedDateForSort from './shouldUseCreatedDateForSortReducer';
+import mediaPlatformFilter from "./mediaPlatformReducer";
 
 export default {
   config,
   error,
-  errorKey,
   video,
   videos,
   saveState,
   searchTerm,
   shouldUseCreatedDateForSort,
+  mediaPlatformFilter,
   youtube,
   usage,
   pageCreate,
