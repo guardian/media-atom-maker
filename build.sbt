@@ -8,7 +8,7 @@ val scroogeVersion = "4.12.0"
 val awsVersion = "1.11.1034"
 val awsV2Version = "2.32.26"
 val pandaVersion = "7.0.0"
-val atomMakerVersion = "5.0.0-PREVIEW.rjr-new-looping-video-boolean-field.2025-09-15T1527.bd3ca34d"
+val atomMakerVersion = "5.0.0-PREVIEW.rjr-new-looping-video-boolean-field.2025-09-18T1053.cf97d8fd"
 val typesafeConfigVersion = "1.4.0" // to match what we get from Play transitively
 val scanamoVersion = "1.0.0-M28"
 
