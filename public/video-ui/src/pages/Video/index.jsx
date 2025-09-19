@@ -425,7 +425,7 @@ import * as updateWorkflowData
   from '../../actions/WorkflowActions/updateWorkflowData';
 import {getYouTubeEmbedUrl} from "../../components/utils/YouTubeEmbed";
 import {getComposerId} from "../../util/getComposerData";
-import {updateVideoEditState} from "../../slices/videoEditOpen";
+import {updateVideoEditState} from "../../slices/editState";
 import {updateFormErrors} from "../../slices/checkedFormFields";
 
 function mapStateToProps(state) {

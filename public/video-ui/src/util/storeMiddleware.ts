@@ -2,7 +2,7 @@ import { clearError } from '../slices/error';
 import { updatePath } from "../slices/path";
 import { setVideoBlank } from "../slices/video";
 import { Middleware } from "redux";
-import { updateVideoEditState } from "../slices/videoEditOpen";
+import { updateVideoEditState } from "../slices/editState";
 
 
 export const storeMiddleware: Middleware =

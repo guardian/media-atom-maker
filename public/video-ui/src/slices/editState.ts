@@ -2,7 +2,7 @@ import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 
 
 const initialState: boolean = false;
-const videoEditOpen = createSlice({
+const editState = createSlice({
   name: 'editState',
   initialState,
   reducers: {
@@ -12,6 +12,6 @@ const videoEditOpen = createSlice({
   }
 });
 
-export default videoEditOpen.reducer;
+export default editState.reducer;
 
-export const { updateVideoEditState } = videoEditOpen.actions;
+export const { updateVideoEditState } = editState.actions;
