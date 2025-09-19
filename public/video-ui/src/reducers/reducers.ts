@@ -7,8 +7,7 @@ import videos from '../slices/videos';
 import saveState from '../slices/saveState';
 import search from '../slices/search';
 import youtube from '../slices/youtube';
-import usage from './usageReducer';
-import pageCreate from './composerPageReducer';
+import usage from '../slices/usage';
 import s3Upload from './s3UploadReducer';
 import videoEditOpen from './editStateReducer';
 import checkedFormFields from '../slices/checkedFormFields';
@@ -28,7 +27,6 @@ export default {
   search,
   youtube,
   usage,
-  pageCreate,
   publishedVideo,
   checkedFormFields,
   formFieldsWarning,

@@ -14,6 +14,8 @@ import {QUERY_PARAM_mediaPlatformFilter, QUERY_PARAM_shouldUseCreatedDateForSort
 export default class Header extends React.Component {
   state = { presence: null };
 
+  
+
   publishVideo = () => {
     this.props.publishVideo(this.props.video.id);
   };

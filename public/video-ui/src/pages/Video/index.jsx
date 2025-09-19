@@ -51,7 +51,7 @@ class VideoDisplay extends React.Component {
   }
 
   getUsages() {
-    this.props.videoActions.getUsages(this.props.params.id);
+    this.props.videoActions.fetchUsages(this.props.params.id);
   }
 
   saveAndUpdateVideo = video => {
@@ -60,7 +60,7 @@ class VideoDisplay extends React.Component {
     if (isCreateMode) {
       return this.props.videoActions.createVideo(video).then(() => {
         this.setState({ isCreateMode: false });
-        this.props.videoActions.getUsages(this.props.video.id);
+        this.props.videoActions.fetchUsages(this.props.video.id);
       });
     } else {
       return this.props.videoActions.saveVideo(video);
@@ -412,7 +412,7 @@ import * as getVideo from '../../actions/VideoActions/getVideo';
 import * as saveVideo from '../../actions/VideoActions/saveVideo';
 import * as createVideo from '../../actions/VideoActions/createVideo';
 import * as updateVideo from '../../actions/VideoActions/updateVideo';
-import * as videoUsages from '../../actions/VideoActions/videoUsages';
+import { fetchUsages } from '../../slices/usage';
 import * as getPublishedVideo
   from '../../actions/VideoActions/getPublishedVideo';
 import * as updateVideoEditState
@@ -434,7 +434,6 @@ function mapStateToProps(state) {
     video: state.video,
     config: state.config,
     usages: state.usage,
-    composerPageWithUsage: state.pageCreate,
     publishedVideo: state.publishedVideo,
     videoEditOpen: state.videoEditOpen,
     checkedFormFields: state.checkedFormFields,
@@ -452,7 +451,7 @@ function mapDispatchToProps(dispatch) {
         saveVideo,
         createVideo,
         updateVideo,
-        videoUsages,
+        { fetchUsages },
         getPublishedVideo,
         updateVideoEditState,
         videoPageUpdate

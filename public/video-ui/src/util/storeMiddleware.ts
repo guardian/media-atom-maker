@@ -2,7 +2,7 @@ import { clearError } from '../slices/error';
 import { updatePath } from "../slices/path";
 import { setVideoBlank } from "../slices/video";
 import { Middleware } from "redux";
-
+import { setUsageToBlank } from '../slices/usage';
 
 export const storeMiddleware: Middleware =
   ({ dispatch, getState }) =>
@@ -17,10 +17,7 @@ export const storeMiddleware: Middleware =
 
       dispatch(setVideoBlank());
 
-      dispatch({
-        type: 'USAGE_UPDATE_BLANK',
-        receivedAt: Date.now()
-      });
+      dispatch(setUsageToBlank());
 
       dispatch(clearError());
 
