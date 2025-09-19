@@ -11,7 +11,7 @@ import usage from './usageReducer';
 import pageCreate from './composerPageReducer';
 import s3Upload from '../slices/s3Upload';
 import videoEditOpen from './editStateReducer';
-import checkedFormFields from './checkedFormFieldsReducer';
+import checkedFormFields from '../slices/checkedFormFields';
 import formFieldsWarning from './formFieldsWarningReducer';
 import uploads from './uploadsReducer';
 import path from '../slices/path';
