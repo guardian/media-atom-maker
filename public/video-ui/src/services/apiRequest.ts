@@ -20,7 +20,7 @@ const checkStatus = (res: Response) => {
   }
 };
 
-const fetchWithReAuth = <ResponseBodyType>(url: string | URL, config: RequestConfig, timeout: number) => {
+const fetchWithReAuth = <ResponseBodyType>(url: string | URL, config: RequestConfig, timeout: number): Promise<ResponseBodyType> => {
   const endTime = Number(new Date()) + timeout;
   const interval = 100;
 
@@ -67,7 +67,7 @@ const fetchWithReAuth = <ResponseBodyType>(url: string | URL, config: RequestCon
 export const apiRequest = <ResponseBodyType = unknown, RequestBodyType = unknown>(
   requestConfig: RequestConfig<RequestBodyType>,
   timeout = 0
-) => {
+): Promise<ResponseBodyType> => {
   const payload = Object.assign({ method: 'get', credentials: 'include' }, requestConfig);
 
   if (payload.data) {
