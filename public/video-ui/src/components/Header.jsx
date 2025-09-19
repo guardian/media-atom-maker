@@ -66,7 +66,7 @@ export default class Header extends React.Component {
       <div className="flex-container topbar__global">
         <span>Filter for:&nbsp;</span>
         <select
-          value={this.props.mediaPlatformFilter?.toString()}
+          value={this.props.search.mediaPlatformFilter?.toString()}
           onChange={event => {
             const mediaPlatformFilter = event.target.value || null;
 
@@ -98,7 +98,7 @@ export default class Header extends React.Component {
       <div className="flex-container topbar__global">
         <span>Sort by:&nbsp;</span>
         <select
-          value={this.props.shouldUseCreatedDateForSort?.toString()}
+          value={this.props.search.shouldUseCreatedDateForSort?.toString()}
           onChange={event => {
             const shouldUseCreatedDateForSort = event.target.value === "true";
 
