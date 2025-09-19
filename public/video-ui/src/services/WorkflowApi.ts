@@ -174,7 +174,7 @@ export default class WorkflowApi {
       prodOffice,
       priority
     }: WorkflowDetails
-  ): FlatStub<Moment> {
+  ): FlatStub<string, Moment> {
 
     const { contentChangeDetails } = video;
 
@@ -229,7 +229,7 @@ export default class WorkflowApi {
       priority
     });
 
-    return apiRequest<ApiResponse<ContentUpdate>, FlatStub<Moment>>({
+    return apiRequest<ApiResponse<ContentUpdate>, FlatStub<string, Moment>>({
       method: 'POST',
       url: `${WorkflowApi.workflowUrl}/api/stubs`,
       data: payload,
