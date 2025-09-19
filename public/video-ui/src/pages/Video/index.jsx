@@ -417,8 +417,6 @@ import * as getPublishedVideo
   from '../../actions/VideoActions/getPublishedVideo';
 import * as updateVideoEditState
   from '../../actions/VideoActions/updateVideoEditState';
-import {updateFormErrors}
-  from '../../actions/FormErrorActions/updateFormErrors';
 import * as videoPageUpdate
   from '../../actions/VideoActions/videoPageUpdate';
 import * as getStatus from '../../actions/WorkflowActions/getStatus';
@@ -429,6 +427,7 @@ import * as updateWorkflowData
 import {getYouTubeEmbedUrl} from "../../components/utils/YouTubeEmbed";
 import {getComposerId} from "../../util/getComposerData";
 import {updateFormWarnings} from "../../slices/formFieldsWarning";
+import {updateFormErrors} from "../../slices/checkedFormFields";
 
 function mapStateToProps(state) {
   return {
