@@ -47,7 +47,9 @@ class VideoDisplay extends React.Component {
   }
 
   getWorkflowState() {
-    this.props.workflowActions.getStatus(this.props.video);
+    if (this.props.video.id !== undefined) {
+      this.props.workflowActions.getStatus(this.props.video);
+    }
   }
 
   getUsages() {
@@ -420,7 +422,7 @@ import * as updateVideoEditState
 import { updateFormWarnings } from '../../actions/FormErrorActions/updateFormWarnings';
 import * as videoPageUpdate
   from '../../actions/VideoActions/videoPageUpdate';
-import * as getStatus from '../../actions/WorkflowActions/getStatus';
+import { getStatus } from '../../slices/workflow';
 import * as trackInWorkflow
   from '../../actions/WorkflowActions/trackInWorkflow';
 import * as updateWorkflowData
@@ -464,7 +466,7 @@ function mapDispatchToProps(dispatch) {
       dispatch
     ),
     workflowActions: bindActionCreators(
-      Object.assign({}, getStatus, trackInWorkflow, updateWorkflowData),
+      { getStatus, ...trackInWorkflow, ...updateWorkflowData },
       dispatch
     )
   };
