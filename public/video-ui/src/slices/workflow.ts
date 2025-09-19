@@ -8,7 +8,7 @@ import { defaultWorkflowStatusData } from '../constants/defaultWorkflowStatusDat
 type WorkflowState = {
   sections: Section[];
   statuses: ExpandedStatus[];
-  status?: FlatStub<string, string> & { isTrackedInWorkflow: boolean };
+  status: FlatStub<string, string> & { isTrackedInWorkflow: boolean } | {};
   priorities: Priority[];
 };
 
@@ -87,7 +87,7 @@ function errorReceivingStatuses(error: unknown) {
 const initialState: WorkflowState = {
   sections: [],
   statuses: [],
-  status: null,
+  status: {},
   priorities: [],
 }
 
