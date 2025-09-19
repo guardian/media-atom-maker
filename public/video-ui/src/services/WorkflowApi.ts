@@ -102,6 +102,13 @@ export default class WorkflowApi {
     return `${WorkflowApi.workflowUrl}/dashboard?editorId=${video.id}`;
   }
 
+  static _getResponseAsJson<A>(response: string | unknown): A {
+    if (typeof response === 'string') {
+      return JSON.parse(response);
+    }
+    throw new Error(`Error calling Workflow API – expected string response from  but got: ${response}`);
+  }
+
   //clean up the workflow data so that the priority field number, which can be 0, is converted to a string
   static _cleanUpWorkflowData<Date>(workflowData: FlatStub<number, Date>): FlatStub<string, Date> {
     return { ...workflowData, priority: workflowData.priority.toString() };
@@ -115,8 +122,9 @@ export default class WorkflowApi {
       withCredentials: true
     };
 
-    return apiRequest<ApiResponse<Section[]>>(params, 500).then(response =>
-      response.data.map(section => Object.assign({}, section, {
+    return apiRequest<string | unknown>(params, 500).then(response =>
+      this._getResponseAsJson<ApiResponse<Section[]>>(response)
+        .data.map(section => Object.assign({}, section, {
         id: section.name,
         title: section.name,
         workflowId: section.id
@@ -137,8 +145,8 @@ export default class WorkflowApi {
       withCredentials: true
     };
 
-    return apiRequest<{data: Status[]}>(params, 500).then(response =>
-      response.data
+    return apiRequest<string | unknown>(params, 500).then(response =>
+      this._getResponseAsJson<{data: Status[]}>(response).data
         .filter(status => status.toLowerCase() !== 'stub')
         .map(status_1 => Object.assign({}, { id: status_1, title: status_1 })
         )
@@ -152,16 +160,16 @@ export default class WorkflowApi {
       withCredentials: true
     };
 
-    return apiRequest<Priority[]>(params, 500);
+    return apiRequest<string | unknown>(params, 500).then(response => this._getResponseAsJson<Priority[]>(response));
   }
 
 
   static getAtomInWorkflow({ id }: {id: string}): Promise<FlatStub<string, string>> {
-    return apiRequest<{data: FlatStub<number, string>}>({
+    return apiRequest<string | unknown>({
       url: `${WorkflowApi.workflowUrl}/api/atom/${id}`,
       crossOrigin: true,
       withCredentials: true
-    }).then(response => response.data)
+    }).then(response => this._getResponseAsJson<{data: FlatStub<number, string>}>(response).data)
       .then(jsonRes => WorkflowApi._cleanUpWorkflowData(jsonRes));
   }
 
