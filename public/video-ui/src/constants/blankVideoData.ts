@@ -31,5 +31,5 @@ export const blankVideoData: Video = {
   youtubeOverrideImage: {
     assets: []
   },
-  isLoopingVideo: false,
+  isLoopingVideo: false
 };
