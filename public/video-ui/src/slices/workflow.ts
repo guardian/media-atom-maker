@@ -12,11 +12,11 @@ type WorkflowState = {
   priorities: Priority[];
 };
 
-export const getSections = createAsyncThunk(
+export const getSections = createAsyncThunk<Section[] | undefined>(
   'workflow/getSections',
   (_, { dispatch }) => WorkflowApi.getSections().catch(
     (error: unknown) => {
-      dispatch(
+      return void dispatch(
         showError(
           `Could not get Workflow sections. <a href="${WorkflowApi.workflowUrl}" target="_blank" rel="noopener">Open Workflow to get a cookie.</a>`,
           error
@@ -26,38 +26,35 @@ export const getSections = createAsyncThunk(
   )
 )
 
-export const getStatus = createAsyncThunk<FlatStub<string, string> | null, {id: string}>(
+export const getStatus = createAsyncThunk<FlatStub<string, string> | undefined, {id: string}>(
   'workflow/getStatus',
   (video, { dispatch }) => WorkflowApi.getAtomInWorkflow(video).catch(
     (error: Response | any) => {
       if (error instanceof Response) {
         if (error.status !== 404) {
-          dispatch(errorReceivingStatus(error));
-          return null
+          return void dispatch(errorReceivingStatus(error));
         }
         try {
           error.json().then(errorBody => {
             if (errorBody.errors && errorBody.errors.message === 'ContentNotFound') {
-              dispatch(workflow.actions.statusNotFound(defaultWorkflowStatusData()));
-              return null
+              return void dispatch(workflow.actions.statusNotFound(defaultWorkflowStatusData()));
             }
           });
         } catch (e) {
           // failed to parse response as json
-          dispatch(errorReceivingStatus(error));
-          return null
+          return void dispatch(errorReceivingStatus(error));
         }
       }
     }
   )
 )
 
-export const getStatuses = createAsyncThunk(
+export const getStatuses = createAsyncThunk<ExpandedStatus[] | undefined>(
   'workflow/getStatuses',
   (_, { dispatch }) => WorkflowApi.getStatuses().catch(err => void dispatch(errorReceivingStatuses(err)))
 )
 
-export const getPriorities = createAsyncThunk(
+export const getPriorities = createAsyncThunk<Priority[] | undefined>(
   'workflow/getPriorities',
   (_, { dispatch }) => WorkflowApi.getPriorities().catch(err => void dispatch(errorReceivingPriorities(err)))
 )
@@ -107,16 +104,22 @@ const workflow = createSlice({
   },
   extraReducers: builder => builder
     .addCase(getSections.fulfilled, (state, action) => {
-      state.sections = action.payload || []
+      if (action.payload) {
+        state.sections = action.payload
+      }
     })
     .addCase(getStatus.fulfilled, (state, action) => {
       state.status = { isTrackedInWorkflow: true, ...action.payload }
     })
     .addCase(getStatuses.fulfilled, (state, action) => {
-      state.statuses = action.payload || []
+      if (action.payload) {
+        state.statuses = action.payload
+      }
     })
     .addCase(getPriorities.fulfilled, (state, action) => {
-      state.priorities = action.payload || []
+      if (action.payload) {
+        state.priorities = action.payload
+      }
     })
 })
 
