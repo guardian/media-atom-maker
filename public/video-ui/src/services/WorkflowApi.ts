@@ -4,25 +4,9 @@ import VideoUtils from '../util/video';
 import moment, { Moment } from 'moment';
 import { impossiblyDistantDate } from '../constants/dates';
 
-export type Section = {
-  name: string,
-  selected: boolean,
-  id: number,
-}
+export type FlatStub<Priority, Date> = Omit<Stub<Priority, Date>, "externalData"> & ExternalData<Date>
 
-export type Status = string
-
-export type ExpandedStatus = {
-  id: string,
-  title: string
-}
-
-export type Priority = {
-  name: string,
-  value: number,
-}
-
-type Stub<Priority> = {
+export type Stub<Priority, Date> = {
   contentType: string,
   editorId?: string,
   priority: Priority
@@ -31,7 +15,8 @@ type Stub<Priority> = {
   section: string,
   prodOffice: string,
   commissioningDesks?: string,
-  note?: string
+  note?: string,
+  externalData: ExternalData<Date>,
 }
 
 type NeedsLegal = 'NA' | 'Complete' | 'Required'
@@ -52,7 +37,24 @@ type ExternalData<Date> = {
   embargoedIndefinitely?: boolean,
 }
 
-type FlatStub<Date> = Omit<Stub<string>, "externalData"> & ExternalData<Date>
+export type Section = {
+  name: string,
+  selected: boolean,
+  id: number,
+}
+
+export type Status = string
+
+export type ExpandedStatus = {
+  id: string,
+  title: string
+}
+
+export type Priority = {
+  name: string,
+  value: number,
+}
+
 
 type WorkflowDetails = {
     video: {
@@ -101,7 +103,7 @@ export default class WorkflowApi {
   }
 
   //clean up the workflow data so that the priority field number, which can be 0, is converted to a string
-  static _cleanUpWorkflowData(workflowData: Stub<number>): Stub<string> {
+  static _cleanUpWorkflowData<Date>(workflowData: FlatStub<number, Date>): FlatStub<string, Date> {
     return { ...workflowData, priority: workflowData.priority.toString() };
   }
 
@@ -154,8 +156,8 @@ export default class WorkflowApi {
   }
 
 
-  static getAtomInWorkflow({ id }: {id: string}): Promise<Stub<string>> {
-    return apiRequest<{data: Stub<number>}>({
+  static getAtomInWorkflow({ id }: {id: string}): Promise<FlatStub<string, string>> {
+    return apiRequest<{data: FlatStub<number, string>}>({
       url: `${WorkflowApi.workflowUrl}/api/atom/${id}`,
       crossOrigin: true,
       withCredentials: true
