@@ -14,7 +14,6 @@ export type UsageState = {
     data: UsageData;
     totalUsages: number,
     totalVideoPages: number,
-    isFetching: boolean,
 }
 
 const getInitialState = (): UsageState => ({
@@ -30,8 +29,7 @@ const getInitialState = (): UsageState => ({
     },
 
     totalUsages: 0,
-    totalVideoPages: 0,
-    isFetching: false
+    totalVideoPages: 0
 });
 
 export const fetchUsages = createAsyncThunk<
@@ -73,11 +71,7 @@ const usage = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchUsages.pending, (state) => {
-                state.isFetching = true;
-            })
             .addCase(fetchUsages.fulfilled, (state, {payload}) => {
-                state.isFetching = false;
                 state.data = payload;
 
                 const { preview, published } = payload;
