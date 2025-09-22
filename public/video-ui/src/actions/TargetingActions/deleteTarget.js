@@ -1,37 +1,6 @@
 import TargetingApi from '../../services/TargetingApi';
-
-function requestDeleteTarget(target) {
-  return {
-    type: 'TARGETING_DELETE_REQUEST',
-    receivedAt: Date.now(),
-    target
-  };
-}
-
-function receiveDeleteTarget(target) {
-  return {
-    type: 'TARGETING_DELETE_RECEIVE',
-    receivedAt: Date.now(),
-    target
-  };
-}
-
-function errorDeleteTarget(target) {
-  return {
-    type: 'TARGETING_DELETE_FAILURE',
-    receivedAt: Date.now(),
-    target
-  };
-}
-
-function showDeleteTargetError(error) {
-  return {
-    type: 'SHOW_ERROR',
-    receivedAt: Date.now(),
-    message: 'Failed to delete Target',
-    error: error
-  };
-}
+import {errorDeleteTarget, receiveDeleteTarget, requestDeleteTarget} from "../../slices/targeting";
+import {showError} from "../../slices/error";
 
 export function deleteTarget(target) {
   return dispatch => {
@@ -40,7 +9,7 @@ export function deleteTarget(target) {
       .then(() => dispatch(receiveDeleteTarget(target)))
       .catch(err => {
         dispatch(errorDeleteTarget(target));
-        dispatch(showDeleteTargetError(err));
+        dispatch(showError(`Failed to delete Target.`, err));
       });
   };
 }

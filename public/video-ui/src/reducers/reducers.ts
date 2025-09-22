@@ -17,7 +17,7 @@ import uploads from './uploadsReducer';
 import path from '../slices/path';
 import pluto from '../slices/pluto';
 import workflow from './workflowReducer';
-import targeting from './targetingReducer';
+import targeting from '../slices/targeting';
 
 export default {
   config,

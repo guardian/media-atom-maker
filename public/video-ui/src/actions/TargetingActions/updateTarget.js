@@ -1,13 +1,7 @@
 import TargetingApi from '../../services/TargetingApi';
 import debounce from 'lodash/debounce';
-
-function requestUpdateTarget(target) {
-  return {
-    type: 'TARGETING_UPDATE_REQUEST',
-    receivedAt: Date.now(),
-    target
-  };
-}
+import {requestUpdateTarget} from "../../slices/targeting";
+import {showError} from "../../slices/error";
 
 function receiveUpdateTarget() {
   return {
@@ -16,20 +10,11 @@ function receiveUpdateTarget() {
   };
 }
 
-function errorUpdateTarget(error) {
-  return {
-    type: 'SHOW_ERROR',
-    receivedAt: Date.now(),
-    message: 'Failed to update Target',
-    error: error
-  };
-}
-
 const debouncedUpdate = debounce(
   (dispatch, target) =>
     TargetingApi.updateTarget(target)
       .then(() => dispatch(receiveUpdateTarget()))
-      .catch(err => dispatch(errorUpdateTarget(err))),
+      .catch(err => dispatch(showError(`Could not create asset.`, err))),
   500
 );
 
@@ -39,3 +24,5 @@ export function updateTarget(target) {
     return debouncedUpdate(dispatch, target);
   };
 }
+
+
