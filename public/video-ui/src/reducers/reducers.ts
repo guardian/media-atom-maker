@@ -13,7 +13,7 @@ import s3Upload from './s3UploadReducer';
 import videoEditOpen from '../slices/editState';
 import checkedFormFields from '../slices/checkedFormFields';
 import formFieldsWarning from './formFieldsWarningReducer';
-import uploads from './uploadsReducer';
+import uploads from '../slices/uploads';
 import path from '../slices/path';
 import pluto from '../slices/pluto';
 import workflow from './workflowReducer';

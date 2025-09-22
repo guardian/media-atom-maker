@@ -4,28 +4,7 @@ import Icon, { SubtitlesIcon } from '../Icon';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 import { VideoEmbed } from '../utils/VideoEmbed';
 import DeleteButton from '../DeleteButton';
-
-
-// TO DO - move these definitions to public/video-ui/src/services/UploadsApi.js
-// when converted to typescript
-type YouTubeAsset = { id: string, sources?: undefined };
-type SelfHostedAsset = { id?: undefined, sources: unknown[] }
-type Upload = {
-  id: string,
-  asset?: YouTubeAsset | SelfHostedAsset;
-  processing?: {
-    status: string,
-    failed: boolean,
-    current?: number,
-    total?: number
-  };
-  metadata?: {
-    originalFilename?: string;
-    subtitleFilename?: string;
-    startTimestamp?: number;
-    user: string
-  }
-}
+import {Upload} from "../../slices/uploads";
 
 function presenceInitials(email: string) {
   if (!email) return;
