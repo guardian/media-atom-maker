@@ -445,16 +445,16 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     videoActions: bindActionCreators(
-      Object.assign(
-        {updateVideoEditState},
-        getVideo,
-        saveVideo,
-        createVideo,
-        updateVideo,
-        videoUsages,
-        getPublishedVideo,
-        videoPageUpdate
-      ),
+      {
+        updateVideoEditState,
+        ...getVideo,
+        ...saveVideo,
+        ...createVideo,
+        ...updateVideo,
+        ...videoUsages,
+        ...getPublishedVideo,
+        ...videoPageUpdate
+        },
       dispatch
     ),
     formErrorActions: bindActionCreators(
