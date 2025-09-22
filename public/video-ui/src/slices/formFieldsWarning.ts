@@ -5,7 +5,7 @@ const formFieldsWarning = createSlice({
   name: 'formFieldsWarning',
   initialState,
   reducers: {
-    updateFormWarnings(state:Record<string, boolean>, action: PayloadAction<boolean>) {
+    updateFormWarnings(state:Record<string, boolean>, action: PayloadAction<Record<string, boolean>>) {
       Object.assign(state, action.payload);
     }
   }
