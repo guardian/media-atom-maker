@@ -13,10 +13,7 @@ const errorMessages = {
 };
 
 export const saveVideo = (video: Video) => async (dispatch: AppDispatch) => {
-
   dispatch(setSaving(true));
-  dispatch(setVideo(video));
-
   const savedVideo: Video | undefined = await VideosApi.saveVideo(video.id, video)
     .catch(error => {
       const message = error.status === 409
@@ -29,17 +26,19 @@ export const saveVideo = (video: Video) => async (dispatch: AppDispatch) => {
     dispatch(setSaving(false));
     return;
   }
+  dispatch(setVideo(savedVideo));
 
-  const fetchUsagesAction = await dispatch(fetchUsages(video.id));
-  if (fetchUsagesAction.meta.requestStatus !== 'fulfilled') {
-    dispatch(showError(errorMessages.fetchUsagesRejected, new Error(errorMessages.fetchUsagesRejected)));
+  const usageData: UsageData | undefined = await dispatch(fetchUsages(video.id)).unwrap().catch(error => {
+    dispatch(showError(errorMessages.fetchUsagesRejected, error));
+    return undefined;
+  });
+  if (!usageData) {
     dispatch(setSaving(false));
     return;
   }
 
   const canonicalPageUpdate: unknown[] | undefined = await VideosApi.updateCanonicalPages(
-    video, fetchUsagesAction.payload as UsageData,
-    'preview'
+    video, usageData, 'preview'
   )
     .catch(error => {
       dispatch(showError(errorMessages.canonicalPageUpdate, error));
