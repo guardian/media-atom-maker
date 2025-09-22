@@ -302,7 +302,7 @@ class ScheduledLaunch extends React.Component {
     const showDatePicker = this.state.showDatePicker && !videoEditOpen;
     const invalidDateError = this.state.invalidDateError;
     const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
-    const embargo = VideoUtils.getEmbargo(video);
+    const embargo = VideoUtils.getEmbargoAsDate(video);
     const hasPreventedPublication = embargo && embargo >= impossiblyDistantDate;
 
     return (

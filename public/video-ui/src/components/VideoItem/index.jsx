@@ -50,7 +50,7 @@ export default class VideoItem extends React.Component {
     const scheduledLaunchMoment = moment(scheduledLaunch);
     const embargo = VideoUtils.getEmbargo(video);
     const embargoMoment = moment(embargo);
-    const hasPreventedPublication = embargo && embargoMoment.valueOf() >= impossiblyDistantDate;
+    const hasPreventedPublication = embargo && embargoMoment >= impossiblyDistantDate;
     return (
       <li className="grid__item">
         <div className="presence-section presence-section-front">
