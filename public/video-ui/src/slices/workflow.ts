@@ -37,7 +37,7 @@ export const getStatus = createAsyncThunk<FlatStub<string, string> | undefined, 
         try {
           error.json().then(errorBody => {
             if (errorBody.errors && errorBody.errors.message === 'ContentNotFound') {
-              return void dispatch(workflow.actions.statusNotFound(defaultWorkflowStatusData()));
+              return void dispatch(statusNotFound(defaultWorkflowStatusData()));
             }
           });
         } catch (e) {
@@ -123,6 +123,6 @@ const workflow = createSlice({
     })
 })
 
-export const { localUpdateWorkflowData } = workflow.actions
+export const { localUpdateWorkflowData, statusNotFound } = workflow.actions
 
 export default workflow.reducer
