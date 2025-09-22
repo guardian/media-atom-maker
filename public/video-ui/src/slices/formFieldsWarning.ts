@@ -1,20 +1,11 @@
-import { createSlice,Action } from '@reduxjs/toolkit';
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 
-export type FormFieldsWarningState = {
-  [key: string]: any;
-};
-
-type UpdateFormFieldsWarningAction = Action  & {
-  payload: string
-}
-
-
-const initialState : FormFieldsWarningState = {};
+const initialState : Record<string, boolean> = {};
 const formFieldsWarning = createSlice({
   name: 'formFieldsWarning',
   initialState,
   reducers: {
-    updateFormWarnings(state, action: UpdateFormFieldsWarningAction) {
+    updateFormWarnings(state:Record<string, boolean>, action: PayloadAction<boolean>) {
       Object.assign(state, action.payload);
     }
   }
