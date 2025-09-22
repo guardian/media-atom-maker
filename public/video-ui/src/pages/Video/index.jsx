@@ -415,8 +415,6 @@ import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as videoUsages from '../../actions/VideoActions/videoUsages';
 import * as getPublishedVideo
   from '../../actions/VideoActions/getPublishedVideo';
-import * as updateVideoEditState
-  from '../../actions/VideoActions/updateVideoEditState';
 import * as videoPageUpdate
   from '../../actions/VideoActions/videoPageUpdate';
 import * as getStatus from '../../actions/WorkflowActions/getStatus';
@@ -427,6 +425,7 @@ import * as updateWorkflowData
 import {getYouTubeEmbedUrl} from "../../components/utils/YouTubeEmbed";
 import {getComposerId} from "../../util/getComposerData";
 import {updateFormWarnings} from "../../slices/formFieldsWarning";
+import {updateVideoEditState} from "../../slices/editState";
 import {updateFormErrors} from "../../slices/checkedFormFields";
 
 function mapStateToProps(state) {
@@ -446,17 +445,16 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     videoActions: bindActionCreators(
-      Object.assign(
-        {},
-        getVideo,
-        saveVideo,
-        createVideo,
-        updateVideo,
-        videoUsages,
-        getPublishedVideo,
+      {
         updateVideoEditState,
-        videoPageUpdate
-      ),
+        ...getVideo,
+        ...saveVideo,
+        ...createVideo,
+        ...updateVideo,
+        ...videoUsages,
+        ...getPublishedVideo,
+        ...videoPageUpdate
+        },
       dispatch
     ),
     formErrorActions: bindActionCreators(
