@@ -110,7 +110,7 @@ import * as createAsset from '../../actions/VideoActions/createAsset';
 import * as revertAsset from '../../actions/VideoActions/revertAsset';
 import * as allDeleteAssetActions from '../../actions/VideoActions/deleteAsset';
 import { fetchCategories, fetchChannels } from '../../slices/youtube';
-import {s3UploadPostProcessing, s3UploadReset} from "../../slices/s3Upload";
+import {setS3UploadStatusToPostProcessing, setS3UploadStatusToReset} from "../../slices/s3Upload";
 
 function mapStateToProps(state) {
   return {
@@ -136,7 +136,7 @@ function mapDispatchToProps(dispatch) {
       dispatch
     ),
     uploadActions: bindActionCreators(
-      Object.assign({s3UploadPostProcessing,s3UploadReset}, s3UploadActions ,getUpload),
+      Object.assign({s3UploadPostProcessing: setS3UploadStatusToPostProcessing, s3UploadReset: setS3UploadStatusToReset}, s3UploadActions ,getUpload),
       dispatch
     ),
     youtubeActions: bindActionCreators(

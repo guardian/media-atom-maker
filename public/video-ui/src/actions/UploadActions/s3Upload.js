@@ -1,6 +1,6 @@
 import { createUpload, uploadParts, uploadPacFile, uploadSubtitleFile, deleteSubtitleFile} from '../../services/UploadsApi';
 import { errorDetails } from '../../util/errorDetails';
-import {s3UploadComplete, s3UploadProgress, s3UploadShowError, s3UploadStarted} from "../../slices/s3Upload";
+import {setS3UploadStatusToComplete, s3UploadProgress, setS3UploadStatusToError, s3UploadStarted} from "../../slices/s3Upload";
 
 export function startVideoUpload({id, file, selfHost}) {
   return dispatch => {
@@ -11,10 +11,10 @@ export function startVideoUpload({id, file, selfHost}) {
 
       return uploadParts(upload, upload.parts, file, progress)
         .then(() => {
-          dispatch(s3UploadComplete());
+          dispatch(setS3UploadStatusToComplete());
         })
         .catch(err => {
-          dispatch(s3UploadShowError(errorDetails(err)));
+          dispatch(setS3UploadStatusToError(errorDetails(err)));
         });
     });
   };
@@ -23,9 +23,9 @@ export function startVideoUpload({id, file, selfHost}) {
 export function startPacFileUpload({id, file}) {
   return dispatch => {
     return uploadPacFile({id, file}).then(() => {
-      dispatch(s3UploadComplete());
+      dispatch(setS3UploadStatusToComplete());
     }).catch(err => {
-      dispatch(s3UploadShowError(errorDetails(err)));
+      dispatch(setS3UploadStatusToError(errorDetails(err)));
     });
   };
 }
@@ -33,9 +33,9 @@ export function startPacFileUpload({id, file}) {
 export function startSubtitleFileUpload({id, version, file}) {
   return dispatch => {
     return uploadSubtitleFile({id, version, file}).then(() => {
-      dispatch(s3UploadComplete());
+      dispatch(setS3UploadStatusToComplete());
     }).catch(err => {
-      dispatch(s3UploadShowError(errorDetails(err)));
+      dispatch(setS3UploadStatusToError(errorDetails(err)));
     });
   };
 }
@@ -43,9 +43,9 @@ export function startSubtitleFileUpload({id, version, file}) {
 export function deleteSubtitle({id, version}) {
   return dispatch => {
     return deleteSubtitleFile({id, version}).then(() => {
-      dispatch(s3UploadComplete());
+      dispatch(setS3UploadStatusToComplete());
     }).catch(err => {
-      dispatch(s3UploadShowError(errorDetails(err)));
+      dispatch(setS3UploadStatusToError(errorDetails(err)));
     });
   };
 }

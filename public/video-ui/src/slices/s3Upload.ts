@@ -1,5 +1,25 @@
 import { createSlice,PayloadAction } from '@reduxjs/toolkit';
 
+export type YouTubeAsset = { id: string, sources?: undefined };
+export type SelfHostedAsset = { id?: undefined, sources: unknown[] }
+export type Upload = {
+  id: string,
+  asset?: YouTubeAsset | SelfHostedAsset;
+  processing?: {
+    status: string,
+    failed: boolean,
+    current?: number,
+    total?: number
+  };
+  parts?: { end: number }[];
+  metadata?: {
+    originalFilename?: string;
+    subtitleFilename?: string;
+    startTimestamp?: number;
+    user: string
+  }
+};
+
 export interface S3UploadState {
   id: string | null;
   progress: number;
@@ -7,15 +27,13 @@ export interface S3UploadState {
   status: 'idle' | 'uploading' | 'post-processing' | 'complete' | 'error';
 }
 
-type S3UploadAction = PayloadAction<S3UploadState>
-
 const initialState : S3UploadState =  { id: null, progress: 0, total: 0, status: 'idle' };
 
 const s3Upload = createSlice({
   name: 's3Upload',
   initialState,
   reducers: {
-    s3UploadStarted:(state :S3UploadState, action)=> {
+    s3UploadStarted:(state , action: PayloadAction<Upload>)=> {
       const total = action.payload.parts[action.payload.parts.length - 1].end;
       Object.assign(state, {
         id: action.payload.id,
@@ -23,22 +41,20 @@ const s3Upload = createSlice({
         status: 'uploading'
       });
     },
-    s3UploadProgress: (state : S3UploadState, action: S3UploadAction)=>{
-      Object.assign(state, {
-        progress: action.payload,
-        status: 'uploading'
-      });
+    s3UploadProgress: (state , action: PayloadAction<number>)=>{
+        state.progress = action.payload,
+        state.status =  'uploading'
       },
-      s3UploadPostProcessing: _=> ({
-        ...initialState, status: 'post-processing'
-      }),
-      s3UploadComplete: _=> ({
-        ...initialState, status: 'complete'
-      }),
-      s3UploadShowError: _=> ({
-        ...initialState, status: 'error'
-      }),
-      s3UploadReset: _=> ({
+      setS3UploadStatusToPostProcessing: (state) => {
+        state.status = 'post-processing';
+      },
+      setS3UploadStatusToComplete: (state) => {
+        state.status = 'complete';
+      },
+      setS3UploadStatusToError: (state) => {
+        state.status = 'error';
+      },
+      setS3UploadStatusToReset: _=> ({
        ... initialState
       })
   }
@@ -46,5 +62,5 @@ const s3Upload = createSlice({
 
 export default s3Upload.reducer;
 
-export const {  s3UploadStarted,s3UploadProgress,s3UploadPostProcessing,s3UploadComplete, s3UploadShowError , s3UploadReset} = s3Upload.actions;
+export const {  s3UploadStarted,s3UploadProgress,setS3UploadStatusToPostProcessing,setS3UploadStatusToComplete, setS3UploadStatusToError , setS3UploadStatusToReset} = s3Upload.actions;
 
