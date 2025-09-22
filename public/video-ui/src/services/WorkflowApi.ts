@@ -201,7 +201,7 @@ export default class WorkflowApi {
     const embargoDate = VideoUtils.getEmbargoAsDate(video);
 
     const [embargo, indefiniteEmbargo] =
-      (embargoDate && embargoDate >= impossiblyDistantDate) ? [null, true] : [embargoDate, false];
+      (embargoDate && embargoDate.valueOf() >= impossiblyDistantDate) ? [null, true] : [embargoDate, false];
 
 
     return {
