@@ -1,7 +1,6 @@
 import React from 'react';
 import { Asset } from './VideoAsset';
 import VideoUtils from '../../util/video';
-import {s3UploadPostProcessing} from "../../slices/s3Upload";
 
 export default class VideoTrail extends React.Component {
   polling = null;

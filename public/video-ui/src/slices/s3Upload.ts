@@ -25,7 +25,7 @@ const s3Upload = createSlice({
     },
     s3UploadProgress: (state : S3UploadState, action: S3UploadAction)=>{
       Object.assign(state, {
-        progress: action.payload.progress,
+        progress: action.payload,
         status: 'uploading'
       });
       },
