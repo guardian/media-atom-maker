@@ -6,7 +6,7 @@ const editState = createSlice({
   name: 'editState',
   initialState,
   reducers: {
-    updateVideoEditState(state:boolean, action: PayloadAction<boolean>) {
+    updateVideoEditState(_, action: PayloadAction<boolean>) {
      return action.payload;
     }
   }
