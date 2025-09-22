@@ -1,15 +1,14 @@
 import VideosApi, { Video } from '../../services/VideosApi';
 import { showError } from '../../slices/error';
-import { fetchUsages, updateVideoUsageWebTitle, UsageData } from '../../slices/usage';
 import { setSaving } from '../../slices/saveState';
+import { fetchUsages, updateVideoUsageWebTitle, UsageData } from '../../slices/usage';
 import { setVideo } from '../../slices/video';
-import { Action, ThunkDispatch } from '@reduxjs/toolkit';
-import { RootState } from '../../util/setupStore';
+import { AppDispatch } from '../../util/setupStore';
 
 
 
 export function saveVideo(video: Video) {
-  return (dispatch: ThunkDispatch<RootState, void, Action>) => {
+  return (dispatch: AppDispatch) => {
     dispatch(setSaving(true));
     dispatch(setVideo(video));
     return VideosApi.saveVideo(video.id, video)
@@ -35,6 +34,9 @@ export function saveVideo(video: Video) {
         const message = error.status === 409 ? conflictError : defaultError;
         dispatch(showError(message, error));
         throw error;
+      })
+      .finally(() => {
+        dispatch(setSaving(false));
       });
   };
 }
