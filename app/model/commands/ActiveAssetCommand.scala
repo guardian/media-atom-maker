@@ -33,10 +33,9 @@ case class ActiveAssetCommand(
     val assetsToActivate = mediaAtom.assets.filter(_.version == activateAssetRequest.version)
 
     if (assetsToActivate.nonEmpty) {
-      val duration = assetsToActivate.find(_.platform == Youtube) match {
-        case Some(asset) => youtube.getDuration(asset.id)
-        case None => mediaAtom.duration
-      }
+      val duration = assetsToActivate.find(_.platform == Youtube)
+        .flatMap(asset => youtube.getDuration(asset.id))
+        .orElse(mediaAtom.duration)
 
       val updatedAtom = mediaAtom.copy(
         activeVersion = Some(activateAssetRequest.version),
