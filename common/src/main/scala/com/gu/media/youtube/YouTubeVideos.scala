@@ -44,7 +44,10 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
         val iso8601Duration = video.getContentDetails.getDuration
         Some(ISO8601Duration.toSeconds(iso8601Duration))
       }
-      case None => None
+      case None => {
+        log.info(s"Failed to get duration for YouTube asset: $youtubeId")
+        None
+      }
     }
   }
 
