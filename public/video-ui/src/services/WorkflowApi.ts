@@ -162,7 +162,7 @@ export default class WorkflowApi {
     };
 
     return apiRequest<string | unknown>(params, 500).then(response => {
-      return WorkflowApi._getResponseAsJson<Priority[]>(response)
+      return WorkflowApi._getResponseAsJson<Priority[]>(response);
     });
   }
 

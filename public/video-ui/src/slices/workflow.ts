@@ -21,10 +21,10 @@ export const getSections = createAsyncThunk<Section[] | undefined>(
           `Could not get Workflow sections. <a href="${WorkflowApi.workflowUrl}" target="_blank" rel="noopener">Open Workflow to get a cookie.</a>`,
           error
         )
-      )
+      );
     }
   )
-)
+);
 
 export const getStatus = createAsyncThunk<FlatStub<string, string> | undefined, {id: string}>(
   'workflow/getStatus',
@@ -47,22 +47,22 @@ export const getStatus = createAsyncThunk<FlatStub<string, string> | undefined, 
       }
     }
   )
-)
+);
 
 export const getStatuses = createAsyncThunk<ExpandedStatus[] | undefined>(
   'workflow/getStatuses',
   (_, { dispatch }) => WorkflowApi.getStatuses().catch(err => void dispatch(errorReceivingStatuses(err)))
-)
+);
 
 export const getPriorities = createAsyncThunk<Priority[] | undefined>(
   'workflow/getPriorities',
   (_, { dispatch }) => WorkflowApi.getPriorities().catch(err => void dispatch(errorReceivingPriorities(err)))
-)
+);
 
 function errorReceivingPriorities(error: unknown) {
   return showError(
     `Could not get Workflow priorities. <a href="${WorkflowApi.workflowUrl}" target="_blank" rel="noopener">Open Workflow to get a cookie.</a>`,
-    error,
+    error
   );
 }
 
@@ -70,7 +70,7 @@ function errorReceivingPriorities(error: unknown) {
 function errorReceivingStatus(error: unknown) {
   return showError(
     'Cannot get Atom status in Workflow',
-    error,
+    error
   );
 }
 
@@ -85,44 +85,44 @@ const initialState: WorkflowState = {
   sections: [],
   statuses: [],
   status: {},
-  priorities: [],
-}
+  priorities: []
+};
 
 const workflow = createSlice({
   name: 'workflow',
   initialState,
   reducers: {
     localUpdateWorkflowData(state, action) {
-      state.status = action.payload
+      state.status = action.payload;
     },
     statusNotFound(state, action) {
       state.status = {
         isTrackedInWorkflow: false,
         ...action.payload
-      }
+      };
     }
   },
   extraReducers: builder => builder
     .addCase(getSections.fulfilled, (state, action) => {
       if (action.payload) {
-        state.sections = action.payload
+        state.sections = action.payload;
       }
     })
     .addCase(getStatus.fulfilled, (state, action) => {
-      state.status = { isTrackedInWorkflow: true, ...action.payload }
+      state.status = { isTrackedInWorkflow: true, ...action.payload };
     })
     .addCase(getStatuses.fulfilled, (state, action) => {
       if (action.payload) {
-        state.statuses = action.payload
+        state.statuses = action.payload;
       }
     })
     .addCase(getPriorities.fulfilled, (state, action) => {
       if (action.payload) {
-        state.priorities = action.payload
+        state.priorities = action.payload;
       }
     })
-})
+});
 
-export const { localUpdateWorkflowData, statusNotFound } = workflow.actions
+export const { localUpdateWorkflowData, statusNotFound } = workflow.actions;
 
-export default workflow.reducer
+export default workflow.reducer;
