@@ -19,4 +19,4 @@ export const channelAllowed = (video: Video, channels: Channel[]) => {
   }
 
   return channels.some(channel => video.channelId === channel.id);
-}
+};

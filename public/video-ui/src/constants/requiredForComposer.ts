@@ -8,6 +8,6 @@ export default class RequiredForComposer {
   }
 
   static get fields() {
-    return ['commissioningDesks', 'keywords', 'description']
+    return ['commissioningDesks', 'keywords', 'description'];
   }
 }

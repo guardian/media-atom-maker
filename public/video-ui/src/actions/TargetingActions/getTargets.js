@@ -30,5 +30,5 @@ export function getTargets(video) {
     return TargetingApi.getTargets(video)
       .then(res => dispatch(receiveGetTarget(res)))
       .catch(err => dispatch(errorGetTarget(err)));
-  }
+  };
 }
