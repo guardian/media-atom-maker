@@ -24,14 +24,15 @@ function presenceInitials(email: string) {
 }
 
 function AssetControls({
-  user, children, isActive, selectAsset, deleteAsset, activatingAssetNumber, isActivating }: {
+  user, children, isActive, selectAsset, deleteAsset, activatingAssetNumber, isActivating, activateDisabled }: {
     user: string
     isActive?: boolean,
     selectAsset: { (): void },
     deleteAsset: { (): void },
     children: ReactNode,
     activatingAssetNumber: number,
-    isActivating: boolean
+    isActivating: boolean,
+    activateDisabled?: boolean
   }) {
   const className = isActivating ? 'btn btn--loading' : 'btn';
 
@@ -42,7 +43,7 @@ function AssetControls({
 
   const activateButton =
     <button className={className} style={{ paddingRight: 20 }}
-      disabled={typeof activatingAssetNumber === "number"}
+      disabled={typeof activatingAssetNumber === "number" || activateDisabled}
       onClick={selectAsset}>
       Activate
     </button>;
@@ -272,6 +273,7 @@ export function Asset({
             user={user}
             selectAsset={selectAsset}
             deleteAsset={deleteAsset}
+            activateDisabled={true}
             isActivating={activatingAssetNumber === Number(upload.id)}
             activatingAssetNumber={activatingAssetNumber}>
             <AssetInfo info={processing.status} />
