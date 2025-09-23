@@ -1,8 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import FieldNotification from "../constants/FieldNotification";
 
-
-type Targets={
+type TargetType={
   id: string,
   title: string,
   tagPaths: string[],
@@ -13,8 +11,8 @@ type Targets={
   createdAt?: string,
   updatedAt?: string,
 }
-export type TargetingState = {
-  targets: Targets[]| null,
+type TargetingState = {
+  targets: TargetType[]| null,
   deleting: string[],
 };
 
@@ -26,36 +24,42 @@ const targeting = createSlice({
   name: 'targeting',
   initialState,
   reducers: {
-    requestUpdateTarget:(state, action :PayloadAction<any>)=> ({
+    requestUpdateTarget:(state:TargetingState, action :PayloadAction<TargetType>)=> ({
         ...state,
         targets: [
           ...state.targets.filter(({ id }) => id !== action.payload.id),
           action.payload
         ]
     }),
+    receiveUpdateTarget:(state:TargetingState)=> ({
+      ...state
+    }),
     // when we start a new request for targets reset to our 'loading' state
     // this gets called when we look for targets for a new video
     requestGetTargets:()=> ({
        ...initialState
     }),
-    // if we receive any targets, for now, completely overwrite what's in here
-    receiveCreateTarget:(state, action)=> ({
-    ...state,
-        targets: [...(state.targets || []), ...action.payload]
+    requestCreateTarget:(state:TargetingState)=> ({
+      ...state
     }),
-    receiveGetTarget:(state, action)=> ({
+    // if we receive any targets, for now, completely overwrite what's in here
+    receiveCreateTarget:(state:TargetingState, action :PayloadAction<TargetType>)=> ({
+    ...state,
+        targets: [...(state.targets || []), action.payload]
+    }),
+    receiveGetTarget:(state:TargetingState, action)=> ({
       ...state,
       targets: [...(state.targets || []), ...action.payload]
     }),
-    requestDeleteTarget:(state, action)=> ({
+    requestDeleteTarget:(state:TargetingState, action :PayloadAction<TargetType>)=> ({
       ...state,
       deleting: [...new Set([...state.deleting, action.payload.id])]
     }),
-    receiveDeleteTarget:(state, action)=> ({
+    receiveDeleteTarget:(state:TargetingState, action :PayloadAction<TargetType>)=> ({
       deleting: [...state.deleting.filter(id => id !== action.payload.id)],
       targets: [...state.targets.filter(({ id }) => id !== action.payload.id)]
     }),
-    errorDeleteTarget:(state, action)=> ({
+    errorDeleteTarget:(state:TargetingState, action:PayloadAction<TargetType>)=> ({
       ...state,
       deleting: [...state.deleting.filter(id => id !== action.payload.id)]
     })
@@ -64,4 +68,4 @@ const targeting = createSlice({
 
 export default targeting.reducer;
 
-export const {  requestUpdateTarget,requestGetTargets, receiveCreateTarget,receiveGetTarget, requestDeleteTarget, receiveDeleteTarget,errorDeleteTarget} = targeting.actions;
+export const {  requestUpdateTarget,receiveUpdateTarget,requestGetTargets,requestCreateTarget, receiveCreateTarget,receiveGetTarget, requestDeleteTarget, receiveDeleteTarget,errorDeleteTarget} = targeting.actions;

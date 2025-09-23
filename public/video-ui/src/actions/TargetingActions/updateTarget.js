@@ -1,14 +1,7 @@
 import TargetingApi from '../../services/TargetingApi';
 import debounce from 'lodash/debounce';
-import {requestUpdateTarget} from "../../slices/targeting";
+import {receiveUpdateTarget, requestUpdateTarget} from "../../slices/targeting";
 import {showError} from "../../slices/error";
-
-function receiveUpdateTarget() {
-  return {
-    type: 'TARGETING_UPDATE_RECEIVE',
-    receivedAt: Date.now()
-  };
-}
 
 const debouncedUpdate = debounce(
   (dispatch, target) =>
@@ -24,5 +17,3 @@ export function updateTarget(target) {
     return debouncedUpdate(dispatch, target);
   };
 }
-
-
