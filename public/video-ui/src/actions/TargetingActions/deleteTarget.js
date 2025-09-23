@@ -9,7 +9,7 @@ export function deleteTarget(target) {
       .then(() => dispatch(receiveDeleteTarget(target)))
       .catch(err => {
         dispatch(errorDeleteTarget(target));
-        dispatch(showError(`Failed to delete Target.`, err));
+        dispatch(showError(`Failed to delete Target`, err));
       });
   };
 }

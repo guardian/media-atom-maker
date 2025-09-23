@@ -16,9 +16,6 @@ type TargetingState = {
   deleting: string[],
 };
 
-// PayloadAction<TargetingState>
-
-
 const initialState:TargetingState = { targets: null, deleting: [] };
 const targeting = createSlice({
   name: 'targeting',

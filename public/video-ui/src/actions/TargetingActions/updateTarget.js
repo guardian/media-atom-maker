@@ -7,7 +7,7 @@ const debouncedUpdate = debounce(
   (dispatch, target) =>
     TargetingApi.updateTarget(target)
       .then(() => dispatch(receiveUpdateTarget()))
-      .catch(err => dispatch(showError(`Could not create asset.`, err))),
+      .catch(err => dispatch(showError(`Failed to update Target`, err))),
   500
 );
 
