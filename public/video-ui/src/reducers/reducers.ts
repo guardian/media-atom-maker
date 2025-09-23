@@ -8,7 +8,7 @@ import search from '../slices/search';
 import youtube from '../slices/youtube';
 import usage from './usageReducer';
 import pageCreate from './composerPageReducer';
-import s3Upload from './s3UploadReducer';
+import s3Upload from '../slices/s3Upload';
 import formFieldsWarning from '../slices/formFieldsWarning';
 import videoEditOpen from '../slices/editState';
 import checkedFormFields from '../slices/checkedFormFields';
