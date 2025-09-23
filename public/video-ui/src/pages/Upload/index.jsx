@@ -110,10 +110,11 @@ import * as createAsset from '../../actions/VideoActions/createAsset';
 import * as revertAsset from '../../actions/VideoActions/revertAsset';
 import * as allDeleteAssetActions from '../../actions/VideoActions/deleteAsset';
 import { fetchCategories, fetchChannels } from '../../slices/youtube';
+import {selectVideo} from "../../slices/video";
 
 function mapStateToProps(state) {
   return {
-    video: state.video,
+    video: selectVideo(state),
     s3Upload: state.s3Upload,
     uploads: state.uploads,
     youtube: state.youtube,
