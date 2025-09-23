@@ -11,7 +11,7 @@ export type Upload = {
     current?: number,
     total?: number
   };
-  parts?: { end: number }[];
+  parts?: { end: number , key: string, start: number}[];
   metadata?: {
     originalFilename?: string;
     subtitleFilename?: string;
@@ -54,7 +54,7 @@ const s3Upload = createSlice({
       setS3UploadStatusToError: (state) => {
         state.status = 'error';
       },
-      setS3UploadStatusToReset: _=> ({
+      resetS3UploadState: ()=> ({
        ... initialState
       })
   }
@@ -62,5 +62,5 @@ const s3Upload = createSlice({
 
 export default s3Upload.reducer;
 
-export const {  s3UploadStarted,s3UploadProgress,setS3UploadStatusToPostProcessing,setS3UploadStatusToComplete, setS3UploadStatusToError , setS3UploadStatusToReset} = s3Upload.actions;
+export const {  s3UploadStarted,s3UploadProgress,setS3UploadStatusToPostProcessing,setS3UploadStatusToComplete, setS3UploadStatusToError , resetS3UploadState} = s3Upload.actions;
 

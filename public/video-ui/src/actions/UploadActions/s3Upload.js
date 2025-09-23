@@ -1,6 +1,7 @@
 import { createUpload, uploadParts, uploadPacFile, uploadSubtitleFile, deleteSubtitleFile} from '../../services/UploadsApi';
 import { errorDetails } from '../../util/errorDetails';
 import {setS3UploadStatusToComplete, s3UploadProgress, setS3UploadStatusToError, s3UploadStarted} from "../../slices/s3Upload";
+import {showError} from "../../slices/error";
 
 export function startVideoUpload({id, file, selfHost}) {
   return dispatch => {
@@ -14,7 +15,8 @@ export function startVideoUpload({id, file, selfHost}) {
           dispatch(setS3UploadStatusToComplete());
         })
         .catch(err => {
-          dispatch(setS3UploadStatusToError(errorDetails(err)));
+          dispatch(showError(errorDetails(err), err));
+          dispatch(setS3UploadStatusToError());
         });
     });
   };
