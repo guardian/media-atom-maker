@@ -240,20 +240,19 @@ export function Asset({
         onDelete={() => deleteSubtitle({ id: videoId, version: upload.id })} />
     </div>;
 
-  if (processing && asset) {
+  if (asset) {
     return (
       <div className="video-trail__item">
-        <div className="video-trail__upload">
-          <AssetProgress {...processing} />
-          <div>{processing.status}</div>
-        </div>
+        <AssetDisplay isActive={isActive} id={asset.id} sources={asset.sources} />
         <div className="video-trail__item__details">
           <AssetControls
             user={user}
+            isActive={isActive}
             selectAsset={selectAsset}
             deleteAsset={deleteAsset}
             isActivating={activatingAssetNumber === Number(upload.id)}
-            activatingAssetNumber={activatingAssetNumber}>
+            activatingAssetNumber={activatingAssetNumber}
+          >
             <AssetInfo info={info} timestamp={timestamp} />
           </AssetControls>
         </div>
@@ -279,27 +278,6 @@ export function Asset({
             <AssetInfo info={processing.status} />
           </AssetControls>
         </div>
-      </div>
-    );
-  }
-
-  if (asset) {
-    return (
-      <div className="video-trail__item">
-        <AssetDisplay isActive={isActive} id={asset.id} sources={asset.sources} />
-        <div className="video-trail__item__details">
-          <AssetControls
-            user={user}
-            isActive={isActive}
-            selectAsset={selectAsset}
-            deleteAsset={deleteAsset}
-            isActivating={activatingAssetNumber === Number(upload.id)}
-            activatingAssetNumber={activatingAssetNumber}
-          >
-            <AssetInfo info={info} timestamp={timestamp} />
-          </AssetControls>
-        </div>
-        {subtitlePanel}
       </div>
     );
   }
