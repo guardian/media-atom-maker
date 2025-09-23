@@ -27,7 +27,7 @@ const targeting = createSlice({
     requestUpdateTarget:(state:TargetingState, action :PayloadAction<TargetType>)=> ({
         ...state,
         targets: [
-          ...state.targets.filter(({ id }) => id !== action.payload.id),
+          ...(state.targets || []).filter(({ id }) => id !== action.payload.id),
           action.payload
         ]
     }),
@@ -47,7 +47,7 @@ const targeting = createSlice({
     ...state,
         targets: [...(state.targets || []), action.payload]
     }),
-    receiveGetTarget:(state:TargetingState, action)=> ({
+    receiveGetTarget:(state:TargetingState, action: PayloadAction<TargetType[]>)=> ({
       ...state,
       targets: [...(state.targets || []), ...action.payload]
     }),
@@ -57,7 +57,7 @@ const targeting = createSlice({
     }),
     receiveDeleteTarget:(state:TargetingState, action :PayloadAction<TargetType>)=> ({
       deleting: [...state.deleting.filter(id => id !== action.payload.id)],
-      targets: [...state.targets.filter(({ id }) => id !== action.payload.id)]
+      targets: [...(state.targets || []).filter(({ id }) => id !== action.payload.id)]
     }),
     errorDeleteTarget:(state:TargetingState, action:PayloadAction<TargetType>)=> ({
       ...state,
