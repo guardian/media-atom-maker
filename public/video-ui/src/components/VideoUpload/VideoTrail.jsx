@@ -33,13 +33,13 @@ export default class VideoTrail extends React.Component {
 
     if (this.props.s3Upload.status === "complete") {
       this.props.getUploads();
-      this.props.setS3UploadPostProcessingStatus(); // reset status to 'post processing'
+      this.props.s3UploadPostProcessing(); // reset status to 'post processing'
     }
     if (this.props.uploads.every(upload => {
       return !upload.processing;
     }) && this.props.s3Upload.status === "post-processing") {
       this.props.getVideo(this.props.video.id);
-      this.props.resetS3UploadStatus();
+      this.props.s3UploadReset();
     }
 
     if (this.props.s3Upload.total) {

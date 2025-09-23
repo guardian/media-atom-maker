@@ -4,7 +4,7 @@ import Icon, { SubtitlesIcon } from '../Icon';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 import { VideoEmbed } from '../utils/VideoEmbed';
 import DeleteButton from '../DeleteButton';
-import {Upload} from "../../slices/uploads";
+import {Upload} from "../../slices/s3Upload";
 
 function presenceInitials(email: string) {
   if (!email) return;

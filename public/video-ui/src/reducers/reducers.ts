@@ -2,17 +2,16 @@ import { routerReducer } from 'react-router-redux';
 import config from '../slices/config';
 import error from '../slices/error';
 import video from '../slices/video';
-import publishedVideo from './publishedVideoReducer';
 import videos from '../slices/videos';
 import saveState from '../slices/saveState';
 import search from '../slices/search';
 import youtube from '../slices/youtube';
 import usage from './usageReducer';
 import pageCreate from './composerPageReducer';
-import s3Upload from './s3UploadReducer';
+import s3Upload from '../slices/s3Upload';
+import formFieldsWarning from '../slices/formFieldsWarning';
 import videoEditOpen from '../slices/editState';
 import checkedFormFields from '../slices/checkedFormFields';
-import formFieldsWarning from './formFieldsWarningReducer';
 import uploads from '../slices/uploads';
 import path from '../slices/path';
 import pluto from '../slices/pluto';
@@ -29,7 +28,6 @@ export default {
   youtube,
   usage,
   pageCreate,
-  publishedVideo,
   checkedFormFields,
   formFieldsWarning,
   s3Upload,
