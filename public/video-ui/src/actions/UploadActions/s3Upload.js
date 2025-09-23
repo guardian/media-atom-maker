@@ -27,7 +27,8 @@ export function startPacFileUpload({id, file}) {
     return uploadPacFile({id, file}).then(() => {
       dispatch(setS3UploadStatusToComplete());
     }).catch(err => {
-      dispatch(setS3UploadStatusToError(errorDetails(err)));
+      dispatch(showError(errorDetails(err), err));
+      dispatch(setS3UploadStatusToError());
     });
   };
 }
@@ -37,7 +38,8 @@ export function startSubtitleFileUpload({id, version, file}) {
     return uploadSubtitleFile({id, version, file}).then(() => {
       dispatch(setS3UploadStatusToComplete());
     }).catch(err => {
-      dispatch(setS3UploadStatusToError(errorDetails(err)));
+      dispatch(showError(errorDetails(err), err));
+      dispatch(setS3UploadStatusToError());
     });
   };
 }
@@ -47,7 +49,8 @@ export function deleteSubtitle({id, version}) {
     return deleteSubtitleFile({id, version}).then(() => {
       dispatch(setS3UploadStatusToComplete());
     }).catch(err => {
-      dispatch(setS3UploadStatusToError(errorDetails(err)));
+      dispatch(showError(errorDetails(err), err));
+      dispatch(setS3UploadStatusToError());
     });
   };
 }
