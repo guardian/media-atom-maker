@@ -27,6 +27,7 @@ export default class DeleteButton extends React.Component {
         className="btn button__secondary--remove-confirm"
         onClick={this.props.onDelete}
         data-tip="Confirm delete. This cannot be undone."
+        data-testid="delete-button"
       >
         <Icon icon="delete_forever">Confirm delete</Icon>
       </button>
@@ -39,6 +40,7 @@ export default class DeleteButton extends React.Component {
         className="btn button__secondary--remove"
         onClick={() => this.changeState()}
         data-tip={this.props.tooltip}
+        data-testid="delete-button"
       >
         <Icon icon="delete">Delete</Icon>
       </button>
