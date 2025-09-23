@@ -38,6 +38,9 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
 
   def getDuration(youtubeId: String): Option[Long] = {
     getVideo(youtubeId, List("contentDetails")) match {
+      case Some(video) if Option(video.getSnippet.getLiveBroadcastContent).isDefined => {
+        Some(0L)
+      }
       case Some(video) => {
         // YouTube API returns duration is in ISO 8601 format
         // https://developers.google.com/youtube/v3/docs/videos#contentDetails.duration
