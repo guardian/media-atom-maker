@@ -1,4 +1,4 @@
-const crypto = require('crypto');
+const crypto = require('node:crypto');
 const reqwest = require('reqwest');
 const url = require('url');
 const logForElk = require('./logger');
@@ -12,10 +12,8 @@ class HMACRequest {
   _getToken(remoteUrl, date) {
     const urlPath = url.parse(remoteUrl).pathname;
     const content = [date, urlPath].join('\n');
-
     const hmac = crypto.createHmac('sha256', this.secret);
     hmac.update(content, 'utf-8');
-
     return `HMAC ${hmac.digest('base64')}`;
   }
 

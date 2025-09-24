@@ -6,9 +6,7 @@ export default class VideoTrail extends React.Component {
   polling = null;
 
   componentWillReceiveProps() {
-    const isRecentlyModified = VideoUtils.isRecentlyModified(this.props.video);
-
-    if (!this.polling && isRecentlyModified) {
+    if (!this.polling) {
       this.polling = setInterval(() => this.pollIfRequired(), 5000);
     }
   }
