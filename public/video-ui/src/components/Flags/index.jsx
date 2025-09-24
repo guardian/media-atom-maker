@@ -38,6 +38,14 @@ class Flags extends React.Component {
         formClass="atom__edit__form"
       >
         <ManagedField
+          fieldLocation="isLoopingVideo"
+          name="Looping video"
+          fieldDetails="This video has been designed to auto-loop in environments which permit such behaviour"
+          disabled={isYoutubeAtom || isEligibleForAds}
+        >
+          <CheckBox />
+        </ManagedField>
+        <ManagedField
           fieldLocation="blockAds"
           name="Block ads"
           fieldDetails={
