@@ -31,7 +31,7 @@ function AssetControls({
   deleteAsset,
   activatingAssetNumber,
   isActivating,
-  activateDisabled
+  isUploadInProgress
 }: {
   user: string;
   isActive?: boolean;
@@ -40,7 +40,7 @@ function AssetControls({
   children: ReactNode;
   activatingAssetNumber: number;
   isActivating: boolean;
-  activateDisabled?: boolean;
+  isUploadInProgress?: boolean;
 }) {
   const className = isActivating ? 'btn btn--loading' : 'btn';
 
@@ -54,7 +54,7 @@ function AssetControls({
     <button
       className={className}
       style={{ paddingRight: 20 }}
-      disabled={typeof activatingAssetNumber === 'number' || activateDisabled}
+      disabled={typeof activatingAssetNumber === 'number' || isUploadInProgress}
       onClick={selectAsset}
     >
       Activate
@@ -325,7 +325,7 @@ export function Asset({
             user={user}
             selectAsset={selectAsset}
             deleteAsset={deleteAsset}
-            activateDisabled={true}
+            isUploadInProgress={true}
             isActivating={activatingAssetNumber === Number(upload.id)}
             activatingAssetNumber={activatingAssetNumber}
           >
