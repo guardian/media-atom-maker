@@ -102,11 +102,12 @@ export default class WorkflowApi {
     return `${WorkflowApi.workflowUrl}/dashboard?editorId=${video.id}`;
   }
 
-  static _getResponseAsJson<A>(response: string | unknown): A {
+  static _maybeParseResponse<A>(response: string | unknown): A {
     if (typeof response === 'string') {
       return JSON.parse(response);
+    } else {
+      return response as A;
     }
-    throw new Error(`Error calling Workflow API – expected string response but got: ${response}`);
   }
 
   //clean up the workflow data so that the priority field number, which can be 0, is converted to a string
@@ -123,7 +124,7 @@ export default class WorkflowApi {
     };
 
     return apiRequest<string | unknown>(params, 500).then(response => {
-      return WorkflowApi._getResponseAsJson<ApiResponse<Section[]>>(response)
+      return WorkflowApi._maybeParseResponse<ApiResponse<Section[]>>(response)
         .data.map(section => Object.assign({}, section, {
         id: section.name,
         title: section.name,
@@ -147,7 +148,7 @@ export default class WorkflowApi {
     };
 
     return apiRequest<string | unknown>(params, 500).then(response => {
-      return WorkflowApi._getResponseAsJson<{data: Status[]}>(response).data
+      return WorkflowApi._maybeParseResponse<{data: Status[]}>(response).data
         .filter(status => status.toLowerCase() !== 'stub')
         .map(status => Object.assign({}, { id: status, title: status })
         );
@@ -162,7 +163,7 @@ export default class WorkflowApi {
     };
 
     return apiRequest<string | unknown>(params, 500).then(response => {
-      return WorkflowApi._getResponseAsJson<Priority[]>(response);
+      return WorkflowApi._maybeParseResponse<Priority[]>(response);
     });
   }
 
@@ -172,7 +173,7 @@ export default class WorkflowApi {
       url: `${WorkflowApi.workflowUrl}/api/atom/${id}`,
       crossOrigin: true,
       withCredentials: true
-    }).then(response => WorkflowApi._getResponseAsJson<{data: FlatStub<number, string>}>(response).data)
+    }).then(response => WorkflowApi._maybeParseResponse<{data: FlatStub<number, string>}>(response).data)
       .then(jsonRes => WorkflowApi._cleanUpWorkflowData(jsonRes));
   }
 
