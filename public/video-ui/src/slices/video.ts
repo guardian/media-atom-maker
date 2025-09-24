@@ -20,6 +20,9 @@ const video = createSlice({
       state.video = { ...blankVideoData, ...payload };
     },
     setPublishedVideo: (state, { payload }: PayloadAction<Video>) => {
+      state.publishedVideo = { ...blankVideoData, ...payload };
+    },
+    setVideoAndPublishedVideo: (state, { payload }: PayloadAction<Video>) => {
       state.video = { ...blankVideoData, ...payload };
       state.publishedVideo = { ...state.video };
     },
@@ -53,6 +56,7 @@ export default video.reducer;
 export const {
   setVideo,
   setPublishedVideo,
+  setVideoAndPublishedVideo,
   setVideoBlank,
   setActiveAsset,
   setAssets
