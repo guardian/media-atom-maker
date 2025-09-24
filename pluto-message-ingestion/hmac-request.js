@@ -27,12 +27,9 @@ class HMACRequest {
         'X-Gu-Tools-HMAC-Token': token,
         'X-Gu-Tools-Service-Name': this.serviceName
       },
-      method
+      method,
+      body: Object.keys(data).length > 0 ? JSON.stringify(data) : undefined
     };
-
-    if (Object.keys(data).length > 0) {
-      request.data = JSON.stringify(data);
-    }
 
     logForElk(
       { message: `Making ${method} request to ${remoteUrl}`, data },
