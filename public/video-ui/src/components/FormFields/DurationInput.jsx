@@ -14,6 +14,8 @@ const getStateFromProps = props => {
 };
 
 const DurationInput = props => {
+  const isLive = props.rawFieldValue === 0;
+
   const [state, setState] = useState(() => getStateFromProps(props));
 
   useEffect(() => {
@@ -51,17 +53,23 @@ const DurationInput = props => {
       <div>
         <div>
           <p className="details-list__title">{props.fieldName}</p>
-          <p
-            className={
-              'details-list__field ' +
-              (props.displayPlaceholder(props.placeholder, props.fieldValue)
-                ? 'details-list__empty'
-                : '')
-            }
-          >
-            {' '}
-            {secondsToDurationStr(props.rawFieldValue)}
-          </p>
+          {isLive ? (
+            <p className="details-list__field">Live video – zero duration</p>
+          ) : (
+            <>
+              <p
+                className={
+                  'details-list__field ' +
+                  (props.displayPlaceholder(props.placeholder, props.fieldValue)
+                    ? 'details-list__empty'
+                    : '')
+                }
+              >
+                {' '}
+                {secondsToDurationStr(props.rawFieldValue)}
+              </p>
+            </>
+          )}
         </div>
       </div>
     );
@@ -81,7 +89,7 @@ const DurationInput = props => {
                 id={props.fieldId || props.fieldLocation}
                 type="checkbox"
                 disabled={!props.editable}
-                checked={props.rawFieldValue === 0}
+                checked={isLive}
                 onChange={e => {
                   props.onUpdateField(e.target.checked ? 0 : 1);
                 }}
@@ -101,9 +109,7 @@ const DurationInput = props => {
               incorrectly (i.e. 0:00)
             </em>
           </div>
-          <div
-            className={props.rawFieldValue === 0 ? 'form-element--hidden' : ''}
-          >
+          <div className={isLive ? 'form-element--hidden' : ''}>
             <input
               type="text"
               size="3"
@@ -112,7 +118,7 @@ const DurationInput = props => {
                 (hasError ? 'form__field--error' : '')
               }
               value={state.mins}
-              disabled={props.rawFieldValue === 0}
+              disabled={isLive}
               onChange={e => {
                 updateMins(e.target.value);
               }}
@@ -126,7 +132,7 @@ const DurationInput = props => {
                 (hasError ? 'form__field--error' : '')
               }
               value={state.secs}
-              disabled={props.rawFieldValue === 0}
+              disabled={isLive}
               onChange={e => {
                 updateSecs(e.target.value);
               }}
