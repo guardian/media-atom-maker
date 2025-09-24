@@ -14,6 +14,8 @@ const errorMessages = {
 
 export const saveVideo = (video: Video) => async (dispatch: AppDispatch) => {
   dispatch(setSaving(true));
+  dispatch(setVideo(video));
+
   const savedVideo: Video | undefined = await VideosApi.saveVideo(video.id, video)
     .catch(error => {
       const message = error.status === 409
