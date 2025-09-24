@@ -24,16 +24,16 @@ type NeedsLegal = 'NA' | 'Complete' | 'Required'
 type ExternalData<Date> = {
   status: Status,
   commentable?: boolean,
-  lastModified?: Date,
+  lastModified?: Date | null,
   published?: boolean,
-  timePublished?: Date,
+  timePublished?: Date | null,
   headline?: string,
   sensitive?: boolean,
   legallySensitive?: boolean,
   optimisedForWeb?: boolean,
   path?: string,
-  scheduledLaunchDate?: Date,
-  embargoedUntil?: Date,
+  scheduledLaunchDate?: Date | null,
+  embargoedUntil?: Date | null,
   embargoedIndefinitely?: boolean,
 }
 
@@ -78,7 +78,7 @@ type WorkflowDetails = {
     section: string,
     note: string,
     prodOffice: string,
-    priority?: string
+    priority: string
   }
 
 type ContentUpdate = {
@@ -278,8 +278,8 @@ export default class WorkflowApi {
     });
   }
 
-  static updateNote({ id, note }: {id: string, note: string}): Promise<ApiResponse<number>> {
-    if (!note) return; //property is optional so may be null
+  static async updateNote({ id, note }: {id: string, note: string | null}): Promise<ApiResponse<number> | null> {
+    if (!note) return null; //property is optional so may be null
 
     const payload = {
       data: note
@@ -294,8 +294,8 @@ export default class WorkflowApi {
     });
   }
 
-  static updatePriority({ id, priority }: {id: string, priority: string}): Promise<ApiResponse<number>> {
-    if (priority === null) return; //property is optional so may be null, but 0 is a valid value
+  static async updatePriority({ id, priority }: {id: string, priority: string | null}): Promise<ApiResponse<number> | null> {
+    if (priority === null) return null; //property is optional so may be null, but 0 is a valid value
 
     const payload = {
       data: priority
