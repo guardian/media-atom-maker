@@ -3,13 +3,11 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 const initialState: {
   saving: boolean;
   publishing: boolean;
-  fetchingUsages: boolean;
   addingAsset: boolean;
   activatingAssetNumber?: number;
 } = {
   saving: false,
   publishing: false,
-  fetchingUsages: false,
   addingAsset: false
 };
 
@@ -22,9 +20,6 @@ const saveState = createSlice({
     },
     setPublishing: (state, { payload }: PayloadAction<boolean>) => {
       state.publishing = payload;
-    },
-    setFetchingUsage: (state, { payload }: PayloadAction<boolean>) => {
-      state.fetchingUsages = payload;
     },
     setAddingAsset: (state, { payload }: PayloadAction<boolean>) => {
       state.addingAsset = payload;
@@ -41,7 +36,6 @@ const saveState = createSlice({
     builder.addCase('SHOW_ERROR', state => {
       state.saving = false;
       state.publishing = false;
-      state.fetchingUsages = false;
       state.addingAsset = false;
       state.activatingAssetNumber = undefined;
     });
@@ -53,7 +47,6 @@ export default saveState.reducer;
 export const {
   setSaving,
   setPublishing,
-  setFetchingUsage,
   setAddingAsset,
   setActivatingAssetNumber
 } = saveState.actions;
