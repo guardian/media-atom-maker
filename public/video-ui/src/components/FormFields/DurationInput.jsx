@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   durationToMinAndSecs,
   secondsToDurationStr
@@ -6,113 +6,145 @@ import {
 
 const getStateFromProps = props => {
   const dur = props.rawFieldValue || 0;
-
   const { mins, secs } = durationToMinAndSecs(dur);
-
   return {
     mins: `${mins}`,
     secs: `${secs}`
   };
 };
 
-class DurationInput extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = getStateFromProps(this.props);
-  }
+const DurationInput = props => {
+  const [state, setState] = useState(() => getStateFromProps(props));
 
-  updateDuration() {
-    const minsInt = parseInt(this.state.mins, 10);
-    const secsInt = parseInt(this.state.secs || '0', 10);
-    this.props.onUpdateField(minsInt * 60 + secsInt);
-  }
+  useEffect(() => {
+    setState(getStateFromProps(props));
+  }, [props.rawFieldValue]);
 
-  updateMins(mins) {
-    this.setState(
-      {
-        mins
-      },
-      () => this.updateDuration()
-    );
-  }
+  const updateDuration = useCallback(
+    (mins, secs) => {
+      const minsInt = parseInt(mins ?? state.mins, 10);
+      const secsInt = parseInt(secs ?? state.secs, 10);
+      props.onUpdateField(minsInt * 60 + secsInt);
+    },
+    [state.mins, state.secs, props]
+  );
 
-  updateSecs(secs) {
-    this.setState(
-      {
-        secs: secs ? `${Math.min(parseInt(secs, 10), 59)}` : '' // limit seconds to 59
-      },
-      () => this.updateDuration()
-    );
-  }
+  const updateMins = mins => {
+    setState(prevState => ({
+      ...prevState,
+      mins
+    }));
+    updateDuration(mins);
+  };
 
-  renderField = () => {
-    if (!this.props.editable) {
-      return (
+  const updateSecs = secs => {
+    const newSecs = secs ? `${Math.min(parseInt(secs, 10), 59)}` : '0';
+    setState(prevState => ({
+      ...prevState,
+      secs: newSecs
+    }));
+    updateDuration(undefined, newSecs);
+  };
+
+  if (!props.editable) {
+    return (
+      <div>
         <div>
-          <p className="details-list__title">{this.props.fieldName}</p>
+          <p className="details-list__title">{props.fieldName}</p>
           <p
             className={
               'details-list__field ' +
-              (this.props.displayPlaceholder(
-                this.props.placeholder,
-                this.props.fieldValue
-              )
+              (props.displayPlaceholder(props.placeholder, props.fieldValue)
                 ? 'details-list__empty'
                 : '')
             }
           >
             {' '}
-            {secondsToDurationStr(this.props.rawFieldValue)}
+            {secondsToDurationStr(props.rawFieldValue)}
           </p>
         </div>
-      );
-    }
+      </div>
+    );
+  }
 
-    const hasError = this.props.hasError(this.props);
+  const hasError = props.hasError(props);
 
-    return (
+  return (
+    <div>
       <div className="form__row">
-        <label className="form__label">{this.props.fieldName}</label>
-        <span className="form__description">
-          <em>
-            Use this to edit videos where the duration is being reported
-            incorrectly (i.e. 0:00)
-          </em>
-        </span>
-        <input
-          type="text"
-          size="3"
-          className={'form__field form__field--inline ' + (hasError ? 'form__field--error' : '')}
-          value={this.state.mins}
-          onChange={e => {
-            this.updateMins(e.target.value);
-          }}
-        />
-        <span style={{ margin: '0 5px' }}>mins</span>
-        <input
-          type="text"
-          size="3"
-          className={'form__field form__field--inline ' + (hasError ? 'form__field--error' : '')}
-          value={this.state.secs}
-          onChange={e => {
-            this.updateSecs(e.target.value);
-          }}
-        />
-        <span style={{ margin: '0 5px' }}>secs</span>
+        <label className="form__label">{props.fieldName}</label>
+
+        <div>
+          <div className="details-list__labeled-filter">
+            <div>
+              <input
+                id={props.fieldId || props.fieldLocation}
+                type="checkbox"
+                disabled={!props.editable}
+                checked={props.rawFieldValue === 0}
+                onChange={e => {
+                  props.onUpdateField(e.target.checked ? 0 : 1);
+                }}
+                className="form-checkbox"
+              />
+            </div>
+            <p className="details-list__field details-list__labeled-filter__label">
+              Live video
+            </p>
+          </div>
+        </div>
+
+        <>
+          <div className="form__description">
+            <em>
+              Use this to edit videos where the duration is being reported
+              incorrectly (i.e. 0:00)
+            </em>
+          </div>
+          <div
+            className={props.rawFieldValue === 0 ? 'form-element--hidden' : ''}
+          >
+            <input
+              type="text"
+              size="3"
+              className={
+                'form__field form__field--inline ' +
+                (hasError ? 'form__field--error' : '')
+              }
+              value={state.mins}
+              disabled={props.rawFieldValue === 0}
+              onChange={e => {
+                updateMins(e.target.value);
+              }}
+            />
+            <span style={{ margin: '0 5px' }}>mins</span>
+            <input
+              type="text"
+              size="3"
+              className={
+                'form__field form__field--inline ' +
+                (hasError ? 'form__field--error' : '')
+              }
+              value={state.secs}
+              disabled={props.rawFieldValue === 0}
+              onChange={e => {
+                updateSecs(e.target.value);
+              }}
+            />
+            <span style={{ margin: '0 5px' }}>secs</span>
+          </div>
+        </>
+
         {hasError ? (
           <p className="form__message form__message--error">
-            {this.props.notification.message}
+            {props.notification.message}
           </p>
         ) : (
           ''
         )}
       </div>
-    );
-  };
-
-  render() {
-    return <div>{this.renderField()}</div>;
-  }
-}
+    </div>
+  );
+};
 
 export default React.memo(DurationInput);

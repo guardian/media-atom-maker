@@ -430,4 +430,7 @@ progress::-moz-progress-bar {
 
 .form-element--hidden {
   opacity: 0.4;
+  input {
+    cursor: not-allowed;
+  }
 }
