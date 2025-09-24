@@ -33,6 +33,7 @@ case class ActiveAssetCommand(
     val assetsToActivate = mediaAtom.assets.filter(_.version == activateAssetRequest.version)
 
     if (assetsToActivate.nonEmpty) {
+      // Attempt to get atom duration from YouTube otherwise use the current value
       val duration = assetsToActivate.find(_.platform == Youtube)
         .flatMap(asset => youtube.getDuration(asset.id))
         .orElse(mediaAtom.duration)
