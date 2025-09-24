@@ -8,6 +8,7 @@ graph LR
     YouTube((YouTube)):::External
     CAPI((CAPI)):::External
     Composer((Composer))
+    Workflow((Workflow))
     uploads-to-pluto{{uploads-to-pluto<br/>Kinesis}}:::Stream
     media-atom-maker-ingested-videos{{media-atom-maker-ingested-videos<br/>SQS}}:::Stream
     PlutoIntegrationIncomingStream{{PlutoIntegrationIncomingStream<br/>Kinesis}}:::Stream
