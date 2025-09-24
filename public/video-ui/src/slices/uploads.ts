@@ -11,11 +11,11 @@ const uploads = createSlice({
       const id = action.payload.id;
       if (!_.find(state, upload => upload.id === id)) {
           state.push({
-              id,
+              ...action.payload,
               processing: { status: 'Uploading', failed: false }
           });
       }
-        return state;
+        
     },
     runningUploads:(_, action: PayloadAction<Upload[]>)=>{
        return  action.payload;
