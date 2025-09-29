@@ -14,6 +14,9 @@ export function createVideo(video: Video) {
         dispatch(setSaving(false));
         dispatch(setVideo(res));
       })
-      .catch(error => dispatch(showError('Could not create video', error)));
+      .catch(error => {
+        dispatch(showError('Could not create video', error));
+        throw error;
+      });
   };
 }
