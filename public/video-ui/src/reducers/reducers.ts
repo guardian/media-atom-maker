@@ -14,8 +14,8 @@ import checkedFormFields from '../slices/checkedFormFields';
 import uploads from './uploadsReducer';
 import path from '../slices/path';
 import pluto from '../slices/pluto';
+import targeting from '../slices/targeting';
 import workflow from '../slices/workflow';
-import targeting from './targetingReducer';
 
 export default {
   config,

@@ -1,35 +1,12 @@
 import TargetingApi from '../../services/TargetingApi';
 import debounce from 'lodash/debounce';
-
-function requestUpdateTarget(target) {
-  return {
-    type: 'TARGETING_UPDATE_REQUEST',
-    receivedAt: Date.now(),
-    target
-  };
-}
-
-function receiveUpdateTarget() {
-  return {
-    type: 'TARGETING_UPDATE_RECEIVE',
-    receivedAt: Date.now()
-  };
-}
-
-function errorUpdateTarget(error) {
-  return {
-    type: 'SHOW_ERROR',
-    receivedAt: Date.now(),
-    message: 'Failed to update Target',
-    error: error
-  };
-}
+import {requestUpdateTarget} from "../../slices/targeting";
+import {showError} from "../../slices/error";
 
 const debouncedUpdate = debounce(
   (dispatch, target) =>
     TargetingApi.updateTarget(target)
-      .then(() => dispatch(receiveUpdateTarget()))
-      .catch(err => dispatch(errorUpdateTarget(err))),
+      .catch(err => dispatch(showError(`Failed to update Target`, err))),
   500
 );
 
