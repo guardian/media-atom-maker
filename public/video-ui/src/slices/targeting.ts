@@ -28,16 +28,10 @@ const targeting = createSlice({
           action.payload
         ]
     }),
-    receiveUpdateTarget:(state:TargetingState)=> ({
-      ...state
-    }),
     // when we start a new request for targets reset to our 'loading' state
     // this gets called when we look for targets for a new video
     requestGetTargets:()=> ({
        ...initialState
-    }),
-    requestCreateTarget:(state:TargetingState)=> ({
-      ...state
     }),
     // if we receive any targets, for now, completely overwrite what's in here
     receiveCreateTarget:(state:TargetingState, action :PayloadAction<TargetType>)=> ({
@@ -65,4 +59,4 @@ const targeting = createSlice({
 
 export default targeting.reducer;
 
-export const {  requestUpdateTarget,receiveUpdateTarget,requestGetTargets,requestCreateTarget, receiveCreateTarget,receiveGetTarget, requestDeleteTarget, receiveDeleteTarget,errorDeleteTarget} = targeting.actions;
+export const { requestUpdateTarget, requestGetTargets, receiveCreateTarget,receiveGetTarget, requestDeleteTarget, receiveDeleteTarget,errorDeleteTarget} = targeting.actions;
