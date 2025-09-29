@@ -109,13 +109,13 @@ export default class VideoUtils {
   static getScheduledLaunch({ contentChangeDetails }) {
     return contentChangeDetails &&
       contentChangeDetails.scheduledLaunch &&
-      contentChangeDetails.scheduledLaunch.date
+      contentChangeDetails.scheduledLaunch.date;
   }
 
   static getEmbargo({ contentChangeDetails }) {
     return contentChangeDetails &&
       contentChangeDetails.embargo &&
-      contentChangeDetails.embargo.date
+      contentChangeDetails.embargo.date;
   }
 
   static getScheduledLaunchAsDate(video) {
