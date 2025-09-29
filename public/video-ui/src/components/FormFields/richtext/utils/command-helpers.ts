@@ -60,6 +60,11 @@ const promptForLink = (state: EditorState, markType: MarkType, customPrompt?: st
   }
 
   const url = window.prompt(customPrompt || 'Enter a link', href || defaultValue || '');
+
+  if(url === null){
+    return undefined;
+  }
+
   return {
     from,
     to,
