@@ -7,7 +7,6 @@ import {uploadStarted} from "../../slices/uploads";
 export function startVideoUpload({id, file, selfHost}) {
   return dispatch => {
     createUpload(id, file, selfHost).then(upload => {
-      dispatch(uploadStarted(upload));
       dispatch(s3UploadStarted(upload));
 
       const progress = completed => dispatch(s3UploadProgress(completed));

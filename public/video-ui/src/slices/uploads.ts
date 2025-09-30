@@ -7,17 +7,7 @@ const uploads = createSlice({
   name: 'uploads',
   initialState,
   reducers: {
-    uploadStarted: (state, action: PayloadAction<Upload>)=> {
-      const id = action.payload.id;
-      if (!_.find(state, upload => upload.id === id)) {
-          state.push({
-              ...action.payload,
-              processing: { status: 'Uploading', failed: false }
-          });
-      }
-        
-    },
-    runningUploads:(_, action: PayloadAction<Upload[]>)=>{
+    setUploads:(_, action: PayloadAction<Upload[]>)=>{
        return  action.payload;
     }
   }
@@ -25,4 +15,4 @@ const uploads = createSlice({
 
 export default uploads.reducer;
 
-export const { uploadStarted, runningUploads } = uploads.actions;
+export const { setUploads } = uploads.actions;
