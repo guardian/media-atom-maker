@@ -289,18 +289,16 @@ export function Asset({
     </div>
   );
 
-  if (asset) {
+  if (processing && asset) { // reprocessing subtitle
     return (
       <div className="video-trail__item">
-        <AssetDisplay
-          isActive={isActive}
-          id={asset.id}
-          sources={asset.sources}
-        />
+        <div className="video-trail__upload">
+          <AssetProgress {...processing} />
+          <div>{processing.status}</div>
+        </div>
         <div className="video-trail__item__details">
           <AssetControls
             user={user}
-            isActive={isActive}
             selectAsset={selectAsset}
             deleteAsset={deleteAsset}
             isActivating={activatingAssetNumber === Number(upload.id)}
@@ -332,6 +330,27 @@ export function Asset({
             <AssetInfo info={processing.status} />
           </AssetControls>
         </div>
+      </div>
+    );
+  }
+
+  if (asset) {
+    return (
+      <div className="video-trail__item">
+        <AssetDisplay isActive={isActive} id={asset.id} sources={asset.sources} />
+        <div className="video-trail__item__details">
+          <AssetControls
+            user={user}
+            isActive={isActive}
+            selectAsset={selectAsset}
+            deleteAsset={deleteAsset}
+            isActivating={activatingAssetNumber === Number(upload.id)}
+            activatingAssetNumber={activatingAssetNumber}
+          >
+            <AssetInfo info={info} timestamp={timestamp} />
+          </AssetControls>
+        </div>
+        {subtitlePanel}
       </div>
     );
   }
