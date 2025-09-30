@@ -9,12 +9,12 @@ templates:
       prefixStack: false
 deployments:
   media-atom-maker-ami-update:
-      type: ami-cloudformation-parameter
-      app: media-atom-maker
-      parameters:
-        amiTags:
-          Recipe: editorial-tools-jammy-java11
-          AmigoStage: PROD
+    type: ami-cloudformation-parameter
+    app: media-atom-maker
+    parameters:
+      amiTags:
+        Recipe: editorial-tools-jammy-java11
+        AmigoStage: PROD
   media-atom-maker:
     type: autoscaling
     parameters:
@@ -39,6 +39,12 @@ deployments:
       functionNames: [pluto-message-ingestion-]
       fileName: pluto-message-ingestion.zip
 
+  asset-management-message-ingestion-lambda:
+    template: lambda
+    parameters:
+      functionNames: [asset-management-message-ingestion-lambda-]
+      fileName: asset-management-message-ingestion-lambda.zip
+
   media-atom-pipeline-cloudformation:
     type: cloud-formation
     app: media-atom-pipeline
@@ -53,14 +59,14 @@ deployments:
     parameters:
       fileName: media-atom-uploader.zip
       functionNames:
-        - "media-atom-pipeline-GetChunkFromS3-"
-        - "media-atom-pipeline-UploadChunkToYouTube-"
-        - "media-atom-pipeline-MultipartCopyChunkInS3-"
-        - "media-atom-pipeline-SendToPluto-"
-        - "media-atom-pipeline-SendToTranscoderV2-"
-        - "media-atom-pipeline-GetTranscodingProgressV2-"
-        - "media-atom-pipeline-AddAssetToAtom-"
-        - "media-atom-pipeline-AddUploadDataToCache-"
-        - "media-atom-pipeline-CompleteMultipartCopy-"
+        - 'media-atom-pipeline-GetChunkFromS3-'
+        - 'media-atom-pipeline-UploadChunkToYouTube-'
+        - 'media-atom-pipeline-MultipartCopyChunkInS3-'
+        - 'media-atom-pipeline-SendToPluto-'
+        - 'media-atom-pipeline-SendToTranscoderV2-'
+        - 'media-atom-pipeline-GetTranscodingProgressV2-'
+        - 'media-atom-pipeline-AddAssetToAtom-'
+        - 'media-atom-pipeline-AddUploadDataToCache-'
+        - 'media-atom-pipeline-CompleteMultipartCopy-'
     dependencies:
       - media-atom-pipeline-cloudformation
