@@ -45,7 +45,7 @@ export const linkItemCommand = (markType: MarkType, customPrompt?: string, defau
         state.tr.addMark(from, to, markType.create({ href: parsedUrl }))
       );
     } else {
-      console.log(`Retry link item: ${message}`)
+      console.log(`Retry link item: ${message}`);
       return linkItemCommand(markType, `${message} - please check your link and try again.`, link)(state, dispatch);
     }
   }
