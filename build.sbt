@@ -251,6 +251,7 @@ lazy val root = (project in file("root"))
       (expirer / Universal / packageBin).value -> s"${(expirer / name).value}/${(expirer / Universal / packageBin).value.getName}",
       (scheduler / Universal / packageBin).value -> s"${(scheduler / name).value}/${(scheduler / Universal / packageBin).value.getName}",
       (app / baseDirectory).value / "pluto-message-ingestion/target/pluto-message-ingestion.zip" -> "pluto-message-ingestion/pluto-message-ingestion.zip",
+      (app / baseDirectory).value / "asset-management-message-ingestion-lambda/dist/asset-management-message-ingestion-lambda.zip" -> "asset-management-message-ingestion-lambda/asset-management-message-ingestion-lambda.zip",
       (app / baseDirectory).value / "conf/riff-raff.yaml" -> "riff-raff.yaml",
       (uploader / Compile / resourceManaged).value / "media-atom-pipeline.yaml" -> "media-atom-pipeline-cloudformation/media-atom-pipeline.yaml"
     )

@@ -103,7 +103,10 @@ describe('processRecord', () => {
 
   it('should throw an error when delete request fails', async () => {
     vi.mocked(hmacDelete).mockResolvedValue(
-      new Response('Internal Server Error', { status: 500, statusText: 'Internal Server Error' })
+      new Response('Internal Server Error', {
+        status: 500,
+        statusText: 'Internal Server Error'
+      })
     );
 
     const record = {
@@ -120,7 +123,9 @@ describe('processRecord', () => {
 
     await expect(
       processRecord(record, 'secret', 'https://example.com')
-    ).rejects.toThrow('Error deleting commission 123: 500 Internal Server Error');
+    ).rejects.toThrow(
+      'Error deleting commission 123: 500 Internal Server Error'
+    );
   });
 
   it('should throw an error when upsert request fails', async () => {
@@ -151,15 +156,17 @@ describe('processRecord', () => {
   });
 
   it('should fail quietly for messages with missing required fields', async () => {
-  const incompleteUpsertMessage = {
-    type: 'project-created',
-    id: 'proj-1'
-    // missing title, status, commissionId, etc.
-  };
+    const incompleteUpsertMessage = {
+      type: 'project-created',
+      id: 'proj-1'
+      // missing title, status, commissionId, etc.
+    };
 
     const record = {
       kinesis: {
-        data: Buffer.from(JSON.stringify(incompleteUpsertMessage)).toString('base64')
+        data: Buffer.from(JSON.stringify(incompleteUpsertMessage)).toString(
+          'base64'
+        )
       }
     } as unknown as KinesisStreamRecord;
 
@@ -176,7 +183,9 @@ describe('processRecord', () => {
 
     const record = {
       kinesis: {
-        data: Buffer.from(JSON.stringify(incompleteDeleteMessage)).toString('base64')
+        data: Buffer.from(JSON.stringify(incompleteDeleteMessage)).toString(
+          'base64'
+        )
       }
     } as unknown as KinesisStreamRecord;
 
@@ -209,7 +218,9 @@ describe('processRecord', () => {
 
     const record = {
       kinesis: {
-        data: Buffer.from(JSON.stringify(wrongStructureMessage)).toString('base64')
+        data: Buffer.from(JSON.stringify(wrongStructureMessage)).toString(
+          'base64'
+        )
       }
     } as unknown as KinesisStreamRecord;
 

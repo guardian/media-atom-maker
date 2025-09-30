@@ -35,7 +35,7 @@ async function hmacRequest({
       'Content-Type': 'application/json',
       'X-Gu-Tools-HMAC-Date': date,
       'X-Gu-Tools-HMAC-Token': token,
-      'X-Gu-Tools-Service-Name': 'asset-manager-message-ingestion-lambda'
+      'X-Gu-Tools-Service-Name': 'asset-management-message-ingestion-lambda'
     },
     method,
     body: data ? JSON.stringify(data) : undefined
