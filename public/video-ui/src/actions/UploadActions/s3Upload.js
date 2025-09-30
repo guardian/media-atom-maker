@@ -2,7 +2,6 @@ import { createUpload, uploadParts, uploadPacFile, uploadSubtitleFile, deleteSub
 import { errorDetails } from '../../util/errorDetails';
 import {setS3UploadStatusToComplete, s3UploadProgress, setS3UploadStatusToError, s3UploadStarted} from "../../slices/s3Upload";
 import {showError} from "../../slices/error";
-import {uploadStarted} from "../../slices/uploads";
 
 export function startVideoUpload({id, file, selfHost}) {
   return dispatch => {

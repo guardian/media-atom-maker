@@ -1,5 +1,4 @@
 import { createSlice,  PayloadAction } from '@reduxjs/toolkit';
-import _ from "lodash";
 import {Upload} from "./s3Upload";
 
 const initialState:Upload[] = [];
