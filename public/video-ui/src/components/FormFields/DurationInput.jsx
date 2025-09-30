@@ -25,7 +25,8 @@ const DurationInput = props => {
   useEffect(() => {
     const minsInt = parseInt(mins ?? mins, 10);
     const secsInt = parseInt(secs ?? secs, 10);
-    props.onUpdateField(minsInt * 60 + secsInt);
+    const seconds = minsInt * 60 + secsInt;
+    props.onUpdateField(!isNaN(seconds) ? seconds : 0)
   }, [mins, secs, props.onUpdateField])
 
   const updateMins = mins => {
