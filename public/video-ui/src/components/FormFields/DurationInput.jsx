@@ -16,27 +16,23 @@ const getStateFromProps = props => {
 const DurationInput = props => {
   const isLive = props.rawFieldValue === 0;
 
-  const [state, setState] = useState(() => getStateFromProps(props));
+  const [{mins, secs}, setState] = useState(() => getStateFromProps(props));
 
   useEffect(() => {
     setState(getStateFromProps(props));
   }, [props.rawFieldValue]);
 
-  const updateDuration = useCallback(
-    (mins, secs) => {
-      const minsInt = parseInt(mins ?? state.mins, 10);
-      const secsInt = parseInt(secs ?? state.secs, 10);
-      props.onUpdateField(minsInt * 60 + secsInt);
-    },
-    [state.mins, state.secs, props]
-  );
+  useEffect(() => {
+    const minsInt = parseInt(mins ?? mins, 10);
+    const secsInt = parseInt(secs ?? secs, 10);
+    props.onUpdateField(minsInt * 60 + secsInt);
+  }, [mins, secs, props.onUpdateField])
 
   const updateMins = mins => {
     setState(prevState => ({
       ...prevState,
       mins
     }));
-    updateDuration(mins);
   };
 
   const updateSecs = secs => {
@@ -45,7 +41,6 @@ const DurationInput = props => {
       ...prevState,
       secs: newSecs
     }));
-    updateDuration(undefined, newSecs);
   };
 
   if (!props.editable) {
@@ -81,7 +76,10 @@ const DurationInput = props => {
     <div>
       <div className="form__row">
         <label className="form__label">{props.fieldName}</label>
-
+        <p className="form__message form__message--display">
+            Use this to edit videos where the duration is being reported
+            incorrectly
+        </p>
         <div>
           <div className="details-list__labeled-filter">
             <div>
@@ -101,45 +99,37 @@ const DurationInput = props => {
             </p>
           </div>
         </div>
+        <div className={isLive ? 'form-element--hidden' : ''}>
+          <input
+            type="text"
+            size="3"
+            className={
+              'form__field form__field--inline ' +
+              (hasError ? 'form__field--error' : '')
+            }
+            value={mins}
+            disabled={isLive}
+            onChange={e => {
+              updateMins(e.target.value);
+            }}
+          />
+          <span style={{ margin: '0 5px' }}>mins</span>
+          <input
+            type="text"
+            size="3"
+            className={
+              'form__field form__field--inline ' +
+              (hasError ? 'form__field--error' : '')
+            }
+            value={secs}
+            disabled={isLive}
+            onChange={e => {
+              updateSecs(e.target.value);
+            }}
+          />
+          <span style={{ margin: '0 5px' }}>secs</span>
+        </div>
 
-        <>
-          <div className="form__description">
-            <em>
-              Use this to edit videos where the duration is being reported
-              incorrectly (i.e. 0:00)
-            </em>
-          </div>
-          <div className={isLive ? 'form-element--hidden' : ''}>
-            <input
-              type="text"
-              size="3"
-              className={
-                'form__field form__field--inline ' +
-                (hasError ? 'form__field--error' : '')
-              }
-              value={state.mins}
-              disabled={isLive}
-              onChange={e => {
-                updateMins(e.target.value);
-              }}
-            />
-            <span style={{ margin: '0 5px' }}>mins</span>
-            <input
-              type="text"
-              size="3"
-              className={
-                'form__field form__field--inline ' +
-                (hasError ? 'form__field--error' : '')
-              }
-              value={state.secs}
-              disabled={isLive}
-              onChange={e => {
-                updateSecs(e.target.value);
-              }}
-            />
-            <span style={{ margin: '0 5px' }}>secs</span>
-          </div>
-        </>
 
         {hasError ? (
           <p className="form__message form__message--error">
