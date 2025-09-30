@@ -10,7 +10,7 @@ export function getUploads(atomId) {
         dispatch(runningUploads(uploads));
       })
       .catch(error => {
-        dispatch(showError(errorDetails(error)));
+        dispatch(showError(errorDetails(error), error));
       });
   };
 }
