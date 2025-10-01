@@ -2,7 +2,11 @@ import { getErrorMessage } from '@guardian/libs';
 import { KinesisStreamRecord } from 'aws-lambda';
 import { hmacDelete, hmacPut } from './hmac-request';
 import { createLogger, Logger } from './logging';
-import { isDeleteMessage, isUpsertMessage } from './types';
+import {
+  hasRecognisedMessageType,
+  isDeleteMessage,
+  isUpsertMessage
+} from './types';
 
 export async function processRecord(
   record: KinesisStreamRecord,
@@ -45,12 +49,20 @@ export async function processRecord(
         `Error upserting commission ${data.commissionId}: ${result.status} ${result.statusText}`
       );
     }
+  } else if (hasRecognisedMessageType(data)) {
+    logger.error({ message: `Message is missing required fields`, data });
+    return 'failure';
   } else {
     const maybeMessageType =
       typeof data === 'object' && data !== null && 'type' in data
         ? data['type']
         : 'unknown';
-    logger.error({ message: `Unknown message type ${maybeMessageType}`, data });
+
+    logger.error({
+      message: `Message has unknown type ${maybeMessageType}`,
+      data
+    });
+
     return 'failure'; // if the message is not valid there isn't any point in retrying
   }
   return 'success';

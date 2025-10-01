@@ -1,5 +1,8 @@
+const recognisedMessageTypes = ['project-created', 'project-updated'];
+type MessageType = (typeof recognisedMessageTypes)[number];
+
 export type UpsertMessage = {
-  type: 'project-created' | 'project-updated';
+  type: MessageType;
   id: string;
   title: string;
   status: string;
@@ -9,31 +12,62 @@ export type UpsertMessage = {
   created: string;
 };
 
-export function isUpsertMessage(data: any): data is UpsertMessage {
+export function isRecognisedMessageType(type: unknown): type is MessageType {
+  return recognisedMessageTypes.includes(type as MessageType);
+}
+
+export function hasRecognisedMessageType(data: unknown): boolean {
+  if (!data || typeof data !== 'object' || data === null) {
+    return false;
+  }
+  const { type } = data as { [key: string]: unknown };
+  return isRecognisedMessageType(type);
+}
+
+export function isUpsertMessage(data: unknown): data is UpsertMessage {
+  if (!data || typeof data !== 'object' || data === null) {
+    return false;
+  }
+  const {
+    type,
+    id,
+    title,
+    status,
+    commissionId,
+    commissionTitle,
+    productionOffice,
+    created
+  } = data as {
+    [key: string]: unknown;
+  };
   return (
-    data &&
-    (data.type === 'project-created' || data.type === 'project-updated') &&
-    typeof data.id === 'string' &&
-    typeof data.title === 'string' &&
-    typeof data.status === 'string' &&
-    typeof data.commissionId === 'string' &&
-    typeof data.commissionTitle === 'string' &&
-    typeof data.productionOffice === 'string' &&
-    typeof data.created === 'string'
+    isRecognisedMessageType(type) &&
+    typeof id === 'string' &&
+    typeof title === 'string' &&
+    typeof status === 'string' &&
+    typeof commissionId === 'string' &&
+    typeof commissionTitle === 'string' &&
+    typeof productionOffice === 'string' &&
+    typeof created === 'string'
   );
 }
 
 export type DeleteMessage = {
-  type: 'project-created' | 'project-updated';
+  type: MessageType;
   commissionId: string;
   commissionTitle: '(DELETE)';
 };
 
-export function isDeleteMessage(data: any): data is DeleteMessage {
+export function isDeleteMessage(data: unknown): data is DeleteMessage {
+  if (!data || typeof data !== 'object' || data === null) {
+    return false;
+  }
+  const { commissionId, commissionTitle, type } = data as {
+    [key: string]: unknown;
+  };
   return (
-    data &&
-    (data.type === 'project-created' || data.type === 'project-updated') &&
-    typeof data.commissionId === 'string' &&
-    data.commissionTitle === '(DELETE)'
+    isRecognisedMessageType(type) &&
+    typeof commissionId === 'string' &&
+    commissionTitle === '(DELETE)'
   );
 }
