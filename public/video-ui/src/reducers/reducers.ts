@@ -11,7 +11,7 @@ import s3Upload from '../slices/s3Upload';
 import formFieldsWarning from '../slices/formFieldsWarning';
 import videoEditOpen from '../slices/editState';
 import checkedFormFields from '../slices/checkedFormFields';
-import uploads from './uploadsReducer';
+import uploads from '../slices/uploads';
 import path from '../slices/path';
 import pluto from '../slices/pluto';
 import targeting from '../slices/targeting';
