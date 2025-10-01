@@ -416,9 +416,7 @@ import * as getPublishedVideo
   from '../../actions/VideoActions/getPublishedVideo';
 import * as videoPageUpdate
   from '../../actions/VideoActions/videoPageUpdate';
-import {getStatus, trackInWorkflow} from '../../slices/workflow';
-import * as updateWorkflowData
-  from '../../actions/WorkflowActions/updateWorkflowData';
+import {getStatus, trackInWorkflow, updateWorkflowData} from '../../slices/workflow';
 import {getYouTubeEmbedUrl} from "../../components/utils/YouTubeEmbed";
 import {getComposerId} from "../../util/getComposerData";
 import {updateFormWarnings} from "../../slices/formFieldsWarning";
@@ -459,7 +457,7 @@ function mapDispatchToProps(dispatch) {
       dispatch
     ),
     workflowActions: bindActionCreators(
-      { getStatus, trackInWorkflow, ...updateWorkflowData },
+      { getStatus, trackInWorkflow, updateWorkflowData },
       dispatch
     )
   };

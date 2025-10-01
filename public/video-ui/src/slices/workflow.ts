@@ -96,6 +96,20 @@ export const trackInWorkflow = createAsyncThunk<unknown, WorkflowDetails>(
     )
 );
 
+export const updateWorkflowData = createAsyncThunk<
+  unknown,
+  FlatStub<string, string> & { id: string }
+>('workflow/updateWorkflowData', (workflowItem, { dispatch }) =>
+  Promise.all([
+    WorkflowApi.updateStatus(workflowItem),
+    WorkflowApi.updateNote(workflowItem),
+    WorkflowApi.updatePriority(workflowItem),
+    WorkflowApi.updateProdOffice(workflowItem)
+  ]).catch(err =>
+    dispatch(showError('Failed to update Atom data in Workflow', err))
+  )
+);
+
 const initialState: WorkflowState = {
   sections: [],
   statuses: [],
