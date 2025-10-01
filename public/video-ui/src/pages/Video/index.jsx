@@ -219,7 +219,7 @@ class VideoDisplay extends React.Component {
       ? updateWorkflowItem()
       : createWorkflowItem();
 
-    return wfPromise.then(() => getStatus(video));
+    return wfPromise.unwrap().then(() => getStatus(video));
   }
 
   updateEditingState({ key, editing }) {
