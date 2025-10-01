@@ -1,8 +1,6 @@
-import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
-import TargetingApi from "../services/TargetingApi";
-import {showError} from "./error";
-import WorkflowApi, {Priority} from "../services/WorkflowApi";
-import {Video} from "../services/VideosApi";
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import TargetingApi from '../services/TargetingApi';
+import { showError } from './error';
 
 type TargetType = {
   id: string;
@@ -20,14 +18,23 @@ type TargetingState = {
   deleting: string[];
 };
 
-export const createTarget = createAsyncThunk<TargetType, {id: string, title: string, expiryDate: unknown}>(
-  'targeting/createTarget',
+export const createTarget = createAsyncThunk<
+  TargetType,
+  { id: string; title: string; expiryDate: unknown }
+>('targeting/createTarget', (target, { dispatch }) =>
+  (TargetingApi.createTarget(target) as Promise<TargetType>).catch(err => {
+    dispatch(showError(`Failed to create Target`, err));
+    throw err;
+  })
+);
+
+export const deleteTarget = createAsyncThunk<unknown, { id: string }>(
+  'targeting/deleteTarget',
   (target, { dispatch }) =>
-    (TargetingApi.createTarget(target) as Promise<TargetType>)
-      .catch(err => {
-        dispatch(showError(`Failed to create Target`, err))
-        throw err;
-      })
+    TargetingApi.deleteTarget(target).catch(err => {
+      dispatch(showError(`Failed to delete Target`, err));
+      throw err;
+    })
 );
 
 const initialState: TargetingState = { targets: null, deleting: [] };
@@ -57,45 +64,33 @@ const targeting = createSlice({
     ) => ({
       ...state,
       targets: [...(state.targets || []), ...action.payload]
-    }),
-    requestDeleteTarget: (
-      state: TargetingState,
-      action: PayloadAction<TargetType>
-    ) => ({
-      ...state,
-      deleting: [...new Set([...state.deleting, action.payload.id])]
-    }),
-    receiveDeleteTarget: (
-      state: TargetingState,
-      action: PayloadAction<TargetType>
-    ) => ({
-      deleting: [...state.deleting.filter(id => id !== action.payload.id)],
-      targets: [
-        ...(state.targets || []).filter(({ id }) => id !== action.payload.id)
-      ]
-    }),
-    errorDeleteTarget: (
-      state: TargetingState,
-      action: PayloadAction<TargetType>
-    ) => ({
-      ...state,
-      deleting: [...state.deleting.filter(id => id !== action.payload.id)]
     })
   },
   extraReducers: builder => {
-    builder.addCase(createTarget.fulfilled, (state, {payload}) => {
-      state.targets = [...(state.targets || []), payload]
-    })
+    builder
+      .addCase(createTarget.fulfilled, (state, { payload }) => {
+        state.targets = [...(state.targets || []), payload];
+      })
+      .addCase(deleteTarget.pending, (state, action) => {
+        state.deleting = [...new Set([...state.deleting, action.meta.arg.id])];
+      })
+      .addCase(deleteTarget.fulfilled, (state, action) => {
+        state.deleting = [
+          ...state.deleting.filter(id => id !== action.meta.arg.id)
+        ];
+        state.targets = [
+          ...(state.targets || []).filter(({ id }) => id !== action.meta.arg.id)
+        ];
+      })
+      .addCase(deleteTarget.rejected, (state, action) => {
+        state.deleting = [
+          ...state.deleting.filter(id => id !== action.meta.arg.id)
+        ];
+      });
   }
 });
 
 export default targeting.reducer;
 
-export const {
-  requestUpdateTarget,
-  requestGetTargets,
-  receiveGetTarget,
-  requestDeleteTarget,
-  receiveDeleteTarget,
-  errorDeleteTarget
-} = targeting.actions;
+export const { requestUpdateTarget, requestGetTargets, receiveGetTarget } =
+  targeting.actions;
