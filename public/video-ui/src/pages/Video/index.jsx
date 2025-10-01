@@ -213,16 +213,13 @@ class VideoDisplay extends React.Component {
         priority: priority
       });
 
-    const updateWorkflowItem = () =>
-      updateWorkflowData({
-        workflowItem: this.props.workflow.status
-      });
+    const updateWorkflowItem = () => updateWorkflowData(this.props.workflow.status);
 
     const wfPromise = isTrackedInWorkflow
       ? updateWorkflowItem()
       : createWorkflowItem();
 
-    return wfPromise.then(() => getStatus(video));
+    return wfPromise.unwrap().then(() => getStatus(video));
   }
 
   updateEditingState({ key, editing }) {
@@ -419,11 +416,7 @@ import * as getPublishedVideo
   from '../../actions/VideoActions/getPublishedVideo';
 import * as videoPageUpdate
   from '../../actions/VideoActions/videoPageUpdate';
-import { getStatus } from '../../slices/workflow';
-import * as trackInWorkflow
-  from '../../actions/WorkflowActions/trackInWorkflow';
-import * as updateWorkflowData
-  from '../../actions/WorkflowActions/updateWorkflowData';
+import {getStatus, trackInWorkflow, updateWorkflowData} from '../../slices/workflow';
 import {getYouTubeEmbedUrl} from "../../components/utils/YouTubeEmbed";
 import {getComposerId} from "../../util/getComposerData";
 import {updateFormWarnings} from "../../slices/formFieldsWarning";
@@ -464,7 +457,7 @@ function mapDispatchToProps(dispatch) {
       dispatch
     ),
     workflowActions: bindActionCreators(
-      { getStatus, ...trackInWorkflow, ...updateWorkflowData },
+      { getStatus, trackInWorkflow, updateWorkflowData },
       dispatch
     )
   };
