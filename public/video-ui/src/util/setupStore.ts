@@ -2,7 +2,7 @@ import { browserHistory } from 'react-router';
 import { routerMiddleware } from 'react-router-redux';
 import { storeMiddleware } from './storeMiddleware';
 
-import reducers from '../reducers/reducers';
+import reducers from '../slices/reducers';
 import { configureStore } from '@reduxjs/toolkit';
 
 export function setupStore() {
