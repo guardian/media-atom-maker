@@ -213,10 +213,7 @@ class VideoDisplay extends React.Component {
         priority: priority
       });
 
-    const updateWorkflowItem = () =>
-      updateWorkflowData({
-        workflowItem: this.props.workflow.status
-      });
+    const updateWorkflowItem = () => updateWorkflowData(this.props.workflow.status);
 
     const wfPromise = isTrackedInWorkflow
       ? updateWorkflowItem()

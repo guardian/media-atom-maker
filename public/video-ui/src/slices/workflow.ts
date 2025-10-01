@@ -4,7 +4,6 @@ import { Section } from "../services/WorkflowApi";
 import { showError } from "./error";
 import { defaultWorkflowStatusData } from '../constants/defaultWorkflowStatusData';
 
-
 type WorkflowState = {
   sections: Section[];
   statuses: ExpandedStatus[];
@@ -32,7 +31,7 @@ export const getStatus = createAsyncThunk<FlatStub<string, string> | undefined, 
     (error: Response | any) => {
       if (error instanceof Response) {
         if (error.status !== 404) {
-          return void dispatch(errorReceivingStatus(error));
+          return void dispatch(showError('Cannot get Atom status in Workflow', error));
         }
         try {
           error.json().then(errorBody => {
@@ -42,7 +41,7 @@ export const getStatus = createAsyncThunk<FlatStub<string, string> | undefined, 
           });
         } catch (e) {
           // failed to parse response as json
-          return void dispatch(errorReceivingStatus(error));
+          return void dispatch(showError('Cannot get Atom status in Workflow', error));
         }
       }
     }
@@ -51,35 +50,13 @@ export const getStatus = createAsyncThunk<FlatStub<string, string> | undefined, 
 
 export const getStatuses = createAsyncThunk<ExpandedStatus[] | undefined>(
   'workflow/getStatuses',
-  (_, { dispatch }) => WorkflowApi.getStatuses().catch(err => void dispatch(errorReceivingStatuses(err)))
+  (_, { dispatch }) => WorkflowApi.getStatuses().catch(err => void dispatch(showError(`Could not get Workflow statuses. <a href="${WorkflowApi.workflowUrl}" target="_blank" rel="noopener">Open Workflow to get a cookie.</a>`, err)))
 );
 
 export const getPriorities = createAsyncThunk<Priority[] | undefined>(
   'workflow/getPriorities',
-  (_, { dispatch }) => WorkflowApi.getPriorities().catch(err => void dispatch(errorReceivingPriorities(err)))
+  (_, { dispatch }) => WorkflowApi.getPriorities().catch(err => void dispatch(showError(`Could not get Workflow priorities. <a href="${WorkflowApi.workflowUrl}" target="_blank" rel="noopener">Open Workflow to get a cookie.</a>`, err)))
 );
-
-function errorReceivingPriorities(error: unknown) {
-  return showError(
-    `Could not get Workflow priorities. <a href="${WorkflowApi.workflowUrl}" target="_blank" rel="noopener">Open Workflow to get a cookie.</a>`,
-    error
-  );
-}
-
-
-function errorReceivingStatus(error: unknown) {
-  return showError(
-    'Cannot get Atom status in Workflow',
-    error
-  );
-}
-
-function errorReceivingStatuses(error: unknown) {
-  return showError(
-    `Could not get Workflow statuses. <a href="${WorkflowApi.workflowUrl}" target="_blank" rel="noopener">Open Workflow to get a cookie.</a>`,
-    error
-  );
-}
 
 const initialState: WorkflowState = {
   sections: [],
