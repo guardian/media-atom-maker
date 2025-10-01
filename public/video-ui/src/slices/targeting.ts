@@ -1,6 +1,7 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import TargetingApi from '../services/TargetingApi';
 import { showError } from './error';
+import debounce from 'lodash/debounce';
 
 type TargetType = {
   id: string;
@@ -39,6 +40,20 @@ export const createTarget = createAsyncThunk<
   })
 );
 
+const debouncedUpdate = debounce(
+  (dispatch, target) =>
+    TargetingApi.updateTarget(target).catch(err => {
+      dispatch(showError(`Failed to update Target`, err));
+      throw err;
+    }),
+  500
+);
+
+export const updateTarget = createAsyncThunk<unknown, TargetType>(
+  'targeting/updateTarget',
+  (target, { dispatch }) => debouncedUpdate(dispatch, target)
+);
+
 export const deleteTarget = createAsyncThunk<unknown, { id: string }>(
   'targeting/deleteTarget',
   (target, { dispatch }) =>
@@ -53,18 +68,7 @@ const initialState: TargetingState = { targets: [], deleting: [] };
 const targeting = createSlice({
   name: 'targeting',
   initialState,
-  reducers: {
-    requestUpdateTarget: (
-      state: TargetingState,
-      action: PayloadAction<TargetType>
-    ) => ({
-      ...state,
-      targets: [
-        ...(state.targets || []).filter(({ id }) => id !== action.payload.id),
-        action.payload
-      ]
-    })
-  },
+  reducers: {},
   extraReducers: builder => {
     builder
       .addCase(getTargets.pending, () => initialState)
@@ -73,6 +77,12 @@ const targeting = createSlice({
       })
       .addCase(createTarget.fulfilled, (state, { payload }) => {
         state.targets = [...(state.targets || []), payload];
+      })
+      .addCase(updateTarget.pending, (state, { meta }) => {
+        state.targets = [
+          ...(state.targets || []).filter(({ id }) => id !== meta.arg.id),
+          meta.arg
+        ];
       })
       .addCase(deleteTarget.pending, (state, action) => {
         state.deleting = [...new Set([...state.deleting, action.meta.arg.id])];
@@ -94,5 +104,3 @@ const targeting = createSlice({
 });
 
 export default targeting.reducer;
-
-export const { requestUpdateTarget } = targeting.actions;

@@ -7,8 +7,7 @@ import { ManagedForm, ManagedField } from '../ManagedForm';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Icon from '../Icon';
-import * as updateTarget from '../../actions/TargetingActions/updateTarget';
-import { getTargets, createTarget, deleteTarget } from "../../slices/targeting";
+import { getTargets, createTarget, updateTarget, deleteTarget } from "../../slices/targeting";
 
 const isDeleting = (target, deleting) => deleting.indexOf(target.id) > -1;
 
@@ -134,7 +133,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     targetingActions: bindActionCreators(
-      Object.assign({ getTargets, createTarget, deleteTarget }, updateTarget),
+      { getTargets, createTarget, deleteTarget, updateTarget },
       dispatch
     )
   };
