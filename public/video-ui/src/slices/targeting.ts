@@ -14,16 +14,27 @@ type TargetType = {
   updatedAt?: string;
 };
 type TargetingState = {
-  targets: TargetType[] | null;
+  targets: TargetType[];
   deleting: string[];
 };
+
+export const getTargets = createAsyncThunk<Array<TargetType>, { id: string }>(
+  'targeting/getTargets',
+  (video, { dispatch }) =>
+    (TargetingApi.getTargets(video) as Promise<Array<TargetType>>).catch(
+      err => {
+        dispatch(showError('Failed to get Targets', err));
+        throw err;
+      }
+    )
+);
 
 export const createTarget = createAsyncThunk<
   TargetType,
   { id: string; title: string; expiryDate: unknown }
 >('targeting/createTarget', (target, { dispatch }) =>
   (TargetingApi.createTarget(target) as Promise<TargetType>).catch(err => {
-    dispatch(showError(`Failed to create Target`, err));
+    dispatch(showError('Failed to create Target', err));
     throw err;
   })
 );
@@ -32,12 +43,12 @@ export const deleteTarget = createAsyncThunk<unknown, { id: string }>(
   'targeting/deleteTarget',
   (target, { dispatch }) =>
     TargetingApi.deleteTarget(target).catch(err => {
-      dispatch(showError(`Failed to delete Target`, err));
+      dispatch(showError('Failed to delete Target', err));
       throw err;
     })
 );
 
-const initialState: TargetingState = { targets: null, deleting: [] };
+const initialState: TargetingState = { targets: [], deleting: [] };
 
 const targeting = createSlice({
   name: 'targeting',
@@ -52,22 +63,14 @@ const targeting = createSlice({
         ...(state.targets || []).filter(({ id }) => id !== action.payload.id),
         action.payload
       ]
-    }),
-    // when we start a new request for targets reset to our 'loading' state
-    // this gets called when we look for targets for a new video
-    requestGetTargets: () => ({
-      ...initialState
-    }),
-    receiveGetTarget: (
-      state: TargetingState,
-      action: PayloadAction<TargetType[]>
-    ) => ({
-      ...state,
-      targets: [...(state.targets || []), ...action.payload]
     })
   },
   extraReducers: builder => {
     builder
+      .addCase(getTargets.pending, () => initialState)
+      .addCase(getTargets.fulfilled, (state, { payload }) => {
+        state.targets = [...(state.targets || []), ...payload];
+      })
       .addCase(createTarget.fulfilled, (state, { payload }) => {
         state.targets = [...(state.targets || []), payload];
       })
@@ -92,5 +95,4 @@ const targeting = createSlice({
 
 export default targeting.reducer;
 
-export const { requestUpdateTarget, requestGetTargets, receiveGetTarget } =
-  targeting.actions;
+export const { requestUpdateTarget } = targeting.actions;
