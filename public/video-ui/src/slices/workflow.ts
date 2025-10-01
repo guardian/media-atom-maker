@@ -91,8 +91,10 @@ export const getPriorities = createAsyncThunk<Priority[] | undefined>(
 export const trackInWorkflow = createAsyncThunk<unknown, WorkflowDetails>(
   'workflow/trackInWorkflow',
   (workflowDetails, { dispatch }) =>
-    WorkflowApi.trackInWorkflow(workflowDetails).catch(err =>
-      dispatch(showError('Failed to track Atom in Workflow', err))
+    WorkflowApi.trackInWorkflow(workflowDetails).catch(err => {
+        dispatch(showError('Failed to track Atom in Workflow', err));
+        throw err;
+      }
     )
 );
 
@@ -105,8 +107,10 @@ export const updateWorkflowData = createAsyncThunk<
     WorkflowApi.updateNote(workflowItem),
     WorkflowApi.updatePriority(workflowItem),
     WorkflowApi.updateProdOffice(workflowItem)
-  ]).catch(err =>
-    dispatch(showError('Failed to update Atom data in Workflow', err))
+  ]).catch(err => {
+      dispatch(showError('Failed to update Atom data in Workflow', err));
+      throw err;
+    }
   )
 );
 
