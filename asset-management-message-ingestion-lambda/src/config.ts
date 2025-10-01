@@ -8,18 +8,6 @@ import { fromNodeProviderChain } from '@aws-sdk/credential-providers';
 export const isRunningLocally =
   !process.env.LAMBDA_TASK_ROOT && !process.env.AWS_EXECUTION_ENV;
 
-export function getFromEnv(key: string): string {
-  const value = process.env[key];
-  if (!value) {
-    throw new Error(`Missing required environment variable ${key}`);
-  }
-  return value;
-}
-
-export function getOptionalFromEnv(key: string): string | undefined {
-  return process.env[key];
-}
-
 export const awsConfig = isRunningLocally
   ? {
       region: 'eu-west-1',
@@ -29,9 +17,11 @@ export const awsConfig = isRunningLocally
     }
   : {};
 
-const stack = getOptionalFromEnv('STACK') ?? 'media-service';
+export function getOptionalFromEnv(key: string): string | undefined {
+  return process.env[key];
+}
 
 const stage = getOptionalFromEnv('STAGE') ?? 'DEV';
 
-export const hostSecretName = `${stack}/${stage}/media-atom-maker/hostname`;
-export const hmacSecretName = `${stack}/${stage}/media-atom-maker/hmac-secret`;
+export const hostSecretName = `media-service/${stage}/media-atom-maker/hostname`;
+export const hmacSecretName = `media-service/${stage}/media-atom-maker/hmac-secret`;

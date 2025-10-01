@@ -1,12 +1,16 @@
-import { SecretsManager } from 'aws-sdk';
+import {
+  GetSecretValueCommand,
+  SecretsManagerClient
+} from '@aws-sdk/client-secrets-manager';
+import { awsConfig } from './config';
 
-const secretsManagerClient = new SecretsManager();
+const secretsManagerClient = new SecretsManagerClient(awsConfig);
 
-export async function readSecretValue(secretName) {
+export async function readSecretValue(
+  secretName: string
+): Promise<string | undefined> {
   const secretValue = await secretsManagerClient
-    .getSecretValue({
-      SecretId: secretName
-    })
-    .promise();
-  return secretValue.SecretString;
+    .send(new GetSecretValueCommand({ SecretId: secretName }))
+    .then(_ => _.SecretString);
+  return secretValue;
 }

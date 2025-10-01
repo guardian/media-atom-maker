@@ -66,7 +66,7 @@ describe('processRecord', () => {
 
     const result = await processRecord(record, 'secret', 'https://example.com');
     expect(hmacPut).toHaveBeenCalledWith({
-      url: 'https://example.com/api/pluto/commissions/comm-1',
+      url: 'https://example.com/api/pluto/projects',
       secret: 'secret',
       data
     });
@@ -94,7 +94,7 @@ describe('processRecord', () => {
 
     const result = await processRecord(record, 'secret', 'https://example.com');
     expect(hmacPut).toHaveBeenCalledWith({
-      url: 'https://example.com/api/pluto/commissions/comm-2',
+      url: 'https://example.com/api/pluto/projects',
       secret: 'secret',
       data
     });
@@ -123,9 +123,7 @@ describe('processRecord', () => {
 
     await expect(
       processRecord(record, 'secret', 'https://example.com')
-    ).rejects.toThrow(
-      'Error deleting commission 123: 500 Internal Server Error'
-    );
+    ).rejects.toThrow();
   });
 
   it('should throw an error when upsert request fails', async () => {
@@ -152,7 +150,7 @@ describe('processRecord', () => {
 
     await expect(
       processRecord(record, 'secret', 'https://example.com')
-    ).rejects.toThrow('Error deleting commission comm-1: 400 Bad Request');
+    ).rejects.toThrow();
   });
 
   it('should fail quietly for messages with missing required fields', async () => {

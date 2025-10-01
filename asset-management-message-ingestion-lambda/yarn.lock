@@ -636,6 +636,25 @@
   resolved "https://registry.yarnpkg.com/@esbuild/win32-x64/-/win32-x64-0.25.10.tgz#e4b3e255a1b4aea84f6e1d2ae0b73f826c3785bd"
   integrity sha512-9KpxSVFCu0iK1owoez6aC/s/EdUQLDN3adTxGCqxMVhrPDj6bt5dbrHDXUuq+Bs2vATFBBrQS5vdQ/Ed2P+nbw==
 
+"@guardian/libs@^26.0.0":
+  version "26.0.0"
+  resolved "https://registry.yarnpkg.com/@guardian/libs/-/libs-26.0.0.tgz#f25cf4fc0615ab6b17d6f496603d0e52392d5ad3"
+  integrity sha512-H5b2vgUws0IUpQesJbVK1CXQKrOff853GyWo/yApUonvU0y7Db/OhwMN0Lf67oGnnrTksgl7AQEZIUQB+WR8Eg==
+  dependencies:
+    "@guardian/ophan-tracker-js" "2.2.10"
+
+"@guardian/ophan-tracker-js@2.2.10":
+  version "2.2.10"
+  resolved "https://registry.yarnpkg.com/@guardian/ophan-tracker-js/-/ophan-tracker-js-2.2.10.tgz#a27abe2444c374ac25e8f9834776a3a8e3961202"
+  integrity sha512-WqE5bPagZ7AYUc2Fb0xDgNfhmdS9wK1IJcUjTD6CrlPim67SiRragw4fy+CP2OwShkfiWFmb9l/TgQLbuvUlIQ==
+  dependencies:
+    "@guardian/tsconfig" "^1.0.0"
+
+"@guardian/tsconfig@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@guardian/tsconfig/-/tsconfig-1.0.0.tgz#c86b8cf51ccb53b2783eeffb6d5f256c59094217"
+  integrity sha512-xgajw/jq4lEtQoN72vnmiXeRnejUcd3DgNFmH6TfAbWV6NRK4KC4hAjzKf0H69zBSJMxEfFVfGKP9wBzGII7qg==
+
 "@jridgewell/sourcemap-codec@^1.5.5":
   version "1.5.5"
   resolved "https://registry.yarnpkg.com/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.5.5.tgz#6912b00d2c631c0d15ce1a7ab57cd657f2a8f8ba"

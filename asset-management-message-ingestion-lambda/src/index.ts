@@ -17,11 +17,6 @@ export async function handler(event: KinesisStreamEvent) {
   const baseUrl = `https://${host}`;
 
   await Promise.all(
-    event.Records.map(record =>
-      processRecord(record, hmacSecret, baseUrl).catch(error => {
-        console.error('Error processing record:', error);
-        throw error;
-      })
-    )
+    event.Records.map(record => processRecord(record, hmacSecret, baseUrl))
   );
 }
