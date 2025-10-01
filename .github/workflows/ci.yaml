@@ -29,9 +29,6 @@ jobs:
       - name: Build Media Atom Maker
         run: |
           ./scripts/app-ci.sh
-      - name: Build asset-management-message-ingestion-lambda
-        run: |
-          ./scripts/asset-management-message-ingestion-lambda-ci.sh
       - name: Compile Scala and upload artifacts to RiffRaff
         run: |
           ./scripts/scala-ci.sh

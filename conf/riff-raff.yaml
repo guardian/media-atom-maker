@@ -39,12 +39,6 @@ deployments:
       functionNames: [pluto-message-ingestion-]
       fileName: pluto-message-ingestion.zip
 
-  asset-management-message-ingestion-lambda:
-    template: lambda
-    parameters:
-      functionNames: [asset-management-message-ingestion-lambda-]
-      fileName: asset-management-message-ingestion-lambda.zip
-
   media-atom-pipeline-cloudformation:
     type: cloud-formation
     app: media-atom-pipeline

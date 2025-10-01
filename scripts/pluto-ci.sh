@@ -8,4 +8,7 @@ cd pluto-message-ingestion
 # so we run it separately
 
 yarn install --frozen-lockfile
+yarn test:ci
 yarn build
+
+zip -FSjr "target/pluto-message-ingestion.zip" "target/index.js"
