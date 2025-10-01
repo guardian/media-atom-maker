@@ -8,9 +8,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Icon from '../Icon';
 import * as getTargets from '../../actions/TargetingActions/getTargets';
-import * as deleteTarget from '../../actions/TargetingActions/deleteTarget';
 import * as updateTarget from '../../actions/TargetingActions/updateTarget';
-import { createTarget } from "../../slices/targeting";
+import { createTarget, deleteTarget } from "../../slices/targeting";
 
 const isDeleting = (target, deleting) => deleting.indexOf(target.id) > -1;
 
@@ -136,7 +135,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     targetingActions: bindActionCreators(
-      Object.assign({ createTarget }, getTargets, deleteTarget, updateTarget),
+      Object.assign({ createTarget, deleteTarget }, getTargets, deleteTarget, updateTarget),
       dispatch
     )
   };
