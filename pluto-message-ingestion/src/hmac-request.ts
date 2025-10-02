@@ -1,4 +1,5 @@
 import { createHmac } from 'node:crypto';
+import type { Logger } from './logging';
 
 function getToken({
   url,
@@ -16,54 +17,42 @@ function getToken({
   return `HMAC ${hmac.digest('base64')}`;
 }
 
-async function hmacRequest({
-  url,
-  method,
-  secret,
-  data
-}: {
-  url: string;
-  method: 'PUT' | 'DELETE';
-  secret: string;
-  data?: object;
-}) {
-  const date = new Date().toUTCString();
-  const token = getToken({ url, date, secret });
-
-  const request = {
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Gu-Tools-HMAC-Date': date,
-      'X-Gu-Tools-HMAC-Token': token,
-      'X-Gu-Tools-Service-Name': 'pluto-message-ingestion'
-    },
+export function createHmacClient(logger: Logger, secret: string) {
+  async function hmacRequest({
+    url,
     method,
-    body: data ? JSON.stringify(data) : undefined
-  };
+    data
+  }: {
+    url: string;
+    method: 'PUT' | 'DELETE';
+    data?: object;
+  }) {
+    const date = new Date().toUTCString();
+    const token = getToken({ url, date, secret });
 
-  console.log(`Making ${method} request to ${url}`, data);
+    const request = {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Gu-Tools-HMAC-Date': date,
+        'X-Gu-Tools-HMAC-Token': token,
+        'X-Gu-Tools-Service-Name': 'pluto-message-ingestion'
+      },
+      method,
+      body: data ? JSON.stringify(data) : undefined
+    };
 
-  return fetch(url, request);
-}
+    logger.log({ message: `Making ${method} request to ${url}`, data });
 
-export async function hmacPut({
-  url,
-  secret,
-  data
-}: {
-  url: string;
-  secret: string;
-  data: object;
-}) {
-  return hmacRequest({ url, method: 'PUT', secret, data });
-}
+    return fetch(url, request);
+  }
 
-export async function hmacDelete({
-  url,
-  secret
-}: {
-  url: string;
-  secret: string;
-}) {
-  return hmacRequest({ url, method: 'DELETE', secret });
+  async function hmacPut({ url, data }: { url: string; data: object }) {
+    return hmacRequest({ url, method: 'PUT', data });
+  }
+
+  async function hmacDelete({ url }: { url: string }) {
+    return hmacRequest({ url, method: 'DELETE' });
+  }
+
+  return { hmacPut, hmacDelete };
 }

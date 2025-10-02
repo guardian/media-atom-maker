@@ -1,6 +1,6 @@
 import { getErrorMessage } from '@guardian/libs';
 import type { KinesisStreamRecord } from 'aws-lambda';
-import { hmacDelete, hmacPut } from './hmac-request';
+import { createHmacClient } from './hmac-request';
 import { createLogger, Logger } from './logging';
 import {
   hasRecognisedMessageType,
@@ -16,6 +16,8 @@ export async function processRecord(
   const logger = createLogger({ kinesisEventId: record.eventID });
   const payload = Buffer.from(record.kinesis.data, 'base64').toString('utf8');
 
+  const { hmacPut, hmacDelete } = createHmacClient(logger, secret);
+
   const data = safeParseJson(payload, logger);
 
   if (data === undefined) {
@@ -24,8 +26,7 @@ export async function processRecord(
 
   if (isDeleteMessage(data)) {
     const result = await hmacDelete({
-      url: `${baseUrl}/api/pluto/commissions/${data.commissionId}`,
-      secret
+      url: `${baseUrl}/api/pluto/commissions/${data.commissionId}`
     });
     if (!result.ok) {
       logger.error({
@@ -38,7 +39,6 @@ export async function processRecord(
   } else if (isUpsertMessage(data)) {
     const result = await hmacPut({
       url: `${baseUrl}/api/pluto/projects`,
-      secret,
       data
     });
     if (!result.ok) {

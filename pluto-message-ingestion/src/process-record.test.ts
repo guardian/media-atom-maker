@@ -1,15 +1,28 @@
 import type { KinesisStreamRecord } from 'aws-lambda';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { hmacDelete, hmacPut } from './hmac-request';
+import { createHmacClient } from './hmac-request';
 import { processRecord } from './process-record';
 
 // Mock the entire module
 vi.mock('./hmac-request');
 
+// Create mock functions
+const mockHmacPut = vi.fn();
+const mockHmacDelete = vi.fn();
+
+// Mock the factory function to return our mock functions
+const mockCreateHmacClient = vi.mocked(createHmacClient);
+mockCreateHmacClient.mockReturnValue({
+  hmacPut: mockHmacPut,
+  hmacDelete: mockHmacDelete
+});
+
 describe('processRecord', () => {
   beforeEach(() => {
     // Clear mock history between tests
     vi.clearAllMocks();
+    mockHmacPut.mockReset();
+    mockHmacDelete.mockReset();
   });
 
   it('should fail quietly if it receives invalid JSON', async () => {
@@ -23,7 +36,7 @@ describe('processRecord', () => {
   });
 
   it('should send a delete request for delete messages', async () => {
-    vi.mocked(hmacDelete).mockResolvedValue(new Response('OK'));
+    mockHmacDelete.mockResolvedValue(new Response('OK'));
 
     const record = {
       kinesis: {
@@ -38,15 +51,14 @@ describe('processRecord', () => {
     } as unknown as KinesisStreamRecord;
 
     const result = await processRecord(record, 'secret', 'https://example.com');
-    expect(hmacDelete).toHaveBeenCalledWith({
-      url: 'https://example.com/api/pluto/commissions/123',
-      secret: 'secret'
+    expect(mockHmacDelete).toHaveBeenCalledWith({
+      url: 'https://example.com/api/pluto/commissions/123'
     });
     expect(result).toBe('success');
   });
 
   it('should send an upsert request for upsert messages', async () => {
-    vi.mocked(hmacPut).mockResolvedValue(new Response('OK'));
+    mockHmacPut.mockResolvedValue(new Response('OK'));
     const data = {
       type: 'project-created',
       id: 'proj-1',
@@ -65,16 +77,15 @@ describe('processRecord', () => {
     } as unknown as KinesisStreamRecord;
 
     const result = await processRecord(record, 'secret', 'https://example.com');
-    expect(hmacPut).toHaveBeenCalledWith({
+    expect(mockHmacPut).toHaveBeenCalledWith({
       url: 'https://example.com/api/pluto/projects',
-      secret: 'secret',
       data
     });
     expect(result).toBe('success');
   });
 
   it('should send an upsert request for project-updated messages', async () => {
-    vi.mocked(hmacPut).mockResolvedValue(new Response('OK'));
+    mockHmacPut.mockResolvedValue(new Response('OK'));
     const data = {
       type: 'project-updated',
       id: 'proj-2',
@@ -93,16 +104,15 @@ describe('processRecord', () => {
     } as unknown as KinesisStreamRecord;
 
     const result = await processRecord(record, 'secret', 'https://example.com');
-    expect(hmacPut).toHaveBeenCalledWith({
+    expect(mockHmacPut).toHaveBeenCalledWith({
       url: 'https://example.com/api/pluto/projects',
-      secret: 'secret',
       data
     });
     expect(result).toBe('success');
   });
 
   it('should throw an error when delete request fails', async () => {
-    vi.mocked(hmacDelete).mockResolvedValue(
+    mockHmacDelete.mockResolvedValue(
       new Response('Internal Server Error', {
         status: 500,
         statusText: 'Internal Server Error'
@@ -127,7 +137,7 @@ describe('processRecord', () => {
   });
 
   it('should throw an error when upsert request fails', async () => {
-    vi.mocked(hmacPut).mockResolvedValue(
+    mockHmacPut.mockResolvedValue(
       new Response('Bad Request', { status: 400, statusText: 'Bad Request' })
     );
 
@@ -238,7 +248,7 @@ describe('processRecord', () => {
   });
 
   it('should handle project-updated type for delete messages', async () => {
-    vi.mocked(hmacDelete).mockResolvedValue(new Response('OK'));
+    mockHmacDelete.mockResolvedValue(new Response('OK'));
 
     const record = {
       kinesis: {
@@ -253,9 +263,8 @@ describe('processRecord', () => {
     } as unknown as KinesisStreamRecord;
 
     const result = await processRecord(record, 'secret', 'https://example.com');
-    expect(hmacDelete).toHaveBeenCalledWith({
-      url: 'https://example.com/api/pluto/commissions/456',
-      secret: 'secret'
+    expect(mockHmacDelete).toHaveBeenCalledWith({
+      url: 'https://example.com/api/pluto/commissions/456'
     });
     expect(result).toBe('success');
   });
