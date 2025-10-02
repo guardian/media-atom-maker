@@ -5,8 +5,6 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-digest" % "1.1.4")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-gzip" % "1.0.2")
 
-addSbtPlugin("com.gu" % "sbt-riffraff-artifact" % "1.1.18")
-
 addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.11.1")
 
 // for creating test cases that use a local dynamodb
