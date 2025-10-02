@@ -128,6 +128,7 @@ lazy val common = (project in file("common"))
     )
   )
 
+lazy val normalisePackageName = taskKey[Unit]("Rename debian package name to be normalised")
 lazy val app = (project in file("."))
   .dependsOn(common % "compile->compile;test->test")
   .enablePlugins(PlayScala, SbtWeb, JDebPackaging, SystemdPlugin, BuildInfoPlugin)
@@ -161,7 +162,15 @@ lazy val app = (project in file("."))
     maintainer := "Digital CMS <digitalcms.dev@guardian.co.uk>",
     packageSummary := "media-atom-maker",
     packageDescription := """making media atoms""",
-    pipelineStages := Seq(digest, gzip)
+    pipelineStages := Seq(digest, gzip),
+    normalisePackageName := {
+      val targetDirectory = baseDirectory.value / "target"
+      val debFile = (targetDirectory ** "*.deb").get().head
+      val newFile =
+        file(debFile.getParent) / ((Debian / packageName).value + ".deb")
+
+      IO.move(debFile, newFile)
+    },
   )
 
 lazy val uploader = (project in file("uploader"))
@@ -235,23 +244,7 @@ lazy val scheduler = (project in file("scheduler"))
     name := "media-atom-scheduler",
     Universal / topLevelDirectory := None,
     Universal / packageName := normalizedName.value
-
   )
 
 lazy val root = (project in file("root"))
   .aggregate(common, app, uploader, expirer, scheduler)
-  .enablePlugins(RiffRaffArtifact)
-  .settings(
-    riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
-    riffRaffUploadManifestBucket := Option("riffraff-builds"),
-    riffRaffManifestProjectName := "media-service:media-atom-maker",
-    riffRaffArtifactResources := Seq(
-      (app / Debian / packageBin).value -> s"${(app / name).value}/${(app / name).value}.deb",
-      (uploader / Universal / packageBin).value -> s"media-atom-upload-actions/${(uploader / Universal / packageBin).value.getName}",
-      (expirer / Universal / packageBin).value -> s"${(expirer / name).value}/${(expirer / Universal / packageBin).value.getName}",
-      (scheduler / Universal / packageBin).value -> s"${(scheduler / name).value}/${(scheduler / Universal / packageBin).value.getName}",
-      (app / baseDirectory).value / "pluto-message-ingestion/target/pluto-message-ingestion.zip" -> "pluto-message-ingestion/pluto-message-ingestion.zip",
-      (app / baseDirectory).value / "conf/riff-raff.yaml" -> "riff-raff.yaml",
-      (uploader / Compile / resourceManaged).value / "media-atom-pipeline.yaml" -> "media-atom-pipeline-cloudformation/media-atom-pipeline.yaml"
-    )
-  )
