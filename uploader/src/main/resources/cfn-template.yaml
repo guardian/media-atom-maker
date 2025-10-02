@@ -265,6 +265,9 @@ Resources:
                 NameModifier: "hls"
                 VideoDescription:
                   Height: 720
+                  VideoPreprocessors:
+                    ColorCorrector:
+                      ColorSpaceConversion: FORCE_709 #Convert to Rec.709 colourspace as per HLS spec pt. 1.24
                   Sharpness: 100 # Sharpest possible
                   CodecSettings:
                     Codec: H_264
