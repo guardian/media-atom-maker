@@ -105,7 +105,6 @@ import * as getVideo from '../actions/VideoActions/getVideo';
 import * as getPublishedVideo from '../actions/VideoActions/getPublishedVideo';
 import * as publishVideo from '../actions/VideoActions/publishVideo';
 import * as saveVideo from '../actions/VideoActions/saveVideo';
-import * as getUploads from '../actions/UploadActions/getUploads';
 import * as videoPageUpdate from '../actions/VideoActions/videoPageUpdate';
 import * as videoPageCreate from '../actions/VideoActions/videoPageCreate';
 import { fetchUsages } from '../slices/usage';
@@ -114,6 +113,7 @@ import * as updateVideo from '../actions/VideoActions/updateVideo';
 import * as reportPresenceClientError from '../actions/PresenceActions/reportError';
 import { updateSearchTerm, updateShouldUseCreatedDateForSort, updateMediaPlatformFilter } from "../slices/search";
 import { selectPublishedVideo, selectVideo } from "../slices/video";
+import { getUploads } from "../slices/uploads";
 
 function mapStateToProps(state) {
   return {
@@ -142,7 +142,7 @@ function mapDispatchToProps(dispatch) {
         getPublishedVideo,
         publishVideo,
         saveVideo,
-        getUploads,
+        { getUploads },
         videoPageUpdate,
         videoPageCreate,
         { fetchUsages },
