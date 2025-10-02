@@ -11,11 +11,7 @@
     "lint-fix": "yarn lint --fix",
     "build": "yarn lint && mkdir -p target && ncc-zip build -o ./target/pluto-message-ingestion.zip"
   },
-  "dependencies": {
-    "crypto": "0.0.3",
-    "reqwest": "^2.0.5",
-    "xhr2": "^0.1.4"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@vercel/ncc": "0.38.1",
     "aws-sdk": "2.1679.0",
