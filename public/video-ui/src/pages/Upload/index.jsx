@@ -104,7 +104,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as getVideo from '../../actions/VideoActions/getVideo';
 import * as saveVideo from '../../actions/VideoActions/saveVideo';
-import * as getUpload from '../../actions/UploadActions/getUploads';
 import * as s3UploadActions from '../../actions/UploadActions/s3Upload';
 import * as createAsset from '../../actions/VideoActions/createAsset';
 import * as revertAsset from '../../actions/VideoActions/revertAsset';
@@ -112,6 +111,7 @@ import * as allDeleteAssetActions from '../../actions/VideoActions/deleteAsset';
 import { fetchCategories, fetchChannels } from '../../slices/youtube';
 import {setS3UploadStatusToPostProcessing, resetS3UploadState} from "../../slices/s3Upload";
 import {selectVideo} from "../../slices/video";
+import {getUploads} from "../../slices/uploads";
 
 function mapStateToProps(state) {
   return {
@@ -137,7 +137,7 @@ function mapDispatchToProps(dispatch) {
       dispatch
     ),
     uploadActions: bindActionCreators(
-      Object.assign({s3UploadPostProcessing: setS3UploadStatusToPostProcessing, s3UploadReset: resetS3UploadState}, s3UploadActions ,getUpload),
+      Object.assign({s3UploadPostProcessing: setS3UploadStatusToPostProcessing, s3UploadReset: resetS3UploadState, getUploads}, s3UploadActions),
       dispatch
     ),
     youtubeActions: bindActionCreators(
