@@ -3,8 +3,10 @@ import { showError } from './error';
 import { errorDetails } from '../util/errorDetails';
 import {
   createUpload,
+  deleteSubtitleFile,
   uploadPacFile,
-  uploadParts
+  uploadParts,
+  uploadSubtitleFile
 } from '../services/UploadsApi';
 
 export type YouTubeAsset = { id: string; sources?: undefined };
@@ -45,9 +47,7 @@ export const startVideoUpload = createAsyncThunk<
       dispatch(s3UploadProgress(completed));
 
     return uploadParts(upload, upload.parts, file, progress)
-      .then(() => {
-        dispatch(setS3UploadStatusToComplete());
-      })
+      .then(() => dispatch(setS3UploadStatusToComplete()))
       .catch(err => {
         dispatch(showError(errorDetails(err), err));
         dispatch(setS3UploadStatusToError());
@@ -60,9 +60,31 @@ export const startPacFileUpload = createAsyncThunk<
   { id: string; file: File }
 >('s3Upload/startPacFileUpload', ({ id, file }, { dispatch }) =>
   uploadPacFile({ id, file })
-    .then(() => {
-      dispatch(setS3UploadStatusToComplete());
+    .then(() => dispatch(setS3UploadStatusToComplete()))
+    .catch(err => {
+      dispatch(showError(errorDetails(err), err));
+      dispatch(setS3UploadStatusToError());
     })
+);
+
+export const startSubtitleFileUpload = createAsyncThunk<
+  unknown,
+  { id: string; version: number; file: File }
+>('s3Upload/startSubtitleFileUpload', (subtitle, { dispatch }) =>
+  uploadSubtitleFile(subtitle)
+    .then(() => dispatch(setS3UploadStatusToComplete()))
+    .catch(err => {
+      dispatch(showError(errorDetails(err), err));
+      dispatch(setS3UploadStatusToError());
+    })
+);
+
+export const deleteSubtitle = createAsyncThunk<
+  unknown,
+  { id: string; version: number }
+>('s3Upload/startSubtitleFileUpload', (subtitle, { dispatch }) =>
+  deleteSubtitleFile(subtitle)
+    .then(() => dispatch(setS3UploadStatusToComplete()))
     .catch(err => {
       dispatch(showError(errorDetails(err), err));
       dispatch(setS3UploadStatusToError());
