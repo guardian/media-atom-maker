@@ -3,17 +3,6 @@ import { errorDetails } from '../../util/errorDetails';
 import {setS3UploadStatusToComplete, s3UploadProgress, setS3UploadStatusToError, s3UploadStarted} from "../../slices/s3Upload";
 import {showError} from "../../slices/error";
 
-export function startPacFileUpload({id, file}) {
-  return dispatch => {
-    return uploadPacFile({id, file}).then(() => {
-      dispatch(setS3UploadStatusToComplete());
-    }).catch(err => {
-      dispatch(showError(errorDetails(err), err));
-      dispatch(setS3UploadStatusToError());
-    });
-  };
-}
-
 export function startSubtitleFileUpload({id, version, file}) {
   return dispatch => {
     return uploadSubtitleFile({id, version, file}).then(() => {
