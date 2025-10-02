@@ -1,7 +1,11 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { showError } from './error';
 import { errorDetails } from '../util/errorDetails';
-import { createUpload, uploadParts } from '../services/UploadsApi';
+import {
+  createUpload,
+  uploadPacFile,
+  uploadParts
+} from '../services/UploadsApi';
 
 export type YouTubeAsset = { id: string; sources?: undefined };
 export type SelfHostedAsset = { id?: undefined; sources: unknown[] };
@@ -49,6 +53,20 @@ export const startVideoUpload = createAsyncThunk<
         dispatch(setS3UploadStatusToError());
       });
   })
+);
+
+export const startPacFileUpload = createAsyncThunk<
+  unknown,
+  { id: string; file: File }
+>('s3Upload/startPacFileUpload', ({ id, file }, { dispatch }) =>
+  uploadPacFile({ id, file })
+    .then(() => {
+      dispatch(setS3UploadStatusToComplete());
+    })
+    .catch(err => {
+      dispatch(showError(errorDetails(err), err));
+      dispatch(setS3UploadStatusToError());
+    })
 );
 
 const initialState: S3UploadState = {
