@@ -1,6 +1,7 @@
 {
   "name": "pluto-message-ingestion",
   "version": "0.0.0",
+  "type": "module",
   "repository": "git@github.com:guardian/media-atom-maker.git",
   "author": "The Guardian <digitalcms.dev@theguardian.com>",
   "description": "Ingesting messages sent from Pluto via a Kinesis stream",
@@ -9,20 +10,22 @@
   "scripts": {
     "lint": "eslint *.js",
     "lint-fix": "yarn lint --fix",
-    "build": "yarn lint && mkdir -p target && ncc-zip build -o ./target/pluto-message-ingestion.zip"
+    "test": "vitest",
+    "test:ci": "vitest --run",
+    "build": "esbuild src/index.ts --bundle --minify --outfile=target/index.js --external:@aws-sdk --external:aws-sdk --platform=node"
   },
   "dependencies": {
-    "crypto": "0.0.3",
-    "reqwest": "^2.0.5",
-    "xhr2": "^0.1.4"
+    "@aws-sdk/client-secrets-manager": "3.901.0",
+    "@aws-sdk/credential-providers": "3.901.0",
+    "@guardian/libs": "26.0.0",
+    "esbuild": "0.25.10"
   },
   "devDependencies": {
-    "@vercel/ncc": "0.38.1",
-    "aws-sdk": "2.1679.0",
+    "@types/aws-lambda": "8.10.152",
     "eslint": "8.57.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-prettier": "5.2.1",
-    "ncc-zip": "2.1.0",
-    "prettier": "3.3.3"
+    "prettier": "3.3.3",
+    "vitest": "3.2.4"
   }
 }
