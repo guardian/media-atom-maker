@@ -90,7 +90,7 @@ case class ActiveAssetCommand(
     for {
       requestedMp4 <- MediaAtomHelpers.findSelfHostedAsset(mediaAtom, "video/mp4", newVersion)
       imgUrl = firstFrameImageName(requestedMp4.id)
-      autoFirstFrameImage <- imageUtil.getS3Image(mediaConvertBucket, mediaAtom.id, imgUrl)
+      autoFirstFrameImage <- imageUtil.getS3Image(mediaConvertBucket, imgUrl)
         if currentPosterImage.isEmpty || hasDefaultImage
       _ = log.info(s"first frame image for version $newVersion of atom: $autoFirstFrameImage")
 
