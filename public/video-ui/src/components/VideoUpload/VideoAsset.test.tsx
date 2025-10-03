@@ -190,6 +190,47 @@ describe('VideoAsset', () => {
     });
   });
 
+  describe('Self-hosted asset with reprocessing subtitles', () => {
+    const reprocessingUpload = {
+      id: '2',
+      asset: {
+        sources: [
+          { src: "https://uploads.gu.com/test--264ef95d-ecb0-472e-9030-9e5ef678bf16-2.0.mp4", mimeType: "video/mp4" },
+          { src: "https://uploads.gu.com/test--264ef95d-ecb0-472e-9030-9e5ef678bf16-2.1.m3u8", mimeType: "application/vnd.apple.mpegurl" }
+        ]
+      },
+      processing: {
+        status: "GetTranscodingProgressV2",
+        failed: false
+      },
+      metadata: {
+        originalFilename: 'Video.mp4',
+        startTimestamp: 1759499181730,
+        subtitleFilename: "subtitle.srt",
+        user: 'a.person@example.co.uk'
+      }
+    };
+
+    it('renders reprocessing asset with activate button disabled', () => {
+      render(<Asset {...defaultProps} upload={reprocessingUpload} />);
+
+      // Should show spinner (loader class)
+      expect(document.querySelector('.loader')).toBeInTheDocument();
+
+      // Check that activate button is present but disabled
+      const activateButton = screen.getByRole('button', { name: 'Activate' });
+      expect(activateButton).toBeInTheDocument();
+      expect(activateButton).toBeDisabled();
+
+      // Check that processing status is displayed
+      expect(screen.getByText('GetTranscodingProgressV2')).toBeInTheDocument();
+
+      // Check that file name is displayed
+      expect(screen.getByText('Asset 2 - Video.mp4')).toBeInTheDocument();
+    });
+
+  });
+
   it('returns null when upload has no asset or processing state', () => {
     const emptyUpload = {
       id: '3',
