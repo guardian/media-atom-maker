@@ -1,23 +1,32 @@
-import { createSlice,PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { showError } from './error';
+import { errorDetails } from '../util/errorDetails';
+import {
+  createUpload,
+  deleteSubtitleFile,
+  uploadPacFile,
+  uploadParts,
+  uploadSubtitleFile
+} from '../services/UploadsApi';
 
-export type YouTubeAsset = { id: string, sources?: undefined };
-export type SelfHostedAsset = { id?: undefined, sources: unknown[] }
+export type YouTubeAsset = { id: string; sources?: undefined };
+export type SelfHostedAsset = { id?: undefined; sources: unknown[] };
 export type Upload = {
-  id: string,
+  id: string;
   asset?: YouTubeAsset | SelfHostedAsset;
   processing?: {
-    status: string,
-    failed: boolean,
-    current?: number,
-    total?: number
+    status: string;
+    failed: boolean;
+    current?: number;
+    total?: number;
   };
-  parts?: { end: number , key: string, start: number}[];
+  parts?: { end: number; key: string; start: number }[];
   metadata?: {
     originalFilename?: string;
     subtitleFilename?: string;
     startTimestamp?: number;
-    user: string
-  }
+    user: string;
+  };
 };
 
 export interface S3UploadState {
@@ -27,13 +36,73 @@ export interface S3UploadState {
   status: 'idle' | 'uploading' | 'post-processing' | 'complete' | 'error';
 }
 
-const initialState : S3UploadState =  { id: null, progress: 0, total: 0, status: 'idle' };
+export const startVideoUpload = createAsyncThunk<
+  unknown,
+  { id: string; file: File; selfHost?: boolean }
+>('s3Upload/startVideoUpload', ({ id, file, selfHost }, { dispatch }) =>
+  createUpload(id, file, selfHost).then((upload: Upload) => {
+    dispatch(s3UploadStarted(upload));
+
+    const progress = (completed: number) =>
+      dispatch(s3UploadProgress(completed));
+
+    return uploadParts(upload, upload.parts, file, progress)
+      .then(() => dispatch(setS3UploadStatusToComplete()))
+      .catch(err => {
+        dispatch(showError(errorDetails(err), err));
+        dispatch(setS3UploadStatusToError());
+      });
+  })
+);
+
+export const startPacFileUpload = createAsyncThunk<
+  unknown,
+  { id: string; file: File }
+>('s3Upload/startPacFileUpload', ({ id, file }, { dispatch }) =>
+  uploadPacFile({ id, file })
+    .then(() => dispatch(setS3UploadStatusToComplete()))
+    .catch(err => {
+      dispatch(showError(errorDetails(err), err));
+      dispatch(setS3UploadStatusToError());
+    })
+);
+
+export const startSubtitleFileUpload = createAsyncThunk<
+  unknown,
+  { id: string; version: number; file: File }
+>('s3Upload/startSubtitleFileUpload', (subtitle, { dispatch }) =>
+  uploadSubtitleFile(subtitle)
+    .then(() => dispatch(setS3UploadStatusToComplete()))
+    .catch(err => {
+      dispatch(showError(errorDetails(err), err));
+      dispatch(setS3UploadStatusToError());
+    })
+);
+
+export const deleteSubtitle = createAsyncThunk<
+  unknown,
+  { id: string; version: number }
+>('s3Upload/startSubtitleFileUpload', (subtitle, { dispatch }) =>
+  deleteSubtitleFile(subtitle)
+    .then(() => dispatch(setS3UploadStatusToComplete()))
+    .catch(err => {
+      dispatch(showError(errorDetails(err), err));
+      dispatch(setS3UploadStatusToError());
+    })
+);
+
+const initialState: S3UploadState = {
+  id: null,
+  progress: 0,
+  total: 0,
+  status: 'idle'
+};
 
 const s3Upload = createSlice({
   name: 's3Upload',
   initialState,
   reducers: {
-    s3UploadStarted:(state , action: PayloadAction<Upload>)=> {
+    s3UploadStarted: (state, action: PayloadAction<Upload>) => {
       const total = action.payload.parts[action.payload.parts.length - 1].end;
       Object.assign(state, {
         id: action.payload.id,
@@ -41,26 +110,31 @@ const s3Upload = createSlice({
         status: 'uploading'
       });
     },
-    s3UploadProgress: (state , action: PayloadAction<number>)=>{
-        state.progress = action.payload,
-        state.status =  'uploading'
-      },
-      setS3UploadStatusToPostProcessing: (state) => {
-        state.status = 'post-processing';
-      },
-      setS3UploadStatusToComplete: (state) => {
-        state.status = 'complete';
-      },
-      setS3UploadStatusToError: (state) => {
-        state.status = 'error';
-      },
-      resetS3UploadState: ()=> ({
-       ... initialState
-      })
+    s3UploadProgress: (state, action: PayloadAction<number>) => {
+      (state.progress = action.payload), (state.status = 'uploading');
+    },
+    setS3UploadStatusToPostProcessing: state => {
+      state.status = 'post-processing';
+    },
+    setS3UploadStatusToComplete: state => {
+      state.status = 'complete';
+    },
+    setS3UploadStatusToError: state => {
+      state.status = 'error';
+    },
+    resetS3UploadState: () => ({
+      ...initialState
+    })
   }
 });
 
 export default s3Upload.reducer;
 
-export const {  s3UploadStarted,s3UploadProgress,setS3UploadStatusToPostProcessing,setS3UploadStatusToComplete, setS3UploadStatusToError , resetS3UploadState} = s3Upload.actions;
-
+export const {
+  s3UploadStarted,
+  s3UploadProgress,
+  setS3UploadStatusToPostProcessing,
+  setS3UploadStatusToComplete,
+  setS3UploadStatusToError,
+  resetS3UploadState
+} = s3Upload.actions;
