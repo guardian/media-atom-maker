@@ -8,7 +8,7 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.MockitoSugar.{mock, when}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import util.{AWSConfig, ActivateAssetRequest, ImageUtil, YouTube}
+import util.{AWSConfig, ActivateAssetRequest, S3ImageUtil, YouTube}
 
 class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
 
@@ -17,10 +17,10 @@ class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
   val youtube = mock[YouTube]
   val user = mock[User]
   val awsConfig = mock[AWSConfig]
-  val imageUtil = mock[ImageUtil]
+  val imageUtil = mock[S3ImageUtil]
 
-  when(imageUtil.getS3ImageAsset(anyString, anyString, anyString)).thenReturn(
-    image("https://uploads.gu.com/Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-2.0.0000000.jpg").master
+  when(imageUtil.getS3Image(anyString, anyString, anyString)).thenReturn(
+    Some(image("https://uploads.gu.com/Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-2.0.0000000.jpg"))
   )
 
   val command = ActiveAssetCommand(atomId, ActivateAssetRequest(atomId, 3L), stores, youtube, user, awsConfig, imageUtil)
@@ -69,7 +69,7 @@ class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
   }
 
   it should "return None, when the first frame image doesn't exist" in {
-    when(imageUtil.getS3ImageAsset(anyString, anyString, anyString)).thenReturn(None)
+    when(imageUtil.getS3Image(anyString, anyString, anyString)).thenReturn(None)
 
     val atom = mediaAtom(activeVersion = None)
     val newVersion: Long = 2L

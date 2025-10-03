@@ -1,7 +1,7 @@
 package com.gu.media.util
 
 import com.gu.contentatom.thrift.{Atom, AtomData, ChangeRecord, User}
-import com.gu.contentatom.thrift.atom.media.{Asset, AssetType, Platform, MediaAtom => ThriftMediaAtom}
+import com.gu.contentatom.thrift.atom.media.{Asset => ThriftAsset, AssetType, Platform => ThriftPlatform, MediaAtom => ThriftMediaAtom}
 import com.gu.media.model._
 import org.joda.time.DateTime
 
@@ -28,6 +28,16 @@ object MediaAtomHelpers {
       Some(mediaAtom.assets.map(_.version).max)
     }
   }
+
+  def findSelfHostedAsset(mediaAtom: MediaAtom, mimeType: String, version: Long): Option[Asset] =
+    mediaAtom.assets.find(asset =>
+      asset.platform == Platform.Url &&
+        asset.mimeType.contains(mimeType) &&
+        asset.version == version
+    )
+
+  def findActiveSelfHostedAsset(mediaAtom: MediaAtom, mimeType: String): Option[Asset] =
+    mediaAtom.activeVersion.flatMap(ver => findSelfHostedAsset(mediaAtom, mimeType, ver))
 
   def getCurrentAssetVersion(mediaAtom: ThriftMediaAtom): Option[Long] = {
     if (mediaAtom.assets.isEmpty) {
@@ -104,15 +114,15 @@ object MediaAtomHelpers {
     })
   }
 
-  private def getAssets(asset: VideoAsset, version: Long): List[Asset] = asset match {
+  private def getAssets(asset: VideoAsset, version: Long): List[ThriftAsset] = asset match {
     case YouTubeAsset(id) =>
-      val asset = Asset(AssetType.Video, version, id, Platform.Youtube, mimeType = None)
+      val asset = ThriftAsset(AssetType.Video, version, id, ThriftPlatform.Youtube, mimeType = None)
 
       List(asset)
 
     case SelfHostedAsset(sources) =>
       val assets = sources.map { case VideoSource(src, mimeType) =>
-        Asset(AssetType.Video, version, src, Platform.Url, Some(mimeType))
+        ThriftAsset(AssetType.Video, version, src, ThriftPlatform.Url, Some(mimeType))
       }
 
       val subtitleAssets = sources.collect {

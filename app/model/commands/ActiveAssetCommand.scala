@@ -1,9 +1,9 @@
 package model.commands
 
 import com.gu.media.logging.Logging
-import com.gu.media.model.{Asset, Image, MediaAtom, VideoAsset}
-import com.gu.media.model.Platform.{Url, Youtube}
-import com.gu.media.util.MediaAtomImplicits
+import com.gu.media.model.{Image, MediaAtom, VideoAsset}
+import com.gu.media.model.Platform.Youtube
+import com.gu.media.util.{MediaAtomHelpers, MediaAtomImplicits}
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
@@ -16,7 +16,7 @@ case class ActiveAssetCommand(
   youtube: YouTube,
   user: PandaUser,
   awsConfig: AWSConfig,
-  imageUtil: ImageUtil
+  imageUtil: S3ImageUtil
 ) extends Command with MediaAtomImplicits with Logging {
 
   type T = MediaAtom
@@ -63,37 +63,6 @@ case class ActiveAssetCommand(
     mp4Name.dropRight(4).concat(VideoAsset.firstFrameImageSuffix)
   }
 
-  private [commands] def firstFrameImage(mediaId: String, mp4Name: String): Option[Image] = {
-    val imageUrl = """(https://.*?)/(.*)""".r
-
-    firstFrameImageName(mp4Name) match {
-
-      case imageUrl(httpOrigin, s3Key) =>
-        val s3ImageAsset = imageUtil.getS3ImageAsset(mediaConvertBucket, s3Key, httpOrigin)
-        s3ImageAsset.map { asset =>
-          Image(
-            assets = List(asset),
-            master = Some(asset),
-            mediaId = mediaId,
-            source = None
-          )
-        }
-
-      case _ => None
-    }
-  }
-
-  // could go in MediaAtomHelpers
-  private [commands] def findSelfHostedAsset(mediaAtom: MediaAtom, mimeType: String, version: Long): Option[Asset] =
-    mediaAtom.assets.find(asset =>
-      asset.platform == Url &&
-        asset.mimeType.contains(mimeType) &&
-        asset.version == version
-    )
-
-  private [commands] def findActiveSelfHostedAsset(mediaAtom: MediaAtom, mimeType: String): Option[Asset] =
-    mediaAtom.activeVersion.flatMap(ver => findSelfHostedAsset(mediaAtom, mimeType, ver))
-
   /**
    * use a default image generated from the first frame of video if:
    *  - the new asset version to activate is self-hosted
@@ -107,28 +76,24 @@ case class ActiveAssetCommand(
    */
   def autoFirstFrameImage(mediaAtom: MediaAtom, newVersion: Long): Option[Image] = {
 
-    log.info(s"first frame image for version $newVersion of $mediaAtom")
-
     val currentPosterImage = mediaAtom.posterImage
-    log.info(s"current posterImage $currentPosterImage")
 
-    val currentFirstFrameImageName = findActiveSelfHostedAsset(mediaAtom, "video/mp4")
+    val currentFirstFrameImageName = MediaAtomHelpers.findActiveSelfHostedAsset(mediaAtom, "video/mp4")
       .map(currentMp4 => firstFrameImageName(currentMp4.id))
-    log.info(s"currentFirstFrameImageName $currentFirstFrameImageName")
 
     val hasDefaultImage = currentFirstFrameImageName match {
       case Some(imageName) =>
-        currentPosterImage.exists(img => ImageUtil.imageHasUrl(img, imageName))
+        currentPosterImage.exists(img => S3ImageUtil.imageHasUrl(img, imageName))
       case _ => false
     }
-    log.info(s"hasDefaultImage $hasDefaultImage")
 
     for {
-      requestedMp4 <- findSelfHostedAsset(mediaAtom, "video/mp4", newVersion)
-      _ = log.info(s"requestedMp4 $requestedMp4")
-      autoFirstFrameImage <- firstFrameImage(mediaAtom.id, requestedMp4.id)
+      requestedMp4 <- MediaAtomHelpers.findSelfHostedAsset(mediaAtom, "video/mp4", newVersion)
+      imgUrl = firstFrameImageName(requestedMp4.id)
+      autoFirstFrameImage <- imageUtil.getS3Image(mediaConvertBucket, mediaAtom.id, imgUrl)
         if currentPosterImage.isEmpty || hasDefaultImage
-      _ = log.info(s"autoFirstFrameImage $autoFirstFrameImage")
+      _ = log.info(s"first frame image for version $newVersion of atom: $autoFirstFrameImage")
+
     } yield autoFirstFrameImage
   }
 }
