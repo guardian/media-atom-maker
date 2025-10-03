@@ -1,9 +1,20 @@
-import { createUpload, uploadParts, uploadPacFile, uploadSubtitleFile, deleteSubtitleFile} from '../../services/UploadsApi';
+import {
+  createUpload,
+  deleteSubtitleFile,
+  uploadPacFile,
+  uploadParts,
+  uploadSubtitleFile
+} from '../../services/UploadsApi';
+import { showError } from '../../slices/error';
+import {
+  s3UploadProgress,
+  s3UploadStarted,
+  setS3UploadStatusToComplete,
+  setS3UploadStatusToError
+} from '../../slices/s3Upload';
 import { errorDetails } from '../../util/errorDetails';
-import {setS3UploadStatusToComplete, s3UploadProgress, setS3UploadStatusToError, s3UploadStarted} from "../../slices/s3Upload";
-import {showError} from "../../slices/error";
 
-export function startVideoUpload({id, file, selfHost}) {
+export function startVideoUpload({ id, file, selfHost }) {
   return dispatch => {
     createUpload(id, file, selfHost).then(upload => {
       dispatch(s3UploadStarted(upload));
@@ -22,35 +33,48 @@ export function startVideoUpload({id, file, selfHost}) {
   };
 }
 
-export function startPacFileUpload({id, file}) {
+export function startPacFileUpload({ id, file }) {
   return dispatch => {
-    return uploadPacFile({id, file}).then(() => {
-      dispatch(setS3UploadStatusToComplete());
-    }).catch(err => {
-      dispatch(showError(errorDetails(err), err));
-      dispatch(setS3UploadStatusToError());
-    });
+    return uploadPacFile({ id, file })
+      .then(() => {
+        dispatch(setS3UploadStatusToComplete());
+      })
+      .catch(err => {
+        dispatch(showError(errorDetails(err), err));
+        dispatch(setS3UploadStatusToError());
+      });
   };
 }
 
-export function startSubtitleFileUpload({id, version, file}) {
+export function startSubtitleFileUpload({ id, version, file }) {
   return dispatch => {
-    return uploadSubtitleFile({id, version, file}).then(() => {
-      dispatch(setS3UploadStatusToComplete());
-    }).catch(err => {
-      dispatch(showError(errorDetails(err), err));
-      dispatch(setS3UploadStatusToError());
-    });
+    return uploadSubtitleFile({ id, version, file })
+      .then(() => {
+        dispatch(setS3UploadStatusToComplete());
+      })
+      .catch(err => {
+        dispatch(showError(errorDetails(err), err));
+        dispatch(setS3UploadStatusToError());
+      });
   };
 }
 
-export function deleteSubtitle({id, version}) {
+export function deleteSubtitle({ id, version }) {
   return dispatch => {
-    return deleteSubtitleFile({id, version}).then(() => {
-      dispatch(setS3UploadStatusToComplete());
-    }).catch(err => {
-      dispatch(showError(errorDetails(err), err));
-      dispatch(setS3UploadStatusToError());
-    });
+    return deleteSubtitleFile({ id, version })
+      .then(() => {
+        dispatch(setS3UploadStatusToComplete());
+      })
+      .catch(err => {
+        dispatch(showError(errorDetails(err), err));
+        dispatch(setS3UploadStatusToError());
+      });
   };
 }
+
+export const s3UploadActions = {
+  startVideoUpload,
+  startPacFileUpload,
+  startSubtitleFileUpload,
+  deleteSubtitle
+};
