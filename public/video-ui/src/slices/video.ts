@@ -1,8 +1,8 @@
-import { Video } from '../services/VideosApi';
-import { blankVideoData } from '../constants/blankVideoData';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { blankVideoData } from '../constants/blankVideoData';
+import { Video } from '../services/VideosApi';
 
-interface VideoState {
+export interface VideoState {
   video: Video;
   publishedVideo: Video;
 }

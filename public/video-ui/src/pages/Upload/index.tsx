@@ -8,7 +8,11 @@ import VideoTrail from '../../components/VideoUpload/VideoTrail';
 import YoutubeUpload from '../../components/VideoUpload/YoutubeUpload';
 import { getStore } from '../../util/storeAccessor';
 
-const VideoUpload = props => {
+type Props = PropsFromRedux & {
+  params: { id: string };
+};
+
+const VideoUpload = (props: Props) => {
   const hasCategories = () => props.youtube?.categories?.length !== 0;
   const hasChannels = () => props.youtube?.channels?.length !== 0;
 
@@ -36,13 +40,13 @@ const VideoUpload = props => {
               <div className="form__group">
                 {projectId && <PlutoProjectLink projectId={projectId} />}
                 <PlutoProjectPicker
-                  video={props.video || {}}
+                  video={props.video}
                   saveVideo={props.videoActions.saveVideo}
                 />
               </div>
             </div>
             <YoutubeUpload
-              video={props.video || {}}
+              video={props.video}
               categories={props.youtube.categories}
               channels={props.youtube.channels}
               uploading={uploading}
@@ -58,7 +62,7 @@ const VideoUpload = props => {
               createAsset={props.videoActions.createAsset}
             />
             <AddSelfHostedAsset
-              video={props.video || {}}
+              video={props.video}
               permissions={getStore().getState().config.permissions}
               uploading={uploading}
               startUpload={props.uploadActions.startVideoUpload}
@@ -70,7 +74,7 @@ const VideoUpload = props => {
             s3Upload={props.s3Upload}
             uploads={props.uploads}
             deleteAssets={props.videoActions.deleteAssets}
-            selectAsset={version =>
+            selectAsset={(version: number) =>
               props.videoActions.revertAsset(props.video.id, version)
             }
             getUploads={() => {
@@ -93,23 +97,24 @@ const VideoUpload = props => {
 };
 
 //REDUX CONNECTIONS
-import { connect } from 'react-redux';
+import { connect, ConnectedProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as getUpload from '../../actions/UploadActions/getUploads';
-import * as s3UploadActions from '../../actions/UploadActions/s3Upload';
-import * as createAsset from '../../actions/VideoActions/createAsset';
-import * as allDeleteAssetActions from '../../actions/VideoActions/deleteAsset';
-import * as getVideo from '../../actions/VideoActions/getVideo';
-import * as revertAsset from '../../actions/VideoActions/revertAsset';
-import * as saveVideo from '../../actions/VideoActions/saveVideo';
+import { getUploads } from '../../actions/UploadActions/getUploads';
+import { s3UploadActions } from '../../actions/UploadActions/s3Upload';
+import { createAsset } from '../../actions/VideoActions/createAsset';
+import { allDeleteAssetActions } from '../../actions/VideoActions/deleteAsset';
+import { getVideo } from '../../actions/VideoActions/getVideo';
+import { revertAsset } from '../../actions/VideoActions/revertAsset';
+import { saveVideo } from '../../actions/VideoActions/saveVideo';
 import {
   resetS3UploadState,
   setS3UploadStatusToPostProcessing
 } from '../../slices/s3Upload';
 import { selectVideo } from '../../slices/video';
 import { fetchCategories, fetchChannels } from '../../slices/youtube';
+import { AppDispatch, RootState } from '../../util/setupStore';
 
-function mapStateToProps(state) {
+function mapStateToProps(state: RootState) {
   return {
     video: selectVideo(state),
     s3Upload: state.s3Upload,
@@ -119,28 +124,25 @@ function mapStateToProps(state) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch: AppDispatch) {
   return {
     videoActions: bindActionCreators(
-      Object.assign(
-        {},
+      {
         getVideo,
         saveVideo,
         createAsset,
         revertAsset,
-        allDeleteAssetActions
-      ),
+        ...allDeleteAssetActions
+      },
       dispatch
     ),
     uploadActions: bindActionCreators(
-      Object.assign(
-        {
-          s3UploadPostProcessing: setS3UploadStatusToPostProcessing,
-          s3UploadReset: resetS3UploadState
-        },
-        s3UploadActions,
-        getUpload
-      ),
+      {
+        s3UploadPostProcessing: setS3UploadStatusToPostProcessing,
+        s3UploadReset: resetS3UploadState,
+        ...s3UploadActions,
+        getUploads
+      },
       dispatch
     ),
     youtubeActions: bindActionCreators(
@@ -150,4 +152,12 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(VideoUpload);
+/**
+ * Generating the connector first to make it easier to extract the props,
+ * @see https://react-redux.js.org/using-react-redux/usage-with-typescript#typing-the-connect-higher-order-component
+ */
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+export default connector(VideoUpload);

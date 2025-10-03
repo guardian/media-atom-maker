@@ -1,18 +1,18 @@
 import React, { useEffect } from 'react';
-import { ManagedForm, ManagedField } from '../ManagedForm';
-import SelectBox from '../FormFields/SelectBox';
-import { Video } from '../../services/VideosApi';
 import { useDispatch, useSelector } from 'react-redux';
+import { Video } from '../../services/VideosApi';
 import {
   fetchCommissions,
   fetchProjects,
   PlutoState
 } from '../../slices/pluto';
 import { AppDispatch, RootState } from '../../util/setupStore';
+import SelectBox from '../FormFields/SelectBox';
+import { ManagedField, ManagedForm } from '../ManagedForm';
 
 type Props = {
   video: Video;
-  saveVideo: { (video: Video): Promise<void> };
+  saveVideo: (video: Video) => (dispatch: AppDispatch) => Promise<void>;
 };
 
 const cloneVideoWithoutPlutoProjectId = (video: Video): Video => {
@@ -42,7 +42,7 @@ export const PlutoProjectPicker = ({ video, saveVideo }: Props) => {
   }, [video.plutoData?.commissionId]);
 
   const onCommissionSelection = () => {
-    saveVideo(cloneVideoWithoutPlutoProjectId(video)).then(() => {
+    dispatch(saveVideo(cloneVideoWithoutPlutoProjectId(video))).then(() => {
       // commissionId is expected to be set since this method is a side effect
       // of a commissionId being selected, but testing to maintain
       // type safety.
