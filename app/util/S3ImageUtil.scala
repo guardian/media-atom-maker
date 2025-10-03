@@ -15,13 +15,12 @@ class S3ImageUtil(awsConfig: AWSConfig) extends Logging {
    * a guardian host e.g. https://uploads.guim.co.uk/{image-key}
    *
    * @param s3Bucket   Name of the S3 bucket
-   * @param mediaId    Desired value for Image.mediaId
    * @param imageUrl   The url through which the image is available on the web
    *                   e.g. https://uploads.guim.co.uk/my-image
    * @return An Option containing the Image populated with a single asset and the master field
    *         None if the image can't be found or read from S3
    */
-  def getS3Image(s3Bucket: String, mediaId: String, imageUrl: String): Option[Image] = {
+  def getS3Image(s3Bucket: String, imageUrl: String): Option[Image] = {
     // assume that the url is made of an http origin and the s3 key
     val s3Url = """(https://.*?)/(.*)""".r
 
@@ -33,7 +32,7 @@ class S3ImageUtil(awsConfig: AWSConfig) extends Logging {
           Image(
             assets = List(asset),
             master = Some(asset),
-            mediaId = mediaId,
+            mediaId = "",
             source = None
           )
         }
@@ -118,6 +117,8 @@ class S3ImageUtil(awsConfig: AWSConfig) extends Logging {
 }
 
 object S3ImageUtil {
-  def imageHasUrl(image: Image, imageUrl: String): Boolean =
-    image.assets.exists(_.file == imageUrl)
+  def imageHasUrl(image: Image, imageUrl: String): Boolean = {
+    val filename = imageUrl.split('/').last
+    image.assets.exists(_.file.endsWith(filename))
+  }
 }

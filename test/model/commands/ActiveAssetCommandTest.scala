@@ -19,7 +19,7 @@ class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
   val awsConfig = mock[AWSConfig]
   val imageUtil = mock[S3ImageUtil]
 
-  when(imageUtil.getS3Image(anyString, anyString, anyString)).thenReturn(
+  when(imageUtil.getS3Image(anyString, anyString)).thenReturn(
     Some(image("https://uploads.gu.com/Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-2.0.0000000.jpg"))
   )
 
@@ -69,7 +69,7 @@ class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
   }
 
   it should "return None, when the first frame image doesn't exist" in {
-    when(imageUtil.getS3Image(anyString, anyString, anyString)).thenReturn(None)
+    when(imageUtil.getS3Image(anyString, anyString)).thenReturn(None)
 
     val atom = mediaAtom(activeVersion = None)
     val newVersion: Long = 2L
