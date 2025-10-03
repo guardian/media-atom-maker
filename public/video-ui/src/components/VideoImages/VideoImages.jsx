@@ -32,7 +32,9 @@ export default class VideoImages extends React.Component {
     if (posterImage.assets.length > 0) {
       const imageGridId = getGridMediaId(posterImage);
 
-      return `${this.props.gridDomain}/images/${imageGridId}?${queryParam}`;
+      if (imageGridId) {
+        return `${this.props.gridDomain}/images/${imageGridId}?${queryParam}`;
+      }
     }
 
     return `${this.props.gridDomain}?${queryParam}`;
