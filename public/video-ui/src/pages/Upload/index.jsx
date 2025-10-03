@@ -1,117 +1,113 @@
-import React from 'react';
-import VideoTrail from '../../components/VideoUpload/VideoTrail';
-import { getStore } from '../../util/storeAccessor';
-import AddAssetFromURL from '../../components/VideoUpload/AddAssetFromURL';
-import { PlutoProjectPicker } from '../../components/Pluto/PlutoProjectPicker';
-import AddSelfHostedAsset from '../../components/VideoUpload/AddSelfHostedAsset';
-import YoutubeUpload from '../../components/VideoUpload/YoutubeUpload';
+import React, { useEffect } from 'react';
 import PACUpload from '../../components/PACUpload/PACUpload';
 import PlutoProjectLink from '../../components/Pluto/PlutoProjectLink';
+import { PlutoProjectPicker } from '../../components/Pluto/PlutoProjectPicker';
+import AddAssetFromURL from '../../components/VideoUpload/AddAssetFromURL';
+import AddSelfHostedAsset from '../../components/VideoUpload/AddSelfHostedAsset';
+import VideoTrail from '../../components/VideoUpload/VideoTrail';
+import YoutubeUpload from '../../components/VideoUpload/YoutubeUpload';
+import { getStore } from '../../util/storeAccessor';
 
-class VideoUpload extends React.Component {
-  hasCategories = () => this.props.youtube?.categories?.length !== 0;
-  hasChannels = () => this.props.youtube?.channels?.length !== 0;
+const VideoUpload = props => {
+  const hasCategories = () => props.youtube?.categories?.length !== 0;
+  const hasChannels = () => props.youtube?.channels?.length !== 0;
 
-  componentWillMount() {
-    this.props.videoActions.getVideo(this.props.params.id);
-    if (!this.hasCategories()) {
-      this.props.youtubeActions.fetchCategories();
+  useEffect(() => {
+    props.videoActions.getVideo(props.params.id);
+    if (!hasCategories()) {
+      props.youtubeActions.fetchCategories();
     }
-    if (!this.hasChannels()) {
-      this.props.youtubeActions.fetchChannels();
+    if (!hasChannels()) {
+      props.youtubeActions.fetchChannels();
     }
-  }
+  }, [props.params.id, props.videoActions, props.youtubeActions]);
 
-  render() {
-    const uploading = this.props.s3Upload.total > 0;
-    const activeVersion = this.props.video?.activeVersion ?? 0;
+  const uploading = props.s3Upload.total > 0;
+  const activeVersion = props.video?.activeVersion ?? 0;
 
-    const projectId = this.props.video?.plutoData?.projectId;
+  const projectId = props.video?.plutoData?.projectId;
 
-    return (
-      <div>
-        <div className="video__main">
-          <div className="video__main__header">
-            <div className="video__detailbox">
-              <div>
-                <div className="form__group">
-                  {projectId && <PlutoProjectLink projectId={projectId} />}
-                  <PlutoProjectPicker
-                    video={this.props.video || {}}
-                    saveVideo={this.props.videoActions.saveVideo}
-                  />
-                </div>
+  return (
+    <div>
+      <div className="video__main">
+        <div className="video__main__header">
+          <div className="video__detailbox">
+            <div>
+              <div className="form__group">
+                {projectId && <PlutoProjectLink projectId={projectId} />}
+                <PlutoProjectPicker
+                  video={props.video || {}}
+                  saveVideo={props.videoActions.saveVideo}
+                />
               </div>
-              <YoutubeUpload
-                video={this.props.video || {}}
-                categories={this.props.youtube.categories}
-                channels={this.props.youtube.channels}
-                uploading={uploading}
-                saveVideo={this.props.videoActions.saveVideo}
-                startUpload={this.props.uploadActions.startVideoUpload}
-              />
-              <PACUpload
-                startUpload={this.props.uploadActions.startPacFileUpload}
-                video={this.props.video}
-              />
-              <AddAssetFromURL
-                video={this.props.video}
-                createAsset={this.props.videoActions.createAsset}
-              />
-              <AddSelfHostedAsset
-                video={this.props.video || {}}
-                permissions={getStore().getState().config.permissions}
-                uploading={uploading}
-                startUpload={this.props.uploadActions.startVideoUpload}
-              />
             </div>
-            <VideoTrail
-              video={this.props.video}
-              activeVersion={activeVersion}
-              s3Upload={this.props.s3Upload}
-              uploads={this.props.uploads}
-              deleteAssets={this.props.videoActions.deleteAssets}
-              selectAsset={version =>
-                this.props.videoActions.revertAsset(
-                  this.props.video.id,
-                  version
-                )
-              }
-              getUploads={() => {
-                this.props.uploadActions.getUploads(this.props.video.id);
-              }}
-              startSubtitleFileUpload={
-                this.props.uploadActions.startSubtitleFileUpload
-              }
-              deleteSubtitle={this.props.uploadActions.deleteSubtitle}
+            <YoutubeUpload
+              video={props.video || {}}
+              categories={props.youtube.categories}
+              channels={props.youtube.channels}
+              uploading={uploading}
+              saveVideo={props.videoActions.saveVideo}
+              startUpload={props.uploadActions.startVideoUpload}
+            />
+            <PACUpload
+              startUpload={props.uploadActions.startPacFileUpload}
+              video={props.video}
+            />
+            <AddAssetFromURL
+              video={props.video}
+              createAsset={props.videoActions.createAsset}
+            />
+            <AddSelfHostedAsset
+              video={props.video || {}}
               permissions={getStore().getState().config.permissions}
-              s3UploadPostProcessing={
-                this.props.uploadActions.s3UploadPostProcessing
-              }
-              s3UploadReset={this.props.uploadActions.s3UploadReset}
-              activatingAssetNumber={this.props.saveState?.activatingAssetNumber}
-              getVideo={this.props.videoActions.getVideo}
+              uploading={uploading}
+              startUpload={props.uploadActions.startVideoUpload}
             />
           </div>
+          <VideoTrail
+            video={props.video}
+            activeVersion={activeVersion}
+            s3Upload={props.s3Upload}
+            uploads={props.uploads}
+            deleteAssets={props.videoActions.deleteAssets}
+            selectAsset={version =>
+              props.videoActions.revertAsset(props.video.id, version)
+            }
+            getUploads={() => {
+              props.uploadActions.getUploads(props.video.id);
+            }}
+            startSubtitleFileUpload={
+              props.uploadActions.startSubtitleFileUpload
+            }
+            deleteSubtitle={props.uploadActions.deleteSubtitle}
+            permissions={getStore().getState().config.permissions}
+            s3UploadPostProcessing={props.uploadActions.s3UploadPostProcessing}
+            s3UploadReset={props.uploadActions.s3UploadReset}
+            activatingAssetNumber={props.saveState?.activatingAssetNumber}
+            getVideo={props.videoActions.getVideo}
+          />
         </div>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 //REDUX CONNECTIONS
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as getVideo from '../../actions/VideoActions/getVideo';
-import * as saveVideo from '../../actions/VideoActions/saveVideo';
 import * as getUpload from '../../actions/UploadActions/getUploads';
 import * as s3UploadActions from '../../actions/UploadActions/s3Upload';
 import * as createAsset from '../../actions/VideoActions/createAsset';
-import * as revertAsset from '../../actions/VideoActions/revertAsset';
 import * as allDeleteAssetActions from '../../actions/VideoActions/deleteAsset';
+import * as getVideo from '../../actions/VideoActions/getVideo';
+import * as revertAsset from '../../actions/VideoActions/revertAsset';
+import * as saveVideo from '../../actions/VideoActions/saveVideo';
+import {
+  resetS3UploadState,
+  setS3UploadStatusToPostProcessing
+} from '../../slices/s3Upload';
+import { selectVideo } from '../../slices/video';
 import { fetchCategories, fetchChannels } from '../../slices/youtube';
-import {setS3UploadStatusToPostProcessing, resetS3UploadState} from "../../slices/s3Upload";
-import {selectVideo} from "../../slices/video";
 
 function mapStateToProps(state) {
   return {
@@ -137,7 +133,14 @@ function mapDispatchToProps(dispatch) {
       dispatch
     ),
     uploadActions: bindActionCreators(
-      Object.assign({s3UploadPostProcessing: setS3UploadStatusToPostProcessing, s3UploadReset: resetS3UploadState}, s3UploadActions ,getUpload),
+      Object.assign(
+        {
+          s3UploadPostProcessing: setS3UploadStatusToPostProcessing,
+          s3UploadReset: resetS3UploadState
+        },
+        s3UploadActions,
+        getUpload
+      ),
       dispatch
     ),
     youtubeActions: bindActionCreators(
