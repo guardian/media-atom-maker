@@ -34,8 +34,7 @@ jobs:
         run: |
           ./scripts/app-ci.sh
       - name: Compile Scala and upload artifacts to RiffRaff
-        run: |
-          ./scripts/scala-ci.sh
+        run: sbt ciCommands # see alias defined in build.sbt
 
       - name: Upload to Riff-Raff
         uses: guardian/actions-riff-raff@v4

@@ -248,3 +248,15 @@ lazy val scheduler = (project in file("scheduler"))
 
 lazy val root = (project in file("root"))
   .aggregate(common, app, uploader, expirer, scheduler)
+
+addCommandAlias("ciCommands", Seq(
+  "clean",
+  "compile",
+  "test",
+  "app/Debian/packageBin",
+  "app/normalisePackageName",
+  "uploader/Universal/packageBin",
+  "expirer/Universal/packageBin",
+  "scheduler/Universal/packageBin",
+  "uploader/Compile/resourceManaged",
+).mkString(";"))
