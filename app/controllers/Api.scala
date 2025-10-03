@@ -185,7 +185,7 @@ class Api(
 
   def setActiveAsset(atomId: String) = APIAuthAction { implicit req =>
     parse(req) { request: ActivateAssetRequest =>
-      val command = ActiveAssetCommand(atomId, request, stores, youtube, req.user, awsConfig)
+      val command = ActiveAssetCommand(atomId, request, stores, youtube, req.user, awsConfig, new ImageUtil(awsConfig))
       val atom = command.process()
 
       Ok(Json.toJson(atom))
