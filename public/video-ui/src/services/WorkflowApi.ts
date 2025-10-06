@@ -7,6 +7,7 @@ import { impossiblyDistantDate } from '../constants/dates';
 export type FlatStub<Priority, Date> = Omit<Stub<Priority, Date>, "externalData"> & ExternalData<Date>
 
 export type Stub<Priority, Date> = {
+  id?: string
   contentType: string,
   editorId?: string,
   priority: Priority
@@ -56,7 +57,7 @@ export type Priority = {
 }
 
 
-type WorkflowDetails = {
+export type WorkflowDetails = {
     video: {
       id?: string,
       title: string,
@@ -278,7 +279,7 @@ export default class WorkflowApi {
     });
   }
 
-  static async updateNote({ id, note }: {id: string, note: string | null}): Promise<ApiResponse<number> | null> {
+  static async updateNote({ id, note }: {id: string, note?: string | null}): Promise<ApiResponse<number> | null> {
     if (!note) return null; //property is optional so may be null
 
     const payload = {
