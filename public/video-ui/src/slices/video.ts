@@ -2,27 +2,21 @@ import { Video } from '../services/VideosApi';
 import { blankVideoData } from '../constants/blankVideoData';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface SaveVideoState {
+
+interface VideoState {
+  video: Video;
+  publishedVideo: Video;
   saving: boolean;
   publishing: boolean;
   addingAsset: boolean;
   activatingAssetNumber?: number;
 }
-
-interface VideoState {
-  video: Video;
-  publishedVideo: Video;
-  saveVideoState?: SaveVideoState;
-}
-
 const initialState: VideoState = {
   video: blankVideoData,
   publishedVideo: null,
-  saveVideoState: {
-    saving: false,
-    publishing: false,
-    addingAsset: false
-  }
+  saving: false,
+  publishing: false,
+  addingAsset: false
 };
 
 const video = createSlice({
@@ -57,27 +51,18 @@ const video = createSlice({
         assets: payload.assets
       };
     },
-    setVideoSaveState: (state, { payload }: PayloadAction<boolean>) => {
-      state.saveVideoState = {
-        ...state.saveVideoState, saving: payload
-      };
+    setSaving: (state, { payload }: PayloadAction<boolean>) => {
+      state.saving = payload;
     },
-    setVideoPublishingState: (state, { payload }: PayloadAction<boolean>) => {
-      state.saveVideoState = {
-        ...state.saveVideoState, publishing: payload
-      };
+    setPublishing: (state, { payload }: PayloadAction<boolean>) => {
+      state.publishing = payload;
     },
-    setAddingAssetState: (state, { payload }: PayloadAction<boolean>) => {
-      state.saveVideoState = {
-        ...state.saveVideoState, addingAsset: payload
-      };
+    setAddingAsset: (state, { payload }: PayloadAction<boolean>) => {
+      state.addingAsset =  payload;
     },
     setActivatingAssetNumber: (state, { payload }:PayloadAction<number | undefined>) => {
-      state.saveVideoState = {
-        ...state.saveVideoState,
-        saving : payload !== undefined,
-        activatingAssetNumber : payload
-      };
+      state.saving =payload !== undefined;
+      state.activatingAssetNumber = payload;
     }
   },
   selectors: {
@@ -86,10 +71,10 @@ const video = createSlice({
   },
   extraReducers: builder => {
     builder.addCase('SHOW_ERROR', state => {
-      state.saveVideoState.saving = false;
-      state.saveVideoState.publishing = false;
-      state.saveVideoState.addingAsset = false;
-      state.saveVideoState.activatingAssetNumber = undefined;
+      state.saving = false;
+      state.publishing = false;
+      state.addingAsset = false;
+      state.activatingAssetNumber = undefined;
     });
   }
 });
@@ -103,9 +88,9 @@ export const {
   setVideoBlank,
   setActiveAsset,
   setAssets,
-  setVideoSaveState,
-  setVideoPublishingState,
-  setAddingAssetState,
+  setSaving,
+  setPublishing,
+  setAddingAsset,
   setActivatingAssetNumber
 } = video.actions;
 

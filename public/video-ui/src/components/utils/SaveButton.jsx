@@ -30,7 +30,7 @@ export default class SaveButton extends React.Component {
         type="button"
         disabled={this.isDisabled()}
         className={
-          (this.props.video.saveVideoState.saving
+          (this.props.video.saving
             ? 'btn--loading '
             : '') + 'btn'
         }

@@ -245,7 +245,7 @@ class VideoDisplay extends React.Component {
       publishedVideo,
     } = this.props;
 
-    const { saving } = this.props.video.saveVideoState.saving;
+    const { saving } = this.props.video;
 
     const {
       isCreateMode,

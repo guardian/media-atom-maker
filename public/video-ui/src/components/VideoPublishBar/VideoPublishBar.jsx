@@ -7,7 +7,7 @@ import VideoUtils from '../../util/video';
 
 export default class VideoPublishBar extends React.Component {
   videoIsCurrentlyPublishing() {
-    return this.props.video.saveVideoState.publishing;
+    return this.props.video.publishing;
   }
 
   videoHasUnpublishedChanges() {

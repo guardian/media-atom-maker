@@ -1,7 +1,7 @@
 import VideosApi, { Video } from '../../services/VideosApi';
 import { showError } from '../../slices/error';
 import { fetchUsages, updateVideoUsageWebTitle, UsageData } from '../../slices/usage';
-import {setVideo, setVideoSaveState} from '../../slices/video';
+import {setVideo, setSaving} from '../../slices/video';
 import { AppDispatch } from '../../util/setupStore';
 
 const errorMessages = {
@@ -12,7 +12,7 @@ const errorMessages = {
 };
 
 export const saveVideo = (video: Video) => async (dispatch: AppDispatch) => {
-  dispatch(setVideoSaveState(true));
+  dispatch(setSaving(true));
   dispatch(setVideo(video));
 
   const savedVideo: Video | undefined = await VideosApi.saveVideo(video.id, video)
@@ -24,7 +24,7 @@ export const saveVideo = (video: Video) => async (dispatch: AppDispatch) => {
       return undefined;
     });
   if (!savedVideo) {
-    dispatch(setVideoSaveState(false));
+    dispatch(setSaving(false));
     return;
   }
   dispatch(setVideo(savedVideo));
@@ -34,7 +34,7 @@ export const saveVideo = (video: Video) => async (dispatch: AppDispatch) => {
     return undefined;
   });
   if (!usageData) {
-    dispatch(setVideoSaveState(false));
+    dispatch(setSaving(false));
     return;
   }
 
@@ -46,11 +46,11 @@ export const saveVideo = (video: Video) => async (dispatch: AppDispatch) => {
       return undefined;
     });
   if (!canonicalPageUpdate) {
-    dispatch(setVideoSaveState(false));
+    dispatch(setSaving(false));
     return;
   }
 
   dispatch(updateVideoUsageWebTitle(video.title));
-  dispatch(setVideoSaveState(false));
+  dispatch(setSaving(false));
 };
 

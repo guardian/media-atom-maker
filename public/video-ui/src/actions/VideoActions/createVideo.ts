@@ -2,15 +2,15 @@ import { browserHistory } from 'react-router';
 import VideosApi, { Video } from '../../services/VideosApi';
 import { showError } from '../../slices/error';
 import { AppDispatch } from '../../util/setupStore';
-import {setVideo, setVideoSaveState} from '../../slices/video';
+import {setVideo, setSaving} from '../../slices/video';
 
 export function createVideo(video: Video) {
   return (dispatch: AppDispatch) => {
-    dispatch(setVideoSaveState(true));
+    dispatch(setSaving(true));
     return VideosApi.createVideo(video)
       .then(res => {
         browserHistory.push('/videos/' + res.id);
-        dispatch(setVideoSaveState(false));
+        dispatch(setSaving(false));
         dispatch(setVideo(res));
       })
       .catch(error => {
