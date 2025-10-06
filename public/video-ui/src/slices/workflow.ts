@@ -17,7 +17,7 @@ type WorkflowState = {
   priorities: Priority[];
 };
 
-export const getSections = createAsyncThunk<Section[] | undefined>(
+export const getSections = createAsyncThunk<Section[]>(
   'workflow/getSections',
   (_, { dispatch }) =>
     WorkflowApi.getSections().catch((error: unknown) => {
@@ -31,7 +31,7 @@ export const getSections = createAsyncThunk<Section[] | undefined>(
 );
 
 export const getStatus = createAsyncThunk<
-  FlatStub<string, string> | undefined,
+  FlatStub<string, string>,
   { id: string }
 >('workflow/getStatus', (video, { dispatch }) =>
   WorkflowApi.getAtomInWorkflow(video).catch((error: Response | any) => {
@@ -60,7 +60,7 @@ export const getStatus = createAsyncThunk<
   })
 );
 
-export const getStatuses = createAsyncThunk<ExpandedStatus[] | undefined>(
+export const getStatuses = createAsyncThunk<ExpandedStatus[]>(
   'workflow/getStatuses',
   (_, { dispatch }) =>
     WorkflowApi.getStatuses().catch(
@@ -74,7 +74,7 @@ export const getStatuses = createAsyncThunk<ExpandedStatus[] | undefined>(
     )
 );
 
-export const getPriorities = createAsyncThunk<Priority[] | undefined>(
+export const getPriorities = createAsyncThunk<Priority[]>(
   'workflow/getPriorities',
   (_, { dispatch }) =>
     WorkflowApi.getPriorities().catch(
@@ -92,10 +92,9 @@ export const trackInWorkflow = createAsyncThunk<unknown, WorkflowDetails>(
   'workflow/trackInWorkflow',
   (workflowDetails, { dispatch }) =>
     WorkflowApi.trackInWorkflow(workflowDetails).catch(err => {
-        dispatch(showError('Failed to track Atom in Workflow', err));
-        throw err;
-      }
-    )
+      dispatch(showError('Failed to track Atom in Workflow', err));
+      throw err;
+    })
 );
 
 export const updateWorkflowData = createAsyncThunk<
@@ -108,10 +107,9 @@ export const updateWorkflowData = createAsyncThunk<
     WorkflowApi.updatePriority(workflowItem),
     WorkflowApi.updateProdOffice(workflowItem)
   ]).catch(err => {
-      dispatch(showError('Failed to update Atom data in Workflow', err));
-      throw err;
-    }
-  )
+    dispatch(showError('Failed to update Atom data in Workflow', err));
+    throw err;
+  })
 );
 
 const initialState: WorkflowState = {

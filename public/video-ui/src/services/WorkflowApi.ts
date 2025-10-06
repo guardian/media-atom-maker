@@ -279,7 +279,7 @@ export default class WorkflowApi {
     });
   }
 
-  static async updateNote({ id, note }: {id: string, note?: string}): Promise<ApiResponse<number> | null> {
+  static async updateNote({ id, note }: {id: string, note?: string | null}): Promise<ApiResponse<number> | null> {
     if (!note) return null; //property is optional so may be null
 
     const payload = {
