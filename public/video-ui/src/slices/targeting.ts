@@ -71,7 +71,7 @@ const targeting = createSlice({
   reducers: {},
   extraReducers: builder => {
     builder
-      .addCase(getTargets.pending, () => initialState)
+      .addCase(getTargets.pending, () => ({ ...initialState }))
       .addCase(getTargets.fulfilled, (state, { payload }) => {
         state.targets = [...(state.targets || []), ...payload];
       })
