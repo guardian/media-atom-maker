@@ -1,9 +1,9 @@
 import VideosApi from '../../services/VideosApi';
 import { getVideo } from './getVideo';
-import { getUploads } from '../UploadActions/getUploads';
 import { setAssets } from "../../slices/video";
 import { showError } from "../../slices/error";
 import { setAddingAsset } from "../../slices/saveState";
+import { getUploads } from "../../slices/uploads";
 
 export function createAsset(asset, video) {
   return dispatch => {
