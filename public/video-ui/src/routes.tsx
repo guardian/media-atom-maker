@@ -1,7 +1,7 @@
 import React from 'react';
 import { browserHistory, IndexRedirect, Redirect, Route, Router } from 'react-router';
 
-import ReactApp from './components/ReactApp';
+import { ReactApp } from './components/ReactApp';
 import Help from './pages/Help';
 import Search from './pages/Search';
 import Training from './pages/Training';
