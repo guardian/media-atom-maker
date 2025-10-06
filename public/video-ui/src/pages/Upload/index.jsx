@@ -5,7 +5,6 @@ import AddAssetFromURL from '../../components/VideoUpload/AddAssetFromURL';
 import { PlutoProjectPicker } from '../../components/Pluto/PlutoProjectPicker';
 import AddSelfHostedAsset from '../../components/VideoUpload/AddSelfHostedAsset';
 import YoutubeUpload from '../../components/VideoUpload/YoutubeUpload';
-import PACUpload from '../../components/PACUpload/PACUpload';
 import PlutoProjectLink from '../../components/Pluto/PlutoProjectLink';
 
 class VideoUpload extends React.Component {
@@ -49,10 +48,6 @@ class VideoUpload extends React.Component {
                 uploading={uploading}
                 saveVideo={this.props.videoActions.saveVideo}
                 startUpload={this.props.uploadActions.startVideoUpload}
-              />
-              <PACUpload
-                startUpload={this.props.uploadActions.startPacFileUpload}
-                video={this.props.video}
               />
               <AddAssetFromURL
                 video={this.props.video}
@@ -108,7 +103,7 @@ import * as createAsset from '../../actions/VideoActions/createAsset';
 import * as revertAsset from '../../actions/VideoActions/revertAsset';
 import * as allDeleteAssetActions from '../../actions/VideoActions/deleteAsset';
 import { fetchCategories, fetchChannels } from '../../slices/youtube';
-import {setS3UploadStatusToPostProcessing, resetS3UploadState, startVideoUpload, startPacFileUpload, startSubtitleFileUpload, deleteSubtitle} from "../../slices/s3Upload";
+import {setS3UploadStatusToPostProcessing, resetS3UploadState, startVideoUpload, startSubtitleFileUpload, deleteSubtitle} from "../../slices/s3Upload";
 import {selectVideo} from "../../slices/video";
 import {getUploads} from "../../slices/uploads";
 
@@ -139,8 +134,8 @@ function mapDispatchToProps(dispatch) {
       {
         s3UploadPostProcessing: setS3UploadStatusToPostProcessing,
         s3UploadReset: resetS3UploadState,
-        getUploads, startVideoUpload,
-        startPacFileUpload,
+        getUploads,
+        startVideoUpload,
         startSubtitleFileUpload,
         deleteSubtitle
       },

@@ -4,7 +4,6 @@ import { errorDetails } from '../util/errorDetails';
 import {
   createUpload,
   deleteSubtitleFile,
-  uploadPacFile,
   uploadParts,
   uploadSubtitleFile
 } from '../services/UploadsApi';
@@ -53,18 +52,6 @@ export const startVideoUpload = createAsyncThunk<
         dispatch(setS3UploadStatusToError());
       });
   })
-);
-
-export const startPacFileUpload = createAsyncThunk<
-  unknown,
-  { id: string; file: File }
->('s3Upload/startPacFileUpload', ({ id, file }, { dispatch }) =>
-  uploadPacFile({ id, file })
-    .then(() => dispatch(setS3UploadStatusToComplete()))
-    .catch(err => {
-      dispatch(showError(errorDetails(err), err));
-      dispatch(setS3UploadStatusToError());
-    })
 );
 
 export const startSubtitleFileUpload = createAsyncThunk<
