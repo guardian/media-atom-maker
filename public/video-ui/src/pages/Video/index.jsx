@@ -47,9 +47,7 @@ class VideoDisplay extends React.Component {
   }
 
   getWorkflowState() {
-    if (this.props.video.id !== undefined) {
-      this.props.workflowActions.getStatus(this.props.video);
-    }
+    this.props.workflowActions.getStatus({ id: this.props.params.id });
   }
 
   getUsages() {
