@@ -71,7 +71,7 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
 
   private def getOutputs(sources: List[VideoSource]): List[OutputGroup] = {
     sources.map {
-      case VideoSource(output, "video/mp4") =>
+      case VideoSource(output, VideoSource.mimeTypeMp4) =>
         val filenameWithoutMp4 = if (output.endsWith(".mp4")) output.dropRight(4) else output
         val outputGroupSettings = new OutputGroupSettings()
           .withFileGroupSettings(new FileGroupSettings()
@@ -79,7 +79,7 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
           )
         new OutputGroup().withOutputGroupSettings(outputGroupSettings)
 
-      case VideoSource(output, "application/vnd.apple.mpegurl") =>
+      case VideoSource(output, VideoSource.mimeTypeM3u8) =>
         val filenameWithoutM3u8 = if (output.endsWith(".m3u8")) output.dropRight(5) else output
         val outputGroupSettings = new OutputGroupSettings()
           .withHlsGroupSettings(new HlsGroupSettings()
