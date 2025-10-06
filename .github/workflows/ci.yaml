@@ -5,24 +5,28 @@ on:
   push: # Do not rely on `push` for PR CI - see https://github.com/guardian/mobile-apps-api/pull/2741#issuecomment-1777653733
     branches:
       - main # Optimal for GHA workflow caching - see https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#restrictions-for-accessing-a-cache
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   CI:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
+      pull-requests: write
     steps:
-      - uses: actions/checkout@v2
-      - uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-to-assume: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
-          aws-region: eu-west-1
-      # See https://github.com/guardian/setup-scala
+      - uses: actions/checkout@v5
+
       - name: Setup Java and sbt
         uses: guardian/setup-scala@v1
-      - uses: actions/setup-node@v3
+
+      - uses: actions/setup-node@v5
         with:
           node-version-file: ".nvmrc"
+
       - name: Build Pluto lambda
         run: |
           ./scripts/pluto-ci.sh
@@ -30,5 +34,27 @@ jobs:
         run: |
           ./scripts/app-ci.sh
       - name: Compile Scala and upload artifacts to RiffRaff
-        run: |
-          ./scripts/scala-ci.sh
+        run: sbt ciCommands # see alias defined in build.sbt
+
+      - name: Upload to Riff-Raff
+        uses: guardian/actions-riff-raff@v4
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          roleArn: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
+          projectName: media-service:media-atom-maker
+          configPath: conf/riff-raff.yaml
+          buildNumberOffset: 4800
+          contentDirectories: |
+            media-atom-maker:
+              - target/media-atom-maker.deb
+            media-atom-upload-actions:
+              - uploader/target/universal/media-atom-uploader.zip
+            media-atom-expirer:
+              - expirer/target/universal/media-atom-expirer.zip
+            media-atom-scheduler:
+              - scheduler/target/universal/media-atom-scheduler.zip
+            pluto-message-ingestion:
+              - pluto-message-ingestion/target/pluto-message-ingestion.zip
+            media-atom-pipeline-cloudformation:
+              - uploader/target/scala-2.13/resource_managed/main/media-atom-pipeline.yaml
+
