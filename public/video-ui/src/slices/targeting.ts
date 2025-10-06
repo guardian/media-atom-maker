@@ -79,7 +79,7 @@ const targeting = createSlice({
         state.targets = [...(state.targets || []), payload];
       })
       .addCase(updateTarget.pending, (state, { meta }) => {
-        const index = state.targets.findIndex(({ id }) => id === meta.arg.id)
+        const index = state.targets.findIndex(({ id }) => id === meta.arg.id);
         index >= 0 && (state.targets[index] = meta.arg);
       })
       .addCase(deleteTarget.pending, (state, action) => {
