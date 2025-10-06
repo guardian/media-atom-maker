@@ -68,7 +68,6 @@ class ReactApp extends React.Component {
           showPublishedState={showPublishedState}
           s3Upload={this.props.s3Upload}
           publishVideo={this.props.appActions.publishVideo}
-          saveState={this.props.saveState}
           updateVideoPage={this.props.appActions.updateVideoPage}
           createVideoPage={this.props.appActions.createVideoPage}
           videoEditOpen={this.props.videoEditOpen}
@@ -119,7 +118,6 @@ function mapStateToProps(state) {
   return {
     search: state.search,
     shouldUseCreatedDateForSort: state.shouldUseCreatedDateForSort,
-    saveState: state.saveState,
     video: selectVideo(state),
     publishedVideo: selectPublishedVideo(state),
     error: state.error,

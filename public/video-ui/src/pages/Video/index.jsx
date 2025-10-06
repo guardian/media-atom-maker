@@ -248,10 +248,9 @@ class VideoDisplay extends React.Component {
       usages,
       workflow,
       publishedVideo,
-      saveState
     } = this.props;
 
-    const { saving } = this.props.saveState;
+    const { saving } = this.props.video.saveVideoState.saving;
 
     const {
       isCreateMode,
@@ -440,7 +439,6 @@ function mapStateToProps(state) {
     videoEditOpen: state.videoEditOpen,
     checkedFormFields: state.checkedFormFields,
     workflow: state.workflow,
-    saveState: state.saveState
   };
 }
 

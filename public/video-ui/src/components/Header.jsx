@@ -14,7 +14,7 @@ import {QUERY_PARAM_mediaPlatformFilter, QUERY_PARAM_shouldUseCreatedDateForSort
 export default class Header extends React.Component {
   state = { presence: null };
 
-  
+
 
   publishVideo = () => {
     this.props.publishVideo(this.props.video.id);
@@ -261,7 +261,6 @@ export default class Header extends React.Component {
             className="flex-grow"
             video={this.props.video}
             publishedVideo={this.props.publishedVideo}
-            saveState={this.props.saveState}
             videoEditOpen={this.props.videoEditOpen}
             updateVideoPage={this.props.updateVideoPage}
             requiredComposerFieldsMissing={this.requiredComposerFieldsMissing}
