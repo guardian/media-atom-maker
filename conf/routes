@@ -15,8 +15,6 @@ DELETE  /api/atoms/:id/asset-list      controllers.Api.deleteAssetList(id)
 PUT     /api/atom/:id/asset-active     controllers.Api.setActiveAsset(id)
 PUT     /api/atom/:id/reset-duration-from-active     controllers.Api.resetDurationFromActive(id)
 
-POST    /api/atom/:id/pac-file         controllers.Api.uploadPacFile(id)
-
 GET     /api/pluto/commissions         controllers.PlutoController.getCommissions()
 GET     /api/pluto/commissions/:id     controllers.PlutoController.getCommission(id)
 GET     /api/pluto/commissions/:id/projects  controllers.PlutoController.getProjectsByCommissionId(id)

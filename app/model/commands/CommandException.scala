@@ -33,7 +33,6 @@ object CommandExceptions extends Results {
   def IncorrectYouTubeChannel = throw new CommandException(s"New video is not on the same YouTube channel", 400)
   def NotGLabsAtom = throw new CommandException(s"Third party videos can only be added to GLabs Atoms", 400)
 
-  def PacFileUploadFailed = throw new CommandException("Failed to upload pac file", 500)
   def SubtitleFileUploadFailed = throw new CommandException("Failed to upload subtitle file", 500)
 
   // Add exceptions here as required
