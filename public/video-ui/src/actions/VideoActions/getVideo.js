@@ -1,12 +1,11 @@
 import VideosApi from '../../services/VideosApi';
 import moment from 'moment';
-import { setSaving } from '../../slices/saveState';
 import { showError } from '../../slices/error';
-import { setVideo } from '../../slices/video';
+import {setVideo, setVideoSaveState} from '../../slices/video';
 
 export function getVideo(id) {
   return dispatch => {
-    dispatch(setSaving(true));
+    dispatch(setVideoSaveState(true));
     return VideosApi.fetchVideo(id)
       .then(res => {
         // We and downstream consumers expect the scheduled launch to be an integer, but our API provides a string representation
@@ -24,7 +23,7 @@ export function getVideo(id) {
         if (expiry) {
           res.contentChangeDetails.expiry.date = moment(expiry).valueOf();
         }
-        dispatch(setSaving(false));
+        dispatch(setVideoSaveState(false));
         dispatch(setVideo(res));
       })
       .catch(error => dispatch(showError('Could not get video', error)));
