@@ -17,11 +17,11 @@ object VideoSource {
   val mimeTypeM3u8 = "application/vnd.apple.mpegurl"
   val mimeTypeVtt = "text/vtt"
   val captionsSuffix = "captions_00001.vtt"
+  val firstFrameImageSuffix = ".0000000.jpg"
 }
 
 object VideoAsset {
   implicit val formatYouTube: Format[YouTubeAsset] = Jsonx.formatCaseClass[YouTubeAsset]
   implicit val formatSelfHosted: Format[SelfHostedAsset] = Jsonx.formatCaseClass[SelfHostedAsset]
   implicit val format: Format[VideoAsset] = Jsonx.formatSealed[VideoAsset]
-  val firstFrameImageSuffix = ".0000000.jpg"
 }
