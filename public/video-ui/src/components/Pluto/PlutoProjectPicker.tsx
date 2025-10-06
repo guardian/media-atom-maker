@@ -1,18 +1,18 @@
 import React, { useEffect } from 'react';
-import { ManagedForm, ManagedField } from '../ManagedForm';
-import SelectBox from '../FormFields/SelectBox';
-import { Video } from '../../services/VideosApi';
 import { useDispatch, useSelector } from 'react-redux';
+import { Video } from '../../services/VideosApi';
 import {
   fetchCommissions,
   fetchProjects,
   PlutoState
 } from '../../slices/pluto';
 import { AppDispatch, RootState } from '../../util/setupStore';
+import SelectBox from '../FormFields/SelectBox';
+import { ManagedField, ManagedForm } from '../ManagedForm';
 
 type Props = {
   video: Video;
-  saveVideo: { (video: Video): Promise<void> };
+  saveVideo: (video: Video) => Promise<void>;
 };
 
 const cloneVideoWithoutPlutoProjectId = (video: Video): Video => {
