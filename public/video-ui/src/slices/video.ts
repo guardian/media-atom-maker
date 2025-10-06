@@ -76,7 +76,7 @@ const video = createSlice({
       state.saveVideoState = {
         ...state.saveVideoState,
         saving : payload !== undefined,
-        activatingAssetNumber : payload,
+        activatingAssetNumber : payload
       };
     }
   },
