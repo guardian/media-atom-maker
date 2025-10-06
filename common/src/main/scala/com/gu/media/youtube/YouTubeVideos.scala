@@ -42,6 +42,9 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
         // YouTube API returns duration is in ISO 8601 format
         // https://developers.google.com/youtube/v3/docs/videos#contentDetails.duration
         val iso8601Duration = video.getContentDetails.getDuration
+
+        log.info(s"YouTube reported a duration of $iso8601Duration for asset: $youtubeId")
+
         Some(ISO8601Duration.toSeconds(iso8601Duration))
       }
       case None => {
