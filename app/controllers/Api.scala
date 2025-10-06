@@ -1,9 +1,8 @@
 package controllers
 
-import com.gu.atom.play.AtomAPIActions
 import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider}
 import com.gu.media.logging.Logging
-import com.gu.media.model.{Asset, MediaAtom, MediaAtomBeforeCreation, PlutoSyncMetadataMessage}
+import com.gu.media.model.{Asset, MediaAtom, MediaAtomBeforeCreation}
 import com.gu.media.util.MediaAtomImplicits
 import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.model.User
@@ -185,7 +184,7 @@ class Api(
 
   def setActiveAsset(atomId: String) = APIAuthAction { implicit req =>
     parse(req) { request: ActivateAssetRequest =>
-      val command = ActiveAssetCommand(atomId, request, stores, youtube, req.user, awsConfig)
+      val command = ActiveAssetCommand(atomId, request, stores, youtube, req.user, awsConfig, new S3ImageUtil(awsConfig))
       val atom = command.process()
 
       Ok(Json.toJson(atom))
