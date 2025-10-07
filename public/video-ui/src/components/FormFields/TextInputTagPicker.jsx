@@ -1,10 +1,10 @@
-import React from 'react';
 import { PropTypes } from 'prop-types';
+import React from 'react';
 import { keyCodes } from '../../constants/keyCodes';
-import UserActions from '../../constants/UserActions';
 import TagTypes from '../../constants/TagTypes';
-import TagSearch from '../TagSearch/TagSearch';
+import UserActions from '../../constants/UserActions';
 import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
+import TagSearch from '../TagSearch/TagSearch';
 
 export default class TextInputTagPicker extends React.Component {
 
@@ -29,7 +29,7 @@ export default class TextInputTagPicker extends React.Component {
     lastAction: UserActions.other
   };
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (this.props.inputClearCount !== nextProps.inputClearCount) {
       this.setState({
         inputString: ''

@@ -242,7 +242,7 @@ class VideoDisplay extends React.Component {
       video,
       usages,
       workflow,
-      publishedVideo,
+      publishedVideo
     } = this.props;
 
     const {
@@ -428,7 +428,7 @@ function mapStateToProps(state) {
     publishedVideo: selectPublishedVideo(state),
     videoEditOpen: state.videoEditOpen,
     checkedFormFields: state.checkedFormFields,
-    workflow: state.workflow,
+    workflow: state.workflow
   };
 }
 
