@@ -201,30 +201,6 @@ class Api(
     }
   }
 
-  def uploadPacFile(id: String) = APIAuthAction(parse.multipartFormData) { request =>
-    request.body.file("pac-file").map { file =>
-      val atom = getPreviewAtom(id)
-      val mediaAtom: MediaAtom = MediaAtom.fromThrift(atom)
-
-      try {
-        val pacFileUpload = PacFileUploadCommand(
-          mediaAtom,
-          file.ref,
-          stores,
-          request.user,
-          awsConfig
-        ).process()
-
-        Ok(Json.toJson(pacFileUpload))
-      }
-      catch {
-        commandExceptionAsResult
-      }
-    }.getOrElse(
-      BadRequest
-    )
-  }
-
   private def updateAtom(
     atom: MediaAtom,
     user: User

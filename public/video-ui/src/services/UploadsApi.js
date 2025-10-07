@@ -117,22 +117,6 @@ export function uploadParts(upload, parts, file, progressFn) {
   });
 }
 
-export function uploadPacFile({ id, file }) {
-  const formData = new FormData();
-  formData.append('pac-file', file);
-
-  return apiRequest({
-    url: `/api/atom/${id}/pac-file`,
-    method: 'post',
-    headers: {
-      'Csrf-Token': window.guardian.csrf.token
-    },
-    data: formData,
-    contentType: 'multipart/form-data',
-    processData: false
-  });
-}
-
 /**
  * uploads a text file containing subtitles to the given version of the video atom
  * @param id - atom id
