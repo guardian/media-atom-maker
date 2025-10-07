@@ -1,14 +1,13 @@
 module.exports = {
   parser: '@typescript-eslint/parser',
-  extends: [
-    'plugin:react/recommended',
-  ],
+  extends: ['plugin:react/recommended'],
+
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module',
     ecmaFeatures: {
       jsx: true
-    },
+    }
   },
   plugins: ['react', 'prettier'],
   rules: {
@@ -22,5 +21,10 @@ module.exports = {
     react: {
       version: 'detect'
     }
-  }
+  },
+  overrides: [
+    {
+      files: ['**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx']
+    }
+  ]
 };
