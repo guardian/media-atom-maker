@@ -16,16 +16,16 @@ class PureTagPicker extends React.Component {
     inputClearCount: PropTypes.number.isRequired,
     inputPlaceholder: PropTypes.string.isRequired,
     updateSideEffects: PropTypes.func
-  }
+  };
 
   state = {
-    inputString: '',
+    inputString: ''
   };
 
   componentDidUpdate(prevProps) {
     if (prevProps.inputClearCount !== this.props.inputClearCount) {
       this.setState({
-        inputString: '',
+        inputString: ''
       });
     }
   }
@@ -37,7 +37,7 @@ class PureTagPicker extends React.Component {
     this.setState({
       inputString: searchText
     });
-  }
+  };
 
   selectNewTag = (newFieldValue) => {
 
@@ -46,7 +46,7 @@ class PureTagPicker extends React.Component {
       });
 
       this.props.onUpdate(newFieldValue);
-  }
+  };
 
   render() {
 

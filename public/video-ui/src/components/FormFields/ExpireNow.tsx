@@ -38,5 +38,5 @@ export const ExpireNowComponent = (props:ExpireNowComponentProps ) => {
       </div>
     </div>
   );
-}
+};
 
