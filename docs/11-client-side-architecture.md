@@ -77,8 +77,10 @@ significant benefits to the Developer Experience.
 
 ### Test coverage
 
-The client is sparsely tested, but some examples do exist. When rewriting components, it would be worth adding test
-coverage to ensure consistent behaviour and help document business logic.
+The client is sparsely tested, but
+some [examples](https://github.com/guardian/media-atom-maker/blob/ccfd5c194d2c76e55d0c4b468d91e252716a0878/public/video-ui/src/components/FormFields/TagPicker.test.jsx)
+do exist. When rewriting components, it would be worth adding test coverage to ensure consistent behaviour and help
+document business logic.
 
 ### Improving telemetry
 
