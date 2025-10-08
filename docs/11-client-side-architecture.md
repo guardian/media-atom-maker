@@ -73,7 +73,7 @@ RTK.
 Continuing to improve the TypeScript coverage will make the project easier to work on in the future and provides
 significant benefits to the Developer Experience.
 
-Setting TypeScript to be `strict` would be a sensible improvement and help identify further potential bugs.
+[Setting TypeScript to be `strict`](https://www.typescriptlang.org/docs/handbook/2/basic-types.html#strictness) would be a sensible improvement and help identify further potential bugs.
 
 ### Test coverage
 
