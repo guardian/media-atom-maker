@@ -42,7 +42,7 @@ but it doesn't work for all endpoints.
 
 ## Improvements
 
-Works has been undertaken to improve the codebase in an effort to reduce the number of bugs and improve the overall UX.
+Work has been undertaken to improve the codebase in an effort to reduce the number of bugs and improve the overall UX.
 
 ### Redux Toolkit
 
