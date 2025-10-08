@@ -18,7 +18,7 @@ been undertaken to modernise it, and what direction future development might be 
 ### Overview
 
 The Media Atom Maker client is a SPA React App, using Redux for state management and fetch requests to interact with the
-backend API. Users can use the client to create atoms, add metadata, upload multiple assets and chose one to be
+backend API. Users can use the client to create atoms, add metadata, upload multiple assets and choose one to be
 featured. Once published, Atoms can be featured in content in various place, but updated and managed in a single
 place. Most assets are uploaded and hosted in YouTube, using the [uploader process](../uploader/README.md).
 
