@@ -128,7 +128,7 @@ export const ReactApp = (
       {store.error.message ? (
         <div
           key={store.error.key}
-          className={`${store.error.warning ? 'error-bar--warning' : 'error-bar'} error-bar--animate `}
+          className={`${store.error.isWarning ? 'error-bar--warning' : 'error-bar'} error-bar--animate `}
         >
           {store.error.message}
         </div>

@@ -27,13 +27,13 @@ export const clearError: () => Action<'CLEAR_ERROR'> = () => ({
 interface Error {
   message: false | string;
   key: number;
-  warning: boolean;
+  isWarning: boolean;
 }
 
 const initialState: Error = {
   message: false,
   key: 0,
-  warning: false
+  isWarning: false
 };
 
 // Currently this slice users Extra Reducers to all for support of actions without
@@ -49,7 +49,7 @@ const error = createSlice({
       (state, { message }: ShowError) => {
         state.message = message;
         state.key++;
-        state.warning = false;
+        state.isWarning = false;
       }
     ),
     clearError: builder.addCase('CLEAR_ERROR', state => {
@@ -62,7 +62,7 @@ const error = createSlice({
       if (payload.duration === 0 && activeAsset?.platform === 'Youtube') {
         state.message =
           'YouTube reported the activated asset as being Live. If this is not the case you will need to manually set the duration.';
-        state.warning = true;
+        state.isWarning = true;
       }
     })
   })
