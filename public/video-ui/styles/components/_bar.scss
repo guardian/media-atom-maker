@@ -65,19 +65,6 @@
 
 }
 
-.error-bar--warning {
-  display: block;
-  position: relative;
-  padding: 10px;
-  background-color: $slightDangerColor;
-  color: white;
-  text-align: center;
-
-  &.error-bar--animate {
-    animation: errorBarWarningPulse 0.6s 2;
-  }
-}
-
 @keyframes errorBarPulse {
   0% {
     background-color: $cRedFF;
@@ -90,15 +77,28 @@
   }
 }
 
+.error-bar--warning {
+  display: block;
+  position: relative;
+  padding: 10px;
+  background-color: $cYellow;
+  color: $color800Grey;
+  text-align: center;
+
+  &.error-bar--animate {
+    animation: errorBarWarningPulse 0.6s 2;
+  }
+}
+
 @keyframes errorBarWarningPulse {
   0% {
-    background-color: $slightDangerColor;
+    background-color: $cYellow;
   }
   50% {
-    background-color: #b67604;
+    background-color: $slightDangerColor;
   }
   100% {
-    background-color: $slightDangerColor;
+    background-color: $cYellow;
   }
 }
 
