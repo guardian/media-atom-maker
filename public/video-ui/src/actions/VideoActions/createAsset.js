@@ -9,7 +9,6 @@ export function createAsset(asset, video) {
     dispatch(setAddingAsset(true));
     return VideosApi.createAsset(asset, video.id)
       .then(res => {
-        dispatch(setAddingAsset(false));
         dispatch(setAssets(res));
         // Pull down the latest changes from the server
         dispatch(getUploads(video.id));

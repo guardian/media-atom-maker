@@ -8,7 +8,6 @@ export function publishVideo(videoId: string) {
     dispatch(setPublishing(true));
     return VideosApi.publishVideo(videoId)
       .then(res => {
-        dispatch(setPublishing(false));
         dispatch(setVideoAndPublishedVideo(res));
       })
       .catch(error => dispatch(showError(error.responseText, error)));

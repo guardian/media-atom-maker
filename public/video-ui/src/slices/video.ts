@@ -2,7 +2,6 @@ import { Video } from '../services/VideosApi';
 import { blankVideoData } from '../constants/blankVideoData';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-
 interface VideoState {
   video: Video;
   publishedVideo: Video;
@@ -32,6 +31,7 @@ const video = createSlice({
     setVideoAndPublishedVideo: (state, { payload }: PayloadAction<Video>) => {
       state.video = { ...blankVideoData, ...payload };
       state.publishedVideo = { ...state.video };
+      state.publishing = false;
     },
     setVideoBlank: state => {
       state.video = {
@@ -44,12 +44,14 @@ const video = createSlice({
         ...(state.video || blankVideoData),
         activeVersion: payload.activeVersion
       };
+      state.activatingAssetNumber = undefined;
     },
     setAssets: (state, { payload }: PayloadAction<Video>) => {
       state.video = {
         ...(state.video || blankVideoData),
         assets: payload.assets
       };
+      state.addingAsset = false;
     },
     setSaving: (state, { payload }: PayloadAction<boolean>) => {
       state.saving = payload;
@@ -58,10 +60,13 @@ const video = createSlice({
       state.publishing = payload;
     },
     setAddingAsset: (state, { payload }: PayloadAction<boolean>) => {
-      state.addingAsset =  payload;
+      state.addingAsset = payload;
     },
-    setActivatingAssetNumber: (state, { payload }:PayloadAction<number | undefined>) => {
-      state.saving =payload !== undefined;
+    setActivatingAssetNumber: (
+      state,
+      { payload }: PayloadAction<number | undefined>
+    ) => {
+      state.saving = payload !== undefined;
       state.activatingAssetNumber = payload;
     }
   },
