@@ -135,3 +135,27 @@ It also allows videos to be embedded into Composer content using an iFrame inter
 atom.
 
 [Documentation](09-composer-integration.md)
+
+### Workflow
+
+[Workflow](https://github.com/guardian/workflow/) is a Guardian tool, used for tracking content in production. Media Atom Maker can display the Workflow state for any atom tracked in Workflow, and offers users the ability to edit it.
+
+On loading the Workflow tab in the UI, the atom is looked up in workflow.
+
+```mermaid
+---
+title: Workflow integration
+---
+sequenceDiagram
+  actor User
+  participant MAMFrontend
+  User ->> MAMFrontend: Navigate to an atom’s Workflow tab
+  MAMFrontend ->>+ Workflow: GET /api/sections
+  MAMFrontend ->>+ Workflow: GET /api/statuses
+  MAMFrontend ->>+ Workflow: GET /api/priorities
+  MAMFrontend ->>+ Workflow: GET /api/atom/<ID>
+  Workflow ->>- MAMFrontend: sections
+  Workflow ->>- MAMFrontend: statuses
+  Workflow ->>- MAMFrontend: priorities
+  Workflow ->>- MAMFrontend: atom info
+```
