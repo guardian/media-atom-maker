@@ -9,4 +9,6 @@ Follow the [docs](./docs) to:
 
 ## Architecture
 
-[More detail on the project architecture](./docs/10-architecture.md)
+[Documentation on the project architecture](./docs/10-architecture.md)
+[Documentation on the client architecture](./docs/11-client-side-architecture.md)
+
