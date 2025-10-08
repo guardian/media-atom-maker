@@ -301,7 +301,7 @@ export function Asset({
             user={user}
             selectAsset={selectAsset}
             deleteAsset={deleteAsset}
-            isUploadInProgress={true}
+            isUploadInProgress={false}
             isActivating={activatingAssetNumber === Number(upload.id)}
             activatingAssetNumber={activatingAssetNumber}
           >

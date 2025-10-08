@@ -15,18 +15,15 @@ export const saveVideo = (video: Video) => async (dispatch: AppDispatch) => {
   dispatch(setSaving(true));
   dispatch(setVideo(video));
 
-  const savedVideo: Video | undefined = await VideosApi.saveVideo(video.id, video)
+  const savedVideo: Video = await VideosApi.saveVideo(video.id, video)
     .catch(error => {
       const message = error.status === 409
         ? errorMessages.saveVideoConflict
         : errorMessages.saveVideoDefault;
       dispatch(showError(message, error));
-      return undefined;
+      throw error;
     });
-  if (!savedVideo) {
-    dispatch(setSaving(false));
-    return;
-  }
+
   dispatch(setVideo(savedVideo));
 
   const usageData: UsageData | undefined = await dispatch(fetchUsages(video.id)).unwrap().catch(error => {

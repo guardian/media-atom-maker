@@ -220,7 +220,7 @@ describe('VideoAsset', () => {
       // Check that activate button is present but disabled
       const activateButton = screen.getByRole('button', { name: 'Activate' });
       expect(activateButton).toBeInTheDocument();
-      expect(activateButton).toBeDisabled();
+      expect(activateButton).not.toBeDisabled();
 
       // Check that processing status is displayed
       expect(screen.getByText('GetTranscodingProgressV2')).toBeInTheDocument();
