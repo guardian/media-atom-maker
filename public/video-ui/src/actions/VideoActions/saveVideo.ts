@@ -1,8 +1,7 @@
 import VideosApi, { Video } from '../../services/VideosApi';
 import { showError } from '../../slices/error';
-import { setSaving } from '../../slices/saveState';
 import { fetchUsages, updateVideoUsageWebTitle, UsageData } from '../../slices/usage';
-import { setVideo } from '../../slices/video';
+import {setVideo, setSaving} from '../../slices/video';
 import { AppDispatch } from '../../util/setupStore';
 
 const errorMessages = {

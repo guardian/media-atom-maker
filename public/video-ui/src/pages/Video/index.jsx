@@ -243,10 +243,9 @@ class VideoDisplay extends React.Component {
       usages,
       workflow,
       publishedVideo,
-      saveState
     } = this.props;
 
-    const { saving } = this.props.saveState;
+    const { saving } = this.props.videoStates;
 
     const {
       isCreateMode,
@@ -420,18 +419,18 @@ import {getComposerId} from "../../util/getComposerData";
 import {updateFormWarnings} from "../../slices/formFieldsWarning";
 import {updateVideoEditState} from "../../slices/editState";
 import {updateFormErrors} from "../../slices/checkedFormFields";
-import {selectPublishedVideo, selectVideo} from "../../slices/video";
+import {selectPublishedVideo, selectVideo, selectVideoStates} from "../../slices/video";
 
 function mapStateToProps(state) {
   return {
     video: selectVideo(state),
+    videoStates: selectVideoStates(state),
     config: state.config,
     usages: state.usage,
     publishedVideo: selectPublishedVideo(state),
     videoEditOpen: state.videoEditOpen,
     checkedFormFields: state.checkedFormFields,
     workflow: state.workflow,
-    saveState: state.saveState
   };
 }
 

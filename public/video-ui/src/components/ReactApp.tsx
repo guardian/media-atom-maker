@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Header from './Header';
 import { useDispatch, useSelector, useStore } from 'react-redux';
 import { AppDispatch, RootState } from '../util/setupStore';
-import { selectPublishedVideo, selectVideo } from '../slices/video';
+import {selectPublishedVideo, selectVideo, selectVideoStates} from '../slices/video';
 import {
   updateMediaPlatformFilter,
   updateSearchTerm,
@@ -33,20 +33,18 @@ export const ReactApp = (
 
   const store = useSelector(
     ({
+       config,
+       error,
+       formFieldsWarning,
+       search,
+       s3Upload,
+       usage,
+       videoEditOpen
+     }: RootState) => ({
       config,
       error,
       formFieldsWarning,
       search,
-      saveState,
-      s3Upload,
-      usage,
-      videoEditOpen
-    }: RootState) => ({
-      config,
-      error,
-      formFieldsWarning,
-      search,
-      saveState,
       s3Upload,
       usage,
       videoEditOpen
@@ -55,6 +53,7 @@ export const ReactApp = (
 
   const video = useSelector(selectVideo);
   const publishedVideo = useSelector(selectPublishedVideo);
+  const videoStates = useSelector(selectVideoStates);
 
   useEffect(() => {
     if (
@@ -107,11 +106,11 @@ export const ReactApp = (
         search={store.search}
         currentPath={props.location.pathname}
         video={video || {}}
+        videoStates={videoStates}
         publishedVideo={publishedVideo || {}}
         showPublishedState={props.params.id}
         s3Upload={store.s3Upload}
         publishVideo={bindActionCreators(publishVideo, dispatch)}
-        saveState={store.saveState}
         updateVideoPage={bindActionCreators(updateVideoPage, dispatch)}
         createVideoPage={bindActionCreators(createVideoPage, dispatch)}
         videoEditOpen={store.videoEditOpen}
