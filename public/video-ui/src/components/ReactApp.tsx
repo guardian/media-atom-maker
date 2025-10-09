@@ -126,8 +126,16 @@ export const ReactApp = (
         error={store.error}
       />
       {store.error.message ? (
-        <div key={store.error.key} className={`error-bar error-bar--animate`}>
+        <div key={store.error.key} className={'error-bar error-bar--animate'}>
           {store.error.message}
+        </div>
+      ) : null}
+      {store.error.warningMessage ? (
+        <div
+          key={store.error.warningKey}
+          className={'error-bar--warning error-bar--animate'}
+        >
+          {store.error.warningMessage}
         </div>
       ) : null}
       <div>{props.children}</div>

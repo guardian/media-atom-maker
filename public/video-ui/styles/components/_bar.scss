@@ -62,6 +62,7 @@
   &.error-bar--animate {
     animation: errorBarPulse 0.6s 2;
   }
+
 }
 
 @keyframes errorBarPulse {
@@ -73,6 +74,31 @@
   }
   100% {
     background-color: $cRedFF;
+  }
+}
+
+.error-bar--warning {
+  display: block;
+  position: relative;
+  padding: 10px;
+  background-color: $cYellow;
+  color: $color800Grey;
+  text-align: center;
+
+  &.error-bar--animate {
+    animation: errorBarWarningPulse 0.6s 2;
+  }
+}
+
+@keyframes errorBarWarningPulse {
+  0% {
+    background-color: $cYellow;
+  }
+  50% {
+    background-color: $slightDangerColor;
+  }
+  100% {
+    background-color: $cYellow;
   }
 }
 
