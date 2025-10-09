@@ -57,6 +57,7 @@ deployments:
         - "media-atom-pipeline-UploadChunkToYouTube-"
         - "media-atom-pipeline-MultipartCopyChunkInS3-"
         - "media-atom-pipeline-SendToPluto-"
+        - "media-atom-pipeline-SendToIconik-"
         - "media-atom-pipeline-SendToTranscoderV2-"
         - "media-atom-pipeline-GetTranscodingProgressV2-"
         - "media-atom-pipeline-AddAssetToAtom-"

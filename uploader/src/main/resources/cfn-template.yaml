@@ -275,7 +275,7 @@ Resources:
                   Height: 720
                   VideoPreprocessors:
                     ColorCorrector: # NOTE: only needed for m3u8
-                      ColorSpaceConversion: FORCE_709 # Convert to Rec.709 SDR colourspace as per HLS spec pt. 1.24 
+                      ColorSpaceConversion: FORCE_709 # Convert to Rec.709 SDR colourspace as per HLS spec pt. 1.24
                   Sharpness: 100 # Sharpest possible
                   CodecSettings:
                     Codec: H_264
@@ -352,6 +352,8 @@ Resources:
   {{CompleteMultipartCopy}}
 
   {{SendToPluto}}
+
+  {{SendToIconik}}
 
   {{SendToTranscoderV2}}
 

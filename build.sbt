@@ -201,6 +201,9 @@ lazy val uploader = (project in file("uploader"))
       "SendToPluto" -> LambdaConfig(
         description = "Sends a complete video to Pluto for ingestion"
       ),
+      "SendToIconik" -> LambdaConfig(
+        description = "Sends a complete video to Pluto for ingestion"
+      ),
       "SendToTranscoderV2" -> LambdaConfig(
         description = "Sends a complete video to the AWS MediaConvert transcoder"
       ),
