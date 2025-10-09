@@ -73,7 +73,7 @@ const video = createSlice({
   selectors: {
     selectVideo: ({ video }) => video,
     selectPublishedVideo: ({ publishedVideo }) => publishedVideo,
-    selectVideoStates: ({ saving, publishing, activatingAssetNumber}) =>({ saving, publishing, activatingAssetNumber}),
+    selectVideoStates: ({ saving, publishing, activatingAssetNumber}) =>({ saving, publishing, activatingAssetNumber})
   },
   extraReducers: builder => {
     builder.addCase('SHOW_ERROR', state => {
