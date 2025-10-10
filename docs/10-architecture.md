@@ -8,6 +8,7 @@ graph LR
     YouTube((YouTube)):::External
     CAPI((CAPI)):::External
     Composer((Composer))
+    Workflow((Workflow))
     uploads-to-pluto{{uploads-to-pluto<br/>Kinesis}}:::Stream
     media-atom-maker-ingested-videos{{media-atom-maker-ingested-videos<br/>SQS}}:::Stream
     PlutoIntegrationIncomingStream{{PlutoIntegrationIncomingStream<br/>Kinesis}}:::Stream
@@ -49,6 +50,7 @@ graph LR
     Expirer[Expirer lambda<br/>Every 15 minutes]
     CAPI --> Expirer
     Expirer --> YouTube
+    MediaAtomMaker -->|HTTP requests| Workflow
     classDef External padding: 50px, width: 200px, font-size: 25px
     classDef Stream stroke-dasharray: 5 5
 ```
@@ -133,3 +135,20 @@ It also allows videos to be embedded into Composer content using an iFrame inter
 atom.
 
 [Documentation](09-composer-integration.md)
+
+### Workflow
+
+[Workflow](https://github.com/guardian/workflow/) is a Guardian tool, used for tracking content in production. Media Atom Maker can display the Workflow state for any atom tracked in Workflow, and offers users the ability to edit it.
+
+On loading the Workflow tab in the UI, the atom is looked up in workflow.
+
+```mermaid
+---
+title: Workflow integration
+---
+sequenceDiagram
+  actor User
+  participant MAMFrontend
+  User ->> MAMFrontend: Navigate to an atom’s Workflow tab
+  MAMFrontend ->> Workflow: Request Workflow data for the atom
+```
