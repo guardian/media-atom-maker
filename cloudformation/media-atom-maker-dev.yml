@@ -319,7 +319,7 @@ Resources:
           CONFIG_KEY: !FindInMap [LambdaConfig, Expirer, DEV]
       MemorySize: 256
       Role: !GetAtt ExpirerRole.Arn
-      Runtime: "java11"
+      Runtime: "java21"
       Timeout: 300
 
   SchedulerLambda:
@@ -340,8 +340,9 @@ Resources:
           CONFIG_KEY: !FindInMap [LambdaConfig, Scheduler, DEV]
       MemorySize: 256
       Role: !GetAtt SchedulerRole.Arn
-      Runtime: "java11"
+      Runtime: "java21"
       Timeout: 300
+
   ExpirerLambdaTrigger:
     Type: "AWS::Events::Rule"
     Properties:
