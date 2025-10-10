@@ -45,7 +45,7 @@ lazy val jacksonVersion = "2.19.1"
 
 lazy val commonSettings = Seq(
   ThisBuild / scalaVersion := "2.13.16",
-  scalacOptions ++= Seq("-feature", "-deprecation", "-release:11"),
+  scalacOptions ++= Seq("-feature", "-deprecation", "-release:17"),
   ThisBuild / organization := "com.gu",
 
   resolvers ++= Resolver.sonatypeOssRepos("releases"),

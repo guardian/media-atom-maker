@@ -27,5 +27,5 @@
         MEDIA_CONVERT_ROLE: !GetAtt MediaConvertRole.Arn
     MemorySize: 512
     Role: !GetAtt LambdaExecutionRole.Arn
-    Runtime: "java11"
+    Runtime: "java17"
     Timeout: {{timeout}}
