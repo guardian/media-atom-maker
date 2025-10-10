@@ -84,7 +84,7 @@ class TagPicker extends React.Component {
       webTitle: tag.externalName,
       detailedTitle: tag.internalName
     };
-  }
+  };
 
   fetchTags = searchText => {
     const tagTypes = this._getTagTypes();
@@ -112,9 +112,9 @@ class TagPicker extends React.Component {
           });
         });
     }
-  }
+  };
 
-  debouncedFetchTags = debounce(this.fetchTags, 500)
+  debouncedFetchTags = debounce(this.fetchTags, 500);
 
   onUpdate = newValue => {
     this.setState({
@@ -169,13 +169,13 @@ class TagPicker extends React.Component {
     this.setState({
       inputClearCount: this.state.inputClearCount + 1
     });
-  }
+  };
 
   tagsToVisible = () => {
     this.setState({
       tagsVisible: true
     });
-  }
+  };
 
   onKeyDown = (e) => {
 
@@ -223,7 +223,7 @@ class TagPicker extends React.Component {
 
       this.onUpdate(newFieldValue);
     }
-  }
+  };
 
   renderSelectedTags = () => {
 
@@ -240,7 +240,7 @@ class TagPicker extends React.Component {
         removeFn={this.removeFn}
       />
     );
-  }
+  };
 
   renderTag = (tag, index) => {
     return (
@@ -257,7 +257,7 @@ class TagPicker extends React.Component {
         </span>
       </div>
     );
-  }
+  };
 
   renderTagPicker() {
 
