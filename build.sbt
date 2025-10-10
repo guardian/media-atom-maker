@@ -45,7 +45,7 @@ lazy val jacksonVersion = "2.19.1"
 
 lazy val commonSettings = Seq(
   ThisBuild / scalaVersion := "2.13.16",
-  scalacOptions ++= Seq("-feature", "-deprecation", "-release:11"),
+  scalacOptions ++= Seq("-feature", "-deprecation", "-release:17"),
   ThisBuild / organization := "com.gu",
 
   resolvers ++= Resolver.sonatypeOssRepos("releases"),
@@ -199,6 +199,9 @@ lazy val uploader = (project in file("uploader"))
         description = "Finishes the multipart copy and deletes the source chunks from S3"
       ),
       "SendToPluto" -> LambdaConfig(
+        description = "Sends a complete video to Pluto for ingestion"
+      ),
+      "SendToIconik" -> LambdaConfig(
         description = "Sends a complete video to Pluto for ingestion"
       ),
       "SendToTranscoderV2" -> LambdaConfig(
