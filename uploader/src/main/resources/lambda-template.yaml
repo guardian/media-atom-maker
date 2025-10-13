@@ -25,7 +25,8 @@
         ATOM_TABLE_NAME: !Ref 'MediaAtomTable'
         PLUTO_TABLE_NAME: !Ref 'ManualPlutoTable'
         MEDIA_CONVERT_ROLE: !GetAtt MediaConvertRole.Arn
-    MemorySize: 512
+    MemorySize: 1024
+    Architectures: ["arm64"]
     Role: !GetAtt LambdaExecutionRole.Arn
     Runtime: "java17"
     Timeout: {{timeout}}
