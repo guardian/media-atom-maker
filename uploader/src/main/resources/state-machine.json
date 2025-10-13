@@ -129,6 +129,11 @@
     "SendToPluto": {
       "Type": "Task",
       "Resource": "${SendToPluto.Arn}",
+      "Next": "SendToIconik"
+    },
+    "SendToIconik": {
+      "Type": "Task",
+      "Resource": "${SendToIconik.Arn}",
       "Next": "CheckSelfHosted"
     },
     "CheckSelfHosted": {

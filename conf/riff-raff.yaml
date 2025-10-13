@@ -13,7 +13,7 @@ deployments:
       app: media-atom-maker
       parameters:
         amiTags:
-          Recipe: editorial-tools-jammy-java11
+          Recipe: editorial-tools-jammy-java17
           AmigoStage: PROD
   media-atom-maker:
     type: autoscaling
@@ -57,6 +57,7 @@ deployments:
         - "media-atom-pipeline-UploadChunkToYouTube-"
         - "media-atom-pipeline-MultipartCopyChunkInS3-"
         - "media-atom-pipeline-SendToPluto-"
+        - "media-atom-pipeline-SendToIconik-"
         - "media-atom-pipeline-SendToTranscoderV2-"
         - "media-atom-pipeline-GetTranscodingProgressV2-"
         - "media-atom-pipeline-AddAssetToAtom-"
