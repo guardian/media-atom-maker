@@ -140,11 +140,11 @@ atom.
 
 [Workflow](https://github.com/guardian/workflow/) is a Guardian tool, used for tracking content in production. Media Atom Maker can display the Workflow state for any atom tracked in Workflow, and offers users the ability to edit it.
 
-On loading the Workflow tab in the UI, the atom is looked up in workflow.
+On loading the Workflow tab in the UI for the first time, media atom maker queries Workflow for the sections, priorities, and statuses it should display as form options, as well as looking up the atom’s current state in Workflow.
 
 ```mermaid
 ---
-title: Workflow integration
+title: Workflow queries (first navigation)
 ---
 sequenceDiagram
   actor User
@@ -167,4 +167,19 @@ sequenceDiagram
       Workflow --) MAMFrontend: priorities
       MAMFrontend -) MAMFrontend: add priorities to drop-down candidates
   end
+```
+
+On subsequent navigations (within the same session), only the request for the atom state is repeated:
+
+```mermaid
+---
+title: Workflow queries (subsequent navigations)
+---
+sequenceDiagram
+  actor User
+  participant MAMFrontend
+  User ->> MAMFrontend: Navigate to an atom’s Workflow tab
+  MAMFrontend -) Workflow: GET /api/atom/<ID>
+  Workflow --) MAMFrontend: atom info
+  MAMFrontend -->> User: Display Workflow details
 ```
