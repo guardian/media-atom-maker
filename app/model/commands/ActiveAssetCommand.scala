@@ -79,8 +79,7 @@ case class ActiveAssetCommand(
     *   - the new asset version to activate is self-hosted AND
     *   - a first-frame image is available AND (
     *     - the current posterImage is empty OR
-    *     - the current posterImage is using a default image
-    *     )
+    *     - the current posterImage is using a default image )
     */
   def autoFirstFrameImage(
       mediaAtom: MediaAtom,
