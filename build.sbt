@@ -262,6 +262,7 @@ lazy val root = (project in file("root"))
 addCommandAlias(
   "ciCommands",
   Seq(
+    "scalafmtCheckAll",
     "clean",
     "compile",
     "test",
