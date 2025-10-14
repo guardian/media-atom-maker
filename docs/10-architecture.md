@@ -50,8 +50,8 @@ graph LR
     Expirer[Expirer lambda<br/>Every 15 minutes]
     CAPI --> Expirer
     Expirer --> YouTube
-    MediaAtomMaker -->|Lookup and edit workflow details for atoms| Workflow
-    Workflow -->|Create atom requests| MediaAtomMaker
+    ClientSide -->|Lookup and edit workflow details for atoms| Workflow
+    WorkflowFrontend -->|Create atom requests| MediaAtomMaker
     classDef External padding: 50px, width: 200px, font-size: 25px
     classDef Stream stroke-dasharray: 5 5
 ```
