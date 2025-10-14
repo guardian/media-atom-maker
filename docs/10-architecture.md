@@ -52,6 +52,10 @@ graph LR
     Expirer --> YouTube
     ClientSide -->|Lookup and edit workflow details for atoms| Workflow
     WorkflowFrontend -->|Create atom requests| MediaAtomMaker
+    subgraph workflow
+      Workflow
+      WorkflowFrontend
+    end
     classDef External padding: 50px, width: 200px, font-size: 25px
     classDef Stream stroke-dasharray: 5 5
 ```
