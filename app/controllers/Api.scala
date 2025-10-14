@@ -20,38 +20,52 @@ import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 
 class Api(
-  override val stores: DataStores,
-  conf: Configuration,
-  override val authActions: HMACAuthActions,
-  youtube: YouTube,
-  awsConfig: AWSConfig,
-  override val permissions: MediaAtomMakerPermissionsProvider,
-  capi: Capi,
-  thumbnailGenerator: ThumbnailGenerator,
-  override val controllerComponents: ControllerComponents
-)
-  extends MediaAtomImplicits
+    override val stores: DataStores,
+    conf: Configuration,
+    override val authActions: HMACAuthActions,
+    youtube: YouTube,
+    awsConfig: AWSConfig,
+    override val permissions: MediaAtomMakerPermissionsProvider,
+    capi: Capi,
+    thumbnailGenerator: ThumbnailGenerator,
+    override val controllerComponents: ControllerComponents
+) extends MediaAtomImplicits
     with AtomController
     with JsonRequestParsing
     with Logging {
 
   import authActions.{APIAuthAction, APIHMACAuthAction}
 
-  def allowCORSAccess(methods: String, args: Any*) = CORSable(awsConfig.workflowUrl) {
-    Action { implicit req =>
-      val requestedHeaders = req.headers("Access-Control-Request-Headers")
-      NoContent.withHeaders("Access-Control-Allow-Methods" -> methods, "Access-Control-Allow-Headers" -> requestedHeaders)
+  def allowCORSAccess(methods: String, args: Any*) =
+    CORSable(awsConfig.workflowUrl) {
+      Action { implicit req =>
+        val requestedHeaders = req.headers("Access-Control-Request-Headers")
+        NoContent.withHeaders(
+          "Access-Control-Allow-Methods" -> methods,
+          "Access-Control-Allow-Headers" -> requestedHeaders
+        )
+      }
     }
-  }
 
-  def getMediaAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean, mediaPlatform: Option[String]) = APIAuthAction {
-    val atoms = stores.atomListStore.getAtoms(search, limit, shouldUseCreatedDateForSort, mediaPlatform)
+  def getMediaAtoms(
+      search: Option[String],
+      limit: Option[Int],
+      shouldUseCreatedDateForSort: Boolean,
+      mediaPlatform: Option[String]
+  ) = APIAuthAction {
+    val atoms = stores.atomListStore.getAtoms(
+      search,
+      limit,
+      shouldUseCreatedDateForSort,
+      mediaPlatform
+    )
     Ok(Json.toJson(atoms))
   }
 
-  def getMediaAtom(id: String) = APIAuthAction {req =>
+  def getMediaAtom(id: String) = APIAuthAction { req =>
     try {
-      val maybeCorsValue = req.headers.get("Origin").filter(_.endsWith("gutools.co.uk"))
+      val maybeCorsValue =
+        req.headers.get("Origin").filter(_.endsWith("gutools.co.uk"))
       val atom = getPreviewAtom(id)
       Ok(Json.toJson(MediaAtom.fromThrift(atom))).withHeaders(
         "Access-Control-Allow-Origin" -> maybeCorsValue.getOrElse(""),
@@ -77,16 +91,29 @@ class Api(
 
   def resetDurationFromActive(id: String) = APIAuthAction { implicit req =>
     val previewAtom = MediaAtom.fromThrift(getPreviewAtom(id))
-    val updatedAtom = previewAtom.getActiveYouTubeAsset()
+    val updatedAtom = previewAtom
+      .getActiveYouTubeAsset()
       .flatMap(asset => youtube.getDuration(asset.id))
-      .map(duration => updateAtom(previewAtom.copy(duration = Some(duration)), req.user))
+      .map(duration =>
+        updateAtom(previewAtom.copy(duration = Some(duration)), req.user)
+      )
       .getOrElse(previewAtom)
 
     Ok(Json.toJson(updatedAtom))
   }
 
-  def publishMediaAtom(id: String) = APIHMACAuthAction.async(parse.empty) { implicit req =>
-      val command = PublishAtomCommand(id, stores, youtube, req.user, capi, permissions, awsConfig, thumbnailGenerator)
+  def publishMediaAtom(id: String) = APIHMACAuthAction.async(parse.empty) {
+    implicit req =>
+      val command = PublishAtomCommand(
+        id,
+        stores,
+        youtube,
+        req.user,
+        capi,
+        permissions,
+        awsConfig,
+        thumbnailGenerator
+      )
 
       val updatedAtom: Future[MediaAtom] = command.process()
 
@@ -105,14 +132,15 @@ class Api(
   }
 
   def createWorkflowMediaAtom = CORSable(awsConfig.workflowUrl) {
-      APIAuthAction { implicit req =>
-        parse(req) { workflowMediaAtom: WorkflowMediaAtom =>
-          val command = CreateWorkflowAtomCommand(workflowMediaAtom, stores, req.user)
-          val atom = command.process()
-          Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
-        }
+    APIAuthAction { implicit req =>
+      parse(req) { workflowMediaAtom: WorkflowMediaAtom =>
+        val command =
+          CreateWorkflowAtomCommand(workflowMediaAtom, stores, req.user)
+        val atom = command.process()
+        Created(Json.toJson(atom)).withHeaders("Location" -> atomUrl(atom.id))
       }
     }
+  }
 
   def updateMediaAtom(id: String) = APIAuthAction { implicit req =>
     parse(req) { atom: MediaAtom =>
@@ -139,52 +167,71 @@ class Api(
     try {
       val asset = req.body.as[Asset]
 
-      val markers: LogstashMarker = Markers.appendEntries(Map(
-        "userId" -> req.user.email,
-        "atomId" -> atomId,
-        "assetId" -> asset.id,
-        "assetVersion" -> asset.version
-      ).asJava)
+      val markers: LogstashMarker = Markers.appendEntries(
+        Map(
+          "userId" -> req.user.email,
+          "atomId" -> atomId,
+          "assetId" -> asset.id,
+          "assetVersion" -> asset.version
+        ).asJava
+      )
 
-      log.info(markers, s"request to delete asset version ${asset.version} on atom $atomId")
+      log.info(
+        markers,
+        s"request to delete asset version ${asset.version} on atom $atomId"
+      )
 
-      val command = DeleteAssetCommand(atomId, asset, stores, req.user, awsConfig)
+      val command =
+        DeleteAssetCommand(atomId, asset, stores, req.user, awsConfig)
       val atom = command.process()
       Ok(Json.toJson(atom))
-    }
-    catch {
+    } catch {
       commandExceptionAsResult
     }
   }
 
-  def deleteAssetList(atomId: String) = APIAuthAction(parse.json) { implicit req =>
-    try {
-      val assets = req.body.as[Seq[Asset]]
-      val assetsVersion = assets.map(_.version).mkString(",")
+  def deleteAssetList(atomId: String) = APIAuthAction(parse.json) {
+    implicit req =>
+      try {
+        val assets = req.body.as[Seq[Asset]]
+        val assetsVersion = assets.map(_.version).mkString(",")
 
-      val markers: LogstashMarker = Markers.appendEntries(Map(
-        "userId" -> req.user.email,
-        "atomId" -> atomId,
-        "assetId" -> assets.map(_.id).mkString(","),
-        "assetVersion" -> assetsVersion
-      ).asJava)
+        val markers: LogstashMarker = Markers.appendEntries(
+          Map(
+            "userId" -> req.user.email,
+            "atomId" -> atomId,
+            "assetId" -> assets.map(_.id).mkString(","),
+            "assetVersion" -> assetsVersion
+          ).asJava
+        )
 
-      log.info(markers, s"request to delete asset version ${assetsVersion} on atom $atomId")
+        log.info(
+          markers,
+          s"request to delete asset version ${assetsVersion} on atom $atomId"
+        )
 
-      val command = DeleteAssetListCommand(atomId, assets, stores, req.user, awsConfig)
-      val atom = command.process()
-      Ok(Json.toJson(atom))
-    }
-    catch {
-      commandExceptionAsResult
-    }
+        val command =
+          DeleteAssetListCommand(atomId, assets, stores, req.user, awsConfig)
+        val atom = command.process()
+        Ok(Json.toJson(atom))
+      } catch {
+        commandExceptionAsResult
+      }
   }
 
   private def atomUrl(id: String) = s"/atom/$id"
 
   def setActiveAsset(atomId: String) = APIAuthAction { implicit req =>
     parse(req) { request: ActivateAssetRequest =>
-      val command = ActiveAssetCommand(atomId, request, stores, youtube, req.user, awsConfig, new S3ImageUtil(awsConfig))
+      val command = ActiveAssetCommand(
+        atomId,
+        request,
+        stores,
+        youtube,
+        req.user,
+        awsConfig,
+        new S3ImageUtil(awsConfig)
+      )
       val atom = command.process()
 
       Ok(Json.toJson(atom))
@@ -195,14 +242,13 @@ class Api(
     try {
       DeleteCommand(id, stores, youtube).process()
       Ok(s"Atom $id deleted")
-    }
-    catch {
+    } catch {
       commandExceptionAsResult
     }
   }
 
   private def updateAtom(
-    atom: MediaAtom,
-    user: User
+      atom: MediaAtom,
+      user: User
   ) = UpdateAtomCommand(atom.id, atom, stores, user, awsConfig).process()
 }

@@ -14,13 +14,14 @@ object PlutoItem {
   def numericIdsOnlyFilter(item: PlutoItem): Boolean = item.id.matches("[0-9]+")
 }
 
-case class PlutoCommission (
-  id: String,
-  title: String
+case class PlutoCommission(
+    id: String,
+    title: String
 ) extends PlutoItem
 
 object PlutoCommission {
-  implicit val format: Format[PlutoCommission] = Jsonx.formatCaseClass[PlutoCommission]
+  implicit val format: Format[PlutoCommission] =
+    Jsonx.formatCaseClass[PlutoCommission]
 
   def build(plutoUpsertRequest: PlutoUpsertRequest): PlutoCommission = {
     PlutoCommission(
@@ -30,17 +31,18 @@ object PlutoCommission {
   }
 }
 
-case class PlutoProject (
-  id: String,
-  title: String,
-  status: String,
-  commissionId: String,
-  commissionTitle: String, //TODO remove this once migrated
-  productionOffice: String
+case class PlutoProject(
+    id: String,
+    title: String,
+    status: String,
+    commissionId: String,
+    commissionTitle: String, // TODO remove this once migrated
+    productionOffice: String
 ) extends PlutoItem
 
 object PlutoProject {
-  implicit val format: Format[PlutoProject] = Jsonx.formatCaseClass[PlutoProject]
+  implicit val format: Format[PlutoProject] =
+    Jsonx.formatCaseClass[PlutoProject]
 
   def build(plutoUpsertRequest: PlutoUpsertRequest): PlutoProject = {
     PlutoProject(
@@ -56,15 +58,16 @@ object PlutoProject {
 
 // This represents the payload the `pluto-message-ingestion` lambda sends,
 // it is the same as what Pluto sends on Kinesis
-case class PlutoUpsertRequest (
-  id: String,
-  title: String,
-  status: String,
-  productionOffice: String,
-  commissionId: String,
-  commissionTitle: String
+case class PlutoUpsertRequest(
+    id: String,
+    title: String,
+    status: String,
+    productionOffice: String,
+    commissionId: String,
+    commissionTitle: String
 )
 
 object PlutoUpsertRequest {
-  implicit val format: Format[PlutoUpsertRequest] = Jsonx.formatCaseClass[PlutoUpsertRequest]
+  implicit val format: Format[PlutoUpsertRequest] =
+    Jsonx.formatCaseClass[PlutoUpsertRequest]
 }

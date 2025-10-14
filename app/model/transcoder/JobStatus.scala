@@ -7,6 +7,6 @@ import play.api.libs.json.OFormat
 case class JobStatus(key: String, status: String, statusDetail: Option[String])
 
 object JobStatus {
-  implicit val jobStatusFormat: OFormat[JobStatus] = Jsonx.formatCaseClass[JobStatus]
+  implicit val jobStatusFormat: OFormat[JobStatus] =
+    Jsonx.formatCaseClass[JobStatus]
 }
-

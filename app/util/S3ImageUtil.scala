@@ -10,16 +10,18 @@ import scala.util.{Failure, Success, Try}
 
 class S3ImageUtil(awsConfig: AWSConfig) extends Logging {
 
-  /**
-   * creates an Image instance for an image file stored in S3 that is available to the web via
-   * a guardian host e.g. https://uploads.guim.co.uk/{image-key}
-   *
-   * @param s3Bucket   Name of the S3 bucket
-   * @param imageUrl   The url through which the image is available on the web
-   *                   e.g. https://uploads.guim.co.uk/my-image
-   * @return An Option containing the Image populated with a single asset and the master field
-   *         None if the image can't be found or read from S3
-   */
+  /** creates an Image instance for an image file stored in S3 that is available
+    * to the web via a guardian host e.g. https://uploads.guim.co.uk/{image-key}
+    *
+    * @param s3Bucket
+    *   Name of the S3 bucket
+    * @param imageUrl
+    *   The url through which the image is available on the web e.g.
+    *   https://uploads.guim.co.uk/my-image
+    * @return
+    *   An Option containing the Image populated with a single asset and the
+    *   master field None if the image can't be found or read from S3
+    */
   def getS3Image(s3Bucket: String, imageUrl: String): Option[Image] = {
     // assume that the url is made of an http origin and the s3 key
     val s3Url = """(https://.*?)/(.*)""".r
@@ -41,21 +43,29 @@ class S3ImageUtil(awsConfig: AWSConfig) extends Logging {
     }
   }
 
-  /**
-   * creates an ImageAsset for an image file stored in S3 that is available to the web via
-   * a guardian host e.g. https://uploads.guim.co.uk/{image-key}
-   *
-   * [The initial application is to provide an image of the first frame of video in a media atom.
-   * MediaConvert produces a jpeg file and this is saved as the posterImage in the atom.]
-   *
-   * @param s3Bucket   Name of the S3 bucket
-   * @param s3Key      Key for the image object in the bucket
-   * @param httpOrigin The protocol and host through which the object is available on the web
-   *                   e.g. https://uploads.guim.co.uk
-   * @return An Option containing the ImageAsset populated with dimension and size metadata
-   *         None if the image can't be found or read
-   */
-  def getS3ImageAsset(s3Bucket: String, s3Key: String, httpOrigin: String): Option[ImageAsset] = {
+  /** creates an ImageAsset for an image file stored in S3 that is available to
+    * the web via a guardian host e.g. https://uploads.guim.co.uk/{image-key}
+    *
+    * [The initial application is to provide an image of the first frame of
+    * video in a media atom. MediaConvert produces a jpeg file and this is saved
+    * as the posterImage in the atom.]
+    *
+    * @param s3Bucket
+    *   Name of the S3 bucket
+    * @param s3Key
+    *   Key for the image object in the bucket
+    * @param httpOrigin
+    *   The protocol and host through which the object is available on the web
+    *   e.g. https://uploads.guim.co.uk
+    * @return
+    *   An Option containing the ImageAsset populated with dimension and size
+    *   metadata None if the image can't be found or read
+    */
+  def getS3ImageAsset(
+      s3Bucket: String,
+      s3Key: String,
+      httpOrigin: String
+  ): Option[ImageAsset] = {
 
     val s3Client = awsConfig.s3Client
 
@@ -69,7 +79,8 @@ class S3ImageUtil(awsConfig: AWSConfig) extends Logging {
         file = s"$httpOrigin/$s3Key",
         dimensions = readImageDimensions(obj, contentType),
         size = Some(metadata.getContentLength),
-        aspectRatio = None)
+        aspectRatio = None
+      )
 
     } match {
       case Success(img) =>
@@ -90,7 +101,10 @@ class S3ImageUtil(awsConfig: AWSConfig) extends Logging {
     }
   }
 
-  def readDimensionsFromStream(reader: ImageReader, content: InputStream): ImageAssetDimensions = {
+  def readDimensionsFromStream(
+      reader: ImageReader,
+      content: InputStream
+  ): ImageAssetDimensions = {
     val stream = ImageIO.createImageInputStream(content)
     reader.setInput(stream)
     val width = reader.getWidth(reader.getMinIndex)
@@ -99,7 +113,10 @@ class S3ImageUtil(awsConfig: AWSConfig) extends Logging {
     ImageAssetDimensions(height, width)
   }
 
-  def readImageDimensions(imgFile: S3Object, contentType: String): Option[ImageAssetDimensions] = {
+  def readImageDimensions(
+      imgFile: S3Object,
+      contentType: String
+  ): Option[ImageAssetDimensions] = {
     getImageReader(contentType).flatMap { reader =>
       val content = imgFile.getObjectContent
       val tryDimensions = Try(readDimensionsFromStream(reader, content))

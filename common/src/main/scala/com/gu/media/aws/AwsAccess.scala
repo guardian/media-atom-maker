@@ -18,11 +18,15 @@ trait AwsAccess { this: Settings =>
     software.amazon.awssdk.regions.Region.of(region.getName)
 
   // These are injected as environment variables when running in a Lambda (unfortunately they cannot be tagged)
-  final val stage = sys.env.getOrElse("STAGE", readTag("Stage").getOrElse("DEV"))
+  final val stage =
+    sys.env.getOrElse("STAGE", readTag("Stage").getOrElse("DEV"))
   final val isDev: Boolean = stage == "DEV"
 
-  final val stack: Option[String] = if (isDev) Some("media-atom-maker") else readTag("Stack")
-  final val app: String = if (isDev) "media-atom-maker" else readTag("App").getOrElse("media-atom-maker")
+  final val stack: Option[String] =
+    if (isDev) Some("media-atom-maker") else readTag("Stack")
+  final val app: String =
+    if (isDev) "media-atom-maker"
+    else readTag("App").getOrElse("media-atom-maker")
 }
 
 object AwsAccess {
@@ -30,5 +34,7 @@ object AwsAccess {
     .map { name => Region.getRegion(Regions.fromName(name)) }
     .getOrElse(Region.getRegion(Regions.EU_WEST_1))
 
-  def regionFrom(settings: Settings): Region = regionFrom(settings.getString("aws.region"))
+  def regionFrom(settings: Settings): Region = regionFrom(
+    settings.getString("aws.region")
+  )
 }

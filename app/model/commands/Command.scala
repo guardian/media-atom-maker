@@ -11,7 +11,7 @@ trait Command extends UnpackedDataStores {
   def getUsername(user: PandaUser): String = {
     user.email match {
       case "" => user.firstName
-      case _ => user.email
+      case _  => user.email
     }
   }
 }

@@ -8,9 +8,24 @@ import play.api.libs.json.Format
 
 import scala.util.Try
 
-case class ClientAsset(id: String, asset: Option[VideoAsset] = None, processing: Option[ClientAssetProcessing] = None, metadata: Option[ClientAssetMetadata] = None)
-case class ClientAssetProcessing(status: String, failed: Boolean, current: Option[Long], total: Option[Long])
-case class ClientAssetMetadata(originalFilename: Option[String], subtitleFilename: Option[String], startTimestamp: Option[Long], user: String)
+case class ClientAsset(
+    id: String,
+    asset: Option[VideoAsset] = None,
+    processing: Option[ClientAssetProcessing] = None,
+    metadata: Option[ClientAssetMetadata] = None
+)
+case class ClientAssetProcessing(
+    status: String,
+    failed: Boolean,
+    current: Option[Long],
+    total: Option[Long]
+)
+case class ClientAssetMetadata(
+    originalFilename: Option[String],
+    subtitleFilename: Option[String],
+    startTimestamp: Option[Long],
+    user: String
+)
 
 object ClientAsset {
   implicit val format: Format[ClientAsset] = Jsonx.formatCaseClass[ClientAsset]
@@ -20,24 +35,34 @@ object ClientAsset {
     val versions = assets.map(_.version).distinct.sorted.reverse
     val grouped = versions.map { v => assets.filter(_.version == v) }
 
-    grouped.map(videoFromAssets).map { case(version, video) =>
+    grouped.map(videoFromAssets).map { case (version, video) =>
       ClientAsset(version.toString, asset = Some(video))
     }
   }
 
-  def fromUpload(state: String, startTimestamp: Long, upload: Upload, error: Option[String]): ClientAsset = {
-    val base = if(upload.metadata.selfHost) {
+  def fromUpload(
+      state: String,
+      startTimestamp: Long,
+      upload: Upload,
+      error: Option[String]
+  ): ClientAsset = {
+    val base = if (upload.metadata.selfHost) {
       selfHostedUpload(state, upload, error)
     } else {
       youTubeUpload(upload, error)
     }
 
-    base.copy(metadata = Some(ClientAssetMetadata(
-      originalFilename = upload.metadata.originalFilename,
-      subtitleFilename = upload.metadata.subtitleSource.map(VideoSource.filename),
-      startTimestamp = Some(startTimestamp),
-      user = upload.metadata.user
-    )))
+    base.copy(metadata =
+      Some(
+        ClientAssetMetadata(
+          originalFilename = upload.metadata.originalFilename,
+          subtitleFilename =
+            upload.metadata.subtitleSource.map(VideoSource.filename),
+          startTimestamp = Some(startTimestamp),
+          user = upload.metadata.user
+        )
+      )
+    )
   }
 
   def videoFromAssets(assets: List[Asset]): (Long, VideoAsset) = {
@@ -53,34 +78,46 @@ object ClientAsset {
         (version, YouTubeAsset(id))
 
       case other =>
-        throw new IllegalArgumentException(s"Unsupported platform ${other.map(_.platform.name)}")
+        throw new IllegalArgumentException(
+          s"Unsupported platform ${other.map(_.platform.name)}"
+        )
     }
   }
 
-  /**
-   * The client asset's id is a string representation of the asset's version within the atom.
-   * This method converts the id to a numeric version e.g. to allow sorting
-   *
-   * @param clientAsset
-   * @return the string id as a numeric version, or zero if it can't be converted
-   */
+  /** The client asset's id is a string representation of the asset's version
+    * within the atom. This method converts the id to a numeric version e.g. to
+    * allow sorting
+    *
+    * @param clientAsset
+    * @return
+    *   the string id as a numeric version, or zero if it can't be converted
+    */
   def getVersion(clientAsset: ClientAsset): Long =
     Try(clientAsset.id.toLong).toOption.getOrElse(0L)
 
-  private def selfHostedUpload(state: String, upload: Upload, error: Option[String]): ClientAsset = {
+  private def selfHostedUpload(
+      state: String,
+      upload: Upload,
+      error: Option[String]
+  ): ClientAsset = {
     ClientAsset(
       id = upload.id,
       asset = None,
-      processing = Some(ClientAssetProcessing(
-        status = error.getOrElse(state),
-        failed = error.isDefined,
-        current = None,
-        total = None
+      processing = Some(
+        ClientAssetProcessing(
+          status = error.getOrElse(state),
+          failed = error.isDefined,
+          current = None,
+          total = None
+        )
       )
-    ))
+    )
   }
 
-  private def youTubeUpload(upload: Upload, error: Option[String]): ClientAsset = {
+  private def youTubeUpload(
+      upload: Upload,
+      error: Option[String]
+  ): ClientAsset = {
     val processing = error match {
       case Some(msg) =>
         ClientAssetProcessing(
@@ -107,31 +144,37 @@ object ClientAsset {
 }
 
 object ClientAssetProcessing {
-  implicit val format: Format[ClientAssetProcessing] = Jsonx.formatCaseClass[ClientAssetProcessing]
+  implicit val format: Format[ClientAssetProcessing] =
+    Jsonx.formatCaseClass[ClientAssetProcessing]
 
   def apply(status: YouTubeProcessingStatus): ClientAssetProcessing = {
     ClientAssetProcessing(
       status = getStatusText(status),
       failed = status.failure.nonEmpty,
-      current = if(status.processed == 0) { None } else { Some(status.processed) },
-      total = if(status.total == 0) { None } else { Some(status.total) }
+      current = if (status.processed == 0) { None }
+      else { Some(status.processed) },
+      total = if (status.total == 0) { None }
+      else { Some(status.total) }
     )
   }
 
-  private def getStatusText(status: YouTubeProcessingStatus): String = status match {
-    case YouTubeProcessingStatus(_, "processing", _, _, 0, _) =>
-      "YouTube Processing"
+  private def getStatusText(status: YouTubeProcessingStatus): String =
+    status match {
+      case YouTubeProcessingStatus(_, "processing", _, _, 0, _) =>
+        "YouTube Processing"
 
-    case YouTubeProcessingStatus(_, "processing", _, _, timeLeftMs, _) =>
-      s"YouTube Processing (${timeLeftMs / 1000}s left)"
+      case YouTubeProcessingStatus(_, "processing", _, _, timeLeftMs, _) =>
+        s"YouTube Processing (${timeLeftMs / 1000}s left)"
 
-    case YouTubeProcessingStatus(_, "live", _, _, _, _) => "YouTube Live Stream"
+      case YouTubeProcessingStatus(_, "live", _, _, _, _) =>
+        "YouTube Live Stream"
 
-    case _ =>
-      status.failure.getOrElse(status.status)
-  }
+      case _ =>
+        status.failure.getOrElse(status.status)
+    }
 }
 
 object ClientAssetMetadata {
-  implicit val format: Format[ClientAssetMetadata] = Jsonx.formatCaseClass[ClientAssetMetadata]
+  implicit val format: Format[ClientAssetMetadata] =
+    Jsonx.formatCaseClass[ClientAssetMetadata]
 }

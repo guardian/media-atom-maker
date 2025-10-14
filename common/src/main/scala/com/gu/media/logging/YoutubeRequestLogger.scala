@@ -44,12 +44,14 @@ object YoutubeRequestType extends Enum[YoutubeRequestType] {
   case object UploadVideoChunk extends YoutubeRequestType
 }
 
-object YoutubeRequestLogger extends Logging{
+object YoutubeRequestLogger extends Logging {
   def logRequest(apiType: YoutubeApiType, requestType: YoutubeRequestType) = {
-    val markers: LogstashMarker = Markers.appendEntries(Map(
-      "youtubeApiType" -> apiType.entryName,
-      "youtubeApiRequestType" -> requestType.entryName
-    ).asJava)
+    val markers: LogstashMarker = Markers.appendEntries(
+      Map(
+        "youtubeApiType" -> apiType.entryName,
+        "youtubeApiRequestType" -> requestType.entryName
+      ).asJava
+    )
 
     log.info(markers, "Calling Youtube API")
   }

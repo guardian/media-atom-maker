@@ -6,13 +6,13 @@ import com.gu.media.logging.Logging
 import com.gu.media.upload.model.{Upload, YouTubeUploadMetadata}
 import com.gu.media.youtube.{YouTubeAccess, YouTubeUploader}
 
-class UploadChunkToYouTube extends LambdaWithParams[Upload, Upload]
-  with Logging
-  with YouTubeAccess
-  with LambdaYoutubeCredentials
-  with S3Access
-  with DynamoAccess
-{
+class UploadChunkToYouTube
+    extends LambdaWithParams[Upload, Upload]
+    with Logging
+    with YouTubeAccess
+    with LambdaYoutubeCredentials
+    with S3Access
+    with DynamoAccess {
   private val uploader = new YouTubeUploader(this, this.s3Client)
 
   override def handle(upload: Upload): Upload = {
@@ -23,21 +23,29 @@ class UploadChunkToYouTube extends LambdaWithParams[Upload, Upload]
 
     val updated = after.copy(
       metadata = after.metadata.copy(runtime = runtimeMetadata),
-      progress = after.progress.copy(chunksInYouTube = upload.progress.chunksInYouTube + 1)
+      progress = after.progress.copy(chunksInYouTube =
+        upload.progress.chunksInYouTube + 1
+      )
     )
 
     updated
   }
 
-  private def getUploadUri(upload: Upload): (String, YouTubeUploadMetadata) = upload.metadata.runtime match {
-    case meta @ YouTubeUploadMetadata(_, Some(uri)) =>
-      (uri, meta)
+  private def getUploadUri(upload: Upload): (String, YouTubeUploadMetadata) =
+    upload.metadata.runtime match {
+      case meta @ YouTubeUploadMetadata(_, Some(uri)) =>
+        (uri, meta)
 
-    case YouTubeUploadMetadata(channel, None) =>
-      val uri = uploader.startUpload(upload.metadata.title, channel, upload.id, upload.parts.last.end)
-      (uri, YouTubeUploadMetadata(channel, Some(uri)))
+      case YouTubeUploadMetadata(channel, None) =>
+        val uri = uploader.startUpload(
+          upload.metadata.title,
+          channel,
+          upload.id,
+          upload.parts.last.end
+        )
+        (uri, YouTubeUploadMetadata(channel, Some(uri)))
 
-    case other =>
-      throw new IllegalStateException(s"Unexpected runtime metadata $other")
-  }
+      case other =>
+        throw new IllegalStateException(s"Unexpected runtime metadata $other")
+    }
 }

@@ -12,15 +12,27 @@ import scala.concurrent.Future
 
 //noinspection ScalaUnusedSymbol
 @Singleton
-class RequestLogging @Inject() (env: Environment, config: Configuration, sourceMapper: OptionalSourceMapper,
-                                router: Provider[Router]) extends DefaultHttpErrorHandler(env, config, sourceMapper, router) with Logging {
+class RequestLogging @Inject() (
+    env: Environment,
+    config: Configuration,
+    sourceMapper: OptionalSourceMapper,
+    router: Provider[Router]
+) extends DefaultHttpErrorHandler(env, config, sourceMapper, router)
+    with Logging {
 
-  override def onProdServerError(request: RequestHeader, exception: UsefulException): Future[Result] = {
+  override def onProdServerError(
+      request: RequestHeader,
+      exception: UsefulException
+  ): Future[Result] = {
     super.logServerError(request, exception)
     super.onProdServerError(request, exception)
   }
 
-  override def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
+  override def onClientError(
+      request: RequestHeader,
+      statusCode: Int,
+      message: String
+  ): Future[Result] = {
     log.info(s"$statusCode for (${request.method}) [${request.uri}] - $message")
     super.onClientError(request, statusCode, message)
   }

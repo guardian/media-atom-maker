@@ -7,7 +7,10 @@ import org.scanamo.Table
 import org.scanamo.syntax._
 import org.scanamo.generic.auto._
 
-class UploadDecorator(aws: DynamoAccess with UploadAccess, stepFunctions: StepFunctions) {
+class UploadDecorator(
+    aws: DynamoAccess with UploadAccess,
+    stepFunctions: StepFunctions
+) {
   private val table = Table[Upload](aws.cacheTableName)
 
   def addMetadata(atomId: String, video: ClientAsset): ClientAsset = {
@@ -31,5 +34,7 @@ class UploadDecorator(aws: DynamoAccess with UploadAccess, stepFunctions: StepFu
   }
 
   def getUpload(id: String): Option[Upload] =
-    aws.scanamo.exec(table.get("id" === id)).flatMap(_.toOption) orElse { stepFunctions.getById(id) }
+    aws.scanamo.exec(table.get("id" === id)).flatMap(_.toOption) orElse {
+      stepFunctions.getById(id)
+    }
 }

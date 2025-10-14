@@ -7,7 +7,9 @@ import ch.qos.logback.core.encoder.LayoutWrappingEncoder
 import org.slf4j.{LoggerFactory, Logger => SLFLogger}
 
 trait LambdaElkLoggingFormat {
-  private val rootLogger = LoggerFactory.getLogger(SLFLogger.ROOT_LOGGER_NAME).asInstanceOf[LogbackLogger]
+  private val rootLogger = LoggerFactory
+    .getLogger(SLFLogger.ROOT_LOGGER_NAME)
+    .asInstanceOf[LogbackLogger]
 
   (sys.env.get("STACK"), sys.env.get("APP"), sys.env.get("STAGE")) match {
     case (Some(stack), Some(app), Some(stage)) =>
@@ -17,7 +19,7 @@ trait LambdaElkLoggingFormat {
       rootLogger.addAppender(newAppender)
 
     case _ =>
-      // leave logging alone
+    // leave logging alone
   }
 
   private def createAppender(stack: String, app: String, stage: String) = {
