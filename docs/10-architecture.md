@@ -150,12 +150,12 @@ sequenceDiagram
   actor User
   participant MAMFrontend
   User ->> MAMFrontend: Navigate to an atom’s Workflow tab
-  MAMFrontend ->>+ Workflow: GET /api/sections
-  MAMFrontend ->>+ Workflow: GET /api/statuses
-  MAMFrontend ->>+ Workflow: GET /api/priorities
-  MAMFrontend ->>+ Workflow: GET /api/atom/<ID>
-  Workflow ->>- MAMFrontend: sections
-  Workflow ->>- MAMFrontend: statuses
-  Workflow ->>- MAMFrontend: priorities
-  Workflow ->>- MAMFrontend: atom info
+  MAMFrontend -)+ Workflow: GET /api/sections
+  MAMFrontend -)+ Workflow: GET /api/statuses
+  MAMFrontend -)+ Workflow: GET /api/priorities
+  MAMFrontend -)+ Workflow: GET /api/atom/<ID>
+  Workflow --)- MAMFrontend: sections
+  Workflow --)- MAMFrontend: statuses
+  Workflow --)- MAMFrontend: priorities
+  Workflow --)- MAMFrontend: atom info
 ```
