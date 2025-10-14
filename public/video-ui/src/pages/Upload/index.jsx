@@ -84,7 +84,7 @@ class VideoUpload extends React.Component {
                 this.props.uploadActions.s3UploadPostProcessing
               }
               s3UploadReset={this.props.uploadActions.s3UploadReset}
-              activatingAssetNumber={this.props.videoStates.activatingAssetNumber}
+              activatingAssetNumber={this.props.isActivatingAssetNumber.activatingAssetNumber}
               getVideo={this.props.videoActions.getVideo}
             />
           </div>
@@ -104,13 +104,13 @@ import * as revertAsset from '../../actions/VideoActions/revertAsset';
 import * as allDeleteAssetActions from '../../actions/VideoActions/deleteAsset';
 import { fetchCategories, fetchChannels } from '../../slices/youtube';
 import {setS3UploadStatusToPostProcessing, resetS3UploadState, startVideoUpload, startSubtitleFileUpload, deleteSubtitle} from "../../slices/s3Upload";
-import {selectVideo, selectVideoStates} from "../../slices/video";
+import {selectIsActivatingAssetNumber, selectVideo } from "../../slices/video";
 import {getUploads} from "../../slices/uploads";
 
 function mapStateToProps(state) {
   return {
     video: selectVideo(state),
-    videoStates: selectVideoStates(state),
+    isActivatingAssetNumber:  selectIsActivatingAssetNumber(state),
     s3Upload: state.s3Upload,
     uploads: state.uploads,
     youtube: state.youtube,
