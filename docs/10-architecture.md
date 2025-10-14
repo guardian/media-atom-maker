@@ -54,6 +54,7 @@ graph LR
       WorkflowFrontend((workflow-frontend))
     end
     ClientSide -->|Lookup and edit workflow details for atoms| Workflow
+    User --> WorkflowFrontend
     WorkflowFrontend -->|Create atom requests| MediaAtomMaker
     classDef External padding: 50px, width: 200px, font-size: 25px
     classDef Stream stroke-dasharray: 5 5
