@@ -24,7 +24,8 @@ class UpdateAtomCommandTest extends AnyFunSuite with Matchers {
     tags = List.empty,
     byline = List.empty,
     commissioningDesks = List.empty,
-    contentChangeDetails = ContentChangeDetails(None, None, None, 1L, None, None, None),
+    contentChangeDetails =
+      ContentChangeDetails(None, None, None, 1L, None, None, None),
     privacyStatus = None,
     channelId = None,
     youtubeCategoryId = None,
@@ -41,17 +42,25 @@ class UpdateAtomCommandTest extends AnyFunSuite with Matchers {
   )
 
   test("Diff output when nothing changes") {
-    createDiffString(mediaAtomFixture, mediaAtomFixture) must be("Updated atom fields")
+    createDiffString(mediaAtomFixture, mediaAtomFixture) must be(
+      "Updated atom fields"
+    )
   }
 
   test("Diff output when description changes") {
-    createDiffString(mediaAtomFixture, mediaAtomFixture.copy(description = Some("New description"))) must be(
+    createDiffString(
+      mediaAtomFixture,
+      mediaAtomFixture.copy(description = Some("New description"))
+    ) must be(
       "Updated atom fields (description: Example description -> New description)"
     )
   }
 
   test("Diff output when description is removed") {
-    createDiffString(mediaAtomFixture, mediaAtomFixture.copy(description = None)) must be(
+    createDiffString(
+      mediaAtomFixture,
+      mediaAtomFixture.copy(description = None)
+    ) must be(
       "Updated atom fields (description: Example description -> [NONE])"
     )
   }

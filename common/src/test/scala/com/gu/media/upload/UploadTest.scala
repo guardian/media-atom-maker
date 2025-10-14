@@ -1,17 +1,26 @@
 package com.gu.media.upload
 
 import com.gu.media.model.{PlutoSyncMetadataMessage, VideoSource}
-import com.gu.media.upload.model.{SelfHostedUploadMetadata, Upload, UploadMetadata, UploadProgress}
+import com.gu.media.upload.model.{
+  SelfHostedUploadMetadata,
+  Upload,
+  UploadMetadata,
+  UploadProgress
+}
 import com.gu.media.upload.model.Upload._
 import org.scalacheck.Gen
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
-class UploadTest extends AnyFunSuite with Matchers with ScalaCheckDrivenPropertyChecks {
+class UploadTest
+    extends AnyFunSuite
+    with Matchers
+    with ScalaCheckDrivenPropertyChecks {
   private val oneHundredGigabytes = oneHundredMegabytes * 1024
   private val fiveMegabytes: Long = 1024 * 1024 * 5
-  private val reasonableVideoSize = Gen.choose(fiveMegabytes, oneHundredGigabytes)
+  private val reasonableVideoSize =
+    Gen.choose(fiveMegabytes, oneHundredGigabytes)
 
   test("chunking") {
     forAll(reasonableVideoSize) { (n: Long) =>
@@ -35,7 +44,7 @@ class UploadTest extends AnyFunSuite with Matchers with ScalaCheckDrivenProperty
     forAll(reasonableVideoSize) { (n: Long) =>
       val chunks = calculateChunks(n)
 
-      if(chunks.size > 1) {
+      if (chunks.size > 1) {
         chunks.drop(1).foldLeft(chunks.head) { (last, chunk) =>
           val (_, end) = last
           val (start, _) = chunk
@@ -53,13 +62,19 @@ class UploadTest extends AnyFunSuite with Matchers with ScalaCheckDrivenProperty
   test("videoInputUri returns s3 uri from upload metadata") {
     val upload = Upload("123xyz", Nil, metadataWithoutSubtitle, progress)
 
-    Upload.videoInputUri(upload).toString mustBe "s3://upload-bucket/uploads/123xyz-1/complete"
+    Upload
+      .videoInputUri(upload)
+      .toString mustBe "s3://upload-bucket/uploads/123xyz-1/complete"
   }
 
-  test("subtitleInputUri returns s3 uri from upload metadata if there is a subtitleSource") {
+  test(
+    "subtitleInputUri returns s3 uri from upload metadata if there is a subtitleSource"
+  ) {
     val upload = Upload("123xyz", Nil, metadataWithSubtitle, progress)
 
-    Upload.subtitleInputUri(upload).map(_.toString) must contain("s3://upload-bucket/uploads/123xyz-1/subtitles.srt")
+    Upload.subtitleInputUri(upload).map(_.toString) must contain(
+      "s3://upload-bucket/uploads/123xyz-1/subtitles.srt"
+    )
   }
 
   test("subtitleInputUri returns None if there is no subtitleSource") {
@@ -92,14 +107,27 @@ class UploadTest extends AnyFunSuite with Matchers with ScalaCheckDrivenProperty
     posterImageUrl = None
   )
 
-  private def progress = UploadProgress(4, 0, fullyUploaded = true, fullyTranscoded = true, 0, None)
+  private def progress =
+    UploadProgress(4, 0, fullyUploaded = true, fullyTranscoded = true, 0, None)
 
   private def metadataWithSubtitle = UploadMetadata(
-    user = "me", bucket = "upload-bucket", region = "local", title = "my-video",
-    pluto = plutoMessage, runtime = SelfHostedUploadMetadata(Nil), subtitleVersion = Some(12),
-    subtitleSource = Some(VideoSource("uploads/123xyz-1/subtitles.srt", "video/mp4")))
+    user = "me",
+    bucket = "upload-bucket",
+    region = "local",
+    title = "my-video",
+    pluto = plutoMessage,
+    runtime = SelfHostedUploadMetadata(Nil),
+    subtitleVersion = Some(12),
+    subtitleSource =
+      Some(VideoSource("uploads/123xyz-1/subtitles.srt", "video/mp4"))
+  )
 
   private def metadataWithoutSubtitle = UploadMetadata(
-    user = "me", bucket = "upload-bucket", region = "local", title = "my-video",
-    pluto = plutoMessage, runtime = SelfHostedUploadMetadata(Nil))
+    user = "me",
+    bucket = "upload-bucket",
+    region = "local",
+    title = "my-video",
+    pluto = plutoMessage,
+    runtime = SelfHostedUploadMetadata(Nil)
+  )
 }
