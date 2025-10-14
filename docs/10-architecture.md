@@ -8,7 +8,6 @@ graph LR
     YouTube((YouTube)):::External
     CAPI((CAPI)):::External
     Composer((Composer))
-    Workflow((Workflow))
     uploads-to-pluto{{uploads-to-pluto<br/>Kinesis}}:::Stream
     media-atom-maker-ingested-videos{{media-atom-maker-ingested-videos<br/>SQS}}:::Stream
     PlutoIntegrationIncomingStream{{PlutoIntegrationIncomingStream<br/>Kinesis}}:::Stream
@@ -50,12 +49,12 @@ graph LR
     Expirer[Expirer lambda<br/>Every 15 minutes]
     CAPI --> Expirer
     Expirer --> YouTube
+    subgraph workflow
+      Workflow((Workflow backend))
+      WorkflowFrontend((workflow-frontend))
+    end
     ClientSide -->|Lookup and edit workflow details for atoms| Workflow
     WorkflowFrontend -->|Create atom requests| MediaAtomMaker
-    subgraph workflow
-      Workflow
-      WorkflowFrontend
-    end
     classDef External padding: 50px, width: 200px, font-size: 25px
     classDef Stream stroke-dasharray: 5 5
 ```
