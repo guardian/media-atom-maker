@@ -158,4 +158,5 @@ sequenceDiagram
   Workflow --) MAMFrontend: statuses
   Workflow --) MAMFrontend: priorities
   Workflow --) MAMFrontend: atom info
+  MAMFrontend -->> User: Display Workflow details
 ```
