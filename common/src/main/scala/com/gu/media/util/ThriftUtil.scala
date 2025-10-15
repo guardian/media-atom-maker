@@ -14,24 +14,31 @@ import scala.util.Try
 object ThriftUtil {
   type ThriftResult[A] = Either[String, A]
 
-  def getSingleParam(params: Map[String, Seq[String]], name: String): Option[String] =
+  def getSingleParam(
+      params: Map[String, Seq[String]],
+      name: String
+  ): Option[String] =
     params.get(name).flatMap(_.headOption)
 
   def parsePlatform(uri: String): ThriftResult[Platform] =
     uri match {
       case YoutubeUrl(_) => Right(Platform.Youtube)
-      case Url(_) => Right(Platform.Url)
-      case _ => Left(s"Unrecognised platform in uri ($uri)")
+      case Url(_)        => Right(Platform.Url)
+      case _             => Left(s"Unrecognised platform in uri ($uri)")
     }
 
   def parseId(uri: String): ThriftResult[String] =
     uri match {
       case YoutubeUrl(id) => Right(id)
-      case Url(url) => Right(url)
-      case _ => Left(s"couldn't extract id from uri ($uri)")
+      case Url(url)       => Right(url)
+      case _              => Left(s"couldn't extract id from uri ($uri)")
     }
 
-  def parseAsset(uri: String, mimeType: Option[String], version: Long): ThriftResult[Asset] =
+  def parseAsset(
+      uri: String,
+      mimeType: Option[String],
+      version: Long
+  ): ThriftResult[Asset] =
     for {
       id <- parseId(uri).right
       platform <- parsePlatform(uri).right
@@ -44,13 +51,14 @@ object ThriftUtil {
     )
 
   def parseAssets(uris: Seq[String], version: Long): ThriftResult[List[Asset]] =
-    uris.foldLeft(Right(Nil): ThriftResult[List[Asset]]) { (assetsEither, uri) =>
-      for {
-        assets <- assetsEither.right
-        asset <- parseAsset(uri, mimeType = None, version).right
-      } yield {
-        asset :: assets
-      }
+    uris.foldLeft(Right(Nil): ThriftResult[List[Asset]]) {
+      (assetsEither, uri) =>
+        for {
+          assets <- assetsEither.right
+          asset <- parseAsset(uri, mimeType = None, version).right
+        } yield {
+          asset :: assets
+        }
     }
 
   def parseMetadata(metadata: Seq[String]): ThriftResult[Option[Metadata]] = {
@@ -58,28 +66,31 @@ object ThriftUtil {
       case Some(meta) =>
         Json.parse(meta).validate[Metadata] match {
           case JsSuccess(data, _) => Right(Some(data))
-          case JsError(error) => Left(s"Couldn't parse Json for metadata $meta - $error")
+          case JsError(error) =>
+            Left(s"Couldn't parse Json for metadata $meta - $error")
         }
       case None => Right(None)
     }
   }
 
-  def parseMediaAtom(params: Map[String, Seq[String]]): ThriftResult[MediaAtom] = {
+  def parseMediaAtom(
+      params: Map[String, Seq[String]]
+  ): ThriftResult[MediaAtom] = {
     val version = params.get("version").map(_.head.toLong).getOrElse(1L)
     val title = params.get("title").map(_.head) getOrElse "unknown"
     val category = params.get("category").map(_.head) match {
       case Some("documentary") => Category.Documentary
-      case Some("explainer") => Category.Explainer
-      case Some("feature") => Category.Feature
-      case Some("hosted") => Category.Hosted
-      case _ => Category.News
+      case Some("explainer")   => Category.Explainer
+      case Some("feature")     => Category.Feature
+      case Some("hosted")      => Category.Hosted
+      case _                   => Category.News
     }
     val description = params.get("description").map(_.head)
     val duration = params.get("duration").map(_.head.toLong)
     val source = params.get("source").map(_.head)
     val posterUrl = params.get("posterUrl").map(_.head).flatMap {
       case Url(url) => Some(url)
-      case _ => None
+      case _        => None
     }
     for {
       assets <- parseAssets(params.getOrElse("uri", Nil), version).right
@@ -99,9 +110,9 @@ object ThriftUtil {
   }
 
   def parseRequest(params: Map[String, Seq[String]]): ThriftResult[Atom] = {
-    val id = getSingleParam(params,"id").getOrElse(randomUUID().toString)
+    val id = getSingleParam(params, "id").getOrElse(randomUUID().toString)
 
-    for(mediaAtom <- parseMediaAtom(params).right) yield {
+    for (mediaAtom <- parseMediaAtom(params).right) yield {
       Atom(
         id = id,
         atomType = AtomType.Media,
@@ -109,7 +120,10 @@ object ThriftUtil {
         defaultHtml = "",
         data = AtomData.Media(mediaAtom),
         contentChangeDetails = ContentChangeDetails(
-          None, None, None, 1L
+          None,
+          None,
+          None,
+          1L
         )
       ).updateDefaultHtml
     }
@@ -120,8 +134,11 @@ object ThriftUtil {
 object Url {
 
   def unapply(s: String): Option[String] = {
-    Try(new URI(s)).filter { uri =>
-      uri.isAbsolute && uri.getScheme == "https"
-    }.map(_.toASCIIString).toOption
+    Try(new URI(s))
+      .filter { uri =>
+        uri.isAbsolute && uri.getScheme == "https"
+      }
+      .map(_.toASCIIString)
+      .toOption
   }
 }

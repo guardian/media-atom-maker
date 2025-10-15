@@ -4,16 +4,23 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder
 import com.gu.media.Settings
 import com.gu.media.aws.AwsV2Util.buildSync
 import org.scanamo.Scanamo
-import software.amazon.awssdk.services.dynamodb.{DynamoDbClient, DynamoDbClientBuilder}
+import software.amazon.awssdk.services.dynamodb.{
+  DynamoDbClient,
+  DynamoDbClientBuilder
+}
 
 trait DynamoAccess { this: Settings with AwsAccess =>
-  lazy val dynamoTableName: String = sys.env.getOrElse("ATOM_TABLE_NAME",
+  lazy val dynamoTableName: String = sys.env.getOrElse(
+    "ATOM_TABLE_NAME",
     getMandatoryString("aws.dynamo.tableName")
   )
 
-  lazy val publishedDynamoTableName: String = getMandatoryString("aws.dynamo.publishedTableName")
+  lazy val publishedDynamoTableName: String = getMandatoryString(
+    "aws.dynamo.publishedTableName"
+  )
 
-  lazy val manualPlutoDynamo: String = sys.env.getOrElse("PLUTO_TABLE_NAME",
+  lazy val manualPlutoDynamo: String = sys.env.getOrElse(
+    "PLUTO_TABLE_NAME",
     getMandatoryString("aws.dynamo.plutoTableName")
   )
 
@@ -29,7 +36,11 @@ trait DynamoAccess { this: Settings with AwsAccess =>
     .build()
 
   lazy val dynamoDbSdkV2: DynamoDbClient =
-    buildSync[DynamoDbClient, DynamoDbClientBuilder](DynamoDbClient.builder(), credentials.instance.awsV2Creds, awsV2Region)
+    buildSync[DynamoDbClient, DynamoDbClientBuilder](
+      DynamoDbClient.builder(),
+      credentials.instance.awsV2Creds,
+      awsV2Region
+    )
 
   lazy val scanamo: Scanamo = Scanamo(dynamoDbSdkV2)
 }

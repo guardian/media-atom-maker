@@ -1,7 +1,17 @@
 package com.gu.media.model
 
-import com.gu.contentatom.thrift.{AtomData, Atom => ThriftAtom, AtomType => ThriftAtomType, ContentChangeDetails => ThriftContentChangeDetails}
-import com.gu.contentatom.thrift.atom.media.{Category => ThriftMediaCategory, MediaAtom => ThriftMediaAtom, Metadata => ThriftMetaData, YoutubeData => ThriftYoutubeData}
+import com.gu.contentatom.thrift.{
+  AtomData,
+  Atom => ThriftAtom,
+  AtomType => ThriftAtomType,
+  ContentChangeDetails => ThriftContentChangeDetails
+}
+import com.gu.contentatom.thrift.atom.media.{
+  Category => ThriftMediaCategory,
+  MediaAtom => ThriftMediaAtom,
+  Metadata => ThriftMetaData,
+  YoutubeData => ThriftYoutubeData
+}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.must.Matchers
 
@@ -21,7 +31,8 @@ class MediaAtomTest extends AnyFunSuite with Matchers {
       |</ul>
     """.stripMargin
 
-  private val youtubeDescription = "The three-year construction of Tottenham Hotspur's new stadium is revealed in a time-lapse video released by the club. The £1bn stadium will be officially unveiled on Sunday, before Spurs play their first match at their new home on 3 April against Crystal Palace. \n Tottenham announce first match for new 62,000 capacity stadium"
+  private val youtubeDescription =
+    "The three-year construction of Tottenham Hotspur's new stadium is revealed in a time-lapse video released by the club. The £1bn stadium will be officially unveiled on Sunday, before Spurs play their first match at their new home on 3 April against Crystal Palace. \n Tottenham announce first match for new 62,000 capacity stadium"
 
   private def getAtomBeforeCreation(title: String) = MediaAtomBeforeCreation(
     title = title,
@@ -29,7 +40,8 @@ class MediaAtomTest extends AnyFunSuite with Matchers {
     posterImage = None,
     category = Category.News,
     source = None,
-    contentChangeDetails = ContentChangeDetails(None, None, None, 1L, None, None, None),
+    contentChangeDetails =
+      ContentChangeDetails(None, None, None, 1L, None, None, None),
     channelId = None,
     privacyStatus = None,
     youtubeCategoryId = None,
@@ -50,19 +62,30 @@ class MediaAtomTest extends AnyFunSuite with Matchers {
     suppressRelatedContent = None
   )
 
-  test("test youtube description of MediaAtomBeforeCreation with empty description") {
-    val atomBeforeCreation = getAtomBeforeCreation("harry potter and the philosopher's stone")
+  test(
+    "test youtube description of MediaAtomBeforeCreation with empty description"
+  ) {
+    val atomBeforeCreation =
+      getAtomBeforeCreation("harry potter and the philosopher's stone")
     atomBeforeCreation.youtubeDescription must be(None)
   }
 
-  test("test youtube description of MediaAtomBeforeCreation with plain description") {
+  test(
+    "test youtube description of MediaAtomBeforeCreation with plain description"
+  ) {
     val plainDescription = Some("oh hello there")
-    val atomBeforeCreation = getAtomBeforeCreation("harry potter and the chamber of secrets").copy(description = plainDescription)
+    val atomBeforeCreation = getAtomBeforeCreation(
+      "harry potter and the chamber of secrets"
+    ).copy(description = plainDescription)
     atomBeforeCreation.youtubeDescription must be(plainDescription)
   }
 
-  test("test youtube description of MediaAtomBeforeCreation with html description") {
-    val atomBeforeCreation = getAtomBeforeCreation("harry potter and the prisoner of azkaban").copy(description = Some(htmlDescription))
+  test(
+    "test youtube description of MediaAtomBeforeCreation with html description"
+  ) {
+    val atomBeforeCreation = getAtomBeforeCreation(
+      "harry potter and the prisoner of azkaban"
+    ).copy(description = Some(htmlDescription))
     val expected = Some(youtubeDescription)
     atomBeforeCreation.youtubeDescription must be(expected)
   }
@@ -117,9 +140,16 @@ class MediaAtomTest extends AnyFunSuite with Matchers {
       title = "a title",
       category = ThriftMediaCategory.News,
       description = Some(htmlDescription),
-      metadata = Some(ThriftMetaData(
-        youtube = Some(ThriftYoutubeData(title = "a title", description = Some("a custom description for youtube")))
-      ))
+      metadata = Some(
+        ThriftMetaData(
+          youtube = Some(
+            ThriftYoutubeData(
+              title = "a title",
+              description = Some("a custom description for youtube")
+            )
+          )
+        )
+      )
     )
 
     val thriftAtom = ThriftAtom(

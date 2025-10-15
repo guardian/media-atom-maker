@@ -9,10 +9,17 @@ trait Logging {
 }
 
 object Logging {
-  def layout(context: LoggerContext, stack: String, app: String, stage: String): LogstashLayout = {
+  def layout(
+      context: LoggerContext,
+      stack: String,
+      app: String,
+      stage: String
+  ): LogstashLayout = {
     val layout = new LogstashLayout()
     layout.setContext(context)
-    layout.setCustomFields(s"""{"stack":"$stack","app":"$app","stage":"$stage"}""")
+    layout.setCustomFields(
+      s"""{"stack":"$stack","app":"$app","stage":"$stage"}"""
+    )
     layout.start()
 
     layout

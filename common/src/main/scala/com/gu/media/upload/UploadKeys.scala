@@ -19,9 +19,15 @@ case class CompleteUploadKey(folder: String, id: String) {
   override def toString = s"$folder/$id/complete"
 }
 
-case class TranscoderOutputKey(prefix: String, title: String, id: String, extension: String) {
+case class TranscoderOutputKey(
+    prefix: String,
+    title: String,
+    id: String,
+    extension: String
+) {
   private val path = TranscoderOutputKey.stripSpecialCharsInPath(s"$prefix")
-  private val filename = TranscoderOutputKey.stripSpecialCharsInFilename(s"$title--$id.$extension")
+  private val filename =
+    TranscoderOutputKey.stripSpecialCharsInFilename(s"$title--$id.$extension")
   override def toString = s"$path/$filename"
 }
 
@@ -31,11 +37,21 @@ object TranscoderOutputKey {
     now.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
   }
 
-  def apply(title: String, id: String, extension: String): TranscoderOutputKey = {
+  def apply(
+      title: String,
+      id: String,
+      extension: String
+  ): TranscoderOutputKey = {
     TranscoderOutputKey(currentDate, title, id, extension)
   }
 
-  def apply(title: String, atomId: String, assetVersion: Long, subtitleVersion: Long, extension: String): TranscoderOutputKey = {
+  def apply(
+      title: String,
+      atomId: String,
+      assetVersion: Long,
+      subtitleVersion: Long,
+      extension: String
+  ): TranscoderOutputKey = {
     val id = s"$atomId-$assetVersion.$subtitleVersion"
     TranscoderOutputKey(title, id, extension)
   }

@@ -13,7 +13,8 @@ trait SESSettings { this: Settings with AwsAccess =>
 
   val fromEmailAddress = getMandatoryString("aws.ses.fromEmailAddress")
 
-  val replyToAddresses: Seq[String] = getMandatoryString("aws.ses.replyToAddresses").split(",").toSeq
+  val replyToAddresses: Seq[String] =
+    getMandatoryString("aws.ses.replyToAddresses").split(",").toSeq
 
   val integrationTestUser: String = getMandatoryString("integration.test.user")
 

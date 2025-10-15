@@ -7,17 +7,19 @@ import com.gu.ai.x.play.json.Jsonx
 import com.gu.ai.x.play.json.Encoders._
 import play.api.libs.json.Format
 
-
 object MediaAtomYoutubeDescriptionHandler extends MediaAtomImplicits {
 
-  private implicit val mediaAtomFormat: Format[MediaAtom] = Jsonx.formatCaseClass[MediaAtom]
+  private implicit val mediaAtomFormat: Format[MediaAtom] =
+    Jsonx.formatCaseClass[MediaAtom]
 
   def getYoutubeDescription(data: ThriftMediaAtom): Option[String] = {
 
-    val youtubeDescription: Option[String] = data.metadata.flatMap(_.youtube) match {
-      case Some(youtubeData) if youtubeData.description.isDefined => youtubeData.description
-      case _ => YoutubeDescription.clean(data.description)
-    }
+    val youtubeDescription: Option[String] =
+      data.metadata.flatMap(_.youtube) match {
+        case Some(youtubeData) if youtubeData.description.isDefined =>
+          youtubeData.description
+        case _ => YoutubeDescription.clean(data.description)
+      }
 
     youtubeDescription
   }

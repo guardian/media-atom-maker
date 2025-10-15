@@ -9,8 +9,8 @@ import com.squareup.okhttp.{MediaType, OkHttpClient, Request, RequestBody}
 import play.api.libs.json.{JsValue, Json}
 
 class HMACClient(
-  serviceName: String,
-  config: Settings with HMACSettings
+    serviceName: String,
+    config: Settings with HMACSettings
 ) extends HMACHeaders {
   override def secret: String = config.sharedSecret
 
@@ -39,7 +39,10 @@ class HMACClient(
   }
 
   def put(uri: URI): JsValue = {
-    val emptyBody = RequestBody.create(MediaType.parse("application/json"), Array.emptyByteArray)
+    val emptyBody = RequestBody.create(
+      MediaType.parse("application/json"),
+      Array.emptyByteArray
+    )
     put(uri, emptyBody)
   }
 

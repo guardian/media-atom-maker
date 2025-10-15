@@ -13,10 +13,15 @@ class CredentialsGenerator(aws: UploadAccess) extends Logging {
     generateCredentials(key, keyPolicy)
   }
 
-  private def generateCredentials(key: String, keyPolicy: String): UploadCredentials = {
+  private def generateCredentials(
+      key: String,
+      keyPolicy: String
+  ): UploadCredentials = {
     val request = new AssumeRoleRequest()
       .withRoleArn(aws.userUploadRole)
-      .withDurationSeconds(900) // 15 minutes (the minimum allowed in STS requests)
+      .withDurationSeconds(
+        900
+      ) // 15 minutes (the minimum allowed in STS requests)
       .withPolicy(keyPolicy)
       .withRoleSessionName(s"media-atom-pipeline")
 
@@ -26,24 +31,39 @@ class CredentialsGenerator(aws: UploadAccess) extends Logging {
 
     val credentials = result.getCredentials
 
-    UploadCredentials(credentials.getAccessKeyId, credentials.getSecretAccessKey, credentials.getSessionToken)
+    UploadCredentials(
+      credentials.getAccessKeyId,
+      credentials.getSecretAccessKey,
+      credentials.getSessionToken
+    )
   }
 
   private def generateKeyPolicy(key: String): String = {
     val keyArn = s"arn:aws:s3:::${aws.userUploadBucket}/$key"
 
-    val permissions = List("s3:PutObject", "s3:PutObjectAcl", "s3:ListMultipartUploadParts",
-      "s3:AbortMultipartUpload", "s3:ListBucketMultipartUploads")
+    val permissions = List(
+      "s3:PutObject",
+      "s3:PutObjectAcl",
+      "s3:ListMultipartUploadParts",
+      "s3:AbortMultipartUpload",
+      "s3:ListBucketMultipartUploads"
+    )
 
-    val json = JsObject(List(
-      "Statement" -> JsArray(List(
-        JsObject(List(
-          "Action" -> JsArray(permissions.map(JsString)),
-          "Resource" -> JsString(keyArn),
-          "Effect" -> JsString("Allow")
-        ))
-      ))
-    ))
+    val json = JsObject(
+      List(
+        "Statement" -> JsArray(
+          List(
+            JsObject(
+              List(
+                "Action" -> JsArray(permissions.map(JsString)),
+                "Resource" -> JsString(keyArn),
+                "Effect" -> JsString("Allow")
+              )
+            )
+          )
+        )
+      )
+    )
 
     Json.stringify(json)
   }

@@ -9,7 +9,10 @@ trait S3Access { this: AwsAccess =>
 }
 
 object S3Access {
-  def buildClient(credsProvider: AWSCredentialsProvider, region: String): AmazonS3 =
+  def buildClient(
+      credsProvider: AWSCredentialsProvider,
+      region: String
+  ): AmazonS3 =
     AmazonS3ClientBuilder
       .standard()
       .withCredentials(credsProvider)

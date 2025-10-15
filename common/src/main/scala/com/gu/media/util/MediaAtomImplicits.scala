@@ -4,7 +4,12 @@ import com.gu.atom.util._
 import com.gu.contentatom.thrift._
 import com.gu.contentatom.thrift.atom.media.Platform.Youtube
 import com.gu.contentatom.thrift.atom.media._
-import com.gu.media.model.{SelfHostedAsset, VideoAsset, VideoSource, YouTubeAsset}
+import com.gu.media.model.{
+  SelfHostedAsset,
+  VideoAsset,
+  VideoSource,
+  YouTubeAsset
+}
 
 trait MediaAtomImplicits extends AtomImplicits[MediaAtom] {
   val dataTyper = new AtomDataTyper[MediaAtom] {
@@ -32,8 +37,12 @@ trait MediaAtomImplicits extends AtomImplicits[MediaAtom] {
       }
       case (Some(SelfHostedAsset(sources)), poster) => {
         s"""
-           |<video controls="controls" preload="metadata" ${if (poster.isDefined) s"""poster="${poster.get}""""}>
-           | ${sources.map(s => s"""<source type="${s.mimeType}" src="${s.src}"/>""").mkString}
+           |<video controls="controls" preload="metadata" ${if (
+            poster.isDefined
+          ) s"""poster="${poster.get}""""}>
+           | ${sources
+            .map(s => s"""<source type="${s.mimeType}" src="${s.src}"/>""")
+            .mkString}
            |</video>
         """.stripMargin
       }

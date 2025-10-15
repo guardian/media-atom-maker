@@ -10,7 +10,8 @@ import com.typesafe.config.{Config, ConfigFactory}
 
 trait LambdaBase extends Settings with AwsAccess with HMACSettings {
   final override def region = AwsAccess.regionFrom(sys.env.get("REGION"))
-  final override def readTag(tag: String) = sys.env.get(tag.toUpperCase(Locale.ENGLISH))
+  final override def readTag(tag: String) =
+    sys.env.get(tag.toUpperCase(Locale.ENGLISH))
 
   final override val credentials: AwsCredentials = AwsCredentials.lambda()
 
@@ -41,7 +42,7 @@ trait LambdaBase extends Settings with AwsAccess with HMACSettings {
     val localConfig = ConfigFactory.load()
 
     // we must use the local config, as we may not have downloaded the remote stuff yet
-    if(localConfig.hasPath("aws.profile")) {
+    if (localConfig.hasPath("aws.profile")) {
       Some(localConfig.getString("aws.profile"))
     } else {
       None

@@ -5,7 +5,11 @@ import java.net.URI
 import java.util.concurrent.TimeUnit
 
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, STSAssumeRoleSessionCredentialsProvider}
+import com.amazonaws.auth.{
+  AWSCredentialsProvider,
+  AWSCredentialsProviderChain,
+  STSAssumeRoleSessionCredentialsProvider
+}
 import com.gu.contentapi.client.{IAMSigner, IAMEncoder}
 import com.squareup.okhttp.{Headers, OkHttpClient, Request}
 import com.typesafe.config.Config
@@ -22,16 +26,26 @@ trait CapiAccess { this: Settings =>
   private val capiPreviewCredentials: AWSCredentialsProvider = {
     new AWSCredentialsProviderChain(
       new ProfileCredentialsProvider("capi"),
-      new STSAssumeRoleSessionCredentialsProvider.Builder(previewCapiRole, "capi").build()
+      new STSAssumeRoleSessionCredentialsProvider.Builder(
+        previewCapiRole,
+        "capi"
+      ).build()
     )
   }
 
-  private val signer = new IAMSigner(capiPreviewCredentials, sys.env.getOrElse("REGION", "eu-west-1"))
+  private val signer = new IAMSigner(
+    capiPreviewCredentials,
+    sys.env.getOrElse("REGION", "eu-west-1")
+  )
 
   private val httpClient = new OkHttpClient()
   httpClient.setConnectTimeout(5, TimeUnit.SECONDS)
 
-  private def getUrl(path: String, qs: Map[String, Seq[String]], queryLive: Boolean): URI = {
+  private def getUrl(
+      path: String,
+      qs: Map[String, Seq[String]],
+      queryLive: Boolean
+  ): URI = {
     val capiDomain = if (queryLive) liveCapiUrl else previewCapiIAMUrl
     val queryString = IAMEncoder.encodeParams(
       if (queryLive) {
@@ -49,16 +63,25 @@ trait CapiAccess { this: Settings =>
     else List(200)
   }
 
-  def capiQuery(path: String, qs: Map[String, String], queryLive: Boolean = false): JsValue = {
+  def capiQuery(
+      path: String,
+      qs: Map[String, String],
+      queryLive: Boolean = false
+  ): JsValue = {
     val query: Map[String, Seq[String]] = qs.map(x => (x._1, Seq(x._2)))
     complexCapiQuery(path, query, queryLive)
   }
 
-  def complexCapiQuery(path: String, qs: Map[String, Seq[String]], queryLive: Boolean = false): JsValue = {
+  def complexCapiQuery(
+      path: String,
+      qs: Map[String, Seq[String]],
+      queryLive: Boolean = false
+  ): JsValue = {
     val uri = getUrl(path, qs, queryLive)
 
-    val headers: Map[String,String] =
-      if (queryLive) Map.empty else signer.addIAMHeaders(Map.empty[String,String], uri)
+    val headers: Map[String, String] =
+      if (queryLive) Map.empty
+      else signer.addIAMHeaders(Map.empty[String, String], uri)
 
     val req = new Request.Builder()
       .url(uri.toURL)
@@ -69,7 +92,7 @@ trait CapiAccess { this: Settings =>
       val response = httpClient.newCall(req).execute
       val allowedCodes = getAllowedResponseCodes(queryLive)
 
-      if(! allowedCodes.contains(response.code()))
+      if (!allowedCodes.contains(response.code()))
         throw CapiException(s"CAPI returned status ${response.code()}")
 
       Json.parse(response.body().byteStream())
@@ -81,4 +104,5 @@ trait CapiAccess { this: Settings =>
 }
 
 class Capi(override val config: Config) extends Settings with CapiAccess
-case class CapiException(err: String, cause: Throwable = null) extends RuntimeException(err, cause)
+case class CapiException(err: String, cause: Throwable = null)
+    extends RuntimeException(err, cause)

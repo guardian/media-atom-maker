@@ -3,11 +3,20 @@ package com.gu.media.youtube
 import java.io.InputStream
 
 import com.amazonaws.services.s3.AmazonS3
-import com.gu.media.logging.{Logging, YoutubeApiType, YoutubeRequestLogger, YoutubeRequestType}
+import com.gu.media.logging.{
+  Logging,
+  YoutubeApiType,
+  YoutubeRequestLogger,
+  YoutubeRequestType
+}
 import com.gu.media.model.YouTubeAsset
 import com.gu.media.upload.model.{Upload, UploadPart}
 import com.gu.media.util.InputStreamRequestBody
-import com.gu.media.youtube.YouTubeUploader.{MoveToNextChunk, UploadError, VideoFullyUploaded}
+import com.gu.media.youtube.YouTubeUploader.{
+  MoveToNextChunk,
+  UploadError,
+  VideoFullyUploaded
+}
 import com.squareup.okhttp.{MediaType, OkHttpClient, Request, RequestBody}
 import play.api.libs.json.{JsObject, JsString, Json}
 
@@ -17,23 +26,37 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3) extends Logging {
 
   private val http = new OkHttpClient()
 
-  def startUpload(title: String, channel: String, id: String, size: Long): String = {
-    val contentOwnerParams = s"onBehalfOfContentOwner=${youTube.contentOwner}&onBehalfOfContentOwnerChannel=$channel"
-    val params = s"uploadType=resumable&part=snippet,statistics,status&$contentOwnerParams"
-    val endpoint = s"https://www.googleapis.com/upload/youtube/v3/videos?$params"
+  def startUpload(
+      title: String,
+      channel: String,
+      id: String,
+      size: Long
+  ): String = {
+    val contentOwnerParams =
+      s"onBehalfOfContentOwner=${youTube.contentOwner}&onBehalfOfContentOwnerChannel=$channel"
+    val params =
+      s"uploadType=resumable&part=snippet,statistics,status&$contentOwnerParams"
+    val endpoint =
+      s"https://www.googleapis.com/upload/youtube/v3/videos?$params"
 
     val videoTitle = s"$title-$id".take(70) // YouTube character limit
 
-    val json = JsObject(Seq(
-      "snippet" -> JsObject(Seq(
-        "title" -> JsString(videoTitle)
-      )),
-      "status" -> JsObject(Seq(
-        "privacyStatus" -> JsString("unlisted")
-      )),
-      "onBehalfOfContentOwner" -> JsString(youTube.contentOwner),
-      "onBehalfOnContentOwnerChannel" -> JsString(channel)
-    ))
+    val json = JsObject(
+      Seq(
+        "snippet" -> JsObject(
+          Seq(
+            "title" -> JsString(videoTitle)
+          )
+        ),
+        "status" -> JsObject(
+          Seq(
+            "privacyStatus" -> JsString("unlisted")
+          )
+        ),
+        "onBehalfOfContentOwner" -> JsString(youTube.contentOwner),
+        "onBehalfOnContentOwnerChannel" -> JsString(channel)
+      )
+    )
 
     val body = RequestBody.create(JSON, Json.stringify(json))
     val request = new Request.Builder()
@@ -44,17 +67,26 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3) extends Logging {
       .post(body)
       .build()
 
-    YoutubeRequestLogger.logRequest(YoutubeApiType.UploadApi, YoutubeRequestType.StartVideoUpload)
+    YoutubeRequestLogger.logRequest(
+      YoutubeApiType.UploadApi,
+      YoutubeRequestType.StartVideoUpload
+    )
     val response = http.newCall(request).execute()
 
-    if(response.code() == 200) {
+    if (response.code() == 200) {
       response.header("Location")
     } else {
-      throw new IllegalStateException(s"${response.code()} when starting YouTube upload: ${response.body().string()}")
+      throw new IllegalStateException(
+        s"${response.code()} when starting YouTube upload: ${response.body().string()}"
+      )
     }
   }
 
-  def uploadPart(upload: Upload, part: UploadPart, uploadUri: String): Upload = {
+  def uploadPart(
+      upload: Upload,
+      part: UploadPart,
+      uploadUri: String
+  ): Upload = {
     log.info(s"Uploading ${part.key} [${part.start} - ${part.end}]")
 
     val UploadPart(key, start, end) = part
@@ -65,24 +97,35 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3) extends Logging {
     uploadChunk(uploadUri, input, start, end, total) match {
       case VideoFullyUploaded(videoId) =>
         upload.copy(
-          progress = upload.progress.copy(chunksInYouTube = upload.progress.chunksInYouTube + 1),
+          progress = upload.progress
+            .copy(chunksInYouTube = upload.progress.chunksInYouTube + 1),
           metadata = upload.metadata.copy(asset = Some(YouTubeAsset(videoId)))
         )
 
       case MoveToNextChunk if part == upload.parts.last =>
-        throw new IllegalStateException("YouTube did not provide a video id. The asset cannot be added")
+        throw new IllegalStateException(
+          "YouTube did not provide a video id. The asset cannot be added"
+        )
 
       case MoveToNextChunk =>
-        upload.copy(progress = upload.progress.copy(
-          chunksInYouTube = upload.progress.chunksInYouTube + 1
-        ))
+        upload.copy(progress =
+          upload.progress.copy(
+            chunksInYouTube = upload.progress.chunksInYouTube + 1
+          )
+        )
 
       case UploadError(error) =>
         throw new IllegalStateException(error)
     }
   }
 
-  private def uploadChunk(uri: String, input: InputStream, start: Long, end: Long, total: Long): YouTubeUploader.Result = {
+  private def uploadChunk(
+      uri: String,
+      input: InputStream,
+      start: Long,
+      end: Long,
+      total: Long
+  ): YouTubeUploader.Result = {
     val size = end - start
     // end index is inclusive in direct contradiction to programming history (and my end variable)
     val range = s"$start-${start + size - 1}"
@@ -97,13 +140,16 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3) extends Logging {
       .post(body)
       .build()
 
-    YoutubeRequestLogger.logRequest(YoutubeApiType.UploadApi, YoutubeRequestType.UploadVideoChunk)
+    YoutubeRequestLogger.logRequest(
+      YoutubeApiType.UploadApi,
+      YoutubeRequestType.UploadVideoChunk
+    )
     val response = http.newCall(request).execute()
     parseResult(response.body().string())
   }
 
   private def parseResult(result: String): YouTubeUploader.Result = {
-    if(result.isEmpty) {
+    if (result.isEmpty) {
       MoveToNextChunk
     } else {
       val json = Json.parse(result)

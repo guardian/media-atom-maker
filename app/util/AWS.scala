@@ -10,8 +10,10 @@ import com.typesafe.config.Config
 
 import scala.jdk.CollectionConverters._
 
-class AWSConfig(override val config: Config, override val credentials: AwsCredentials)
-  extends Settings
+class AWSConfig(
+    override val config: Config,
+    override val credentials: AwsCredentials
+) extends Settings
     with Logging
     with AwsAccess
     with S3Access
@@ -29,7 +31,9 @@ class AWSConfig(override val config: Config, override val credentials: AwsCreden
     .withCredentials(credentials.instance.awsV1Creds)
     .build()
 
-  lazy val pinboardLoaderUrl = getString("panda.domain").map(domain => s"https://pinboard.$domain/pinboard.loader.js")
+  lazy val pinboardLoaderUrl = getString("panda.domain").map(domain =>
+    s"https://pinboard.$domain/pinboard.loader.js"
+  )
   lazy val composerUrl = getMandatoryString("flexible.url")
   lazy val workflowUrl = getMandatoryString("workflow.url")
   lazy val viewerUrl = getMandatoryString("viewer.url")

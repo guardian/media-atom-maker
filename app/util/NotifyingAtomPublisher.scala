@@ -11,7 +11,12 @@ import play.api.libs.json.JodaReads._
 
 import scala.util.Try
 
-class NotifyingAtomPublisher(isLive: Boolean, topicArn: String, underlying: AtomPublisher, sns: AmazonSNS) extends AtomPublisher {
+class NotifyingAtomPublisher(
+    isLive: Boolean,
+    topicArn: String,
+    underlying: AtomPublisher,
+    sns: AmazonSNS
+) extends AtomPublisher {
   override def publishAtomEvent(event: ContentAtomEvent): Try[Unit] = {
     underlying.publishAtomEvent(event).flatMap { _ =>
       val notification = SimpleContentUpdate.fromEvent(event, isLive)
@@ -23,27 +28,31 @@ class NotifyingAtomPublisher(isLive: Boolean, topicArn: String, underlying: Atom
   }
 }
 
-case class SimpleContentUpdate( id: String,
-                                whatChanged: String,
-                                eventTime: DateTime,
-                                revision: Option[Long],
-                                isLive: Boolean,
-                                isMigration: Boolean = false,
-                                isProdmon: Boolean,
-                                isExpired: Boolean
-                              )
+case class SimpleContentUpdate(
+    id: String,
+    whatChanged: String,
+    eventTime: DateTime,
+    revision: Option[Long],
+    isLive: Boolean,
+    isMigration: Boolean = false,
+    isProdmon: Boolean,
+    isExpired: Boolean
+)
 
 object SimpleContentUpdate {
-  implicit val writes: Writes[SimpleContentUpdate] = Json.writes[SimpleContentUpdate]
+  implicit val writes: Writes[SimpleContentUpdate] =
+    Json.writes[SimpleContentUpdate]
 
-  def fromEvent(event: ContentAtomEvent, isLive: Boolean): SimpleContentUpdate = SimpleContentUpdate(
-    id = s"${event.atom.atomType.toString}/${event.atom.id}",
-    whatChanged = if(event.eventType == EventType.Takedown) { "takeDown" } else { "update" },
-    eventTime = new DateTime(event.eventCreationTime, DateTimeZone.UTC),
-    revision = Some(event.atom.contentChangeDetails.revision),
-    isLive,
-    isMigration = false,
-    isProdmon = false,
-    isExpired = false
-  )
+  def fromEvent(event: ContentAtomEvent, isLive: Boolean): SimpleContentUpdate =
+    SimpleContentUpdate(
+      id = s"${event.atom.atomType.toString}/${event.atom.id}",
+      whatChanged = if (event.eventType == EventType.Takedown) { "takeDown" }
+      else { "update" },
+      eventTime = new DateTime(event.eventCreationTime, DateTimeZone.UTC),
+      revision = Some(event.atom.contentChangeDetails.revision),
+      isLive,
+      isMigration = false,
+      isProdmon = false,
+      isExpired = false
+    )
 }

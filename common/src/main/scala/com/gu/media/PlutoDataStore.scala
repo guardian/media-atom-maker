@@ -27,7 +27,7 @@ class PlutoDataStore(scanamo: Scanamo, dynamoTableName: String) {
 
     result.map {
       case Right(item) => item
-      case Left(err) => throw DynamoPlutoTableException(err.toString)
+      case Left(err)   => throw DynamoPlutoTableException(err.toString)
     }
   }
 
@@ -39,6 +39,7 @@ class PlutoDataStore(scanamo: Scanamo, dynamoTableName: String) {
     scanamo.exec(table.delete("id" === id))
   }
 
-  case class DynamoPlutoTableException(err: String) extends RuntimeException(err)
+  case class DynamoPlutoTableException(err: String)
+      extends RuntimeException(err)
 
 }

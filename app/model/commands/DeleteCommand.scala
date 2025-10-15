@@ -11,8 +11,12 @@ import com.gu.media.model.Platform.Youtube
 import model.YouTubeMessage
 import util.YouTube
 
-case class DeleteCommand(id: String, override val stores: DataStores, youTube: YouTube)
-  extends Command with Logging {
+case class DeleteCommand(
+    id: String,
+    override val stores: DataStores,
+    youTube: YouTube
+) extends Command
+    with Logging {
 
   type T = Unit
 
@@ -30,20 +34,44 @@ case class DeleteCommand(id: String, override val stores: DataStores, youTube: Y
     deletePublishedAtom(id)
   }
 
-  private def makeYouTubeVideosPrivate(assets: List[Asset]): Unit = assets.collect {
-    case Asset(_, _, videoId, Youtube, _) if youTube.isManagedVideo(videoId) =>
-      val privacyStatusUpdate = youTube.setStatus(videoId, PrivacyStatus.Private)
+  private def makeYouTubeVideosPrivate(assets: List[Asset]): Unit =
+    assets.collect {
+      case Asset(_, _, videoId, Youtube, _)
+          if youTube.isManagedVideo(videoId) =>
+        val privacyStatusUpdate =
+          youTube.setStatus(videoId, PrivacyStatus.Private)
 
-      privacyStatusUpdate match {
-        case Right(message: String) => YouTubeMessage(id, videoId, "Atom Deletion", message).logMessage()
+        privacyStatusUpdate match {
+          case Right(message: String) =>
+            YouTubeMessage(id, videoId, "Atom Deletion", message).logMessage()
 
-        case Left(error: VideoUpdateError) => YouTubeMessage(id, videoId, "Atom Deletion", error.errorToLog, isError = true).logMessage()
+          case Left(error: VideoUpdateError) =>
+            YouTubeMessage(
+              id,
+              videoId,
+              "Atom Deletion",
+              error.errorToLog,
+              isError = true
+            ).logMessage()
 
-      }
+        }
 
-      youTube.createOrUpdateClaim(id, videoId, AdSettings.NONE) match {
-        case Right(message: String) => YouTubeMessage(id, videoId, "Asset marked as private due to atom deletion", message).logMessage()
-        case Left(error: VideoUpdateError) => YouTubeMessage(id, videoId, "Asset private due to atom Deletion", error.errorToLog, isError = true).logMessage()
-      }
-  }
+        youTube.createOrUpdateClaim(id, videoId, AdSettings.NONE) match {
+          case Right(message: String) =>
+            YouTubeMessage(
+              id,
+              videoId,
+              "Asset marked as private due to atom deletion",
+              message
+            ).logMessage()
+          case Left(error: VideoUpdateError) =>
+            YouTubeMessage(
+              id,
+              videoId,
+              "Asset private due to atom Deletion",
+              error.errorToLog,
+              isError = true
+            ).logMessage()
+        }
+    }
 }
