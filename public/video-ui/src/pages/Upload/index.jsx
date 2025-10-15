@@ -84,7 +84,7 @@ class VideoUpload extends React.Component {
                 this.props.uploadActions.s3UploadPostProcessing
               }
               s3UploadReset={this.props.uploadActions.s3UploadReset}
-              activatingAssetNumber={this.props.isActivatingAssetNumber.activatingAssetNumber}
+              activatingAssetNumber={this.props.isActivatingAssetNumber}
               getVideo={this.props.videoActions.getVideo}
             />
           </div>

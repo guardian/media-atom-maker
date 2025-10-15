@@ -245,8 +245,6 @@ class VideoDisplay extends React.Component {
       publishedVideo,
     } = this.props;
 
-    const { saving } = this.props.isSaving;
-
     const {
       isCreateMode,
       editingFurniture,
@@ -295,8 +293,8 @@ class VideoDisplay extends React.Component {
                 // Error handling is done in the saveVideo action
               });
           }}
-          canSave={() => !this.formHasErrors(formNames.videoData) && !saving}
-          canCancel={() => !isCreateMode && !saving}
+          canSave={() => !this.formHasErrors(formNames.videoData) && !this.props.isSaving}
+          canCancel={() => !isCreateMode && !this.props.isSaving}
           video={video}
           updateVideo={this.updateVideo}
           updateErrors={this.props.formErrorActions.updateFormErrors}
@@ -330,8 +328,8 @@ class VideoDisplay extends React.Component {
                 // Error handling is done in the saveVideo action
               });
           }}
-          canSave={() => !this.formHasErrors(formNames.youtubeFurniture) && !saving}
-          canCancel={() => !saving}
+          canSave={() => !this.formHasErrors(formNames.youtubeFurniture) && !this.props.isSaving}
+          canCancel={() => !this.props.isSaving}
           video={video}
           updateVideo={this.updateVideo}
           updateErrors={this.props.formErrorActions.updateFormErrors}
@@ -355,8 +353,8 @@ class VideoDisplay extends React.Component {
                 // Error handling should be implemented in workflow actions
               });
           }}
-          canSave={() => workflow.status.section && workflow.status.status && !saving}
-          canCancel={() => !saving}
+          canSave={() => workflow.status.section && workflow.status.status && !this.props.isSaving}
+          canCancel={() => !this.props.isSaving}
           video={video}
           isTrackedInWorkflow={workflow.status.isTrackedInWorkflow || false}
         />

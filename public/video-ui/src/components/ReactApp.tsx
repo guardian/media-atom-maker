@@ -59,9 +59,7 @@ export const ReactApp = (
 
   const video = useSelector(selectVideo);
   const publishedVideo = useSelector(selectPublishedVideo);
-  const isSaving = useSelector(selectIsSaving);
   const isPublishing = useSelector(selectIsPublishing);
-  const isActivatingAssetNumber = useSelector(selectIsActivatingAssetNumber);
 
   useEffect(() => {
     if (
@@ -114,9 +112,7 @@ export const ReactApp = (
         search={store.search}
         currentPath={props.location.pathname}
         video={video || {}}
-        isSaving={isSaving}
         isPublishing={isPublishing}
-        isActivatingAssetNumber={isActivatingAssetNumber}
         publishedVideo={publishedVideo || {}}
         showPublishedState={props.params.id}
         s3Upload={store.s3Upload}
