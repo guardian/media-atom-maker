@@ -193,7 +193,7 @@ sequenceDiagram
 
 There is also [an endpoint `/api/workflow/atoms`](https://github.com/guardian/media-atom-maker/blob/6af274c02be19c860c89f6e46556d26ca88df058/conf/routes#L30) that [workflow-frontend uses to create media atoms](https://github.com/guardian/workflow-frontend/blob/12c278df845785667ae4e13e8438a2fe6a8dd263/public/lib/media-atom-maker-service.js#L10-L17) from within workflow.
 
-(When I test this in CODE the request made by the frontend fails with a 403, so I don’t know if this functionality is currently working.)
+(When I test this in CODE [the request made by the frontend fails with a 403](https://github.com/guardian/workflow-frontend/issues/536), so I don’t know if this functionality is currently working.)
 
 ```mermaid
 ---
