@@ -2,22 +2,22 @@
 // @ts-check
 
 /**
- * @typedef {import("../src/types").UpsertMessage} UpsertMessage
- * @typedef {import("../src/types").DeleteMessage} DeleteMessage
+ * @typedef {import("../src/types").PlutoUpsertMessage} PlutoUpsertMessage
+ * @typedef {import("../src/types").PlutoDeleteMessage} PlutoDeleteMessage
  */
 
 import { createKinesisMessageFor, getProject, invokeLambda } from './aws.js';
 
 const commissionId = `9999-test-pluto-lambda-CODE`;
 
-/** @type {DeleteMessage} */
+/** @type {PlutoDeleteMessage} */
 const deleteMessage = {
   type: 'project-created',
   commissionId,
   commissionTitle: '(DELETE)'
 };
 
-/** @type {UpsertMessage} */
+/** @type {PlutoUpsertMessage} */
 const upsertMessage = {
   type: 'project-created',
   id: `0000${new Date().getUTCMilliseconds()}`,

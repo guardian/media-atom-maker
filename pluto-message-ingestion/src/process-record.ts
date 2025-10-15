@@ -6,7 +6,7 @@ import {
   hasRecognisedMessageType,
   isDeleteMessage,
   isIconikUpsertMessage,
-  isUpsertMessage
+  isPlutoUpsertMessage
 } from './types';
 
 export async function processRecord(
@@ -37,7 +37,7 @@ export async function processRecord(
         `Error deleting commission ${data.commissionId}: ${result.status} ${result.statusText}`
       );
     }
-  } else if (isUpsertMessage(data)) {
+  } else if (isPlutoUpsertMessage(data)) {
     const result = await hmacPut({
       url: `${baseUrl}/api/pluto/projects`,
       data

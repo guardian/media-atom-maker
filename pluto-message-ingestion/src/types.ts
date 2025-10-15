@@ -1,32 +1,18 @@
-const recognisedMessageTypes = [
-  'project-created',
-  'project-updated',
-  'iconik-project-created'
-];
-type MessageType = (typeof recognisedMessageTypes)[number];
+import { z } from 'zod/v4';
 
-export type UpsertMessage = {
-  type: MessageType;
-  id: string;
-  title: string;
-  status: string;
-  commissionId: string;
-  commissionTitle: string;
-  productionOffice: string;
-  created: string;
-};
+const plutoMessageTypes = ['project-created', 'project-updated'];
 
-export type IconikUpsertMessage = {
-  type: 'iconik-project-created';
-  id: string;
-  title: string;
-  status: string;
-  commissionId: string;
-  commissionTitle: string;
-  workingGroupId: string;
-  workingGroupTitle: string;
-  masterPlaceholderId?: string;
-};
+const iconikMessageTypes = ['iconik-project-created'];
+const plutoMessageTypeSchema = z.enum(plutoMessageTypes);
+
+export const recognisedMessageTypes = [
+  ...plutoMessageTypes,
+  ...iconikMessageTypes
+] as const;
+
+const MessageTypeSchema = z.enum(recognisedMessageTypes);
+
+export type MessageType = z.infer<typeof MessageTypeSchema>;
 
 export function isRecognisedMessageType(type: unknown): type is MessageType {
   return recognisedMessageTypes.includes(type as MessageType);
@@ -40,83 +26,56 @@ export function hasRecognisedMessageType(data: unknown): boolean {
   return isRecognisedMessageType(type);
 }
 
+const plutoUpsertMessageSchema = z.looseObject({
+  type: plutoMessageTypeSchema,
+  id: z.string(),
+  title: z.string(),
+  status: z.string(),
+  commissionId: z.string(),
+  commissionTitle: z.string(),
+  productionOffice: z.string(),
+  created: z.string()
+});
+
+export type PlutoUpsertMessage = z.infer<typeof plutoUpsertMessageSchema>;
+
+export function isPlutoUpsertMessage(
+  data: unknown
+): data is PlutoUpsertMessage {
+  const parsed = plutoUpsertMessageSchema.safeParse(data);
+  return parsed.success;
+}
+
+const iconikUpsertMessageSchema = z.looseObject({
+  type: z.literal('iconik-project-created'),
+  id: z.string(),
+  title: z.string(),
+  status: z.string(),
+  commissionId: z.string(),
+  commissionTitle: z.string(),
+  workingGroupId: z.string(),
+  workingGroupTitle: z.string(),
+  masterPlaceholderId: z.string().optional()
+});
+
+export type IconikUpsertMessage = z.infer<typeof iconikUpsertMessageSchema>;
+
 export function isIconikUpsertMessage(
   data: unknown
 ): data is IconikUpsertMessage {
-  if (!data || typeof data !== 'object' || data === null) {
-    return false;
-  }
-  const {
-    type,
-    id,
-    title,
-    status,
-    commissionId,
-    commissionTitle,
-    workingGroupId,
-    workingGroupTitle,
-    masterPlaceholderId
-  } = data as {
-    [key: string]: unknown;
-  };
-  return (
-    type === 'iconik-project-created' &&
-    typeof id === 'string' &&
-    typeof title === 'string' &&
-    typeof status === 'string' &&
-    typeof commissionId === 'string' &&
-    typeof commissionTitle === 'string' &&
-    typeof workingGroupId === 'string' &&
-    typeof workingGroupTitle === 'string' &&
-    (masterPlaceholderId === undefined ||
-      typeof masterPlaceholderId === 'string')
-  );
+  const parsed = iconikUpsertMessageSchema.safeParse(data);
+  return parsed.success;
 }
 
-export function isUpsertMessage(data: unknown): data is UpsertMessage {
-  if (!data || typeof data !== 'object' || data === null) {
-    return false;
-  }
-  const {
-    type,
-    id,
-    title,
-    status,
-    commissionId,
-    commissionTitle,
-    productionOffice,
-    created
-  } = data as {
-    [key: string]: unknown;
-  };
-  return (
-    isRecognisedMessageType(type) &&
-    typeof id === 'string' &&
-    typeof title === 'string' &&
-    typeof status === 'string' &&
-    typeof commissionId === 'string' &&
-    typeof commissionTitle === 'string' &&
-    typeof productionOffice === 'string' &&
-    typeof created === 'string'
-  );
-}
+const PlutoDeleteMessageSchema = z.looseObject({
+  type: MessageTypeSchema,
+  commissionId: z.string(),
+  commissionTitle: z.literal('(DELETE)')
+});
 
-export type DeleteMessage = {
-  type: MessageType;
-  commissionId: string;
-  commissionTitle: '(DELETE)';
-};
+export type PlutoDeleteMessage = z.infer<typeof PlutoDeleteMessageSchema>;
 
-export function isDeleteMessage(data: unknown): data is DeleteMessage {
-  if (!data || typeof data !== 'object' || data === null) {
-    return false;
-  }
-  const { commissionId, commissionTitle, type } = data as {
-    [key: string]: unknown;
-  };
-  return (
-    isRecognisedMessageType(type) &&
-    typeof commissionId === 'string' &&
-    commissionTitle === '(DELETE)'
-  );
+export function isDeleteMessage(data: unknown): data is PlutoDeleteMessage {
+  const parsed = PlutoDeleteMessageSchema.safeParse(data);
+  return parsed.success;
 }
