@@ -6,23 +6,7 @@
  * @typedef {import("../src/types").DeleteMessage} DeleteMessage
  */
 
-import { getProject, invokeLambda } from './aws.js';
-
-/**
- * @param {object} data
- * @returns
- */
-function createKinesisMessageFor(data) {
-  return {
-    Records: [
-      {
-        kinesis: {
-          data: Buffer.from(JSON.stringify(data)).toString('base64')
-        }
-      }
-    ]
-  };
-}
+import { createKinesisMessageFor, getProject, invokeLambda } from './aws.js';
 
 const commissionId = `9999-test-pluto-lambda-CODE`;
 

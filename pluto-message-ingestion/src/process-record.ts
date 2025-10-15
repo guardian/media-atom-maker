@@ -5,6 +5,7 @@ import { createLogger, Logger } from './logging';
 import {
   hasRecognisedMessageType,
   isDeleteMessage,
+  isIconikUpsertMessage,
   isUpsertMessage
 } from './types';
 
@@ -47,6 +48,19 @@ export async function processRecord(
       });
       throw new Error(
         `Error upserting commission ${data.commissionId}: ${result.status} ${result.statusText}`
+      );
+    }
+  } else if (isIconikUpsertMessage(data)) {
+    const result = await hmacPut({
+      url: `${baseUrl}/api/iconik/projects`,
+      data
+    });
+    if (!result.ok) {
+      logger.error({
+        message: `Error upserting iconik commission ${data.commissionId}: ${result.status} ${result.statusText}`
+      });
+      throw new Error(
+        `Error upserting iconik commission ${data.commissionId}: ${result.status} ${result.statusText}`
       );
     }
   } else if (hasRecognisedMessageType(data)) {
