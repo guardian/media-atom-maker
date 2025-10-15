@@ -14,24 +14,25 @@ import play.api.libs.json.{JsArray, JsValue}
 import scala.annotation.tailrec
 import scala.util.control.NonFatal
 
-class ExpirerLambda extends RequestHandler[Unit, Unit]
-  with LambdaBase
-  with Logging
-  with CapiAccess
-  with YouTubeAccess
-  with LambdaYoutubeCredentials
-  with YouTubeVideos
-  with YouTubePartnerApi {
-
+class ExpirerLambda
+    extends RequestHandler[Unit, Unit]
+    with LambdaBase
+    with Logging
+    with CapiAccess
+    with YouTubeAccess
+    with LambdaYoutubeCredentials
+    with YouTubeVideos
+    with YouTubePartnerApi {
 
   override def handleRequest(input: Unit, context: Context): Unit = {
     val now = Instant.now()
     val oneDayAgo = Instant.now().minus(1, ChronoUnit.DAYS)
-    val atomsWithAssets: Seq[AssetDetails] = getVideosFromExpiredAtoms(1, 100, oneDayAgo, now, Seq.empty)
-      .map(atomWithAssets => {
-        val assetIds = atomWithAssets.assetIds.filter(isManagedVideo)
-        AssetDetails(atomWithAssets.atomId, assetIds)
-    })
+    val atomsWithAssets: Seq[AssetDetails] =
+      getVideosFromExpiredAtoms(1, 100, oneDayAgo, now, Seq.empty)
+        .map(atomWithAssets => {
+          val assetIds = atomWithAssets.assetIds.filter(isManagedVideo)
+          AssetDetails(atomWithAssets.atomId, assetIds)
+        })
 
     atomsWithAssets.foreach { atomWithAssets =>
       atomWithAssets.assetIds.foreach { assetId =>
@@ -40,14 +41,23 @@ class ExpirerLambda extends RequestHandler[Unit, Unit]
           createOrUpdateClaim(atomWithAssets.atomId, assetId, AdSettings.NONE)
         } catch {
           case NonFatal(err) =>
-            log.error(s"Error when expiring video $assetId in atom ${atomWithAssets.atomId}", err)
+            log.error(
+              s"Error when expiring video $assetId in atom ${atomWithAssets.atomId}",
+              err
+            )
         }
       }
     }
   }
 
   @tailrec
-  private def getVideosFromExpiredAtoms(page: Int, pageSize: Int, fromDate: Instant, toDate: Instant, before: Seq[AssetDetails]): Seq[AssetDetails] = {
+  private def getVideosFromExpiredAtoms(
+      page: Int,
+      pageSize: Int,
+      fromDate: Instant,
+      toDate: Instant,
+      before: Seq[AssetDetails]
+  ): Seq[AssetDetails] = {
     val qs: Map[String, String] = Map(
       "types" -> "media",
       "page-size" -> pageSize.toString,
@@ -64,19 +74,21 @@ class ExpirerLambda extends RequestHandler[Unit, Unit]
     val results = (response \ "results").as[JsArray].value
     val after: Seq[AssetDetails] = before ++ results.map(getExpiredVideos)
 
-    if(currentPage < pages)
+    if (currentPage < pages)
       getVideosFromExpiredAtoms(page + 1, pageSize, fromDate, toDate, after)
     else
       after
   }
 
   private def getExpiredVideos(atom: JsValue): AssetDetails = {
-      val assets = (atom \ "data" \ "media" \ "assets").as[JsArray]
-      val videos = assets.value.filter { asset => (asset \ "platform").as[String] == "youtube" }
-      val ids = videos.map { asset => (asset \ "id").as[String] }
+    val assets = (atom \ "data" \ "media" \ "assets").as[JsArray]
+    val videos = assets.value.filter { asset =>
+      (asset \ "platform").as[String] == "youtube"
+    }
+    val ids = videos.map { asset => (asset \ "id").as[String] }
 
-      val atomId = (atom \ "id").as[String]
-      AssetDetails(atomId, ids.toSet)
+    val atomId = (atom \ "id").as[String]
+    AssetDetails(atomId, ids.toSet)
   }
 
   case class AssetDetails(atomId: String, assetIds: Set[String])

@@ -8,13 +8,12 @@ import play.api.libs.json.Format
 import com.gu.pandomainauth.model.{User => PandaUser}
 import com.gu.permissions.PermissionDefinition
 
-
 case class Permissions(
-  deleteAtom: Boolean = false,
-  addSelfHostedAsset: Boolean = false,
-  addSubtitles: Boolean = false,
-  setVideosOnAllChannelsPublic: Boolean = false,
-  pinboard: Boolean = false
+    deleteAtom: Boolean = false,
+    addSelfHostedAsset: Boolean = false,
+    addSubtitles: Boolean = false,
+    setVideosOnAllChannelsPublic: Boolean = false,
+    pinboard: Boolean = false
 )
 object Permissions {
   implicit val format: Format[Permissions] = Jsonx.formatCaseClass[Permissions]
@@ -24,27 +23,40 @@ object Permissions {
   val deleteAtom = PermissionDefinition("delete_atom", app)
   val addSelfHostedAsset = PermissionDefinition("add_self_hosted_asset", app)
   val addSubtitles = PermissionDefinition("add_subtitles", app)
-  val setVideosOnAllChannelsPublic = PermissionDefinition("set_videos_on_all_channels_public", app)
+  val setVideosOnAllChannelsPublic =
+    PermissionDefinition("set_videos_on_all_channels_public", app)
   val pinboard = PermissionDefinition("pinboard", "pinboard")
 }
 
-class MediaAtomMakerPermissionsProvider(stage: String, region: String, credsProvider: AWSCredentialsProvider) {
+class MediaAtomMakerPermissionsProvider(
+    stage: String,
+    region: String,
+    credsProvider: AWSCredentialsProvider
+) {
   import Permissions._
 
-  private val permissions: PermissionsProvider = PermissionsProvider(PermissionsConfig(stage, region, credsProvider))
+  private val permissions: PermissionsProvider = PermissionsProvider(
+    PermissionsConfig(stage, region, credsProvider)
+  )
 
   def getAll(user: PandaUser): Permissions = Permissions(
     deleteAtom = hasPermission(deleteAtom, user),
     addSelfHostedAsset = hasPermission(addSelfHostedAsset, user),
     addSubtitles = hasPermission(addSubtitles, user),
-    setVideosOnAllChannelsPublic = hasPermission(setVideosOnAllChannelsPublic, user),
+    setVideosOnAllChannelsPublic =
+      hasPermission(setVideosOnAllChannelsPublic, user),
     pinboard = hasPermission(pinboard, user)
   )
 
   def getStatusPermissions(user: PandaUser): Permissions =
-    Permissions(setVideosOnAllChannelsPublic = hasPermission(setVideosOnAllChannelsPublic, user))
+    Permissions(setVideosOnAllChannelsPublic =
+      hasPermission(setVideosOnAllChannelsPublic, user)
+    )
 
-  def hasPermission(permission: PermissionDefinition, user: PandaUser): Boolean = user.email match {
+  def hasPermission(
+      permission: PermissionDefinition,
+      user: PandaUser
+  ): Boolean = user.email match {
     // TODO be better
     // HACK: HMAC authenticated users are a `PandaUser` without an email
     case "" if user.firstName == "media-atom-scheduler-lambda" => true
@@ -53,7 +65,8 @@ class MediaAtomMakerPermissionsProvider(stage: String, region: String, credsProv
 
   def hasAnyAtomMakerPermission(user: PandaUser): Boolean = {
     permissions.listPermissions(user.email).exists {
-      case (PermissionDefinition(_, app), isActive) => app == Permissions.app && isActive
+      case (PermissionDefinition(_, app), isActive) =>
+        app == Permissions.app && isActive
     }
   }
 }

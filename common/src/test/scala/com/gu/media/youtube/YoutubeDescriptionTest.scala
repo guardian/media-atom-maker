@@ -29,7 +29,9 @@ class YoutubeDescriptionTest extends AnyFunSuite with Matchers {
         |</ul>
       """.stripMargin
     )
-    val expected = Some("The three-year construction of Tottenham Hotspur's new stadium is revealed in a time-lapse video released by the club. The £1bn stadium will be officially unveiled on Sunday, before Spurs play their first match at their new home on 3 April against Crystal Palace. \n Tottenham announce first match for new 62,000 capacity stadium")
+    val expected = Some(
+      "The three-year construction of Tottenham Hotspur's new stadium is revealed in a time-lapse video released by the club. The £1bn stadium will be officially unveiled on Sunday, before Spurs play their first match at their new home on 3 April against Crystal Palace. \n Tottenham announce first match for new 62,000 capacity stadium"
+    )
 
     YoutubeDescription.clean(testHtml) must be(expected)
   }

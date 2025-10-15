@@ -11,29 +11,41 @@ import org.scanamo.{DynamoFormat, DynamoReadError, Scanamo, Table}
 
 case class PlutoProjectDataStoreException(err: String) extends Exception(err)
 
-class PlutoProjectDataStore(aws: DynamoAccess, plutoCommissionDataStore: PlutoCommissionDataStore) extends Logging {
-  implicit val dateTimeFormat: DynamoFormat[DateTime] = DynamoFormat.coercedXmap[DateTime, String, IllegalArgumentException](
-    DateTime.parse(_).withZone(DateTimeZone.UTC),
-    _.toString
-  )
+class PlutoProjectDataStore(
+    aws: DynamoAccess,
+    plutoCommissionDataStore: PlutoCommissionDataStore
+) extends Logging {
+  implicit val dateTimeFormat: DynamoFormat[DateTime] =
+    DynamoFormat.coercedXmap[DateTime, String, IllegalArgumentException](
+      DateTime.parse(_).withZone(DateTimeZone.UTC),
+      _.toString
+    )
 
   val scanamo: Scanamo = aws.scanamo
   private val table = Table[PlutoProject](aws.plutoProjectTableName)
   private val commmissionIndex = table.index("commission-index")
 
-  def getById(projectId: String): Option[Either[DynamoReadError, PlutoProject]] = {
+  def getById(
+      projectId: String
+  ): Option[Either[DynamoReadError, PlutoProject]] = {
     log.info(s"getting project $projectId")
     scanamo.exec(table.get("id" === projectId))
   }
 
   def getByCommissionId(commissionId: String): List[PlutoProject] = {
-    scanamo.exec(commmissionIndex.query("commissionId" === commissionId)).collect {
-      case Left(error) =>
-        log.error(s"failed to get pluto projects for commission $commissionId")
-        throw PlutoProjectDataStoreException(error.toString)
-      case Right(plutoProject) =>
-        plutoProject
-    }.filter(numericIdsOnlyFilter).sortBy(_.title)
+    scanamo
+      .exec(commmissionIndex.query("commissionId" === commissionId))
+      .collect {
+        case Left(error) =>
+          log.error(
+            s"failed to get pluto projects for commission $commissionId"
+          )
+          throw PlutoProjectDataStoreException(error.toString)
+        case Right(plutoProject) =>
+          plutoProject
+      }
+      .filter(numericIdsOnlyFilter)
+      .sortBy(_.title)
   }
 
   def upsert(plutoUpsertRequest: PlutoUpsertRequest): PlutoProject = {
@@ -47,6 +59,8 @@ class PlutoProjectDataStore(aws: DynamoAccess, plutoCommissionDataStore: PlutoCo
 
   def deleteByCommissionId(commissionId: String): Unit = {
     log.info(s"deleting all pluto projects for commission $commissionId")
-    getByCommissionId(commissionId).foreach(project => scanamo.exec(table.delete("id" === project.id)))
+    getByCommissionId(commissionId).foreach(project =>
+      scanamo.exec(table.delete("id" === project.id))
+    )
   }
 }

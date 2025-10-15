@@ -3,7 +3,6 @@ package com.gu.media.model
 import com.gu.contentatom.thrift.atom.media.{AssetType => ThriftAssetType}
 import play.api.libs.json._
 
-
 sealed trait AssetType {
   def name: String
   def asThrift = ThriftAssetType.valueOf(name).get
@@ -16,17 +15,18 @@ object AssetType {
 
   val assetTypeReads = Reads[AssetType](json => {
     json.as[String] match {
-      case "Audio" => JsSuccess(Audio)
-      case "Video" => JsSuccess(Video)
+      case "Audio"     => JsSuccess(Audio)
+      case "Video"     => JsSuccess(Video)
       case "Subtitles" => JsSuccess(Subtitles)
     }
   })
 
-  val assetTypeWrites: Writes[AssetType] = Writes[AssetType] (cat => {
+  val assetTypeWrites: Writes[AssetType] = Writes[AssetType](cat => {
     JsString(cat.name)
   })
 
-  implicit val assetTypeFormat: Format[AssetType] = Format(assetTypeReads, assetTypeWrites)
+  implicit val assetTypeFormat: Format[AssetType] =
+    Format(assetTypeReads, assetTypeWrites)
 
   private val types = List(Audio, Video, Subtitles)
 

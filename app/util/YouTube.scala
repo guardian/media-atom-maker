@@ -7,7 +7,11 @@ import com.typesafe.config.Config
 
 import java.time.Duration
 
-trait YouTube extends Logging with YouTubeAccess with YouTubeVideos with YouTubePartnerApi {
+trait YouTube
+    extends Logging
+    with YouTubeAccess
+    with YouTubeVideos
+    with YouTubePartnerApi {
   val duration: Duration
 
   private lazy val categoriesCache = Memoize(super.categories, duration)
@@ -21,20 +25,26 @@ trait YouTube extends Logging with YouTubeAccess with YouTubeVideos with YouTube
     channelsCache.get
 
   def getCommercialVideoInfo(videoId: String) = {
-    getVideo(videoId, List("snippet", "contentDetails", "status")).map(video => {
-      val channelId = video.getSnippet.getChannelId
-      val channelTitle = video.getSnippet.getChannelTitle
-      val channel = YouTubeChannel.build(this, channelId, channelTitle)
+    getVideo(videoId, List("snippet", "contentDetails", "status")).map(
+      video => {
+        val channelId = video.getSnippet.getChannelId
+        val channelTitle = video.getSnippet.getChannelTitle
+        val channel = YouTubeChannel.build(this, channelId, channelTitle)
 
-      val advertisingOptions = getAdvertisingOptions(videoId)
-      YouTubeVideoCommercialInfo.build(video, advertisingOptions, channel)
-    })
+        val advertisingOptions = getAdvertisingOptions(videoId)
+        YouTubeVideoCommercialInfo.build(video, advertisingOptions, channel)
+      }
+    )
   }
 }
 
 object YouTube {
 
-  def apply(_config: Config, _duration: Duration, _credentials: GoogleCredential): YouTube = {
+  def apply(
+      _config: Config,
+      _duration: Duration,
+      _credentials: GoogleCredential
+  ): YouTube = {
     new YouTube {
       override def youtubeCredentials: GoogleCredential = _credentials
       override def config: Config = _config

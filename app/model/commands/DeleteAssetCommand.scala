@@ -11,12 +11,14 @@ import util.AWSConfig
 import scala.jdk.CollectionConverters._
 
 case class DeleteAssetCommand(
-  atomId: String,
-  asset: Asset,
-  stores: DataStores,
-  user: PandaUser,
-  awsConfig: AWSConfig
-) extends Command with MediaAtomImplicits with Logging {
+    atomId: String,
+    asset: Asset,
+    stores: DataStores,
+    user: PandaUser,
+    awsConfig: AWSConfig
+) extends Command
+    with MediaAtomImplicits
+    with Logging {
   type T = MediaAtom
 
   def process(): T = {
@@ -25,17 +27,23 @@ case class DeleteAssetCommand(
 
     val assetsToDelete: Option[Asset] = mediaAtom.assets.find(_.id == asset.id)
 
-    val markers: LogstashMarker = Markers.appendEntries(Map(
-      "userId" -> user.email,
-      "atomId" -> atomId,
-      "assetId" -> asset.id,
-      "assetVersion" -> asset.version
-    ).asJava)
+    val markers: LogstashMarker = Markers.appendEntries(
+      Map(
+        "userId" -> user.email,
+        "atomId" -> atomId,
+        "assetId" -> asset.id,
+        "assetVersion" -> asset.version
+      ).asJava
+    )
 
     if (assetsToDelete.nonEmpty) {
       mediaAtom.activeVersion match {
-        case Some(activeVersion) if assetsToDelete.get.version == activeVersion => {
-          log.warn(markers, s"Cannot delete asset version ${asset.version} on atom $atomId because it is active")
+        case Some(activeVersion)
+            if assetsToDelete.get.version == activeVersion => {
+          log.warn(
+            markers,
+            s"Cannot delete asset version ${asset.version} on atom $atomId because it is active"
+          )
           CannotDeleteActiveAsset
         }
         case _ =>
@@ -47,7 +55,10 @@ case class DeleteAssetCommand(
 
       UpdateAtomCommand(atomId, updatedAtom, stores, user, awsConfig).process()
     } else {
-      log.warn(markers, s"Asset version ${asset.version} does not exist on atom $atomId so cannot be deleted")
+      log.warn(
+        markers,
+        s"Asset version ${asset.version} does not exist on atom $atomId so cannot be deleted"
+      )
       AssetNotFound
     }
   }

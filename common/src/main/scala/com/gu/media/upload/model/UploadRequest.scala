@@ -5,10 +5,10 @@ import com.gu.ai.x.play.json.Encoders._
 import play.api.libs.json.Format
 
 case class UploadRequest(
-  atomId: String,
-  filename: String,
-  size: Long,
-  selfHost: Boolean
+    atomId: String,
+    filename: String,
+    size: Long,
+    selfHost: Boolean
 )
 
 object UploadRequest {

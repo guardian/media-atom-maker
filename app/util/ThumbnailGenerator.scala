@@ -24,13 +24,23 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
       .maxBy(_.size.get)
   }
 
-  private def imageAssetToBufferedImage(imageAsset: ImageAsset): BufferedImage = {
+  private def imageAssetToBufferedImage(
+      imageAsset: ImageAsset
+  ): BufferedImage = {
     val image = ImageIO.read(new URL(imageAsset.file))
-    val rgbImage = new BufferedImage(image.getWidth, image.getHeight, BufferedImage.TYPE_3BYTE_BGR)
+    val rgbImage = new BufferedImage(
+      image.getWidth,
+      image.getHeight,
+      BufferedImage.TYPE_3BYTE_BGR
+    )
     new ColorConvertOp(null).filter(image, rgbImage)
   }
 
-  private def overlayImages(bgImage: BufferedImage, bgImageMimeType: String, atomId: String): ByteArrayInputStream = {
+  private def overlayImages(
+      bgImage: BufferedImage,
+      bgImageMimeType: String,
+      atomId: String
+  ): ByteArrayInputStream = {
     val logoWidth: Double = List(bgImage.getWidth() / 3.0, logo.getWidth()).min
     val logoHeight: Double = logo.getHeight() / (logo.getWidth() / logoWidth)
 
@@ -40,10 +50,22 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
     val logoY = bgImage.getHeight() - logoHeight.toInt - PADDING
 
     val graphics = bgImage.createGraphics
-    graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+    graphics.setRenderingHint(
+      RenderingHints.KEY_ANTIALIASING,
+      RenderingHints.VALUE_ANTIALIAS_ON
+    )
     graphics.drawImage(bgImage, 0, 0, null)
-    log.info(s"Creating branded thumbnail for atom $atomId. Image dims ${bgImage.getWidth()} x ${bgImage.getHeight()}. Logo dims ${logoWidth.toInt} x ${logoHeight.toInt} (x:$logoX, y:$logoY)")
-    graphics.drawImage(logo, logoX, logoY, logoWidth.toInt, logoHeight.toInt, null)
+    log.info(
+      s"Creating branded thumbnail for atom $atomId. Image dims ${bgImage.getWidth()} x ${bgImage.getHeight()}. Logo dims ${logoWidth.toInt} x ${logoHeight.toInt} (x:$logoX, y:$logoY)"
+    )
+    graphics.drawImage(
+      logo,
+      logoX,
+      logoY,
+      logoWidth.toInt,
+      logoHeight.toInt,
+      null
+    )
     graphics.dispose()
 
     val os = new ByteArrayOutputStream()
@@ -55,7 +77,7 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
     // TODO find a better way to convert mime-type to ImageIO write format
     val imageIOWriteFormat = bgImageMimeType match {
       case "image/png" | "png" => "png"
-      case _ => "jpg"
+      case _                   => "jpg"
     }
 
     ImageIO.write(bgImage, imageIOWriteFormat, os)

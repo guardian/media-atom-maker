@@ -20,14 +20,28 @@ class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
   val imageUtil = mock[S3ImageUtil]
 
   when(imageUtil.getS3Image(anyString, anyString)).thenReturn(
-    Some(image("https://uploads.gu.com/Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-2.0.0000000.jpg"))
+    Some(
+      image(
+        "https://uploads.gu.com/Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-2.0.0000000.jpg"
+      )
+    )
   )
 
-  val command = ActiveAssetCommand(atomId, ActivateAssetRequest(atomId, 3L), stores, youtube, user, awsConfig, imageUtil)
+  val command = ActiveAssetCommand(
+    atomId,
+    ActivateAssetRequest(atomId, 3L),
+    stores,
+    youtube,
+    user,
+    awsConfig,
+    imageUtil
+  )
 
   "firstFrameImageName" should "return the name of the first frame image associated with an mp4 video" in {
-    val mp4Name = "Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-3.0.mp4"
-    val expected = "Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-3.0.0000000.jpg"
+    val mp4Name =
+      "Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-3.0.mp4"
+    val expected =
+      "Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-3.0.0000000.jpg"
     command.firstFrameImageName(mp4Name) shouldBe expected
   }
 
@@ -36,7 +50,9 @@ class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
     val newVersion: Long = 2L
 
     val expected: Option[Image] = Some(
-      image("https://uploads.gu.com/Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-2.0.0000000.jpg")
+      image(
+        "https://uploads.gu.com/Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-2.0.0000000.jpg"
+      )
     )
     val actual = command.autoFirstFrameImage(atom, newVersion)
 
@@ -45,13 +61,20 @@ class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
 
   it should "return the first frame of the requested video version, when the active video has an auto-populated posterImage" in {
     // version 1 is active with auto-populated poster image
-    val atom = mediaAtom(activeVersion = Some(1L), posterImage = Some(
-      image("https://uploads.gu.com/Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-1.0.0000000.jpg")
-    ))
+    val atom = mediaAtom(
+      activeVersion = Some(1L),
+      posterImage = Some(
+        image(
+          "https://uploads.gu.com/Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-1.0.0000000.jpg"
+        )
+      )
+    )
     val newVersion: Long = 2L
 
     val expected: Option[Image] = Some(
-      image("https://uploads.gu.com/Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-2.0.0000000.jpg")
+      image(
+        "https://uploads.gu.com/Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-2.0.0000000.jpg"
+      )
     )
     val actual = command.autoFirstFrameImage(atom, newVersion)
 
@@ -83,9 +106,12 @@ class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
 
   it should "return None, when the active video has a custom posterImage" in {
     // version 1 is active with auto-populated poster image
-    val atom = mediaAtom(activeVersion = Some(1L), posterImage = Some(
-      image("https://media.gu.com/something-else.jpg")
-    ))
+    val atom = mediaAtom(
+      activeVersion = Some(1L),
+      posterImage = Some(
+        image("https://media.gu.com/something-else.jpg")
+      )
+    )
     val newVersion: Long = 2L
 
     val expected: Option[Image] = None
@@ -94,16 +120,17 @@ class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
     actual shouldEqual expected
   }
 
-
-  private def mediaAtom( id: String = "ace3fcf6-1378-41db-9d21-f3fc07072ab2",
-                         title: String = "Loop: Japan fireball",
-                         activeVersion: Option[Long] = None,
-                         posterImage: Option[Image] = None,
-                         assets: List[Asset] = selfHostedAssets()
-                       ): MediaAtom = MediaAtom(
+  private def mediaAtom(
+      id: String = "ace3fcf6-1378-41db-9d21-f3fc07072ab2",
+      title: String = "Loop: Japan fireball",
+      activeVersion: Option[Long] = None,
+      posterImage: Option[Image] = None,
+      assets: List[Asset] = selfHostedAssets()
+  ): MediaAtom = MediaAtom(
     id = id,
     labels = Nil,
-    contentChangeDetails = ContentChangeDetails(None, None, None, 1L, None, None, None),
+    contentChangeDetails =
+      ContentChangeDetails(None, None, None, 1L, None, None, None),
     // data field
     assets = assets,
     activeVersion = activeVersion,
@@ -130,7 +157,7 @@ class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
     privacyStatus = None,
     expiryDate = None,
     youtubeTitle = "",
-    youtubeDescription = None,
+    youtubeDescription = None
   )
 
   private def selfHostedAssets(): List[Asset] = List(
@@ -167,7 +194,10 @@ class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
     )
   )
 
-  private def image(file: String, id: String = "ace3fcf6-1378-41db-9d21-f3fc07072ab2") = {
+  private def image(
+      file: String,
+      id: String = "ace3fcf6-1378-41db-9d21-f3fc07072ab2"
+  ) = {
     val imageAsset = ImageAsset(
       mimeType = Some("image/jpeg"),
       file = file,

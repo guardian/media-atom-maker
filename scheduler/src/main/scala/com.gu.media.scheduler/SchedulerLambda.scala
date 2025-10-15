@@ -14,10 +14,11 @@ import play.api.libs.json.{JsArray, JsValue}
 import scala.annotation.tailrec
 import scala.util.control.NonFatal
 
-class SchedulerLambda extends RequestHandler[Unit, Unit]
-  with LambdaBase
-  with Logging
-  with CapiAccess {
+class SchedulerLambda
+    extends RequestHandler[Unit, Unit]
+    with LambdaBase
+    with Logging
+    with CapiAccess {
 
   private val hmacClient = new HMACClient("media-atom-scheduler-lambda", this)
 
@@ -28,8 +29,11 @@ class SchedulerLambda extends RequestHandler[Unit, Unit]
 
     atomIds.foreach { atomId =>
       try {
-        val publishedAtom = hmacClient.put(buildUri(s"api/atom/$atomId/publish")).as[MediaAtom]
-        log.info(s"Published scheduled atom. atom=${publishedAtom.id} scheduledLaunch=${publishedAtom.contentChangeDetails.scheduledLaunch.map(_.date)}")
+        val publishedAtom =
+          hmacClient.put(buildUri(s"api/atom/$atomId/publish")).as[MediaAtom]
+        log.info(
+          s"Published scheduled atom. atom=${publishedAtom.id} scheduledLaunch=${publishedAtom.contentChangeDetails.scheduledLaunch.map(_.date)}"
+        )
       } catch {
         case NonFatal(err) =>
           log.error(s"Unable to launch atom. atom=$atomId", err)
@@ -38,7 +42,13 @@ class SchedulerLambda extends RequestHandler[Unit, Unit]
   }
 
   @tailrec
-  private def getScheduledAtoms(page: Int, pageSize: Int, fromDate: Instant, toDate: Instant, accumulator: Set[String]): Set[String] = {
+  private def getScheduledAtoms(
+      page: Int,
+      pageSize: Int,
+      fromDate: Instant,
+      toDate: Instant,
+      accumulator: Set[String]
+  ): Set[String] = {
     val qs: Map[String, String] = Map(
       "types" -> "media",
       "page-size" -> pageSize.toString,
@@ -56,7 +66,7 @@ class SchedulerLambda extends RequestHandler[Unit, Unit]
 
     val after = accumulator ++ results.map(js => (js \ "id").as[String])
 
-    if(currentPage < pages)
+    if (currentPage < pages)
       getScheduledAtoms(page + 1, pageSize, fromDate, toDate, after)
     else
       after
