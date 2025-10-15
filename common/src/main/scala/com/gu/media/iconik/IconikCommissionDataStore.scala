@@ -12,6 +12,7 @@ case class IconikCommissionDataStoreException(err: String)
 class IconikCommissionDataStore(aws: DynamoAccess) extends Logging {
   val scanamo: Scanamo = aws.scanamo
   private val table = Table[IconikCommission](aws.iconikCommissionTableName)
+  private val workingGroupIndex = table.index("working-group-index")
 
   def getById(
       commissionId: String
@@ -29,6 +30,21 @@ class IconikCommissionDataStore(aws: DynamoAccess) extends Logging {
           throw IconikWorkingGroupDataStoreException(error.toString)
         case Right(commission) =>
           commission
+      }
+      .sortBy(_.title)
+  }
+
+  def getByWorkingGroupId(workingGroupId: String): List[IconikCommission] = {
+    scanamo
+      .exec(workingGroupIndex.query("workingGroupId" === workingGroupId))
+      .collect {
+        case Left(error) =>
+          log.error(
+            s"failed to get iconik commissions for working group $workingGroupId"
+          )
+          throw IconikCommissionDataStoreException(error.toString)
+        case Right(iconikCommission) =>
+          iconikCommission
       }
       .sortBy(_.title)
   }

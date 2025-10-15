@@ -12,7 +12,8 @@ case class IconikProjectDataStoreException(err: String) extends Exception(err)
 
 class IconikProjectDataStore(
     aws: DynamoAccess,
-    iconikCommissionDataStore: IconikCommissionDataStore
+    iconikCommissionDataStore: IconikCommissionDataStore,
+    iconikWorkingGroupDataStore: IconikWorkingGroupDataStore
 ) extends Logging {
   implicit val dateTimeFormat: DynamoFormat[DateTime] =
     DynamoFormat.coercedXmap[DateTime, String, IllegalArgumentException](
@@ -48,6 +49,7 @@ class IconikProjectDataStore(
 
   def upsert(iconikUpsertRequest: IconikUpsertRequest): IconikProject = {
     iconikCommissionDataStore.upsert(iconikUpsertRequest)
+    iconikWorkingGroupDataStore.upsert(iconikUpsertRequest)
 
     val project = IconikProject.build(iconikUpsertRequest)
     log.info(s"upserting iconik project ${project.id}")

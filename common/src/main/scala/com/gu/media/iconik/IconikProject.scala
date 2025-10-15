@@ -50,7 +50,7 @@ case class IconikProject(
     status: String,
     workingGroupId: String,
     commissionId: String,
-    productionOffice: String
+    masterPlaceholderId: Option[String]
 ) extends IconikItem
 
 object IconikProject {
@@ -64,7 +64,7 @@ object IconikProject {
       status = iconikUpsertRequest.status,
       workingGroupId = iconikUpsertRequest.workingGroupId,
       commissionId = iconikUpsertRequest.commissionId,
-      productionOffice = iconikUpsertRequest.productionOffice
+      masterPlaceholderId = iconikUpsertRequest.masterPlaceholderId
     )
   }
 }
@@ -75,11 +75,12 @@ case class IconikUpsertRequest(
     id: String,
     title: String,
     status: String,
-    productionOffice: String,
     commissionId: String,
     commissionTitle: String,
     workingGroupId: String,
-    workingGroupTitle: String
+    workingGroupTitle: String,
+    masterPlaceholderId: Option[String]
+//    productionOffice: String, // don't know if we need this in Iconik world?
 )
 
 object IconikUpsertRequest {
