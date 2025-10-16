@@ -48,7 +48,7 @@ export class PlutoTabPanel extends React.Component {
 
 const ReadOnlyPlutoItem = ({id, itemType}) => {
 
-  const [ title, setTitle ] = useState(id ? "Loading..." : "")
+  const [ title, setTitle ] = useState(id ? "Loading..." : "");
 
   if(id) {
     useEffect(() => {
@@ -56,8 +56,8 @@ const ReadOnlyPlutoItem = ({id, itemType}) => {
         const errorMessage = `Failed to lookup ${itemType} with ID '${id}'`;
         console.error(errorMessage, e);
         setTitle(errorMessage);
-      })}, [])
+      });}, []);
   }
 
-  return <p className="details-list__field">{title}</p>
-}
+  return <p className="details-list__field">{title}</p>;
+};

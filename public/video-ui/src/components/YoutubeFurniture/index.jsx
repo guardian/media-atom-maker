@@ -87,7 +87,7 @@ class YoutubeFurniture extends React.Component {
       editable,
       updateVideo,
       updateErrors,
-      updateWarnings,
+      updateWarnings
     } = this.props;
 
     const { categories } = this.props.youtube;
