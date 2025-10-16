@@ -10,7 +10,7 @@ import { createKinesisMessageFor, getProject, invokeLambda } from './aws.js';
 /** @type {IconikUpsertMessage} */
 const upsertMessage = {
   type: 'iconik-project-created',
-  id: 'test-project-1',
+  id: `test-project-1-${new Date().getUTCMilliseconds()}`,
   title: 'Test Project 1',
   commissionId: 'commission-1',
   commissionTitle: 'Commission 1',
