@@ -41,12 +41,6 @@ class VideoUpload extends React.Component {
                   />
                 </div>
               </div>
-              <AddSelfHostedAsset
-                video={this.props.video || {}}
-                permissions={getStore().getState().config.permissions}
-                uploading={uploading}
-                startUpload={this.props.uploadActions.startVideoUpload}
-              />
               <YoutubeUpload
                 video={this.props.video || {}}
                 categories={this.props.youtube.categories}
@@ -58,6 +52,12 @@ class VideoUpload extends React.Component {
               <AddAssetFromURL
                 video={this.props.video}
                 createAsset={this.props.videoActions.createAsset}
+              />
+              <AddSelfHostedAsset
+                video={this.props.video || {}}
+                permissions={getStore().getState().config.permissions}
+                uploading={uploading}
+                startUpload={this.props.uploadActions.startVideoUpload}
               />
             </div>
             <VideoTrail
