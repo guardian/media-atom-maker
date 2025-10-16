@@ -28,6 +28,12 @@ trait DynamoAccess { this: Settings with AwsAccess =>
 
   lazy val plutoCommissionTableName: String = getTableName("pluto-commissions")
   lazy val plutoProjectTableName: String = getTableName("pluto-projects")
+  lazy val iconikWorkingGroupTableName: String =
+    getTableName("iconik-working-groups")
+  lazy val iconikCommissionTableName: String = getTableName(
+    "iconik-commissions"
+  )
+  lazy val iconikProjectTableName: String = getTableName("iconik-projects")
 
   lazy val dynamoDB = AmazonDynamoDBClientBuilder
     .standard()
