@@ -4,8 +4,8 @@ import { createHmacClient } from './hmac-request';
 import { createLogger, Logger } from './logging';
 import {
   hasRecognisedMessageType,
-  isDeleteMessage,
-  isUpsertMessage
+  isPlutoDeleteMessage,
+  isPlutoUpsertMessage
 } from './types';
 
 export async function processRecord(
@@ -24,7 +24,7 @@ export async function processRecord(
     return 'failure'; // if the message is not valid there isn't any point in retrying
   }
 
-  if (isDeleteMessage(data)) {
+  if (isPlutoDeleteMessage(data)) {
     const result = await hmacDelete({
       url: `${baseUrl}/api/pluto/commissions/${data.commissionId}`
     });
@@ -36,7 +36,7 @@ export async function processRecord(
         `Error deleting commission ${data.commissionId}: ${result.status} ${result.statusText}`
       );
     }
-  } else if (isUpsertMessage(data)) {
+  } else if (isPlutoUpsertMessage(data)) {
     const result = await hmacPut({
       url: `${baseUrl}/api/pluto/projects`,
       data
