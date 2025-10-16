@@ -243,10 +243,7 @@ class VideoDisplay extends React.Component {
       usages,
       workflow,
       publishedVideo,
-      saveState
     } = this.props;
-
-    const { saving } = this.props.saveState;
 
     const {
       isCreateMode,
@@ -296,8 +293,8 @@ class VideoDisplay extends React.Component {
                 // Error handling is done in the saveVideo action
               });
           }}
-          canSave={() => !this.formHasErrors(formNames.videoData) && !saving}
-          canCancel={() => !isCreateMode && !saving}
+          canSave={() => !this.formHasErrors(formNames.videoData) && !this.props.isSaving}
+          canCancel={() => !isCreateMode && !this.props.isSaving}
           video={video}
           updateVideo={this.updateVideo}
           updateErrors={this.props.formErrorActions.updateFormErrors}
@@ -331,8 +328,8 @@ class VideoDisplay extends React.Component {
                 // Error handling is done in the saveVideo action
               });
           }}
-          canSave={() => !this.formHasErrors(formNames.youtubeFurniture) && !saving}
-          canCancel={() => !saving}
+          canSave={() => !this.formHasErrors(formNames.youtubeFurniture) && !this.props.isSaving}
+          canCancel={() => !this.props.isSaving}
           video={video}
           updateVideo={this.updateVideo}
           updateErrors={this.props.formErrorActions.updateFormErrors}
@@ -356,8 +353,8 @@ class VideoDisplay extends React.Component {
                 // Error handling should be implemented in workflow actions
               });
           }}
-          canSave={() => workflow.status.section && workflow.status.status && !saving}
-          canCancel={() => !saving}
+          canSave={() => workflow.status.section && workflow.status.status && !this.props.isSaving}
+          canCancel={() => !this.props.isSaving}
           video={video}
           isTrackedInWorkflow={workflow.status.isTrackedInWorkflow || false}
         />
@@ -420,18 +417,18 @@ import {getComposerId} from "../../util/getComposerData";
 import {updateFormWarnings} from "../../slices/formFieldsWarning";
 import {updateVideoEditState} from "../../slices/editState";
 import {updateFormErrors} from "../../slices/checkedFormFields";
-import {selectPublishedVideo, selectVideo} from "../../slices/video";
+import {selectIsSaving, selectPublishedVideo, selectVideo } from "../../slices/video";
 
 function mapStateToProps(state) {
   return {
     video: selectVideo(state),
+    isSaving: selectIsSaving(state),
     config: state.config,
     usages: state.usage,
     publishedVideo: selectPublishedVideo(state),
     videoEditOpen: state.videoEditOpen,
     checkedFormFields: state.checkedFormFields,
     workflow: state.workflow,
-    saveState: state.saveState
   };
 }
 

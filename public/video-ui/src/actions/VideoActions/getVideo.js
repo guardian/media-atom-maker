@@ -1,8 +1,7 @@
 import VideosApi from '../../services/VideosApi';
 import moment from 'moment';
-import { setSaving } from '../../slices/saveState';
 import { showError } from '../../slices/error';
-import { setVideo } from '../../slices/video';
+import {setVideo, setSaving} from '../../slices/video';
 
 export function getVideo(id) {
   return dispatch => {

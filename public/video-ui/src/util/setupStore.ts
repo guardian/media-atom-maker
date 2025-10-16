@@ -6,7 +6,6 @@ import config from '../slices/config';
 import error from '../slices/error';
 import video from '../slices/video';
 import videos from '../slices/videos';
-import saveState from '../slices/saveState';
 import search from '../slices/search';
 import youtube from '../slices/youtube';
 import usage from '../slices/usage';
@@ -27,7 +26,6 @@ export function setupStore() {
       error,
       video,
       videos,
-      saveState,
       search,
       youtube,
       usage,
