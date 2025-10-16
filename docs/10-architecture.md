@@ -3,6 +3,9 @@
 ## Graph
 
 ```mermaid
+config:
+  flowchart:
+    defaultRenderer: "elk"
 graph LR
     Pluto((Pluto)):::External
     YouTube((YouTube)):::External
