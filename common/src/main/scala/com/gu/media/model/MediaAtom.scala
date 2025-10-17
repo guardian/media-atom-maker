@@ -193,7 +193,7 @@ case class MediaAtom(
     composerCommentsEnabled: Option[Boolean] = Some(false),
     optimisedForWeb: Option[Boolean] = Some(false),
     suppressRelatedContent: Option[Boolean] = Some(false),
-    isLoopingVideo: Option[Boolean] = Some(false))
+    isLoopingVideo: Option[Boolean] = Some(false)
 ) extends MediaAtomBase {
 
   def asThrift = {
