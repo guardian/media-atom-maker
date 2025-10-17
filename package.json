@@ -4,8 +4,10 @@
   "scripts": {
     "build": "tsc && vite build",
     "client-dev": "vite",
-    "lint": "eslint public/video-ui/src/**/** --ext .js,.ts --no-error-on-unmatched-pattern",
-    "test": "jest"
+    "lint": "eslint public/video-ui/src/**/** --no-error-on-unmatched-pattern",
+    "lint:fix": "eslint public/video-ui/src/**/** --fix --no-error-on-unmatched-pattern",
+    "test": "jest",
+    "typecheck": "tsc --noEmit"
   },
   "jest": {
     "roots": [

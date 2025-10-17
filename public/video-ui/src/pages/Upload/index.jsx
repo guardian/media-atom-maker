@@ -1,17 +1,17 @@
 import React from 'react';
-import VideoTrail from '../../components/VideoUpload/VideoTrail';
-import { getStore } from '../../util/storeAccessor';
-import AddAssetFromURL from '../../components/VideoUpload/AddAssetFromURL';
-import { PlutoProjectPicker } from '../../components/Pluto/PlutoProjectPicker';
-import AddSelfHostedAsset from '../../components/VideoUpload/AddSelfHostedAsset';
-import YoutubeUpload from '../../components/VideoUpload/YoutubeUpload';
 import PlutoProjectLink from '../../components/Pluto/PlutoProjectLink';
+import { PlutoProjectPicker } from '../../components/Pluto/PlutoProjectPicker';
+import AddAssetFromURL from '../../components/VideoUpload/AddAssetFromURL';
+import AddSelfHostedAsset from '../../components/VideoUpload/AddSelfHostedAsset';
+import VideoTrail from '../../components/VideoUpload/VideoTrail';
+import YoutubeUpload from '../../components/VideoUpload/YoutubeUpload';
+import { getStore } from '../../util/storeAccessor';
 
 class VideoUpload extends React.Component {
   hasCategories = () => this.props.youtube?.categories?.length !== 0;
   hasChannels = () => this.props.youtube?.channels?.length !== 0;
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     this.props.videoActions.getVideo(this.props.params.id);
     if (!this.hasCategories()) {
       this.props.youtubeActions.fetchCategories();
@@ -97,23 +97,29 @@ class VideoUpload extends React.Component {
 //REDUX CONNECTIONS
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as getVideo from '../../actions/VideoActions/getVideo';
-import * as saveVideo from '../../actions/VideoActions/saveVideo';
 import * as createAsset from '../../actions/VideoActions/createAsset';
-import * as revertAsset from '../../actions/VideoActions/revertAsset';
 import * as allDeleteAssetActions from '../../actions/VideoActions/deleteAsset';
+import * as getVideo from '../../actions/VideoActions/getVideo';
+import * as revertAsset from '../../actions/VideoActions/revertAsset';
+import * as saveVideo from '../../actions/VideoActions/saveVideo';
+import {
+  deleteSubtitle,
+  resetS3UploadState,
+  setS3UploadStatusToPostProcessing,
+  startSubtitleFileUpload,
+  startVideoUpload
+} from '../../slices/s3Upload';
+import { getUploads } from '../../slices/uploads';
+import { selectIsActivatingAssetNumber, selectVideo } from '../../slices/video';
 import { fetchCategories, fetchChannels } from '../../slices/youtube';
-import {setS3UploadStatusToPostProcessing, resetS3UploadState, startVideoUpload, startSubtitleFileUpload, deleteSubtitle} from "../../slices/s3Upload";
-import {selectIsActivatingAssetNumber, selectVideo } from "../../slices/video";
-import {getUploads} from "../../slices/uploads";
 
 function mapStateToProps(state) {
   return {
     video: selectVideo(state),
-    isActivatingAssetNumber:  selectIsActivatingAssetNumber(state),
+    isActivatingAssetNumber: selectIsActivatingAssetNumber(state),
     s3Upload: state.s3Upload,
     uploads: state.uploads,
-    youtube: state.youtube,
+    youtube: state.youtube
   };
 }
 

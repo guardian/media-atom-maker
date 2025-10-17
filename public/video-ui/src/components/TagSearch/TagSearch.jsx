@@ -3,6 +3,7 @@ import React from 'react';
 class TagSearch extends React.Component {
   constructor(props) {
     super(props);
+    this.listNodeRef = React.createRef();
   }
 
   componentDidUpdate(prevProps) {
@@ -12,10 +13,9 @@ class TagSearch extends React.Component {
       nextProps.selectedTagIndex !== null &&
       prevProps.selectedTagIndex !== nextProps.selectedTagIndex
     ) {
-      const listNode = this.refs.list;
-      const elementHeight = listNode.children[0].offsetHeight;
-      if (listNode) {
-        listNode.scrollTop =
+      if (this.listNodeRef.current) {
+        const elementHeight = this.listNodeRef.current.children[0].offsetHeight;
+        this.listNodeRef.current.scrollTop =
           elementHeight *
           (nextProps.selectedTagIndex === 0
             ? 0
@@ -62,11 +62,13 @@ class TagSearch extends React.Component {
     if (this.props.searchResultTags.length !== 0 && this.props.showTags) {
       return (
         <ul
-          ref="list"
+          ref={this.listNodeRef}
           className="form__field__tags"
           onMouseDown={this.props.tagsToVisible}
         >
-          {this.props.searchResultTags.map((tag, index) => this.renderTags(tag, index))}
+          {this.props.searchResultTags.map((tag, index) =>
+            this.renderTags(tag, index)
+          )}
         </ul>
       );
     }
