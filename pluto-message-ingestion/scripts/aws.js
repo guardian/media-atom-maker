@@ -60,3 +60,19 @@ export async function getProject(tableName, id) {
     console.error('Error:', error);
   }
 }
+
+/**
+ * @param {object} data
+ * @returns
+ */
+export function createKinesisMessageFor(data) {
+  return {
+    Records: [
+      {
+        kinesis: {
+          data: Buffer.from(JSON.stringify(data)).toString('base64')
+        }
+      }
+    ]
+  };
+}

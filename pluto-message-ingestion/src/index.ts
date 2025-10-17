@@ -1,4 +1,4 @@
-import { KinesisStreamEvent } from 'aws-lambda';
+import type { KinesisStreamEvent } from 'aws-lambda';
 import { hmacSecretName, hostSecretName } from './config';
 import { processRecord } from './process-record';
 import { readSecretValue } from './secrets-manager';

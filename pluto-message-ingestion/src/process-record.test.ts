@@ -111,6 +111,34 @@ describe('processRecord', () => {
     expect(result).toBe('success');
   });
 
+  it('should send an iconik upsert request for iconik-project-created messages', async () => {
+    mockHmacPut.mockResolvedValue(new Response('OK'));
+    const data = {
+      type: 'iconik-project-created',
+      id: 'iconik-proj-1',
+      title: 'Iconik Project',
+      status: 'active',
+      commissionId: 'iconik-comm-1',
+      commissionTitle: 'Iconik Commission',
+      workingGroupId: 'wg-1',
+      workingGroupTitle: 'Working Group 1',
+      masterPlaceholderId: 'mp-1'
+    };
+
+    const record = {
+      kinesis: {
+        data: Buffer.from(JSON.stringify(data)).toString('base64')
+      }
+    } as unknown as KinesisStreamRecord;
+
+    const result = await processRecord(record, 'secret', 'https://example.com');
+    expect(mockHmacPut).toHaveBeenCalledWith({
+      url: 'https://example.com/api/iconik/projects',
+      data
+    });
+    expect(result).toBe('success');
+  });
+
   it('should throw an error when delete request fails', async () => {
     mockHmacDelete.mockResolvedValue(
       new Response('Internal Server Error', {
