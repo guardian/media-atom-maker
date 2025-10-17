@@ -53,6 +53,7 @@ abstract class MediaAtomBase {
   val optimisedForWeb: Option[Boolean]
   val composerCommentsEnabled: Option[Boolean]
   val suppressRelatedContent: Option[Boolean]
+  val isLoopingVideo: Option[Boolean]
 
   def isOnCommercialChannel(
       commercialChannels: Set[String]
@@ -87,7 +88,8 @@ case class MediaAtomBeforeCreation(
     sensitive: Option[Boolean],
     optimisedForWeb: Option[Boolean],
     composerCommentsEnabled: Option[Boolean],
-    suppressRelatedContent: Option[Boolean]
+    suppressRelatedContent: Option[Boolean],
+    isLoopingVideo: Option[Boolean]
 ) extends MediaAtomBase {
 
   def asThrift(id: String, contentChangeDetails: ContentChangeDetails) = {
@@ -121,7 +123,8 @@ case class MediaAtomBeforeCreation(
       ),
       commentsEnabled = composerCommentsEnabled,
       optimisedForWeb = optimisedForWeb,
-      suppressRelatedContent = suppressRelatedContent
+      suppressRelatedContent = suppressRelatedContent,
+      isLoopingVideo = isLoopingVideo
     )
 
     ThriftAtom(
@@ -189,7 +192,8 @@ case class MediaAtom(
     blockAds: Boolean = false,
     composerCommentsEnabled: Option[Boolean] = Some(false),
     optimisedForWeb: Option[Boolean] = Some(false),
-    suppressRelatedContent: Option[Boolean] = Some(false)
+    suppressRelatedContent: Option[Boolean] = Some(false),
+    isLoopingVideo: Option[Boolean] = Some(false)
 ) extends MediaAtomBase {
 
   def asThrift = {
@@ -223,7 +227,8 @@ case class MediaAtom(
       ),
       commentsEnabled = composerCommentsEnabled,
       optimisedForWeb = optimisedForWeb,
-      suppressRelatedContent = suppressRelatedContent
+      suppressRelatedContent = suppressRelatedContent,
+      isLoopingVideo = isLoopingVideo
     )
 
     ThriftAtom(
@@ -300,6 +305,7 @@ object MediaAtom extends MediaAtomImplicits {
       composerCommentsEnabled = data.commentsEnabled,
       optimisedForWeb = data.optimisedForWeb,
       suppressRelatedContent = data.suppressRelatedContent,
+      isLoopingVideo = data.isLoopingVideo,
       youtubeTitle =
         data.metadata.flatMap(_.youtube).map(_.title).getOrElse(data.title),
       youtubeDescription = youtubeDescription

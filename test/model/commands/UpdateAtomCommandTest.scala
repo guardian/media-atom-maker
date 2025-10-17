@@ -38,7 +38,8 @@ class UpdateAtomCommandTest extends AnyFunSuite with Matchers {
     sensitive = None,
     optimisedForWeb = None,
     composerCommentsEnabled = None,
-    suppressRelatedContent = None
+    suppressRelatedContent = None,
+    isLoopingVideo = None
   )
 
   test("Diff output when nothing changes") {
