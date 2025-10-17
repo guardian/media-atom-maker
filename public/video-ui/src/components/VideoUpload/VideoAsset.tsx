@@ -4,28 +4,7 @@ import Icon, { SubtitlesIcon } from '../Icon';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 import { VideoEmbed } from '../utils/VideoEmbed';
 import DeleteButton from '../DeleteButton';
-
-
-// TO DO - move these definitions to public/video-ui/src/services/UploadsApi.js
-// when converted to typescript
-type YouTubeAsset = { id: string, sources?: undefined };
-type SelfHostedAsset = { id?: undefined, sources: unknown[] }
-type Upload = {
-  id: string,
-  asset?: YouTubeAsset | SelfHostedAsset;
-  processing?: {
-    status: string,
-    failed: boolean,
-    current?: number,
-    total?: number
-  };
-  metadata?: {
-    originalFilename?: string;
-    subtitleFilename?: string;
-    startTimestamp?: number;
-    user: string
-  }
-}
+import {Upload} from "../../slices/s3Upload";
 
 function presenceInitials(email: string) {
   if (!email) return;
@@ -45,34 +24,49 @@ function presenceInitials(email: string) {
 }
 
 function AssetControls({
-  user, children, isActive, selectAsset, deleteAsset, activatingAssetNumber, isActivating }: {
-    user: string
-    isActive?: boolean,
-    selectAsset: { (): void },
-    deleteAsset: { (): void },
-    children: ReactNode,
-    activatingAssetNumber: number,
-    isActivating: boolean
-  }) {
+  user,
+  children,
+  isActive,
+  selectAsset,
+  deleteAsset,
+  activatingAssetNumber,
+  isActivating,
+  isUploadInProgress
+}: {
+  user: string;
+  isActive?: boolean;
+  selectAsset: { (): void };
+  deleteAsset: { (): void };
+  children: ReactNode;
+  activatingAssetNumber: number;
+  isActivating: boolean;
+  isUploadInProgress?: boolean;
+}) {
   const className = isActivating ? 'btn btn--loading' : 'btn';
 
-  const userCircle =
+  const userCircle = (
     <div className="video-trail__presence_indicator" title={user}>
       {presenceInitials(user)}
-    </div>;
+    </div>
+  );
 
-  const activateButton =
-    <button className={className} style={{ paddingRight: 20 }}
-      disabled={typeof activatingAssetNumber === "number"}
-      onClick={selectAsset}>
+  const activateButton = (
+    <button
+      className={className}
+      style={{ paddingRight: 20 }}
+      disabled={typeof activatingAssetNumber === 'number' || isUploadInProgress}
+      onClick={selectAsset}
+    >
       Activate
-    </button>;
+    </button>
+  );
 
-
-  const deleteButton = <DeleteButton
-    tooltip="Remove asset from Atom (does not affect YouTube.com)"
-    onDelete={deleteAsset}
-  />;
+  const deleteButton = (
+    <DeleteButton
+      tooltip="Remove asset from Atom (does not affect YouTube.com)"
+      onDelete={deleteAsset}
+    />
+  );
 
   return (
     <div className="upload__actions">
@@ -86,7 +80,13 @@ function AssetControls({
   );
 }
 
-function AssetInfo({ info, timestamp }: { info: string, timestamp?: number | false }) {
+function AssetInfo({
+  info,
+  timestamp
+}: {
+  info: string;
+  timestamp?: number | false;
+}) {
   const dateTime = timestamp && moment(timestamp).format('YYYY/MM/DD HH:mm:ss');
 
   return (
@@ -101,31 +101,46 @@ function AssetInfo({ info, timestamp }: { info: string, timestamp?: number | fal
   );
 }
 
-function AssetDisplay({ id, isActive, sources }: { id?: string | number, isActive: boolean, sources: unknown[] }) {
-  const embed = id ? <YouTubeEmbed id={id} largePreview={true} className={undefined} /> : <VideoEmbed sources={sources} posterUrl={undefined} />;
+function AssetDisplay({
+  id,
+  isActive,
+  sources
+}: {
+  id?: string | number;
+  isActive: boolean;
+  sources: unknown[];
+}) {
+  const embed = id ? (
+    <YouTubeEmbed id={id} largePreview={true} className={undefined} />
+  ) : (
+    <VideoEmbed sources={sources} posterUrl={undefined} />
+  );
 
   return (
-    <div className={"video-trail__asset"}>
+    <div className={'video-trail__asset'}>
       {embed}
-      {id &&
-        <a className={'upload__link'}
+      {id && (
+        <a
+          className={'upload__link'}
           href={`https://www.youtube.com/watch?v=${id}`}
           target={'_blank'}
-          rel={'noopener noreferrer'}>
+          rel={'noopener noreferrer'}
+        >
           <Icon icon="open_in_new" className="icon__assets" />
-        </a>}
-      {isActive &&
+        </a>
+      )}
+      {isActive && (
         <div className="video-trail__status__overlay">
           <span className="publish__label label__live label__frontpage__overlay">
             Active
           </span>
         </div>
-      }
+      )}
     </div>
   );
 }
 
-function AssetProgress({ failed, current, total }: Upload["processing"]) {
+function AssetProgress({ failed, current, total }: Upload['processing']) {
   if (failed) {
     return (
       <div>
@@ -152,21 +167,25 @@ function SubtitleDetails({ filename }: { filename: string }) {
     </div>
   );
 }
-function SubtitleActions({ filename, onUpload, onDelete }: {
+function SubtitleActions({
+  filename,
+  onUpload,
+  onDelete
+}: {
   filename: string;
-  onUpload: { (file: File): void }
-  onDelete: { (): void }
+  onUpload: { (file: File): void };
+  onDelete: { (): void };
 }) {
   const fileInputRef = React.useRef();
 
-  const handleFileChange: ChangeEventHandler<HTMLInputElement> = (event) => {
+  const handleFileChange: ChangeEventHandler<HTMLInputElement> = event => {
     const input = event.target;
     const file = event.target.files[0];
 
     if (!file) return;
-    const isSRT = file.name.endsWith('.srt') || file.type === 'application/x-subrip';
+    const isSRT =
+      file.name.endsWith('.srt') || file.type === 'application/x-subrip';
     const isVTT = file.name.endsWith('.vtt') || file.type === 'text/vtt';
-
 
     if (!isSRT && !isVTT) {
       alert('Invalid file type. Please upload a .srt or .vtt subtitle file.');
@@ -178,8 +197,10 @@ function SubtitleActions({ filename, onUpload, onDelete }: {
     reader.onload = function (e) {
       const text = e.target.result as string;
 
-      const isSRTFormat = /\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}/.test(text);
-      const isVTTFormat = /^WEBVTT/m.test(text) &&
+      const isSRTFormat =
+        /\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}/.test(text);
+      const isVTTFormat =
+        /^WEBVTT/m.test(text) &&
         /\d{2}:\d{2}:\d{2}\.\d{3} --> \d{2}:\d{2}:\d{2}\.\d{3}/.test(text);
 
       if ((isSRT && !isSRTFormat) || (isVTT && !isVTTFormat)) {
@@ -209,11 +230,13 @@ function SubtitleActions({ filename, onUpload, onDelete }: {
         onChange={handleFileChange}
       />
       <button className="btn upload__activate-btn" onClick={handleClick}>
-        <Icon icon="backup">
-          {filename ? "Replace" : "Upload"}
-        </Icon>
+        <Icon icon="backup">{filename ? 'Replace' : 'Upload'}</Icon>
       </button>
-      {filename && <button className="subtitle__delete-btn" onClick={onDelete}>Delete Subtitle File</button>}
+      {filename && (
+        <button className="subtitle__delete-btn" onClick={onDelete}>
+          Delete Subtitle File
+        </button>
+      )}
     </div>
   );
 }
@@ -232,23 +255,25 @@ export function Asset({
   videoId: string;
   upload: Upload;
   isActive: boolean;
-  selectAsset: { (): void },
-  deleteAsset: { (): void },
-  startSubtitleFileUpload: { (input: { file: File, id: string, version: string }): void };
-  deleteSubtitle: { (input: { id: string, version: string }): void };
+  selectAsset: { (): void };
+  deleteAsset: { (): void };
+  startSubtitleFileUpload: {
+    (input: { file: File; id: string; version: string }): void;
+  };
+  deleteSubtitle: { (input: { id: string; version: string }): void };
   permissions: Record<string, boolean>;
   activatingAssetNumber: number;
 }) {
   const { asset, metadata, processing } = upload;
 
-  const user = metadata?.user ?? "";
+  const user = metadata?.user ?? '';
   const info = `Asset ${upload.id} - ${metadata?.originalFilename || '(no filename)'}`;
   const timestamp = metadata?.startTimestamp || false;
 
   const isSelfHosted = asset && asset.sources;
   const subtitleFilename = metadata?.subtitleFilename;
 
-  const subtitlePanel = isSelfHosted && permissions?.addSubtitles &&
+  const subtitlePanel = isSelfHosted && permissions?.addSubtitles && (
     <div className="video-trail__item__subtitles">
       <div className="subtitle__container">
         <SubtitlesIcon />
@@ -256,11 +281,15 @@ export function Asset({
       </div>
       <SubtitleActions
         filename={subtitleFilename}
-        onUpload={(file) => startSubtitleFileUpload({ file, id: videoId, version: upload.id })}
-        onDelete={() => deleteSubtitle({ id: videoId, version: upload.id })} />
-    </div>;
+        onUpload={file =>
+          startSubtitleFileUpload({ file, id: videoId, version: upload.id })
+        }
+        onDelete={() => deleteSubtitle({ id: videoId, version: upload.id })}
+      />
+    </div>
+  );
 
-  if (processing && asset) {
+  if (processing && asset) { // reprocessing subtitle
     return (
       <div className="video-trail__item">
         <div className="video-trail__upload">
@@ -272,8 +301,10 @@ export function Asset({
             user={user}
             selectAsset={selectAsset}
             deleteAsset={deleteAsset}
+            isUploadInProgress={false}
             isActivating={activatingAssetNumber === Number(upload.id)}
-            activatingAssetNumber={activatingAssetNumber}>
+            activatingAssetNumber={activatingAssetNumber}
+          >
             <AssetInfo info={info} timestamp={timestamp} />
           </AssetControls>
         </div>
@@ -293,8 +324,10 @@ export function Asset({
             user={user}
             selectAsset={selectAsset}
             deleteAsset={deleteAsset}
+            isUploadInProgress={true}
             isActivating={activatingAssetNumber === Number(upload.id)}
-            activatingAssetNumber={activatingAssetNumber}>
+            activatingAssetNumber={activatingAssetNumber}
+          >
             <AssetInfo info={processing.status} />
           </AssetControls>
         </div>

@@ -17,19 +17,20 @@ object Platform {
 
   val platformReads = Reads[Platform](json => {
     json.as[String] match {
-      case "Youtube" => JsSuccess(Youtube)
-      case "Facebook" => JsSuccess(Facebook)
+      case "Youtube"     => JsSuccess(Youtube)
+      case "Facebook"    => JsSuccess(Facebook)
       case "Dailymotion" => JsSuccess(Dailymotion)
-      case "Mainstream" => JsSuccess(Mainstream)
-      case "Url" => JsSuccess(Url)
+      case "Mainstream"  => JsSuccess(Mainstream)
+      case "Url"         => JsSuccess(Url)
     }
   })
 
-  val platformWrites: Writes[Platform] = Writes[Platform] (cat => {
+  val platformWrites: Writes[Platform] = Writes[Platform](cat => {
     JsString(cat.name)
   })
 
-  implicit val platformFormat: Format[Platform] = Format(platformReads, platformWrites)
+  implicit val platformFormat: Format[Platform] =
+    Format(platformReads, platformWrites)
 
   private val types = List(Youtube, Facebook, Dailymotion, Mainstream, Url)
 

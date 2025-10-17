@@ -45,6 +45,7 @@ export const linkItemCommand = (markType: MarkType, customPrompt?: string, defau
         state.tr.addMark(from, to, markType.create({ href: parsedUrl }))
       );
     } else {
+      console.log(`Retry link item: ${message}`);
       return linkItemCommand(markType, `${message} - please check your link and try again.`, link)(state, dispatch);
     }
   }
@@ -60,6 +61,11 @@ const promptForLink = (state: EditorState, markType: MarkType, customPrompt?: st
   }
 
   const url = window.prompt(customPrompt || 'Enter a link', href || defaultValue || '');
+
+  if(url === null){
+    return undefined;
+  }
+
   return {
     from,
     to,

@@ -10,8 +10,13 @@ import com.gu.media.MediaAtomMakerPermissionsProvider
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class Youtube (val authActions: HMACAuthActions, youtube: YouTube, permissionsProvider: MediaAtomMakerPermissionsProvider, val controllerComponents: ControllerComponents)
-  extends BaseController with TrainingMode {
+class Youtube(
+    val authActions: HMACAuthActions,
+    youtube: YouTube,
+    permissionsProvider: MediaAtomMakerPermissionsProvider,
+    val controllerComponents: ControllerComponents
+) extends BaseController
+    with TrainingMode {
   import authActions.AuthAction
 
   def listCategories() = AuthAction {
@@ -21,11 +26,17 @@ class Youtube (val authActions: HMACAuthActions, youtube: YouTube, permissionsPr
   def listChannels() = AuthAction { req =>
     val user = req.user
 
-    val hasMakePublicPermission = permissionsProvider.getStatusPermissions(user).setVideosOnAllChannelsPublic
+    val hasMakePublicPermission = permissionsProvider
+      .getStatusPermissions(user)
+      .setVideosOnAllChannelsPublic
 
-    val requiredChannels = if (isInTrainingMode(req)) youtube.trainingChannels else youtube.allChannels
+    val requiredChannels =
+      if (isInTrainingMode(req)) youtube.trainingChannels
+      else youtube.allChannels
 
-    val channels = youtube.channelsWithData(hasMakePublicPermission).filter(c => requiredChannels.contains(c.id))
+    val channels = youtube
+      .channelsWithData(hasMakePublicPermission)
+      .filter(c => requiredChannels.contains(c.id))
 
     Ok(Json.toJson(channels))
   }

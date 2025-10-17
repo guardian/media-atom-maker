@@ -7,9 +7,10 @@ import scala.sys.process.*
 val scroogeVersion = "4.12.0"
 val awsVersion = "1.11.1034"
 val awsV2Version = "2.32.26"
-val pandaVersion = "7.0.0"
+val pandaVersion = "10.0.0"
 val atomMakerVersion = "5.0.0-PREVIEW.rjr-new-looping-video-boolean-field.2025-09-18T1053.cf97d8fd"
-val typesafeConfigVersion = "1.4.0" // to match what we get from Play transitively
+val typesafeConfigVersion =
+  "1.4.0" // to match what we get from Play transitively
 val scanamoVersion = "1.0.0-M28"
 
 val playJsonExtensionsVersion = "1.0.3"
@@ -45,15 +46,14 @@ lazy val jacksonVersion = "2.19.1"
 
 lazy val commonSettings = Seq(
   ThisBuild / scalaVersion := "2.13.16",
-  scalacOptions ++= Seq("-feature", "-deprecation", "-release:11"),
+  scalacOptions ++= Seq("-feature", "-deprecation", "-release:21"),
   ThisBuild / organization := "com.gu",
-
   resolvers ++= Resolver.sonatypeOssRepos("releases"),
 
   // silly SBT command to work-around lack of support for root projects that are not in the "root" folder
   // https://github.com/sbt/sbt/issues/2405
-  Global / onLoad := (Global/ onLoad).value andThen (Command.process("project root", _)),
-
+  Global / onLoad := (Global / onLoad).value andThen (Command
+    .process("project root", _)),
   dependencyOverrides ++= jacksonOverrides
 )
 
@@ -65,24 +65,26 @@ val jacksonOverrides = Seq(
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8",
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310",
   "com.fasterxml.jackson.module" % "jackson-module-parameter-names",
-  "com.fasterxml.jackson.module" %% "jackson-module-scala",
+  "com.fasterxml.jackson.module" %% "jackson-module-scala"
 ).map(_ % jacksonVersion)
 
-
 lazy val common = (project in file("common"))
-  .settings(commonSettings,
+  .settings(
+    commonSettings,
     name := "media-atom-common",
     unmanagedBase := baseDirectory.value / "common" / "lib",
     // YouTube Content ID API - Client Libraries. Not available for download.
     // Follow the instructions in the scripts/youtubepartner-api-gen directory to
     // regenerate+update these.
-    Compile / unmanagedJars += file("common/lib/google-api-services-youtubePartner-v1-rev20230804-2.0.0.jar"),
+    Compile / unmanagedJars += file(
+      "common/lib/google-api-services-youtubePartner-v1-rev20230804-2.0.0.jar"
+    ),
     // Attaching source jars doesn't work as you'd expect :(
     // If you try to cmd+click to the definition of any classes from youtubePartner-api, Intellij will offer you an option to
     // "attach sources" -> do that and select the file below.
-    //Compile / unmanagedJars += file("common/lib/google-api-services-youtubePartner-v1-rev20230804-2.0.0-sources.jar"),
+    // Compile / unmanagedJars += file("common/lib/google-api-services-youtubePartner-v1-rev20230804-2.0.0-sources.jar"),
     libraryDependencies ++= Seq(
-      "com.google.api-client" %  "google-api-client" % googleApiClientVersion,
+      "com.google.api-client" % "google-api-client" % googleApiClientVersion,
       "com.google.http-client" % "google-http-client-jackson2" % googleHttpJacksonVersion,
       "com.google.apis" % "google-api-services-youtube" % youTubeApiClientVersion,
       "com.gu" %% "pan-domain-auth-play_3-0" % pandaVersion,
@@ -94,7 +96,7 @@ lazy val common = (project in file("common"))
       "com.gu" %% "atom-publisher-lib" % atomMakerVersion,
       "com.gu" %% "atom-publisher-lib" % atomMakerVersion % "test" classifier "tests",
       "com.gu" %% "atom-manager-play" % atomMakerVersion,
-      "com.gu"  %% "atom-manager-play" % atomMakerVersion % "test" classifier "tests",
+      "com.gu" %% "atom-manager-play" % atomMakerVersion % "test" classifier "tests",
       "com.google.guava" % "guava" % guavaVersion,
       "commons-logging" % "commons-logging" % commonsLoggingVersion,
       "org.apache.httpcomponents" % "httpclient" % apacheHttpClientVersion,
@@ -128,10 +130,19 @@ lazy val common = (project in file("common"))
     )
   )
 
+lazy val normalisePackageName =
+  taskKey[Unit]("Rename debian package name to be normalised")
 lazy val app = (project in file("."))
   .dependsOn(common % "compile->compile;test->test")
-  .enablePlugins(PlayScala, SbtWeb, JDebPackaging, SystemdPlugin, BuildInfoPlugin)
-  .settings(commonSettings,
+  .enablePlugins(
+    PlayScala,
+    SbtWeb,
+    JDebPackaging,
+    SystemdPlugin,
+    BuildInfoPlugin
+  )
+  .settings(
+    commonSettings,
     name := "media-atom-maker",
     libraryDependencies ++= Seq(
       ehcache,
@@ -139,14 +150,11 @@ lazy val app = (project in file("."))
       "software.amazon.awssdk" % "sts" % awsV2Version,
       "com.amazonaws" % "aws-java-sdk-ec2" % awsVersion,
       "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestPlusPlayVersion % "test",
-      "org.mockito" %%  "mockito-scala" % mockitoVersion % "test",
-      "org.scala-lang.modules" %% "scala-xml" % scalaXmlVersion   % "test"
+      "org.mockito" %% "mockito-scala" % mockitoVersion % "test",
+      "org.scala-lang.modules" %% "scala-xml" % scalaXmlVersion % "test"
     ),
-
     run / aggregate := false,
-
     bashScriptConfigLocation := Some("/etc/gu/media-atom-maker.ini"),
-
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       "gitCommitId" -> Option(System.getenv("BUILD_VCS_NUMBER")).getOrElse(try {
@@ -155,19 +163,26 @@ lazy val app = (project in file("."))
         case e: Exception => "unknown"
       })
     ),
-
     buildInfoPackage := "app",
-
     maintainer := "Digital CMS <digitalcms.dev@guardian.co.uk>",
     packageSummary := "media-atom-maker",
     packageDescription := """making media atoms""",
-    pipelineStages := Seq(digest, gzip)
+    pipelineStages := Seq(digest, gzip),
+    normalisePackageName := {
+      val targetDirectory = baseDirectory.value / "target"
+      val debFile = (targetDirectory ** "*.deb").get().head
+      val newFile =
+        file(debFile.getParent) / ((Debian / packageName).value + ".deb")
+
+      IO.move(debFile, newFile)
+    }
   )
 
 lazy val uploader = (project in file("uploader"))
   .dependsOn(common)
   .enablePlugins(JavaAppPackaging)
-  .settings(commonSettings,
+  .settings(
+    commonSettings,
     name := "media-atom-uploader",
     libraryDependencies ++= Seq(
       "net.logstash.logback" % "logstash-logback-encoder" % logstashLogbackEncoderVersion,
@@ -175,25 +190,28 @@ lazy val uploader = (project in file("uploader"))
     ),
     Universal / topLevelDirectory := None,
     Universal / packageName := normalizedName.value,
-
     Compile / lambdas := Map(
       "GetChunkFromS3" -> LambdaConfig(
-        description = "Checks to see if a chunk of video has been uploaded to S3"
+        description =
+          "Checks to see if a chunk of video has been uploaded to S3"
       ),
       "UploadChunkToYouTube" -> LambdaConfig(
         description = "Uploads a chunk of video to YouTube"
       ),
       "MultipartCopyChunkInS3" -> LambdaConfig(
-        description = "Uses multipart copy to combine all the chunks in S3 into a single key"
+        description =
+          "Uses multipart copy to combine all the chunks in S3 into a single key"
       ),
       "CompleteMultipartCopy" -> LambdaConfig(
-        description = "Finishes the multipart copy and deletes the source chunks from S3"
+        description =
+          "Finishes the multipart copy and deletes the source chunks from S3"
       ),
       "SendToPluto" -> LambdaConfig(
         description = "Sends a complete video to Pluto for ingestion"
       ),
       "SendToTranscoderV2" -> LambdaConfig(
-        description = "Sends a complete video to the AWS MediaConvert transcoder"
+        description =
+          "Sends a complete video to the AWS MediaConvert transcoder"
       ),
       "GetTranscodingProgressV2" -> LambdaConfig(
         description = "Polls the AWS MediaConvert transcoder"
@@ -202,56 +220,57 @@ lazy val uploader = (project in file("uploader"))
         description = "Adds the resulting asset to the atom"
       ),
       "AddUploadDataToCache" -> LambdaConfig(
-        description = "Adds the upload information to a Dynamo table so it is preserved even if the pipeline changes"
+        description =
+          "Adds the upload information to a Dynamo table so it is preserved even if the pipeline changes"
       )
     ),
-
     Compile / resourceGenerators += compileTemplate.taskValue
   )
 
 lazy val integrationTests = (project in file("integration-tests"))
   .dependsOn(common % "compile->compile;test->test")
-  .settings(commonSettings,
+  .settings(
+    commonSettings,
     name := "integration-tests",
     Test / logBuffered := false,
     Test / parallelExecution := false
   )
 
-
 lazy val expirer = (project in file("expirer"))
   .dependsOn(common % "compile->compile;test->test")
   .enablePlugins(JavaAppPackaging)
-  .settings(commonSettings,
+  .settings(
+    commonSettings,
     name := "media-atom-expirer",
     Universal / topLevelDirectory := None,
     Universal / packageName := normalizedName.value
-
   )
 
 lazy val scheduler = (project in file("scheduler"))
   .dependsOn(common % "compile->compile;test->test")
   .enablePlugins(JavaAppPackaging)
-  .settings(commonSettings,
+  .settings(
+    commonSettings,
     name := "media-atom-scheduler",
     Universal / topLevelDirectory := None,
     Universal / packageName := normalizedName.value
-
   )
 
 lazy val root = (project in file("root"))
   .aggregate(common, app, uploader, expirer, scheduler)
-  .enablePlugins(RiffRaffArtifact)
-  .settings(
-    riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
-    riffRaffUploadManifestBucket := Option("riffraff-builds"),
-    riffRaffManifestProjectName := "media-service:media-atom-maker",
-    riffRaffArtifactResources := Seq(
-      (app / Debian / packageBin).value -> s"${(app / name).value}/${(app / name).value}.deb",
-      (uploader / Universal / packageBin).value -> s"media-atom-upload-actions/${(uploader / Universal / packageBin).value.getName}",
-      (expirer / Universal / packageBin).value -> s"${(expirer / name).value}/${(expirer / Universal / packageBin).value.getName}",
-      (scheduler / Universal / packageBin).value -> s"${(scheduler / name).value}/${(scheduler / Universal / packageBin).value.getName}",
-      (app / baseDirectory).value / "pluto-message-ingestion/target/pluto-message-ingestion.zip" -> "pluto-message-ingestion/pluto-message-ingestion.zip",
-      (app / baseDirectory).value / "conf/riff-raff.yaml" -> "riff-raff.yaml",
-      (uploader / Compile / resourceManaged).value / "media-atom-pipeline.yaml" -> "media-atom-pipeline-cloudformation/media-atom-pipeline.yaml"
-    )
-  )
+
+addCommandAlias(
+  "ciCommands",
+  Seq(
+    "scalafmtCheckAll",
+    "clean",
+    "compile",
+    "test",
+    "app/Debian/packageBin",
+    "app/normalisePackageName",
+    "uploader/Universal/packageBin",
+    "expirer/Universal/packageBin",
+    "scheduler/Universal/packageBin",
+    "uploader/Compile/resourceManaged"
+  ).mkString(";")
+)

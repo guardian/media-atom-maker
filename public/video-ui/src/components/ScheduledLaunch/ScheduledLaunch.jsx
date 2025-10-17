@@ -148,7 +148,7 @@ class ScheduledLaunch extends React.Component {
     }
 
     return null;
-  }
+  };
 
   /* Render functions */
 
@@ -225,7 +225,7 @@ class ScheduledLaunch extends React.Component {
           : selectedEmbargoDate
       }
     />
-  )
+  );
 
   renderSaveButton = (propertyName, selectedScheduleDate, selectedEmbargoDate, invalidDateError) => (
     <button
@@ -239,7 +239,7 @@ class ScheduledLaunch extends React.Component {
     >
       Save
     </button>
-  )
+  );
 
   renderRemoveButton = propertyName => (
     <button
@@ -248,7 +248,7 @@ class ScheduledLaunch extends React.Component {
     >
       Remove
     </button>
-  )
+  );
 
   renderCancelButton = () => (
     <button
@@ -261,7 +261,7 @@ class ScheduledLaunch extends React.Component {
     >
       Cancel
     </button>
-  )
+  );
 
   renderSchedulerButton = (showScheduleOptions) => {
 
@@ -285,7 +285,7 @@ class ScheduledLaunch extends React.Component {
         </button>
       </div>
     );
-  }
+  };
 
   render() {
     const {

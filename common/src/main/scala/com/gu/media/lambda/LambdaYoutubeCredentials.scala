@@ -19,7 +19,9 @@ trait LambdaYoutubeCredentials { self: AwsAccess =>
         GoogleCredential.fromStream(rawCredentials)
 
       case _ =>
-        throw new Exception("Missing environment variables CONFIG_BUCKET/CREDENTIALS_KEY")
+        throw new Exception(
+          "Missing environment variables CONFIG_BUCKET/CREDENTIALS_KEY"
+        )
     }
   }
 }

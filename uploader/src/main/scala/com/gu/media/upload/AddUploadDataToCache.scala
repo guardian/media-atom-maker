@@ -6,7 +6,10 @@ import com.gu.media.upload.model.Upload
 import org.scanamo.{Scanamo, Table}
 import org.scanamo.generic.auto._
 
-class AddUploadDataToCache extends LambdaWithParams[Upload, Upload] with DynamoAccess with UploadAccess {
+class AddUploadDataToCache
+    extends LambdaWithParams[Upload, Upload]
+    with DynamoAccess
+    with UploadAccess {
   private val table = Table[Upload](this.cacheTableName)
 
   override def handle(input: Upload): Upload = {

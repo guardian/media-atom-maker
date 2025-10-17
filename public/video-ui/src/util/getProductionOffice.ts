@@ -2,7 +2,7 @@ import moment from 'moment';
 
 const isBetween = ({ value, lower, upper }: {value: number, lower: number, upper: number}) => {
   return value >= lower && value <= upper;
-}
+};
 
 const getTimezoneOffset = () => {
   const offset = moment().utcOffset();
@@ -20,7 +20,7 @@ const getTimezoneOffset = () => {
   }
 
   return 'LON';
-}
+};
 
 export default function getProductionOffice() {
   const timezoneProductionOfficeMap = {

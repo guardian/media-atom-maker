@@ -18,9 +18,12 @@ trait PanDomainAuthActions extends HMACAuthActions with Logging {
   override def validateUser(authedUser: AuthenticatedUser): Boolean = {
     val isValid =
       (authedUser.user.emailDomain == "guardian.co.uk") &&
-      (authedUser.multiFactor)
+        (authedUser.multiFactor)
 
-    val hasBasicAccess = permissionsProvider.hasPermission(Permissions.basicAccess, authedUser.user)
+    val hasBasicAccess = permissionsProvider.hasPermission(
+      Permissions.basicAccess,
+      authedUser.user
+    )
 
     if (!isValid) {
       log.warn(s"User ${authedUser.user.email} is not valid")
@@ -31,18 +34,23 @@ trait PanDomainAuthActions extends HMACAuthActions with Logging {
     isValid && hasBasicAccess
   }
 
-  override def showUnauthedMessage(message: String)(implicit request: RequestHeader): Result =
+  override def showUnauthedMessage(message: String)(implicit
+      request: RequestHeader
+  ): Result =
     Forbidden(views.html.authError(message))
 
   override def invalidUserMessage(authedUser: AuthenticatedUser) = {
-    val hasBasicAccess = permissionsProvider.hasPermission(Permissions.basicAccess, authedUser.user)
+    val hasBasicAccess = permissionsProvider.hasPermission(
+      Permissions.basicAccess,
+      authedUser.user
+    )
 
     if (!hasBasicAccess) noPermissionMessage(authedUser)
     else super.invalidUserMessage(authedUser)
   }
 
-
-  override def authCallbackUrl: String = "https://" + conf.get[String]("host") + "/oauthCallback"
+  override def authCallbackUrl: String =
+    "https://" + conf.get[String]("host") + "/oauthCallback"
 
   override def secret: String = conf.get[String]("secret")
 

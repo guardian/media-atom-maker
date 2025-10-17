@@ -18,18 +18,28 @@ import com.gu.media.model.AuditMessage
 
 import scala.util.{Failure, Success}
 
-case class CreateAtomCommand(data: MediaAtomBeforeCreation, override val stores: DataStores, user: PandaUser)
-
-  extends Command with Logging {
+case class CreateAtomCommand(
+    data: MediaAtomBeforeCreation,
+    override val stores: DataStores,
+    user: PandaUser
+) extends Command
+    with Logging {
 
   type T = MediaAtom
 
   def process() = {
     val atomId = randomUUID().toString
     val createdChangeRecord = Some(ChangeRecord.now(user))
-    val scheduledLaunchDate: Option[DateTime] = data.contentChangeDetails.scheduledLaunch.map(scheduledLaunch => new DateTime(scheduledLaunch.date))
-    val embargo: Option[DateTime] = data.contentChangeDetails.embargo.map(embargo => new DateTime(embargo.date))
-    val expiry: Option[DateTime] = data.expiryDate.map(expiry => new DateTime(expiry))
+    val scheduledLaunchDate: Option[DateTime] =
+      data.contentChangeDetails.scheduledLaunch.map(scheduledLaunch =>
+        new DateTime(scheduledLaunch.date)
+      )
+    val embargo: Option[DateTime] =
+      data.contentChangeDetails.embargo.map(embargo =>
+        new DateTime(embargo.date)
+      )
+    val expiry: Option[DateTime] =
+      data.expiryDate.map(expiry => new DateTime(expiry))
     val details = media.model.ContentChangeDetails(
       lastModified = createdChangeRecord,
       created = createdChangeRecord,
@@ -46,30 +56,39 @@ case class CreateAtomCommand(data: MediaAtomBeforeCreation, override val stores:
 
     AuditMessage(atom.id, "Create", getUsername(user)).logMessage()
 
-    previewDataStore.createAtom(atom).fold({
-        case IDConflictError =>
-          log.error(s"Cannot create new atom $atomId. The id is already in use")
-          AtomIdConflict
+    previewDataStore
+      .createAtom(atom)
+      .fold(
+        {
+          case IDConflictError =>
+            log.error(
+              s"Cannot create new atom $atomId. The id is already in use"
+            )
+            AtomIdConflict
 
-        case other =>
-          log.error(s"Cannot create new atom $atomId. $other")
-          UnknownFailure
-      },
-      _ => {
-        log.info(s"Successfully created new atom $atomId [${data.title}]")
+          case other =>
+            log.error(s"Cannot create new atom $atomId. $other")
+            UnknownFailure
+        },
+        _ => {
+          log.info(s"Successfully created new atom $atomId [${data.title}]")
 
-        val event = ContentAtomEvent(atom, EventType.Update, new Date().getTime)
+          val event =
+            ContentAtomEvent(atom, EventType.Update, new Date().getTime)
 
-        previewPublisher.publishAtomEvent(event) match {
-          case Success(_)  =>
-            log.info(s"New atom published to preview $atomId [${data.title}]")
-            MediaAtom.fromThrift(atom)
+          previewPublisher.publishAtomEvent(event) match {
+            case Success(_) =>
+              log.info(s"New atom published to preview $atomId [${data.title}]")
+              MediaAtom.fromThrift(atom)
 
-          case Failure(err) =>
-            log.error(s"Unable to published new atom to preview $atomId [${data.title}]", err)
-            AtomPublishFailed(err.toString)
+            case Failure(err) =>
+              log.error(
+                s"Unable to published new atom to preview $atomId [${data.title}]",
+                err
+              )
+              AtomPublishFailed(err.toString)
+          }
         }
-      }
-    )
+      )
   }
 }

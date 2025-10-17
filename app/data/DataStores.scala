@@ -9,24 +9,32 @@ import com.gu.media.{CapiAccess, PlutoDataStore}
 import model.commands.CommandExceptions._
 import util.{AWSConfig, NotifyingAtomPublisher}
 
-class DataStores(aws: AWSConfig with SNSAccess, capi: CapiAccess)  {
+class DataStores(aws: AWSConfig with SNSAccess, capi: CapiAccess) {
 
   val preview = new PreviewDynamoDataStore(aws.dynamoDB, aws.dynamoTableName)
-  val published = new PublishedDynamoDataStore(aws.dynamoDB, aws.publishedDynamoTableName)
+  val published =
+    new PublishedDynamoDataStore(aws.dynamoDB, aws.publishedDynamoTableName)
 
-  val pluto: PlutoDataStore = new PlutoDataStore(aws.scanamo, aws.manualPlutoDynamo)
+  val pluto: PlutoDataStore =
+    new PlutoDataStore(aws.scanamo, aws.manualPlutoDynamo)
 
   val livePublisher: AtomPublisher = aws.capiContentEventsTopicName match {
     case Some(capiContentEventsTopicName) =>
       new NotifyingAtomPublisher(
         isLive = true,
         topicArn = capiContentEventsTopicName,
-        underlying = new LiveKinesisAtomPublisher(aws.liveKinesisStreamName, aws.crossAccountKinesisClient),
+        underlying = new LiveKinesisAtomPublisher(
+          aws.liveKinesisStreamName,
+          aws.crossAccountKinesisClient
+        ),
         sns = aws.snsClient
       )
 
     case None =>
-      new LiveKinesisAtomPublisher(aws.liveKinesisStreamName, aws.crossAccountKinesisClient)
+      new LiveKinesisAtomPublisher(
+        aws.liveKinesisStreamName,
+        aws.crossAccountKinesisClient
+      )
   }
 
   val previewPublisher: AtomPublisher = aws.capiContentEventsTopicName match {
@@ -34,22 +42,36 @@ class DataStores(aws: AWSConfig with SNSAccess, capi: CapiAccess)  {
       new NotifyingAtomPublisher(
         isLive = true,
         topicArn = capiContentEventsTopicName,
-        underlying = new PreviewKinesisAtomPublisher(aws.previewKinesisStreamName, aws.crossAccountKinesisClient),
+        underlying = new PreviewKinesisAtomPublisher(
+          aws.previewKinesisStreamName,
+          aws.crossAccountKinesisClient
+        ),
         sns = aws.snsClient
       )
 
     case None =>
-      new PreviewKinesisAtomPublisher(aws.previewKinesisStreamName, aws.crossAccountKinesisClient)
+      new PreviewKinesisAtomPublisher(
+        aws.previewKinesisStreamName,
+        aws.crossAccountKinesisClient
+      )
   }
 
   val reindexPreview: PreviewAtomReindexer =
-    new PreviewKinesisAtomReindexer(aws.previewKinesisReindexStreamName, aws.crossAccountKinesisClient)
+    new PreviewKinesisAtomReindexer(
+      aws.previewKinesisReindexStreamName,
+      aws.crossAccountKinesisClient
+    )
 
   val reindexPublished: PublishedKinesisAtomReindexer =
-    new PublishedKinesisAtomReindexer(aws.publishedKinesisReindexStreamName, aws.crossAccountKinesisClient)
+    new PublishedKinesisAtomReindexer(
+      aws.publishedKinesisReindexStreamName,
+      aws.crossAccountKinesisClient
+    )
 
-  val plutoCommissionStore: PlutoCommissionDataStore = new PlutoCommissionDataStore(aws)
-  val plutoProjectStore: PlutoProjectDataStore = new PlutoProjectDataStore(aws, plutoCommissionStore)
+  val plutoCommissionStore: PlutoCommissionDataStore =
+    new PlutoCommissionDataStore(aws)
+  val plutoProjectStore: PlutoProjectDataStore =
+    new PlutoProjectDataStore(aws, plutoCommissionStore)
 
   val atomListStore = AtomListStore(aws.stage, capi, preview)
 
@@ -65,27 +87,31 @@ trait UnpackedDataStores {
   val previewPublisher: AtomPublisher = stores.previewPublisher
   val livePublisher: AtomPublisher = stores.livePublisher
 
-  def getPreviewAtom(atomId: String): Atom  = previewDataStore.getAtom(atomId) match {
-    case Right(atom) => atom
-    case Left(IDNotFound) => AtomNotFound
-    case Left(err) => AtomDataStoreError(err.msg)
-  }
+  def getPreviewAtom(atomId: String): Atom =
+    previewDataStore.getAtom(atomId) match {
+      case Right(atom)      => atom
+      case Left(IDNotFound) => AtomNotFound
+      case Left(err)        => AtomDataStoreError(err.msg)
+    }
 
-  def getPublishedAtom(atomId: String): Atom  = publishedDataStore.getAtom(atomId) match {
-    case Right(atom) => atom
-    case Left(IDNotFound) => AtomNotFound
-    case Left(err) => AtomDataStoreError(err.msg)
-  }
+  def getPublishedAtom(atomId: String): Atom =
+    publishedDataStore.getAtom(atomId) match {
+      case Right(atom)      => atom
+      case Left(IDNotFound) => AtomNotFound
+      case Left(err)        => AtomDataStoreError(err.msg)
+    }
 
-  def deletePreviewAtom(atomId: String): Unit = previewDataStore.deleteAtom(atomId) match {
-    case Right(_) =>
-    case Left(IDNotFound) => AtomNotFound
-    case Left(err) => AtomDataStoreError(err.msg)
-  }
+  def deletePreviewAtom(atomId: String): Unit =
+    previewDataStore.deleteAtom(atomId) match {
+      case Right(_)         =>
+      case Left(IDNotFound) => AtomNotFound
+      case Left(err)        => AtomDataStoreError(err.msg)
+    }
 
-  def deletePublishedAtom(atomId: String): Unit = publishedDataStore.deleteAtom(atomId) match {
-    case Right(_) =>
-    case Left(IDNotFound) => /* Ignoring as atom not published */
-    case Left(err) => AtomDataStoreError(err.msg)
-  }
+  def deletePublishedAtom(atomId: String): Unit =
+    publishedDataStore.deleteAtom(atomId) match {
+      case Right(_)         =>
+      case Left(IDNotFound) => /* Ignoring as atom not published */
+      case Left(err)        => AtomDataStoreError(err.msg)
+    }
 }

@@ -1,6 +1,18 @@
 package com.gu.media.upload
 
-import com.amazonaws.services.mediaconvert.model.{CaptionSelector, CaptionSourceSettings, CreateJobRequest, FileGroupSettings, FileSourceSettings, HlsGroupSettings, Input, JobSettings, OutputGroup, OutputGroupSettings, OutputGroupType}
+import com.amazonaws.services.mediaconvert.model.{
+  CaptionSelector,
+  CaptionSourceSettings,
+  CreateJobRequest,
+  FileGroupSettings,
+  FileSourceSettings,
+  HlsGroupSettings,
+  Input,
+  JobSettings,
+  OutputGroup,
+  OutputGroupSettings,
+  OutputGroupType
+}
 import com.gu.media.aws.MediaConvertAccess
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
@@ -9,10 +21,10 @@ import com.gu.media.upload.model.{SelfHostedUploadMetadata, Upload}
 
 import scala.jdk.CollectionConverters._
 
-class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
-  with MediaConvertAccess
-  with Logging
-{
+class SendToTranscoderV2
+    extends LambdaWithParams[Upload, Upload]
+    with MediaConvertAccess
+    with Logging {
   override def handle(upload: Upload): Upload = {
     val videoInput = Upload.videoInputUri(upload)
     val maybeSubtitlesInput = Upload.subtitleInputUri(upload)
@@ -22,27 +34,38 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
         val outputs = getOutputs(sources)
         val jobs = sendToTranscoder(videoInput, maybeSubtitlesInput, outputs)
 
-        val metadata = upload.metadata.copy(runtime = SelfHostedUploadMetadata(List(jobs)))
-        upload.copy(metadata = metadata, progress = upload.progress.copy(fullyTranscoded = false))
+        val metadata =
+          upload.metadata.copy(runtime = SelfHostedUploadMetadata(List(jobs)))
+        upload.copy(
+          metadata = metadata,
+          progress = upload.progress.copy(fullyTranscoded = false)
+        )
 
       case other =>
         throw new IllegalArgumentException(s"Unexpected asset $other")
     }
   }
 
-  private def sendToTranscoder(videoInput: UploadUri, maybeSubtitlesInput: Option[UploadUri], outputs: List[OutputGroup]): String = {
+  private def sendToTranscoder(
+      videoInput: UploadUri,
+      maybeSubtitlesInput: Option[UploadUri],
+      outputs: List[OutputGroup]
+  ): String = {
     val captionSourceSettings = maybeSubtitlesInput match {
       case Some(subtitlesInput) =>
         new CaptionSourceSettings()
           .withSourceType("SRT")
-          .withFileSourceSettings(new FileSourceSettings()
-            .withSourceFile(subtitlesInput.toString)
+          .withFileSourceSettings(
+            new FileSourceSettings()
+              .withSourceFile(subtitlesInput.toString)
           )
       case None => new CaptionSourceSettings().withSourceType("NULL_SOURCE")
     }
 
     val captionSelectors = Map(
-      "Caption Selector 1" -> new CaptionSelector().withSourceSettings(captionSourceSettings)
+      "Caption Selector 1" -> new CaptionSelector().withSourceSettings(
+        captionSourceSettings
+      )
     ).asJava
 
     val jobInput = new Input()
@@ -54,12 +77,13 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
     val createJobRequest = new CreateJobRequest()
       .withRole(mediaConvertRole)
       .withJobTemplate(jobTemplate)
-      .withSettings(new JobSettings()
-        .withInputs(List(jobInput).asJava)
-        .withOutputGroups(outputs: _*)
+      .withSettings(
+        new JobSettings()
+          .withInputs(List(jobInput).asJava)
+          .withOutputGroups(outputs: _*)
       )
 
-    log.info("Creating job: "+createJobRequest.toString)
+    log.info("Creating job: " + createJobRequest.toString)
 
     val job = mediaConvertClient.createJob(createJobRequest).getJob
     val id = job.getId
@@ -71,21 +95,29 @@ class SendToTranscoderV2 extends LambdaWithParams[Upload, Upload]
 
   private def getOutputs(sources: List[VideoSource]): List[OutputGroup] = {
     sources.map {
-      case VideoSource(output, "video/mp4") =>
-        val filenameWithoutMp4 = if (output.endsWith(".mp4")) output.dropRight(4) else output
+      case VideoSource(output, VideoSource.mimeTypeMp4) =>
+        val filenameWithoutMp4 =
+          if (output.endsWith(".mp4")) output.dropRight(4) else output
         val outputGroupSettings = new OutputGroupSettings()
-          .withFileGroupSettings(new FileGroupSettings()
-            .withDestination(UploadUri(destinationBucket, filenameWithoutMp4).toString)
+          .withFileGroupSettings(
+            new FileGroupSettings()
+              .withDestination(
+                UploadUri(destinationBucket, filenameWithoutMp4).toString
+              )
           )
         new OutputGroup().withOutputGroupSettings(outputGroupSettings)
 
-      case VideoSource(output, "application/vnd.apple.mpegurl") =>
-        val filenameWithoutM3u8 = if (output.endsWith(".m3u8")) output.dropRight(5) else output
+      case VideoSource(output, VideoSource.mimeTypeM3u8) =>
+        val filenameWithoutM3u8 =
+          if (output.endsWith(".m3u8")) output.dropRight(5) else output
         val outputGroupSettings = new OutputGroupSettings()
-          .withHlsGroupSettings(new HlsGroupSettings()
-            .withDestination(UploadUri(destinationBucket, filenameWithoutM3u8).toString)
-            .withSegmentLength(10)
-            .withMinSegmentLength(0)
+          .withHlsGroupSettings(
+            new HlsGroupSettings()
+              .withDestination(
+                UploadUri(destinationBucket, filenameWithoutM3u8).toString
+              )
+              .withSegmentLength(10)
+              .withMinSegmentLength(0)
           )
         new OutputGroup().withOutputGroupSettings(outputGroupSettings)
 

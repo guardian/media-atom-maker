@@ -102,15 +102,6 @@ export default class VideoUtils {
     return atom.duration > 0 && atom.duration >= minDurationForAds;
   }
 
-  static isRecentlyModified({ contentChangeDetails }) {
-    if (contentChangeDetails && contentChangeDetails.lastModified) {
-      const lastModified = moment(contentChangeDetails.lastModified.date);
-      const diff = moment().diff(lastModified, 'days');
-      return diff < 1;
-    }
-    return false;
-  }
-
   static canUploadToYouTube({ youtubeCategoryId, channelId, privacyStatus }) {
     return !!youtubeCategoryId && !!channelId && !!privacyStatus;
   }
@@ -118,13 +109,13 @@ export default class VideoUtils {
   static getScheduledLaunch({ contentChangeDetails }) {
     return contentChangeDetails &&
       contentChangeDetails.scheduledLaunch &&
-      contentChangeDetails.scheduledLaunch.date
+      contentChangeDetails.scheduledLaunch.date;
   }
 
   static getEmbargo({ contentChangeDetails }) {
     return contentChangeDetails &&
       contentChangeDetails.embargo &&
-      contentChangeDetails.embargo.date
+      contentChangeDetails.embargo.date;
   }
 
   static getScheduledLaunchAsDate(video) {

@@ -1,14 +1,11 @@
 import React from 'react';
 import { Asset } from './VideoAsset';
-import VideoUtils from '../../util/video';
 
 export default class VideoTrail extends React.Component {
   polling = null;
 
-  componentWillReceiveProps() {
-    const isRecentlyModified = VideoUtils.isRecentlyModified(this.props.video);
-
-    if (!this.polling && isRecentlyModified) {
+  UNSAFE_componentWillReceiveProps() {
+    if (!this.polling) {
       this.polling = setInterval(() => this.pollIfRequired(), 5000);
     }
   }
@@ -31,15 +28,18 @@ export default class VideoTrail extends React.Component {
   getAssets = () => {
     const ret = [];
 
-    if (this.props.s3Upload.status === "complete") {
+    if (this.props.s3Upload.status === 'complete') {
       this.props.getUploads();
-      this.props.setS3UploadPostProcessingStatus(); // reset status to 'post processing'
+      this.props.s3UploadPostProcessing(); // reset status to 'post processing'
     }
-    if (this.props.uploads.every(upload => {
-      return !upload.processing;
-    }) && this.props.s3Upload.status === "post-processing") {
+    if (
+      this.props.uploads.every(upload => {
+        return !upload.processing;
+      }) &&
+      this.props.s3Upload.status === 'post-processing'
+    ) {
       this.props.getVideo(this.props.video.id);
-      this.props.resetS3UploadStatus();
+      this.props.s3UploadReset();
     }
 
     if (this.props.s3Upload.total) {
@@ -59,7 +59,7 @@ export default class VideoTrail extends React.Component {
       // prevent duplication by omitting currently uploading item
       // s3Upload.id: <atomId>-<version>
       // upload.id: <version>
-      const id = this.props.video.id + "-" + upload.id;
+      const id = this.props.video.id + '-' + upload.id;
       if (id !== this.props.s3Upload.id) {
         ret.push(upload);
       }
@@ -69,14 +69,13 @@ export default class VideoTrail extends React.Component {
   };
 
   render() {
-    const deleteAssetsInUpload = async (asset) => {
+    const deleteAssetsInUpload = async asset => {
       if (asset.id) {
         // if "asset.id" property exists, it should be a Youtube video asset.
         // There should be one asset for Youtube video and we can delete
         // it from the atom with this "asset.id"
         this.props.deleteAssets(this.props.video, [asset.id]);
-      }
-      else {
+      } else {
         // if "asset.id" property does not exist, it should be a self-hosting
         // video asset.  There may be multiple assets for a self-hosted video.
         // We can extract the asset IDs from the "src" property of each member
@@ -95,7 +94,7 @@ export default class VideoTrail extends React.Component {
           upload={upload}
           isActive={parseInt(upload.id) === this.props.activeVersion}
           selectAsset={() => {
-            if (typeof this.props.activatingAssetNumber=== "number") {
+            if (typeof this.props.activatingAssetNumber === 'number') {
               return;
             }
             return this.props.selectAsset(Number(upload.id));

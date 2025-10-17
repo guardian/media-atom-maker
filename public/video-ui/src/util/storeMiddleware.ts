@@ -2,6 +2,8 @@ import { clearError } from '../slices/error';
 import { updatePath } from "../slices/path";
 import { setVideoBlank } from "../slices/video";
 import { Middleware } from "redux";
+import { setUsageToBlank } from '../slices/usage';
+import { updateVideoEditState } from "../slices/editState";
 
 
 export const storeMiddleware: Middleware =
@@ -17,17 +19,10 @@ export const storeMiddleware: Middleware =
 
       dispatch(setVideoBlank());
 
-      dispatch({
-        type: 'USAGE_UPDATE_BLANK',
-        receivedAt: Date.now()
-      });
+      dispatch(setUsageToBlank());
 
       dispatch(clearError());
 
-      dispatch({
-        type: 'VIDEO_EDIT_STATE_REQUEST',
-        state: false,
-        receivedAt: Date.now()
-      });
+      dispatch(updateVideoEditState(false));
     }
   };

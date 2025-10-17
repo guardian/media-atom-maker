@@ -7,5 +7,6 @@ trait SQSAccess { this: Settings with AwsAccess =>
 
   lazy val plutoQueueUrl: String = getMandatoryString("aws.sqs.plutoQueueUrl")
 
-  lazy val sqsClient: AmazonSQS = AmazonSQSClientBuilder.standard().withCredentials(credsProvider).build()
+  lazy val sqsClient: AmazonSQS =
+    AmazonSQSClientBuilder.standard().withCredentials(credsProvider).build()
 }

@@ -13,19 +13,25 @@ class PlutoCommissionDataStore(aws: DynamoAccess) extends Logging {
   val scanamo: Scanamo = aws.scanamo
   private val table = Table[PlutoCommission](aws.plutoCommissionTableName)
 
-  def getById(commissionId: String): Option[Either[DynamoReadError, PlutoCommission]] = {
+  def getById(
+      commissionId: String
+  ): Option[Either[DynamoReadError, PlutoCommission]] = {
     log.info(s"getting commission $commissionId")
     scanamo.exec(table.get("id" === commissionId))
   }
 
   def list(): List[PlutoCommission] = {
-    scanamo.exec(table.scan()).collect {
-      case Left(error) =>
-        log.error("failed to list pluto commissions")
-        throw PlutoCommissionDataStoreException(error.toString)
-      case Right(commission) =>
-        commission
-    }.filter(numericIdsOnlyFilter).sortBy(_.title)
+    scanamo
+      .exec(table.scan())
+      .collect {
+        case Left(error) =>
+          log.error("failed to list pluto commissions")
+          throw PlutoCommissionDataStoreException(error.toString)
+        case Right(commission) =>
+          commission
+      }
+      .filter(numericIdsOnlyFilter)
+      .sortBy(_.title)
   }
 
   def upsert(plutoUpsertRequest: PlutoUpsertRequest): Unit = {

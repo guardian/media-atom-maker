@@ -2,8 +2,7 @@ import { browserHistory } from 'react-router';
 import VideosApi, { Video } from '../../services/VideosApi';
 import { showError } from '../../slices/error';
 import { AppDispatch } from '../../util/setupStore';
-import { setSaving } from '../../slices/saveState';
-import { setVideo } from '../../slices/video';
+import {setVideo, setSaving} from '../../slices/video';
 
 export function createVideo(video: Video) {
   return (dispatch: AppDispatch) => {
@@ -14,6 +13,9 @@ export function createVideo(video: Video) {
         dispatch(setSaving(false));
         dispatch(setVideo(res));
       })
-      .catch(error => dispatch(showError('Could not create video', error)));
+      .catch(error => {
+        dispatch(showError('Could not create video', error));
+        throw error;
+      });
   };
 }

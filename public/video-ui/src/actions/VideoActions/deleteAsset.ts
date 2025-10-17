@@ -1,8 +1,8 @@
 import VideosApi, { Video } from '../../services/VideosApi';
-import { getUploads } from "../UploadActions/getUploads";
 import { setVideo } from "../../slices/video";
 import { showError } from "../../slices/error";
-import {AppDispatch} from "../../util/setupStore";
+import { AppDispatch } from "../../util/setupStore";
+import { getUploads } from "../../slices/uploads";
 
 function requestAssetDelete(assetId: string) {
   return {

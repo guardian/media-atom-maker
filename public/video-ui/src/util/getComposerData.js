@@ -14,7 +14,7 @@ export const getDateAsNumber = (date) => {
 export function getComposerData(video) {
 
   const isTrainingMode = getStore().getState().config.isTrainingMode;
-  const expiryDate = video.contentChangeDetails && video.contentChangeDetails.expiry && video.contentChangeDetails.expiry.date
+  const expiryDate = video.contentChangeDetails && video.contentChangeDetails.expiry && video.contentChangeDetails.expiry.date;
   const cleanedExpiryDate = getDateAsNumber(expiryDate);
   const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
   const embargo = VideoUtils.getEmbargo(video);

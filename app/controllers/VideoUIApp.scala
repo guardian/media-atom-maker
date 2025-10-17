@@ -1,6 +1,5 @@
 package controllers
 
-
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
 import com.gu.media.youtube.YouTubeAccess
@@ -15,9 +14,16 @@ import views.html.helper.CSRF
 
 import scala.concurrent.ExecutionContext
 
-class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfig: AWSConfig,
-                 permissionsProvider: MediaAtomMakerPermissionsProvider, youtube: YouTubeAccess,
-                 val controllerComponents: ControllerComponents) extends BaseController with Logging with TrainingMode {
+class VideoUIApp(
+    val authActions: HMACAuthActions,
+    conf: Configuration,
+    awsConfig: AWSConfig,
+    permissionsProvider: MediaAtomMakerPermissionsProvider,
+    youtube: YouTubeAccess,
+    val controllerComponents: ControllerComponents
+) extends BaseController
+    with Logging
+    with TrainingMode {
   import authActions.AuthAction
 
   implicit lazy val executionContext: ExecutionContext = defaultExecutionContext
@@ -29,11 +35,10 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
 
     val isHotReloading = sys.env.get("RELOADING") match {
       case Some("HOT") if awsConfig.isDev => true
-      case _ => false
+      case _                              => false
     }
 
     val jsLocation = routes.Assets.versioned(jsFileName).toString
-
 
     val composerUrl = awsConfig.composerUrl
 
@@ -58,15 +63,18 @@ class VideoUIApp(val authActions: HMACAuthActions, conf: Configuration, awsConfi
       tagManagerUrl = awsConfig.tagManagerUrl
     )
 
-    Ok(views.html.VideoUIApp.app(
-      title = "Media Atom Maker",
-      jsLocation,
-      presenceJsLocation = clientConfig.presence.map(_.jsLocation),
-      pinboardJsLocation = if(permissions.pinboard) awsConfig.pinboardLoaderUrl else None,
-      Json.toJson(clientConfig).toString(),
-      isHotReloading,
-      CSRF.getToken.value
-    ))
+    Ok(
+      views.html.VideoUIApp.app(
+        title = "Media Atom Maker",
+        jsLocation,
+        presenceJsLocation = clientConfig.presence.map(_.jsLocation),
+        pinboardJsLocation =
+          if (permissions.pinboard) awsConfig.pinboardLoaderUrl else None,
+        Json.toJson(clientConfig).toString(),
+        isHotReloading,
+        CSRF.getToken.value
+      )
+    )
   }
 
   def training(inTraining: Boolean): Action[AnyContent] = AuthAction { req =>

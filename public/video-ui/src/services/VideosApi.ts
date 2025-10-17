@@ -4,10 +4,11 @@ import { getComposerData } from '../util/getComposerData';
 import { cleanVideoData } from '../util/cleanVideoData';
 import ContentApi, { CapiContent, CapiContentResponse, Stage } from './capi';
 import { ContentAtom, getVideoBlock } from '../util/getVideoBlock';
+import type { UsageData, UsageState } from '../slices/usage';
 
 export type ComposerStage = 'live' | 'preview'
 
-export type AssetType = 'Audio' | 'Video'
+export type AssetType = 'Audio' | 'Video' | 'Subtitles'
 
 export type Platform = 'Youtube' | 'Facebook' | 'Dailymotion' | 'Mainstream' | 'Url'
 
@@ -223,7 +224,7 @@ export default {
       }
     }),
 
-  getVideoUsages: (videoId: string) => {
+  getVideoUsages: (videoId: string): Promise<UsageData> => {
     return Promise.all([
       getUsages({ id: videoId, stage: ContentApi.preview }),
       getUsages({ id: videoId, stage: ContentApi.published })
@@ -241,15 +242,8 @@ export default {
       const splitPublished = splitUsages({ usages: publishedUsages });
 
       return {
-        data: {
-          [ContentApi.preview]: splitPreview,
-          [ContentApi.published]: splitPublished
-        },
-
-        // a lot of components conditionally render based on the number of usages,
-        // rather than constantly call a utility function, let's cheat and put in in the object
-        totalUsages: previewUsages.length + publishedUsages.length,
-        totalVideoPages: splitPreview.video.length + splitPublished.video.length
+        preview: splitPreview,
+        published: splitPublished
       };
     });
   },
@@ -286,19 +280,19 @@ export default {
     });
   },
 
-  updateCanonicalPages(video: Video, usages: { data: Record<string, { video: CapiContent[] }> }, updatesTo: Stage) {
+  updateCanonicalPages(video: Video, usageData: UsageData, updatesTo: Stage) {
     const composerData = getComposerData(video);
     const composerUrlBase = getComposerUrl();
     const videoBlock = getVideoBlock(video.id, video.title, video.source);
 
     return Promise.all(
-      Object.keys(usages.data).map(state => {
-        const videoPageUsages: CapiContent[] = usages.data[state].video;
+      (Object.keys(usageData) as Stage[]).map(stage => {
+        const videoPageUsages: CapiContent[] = usageData[stage].video;
 
         return videoPageUsages.map(usage => {
           const pageId = usage.fields.internalComposerCode;
 
-          if (updatesTo === state) {
+          if (updatesTo === stage) {
             return apiRequest({
               url: `${composerUrlBase}/api/content/${pageId}/videopage`,
               method: 'put',

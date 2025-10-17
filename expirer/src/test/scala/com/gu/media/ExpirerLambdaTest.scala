@@ -19,7 +19,8 @@ class ExpirerLambdaTest extends AnyFunSuite with Matchers {
   }
 
   test("Not touch other assets") {
-    val result = capiResult("one-expired-atom-one-yt-asset-one-nonyt-asset.json")
+    val result =
+      capiResult("one-expired-atom-one-yt-asset-one-nonyt-asset.json")
     val lambda = new TestExpirerLambda(List(result))
 
     lambda.handleRequest((), null)
@@ -46,24 +47,39 @@ class ExpirerLambdaTest extends AnyFunSuite with Matchers {
     lambda.claimUpdated must be(List("one", "two"))
   }
 
-  class TestExpirerLambda(var capiResults: List[String], isMyVideo: Boolean = true) extends ExpirerLambda with TestSettings {
+  class TestExpirerLambda(
+      var capiResults: List[String],
+      isMyVideo: Boolean = true
+  ) extends ExpirerLambda
+      with TestSettings {
     var madePrivate = List.empty[String]
     var claimUpdated = List.empty[String]
 
-    override def capiQuery(path: String, qs: Map[String, String], queryLive: Boolean = false): JsValue = {
+    override def capiQuery(
+        path: String,
+        qs: Map[String, String],
+        queryLive: Boolean = false
+    ): JsValue = {
       val ret = capiResults.head
       capiResults = capiResults.tail
 
       Json.parse(ret)
     }
 
-    override def setStatus(id: String, privacyStatus: PrivacyStatus): Either[VideoUpdateError, String] = {
+    override def setStatus(
+        id: String,
+        privacyStatus: PrivacyStatus
+    ): Either[VideoUpdateError, String] = {
       privacyStatus must be(PrivacyStatus.Private)
       madePrivate :+= id
       Right("")
     }
 
-    override def createOrUpdateClaim(atomId: String, assetId: String, adSettings: AdSettings) = {
+    override def createOrUpdateClaim(
+        atomId: String,
+        assetId: String,
+        adSettings: AdSettings
+    ) = {
       claimUpdated :+= assetId
       Right("")
     }

@@ -5,7 +5,11 @@ import com.gu.pandahmac.HMACAuthActions
 import play.api.libs.json.Json
 import play.api.mvc.{BaseController, ControllerComponents}
 
-class Transcoder(val authActions: HMACAuthActions, transcoder: util.Transcoder, val controllerComponents: ControllerComponents) extends BaseController {
+class Transcoder(
+    val authActions: HMACAuthActions,
+    transcoder: util.Transcoder,
+    val controllerComponents: ControllerComponents
+) extends BaseController {
   import authActions.AuthAction
 
   def jobStatus = AuthAction {
@@ -13,5 +17,3 @@ class Transcoder(val authActions: HMACAuthActions, transcoder: util.Transcoder, 
   }
 
 }
-
-

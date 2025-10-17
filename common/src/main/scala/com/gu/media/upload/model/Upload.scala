@@ -6,7 +6,12 @@ import com.gu.media.upload.UploadUri
 import play.api.libs.json.Format
 
 // All data is conceptually immutable except UploadProgress
-case class Upload(id: String, parts: List[UploadPart], metadata: UploadMetadata, progress: UploadProgress)
+case class Upload(
+    id: String,
+    parts: List[UploadPart],
+    metadata: UploadMetadata,
+    progress: UploadProgress
+)
 
 object Upload {
   implicit val format: Format[Upload] = Jsonx.formatCaseClass[Upload]
@@ -29,7 +34,9 @@ object Upload {
     UploadUri(upload.metadata.bucket, upload.metadata.pluto.s3Key)
 
   def subtitleInputUri(upload: Upload): Option[UploadUri] =
-    upload.metadata.subtitleSource.map(s => UploadUri(upload.metadata.bucket, s.src))
+    upload.metadata.subtitleSource.map(s =>
+      UploadUri(upload.metadata.bucket, s.src)
+    )
 
   def getCurrentSubtitleVersion(upload: Upload): Long =
     upload.metadata.subtitleVersion.getOrElse(0L)
@@ -37,7 +44,10 @@ object Upload {
   def getNextSubtitleVersion(upload: Upload): Long =
     upload.metadata.subtitleVersion.map(v => v + 1).getOrElse(1L)
 
-  private def chunksOfExactly(chunkSize: Long, size: Long): (List[(Long, Long)], Long) = {
+  private def chunksOfExactly(
+      chunkSize: Long,
+      size: Long
+  ): (List[(Long, Long)], Long) = {
     val numParts = (size / chunkSize).toInt
     val remainder = size % chunkSize
 

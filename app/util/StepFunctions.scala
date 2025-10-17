@@ -11,7 +11,8 @@ import scala.jdk.CollectionConverters._
 
 class StepFunctions(awsConfig: AWSConfig) {
   def getById(id: String): Option[Upload] = {
-    val arn = s"${awsConfig.pipelineArn.replace(":stateMachine:", ":execution:")}:$id"
+    val arn =
+      s"${awsConfig.pipelineArn.replace(":stateMachine:", ":execution:")}:$id"
 
     try {
       val request = new DescribeExecutionRequest().withExecutionArn(arn)
@@ -27,19 +28,21 @@ class StepFunctions(awsConfig: AWSConfig) {
 
   def getJobs(atomId: String): Iterable[ExecutionListItem] = {
     val runningJobs = getExecutions(atomId, ExecutionStatus.RUNNING)
-    val failedJobs = getExecutions(atomId, ExecutionStatus.FAILED).filter(lessThan10MinutesOld)
+    val failedJobs =
+      getExecutions(atomId, ExecutionStatus.FAILED).filter(lessThan10MinutesOld)
 
     runningJobs ++ failedJobs
   }
 
-  def getTaskEntered(events: Iterable[HistoryEvent]): Option[(String, Upload)] = for {
-    event <- events.find(_.getType == "TaskStateEntered")
+  def getTaskEntered(events: Iterable[HistoryEvent]): Option[(String, Upload)] =
+    for {
+      event <- events.find(_.getType == "TaskStateEntered")
 
-    details = event.getStateEnteredEventDetails
-    upload <- Json.parse(details.getInput).validate[Upload].asOpt
-  } yield {
-    details.getName -> upload
-  }
+      details = event.getStateEnteredEventDetails
+      upload <- Json.parse(details.getInput).validate[Upload].asOpt
+    } yield {
+      details.getName -> upload
+    }
 
   def getExecutionFailed(events: Iterable[HistoryEvent]): Option[String] = {
     events.find(_.getType == "ExecutionFailed").flatMap { event =>
@@ -64,7 +67,9 @@ class StepFunctions(awsConfig: AWSConfig) {
     awsConfig.stepFunctionsClient.startExecution(stepFunctionsRequest)
   }
 
-  def getEventsInReverseOrder(execution: ExecutionListItem): Iterable[HistoryEvent] = {
+  def getEventsInReverseOrder(
+      execution: ExecutionListItem
+  ): Iterable[HistoryEvent] = {
     val request = new GetExecutionHistoryRequest()
       .withExecutionArn(execution.getExecutionArn)
       .withReverseOrder(true)
@@ -73,12 +78,18 @@ class StepFunctions(awsConfig: AWSConfig) {
     awsConfig.stepFunctionsClient.getExecutionHistory(request).getEvents.asScala
   }
 
-  private def getExecutions(atomId: String, filter: ExecutionStatus): Iterable[ExecutionListItem] = {
+  private def getExecutions(
+      atomId: String,
+      filter: ExecutionStatus
+  ): Iterable[ExecutionListItem] = {
     val request = new ListExecutionsRequest()
       .withStateMachineArn(awsConfig.pipelineArn)
       .withStatusFilter(filter)
 
-    val results = awsConfig.stepFunctionsClient.listExecutions(request).getExecutions.asScala
+    val results = awsConfig.stepFunctionsClient
+      .listExecutions(request)
+      .getExecutions
+      .asScala
 
     results.filter(_.getName.startsWith(atomId))
   }
@@ -90,8 +101,11 @@ class StepFunctions(awsConfig: AWSConfig) {
     (now - end) < (1000 * 60 * 10)
   }
 
-  private def fillInStartTimestamp(result: DescribeExecutionResult, upload: Upload): Upload = {
-    if(upload.metadata.startTimestamp.isEmpty) {
+  private def fillInStartTimestamp(
+      result: DescribeExecutionResult,
+      upload: Upload
+  ): Upload = {
+    if (upload.metadata.startTimestamp.isEmpty) {
       upload.copy(
         metadata = upload.metadata.copy(
           startTimestamp = Some(result.getStartDate.getTime)

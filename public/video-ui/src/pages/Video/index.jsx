@@ -47,11 +47,11 @@ class VideoDisplay extends React.Component {
   }
 
   getWorkflowState() {
-    this.props.workflowActions.getStatus(this.props.video);
+    this.props.workflowActions.getStatus({ id: this.props.params.id });
   }
 
   getUsages() {
-    this.props.videoActions.getUsages(this.props.params.id);
+    this.props.videoActions.fetchUsages(this.props.params.id);
   }
 
   saveAndUpdateVideo = video => {
@@ -60,7 +60,7 @@ class VideoDisplay extends React.Component {
     if (isCreateMode) {
       return this.props.videoActions.createVideo(video).then(() => {
         this.setState({ isCreateMode: false });
-        this.props.videoActions.getUsages(this.props.video.id);
+        this.props.videoActions.fetchUsages(this.props.video.id);
       });
     } else {
       return this.props.videoActions.saveVideo(video);
@@ -211,16 +211,13 @@ class VideoDisplay extends React.Component {
         priority: priority
       });
 
-    const updateWorkflowItem = () =>
-      updateWorkflowData({
-        workflowItem: this.props.workflow.status
-      });
+    const updateWorkflowItem = () => updateWorkflowData(this.props.workflow.status);
 
     const wfPromise = isTrackedInWorkflow
       ? updateWorkflowItem()
       : createWorkflowItem();
 
-    return wfPromise.then(() => getStatus(video));
+    return wfPromise.unwrap().then(() => getStatus(video));
   }
 
   updateEditingState({ key, editing }) {
@@ -245,11 +242,8 @@ class VideoDisplay extends React.Component {
       video,
       usages,
       workflow,
-      publishedVideo,
-      saveState
+      publishedVideo
     } = this.props;
-
-    const { saving } = this.props.saveState;
 
     const {
       isCreateMode,
@@ -299,8 +293,8 @@ class VideoDisplay extends React.Component {
                 // Error handling is done in the saveVideo action
               });
           }}
-          canSave={() => !this.formHasErrors(formNames.videoData) && !saving}
-          canCancel={() => !isCreateMode && !saving}
+          canSave={() => !this.formHasErrors(formNames.videoData) && !this.props.isSaving}
+          canCancel={() => !isCreateMode && !this.props.isSaving}
           video={video}
           updateVideo={this.updateVideo}
           updateErrors={this.props.formErrorActions.updateFormErrors}
@@ -334,8 +328,8 @@ class VideoDisplay extends React.Component {
                 // Error handling is done in the saveVideo action
               });
           }}
-          canSave={() => !this.formHasErrors(formNames.youtubeFurniture) && !saving}
-          canCancel={() => !saving}
+          canSave={() => !this.formHasErrors(formNames.youtubeFurniture) && !this.props.isSaving}
+          canCancel={() => !this.props.isSaving}
           video={video}
           updateVideo={this.updateVideo}
           updateErrors={this.props.formErrorActions.updateFormErrors}
@@ -359,8 +353,8 @@ class VideoDisplay extends React.Component {
                 // Error handling should be implemented in workflow actions
               });
           }}
-          canSave={() => workflow.status.section && workflow.status.status && !saving}
-          canCancel={() => !saving}
+          canSave={() => workflow.status.section && workflow.status.status && !this.props.isSaving}
+          canCancel={() => !this.props.isSaving}
           video={video}
           isTrackedInWorkflow={workflow.status.isTrackedInWorkflow || false}
         />
@@ -412,59 +406,53 @@ import * as getVideo from '../../actions/VideoActions/getVideo';
 import * as saveVideo from '../../actions/VideoActions/saveVideo';
 import * as createVideo from '../../actions/VideoActions/createVideo';
 import * as updateVideo from '../../actions/VideoActions/updateVideo';
-import * as videoUsages from '../../actions/VideoActions/videoUsages';
+import { fetchUsages } from '../../slices/usage';
 import * as getPublishedVideo
   from '../../actions/VideoActions/getPublishedVideo';
-import * as updateVideoEditState
-  from '../../actions/VideoActions/updateVideoEditState';
-import { updateFormWarnings } from '../../actions/FormErrorActions/updateFormWarnings';
 import * as videoPageUpdate
   from '../../actions/VideoActions/videoPageUpdate';
-import * as getStatus from '../../actions/WorkflowActions/getStatus';
-import * as trackInWorkflow
-  from '../../actions/WorkflowActions/trackInWorkflow';
-import * as updateWorkflowData
-  from '../../actions/WorkflowActions/updateWorkflowData';
+import {getStatus, trackInWorkflow, updateWorkflowData} from '../../slices/workflow';
 import {getYouTubeEmbedUrl} from "../../components/utils/YouTubeEmbed";
 import {getComposerId} from "../../util/getComposerData";
+import {updateFormWarnings} from "../../slices/formFieldsWarning";
+import {updateVideoEditState} from "../../slices/editState";
 import {updateFormErrors} from "../../slices/checkedFormFields";
+import {selectIsSaving, selectPublishedVideo, selectVideo } from "../../slices/video";
 
 function mapStateToProps(state) {
   return {
-    video: state.video,
+    video: selectVideo(state),
+    isSaving: selectIsSaving(state),
     config: state.config,
     usages: state.usage,
-    composerPageWithUsage: state.pageCreate,
-    publishedVideo: state.publishedVideo,
+    publishedVideo: selectPublishedVideo(state),
     videoEditOpen: state.videoEditOpen,
     checkedFormFields: state.checkedFormFields,
-    workflow: state.workflow,
-    saveState: state.saveState
+    workflow: state.workflow
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     videoActions: bindActionCreators(
-      Object.assign(
-        {},
-        getVideo,
-        saveVideo,
-        createVideo,
-        updateVideo,
-        videoUsages,
-        getPublishedVideo,
+      {
         updateVideoEditState,
-        videoPageUpdate
-      ),
+        fetchUsages,
+        ...getVideo,
+        ...saveVideo,
+        ...createVideo,
+        ...updateVideo,
+        ...getPublishedVideo,
+        ...videoPageUpdate
+        },
       dispatch
     ),
     formErrorActions: bindActionCreators(
-      { updateFormErrors, updateFormWarnings },
+      {updateFormErrors, updateFormWarnings},
       dispatch
     ),
     workflowActions: bindActionCreators(
-      Object.assign({}, getStatus, trackInWorkflow, updateWorkflowData),
+      { getStatus, trackInWorkflow, updateWorkflowData },
       dispatch
     )
   };
