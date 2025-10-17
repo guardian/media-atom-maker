@@ -2,8 +2,8 @@
 // @ts-check
 
 /**
- * @typedef {import("../src/types").UpsertMessage} UpsertMessage
- * @typedef {import("../src/types").DeleteMessage} DeleteMessage
+ * @typedef {import("../src/types").PlutoUpsertMessage} UpsertMessage
+ * @typedef {import("../src/types").PlutoDeleteMessage} DeleteMessage
  */
 
 import { getProject, invokeLambda } from './aws.js';
