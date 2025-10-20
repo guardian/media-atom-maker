@@ -1,10 +1,14 @@
 import guardian from '@guardian/eslint-config';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import { defineConfig, globalIgnores } from 'eslint/config';
+import tseslint from 'typescript-eslint';
 
-export default [
+export default defineConfig([
+  globalIgnores(['target/*', 'eslint.config.mjs']),
   ...guardian.configs.recommended,
   ...guardian.configs.jest,
   eslintPluginPrettierRecommended,
+  ...tseslint.configs.strict,
   {
     rules: {
       '@typescript-eslint/no-unused-vars': [
@@ -20,14 +24,5 @@ export default [
         }
       ]
     }
-  },
-  {
-    ignores: [
-      '**/*.js',
-      'node_modules',
-      'cdk.out',
-      'jest.config.js',
-      '**/generated/*'
-    ]
   }
-];
+]);

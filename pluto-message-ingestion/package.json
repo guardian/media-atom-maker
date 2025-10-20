@@ -8,8 +8,10 @@
   "packageName": "media-service:media-atom-maker:pluto-message-ingestion",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint ./src/**/*.ts",
+    "lint": "eslint --no-error-on-unmatched-pattern -c ./eslint.config.mjs",
     "lint-fix": "yarn lint --fix",
+    "typecheck": "tsc --noEmit --project tsconfig.json",
+    "tscconfig": "tsc --showConfig",
     "test": "vitest",
     "test:ci": "vitest --run",
     "build": "esbuild src/index.ts --bundle --minify --outfile=target/index.js --external:@aws-sdk --external:aws-sdk --platform=node"
@@ -22,13 +24,14 @@
     "zod": "4.1.12"
   },
   "devDependencies": {
-    "@guardian/eslint-config": "11.0.0",
+    "@guardian/eslint-config": "12.0.0",
+    "@guardian/tsconfig": "^1.0.0",
     "@types/aws-lambda": "8.10.152",
-    "eslint": "8.57.0",
+    "eslint": "9.37.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-prettier": "5.2.1",
     "prettier": "3.3.3",
-    "vitest": "3.2.4",
-    "typescript": "5.5.2"
+    "typescript": "5.5.2",
+    "vitest": "3.2.4"
   }
 }
