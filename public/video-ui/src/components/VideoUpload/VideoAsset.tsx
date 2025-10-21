@@ -185,10 +185,9 @@ function SubtitleActions({
     if (!file) return;
     const isSRT =
       file.name.endsWith('.srt') || file.type === 'application/x-subrip';
-    const isVTT = file.name.endsWith('.vtt') || file.type === 'text/vtt';
 
-    if (!isSRT && !isVTT) {
-      alert('Invalid file type. Please upload a .srt or .vtt subtitle file.');
+    if (!isSRT) {
+      alert('Invalid file type. Please upload a .srt subtitle file.');
       input.value = '';
       return;
     }
@@ -199,11 +198,8 @@ function SubtitleActions({
 
       const isSRTFormat =
         /\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}/.test(text);
-      const isVTTFormat =
-        /^WEBVTT/m.test(text) &&
-        /\d{2}:\d{2}:\d{2}\.\d{3} --> \d{2}:\d{2}:\d{2}\.\d{3}/.test(text);
 
-      if ((isSRT && !isSRTFormat) || (isVTT && !isVTTFormat)) {
+      if (isSRT && !isSRTFormat) {
         alert('The file content does not match the expected subtitle format.');
         input.value = '';
         return;
@@ -225,7 +221,7 @@ function SubtitleActions({
       <input
         type="file"
         ref={fileInputRef}
-        accept=".srt,.vtt"
+        accept=".srt"
         style={{ display: 'none' }}
         onChange={handleFileChange}
       />
