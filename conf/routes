@@ -1,72 +1,82 @@
 # optional limit
-GET     /api/atoms                     controllers.Api.getMediaAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean?=false, mediaPlatform: Option[String])
-POST    /api/atoms                     controllers.Api.createMediaAtom
+GET            /api/atoms                                       controllers.Api.getMediaAtoms(search: Option[String], limit: Option[Int], shouldUseCreatedDateForSort: Boolean?=false, mediaPlatform: Option[String])
+POST           /api/atoms                                       controllers.Api.createMediaAtom
 
-GET     /api/atoms/:id                 controllers.Api.getMediaAtom(id)
-PUT     /api/atoms/:id                 controllers.Api.updateMediaAtom(id)
-DELETE  /api/atom/:id                  controllers.Api.deleteAtom(id)
+GET            /api/atoms/:id                                   controllers.Api.getMediaAtom(id)
+PUT            /api/atoms/:id                                   controllers.Api.updateMediaAtom(id)
+DELETE         /api/atom/:id                                    controllers.Api.deleteAtom(id)
 
-GET     /api/atoms/:id/published       controllers.Api.getPublishedMediaAtom(id)
-PUT     /api/atom/:id/publish          controllers.Api.publishMediaAtom(id)
+GET            /api/atoms/:id/published                         controllers.Api.getPublishedMediaAtom(id)
+PUT            /api/atom/:id/publish                            controllers.Api.publishMediaAtom(id)
 
-POST    /api/atoms/:id/assets          controllers.Api.addAsset(id)
-DELETE  /api/atoms/:id/assets          controllers.Api.deleteAsset(id)
-DELETE  /api/atoms/:id/asset-list      controllers.Api.deleteAssetList(id)
-PUT     /api/atom/:id/asset-active     controllers.Api.setActiveAsset(id)
-PUT     /api/atom/:id/reset-duration-from-active     controllers.Api.resetDurationFromActive(id)
+POST           /api/atoms/:id/assets                            controllers.Api.addAsset(id)
+DELETE         /api/atoms/:id/assets                            controllers.Api.deleteAsset(id)
+DELETE         /api/atoms/:id/asset-list                        controllers.Api.deleteAssetList(id)
+PUT            /api/atom/:id/asset-active                       controllers.Api.setActiveAsset(id)
+PUT            /api/atom/:id/reset-duration-from-active         controllers.Api.resetDurationFromActive(id)
 
-GET     /api/pluto/commissions         controllers.PlutoController.getCommissions()
-GET     /api/pluto/commissions/:id     controllers.PlutoController.getCommission(id)
-GET     /api/pluto/commissions/:id/projects  controllers.PlutoController.getProjectsByCommissionId(id)
-DELETE  /api/pluto/commissions/:id     controllers.PlutoController.deleteCommission(id)
-PUT     /api/pluto/projects            controllers.PlutoController.upsertProject()
-GET     /api/pluto/projects/:id        controllers.PlutoController.getProject(id)
-POST    /api/pluto/resend/:id          controllers.PlutoController.resendAtomMessage(id)
+GET            /api/pluto/commissions                           controllers.PlutoController.getCommissions()
+GET            /api/pluto/commissions/:id                       controllers.PlutoController.getCommission(id)
+GET            /api/pluto/commissions/:id/projects              controllers.PlutoController.getProjectsByCommissionId(id)
+DELETE         /api/pluto/commissions/:id                       controllers.PlutoController.deleteCommission(id)
+PUT            /api/pluto/projects                              controllers.PlutoController.upsertProject()
+GET            /api/pluto/projects/:id                          controllers.PlutoController.getProject(id)
+POST           /api/pluto/resend/:id                            controllers.PlutoController.resendAtomMessage(id)
+
+GET            /api/iconik/commissions                          controllers.IconikController.getCommissions()
+GET            /api/iconik/commissions/:id                      controllers.IconikController.getCommission(id)
+GET            /api/iconik/commissions/:id/projects             controllers.IconikController.getProjectsByCommissionId(id)
+DELETE         /api/iconik/commissions/:id                      controllers.IconikController.deleteCommission(id)
+PUT            /api/iconik/projects                             controllers.IconikController.upsertProject()
+GET            /api/iconik/projects/:id                         controllers.IconikController.getProject(id)
+GET            /api/iconik/working-groups                       controllers.IconikController.getWorkingGroups()
+GET            /api/iconik/working-group/:id                    controllers.IconikController.getWorkingGroup(id)
+GET            /api/iconik/working-group/:id/commissions        controllers.IconikController.getCommissionsByWorkingGroupId(id)
 
 # endpoint used by workflow
-OPTIONS /api/workflow/*url             controllers.Api.allowCORSAccess(methods = "PUT, POST, DELETE", url: String)
-POST    /api/workflow/atoms            controllers.Api.createWorkflowMediaAtom
+OPTIONS        /api/workflow/*url                               controllers.Api.allowCORSAccess(methods = "PUT, POST, DELETE", url: String)
+POST           /api/workflow/atoms                              controllers.Api.createWorkflowMediaAtom
 
 # user uploaded videos
-GET     /api/uploads                   controllers.UploadController.list(atomId)
-POST    /api/uploads                   controllers.UploadController.create
-POST    /api/uploads/:id/credentials   controllers.UploadController.credentials(id, key)
-POST    /api/uploads/:id/:version/subtitle-file    controllers.UploadController.uploadSubtitleFile(id, version: Int)
-DELETE  /api/uploads/:id/:version/subtitle-file    controllers.UploadController.deleteSubtitleFile(id, version: Int)
+GET            /api/uploads                                     controllers.UploadController.list(atomId)
+POST           /api/uploads                                     controllers.UploadController.create
+POST           /api/uploads/:id/credentials                     controllers.UploadController.credentials(id, key)
+POST           /api/uploads/:id/:version/subtitle-file          controllers.UploadController.uploadSubtitleFile(id, version: Int)
+DELETE         /api/uploads/:id/:version/subtitle-file          controllers.UploadController.deleteSubtitleFile(id, version: Int)
 
-GET     /api/youtube/categories         controllers.Youtube.listCategories()
-GET     /api/youtube/channels           controllers.Youtube.listChannels()
-GET     /api/youtube/video-info/:id     controllers.Youtube.commercialVideoInfo(id)
-GET     /api/youtube/content-bundle/:id controllers.YoutubeTagController.getById(id)
+GET            /api/youtube/categories                          controllers.Youtube.listCategories()
+GET            /api/youtube/channels                            controllers.Youtube.listChannels()
+GET            /api/youtube/video-info/:id                      controllers.Youtube.commercialVideoInfo(id)
+GET            /api/youtube/content-bundle/:id                  controllers.YoutubeTagController.getById(id)
 
-GET     /api/transcoder/jobStatus       controllers.Transcoder.jobStatus
+GET            /api/transcoder/jobStatus                        controllers.Transcoder.jobStatus
 
 # reindex
-POST    /reindex-preview                com.gu.atom.play.ReindexController.newPreviewReindexJob()
-POST    /reindex-publish                com.gu.atom.play.ReindexController.newPublishedReindexJob()
-GET     /reindex-preview                com.gu.atom.play.ReindexController.previewReindexJobStatus()
-GET     /reindex-publish                com.gu.atom.play.ReindexController.publishedReindexJobStatus()
+POST           /reindex-preview                                 com.gu.atom.play.ReindexController.newPreviewReindexJob()
+POST           /reindex-publish                                 com.gu.atom.play.ReindexController.newPublishedReindexJob()
+GET            /reindex-preview                                 com.gu.atom.play.ReindexController.previewReindexJobStatus()
+GET            /reindex-publish                                 com.gu.atom.play.ReindexController.publishedReindexJobStatus()
 
 #video specific react frontend
-GET /                                   controllers.VideoUIApp.index(id = "")
-GET /videos                             controllers.VideoUIApp.index(id = "")
-GET /videos/:id                         controllers.VideoUIApp.index(id)
-GET /videos/:id/upload                  controllers.VideoUIApp.index(id)
-GET /create                             controllers.VideoUIApp.index(id = "")
-GET /help                               controllers.VideoUIApp.index(id = "")
-GET /training                           controllers.VideoUIApp.index(id = "")
-GET /training/on                        controllers.VideoUIApp.training(inTraining: Boolean ?= true)
-GET /training/off                       controllers.VideoUIApp.training(inTraining: Boolean ?= false)
+GET            /                                                controllers.VideoUIApp.index(id = "")
+GET            /videos                                          controllers.VideoUIApp.index(id = "")
+GET            /videos/:id                                      controllers.VideoUIApp.index(id)
+GET            /videos/:id/upload                               controllers.VideoUIApp.index(id)
+GET            /create                                          controllers.VideoUIApp.index(id = "")
+GET            /help                                            controllers.VideoUIApp.index(id = "")
+GET            /training                                        controllers.VideoUIApp.index(id = "")
+GET            /training/on                                     controllers.VideoUIApp.training(inTraining: Boolean ?= true)
+GET            /training/off                                    controllers.VideoUIApp.training(inTraining: Boolean ?= false)
 
 #Support
-GET /support/previewCapi/*path          controllers.Support.capiProxy(path: String, queryLive: Boolean ?= false)
-GET /support/liveCapi/*path             controllers.Support.capiProxy(path: String, queryLive: Boolean ?= true)
+GET            /support/previewCapi/*path                       controllers.Support.capiProxy(path: String, queryLive: Boolean ?= false)
+GET            /support/liveCapi/*path                          controllers.Support.capiProxy(path: String, queryLive: Boolean ?= true)
 
 
-GET   /oauthCallback                    controllers.Login.oauthCallback()
-GET   /reauth                           controllers.Login.reauth
+GET            /oauthCallback                                   controllers.Login.oauthCallback()
+GET            /reauth                                          controllers.Login.reauth
 
-GET   /healthcheck                      controllers.Healthcheck.healthcheck()
+GET            /healthcheck                                     controllers.Healthcheck.healthcheck()
 
 #static assets
-GET  /assets/*file                      controllers.Assets.versioned(path="/public", file: Asset)
+GET            /assets/*file                                    controllers.Assets.versioned(path="/public", file: Asset)

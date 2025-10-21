@@ -162,6 +162,14 @@ class MediaAtomMaker(context: Context)
     controllerComponents
   )
 
+  private val iconikController = new IconikController(
+    config,
+    aws,
+    hmacAuthActions,
+    stores,
+    controllerComponents
+  )
+
   private val youtubeTags =
     new YoutubeTagController(hmacAuthActions, controllerComponents)
 
@@ -189,6 +197,7 @@ class MediaAtomMaker(context: Context)
     httpErrorHandler,
     api,
     plutoController,
+    iconikController,
     uploads,
     youTubeController,
     youtubeTags,
