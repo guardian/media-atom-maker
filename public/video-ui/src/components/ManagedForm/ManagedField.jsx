@@ -61,7 +61,7 @@ export class ManagedField extends React.Component {
       this.props.isDesired,
       this.props.customValidation,
       composerValidation,
-      this.props.maxLength,
+      this.props.maxLength
     );
 
     if (this.props.updateFormErrors) {

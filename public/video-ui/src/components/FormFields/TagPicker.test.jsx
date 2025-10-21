@@ -1,12 +1,12 @@
 import React from 'react';
-import { Provider } from 'react-redux'
+import { Provider } from 'react-redux';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { userEvent } from '@testing-library/user-event';
 import { setupStore } from '../../util/setupStore';
 import { setConfig } from '../../slices/config';
 
-let mockedGetTagsByType = jest.fn();
+const mockedGetTagsByType = jest.fn();
 jest.mock('../../services/tagmanager', () => ({
   __esModule: true,
   getTagsByType: mockedGetTagsByType
@@ -23,7 +23,7 @@ const defaultProps = {
 	hasWarning: () => false,
 	hasError: () => false,
 	notification: { message: '' },
-	inputPlaceholder: 'Search for tags...',
+	inputPlaceholder: 'Search for tags...'
 };
 
 const store = setupStore();
@@ -38,7 +38,7 @@ describe('TagPicker', () => {
       mockedGetTagsByType.mockResolvedValue({
         data: [
           { data: { path: 'keyword/first-tag', externalName: 'Tag first external', internalName: 'Tag first (internal)' } },
-          { data: { path: 'keyword/second-tag', externalName: 'Tag second external', internalName: 'Tag second (internal)' } },
+          { data: { path: 'keyword/second-tag', externalName: 'Tag second external', internalName: 'Tag second (internal)' } }
         ]
       });
 
