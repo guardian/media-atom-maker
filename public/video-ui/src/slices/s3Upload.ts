@@ -1,12 +1,12 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { showError } from './error';
-import { errorDetails } from '../util/errorDetails';
 import {
   createUpload,
   deleteSubtitleFile,
   uploadParts,
   uploadSubtitleFile
 } from '../services/UploadsApi';
+import { errorDetails } from '../util/errorDetails';
+import { showError } from './error';
 
 export type YouTubeAsset = { id: string; sources?: undefined };
 export type SelfHostedAsset = { id?: undefined; sources: unknown[] };
@@ -39,19 +39,21 @@ export const startVideoUpload = createAsyncThunk<
   unknown,
   { id: string; file: File; selfHost?: boolean }
 >('s3Upload/startVideoUpload', ({ id, file, selfHost }, { dispatch }) =>
-  createUpload(id, file, selfHost).then((upload: Upload) => {
-    dispatch(s3UploadStarted(upload));
+  createUpload(id, file, selfHost)
+    .then((upload: Upload) => {
+      dispatch(s3UploadStarted(upload));
 
-    const progress = (completed: number) =>
-      dispatch(s3UploadProgress(completed));
+      const progress = (completed: number) =>
+        dispatch(s3UploadProgress(completed));
 
-    return uploadParts(upload, upload.parts, file, progress)
-      .then(() => dispatch(setS3UploadStatusToComplete()))
-      .catch(err => {
-        dispatch(showError(errorDetails(err), err));
-        dispatch(setS3UploadStatusToError());
-      });
-  })
+      return uploadParts(upload, upload.parts, file, progress).then(() =>
+        dispatch(setS3UploadStatusToComplete())
+      );
+    })
+    .catch(err => {
+      dispatch(showError(errorDetails(err), err));
+      dispatch(setS3UploadStatusToError());
+    })
 );
 
 export const startSubtitleFileUpload = createAsyncThunk<
