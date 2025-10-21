@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { getVideo } from '../actions/VideoActions/getVideo';
 import {
   createUpload,
   deleteSubtitleFile,
@@ -7,9 +8,13 @@ import {
 } from '../services/UploadsApi';
 import { errorDetails } from '../util/errorDetails';
 import { showError } from './error';
+import { getUploads } from './uploads';
 
 export type YouTubeAsset = { id: string; sources?: undefined };
-export type SelfHostedAsset = { id?: undefined; sources: unknown[] };
+export type SelfHostedAsset = {
+  id?: undefined;
+  sources: { src?: string; mimeType?: string }[];
+};
 export type Upload = {
   id: string;
   asset?: YouTubeAsset | SelfHostedAsset;
@@ -38,8 +43,8 @@ export interface S3UploadState {
 export const startVideoUpload = createAsyncThunk<
   unknown,
   { id: string; file: File; selfHost?: boolean }
->('s3Upload/startVideoUpload', ({ id, file, selfHost }, { dispatch }) =>
-  createUpload(id, file, selfHost)
+>('s3Upload/startVideoUpload', ({ id, file, selfHost }, { dispatch }) => {
+  return createUpload(id, file, selfHost)
     .then((upload: Upload) => {
       dispatch(s3UploadStarted(upload));
 
@@ -47,7 +52,11 @@ export const startVideoUpload = createAsyncThunk<
         dispatch(s3UploadProgress(completed));
 
       return uploadParts(upload, upload.parts, file, progress)
-        .then(() => dispatch(setS3UploadStatusToComplete()))
+        .then(() => {
+          dispatch(setS3UploadStatusToComplete());
+          dispatch(getUploads(id));
+          dispatch(getVideo(id));
+        })
         .catch(err => {
           dispatch(showError(errorDetails(err), err));
           dispatch(setS3UploadStatusToError());
@@ -56,12 +65,12 @@ export const startVideoUpload = createAsyncThunk<
     .catch(err => {
       dispatch(showError(errorDetails(err), err));
       dispatch(setS3UploadStatusToError());
-    })
-);
+    });
+});
 
 export const startSubtitleFileUpload = createAsyncThunk<
   unknown,
-  { id: string; version: number; file: File }
+  { id: string; version: string; file: File }
 >('s3Upload/startSubtitleFileUpload', (subtitle, { dispatch }) =>
   uploadSubtitleFile(subtitle)
     .then(() => dispatch(setS3UploadStatusToComplete()))
@@ -73,7 +82,7 @@ export const startSubtitleFileUpload = createAsyncThunk<
 
 export const deleteSubtitle = createAsyncThunk<
   unknown,
-  { id: string; version: number }
+  { id: string; version: string }
 >('s3Upload/startSubtitleFileUpload', (subtitle, { dispatch }) =>
   deleteSubtitleFile(subtitle)
     .then(() => dispatch(setS3UploadStatusToComplete()))

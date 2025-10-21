@@ -1,10 +1,16 @@
-import React, { ReactNode, ChangeEventHandler } from 'react';
 import moment from 'moment';
-import Icon, { SubtitlesIcon } from '../Icon';
-import { YouTubeEmbed } from '../utils/YouTubeEmbed';
-import { VideoEmbed } from '../utils/VideoEmbed';
+import React, { ChangeEventHandler, ReactNode } from 'react';
+import { useDispatch } from 'react-redux';
+import {
+  deleteSubtitle,
+  startSubtitleFileUpload,
+  Upload
+} from '../../slices/s3Upload';
+import { AppDispatch } from '../../util/setupStore';
 import DeleteButton from '../DeleteButton';
-import {Upload} from "../../slices/s3Upload";
+import Icon, { SubtitlesIcon } from '../Icon';
+import { VideoEmbed } from '../utils/VideoEmbed';
+import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 
 function presenceInitials(email: string) {
   if (!email) return;
@@ -247,8 +253,6 @@ export function Asset({
   isActive,
   selectAsset,
   deleteAsset,
-  startSubtitleFileUpload,
-  deleteSubtitle,
   permissions,
   activatingAssetNumber
 }: {
@@ -257,13 +261,11 @@ export function Asset({
   isActive: boolean;
   selectAsset: { (): void };
   deleteAsset: { (): void };
-  startSubtitleFileUpload: {
-    (input: { file: File; id: string; version: string }): void;
-  };
-  deleteSubtitle: { (input: { id: string; version: string }): void };
   permissions: Record<string, boolean>;
   activatingAssetNumber: number;
 }) {
+  const dispatch = useDispatch<AppDispatch>();
+
   const { asset, metadata, processing } = upload;
 
   const user = metadata?.user ?? '';
@@ -282,14 +284,19 @@ export function Asset({
       <SubtitleActions
         filename={subtitleFilename}
         onUpload={file =>
-          startSubtitleFileUpload({ file, id: videoId, version: upload.id })
+          dispatch(
+            startSubtitleFileUpload({ file, id: videoId, version: upload.id })
+          )
         }
-        onDelete={() => deleteSubtitle({ id: videoId, version: upload.id })}
+        onDelete={() =>
+          dispatch(deleteSubtitle({ id: videoId, version: upload.id }))
+        }
       />
     </div>
   );
 
-  if (processing && asset) { // reprocessing subtitle
+  if (processing && asset) {
+    // reprocessing subtitle
     return (
       <div className="video-trail__item">
         <div className="video-trail__upload">
@@ -318,6 +325,7 @@ export function Asset({
       <div className="video-trail__item">
         <div className="video-trail__upload">
           <AssetProgress {...processing} />
+          <div>{processing.status}</div>
         </div>
         <div className="video-trail__item__details">
           <AssetControls
@@ -338,7 +346,11 @@ export function Asset({
   if (asset) {
     return (
       <div className="video-trail__item">
-        <AssetDisplay isActive={isActive} id={asset.id} sources={asset.sources} />
+        <AssetDisplay
+          isActive={isActive}
+          id={asset.id}
+          sources={asset.sources}
+        />
         <div className="video-trail__item__details">
           <AssetControls
             user={user}

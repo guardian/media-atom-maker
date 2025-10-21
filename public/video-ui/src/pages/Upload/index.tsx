@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { createAsset } from '../../actions/VideoActions/createAsset';
-import { deleteAssets } from '../../actions/VideoActions/deleteAsset';
 import { getVideo } from '../../actions/VideoActions/getVideo';
 import { revertAsset } from '../../actions/VideoActions/revertAsset';
 import { saveVideo } from '../../actions/VideoActions/saveVideo';
@@ -10,16 +9,9 @@ import PlutoProjectLink from '../../components/Pluto/PlutoProjectLink';
 import { PlutoProjectPicker } from '../../components/Pluto/PlutoProjectPicker';
 import AddAssetFromURL from '../../components/VideoUpload/AddAssetFromURL';
 import AddSelfHostedAsset from '../../components/VideoUpload/AddSelfHostedAsset';
-import VideoTrail from '../../components/VideoUpload/VideoTrail';
+import { VideoTrail } from '../../components/VideoUpload/VideoTrailWIP';
 import YoutubeUpload from '../../components/VideoUpload/YoutubeUpload';
-import {
-  deleteSubtitle,
-  resetS3UploadState,
-  setS3UploadStatusToPostProcessing,
-  startSubtitleFileUpload,
-  startVideoUpload
-} from '../../slices/s3Upload';
-import { getUploads } from '../../slices/uploads';
+import { startVideoUpload } from '../../slices/s3Upload';
 import { fetchCategories, fetchChannels } from '../../slices/youtube';
 import { AppDispatch, RootState } from '../../util/setupStore';
 import { getStore } from '../../util/storeAccessor';
@@ -105,28 +97,12 @@ export const VideoUpload = (props: { params: { id: string } }) => {
           <VideoTrail
             video={store.video}
             activeVersion={activeVersion}
-            s3Upload={store.s3Upload}
             uploads={store.uploads}
-            deleteAssets={bindActionCreators(deleteAssets, dispatch)}
             selectAsset={(version: number) =>
               bindActionCreators(revertAsset(store.video.id, version), dispatch)
             }
-            getUploads={() => {
-              bindActionCreators(getUploads(store.video.id), dispatch);
-            }}
-            startSubtitleFileUpload={bindActionCreators(
-              startSubtitleFileUpload,
-              dispatch
-            )}
-            deleteSubtitle={bindActionCreators(deleteSubtitle, dispatch)}
             permissions={store.config.permissions}
-            s3UploadPostProcessing={bindActionCreators(
-              setS3UploadStatusToPostProcessing,
-              dispatch
-            )}
-            s3UploadReset={bindActionCreators(resetS3UploadState, dispatch)}
             activatingAssetNumber={store.activatingAssetNumber}
-            getVideo={bindActionCreators(getVideo, dispatch)}
           />
         </div>
       </div>
