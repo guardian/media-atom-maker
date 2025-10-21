@@ -27,6 +27,7 @@
     "@guardian/eslint-config": "12.0.0",
     "@guardian/tsconfig": "^1.0.0",
     "@types/aws-lambda": "8.10.152",
+    "@types/node": "22.15.35",
     "eslint": "9.37.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-prettier": "5.2.1",
