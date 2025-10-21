@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { saveVideo } from '../../actions/VideoActions/saveVideo';
 import { Video } from '../../services/VideosApi';
@@ -43,7 +43,7 @@ export const PlutoProjectPicker = ({ video }: Props) => {
     }
   }, [video.plutoData?.commissionId]);
 
-  const onCommissionSelection = () => {
+  const onCommissionSelection = useCallback(() => {
     dispatchSaveVideo(cloneVideoWithoutPlutoProjectId(video)).then(() => {
       // commissionId is expected to be set since this method is a side effect
       // of a commissionId being selected, but testing to maintain
@@ -53,12 +53,12 @@ export const PlutoProjectPicker = ({ video }: Props) => {
         dispatch(fetchProjects(commissionId));
       }
     });
-  };
+  }, [video]);
 
   return (
     <ManagedForm
       data={video}
-      updateData={saveVideo}
+      updateData={dispatchSaveVideo}
       editable={true}
       formName="Pluto"
     >

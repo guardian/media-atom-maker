@@ -67,7 +67,7 @@ export const VideoUpload = (props: { params: { id: string } }) => {
     }
   }, [props.params.id]);
 
-  const uploading = store.s3Upload.total > 0;
+  const uploading = store.s3Upload.status === 'uploading';
   const activeVersion = store.video.activeVersion ?? 0;
 
   const projectId = store.video.plutoData?.projectId;
@@ -119,7 +119,7 @@ export const VideoUpload = (props: { params: { id: string } }) => {
               dispatch
             )}
             deleteSubtitle={bindActionCreators(deleteSubtitle, dispatch)}
-            permissions={getStore().getState().config.permissions}
+            permissions={store.config.permissions}
             s3UploadPostProcessing={bindActionCreators(
               setS3UploadStatusToPostProcessing,
               dispatch
