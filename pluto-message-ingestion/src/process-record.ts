@@ -1,9 +1,10 @@
 import { getErrorMessage } from '@guardian/libs';
 import type { KinesisStreamRecord } from 'aws-lambda';
 import { createHmacClient } from './hmac-request';
-import { createLogger, Logger } from './logging';
+import { createLogger, type Logger } from './logging';
 import {
   hasRecognisedMessageType,
+  isIconikUpsertMessage,
   isPlutoDeleteMessage,
   isPlutoUpsertMessage
 } from './types';
@@ -49,17 +50,25 @@ export async function processRecord(
         `Error upserting commission ${data.commissionId}: ${result.status} ${result.statusText}`
       );
     }
+  } else if (isIconikUpsertMessage(data)) {
+    const result = await hmacPut({
+      url: `${baseUrl}/api/iconik/projects`,
+      data
+    });
+    if (!result.ok) {
+      logger.error({
+        message: `Error upserting iconik commission ${data.commissionId}: ${result.status} ${result.statusText}`
+      });
+      throw new Error(
+        `Error upserting iconik commission ${data.commissionId}: ${result.status} ${result.statusText}`
+      );
+    }
   } else if (hasRecognisedMessageType(data)) {
     logger.error({ message: `Message is missing required fields`, data });
     return 'failure';
   } else {
-    const maybeMessageType =
-      typeof data === 'object' && data !== null && 'type' in data
-        ? data['type']
-        : 'unknown';
-
     logger.error({
-      message: `Message has unknown type ${maybeMessageType}`,
+      message: `Message has unknown type. Original payload: ${payload}`,
       data
     });
 
@@ -68,7 +77,7 @@ export async function processRecord(
   return 'success';
 }
 
-function safeParseJson(json: string, logger: Logger): unknown | undefined {
+function safeParseJson(json: string, logger: Logger): unknown {
   try {
     return JSON.parse(json);
   } catch (e) {
