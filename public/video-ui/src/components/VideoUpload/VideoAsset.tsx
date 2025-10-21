@@ -299,6 +299,7 @@ export function Asset({
         <div className="video-trail__item__details">
           <AssetControls
             user={user}
+            isActive={isActive}
             selectAsset={selectAsset}
             deleteAsset={deleteAsset}
             isUploadInProgress={false}
