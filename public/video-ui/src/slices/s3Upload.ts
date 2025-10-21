@@ -46,12 +46,9 @@ export const startVideoUpload = createAsyncThunk<
       const progress = (completed: number) =>
         dispatch(s3UploadProgress(completed));
 
-      return uploadParts(upload, upload.parts, file, progress)
-        .then(() => dispatch(setS3UploadStatusToComplete()))
-        .catch(err => {
-          dispatch(showError(errorDetails(err), err));
-          dispatch(setS3UploadStatusToError());
-        });
+      return uploadParts(upload, upload.parts, file, progress).then(() =>
+        dispatch(setS3UploadStatusToComplete())
+      );
     })
     .catch(err => {
       dispatch(showError(errorDetails(err), err));
