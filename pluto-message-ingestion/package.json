@@ -8,8 +8,8 @@
   "packageName": "media-service:media-atom-maker:pluto-message-ingestion",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint --no-error-on-unmatched-pattern -c ./eslint.config.mjs",
-    "lint-fix": "yarn lint --fix",
+    "lint:ci": "eslint --no-error-on-unmatched-pattern -c ./eslint.config.mjs",
+    "lint": "yarn lint:ci --fix",
     "typecheck": "tsc --noEmit --project tsconfig.json",
     "tscconfig": "tsc --showConfig",
     "test": "vitest",
