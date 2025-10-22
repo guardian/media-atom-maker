@@ -59,7 +59,8 @@ class MediaAtomTest extends AnyFunSuite with Matchers {
     sensitive = None,
     optimisedForWeb = None,
     composerCommentsEnabled = None,
-    suppressRelatedContent = None
+    suppressRelatedContent = None,
+    isLoopingVideo = None
   )
 
   test(

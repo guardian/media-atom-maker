@@ -56,6 +56,7 @@ class ThriftUtilSpec extends AnyFunSpec with Matchers with Inside {
                 None,
                 None,
                 None,
+                None,
                 None
               )
             ) =>
@@ -89,6 +90,7 @@ class ThriftUtilSpec extends AnyFunSpec with Matchers with Inside {
                 _,
                 _,
                 _,
+                _,
                 _
               )
             ) =>
@@ -100,6 +102,7 @@ class ThriftUtilSpec extends AnyFunSpec with Matchers with Inside {
         case Right(
               MediaAtom(
                 assets,
+                _,
                 _,
                 _,
                 _,
@@ -180,6 +183,7 @@ class ThriftUtilSpec extends AnyFunSpec with Matchers with Inside {
                 None,
                 None,
                 metadata,
+                None,
                 None,
                 None,
                 None,

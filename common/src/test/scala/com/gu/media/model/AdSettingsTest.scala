@@ -44,7 +44,8 @@ class AdSettingsTest extends AnyFunSuite with Matchers {
     blockAds = false,
     composerCommentsEnabled = None,
     optimisedForWeb = None,
-    suppressRelatedContent = None
+    suppressRelatedContent = None,
+    isLoopingVideo = None
   )
 
   private val minDurationForAds = 30L

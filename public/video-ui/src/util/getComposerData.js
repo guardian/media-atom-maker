@@ -29,6 +29,7 @@ export function getComposerData(video) {
     sensitive: video.sensitive,
     legallySensitive: video.legallySensitive,
     blockAds: video.blockAds,
+    isLoopingVideo: video.isLoopingVideo,
     commentable: video.composerCommentsEnabled,
     relatedContentOff: video.suppressRelatedContent,
     seoOptimised: video.optimisedForWeb,

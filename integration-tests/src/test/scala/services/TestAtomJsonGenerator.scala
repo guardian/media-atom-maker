@@ -20,6 +20,7 @@ trait TestAtomJsonGenerator {
       "keywords": [],
       "commentsEnabled": false,
       "blockAds": false,
+      "isLoopingVideo": false,
       "contentChangeDetails": {
         "revision": 0
       },
