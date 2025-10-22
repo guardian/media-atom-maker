@@ -1,12 +1,12 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { Asset } from './VideoAsset';
-import { setupStore } from '../../util/setupStore';
-import { setConfig } from '../../slices/config';
+import React from 'react';
 import { Provider } from 'react-redux';
+import { setConfig } from '../../slices/config';
+import { setupStore } from '../../util/setupStore';
 import { setStore } from '../../util/storeAccessor';
+import { Asset } from './VideoAsset';
 
 const defaultProps = {
   videoId: 'test-video-id',
@@ -112,7 +112,7 @@ describe('VideoAsset', () => {
       }
     };
 
-    it('renders processing asset with activate button disabled', () => {
+    it('renders processing asset with activate and delete buttons disabled', () => {
       render(<Asset {...defaultProps} upload={processingUpload} />);
 
       // Check that progress bar is shown
@@ -125,6 +125,13 @@ describe('VideoAsset', () => {
       const activateButton = screen.getByRole('button', { name: 'Activate' });
       expect(activateButton).toBeInTheDocument();
       expect(activateButton).toBeDisabled();
+
+      // Check that delete button is present but disabled
+      const deleteButton = screen.getByRole('button', {
+        name: 'delete Delete'
+      });
+      expect(deleteButton).toBeInTheDocument();
+      expect(deleteButton).toBeDisabled();
 
       // Check that processing status is displayed
       expect(screen.getByText('Uploading to YouTube')).toBeInTheDocument();
@@ -195,18 +202,24 @@ describe('VideoAsset', () => {
       id: '2',
       asset: {
         sources: [
-          { src: "https://uploads.gu.com/test--264ef95d-ecb0-472e-9030-9e5ef678bf16-2.0.mp4", mimeType: "video/mp4" },
-          { src: "https://uploads.gu.com/test--264ef95d-ecb0-472e-9030-9e5ef678bf16-2.1.m3u8", mimeType: "application/vnd.apple.mpegurl" }
+          {
+            src: 'https://uploads.gu.com/test--264ef95d-ecb0-472e-9030-9e5ef678bf16-2.0.mp4',
+            mimeType: 'video/mp4'
+          },
+          {
+            src: 'https://uploads.gu.com/test--264ef95d-ecb0-472e-9030-9e5ef678bf16-2.1.m3u8',
+            mimeType: 'application/vnd.apple.mpegurl'
+          }
         ]
       },
       processing: {
-        status: "GetTranscodingProgressV2",
+        status: 'GetTranscodingProgressV2',
         failed: false
       },
       metadata: {
         originalFilename: 'Video.mp4',
         startTimestamp: 1759499181730,
-        subtitleFilename: "subtitle.srt",
+        subtitleFilename: 'subtitle.srt',
         user: 'a.person@example.co.uk'
       }
     };
@@ -228,7 +241,6 @@ describe('VideoAsset', () => {
       // Check that file name is displayed
       expect(screen.getByText('Asset 2 - Video.mp4')).toBeInTheDocument();
     });
-
   });
 
   it('returns null when upload has no asset or processing state', () => {

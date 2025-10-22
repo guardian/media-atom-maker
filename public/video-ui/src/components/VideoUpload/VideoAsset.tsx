@@ -1,10 +1,10 @@
-import React, { ReactNode, ChangeEventHandler } from 'react';
 import moment from 'moment';
-import Icon, { SubtitlesIcon } from '../Icon';
-import { YouTubeEmbed } from '../utils/YouTubeEmbed';
-import { VideoEmbed } from '../utils/VideoEmbed';
+import React, { ChangeEventHandler, ReactNode } from 'react';
+import { Upload } from '../../slices/s3Upload';
 import DeleteButton from '../DeleteButton';
-import {Upload} from "../../slices/s3Upload";
+import Icon, { SubtitlesIcon } from '../Icon';
+import { VideoEmbed } from '../utils/VideoEmbed';
+import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 
 function presenceInitials(email: string) {
   if (!email) return;
@@ -44,6 +44,14 @@ function AssetControls({
 }) {
   const className = isActivating ? 'btn btn--loading' : 'btn';
 
+  /**
+   * We don't want to allow any activation or deletion while either
+   * a) this asset is still being uploaded and processed, or
+   * b) another asset is being activated
+   */
+  const disableControls =
+    typeof activatingAssetNumber === 'number' || isUploadInProgress;
+
   const userCircle = (
     <div className="video-trail__presence_indicator" title={user}>
       {presenceInitials(user)}
@@ -54,7 +62,7 @@ function AssetControls({
     <button
       className={className}
       style={{ paddingRight: 20 }}
-      disabled={typeof activatingAssetNumber === 'number' || isUploadInProgress}
+      disabled={disableControls}
       onClick={selectAsset}
     >
       Activate
@@ -64,6 +72,7 @@ function AssetControls({
   const deleteButton = (
     <DeleteButton
       tooltip="Remove asset from Atom (does not affect YouTube.com)"
+      disabled={disableControls}
       onDelete={deleteAsset}
     />
   );
@@ -285,7 +294,8 @@ export function Asset({
     </div>
   );
 
-  if (processing && asset) { // reprocessing subtitle
+  if (processing && asset) {
+    // reprocessing subtitle
     return (
       <div className="video-trail__item">
         <div className="video-trail__upload">
@@ -335,7 +345,11 @@ export function Asset({
   if (asset) {
     return (
       <div className="video-trail__item">
-        <AssetDisplay isActive={isActive} id={asset.id} sources={asset.sources} />
+        <AssetDisplay
+          isActive={isActive}
+          id={asset.id}
+          sources={asset.sources}
+        />
         <div className="video-trail__item__details">
           <AssetControls
             user={user}
