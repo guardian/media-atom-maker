@@ -3,7 +3,7 @@ import PlutoProjectLink from '../../components/Pluto/PlutoProjectLink';
 import { PlutoProjectPicker } from '../../components/Pluto/PlutoProjectPicker';
 import AddAssetFromURL from '../../components/VideoUpload/AddAssetFromURL';
 import AddSelfHostedAsset from '../../components/VideoUpload/AddSelfHostedAsset';
-import VideoTrail from '../../components/VideoUpload/VideoTrail';
+import { VideoTrail } from '../../components/VideoUpload/VideoTrailWIP';
 import YoutubeUpload from '../../components/VideoUpload/YoutubeUpload';
 import { getStore } from '../../util/storeAccessor';
 
