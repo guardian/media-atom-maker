@@ -1,6 +1,8 @@
 import moment from 'moment';
 import React, { ChangeEventHandler, ReactNode } from 'react';
+import { useSelector } from 'react-redux';
 import { Upload } from '../../slices/s3Upload';
+import { selectVideo } from '../../slices/video';
 import DeleteButton from '../DeleteButton';
 import Icon, { SubtitlesIcon } from '../Icon';
 import { VideoEmbed } from '../utils/VideoEmbed';
@@ -24,6 +26,7 @@ function presenceInitials(email: string) {
 }
 
 function AssetControls({
+  assetId,
   user,
   children,
   isActive,
@@ -33,6 +36,7 @@ function AssetControls({
   isActivating,
   isUploadInProgress
 }: {
+  assetId: string;
   user: string;
   isActive?: boolean;
   selectAsset: { (): void };
@@ -44,13 +48,14 @@ function AssetControls({
 }) {
   const className = isActivating ? 'btn btn--loading' : 'btn';
 
-  /**
-   * We don't want to allow any activation or deletion while either
-   * a) this asset is still being uploaded and processed, or
-   * b) another asset is being activated
-   */
-  const disableControls =
+  const video = useSelector(selectVideo);
+
+  const cannotActivateAsset =
     typeof activatingAssetNumber === 'number' || isUploadInProgress;
+
+  const cannotDeleteAsset =
+    cannotActivateAsset ||
+    !video.assets.find(videoAsset => videoAsset.version.toString() === assetId);
 
   const userCircle = (
     <div className="video-trail__presence_indicator" title={user}>
@@ -62,7 +67,7 @@ function AssetControls({
     <button
       className={className}
       style={{ paddingRight: 20 }}
-      disabled={disableControls}
+      disabled={cannotActivateAsset}
       onClick={selectAsset}
     >
       Activate
@@ -72,7 +77,8 @@ function AssetControls({
   const deleteButton = (
     <DeleteButton
       tooltip="Remove asset from Atom (does not affect YouTube.com)"
-      disabled={disableControls}
+      tooltipWhenDisabled="Cannot delete while upload is still being processed."
+      disabled={cannotDeleteAsset}
       onDelete={deleteAsset}
     />
   );
@@ -304,6 +310,7 @@ export function Asset({
         </div>
         <div className="video-trail__item__details">
           <AssetControls
+            assetId={upload.id}
             user={user}
             isActive={isActive}
             selectAsset={selectAsset}
@@ -328,6 +335,7 @@ export function Asset({
         </div>
         <div className="video-trail__item__details">
           <AssetControls
+            assetId={upload.id}
             user={user}
             selectAsset={selectAsset}
             deleteAsset={deleteAsset}
@@ -352,6 +360,7 @@ export function Asset({
         />
         <div className="video-trail__item__details">
           <AssetControls
+            assetId={upload.id}
             user={user}
             isActive={isActive}
             selectAsset={selectAsset}

@@ -7,7 +7,8 @@ export default class DeleteButton extends React.Component {
   static propTypes = {
     tooltip: PropTypes.string.isRequired,
     onDelete: PropTypes.func.isRequired,
-    disabled: PropTypes.bool
+    disabled: PropTypes.bool,
+    tooltipWhenDisabled: PropTypes.string
   };
 
   state = {
@@ -41,7 +42,11 @@ export default class DeleteButton extends React.Component {
       <button
         className="btn button__secondary--remove"
         onClick={() => this.changeState()}
-        data-tip={this.props.tooltip}
+        data-tip={
+          this.props.disabled
+            ? (this.props.tooltipWhenDisabled ?? this.props.tooltip)
+            : this.props.tooltip
+        }
         data-testid="delete-button"
         disabled={this.props.disabled}
       >

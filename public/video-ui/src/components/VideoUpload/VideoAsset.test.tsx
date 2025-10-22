@@ -3,7 +3,9 @@ import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import React from 'react';
 import { Provider } from 'react-redux';
+import type { Video, Asset as VideoAsset } from '../../services/VideosApi';
 import { setConfig } from '../../slices/config';
+import { setVideo } from '../../slices/video';
 import { setupStore } from '../../util/setupStore';
 import { setStore } from '../../util/storeAccessor';
 import { Asset } from './VideoAsset';
@@ -19,12 +21,32 @@ const defaultProps = {
   activatingAssetNumber: undefined as number
 };
 
+const defaultVideoAsset: VideoAsset = {
+  version: 1,
+  id: 'AAAAAAAAAAA',
+  assetType: 'Video',
+  mimeType: 'video/youtube',
+  platform: 'Youtube'
+};
+
 const store = setupStore();
 store.dispatch(
   setConfig({
     permissions: {},
     youtubeEmbedUrl: 'https://www.youtube.com/embed/'
   })
+);
+store.dispatch(
+  setVideo({
+    id: 'test-video-id',
+    assets: [
+      {
+        ...defaultVideoAsset,
+        version: 1,
+        id: 'AAAAAAAAAAA'
+      }
+    ]
+  } as Video)
 );
 setStore(store);
 
@@ -78,7 +100,9 @@ describe('VideoAsset', () => {
 
     it('does not show activate button when asset is active', () => {
       render(
-        <Asset {...defaultProps} upload={completedUpload} isActive={true} />
+        <Provider store={store}>
+          <Asset {...defaultProps} upload={completedUpload} isActive={true} />
+        </Provider>
       );
 
       expect(
@@ -88,7 +112,11 @@ describe('VideoAsset', () => {
     });
 
     it('shows delete button when asset is not active', () => {
-      render(<Asset {...defaultProps} upload={completedUpload} />);
+      render(
+        <Provider store={store}>
+          <Asset {...defaultProps} upload={completedUpload} />
+        </Provider>
+      );
 
       const deleteButton = screen.getByTestId('delete-button');
       expect(deleteButton).toBeInTheDocument();
@@ -113,7 +141,11 @@ describe('VideoAsset', () => {
     };
 
     it('renders processing asset with activate and delete buttons disabled', () => {
-      render(<Asset {...defaultProps} upload={processingUpload} />);
+      render(
+        <Provider store={store}>
+          <Asset {...defaultProps} upload={processingUpload} />
+        </Provider>
+      );
 
       // Check that progress bar is shown
       const progress = screen.getByRole('progressbar');
@@ -139,7 +171,11 @@ describe('VideoAsset', () => {
 
     it('does not call selectAsset when disabled activate button is clicked', async () => {
       const user = userEvent.setup();
-      render(<Asset {...defaultProps} upload={processingUpload} />);
+      render(
+        <Provider store={store}>
+          <Asset {...defaultProps} upload={processingUpload} />
+        </Provider>
+      );
 
       const activateButton = screen.getByRole('button', { name: 'Activate' });
       await user.click(activateButton);
@@ -150,11 +186,13 @@ describe('VideoAsset', () => {
 
     it('shows loading state when asset is currently being activated', () => {
       render(
-        <Asset
-          {...defaultProps}
-          upload={processingUpload}
-          activatingAssetNumber={2}
-        />
+        <Provider store={store}>
+          <Asset
+            {...defaultProps}
+            upload={processingUpload}
+            activatingAssetNumber={2}
+          />
+        </Provider>
       );
 
       const activateButton = screen.getByRole('button', { name: 'Activate' });
@@ -170,7 +208,11 @@ describe('VideoAsset', () => {
         }
       };
 
-      render(<Asset {...defaultProps} upload={failedUpload} />);
+      render(
+        <Provider store={store}>
+          <Asset {...defaultProps} upload={failedUpload} />
+        </Provider>
+      );
 
       expect(screen.getByText('Upload Failed')).toBeInTheDocument();
 
@@ -187,7 +229,11 @@ describe('VideoAsset', () => {
         }
       };
 
-      render(<Asset {...defaultProps} upload={unknownProgressUpload} />);
+      render(
+        <Provider store={store}>
+          <Asset {...defaultProps} upload={unknownProgressUpload} />
+        </Provider>
+      );
 
       // Should show spinner (loader class)
       expect(document.querySelector('.loader')).toBeInTheDocument();
@@ -225,7 +271,11 @@ describe('VideoAsset', () => {
     };
 
     it('renders reprocessing asset with activate button disabled', () => {
-      render(<Asset {...defaultProps} upload={reprocessingUpload} />);
+      render(
+        <Provider store={store}>
+          <Asset {...defaultProps} upload={reprocessingUpload} />
+        </Provider>
+      );
 
       // Should show spinner (loader class)
       expect(document.querySelector('.loader')).toBeInTheDocument();
@@ -252,7 +302,9 @@ describe('VideoAsset', () => {
     };
 
     const { container } = render(
-      <Asset {...defaultProps} upload={emptyUpload} />
+      <Provider store={store}>
+        <Asset {...defaultProps} upload={emptyUpload} />
+      </Provider>
     );
 
     expect(container.firstChild).toBeNull();
