@@ -1,8 +1,13 @@
 import moment from 'moment';
 import React, { ChangeEventHandler, ReactNode } from 'react';
-import { useSelector } from 'react-redux';
-import { Upload } from '../../slices/s3Upload';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  deleteSubtitle,
+  startSubtitleFileUpload,
+  Upload
+} from '../../slices/s3Upload';
 import { selectVideo } from '../../slices/video';
+import { AppDispatch } from '../../util/setupStore';
 import DeleteButton from '../DeleteButton';
 import Icon, { SubtitlesIcon } from '../Icon';
 import { VideoEmbed } from '../utils/VideoEmbed';
@@ -258,8 +263,6 @@ export function Asset({
   isActive,
   selectAsset,
   deleteAsset,
-  startSubtitleFileUpload,
-  deleteSubtitle,
   permissions,
   activatingAssetNumber
 }: {
@@ -268,14 +271,11 @@ export function Asset({
   isActive: boolean;
   selectAsset: { (): void };
   deleteAsset: { (): void };
-  startSubtitleFileUpload: {
-    (input: { file: File; id: string; version: string }): void;
-  };
-  deleteSubtitle: { (input: { id: string; version: string }): void };
   permissions: Record<string, boolean>;
   activatingAssetNumber: number;
 }) {
   const { asset, metadata, processing } = upload;
+  const dispatch = useDispatch<AppDispatch>();
 
   const user = metadata?.user ?? '';
   const info = `Asset ${upload.id} - ${metadata?.originalFilename || '(no filename)'}`;
@@ -293,9 +293,13 @@ export function Asset({
       <SubtitleActions
         filename={subtitleFilename}
         onUpload={file =>
-          startSubtitleFileUpload({ file, id: videoId, version: upload.id })
+          dispatch(
+            startSubtitleFileUpload({ file, id: videoId, version: upload.id })
+          )
         }
-        onDelete={() => deleteSubtitle({ id: videoId, version: upload.id })}
+        onDelete={() =>
+          dispatch(deleteSubtitle({ id: videoId, version: upload.id }))
+        }
       />
     </div>
   );
