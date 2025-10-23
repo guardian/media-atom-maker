@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { deleteAssets } from '../../actions/VideoActions/deleteAsset';
+import { getVideo } from '../../actions/VideoActions/getVideo';
 import { Video } from '../../services/VideosApi';
 import { Upload } from '../../slices/s3Upload';
 import { getUploads } from '../../slices/uploads';
@@ -35,6 +36,8 @@ export const VideoTrail = ({
       polling = setInterval(() => {
         dispatch(getUploads(video.id));
       }, pollingInterval);
+    } else if (!!video.id) {
+      dispatch(getVideo(video.id));
     }
     return () => {
       if (polling) {
