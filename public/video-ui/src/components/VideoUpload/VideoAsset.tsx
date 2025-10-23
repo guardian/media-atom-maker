@@ -1,10 +1,12 @@
-import React, { ReactNode, ChangeEventHandler } from 'react';
 import moment from 'moment';
-import Icon, { SubtitlesIcon } from '../Icon';
-import { YouTubeEmbed } from '../utils/YouTubeEmbed';
-import { VideoEmbed } from '../utils/VideoEmbed';
+import React, { ChangeEventHandler, ReactNode } from 'react';
+import { useSelector } from 'react-redux';
+import { Upload } from '../../slices/s3Upload';
+import { selectVideo } from '../../slices/video';
 import DeleteButton from '../DeleteButton';
-import {Upload} from "../../slices/s3Upload";
+import Icon, { SubtitlesIcon } from '../Icon';
+import { VideoEmbed } from '../utils/VideoEmbed';
+import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 
 function presenceInitials(email: string) {
   if (!email) return;
@@ -24,6 +26,7 @@ function presenceInitials(email: string) {
 }
 
 function AssetControls({
+  assetId,
   user,
   children,
   isActive,
@@ -33,6 +36,7 @@ function AssetControls({
   isActivating,
   isUploadInProgress
 }: {
+  assetId: string;
   user: string;
   isActive?: boolean;
   selectAsset: { (): void };
@@ -44,6 +48,15 @@ function AssetControls({
 }) {
   const className = isActivating ? 'btn btn--loading' : 'btn';
 
+  const video = useSelector(selectVideo);
+
+  const cannotActivateAsset =
+    typeof activatingAssetNumber === 'number' || isUploadInProgress;
+
+  const cannotDeleteAsset =
+    cannotActivateAsset ||
+    !video.assets.find(videoAsset => videoAsset.version.toString() === assetId);
+
   const userCircle = (
     <div className="video-trail__presence_indicator" title={user}>
       {presenceInitials(user)}
@@ -54,7 +67,7 @@ function AssetControls({
     <button
       className={className}
       style={{ paddingRight: 20 }}
-      disabled={typeof activatingAssetNumber === 'number' || isUploadInProgress}
+      disabled={cannotActivateAsset}
       onClick={selectAsset}
     >
       Activate
@@ -64,6 +77,8 @@ function AssetControls({
   const deleteButton = (
     <DeleteButton
       tooltip="Remove asset from Atom (does not affect YouTube.com)"
+      tooltipWhenDisabled="Cannot delete while upload is still being processed."
+      disabled={cannotDeleteAsset}
       onDelete={deleteAsset}
     />
   );
@@ -285,7 +300,8 @@ export function Asset({
     </div>
   );
 
-  if (processing && asset) { // reprocessing subtitle
+  if (processing && asset) {
+    // reprocessing subtitle
     return (
       <div className="video-trail__item">
         <div className="video-trail__upload">
@@ -294,6 +310,7 @@ export function Asset({
         </div>
         <div className="video-trail__item__details">
           <AssetControls
+            assetId={upload.id}
             user={user}
             isActive={isActive}
             selectAsset={selectAsset}
@@ -318,6 +335,7 @@ export function Asset({
         </div>
         <div className="video-trail__item__details">
           <AssetControls
+            assetId={upload.id}
             user={user}
             selectAsset={selectAsset}
             deleteAsset={deleteAsset}
@@ -335,9 +353,14 @@ export function Asset({
   if (asset) {
     return (
       <div className="video-trail__item">
-        <AssetDisplay isActive={isActive} id={asset.id} sources={asset.sources} />
+        <AssetDisplay
+          isActive={isActive}
+          id={asset.id}
+          sources={asset.sources}
+        />
         <div className="video-trail__item__details">
           <AssetControls
+            assetId={upload.id}
             user={user}
             isActive={isActive}
             selectAsset={selectAsset}
