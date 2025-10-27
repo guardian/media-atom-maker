@@ -19,13 +19,6 @@ class IconikDynamoStore[DynamoTableModel <: IconikItem: DynamoFormat](
   protected val table: Table[DynamoTableModel] =
     Table[DynamoTableModel](tableName)
 
-  // @todo: double check that this format works in practice
-  implicit val instantFormat: DynamoFormat[Instant] =
-    DynamoFormat.coercedXmap[Instant, String, IllegalArgumentException](
-      Instant.parse(_),
-      _.toString
-    )
-
   protected def sequence[E, A](
       eithers: List[Either[E, A]]
   ): Either[E, List[A]] =

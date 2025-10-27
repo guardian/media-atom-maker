@@ -1,13 +1,5 @@
 package com.gu.media.iconik
 
-import com.gu.media.aws.DynamoAccess
-import com.gu.media.logging.Logging
-import org.scanamo.{DynamoFormat, DynamoReadError, Scanamo, Table}
-import org.scanamo.syntax._
-
-import scala.collection.mutable.{ListBuffer => MutableList}
-import java.time.Instant
-
 abstract class IconikDataStore[Model <: IconikItem, ErrorType] {
 
   def getById(id: String): Either[ErrorType, Option[Model]]
