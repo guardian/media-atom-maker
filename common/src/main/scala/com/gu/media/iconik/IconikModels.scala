@@ -2,11 +2,20 @@ package com.gu.media.iconik
 
 import com.gu.ai.x.play.json.Encoders._
 import com.gu.ai.x.play.json.Jsonx
+import org.scanamo.DynamoFormat
+import org.scanamo.generic.semiauto._
 import play.api.libs.json._
 
-sealed trait IconikItem {
+abstract class IconikItem {
   val id: String
+  val title: String
 }
+
+trait WithParentId {
+  val parentId: String
+}
+
+trait IconikItemWithParentId extends IconikItem with WithParentId
 
 case class IconikWorkingGroup(
     id: String,
@@ -17,10 +26,15 @@ object IconikWorkingGroup {
   implicit val format: Format[IconikWorkingGroup] =
     Jsonx.formatCaseClass[IconikWorkingGroup]
 
-  def build(iconikUpsertRequest: IconikUpsertRequest): IconikWorkingGroup = {
+  implicit def dynamoFormat: DynamoFormat[IconikWorkingGroup] =
+    deriveDynamoFormat
+
+  def fromUpsertRequest(
+      req: IconikUpsertRequest
+  ): IconikWorkingGroup = {
     IconikWorkingGroup(
-      id = iconikUpsertRequest.workingGroupId,
-      title = iconikUpsertRequest.workingGroupTitle
+      id = req.workingGroupId,
+      title = req.workingGroupTitle
     )
   }
 }
@@ -29,17 +43,22 @@ case class IconikCommission(
     workingGroupId: String,
     id: String,
     title: String
-) extends IconikItem
+) extends IconikItemWithParentId {
+  val parentId: String = workingGroupId
+}
 
 object IconikCommission {
   implicit val format: Format[IconikCommission] =
     Jsonx.formatCaseClass[IconikCommission]
 
-  def build(iconikUpsertRequest: IconikUpsertRequest): IconikCommission = {
+  implicit def dynamoFormat: DynamoFormat[IconikCommission] =
+    deriveDynamoFormat
+
+  def fromUpsertRequest(req: IconikUpsertRequest): IconikCommission = {
     IconikCommission(
-      id = iconikUpsertRequest.commissionId,
-      title = iconikUpsertRequest.commissionTitle,
-      workingGroupId = iconikUpsertRequest.workingGroupId
+      id = req.commissionId,
+      title = req.commissionTitle,
+      workingGroupId = req.workingGroupId
     )
   }
 }
@@ -51,22 +70,26 @@ case class IconikProject(
     workingGroupId: String,
     commissionId: String,
     masterPlaceholderId: Option[String]
-) extends IconikItem
+) extends IconikItemWithParentId {
+  val parentId: String = commissionId
+}
 
 object IconikProject {
   implicit val format: Format[IconikProject] =
     Jsonx.formatCaseClass[IconikProject]
 
-  def build(iconikUpsertRequest: IconikUpsertRequest): IconikProject = {
+  implicit def dynamoFormat: DynamoFormat[IconikProject] =
+    deriveDynamoFormat
+
+  def fromUpsertRequest(req: IconikUpsertRequest): IconikProject =
     IconikProject(
-      id = iconikUpsertRequest.id,
-      title = iconikUpsertRequest.title,
-      status = iconikUpsertRequest.status,
-      workingGroupId = iconikUpsertRequest.workingGroupId,
-      commissionId = iconikUpsertRequest.commissionId,
-      masterPlaceholderId = iconikUpsertRequest.masterPlaceholderId
+      id = req.id,
+      title = req.title,
+      status = req.status,
+      workingGroupId = req.workingGroupId,
+      commissionId = req.commissionId,
+      masterPlaceholderId = req.masterPlaceholderId
     )
-  }
 }
 
 // This represents the payload the `iconik-message-ingestion` lambda sends,

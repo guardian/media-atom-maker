@@ -27,11 +27,11 @@ GET            /api/iconik/commissions                          controllers.Icon
 GET            /api/iconik/commissions/:id                      controllers.IconikController.getCommission(id)
 GET            /api/iconik/commissions/:id/projects             controllers.IconikController.getProjectsByCommissionId(id)
 DELETE         /api/iconik/commissions/:id                      controllers.IconikController.deleteCommission(id)
-PUT            /api/iconik/projects                             controllers.IconikController.upsertProject()
+PUT            /api/iconik/projects                             controllers.IconikController.upsertIconikData()
 GET            /api/iconik/projects/:id                         controllers.IconikController.getProject(id)
 GET            /api/iconik/working-groups                       controllers.IconikController.getWorkingGroups()
-GET            /api/iconik/working-group/:id                    controllers.IconikController.getWorkingGroup(id)
-GET            /api/iconik/working-group/:id/commissions        controllers.IconikController.getCommissionsByWorkingGroupId(id)
+GET            /api/iconik/working-groups/:id                    controllers.IconikController.getWorkingGroup(id)
+GET            /api/iconik/working-groups/:id/commissions        controllers.IconikController.getCommissionsByWorkingGroupId(id)
 
 # endpoint used by workflow
 OPTIONS        /api/workflow/*url                               controllers.Api.allowCORSAccess(methods = "PUT, POST, DELETE", url: String)

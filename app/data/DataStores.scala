@@ -5,9 +5,12 @@ import com.gu.atom.publish._
 import com.gu.contentatom.thrift.Atom
 import com.gu.media.aws.SNSAccess
 import com.gu.media.iconik.{
-  IconikCommissionDataStore,
-  IconikProjectDataStore,
-  IconikWorkingGroupDataStore
+  IconikCommission,
+  IconikDynamoStore,
+  IconikDynamoStoreWithParentIndex,
+  IconikProject,
+  IconikWorkingGroup,
+  IndexConfig
 }
 import com.gu.media.pluto.{PlutoCommissionDataStore, PlutoProjectDataStore}
 import com.gu.media.{CapiAccess, PlutoDataStore}
@@ -78,10 +81,25 @@ class DataStores(aws: AWSConfig with SNSAccess, capi: CapiAccess) {
   val plutoProjectStore: PlutoProjectDataStore =
     new PlutoProjectDataStore(aws, plutoCommissionStore)
 
-  val iconikWorkingGroupStore = new IconikWorkingGroupDataStore(aws)
-  val iconikCommissionStore = new IconikCommissionDataStore(aws)
-  val iconikProjectStore = new IconikProjectDataStore(
-    aws,
+  private val iconikWorkingGroupStore =
+    new IconikDynamoStore[IconikWorkingGroup](
+      aws,
+      aws.iconikWorkingGroupTableName
+    )
+  private val iconikCommissionStore =
+    new IconikDynamoStoreWithParentIndex[IconikCommission](
+      aws,
+      aws.iconikCommissionTableName,
+      IndexConfig("working-group-index", "workingGroupId")
+    )
+  private val iconikProjectStore =
+    new IconikDynamoStoreWithParentIndex[IconikProject](
+      aws,
+      aws.iconikProjectTableName,
+      IndexConfig("commission-index", "commissionId")
+    )
+  val iconikDataStore = new IconikStore(
+    iconikProjectStore,
     iconikCommissionStore,
     iconikWorkingGroupStore
   )
