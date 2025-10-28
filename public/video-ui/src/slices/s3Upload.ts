@@ -73,7 +73,10 @@ export const startSubtitleFileUpload = createAsyncThunk<
   { id: string; version: string; file: File }
 >('s3Upload/startSubtitleFileUpload', (subtitle, { dispatch }) =>
   uploadSubtitleFile(subtitle)
-    .then(() => dispatch(setS3UploadStatusToComplete()))
+    .then(() => {
+      dispatch(getUploads(subtitle.id));
+      dispatch(setS3UploadStatusToComplete());
+    })
     .catch(err => {
       dispatch(showError(errorDetails(err), err));
       dispatch(setS3UploadStatusToError());
@@ -85,7 +88,10 @@ export const deleteSubtitle = createAsyncThunk<
   { id: string; version: string }
 >('s3Upload/startSubtitleFileUpload', (subtitle, { dispatch }) =>
   deleteSubtitleFile(subtitle)
-    .then(() => dispatch(setS3UploadStatusToComplete()))
+    .then(() => {
+      dispatch(getUploads(subtitle.id));
+      dispatch(setS3UploadStatusToComplete());
+    })
     .catch(err => {
       dispatch(showError(errorDetails(err), err));
       dispatch(setS3UploadStatusToError());
@@ -114,11 +120,9 @@ const s3Upload = createSlice({
     s3UploadProgress: (state, action: PayloadAction<number>) => {
       (state.progress = action.payload), (state.status = 'uploading');
     },
-    setS3UploadStatusToComplete: state => {
-      state = {
-        ...initialState
-      };
-    },
+    setS3UploadStatusToComplete: () => ({
+      ...initialState
+    }),
     setS3UploadStatusToError: state => {
       state.status = 'error';
     },
