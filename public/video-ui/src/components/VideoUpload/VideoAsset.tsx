@@ -60,7 +60,7 @@ function AssetControls({
 
   const cannotDeleteAsset =
     cannotActivateAsset ||
-    !video.assets.find(videoAsset => videoAsset.version.toString() === assetId);
+    !video.assets.some(videoAsset => videoAsset.version.toString() === assetId);
 
   const userCircle = (
     <div className="video-trail__presence_indicator" title={user}>
