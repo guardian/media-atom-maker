@@ -9,9 +9,11 @@ module.exports = {
       jsx: true
     }
   },
-  plugins: ['react', 'prettier'],
+  plugins: ['react', 'react-hooks', 'prettier'],
   rules: {
     'react/prop-types': 'off',
+    'react-hooks/rules-of-hooks': 'error',
+    'react-hooks/exhaustive-deps': 'warn',
     'jsx-quotes': ['error', 'prefer-double'],
     'prefer-const': 'error',
     semi: ['warn', 'always'],

@@ -1,20 +1,20 @@
 import { apiRequest } from './apiRequest';
 
-type PlutoItemType = 'commissions' | 'projects'
+type PlutoItemType = 'commissions' | 'projects';
 
 export type PlutoCommission = {
-  id: string,
-  title: string
-}
+  id: string;
+  title: string;
+};
 
 export type PlutoProject = {
-  id: string,
-  title: string,
-  status: string,
-  commissionId: string,
-  commissionTitle: string, //TODO remove this once migrated
-  productionOffice: string
-}
+  id: string;
+  title: string;
+  status: string;
+  commissionId: string;
+  commissionTitle: string; //TODO remove this once migrated
+  productionOffice: string;
+};
 
 export function getPlutoCommissions() {
   return apiRequest<PlutoCommission[]>({
@@ -30,7 +30,7 @@ export function getPlutoProjects({ commissionId }: { commissionId: string }) {
 
 export function getPlutoItemById(id: string, itemType: PlutoItemType) {
   return apiRequest<PlutoProject | PlutoCommission>({
-    url: `/api/pluto/${itemType}s/${id}`
+    url: `/api/pluto/${itemType}/${id}`
   });
 }
 
