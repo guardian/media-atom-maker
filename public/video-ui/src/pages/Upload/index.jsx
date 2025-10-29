@@ -3,7 +3,7 @@ import PlutoProjectLink from '../../components/Pluto/PlutoProjectLink';
 import { PlutoProjectPicker } from '../../components/Pluto/PlutoProjectPicker';
 import AddAssetFromURL from '../../components/VideoUpload/AddAssetFromURL';
 import AddSelfHostedAsset from '../../components/VideoUpload/AddSelfHostedAsset';
-import VideoTrail from '../../components/VideoUpload/VideoTrail';
+import { VideoTrail } from '../../components/VideoUpload/VideoTrail';
 import YoutubeUpload from '../../components/VideoUpload/YoutubeUpload';
 import { getStore } from '../../util/storeAccessor';
 
@@ -23,7 +23,6 @@ class VideoUpload extends React.Component {
 
   render() {
     const uploading = this.props.s3Upload.total > 0;
-    const activeVersion = this.props.video?.activeVersion ?? 0;
 
     const projectId = this.props.video?.plutoData?.projectId;
 
@@ -47,7 +46,7 @@ class VideoUpload extends React.Component {
                 channels={this.props.youtube.channels}
                 uploading={uploading}
                 saveVideo={this.props.videoActions.saveVideo}
-                startUpload={this.props.uploadActions.startVideoUpload}
+                startUpload={this.props.startVideoUpload}
               />
               <AddAssetFromURL
                 video={this.props.video}
@@ -57,35 +56,20 @@ class VideoUpload extends React.Component {
                 video={this.props.video || {}}
                 permissions={getStore().getState().config.permissions}
                 uploading={uploading}
-                startUpload={this.props.uploadActions.startVideoUpload}
+                startUpload={this.props.startVideoUpload}
               />
             </div>
             <VideoTrail
               video={this.props.video}
-              activeVersion={activeVersion}
-              s3Upload={this.props.s3Upload}
               uploads={this.props.uploads}
-              deleteAssets={this.props.videoActions.deleteAssets}
               selectAsset={version =>
                 this.props.videoActions.revertAsset(
                   this.props.video.id,
                   version
                 )
               }
-              getUploads={() => {
-                this.props.uploadActions.getUploads(this.props.video.id);
-              }}
-              startSubtitleFileUpload={
-                this.props.uploadActions.startSubtitleFileUpload
-              }
-              deleteSubtitle={this.props.uploadActions.deleteSubtitle}
               permissions={getStore().getState().config.permissions}
-              s3UploadPostProcessing={
-                this.props.uploadActions.s3UploadPostProcessing
-              }
-              s3UploadReset={this.props.uploadActions.s3UploadReset}
               activatingAssetNumber={this.props.isActivatingAssetNumber}
-              getVideo={this.props.videoActions.getVideo}
             />
           </div>
         </div>
@@ -102,14 +86,7 @@ import * as allDeleteAssetActions from '../../actions/VideoActions/deleteAsset';
 import * as getVideo from '../../actions/VideoActions/getVideo';
 import * as revertAsset from '../../actions/VideoActions/revertAsset';
 import * as saveVideo from '../../actions/VideoActions/saveVideo';
-import {
-  deleteSubtitle,
-  resetS3UploadState,
-  setS3UploadStatusToPostProcessing,
-  startSubtitleFileUpload,
-  startVideoUpload
-} from '../../slices/s3Upload';
-import { getUploads } from '../../slices/uploads';
+import { startVideoUpload } from '../../slices/s3Upload';
 import { selectIsActivatingAssetNumber, selectVideo } from '../../slices/video';
 import { fetchCategories, fetchChannels } from '../../slices/youtube';
 
@@ -136,17 +113,7 @@ function mapDispatchToProps(dispatch) {
       ),
       dispatch
     ),
-    uploadActions: bindActionCreators(
-      {
-        s3UploadPostProcessing: setS3UploadStatusToPostProcessing,
-        s3UploadReset: resetS3UploadState,
-        getUploads,
-        startVideoUpload,
-        startSubtitleFileUpload,
-        deleteSubtitle
-      },
-      dispatch
-    ),
+    startVideoUpload: bindActionCreators(startVideoUpload, dispatch),
     youtubeActions: bindActionCreators(
       { fetchChannels, fetchCategories },
       dispatch
