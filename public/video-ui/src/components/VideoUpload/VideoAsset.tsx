@@ -43,13 +43,13 @@ function AssetControls({
 }: {
   assetId: string;
   user: string;
-  isActive?: boolean;
+  isActive: boolean;
   selectAsset: { (): void };
   deleteAsset: { (): void };
   children: ReactNode;
   activatingAssetNumber: number;
   isActivating: boolean;
-  isUploadInProgress?: boolean;
+  isUploadInProgress: boolean;
 }) {
   const className = isActivating ? 'btn btn--loading' : 'btn';
 
@@ -281,104 +281,73 @@ export function Asset({
   const info = `Asset ${upload.id} - ${metadata?.originalFilename || '(no filename)'}`;
   const timestamp = metadata?.startTimestamp || false;
 
-  const isSelfHosted = asset && asset.sources;
+  const isSelfHosted = asset?.sources !== undefined;
   const subtitleFilename = metadata?.subtitleFilename;
 
-  const subtitlePanel = isSelfHosted && permissions?.addSubtitles && (
-    <div className="video-trail__item__subtitles">
-      <div className="subtitle__container">
-        <SubtitlesIcon />
-        <SubtitleDetails filename={subtitleFilename} />
-      </div>
-      <SubtitleActions
-        filename={subtitleFilename}
-        onUpload={file =>
-          dispatch(
-            startSubtitleFileUpload({ file, id: videoId, version: upload.id })
-          )
-        }
-        onDelete={() =>
-          dispatch(deleteSubtitle({ id: videoId, version: upload.id }))
-        }
-      />
-    </div>
-  );
+  const showSubtitlePanel =
+    !!asset && isSelfHosted && permissions?.addSubtitles;
 
-  if (processing && asset) {
-    // reprocessing subtitle
-    return (
-      <div className="video-trail__item">
+  if (!asset && !processing) {
+    return null;
+  }
+
+  return (
+    <div className="video-trail__item">
+      {processing && (
         <div className="video-trail__upload">
           <div>{processing.status}</div>
           <AssetProgress {...processing} />
         </div>
-        <div className="video-trail__item__details">
-          <AssetControls
-            assetId={upload.id}
-            user={user}
-            isActive={isActive}
-            selectAsset={selectAsset}
-            deleteAsset={deleteAsset}
-            isUploadInProgress={false}
-            isActivating={activatingAssetNumber === Number(upload.id)}
-            activatingAssetNumber={activatingAssetNumber}
-          >
-            <AssetInfo info={info} timestamp={timestamp} />
-          </AssetControls>
-        </div>
-        {subtitlePanel}
-      </div>
-    );
-  }
-
-  if (processing) {
-    return (
-      <div className="video-trail__item">
-        <div className="video-trail__upload">
-          <AssetProgress {...processing} />
-        </div>
-        <div className="video-trail__item__details">
-          <AssetControls
-            assetId={upload.id}
-            user={user}
-            selectAsset={selectAsset}
-            deleteAsset={deleteAsset}
-            isUploadInProgress={true}
-            isActivating={activatingAssetNumber === Number(upload.id)}
-            activatingAssetNumber={activatingAssetNumber}
-          >
-            <AssetInfo info={processing.status} />
-          </AssetControls>
-        </div>
-      </div>
-    );
-  }
-
-  if (asset) {
-    return (
-      <div className="video-trail__item">
+      )}
+      {asset && !processing && (
         <AssetDisplay
           isActive={isActive}
           id={asset.id}
           sources={asset.sources}
         />
-        <div className="video-trail__item__details">
-          <AssetControls
-            assetId={upload.id}
-            user={user}
-            isActive={isActive}
-            selectAsset={selectAsset}
-            deleteAsset={deleteAsset}
-            isActivating={activatingAssetNumber === Number(upload.id)}
-            activatingAssetNumber={activatingAssetNumber}
-          >
-            <AssetInfo info={info} timestamp={timestamp} />
-          </AssetControls>
-        </div>
-        {subtitlePanel}
+      )}
+      <div className="video-trail__item__details">
+        <AssetControls
+          assetId={upload.id}
+          user={user}
+          isActive={isActive}
+          selectAsset={selectAsset}
+          deleteAsset={deleteAsset}
+          isUploadInProgress={asset === undefined}
+          isActivating={activatingAssetNumber === Number(upload.id)}
+          activatingAssetNumber={activatingAssetNumber}
+        >
+          <AssetInfo
+            info={
+              info.length > 0 ? info : (processing?.status ?? 'No information')
+            }
+            timestamp={asset && timestamp}
+          />
+        </AssetControls>
       </div>
-    );
-  }
-
-  return null;
+      {showSubtitlePanel && (
+        <div className="video-trail__item__subtitles">
+          <div className="subtitle__container">
+            <SubtitlesIcon />
+            <SubtitleDetails filename={subtitleFilename} />
+          </div>
+          <SubtitleActions
+            filename={subtitleFilename}
+            onUpload={file =>
+              dispatch(
+                startSubtitleFileUpload({
+                  file,
+                  id: videoId,
+                  version: upload.id
+                })
+              )
+            }
+            onDelete={() =>
+              dispatch(deleteSubtitle({ id: videoId, version: upload.id }))
+            }
+          />
+        </div>
+      )}
+    </div>
+  );
 }
