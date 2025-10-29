@@ -4,7 +4,7 @@ import com.gu.ai.x.play.json.Encoders._
 import com.gu.ai.x.play.json.Jsonx
 import play.api.libs.json.Format
 
-case class VideoSource(src: String, mimeType: String)
+case class VideoSource(src: String, mimeType: String, height: Option[Int] = None, width: Option[Int] = None)
 
 sealed abstract class VideoAsset
 case class YouTubeAsset(id: String) extends VideoAsset
