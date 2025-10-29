@@ -1,13 +1,11 @@
-
 .video-trail__item {
-  position:relative;
+  position: relative;
   border-top: 1px solid $brandColor;
   width: 400px;
   margin: 8px;
-
 }
 
-.video-trail__asset{
+.video-trail__asset {
   display: flex;
   height: 250px;
   width: 100%;
@@ -18,26 +16,29 @@
   height: 100%;
 }
 
-
-.video-trail__upload{
+.video-trail__upload {
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
   height: 250px;
   row-gap: 20px;
+
+  & progress {
+    position: relative;
+  }
 }
 
 .video-trail__status__overlay {
-    position: absolute;
-    right: 5px;
-    top: 10px
+  position: absolute;
+  right: 5px;
+  top: 10px;
 }
 
 .video-trail__item__details {
   width: 100%;
   background-color: $color700Grey;
-  height:80px
+  height: 80px;
 }
 .video-trail__item__subtitles {
   border-top: 1px solid $brandColor;
@@ -51,7 +52,7 @@
   align-items: center;
   justify-content: center;
   margin-right: 5px;
-  width:40px;
+  width: 40px;
   border-radius: 50%;
   color: $color600Grey;
   background-color: $cWhite;
