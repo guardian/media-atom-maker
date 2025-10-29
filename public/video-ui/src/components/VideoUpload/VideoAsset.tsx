@@ -309,8 +309,8 @@ export function Asset({
     return (
       <div className="video-trail__item">
         <div className="video-trail__upload">
-          <AssetProgress {...processing} />
           <div>{processing.status}</div>
+          <AssetProgress {...processing} />
         </div>
         <div className="video-trail__item__details">
           <AssetControls
