@@ -9,7 +9,7 @@ import PlutoProjectLink from '../../components/Pluto/PlutoProjectLink';
 import { PlutoProjectPicker } from '../../components/Pluto/PlutoProjectPicker';
 import AddAssetFromURL from '../../components/VideoUpload/AddAssetFromURL';
 import AddSelfHostedAsset from '../../components/VideoUpload/AddSelfHostedAsset';
-import { VideoTrail } from '../../components/VideoUpload/VideoTrailWIP';
+import { VideoTrail } from '../../components/VideoUpload/VideoTrail';
 import YoutubeUpload from '../../components/VideoUpload/YoutubeUpload';
 import { startVideoUpload } from '../../slices/s3Upload';
 import { fetchCategories, fetchChannels } from '../../slices/youtube';
@@ -46,21 +46,22 @@ export const VideoUpload = (props: { params: { id: string } }) => {
     })
   );
 
-  const hasCategories = () => store.youtube.categories?.length !== 0;
-  const hasChannels = () => store.youtube.channels?.length !== 0;
-
   useEffect(() => {
     dispatch(getVideo(props.params.id));
-    if (!hasCategories()) {
+    if (store.youtube.categories.length === 0) {
       dispatch(fetchCategories());
     }
-    if (!hasChannels()) {
+    if (store.youtube.channels.length === 0) {
       dispatch(fetchChannels());
     }
-  }, [props.params.id]);
+  }, [
+    dispatch,
+    props.params.id,
+    store.youtube.categories,
+    store.youtube.channels
+  ]);
 
   const uploading = store.s3Upload.status === 'uploading';
-  const activeVersion = store.video.activeVersion ?? 0;
 
   const projectId = store.video.plutoData?.projectId;
 
@@ -96,7 +97,6 @@ export const VideoUpload = (props: { params: { id: string } }) => {
           </div>
           <VideoTrail
             video={store.video}
-            activeVersion={activeVersion}
             uploads={store.uploads}
             selectAsset={(version: number) =>
               bindActionCreators(revertAsset(store.video.id, version), dispatch)
