@@ -1,6 +1,6 @@
 import React from 'react';
 
-const pleaseSelect = "Please select..."
+const pleaseSelect = "Please select...";
 
 export default class SelectBox extends React.Component {
   getClassName = () => {

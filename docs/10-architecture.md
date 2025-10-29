@@ -49,6 +49,13 @@ graph LR
     Expirer[Expirer lambda<br/>Every 15 minutes]
     CAPI --> Expirer
     Expirer --> YouTube
+    subgraph workflow
+      Workflow((Workflow backend))
+      WorkflowFrontend((workflow-frontend))
+    end
+    ClientSide -->|Lookup and edit workflow details for atoms| Workflow
+    User --> WorkflowFrontend
+    WorkflowFrontend -->|Create atom requests| MediaAtomMaker
     classDef External padding: 50px, width: 200px, font-size: 25px
     classDef Stream stroke-dasharray: 5 5
 ```
@@ -133,3 +140,70 @@ It also allows videos to be embedded into Composer content using an iFrame inter
 atom.
 
 [Documentation](09-composer-integration.md)
+
+### Workflow
+
+[Workflow](https://github.com/guardian/workflow/) is a Guardian tool, used for tracking content in production. Media Atom Maker can display the Workflow state for any atom tracked in Workflow, and offers users the ability to edit it.
+
+On loading the Workflow tab in the UI for the first time, media atom maker queries Workflow for the sections, priorities, and statuses it should display as form options, as well as looking up the atom’s current state in Workflow.
+
+```mermaid
+---
+title: Workflow queries (first navigation)
+---
+sequenceDiagram
+  actor User
+  participant MAMFrontend
+  User ->> MAMFrontend: Navigate to an atom’s Workflow tab
+  par Get atom info
+      MAMFrontend -) Workflow: GET /api/atom/<ID>
+      Workflow --) MAMFrontend: atom info
+      MAMFrontend -->> User: Display Workflow details
+  and Get workflow sections
+      MAMFrontend -) Workflow: GET /api/sections
+      Workflow --) MAMFrontend: sections
+      MAMFrontend -) MAMFrontend: add sections to drop-down candidates
+  and Get workflow statuses
+      MAMFrontend -) Workflow: GET /api/statuses
+      Workflow --) MAMFrontend: statuses
+      MAMFrontend -) MAMFrontend: add statuses to drop-down candidates
+  and Get workflow priorities
+      MAMFrontend -) Workflow: GET /api/priorities
+      Workflow --) MAMFrontend: priorities
+      MAMFrontend -) MAMFrontend: add priorities to drop-down candidates
+  end
+```
+
+On subsequent navigations (within the same session), only the request for the atom state is repeated:
+
+```mermaid
+---
+title: Workflow queries (subsequent navigations)
+---
+sequenceDiagram
+  actor User
+  participant MAMFrontend
+  User ->> MAMFrontend: Navigate to an atom’s Workflow tab
+  MAMFrontend -) Workflow: GET /api/atom/<ID>
+  Workflow --) MAMFrontend: atom info
+  MAMFrontend -->> User: Display Workflow details
+```
+
+#### Creating atoms from Workflow
+
+There is also [an endpoint `/api/workflow/atoms`](https://github.com/guardian/media-atom-maker/blob/6af274c02be19c860c89f6e46556d26ca88df058/conf/routes#L30) that [workflow-frontend uses to create media atoms](https://github.com/guardian/workflow-frontend/blob/12c278df845785667ae4e13e8438a2fe6a8dd263/public/lib/media-atom-maker-service.js#L10-L17) from within workflow.
+
+(When I test this in CODE [the request made by the frontend fails with a 403](https://github.com/guardian/workflow-frontend/issues/536), so I don’t know if this functionality is currently working.)
+
+```mermaid
+---
+title: Creating atoms from Workflow
+---
+sequenceDiagram
+  actor User
+  participant WorkflowFrontend
+  participant MediaAtomMaker
+  User ->> WorkflowFrontend: Create new media atom
+  WorkflowFrontend ->> MediaAtomMaker: POST /api/workflow/atoms
+  MediaAtomMaker -->> WorkflowFrontend: 201 Created (New atom details, Location header)
+```

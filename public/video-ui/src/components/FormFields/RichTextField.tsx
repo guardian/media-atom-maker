@@ -24,7 +24,7 @@ type EditorProps = {
 
 export default class RichTextField extends React.Component<EditorProps, EditorState> {
   state: EditorState = {
-    wordCount: 0,
+    wordCount: 0
   };
 
   componentDidMount() {

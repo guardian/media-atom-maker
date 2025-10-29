@@ -59,6 +59,7 @@ export async function getProject(tableName, id) {
   } catch (error) {
     console.error('Error:', error);
   }
+  return undefined;
 }
 
 /**
