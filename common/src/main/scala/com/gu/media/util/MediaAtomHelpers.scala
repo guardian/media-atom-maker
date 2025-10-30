@@ -7,6 +7,9 @@ import com.gu.contentatom.thrift.atom.media.{
   Platform => ThriftPlatform,
   MediaAtom => ThriftMediaAtom
 }
+import com.gu.contentatom.thrift.{
+  ImageAssetDimensions => ThriftImageAssetDimensions
+}
 import com.gu.media.model._
 import org.joda.time.DateTime
 
@@ -158,18 +161,28 @@ object MediaAtomHelpers {
         List(asset)
 
       case SelfHostedAsset(sources) =>
-        val assets = sources.map { case VideoSource(src, mimeType) =>
-          ThriftAsset(
-            AssetType.Video,
-            version,
-            src,
-            ThriftPlatform.Url,
-            Some(mimeType)
-          )
+        val assets = sources.map {
+          case VideoSource(src, mimeType, height, width) =>
+            val (dimensions, aspectRatio) = (height, width) match {
+              case (Some(h), Some(w)) =>
+                Some(ThriftImageAssetDimensions(h, w)) ->
+                  AspectRatio.calculate(w, h)
+              case _ =>
+                None -> None
+            }
+            ThriftAsset(
+              AssetType.Video,
+              version,
+              src,
+              ThriftPlatform.Url,
+              Some(mimeType),
+              dimensions,
+              aspectRatio.map(_.name)
+            )
         }
 
         val subtitleAssets = sources.collect {
-          case VideoSource(src, VideoSource.mimeTypeM3u8) =>
+          case VideoSource(src, VideoSource.mimeTypeM3u8, _, _) =>
             val subtitleSrc = src.dropRight(5) + VideoSource.captionsSuffix
             ThriftAsset(
               AssetType.Subtitles,
