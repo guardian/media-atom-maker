@@ -5,10 +5,10 @@ import com.gu.ai.x.play.json.Jsonx
 import com.gu.contentatom.thrift.atom.media.{
   MediaAtom => ThriftMediaAtom,
   Metadata => ThriftMetadata,
-  YoutubeData => ThriftYoutubeData,
-  SelfHostData => ThriftSelfHostData
+  SelfHostData => ThriftSelfHostData,
+  YoutubeData => ThriftYoutubeData
 }
-import play.api.libs.json.Format
+import play.api.libs.json.{Format, OFormat, __}
 import com.gu.contentatom.thrift.{
   AtomData,
   Atom => ThriftAtom,
@@ -20,7 +20,6 @@ import com.gu.media.youtube.{
   MediaAtomYoutubeDescriptionHandler,
   YoutubeDescription
 }
-import play.api.libs.json.OFormat
 
 abstract class MediaAtomBase {
   // generic metadata
@@ -119,6 +118,7 @@ case class MediaAtomBeforeCreation(
           privacyStatus = privacyStatus.flatMap(_.asThrift),
           expiryDate = expiryDate,
           pluto = None,
+          iconik = None,
           youtube = Some(ThriftYoutubeData(youtubeTitle, youtubeDescription)),
           selfHost =
             videoPlayerFormat.map(vpf => ThriftSelfHostData(Some(vpf.asThrift)))
@@ -170,6 +170,7 @@ case class MediaAtom(
     title: String,
     category: Category,
     plutoData: Option[PlutoData],
+    iconikData: Option[IconikData],
     duration: Option[Long],
     source: Option[String],
     description: Option[String],
@@ -224,6 +225,7 @@ case class MediaAtom(
           privacyStatus = privacyStatus.flatMap(_.asThrift),
           expiryDate = expiryDate,
           pluto = plutoData.map(_.asThrift),
+          iconik = iconikData.map(_.asThrift),
           youtube = Some(ThriftYoutubeData(youtubeTitle, youtubeDescription)),
           selfHost =
             videoPlayerFormat.map(vpf => ThriftSelfHostData(Some(vpf.asThrift)))
@@ -284,6 +286,7 @@ object MediaAtom extends MediaAtomImplicits {
       title = data.title,
       category = Category.fromThrift(data.category),
       plutoData = data.metadata.flatMap(_.pluto).map(PlutoData.fromThrift),
+      iconikData = data.metadata.flatMap(_.iconik).map(IconikData.fromThrift),
       duration = data.duration,
       source = data.source,
       posterImage = data.posterImage.map(Image.fromThrift),
