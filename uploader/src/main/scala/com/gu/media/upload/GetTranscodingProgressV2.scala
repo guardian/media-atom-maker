@@ -4,7 +4,12 @@ import com.amazonaws.services.mediaconvert.model.{GetJobRequest, Job}
 import com.gu.media.aws.MediaConvertAccess
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
-import com.gu.media.model.{ImageAssetDimensions, SelfHostedAsset, VideoAsset, VideoSource}
+import com.gu.media.model.{
+  ImageAssetDimensions,
+  SelfHostedAsset,
+  VideoAsset,
+  VideoSource
+}
 import com.gu.media.upload.model.{SelfHostedUploadMetadata, Upload}
 
 import scala.jdk.CollectionConverters._
@@ -30,7 +35,9 @@ class GetTranscodingProgressV2
           // update the upload metadata with dimension outputs from job
           val videoDimensions = getVideoDimensions(jobs)
           log.info(s"videoDimensions = $videoDimensions")
-          val updatedAsset = upload.metadata.asset.map(applyDimensionsToAsset(_, videoDimensions))
+          val updatedAsset = upload.metadata.asset.map(
+            applyDimensionsToAsset(_, videoDimensions)
+          )
 
           upload.copy(
             metadata = upload.metadata.copy(asset = updatedAsset),
@@ -58,7 +65,9 @@ class GetTranscodingProgressV2
     job.getErrorMessage
   }
 
-  private def getVideoDimensions(jobs: List[Job]): Map[String, ImageAssetDimensions] = {
+  private def getVideoDimensions(
+      jobs: List[Job]
+  ): Map[String, ImageAssetDimensions] = {
     // these are the requested transcoder outputs
     val outputs = for {
       job <- jobs
@@ -73,12 +82,13 @@ class GetTranscodingProgressV2
       outputDetail <- outputGroupDetail.getOutputDetails.asScala
     } yield outputDetail
 
-    outputs.zip(outputDetails)
+    outputs
+      .zip(outputDetails)
       .collect {
         case (output, outputDetail) if outputDetail.getVideoDetails != null =>
           // key is the output 'container' - e.g. MP4, M3U8, RAW
           output.getContainerSettings.getContainer ->
-          // value is the dimensions from the corresponding outputDetail
+            // value is the dimensions from the corresponding outputDetail
             ImageAssetDimensions(
               outputDetail.getVideoDetails.getHeightInPx,
               outputDetail.getVideoDetails.getWidthInPx
@@ -87,16 +97,22 @@ class GetTranscodingProgressV2
       .toMap
   }
 
-  private def applyDimensionsToAsset(asset: VideoAsset, videoDimensions: Map[String, ImageAssetDimensions]): VideoAsset =
+  private def applyDimensionsToAsset(
+      asset: VideoAsset,
+      videoDimensions: Map[String, ImageAssetDimensions]
+  ): VideoAsset =
     asset match {
       case SelfHostedAsset(sources) =>
         val updatedSources = sources.map { source =>
           val dimensions: Option[ImageAssetDimensions] = source.mimeType match {
-            case VideoSource.mimeTypeMp4 => videoDimensions.get("MP4")
+            case VideoSource.mimeTypeMp4  => videoDimensions.get("MP4")
             case VideoSource.mimeTypeM3u8 => videoDimensions.get("M3U8")
-            case _ => None
+            case _                        => None
           }
-          source.copy(width = dimensions.map(_.width), height = dimensions.map(_.height))
+          source.copy(
+            width = dimensions.map(_.width),
+            height = dimensions.map(_.height)
+          )
         }
         SelfHostedAsset(updatedSources)
       case _ => asset

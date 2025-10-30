@@ -40,12 +40,12 @@ object JsonConversions {
   implicit val dimensionsReads: Reads[ImageAssetDimensions] = (
     (__ \ "height").read[Int] and
       (__ \ "width").read[Int]
-    )(ImageAssetDimensions.apply _)
+  )(ImageAssetDimensions.apply _)
 
   implicit val dimensionsWrites: Writes[ImageAssetDimensions] = (
     (__ \ "height").write[Int] and
       (__ \ "width").write[Int]
-    ) { dimensions: ImageAssetDimensions =>
+  ) { dimensions: ImageAssetDimensions =>
     (dimensions.height, dimensions.width)
   }
 
@@ -59,8 +59,24 @@ object JsonConversions {
       (__ \ "aspectRatio").writeNullable[String]
   ) { asset: Asset =>
     asset match {
-      case Asset(assetType, version, id, platform, mimeType, dimensions, aspectRatio) =>
-        (id, version, platform.name, assetType.name, mimeType, dimensions, aspectRatio)
+      case Asset(
+            assetType,
+            version,
+            id,
+            platform,
+            mimeType,
+            dimensions,
+            aspectRatio
+          ) =>
+        (
+          id,
+          version,
+          platform.name,
+          assetType.name,
+          mimeType,
+          dimensions,
+          aspectRatio
+        )
     }
   }
 
@@ -89,11 +105,14 @@ object JsonConversions {
   ) { youtubeData: YoutubeData => (youtubeData.title, youtubeData.description) }
 
   implicit val selfHostReads: Reads[SelfHostData] =
-    (__ \ "videoPlayerFormat").readNullable[VideoPlayerFormat].map(SelfHostData.apply)
+    (__ \ "videoPlayerFormat")
+      .readNullable[VideoPlayerFormat]
+      .map(SelfHostData.apply)
 
   implicit val selfHostWrites: Writes[SelfHostData] =
-    (__ \ "videoPlayerFormat").writeNullable[VideoPlayerFormat].contramap
-     { selfHostData: SelfHostData => selfHostData.videoPlayerFormat }
+    (__ \ "videoPlayerFormat").writeNullable[VideoPlayerFormat].contramap {
+      selfHostData: SelfHostData => selfHostData.videoPlayerFormat
+    }
 
   implicit val mediaMetadata: Writes[Metadata] = (
     (__ \ "tags").writeNullable[Seq[String]] and
