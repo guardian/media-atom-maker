@@ -62,16 +62,16 @@ function getS3(region, credentials) {
   const awsCredentials = {
     accessKeyId: temporaryAccessId,
     secretAccessKey: temporarySecretKey,
-    sessionToken: sessionToken,
+    sessionToken: sessionToken
   };
 
   return new S3({
     credentials: awsCredentials,
     requestHandler: XhrHttpHandler.create({
-      requestTimeout: 240_000,
+      requestTimeout: 240_000
     }),
     region: region,
-    useAccelerateEndpoint: true,
+    useAccelerateEndpoint: true
   });
 }
 
@@ -97,7 +97,7 @@ function uploadPart(upload, part, file, progressFn) {
       Bucket: upload.metadata.bucket,
       Key: part.key,
       Metadata: { original: file.name },
-      Body: body,
+      Body: body
     }));
 
     request.then(() => {
