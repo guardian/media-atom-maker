@@ -1,30 +1,16 @@
 import {apiRequest} from './apiRequest';
 import {errorDetails} from '../util/errorDetails';
-import {S3} from '@aws-sdk/client-s3';
+import {S3, type S3ClientConfig} from '@aws-sdk/client-s3';
 import { XhrHttpHandler } from "@aws-sdk/xhr-http-handler";
+import type { ClientAsset, Upload} from "../slices/s3Upload";
 
-
-// TO DO - convert to typescript, use definition of `Upload` at public/video-ui/src/components/VideoUpload/VideoAsset.tsx
-
-/**
- *
- * @param atomId {string}
- * @returns {Promise<unknown>}
- */
-export function getUploads(atomId) {
+export function getUploads(atomId: string): Promise<ClientAsset[]> {
   return apiRequest({
     url: `/api/uploads?atomId=${atomId}`
   });
 }
 
-/**
- *
- * @param atomId {string}
- * @param file {File}
- * @param selfHost {boolean}
- * @returns {Promise<unknown>}
- */
-export function createUpload(atomId, file, selfHost) {
+export function createUpload(atomId: string, file: File, selfHost: boolean): Promise<Upload> {
   return apiRequest({
     url: `/api/uploads`,
     method: 'post',
@@ -40,7 +26,12 @@ export function createUpload(atomId, file, selfHost) {
   });
 }
 
-function getCredentials(id, key) {
+type TempCredentials = {
+  temporaryAccessId: string;
+  temporarySecretKey: string;
+  sessionToken: string;
+}
+function getCredentials(id: string, key: string): Promise<TempCredentials> {
   return apiRequest({
     url: `/api/uploads/${id}/credentials?key=${key}`,
     method: 'post',
@@ -50,16 +41,10 @@ function getCredentials(id, key) {
   });
 }
 
-/**
- *
- * @param region {string}
- * @param credentials {any}
- * @returns {S3}
- */
-function getS3(region, credentials) {
+function getS3(region: string, credentials: any): S3 {
   const { temporaryAccessId, temporarySecretKey, sessionToken } = credentials;
 
-  const awsCredentials = {
+  const awsCredentials: S3ClientConfig['credentials'] = {
     accessKeyId: temporaryAccessId,
     secretAccessKey: temporarySecretKey,
     sessionToken: sessionToken
@@ -75,16 +60,7 @@ function getS3(region, credentials) {
   });
 }
 
-/**
- * Upload single part of file
- *
- * @param upload {Upload}
- * @param part {typeof Upload['parts'][number]}
- * @param file {File}
- * @param progressFn {(completed: number) => any}
- * @returns {Promise<unknown>}
- */
-function uploadPart(upload, part, file, progressFn) {
+function uploadPart(upload: Upload, part: Upload['parts'][number], file: File, progressFn: (completed: number) => any): Promise<unknown> {
   const slice = file.slice(part.start, part.end);
 
   return getCredentials(upload.id, part.key).then(credentials => {
@@ -97,7 +73,7 @@ function uploadPart(upload, part, file, progressFn) {
       Bucket: upload.metadata.bucket,
       Key: part.key,
       Metadata: { original: file.name },
-      Body: body
+      Body: body as Uint8Array // okay yeah this conversion is evil, but it works and sidesteps a bunch of bugs around the sdk's handling of Blob and ReadableStreams....
     }));
 
     request.then(() => {
@@ -108,18 +84,14 @@ function uploadPart(upload, part, file, progressFn) {
   });
 }
 
-/**
- * Recursively upload all parts of file
- *
- * @param upload {Upload}
- * @param parts {typeof Upload['parts']}
- * @param file {File}
- * @param progressFn {(completed: number) => any}
- * @returns {Promise<boolean>}
- */
-export function uploadParts(upload, parts, file, progressFn) {
+export function uploadParts(
+  upload: Upload,
+  parts: Upload['parts'],
+  file: File,
+  progressFn: (completed: number) => any
+): Promise<boolean> {
   return new Promise((resolve, reject) => {
-    function uploadPartRecursive(parts) {
+    function uploadPartRecursive(parts: Upload['parts']) {
       if (parts.length === 0) {
         resolve(true);
       } else {
@@ -147,7 +119,9 @@ export function uploadParts(upload, parts, file, progressFn) {
  * @param file - the local file to upload
  * @returns {Promise}
  */
-export function uploadSubtitleFile({ id, version, file }) {
+export function uploadSubtitleFile(
+  { id, version, file }: { id: string, version: string; file: File; }
+): Promise<Upload> {
   const formData = new FormData();
   formData.append('subtitle-file', file);
 
@@ -157,18 +131,18 @@ export function uploadSubtitleFile({ id, version, file }) {
     headers: {
       'Csrf-Token': window.guardian.csrf.token
     },
-    body: formData,
-    processData: false
+    body: formData
   });
 }
 
-export function deleteSubtitleFile({ id, version }) {
+export function deleteSubtitleFile(
+  { id, version }: { id: string; version: string; }
+): Promise<Upload> {
   return apiRequest({
     url: `/api/uploads/${id}/${version}/subtitle-file`,
     method: 'delete',
     headers: {
       'Csrf-Token': window.guardian.csrf.token
-    },
-    processData: false
+    }
   });
 }
