@@ -14,7 +14,7 @@
     "tscconfig": "tsc --showConfig",
     "test": "vitest",
     "test:ci": "vitest --run",
-    "build": "esbuild src/index.ts --bundle --minify --outfile=target/index.js --external:@aws-sdk --external:aws-sdk --platform=node"
+    "build": "esbuild src/index.ts --bundle --minify --outfile=target/index.js --external:@aws-sdk --platform=node"
   },
   "dependencies": {
     "@aws-sdk/client-secrets-manager": "3.901.0",
