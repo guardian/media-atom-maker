@@ -9,7 +9,7 @@ type RequestConfig<RequestBodyType = unknown> = {
   crossOrigin?: boolean
   withCredentials?: boolean
   method?: string
-  body?: string
+  body?: RequestInit['body'];
 }
 
 const checkStatus = (res: Response) => {
