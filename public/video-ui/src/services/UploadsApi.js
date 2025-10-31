@@ -1,30 +1,29 @@
-import { apiRequest } from './apiRequest';
-import { errorDetails } from '../util/errorDetails';
+import {apiRequest} from './apiRequest';
+import {errorDetails} from '../util/errorDetails';
+import {S3} from '@aws-sdk/client-s3';
+import { XhrHttpHandler } from "@aws-sdk/xhr-http-handler";
 
-// TO DO - convert to typescript, use defintion of `Upload` at public/video-ui/src/components/VideoUpload/VideoAsset.tsx
 
-// See http://andrewhfarmer.com/aws-sdk-with-webpack/ for why this is strange
-import 'aws-sdk/dist/aws-sdk';
-const AWS = window.AWS;
+// TO DO - convert to typescript, use definition of `Upload` at public/video-ui/src/components/VideoUpload/VideoAsset.tsx
 
-// The timeout for individual upload requests. Defaults to 120s. This
-// default causes problems on slow connections – for example, w/ a 0.5mbps
-// upload speed (3.75MB/minute), uploads for 8mb chunks will never complete.
-AWS.config.httpOptions.timeout = 240_000; // in ms
-const httpOptions = {
-  // The number of multipart uploads to run concurrently. Defaults to 4,
-  // which has caused problems with slow connections timing out requests
-  // prematurely. We judge allowing uploads on slow connections to be
-  // more valuable than a minor boost in upload speed due to concurrent uploads.
-  queueSize: 1
-};
-
+/**
+ *
+ * @param atomId {string}
+ * @returns {Promise<unknown>}
+ */
 export function getUploads(atomId) {
   return apiRequest({
     url: `/api/uploads?atomId=${atomId}`
   });
 }
 
+/**
+ *
+ * @param atomId {string}
+ * @param file {File}
+ * @param selfHost {boolean}
+ * @returns {Promise<unknown>}
+ */
 export function createUpload(atomId, file, selfHost) {
   return apiRequest({
     url: `/api/uploads`,
@@ -51,49 +50,73 @@ function getCredentials(id, key) {
   });
 }
 
-function getS3(bucket, region, credentials) {
+/**
+ *
+ * @param region {string}
+ * @param credentials {any}
+ * @returns {S3}
+ */
+function getS3(region, credentials) {
   const { temporaryAccessId, temporarySecretKey, sessionToken } = credentials;
-  const awsCredentials = new AWS.Credentials(
-    temporaryAccessId,
-    temporarySecretKey,
-    sessionToken
-  );
 
-  return new AWS.S3({
-    apiVersion: '2006-03-01',
+  const awsCredentials = {
+    accessKeyId: temporaryAccessId,
+    secretAccessKey: temporarySecretKey,
+    sessionToken: sessionToken,
+  };
+
+  return new S3({
     credentials: awsCredentials,
-    params: { Bucket: bucket },
+    requestHandler: XhrHttpHandler.create({
+      requestTimeout: 240_000,
+    }),
     region: region,
-    useAccelerateEndpoint: true
+    useAccelerateEndpoint: true,
   });
 }
 
+/**
+ * Upload single part of file
+ *
+ * @param upload {Upload}
+ * @param part {typeof Upload['parts'][number]}
+ * @param file {File}
+ * @param progressFn {(completed: number) => any}
+ * @returns {Promise<unknown>}
+ */
 function uploadPart(upload, part, file, progressFn) {
   const slice = file.slice(part.start, part.end);
 
   return getCredentials(upload.id, part.key).then(credentials => {
     const s3 = getS3(
-      upload.metadata.bucket,
       upload.metadata.region,
       credentials
     );
 
-    const params = {
+    const request = slice.arrayBuffer().then(body => s3.putObject({
+      Bucket: upload.metadata.bucket,
       Key: part.key,
-      Body: slice,
-      ACL: 'private',
-      Metadata: { original: file.name }
-    };
-    const request = s3.upload(params, httpOptions);
+      Metadata: { original: file.name },
+      Body: body,
+    }));
 
-    request.on('httpUploadProgress', event => {
-      progressFn(part.start + event.loaded);
+    request.then(() => {
+      progressFn(part.end);
     });
 
-    return request.promise();
+    return request;
   });
 }
 
+/**
+ * Recursively upload all parts of file
+ *
+ * @param upload {Upload}
+ * @param parts {typeof Upload['parts']}
+ * @param file {File}
+ * @param progressFn {(completed: number) => any}
+ * @returns {Promise<boolean>}
+ */
 export function uploadParts(upload, parts, file, progressFn) {
   return new Promise((resolve, reject) => {
     function uploadPartRecursive(parts) {
