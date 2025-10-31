@@ -80,6 +80,7 @@ export type Video = {
   composerCommentsEnabled?: Boolean;
   optimisedForWeb?: Boolean;
   suppressRelatedContent?: Boolean;
+  videoPlayerFormat?: string;
 }
 
 export type MediaAtomSummary = Pick<Video, 'id' | 'title' | 'contentChangeDetails' | 'posterImage'>

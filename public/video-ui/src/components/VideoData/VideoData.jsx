@@ -10,6 +10,7 @@ import TagPicker from '../FormFields/TagPicker';
 import TagTypes from '../../constants/TagTypes';
 import { fieldLengths } from '../../constants/videoEditValidation';
 import { videoCategories } from '../../constants/videoCategories';
+import { videoPlayerFormats } from "../../constants/videoPlayerFormats";
 import VideoUtils from '../../util/video';
 import {formNames} from "../../constants/formNames";
 import FieldNotification from "../../constants/FieldNotification";
@@ -153,6 +154,12 @@ export default class VideoData extends React.Component {
         </ManagedField>
         <ManagedField fieldLocation="duration" name="Video Duration (mm:ss)">
           <DurationInput />
+        </ManagedField>
+        <ManagedField
+          fieldLocation="videoPlayerFormat"
+          name="Video Player Format"
+        >
+          <SelectBox selectValues={videoPlayerFormats} />
         </ManagedField>
       </ManagedForm>
     );
