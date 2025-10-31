@@ -15,23 +15,40 @@ export type SelfHostedAsset = {
   id?: undefined;
   sources: { src?: string; mimeType?: string }[];
 };
+
+export type VideoAsset = YouTubeAsset | SelfHostedAsset;
+
 export type Upload = {
   id: string;
-  asset?: YouTubeAsset | SelfHostedAsset;
+  parts?: { end: number; key: string; start: number }[];
+  metadata: {
+    user: string;
+    bucket: string;
+    region: string;
+    title: string;
+    // others...
+  };
+  progress: {
+    // ...
+  };
+};
+
+export type ClientAsset = {
+  id: string;
+  asset?: VideoAsset;
   processing?: {
     status: string;
     failed: boolean;
     current?: number;
     total?: number;
   };
-  parts?: { end: number; key: string; start: number }[];
   metadata?: {
     originalFilename?: string;
     subtitleFilename?: string;
     startTimestamp?: number;
     user: string;
   };
-};
+}
 
 export interface S3UploadState {
   id: string | null;

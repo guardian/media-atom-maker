@@ -2,6 +2,7 @@ import moment from 'moment';
 import React, { ChangeEventHandler, ReactNode } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
+  ClientAsset,
   deleteSubtitle,
   startSubtitleFileUpload,
   Upload
@@ -160,7 +161,7 @@ function AssetDisplay({
   );
 }
 
-function AssetProgress({ failed, current, total }: Upload['processing']) {
+function AssetProgress({ failed, current, total }: ClientAsset['processing']) {
   if (failed) {
     return (
       <div>
@@ -267,7 +268,7 @@ export function Asset({
   activatingAssetNumber
 }: {
   videoId: string;
-  upload: Upload;
+  upload: ClientAsset;
   isActive: boolean;
   selectAsset: { (): void };
   deleteAsset: { (): void };

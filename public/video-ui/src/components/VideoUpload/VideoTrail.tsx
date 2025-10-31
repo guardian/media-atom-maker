@@ -3,14 +3,14 @@ import { useDispatch } from 'react-redux';
 import { deleteAssets } from '../../actions/VideoActions/deleteAsset';
 import { getVideo } from '../../actions/VideoActions/getVideo';
 import { Video } from '../../services/VideosApi';
-import { Upload } from '../../slices/s3Upload';
+import {ClientAsset, Upload} from '../../slices/s3Upload';
 import { getUploads } from '../../slices/uploads';
 import { AppDispatch } from '../../util/setupStore';
 import { Asset } from './VideoAsset';
 
 type Props = {
   video: Video;
-  uploads: Upload[];
+  uploads: ClientAsset[];
   selectAsset: (version: number) => void;
   permissions: Record<string, boolean>;
   activatingAssetNumber: number;
@@ -45,7 +45,7 @@ export const VideoTrail = ({
     };
   }, [dispatch, uploads, video.id]);
 
-  const deleteAssetsInUpload = async (asset: Upload['asset']) => {
+  const deleteAssetsInUpload = async (asset: ClientAsset['asset']) => {
     if (asset.id) {
       // if "asset.id" property exists, it should be a Youtube video asset.
       // There should be one asset for Youtube video and we can delete
