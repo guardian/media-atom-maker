@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { createAsset } from '../../actions/VideoActions/createAsset';
@@ -64,6 +64,16 @@ export const VideoUpload = (props: { params: { id: string } }) => {
 
   const projectId = store.video.plutoData?.projectId;
 
+  const setAsset = useCallback(
+    (uploadId: number) => {
+      if (typeof store.activatingAssetNumber === 'number') {
+        return;
+      }
+      dispatch(revertAsset(store.video.id, uploadId));
+    },
+    [dispatch, store.video.id, store.activatingAssetNumber]
+  );
+
   return (
     <div>
       <div className="video__main">
@@ -97,9 +107,7 @@ export const VideoUpload = (props: { params: { id: string } }) => {
           <VideoTrail
             video={store.video}
             uploads={store.uploads}
-            selectAsset={(version: number) =>
-              bindActionCreators(revertAsset(store.video.id, version), dispatch)
-            }
+            setAsset={setAsset}
             permissions={store.config.permissions}
             activatingAssetNumber={store.activatingAssetNumber}
           />
