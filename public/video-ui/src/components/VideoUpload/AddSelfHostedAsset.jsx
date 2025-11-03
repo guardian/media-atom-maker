@@ -17,7 +17,7 @@ export default class AddSelfHostedAsset extends React.Component {
   };
 
   render() {
-    const { video, permissions, isUploading, startUpload } = this.props;
+    const { video, permissions, uploading, startUpload } = this.props;
 
     if (!permissions || !permissions.addSelfHostedAsset) {
       return false;
@@ -34,13 +34,13 @@ export default class AddSelfHostedAsset extends React.Component {
               className="form__field__file"
               type="file"
               onChange={this.setFile}
-              disabled={isUploading}
+              disabled={uploading}
               accept="video/*,.mxf"
             />
             <button
               type="button"
               className="btn button__secondary__assets"
-              disabled={!this.state.file || isUploading}
+              disabled={!this.state.file || uploading}
               onClick={() =>
                 startUpload({
                   id: video.id,
