@@ -27,7 +27,7 @@ export default class Header extends React.Component {
   };
 
   renderProgress() {
-    if (this.props.s3Upload.total) {
+    if (this.props.s3Upload.status === 'uploading') {
       // Start prompting the user about reloading the page
       window.onbeforeunload = () => {
         return false;
