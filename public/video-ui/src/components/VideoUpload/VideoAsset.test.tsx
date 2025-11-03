@@ -17,7 +17,6 @@ const defaultProps = {
   deleteAsset: jest.fn(),
   startSubtitleFileUpload: jest.fn(),
   deleteSubtitle: jest.fn(),
-  permissions: {},
   activatingAssetNumber: undefined as number
 };
 

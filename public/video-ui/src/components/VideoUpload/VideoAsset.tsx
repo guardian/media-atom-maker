@@ -263,7 +263,6 @@ export function Asset({
   isActive,
   selectAsset,
   deleteAsset,
-  permissions,
   activatingAssetNumber
 }: {
   videoId: string;
@@ -271,7 +270,6 @@ export function Asset({
   isActive: boolean;
   selectAsset: { (): void };
   deleteAsset: { (): void };
-  permissions: Record<string, boolean>;
   activatingAssetNumber: number;
 }) {
   const { asset, metadata, processing } = upload;
@@ -284,7 +282,7 @@ export function Asset({
   const isSelfHosted = asset && asset.sources;
   const subtitleFilename = metadata?.subtitleFilename;
 
-  const subtitlePanel = isSelfHosted && permissions?.addSubtitles && (
+  const subtitlePanel = isSelfHosted && (
     <div className="video-trail__item__subtitles">
       <div className="subtitle__container">
         <SubtitlesIcon />

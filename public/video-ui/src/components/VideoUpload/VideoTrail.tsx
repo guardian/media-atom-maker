@@ -12,7 +12,6 @@ type Props = {
   video: Video;
   uploads: Upload[];
   selectAsset: (version: number) => void;
-  permissions: Record<string, boolean>;
   activatingAssetNumber: number;
 };
 
@@ -20,7 +19,6 @@ export const VideoTrail = ({
   video,
   uploads,
   selectAsset,
-  permissions,
   activatingAssetNumber
 }: Props) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -83,7 +81,6 @@ export const VideoTrail = ({
                 return selectAsset(Number(upload.id));
               }}
               deleteAsset={() => deleteAssetsInUpload(upload.asset)}
-              permissions={permissions}
               activatingAssetNumber={activatingAssetNumber}
             />
           ))}
