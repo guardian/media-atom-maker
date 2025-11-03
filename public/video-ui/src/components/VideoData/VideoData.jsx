@@ -16,6 +16,7 @@ import {formNames} from "../../constants/formNames";
 import FieldNotification from "../../constants/FieldNotification";
 import { trailTextConfig, standfirstConfig } from "../FormFields/richtext/config";
 import { ExpireNowComponent } from "../FormFields/ExpireNow";
+import {getStore} from "../../util/storeAccessor";
 
 export default class VideoData extends React.Component {
   static propTypes = {
@@ -62,6 +63,7 @@ export default class VideoData extends React.Component {
 
     const isCommercialType = VideoUtils.isCommercialType(video);
     const hasAssets = VideoUtils.hasAssets(video);
+    const permissions = getStore().getState().config.permissions;
 
     return (
       <ManagedForm
@@ -155,12 +157,14 @@ export default class VideoData extends React.Component {
         <ManagedField fieldLocation="duration" name="Video Duration (mm:ss)">
           <DurationInput />
         </ManagedField>
-        <ManagedField
-          fieldLocation="videoPlayerFormat"
-          name="Video Player Format"
-        >
-          <SelectBox selectValues={videoPlayerFormats} />
-        </ManagedField>
+        { permissions?.videoPlayerFormat && (
+          <ManagedField
+            fieldLocation="videoPlayerFormat"
+            name="Video Player Format"
+          >
+            <SelectBox selectValues={videoPlayerFormats} />
+          </ManagedField>)
+        }
       </ManagedForm>
     );
   }

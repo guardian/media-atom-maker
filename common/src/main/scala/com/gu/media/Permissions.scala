@@ -13,7 +13,8 @@ case class Permissions(
     addSelfHostedAsset: Boolean = false,
     addSubtitles: Boolean = false,
     setVideosOnAllChannelsPublic: Boolean = false,
-    pinboard: Boolean = false
+    pinboard: Boolean = false,
+    videoPlayerFormat: Boolean = false
 )
 object Permissions {
   implicit val format: Format[Permissions] = Jsonx.formatCaseClass[Permissions]
@@ -26,6 +27,7 @@ object Permissions {
   val setVideosOnAllChannelsPublic =
     PermissionDefinition("set_videos_on_all_channels_public", app)
   val pinboard = PermissionDefinition("pinboard", "pinboard")
+  val videoPlayerFormat = PermissionDefinition("video_player_format", app)
 }
 
 class MediaAtomMakerPermissionsProvider(
@@ -45,7 +47,8 @@ class MediaAtomMakerPermissionsProvider(
     addSubtitles = hasPermission(addSubtitles, user),
     setVideosOnAllChannelsPublic =
       hasPermission(setVideosOnAllChannelsPublic, user),
-    pinboard = hasPermission(pinboard, user)
+    pinboard = hasPermission(pinboard, user),
+    videoPlayerFormat = hasPermission(videoPlayerFormat, user)
   )
 
   def getStatusPermissions(user: PandaUser): Permissions =

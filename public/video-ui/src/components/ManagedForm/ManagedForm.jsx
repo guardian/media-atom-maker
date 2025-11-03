@@ -49,7 +49,7 @@ export class ManagedForm extends React.Component {
 
   render() {
     const hydratedChildren = React.Children.map(
-      this.props.children,
+      this.props.children.filter(child => !!child),
       child =>
         // pass down the props to managed children only
         ManagedForm.managedTypes.indexOf(child.type) > -1
