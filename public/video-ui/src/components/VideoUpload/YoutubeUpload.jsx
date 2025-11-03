@@ -33,7 +33,7 @@ export default class YoutubeUpload extends React.Component {
               className="form__field__file"
               type="file"
               onChange={this.setFile}
-              disabled={!canUploadToYouTube || this.props.uploading}
+              disabled={!canUploadToYouTube || this.props.isUploading}
               accept="video/*,.mxf"
             />
             { !canUploadToYouTube ?
@@ -44,7 +44,7 @@ export default class YoutubeUpload extends React.Component {
             <button
               type="button"
               className="btn button__secondary__assets"
-              disabled={!canUploadToYouTube || this.props.uploading || !this.state.file}
+              disabled={!canUploadToYouTube || this.props.isUploading || !this.state.file}
               onClick={() =>
                 startUpload({
                   id: video.id,
