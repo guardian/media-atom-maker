@@ -19,11 +19,6 @@ const httpOptions = {
   queueSize: 1
 };
 
-/**
- * 
- * @param {string} atomId 
- * @returns 
- */
 export function getUploads(atomId) {
   return apiRequest({
     url: `/api/uploads?atomId=${atomId}`

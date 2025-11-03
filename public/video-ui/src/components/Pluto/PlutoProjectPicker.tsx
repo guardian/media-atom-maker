@@ -1,18 +1,18 @@
-import React, { useCallback, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { saveVideo } from '../../actions/VideoActions/saveVideo';
+import React, { useEffect } from 'react';
+import { ManagedForm, ManagedField } from '../ManagedForm';
+import SelectBox from '../FormFields/SelectBox';
 import { Video } from '../../services/VideosApi';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   fetchCommissions,
   fetchProjects,
   PlutoState
 } from '../../slices/pluto';
 import { AppDispatch, RootState } from '../../util/setupStore';
-import SelectBox from '../FormFields/SelectBox';
-import { ManagedField, ManagedForm } from '../ManagedForm';
 
 type Props = {
   video: Video;
+  saveVideo: { (video: Video): Promise<void> };
 };
 
 const cloneVideoWithoutPlutoProjectId = (video: Video): Video => {
@@ -23,7 +23,7 @@ const cloneVideoWithoutPlutoProjectId = (video: Video): Video => {
   return clone;
 };
 
-export const PlutoProjectPicker = ({ video }: Props) => {
+export const PlutoProjectPicker = ({ video, saveVideo }: Props) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const { commissions, projects } = useSelector<RootState, PlutoState>(
@@ -34,8 +34,6 @@ export const PlutoProjectPicker = ({ video }: Props) => {
     dispatch(fetchCommissions());
   }, []);
 
-  const dispatchSaveVideo = (video: Video) => dispatch(saveVideo(video));
-
   useEffect(() => {
     const commissionId = video.plutoData?.commissionId;
     if (commissionId) {
@@ -43,8 +41,8 @@ export const PlutoProjectPicker = ({ video }: Props) => {
     }
   }, [video.plutoData?.commissionId]);
 
-  const onCommissionSelection = useCallback(() => {
-    dispatchSaveVideo(cloneVideoWithoutPlutoProjectId(video)).then(() => {
+  const onCommissionSelection = () => {
+    saveVideo(cloneVideoWithoutPlutoProjectId(video)).then(() => {
       // commissionId is expected to be set since this method is a side effect
       // of a commissionId being selected, but testing to maintain
       // type safety.
@@ -53,12 +51,12 @@ export const PlutoProjectPicker = ({ video }: Props) => {
         dispatch(fetchProjects(commissionId));
       }
     });
-  }, [video]);
+  };
 
   return (
     <ManagedForm
       data={video}
-      updateData={dispatchSaveVideo}
+      updateData={saveVideo}
       editable={true}
       formName="Pluto"
     >

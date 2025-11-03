@@ -274,9 +274,8 @@ export function Asset({
   permissions: Record<string, boolean>;
   activatingAssetNumber: number;
 }) {
-  const dispatch = useDispatch<AppDispatch>();
-
   const { asset, metadata, processing } = upload;
+  const dispatch = useDispatch<AppDispatch>();
 
   const user = metadata?.user ?? '';
   const info = `Asset ${upload.id} - ${metadata?.originalFilename || '(no filename)'}`;
@@ -337,7 +336,6 @@ export function Asset({
       <div className="video-trail__item">
         <div className="video-trail__upload">
           <AssetProgress {...processing} />
-          <div>{processing.status}</div>
         </div>
         <div className="video-trail__item__details">
           <AssetControls
