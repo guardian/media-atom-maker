@@ -10,14 +10,18 @@ case class Asset(
     version: Long,
     id: String,
     platform: Platform,
-    mimeType: Option[String]
+    mimeType: Option[String],
+    dimensions: Option[ImageAssetDimensions],
+    aspectRatio: Option[String]
 ) {
   def asThrift = ThriftAsset.apply(
     assetType.asThrift,
     version,
     id,
     platform.asThrift,
-    mimeType
+    mimeType,
+    dimensions.map(_.asThrift),
+    aspectRatio
   )
 }
 
@@ -28,6 +32,8 @@ object Asset {
     asset.version,
     asset.id,
     Platform.fromThrift(asset.platform),
-    asset.mimeType
+    asset.mimeType,
+    asset.dimensions.map(ImageAssetDimensions.fromThrift),
+    asset.aspectRatio
   )
 }

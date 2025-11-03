@@ -203,6 +203,7 @@ class ThriftUtilSpec extends AnyFunSpec with Matchers with Inside {
                     Some(PrivacyStatus.Private),
                     Some(1),
                     _,
+                    _,
                     _
                   )
                 ) =>

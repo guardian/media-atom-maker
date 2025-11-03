@@ -166,14 +166,18 @@ class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
       2L,
       "https://uploads.gu.com/Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-2.0.mp4",
       Url,
-      Some("video/mp4")
+      Some("video/mp4"),
+      Some(ImageAssetDimensions(1280, 720)),
+      Some("16:9")
     ),
     Asset(
       AssetType.Video,
       1L,
       "https://uploads.gu.com/Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-1.0.mp4",
       Url,
-      Some("video/mp4")
+      Some("video/mp4"),
+      Some(ImageAssetDimensions(1280, 720)),
+      Some("16:9")
     )
   )
 
@@ -183,14 +187,18 @@ class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
       2L,
       "acb123",
       Youtube,
-      Some("video/mp4")
+      Some("video/mp4"),
+      None,
+      None
     ),
     Asset(
       AssetType.Video,
       1L,
       "xyz789",
       Youtube,
-      Some("video/mp4")
+      Some("video/mp4"),
+      None,
+      None
     )
   )
 

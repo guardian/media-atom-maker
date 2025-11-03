@@ -95,7 +95,7 @@ class SendToTranscoderV2
 
   private def getOutputs(sources: List[VideoSource]): List[OutputGroup] = {
     sources.map {
-      case VideoSource(output, VideoSource.mimeTypeMp4) =>
+      case VideoSource(output, VideoSource.mimeTypeMp4, _, _) =>
         val filenameWithoutMp4 =
           if (output.endsWith(".mp4")) output.dropRight(4) else output
         val outputGroupSettings = new OutputGroupSettings()
@@ -107,7 +107,7 @@ class SendToTranscoderV2
           )
         new OutputGroup().withOutputGroupSettings(outputGroupSettings)
 
-      case VideoSource(output, VideoSource.mimeTypeM3u8) =>
+      case VideoSource(output, VideoSource.mimeTypeM3u8, _, _) =>
         val filenameWithoutM3u8 =
           if (output.endsWith(".m3u8")) output.dropRight(5) else output
         val outputGroupSettings = new OutputGroupSettings()
@@ -121,7 +121,7 @@ class SendToTranscoderV2
           )
         new OutputGroup().withOutputGroupSettings(outputGroupSettings)
 
-      case VideoSource(_, other) =>
+      case VideoSource(_, other, _, _) =>
         throw new IllegalArgumentException(s"Unsupported mime type $other")
     }
   }

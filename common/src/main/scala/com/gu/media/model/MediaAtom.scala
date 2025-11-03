@@ -5,7 +5,8 @@ import com.gu.ai.x.play.json.Jsonx
 import com.gu.contentatom.thrift.atom.media.{
   MediaAtom => ThriftMediaAtom,
   Metadata => ThriftMetadata,
-  YoutubeData => ThriftYoutubeData
+  YoutubeData => ThriftYoutubeData,
+  SelfHostData => ThriftSelfHostData
 }
 import play.api.libs.json.Format
 import com.gu.contentatom.thrift.{
@@ -53,6 +54,7 @@ abstract class MediaAtomBase {
   val optimisedForWeb: Option[Boolean]
   val composerCommentsEnabled: Option[Boolean]
   val suppressRelatedContent: Option[Boolean]
+  val videoPlayerFormat: Option[VideoPlayerFormat]
 
   def isOnCommercialChannel(
       commercialChannels: Set[String]
@@ -87,7 +89,8 @@ case class MediaAtomBeforeCreation(
     sensitive: Option[Boolean],
     optimisedForWeb: Option[Boolean],
     composerCommentsEnabled: Option[Boolean],
-    suppressRelatedContent: Option[Boolean]
+    suppressRelatedContent: Option[Boolean],
+    videoPlayerFormat: Option[VideoPlayerFormat]
 ) extends MediaAtomBase {
 
   def asThrift(id: String, contentChangeDetails: ContentChangeDetails) = {
@@ -116,7 +119,9 @@ case class MediaAtomBeforeCreation(
           privacyStatus = privacyStatus.flatMap(_.asThrift),
           expiryDate = expiryDate,
           pluto = None,
-          youtube = Some(ThriftYoutubeData(youtubeTitle, youtubeDescription))
+          youtube = Some(ThriftYoutubeData(youtubeTitle, youtubeDescription)),
+          selfHost =
+            videoPlayerFormat.map(vpf => ThriftSelfHostData(Some(vpf.asThrift)))
         )
       ),
       commentsEnabled = composerCommentsEnabled,
@@ -189,7 +194,8 @@ case class MediaAtom(
     blockAds: Boolean = false,
     composerCommentsEnabled: Option[Boolean] = Some(false),
     optimisedForWeb: Option[Boolean] = Some(false),
-    suppressRelatedContent: Option[Boolean] = Some(false)
+    suppressRelatedContent: Option[Boolean] = Some(false),
+    videoPlayerFormat: Option[VideoPlayerFormat] = None
 ) extends MediaAtomBase {
 
   def asThrift = {
@@ -218,7 +224,9 @@ case class MediaAtom(
           privacyStatus = privacyStatus.flatMap(_.asThrift),
           expiryDate = expiryDate,
           pluto = plutoData.map(_.asThrift),
-          youtube = Some(ThriftYoutubeData(youtubeTitle, youtubeDescription))
+          youtube = Some(ThriftYoutubeData(youtubeTitle, youtubeDescription)),
+          selfHost =
+            videoPlayerFormat.map(vpf => ThriftSelfHostData(Some(vpf.asThrift)))
         )
       ),
       commentsEnabled = composerCommentsEnabled,
@@ -302,7 +310,11 @@ object MediaAtom extends MediaAtomImplicits {
       suppressRelatedContent = data.suppressRelatedContent,
       youtubeTitle =
         data.metadata.flatMap(_.youtube).map(_.title).getOrElse(data.title),
-      youtubeDescription = youtubeDescription
+      youtubeDescription = youtubeDescription,
+      videoPlayerFormat = data.metadata
+        .flatMap(_.selfHost)
+        .flatMap(_.videoPlayerFormat)
+        .map(VideoPlayerFormat.fromThrift)
     )
   }
 }
