@@ -14,7 +14,6 @@ import YoutubeUpload from '../../components/VideoUpload/YoutubeUpload';
 import { startVideoUpload } from '../../slices/s3Upload';
 import { fetchCategories, fetchChannels } from '../../slices/youtube';
 import { AppDispatch, RootState } from '../../util/setupStore';
-import { getStore } from '../../util/storeAccessor';
 
 export const VideoUpload = (props: { params: { id: string } }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -61,7 +60,7 @@ export const VideoUpload = (props: { params: { id: string } }) => {
     store.youtube.channels
   ]);
 
-  const uploading = store.s3Upload.status === 'uploading';
+  const isUploading = store.s3Upload.status === 'uploading';
 
   const projectId = store.video.plutoData?.projectId;
 
@@ -80,7 +79,7 @@ export const VideoUpload = (props: { params: { id: string } }) => {
               video={store.video}
               categories={store.youtube.categories}
               channels={store.youtube.channels}
-              uploading={uploading}
+              isUploading={isUploading}
               saveVideo={bindActionCreators(saveVideo, dispatch)}
               startUpload={bindActionCreators(startVideoUpload, dispatch)}
             />
@@ -90,8 +89,8 @@ export const VideoUpload = (props: { params: { id: string } }) => {
             />
             <AddSelfHostedAsset
               video={store.video}
-              permissions={getStore().getState().config.permissions}
-              uploading={uploading}
+              permissions={store.config.permissions}
+              isUploading={isUploading}
               startUpload={bindActionCreators(startVideoUpload, dispatch)}
             />
           </div>
