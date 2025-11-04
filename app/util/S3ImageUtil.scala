@@ -81,7 +81,9 @@ class S3ImageUtil(awsConfig: AWSConfig) extends Logging {
         file = s"$httpOrigin/$s3Key",
         dimensions = dimensions,
         size = Some(metadata.getContentLength),
-        aspectRatio = dimensions.flatMap(dim => AspectRatio.calculate(dim.width, dim.height)).map(_.name)
+        aspectRatio = dimensions
+          .flatMap(dim => AspectRatio.calculate(dim.width, dim.height))
+          .map(_.name)
       )
 
     } match {
