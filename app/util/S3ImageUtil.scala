@@ -3,6 +3,7 @@ package util
 import com.amazonaws.services.s3.model.S3Object
 import com.gu.media.logging.Logging
 import com.gu.media.model.{Image, ImageAsset, ImageAssetDimensions}
+import com.gu.media.util.AspectRatio
 
 import java.io.InputStream
 import javax.imageio.{ImageIO, ImageReader}
@@ -73,13 +74,14 @@ class S3ImageUtil(awsConfig: AWSConfig) extends Logging {
       val obj = s3Client.getObject(s3Bucket, s3Key)
       val metadata = obj.getObjectMetadata
       val contentType = metadata.getContentType
+      val dimensions = readImageDimensions(obj, contentType)
 
       ImageAsset(
         mimeType = Some(contentType),
         file = s"$httpOrigin/$s3Key",
-        dimensions = readImageDimensions(obj, contentType),
+        dimensions = dimensions,
         size = Some(metadata.getContentLength),
-        aspectRatio = None
+        aspectRatio = dimensions.flatMap(dim => AspectRatio.calculate(dim.width, dim.height)).map(_.name)
       )
 
     } match {
