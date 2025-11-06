@@ -48,9 +48,9 @@ export class ManagedForm extends React.Component {
   };
 
   render() {
-    const hydratedChildren = React.Children.map(
-      this.props.children.filter(child => !!child),
-      child =>
+    const hydratedChildren = React.Children.toArray(this.props.children)
+      .filter(child => !!child)
+      .map(child =>
         // pass down the props to managed children only
         ManagedForm.managedTypes.indexOf(child.type) > -1
           ? React.cloneElement(child, {
