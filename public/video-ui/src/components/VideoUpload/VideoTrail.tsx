@@ -11,7 +11,7 @@ import { Asset } from './VideoAsset';
 type Props = {
   video: Video;
   uploads: Upload[];
-  selectAsset: (version: number) => void;
+  setAsset: (version: number) => void;
   permissions: Record<string, boolean>;
   activatingAssetNumber: number;
 };
@@ -19,7 +19,7 @@ type Props = {
 export const VideoTrail = ({
   video,
   uploads,
-  selectAsset,
+  setAsset,
   permissions,
   activatingAssetNumber
 }: Props) => {
@@ -76,12 +76,7 @@ export const VideoTrail = ({
               videoId={video.id}
               upload={upload}
               isActive={parseInt(upload.id) === video.activeVersion}
-              selectAsset={() => {
-                if (typeof activatingAssetNumber === 'number') {
-                  return;
-                }
-                return selectAsset(Number(upload.id));
-              }}
+              selectAsset={() => setAsset(parseInt(upload.id))}
               deleteAsset={() => deleteAssetsInUpload(upload.asset)}
               permissions={permissions}
               activatingAssetNumber={activatingAssetNumber}
