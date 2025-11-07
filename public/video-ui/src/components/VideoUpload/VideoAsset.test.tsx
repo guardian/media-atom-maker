@@ -18,7 +18,7 @@ const defaultProps = {
   startSubtitleFileUpload: jest.fn(),
   deleteSubtitle: jest.fn(),
   permissions: {},
-  activatingAssetNumber: undefined as number
+  activatingAssetNumber: undefined as number | undefined
 };
 
 const defaultVideoAsset: VideoAsset = {

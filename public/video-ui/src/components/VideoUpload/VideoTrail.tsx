@@ -13,7 +13,7 @@ type Props = {
   uploads: Upload[];
   setAsset: (version: number) => void;
   permissions: Record<string, boolean>;
-  activatingAssetNumber: number;
+  activatingAssetNumber?: number;
 };
 
 export const VideoTrail = ({
