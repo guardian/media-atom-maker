@@ -47,7 +47,7 @@ function AssetControls({
   selectAsset: { (): void };
   deleteAsset: { (): void };
   children: ReactNode;
-  activatingAssetNumber: number;
+  activatingAssetNumber?: number;
   isActivating: boolean;
   isUploadInProgress?: boolean;
 }) {
@@ -272,7 +272,7 @@ export function Asset({
   selectAsset: { (): void };
   deleteAsset: { (): void };
   permissions: Record<string, boolean>;
-  activatingAssetNumber: number;
+  activatingAssetNumber?: number;
 }) {
   const dispatch = useDispatch<AppDispatch>();
 
