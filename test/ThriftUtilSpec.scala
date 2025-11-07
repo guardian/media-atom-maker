@@ -36,128 +36,54 @@ class ThriftUtilSpec extends AnyFunSpec with Matchers with Inside {
     it("should correctly generate media atom data") {
       inside(parseMediaAtom(makeParams("uri" -> youtubeUrl))) {
         case Right(
-              MediaAtom(
-                assets,
-                Some(1L),
-                "unknown",
-                Category.News,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None
-              )
+              atom: MediaAtom
             ) =>
-          assets should have length 1
-          assets.head should equal(
+          atom.assets should have length 1
+          atom.assets.head should equal(
             Asset(AssetType.Video, 1L, youtubeId, Platform.Youtube)
           )
       }
     }
 
     it("should create empty assets without uri") {
-      parseMediaAtom(Map.empty) should matchPattern {
+      inside(parseMediaAtom(Map.empty)) {
         case Right(
-              MediaAtom(
-                Nil,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _
-              )
+              atom: MediaAtom
             ) =>
+          atom.assets shouldBe Nil
       }
     }
 
     it("should create multiple assets with multiple uri params") {
       inside(parseMediaAtom(Map("uri" -> List(youtubeUrl, youtubeUrl)))) {
         case Right(
-              MediaAtom(
-                assets,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _
-              )
+              atom: MediaAtom
             ) =>
-          assets should have length 2
+          atom.assets should have length 2
       }
     }
 
     it("should correctly generate atom") {
       inside(parseRequest(makeParams("uri" -> youtubeUrl))) {
-        case Right(atom) =>
-          inside(atom) {
-            case Atom(
-                  _,
-                  AtomType.Media,
-                  Nil,
-                  defaultHtml,
-                  _,
-                  changeDetails,
+        case Right(atom: Atom) => {
+          atom.contentChangeDetails should matchPattern {
+            case ContentChangeDetails(
                   None,
-                  _,
-                  _
+                  None,
+                  None,
+                  1L,
+                  None,
+                  None,
+                  None,
+                  None
                 ) =>
-              changeDetails should matchPattern {
-                case ContentChangeDetails(
-                      None,
-                      None,
-                      None,
-                      1L,
-                      None,
-                      None,
-                      None,
-                      None
-                    ) =>
-              }
-
-              val iframe = Jsoup.parse(defaultHtml).getElementsByTag("iframe")
-              iframe.attr("src") should be(
-                s"https://www.youtube-nocookie.com/embed/$youtubeId?showinfo=0&rel=0"
-              )
           }
+
+          val iframe = Jsoup.parse(atom.defaultHtml).getElementsByTag("iframe")
+          iframe.attr("src") should be(
+            s"https://www.youtube-nocookie.com/embed/$youtubeId?showinfo=0&rel=0"
+          )
+        }
       }
     }
 
@@ -169,45 +95,12 @@ class ThriftUtilSpec extends AnyFunSpec with Matchers with Inside {
         parseMediaAtom(makeParams("uri" -> youtubeUrl, "metadata" -> meta))
       ) {
         case Right(
-              MediaAtom(
-                assets,
-                Some(1L),
-                "unknown",
-                Category.News,
-                None,
-                None,
-                None,
-                None,
-                None,
-                metadata,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None
-              )
+              atom: MediaAtom
             ) =>
-          metadata should matchPattern {
-            case Some(
-                  Metadata(
-                    _,
-                    _,
-                    _,
-                    Some(true),
-                    Some("channelId"),
-                    Some(PrivacyStatus.Private),
-                    Some(1),
-                    _,
-                    _,
-                    _
-                  )
-                ) =>
-          }
+          atom.metadata.get.commentsEnabled should be(Some(true))
+          atom.metadata.get.channelId should be(Some("channelId"))
+          atom.metadata.get.privacyStatus should be(Some(PrivacyStatus.Private))
+          atom.metadata.get.expiryDate should be(Some(1))
       }
     }
   }
