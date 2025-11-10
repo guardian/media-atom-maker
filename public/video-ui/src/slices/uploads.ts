@@ -1,19 +1,19 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Upload } from './s3Upload';
+import {ClientAsset, Upload} from './s3Upload';
 import * as UploadsApi from '../services/UploadsApi';
 import { showError } from './error';
 import { errorDetails } from '../util/errorDetails';
 
-export const getUploads = createAsyncThunk<Upload[], string>(
+export const getUploads = createAsyncThunk<ClientAsset[], string>(
   'uploads/getUploads',
   (atomId, { dispatch }) =>
-    (UploadsApi.getUploads(atomId) as Promise<Upload[]>).catch(err => {
+    (UploadsApi.getUploads(atomId) as Promise<ClientAsset[]>).catch(err => {
       dispatch(showError(errorDetails(err), err));
       throw err;
     })
 );
 
-const initialState: Upload[] = [];
+const initialState: ClientAsset[] = [];
 
 const uploads = createSlice({
   name: 'uploads',
