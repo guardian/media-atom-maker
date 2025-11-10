@@ -11,7 +11,7 @@ import { Asset } from './VideoAsset';
 type Props = {
   video: Video;
   uploads: Upload[];
-  selectAsset: (version: number) => void;
+  setAsset: (version: number) => void;
   activatingAssetNumber: number;
 };
 
