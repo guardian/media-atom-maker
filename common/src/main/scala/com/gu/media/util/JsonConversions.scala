@@ -25,16 +25,58 @@ object JsonConversions {
       }
     })
 
+  implicit val videoPlayerFormatReads: Reads[VideoPlayerFormat] =
+    Reads[VideoPlayerFormat](json => {
+      json.as[String] match {
+        case "default"     => JsSuccess(VideoPlayerFormat.Default)
+        case "loop"        => JsSuccess(VideoPlayerFormat.Loop)
+        case "cinemagraph" => JsSuccess(VideoPlayerFormat.Cinemagraph)
+      }
+    })
+
+  implicit val videoPlayerFormatWrites: Writes[VideoPlayerFormat] =
+    Writes[VideoPlayerFormat](vpf => JsString(vpf.name.toLowerCase))
+
+  implicit val dimensionsReads: Reads[ImageAssetDimensions] = (
+    (__ \ "height").read[Int] and
+      (__ \ "width").read[Int]
+  )(ImageAssetDimensions.apply _)
+
+  implicit val dimensionsWrites: Writes[ImageAssetDimensions] = (
+    (__ \ "height").write[Int] and
+      (__ \ "width").write[Int]
+  ) { dimensions: ImageAssetDimensions =>
+    (dimensions.height, dimensions.width)
+  }
+
   implicit val mediaAsset: Writes[Asset] = (
     (__ \ "id").write[String] and
       (__ \ "version").write[Long] and
       (__ \ "platform").write[String] and
       (__ \ "assetType").write[String] and
-      (__ \ "mimeType").writeNullable[String]
+      (__ \ "mimeType").writeNullable[String] and
+      (__ \ "dimensions").writeNullable[ImageAssetDimensions] and
+      (__ \ "aspectRatio").writeNullable[String]
   ) { asset: Asset =>
     asset match {
-      case Asset(assetType, version, id, platform, mimeType) =>
-        (id, version, platform.name, assetType.name, mimeType)
+      case Asset(
+            assetType,
+            version,
+            id,
+            platform,
+            mimeType,
+            dimensions,
+            aspectRatio
+          ) =>
+        (
+          id,
+          version,
+          platform.name,
+          assetType.name,
+          mimeType,
+          dimensions,
+          aspectRatio
+        )
     }
   }
 
@@ -62,6 +104,16 @@ object JsonConversions {
       (__ \ "description").writeNullable[String]
   ) { youtubeData: YoutubeData => (youtubeData.title, youtubeData.description) }
 
+  implicit val selfHostReads: Reads[SelfHostData] =
+    (__ \ "videoPlayerFormat")
+      .readNullable[VideoPlayerFormat]
+      .map(SelfHostData.apply)
+
+  implicit val selfHostWrites: Writes[SelfHostData] =
+    (__ \ "videoPlayerFormat").writeNullable[VideoPlayerFormat].contramap {
+      selfHostData: SelfHostData => selfHostData.videoPlayerFormat
+    }
+
   implicit val mediaMetadata: Writes[Metadata] = (
     (__ \ "tags").writeNullable[Seq[String]] and
       (__ \ "categoryId").writeNullable[String] and
@@ -71,7 +123,8 @@ object JsonConversions {
       (__ \ "privacyStatus").writeNullable[PrivacyStatus] and
       (__ \ "expiryDate").writeNullable[Long] and
       (__ \ "pluto").writeNullable[PlutoData] and
-      (__ \ "youtube").writeNullable[YoutubeData]
+      (__ \ "youtube").writeNullable[YoutubeData] and
+      (__ \ "selfHost").writeNullable[SelfHostData]
   ) { metadata: Metadata =>
     (
       metadata.tags.map(_.toSeq),
@@ -82,7 +135,8 @@ object JsonConversions {
       metadata.privacyStatus,
       metadata.expiryDate,
       metadata.pluto,
-      metadata.youtube
+      metadata.youtube,
+      metadata.selfHost
     )
   }
 
@@ -95,7 +149,8 @@ object JsonConversions {
       (__ \ "privacyStatus").readNullable[PrivacyStatus] and
       (__ \ "expiryDate").readNullable[Long] and
       (__ \ "pluto").readNullable[PlutoData] and
-      (__ \ "youtube").readNullable[YoutubeData]
+      (__ \ "youtube").readNullable[YoutubeData] and
+      (__ \ "selfHost").readNullable[SelfHostData]
   )(Metadata.apply _)
 
   implicit val atomDataMedia: OWrites[MediaAtom] = (

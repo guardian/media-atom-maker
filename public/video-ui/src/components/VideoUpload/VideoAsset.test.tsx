@@ -165,7 +165,9 @@ describe('VideoAsset', () => {
       expect(deleteButton).toBeDisabled();
 
       // Check that processing status is displayed
-      expect(screen.getByText('Uploading to YouTube')).toBeInTheDocument();
+      expect(
+        screen.getAllByText('Uploading to YouTube').length
+      ).toBeGreaterThan(0);
     });
 
     it('does not call selectAsset when disabled activate button is clicked', async () => {

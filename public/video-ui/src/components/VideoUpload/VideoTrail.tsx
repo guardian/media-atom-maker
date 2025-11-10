@@ -18,7 +18,7 @@ type Props = {
 export const VideoTrail = ({
   video,
   uploads,
-  selectAsset,
+  setAsset,
   activatingAssetNumber
 }: Props) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -74,12 +74,7 @@ export const VideoTrail = ({
               videoId={video.id}
               upload={upload}
               isActive={parseInt(upload.id) === video.activeVersion}
-              selectAsset={() => {
-                if (typeof activatingAssetNumber === 'number') {
-                  return;
-                }
-                return selectAsset(Number(upload.id));
-              }}
+              selectAsset={() => setAsset(parseInt(upload.id))}
               deleteAsset={() => deleteAssetsInUpload(upload.asset)}
               activatingAssetNumber={activatingAssetNumber}
             />
