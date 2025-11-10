@@ -108,7 +108,6 @@ export const VideoUpload = (props: { params: { id: string } }) => {
             video={store.video}
             uploads={store.uploads}
             setAsset={setAsset}
-            permissions={store.config.permissions}
             activatingAssetNumber={store.activatingAssetNumber}
           />
         </div>

@@ -142,47 +142,41 @@ class UploadController(
       assetVersion: Int
   ): Action[MultipartFormData[Files.TemporaryFile]] =
     LookupPermissions(parse.multipartFormData) { implicit req =>
-      if (!req.permissions.addSubtitles) {
-        Unauthorized(
-          s"User ${req.user.email} is not authorised to upload subtitle asset"
-        )
-      } else {
+      log.info(
+        s"Request to upload subtitle file under atom=$atomId assetVersion=$assetVersion"
+      )
+      val result = for {
+        file <- req.body.file("subtitle-file")
+        upload <- uploadDecorator.getUpload(s"$atomId-$assetVersion")
+      } yield try {
+        val subtitleSource = SubtitleFileUploadCommand(
+          upload,
+          file,
+          stores,
+          req.user,
+          awsConfig
+        ).process()
+
+        // add subtitle file to upload asset's list of sources
+        val rerunUpload =
+          UploadBuilder.buildForSubtitleChange(upload, Some(subtitleSource))
+
+        // reprocessing will also save the upload to the DB, but saving it here first improves UI responsiveness
+        saveUploadToDb(rerunUpload)
+
+        processSubtitleChange(rerunUpload)
+
         log.info(
-          s"Request to upload subtitle file under atom=$atomId assetVersion=$assetVersion"
+          s"Upload being reprocessed after subtitle upload ${upload.id}"
         )
-        val result = for {
-          file <- req.body.file("subtitle-file")
-          upload <- uploadDecorator.getUpload(s"$atomId-$assetVersion")
-        } yield try {
-          val subtitleSource = SubtitleFileUploadCommand(
-            upload,
-            file,
-            stores,
-            req.user,
-            awsConfig
-          ).process()
-
-          // add subtitle file to upload asset's list of sources
-          val rerunUpload =
-            UploadBuilder.buildForSubtitleChange(upload, Some(subtitleSource))
-
-          // reprocessing will also save the upload to the DB, but saving it here first improves UI responsiveness
-          saveUploadToDb(rerunUpload)
-
-          processSubtitleChange(rerunUpload)
-
-          log.info(
-            s"Upload being reprocessed after subtitle upload ${upload.id}"
-          )
-          Ok(Json.toJson(rerunUpload))
-        } catch {
-          commandExceptionAsResult
-        }
-
-        result.getOrElse(
-          BadRequest
-        )
+        Ok(Json.toJson(rerunUpload))
+      } catch {
+        commandExceptionAsResult
       }
+
+      result.getOrElse(
+        BadRequest
+      )
     }
 
   def deleteSubtitleFile(
@@ -190,45 +184,38 @@ class UploadController(
       assetVersion: Int
   ): Action[AnyContent] =
     LookupPermissions { implicit req =>
-      if (!req.permissions.addSubtitles) {
-        Unauthorized(
-          s"User ${req.user.email} is not authorised to upload subtitle asset"
-        )
-      } else {
-        log.info(
-          s"Request to delete subtitle file under atom=$atomId assetVersion=$assetVersion"
-        )
-        uploadDecorator.getUpload(s"$atomId-$assetVersion") match {
-          case Some(upload) =>
-            try {
-              SubtitleFileDeleteCommand(
-                upload,
-                stores,
-                req.user,
-                awsConfig
-              ).process()
+      log.info(
+        s"Request to delete subtitle file under atom=$atomId assetVersion=$assetVersion"
+      )
+      uploadDecorator.getUpload(s"$atomId-$assetVersion") match {
+        case Some(upload) =>
+          try {
+            SubtitleFileDeleteCommand(
+              upload,
+              stores,
+              req.user,
+              awsConfig
+            ).process()
 
-              // remove subtitle files from upload asset's list of sources
-              val rerunUpload =
-                UploadBuilder.buildForSubtitleChange(upload, None)
+            // remove subtitle files from upload asset's list of sources
+            val rerunUpload =
+              UploadBuilder.buildForSubtitleChange(upload, None)
 
-              // reprocessing will also save the upload to the DB, but saving it here first improves UI responsiveness
-              saveUploadToDb(rerunUpload)
+            // reprocessing will also save the upload to the DB, but saving it here first improves UI responsiveness
+            saveUploadToDb(rerunUpload)
 
-              processSubtitleChange(rerunUpload)
+            processSubtitleChange(rerunUpload)
 
-              log.info(
-                s"Upload being reprocessed after subtitle deletion ${upload.id}"
-              )
-              Ok(Json.toJson(rerunUpload))
-            } catch {
-              commandExceptionAsResult
-            }
-          case _ =>
-            NotFound
-        }
+            log.info(
+              s"Upload being reprocessed after subtitle deletion ${upload.id}"
+            )
+            Ok(Json.toJson(rerunUpload))
+          } catch {
+            commandExceptionAsResult
+          }
+        case _ =>
+          NotFound
       }
-
     }
 
   @tailrec
