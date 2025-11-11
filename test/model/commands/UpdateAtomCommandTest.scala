@@ -1,7 +1,10 @@
 package model.commands
 
 import com.gu.media.model.{Category, ContentChangeDetails, MediaAtom}
-import model.commands.UpdateAtomCommand.createDiffString
+import model.commands.UpdateAtomCommand.{
+  createDiffString,
+  shouldNotifyThirdPartyServices
+}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
 
@@ -64,5 +67,19 @@ class UpdateAtomCommandTest extends AnyFlatSpec with Matchers {
     ) must be(
       "Updated atom fields (description: Example description -> [NONE])"
     )
+  }
+
+  behavior of "shouldNotifyThirdPartyServices"
+  it should "return true when the old id is not defined a new one is" in {
+    shouldNotifyThirdPartyServices(None, Some("id")) must be(true)
+  }
+  it should "return true when the old id and new id are both defined and different" in {
+    shouldNotifyThirdPartyServices(Some("id1"), Some("id2")) must be(true)
+  }
+  it should "return false when the old id and new id are the same" in {
+    shouldNotifyThirdPartyServices(Some("id"), Some("id")) must be(false)
+  }
+  it should "return false when new id is not defined" in {
+    shouldNotifyThirdPartyServices(Some("id1"), None) must be(false)
   }
 }

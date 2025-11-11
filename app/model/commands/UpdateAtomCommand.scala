@@ -8,6 +8,7 @@ import com.gu.contentatom.thrift.{
   EventType,
   ChangeRecord => ThriftChangeRecord
 }
+import com.gu.media.iconik.IconikUploadActions
 import com.gu.media.logging.Logging
 import com.gu.media.model.{
   AtomAssignedProjectMessage,
@@ -131,8 +132,7 @@ case class UpdateAtomCommand(
 
               val existingMediaAtom = MediaAtom.fromThrift(existingAtom)
               val updatedMediaAtom = MediaAtom.fromThrift(thrift)
-              processPlutoData(existingMediaAtom, updatedMediaAtom)
-
+              updateThirdPaties(existingMediaAtom, updatedMediaAtom)
               AuditMessage(
                 atom.id,
                 "Update",
@@ -157,16 +157,18 @@ case class UpdateAtomCommand(
       )
   }
 
-  private def processPlutoData(oldAtom: MediaAtom, newAtom: MediaAtom) = {
-    (
-      oldAtom.plutoData.flatMap(_.projectId),
-      newAtom.plutoData.flatMap(_.projectId)
-    ) match {
-      case (Some(oldProject), Some(newProject)) if oldProject != newProject =>
-        notifyPluto(newAtom)
-      case (None, Some(_)) => notifyPluto(newAtom)
-      case (_, _)          => None
+  private def updateThirdPaties(oldAtom: MediaAtom, newAtom: MediaAtom) = {
+    val oldId = oldAtom.plutoData.flatMap(_.projectId)
+    val newId = newAtom.plutoData.flatMap(_.projectId)
+    if (UpdateAtomCommand.shouldNotifyThirdPartyServices(oldId, newId)) {
+      notifyIconik(newAtom)
+      notifyPluto(newAtom)
     }
+  }
+
+  private def notifyIconik(newAtom: MediaAtom) = {
+    val iconikUploadActions = new IconikUploadActions(awsConfig)
+    iconikUploadActions.send()
   }
 
   private def notifyPluto(newAtom: MediaAtom) = {
@@ -201,5 +203,17 @@ object UpdateAtomCommand {
     if (changedFields.isEmpty) { // There's a change, but in some field we're not interested in (or rather, unable to format nicely)
       "Updated atom fields"
     } else s"Updated atom fields (${changedFields.mkString(", ")})"
+  }
+
+  def shouldNotifyThirdPartyServices(
+      oldProjectId: Option[String],
+      newProjectId: Option[String]
+  ): Boolean = {
+    (oldProjectId, newProjectId) match {
+      case (Some(oldProject), Some(newProject)) if oldProject != newProject =>
+        true
+      case (None, Some(_)) => true
+      case (_, _)          => false
+    }
   }
 }
