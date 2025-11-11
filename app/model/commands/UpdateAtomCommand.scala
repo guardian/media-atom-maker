@@ -21,7 +21,10 @@ import com.gu.media.util.MediaAtomImplicits
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
-import model.commands.UpdateAtomCommand.createDiffString
+import model.commands.UpdateAtomCommand.{
+  createDiffString,
+  shouldNotifyThirdPartyServices
+}
 import org.joda.time.DateTime
 import util.AWSConfig
 
@@ -158,17 +161,22 @@ case class UpdateAtomCommand(
   }
 
   private def updateThirdPaties(oldAtom: MediaAtom, newAtom: MediaAtom) = {
-    val oldId = oldAtom.plutoData.flatMap(_.projectId)
-    val newId = newAtom.plutoData.flatMap(_.projectId)
-    if (UpdateAtomCommand.shouldNotifyThirdPartyServices(oldId, newId)) {
+    val oldIconikId = oldAtom.iconikData.flatMap(_.projectId)
+    val newIconikId = newAtom.iconikData.flatMap(_.projectId)
+    if (shouldNotifyThirdPartyServices(oldIconikId, newIconikId)) {
       notifyIconik(newAtom)
+    }
+
+    val oldPlutoId = oldAtom.plutoData.flatMap(_.projectId)
+    val newPlutoId = newAtom.plutoData.flatMap(_.projectId)
+    if (shouldNotifyThirdPartyServices(oldPlutoId, newPlutoId)) {
       notifyPluto(newAtom)
     }
   }
 
   private def notifyIconik(newAtom: MediaAtom) = {
     val iconikUploadActions = new IconikUploadActions(awsConfig)
-    iconikUploadActions.send()
+    newAtom.iconikData.foreach(data => iconikUploadActions.send(data))
   }
 
   private def notifyPluto(newAtom: MediaAtom) = {
