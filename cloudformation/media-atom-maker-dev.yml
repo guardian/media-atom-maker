@@ -34,6 +34,10 @@ Parameters:
     Description: "Name of the kinesis stream where uploaded videos get pushed"
     Type: "String"
     Default: "media-atom-maker-video-uploads"
+  IconikQueueName:
+    Description: "Name of the queue with ids of ingested atoms for Iconik"
+    Type: "String"
+    Default: "media-atom-maker-ingested-videos-v2"
   PlutoQueueName:
     Description: "Name of the queue with ids of ingested atoms"
     Type: "String"
@@ -419,6 +423,12 @@ Resources:
       StreamEncryption:
         EncryptionType: KMS
         KeyId: !Ref KmsKeyKinesisStreamAlias
+
+  IconikQueue:
+    Type: "AWS::SQS::QUEUE"
+    Properties:
+      QueueName: !Sub ${IconikQueueName}-${Stage}
+
   PlutoTopic:
     Type: "AWS::SNS::Topic"
     Properties:
