@@ -2,10 +2,10 @@ package model.commands
 
 import com.gu.media.model.{Category, ContentChangeDetails, MediaAtom}
 import model.commands.UpdateAtomCommand.createDiffString
-import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
 
-class UpdateAtomCommandTest extends AnyFunSuite with Matchers {
+class UpdateAtomCommandTest extends AnyFlatSpec with Matchers {
   val mediaAtomFixture: MediaAtom = MediaAtom(
     id = "123",
     labels = List.empty,
@@ -41,13 +41,14 @@ class UpdateAtomCommandTest extends AnyFunSuite with Matchers {
     suppressRelatedContent = None
   )
 
-  test("Diff output when nothing changes") {
+  behavior of "createDiffString"
+  it should "Diff output when nothing changes" in {
     createDiffString(mediaAtomFixture, mediaAtomFixture) must be(
       "Updated atom fields"
     )
   }
 
-  test("Diff output when description changes") {
+  it should "Diff output when description changes" in {
     createDiffString(
       mediaAtomFixture,
       mediaAtomFixture.copy(description = Some("New description"))
@@ -56,7 +57,7 @@ class UpdateAtomCommandTest extends AnyFunSuite with Matchers {
     )
   }
 
-  test("Diff output when description is removed") {
+  it should "Diff output when description is removed" in {
     createDiffString(
       mediaAtomFixture,
       mediaAtomFixture.copy(description = None)
