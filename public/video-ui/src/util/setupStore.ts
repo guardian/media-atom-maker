@@ -1,23 +1,24 @@
+import { configureStore } from '@reduxjs/toolkit';
 import { browserHistory } from 'react-router';
 import { routerMiddleware, routerReducer } from 'react-router-redux';
-import { storeMiddleware } from './storeMiddleware';
-import { configureStore } from '@reduxjs/toolkit';
-import config from '../slices/config';
-import error from '../slices/error';
-import video from '../slices/video';
-import videos from '../slices/videos';
-import search from '../slices/search';
-import youtube from '../slices/youtube';
-import usage from '../slices/usage';
 import checkedFormFields from '../slices/checkedFormFields';
-import formFieldsWarning from '../slices/formFieldsWarning';
-import s3Upload from '../slices/s3Upload';
+import config from '../slices/config';
 import videoEditOpen from '../slices/editState';
-import uploads from '../slices/uploads';
+import error from '../slices/error';
+import formFieldsWarning from '../slices/formFieldsWarning';
+import { iconikReducer } from '../slices/iconik';
 import path from '../slices/path';
 import pluto from '../slices/pluto';
-import workflow from '../slices/workflow';
+import s3Upload from '../slices/s3Upload';
+import search from '../slices/search';
 import targeting from '../slices/targeting';
+import uploads from '../slices/uploads';
+import usage from '../slices/usage';
+import video from '../slices/video';
+import videos from '../slices/videos';
+import workflow from '../slices/workflow';
+import youtube from '../slices/youtube';
+import { storeMiddleware } from './storeMiddleware';
 
 export function setupStore() {
   return configureStore({
@@ -38,7 +39,8 @@ export function setupStore() {
       routing: routerReducer,
       pluto,
       workflow,
-      targeting
+      targeting,
+      iconik: iconikReducer
     },
     middleware: getDefaultMiddleware => {
       return getDefaultMiddleware().concat(

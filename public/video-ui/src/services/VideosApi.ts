@@ -1,16 +1,21 @@
-import { apiRequest } from './apiRequest';
-import { getStore } from '../util/storeAccessor';
-import { getComposerData } from '../util/getComposerData';
+import type { UsageData } from '../slices/usage';
 import { cleanVideoData } from '../util/cleanVideoData';
-import ContentApi, { CapiContent, CapiContentResponse, Stage } from './capi';
+import { getComposerData } from '../util/getComposerData';
 import { ContentAtom, getVideoBlock } from '../util/getVideoBlock';
-import type { UsageData, UsageState } from '../slices/usage';
+import { getStore } from '../util/storeAccessor';
+import { apiRequest } from './apiRequest';
+import ContentApi, { CapiContent, CapiContentResponse, Stage } from './capi';
 
-export type ComposerStage = 'live' | 'preview'
+export type ComposerStage = 'live' | 'preview';
 
-export type AssetType = 'Audio' | 'Video' | 'Subtitles'
+export type AssetType = 'Audio' | 'Video' | 'Subtitles';
 
-export type Platform = 'Youtube' | 'Facebook' | 'Dailymotion' | 'Mainstream' | 'Url'
+export type Platform =
+  | 'Youtube'
+  | 'Facebook'
+  | 'Dailymotion'
+  | 'Mainstream'
+  | 'Url';
 
 export type Asset = {
   assetType: AssetType;
@@ -18,32 +23,39 @@ export type Asset = {
   id: string;
   platform: Platform;
   mimeType?: string;
-}
+};
 
 export type User = {
   email: string;
   firstName?: string;
-  lastName?: string
-}
+  lastName?: string;
+};
 
 export type ChangeRecord = {
-  date: string, // UNIX timestamp, ms
-  user?: User
-}
+  date: string; // UNIX timestamp, ms
+  user?: User;
+};
 
 export type ContentChangeDetails = {
-  lastModified?: ChangeRecord,
-  created?: ChangeRecord,
-  published?: ChangeRecord,
-  revision: number,
-  scheduledLaunch?: ChangeRecord,
-  embargo?: ChangeRecord,
-  expiry?: ChangeRecord
-}
+  lastModified?: ChangeRecord;
+  created?: ChangeRecord;
+  published?: ChangeRecord;
+  revision: number;
+  scheduledLaunch?: ChangeRecord;
+  embargo?: ChangeRecord;
+  expiry?: ChangeRecord;
+};
 
 export type PlutoData = {
-  commissionId?: string,
-  projectId?: string
+  commissionId?: string;
+  projectId?: string;
+};
+
+export type IconikData = {
+  workingGroupId?: string;
+  commissionId?: string;
+  projectId?: string;
+  masterPlaceholderId?: string;
 };
 
 export type Video = {
@@ -56,6 +68,7 @@ export type Video = {
   title: string;
   category: unknown;
   plutoData?: PlutoData;
+  iconikData?: IconikData;
   duration?: number;
   source?: string;
   description?: string;
@@ -81,16 +94,25 @@ export type Video = {
   optimisedForWeb?: Boolean;
   suppressRelatedContent?: Boolean;
   videoPlayerFormat?: string;
-}
+};
 
-export type MediaAtomSummary = Pick<Video, 'id' | 'title' | 'contentChangeDetails' | 'posterImage'>
+export type MediaAtomSummary = Pick<
+  Video,
+  'id' | 'title' | 'contentChangeDetails' | 'posterImage'
+>;
 
-export type VideoWithoutId = Omit<Video, 'id'>
+export type VideoWithoutId = Omit<Video, 'id'>;
 
 function getComposerUrl() {
   return getStore().getState().config.composerUrl;
 }
-function getUsages({ id, stage }: { id: string, stage: Stage }): Promise<CapiContent[]> {
+function getUsages({
+  id,
+  stage
+}: {
+  id: string;
+  stage: Stage;
+}): Promise<CapiContent[]> {
   return apiRequest<{ response: { results: string[] } }>({
     url: `${ContentApi.getUrl(stage)}/atom/media/${id}/usage?page-size=100`
   }).then(res => {
@@ -98,22 +120,22 @@ function getUsages({ id, stage }: { id: string, stage: Stage }): Promise<CapiCon
 
     // the atom usage endpoint in capi only returns article paths,
     // lookup the articles in capi to get their fields
-    return Promise.all(
-      usagePaths.map((path) => ContentApi.getByPath(path))
-    ).then(capiResponse => {
-      const usages = capiResponse.reduce((all: CapiContent[], item) => {
-        return [...all, item.response.content];
-      }, []);
+    return Promise.all(usagePaths.map(path => ContentApi.getByPath(path))).then(
+      capiResponse => {
+        const usages = capiResponse.reduce((all: CapiContent[], item) => {
+          return [...all, item.response.content];
+        }, []);
 
-      // sort by article creation date DESC
-      usages.sort(
-        (first, second) =>
-          new Date(second.fields.creationDate).getDate() -
-          new Date(first.fields.creationDate).getDate()
-      );
+        // sort by article creation date DESC
+        usages.sort(
+          (first, second) =>
+            new Date(second.fields.creationDate).getDate() -
+            new Date(first.fields.creationDate).getDate()
+        );
 
-      return usages;
-    });
+        return usages;
+      }
+    );
   });
 }
 
@@ -132,7 +154,12 @@ function splitUsages({ usages }: { usages: CapiContent[] }) {
 }
 
 export default {
-  fetchVideos: (search: string, limit: number, shouldUseCreatedDateForSort: boolean, mediaPlatformFilter: string) => {
+  fetchVideos: (
+    search: string,
+    limit: number,
+    shouldUseCreatedDateForSort: boolean,
+    mediaPlatformFilter: string
+  ) => {
     let url = `/api/atoms?limit=${limit}`;
     if (search) {
       url += `&search=${search}`;
@@ -144,7 +171,7 @@ export default {
       url += `&mediaPlatform=${mediaPlatformFilter}`;
     }
 
-    return apiRequest<{ total: number, atoms: MediaAtomSummary[] }>({
+    return apiRequest<{ total: number; atoms: MediaAtomSummary[] }>({
       url: url
     });
   },
@@ -194,7 +221,7 @@ export default {
   },
 
   revertAsset: (atomId: string, version: number) => {
-    return apiRequest<Video, { atomId: string, version: number }>({
+    return apiRequest<Video, { atomId: string; version: number }>({
       url: '/api/atom/' + atomId + '/asset-active',
       method: 'put',
       headers: {
@@ -330,13 +357,21 @@ export default {
     });
   },
 
-  addVideoToComposerPage({ composerId, video }: { composerId: string, video: any }) {
+  addVideoToComposerPage({
+    composerId,
+    video
+  }: {
+    composerId: string;
+    video: any;
+  }) {
     const composerUrlBase = getComposerUrl();
 
     const previewData = getVideoBlock(video.id, video.title, video.source);
 
-    function updateMainBlock(stage: ComposerStage, data: { elements: ContentAtom[] }) {
-
+    function updateMainBlock(
+      stage: ComposerStage,
+      data: { elements: ContentAtom[] }
+    ) {
       return apiRequest<{ data: { block: any } }>({
         url: `${composerUrlBase}/api/content/${composerId}/${stage}/mainblock`,
         method: 'post',

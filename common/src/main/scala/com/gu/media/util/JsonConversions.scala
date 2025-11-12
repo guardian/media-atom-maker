@@ -94,6 +94,27 @@ object JsonConversions {
     (pluto.commissionId, pluto.projectId, pluto.masterId)
   }
 
+  implicit val iconikReads: Reads[IconikData] = (
+    (__ \ "workingGroupId").readNullable[String] and
+      (__ \ "commissionId").readNullable[String] and
+      (__ \ "projectId").readNullable[String] and
+      (__ \ "masterPlaceholderId").readNullable[String]
+  )(IconikData.apply _)
+
+  implicit val iconikWrites: Writes[IconikData] = (
+    (__ \ "workingGroupId").writeNullable[String] and
+      (__ \ "commissionId").writeNullable[String] and
+      (__ \ "projectId").writeNullable[String] and
+      (__ \ "masterPlaceholderId").writeNullable[String]
+  ) { iconik: IconikData =>
+    (
+      iconik.workingGroupId,
+      iconik.commissionId,
+      iconik.projectId,
+      iconik.masterPlaceholderId
+    )
+  }
+
   implicit val youtubeReads: Reads[YoutubeData] = (
     (__ \ "title").read[String] and
       (__ \ "description").readNullable[String]
@@ -124,7 +145,8 @@ object JsonConversions {
       (__ \ "expiryDate").writeNullable[Long] and
       (__ \ "pluto").writeNullable[PlutoData] and
       (__ \ "youtube").writeNullable[YoutubeData] and
-      (__ \ "selfHost").writeNullable[SelfHostData]
+      (__ \ "selfHost").writeNullable[SelfHostData] and
+      (__ \ "iconikData").writeNullable[IconikData]
   ) { metadata: Metadata =>
     (
       metadata.tags.map(_.toSeq),
@@ -136,7 +158,8 @@ object JsonConversions {
       metadata.expiryDate,
       metadata.pluto,
       metadata.youtube,
-      metadata.selfHost
+      metadata.selfHost,
+      metadata.iconik
     )
   }
 
@@ -150,7 +173,8 @@ object JsonConversions {
       (__ \ "expiryDate").readNullable[Long] and
       (__ \ "pluto").readNullable[PlutoData] and
       (__ \ "youtube").readNullable[YoutubeData] and
-      (__ \ "selfHost").readNullable[SelfHostData]
+      (__ \ "selfHost").readNullable[SelfHostData] and
+      (__ \ "iconikData").readNullable[IconikData]
   )(Metadata.apply _)
 
   implicit val atomDataMedia: OWrites[MediaAtom] = (

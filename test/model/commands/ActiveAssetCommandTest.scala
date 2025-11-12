@@ -137,6 +137,7 @@ class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
     title = title,
     category = Category.News,
     plutoData = None,
+    iconikData = None,
     duration = None,
     source = None,
     description = None,
