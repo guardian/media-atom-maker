@@ -5,7 +5,7 @@ import com.amazonaws.services.stepfunctions.model.{
   ExecutionStatus
 }
 import com.gu.atom.data.{DataStoreResultUtil, PreviewDynamoDataStore}
-import com.gu.media.MediaAtomMakerPermissionsProvider
+import com.gu.media.{MediaAtomMakerPermissionsProvider, TestHelpers}
 import com.gu.media.model._
 import com.gu.media.upload.model.{Upload, UploadMetadata, UploadProgress}
 import com.gu.media.youtube.YouTubeVideos
@@ -293,10 +293,9 @@ class UploadControllerTest extends AnyFlatSpec with Matchers {
     DateTime.parse(isoDateTime).getMillis
 
   private def mockAtom(assets: List[Asset], lastModified: String): Unit = {
-    val atom = MediaAtom(
-      "ace3fcf6-1378-41db-9d21-f3fc07072ab2",
-      List(),
-      ContentChangeDetails(
+    val atom = TestHelpers.emptyAppMediaAtom.copy(
+      id = "ace3fcf6-1378-41db-9d21-f3fc07072ab2",
+      contentChangeDetails = ContentChangeDetails(
         Some(
           ChangeRecord(
             DateTime.parse(lastModified),
@@ -315,35 +314,11 @@ class UploadControllerTest extends AnyFlatSpec with Matchers {
         None,
         None
       ),
-      assets,
-      Some(1),
-      "Loop: Japan fireball",
-      Category.News,
-      None,
-      None,
-      None,
-      None,
-      None,
-      None,
-      None,
-      None,
-      List(),
-      List(),
-      List(),
-      List(),
-      None,
-      None,
-      None,
-      None,
-      None,
-      None,
-      None,
-      "Loop: Japan fireball",
-      None,
-      false,
-      None,
-      None,
-      None
+      assets = assets,
+      activeVersion = Some(1),
+      title = "Loop: Japan fireball",
+      youtubeTitle = "Loop: Japan fireball",
+      blockAds = false
     )
     when(mockPreviewDataStore.getAtom("ace3fcf6-1378-41db-9d21-f3fc07072ab2"))
       .thenReturn(DataStoreResultUtil.succeed(atom.asThrift))

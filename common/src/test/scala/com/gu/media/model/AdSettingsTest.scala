@@ -1,51 +1,11 @@
 package com.gu.media.model
 
+import com.gu.media.TestHelpers
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.must.Matchers
 
 class AdSettingsTest extends AnyFunSuite with Matchers {
-  private val initialAtom = MediaAtom(
-    id = "test",
-    labels = List.empty,
-    contentChangeDetails = ContentChangeDetails(
-      lastModified = None,
-      created = None,
-      published = None,
-      revision = 1L,
-      scheduledLaunch = None,
-      embargo = None,
-      expiry = None
-    ),
-    assets = List.empty,
-    activeVersion = None,
-    title = "test",
-    category = Category.News,
-    plutoData = None,
-    duration = None,
-    source = None,
-    description = None,
-    trailText = None,
-    posterImage = None,
-    trailImage = None,
-    youtubeOverrideImage = None,
-    tags = List.empty,
-    byline = List.empty,
-    commissioningDesks = List.empty,
-    keywords = List.empty,
-    youtubeCategoryId = None,
-    license = None,
-    channelId = None,
-    legallySensitive = None,
-    sensitive = None,
-    privacyStatus = None,
-    expiryDate = None,
-    youtubeTitle = "test",
-    youtubeDescription = None,
-    blockAds = false,
-    composerCommentsEnabled = None,
-    optimisedForWeb = None,
-    suppressRelatedContent = None
-  )
+  private val initialAtom: MediaAtom = TestHelpers.emptyAppMediaAtom
 
   private val minDurationForAds = 30L
   private val minDurationForMidroll = 8 * 60L
