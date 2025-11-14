@@ -4,6 +4,7 @@ import { ManagedField, ManagedForm } from '../ManagedForm';
 import CheckBox from '../FormFields/CheckBox';
 import VideoUtils from '../../util/video';
 import { formNames } from '../../constants/formNames';
+import {addOrDropBundlingTags} from "../../services/KeywordsApi";
 
 class Flags extends React.Component {
   static propTypes = {
@@ -12,6 +13,14 @@ class Flags extends React.Component {
     updateVideo: PropTypes.func.isRequired,
     updateErrors: PropTypes.func.isRequired,
     updateWarnings: PropTypes.func.isRequired
+  };
+
+  composerKeywordsToYouTube = () => {
+    const { video, updateVideo } = this.props;
+
+    const fullTags = addOrDropBundlingTags(video.keywords, video.tags, video.blockAds);
+    const newVideo = Object.assign({}, video, { tags: fullTags });
+    updateVideo(newVideo);
   };
 
   render() {
@@ -48,6 +57,7 @@ class Flags extends React.Component {
                 ? 'Block ads on Composer page'
                 : 'Ads will not be displayed with this video'
             }
+            updateSideEffects={this.composerKeywordsToYouTube}
             disabled={platform !== 'youtube' || !isEligibleForAds}
             tooltip={!isEligibleForAds ? `Not eligible for pre-roll.` : ''}
           >
