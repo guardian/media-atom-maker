@@ -1,5 +1,6 @@
 package com.gu.media
 
+import com.amazonaws.services.simpleemail.AmazonSimpleEmailService
 import com.amazonaws.util.IOUtils
 import com.gu.contentatom.thrift.atom.media.PrivacyStatus
 import com.gu.media.expirer.ExpirerLambda
@@ -7,6 +8,7 @@ import com.gu.media.model.{AdSettings, VideoUpdateError}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.{JsValue, Json}
+import org.mockito.MockitoSugar.{mock, when}
 
 class ExpirerLambdaTest extends AnyFunSuite with Matchers {
   test("Make YouTube assets private") {
@@ -52,6 +54,7 @@ class ExpirerLambdaTest extends AnyFunSuite with Matchers {
       isMyVideo: Boolean = true
   ) extends ExpirerLambda
       with TestSettings {
+    override lazy val sesClient = mock[AmazonSimpleEmailService]
     var madePrivate = List.empty[String]
     var claimUpdated = List.empty[String]
 

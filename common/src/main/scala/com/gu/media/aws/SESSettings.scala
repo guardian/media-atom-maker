@@ -18,5 +18,9 @@ trait SESSettings { this: Settings with AwsAccess =>
 
   val integrationTestUser: String = getMandatoryString("integration.test.user")
 
+  val expiryNotificationsAddress = getMandatoryString(
+    "aws.ses.expiryNotificationsAddress"
+  )
+
   val host: String = getMandatoryString("host")
 }

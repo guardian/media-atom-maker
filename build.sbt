@@ -243,7 +243,8 @@ lazy val expirer = (project in file("expirer"))
     commonSettings,
     name := "media-atom-expirer",
     Universal / topLevelDirectory := None,
-    Universal / packageName := normalizedName.value
+    Universal / packageName := normalizedName.value,
+    libraryDependencies += "org.mockito" %% "mockito-scala" % mockitoVersion % "test",
   )
 
 lazy val scheduler = (project in file("scheduler"))

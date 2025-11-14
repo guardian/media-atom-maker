@@ -5,9 +5,11 @@ import java.time.temporal.ChronoUnit
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import com.gu.contentatom.thrift.atom.media.PrivacyStatus
 import com.gu.media.CapiAccess
+import com.gu.media.aws.SESSettings
 import com.gu.media.lambda.{LambdaBase, LambdaYoutubeCredentials}
 import com.gu.media.logging.Logging
 import com.gu.media.model.AdSettings
+import com.gu.media.ses.Mailer
 import com.gu.media.youtube.{YouTubeAccess, YouTubePartnerApi, YouTubeVideos}
 import play.api.libs.json.{JsArray, JsValue}
 
@@ -22,7 +24,10 @@ class ExpirerLambda
     with YouTubeAccess
     with LambdaYoutubeCredentials
     with YouTubeVideos
-    with YouTubePartnerApi {
+    with YouTubePartnerApi
+    with SESSettings {
+
+  private val mailer = new Mailer(this)
 
   override def handleRequest(input: Unit, context: Context): Unit = {
     val now = Instant.now()
@@ -30,8 +35,8 @@ class ExpirerLambda
     val atomsWithAssets: Seq[AssetDetails] =
       getVideosFromExpiredAtoms(1, 100, oneDayAgo, now, Seq.empty)
         .map(atomWithAssets => {
-          val assetIds = atomWithAssets.assetIds.filter(isManagedVideo)
-          AssetDetails(atomWithAssets.atomId, assetIds)
+          val managedAssetIds = atomWithAssets.assetIds.filter(isManagedVideo)
+          atomWithAssets.copy(assetIds = managedAssetIds)
         })
 
     atomsWithAssets.foreach { atomWithAssets =>
@@ -46,6 +51,14 @@ class ExpirerLambda
               err
             )
         }
+      }
+
+      if (atomWithAssets.assetIds.nonEmpty) {
+        mailer.sendAtomExpiredEmail(
+          atomId = atomWithAssets.atomId,
+          atomTitle = atomWithAssets.atomTitle,
+          sendTo = expiryNotificationsAddress
+        )
       }
     }
   }
@@ -88,9 +101,14 @@ class ExpirerLambda
     val ids = videos.map { asset => (asset \ "id").as[String] }
 
     val atomId = (atom \ "id").as[String]
-    AssetDetails(atomId, ids.toSet)
+    val atomTitle = (atom \ "title").as[String]
+    AssetDetails(atomId, atomTitle, ids.toSet)
   }
 
-  case class AssetDetails(atomId: String, assetIds: Set[String])
+  case class AssetDetails(
+      atomId: String,
+      atomTitle: String,
+      assetIds: Set[String]
+  )
 
 }
