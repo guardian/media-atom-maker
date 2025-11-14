@@ -11,6 +11,7 @@ import YouTubeKeywords from '../../constants/youTubeKeywords';
 import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
 import FieldNotification from '../../constants/FieldNotification';
 import KeywordsApi from '../../services/KeywordsApi';
+import { addOrDropBundlingTags } from '../../services/KeywordsApi';
 import { fieldLengths } from '../../constants/videoEditValidation';
 import TextInput from '../FormFields/TextInput';
 import TextAreaInput from '../FormFields/TextAreaInput';
@@ -64,21 +65,9 @@ class YoutubeFurniture extends React.Component {
   composerKeywordsToYouTube = () => {
     const { video, updateVideo } = this.props;
 
-    return Promise.all(
-      video.keywords.map(keyword => KeywordsApi.composerTagToYouTube(keyword))
-    )
-      .then(youTubeKeywords => {
-        const oldTags = video.tags;
-        const keywordsToCopy = youTubeKeywords.reduce((tagsAdded, keyword) => {
-          const allAddedTags = oldTags.concat(tagsAdded);
-          if (keyword !== '' && allAddedTags.every(oldTag => oldTag !== keyword)) {
-            tagsAdded.push(keyword);
-          }
-          return tagsAdded;
-        }, []);
-        const newVideo = Object.assign({}, video, { tags: oldTags.concat(keywordsToCopy)});
-        updateVideo(newVideo);
-      });
+    const fullTags = addOrDropBundlingTags(video.keywords, video.tags, video.blockAds);
+    const newVideo = Object.assign({}, video, { tags: fullTags });
+    updateVideo(newVideo);
   };
 
   render() {
