@@ -42,6 +42,7 @@ class ExpirerLambda
     atomsWithAssets.foreach { atomWithAssets =>
       atomWithAssets.assetIds.foreach { assetId =>
         try {
+          log.info(s"Expiring video $assetId in atom ${atomWithAssets.atomId}")
           setStatus(assetId, PrivacyStatus.Private)
           createOrUpdateClaim(atomWithAssets.atomId, assetId, AdSettings.NONE)
         } catch {
@@ -54,6 +55,9 @@ class ExpirerLambda
       }
 
       if (atomWithAssets.assetIds.nonEmpty) {
+        log.info(
+          s"Mailing $expiryNotificationsAddress to notify that atom ${atomWithAssets.atomId} was expired"
+        )
         mailer.sendAtomExpiredEmail(
           atomId = atomWithAssets.atomId,
           atomTitle = atomWithAssets.atomTitle,
