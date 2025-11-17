@@ -35,7 +35,8 @@ class ExpirerLambda
     val atomsWithAssets: Seq[AssetDetails] =
       getVideosFromExpiredAtoms(1, 100, oneDayAgo, now, Seq.empty)
         .map(atomWithAssets => {
-          val managedAssetIds = atomWithAssets.assetIds.filter(isManagedVideo)
+          val managedAssetIds =
+            atomWithAssets.assetIds.filter(isManagedAndVisibleVideo)
           atomWithAssets.copy(assetIds = managedAssetIds)
         })
 
