@@ -1,19 +1,22 @@
 import React from 'react';
 
-interface ExpireNowComponentProps  {
+interface ExpireNowComponentProps {
   fieldValue: string;
   onUpdateField: (string: number) => void;
   editable: boolean;
   fieldName: string;
 }
 
-export const ExpireNowComponent = (props:ExpireNowComponentProps ) => {
+export const ExpireNowComponent = (props: ExpireNowComponentProps ) => {
 
-  const   updateValueExpiryDate = (props:ExpireNowComponentProps) => {
+  const updateValueExpiryDate = (props: ExpireNowComponentProps) => {
     const now = new Date();
     const minutes = now.getMinutes();
-    const newDate= new Date().setMinutes(Math.ceil(minutes/15)*15); // round to next quarter of hour
-    props.onUpdateField( newDate);
+    const newDate= new Date();
+    newDate.setMinutes(Math.ceil(minutes/15) * 15); // round to next quarter of hour
+    newDate.setSeconds(0);
+    newDate.setMilliseconds(0);
+    props.onUpdateField(newDate.getTime());
   };
   return (
     <div className="form__row">
@@ -24,7 +27,7 @@ export const ExpireNowComponent = (props:ExpireNowComponentProps ) => {
               type="button"
               disabled={!props.editable}
               className="btn form__label__button form__label__copy-button"
-              onClick={()=>updateValueExpiryDate(props)}
+              onClick={() => updateValueExpiryDate(props)}
               data-tip="Set Expiry Date to Next Run of the process"
               data-place="top"
             >
