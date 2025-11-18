@@ -87,7 +87,7 @@ class ExpirerLambdaTest extends AnyFunSuite with Matchers {
       Right("")
     }
 
-    override def isManagedAndVisibleVideo(youtubeId: String): Boolean = {
+    override def isManagedVideo(youtubeId: String): Boolean = {
       isMyVideo
     }
   }

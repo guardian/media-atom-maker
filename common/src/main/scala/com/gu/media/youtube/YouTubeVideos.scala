@@ -5,7 +5,7 @@ import com.google.api.client.googleapis.json.{
   GoogleJsonResponseException
 }
 import com.google.api.client.http.InputStreamContent
-import com.google.api.services.youtube.model.{Video, VideoSnippet, VideoStatus}
+import com.google.api.services.youtube.model.{Video, VideoSnippet}
 import com.gu.contentatom.thrift.atom.media.PrivacyStatus
 import com.gu.media.logging.Logging
 import com.gu.media.model.VideoUpdateError
@@ -224,17 +224,6 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
 
       case None =>
         false
-    }
-  }
-
-  def isManagedAndVisibleVideo(youtubeId: String): Boolean = {
-    getVideo(youtubeId, part = List("snippet", "status")) match {
-      case Some(video) =>
-        val channel = video.getSnippet.getChannelId
-        val isManaged = allChannels.contains(channel)
-        val isVisible = video.getStatus.getPrivacyStatus != "private"
-        isManaged && isVisible
-      case None => false
     }
   }
 
