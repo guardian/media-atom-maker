@@ -48,7 +48,6 @@ lazy val commonSettings = Seq(
   ThisBuild / scalaVersion := "2.13.16",
   scalacOptions ++= Seq("-feature", "-deprecation", "-release:21"),
   ThisBuild / organization := "com.gu",
-  resolvers ++= Resolver.sonatypeOssRepos("releases"),
 
   // silly SBT command to work-around lack of support for root projects that are not in the "root" folder
   // https://github.com/sbt/sbt/issues/2405
