@@ -10,11 +10,37 @@ import {Presence} from './Presence';
 import {canonicalVideoPageExists} from '../util/canonicalVideoPageExists';
 import VideoUtils from '../util/video';
 import {QUERY_PARAM_mediaPlatformFilter, QUERY_PARAM_shouldUseCreatedDateForSort} from "../constants/queryParams";
+import Modal from "./utils/Modal";
+import {videoPlayerFormats} from "../constants/videoPlayerFormats";
+import {connect} from "react-redux";
+import {bindActionCreators} from "redux";
+import {createVideo} from "../actions/VideoActions/createVideo";
+import {blankVideoData} from "../constants/blankVideoData";
 
-export default class Header extends React.Component {
-  state = { presence: null };
+class Header extends React.Component {
+  state = {
+    presence: null,
+    createModalOpen: false,
+    headline: ""
+  };
 
+  closeCreateModal = () => {
+    this.setState({ createModalOpen: false });
+  };
 
+  openCreateModal = () => {
+    this.setState({ createModalOpen: true });
+  };
+
+  createVideoNonCircular = () => {
+    const headline = this.state.headline;
+    console.log(headline)
+    const videoData = {
+      ...blankVideoData,
+      title: headline
+    }
+    this.props.createVideoAction(videoData);
+  }
 
   publishVideo = () => {
     this.props.publishVideo(this.props.video.id);
@@ -154,9 +180,34 @@ export default class Header extends React.Component {
   renderCreateVideo() {
     return (
       <nav className="topbar__nav-link">
-        <Link className="btn" to="/create">
+        <button className="btn" onClick={this.openCreateModal}>
           <Icon icon="add">Create</Icon>
-        </Link>
+        </button>
+
+        <Modal isOpen={this.state.createModalOpen} dismiss={this.closeCreateModal}>
+          <fieldset>
+            <label htmlFor={"Headline"}>Headline</label>
+            <input
+              id={"Headline"}
+              name={"headline"}
+              onChange={(event) => this.setState({ headline: event.target.value })}
+            />
+            <div>
+              <input type="radio" id={"Youtube"} name="videoPlayerFormat" value={"Youtube"} checked/>
+              <label htmlFor={"Youtube"}>Youtube (off-platform)</label>
+            </div>
+            {videoPlayerFormats.map((videoPlayerFormat) => (
+              <div>
+                <input type="radio" id={videoPlayerFormat.id} name="videoPlayerFormat" value={videoPlayerFormat.id} checked/>
+                <label htmlFor={videoPlayerFormat.id}>{videoPlayerFormat.title}</label>
+              </div>
+            ))}
+          </fieldset>
+
+          <button className="btn" onClick={this.createVideoNonCircular}>
+            Continue
+          </button>
+        </Modal>
       </nav>
     );
   }
@@ -295,3 +346,15 @@ export default class Header extends React.Component {
     }
   }
 }
+
+function mapStateToProps(state) {
+  return state;
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    createVideoAction: bindActionCreators(createVideo, dispatch)
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Header);

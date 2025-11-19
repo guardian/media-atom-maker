@@ -4,6 +4,7 @@ import { showError } from '../../slices/error';
 import { AppDispatch } from '../../util/setupStore';
 import {setVideo, setSaving} from '../../slices/video';
 
+// TODO: change typing to VideoWithoutId?
 export function createVideo(video: Video) {
   return (dispatch: AppDispatch) => {
     dispatch(setSaving(true));
