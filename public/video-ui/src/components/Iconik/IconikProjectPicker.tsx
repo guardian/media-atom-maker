@@ -94,6 +94,17 @@ export const IconikProjectPicker = ({ video }: Props) => {
     video.iconikData?.projectId,
     video.iconikData?.workingGroupId
   ]);
+  
+  const deleteIconikDataFromStore = useCallback(() => {
+    saveVideoUpdate({
+      workingGroupId: undefined,
+      commissionId: undefined,
+      projectId: undefined
+    });
+    setWorkingGroup(undefined);
+    setCommission(undefined);
+    setProject(undefined);
+  }, [saveVideoUpdate]);
 
   return (
     <div className="form__group">
@@ -157,16 +168,7 @@ export const IconikProjectPicker = ({ video }: Props) => {
           type="button"
           className="btn button__secondary--remove"
           disabled={video.iconikData?.projectId === undefined}
-          onClick={() => {
-            saveVideoUpdate({
-              workingGroupId: undefined,
-              commissionId: undefined,
-              projectId: undefined
-            });
-            setWorkingGroup(undefined);
-            setCommission(undefined);
-            setProject(undefined);
-          }}
+          onClick={deleteIconikDataFromStore}
         >
           Remove
         </button>

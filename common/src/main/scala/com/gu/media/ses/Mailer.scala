@@ -8,6 +8,29 @@ import com.gu.media.Settings
 import scala.jdk.CollectionConverters._
 
 class Mailer(config: Settings with SESSettings) {
+  def sendAtomExpiredEmail(
+      atomId: String,
+      atomTitle: String,
+      sendTo: String
+  ): SendEmailResult = {
+
+    val atomUrl = getAtomUrl(atomId)
+
+    val emailBody =
+      s"""
+         |<div>A video atom “$atomTitle” has expired.</div>
+         |<div>Please review ${getLinkTag(
+          atomUrl,
+          "the atom’s usages"
+        )} and replace it where it’s still in use.</div>
+         |""".stripMargin
+
+    sendEmail(
+      List(sendTo),
+      "Media Atom has expired - Action Required",
+      emailBody
+    )
+  }
   def sendPlutoIdMissingEmail(
       atomId: String,
       atomTitle: String,

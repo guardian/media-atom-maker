@@ -8,8 +8,7 @@ val scroogeVersion = "4.12.0"
 val awsVersion = "1.11.1034"
 val awsV2Version = "2.32.26"
 val pandaVersion = "10.0.0"
-val atomMakerVersion =
-  "6.0.0-PREVIEW.pficonik-data-in-content-atom-model.2025-10-31T0929.d5f902bf"
+val atomMakerVersion = "6.0.0"
 val typesafeConfigVersion =
   "1.4.0" // to match what we get from Play transitively
 val scanamoVersion = "1.0.0-M28"
@@ -244,7 +243,8 @@ lazy val expirer = (project in file("expirer"))
     commonSettings,
     name := "media-atom-expirer",
     Universal / topLevelDirectory := None,
-    Universal / packageName := normalizedName.value
+    Universal / packageName := normalizedName.value,
+    libraryDependencies += "org.mockito" %% "mockito-scala" % mockitoVersion % "test",
   )
 
 lazy val scheduler = (project in file("scheduler"))

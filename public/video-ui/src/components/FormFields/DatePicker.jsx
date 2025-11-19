@@ -75,7 +75,9 @@ function DateSelector({ date, onChange }) {
       const base = date ? dateMoment : moment().hours(0).minutes(0);
       const onChangeDate = moment(newDate)
         .hours(base.hours())
-        .minutes(base.minutes());
+        .minutes(base.minutes())
+        .seconds(0)
+        .milliseconds(0);
       onChange(onChangeDate);
     }
   };
