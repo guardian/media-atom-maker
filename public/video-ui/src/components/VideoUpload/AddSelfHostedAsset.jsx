@@ -23,7 +23,7 @@ export default class AddSelfHostedAsset extends React.Component {
       return false;
     }
 
-    const canUpload = video.videoPlayerFormat !== undefined || !permissions.videoPlayerFormat;
+    const canUpload = video.videoPlayerOption !== undefined || !permissions.videoPlayerOption;
 
     return (
       <div className="video__detailbox video__detailbox__assets">
