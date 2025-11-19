@@ -24,23 +24,28 @@ trait DynamoAccess { this: Settings with AwsAccess =>
     getMandatoryString("aws.dynamo.plutoTableName")
   )
 
-  private def getTableName(name: String): String = s"$app-$stage-$name-table"
+  private def getTableName(itemType: String, stage: String): String =
+    s"$app-$stage-$itemType-table"
 
-  lazy val plutoCommissionTableName: String = getTableName("pluto-commissions")
-  lazy val plutoProjectTableName: String = getTableName("pluto-projects")
+  lazy val plutoCommissionTableName: String =
+    getTableName("pluto-commissions", stage = stage)
+  lazy val plutoProjectTableName: String =
+    getTableName("pluto-projects", stage = stage)
   lazy val iconikWorkingGroupTableName: String =
-    if (stage == "DEV") "media-atom-maker-CODE-iconik-working-groups-table"
-    else
-      getTableName("iconik-working-groups")
+    getTableName(
+      "iconik-working-groups",
+      stage = if (stage == "DEV") "CODE" else stage
+    )
   lazy val iconikCommissionTableName: String =
-    if (stage == "DEV") "media-atom-maker-CODE-iconik-commissions-table"
-    else
-      getTableName(
-        "iconik-commissions"
-      )
+    getTableName(
+      "iconik-commissions",
+      stage = if (stage == "DEV") "CODE" else stage
+    )
   lazy val iconikProjectTableName: String =
-    if (stage == "DEV") "media-atom-maker-CODE-iconik-projects-table"
-    else getTableName("iconik-projects")
+    getTableName(
+      "iconik-projects",
+      stage = if (stage == "DEV") "CODE" else stage
+    )
 
   lazy val dynamoDB = AmazonDynamoDBClientBuilder
     .standard()
