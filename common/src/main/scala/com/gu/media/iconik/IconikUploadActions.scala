@@ -12,7 +12,7 @@ class IconikUploadActions(config: Settings with SQSAccess) extends Logging {
     log.info("Updating Iconik with latest change")
     config.sqsClient.sendMessage(
       new SendMessageRequest(
-        config.iconicQueueUrl,
+        config.iconikQueueUrl,
         Json.stringify(Json.toJson(iconikData))
       )
     )
