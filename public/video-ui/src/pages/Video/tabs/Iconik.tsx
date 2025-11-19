@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { Tab, TabPanel } from 'react-tabs';
 import { getIconikItemById, IconikItemType } from '../../../services/IconikApi';
 import { Video } from '../../../services/VideosApi';
+import { RootState } from '../../../util/setupStore';
 
 export const IconikTab = ({ disabled, ...rest }: { disabled: boolean }) => {
   return (
@@ -14,6 +16,20 @@ export const IconikTab = ({ disabled, ...rest }: { disabled: boolean }) => {
 IconikTab.tabsRole = Tab.tabsRole;
 
 export const IconikTabPanel = ({ video, ...rest }: { video: Video }) => {
+  const { config } = useSelector(({ config }: RootState) => ({
+    config
+  }));
+
+  if (!config.showIconik) {
+    return (
+      <TabPanel {...rest}>
+        <div className="form__group">
+          <p>Iconik integration is not currently enabled.</p>
+        </div>
+      </TabPanel>
+    );
+  }
+
   return (
     <TabPanel {...rest}>
       <div className="form__group">
