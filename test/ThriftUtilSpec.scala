@@ -83,6 +83,15 @@ class ThriftUtilSpec extends AnyFunSpec with Matchers with Inside {
           iframe.attr("src") should be(
             s"https://www.youtube-nocookie.com/embed/$youtubeId?showinfo=0&rel=0"
           )
+
+          /** These checks are just ensuring that the correct default values are
+            * set. I'm not sure if they're necessary, but they were in the
+            * original test and I haven't been able to satisfy myself that
+            * they're redundant.
+            */
+          atom.atomType shouldBe AtomType.Media
+          atom.labels shouldBe Nil
+          atom.flags shouldBe None
         }
       }
     }
