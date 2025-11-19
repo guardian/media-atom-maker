@@ -94,6 +94,7 @@ export type Video = {
   optimisedForWeb?: Boolean;
   suppressRelatedContent?: Boolean;
   videoPlayerFormat?: string;
+  platform?: Platform;
 };
 
 export type MediaAtomSummary = Pick<

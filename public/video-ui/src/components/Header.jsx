@@ -37,7 +37,7 @@ class Header extends React.Component {
     const headline = this.state.headline;
 
     const videoPlayerFormat = this.state.videoPlayerOption !== "Youtube" ? this.state.videoPlayerOption : undefined;
-    const platform = this.state.videoPlayerOption === "Youtube" ? "youtube" : "url";
+    const platform = this.state.videoPlayerOption === "Youtube" ? "Youtube" : "Url";
 
     const videoData = {
       ...blankVideoData,
