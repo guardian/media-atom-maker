@@ -21,7 +21,8 @@ class Header extends React.Component {
   state = {
     presence: null,
     createModalOpen: false,
-    headline: ""
+    headline: "",
+    videoPlayerOption: "Youtube"
   };
 
   closeCreateModal = () => {
@@ -34,11 +35,19 @@ class Header extends React.Component {
 
   createVideoNonCircular = () => {
     const headline = this.state.headline;
-    console.log(headline)
+
+    const videoPlayerFormat = this.state.videoPlayerOption !== "Youtube" ? this.state.videoPlayerOption : undefined;
+    const platform = this.state.videoPlayerOption === "Youtube" ? "youtube" : "url";
+
     const videoData = {
       ...blankVideoData,
-      title: headline
+      title: headline,
+      videoPlayerFormat,
+      platform
     }
+
+    console.log(videoData);
+
     this.props.createVideoAction(videoData);
   }
 
@@ -183,22 +192,23 @@ class Header extends React.Component {
         <button className="btn" onClick={this.openCreateModal}>
           <Icon icon="add">Create</Icon>
         </button>
-
         <Modal isOpen={this.state.createModalOpen} dismiss={this.closeCreateModal}>
-          <fieldset>
+          <div>
             <label htmlFor={"Headline"}>Headline</label>
             <input
               id={"Headline"}
               name={"headline"}
               onChange={(event) => this.setState({ headline: event.target.value })}
             />
+          </div>
+          <fieldset onChange={(event) => this.setState({ videoPlayerOption: event.target.value })}>
             <div>
-              <input type="radio" id={"Youtube"} name="videoPlayerFormat" value={"Youtube"} checked/>
+              <input type="radio" id={"Youtube"} name="videoPlayerFormat" value={"Youtube"} />
               <label htmlFor={"Youtube"}>Youtube (off-platform)</label>
             </div>
             {videoPlayerFormats.map((videoPlayerFormat) => (
               <div>
-                <input type="radio" id={videoPlayerFormat.id} name="videoPlayerFormat" value={videoPlayerFormat.id} checked/>
+                <input type="radio" id={videoPlayerFormat.id} name="videoPlayerFormat" value={videoPlayerFormat.id} />
                 <label htmlFor={videoPlayerFormat.id}>{videoPlayerFormat.title}</label>
               </div>
             ))}
