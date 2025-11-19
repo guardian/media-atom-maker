@@ -54,6 +54,7 @@ abstract class MediaAtomBase {
   val composerCommentsEnabled: Option[Boolean]
   val suppressRelatedContent: Option[Boolean]
   val videoPlayerFormat: Option[VideoPlayerFormat]
+  val platform: Option[Platform]
 
   def isOnCommercialChannel(
       commercialChannels: Set[String]
@@ -89,7 +90,8 @@ case class MediaAtomBeforeCreation(
     optimisedForWeb: Option[Boolean],
     composerCommentsEnabled: Option[Boolean],
     suppressRelatedContent: Option[Boolean],
-    videoPlayerFormat: Option[VideoPlayerFormat]
+    videoPlayerFormat: Option[VideoPlayerFormat],
+    platform: Option[Platform]
 ) extends MediaAtomBase {
 
   def asThrift(id: String, contentChangeDetails: ContentChangeDetails) = {
@@ -196,7 +198,8 @@ case class MediaAtom(
     composerCommentsEnabled: Option[Boolean] = Some(false),
     optimisedForWeb: Option[Boolean] = Some(false),
     suppressRelatedContent: Option[Boolean] = Some(false),
-    videoPlayerFormat: Option[VideoPlayerFormat] = None
+    videoPlayerFormat: Option[VideoPlayerFormat] = None,
+    platform: Option[Platform] = None
 ) extends MediaAtomBase {
 
   def asThrift = {
