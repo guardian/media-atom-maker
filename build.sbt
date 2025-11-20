@@ -110,6 +110,7 @@ lazy val common = (project in file("common"))
       "com.squareup.okhttp" % "okhttp" % okHttpVersion,
       "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test", // to match ScalaTest version
       "com.gu" %% "editorial-permissions-client" % "2.15",
+      "software.amazon.awssdk" % "ses" % awsV2Version,
       "com.gu" %% "content-api-client-aws" % "0.7.3",
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
       "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0" % "test",

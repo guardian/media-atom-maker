@@ -1,8 +1,7 @@
 package com.gu.media.ses
 
-import com.amazonaws.services.simpleemail.model._
+import software.amazon.awssdk.services.ses.model.{Body, Content, Destination, Message, SendEmailRequest, SendEmailResponse}
 import com.gu.media.aws.SESSettings
-import com.gu.media.model.MediaAtom
 import com.gu.media.Settings
 
 import scala.jdk.CollectionConverters._
@@ -12,7 +11,7 @@ class Mailer(config: Settings with SESSettings) {
       atomId: String,
       atomTitle: String,
       sendTo: String
-  ): SendEmailResult = {
+  ): SendEmailResponse = {
 
     val atomUrl = getAtomUrl(atomId)
 
@@ -35,7 +34,7 @@ class Mailer(config: Settings with SESSettings) {
       atomId: String,
       atomTitle: String,
       sendTo: String
-  ): SendEmailResult = {
+  ): SendEmailResponse = {
 
     val emailBody =
       s"""
@@ -64,17 +63,17 @@ class Mailer(config: Settings with SESSettings) {
       recipients: Seq[String],
       subject: String,
       body: String
-  ): SendEmailResult = {
+  ): SendEmailResponse = {
+    val subject = Content.builder().data(subject).build()
+    val body = Body.builder().html(Content.builder().data(body).build()).build()
     config.sesClient.sendEmail(
-      new SendEmailRequest()
-        .withDestination(new Destination().withToAddresses(recipients.asJava))
-        .withMessage(
-          new Message()
-            .withSubject(new Content(s"[Media Atom Maker] $subject"))
-            .withBody(new Body().withHtml(new Content(body)))
-        )
-        .withSource(config.fromEmailAddress)
-        .withReplyToAddresses(config.replyToAddresses.asJava)
+      SendEmailRequest
+        .builder()
+        .destination(Destination.builder().toAddresses(recipients.asJava).build())
+        .message(Message.builder().subject(subject).body(body).build())
+        .source(config.fromEmailAddress)
+        .replyToAddresses(config.replyToAddresses.asJava)
+        .build()
     )
   }
 
