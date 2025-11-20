@@ -16,6 +16,12 @@ export default class VideoUtils {
   }
 
   static isYoutube(atom) {
+    // If top level platform field is Youtube, return true
+    if(atom.platform === "Youtube") {
+      return true;
+    }
+    // For older videos, where each asset can have a different platform, we do the following:
+
     // no assets, could be youtube if we wanted
     if (!VideoUtils.hasAssets(atom)) {
       return true;
