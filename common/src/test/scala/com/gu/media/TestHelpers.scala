@@ -47,6 +47,7 @@ object TestHelpers {
     youtubeDescription = None,
     composerCommentsEnabled = None,
     optimisedForWeb = None,
-    suppressRelatedContent = None
+    suppressRelatedContent = None,
+    iconikData = None
   )
 }

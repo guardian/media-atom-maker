@@ -1,7 +1,12 @@
-import VideosApi from '../../services/VideosApi';
 import moment from 'moment';
+import VideosApi from '../../services/VideosApi';
 import { showError } from '../../slices/error';
-import {setVideo, setSaving} from '../../slices/video';
+import {
+  fetchIconikCommissions,
+  fetchIconikProjects,
+  fetchIconikWorkingGroups
+} from '../../slices/iconik';
+import { setSaving, setVideo } from '../../slices/video';
 
 export function getVideo(id) {
   return dispatch => {
@@ -25,6 +30,13 @@ export function getVideo(id) {
         }
         dispatch(setSaving(false));
         dispatch(setVideo(res));
+        dispatch(fetchIconikWorkingGroups());
+        if (res.iconikData?.workingGroupId) {
+          dispatch(fetchIconikCommissions(res.iconikData.workingGroupId));
+        }
+        if (res.iconikData?.commissionId) {
+          dispatch(fetchIconikProjects(res.iconikData.commissionId));
+        }
       })
       .catch(error => dispatch(showError('Could not get video', error)));
   };

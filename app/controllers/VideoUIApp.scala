@@ -60,7 +60,8 @@ class VideoUIApp(
       isTrainingMode = isTrainingMode,
       workflowUrl = awsConfig.workflowUrl,
       targetingUrl = awsConfig.targetingUrl,
-      tagManagerUrl = awsConfig.tagManagerUrl
+      tagManagerUrl = awsConfig.tagManagerUrl,
+      showIconik = conf.get[String]("stage") != "PROD"
     )
 
     Ok(

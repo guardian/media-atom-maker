@@ -1,4 +1,4 @@
-import { createSlice, Action } from '@reduxjs/toolkit';
+import { Action, createSlice } from '@reduxjs/toolkit';
 
 export type AppConfig = {
   permissions: Record<string, boolean>;
@@ -19,6 +19,7 @@ export type AppConfig = {
   targetingUrl?: string;
   embeddedMode?: string;
   tagManagerUrl?: string;
+  showIconik?: boolean;
 };
 
 export type ConfigState = AppConfig;

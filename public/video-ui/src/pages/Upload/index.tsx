@@ -5,6 +5,7 @@ import { createAsset } from '../../actions/VideoActions/createAsset';
 import { getVideo } from '../../actions/VideoActions/getVideo';
 import { revertAsset } from '../../actions/VideoActions/revertAsset';
 import { saveVideo } from '../../actions/VideoActions/saveVideo';
+import { IconikProjectPicker } from '../../components/Iconik/IconikProjectPicker';
 import PlutoProjectLink from '../../components/Pluto/PlutoProjectLink';
 import { PlutoProjectPicker } from '../../components/Pluto/PlutoProjectPicker';
 import AddAssetFromURL from '../../components/VideoUpload/AddAssetFromURL';
@@ -74,6 +75,11 @@ export const VideoUpload = (props: { params: { id: string } }) => {
     [dispatch, store.video.id, store.activatingAssetNumber]
   );
 
+  // Prevent rendering until the correct video is loaded
+  if (store.video.id !== props.params.id) {
+    return null;
+  }
+
   return (
     <div>
       <div className="video__main">
@@ -85,6 +91,11 @@ export const VideoUpload = (props: { params: { id: string } }) => {
                 <PlutoProjectPicker video={store.video} />
               </div>
             </div>
+            {store.config.showIconik && (
+              <div>
+                <IconikProjectPicker video={store.video} />
+              </div>
+            )}
             <YoutubeUpload
               video={store.video}
               categories={store.youtube.categories}
