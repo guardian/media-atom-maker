@@ -26,6 +26,7 @@ import { saveVideo } from '../actions/VideoActions/saveVideo';
 import { getVideo } from '../actions/VideoActions/getVideo';
 import { getPublishedVideo } from '../actions/VideoActions/getPublishedVideo';
 import { getUploads } from '../slices/uploads';
+import {createVideo} from "../actions/VideoActions/createVideo";
 
 export const ReactApp = (
   props: React.PropsWithChildren<{
@@ -95,6 +96,7 @@ export const ReactApp = (
   return (
     <div className="wrap">
       <Header
+        createVideo={bindActionCreators(createVideo, dispatch)}
         updateMediaPlatformFilter={bindActionCreators(
           updateMediaPlatformFilter,
           dispatch

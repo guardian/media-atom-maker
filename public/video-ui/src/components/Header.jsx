@@ -17,7 +17,7 @@ import {bindActionCreators} from "redux";
 import {createVideo} from "../actions/VideoActions/createVideo";
 import {blankVideoData} from "../constants/blankVideoData";
 
-class Header extends React.Component {
+export default class Header extends React.Component {
   state = {
     presence: null,
     createModalOpen: false,
@@ -33,7 +33,7 @@ class Header extends React.Component {
     this.setState({ createModalOpen: true });
   };
 
-  createVideoNonCircular = () => {
+  createVideo = () => {
     const headline = this.state.headline;
 
     const videoPlayerFormat = this.state.videoPlayerOption !== "Youtube" ? this.state.videoPlayerOption : undefined;
@@ -48,7 +48,7 @@ class Header extends React.Component {
 
     console.log(videoData);
 
-    this.props.createVideoAction(videoData);
+    this.props.createVideo(videoData);
   }
 
   publishVideo = () => {
@@ -214,7 +214,7 @@ class Header extends React.Component {
             ))}
           </fieldset>
 
-          <button className="btn" onClick={this.createVideoNonCircular}>
+          <button className="btn" onClick={this.createVideo}>
             Continue
           </button>
         </Modal>
@@ -356,15 +356,3 @@ class Header extends React.Component {
     }
   }
 }
-
-function mapStateToProps(state) {
-  return state;
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    createVideoAction: bindActionCreators(createVideo, dispatch)
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Header);
