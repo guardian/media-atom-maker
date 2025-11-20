@@ -141,13 +141,18 @@ class VideoDisplay extends React.Component {
     const activeAsset = VideoUtils.getActiveAsset(this.props.video);
     const youtubeAsset = isYoutube && activeAsset;
 
+
+
     return (
       <div className="video__detailbox">
         <div className="video__detailbox__header__container">
           <header className="video__detailbox__header">
             <div>
               <h3>Video Preview</h3>
-              <h4>{this.props.video?.videoPlayerFormat}</h4>
+              <h4>{
+                videoPlayerFormats
+                  .find(format => format.id === this.props.video.videoPlayerFormat)?.title
+                }</h4>
             </div>
 
             {youtubeAsset &&  (
@@ -431,6 +436,7 @@ import {updateFormWarnings} from "../../slices/formFieldsWarning";
 import {updateVideoEditState} from "../../slices/editState";
 import {updateFormErrors} from "../../slices/checkedFormFields";
 import {selectIsSaving, selectPublishedVideo, selectVideo } from "../../slices/video";
+import {videoPlayerFormats} from "../../constants/videoPlayerFormats";
 
 function mapStateToProps(state) {
   return {
