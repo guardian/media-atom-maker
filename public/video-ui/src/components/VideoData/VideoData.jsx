@@ -63,7 +63,9 @@ export default class VideoData extends React.Component {
 
     const isCommercialType = VideoUtils.isCommercialType(video);
     const hasAssets = VideoUtils.hasAssets(video);
-    const permissions = getStore().getState().config.permissions;
+    const canHaveComposerPage =
+      this.props.video.videoPlayerFormat !== 'Cinemagraph' &&
+      this.props.video.videoPlayerFormat !== 'Loop';
 
     return (
       <ManagedForm
@@ -83,7 +85,8 @@ export default class VideoData extends React.Component {
         >
           <TextInput />
         </ManagedField>
-        <ManagedField
+        { canHaveComposerPage &&
+          <ManagedField
           fieldLocation="description"
           name="Standfirst"
           maxLength={fieldLengths.description.charMax}
@@ -93,53 +96,62 @@ export default class VideoData extends React.Component {
             config={standfirstConfig}
           />
         </ManagedField>
-        <ManagedField
-          fieldLocation="trailText"
-          derivedFrom={video.description}
-          name="Trail Text"
-          maxLength={fieldLengths.description.charMax}
-          maxWordLength={fieldLengths.description.max}
-          isDesired={!canonicalVideoPageExists}
-          isRequired={canonicalVideoPageExists}
-        >
-          <RichTextField
+        }
+        { canHaveComposerPage &&
+          <ManagedField
+            fieldLocation="trailText"
+            derivedFrom={video.description}
+            name="Trail Text"
+            maxLength={fieldLengths.description.charMax}
+            maxWordLength={fieldLengths.description.max}
             isDesired={!canonicalVideoPageExists}
             isRequired={canonicalVideoPageExists}
-            config={trailTextConfig}
-          />
-        </ManagedField>
-
-        <ManagedField
-          fieldLocation="byline"
-          name="Byline"
-          formRowClass="form__row__byline"
-          tagType={TagTypes.contributor}
-        >
-          <TagPicker />
-        </ManagedField>
-        <ManagedField
-          fieldLocation="commissioningDesks"
-          name="Commissioning Desks"
-          formRowClass="form__row__byline"
-          tagType={TagTypes.tracking}
-          isDesired={!canonicalVideoPageExists}
-          isRequired={canonicalVideoPageExists}
-          inputPlaceholder="Search commissioning info (type '*' to show all)"
-        >
-          <TagPicker disableTextInput />
-        </ManagedField>
-
-        <ManagedField
-          fieldLocation="keywords"
-          name="Composer Keywords"
-          formRowClass="form__row__byline"
-          tagType={isCommercialType ? TagTypes.commercial : TagTypes.keyword}
-          isDesired={true}
-          inputPlaceholder="Search keywords (type '*' to show all)"
-          customValidation={this.validateKeywords}
-        >
-          <TagPicker disableTextInput />
-        </ManagedField>
+          >
+            <RichTextField
+              isDesired={!canonicalVideoPageExists}
+              isRequired={canonicalVideoPageExists}
+              config={trailTextConfig}
+            />
+          </ManagedField>
+        }
+        { canHaveComposerPage &&
+          <ManagedField
+            fieldLocation="byline"
+            name="Byline"
+            formRowClass="form__row__byline"
+            tagType={TagTypes.contributor}
+          >
+            <TagPicker />
+          </ManagedField>
+        }
+        {
+          canHaveComposerPage &&
+            <ManagedField
+              fieldLocation="commissioningDesks"
+              name="Commissioning Desks"
+              formRowClass="form__row__byline"
+              tagType={TagTypes.tracking}
+              isDesired={!canonicalVideoPageExists}
+              isRequired={canonicalVideoPageExists}
+              inputPlaceholder="Search commissioning info (type '*' to show all)"
+            >
+              <TagPicker disableTextInput />
+            </ManagedField>
+        }
+        {
+          canHaveComposerPage &&
+            <ManagedField
+              fieldLocation="keywords"
+              name="Composer Keywords"
+              formRowClass="form__row__byline"
+              tagType={isCommercialType ? TagTypes.commercial : TagTypes.keyword}
+              isDesired={true}
+              inputPlaceholder="Search keywords (type '*' to show all)"
+              customValidation={this.validateKeywords}
+            >
+              <TagPicker disableTextInput />
+            </ManagedField>
+        }
         <ManagedField fieldLocation="source" name="Video Source">
           <TextInput />
         </ManagedField>
@@ -156,12 +168,6 @@ export default class VideoData extends React.Component {
         </ManagedField>
         <ManagedField fieldLocation="duration" name="Video Duration (mm:ss)">
           <DurationInput />
-        </ManagedField>
-        <ManagedField
-          fieldLocation="videoPlayerFormat"
-          name="Video Player Format"
-        >
-          <SelectBox selectValues={videoPlayerFormats} />
         </ManagedField>
       </ManagedForm>
     );
