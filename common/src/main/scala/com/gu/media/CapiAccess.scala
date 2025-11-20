@@ -1,19 +1,21 @@
 package com.gu.media
 
+
 import java.io.IOException
 import java.net.URI
 import java.util.concurrent.TimeUnit
-
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.auth.{
-  AWSCredentialsProvider,
-  AWSCredentialsProviderChain,
-  STSAssumeRoleSessionCredentialsProvider
-}
-import com.gu.contentapi.client.{IAMSigner, IAMEncoder}
+import software.amazon.awssdk.auth.credentials.{AwsCredentialsProvider, AwsCredentialsProviderChain, ProfileCredentialsProvider}
+import com.gu.contentapi.client.IAMEncoder
 import com.squareup.okhttp.{Headers, OkHttpClient, Request}
 import com.typesafe.config.Config
 import play.api.libs.json.{JsValue, Json}
+import software.amazon.awssdk.http.{SdkHttpFullRequest, SdkHttpMethod}
+import software.amazon.awssdk.http.auth.aws.signer.{AwsV4FamilyHttpSigner, AwsV4HttpSigner}
+import software.amazon.awssdk.http.auth.spi.signer.SignRequest
+import software.amazon.awssdk.identity.spi.AwsCredentialsIdentity
+import software.amazon.awssdk.services.sts.StsClient
+import software.amazon.awssdk.services.sts.auth.StsAssumeRoleCredentialsProvider
+import software.amazon.awssdk.services.sts.model.AssumeRoleRequest
 
 import collection.JavaConverters._
 
@@ -23,20 +25,69 @@ trait CapiAccess { this: Settings =>
   def liveCapiUrl = getMandatoryString("capi.liveUrl")
   def liveCapiApiKey = getMandatoryString("capi.liveApiKey")
 
-  private val capiPreviewCredentials: AWSCredentialsProvider = {
-    new AWSCredentialsProviderChain(
-      new ProfileCredentialsProvider("capi"),
-      new STSAssumeRoleSessionCredentialsProvider.Builder(
-        previewCapiRole,
-        "capi"
-      ).build()
-    )
+  val stsClient = StsClient.builder().build();
+  val capiPreviewCredentials: AwsCredentialsProvider = {
+    AwsCredentialsProviderChain.builder()
+      .credentialsProviders(
+        ProfileCredentialsProvider.builder()
+          .profileName("capi")
+          .build(),
+
+        StsAssumeRoleCredentialsProvider.builder()
+          .stsClient(stsClient)
+          .refreshRequest(AssumeRoleRequest.builder().roleArn(previewCapiRole).roleSessionName("capi").build())
+          .build()
+      )
+      .build();
+  }
+  def credentials = capiPreviewCredentials.resolveCredentials()
+
+  val awsRegion = "eu-west-1"
+  val serviceName = "media-atom-maker"
+
+  val signer =  AwsV4HttpSigner.create()
+
+  def addIAMHeaders(headers: Map[String, String], uri: URI): Map[String, String] = {
+
+    val queryParams: Map[String, java.util.List[String]] =
+      Option(uri.getQuery)
+        .map(_.split("&").toList.flatMap { s =>
+          s.split("=").toList match {
+            case k :: v :: Nil => Some(k -> java.util.Collections.singletonList(v))
+            case _ => None
+          }
+        }.toMap)
+        .getOrElse(Map.empty)
+
+    val unsignedRequest: SdkHttpFullRequest = {
+      //api-gateway will break the compressed json response if we don't supply an accept header
+      val headersWithAccept =
+        if (headers.contains("accept") || headers.contains("Accept")) headers
+        else headers + ("accept" -> "application/json")
+
+      val reqBuilder = SdkHttpFullRequest.builder()
+        .method(SdkHttpMethod.GET)
+        .uri(new java.net.URI(s"${uri.getScheme}://${uri.getHost}"))
+        .encodedPath(uri.getPath)
+
+      headersWithAccept.foreach { case (k, v) => reqBuilder.putHeader(k, v) }
+      queryParams.foreach { case (k, v) => reqBuilder.putRawQueryParameter(k, v) }
+
+      reqBuilder.build()
+    }
+
+    val signedRequest = signer.sign { r: SignRequest.Builder[AwsCredentialsIdentity] =>
+      r.identity(credentials)
+        .request(unsignedRequest)
+        .putProperty(AwsV4HttpSigner.REGION_NAME, awsRegion)
+        .putProperty(AwsV4FamilyHttpSigner.SERVICE_SIGNING_NAME, serviceName)
+    }
+
+    signedRequest.request().headers().asScala
+      .map { case (k, v) => k -> v.asScala.headOption.getOrElse("") }
+      .toMap
   }
 
-  private val signer = new IAMSigner(
-    capiPreviewCredentials,
-    sys.env.getOrElse("REGION", "eu-west-1")
-  )
 
   private val httpClient = new OkHttpClient()
   httpClient.setConnectTimeout(5, TimeUnit.SECONDS)
@@ -81,7 +132,7 @@ trait CapiAccess { this: Settings =>
 
     val headers: Map[String, String] =
       if (queryLive) Map.empty
-      else signer.addIAMHeaders(Map.empty[String, String], uri)
+      else addIAMHeaders(Map.empty[String, String], uri)
 
     val req = new Request.Builder()
       .url(uri.toURL)
