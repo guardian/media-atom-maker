@@ -157,14 +157,12 @@ export default class VideoData extends React.Component {
         <ManagedField fieldLocation="duration" name="Video Duration (mm:ss)">
           <DurationInput />
         </ManagedField>
-        { permissions?.videoPlayerOption && (
-          <ManagedField
-            fieldLocation="videoPlayerFormat"
-            name="Video Player Format"
-          >
-            <SelectBox selectValues={videoPlayerFormats} />
-          </ManagedField>)
-        }
+        <ManagedField
+          fieldLocation="videoPlayerFormat"
+          name="Video Player Format"
+        >
+          <SelectBox selectValues={videoPlayerFormats} />
+        </ManagedField>
       </ManagedForm>
     );
   }
