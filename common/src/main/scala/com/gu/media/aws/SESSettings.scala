@@ -1,7 +1,7 @@
 package com.gu.media.aws
 
-import software.amazon.awssdk.services.ses.SesClient
 import com.gu.media.Settings
+import software.amazon.awssdk.services.ses.SesClient
 
 trait SESSettings { this: Settings with AwsAccess =>
 

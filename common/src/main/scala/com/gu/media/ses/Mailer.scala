@@ -64,13 +64,13 @@ class Mailer(config: Settings with SESSettings) {
       subject: String,
       body: String
   ): SendEmailResponse = {
-    val subject = Content.builder().data(subject).build()
-    val body = Body.builder().html(Content.builder().data(body).build()).build()
+    val subjectContent = Content.builder().data(subject).build()
+    val bodyContent = Body.builder().html(Content.builder().data(body).build()).build()
     config.sesClient.sendEmail(
       SendEmailRequest
         .builder()
         .destination(Destination.builder().toAddresses(recipients.asJava).build())
-        .message(Message.builder().subject(subject).body(body).build())
+        .message(Message.builder().subject(subjectContent).body(bodyContent).build())
         .source(config.fromEmailAddress)
         .replyToAddresses(config.replyToAddresses.asJava)
         .build()

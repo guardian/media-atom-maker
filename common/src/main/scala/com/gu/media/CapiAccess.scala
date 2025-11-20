@@ -40,7 +40,7 @@ trait CapiAccess { this: Settings =>
       )
       .build();
   }
-  def credentials = capiPreviewCredentials.resolveCredentials()
+  def creds = capiPreviewCredentials.resolveCredentials()
 
   val awsRegion = "eu-west-1"
   val serviceName = "media-atom-maker"
@@ -77,7 +77,7 @@ trait CapiAccess { this: Settings =>
     }
 
     val signedRequest = signer.sign { r: SignRequest.Builder[AwsCredentialsIdentity] =>
-      r.identity(credentials)
+      r.identity(creds)
         .request(unsignedRequest)
         .putProperty(AwsV4HttpSigner.REGION_NAME, awsRegion)
         .putProperty(AwsV4FamilyHttpSigner.SERVICE_SIGNING_NAME, serviceName)
