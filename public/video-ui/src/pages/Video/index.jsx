@@ -265,7 +265,7 @@ class VideoDisplay extends React.Component {
       <Tabs className="video__detailbox">
         <TabList>
           <FurnitureTab disabled={furnitureDisabled} />
-          <YoutubeFurnitureTab disabled={ytFurnitureDisabled} />
+          {video.platform !== 'Url' && <YoutubeFurnitureTab disabled={ytFurnitureDisabled} />}
           <WorkflowTab disabled={workflowDisabled || isCreateMode} />
           <UsageTab disabled={videoEditOpen || isCreateMode} />
           <TargetingTab disabled={videoEditOpen || isCreateMode} />
