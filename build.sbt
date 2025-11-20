@@ -105,7 +105,6 @@ lazy val common = (project in file("common"))
       "com.amazonaws" % "aws-lambda-java-core" % awsLambdaCoreVersion,
       "com.amazonaws" % "aws-java-sdk-s3" % awsVersion,
       "software.amazon.awssdk" % "dynamodb" % awsV2Version,
-      "com.amazonaws" % "aws-java-sdk-kinesis" % awsVersion,
       "com.gu" %% "play-json-extensions" % playJsonExtensionsVersion,
       "ch.qos.logback" % "logback-classic" % logbackClassicVersion,
       "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
