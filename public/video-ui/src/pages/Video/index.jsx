@@ -311,40 +311,42 @@ class VideoDisplay extends React.Component {
           updateWarnings={this.props.formErrorActions.updateFormWarnings}
           canonicalVideoPageExists={canonicalVideoPageExists(usages)}
         />
-        <YoutubeFurnitureTabPanel
-          editing={editingYoutubeFurniture}
-          onEdit={() =>
-            this.updateEditingState({
-              key: 'editingYoutubeFurniture',
-              editing: true
-            })}
-          onCancel={() => {
-            this.updateEditingState({
-              key: 'editingYoutubeFurniture',
-              editing: false
-            });
-            this.getVideo();
-          }}
-          onSave={() => {
-            this.saveAndUpdateVideo(video)
-              .then(() => {
-                this.updateEditingState({
-                  key: 'editingYoutubeFurniture',
-                  editing: false
-                });
-              })
-              .catch(() => {
-                // Keep editing state as true on save failure
-                // Error handling is done in the saveVideo action
+        { video.platform !== 'Url' &&
+          <YoutubeFurnitureTabPanel
+            editing={editingYoutubeFurniture}
+            onEdit={() =>
+              this.updateEditingState({
+                key: 'editingYoutubeFurniture',
+                editing: true
+              })}
+            onCancel={() => {
+              this.updateEditingState({
+                key: 'editingYoutubeFurniture',
+                editing: false
               });
-          }}
-          canSave={() => !this.formHasErrors(formNames.youtubeFurniture) && !this.props.isSaving}
-          canCancel={() => !this.props.isSaving}
-          video={video}
-          updateVideo={this.updateVideo}
-          updateErrors={this.props.formErrorActions.updateFormErrors}
-          updateWarnings={this.props.formErrorActions.updateFormWarnings}
-        />
+              this.getVideo();
+            }}
+            onSave={() => {
+              this.saveAndUpdateVideo(video)
+                .then(() => {
+                  this.updateEditingState({
+                    key: 'editingYoutubeFurniture',
+                    editing: false
+                  });
+                })
+                .catch(() => {
+                  // Keep editing state as true on save failure
+                  // Error handling is done in the saveVideo action
+                });
+            }}
+            canSave={() => !this.formHasErrors(formNames.youtubeFurniture) && !this.props.isSaving}
+            canCancel={() => !this.props.isSaving}
+            video={video}
+            updateVideo={this.updateVideo}
+            updateErrors={this.props.formErrorActions.updateFormErrors}
+            updateWarnings={this.props.formErrorActions.updateFormWarnings}
+          />
+        }
         <WorkflowTabPanel
           editing={editingWorkflow}
           onEdit={() =>
