@@ -383,8 +383,6 @@ class VideoDisplay extends React.Component {
       ? this.props.video
       : undefined;
 
-    console.log('video', video)
-
     if (!video) {
       return <div className="container">Loading... </div>;
     }

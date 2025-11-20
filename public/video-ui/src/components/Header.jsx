@@ -46,8 +46,6 @@ export default class Header extends React.Component {
       platform
     }
 
-    console.log(videoData);
-
     this.props.createVideo(videoData);
   }
 
