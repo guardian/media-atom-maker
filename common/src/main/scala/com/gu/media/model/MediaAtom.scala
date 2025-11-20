@@ -128,7 +128,8 @@ case class MediaAtomBeforeCreation(
       ),
       commentsEnabled = composerCommentsEnabled,
       optimisedForWeb = optimisedForWeb,
-      suppressRelatedContent = suppressRelatedContent
+      suppressRelatedContent = suppressRelatedContent,
+      platform = platform.map(_.asThrift)
     )
 
     ThriftAtom(
@@ -236,7 +237,8 @@ case class MediaAtom(
       ),
       commentsEnabled = composerCommentsEnabled,
       optimisedForWeb = optimisedForWeb,
-      suppressRelatedContent = suppressRelatedContent
+      suppressRelatedContent = suppressRelatedContent,
+      platform = platform.map(_.asThrift)
     )
 
     ThriftAtom(
@@ -320,7 +322,8 @@ object MediaAtom extends MediaAtomImplicits {
       videoPlayerFormat = data.metadata
         .flatMap(_.selfHost)
         .flatMap(_.videoPlayerFormat)
-        .map(VideoPlayerFormat.fromThrift)
+        .map(VideoPlayerFormat.fromThrift),
+      platform = data.platform.map(Platform.fromThrift)
     )
   }
 }
