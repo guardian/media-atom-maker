@@ -264,6 +264,10 @@ export default class Header extends React.Component {
   }
 
   render() {
+    const canHaveComposerPage =
+      this.props.video.videoPlayerFormat !== 'Cinemagraph' &&
+      this.props.video.videoPlayerFormat !== 'Loop';
+
     const className = this.props.isTrainingMode
       ? 'topbar topbar--training-mode flex-container'
       : 'topbar flex-container';
@@ -336,15 +340,19 @@ export default class Header extends React.Component {
             usages={this.props.usages}
             deleteVideo={this.props.deleteVideo}
           />
-          <ComposerPageCreate
-            videoEditOpen={this.props.videoEditOpen}
-            video={this.props.video || {}}
-            createVideoPage={this.props.createVideoPage}
-            requiredComposerFieldsMissing={this.requiredComposerFieldsMissing}
-            usages={this.props.usages}
-            error={this.props.error}
-          />
-          {this.renderComposerMissingWarning()}
+          {canHaveComposerPage &&
+            <>
+              <ComposerPageCreate
+                videoEditOpen={this.props.videoEditOpen}
+                video={this.props.video || {}}
+                createVideoPage={this.props.createVideoPage}
+                requiredComposerFieldsMissing={this.requiredComposerFieldsMissing}
+                usages={this.props.usages}
+                error={this.props.error}
+              />
+              {this.renderComposerMissingWarning()}
+            </>
+          }
           <div className="flex-container">
             {this.renderHelpLink()}
           </div>

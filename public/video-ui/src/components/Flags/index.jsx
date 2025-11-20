@@ -26,6 +26,9 @@ class Flags extends React.Component {
     const isYoutubeAtom = VideoUtils.isYoutube(video);
     const isCommercialType = VideoUtils.isCommercialType(video);
     const isEligibleForAds = VideoUtils.isEligibleForAds(video);
+    const canHaveComposerPage =
+      this.props.video.videoPlayerFormat !== 'Cinemagraph' &&
+      this.props.video.videoPlayerFormat !== 'Loop';
 
     return (
       <ManagedForm
@@ -37,34 +40,41 @@ class Flags extends React.Component {
         formName={formNames.flags}
         formClass="atom__edit__form"
       >
-        <ManagedField
-          fieldLocation="blockAds"
-          name="Block ads"
-          fieldDetails={
-            isCommercialType
-              ? 'Block ads on Composer page'
-              : 'Ads will not be displayed with this video'
-          }
-          disabled={!isYoutubeAtom || !isEligibleForAds}
-          tooltip={!isEligibleForAds ? `Not eligible for pre-roll.` : ''}
-        >
-          {/* use a different field identifier to `fieldLocation` to ensure ad blockers don't remove it from the DOM */}
-          <CheckBox fieldId="what-a-time-to-be-alive"/>
-        </ManagedField>
-        <ManagedField
-          fieldLocation="composerCommentsEnabled"
-          name="Comments"
-          fieldDetails="Allow comments on Guardian video page (does not change YouTube)"
-        >
-          <CheckBox />
-        </ManagedField>
-        <ManagedField
-          fieldLocation="optimisedForWeb"
-          name="Optimised for Web"
-          fieldDetails="Optimised for Web"
-        >
-          <CheckBox />
-        </ManagedField>
+        {
+          canHaveComposerPage &&
+          <ManagedField
+            fieldLocation="blockAds"
+            name="Block ads"
+            fieldDetails={
+              isCommercialType
+                ? 'Block ads on Composer page'
+                : 'Ads will not be displayed with this video'
+            }
+            disabled={!isYoutubeAtom || !isEligibleForAds}
+            tooltip={!isEligibleForAds ? `Not eligible for pre-roll.` : ''}
+          >
+            {/* use a different field identifier to `fieldLocation` to ensure ad blockers don't remove it from the DOM */}
+            <CheckBox fieldId="what-a-time-to-be-alive"/>
+          </ManagedField>
+        }
+        { canHaveComposerPage &&
+          <ManagedField
+            fieldLocation="composerCommentsEnabled"
+            name="Comments"
+            fieldDetails="Allow comments on Guardian video page (does not change YouTube)"
+          >
+            <CheckBox />
+          </ManagedField>
+        }
+        { canHaveComposerPage &&
+          <ManagedField
+            fieldLocation="optimisedForWeb"
+            name="Optimised for Web"
+            fieldDetails="Optimised for Web"
+          >
+            <CheckBox />
+          </ManagedField>
+        }
         <ManagedField
           fieldLocation="sensitive"
           name="Sensitive"
@@ -79,13 +89,15 @@ class Flags extends React.Component {
         >
           <CheckBox />
         </ManagedField>
-        <ManagedField
-          fieldLocation="suppressRelatedContent"
-          name="Suppress related content"
-          fieldDetails="Suppress related content"
-        >
-          <CheckBox />
-        </ManagedField>
+        { canHaveComposerPage &&
+          <ManagedField
+            fieldLocation="suppressRelatedContent"
+            name="Suppress related content"
+            fieldDetails="Suppress related content"
+          >
+            <CheckBox />
+          </ManagedField>
+        }
       </ManagedForm>
     );
   }
