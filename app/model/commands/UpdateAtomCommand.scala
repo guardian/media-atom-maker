@@ -8,6 +8,7 @@ import com.gu.contentatom.thrift.{
   EventType,
   ChangeRecord => ThriftChangeRecord
 }
+import com.gu.media.iconik.IconikUploadActions
 import com.gu.media.logging.Logging
 import com.gu.media.model.{
   AtomAssignedProjectMessage,
@@ -20,7 +21,10 @@ import com.gu.media.util.MediaAtomImplicits
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
-import model.commands.UpdateAtomCommand.createDiffString
+import model.commands.UpdateAtomCommand.{
+  createDiffString,
+  shouldNotifyThirdPartyServices
+}
 import org.joda.time.DateTime
 import util.AWSConfig
 
@@ -131,8 +135,7 @@ case class UpdateAtomCommand(
 
               val existingMediaAtom = MediaAtom.fromThrift(existingAtom)
               val updatedMediaAtom = MediaAtom.fromThrift(thrift)
-              processPlutoData(existingMediaAtom, updatedMediaAtom)
-
+              updateThirdPaties(existingMediaAtom, updatedMediaAtom)
               AuditMessage(
                 atom.id,
                 "Update",
@@ -157,16 +160,23 @@ case class UpdateAtomCommand(
       )
   }
 
-  private def processPlutoData(oldAtom: MediaAtom, newAtom: MediaAtom) = {
-    (
-      oldAtom.plutoData.flatMap(_.projectId),
-      newAtom.plutoData.flatMap(_.projectId)
-    ) match {
-      case (Some(oldProject), Some(newProject)) if oldProject != newProject =>
-        notifyPluto(newAtom)
-      case (None, Some(_)) => notifyPluto(newAtom)
-      case (_, _)          => None
+  private def updateThirdPaties(oldAtom: MediaAtom, newAtom: MediaAtom) = {
+    val oldIconikId = oldAtom.iconikData.flatMap(_.projectId)
+    val newIconikId = newAtom.iconikData.flatMap(_.projectId)
+    if (shouldNotifyThirdPartyServices(oldIconikId, newIconikId)) {
+      notifyIconik(newAtom)
     }
+
+    val oldPlutoId = oldAtom.plutoData.flatMap(_.projectId)
+    val newPlutoId = newAtom.plutoData.flatMap(_.projectId)
+    if (shouldNotifyThirdPartyServices(oldPlutoId, newPlutoId)) {
+      notifyPluto(newAtom)
+    }
+  }
+
+  private def notifyIconik(newAtom: MediaAtom) = {
+    val iconikUploadActions = new IconikUploadActions(awsConfig)
+    newAtom.iconikData.foreach(data => iconikUploadActions.send(data))
   }
 
   private def notifyPluto(newAtom: MediaAtom) = {
@@ -201,5 +211,17 @@ object UpdateAtomCommand {
     if (changedFields.isEmpty) { // There's a change, but in some field we're not interested in (or rather, unable to format nicely)
       "Updated atom fields"
     } else s"Updated atom fields (${changedFields.mkString(", ")})"
+  }
+
+  def shouldNotifyThirdPartyServices(
+      oldProjectId: Option[String],
+      newProjectId: Option[String]
+  ): Boolean = {
+    (oldProjectId, newProjectId) match {
+      case (Some(oldProject), Some(newProject)) if oldProject != newProject =>
+        true
+      case (None, Some(_)) => true
+      case (_, _)          => false
+    }
   }
 }
