@@ -1,6 +1,7 @@
 package util
 
-import com.amazonaws.services.elastictranscoder.model.ListJobsByPipelineRequest
+import software.amazon.awssdk.services.elastictranscoder.model.ListJobsByPipelineRequest
+
 import model.transcoder.JobStatus
 
 import scala.jdk.CollectionConverters._
@@ -14,20 +15,23 @@ class Transcoder(awsConfig: AWSConfig) {
   def getJobsStatus = transcoderJobsCache.get
 
   private def updateJobsStatus() = {
-    val pipelineRequest: ListJobsByPipelineRequest =
-      new ListJobsByPipelineRequest()
-    pipelineRequest.setPipelineId(awsConfig.transcodePipelineId)
-    // assumption this will be used sparingly so no need to paginate results
+    val pipelineRequest: ListJobsByPipelineRequest = ListJobsByPipelineRequest
+      .builder()
+      .pipelineId(awsConfig.transcodePipelineId)
+      .build()
 
     val jobsByPipeline =
       awsConfig.transcoderClient.listJobsByPipeline(pipelineRequest)
 
-    val jobs = jobsByPipeline.getJobs.asScala.toList.map { job =>
-      val statusDetail =
-        if (job.getStatus.equals("Error")) Some(job.getOutput.getStatusDetail)
-        else None
-      JobStatus(job.getId, job.getStatus, statusDetail)
-    }
+    val jobs = jobsByPipeline
+      .jobs()
+      .asScala
+      .toList
+      .map({ job =>
+        val statusDetail =
+          Option.when(job.status().equals("Error"))(job.output().statusDetail())
+        JobStatus(job.id(), job.status(), statusDetail)
+      })
     jobs
   }
 }

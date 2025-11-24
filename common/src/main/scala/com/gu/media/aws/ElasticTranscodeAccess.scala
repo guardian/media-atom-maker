@@ -1,15 +1,17 @@
 package com.gu.media.aws
 
-import com.amazonaws.services.elastictranscoder.AmazonElasticTranscoderClient
-import com.amazonaws.services.elastictranscoder.AmazonElasticTranscoderClientBuilder
 import com.gu.media.Settings
+import software.amazon.awssdk.services.elastictranscoder.{
+  ElasticTranscoderClient,
+  ElasticTranscoderClientBuilder
+}
 
 trait ElasticTranscodeAccess { this: Settings with AwsAccess =>
   lazy val transcodePipelineId = getMandatoryString("aws.transcoder.pipelineId")
 
-  lazy val transcoderClient = AmazonElasticTranscoderClientBuilder
-    .standard()
-    .withCredentials(credsProvider)
-    .withRegion(region.getName)
+  lazy val transcoderClient = ElasticTranscoderClient
+    .builder()
+    .region(awsV2Region)
+    .credentialsProvider(credentials.instance.awsV2Creds)
     .build()
 }
