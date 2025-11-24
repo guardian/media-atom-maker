@@ -1,16 +1,22 @@
 package com.gu.media
 
-
 import java.io.IOException
 import java.net.URI
 import java.util.concurrent.TimeUnit
-import software.amazon.awssdk.auth.credentials.{AwsCredentialsProvider, AwsCredentialsProviderChain, ProfileCredentialsProvider}
+import software.amazon.awssdk.auth.credentials.{
+  AwsCredentialsProvider,
+  AwsCredentialsProviderChain,
+  ProfileCredentialsProvider
+}
 import com.gu.contentapi.client.IAMEncoder
 import com.squareup.okhttp.{Headers, OkHttpClient, Request}
 import com.typesafe.config.Config
 import play.api.libs.json.{JsValue, Json}
 import software.amazon.awssdk.http.{SdkHttpFullRequest, SdkHttpMethod}
-import software.amazon.awssdk.http.auth.aws.signer.{AwsV4FamilyHttpSigner, AwsV4HttpSigner}
+import software.amazon.awssdk.http.auth.aws.signer.{
+  AwsV4FamilyHttpSigner,
+  AwsV4HttpSigner
+}
 import software.amazon.awssdk.http.auth.spi.signer.SignRequest
 import software.amazon.awssdk.identity.spi.AwsCredentialsIdentity
 import software.amazon.awssdk.services.sts.StsClient
@@ -27,15 +33,23 @@ trait CapiAccess { this: Settings =>
 
   val stsClient = StsClient.builder().build();
   val capiPreviewCredentials: AwsCredentialsProvider = {
-    AwsCredentialsProviderChain.builder()
+    AwsCredentialsProviderChain
+      .builder()
       .credentialsProviders(
-        ProfileCredentialsProvider.builder()
+        ProfileCredentialsProvider
+          .builder()
           .profileName("capi")
           .build(),
-
-        StsAssumeRoleCredentialsProvider.builder()
+        StsAssumeRoleCredentialsProvider
+          .builder()
           .stsClient(stsClient)
-          .refreshRequest(AssumeRoleRequest.builder().roleArn(previewCapiRole).roleSessionName("capi").build())
+          .refreshRequest(
+            AssumeRoleRequest
+              .builder()
+              .roleArn(previewCapiRole)
+              .roleSessionName("capi")
+              .build()
+          )
           .build()
       )
       .build();
@@ -45,49 +59,63 @@ trait CapiAccess { this: Settings =>
   val awsRegion = "eu-west-1"
   val serviceName = "media-atom-maker"
 
-  val signer =  AwsV4HttpSigner.create()
+  val signer = AwsV4HttpSigner.create()
 
-  def addIAMHeaders(headers: Map[String, String], uri: URI): Map[String, String] = {
+  def addIAMHeaders(
+      headers: Map[String, String],
+      uri: URI
+  ): Map[String, String] = {
 
     val queryParams: Map[String, java.util.List[String]] =
       Option(uri.getQuery)
-        .map(_.split("&").toList.flatMap { s =>
-          s.split("=").toList match {
-            case k :: v :: Nil => Some(k -> java.util.Collections.singletonList(v))
-            case _ => None
-          }
-        }.toMap)
+        .map(
+          _.split("&").toList
+            .flatMap { s =>
+              s.split("=").toList match {
+                case k :: v :: Nil =>
+                  Some(k -> java.util.Collections.singletonList(v))
+                case _ => None
+              }
+            }
+            .toMap
+        )
         .getOrElse(Map.empty)
 
     val unsignedRequest: SdkHttpFullRequest = {
-      //api-gateway will break the compressed json response if we don't supply an accept header
+      // api-gateway will break the compressed json response if we don't supply an accept header
       val headersWithAccept =
         if (headers.contains("accept") || headers.contains("Accept")) headers
         else headers + ("accept" -> "application/json")
 
-      val reqBuilder = SdkHttpFullRequest.builder()
+      val reqBuilder = SdkHttpFullRequest
+        .builder()
         .method(SdkHttpMethod.GET)
         .uri(new java.net.URI(s"${uri.getScheme}://${uri.getHost}"))
         .encodedPath(uri.getPath)
 
       headersWithAccept.foreach { case (k, v) => reqBuilder.putHeader(k, v) }
-      queryParams.foreach { case (k, v) => reqBuilder.putRawQueryParameter(k, v) }
+      queryParams.foreach { case (k, v) =>
+        reqBuilder.putRawQueryParameter(k, v)
+      }
 
       reqBuilder.build()
     }
 
-    val signedRequest = signer.sign { r: SignRequest.Builder[AwsCredentialsIdentity] =>
-      r.identity(creds)
-        .request(unsignedRequest)
-        .putProperty(AwsV4HttpSigner.REGION_NAME, awsRegion)
-        .putProperty(AwsV4FamilyHttpSigner.SERVICE_SIGNING_NAME, serviceName)
+    val signedRequest = signer.sign {
+      r: SignRequest.Builder[AwsCredentialsIdentity] =>
+        r.identity(creds)
+          .request(unsignedRequest)
+          .putProperty(AwsV4HttpSigner.REGION_NAME, awsRegion)
+          .putProperty(AwsV4FamilyHttpSigner.SERVICE_SIGNING_NAME, serviceName)
     }
 
-    signedRequest.request().headers().asScala
+    signedRequest
+      .request()
+      .headers()
+      .asScala
       .map { case (k, v) => k -> v.asScala.headOption.getOrElse("") }
       .toMap
   }
-
 
   private val httpClient = new OkHttpClient()
   httpClient.setConnectTimeout(5, TimeUnit.SECONDS)

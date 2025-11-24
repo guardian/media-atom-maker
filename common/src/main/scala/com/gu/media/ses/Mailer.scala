@@ -1,6 +1,13 @@
 package com.gu.media.ses
 
-import software.amazon.awssdk.services.ses.model.{Body, Content, Destination, Message, SendEmailRequest, SendEmailResponse}
+import software.amazon.awssdk.services.ses.model.{
+  Body,
+  Content,
+  Destination,
+  Message,
+  SendEmailRequest,
+  SendEmailResponse
+}
 import com.gu.media.aws.SESSettings
 import com.gu.media.Settings
 
@@ -65,12 +72,17 @@ class Mailer(config: Settings with SESSettings) {
       body: String
   ): SendEmailResponse = {
     val subjectContent = Content.builder().data(subject).build()
-    val bodyContent = Body.builder().html(Content.builder().data(body).build()).build()
+    val bodyContent =
+      Body.builder().html(Content.builder().data(body).build()).build()
     config.sesClient.sendEmail(
       SendEmailRequest
         .builder()
-        .destination(Destination.builder().toAddresses(recipients.asJava).build())
-        .message(Message.builder().subject(subjectContent).body(bodyContent).build())
+        .destination(
+          Destination.builder().toAddresses(recipients.asJava).build()
+        )
+        .message(
+          Message.builder().subject(subjectContent).body(bodyContent).build()
+        )
         .source(config.fromEmailAddress)
         .replyToAddresses(config.replyToAddresses.asJava)
         .build()

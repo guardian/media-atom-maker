@@ -5,7 +5,11 @@ import software.amazon.awssdk.services.ses.SesClient
 
 trait SESSettings { this: Settings with AwsAccess =>
 
-  lazy val sesClient = SesClient.builder().credentialsProvider(credentials.instance.awsV2Creds).region(awsV2Region).build()
+  lazy val sesClient = SesClient
+    .builder()
+    .credentialsProvider(credentials.instance.awsV2Creds)
+    .region(awsV2Region)
+    .build()
 
   val fromEmailAddress = getMandatoryString("aws.ses.fromEmailAddress")
 
