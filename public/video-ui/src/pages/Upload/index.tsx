@@ -91,9 +91,11 @@ export const VideoUpload = (props: { params: { id: string } }) => {
                 <PlutoProjectPicker video={store.video} />
               </div>
             </div>
-            <div>
-              <IconikProjectPicker video={store.video} />
-            </div>
+            {store.config.showIconik && (
+              <div>
+                <IconikProjectPicker video={store.video} />
+              </div>
+            )}
             <YoutubeUpload
               video={store.video}
               categories={store.youtube.categories}
