@@ -121,7 +121,7 @@ lazy val common = (project in file("common"))
       "com.gu" %% "editorial-permissions-client" % "2.15",
       "com.amazonaws" % "aws-java-sdk-stepfunctions" % awsVersion,
       "software.amazon.awssdk" % "ses" % awsV2Version,
-      "com.gu" %% "content-api-client-aws" % "0.7.3",
+      "com.gu" %% "content-api-client-aws" % "1.0.1",
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
       "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0" % "test",
       "org.jsoup" % "jsoup" % jsoupVersion,
