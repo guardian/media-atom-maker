@@ -23,3 +23,7 @@ To add a new channel to the list of available channels in PROD, the following st
 1. Make sure that the channel is being managed via the Guardian's YouTube Content Manager account.
 2. Add the channel id to the `youtube.channels.allowed` config for PROD. This is currently stored in the S3 config bucket.
 3. Redeploy `main` on PROD to pick up the config change.
+
+The channel id can be found in the URL of the channel, i.e. `https://www.youtube.com/channel/[CHANNEL_ID_HERE]`.
+
+![Screenshot of the URL of a YouTube channel, highlighting the channel ID in the URL](channel-url-screenshot.png)
