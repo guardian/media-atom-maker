@@ -207,12 +207,24 @@ export default class Header extends React.Component {
           </div>
           <fieldset onChange={(event) => this.setState({ videoPlayerOption: event.target.value })}>
             <div>
-              <input type="radio" id={"Youtube"} name="videoPlayerFormat" value={"Youtube"} />
+              <input
+                type="radio"
+                id={"Youtube"}
+                name="videoPlayerFormat"
+                value={"Youtube"}
+                checked={this.state.videoPlayerOption === 'Youtube'}
+              />
               <label htmlFor={"Youtube"}>Youtube (off-platform)</label>
             </div>
             {videoPlayerFormats.map((videoPlayerFormat) => (
               <div>
-                <input type="radio" id={videoPlayerFormat.id} name="videoPlayerFormat" value={videoPlayerFormat.id} />
+                <input
+                  type="radio"
+                  id={videoPlayerFormat.id}
+                  name="videoPlayerFormat"
+                  value={videoPlayerFormat.id}
+                  checked={this.state.videoPlayerOption === videoPlayerFormat.id}
+                />
                 <label htmlFor={videoPlayerFormat.id}>{videoPlayerFormat.title}</label>
               </div>
             ))}
