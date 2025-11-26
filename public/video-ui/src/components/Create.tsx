@@ -7,12 +7,12 @@ import {Platform, VideoWithoutId} from "../services/VideosApi";
 export default class Create extends React.Component {
   props: React.PropsWithChildren<{
     createVideo: (video: VideoWithoutId) => (dispatch: AppDispatch) => Promise<void>
+    inModal: boolean
   }>
 
   state = {
     headline: "",
     videoPlayerOption: "Youtube",
-    mode: ""
   };
 
   closeCreateModal = () => {
