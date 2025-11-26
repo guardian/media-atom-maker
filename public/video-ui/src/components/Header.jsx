@@ -169,7 +169,7 @@ export default class Header extends React.Component {
           <Icon icon="add">Create</Icon>
         </button>
         <Modal isOpen={this.state.createModalOpen} dismiss={this.closeCreateModal}>
-          <Create createVideo={this.props.createVideo}/>
+          <Create createVideo={this.props.createVideo} inModal={true} closeCreateModal={this.closeCreateModal}/>
         </Modal>
       </nav>
     );
