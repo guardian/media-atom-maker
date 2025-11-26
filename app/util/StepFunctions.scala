@@ -55,7 +55,8 @@ class StepFunctions(awsConfig: AWSConfig) {
 
   def start(upload: Upload, withCustomName: Option[String] = None): Unit = {
     val executionName = withCustomName.getOrElse(upload.id)
-    val stepFunctionsRequest = StartExecutionRequest.builder()
+    val stepFunctionsRequest = StartExecutionRequest
+      .builder()
       .name(executionName)
       .stateMachineArn(awsConfig.pipelineArn)
       .input(Json.stringify(Json.toJson(upload)))
@@ -67,7 +68,8 @@ class StepFunctions(awsConfig: AWSConfig) {
   def getEventsInReverseOrder(
       execution: ExecutionListItem
   ): Iterable[HistoryEvent] = {
-    val request = GetExecutionHistoryRequest.builder()
+    val request = GetExecutionHistoryRequest
+      .builder()
       .executionArn(execution.executionArn)
       .reverseOrder(true)
       .maxResults(20)
@@ -80,7 +82,8 @@ class StepFunctions(awsConfig: AWSConfig) {
       atomId: String,
       filter: ExecutionStatus
   ): Iterable[ExecutionListItem] = {
-    val request = ListExecutionsRequest.builder()
+    val request = ListExecutionsRequest
+      .builder()
       .stateMachineArn(awsConfig.pipelineArn)
       .statusFilter(filter)
       .build()
