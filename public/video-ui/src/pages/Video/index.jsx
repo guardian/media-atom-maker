@@ -27,20 +27,14 @@ class VideoDisplay extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isCreateMode: props.route.props?.mode === 'create',
       editingFurniture: false,
       editingYoutubeFurniture: false,
       editingWorkflow: false
     };
 
-    if (this.state.isCreateMode) {
-      this.props.videoActions.updateVideo(blankVideoData);
-      this.updateEditingState({ key: 'editingFurniture', editing: true });
-    } else {
-      this.getVideo();
-      this.getWorkflowState();
-      this.getUsages();
-    }
+    this.getVideo();
+    this.getWorkflowState();
+    this.getUsages();
   }
 
   getVideo() {
@@ -56,16 +50,7 @@ class VideoDisplay extends React.Component {
   }
 
   saveAndUpdateVideo = video => {
-    const { isCreateMode } = this.state;
-
-    if (isCreateMode) {
-      return this.props.videoActions.createVideo(video).then(() => {
-        this.setState({ isCreateMode: false });
-        this.props.videoActions.fetchUsages(this.props.video.id);
-      });
-    } else {
-      return this.props.videoActions.saveVideo(video);
-    }
+    return this.props.videoActions.saveVideo(video);
   };
 
   updateVideo = video => {
@@ -260,7 +245,6 @@ class VideoDisplay extends React.Component {
     } = this.props;
 
     const {
-      isCreateMode,
       editingFurniture,
       editingYoutubeFurniture,
       editingWorkflow
@@ -275,12 +259,12 @@ class VideoDisplay extends React.Component {
         <TabList>
           <FurnitureTab disabled={furnitureDisabled} />
           {video.platform !== 'Url' && <YoutubeFurnitureTab disabled={ytFurnitureDisabled} />}
-          <WorkflowTab disabled={workflowDisabled || isCreateMode} />
-          <UsageTab disabled={videoEditOpen || isCreateMode} />
-          <TargetingTab disabled={videoEditOpen || isCreateMode} />
-          <ManagementTab disabled={videoEditOpen || isCreateMode} />
-          <PlutoTab disabled={videoEditOpen || isCreateMode} />
-          <IconikTab disabled={videoEditOpen || isCreateMode} />
+          <WorkflowTab disabled={workflowDisabled} />
+          <UsageTab disabled={videoEditOpen} />
+          <TargetingTab disabled={videoEditOpen} />
+          <ManagementTab disabled={videoEditOpen} />
+          <PlutoTab disabled={videoEditOpen} />
+          <IconikTab disabled={videoEditOpen} />
         </TabList>
         <FurnitureTabPanel
           editing={editingFurniture}
@@ -290,7 +274,7 @@ class VideoDisplay extends React.Component {
             })
           }
           onCancel={() => {
-            !isCreateMode && this.updateEditingState({
+            this.updateEditingState({
               key: 'editingFurniture', editing: false
             });
             this.getVideo();
@@ -309,7 +293,7 @@ class VideoDisplay extends React.Component {
               });
           }}
           canSave={() => !this.formHasErrors(formNames.videoData) && !this.props.isSaving}
-          canCancel={() => !isCreateMode && !this.props.isSaving}
+          canCancel={() => !this.props.isSaving}
           video={video}
           updateVideo={this.updateVideo}
           updateErrors={this.props.formErrorActions.updateFormErrors}
@@ -390,7 +374,7 @@ class VideoDisplay extends React.Component {
 
   render() {
     const video = this.props.video &&
-      (this.props.params.id === this.props.video.id || this.state.isCreateMode)
+      (this.props.params.id === this.props.video.id)
       ? this.props.video
       : undefined;
 
