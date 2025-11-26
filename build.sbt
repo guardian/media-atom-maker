@@ -108,7 +108,6 @@ lazy val common = (project in file("common"))
       "ch.qos.logback" % "logback-classic" % logbackClassicVersion,
       "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
       "software.amazon.awssdk" % "sts" % awsV2Version,
-      "com.amazonaws" % "aws-java-sdk-elastictranscoder" % awsVersion,
       "software.amazon.awssdk" % "mediaconvert" % awsV2Version,
       "org.scanamo" %% "scanamo" % scanamoVersion,
       "com.squareup.okhttp" % "okhttp" % okHttpVersion,
