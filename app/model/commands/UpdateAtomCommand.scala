@@ -176,7 +176,7 @@ case class UpdateAtomCommand(
 
   private def notifyIconik(newAtom: MediaAtom) = {
     val iconikUploadActions = new IconikUploadActions(awsConfig)
-    newAtom.iconikData.foreach(data => iconikUploadActions.send(data))
+    iconikUploadActions.send(newAtom)
   }
 
   private def notifyPluto(newAtom: MediaAtom) = {
