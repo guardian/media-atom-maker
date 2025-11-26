@@ -184,6 +184,10 @@ export default class Header extends React.Component {
     );
   }
 
+  isFormValid() {
+    return !!this.state.headline && !!this.state.videoPlayerOption
+  }
+
   renderCreateVideo() {
     return (
       <nav className="topbar__nav-link">
@@ -197,6 +201,8 @@ export default class Header extends React.Component {
               id={"Headline"}
               name={"headline"}
               onChange={(event) => this.setState({ headline: event.target.value })}
+              value={this.state.headline}
+              className={'form__field ' + (!this.state.headline ? 'form__field--error' : '')}
             />
           </div>
           <fieldset onChange={(event) => this.setState({ videoPlayerOption: event.target.value })}>
@@ -211,8 +217,7 @@ export default class Header extends React.Component {
               </div>
             ))}
           </fieldset>
-
-          <button className="btn" onClick={this.createVideo}>
+          <button className="btn" onClick={this.createVideo} disabled={!this.isFormValid()}>
             Continue
           </button>
         </Modal>
