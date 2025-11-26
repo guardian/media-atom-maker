@@ -11,18 +11,12 @@ import {canonicalVideoPageExists} from '../util/canonicalVideoPageExists';
 import VideoUtils from '../util/video';
 import {QUERY_PARAM_mediaPlatformFilter, QUERY_PARAM_shouldUseCreatedDateForSort} from "../constants/queryParams";
 import Modal from "./utils/Modal";
-import {videoPlayerFormats} from "../constants/videoPlayerFormats";
-import {connect} from "react-redux";
-import {bindActionCreators} from "redux";
-import {createVideo} from "../actions/VideoActions/createVideo";
-import {blankVideoData} from "../constants/blankVideoData";
+import Create from "./Create";
 
 export default class Header extends React.Component {
   state = {
     presence: null,
     createModalOpen: false,
-    headline: "",
-    videoPlayerOption: "Youtube"
   };
 
   closeCreateModal = () => {
@@ -32,22 +26,6 @@ export default class Header extends React.Component {
   openCreateModal = () => {
     this.setState({ createModalOpen: true });
   };
-
-  createVideo = () => {
-    const headline = this.state.headline;
-
-    const videoPlayerFormat = this.state.videoPlayerOption !== "Youtube" ? this.state.videoPlayerOption : undefined;
-    const platform = this.state.videoPlayerOption === "Youtube" ? "Youtube" : "Url";
-
-    const videoData = {
-      ...blankVideoData,
-      title: headline,
-      videoPlayerFormat,
-      platform
-    }
-
-    this.props.createVideo(videoData);
-  }
 
   publishVideo = () => {
     this.props.publishVideo(this.props.video.id);
@@ -184,10 +162,6 @@ export default class Header extends React.Component {
     );
   }
 
-  isFormValid() {
-    return !!this.state.headline && !!this.state.videoPlayerOption
-  }
-
   renderCreateVideo() {
     return (
       <nav className="topbar__nav-link">
@@ -195,43 +169,7 @@ export default class Header extends React.Component {
           <Icon icon="add">Create</Icon>
         </button>
         <Modal isOpen={this.state.createModalOpen} dismiss={this.closeCreateModal}>
-          <div>
-            <label htmlFor={"Headline"}>Headline</label>
-            <input
-              id={"Headline"}
-              name={"headline"}
-              onChange={(event) => this.setState({ headline: event.target.value })}
-              value={this.state.headline}
-              className={'form__field ' + (!this.state.headline ? 'form__field--error' : '')}
-            />
-          </div>
-          <fieldset onChange={(event) => this.setState({ videoPlayerOption: event.target.value })}>
-            <div>
-              <input
-                type="radio"
-                id={"Youtube"}
-                name="videoPlayerFormat"
-                value={"Youtube"}
-                checked={this.state.videoPlayerOption === 'Youtube'}
-              />
-              <label htmlFor={"Youtube"}>Youtube (off-platform)</label>
-            </div>
-            {videoPlayerFormats.map((videoPlayerFormat) => (
-              <div>
-                <input
-                  type="radio"
-                  id={videoPlayerFormat.id}
-                  name="videoPlayerFormat"
-                  value={videoPlayerFormat.id}
-                  checked={this.state.videoPlayerOption === videoPlayerFormat.id}
-                />
-                <label htmlFor={videoPlayerFormat.id}>{videoPlayerFormat.title}</label>
-              </div>
-            ))}
-          </fieldset>
-          <button className="btn" onClick={this.createVideo} disabled={!this.isFormValid()}>
-            Continue
-          </button>
+          <Create createVideo={this.props.createVideo}/>
         </Modal>
       </nav>
     );
