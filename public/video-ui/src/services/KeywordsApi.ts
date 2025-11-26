@@ -44,7 +44,8 @@ const contentBundlingMap: Record<string, string> = {
   "science": "gdnpfpscience",
   "athletics": "gdnpfpsportother",
   "basketball": "gdnpfpsportus",
-  "sport-2-0": "gdnpfpsport20"
+  "sport-2-0": "gdnpfpsport20",
+  "full-story-podcast": "gdnpfpausfullstorypodcast"
 };
 
 const contentBundlingTags = new Set(Object.values(contentBundlingMap));
