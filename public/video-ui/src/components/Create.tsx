@@ -1,5 +1,6 @@
 import React from 'react';
 import {videoPlayerFormats} from "../constants/videoPlayerFormats";
+import type {VideoPlayerFormat, VideoPlayerOption} from "../constants/videoPlayerFormats";
 import {blankVideoData} from "../constants/blankVideoData";
 import {AppDispatch} from "../util/setupStore";
 import {Platform, VideoWithoutId} from "../services/VideosApi";
@@ -10,7 +11,7 @@ export default class Create extends React.Component {
     inModal: boolean
   }>
 
-  state = {
+  state: { headline: string; videoPlayerOption: VideoPlayerOption } = {
     headline: "",
     videoPlayerOption: "Youtube",
   };
@@ -26,7 +27,7 @@ export default class Create extends React.Component {
   createVideo = () => {
     const headline = this.state.headline;
 
-    const videoPlayerFormat = this.state.videoPlayerOption !== "Youtube" ? this.state.videoPlayerOption : undefined;
+    const videoPlayerFormat: VideoPlayerFormat | undefined = this.state.videoPlayerOption !== "Youtube" ? this.state.videoPlayerOption : undefined;
     const platform: Platform = this.state.videoPlayerOption === "Youtube" ? "Youtube" : "Url";
 
     const videoData = {
