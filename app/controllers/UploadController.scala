@@ -1,10 +1,7 @@
 package controllers
 
 import com.gu.ai.x.play.json.Encoders._
-import com.amazonaws.services.stepfunctions.model.{
-  ExecutionAlreadyExistsException,
-  ExecutionListItem
-}
+import software.amazon.awssdk.services.sfn.model.{ExecutionAlreadyExistsException, ExecutionListItem}
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
 import com.gu.media.model.{
@@ -269,7 +266,7 @@ class UploadController(
 
   private def jobAsAsset(job: ExecutionListItem): Option[ClientAsset] = {
     val events = stepFunctions.getEventsInReverseOrder(job)
-    val startTimestamp = job.getStartDate.getTime
+    val startTimestamp = job.startDate().toEpochMilli
 
     val upload = stepFunctions.getTaskEntered(events)
     val error = stepFunctions.getExecutionFailed(events)

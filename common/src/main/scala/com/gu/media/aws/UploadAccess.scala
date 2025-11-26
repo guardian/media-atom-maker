@@ -4,8 +4,6 @@ import com.amazonaws.services.securitytoken.{
   AWSSecurityTokenService,
   AWSSecurityTokenServiceClientBuilder
 }
-//import com.amazonaws.services.stepfunctions.AWSStepFunctionsClientBuilder
-//import com.amazonaws.services.stepfunctions.model.ListStateMachinesRequest
 import software.amazon.awssdk.services.sfn.SfnClient
 import software.amazon.awssdk.services.sfn.model.ListStateMachinesRequest
 import com.gu.media.Settings
