@@ -436,8 +436,18 @@
   cursor: pointer;
 }
 
+.create-form__option-radio-input {
+  accent-color: $cYellow;
+}
+
+.create-form__option-radio-label {
+  font-size: 16px;
+  font-weight: bold;
+}
+
 .create-form__option-selected {
   border: 1px solid $cYellow;
+  color: $cYellow;
 }
 
 .create-form__option {

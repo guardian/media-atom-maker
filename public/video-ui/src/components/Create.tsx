@@ -49,57 +49,71 @@ export default class Create extends React.Component {
     return (
       <div className={'create-form ' + (this.props.inModal ? 'create-form-in-modal' : '')}>
         <div>
-          <h2 className={"create-form__h2"}>
+          <h2 className="create-form__h2">
             Create New Video
           </h2>
-          <div className={"create-form__headline-container"}>
-            <label className={"create-form__label"} htmlFor={"Headline"}>Headline</label>
+          <div className="create-form__headline-container">
+            <label className="create-form__label" htmlFor="Headline">Headline</label>
             <input
-              id={"Headline"}
-              name={"headline"}
+              id="Headline"
+              name="headline"
               onChange={(event) => this.setState({ headline: event.target.value })}
               value={this.state.headline}
-              className={'form__field'}
+              className="form__field"
             />
           </div>
         </div>
         <div>
-          <h3 className={"create-form__h3"}>
+          <h3 className="create-form__h3">
             Video Player Format
           </h3>
-          <div className={"create-form__options"}>
+          <div className="create-form__options">
             <div>
-              <h4 className={"create-form__h4"}>
+              <h4 className="create-form__h4">
                 Off Platform
               </h4>
-              <div className={"create-form__option-row"}>
-                <div className={"create-form__option-container " + "create-form__option-selected"} onClick={() => this.setState({ videoPlayerOption: "Youtube" })}>
-                  <div className={"create-form__option"}>
-                    <label htmlFor={"Youtube"}>Youtube</label>
+              <div className="create-form__option-row">
+                <div className={"create-form__option-container " + (this.state.videoPlayerOption === 'Youtube' ? 'create-form__option-selected' : '')} onClick={() => this.setState({ videoPlayerOption: "Youtube" })}>
+                  <div className="create-form__option">
+                    <label
+                      htmlFor="Youtube"
+                      className="create-form__option-radio-label"
+                    >
+                      Youtube
+                    </label>
                     <input
                       type="radio"
-                      id={"Youtube"}
+                      className="create-form__option-radio-input"
+                      id="Youtube"
                       name="videoPlayerFormat"
-                      value={"Youtube"}
+                      value="Youtube"
                       checked={this.state.videoPlayerOption === 'Youtube'}
                       onChange={() => this.setState({ videoPlayerOption: "Youtube" })}
                     />
                   </div>
-
                 </div>
               </div>
             </div>
             <div>
-              <h4 className={"create-form__h4"}>
+              <h4 className="create-form__h4">
                 Self Hosted
               </h4>
-              <div className={"create-form__option-row"}>
+              <div className="create-form__option-row">
                 {videoPlayerFormats.map((videoPlayerFormat) => (
-                  <div key={videoPlayerFormat.id} className={"create-form__option-container"} onClick={() => this.setState({ videoPlayerOption: videoPlayerFormat.id })}>
+                  <div
+                    key={videoPlayerFormat.id}
+                    className={"create-form__option-container " + (this.state.videoPlayerOption === videoPlayerFormat.id ? 'create-form__option-selected' : '')}
+                    onClick={() => this.setState({ videoPlayerOption: videoPlayerFormat.id })}>
                     <div className={"create-form__option"}>
-                      <label htmlFor={videoPlayerFormat.id}>{videoPlayerFormat.title}</label>
+                      <label
+                        htmlFor={videoPlayerFormat.id}
+                        className="create-form__option-radio-label"
+                      >
+                        {videoPlayerFormat.title}
+                      </label>
                       <input
                         type="radio"
+                        className="create-form__option-radio-input"
                         id={videoPlayerFormat.id}
                         name="videoPlayerFormat"
                         value={videoPlayerFormat.id}
@@ -113,7 +127,7 @@ export default class Create extends React.Component {
             </div>
           </div>
         </div>
-        <div className={"action-buttons-container"}>
+        <div className="action-buttons-container">
           {this.props.inModal &&
             <button className="button__secondary" onClick={this.props.closeCreateModal} >
               Cancel
