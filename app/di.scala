@@ -86,7 +86,7 @@ class MediaAtomMaker(context: Context)
   private val permissions = new MediaAtomMakerPermissionsProvider(
     permissionsStage,
     aws.region.getName,
-    aws.credentials.instance.awsV1Creds
+    aws.credentials.instance.awsV2Creds
   )
 
   private val hmacAuthActions = new PanDomainAuthActions {
