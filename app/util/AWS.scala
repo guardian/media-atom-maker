@@ -1,7 +1,7 @@
 package util
 
-import com.amazonaws.services.ec2.AmazonEC2ClientBuilder
-import com.amazonaws.services.ec2.model.{DescribeTagsRequest, Filter}
+import software.amazon.awssdk.services.ec2.Ec2Client
+import software.amazon.awssdk.services.ec2.model.{DescribeTagsRequest, Filter}
 import com.amazonaws.util.EC2MetadataUtils
 import com.gu.media.Settings
 import com.gu.media.aws._
@@ -24,10 +24,9 @@ class AWSConfig(
     with SNSAccess
     with SESSettings {
 
-  lazy val ec2Client = AmazonEC2ClientBuilder
-    .standard()
-    .withRegion(region.getName)
-    .withCredentials(credentials.instance.awsV1Creds)
+  lazy val ec2Client = Ec2Client.builder()
+    .region(awsV2Region)
+    .credentialsProvider(credentials.instance.awsV2Creds)
     .build()
 
   lazy val pinboardLoaderUrl = getString("panda.domain").map(domain =>
@@ -52,13 +51,13 @@ class AWSConfig(
 
   final override def readTag(tagName: String) = {
     val tagsResult = ec2Client.describeTags(
-      new DescribeTagsRequest().withFilters(
-        new Filter("resource-type").withValues("instance"),
-        new Filter("resource-id").withValues(EC2MetadataUtils.getInstanceId),
-        new Filter("key").withValues(tagName)
-      )
+      DescribeTagsRequest.builder().filters(
+        Filter.builder().name("resource-type").values("instance").build(),
+        Filter.builder().name("resource-id").values(EC2MetadataUtils.getInstanceId).build(),
+        Filter.builder().name("key").values(tagName).build()
+      ).build()
     )
 
-    tagsResult.getTags.asScala.find(_.getKey == tagName).map(_.getValue)
+    tagsResult.tags().asScala.find(_.key == tagName).map(_.value)
   }
 }
