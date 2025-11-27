@@ -61,8 +61,11 @@ export const addOrDropBundlingTags = (keywords: string[], tags: string[], blockA
     for (const keyword of keywords) {
       const parts = keyword.split('/');
       const matchingBundlingTag = parts.reverse().find(part => contentBundlingMap[part]);
-      if (matchingBundlingTag) tagSet.add(matchingBundlingTag);
+      if (matchingBundlingTag) {
+        tagSet.add(matchingBundlingTag);
+        tagSet.add(contentBundlingMap[matchingBundlingTag]);
+      }
     }
     return [...tagSet.values()];
   }
-}
+};
