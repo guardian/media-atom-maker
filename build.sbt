@@ -115,7 +115,7 @@ lazy val common = (project in file("common"))
       "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test", // to match ScalaTest version
       "software.amazon.awssdk" % "sns" % awsV2Version,
       "software.amazon.awssdk" % "sqs" % awsV2Version,
-      "com.gu" %% "editorial-permissions-client" % "2.15",
+      "com.gu" %% "editorial-permissions-client" % "5.0.0",
       "software.amazon.awssdk" % "sfn" % awsV2Version,
       "software.amazon.awssdk" % "ses" % awsV2Version,
       "software.amazon.awssdk" % "s3" % awsV2Version,
