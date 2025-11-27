@@ -1,6 +1,9 @@
 package controllers
 
-import software.amazon.awssdk.services.sfn.model.{ExecutionListItem, ExecutionStatus}
+import software.amazon.awssdk.services.sfn.model.{
+  ExecutionListItem,
+  ExecutionStatus
+}
 import com.gu.atom.data.{DataStoreResultUtil, PreviewDynamoDataStore}
 import com.gu.media.{MediaAtomMakerPermissionsProvider, TestHelpers}
 import com.gu.media.model._
@@ -356,7 +359,8 @@ class UploadControllerTest extends AnyFlatSpec with Matchers {
       assetVersion: Int,
       status: ExecutionStatus,
       started: String
-  ) = ExecutionListItem.builder()
+  ) = ExecutionListItem
+    .builder()
     .executionArn(
       s"arn:aws:states:eu-west-1:xxxxx:execution:VideoPipelineDEV-PGZ5E0CNI0QG:ace3fcf6-1378-41db-9d21-f3fc07072ab2-$assetVersion"
     )
@@ -373,7 +377,8 @@ class UploadControllerTest extends AnyFlatSpec with Matchers {
       subtitleVersion: Int,
       status: ExecutionStatus,
       started: String
-  ) = ExecutionListItem.builder()
+  ) = ExecutionListItem
+    .builder()
     .executionArn(
       s"arn:aws:states:eu-west-1:xxxxx:execution:VideoPipelineDEV-PGZ5E0CNI0QG:ace3fcf6-1378-41db-9d21-f3fc07072ab2-$assetVersion.$subtitleVersion"
     )
