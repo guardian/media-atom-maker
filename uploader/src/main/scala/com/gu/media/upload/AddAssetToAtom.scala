@@ -2,17 +2,12 @@ package com.gu.media.upload
 
 import java.util.Date
 import com.gu.atom.data.PreviewDynamoDataStore
-import com.gu.atom.publish.PreviewKinesisAtomPublisher
+import com.gu.atom.publish.{PreviewKinesisAtomPublisher, PreviewKinesisAtomPublisherV2}
 import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
 import com.gu.media.aws.{DynamoAccess, KinesisAccess, UploadAccess}
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
-import com.gu.media.model.{
-  AuditMessage,
-  SelfHostedAsset,
-  VideoAsset,
-  YouTubeAsset
-}
+import com.gu.media.model.{AuditMessage, SelfHostedAsset, VideoAsset, YouTubeAsset}
 import com.gu.media.upload.model.Upload
 import com.gu.media.util.MediaAtomHelpers
 import com.gu.media.util.MediaAtomHelpers._
@@ -30,7 +25,7 @@ class AddAssetToAtom
   )
 
   private val store = new PreviewDynamoDataStore(dynamoDB, dynamoTableName)
-  private val publisher = new PreviewKinesisAtomPublisher(
+  private val publisher = new PreviewKinesisAtomPublisherV2(
     previewKinesisStreamName,
     crossAccountKinesisClient
   )

@@ -8,7 +8,7 @@ val scroogeVersion = "4.12.0"
 val awsVersion = "1.11.1034"
 val awsV2Version = "2.32.26"
 val pandaVersion = "10.0.0"
-val atomMakerVersion = "6.0.0"
+val atomMakerVersion = "8.0.0-PREVIEW.ldupgrade-kinesis.2025-11-27T1631.d983bd58"
 val typesafeConfigVersion =
   "1.4.0" // to match what we get from Play transitively
 val scanamoVersion = "1.0.0-M28"
@@ -93,10 +93,10 @@ lazy val common = (project in file("common"))
       "com.gu" %% "panda-hmac-play_3-0" % pandaVersion,
       ws,
       "org.playframework" %% "play-json-joda" % "3.0.5",
-      "com.gu" %% "atom-publisher-lib" % "8.0.0-PREVIEW.ldupgrade-kinesis.2025-11-27T1538.9d0902cf",
-      "com.gu" %% "atom-publisher-lib" % "8.0.0-PREVIEW.ldupgrade-kinesis.2025-11-27T1538.9d0902cf" % "test" classifier "tests",
-      "com.gu" %% "atom-manager-play" % "8.0.0-PREVIEW.ldupgrade-kinesis.2025-11-27T1538.9d0902cf",
-      "com.gu" %% "atom-manager-play" % "8.0.0-PREVIEW.ldupgrade-kinesis.2025-11-27T1538.9d0902cf" % "test" classifier "tests",
+      "com.gu" %% "atom-publisher-lib" % atomMakerVersion,
+      "com.gu" %% "atom-publisher-lib" % atomMakerVersion % "test" classifier "tests",
+      "com.gu" %% "atom-manager-play" % atomMakerVersion,
+      "com.gu" %% "atom-manager-play" % atomMakerVersion % "test" classifier "tests",
       "com.google.guava" % "guava" % guavaVersion,
       "commons-logging" % "commons-logging" % commonsLoggingVersion,
       "org.apache.httpcomponents" % "httpclient" % apacheHttpClientVersion,

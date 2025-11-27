@@ -1,13 +1,13 @@
 package com.gu.media.aws
 
-import java.nio.ByteBuffer
-import java.nio.charset.StandardCharsets
 
-import com.amazonaws.AmazonClientException
-import com.amazonaws.services.kinesis.AmazonKinesisClientBuilder
+import software.amazon.awssdk.core.exception.SdkClientException
+import software.amazon.awssdk.services.kinesis.model.{PutRecordRequest, DescribeStreamRequest}
+import software.amazon.awssdk.services.kinesis.KinesisClient
 import com.gu.media.Settings
 import com.gu.media.logging.Logging
 import play.api.libs.json.{Json, Writes}
+import software.amazon.awssdk.core.SdkBytes
 
 trait KinesisAccess { this: Settings with AwsAccess with Logging =>
   val liveKinesisStreamName: String = getMandatoryString(
@@ -30,16 +30,14 @@ trait KinesisAccess { this: Settings with AwsAccess with Logging =>
 
   val syncWithPluto: Boolean = getBoolean("pluto.sync").getOrElse(false)
 
-  lazy val crossAccountKinesisClient = AmazonKinesisClientBuilder
-    .standard()
-    .withCredentials(credentials.crossAccount.awsV1Creds)
-    .withRegion(region.getName)
+  lazy val crossAccountKinesisClient = KinesisClient.builder()
+    .credentialsProvider(credentials.crossAccount.awsV2Creds)
+    .region(awsV2Region)
     .build()
 
-  lazy val kinesisClient = AmazonKinesisClientBuilder
-    .standard()
-    .withCredentials(credentials.instance.awsV1Creds)
-    .withRegion(region.getName)
+  lazy val kinesisClient = KinesisClient.builder()
+    .credentialsProvider(credentials.instance.awsV2Creds)
+    .region(awsV2Region)
     .build()
 
   def sendOnKinesis[T: Writes](
@@ -50,16 +48,21 @@ trait KinesisAccess { this: Settings with AwsAccess with Logging =>
     val json = Json.stringify(Json.toJson(value))
     log.info(s"Sending JSON on Kinesis [$streamName]: $json")
 
-    val bytes = ByteBuffer.wrap(json.getBytes(StandardCharsets.UTF_8))
+    val putRecordRequest = PutRecordRequest.builder()
+                            .streamName(streamName)
+                            .data(SdkBytes.fromUtf8String(json))
+                            .partitionKey(partitionKey)
+                            .build()
 
-    kinesisClient.putRecord(streamName, bytes, partitionKey)
+    kinesisClient.putRecord(putRecordRequest)
   }
 
   def testKinesisAccess(streamName: String): Boolean = try {
-    crossAccountKinesisClient.describeStream(streamName)
+    val describeStream = DescribeStreamRequest.builder().streamName(streamName).build()
+    crossAccountKinesisClient.describeStream(describeStream)
     true
   } catch {
-    case e: AmazonClientException =>
+    case e: SdkClientException =>
       false
   }
 }
