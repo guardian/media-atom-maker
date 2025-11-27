@@ -4,8 +4,8 @@ import com.amazonaws.services.securitytoken.{
   AWSSecurityTokenService,
   AWSSecurityTokenServiceClientBuilder
 }
-import com.amazonaws.services.stepfunctions.AWSStepFunctionsClientBuilder
-import com.amazonaws.services.stepfunctions.model.ListStateMachinesRequest
+import software.amazon.awssdk.services.sfn.SfnClient
+import software.amazon.awssdk.services.sfn.model.ListStateMachinesRequest
 import com.gu.media.Settings
 
 import scala.jdk.CollectionConverters._
@@ -22,10 +22,10 @@ trait UploadAccess { this: Settings with AwsAccess =>
 
   lazy val uploadSTSClient = createUploadSTSClient()
 
-  lazy val stepFunctionsClient = AWSStepFunctionsClientBuilder
-    .standard()
-    .withCredentials(credsProvider)
-    .withRegion(region.getName)
+  lazy val stepFunctionsClient = SfnClient
+    .builder()
+    .credentialsProvider(credentials.instance.awsV2Creds)
+    .region(awsV2Region)
     .build()
 
   private def createUploadSTSClient(): AWSSecurityTokenService = {
@@ -45,12 +45,13 @@ trait UploadAccess { this: Settings with AwsAccess =>
   private def getPipelineArn() = {
     // The name of the state machine in cloud formation changes on every deploy so we have to look it up
     val allMachines = stepFunctionsClient
-      .listStateMachines(new ListStateMachinesRequest())
-      .getStateMachines
+      .listStateMachines(ListStateMachinesRequest.builder().build())
+      .stateMachines
       .asScala
+      .toList
     val ourMachine = allMachines
-      .find(_.getName.contains(pipelineName))
-      .map(_.getStateMachineArn)
+      .find(_.name.contains(pipelineName))
+      .map(_.stateMachineArn)
 
     ourMachine.getOrElse {
       throw new IllegalStateException(
