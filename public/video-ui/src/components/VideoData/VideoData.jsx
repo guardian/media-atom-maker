@@ -10,13 +10,11 @@ import TagPicker from '../FormFields/TagPicker';
 import TagTypes from '../../constants/TagTypes';
 import { fieldLengths } from '../../constants/videoEditValidation';
 import { videoCategories } from '../../constants/videoCategories';
-import { videoPlayerFormats } from "../../constants/videoPlayerFormats";
 import VideoUtils from '../../util/video';
 import {formNames} from "../../constants/formNames";
 import FieldNotification from "../../constants/FieldNotification";
 import { trailTextConfig, standfirstConfig } from "../FormFields/richtext/config";
 import { ExpireNowComponent } from "../FormFields/ExpireNow";
-import {getStore} from "../../util/storeAccessor";
 
 export default class VideoData extends React.Component {
   static propTypes = {

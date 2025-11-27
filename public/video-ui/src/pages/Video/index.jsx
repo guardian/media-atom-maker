@@ -135,7 +135,7 @@ class VideoDisplay extends React.Component {
             <div>
               <h3>Video Preview</h3>
               <h4>{
-                videoPlayerFormats
+                videoCreateOptions
                   .find(format => format.id === this.props.video.videoPlayerFormat)?.title
                 }</h4>
             </div>
@@ -420,7 +420,7 @@ import {updateFormWarnings} from "../../slices/formFieldsWarning";
 import {updateVideoEditState} from "../../slices/editState";
 import {updateFormErrors} from "../../slices/checkedFormFields";
 import {selectIsSaving, selectPublishedVideo, selectVideo } from "../../slices/video";
-import {videoPlayerFormats} from "../../constants/videoPlayerFormats";
+import {videoCreateOptions} from "../../constants/videoCreateOptions";
 
 function mapStateToProps(state) {
   return {

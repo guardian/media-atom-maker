@@ -5,7 +5,7 @@ import { ContentAtom, getVideoBlock } from '../util/getVideoBlock';
 import { getStore } from '../util/storeAccessor';
 import { apiRequest } from './apiRequest';
 import ContentApi, { CapiContent, CapiContentResponse, Stage } from './capi';
-import type {VideoPlayerFormat} from "../constants/videoPlayerFormats";
+import type {VideoPlayerFormat} from "../constants/videoCreateOptions";
 
 export type ComposerStage = 'live' | 'preview';
 
