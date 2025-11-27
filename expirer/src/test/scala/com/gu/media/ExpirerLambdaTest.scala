@@ -1,6 +1,6 @@
 package com.gu.media
 
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailService
+import software.amazon.awssdk.services.ses.SesClient
 import com.amazonaws.util.IOUtils
 import com.gu.contentatom.thrift.atom.media.PrivacyStatus
 import com.gu.media.expirer.ExpirerLambda
@@ -54,7 +54,7 @@ class ExpirerLambdaTest extends AnyFunSuite with Matchers {
       isMyVideo: Boolean = true
   ) extends ExpirerLambda
       with TestSettings {
-    override lazy val sesClient = mock[AmazonSimpleEmailService]
+    override lazy val sesClient = mock[SesClient]
     var madePrivate = List.empty[String]
     var claimUpdated = List.empty[String]
 

@@ -3,41 +3,56 @@ package com.gu.media
 import java.io.IOException
 import java.net.URI
 import java.util.concurrent.TimeUnit
-
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.auth.{
-  AWSCredentialsProvider,
-  AWSCredentialsProviderChain,
-  STSAssumeRoleSessionCredentialsProvider
+import software.amazon.awssdk.auth.credentials.{
+  AwsCredentialsProvider,
+  AwsCredentialsProviderChain,
+  DefaultCredentialsProvider,
+  ProfileCredentialsProvider
 }
-import com.gu.contentapi.client.{IAMSigner, IAMEncoder}
+import com.gu.contentapi.client.{IAMEncoder, IAMSigner}
 import com.squareup.okhttp.{Headers, OkHttpClient, Request}
 import com.typesafe.config.Config
 import play.api.libs.json.{JsValue, Json}
-
-import collection.JavaConverters._
-
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.sts.StsClient
+import software.amazon.awssdk.services.sts.auth.StsAssumeRoleCredentialsProvider
+import software.amazon.awssdk.services.sts.model.AssumeRoleRequest
+import scala.jdk.CollectionConverters._
 trait CapiAccess { this: Settings =>
   def previewCapiIAMUrl = getMandatoryString("capi.previewIAMUrl")
   def previewCapiRole = getMandatoryString("capi.previewRole")
   def liveCapiUrl = getMandatoryString("capi.liveUrl")
   def liveCapiApiKey = getMandatoryString("capi.liveApiKey")
+  private val awsRegion = "eu-west-1"
+  private lazy val awsCredentialsProvider =
+    DefaultCredentialsProvider.builder().profileName("media-service").build()
+  private lazy val stsClient = StsClient
+    .builder()
+    .region(Region.of(awsRegion))
+    .credentialsProvider(awsCredentialsProvider)
+    .build()
 
-  private val capiPreviewCredentials: AWSCredentialsProvider = {
-    new AWSCredentialsProviderChain(
-      new ProfileCredentialsProvider("capi"),
-      new STSAssumeRoleSessionCredentialsProvider.Builder(
-        previewCapiRole,
-        "capi"
-      ).build()
+  val capiPreviewCredentials: AwsCredentialsProvider = {
+    AwsCredentialsProviderChain.of(
+      ProfileCredentialsProvider
+        .builder()
+        .profileName("capi")
+        .build(),
+      StsAssumeRoleCredentialsProvider
+        .builder()
+        .stsClient(stsClient)
+        .refreshRequest(
+          AssumeRoleRequest
+            .builder()
+            .roleArn(previewCapiRole)
+            .roleSessionName("capi")
+            .build()
+        )
+        .build()
     )
   }
 
-  private val signer = new IAMSigner(
-    capiPreviewCredentials,
-    sys.env.getOrElse("REGION", "eu-west-1")
-  )
-
+  val signer = new IAMSigner(capiPreviewCredentials, awsRegion)
   private val httpClient = new OkHttpClient()
   httpClient.setConnectTimeout(5, TimeUnit.SECONDS)
 
@@ -54,7 +69,6 @@ trait CapiAccess { this: Settings =>
         qs
       }
     )
-
     URI.create(s"$capiDomain/$path?$queryString")
   }
 
