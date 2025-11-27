@@ -51,10 +51,14 @@ const contentBundlingMap: Record<string, string> = {
 const contentBundlingTags = new Set(Object.values(contentBundlingMap));
 
 export const addOrDropBundlingTags = (keywords: string[], tags: string[], blockAds: boolean) => {
-  const tagSet = new Set(tags);
-  // if block ads is on, then remove all content bundling tags
+  // strip all gdnpfp... tags. If the composer keyword which caused them to be added
+  // is still around, they'll come back, but if it's been removed or blockAds has been
+  // turned on, then they'll be stripped out.
+  const tagsWithoutBundlingTags = tags.filter(tag => !contentBundlingTags.has(tag));
+  const tagSet = new Set(tagsWithoutBundlingTags);
+
   if (blockAds) {
-    return [...tagSet.values()].filter(tag => !contentBundlingTags.has(tag));
+    return [...tagSet.values()];
   } else {
     // if block ads is off, then look up all composer tags (called "keywords" here), and add any matching content bundling tag
     // to the existing tags
