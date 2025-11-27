@@ -24,7 +24,8 @@ class AWSConfig(
     with SNSAccess
     with SESSettings {
 
-  lazy val ec2Client = Ec2Client.builder()
+  lazy val ec2Client = Ec2Client
+    .builder()
     .region(awsV2Region)
     .credentialsProvider(credentials.instance.awsV2Creds)
     .build()
@@ -51,11 +52,18 @@ class AWSConfig(
 
   final override def readTag(tagName: String) = {
     val tagsResult = ec2Client.describeTags(
-      DescribeTagsRequest.builder().filters(
-        Filter.builder().name("resource-type").values("instance").build(),
-        Filter.builder().name("resource-id").values(EC2MetadataUtils.getInstanceId).build(),
-        Filter.builder().name("key").values(tagName).build()
-      ).build()
+      DescribeTagsRequest
+        .builder()
+        .filters(
+          Filter.builder().name("resource-type").values("instance").build(),
+          Filter
+            .builder()
+            .name("resource-id")
+            .values(EC2MetadataUtils.getInstanceId)
+            .build(),
+          Filter.builder().name("key").values(tagName).build()
+        )
+        .build()
     )
 
     tagsResult.tags().asScala.find(_.key == tagName).map(_.value)
