@@ -1,9 +1,6 @@
 package controllers
 
-import com.amazonaws.services.stepfunctions.model.{
-  ExecutionListItem,
-  ExecutionStatus
-}
+import software.amazon.awssdk.services.sfn.model.{ExecutionListItem, ExecutionStatus}
 import com.gu.atom.data.{DataStoreResultUtil, PreviewDynamoDataStore}
 import com.gu.media.{MediaAtomMakerPermissionsProvider, TestHelpers}
 import com.gu.media.model._
@@ -359,34 +356,36 @@ class UploadControllerTest extends AnyFlatSpec with Matchers {
       assetVersion: Int,
       status: ExecutionStatus,
       started: String
-  ) = new ExecutionListItem()
-    .withExecutionArn(
+  ) = ExecutionListItem.builder()
+    .executionArn(
       s"arn:aws:states:eu-west-1:xxxxx:execution:VideoPipelineDEV-PGZ5E0CNI0QG:ace3fcf6-1378-41db-9d21-f3fc07072ab2-$assetVersion"
     )
-    .withStateMachineArn(
+    .stateMachineArn(
       "arn:aws:states:eu-west-1:xxxxx:stateMachine:VideoPipelineDEV-PGZ5E0CNI0QG"
     )
-    .withName(s"ace3fcf6-1378-41db-9d21-f3fc07072ab2-$assetVersion")
-    .withStatus(status)
-    .withStartDate(java.util.Date.from(Instant.parse(started)))
+    .name(s"ace3fcf6-1378-41db-9d21-f3fc07072ab2-$assetVersion")
+    .status(status)
+    .startDate(Instant.parse(started))
+    .build()
 
   private def subtitleUploadJob(
       assetVersion: Int,
       subtitleVersion: Int,
       status: ExecutionStatus,
       started: String
-  ) = new ExecutionListItem()
-    .withExecutionArn(
+  ) = ExecutionListItem.builder()
+    .executionArn(
       s"arn:aws:states:eu-west-1:xxxxx:execution:VideoPipelineDEV-PGZ5E0CNI0QG:ace3fcf6-1378-41db-9d21-f3fc07072ab2-$assetVersion.$subtitleVersion"
     )
-    .withStateMachineArn(
+    .stateMachineArn(
       "arn:aws:states:eu-west-1:xxxxx:stateMachine:VideoPipelineDEV-PGZ5E0CNI0QG"
     )
-    .withName(
+    .name(
       s"ace3fcf6-1378-41db-9d21-f3fc07072ab2-$assetVersion.$subtitleVersion"
     )
-    .withStatus(status)
-    .withStartDate(java.util.Date.from(Instant.parse(started)))
+    .status(status)
+    .startDate(Instant.parse(started))
+    .build()
 
   private def selfHostedAsset(assetVersion: Int, subtitleVersion: Int) =
     SelfHostedAsset(
