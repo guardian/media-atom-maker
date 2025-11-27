@@ -20,7 +20,6 @@ class AWSConfig(
     with DynamoAccess
     with UploadAccess
     with KinesisAccess
-    with ElasticTranscodeAccess
     with SQSAccess
     with SNSAccess
     with SESSettings {
