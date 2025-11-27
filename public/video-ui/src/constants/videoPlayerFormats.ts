@@ -1,9 +1,9 @@
 export const videoPlayerFormats: {id: VideoPlayerFormat, title: string}[] = [
   {id: "Loop", title: "Loop"},
+  {id: "Cinemagraph", title: "Cinemagraph"},
   {id: "Default", title: "Standard"},
-  {id: "Cinemagraph", title: "Cinemagraph"}
 ];
 
-export type VideoPlayerFormat = "Loop" | "Default" | "Cinemagraph";
+export type VideoPlayerFormat = "Loop" | "Cinemagraph" | "Default";
 
 export type VideoPlayerOption = VideoPlayerFormat | 'Youtube';
