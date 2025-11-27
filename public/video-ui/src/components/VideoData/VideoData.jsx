@@ -15,6 +15,7 @@ import {formNames} from "../../constants/formNames";
 import FieldNotification from "../../constants/FieldNotification";
 import { trailTextConfig, standfirstConfig } from "../FormFields/richtext/config";
 import { ExpireNowComponent } from "../FormFields/ExpireNow";
+import {addOrDropBundlingTags} from "../../services/KeywordsApi";
 
 export default class VideoData extends React.Component {
   static propTypes = {
@@ -47,6 +48,14 @@ export default class VideoData extends React.Component {
       );
     }
     return null;
+  };
+
+  composerKeywordsToYouTube = () => {
+    const { video, updateVideo } = this.props;
+
+    const fullTags = addOrDropBundlingTags(video.keywords, video.tags, video.blockAds);
+    const newVideo = Object.assign({}, video, { tags: fullTags });
+    updateVideo(newVideo);
   };
 
   render() {
@@ -144,6 +153,7 @@ export default class VideoData extends React.Component {
               isDesired={true}
               inputPlaceholder="Search keywords (type '*' to show all)"
               customValidation={this.validateKeywords}
+              updateSideEffects={this.composerKeywordsToYouTube}
             >
               <TagPicker disableTextInput />
             </ManagedField>

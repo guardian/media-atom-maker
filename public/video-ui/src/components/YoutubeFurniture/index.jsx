@@ -10,7 +10,6 @@ import { formNames } from '../../constants/formNames';
 import YouTubeKeywords from '../../constants/youTubeKeywords';
 import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
 import FieldNotification from '../../constants/FieldNotification';
-import KeywordsApi from '../../services/KeywordsApi';
 import { addOrDropBundlingTags } from '../../services/KeywordsApi';
 import { fieldLengths } from '../../constants/videoEditValidation';
 import TextInput from '../FormFields/TextInput';
