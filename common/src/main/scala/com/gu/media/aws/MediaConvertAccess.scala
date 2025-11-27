@@ -1,6 +1,6 @@
 package com.gu.media.aws
 
-import com.amazonaws.services.mediaconvert.AWSMediaConvertClientBuilder
+import software.amazon.awssdk.services.mediaconvert.MediaConvertClient
 import com.gu.media.Settings
 
 trait MediaConvertAccess { this: Settings with AwsAccess =>
@@ -15,9 +15,9 @@ trait MediaConvertAccess { this: Settings with AwsAccess =>
     "aws.mediaconvert.destinationBucket"
   )
 
-  lazy val mediaConvertClient = AWSMediaConvertClientBuilder
-    .standard()
-    .withCredentials(credsProvider)
-    .withRegion(region.getName)
+  lazy val mediaConvertClient = MediaConvertClient
+    .builder()
+    .credentialsProvider(credentials.instance.awsV2Creds)
+    .region(awsV2Region)
     .build()
 }

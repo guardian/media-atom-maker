@@ -110,7 +110,7 @@ lazy val common = (project in file("common"))
       "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
       "software.amazon.awssdk" % "sts" % awsV2Version,
       "com.amazonaws" % "aws-java-sdk-elastictranscoder" % awsVersion,
-      "com.amazonaws" % "aws-java-sdk-mediaconvert" % awsVersion,
+      "software.amazon.awssdk" % "mediaconvert" % awsV2Version,
       "org.scanamo" %% "scanamo" % scanamoVersion,
       "com.squareup.okhttp" % "okhttp" % okHttpVersion,
       "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test", // to match ScalaTest version
