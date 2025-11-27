@@ -71,7 +71,7 @@ class Mailer(config: Settings with SESSettings) {
       subject: String,
       body: String
   ): SendEmailResponse = {
-    val subjectContent = Content.builder().data(subject).build()
+    val subjectContent = Content.builder().data(s"[Media Atom Maker] $subject").build()
     val bodyContent =
       Body.builder().html(Content.builder().data(body).build()).build()
     config.sesClient.sendEmail(
