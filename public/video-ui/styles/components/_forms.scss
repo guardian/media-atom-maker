@@ -431,9 +431,13 @@
   width: 33%;
   padding: 24px;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
   cursor: pointer;
+  flex-direction: column;
+}
+
+.create-form__option-specifications {
+  margin-top: 8px;
+  color: $cWhite;
 }
 
 .create-form__option-radio-input {
@@ -460,7 +464,7 @@
 .create-form__option-row {
   display: flex;
   flex-direction: row;
-  height: 200px;
+  min-height: 200px;
   gap: 16px;
 }
 
