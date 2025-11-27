@@ -8,7 +8,10 @@ import com.gu.contentatom.thrift.{
   EventType,
   ChangeRecord => ThriftChangeRecord
 }
-import com.gu.media.iconik.IconikUploadActions
+import com.gu.media.iconik.{
+  IconikProjectAssignedToAtomMessage,
+  IconikUploadActions
+}
 import com.gu.media.logging.Logging
 import com.gu.media.model.{
   AtomAssignedProjectMessage,
@@ -176,7 +179,15 @@ case class UpdateAtomCommand(
 
   private def notifyIconik(newAtom: MediaAtom) = {
     val iconikUploadActions = new IconikUploadActions(awsConfig)
-    iconikUploadActions.send(newAtom)
+    newAtom.iconikData.foreach(iconikData =>
+      iconikUploadActions.sendMessage(
+        IconikProjectAssignedToAtomMessage(
+          newAtom.id,
+          newAtom.assets,
+          iconikData
+        )
+      )
+    )
   }
 
   private def notifyPluto(newAtom: MediaAtom) = {
