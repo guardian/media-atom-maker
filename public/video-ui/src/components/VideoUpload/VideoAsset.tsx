@@ -12,7 +12,7 @@ import DeleteButton from '../DeleteButton';
 import Icon, { SubtitlesIcon } from '../Icon';
 import { VideoEmbed } from '../utils/VideoEmbed';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
-import type {VideoPlayerFormat} from "../../constants/videoPlayerFormats";
+import type {VideoPlayerFormat} from "../../constants/videoCreateOptions";
 
 function presenceInitials(email: string) {
   if (!email) return;
