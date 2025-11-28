@@ -64,15 +64,9 @@ case class PlutoMessageConsumer(val stores: DataStores, awsConfig: AWSConfig)
     (bodyJson \ "Message").validate[PlutoMessage] match {
       case JsSuccess(plutoMessage, _) => {
 
-        awsConfig.s3Client.deleteObject(
-          awsConfig.userUploadBucket,
-          plutoMessage.s3Key
+        log.info(
+          s"Received deletion message from Pluto for asset: ${plutoMessage.s3Key}. Deletion is no longer honoured, to avoid conflict with Iconik."
         )
-
-        stores.pluto.get(plutoMessage.s3Key) match {
-          case Some(upload) => stores.pluto.delete(plutoMessage.s3Key)
-          case _            =>
-        }
 
       }
       case undefined =>
