@@ -6,7 +6,7 @@ export function getYouTubeTagCharCount(tags) {
       if (/\s/g.test(keyword)) {
         charCount += 2;
       }
-      return (charCount += keyword.length);
+      return charCount + keyword.length;
     }, 0);
 
     //Count commas added between keywords
