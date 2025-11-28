@@ -385,12 +385,9 @@
 }
 
 .create-form {
-  width: calc(100% - 64px);
-  margin: 32px;
+  width: 100%;
   padding: 24px;
   background: $color900Grey;
-  border: 1px solid $color300Grey;
-  border-radius: 12px;
   color: $cWhite;
   font-family: "Inter", sans-serif;
   display: flex;
@@ -400,7 +397,8 @@
 
 .create-form-in-modal {
   margin: 0 auto;
-  width: 100%;
+  border: 1px solid $color300Grey;
+  border-radius: 12px;
 }
 
 .create-form__h2, .create-form__h3 {
