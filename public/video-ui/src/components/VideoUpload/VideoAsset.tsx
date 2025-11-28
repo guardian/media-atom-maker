@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   ClientAsset,
   deleteSubtitle,
-  startSubtitleFileUpload,
+  startSubtitleFileUpload
 } from '../../slices/s3Upload';
 import { selectVideo } from '../../slices/video';
 import { AppDispatch } from '../../util/setupStore';
