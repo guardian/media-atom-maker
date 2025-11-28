@@ -30,7 +30,7 @@ export default class Header extends React.Component {
 
   closeCreateModal = () => {
     this.state.dialogRef.current?.close();
-  }
+  };
 
   publishVideo = () => {
     this.props.publishVideo(this.props.video.id);
