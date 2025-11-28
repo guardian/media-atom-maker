@@ -35,7 +35,7 @@ export const videoCreateOptions: {
               "No share button"
             ],
             info: [
-              "Ideal for long-form content with a wide audience," +
+              "Ideal for long-form content with a wide audience",
               "Can be used anywhere",
               "Hosted on Youtube"
             ]
@@ -48,8 +48,7 @@ export const videoCreateOptions: {
           title: "Loop",
           specifications: {
             positive: [
-              "Autoplays (if not disabled by user’s accessibility preferences or low battery mode)",
-              "Loops",
+              "Autoplays and loops",
               "Play / pause controls",
               "Progress bar",
               "Audio track and mute controls",
@@ -63,7 +62,7 @@ export const videoCreateOptions: {
             ],
             info: [
               "Ideal for short, semantic clips",
-              "Can be used on Fronts only (as of Nov 2025)",
+              "Can be used on Fronts only",
               "Self-hosted"
             ]
           }
@@ -73,7 +72,7 @@ export const videoCreateOptions: {
           title: "Cinemagraph",
           specifications: {
             positive: [
-              "Autoplays (if not disabled by user’s accessibility preferences or low battery mode)",
+              "Autoplays and loops",
               "Loops",
               "Click through to content"
             ],
@@ -105,14 +104,14 @@ export const videoCreateOptions: {
               "Fullscreen controls"
             ],
             negative: [
-              "No Guardian player (as of Nov 2025)",
-              "No subtitles support (as of Nov 2025)",
-              "No share button (as of Nov 2025)",
+              "No Guardian player",
+              "No subtitles support",
+              "No share button",
               "No support for livestreaming"
             ],
             info: [
               "Used for sensitive content and legacy videos",
-              "Can be used in Articles only (as of Nov 2025)",
+              "Can be used in Articles only",
               "Self-hosted"
             ]
           }
