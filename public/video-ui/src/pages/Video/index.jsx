@@ -45,7 +45,7 @@ class VideoDisplay extends React.Component {
     Loop: <Loop/>,
     Cinemagraph: <Cinemagraph/>,
     Default: <Standard/>
-  }
+  };
 
   getVideo() {
     this.props.videoActions.getVideo(this.props.params.id);
