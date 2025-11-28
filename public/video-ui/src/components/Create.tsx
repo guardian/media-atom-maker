@@ -7,6 +7,10 @@ import {Platform, VideoWithoutId} from "../services/VideosApi";
 import Checkmark from "../../images/checkmark.svg?react";
 import Cross from "../../images/cross.svg?react";
 import Info from "../../images/info.svg?react";
+import Loop from "../../images/loop.svg?react";
+import Youtube from "../../images/youtube.svg?react";
+import Cinemagraph from "../../images/cinemagraph.svg?react";
+import Standard from "../../images/standard.svg?react";
 
 export default class Create extends React.Component {
   props: React.PropsWithChildren<{
@@ -48,6 +52,13 @@ export default class Create extends React.Component {
     return !!this.state.headline && !!this.state.videoCreateOption
   }
 
+  iconMap = {
+    Youtube: <Youtube/>,
+    Loop: <Loop/>,
+    Cinemagraph: <Cinemagraph/>,
+    Default: <Standard/>
+  }
+
   renderVideoCreateOption(videoCreateOptionDetails: VideoCreateOptionDetails) {
     return (
       <div
@@ -55,12 +66,15 @@ export default class Create extends React.Component {
         className={"create-form__option-container " + (this.state.videoCreateOption === videoCreateOptionDetails.id ? 'create-form__option-selected' : '')}
         onClick={() => this.setState({ videoCreateOption: videoCreateOptionDetails.id })}>
         <div className="create-form__option">
-          <label
-            htmlFor={videoCreateOptionDetails.id}
-            className="create-form__option-radio-label"
-          >
-            {videoCreateOptionDetails.title}
-          </label>
+          <div className="create-form__option-radio-label-and-icon">
+            {this.iconMap[videoCreateOptionDetails.id]}
+            <label
+              htmlFor={videoCreateOptionDetails.id}
+              className="create-form__option-radio-label"
+            >
+              {videoCreateOptionDetails.title}
+            </label>
+          </div>
           <input
             type="radio"
             className="create-form__option-radio-input"
