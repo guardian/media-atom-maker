@@ -395,7 +395,7 @@
   font-family: "Inter", sans-serif;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 16px;
 }
 
 .create-form-in-modal {
@@ -403,9 +403,22 @@
   width: 100%;
 }
 
-.create-form__h2, .create-form__h3, .create-form__h4, .create-form__label {
+.create-form__h2, .create-form__h3 {
   font-family: "Inter", sans-serif;
   font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.create-form__h4, .create-form__label {
+  font-family: "Inter", sans-serif;
+}
+
+.create-form__h2 {
+  font-size: 18px;
+}
+
+.create-form__h3 {
+  font-size: 17px;
 }
 
 .create-form__h4, .create-form__label {
@@ -429,7 +442,7 @@
   border: 1px solid $color300Grey;
   border-radius: 12px;
   width: 33%;
-  padding: 24px;
+  padding: 16px;
   display: flex;
   cursor: pointer;
   flex-direction: column;
@@ -438,6 +451,24 @@
 .create-form__option-specifications {
   margin-top: 8px;
   color: $cWhite;
+}
+
+.create-form__option-specifications ul {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.create-form__list-item__specification {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 4px;
+  list-style: none;
+  align-items: center;
+}
+
+.create-form__list-item__specification svg {
+  flex-shrink: 0;
 }
 
 .create-form__option-radio-input {
