@@ -6,7 +6,6 @@ import VideoImages from '../../components/VideoImages/VideoImages';
 import Icon from '../../components/Icon';
 import { formNames } from '../../constants/formNames';
 import ReactTooltip from 'react-tooltip';
-import { blankVideoData } from '../../constants/blankVideoData';
 import { isVideoPublished } from '../../util/isVideoPublished';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 import VideoUtils from '../../util/video';
@@ -22,6 +21,10 @@ import { TargetingTab, TargetingTabPanel } from './tabs/Targeting';
 import { ManagementTab, ManagementTabPanel } from './tabs/Management';
 import { PlutoTab, PlutoTabPanel } from './tabs/Pluto';
 import { IconikTab, IconikTabPanel } from './tabs/Iconik';
+import Loop from "../../../images/loop.svg?react";
+import Youtube from "../../../images/youtube.svg?react";
+import Cinemagraph from "../../../images/cinemagraph.svg?react";
+import Standard from "../../../images/standard.svg?react";
 
 class VideoDisplay extends React.Component {
   constructor(props) {
@@ -35,6 +38,13 @@ class VideoDisplay extends React.Component {
     this.getVideo();
     this.getWorkflowState();
     this.getUsages();
+  }
+
+  iconMap = {
+    Youtube: <Youtube/>,
+    Loop: <Loop/>,
+    Cinemagraph: <Cinemagraph/>,
+    Default: <Standard/>
   }
 
   getVideo() {
@@ -132,12 +142,20 @@ class VideoDisplay extends React.Component {
           <header className="video__detailbox__header">
             <div>
               <h3>Video Preview</h3>
-              <h4>
-                {
-                  videoCreateOptions.offPlatform
-                    .find(format => format.id === this.props.video.videoPlayerFormat)
-                    ?.title
-                }</h4>
+              {
+                this.props.video.videoPlayerFormat &&
+                  <div className="video__detailbox__header__format">
+                    {this.iconMap[this.props.video.videoPlayerFormat]}
+                    <h4>
+                      {
+                        Object.values(videoCreateOptions).flat()
+                          .find(format => format.id === this.props.video.videoPlayerFormat)
+                          ?.title
+                      }
+                    </h4>
+
+                  </div>
+              }
             </div>
 
             {youtubeAsset &&  (
