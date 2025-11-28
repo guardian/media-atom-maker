@@ -17,11 +17,11 @@ export default class Create extends React.Component {
     createVideo: (video: VideoWithoutId) => (dispatch: AppDispatch) => Promise<void>
     inModal: boolean
     closeCreateModal?: () => void;
-  }>
+  }>;
 
   state: { headline: string; videoCreateOption: VideoCreateOption } = {
     headline: "",
-    videoCreateOption: "Youtube",
+    videoCreateOption: "Youtube"
   };
 
   closeCreateModal = () => {
@@ -43,13 +43,13 @@ export default class Create extends React.Component {
       title: headline,
       videoPlayerFormat,
       platform
-    }
+    };
 
     this.props.createVideo(videoData);
-  }
+  };
 
   isFormValid() {
-    return !!this.state.headline && !!this.state.videoCreateOption
+    return !!this.state.headline && !!this.state.videoCreateOption;
   }
 
   iconMap = {
@@ -57,7 +57,7 @@ export default class Create extends React.Component {
     Loop: <Loop/>,
     Cinemagraph: <Cinemagraph/>,
     Default: <Standard/>
-  }
+  };
 
   renderVideoCreateOption(videoCreateOptionDetails: VideoCreateOptionDetails) {
     return (
@@ -172,6 +172,6 @@ export default class Create extends React.Component {
           </button>
         </div>
       </div>
-    )
+    );
   }
 }

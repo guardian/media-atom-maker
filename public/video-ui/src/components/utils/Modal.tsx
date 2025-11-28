@@ -1,7 +1,7 @@
 import React from 'react';
 
 export default class Modal extends React.Component {
-  props: React.PropsWithChildren
+  props: React.PropsWithChildren;
   state: { dialogRef : React.RefObject<HTMLDialogElement> | undefined } = {
     dialogRef: undefined
   };

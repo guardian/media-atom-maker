@@ -40,7 +40,7 @@ export const videoCreateOptions: {
               "Hosted on Youtube"
             ]
           }
-        },
+        }
       ],
       "selfHosted": [
         {
