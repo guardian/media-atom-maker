@@ -1,0 +1,39 @@
+import React from 'react';
+
+export default class Modal extends React.Component {
+  props: React.PropsWithChildren
+  state: { dialogRef : React.RefObject<HTMLDialogElement> | undefined } = {
+    dialogRef: undefined
+  };
+
+  showModal() {
+    this.state.dialogRef.current?.showModal();
+  }
+
+  close() {
+    this.state.dialogRef.current?.close();
+  }
+
+  constructor(props: React.PropsWithChildren) {
+    super(props);
+    this.state.dialogRef = React.createRef<HTMLDialogElement>();
+  }
+
+  render() {
+    return (
+      <dialog className="modal" ref={this.state.dialogRef}>
+        <div className="modal__content__header">
+          <button
+            className="i-cross modal__dismiss"
+            onClick={() => this.close()}
+          >
+            Close
+          </button>
+        </div>
+        <div className="modal__content">
+          {this.props.children}
+        </div>
+      </dialog>
+    );
+  }
+}

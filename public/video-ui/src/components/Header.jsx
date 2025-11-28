@@ -16,16 +16,21 @@ import Create from "./Create";
 export default class Header extends React.Component {
   state = {
     presence: null,
-    createModalOpen: false,
+    dialogRef: undefined
+  };
+
+  constructor(props) {
+    super(props);
+    this.state.dialogRef = React.createRef();
+  }
+
+  openCreateModal = () => {
+    this.state.dialogRef.current?.showModal();
   };
 
   closeCreateModal = () => {
-    this.setState({ createModalOpen: false });
-  };
-
-  openCreateModal = () => {
-    this.setState({ createModalOpen: true });
-  };
+    this.state.dialogRef.current?.close();
+  }
 
   publishVideo = () => {
     this.props.publishVideo(this.props.video.id);
@@ -168,7 +173,7 @@ export default class Header extends React.Component {
         <button className="btn" onClick={this.openCreateModal}>
           <Icon icon="add">Create</Icon>
         </button>
-        <Modal isOpen={this.state.createModalOpen} dismiss={this.closeCreateModal}>
+        <Modal ref={this.state.dialogRef}>
           <Create createVideo={this.props.createVideo} inModal={true} closeCreateModal={this.closeCreateModal}/>
         </Modal>
       </nav>
