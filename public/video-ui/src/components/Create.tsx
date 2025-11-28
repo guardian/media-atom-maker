@@ -4,6 +4,9 @@ import type {VideoPlayerFormat, VideoCreateOption} from "../constants/videoCreat
 import {blankVideoData} from "../constants/blankVideoData";
 import {AppDispatch} from "../util/setupStore";
 import {Platform, VideoWithoutId} from "../services/VideosApi";
+import Checkmark from "../../images/checkmark.svg?react";
+import Cross from "../../images/cross.svg?react";
+import Info from "../../images/info.svg?react";
 
 export default class Create extends React.Component {
   props: React.PropsWithChildren<{
@@ -70,18 +73,27 @@ export default class Create extends React.Component {
         </div>
         <div className="create-form__option-specifications">
           <ul aria-label="positives">
-            {videoCreateOptionDetails.specifications.positive.map(infoDetail => (
-              <li key={infoDetail}>{infoDetail}</li>
+            {videoCreateOptionDetails.specifications.positive.map(positiveSpecification => (
+              <li key={positiveSpecification} className="create-form__list-item__specification">
+                {positiveSpecification}
+                <Checkmark/>
+              </li>
             ))}
           </ul>
           <ul aria-label="negatives">
-            {videoCreateOptionDetails.specifications.negative.map(infoDetail => (
-              <li key={infoDetail}>{infoDetail}</li>
+            {videoCreateOptionDetails.specifications.negative.map(negativeSpecifiation => (
+              <li key={negativeSpecifiation} className="create-form__list-item__specification">
+                {negativeSpecifiation}
+                <Cross/>
+              </li>
             ))}
           </ul>
           <ul aria-label="other information">
-            {videoCreateOptionDetails.specifications.info.map(infoDetail => (
-              <li key={infoDetail}>{infoDetail}</li>
+            {videoCreateOptionDetails.specifications.info.map(infoSpecification => (
+              <li key={infoSpecification} className="create-form__list-item__specification">
+                {infoSpecification}
+                <Info/>
+              </li>
             ))}
           </ul>
 

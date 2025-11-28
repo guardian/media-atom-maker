@@ -1,9 +1,10 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
+import svgr from "vite-plugin-svgr";
 
 export default defineConfig({
   base: '',
-  plugins: [react()],
+  plugins: [react(), svgr()],
   publicDir: false, // This feature is deactivated because the 'public' dir also has a special meaning for the Play framework
   build: {
     sourcemap: "inline",
