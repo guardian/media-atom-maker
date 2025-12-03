@@ -62,7 +62,7 @@ object AwsCredentials {
     instance.assumeAccountRole(
       crossAccountRoleArn,
       "capi",
-      AwsAccess.regionFrom(settings).getName
+      AwsAccess.regionFrom(settings).id()
     )
   }
 }

@@ -1,12 +1,10 @@
 package com.gu.media.aws
 
-import com.amazonaws.services.securitytoken.{
-  AWSSecurityTokenService,
-  AWSSecurityTokenServiceClientBuilder
-}
+
 import software.amazon.awssdk.services.sfn.SfnClient
 import software.amazon.awssdk.services.sfn.model.ListStateMachinesRequest
 import com.gu.media.Settings
+import software.amazon.awssdk.services.sts.StsClient
 
 import scala.jdk.CollectionConverters._
 
@@ -28,17 +26,16 @@ trait UploadAccess { this: Settings with AwsAccess =>
     .region(awsV2Region)
     .build()
 
-  private def createUploadSTSClient(): AWSSecurityTokenService = {
+  private def createUploadSTSClient(): StsClient = {
     if (!userUploadRole.startsWith("arn:")) {
       throw new IllegalArgumentException(
         "aws.upload.role must be in ARN format: arn:aws:iam::<account>:role/<role_name>"
       )
     }
 
-    AWSSecurityTokenServiceClientBuilder
-      .standard()
-      .withCredentials(credentials.upload.awsV1Creds)
-      .withRegion(region.getName)
+    StsClient.builder()
+      .credentialsProvider(credentials.upload.awsV2Creds)
+      .region(awsV2Region)
       .build()
   }
 
