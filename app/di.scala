@@ -1,6 +1,5 @@
-import com.amazonaws.auth._
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain}
+
+import software.amazon.awssdk.auth.credentials.{AwsCredentialsProvider, AwsCredentialsProviderChain, InstanceProfileCredentialsProvider, ProfileCredentialsProvider}
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.gu.atom.play.ReindexController
 import com.gu.media.aws.{AwsCredentials, S3Access}
@@ -9,14 +8,7 @@ import com.gu.pandomainauth.{PanDomainAuthSettingsRefresher, S3BucketLoader}
 import controllers._
 import data._
 import play.api.ApplicationLoader.Context
-import play.api.{
-  Application,
-  ApplicationLoader,
-  BuiltInComponentsFromContext,
-  Configuration,
-  LoggerConfigurator,
-  Mode
-}
+import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext, Configuration, LoggerConfigurator, Mode}
 import play.api.libs.ws.WSClient
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.mvc.{ControllerComponents, EssentialFilter}
@@ -52,23 +44,24 @@ class MediaAtomMaker(context: Context)
     case Mode.Dev => AwsCredentials.dev(Settings(config))
     case _        => AwsCredentials.app(Settings(config))
   }
+  val profileName =
+    configuration.getOptional[String]("panda.awsCredsProfile").getOrElse("panda")
 
-  val pandaAwsCredentialsProvider: AWSCredentialsProvider =
-    new AWSCredentialsProviderChain(
-      new ProfileCredentialsProvider(
-        configuration
-          .getOptional[String]("panda.awsCredsProfile")
-          .getOrElse("panda")
-      ),
-      new InstanceProfileCredentialsProvider(false)
-    )
+  val pandaAwsCredentialsProvider: AwsCredentialsProvider =
+    AwsCredentialsProviderChain.builder()
+      .addCredentialsProvider(
+        AwsCredentialsProviderChain.of(
+          ProfileCredentialsProvider.create(profileName),
+          InstanceProfileCredentialsProvider.create()
+        ))
+      .build()
 
   private lazy val domain = configuration.get[String]("panda.domain")
 
   val panDomainSettings = PanDomainAuthSettingsRefresher(
     domain = domain,
     system = "video",
-    S3BucketLoader.forAwsSdkV1(
+    S3BucketLoader.forAwsSdkV2(
       S3Access.buildClient(pandaAwsCredentialsProvider, "eu-west-1"),
       configuration
         .getOptional[String]("panda.bucketName")
@@ -85,7 +78,7 @@ class MediaAtomMaker(context: Context)
 
   private val permissions = new MediaAtomMakerPermissionsProvider(
     permissionsStage,
-    aws.region.getName,
+    aws.region.id(),
     aws.credentials.instance.awsV2Creds
   )
 

@@ -1,21 +1,23 @@
 package com.gu.media.aws
 
-import com.amazonaws.auth.AWSCredentialsProvider
-import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.s3.S3Client
+
 
 trait S3Access { this: AwsAccess =>
-  lazy val s3Client: AmazonS3 =
-    S3Access.buildClient(credsProvider, region.getName)
+  lazy val s3Client =
+    S3Access.buildClient(credsProvider, region.id())
 }
 
 object S3Access {
   def buildClient(
-      credsProvider: AWSCredentialsProvider,
+      credsProvider: AwsCredentialsProvider,
       region: String
-  ): AmazonS3 =
-    AmazonS3ClientBuilder
-      .standard()
-      .withCredentials(credsProvider)
-      .withRegion(region)
+  ) =
+    S3Client
+      .builder()
+      .credentialsProvider(credsProvider)
+      .region(Region.of(region))
       .build()
 }

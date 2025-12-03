@@ -1,9 +1,10 @@
 package util
 
-import com.amazonaws.services.s3.model.S3Object
+import software.amazon.awssdk.services.s3.model.{GetObjectRequest, GetObjectResponse, S3Object}
 import com.gu.media.logging.Logging
 import com.gu.media.model.{Image, ImageAsset, ImageAssetDimensions}
 import com.gu.media.util.AspectRatio
+import software.amazon.awssdk.core.ResponseInputStream
 
 import java.io.InputStream
 import javax.imageio.{ImageIO, ImageReader}
@@ -69,18 +70,18 @@ class S3ImageUtil(awsConfig: AWSConfig) extends Logging {
   ): Option[ImageAsset] = {
 
     val s3Client = awsConfig.s3Client
-
+    val getObjectRequest = GetObjectRequest.builder().bucket(s3Bucket).key(s3Key).build()
     Try {
-      val obj = s3Client.getObject(s3Bucket, s3Key)
-      val metadata = obj.getObjectMetadata
-      val contentType = metadata.getContentType
-      val dimensions = readImageDimensions(obj, contentType)
+      val obj = s3Client.getObject(getObjectRequest)
+      val metadata = obj.response().metadata()
+      val contentType = obj.response().contentType()
+      val dimensions = readImageDimensions(obj, s3Key, contentType)
 
       ImageAsset(
         mimeType = Some(contentType),
         file = s"$httpOrigin/$s3Key",
         dimensions = dimensions,
-        size = Some(metadata.getContentLength),
+        size = Some(metadata.size()),
         aspectRatio = dimensions
           .flatMap(dim => AspectRatio.calculate(dim.width, dim.height))
           .map(_.name)
@@ -118,19 +119,19 @@ class S3ImageUtil(awsConfig: AWSConfig) extends Logging {
   }
 
   def readImageDimensions(
-      imgFile: S3Object,
+      imgFile: ResponseInputStream[GetObjectResponse],
+      imgFileKey: String,
       contentType: String
   ): Option[ImageAssetDimensions] = {
     getImageReader(contentType).flatMap { reader =>
-      val content = imgFile.getObjectContent
-      val tryDimensions = Try(readDimensionsFromStream(reader, content))
-      content.close()
+      val tryDimensions = Try(readDimensionsFromStream(reader, imgFile))
+      imgFile.close()
       reader.dispose()
       tryDimensions match {
         case Success(dimensions) =>
           Some(dimensions)
         case Failure(ex) =>
-          log.warn(s"Error reading dimensions from ${imgFile.getKey}", ex);
+          log.warn(s"Error reading dimensions from $imgFileKey", ex);
           None
       }
     }

@@ -1,13 +1,11 @@
 package com.gu.media.upload
 
-import com.amazonaws.services.s3.model.{
-  CopyPartRequest,
-  InitiateMultipartUploadRequest
-}
+
 import com.gu.media.aws.S3Access
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
 import com.gu.media.upload.model.{CopyETag, CopyProgress, Upload}
+import software.amazon.awssdk.services.s3.model.{CreateMultipartUploadRequest, UploadPartCopyRequest}
 
 class MultipartCopyChunkInS3
     extends LambdaWithParams[Upload, Upload]
@@ -27,11 +25,10 @@ class MultipartCopyChunkInS3
   private def start(upload: Upload): CopyProgress = {
     log.info(s"Starting multipart copy for upload ${upload.id}")
 
-    val start = new InitiateMultipartUploadRequest(
-      upload.metadata.bucket,
-      upload.metadata.pluto.s3Key
-    )
-    val copyId = s3Client.initiateMultipartUpload(start).getUploadId
+    val start = CreateMultipartUploadRequest.builder()
+                .bucket(upload.metadata.bucket).key(upload.metadata.pluto.s3Key).build()
+
+    val copyId = s3Client.createMultipartUpload(start).uploadId()
 
     CopyProgress(copyId, fullyCopied = false, eTags = List.empty)
   }
@@ -52,21 +49,22 @@ class MultipartCopyChunkInS3
       val source = upload.parts(part).key
       val destination = upload.metadata.pluto.s3Key
 
-      val request = new CopyPartRequest()
-        .withUploadId(progress.copyId)
-        .withSourceBucketName(bucket)
-        .withSourceKey(source)
-        .withDestinationBucketName(bucket)
-        .withDestinationKey(destination)
-        .withPartNumber(part + 1)
+      val request =  UploadPartCopyRequest.builder()
+        .uploadId(progress.copyId)
+        .sourceBucket(bucket)
+        .sourceKey(source)
+        .destinationBucket(bucket)
+        .destinationBucket(destination)
+        .partNumber(part + 1)
+        .build()
 
       log.info(
         s"Copying $source to $destination [multipart=${progress.copyId} part=$part]"
       )
 
-      val response = s3Client.copyPart(request)
+      val response = s3Client.uploadPartCopy(request)
       val eTags =
-        progress.eTags :+ CopyETag(response.getPartNumber, response.getETag)
+        progress.eTags :+ CopyETag(request.partNumber(), response.copyPartResult().eTag())
 
       progress.copy(
         eTags = eTags,

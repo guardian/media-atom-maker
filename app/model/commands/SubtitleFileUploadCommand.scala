@@ -1,10 +1,6 @@
 package model.commands
 
-import com.amazonaws.services.s3.model.{
-  ObjectMetadata,
-  PutObjectRequest,
-  PutObjectResult
-}
+import software.amazon.awssdk.services.s3.model.{PutObjectRequest, PutObjectResponse}
 import com.gu.media.logging.Logging
 import com.gu.media.model.VideoSource
 import com.gu.media.upload.model.Upload
@@ -14,6 +10,8 @@ import model.commands.CommandExceptions._
 import play.api.libs.Files
 import play.api.mvc.MultipartFormData
 import util.{AWSConfig, SubtitleUtil}
+
+import scala.jdk.CollectionConverters.MapHasAsJava
 
 /** given an upload record from the dynamo pipeline cache table, this command
   * will add the given file to S3, removing any exising subtitle files. Returns
@@ -44,17 +42,18 @@ case class SubtitleFileUploadCommand(
 
     val key = s"${awsConfig.userUploadFolder}/${upload.id}/${file.filename}"
 
-    val metadata = new ObjectMetadata
-    metadata.addUserMetadata("user", getUsername(user))
-    metadata.setContentType(SubtitleUtil.contentTypeForFilename(file.filename))
+    val contentType = SubtitleUtil.contentTypeForFilename(file.filename)
 
-    val request =
-      new PutObjectRequest(awsConfig.userUploadBucket, key, file.ref)
-        .withMetadata(metadata)
+    val request = PutObjectRequest.builder()
+      .bucket(awsConfig.userUploadBucket)
+      .key(key)
+      .contentType(contentType)
+      .metadata(Map("user" -> getUsername(user)).asJava)
+      .build()
 
-    awsConfig.s3Client.putObject(request) match {
-      case _: PutObjectResult =>
-        VideoSource(key, metadata.getContentType)
+    awsConfig.s3Client.putObject(request, file.ref.path) match {
+      case _: PutObjectResponse =>
+        VideoSource(key, contentType)
       case _ => SubtitleFileUploadFailed
     }
   }

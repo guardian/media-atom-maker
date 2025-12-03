@@ -1,6 +1,6 @@
 package util
 
-import com.amazonaws.services.s3.model.DeleteObjectRequest
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
 import com.gu.media.logging.Logging
 import com.gu.media.upload.model.Upload
 
@@ -29,8 +29,7 @@ object SubtitleUtil extends Logging {
     upload.metadata.subtitleSource.foreach { source =>
       // remove subtitle file from s3
       try {
-        val request =
-          new DeleteObjectRequest(awsConfig.userUploadBucket, source.src)
+        val request = DeleteObjectRequest.builder().bucket(awsConfig.userUploadBucket).key(source.src).build()
         awsConfig.s3Client.deleteObject(request)
       } catch {
         case e: Throwable =>
