@@ -1,11 +1,20 @@
 package com.gu.media.youtube
 
 import java.io.InputStream
-import com.gu.media.logging.{Logging, YoutubeApiType, YoutubeRequestLogger, YoutubeRequestType}
+import com.gu.media.logging.{
+  Logging,
+  YoutubeApiType,
+  YoutubeRequestLogger,
+  YoutubeRequestType
+}
 import com.gu.media.model.YouTubeAsset
 import com.gu.media.upload.model.{Upload, UploadPart}
 import com.gu.media.util.InputStreamRequestBody
-import com.gu.media.youtube.YouTubeUploader.{MoveToNextChunk, UploadError, VideoFullyUploaded}
+import com.gu.media.youtube.YouTubeUploader.{
+  MoveToNextChunk,
+  UploadError,
+  VideoFullyUploaded
+}
 import com.squareup.okhttp.{MediaType, OkHttpClient, Request, RequestBody}
 import play.api.libs.json.{JsObject, JsString, Json}
 import software.amazon.awssdk.services.s3.S3Client
@@ -83,7 +92,9 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: S3Client) extends Logging {
     val UploadPart(key, start, end) = part
     val total = upload.parts.last.end
 
-    val input = s3.getObject(GetObjectRequest.builder().bucket(upload.metadata.bucket).key(key).build())
+    val input = s3.getObject(
+      GetObjectRequest.builder().bucket(upload.metadata.bucket).key(key).build()
+    )
 
     uploadChunk(uploadUri, input, start, end, total) match {
       case VideoFullyUploaded(videoId) =>

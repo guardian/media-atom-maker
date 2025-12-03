@@ -1,7 +1,11 @@
 package com.gu.media.upload
 
-
-import software.amazon.awssdk.services.s3.model.{CompleteMultipartUploadRequest, CompletedMultipartUpload, CompletedPart, DeleteObjectRequest}
+import software.amazon.awssdk.services.s3.model.{
+  CompleteMultipartUploadRequest,
+  CompletedMultipartUpload,
+  CompletedPart,
+  DeleteObjectRequest
+}
 import com.gu.media.aws.S3Access
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
@@ -20,23 +24,26 @@ class CompleteMultipartCopy
         val bucket = upload.metadata.bucket
         val destination = upload.metadata.pluto.s3Key
         val completedParts = copyETags.map { case CopyETag(partNumber, eTag) =>
-          CompletedPart.builder()
+          CompletedPart
+            .builder()
             .partNumber(partNumber)
             .eTag(eTag)
             .build()
         }
-        val  completedUpload = CompletedMultipartUpload.builder()
+        val completedUpload = CompletedMultipartUpload
+          .builder()
           .parts(completedParts.asJava)
           .build()
         log.info(
           s"Completing multipart copy. upload=${upload.id} multipart=$copyId"
         )
-        val request = CompleteMultipartUploadRequest.builder()
-                      .bucket(bucket)
-                      .key(destination)
-                      .uploadId(copyId)
-                      .multipartUpload(completedUpload)
-                      .build()
+        val request = CompleteMultipartUploadRequest
+          .builder()
+          .bucket(bucket)
+          .key(destination)
+          .uploadId(copyId)
+          .multipartUpload(completedUpload)
+          .build()
 
         s3Client.completeMultipartUpload(request)
 
@@ -48,7 +55,11 @@ class CompleteMultipartCopy
     upload.parts.foreach { part =>
       try {
         log.info(s"Deleting part $part")
-        val deleteRequest = DeleteObjectRequest.builder().bucket(upload.metadata.bucket).key(part.key).build()
+        val deleteRequest = DeleteObjectRequest
+          .builder()
+          .bucket(upload.metadata.bucket)
+          .key(part.key)
+          .build()
         s3Client.deleteObject(deleteRequest)
       } catch {
         case NonFatal(err) =>
