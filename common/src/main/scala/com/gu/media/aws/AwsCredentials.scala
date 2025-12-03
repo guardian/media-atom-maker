@@ -3,15 +3,15 @@ package com.gu.media.aws
 import com.gu.media.Settings
 
 case class AwsCredentials(
-    instance: CredentialsForBothSdkVersions,
-    crossAccount: CredentialsForBothSdkVersions,
-    upload: CredentialsForBothSdkVersions
+    instance: CredentialsForAws,
+    crossAccount: CredentialsForAws,
+    upload: CredentialsForAws
 )
 
 object AwsCredentials {
   def dev(settings: Settings): AwsCredentials = {
     val profile = settings.getMandatoryString("aws.profile")
-    val instance = CredentialsForBothSdkVersions.profile(profile)
+    val instance = CredentialsForAws.profile(profile)
 
     // To enable publishing to CAPI code from DEV, update the kinesis streams in config and uncomment below:
     //   val crossAccount = AwsCredentialsProvidersForBothSdkVersions.profile("composer")
@@ -23,7 +23,7 @@ object AwsCredentials {
   }
 
   def app(settings: Settings): AwsCredentials = {
-    val instance = CredentialsForBothSdkVersions.instance()
+    val instance = CredentialsForAws.instance()
 
     val crossAccount = assumeCrossAccountRole(instance, settings)
 
@@ -31,11 +31,11 @@ object AwsCredentials {
   }
 
   def lambda(): AwsCredentials = {
-    val instance = CredentialsForBothSdkVersions.environmentVariables()
+    val instance = CredentialsForAws.environmentVariables()
     AwsCredentials(instance, crossAccount = instance, upload = instance)
   }
 
-  private def devUpload(settings: Settings): CredentialsForBothSdkVersions = {
+  private def devUpload(settings: Settings): CredentialsForAws = {
     // Only required in dev (because federated credentials such as those from Janus cannot do STS requests).
     // Instance profile credentials are sufficient when deployed.
     val accessKey = settings.getMandatoryString(
@@ -47,13 +47,13 @@ object AwsCredentials {
       "This is the AwsSecret output of the dev cloudformation"
     )
 
-    CredentialsForBothSdkVersions.static(accessKey, secretKey)
+    CredentialsForAws.static(accessKey, secretKey)
   }
 
   private def assumeCrossAccountRole(
-      instance: CredentialsForBothSdkVersions,
+      instance: CredentialsForAws,
       settings: Settings
-  ): CredentialsForBothSdkVersions = {
+  ): CredentialsForAws = {
     val crossAccountRoleArn = settings.getMandatoryString(
       "aws.kinesis.stsCapiRoleToAssume",
       "Role to assume to access CAPI streams (in format arn:aws:iam::<account>:role/<role_name>)"

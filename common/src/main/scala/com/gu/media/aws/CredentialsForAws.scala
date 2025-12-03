@@ -5,16 +5,16 @@ import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.sts.{StsClient, StsClientBuilder}
 import software.amazon.awssdk.services.sts.model.AssumeRoleRequest
 
-case class CredentialsForBothSdkVersions(
+case class CredentialsForAws(
     awsV2Creds: software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 ) {
   def assumeAccountRole(
       roleArn: String,
       sessionNameSuffix: String,
       regionName: String
-  ): CredentialsForBothSdkVersions = {
+  ): CredentialsForAws = {
     val roleSessionName = s"media-atom-maker-$sessionNameSuffix"
-    CredentialsForBothSdkVersions(
+    CredentialsForAws(
       software.amazon.awssdk.services.sts.auth.StsAssumeRoleCredentialsProvider
         .builder()
         .stsClient(
@@ -35,25 +35,25 @@ case class CredentialsForBothSdkVersions(
   }
 }
 
-object CredentialsForBothSdkVersions {
-  def profile(name: String): CredentialsForBothSdkVersions =
-    CredentialsForBothSdkVersions(
+object CredentialsForAws {
+  def profile(name: String): CredentialsForAws =
+    CredentialsForAws(
       awsv2.ProfileCredentialsProvider.create(name)
     )
 
-  def instance(): CredentialsForBothSdkVersions = CredentialsForBothSdkVersions(
+  def instance(): CredentialsForAws = CredentialsForAws(
     awsv2.InstanceProfileCredentialsProvider.create()
   )
 
-  def environmentVariables(): CredentialsForBothSdkVersions =
-    CredentialsForBothSdkVersions(
+  def environmentVariables(): CredentialsForAws =
+    CredentialsForAws(
       awsv2.EnvironmentVariableCredentialsProvider.create()
     )
 
   def static(
       accessKey: String,
       secretKey: String
-  ): CredentialsForBothSdkVersions = CredentialsForBothSdkVersions(
+  ): CredentialsForAws = CredentialsForAws(
     awsv2.StaticCredentialsProvider.create(
       awsv2.AwsBasicCredentials.create(accessKey, secretKey)
     )
