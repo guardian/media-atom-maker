@@ -5,7 +5,11 @@ import org.apache.pekko.actor.{ActorSystem, Scheduler}
 
 import scala.annotation.tailrec
 import scala.concurrent.duration._
-import software.amazon.awssdk.services.sqs.model.{DeleteMessageRequest, Message, ReceiveMessageRequest}
+import software.amazon.awssdk.services.sqs.model.{
+  DeleteMessageRequest,
+  Message,
+  ReceiveMessageRequest
+}
 
 import scala.concurrent.ExecutionContext
 import com.gu.media.logging.Logging
@@ -69,7 +73,11 @@ case class PlutoMessageConsumer(val stores: DataStores, awsConfig: AWSConfig)
       case JsSuccess(plutoMessage, _) => {
 
         awsConfig.s3Client.deleteObject(
-          DeleteObjectRequest.builder().bucket(awsConfig.userUploadBucket).key(plutoMessage.s3Key).build()
+          DeleteObjectRequest
+            .builder()
+            .bucket(awsConfig.userUploadBucket)
+            .key(plutoMessage.s3Key)
+            .build()
         )
 
         stores.pluto.get(plutoMessage.s3Key) match {

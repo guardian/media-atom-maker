@@ -1,5 +1,9 @@
-
-import software.amazon.awssdk.auth.credentials.{AwsCredentialsProvider, AwsCredentialsProviderChain, InstanceProfileCredentialsProvider, ProfileCredentialsProvider}
+import software.amazon.awssdk.auth.credentials.{
+  AwsCredentialsProvider,
+  AwsCredentialsProviderChain,
+  InstanceProfileCredentialsProvider,
+  ProfileCredentialsProvider
+}
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.gu.atom.play.ReindexController
 import com.gu.media.aws.{AwsCredentials, S3Access}
@@ -8,7 +12,14 @@ import com.gu.pandomainauth.{PanDomainAuthSettingsRefresher, S3BucketLoader}
 import controllers._
 import data._
 import play.api.ApplicationLoader.Context
-import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext, Configuration, LoggerConfigurator, Mode}
+import play.api.{
+  Application,
+  ApplicationLoader,
+  BuiltInComponentsFromContext,
+  Configuration,
+  LoggerConfigurator,
+  Mode
+}
 import play.api.libs.ws.WSClient
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.mvc.{ControllerComponents, EssentialFilter}
@@ -45,15 +56,19 @@ class MediaAtomMaker(context: Context)
     case _        => AwsCredentials.app(Settings(config))
   }
   val profileName =
-    configuration.getOptional[String]("panda.awsCredsProfile").getOrElse("panda")
+    configuration
+      .getOptional[String]("panda.awsCredsProfile")
+      .getOrElse("panda")
 
   val pandaAwsCredentialsProvider: AwsCredentialsProvider =
-    AwsCredentialsProviderChain.builder()
+    AwsCredentialsProviderChain
+      .builder()
       .addCredentialsProvider(
         AwsCredentialsProviderChain.of(
           ProfileCredentialsProvider.create(profileName),
           InstanceProfileCredentialsProvider.create()
-        ))
+        )
+      )
       .build()
 
   private lazy val domain = configuration.get[String]("panda.domain")

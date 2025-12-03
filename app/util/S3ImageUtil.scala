@@ -1,6 +1,10 @@
 package util
 
-import software.amazon.awssdk.services.s3.model.{GetObjectRequest, GetObjectResponse, S3Object}
+import software.amazon.awssdk.services.s3.model.{
+  GetObjectRequest,
+  GetObjectResponse,
+  S3Object
+}
 import com.gu.media.logging.Logging
 import com.gu.media.model.{Image, ImageAsset, ImageAssetDimensions}
 import com.gu.media.util.AspectRatio
@@ -70,7 +74,8 @@ class S3ImageUtil(awsConfig: AWSConfig) extends Logging {
   ): Option[ImageAsset] = {
 
     val s3Client = awsConfig.s3Client
-    val getObjectRequest = GetObjectRequest.builder().bucket(s3Bucket).key(s3Key).build()
+    val getObjectRequest =
+      GetObjectRequest.builder().bucket(s3Bucket).key(s3Key).build()
     Try {
       val obj = s3Client.getObject(getObjectRequest)
       val metadata = obj.response().metadata()

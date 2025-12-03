@@ -13,7 +13,9 @@ class GetChunkFromS3
     val chunk = upload.parts(upload.progress.chunksInS3)
 
     def objectExists(bucket: String, key: String): Boolean = try {
-      s3Client.headObject(HeadObjectRequest.builder.bucket(bucket).key(key).build)
+      s3Client.headObject(
+        HeadObjectRequest.builder.bucket(bucket).key(key).build
+      )
       true
     } catch {
       case e: S3Exception =>

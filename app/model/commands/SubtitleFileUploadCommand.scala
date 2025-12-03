@@ -1,6 +1,9 @@
 package model.commands
 
-import software.amazon.awssdk.services.s3.model.{PutObjectRequest, PutObjectResponse}
+import software.amazon.awssdk.services.s3.model.{
+  PutObjectRequest,
+  PutObjectResponse
+}
 import com.gu.media.logging.Logging
 import com.gu.media.model.VideoSource
 import com.gu.media.upload.model.Upload
@@ -44,7 +47,8 @@ case class SubtitleFileUploadCommand(
 
     val contentType = SubtitleUtil.contentTypeForFilename(file.filename)
 
-    val request = PutObjectRequest.builder()
+    val request = PutObjectRequest
+      .builder()
       .bucket(awsConfig.userUploadBucket)
       .key(key)
       .contentType(contentType)

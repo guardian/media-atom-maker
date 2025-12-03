@@ -29,7 +29,11 @@ object SubtitleUtil extends Logging {
     upload.metadata.subtitleSource.foreach { source =>
       // remove subtitle file from s3
       try {
-        val request = DeleteObjectRequest.builder().bucket(awsConfig.userUploadBucket).key(source.src).build()
+        val request = DeleteObjectRequest
+          .builder()
+          .bucket(awsConfig.userUploadBucket)
+          .key(source.src)
+          .build()
         awsConfig.s3Client.deleteObject(request)
       } catch {
         case e: Throwable =>
