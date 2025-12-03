@@ -1,6 +1,5 @@
 package com.gu.media.aws
 
-
 import software.amazon.awssdk.services.sfn.SfnClient
 import software.amazon.awssdk.services.sfn.model.ListStateMachinesRequest
 import com.gu.media.Settings
@@ -33,7 +32,8 @@ trait UploadAccess { this: Settings with AwsAccess =>
       )
     }
 
-    StsClient.builder()
+    StsClient
+      .builder()
       .credentialsProvider(credentials.upload.awsV2Creds)
       .region(awsV2Region)
       .build()

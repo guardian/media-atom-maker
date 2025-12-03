@@ -17,7 +17,8 @@ class CredentialsGenerator(aws: UploadAccess) extends Logging {
       key: String,
       keyPolicy: String
   ): UploadCredentials = {
-    val request = AssumeRoleRequest.builder()
+    val request = AssumeRoleRequest
+      .builder()
       .roleArn(aws.userUploadRole)
       .durationSeconds(
         900

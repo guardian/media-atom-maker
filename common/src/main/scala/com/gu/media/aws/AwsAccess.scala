@@ -1,6 +1,5 @@
 package com.gu.media.aws
 
-
 import com.gu.media.Settings
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import software.amazon.awssdk.regions.Region
@@ -31,7 +30,7 @@ trait AwsAccess { this: Settings =>
 
 object AwsAccess {
   def regionFrom(maybeName: Option[String]): Region = maybeName
-    .map { name =>  Region.of(name)}
+    .map { name => Region.of(name) }
     .getOrElse(Region.EU_WEST_1)
 
   def regionFrom(settings: Settings): Region = regionFrom(
