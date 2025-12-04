@@ -34,7 +34,7 @@ class StepFunctions(awsConfig: AWSConfig) {
 
   def getTaskEntered(events: Iterable[HistoryEvent]): Option[(String, Upload)] =
     for {
-      event <- events.find(_.`type`() == "TaskStateEntered")
+      event <- events.find(_.`type`() == HistoryEventType.TASK_STATE_ENTERED)
       details = event.stateEnteredEventDetails
       upload <- Json.parse(details.input).validate[Upload].asOpt
     } yield {
@@ -42,14 +42,15 @@ class StepFunctions(awsConfig: AWSConfig) {
     }
 
   def getExecutionFailed(events: Iterable[HistoryEvent]): Option[String] = {
-    events.find(_.`type`() == "ExecutionFailed").flatMap { event =>
-      val cause = event.executionFailedEventDetails.cause()
-      try {
-        Some((Json.parse(cause) \ "errorMessage").as[String])
-      } catch {
-        case _: JsonParseException | _: JsResultException =>
-          Some(cause)
-      }
+    events.find(_.`type`() == HistoryEventType.EXECUTION_FAILED).flatMap {
+      event =>
+        val cause = event.executionFailedEventDetails.cause()
+        try {
+          Some((Json.parse(cause) \ "errorMessage").as[String])
+        } catch {
+          case _: JsonParseException | _: JsResultException =>
+            Some(cause)
+        }
     }
   }
 
