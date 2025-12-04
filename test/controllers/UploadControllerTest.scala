@@ -428,6 +428,7 @@ class UploadControllerTest extends AnyFlatSpec with Matchers {
         "region",
         "title",
         null,
+        iconikData = None,
         null,
         originalFilename = Some(videoFiles(videoVersion - 1)),
         subtitleSource =

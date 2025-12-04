@@ -116,6 +116,7 @@ class UploadTest
     region = "local",
     title = "my-video",
     pluto = plutoMessage,
+    iconikData = None,
     runtime = SelfHostedUploadMetadata(Nil),
     subtitleVersion = Some(12),
     subtitleSource =
@@ -128,6 +129,7 @@ class UploadTest
     region = "local",
     title = "my-video",
     pluto = plutoMessage,
+    iconikData = None,
     runtime = SelfHostedUploadMetadata(Nil)
   )
 }
