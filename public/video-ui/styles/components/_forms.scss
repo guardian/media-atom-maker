@@ -389,7 +389,7 @@
   padding: 24px;
   background: $color900Grey;
   color: $cWhite;
-  font-family: "Inter", sans-serif;
+  font-family: $text-font-stack;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -402,13 +402,13 @@
 }
 
 .create-form__h2, .create-form__h3 {
-  font-family: "Inter", sans-serif;
+  font-family: $text-font-stack;
   font-weight: bold;
   margin-bottom: 4px;
 }
 
 .create-form__h4, .create-form__label {
-  font-family: "Inter", sans-serif;
+  font-family: $text-font-stack;
 }
 
 .create-form__h2 {
