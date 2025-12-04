@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { findSmallestAssetAboveWidth } from '../../util/imageHelpers';
-import Icon, {LoopingIcon, YoutubeIcon} from '../Icon';
+import Icon from '../Icon';
 import ReactTooltip from 'react-tooltip';
 import VideoUtils from '../../util/video';
 import { impossiblyDistantDate } from '../../constants/dates';
