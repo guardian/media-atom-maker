@@ -6,7 +6,7 @@ import software.amazon.awssdk.services.s3.S3Client
 
 trait S3Access { this: AwsAccess =>
   lazy val s3Client =
-    S3Access.buildClient(credsProvider, region.id())
+    S3Access.buildClient(credentials.instance.awsV2Creds, awsV2Region.id())
 }
 
 object S3Access {
