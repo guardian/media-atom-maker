@@ -24,14 +24,6 @@ export default class Create extends React.Component {
     videoCreateOption: "Youtube"
   };
 
-  closeCreateModal = () => {
-    this.setState({ createModalOpen: false });
-  };
-
-  openCreateModal = () => {
-    this.setState({ createModalOpen: true });
-  };
-
   createVideo = () => {
     const workingTitle = this.state.workingTitle;
 
