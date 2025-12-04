@@ -1,3 +1,8 @@
+// prevent scrolling of content underneath dialog
+body:has(dialog[open]) {
+  overflow: hidden
+}
+
 .modal {
     width: 100%;
     height: 100%;
