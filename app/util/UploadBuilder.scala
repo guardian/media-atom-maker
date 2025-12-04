@@ -27,7 +27,7 @@ object UploadBuilder {
     val metadata = UploadMetadata(
       user = email,
       bucket = aws.userUploadBucket,
-      region = aws.region.id(),
+      region = aws.awsV2Region.id(),
       title = atom.title,
       pluto = plutoData,
       selfHost = request.selfHost,

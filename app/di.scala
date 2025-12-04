@@ -93,7 +93,7 @@ class MediaAtomMaker(context: Context)
 
   private val permissions = new MediaAtomMakerPermissionsProvider(
     permissionsStage,
-    aws.region.id(),
+    aws.awsV2Region.id(),
     aws.credentials.instance.awsV2Creds
   )
 
