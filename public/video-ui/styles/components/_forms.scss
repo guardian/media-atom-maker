@@ -449,11 +449,38 @@
   cursor: pointer;
   flex-direction: column;
   height: 56px;
-  transition: height 0.6s ease;
+  transition: height 0.5s ease;
   overflow: clip;
 
   &.create-form__option-group-selected {
-    height: auto;
+    height: 330px;
+  }
+
+  // Wide breakpoint
+  @media (max-width: 1299px) {
+    &.create-form__option-group-selected {
+      height: 360px;
+    }
+  }
+
+  // LeftCol breakpoint
+  @media (max-width: 1139px) {
+    &.create-form__option-group-selected {
+      height: 440px;
+    }
+  }
+
+  // Desktop breakpoint
+  @media (max-width: 979px) {
+    &.create-form__option-group-selected {
+      height: 460px;
+    }
+  }
+
+  @media (max-width: 840px) {
+    &.create-form__option-group-selected {
+      height: auto;
+    }
   }
 }
 
