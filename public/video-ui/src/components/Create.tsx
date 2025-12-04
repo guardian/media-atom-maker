@@ -91,8 +91,11 @@ export default class Create extends React.Component {
             onChange={() => this.setState({ videoCreateOption: videoCreateOptionDetails.id })}
           />
         </div>
-        { isGroupSelected &&
-          <div className="create-form__option-specifications">
+        {
+          <div className={
+            "create-form__option-specifications " +
+            (isGroupSelected ? 'create-form__option-specifications-visible' : '')
+          }>
             <ul aria-label="positives">
               {videoCreateOptionDetails.specifications.positive.map(positiveSpecification => (
                 <li key={positiveSpecification} className="create-form__list-item__specification">
