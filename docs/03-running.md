@@ -9,22 +9,10 @@ You need media-service credentials and capi `API Gateway invocation` credentials
 ## React App
 Once running, the React App can be seen [here](https://video.local.dev-gutools.co.uk/videos)
 
-There are two ways to run the React App:
-
-### With hot-reloading
-To run the React App with hot-reloading, run:
-
-```bash
-./scripts/client-dev.sh
-```
-The app will be served at https://video.local.dev-gutools.co.uk/
-
-### Without hot-reloading
-To run the React App without hot-reloading, run:
-
 ```bash
 ./scripts/start.sh
 ```
+The app will be served at https://video.local.dev-gutools.co.uk/
 
 ## Publishing to CAPI CODE from DEV
 - You will need `composer` Janus credentials.
