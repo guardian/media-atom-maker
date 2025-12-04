@@ -392,7 +392,11 @@
   font-family: $text-font-stack;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
+}
+
+.create-form-contents {
+  padding: 8px;
 }
 
 .create-form-in-modal {
@@ -401,7 +405,12 @@
   border-radius: 12px;
 }
 
-.create-form__h2, .create-form__h3 {
+.create-form__h2 {
+  font-family: $title-font-stack;
+  margin-bottom: 0;
+}
+
+.create-form__h3 {
   font-family: $text-font-stack;
   font-weight: bold;
   margin-bottom: 4px;
@@ -412,11 +421,11 @@
 }
 
 .create-form__h2 {
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .create-form__h3 {
-  font-size: 17px;
+  font-size: 16px;
 }
 
 .create-form__h4, .create-form__label {
@@ -427,6 +436,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  margin-bottom: 16px;
 }
 
 .create-form__options {

@@ -129,10 +129,10 @@ export default class Create extends React.Component {
   render() {
     return (
       <div className={'create-form ' + (this.props.inModal ? 'create-form-in-modal' : '')}>
-        <div>
-          <h2 className="create-form__h2">
-            Create New Video
-          </h2>
+        <h2 className="create-form__h2">
+          Create New Video
+        </h2>
+        <div className="create-form-contents">
           <div className="create-form__working-title-container">
             <label className="create-form__label" htmlFor="working-title">Working Title</label>
             <input
@@ -143,49 +143,49 @@ export default class Create extends React.Component {
               className="form__field"
             />
           </div>
-        </div>
-        <div>
-          <h3 className="create-form__h3">
-            Video Player Format
-          </h3>
-          <div className="create-form__options">
-            <div>
-              <h4 className="create-form__h4">
-                Off Platform
-              </h4>
-              <div className="create-form__option-row">
-                {videoCreateOptions.offPlatform.map((videoCreateOptionDetails) => (
-                  this.renderVideoCreateOption(videoCreateOptionDetails, this.state.videoCreateOption === "Youtube")
-                ))}
+          <div>
+            <h3 className="create-form__h3">
+              Video Player Format
+            </h3>
+            <div className="create-form__options">
+              <div>
+                <h4 className="create-form__h4">
+                  Off Platform
+                </h4>
+                <div className="create-form__option-row">
+                  {videoCreateOptions.offPlatform.map((videoCreateOptionDetails) => (
+                    this.renderVideoCreateOption(videoCreateOptionDetails, this.state.videoCreateOption === "Youtube")
+                  ))}
+                </div>
               </div>
-            </div>
-            <div>
-              <h4 className="create-form__h4">
-                Self Hosted
-              </h4>
-              <div className="create-form__option-row">
-                {videoCreateOptions.selfHosted.map((videoCreateOptionDetails) => (
-                  this.renderVideoCreateOption(videoCreateOptionDetails, this.state.videoCreateOption !== "Youtube")
-                ))}
+              <div>
+                <h4 className="create-form__h4">
+                  Self Hosted
+                </h4>
+                <div className="create-form__option-row">
+                  {videoCreateOptions.selfHosted.map((videoCreateOptionDetails) => (
+                    this.renderVideoCreateOption(videoCreateOptionDetails, this.state.videoCreateOption !== "Youtube")
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div className="action-buttons-outer-container">
-          {!this.state.workingTitle &&
-            <div className="action-buttons-outer-container-validation-warning">
-              You need to add a Working Title to create a video.
-            </div>
-          }
-          <div className="action-buttons-container">
-            {this.props.inModal &&
-              <button className="button__secondary" onClick={this.props.closeCreateModal} >
-                Cancel
-              </button>
+          <div className="action-buttons-outer-container">
+            {!this.state.workingTitle &&
+              <div className="action-buttons-outer-container-validation-warning">
+                You need to add a Working Title to create a video.
+              </div>
             }
-            <button className="btn" onClick={this.createVideo} disabled={!this.isFormValid()}>
-              Continue
-            </button>
+            <div className="action-buttons-container">
+              {this.props.inModal &&
+                <button className="button__secondary" onClick={this.props.closeCreateModal} >
+                  Cancel
+                </button>
+              }
+              <button className="btn" onClick={this.createVideo} disabled={!this.isFormValid()}>
+                Continue
+              </button>
+            </div>
           </div>
         </div>
       </div>
