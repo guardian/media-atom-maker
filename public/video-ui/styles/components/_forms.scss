@@ -435,15 +435,37 @@
   gap: 16px;
 }
 
+:root {
+  interpolate-size: allow-keywords;
+}
+
 .create-form__option-container {
   background-color: $color700Grey;
   border: 1px solid $color300Grey;
   border-radius: 12px;
-  width: 33%;
+  width: calc(33% - 8px);
   padding: 16px;
   display: flex;
   cursor: pointer;
   flex-direction: column;
+  height: 56px;
+  transition: height 0.6s ease;
+  overflow: clip;
+
+  &.create-form__option-group-selected {
+    height: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .create-form__option-container {
+    transition: none;
+  }
+}
+
+.create-form__option-selected {
+  border: 1px solid $cYellow;
+  color: $cYellow;
 }
 
 .create-form__option-specifications {
@@ -472,16 +494,12 @@
 
 .create-form__option-radio-input {
   accent-color: $cYellow;
+  cursor: pointer;
 }
 
 .create-form__option-radio-label {
   font-size: 16px;
   font-weight: bold;
-}
-
-.create-form__option-selected {
-  border: 1px solid $cYellow;
-  color: $cYellow;
 }
 
 .create-form__option {
@@ -500,8 +518,10 @@
 .create-form__option-row {
   display: flex;
   flex-direction: row;
-  min-height: 200px;
   gap: 16px;
+  height: 100%;
+  transition: height 1s ease-in;
+  interpolate-size: allow-keywords;
 }
 
 .action-buttons-container {
