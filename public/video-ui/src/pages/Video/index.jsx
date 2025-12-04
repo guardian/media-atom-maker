@@ -142,18 +142,23 @@ class VideoDisplay extends React.Component {
           <header className="video__detailbox__header">
             <div>
               <h3>Video Preview</h3>
+              { isYoutube &&
+                <div className="video__detailbox__header__format">
+                  {this.iconMap["Youtube"]}
+                  <span>Youtube</span>
+                </div>
+              }
               {
                 this.props.video.videoPlayerFormat &&
                   <div className="video__detailbox__header__format">
                     {this.iconMap[this.props.video.videoPlayerFormat]}
-                    <h4>
+                    <span>
                       {
                         Object.values(videoCreateOptions).flat()
                           .find(format => format.id === this.props.video.videoPlayerFormat)
                           ?.title
                       }
-                    </h4>
-
+                    </span>
                   </div>
               }
             </div>

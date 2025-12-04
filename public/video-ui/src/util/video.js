@@ -20,6 +20,11 @@ export default class VideoUtils {
     if(atom.platform === "Youtube") {
       return true;
     }
+    // If it's Url, return false
+    if(atom.platform === 'Url') {
+      return false;
+    }
+
     // For older videos, where each asset can have a different platform, we do the following:
 
     // no assets, could be youtube if we wanted
