@@ -19,8 +19,8 @@ export default class Create extends React.Component {
     closeCreateModal?: () => void;
   }>;
 
-  state: { headline: string; videoCreateOption: VideoCreateOption } = {
-    headline: "",
+  state: { workingTitle: string; videoCreateOption: VideoCreateOption } = {
+    workingTitle: "",
     videoCreateOption: "Youtube"
   };
 
@@ -33,14 +33,14 @@ export default class Create extends React.Component {
   };
 
   createVideo = () => {
-    const headline = this.state.headline;
+    const workingTitle = this.state.workingTitle;
 
     const videoPlayerFormat: VideoPlayerFormat | undefined = this.state.videoCreateOption !== "Youtube" ? this.state.videoCreateOption : undefined;
     const platform: Platform = this.state.videoCreateOption === "Youtube" ? "Youtube" : "Url";
 
     const videoData = {
       ...blankVideoData,
-      title: headline,
+      title: workingTitle,
       videoPlayerFormat,
       platform
     };
@@ -49,7 +49,7 @@ export default class Create extends React.Component {
   };
 
   isFormValid() {
-    return !!this.state.headline && !!this.state.videoCreateOption;
+    return !!this.state.workingTitle && !!this.state.videoCreateOption;
   }
 
   iconMap = {
@@ -133,13 +133,13 @@ export default class Create extends React.Component {
           <h2 className="create-form__h2">
             Create New Video
           </h2>
-          <div className="create-form__headline-container">
-            <label className="create-form__label" htmlFor="Headline">Headline</label>
+          <div className="create-form__working-title-container">
+            <label className="create-form__label" htmlFor="working-title">Working Title</label>
             <input
-              id="Headline"
-              name="headline"
-              onChange={(event) => this.setState({ headline: event.target.value })}
-              value={this.state.headline}
+              id="working-title"
+              name="Working Title"
+              onChange={(event) => this.setState({ workingTitle: event.target.value })}
+              value={this.state.workingTitle}
               className="form__field"
             />
           </div>
@@ -171,15 +171,22 @@ export default class Create extends React.Component {
             </div>
           </div>
         </div>
-        <div className="action-buttons-container">
-          {this.props.inModal &&
-            <button className="button__secondary" onClick={this.props.closeCreateModal} >
-              Cancel
-            </button>
+        <div className="action-buttons-outer-container">
+          {!this.state.workingTitle &&
+            <div className="action-buttons-outer-container-validation-warning">
+              You need to add a Working Title to create a video.
+            </div>
           }
-          <button className="btn" onClick={this.createVideo} disabled={!this.isFormValid()}>
-            Continue
-          </button>
+          <div className="action-buttons-container">
+            {this.props.inModal &&
+              <button className="button__secondary" onClick={this.props.closeCreateModal} >
+                Cancel
+              </button>
+            }
+            <button className="btn" onClick={this.createVideo} disabled={!this.isFormValid()}>
+              Continue
+            </button>
+          </div>
         </div>
       </div>
     );

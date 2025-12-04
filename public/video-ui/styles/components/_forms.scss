@@ -423,7 +423,7 @@
   font-size: 16px;
 }
 
-.create-form__headline-container {
+.create-form__working-title-container {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -531,12 +531,22 @@
   interpolate-size: allow-keywords;
 }
 
+.action-buttons-outer-container {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  width: 100%;
+  align-items: center;
+}
+
+.action-buttons-outer-container-validation-warning {
+  color: $cRedE3;
+}
+
 .action-buttons-container {
   display: flex;
   gap: 8px;
-  margin-top: 16px;
-  width: 100%;
-  justify-content: flex-end;
 }
 
 .form__group {
