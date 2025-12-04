@@ -59,11 +59,17 @@ export default class Create extends React.Component {
     Default: <Standard/>
   };
 
-  renderVideoCreateOption(videoCreateOptionDetails: VideoCreateOptionDetails) {
+  renderVideoCreateOption(videoCreateOptionDetails: VideoCreateOptionDetails, isGroupSelected: boolean) {
+    const isSelected = this.state.videoCreateOption === videoCreateOptionDetails.id;
+
     return (
       <div
         key={videoCreateOptionDetails.id}
-        className={"create-form__option-container " + (this.state.videoCreateOption === videoCreateOptionDetails.id ? 'create-form__option-selected' : '')}
+        className={
+          "create-form__option-container " +
+          (isSelected ? 'create-form__option-selected ' : '') +
+          (isGroupSelected ? 'create-form__option-group-selected' : '')
+        }
         onClick={() => this.setState({ videoCreateOption: videoCreateOptionDetails.id })}>
         <div className="create-form__option">
           <div className="create-form__option-radio-label-and-icon">
@@ -81,37 +87,38 @@ export default class Create extends React.Component {
             id={videoCreateOptionDetails.id}
             name="videoPlayerFormat"
             value={videoCreateOptionDetails.id}
-            checked={this.state.videoCreateOption === videoCreateOptionDetails.id}
+            checked={isSelected}
             onChange={() => this.setState({ videoCreateOption: videoCreateOptionDetails.id })}
           />
         </div>
-        <div className="create-form__option-specifications">
-          <ul aria-label="positives">
-            {videoCreateOptionDetails.specifications.positive.map(positiveSpecification => (
-              <li key={positiveSpecification} className="create-form__list-item__specification">
-                {positiveSpecification}
-                <Checkmark/>
-              </li>
-            ))}
-          </ul>
-          <ul aria-label="negatives">
-            {videoCreateOptionDetails.specifications.negative.map(negativeSpecifiation => (
-              <li key={negativeSpecifiation} className="create-form__list-item__specification">
-                {negativeSpecifiation}
-                <Cross/>
-              </li>
-            ))}
-          </ul>
-          <ul aria-label="other information">
-            {videoCreateOptionDetails.specifications.info.map(infoSpecification => (
-              <li key={infoSpecification} className="create-form__list-item__specification">
-                {infoSpecification}
-                <Info/>
-              </li>
-            ))}
-          </ul>
-
-        </div>
+        { isGroupSelected &&
+          <div className="create-form__option-specifications">
+            <ul aria-label="positives">
+              {videoCreateOptionDetails.specifications.positive.map(positiveSpecification => (
+                <li key={positiveSpecification} className="create-form__list-item__specification">
+                  {positiveSpecification}
+                  <Checkmark/>
+                </li>
+              ))}
+            </ul>
+            <ul aria-label="negatives">
+              {videoCreateOptionDetails.specifications.negative.map(negativeSpecifiation => (
+                <li key={negativeSpecifiation} className="create-form__list-item__specification">
+                  {negativeSpecifiation}
+                  <Cross/>
+                </li>
+              ))}
+            </ul>
+            <ul aria-label="other information">
+              {videoCreateOptionDetails.specifications.info.map(infoSpecification => (
+                <li key={infoSpecification} className="create-form__list-item__specification">
+                  {infoSpecification}
+                  <Info/>
+                </li>
+              ))}
+            </ul>
+          </div>
+        }
       </div>
     );
   }
@@ -145,7 +152,7 @@ export default class Create extends React.Component {
               </h4>
               <div className="create-form__option-row">
                 {videoCreateOptions.offPlatform.map((videoCreateOptionDetails) => (
-                  this.renderVideoCreateOption(videoCreateOptionDetails)
+                  this.renderVideoCreateOption(videoCreateOptionDetails, this.state.videoCreateOption === "Youtube")
                 ))}
               </div>
             </div>
@@ -155,7 +162,7 @@ export default class Create extends React.Component {
               </h4>
               <div className="create-form__option-row">
                 {videoCreateOptions.selfHosted.map((videoCreateOptionDetails) => (
-                  this.renderVideoCreateOption(videoCreateOptionDetails)
+                  this.renderVideoCreateOption(videoCreateOptionDetails, this.state.videoCreateOption !== "Youtube")
                 ))}
               </div>
             </div>
