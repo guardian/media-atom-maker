@@ -60,7 +60,7 @@ class MultipartCopyChunkInS3
         .sourceBucket(bucket)
         .sourceKey(source)
         .destinationBucket(bucket)
-        .destinationBucket(destination)
+        .destinationKey(destination)
         .partNumber(part + 1)
         .build()
 
