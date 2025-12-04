@@ -42,14 +42,15 @@ class StepFunctions(awsConfig: AWSConfig) {
     }
 
   def getExecutionFailed(events: Iterable[HistoryEvent]): Option[String] = {
-    events.find(_.`type`() == HistoryEventType.EXECUTION_FAILED).flatMap { event =>
-      val cause = event.executionFailedEventDetails.cause()
-      try {
-        Some((Json.parse(cause) \ "errorMessage").as[String])
-      } catch {
-        case _: JsonParseException | _: JsResultException =>
-          Some(cause)
-      }
+    events.find(_.`type`() == HistoryEventType.EXECUTION_FAILED).flatMap {
+      event =>
+        val cause = event.executionFailedEventDetails.cause()
+        try {
+          Some((Json.parse(cause) \ "errorMessage").as[String])
+        } catch {
+          case _: JsonParseException | _: JsResultException =>
+            Some(cause)
+        }
     }
   }
 
