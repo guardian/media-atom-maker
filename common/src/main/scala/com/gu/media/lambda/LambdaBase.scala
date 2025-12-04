@@ -2,11 +2,11 @@ package com.gu.media.lambda
 
 import java.io.InputStreamReader
 import java.util.Locale
-
-import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.gu.media.Settings
 import com.gu.media.aws.{AwsAccess, AwsCredentials, HMACSettings}
 import com.typesafe.config.{Config, ConfigFactory}
+import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.model.GetObjectRequest
 
 trait LambdaBase extends Settings with AwsAccess with HMACSettings {
   final override def region = AwsAccess.regionFrom(sys.env.get("REGION"))
@@ -23,15 +23,16 @@ trait LambdaBase extends Settings with AwsAccess with HMACSettings {
   private def downloadConfig(): Config = {
     (sys.env.get("CONFIG_BUCKET"), sys.env.get("CONFIG_KEY")) match {
       case (Some(bucket), Some(key)) =>
-        val defaultRegionS3 = AmazonS3ClientBuilder
-          .standard()
-          .withCredentials(credentials.instance.awsV1Creds)
-          .withRegion(region.getName)
+        val defaultRegionS3 = S3Client
+          .builder()
+          .credentialsProvider(credentials.instance.awsV2Creds)
+          .region(awsV2Region)
           .build()
 
-        val obj = defaultRegionS3.getObject(bucket, key)
-        val rawConfig = obj.getObjectContent
-        ConfigFactory.parseReader(new InputStreamReader(rawConfig))
+        val inputStream = defaultRegionS3.getObject(
+          GetObjectRequest.builder().bucket(bucket).key(key).build()
+        )
+        ConfigFactory.parseReader(new InputStreamReader(inputStream))
 
       case _ =>
         ConfigFactory.empty()

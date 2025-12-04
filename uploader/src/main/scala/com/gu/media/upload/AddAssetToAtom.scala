@@ -1,11 +1,9 @@
 package com.gu.media.upload
 
 import java.util.Date
-import com.gu.atom.data.PreviewDynamoDataStore
-import com.gu.atom.publish.{
-  PreviewKinesisAtomPublisher,
-  PreviewKinesisAtomPublisherV2
-}
+import com.gu.atom.data.PreviewDynamoDataStoreV2
+import com.gu.atom.publish.PreviewKinesisAtomPublisherV2
+
 import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
 import com.gu.media.aws.{DynamoAccess, KinesisAccess, UploadAccess}
 import com.gu.media.lambda.LambdaWithParams
@@ -32,7 +30,8 @@ class AddAssetToAtom
     "aws.upload.selfHostedOrigin"
   )
 
-  private val store = new PreviewDynamoDataStore(dynamoDB, dynamoTableName)
+  private val store =
+    new PreviewDynamoDataStoreV2(dynamoDbSdkV2, dynamoTableName)
   private val publisher = new PreviewKinesisAtomPublisherV2(
     previewKinesisStreamName,
     crossAccountKinesisClient

@@ -47,12 +47,6 @@ trait DynamoAccess { this: Settings with AwsAccess =>
       stage = if (stage == "DEV") "CODE" else stage
     )
 
-  lazy val dynamoDB = AmazonDynamoDBClientBuilder
-    .standard()
-    .withCredentials(credsProvider)
-    .withRegion(region.getName)
-    .build()
-
   lazy val dynamoDbSdkV2: DynamoDbClient =
     buildSync[DynamoDbClient, DynamoDbClientBuilder](
       DynamoDbClient.builder(),

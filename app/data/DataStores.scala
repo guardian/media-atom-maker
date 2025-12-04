@@ -19,9 +19,13 @@ import util.{AWSConfig, NotifyingAtomPublisher}
 
 class DataStores(aws: AWSConfig with SNSAccess, capi: CapiAccess) {
 
-  val preview = new PreviewDynamoDataStore(aws.dynamoDB, aws.dynamoTableName)
+  val preview =
+    new PreviewDynamoDataStoreV2(aws.dynamoDbSdkV2, aws.dynamoTableName)
   val published =
-    new PublishedDynamoDataStore(aws.dynamoDB, aws.publishedDynamoTableName)
+    new PublishedDynamoDataStoreV2(
+      aws.dynamoDbSdkV2,
+      aws.publishedDynamoTableName
+    )
 
   val pluto: PlutoDataStore =
     new PlutoDataStore(aws.scanamo, aws.manualPlutoDynamo)

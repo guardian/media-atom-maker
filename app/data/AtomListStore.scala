@@ -1,6 +1,6 @@
 package data
 
-import com.gu.atom.data.PreviewDynamoDataStore
+import com.gu.atom.data.PreviewDynamoDataStoreV2
 import com.gu.media.CapiAccess
 import com.gu.media.model.{ContentChangeDetails, Image, MediaAtom}
 import com.gu.media.util.TestFilters
@@ -132,7 +132,7 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
   }
 }
 
-class DynamoBackedAtomListStore(store: PreviewDynamoDataStore)
+class DynamoBackedAtomListStore(store: PreviewDynamoDataStoreV2)
     extends AtomListStore {
   override def getAtoms(
       search: Option[String],
@@ -219,7 +219,7 @@ object AtomListStore {
   def apply(
       stage: String,
       capi: CapiAccess,
-      store: PreviewDynamoDataStore
+      store: PreviewDynamoDataStoreV2
   ): AtomListStore = stage match {
     case "DEV" => new DynamoBackedAtomListStore(store)
     case _     => new CapiBackedAtomListStore(capi)
