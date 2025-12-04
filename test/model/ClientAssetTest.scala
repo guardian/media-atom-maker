@@ -118,6 +118,7 @@ class ClientAssetTest extends AnyFunSuite with Matchers {
       "",
       "",
       null,
+      iconikData = None,
       null,
       originalFilename = Some("test.mp4")
     )
