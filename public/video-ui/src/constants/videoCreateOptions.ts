@@ -73,7 +73,6 @@ export const videoCreateOptions: {
           specifications: {
             positive: [
               "Autoplays and loops",
-              "Loops",
               "Click through to content"
             ],
             negative: [
