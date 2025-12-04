@@ -498,6 +498,12 @@
 .create-form__option-specifications {
   margin-top: 8px;
   color: $cWhite;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.create-form__option-specifications-visible {
+  opacity: 1;
 }
 
 .create-form__option-specifications ul {
