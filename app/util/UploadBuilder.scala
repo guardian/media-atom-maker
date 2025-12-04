@@ -30,6 +30,7 @@ object UploadBuilder {
       region = aws.region.getName,
       title = atom.title,
       pluto = plutoData,
+      iconikData = atom.iconikData,
       selfHost = request.selfHost,
       runtime = getRuntimeMetadata(request.selfHost, atom.channelId),
       asset = getAsset(
