@@ -77,7 +77,7 @@ export default class VideoData extends React.Component {
       >
         <ManagedField
           fieldLocation="title"
-          name="Headline"
+          name={canHaveComposerPage ? "Headline" : "Title"}
           maxLength={fieldLengths.title}
           isRequired={true}
         >
