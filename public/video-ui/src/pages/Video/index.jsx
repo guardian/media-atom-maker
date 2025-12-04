@@ -143,7 +143,7 @@ class VideoDisplay extends React.Component {
             <div>
               <h3>Video Preview</h3>
               { isYoutube &&
-                <div className="video__detailbox__header__format">
+                <div className="video__detailbox__header__format video__detailbox__header__format--youtube">
                   {this.iconMap["Youtube"]}
                   <span>Youtube</span>
                 </div>
