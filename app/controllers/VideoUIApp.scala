@@ -8,7 +8,13 @@ import com.gu.pandomainauth.model.User
 import model.{ClientConfig, Presence}
 import play.api.Configuration
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
+import play.api.mvc.{
+  Action,
+  AnyContent,
+  BaseController,
+  ControllerComponents,
+  Cookie
+}
 import util.{AWSConfig, TrainingMode}
 import views.html.helper.CSRF
 
@@ -30,6 +36,11 @@ class VideoUIApp(
 
   def index(id: String = ""): Action[AnyContent] = AuthAction { implicit req =>
     val isTrainingMode = isInTrainingMode(req)
+    val shouldShowIconikUi = req.cookies.get("showIconik") match {
+      case Some(cookie) if cookie.value == "true"  => true
+      case Some(cookie) if cookie.value == "false" => false
+      case None => conf.get[String]("stage") != "PROD"
+    }
 
     val jsFileName = "video-ui/build/app.js"
 
@@ -61,7 +72,7 @@ class VideoUIApp(
       workflowUrl = awsConfig.workflowUrl,
       targetingUrl = awsConfig.targetingUrl,
       tagManagerUrl = awsConfig.tagManagerUrl,
-      showIconik = conf.get[String]("stage") != "PROD"
+      showIconik = shouldShowIconikUi
     )
 
     Ok(

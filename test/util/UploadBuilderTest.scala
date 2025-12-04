@@ -1,6 +1,6 @@
 package util
 
-import com.amazonaws.regions.{Region, RegionUtils}
+import software.amazon.awssdk.regions.Region
 import com.gu.contentatom.thrift.atom.media.{
   Asset,
   AssetType,
@@ -325,7 +325,7 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
     override val credentials: AwsCredentials =
       AwsCredentials.dev(Settings(config))
 
-    override def region: Region = RegionUtils.getRegion(regionName)
+    override def region: Region = Region.of(regionName)
   }
 
   private def completedProgress = UploadProgress(

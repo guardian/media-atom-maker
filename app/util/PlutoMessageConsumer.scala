@@ -71,20 +71,9 @@ case class PlutoMessageConsumer(val stores: DataStores, awsConfig: AWSConfig)
 
     (bodyJson \ "Message").validate[PlutoMessage] match {
       case JsSuccess(plutoMessage, _) => {
-
-        awsConfig.s3Client.deleteObject(
-          DeleteObjectRequest
-            .builder()
-            .bucket(awsConfig.userUploadBucket)
-            .key(plutoMessage.s3Key)
-            .build()
+        log.info(
+          s"Processing Pluto message to delete asset for s3Key: ${plutoMessage.s3Key}. nb. Deletion is currently disabled so this is a no-op."
         )
-
-        stores.pluto.get(plutoMessage.s3Key) match {
-          case Some(upload) => stores.pluto.delete(plutoMessage.s3Key)
-          case _            =>
-        }
-
       }
       case undefined =>
         log.error(

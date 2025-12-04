@@ -12,12 +12,12 @@ for arg in "$@"; do
 done
 
 "${DIR}/check-node-version.sh"
-yarn run build &
+yarn run client-dev &
 
 if [ "$IS_DEBUG" == 1 ]; then
-  sbt -jvm-debug 9100 $@ app/run
+  RELOADING=HOT sbt -jvm-debug 9100 $@ app/run
 else
-  sbt $@ app/run
+  RELOADING=HOT sbt $@ app/run
 fi
 
 # catches script exit events and kills the `yarn run build` process and its children

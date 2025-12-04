@@ -47,7 +47,8 @@ package object youtube {
     "science" -> "gdnpfpscience",
     "athletics" -> "gdnpfpsportother",
     "basketball" -> "gdnpfpsportus",
-    "sport-2-0" -> "gdnpfpsport20"
+    "sport-2-0" -> "gdnpfpsport20",
+    "full-story-podcast" -> "gdnpfpausfullstorypodcast"
   )
 
   case class YouTubeVideoCategory(id: Int, title: String)

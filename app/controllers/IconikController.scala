@@ -6,7 +6,13 @@ import com.gu.pandahmac.HMACAuthActions
 import com.typesafe.config.Config
 import data.{DataStores, UnpackedDataStores}
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
+import play.api.mvc.{
+  Action,
+  AnyContent,
+  BaseController,
+  ControllerComponents,
+  Cookie
+}
 import util.AWSConfig
 
 class IconikController(
@@ -20,7 +26,15 @@ class IconikController(
     with JsonRequestParsing
     with Logging {
 
-  import authActions.{APIAuthAction, APIHMACAuthAction}
+  import authActions.{APIAuthAction, APIHMACAuthAction, AuthAction}
+
+  def switchShowIconikUiOn(): Action[AnyContent] = AuthAction { implicit req =>
+    Redirect("/", FOUND).withCookies(Cookie("showIconik", "true"))
+  }
+
+  def switchShowIconikUiOff(): Action[AnyContent] = AuthAction { implicit req =>
+    Redirect("/", FOUND).withCookies(Cookie("showIconik", "false"))
+  }
 
   def getWorkingGroup(groupId: String): Action[AnyContent] = APIAuthAction {
     stores.iconikDataStore.getWorkingGroup(groupId) match {
