@@ -22,16 +22,16 @@ export default class Modal extends React.Component {
   render() {
     return (
       <dialog className="modal" ref={this.state.dialogRef}>
+        <div className="modal__content">
+          {this.props.children}
+        </div>
         <div className="modal__content__header">
           <button
-            className="i-cross modal__dismiss"
+            className="i-cross button__secondary modal__dismiss"
             onClick={() => this.close()}
           >
             Close
           </button>
-        </div>
-        <div className="modal__content">
-          {this.props.children}
         </div>
       </dialog>
     );
