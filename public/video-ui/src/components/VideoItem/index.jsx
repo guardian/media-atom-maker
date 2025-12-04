@@ -6,6 +6,10 @@ import ReactTooltip from 'react-tooltip';
 import VideoUtils from '../../util/video';
 import { impossiblyDistantDate } from '../../constants/dates';
 import moment from 'moment';
+import Youtube from "../../../images/youtube.svg?react";
+import Loop from "../../../images/loop.svg?react";
+import Cinemagraph from "../../../images/cinemagraph.svg?react";
+import Standard from "../../../images/standard.svg?react";
 
 
 export default class VideoItem extends React.Component {
@@ -45,13 +49,19 @@ export default class VideoItem extends React.Component {
 
   render() {
     const video = this.props.video;
-    const mediaPlatforms = VideoUtils.getMediaPlatforms(video);
-    const currentMediaPlatform = VideoUtils.getCurrentMediaPlatform(video);
+    const activeMediaPlatform = VideoUtils.getActiveMediaPlatform(video);
     const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
     const scheduledLaunchMoment = moment(scheduledLaunch);
     const embargo = VideoUtils.getEmbargo(video);
     const embargoMoment = moment(embargo);
     const hasPreventedPublication = embargo && embargoMoment.valueOf() >= impossiblyDistantDate;
+    const iconMap = {
+      Youtube: <Youtube/>,
+      Loop: <Loop/>,
+      Cinemagraph: <Cinemagraph/>,
+      Default: <Standard/>
+    };
+
     return (
       <li className="grid__item">
         <div className="presence-section presence-section-front">
@@ -109,24 +119,13 @@ export default class VideoItem extends React.Component {
               )}
             </div>
             <div className="platform__icons">
-              {mediaPlatforms.map(platform => {
-                const classes = ["platform__icon", platform === currentMediaPlatform ? "platform__icon__active" : ""].join(" ");
-                if (platform === 'youtube') {
-                  return (
-                    <div key={platform} className={classes}>
-                      <YoutubeIcon />
-                    </div>
-                  );
-                }
-                if (platform === 'url') {
-                  return (
-                    <div key={platform} className={classes}>
-                      <LoopingIcon />
-                    </div>
-                  );
-                }
-                return null;
-              })}
+              <div className="platform__icon">
+                  {
+                    video.videoPlayerFormat ?
+                      iconMap[video.videoPlayerFormat] :
+                      iconMap[activeMediaPlatform === 'youtube' ? 'Youtube' : 'Default']
+                  }
+              </div>
             </div>
             <div className="grid__item__footer">
               <span className="grid__item__title">{video.title}</span>
