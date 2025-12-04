@@ -13,6 +13,11 @@ body:has(dialog[open]) {
     margin: 0;
     max-width: none;
 
+    &:open {
+      display: flex;
+      flex-direction: column-reverse;
+    }
+
     .modal-content__body {
         padding: 12px;
     }
@@ -25,11 +30,7 @@ body:has(dialog[open]) {
     }
 
     .modal__dismiss {
-        cursor: pointer;
-        background-color: $color300Grey;
-        color: $color700Grey;
-        padding: 5px 10px;
-        border-radius: 3px;
+        border: 1px solid $cWhite;
     }
 
     .modal__content {
