@@ -58,11 +58,11 @@ export default class Create extends React.Component {
       <div
         key={videoCreateOptionDetails.id}
         className={
-          "create-form__option-container " +
-          (isSelected ? 'create-form__option-selected ' : '')
+          "create-form__option " +
+          (isSelected ? 'create-form__option--selected ' : '')
         }
         onClick={() => this.setState({ videoCreateOption: videoCreateOptionDetails.id })}>
-        <div className="create-form__option">
+        <div className="create-form__option-controls">
           <div className="create-form__option-radio-label-and-icon">
             {this.iconMap[videoCreateOptionDetails.id]}
             <label
@@ -74,7 +74,7 @@ export default class Create extends React.Component {
           </div>
           <input
             type="radio"
-            className="create-form__option-radio-input"
+            className="create-form__option-radio"
             id={videoCreateOptionDetails.id}
             name="videoPlayerFormat"
             value={videoCreateOptionDetails.id}
@@ -85,11 +85,11 @@ export default class Create extends React.Component {
         {
           <div className={
             "create-form__option-specifications " +
-            (isSelected ? 'create-form__option-specifications-visible' : '')
+            (isSelected ? 'create-form__option-specifications--visible' : '')
           }>
             <ul aria-label="positives">
               {videoCreateOptionDetails.specifications.positive.map(positiveSpecification => (
-                <li key={positiveSpecification} className="create-form__list-item__specification">
+                <li key={positiveSpecification} className="create-form__list-item--specification">
                   {positiveSpecification}
                   <Checkmark/>
                 </li>
@@ -97,7 +97,7 @@ export default class Create extends React.Component {
             </ul>
             <ul aria-label="negatives">
               {videoCreateOptionDetails.specifications.negative.map(negativeSpecifiation => (
-                <li key={negativeSpecifiation} className="create-form__list-item__specification">
+                <li key={negativeSpecifiation} className="create-form__list-item--specification">
                   {negativeSpecifiation}
                   <Cross/>
                 </li>
@@ -105,7 +105,7 @@ export default class Create extends React.Component {
             </ul>
             <ul aria-label="other information">
               {videoCreateOptionDetails.specifications.info.map(infoSpecification => (
-                <li key={infoSpecification} className="create-form__list-item__specification">
+                <li key={infoSpecification} className="create-form__list-item--specification">
                   {infoSpecification}
                   <Info/>
                 </li>
@@ -119,12 +119,12 @@ export default class Create extends React.Component {
 
   render() {
     return (
-      <div className={'create-form ' + (this.props.inModal ? 'create-form-in-modal' : '')}>
-        <h2 className="create-form__h2">
+      <div className={'create-form ' + (this.props.inModal ? 'create-form--modal' : '')}>
+        <h2 className="create-form__heading--level-2">
           Create New Video
         </h2>
-        <div className="create-form-contents">
-          <div className="create-form__working-title-container">
+        <div className="create-form__contents">
+          <div className="create-form__working-title">
             <label className="create-form__label" htmlFor="working-title">Working Title</label>
             <input
               id="working-title"
@@ -135,7 +135,7 @@ export default class Create extends React.Component {
             />
           </div>
           <div>
-            <h4 className="create-form__h4">
+            <h4 className="create-form__heading--level-3">
               Video Player Format
             </h4>
             <div className="create-form__options">
@@ -149,13 +149,13 @@ export default class Create extends React.Component {
               </div>
             </div>
           </div>
-          <div className="action-buttons-outer-container">
+          <div className="create-form__action-buttons-outer">
             {!this.state.workingTitle &&
-              <div className="action-buttons-outer-container-validation-warning">
+              <div className="create-form__action-buttons--validation-warning">
                 You need to add a Working Title to create a video.
               </div>
             }
-            <div className="action-buttons-container">
+            <div className="create-form__action-buttons">
               {this.props.inModal &&
                 <button className="button__secondary" onClick={this.props.closeCreateModal} >
                   Cancel
