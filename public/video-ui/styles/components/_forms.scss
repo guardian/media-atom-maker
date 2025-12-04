@@ -453,7 +453,7 @@
   background-color: $color700Grey;
   border: 1px solid $color300Grey;
   border-radius: 12px;
-  width: calc(33% - 8px);
+  width: 100%;
   padding: 16px;
   display: flex;
   cursor: pointer;
@@ -461,8 +461,11 @@
   height: 56px;
   transition: height 0.5s ease;
   overflow: clip;
+  margin-bottom: 8px;
 
-  &.create-form__option-group-selected {
+  &.create-form__option-selected {
+    border: 1px solid $cYellow;
+    color: $cYellow;
     height: auto;
   }
 }
@@ -473,10 +476,7 @@
   }
 }
 
-.create-form__option-selected {
-  border: 1px solid $cYellow;
-  color: $cYellow;
-}
+
 
 .create-form__option-specifications {
   margin-top: 8px;

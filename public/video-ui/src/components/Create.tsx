@@ -59,7 +59,7 @@ export default class Create extends React.Component {
     Default: <Standard/>
   };
 
-  renderVideoCreateOption(videoCreateOptionDetails: VideoCreateOptionDetails, isGroupSelected: boolean) {
+  renderVideoCreateOption(videoCreateOptionDetails: VideoCreateOptionDetails) {
     const isSelected = this.state.videoCreateOption === videoCreateOptionDetails.id;
 
     return (
@@ -67,8 +67,7 @@ export default class Create extends React.Component {
         key={videoCreateOptionDetails.id}
         className={
           "create-form__option-container " +
-          (isSelected ? 'create-form__option-selected ' : '') +
-          (isGroupSelected ? 'create-form__option-group-selected' : '')
+          (isSelected ? 'create-form__option-selected ' : '')
         }
         onClick={() => this.setState({ videoCreateOption: videoCreateOptionDetails.id })}>
         <div className="create-form__option">
@@ -94,7 +93,7 @@ export default class Create extends React.Component {
         {
           <div className={
             "create-form__option-specifications " +
-            (isGroupSelected ? 'create-form__option-specifications-visible' : '')
+            (isSelected ? 'create-form__option-specifications-visible' : '')
           }>
             <ul aria-label="positives">
               {videoCreateOptionDetails.specifications.positive.map(positiveSpecification => (
@@ -144,29 +143,17 @@ export default class Create extends React.Component {
             />
           </div>
           <div>
-            <h3 className="create-form__h3">
+            <h4 className="create-form__h4">
               Video Player Format
-            </h3>
+            </h4>
             <div className="create-form__options">
               <div>
-                <h4 className="create-form__h4">
-                  Off Platform
-                </h4>
-                <div className="create-form__option-row">
                   {videoCreateOptions.offPlatform.map((videoCreateOptionDetails) => (
-                    this.renderVideoCreateOption(videoCreateOptionDetails, this.state.videoCreateOption === "Youtube")
+                    this.renderVideoCreateOption(videoCreateOptionDetails)
                   ))}
-                </div>
-              </div>
-              <div>
-                <h4 className="create-form__h4">
-                  Self Hosted
-                </h4>
-                <div className="create-form__option-row">
                   {videoCreateOptions.selfHosted.map((videoCreateOptionDetails) => (
-                    this.renderVideoCreateOption(videoCreateOptionDetails, this.state.videoCreateOption !== "Youtube")
+                    this.renderVideoCreateOption(videoCreateOptionDetails)
                   ))}
-                </div>
               </div>
             </div>
           </div>
