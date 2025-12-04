@@ -94,7 +94,7 @@ export const IconikProjectPicker = ({ video }: Props) => {
     video.iconikData?.projectId,
     video.iconikData?.workingGroupId
   ]);
-
+  
   const deleteIconikDataFromStore = useCallback(() => {
     saveVideoUpdate({
       workingGroupId: undefined,
