@@ -453,34 +453,7 @@
   overflow: clip;
 
   &.create-form__option-group-selected {
-    height: 330px;
-  }
-
-  // Wide breakpoint
-  @media (max-width: 1299px) {
-    &.create-form__option-group-selected {
-      height: 360px;
-    }
-  }
-
-  // LeftCol breakpoint
-  @media (max-width: 1139px) {
-    &.create-form__option-group-selected {
-      height: 440px;
-    }
-  }
-
-  // Desktop breakpoint
-  @media (max-width: 979px) {
-    &.create-form__option-group-selected {
-      height: 460px;
-    }
-  }
-
-  @media (max-width: 840px) {
-    &.create-form__option-group-selected {
-      height: auto;
-    }
+    height: auto;
   }
 }
 
@@ -533,6 +506,7 @@
 .create-form__option-radio-label {
   font-size: 16px;
   font-weight: bold;
+  cursor: pointer;
 }
 
 .create-form__option {
