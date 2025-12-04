@@ -70,9 +70,13 @@
 
 .video__detailbox__header__format {
   display: flex;
-  gap: 4px;
+  gap: 8px;
   font-size: 16px;
   align-items: center;
+}
+
+.video__detailbox__header__format--youtube {
+  gap: 4px;
 }
 
 .video__detailbox__header__format h4 {
