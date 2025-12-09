@@ -15,7 +15,7 @@
       "skipLibCheck": true,
       "esModuleInterop": true,
       "forceConsistentCasingInFileNames": true,
-      "types": ["vite-plugin-svgr/client"]
+      "types": ["vite-plugin-svgr/client", "node"]
   },
   "include": [
       "public/video-ui/src/**/*",
