@@ -339,10 +339,7 @@ case class PublishAtomCommand(
     val youTubeMetadataUpdate: Either[VideoUpdateError, String] =
       youtube.updateMetadata(
         asset.id,
-        if (previewAtom.blockAds) metadata.withoutContentBundleTags()
-        else
-          metadata
-            .withContentBundleTags() // content bundle tags only needed on monetized videos
+        metadata
       )
 
     handleYouTubeMessages(
