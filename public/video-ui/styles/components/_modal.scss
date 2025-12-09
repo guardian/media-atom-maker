@@ -35,5 +35,6 @@ body:has(dialog[open]) {
 
     .modal__content {
       height: calc(100% - 60px);
+      overflow-y: scroll;
     }
 }
