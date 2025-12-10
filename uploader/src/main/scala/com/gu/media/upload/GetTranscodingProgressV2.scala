@@ -1,6 +1,10 @@
 package com.gu.media.upload
 
-import software.amazon.awssdk.services.mediaconvert.model.{Job, GetJobRequest}
+import software.amazon.awssdk.services.mediaconvert.model.{
+  GetJobRequest,
+  Job,
+  JobStatus
+}
 import com.gu.media.aws.MediaConvertAccess
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
@@ -24,8 +28,8 @@ class GetTranscodingProgressV2
         val jobs = ids.map(getJob)
         val progress = upload.progress
 
-        val complete = jobs.forall(_.status == "COMPLETE")
-        val error = jobs.exists(_.status == "ERROR")
+        val complete = jobs.forall(_.status == JobStatus.COMPLETE)
+        val error = jobs.exists(_.status == JobStatus.ERROR)
 
         if (error) {
           throw new IllegalStateException(
@@ -90,7 +94,7 @@ class GetTranscodingProgressV2
             // value is the dimensions from the corresponding outputDetail
             ImageAssetDimensions(
               outputDetail.videoDetails().heightInPx,
-              outputDetail.videoDetails.widthInPx
+              outputDetail.videoDetails().widthInPx
             )
       }
       .toMap
