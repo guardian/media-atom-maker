@@ -4,7 +4,7 @@ import data.UnpackedDataStores
 import org.apache.pekko.actor.{ActorSystem, Scheduler}
 import scala.annotation.tailrec
 import scala.concurrent.duration._
-import com.amazonaws.services.sqs.model.{
+import software.amazon.awssdk.services.sqs.model.{
   DeleteMessageRequest,
   ReceiveMessageRequest,
   Message
@@ -35,10 +35,11 @@ case class PlutoMessageConsumer(val stores: DataStores, awsConfig: AWSConfig)
     for (msg <- getMessages(waitTime = 20, maxMessages = 1)) yield {
       handleMessage(msg)
       awsConfig.sqsClient.deleteMessage(
-        new DeleteMessageRequest(
-          awsConfig.plutoQueueUrl,
-          msg.getReceiptHandle()
-        )
+        DeleteMessageRequest
+          .builder()
+          .queueUrl(awsConfig.plutoQueueUrl)
+          .receiptHandle(msg.receiptHandle())
+          .build()
       )
     }
 
@@ -49,17 +50,20 @@ case class PlutoMessageConsumer(val stores: DataStores, awsConfig: AWSConfig)
   private def getMessages(waitTime: Int, maxMessages: Int): Seq[Message] =
     awsConfig.sqsClient
       .receiveMessage(
-        new ReceiveMessageRequest(awsConfig.plutoQueueUrl)
-          .withWaitTimeSeconds(waitTime)
-          .withMaxNumberOfMessages(maxMessages)
+        ReceiveMessageRequest
+          .builder()
+          .queueUrl(awsConfig.plutoQueueUrl)
+          .waitTimeSeconds(waitTime)
+          .maxNumberOfMessages(maxMessages)
+          .build()
       )
-      .getMessages
+      .messages()
       .asScala
       .toList
 
   private def handleMessage(msg: Message): Unit = {
 
-    val bodyJson = Json.parse(msg.getBody)
+    val bodyJson = Json.parse(msg.body())
 
     (bodyJson \ "Message").validate[PlutoMessage] match {
       case JsSuccess(plutoMessage, _) => {
@@ -69,7 +73,7 @@ case class PlutoMessageConsumer(val stores: DataStores, awsConfig: AWSConfig)
       }
       case undefined =>
         log.error(
-          s"Could not extract a message body from message ${msg.getReceiptHandle()}"
+          s"Could not extract a message body from message ${msg.receiptHandle()}"
         )
     }
   }

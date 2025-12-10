@@ -1,7 +1,7 @@
 package com.gu.media.aws
 
 import com.amazonaws.regions.Regions
-import com.amazonaws.services.sns.AmazonSNSClientBuilder
+import software.amazon.awssdk.services.sns.SnsClient
 import com.gu.media.Settings
 
 trait SNSAccess { this: Settings with AwsAccess =>
@@ -11,9 +11,10 @@ trait SNSAccess { this: Settings with AwsAccess =>
   )
 
   lazy val snsClient =
-    AmazonSNSClientBuilder
-      .standard()
-      .withRegion(Regions.fromName(region.getName))
-      .withCredentials(credentials.instance.awsV1Creds)
+    SnsClient
+      .builder()
+      .region(awsV2Region)
+      .credentialsProvider(credentials.instance.awsV2Creds)
       .build()
+
 }

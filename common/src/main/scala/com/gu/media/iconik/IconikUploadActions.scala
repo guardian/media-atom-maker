@@ -1,11 +1,11 @@
 package com.gu.media.iconik
 
-import com.amazonaws.services.sqs.model.SendMessageRequest
 import com.gu.media.Settings
 import com.gu.media.aws.SQSAccess
-import com.gu.media.model.{Asset, IconikData, MediaAtom}
+import com.gu.media.model.{Asset, IconikData}
 import play.api.libs.json.{Json, OFormat}
 import com.gu.media.logging.Logging
+import software.amazon.awssdk.services.sqs.model.SendMessageRequest
 
 sealed trait IconikMessage {
   def atomId: String
@@ -47,10 +47,11 @@ class IconikUploadActions(config: Settings with SQSAccess) extends Logging {
       s"Updating Iconik with latest change for atom: $payload"
     )
     config.sqsClient.sendMessage(
-      new SendMessageRequest(
-        config.iconikQueueUrl,
-        payload
-      )
+      SendMessageRequest
+        .builder()
+        .queueUrl(config.iconikQueueUrl)
+        .messageBody(payload)
+        .build()
     )
   }
 
