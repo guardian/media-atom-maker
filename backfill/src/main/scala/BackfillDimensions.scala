@@ -1,14 +1,29 @@
 import com.gu.media.model.AssetType.{Subtitles, Video}
 import com.gu.media.model.MediaAtom
 import com.gu.media.model.Platform.Url
+import com.gu.media.util.AspectRatio
 
-case class UpdateAction(atom: MediaAtom, updatedAtom: MediaAtom)
+import scala.annotation.tailrec
+import scala.io.StdIn.readLine
+
+case class UpdateAction(atom: MediaAtom, updatedAtom: MediaAtom, shouldPublish: Boolean)
 
 object BackfillDimensions extends App {
 
-  val cookie = "consentUUID=f592651d-f09d-4231-95c6-26678ec0a2f3_50; consentDate=2025-11-26T10:14:03.070Z; PLAY_SESSION=eyJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7ImNzcmZUb2tlbiI6IjQxZGQ5ZGI0NDAxYmQ2NGFkNzJiOTFlNTg1MTMyYmMyNTBkMTY1NDMtMTc2NDg2NDk3OTMxMC1lNmUzOWIwOTE4NmM4NDE2MDUyNzBhNjIifSwibmJmIjoxNzY0ODY0OTc5LCJpYXQiOjE3NjQ4NjQ5Nzl9.mofILz7kyHeD41WSZ3hlWHUUh-iBL9yU1n-ZZRjFYUY; gutoolsAuth-assym=Zmlyc3ROYW1lPUFuZHkmbGFzdE5hbWU9Tm90b24mZW1haWw9YW5keS5ub3Rvbi5jb250cmFjdG9yQGd1YXJkaWFuLmNvLnVrJmF2YXRhclVybD1odHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NMdjZ2OEl0d05lc3dkNFRrMFNKUlBJdkhXcGpMN243QmdpOHVyQ1hmb1ctQzJrUVE9czk2LWMmc3lzdGVtPXZpZGVvJmF1dGhlZEluPWZyb250cyx2aWV3ZXIsdmlkZW8sd29ya2Zsb3cmZXhwaXJlcz0xNzY1MjgzOTM0MDAwJm11bHRpZmFjdG9yPXRydWU=.EiFGLrz/E2T83bKa99C6Eih7BUSpKB9sjDoDo14AQdGQpeYu76tEI1B4f4gfRqM14E2SNxyv4apZvqgmLw7L8N2ZZ8TuvGnbwyADna7dOaZD4e3PqWClnaXoNLvKAvAAq092CScjtWfdIfwazzUoz69RRTJXzeNTXtFq35/aKYA51R4uJ7TMRniIYs4v4bolqb9oqO9o9tGS+qNMltUTVosBloKQfurwbbQi76lrvHWDb6mQhY5G+p52TYKysjrBg6/Uqgn9gwRiaFd81pXLAkqtqYxJ0p6lar81IdRpiqxVR5awephJNxpwProUEOpHW7J2ovyzEcY0MvY5RFLk06SVMAIQ2TxtH4cycjlEK3m7tf1p01JqwiJ3Lb5NaegUFpvnuh/2sy65WuWPmtCMsQrKF9JfFo5iCAX8MfgFGWnjuVsypcmkEeN2+jfLmb58crZdF0QUuyPfkVMtGuiNIc/hquNn1fWvGRJP35EWeKN9ZtoMoHnY0KmHgKlmzB7ESQr+5jtdSHRodk20w3teONDrbthUFIISJOBrx9tHTNhItrQ2rfUJntqmHRW85bohBSYNXS7TFjHgM4QgqtzIgttKSQmo/THvWz9lW3bxpCZbzndoRADx7uO5NSm1ITAbYJaSs6SDnY0t3E/3x2Z5E1VVYdjV1uCFGXAJJnWUPoU="
-  val csrfToken = "ed2e92ac3bd7a0d75f1fbbf3ae205471d0a3336e-1765280335361-e6e39b09186c841605270a62"
-  val baseUrl = "https://video.code.dev-gutools.co.uk"
+  println("\nVideo Atom Backfiller uses the MAM API to update and re-publish existing atoms that have missing data")
+  println("For authentication you have to grab some Request Headers from the browser:")
+  println("- Go to the chosen MAM environment e.g. https://video.gutools.co.uk or https://video.code.dev-gutools.co.uk")
+  println("- Go into a video")
+  println("- Open and clear the network tab in the dev tools")
+  println("- Make a minor change to the furniture headline or standfirst")
+  println("- Observe the PUT request from apiRequest.ts")
+  println("- Export the Cookie header to a MAM_COOKIE environment variable")
+  println("- Export the Csrf-Token header to a MAM_CSRF_TOKEN environment variable")
+  println("Run this app in the same shell using `sbt backfill/run`")
+
+  val baseUrl = chooseBaseUrl()
+  val cookie = inputOrEnv("Paste Cookie header from Media Atom Maker", "MAM_COOKIE")
+  val csrfToken = inputOrEnv("Paste Crsf-Token header from Media Atom Maker", "MAM_CRSF_TOKEN")
 
   val http = new Http("Cookie" -> cookie, "Csrf-Token" -> csrfToken)
   val api = new AtomMakerApi(http, baseUrl)
@@ -19,46 +34,93 @@ object BackfillDimensions extends App {
   // create action plan to update atoms
   val plan = atomIds.flatMap { atomId =>
     api.getMediaAtom(atomId).flatMap { atom =>
+
+      // fix any assets that have issue
       val updatedAssets = atom.assets.map {
+
         case asset if asset.mimeType.contains("text/vtt") && asset.assetType != Subtitles =>
-          println(s"wrong asset type for VTT $atomId: $asset -> Subtitles")
+          println(s"wrong asset type for VTT $atomId: ${asset.assetType} -> Subtitles")
           asset.copy(assetType = Subtitles)
+
         case asset if asset.assetType == Video && asset.platform == Url && asset.dimensions.isEmpty =>
           val dims = dimensionsHelper.readDimensions(asset)
-          println(s"missing dimensions $atomId: $asset -> $dims")
-          asset.copy(dimensions = dims)
+          val aspRatio = dims.flatMap(dim => AspectRatio.calculate(dim.width, dim.height)).map(_.name)
+          println(s"missing dimensions $atomId: None, None -> $dims, $aspRatio")
+          asset.copy(dimensions = dims, aspectRatio = aspRatio)
+
+        case asset if asset.assetType == Video && asset.platform == Url && asset.aspectRatio.isEmpty =>
+          val aspRatio = asset.dimensions.flatMap(dim => AspectRatio.calculate(dim.width, dim.height)).map(_.name)
+          println(s"missing aspect ratio $atomId: None -> $aspRatio")
+          asset.copy(aspectRatio = aspRatio)
+
         case asset => asset
       }
+
       if (updatedAssets != atom.assets)
-        Some(UpdateAction(atom, atom.copy(assets = updatedAssets)))
+        Some(UpdateAction(atom, atom.copy(assets = updatedAssets), shouldPublish(atom)))
       else
         None
     }
-  }
+  } // order oldest to newest
+    .sortBy(
+      _.atom.contentChangeDetails.lastModified.map(_.date.getMillis).getOrElse(0L)
+    )
 
   println("-----------")
 
-  plan.foreach { action =>
-    println(action.atom)
-    println(action.updatedAtom)
-    println(s"created ${action.atom.contentChangeDetails.created}")
-    println(s"modified ${action.atom.contentChangeDetails.lastModified}")
-    println(s"published ${action.atom.contentChangeDetails.published}")
+  chooseActions(plan)
+    .foreach { action =>
+      println("\nChanges ->")
+      println(action.atom)
+      println(action.updatedAtom)
 
-    if (action.atom.contentChangeDetails.published.isDefined) {
-      api.getPublishedMediaAtom(action.atom.id).foreach { publishedAtom =>
-        println(s"published atom is up-to-date? ${publishedAtom == action.atom}, ${publishedAtom.contentChangeDetails.revision == action.atom.contentChangeDetails.revision}")
+      println(s"Update ->\n${api.updateMediaAtom(action.updatedAtom)}")
+      if (action.shouldPublish) {
+        println(s"Publish ->\n${api.publishMediaAtom(action.atom.id)}")
       }
     }
 
-    println
-
-    // TODO: This update is working for non-published atoms, but what should happen when published - do we need to publish again?
-    //api.updateMediaAtom(action.updatedAtom)
+  /* if we update this atom, does it need re-publishing?
+   *
+   * - atom is not published => don't publish
+   * - the current version of the atom has been published => re-publish
+   * - an earlier version of the atom has been published => don't publish
+   */
+  def shouldPublish(atom: MediaAtom): Boolean = {
+    println(s"current revision ${atom.contentChangeDetails.revision}")
+    atom.contentChangeDetails.published match {
+      case Some(_) =>
+        api.getPublishedMediaAtom(atom.id).exists { publishedAtom =>
+          println(s"published revision ${publishedAtom.contentChangeDetails.revision}")
+          publishedAtom.contentChangeDetails.revision == atom.contentChangeDetails.revision
+        }
+      case None =>
+        false
+    }
   }
-  // apply plan and verify
 
+  @tailrec
+  def chooseBaseUrl(): String =
+    readLine("Are you backfilling CODE (C), or PROD (P): ").trim match {
+      case "C" => "https://video.code.dev-gutools.co.uk"
+      case "P" => "https://video.gutools.co.uk"
+      case _ => chooseBaseUrl()
+    }
 
+  @tailrec
+  def chooseActions(plan: Seq[UpdateAction]): Seq[UpdateAction] =
+    readLine(s"There are ${plan.size} action(s). Execute all (A), one (1) or exit (X): ").trim match {
+      case "A" => plan
+      case "1" => plan.take(1)
+      case "X" => Nil
+      case _ => chooseActions(plan)
+    }
 
+  def inputOrEnv(prompt: String, envName: String): String = {
+    readLine(s"$prompt (or Enter to use $envName env var): ").trim match {
+      case "" => scala.sys.env(envName)
+      case value => value
+    }
+  }
 }
 

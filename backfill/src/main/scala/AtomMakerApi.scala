@@ -16,17 +16,21 @@ class AtomMakerApi(http: Http, baseUrl: String) {
   }
 
   def getPublishedMediaAtom(id: String): Option[MediaAtom] = {
-    http.get(s"$baseUrl/api/atoms/$id/published").map { atom =>
-      println(s"raw $atom")
-      Json.parse(atom).as[MediaAtom]
+    http.get(s"$baseUrl/api/atoms/$id/published").flatMap { atom =>
+      Json.parse(atom).asOpt[MediaAtom].orElse {
+        println(s"Couldn't parse media atom from $atom")
+        None
+      }
     }
   }
 
-  def updateMediaAtom(atom: MediaAtom): Unit = {
+  def updateMediaAtom(atom: MediaAtom): Option[String] = {
     val content = Json.toJson(atom).toString()
-    println(content)
-    val result = http.put(s"$baseUrl/api/atoms/${atom.id}", content)
-    println(result)
+    http.put(s"$baseUrl/api/atoms/${atom.id}", content)
+  }
+
+  def publishMediaAtom(atomId: String): Option[String] = {
+    http.put(s"$baseUrl/api/atom/$atomId/publish", "")
   }
 
 }
