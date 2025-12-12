@@ -32,16 +32,24 @@ class Http(headers: (String, String)*) {
       case Failure(e) => println(s"Error reading $url: ${e.getMessage}"); None
     }
 
-  def put(url: String, content: String): String = {
+  def put(url: String, content: String): Option[String] = {
     val connection = getConnection(url)
     connection.setDoOutput(true)
     connection.setRequestMethod("PUT")
     connection.setRequestProperty("Csrf-Token", headerMap("Csrf-Token"))
     connection.setRequestProperty("Content-Type","application/json")
-    val out: OutputStreamWriter = new OutputStreamWriter(connection.getOutputStream)
-    out.write(content);
-    out.close();
-    Source.fromInputStream(connection.getInputStream).getLines.mkString("\n")
+    Using(new OutputStreamWriter(connection.getOutputStream)) { out =>
+      out.write(content)
+    } match {
+      case Success(_) =>
+        Using(connection.getInputStream) { inputStream =>
+          Source.fromInputStream(inputStream).getLines.mkString("\n")
+        } match {
+          case Success(value) => Some(value)
+          case Failure(e) => println(s"Error reading response from $url: ${e.getMessage}"); None
+        }
+      case Failure(e) => println(s"Error putting to $url: ${e.getMessage}"); None
+    }
   }
 
 
