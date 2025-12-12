@@ -23,7 +23,7 @@ object BackfillDimensions extends App {
 
   val baseUrl = chooseBaseUrl()
   val cookie = inputOrEnv("Paste Cookie header from Media Atom Maker", "MAM_COOKIE")
-  val csrfToken = inputOrEnv("Paste Crsf-Token header from Media Atom Maker", "MAM_CRSF_TOKEN")
+  val csrfToken = inputOrEnv("Paste Csrf-Token header from Media Atom Maker", "MAM_CSRF_TOKEN")
 
   val http = new Http("Cookie" -> cookie, "Csrf-Token" -> csrfToken)
   val api = new AtomMakerApi(http, baseUrl)
