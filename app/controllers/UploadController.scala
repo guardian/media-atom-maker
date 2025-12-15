@@ -99,29 +99,23 @@ class UploadController(
     latestAssets.sortBy(ClientAsset.getVersion).reverse
   }
 
-  def create: Action[AnyContent] = LookupPermissions { implicit raw =>
+  def create: Action[AnyContent] = APIAuthAction { implicit raw =>
     parse(raw) { req: UploadRequest =>
-      if (req.selfHost && !raw.permissions.addSelfHostedAsset) {
-        Unauthorized(
-          s"User ${raw.user.email} is not authorised with permissions to upload self-hosted asset"
-        )
-      } else {
-        log.info(
-          s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}, selfHosted=${req.selfHost}"
-        )
+      log.info(
+        s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}, selfHosted=${req.selfHost}"
+      )
 
-        val thriftAtom = getPreviewAtom(req.atomId)
-        val atom = MediaAtom.fromThrift(thriftAtom)
-        val assetVersion =
-          MediaAtomHelpers.getNextAssetVersion(thriftAtom.tdata)
+      val thriftAtom = getPreviewAtom(req.atomId)
+      val atom = MediaAtom.fromThrift(thriftAtom)
+      val assetVersion =
+        MediaAtomHelpers.getNextAssetVersion(thriftAtom.tdata)
 
-        val upload = start(atom, raw.user.email, req, assetVersion)
+      val upload = start(atom, raw.user.email, req, assetVersion)
 
-        log.info(
-          s"Upload created under atom ${req.atomId}. upload=${upload.id}. parts=${upload.parts.size}, selfHosted=${upload.metadata.selfHost}"
-        )
-        Ok(Json.toJson(upload))
-      }
+      log.info(
+        s"Upload created under atom ${req.atomId}. upload=${upload.id}. parts=${upload.parts.size}, selfHosted=${upload.metadata.selfHost}"
+      )
+      Ok(Json.toJson(upload))
     }
   }
 
