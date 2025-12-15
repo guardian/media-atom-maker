@@ -12,7 +12,7 @@ case class Permissions(
     deleteAtom: Boolean = false,
     addSelfHostedAsset: Boolean = false,
     setVideosOnAllChannelsPublic: Boolean = false,
-    pinboard: Boolean = false,
+    pinboard: Boolean = false
 )
 object Permissions {
   implicit val format: Format[Permissions] = Jsonx.formatCaseClass[Permissions]
@@ -40,7 +40,7 @@ class MediaAtomMakerPermissionsProvider(
     deleteAtom = hasPermission(deleteAtom, user),
     setVideosOnAllChannelsPublic =
       hasPermission(setVideosOnAllChannelsPublic, user),
-    pinboard = hasPermission(pinboard, user),
+    pinboard = hasPermission(pinboard, user)
   )
 
   def getStatusPermissions(user: PandaUser): Permissions =
