@@ -1,6 +1,10 @@
 package com.gu.media.upload
 
-import com.amazonaws.services.mediaconvert.model.{GetJobRequest, Job}
+import software.amazon.awssdk.services.mediaconvert.model.{
+  GetJobRequest,
+  Job,
+  JobStatus
+}
 import com.gu.media.aws.MediaConvertAccess
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
@@ -24,8 +28,8 @@ class GetTranscodingProgressV2
         val jobs = ids.map(getJob)
         val progress = upload.progress
 
-        val complete = jobs.forall(_.getStatus == "COMPLETE")
-        val error = jobs.exists(_.getStatus == "ERROR")
+        val complete = jobs.forall(_.status == JobStatus.COMPLETE)
+        val error = jobs.exists(_.status == JobStatus.ERROR)
 
         if (error) {
           throw new IllegalStateException(
@@ -55,14 +59,13 @@ class GetTranscodingProgressV2
   }
 
   private def getJob(id: String): Job = {
-    val request = new GetJobRequest().withId(id)
+    val request = GetJobRequest.builder().id(id).build()
     val response = mediaConvertClient.getJob(request)
-
-    response.getJob
+    response.job()
   }
 
   private def getDescription(job: Job): String = {
-    job.getErrorMessage
+    job.errorMessage()
   }
 
   private def getVideoDimensions(
@@ -71,27 +74,27 @@ class GetTranscodingProgressV2
     // these are the requested transcoder outputs
     val outputs = for {
       job <- jobs
-      outputGroup <- job.getSettings.getOutputGroups.asScala
-      output <- outputGroup.getOutputs.asScala
+      outputGroup <- job.settings().outputGroups().asScala
+      output <- outputGroup.outputs().asScala
     } yield output
 
     // these are the corresponding extra details available after transcoding (including dimensions)
     val outputDetails = for {
       job <- jobs
-      outputGroupDetail <- job.getOutputGroupDetails.asScala
-      outputDetail <- outputGroupDetail.getOutputDetails.asScala
+      outputGroupDetail <- job.outputGroupDetails().asScala
+      outputDetail <- outputGroupDetail.outputDetails().asScala
     } yield outputDetail
 
     outputs
       .zip(outputDetails)
       .collect {
-        case (output, outputDetail) if outputDetail.getVideoDetails != null =>
+        case (output, outputDetail) if outputDetail.videoDetails != null =>
           // key is the output 'container' - e.g. MP4, M3U8, RAW
-          output.getContainerSettings.getContainer ->
+          output.containerSettings.container.name() ->
             // value is the dimensions from the corresponding outputDetail
             ImageAssetDimensions(
-              outputDetail.getVideoDetails.getHeightInPx,
-              outputDetail.getVideoDetails.getWidthInPx
+              outputDetail.videoDetails().heightInPx,
+              outputDetail.videoDetails().widthInPx
             )
       }
       .toMap
