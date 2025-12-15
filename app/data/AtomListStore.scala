@@ -169,7 +169,8 @@ class CapiBackedAtomListStore(capi: CapiAccess)
         .orElse(activeAssetMediaPlatform)
 
       val videoPlayerFormat =
-        (atom \ "metadata" \ "selfHost" \ "videoPlayerFormat").asOpt[VideoPlayerFormat]
+        (atom \ "metadata" \ "selfHost" \ "videoPlayerFormat")
+          .asOpt[VideoPlayerFormat]
 
       Some(
         MediaAtomSummary(
