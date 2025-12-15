@@ -121,7 +121,6 @@ export const VideoUpload = (props: { params: { id: string } }) => {
             {store.video.platform !== 'Youtube' &&
               <AddSelfHostedAsset
                 video={store.video}
-                permissions={store.config.permissions}
                 isUploading={isUploading}
                 startUpload={bindActionCreators(startVideoUpload, dispatch)}
               />

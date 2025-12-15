@@ -20,7 +20,6 @@ object Permissions {
   val app = "atom-maker"
   val basicAccess = PermissionDefinition("media_atom_maker_access", app)
   val deleteAtom = PermissionDefinition("delete_atom", app)
-  val addSelfHostedAsset = PermissionDefinition("add_self_hosted_asset", app)
   val setVideosOnAllChannelsPublic =
     PermissionDefinition("set_videos_on_all_channels_public", app)
   val pinboard = PermissionDefinition("pinboard", "pinboard")
@@ -39,7 +38,6 @@ class MediaAtomMakerPermissionsProvider(
 
   def getAll(user: PandaUser): Permissions = Permissions(
     deleteAtom = hasPermission(deleteAtom, user),
-    addSelfHostedAsset = hasPermission(addSelfHostedAsset, user),
     setVideosOnAllChannelsPublic =
       hasPermission(setVideosOnAllChannelsPublic, user),
     pinboard = hasPermission(pinboard, user),
