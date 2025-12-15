@@ -16,12 +16,12 @@ object Platform {
   case object Url extends Platform { val name = "Url" }
 
   val platformReads = Reads[Platform](json => {
-    json.as[String] match {
-      case "Youtube"     => JsSuccess(Youtube)
-      case "Facebook"    => JsSuccess(Facebook)
-      case "Dailymotion" => JsSuccess(Dailymotion)
-      case "Mainstream"  => JsSuccess(Mainstream)
-      case "Url"         => JsSuccess(Url)
+    json.as[String].toLowerCase match {
+      case "youtube"     => JsSuccess(Youtube)
+      case "facebook"    => JsSuccess(Facebook)
+      case "dailymotion" => JsSuccess(Dailymotion)
+      case "mainstream"  => JsSuccess(Mainstream)
+      case "url"         => JsSuccess(Url)
     }
   })
 
