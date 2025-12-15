@@ -135,9 +135,9 @@ export default class Create extends React.Component {
             />
           </div>
           <div>
-            <h4 className="create-form__heading--level-3">
+            <h3 className="create-form__heading--level-3">
               Video Player Format
-            </h4>
+            </h3>
             <div className="create-form__options">
               <div>
                   {videoCreateOptions.offPlatform.map((videoCreateOptionDetails) => (
