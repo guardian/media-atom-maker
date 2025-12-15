@@ -17,11 +17,7 @@ export default class AddSelfHostedAsset extends React.Component {
   };
 
   render() {
-    const { video, permissions, isUploading, startUpload } = this.props;
-
-    if (!permissions || !permissions.addSelfHostedAsset) {
-      return false;
-    }
+    const { video, isUploading, startUpload } = this.props;
 
     return (
       <div className="video__detailbox video__detailbox__assets">
