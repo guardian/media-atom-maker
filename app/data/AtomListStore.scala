@@ -2,7 +2,13 @@ package data
 
 import com.gu.atom.data.PreviewDynamoDataStore
 import com.gu.media.CapiAccess
-import com.gu.media.model.{ContentChangeDetails, Image, MediaAtom, Platform, VideoPlayerFormat}
+import com.gu.media.model.{
+  ContentChangeDetails,
+  Image,
+  MediaAtom,
+  Platform,
+  VideoPlayerFormat
+}
 import com.gu.media.util.TestFilters
 import model.commands.CommandExceptions.AtomDataStoreError
 import model.{MediaAtomList, MediaAtomSummary}
@@ -142,7 +148,8 @@ class CapiBackedAtomListStore(capi: CapiAccess)
         (asset \ "version").as[Long]
       }
 
-      val atomMediaPlatform = (atom \ "platform").asOpt[Platform].map(_.name.toLowerCase)
+      val atomMediaPlatform =
+        (atom \ "platform").asOpt[Platform].map(_.name.toLowerCase)
 
       val activeAsset = (atom \ "assets").as[JsArray].value.find { asset =>
         val assetVersion = (asset \ "version").as[Long]
@@ -153,14 +160,16 @@ class CapiBackedAtomListStore(capi: CapiAccess)
         (asset \ "platform").asOpt[String].map(_.toLowerCase)
       }
 
-      /**
-       * The platform field at the atom level was introduced later than the platform field at the asset level.
-       * If platform is available at the atom level, use it. Otherwise, default to the platform of the active media asset.
-       */
+      /** The platform field at the atom level was introduced later than the
+        * platform field at the asset level. If platform is available at the
+        * atom level, use it. Otherwise, default to the platform of the active
+        * media asset.
+        */
       val activeMediaPlatform = atomMediaPlatform
         .orElse(activeAssetMediaPlatform)
 
-      val videoPlayerFormat = (atom \ "videoPlayerFormat").asOpt[VideoPlayerFormat]
+      val videoPlayerFormat =
+        (atom \ "videoPlayerFormat").asOpt[VideoPlayerFormat]
 
       Some(
         MediaAtomSummary(
@@ -246,10 +255,11 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore)
     val activeAssetMediaPlatform =
       currentAsset.map(_.platform.name.toLowerCase)
 
-    /**
-     * The platform field at the atom level was introduced later than the platform field at the asset level.
-     * If platform is available at the atom level, use it. Otherwise, default to the platform of the active media asset.
-     */
+    /** The platform field at the atom level was introduced later than the
+      * platform field at the asset level. If platform is available at the atom
+      * level, use it. Otherwise, default to the platform of the active media
+      * asset.
+      */
     val activeMediaPlatform = atomMediaPlatform
       .orElse(activeAssetMediaPlatform)
 

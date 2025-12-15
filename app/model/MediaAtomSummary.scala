@@ -8,12 +8,12 @@ import play.api.libs.json.Format
 case class MediaAtomList(total: Int, atoms: List[MediaAtomSummary])
 
 case class MediaAtomSummary(
-   id: String,
-   title: String,
-   posterImage: Option[Image],
-   contentChangeDetails: ContentChangeDetails,
-   activeMediaPlatform: Option[String],
-   videoPlayerFormat: Option[VideoPlayerFormat]
+    id: String,
+    title: String,
+    posterImage: Option[Image],
+    contentChangeDetails: ContentChangeDetails,
+    activeMediaPlatform: Option[String],
+    videoPlayerFormat: Option[VideoPlayerFormat]
 )
 
 object MediaAtomList {
