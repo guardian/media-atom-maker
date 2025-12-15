@@ -26,11 +26,13 @@ export default class GridImageSelect extends React.Component {
   }
 
   openGridModal = () => {
+    window.addEventListener('message', this.onMessage, false);
     this.state.dialogRef.current?.showModal();
   };
 
   closeGridModal = () => {
     this.state.dialogRef.current?.close();
+    window.removeEventListener('message', this.onMessage, false);
   };
 
   onUpdatePosterImage = (cropData, imageData) => {
