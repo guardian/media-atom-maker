@@ -104,7 +104,7 @@ export default class Header extends React.Component {
           }}
         >
           <option value="">All videos</option>
-          <option value="url">Loops</option>
+          <option value="url">Self-hosted</option>
           <option value="youtube">YouTube</option>
         </select>
       </div>
