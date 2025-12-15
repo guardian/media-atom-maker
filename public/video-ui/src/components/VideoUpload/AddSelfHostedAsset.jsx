@@ -23,8 +23,6 @@ export default class AddSelfHostedAsset extends React.Component {
       return false;
     }
 
-    const canUpload = video.videoPlayerFormat !== undefined || !permissions.videoPlayerFormat;
-
     return (
       <div className="video__detailbox video__detailbox__assets">
         <div className="form__group">
@@ -36,14 +34,9 @@ export default class AddSelfHostedAsset extends React.Component {
               className="form__field__file"
               type="file"
               onChange={this.setFile}
-              disabled={!canUpload || isUploading}
+              disabled={isUploading}
               accept="video/*,.mxf"
             />
-            { !canUpload ?
-              <p className="form__message form__message--warning">
-                A Video Player Format is needed before uploading a self-hosted video. Please set this in the Furniture tab.
-              </p> : null
-            }
             <button
               type="button"
               className="btn button__secondary__assets"
