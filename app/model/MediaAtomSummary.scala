@@ -12,7 +12,7 @@ case class MediaAtomSummary(
     title: String,
     posterImage: Option[Image],
     contentChangeDetails: ContentChangeDetails,
-    mediaPlatform: Option[Platform],
+    mediaPlatform: Platform,
     videoPlayerFormat: Option[VideoPlayerFormat]
 )
 
