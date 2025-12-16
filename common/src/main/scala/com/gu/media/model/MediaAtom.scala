@@ -2,13 +2,26 @@ package com.gu.media.model
 
 import com.gu.ai.x.play.json.Encoders._
 import com.gu.ai.x.play.json.Jsonx
-import com.gu.contentatom.thrift.atom.media.{MediaAtom => ThriftMediaAtom, Metadata => ThriftMetadata, SelfHostData => ThriftSelfHostData, YoutubeData => ThriftYoutubeData}
+import com.gu.contentatom.thrift.atom.media.{
+  MediaAtom => ThriftMediaAtom,
+  Metadata => ThriftMetadata,
+  SelfHostData => ThriftSelfHostData,
+  YoutubeData => ThriftYoutubeData
+}
 import play.api.libs.json.{Format, OFormat, __}
-import com.gu.contentatom.thrift.{AtomData, Atom => ThriftAtom, AtomType => ThriftAtomType, Flags => ThriftFlags}
+import com.gu.contentatom.thrift.{
+  AtomData,
+  Atom => ThriftAtom,
+  AtomType => ThriftAtomType,
+  Flags => ThriftFlags
+}
 import com.gu.media.model.Platform.Url
 import com.gu.media.model.VideoPlayerFormat.Loop
 import com.gu.media.util.MediaAtomImplicits
-import com.gu.media.youtube.{MediaAtomYoutubeDescriptionHandler, YoutubeDescription}
+import com.gu.media.youtube.{
+  MediaAtomYoutubeDescriptionHandler,
+  YoutubeDescription
+}
 
 abstract class MediaAtomBase {
   // generic metadata
@@ -316,12 +329,11 @@ object MediaAtom extends MediaAtomImplicits {
     )
   }
 
-  /**
-   * will derive videoPlayerFormat if it is missing
-   * @param metadata
-   * @param platform
-   * @return
-   */
+  /** will derive videoPlayerFormat if it is missing
+    * @param metadata
+    * @param platform
+    * @return
+    */
   def getVideoPlayerFormat(
       metadata: Option[ThriftMetadata],
       platform: Option[Platform]
