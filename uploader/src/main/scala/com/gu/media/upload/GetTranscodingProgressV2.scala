@@ -1,19 +1,10 @@
 package com.gu.media.upload
 
-import software.amazon.awssdk.services.mediaconvert.model.{
-  GetJobRequest,
-  Job,
-  JobStatus
-}
+import software.amazon.awssdk.services.mediaconvert.model.{ContainerType, GetJobRequest, Job, JobStatus}
 import com.gu.media.aws.MediaConvertAccess
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
-import com.gu.media.model.{
-  ImageAssetDimensions,
-  SelfHostedAsset,
-  VideoAsset,
-  VideoSource
-}
+import com.gu.media.model.{ImageAssetDimensions, SelfHostedAsset, VideoAsset, VideoSource}
 import com.gu.media.upload.model.{SelfHostedUploadMetadata, Upload}
 
 import scala.jdk.CollectionConverters._
@@ -70,7 +61,7 @@ class GetTranscodingProgressV2
 
   private def getVideoDimensions(
       jobs: List[Job]
-  ): Map[String, ImageAssetDimensions] = {
+  ): Map[ContainerType, ImageAssetDimensions] = {
     // these are the requested transcoder outputs
     val outputs = for {
       job <- jobs
@@ -90,7 +81,7 @@ class GetTranscodingProgressV2
       .collect {
         case (output, outputDetail) if outputDetail.videoDetails != null =>
           // key is the output 'container' - e.g. MP4, M3U8, RAW
-          output.containerSettings.container.name() ->
+          output.containerSettings.container ->
             // value is the dimensions from the corresponding outputDetail
             ImageAssetDimensions(
               outputDetail.videoDetails().heightInPx,
@@ -102,14 +93,14 @@ class GetTranscodingProgressV2
 
   private def applyDimensionsToAsset(
       asset: VideoAsset,
-      videoDimensions: Map[String, ImageAssetDimensions]
+      videoDimensions: Map[ContainerType, ImageAssetDimensions]
   ): VideoAsset =
     asset match {
       case SelfHostedAsset(sources) =>
         val updatedSources = sources.map { source =>
           val dimensions: Option[ImageAssetDimensions] = source.mimeType match {
-            case VideoSource.mimeTypeMp4  => videoDimensions.get("MP4")
-            case VideoSource.mimeTypeM3u8 => videoDimensions.get("M3U8")
+            case VideoSource.mimeTypeMp4  => videoDimensions.get(ContainerType.MP4)
+            case VideoSource.mimeTypeM3u8 => videoDimensions.get(ContainerType.M3_U8)
             case _                        => None
           }
           source.copy(
