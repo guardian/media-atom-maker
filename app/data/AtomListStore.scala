@@ -2,13 +2,9 @@ package data
 
 import com.gu.atom.data.PreviewDynamoDataStore
 import com.gu.media.CapiAccess
-import com.gu.media.model.{
-  ContentChangeDetails,
-  Image,
-  MediaAtom,
-  Platform,
-  VideoPlayerFormat
-}
+import com.gu.media.model.Platform.{Url, Youtube}
+import com.gu.media.model.VideoPlayerFormat.Loop
+import com.gu.media.model.{ContentChangeDetails, Image, MediaAtom, Platform, VideoPlayerFormat}
 import com.gu.media.util.TestFilters
 import model.commands.CommandExceptions.AtomDataStoreError
 import model.{MediaAtomList, MediaAtomSummary}
@@ -160,25 +156,21 @@ class CapiBackedAtomListStore(capi: CapiAccess)
         (asset \ "platform").as[Platform]
       }
 
-      val firstAssetMediaPlatform = (atom \ "assets").as[JsArray].value.headOption.map { asset =>
-        (asset \ "platform").as[Platform]
-      }
+      val firstAssetMediaPlatform =
+        (atom \ "assets").as[JsArray].value.headOption.map { asset =>
+          (asset \ "platform").as[Platform]
+        }
 
-      /**
-        * The platform field at the atom level was introduced later than the
-        * platform field at the asset level.
-        *
-        * If platform is available at the atom level, use it.
-        * Otherwise, try to use the platform of the active asset.
-        * If there is no active asset, use the platform of the first asset.
-        */
-      val mediaPlatform = atomMediaPlatform
-        .orElse(activeAssetMediaPlatform)
-        .orElse(firstAssetMediaPlatform)
+      val mediaPlatform = Platform.getAtomPlatform(
+        atomMediaPlatform,
+        activeAssetMediaPlatform,
+        firstAssetMediaPlatform
+      )
 
       val videoPlayerFormat =
         (atom \ "metadata" \ "selfHost" \ "videoPlayerFormat")
           .asOpt[VideoPlayerFormat]
+          .orElse(if (mediaPlatform == Url) Some(Loop) else None)
 
       Some(
         MediaAtomSummary(
@@ -256,35 +248,13 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore)
   }
 
   private def fromAtom(atom: MediaAtom): MediaAtomSummary = {
-    val versions = atom.assets.map(_.version).toSet
-    val currentAsset = atom.assets.find(asset =>
-      asset.version == atom.activeVersion.getOrElse(versions.max)
-    )
-    val atomMediaPlatform = atom.platform
-    val activeAssetMediaPlatform = currentAsset.map(_.platform)
-    val firstAssetMediaPlatform = atom.assets.headOption.map(_.platform)
-
-    /**
-     * The platform field at the atom level was introduced later than the
-     * platform field at the asset level.
-     *
-     * If platform is available at the atom level, use it.
-     * Otherwise, try to use the platform of the active asset.
-     * If there is no active asset, use the platform of the first asset.
-     */
-    val mediaPlatform = atomMediaPlatform
-      .orElse(activeAssetMediaPlatform)
-      .orElse(firstAssetMediaPlatform)
-
-    val videoPlayerFormat = atom.videoPlayerFormat
-
     MediaAtomSummary(
       atom.id,
       atom.title,
       atom.posterImage,
       atom.contentChangeDetails,
-      mediaPlatform,
-      videoPlayerFormat
+      atom.platform.getOrElse(Youtube),
+      atom.videoPlayerFormat
     )
   }
 }
