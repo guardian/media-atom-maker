@@ -123,7 +123,7 @@ export default class VideoItem extends React.Component {
                   {
                     video.videoPlayerFormat ?
                       iconMap[video.videoPlayerFormat] :
-                      iconMap[mediaPlatform === 'youtube' ? 'Youtube' : 'Default']
+                      iconMap[mediaPlatform?.toLowerCase() === 'youtube' ? 'Youtube' : 'Default']
                   }
               </div>
             </div>
