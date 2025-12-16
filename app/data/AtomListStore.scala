@@ -4,7 +4,13 @@ import com.gu.atom.data.PreviewDynamoDataStore
 import com.gu.media.CapiAccess
 import com.gu.media.model.Platform.{Url, Youtube}
 import com.gu.media.model.VideoPlayerFormat.Loop
-import com.gu.media.model.{ContentChangeDetails, Image, MediaAtom, Platform, VideoPlayerFormat}
+import com.gu.media.model.{
+  ContentChangeDetails,
+  Image,
+  MediaAtom,
+  Platform,
+  VideoPlayerFormat
+}
 import com.gu.media.util.TestFilters
 import model.commands.CommandExceptions.AtomDataStoreError
 import model.{MediaAtomList, MediaAtomSummary}
