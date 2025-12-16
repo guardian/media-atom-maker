@@ -49,7 +49,7 @@ export default class VideoItem extends React.Component {
 
   render() {
     const video = this.props.video;
-    const activeMediaPlatform = VideoUtils.getActiveMediaPlatform(video);
+    const mediaPlatform = VideoUtils.getMediaPlatform(video);
     const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
     const scheduledLaunchMoment = moment(scheduledLaunch);
     const embargo = VideoUtils.getEmbargo(video);
@@ -123,7 +123,7 @@ export default class VideoItem extends React.Component {
                   {
                     video.videoPlayerFormat ?
                       iconMap[video.videoPlayerFormat] :
-                      iconMap[activeMediaPlatform === 'youtube' ? 'Youtube' : 'Default']
+                      iconMap[mediaPlatform === 'youtube' ? 'Youtube' : 'Default']
                   }
               </div>
             </div>

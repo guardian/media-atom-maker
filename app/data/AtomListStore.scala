@@ -149,24 +149,32 @@ class CapiBackedAtomListStore(capi: CapiAccess)
       }
 
       val atomMediaPlatform =
-        (atom \ "platform").asOpt[Platform].map(_.name.toLowerCase)
+        (atom \ "platform").asOpt[Platform]
 
       val activeAsset = (atom \ "assets").as[JsArray].value.find { asset =>
         val assetVersion = (asset \ "version").as[Long]
         activeVersion.contains(assetVersion)
       }
 
-      val activeAssetMediaPlatform = activeAsset.flatMap { asset =>
-        (asset \ "platform").asOpt[String].map(_.toLowerCase)
+      val activeAssetMediaPlatform = activeAsset.map { asset =>
+        (asset \ "platform").as[Platform]
       }
 
-      /** The platform field at the atom level was introduced later than the
-        * platform field at the asset level. If platform is available at the
-        * atom level, use it. Otherwise, default to the platform of the active
-        * media asset.
+      val firstAssetMediaPlatform = (atom \ "assets").as[JsArray].value.headOption.map { asset =>
+        (asset \ "platform").as[Platform]
+      }
+
+      /**
+        * The platform field at the atom level was introduced later than the
+        * platform field at the asset level.
+        *
+        * If platform is available at the atom level, use it.
+        * Otherwise, try to use the platform of the active asset.
+        * If there is no active asset, use the platform of the first asset.
         */
-      val activeMediaPlatform = atomMediaPlatform
+      val mediaPlatform = atomMediaPlatform
         .orElse(activeAssetMediaPlatform)
+        .orElse(firstAssetMediaPlatform)
 
       val videoPlayerFormat =
         (atom \ "metadata" \ "selfHost" \ "videoPlayerFormat")
@@ -178,7 +186,7 @@ class CapiBackedAtomListStore(capi: CapiAccess)
           title,
           posterImage,
           contentChangeDetails,
-          activeMediaPlatform,
+          mediaPlatform,
           videoPlayerFormat
         )
       )
@@ -252,17 +260,21 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore)
     val currentAsset = atom.assets.find(asset =>
       asset.version == atom.activeVersion.getOrElse(versions.max)
     )
-    val atomMediaPlatform = atom.platform.map(_.name.toLowerCase)
-    val activeAssetMediaPlatform =
-      currentAsset.map(_.platform.name.toLowerCase)
+    val atomMediaPlatform = atom.platform
+    val activeAssetMediaPlatform = currentAsset.map(_.platform)
+    val firstAssetMediaPlatform = atom.assets.headOption.map(_.platform)
 
-    /** The platform field at the atom level was introduced later than the
-      * platform field at the asset level. If platform is available at the atom
-      * level, use it. Otherwise, default to the platform of the active media
-      * asset.
-      */
-    val activeMediaPlatform = atomMediaPlatform
+    /**
+     * The platform field at the atom level was introduced later than the
+     * platform field at the asset level.
+     *
+     * If platform is available at the atom level, use it.
+     * Otherwise, try to use the platform of the active asset.
+     * If there is no active asset, use the platform of the first asset.
+     */
+    val mediaPlatform = atomMediaPlatform
       .orElse(activeAssetMediaPlatform)
+      .orElse(firstAssetMediaPlatform)
 
     val videoPlayerFormat = atom.videoPlayerFormat
 
@@ -271,7 +283,7 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore)
       atom.title,
       atom.posterImage,
       atom.contentChangeDetails,
-      activeMediaPlatform,
+      mediaPlatform,
       videoPlayerFormat
     )
   }
