@@ -1,10 +1,20 @@
 package com.gu.media.upload
 
-import software.amazon.awssdk.services.mediaconvert.model.{ContainerType, GetJobRequest, Job, JobStatus}
+import software.amazon.awssdk.services.mediaconvert.model.{
+  ContainerType,
+  GetJobRequest,
+  Job,
+  JobStatus
+}
 import com.gu.media.aws.MediaConvertAccess
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
-import com.gu.media.model.{ImageAssetDimensions, SelfHostedAsset, VideoAsset, VideoSource}
+import com.gu.media.model.{
+  ImageAssetDimensions,
+  SelfHostedAsset,
+  VideoAsset,
+  VideoSource
+}
 import com.gu.media.upload.model.{SelfHostedUploadMetadata, Upload}
 
 import scala.jdk.CollectionConverters._
@@ -99,9 +109,11 @@ class GetTranscodingProgressV2
       case SelfHostedAsset(sources) =>
         val updatedSources = sources.map { source =>
           val dimensions: Option[ImageAssetDimensions] = source.mimeType match {
-            case VideoSource.mimeTypeMp4  => videoDimensions.get(ContainerType.MP4)
-            case VideoSource.mimeTypeM3u8 => videoDimensions.get(ContainerType.M3_U8)
-            case _                        => None
+            case VideoSource.mimeTypeMp4 =>
+              videoDimensions.get(ContainerType.MP4)
+            case VideoSource.mimeTypeM3u8 =>
+              videoDimensions.get(ContainerType.M3_U8)
+            case _ => None
           }
           source.copy(
             width = dimensions.map(_.width),
