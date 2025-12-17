@@ -47,7 +47,7 @@ export const videoCreateOptions: {
         {
           id: "Loop",
           title: "Loop",
-          description: "Short looping video – use for journalism (e.g. Breaking News)",
+          description: "Short looping video – use for journalism (eg Breaking News)",
           specifications: {
             positive: [
               "Autoplays and loops",
@@ -71,7 +71,7 @@ export const videoCreateOptions: {
         {
           id: "Cinemagraph",
           title: "Cinemagraph",
-          description: "Short GIF-like video – use for decoration (e.g. Features)",
+          description: "Short GIF-like video – use for decoration (eg Features)",
           specifications: {
             positive: [
               "Autoplays and loops",
