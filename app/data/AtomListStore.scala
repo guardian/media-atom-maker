@@ -19,11 +19,11 @@ import play.api.libs.json.{JsArray, JsValue}
 
 trait AtomListStore {
   def getAtoms(
-      search: Option[String],
-      limit: Option[Int],
-      shouldUseCreatedDateForSort: Boolean,
-      mediaPlatform: Option[String],
-      orderByOldest: Boolean
+    search: Option[String],
+    limit: Option[Int],
+    shouldUseCreatedDateForSort: Boolean,
+    platformFilter: Option[String],
+    orderByOldest: Boolean
   ): MediaAtomList
 }
 
@@ -38,7 +38,7 @@ class CapiBackedAtomListStore(capi: CapiAccess)
       search: Option[String],
       limit: Option[Int],
       shouldUseCreatedDateForSort: Boolean,
-      mediaPlatform: Option[String],
+      platformFilter: Option[String],
       orderByOldest: Boolean
   ): MediaAtomList = {
     val pagination = Pagination.option(CapiMaxPageSize, limit)
@@ -48,7 +48,7 @@ class CapiBackedAtomListStore(capi: CapiAccess)
       case false => Map.empty
     }
 
-    val mediaPlatformFilter = mediaPlatform match {
+    val mediaPlatformFilter = platformFilter match {
       case Some(mPlatform) => Map("media-platform" -> mPlatform)
       case _               => Map.empty
     }
@@ -150,7 +150,7 @@ class CapiBackedAtomListStore(capi: CapiAccess)
         (asset \ "version").as[Long]
       }
 
-      val atomMediaPlatform =
+      val atomPlatform =
         (atom \ "platform").asOpt[Platform]
 
       val activeAsset = (atom \ "assets").as[JsArray].value.find { asset =>
@@ -158,25 +158,25 @@ class CapiBackedAtomListStore(capi: CapiAccess)
         activeVersion.contains(assetVersion)
       }
 
-      val activeAssetMediaPlatform = activeAsset.map { asset =>
+      val activeAssetPlatform = activeAsset.map { asset =>
         (asset \ "platform").as[Platform]
       }
 
-      val firstAssetMediaPlatform =
+      val firstAssetPlatform =
         (atom \ "assets").as[JsArray].value.headOption.map { asset =>
           (asset \ "platform").as[Platform]
         }
 
-      val mediaPlatform = Platform.getAtomPlatform(
-        atomMediaPlatform,
-        activeAssetMediaPlatform,
-        firstAssetMediaPlatform
+      val platform = Platform.getPlatform(
+        atomPlatform,
+        activeAssetPlatform,
+        firstAssetPlatform
       )
 
       val videoPlayerFormat =
         (atom \ "metadata" \ "selfHost" \ "videoPlayerFormat")
           .asOpt[VideoPlayerFormat]
-          .orElse(if (mediaPlatform == Url) Some(Loop) else None)
+          .orElse(if (platform == Url) Some(Loop) else None)
 
       Some(
         MediaAtomSummary(
@@ -184,7 +184,7 @@ class CapiBackedAtomListStore(capi: CapiAccess)
           title,
           posterImage,
           contentChangeDetails,
-          mediaPlatform,
+          platform,
           videoPlayerFormat
         )
       )
