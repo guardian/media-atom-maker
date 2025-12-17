@@ -67,16 +67,21 @@ export default class Create extends React.Component {
           inputRef?.current?.focus()
         }}>
         <div className="create-form__option-controls">
-          <div className="create-form__option-radio-label-and-icon">
-            <div className="create-form__option-radio-icon">
-              {this.iconMap[videoCreateOptionDetails.id]}
+          <div className="create-form__option-radio-summary">
+            <div className="create-form__option-radio-label-and-icon">
+              <div className="create-form__option-radio-icon">
+                {this.iconMap[videoCreateOptionDetails.id]}
+              </div>
+              <label
+                htmlFor={videoCreateOptionDetails.id}
+                className="create-form__option-radio-label"
+              >
+                {videoCreateOptionDetails.title}
+              </label>
             </div>
-            <label
-              htmlFor={videoCreateOptionDetails.id}
-              className="create-form__option-radio-label"
-            >
-              {videoCreateOptionDetails.title}
-            </label>
+            <div className="create-form__option-radio-description">
+              {videoCreateOptionDetails.description}
+            </div>
           </div>
           <input
             type="radio"
