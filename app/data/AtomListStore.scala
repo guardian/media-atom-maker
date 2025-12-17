@@ -19,11 +19,11 @@ import play.api.libs.json.{JsArray, JsValue}
 
 trait AtomListStore {
   def getAtoms(
-    search: Option[String],
-    limit: Option[Int],
-    shouldUseCreatedDateForSort: Boolean,
-    platformFilter: Option[String],
-    orderByOldest: Boolean
+      search: Option[String],
+      limit: Option[Int],
+      shouldUseCreatedDateForSort: Boolean,
+      platformFilter: Option[String],
+      orderByOldest: Boolean
   ): MediaAtomList
 }
 
