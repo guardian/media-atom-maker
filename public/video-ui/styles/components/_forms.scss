@@ -525,6 +525,12 @@
   width: 100%;
 }
 
+.create-form__option-radio-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .create-form__option-radio-label-and-icon {
   display: flex;
   align-items: center;
@@ -536,6 +542,10 @@
   align-items: center;
   justify-content: center;
   width: 24px;
+}
+
+.create-form__option-radio-description {
+  line-height: 24px;
 }
 
 .create-form__option-row {
