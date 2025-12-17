@@ -31,8 +31,8 @@ export const videoCreateOptions: {
               "Livestreaming support"
             ],
             negative: [
-              "Don't use for sensitive content",
-              "No share button"
+              "No share button",
+              "Age restrictions may apply"
             ],
             info: [
               "Ideal for long-form content with a wide audience",
@@ -109,7 +109,7 @@ export const videoCreateOptions: {
               "No support for livestreaming"
             ],
             info: [
-              "Used for sensitive content and legacy videos",
+              "Use for content we want to use without YouTube's age restrictions",
               "Can be used in Articles only",
               "Self-hosted"
             ]
