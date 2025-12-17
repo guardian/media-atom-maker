@@ -21,7 +21,7 @@ export const videoCreateOptions: {
         {
           id: "Youtube",
           title: "YouTube",
-          description: "Long-form video with a wide audience",
+          description: "Long video with a wide audience",
           specifications: {
             positive: [
               "Manual play / pause",
@@ -94,7 +94,7 @@ export const videoCreateOptions: {
         {
           id: "Default",
           title: "Browser",
-          description: "Long-form video without YouTube - use sparingly",
+          description: "Long video without YouTube - use sparingly",
           specifications: {
             positive: [
               "Manual play",
@@ -112,7 +112,7 @@ export const videoCreateOptions: {
             info: [
               "Can be used in Articles only",
               "Self-hosted",
-              "Use you want you want to embed a video in article, but without YouTube's age restrictions",
+              "Use when you want to embed a video in article, but without YouTube's age restrictions",
               "Use when you don't want the video to appear on YouTube at all"
             ]
           }
