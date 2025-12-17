@@ -531,6 +531,13 @@
   gap: 8px;
 }
 
+.create-form__option-radio-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+}
+
 .create-form__option-row {
   display: flex;
   flex-direction: row;

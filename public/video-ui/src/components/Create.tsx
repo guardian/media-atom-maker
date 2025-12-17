@@ -64,7 +64,9 @@ export default class Create extends React.Component {
         onClick={() => this.setState({ videoCreateOption: videoCreateOptionDetails.id })}>
         <div className="create-form__option-controls">
           <div className="create-form__option-radio-label-and-icon">
-            {this.iconMap[videoCreateOptionDetails.id]}
+            <div className="create-form__option-radio-icon">
+              {this.iconMap[videoCreateOptionDetails.id]}
+            </div>
             <label
               htmlFor={videoCreateOptionDetails.id}
               className="create-form__option-radio-label"
