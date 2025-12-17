@@ -47,7 +47,7 @@ export const videoCreateOptions: {
         {
           id: "Loop",
           title: "Loop",
-          description: "Short looping video - use for journalism (e.g. Breaking News)",
+          description: "Short looping video – use for journalism (e.g. Breaking News)",
           specifications: {
             positive: [
               "Autoplays and loops",
@@ -71,7 +71,7 @@ export const videoCreateOptions: {
         {
           id: "Cinemagraph",
           title: "Cinemagraph",
-          description: "Short GIF-like video - use for decoration (e.g. Features)",
+          description: "Short GIF-like video – use for decoration (e.g. Features)",
           specifications: {
             positive: [
               "Autoplays and loops",
@@ -94,7 +94,7 @@ export const videoCreateOptions: {
         {
           id: "Default",
           title: "Browser",
-          description: "Long video without YouTube - use sparingly",
+          description: "Long video without YouTube – use sparingly",
           specifications: {
             positive: [
               "Manual play",
