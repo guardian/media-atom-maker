@@ -5,6 +5,7 @@ export type VideoCreateOption = VideoPlayerFormat | 'Youtube';
 export type VideoCreateOptionDetails = {
   id: VideoCreateOption,
   title: string,
+  description: string,
   specifications: {
     positive: string[],
     negative: string[],
@@ -20,6 +21,7 @@ export const videoCreateOptions: {
         {
           id: "Youtube",
           title: "YouTube",
+          description: "Long-form video with a wide audience",
           specifications: {
             positive: [
               "Manual play / pause",
@@ -35,7 +37,6 @@ export const videoCreateOptions: {
               "Age restrictions may apply"
             ],
             info: [
-              "Ideal for long-form content with a wide audience",
               "Can be used anywhere",
               "Hosted on Youtube"
             ]
@@ -46,6 +47,7 @@ export const videoCreateOptions: {
         {
           id: "Loop",
           title: "Loop",
+          description: "Short looping video - use for journalism (e.g. Breaking News)",
           specifications: {
             positive: [
               "Autoplays and loops",
@@ -61,7 +63,6 @@ export const videoCreateOptions: {
               "No share button"
             ],
             info: [
-              "Ideal for short, semantic clips",
               "Can be used on Fronts only",
               "Self-hosted"
             ]
@@ -70,10 +71,11 @@ export const videoCreateOptions: {
         {
           id: "Cinemagraph",
           title: "Cinemagraph",
+          description: "Short GIF-like video - use for decoration (e.g. Features)",
           specifications: {
             positive: [
               "Autoplays and loops",
-              "Click through to content"
+              "User interaction clicks through to article"
             ],
             negative: [
               "No play / pause controls",
@@ -84,7 +86,6 @@ export const videoCreateOptions: {
               "No share button"
             ],
             info: [
-              "Ideal for short, decorative clips",
               "Can be used on Fronts only",
               "Self-hosted"
             ]
@@ -93,6 +94,7 @@ export const videoCreateOptions: {
         {
           id: "Default",
           title: "Browser",
+          description: "Long-form video without YouTube - use sparingly",
           specifications: {
             positive: [
               "Manual play",
@@ -108,9 +110,10 @@ export const videoCreateOptions: {
               "No support for livestreaming"
             ],
             info: [
-              "Use for content we want to use without YouTube's age restrictions",
               "Can be used in Articles only",
-              "Self-hosted"
+              "Self-hosted",
+              "Use you want you want to embed a video in article, but without YouTube's age restrictions",
+              "Use when you don't want the video to appear on YouTube at all",
             ]
           }
         }
