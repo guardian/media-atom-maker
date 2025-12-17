@@ -132,9 +132,9 @@ class VideoDisplay extends React.Component {
   }
 
   renderPreviewAndImages() {
-    const isYoutube = VideoUtils.isYoutube(this.props.video);
+    const platform = VideoUtils.getPlatformFromAtom(this.props.video);
     const activeAsset = VideoUtils.getActiveAsset(this.props.video);
-    const youtubeAsset = isYoutube && activeAsset;
+    const youtubeAsset = platform === 'youtube' && activeAsset;
 
     return (
       <div className="video__detailbox">
@@ -142,7 +142,7 @@ class VideoDisplay extends React.Component {
           <header className="video__detailbox__header">
             <div>
               <h3>Video Preview</h3>
-              { isYoutube &&
+              { platform === 'youtube' &&
                 <div className="video__detailbox__header__format video__detailbox__header__format--youtube">
                   {this.iconMap["Youtube"]}
                   <span>Youtube</span>
@@ -174,7 +174,7 @@ class VideoDisplay extends React.Component {
           <asset-handle data-source="mam"
                         data-source-type="video"
                         data-thumbnail={this.props.video?.posterImage?.assets?.[0]?.file}
-                        data-external-url={VideoUtils.isYoutube(this.props.video) && getYouTubeEmbedUrl(VideoUtils.getActiveAsset(this.props.video)?.id)}
+                        data-external-url={platform === 'youtube' && getYouTubeEmbedUrl(VideoUtils.getActiveAsset(this.props.video)?.id)}
                         data-embeddable-url={window.location.href}>
           </asset-handle>
           <Link

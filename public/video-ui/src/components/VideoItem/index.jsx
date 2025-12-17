@@ -49,7 +49,7 @@ export default class VideoItem extends React.Component {
 
   render() {
     const video = this.props.video;
-    const platform = VideoUtils.getPlatform(video);
+    const platform = VideoUtils.getPlatformFromSummary(video);
     const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
     const scheduledLaunchMoment = moment(scheduledLaunch);
     const embargo = VideoUtils.getEmbargo(video);
