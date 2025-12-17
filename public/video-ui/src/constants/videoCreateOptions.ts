@@ -113,7 +113,8 @@ export const videoCreateOptions: {
               "Can be used in Articles only",
               "Self-hosted",
               "Use when you want to embed a video in article, but without YouTube's age restrictions",
-              "Use when you don't want the video to appear on YouTube at all"
+              "Use when you don't want the video to appear on YouTube at all",
+              "Different browsers (eg Firefox, Chrome) will use their own player to render these videos",
             ]
           }
         }
