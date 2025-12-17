@@ -145,7 +145,7 @@ class VideoDisplay extends React.Component {
               { platform === 'youtube' &&
                 <div className="video__detailbox__header__format video__detailbox__header__format--youtube">
                   {this.iconMap["Youtube"]}
-                  <span>Youtube</span>
+                  <span>YouTube</span>
                 </div>
               }
               {
