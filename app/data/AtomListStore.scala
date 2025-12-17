@@ -19,10 +19,10 @@ import play.api.libs.json.{JsArray, JsValue}
 
 trait AtomListStore {
   def getAtoms(
-    search: Option[String],
-    limit: Option[Int],
-    shouldUseCreatedDateForSort: Boolean,
-    platformFilter: Option[String]
+      search: Option[String],
+      limit: Option[Int],
+      shouldUseCreatedDateForSort: Boolean,
+      platformFilter: Option[String]
   ): MediaAtomList
 }
 
@@ -34,10 +34,10 @@ class CapiBackedAtomListStore(capi: CapiAccess)
   val CapiMaxPageSize = 200
 
   override def getAtoms(
-                         search: Option[String],
-                         limit: Option[Int],
-                         shouldUseCreatedDateForSort: Boolean,
-                         platformFilter: Option[String]
+      search: Option[String],
+      limit: Option[Int],
+      shouldUseCreatedDateForSort: Boolean,
+      platformFilter: Option[String]
   ): MediaAtomList = {
     val pagination = Pagination.option(CapiMaxPageSize, limit)
 

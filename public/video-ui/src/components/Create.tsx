@@ -63,8 +63,8 @@ export default class Create extends React.Component {
           (isSelected ? 'create-form__option--selected ' : '')
         }
         onClick={() => {
-          this.setState({ videoCreateOption: videoCreateOptionDetails.id })
-          inputRef?.current?.focus()
+          this.setState({ videoCreateOption: videoCreateOptionDetails.id });
+          inputRef?.current?.focus();
         }}>
         <div className="create-form__option-controls">
           <div className="create-form__option-radio-summary">

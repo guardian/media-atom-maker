@@ -36,8 +36,7 @@ object Platform {
 
   def fromThrift(p: ThriftPlatform) = types.find(_.name == p.name).get
 
-  /**
-    * The atom-level platform field tells us authoritatively if atom is for
+  /** The atom-level platform field tells us authoritatively if atom is for
     * Youtube or Self-hosted video.
     *
     * To derive an atom-level platform field from models with potentially
