@@ -112,7 +112,7 @@ export const videoCreateOptions: {
             info: [
               "Can be used in Articles only",
               "Self-hosted",
-              "Different browsers (eg Firefox, Chrome) will use their own player to render these videos",
+              "Different browsers (eg Firefox, Chrome) will use their own player to render these videos"
             ]
           }
         }
