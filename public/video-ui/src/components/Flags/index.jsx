@@ -23,12 +23,13 @@ class Flags extends React.Component {
       updateWarnings
     } = this.props;
 
-    const isYoutubeAtom = VideoUtils.isYoutube(video);
     const isCommercialType = VideoUtils.isCommercialType(video);
     const isEligibleForAds = VideoUtils.isEligibleForAds(video);
     const canHaveComposerPage =
       this.props.video.videoPlayerFormat !== 'Cinemagraph' &&
       this.props.video.videoPlayerFormat !== 'Loop';
+    const platform = VideoUtils.getPlatformFromAtom(video);
+
 
     return (
       <ManagedForm
@@ -50,7 +51,7 @@ class Flags extends React.Component {
                 ? 'Block ads on Composer page'
                 : 'Ads will not be displayed with this video'
             }
-            disabled={!isYoutubeAtom || !isEligibleForAds}
+            disabled={platform !== 'youtube' || !isEligibleForAds}
             tooltip={!isEligibleForAds ? `Not eligible for pre-roll.` : ''}
           >
             {/* use a different field identifier to `fieldLocation` to ensure ad blockers don't remove it from the DOM */}
