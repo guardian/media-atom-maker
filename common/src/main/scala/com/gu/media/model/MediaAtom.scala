@@ -357,7 +357,7 @@ object MediaAtom extends MediaAtomImplicits {
       assets: List[Asset]
   ): Option[Platform] = {
     Option(
-      Platform.getAtomPlatform(
+      Platform.getPlatform(
         data.platform.map(Platform.fromThrift),
         activeVersion
           .flatMap(activeVersion => assets.find(_.version == activeVersion))
