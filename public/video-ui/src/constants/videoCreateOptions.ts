@@ -94,7 +94,7 @@ export const videoCreateOptions: {
         {
           id: "Default",
           title: "Browser",
-          description: "Video without YouTube – use in limited circumstances (eg avoiding age restriction on platform)",
+          description: "Non-YouTube video – use in limited circumstances (eg avoiding age restriction on platform)",
           specifications: {
             positive: [
               "Manual play",
