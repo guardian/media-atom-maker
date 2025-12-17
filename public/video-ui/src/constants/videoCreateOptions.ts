@@ -92,7 +92,7 @@ export const videoCreateOptions: {
         },
         {
           id: "Default",
-          title: "Standard",
+          title: "Browser",
           specifications: {
             positive: [
               "Manual play",
@@ -103,7 +103,6 @@ export const videoCreateOptions: {
               "Fullscreen controls"
             ],
             negative: [
-              "No Guardian player",
               "No subtitles support",
               "No share button",
               "No support for livestreaming"
