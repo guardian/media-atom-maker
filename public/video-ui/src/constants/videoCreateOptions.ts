@@ -19,7 +19,7 @@ export const videoCreateOptions: {
       "offPlatform": [
         {
           id: "Youtube",
-          title: "Youtube",
+          title: "YouTube",
           specifications: {
             positive: [
               "Manual play / pause",
