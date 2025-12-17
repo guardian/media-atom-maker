@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {createRef} from 'react';
 import {VideoCreateOptionDetails, videoCreateOptions} from "../constants/videoCreateOptions";
 import type {VideoPlayerFormat, VideoCreateOption} from "../constants/videoCreateOptions";
 import {blankVideoData} from "../constants/blankVideoData";
@@ -53,6 +53,7 @@ export default class Create extends React.Component {
 
   renderVideoCreateOption(videoCreateOptionDetails: VideoCreateOptionDetails) {
     const isSelected = this.state.videoCreateOption === videoCreateOptionDetails.id;
+    const inputRef = createRef<HTMLInputElement>();
 
     return (
       <div
@@ -61,7 +62,10 @@ export default class Create extends React.Component {
           "create-form__option " +
           (isSelected ? 'create-form__option--selected ' : '')
         }
-        onClick={() => this.setState({ videoCreateOption: videoCreateOptionDetails.id })}>
+        onClick={() => {
+          this.setState({ videoCreateOption: videoCreateOptionDetails.id })
+          inputRef?.current?.focus()
+        }}>
         <div className="create-form__option-controls">
           <div className="create-form__option-radio-label-and-icon">
             <div className="create-form__option-radio-icon">
@@ -82,6 +86,7 @@ export default class Create extends React.Component {
             value={videoCreateOptionDetails.id}
             checked={isSelected}
             onChange={() => this.setState({ videoCreateOption: videoCreateOptionDetails.id })}
+            ref={inputRef}
           />
         </div>
         {
