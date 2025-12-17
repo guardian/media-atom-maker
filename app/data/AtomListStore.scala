@@ -18,19 +18,19 @@ import play.api.libs.json.{JsArray, JsValue}
 
 trait AtomListStore {
   def getAtoms(
-    search: Option[String],
-    limit: Option[Int],
-    shouldUseCreatedDateForSort: Boolean,
-    platformFilter: Option[String]
+      search: Option[String],
+      limit: Option[Int],
+      shouldUseCreatedDateForSort: Boolean,
+      platformFilter: Option[String]
   ): MediaAtomList
 }
 
 class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
   override def getAtoms(
-                         search: Option[String],
-                         limit: Option[Int],
-                         shouldUseCreatedDateForSort: Boolean,
-                         platformFilter: Option[String]
+      search: Option[String],
+      limit: Option[Int],
+      shouldUseCreatedDateForSort: Boolean,
+      platformFilter: Option[String]
   ): MediaAtomList = {
     // CAPI max page size is 200
     val cappedLimit: Option[Int] = limit.map(Math.min(200, _))
