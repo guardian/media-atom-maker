@@ -6,6 +6,7 @@ import com.gu.media.model.{ContentChangeDetails, Image, MediaAtom}
 import com.gu.media.util.TestFilters
 import model.commands.CommandExceptions.AtomDataStoreError
 import model.{MediaAtomList, MediaAtomSummary}
+import play.api.Logging
 import play.api.libs.json.{JsArray, JsValue}
 
 trait AtomListStore {
@@ -17,18 +18,20 @@ trait AtomListStore {
   ): MediaAtomList
 }
 
-class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
+class CapiBackedAtomListStore(capi: CapiAccess)
+    extends AtomListStore
+    with Logging {
+
+  // CAPI max page size is 200
+  val CapiMaxPageSize = 200
+
   override def getAtoms(
       search: Option[String],
       limit: Option[Int],
       shouldUseCreatedDateForSort: Boolean,
       mediaPlatform: Option[String]
   ): MediaAtomList = {
-    // CAPI max page size is 200
-    val capiMaxPageSize = 200
-    val cappedLimit: Option[Int] = limit.map(Math.min(capiMaxPageSize, _))
-
-    val nPages = limit.map { limit => Math.ceil(limit / capiMaxPageSize).toInt }.getOrElse(1)
+    val pagination = Pagination.option(CapiMaxPageSize, limit)
 
     val dateSorter = shouldUseCreatedDateForSort match {
       case true  => Map("order-date" -> "first-publication")
@@ -56,23 +59,50 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
       case None => base
     }
 
-    val baseWithSearchAndLimit = cappedLimit match {
-      case Some(pageSize) =>
+    val baseWithSearchAndLimit = pagination match {
+      case Some(Pagination(pageSize, _)) =>
         baseWithSearch ++ Map(
           "page-size" -> pageSize.toString
         )
       case None => baseWithSearch
     }
 
-    val (total, atoms) = (1 to nPages).foldLeft(0, List.empty[MediaAtomSummary]) {  case ((runningTotal, atoms), page) =>
-      val pageNumber = Map("page" -> page.toString)
-      val response = capi.capiQuery("atoms", baseWithSearchAndLimit ++ pageNumber)
-      val total = (response \ "response" \ "total").as[Int]
-      val results = (response \ "response" \ "results").as[JsArray]
-      (runningTotal+total, atoms ++ results.value.flatMap(fromJson).toList)
+    val nPages = pagination.map(_.pageCount).getOrElse(1)
+
+    val (total, atoms) =
+      (1 to nPages).foldLeft(0, List.empty[MediaAtomSummary]) {
+        case ((_, atoms), page) =>
+          val pageNumber = pagination match {
+            case Some(_) => Map("page" -> page.toString)
+            case None    => Map.empty
+          }
+          val (total, results) =
+            getCapiAtoms(baseWithSearchAndLimit ++ pageNumber)
+          (
+            total,
+            atoms ++ results
+          )
+      }
+
+    val limitedAtoms = limit match {
+      case Some(limit) => atoms.take(limit)
+      case None        => atoms
     }
 
-    MediaAtomList(total, atoms)
+    logger.info(s"total $total, atoms: ${limitedAtoms.size}")
+    MediaAtomList(total, limitedAtoms)
+  }
+
+  private[data] def getCapiAtoms(
+      query: Map[String, String]
+  ): (Int, List[MediaAtomSummary]) = {
+    val response = capi.capiQuery("atoms", query)
+    val total = (response \ "response" \ "total").as[Int]
+    val results = (response \ "response" \ "results").as[JsArray]
+    (
+      total,
+      results.value.flatMap(fromJson).toList
+    )
   }
 
   private def fromJson(wrapper: JsValue): Option[MediaAtomSummary] = {
@@ -227,7 +257,19 @@ object AtomListStore {
       capi: CapiAccess,
       store: PreviewDynamoDataStore
   ): AtomListStore = stage match {
-    case "DEV" => new DynamoBackedAtomListStore(store)
-    case _     => new CapiBackedAtomListStore(capi)
+    // case "DEV" => new DynamoBackedAtomListStore(store)
+    case _ => new CapiBackedAtomListStore(capi)
+  }
+}
+
+case class Pagination(pageSize: Int, pageCount: Int)
+
+object Pagination {
+  def option(maxPageSize: Int, limit: Option[Int]): Option[Pagination] = {
+    limit.map { limit =>
+      val pageSize = Math.min(maxPageSize, limit)
+      val pageCount = Math.ceil(1.0 * limit / maxPageSize).toInt
+      Pagination(pageSize, pageCount)
+    }
   }
 }
