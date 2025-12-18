@@ -287,7 +287,7 @@ export function Asset({
   const subtitleFilename = metadata?.subtitleFilename;
 
   /**
-   * We support subtitles on Loops, but not Cinemagraphs (designed to be silent and decorative), and Standard videos
+   * We support subtitles on Loops, but not Cinemagraphs (designed to be silent and decorative), and NonYoutube videos
    * (which use the browser player).
    *
    * We can't simply check for videoPlayerFormat === 'Loop' here as videoPlayerFormat is undefined on videos

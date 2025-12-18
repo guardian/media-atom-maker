@@ -24,7 +24,7 @@ import { IconikTab, IconikTabPanel } from './tabs/Iconik';
 import Loop from "../../../images/loop.svg?react";
 import Youtube from "../../../images/youtube.svg?react";
 import Cinemagraph from "../../../images/cinemagraph.svg?react";
-import Standard from "../../../images/standard.svg?react";
+import NonYoutube from "../../../images/nonyoutube.svg?react";
 
 class VideoDisplay extends React.Component {
   constructor(props) {
@@ -44,7 +44,7 @@ class VideoDisplay extends React.Component {
     Youtube: <Youtube/>,
     Loop: <Loop/>,
     Cinemagraph: <Cinemagraph/>,
-    Default: <Standard/>
+    Default: <NonYoutube/>
   };
 
   getVideo() {

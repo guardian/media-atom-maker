@@ -9,7 +9,7 @@ import moment from 'moment';
 import Youtube from "../../../images/youtube.svg?react";
 import Loop from "../../../images/loop.svg?react";
 import Cinemagraph from "../../../images/cinemagraph.svg?react";
-import Standard from "../../../images/standard.svg?react";
+import NonYoutube from "../../../images/nonyoutube.svg?react";
 
 
 export default class VideoItem extends React.Component {
@@ -59,7 +59,7 @@ export default class VideoItem extends React.Component {
       Youtube: <Youtube/>,
       Loop: <Loop/>,
       Cinemagraph: <Cinemagraph/>,
-      Default: <Standard/>
+      Default: <NonYoutube/>
     };
 
     return (

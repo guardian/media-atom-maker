@@ -10,7 +10,7 @@ import Info from "../../images/info.svg?react";
 import Loop from "../../images/loop.svg?react";
 import Youtube from "../../images/youtube.svg?react";
 import Cinemagraph from "../../images/cinemagraph.svg?react";
-import Standard from "../../images/standard.svg?react";
+import NonYoutube from "../../images/nonyoutube.svg?react";
 
 export default class Create extends React.Component {
   props: React.PropsWithChildren<{
@@ -48,7 +48,7 @@ export default class Create extends React.Component {
     Youtube: <Youtube/>,
     Loop: <Loop/>,
     Cinemagraph: <Cinemagraph/>,
-    Default: <Standard/>
+    Default: <NonYoutube/>
   };
 
   renderVideoCreateOption(videoCreateOptionDetails: VideoCreateOptionDetails) {
