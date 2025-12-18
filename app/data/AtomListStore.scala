@@ -25,7 +25,10 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
       mediaPlatform: Option[String]
   ): MediaAtomList = {
     // CAPI max page size is 200
-    val cappedLimit: Option[Int] = limit.map(Math.min(200, _))
+    val capiMaxPageSize = 200
+    val cappedLimit: Option[Int] = limit.map(Math.min(capiMaxPageSize, _))
+
+    val nPages = limit.map { limit => Math.ceil(limit / capiMaxPageSize).toInt }.getOrElse(1)
 
     val dateSorter = shouldUseCreatedDateForSort match {
       case true  => Map("order-date" -> "first-publication")
@@ -61,12 +64,15 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
       case None => baseWithSearch
     }
 
-    val response = capi.capiQuery("atoms", baseWithSearchAndLimit)
+    val (total, atoms) = (1 to nPages).foldLeft(0, List.empty[MediaAtomSummary]) {  case ((runningTotal, atoms), page) =>
+      val pageNumber = Map("page" -> page.toString)
+      val response = capi.capiQuery("atoms", baseWithSearchAndLimit ++ pageNumber)
+      val total = (response \ "response" \ "total").as[Int]
+      val results = (response \ "response" \ "results").as[JsArray]
+      (runningTotal+total, atoms ++ results.value.flatMap(fromJson).toList)
+    }
 
-    val total = (response \ "response" \ "total").as[Int]
-    val results = (response \ "response" \ "results").as[JsArray]
-
-    MediaAtomList(total, results.value.flatMap(fromJson).toList)
+    MediaAtomList(total, atoms)
   }
 
   private def fromJson(wrapper: JsValue): Option[MediaAtomSummary] = {
