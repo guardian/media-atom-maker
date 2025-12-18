@@ -1,12 +1,12 @@
-import com.gu.media.model.AssetType.{Subtitles, Video}
 import com.gu.media.model.Platform.{Url, Youtube}
-import com.gu.media.model.VideoPlayerFormat.Loop
-import com.gu.media.model.YouTubeAsset
-import com.gu.media.util.AspectRatio
+import com.gu.media.model.VideoPlayerFormat.{Default, Loop}
+import org.joda.time.DateTime
 
 object BackfillPlatformAndVideoPlayerFormat extends App with BackfillBase {
 
   override def planActions(): List[UpdateAction] = {
+
+    val LoopStartDate = DateTime.parse("2025-07-16T00:00:00.000").getMillis
 
     val atomIds = api.getAtomIds()
 
@@ -46,10 +46,20 @@ object BackfillPlatformAndVideoPlayerFormat extends App with BackfillBase {
           // platform must be self-hosted if videoPlayerFormat is defined
           println(s"missing platform ${atom.id} -> Url")
           atom.copy(platform = Some(Url))
+        case atom if atom.platform.contains(Url) &&
+          atom.videoPlayerFormat.isEmpty &&
+          atom.contentChangeDetails.created.forall(_.date.getMillis < LoopStartDate) /*old*/ =>
+          // default to Standard if no videoPlayerFormat and video is old
+          println(s"missing videoPlayerFormat ${atom.id} -> Default")
+          atom.copy(videoPlayerFormat = Some(Default))
         case atom if atom.platform.contains(Url) && atom.videoPlayerFormat.isEmpty =>
-          // default to loop if no videoPlayerFormat
+          // default to Loop if no videoPlayerFormat
           println(s"missing videoPlayerFormat ${atom.id} -> Loop")
           atom.copy(videoPlayerFormat = Some(Loop))
+        case atom if atom.platform.contains(Youtube) && atom.videoPlayerFormat.isDefined =>
+          // clear videoPlayerFormat for youtube
+          println(s"videoPlayerFormat should not be defined ${atom.id} -> None")
+          atom.copy(videoPlayerFormat = None)
         case atom => atom
       }
 
