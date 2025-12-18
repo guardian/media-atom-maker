@@ -258,7 +258,7 @@ object AtomListStore {
       store: PreviewDynamoDataStore
   ): AtomListStore = stage match {
     case "DEV" => new DynamoBackedAtomListStore(store)
-    case _ => new CapiBackedAtomListStore(capi)
+    case _     => new CapiBackedAtomListStore(capi)
   }
 }
 
