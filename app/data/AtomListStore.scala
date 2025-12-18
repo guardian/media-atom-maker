@@ -69,18 +69,23 @@ class CapiBackedAtomListStore(capi: CapiAccess)
 
     val nPages = pagination.map(_.pageCount).getOrElse(1)
 
-    val (total, atoms) =
-      (1 to nPages).foldLeft(0, List.empty[MediaAtomSummary]) {
-        case ((_, atoms), page) =>
+    val (total, _, atoms) =
+      (1 to nPages).foldLeft(0, nPages, List.empty[MediaAtomSummary]) {
+        case ((prevTotal, prevMaxPage, prevAtoms), page) =>
           val pageNumber = pagination match {
             case Some(_) => Map("page" -> page.toString)
             case None    => Map.empty
           }
-          val (total, results) =
+          // make sure we don't request beyond the last page
+          val (total, maxPage, atoms) = if (page <= prevMaxPage) {
             getCapiAtoms(baseWithSearchAndLimit ++ pageNumber)
+          } else {
+            (prevTotal, prevMaxPage, Nil)
+          }
           (
             total,
-            atoms ++ results
+            maxPage,
+            prevAtoms ++ atoms
           )
       }
 
@@ -95,12 +100,14 @@ class CapiBackedAtomListStore(capi: CapiAccess)
 
   private[data] def getCapiAtoms(
       query: Map[String, String]
-  ): (Int, List[MediaAtomSummary]) = {
+  ): (Int, Int, List[MediaAtomSummary]) = {
     val response = capi.capiQuery("atoms", query)
     val total = (response \ "response" \ "total").as[Int]
+    val maxPage = (response \ "response" \ "pages").as[Int]
     val results = (response \ "response" \ "results").as[JsArray]
     (
       total,
+      maxPage,
       results.value.flatMap(fromJson).toList
     )
   }
