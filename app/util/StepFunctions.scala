@@ -2,7 +2,7 @@ package util
 
 import java.time.Instant
 
-import com.amazonaws.services.stepfunctions.model._
+import software.amazon.awssdk.services.sfn.model._
 import com.fasterxml.jackson.core.JsonParseException
 import com.gu.media.upload.model._
 import play.api.libs.json.{JsResultException, Json}
@@ -13,12 +13,11 @@ class StepFunctions(awsConfig: AWSConfig) {
   def getById(id: String): Option[Upload] = {
     val arn =
       s"${awsConfig.pipelineArn.replace(":stateMachine:", ":execution:")}:$id"
-
     try {
-      val request = new DescribeExecutionRequest().withExecutionArn(arn)
+      val request = DescribeExecutionRequest.builder().executionArn(arn).build()
       val result = awsConfig.stepFunctionsClient.describeExecution(request)
 
-      val upload = Json.parse(result.getInput).validate[Upload].asOpt
+      val upload = Json.parse(result.input()).validate[Upload].asOpt
       upload.map(fillInStartTimestamp(result, _))
     } catch {
       case _: ExecutionDoesNotExistException =>
@@ -30,39 +29,39 @@ class StepFunctions(awsConfig: AWSConfig) {
     val runningJobs = getExecutions(atomId, ExecutionStatus.RUNNING)
     val failedJobs =
       getExecutions(atomId, ExecutionStatus.FAILED).filter(lessThan10MinutesOld)
-
     runningJobs ++ failedJobs
   }
 
   def getTaskEntered(events: Iterable[HistoryEvent]): Option[(String, Upload)] =
     for {
-      event <- events.find(_.getType == "TaskStateEntered")
-
-      details = event.getStateEnteredEventDetails
-      upload <- Json.parse(details.getInput).validate[Upload].asOpt
+      event <- events.find(_.`type`() == HistoryEventType.TASK_STATE_ENTERED)
+      details = event.stateEnteredEventDetails
+      upload <- Json.parse(details.input).validate[Upload].asOpt
     } yield {
-      details.getName -> upload
+      details.name -> upload
     }
 
   def getExecutionFailed(events: Iterable[HistoryEvent]): Option[String] = {
-    events.find(_.getType == "ExecutionFailed").flatMap { event =>
-      val cause = event.getExecutionFailedEventDetails.getCause
-
-      try {
-        Some((Json.parse(cause) \ "errorMessage").as[String])
-      } catch {
-        case _: JsonParseException | _: JsResultException =>
-          Some(cause)
-      }
+    events.find(_.`type`() == HistoryEventType.EXECUTION_FAILED).flatMap {
+      event =>
+        val cause = event.executionFailedEventDetails.cause()
+        try {
+          Some((Json.parse(cause) \ "errorMessage").as[String])
+        } catch {
+          case _: JsonParseException | _: JsResultException =>
+            Some(cause)
+        }
     }
   }
 
   def start(upload: Upload, withCustomName: Option[String] = None): Unit = {
     val executionName = withCustomName.getOrElse(upload.id)
-    val stepFunctionsRequest = new StartExecutionRequest()
-      .withName(executionName)
-      .withStateMachineArn(awsConfig.pipelineArn)
-      .withInput(Json.stringify(Json.toJson(upload)))
+    val stepFunctionsRequest = StartExecutionRequest
+      .builder()
+      .name(executionName)
+      .stateMachineArn(awsConfig.pipelineArn)
+      .input(Json.stringify(Json.toJson(upload)))
+      .build()
 
     awsConfig.stepFunctionsClient.startExecution(stepFunctionsRequest)
   }
@@ -70,45 +69,49 @@ class StepFunctions(awsConfig: AWSConfig) {
   def getEventsInReverseOrder(
       execution: ExecutionListItem
   ): Iterable[HistoryEvent] = {
-    val request = new GetExecutionHistoryRequest()
-      .withExecutionArn(execution.getExecutionArn)
-      .withReverseOrder(true)
-      .withMaxResults(20)
+    val request = GetExecutionHistoryRequest
+      .builder()
+      .executionArn(execution.executionArn)
+      .reverseOrder(true)
+      .maxResults(20)
+      .build()
 
-    awsConfig.stepFunctionsClient.getExecutionHistory(request).getEvents.asScala
+    awsConfig.stepFunctionsClient.getExecutionHistory(request).events().asScala
   }
 
   private def getExecutions(
       atomId: String,
       filter: ExecutionStatus
   ): Iterable[ExecutionListItem] = {
-    val request = new ListExecutionsRequest()
-      .withStateMachineArn(awsConfig.pipelineArn)
-      .withStatusFilter(filter)
+    val request = ListExecutionsRequest
+      .builder()
+      .stateMachineArn(awsConfig.pipelineArn)
+      .statusFilter(filter)
+      .build()
 
     val results = awsConfig.stepFunctionsClient
       .listExecutions(request)
-      .getExecutions
+      .executions()
       .asScala
 
-    results.filter(_.getName.startsWith(atomId))
+    results.filter(_.name.startsWith(atomId))
   }
 
   private def lessThan10MinutesOld(e: ExecutionListItem): Boolean = {
     val now = Instant.now().toEpochMilli
-    val end = e.getStopDate.toInstant.toEpochMilli
+    val end = e.stopDate.toEpochMilli
 
     (now - end) < (1000 * 60 * 10)
   }
 
   private def fillInStartTimestamp(
-      result: DescribeExecutionResult,
+      result: DescribeExecutionResponse,
       upload: Upload
   ): Upload = {
     if (upload.metadata.startTimestamp.isEmpty) {
       upload.copy(
         metadata = upload.metadata.copy(
-          startTimestamp = Some(result.getStartDate.getTime)
+          startTimestamp = Some(result.startDate.toEpochMilli)
         )
       )
     } else {
