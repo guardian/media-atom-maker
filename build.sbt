@@ -8,7 +8,7 @@ val scroogeVersion = "4.12.0"
 val awsVersion = "1.11.1034"
 val awsV2Version = "2.32.26"
 val pandaVersion = "10.0.0"
-val atomMakerVersion = "6.0.0"
+val atomMakerVersion = "7.0.0"
 val typesafeConfigVersion =
   "1.4.0" // to match what we get from Play transitively
 val scanamoVersion = "1.0.0-M28"
@@ -253,6 +253,19 @@ lazy val scheduler = (project in file("scheduler"))
     name := "media-atom-scheduler",
     Universal / topLevelDirectory := None,
     Universal / packageName := normalizedName.value
+  )
+
+lazy val backfiller = (project in file("backfill"))
+  .dependsOn(common % "compile->compile;test->test")
+  .enablePlugins(JavaAppPackaging)
+  .settings(
+    commonSettings,
+    name := "media-atom-backfiller",
+    Universal / topLevelDirectory := None,
+    Universal / packageName := normalizedName.value,
+    libraryDependencies ++= Seq(
+      "com.drewnoakes" % "metadata-extractor" % "2.19.0"
+    )
   )
 
 lazy val root = (project in file("root"))
