@@ -9,6 +9,8 @@ import model.{MediaAtomList, MediaAtomSummary}
 import play.api.Logging
 import play.api.libs.json.{JsArray, JsValue}
 
+import scala.annotation.tailrec
+
 trait AtomListStore {
   def getAtoms(
       search: Option[String],
@@ -17,6 +19,18 @@ trait AtomListStore {
       mediaPlatform: Option[String],
       orderByOldest: Boolean
   ): MediaAtomList
+}
+
+case class CapiPage(
+    total: Int,
+    pageNumber: Int,
+    pages: Int
+)
+
+case class CapiAtoms(lastPage: CapiPage, atoms: List[MediaAtomSummary])
+
+object CapiAtoms {
+  def empty: CapiAtoms = CapiAtoms(CapiPage(0, 0, 0), Nil)
 }
 
 class CapiBackedAtomListStore(capi: CapiAccess)
@@ -33,7 +47,7 @@ class CapiBackedAtomListStore(capi: CapiAccess)
       mediaPlatform: Option[String],
       orderByOldest: Boolean
   ): MediaAtomList = {
-    val pagination = Pagination.option(CapiMaxPageSize, limit)
+    val cappedLimit: Option[Int] = limit.map(Math.min(CapiMaxPageSize, _))
 
     val dateSorter = shouldUseCreatedDateForSort match {
       case true  => Map("order-date" -> "first-publication")
@@ -64,64 +78,68 @@ class CapiBackedAtomListStore(capi: CapiAccess)
       case None => base
     }
 
-    val baseWithSearchAndLimit = pagination match {
-      case Some(Pagination(pageSize, _)) =>
+    val baseWithSearchAndLimit = cappedLimit match {
+      case Some(pageSize) =>
         baseWithSearch ++ Map(
           "page-size" -> pageSize.toString
         )
       case None => baseWithSearch
     }
 
-    val nPages = pagination.map(_.pageCount).getOrElse(1)
+    val response = getCapiPages(baseWithSearchAndLimit, cappedLimit, CapiAtoms.empty)
 
-    val (total, _, atoms) =
-      (1 to nPages).foldLeft(0, nPages, List.empty[MediaAtomSummary]) {
-        case ((prevTotal, prevMaxPage, prevAtoms), page) =>
-          logger.info(
-            s"prevTotal: $prevTotal, prevMaxPage: $prevMaxPage, prevAtoms: ${prevAtoms.size}"
-          )
-          val pageNumber = pagination match {
-            case Some(_) => Map("page" -> page.toString)
-            case None    => Map.empty
-          }
-          // make sure we don't request beyond the last page
-          val (total, maxPage, atoms) = if (page <= prevMaxPage) {
-            logger.info(s"fetching page $page")
-            getCapiAtoms(baseWithSearchAndLimit ++ pageNumber)
-          } else {
-            logger.info(s"skipping page $page")
-            (prevTotal, prevMaxPage, Nil)
-          }
-          logger.info(s"total: $total, maxPage: $maxPage, atoms: ${atoms.size}")
-          (
-            total,
-            maxPage,
-            prevAtoms ++ atoms
-          )
-      }
-
-    val limitedAtoms = limit match {
-      case Some(limit) => atoms.take(limit)
-      case None        => atoms
+    val total = response.lastPage.total
+    val atoms = limit match {
+      case Some(limit) => response.atoms.take(limit)
+      case None => response.atoms
     }
 
-    logger.info(s"total $total, atoms: ${limitedAtoms.size}")
-    MediaAtomList(total, limitedAtoms)
+    MediaAtomList(total, atoms)
+  }
+
+  @tailrec
+  final def getCapiPages(
+                    query: Map[String, String],
+                    limit: Option[Int],
+                    acc: CapiAtoms
+                  ): CapiAtoms = {
+    limit match {
+      case None =>
+        // get default first page
+        getCapiAtoms(query)
+      case Some(limit) =>
+        // get numbered page of atoms
+        val nextPage = acc.lastPage.pageNumber + 1
+        val pageResult = getCapiAtoms(query ++ Map("page" -> nextPage.toString))
+        // accumulate result
+        val result = pageResult.copy(atoms = acc.atoms ++ pageResult.atoms)
+        // finished or continue?
+        val isLastPage = result.lastPage.pageNumber == result.lastPage.pages
+        val isLimitReached = result.atoms.length >= limit
+        if (isLastPage || isLimitReached) {
+          logger.info(
+            s"getCapiPages lastPage: ${result.lastPage}, atoms: ${result.atoms.length}"
+          )
+          result
+        } else {
+          getCapiPages(query, Some(limit), result)
+        }
+    }
   }
 
   private[data] def getCapiAtoms(
       query: Map[String, String]
-  ): (Int, Int, List[MediaAtomSummary]) = {
+  ): CapiAtoms = {
     val response = capi.capiQuery("atoms", query)
     val total = (response \ "response" \ "total").as[Int]
-    val maxPage = (response \ "response" \ "pages").as[Int]
+    val currentPage = (response \ "response" \ "currentPage").as[Int]
+    val pages = (response \ "response" \ "pages").as[Int]
     val results = (response \ "response" \ "results").as[JsArray]
     logger.info(
-      s"getCapiAtoms total: $total, maxPage: $maxPage, results: ${results.value.length}, query: $query"
+      s"getCapiAtoms total: $total, pages: $pages, results: ${results.value.length}, query: $query"
     )
-    (
-      total,
-      maxPage,
+    CapiAtoms(
+      CapiPage(total, currentPage, pages),
       results.value.flatMap(fromJson).toList
     )
   }
