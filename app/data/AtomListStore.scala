@@ -86,12 +86,13 @@ class CapiBackedAtomListStore(capi: CapiAccess)
       case None => baseWithSearch
     }
 
-    val response = getCapiPages(baseWithSearchAndLimit, cappedLimit, CapiAtoms.empty)
+    val response =
+      getCapiPages(baseWithSearchAndLimit, cappedLimit, CapiAtoms.empty)
 
     val total = response.lastPage.total
     val atoms = limit match {
       case Some(limit) => response.atoms.take(limit)
-      case None => response.atoms
+      case None        => response.atoms
     }
 
     MediaAtomList(total, atoms)
@@ -99,10 +100,10 @@ class CapiBackedAtomListStore(capi: CapiAccess)
 
   @tailrec
   final def getCapiPages(
-                    query: Map[String, String],
-                    limit: Option[Int],
-                    acc: CapiAtoms
-                  ): CapiAtoms = {
+      query: Map[String, String],
+      limit: Option[Int],
+      acc: CapiAtoms
+  ): CapiAtoms = {
     limit match {
       case None =>
         // get default first page
