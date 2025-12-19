@@ -96,24 +96,35 @@ export const VideoUpload = (props: { params: { id: string } }) => {
                 <IconikProjectPicker video={store.video} />
               </div>
             )}
-            <YoutubeUpload
-              video={store.video}
-              categories={store.youtube.categories}
-              channels={store.youtube.channels}
-              isUploading={isUploading}
-              saveVideo={bindActionCreators(saveVideo, dispatch)}
-              startUpload={bindActionCreators(startVideoUpload, dispatch)}
-            />
-            <AddAssetFromURL
-              video={store.video}
-              createAsset={bindActionCreators(createAsset, dispatch)}
-            />
-            <AddSelfHostedAsset
-              video={store.video}
-              permissions={store.config.permissions}
-              isUploading={isUploading}
-              startUpload={bindActionCreators(startVideoUpload, dispatch)}
-            />
+            {
+              /*
+                Note for legacy videos where the platform is not set at the atom level,
+                we will show both upload options.
+              */
+            }
+            {store.video.platform !== 'Url' &&
+              <>
+                <YoutubeUpload
+                  video={store.video}
+                  categories={store.youtube.categories}
+                  channels={store.youtube.channels}
+                  isUploading={isUploading}
+                  saveVideo={bindActionCreators(saveVideo, dispatch)}
+                  startUpload={bindActionCreators(startVideoUpload, dispatch)}
+                />
+                <AddAssetFromURL
+                  video={store.video}
+                  createAsset={bindActionCreators(createAsset, dispatch)}
+                />
+              </>
+            }
+            {store.video.platform !== 'Youtube' &&
+              <AddSelfHostedAsset
+                video={store.video}
+                isUploading={isUploading}
+                startUpload={bindActionCreators(startVideoUpload, dispatch)}
+              />
+            }
           </div>
           <VideoTrail
             video={store.video}

@@ -42,7 +42,9 @@ export function getComposerData(video) {
     scheduledLaunch: scheduledLaunch,
     requestedScheduledLaunch: scheduledLaunch,
     embargoedUntil: embargoedUntil,
-    embargoedIndefinitely: isEmbargoedIndefinitely
+    embargoedIndefinitely: isEmbargoedIndefinitely,
+    videoPlayerFormat: video.videoPlayerFormat,
+    platform: video.platform
   };
 }
 
