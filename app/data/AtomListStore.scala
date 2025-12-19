@@ -112,7 +112,9 @@ class CapiBackedAtomListStore(capi: CapiAccess)
     val total = (response \ "response" \ "total").as[Int]
     val maxPage = (response \ "response" \ "pages").as[Int]
     val results = (response \ "response" \ "results").as[JsArray]
-    logger.info(s"getCapiAtoms total: $total, maxPage: $maxPage, results: ${results.value.length}, query: $query")
+    logger.info(
+      s"getCapiAtoms total: $total, maxPage: $maxPage, results: ${results.value.length}, query: $query"
+    )
     (
       total,
       maxPage,
