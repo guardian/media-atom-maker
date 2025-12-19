@@ -8,7 +8,7 @@ object BackfillPlatformAndVideoPlayerFormat extends App with BackfillBase {
 
     val LoopStartDate = DateTime.parse("2025-07-16T00:00:00.000").getMillis
 
-    val atomIds = api.getAtomIds()
+    val atomIds = api.getAtomIds(38000)
 
     println(s"atoms found: ${atomIds.size}")
 
