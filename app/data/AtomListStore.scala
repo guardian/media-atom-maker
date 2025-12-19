@@ -83,8 +83,10 @@ class CapiBackedAtomListStore(capi: CapiAccess)
           }
           // make sure we don't request beyond the last page
           val (total, maxPage, atoms) = if (page <= prevMaxPage) {
+            logger.info(s"fetching page $page")
             getCapiAtoms(baseWithSearchAndLimit ++ pageNumber)
           } else {
+            logger.info(s"skipping page $page")
             (prevTotal, prevMaxPage, Nil)
           }
           (
@@ -110,6 +112,7 @@ class CapiBackedAtomListStore(capi: CapiAccess)
     val total = (response \ "response" \ "total").as[Int]
     val maxPage = (response \ "response" \ "pages").as[Int]
     val results = (response \ "response" \ "results").as[JsArray]
+    logger.info(s"getCapiAtoms total: $total, maxPage: $maxPage, results: ${results.value.length}, query: $query")
     (
       total,
       maxPage,
