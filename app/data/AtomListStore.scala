@@ -77,6 +77,7 @@ class CapiBackedAtomListStore(capi: CapiAccess)
     val (total, _, atoms) =
       (1 to nPages).foldLeft(0, nPages, List.empty[MediaAtomSummary]) {
         case ((prevTotal, prevMaxPage, prevAtoms), page) =>
+          logger.info(s"prevTotal: $prevTotal, prevMaxPage: $prevMaxPage, prevAtoms: ${prevAtoms.size}")
           val pageNumber = pagination match {
             case Some(_) => Map("page" -> page.toString)
             case None    => Map.empty
@@ -89,6 +90,7 @@ class CapiBackedAtomListStore(capi: CapiAccess)
             logger.info(s"skipping page $page")
             (prevTotal, prevMaxPage, Nil)
           }
+          logger.info(s"total: $total, maxPage: $maxPage, atoms: ${atoms.size}")
           (
             total,
             maxPage,
