@@ -170,13 +170,6 @@ class MediaAtomMaker(context: Context)
   private val youtubeTags =
     new YoutubeTagController(hmacAuthActions, controllerComponents)
 
-  private val transcoder = new util.Transcoder(aws)
-  private val transcoderController = new controllers.Transcoder(
-    hmacAuthActions,
-    transcoder,
-    controllerComponents
-  )
-
   private val videoApp = new VideoUIApp(
     hmacAuthActions,
     configuration,
@@ -198,7 +191,6 @@ class MediaAtomMaker(context: Context)
     uploads,
     youTubeController,
     youtubeTags,
-    transcoderController,
     reindexer,
     videoApp,
     support,
