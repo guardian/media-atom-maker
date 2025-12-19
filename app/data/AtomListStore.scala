@@ -6,6 +6,7 @@ import com.gu.media.model.{ContentChangeDetails, Image, MediaAtom}
 import com.gu.media.util.TestFilters
 import model.commands.CommandExceptions.AtomDataStoreError
 import model.{MediaAtomList, MediaAtomSummary}
+import play.api.Logging
 import play.api.libs.json.{JsArray, JsValue}
 
 trait AtomListStore {
@@ -17,15 +18,20 @@ trait AtomListStore {
   ): MediaAtomList
 }
 
-class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
+class CapiBackedAtomListStore(capi: CapiAccess)
+    extends AtomListStore
+    with Logging {
+
+  // CAPI max page size is 200
+  val CapiMaxPageSize = 200
+
   override def getAtoms(
       search: Option[String],
       limit: Option[Int],
       shouldUseCreatedDateForSort: Boolean,
       mediaPlatform: Option[String]
   ): MediaAtomList = {
-    // CAPI max page size is 200
-    val cappedLimit: Option[Int] = limit.map(Math.min(200, _))
+    val pagination = Pagination.option(CapiMaxPageSize, limit)
 
     val dateSorter = shouldUseCreatedDateForSort match {
       case true  => Map("order-date" -> "first-publication")
@@ -53,20 +59,57 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
       case None => base
     }
 
-    val baseWithSearchAndLimit = cappedLimit match {
-      case Some(pageSize) =>
+    val baseWithSearchAndLimit = pagination match {
+      case Some(Pagination(pageSize, _)) =>
         baseWithSearch ++ Map(
           "page-size" -> pageSize.toString
         )
       case None => baseWithSearch
     }
 
-    val response = capi.capiQuery("atoms", baseWithSearchAndLimit)
+    val nPages = pagination.map(_.pageCount).getOrElse(1)
 
+    val (total, _, atoms) =
+      (1 to nPages).foldLeft(0, nPages, List.empty[MediaAtomSummary]) {
+        case ((prevTotal, prevMaxPage, prevAtoms), page) =>
+          val pageNumber = pagination match {
+            case Some(_) => Map("page" -> page.toString)
+            case None    => Map.empty
+          }
+          // make sure we don't request beyond the last page
+          val (total, maxPage, atoms) = if (page <= prevMaxPage) {
+            getCapiAtoms(baseWithSearchAndLimit ++ pageNumber)
+          } else {
+            (prevTotal, prevMaxPage, Nil)
+          }
+          (
+            total,
+            maxPage,
+            prevAtoms ++ atoms
+          )
+      }
+
+    val limitedAtoms = limit match {
+      case Some(limit) => atoms.take(limit)
+      case None        => atoms
+    }
+
+    logger.info(s"total $total, atoms: ${limitedAtoms.size}")
+    MediaAtomList(total, limitedAtoms)
+  }
+
+  private[data] def getCapiAtoms(
+      query: Map[String, String]
+  ): (Int, Int, List[MediaAtomSummary]) = {
+    val response = capi.capiQuery("atoms", query)
     val total = (response \ "response" \ "total").as[Int]
+    val maxPage = (response \ "response" \ "pages").as[Int]
     val results = (response \ "response" \ "results").as[JsArray]
-
-    MediaAtomList(total, results.value.flatMap(fromJson).toList)
+    (
+      total,
+      maxPage,
+      results.value.flatMap(fromJson).toList
+    )
   }
 
   private def fromJson(wrapper: JsValue): Option[MediaAtomSummary] = {
@@ -223,5 +266,17 @@ object AtomListStore {
   ): AtomListStore = stage match {
     case "DEV" => new DynamoBackedAtomListStore(store)
     case _     => new CapiBackedAtomListStore(capi)
+  }
+}
+
+case class Pagination(pageSize: Int, pageCount: Int)
+
+object Pagination {
+  def option(maxPageSize: Int, limit: Option[Int]): Option[Pagination] = {
+    limit.map { limit =>
+      val pageSize = Math.min(maxPageSize, limit)
+      val pageCount = Math.ceil(1.0 * limit / maxPageSize).toInt
+      Pagination(pageSize, pageCount)
+    }
   }
 }
