@@ -97,7 +97,7 @@ class CapiBackedAtomListStore(capi: CapiAccess)
     }
 
     val response =
-      getCapiPages(baseWithSearchAndLimit, cappedLimit, CapiAtoms.empty)
+      getCapiPages(baseWithSearchAndLimit, limit, CapiAtoms.empty)
 
     val total = response.lastPage.total
     val atoms = limit match {
@@ -129,7 +129,7 @@ class CapiBackedAtomListStore(capi: CapiAccess)
         val isLimitReached = result.atoms.length >= limit
         if (isLastPage || isLimitReached) {
           logger.info(
-            s"getCapiPages lastPage: ${result.lastPage}, atoms: ${result.atoms.length}"
+            s"getCapiPages lastPage: ${result.lastPage}, atoms: ${result.atoms.length}, isLastPage: $isLastPage, isLimitReached: $isLimitReached"
           )
           result
         } else {
