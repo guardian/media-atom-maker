@@ -40,7 +40,10 @@ class CapiBackedAtomListStoreSpec
 
     val actual = store.getCapiAtoms(Map.empty)
 
-    actual shouldEqual CapiAtoms(CapiPage(expectedTotal, 1, expectedMaxPages), expectedAtoms)
+    actual shouldEqual CapiAtoms(
+      CapiPage(expectedTotal, 1, expectedMaxPages),
+      expectedAtoms
+    )
   }
 
   "getAtoms" should "load multiple pages from CAPI" in {
@@ -52,7 +55,9 @@ class CapiBackedAtomListStoreSpec
     val page2Of200Atoms = (for (n <- 201 to 400)
       yield expectedAtoms.head.copy(id = s"atom$n")).toList
 
-    doReturn(CapiAtoms(CapiPage(expectedTotal, 1, expectedMaxPages), page1Of200Atoms))
+    doReturn(
+      CapiAtoms(CapiPage(expectedTotal, 1, expectedMaxPages), page1Of200Atoms)
+    )
       .when(spyStore)
       .getCapiAtoms(Map("types" -> "media", "order-by" -> "newest"))
     val unlimited = spyStore.getAtoms(
@@ -66,7 +71,9 @@ class CapiBackedAtomListStoreSpec
     unlimited.atoms.size shouldEqual 200
     unlimited.atoms shouldEqual page1Of200Atoms
 
-    doReturn(CapiAtoms(CapiPage(expectedTotal, 1, expectedMaxPages), page1Of200Atoms))
+    doReturn(
+      CapiAtoms(CapiPage(expectedTotal, 1, expectedMaxPages), page1Of200Atoms)
+    )
       .when(spyStore)
       .getCapiAtoms(
         Map(
@@ -87,7 +94,9 @@ class CapiBackedAtomListStoreSpec
     limit10.atoms.size shouldEqual 10
     limit10.atoms shouldEqual page1Of200Atoms.take(10)
 
-    doReturn(CapiAtoms(CapiPage(expectedTotal, 1, expectedMaxPages), page1Of200Atoms))
+    doReturn(
+      CapiAtoms(CapiPage(expectedTotal, 1, expectedMaxPages), page1Of200Atoms)
+    )
       .when(spyStore)
       .getCapiAtoms(
         Map(
@@ -97,7 +106,9 @@ class CapiBackedAtomListStoreSpec
           "page" -> "1"
         )
       )
-    doReturn(CapiAtoms(CapiPage(expectedTotal, 2, expectedMaxPages), page2Of200Atoms))
+    doReturn(
+      CapiAtoms(CapiPage(expectedTotal, 2, expectedMaxPages), page2Of200Atoms)
+    )
       .when(spyStore)
       .getCapiAtoms(
         Map(
