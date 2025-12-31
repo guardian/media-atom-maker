@@ -3,7 +3,7 @@ import com.gu.media.model.MediaAtom
 import scala.annotation.tailrec
 import scala.io.StdIn.readLine
 
-case class UpdateAction(atom: MediaAtom, updatedAtom: MediaAtom, shouldPublish: Boolean)
+case class UpdateAction(atom: MediaAtom, updatedAtom: MediaAtom, shouldPublish: Boolean, reason: String = "")
 
 trait BackfillBase {
 
@@ -41,7 +41,7 @@ trait BackfillBase {
 
   val plan = planActions()
 
-  println("-----------")
+  println("\n-----------")
 
   applyActions(plan)
 
@@ -58,6 +58,7 @@ trait BackfillBase {
   def applyActions(plan: List[UpdateAction]): Unit =
     chooseActions(plan)
       .foreach { action =>
+        println(action.reason)
         println("\nChanges ->")
         println(action.atom)
         println(action.updatedAtom)
@@ -88,10 +89,10 @@ trait BackfillBase {
   @tailrec
   final def chooseActions(plan: Seq[UpdateAction]): Seq[UpdateAction] =
     readLine(
-      s"There are ${plan.size} action(s). Execute all (A), one (1) or exit (X): "
+      s"There are ${plan.size} action(s). Execute all (A), first N (e.g. 1000), or exit (X): "
     ).trim match {
       case "A" => plan
-      case "1" => plan.take(1)
+      case n if n.matches("\\d+") => plan.take(n.toInt)
       case "X" => Nil
       case _   => chooseActions(plan)
     }
@@ -103,13 +104,9 @@ trait BackfillBase {
    * - an earlier version of the atom has been published => don't publish
    */
   def shouldPublish(atom: MediaAtom): Boolean = {
-    println(s"current revision ${atom.contentChangeDetails.revision}")
     atom.contentChangeDetails.published match {
       case Some(_) =>
         api.getPublishedMediaAtom(atom.id).exists { publishedAtom =>
-          println(
-            s"published revision ${publishedAtom.contentChangeDetails.revision}"
-          )
           publishedAtom.contentChangeDetails.revision == atom.contentChangeDetails.revision
         }
       case None =>

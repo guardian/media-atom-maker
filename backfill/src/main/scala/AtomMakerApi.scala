@@ -30,12 +30,12 @@ class AtomMakerApi(http: Http, baseUrl: String) {
     }
   }
 
-  def updateMediaAtom(atom: MediaAtom): Option[String] = {
+  def updateMediaAtom(atom: MediaAtom): String = {
     val content = Json.toJson(atom).toString()
     http.put(s"$baseUrl/api/atoms/${atom.id}", content)
   }
 
-  def publishMediaAtom(atomId: String): Option[String] = {
+  def publishMediaAtom(atomId: String): String = {
     http.put(s"$baseUrl/api/atom/$atomId/publish", "")
   }
 
