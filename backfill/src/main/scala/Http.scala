@@ -32,7 +32,7 @@ class Http(headers: (String, String)*) {
       case Failure(e) => println(s"Error reading $url: ${e.getMessage}"); None
     }
 
-  def put(url: String, content: String): Option[String] = {
+  def put(url: String, content: String): String = {
     val connection = getConnection(url)
     connection.setDoOutput(true)
     connection.setRequestMethod("PUT")
@@ -45,10 +45,10 @@ class Http(headers: (String, String)*) {
         Using(connection.getInputStream) { inputStream =>
           Source.fromInputStream(inputStream).getLines.mkString("\n")
         } match {
-          case Success(value) => Some(value)
-          case Failure(e) => println(s"Error reading response from $url: ${e.getMessage}"); None
+          case Success(value) => value
+          case Failure(e) => println(s"Error reading response from $url: ${e.getMessage}"); throw e
         }
-      case Failure(e) => println(s"Error putting to $url: ${e.getMessage}"); None
+      case Failure(e) => println(s"Error putting to $url: ${e.getMessage}"); throw e
     }
   }
 
