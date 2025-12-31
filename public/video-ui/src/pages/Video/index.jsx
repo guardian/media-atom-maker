@@ -6,7 +6,6 @@ import VideoImages from '../../components/VideoImages/VideoImages';
 import Icon from '../../components/Icon';
 import { formNames } from '../../constants/formNames';
 import ReactTooltip from 'react-tooltip';
-import { blankVideoData } from '../../constants/blankVideoData';
 import { isVideoPublished } from '../../util/isVideoPublished';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 import VideoUtils from '../../util/video';
@@ -22,26 +21,31 @@ import { TargetingTab, TargetingTabPanel } from './tabs/Targeting';
 import { ManagementTab, ManagementTabPanel } from './tabs/Management';
 import { PlutoTab, PlutoTabPanel } from './tabs/Pluto';
 import { IconikTab, IconikTabPanel } from './tabs/Iconik';
+import Loop from "../../../images/loop.svg?react";
+import Youtube from "../../../images/youtube.svg?react";
+import Cinemagraph from "../../../images/cinemagraph.svg?react";
+import NonYoutube from "../../../images/nonyoutube.svg?react";
 
 class VideoDisplay extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isCreateMode: props.route.props?.mode === 'create',
       editingFurniture: false,
       editingYoutubeFurniture: false,
       editingWorkflow: false
     };
 
-    if (this.state.isCreateMode) {
-      this.props.videoActions.updateVideo(blankVideoData);
-      this.updateEditingState({ key: 'editingFurniture', editing: true });
-    } else {
-      this.getVideo();
-      this.getWorkflowState();
-      this.getUsages();
-    }
+    this.getVideo();
+    this.getWorkflowState();
+    this.getUsages();
   }
+
+  iconMap = {
+    Youtube: <Youtube/>,
+    Loop: <Loop/>,
+    Cinemagraph: <Cinemagraph/>,
+    Default: <NonYoutube/>
+  };
 
   getVideo() {
     this.props.videoActions.getVideo(this.props.params.id);
@@ -56,16 +60,7 @@ class VideoDisplay extends React.Component {
   }
 
   saveAndUpdateVideo = video => {
-    const { isCreateMode } = this.state;
-
-    if (isCreateMode) {
-      return this.props.videoActions.createVideo(video).then(() => {
-        this.setState({ isCreateMode: false });
-        this.props.videoActions.fetchUsages(this.props.video.id);
-      });
-    } else {
-      return this.props.videoActions.saveVideo(video);
-    }
+    return this.props.videoActions.saveVideo(video);
   };
 
   updateVideo = video => {
@@ -112,18 +107,22 @@ class VideoDisplay extends React.Component {
               <tr>
                 <th scope="row">Guardian Video Thumbnail Image</th>
                 <th scope="row">Composer Trail Image</th>
-                <th scope="row">Youtube Video Thumbnail Image</th>
+                { this.props.video.platform !== 'Url' &&
+                  <th scope="row">Youtube Video Thumbnail Image</th>
+                }
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>Used as the preview image for a video in articles and on video pages.</td>
                 <td>Used as an article trail image when specified. (Otherwise Main Image is used).</td>
-                <td>
-                  Used on YouTube when specified. (Otherwise Main Image is used).
-                  <br/>
-                  The atom must be published for the override to take effect. Changes can take up to fifteen minutes to apply.
-                </td>
+                { this.props.video.platform !== 'Url' &&
+                  <td>
+                    Used on YouTube when specified. (Otherwise Main Image is used).
+                    <br/>
+                    The atom must be published for the override to take effect. Changes can take up to fifteen minutes to apply.
+                  </td>
+                }
               </tr>
             </tbody>
           </table>
@@ -133,27 +132,49 @@ class VideoDisplay extends React.Component {
   }
 
   renderPreviewAndImages() {
-    const isYoutube = VideoUtils.isYoutube(this.props.video);
+    const platform = VideoUtils.getPlatformFromAtom(this.props.video);
     const activeAsset = VideoUtils.getActiveAsset(this.props.video);
-    const youtubeAsset = isYoutube && activeAsset;
+    const youtubeAsset = platform === 'youtube' && activeAsset;
 
     return (
       <div className="video__detailbox">
         <div className="video__detailbox__header__container">
           <header className="video__detailbox__header">
-            <h3>Video Preview</h3>
+            <div>
+              <h3>Video Preview</h3>
+              { platform === 'youtube' &&
+                <div className="video__detailbox__header__format video__detailbox__header__format--youtube">
+                  {this.iconMap["Youtube"]}
+                  <span>YouTube</span>
+                </div>
+              }
+              {
+                this.props.video.videoPlayerFormat &&
+                  <div className="video__detailbox__header__format">
+                    {this.iconMap[this.props.video.videoPlayerFormat]}
+                    <span>
+                      {
+                        Object.values(videoCreateOptions).flat()
+                          .find(format => format.id === this.props.video.videoPlayerFormat)
+                          ?.title
+                      }
+                    </span>
+                  </div>
+              }
+            </div>
+
             {youtubeAsset &&  (
               <p className= "video-asset">
                 <span className= "video-asset-number">Asset {activeAsset.version}:</span>
                 <span>({youtubeAsset.id})</span>
               </p>
-            )
-            }
+            )}
+
           </header>
           <asset-handle data-source="mam"
                         data-source-type="video"
                         data-thumbnail={this.props.video?.posterImage?.assets?.[0]?.file}
-                        data-external-url={VideoUtils.isYoutube(this.props.video) && getYouTubeEmbedUrl(VideoUtils.getActiveAsset(this.props.video)?.id)}
+                        data-external-url={platform === 'youtube' && getYouTubeEmbedUrl(VideoUtils.getActiveAsset(this.props.video)?.id)}
                         data-embeddable-url={window.location.href}>
           </asset-handle>
           <Link
@@ -247,7 +268,6 @@ class VideoDisplay extends React.Component {
     } = this.props;
 
     const {
-      isCreateMode,
       editingFurniture,
       editingYoutubeFurniture,
       editingWorkflow
@@ -261,13 +281,13 @@ class VideoDisplay extends React.Component {
       <Tabs className="video__detailbox">
         <TabList>
           <FurnitureTab disabled={furnitureDisabled} />
-          <YoutubeFurnitureTab disabled={ytFurnitureDisabled} />
-          <WorkflowTab disabled={workflowDisabled || isCreateMode} />
-          <UsageTab disabled={videoEditOpen || isCreateMode} />
-          <TargetingTab disabled={videoEditOpen || isCreateMode} />
-          <ManagementTab disabled={videoEditOpen || isCreateMode} />
-          <PlutoTab disabled={videoEditOpen || isCreateMode} />
-          <IconikTab disabled={videoEditOpen || isCreateMode} />
+          {video.platform !== 'Url' && <YoutubeFurnitureTab disabled={ytFurnitureDisabled} />}
+          <WorkflowTab disabled={workflowDisabled} />
+          <UsageTab disabled={videoEditOpen} />
+          <TargetingTab disabled={videoEditOpen} />
+          <ManagementTab disabled={videoEditOpen} />
+          <PlutoTab disabled={videoEditOpen} />
+          <IconikTab disabled={videoEditOpen} />
         </TabList>
         <FurnitureTabPanel
           editing={editingFurniture}
@@ -277,7 +297,7 @@ class VideoDisplay extends React.Component {
             })
           }
           onCancel={() => {
-            !isCreateMode && this.updateEditingState({
+            this.updateEditingState({
               key: 'editingFurniture', editing: false
             });
             this.getVideo();
@@ -296,47 +316,49 @@ class VideoDisplay extends React.Component {
               });
           }}
           canSave={() => !this.formHasErrors(formNames.videoData) && !this.props.isSaving}
-          canCancel={() => !isCreateMode && !this.props.isSaving}
+          canCancel={() => !this.props.isSaving}
           video={video}
           updateVideo={this.updateVideo}
           updateErrors={this.props.formErrorActions.updateFormErrors}
           updateWarnings={this.props.formErrorActions.updateFormWarnings}
           canonicalVideoPageExists={canonicalVideoPageExists(usages)}
         />
-        <YoutubeFurnitureTabPanel
-          editing={editingYoutubeFurniture}
-          onEdit={() =>
-            this.updateEditingState({
-              key: 'editingYoutubeFurniture',
-              editing: true
-            })}
-          onCancel={() => {
-            this.updateEditingState({
-              key: 'editingYoutubeFurniture',
-              editing: false
-            });
-            this.getVideo();
-          }}
-          onSave={() => {
-            this.saveAndUpdateVideo(video)
-              .then(() => {
-                this.updateEditingState({
-                  key: 'editingYoutubeFurniture',
-                  editing: false
-                });
-              })
-              .catch(() => {
-                // Keep editing state as true on save failure
-                // Error handling is done in the saveVideo action
+        { video.platform !== 'Url' &&
+          <YoutubeFurnitureTabPanel
+            editing={editingYoutubeFurniture}
+            onEdit={() =>
+              this.updateEditingState({
+                key: 'editingYoutubeFurniture',
+                editing: true
+              })}
+            onCancel={() => {
+              this.updateEditingState({
+                key: 'editingYoutubeFurniture',
+                editing: false
               });
-          }}
-          canSave={() => !this.formHasErrors(formNames.youtubeFurniture) && !this.props.isSaving}
-          canCancel={() => !this.props.isSaving}
-          video={video}
-          updateVideo={this.updateVideo}
-          updateErrors={this.props.formErrorActions.updateFormErrors}
-          updateWarnings={this.props.formErrorActions.updateFormWarnings}
-        />
+              this.getVideo();
+            }}
+            onSave={() => {
+              this.saveAndUpdateVideo(video)
+                .then(() => {
+                  this.updateEditingState({
+                    key: 'editingYoutubeFurniture',
+                    editing: false
+                  });
+                })
+                .catch(() => {
+                  // Keep editing state as true on save failure
+                  // Error handling is done in the saveVideo action
+                });
+            }}
+            canSave={() => !this.formHasErrors(formNames.youtubeFurniture) && !this.props.isSaving}
+            canCancel={() => !this.props.isSaving}
+            video={video}
+            updateVideo={this.updateVideo}
+            updateErrors={this.props.formErrorActions.updateFormErrors}
+            updateWarnings={this.props.formErrorActions.updateFormWarnings}
+          />
+        }
         <WorkflowTabPanel
           editing={editingWorkflow}
           onEdit={() =>
@@ -375,7 +397,7 @@ class VideoDisplay extends React.Component {
 
   render() {
     const video = this.props.video &&
-      (this.props.params.id === this.props.video.id || this.state.isCreateMode)
+      (this.props.params.id === this.props.video.id)
       ? this.props.video
       : undefined;
 
@@ -421,6 +443,7 @@ import {updateFormWarnings} from "../../slices/formFieldsWarning";
 import {updateVideoEditState} from "../../slices/editState";
 import {updateFormErrors} from "../../slices/checkedFormFields";
 import {selectIsSaving, selectPublishedVideo, selectVideo } from "../../slices/video";
+import {videoCreateOptions} from "../../constants/videoCreateOptions";
 
 function mapStateToProps(state) {
   return {

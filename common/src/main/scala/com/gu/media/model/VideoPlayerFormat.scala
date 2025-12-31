@@ -16,10 +16,10 @@ object VideoPlayerFormat {
   case object Cinemagraph extends VideoPlayerFormat { val name = "Cinemagraph" }
 
   val videoPlayerFormatReads = Reads[VideoPlayerFormat](json => {
-    json.as[String] match {
-      case "Default"     => JsSuccess(Default)
-      case "Loop"        => JsSuccess(Loop)
-      case "Cinemagraph" => JsSuccess(Cinemagraph)
+    json.as[String].toLowerCase match {
+      case "default"     => JsSuccess(Default)
+      case "loop"        => JsSuccess(Loop)
+      case "cinemagraph" => JsSuccess(Cinemagraph)
     }
   })
 
