@@ -71,7 +71,7 @@ export const videoCreateOptions: {
         {
           id: "Cinemagraph",
           title: "Cinemagraph",
-          description: "Short GIF-like video – use for decoration (eg Features)",
+          description: "Short GIF-like video – use for illustration (eg Features)",
           specifications: {
             positive: [
               "Autoplays and loops",
