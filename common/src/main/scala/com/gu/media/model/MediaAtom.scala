@@ -15,6 +15,8 @@ import com.gu.contentatom.thrift.{
   AtomType => ThriftAtomType,
   Flags => ThriftFlags
 }
+import com.gu.media.model.Platform.Url
+import com.gu.media.model.VideoPlayerFormat.Loop
 import com.gu.media.util.MediaAtomImplicits
 import com.gu.media.youtube.{
   MediaAtomYoutubeDescriptionHandler,
@@ -54,6 +56,7 @@ abstract class MediaAtomBase {
   val composerCommentsEnabled: Option[Boolean]
   val suppressRelatedContent: Option[Boolean]
   val videoPlayerFormat: Option[VideoPlayerFormat]
+  val platform: Option[Platform]
 
   def isOnCommercialChannel(
       commercialChannels: Set[String]
@@ -89,7 +92,8 @@ case class MediaAtomBeforeCreation(
     optimisedForWeb: Option[Boolean],
     composerCommentsEnabled: Option[Boolean],
     suppressRelatedContent: Option[Boolean],
-    videoPlayerFormat: Option[VideoPlayerFormat]
+    videoPlayerFormat: Option[VideoPlayerFormat],
+    platform: Option[Platform]
 ) extends MediaAtomBase {
 
   def asThrift(id: String, contentChangeDetails: ContentChangeDetails) = {
@@ -126,7 +130,8 @@ case class MediaAtomBeforeCreation(
       ),
       commentsEnabled = composerCommentsEnabled,
       optimisedForWeb = optimisedForWeb,
-      suppressRelatedContent = suppressRelatedContent
+      suppressRelatedContent = suppressRelatedContent,
+      platform = platform.map(_.asThrift)
     )
 
     ThriftAtom(
@@ -196,7 +201,8 @@ case class MediaAtom(
     composerCommentsEnabled: Option[Boolean] = Some(false),
     optimisedForWeb: Option[Boolean] = Some(false),
     suppressRelatedContent: Option[Boolean] = Some(false),
-    videoPlayerFormat: Option[VideoPlayerFormat] = None
+    videoPlayerFormat: Option[VideoPlayerFormat] = None,
+    platform: Option[Platform] = None
 ) extends MediaAtomBase {
 
   def asThrift = {
@@ -233,7 +239,8 @@ case class MediaAtom(
       ),
       commentsEnabled = composerCommentsEnabled,
       optimisedForWeb = optimisedForWeb,
-      suppressRelatedContent = suppressRelatedContent
+      suppressRelatedContent = suppressRelatedContent,
+      platform = platform.map(_.asThrift)
     )
 
     ThriftAtom(
@@ -273,16 +280,19 @@ object MediaAtom extends MediaAtomImplicits {
   def fromThrift(atom: ThriftAtom) = {
     val data = atom.tdata
 
+    val assets = data.assets.map(Asset.fromThrift).toList
+    val activeVersion = data.activeVersion
     val youtubeDescription: Option[String] =
       MediaAtomYoutubeDescriptionHandler.getYoutubeDescription(data)
+    val platform = getPlatform(data, activeVersion, assets)
 
     MediaAtom(
       id = atom.id,
       labels = atom.labels.toList,
       contentChangeDetails =
         ContentChangeDetails.fromThrift(atom.contentChangeDetails),
-      assets = data.assets.map(Asset.fromThrift).toList,
-      activeVersion = data.activeVersion,
+      assets = assets,
+      activeVersion = activeVersion,
       title = data.title,
       category = Category.fromThrift(data.category),
       plutoData = data.metadata.flatMap(_.pluto).map(PlutoData.fromThrift),
@@ -314,10 +324,46 @@ object MediaAtom extends MediaAtomImplicits {
       youtubeTitle =
         data.metadata.flatMap(_.youtube).map(_.title).getOrElse(data.title),
       youtubeDescription = youtubeDescription,
-      videoPlayerFormat = data.metadata
-        .flatMap(_.selfHost)
-        .flatMap(_.videoPlayerFormat)
-        .map(VideoPlayerFormat.fromThrift)
+      videoPlayerFormat = getVideoPlayerFormat(data.metadata, platform),
+      platform = platform
+    )
+  }
+
+  /** will derive videoPlayerFormat if it is missing
+    * @param metadata
+    * @param platform
+    * @return
+    */
+  def getVideoPlayerFormat(
+      metadata: Option[ThriftMetadata],
+      platform: Option[Platform]
+  ): Option[VideoPlayerFormat] = {
+    metadata
+      .flatMap(_.selfHost)
+      .flatMap(_.videoPlayerFormat)
+      .map(VideoPlayerFormat.fromThrift)
+      .orElse(if (platform.contains(Url)) Some(Loop) else None)
+  }
+
+  /** will derive atom-level platform if it is missing
+    * @param data
+    * @param activeVersion
+    * @param assets
+    * @return
+    */
+  def getPlatform(
+      data: ThriftMediaAtom,
+      activeVersion: Option[Long],
+      assets: List[Asset]
+  ): Option[Platform] = {
+    Option(
+      Platform.getPlatform(
+        data.platform.map(Platform.fromThrift),
+        activeVersion
+          .flatMap(activeVersion => assets.find(_.version == activeVersion))
+          .map(_.platform),
+        assets.headOption.map(_.platform)
+      )
     )
   }
 }
