@@ -37,7 +37,7 @@ export const videoCreateOptions: {
               "Age restrictions may apply"
             ],
             info: [
-              "Can be used anywhere",
+              "Can be used on Fronts and Articles",
               "Hosted on Youtube"
             ]
           }
@@ -63,7 +63,7 @@ export const videoCreateOptions: {
               "No share button"
             ],
             info: [
-              "Can be used on Fronts only",
+              "Can be used on Fronts and Articles",
               "Self-hosted"
             ]
           }
