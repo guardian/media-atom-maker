@@ -1,6 +1,8 @@
 package data
 
 import com.gu.media.CapiAccess
+import com.gu.media.model.Platform.{Url, Youtube}
+import com.gu.media.model.VideoPlayerFormat.Loop
 import com.gu.media.model.{ChangeRecord, ContentChangeDetails, Image, User}
 import model.MediaAtomSummary
 import org.joda.time.DateTime
@@ -59,7 +61,7 @@ class CapiBackedAtomListStoreSpec
       search = None,
       limit = None,
       shouldUseCreatedDateForSort = false,
-      mediaPlatform = None
+      platformFilter = None
     )
     unlimited.total shouldEqual 6081
     unlimited.atoms.size shouldEqual 200
@@ -79,7 +81,7 @@ class CapiBackedAtomListStoreSpec
       search = None,
       limit = Some(10),
       shouldUseCreatedDateForSort = false,
-      mediaPlatform = None
+      platformFilter = None
     )
     limit10.total shouldEqual 6081
     limit10.atoms.size shouldEqual 10
@@ -109,7 +111,7 @@ class CapiBackedAtomListStoreSpec
       search = None,
       limit = Some(201),
       shouldUseCreatedDateForSort = false,
-      mediaPlatform = None
+      platformFilter = None
     )
     limit201.total shouldEqual 6081
     limit201.atoms.size shouldEqual 201
@@ -147,8 +149,8 @@ class CapiBackedAtomListStoreSpec
         None,
         None
       ),
-      mediaPlatforms = Nil,
-      currentMediaPlatform = None
+      platform = Url,
+      videoPlayerFormat = Some(Loop)
     ),
     MediaAtomSummary(
       id = "0de596fb-bca3-48f9-846b-3f843508f772",
@@ -173,8 +175,8 @@ class CapiBackedAtomListStoreSpec
         None,
         None
       ),
-      mediaPlatforms = List("url"),
-      currentMediaPlatform = Some("url")
+      platform = Url,
+      videoPlayerFormat = Some(Loop)
     )
   )
 
