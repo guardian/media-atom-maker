@@ -145,7 +145,7 @@ lazy val app = (project in file("."))
       ehcache,
       "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
       "software.amazon.awssdk" % "sts" % awsV2Version,
-      "com.amazonaws" % "aws-java-sdk-ec2" % awsVersion,
+      "software.amazon.awssdk" % "ec2" % awsV2Version,
       "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestPlusPlayVersion % "test",
       "org.mockito" %% "mockito-scala" % mockitoVersion % "test",
       "org.scala-lang.modules" %% "scala-xml" % scalaXmlVersion % "test"
