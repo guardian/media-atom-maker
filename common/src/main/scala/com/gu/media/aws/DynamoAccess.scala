@@ -33,19 +33,19 @@ trait DynamoAccess { this: Settings with AwsAccess =>
     getTableName("pluto-projects", stage = stage)
   lazy val iconikWorkingGroupTableName: String =
     s"${getTableName(
-      "iconik-working-groups",
-      stage = if (stage == "DEV") "CODE" else stage
-    )}-v2"
+        "iconik-working-groups",
+        stage = if (stage == "DEV") "CODE" else stage
+      )}-v2"
   lazy val iconikCommissionTableName: String =
     s"${getTableName(
-      "iconik-commissions",
-      stage = if (stage == "DEV") "CODE" else stage
-    )}-v2"
+        "iconik-commissions",
+        stage = if (stage == "DEV") "CODE" else stage
+      )}-v2"
   lazy val iconikProjectTableName: String =
     s"${getTableName(
-      "iconik-projects",
-      stage = if (stage == "DEV") "CODE" else stage
-    )}-v2"
+        "iconik-projects",
+        stage = if (stage == "DEV") "CODE" else stage
+      )}-v2"
 
   lazy val dynamoDB = AmazonDynamoDBClientBuilder
     .standard()
