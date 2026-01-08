@@ -32,20 +32,20 @@ trait DynamoAccess { this: Settings with AwsAccess =>
   lazy val plutoProjectTableName: String =
     getTableName("pluto-projects", stage = stage)
   lazy val iconikWorkingGroupTableName: String =
-    getTableName(
+    s"${getTableName(
       "iconik-working-groups",
       stage = if (stage == "DEV") "CODE" else stage
-    )
+    )}-v2"
   lazy val iconikCommissionTableName: String =
-    getTableName(
+    s"${getTableName(
       "iconik-commissions",
       stage = if (stage == "DEV") "CODE" else stage
-    )
+    )}-v2"
   lazy val iconikProjectTableName: String =
-    getTableName(
+    s"${getTableName(
       "iconik-projects",
       stage = if (stage == "DEV") "CODE" else stage
-    )
+    )}-v2"
 
   lazy val dynamoDB = AmazonDynamoDBClientBuilder
     .standard()
