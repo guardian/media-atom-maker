@@ -31,7 +31,7 @@ class DataStores(aws: AWSConfig with SNSAccess, capi: CapiAccess) {
       new NotifyingAtomPublisher(
         isLive = true,
         topicArn = capiContentEventsTopicName,
-        underlying = new LiveKinesisAtomPublisher(
+        underlying = new LiveKinesisAtomPublisherV2(
           aws.liveKinesisStreamName,
           aws.crossAccountKinesisClient
         ),
@@ -39,7 +39,7 @@ class DataStores(aws: AWSConfig with SNSAccess, capi: CapiAccess) {
       )
 
     case None =>
-      new LiveKinesisAtomPublisher(
+      new LiveKinesisAtomPublisherV2(
         aws.liveKinesisStreamName,
         aws.crossAccountKinesisClient
       )
@@ -50,7 +50,7 @@ class DataStores(aws: AWSConfig with SNSAccess, capi: CapiAccess) {
       new NotifyingAtomPublisher(
         isLive = true,
         topicArn = capiContentEventsTopicName,
-        underlying = new PreviewKinesisAtomPublisher(
+        underlying = new PreviewKinesisAtomPublisherV2(
           aws.previewKinesisStreamName,
           aws.crossAccountKinesisClient
         ),
@@ -58,20 +58,20 @@ class DataStores(aws: AWSConfig with SNSAccess, capi: CapiAccess) {
       )
 
     case None =>
-      new PreviewKinesisAtomPublisher(
+      new PreviewKinesisAtomPublisherV2(
         aws.previewKinesisStreamName,
         aws.crossAccountKinesisClient
       )
   }
 
   val reindexPreview: PreviewAtomReindexer =
-    new PreviewKinesisAtomReindexer(
+    new PreviewKinesisAtomReindexerV2(
       aws.previewKinesisReindexStreamName,
       aws.crossAccountKinesisClient
     )
 
-  val reindexPublished: PublishedKinesisAtomReindexer =
-    new PublishedKinesisAtomReindexer(
+  val reindexPublished: PublishedKinesisAtomReindexerV2 =
+    new PublishedKinesisAtomReindexerV2(
       aws.publishedKinesisReindexStreamName,
       aws.crossAccountKinesisClient
     )
