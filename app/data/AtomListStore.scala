@@ -14,7 +14,8 @@ trait AtomListStore {
       search: Option[String],
       limit: Option[Int],
       shouldUseCreatedDateForSort: Boolean,
-      mediaPlatform: Option[String]
+      mediaPlatform: Option[String],
+      orderByOldest: Boolean
   ): MediaAtomList
 }
 
@@ -29,7 +30,8 @@ class CapiBackedAtomListStore(capi: CapiAccess)
       search: Option[String],
       limit: Option[Int],
       shouldUseCreatedDateForSort: Boolean,
-      mediaPlatform: Option[String]
+      mediaPlatform: Option[String],
+      orderByOldest: Boolean
   ): MediaAtomList = {
     val pagination = Pagination.option(CapiMaxPageSize, limit)
 
@@ -43,12 +45,15 @@ class CapiBackedAtomListStore(capi: CapiAccess)
       case _               => Map.empty
     }
 
-    val base: Map[String, String] = Map(
-      "types" -> "media",
-      "order-by" -> "newest"
-    ) ++
+    val orderBy = orderByOldest match {
+      case true  => Map("order-by" -> "oldest")
+      case false => Map("order-by" -> "newest")
+    }
+
+    val base: Map[String, String] = Map("types" -> "media") ++
       dateSorter ++
-      mediaPlatformFilter
+      mediaPlatformFilter ++
+      orderBy
 
     val baseWithSearch = search match {
       case Some(q) =>
@@ -181,7 +186,8 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore)
       search: Option[String],
       limit: Option[Int],
       shouldUseCreatedDateForSort: Boolean,
-      mediaPlatform: Option[String]
+      mediaPlatform: Option[String],
+      orderByOldest: Boolean
   ): MediaAtomList = {
     // We must filter the entire list of atoms rather than use Dynamo limit to ensure stable iteration order.
     // Without it, the front page will shuffle around when clicking the Load More button.
@@ -200,7 +206,11 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore)
           .map(MediaAtom.fromThrift)
           .toList
           .sortBy(sortField(_).map(_.date.getMillis))
-          .reverse // newest atoms first
+
+        val mediaAtomsSorted = orderByOldest match {
+          case true  => mediaAtoms
+          case false => mediaAtoms.reverse
+        }
 
         val searchTermFilter = search match {
           case Some(str) => Some((atom: MediaAtom) => atom.title.contains(str))
@@ -220,7 +230,7 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore)
         val filters = List(searchTermFilter, mediaPlatformFilter).flatten
 
         val filteredAtoms =
-          filters.foldLeft(mediaAtoms)((atoms, f) => atoms.filter(f))
+          filters.foldLeft(mediaAtomsSorted)((atoms, f) => atoms.filter(f))
 
         val limitedAtoms = limit match {
           case Some(l) => filteredAtoms.take(l)

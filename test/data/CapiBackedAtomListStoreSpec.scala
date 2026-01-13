@@ -59,7 +59,8 @@ class CapiBackedAtomListStoreSpec
       search = None,
       limit = None,
       shouldUseCreatedDateForSort = false,
-      mediaPlatform = None
+      mediaPlatform = None,
+      orderByOldest = false
     )
     unlimited.total shouldEqual 6081
     unlimited.atoms.size shouldEqual 200
@@ -79,7 +80,8 @@ class CapiBackedAtomListStoreSpec
       search = None,
       limit = Some(10),
       shouldUseCreatedDateForSort = false,
-      mediaPlatform = None
+      mediaPlatform = None,
+      orderByOldest = false
     )
     limit10.total shouldEqual 6081
     limit10.atoms.size shouldEqual 10
@@ -109,7 +111,8 @@ class CapiBackedAtomListStoreSpec
       search = None,
       limit = Some(201),
       shouldUseCreatedDateForSort = false,
-      mediaPlatform = None
+      mediaPlatform = None,
+      orderByOldest = false
     )
     limit201.total shouldEqual 6081
     limit201.atoms.size shouldEqual 201
