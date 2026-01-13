@@ -1,4 +1,6 @@
-import com.gu.media.model.MediaAtom
+import com.gu.media.model.AssetType.Video
+import com.gu.media.model.Platform.Url
+import com.gu.media.model.{Asset, MediaAtom, Platform}
 
 import scala.annotation.tailrec
 import scala.io.StdIn.readLine
@@ -97,21 +99,17 @@ trait BackfillBase {
       case _   => chooseActions(plan)
     }
 
-  /* if we update this atom, does it need re-publishing?
+  /*
+   * If atom is hosted on Youtube, don't re-publish, as this might wipe YouTube metadata for older videos.
    *
-   * - atom is not published => don't publish
+   * If atom is self-hosted:
+   * - atom is not published => don't re-publish
    * - the current version of the atom has been published => re-publish
-   * - an earlier version of the atom has been published => don't publish
+   * - an earlier version of the atom has been published => don't re-publish
    */
-  def shouldPublish(atom: MediaAtom): Boolean = {
-    atom.contentChangeDetails.published match {
-      case Some(_) =>
-        api.getPublishedMediaAtom(atom.id).exists { publishedAtom =>
-          publishedAtom.contentChangeDetails.revision == atom.contentChangeDetails.revision
-        }
-      case None =>
-        false
-    }
+  def shouldPublish(atom: MediaAtom, platform: Option[Platform]): Boolean = {
+      platform.contains(Url) &&
+      atom.contentChangeDetails.published.isDefined &&
+      api.getPublishedMediaAtom(atom.id).exists(_.contentChangeDetails.revision == atom.contentChangeDetails.revision)
   }
-
 }
