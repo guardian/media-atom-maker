@@ -80,7 +80,7 @@ object BackfillPlatformAndVideoPlayerFormat extends App with BackfillBase {
 
         if (updatedAtom != atom) {
           println(reason)
-          Some(UpdateAction(atom, updatedAtom, shouldPublish(atom), reason))
+          Some(UpdateAction(atom, updatedAtom, shouldPublish(atom, updatedAtom.platform), reason))
         } else
           None
       } // order oldest to newest

@@ -36,7 +36,7 @@ object BackfillDimensions extends App with BackfillBase {
           }
 
           if (updatedAssets != atom.assets)
-            Some(UpdateAction(atom, atom.copy(assets = updatedAssets), shouldPublish(atom)))
+            Some(UpdateAction(atom, atom.copy(assets = updatedAssets), shouldPublish(atom, atom.platform)))
           else
             None
         }
