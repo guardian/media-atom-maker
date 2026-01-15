@@ -1,6 +1,7 @@
 import com.gu.media.model.AssetType.Video
 import com.gu.media.model.Platform.Url
 import com.gu.media.model.{Asset, MediaAtom, Platform}
+import org.joda.time.DateTime
 
 import scala.annotation.tailrec
 import scala.io.StdIn.readLine
@@ -110,6 +111,8 @@ trait BackfillBase {
   def shouldPublish(atom: MediaAtom, platform: Option[Platform]): Boolean = {
       platform.contains(Url) &&
       atom.contentChangeDetails.published.isDefined &&
-      api.getPublishedMediaAtom(atom.id).exists(_.contentChangeDetails.revision == atom.contentChangeDetails.revision)
+      api.getPublishedMediaAtom(atom.id).exists(_.contentChangeDetails.revision == atom.contentChangeDetails.revision) &&
+      // don't publish if atom has expired
+      !atom.expiryDate.exists(_ <= DateTime.now().getMillis)
   }
 }
