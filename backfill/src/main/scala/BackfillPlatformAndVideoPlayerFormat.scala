@@ -5,9 +5,6 @@ import org.joda.time.DateTime
 
 object BackfillPlatformAndVideoPlayerFormat extends App with BackfillBase {
 
-  // Date when looping videos were introduced to MAM
-  val LoopStartDate = DateTime.parse("2025-07-16T00:00:00.000").getMillis
-
   override def planActions(): List[UpdateAction] = {
 
     println("fetching atom id's...")
@@ -101,11 +98,14 @@ object BackfillPlatformAndVideoPlayerFormat extends App with BackfillBase {
   }
 
   def deriveVideoPlayerFormat(atom: MediaAtom, platform: Option[Platform]): Option[VideoPlayerFormat] = {
+    // Date when looping videos were introduced to MAM
+    val LoopStartDate = DateTime.parse("2025-07-16T00:00:00.000").getMillis
+
     platform match {
       case Some(Youtube) =>
         // youtube doesn't have a video player format
         None
-      case Some(Url) if atom.contentChangeDetails.created.forall(_.date.getMillis < LoopStartDate) =>
+      case Some(Url) if atom.contentChangeDetails.created.exists(_.date.getMillis < LoopStartDate) =>
         // self-hosted videos before loops were introduced should be of type Default
         Some(Default)
       case _             =>
