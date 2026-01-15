@@ -254,6 +254,19 @@ lazy val scheduler = (project in file("scheduler"))
     Universal / packageName := normalizedName.value
   )
 
+lazy val backfiller = (project in file("backfill"))
+  .dependsOn(common % "compile->compile;test->test")
+  .enablePlugins(JavaAppPackaging)
+  .settings(
+    commonSettings,
+    name := "media-atom-backfiller",
+    Universal / topLevelDirectory := None,
+    Universal / packageName := normalizedName.value,
+    libraryDependencies ++= Seq(
+      "com.drewnoakes" % "metadata-extractor" % "2.19.0"
+    )
+  )
+
 lazy val root = (project in file("root"))
   .aggregate(common, app, uploader, expirer, scheduler)
 
