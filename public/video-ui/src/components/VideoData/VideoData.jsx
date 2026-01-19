@@ -61,9 +61,7 @@ export default class VideoData extends React.Component {
 
     const isCommercialType = VideoUtils.isCommercialType(video);
     const hasAssets = VideoUtils.hasAssets(video);
-    const canHaveComposerPage =
-      this.props.video.videoPlayerFormat !== 'Cinemagraph' &&
-      this.props.video.videoPlayerFormat !== 'Loop';
+    const canHaveComposerPage = VideoUtils.canHaveComposerPage(video);
 
     return (
       <ManagedForm

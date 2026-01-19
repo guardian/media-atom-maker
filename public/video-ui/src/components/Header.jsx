@@ -224,9 +224,7 @@ export default class Header extends React.Component {
   }
 
   render() {
-    const canHaveComposerPage =
-      this.props.video.videoPlayerFormat !== 'Cinemagraph' &&
-      this.props.video.videoPlayerFormat !== 'Loop';
+    const canHaveComposerPage = VideoUtils.canHaveComposerPage(this.props.video);
 
     const className = this.props.isTrainingMode
       ? 'topbar topbar--training-mode flex-container'

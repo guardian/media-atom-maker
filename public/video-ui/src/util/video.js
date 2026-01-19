@@ -122,4 +122,8 @@ export default class VideoUtils {
   static getPlatformFromSummary(atomSummary) {
     return atomSummary?.platform?.toLowerCase() || null;
   }
+
+  static canHaveComposerPage(atom) {
+    return atom.videoPlayerFormat !== 'Cinemagraph' && atom.videoPlayerFormat !== 'Loop';
+  }
 }

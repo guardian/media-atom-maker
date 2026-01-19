@@ -25,11 +25,8 @@ class Flags extends React.Component {
 
     const isCommercialType = VideoUtils.isCommercialType(video);
     const isEligibleForAds = VideoUtils.isEligibleForAds(video);
-    const canHaveComposerPage =
-      this.props.video.videoPlayerFormat !== 'Cinemagraph' &&
-      this.props.video.videoPlayerFormat !== 'Loop';
+    const canHaveComposerPage = VideoUtils.canHaveComposerPage(video);
     const platform = VideoUtils.getPlatformFromAtom(video);
-
 
     return (
       <ManagedForm
