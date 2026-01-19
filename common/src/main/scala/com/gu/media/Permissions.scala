@@ -10,7 +10,6 @@ import com.gu.permissions.PermissionDefinition
 
 case class Permissions(
     deleteAtom: Boolean = false,
-    addSelfHostedAsset: Boolean = false,
     setVideosOnAllChannelsPublic: Boolean = false,
     pinboard: Boolean = false
 )
