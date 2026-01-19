@@ -92,11 +92,11 @@ class YoutubeFurniture extends React.Component {
 
     const { categories } = this.props.youtube;
 
-    const isYoutubeAtom = VideoUtils.isYoutube(video);
     const availableChannels = VideoUtils.getAvailableChannels(video);
     const availablePrivacyStates = VideoUtils.getAvailablePrivacyStates(video);
     const hasYoutubeWriteAccess = VideoUtils.hasYoutubeWriteAccess(video);
     const isChannelSelectionDisabled = VideoUtils.hasAssets(video) && video.channelId;
+    const platform = VideoUtils.getPlatformFromAtom(video);
 
     return (
       <ManagedForm
@@ -114,7 +114,7 @@ class YoutubeFurniture extends React.Component {
         <ManagedField
           fieldLocation="privacyStatus"
           name="Privacy Status"
-          disabled={!isYoutubeAtom || !hasYoutubeWriteAccess}
+          disabled={platform !== 'youtube' || !hasYoutubeWriteAccess}
         >
           <SelectBox
             selectValues={PrivacyStates.forForm(availablePrivacyStates)}
@@ -146,7 +146,7 @@ class YoutubeFurniture extends React.Component {
           name="Keywords"
           placeholder="No keywords"
           tagType={TagTypes.youtube}
-          disabled={!isYoutubeAtom}
+          disabled={platform !== 'youtube'}
           customValidation={this.validateYouTubeKeywords}
           updateSideEffects={this.composerKeywordsToYouTube}
         >

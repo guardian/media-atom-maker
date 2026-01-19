@@ -5,6 +5,7 @@ import { ContentAtom, getVideoBlock } from '../util/getVideoBlock';
 import { getStore } from '../util/storeAccessor';
 import { apiRequest } from './apiRequest';
 import ContentApi, { CapiContent, CapiContentResponse, Stage } from './capi';
+import type {VideoPlayerFormat} from "../constants/videoCreateOptions";
 
 export type ComposerStage = 'live' | 'preview';
 
@@ -93,7 +94,8 @@ export type Video = {
   composerCommentsEnabled?: Boolean;
   optimisedForWeb?: Boolean;
   suppressRelatedContent?: Boolean;
-  videoPlayerFormat?: string;
+  videoPlayerFormat?: VideoPlayerFormat;
+  platform?: Platform;
 };
 
 export type MediaAtomSummary = Pick<

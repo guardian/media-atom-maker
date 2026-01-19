@@ -77,6 +77,7 @@ export const VideoTrail = ({
               selectAsset={() => setAsset(parseInt(upload.id))}
               deleteAsset={() => deleteAssetsInUpload(upload.asset)}
               activatingAssetNumber={activatingAssetNumber}
+              videoPlayerFormat={video.videoPlayerFormat}
             />
           ))}
         </div>

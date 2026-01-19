@@ -15,27 +15,6 @@ export default class VideoUtils {
     }
   }
 
-  static isYoutube(atom) {
-    // no assets, could be youtube if we wanted
-    if (!VideoUtils.hasAssets(atom)) {
-      return true;
-    }
-
-    const activeAsset = VideoUtils.getActiveAsset(atom);
-
-    // not possible to have multiple assets w/same version for youtube
-    if (Array.isArray(activeAsset)) {
-      return false;
-    }
-
-    // no active assets, could be youtube if we wanted
-    if (!activeAsset) {
-      return true;
-    }
-
-    return activeAsset.platform === 'Youtube';
-  }
-
   static getYoutubeChannel({ channelId }) {
     if (!channelId) {
       return false;
@@ -136,11 +115,15 @@ export default class VideoUtils {
     return !!contentChangeDetails.expiry && contentChangeDetails.expiry.date <= Date.now();
   }
 
-  static getMediaPlatforms(atomSummary) {
-    return atomSummary?.mediaPlatforms || [];
+  static getPlatformFromAtom(atom) {
+    return atom?.platform?.toLowerCase() || null;
   }
 
-  static getCurrentMediaPlatform(atomSummary) {
-    return atomSummary?.currentMediaPlatform || null;
+  static getPlatformFromSummary(atomSummary) {
+    return atomSummary?.platform?.toLowerCase() || null;
+  }
+
+  static canHaveComposerPage(atom) {
+    return atom.videoPlayerFormat !== 'Cinemagraph' && atom.videoPlayerFormat !== 'Loop';
   }
 }

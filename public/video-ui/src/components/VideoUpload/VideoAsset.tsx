@@ -4,8 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   ClientAsset,
   deleteSubtitle,
-  startSubtitleFileUpload,
-  Upload
+  startSubtitleFileUpload
 } from '../../slices/s3Upload';
 import { selectVideo } from '../../slices/video';
 import { AppDispatch } from '../../util/setupStore';
@@ -13,6 +12,7 @@ import DeleteButton from '../DeleteButton';
 import Icon, { SubtitlesIcon } from '../Icon';
 import { VideoEmbed } from '../utils/VideoEmbed';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
+import type {VideoPlayerFormat} from "../../constants/videoCreateOptions";
 
 function presenceInitials(email: string) {
   if (!email) return;
@@ -264,7 +264,8 @@ export function Asset({
   isActive,
   selectAsset,
   deleteAsset,
-  activatingAssetNumber
+  activatingAssetNumber,
+  videoPlayerFormat
 }: {
   videoId: string;
   upload: ClientAsset;
@@ -272,6 +273,7 @@ export function Asset({
   selectAsset: { (): void };
   deleteAsset: { (): void };
   activatingAssetNumber: number;
+  videoPlayerFormat?: VideoPlayerFormat
 }) {
   const dispatch = useDispatch<AppDispatch>();
 
@@ -284,7 +286,16 @@ export function Asset({
   const isSelfHosted = asset && asset.sources;
   const subtitleFilename = metadata?.subtitleFilename;
 
-  const subtitlePanel = isSelfHosted && (
+  /**
+   * We support subtitles on Loops, but not Cinemagraphs (designed to be silent and decorative), and NonYoutube videos
+   * (which use the browser player).
+   *
+   * We can't simply check for videoPlayerFormat === 'Loop' here as videoPlayerFormat is undefined on videos
+   * created before videoPlayerFormat was introduced.
+  **/
+  const videoSupportsSubtitles = isSelfHosted && (videoPlayerFormat === 'Loop' || videoPlayerFormat === undefined);
+
+  const subtitlePanel = videoSupportsSubtitles && (
     <div className="video-trail__item__subtitles">
       <div className="subtitle__container">
         <SubtitlesIcon />
