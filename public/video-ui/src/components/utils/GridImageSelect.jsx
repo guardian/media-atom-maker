@@ -85,7 +85,7 @@ export default class GridImageSelect extends React.Component {
           />
         </button>
 
-        <Modal ref={this.state.dialogRef}>
+        <Modal ref={this.state.dialogRef} onCloseModal={this.closeGridModal}>
           <iframe className="gridembedder__modal" src={this.props.gridUrl} />
         </Modal>
       </div>
