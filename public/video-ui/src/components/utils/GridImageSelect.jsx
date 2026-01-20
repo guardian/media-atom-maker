@@ -16,7 +16,6 @@ export default class GridImageSelect extends React.Component {
   };
 
   state = {
-    modalOpen: false,
     dialogRef: undefined
   };
 
@@ -39,14 +38,6 @@ export default class GridImageSelect extends React.Component {
     const image = parseImageFromGridCrop(cropData, imageData);
 
     this.props.updateVideo(image, this.props.fieldLocation);
-  };
-
-  toggleModal = () => {
-    if (this.state.modalOpen) {
-      this.closeGridModal();
-    } else {
-      this.openGridModal();
-    }
   };
 
   validMessage(data) {
@@ -78,14 +69,14 @@ export default class GridImageSelect extends React.Component {
   render() {
     return (
       <div className="gridembedder">
-        <button disabled={this.props.disabled} onClick={this.toggleModal}>
+        <button disabled={this.props.disabled} onClick={this.openGridModal}>
           <Icon
             icon="add_to_photos"
             className={'icon__edit ' + (this.props.disabled ? 'disabled' : '')}
           />
         </button>
 
-        <Modal ref={this.state.dialogRef}>
+        <Modal ref={this.state.dialogRef} onCloseModal={this.closeGridModal}>
           <iframe className="gridembedder__modal" src={this.props.gridUrl} />
         </Modal>
       </div>
