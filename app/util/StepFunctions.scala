@@ -111,7 +111,6 @@ class StepFunctions(awsConfig: AWSConfig) {
     if (upload.metadata.startTimestamp.isEmpty) {
       upload.copy(
         metadata = upload.metadata.copy(
-          // TODO -> check if this is the equivalent of calling getTime
           startTimestamp = Some(result.startDate.toEpochMilli)
         )
       )

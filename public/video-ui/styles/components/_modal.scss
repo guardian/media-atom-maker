@@ -1,35 +1,40 @@
+// prevent scrolling of content underneath dialog
+body:has(dialog[open]) {
+  overflow: hidden
+}
+
 .modal {
-    position: fixed;
-    left: 0;
-    top: 0;
     width: 100%;
     height: 100%;
-    z-index: 99;
+    max-height: 100%;
     background-color: rgba(0, 0, 0, 0.7);
     text-align: left;
     cursor: default;
+    margin: 0;
+    max-width: none;
 
-    .modal__content {
-        position: absolute;
-        left: 30px;
-        top: 50px;
-        width: calc(100% - 60px);
-        height: calc(100% - 60px);
+    &:open {
+      display: flex;
+      flex-direction: column-reverse;
     }
 
     .modal-content__body {
         padding: 12px;
     }
 
-    .modal__dismiss {
-        position: absolute;
-        right: -20px;
-        top: -40px;
-        cursor: pointer;
+    .modal__content__header {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 14px;
+    }
 
-        background-color: $color300Grey;
-        color: $color700Grey;
-        padding: 5px 10px;
-        border-radius: 3px;
+    .modal__dismiss {
+        border: 1px solid $cWhite;
+    }
+
+    .modal__content {
+      height: calc(100% - 60px);
+      overflow-y: scroll;
     }
 }

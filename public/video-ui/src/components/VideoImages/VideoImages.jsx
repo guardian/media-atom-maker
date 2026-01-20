@@ -88,22 +88,25 @@ export default class VideoImages extends React.Component {
           <GridImage image={this.props.video.trailImage} />
           <pinboard-suggest-alternate-crops data-media-id={mediaId}></pinboard-suggest-alternate-crops>
         </div>
-        <div className="video__images">
-          <div className="video__detailbox__header__container">
-            <header className="video__detailbox__header">
-              Youtube Video Thumbnail Image
-            </header>
-            <GridImageSelect
-              image={this.props.video.youtubeOverrideImage}
-              gridUrl={this.hasVerticalVideoTag() ? this.getGridUrl('verticalVideo'): this.getGridUrl('video')}
-              gridDomain={this.props.gridDomain}
-              disabled={this.props.videoEditOpen}
-              updateVideo={this.saveAndUpdateVideoImage}
-              fieldLocation="youtubeOverrideImage"
-            />
-          </div>
-          <GridImage image={this.props.video.youtubeOverrideImage} />
-        </div>
+        {
+          this.props.video.platform !== 'Url' &&
+            <div className="video__images">
+              <div className="video__detailbox__header__container">
+                <header className="video__detailbox__header">
+                  Youtube Video Thumbnail Image
+                </header>
+                <GridImageSelect
+                  image={this.props.video.youtubeOverrideImage}
+                  gridUrl={this.hasVerticalVideoTag() ? this.getGridUrl('verticalVideo'): this.getGridUrl('video')}
+                  gridDomain={this.props.gridDomain}
+                  disabled={this.props.videoEditOpen}
+                  updateVideo={this.saveAndUpdateVideoImage}
+                  fieldLocation="youtubeOverrideImage"
+                />
+              </div>
+              <GridImage image={this.props.video.youtubeOverrideImage} />
+            </div>
+        }
       </div>
     );
   }

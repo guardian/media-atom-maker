@@ -2,10 +2,19 @@ package data
 
 import com.gu.atom.data.PreviewDynamoDataStoreV2
 import com.gu.media.CapiAccess
-import com.gu.media.model.{ContentChangeDetails, Image, MediaAtom}
+import com.gu.media.model.Platform.{Url, Youtube}
+import com.gu.media.model.VideoPlayerFormat.Loop
+import com.gu.media.model.{
+  ContentChangeDetails,
+  Image,
+  MediaAtom,
+  Platform,
+  VideoPlayerFormat
+}
 import com.gu.media.util.TestFilters
 import model.commands.CommandExceptions.AtomDataStoreError
 import model.{MediaAtomList, MediaAtomSummary}
+import play.api.Logging
 import play.api.libs.json.{JsArray, JsValue}
 
 trait AtomListStore {
@@ -13,36 +22,46 @@ trait AtomListStore {
       search: Option[String],
       limit: Option[Int],
       shouldUseCreatedDateForSort: Boolean,
-      mediaPlatform: Option[String]
+      platformFilter: Option[String],
+      orderByOldest: Boolean
   ): MediaAtomList
 }
 
-class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
+class CapiBackedAtomListStore(capi: CapiAccess)
+    extends AtomListStore
+    with Logging {
+
+  // CAPI max page size is 200
+  val CapiMaxPageSize = 200
+
   override def getAtoms(
       search: Option[String],
       limit: Option[Int],
       shouldUseCreatedDateForSort: Boolean,
-      mediaPlatform: Option[String]
+      platformFilter: Option[String],
+      orderByOldest: Boolean
   ): MediaAtomList = {
-    // CAPI max page size is 200
-    val cappedLimit: Option[Int] = limit.map(Math.min(200, _))
+    val pagination = Pagination.option(CapiMaxPageSize, limit)
 
     val dateSorter = shouldUseCreatedDateForSort match {
       case true  => Map("order-date" -> "first-publication")
       case false => Map.empty
     }
 
-    val mediaPlatformFilter = mediaPlatform match {
+    val mediaPlatformFilter = platformFilter match {
       case Some(mPlatform) => Map("media-platform" -> mPlatform)
       case _               => Map.empty
     }
 
-    val base: Map[String, String] = Map(
-      "types" -> "media",
-      "order-by" -> "newest"
-    ) ++
+    val orderBy = orderByOldest match {
+      case true  => Map("order-by" -> "oldest")
+      case false => Map("order-by" -> "newest")
+    }
+
+    val base: Map[String, String] = Map("types" -> "media") ++
       dateSorter ++
-      mediaPlatformFilter
+      mediaPlatformFilter ++
+      orderBy
 
     val baseWithSearch = search match {
       case Some(q) =>
@@ -53,20 +72,57 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
       case None => base
     }
 
-    val baseWithSearchAndLimit = cappedLimit match {
-      case Some(pageSize) =>
+    val baseWithSearchAndLimit = pagination match {
+      case Some(Pagination(pageSize, _)) =>
         baseWithSearch ++ Map(
           "page-size" -> pageSize.toString
         )
       case None => baseWithSearch
     }
 
-    val response = capi.capiQuery("atoms", baseWithSearchAndLimit)
+    val nPages = pagination.map(_.pageCount).getOrElse(1)
 
+    val (total, _, atoms) =
+      (1 to nPages).foldLeft(0, nPages, List.empty[MediaAtomSummary]) {
+        case ((prevTotal, prevMaxPage, prevAtoms), page) =>
+          val pageNumber = pagination match {
+            case Some(_) => Map("page" -> page.toString)
+            case None    => Map.empty
+          }
+          // make sure we don't request beyond the last page
+          val (total, maxPage, atoms) = if (page <= prevMaxPage) {
+            getCapiAtoms(baseWithSearchAndLimit ++ pageNumber)
+          } else {
+            (prevTotal, prevMaxPage, Nil)
+          }
+          (
+            total,
+            maxPage,
+            prevAtoms ++ atoms
+          )
+      }
+
+    val limitedAtoms = limit match {
+      case Some(limit) => atoms.take(limit)
+      case None        => atoms
+    }
+
+    logger.info(s"total $total, atoms: ${limitedAtoms.size}")
+    MediaAtomList(total, limitedAtoms)
+  }
+
+  private[data] def getCapiAtoms(
+      query: Map[String, String]
+  ): (Int, Int, List[MediaAtomSummary]) = {
+    val response = capi.capiQuery("atoms", query)
     val total = (response \ "response" \ "total").as[Int]
+    val maxPage = (response \ "response" \ "pages").as[Int]
     val results = (response \ "response" \ "results").as[JsArray]
-
-    MediaAtomList(total, results.value.flatMap(fromJson).toList)
+    (
+      total,
+      maxPage,
+      results.value.flatMap(fromJson).toList
+    )
   }
 
   private def fromJson(wrapper: JsValue): Option[MediaAtomSummary] = {
@@ -94,29 +150,33 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
         (asset \ "version").as[Long]
       }
 
-      val mediaPlatforms = (atom \ "assets")
-        .as[JsArray]
-        .value
-        .flatMap { asset =>
-          (asset \ "platform").asOpt[String].map(_.toLowerCase)
-        }
-        .toList
-        .distinct
+      val atomPlatform =
+        (atom \ "platform").asOpt[Platform]
 
-      val currentAsset = (atom \ "assets").as[JsArray].value.find { asset =>
+      val activeAsset = (atom \ "assets").as[JsArray].value.find { asset =>
         val assetVersion = (asset \ "version").as[Long]
         activeVersion.contains(assetVersion)
       }
 
-      val currentMediaPlatform = currentAsset.flatMap { asset =>
-        (asset \ "platform").asOpt[String].map(_.toLowerCase)
+      val activeAssetPlatform = activeAsset.map { asset =>
+        (asset \ "platform").as[Platform]
       }
 
-      // sort media platforms so the current one is first
-      val sortedMediaPlatforms = currentMediaPlatform match {
-        case Some(current) => current :: mediaPlatforms.filter(_ != current)
-        case None          => mediaPlatforms
-      }
+      val firstAssetPlatform =
+        (atom \ "assets").as[JsArray].value.headOption.map { asset =>
+          (asset \ "platform").as[Platform]
+        }
+
+      val platform = Platform.getPlatform(
+        atomPlatform,
+        activeAssetPlatform,
+        firstAssetPlatform
+      )
+
+      val videoPlayerFormat =
+        (atom \ "metadata" \ "selfHost" \ "videoPlayerFormat")
+          .asOpt[VideoPlayerFormat]
+          .orElse(if (platform == Url) Some(Loop) else None)
 
       Some(
         MediaAtomSummary(
@@ -124,8 +184,8 @@ class CapiBackedAtomListStore(capi: CapiAccess) extends AtomListStore {
           title,
           posterImage,
           contentChangeDetails,
-          sortedMediaPlatforms,
-          currentMediaPlatform
+          platform,
+          videoPlayerFormat
         )
       )
     }
@@ -138,7 +198,8 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStoreV2)
       search: Option[String],
       limit: Option[Int],
       shouldUseCreatedDateForSort: Boolean,
-      mediaPlatform: Option[String]
+      mediaPlatform: Option[String],
+      orderByOldest: Boolean
   ): MediaAtomList = {
     // We must filter the entire list of atoms rather than use Dynamo limit to ensure stable iteration order.
     // Without it, the front page will shuffle around when clicking the Load More button.
@@ -157,7 +218,11 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStoreV2)
           .map(MediaAtom.fromThrift)
           .toList
           .sortBy(sortField(_).map(_.date.getMillis))
-          .reverse // newest atoms first
+
+        val mediaAtomsSorted = orderByOldest match {
+          case true  => mediaAtoms
+          case false => mediaAtoms.reverse
+        }
 
         val searchTermFilter = search match {
           case Some(str) => Some((atom: MediaAtom) => atom.title.contains(str))
@@ -177,7 +242,7 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStoreV2)
         val filters = List(searchTermFilter, mediaPlatformFilter).flatten
 
         val filteredAtoms =
-          filters.foldLeft(mediaAtoms)((atoms, f) => atoms.filter(f))
+          filters.foldLeft(mediaAtomsSorted)((atoms, f) => atoms.filter(f))
 
         val limitedAtoms = limit match {
           case Some(l) => filteredAtoms.take(l)
@@ -189,27 +254,13 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStoreV2)
   }
 
   private def fromAtom(atom: MediaAtom): MediaAtomSummary = {
-    val versions = atom.assets.map(_.version).toSet
-    val currentAsset = atom.assets.find(asset =>
-      asset.version == atom.activeVersion.getOrElse(versions.max)
-    )
-    val mediaPlatforms = atom.assets.map(_.platform.name.toLowerCase).distinct
-    val currentMediaPlatform =
-      currentAsset.map(_.platform.name).map(_.toLowerCase)
-
-    // sort media platforms so the current one is first
-    val sortedMediaPlatforms = currentMediaPlatform match {
-      case Some(current) => current :: mediaPlatforms.filter(_ != current)
-      case None          => mediaPlatforms
-    }
-
     MediaAtomSummary(
       atom.id,
       atom.title,
       atom.posterImage,
       atom.contentChangeDetails,
-      sortedMediaPlatforms,
-      currentMediaPlatform
+      atom.platform.getOrElse(Youtube),
+      atom.videoPlayerFormat
     )
   }
 }
@@ -223,5 +274,17 @@ object AtomListStore {
   ): AtomListStore = stage match {
     case "DEV" => new DynamoBackedAtomListStore(store)
     case _     => new CapiBackedAtomListStore(capi)
+  }
+}
+
+case class Pagination(pageSize: Int, pageCount: Int)
+
+object Pagination {
+  def option(maxPageSize: Int, limit: Option[Int]): Option[Pagination] = {
+    limit.map { limit =>
+      val pageSize = Math.min(maxPageSize, limit)
+      val pageCount = Math.ceil(1.0 * limit / maxPageSize).toInt
+      Pagination(pageSize, pageCount)
+    }
   }
 }
