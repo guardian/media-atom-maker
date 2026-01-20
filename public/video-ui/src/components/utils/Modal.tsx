@@ -1,11 +1,18 @@
 import React from 'react';
 
 export default class Modal extends React.Component {
-  props: React.PropsWithChildren;
+  props: React.PropsWithChildren<{
+    onCloseModal?: () => void;
+  }>;
   state: { dialogRef : React.RefObject<HTMLDialogElement> | undefined, isOpen: boolean } = {
     dialogRef: undefined,
     isOpen: false
   };
+
+  constructor(props: React.PropsWithChildren) {
+    super(props);
+    this.state.dialogRef = React.createRef<HTMLDialogElement>();
+  }
 
   showModal() {
     this.state.dialogRef.current?.showModal();
@@ -14,12 +21,18 @@ export default class Modal extends React.Component {
 
   close() {
     this.state.dialogRef.current?.close();
-    this.setState({ isOpen: false });
   }
 
-  constructor(props: React.PropsWithChildren) {
-    super(props);
-    this.state.dialogRef = React.createRef<HTMLDialogElement>();
+  handleCloseEvent = () => {
+    this.props?.onCloseModal?.();
+    this.setState({ isOpen: false });
+  };
+
+  componentDidMount() {
+    this.state.dialogRef.current.addEventListener("close", this.handleCloseEvent);
+  }
+  componentWillUnmount() {
+    this.state.dialogRef.current.removeEventListener("close", this.handleCloseEvent);
   }
 
   render() {
