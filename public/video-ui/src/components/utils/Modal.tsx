@@ -6,7 +6,7 @@ export default class Modal extends React.Component {
   }>;
   state: { dialogRef : React.RefObject<HTMLDialogElement> | undefined, isOpen: boolean } = {
     dialogRef: undefined,
-    isOpen: false,
+    isOpen: false
   };
 
   constructor(props: React.PropsWithChildren) {
@@ -26,7 +26,7 @@ export default class Modal extends React.Component {
   handleCloseEvent = () => {
     this.props?.onCloseModal?.();
     this.setState({ isOpen: false });
-  }
+  };
 
   componentDidMount() {
     this.state.dialogRef.current.addEventListener("close", this.handleCloseEvent);
