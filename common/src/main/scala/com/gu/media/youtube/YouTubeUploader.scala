@@ -1,8 +1,6 @@
 package com.gu.media.youtube
 
 import java.io.InputStream
-
-import com.amazonaws.services.s3.AmazonS3
 import com.gu.media.logging.{
   Logging,
   YoutubeApiType,
@@ -19,8 +17,10 @@ import com.gu.media.youtube.YouTubeUploader.{
 }
 import com.squareup.okhttp.{MediaType, OkHttpClient, Request, RequestBody}
 import play.api.libs.json.{JsObject, JsString, Json}
+import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.model.GetObjectRequest
 
-class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3) extends Logging {
+class YouTubeUploader(youTube: YouTubeAccess, s3: S3Client) extends Logging {
   private val JSON = MediaType.parse("application/json; charset=utf-8")
   private val VIDEO = MediaType.parse("video/*")
 
@@ -92,7 +92,9 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: AmazonS3) extends Logging {
     val UploadPart(key, start, end) = part
     val total = upload.parts.last.end
 
-    val input = s3.getObject(upload.metadata.bucket, key).getObjectContent
+    val input = s3.getObject(
+      GetObjectRequest.builder().bucket(upload.metadata.bucket).key(key).build()
+    )
 
     uploadChunk(uploadUri, input, start, end, total) match {
       case VideoFullyUploaded(videoId) =>

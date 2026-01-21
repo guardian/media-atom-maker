@@ -7,8 +7,8 @@ import scala.sys.process.*
 val scroogeVersion = "4.12.0"
 val awsVersion = "1.11.1034"
 val awsV2Version = "2.32.26"
-val pandaVersion = "10.0.0"
-val atomMakerVersion = "8.0.0"
+val pandaVersion = "13.0.0"
+val atomMakerVersion = "9.0.0"
 val typesafeConfigVersion =
   "1.4.0" // to match what we get from Play transitively
 val scanamoVersion = "1.0.0-M28"
@@ -115,9 +115,10 @@ lazy val common = (project in file("common"))
       "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test", // to match ScalaTest version
       "software.amazon.awssdk" % "sns" % awsV2Version,
       "software.amazon.awssdk" % "sqs" % awsV2Version,
-      "com.gu" %% "editorial-permissions-client" % "2.15",
+      "com.gu" %% "editorial-permissions-client" % "5.0.0",
       "software.amazon.awssdk" % "sfn" % awsV2Version,
       "software.amazon.awssdk" % "ses" % awsV2Version,
+      "software.amazon.awssdk" % "s3" % awsV2Version,
       "com.gu" %% "content-api-client-aws" % "1.0.1",
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
       "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0" % "test",

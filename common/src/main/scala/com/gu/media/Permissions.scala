@@ -1,6 +1,6 @@
 package com.gu.media
 
-import com.amazonaws.auth.AWSCredentialsProvider
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import com.gu.permissions._
 import com.gu.ai.x.play.json.Jsonx
 import com.gu.ai.x.play.json.Encoders._
@@ -27,7 +27,7 @@ object Permissions {
 class MediaAtomMakerPermissionsProvider(
     stage: String,
     region: String,
-    credsProvider: AWSCredentialsProvider
+    credsProvider: AwsCredentialsProvider
 ) {
   import Permissions._
 
