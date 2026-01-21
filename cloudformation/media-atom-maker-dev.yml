@@ -432,6 +432,12 @@ Resources:
     Properties:
       QueueName: !Sub ${PlutoQueueName}-${Stage}
       KmsMasterKeyId: !Sub "alias/media-atom-maker/sns-to-sqs-${Stage}"
+  IconikQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub media-atom-maker-ingested-videos-v2-${Stage}
+#     We don't expect anything to read from this queue, so just setting a short-ish retention period.
+      MessageRetentionPeriod: 18000
   KmsKeySqsQueueFromSns:
     Type: AWS::KMS::Key
     Properties:

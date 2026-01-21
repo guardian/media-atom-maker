@@ -10,11 +10,27 @@ import {Presence} from './Presence';
 import {canonicalVideoPageExists} from '../util/canonicalVideoPageExists';
 import VideoUtils from '../util/video';
 import {QUERY_PARAM_mediaPlatformFilter, QUERY_PARAM_shouldUseCreatedDateForSort} from "../constants/queryParams";
+import Modal from "./utils/Modal";
+import Create from "./Create";
 
 export default class Header extends React.Component {
-  state = { presence: null };
+  state = {
+    presence: null,
+    dialogRef: undefined
+  };
 
+  constructor(props) {
+    super(props);
+    this.state.dialogRef = React.createRef();
+  }
 
+  openCreateModal = () => {
+    this.state.dialogRef.current?.showModal();
+  };
+
+  closeCreateModal = () => {
+    this.state.dialogRef.current?.close();
+  };
 
   publishVideo = () => {
     this.props.publishVideo(this.props.video.id);
@@ -88,7 +104,7 @@ export default class Header extends React.Component {
           }}
         >
           <option value="">All videos</option>
-          <option value="url">Loops</option>
+          <option value="url">Self-hosted</option>
           <option value="youtube">YouTube</option>
         </select>
       </div>
@@ -154,9 +170,12 @@ export default class Header extends React.Component {
   renderCreateVideo() {
     return (
       <nav className="topbar__nav-link">
-        <Link className="btn" to="/create">
+        <button className="btn" onClick={this.openCreateModal}>
           <Icon icon="add">Create</Icon>
-        </Link>
+        </button>
+        <Modal ref={this.state.dialogRef}>
+          <Create createVideo={this.props.createVideo} inModal={true} closeCreateModal={this.closeCreateModal}/>
+        </Modal>
       </nav>
     );
   }
@@ -205,6 +224,8 @@ export default class Header extends React.Component {
   }
 
   render() {
+    const canHaveComposerPage = VideoUtils.canHaveComposerPage(this.props.video);
+
     const className = this.props.isTrainingMode
       ? 'topbar topbar--training-mode flex-container'
       : 'topbar flex-container';
@@ -277,15 +298,19 @@ export default class Header extends React.Component {
             usages={this.props.usages}
             deleteVideo={this.props.deleteVideo}
           />
-          <ComposerPageCreate
-            videoEditOpen={this.props.videoEditOpen}
-            video={this.props.video || {}}
-            createVideoPage={this.props.createVideoPage}
-            requiredComposerFieldsMissing={this.requiredComposerFieldsMissing}
-            usages={this.props.usages}
-            error={this.props.error}
-          />
-          {this.renderComposerMissingWarning()}
+          {canHaveComposerPage &&
+            <>
+              <ComposerPageCreate
+                videoEditOpen={this.props.videoEditOpen}
+                video={this.props.video || {}}
+                createVideoPage={this.props.createVideoPage}
+                requiredComposerFieldsMissing={this.requiredComposerFieldsMissing}
+                usages={this.props.usages}
+                error={this.props.error}
+              />
+              {this.renderComposerMissingWarning()}
+            </>
+          }
           <div className="flex-container">
             {this.renderHelpLink()}
           </div>

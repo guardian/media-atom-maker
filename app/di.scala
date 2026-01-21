@@ -128,9 +128,6 @@ class MediaAtomMaker(context: Context)
 
   private val youTube = YouTube(config, Duration.ofDays(1), youtubeCredentials)
 
-  private val uploaderMessageConsumer = PlutoMessageConsumer(stores, aws)
-  uploaderMessageConsumer.start(actorSystem.scheduler)(actorSystem.dispatcher)
-
   private val thumbnailGenerator = ThumbnailGenerator(
     environment.getFile(s"conf/logo.png")
   )

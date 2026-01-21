@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Tab, TabPanel } from 'react-tabs';
+import Icon from '../../../components/Icon';
 import { getIconikItemById, IconikItemType } from '../../../services/IconikApi';
 import { Video } from '../../../services/VideosApi';
 import { RootState } from '../../../util/setupStore';
@@ -52,6 +53,18 @@ export const IconikTabPanel = ({ video, ...rest }: { video: Video }) => {
                 id={video.iconikData?.projectId}
                 itemType="projects"
               />
+              {video.iconikData?.projectId && (
+                <a
+                  className="button inline-block"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={`https://app.iconik.io/collection/${video.iconikData.projectId}`}
+                >
+                  <Icon icon="open_in_new" className="icon__edit">
+                    Open project in Iconik
+                  </Icon>
+                </a>
+              )}
             </div>
           </div>
         )}

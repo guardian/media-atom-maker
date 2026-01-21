@@ -16,31 +16,28 @@ export default class GridImageSelect extends React.Component {
   };
 
   state = {
-    modalOpen: false
+    dialogRef: undefined
+  };
+
+  constructor(props) {
+    super(props);
+    this.state.dialogRef = React.createRef();
+  }
+
+  openGridModal = () => {
+    window.addEventListener('message', this.onMessage, false);
+    this.state.dialogRef.current?.showModal();
+  };
+
+  closeGridModal = () => {
+    this.state.dialogRef.current?.close();
+    window.removeEventListener('message', this.onMessage, false);
   };
 
   onUpdatePosterImage = (cropData, imageData) => {
     const image = parseImageFromGridCrop(cropData, imageData);
 
     this.props.updateVideo(image, this.props.fieldLocation);
-  };
-
-  toggleModal = () => {
-    if (this.state.modalOpen) {
-      this.closeModal();
-    } else {
-      this.openModal();
-    }
-  };
-
-  closeModal = () => {
-    this.setState({ modalOpen: false });
-    window.removeEventListener('message', this.onMessage, false);
-  };
-
-  openModal = () => {
-    this.setState({ modalOpen: true });
-    window.addEventListener('message', this.onMessage, false);
   };
 
   validMessage(data) {
@@ -65,21 +62,21 @@ export default class GridImageSelect extends React.Component {
       return;
     }
 
-    this.closeModal();
+    this.closeGridModal();
     this.onUpdatePosterImage(data.crop.data, data.image);
   };
 
   render() {
     return (
       <div className="gridembedder">
-        <button disabled={this.props.disabled} onClick={this.toggleModal}>
+        <button disabled={this.props.disabled} onClick={this.openGridModal}>
           <Icon
             icon="add_to_photos"
             className={'icon__edit ' + (this.props.disabled ? 'disabled' : '')}
           />
         </button>
 
-        <Modal isOpen={this.state.modalOpen} dismiss={this.closeModal}>
+        <Modal ref={this.state.dialogRef} onCloseModal={this.closeGridModal}>
           <iframe className="gridembedder__modal" src={this.props.gridUrl} />
         </Modal>
       </div>

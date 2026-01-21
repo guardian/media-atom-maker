@@ -16,12 +16,12 @@ object Platform {
   case object Url extends Platform { val name = "Url" }
 
   val platformReads = Reads[Platform](json => {
-    json.as[String] match {
-      case "Youtube"     => JsSuccess(Youtube)
-      case "Facebook"    => JsSuccess(Facebook)
-      case "Dailymotion" => JsSuccess(Dailymotion)
-      case "Mainstream"  => JsSuccess(Mainstream)
-      case "Url"         => JsSuccess(Url)
+    json.as[String].toLowerCase match {
+      case "youtube"     => JsSuccess(Youtube)
+      case "facebook"    => JsSuccess(Facebook)
+      case "dailymotion" => JsSuccess(Dailymotion)
+      case "mainstream"  => JsSuccess(Mainstream)
+      case "url"         => JsSuccess(Url)
     }
   })
 
@@ -35,4 +35,30 @@ object Platform {
   private val types = List(Youtube, Facebook, Dailymotion, Mainstream, Url)
 
   def fromThrift(p: ThriftPlatform) = types.find(_.name == p.name).get
+
+  /** The atom-level platform field tells us authoritatively if atom is for
+    * Youtube or Self-hosted video.
+    *
+    * To derive an atom-level platform field from models with potentially
+    * missing data:
+    *   - use atom level platform if provided
+    *   - otherwise use the platform field of the active asset
+    *   - otherwise use the platform field of the first asset, if there are any
+    *     assets
+    *   - otherwise default to Youtube
+    * @param atomPlatform
+    * @param activeAssetPlatform
+    * @param firstAssetPlatform
+    * @return
+    */
+  def getPlatform(
+      atomPlatform: Option[Platform],
+      activeAssetPlatform: Option[Platform],
+      firstAssetPlatform: Option[Platform]
+  ): Platform =
+    atomPlatform
+      .orElse(activeAssetPlatform)
+      .orElse(firstAssetPlatform)
+      .getOrElse(Youtube)
+
 }
