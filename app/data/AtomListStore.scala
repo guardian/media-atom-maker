@@ -192,89 +192,11 @@ class CapiBackedAtomListStore(capi: CapiAccess)
   }
 }
 
-class DynamoBackedAtomListStore(store: PreviewDynamoDataStoreV2)
-    extends AtomListStore {
-  override def getAtoms(
-      search: Option[String],
-      limit: Option[Int],
-      shouldUseCreatedDateForSort: Boolean,
-      mediaPlatform: Option[String],
-      orderByOldest: Boolean
-  ): MediaAtomList = {
-    // We must filter the entire list of atoms rather than use Dynamo limit to ensure stable iteration order.
-    // Without it, the front page will shuffle around when clicking the Load More button.
-    store.listAtoms match {
-      case Left(err) =>
-        AtomDataStoreError(err.msg)
-
-      case Right(atoms) =>
-        def sortField(atom: MediaAtom) =
-          if (shouldUseCreatedDateForSort)
-            atom.contentChangeDetails.created
-          else
-            atom.contentChangeDetails.lastModified
-
-        val mediaAtoms = atoms
-          .map(MediaAtom.fromThrift)
-          .toList
-          .sortBy(sortField(_).map(_.date.getMillis))
-
-        val mediaAtomsSorted = orderByOldest match {
-          case true  => mediaAtoms
-          case false => mediaAtoms.reverse
-        }
-
-        val searchTermFilter = search match {
-          case Some(str) => Some((atom: MediaAtom) => atom.title.contains(str))
-          case None      => None
-        }
-
-        val mediaPlatformFilter = mediaPlatform match {
-          case Some(mPlatform) =>
-            Some((atom: MediaAtom) =>
-              atom.assets.exists(
-                _.platform.name.toLowerCase == mPlatform.toLowerCase
-              )
-            )
-          case _ => None
-        }
-
-        val filters = List(searchTermFilter, mediaPlatformFilter).flatten
-
-        val filteredAtoms =
-          filters.foldLeft(mediaAtomsSorted)((atoms, f) => atoms.filter(f))
-
-        val limitedAtoms = limit match {
-          case Some(l) => filteredAtoms.take(l)
-          case None    => filteredAtoms
-        }
-
-        MediaAtomList(filteredAtoms.size, limitedAtoms.map(fromAtom))
-    }
-  }
-
-  private def fromAtom(atom: MediaAtom): MediaAtomSummary = {
-    MediaAtomSummary(
-      atom.id,
-      atom.title,
-      atom.posterImage,
-      atom.contentChangeDetails,
-      atom.platform.getOrElse(Youtube),
-      atom.videoPlayerFormat
-    )
-  }
-}
-
 object AtomListStore {
 
   def apply(
-      stage: String,
-      capi: CapiAccess,
-      store: PreviewDynamoDataStoreV2
-  ): AtomListStore = stage match {
-    case "DEV" => new DynamoBackedAtomListStore(store)
-    case _     => new CapiBackedAtomListStore(capi)
-  }
+      capi: CapiAccess
+  ): AtomListStore = new CapiBackedAtomListStore(capi)
 }
 
 case class Pagination(pageSize: Int, pageCount: Int)

@@ -51,10 +51,8 @@ class MediaAtomMaker(context: Context)
 
   private val config = configuration.underlying
 
-  private val credentials = environment.mode match {
-    case Mode.Dev => AwsCredentials.dev(Settings(config))
-    case _        => AwsCredentials.app(Settings(config))
-  }
+  private val credentials = AwsCredentials.app(Settings(config))
+
   val profileName =
     configuration
       .getOptional[String]("panda.awsCredsProfile")

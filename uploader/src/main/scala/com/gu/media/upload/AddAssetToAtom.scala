@@ -30,8 +30,6 @@ class AddAssetToAtom
     "aws.upload.selfHostedOrigin"
   )
 
-  private val store =
-    new PreviewDynamoDataStoreV2(dynamoDbSdkV2, dynamoTableName)
   private val publisher = new PreviewKinesisAtomPublisherV2(
     previewKinesisStreamName,
     crossAccountKinesisClient

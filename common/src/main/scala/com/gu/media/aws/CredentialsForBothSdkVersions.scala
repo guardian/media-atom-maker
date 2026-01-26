@@ -27,6 +27,7 @@ case class CredentialsForBothSdkVersions(
           AWSSecurityTokenServiceClientBuilder
             .standard()
             .withCredentials(awsV1Creds)
+            .withRegion(regionName)
             .build()
         )
         .build(),

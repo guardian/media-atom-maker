@@ -108,8 +108,7 @@ class DataStores(aws: AWSConfig with SNSAccess, capi: CapiAccess) {
     iconikWorkingGroupStore
   )
 
-  val atomListStore = AtomListStore(aws.stage, capi, preview)
-
+  val atomListStore = AtomListStore(capi)
 }
 
 trait UnpackedDataStores {
