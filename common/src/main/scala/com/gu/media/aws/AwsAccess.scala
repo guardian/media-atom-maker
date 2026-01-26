@@ -1,8 +1,8 @@
 package com.gu.media.aws
 
-import com.amazonaws.auth.AWSCredentialsProvider
-import com.amazonaws.regions.{Region, Regions}
 import com.gu.media.Settings
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
+import software.amazon.awssdk.regions.Region
 
 trait AwsAccess { this: Settings =>
   def readTag(tag: String): Option[String]
@@ -10,12 +10,11 @@ trait AwsAccess { this: Settings =>
   val credentials: AwsCredentials
 
   // To avoid renaming references everywhere
-  def credsProvider: AWSCredentialsProvider = credentials.instance.awsV1Creds
+  def credsProvider: AwsCredentialsProvider = credentials.instance.awsV2Creds
 
   def region: Region
 
-  final def awsV2Region: software.amazon.awssdk.regions.Region =
-    software.amazon.awssdk.regions.Region.of(region.getName)
+  final def awsV2Region: software.amazon.awssdk.regions.Region = region
 
   // These are injected as environment variables when running in a Lambda (unfortunately they cannot be tagged)
   final val stage =
@@ -31,8 +30,8 @@ trait AwsAccess { this: Settings =>
 
 object AwsAccess {
   def regionFrom(maybeName: Option[String]): Region = maybeName
-    .map { name => Region.getRegion(Regions.fromName(name)) }
-    .getOrElse(Region.getRegion(Regions.EU_WEST_1))
+    .map { name => Region.of(name) }
+    .getOrElse(Region.EU_WEST_1)
 
   def regionFrom(settings: Settings): Region = regionFrom(
     settings.getString("aws.region")
