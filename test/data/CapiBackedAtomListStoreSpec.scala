@@ -61,7 +61,7 @@ class CapiBackedAtomListStoreSpec
       search = None,
       limit = None,
       shouldUseCreatedDateForSort = false,
-      platformFilter = None,
+      videoPlayerFormat = None,
       orderByOldest = false
     )
     unlimited.total shouldEqual 6081
@@ -82,7 +82,7 @@ class CapiBackedAtomListStoreSpec
       search = None,
       limit = Some(10),
       shouldUseCreatedDateForSort = false,
-      platformFilter = None,
+      videoPlayerFormat = None,
       orderByOldest = false
     )
     limit10.total shouldEqual 6081
@@ -113,7 +113,7 @@ class CapiBackedAtomListStoreSpec
       search = None,
       limit = Some(201),
       shouldUseCreatedDateForSort = false,
-      platformFilter = None,
+      videoPlayerFormat = None,
       orderByOldest = false
     )
     limit201.total shouldEqual 6081
