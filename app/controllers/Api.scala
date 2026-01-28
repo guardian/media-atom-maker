@@ -51,14 +51,14 @@ class Api(
       search: Option[String],
       limit: Option[Int],
       shouldUseCreatedDateForSort: Boolean,
-      mediaPlatform: Option[String],
+      videoPlayerFormat: Option[String],
       orderByOldest: Boolean
   ) = APIAuthAction {
     val atoms = stores.atomListStore.getAtoms(
       search,
       limit,
       shouldUseCreatedDateForSort,
-      mediaPlatform,
+      videoPlayerFormat,
       orderByOldest
     )
     Ok(Json.toJson(atoms))

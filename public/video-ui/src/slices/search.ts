@@ -1,13 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
-  QUERY_PARAM_mediaPlatformFilter,
+  QUERY_PARAM_videoPlayerFormatFilter,
   QUERY_PARAM_shouldUseCreatedDateForSort
 } from '../constants/queryParams';
 
 export interface Search {
   searchTerm: string;
   shouldUseCreatedDateForSort: boolean;
-  mediaPlatformFilter: string;
+  videoPlayerFormatFilter: string;
 }
 
 const searchParams = new URLSearchParams(window.location.search);
@@ -16,7 +16,7 @@ const initialState: Search = {
   searchTerm: '',
   shouldUseCreatedDateForSort:
     searchParams.get(QUERY_PARAM_shouldUseCreatedDateForSort) === 'true',
-  mediaPlatformFilter: searchParams.get(QUERY_PARAM_mediaPlatformFilter)
+  videoPlayerFormatFilter: searchParams.get(QUERY_PARAM_videoPlayerFormatFilter)
 };
 
 const search = createSlice({
@@ -32,8 +32,8 @@ const search = createSlice({
     ) => {
       state.shouldUseCreatedDateForSort = payload;
     },
-    updateMediaPlatformFilter: (state, { payload }: PayloadAction<string>) => {
-      state.mediaPlatformFilter = payload;
+    updateVideoPlayerFormatFilter: (state, { payload }: PayloadAction<string>) => {
+      state.videoPlayerFormatFilter = payload;
     }
   }
 });
@@ -43,5 +43,5 @@ export default search.reducer;
 export const {
   updateSearchTerm,
   updateShouldUseCreatedDateForSort,
-  updateMediaPlatformFilter
+  updateVideoPlayerFormatFilter
 } = search.actions;

@@ -9,7 +9,7 @@ import Icon from './Icon';
 import {Presence} from './Presence';
 import {canonicalVideoPageExists} from '../util/canonicalVideoPageExists';
 import VideoUtils from '../util/video';
-import {QUERY_PARAM_mediaPlatformFilter, QUERY_PARAM_shouldUseCreatedDateForSort} from "../constants/queryParams";
+import {QUERY_PARAM_videoPlayerFormatFilter, QUERY_PARAM_shouldUseCreatedDateForSort} from "../constants/queryParams";
 import Modal from "./utils/Modal";
 import Create from "./Create";
 
@@ -84,17 +84,17 @@ export default class Header extends React.Component {
       <div className="flex-container topbar__global">
         <span>Filter for:&nbsp;</span>
         <select
-          value={this.props.search.mediaPlatformFilter?.toString()}
+          value={this.props.search.videoPlayerFormatFilter?.toString()}
           onChange={event => {
-            const mediaPlatformFilter = event.target.value || null;
+            const videoPlayerFormatFilter = event.target.value || null;
 
-            this.props.updateMediaPlatformFilter(mediaPlatformFilter);
+            this.props.updateVideoPlayerFormatFilter(videoPlayerFormatFilter);
 
             const url = new URL(window.location.href);
-            if (mediaPlatformFilter) {
-              url.searchParams.set(QUERY_PARAM_mediaPlatformFilter, mediaPlatformFilter);
+            if (videoPlayerFormatFilter) {
+              url.searchParams.set(QUERY_PARAM_videoPlayerFormatFilter, videoPlayerFormatFilter);
             } else {
-              url.searchParams.delete(QUERY_PARAM_mediaPlatformFilter);
+              url.searchParams.delete(QUERY_PARAM_videoPlayerFormatFilter);
             }
             window.history.replaceState(
               window.history.state,
@@ -104,8 +104,10 @@ export default class Header extends React.Component {
           }}
         >
           <option value="">All videos</option>
-          <option value="url">Self-hosted</option>
           <option value="youtube">YouTube</option>
+          <option value="loop">Loop</option>
+          <option value="cinemagraph">Cinemagraph</option>
+          <option value="default">Non-YouTube</option>
         </select>
       </div>
     );
