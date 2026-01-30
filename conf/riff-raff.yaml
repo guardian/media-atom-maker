@@ -60,6 +60,7 @@ deployments:
         - "media-atom-pipeline-SendToTranscoderV2-"
         - "media-atom-pipeline-GetTranscodingProgressV2-"
         - "media-atom-pipeline-AddAssetToAtom-"
+        - "media-atom-pipeline-AddSubtitlesToMP4-"
         - "media-atom-pipeline-AddUploadDataToCache-"
         - "media-atom-pipeline-CompleteMultipartCopy-"
     dependencies:

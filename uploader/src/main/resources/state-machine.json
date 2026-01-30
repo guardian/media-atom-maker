@@ -158,7 +158,7 @@
         {
           "Variable": "$.progress.fullyTranscoded",
           "BooleanEquals": true,
-          "Next": "AddSelfHostedAssetToAtom"
+          "Next": "AddSubtitlesToMP4"
         }
       ],
       "Default": "WaitForTranscoderV2"
@@ -167,6 +167,11 @@
       "Type": "Wait",
       "Seconds": 10,
       "Next": "GetTranscodingProgressV2"
+    },
+    "AddSubtitlesToMP4": {
+      "Type": "Task",
+      "Resource": "${AddSubtitlesToMP4.Arn}",
+      "Next": "AddSelfHostedAssetToAtom"
     },
     "AddSelfHostedAssetToAtom": {
       "Type": "Task",

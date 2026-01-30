@@ -87,6 +87,8 @@ Resources:
                 Resource:
                   - !Sub ["arn:aws:s3:::${Bucket}", { "Bucket": !Ref UploadBucketName }]
                   - !Sub ["arn:aws:s3:::${Bucket}/*", { "Bucket": !Ref UploadBucketName }]
+                  - !Sub [ "arn:aws:s3:::${Bucket}", { "Bucket": !Ref DestinationBucketName } ]
+                  - !Sub [ "arn:aws:s3:::${Bucket}/*", { "Bucket": !Ref DestinationBucketName } ]
               - Effect: "Allow"
                 Action: ["dynamodb:*"]
                 Resource:
@@ -365,6 +367,8 @@ Resources:
   {{SendToPluto}}
 
   {{SendToTranscoderV2}}
+
+  {{AddSubtitlesToMP4}}
 
   {{GetTranscodingProgressV2}}
 
