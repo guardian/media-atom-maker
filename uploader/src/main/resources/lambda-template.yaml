@@ -26,6 +26,9 @@
         PLUTO_TABLE_NAME: !Ref 'ManualPlutoTable'
         MEDIA_CONVERT_ROLE: !GetAtt MediaConvertRole.Arn
     MemorySize: 512
+# Architecture specified to match version of ffmpeg used to inject subtitles into mp4
+    Architectures:
+      - "x86_64"
     Role: !GetAtt LambdaExecutionRole.Arn
     Runtime: "java21"
     Timeout: {{timeout}}
