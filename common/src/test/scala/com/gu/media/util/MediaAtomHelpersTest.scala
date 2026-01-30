@@ -18,7 +18,12 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
   test("add YouTube asset") {
     val startTime = DateTime.now().getMillis
     val newAtom = updateAtom(atom(), user()) { mediaAtom =>
-      addAsset(mediaAtom, YouTubeAsset("L9CMNVzMHJ8"), version = 2)
+      addAsset(
+        mediaAtom,
+        YouTubeAsset("L9CMNVzMHJ8"),
+        version = 2,
+        hasSubtitles = false
+      )
     }
 
     val expected = Seq(
@@ -52,7 +57,7 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
     )
 
     val newAtom = updateAtom(atom(), user()) { mediaAtom =>
-      addAsset(mediaAtom, newAsset, version = 2)
+      addAsset(mediaAtom, newAsset, version = 2, hasSubtitles = false)
     }
 
     val expected = Seq(
