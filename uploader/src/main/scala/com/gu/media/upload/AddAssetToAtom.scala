@@ -48,7 +48,12 @@ class AddAssetToAtom
         MediaAtomHelpers.getNextAssetVersion(mediaAtom)
       )
 
-      addAsset(mediaAtom, asset, assetVersion)
+      addAsset(
+        mediaAtom,
+        asset,
+        assetVersion,
+        hasSubtitles = upload.metadata.subtitleSource.isDefined
+      )
     }
 
     saveAtom(after)
