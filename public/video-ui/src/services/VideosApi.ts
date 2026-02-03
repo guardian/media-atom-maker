@@ -160,7 +160,7 @@ export default {
     search: string,
     limit: number,
     shouldUseCreatedDateForSort: boolean,
-    mediaPlatformFilter: string
+    videoPlayerFormatFilter: string
   ) => {
     let url = `/api/atoms?limit=${limit}`;
     if (search) {
@@ -169,8 +169,8 @@ export default {
     if (shouldUseCreatedDateForSort) {
       url += '&shouldUseCreatedDateForSort=true';
     }
-    if (mediaPlatformFilter) {
-      url += `&mediaPlatform=${mediaPlatformFilter}`;
+    if (videoPlayerFormatFilter) {
+      url += `&videoPlayerFormat=${videoPlayerFormatFilter}`;
     }
 
     return apiRequest<{ total: number; atoms: MediaAtomSummary[] }>({

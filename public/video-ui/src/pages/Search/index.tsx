@@ -33,7 +33,7 @@ const MoreLink = ({ onClick }: { onClick: () => void }) => {
   </div>);
 };
 
-const Videos = ({ videos, total, search: {searchTerm, shouldUseCreatedDateForSort, mediaPlatformFilter}, limit, presenceActions }: VideosProps) => {
+const Videos = ({ videos, total, search: {searchTerm, shouldUseCreatedDateForSort, videoPlayerFormatFilter}, limit, presenceActions }: VideosProps) => {
   const [mediaIds, setMediaIds] = useState<string[]>([]);
   const [videoPresences, setVideoPresences] = useState<VideoPresences[]>([]);
   const [client, setClient] = useState<PresenceClient>(null);
@@ -47,7 +47,7 @@ const Videos = ({ videos, total, search: {searchTerm, shouldUseCreatedDateForSor
       search: searchTerm,
       limit: limit + frontPageSize,
       shouldUseCreatedDateForSort,
-      mediaPlatformFilter
+      videoPlayerFormatFilter
     }));
   };
 
@@ -84,7 +84,7 @@ const Videos = ({ videos, total, search: {searchTerm, shouldUseCreatedDateForSor
   };
 
   useEffect(() => {
-    dispatch(fetchVideos({search: searchTerm, limit, shouldUseCreatedDateForSort, mediaPlatformFilter}));
+    dispatch(fetchVideos({search: searchTerm, limit, shouldUseCreatedDateForSort, videoPlayerFormatFilter}));
     const config = getStore().getState().config;
     const presenceConfig = config.presence;
     if (presenceConfig) {
@@ -117,13 +117,13 @@ const Videos = ({ videos, total, search: {searchTerm, shouldUseCreatedDateForSor
   useEffect(() => {
     if (searchTerm !== prevSearch) {
       setPrevSearch(searchTerm);
-      dispatch(fetchVideos({search: searchTerm, limit, shouldUseCreatedDateForSort, mediaPlatformFilter}));
+      dispatch(fetchVideos({search: searchTerm, limit, shouldUseCreatedDateForSort, videoPlayerFormatFilter}));
     }
   }, [searchTerm, prevSearch]);
 
   useEffect(() => {
-    dispatch(fetchVideos({search: searchTerm, limit, shouldUseCreatedDateForSort, mediaPlatformFilter}));
-  }, [shouldUseCreatedDateForSort, mediaPlatformFilter]);
+    dispatch(fetchVideos({search: searchTerm, limit, shouldUseCreatedDateForSort, videoPlayerFormatFilter}));
+  }, [shouldUseCreatedDateForSort, videoPlayerFormatFilter]);
 
   return (
     <div>
