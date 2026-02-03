@@ -223,7 +223,8 @@ Resources:
         OutputGroups:
           - Name: MP4
             Outputs:
-              - ContainerSettings:
+              - NameModifier: "_720"
+                ContainerSettings:
                   Container: MP4
                   Mp4Settings: { }
                 VideoDescription:
@@ -267,7 +268,8 @@ Resources:
                         Bitrate: 160000
                         CodingMode: CODING_MODE_2_0
                         SampleRate: 44100
-              - ContainerSettings:
+              - NameModifier: "_360"
+                ContainerSettings:
                   Container: MP4
                   Mp4Settings: { }
                 VideoDescription:
@@ -324,10 +326,10 @@ Resources:
               FileGroupSettings: { }
           - Name: Apple HLS
             Outputs:
-              - ContainerSettings:
+              - NameModifier: "hls"
+                ContainerSettings:
                   Container: M3U8
                   M3u8Settings: { }
-                NameModifier: "hls"
                 VideoDescription:
                   Height: 720
                   VideoPreprocessors:
@@ -372,10 +374,10 @@ Resources:
                         Bitrate: 160000
                         CodingMode: CODING_MODE_2_0
                         SampleRate: 44100
-              - ContainerSettings:
+              - NameModifier: "captions"
+                ContainerSettings:
                   Container: M3U8
                   M3u8Settings: { }
-                NameModifier: "captions"
                 CaptionDescriptions:
                   - LanguageCode: ENG
                     CaptionSelectorName: "Caption Selector 1"
