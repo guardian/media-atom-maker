@@ -102,9 +102,15 @@ object UploadBuilder {
       // YouTube assets are added after they have been uploaded (once we know the ID)
       None
     } else {
-      // mp4 output doesn't change with subtitle processing, so s3 key stays at subtitle version 0
+      // mp4 output now changes with subtitle processing, so s3 key includes a subtitle version
       val mp4Key =
-        TranscoderOutputKey(title, atomId, assetVersion, 0, "mp4").toString
+        TranscoderOutputKey(
+          title,
+          atomId,
+          assetVersion,
+          subtitleVersion,
+          "mp4"
+        ).toString
       val mp4Source =
         if (includeMp4) Some(VideoSource(mp4Key, VideoSource.mimeTypeMp4))
         else None

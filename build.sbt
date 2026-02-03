@@ -181,8 +181,28 @@ lazy val uploader = (project in file("uploader"))
     name := "media-atom-uploader",
     libraryDependencies ++= Seq(
       "net.logstash.logback" % "logstash-logback-encoder" % logstashLogbackEncoderVersion,
-      "com.amazonaws" % "aws-lambda-java-events" % awsLambdaEventsVersion
+      "com.amazonaws" % "aws-lambda-java-events" % awsLambdaEventsVersion,
+      "software.amazon.awssdk" % "s3" % awsV2Version,
     ),
+    Universal / mappings += {
+      val log = streams.value.log
+      val ffmpegFolder = target.value / "ffmpeg"
+      val binary = target.value / "ffmpeg" / "ffmpeg"
+
+      if (binary.exists()) {
+        log.info("FFmpeg binary already exists, skipping download")
+      } else {
+        log.info("Downloading statically compiled FFmpeg binary")
+        IO.createDirectory(ffmpegFolder)
+        import scala.sys.process.*
+        val archive = target.value / "ffmpeg" / "ffmpeg-release-amd64-static.tar.xz"
+        s"wget -q https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -O $archive".!
+        (s"tar xOf $archive ffmpeg-7.0.2-amd64-static/ffmpeg" #> binary).!
+      }
+
+      binary -> "bin/ffmpeg"
+    },
+
     Universal / topLevelDirectory := None,
     Universal / packageName := normalizedName.value,
     Compile / lambdas := Map(
@@ -210,6 +230,9 @@ lazy val uploader = (project in file("uploader"))
       ),
       "GetTranscodingProgressV2" -> LambdaConfig(
         description = "Polls the AWS MediaConvert transcoder"
+      ),
+      "AddSubtitlesToMP4" -> LambdaConfig(
+        description = "Adds subtitles to an MP4 video using ffmpeg"
       ),
       "AddAssetToAtom" -> LambdaConfig(
         description = "Adds the resulting asset to the atom"
