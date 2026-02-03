@@ -27,7 +27,7 @@ class ClientAssetTest extends AnyFunSuite with Matchers {
       1,
       "test.m3u8",
       Platform.Url,
-      Some("video/m3u8"),
+      Some("application/vnd.apple.mpegurl"),
       Some(ImageAssetDimensions(1280, 720)),
       Some("16:9")
     )

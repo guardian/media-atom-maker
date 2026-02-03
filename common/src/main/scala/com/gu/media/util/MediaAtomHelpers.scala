@@ -73,9 +73,10 @@ object MediaAtomHelpers {
   def addAsset(
       mediaAtom: ThriftMediaAtom,
       asset: VideoAsset,
-      version: Long
+      version: Long,
+      hasSubtitles: Boolean
   ): ThriftMediaAtom = {
-    val assets = getAssets(asset, version)
+    val assets = getAssets(asset, version, hasSubtitles)
 
     // remove any existing assets that have the same version
     val atomAssets = mediaAtom.assets.filter(a => a.version != version)
@@ -147,7 +148,11 @@ object MediaAtomHelpers {
     })
   }
 
-  private def getAssets(asset: VideoAsset, version: Long): List[ThriftAsset] =
+  private def getAssets(
+      asset: VideoAsset,
+      version: Long,
+      hasSubtitles: Boolean
+  ): List[ThriftAsset] =
     asset match {
       case YouTubeAsset(id) =>
         val asset = ThriftAsset(
@@ -182,7 +187,8 @@ object MediaAtomHelpers {
         }
 
         val subtitleAssets = sources.collect {
-          case VideoSource(src, VideoSource.mimeTypeM3u8, _, _) =>
+          case VideoSource(src, VideoSource.mimeTypeM3u8, _, _)
+              if hasSubtitles =>
             val subtitleSrc = src.dropRight(5) + VideoSource.captionsSuffix
             ThriftAsset(
               AssetType.Subtitles,

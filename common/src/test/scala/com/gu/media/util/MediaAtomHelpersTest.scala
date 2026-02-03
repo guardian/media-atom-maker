@@ -18,7 +18,12 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
   test("add YouTube asset") {
     val startTime = DateTime.now().getMillis
     val newAtom = updateAtom(atom(), user()) { mediaAtom =>
-      addAsset(mediaAtom, YouTubeAsset("L9CMNVzMHJ8"), version = 2)
+      addAsset(
+        mediaAtom,
+        YouTubeAsset("L9CMNVzMHJ8"),
+        version = 2,
+        hasSubtitles = false
+      )
     }
 
     val expected = Seq(
@@ -47,12 +52,12 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
     val newAsset = SelfHostedAsset(
       List(
         VideoSource("test.mp4", "video/mp4"),
-        VideoSource("test.m3u8", "video/m3u8")
+        VideoSource("test.m3u8", "application/vnd.apple.mpegurl")
       )
     )
 
     val newAtom = updateAtom(atom(), user()) { mediaAtom =>
-      addAsset(mediaAtom, newAsset, version = 2)
+      addAsset(mediaAtom, newAsset, version = 2, hasSubtitles = false)
     }
 
     val expected = Seq(
@@ -66,11 +71,49 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
         platform = Platform.Url,
         id = "test.m3u8",
         version = 2,
-        mimeType = Some("video/m3u8")
+        mimeType = Some("application/vnd.apple.mpegurl")
       ),
       asset()
     )
 
+    newAtom.contentChangeDetails.revision must be(2)
+    assets(newAtom) must be(expected)
+  }
+
+  test("add self hosted asset with subtitles") {
+    val newAsset = SelfHostedAsset(
+      List(
+        VideoSource("test.mp4", "video/mp4"),
+        VideoSource("test.m3u8", "application/vnd.apple.mpegurl")
+      )
+    )
+
+    val newAtom = updateAtom(atom(), user()) { mediaAtom =>
+      addAsset(mediaAtom, newAsset, version = 2, hasSubtitles = true)
+    }
+
+    val expected = Seq(
+      asset().copy(
+        platform = Platform.Url,
+        id = "test.mp4",
+        version = 2,
+        mimeType = Some("video/mp4")
+      ),
+      asset().copy(
+        platform = Platform.Url,
+        id = "test.m3u8",
+        version = 2,
+        mimeType = Some("application/vnd.apple.mpegurl")
+      ),
+      asset().copy(
+        assetType = AssetType.Subtitles,
+        platform = Platform.Url,
+        id = "testcaptions_00001.vtt",
+        version = 2,
+        mimeType = Some("text/vtt")
+      ),
+      asset()
+    )
     newAtom.contentChangeDetails.revision must be(2)
     assets(newAtom) must be(expected)
   }
@@ -91,10 +134,10 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
     val asset = SelfHostedAsset(
       List(
         VideoSource("url encode me.mp4", "video/mp4"),
-        VideoSource("url encode me.m3u8", "video/m3u8"),
+        VideoSource("url encode me.m3u8", "application/vnd.apple.mpegurl"),
         VideoSource(
           "2025/08/18/My Title--0653ffba-35f4-4883-b961-3139cdaf6c8b-1.0.m3u8",
-          "video/m3u8"
+          "application/vnd.apple.mpegurl"
         )
       )
     )
@@ -102,10 +145,13 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
     urlEncodeSources(asset, "https://gu.com/videos") mustBe SelfHostedAsset(
       List(
         VideoSource("https://gu.com/videos/url+encode+me.mp4", "video/mp4"),
-        VideoSource("https://gu.com/videos/url+encode+me.m3u8", "video/m3u8"),
+        VideoSource(
+          "https://gu.com/videos/url+encode+me.m3u8",
+          "application/vnd.apple.mpegurl"
+        ),
         VideoSource(
           "https://gu.com/videos/2025/08/18/My+Title--0653ffba-35f4-4883-b961-3139cdaf6c8b-1.0.m3u8",
-          "video/m3u8"
+          "application/vnd.apple.mpegurl"
         )
       )
     )
