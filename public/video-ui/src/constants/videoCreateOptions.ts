@@ -86,7 +86,7 @@ export const videoCreateOptions: {
               "No share button"
             ],
             info: [
-              "Can be used on Fronts only",
+              "Can be used on Fronts and Articles",
               "Self-hosted"
             ]
           }
