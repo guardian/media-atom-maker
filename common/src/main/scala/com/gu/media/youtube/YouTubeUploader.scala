@@ -15,7 +15,7 @@ import com.gu.media.youtube.YouTubeUploader.{
   UploadError,
   VideoFullyUploaded
 }
-import com.squareup.okhttp.{MediaType, OkHttpClient, Request, RequestBody}
+import okhttp3.{MediaType, OkHttpClient, Request, RequestBody}
 import play.api.libs.json.{JsObject, JsString, Json}
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.GetObjectRequest

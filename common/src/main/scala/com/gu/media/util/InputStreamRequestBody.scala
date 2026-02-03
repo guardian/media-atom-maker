@@ -2,8 +2,8 @@ package com.gu.media.util
 
 import java.io.InputStream
 
-import com.squareup.okhttp.internal.Util
-import com.squareup.okhttp.{MediaType, RequestBody}
+import okhttp3.internal.Util
+import okhttp3.{MediaType, RequestBody}
 import okio.{BufferedSink, Okio, Source}
 
 import scala.annotation.tailrec

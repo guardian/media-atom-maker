@@ -10,7 +10,7 @@ import software.amazon.awssdk.auth.credentials.{
   ProfileCredentialsProvider
 }
 import com.gu.contentapi.client.{IAMEncoder, IAMSigner}
-import com.squareup.okhttp.{Headers, OkHttpClient, Request}
+import okhttp3.{Headers, OkHttpClient, Request}
 import com.typesafe.config.Config
 import play.api.libs.json.{JsValue, Json}
 import software.amazon.awssdk.regions.Region
@@ -53,8 +53,7 @@ trait CapiAccess { this: Settings =>
   }
 
   val signer = new IAMSigner(capiPreviewCredentials, awsRegion)
-  private val httpClient = new OkHttpClient()
-  httpClient.setConnectTimeout(5, TimeUnit.SECONDS)
+  private val httpClient = new OkHttpClient.Builder().connectTimeout(5, TimeUnit.SECONDS).build
 
   private def getUrl(
       path: String,
