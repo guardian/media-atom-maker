@@ -7,6 +7,7 @@ import okhttp3.{MediaType, RequestBody}
 import okio.{BufferedSink, Okio, Source}
 
 import scala.annotation.tailrec
+import java.io.Closeable
 
 // http://stackoverflow.com/questions/25367888/upload-binary-file-with-okhttp-from-resources
 // http://stackoverflow.com/questions/25962595/tracking-progress-of-multipart-file-upload-using-okhttp
@@ -26,7 +27,17 @@ class InputStreamRequestBody(
       source = Okio.source(input)
       write(source, sink, 0)
     } finally {
-      Util.closeQuietly(source)
+      closeQuietly(source)
+    }
+  }
+
+  private def closeQuietly(c: Closeable) = {
+    if (c != null) {
+      try {
+        c.close()
+      } catch {
+        case _: Exception => // do nothing
+      }
     }
   }
 
