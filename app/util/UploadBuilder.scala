@@ -102,32 +102,44 @@ object UploadBuilder {
       // YouTube assets are added after they have been uploaded (once we know the ID)
       None
     } else {
-      // mp4 output now changes with subtitle processing, so s3 key includes a subtitle version
-      val mp4Key =
-        TranscoderOutputKey(
-          title,
-          atomId,
-          assetVersion,
-          subtitleVersion,
-          "mp4"
-        ).toString
-      val mp4Source =
-        if (includeMp4) Some(VideoSource(mp4Key, VideoSource.mimeTypeMp4))
-        else None
+      // TODO: change to width
+      // TODO: derive from job dimensions?
+      // we transcode two mp4s - one with a height of 360, one with a height of 720
+      val mp4Dimensions = List("360", "720")
+      val mp4Sources =
+        if (includeMp4) {
+          mp4Dimensions.map(dimension => {
+            // mp4 output now changes with subtitle processing, so s3 key includes a subtitle version
+            val mp4Key = TranscoderOutputKey(
+              title,
+              atomId,
+              "mp4",
+              Some(subtitleVersion),
+              Some(assetVersion),
+              Some(dimension)
+            ).toString
+            Some(VideoSource(mp4Key, VideoSource.mimeTypeMp4))
+          })
+        } else {
+          List(None)
+        }
 
       // m3u8 output changes when subtitles are processed, so s3 key includes a subtitle version
       val m3u8Key = TranscoderOutputKey(
         title,
         atomId,
-        assetVersion,
-        subtitleVersion,
-        "m3u8"
+        "m3u8",
+        Some(subtitleVersion),
+        Some(assetVersion),
+        // dimensions aren't used in m3u8 keys
+        None
       ).toString
       val m3u8Source =
         if (includeM3u8) Some(VideoSource(m3u8Key, VideoSource.mimeTypeM3u8))
         else None
-      val sources = mp4Source ++ m3u8Source
-      Some(SelfHostedAsset(sources.toList))
+
+      val sources = mp4Sources ++ List(m3u8Source)
+      Some(SelfHostedAsset(sources.flatten))
     }
   }
 
