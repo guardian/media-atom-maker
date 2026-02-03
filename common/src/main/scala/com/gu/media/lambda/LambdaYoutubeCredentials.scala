@@ -1,22 +1,24 @@
 package com.gu.media.lambda
 
-import com.amazonaws.services.s3.AmazonS3ClientBuilder
+import software.amazon.awssdk.services.s3.S3Client
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.gu.media.aws.AwsAccess
+import software.amazon.awssdk.services.s3.model.GetObjectRequest
 
 trait LambdaYoutubeCredentials { self: AwsAccess =>
   lazy val youtubeCredentials: GoogleCredential = {
     (sys.env.get("CONFIG_BUCKET"), sys.env.get("CREDENTIALS_KEY")) match {
       case (Some(bucket), Some(key)) =>
-        val defaultRegionS3 = AmazonS3ClientBuilder
-          .standard()
-          .withCredentials(credentials.instance.awsV1Creds)
-          .withRegion(region.getName)
+        val defaultRegionS3 = S3Client
+          .builder()
+          .credentialsProvider(credentials.instance.awsV2Creds)
+          .region(awsV2Region)
           .build()
 
-        val obj = defaultRegionS3.getObject(bucket, key)
-        val rawCredentials = obj.getObjectContent
-        GoogleCredential.fromStream(rawCredentials)
+        val inputStream = defaultRegionS3.getObject(
+          GetObjectRequest.builder().bucket(bucket).key(key).build()
+        )
+        GoogleCredential.fromStream(inputStream)
 
       case _ =>
         throw new Exception(

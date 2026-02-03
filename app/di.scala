@@ -1,6 +1,9 @@
-import com.amazonaws.auth._
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain}
+import software.amazon.awssdk.auth.credentials.{
+  AwsCredentialsProvider,
+  AwsCredentialsProviderChain,
+  InstanceProfileCredentialsProvider,
+  ProfileCredentialsProvider
+}
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.gu.atom.play.ReindexController
 import com.gu.media.aws.{AwsCredentials, S3Access}
@@ -52,23 +55,28 @@ class MediaAtomMaker(context: Context)
     case Mode.Dev => AwsCredentials.dev(Settings(config))
     case _        => AwsCredentials.app(Settings(config))
   }
+  val profileName =
+    configuration
+      .getOptional[String]("panda.awsCredsProfile")
+      .getOrElse("panda")
 
-  val pandaAwsCredentialsProvider: AWSCredentialsProvider =
-    new AWSCredentialsProviderChain(
-      new ProfileCredentialsProvider(
-        configuration
-          .getOptional[String]("panda.awsCredsProfile")
-          .getOrElse("panda")
-      ),
-      new InstanceProfileCredentialsProvider(false)
-    )
+  val pandaAwsCredentialsProvider: AwsCredentialsProvider =
+    AwsCredentialsProviderChain
+      .builder()
+      .addCredentialsProvider(
+        AwsCredentialsProviderChain.of(
+          ProfileCredentialsProvider.create(profileName),
+          InstanceProfileCredentialsProvider.create()
+        )
+      )
+      .build()
 
   private lazy val domain = configuration.get[String]("panda.domain")
 
   val panDomainSettings = PanDomainAuthSettingsRefresher(
     domain = domain,
     system = "video",
-    S3BucketLoader.forAwsSdkV1(
+    S3BucketLoader.forAwsSdkV2(
       S3Access.buildClient(pandaAwsCredentialsProvider, "eu-west-1"),
       configuration
         .getOptional[String]("panda.bucketName")
@@ -85,8 +93,8 @@ class MediaAtomMaker(context: Context)
 
   private val permissions = new MediaAtomMakerPermissionsProvider(
     permissionsStage,
-    aws.region.getName,
-    aws.credentials.instance.awsV1Creds
+    aws.awsV2Region.id(),
+    aws.credentials.instance.awsV2Creds
   )
 
   private val hmacAuthActions = new PanDomainAuthActions {

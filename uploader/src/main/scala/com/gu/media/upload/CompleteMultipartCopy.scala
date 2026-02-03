@@ -1,8 +1,10 @@
 package com.gu.media.upload
 
-import com.amazonaws.services.s3.model.{
+import software.amazon.awssdk.services.s3.model.{
   CompleteMultipartUploadRequest,
-  PartETag
+  CompletedMultipartUpload,
+  CompletedPart,
+  DeleteObjectRequest
 }
 import com.gu.media.aws.S3Access
 import com.gu.media.lambda.LambdaWithParams
@@ -21,18 +23,28 @@ class CompleteMultipartCopy
       case Some(CopyProgress(copyId, _, copyETags)) =>
         val bucket = upload.metadata.bucket
         val destination = upload.metadata.pluto.s3Key
-        val eTags = copyETags.map { case CopyETag(n, t) => new PartETag(n, t) }
-
+        val completedParts = copyETags.map { case CopyETag(partNumber, eTag) =>
+          CompletedPart
+            .builder()
+            .partNumber(partNumber)
+            .eTag(eTag)
+            .build()
+        }
+        val completedUpload = CompletedMultipartUpload
+          .builder()
+          .parts(completedParts.asJava)
+          .build()
         log.info(
           s"Completing multipart copy. upload=${upload.id} multipart=$copyId"
         )
+        val request = CompleteMultipartUploadRequest
+          .builder()
+          .bucket(bucket)
+          .key(destination)
+          .uploadId(copyId)
+          .multipartUpload(completedUpload)
+          .build()
 
-        val request = new CompleteMultipartUploadRequest(
-          bucket,
-          destination,
-          copyId,
-          eTags.asJava
-        )
         s3Client.completeMultipartUpload(request)
 
       case None =>
@@ -43,7 +55,12 @@ class CompleteMultipartCopy
     upload.parts.foreach { part =>
       try {
         log.info(s"Deleting part $part")
-        s3Client.deleteObject(upload.metadata.bucket, part.key)
+        val deleteRequest = DeleteObjectRequest
+          .builder()
+          .bucket(upload.metadata.bucket)
+          .key(part.key)
+          .build()
+        s3Client.deleteObject(deleteRequest)
       } catch {
         case NonFatal(err) =>
           // if we can't delete it, no problem. the bucket policy will remove it in time

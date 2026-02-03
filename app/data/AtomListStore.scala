@@ -1,9 +1,9 @@
 package data
 
-import com.gu.atom.data.PreviewDynamoDataStore
+import com.gu.atom.data.PreviewDynamoDataStoreV2
 import com.gu.media.CapiAccess
 import com.gu.media.model.Platform.{Url, Youtube}
-import com.gu.media.model.VideoPlayerFormat.Loop
+import com.gu.media.model.VideoPlayerFormat.{Loop, videoPlayerFormat}
 import com.gu.media.model.{
   ContentChangeDetails,
   Image,
@@ -22,7 +22,7 @@ trait AtomListStore {
       search: Option[String],
       limit: Option[Int],
       shouldUseCreatedDateForSort: Boolean,
-      platformFilter: Option[String],
+      videoPlayerFormat: Option[String],
       orderByOldest: Boolean
   ): MediaAtomList
 }
@@ -38,7 +38,7 @@ class CapiBackedAtomListStore(capi: CapiAccess)
       search: Option[String],
       limit: Option[Int],
       shouldUseCreatedDateForSort: Boolean,
-      platformFilter: Option[String],
+      videoPlayerFormat: Option[String],
       orderByOldest: Boolean
   ): MediaAtomList = {
     val pagination = Pagination.option(CapiMaxPageSize, limit)
@@ -48,9 +48,11 @@ class CapiBackedAtomListStore(capi: CapiAccess)
       case false => Map.empty
     }
 
-    val mediaPlatformFilter = platformFilter match {
-      case Some(mPlatform) => Map("media-platform" -> mPlatform)
-      case _               => Map.empty
+    val videoPlayerFormatFilter = videoPlayerFormat match {
+      case Some("youtube") => Map("media-platform" -> "youtube")
+      case Some(selfHostedVideoPlayerFormat) =>
+        Map("media-video-player-format" -> selfHostedVideoPlayerFormat)
+      case None => Map.empty
     }
 
     val orderBy = orderByOldest match {
@@ -60,7 +62,7 @@ class CapiBackedAtomListStore(capi: CapiAccess)
 
     val base: Map[String, String] = Map("types" -> "media") ++
       dateSorter ++
-      mediaPlatformFilter ++
+      videoPlayerFormatFilter ++
       orderBy
 
     val baseWithSearch = search match {
@@ -192,13 +194,13 @@ class CapiBackedAtomListStore(capi: CapiAccess)
   }
 }
 
-class DynamoBackedAtomListStore(store: PreviewDynamoDataStore)
+class DynamoBackedAtomListStore(store: PreviewDynamoDataStoreV2)
     extends AtomListStore {
   override def getAtoms(
       search: Option[String],
       limit: Option[Int],
       shouldUseCreatedDateForSort: Boolean,
-      mediaPlatform: Option[String],
+      videoPlayerFormat: Option[String],
       orderByOldest: Boolean
   ): MediaAtomList = {
     // We must filter the entire list of atoms rather than use Dynamo limit to ensure stable iteration order.
@@ -228,18 +230,23 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStore)
           case Some(str) => Some((atom: MediaAtom) => atom.title.contains(str))
           case None      => None
         }
-
-        val mediaPlatformFilter = mediaPlatform match {
-          case Some(mPlatform) =>
+        val videoPlayerFormatFilter = videoPlayerFormat match {
+          case Some("youtube") =>
             Some((atom: MediaAtom) =>
-              atom.assets.exists(
-                _.platform.name.toLowerCase == mPlatform.toLowerCase
+              atom.platform.exists(
+                _.name.toLowerCase == "youtube"
               )
             )
-          case _ => None
+          case Some(selfHostedVideoPlayerFormat) =>
+            Some((atom: MediaAtom) =>
+              atom.videoPlayerFormat.exists(
+                _.name.toLowerCase == selfHostedVideoPlayerFormat.toLowerCase
+              )
+            )
+          case None => None
         }
 
-        val filters = List(searchTermFilter, mediaPlatformFilter).flatten
+        val filters = List(searchTermFilter, videoPlayerFormatFilter).flatten
 
         val filteredAtoms =
           filters.foldLeft(mediaAtomsSorted)((atoms, f) => atoms.filter(f))
@@ -270,7 +277,7 @@ object AtomListStore {
   def apply(
       stage: String,
       capi: CapiAccess,
-      store: PreviewDynamoDataStore
+      store: PreviewDynamoDataStoreV2
   ): AtomListStore = stage match {
     case "DEV" => new DynamoBackedAtomListStore(store)
     case _     => new CapiBackedAtomListStore(capi)
