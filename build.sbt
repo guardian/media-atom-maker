@@ -13,7 +13,7 @@ val typesafeConfigVersion =
 val scanamoVersion = "1.0.0-M28"
 
 val playJsonExtensionsVersion = "1.0.3"
-val okHttpVersion = "5.0.0"
+val okHttpVersion = "5.3.2"
 
 val scalaTestVersion = "3.2.19"
 val scalaTestPlusPlayVersion = "7.0.2"
