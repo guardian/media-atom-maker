@@ -7,7 +7,7 @@ import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.ObjectMetadata
 import com.google.common.io.ByteStreams
 import com.gu.media.logging.Logging
-import com.squareup.okhttp.Response
+import okhttp3.Response
 import integration.IntegrationTestBase
 import integration.services.Config
 import org.scalatest.CancelAfterFailure
