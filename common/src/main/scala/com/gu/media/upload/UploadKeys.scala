@@ -39,21 +39,17 @@ object TranscoderOutputKey {
 
   def apply(
       title: String,
-      id: String,
-      extension: String
-  ): TranscoderOutputKey = {
-    TranscoderOutputKey(currentDate, title, id, extension)
-  }
-
-  def apply(
-      title: String,
       atomId: String,
-      assetVersion: Long,
-      subtitleVersion: Long,
-      extension: String
+      extension: String,
+      subtitleVersion: Option[Long],
+      assetVersion: Option[Long],
   ): TranscoderOutputKey = {
-    val id = s"$atomId-$assetVersion.$subtitleVersion"
-    TranscoderOutputKey(title, id, extension)
+    (subtitleVersion, assetVersion) match {
+      case (Some(subtitleVersion), Some(assetVersion)) =>
+        val id = s"$atomId-$assetVersion.$subtitleVersion"
+        TranscoderOutputKey(None, title, id, extension)
+      case _ => TranscoderOutputKey(Some(currentDate), title, atomId, extension)
+    }
   }
 
   def stripSpecialCharsInPath(path: String): String =
