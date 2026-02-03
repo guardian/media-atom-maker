@@ -28,7 +28,7 @@ object VideoPlayerFormat {
       JsString(vpf.name)
     })
 
-  implicit val videoPlayerFormatFormat: Format[VideoPlayerFormat] =
+  implicit val videoPlayerFormat: Format[VideoPlayerFormat] =
     Format(videoPlayerFormatReads, videoPlayerFormatWrites)
 
   private val types = List(Default, Loop, Cinemagraph)

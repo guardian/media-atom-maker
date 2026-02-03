@@ -11,7 +11,7 @@ import {
   selectVideo
 } from '../slices/video';
 import {
-  updateMediaPlatformFilter,
+  updateVideoPlayerFormatFilter,
   updateSearchTerm,
   updateShouldUseCreatedDateForSort
 } from '../slices/search';
@@ -97,8 +97,8 @@ export const ReactApp = (
     <div className="wrap">
       <Header
         createVideo={bindActionCreators(createVideo, dispatch)}
-        updateMediaPlatformFilter={bindActionCreators(
-          updateMediaPlatformFilter,
+        updateVideoPlayerFormatFilter={bindActionCreators(
+          updateVideoPlayerFormatFilter,
           dispatch
         )}
         shouldUseCreatedDateForSort={store.search.shouldUseCreatedDateForSort}
