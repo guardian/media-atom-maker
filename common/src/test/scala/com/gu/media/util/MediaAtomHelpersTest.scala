@@ -80,6 +80,44 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
     assets(newAtom) must be(expected)
   }
 
+  test("add self hosted asset with subtitles") {
+    val newAsset = SelfHostedAsset(
+      List(
+        VideoSource("test.mp4", "video/mp4"),
+        VideoSource("test.m3u8", "application/vnd.apple.mpegurl")
+      )
+    )
+
+    val newAtom = updateAtom(atom(), user()) { mediaAtom =>
+      addAsset(mediaAtom, newAsset, version = 2, hasSubtitles = true)
+    }
+
+    val expected = Seq(
+      asset().copy(
+        platform = Platform.Url,
+        id = "test.mp4",
+        version = 2,
+        mimeType = Some("video/mp4")
+      ),
+      asset().copy(
+        platform = Platform.Url,
+        id = "test.m3u8",
+        version = 2,
+        mimeType = Some("application/vnd.apple.mpegurl")
+      ),
+      asset().copy(
+        assetType = AssetType.Subtitles,
+        platform = Platform.Url,
+        id = "testcaptions_00001.vtt",
+        version = 2,
+        mimeType = Some("text/vtt")
+      ),
+      asset()
+    )
+    newAtom.contentChangeDetails.revision must be(2)
+    assets(newAtom) must be(expected)
+  }
+
   test("get user name from email") {
     getUser("first.last@guardian.co.uk") must be(
       User("first.last@guardian.co.uk", Some("First"), Some("Last"))
