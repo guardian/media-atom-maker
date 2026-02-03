@@ -11,7 +11,7 @@ import software.amazon.awssdk.services.s3.model.{
   PutObjectRequest
 }
 import java.nio.file.{Files, Path}
-import scala.math.random
+import scala.util.Random
 
 class AddSubtitlesToMP4
     extends LambdaWithParams[Upload, Upload]
@@ -26,8 +26,8 @@ class AddSubtitlesToMP4
       suffix: String,
       dir: Path = tmpdir
   ): Path = {
-    val n = random.longValue
-    val s = prefix + n.toString + suffix
+    val n = Random.nextLong()
+    val s = prefix + java.lang.Long.toUnsignedString(n) + suffix
     dir.resolve(s)
   }
 
