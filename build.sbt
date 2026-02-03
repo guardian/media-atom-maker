@@ -13,7 +13,7 @@ val typesafeConfigVersion =
 val scanamoVersion = "1.0.0-M28"
 
 val playJsonExtensionsVersion = "1.0.3"
-val okHttpVersion = "4.0.0"
+val okHttpVersion = "5.0.0"
 
 val scalaTestVersion = "3.2.19"
 val scalaTestPlusPlayVersion = "7.0.2"
@@ -109,7 +109,7 @@ lazy val common = (project in file("common"))
       "software.amazon.awssdk" % "sts" % awsV2Version,
       "software.amazon.awssdk" % "mediaconvert" % awsV2Version,
       "org.scanamo" %% "scanamo" % scanamoVersion,
-      "com.squareup.okhttp3" % "okhttp" % okHttpVersion,
+      "com.squareup.okhttp3" % "okhttp-jvm" % okHttpVersion,
       "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test", // to match ScalaTest version
       "software.amazon.awssdk" % "sns" % awsV2Version,
       "software.amazon.awssdk" % "sqs" % awsV2Version,

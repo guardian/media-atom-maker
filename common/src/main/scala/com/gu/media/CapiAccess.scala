@@ -53,7 +53,8 @@ trait CapiAccess { this: Settings =>
   }
 
   val signer = new IAMSigner(capiPreviewCredentials, awsRegion)
-  private val httpClient = new OkHttpClient.Builder().connectTimeout(5, TimeUnit.SECONDS).build
+  private val httpClient =
+    new OkHttpClient.Builder().connectTimeout(5, TimeUnit.SECONDS).build
 
   private def getUrl(
       path: String,
