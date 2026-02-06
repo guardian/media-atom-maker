@@ -10,13 +10,11 @@ import com.gu.media.model.{Image, ImageAsset}
 
 import javax.imageio.ImageIO
 
-case class ThumbnailGenerator(logoFile: File) extends Logging {
+case class ThumbnailGenerator(logoDir: File) extends Logging {
   // YouTube have a file size limit of 2MB
   // see https://developers.google.com/youtube/v3/docs/thumbnails/set
   // use a slightly smaller file from Grid so we can add a branding overlay
   private val MAX_SIZE = 1.7 * 1000 * 1000
-
-  private lazy val logo = ImageIO.read(logoFile)
 
   private def getGridImageAsset(image: Image): ImageAsset = {
     image.assets
@@ -39,8 +37,11 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
   private def overlayImages(
       bgImage: BufferedImage,
       bgImageMimeType: String,
-      atomId: String
+      atomId: String,
+      logoPath: String
   ): ByteArrayInputStream = {
+    val logoFile = new File(logoDir, logoPath)
+    val logo = ImageIO.read(logoFile)
     val logoWidth: Double = List(bgImage.getWidth() / 3.0, logo.getWidth()).min
     val logoHeight: Double = logo.getHeight() / (logo.getWidth() / logoWidth)
 
@@ -84,14 +85,20 @@ case class ThumbnailGenerator(logoFile: File) extends Logging {
     new ByteArrayInputStream(os.toByteArray)
   }
 
-  def getBrandedThumbnail(image: Image, atomId: String): InputStreamContent = {
+  def getBrandedThumbnail(
+      image: Image,
+      atomId: String,
+      logoPath: String
+  ): InputStreamContent = {
     val imageAsset = getGridImageAsset(image)
     val gridImage = imageAssetToBufferedImage(imageAsset)
     val mimeType = imageAsset.mimeType.getOrElse("image/jpeg")
 
     new InputStreamContent(
       mimeType,
-      new BufferedInputStream(overlayImages(gridImage, mimeType, atomId))
+      new BufferedInputStream(
+        overlayImages(gridImage, mimeType, atomId, logoPath)
+      )
     )
   }
 

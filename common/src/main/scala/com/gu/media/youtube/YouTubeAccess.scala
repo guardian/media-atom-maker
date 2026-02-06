@@ -26,23 +26,51 @@ import net.logstash.logback.marker.{LogstashMarker, Markers}
 import java.io.FileInputStream
 import scala.jdk.CollectionConverters._
 
+case class ChannelSettings(
+    training: Boolean,
+    unlisted: Boolean,
+    commercial: Boolean,
+    logo: Option[String]
+)
 trait YouTubeAccess extends Settings with Logging {
   def appName: String = getMandatoryString("name")
   def contentOwner: String = getMandatoryString("youtube.contentOwner")
 
+  val channelConfig: Map[String, ChannelSettings] =
+    if (!config.hasPath("youtube.channels.list")) Map.empty
+    else
+      config
+        .getObjectList("youtube.channels.list")
+        .asScala
+        .map(o => {
+          val channelConfig = o.toConfig
+
+          val id = channelConfig.getMandatoryString("id")
+          val settings = ChannelSettings(
+            training = channelConfig.getOptBoolean("training").getOrElse(false),
+            unlisted = channelConfig.getOptBoolean("unlisted").getOrElse(false),
+            commercial =
+              channelConfig.getOptBoolean("commercial").getOrElse(false),
+            logo = channelConfig.getOptString("logo")
+          )
+
+          id -> settings
+        })
+        .toMap
+
   val cannotReachYoutube: Boolean =
     getBoolean("youtube.isDown").getOrElse(false)
-  val allowedChannels: Set[String] = getStringSet("youtube.channels.allowed")
-  val channelsRequiringPermission: Set[String] = getStringSet(
-    "youtube.channels.unlisted"
-  )
-  val commercialChannels: Set[String] = getStringSet(
-    "youtube.channels.commercial"
-  )
-  val allChannels: Set[String] =
-    allowedChannels ++ channelsRequiringPermission ++ commercialChannels
 
-  val trainingChannels: Set[String] = getStringSet("youtube.channels.training")
+  val commercialChannels = channelConfig.collect {
+    case (id, settings) if settings.commercial => id
+  }.toSet
+  val trainingChannels = channelConfig.collect {
+    case (id, settings) if settings.training => id
+  }.toSet
+  val channelsRequiringPermission = channelConfig.collect {
+    case (id, settings) if settings.unlisted => id
+  }.toSet
+  val allChannels = channelConfig.keySet
 
   val disallowedVideos: Set[String] = getStringSet("youtube.videos.disallowed")
   val usePartnerApi: Boolean =

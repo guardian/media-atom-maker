@@ -129,7 +129,7 @@ class MediaAtomMaker(context: Context)
   private val youTube = YouTube(config, Duration.ofDays(1), youtubeCredentials)
 
   private val thumbnailGenerator = ThumbnailGenerator(
-    environment.getFile(s"conf/logo.png")
+    environment.getFile("conf/")
   )
 
   private val api = new Api(
