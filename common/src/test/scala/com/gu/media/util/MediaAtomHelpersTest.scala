@@ -63,6 +63,12 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
     val expected = Seq(
       asset().copy(
         platform = Platform.Url,
+        id = "test_360.mp4",
+        version = 2,
+        mimeType = Some("video/mp4")
+      ),
+      asset().copy(
+        platform = Platform.Url,
         id = "test_720.mp4",
         version = 2,
         mimeType = Some("video/mp4")
@@ -93,6 +99,12 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
     }
 
     val expected = Seq(
+      asset().copy(
+        platform = Platform.Url,
+        id = "test_360.mp4",
+        version = 2,
+        mimeType = Some("video/mp4")
+      ),
       asset().copy(
         platform = Platform.Url,
         id = "test_720.mp4",
