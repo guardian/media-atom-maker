@@ -36,23 +36,27 @@ trait YouTubeAccess extends Settings with Logging {
   def appName: String = getMandatoryString("name")
   def contentOwner: String = getMandatoryString("youtube.contentOwner")
 
-  val channelConfig = config
-    .getObjectList("youtube.channels.list")
-    .asScala
-    .map(o => {
-      val channelConfig = o.toConfig
+  val channelConfig: Map[String, ChannelSettings] =
+    if (!config.hasPath("youtube.channels.list")) Map.empty
+    else
+      config
+        .getObjectList("youtube.channels.list")
+        .asScala
+        .map(o => {
+          val channelConfig = o.toConfig
 
-      val id = channelConfig.getMandatoryString("id")
-      val settings = ChannelSettings(
-        training = channelConfig.getOptBoolean("training").getOrElse(false),
-        unlisted = channelConfig.getOptBoolean("unlisted").getOrElse(false),
-        commercial = channelConfig.getOptBoolean("commercial").getOrElse(false),
-        logo = channelConfig.getOptString("logo")
-      )
+          val id = channelConfig.getMandatoryString("id")
+          val settings = ChannelSettings(
+            training = channelConfig.getOptBoolean("training").getOrElse(false),
+            unlisted = channelConfig.getOptBoolean("unlisted").getOrElse(false),
+            commercial =
+              channelConfig.getOptBoolean("commercial").getOrElse(false),
+            logo = channelConfig.getOptString("logo")
+          )
 
-      id -> settings
-    })
-    .toMap
+          id -> settings
+        })
+        .toMap
 
   val cannotReachYoutube: Boolean =
     getBoolean("youtube.isDown").getOrElse(false)
