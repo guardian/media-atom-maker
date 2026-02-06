@@ -6,23 +6,38 @@ import scala.jdk.CollectionConverters._
 trait Settings {
   def config: Config
 
-  def getString(name: String): Option[String] = if (config.hasPath(name)) {
-    Some(config.getString(name))
-  } else { None }
-  def getStringSet(name: String): Set[String] = if (config.hasPath(name)) {
-    config.getStringList(name).asScala.toSet
-  } else { Set.empty }
-  def getBoolean(name: String): Option[Boolean] = if (config.hasPath(name)) {
-    Some(config.getBoolean(name))
-  } else { None }
+  implicit class ConfigGetters(config: Config) {
+    def getOptString(name: String): Option[String] = if (config.hasPath(name)) {
+      Some(config.getString(name))
+    } else { None }
 
-  def getMandatoryString(name: String, hint: String = ""): String = if (
-    config.hasPath(name)
-  ) {
-    config.getString(name)
-  } else {
-    throw new IllegalArgumentException(s"Missing $name $hint")
+    def getStringSet(name: String): Set[String] = if (config.hasPath(name)) {
+      config.getStringList(name).asScala.toSet
+    } else { Set.empty }
+
+    def getOptBoolean(name: String): Option[Boolean] = if (
+      config.hasPath(name)
+    ) {
+      Some(config.getBoolean(name))
+    } else { None }
+
+    def getMandatoryString(name: String, hint: String = ""): String = if (
+      config.hasPath(name)
+    ) {
+      config.getString(name)
+    } else {
+      throw new IllegalArgumentException(s"Missing config $name $hint")
+    }
   }
+
+  def getString(name: String): Option[String] = config.getOptString(name)
+
+  def getStringSet(name: String): Set[String] = config.getStringSet(name)
+
+  def getBoolean(name: String): Option[Boolean] = config.getOptBoolean(name)
+
+  def getMandatoryString(name: String, hint: String = ""): String =
+    config.getMandatoryString(name, hint)
 }
 
 object Settings {
