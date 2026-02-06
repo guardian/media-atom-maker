@@ -182,7 +182,7 @@ object MediaAtomHelpers {
         val assets: List[com.gu.contentatom.thrift.atom.media.Asset] =
           sources.flatMap {
             case VideoSource(mp4Src, VideoSource.mimeTypeMp4, height, width) =>
-              val transcodedSuffixes = List("_360", "_720")
+              val transcodedSuffixes = List("_480w", "_720h")
               transcodedSuffixes.map(transcodedSuffix => {
                 val updatedSrc =
                   mp4Src.dropRight(4).concat(transcodedSuffix).concat(".mp4")

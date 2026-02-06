@@ -223,7 +223,7 @@ Resources:
         OutputGroups:
           - Name: MP4
             Outputs:
-              - NameModifier: "_720"
+              - NameModifier: "_720h"
                 ContainerSettings:
                   Container: MP4
                   Mp4Settings: { }
@@ -268,12 +268,12 @@ Resources:
                         Bitrate: 160000
                         CodingMode: CODING_MODE_2_0
                         SampleRate: 44100
-              - NameModifier: "_360"
+              - NameModifier: "_480w"
                 ContainerSettings:
                   Container: MP4
                   Mp4Settings: { }
                 VideoDescription:
-                  Height: 360
+                  Width: 480
                   Sharpness: 100 # Sharpest possible
                   CodecSettings:
                     Codec: H_264
