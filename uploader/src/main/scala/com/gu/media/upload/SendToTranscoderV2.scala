@@ -118,7 +118,10 @@ class SendToTranscoderV2
             FileGroupSettings
               .builder()
               .destination(
-                UploadUri(destinationBucket, filenameWithoutMp4).toString
+                UploadUri(
+                  destinationBucket,
+                  filenameWithoutMp4.concat("_720w")
+                ).toString
               )
               .build()
           )
