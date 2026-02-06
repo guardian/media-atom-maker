@@ -167,6 +167,24 @@ object MediaAtomHelpers {
 
       case SelfHostedAsset(sources) =>
         val assets = sources.map {
+          case VideoSource(mp4Src, VideoSource.mimeTypeMp4, height, width) =>
+            val updatedSrc = mp4Src.dropRight(4).concat("_720").concat(".mp4")
+            val (dimensions, aspectRatio) = (height, width) match {
+              case (Some(h), Some(w)) =>
+                Some(ThriftImageAssetDimensions(h, w)) ->
+                  AspectRatio.calculate(w, h)
+              case _ =>
+                None -> None
+            }
+            ThriftAsset(
+              AssetType.Video,
+              version,
+              updatedSrc,
+              ThriftPlatform.Url,
+              Some(VideoSource.mimeTypeMp4),
+              dimensions,
+              aspectRatio.map(_.name)
+            )
           case VideoSource(src, mimeType, height, width) =>
             val (dimensions, aspectRatio) = (height, width) match {
               case (Some(h), Some(w)) =>
