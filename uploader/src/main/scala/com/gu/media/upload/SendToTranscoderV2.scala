@@ -109,7 +109,13 @@ class SendToTranscoderV2
 
   private def getOutputs(sources: List[VideoSource]): List[OutputGroup] = {
     sources.map {
-      case VideoSource(output, VideoSource.mimeTypeMp4, _, _) =>
+      case VideoSource(
+            output,
+            VideoSource.mimeTypeMp4,
+            _,
+            _,
+            Some(nameModifier)
+          ) =>
         val filenameWithoutMp4 =
           if (output.endsWith(".mp4")) output.dropRight(4) else output
         val outputGroupSettings = OutputGroupSettings
@@ -120,7 +126,7 @@ class SendToTranscoderV2
               .destination(
                 UploadUri(
                   destinationBucket,
-                  filenameWithoutMp4.concat("_720w")
+                  filenameWithoutMp4.concat(nameModifier)
                 ).toString
               )
               .build()
@@ -128,7 +134,7 @@ class SendToTranscoderV2
           .build()
         OutputGroup.builder().outputGroupSettings(outputGroupSettings).build()
 
-      case VideoSource(output, VideoSource.mimeTypeM3u8, _, _) =>
+      case VideoSource(output, VideoSource.mimeTypeM3u8, _, _, _) =>
         val filenameWithoutM3u8 =
           if (output.endsWith(".m3u8")) output.dropRight(5) else output
         val outputGroupSettings = OutputGroupSettings
@@ -146,7 +152,7 @@ class SendToTranscoderV2
           .build()
         OutputGroup.builder().outputGroupSettings(outputGroupSettings).build()
 
-      case VideoSource(_, other, _, _) =>
+      case VideoSource(_, other, _, _, _) =>
         throw new IllegalArgumentException(s"Unsupported mime type $other")
     }
   }

@@ -71,7 +71,7 @@ class GetTranscodingProgressV2
 
   private def getVideoDimensions(
       jobs: List[Job]
-  ): Map[ContainerType, ImageAssetDimensions] = {
+  ): Map[String, ImageAssetDimensions] = {
     // these are the requested transcoder outputs
     val outputs = for {
       job <- jobs
@@ -90,31 +90,41 @@ class GetTranscodingProgressV2
       .zip(outputDetails)
       .collect {
         case (output, outputDetail) if outputDetail.videoDetails != null =>
-          // key is the output 'container' - e.g. MP4, M3U8, RAW
-          output.containerSettings.container ->
-            // value is the dimensions from the corresponding outputDetail
-            ImageAssetDimensions(
-              outputDetail.videoDetails().heightInPx,
-              outputDetail.videoDetails().widthInPx
-            )
+          val container = output.containerSettings.container
+          val nameModifier = output.nameModifier
+
+          val key = container match {
+            case ContainerType.MP4 =>
+              container.toString + nameModifier // e.g. MP4_720h
+            case _ => container.toString // e.g. M3U8
+          }
+
+          // value is the dimensions from the corresponding outputDetail
+          key -> ImageAssetDimensions(
+            outputDetail.videoDetails().heightInPx,
+            outputDetail.videoDetails().widthInPx
+          )
       }
       .toMap
   }
 
   private def applyDimensionsToAsset(
       asset: VideoAsset,
-      videoDimensions: Map[ContainerType, ImageAssetDimensions]
+      videoDimensions: Map[String, ImageAssetDimensions]
   ): VideoAsset =
     asset match {
       case SelfHostedAsset(sources) =>
         val updatedSources = sources.map { source =>
-          val dimensions: Option[ImageAssetDimensions] = source.mimeType match {
-            case VideoSource.mimeTypeMp4 =>
-              videoDimensions.get(ContainerType.MP4)
-            case VideoSource.mimeTypeM3u8 =>
-              videoDimensions.get(ContainerType.M3_U8)
-            case _ => None
-          }
+          val dimensions: Option[ImageAssetDimensions] =
+            (source.mimeType, source.nameModifier) match {
+              case (VideoSource.mimeTypeMp4, Some(nameModifier)) =>
+                videoDimensions.get(ContainerType.MP4.toString + nameModifier)
+              case (VideoSource.mimeTypeMp4, None) =>
+                videoDimensions.get(ContainerType.MP4.toString)
+              case (VideoSource.mimeTypeM3u8, _) =>
+                videoDimensions.get(ContainerType.M3_U8.toString)
+              case _ => None
+            }
           source.copy(
             width = dimensions.map(_.width),
             height = dimensions.map(_.height)

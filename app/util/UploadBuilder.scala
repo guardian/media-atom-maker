@@ -102,18 +102,33 @@ object UploadBuilder {
       // YouTube assets are added after they have been uploaded (once we know the ID)
       None
     } else {
-      // mp4 output now changes with subtitle processing, so s3 key includes a subtitle version
-      val mp4Key =
-        TranscoderOutputKey(
-          title,
-          atomId,
-          assetVersion,
-          subtitleVersion,
-          "mp4"
-        ).toString
-      val mp4Source =
-        if (includeMp4) Some(VideoSource(mp4Key, VideoSource.mimeTypeMp4))
-        else None
+      // we transcode two mp4s - one with a height of 720, one with a width of 480
+      val nameModifiers = List("480w", "720h")
+      val mp4Sources =
+        if (includeMp4) {
+          nameModifiers.map(nameModifier => {
+            // mp4 output now changes with subtitle processing, so s3 key includes a subtitle version
+            val mp4Key =
+              TranscoderOutputKey(
+                title,
+                atomId,
+                assetVersion,
+                subtitleVersion,
+                "mp4"
+              ).toString
+            Some(
+              VideoSource(
+                mp4Key,
+                VideoSource.mimeTypeMp4,
+                None,
+                None,
+                Some(nameModifier)
+              )
+            )
+          })
+        } else {
+          List(None)
+        }
 
       // m3u8 output changes when subtitles are processed, so s3 key includes a subtitle version
       val m3u8Key = TranscoderOutputKey(
@@ -126,8 +141,9 @@ object UploadBuilder {
       val m3u8Source =
         if (includeM3u8) Some(VideoSource(m3u8Key, VideoSource.mimeTypeM3u8))
         else None
-      val sources = mp4Source ++ m3u8Source
-      Some(SelfHostedAsset(sources.toList))
+
+      val sources = mp4Sources ++ List(m3u8Source)
+      Some(SelfHostedAsset(sources.flatten))
     }
   }
 
