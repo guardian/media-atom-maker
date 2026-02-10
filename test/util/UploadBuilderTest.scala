@@ -109,14 +109,6 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
               ),
               VideoSource(
                 src =
-                  "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.0.mp4",
-                mimeType = "video/mp4",
-                None,
-                None,
-                Some("720h")
-              ),
-              VideoSource(
-                src =
                   "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.0.m3u8",
                 mimeType = "application/vnd.apple.mpegurl"
               )
@@ -194,14 +186,6 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
               None,
               None,
               Some("480w")
-            ),
-            VideoSource(
-              src =
-                "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.1.mp4",
-              mimeType = "video/mp4",
-              None,
-              None,
-              Some("720h")
             ),
             VideoSource(
               src =
@@ -288,14 +272,6 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
               None,
               None,
               Some("480w")
-            ),
-            VideoSource(
-              src =
-                "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.2.mp4",
-              mimeType = "video/mp4",
-              None,
-              None,
-              Some("720h")
             ),
             VideoSource(
               src =

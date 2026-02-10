@@ -103,7 +103,7 @@ object UploadBuilder {
       None
     } else {
       // we transcode two mp4s - one with a height of 720, one with a width of 480
-      val nameModifiers = List("480w", "720h")
+      val nameModifiers = List("480w")
       val mp4Sources =
         if (includeMp4) {
           nameModifiers.map(nameModifier => {
