@@ -21,9 +21,19 @@ When editing the YouTube furniture configuration in the UI, the list of availabl
 To add a new channel to the list of available channels in PROD, the following steps need to be taken:
 
 1. Make sure that the channel is being managed via the Guardian's YouTube Content Manager account.
-2. Add the channel id to the `youtube.channels.allowed` config for PROD. This is currently stored in the S3 config bucket.
+2. Add the channel id to the `youtube.channels.list` config for PROD. This is currently stored in the S3 config bucket.
 3. Redeploy `main` on PROD to pick up the config change.
 
 The channel id can be found in the URL of the channel, i.e. `https://www.youtube.com/channel/[CHANNEL_ID_HERE]`.
 
 ![Screenshot of the URL of a YouTube channel, highlighting the channel ID in the URL](channel-url-screenshot.png)
+
+The channels config list takes objects which look like the following:
+```
+{ id = "jkl", logo = "logo.png", training = true, commercial = true, unlisted = true }
+```
+The ID is required, but all other properties are optional - unset booleans will be treated as `false`. If set, the value for `logo` must be the name of a PNG file stored in the `conf` directory in this repo, which will be overlaid onto all the thumbnails uploaded to YouTube for videos on this channel. If `logo` is unset, then thumbnails will be uploaded without branding.
+
+* Training: the channel will be made available for users who are in training mode
+* Commercial: the channel is for use by commercial (ie. not editorial) teams
+* Unlisted: by default users can only set videos to the "unlisted" visibility setting on YouTube. Users will need the extra `set_videos_on_all_channels_public` permission to make videos on this channel public.
