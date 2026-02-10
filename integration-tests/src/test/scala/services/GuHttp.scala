@@ -2,7 +2,7 @@ package integration.services
 
 import java.util.concurrent.TimeUnit
 
-import com.squareup.okhttp._
+import okhttp3._
 
 trait GuHttp {
 
