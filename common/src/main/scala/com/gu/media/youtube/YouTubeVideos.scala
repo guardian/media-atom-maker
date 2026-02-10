@@ -243,12 +243,11 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
 
     if (disallowedVideos.contains(video.getId))
       Some(s"Failed to edit as its in config.youtube.disallowedVideos")
-
-    if (allChannels.nonEmpty && !allChannels.contains(videoChannelId))
+    else if (allChannels.nonEmpty && !allChannels.contains(videoChannelId))
       Some(
         s"Failed to edit as its channel ($videoChannelId) isn't in config.youtube.allowedChannels"
       )
-
-    None
+    else
+      None
   }
 }
