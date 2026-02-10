@@ -231,7 +231,7 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
     getVideo(youtubeId, List("snippet")) match {
       case Some(video) =>
         val channel = video.getSnippet.getChannelId
-        channelConfig.keySet.contains(channel)
+        allChannels.contains(channel)
 
       case None =>
         false
@@ -243,9 +243,7 @@ trait YouTubeVideos { this: YouTubeAccess with Logging =>
 
     if (disallowedVideos.contains(video.getId))
       Some(s"Failed to edit as its in config.youtube.disallowedVideos")
-    else if (
-      channelConfig.nonEmpty && !channelConfig.keySet.contains(videoChannelId)
-    )
+    else if (allChannels.nonEmpty && !allChannels.contains(videoChannelId))
       Some(
         s"Failed to edit as its channel ($videoChannelId) isn't in config.youtube.allowedChannels"
       )
