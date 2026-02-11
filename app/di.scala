@@ -175,9 +175,6 @@ class MediaAtomMaker(context: Context)
     controllerComponents
   )
 
-  private val youtubeTags =
-    new YoutubeTagController(hmacAuthActions, controllerComponents)
-
   private val videoApp = new VideoUIApp(
     hmacAuthActions,
     configuration,
@@ -198,7 +195,6 @@ class MediaAtomMaker(context: Context)
     iconikController,
     uploads,
     youTubeController,
-    youtubeTags,
     reindexer,
     videoApp,
     support,

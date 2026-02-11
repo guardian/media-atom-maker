@@ -47,7 +47,6 @@ DELETE         /api/uploads/:id/:version/subtitle-file          controllers.Uplo
 GET            /api/youtube/categories                          controllers.Youtube.listCategories()
 GET            /api/youtube/channels                            controllers.Youtube.listChannels()
 GET            /api/youtube/video-info/:id                      controllers.Youtube.commercialVideoInfo(id)
-GET            /api/youtube/content-bundle/:id                  controllers.YoutubeTagController.getById(id)
 
 # reindex
 POST           /reindex-preview                                 com.gu.atom.play.ReindexController.newPreviewReindexJob()

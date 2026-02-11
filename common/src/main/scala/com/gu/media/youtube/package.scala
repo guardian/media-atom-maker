@@ -238,26 +238,6 @@ package object youtube {
       )
       this.copy(title = cleanTitle)
     }
-
-    def withContentBundleTags(): YouTubeMetadataUpdate = {
-      val contentBundledTags = getContentBundlingTags()
-      this.copy(tags = contentBundledTags)
-    }
-
-    def withoutContentBundleTags(): YouTubeMetadataUpdate = {
-      val noContentBundleTags = tags.filterNot(_.startsWith("gdnpfp"))
-      this.copy(tags = noContentBundleTags)
-    }
-
-    private def getContentBundlingTags(): List[String] = {
-
-      this.tags.flatMap { tag =>
-        contentBundlingMap.get(tag.toLowerCase()) match {
-          case Some(contentBundleTag) => List(tag, contentBundleTag)
-          case None                   => List(tag)
-        }
-      }
-    }
   }
 
   object YouTubeMetadataUpdate {
