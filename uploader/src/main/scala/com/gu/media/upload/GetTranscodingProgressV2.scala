@@ -99,6 +99,10 @@ class GetTranscodingProgressV2
             case _ => container.toString // e.g. M3U8
           }
 
+          log.info(s"container - $container")
+          log.info(s"name modifier - $nameModifier")
+          log.info(s"key - $key")
+
           // value is the dimensions from the corresponding outputDetail
           key -> ImageAssetDimensions(
             outputDetail.videoDetails().heightInPx,
@@ -118,7 +122,9 @@ class GetTranscodingProgressV2
           val dimensions: Option[ImageAssetDimensions] =
             (source.mimeType, source.nameModifier) match {
               case (VideoSource.mimeTypeMp4, Some(nameModifier)) =>
-                videoDimensions.get(ContainerType.MP4.toString + nameModifier)
+                val key = ContainerType.MP4.toString + nameModifier
+                log.info(s"retrieving on key - $key")
+                videoDimensions.get(key)
               case (VideoSource.mimeTypeMp4, None) =>
                 videoDimensions.get(ContainerType.MP4.toString)
               case (VideoSource.mimeTypeM3u8, _) =>
