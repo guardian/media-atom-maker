@@ -105,7 +105,7 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
                 mimeType = "video/mp4",
                 None,
                 None,
-                Some("480w")
+                Some("_480w")
               ),
               VideoSource(
                 src =
@@ -185,7 +185,7 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
               mimeType = "video/mp4",
               None,
               None,
-              Some("480w")
+              Some("_480w")
             ),
             VideoSource(
               src =
@@ -271,7 +271,7 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
               mimeType = "video/mp4",
               None,
               None,
-              Some("480w")
+              Some("_480w")
             ),
             VideoSource(
               src =
