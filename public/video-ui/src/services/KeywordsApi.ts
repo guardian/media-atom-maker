@@ -49,8 +49,14 @@ export const addOrDropBundlingTags = (keywords: string[], tags: string[], blockA
     return [...tagSet.values()];
   } else {
     // if block ads is off, then look up all composer tags (called "keywords" here), and add any matching content bundling tag
-    // to the existing tags
+    // to the existing tags.
     for (const keyword of keywords) {
+      // Try to add the most specific tag which matches the list above.
+      // For example, say the `sport/cycling` Composer tag had been added to the video. Both `sport` and `cycling` are in
+      // the list of bundle tags above, but `cycling` (the second) is the more specific so we choose to add
+      // `gdnpfpsportcycling` (and `cycling`) to the list of youtube tags. Alternatively we might have added the
+      // `politics/education` Composer tag - `education` isn't a recognised bundle tag, so we fall back to the first
+      // element `politics` instead and add `gdnpfpnewspolitics`.
       const parts = keyword.split('/');
       const matchingBundlingTag = parts.reverse().find(part => contentBundlingMap[part]);
       if (matchingBundlingTag) {

@@ -11,6 +11,16 @@ describe('keywordsApi.addOrDropBundlingTags', () => {
     expect(addOrDropBundlingTags(keywords, [], false)).toEqual(['world', 'gdnpfpnewsworld']);
   });
 
+  it('if the second element of the keyword matches one of the bundling specs, add it and the bundle tag to the output tags', () => {
+    const keywords = ['africa/world']; // note reversed from usual "world/africa"
+    expect(addOrDropBundlingTags(keywords, [], false)).toEqual(['world', 'gdnpfpnewsworld']);
+  });
+
+  it('if both elements of the keyword match the bundling specs, only add the second (more specific) as bundling tag', () => {
+    const keywords = ['sport/cycling'];
+    expect(addOrDropBundlingTags(keywords, [], false)).toEqual(['cycling', 'gdnpfpsportcycling']);
+  });
+
   it('if a keyword matches one of the bundling specs but the matching tag already exists, don\'t duplicate', () => {
     const keywords = ['world/africa'];
     const tags = ['world', 'gdnpfpnewsworld'];
