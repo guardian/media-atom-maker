@@ -4,17 +4,20 @@ import { impossiblyDistantDate }  from '../constants/dates';
 import VideoUtils from './video';
 import moment from 'moment';
 
+/**
+ * @param {string | undefined} date
+ * @returns {number | undefined}
+ */
 export const getDateAsNumber = (date) => {
   if (typeof date === "string"){
     return moment(date).valueOf();
   }
-  else return date;
 };
 
 export function getComposerData(video) {
 
   const isTrainingMode = getStore().getState().config.isTrainingMode;
-  const expiryDate = video.contentChangeDetails && video.contentChangeDetails.expiry && video.contentChangeDetails.expiry.date;
+  const expiryDate = video?.contentChangeDetails?.expiry?.date;
   const cleanedExpiryDate = getDateAsNumber(expiryDate);
   const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
   const embargo = VideoUtils.getEmbargo(video);
@@ -38,7 +41,7 @@ export function getComposerData(video) {
     thumbnail: video.trailImage && video.trailImage.assets.length > 0
       ? parseComposerDataFromImage(video.trailImage, video.trailText)
       : null,
-    expiryDate: cleanedExpiryDate,
+    expiryDate: cleanedExpiryDate ? cleanedExpiryDate : null,
     scheduledLaunch: scheduledLaunch,
     requestedScheduledLaunch: scheduledLaunch,
     embargoedUntil: embargoedUntil,
