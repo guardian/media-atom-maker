@@ -112,9 +112,10 @@ object UploadBuilder {
               TranscoderOutputKey(
                 title,
                 atomId,
-                assetVersion,
-                subtitleVersion,
-                "mp4"
+                "mp4",
+                Some(subtitleVersion),
+                Some(assetVersion),
+                Some(nameModifier)
               ).toString
             Some(
               VideoSource(
@@ -134,9 +135,10 @@ object UploadBuilder {
       val m3u8Key = TranscoderOutputKey(
         title,
         atomId,
-        assetVersion,
-        subtitleVersion,
-        "m3u8"
+        "m3u8",
+        Some(subtitleVersion),
+        Some(assetVersion),
+        None
       ).toString
       val m3u8Source =
         if (includeM3u8) Some(VideoSource(m3u8Key, VideoSource.mimeTypeM3u8))

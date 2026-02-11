@@ -23,11 +23,19 @@ case class TranscoderOutputKey(
     prefix: String,
     title: String,
     id: String,
-    extension: String
+    extension: String,
+    nameModifier: Option[String]
 ) {
   private val path = TranscoderOutputKey.stripSpecialCharsInPath(s"$prefix")
-  private val filename =
-    TranscoderOutputKey.stripSpecialCharsInFilename(s"$title--$id.$extension")
+  private val filename = nameModifier match {
+    case Some(nameModifier) =>
+      TranscoderOutputKey.stripSpecialCharsInFilename(
+        s"$title--$id$nameModifier.$extension"
+      )
+    case None =>
+      TranscoderOutputKey.stripSpecialCharsInFilename(s"$title--$id.$extension")
+  }
+
   override def toString = s"$path/$filename"
 }
 
@@ -39,21 +47,31 @@ object TranscoderOutputKey {
 
   def apply(
       title: String,
-      id: String,
-      extension: String
-  ): TranscoderOutputKey = {
-    TranscoderOutputKey(currentDate, title, id, extension)
-  }
-
-  def apply(
-      title: String,
       atomId: String,
-      assetVersion: Long,
-      subtitleVersion: Long,
-      extension: String
+      extension: String,
+      subtitleVersion: Option[Long],
+      assetVersion: Option[Long],
+      nameModifier: Option[String]
   ): TranscoderOutputKey = {
-    val id = s"$atomId-$assetVersion.$subtitleVersion"
-    TranscoderOutputKey(title, id, extension)
+    (subtitleVersion, assetVersion) match {
+      case (Some(subtitleVersion), Some(assetVersion)) =>
+        val id = s"$atomId-$assetVersion.$subtitleVersion"
+        TranscoderOutputKey(
+          currentDate,
+          title,
+          id,
+          extension,
+          nameModifier
+        )
+      case _ =>
+        TranscoderOutputKey(
+          currentDate,
+          title,
+          atomId,
+          extension,
+          nameModifier
+        )
+    }
   }
 
   def stripSpecialCharsInPath(path: String): String =
