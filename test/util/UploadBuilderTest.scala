@@ -101,6 +101,14 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
             List(
               VideoSource(
                 src =
+                  "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.0_720h.mp4",
+                mimeType = "video/mp4",
+                None,
+                None,
+                Some("_720h")
+              ),
+              VideoSource(
+                src =
                   "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.0_480w.mp4",
                 mimeType = "video/mp4",
                 None,
@@ -179,6 +187,14 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
         // stored the subtitle source and version and set the progress to not fully transcoded
         val expectedAsset = SelfHostedAsset(sources =
           List(
+            VideoSource(
+              src =
+                "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.1_720h.mp4",
+              mimeType = "video/mp4",
+              None,
+              None,
+              Some("_720h")
+            ),
             VideoSource(
               src =
                 "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.1_480w.mp4",
@@ -265,6 +281,14 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
         // removed the subtitle source and set the progress to not fully transcoded
         val expectedAsset = SelfHostedAsset(sources =
           List(
+            VideoSource(
+              src =
+                "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.2_720h.mp4",
+              mimeType = "video/mp4",
+              None,
+              None,
+              Some("_720h")
+            ),
             VideoSource(
               src =
                 "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.2_480w.mp4",
