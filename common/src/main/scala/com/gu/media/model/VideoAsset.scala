@@ -8,7 +8,8 @@ case class VideoSource(
     src: String,
     mimeType: String,
     height: Option[Int] = None,
-    width: Option[Int] = None
+    width: Option[Int] = None,
+    nameModifier: Option[String] = None
 )
 
 sealed abstract class VideoAsset
