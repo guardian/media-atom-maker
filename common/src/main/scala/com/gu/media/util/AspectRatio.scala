@@ -27,7 +27,7 @@ object AspectRatio {
   @tailrec
   private def gcd(a: Int, b: Int): Int = if (b == 0) a else gcd(b, a % b)
 
-  def calculate(width: Int, height: Int, tolerance: Int = 3): Option[Ratio] = {
+  def calculate(width: Int, height: Int, tolerance: Int = 10): Option[Ratio] = {
     val matchingRatio = for {
       w <- width - tolerance until width + tolerance
       h <- height - tolerance until height + tolerance
