@@ -180,10 +180,31 @@ object MediaAtomHelpers {
 
       case SelfHostedAsset(sources) =>
         val assets: List[com.gu.contentatom.thrift.atom.media.Asset] =
-          sources.flatMap { case VideoSource(src, mimeType, height, width, _) =>
-            val (dimensions, aspectRatio) =
-              getDimensionsAndAspectRatio(height, width)
-            List(
+          sources.map {
+            case VideoSource(
+                  mp4Src,
+                  VideoSource.mimeTypeMp4,
+                  height,
+                  width,
+                  Some(nameModifier)
+                ) =>
+              val updatedSrc =
+                mp4Src.dropRight(4).concat(nameModifier).concat(".mp4")
+              val (dimensions, aspectRatio) =
+                getDimensionsAndAspectRatio(height, width)
+              ThriftAsset(
+                AssetType.Video,
+                version,
+                updatedSrc,
+                ThriftPlatform.Url,
+                Some(VideoSource.mimeTypeMp4),
+                dimensions,
+                aspectRatio.map(_.name)
+              )
+            case VideoSource(src, mimeType, height, width, _) =>
+              val (dimensions, aspectRatio) =
+                getDimensionsAndAspectRatio(height, width)
+
               ThriftAsset(
                 AssetType.Video,
                 version,
@@ -193,7 +214,6 @@ object MediaAtomHelpers {
                 dimensions,
                 aspectRatio.map(_.name)
               )
-            )
           }
 
         val subtitleAssets = sources.collect {

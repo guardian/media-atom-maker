@@ -28,11 +28,11 @@ case class TranscoderOutputKey(
 ) {
   private val path = TranscoderOutputKey.stripSpecialCharsInPath(s"$prefix")
   private val filename = nameModifier match {
-    case Some(nameModifier) =>
-      TranscoderOutputKey.stripSpecialCharsInFilename(
-        s"$title--$id$nameModifier.$extension"
-      )
-    case None =>
+//    case Some(nameModifier) =>
+//      TranscoderOutputKey.stripSpecialCharsInFilename(
+//        s"$title--$id$nameModifier.$extension"
+//      )
+    case _ =>
       TranscoderOutputKey.stripSpecialCharsInFilename(s"$title--$id.$extension")
   }
 

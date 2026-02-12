@@ -109,24 +109,16 @@ class SendToTranscoderV2
 
   private def getOutputs(sources: List[VideoSource]): List[OutputGroup] = {
     sources.map {
-      case VideoSource(output, VideoSource.mimeTypeMp4, _, _, nameModifier) =>
-        val withoutMp4 =
+      case VideoSource(output, VideoSource.mimeTypeMp4, _, _, _) =>
+        val filenameWithoutMp4 =
           if (output.endsWith(".mp4")) output.dropRight(4) else output
-        val filename = nameModifier match {
-          case Some(modifier) if withoutMp4.endsWith(modifier) =>
-            withoutMp4.dropRight(modifier.length)
-          case _ => withoutMp4
-        }
         val outputGroupSettings = OutputGroupSettings
           .builder()
           .fileGroupSettings(
             FileGroupSettings
               .builder()
               .destination(
-                UploadUri(
-                  destinationBucket,
-                  filename
-                ).toString
+                UploadUri(destinationBucket, filenameWithoutMp4).toString
               )
               .build()
           )

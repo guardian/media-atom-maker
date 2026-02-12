@@ -101,7 +101,7 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
             List(
               VideoSource(
                 src =
-                  "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.0_720h.mp4",
+                  "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.0.mp4",
                 mimeType = "video/mp4",
                 None,
                 None,
@@ -109,7 +109,7 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
               ),
               VideoSource(
                 src =
-                  "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.0_480w.mp4",
+                  "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.0.mp4",
                 mimeType = "video/mp4",
                 None,
                 None,
@@ -189,7 +189,7 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
           List(
             VideoSource(
               src =
-                "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.1_720h.mp4",
+                "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.1.mp4",
               mimeType = "video/mp4",
               None,
               None,
@@ -197,7 +197,7 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
             ),
             VideoSource(
               src =
-                "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.1_480w.mp4",
+                "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.1.mp4",
               mimeType = "video/mp4",
               None,
               None,
@@ -283,7 +283,7 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
           List(
             VideoSource(
               src =
-                "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.2_720h.mp4",
+                "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.2.mp4",
               mimeType = "video/mp4",
               None,
               None,
@@ -291,7 +291,7 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
             ),
             VideoSource(
               src =
-                "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.2_480w.mp4",
+                "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.2.mp4",
               mimeType = "video/mp4",
               None,
               None,
