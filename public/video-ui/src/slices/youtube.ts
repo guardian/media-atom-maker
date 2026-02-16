@@ -37,10 +37,14 @@ const youtube = createSlice({
   extraReducers: builder => {
     builder
       .addCase(fetchCategories.fulfilled, (state, action) => {
-        state.categories = action.payload;
+        if (action.payload.length !== 0 || state.categories.length !== 0) {
+          state.categories = action.payload;
+        }
       })
       .addCase(fetchChannels.fulfilled, (state, action) => {
-        state.channels = action.payload;
+        if (action.payload.length !== 0 || state.channels.length !== 0) {
+          state.channels = action.payload;
+        }
       });
   }
 });
