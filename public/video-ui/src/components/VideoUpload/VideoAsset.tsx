@@ -3,7 +3,7 @@ import React, { ChangeEventHandler, ReactNode } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   ClientAsset,
-  deleteSubtitle,
+  deleteSubtitle, SelfHostedSource,
   startSubtitleFileUpload
 } from '../../slices/s3Upload';
 import { selectVideo } from '../../slices/video';
@@ -129,7 +129,7 @@ function AssetDisplay({
 }: {
   id?: string | number;
   isActive: boolean;
-  sources: unknown[];
+  sources: SelfHostedSource[];
 }) {
   const embed = id ? (
     <YouTubeEmbed id={id} largePreview={true} className={undefined} />
