@@ -36,7 +36,7 @@ export const saveVideo = (video: Video) => async (dispatch: AppDispatch) => {
   }
 
   const canonicalPageUpdate: unknown[] | undefined = await VideosApi.updateCanonicalPages(
-    video, usageData, 'preview'
+    savedVideo, usageData, 'preview'
   )
     .catch(error => {
       dispatch(showError(errorMessages.canonicalPageUpdate, error));
@@ -47,7 +47,7 @@ export const saveVideo = (video: Video) => async (dispatch: AppDispatch) => {
     return;
   }
 
-  dispatch(updateVideoUsageWebTitle(video.title));
+  dispatch(updateVideoUsageWebTitle(savedVideo.title));
   dispatch(setSaving(false));
 };
 
