@@ -108,7 +108,7 @@ class SendToTranscoderV2
   }
 
   private def getOutputs(sources: List[VideoSource]): List[OutputGroup] = {
-    sources.map {
+    sources.groupBy(_.mimeType).map(_._2.head).toList.sortBy(_.mimeType).reverse.map {
       case VideoSource(output, VideoSource.mimeTypeMp4, _, _, _) =>
         val filenameWithoutMp4 =
           if (output.endsWith(".mp4")) output.dropRight(4) else output
