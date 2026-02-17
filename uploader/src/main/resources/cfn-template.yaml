@@ -333,7 +333,7 @@ Resources:
                   M3u8Settings: { }
                 NameModifier: "captions"
                 CaptionDescriptions:
-                  - LanguageCode: ENG
+                  - LanguageCode: EN
                     CaptionSelectorName: "Caption Selector 1"
                     DestinationSettings:
                       DestinationType: WEBVTT
