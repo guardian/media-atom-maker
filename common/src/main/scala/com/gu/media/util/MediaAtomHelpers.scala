@@ -72,7 +72,7 @@ object MediaAtomHelpers {
 
   def addAsset(
       mediaAtom: ThriftMediaAtom,
-      asset: VideoAsset,
+      asset: VideoOutput,
       version: Long,
       hasSubtitles: Boolean
   ): ThriftMediaAtom = {
@@ -128,10 +128,10 @@ object MediaAtomHelpers {
     *   the self-hosted asset with url-encoded sources
     */
   def urlEncodeSources(
-      selfHostedAsset: SelfHostedAsset,
+      selfHostedAsset: SelfHostedInput,
       selfHostedOrigin: String
-  ): SelfHostedAsset = {
-    SelfHostedAsset(selfHostedAsset.sources.map { source =>
+  ): SelfHostedInput = {
+    SelfHostedInput(selfHostedAsset.sources.map { source =>
       val parts = source.src.split("/")
       parts.length match {
         case 1 =>
@@ -162,12 +162,12 @@ object MediaAtomHelpers {
   }
 
   private def getAssets(
-      asset: VideoAsset,
+      asset: VideoOutput,
       version: Long,
       hasSubtitles: Boolean
   ): List[ThriftAsset] =
     asset match {
-      case YouTubeAsset(id) =>
+      case YouTubeOutput(id) =>
         val asset = ThriftAsset(
           AssetType.Video,
           version,
@@ -175,60 +175,45 @@ object MediaAtomHelpers {
           ThriftPlatform.Youtube,
           mimeType = None
         )
-
         List(asset)
-
-      case SelfHostedAsset(sources) =>
-        val assets: List[com.gu.contentatom.thrift.atom.media.Asset] =
-          sources.map {
-            case VideoSource(
-                  mp4Src,
-                  VideoSource.mimeTypeMp4,
-                  height,
-                  width,
-                  Some(nameModifier)
-                ) =>
-              val updatedSrc =
-                mp4Src.dropRight(4).concat(nameModifier).concat(".mp4")
-              val (dimensions, aspectRatio) =
-                getDimensionsAndAspectRatio(height, width)
-              ThriftAsset(
-                AssetType.Video,
-                version,
-                updatedSrc,
-                ThriftPlatform.Url,
-                Some(VideoSource.mimeTypeMp4),
-                dimensions,
-                aspectRatio.map(_.name)
-              )
-            case VideoSource(src, mimeType, height, width, _) =>
-              val (dimensions, aspectRatio) =
-                getDimensionsAndAspectRatio(height, width)
-
-              ThriftAsset(
-                AssetType.Video,
-                version,
-                src,
-                ThriftPlatform.Url,
-                Some(mimeType),
-                dimensions,
-                aspectRatio.map(_.name)
-              )
-          }
-
-        val subtitleAssets = sources.collect {
-          case VideoSource(src, VideoSource.mimeTypeM3u8, _, _, _)
-              if hasSubtitles =>
-            val subtitleSrc = src.dropRight(5) + VideoSource.captionsSuffix
-            ThriftAsset(
-              AssetType.Subtitles,
-              version,
-              subtitleSrc,
-              ThriftPlatform.Url,
-              Some(VideoSource.mimeTypeVtt)
-            )
+      case SelfHostedOutput(mp4Src, VideoSource.mimeTypeMp4, height, width) =>
+        val updatedSrc = mp4Src.dropRight(4).concat(".mp4")
+        val (dimensions, aspectRatio) = getDimensionsAndAspectRatio(height, width)
+        val asset = ThriftAsset(
+          AssetType.Video,
+          version,
+          updatedSrc,
+          ThriftPlatform.Url,
+          Some(VideoSource.mimeTypeMp4),
+          dimensions,
+          aspectRatio.map(_.name)
+        )
+        List(asset)
+      case SelfHostedOutput(m3u8Src, VideoSource.mimeTypeM3u8, height, width) =>
+        val (dimensions, aspectRatio) =
+          getDimensionsAndAspectRatio(height, width)
+        val asset = ThriftAsset(
+          AssetType.Video,
+          version,
+          m3u8Src,
+          ThriftPlatform.Url,
+          Some(VideoSource.mimeTypeM3u8),
+          dimensions,
+          aspectRatio.map(_.name)
+        )
+        val subtitleAsset = if(hasSubtitles) {
+          val subtitleSrc = m3u8Src.dropRight(5) + VideoSource.captionsSuffix
+          Some(ThriftAsset(
+            AssetType.Subtitles,
+            version,
+            subtitleSrc,
+            ThriftPlatform.Url,
+            Some(VideoSource.mimeTypeVtt)
+          ))
+        } else {
+          None
         }
 
-        assets ++ subtitleAssets
+      List(asset) ++ subtitleAsset.toList
     }
 }

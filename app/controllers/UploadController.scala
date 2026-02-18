@@ -12,7 +12,7 @@ import com.gu.media.model.{
   ClientAssetProcessing,
   MediaAtom,
   VideoSource,
-  YouTubeAsset
+  YouTubeInput
 }
 import com.gu.media.upload.model._
 import com.gu.media.util.{MediaAtomHelpers, MediaAtomImplicits}
@@ -241,7 +241,7 @@ class UploadController(
 
   private def addYouTubeStatus(video: ClientAsset): ClientAsset =
     video.asset match {
-      case Some(YouTubeAsset(id)) =>
+      case Some(YouTubeInput(id)) =>
         try {
           val status =
             youTube.getProcessingStatus(id).map(ClientAssetProcessing(_))

@@ -31,7 +31,7 @@ class ClientAssetTest extends AnyFunSuite with Matchers {
       Some(ImageAssetDimensions(1280, 720)),
       Some("16:9")
     )
-  val selfHostedAsset = SelfHostedAsset(
+  val selfHostedAsset = SelfHostedInput(
     List(
       VideoSource(mp4.id, mp4.mimeType.get, Some(1280), Some(720)),
       VideoSource(m3u8.id, m3u8.mimeType.get, Some(1280), Some(720))
@@ -50,8 +50,8 @@ class ClientAssetTest extends AnyFunSuite with Matchers {
 
     output match {
       case first :: second :: Nil =>
-        first.asset.get mustBe a[YouTubeAsset]
-        second.asset.get mustBe a[SelfHostedAsset]
+        first.asset.get mustBe a[YouTubeInput]
+        second.asset.get mustBe a[SelfHostedInput]
 
       case _ =>
         fail(s"Expected two entries, got $output")

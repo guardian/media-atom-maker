@@ -16,7 +16,7 @@ import software.amazon.awssdk.services.mediaconvert.model.{
 import com.gu.media.aws.MediaConvertAccess
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
-import com.gu.media.model.{SelfHostedAsset, VideoSource}
+import com.gu.media.model.{SelfHostedInput, VideoSource}
 import com.gu.media.upload.model.{SelfHostedUploadMetadata, Upload}
 
 import scala.jdk.CollectionConverters._
@@ -30,7 +30,7 @@ class SendToTranscoderV2
     val maybeSubtitlesInput = Upload.subtitleInputUri(upload)
 
     upload.metadata.asset match {
-      case Some(SelfHostedAsset(sources)) =>
+      case Some(SelfHostedInput(sources)) =>
         val outputs = getOutputs(sources)
         val jobs = sendToTranscoder(videoInput, maybeSubtitlesInput, outputs)
 
@@ -108,43 +108,49 @@ class SendToTranscoderV2
   }
 
   private def getOutputs(sources: List[VideoSource]): List[OutputGroup] = {
-    sources.groupBy(_.mimeType).map(_._2.head).toList.sortBy(_.mimeType).reverse.map {
-      case VideoSource(output, VideoSource.mimeTypeMp4, _, _, _) =>
-        val filenameWithoutMp4 =
-          if (output.endsWith(".mp4")) output.dropRight(4) else output
-        val outputGroupSettings = OutputGroupSettings
-          .builder()
-          .fileGroupSettings(
-            FileGroupSettings
-              .builder()
-              .destination(
-                UploadUri(destinationBucket, filenameWithoutMp4).toString
-              )
-              .build()
-          )
-          .build()
-        OutputGroup.builder().outputGroupSettings(outputGroupSettings).build()
+    sources
+      .groupBy(_.mimeType)
+      .map(_._2.head)
+      .toList
+      .sortBy(_.mimeType)
+      .reverse
+      .map {
+        case VideoSource(output, VideoSource.mimeTypeMp4, _, _, _) =>
+          val filenameWithoutMp4 =
+            if (output.endsWith(".mp4")) output.dropRight(4) else output
+          val outputGroupSettings = OutputGroupSettings
+            .builder()
+            .fileGroupSettings(
+              FileGroupSettings
+                .builder()
+                .destination(
+                  UploadUri(destinationBucket, filenameWithoutMp4).toString
+                )
+                .build()
+            )
+            .build()
+          OutputGroup.builder().outputGroupSettings(outputGroupSettings).build()
 
-      case VideoSource(output, VideoSource.mimeTypeM3u8, _, _, _) =>
-        val filenameWithoutM3u8 =
-          if (output.endsWith(".m3u8")) output.dropRight(5) else output
-        val outputGroupSettings = OutputGroupSettings
-          .builder()
-          .hlsGroupSettings(
-            HlsGroupSettings
-              .builder()
-              .destination(
-                UploadUri(destinationBucket, filenameWithoutM3u8).toString
-              )
-              .segmentLength(10)
-              .minSegmentLength(0)
-              .build()
-          )
-          .build()
-        OutputGroup.builder().outputGroupSettings(outputGroupSettings).build()
+        case VideoSource(output, VideoSource.mimeTypeM3u8, _, _, _) =>
+          val filenameWithoutM3u8 =
+            if (output.endsWith(".m3u8")) output.dropRight(5) else output
+          val outputGroupSettings = OutputGroupSettings
+            .builder()
+            .hlsGroupSettings(
+              HlsGroupSettings
+                .builder()
+                .destination(
+                  UploadUri(destinationBucket, filenameWithoutM3u8).toString
+                )
+                .segmentLength(10)
+                .minSegmentLength(0)
+                .build()
+            )
+            .build()
+          OutputGroup.builder().outputGroupSettings(outputGroupSettings).build()
 
-      case VideoSource(_, other, _, _, _) =>
-        throw new IllegalArgumentException(s"Unsupported mime type $other")
-    }
+        case VideoSource(_, other, _, _, _) =>
+          throw new IllegalArgumentException(s"Unsupported mime type $other")
+      }
   }
 }

@@ -4,7 +4,7 @@ import com.gu.media.aws.{MediaConvertAccess, S3Access}
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
 import com.gu.media.model.VideoSource.mimeTypeMp4
-import com.gu.media.model.SelfHostedAsset
+import com.gu.media.model.SelfHostedInput
 import com.gu.media.upload.model.Upload
 import software.amazon.awssdk.services.s3.model.{
   GetObjectRequest,
@@ -51,7 +51,7 @@ class AddSubtitlesToMP4
   override def handle(upload: Upload): Upload = {
     for {
       videoSources <- upload.metadata.asset
-        .collect({ case asset: SelfHostedAsset =>
+        .collect({ case asset: SelfHostedInput =>
           asset.sources
         })
         .toList

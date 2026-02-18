@@ -3,9 +3,10 @@ package util
 import java.time.Instant
 import com.gu.media.aws.{AwsAccess, UploadAccess}
 import com.gu.media.model.{
+  DimensionsToTranscode,
   MediaAtom,
   PlutoSyncMetadataMessage,
-  SelfHostedAsset,
+  SelfHostedInput,
   VideoSource
 }
 import com.gu.media.upload.{TranscoderOutputKey, UploadPartKey}
@@ -97,38 +98,35 @@ object UploadBuilder {
       subtitleVersion: Long,
       includeMp4: Boolean = true,
       includeM3u8: Boolean = true
-  ): Option[SelfHostedAsset] = {
+  ): Option[SelfHostedInput] = {
     if (!selfHosted) {
       // YouTube assets are added after they have been uploaded (once we know the ID)
       None
     } else {
-      // we transcode two mp4s: one with a height of 720, one with a width of 480
-      val nameModifiers = List("_720h", "_480w")
-      val mp4Sources =
+      val mp4Key =
+        TranscoderOutputKey(
+          title,
+          atomId,
+          "mp4",
+          Some(subtitleVersion),
+          Some(assetVersion)
+        ).toString
+
+      val mp4Source =
         if (includeMp4) {
-          nameModifiers.map(nameModifier => {
-            // mp4 output now changes with subtitle processing, so s3 key includes a subtitle version
-            val mp4Key =
-              TranscoderOutputKey(
-                title,
-                atomId,
-                "mp4",
-                Some(subtitleVersion),
-                Some(assetVersion),
-                Some(nameModifier)
-              ).toString
-            Some(
-              VideoSource(
-                mp4Key,
-                VideoSource.mimeTypeMp4,
-                None,
-                None,
-                Some(nameModifier)
+          Some(
+            VideoSource(
+              mp4Key,
+              VideoSource.mimeTypeMp4,
+              // we transcode two mp4s: one with a height of 720, one with a width of 480
+              List(
+                DimensionsToTranscode(height = Some(720)),
+                DimensionsToTranscode(width = Some(480))
               )
             )
-          })
+          )
         } else {
-          List(None)
+          None
         }
 
       // m3u8 output changes when subtitles are processed, so s3 key includes a subtitle version
@@ -137,15 +135,21 @@ object UploadBuilder {
         atomId,
         "m3u8",
         Some(subtitleVersion),
-        Some(assetVersion),
-        None
+        Some(assetVersion)
       ).toString
       val m3u8Source =
-        if (includeM3u8) Some(VideoSource(m3u8Key, VideoSource.mimeTypeM3u8))
+        if (includeM3u8)
+          Some(
+            VideoSource(
+              m3u8Key,
+              VideoSource.mimeTypeM3u8,
+              List(DimensionsToTranscode(height = Some(720)))
+            )
+          )
         else None
 
-      val sources = mp4Sources ++ List(m3u8Source)
-      Some(SelfHostedAsset(sources.flatten))
+      val sources = mp4Source ++ m3u8Source
+      Some(SelfHostedInput(sources.toList, List.empty))
     }
   }
 

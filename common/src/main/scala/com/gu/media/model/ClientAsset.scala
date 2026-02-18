@@ -9,10 +9,10 @@ import play.api.libs.json.Format
 import scala.util.Try
 
 case class ClientAsset(
-    id: String,
-    asset: Option[VideoAsset] = None,
-    processing: Option[ClientAssetProcessing] = None,
-    metadata: Option[ClientAssetMetadata] = None
+                        id: String,
+                        asset: Option[VideoOutput] = None,
+                        processing: Option[ClientAssetProcessing] = None,
+                        metadata: Option[ClientAssetMetadata] = None
 )
 case class ClientAssetProcessing(
     status: String,
@@ -35,8 +35,8 @@ object ClientAsset {
     val versions = assets.map(_.version).distinct.sorted.reverse
     val grouped = versions.map { v => assets.filter(_.version == v) }
 
-    grouped.map(videoFromAssets).map { case (version, video) =>
-      ClientAsset(version.toString, asset = Some(video))
+    grouped.map(videoFromAssets).flatMap { case (version, videoOutputs) =>
+      videoOutputs.map(videoOutput => ClientAsset(version.toString, asset = Some(videoOutput)))
     }
   }
 
@@ -65,24 +65,21 @@ object ClientAsset {
     )
   }
 
-  def videoFromAssets(assets: List[Asset]): (Long, VideoAsset) = {
+  def videoFromAssets(assets: List[Asset]): (Long, List[VideoOutput]) = {
     assets.headOption match {
       case Some(Asset(_, version, _, Platform.Url, _, _, _)) =>
-        val sources = assets.collect {
+        val outputs = assets.map {
           case Asset(_, _, id, _, Some(mimeType), dimensions, _) =>
-            VideoSource(
+            SelfHostedOutput(
               id,
               mimeType,
               dimensions.map(_.height),
               dimensions.map(_.width)
             )
         }
-
-        (version, SelfHostedAsset(sources))
-
+        (version, outputs)
       case Some(Asset(_, version, id, Platform.Youtube, _, _, _)) =>
-        (version, YouTubeAsset(id))
-
+        (version, List(YouTubeOutput(id)))
       case other =>
         throw new IllegalArgumentException(
           s"Unsupported platform ${other.map(_.platform.name)}"

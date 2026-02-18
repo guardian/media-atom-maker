@@ -19,7 +19,7 @@ import com.gu.media.aws.{AwsAccess, AwsCredentials, UploadAccess}
 import com.gu.media.model.{
   MediaAtom,
   PlutoSyncMetadataMessage,
-  SelfHostedAsset,
+  SelfHostedInput,
   VideoSource
 }
 import com.gu.media.upload.TranscoderOutputKey
@@ -97,7 +97,7 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
         upload.metadata.version should contain(2L)
         upload.metadata.selfHost shouldBe true
         upload.metadata.asset shouldBe Some(
-          SelfHostedAsset(sources =
+          SelfHostedInput(sources =
             List(
               VideoSource(
                 src =
@@ -185,7 +185,7 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
 
         // we expect the modified upload record to have bumped the subtitle version on the m3u8 and mp4 filenames,
         // stored the subtitle source and version and set the progress to not fully transcoded
-        val expectedAsset = SelfHostedAsset(sources =
+        val expectedAsset = SelfHostedInput(sources =
           List(
             VideoSource(
               src =
@@ -279,7 +279,7 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
 
         // we expect the modified upload record to have bumped the subtitle version on the m3u8 and mp4 filenames,
         // removed the subtitle source and set the progress to not fully transcoded
-        val expectedAsset = SelfHostedAsset(sources =
+        val expectedAsset = SelfHostedInput(sources =
           List(
             VideoSource(
               src =

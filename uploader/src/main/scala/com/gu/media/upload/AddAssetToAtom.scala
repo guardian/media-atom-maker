@@ -10,9 +10,9 @@ import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
 import com.gu.media.model.{
   AuditMessage,
-  SelfHostedAsset,
-  VideoAsset,
-  YouTubeAsset
+  SelfHostedInput,
+  VideoInput,
+  YouTubeInput
 }
 import com.gu.media.upload.model.Upload
 import com.gu.media.util.MediaAtomHelpers
@@ -85,12 +85,12 @@ class AddAssetToAtom
     publisher.publishAtomEvent(event).recover { case NonFatal(e) => throw e }
   }
 
-  private def getAsset(upload: Upload): VideoAsset = {
+  private def getAsset(upload: Upload): VideoInput = {
     upload.metadata.asset match {
-      case Some(asset: YouTubeAsset) =>
+      case Some(asset: YouTubeInput) =>
         asset
 
-      case Some(asset: SelfHostedAsset) =>
+      case Some(asset: SelfHostedInput) =>
         MediaAtomHelpers.urlEncodeSources(asset, selfHostedOrigin)
 
       case None =>

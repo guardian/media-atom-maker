@@ -11,8 +11,8 @@ import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
 import com.gu.media.model.{
   ImageAssetDimensions,
-  SelfHostedAsset,
-  VideoAsset,
+  SelfHostedInput,
+  VideoInput,
   VideoSource
 }
 import com.gu.media.upload.model.{SelfHostedUploadMetadata, Upload}
@@ -113,14 +113,14 @@ class GetTranscodingProgressV2
   }
 
   private def applyDimensionsToAsset(
-      asset: VideoAsset,
-      videoDimensions: Map[String, ImageAssetDimensions]
-  ): VideoAsset =
+                                      asset: VideoInput,
+                                      videoDimensions: Map[String, ImageAssetDimensions]
+  ): VideoInput =
     asset match {
-      case SelfHostedAsset(sources) =>
+      case SelfHostedInput(sources, _) =>
         val updatedSources = sources.map { source =>
           val dimensions: Option[ImageAssetDimensions] =
-            (source.mimeType, source.nameModifier) match {
+            (source.mimeType, source.dimensionsToTranscode) match {
               case (VideoSource.mimeTypeMp4, Some(nameModifier)) =>
                 val key = ContainerType.MP4.toString + nameModifier
                 log.info(s"retrieving on key - $key")
@@ -136,7 +136,7 @@ class GetTranscodingProgressV2
             height = dimensions.map(_.height)
           )
         }
-        SelfHostedAsset(updatedSources)
+        SelfHostedInput(updatedSources)
       case _ => asset
     }
 

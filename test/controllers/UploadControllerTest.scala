@@ -393,7 +393,7 @@ class UploadControllerTest extends AnyFlatSpec with Matchers {
     .build()
 
   private def selfHostedAsset(assetVersion: Int, subtitleVersion: Int) =
-    SelfHostedAsset(
+    SelfHostedInput(
       List(
         VideoSource(
           s"https://uploads.guimcode.co.uk/2025/09/03/Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-$assetVersion.0.mp4",

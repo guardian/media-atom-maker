@@ -9,7 +9,7 @@ import com.gu.contentatom.thrift.{
   User
 }
 import MediaAtomHelpers._
-import com.gu.media.model.{SelfHostedAsset, VideoSource, YouTubeAsset}
+import com.gu.media.model.{SelfHostedInput, VideoSource, YouTubeInput}
 import org.joda.time.DateTime
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.must.Matchers
@@ -20,7 +20,7 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
     val newAtom = updateAtom(atom(), user()) { mediaAtom =>
       addAsset(
         mediaAtom,
-        YouTubeAsset("L9CMNVzMHJ8"),
+        YouTubeInput("L9CMNVzMHJ8"),
         version = 2,
         hasSubtitles = false
       )
@@ -49,7 +49,7 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
   }
 
   test("add self hosted asset") {
-    val newAsset = SelfHostedAsset(
+    val newAsset = SelfHostedInput(
       List(
         VideoSource("test.mp4", "video/mp4"),
         VideoSource("test.m3u8", "application/vnd.apple.mpegurl")
@@ -81,7 +81,7 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
   }
 
   test("add self hosted asset with subtitles") {
-    val newAsset = SelfHostedAsset(
+    val newAsset = SelfHostedInput(
       List(
         VideoSource("test.mp4", "video/mp4"),
         VideoSource("test.m3u8", "application/vnd.apple.mpegurl")
@@ -131,7 +131,7 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
   }
 
   test("url-encode self-hosted asset keys to urls") {
-    val asset = SelfHostedAsset(
+    val asset = SelfHostedInput(
       List(
         VideoSource("url encode me.mp4", "video/mp4"),
         VideoSource("url encode me.m3u8", "application/vnd.apple.mpegurl"),
@@ -142,7 +142,7 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
       )
     )
 
-    urlEncodeSources(asset, "https://gu.com/videos") mustBe SelfHostedAsset(
+    urlEncodeSources(asset, "https://gu.com/videos") mustBe SelfHostedInput(
       List(
         VideoSource("https://gu.com/videos/url+encode+me.mp4", "video/mp4"),
         VideoSource(
