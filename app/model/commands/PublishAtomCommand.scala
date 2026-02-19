@@ -336,18 +336,49 @@ case class PublishAtomCommand(
       privacyStatus = previewAtom.privacyStatus.map(_.name)
     ).withSaneTitle()
 
-    val youTubeMetadataUpdate: Either[VideoUpdateError, String] =
+    val initialYouTubeMetadataUpdate: Either[VideoUpdateError, String] =
       youtube.updateMetadata(
         asset.id,
         metadata
       )
 
+    // Updating metadata might fail if A/B testing is turned on for title.
+    // This is expected behaviour for editorial as they use this functionality fairly regularly.
+    // Retry the metadata update _without_ attempting to update the title and see if that helps
+    val finalYouTubeMetadataUpdate =
+      retryMetadataUpdateIfTitleIsABTested(
+        initialYouTubeMetadataUpdate,
+        asset.id,
+        metadata
+      )
+
     handleYouTubeMessages(
-      youTubeMetadataUpdate,
+      finalYouTubeMetadataUpdate,
       "YouTube Metadata Update",
       previewAtom,
       asset.id
     )
+  }
+
+  private def retryMetadataUpdateIfTitleIsABTested(
+      initialYouTubeMetadataUpdate: Either[VideoUpdateError, String],
+      assetId: String,
+      metadata: YouTubeMetadataUpdate
+  ): Either[VideoUpdateError, String] = {
+    initialYouTubeMetadataUpdate match {
+      case Left(err)
+          if err.errorToLog.contains(
+            "UPDATE_TITLE_NOT_ALLOWED_DURING_TEST_AND_COMPARE"
+          ) =>
+        // We're not allowed to update the title during test and compare? Youtube don't allow us to tell
+        // if a video is using test and compare before sending the update, so next best is to try,
+        // detect if it failed due to the a/b test function being turned on, and retry without updating
+        // the title.
+        youtube.updateMetadata(assetId, metadata.copy(title = None))
+
+      case Left(otherErr) => Left(otherErr)
+      case Right(result)  => Right(result)
+    }
   }
 
   private def setYoutubeThumbnail(
