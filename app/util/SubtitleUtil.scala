@@ -32,7 +32,7 @@ object SubtitleUtil extends Logging {
         val request = DeleteObjectRequest
           .builder()
           .bucket(awsConfig.userUploadBucket)
-          .key(source.src)
+          .key(source.id)
           .build()
         awsConfig.s3Client.deleteObject(request)
       } catch {

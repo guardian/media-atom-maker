@@ -3,28 +3,24 @@ package com.gu.media.upload.model
 import com.gu.ai.x.play.json.Jsonx
 import com.gu.ai.x.play.json.Encoders._
 import play.api.libs.json.Format
-import com.gu.media.model.{
-  IconikData,
-  PlutoSyncMetadataMessage,
-  VideoAsset,
-  VideoSource
-}
+import com.gu.media.model.{IconikData, PlutoSyncMetadataMessage, VideoInput, VideoOutput}
 
 case class UploadMetadata(
-    user: String,
-    bucket: String,
-    region: String,
-    title: String,
-    pluto: PlutoSyncMetadataMessage,
-    iconikData: Option[IconikData],
-    runtime: RuntimeUploadMetadata,
-    version: Option[Long] = None,
-    selfHost: Boolean = false,
-    asset: Option[VideoAsset] = None,
-    originalFilename: Option[String] = None,
-    startTimestamp: Option[Long] = None, // unix timestamp
-    subtitleSource: Option[VideoSource] = None,
-    subtitleVersion: Option[Long] = None
+                           user: String,
+                           bucket: String,
+                           region: String,
+                           title: String,
+                           pluto: PlutoSyncMetadataMessage,
+                           iconikData: Option[IconikData],
+                           runtime: RuntimeUploadMetadata,
+                           version: Option[Long] = None,
+                           selfHost: Boolean = false,
+                           inputs: List[VideoInput] = Nil,
+                           outputs: List[VideoOutput] = Nil,
+                           originalFilename: Option[String] = None,
+                           startTimestamp: Option[Long] = None, // unix timestamp
+                           subtitleSource: Option[VideoInput] = None,
+                           subtitleVersion: Option[Long] = None
 )
 
 sealed abstract class RuntimeUploadMetadata

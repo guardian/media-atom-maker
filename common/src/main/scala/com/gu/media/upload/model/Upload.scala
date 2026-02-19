@@ -35,7 +35,7 @@ object Upload {
 
   def subtitleInputUri(upload: Upload): Option[UploadUri] =
     upload.metadata.subtitleSource.map(s =>
-      UploadUri(upload.metadata.bucket, s.src)
+      UploadUri(upload.metadata.bucket, s.id)
     )
 
   def getCurrentSubtitleVersion(upload: Upload): Long =

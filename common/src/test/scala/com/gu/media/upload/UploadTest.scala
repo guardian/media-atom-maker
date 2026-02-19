@@ -1,6 +1,6 @@
 package com.gu.media.upload
 
-import com.gu.media.model.{PlutoSyncMetadataMessage, VideoSource}
+import com.gu.media.model.{PlutoSyncMetadataMessage, VideoInput}
 import com.gu.media.upload.model.{
   SelfHostedUploadMetadata,
   Upload,
@@ -120,7 +120,7 @@ class UploadTest
     runtime = SelfHostedUploadMetadata(Nil),
     subtitleVersion = Some(12),
     subtitleSource =
-      Some(VideoSource("uploads/123xyz-1/subtitles.srt", "video/mp4"))
+      Some(VideoInput("uploads/123xyz-1/subtitles.srt", "video/mp4"))
   )
 
   private def metadataWithoutSubtitle = UploadMetadata(

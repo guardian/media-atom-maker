@@ -9,7 +9,7 @@ import com.gu.contentatom.thrift.{
   User
 }
 import MediaAtomHelpers._
-import com.gu.media.model.{SelfHostedAsset, VideoSource, YouTubeAsset}
+import com.gu.media.model.{SelfHostedInput, VideoInput, YouTubeInput}
 import org.joda.time.DateTime
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.must.Matchers
@@ -20,7 +20,7 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
     val newAtom = updateAtom(atom(), user()) { mediaAtom =>
       addAsset(
         mediaAtom,
-        YouTubeAsset("L9CMNVzMHJ8"),
+        YouTubeInput("L9CMNVzMHJ8"),
         version = 2,
         hasSubtitles = false
       )
@@ -49,10 +49,10 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
   }
 
   test("add self hosted asset") {
-    val newAsset = SelfHostedAsset(
+    val newAsset = SelfHostedInput(
       List(
-        VideoSource("test.mp4", "video/mp4"),
-        VideoSource("test.m3u8", "application/vnd.apple.mpegurl")
+        VideoInput("test.mp4", "video/mp4"),
+        VideoInput("test.m3u8", "application/vnd.apple.mpegurl")
       )
     )
 
@@ -81,10 +81,10 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
   }
 
   test("add self hosted asset with subtitles") {
-    val newAsset = SelfHostedAsset(
+    val newAsset = SelfHostedInput(
       List(
-        VideoSource("test.mp4", "video/mp4"),
-        VideoSource("test.m3u8", "application/vnd.apple.mpegurl")
+        VideoInput("test.mp4", "video/mp4"),
+        VideoInput("test.m3u8", "application/vnd.apple.mpegurl")
       )
     )
 
@@ -131,25 +131,25 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
   }
 
   test("url-encode self-hosted asset keys to urls") {
-    val asset = SelfHostedAsset(
+    val asset = SelfHostedInput(
       List(
-        VideoSource("url encode me.mp4", "video/mp4"),
-        VideoSource("url encode me.m3u8", "application/vnd.apple.mpegurl"),
-        VideoSource(
+        VideoInput("url encode me.mp4", "video/mp4"),
+        VideoInput("url encode me.m3u8", "application/vnd.apple.mpegurl"),
+        VideoInput(
           "2025/08/18/My Title--0653ffba-35f4-4883-b961-3139cdaf6c8b-1.0.m3u8",
           "application/vnd.apple.mpegurl"
         )
       )
     )
 
-    urlEncodeSources(asset, "https://gu.com/videos") mustBe SelfHostedAsset(
+    urlEncodeId(asset, "https://gu.com/videos") mustBe SelfHostedInput(
       List(
-        VideoSource("https://gu.com/videos/url+encode+me.mp4", "video/mp4"),
-        VideoSource(
+        VideoInput("https://gu.com/videos/url+encode+me.mp4", "video/mp4"),
+        VideoInput(
           "https://gu.com/videos/url+encode+me.m3u8",
           "application/vnd.apple.mpegurl"
         ),
-        VideoSource(
+        VideoInput(
           "https://gu.com/videos/2025/08/18/My+Title--0653ffba-35f4-4883-b961-3139cdaf6c8b-1.0.m3u8",
           "application/vnd.apple.mpegurl"
         )

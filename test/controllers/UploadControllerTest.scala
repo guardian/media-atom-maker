@@ -393,15 +393,15 @@ class UploadControllerTest extends AnyFlatSpec with Matchers {
     .build()
 
   private def selfHostedAsset(assetVersion: Int, subtitleVersion: Int) =
-    SelfHostedAsset(
+    SelfHostedInput(
       List(
-        VideoSource(
+        VideoInput(
           s"https://uploads.guimcode.co.uk/2025/09/03/Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-$assetVersion.0.mp4",
           "video/mp4",
           Some(1280),
           Some(720)
         ),
-        VideoSource(
+        VideoInput(
           s"https://uploads.guimcode.co.uk/2025/09/03/Loop__Japan_fireball--ace3fcf6-1378-41db-9d21-f3fc07072ab2-$assetVersion.$subtitleVersion.m3u8",
           "application/vnd.apple.mpegurl",
           Some(1280),
@@ -434,7 +434,7 @@ class UploadControllerTest extends AnyFlatSpec with Matchers {
         subtitleSource =
           if (subtitleVersion > 0)
             Some(
-              VideoSource(
+              VideoInput(
                 subtitleFiles(videoVersion - 1),
                 "application/x-subrip"
               )

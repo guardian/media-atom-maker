@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -e
 
 PROFILE='media-service'
 PIPELINE_NAME='media-atom-pipeline-DEV'

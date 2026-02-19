@@ -72,11 +72,11 @@ object MediaAtomHelpers {
 
   def addAsset(
       mediaAtom: ThriftMediaAtom,
-      asset: VideoAsset,
+      outputs: List[VideoOutput],
       version: Long,
       hasSubtitles: Boolean
   ): ThriftMediaAtom = {
-    val assets = getAssets(asset, version, hasSubtitles)
+    val assets = getAssets(outputs, version, hasSubtitles)
 
     // remove any existing assets that have the same version
     val atomAssets = mediaAtom.assets.filter(a => a.version != version)
@@ -110,8 +110,8 @@ object MediaAtomHelpers {
     }
   }
 
-  /** Takes a SelfHostedAsset that has sources as relative s3 keys and rewrites
-    * the sources as full urls.
+  /** Takes a SelfHostedAsset that has an id as a relative s3 key and rewrites
+    * it as a full url.
     *
     * Where forward slashes are detected in the relative key, the key is split
     * into path and filename and only the filename is url encoded, so that the
@@ -120,41 +120,52 @@ object MediaAtomHelpers {
     * Title--0653ffba-35f4-4883-b961-3139cdaf6c8b-1.0.m3u8 becomes:
     * https://gu.com/videos/2025/08/18/My%20Title--0653ffba-35f4-4883-b961-3139cdaf6c8b-1.0.m3u8
     *
-    * @param selfHostedAsset
-    *   \- self-hosted asset with sources like "some/path/some-file"
+    * @param selfHostedOutput
+    *   \- self-hosted asset with id like "some/path/some-file"
     * @param selfHostedOrigin
     *   \- the prefix for the urls e.g. https://gu.com/videos
     * @return
-    *   the self-hosted asset with url-encoded sources
+    *   the self-hosted asset with url-encoded id
     */
-  def urlEncodeSources(
-      selfHostedAsset: SelfHostedAsset,
+  def urlEncodeId(
+      selfHostedOutput: SelfHostedOutput,
       selfHostedOrigin: String
-  ): SelfHostedAsset = {
-    SelfHostedAsset(selfHostedAsset.sources.map { source =>
-      val parts = source.src.split("/")
-      parts.length match {
-        case 1 =>
-          source.copy(src =
-            s"$selfHostedOrigin/${URLEncoder.encode(source.src, "UTF-8")}"
-          )
-        case _ =>
-          val filename = parts.last
-          val path = parts.dropRight(1).mkString("/")
-          source.copy(src =
-            s"$selfHostedOrigin/$path/${URLEncoder.encode(filename, "UTF-8")}"
-          )
-      }
-    })
+  ): SelfHostedOutput = {
+    val parts = selfHostedOutput.id.split("/")
+    parts.length match {
+      case 1 =>
+        selfHostedOutput.copy(id =
+          s"$selfHostedOrigin/${URLEncoder.encode(selfHostedOutput.id, "UTF-8")}"
+        )
+      case _ =>
+        val filename = parts.last
+        val path = parts.dropRight(1).mkString("/")
+        selfHostedOutput.copy(id =
+          s"$selfHostedOrigin/$path/${URLEncoder.encode(filename, "UTF-8")}"
+        )
+    }
+  }
+
+  private def getDimensionsAndAspectRatio(
+      height: Option[Int],
+      width: Option[Int]
+  ): (Option[ThriftImageAssetDimensions], Option[AspectRatio.Ratio]) = {
+    (height, width) match {
+      case (Some(h), Some(w)) =>
+        Some(ThriftImageAssetDimensions(h, w)) ->
+          AspectRatio.calculate(w, h)
+      case _ =>
+        None -> None
+    }
   }
 
   private def getAssets(
-      asset: VideoAsset,
+      assets: List[VideoOutput],
       version: Long,
       hasSubtitles: Boolean
   ): List[ThriftAsset] =
-    asset match {
-      case YouTubeAsset(id) =>
+    assets.flatMap {
+      case YouTubeOutput(id) =>
         val asset = ThriftAsset(
           AssetType.Video,
           version,
@@ -162,43 +173,48 @@ object MediaAtomHelpers {
           ThriftPlatform.Youtube,
           mimeType = None
         )
-
         List(asset)
-
-      case SelfHostedAsset(sources) =>
-        val assets = sources.map {
-          case VideoSource(src, mimeType, height, width) =>
-            val (dimensions, aspectRatio) = (height, width) match {
-              case (Some(h), Some(w)) =>
-                Some(ThriftImageAssetDimensions(h, w)) ->
-                  AspectRatio.calculate(w, h)
-              case _ =>
-                None -> None
-            }
-            ThriftAsset(
-              AssetType.Video,
-              version,
-              src,
-              ThriftPlatform.Url,
-              Some(mimeType),
-              dimensions,
-              aspectRatio.map(_.name)
-            )
-        }
-
-        val subtitleAssets = sources.collect {
-          case VideoSource(src, VideoSource.mimeTypeM3u8, _, _)
-              if hasSubtitles =>
-            val subtitleSrc = src.dropRight(5) + VideoSource.captionsSuffix
+      case SelfHostedOutput(mp4Src, VideoInput.mimeTypeMp4, height, width) =>
+        val updatedSrc = mp4Src.dropRight(4).concat(".mp4")
+        val (dimensions, aspectRatio) =
+          getDimensionsAndAspectRatio(height, width)
+        val asset = ThriftAsset(
+          AssetType.Video,
+          version,
+          updatedSrc,
+          ThriftPlatform.Url,
+          Some(VideoInput.mimeTypeMp4),
+          dimensions,
+          aspectRatio.map(_.name)
+        )
+        List(asset)
+      case SelfHostedOutput(m3u8Src, VideoInput.mimeTypeM3u8, height, width) =>
+        val (dimensions, aspectRatio) =
+          getDimensionsAndAspectRatio(height, width)
+        val asset = ThriftAsset(
+          AssetType.Video,
+          version,
+          m3u8Src,
+          ThriftPlatform.Url,
+          Some(VideoInput.mimeTypeM3u8),
+          dimensions,
+          aspectRatio.map(_.name)
+        )
+        val subtitleAsset = if (hasSubtitles) {
+          val subtitleSrc = m3u8Src.dropRight(5) + VideoInput.captionsSuffix
+          Some(
             ThriftAsset(
               AssetType.Subtitles,
               version,
               subtitleSrc,
               ThriftPlatform.Url,
-              Some(VideoSource.mimeTypeVtt)
+              Some(VideoInput.mimeTypeVtt)
             )
+          )
+        } else {
+          None
         }
 
-        assets ++ subtitleAssets
+        List(asset) ++ subtitleAsset.toList
     }
 }

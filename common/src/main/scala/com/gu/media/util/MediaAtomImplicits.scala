@@ -2,14 +2,8 @@ package com.gu.media.util
 
 import com.gu.atom.util._
 import com.gu.contentatom.thrift._
-import com.gu.contentatom.thrift.atom.media.Platform.Youtube
 import com.gu.contentatom.thrift.atom.media._
-import com.gu.media.model.{
-  SelfHostedAsset,
-  VideoAsset,
-  VideoSource,
-  YouTubeAsset
-}
+import com.gu.media.model.{SelfHostedOutput, VideoOutput, YouTubeOutput}
 
 trait MediaAtomImplicits extends AtomImplicits[MediaAtom] {
   val dataTyper = new AtomDataTyper[MediaAtom] {
@@ -25,47 +19,48 @@ trait MediaAtomImplicits extends AtomImplicits[MediaAtom] {
 
   // why not use a Play template? `common` doesn't have a dependency on Play
   def defaultMediaHtml(atom: MediaAtom): String = {
-    val asset = getActiveAsset(atom)
+    val assets = getActiveAssets(atom)
     val posterUrl = atom.posterUrl
 
-    (asset, posterUrl) match {
-      case (None, Some(poster)) => {
+    (assets, posterUrl) match {
+      case (Nil, Some(poster)) =>
         s"""<img src="$poster"/>"""
-      }
-      case (Some(YouTubeAsset(id)), _) => {
-        s"""<iframe frameborder="0" allowfullscreen="true" src="https://www.youtube-nocookie.com/embed/$id?showinfo=0&rel=0"></iframe>"""
-      }
-      case (Some(SelfHostedAsset(sources)), poster) => {
-        s"""
-           |<video controls="controls" preload="metadata" ${if (
+      case (assets, poster) =>
+        val youtubeAssets = assets.collect { case asset: YouTubeOutput => asset }
+        val selfHostedAssets = assets.collect { case asset: SelfHostedOutput => asset }
+
+        if(selfHostedAssets.nonEmpty) {
+          s"""
+             |<video controls="controls" preload="metadata" ${if (
             poster.isDefined
           ) s"""poster="${poster.get}""""}>
-           | ${sources
-            .map(s => s"""<source type="${s.mimeType}" src="${s.src}"/>""")
+             | ${selfHostedAssets
+            .map(s => s"""<source type="${s.mimeType}" src="${s.id}"/>""")
             .mkString}
-           |</video>
+             |</video>
         """.stripMargin
-      }
-      case (None, None) => {
+        } else if (youtubeAssets.nonEmpty) {
+            s"""<iframe frameborder="0" allowfullscreen="true" src="https://www.youtube-nocookie.com/embed/${youtubeAssets.head.id}?showinfo=0&rel=0"></iframe>"""
+        } else {
+          "<div />"
+        }
+      case _ =>
         "<div />"
-      }
     }
   }
 
-  private def getActiveAsset(atom: MediaAtom): Option[VideoAsset] = {
-    atom.activeVersion.map { version =>
-      atom.assets.filter(_.version == version) match {
-        case asset :: Nil if asset.platform == Youtube =>
-          YouTubeAsset(asset.id)
-
-        case assets =>
-          val sources = assets.collect {
-            case Asset(_, _, id, _, Some(mimeType), _, _) =>
-              VideoSource(id, mimeType)
-          }
-
-          SelfHostedAsset(sources.toList)
-      }
+  private def getActiveAssets(atom: MediaAtom): List[VideoOutput] = {
+    atom.activeVersion match {
+      case Some(version) =>
+        val filteredAssets = atom.assets.filter(_.version == version).toList
+        filteredAssets.flatMap {
+          case Asset(_, _, id, Platform.Youtube, _, _, _) =>
+            Some(YouTubeOutput(id))
+          case Asset(_, _, id, Platform.Url, Some(mimeType), _, _) =>
+            Some(SelfHostedOutput(id, mimeType))
+          case _ => None
+        }
+      case None => Nil
     }
   }
 }

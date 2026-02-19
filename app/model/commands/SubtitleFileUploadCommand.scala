@@ -1,11 +1,8 @@
 package model.commands
 
-import software.amazon.awssdk.services.s3.model.{
-  PutObjectRequest,
-  PutObjectResponse
-}
+import software.amazon.awssdk.services.s3.model.{PutObjectRequest, PutObjectResponse}
 import com.gu.media.logging.Logging
-import com.gu.media.model.VideoSource
+import com.gu.media.model.{SelfHostedInput, VideoInput}
 import com.gu.media.upload.model.Upload
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
@@ -36,9 +33,9 @@ case class SubtitleFileUploadCommand(
 ) extends Command
     with Logging {
 
-  override type T = VideoSource
+  override type T = VideoInput
 
-  override def process(): VideoSource = {
+  override def process(): VideoInput = {
 
     // remove any existing subtitle files from S3
     SubtitleUtil.deleteSubtitlesFromUserUploadBucket(upload, awsConfig)
@@ -57,7 +54,7 @@ case class SubtitleFileUploadCommand(
 
     awsConfig.s3Client.putObject(request, file.ref.path) match {
       case _: PutObjectResponse =>
-        VideoSource(key, contentType)
+        SelfHostedInput(key, contentType)
       case _ => SubtitleFileUploadFailed
     }
   }

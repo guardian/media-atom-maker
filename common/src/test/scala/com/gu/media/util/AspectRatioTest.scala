@@ -13,19 +13,24 @@ class AspectRatioTest extends AnyFlatSpec with Matchers {
   }
 
   "calculate" should "apply a tolerance to match inexact dimensions" in {
-    AspectRatio.calculate(1280, 720, tolerance = 3).map(_.name) should contain(
+    AspectRatio.calculate(1280, 720, tolerance = 10).map(_.name) should contain(
       "16:9"
     )
-    AspectRatio.calculate(1280, 721, tolerance = 3).map(_.name) should contain(
+    AspectRatio.calculate(1280, 721, tolerance = 10).map(_.name) should contain(
       "16:9"
     )
-    AspectRatio.calculate(1280, 722, tolerance = 3).map(_.name) should contain(
+    AspectRatio.calculate(1280, 722, tolerance = 10).map(_.name) should contain(
       "16:9"
     )
-    AspectRatio.calculate(1280, 723, tolerance = 3).map(_.name) should contain(
+    AspectRatio.calculate(1280, 723, tolerance = 10).map(_.name) should contain(
       "16:9"
     )
-    AspectRatio.calculate(1280, 724, tolerance = 3).map(_.name) shouldBe empty
+    AspectRatio.calculate(1280, 724, tolerance = 10).map(_.name) should contain(
+      "16:9"
+    )
+    AspectRatio.calculate(480, 854, tolerance = 10).map(_.name) should contain(
+      "9:16"
+    )
+    AspectRatio.calculate(1280, 750, tolerance = 10).map(_.name) shouldBe empty
   }
-
 }

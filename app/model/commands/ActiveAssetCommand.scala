@@ -1,7 +1,7 @@
 package model.commands
 
 import com.gu.media.logging.Logging
-import com.gu.media.model.{Image, MediaAtom, VideoSource}
+import com.gu.media.model.{Image, MediaAtom, VideoInput}
 import com.gu.media.model.Platform.Youtube
 import com.gu.media.util.{MediaAtomHelpers, MediaAtomImplicits}
 import com.gu.pandomainauth.model.{User => PandaUser}
@@ -72,7 +72,7 @@ case class ActiveAssetCommand(
 
   private[commands] def firstFrameImageName(mp4Name: String): String = {
     // drop .mp4 and replace with image suffix
-    mp4Name.dropRight(4).concat(VideoSource.firstFrameImageSuffix)
+    mp4Name.dropRight(4).concat(VideoInput.firstFrameImageSuffix)
   }
 
   /** use a default image generated from the first frame of video if:

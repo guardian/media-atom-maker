@@ -223,11 +223,57 @@ Resources:
         OutputGroups:
           - Name: MP4
             Outputs:
-              - ContainerSettings:
+              - NameModifier: "_720h"
+                ContainerSettings:
                   Container: MP4
                   Mp4Settings: { }
                 VideoDescription:
                   Height: 720
+                  Sharpness: 100 # Sharpest possible
+                  CodecSettings:
+                    Codec: H_264
+                    H264Settings:
+                      RateControlMode: QVBR # Best quality
+                      QualityTuningLevel: MULTI_PASS_HQ # Best quality
+                      MaxBitrate: 4800000 # Migrated from Elastic Transcoder
+                      QvbrSettings:
+                        MaxAverageBitrate: 2400000 # Twice average to give room for encoder's decisions
+                        QvbrQualityLevel: 8 # 1-10, 10 is best quality
+                        QvbrQualityLevelFineTune: 0.66 # Fine-tuned through manual testing
+                      FramerateControl: INITIALIZE_FROM_SOURCE # Follow the source frame rate (default)
+                      ParControl: SPECIFIED # Use the pixel aspect ratio specified below
+                      ParNumerator: 1 # 1:1 pixel aspect ratio
+                      ParDenominator: 1 # 1:1 pixel aspect ratio
+                      HrdBufferSize: 10000000 # HrdBufferSize / Bitrate gives a buffer duration of 2-4 seconds; longer duration gives better quality at expense of file size
+                      HrdBufferInitialFillPercentage: 90 # Default
+                      GopSizeUnits: SECONDS
+                      GopSize: 2 # 2 seconds
+                      NumberBFramesBetweenReferenceFrames: 1 # 0-15, smaller number gives better quality, higher bitrate and larger file size
+                      SceneChangeDetect: DISABLED # Should reduce any interference for videos which loop back to the start
+                      CodecProfile: HIGH # Good support for hardware decoding; required by HLS
+                      CodecLevel: AUTO # Recommended by HLS, effectively 3.1
+                      EntropyEncoding: CABAC # Best quality
+                      Slices: 1 # Slices improve encoding speed at the expense of quality - so minimise to 1 slice
+                      SaliencyAwareEncoding: PREFERRED # Best quality
+                      BandwidthReductionFilter: { } # Having this on reduces detail - so leave it off
+                      AdaptiveQuantization: HIGH # Best quality
+                      SpatialAdaptiveQuantization: ENABLED # Best quality
+                      TemporalAdaptiveQuantization: ENABLED # Best quality
+                      FlickerAdaptiveQuantization: ENABLED # Best quality
+                AudioDescriptions:
+                  - AudioSourceName: Dynamic Audio Selector 1
+                    CodecSettings:
+                      Codec: AAC
+                      AacSettings:
+                        Bitrate: 160000
+                        CodingMode: CODING_MODE_2_0
+                        SampleRate: 44100
+              - NameModifier: "_480w"
+                ContainerSettings:
+                  Container: MP4
+                  Mp4Settings: { }
+                VideoDescription:
+                  Width: 480
                   Sharpness: 100 # Sharpest possible
                   CodecSettings:
                     Codec: H_264
@@ -280,10 +326,10 @@ Resources:
               FileGroupSettings: { }
           - Name: Apple HLS
             Outputs:
-              - ContainerSettings:
+              - NameModifier: "hls"
+                ContainerSettings:
                   Container: M3U8
                   M3u8Settings: { }
-                NameModifier: "hls"
                 VideoDescription:
                   Height: 720
                   VideoPreprocessors:
@@ -328,10 +374,10 @@ Resources:
                         Bitrate: 160000
                         CodingMode: CODING_MODE_2_0
                         SampleRate: 44100
-              - ContainerSettings:
+              - NameModifier: "captions"
+                ContainerSettings:
                   Container: M3U8
                   M3u8Settings: { }
-                NameModifier: "captions"
                 CaptionDescriptions:
                   - LanguageCode: ENG
                     CaptionSelectorName: "Caption Selector 1"
