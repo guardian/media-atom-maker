@@ -1,19 +1,10 @@
 package controllers
 
 import com.gu.ai.x.play.json.Encoders._
-import software.amazon.awssdk.services.sfn.model.{
-  ExecutionAlreadyExistsException,
-  ExecutionListItem
-}
+import software.amazon.awssdk.services.sfn.model.{ExecutionAlreadyExistsException, ExecutionListItem}
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
-import com.gu.media.model.{
-  ClientAsset,
-  ClientAssetProcessing,
-  MediaAtom,
-  VideoSource,
-  YouTubeInput
-}
+import com.gu.media.model.{ClientAsset, ClientAssetProcessing, MediaAtom, VideoInput, YouTubeInput, YouTubeOutput}
 import com.gu.media.upload.model._
 import com.gu.media.util.{MediaAtomHelpers, MediaAtomImplicits}
 import com.gu.media.youtube.YouTubeVideos
@@ -26,13 +17,7 @@ import org.scanamo.Table
 import org.scanamo.generic.auto._
 import play.api.libs.Files
 import play.api.libs.json.{Format, Json}
-import play.api.mvc.{
-  Action,
-  AnyContent,
-  ControllerComponents,
-  MultipartFormData,
-  Result
-}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, MultipartFormData, Result}
 import util._
 
 import scala.annotation.tailrec
@@ -241,7 +226,7 @@ class UploadController(
 
   private def addYouTubeStatus(video: ClientAsset): ClientAsset =
     video.asset match {
-      case Some(YouTubeInput(id)) =>
+      case Some(YouTubeOutput(id)) =>
         try {
           val status =
             youTube.getProcessingStatus(id).map(ClientAssetProcessing(_))

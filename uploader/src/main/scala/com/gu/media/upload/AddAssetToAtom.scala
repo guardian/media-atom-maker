@@ -3,17 +3,11 @@ package com.gu.media.upload
 import java.util.Date
 import com.gu.atom.data.PreviewDynamoDataStoreV2
 import com.gu.atom.publish.PreviewKinesisAtomPublisherV2
-
 import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
 import com.gu.media.aws.{DynamoAccess, KinesisAccess, UploadAccess}
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
-import com.gu.media.model.{
-  AuditMessage,
-  SelfHostedInput,
-  VideoInput,
-  YouTubeInput
-}
+import com.gu.media.model.{AuditMessage, SelfHostedInput, SelfHostedOutput, VideoInput, VideoOutput, YouTubeInput, YouTubeOutput}
 import com.gu.media.upload.model.Upload
 import com.gu.media.util.MediaAtomHelpers
 import com.gu.media.util.MediaAtomHelpers._
@@ -39,7 +33,7 @@ class AddAssetToAtom
 
   override def handle(upload: Upload): Upload = {
     val atomId = upload.metadata.pluto.atomId
-    val asset = getAsset(upload)
+    val outputs = getEncodedOutputs(upload)
     val before = getAtom(atomId)
     val user = getUser(upload.metadata.user)
 
@@ -50,7 +44,7 @@ class AddAssetToAtom
 
       addAsset(
         mediaAtom,
-        asset,
+        outputs,
         assetVersion,
         hasSubtitles = upload.metadata.subtitleSource.isDefined
       )
@@ -61,7 +55,7 @@ class AddAssetToAtom
       atomId,
       "Update",
       "media-atom-pipeline",
-      Some(s"Added YouTube video $asset")
+      Some(s"Added YouTube video $outputs")
     ).logMessage()
 
     upload
@@ -85,16 +79,13 @@ class AddAssetToAtom
     publisher.publishAtomEvent(event).recover { case NonFatal(e) => throw e }
   }
 
-  private def getAsset(upload: Upload): VideoInput = {
-    upload.metadata.asset match {
-      case Some(asset: YouTubeInput) =>
+  private def getEncodedOutputs(upload: Upload): List[VideoOutput] = {
+    upload.metadata.outputs.map {
+      case asset: YouTubeOutput =>
         asset
 
-      case Some(asset: SelfHostedInput) =>
-        MediaAtomHelpers.urlEncodeSources(asset, selfHostedOrigin)
-
-      case None =>
-        throw new IllegalStateException("Missing asset")
+      case asset: SelfHostedOutput =>
+        MediaAtomHelpers.urlEncodeId(asset, selfHostedOrigin)
     }
   }
 }

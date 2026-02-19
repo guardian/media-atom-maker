@@ -3,7 +3,7 @@ package com.gu.media.upload.model
 import com.gu.ai.x.play.json.Jsonx
 import com.gu.ai.x.play.json.Encoders._
 import play.api.libs.json.Format
-import com.gu.media.model.{IconikData, PlutoSyncMetadataMessage, VideoInput, VideoOutput, VideoSource}
+import com.gu.media.model.{IconikData, PlutoSyncMetadataMessage, VideoInput, VideoOutput}
 
 case class UploadMetadata(
                            user: String,
@@ -15,11 +15,11 @@ case class UploadMetadata(
                            runtime: RuntimeUploadMetadata,
                            version: Option[Long] = None,
                            selfHost: Boolean = false,
-                           input: Option[VideoInput] = None,
-                           output: Option[VideoOutput] = None,
+                           inputs: List[VideoInput] = Nil,
+                           outputs: List[VideoOutput] = Nil,
                            originalFilename: Option[String] = None,
                            startTimestamp: Option[Long] = None, // unix timestamp
-                           subtitleSource: Option[VideoSource] = None,
+                           subtitleSource: Option[VideoInput] = None,
                            subtitleVersion: Option[Long] = None
 )
 

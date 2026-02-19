@@ -101,7 +101,7 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: S3Client) extends Logging {
         upload.copy(
           progress = upload.progress
             .copy(chunksInYouTube = upload.progress.chunksInYouTube + 1),
-          metadata = upload.metadata.copy(asset = Some(YouTubeInput(videoId)))
+          metadata = upload.metadata.copy(inputs = List(YouTubeInput(videoId)))
         )
 
       case MoveToNextChunk if part == upload.parts.last =>

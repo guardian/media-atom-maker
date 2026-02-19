@@ -33,8 +33,8 @@ class ClientAssetTest extends AnyFunSuite with Matchers {
     )
   val selfHostedAsset = SelfHostedInput(
     List(
-      VideoSource(mp4.id, mp4.mimeType.get, Some(1280), Some(720)),
-      VideoSource(m3u8.id, m3u8.mimeType.get, Some(1280), Some(720))
+      VideoInput(mp4.id, mp4.mimeType.get, Some(1280), Some(720)),
+      VideoInput(m3u8.id, m3u8.mimeType.get, Some(1280), Some(720))
     )
   )
 

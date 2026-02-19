@@ -57,7 +57,7 @@ object ClientAsset {
         ClientAssetMetadata(
           originalFilename = upload.metadata.originalFilename,
           subtitleFilename =
-            upload.metadata.subtitleSource.map(VideoSource.filename),
+            upload.metadata.subtitleSource.map(VideoInput.filename),
           startTimestamp = Some(startTimestamp),
           user = upload.metadata.user
         )

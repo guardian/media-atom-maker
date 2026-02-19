@@ -7,7 +7,7 @@ import com.gu.media.model.{
   MediaAtom,
   PlutoSyncMetadataMessage,
   SelfHostedInput,
-  VideoSource
+  VideoInput
 }
 import com.gu.media.upload.{TranscoderOutputKey, UploadPartKey}
 import com.gu.media.upload.model._
@@ -34,7 +34,7 @@ object UploadBuilder {
       iconikData = atom.iconikData,
       selfHost = request.selfHost,
       runtime = getRuntimeMetadata(request.selfHost, atom.channelId),
-      asset = getAsset(
+      inputs = getSelfHostedInputs(
         request.selfHost,
         atom.title,
         atom.id,
@@ -66,11 +66,11 @@ object UploadBuilder {
     */
   def buildForSubtitleChange(
       upload: Upload,
-      newSubtitleSource: Option[VideoSource]
+      newSubtitleSource: Option[VideoInput]
   ): Upload = {
     val assetVersion = upload.metadata.version.getOrElse(1L)
     val subtitleVersion = Upload.getNextSubtitleVersion(upload)
-    val updatedAsset = getAsset(
+    val selfHostedInputs = getSelfHostedInputs(
       upload.metadata.selfHost,
       upload.metadata.title,
       upload.metadata.pluto.atomId,
@@ -79,7 +79,7 @@ object UploadBuilder {
     )
     upload.copy(
       metadata = upload.metadata.copy(
-        asset = updatedAsset,
+        inputs = selfHostedInputs,
         subtitleSource = newSubtitleSource,
         subtitleVersion = Some(subtitleVersion),
         startTimestamp = Some(currentTimestamp)
@@ -90,7 +90,7 @@ object UploadBuilder {
 
   private[util] def currentTimestamp: Long = Instant.now().toEpochMilli
 
-  private def getAsset(
+  private def getSelfHostedInputs(
       selfHosted: Boolean,
       title: String,
       atomId: String,
@@ -98,10 +98,10 @@ object UploadBuilder {
       subtitleVersion: Long,
       includeMp4: Boolean = true,
       includeM3u8: Boolean = true
-  ): Option[SelfHostedInput] = {
+  ): List[SelfHostedInput] = {
     if (!selfHosted) {
       // YouTube assets are added after they have been uploaded (once we know the ID)
-      None
+      Nil
     } else {
       val mp4Key =
         TranscoderOutputKey(
@@ -115,9 +115,9 @@ object UploadBuilder {
       val mp4Source =
         if (includeMp4) {
           Some(
-            VideoSource(
+            SelfHostedInput(
               mp4Key,
-              VideoSource.mimeTypeMp4,
+              VideoInput.mimeTypeMp4,
               // we transcode two mp4s: one with a height of 720, one with a width of 480
               List(
                 DimensionsToTranscode(height = Some(720)),
@@ -140,16 +140,15 @@ object UploadBuilder {
       val m3u8Source =
         if (includeM3u8)
           Some(
-            VideoSource(
+            SelfHostedInput(
               m3u8Key,
-              VideoSource.mimeTypeM3u8,
+              VideoInput.mimeTypeM3u8,
               List(DimensionsToTranscode(height = Some(720)))
             )
           )
         else None
 
-      val sources = mp4Source ++ m3u8Source
-      Some(SelfHostedInput(sources.toList, List.empty))
+      mp4Source.toList ++ m3u8Source.toList
     }
   }
 

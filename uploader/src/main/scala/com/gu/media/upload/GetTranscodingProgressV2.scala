@@ -1,20 +1,11 @@
 package com.gu.media.upload
 
-import software.amazon.awssdk.services.mediaconvert.model.{
-  ContainerType,
-  GetJobRequest,
-  Job,
-  JobStatus
-}
+import software.amazon.awssdk.services.mediaconvert.model.{ContainerType, GetJobRequest, Job, JobStatus}
 import com.gu.media.aws.MediaConvertAccess
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
-import com.gu.media.model.{
-  ImageAssetDimensions,
-  SelfHostedInput,
-  VideoInput,
-  VideoSource
-}
+import com.gu.media.model.VideoInput.{mimeTypeM3u8, mimeTypeMp4}
+import com.gu.media.model.{SelfHostedOutput, VideoOutput}
 import com.gu.media.upload.model.{SelfHostedUploadMetadata, Upload}
 
 import scala.jdk.CollectionConverters._
@@ -37,15 +28,12 @@ class GetTranscodingProgressV2
             s"Transcode failed: [${jobs.map(getDescription).mkString(",")}]"
           )
         } else if (complete) {
-          // update the upload metadata with dimension outputs from job
-          val videoDimensions = getVideoDimensions(jobs)
-          log.info(s"videoDimensions = $videoDimensions")
-          val updatedAsset = upload.metadata.asset.map(
-            applyDimensionsToAsset(_, videoDimensions)
-          )
+          // update the upload metadata with outputs from job
+          val videoOutputs = getVideoOutputs(jobs)
+          log.info(s"videoOutputs = $videoOutputs")
 
           upload.copy(
-            metadata = upload.metadata.copy(asset = updatedAsset),
+            metadata = upload.metadata.copy(outputs = videoOutputs),
             progress = progress.copy(retries = 0, fullyTranscoded = true)
           )
         } else {
@@ -69,9 +57,9 @@ class GetTranscodingProgressV2
     job.errorMessage()
   }
 
-  private def getVideoDimensions(
+  private def getVideoOutputs(
       jobs: List[Job]
-  ): Map[String, ImageAssetDimensions] = {
+  ): List[VideoOutput] = {
     // these are the requested transcoder outputs
     val outputs = for {
       job <- jobs
@@ -92,52 +80,24 @@ class GetTranscodingProgressV2
         case (output, outputDetail) if outputDetail.videoDetails != null =>
           val container = output.containerSettings.container
           val nameModifier = output.nameModifier
+          val extension = output.extension
 
-          val key = container match {
-            case ContainerType.MP4 =>
-              container.toString + nameModifier // e.g. MP4_720h
-            case _ => container.toString // e.g. M3U8
+          val id = container match {
+            case ContainerType.MP4 => container.toString + nameModifier + extension // e.g. MP4_720h.mp4
+            case _ => container.toString + extension // e.g. M3U8.m3u8
           }
 
-          log.info(s"container - $container")
-          log.info(s"name modifier - $nameModifier")
-          log.info(s"key - $key")
+          val mimeType = container match {
+            case ContainerType.MP4 => mimeTypeMp4
+            case ContainerType.M3_U8 => mimeTypeM3u8
+          }
 
-          // value is the dimensions from the corresponding outputDetail
-          key -> ImageAssetDimensions(
-            outputDetail.videoDetails().heightInPx,
-            outputDetail.videoDetails().widthInPx
+          val height = outputDetail.videoDetails().heightInPx
+          val width = outputDetail.videoDetails().widthInPx
+
+          SelfHostedOutput(
+            id, mimeType, height = Some(height), width = Some(width)
           )
       }
-      .toMap
   }
-
-  private def applyDimensionsToAsset(
-                                      asset: VideoInput,
-                                      videoDimensions: Map[String, ImageAssetDimensions]
-  ): VideoInput =
-    asset match {
-      case SelfHostedInput(sources, _) =>
-        val updatedSources = sources.map { source =>
-          val dimensions: Option[ImageAssetDimensions] =
-            (source.mimeType, source.dimensionsToTranscode) match {
-              case (VideoSource.mimeTypeMp4, Some(nameModifier)) =>
-                val key = ContainerType.MP4.toString + nameModifier
-                log.info(s"retrieving on key - $key")
-                videoDimensions.get(key)
-              case (VideoSource.mimeTypeMp4, None) =>
-                videoDimensions.get(ContainerType.MP4.toString)
-              case (VideoSource.mimeTypeM3u8, _) =>
-                videoDimensions.get(ContainerType.M3_U8.toString)
-              case _ => None
-            }
-          source.copy(
-            width = dimensions.map(_.width),
-            height = dimensions.map(_.height)
-          )
-        }
-        SelfHostedInput(updatedSources)
-      case _ => asset
-    }
-
 }

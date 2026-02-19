@@ -20,7 +20,7 @@ import com.gu.media.model.{
   MediaAtom,
   PlutoSyncMetadataMessage,
   SelfHostedInput,
-  VideoSource
+  VideoInput
 }
 import com.gu.media.upload.TranscoderOutputKey
 import com.gu.media.upload.model.{
@@ -99,24 +99,24 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
         upload.metadata.asset shouldBe Some(
           SelfHostedInput(sources =
             List(
-              VideoSource(
-                src =
+              VideoInput(
+                id =
                   "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.0.mp4",
                 mimeType = "video/mp4",
                 None,
                 None,
                 Some("_720h")
               ),
-              VideoSource(
-                src =
+              VideoInput(
+                id =
                   "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.0.mp4",
                 mimeType = "video/mp4",
                 None,
                 None,
                 Some("_480w")
               ),
-              VideoSource(
-                src =
+              VideoInput(
+                id =
                   "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.0.m3u8",
                 mimeType = "application/vnd.apple.mpegurl"
               )
@@ -168,7 +168,7 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
           videoUpload.copy(progress = completedProgress)
 
         // add subtitles
-        val subtitleSource = VideoSource(
+        val subtitleSource = VideoInput(
           "uploads/61e7a4c3-cb36-492d-889c-163abdae68e4-2/subtitle.srt",
           "application/x-subrip"
         )
@@ -187,24 +187,24 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
         // stored the subtitle source and version and set the progress to not fully transcoded
         val expectedAsset = SelfHostedInput(sources =
           List(
-            VideoSource(
-              src =
+            VideoInput(
+              id =
                 "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.1.mp4",
               mimeType = "video/mp4",
               None,
               None,
               Some("_720h")
             ),
-            VideoSource(
-              src =
+            VideoInput(
+              id =
                 "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.1.mp4",
               mimeType = "video/mp4",
               None,
               None,
               Some("_480w")
             ),
-            VideoSource(
-              src =
+            VideoInput(
+              id =
                 "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.1.m3u8",
               mimeType = "application/vnd.apple.mpegurl"
             )
@@ -258,7 +258,7 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
           "2025-08-20T13:14:15Z"
         )
 
-        val subtitleSource = VideoSource(
+        val subtitleSource = VideoInput(
           "uploads/61e7a4c3-cb36-492d-889c-163abdae68e4-2/subtitle.srt",
           "application/x-subrip"
         )
@@ -281,24 +281,24 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
         // removed the subtitle source and set the progress to not fully transcoded
         val expectedAsset = SelfHostedInput(sources =
           List(
-            VideoSource(
-              src =
+            VideoInput(
+              id =
                 "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.2.mp4",
               mimeType = "video/mp4",
               None,
               None,
               Some("_720h")
             ),
-            VideoSource(
-              src =
+            VideoInput(
+              id =
                 "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.2.mp4",
               mimeType = "video/mp4",
               None,
               None,
               Some("_480w")
             ),
-            VideoSource(
-              src =
+            VideoInput(
+              id =
                 "2025/08/20/Atom_Title--61e7a4c3-cb36-492d-889c-163abdae68e4-2.2.m3u8",
               mimeType = "application/vnd.apple.mpegurl"
             )
