@@ -2,6 +2,7 @@ package model.commands
 
 import software.amazon.awssdk.services.s3.model.{PutObjectRequest, PutObjectResponse}
 import com.gu.media.logging.Logging
+import com.gu.media.model.Platform.Url
 import com.gu.media.model.{SelfHostedInput, VideoInput}
 import com.gu.media.upload.model.Upload
 import com.gu.pandomainauth.model.{User => PandaUser}
@@ -54,7 +55,7 @@ case class SubtitleFileUploadCommand(
 
     awsConfig.s3Client.putObject(request, file.ref.path) match {
       case _: PutObjectResponse =>
-        SelfHostedInput(key, contentType)
+        SelfHostedInput(key, Url, contentType)
       case _ => SubtitleFileUploadFailed
     }
   }

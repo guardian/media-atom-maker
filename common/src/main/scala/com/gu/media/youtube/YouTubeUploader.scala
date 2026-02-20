@@ -1,20 +1,12 @@
 package com.gu.media.youtube
 
 import java.io.InputStream
-import com.gu.media.logging.{
-  Logging,
-  YoutubeApiType,
-  YoutubeRequestLogger,
-  YoutubeRequestType
-}
+import com.gu.media.logging.{Logging, YoutubeApiType, YoutubeRequestLogger, YoutubeRequestType}
+import com.gu.media.model.Platform.Youtube
 import com.gu.media.model.YouTubeInput
 import com.gu.media.upload.model.{Upload, UploadPart}
 import com.gu.media.util.InputStreamRequestBody
-import com.gu.media.youtube.YouTubeUploader.{
-  MoveToNextChunk,
-  UploadError,
-  VideoFullyUploaded
-}
+import com.gu.media.youtube.YouTubeUploader.{MoveToNextChunk, UploadError, VideoFullyUploaded}
 import com.squareup.okhttp.{MediaType, OkHttpClient, Request, RequestBody}
 import play.api.libs.json.{JsObject, JsString, Json}
 import software.amazon.awssdk.services.s3.S3Client
@@ -101,7 +93,7 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: S3Client) extends Logging {
         upload.copy(
           progress = upload.progress
             .copy(chunksInYouTube = upload.progress.chunksInYouTube + 1),
-          metadata = upload.metadata.copy(inputs = List(YouTubeInput(videoId)))
+          metadata = upload.metadata.copy(inputs = List(YouTubeInput(videoId, Youtube)))
         )
 
       case MoveToNextChunk if part == upload.parts.last =>

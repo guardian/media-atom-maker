@@ -1,6 +1,11 @@
 package com.gu.media.upload
 
-import software.amazon.awssdk.services.mediaconvert.model.{ContainerType, GetJobRequest, Job, JobStatus}
+import software.amazon.awssdk.services.mediaconvert.model.{
+  ContainerType,
+  GetJobRequest,
+  Job,
+  JobStatus
+}
 import com.gu.media.aws.MediaConvertAccess
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
@@ -76,28 +81,35 @@ class GetTranscodingProgressV2
 
     outputs
       .zip(outputDetails)
-      .collect {
+      .flatMap {
         case (output, outputDetail) if outputDetail.videoDetails != null =>
-          val container = output.containerSettings.container
+          val containerType = output.containerSettings.container
           val nameModifier = output.nameModifier
           val extension = output.extension
 
-          val id = container match {
-            case ContainerType.MP4 => container.toString + nameModifier + extension // e.g. MP4_720h.mp4
-            case _ => container.toString + extension // e.g. M3U8.m3u8
+          for {
+            mimeType <- containerType match {
+              case ContainerType.MP4   => Some(mimeTypeMp4)
+              case ContainerType.M3_U8 => Some(mimeTypeM3u8)
+              case _                   => None
+            }
+          } yield {
+            // TODO: construct correct ID
+            val id = containerType match {
+              case ContainerType.MP4 =>
+                containerType.toString + nameModifier + extension
+              case _ => containerType.toString + extension
+            }
+            val height = outputDetail.videoDetails().heightInPx
+            val width = outputDetail.videoDetails().widthInPx
+            SelfHostedOutput(
+              id,
+              mimeType,
+              height = Some(height),
+              width = Some(width)
+            )
           }
-
-          val mimeType = container match {
-            case ContainerType.MP4 => mimeTypeMp4
-            case ContainerType.M3_U8 => mimeTypeM3u8
-          }
-
-          val height = outputDetail.videoDetails().heightInPx
-          val width = outputDetail.videoDetails().widthInPx
-
-          SelfHostedOutput(
-            id, mimeType, height = Some(height), width = Some(width)
-          )
+        case _ => None
       }
   }
 }

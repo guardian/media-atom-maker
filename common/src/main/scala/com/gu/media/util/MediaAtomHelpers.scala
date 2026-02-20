@@ -214,7 +214,19 @@ object MediaAtomHelpers {
         } else {
           None
         }
-
         List(asset) ++ subtitleAsset.toList
+      case SelfHostedOutput(src, mimeType, height, width) =>
+        val (dimensions, aspectRatio) =
+          getDimensionsAndAspectRatio(height, width)
+        val asset = ThriftAsset(
+          AssetType.Video,
+          version,
+          src,
+          ThriftPlatform.Url,
+          Some(mimeType),
+          dimensions,
+          aspectRatio.map(_.name)
+        )
+        List(asset)
     }
 }

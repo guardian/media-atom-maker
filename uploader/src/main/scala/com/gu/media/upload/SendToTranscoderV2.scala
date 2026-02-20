@@ -1,20 +1,10 @@
 package com.gu.media.upload
 
-import software.amazon.awssdk.services.mediaconvert.model.{
-  CaptionSelector,
-  CaptionSourceSettings,
-  CreateJobRequest,
-  FileGroupSettings,
-  FileSourceSettings,
-  HlsGroupSettings,
-  Input,
-  JobSettings,
-  OutputGroup,
-  OutputGroupSettings,
-}
+import software.amazon.awssdk.services.mediaconvert.model.{CaptionSelector, CaptionSourceSettings, CreateJobRequest, FileGroupSettings, FileSourceSettings, HlsGroupSettings, Input, JobSettings, OutputGroup, OutputGroupSettings}
 import com.gu.media.aws.MediaConvertAccess
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
+import com.gu.media.model.Platform.Url
 import com.gu.media.model.{SelfHostedInput, VideoInput}
 import com.gu.media.upload.model.{SelfHostedUploadMetadata, Upload}
 
@@ -25,12 +15,14 @@ class SendToTranscoderV2
     with MediaConvertAccess
     with Logging {
   override def handle(upload: Upload): Upload = {
-    val videoInput = Upload.videoInputUri(upload)
+    val videoInputUri = Upload.videoInputUri(upload)
     val maybeSubtitlesInput = Upload.subtitleInputUri(upload)
 
     val selfHostedInputs = upload.metadata.inputs.collect { case input: SelfHostedInput => input }
-    val outputGroups = getOutputGroups(selfHostedInputs)
-    val jobs = sendToTranscoder(videoInput, maybeSubtitlesInput, outputGroups)
+    log.info(s"selfHostedInputs: ${selfHostedInputs.toString()}")
+    val outputGroups = buildOutputGroups(selfHostedInputs)
+    log.info(s"outputGroups: $outputGroups")
+    val jobs = sendToTranscoder(videoInputUri, maybeSubtitlesInput, outputGroups)
 
     val metadata =
       upload.metadata.copy(runtime = SelfHostedUploadMetadata(List(jobs)))
@@ -101,10 +93,10 @@ class SendToTranscoderV2
     id
   }
 
-  private def getOutputGroups(selfHostedInputs: List[SelfHostedInput]): List[OutputGroup] = {
+  private def buildOutputGroups(selfHostedInputs: List[SelfHostedInput]): List[OutputGroup] = {
     selfHostedInputs
       .map {
-        case SelfHostedInput(output, VideoInput.mimeTypeMp4, _) =>
+        case SelfHostedInput(output, Url, VideoInput.mimeTypeMp4, _) =>
           val filenameWithoutMp4 =
             if (output.endsWith(".mp4")) output.dropRight(4) else output
           val outputGroupSettings = OutputGroupSettings
@@ -120,7 +112,7 @@ class SendToTranscoderV2
             .build()
           OutputGroup.builder().outputGroupSettings(outputGroupSettings).build()
 
-        case SelfHostedInput(output, VideoInput.mimeTypeM3u8, _) =>
+        case SelfHostedInput(output, Url, VideoInput.mimeTypeM3u8, _) =>
           val filenameWithoutM3u8 =
             if (output.endsWith(".m3u8")) output.dropRight(5) else output
           val outputGroupSettings = OutputGroupSettings
@@ -138,7 +130,7 @@ class SendToTranscoderV2
             .build()
           OutputGroup.builder().outputGroupSettings(outputGroupSettings).build()
 
-        case SelfHostedInput(_, other, _) =>
+        case SelfHostedInput(_, _, other, _) =>
           throw new IllegalArgumentException(s"Unsupported mime type $other")
       }
   }

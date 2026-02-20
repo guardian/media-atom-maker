@@ -2,13 +2,8 @@ package util
 
 import java.time.Instant
 import com.gu.media.aws.{AwsAccess, UploadAccess}
-import com.gu.media.model.{
-  DimensionsToTranscode,
-  MediaAtom,
-  PlutoSyncMetadataMessage,
-  SelfHostedInput,
-  VideoInput
-}
+import com.gu.media.model.Platform.Url
+import com.gu.media.model.{DimensionsToTranscode, MediaAtom, PlutoSyncMetadataMessage, SelfHostedInput, VideoInput}
 import com.gu.media.upload.{TranscoderOutputKey, UploadPartKey}
 import com.gu.media.upload.model._
 import model.commands.CommandExceptions.AtomMissingYouTubeChannel
@@ -117,6 +112,7 @@ object UploadBuilder {
           Some(
             SelfHostedInput(
               mp4Key,
+              Url,
               VideoInput.mimeTypeMp4,
               // we transcode two mp4s: one with a height of 720, one with a width of 480
               List(
@@ -142,6 +138,7 @@ object UploadBuilder {
           Some(
             SelfHostedInput(
               m3u8Key,
+              Url,
               VideoInput.mimeTypeM3u8,
               List(DimensionsToTranscode(height = Some(720)))
             )
