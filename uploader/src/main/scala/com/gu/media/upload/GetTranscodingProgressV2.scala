@@ -1,16 +1,12 @@
 package com.gu.media.upload
 
-import software.amazon.awssdk.services.mediaconvert.model.{
-  ContainerType,
-  GetJobRequest,
-  Job,
-  JobStatus
-}
+import software.amazon.awssdk.services.mediaconvert.model.{ContainerType, GetJobRequest, Job, JobStatus}
 import com.gu.media.aws.MediaConvertAccess
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
+import com.gu.media.model.Platform.{Url, Youtube}
 import com.gu.media.model.VideoInput.{mimeTypeM3u8, mimeTypeMp4}
-import com.gu.media.model.{SelfHostedOutput, VideoOutput}
+import com.gu.media.model.{Platform, SelfHostedInput, SelfHostedOutput, VideoInput, VideoOutput, YouTubeInput, YouTubeOutput}
 import com.gu.media.upload.model.{SelfHostedUploadMetadata, Upload}
 
 import scala.jdk.CollectionConverters._
@@ -33,8 +29,10 @@ class GetTranscodingProgressV2
             s"Transcode failed: [${jobs.map(getDescription).mkString(",")}]"
           )
         } else if (complete) {
-          // update the upload metadata with outputs from job
-          val videoOutputs = getVideoOutputs(jobs)
+          // combine the jobs and inputs to construct the outputs
+
+          val videoInputIdMap = buildVideoInputIdMap(upload.metadata.inputs)
+          val videoOutputs = getVideoOutputs(videoInputIdMap, jobs)
           log.info(s"videoOutputs = $videoOutputs")
 
           upload.copy(
@@ -62,7 +60,23 @@ class GetTranscodingProgressV2
     job.errorMessage()
   }
 
+  private case class VideoInputIdMapKey(platform: Platform, mimeType: Option[String])
+  private type VideoInputIdMap = Map[VideoInputIdMapKey, String]
+
+  // Create two-part key (platform and mimeType), with a value of id
+  private def buildVideoInputIdMap(
+      inputs: List[VideoInput]
+  ): VideoInputIdMap = {
+    inputs.map {
+      case SelfHostedInput(id, platform, mimeType, _) =>
+        VideoInputIdMapKey(platform, Some(mimeType)) -> id
+      case YouTubeInput(id, platform) =>
+        VideoInputIdMapKey(platform, None) -> id
+    }
+  }.toMap
+
   private def getVideoOutputs(
+      videoInputIdMap: VideoInputIdMap,
       jobs: List[Job]
   ): List[VideoOutput] = {
     // these are the requested transcoder outputs
@@ -85,7 +99,6 @@ class GetTranscodingProgressV2
         case (output, outputDetail) if outputDetail.videoDetails != null =>
           val containerType = output.containerSettings.container
           val nameModifier = output.nameModifier
-          val extension = output.extension
 
           for {
             mimeType <- containerType match {
@@ -94,17 +107,21 @@ class GetTranscodingProgressV2
               case _                   => None
             }
           } yield {
-            // TODO: construct correct ID
             // Might be possible to extract at the very end? https://docs.aws.amazon.com/mediaconvert/latest/ug/output-file-names-and-paths.html
-            val id = containerType match {
+            val idWithModifier = containerType match {
               case ContainerType.MP4 =>
-                containerType.toString + nameModifier + extension
-              case _ => containerType.toString + extension
+                val id = videoInputIdMap(VideoInputIdMapKey(Url, Some(mimeTypeMp4)))
+                id.dropRight(4) + nameModifier + ".mp4"
+              case ContainerType.M3_U8 =>
+                val id = videoInputIdMap(VideoInputIdMapKey(Url, Some(mimeTypeM3u8)))
+                id.dropRight(5) + ".m3u8"
+              // TODO: not sure on this
+              case _ => videoInputIdMap(VideoInputIdMapKey(Youtube, None))
             }
             val height = outputDetail.videoDetails().heightInPx
             val width = outputDetail.videoDetails().widthInPx
             SelfHostedOutput(
-              id,
+              id = idWithModifier,
               mimeType,
               height = Some(height),
               width = Some(width)
