@@ -95,6 +95,7 @@ class GetTranscodingProgressV2
             }
           } yield {
             // TODO: construct correct ID
+            // Might be possible to extract at the very end? https://docs.aws.amazon.com/mediaconvert/latest/ug/output-file-names-and-paths.html
             val id = containerType match {
               case ContainerType.MP4 =>
                 containerType.toString + nameModifier + extension
