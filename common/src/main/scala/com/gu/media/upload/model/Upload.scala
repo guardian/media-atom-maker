@@ -5,6 +5,11 @@ import com.gu.ai.x.play.json.Encoders._
 import com.gu.media.upload.UploadUri
 import play.api.libs.json.Format
 
+case class WaitOnUpload(input: Upload, taskToken: String, executionId: String)
+
+object WaitOnUpload {
+  implicit val format: Format[WaitOnUpload] = Jsonx.formatCaseClass[WaitOnUpload]
+}
 // All data is conceptually immutable except UploadProgress
 case class Upload(
     id: String,

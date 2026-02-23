@@ -228,6 +228,11 @@ lazy val uploader = (project in file("uploader"))
         description =
           "Sends a complete video to the AWS MediaConvert transcoder"
       ),
+      "ResumeMachine" -> LambdaConfig(
+        description =
+          "Resumes the state machine after AWS MediaConvert completes",
+        executionRole = "ResumeStateMachineLambdaExecutionRole"
+      ),
       "GetTranscodingProgressV2" -> LambdaConfig(
         description = "Polls the AWS MediaConvert transcoder"
       ),

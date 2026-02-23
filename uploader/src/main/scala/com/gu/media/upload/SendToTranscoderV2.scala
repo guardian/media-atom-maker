@@ -1,38 +1,27 @@
 package com.gu.media.upload
 
-import software.amazon.awssdk.services.mediaconvert.model.{
-  CaptionSelector,
-  CaptionSourceSettings,
-  CreateJobRequest,
-  FileGroupSettings,
-  FileSourceSettings,
-  HlsGroupSettings,
-  Input,
-  JobSettings,
-  OutputGroup,
-  OutputGroupSettings,
-  OutputGroupType
-}
+import software.amazon.awssdk.services.mediaconvert.model.{CaptionSelector, CaptionSourceSettings, CreateJobRequest, FileGroupSettings, FileSourceSettings, HlsGroupSettings, Input, JobSettings, OutputGroup, OutputGroupSettings, OutputGroupType}
 import com.gu.media.aws.MediaConvertAccess
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
 import com.gu.media.model.{SelfHostedAsset, VideoSource}
-import com.gu.media.upload.model.{SelfHostedUploadMetadata, Upload}
+import com.gu.media.upload.model.{SelfHostedUploadMetadata, Upload, WaitOnUpload}
 
 import scala.jdk.CollectionConverters._
 
 class SendToTranscoderV2
-    extends LambdaWithParams[Upload, Upload]
+    extends LambdaWithParams[WaitOnUpload, Upload]
     with MediaConvertAccess
     with Logging {
-  override def handle(upload: Upload): Upload = {
+  override def handle(data: WaitOnUpload): Upload = {
+    val upload = data.input
     val videoInput = Upload.videoInputUri(upload)
     val maybeSubtitlesInput = Upload.subtitleInputUri(upload)
 
     upload.metadata.asset match {
       case Some(SelfHostedAsset(sources)) =>
         val outputs = getOutputs(sources)
-        val jobs = sendToTranscoder(videoInput, maybeSubtitlesInput, outputs)
+        val jobs = sendToTranscoder(videoInput, maybeSubtitlesInput, outputs, data.taskToken, data.executionId)
 
         val metadata =
           upload.metadata.copy(runtime = SelfHostedUploadMetadata(List(jobs)))
@@ -49,7 +38,9 @@ class SendToTranscoderV2
   private def sendToTranscoder(
       videoInput: UploadUri,
       maybeSubtitlesInput: Option[UploadUri],
-      outputs: List[OutputGroup]
+      outputs: List[OutputGroup],
+      taskToken: String,
+      executionId: String
   ): String = {
     val captionSourceSettings = maybeSubtitlesInput match {
       case Some(subtitlesInput) =>
@@ -88,6 +79,10 @@ class SendToTranscoderV2
       .builder()
       .role(mediaConvertRole)
       .jobTemplate(jobTemplate)
+      .userMetadata(Map(
+        "stage" -> stage,
+        "executionId" -> executionId
+      ).asJava)
       .settings(
         JobSettings
           .builder()

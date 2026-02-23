@@ -61,6 +61,35 @@ Conditions:
   CreateDevResources:  !Equals [!Ref "Stage", "DEV"]
 
 Resources:
+  ResumeStateMachineLambdaExecutionRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: lambda.amazonaws.com
+              Action: "sts:AssumeRole"
+        Path: "/"
+        Policies:
+          - PolicyName: "ResumeStateMachineLambdaExecutionPolicy"
+            PolicyDocument:
+              Statement:
+                - Effect: "Allow"
+                  Action: [ "logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents" ]
+                  Resource: "*"
+                - Effect: "Allow"
+                  Action: ["s3:GetObject"]
+                  Resource: !Sub ["arn:aws:s3:::${Bucket}/*", { "Bucket": !Ref ConfigBucket }]
+                - Effect: "Allow"
+                  Action: [ "states:GetExecutionHistory", "states:SendTaskSuccess" ]
+                  Resource:
+                    - !If [ CreateProdResources, !Ref VideoPipelinePROD, !If [ CreateCodeResources, !Ref VideoPipelineCODE, !Ref VideoPipelineDEV ] ]
+                    - !Sub
+                      - "arn:aws:states:${AWS::Region}:${AWS::AccountId}:execution:${stateMachineName}:*"
+                      - stateMachineName: !Select [ 6, !Split [ ":", !If [ CreateProdResources, !Ref VideoPipelinePROD, !If [ CreateCodeResources, !Ref VideoPipelineCODE, !Ref VideoPipelineDEV ] ] ] ]
+
   LambdaExecutionRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -183,6 +212,27 @@ Resources:
                 Action:
                   - "lambda:InvokeFunction"
                 Resource: "*"
+
+  EventBridgeExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action: "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: ExecuteResumeMachineLambda
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "lambda:InvokeFunction"
+                Resource: !GetAtt [ ResumeMachine, Arn ]
 
   MediaConvertRole:
     Type: "AWS::IAM::Role"
@@ -368,6 +418,8 @@ Resources:
 
   {{SendToTranscoderV2}}
 
+  {{ResumeMachine}}
+
   {{AddSubtitlesToMP4}}
 
   {{GetTranscodingProgressV2}}
@@ -429,6 +481,22 @@ Resources:
           -
             {}
       RoleArn: !GetAtt [ StatesExecutionRole, Arn ]
+
+  MediaConvertCompleteRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub "mediaconvert-job-complete-${Stage}"
+      EventPattern:
+        Fn::Sub: >-
+          {"source":["aws.mediaconvert"],"detail-type":["MediaConvert Job State
+          Change"],"detail":{"status":["COMPLETE"],"userMetadata":{"stage":["${Stage}"]}}}
+      State: ENABLED
+      Description: ''
+      EventBusName: default
+      Targets:
+      - Id: lambda
+        Arn: !GetAtt [ ResumeMachine, Arn ]
+        RoleArn: !GetAtt [ EventBridgeExecutionRole, Arn ]
 
   AlertTopic:
     Type: AWS::SNS::Topic

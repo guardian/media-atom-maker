@@ -58,6 +58,7 @@ deployments:
         - "media-atom-pipeline-MultipartCopyChunkInS3-"
         - "media-atom-pipeline-SendToPluto-"
         - "media-atom-pipeline-SendToTranscoderV2-"
+        - "media-atom-pipeline-ResumeMachine-"
         - "media-atom-pipeline-GetTranscodingProgressV2-"
         - "media-atom-pipeline-AddAssetToAtom-"
         - "media-atom-pipeline-AddSubtitlesToMP4-"

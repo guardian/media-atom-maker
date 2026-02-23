@@ -29,6 +29,6 @@
 # Architecture specified to match version of ffmpeg used to inject subtitles into mp4
     Architectures:
       - "x86_64"
-    Role: !GetAtt LambdaExecutionRole.Arn
+    Role: !GetAtt {{executionRole}}.Arn
     Runtime: "java21"
     Timeout: {{timeout}}

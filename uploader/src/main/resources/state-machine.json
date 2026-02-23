@@ -142,10 +142,19 @@
       ],
       "Default": "AddCompleteUploadDataToCache"
     },
-    "SendToTranscoderV2": {
-      "Type": "Task",
-      "Resource": "${SendToTranscoderV2.Arn}",
-      "Next": "GetTranscodingProgressV2"
+    "SendToTranscoderV2":{
+      "Type":"Task",
+      "Resource":"arn:aws:states:::lambda:invoke.waitForTaskToken",
+      "Next": "GetTranscodingProgressV2",
+      "QueryLanguage": "JSONata",
+      "Arguments":{
+        "FunctionName":"${SendToTranscoderV2.Arn}",
+        "Payload":{
+          "input":"{% $states.input %}",
+          "taskToken": "{% $states.context.Task.Token %}",
+          "executionId": "{% $states.context.Execution.Id %}"
+        }
+      }
     },
     "GetTranscodingProgressV2": {
       "Type": "Task",
