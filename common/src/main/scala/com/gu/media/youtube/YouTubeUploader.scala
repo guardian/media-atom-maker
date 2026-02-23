@@ -7,7 +7,7 @@ import com.gu.media.logging.{
   YoutubeRequestLogger,
   YoutubeRequestType
 }
-import com.gu.media.model.YouTubeAsset
+import com.gu.media.model.YouTubeInput
 import com.gu.media.upload.model.{Upload, UploadPart}
 import com.gu.media.util.InputStreamRequestBody
 import com.gu.media.youtube.YouTubeUploader.{
@@ -101,7 +101,7 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: S3Client) extends Logging {
         upload.copy(
           progress = upload.progress
             .copy(chunksInYouTube = upload.progress.chunksInYouTube + 1),
-          metadata = upload.metadata.copy(asset = Some(YouTubeAsset(videoId)))
+          metadata = upload.metadata.copy(inputs = List(YouTubeInput(videoId)))
         )
 
       case MoveToNextChunk if part == upload.parts.last =>

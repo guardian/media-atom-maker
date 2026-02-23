@@ -1,7 +1,7 @@
 package util
 
 import com.gu.media.aws.{DynamoAccess, UploadAccess}
-import com.gu.media.model.{ClientAsset, ClientAssetMetadata, VideoSource}
+import com.gu.media.model.{ClientAsset, ClientAssetMetadata, VideoInput}
 import com.gu.media.upload.model.Upload
 import org.scanamo.Table
 import org.scanamo.syntax._
@@ -27,7 +27,7 @@ class UploadDecorator(
   private def getUploadMetadata(upload: Upload): ClientAssetMetadata = {
     ClientAssetMetadata(
       upload.metadata.originalFilename,
-      upload.metadata.subtitleSource.map(VideoSource.filename),
+      upload.metadata.subtitleSource.map(VideoInput.filename),
       upload.metadata.startTimestamp,
       upload.metadata.user
     )

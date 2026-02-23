@@ -14,8 +14,8 @@ object AwsCredentials {
     val instance = CredentialsForAws.profile(profile)
 
     // To enable publishing to CAPI code from DEV, update the kinesis streams in config and uncomment below:
-    //   val crossAccount = AwsCredentialsProvidersForBothSdkVersions.profile("composer")
-    val crossAccount = instance
+    val crossAccount = CredentialsForAws.profile("composer")
+    // val crossAccount = instance
 
     val upload = devUpload(settings)
 

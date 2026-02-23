@@ -1,20 +1,11 @@
 package com.gu.media.upload
 
-import software.amazon.awssdk.services.mediaconvert.model.{
-  ContainerType,
-  GetJobRequest,
-  Job,
-  JobStatus
-}
+import software.amazon.awssdk.services.mediaconvert.model.{ContainerType, GetJobRequest, Job, JobStatus}
 import com.gu.media.aws.MediaConvertAccess
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
-import com.gu.media.model.{
-  ImageAssetDimensions,
-  SelfHostedAsset,
-  VideoAsset,
-  VideoSource
-}
+import com.gu.media.model.VideoInput.{mimeTypeM3u8, mimeTypeMp4}
+import com.gu.media.model.{SelfHostedOutput, VideoOutput}
 import com.gu.media.upload.model.{SelfHostedUploadMetadata, Upload}
 
 import scala.jdk.CollectionConverters._
@@ -37,15 +28,12 @@ class GetTranscodingProgressV2
             s"Transcode failed: [${jobs.map(getDescription).mkString(",")}]"
           )
         } else if (complete) {
-          // update the upload metadata with dimension outputs from job
-          val videoDimensions = getVideoDimensions(jobs)
-          log.info(s"videoDimensions = $videoDimensions")
-          val updatedAsset = upload.metadata.asset.map(
-            applyDimensionsToAsset(_, videoDimensions)
-          )
+          // update the upload metadata with outputs from job
+          val videoOutputs = getVideoOutputs(jobs)
+          log.info(s"videoOutputs = $videoOutputs")
 
           upload.copy(
-            metadata = upload.metadata.copy(asset = updatedAsset),
+            metadata = upload.metadata.copy(outputs = videoOutputs),
             progress = progress.copy(retries = 0, fullyTranscoded = true)
           )
         } else {
@@ -69,9 +57,9 @@ class GetTranscodingProgressV2
     job.errorMessage()
   }
 
-  private def getVideoDimensions(
+  private def getVideoOutputs(
       jobs: List[Job]
-  ): Map[ContainerType, ImageAssetDimensions] = {
+  ): List[VideoOutput] = {
     // these are the requested transcoder outputs
     val outputs = for {
       job <- jobs
@@ -90,38 +78,26 @@ class GetTranscodingProgressV2
       .zip(outputDetails)
       .collect {
         case (output, outputDetail) if outputDetail.videoDetails != null =>
-          // key is the output 'container' - e.g. MP4, M3U8, RAW
-          output.containerSettings.container ->
-            // value is the dimensions from the corresponding outputDetail
-            ImageAssetDimensions(
-              outputDetail.videoDetails().heightInPx,
-              outputDetail.videoDetails().widthInPx
-            )
-      }
-      .toMap
-  }
+          val container = output.containerSettings.container
+          val nameModifier = output.nameModifier
+          val extension = output.extension
 
-  private def applyDimensionsToAsset(
-      asset: VideoAsset,
-      videoDimensions: Map[ContainerType, ImageAssetDimensions]
-  ): VideoAsset =
-    asset match {
-      case SelfHostedAsset(sources) =>
-        val updatedSources = sources.map { source =>
-          val dimensions: Option[ImageAssetDimensions] = source.mimeType match {
-            case VideoSource.mimeTypeMp4 =>
-              videoDimensions.get(ContainerType.MP4)
-            case VideoSource.mimeTypeM3u8 =>
-              videoDimensions.get(ContainerType.M3_U8)
-            case _ => None
+          val id = container match {
+            case ContainerType.MP4 => container.toString + nameModifier + extension // e.g. MP4_720h.mp4
+            case _ => container.toString + extension // e.g. M3U8.m3u8
           }
-          source.copy(
-            width = dimensions.map(_.width),
-            height = dimensions.map(_.height)
-          )
-        }
-        SelfHostedAsset(updatedSources)
-      case _ => asset
-    }
 
+          val mimeType = container match {
+            case ContainerType.MP4 => mimeTypeMp4
+            case ContainerType.M3_U8 => mimeTypeM3u8
+          }
+
+          val height = outputDetail.videoDetails().heightInPx
+          val width = outputDetail.videoDetails().widthInPx
+
+          SelfHostedOutput(
+            id, mimeType, height = Some(height), width = Some(width)
+          )
+      }
+  }
 }

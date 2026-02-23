@@ -34,41 +34,52 @@ class UploadKeyTest extends AnyFlatSpec with Matchers {
 
   "TranscoderOutputKey" should "combine prefix, title, id and extension" in {
     TranscoderOutputKey(
-      "my-prefix",
-      "my-title",
+      prefix = "my-prefix",
+      title = "my-title",
       id = "123xyz",
-      extension = "m3u8"
+      extension = "m3u8",
+      nameModifier = None
     ).toString shouldBe "my-prefix/my-title--123xyz.m3u8"
   }
 
   "TranscoderOutputKey" should "set the prefix to date yyyy/MM/dd" in {
-    val key = TranscoderOutputKey("my-title", id = "123xyz", extension = "m3u8")
+    val key = TranscoderOutputKey(
+      title = "my-title",
+      atomId = "123xyz",
+      extension = "m3u8",
+      subtitleVersion = None,
+      assetVersion = None,
+      nameModifier = None
+    )
     key.toString should fullyMatch regex """\d{4}/\d{2}/\d{2}/my-title--123xyz.m3u8"""
   }
 
   "TranscoderOutputKey" should "include asset and subtitle versions for the atom" in {
     val key = TranscoderOutputKey(
-      "my-title",
+      title = "my-title",
       atomId = "123xyz",
-      assetVersion = 2,
-      subtitleVersion = 10,
-      extension = "m3u8"
+      extension = "m3u8",
+      subtitleVersion = Some(10),
+      assetVersion = Some(2),
+      nameModifier = None
     )
     key.toString should fullyMatch regex """\d{4}/\d{2}/\d{2}/my-title--123xyz-2.10.m3u8"""
   }
 
   "TranscoderOutputKey" should "replace special characters with underscores" in {
     TranscoderOutputKey(
-      "2025/08/20",
-      "Loop: Japan fireball",
+      prefix = "2025/08/20",
+      title = "Loop: Japan fireball",
       id = "1c44ce4e-760a-4312-a803-40939aeea355-2.0",
-      extension = "m3u8"
+      extension = "m3u8",
+      nameModifier = None
     ).toString shouldBe "2025/08/20/Loop__Japan_fireball--1c44ce4e-760a-4312-a803-40939aeea355-2.0.m3u8"
     TranscoderOutputKey(
-      "my prefix",
-      "!@£$%^&*()",
+      prefix = "my prefix",
+      title = "!@£$%^&*()",
       id = "123xyz",
-      extension = "m3u8"
+      extension = "m3u8",
+      nameModifier = None
     ).toString shouldBe "my_prefix/__________--123xyz.m3u8"
   }
 
