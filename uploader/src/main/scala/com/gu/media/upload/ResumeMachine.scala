@@ -34,6 +34,9 @@ class ResumeMachine
     val payload = Json.parse(lastScheduledEvent.taskScheduledEventDetails().parameters()) \ "Payload"
     val lastSateInput = payload.as[WaitOnUpload]
 
+    // todo: do something useful with `data`, the MediaConvertEvent rather than just resuming the step function
+    // probably this will just be adding it to the output of this step.
+
     val sendTaskSuccessRequest = SendTaskSuccessRequest.builder()
       .taskToken(lastSateInput.taskToken)
       .output(Json.stringify(Json.toJson(lastSateInput.input)))
