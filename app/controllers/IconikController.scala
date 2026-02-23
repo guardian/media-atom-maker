@@ -28,14 +28,6 @@ class IconikController(
 
   import authActions.{APIAuthAction, APIHMACAuthAction, AuthAction}
 
-  def switchShowIconikUiOn(): Action[AnyContent] = AuthAction { implicit req =>
-    Redirect("/", FOUND).withCookies(Cookie("showIconik", "true"))
-  }
-
-  def switchShowIconikUiOff(): Action[AnyContent] = AuthAction { implicit req =>
-    Redirect("/", FOUND).withCookies(Cookie("showIconik", "false"))
-  }
-
   def getWorkingGroup(groupId: String): Action[AnyContent] = APIAuthAction {
     stores.iconikDataStore.getWorkingGroup(groupId) match {
       case Right(Some(group)) => Ok(Json.toJson(group))

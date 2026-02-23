@@ -36,8 +36,7 @@ case class ClientConfig(
     isTrainingMode: Boolean,
     workflowUrl: String,
     targetingUrl: String,
-    tagManagerUrl: String,
-    showIconik: Boolean
+    tagManagerUrl: String
 )
 
 object ClientConfig {
