@@ -8,10 +8,10 @@
   "packageName": "media-service:media-atom-maker:pluto-message-ingestion",
   "main": "test-pluto-lambda-CODE.js",
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "3.901.0",
-    "@aws-sdk/client-lambda": "3.901.0",
-    "@aws-sdk/client-secrets-manager": "3.901.0",
-    "@aws-sdk/credential-providers": "3.901.0",
-    "@aws-sdk/lib-dynamodb": "3.901.0"
+    "@aws-sdk/client-dynamodb": "3.995.0",
+    "@aws-sdk/client-lambda": "3.995.0",
+    "@aws-sdk/client-secrets-manager": "3.995.0",
+    "@aws-sdk/credential-providers": "3.995.0",
+    "@aws-sdk/lib-dynamodb": "3.995.0"
   }
 }
