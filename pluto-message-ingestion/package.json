@@ -17,8 +17,8 @@
     "build": "esbuild src/index.ts --bundle --minify --outfile=target/index.js --external:@aws-sdk --platform=node"
   },
   "dependencies": {
-    "@aws-sdk/client-secrets-manager": "3.901.0",
-    "@aws-sdk/credential-providers": "3.901.0",
+    "@aws-sdk/client-secrets-manager": "3.995.0",
+    "@aws-sdk/credential-providers": "3.995.0",
     "@guardian/libs": "26.0.0",
     "esbuild": "0.25.10",
     "zod": "4.1.12"
