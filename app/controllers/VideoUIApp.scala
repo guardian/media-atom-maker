@@ -36,11 +36,6 @@ class VideoUIApp(
 
   def index(id: String = ""): Action[AnyContent] = AuthAction { implicit req =>
     val isTrainingMode = isInTrainingMode(req)
-    val shouldShowIconikUi = req.cookies.get("showIconik") match {
-      case Some(cookie) if cookie.value == "true"  => true
-      case Some(cookie) if cookie.value == "false" => false
-      case None => conf.get[String]("stage") != "PROD"
-    }
 
     val jsFileName = "video-ui/build/app.js"
 
@@ -71,8 +66,7 @@ class VideoUIApp(
       isTrainingMode = isTrainingMode,
       workflowUrl = awsConfig.workflowUrl,
       targetingUrl = awsConfig.targetingUrl,
-      tagManagerUrl = awsConfig.tagManagerUrl,
-      showIconik = shouldShowIconikUi
+      tagManagerUrl = awsConfig.tagManagerUrl
     )
 
     Ok(

@@ -91,11 +91,9 @@ export const VideoUpload = (props: { params: { id: string } }) => {
                 <PlutoProjectPicker video={store.video} />
               </div>
             </div>
-            {store.config.showIconik && (
-              <div>
-                <IconikProjectPicker video={store.video} />
-              </div>
-            )}
+            <div>
+              <IconikProjectPicker video={store.video} />
+            </div>
             {
               /*
                 Note for legacy videos where the platform is not set at the atom level,

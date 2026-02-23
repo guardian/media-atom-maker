@@ -19,7 +19,6 @@ export type AppConfig = {
   targetingUrl?: string;
   embeddedMode?: string;
   tagManagerUrl?: string;
-  showIconik?: boolean;
 };
 
 export type ConfigState = AppConfig;

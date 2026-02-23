@@ -78,6 +78,3 @@ GET            /healthcheck                                     controllers.Heal
 #static assets
 GET            /assets/*file                                    controllers.Assets.versioned(path="/public", file: Asset)
 
-
-GET           /switches/iconik/off                              controllers.IconikController.switchShowIconikUiOff()
-GET           /switches/iconik/on                               controllers.IconikController.switchShowIconikUiOn()
