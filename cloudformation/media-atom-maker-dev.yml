@@ -80,9 +80,6 @@ Resources:
                     - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "PublishedMediaAtomsDynamoTable" }
                   - !Sub
                     - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
-                    - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "ManualPlutoMediaAtomsDynamoTable" }
-                  - !Sub
-                    - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
                     - { Region: !Ref "AWS::Region", Account: !Ref "AWS::AccountId", Table: !Ref "PlutoProjectDynamoTable" }
                   - !Sub
                     - "arn:aws:dynamodb:${Region}:${Account}:table/${Table}"
@@ -120,30 +117,6 @@ Resources:
           KeyType: "HASH"
       ProvisionedThroughput:
         ReadCapacityUnits: "10"
-        WriteCapacityUnits: "5"
-  ManualPlutoMediaAtomsDynamoTable:
-    Type: "AWS::DynamoDB::Table"
-    Properties:
-      AttributeDefinitions:
-        - AttributeName: "s3Key"
-          AttributeType: "S"
-        - AttributeName: "atomId"
-          AttributeType: "S"
-      KeySchema:
-        - AttributeName: "s3Key"
-          KeyType: "HASH"
-      GlobalSecondaryIndexes:
-        - IndexName: atom-id
-          KeySchema:
-            - AttributeName: atomId
-              KeyType: HASH
-          Projection:
-            ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: '5'
-            WriteCapacityUnits: '1'
-      ProvisionedThroughput:
-        ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
 
   PlutoProjectDynamoTable:
@@ -519,9 +492,6 @@ Outputs:
   PublishedDynamoTable:
     Value:
       Ref: "PublishedMediaAtomsDynamoTable"
-  ManualPlutoDynamoTable:
-    Value:
-      Ref: "ManualPlutoMediaAtomsDynamoTable"
   AwsId:
     Value:
       Ref: "HostKeys"
