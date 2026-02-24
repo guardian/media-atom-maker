@@ -13,7 +13,7 @@ import com.gu.media.iconik.{
   IndexConfig
 }
 import com.gu.media.pluto.{PlutoCommissionDataStore, PlutoProjectDataStore}
-import com.gu.media.{CapiAccess, PlutoDataStore}
+import com.gu.media.CapiAccess
 import model.commands.CommandExceptions._
 import util.{AWSConfig, NotifyingAtomPublisher}
 
@@ -26,9 +26,6 @@ class DataStores(aws: AWSConfig with SNSAccess, capi: CapiAccess) {
       aws.dynamoDbSdkV2,
       aws.publishedDynamoTableName
     )
-
-  val pluto: PlutoDataStore =
-    new PlutoDataStore(aws.scanamo, aws.manualPlutoDynamo)
 
   val livePublisher: AtomPublisher = aws.capiContentEventsTopicName match {
     case Some(capiContentEventsTopicName) =>
