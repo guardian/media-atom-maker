@@ -233,9 +233,6 @@ lazy val uploader = (project in file("uploader"))
           "Resumes the state machine after AWS MediaConvert completes",
         executionRole = "ResumeStateMachineLambdaExecutionRole"
       ),
-      "GetTranscodingProgressV2" -> LambdaConfig(
-        description = "Polls the AWS MediaConvert transcoder"
-      ),
       "AddSubtitlesToMP4" -> LambdaConfig(
         description = "Adds subtitles to an MP4 video using ffmpeg"
       ),

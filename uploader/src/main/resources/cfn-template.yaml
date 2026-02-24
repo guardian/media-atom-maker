@@ -422,8 +422,6 @@ Resources:
 
   {{AddSubtitlesToMP4}}
 
-  {{GetTranscodingProgressV2}}
-
   {{AddAssetToAtom}}
 
   {{AddUploadDataToCache}}

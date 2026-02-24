@@ -211,6 +211,8 @@ class UploadControllerTest extends AnyFlatSpec with Matchers {
       started = "2025-09-03T12:59:51Z"
     )
     mockJobs(List(job2failed))
+
+    // todo
     when(mockStepFunctions.getTaskEntered(any())).thenReturn(
       Some("GetTranscodingProgressV2" -> upload(2, 2, "2025-09-03T12:59:51Z"))
     )

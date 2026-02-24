@@ -145,7 +145,7 @@
     "SendToTranscoderV2":{
       "Type":"Task",
       "Resource":"arn:aws:states:::lambda:invoke.waitForTaskToken",
-      "Next": "GetTranscodingProgressV2",
+      "Next": "AddSubtitlesToMP4",
       "QueryLanguage": "JSONata",
       "Arguments":{
         "FunctionName":"${SendToTranscoderV2.Arn}",
@@ -155,27 +155,6 @@
           "executionId": "{% $states.context.Execution.Id %}"
         }
       }
-    },
-    "GetTranscodingProgressV2": {
-      "Type": "Task",
-      "Resource": "${GetTranscodingProgressV2.Arn}",
-      "Next": "CheckTranscodingCompleteV2"
-    },
-    "CheckTranscodingCompleteV2": {
-      "Type": "Choice",
-      "Choices": [
-        {
-          "Variable": "$.progress.fullyTranscoded",
-          "BooleanEquals": true,
-          "Next": "AddSubtitlesToMP4"
-        }
-      ],
-      "Default": "WaitForTranscoderV2"
-    },
-    "WaitForTranscoderV2": {
-      "Type": "Wait",
-      "Seconds": 10,
-      "Next": "GetTranscodingProgressV2"
     },
     "AddSubtitlesToMP4": {
       "Type": "Task",

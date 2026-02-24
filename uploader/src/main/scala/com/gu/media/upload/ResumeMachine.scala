@@ -108,8 +108,9 @@ class ResumeMachine
       output <- group.outputDetails
       filename <- output.outputFilePaths.headOption
       videoDetails <- output.videoDetails
+      extension <- filename.split('.').lastOption
     } yield {
-      filename.split(".").last -> ImageAssetDimensions(
+      extension -> ImageAssetDimensions(
         videoDetails.heightInPx,
         videoDetails.widthInPx
       )
