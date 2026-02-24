@@ -4,14 +4,12 @@ import com.gu.media.aws.{DynamoAccess, KinesisAccess, SESSettings}
 import com.gu.media.logging.Logging
 import com.gu.media.model._
 import com.gu.media.ses.Mailer
-import com.gu.media.{PlutoDataStore, Settings}
+import com.gu.media.Settings
 
 class PlutoUploadActions(
     config: Settings with DynamoAccess with KinesisAccess with SESSettings
 ) extends Logging {
   private val mailer = new Mailer(config)
-  private val plutoStore =
-    new PlutoDataStore(config.scanamo, config.manualPlutoDynamo)
 
   def sendToPluto(plutoIntegrationMessage: PlutoIntegrationMessage): Unit = {
 
@@ -20,7 +18,6 @@ class PlutoUploadActions(
     plutoIntegrationMessage match {
       case plutoData: PlutoSyncMetadataMessage
           if plutoData.projectId.isEmpty => {
-        plutoStore.put(plutoData)
 
         val shouldSendEmailReminder =
           plutoData.user != config.integrationTestUser && config.syncWithPluto

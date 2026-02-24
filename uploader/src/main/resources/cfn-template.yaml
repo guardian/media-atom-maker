@@ -35,9 +35,6 @@ Parameters:
   ContentAtomArn:
     Description: "ARN of the cross account role to access the content atom kinesis stream"
     Type: "String"
-  ManualPlutoTable:
-    Description: "The Dynamo table to store videos that must be manually synced with Pluto"
-    Type: "String"
   NotificationEmailFrom:
     Description: "email address where notifications of missing pluto ids are sent from"
     Type: "String"
@@ -93,7 +90,6 @@ Resources:
                 Action: ["dynamodb:*"]
                 Resource:
                   - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${MediaAtomTable}"
-                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ManualPlutoTable}"
                   - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${App}-cache-${Stage}"
               - Effect: "Allow"
                 Action: ["elastictranscoder:CreateJob", "elastictranscoder:ReadJob"]
