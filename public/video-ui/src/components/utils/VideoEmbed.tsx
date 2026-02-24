@@ -12,6 +12,9 @@ export function VideoEmbed({ sources, posterUrl }: { sources: SelfHostedSource[]
     props.poster = posterUrl;
   }
 
+  // need to use CORS to load subtitle track
+  props.crossOrigin = "anonymous";
+
   if (sources.length === 1) {
     // to appease Safari
     return <video src={sources[0].src} {...props} />;
