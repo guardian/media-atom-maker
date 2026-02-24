@@ -37,7 +37,7 @@ class Mailer(config: Settings with SESSettings) {
       emailBody
     )
   }
-  def sendPlutoIdMissingEmail(
+  def sendPlutoOrIconikIdMissingEmail(
       atomId: String,
       atomTitle: String,
       sendTo: String
@@ -45,17 +45,17 @@ class Mailer(config: Settings with SESSettings) {
 
     val emailBody =
       s"""
-        |<div>The video “$atomTitle” that you uploaded via Media Atom Maker recently, does not have a Pluto project associated with it.</div>
+        |<div>The video “$atomTitle” that you uploaded via Media Atom Maker recently, does not have a Pluto/Iconik project associated with it.</div>
         |<div>Please visit ${getLinkTag(
           s"${getAtomUrl(atomId)}/upload",
           "this address"
-        )} to set its Pluto project.
+        )} to set its Pluto or Iconik project.
         |<div>Without a project, the video won’t be archived and won't maintain a link to its original Adobe Premiere project and assets.</div>
       """.stripMargin
 
     sendEmail(
       List(sendTo),
-      "Failed Pluto Video Ingest - Action Required",
+      "Failed Pluto/Iconik Video Ingest - Action Required",
       emailBody
     )
   }

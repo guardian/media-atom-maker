@@ -16,8 +16,7 @@ class PlutoUploadActions(
     sendKinesisMessage(plutoIntegrationMessage)
 
     plutoIntegrationMessage match {
-      case plutoData: PlutoSyncMetadataMessage
-          if plutoData.projectId.isEmpty =>
+      case plutoData: PlutoSyncMetadataMessage if plutoData.projectId.isEmpty =>
         plutoStore.put(plutoData)
       case _ =>
       // there is nothing extra to do for AtomAssignedProjectMessage, PacFileMessage, or PlutoResyncMetadataMessage

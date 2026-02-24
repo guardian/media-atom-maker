@@ -30,16 +30,21 @@ class SendToPluto
     )
 
     val plutoData = upload.metadata.pluto
+    val iconikData = upload.metadata.iconikData
+
+    val missingPlutoId = plutoData.projectId.isEmpty
+    val missingIconikId = iconikData.forall(_.projectId.isEmpty)
+    val uploadUserIsTestUser = upload.metadata.user == this.integrationTestUser
 
     val shouldSendEmailReminder =
-      plutoData.user != this.integrationTestUser && this.syncWithPluto
+      missingPlutoId && missingIconikId && !uploadUserIsTestUser
 
     if (shouldSendEmailReminder) {
       log.info(
-        s"Sending missing Pluto ID email user=${plutoData.user} atom=${plutoData.atomId}"
+        s"Sending missing Pluto/Iconik project ID email: user=${plutoData.user} atom=${plutoData.atomId}"
       )
 
-      mailer.sendPlutoIdMissingEmail(
+      mailer.sendPlutoOrIconikIdMissingEmail(
         plutoData.atomId,
         plutoData.title,
         plutoData.user
