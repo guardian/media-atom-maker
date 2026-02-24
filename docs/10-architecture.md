@@ -36,8 +36,6 @@ graph LR
     Uploader --> SendToPluto
     Uploader --> YouTube
     Uploader --> UploadsOrigin[[uploads-<br/>origin.guim.co.uk<br/>S3 bucket]]
-    Uploader --> ManualPluto[(ManualPluto<br/>MediaAtomMaker<br/>dynamo<br/>table)]
-    ManualPluto --> uploads-to-pluto
     UploadsOrigin --> CAPI
     MediaAtomMaker --> PublishAtom[Publish Atom<br/>SNS Topic]
     Scheduler[Scheduler lambda<br/>Every 15 minutes]
