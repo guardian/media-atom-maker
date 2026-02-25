@@ -145,6 +145,7 @@
     "SendToTranscoderV2":{
       "Type":"Task",
       "Resource":"arn:aws:states:::lambda:invoke.waitForTaskToken",
+      "HeartbeatSeconds": 900,
       "Next": "AddSubtitlesToMP4",
       "QueryLanguage": "JSONata",
       "Arguments":{
