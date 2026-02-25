@@ -260,7 +260,7 @@ describe('VideoAsset', () => {
         ]
       },
       processing: {
-        status: 'GetTranscodingProgressV2',
+        status: 'SendToTranscoderV2',
         failed: false
       },
       metadata: {
@@ -287,7 +287,7 @@ describe('VideoAsset', () => {
       expect(activateButton).not.toBeDisabled();
 
       // Check that processing status is displayed
-      expect(screen.getByText('GetTranscodingProgressV2')).toBeInTheDocument();
+      expect(screen.getByText('SendToTranscoderV2')).toBeInTheDocument();
 
       // Check that file name is displayed
       expect(screen.getByText('Asset 2 - Video.mp4')).toBeInTheDocument();
