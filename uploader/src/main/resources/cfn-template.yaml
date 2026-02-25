@@ -404,6 +404,38 @@ Resources:
         Stack: !Ref Stack
         Stage: !Ref Stage
 
+  TranscoderComplete:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !Sub "${App}-TranscoderComplete-${Stage}"
+      Description: "Resumes the state machine after AWS MediaConvert completes"
+      Handler: "com.gu.media.upload.TranscoderComplete::handleRequest"
+      Code:
+        S3Bucket: !Ref BuildBucket
+        S3Key: !Sub
+          - "media-service/${Stage}/media-atom-upload-actions/media-atom-uploader.zip"
+          - { Stage: !Ref Stage }
+      Environment:
+        Variables:
+          REGION: !Ref AWS::Region
+          STACK: !Ref Stack
+          APP: !Ref App
+          STAGE: !Ref Stage
+          CONFIG_BUCKET: !Ref ConfigBucket
+          CONFIG_KEY: !Sub
+            - "${Stage}/media-atom-maker.private.conf"
+            - { Stage: !Ref Stage }
+          CREDENTIALS_KEY: !Sub
+            - "${Stage}/youtube-service-account.json"
+            - { Stage: !Ref Stage }
+          ATOM_TABLE_NAME: !Ref 'MediaAtomTable'
+          PLUTO_TABLE_NAME: !Ref 'ManualPlutoTable'
+          MEDIA_CONVERT_ROLE: !GetAtt MediaConvertRole.Arn
+      MemorySize: 2048
+      Role: !GetAtt TranscoderCompleteLambdaExecutionRole.Arn
+      Runtime: "java21"
+      Timeout: 300
+
   # The following entries are filled in based on the LambdaConfig entries in build.sbt.
 
   {{GetChunkFromS3}}
@@ -417,8 +449,6 @@ Resources:
   {{SendToPluto}}
 
   {{SendToTranscoderV2}}
-
-  {{TranscoderComplete}}
 
   {{AddSubtitlesToMP4}}
 
