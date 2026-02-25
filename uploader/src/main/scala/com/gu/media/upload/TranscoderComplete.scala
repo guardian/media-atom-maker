@@ -35,9 +35,9 @@ class TranscoderComplete
         .get("executionId")
         .toRight("User metadata did not contain executionId")
 
-      lastSateInput <- getLastStateInput[WaitOnUpload](executionId)
+      lastStateInput <- getLastStateInput[WaitOnUpload](executionId)
 
-      upload = lastSateInput.input
+      upload = lastStateInput.input
 
       videoDimensions = getVideoDimensions(data.detail.outputGroupDetails)
 
@@ -52,7 +52,7 @@ class TranscoderComplete
 
       sendTaskSuccessRequest = SendTaskSuccessRequest
         .builder()
-        .taskToken(lastSateInput.taskToken)
+        .taskToken(lastStateInput.taskToken)
         .output(Json.stringify(Json.toJson(output)))
         .build()
 
