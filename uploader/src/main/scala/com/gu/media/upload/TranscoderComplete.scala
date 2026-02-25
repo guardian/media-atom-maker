@@ -50,6 +50,11 @@ class TranscoderComplete
         progress = upload.progress.copy(retries = 0, fullyTranscoded = true)
       )
 
+      // We extract the taskToken from the input of the current state machine step. It might seem more sensible for this
+      // to be passed to this lamba directly via the job user metadata (as with the executionId). But the maximum length
+      // of the value of a piece of job metadata is 256 characters and taskTokens are around ~672 characters (real data,
+      // I haven't seen documentation on this)
+
       sendTaskSuccessRequest = SendTaskSuccessRequest
         .builder()
         .taskToken(lastStateInput.taskToken)
