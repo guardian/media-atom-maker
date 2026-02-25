@@ -61,7 +61,7 @@ Conditions:
   CreateDevResources:  !Equals [!Ref "Stage", "DEV"]
 
 Resources:
-  ResumeStateMachineLambdaExecutionRole:
+  TranscoderCompleteLambdaExecutionRole:
       Type: "AWS::IAM::Role"
       Properties:
         AssumeRolePolicyDocument:
@@ -73,7 +73,7 @@ Resources:
               Action: "sts:AssumeRole"
         Path: "/"
         Policies:
-          - PolicyName: "ResumeStateMachineLambdaExecutionPolicy"
+          - PolicyName: "TranscoderCompleteLambdaExecutionPolicy"
             PolicyDocument:
               Statement:
                 - Effect: "Allow"
@@ -225,14 +225,14 @@ Resources:
             Action: "sts:AssumeRole"
       Path: "/"
       Policies:
-        - PolicyName: ExecuteResumeMachineLambda
+        - PolicyName: ExecuteTranscoderCompleteLambda
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
               - Effect: Allow
                 Action:
                   - "lambda:InvokeFunction"
-                Resource: !GetAtt [ ResumeMachine, Arn ]
+                Resource: !GetAtt [ TranscoderComplete, Arn ]
 
   MediaConvertRole:
     Type: "AWS::IAM::Role"
@@ -418,7 +418,7 @@ Resources:
 
   {{SendToTranscoderV2}}
 
-  {{ResumeMachine}}
+  {{TranscoderComplete}}
 
   {{AddSubtitlesToMP4}}
 
@@ -493,7 +493,7 @@ Resources:
       EventBusName: default
       Targets:
       - Id: lambda
-        Arn: !GetAtt [ ResumeMachine, Arn ]
+        Arn: !GetAtt [ TranscoderComplete, Arn ]
         RoleArn: !GetAtt [ EventBridgeExecutionRole, Arn ]
 
   AlertTopic:

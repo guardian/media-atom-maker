@@ -24,7 +24,7 @@ import software.amazon.awssdk.services.sfn.model.{
 
 import scala.jdk.CollectionConverters._
 
-class ResumeMachine
+class TranscoderComplete
     extends LambdaWithParams[MediaConvertEvent, String]
     with MediaConvertAccess
     with StepFunctionsAccess
