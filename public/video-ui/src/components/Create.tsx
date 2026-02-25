@@ -19,20 +19,20 @@ export default class Create extends React.Component {
     closeCreateModal?: () => void;
   }>;
 
-  state: { workingTitle: string; videoCreateOption: VideoCreateOption } = {
-    workingTitle: "",
+  state: { title: string; videoCreateOption: VideoCreateOption } = {
+    title: "",
     videoCreateOption: "Youtube"
   };
 
   createVideo = () => {
-    const workingTitle = this.state.workingTitle;
+    const title = this.state.title;
 
     const videoPlayerFormat: VideoPlayerFormat | undefined = this.state.videoCreateOption !== "Youtube" ? this.state.videoCreateOption : undefined;
     const platform: Platform = this.state.videoCreateOption === "Youtube" ? "Youtube" : "Url";
 
     const videoData = {
       ...blankVideoData,
-      title: workingTitle,
+      title,
       videoPlayerFormat,
       platform
     };
@@ -41,7 +41,7 @@ export default class Create extends React.Component {
   };
 
   isFormValid() {
-    return !!this.state.workingTitle && !!this.state.videoCreateOption;
+    return !!this.state.title && !!this.state.videoCreateOption;
   }
 
   iconMap = {
@@ -136,13 +136,13 @@ export default class Create extends React.Component {
           Create New Video
         </h2>
         <div className="create-form__contents">
-          <div className="create-form__working-title">
-            <label className="create-form__label" htmlFor="working-title">Working Title</label>
+          <div className="create-form__title">
+            <label className="create-form__label" htmlFor="title">Title</label>
             <input
-              id="working-title"
-              name="Working Title"
-              onChange={(event) => this.setState({ workingTitle: event.target.value })}
-              value={this.state.workingTitle}
+              id="title"
+              name="Title"
+              onChange={(event) => this.setState({ title: event.target.value })}
+              value={this.state.title}
               className="form__field"
             />
           </div>
@@ -162,9 +162,9 @@ export default class Create extends React.Component {
             </div>
           </div>
           <div className="create-form__action-buttons-outer">
-            {!this.state.workingTitle &&
+            {!this.state.title &&
               <div className="create-form__action-buttons--validation-warning">
-                You need to add a Working Title to create a video.
+                You need to add a Title to create a video.
               </div>
             }
             <div className="create-form__action-buttons">
