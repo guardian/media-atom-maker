@@ -14,7 +14,7 @@ import software.amazon.awssdk.services.mediaconvert.model.{
   OutputGroupType
 }
 import com.gu.media.aws.MediaConvertAccess
-import com.gu.media.lambda.LambdaWithParams
+import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
 import com.gu.media.model.{SelfHostedAsset, VideoSource}
 import com.gu.media.upload.model.{
@@ -27,6 +27,7 @@ import scala.jdk.CollectionConverters._
 
 class SendToTranscoderV2
     extends LambdaWithParams[WaitOnUpload, Upload]
+    with LambdaBase
     with MediaConvertAccess
     with Logging {
   override def handle(data: WaitOnUpload): Upload = {

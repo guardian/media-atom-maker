@@ -7,7 +7,7 @@ import software.amazon.awssdk.services.s3.model.{
   DeleteObjectRequest
 }
 import com.gu.media.aws.S3Access
-import com.gu.media.lambda.LambdaWithParams
+import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
 import com.gu.media.upload.model.{CopyETag, CopyProgress, Upload}
 
@@ -16,6 +16,7 @@ import scala.jdk.CollectionConverters._
 
 class CompleteMultipartCopy
     extends LambdaWithParams[Upload, Upload]
+    with LambdaBase
     with S3Access
     with Logging {
   override def handle(upload: Upload) = {

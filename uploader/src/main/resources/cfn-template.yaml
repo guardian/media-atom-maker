@@ -80,9 +80,6 @@ Resources:
                   Action: [ "logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents" ]
                   Resource: "*"
                 - Effect: "Allow"
-                  Action: ["s3:GetObject"]
-                  Resource: !Sub ["arn:aws:s3:::${Bucket}/*", { "Bucket": !Ref ConfigBucket }]
-                - Effect: "Allow"
                   Action: [ "states:GetExecutionHistory", "states:SendTaskSuccess" ]
                   Resource:
                     - !If [ CreateProdResources, !Ref VideoPipelinePROD, !If [ CreateCodeResources, !Ref VideoPipelineCODE, !Ref VideoPipelineDEV ] ]

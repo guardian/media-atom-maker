@@ -1,7 +1,7 @@
 package com.gu.media.upload
 
 import com.gu.media.aws.S3Access
-import com.gu.media.lambda.LambdaWithParams
+import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
 import com.gu.media.upload.model.{CopyETag, CopyProgress, Upload}
 import software.amazon.awssdk.services.s3.model.{
@@ -11,6 +11,7 @@ import software.amazon.awssdk.services.s3.model.{
 
 class MultipartCopyChunkInS3
     extends LambdaWithParams[Upload, Upload]
+    with LambdaBase
     with S3Access
     with Logging {
   override def handle(upload: Upload): Upload = {

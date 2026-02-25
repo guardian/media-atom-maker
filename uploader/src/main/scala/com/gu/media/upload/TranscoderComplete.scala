@@ -1,6 +1,11 @@
 package com.gu.media.upload
 
-import com.gu.media.aws.{MediaConvertAccess, StepFunctionsAccess}
+import com.gu.media.aws.{
+  AwsAccess,
+  AwsCredentials,
+  MediaConvertAccess,
+  StepFunctionsAccess
+}
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
 import com.gu.media.model.{
@@ -22,13 +27,22 @@ import software.amazon.awssdk.services.sfn.model.{
   SfnException
 }
 
+import java.util.Locale
 import scala.jdk.CollectionConverters._
 
 class TranscoderComplete
     extends LambdaWithParams[MediaConvertEvent, String]
-    with MediaConvertAccess
+    with AwsAccess
     with StepFunctionsAccess
     with Logging {
+
+  final override val credentials: AwsCredentials = AwsCredentials.lambda()
+
+  final override def region = AwsAccess.regionFrom(sys.env.get("REGION"))
+
+  final override def readTag(tag: String) =
+    sys.env.get(tag.toUpperCase(Locale.ENGLISH))
+
   override def handle(data: MediaConvertEvent): String = {
     (for {
       executionId <- data.detail.userMetadata
