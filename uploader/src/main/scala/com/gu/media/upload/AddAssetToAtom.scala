@@ -3,10 +3,9 @@ package com.gu.media.upload
 import java.util.Date
 import com.gu.atom.data.PreviewDynamoDataStoreV2
 import com.gu.atom.publish.PreviewKinesisAtomPublisherV2
-
 import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
 import com.gu.media.aws.{DynamoAccess, KinesisAccess, UploadAccess}
-import com.gu.media.lambda.LambdaWithParams
+import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
 import com.gu.media.model.{
   AuditMessage,
@@ -22,6 +21,7 @@ import scala.util.control.NonFatal
 
 class AddAssetToAtom
     extends LambdaWithParams[Upload, Upload]
+    with LambdaBase
     with DynamoAccess
     with KinesisAccess
     with UploadAccess

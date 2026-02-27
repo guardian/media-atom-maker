@@ -1,7 +1,7 @@
 package com.gu.media.upload
 
 import com.gu.media.aws.{MediaConvertAccess, S3Access}
-import com.gu.media.lambda.LambdaWithParams
+import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
 import com.gu.media.model.VideoSource.mimeTypeMp4
 import com.gu.media.model.SelfHostedAsset
@@ -10,11 +10,13 @@ import software.amazon.awssdk.services.s3.model.{
   GetObjectRequest,
   PutObjectRequest
 }
+
 import java.nio.file.{Files, Path}
 import scala.util.Random
 
 class AddSubtitlesToMP4
     extends LambdaWithParams[Upload, Upload]
+    with LambdaBase
     with S3Access
     with MediaConvertAccess
     with Logging {

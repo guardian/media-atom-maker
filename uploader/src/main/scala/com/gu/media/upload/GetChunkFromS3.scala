@@ -1,12 +1,13 @@
 package com.gu.media.upload
 
 import com.gu.media.aws.{DynamoAccess, S3Access}
-import com.gu.media.lambda.LambdaWithParams
+import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.upload.model.{Upload, UploadPart}
 import software.amazon.awssdk.services.s3.model.{HeadObjectRequest, S3Exception}
 
 class GetChunkFromS3
     extends LambdaWithParams[Upload, Upload]
+    with LambdaBase
     with S3Access
     with DynamoAccess {
   override def handle(upload: Upload): Upload = {

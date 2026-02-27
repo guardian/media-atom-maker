@@ -4,7 +4,7 @@ import com.gu.media.Settings
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import software.amazon.awssdk.regions.Region
 
-trait AwsAccess { this: Settings =>
+trait AwsAccess {
   def readTag(tag: String): Option[String]
 
   val credentials: AwsCredentials

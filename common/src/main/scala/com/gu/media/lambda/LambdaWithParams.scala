@@ -7,8 +7,7 @@ import com.google.common.base.Charsets
 import play.api.libs.json.{Json, Reads, Writes}
 
 abstract class LambdaWithParams[I: Reads, O: Writes]
-    extends RequestStreamHandler
-    with LambdaBase {
+    extends RequestStreamHandler {
   def handle(input: I): O
 
   override def handleRequest(
