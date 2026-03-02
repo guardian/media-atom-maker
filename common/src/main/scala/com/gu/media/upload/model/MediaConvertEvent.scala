@@ -42,7 +42,7 @@ case class MediaConvertEventDetail(
     jobId: String,
     status: String,
     userMetadata: Map[String, String],
-    warnings: List[MediaConvertWarning],
+    warnings: Option[List[MediaConvertWarning]],
     outputGroupDetails: List[MediaConvertOutputGroupDetails],
     paddingInserted: Int,
     blackVideoDetected: Int,
