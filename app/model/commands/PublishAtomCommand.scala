@@ -336,14 +336,33 @@ case class PublishAtomCommand(
       privacyStatus = previewAtom.privacyStatus.map(_.name)
     ).withSaneTitle()
 
-    val youTubeMetadataUpdate: Either[VideoUpdateError, String] =
+    val initialYouTubeMetadataUpdate: Either[VideoUpdateError, String] =
       youtube.updateMetadata(
         asset.id,
         metadata
       )
 
+    def abTestError(err: VideoUpdateError) = err.errorToLog.contains(
+      "UPDATE_TITLE_NOT_ALLOWED_DURING_TEST_AND_COMPARE"
+    )
+
+    val shouldRetry = initialYouTubeMetadataUpdate match {
+      case Left(err) if abTestError(err) => true
+      case _                             => false
+    }
+
+    val finalYoutubeMetadataUpdate = if (shouldRetry) {
+      // Updating metadata might fail if A/B testing is turned on for title.
+      // This is expected behaviour for editorial as they use this functionality fairly regularly.
+      // Retry the metadata update _without_ attempting to update the title and see if that helps
+      youtube.updateMetadata(asset.id, metadata.copy(title = None))
+    } else {
+      // otherwise skip retrying and use the original metadata update request
+      initialYouTubeMetadataUpdate
+    }
+
     handleYouTubeMessages(
-      youTubeMetadataUpdate,
+      finalYoutubeMetadataUpdate,
       "YouTube Metadata Update",
       previewAtom,
       asset.id
