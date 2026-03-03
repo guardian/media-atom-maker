@@ -183,4 +183,39 @@ class MediaConvertEventTest extends AnyFlatSpec with Matchers {
     val parsedJson = Json.parse(json)
     Json.toJson(parsedJson.as[MediaConvertEvent]) shouldBe parsedJson
   }
+
+  "MediaConvertEvent" should "transparently deserialise and serialise an real event that does not have any warnings" in {
+    val json =
+      """
+        |{
+        |  "version": "0",
+        |  "id": "6024dfe7-0e47-8fcd-7cfc-c507ced492fe",
+        |  "detail-type": "MediaConvert Job State Change",
+        |  "source": "aws.mediaconvert",
+        |  "account": "test",
+        |  "time": "2026-02-23T13:10:59Z",
+        |  "region": "eu-west-1",
+        |  "resources": [],
+        |  "detail": {
+        |    "timestamp": 1771852259573,
+        |    "accountId": "test",
+        |    "queue": "arn:aws:mediaconvert:eu-west-1:test:queues/Default",
+        |    "jobId": "1771852248480-6dv3gn",
+        |    "status": "COMPLETE",
+        |    "userMetadata": {},
+        |    "outputGroupDetails": [
+        |      {
+        |        "outputDetails": [],
+        |        "type": "FILE_GROUP"
+        |      }
+        |    ],
+        |    "paddingInserted": 0,
+        |    "blackVideoDetected": 458,
+        |    "blackVideoSegments": []
+        |  }
+        |}
+        |""".stripMargin
+    val parsedJson = Json.parse(json)
+    Json.toJson(parsedJson.as[MediaConvertEvent]) shouldBe parsedJson
+  }
 }
