@@ -112,7 +112,7 @@ object UploadBuilder {
           atomId,
           assetVersion,
           subtitleVersion,
-          "mp4",
+          Some("mp4"),
           startTimestamp
         ).toString
       val mp4Source =
@@ -125,7 +125,7 @@ object UploadBuilder {
         atomId,
         assetVersion,
         subtitleVersion,
-        "m3u8",
+        Some("m3u8"),
         startTimestamp
       ).toString
       val m3u8Source =

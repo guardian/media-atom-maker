@@ -39,7 +39,7 @@ class UploadKeyTest extends AnyFlatSpec with Matchers {
       "my-prefix",
       "my-title",
       id = "123xyz",
-      extension = "m3u8"
+      extension = Some("m3u8")
     ).toString shouldBe "my-prefix/my-title--123xyz.m3u8"
   }
 
@@ -47,7 +47,7 @@ class UploadKeyTest extends AnyFlatSpec with Matchers {
     val key = TranscoderOutputKey(
       "my-title",
       id = "123xyz",
-      extension = "m3u8",
+      extension = Some("m3u8"),
       Instant.ofEpochMilli(0)
     )
     key.toString shouldBe "1970/01/01/my-title--123xyz.m3u8"
@@ -59,7 +59,7 @@ class UploadKeyTest extends AnyFlatSpec with Matchers {
       atomId = "123xyz",
       assetVersion = 2,
       subtitleVersion = 10,
-      extension = "m3u8",
+      extension = Some("m3u8"),
       Instant.ofEpochMilli(0)
     )
     key.toString shouldBe "1970/01/01/my-title--123xyz-2.10.m3u8"
@@ -70,13 +70,13 @@ class UploadKeyTest extends AnyFlatSpec with Matchers {
       "2025/08/20",
       "Loop: Japan fireball",
       id = "1c44ce4e-760a-4312-a803-40939aeea355-2.0",
-      extension = "m3u8"
+      extension = Some("m3u8")
     ).toString shouldBe "2025/08/20/Loop__Japan_fireball--1c44ce4e-760a-4312-a803-40939aeea355-2.0.m3u8"
     TranscoderOutputKey(
       "my prefix",
       "!@£$%^&*()",
       id = "123xyz",
-      extension = "m3u8"
+      extension = Some("m3u8")
     ).toString shouldBe "my_prefix/__________--123xyz.m3u8"
   }
 
