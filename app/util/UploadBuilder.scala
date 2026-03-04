@@ -38,11 +38,12 @@ object UploadBuilder {
         atom.title,
         atom.id,
         assetVersion,
-        subtitleVersion = 0
+        subtitleVersion = 0,
+        startTimestamp = Instant.ofEpochMilli(currentTimestamp)
       ),
       originalFilename = Some(request.filename),
       version = Some(assetVersion),
-      startTimestamp = Some(currentTimestamp)
+      startTimestamp = currentTimestamp
     )
 
     val progress = UploadProgress(
@@ -74,14 +75,15 @@ object UploadBuilder {
       upload.metadata.title,
       upload.metadata.pluto.atomId,
       assetVersion,
-      subtitleVersion
+      subtitleVersion,
+      startTimestamp = Instant.ofEpochMilli(currentTimestamp)
     )
     upload.copy(
       metadata = upload.metadata.copy(
         asset = updatedAsset,
         subtitleSource = newSubtitleSource,
         subtitleVersion = Some(subtitleVersion),
-        startTimestamp = Some(currentTimestamp)
+        startTimestamp = currentTimestamp
       ),
       progress = upload.progress.copy(fullyTranscoded = false)
     )

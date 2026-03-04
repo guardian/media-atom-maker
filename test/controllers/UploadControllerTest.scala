@@ -443,7 +443,7 @@ class UploadControllerTest extends AnyFlatSpec with Matchers {
             None,
         subtitleVersion =
           if (subtitleVersion > 0) Some(subtitleVersion) else None,
-        startTimestamp = Some(millis(started)),
+        startTimestamp = millis(started),
         selfHost = true
       ),
       UploadProgress(1, 0, true, true, 0)
@@ -458,7 +458,7 @@ class UploadControllerTest extends AnyFlatSpec with Matchers {
     originalFilename = Some(videoFiles(videoVersion - 1)),
     subtitleFilename =
       if (subtitleVersion > 0) Some(subtitleFiles(videoVersion - 1)) else None,
-    startTimestamp = Some(millis(started)),
+    startTimestamp = millis(started),
     user = "jo.blogs@guardian.co.uk"
   )
 }

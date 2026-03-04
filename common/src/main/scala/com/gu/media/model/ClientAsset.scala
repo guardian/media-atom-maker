@@ -23,7 +23,7 @@ case class ClientAssetProcessing(
 case class ClientAssetMetadata(
     originalFilename: Option[String],
     subtitleFilename: Option[String],
-    startTimestamp: Option[Long],
+    startTimestamp: Long,
     user: String
 )
 
@@ -58,7 +58,7 @@ object ClientAsset {
           originalFilename = upload.metadata.originalFilename,
           subtitleFilename =
             upload.metadata.subtitleSource.map(VideoSource.filename),
-          startTimestamp = Some(startTimestamp),
+          startTimestamp = startTimestamp,
           user = upload.metadata.user
         )
       )

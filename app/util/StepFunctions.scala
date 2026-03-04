@@ -17,8 +17,7 @@ class StepFunctions(awsConfig: AWSConfig) {
       val request = DescribeExecutionRequest.builder().executionArn(arn).build()
       val result = awsConfig.stepFunctionsClient.describeExecution(request)
 
-      val upload = Json.parse(result.input()).validate[Upload].asOpt
-      upload.map(fillInStartTimestamp(result, _))
+      Json.parse(result.input()).validate[Upload].asOpt
     } catch {
       case _: ExecutionDoesNotExistException =>
         None
@@ -102,20 +101,5 @@ class StepFunctions(awsConfig: AWSConfig) {
     val end = e.stopDate.toEpochMilli
 
     (now - end) < (1000 * 60 * 10)
-  }
-
-  private def fillInStartTimestamp(
-      result: DescribeExecutionResponse,
-      upload: Upload
-  ): Upload = {
-    if (upload.metadata.startTimestamp.isEmpty) {
-      upload.copy(
-        metadata = upload.metadata.copy(
-          startTimestamp = Some(result.startDate.toEpochMilli)
-        )
-      )
-    } else {
-      upload
-    }
   }
 }
