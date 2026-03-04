@@ -45,10 +45,19 @@ export const addOrDropBundlingTags = (keywords: string[], tags: string[], blockA
   const tagsWithoutBundlingTags = tags.filter(tag => !contentBundlingTags.has(tag));
   const tagSet = new Set(tagsWithoutBundlingTags);
 
+  // If we are preventing ads for this video, then no need to add bundling tags
   if (blockAds) {
     return [...tagSet.values()];
   } else {
-    // if block ads is off, then look up all composer tags (called "keywords" here), and add any matching content bundling tag
+    // Look up all the existing Youtube tags in the map above, and add any matching
+    // bundling tag.
+    for (const tag of tagSet) {
+      const matchingBundlingTag = contentBundlingMap[tag];
+      if (matchingBundlingTag) {
+        tagSet.add(matchingBundlingTag);
+      }
+    }
+    // Now look up all composer tags (called "keywords" here), and add any matching content bundling tag
     // to the existing tags.
     for (const keyword of keywords) {
       // Try to add the most specific tag which matches the list above.

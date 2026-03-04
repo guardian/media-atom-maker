@@ -11,6 +11,11 @@ describe('keywordsApi.addOrDropBundlingTags', () => {
     expect(addOrDropBundlingTags(keywords, [], false)).toEqual(['world', 'gdnpfpnewsworld']);
   });
 
+  it('if a tag matches one of the bundling specs, then add it to output tags', () => {
+    const tags = ['world'];
+    expect(addOrDropBundlingTags([], tags, false)).toEqual(['world', 'gdnpfpnewsworld']);
+  });
+
   it('if the second element of the keyword matches one of the bundling specs, add it and the bundle tag to the output tags', () => {
     const keywords = ['africa/world']; // note reversed from usual "world/africa"
     expect(addOrDropBundlingTags(keywords, [], false)).toEqual(['world', 'gdnpfpnewsworld']);
@@ -28,11 +33,11 @@ describe('keywordsApi.addOrDropBundlingTags', () => {
     expect(addOrDropBundlingTags(keywords, tags, false)).toEqual(tags);
   });
 
-  it('if a bundling tag exists but the matching keyword has been removed, remove it', () => {
+  it('if a bundling tag exists but the matching keyword/tag has been removed, remove it', () => {
     const keywords: string[] = [];
-    const tags = ['world', 'gdnpfpnewsworld'];
+    const tags = ['gdnpfpnewsworld'];
 
-    expect(addOrDropBundlingTags(keywords, tags, false)).toEqual(['world']);
+    expect(addOrDropBundlingTags(keywords, tags, false)).toEqual([]);
   });
 
   it('if multiple keywords match a certain bundling spec, still only add one', () => {
@@ -49,7 +54,7 @@ describe('keywordsApi.addOrDropBundlingTags', () => {
     expect(addOrDropBundlingTags(keywords, tags, true)).toEqual([]);
   });
 
-  it('if blockads is on and a bundling tag exists, remove it', () => {
+  it('if blockAds is on and a bundling tag exists, remove it', () => {
     const keywords = ['world/africa'];
     const tags = ['world', 'gdnpfpnewsworld'];
 
