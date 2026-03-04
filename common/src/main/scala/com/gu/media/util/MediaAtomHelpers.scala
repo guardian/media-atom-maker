@@ -187,9 +187,9 @@ object MediaAtomHelpers {
         }
 
         val subtitleAssets = sources.collect {
-          case VideoSource(src, VideoSource.mimeTypeM3u8, _, _)
+          case VideoSource(src, VideoSource.mimeTypeMp4, _, _)
               if hasSubtitles =>
-            val subtitleSrc = src.dropRight(5) + VideoSource.captionsSuffix
+            val subtitleSrc = src.dropRight(4) + VideoSource.captionsSuffix
             ThriftAsset(
               AssetType.Subtitles,
               version,
