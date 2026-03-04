@@ -1,5 +1,7 @@
 package com.gu.media.upload
 
+import java.time.Instant
+
 import java.time.format.DateTimeFormatter
 import java.time.{ZoneOffset, ZonedDateTime}
 
@@ -32,17 +34,20 @@ case class TranscoderOutputKey(
 }
 
 object TranscoderOutputKey {
-  def currentDate: String = {
-    val now = ZonedDateTime.now(ZoneOffset.UTC)
-    now.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
+  def dateString(startTime: Instant): String = {
+    DateTimeFormatter
+      .ofPattern("yyyy/MM/dd")
+      .withZone(ZoneOffset.UTC)
+      .format(startTime)
   }
 
   def apply(
       title: String,
       id: String,
-      extension: String
+      extension: String,
+      startTime: Instant
   ): TranscoderOutputKey = {
-    TranscoderOutputKey(currentDate, title, id, extension)
+    TranscoderOutputKey(dateString(startTime), title, id, extension)
   }
 
   def apply(
@@ -50,10 +55,11 @@ object TranscoderOutputKey {
       atomId: String,
       assetVersion: Long,
       subtitleVersion: Long,
-      extension: String
+      extension: String,
+      startTime: Instant
   ): TranscoderOutputKey = {
     val id = s"$atomId-$assetVersion.$subtitleVersion"
-    TranscoderOutputKey(title, id, extension)
+    TranscoderOutputKey(title, id, extension, startTime)
   }
 
   def stripSpecialCharsInPath(path: String): String =

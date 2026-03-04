@@ -56,7 +56,6 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
       UploadRequest(atomId, "my-video.mp4", 12345L, selfHost = true)
 
     withObjectSpied[TranscoderOutputKey.type] {
-      when(TranscoderOutputKey.currentDate) thenReturn "2025/08/20"
 
       withObjectSpied[UploadBuilder.type] {
         when(UploadBuilder.currentTimestamp) thenReturn millis(
@@ -135,8 +134,6 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
       UploadRequest(atomId, "my-video.mp4", 12345L, selfHost = true)
 
     withObjectSpied[TranscoderOutputKey.type] {
-      when(TranscoderOutputKey.currentDate) thenReturn "2025/08/20"
-
       withObjectSpied[UploadBuilder.type] {
         // simulate video upload time
         when(UploadBuilder.currentTimestamp) thenReturn millis(
@@ -210,8 +207,6 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
       UploadRequest(atomId, "my-video.mp4", 12345L, selfHost = true)
 
     withObjectSpied[TranscoderOutputKey.type] {
-      when(TranscoderOutputKey.currentDate) thenReturn "2025/08/20"
-
       withObjectSpied[UploadBuilder.type] {
         // simulate video upload time
         when(UploadBuilder.currentTimestamp) thenReturn millis(

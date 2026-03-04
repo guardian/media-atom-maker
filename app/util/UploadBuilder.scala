@@ -98,7 +98,8 @@ object UploadBuilder {
       assetVersion: Long,
       subtitleVersion: Long,
       includeMp4: Boolean = true,
-      includeM3u8: Boolean = true
+      includeM3u8: Boolean = true,
+      startTimestamp: Instant
   ): Option[SelfHostedAsset] = {
     if (!selfHosted) {
       // YouTube assets are added after they have been uploaded (once we know the ID)
@@ -111,7 +112,8 @@ object UploadBuilder {
           atomId,
           assetVersion,
           subtitleVersion,
-          "mp4"
+          "mp4",
+          startTimestamp
         ).toString
       val mp4Source =
         if (includeMp4) Some(VideoSource(mp4Key, VideoSource.mimeTypeMp4))
@@ -123,7 +125,8 @@ object UploadBuilder {
         atomId,
         assetVersion,
         subtitleVersion,
-        "m3u8"
+        "m3u8",
+        startTimestamp
       ).toString
       val m3u8Source =
         if (includeM3u8) Some(VideoSource(m3u8Key, VideoSource.mimeTypeM3u8))
