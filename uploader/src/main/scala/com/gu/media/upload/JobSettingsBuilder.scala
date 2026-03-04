@@ -142,7 +142,7 @@ object JobSettingsBuilder {
     OutputGroup
       .builder()
       .name("MP4")
-      .outputs(mp4VideoOutput, frameCaptureOutput)
+      .outputs(mp4VideoOutput, frameCaptureOutput, vttCaptionsOutput)
       .outputGroupSettings(
         OutputGroupSettings
           .builder()
@@ -196,6 +196,33 @@ object JobSettingsBuilder {
           .build()
       )
       .audioDescriptions(aacAudioDescription)
+      .build()
+
+  private val vttCaptionsOutput: Output =
+    Output
+      .builder()
+      .containerSettings(
+        ContainerSettings
+          .builder()
+          .container(ContainerType.RAW)
+          .build()
+      )
+      .captionDescriptions(
+        CaptionDescription
+          .builder()
+          .languageCode(LanguageCode.ENG)
+          .captionSelectorName("Caption Selector 1")
+          .destinationSettings(
+            CaptionDestinationSettings
+              .builder()
+              .destinationType(CaptionDestinationType.WEBVTT)
+              .webvttDestinationSettings(
+                WebvttDestinationSettings.builder().build()
+              )
+              .build()
+          )
+          .build()
+      )
       .build()
 
   private val hlsCaptionsOutput: Output =
