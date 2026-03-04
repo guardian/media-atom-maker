@@ -19,8 +19,8 @@ export function getComposerData(video) {
   const isTrainingMode = getStore().getState().config.isTrainingMode;
   const expiryDate = video?.contentChangeDetails?.expiry?.date;
   const cleanedExpiryDate = getDateAsNumber(expiryDate);
-  const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
-  const embargo = VideoUtils.getEmbargo(video);
+  const scheduledLaunch = getDateAsNumber(VideoUtils.getScheduledLaunch(video));
+  const embargo = getDateAsNumber(VideoUtils.getEmbargo(video));
   const isEmbargoedIndefinitely = isTrainingMode || (embargo && embargo >= impossiblyDistantDate);
   const embargoedUntil = embargo && embargo < impossiblyDistantDate ? embargo : null;
 
