@@ -41,7 +41,8 @@ val jsoupVersion = "1.16.1"
 
 val enumeratumVersion = "1.5.15"
 
-lazy val jacksonVersion = "2.19.1"
+lazy val jacksonVersion = "2.21.1"
+lazy val jacksonAnnotationsVersion = "2.21"
 
 lazy val commonSettings = Seq(
   ThisBuild / scalaVersion := "2.13.18",
@@ -58,14 +59,13 @@ lazy val commonSettings = Seq(
 
 val jacksonOverrides = Seq(
   "com.fasterxml.jackson.core" % "jackson-core",
-  "com.fasterxml.jackson.core" % "jackson-annotations",
   "com.fasterxml.jackson.core" % "jackson-databind",
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor",
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8",
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310",
   "com.fasterxml.jackson.module" % "jackson-module-parameter-names",
   "com.fasterxml.jackson.module" %% "jackson-module-scala"
-).map(_ % jacksonVersion)
+).map(_ % jacksonVersion) :+ "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonAnnotationsVersion
 
 lazy val common = (project in file("common"))
   .settings(
