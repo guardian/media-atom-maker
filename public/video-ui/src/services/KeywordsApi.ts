@@ -38,7 +38,17 @@ const contentBundlingMap: Record<string, string> = {
 
 const contentBundlingTags = new Set(Object.values(contentBundlingMap));
 
-export const addOrDropBundlingTags = (keywords: string[], tags: string[], blockAds: boolean) => {
+/**
+  * Takes the current list of composer keywords, youtube tags, and the blockAds setting,
+  * and returns the list of tags which should be applied to the piece; either adding
+  * bundling tags where there is a match, or removing them if their matching keyword/tag
+  * has been removed or the blockAds setting enabled.
+  * @param keywords - the list of *composer* tags (should be the tag's id/path, eg. `sport/cycling`)
+  * @param tags - the list of *youtube* tags added in the Youtube furniture panel
+  * @param blockAds
+  * @returns an updated list of *youtube* tags
+  */
+export const addOrDropBundlingTags = ({ keywords, tags, blockAds }: { keywords: string[], tags: string[], blockAds: boolean }) => {
   // strip all gdnpfp... tags. If the composer keyword which caused them to be added
   // is still around, they'll come back, but if it's been removed or blockAds has been
   // turned on, then they'll be stripped out.
