@@ -5,15 +5,13 @@ export function VideoEmbed({ sources, posterUrl }: { sources: SelfHostedSource[]
   const props: DetailedHTMLProps<VideoHTMLAttributes<HTMLVideoElement>, HTMLVideoElement> = {
     className: 'video-player',
     controls: true,
-    preload: 'metadata'
+    preload: 'metadata',
+    crossOrigin: 'anonymous' // need to use CORS to load subtitle track
   };
 
   if (posterUrl) {
     props.poster = posterUrl;
   }
-
-  // need to use CORS to load subtitle track
-  props.crossOrigin = "anonymous";
 
   if (sources.length === 1) {
     // to appease Safari
