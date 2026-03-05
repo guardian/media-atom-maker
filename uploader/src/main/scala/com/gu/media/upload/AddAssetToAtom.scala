@@ -9,24 +9,15 @@ import com.gu.contentatom.thrift.atom.media.{
   Platform => ThriftPlatform
 }
 import com.gu.contentatom.thrift.{
-  Image => ThriftImage,
-  ImageAsset => ThriftImageAsset,
   ImageAssetDimensions => ThriftImageAssetDimensions
 }
 import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
 import com.gu.media.aws.{DynamoAccess, KinesisAccess, UploadAccess}
 import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
-import com.gu.media.model.{
-  AuditMessage,
-  SelfHostedAsset,
-  VideoAsset,
-  VideoSource,
-  YouTubeAsset
-}
+import com.gu.media.model.{AuditMessage, YouTubeAsset}
 import com.gu.media.upload.model.{
   MediaConvertEvent,
-  RuntimeUploadMetadata,
   SelfHostedUploadMetadata,
   Upload
 }
@@ -34,7 +25,6 @@ import com.gu.media.util.{AspectRatio, MediaAtomHelpers}
 import com.gu.media.util.MediaAtomHelpers._
 
 import java.net.URI
-import scala.PartialFunction.condOpt
 import scala.util.control.NonFatal
 
 class AddAssetToAtom
@@ -129,20 +119,6 @@ class AddAssetToAtom
         mimeType = None
       )
     )
-  }
-  private def mimeType(path: String) = {
-    path.split('.').lastOption.collect {
-      case "mp4"  => VideoSource.mimeTypeMp4
-      case "vtt"  => VideoSource.mimeTypeVtt
-      case "m3u8" => VideoSource.mimeTypeM3u8
-    }
-  }
-
-  private def assetType(path: String) = {
-    path.split('.').lastOption.collect {
-      case "mp4" | "m3u8" => AssetType.Video
-      case "vtt"          => AssetType.Subtitles
-    }
   }
 
   private def assetsFromCompleteEvent(
