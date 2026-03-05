@@ -11,9 +11,10 @@ import { showError } from './error';
 import { getUploads } from './uploads';
 
 export type YouTubeAsset = { id: string; sources?: undefined };
+export type SelfHostedSource = { src: string; mimeType: string };
 export type SelfHostedAsset = {
   id?: undefined;
-  sources: { src?: string; mimeType?: string }[];
+  sources: SelfHostedSource[];
 };
 
 export type VideoAsset = YouTubeAsset | SelfHostedAsset;
