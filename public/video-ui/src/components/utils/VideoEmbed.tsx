@@ -49,5 +49,5 @@ function prepareSources(sources: SelfHostedSource[]) {
   const m3u8 = videoSources.find(source => source.mimeType === "application/vnd.apple.mpegurl");
   const mp4 = videoSources.find(source => source.mimeType === "video/mp4");
 
-  return (m3u8 && mp4) ? [mp4].concat(videoSources.filter(source => source !== mp4)) : videoSources;
+  return (m3u8 && mp4) ? [mp4, ...videoSources.filter(source => source !== mp4)] : videoSources;
 }
