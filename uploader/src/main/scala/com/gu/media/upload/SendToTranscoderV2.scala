@@ -27,7 +27,7 @@ class SendToTranscoderV2
       upload.metadata.title,
       upload.metadata.pluto.atomId,
       upload.metadata.version.getOrElse(1L),
-      upload.metadata.subtitleVersion.getOrElse(1L),
+      upload.metadata.subtitleVersion.getOrElse(0L),
       None,
       Instant.ofEpochMilli(upload.metadata.startTimestamp)
     ).toString
