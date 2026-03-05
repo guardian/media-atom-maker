@@ -70,6 +70,21 @@ object MediaAtomHelpers {
     getCurrentAssetVersion(mediaAtom).getOrElse(0L) + 1
   }
 
+  def mimeType(path: String): Option[String] = {
+    path.split('.').lastOption.collect {
+      case "mp4"  => VideoSource.mimeTypeMp4
+      case "vtt"  => VideoSource.mimeTypeVtt
+      case "m3u8" => VideoSource.mimeTypeM3u8
+    }
+  }
+
+  def assetType(path: String): Option[AssetType] = {
+    path.split('.').lastOption.collect {
+      case "mp4" | "m3u8" => AssetType.Video
+      case "vtt"          => AssetType.Subtitles
+    }
+  }
+
   def addAssets(
       mediaAtom: ThriftMediaAtom,
       assets: List[ThriftAsset],

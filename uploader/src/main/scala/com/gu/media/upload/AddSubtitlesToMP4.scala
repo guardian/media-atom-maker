@@ -5,13 +5,16 @@ import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
 import com.gu.media.model.VideoSource.mimeTypeMp4
 import com.gu.media.model.SelfHostedAsset
-import com.gu.media.upload.model.Upload
+import com.gu.media.upload.model.{SelfHostedUploadMetadata, Upload}
+import com.gu.media.util.MediaAtomHelpers.mimeType
 import software.amazon.awssdk.services.s3.model.{
   GetObjectRequest,
   PutObjectRequest
 }
 
+import java.net.URI
 import java.nio.file.{Files, Path}
+import scala.PartialFunction.condOpt
 import scala.util.Random
 
 class AddSubtitlesToMP4
@@ -52,22 +55,26 @@ class AddSubtitlesToMP4
 
   override def handle(upload: Upload): Upload = {
     for {
-      videoSources <- upload.metadata.asset
-        .collect({ case asset: SelfHostedAsset =>
-          asset.sources
-        })
-        .toList
-      videoSource <- videoSources if videoSource.mimeType == mimeTypeMp4
+      selfHostedUploadMetadata <- condOpt(upload.metadata.runtime) {
+        case asset: SelfHostedUploadMetadata =>
+          asset
+      }.toList
+      event <- selfHostedUploadMetadata.completeEvent.toList
+      outputGroupDetails <- event.detail.outputGroupDetails
+      outputDetails <- outputGroupDetails.outputDetails
       subtitleSource <- upload.metadata.subtitleSource
+      path <- outputDetails.outputFilePaths.headOption
+      detectedMimeType <- mimeType(path) if detectedMimeType == mimeTypeMp4
     } yield {
       val subtitlesFile = createTempPath("input-subtitles-", ".srt")
       val videoFile = createTempPath("input-video-", ".mp4")
       val updatedVideo = createTempPath("output-video-", ".mp4")
 
-      s3Download(destinationBucket, videoSource.src, videoFile)
+      val uri = new URI(path)
+      s3Download(uri.getHost, uri.getPath, videoFile)
       s3Download(upload.metadata.bucket, subtitleSource.src, subtitlesFile)
       FfMpeg.addSubtitlesToMP4(videoFile, subtitlesFile, updatedVideo)
-      s3Upload(destinationBucket, videoSource.src, updatedVideo)
+      s3Upload(uri.getHost, uri.getPath, updatedVideo)
     }
     upload
   }
