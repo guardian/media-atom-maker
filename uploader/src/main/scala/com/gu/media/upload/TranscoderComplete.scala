@@ -17,6 +17,7 @@ import com.gu.media.model.{
 import com.gu.media.upload.model.{
   MediaConvertEvent,
   MediaConvertOutputGroupDetails,
+  SelfHostedUploadMetadata,
   WaitOnUpload
 }
 import play.api.libs.json.{Json, Reads}
@@ -60,7 +61,10 @@ class TranscoderComplete
       )
 
       output = upload.copy(
-        metadata = upload.metadata.copy(asset = updatedAsset),
+        metadata = upload.metadata.copy(
+          asset = updatedAsset,
+          runtime = SelfHostedUploadMetadata(completeEvent = Some(data))
+        ),
         progress = upload.progress.copy(retries = 0, fullyTranscoded = true)
       )
 
