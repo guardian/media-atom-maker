@@ -92,7 +92,9 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
           user = "jo.blogs@guardian.co.uk",
           posterImageUrl = None
         )
-        upload.metadata.runtime shouldBe SelfHostedUploadMetadata(jobs = List())
+        upload.metadata.runtime shouldBe SelfHostedUploadMetadata(jobs =
+          Some(List())
+        )
         upload.metadata.version should contain(2L)
         upload.metadata.selfHost shouldBe true
         upload.metadata.asset shouldBe Some(
