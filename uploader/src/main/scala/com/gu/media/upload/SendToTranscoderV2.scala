@@ -42,7 +42,7 @@ class SendToTranscoderV2
     )
 
     val metadata =
-      upload.metadata.copy(runtime = SelfHostedUploadMetadata(List(jobs)))
+      upload.metadata.copy(runtime = SelfHostedUploadMetadata(Some(List(jobs))))
 
     upload.copy(
       metadata = metadata,
