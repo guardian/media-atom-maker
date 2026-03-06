@@ -118,6 +118,7 @@ class UploadTest
     pluto = plutoMessage,
     iconikData = None,
     runtime = SelfHostedUploadMetadata(Nil),
+    startTimestamp = 123456789L,
     subtitleVersion = Some(12),
     subtitleSource =
       Some(VideoSource("uploads/123xyz-1/subtitles.srt", "video/mp4"))
@@ -130,6 +131,7 @@ class UploadTest
     title = "my-video",
     pluto = plutoMessage,
     iconikData = None,
+    startTimestamp = 123456789L,
     runtime = SelfHostedUploadMetadata(Nil)
   )
 }

@@ -56,7 +56,6 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
       UploadRequest(atomId, "my-video.mp4", 12345L, selfHost = true)
 
     withObjectSpied[TranscoderOutputKey.type] {
-      when(TranscoderOutputKey.currentDate) thenReturn "2025/08/20"
 
       withObjectSpied[UploadBuilder.type] {
         when(UploadBuilder.currentTimestamp) thenReturn millis(
@@ -113,9 +112,8 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
           )
         )
         upload.metadata.originalFilename should contain("my-video.mp4")
-        upload.metadata.startTimestamp should contain(
+        upload.metadata.startTimestamp shouldBe
           millis("2025-08-20T12:13:14Z")
-        )
         upload.metadata.subtitleSource shouldBe empty
         upload.metadata.subtitleVersion shouldBe empty
 
@@ -136,8 +134,6 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
       UploadRequest(atomId, "my-video.mp4", 12345L, selfHost = true)
 
     withObjectSpied[TranscoderOutputKey.type] {
-      when(TranscoderOutputKey.currentDate) thenReturn "2025/08/20"
-
       withObjectSpied[UploadBuilder.type] {
         // simulate video upload time
         when(UploadBuilder.currentTimestamp) thenReturn millis(
@@ -192,7 +188,7 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
           asset = Some(expectedAsset),
           subtitleSource = Some(subtitleSource),
           subtitleVersion = Some(1),
-          startTimestamp = Some(millis("2025-08-20T13:14:15Z"))
+          startTimestamp = millis("2025-08-20T13:14:15Z")
         )
         val expectedProgress =
           completedVideoUpload.progress.copy(fullyTranscoded = false)
@@ -211,8 +207,6 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
       UploadRequest(atomId, "my-video.mp4", 12345L, selfHost = true)
 
     withObjectSpied[TranscoderOutputKey.type] {
-      when(TranscoderOutputKey.currentDate) thenReturn "2025/08/20"
-
       withObjectSpied[UploadBuilder.type] {
         // simulate video upload time
         when(UploadBuilder.currentTimestamp) thenReturn millis(
@@ -275,7 +269,7 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
           asset = Some(expectedAsset),
           subtitleSource = None,
           subtitleVersion = Some(2),
-          startTimestamp = Some(millis("2025-08-20T14:15:16Z"))
+          startTimestamp = millis("2025-08-20T14:15:16Z")
         )
         val expectedProgress =
           subtitlesRemovedUpload.progress.copy(fullyTranscoded = false)

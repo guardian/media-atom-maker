@@ -1,5 +1,7 @@
 package com.gu.media.upload
 
+import java.time.Instant
+
 import java.time.format.DateTimeFormatter
 import java.time.{ZoneOffset, ZonedDateTime}
 
@@ -23,26 +25,32 @@ case class TranscoderOutputKey(
     prefix: String,
     title: String,
     id: String,
-    extension: String
+    extension: Option[String]
 ) {
   private val path = TranscoderOutputKey.stripSpecialCharsInPath(s"$prefix")
+  private val extensionPart = extension.map(ext => s".$ext").getOrElse("")
   private val filename =
-    TranscoderOutputKey.stripSpecialCharsInFilename(s"$title--$id.$extension")
+    TranscoderOutputKey.stripSpecialCharsInFilename(
+      s"$title--$id$extensionPart"
+    )
   override def toString = s"$path/$filename"
 }
 
 object TranscoderOutputKey {
-  def currentDate: String = {
-    val now = ZonedDateTime.now(ZoneOffset.UTC)
-    now.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
+  def dateString(startTime: Instant): String = {
+    DateTimeFormatter
+      .ofPattern("yyyy/MM/dd")
+      .withZone(ZoneOffset.UTC)
+      .format(startTime)
   }
 
   def apply(
       title: String,
       id: String,
-      extension: String
+      extension: Option[String],
+      startTime: Instant
   ): TranscoderOutputKey = {
-    TranscoderOutputKey(currentDate, title, id, extension)
+    TranscoderOutputKey(dateString(startTime), title, id, extension)
   }
 
   def apply(
@@ -50,10 +58,11 @@ object TranscoderOutputKey {
       atomId: String,
       assetVersion: Long,
       subtitleVersion: Long,
-      extension: String
+      extension: Option[String],
+      startTime: Instant
   ): TranscoderOutputKey = {
     val id = s"$atomId-$assetVersion.$subtitleVersion"
-    TranscoderOutputKey(title, id, extension)
+    TranscoderOutputKey(title, id, extension, startTime)
   }
 
   def stripSpecialCharsInPath(path: String): String =

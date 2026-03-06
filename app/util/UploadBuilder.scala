@@ -38,11 +38,12 @@ object UploadBuilder {
         atom.title,
         atom.id,
         assetVersion,
-        subtitleVersion = 0
+        subtitleVersion = 0,
+        startTimestamp = Instant.ofEpochMilli(currentTimestamp)
       ),
       originalFilename = Some(request.filename),
       version = Some(assetVersion),
-      startTimestamp = Some(currentTimestamp)
+      startTimestamp = currentTimestamp
     )
 
     val progress = UploadProgress(
@@ -74,14 +75,15 @@ object UploadBuilder {
       upload.metadata.title,
       upload.metadata.pluto.atomId,
       assetVersion,
-      subtitleVersion
+      subtitleVersion,
+      startTimestamp = Instant.ofEpochMilli(currentTimestamp)
     )
     upload.copy(
       metadata = upload.metadata.copy(
         asset = updatedAsset,
         subtitleSource = newSubtitleSource,
         subtitleVersion = Some(subtitleVersion),
-        startTimestamp = Some(currentTimestamp)
+        startTimestamp = currentTimestamp
       ),
       progress = upload.progress.copy(fullyTranscoded = false)
     )
@@ -96,7 +98,8 @@ object UploadBuilder {
       assetVersion: Long,
       subtitleVersion: Long,
       includeMp4: Boolean = true,
-      includeM3u8: Boolean = true
+      includeM3u8: Boolean = true,
+      startTimestamp: Instant
   ): Option[SelfHostedAsset] = {
     if (!selfHosted) {
       // YouTube assets are added after they have been uploaded (once we know the ID)
@@ -109,7 +112,8 @@ object UploadBuilder {
           atomId,
           assetVersion,
           subtitleVersion,
-          "mp4"
+          Some("mp4"),
+          startTimestamp
         ).toString
       val mp4Source =
         if (includeMp4) Some(VideoSource(mp4Key, VideoSource.mimeTypeMp4))
@@ -121,7 +125,8 @@ object UploadBuilder {
         atomId,
         assetVersion,
         subtitleVersion,
-        "m3u8"
+        Some("m3u8"),
+        startTimestamp
       ).toString
       val m3u8Source =
         if (includeM3u8) Some(VideoSource(m3u8Key, VideoSource.mimeTypeM3u8))

@@ -293,7 +293,7 @@ class UploadController(
   }
 
   private def startTime(asset: ClientAsset): Long =
-    asset.metadata.flatMap(_.startTimestamp).getOrElse(0)
+    asset.metadata.map(_.startTimestamp).getOrElse(0)
 
   private def saveUploadToDb(upload: Upload): Unit = {
     val table = Table[Upload](awsConfig.cacheTableName)

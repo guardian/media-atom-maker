@@ -22,7 +22,7 @@ case class UploadMetadata(
     selfHost: Boolean = false,
     asset: Option[VideoAsset] = None,
     originalFilename: Option[String] = None,
-    startTimestamp: Option[Long] = None, // unix timestamp
+    startTimestamp: Long, // unix timestamp
     subtitleSource: Option[VideoSource] = None,
     subtitleVersion: Option[Long] = None
 )

@@ -3,6 +3,8 @@ package com.gu.media.upload
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
+import java.time.Instant
+
 class UploadKeyTest extends AnyFlatSpec with Matchers {
 
   "UploadKey" should "link a path and filename" in {
@@ -37,13 +39,18 @@ class UploadKeyTest extends AnyFlatSpec with Matchers {
       "my-prefix",
       "my-title",
       id = "123xyz",
-      extension = "m3u8"
+      extension = Some("m3u8")
     ).toString shouldBe "my-prefix/my-title--123xyz.m3u8"
   }
 
   "TranscoderOutputKey" should "set the prefix to date yyyy/MM/dd" in {
-    val key = TranscoderOutputKey("my-title", id = "123xyz", extension = "m3u8")
-    key.toString should fullyMatch regex """\d{4}/\d{2}/\d{2}/my-title--123xyz.m3u8"""
+    val key = TranscoderOutputKey(
+      "my-title",
+      id = "123xyz",
+      extension = Some("m3u8"),
+      Instant.ofEpochMilli(0)
+    )
+    key.toString shouldBe "1970/01/01/my-title--123xyz.m3u8"
   }
 
   "TranscoderOutputKey" should "include asset and subtitle versions for the atom" in {
@@ -52,9 +59,10 @@ class UploadKeyTest extends AnyFlatSpec with Matchers {
       atomId = "123xyz",
       assetVersion = 2,
       subtitleVersion = 10,
-      extension = "m3u8"
+      extension = Some("m3u8"),
+      Instant.ofEpochMilli(0)
     )
-    key.toString should fullyMatch regex """\d{4}/\d{2}/\d{2}/my-title--123xyz-2.10.m3u8"""
+    key.toString shouldBe "1970/01/01/my-title--123xyz-2.10.m3u8"
   }
 
   "TranscoderOutputKey" should "replace special characters with underscores" in {
@@ -62,13 +70,13 @@ class UploadKeyTest extends AnyFlatSpec with Matchers {
       "2025/08/20",
       "Loop: Japan fireball",
       id = "1c44ce4e-760a-4312-a803-40939aeea355-2.0",
-      extension = "m3u8"
+      extension = Some("m3u8")
     ).toString shouldBe "2025/08/20/Loop__Japan_fireball--1c44ce4e-760a-4312-a803-40939aeea355-2.0.m3u8"
     TranscoderOutputKey(
       "my prefix",
       "!@£$%^&*()",
       id = "123xyz",
-      extension = "m3u8"
+      extension = Some("m3u8")
     ).toString shouldBe "my_prefix/__________--123xyz.m3u8"
   }
 
