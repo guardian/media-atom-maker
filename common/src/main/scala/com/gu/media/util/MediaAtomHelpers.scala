@@ -70,14 +70,11 @@ object MediaAtomHelpers {
     getCurrentAssetVersion(mediaAtom).getOrElse(0L) + 1
   }
 
-  def addAsset(
+  def addAssets(
       mediaAtom: ThriftMediaAtom,
-      asset: VideoAsset,
-      version: Long,
-      hasSubtitles: Boolean
+      assets: List[ThriftAsset],
+      version: Long
   ): ThriftMediaAtom = {
-    val assets = getAssets(asset, version, hasSubtitles)
-
     // remove any existing assets that have the same version
     val atomAssets = mediaAtom.assets.filter(a => a.version != version)
     val updatedAssets = assets ++ atomAssets
@@ -110,8 +107,7 @@ object MediaAtomHelpers {
     }
   }
 
-  /** Takes a SelfHostedAsset that has sources as relative s3 keys and rewrites
-    * the sources as full urls.
+  /** Takes a Source that is a relative s3 keys and rewrites it as a full url.
     *
     * Where forward slashes are detected in the relative key, the key is split
     * into path and filename and only the filename is url encoded, so that the
@@ -120,85 +116,22 @@ object MediaAtomHelpers {
     * Title--0653ffba-35f4-4883-b961-3139cdaf6c8b-1.0.m3u8 becomes:
     * https://gu.com/videos/2025/08/18/My%20Title--0653ffba-35f4-4883-b961-3139cdaf6c8b-1.0.m3u8
     *
-    * @param selfHostedAsset
-    *   \- self-hosted asset with sources like "some/path/some-file"
+    * @param source
+    *   \- source like "some/path/some-file"
     * @param selfHostedOrigin
     *   \- the prefix for the urls e.g. https://gu.com/videos
     * @return
-    *   the self-hosted asset with url-encoded sources
+    *   the url-encoded source
     */
-  def urlEncodeSources(
-      selfHostedAsset: SelfHostedAsset,
-      selfHostedOrigin: String
-  ): SelfHostedAsset = {
-    SelfHostedAsset(selfHostedAsset.sources.map { source =>
-      val parts = source.src.split("/")
-      parts.length match {
-        case 1 =>
-          source.copy(src =
-            s"$selfHostedOrigin/${URLEncoder.encode(source.src, "UTF-8")}"
-          )
-        case _ =>
-          val filename = parts.last
-          val path = parts.dropRight(1).mkString("/")
-          source.copy(src =
-            s"$selfHostedOrigin/$path/${URLEncoder.encode(filename, "UTF-8")}"
-          )
-      }
-    })
-  }
-
-  private def getAssets(
-      asset: VideoAsset,
-      version: Long,
-      hasSubtitles: Boolean
-  ): List[ThriftAsset] =
-    asset match {
-      case YouTubeAsset(id) =>
-        val asset = ThriftAsset(
-          AssetType.Video,
-          version,
-          id,
-          ThriftPlatform.Youtube,
-          mimeType = None
-        )
-
-        List(asset)
-
-      case SelfHostedAsset(sources) =>
-        val assets = sources.map {
-          case VideoSource(src, mimeType, height, width) =>
-            val (dimensions, aspectRatio) = (height, width) match {
-              case (Some(h), Some(w)) =>
-                Some(ThriftImageAssetDimensions(h, w)) ->
-                  AspectRatio.calculate(w, h)
-              case _ =>
-                None -> None
-            }
-            ThriftAsset(
-              AssetType.Video,
-              version,
-              src,
-              ThriftPlatform.Url,
-              Some(mimeType),
-              dimensions,
-              aspectRatio.map(_.name)
-            )
-        }
-
-        val subtitleAssets = sources.collect {
-          case VideoSource(src, VideoSource.mimeTypeMp4, _, _)
-              if hasSubtitles =>
-            val subtitleSrc = src.dropRight(4) + VideoSource.captionsSuffix
-            ThriftAsset(
-              AssetType.Subtitles,
-              version,
-              subtitleSrc,
-              ThriftPlatform.Url,
-              Some(VideoSource.mimeTypeVtt)
-            )
-        }
-
-        assets ++ subtitleAssets
+  def urlEncodeSource(source: String, selfHostedOrigin: String): String = {
+    val parts = source.split("/")
+    parts.length match {
+      case 1 =>
+        s"$selfHostedOrigin/${URLEncoder.encode(source, "UTF-8")}"
+      case _ =>
+        val filename = parts.last
+        val path = parts.dropRight(1).mkString("/")
+        s"$selfHostedOrigin/$path/${URLEncoder.encode(filename, "UTF-8")}"
     }
+  }
 }
