@@ -121,7 +121,7 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
       ThriftAsset(
         assetType = AssetType.Subtitles,
         platform = Platform.Url,
-        id = "testcaptions_00001.vtt",
+        id = "test.vtt",
         version = 2,
         mimeType = Some("text/vtt")
       )
