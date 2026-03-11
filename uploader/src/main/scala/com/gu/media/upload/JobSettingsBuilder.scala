@@ -165,6 +165,37 @@ object JobSettingsBuilder {
         .build()
   )
 
+  private val vttCaptionsDefinition = OutputDefinition(
+    mimeType = Some(VideoSource.mimeTypeVtt),
+    assetType = Some(AssetType.Subtitles),
+    output = () =>
+      Output
+        .builder()
+        .containerSettings(
+          ContainerSettings
+            .builder()
+            .container(ContainerType.RAW)
+            .build()
+        )
+        .captionDescriptions(
+          CaptionDescription
+            .builder()
+            .languageCode(LanguageCode.ENG)
+            .captionSelectorName("Caption Selector 1")
+            .destinationSettings(
+              CaptionDestinationSettings
+                .builder()
+                .destinationType(CaptionDestinationType.WEBVTT)
+                .webvttDestinationSettings(
+                  WebvttDestinationSettings.builder().build()
+                )
+                .build()
+            )
+            .build()
+        )
+        .build()
+  )
+
   private val mp4OutputGroup = {
     val outputs =
       List(mp4VideoDefinition, frameCaptureDefinition, vttCaptionsDefinition)
@@ -237,37 +268,6 @@ object JobSettingsBuilder {
             .build()
         )
         .audioDescriptions(aacAudioDescription)
-        .build()
-  )
-
-  private val vttCaptionsDefinition = OutputDefinition(
-    mimeType = Some(VideoSource.mimeTypeVtt),
-    assetType = Some(AssetType.Subtitles),
-    output = () =>
-      Output
-        .builder()
-        .containerSettings(
-          ContainerSettings
-            .builder()
-            .container(ContainerType.RAW)
-            .build()
-        )
-        .captionDescriptions(
-          CaptionDescription
-            .builder()
-            .languageCode(LanguageCode.ENG)
-            .captionSelectorName("Caption Selector 1")
-            .destinationSettings(
-              CaptionDestinationSettings
-                .builder()
-                .destinationType(CaptionDestinationType.WEBVTT)
-                .webvttDestinationSettings(
-                  WebvttDestinationSettings.builder().build()
-                )
-                .build()
-            )
-            .build()
-        )
         .build()
   )
 
