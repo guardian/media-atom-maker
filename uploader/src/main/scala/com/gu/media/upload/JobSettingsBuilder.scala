@@ -1,7 +1,26 @@
 package com.gu.media.upload
 
+import com.gu.contentatom.thrift.atom.media.AssetType
+import com.gu.media.model.VideoSource
 import software.amazon.awssdk.services.mediaconvert.model._
+
 import scala.jdk.CollectionConverters._
+
+// If this definition changes, care needs to be taken to ensure that a pipeline isn't part way through
+// processing with the old definition, otherwise the output assets may not be correctly created and linked to the atom
+
+case class OutputDefinition(
+    output: () => Output,
+    mimeType: Option[String],
+    assetType: Option[AssetType]
+)
+
+case class OutputGroupDefinition(
+    outputGroup: String => OutputGroup,
+    outputs: List[OutputDefinition],
+    mimeType: Option[String],
+    assetType: Option[AssetType]
+)
 
 object JobSettingsBuilder {
   private val h264Settings: H264Settings =
@@ -82,198 +101,240 @@ object JobSettingsBuilder {
       )
       .build()
 
-  private val mp4VideoOutput: Output =
-    Output
-      .builder()
-      .containerSettings(
-        ContainerSettings
-          .builder()
-          .container(ContainerType.MP4)
-          .mp4Settings(Mp4Settings.builder().build())
-          .build()
-      )
-      .videoDescription(
-        VideoDescription
-          .builder()
-          .height(720)
-          .sharpness(100) // Sharpest possible
-          .codecSettings(
-            VideoCodecSettings
-              .builder()
-              .codec(VideoCodec.H_264)
-              .h264Settings(h264Settings)
-              .build()
-          )
-          .build()
-      )
-      .audioDescriptions(aacAudioDescription)
-      .build()
+  private val mp4VideoDefinition = OutputDefinition(
+    mimeType = Some(VideoSource.mimeTypeMp4),
+    assetType = Some(AssetType.Video),
+    output = () =>
+      Output
+        .builder()
+        .containerSettings(
+          ContainerSettings
+            .builder()
+            .container(ContainerType.MP4)
+            .mp4Settings(Mp4Settings.builder().build())
+            .build()
+        )
+        .videoDescription(
+          VideoDescription
+            .builder()
+            .height(720)
+            .sharpness(100) // Sharpest possible
+            .codecSettings(
+              VideoCodecSettings
+                .builder()
+                .codec(VideoCodec.H_264)
+                .h264Settings(h264Settings)
+                .build()
+            )
+            .build()
+        )
+        .audioDescriptions(aacAudioDescription)
+        .build()
+  )
 
-  private val frameCaptureOutput: Output =
-    Output
-      .builder()
-      .containerSettings(
-        ContainerSettings
+  private val frameCaptureDefinition = OutputDefinition(
+    mimeType = Some("image/jpeg"),
+    assetType = None, // Not currently used as an asset
+    output = () =>
+      Output
+        .builder()
+        .containerSettings(
+          ContainerSettings
+            .builder()
+            .container(ContainerType.RAW)
+            .build()
+        )
+        .videoDescription(
+          VideoDescription
+            .builder()
+            .codecSettings(
+              VideoCodecSettings
+                .builder()
+                .codec(VideoCodec.FRAME_CAPTURE)
+                .frameCaptureSettings(
+                  FrameCaptureSettings
+                    .builder()
+                    .maxCaptures(1)
+                    .quality(95)
+                    .build()
+                )
+                .build()
+            )
+            .build()
+        )
+        .build()
+  )
+
+  private val mp4OutputGroup = {
+    val outputs =
+      List(mp4VideoDefinition, frameCaptureDefinition, vttCaptionsDefinition)
+    OutputGroupDefinition(
+      mimeType = None,
+      assetType =
+        None, // Individual outputs are used as assets, but the group itself isn't
+      outputs = outputs,
+      outputGroup = (destination: String) =>
+        OutputGroup
           .builder()
-          .container(ContainerType.RAW)
-          .build()
-      )
-      .videoDescription(
-        VideoDescription
-          .builder()
-          .codecSettings(
-            VideoCodecSettings
+          .name("MP4")
+          .outputs(outputs.map(_.output()): _*)
+          .outputGroupSettings(
+            OutputGroupSettings
               .builder()
-              .codec(VideoCodec.FRAME_CAPTURE)
-              .frameCaptureSettings(
-                FrameCaptureSettings
+              .`type`(OutputGroupType.FILE_GROUP_SETTINGS)
+              .fileGroupSettings(
+                FileGroupSettings
                   .builder()
-                  .maxCaptures(1)
-                  .quality(95)
+                  .destination(destination)
                   .build()
               )
               .build()
           )
           .build()
-      )
-      .build()
+    )
+  }
 
-  private def mp4OutputGroup(destination: String): OutputGroup =
-    OutputGroup
-      .builder()
-      .name("MP4")
-      .outputs(mp4VideoOutput, frameCaptureOutput, vttCaptionsOutput)
-      .outputGroupSettings(
-        OutputGroupSettings
-          .builder()
-          .`type`(OutputGroupType.FILE_GROUP_SETTINGS)
-          .fileGroupSettings(
-            FileGroupSettings
-              .builder()
-              .destination(destination)
-              .build()
-          )
-          .build()
-      )
-      .build()
+  private val hlsVideoDefinition = OutputDefinition(
+    mimeType = Some(VideoSource.mimeTypeM3u8),
+    assetType =
+      None, // Not currently used as an asset, as the m3u8 playlist which combines this and subtitles is used instead
+    output = () =>
+      Output
+        .builder()
+        .containerSettings(
+          ContainerSettings
+            .builder()
+            .container(ContainerType.M3_U8)
+            .m3u8Settings(M3u8Settings.builder().build())
+            .build()
+        )
+        .nameModifier("hls")
+        .videoDescription(
+          VideoDescription
+            .builder()
+            .height(720)
+            .sharpness(100) // Sharpest possible
+            .videoPreprocessors(
+              VideoPreprocessor
+                .builder()
+                .colorCorrector( // NOTE: only needed for m3u8
+                  ColorCorrector
+                    .builder()
+                    .colorSpaceConversion(
+                      ColorSpaceConversion.FORCE_709
+                    ) // Convert to Rec.709 SDR colourspace as per HLS spec pt. 1.24
+                    .build()
+                )
+                .build()
+            )
+            .codecSettings(
+              VideoCodecSettings
+                .builder()
+                .codec(VideoCodec.H_264)
+                .h264Settings(h264Settings)
+                .build()
+            )
+            .build()
+        )
+        .audioDescriptions(aacAudioDescription)
+        .build()
+  )
 
-  private val hlsVideoOutput: Output =
-    Output
-      .builder()
-      .containerSettings(
-        ContainerSettings
+  private val vttCaptionsDefinition = OutputDefinition(
+    mimeType = Some(VideoSource.mimeTypeVtt),
+    assetType = Some(AssetType.Subtitles),
+    output = () =>
+      Output
+        .builder()
+        .containerSettings(
+          ContainerSettings
+            .builder()
+            .container(ContainerType.RAW)
+            .build()
+        )
+        .captionDescriptions(
+          CaptionDescription
+            .builder()
+            .languageCode(LanguageCode.ENG)
+            .captionSelectorName("Caption Selector 1")
+            .destinationSettings(
+              CaptionDestinationSettings
+                .builder()
+                .destinationType(CaptionDestinationType.WEBVTT)
+                .webvttDestinationSettings(
+                  WebvttDestinationSettings.builder().build()
+                )
+                .build()
+            )
+            .build()
+        )
+        .build()
+  )
+
+  private val hlsCaptionsDefinition = OutputDefinition(
+    mimeType = Some(VideoSource.mimeTypeM3u8),
+    assetType =
+      None, // Not currently used as an asset, as the m3u8 playlist which combines this and video is used instead
+    output = () =>
+      Output
+        .builder()
+        .containerSettings(
+          ContainerSettings
+            .builder()
+            .container(ContainerType.M3_U8)
+            .m3u8Settings(M3u8Settings.builder().build())
+            .build()
+        )
+        .nameModifier("captions")
+        .captionDescriptions(
+          CaptionDescription
+            .builder()
+            .languageCode(LanguageCode.ENG)
+            .captionSelectorName("Caption Selector 1")
+            .destinationSettings(
+              CaptionDestinationSettings
+                .builder()
+                .destinationType(CaptionDestinationType.WEBVTT)
+                .webvttDestinationSettings(
+                  WebvttDestinationSettings.builder().build()
+                )
+                .build()
+            )
+            .build()
+        )
+        .build()
+  )
+
+  private val hlsOutputGroup = {
+    val outputs = List(hlsVideoDefinition, hlsCaptionsDefinition)
+    OutputGroupDefinition(
+      mimeType = Some(VideoSource.mimeTypeM3u8),
+      assetType = Some(
+        AssetType.Video
+      ), // The m3u8 playlist which combines video and captions is used as the asset
+      outputs = outputs,
+      outputGroup = (destination: String) =>
+        OutputGroup
           .builder()
-          .container(ContainerType.M3_U8)
-          .m3u8Settings(M3u8Settings.builder().build())
-          .build()
-      )
-      .nameModifier("hls")
-      .videoDescription(
-        VideoDescription
-          .builder()
-          .height(720)
-          .sharpness(100) // Sharpest possible
-          .videoPreprocessors(
-            VideoPreprocessor
+          .name("Apple HLS")
+          .outputs(outputs.map(_.output()): _*)
+          .outputGroupSettings(
+            OutputGroupSettings
               .builder()
-              .colorCorrector( // NOTE: only needed for m3u8
-                ColorCorrector
+              .`type`(OutputGroupType.HLS_GROUP_SETTINGS)
+              .hlsGroupSettings(
+                HlsGroupSettings
                   .builder()
-                  .colorSpaceConversion(
-                    ColorSpaceConversion.FORCE_709
-                  ) // Convert to Rec.709 SDR colourspace as per HLS spec pt. 1.24
+                  .segmentLength(10)
+                  .minSegmentLength(0)
+                  .destination(destination)
                   .build()
               )
               .build()
           )
-          .codecSettings(
-            VideoCodecSettings
-              .builder()
-              .codec(VideoCodec.H_264)
-              .h264Settings(h264Settings)
-              .build()
-          )
           .build()
-      )
-      .audioDescriptions(aacAudioDescription)
-      .build()
-
-  private val vttCaptionsOutput: Output =
-    Output
-      .builder()
-      .containerSettings(
-        ContainerSettings
-          .builder()
-          .container(ContainerType.RAW)
-          .build()
-      )
-      .captionDescriptions(
-        CaptionDescription
-          .builder()
-          .languageCode(LanguageCode.ENG)
-          .captionSelectorName("Caption Selector 1")
-          .destinationSettings(
-            CaptionDestinationSettings
-              .builder()
-              .destinationType(CaptionDestinationType.WEBVTT)
-              .webvttDestinationSettings(
-                WebvttDestinationSettings.builder().build()
-              )
-              .build()
-          )
-          .build()
-      )
-      .build()
-
-  private val hlsCaptionsOutput: Output =
-    Output
-      .builder()
-      .containerSettings(
-        ContainerSettings
-          .builder()
-          .container(ContainerType.M3_U8)
-          .m3u8Settings(M3u8Settings.builder().build())
-          .build()
-      )
-      .nameModifier("captions")
-      .captionDescriptions(
-        CaptionDescription
-          .builder()
-          .languageCode(LanguageCode.ENG)
-          .captionSelectorName("Caption Selector 1")
-          .destinationSettings(
-            CaptionDestinationSettings
-              .builder()
-              .destinationType(CaptionDestinationType.WEBVTT)
-              .webvttDestinationSettings(
-                WebvttDestinationSettings.builder().build()
-              )
-              .build()
-          )
-          .build()
-      )
-      .build()
-
-  private def hlsOutputGroup(destination: String) =
-    OutputGroup
-      .builder()
-      .name("Apple HLS")
-      .outputs(hlsVideoOutput, hlsCaptionsOutput)
-      .outputGroupSettings(
-        OutputGroupSettings
-          .builder()
-          .`type`(OutputGroupType.HLS_GROUP_SETTINGS)
-          .hlsGroupSettings(
-            HlsGroupSettings
-              .builder()
-              .segmentLength(10)
-              .minSegmentLength(0)
-              .destination(destination)
-              .build()
-          )
-          .build()
-      )
-      .build()
+    )
+  }
 
   private def subtitlesSource(subtitlesInput: String) = {
     CaptionSourceSettings
@@ -308,6 +369,8 @@ object JobSettingsBuilder {
     ).asJava
   }
 
+  val outputGroups = List(mp4OutputGroup, hlsOutputGroup)
+
   def build(
       videoInput: String,
       subtitlesInput: Option[String],
@@ -333,7 +396,9 @@ object JobSettingsBuilder {
           .build()
       )
       .inputs(jobInput)
-      .outputGroups(mp4OutputGroup(destination), hlsOutputGroup(destination))
+      .outputGroups(
+        outputGroups.map(definition => definition.outputGroup(destination)): _*
+      )
       .followSource(1)
       .build()
   }
