@@ -62,8 +62,8 @@ class AddSubtitlesToMP4
       outputGroupDetails <- event.detail.outputGroupDetails;
       outputDetails <- outputGroupDetails.outputDetails;
       subtitleSource <- upload.metadata.subtitleSource;
-      path <- outputDetails.outputFilePaths.headOption;
-      detectedMimeType <- mimeType(path) if detectedMimeType == mimeTypeMp4
+      // todo: use the mime type from the OutputDefinition instead of checking the file extension
+      path <- outputDetails.outputFilePaths.headOption if path.endsWith(".mp4")
     ) {
       val subtitlesFile = createTempPath("input-subtitles-", ".srt")
       val videoFile = createTempPath("input-video-", ".mp4")
