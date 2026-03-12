@@ -5,7 +5,7 @@ import java.net.URI
 import com.gu.hmac.HMACHeaders
 import com.gu.media.Settings
 import com.gu.media.aws.HMACSettings
-import com.squareup.okhttp.{MediaType, OkHttpClient, Request, RequestBody}
+import okhttp3.{MediaType, OkHttpClient, Request, RequestBody}
 import play.api.libs.json.{JsValue, Json}
 
 class HMACClient(
