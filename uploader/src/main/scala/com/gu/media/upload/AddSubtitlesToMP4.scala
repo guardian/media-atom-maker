@@ -54,18 +54,18 @@ class AddSubtitlesToMP4
   }
 
   override def handle(upload: Upload): Upload = {
-    for {
+    for (
       selfHostedUploadMetadata <- condOpt(upload.metadata.runtime) {
         case asset: SelfHostedUploadMetadata =>
           asset
-      }.toList
-      event <- selfHostedUploadMetadata.completeEvent.toList
-      outputGroupDetails <- event.detail.outputGroupDetails
-      outputDetails <- outputGroupDetails.outputDetails
-      subtitleSource <- upload.metadata.subtitleSource
-      path <- outputDetails.outputFilePaths.headOption
+      }.toList;
+      event <- selfHostedUploadMetadata.completeEvent.toList;
+      outputGroupDetails <- event.detail.outputGroupDetails;
+      outputDetails <- outputGroupDetails.outputDetails;
+      subtitleSource <- upload.metadata.subtitleSource;
+      path <- outputDetails.outputFilePaths.headOption;
       detectedMimeType <- mimeType(path) if detectedMimeType == mimeTypeMp4
-    } yield {
+    ) {
       val subtitlesFile = createTempPath("input-subtitles-", ".srt")
       val videoFile = createTempPath("input-video-", ".mp4")
       val updatedVideo = createTempPath("output-video-", ".mp4")
