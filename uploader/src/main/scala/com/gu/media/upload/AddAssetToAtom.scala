@@ -16,9 +16,14 @@ import com.gu.media.aws.{DynamoAccess, KinesisAccess, UploadAccess}
 import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
 import com.gu.media.model.{AuditMessage, VideoSource, YouTubeAsset}
-import com.gu.media.upload.mediaconvert.JobSettingsBuilder
+import com.gu.media.upload.mediaconvert.{
+  JobSettingsBuilder,
+  OutputGroupDefinition
+}
 import com.gu.media.upload.model.{
   MediaConvertEvent,
+  MediaConvertOutputDetails,
+  MediaConvertOutputGroupDetails,
   SelfHostedUploadMetadata,
   Upload
 }
@@ -126,73 +131,93 @@ class AddAssetToAtom
       completeEvent: MediaConvertEvent,
       version: Long
   ): List[ThriftAsset] = {
-    val groupAssets = for {
-      (settings, outputGroupDetails) <- JobSettingsBuilder.outputGroups.zip(
-        completeEvent.detail.outputGroupDetails
-      )
+    val outputGroupsSettings = JobSettingsBuilder.outputGroups
+    val outputGroupsResults = completeEvent.detail.outputGroupDetails
+
+    outputGroupAssets(outputGroupsSettings, outputGroupsResults, version) ++
+      outputAssets(outputGroupsSettings, outputGroupsResults, version)
+  }
+
+  private def outputGroupAssets(
+      outputGroupsSettings: List[OutputGroupDefinition],
+      outputGroupsResults: List[MediaConvertOutputGroupDetails],
+      version: Long
+  ) =
+    for {
+      (settings, results) <- outputGroupsSettings.zip(outputGroupsResults)
       assetType <- settings.assetType
       mimeType <- settings.mimeType
-      playlistFilePath <- outputGroupDetails.playlistFilePaths.flatMap(
-        _.headOption
-      )
-    } yield {
-      ThriftAsset(
-        assetType,
-        version,
-        urlEncodeSource(
-          new URI(playlistFilePath).getPath.drop(1),
-          selfHostedOrigin
-        ),
-        ThriftPlatform.Url,
-        Some(mimeType),
-        dimensions =
-          None, // HLS playlists can include multiple renditions with different resolutions, so we can't provide dimensions for the asset at this level
-        aspectRatio = None
-      )
-    }
+      playlistFilePath <- first(results.playlistFilePaths)
+    } yield ThriftAsset(
+      assetType,
+      version,
+      urlEncodeSource(
+        new URI(playlistFilePath).getPath.drop(1),
+        selfHostedOrigin
+      ),
+      ThriftPlatform.Url,
+      Some(mimeType),
+      // HLS playlists can include multiple renditions with different resolutions, so we can't provide dimensions for the asset at this level
+      dimensions = None,
+      aspectRatio = None
+    )
 
-    val nestedAssets = for {
-      (groupSettings, outputGroupDetails) <- JobSettingsBuilder.outputGroups
-        .zip(completeEvent.detail.outputGroupDetails)
-      (outputSettings, outputDetails) <- groupSettings.outputs.zip(
-        outputGroupDetails.outputDetails
+  private def outputAssets(
+      outputGroupsSettings: List[OutputGroupDefinition],
+      outputGroupsResults: List[MediaConvertOutputGroupDetails],
+      version: Long
+  ) =
+    for {
+      (outputGroupSettings, outputGroupResults) <- outputGroupsSettings.zip(
+        outputGroupsResults
       )
-      filePath <- outputDetails.outputFilePaths.headOption
+      outputsSettings = outputGroupSettings.outputs
+      outputsResults = outputGroupResults.outputDetails
+      (outputSettings, outputResults) <- outputsSettings.zip(outputsResults)
+      filePath <- first(outputResults.outputFilePaths)
       assetType <- outputSettings.assetType
       mimeType <- outputSettings.mimeType
-    } yield {
-      val dimensions = for {
-        videoDetails <- outputDetails.videoDetails
-        h = videoDetails.heightInPx
-        w = videoDetails.widthInPx
-      } yield ThriftImageAssetDimensions(h, w)
+    } yield ThriftAsset(
+      assetType,
+      version,
+      urlEncodeSource(
+        new URI(correctFilepath(filePath, mimeType)).getPath.drop(1),
+        selfHostedOrigin
+      ),
+      ThriftPlatform.Url,
+      Some(mimeType),
+      dimensions(outputResults),
+      ratio(outputResults)
+    )
 
-      val aspectRatio = for {
-        videoDetails <- outputDetails.videoDetails
-        h = videoDetails.heightInPx
-        w = videoDetails.widthInPx
-        ratio <- AspectRatio.calculate(w, h)
-      } yield ratio.name
+  private def first[T](collection: Option[List[T]]) =
+    collection.flatMap(_.headOption)
 
-      val correctedFilePath =
-        if (mimeType == VideoSource.mimeTypeVtt && !filePath.endsWith(".vtt")) {
-          filePath + ".vtt" // MediaConvert events don't include the .vtt extension for subtitle files event even though the object in S3 has this extension
-        } else filePath
+  private def first[T](collection: List[T]) =
+    collection.headOption
 
-      ThriftAsset(
-        assetType,
-        version,
-        urlEncodeSource(
-          new URI(correctedFilePath).getPath.drop(1),
-          selfHostedOrigin
-        ),
-        ThriftPlatform.Url,
-        Some(mimeType),
-        dimensions,
-        aspectRatio
-      )
-    }
+  // MediaConvert events don't include the .vtt extension for subtitle files event even though the object in S3 has this extension
+  private def correctFilepath(filePath: String, mimeType: String) = {
+    if (mimeType == VideoSource.mimeTypeVtt && !filePath.endsWith(".vtt")) {
+      filePath + ".vtt"
+    } else filePath
+  }
 
-    groupAssets ++ nestedAssets
+  private def ratio(outputDetails: MediaConvertOutputDetails) = {
+    for {
+      videoDetails <- outputDetails.videoDetails
+      h = videoDetails.heightInPx
+      w = videoDetails.widthInPx
+      ratio <- AspectRatio.calculate(w, h)
+    } yield ratio.name
+  }
+
+  private def dimensions(outputDetails: MediaConvertOutputDetails) = {
+    val dimensions = for {
+      videoDetails <- outputDetails.videoDetails
+      h = videoDetails.heightInPx
+      w = videoDetails.widthInPx
+    } yield ThriftImageAssetDimensions(h, w)
+    dimensions
   }
 }
