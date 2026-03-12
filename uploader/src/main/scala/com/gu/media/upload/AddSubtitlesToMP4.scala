@@ -55,8 +55,8 @@ class AddSubtitlesToMP4
   override def handle(upload: Upload): Upload = {
     for (
       selfHostedUploadMetadata <- condOpt(upload.metadata.runtime) {
-        case asset: SelfHostedUploadMetadata =>
-          asset
+        case metadata: SelfHostedUploadMetadata =>
+          metadata
       }.toList;
       event <- selfHostedUploadMetadata.completeEvent.toList;
       outputGroupDetails <- event.detail.outputGroupDetails;
