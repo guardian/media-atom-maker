@@ -16,6 +16,7 @@ import com.gu.media.aws.{DynamoAccess, KinesisAccess, UploadAccess}
 import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
 import com.gu.media.model.{AuditMessage, VideoSource, YouTubeAsset}
+import com.gu.media.upload.mediaconvert.JobSettingsBuilder
 import com.gu.media.upload.model.{
   MediaConvertEvent,
   SelfHostedUploadMetadata,
