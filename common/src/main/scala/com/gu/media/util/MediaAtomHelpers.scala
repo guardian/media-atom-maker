@@ -78,13 +78,6 @@ object MediaAtomHelpers {
     }
   }
 
-  def assetType(path: String): Option[AssetType] = {
-    path.split('.').lastOption.collect {
-      case "mp4" | "m3u8" => AssetType.Video
-      case "vtt"          => AssetType.Subtitles
-    }
-  }
-
   def addAssets(
       mediaAtom: ThriftMediaAtom,
       assets: List[ThriftAsset],
