@@ -29,6 +29,7 @@ import software.amazon.awssdk.services.sfn.model.{
 }
 
 import java.util.Locale
+import scala.PartialFunction.condOpt
 import scala.jdk.CollectionConverters._
 
 class TranscoderComplete
@@ -60,10 +61,14 @@ class TranscoderComplete
         applyDimensionsToAsset(_, videoDimensions)
       )
 
+      existingMetadata = condOpt(upload.metadata.runtime) {
+        case metadata: SelfHostedUploadMetadata => metadata
+      } getOrElse SelfHostedUploadMetadata()
+
       output = upload.copy(
         metadata = upload.metadata.copy(
           asset = updatedAsset,
-          runtime = SelfHostedUploadMetadata(completeEvent = Some(data))
+          runtime = existingMetadata.copy(completeEvent = Some(data))
         ),
         progress = upload.progress.copy(retries = 0, fullyTranscoded = true)
       )
