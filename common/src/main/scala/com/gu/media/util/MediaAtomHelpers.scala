@@ -122,7 +122,7 @@ object MediaAtomHelpers {
     }
   }
 
-  /** Takes a Source that is a relative s3 keys and rewrites it as a full url.
+  /** Takes a Source that is a relative S3 key and rewrites it as a full URL.
     *
     * Where forward slashes are detected in the relative key, the key is split
     * into path and filename and only the filename is url encoded, so that the
