@@ -3,9 +3,7 @@ package com.gu.media.upload
 import com.gu.media.aws.{MediaConvertAccess, S3Access}
 import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
-import com.gu.media.model.VideoSource.mimeTypeMp4
 import com.gu.media.upload.model.{SelfHostedUploadMetadata, Upload}
-import com.gu.media.util.MediaAtomHelpers.mimeType
 import software.amazon.awssdk.services.s3.model.{
   GetObjectRequest,
   PutObjectRequest
