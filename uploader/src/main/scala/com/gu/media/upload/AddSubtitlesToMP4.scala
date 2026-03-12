@@ -71,10 +71,12 @@ class AddSubtitlesToMP4
       val updatedVideo = createTempPath("output-video-", ".mp4")
 
       val uri = new URI(path)
-      s3Download(uri.getHost, uri.getPath.drop(1), videoFile)
+      val bucketName = uri.getHost
+      val key = uri.getPath.drop(1)
+      s3Download(bucketName, key, videoFile)
       s3Download(upload.metadata.bucket, subtitleSource.src, subtitlesFile)
       FfMpeg.addSubtitlesToMP4(videoFile, subtitlesFile, updatedVideo)
-      s3Upload(uri.getHost, uri.getPath, updatedVideo)
+      s3Upload(bucketName, key, updatedVideo)
     }
     upload
   }
