@@ -203,21 +203,18 @@ class AddAssetToAtom
     } else filePath
   }
 
-  private def ratio(outputDetails: MediaConvertOutputDetails) = {
+  private def ratio(outputDetails: MediaConvertOutputDetails) =
     for {
       videoDetails <- outputDetails.videoDetails
       h = videoDetails.heightInPx
       w = videoDetails.widthInPx
       ratio <- AspectRatio.calculate(w, h)
     } yield ratio.name
-  }
 
-  private def dimensions(outputDetails: MediaConvertOutputDetails) = {
-    val dimensions = for {
+  private def dimensions(outputDetails: MediaConvertOutputDetails) =
+    for {
       videoDetails <- outputDetails.videoDetails
       h = videoDetails.heightInPx
       w = videoDetails.widthInPx
     } yield ThriftImageAssetDimensions(h, w)
-    dimensions
-  }
 }
