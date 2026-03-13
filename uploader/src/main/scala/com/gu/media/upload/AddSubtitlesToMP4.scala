@@ -69,7 +69,9 @@ class AddSubtitlesToMP4
 
       val uri = new URI(path)
       val bucketName = uri.getHost
-      val key = uri.getPath.drop(1)
+      val key = uri.getPath.drop(
+        1
+      ) // drop the leading slash from the path to fit with S3 conventions
       s3Download(bucketName, key, videoFile)
       s3Download(upload.metadata.bucket, subtitleSource.src, subtitlesFile)
       FfMpeg.addSubtitlesToMP4(videoFile, subtitlesFile, updatedVideo)
