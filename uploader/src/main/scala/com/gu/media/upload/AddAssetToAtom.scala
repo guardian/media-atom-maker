@@ -152,7 +152,9 @@ class AddAssetToAtom
       assetType,
       version,
       urlEncodeSource(
-        new URI(playlistFilePath).getPath.drop(1),
+        new URI(playlistFilePath).getPath.drop(
+          1
+        ), // drop the leading slash from the path to fit with S3 conventions
         selfHostedOrigin
       ),
       ThriftPlatform.Url,
