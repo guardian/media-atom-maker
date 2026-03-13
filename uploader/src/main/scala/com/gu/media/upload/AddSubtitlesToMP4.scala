@@ -3,15 +3,15 @@ package com.gu.media.upload
 import com.gu.media.aws.{MediaConvertAccess, S3Access}
 import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
-import com.gu.media.model.VideoSource.mimeTypeMp4
-import com.gu.media.model.SelfHostedAsset
-import com.gu.media.upload.model.Upload
+import com.gu.media.upload.model.{SelfHostedUploadMetadata, Upload}
 import software.amazon.awssdk.services.s3.model.{
   GetObjectRequest,
   PutObjectRequest
 }
 
+import java.net.URI
 import java.nio.file.{Files, Path}
+import scala.PartialFunction.condOpt
 import scala.util.Random
 
 class AddSubtitlesToMP4
@@ -51,23 +51,31 @@ class AddSubtitlesToMP4
   }
 
   override def handle(upload: Upload): Upload = {
-    for {
-      videoSources <- upload.metadata.asset
-        .collect({ case asset: SelfHostedAsset =>
-          asset.sources
-        })
-        .toList
-      videoSource <- videoSources if videoSource.mimeType == mimeTypeMp4
-      subtitleSource <- upload.metadata.subtitleSource
-    } yield {
+    for (
+      selfHostedUploadMetadata <- condOpt(upload.metadata.runtime) {
+        case metadata: SelfHostedUploadMetadata =>
+          metadata
+      }.toList;
+      event <- selfHostedUploadMetadata.completeEvent.toList;
+      outputGroupDetails <- event.detail.outputGroupDetails;
+      outputDetails <- outputGroupDetails.outputDetails;
+      subtitleSource <- upload.metadata.subtitleSource;
+      // todo: use the mime type from the OutputDefinition instead of checking the file extension
+      path <- outputDetails.outputFilePaths.headOption if path.endsWith(".mp4")
+    ) {
       val subtitlesFile = createTempPath("input-subtitles-", ".srt")
       val videoFile = createTempPath("input-video-", ".mp4")
       val updatedVideo = createTempPath("output-video-", ".mp4")
 
-      s3Download(destinationBucket, videoSource.src, videoFile)
+      val uri = new URI(path)
+      val bucketName = uri.getHost
+      val key = uri.getPath.drop(
+        1
+      ) // drop the leading slash from the path to fit with S3 conventions
+      s3Download(bucketName, key, videoFile)
       s3Download(upload.metadata.bucket, subtitleSource.src, subtitlesFile)
       FfMpeg.addSubtitlesToMP4(videoFile, subtitlesFile, updatedVideo)
-      s3Upload(destinationBucket, videoSource.src, updatedVideo)
+      s3Upload(bucketName, key, updatedVideo)
     }
     upload
   }

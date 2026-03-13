@@ -21,6 +21,7 @@ object VideoSource {
   val mimeTypeMp4 = "video/mp4"
   val mimeTypeM3u8 = "application/vnd.apple.mpegurl"
   val mimeTypeVtt = "text/vtt"
+  val mimeTypeJpeg = "image/jpeg"
   val captionsSuffix = ".vtt"
   val firstFrameImageSuffix = ".0000000.jpg"
 }

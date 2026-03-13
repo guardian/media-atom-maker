@@ -140,7 +140,7 @@ object UploadBuilder {
       selfHosted: Boolean,
       atomChannel: Option[String]
   ) = atomChannel match {
-    case _ if selfHosted => SelfHostedUploadMetadata(List.empty)
+    case _ if selfHosted => SelfHostedUploadMetadata(Some(List.empty))
     case Some(channel)   => YouTubeUploadMetadata(channel, uri = None)
     case None            => AtomMissingYouTubeChannel
   }

@@ -3,20 +3,34 @@ package com.gu.media.upload
 import java.util.Date
 import com.gu.atom.data.PreviewDynamoDataStoreV2
 import com.gu.atom.publish.PreviewKinesisAtomPublisherV2
+import com.gu.contentatom.thrift.atom.media.{
+  AssetType,
+  Asset => ThriftAsset,
+  Platform => ThriftPlatform
+}
+import com.gu.contentatom.thrift.{
+  ImageAssetDimensions => ThriftImageAssetDimensions
+}
 import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
 import com.gu.media.aws.{DynamoAccess, KinesisAccess, UploadAccess}
 import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
-import com.gu.media.model.{
-  AuditMessage,
-  SelfHostedAsset,
-  VideoAsset,
-  YouTubeAsset
+import com.gu.media.model.{AuditMessage, VideoSource, YouTubeAsset}
+import com.gu.media.upload.mediaconvert.{
+  JobSettingsBuilder,
+  OutputGroupDefinition
 }
-import com.gu.media.upload.model.Upload
-import com.gu.media.util.MediaAtomHelpers
+import com.gu.media.upload.model.{
+  MediaConvertEvent,
+  MediaConvertOutputDetails,
+  MediaConvertOutputGroupDetails,
+  SelfHostedUploadMetadata,
+  Upload
+}
+import com.gu.media.util.AspectRatio
 import com.gu.media.util.MediaAtomHelpers._
 
+import java.net.URI
 import scala.util.control.NonFatal
 
 class AddAssetToAtom
@@ -39,20 +53,20 @@ class AddAssetToAtom
 
   override def handle(upload: Upload): Upload = {
     val atomId = upload.metadata.pluto.atomId
-    val asset = getAsset(upload)
     val before = getAtom(atomId)
     val user = getUser(upload.metadata.user)
 
     val after = updateAtom(before, user) { mediaAtom =>
       val assetVersion = upload.metadata.version.getOrElse(
-        MediaAtomHelpers.getNextAssetVersion(mediaAtom)
+        getNextAssetVersion(mediaAtom)
       )
 
-      addAsset(
+      val asset = getAsset(upload, assetVersion)
+
+      addAssets(
         mediaAtom,
         asset,
-        assetVersion,
-        hasSubtitles = upload.metadata.subtitleSource.isDefined
+        assetVersion
       )
     }
 
@@ -61,7 +75,7 @@ class AddAssetToAtom
       atomId,
       "Update",
       "media-atom-pipeline",
-      Some(s"Added YouTube video $asset")
+      Some(s"Added video asset")
     ).logMessage()
 
     upload
@@ -85,16 +99,124 @@ class AddAssetToAtom
     publisher.publishAtomEvent(event).recover { case NonFatal(e) => throw e }
   }
 
-  private def getAsset(upload: Upload): VideoAsset = {
-    upload.metadata.asset match {
-      case Some(asset: YouTubeAsset) =>
-        asset
+  private def getAsset(
+      upload: Upload,
+      version: Long
+  ): List[ThriftAsset] = {
+    (upload.metadata.asset, upload.metadata.runtime) match {
+      case (Some(asset: YouTubeAsset), _) =>
+        assetsFromYoutubeEvent(asset, version)
 
-      case Some(asset: SelfHostedAsset) =>
-        MediaAtomHelpers.urlEncodeSources(asset, selfHostedOrigin)
+      case (_, SelfHostedUploadMetadata(_, Some(completeEvent))) =>
+        assetsFromCompleteEvent(completeEvent, version)
 
-      case None =>
+      case _ =>
         throw new IllegalStateException("Missing asset")
     }
   }
+
+  private def assetsFromYoutubeEvent(asset: YouTubeAsset, version: Long) = {
+    List(
+      ThriftAsset(
+        AssetType.Video,
+        version,
+        asset.id,
+        ThriftPlatform.Youtube,
+        mimeType = None
+      )
+    )
+  }
+
+  private def assetsFromCompleteEvent(
+      completeEvent: MediaConvertEvent,
+      version: Long
+  ): List[ThriftAsset] = {
+    val outputGroupsSettings = JobSettingsBuilder.outputGroups
+    val outputGroupsResults = completeEvent.detail.outputGroupDetails
+
+    outputGroupAssets(outputGroupsSettings, outputGroupsResults, version) ++
+      outputAssets(outputGroupsSettings, outputGroupsResults, version)
+  }
+
+  private def outputGroupAssets(
+      outputGroupsSettings: List[OutputGroupDefinition],
+      outputGroupsResults: List[MediaConvertOutputGroupDetails],
+      version: Long
+  ) =
+    for {
+      (settings, results) <- outputGroupsSettings.zip(outputGroupsResults)
+      assetType <- settings.assetType
+      mimeType <- settings.mimeType
+      playlistFilePath <- first(results.playlistFilePaths)
+    } yield ThriftAsset(
+      assetType,
+      version,
+      urlEncodeSource(
+        new URI(playlistFilePath).getPath.drop(
+          1
+        ), // drop the leading slash from the path to fit with S3 conventions
+        selfHostedOrigin
+      ),
+      ThriftPlatform.Url,
+      Some(mimeType),
+      // HLS playlists can include multiple renditions with different resolutions, so we can't provide dimensions for the asset at this level
+      dimensions = None,
+      aspectRatio = None
+    )
+
+  private def outputAssets(
+      outputGroupsSettings: List[OutputGroupDefinition],
+      outputGroupsResults: List[MediaConvertOutputGroupDetails],
+      version: Long
+  ) =
+    for {
+      (outputGroupSettings, outputGroupResults) <- outputGroupsSettings.zip(
+        outputGroupsResults
+      )
+      outputsSettings = outputGroupSettings.outputs
+      outputsResults = outputGroupResults.outputDetails
+      (outputSettings, outputResults) <- outputsSettings.zip(outputsResults)
+      filePath <- first(outputResults.outputFilePaths)
+      assetType <- outputSettings.assetType
+      mimeType <- outputSettings.mimeType
+    } yield ThriftAsset(
+      assetType,
+      version,
+      urlEncodeSource(
+        new URI(correctFilepath(filePath, mimeType)).getPath.drop(1),
+        selfHostedOrigin
+      ),
+      ThriftPlatform.Url,
+      Some(mimeType),
+      dimensions(outputResults),
+      ratio(outputResults)
+    )
+
+  private def first[T](collection: Option[List[T]]) =
+    collection.flatMap(_.headOption)
+
+  private def first[T](collection: List[T]) =
+    collection.headOption
+
+  // MediaConvert events don't include the .vtt extension for subtitle files event even though the object in S3 has this extension
+  private def correctFilepath(filePath: String, mimeType: String) = {
+    if (mimeType == VideoSource.mimeTypeVtt && !filePath.endsWith(".vtt")) {
+      filePath + ".vtt"
+    } else filePath
+  }
+
+  private def ratio(outputDetails: MediaConvertOutputDetails) =
+    for {
+      videoDetails <- outputDetails.videoDetails
+      h = videoDetails.heightInPx
+      w = videoDetails.widthInPx
+      ratio <- AspectRatio.calculate(w, h)
+    } yield ratio.name
+
+  private def dimensions(outputDetails: MediaConvertOutputDetails) =
+    for {
+      videoDetails <- outputDetails.videoDetails
+      h = videoDetails.heightInPx
+      w = videoDetails.widthInPx
+    } yield ThriftImageAssetDimensions(h, w)
 }
