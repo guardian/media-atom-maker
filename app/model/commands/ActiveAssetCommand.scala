@@ -70,6 +70,7 @@ case class ActiveAssetCommand(
     }
   }
 
+  // todo: make this less brittle by using the MediaConvert event
   private[commands] def firstFrameImageName(mp4Name: String): String = {
     // drop .mp4 and replace with image suffix
     mp4Name.dropRight(4).concat(VideoSource.firstFrameImageSuffix)

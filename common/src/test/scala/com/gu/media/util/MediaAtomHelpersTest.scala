@@ -8,6 +8,11 @@ import com.gu.contentatom.thrift.{
   ContentChangeDetails,
   User
 }
+import com.gu.contentatom.thrift.atom.media.{
+  AssetType,
+  Asset => ThriftAsset,
+  Platform => ThriftPlatform
+}
 import MediaAtomHelpers._
 import com.gu.media.model.{SelfHostedAsset, VideoSource, YouTubeAsset}
 import org.joda.time.DateTime
@@ -18,11 +23,18 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
   test("add YouTube asset") {
     val startTime = DateTime.now().getMillis
     val newAtom = updateAtom(atom(), user()) { mediaAtom =>
-      addAsset(
+      addAssets(
         mediaAtom,
-        YouTubeAsset("L9CMNVzMHJ8"),
-        version = 2,
-        hasSubtitles = false
+        List(
+          ThriftAsset(
+            assetType = AssetType.Video,
+            platform = Platform.Youtube,
+            id = "L9CMNVzMHJ8",
+            version = 2,
+            mimeType = None
+          )
+        ),
+        version = 2
       )
     }
 
@@ -49,15 +61,25 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
   }
 
   test("add self hosted asset") {
-    val newAsset = SelfHostedAsset(
-      List(
-        VideoSource("test.mp4", "video/mp4"),
-        VideoSource("test.m3u8", "application/vnd.apple.mpegurl")
+    val newAssets = List(
+      ThriftAsset(
+        assetType = AssetType.Video,
+        platform = Platform.Url,
+        id = "test.mp4",
+        version = 2,
+        mimeType = Some("video/mp4")
+      ),
+      ThriftAsset(
+        assetType = AssetType.Video,
+        platform = Platform.Url,
+        id = "test.m3u8",
+        version = 2,
+        mimeType = Some("application/vnd.apple.mpegurl")
       )
     )
 
     val newAtom = updateAtom(atom(), user()) { mediaAtom =>
-      addAsset(mediaAtom, newAsset, version = 2, hasSubtitles = false)
+      addAssets(mediaAtom, newAssets, version = 2)
     }
 
     val expected = Seq(
@@ -81,15 +103,32 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
   }
 
   test("add self hosted asset with subtitles") {
-    val newAsset = SelfHostedAsset(
-      List(
-        VideoSource("test.mp4", "video/mp4"),
-        VideoSource("test.m3u8", "application/vnd.apple.mpegurl")
+    val newAssets = List(
+      ThriftAsset(
+        assetType = AssetType.Video,
+        platform = Platform.Url,
+        id = "test.mp4",
+        version = 2,
+        mimeType = Some("video/mp4")
+      ),
+      ThriftAsset(
+        assetType = AssetType.Video,
+        platform = Platform.Url,
+        id = "test.m3u8",
+        version = 2,
+        mimeType = Some("application/vnd.apple.mpegurl")
+      ),
+      ThriftAsset(
+        assetType = AssetType.Subtitles,
+        platform = Platform.Url,
+        id = "test.vtt",
+        version = 2,
+        mimeType = Some("text/vtt")
       )
     )
 
     val newAtom = updateAtom(atom(), user()) { mediaAtom =>
-      addAsset(mediaAtom, newAsset, version = 2, hasSubtitles = true)
+      addAssets(mediaAtom, newAssets, version = 2)
     }
 
     val expected = Seq(
@@ -131,30 +170,13 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
   }
 
   test("url-encode self-hosted asset keys to urls") {
-    val asset = SelfHostedAsset(
-      List(
-        VideoSource("url encode me.mp4", "video/mp4"),
-        VideoSource("url encode me.m3u8", "application/vnd.apple.mpegurl"),
-        VideoSource(
-          "2025/08/18/My Title--0653ffba-35f4-4883-b961-3139cdaf6c8b-1.0.m3u8",
-          "application/vnd.apple.mpegurl"
-        )
-      )
-    )
-
-    urlEncodeSources(asset, "https://gu.com/videos") mustBe SelfHostedAsset(
-      List(
-        VideoSource("https://gu.com/videos/url+encode+me.mp4", "video/mp4"),
-        VideoSource(
-          "https://gu.com/videos/url+encode+me.m3u8",
-          "application/vnd.apple.mpegurl"
-        ),
-        VideoSource(
-          "https://gu.com/videos/2025/08/18/My+Title--0653ffba-35f4-4883-b961-3139cdaf6c8b-1.0.m3u8",
-          "application/vnd.apple.mpegurl"
-        )
-      )
-    )
+    List(
+      "url encode me.mp4" -> "https://gu.com/videos/url+encode+me.mp4",
+      "url encode me.m3u8" -> "https://gu.com/videos/url+encode+me.m3u8",
+      "2025/08/18/My Title--0653ffba-35f4-4883-b961-3139cdaf6c8b-1.0.m3u8" -> "https://gu.com/videos/2025/08/18/My+Title--0653ffba-35f4-4883-b961-3139cdaf6c8b-1.0.m3u8"
+    ).foreach { case (input, output) =>
+      urlEncodeSource(input, "https://gu.com/videos") mustBe output
+    }
   }
 
   private def assets(atom: Atom): Seq[Asset] = {

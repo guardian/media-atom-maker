@@ -30,8 +30,10 @@ case class UploadMetadata(
 sealed abstract class RuntimeUploadMetadata
 case class YouTubeUploadMetadata(channel: String, uri: Option[String])
     extends RuntimeUploadMetadata
-case class SelfHostedUploadMetadata(jobs: List[String])
-    extends RuntimeUploadMetadata
+case class SelfHostedUploadMetadata(
+    jobs: Option[List[String]] = None,
+    completeEvent: Option[MediaConvertEvent] = None
+) extends RuntimeUploadMetadata
 
 object UploadMetadata {
   implicit val format: Format[UploadMetadata] =

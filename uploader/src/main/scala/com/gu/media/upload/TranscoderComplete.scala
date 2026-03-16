@@ -17,6 +17,7 @@ import com.gu.media.model.{
 import com.gu.media.upload.model.{
   MediaConvertEvent,
   MediaConvertOutputGroupDetails,
+  SelfHostedUploadMetadata,
   WaitOnUpload
 }
 import play.api.libs.json.{Json, Reads}
@@ -28,6 +29,7 @@ import software.amazon.awssdk.services.sfn.model.{
 }
 
 import java.util.Locale
+import scala.PartialFunction.condOpt
 import scala.jdk.CollectionConverters._
 
 class TranscoderComplete
@@ -59,8 +61,15 @@ class TranscoderComplete
         applyDimensionsToAsset(_, videoDimensions)
       )
 
+      existingMetadata = condOpt(upload.metadata.runtime) {
+        case metadata: SelfHostedUploadMetadata => metadata
+      } getOrElse SelfHostedUploadMetadata()
+
       output = upload.copy(
-        metadata = upload.metadata.copy(asset = updatedAsset),
+        metadata = upload.metadata.copy(
+          asset = updatedAsset,
+          runtime = existingMetadata.copy(completeEvent = Some(data))
+        ),
         progress = upload.progress.copy(retries = 0, fullyTranscoded = true)
       )
 
