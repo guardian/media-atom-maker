@@ -6,17 +6,22 @@ import software.amazon.awssdk.services.mediaconvert.model._
 case class BitrateSetting(max: Int, maxAverage: Int)
 
 object SharedCodecSettings {
-  val h264Settings: H264Settings =
+  /** Migrated from Elastic Transcoder */
+  val highBitrate =  BitrateSetting(4_800_000, 2_400_000);
+  /** Used for Mobile videos at 480px width. @see https://support.google.com/youtube/answer/2853702?hl=en-GB*/
+  val lowBitrate = BitrateSetting(2_400_000, 1_200_000)
+
+  def h264Settings(Bitrate: BitrateSetting): H264Settings =
     H264Settings
       .builder()
       .rateControlMode(H264RateControlMode.QVBR) // Best quality
       .qualityTuningLevel(H264QualityTuningLevel.MULTI_PASS_HQ) // Best quality
-      .maxBitrate(4_800_000) // Migrated from Elastic Transcoder
+      .maxBitrate(Bitrate.max) // Migrated from Elastic Transcoder
       .qvbrSettings(
         H264QvbrSettings
           .builder()
           .maxAverageBitrate(
-            2_400_000
+            Bitrate.maxAverage
           ) // Twice average to give room for encoder's decisions
           .qvbrQualityLevel(8) // 1-10, 10 is best quality
           .qvbrQualityLevelFineTune(0.66) // Fine-tuned through manual testing

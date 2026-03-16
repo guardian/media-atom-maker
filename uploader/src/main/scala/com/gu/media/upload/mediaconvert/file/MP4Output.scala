@@ -2,11 +2,8 @@ package com.gu.media.upload.mediaconvert.file
 
 import com.gu.contentatom.thrift.atom.media.AssetType
 import com.gu.media.model.VideoSource
-import com.gu.media.upload.mediaconvert.OutputDefinition
-import com.gu.media.upload.mediaconvert.SharedCodecSettings.{
-  aacAudioDescription,
-  h264Settings
-}
+import com.gu.media.upload.mediaconvert.{OutputDefinition, SharedCodecSettings}
+import com.gu.media.upload.mediaconvert.SharedCodecSettings.{aacAudioDescription, h264Settings, highBitrate}
 import software.amazon.awssdk.services.mediaconvert.model._
 
 object MP4Output {
@@ -32,7 +29,7 @@ object MP4Output {
               VideoCodecSettings
                 .builder()
                 .codec(VideoCodec.H_264)
-                .h264Settings(h264Settings)
+                .h264Settings(h264Settings(highBitrate))
                 .build()
             )
             .build()
