@@ -2,6 +2,9 @@ package com.gu.media.upload.mediaconvert
 
 import software.amazon.awssdk.services.mediaconvert.model._
 
+
+case class BitrateSetting(max: Int, maxAverage: Int)
+
 object SharedCodecSettings {
   val h264Settings: H264Settings =
     H264Settings
