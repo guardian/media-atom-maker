@@ -2,14 +2,17 @@ package com.gu.media.upload.mediaconvert
 
 import software.amazon.awssdk.services.mediaconvert.model._
 
-
 case class BitrateSetting(max: Int, maxAverage: Int)
 
 object SharedCodecSettings {
+
   /** Migrated from Elastic Transcoder */
-  val highBitrate =  BitrateSetting(4_800_000, 2_400_000);
-  /** Used for Mobile videos at 480px width. @see https://support.google.com/youtube/answer/2853702?hl=en-GB*/
-  val lowBitrate = BitrateSetting(2_400_000, 1_200_000)
+  val highBitrate: BitrateSetting = BitrateSetting(4_800_000, 2_400_000);
+
+  /** Used for Mobile videos at 480px width. @see
+    * https://support.google.com/youtube/answer/2853702?hl=en-GB
+    */
+  val lowBitrate: BitrateSetting = BitrateSetting(2_400_000, 1_200_000)
 
   def h264Settings(Bitrate: BitrateSetting): H264Settings =
     H264Settings

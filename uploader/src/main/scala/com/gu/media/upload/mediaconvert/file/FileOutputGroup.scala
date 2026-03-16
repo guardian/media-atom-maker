@@ -11,7 +11,7 @@ import software.amazon.awssdk.services.mediaconvert.model.{
 object FileOutputGroup {
   def apply(): OutputGroupDefinition = {
     val outputs =
-      List(MP4Output(), JPEGOutput(), WebVTTOutput())
+      List(MP4Output(LowRes), MP4Output(HighRes), JPEGOutput(), WebVTTOutput())
     OutputGroupDefinition(
       mimeType = None,
       assetType =
