@@ -34,7 +34,7 @@ export const getStatus = createAsyncThunk<
   { id: string }
 >('workflow/getStatus', (video, { dispatch }) =>
   WorkflowApi.getAtomInWorkflow(video).catch(
-    async (error: Response | any): Promise<undefined> => {
+    async (error: Response | any): Promise<never> => {
       if (error instanceof Response && error.status === 404) {
         try {
           const errorBody: unknown = await error.json();
