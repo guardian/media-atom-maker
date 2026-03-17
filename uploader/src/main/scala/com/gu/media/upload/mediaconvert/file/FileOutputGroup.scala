@@ -2,7 +2,12 @@ package com.gu.media.upload.mediaconvert.file
 
 import com.gu.media.upload.mediaconvert.OutputGroupDefinition
 import com.gu.media.upload.mediaconvert.file.MP4Output.{highRes, lowRes}
-import software.amazon.awssdk.services.mediaconvert.model.{FileGroupSettings, OutputGroup, OutputGroupSettings, OutputGroupType}
+import software.amazon.awssdk.services.mediaconvert.model.{
+  FileGroupSettings,
+  OutputGroup,
+  OutputGroupSettings,
+  OutputGroupType
+}
 
 object FileOutputGroup {
   def apply(): OutputGroupDefinition = {

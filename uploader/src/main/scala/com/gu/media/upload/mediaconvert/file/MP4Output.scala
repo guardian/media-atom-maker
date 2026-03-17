@@ -20,8 +20,10 @@ case class ResolutionConfig(
 )
 
 object MP4Output {
-  val highRes: ResolutionConfig =  ResolutionConfig(Dimensions(None, Some(720)), highBitrate, "_720h")
-  val lowRes: ResolutionConfig =  ResolutionConfig(Dimensions(Some(480), None), lowBitrate, "_480w")
+  val highRes: ResolutionConfig =
+    ResolutionConfig(Dimensions(None, Some(720)), highBitrate, "_720h")
+  val lowRes: ResolutionConfig =
+    ResolutionConfig(Dimensions(Some(480), None), lowBitrate, "_480w")
 
   def apply(config: ResolutionConfig): OutputDefinition = {
     OutputDefinition(
@@ -39,18 +41,18 @@ object MP4Output {
               .build()
           )
           .videoDescription(
-                VideoDescription
+            VideoDescription
+              .builder()
+              .height(config.dimensions.height.map(Integer.valueOf).orNull)
+              .width(config.dimensions.width.map(Integer.valueOf).orNull)
+              .sharpness(100) // Sharpest possible
+              .codecSettings(
+                VideoCodecSettings
                   .builder()
-                  .height(config.dimensions.height.map(Integer.valueOf).orNull)
-                  .width(config.dimensions.width.map(Integer.valueOf).orNull)
-                  .sharpness(100) // Sharpest possible
-                  .codecSettings(
-                    VideoCodecSettings
-                      .builder()
-                      .codec(VideoCodec.H_264)
-                      .h264Settings(h264Settings(config.bitrate))
-                      .build()
-                  )
+                  .codec(VideoCodec.H_264)
+                  .h264Settings(h264Settings(config.bitrate))
+                  .build()
+              )
               .build()
           )
           .audioDescriptions(aacAudioDescription)
