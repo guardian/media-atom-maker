@@ -2,6 +2,7 @@ package com.gu.media.upload.mediaconvert
 
 import software.amazon.awssdk.services.mediaconvert.model._
 
+/*naming comes from */
 case class BitrateSetting(max: Int, maxAverage: Int)
 
 object SharedCodecSettings {
