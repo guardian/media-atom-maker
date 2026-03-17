@@ -10,12 +10,6 @@ class PlutoUploadActions(
 ) extends Logging {
 
   def sendToPluto(plutoIntegrationMessage: PlutoIntegrationMessage): Unit = {
-    sendKinesisMessage(plutoIntegrationMessage)
-  }
-
-  private def sendKinesisMessage(
-      plutoIntegrationMessage: PlutoIntegrationMessage
-  ): Unit = {
     if (config.syncWithPluto) {
       log.info(
         s"writing message to pluto integration stream: type=${plutoIntegrationMessage.`type`} atomId=${plutoIntegrationMessage.atomId} content=$plutoIntegrationMessage"
