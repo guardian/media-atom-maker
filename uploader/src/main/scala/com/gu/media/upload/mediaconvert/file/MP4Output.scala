@@ -11,43 +11,18 @@ import com.gu.media.upload.mediaconvert.SharedCodecSettings.{
 }
 import software.amazon.awssdk.services.mediaconvert.model._
 
-sealed trait Resolution
-case object HighRes extends Resolution
-case object LowRes extends Resolution
-
-sealed trait Dimension {
-  def apply(
-      builder: VideoDescription.Builder,
-      value: Int
-  ): VideoDescription.Builder
-}
-
-case object Height extends Dimension {
-  def apply(builder: VideoDescription.Builder, value: Int) =
-    builder.height(value)
-}
-
-case object Width extends Dimension {
-  def apply(builder: VideoDescription.Builder, value: Int) =
-    builder.width(value)
-}
+case class Dimensions(width: Option[Int], height: Option[Int])
 
 case class ResolutionConfig(
-    dimension: Dimension,
-    dimensionValue: Int,
+    dimensions: Dimensions,
     bitrate: BitrateSetting
 )
 
 object MP4Output {
+  val highRes: ResolutionConfig =  ResolutionConfig(Dimensions(None, Some(720)), highBitrate)
+  val lowRes: ResolutionConfig =  ResolutionConfig(Dimensions(Some(480), None), lowBitrate)
 
-  def apply(resolution: Resolution): OutputDefinition = {
-    val config = resolution match {
-      case HighRes =>
-        ResolutionConfig(Height, 720, highBitrate)
-      case LowRes =>
-        ResolutionConfig(Width, 480, lowBitrate)
-    }
-
+  def apply(config: ResolutionConfig): OutputDefinition = {
     OutputDefinition(
       mimeType = Some(VideoSource.mimeTypeMp4),
       assetType = Some(AssetType.Video),
@@ -62,10 +37,10 @@ object MP4Output {
               .build()
           )
           .videoDescription(
-            config
-              .dimension(
                 VideoDescription
                   .builder()
+                  .height(config.dimensions.height.map(Integer.valueOf).orNull)
+                  .width(config.dimensions.width.map(Integer.valueOf).orNull)
                   .sharpness(100) // Sharpest possible
                   .codecSettings(
                     VideoCodecSettings
@@ -73,9 +48,7 @@ object MP4Output {
                       .codec(VideoCodec.H_264)
                       .h264Settings(h264Settings(config.bitrate))
                       .build()
-                  ),
-                config.dimensionValue
-              )
+                  )
               .build()
           )
           .audioDescriptions(aacAudioDescription)

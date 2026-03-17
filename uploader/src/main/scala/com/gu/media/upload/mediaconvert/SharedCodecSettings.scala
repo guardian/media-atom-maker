@@ -9,10 +9,14 @@ object SharedCodecSettings {
   /** Migrated from Elastic Transcoder */
   val highBitrate: BitrateSetting = BitrateSetting(4_800_000, 2_400_000);
 
-  /** Used for Mobile videos at 480px width. @see
-    * https://support.google.com/youtube/answer/2853702?hl=en-GB
+  /**
+   * Used for Mobile videos at 480px width.
+   * We want to keep the number of bits-per-pixel.
+   * This is calculated as (270^2/720^2) * current bitrate.
+   * This is 14% of the current bitrate.
+   * i.e. maxBitrate is 675000 & maxAverageBitrate is 337500.
     */
-  val lowBitrate: BitrateSetting = BitrateSetting(2_400_000, 1_200_000)
+  val lowBitrate: BitrateSetting = BitrateSetting(675_000, 337_500)
 
   def h264Settings(Bitrate: BitrateSetting): H264Settings =
     H264Settings
