@@ -15,12 +15,13 @@ case class Dimensions(width: Option[Int], height: Option[Int])
 
 case class ResolutionConfig(
     dimensions: Dimensions,
-    bitrate: BitrateSetting
+    bitrate: BitrateSetting,
+    nameModifier: String
 )
 
 object MP4Output {
-  val highRes: ResolutionConfig =  ResolutionConfig(Dimensions(None, Some(720)), highBitrate)
-  val lowRes: ResolutionConfig =  ResolutionConfig(Dimensions(Some(480), None), lowBitrate)
+  val highRes: ResolutionConfig =  ResolutionConfig(Dimensions(None, Some(720)), highBitrate, "_720h")
+  val lowRes: ResolutionConfig =  ResolutionConfig(Dimensions(Some(480), None), lowBitrate, "_480w")
 
   def apply(config: ResolutionConfig): OutputDefinition = {
     OutputDefinition(
@@ -29,6 +30,7 @@ object MP4Output {
       output = () =>
         Output
           .builder()
+          .nameModifier(config.nameModifier)
           .containerSettings(
             ContainerSettings
               .builder()
