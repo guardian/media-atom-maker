@@ -11,6 +11,8 @@ import com.gu.media.iconik.{
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
+import java.time.LocalDateTime
+
 class IconikDataStoreSpec extends AnyFlatSpec with Matchers {
 
   behavior of "IconikStore"
@@ -28,6 +30,9 @@ class IconikDataStoreSpec extends AnyFlatSpec with Matchers {
       commissionStore,
       workingGroupStore
     )
+
+    val createdAt = LocalDateTime.now()
+
     store.upsertIconikData(
       IconikUpsertRequest(
         id = "proj1",
@@ -38,7 +43,8 @@ class IconikDataStoreSpec extends AnyFlatSpec with Matchers {
         workingGroupTitle = "Working Group 1",
         status = "active",
         masterPlaceholderId = Some("mp1")
-      )
+      ),
+      createdAtDateTime = Some(createdAt)
     )
     projectStore.store should have size 1
     projectStore.store.head shouldEqual IconikProject(
@@ -47,7 +53,9 @@ class IconikDataStoreSpec extends AnyFlatSpec with Matchers {
       status = "active",
       commissionId = "comm1",
       workingGroupId = "wg1",
-      masterPlaceholderId = Some("mp1")
+      masterPlaceholderId = Some("mp1"),
+      createdAt =
+        Some(createdAt.format(java.time.format.DateTimeFormatter.ISO_DATE_TIME))
     )
     commissionStore.store should have size 1
     commissionStore.store.head shouldEqual IconikCommission(
