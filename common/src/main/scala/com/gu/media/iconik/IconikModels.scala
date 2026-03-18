@@ -6,6 +6,8 @@ import org.scanamo.DynamoFormat
 import org.scanamo.generic.semiauto._
 import play.api.libs.json._
 
+import java.time.LocalDateTime
+
 abstract class IconikItem {
   val id: String
   val title: String
@@ -69,7 +71,8 @@ case class IconikProject(
     status: String,
     workingGroupId: String,
     commissionId: String,
-    masterPlaceholderId: Option[String]
+    masterPlaceholderId: Option[String],
+    createdAt: Option[String]
 ) extends IconikItemWithParentId {
   val parentId: String = commissionId
 }
@@ -81,15 +84,25 @@ object IconikProject {
   implicit def dynamoFormat: DynamoFormat[IconikProject] =
     deriveDynamoFormat
 
-  def fromUpsertRequest(req: IconikUpsertRequest): IconikProject =
+  def fromUpsertRequest(
+      req: IconikUpsertRequest,
+      createdAtDateTime: Option[LocalDateTime] = None
+  ): IconikProject = {
+    val createdAt = createdAtDateTime.getOrElse(LocalDateTime.now())
+
     IconikProject(
       id = req.id,
       title = req.title,
       status = req.status,
       workingGroupId = req.workingGroupId,
       commissionId = req.commissionId,
-      masterPlaceholderId = req.masterPlaceholderId
+      masterPlaceholderId = req.masterPlaceholderId,
+      createdAt = Some(
+        createdAt
+          .format(java.time.format.DateTimeFormatter.ISO_DATE_TIME)
+      )
     )
+  }
 }
 
 // This represents the payload the `iconik-message-ingestion` lambda sends,

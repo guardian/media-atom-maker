@@ -10,6 +10,8 @@ import com.gu.media.iconik.{
 }
 import com.gu.media.logging.Logging
 
+import java.time.LocalDateTime
+
 class IconikStore[E](
     projectStore: IconikDataStoreWithParentIndex[IconikProject, E],
     commissionStore: IconikDataStoreWithParentIndex[IconikCommission, E],
@@ -44,8 +46,11 @@ class IconikStore[E](
   def listWorkingGroups(): Either[E, List[IconikWorkingGroup]] =
     workingGroupStore.list
 
-  def upsertIconikData(request: IconikUpsertRequest): IconikProject = {
-    val project = IconikProject.fromUpsertRequest(request)
+  def upsertIconikData(
+      request: IconikUpsertRequest,
+      createdAtDateTime: Option[LocalDateTime] = None
+  ): IconikProject = {
+    val project = IconikProject.fromUpsertRequest(request, createdAtDateTime)
     projectStore.upsert(project)
     commissionStore.upsert(IconikCommission.fromUpsertRequest(request))
     workingGroupStore.upsert(IconikWorkingGroup.fromUpsertRequest(request))
