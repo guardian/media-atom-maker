@@ -1,30 +1,30 @@
 import React from 'react';
 import { Link } from 'react-router';
-import VideoSelectBar from '../../components/VideoSelectBar/VideoSelectBar';
-import VideoPreview from '../../components/VideoPreview/VideoPreview';
-import VideoImages from '../../components/VideoImages/VideoImages';
-import Icon from '../../components/Icon';
-import { formNames } from '../../constants/formNames';
+import { TabList, Tabs } from 'react-tabs';
 import ReactTooltip from 'react-tooltip';
-import { isVideoPublished } from '../../util/isVideoPublished';
+import Cinemagraph from "../../../images/cinemagraph.svg?react";
+import Loop from "../../../images/loop.svg?react";
+import NonYoutube from "../../../images/nonyoutube.svg?react";
+import Youtube from "../../../images/youtube.svg?react";
+import Icon from '../../components/Icon';
+import VideoImages from '../../components/VideoImages/VideoImages';
+import VideoPreview from '../../components/VideoPreview/VideoPreview';
+import VideoSelectBar from '../../components/VideoSelectBar/VideoSelectBar';
+import { formNames } from '../../constants/formNames';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
+import { isVideoPublished } from '../../util/isVideoPublished';
 import VideoUtils from '../../util/video';
-import { Tabs, TabList } from 'react-tabs';
 import { FurnitureTab, FurnitureTabPanel } from './tabs/Furniture';
+import { IconikTab, IconikTabPanel } from './tabs/Iconik';
+import { ManagementTab, ManagementTabPanel } from './tabs/Management';
+import { PlutoTab, PlutoTabPanel } from './tabs/Pluto';
+import { TargetingTab, TargetingTabPanel } from './tabs/Targeting';
+import { UsageTab, UsageTabPanel } from './tabs/Usage';
+import { WorkflowTab, WorkflowTabPanel } from './tabs/Workflow';
 import {
   YoutubeFurnitureTab,
   YoutubeFurnitureTabPanel
 } from './tabs/YoutubeFurniture';
-import { WorkflowTab, WorkflowTabPanel } from './tabs/Workflow';
-import { UsageTab, UsageTabPanel } from './tabs/Usage';
-import { TargetingTab, TargetingTabPanel } from './tabs/Targeting';
-import { ManagementTab, ManagementTabPanel } from './tabs/Management';
-import { PlutoTab, PlutoTabPanel } from './tabs/Pluto';
-import { IconikTab, IconikTabPanel } from './tabs/Iconik';
-import Loop from "../../../images/loop.svg?react";
-import Youtube from "../../../images/youtube.svg?react";
-import Cinemagraph from "../../../images/cinemagraph.svg?react";
-import NonYoutube from "../../../images/nonyoutube.svg?react";
 
 class VideoDisplay extends React.Component {
   constructor(props) {
@@ -286,8 +286,8 @@ class VideoDisplay extends React.Component {
           <UsageTab disabled={videoEditOpen} />
           <TargetingTab disabled={videoEditOpen} />
           <ManagementTab disabled={videoEditOpen} />
-          <PlutoTab disabled={videoEditOpen} />
           <IconikTab disabled={videoEditOpen} />
+          <PlutoTab disabled={videoEditOpen} />
         </TabList>
         <FurnitureTabPanel
           editing={editingFurniture}
@@ -389,8 +389,8 @@ class VideoDisplay extends React.Component {
         />
         <TargetingTabPanel video={video} />
         <ManagementTabPanel video={video} updateVideo={this.updateVideo} />
-        <PlutoTabPanel video={video} />
         <IconikTabPanel video={video} />
+        <PlutoTabPanel video={video} />
       </Tabs>
     );
   }
@@ -427,23 +427,21 @@ class VideoDisplay extends React.Component {
 //REDUX CONNECTIONS
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import * as createVideo from '../../actions/VideoActions/createVideo';
+import * as getPublishedVideo from '../../actions/VideoActions/getPublishedVideo';
 import * as getVideo from '../../actions/VideoActions/getVideo';
 import * as saveVideo from '../../actions/VideoActions/saveVideo';
-import * as createVideo from '../../actions/VideoActions/createVideo';
 import * as updateVideo from '../../actions/VideoActions/updateVideo';
+import * as videoPageUpdate from '../../actions/VideoActions/videoPageUpdate';
+import { getYouTubeEmbedUrl } from "../../components/utils/YouTubeEmbed";
+import { videoCreateOptions } from "../../constants/videoCreateOptions";
+import { updateFormErrors } from "../../slices/checkedFormFields";
+import { updateVideoEditState } from "../../slices/editState";
+import { updateFormWarnings } from "../../slices/formFieldsWarning";
 import { fetchUsages } from '../../slices/usage';
-import * as getPublishedVideo
-  from '../../actions/VideoActions/getPublishedVideo';
-import * as videoPageUpdate
-  from '../../actions/VideoActions/videoPageUpdate';
-import {getStatus, trackInWorkflow, updateWorkflowData} from '../../slices/workflow';
-import {getYouTubeEmbedUrl} from "../../components/utils/YouTubeEmbed";
-import {getComposerId} from "../../util/getComposerData";
-import {updateFormWarnings} from "../../slices/formFieldsWarning";
-import {updateVideoEditState} from "../../slices/editState";
-import {updateFormErrors} from "../../slices/checkedFormFields";
-import {selectIsSaving, selectPublishedVideo, selectVideo } from "../../slices/video";
-import {videoCreateOptions} from "../../constants/videoCreateOptions";
+import { selectIsSaving, selectPublishedVideo, selectVideo } from "../../slices/video";
+import { getStatus, trackInWorkflow, updateWorkflowData } from '../../slices/workflow';
+import { getComposerId } from "../../util/getComposerData";
 
 function mapStateToProps(state) {
   return {

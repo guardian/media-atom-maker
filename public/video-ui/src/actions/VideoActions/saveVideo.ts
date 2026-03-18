@@ -1,12 +1,17 @@
 import VideosApi, { Video } from '../../services/VideosApi';
 import { showError } from '../../slices/error';
-import { fetchUsages, updateVideoUsageWebTitle, UsageData } from '../../slices/usage';
-import {setVideo, setSaving} from '../../slices/video';
+import {
+  fetchUsages,
+  updateVideoUsageWebTitle,
+  UsageData
+} from '../../slices/usage';
+import { setSaving, setVideo } from '../../slices/video';
 import { AppDispatch } from '../../util/setupStore';
 
 const errorMessages = {
   saveVideoDefault: 'Could not save video',
-  saveVideoConflict: 'Could not save video as another user (or tab) is currently editing this video',
+  saveVideoConflict:
+    'Could not save video as another user (or tab) is currently editing this video',
   fetchUsagesRejected: 'Could not fetch usages to update canonical page',
   canonicalPageUpdate: 'Could not update canonical page'
 };
@@ -15,30 +20,36 @@ export const saveVideo = (video: Video) => async (dispatch: AppDispatch) => {
   dispatch(setSaving(true));
   dispatch(setVideo(video));
 
-  const savedVideo: Video = await VideosApi.saveVideo(video.id, video)
-    .catch(error => {
-      const message = error.status === 409
-        ? errorMessages.saveVideoConflict
-        : errorMessages.saveVideoDefault;
+  const savedVideo: Video = await VideosApi.saveVideo(video.id, video).catch(
+    error => {
+      const message =
+        error.status === 409
+          ? errorMessages.saveVideoConflict
+          : errorMessages.saveVideoDefault;
       dispatch(showError(message, error));
       throw error;
-    });
+    }
+  );
 
   dispatch(setVideo(savedVideo));
 
-  const usageData: UsageData | undefined = await dispatch(fetchUsages(video.id)).unwrap().catch(error => {
-    dispatch(showError(errorMessages.fetchUsagesRejected, error));
-    return undefined;
-  });
+  const usageData: UsageData | undefined = await dispatch(fetchUsages(video.id))
+    .unwrap()
+    .catch((error: unknown): undefined => {
+      dispatch(showError(errorMessages.fetchUsagesRejected, error));
+      return undefined;
+    });
   if (!usageData) {
     dispatch(setSaving(false));
     return;
   }
 
-  const canonicalPageUpdate: unknown[] | undefined = await VideosApi.updateCanonicalPages(
-    savedVideo, usageData, 'preview'
-  )
-    .catch(error => {
+  const canonicalPageUpdate: unknown[] | undefined =
+    await VideosApi.updateCanonicalPages(
+      savedVideo,
+      usageData,
+      'preview'
+    ).catch((error: unknown): undefined => {
       dispatch(showError(errorMessages.canonicalPageUpdate, error));
       return undefined;
     });
@@ -50,4 +61,3 @@ export const saveVideo = (video: Video) => async (dispatch: AppDispatch) => {
   dispatch(updateVideoUsageWebTitle(savedVideo.title));
   dispatch(setSaving(false));
 };
-
