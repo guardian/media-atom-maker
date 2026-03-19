@@ -11,7 +11,7 @@ import { createKinesisMessageFor, getProject, invokeLambda } from './aws.js';
 const upsertMessage = {
   type: 'iconik-project-created',
   id: `test-project-1-${new Date().getUTCMilliseconds()}`,
-  title: 'Test Project 1',
+  title: '002Test Project 1',
   commissionId: 'commission-1',
   commissionTitle: 'Commission 1',
   workingGroupId: 'working-group-1',
@@ -20,7 +20,7 @@ const upsertMessage = {
 };
 
 const plutoLambdaName = 'pluto-message-ingestion-CODE';
-const iconikProjectTableName = 'media-atom-maker-CODE-iconik-projects-table';
+const iconikProjectTableName = 'media-atom-maker-CODE-iconik-projects-table-v2';
 
 const VERBOSE =
   process.argv.includes('--verbose') || process.argv.includes('-v');
