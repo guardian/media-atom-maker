@@ -3,6 +3,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getVideo } from '../../actions/VideoActions/getVideo';
 import { saveVideo } from '../../actions/VideoActions/saveVideo';
+import {
+  IconikCommission,
+  IconikProject,
+  IconikWorkingGroup
+} from '../../services/IconikApi';
 import { IconikData, Video } from '../../services/VideosApi';
 import {
   fetchIconikCommissions,
@@ -112,33 +117,21 @@ export const IconikProjectPicker = ({ video }: Props) => {
       <Select
         fieldName={'Iconik Working Group'}
         fieldValue={workingGroup}
-        selectOptions={workingGroups
-          .map(({ id, title }) => ({ id, title }))
-          .toSorted((a, b) => b.title.localeCompare(a.title))}
+        selectOptions={sortProjects(workingGroups)}
         notification={null}
         onUpdateField={onWorkingGroupChange}
       ></Select>
       <Select
         fieldName={'Iconik Commission'}
         fieldValue={commission}
-        selectOptions={commissions
-          .map(({ id, title }) => ({
-            id,
-            title
-          }))
-          .toSorted((a, b) => b.title.localeCompare(a.title))}
+        selectOptions={sortProjects(commissions)}
         notification={null}
         onUpdateField={onCommissionChange}
       ></Select>
       <Select
         fieldName={'Iconik Project'}
         fieldValue={project}
-        selectOptions={projects
-          .map(({ id, title }) => ({
-            id,
-            title
-          }))
-          .toSorted((a, b) => b.title.localeCompare(a.title))}
+        selectOptions={sortProjects(projects)}
         notification={null}
         onUpdateField={onProjectChange}
       ></Select>
@@ -182,6 +175,23 @@ export const IconikProjectPicker = ({ video }: Props) => {
     </div>
   );
 };
+
+function startsWithNumber(str: string) {
+  return /^\d/.test(str);
+}
+
+function sortProjects(
+  projects: Array<IconikWorkingGroup | IconikCommission | IconikProject>
+) {
+  const startWithNumber = projects.filter(project =>
+    startsWithNumber(project.title)
+  );
+  const rest = projects.filter(project => !startsWithNumber(project.title));
+  return [
+    ...startWithNumber.sort((a, b) => b.title.localeCompare(a.title)),
+    ...rest.sort((a, b) => b.title.localeCompare(a.title))
+  ];
+}
 
 type SelectProps = {
   fieldName: string;
