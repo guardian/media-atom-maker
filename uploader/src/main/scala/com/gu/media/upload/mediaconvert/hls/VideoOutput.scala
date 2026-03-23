@@ -4,7 +4,8 @@ import com.gu.media.model.VideoSource
 import com.gu.media.upload.mediaconvert.OutputDefinition
 import com.gu.media.upload.mediaconvert.SharedCodecSettings.{
   aacAudioDescription,
-  h264Settings
+  h264Settings,
+  highBitrate
 }
 import software.amazon.awssdk.services.mediaconvert.model._
 
@@ -46,7 +47,7 @@ object VideoOutput {
               VideoCodecSettings
                 .builder()
                 .codec(VideoCodec.H_264)
-                .h264Settings(h264Settings)
+                .h264Settings(h264Settings(highBitrate))
                 .build()
             )
             .build()
