@@ -9,7 +9,7 @@
       "allowJs": true,
       "sourceMap": true,
       "lib": [
-          "es2019",
+          "ESNext",
           "dom"
       ],
       "skipLibCheck": true,

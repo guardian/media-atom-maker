@@ -11,6 +11,7 @@ import Loop from "../../images/loop.svg?react";
 import Youtube from "../../images/youtube.svg?react";
 import Cinemagraph from "../../images/cinemagraph.svg?react";
 import NonYoutube from "../../images/nonyoutube.svg?react";
+import {fieldLengths} from "../constants/videoEditValidation";
 
 export default class Create extends React.Component {
   props: React.PropsWithChildren<{
@@ -41,7 +42,7 @@ export default class Create extends React.Component {
   };
 
   isFormValid() {
-    return !!this.state.title && !!this.state.videoCreateOption;
+    return !!this.state.title && this.state.title.length <= fieldLengths.title && !!this.state.videoCreateOption;
   }
 
   iconMap = {
@@ -165,6 +166,11 @@ export default class Create extends React.Component {
             {!this.state.title &&
               <div className="create-form__action-buttons--validation-warning">
                 You need to add a Title to create a video.
+              </div>
+            }
+            {this.state.title?.length > fieldLengths.title &&
+              <div className="create-form__action-buttons--validation-warning">
+                Video titles must be at most 100 characters (currently {this.state.title.length}/100)
               </div>
             }
             <div className="create-form__action-buttons">

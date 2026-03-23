@@ -94,7 +94,7 @@ export const IconikProjectPicker = ({ video }: Props) => {
     video.iconikData?.projectId,
     video.iconikData?.workingGroupId
   ]);
-  
+
   const deleteIconikDataFromStore = useCallback(() => {
     saveVideoUpdate({
       workingGroupId: undefined,
@@ -112,27 +112,33 @@ export const IconikProjectPicker = ({ video }: Props) => {
       <Select
         fieldName={'Iconik Working Group'}
         fieldValue={workingGroup}
-        selectOptions={workingGroups.map(({ id, title }) => ({ id, title }))}
+        selectOptions={workingGroups
+          .map(({ id, title }) => ({ id, title }))
+          .toSorted((a, b) => b.title.localeCompare(a.title))}
         notification={null}
         onUpdateField={onWorkingGroupChange}
       ></Select>
       <Select
         fieldName={'Iconik Commission'}
         fieldValue={commission}
-        selectOptions={commissions.map(({ id, title }) => ({
-          id,
-          title
-        }))}
+        selectOptions={commissions
+          .map(({ id, title }) => ({
+            id,
+            title
+          }))
+          .toSorted((a, b) => b.title.localeCompare(a.title))}
         notification={null}
         onUpdateField={onCommissionChange}
       ></Select>
       <Select
         fieldName={'Iconik Project'}
         fieldValue={project}
-        selectOptions={projects.map(({ id, title }) => ({
-          id,
-          title
-        }))}
+        selectOptions={projects
+          .map(({ id, title }) => ({
+            id,
+            title
+          }))
+          .toSorted((a, b) => b.title.localeCompare(a.title))}
         notification={null}
         onUpdateField={onProjectChange}
       ></Select>

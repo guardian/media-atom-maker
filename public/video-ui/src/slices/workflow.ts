@@ -1,14 +1,13 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { defaultWorkflowStatusData } from '../constants/defaultWorkflowStatusData';
 import WorkflowApi, {
   ExpandedStatus,
   FlatStub,
   Priority,
+  Section,
   WorkflowDetails
 } from '../services/WorkflowApi';
-import { Section } from '../services/WorkflowApi';
 import { showError } from './error';
-import { defaultWorkflowStatusData } from '../constants/defaultWorkflowStatusData';
-import { AppDispatch } from '../util/setupStore';
 
 type WorkflowState = {
   sections: Section[];
@@ -20,7 +19,7 @@ type WorkflowState = {
 export const getSections = createAsyncThunk<Section[]>(
   'workflow/getSections',
   (_, { dispatch }) =>
-    WorkflowApi.getSections().catch((error: unknown) => {
+    WorkflowApi.getSections().catch((error: unknown): undefined => {
       return void dispatch(
         showError(
           `Could not get Workflow sections. <a href="${WorkflowApi.workflowUrl}" target="_blank" rel="noopener">Open Workflow to get a cookie.</a>`,
@@ -34,37 +33,36 @@ export const getStatus = createAsyncThunk<
   FlatStub<string, string>,
   { id: string }
 >('workflow/getStatus', (video, { dispatch }) =>
-  WorkflowApi.getAtomInWorkflow(video).catch((error: Response | any) => {
-    if (error instanceof Response) {
-      if (error.status !== 404) {
-        return void dispatch(
-          showError('Cannot get Atom status in Workflow', error)
-        );
-      }
-      try {
-        error.json().then(errorBody => {
+  WorkflowApi.getAtomInWorkflow(video).catch(
+    async (error: Response | any): Promise<never> => {
+      if (error instanceof Response && error.status === 404) {
+        try {
+          const errorBody: unknown = await error.json();
           if (
-            errorBody.errors &&
-            errorBody.errors.message === 'ContentNotFound'
+            typeof errorBody === 'object' &&
+            errorBody !== null &&
+            'errors' in errorBody &&
+            'message' in (errorBody as any).errors &&
+            (errorBody as any).errors.message === 'ContentNotFound'
           ) {
-            return void dispatch(statusNotFound(defaultWorkflowStatusData()));
+            dispatch(statusNotFound(defaultWorkflowStatusData()));
+            return Promise.reject();
           }
-        });
-      } catch (e) {
-        // failed to parse response as json
-        return void dispatch(
-          showError('Cannot get Atom status in Workflow', error)
-        );
+        } catch (e) {
+          console.error('Error parsing Workflow response as JSON', e);
+        }
       }
+      dispatch(showError('Cannot get Atom status in Workflow', error));
+      return Promise.reject();
     }
-  })
+  )
 );
 
 export const getStatuses = createAsyncThunk<ExpandedStatus[]>(
   'workflow/getStatuses',
   (_, { dispatch }) =>
     WorkflowApi.getStatuses().catch(
-      err =>
+      (err: unknown): undefined =>
         void dispatch(
           showError(
             `Could not get Workflow statuses. <a href="${WorkflowApi.workflowUrl}" target="_blank" rel="noopener">Open Workflow to get a cookie.</a>`,
@@ -78,7 +76,7 @@ export const getPriorities = createAsyncThunk<Priority[]>(
   'workflow/getPriorities',
   (_, { dispatch }) =>
     WorkflowApi.getPriorities().catch(
-      err =>
+      (err: unknown): undefined =>
         void dispatch(
           showError(
             `Could not get Workflow priorities. <a href="${WorkflowApi.workflowUrl}" target="_blank" rel="noopener">Open Workflow to get a cookie.</a>`,

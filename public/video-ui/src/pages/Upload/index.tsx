@@ -86,13 +86,13 @@ export const VideoUpload = (props: { params: { id: string } }) => {
         <div className="video__main__header">
           <div className="video__detailbox">
             <div>
+              <IconikProjectPicker video={store.video} />
+            </div>
+            <div>
               <div className="form__group">
                 {projectId && <PlutoProjectLink projectId={projectId} />}
                 <PlutoProjectPicker video={store.video} />
               </div>
-            </div>
-            <div>
-              <IconikProjectPicker video={store.video} />
             </div>
             {
               /*
