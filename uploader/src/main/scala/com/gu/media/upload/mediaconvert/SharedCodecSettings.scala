@@ -2,18 +2,32 @@ package com.gu.media.upload.mediaconvert
 
 import software.amazon.awssdk.services.mediaconvert.model._
 
+/*naming comes from */
+case class BitrateSetting(max: Int, maxAverage: Int)
+
 object SharedCodecSettings {
-  val h264Settings: H264Settings =
+
+  /** Migrated from Elastic Transcoder */
+  val highBitrate: BitrateSetting = BitrateSetting(4_800_000, 2_400_000);
+
+  /** Used for Mobile videos at 480px width. We want to keep the number of
+    * bits-per-pixel. This is calculated as (270^2/720^2) * current bitrate.
+    * This is 14% of the current bitrate. i.e. maxBitrate is 675000 &
+    * maxAverageBitrate is 337500.
+    */
+  val lowBitrate: BitrateSetting = BitrateSetting(675_000, 337_500)
+
+  def h264Settings(bitrate: BitrateSetting): H264Settings =
     H264Settings
       .builder()
       .rateControlMode(H264RateControlMode.QVBR) // Best quality
       .qualityTuningLevel(H264QualityTuningLevel.MULTI_PASS_HQ) // Best quality
-      .maxBitrate(4_800_000) // Migrated from Elastic Transcoder
+      .maxBitrate(bitrate.max) // Migrated from Elastic Transcoder
       .qvbrSettings(
         H264QvbrSettings
           .builder()
           .maxAverageBitrate(
-            2_400_000
+            bitrate.maxAverage
           ) // Twice average to give room for encoder's decisions
           .qvbrQualityLevel(8) // 1-10, 10 is best quality
           .qvbrQualityLevelFineTune(0.66) // Fine-tuned through manual testing
