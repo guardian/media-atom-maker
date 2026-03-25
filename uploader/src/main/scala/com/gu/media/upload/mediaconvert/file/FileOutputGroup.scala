@@ -1,6 +1,7 @@
 package com.gu.media.upload.mediaconvert.file
 
 import com.gu.media.upload.mediaconvert.OutputGroupDefinition
+import com.gu.media.upload.mediaconvert.file.Resolution
 import software.amazon.awssdk.services.mediaconvert.model.{
   FileGroupSettings,
   OutputGroup,
@@ -11,7 +12,12 @@ import software.amazon.awssdk.services.mediaconvert.model.{
 object FileOutputGroup {
   def apply(): OutputGroupDefinition = {
     val outputs =
-      List(MP4Output(), JPEGOutput(), WebVTTOutput())
+      List(
+        MP4Output(Resolution.Low),
+        MP4Output(Resolution.High),
+        JPEGOutput(),
+        WebVTTOutput()
+      )
     OutputGroupDefinition(
       mimeType = None,
       assetType =
