@@ -1,7 +1,5 @@
 package com.gu.media.upload.mediaconvert.file
-
 import com.gu.media.upload.mediaconvert.OutputGroupDefinition
-import com.gu.media.upload.mediaconvert.file.Resolution
 import software.amazon.awssdk.services.mediaconvert.model.{
   FileGroupSettings,
   OutputGroup,
