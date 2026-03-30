@@ -32,6 +32,8 @@ GET            /api/iconik/projects/:id                         controllers.Icon
 GET            /api/iconik/working-groups                       controllers.IconikController.getWorkingGroups()
 GET            /api/iconik/working-groups/:id                    controllers.IconikController.getWorkingGroup(id)
 GET            /api/iconik/working-groups/:id/commissions        controllers.IconikController.getCommissionsByWorkingGroupId(id)
+# helpful redirect for gustaf/teleporter
+GET            /videos/:id/open-in-iconik                       controllers.IconikController.openInIconik(id)
 
 # endpoint used by workflow
 OPTIONS        /api/workflow/*url                               controllers.Api.allowCORSAccess(methods = "PUT, POST, DELETE", url: String)

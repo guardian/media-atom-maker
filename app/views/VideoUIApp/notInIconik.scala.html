@@ -1,0 +1,12 @@
+@import views.html.VideoUIApp.layout
+
+@(atomId: String, csrf: String)
+
+@layout("No project set", isHotReloading = false, csrf) {
+  <h1>Iconik project not set for this video</h1>
+
+  <p>This media atom has not had its iconik project set, so we couldn't open it for you.</p>
+  <p>If you know it, you can set the iconik project on the <a href=@(s"/videos/${atomId}/upload")>upload page</a> for the atom.</p>
+  <p>Otherwise, please get in touch with the original uploader.</p>
+  <p><a href=@(s"/videos/${atomId}")>Open the atom for more details.</a></p>
+}
