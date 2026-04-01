@@ -5,7 +5,7 @@ import scala.collection.immutable.Seq
 import scala.sys.process.*
 
 val scroogeVersion = "4.12.0"
-val awsV2Version = "2.32.26"
+val awsV2Version = "2.42.24"
 val pandaVersion = "13.0.0"
 val atomMakerVersion = "9.0.0"
 val typesafeConfigVersion =
@@ -54,7 +54,7 @@ lazy val commonSettings = Seq(
   // https://github.com/sbt/sbt/issues/2405
   Global / onLoad := (Global / onLoad).value andThen (Command
     .process("project root", _)),
-  dependencyOverrides ++= jacksonOverrides
+  dependencyOverrides ++= jacksonOverrides ++ nettyOverrides
 )
 
 val jacksonOverrides = Seq(
@@ -67,6 +67,9 @@ val jacksonOverrides = Seq(
   "com.fasterxml.jackson.module" %% "jackson-module-scala"
 ).map(_ % jacksonVersion) :+ "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonAnnotationsVersion
 
+val nettyOverrides = Seq(
+  "io.netty" % "netty-codec-http2" %  "4.1.132.Final"
+)
 lazy val common = (project in file("common"))
   .settings(
     commonSettings,
