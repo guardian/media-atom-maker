@@ -189,7 +189,7 @@ function sortProjects(
   const rest = projects.filter(project => !startsWithNumber(project.title));
   return [
     ...startWithNumber.sort((a, b) => b.title.localeCompare(a.title)),
-    ...rest.sort((a, b) => b.title.localeCompare(a.title))
+    ...rest.sort((a, b) => a.title.localeCompare(b.title))
   ];
 }
 
