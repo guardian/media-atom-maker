@@ -33,8 +33,8 @@ class SendToTranscoderV2
     )
 
     // validate audio boolean using:
-    val hasAudio = checkAudioExists(presignedUrl.toString)
-    println(s"Video ${videoInput.toString} has audio: $hasAudio")
+    val hasAudio = checkAudioExists(presignedUrl)
+    println(s"Video ${videoInput} has audio: $hasAudio")
 
     val key = TranscoderOutputKey(
       upload.metadata.title,
