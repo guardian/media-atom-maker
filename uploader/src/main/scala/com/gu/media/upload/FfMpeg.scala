@@ -1,7 +1,6 @@
 package com.gu.media.upload
 
 import com.gu.media.logging.Logging
-
 import java.nio.file.Path
 import scala.sys.process.{Process, ProcessLogger, stdout}
 import scala.collection.mutable
