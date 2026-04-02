@@ -34,12 +34,12 @@ object Resolution {
 
 object MP4Output {
 
-  def apply(config: ResolutionConfig): OutputDefinition = {
+  def apply(config: ResolutionConfig, hasAudio: Boolean): OutputDefinition = {
     OutputDefinition(
       mimeType = Some(VideoSource.mimeTypeMp4),
       assetType = Some(AssetType.Video),
-      output = () =>
-        Output
+      output = () => {
+        val outputBuilder = Output
           .builder()
           .nameModifier(config.nameModifier)
           .containerSettings(
@@ -64,8 +64,11 @@ object MP4Output {
               )
               .build()
           )
-          .audioDescriptions(aacAudioDescription)
-          .build()
+
+        if (hasAudio)
+          outputBuilder.audioDescriptions(aacAudioDescription).build()
+        else outputBuilder.build()
+      }
     )
   }
 }

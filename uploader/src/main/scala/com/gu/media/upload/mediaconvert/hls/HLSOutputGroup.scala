@@ -11,8 +11,8 @@ import software.amazon.awssdk.services.mediaconvert.model.{
 }
 
 object HLSOutputGroup {
-  def apply(): OutputGroupDefinition = {
-    val outputs = List(VideoOutput(), CaptionsOutput())
+  def apply(hasAudio: Boolean): OutputGroupDefinition = {
+    val outputs = List(VideoOutput(hasAudio), CaptionsOutput())
     OutputGroupDefinition(
       mimeType = Some(VideoSource.mimeTypeM3u8),
       assetType = Some(

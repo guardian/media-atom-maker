@@ -34,7 +34,6 @@ class SendToTranscoderV2
 
     // validate audio boolean using:
     val hasAudio = checkAudioExists(presignedUrl)
-    println(s"Video ${videoInput} has audio: $hasAudio")
 
     val key = TranscoderOutputKey(
       upload.metadata.title,
@@ -51,14 +50,16 @@ class SendToTranscoderV2
       videoInput,
       maybeSubtitlesInput,
       data.executionId,
-      destination
+      destination,
+      hasAudio
     )
 
     val metadata =
-      upload.metadata.copy(runtime =
-        SelfHostedUploadMetadata(
+      upload.metadata.copy(
+        runtime = SelfHostedUploadMetadata(
           jobs = Some(List(jobs))
-        )
+        ),
+        hasAudio = Some(hasAudio)
       )
 
     upload.copy(
@@ -71,13 +72,15 @@ class SendToTranscoderV2
       videoInput: UploadUri,
       maybeSubtitlesInput: Option[UploadUri],
       executionId: String,
-      destination: String
+      destination: String,
+      hasAudio: Boolean
   ): String = {
 
     val jobSettings = JobSettingsBuilder.build(
       videoInput.toString,
       maybeSubtitlesInput.map(_.toString),
-      destination
+      destination,
+      hasAudio
     )
 
     val createJobRequest = CreateJobRequest
