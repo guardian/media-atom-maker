@@ -25,8 +25,8 @@ trait S3Helpers { this: AwsAccess =>
       bucket: String,
       key: String,
       /* 1 hour is chosen here as url needs to be available longer that the video takes to stream
-      * 1 hour should be longer than most videos
-      * */
+       * 1 hour should be longer than most videos
+       * */
       expiration: Duration = Duration.ofHours(1)
   ): String = {
     val getObjectRequest =
