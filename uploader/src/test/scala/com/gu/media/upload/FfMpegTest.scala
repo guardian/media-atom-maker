@@ -6,15 +6,13 @@ import org.scalatest.matchers.must.Matchers
 import java.io.File
 
 class FfMpegTest extends AnyFunSuite with Matchers {
+  val commonPaths = List(
+    "/opt/homebrew/bin/ffmpeg", // macOS with Homebrew
+    "/usr/local/bin/ffmpeg", // macOS/Linux common location
+    "/var/task/bin/ffmpeg" // AWS Lambda
+  )
 
-  // Get the ffmpeg binary path, trying common locations first
   private def getFfmpegPath: String = {
-    val commonPaths = List(
-      "/opt/homebrew/bin/ffmpeg", // macOS with Homebrew
-      "/usr/local/bin/ffmpeg", // macOS/Linux common location
-      "/var/task/bin/ffmpeg" // AWS Lambda
-    )
-
     commonPaths
       .find(path => new File(path).exists())
       .getOrElse(
@@ -22,17 +20,27 @@ class FfMpegTest extends AnyFunSuite with Matchers {
       )
   }
 
-  val ffMpegPath = getFfmpegPath
+  private def assumeFfmpegAvailable(): Unit = {
+    assume(
+      commonPaths
+        .exists(path => new File(path).exists()),
+      s"ffmpeg binary is not available"
+    )
+  }
+
+  val ffMpegPath: String = getFfmpegPath
 
   test("checkAudioExists returns true for video with audio") {
-    println(ffMpegPath)
+    assumeFfmpegAvailable()
+
     val videoWithAudio =
       "https://uploads.guim.co.uk/2026/04/01/010426_tif_latest_front_loop--934995e6-c29d-4525-9691-d8cd63bd0588-1.2_480w.mp4"
-
     FfMpeg.checkAudioExists(videoWithAudio, ffMpegPath) must be(true)
   }
 
   test("checkAudioExists returns false for a video with no audiotracks") {
+    assumeFfmpegAvailable()
+
     val videoWithoutAudioTracks =
       "https://uploads.guim.co.uk/2026/03/31/Brainrot-4-5--1d023563-efee-451b-9b8c-d7c7f6a4cc60-1.0_480w.mp4"
 
@@ -40,6 +48,8 @@ class FfMpegTest extends AnyFunSuite with Matchers {
   }
 
   test("checkAudioExists returns false for video with audio that is silent") {
+    assumeFfmpegAvailable()
+
     val video =
       "https://uploads.guim.co.uk/2026/03/18/Insect_migration--5c3d77d2-3557-4c73-a27d-7aab1f864cdc-1.0.mp4"
 
