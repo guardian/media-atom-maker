@@ -186,6 +186,8 @@ lazy val uploader = (project in file("uploader"))
       "net.logstash.logback" % "logstash-logback-encoder" % logstashLogbackEncoderVersion,
       "com.amazonaws" % "aws-lambda-java-events" % awsLambdaEventsVersion,
       "software.amazon.awssdk" % "s3" % awsV2Version,
+      "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
+      "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0" % Test,
     ),
     Universal / mappings += {
       val log = streams.value.log
