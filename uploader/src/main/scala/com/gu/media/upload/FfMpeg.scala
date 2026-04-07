@@ -79,7 +79,7 @@ object FfMpeg extends Logging {
         }
       case _ =>
         log.error("FfMpeg audio detection failed")
-        false // audio detection failure is not a critical error, so we return false rather than throwing an exception
+        true // audio detection failure is not a critical error, so we return true rather than throwing an exception
     }
   }
 
