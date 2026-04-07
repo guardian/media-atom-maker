@@ -48,10 +48,13 @@ object FfMpeg extends Logging {
     }
   }
 
-  def checkAudioExists(video: String, ffmpegPath: String = ffmpegPath ): Boolean = {
+  def checkAudioExists(
+      video: String,
+      ffmpegPath: String = ffmpegPath
+  ): Boolean = {
 
     // @see https://aws.amazon.com/blogs/media/detect-silent-audio-tracks-in-vod-content-with-aws-elemental-mediaconvert/
-   val SILENT_THRESHOLD = -50
+    val SILENT_THRESHOLD = -50
 
     val ffMpegStdErrLogger = new BasicStdErrLogger()
 
@@ -70,8 +73,9 @@ object FfMpeg extends Logging {
           .map(_.group(1).toDouble)
 
         meanVolume match {
-          case Some(db) => db > SILENT_THRESHOLD   // treat near-silence as no audio
-          case None     => false         // couldn't parse = assume no audio
+          case Some(db) =>
+            db > SILENT_THRESHOLD // treat near-silence as no audio
+          case None => false // couldn't parse = assume no audio
         }
       case _ =>
         log.error("FfMpeg audio detection failed")
