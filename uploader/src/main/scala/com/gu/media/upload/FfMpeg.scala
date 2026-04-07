@@ -67,12 +67,12 @@ object FfMpeg extends Logging {
     exitCode match {
       case 0 =>
         val output = ffMpegStdErrLogger.getOutput;
-        val meanVolumeRegex = """mean_volume:\s*([-\d.]+)\s*dB""".r
-        val meanVolume = meanVolumeRegex
+        val maxVolumeRegex = """max_volume:\s*([-\d.]+)\s*dB""".r
+        val maxVolume = maxVolumeRegex
           .findFirstMatchIn(output)
           .map(_.group(1).toDouble)
 
-        meanVolume match {
+        maxVolume match {
           case Some(db) =>
             db > SILENT_THRESHOLD // treat near-silence as no audio
           case None => false // couldn't parse = assume no audio
