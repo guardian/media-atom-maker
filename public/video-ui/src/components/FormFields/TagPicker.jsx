@@ -1,20 +1,16 @@
 import React from 'react';
 import { getTagsByType } from '../../services/tagmanager';
 import { tagsFromStringList, tagsToStringList } from '../../util/tagParsers';
-import { keyCodes } from '../../constants/keyCodes';
 import TagTypes from '../../constants/TagTypes';
 import getTagDisplayNames from '../../util/getTagDisplayNames';
-import TextInputTagPicker from './TextInputTagPicker';
-import PureTagPicker from './PureTagPicker';
 import TagFieldValue from '../Tags/TagFieldValue';
 import TagUnavailable from '../TagSearch/TagUnavailable';
 import { DraggableTagList } from './DraggableTagList';
-import removeTagDuplicates from '../../util/removeTagDuplicates';
-import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 import ReactTooltip from 'react-tooltip';
 import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
 import YouTubeKeywords from '../../constants/youTubeKeywords';
 import debounce from "lodash/debounce";
+import Typeahead from '../Typeahead/Typeahead';
 
 class TagPicker extends React.Component {
   constructor(props) {
@@ -22,11 +18,7 @@ class TagPicker extends React.Component {
     this.state = {
       searchResultTags: [],
       tagValue: [],
-      capiUnavailable: false,
-      showTags: true,
-      tagsVisible: false,
-      selectedTagIndex: null,
-      inputClearCount: 0
+      capiUnavailable: false
     };
   }
 
@@ -138,93 +130,6 @@ class TagPicker extends React.Component {
   };
 
 
-  hideTagResults = (e) => {
-
-    //First we need to make sure to set the selectedTagIndex back to null
-
-    if (this.state.selectedTagIndex !== null) {
-      this.setState({
-        selectedTagIndex: null
-      });
-    }
-
-    // For each tag picker component, there is a tagsVisible state variable.
-    // The onBlur event attached to the tag picker gets fired when
-    // any of its children are clicked. This variable is used to check if the event
-    // was fired by clicking on one of the child elements and makes sure that this
-    // does not hide the tag search results.
-
-    const tagsVisible = this.state.tagsVisible;
-
-    if (!tagsVisible) {
-      this.setState({
-        showTags: false
-      });
-    } else {
-      this.setState({
-        tagsVisible: false
-      });
-    }
-
-    this.setState({
-      inputClearCount: this.state.inputClearCount + 1
-    });
-  };
-
-  tagsToVisible = () => {
-    this.setState({
-      tagsVisible: true
-    });
-  };
-
-  onKeyDown = (e) => {
-
-    this.setState({
-      showTags: true
-    });
-
-    if (e.keyCode === keyCodes.down) {
-      if (this.state.selectedTagIndex === null && this.state.searchResultTags.length > 0) {
-
-        this.setState({
-          selectedTagIndex: 0
-        });
-
-    } else {
-        if (this.state.selectedTagIndex < this.state.searchResultTags.length - 1) {
-          this.setState({
-            selectedTagIndex: this.state.selectedTagIndex + 1
-          });
-        }
-      }
-    }
-
-    if (e.keyCode === keyCodes.up) {
-      if (this.state.selectedTagIndex && this.state.selectedTagIndex !== 0) {
-        this.setState({
-          selectedTagIndex: this.state.selectedTagIndex - 1
-          });
-      }
-    }
-
-    if (e.keyCode === keyCodes.enter && this.state.selectedTagIndex !== null) {
-      const newTag = this.state.searchResultTags[this.state.selectedTagIndex];
-
-      const valueWithoutDupes = this.props.tagType === TagTypes.contributor ?
-        removeStringTagDuplicates(newTag, this.state.tagValue) :
-        removeTagDuplicates(newTag, this.state.tagValue);
-
-      const newFieldValue = valueWithoutDupes.concat([newTag]);
-
-      this.setState({
-        selectedTagIndex: null,
-        inputClearCount: this.state.inputClearCount + 1
-      });
-
-      this.onUpdate(newFieldValue);
-    }
-  };
-
   renderSelectedTags = () => {
 
     if (this.props.tagType !== TagTypes.keyword) {
@@ -259,43 +164,90 @@ class TagPicker extends React.Component {
     );
   };
 
-  renderTagPicker() {
-
-    if (this.props.tagType === TagTypes.contributor ||
-        this.props.tagType === TagTypes.youtube) {
-      return (
-          <TextInputTagPicker
-            tagValue={this.state.tagValue}
-            onUpdate={this.onUpdate}
-            fetchTags={this.debouncedFetchTags}
-            searchResultTags={this.state.searchResultTags}
-            tagsToVisible={this.tagsToVisible}
-            showTags={this.state.showTags}
-            hideTagResults={this.hideTagResults}
-            removeFn={this.removeFn}
-            selectedTagIndex={this.state.selectedTagIndex}
-            inputClearCount={this.state.inputClearCount}
-
-            {...this.props}
-          />
-
-      );
-
+  tagToTypeaheadOption = (tag) => {
+    if (typeof tag === 'string') {
+      return { id: tag, label: tag };
     }
+    return {
+      id: tag.id,
+      label: tag.detailedTitle || tag.webTitle,
+      detail: tag.detailedTitle,
+    };
+  };
+
+  // Converts YouTube comma-separated free-text into individual keyword objects,
+  // deduplicating against the current selection.
+  getYouTubeTagsFromFreeText = (text) => {
+    const existingIds = new Set(
+      this.state.tagValue.map(t => (typeof t === 'string' ? t : t.id))
+    );
+    return text
+      .split(',')
+      .map(s => s.trim())
+      .filter(s => s.length > 0 && !existingIds.has(s))
+      .map(s => ({ id: s, webTitle: s }));
+  };
+
+  handleTypeaheadSelection = (selectedOptions) => {
+    const newTags = selectedOptions.flatMap(opt => {
+      // Prefer the full tag object from the most recent search results.
+      const fromSearch = this.state.searchResultTags.find(t => t.id === opt.id);
+      if (fromSearch) return [fromSearch];
+
+      // Preserve already-selected values in their original form.
+      const existing = this.state.tagValue.find(t =>
+        typeof t === 'string' ? t === opt.id : t.id === opt.id
+      );
+      if (existing) return [existing];
+
+      // Free-text entry — shape depends on tag type.
+      if (this.props.tagType === TagTypes.youtube) {
+        // Support comma-separated YouTube keywords typed into the input.
+        if (opt.label.includes(',')) {
+          return this.getYouTubeTagsFromFreeText(opt.label);
+        }
+        return [{ id: opt.id, webTitle: opt.label }];
+      }
+
+      // Contributor: plain string byline.
+      return [opt.label];
+    });
+
+    this.onUpdate(newTags);
+  };
+
+  renderTagPicker() {
+    const typeaheadOptions = this.state.searchResultTags.map(tag => ({
+      id: tag.id,
+      label: tag.detailedTitle || tag.webTitle,
+      detail: tag.detailedTitle,
+    }));
+
+    const typeaheadSelectedItems = this.state.tagValue.map(
+      this.tagToTypeaheadOption
+    );
+
+    const allowFreeText =
+      this.props.tagType === TagTypes.contributor ||
+      this.props.tagType === TagTypes.youtube;
+
+    // For contributor/youtube the selected items are shown via showSelectedItems
+    // so the user retains the ability to remove them. For all other tag types
+    // renderAddedTags() handles the display with its own removable chip list.
+    const showSelectedItems = allowFreeText;
 
     return (
-      <PureTagPicker
-        tagValue={this.state.tagValue}
-        onUpdate={this.onUpdate}
-        fetchTags={this.debouncedFetchTags}
-        searchResultTags={this.state.searchResultTags}
-        tagsToVisible={this.tagsToVisible}
-        showTags={this.state.showTags}
-        hideTagResults={this.hideTagResults}
-        selectedTagIndex={this.state.selectedTagIndex}
-        inputClearCount={this.state.inputClearCount}
-
-        {...this.props}
+      <Typeahead
+        options={typeaheadOptions}
+        selectedItems={typeaheadSelectedItems}
+        onSelectionChange={this.handleTypeaheadSelection}
+        onInputChange={
+          this.props.disableCapiTags ? undefined : this.debouncedFetchTags
+        }
+        placeholder={this.props.inputPlaceholder}
+        allowFreeText={allowFreeText}
+        showSelectedItems={showSelectedItems}
+        inputId={this.props.fieldName}
       />
     );
   }
@@ -303,15 +255,14 @@ class TagPicker extends React.Component {
   renderAddedTags() {
 
     if (this.state.tagValue.length !== 0) {
-      if (this.props.tagType === TagTypes.contributor ||
-          this.props.tagType === TagTypes.youtube) {
-        return (
-          <TagFieldValue
-            tagValue={this.state.tagValue}
-            tagType={this.props.tagType}
-          />
-        );
-
+      // For contributor and youtube, selected items are rendered as chips by
+      // the Typeahead component (showSelectedItems=true), so there is nothing
+      // extra to render here.
+      if (
+        this.props.tagType === TagTypes.contributor ||
+        this.props.tagType === TagTypes.youtube
+      ) {
+        return null;
       }
       return (
         <div className="form__field__tag__list">
@@ -387,10 +338,7 @@ class TagPicker extends React.Component {
     }
 
     return (
-      <div className="form__row"
-        onBlur={this.hideTagResults}
-        onKeyDown={this.onKeyDown}
-      >
+      <div className="form__row">
 
         <div className="form__label__layout">
           <label className="form__label">{this.props.fieldName}</label>
