@@ -20,6 +20,7 @@ class BasicStdErrLogger extends Logging {
   }
 }
 object FfMpeg extends Logging {
+  private val ffmpegPath = "/var/task/bin/ffmpeg"
 
   private case class FfMpegSubprocessCrashedException(
       exitCode: Int,
@@ -30,7 +31,7 @@ object FfMpeg extends Logging {
     val ffMpegStdErrLogger = new BasicStdErrLogger()
 
     val cmd =
-      s"/var/task/bin/ffmpeg -i \"$video\" -i \"$subtitles\" -c copy -c:s mov_text -metadata:s:s:0 language=eng \"${output.toString}\""
+      s"${ffmpegPath} -i \"$video\" -i \"$subtitles\" -c copy -c:s mov_text -metadata:s:s:0 language=eng \"${output.toString}\""
     val exitCode = Process(cmd, cwd = None).!(
       ProcessLogger(stdout.append(_), ffMpegStdErrLogger.append)
     )
@@ -47,7 +48,7 @@ object FfMpeg extends Logging {
     }
   }
 
-  def checkAudioExists(video: String): Boolean = {
+  def checkAudioExists(video: String, ffmpegPath: String = ffmpegPath ): Boolean = {
 
     // @see https://aws.amazon.com/blogs/media/detect-silent-audio-tracks-in-vod-content-with-aws-elemental-mediaconvert/
    val SILENT_THRESHOLD = -50
@@ -55,7 +56,7 @@ object FfMpeg extends Logging {
     val ffMpegStdErrLogger = new BasicStdErrLogger()
 
     val cmd =
-      s"/var/task/bin/ffmpeg -seekable 1 -i \"$video\" -filter:a volumedetect -f null /dev/null"
+      s"${ffmpegPath} -seekable 1 -i \"$video\" -filter:a volumedetect -f null /dev/null"
     val exitCode = Process(cmd, cwd = None).!(
       ProcessLogger(stdout.append(_), ffMpegStdErrLogger.append)
     )
