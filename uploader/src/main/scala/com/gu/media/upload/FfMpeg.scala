@@ -89,7 +89,7 @@ object FfMpeg extends Logging {
             db > SILENT_THRESHOLD /* We treat near-silence as no audio */
           case (None, None, Some(video)) =>
             false /* Couldn't parse volume, audio streams are absent, but video streams are present. We assume from this that the video is silent */
-          case (None, None, None) =>
+          case (None, _, _) =>
             true /* Couldn't parse volume and there are no audio or video streams, so we return true for safety*/
         }
       case _ =>
