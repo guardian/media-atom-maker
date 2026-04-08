@@ -16,6 +16,7 @@ val playJsonExtensionsVersion = "1.0.3"
 val okHttpVersion = "2.4.0"
 
 val scalaTestVersion = "3.2.19"
+val scalaTestPlusVersion = "3.2.19.0"
 val scalaTestPlusPlayVersion = "7.0.2"
 val mockitoVersion = "2.0.0"
 val scalaXmlVersion = "2.2.0"
@@ -122,7 +123,7 @@ lazy val common = (project in file("common"))
       "software.amazon.awssdk" % "s3" % awsV2Version,
       "com.gu" %% "content-api-client-aws" % "1.0.1",
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
-      "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0" % "test",
+      "org.scalatestplus" %% "scalacheck-1-18" % scalaTestPlusVersion % "test",
       "org.jsoup" % "jsoup" % jsoupVersion,
       "com.beachape" %% "enumeratum" % enumeratumVersion,
       "net.logstash.logback" % "logstash-logback-encoder" % "6.6"
@@ -186,6 +187,8 @@ lazy val uploader = (project in file("uploader"))
       "net.logstash.logback" % "logstash-logback-encoder" % logstashLogbackEncoderVersion,
       "com.amazonaws" % "aws-lambda-java-events" % awsLambdaEventsVersion,
       "software.amazon.awssdk" % "s3" % awsV2Version,
+      "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
+      "org.scalatestplus" %% "scalacheck-1-18" % scalaTestPlusVersion % Test,
     ),
     Universal / mappings += {
       val log = streams.value.log
