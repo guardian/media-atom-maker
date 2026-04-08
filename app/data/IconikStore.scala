@@ -46,11 +46,37 @@ class IconikStore[E](
   def listWorkingGroups(): Either[E, List[IconikWorkingGroup]] =
     workingGroupStore.list
 
+  def localDateTimeOption(
+      dateTimeStr: String
+  ): Option[LocalDateTime] =
+    try {
+      Some(LocalDateTime.parse(dateTimeStr))
+    } catch {
+      case e: Exception =>
+        log.error(
+          s"Error parsing date time string '$dateTimeStr': ${e.getMessage}"
+        )
+        None
+    }
+
   def upsertIconikData(
       request: IconikUpsertRequest,
-      createdAtDateTime: Option[LocalDateTime] = None
+      createdAtDateTimeOverride: Option[LocalDateTime] = None
   ): IconikProject = {
-    val project = IconikProject.fromUpsertRequest(request, createdAtDateTime)
+    val maybeExistingProject = projectStore.getById(request.id) match {
+      case Right(Some(project)) => Some(project)
+      case Right(None)          => None
+      case Left(err) =>
+        log.error(
+          s"Error checking for existing project with id ${request.id}: $err"
+        )
+        None
+    }
+    val project = IconikProject.fromUpsertRequest(
+      request,
+      maybeExistingProject,
+      createdAtDateTimeOverride
+    )
     projectStore.upsert(project)
     commissionStore.upsert(IconikCommission.fromUpsertRequest(request))
     workingGroupStore.upsert(IconikWorkingGroup.fromUpsertRequest(request))

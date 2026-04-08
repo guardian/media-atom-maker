@@ -86,9 +86,21 @@ object IconikProject {
 
   def fromUpsertRequest(
       req: IconikUpsertRequest,
-      createdAtDateTime: Option[LocalDateTime] = None
+      maybeExistingProject: Option[IconikProject] = None,
+      createdAtDateTimeOverride: Option[LocalDateTime] = None
   ): IconikProject = {
-    val createdAt = createdAtDateTime.getOrElse(LocalDateTime.now())
+
+    val createdAt = createdAtDateTimeOverride
+      .map(_.format(java.time.format.DateTimeFormatter.ISO_DATE_TIME))
+      .getOrElse(
+        maybeExistingProject
+          .flatMap(_.createdAt)
+          .getOrElse(
+            LocalDateTime
+              .now()
+              .format(java.time.format.DateTimeFormatter.ISO_DATE_TIME)
+          )
+      )
 
     IconikProject(
       id = req.id,
@@ -99,7 +111,6 @@ object IconikProject {
       masterPlaceholderId = req.masterPlaceholderId,
       createdAt = Some(
         createdAt
-          .format(java.time.format.DateTimeFormatter.ISO_DATE_TIME)
       )
     )
   }

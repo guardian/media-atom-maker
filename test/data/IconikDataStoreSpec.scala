@@ -44,7 +44,7 @@ class IconikDataStoreSpec extends AnyFlatSpec with Matchers {
         status = "active",
         masterPlaceholderId = Some("mp1")
       ),
-      createdAtDateTime = Some(createdAt)
+      createdAtDateTimeOverride = Some(createdAt)
     )
     projectStore.store should have size 1
     projectStore.store.head shouldEqual IconikProject(
@@ -67,6 +67,42 @@ class IconikDataStoreSpec extends AnyFlatSpec with Matchers {
     workingGroupStore.store.head shouldEqual IconikWorkingGroup(
       id = "wg1",
       title = "Working Group 1"
+    )
+
+    store.upsertIconikData(
+      IconikUpsertRequest(
+        id = "proj1",
+        title = "Project 1-updated",
+        commissionId = "comm1",
+        commissionTitle = "Commission 1-updated",
+        workingGroupId = "wg1",
+        workingGroupTitle = "Working Group 1-updated",
+        status = "active",
+        masterPlaceholderId = Some("mp1-updated")
+      )
+    )
+
+    projectStore.store should have size 1
+    projectStore.store.head shouldEqual IconikProject(
+      id = "proj1",
+      title = "Project 1-updated",
+      status = "active",
+      commissionId = "comm1",
+      workingGroupId = "wg1",
+      masterPlaceholderId = Some("mp1-updated"),
+      createdAt =
+        Some(createdAt.format(java.time.format.DateTimeFormatter.ISO_DATE_TIME))
+    )
+    commissionStore.store should have size 1
+    commissionStore.store.head shouldEqual IconikCommission(
+      workingGroupId = "wg1",
+      id = "comm1",
+      title = "Commission 1-updated"
+    )
+    workingGroupStore.store should have size 1
+    workingGroupStore.store.head shouldEqual IconikWorkingGroup(
+      id = "wg1",
+      title = "Working Group 1-updated"
     )
   }
 

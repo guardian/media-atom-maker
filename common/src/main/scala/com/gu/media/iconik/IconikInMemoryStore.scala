@@ -12,7 +12,11 @@ class IconikInMemoryStore[T <: IconikItem, E] extends IconikDataStore[T, E] {
 
   override def list: Either[E, List[T]] = Right(store.toList)
 
-  override def upsert(item: T): Unit = store.addOne(item)
+  override def upsert(item: T): Unit = {
+    val maybeExistingItem = store.find(_.id == item.id)
+    maybeExistingItem.foreach(existingItem => store -= existingItem)
+    store += item
+  }
 
   override def deleteById(id: String): Unit = store.filterInPlace(_.id != id)
 }
