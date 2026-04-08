@@ -24,7 +24,7 @@ export default class VideoPreview extends React.Component {
     }
 
     const sources = active.map(asset => {
-      return { src: asset.id, mimeType: asset.mimeType };
+      return { src: asset.id, mimeType: asset.mimeType, height: asset.height, width: asset.width };
     });
 
     if (this.props.video.posterImage && this.props.video.posterImage.assets.length > 0) {
