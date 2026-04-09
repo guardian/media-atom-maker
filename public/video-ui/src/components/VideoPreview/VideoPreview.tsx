@@ -1,14 +1,43 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { VideoEmbed } from '../utils/VideoEmbed';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 
 import { findSmallestAssetAboveWidth } from '../../util/imageHelpers';
 
-export default class VideoPreview extends React.Component {
-  static propTypes = {
-    video: PropTypes.object.isRequired
+type PreviewAsset = {
+  version?: number;
+  id: string;
+  platform?: string;
+  mimeType?: string;
+  dimensions?: {
+    height?: number;
+    width?: number;
   };
+};
+
+export type PosterAsset = {
+  file: string;
+  size: number;
+  dimensions: {
+    width: number;
+    height: number;
+  };
+};
+
+type VideoPreviewData = {
+  activeVersion?: number;
+  assets?: PreviewAsset[];
+  posterImage?: {
+    assets: PosterAsset[];
+  };
+  keywords?: string[];
+};
+
+type VideoPreviewProps = {
+  video: VideoPreviewData;
+};
+
+export default class VideoPreview extends React.Component<VideoPreviewProps> {
 
   renderPreview() {
     const activeVersion = this.props.video.activeVersion;
@@ -20,13 +49,13 @@ export default class VideoPreview extends React.Component {
     }
 
     if (active.length === 1 && active[0].platform === 'Youtube') {
-      return <YouTubeEmbed id={active[0].id} />;
+      return <YouTubeEmbed id={active[0].id} largePreview={false}/>;
     }
 
     const sources = active.map(asset => {
       return {
         src: asset.id,
-        mimeType: asset.mimeType,
+        mimeType: asset.mimeType ?? '',
         height: asset.dimensions?.height ?? 0,
         width: asset.dimensions?.width ?? 0
       };
@@ -56,3 +85,4 @@ export default class VideoPreview extends React.Component {
     );
   }
 }
+
