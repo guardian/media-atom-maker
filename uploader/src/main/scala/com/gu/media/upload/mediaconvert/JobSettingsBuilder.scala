@@ -33,18 +33,18 @@ object JobSettingsBuilder {
         .build()
     ).asJava
 
-    val jobInput = Input
+    val jobInputBuilder = Input
       .builder()
       .fileInput(videoInput)
       .captionSelectors(captionSelectors(subtitlesInput))
       .timecodeSource(InputTimecodeSource.ZEROBASED)
 
-    val jobInputBuild = if (hasAudio) {
-      jobInput
+    val jobInput = if (hasAudio) {
+      jobInputBuilder
         .dynamicAudioSelectors(dynamicAudioSelectors)
         .build()
     } else {
-      jobInput.build()
+      jobInputBuilder.build()
     }
 
     val timecodeConfig = TimecodeConfig
@@ -55,7 +55,7 @@ object JobSettingsBuilder {
     JobSettings
       .builder()
       .timecodeConfig(timecodeConfig)
-      .inputs(jobInputBuild)
+      .inputs(jobInput)
       .outputGroups(
         outputGroups.map(_.outputGroup(destination)): _*
       )
