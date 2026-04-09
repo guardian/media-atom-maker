@@ -9,7 +9,6 @@ export const getYouTubeEmbedUrl = (id) => {
 export function YouTubeEmbed({ id, className, largePreview }) {
   return (
     <iframe
-      type="text/html"
       className={className}
       src={getYouTubeEmbedUrl(id)}
       allowFullScreen
