@@ -13,7 +13,7 @@ export function YouTubeEmbed({ id, className, largePreview } : {id: string, clas
       className={className}
       src={getYouTubeEmbedUrl(id)}
       allowFullScreen
-      frameBorder="0"
+      style={{ border: 'none' }}
       height={largePreview ? "250px" : undefined}
       width={largePreview ? "400px" : undefined}
     />
