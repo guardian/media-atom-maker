@@ -17,13 +17,14 @@ object SelectorNames {
 
 object JobSettingsBuilder {
 
-  val outputGroups: List[OutputGroupDefinition] =
-    List(FileOutputGroup(), HLSOutputGroup())
+  def getOutputGroups(hasAudio: Boolean): List[OutputGroupDefinition] =
+    List(FileOutputGroup(hasAudio), HLSOutputGroup(hasAudio))
 
   def build(
       videoInput: String,
       subtitlesInput: Option[String],
-      destination: String
+      destination: String,
+      hasAudio: Boolean
   ): JobSettings = {
 
     val dynamicAudioSelectors = Map(
@@ -32,19 +33,25 @@ object JobSettingsBuilder {
         .build()
     ).asJava
 
-    val jobInput = Input
+    val jobInputBuilder = Input
       .builder()
       .fileInput(videoInput)
-      .dynamicAudioSelectors(dynamicAudioSelectors)
       .captionSelectors(captionSelectors(subtitlesInput))
       .timecodeSource(InputTimecodeSource.ZEROBASED)
-      .build()
+
+    val jobInput = if (hasAudio) {
+      jobInputBuilder
+        .dynamicAudioSelectors(dynamicAudioSelectors)
+        .build()
+    } else {
+      jobInputBuilder.build()
+    }
 
     val timecodeConfig = TimecodeConfig
       .builder()
       .source(TimecodeSource.ZEROBASED)
       .build()
-
+    val outputGroups = getOutputGroups(hasAudio)
     JobSettings
       .builder()
       .timecodeConfig(timecodeConfig)
