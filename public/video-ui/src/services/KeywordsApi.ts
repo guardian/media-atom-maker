@@ -43,9 +43,10 @@ const contentBundlingTags = new Set(Object.values(contentBundlingMap));
   * and returns the list of tags which should be applied to the piece; either adding
   * bundling tags where there is a match, or removing them if their matching keyword/tag
   * has been removed or the blockAds setting enabled.
-  * @param keywords - the list of *composer* tags (should be the tag's id/path, eg. `sport/cycling`)
-  * @param tags - the list of *youtube* tags added in the Youtube furniture panel
-  * @param blockAds
+  * @param params - the function parameters
+  * @param params.keywords - the list of *composer* tags (should be the tag's id/path, eg. `sport/cycling`)
+  * @param params.tags - the list of *youtube* tags added in the Youtube furniture panel
+  * @param params.blockAds
   * @returns an updated list of *youtube* tags
   */
 export const addOrDropBundlingTags = ({ keywords, tags, blockAds }: { keywords: string[], tags: string[], blockAds: boolean }) => {
