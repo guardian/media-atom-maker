@@ -64,8 +64,8 @@ function prepareSources(assets: SelfHostedSource[]) {
       if (sourcesByType.length) {
         const sourcesOrderedByWidthDescending = sourcesByType.sort(
           (a, b) =>
-            Number(b.width) -
-            Number(a.width)
+            Number(b.width ?? 0) -
+            Number(a.width ?? 0)
         );
         acc.push(...sourcesOrderedByWidthDescending);
       }
