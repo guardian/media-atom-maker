@@ -24,7 +24,8 @@ case class UploadMetadata(
     originalFilename: Option[String] = None,
     startTimestamp: Long, // unix timestamp
     subtitleSource: Option[VideoSource] = None,
-    subtitleVersion: Option[Long] = None
+    subtitleVersion: Option[Long] = None,
+    hasAudio: Option[Boolean] = None
 )
 
 sealed abstract class RuntimeUploadMetadata
