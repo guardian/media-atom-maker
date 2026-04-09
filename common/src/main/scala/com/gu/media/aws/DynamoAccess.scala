@@ -1,6 +1,5 @@
 package com.gu.media.aws
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder
 import com.gu.media.Settings
 import com.gu.media.aws.AwsV2Util.buildSync
 import org.scanamo.Scanamo
@@ -17,11 +16,6 @@ trait DynamoAccess { this: Settings with AwsAccess =>
 
   lazy val publishedDynamoTableName: String = getMandatoryString(
     "aws.dynamo.publishedTableName"
-  )
-
-  lazy val manualPlutoDynamo: String = sys.env.getOrElse(
-    "PLUTO_TABLE_NAME",
-    getMandatoryString("aws.dynamo.plutoTableName")
   )
 
   private def getTableName(itemType: String, stage: String): String =

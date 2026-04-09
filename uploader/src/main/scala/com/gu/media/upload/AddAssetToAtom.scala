@@ -161,7 +161,8 @@ class AddAssetToAtom
       Some(mimeType),
       // HLS playlists can include multiple renditions with different resolutions, so we can't provide dimensions for the asset at this level
       dimensions = None,
-      aspectRatio = None
+      // HLS playlist videos may have different resolutions, but they should have the same aspect ratio.
+      ratio(results.outputDetails.head)
     )
 
   private def outputAssets(

@@ -1,7 +1,9 @@
 package controllers
 
+import com.gu.atom.data.IDNotFound
 import com.gu.media.logging.Logging
 import com.gu.media.iconik.IconikUpsertRequest
+import com.gu.media.model.MediaAtom
 import com.gu.pandahmac.HMACAuthActions
 import com.typesafe.config.Config
 import data.{DataStores, UnpackedDataStores}
@@ -14,6 +16,7 @@ import play.api.mvc.{
   Cookie
 }
 import util.AWSConfig
+import views.html.helper.CSRF
 
 class IconikController(
     val config: Config,
@@ -135,4 +138,30 @@ class IconikController(
       }
   }
 
+  def openInIconik(atomId: String): Action[AnyContent] = AuthAction {
+    implicit request =>
+      previewDataStore.getAtom(atomId) match {
+        case Left(IDNotFound) =>
+          NotFound(
+            "This atom ID does not appear to exist. Have you got the ID right?"
+          )
+        case Left(err) =>
+          log.error(
+            s"Error when trying to lookup $atomId in preview data store",
+            err
+          )
+          InternalServerError("Error when trying to lookup atom status")
+        case Right(atom) =>
+          val iconikProjectId =
+            MediaAtom.fromThrift(atom).iconikData.flatMap(_.projectId)
+          iconikProjectId match {
+            case Some(projectId) =>
+              SeeOther(s"https://app.iconik.io/collection/$projectId")
+            case None =>
+              NotFound(
+                views.html.VideoUIApp.notInIconik(atomId, CSRF.getToken.value)
+              )
+          }
+      }
+  }
 }

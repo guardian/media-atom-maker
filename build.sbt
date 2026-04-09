@@ -5,7 +5,7 @@ import scala.collection.immutable.Seq
 import scala.sys.process.*
 
 val scroogeVersion = "4.12.0"
-val awsV2Version = "2.32.26"
+val awsV2Version = "2.42.24"
 val pandaVersion = "13.0.0"
 val atomMakerVersion = "9.0.0"
 val typesafeConfigVersion =
@@ -16,6 +16,7 @@ val playJsonExtensionsVersion = "1.0.3"
 val okHttpVersion = "2.4.0"
 
 val scalaTestVersion = "3.2.19"
+val scalaTestPlusVersion = "3.2.19.0"
 val scalaTestPlusPlayVersion = "7.0.2"
 val mockitoVersion = "2.0.0"
 val scalaXmlVersion = "2.2.0"
@@ -54,7 +55,7 @@ lazy val commonSettings = Seq(
   // https://github.com/sbt/sbt/issues/2405
   Global / onLoad := (Global / onLoad).value andThen (Command
     .process("project root", _)),
-  dependencyOverrides ++= jacksonOverrides
+  dependencyOverrides ++= jacksonOverrides ++ nettyOverrides
 )
 
 val jacksonOverrides = Seq(
@@ -67,6 +68,9 @@ val jacksonOverrides = Seq(
   "com.fasterxml.jackson.module" %% "jackson-module-scala"
 ).map(_ % jacksonVersion) :+ "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonAnnotationsVersion
 
+val nettyOverrides = Seq(
+  "io.netty" % "netty-codec-http2" %  "4.1.132.Final"
+)
 lazy val common = (project in file("common"))
   .settings(
     commonSettings,
@@ -119,7 +123,7 @@ lazy val common = (project in file("common"))
       "software.amazon.awssdk" % "s3" % awsV2Version,
       "com.gu" %% "content-api-client-aws" % "1.0.1",
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
-      "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0" % "test",
+      "org.scalatestplus" %% "scalacheck-1-18" % scalaTestPlusVersion % "test",
       "org.jsoup" % "jsoup" % jsoupVersion,
       "com.beachape" %% "enumeratum" % enumeratumVersion,
       "net.logstash.logback" % "logstash-logback-encoder" % "6.6"
@@ -183,6 +187,8 @@ lazy val uploader = (project in file("uploader"))
       "net.logstash.logback" % "logstash-logback-encoder" % logstashLogbackEncoderVersion,
       "com.amazonaws" % "aws-lambda-java-events" % awsLambdaEventsVersion,
       "software.amazon.awssdk" % "s3" % awsV2Version,
+      "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
+      "org.scalatestplus" %% "scalacheck-1-18" % scalaTestPlusVersion % Test,
     ),
     Universal / mappings += {
       val log = streams.value.log
