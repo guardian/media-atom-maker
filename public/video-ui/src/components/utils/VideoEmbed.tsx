@@ -70,5 +70,5 @@ function orderSources(sources: SelfHostedSource[]) {
         acc.push(...sourcesOrderedByWidthDescending);
       }
       return acc;
-    }, [])
+    }, []);
 }
