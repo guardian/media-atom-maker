@@ -9,7 +9,15 @@ export type Image = {
   // There are probably more properties
 }
 
-export function findSmallestAsset(assetsArray: Image[]) {
+type AssetWithDimensions = {
+  size: number;
+  dimensions: {
+    width: number;
+    height: number;
+  };
+};
+
+export function findSmallestAsset<T extends AssetWithDimensions>(assetsArray: T[]): T {
   return assetsArray.reduce((smallestAsset, newAsset) => {
     if (newAsset.size < smallestAsset.size) {
       return newAsset;
@@ -19,7 +27,7 @@ export function findSmallestAsset(assetsArray: Image[]) {
   });
 }
 
-export function findSmallestAssetAboveWidth(assetsArray: Image[], minSize = 250) {
+export function findSmallestAssetAboveWidth<T extends AssetWithDimensions>(assetsArray: T[], minSize = 250): T {
   // Grid provides various versions of a crop
   // their widths are fixed and typically 140, 500, 1000, 2000px
   // use the first one that's above `minSize` in width
