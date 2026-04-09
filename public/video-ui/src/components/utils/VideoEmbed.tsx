@@ -48,6 +48,8 @@ export const supportedVideoFileTypes = [
   'application/vnd.apple.mpegurl' // Alternative HLS format
 ] as const;
 
+
+
 /**
  * Ensure sources are ordered by the order that MIME types are specified in
  * `supportedVideoFileTypes` and then by size in descending order.
@@ -62,8 +64,8 @@ function prepareSources(assets: SelfHostedSource[]) {
       if (sourcesByType.length) {
         const sourcesOrderedByWidthDescending = sourcesByType.sort(
           (a, b) =>
-            Number(b.width ?? 0) -
-            Number(a.width ?? 0)
+            Number(b.width) -
+            Number(a.width)
         );
         acc.push(...sourcesOrderedByWidthDescending);
       }
