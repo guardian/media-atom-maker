@@ -17,7 +17,7 @@ export function VideoEmbed({ sources, posterUrl }: { sources: SelfHostedSource[]
     // to appease Safari
     return <video src={sources[0].src} {...props} />;
   } else {
-    const videoSources = prepareSources(sources);
+    const videoSources = orderSources(sources);
     return (
       <video {...props}>
         {videoSources.map(source => {
@@ -55,10 +55,10 @@ export const supportedVideoFileTypes = [
  * `supportedVideoFileTypes` and then by size in descending order.
  */
 
-function prepareSources(assets: SelfHostedSource[]) {
+function orderSources(sources: SelfHostedSource[]) {
   return supportedVideoFileTypes
-    .reduce<typeof assets>((acc, type) => {
-      const sourcesByType = assets.filter(
+    .reduce<SelfHostedSource[]>((acc, type) => {
+      const sourcesByType = sources.filter(
         ({ mimeType }) => mimeType === type
       );
       if (sourcesByType.length) {
