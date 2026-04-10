@@ -56,13 +56,11 @@
 .prosemirror__iconBox:hover svg {
   fill: #ffbc01;
 }
+
 .ProseMirror-menuitem {
   width: 36px;
   height: 36px;
-  font-size: 16px;
   background-color: $color650Grey;
-  color: $color300Grey;
-  font-family: 'Material Icons';
   border: {
     left: 1px solid $color500Grey;
     top: 1px solid $color500Grey;
@@ -78,7 +76,10 @@
     cursor: pointer;
   }
 
-  div {
+  button {
+    color: $color300Grey;
+    font-family: 'Material Icons';
+    font-size: 16px;
     width: 100%;
     height: 100%;
     text-align: center;
