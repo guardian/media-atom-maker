@@ -201,7 +201,7 @@ class AddAssetToAtom
       assetType,
       version,
       urlEncodeSource(
-        new URI(correctFilepath(filePath, mimeType)).getPath.drop(1),
+        new URI(filePath).getPath.drop(1),
         selfHostedOrigin
       ),
       ThriftPlatform.Url,
@@ -220,16 +220,6 @@ class AddAssetToAtom
 
   private def first[T](collection: List[T]) =
     collection.headOption
-
-  // MediaConvert events don't include the .vtt extension for subtitle files event even though the object in S3 has this extension
-  private def correctFilepath(filePath: String, mimeType: String) = {
-    if (mimeType == VideoSource.mimeTypeVtt && !filePath.endsWith(".vtt")) {
-      log.warn(
-        s"MediaConvert output file path $filePath does not end with .vtt extension for a subtitle file. Correcting the file path to include the extension."
-      )
-      filePath + ".vtt"
-    } else filePath
-  }
 
   private def ratio(outputDetails: MediaConvertOutputDetails) =
     for {
