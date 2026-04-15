@@ -8,16 +8,9 @@ case class BitrateSetting(max: Int, maxAverage: Int)
 object SharedCodecSettings {
 
   /** Migrated from Elastic Transcoder */
-  val highBitrate: BitrateSetting = BitrateSetting(4_800_000, 2_400_000);
+  val bitrate: BitrateSetting = BitrateSetting(4_800_000, 2_400_000);
 
-  /** Used for Mobile videos at 480px width. We want to keep the number of
-    * bits-per-pixel. This is calculated as (270^2/720^2) * current bitrate.
-    * This is 14% of the current bitrate. i.e. maxBitrate is 675000 &
-    * maxAverageBitrate is 337500.
-    */
-  val lowBitrate: BitrateSetting = BitrateSetting(675_000, 337_500)
-
-  def h264Settings(bitrate: BitrateSetting): H264Settings =
+  def h264Settings(bitrate: BitrateSetting, qualityLevel: Option[Int] = None, qualityLevelFineTune: Option[Double] = None): H264Settings =
     H264Settings
       .builder()
       .rateControlMode(H264RateControlMode.QVBR) // Best quality
@@ -29,8 +22,8 @@ object SharedCodecSettings {
           .maxAverageBitrate(
             bitrate.maxAverage
           ) // Twice average to give room for encoder's decisions
-          .qvbrQualityLevel(8) // 1-10, 10 is best quality
-          .qvbrQualityLevelFineTune(0.66) // Fine-tuned through manual testing
+          .qvbrQualityLevel(qualityLevel.map(int2Integer).getOrElse(8) )// 1-10, 10 is best quality
+          .qvbrQualityLevelFineTune(qualityLevelFineTune.map(double2Double).getOrElse(0.66)) // Fine-tuned through manual testing
           .build()
       )
       .framerateControl(

@@ -3,31 +3,29 @@ package com.gu.media.upload.mediaconvert.file
 import com.gu.contentatom.thrift.atom.media.AssetType
 import com.gu.media.model.VideoSource
 import com.gu.media.upload.mediaconvert.{BitrateSetting, OutputDefinition}
-import com.gu.media.upload.mediaconvert.SharedCodecSettings.{
-  aacAudioDescription,
-  h264Settings,
-  highBitrate,
-  lowBitrate
-}
+import com.gu.media.upload.mediaconvert.SharedCodecSettings.{aacAudioDescription, bitrate, h264Settings}
 import software.amazon.awssdk.services.mediaconvert.model._
 case class Dimensions(width: Option[Int], height: Option[Int])
 
 sealed trait ResolutionConfig {
   def dimensions: Dimensions
-  def bitrate: BitrateSetting
+  def qualityLevel: Option[Int]
+  def qualityLevelFineTune: Option[Double]
   def nameModifier: String
 }
 
 object Resolution {
   case object High extends ResolutionConfig {
     val dimensions = Dimensions(None, Some(720))
-    val bitrate = highBitrate
+    val qualityLevel = None
+    val qualityLevelFineTune = None
     val nameModifier = "_720h"
   }
 
   case object Low extends ResolutionConfig {
     val dimensions = Dimensions(Some(480), None)
-    val bitrate = lowBitrate
+    val qualityLevel = Some(6)
+    val qualityLevelFineTune = Some(0)
     val nameModifier = "_480w"
   }
 }
@@ -59,7 +57,7 @@ object MP4Output {
                 VideoCodecSettings
                   .builder()
                   .codec(VideoCodec.H_264)
-                  .h264Settings(h264Settings(config.bitrate))
+                  .h264Settings(h264Settings(bitrate, config.qualityLevel, config.qualityLevelFineTune))
                   .build()
               )
               .build()
