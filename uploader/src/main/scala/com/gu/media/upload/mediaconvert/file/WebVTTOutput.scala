@@ -34,6 +34,7 @@ object WebVTTOutput {
             )
             .build()
         )
+        .extension("vtt") // explicitly setting the extension avoids an AWS bug where the extension isn't included in the media convert complete event
         .build()
   )
 }

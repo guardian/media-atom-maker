@@ -224,6 +224,9 @@ class AddAssetToAtom
   // MediaConvert events don't include the .vtt extension for subtitle files event even though the object in S3 has this extension
   private def correctFilepath(filePath: String, mimeType: String) = {
     if (mimeType == VideoSource.mimeTypeVtt && !filePath.endsWith(".vtt")) {
+      log.warn(
+        s"MediaConvert output file path $filePath does not end with .vtt extension for a subtitle file. Correcting the file path to include the extension."
+      )
       filePath + ".vtt"
     } else filePath
   }
