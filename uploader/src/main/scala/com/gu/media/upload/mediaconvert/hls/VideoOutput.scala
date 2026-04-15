@@ -2,7 +2,11 @@ package com.gu.media.upload.mediaconvert.hls
 
 import com.gu.media.model.VideoSource
 import com.gu.media.upload.mediaconvert.OutputDefinition
-import com.gu.media.upload.mediaconvert.SharedCodecSettings.{aacAudioDescription, bitrate, h264Settings}
+import com.gu.media.upload.mediaconvert.SharedCodecSettings.{
+  aacAudioDescription,
+  bitrate,
+  h264Settings
+}
 import software.amazon.awssdk.services.mediaconvert.model._
 
 object VideoOutput {

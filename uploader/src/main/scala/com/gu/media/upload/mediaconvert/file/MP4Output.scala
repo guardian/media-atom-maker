@@ -2,8 +2,12 @@ package com.gu.media.upload.mediaconvert.file
 
 import com.gu.contentatom.thrift.atom.media.AssetType
 import com.gu.media.model.VideoSource
-import com.gu.media.upload.mediaconvert.{BitrateSetting, OutputDefinition}
-import com.gu.media.upload.mediaconvert.SharedCodecSettings.{aacAudioDescription, bitrate, h264Settings}
+import com.gu.media.upload.mediaconvert.OutputDefinition
+import com.gu.media.upload.mediaconvert.SharedCodecSettings.{
+  aacAudioDescription,
+  bitrate,
+  h264Settings
+}
 import software.amazon.awssdk.services.mediaconvert.model._
 case class Dimensions(width: Option[Int], height: Option[Int])
 
@@ -24,7 +28,7 @@ object Resolution {
 
   case object Low extends ResolutionConfig {
     val dimensions = Dimensions(Some(480), None)
-    val qualityLevel = Some(6)
+    val qualityLevel = Some(7)
     val qualityLevelFineTune = Some(0)
     val nameModifier = "_480w"
   }
@@ -57,7 +61,13 @@ object MP4Output {
                 VideoCodecSettings
                   .builder()
                   .codec(VideoCodec.H_264)
-                  .h264Settings(h264Settings(bitrate, config.qualityLevel, config.qualityLevelFineTune))
+                  .h264Settings(
+                    h264Settings(
+                      bitrate,
+                      config.qualityLevel,
+                      config.qualityLevelFineTune
+                    )
+                  )
                   .build()
               )
               .build()

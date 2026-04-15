@@ -10,7 +10,11 @@ object SharedCodecSettings {
   /** Migrated from Elastic Transcoder */
   val bitrate: BitrateSetting = BitrateSetting(4_800_000, 2_400_000);
 
-  def h264Settings(bitrate: BitrateSetting, qualityLevel: Option[Int] = None, qualityLevelFineTune: Option[Double] = None): H264Settings =
+  def h264Settings(
+      bitrate: BitrateSetting,
+      qualityLevel: Option[Int] = None,
+      qualityLevelFineTune: Option[Double] = None
+  ): H264Settings =
     H264Settings
       .builder()
       .rateControlMode(H264RateControlMode.QVBR) // Best quality
@@ -22,8 +26,12 @@ object SharedCodecSettings {
           .maxAverageBitrate(
             bitrate.maxAverage
           ) // Twice average to give room for encoder's decisions
-          .qvbrQualityLevel(qualityLevel.map(int2Integer).getOrElse(8) )// 1-10, 10 is best quality
-          .qvbrQualityLevelFineTune(qualityLevelFineTune.map(double2Double).getOrElse(0.66)) // Fine-tuned through manual testing
+          .qvbrQualityLevel(
+            qualityLevel.map(int2Integer).getOrElse(8)
+          ) // 1-10, 10 is best quality
+          .qvbrQualityLevelFineTune(
+            qualityLevelFineTune.map(double2Double).getOrElse(0.66)
+          ) // 8.66 as a default has fine-tuned through manual testing
           .build()
       )
       .framerateControl(
