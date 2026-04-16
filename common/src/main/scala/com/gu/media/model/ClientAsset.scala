@@ -67,9 +67,9 @@ object ClientAsset {
 
   def videoFromAssets(assets: List[Asset]): (Long, VideoAsset) = {
     assets.headOption match {
-      case Some(Asset(_, version, _, Platform.Url, _, _, _)) =>
+      case Some(Asset(_, version, _, Platform.Url, _, _, _, _)) =>
         val sources = assets.collect {
-          case Asset(_, _, id, _, Some(mimeType), dimensions, _) =>
+          case Asset(_, _, id, _, Some(mimeType), dimensions, _, _) =>
             VideoSource(
               id,
               mimeType,
@@ -80,7 +80,7 @@ object ClientAsset {
 
         (version, SelfHostedAsset(sources))
 
-      case Some(Asset(_, version, id, Platform.Youtube, _, _, _)) =>
+      case Some(Asset(_, version, id, Platform.Youtube, _, _, _, _)) =>
         (version, YouTubeAsset(id))
 
       case other =>

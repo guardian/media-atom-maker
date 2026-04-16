@@ -2,7 +2,7 @@ package model.commands
 
 import com.gu.media.logging.Logging
 import com.gu.media.model.{Image, MediaAtom, VideoSource}
-import com.gu.media.model.Platform.Youtube
+import com.gu.media.model.Platform.{Url, Youtube}
 import com.gu.media.model.VideoSource.mimeTypeMp4
 import com.gu.media.util.{MediaAtomHelpers, MediaAtomImplicits}
 import com.gu.pandomainauth.model.{User => PandaUser}
@@ -46,6 +46,12 @@ case class ActiveAssetCommand(
       val duration = assetsToActivate
         .find(_.platform == Youtube)
         .flatMap(asset => youtube.getDuration(asset.id))
+        .orElse(
+          assetsToActivate
+            .filter(_.platform == Url)
+            .map(_.duration)
+            .max
+        )
         .orElse(mediaAtom.duration)
 
       // auto-populate posterImage with first frame of video if appropriate
