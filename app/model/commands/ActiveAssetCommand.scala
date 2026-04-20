@@ -1,6 +1,7 @@
 package model.commands
 
 import com.gu.media.logging.Logging
+import com.gu.media.model.AssetType.Video
 import com.gu.media.model.{Image, MediaAtom, VideoSource}
 import com.gu.media.model.Platform.{Url, Youtube}
 import com.gu.media.model.VideoSource.mimeTypeMp4
@@ -48,9 +49,9 @@ case class ActiveAssetCommand(
         .flatMap(asset => youtube.getDuration(asset.id))
         .orElse(
           assetsToActivate
-            .filter(_.platform == Url)
-            .map(_.duration)
-            .max
+            .filter(asset => asset.platform == Url && asset.assetType == Video)
+            .flatMap(_.duration)
+            .maxOption
         )
         .orElse(mediaAtom.duration)
 
