@@ -13,7 +13,8 @@ case class Asset(
     mimeType: Option[String],
     dimensions: Option[ImageAssetDimensions],
     aspectRatio: Option[String],
-    duration: Option[Long]
+    duration: Option[Long],
+    hasAudio: Option[Boolean]
 ) {
   def asThrift = ThriftAsset.apply(
     assetType.asThrift,
@@ -23,7 +24,8 @@ case class Asset(
     mimeType,
     dimensions.map(_.asThrift),
     aspectRatio,
-    duration
+    duration,
+    hasAudio
   )
 }
 
@@ -37,6 +39,7 @@ object Asset {
     asset.mimeType,
     asset.dimensions.map(ImageAssetDimensions.fromThrift),
     asset.aspectRatio,
-    asset.duration
+    asset.duration,
+    asset.hasAudio
   )
 }

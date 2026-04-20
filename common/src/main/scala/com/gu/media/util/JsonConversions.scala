@@ -57,7 +57,8 @@ object JsonConversions {
       (__ \ "mimeType").writeNullable[String] and
       (__ \ "dimensions").writeNullable[ImageAssetDimensions] and
       (__ \ "aspectRatio").writeNullable[String] and
-      (__ \ "duration").writeNullable[Long]
+      (__ \ "duration").writeNullable[Long] and
+      (__ \ "hasAudio").writeNullable[Boolean]
   ) { asset: Asset =>
     asset match {
       case Asset(
@@ -68,7 +69,8 @@ object JsonConversions {
             mimeType,
             dimensions,
             aspectRatio,
-            duration
+            duration,
+            hasAudio
           ) =>
         (
           id,
@@ -78,7 +80,8 @@ object JsonConversions {
           mimeType,
           dimensions,
           aspectRatio,
-          duration
+          duration,
+          hasAudio
         )
     }
   }
