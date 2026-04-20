@@ -11,9 +11,7 @@ object SharedCodecSettings {
   val bitrate: BitrateSetting = BitrateSetting(4_800_000, 2_400_000);
 
   def h264Settings(
-      bitrate: BitrateSetting,
-      qualityLevel: Option[Int] = None,
-      qualityLevelFineTune: Option[Double] = None
+      bitrate: BitrateSetting
   ): H264Settings =
     H264Settings
       .builder()
@@ -26,12 +24,10 @@ object SharedCodecSettings {
           .maxAverageBitrate(
             bitrate.maxAverage
           ) // Twice average to give room for encoder's decisions
-          .qvbrQualityLevel(
-            qualityLevel.map(int2Integer).getOrElse(8)
-          ) // 1-10, 10 is best quality
+          .qvbrQualityLevel(8) // 1-10, 10 is best quality
           .qvbrQualityLevelFineTune(
-            qualityLevelFineTune.map(double2Double).getOrElse(0.66)
-          ) // 8.66 as a default has fine-tuned through manual testing
+            0
+          ) // 8.0 outputs just shy of our bitrate maximums
           .build()
       )
       .framerateControl(

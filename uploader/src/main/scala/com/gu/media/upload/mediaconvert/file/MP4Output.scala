@@ -13,23 +13,17 @@ case class Dimensions(width: Option[Int], height: Option[Int])
 
 sealed trait ResolutionConfig {
   def dimensions: Dimensions
-  def qualityLevel: Option[Int]
-  def qualityLevelFineTune: Option[Double]
   def nameModifier: String
 }
 
 object Resolution {
   case object High extends ResolutionConfig {
     val dimensions = Dimensions(None, Some(720))
-    val qualityLevel = None
-    val qualityLevelFineTune = None
     val nameModifier = "_720h"
   }
 
   case object Low extends ResolutionConfig {
     val dimensions = Dimensions(Some(480), None)
-    val qualityLevel = Some(7)
-    val qualityLevelFineTune = Some(0)
     val nameModifier = "_480w"
   }
 }
@@ -63,9 +57,7 @@ object MP4Output {
                   .codec(VideoCodec.H_264)
                   .h264Settings(
                     h264Settings(
-                      bitrate,
-                      config.qualityLevel,
-                      config.qualityLevelFineTune
+                      bitrate
                     )
                   )
                   .build()
