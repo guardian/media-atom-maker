@@ -2,7 +2,7 @@ package model.commands
 
 import com.gu.media.logging.Logging
 import com.gu.media.model.AssetType.Video
-import com.gu.media.model.{Image, MediaAtom, VideoSource}
+import com.gu.media.model.{Asset, Image, MediaAtom, VideoSource}
 import com.gu.media.model.Platform.{Url, Youtube}
 import com.gu.media.model.VideoSource.mimeTypeMp4
 import com.gu.media.util.{MediaAtomHelpers, MediaAtomImplicits}
@@ -44,16 +44,8 @@ case class ActiveAssetCommand(
       mediaAtom.assets.filter(_.version == activateAssetRequest.version)
 
     if (assetsToActivate.nonEmpty) {
-      val duration = assetsToActivate
-        .find(_.platform == Youtube)
-        .flatMap(asset => youtube.getDuration(asset.id))
-        .orElse(
-          assetsToActivate
-            .filter(asset => asset.platform == Url && asset.assetType == Video)
-            .flatMap(_.duration)
-            .maxOption
-        )
-        .orElse(mediaAtom.duration)
+      val duration =
+        getAssetsDuration(assetsToActivate).orElse(mediaAtom.duration)
 
       // auto-populate posterImage with first frame of video if appropriate
       val posterImage =
@@ -128,4 +120,15 @@ case class ActiveAssetCommand(
 
     } yield autoFirstFrameImage
   }
+
+  def getAssetsDuration(assets: List[Asset]): Option[Long] =
+    assets
+      .find(_.platform == Youtube)
+      .flatMap(asset => youtube.getDuration(asset.id))
+      .orElse(
+        assets
+          .filter(asset => asset.platform == Url && asset.assetType == Video)
+          .flatMap(_.duration)
+          .maxOption
+      )
 }
