@@ -342,7 +342,9 @@ class UploadControllerTest extends AnyFlatSpec with Matchers {
       Platform.Url,
       Some("video/mp4"),
       Some(ImageAssetDimensions(1280, 720)),
-      Some("16:9")
+      Some("16:9"),
+      Some(5),
+      Some(true)
     ),
     Asset(
       AssetType.Video,
@@ -351,7 +353,9 @@ class UploadControllerTest extends AnyFlatSpec with Matchers {
       Platform.Url,
       Some("application/vnd.apple.mpegurl"),
       Some(ImageAssetDimensions(1280, 720)),
-      Some("16:9")
+      Some("16:9"),
+      Some(5),
+      Some(true)
     )
   )
 
