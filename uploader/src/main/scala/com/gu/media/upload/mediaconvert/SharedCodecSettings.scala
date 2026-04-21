@@ -10,9 +10,7 @@ object SharedCodecSettings {
   /** Migrated from Elastic Transcoder */
   val bitrate: BitrateSetting = BitrateSetting(4_800_000, 2_400_000);
 
-  def h264Settings(
-      bitrate: BitrateSetting
-  ): H264Settings =
+  def h264Settings: H264Settings =
     H264Settings
       .builder()
       .rateControlMode(H264RateControlMode.QVBR) // Best quality
