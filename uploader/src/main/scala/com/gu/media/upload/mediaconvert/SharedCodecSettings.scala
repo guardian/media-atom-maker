@@ -27,7 +27,7 @@ object SharedCodecSettings {
           .qvbrQualityLevel(8) // 1-10, 10 is best quality
           .qvbrQualityLevelFineTune(
             0
-          ) // 8.0 outputs just shy of our bitrate maximums
+          ) // 8.0 outputs just shy of our bitrate maximums for 16:9 video at 720p. Videos that are larger than 1280x720 will probably fail to achieve this desired quality due to the bitrate cap.
           .build()
       )
       .framerateControl(
