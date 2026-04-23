@@ -174,7 +174,7 @@ class AddAssetToAtom
       dimensions = None,
       // HLS playlist videos may have different resolutions, but they should have the same aspect ratio.
       ratio(results.outputDetails.head),
-      hasAudio = Some(hasAudio)
+      hasAudio = supportsAudio(mimeType, hasAudio)
     )
 
   private def outputAssets(
@@ -204,8 +204,15 @@ class AddAssetToAtom
       Some(mimeType),
       dimensions(outputResults),
       ratio(outputResults),
-      hasAudio = Some(hasAudio)
+      hasAudio = supportsAudio(mimeType, hasAudio)
     )
+
+  private def supportsAudio(mimeType: String, hasAudio: Boolean) = {
+    mimeType match {
+      case VideoSource.mimeTypeMp4 | VideoSource.mimeTypeM3u8 => Some(hasAudio)
+      case _                                                  => None
+    }
+  }
 
   private def first[T](collection: Option[List[T]]) =
     collection.flatMap(_.headOption)
