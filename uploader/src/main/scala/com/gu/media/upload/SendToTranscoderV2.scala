@@ -58,7 +58,8 @@ class SendToTranscoderV2
       upload.metadata.copy(
         runtime = SelfHostedUploadMetadata(
           jobs = Some(List(jobs))
-        )
+        ),
+        hasAudio = Some(hasAudio)
       )
 
     upload.copy(
@@ -88,8 +89,7 @@ class SendToTranscoderV2
       .userMetadata(
         Map(
           "stage" -> stage,
-          "executionId" -> executionId,
-          "hasAudio" -> hasAudio.toString
+          "executionId" -> executionId
         ).asJava
       )
       .settings(jobSettings)

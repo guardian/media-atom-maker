@@ -139,20 +139,14 @@ class AddAssetToAtom
     val outputGroupsSettings = JobSettingsBuilder.getOutputGroups(hasAudio)
     val outputGroupsResults = completeEvent.detail.outputGroupDetails
 
-    outputGroupAssets(
-      outputGroupsSettings,
-      outputGroupsResults,
-      version,
-      hasAudio
-    ) ++
-      outputAssets(outputGroupsSettings, outputGroupsResults, version, hasAudio)
+    outputGroupAssets(outputGroupsSettings, outputGroupsResults, version) ++
+      outputAssets(outputGroupsSettings, outputGroupsResults, version)
   }
 
   private def outputGroupAssets(
       outputGroupsSettings: List[OutputGroupDefinition],
       outputGroupsResults: List[MediaConvertOutputGroupDetails],
-      version: Long,
-      hasAudio: Boolean
+      version: Long
   ) =
     for {
       (settings, results) <- outputGroupsSettings.zip(outputGroupsResults)
@@ -173,15 +167,13 @@ class AddAssetToAtom
       // HLS playlists can include multiple renditions with different resolutions, so we can't provide dimensions for the asset at this level
       dimensions = None,
       // HLS playlist videos may have different resolutions, but they should have the same aspect ratio.
-      ratio(results.outputDetails.head),
-      hasAudio = supportsAudio(mimeType, hasAudio)
+      ratio(results.outputDetails.head)
     )
 
   private def outputAssets(
       outputGroupsSettings: List[OutputGroupDefinition],
       outputGroupsResults: List[MediaConvertOutputGroupDetails],
-      version: Long,
-      hasAudio: Boolean
+      version: Long
   ) =
     for {
       (outputGroupSettings, outputGroupResults) <- outputGroupsSettings.zip(
@@ -203,16 +195,8 @@ class AddAssetToAtom
       ThriftPlatform.Url,
       Some(mimeType),
       dimensions(outputResults),
-      ratio(outputResults),
-      hasAudio = supportsAudio(mimeType, hasAudio)
+      ratio(outputResults)
     )
-
-  private def supportsAudio(mimeType: String, hasAudio: Boolean) = {
-    mimeType match {
-      case VideoSource.mimeTypeMp4 | VideoSource.mimeTypeM3u8 => Some(hasAudio)
-      case _                                                  => None
-    }
-  }
 
   private def first[T](collection: Option[List[T]]) =
     collection.flatMap(_.headOption)

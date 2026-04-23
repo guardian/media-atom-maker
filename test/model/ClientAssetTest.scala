@@ -8,17 +8,7 @@ import org.scalatest.matchers.must.Matchers
 
 class ClientAssetTest extends AnyFunSuite with Matchers {
   val ytAsset =
-    Asset(
-      AssetType.Video,
-      1,
-      "12345",
-      Platform.Youtube,
-      None,
-      None,
-      None,
-      None,
-      None
-    )
+    Asset(AssetType.Video, 1, "12345", Platform.Youtube, None, None, None)
   val ytProcessing = YouTubeProcessingStatus("1", "processing", 0, 0, 0, None)
 
   val mp4 =
@@ -29,9 +19,7 @@ class ClientAssetTest extends AnyFunSuite with Matchers {
       Platform.Url,
       Some("video/mp4"),
       Some(ImageAssetDimensions(1280, 720)),
-      Some("16:9"),
-      Some(90L), // 1 min 30 sec
-      Some(true)
+      Some("16:9")
     )
   val m3u8 =
     Asset(
@@ -41,9 +29,7 @@ class ClientAssetTest extends AnyFunSuite with Matchers {
       Platform.Url,
       Some("application/vnd.apple.mpegurl"),
       Some(ImageAssetDimensions(1280, 720)),
-      Some("16:9"),
-      Some(90L), // 1 min 30 sec
-      Some(true)
+      Some("16:9")
     )
   val selfHostedAsset = SelfHostedAsset(
     List(

@@ -185,9 +185,7 @@ class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
       Url,
       Some("video/mp4"),
       Some(ImageAssetDimensions(1280, 720)),
-      Some("16:9"),
-      Some(90L), // 1 min 30 sec
-      Some(true)
+      Some("16:9")
     ),
     Asset(
       AssetType.Video,
@@ -196,9 +194,7 @@ class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
       Url,
       Some("video/mp4"),
       Some(ImageAssetDimensions(1280, 720)),
-      Some("16:9"),
-      Some(90L), // 1 min 30 sec
-      Some(true)
+      Some("16:9")
     )
   )
 
@@ -210,8 +206,6 @@ class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
       Youtube,
       Some("video/mp4"),
       None,
-      None,
-      None,
       None
     ),
     Asset(
@@ -220,8 +214,6 @@ class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
       "xyz789",
       Youtube,
       Some("video/mp4"),
-      None,
-      None,
       None,
       None
     )
