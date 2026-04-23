@@ -49,7 +49,7 @@ class AtomCreationTests extends IntegrationTestBase with CancelAfterFailure {
       val response = Json.parse(gutoolsGet(apiEndpoint).body().string())
       val activeVersion = (response \ "activeVersion").as[Long]
       val assets: List[Asset] = (response \ "assets").as[List[Asset]]
-      val expected = Asset(AssetType.Video, activeVersion, Config.assetId, Platform.Youtube, None)
+      val expected = Asset(AssetType.Video, activeVersion, Config.assetId, Platform.Youtube, None, None, None)
       assets.contains(expected) should be (true)
     }
   }
