@@ -175,7 +175,7 @@ class AddAssetToAtom
       // HLS playlist videos may have different resolutions, but they should have the same aspect ratio.
       ratio(results.outputDetails.head),
       duration = None,
-      hasAudio = supportsAudio(mimeType, hasAudio)
+      hasAudio = whenVideo(mimeType, hasAudio)
     )
 
   private def outputAssets(
@@ -205,16 +205,14 @@ class AddAssetToAtom
       Some(mimeType),
       dimensions(outputResults),
       ratio(outputResults),
-      Some(outputResults.durationInMs / 1000),
-      hasAudio = supportsAudio(mimeType, hasAudio)
+      duration = whenVideo(mimeType, outputResults.durationInMs / 1000),
+      hasAudio = whenVideo(mimeType, hasAudio)
     )
 
-  private def supportsAudio(mimeType: String, hasAudio: Boolean) = {
-    mimeType match {
-      case VideoSource.mimeTypeMp4 | VideoSource.mimeTypeM3u8 => Some(hasAudio)
-      case _                                                  => None
-    }
-  }
+  private def whenVideo[T](mimeType: String, value: T): Option[T] =
+    Option.when(
+      mimeType == VideoSource.mimeTypeMp4 || mimeType == VideoSource.mimeTypeM3u8
+    )(value)
 
   private def first[T](collection: Option[List[T]]) =
     collection.flatMap(_.headOption)
