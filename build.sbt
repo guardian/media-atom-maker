@@ -66,13 +66,7 @@ val jacksonOverrides = Seq(
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310",
   "com.fasterxml.jackson.module" % "jackson-module-parameter-names",
   "com.fasterxml.jackson.module" %% "jackson-module-scala"
-).map(
-  _ % jacksonVersion
-) :+ "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonAnnotationsVersion
-
-val nettyOverrides = Seq(
-  "io.netty" % "netty-codec-http2" % "4.1.132.Final"
-)
+).map(_ % jacksonVersion) :+ "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonAnnotationsVersion
 
 lazy val common = (project in file("common"))
   .settings(
@@ -191,7 +185,7 @@ lazy val uploader = (project in file("uploader"))
       "com.amazonaws" % "aws-lambda-java-events" % awsLambdaEventsVersion,
       "software.amazon.awssdk" % "s3" % awsV2Version,
       "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
-      "org.scalatestplus" %% "scalacheck-1-18" % scalaTestPlusVersion % Test
+      "org.scalatestplus" %% "scalacheck-1-18" % scalaTestPlusVersion % Test,
     ),
     Universal / mappings += {
       val log = streams.value.log
@@ -204,14 +198,14 @@ lazy val uploader = (project in file("uploader"))
         log.info("Downloading statically compiled FFmpeg binary")
         IO.createDirectory(ffmpegFolder)
         import scala.sys.process.*
-        val archive =
-          target.value / "ffmpeg" / "ffmpeg-release-amd64-static.tar.xz"
+        val archive = target.value / "ffmpeg" / "ffmpeg-release-amd64-static.tar.xz"
         s"wget -nv https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -O $archive".!!
         (s"tar xOf $archive ffmpeg-7.0.2-amd64-static/ffmpeg" #> binary).!!
       }
 
       binary -> "bin/ffmpeg"
     },
+
     Universal / topLevelDirectory := None,
     Universal / packageName := normalizedName.value,
     Compile / lambdas := Map(
@@ -268,7 +262,7 @@ lazy val expirer = (project in file("expirer"))
     name := "media-atom-expirer",
     Universal / topLevelDirectory := None,
     Universal / packageName := normalizedName.value,
-    libraryDependencies += "org.mockito" %% "mockito-scala" % mockitoVersion % "test"
+    libraryDependencies += "org.mockito" %% "mockito-scala" % mockitoVersion % "test",
   )
 
 lazy val scheduler = (project in file("scheduler"))

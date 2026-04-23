@@ -144,7 +144,7 @@ class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
   it should "fall back to the max self-hosted duration when YouTube getDuration returns None" in {
     when(youtube.getDuration("acb123")).thenReturn(None)
     val assets = youTubeAssets() ++ selfHostedAssets()
-    command.getAssetsDuration(assets) shouldBe Some(5L)
+    command.getAssetsDuration(assets) shouldBe Some(90L)
   }
 
   it should "return None when YouTube getDuration returns None and there are no self-hosted assets" in {
