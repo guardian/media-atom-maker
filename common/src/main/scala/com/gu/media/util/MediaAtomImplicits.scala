@@ -60,7 +60,7 @@ trait MediaAtomImplicits extends AtomImplicits[MediaAtom] {
 
         case assets =>
           val sources = assets.collect {
-            case Asset(_, _, id, _, Some(mimeType), _, _) =>
+            case Asset(_, _, id, _, Some(mimeType), _, _, _, _) =>
               VideoSource(id, mimeType)
           }
 
