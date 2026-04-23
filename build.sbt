@@ -5,7 +5,7 @@ import scala.collection.immutable.Seq
 import scala.sys.process.*
 
 val scroogeVersion = "4.12.0"
-val awsV2Version = "2.42.24"
+val awsV2Version = "2.42.25"
 val pandaVersion = "13.0.0"
 val atomMakerVersion = "10.0.0"
 val typesafeConfigVersion =
@@ -55,7 +55,7 @@ lazy val commonSettings = Seq(
   // https://github.com/sbt/sbt/issues/2405
   Global / onLoad := (Global / onLoad).value andThen (Command
     .process("project root", _)),
-  dependencyOverrides ++= jacksonOverrides ++ nettyOverrides
+  dependencyOverrides ++= jacksonOverrides
 )
 
 val jacksonOverrides = Seq(
@@ -68,9 +68,6 @@ val jacksonOverrides = Seq(
   "com.fasterxml.jackson.module" %% "jackson-module-scala"
 ).map(_ % jacksonVersion) :+ "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonAnnotationsVersion
 
-val nettyOverrides = Seq(
-  "io.netty" % "netty-codec-http2" %  "4.1.132.Final"
-)
 lazy val common = (project in file("common"))
   .settings(
     commonSettings,
@@ -202,8 +199,8 @@ lazy val uploader = (project in file("uploader"))
         IO.createDirectory(ffmpegFolder)
         import scala.sys.process.*
         val archive = target.value / "ffmpeg" / "ffmpeg-release-amd64-static.tar.xz"
-        s"wget -q https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -O $archive".!
-        (s"tar xOf $archive ffmpeg-7.0.2-amd64-static/ffmpeg" #> binary).!
+        s"wget -nv https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -O $archive".!!
+        (s"tar xOf $archive ffmpeg-7.0.2-amd64-static/ffmpeg" #> binary).!!
       }
 
       binary -> "bin/ffmpeg"

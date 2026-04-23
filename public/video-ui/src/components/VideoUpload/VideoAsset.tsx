@@ -287,13 +287,12 @@ export function Asset({
   const subtitleFilename = metadata?.subtitleFilename;
 
   /**
-   * We support subtitles on Loops, but not Cinemagraphs (designed to be silent and decorative), and NonYoutube videos
-   * (which use the browser player).
+   * We support subtitles on Loops and NonYoutube videos, but not Cinemagraphs (designed to be silent and decorative).
    *
-   * We can't simply check for videoPlayerFormat === 'Loop' here as videoPlayerFormat is undefined on videos
+   * We can't simply check for videoPlayerFormat === 'Loop' or 'Default' here as videoPlayerFormat is undefined on videos
    * created before videoPlayerFormat was introduced.
   **/
-  const videoSupportsSubtitles = isSelfHosted && (videoPlayerFormat === 'Loop' || videoPlayerFormat === undefined);
+  const videoSupportsSubtitles = isSelfHosted && (videoPlayerFormat === 'Loop' || videoPlayerFormat === 'Default' || videoPlayerFormat === undefined);
 
   const subtitlePanel = videoSupportsSubtitles && (
     <div className="video-trail__item__subtitles">
