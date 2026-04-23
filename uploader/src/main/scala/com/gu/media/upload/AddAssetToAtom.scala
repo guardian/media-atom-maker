@@ -108,7 +108,11 @@ class AddAssetToAtom
         assetsFromYoutubeEvent(asset, version)
 
       case (_, SelfHostedUploadMetadata(_, Some(completeEvent))) =>
-        assetsFromCompleteEvent(completeEvent, version)
+        assetsFromCompleteEvent(
+          completeEvent,
+          version,
+          upload.metadata.hasAudio.getOrElse(true)
+        )
 
       case _ =>
         throw new IllegalStateException("Missing asset")
@@ -129,9 +133,10 @@ class AddAssetToAtom
 
   private def assetsFromCompleteEvent(
       completeEvent: MediaConvertEvent,
-      version: Long
+      version: Long,
+      hasAudio: Boolean
   ): List[ThriftAsset] = {
-    val outputGroupsSettings = JobSettingsBuilder.outputGroups
+    val outputGroupsSettings = JobSettingsBuilder.getOutputGroups(hasAudio)
     val outputGroupsResults = completeEvent.detail.outputGroupDetails
 
     outputGroupAssets(outputGroupsSettings, outputGroupsResults, version) ++

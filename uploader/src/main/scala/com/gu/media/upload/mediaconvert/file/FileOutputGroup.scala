@@ -8,11 +8,11 @@ import software.amazon.awssdk.services.mediaconvert.model.{
 }
 
 object FileOutputGroup {
-  def apply(): OutputGroupDefinition = {
+  def apply(hasAudio: Boolean): OutputGroupDefinition = {
     val outputs =
       List(
-        MP4Output(Resolution.Low),
-        MP4Output(Resolution.High),
+        MP4Output(Resolution.Low, hasAudio),
+        MP4Output(Resolution.High, hasAudio),
         JPEGOutput(),
         WebVTTOutput()
       )

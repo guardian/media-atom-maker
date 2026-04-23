@@ -17,8 +17,7 @@ export function VideoEmbed({ sources, posterUrl }: { sources: SelfHostedSource[]
     // to appease Safari
     return <video src={sources[0].src} {...props} />;
   } else {
-    const videoSources = prepareSources(sources);
-
+    const videoSources = orderSources(sources);
     return (
       <video {...props}>
         {videoSources.map(source => {
@@ -40,12 +39,36 @@ export function VideoEmbed({ sources, posterUrl }: { sources: SelfHostedSource[]
   }
 }
 
-function prepareSources(sources: SelfHostedSource[]) {
-  const videoSources = sources.filter(source => source.mimeType !== "text/vtt");
+/**
+* Order is important here - the browser will use the first type it supports.
+*/
+export const supportedVideoFileTypes = [
+  'video/mp4', // MP4 format
+  'application/x-mpegURL', // HLS format
+  'application/vnd.apple.mpegurl' // Alternative HLS format
+] as const;
 
-  // if m3u8 and mp4 are both present, put mp4 first
-  const m3u8 = videoSources.find(source => source.mimeType === "application/vnd.apple.mpegurl");
-  const mp4 = videoSources.find(source => source.mimeType === "video/mp4");
 
-  return (m3u8 && mp4) ? [mp4, ...videoSources.filter(source => source !== mp4)] : videoSources;
+
+/**
+ * Ensure sources are ordered by the order that MIME types are specified in
+ * `supportedVideoFileTypes` and then by size in descending order.
+ */
+
+function orderSources(sources: SelfHostedSource[]) {
+  return supportedVideoFileTypes
+    .reduce<SelfHostedSource[]>((acc, type) => {
+      const sourcesByType = sources.filter(
+        ({ mimeType }) => mimeType === type
+      );
+      if (sourcesByType.length) {
+        const sourcesOrderedByWidthDescending = sourcesByType.sort(
+          (a, b) =>
+            Number(b.width ?? 0) -
+            Number(a.width ?? 0)
+        );
+        acc.push(...sourcesOrderedByWidthDescending);
+      }
+      return acc;
+    }, []);
 }

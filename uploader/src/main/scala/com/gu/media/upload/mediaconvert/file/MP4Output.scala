@@ -2,44 +2,39 @@ package com.gu.media.upload.mediaconvert.file
 
 import com.gu.contentatom.thrift.atom.media.AssetType
 import com.gu.media.model.VideoSource
-import com.gu.media.upload.mediaconvert.{BitrateSetting, OutputDefinition}
+import com.gu.media.upload.mediaconvert.OutputDefinition
 import com.gu.media.upload.mediaconvert.SharedCodecSettings.{
   aacAudioDescription,
-  h264Settings,
-  highBitrate,
-  lowBitrate
+  h264Settings
 }
 import software.amazon.awssdk.services.mediaconvert.model._
 case class Dimensions(width: Option[Int], height: Option[Int])
 
 sealed trait ResolutionConfig {
   def dimensions: Dimensions
-  def bitrate: BitrateSetting
   def nameModifier: String
 }
 
 object Resolution {
   case object High extends ResolutionConfig {
     val dimensions = Dimensions(None, Some(720))
-    val bitrate = highBitrate
     val nameModifier = "_720h"
   }
 
   case object Low extends ResolutionConfig {
     val dimensions = Dimensions(Some(480), None)
-    val bitrate = lowBitrate
     val nameModifier = "_480w"
   }
 }
 
 object MP4Output {
 
-  def apply(config: ResolutionConfig): OutputDefinition = {
+  def apply(config: ResolutionConfig, hasAudio: Boolean): OutputDefinition = {
     OutputDefinition(
       mimeType = Some(VideoSource.mimeTypeMp4),
       assetType = Some(AssetType.Video),
-      output = () =>
-        Output
+      output = () => {
+        val outputBuilder = Output
           .builder()
           .nameModifier(config.nameModifier)
           .containerSettings(
@@ -59,13 +54,16 @@ object MP4Output {
                 VideoCodecSettings
                   .builder()
                   .codec(VideoCodec.H_264)
-                  .h264Settings(h264Settings(config.bitrate))
+                  .h264Settings(h264Settings)
                   .build()
               )
               .build()
           )
-          .audioDescriptions(aacAudioDescription)
-          .build()
+
+        if (hasAudio)
+          outputBuilder.audioDescriptions(aacAudioDescription).build()
+        else outputBuilder.build()
+      }
     )
   }
 }
