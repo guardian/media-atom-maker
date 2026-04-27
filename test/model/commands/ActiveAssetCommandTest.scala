@@ -136,6 +136,70 @@ class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
     actual shouldEqual expected
   }
 
+  "getAssetsDuration" should "return the YouTube duration when a YouTube asset is present" in {
+    when(youtube.getDuration("acb123")).thenReturn(Some(120L))
+    command.getAssetsDuration(youTubeAssets()) shouldBe Some(120L)
+  }
+
+  it should "fall back to the max self-hosted duration when YouTube getDuration returns None" in {
+    when(youtube.getDuration("acb123")).thenReturn(None)
+    val assets = youTubeAssets() ++ selfHostedAssets()
+    command.getAssetsDuration(assets) shouldBe Some(90L)
+  }
+
+  it should "return None when YouTube getDuration returns None and there are no self-hosted assets" in {
+    when(youtube.getDuration("acb123")).thenReturn(None)
+    command.getAssetsDuration(youTubeAssets()) shouldBe None
+  }
+
+  it should "return the max duration from self-hosted assets when no YouTube asset is present" in {
+    val assets = List(
+      Asset(
+        AssetType.Video,
+        1L,
+        "video-v1.mp4",
+        Url,
+        Some("video/mp4"),
+        None,
+        None,
+        Some(10L),
+        None
+      ),
+      Asset(
+        AssetType.Video,
+        2L,
+        "video-v2.mp4",
+        Url,
+        Some("video/mp4"),
+        None,
+        None,
+        Some(30L),
+        None
+      ),
+      Asset(
+        AssetType.Video,
+        3L,
+        "video-v3.mp4",
+        Url,
+        Some("video/mp4"),
+        None,
+        None,
+        Some(20L),
+        None
+      )
+    )
+    command.getAssetsDuration(assets) shouldBe Some(30L)
+  }
+
+  it should "return None when self-hosted assets have no duration set" in {
+    val assets = selfHostedAssets().map(_.copy(duration = None))
+    command.getAssetsDuration(assets) shouldBe None
+  }
+
+  it should "return None when the asset list is empty" in {
+    command.getAssetsDuration(Nil) shouldBe None
+  }
+
   private def mediaAtom(
       id: String = "ace3fcf6-1378-41db-9d21-f3fc07072ab2",
       title: String = "Loop: Japan fireball",
