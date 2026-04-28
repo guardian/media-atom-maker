@@ -9,6 +9,7 @@ import com.gu.atom.play.ReindexController
 import com.gu.media.aws.{AwsCredentials, S3Access}
 import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider, Settings}
 import com.gu.pandomainauth.{PanDomainAuthSettingsRefresher, S3BucketLoader}
+import config.{Dev, Stage}
 import controllers._
 import data._
 import play.api.ApplicationLoader.Context
@@ -25,6 +26,7 @@ import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.mvc.{ControllerComponents, EssentialFilter}
 import play.filters.HttpFiltersComponents
 import router.Routes
+import telemetry.Telemetry
 import util._
 
 import java.io.FileInputStream
@@ -55,6 +57,9 @@ class MediaAtomMaker(context: Context)
     case Mode.Dev => AwsCredentials.dev(Settings(config))
     case _        => AwsCredentials.app(Settings(config))
   }
+
+  val stage = Stage(Settings(config).getMandatoryString("stage"))
+
   val profileName =
     configuration
       .getOptional[String]("panda.awsCredsProfile")
@@ -132,6 +137,10 @@ class MediaAtomMaker(context: Context)
     environment.getFile("conf/")
   )
 
+  val secretArn = configuration.get[String]("aws.secretsmanager.hmacSecret")
+
+  private val telemetry = new Telemetry(stage, secretArn, wsClient)
+
   private val api = new Api(
     stores,
     configuration,
@@ -141,6 +150,7 @@ class MediaAtomMaker(context: Context)
     permissions,
     capi,
     thumbnailGenerator,
+    telemetry,
     controllerComponents
   )
 

@@ -15,6 +15,7 @@ import play.api.Configuration
 import util._
 import play.api.libs.json._
 import play.api.mvc._
+import telemetry.Telemetry
 
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
@@ -28,6 +29,7 @@ class Api(
     override val permissions: MediaAtomMakerPermissionsProvider,
     capi: Capi,
     thumbnailGenerator: ThumbnailGenerator,
+    telemetry: Telemetry,
     override val controllerComponents: ControllerComponents
 ) extends MediaAtomImplicits
     with AtomController
@@ -165,9 +167,12 @@ class Api(
     }
   }
 
-  def telemetryTest() = Action { req =>
-
-    Ok("telemetry test")
+  def telemetryTest() = Action.async { req =>
+    telemetry
+      .sendTelemetryEvent("test", Map())
+      .map(_ => {
+        Ok("telemetry test")
+      })
   }
 
   def deleteAsset(atomId: String) = APIAuthAction(parse.json) { implicit req =>
