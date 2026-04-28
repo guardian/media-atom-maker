@@ -15,7 +15,7 @@ class InputStreamRequestBody(
     input: InputStream,
     size: Long
 ) extends RequestBody {
-  private val SEGMENT_SIZE = 2048L // okio.Segment.SIZE
+  private val SEGMENT_SIZE = 16384L
 
   override def contentLength(): Long = size
 
@@ -41,8 +41,9 @@ class InputStreamRequestBody(
       // terminate
 
       case remaining =>
-        val amount = if (remaining > SEGMENT_SIZE) { SEGMENT_SIZE }
-        else { remaining }
+        val amount =
+          if (remaining > SEGMENT_SIZE) SEGMENT_SIZE else remaining
+
         val written = source.read(sink.buffer(), amount)
 
         // important otherwise we just make a massive buffer!
