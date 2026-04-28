@@ -165,6 +165,11 @@ class Api(
     }
   }
 
+  def telemetryTest() = Action { req =>
+
+    Ok("telemetry test")
+  }
+
   def deleteAsset(atomId: String) = APIAuthAction(parse.json) { implicit req =>
     try {
       val asset = req.body.as[Asset]

@@ -100,6 +100,7 @@ lazy val common = (project in file("common"))
       "com.gu" %% "atom-publisher-lib" % atomMakerVersion % "test" classifier "tests",
       "com.gu" %% "atom-manager-play" % atomMakerVersion,
       "com.gu" %% "atom-manager-play" % atomMakerVersion % "test" classifier "tests",
+      "com.gu" %% "hmac-headers" % "2.0.1",
       "com.google.guava" % "guava" % guavaVersion,
       "commons-logging" % "commons-logging" % commonsLoggingVersion,
       "org.apache.httpcomponents" % "httpclient" % apacheHttpClientVersion,
