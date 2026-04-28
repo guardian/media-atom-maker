@@ -40,8 +40,9 @@ export default class VideoItem extends React.Component {
       const image = findSmallestAssetAboveWidth(
         this.props.video.posterImage.assets
       );
-
-      return <img src={image.file} alt={this.props.video.title} />;
+      if (image && image.file) {
+        return <img src={image.file} alt={this.props.video.title} />;
+      }
     }
 
     return <div className="grid__image__placeholder">No Image</div>;

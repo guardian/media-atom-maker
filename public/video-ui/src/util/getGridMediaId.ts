@@ -1,6 +1,10 @@
-import type {Image} from "./imageHelpers";
+import type { Image } from '../services/VideosApi';
 
 export const getGridMediaId = (image: Image) => {
-  const urlParts = image.mediaId.split('/');
+  const { mediaId } = image;
+  if (!mediaId) {
+    return undefined;
+  }
+  const urlParts = mediaId.split('/');
   return urlParts[urlParts.length - 1];
 };
