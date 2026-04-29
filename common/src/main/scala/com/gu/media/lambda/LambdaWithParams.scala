@@ -1,10 +1,14 @@
 package com.gu.media.lambda
 
 import java.io.{InputStream, OutputStream}
-
 import com.amazonaws.services.lambda.runtime.{Context, RequestStreamHandler}
 import com.google.common.base.Charsets
+import com.gu.media.config.{Code, Stage}
+import com.gu.media.telemetry.Telemetry
 import play.api.libs.json.{Json, Reads, Writes}
+import play.libs.ws.WSClient
+
+import java.net.http.HttpClient
 
 abstract class LambdaWithParams[I: Reads, O: Writes]
     extends RequestStreamHandler {

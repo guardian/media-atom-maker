@@ -15,7 +15,7 @@ import play.api.Configuration
 import util._
 import play.api.libs.json._
 import play.api.mvc._
-import telemetry.Telemetry
+import com.gu.media.telemetry.Telemetry
 
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
@@ -167,12 +167,12 @@ class Api(
     }
   }
 
-  def telemetryTest() = Action.async { req =>
+  def telemetryTest() = Action { req =>
     telemetry
       .sendTelemetryEvent("test", Map())
-      .map(_ => {
-        Ok("telemetry test")
-      })
+
+    Ok("telemetry test")
+
   }
 
   def deleteAsset(atomId: String) = APIAuthAction(parse.json) { implicit req =>

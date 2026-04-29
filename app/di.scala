@@ -7,9 +7,9 @@ import software.amazon.awssdk.auth.credentials.{
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.gu.atom.play.ReindexController
 import com.gu.media.aws.{AwsCredentials, S3Access}
+import com.gu.media.config.Stage
 import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider, Settings}
 import com.gu.pandomainauth.{PanDomainAuthSettingsRefresher, S3BucketLoader}
-import config.{Dev, Stage}
 import controllers._
 import data._
 import play.api.ApplicationLoader.Context
@@ -26,10 +26,11 @@ import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.mvc.{ControllerComponents, EssentialFilter}
 import play.filters.HttpFiltersComponents
 import router.Routes
-import telemetry.Telemetry
+import com.gu.media.telemetry.Telemetry
 import util._
 
 import java.io.FileInputStream
+import java.net.http.HttpClient
 import java.time.Duration
 
 class MediaAtomMakerLoader extends ApplicationLoader {
@@ -139,7 +140,9 @@ class MediaAtomMaker(context: Context)
 
   val secretArn = configuration.get[String]("aws.secretsmanager.hmacSecret")
 
-  private val telemetry = new Telemetry(stage, secretArn, wsClient)
+  val client = HttpClient.newHttpClient()
+
+  private val telemetry = new Telemetry(stage, secretArn, client)
 
   private val api = new Api(
     stores,

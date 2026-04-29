@@ -1,4 +1,4 @@
-package config
+package com.gu.media.config
 
 sealed trait Stage {
   def name: String = this match {

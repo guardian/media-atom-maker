@@ -1,10 +1,10 @@
-package telemetry
+package com.gu.media.telemetry
 
 import com.gu.hmac.{HMACHeaderValues, HMACHeaders}
 import com.gu.media.Settings
+import com.gu.media.config.{Prod, Stage}
 import com.gu.pandahmac.HMACHeaderNames
 import com.gu.pandomainauth.model.User
-import config.{Prod, Stage}
 import play.api.Logging
 import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.WSClient
@@ -22,6 +22,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest
 
+import java.net.http.HttpRequest.BodyPublisher
+import java.net.http.{HttpClient, HttpRequest, HttpResponse}
 import scala.util.Try
 
 private case class TelemetryEvent(
@@ -68,7 +70,7 @@ class HMACClient(secretArn: String) extends HMACHeaders {
     super.createHMACHeaderValues(uri)
 }
 
-class Telemetry(stage: Stage, secretArn: String, wsClient: WSClient)
+class Telemetry(stage: Stage, secretArn: String, httpClient: HttpClient)
     extends Logging {
   private val telemetryUrl =
     if (stage == Prod)
@@ -82,7 +84,7 @@ class Telemetry(stage: Stage, secretArn: String, wsClient: WSClient)
       eventType: String,
       tags: Map[String, String],
       app: String = "media-atom-maker"
-  )(implicit executionContext: ExecutionContext): Future[Unit] = {
+  ): Unit = {
 
     val telemetryURI = new URI(telemetryUrl)
     val hmacHeaderValues = hmacClient.createHMACHeaderValues(telemetryURI)
@@ -99,25 +101,29 @@ class Telemetry(stage: Stage, secretArn: String, wsClient: WSClient)
         tags = tags
       )
     )
-    val body = Json.toJson(parameters)
+    val body = Json.stringify(Json.toJson(parameters))
 
-    wsClient
-      .url(telemetryUrl)
-      .withMethod("POST")
-      .addHttpHeaders(
-        HMACHeaderNames.dateKey -> hmacHeaderValues.date,
-        HMACHeaderNames.hmacKey -> hmacHeaderValues.token
+    val request = HttpRequest
+      .newBuilder()
+      .uri(URI.create(telemetryUrl))
+      .header(HMACHeaderNames.dateKey, hmacHeaderValues.date)
+      .header(HMACHeaderNames.hmacKey, hmacHeaderValues.token)
+      .header("Content-Type", "application/json")
+      .POST(HttpRequest.BodyPublishers.ofString(body))
+      .build();
+
+    val response =
+      httpClient.send(request, HttpResponse.BodyHandlers.ofString())
+
+    if (response.statusCode() >= 400) {
+      logger.error(
+        s"Failed to send telemetry event, got response ${response.statusCode} - ${response.body}"
       )
-      .withBody(body)
-      .execute()
-      .map { response =>
-        if (response.status >= 400) {
-          logger.error(
-            s"Failed to send telemetry event, got response ${response.status} - ${response.body}"
-          )
-        }
-        ()
-      }
+    } else {
+      logger.info(
+        s"Sent telemetry event, got response ${response.statusCode} - ${response.body}"
+      )
+    }
   }
 
 }
