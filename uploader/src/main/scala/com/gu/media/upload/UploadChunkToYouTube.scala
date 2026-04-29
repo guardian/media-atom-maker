@@ -36,6 +36,7 @@ class UploadChunkToYouTube
       )
     )
     telemetry.sendTelemetryEvent("LAMBDA_START_UploadChunkToYouTube", tags)
+    
     updated
   }
 
