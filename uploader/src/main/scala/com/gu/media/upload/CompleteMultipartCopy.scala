@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.s3.model.{
 import com.gu.media.aws.S3Access
 import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
+import com.gu.media.telemetry.Telemetry
 import com.gu.media.upload.model.{CopyETag, CopyProgress, Upload}
 
 import scala.util.control.NonFatal
@@ -19,7 +20,9 @@ class CompleteMultipartCopy
     with LambdaBase
     with S3Access
     with Logging {
-  override def handle(upload: Upload) = {
+  override def handle(upload: Upload, telemetry: Telemetry) = {
+    val tags = telemetry.createTags(upload)
+    telemetry.sendTelemetryEvent("LAMBDA_START_CompleteMultipartCopy", tags)
     upload.progress.copyProgress match {
       case Some(CopyProgress(copyId, _, copyETags)) =>
         val bucket = upload.metadata.bucket
@@ -68,7 +71,7 @@ class CompleteMultipartCopy
           log.warn(s"Unable to delete part $part: $err")
       }
     }
-
+    telemetry.sendTelemetryEvent("LAMBDA_END_CompleteMultipartCopy", tags)
     upload
   }
 }

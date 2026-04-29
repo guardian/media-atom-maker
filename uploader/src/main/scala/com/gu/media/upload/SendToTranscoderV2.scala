@@ -4,6 +4,7 @@ import software.amazon.awssdk.services.mediaconvert.model.CreateJobRequest
 import com.gu.media.aws.MediaConvertAccess
 import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
+import com.gu.media.telemetry.Telemetry
 import com.gu.media.upload.mediaconvert.JobSettingsBuilder
 import com.gu.media.upload.model.{
   SelfHostedUploadMetadata,
@@ -19,7 +20,9 @@ class SendToTranscoderV2
     with LambdaBase
     with MediaConvertAccess
     with Logging {
-  override def handle(data: WaitOnUpload): Upload = {
+  override def handle(data: WaitOnUpload, telemetry: Telemetry): Upload = {
+    val tags = telemetry.createTags(data.input)
+    telemetry.sendTelemetryEvent("LAMBDA_START_SendToTranscoderV2", tags)
     val upload = data.input
     val videoInput = Upload.videoInputUri(upload)
     val maybeSubtitlesInput = Upload.subtitleInputUri(upload)
@@ -44,7 +47,7 @@ class SendToTranscoderV2
 
     val metadata =
       upload.metadata.copy(runtime = SelfHostedUploadMetadata(Some(List(jobs))))
-
+    telemetry.sendTelemetryEvent("LAMBDA_END_SendToTranscoderV2", tags)
     upload.copy(
       metadata = metadata,
       progress = upload.progress.copy(fullyTranscoded = false)

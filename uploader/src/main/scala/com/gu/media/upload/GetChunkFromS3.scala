@@ -2,6 +2,7 @@ package com.gu.media.upload
 
 import com.gu.media.aws.{DynamoAccess, S3Access}
 import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
+import com.gu.media.telemetry.Telemetry
 import com.gu.media.upload.model.{Upload, UploadPart}
 import software.amazon.awssdk.services.s3.model.{HeadObjectRequest, S3Exception}
 
@@ -10,7 +11,9 @@ class GetChunkFromS3
     with LambdaBase
     with S3Access
     with DynamoAccess {
-  override def handle(upload: Upload): Upload = {
+  override def handle(upload: Upload, telemetry: Telemetry): Upload = {
+    val tags = telemetry.createTags(upload)
+    telemetry.sendTelemetryEvent("LAMBDA_START_GetChunkFromS3", tags)
     val chunk = upload.parts(upload.progress.chunksInS3)
 
     def objectExists(bucket: String, key: String): Boolean = try {
@@ -30,7 +33,7 @@ class GetChunkFromS3
       } else {
         retry(upload, chunk)
       }
-
+    telemetry.sendTelemetryEvent("LAMBDA_END_GetChunkFromS3", tags)
     updated
   }
 

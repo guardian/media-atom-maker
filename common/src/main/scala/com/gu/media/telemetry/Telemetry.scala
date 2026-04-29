@@ -3,6 +3,7 @@ package com.gu.media.telemetry
 import com.gu.hmac.{HMACHeaderValues, HMACHeaders}
 import com.gu.media.Settings
 import com.gu.media.config.{Prod, Stage}
+import com.gu.media.upload.model.Upload
 import com.gu.pandahmac.HMACHeaderNames
 import com.gu.pandomainauth.model.User
 import play.api.Logging
@@ -79,6 +80,14 @@ class Telemetry(stage: Stage, secretArn: String, httpClient: HttpClient)
       "https://user-telemetry.code.dev-gutools.co.uk/event"
 
   val hmacClient = new HMACClient(secretArn)
+
+  def createTags(upload: Upload) = {
+    Map(
+      "id" -> upload.id,
+      "parts" -> upload.parts.length.toString,
+      "atomId" -> upload.metadata.pluto.atomId
+    )
+  }
 
   def sendTelemetryEvent(
       eventType: String,

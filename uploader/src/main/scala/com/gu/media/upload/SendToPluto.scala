@@ -5,6 +5,7 @@ import com.gu.media.iconik.{AssetUploadedToAtomMessage, IconikUploadActions}
 import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
 import com.gu.media.ses.Mailer
+import com.gu.media.telemetry.Telemetry
 import com.gu.media.upload.model.Upload
 
 class SendToPluto
@@ -19,7 +20,9 @@ class SendToPluto
   private val iconik = new IconikUploadActions(this)
   private val mailer = new Mailer(this)
 
-  override def handle(upload: Upload): Upload = {
+  override def handle(upload: Upload, telemetry: Telemetry): Upload = {
+    val tags = telemetry.createTags(upload)
+    telemetry.sendTelemetryEvent("LAMBDA_START_SendToPluto", tags)
     pluto.sendToPluto(upload.metadata.pluto)
     iconik.sendMessage(
       AssetUploadedToAtomMessage(
@@ -50,7 +53,7 @@ class SendToPluto
         plutoData.user
       )
     }
-
+    telemetry.sendTelemetryEvent("LAMBDA_END_SendToPluto", tags)
     upload
   }
 }
