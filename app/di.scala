@@ -154,7 +154,7 @@ class MediaAtomMaker(context: Context)
     controllerComponents
   )
 
-  private val stepFunctions = new StepFunctions(aws)
+  private val stepFunctions = new StepFunctions(aws, telemetry)
   private val uploads = new UploadController(
     hmacAuthActions,
     aws,

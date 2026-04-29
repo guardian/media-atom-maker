@@ -1,15 +1,16 @@
 package util
 
 import java.time.Instant
-
 import software.amazon.awssdk.services.sfn.model._
 import com.fasterxml.jackson.core.JsonParseException
 import com.gu.media.upload.model._
 import play.api.libs.json.{JsResultException, Json}
+import telemetry.Telemetry
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.jdk.CollectionConverters._
 
-class StepFunctions(awsConfig: AWSConfig) {
+class StepFunctions(awsConfig: AWSConfig, telemetry: Telemetry) {
   def getById(id: String): Option[Upload] = {
     val arn =
       s"${awsConfig.pipelineArn.replace(":stateMachine:", ":execution:")}:$id"
@@ -61,6 +62,7 @@ class StepFunctions(awsConfig: AWSConfig) {
       .stateMachineArn(awsConfig.pipelineArn)
       .input(Json.stringify(Json.toJson(upload)))
       .build()
+    telemetry.sendTelemetryEvent("start", Map("id" -> upload.id, "parts" -> upload.parts.length.toString))
 
     awsConfig.stepFunctionsClient.startExecution(stepFunctionsRequest)
   }
