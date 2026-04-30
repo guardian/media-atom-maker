@@ -21,8 +21,6 @@ class CompleteMultipartCopy
     with S3Access
     with Logging {
   override def handle(upload: Upload, telemetry: Telemetry) = {
-    val tags = telemetry.createTags(upload)
-    telemetry.sendTelemetryEvent("LAMBDA_START_CompleteMultipartCopy", tags)
     upload.progress.copyProgress match {
       case Some(CopyProgress(copyId, _, copyETags)) =>
         val bucket = upload.metadata.bucket
@@ -71,7 +69,6 @@ class CompleteMultipartCopy
           log.warn(s"Unable to delete part $part: $err")
       }
     }
-    telemetry.sendTelemetryEvent("LAMBDA_END_CompleteMultipartCopy", tags)
     upload
   }
 }

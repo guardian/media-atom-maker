@@ -15,8 +15,6 @@ class AddUploadDataToCache
   private val table = Table[Upload](this.cacheTableName)
 
   override def handle(input: Upload, telemetry: Telemetry): Upload = {
-    val tags = telemetry.createTags(input)
-    telemetry.sendTelemetryEvent("LAMBDA_START_AddUploadDataToCache", tags)
     scanamo.exec(table.put(input))
     input
   }

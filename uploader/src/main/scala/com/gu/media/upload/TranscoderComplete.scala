@@ -47,7 +47,6 @@ class TranscoderComplete
     sys.env.get(tag.toUpperCase(Locale.ENGLISH))
 
   override def handle(data: MediaConvertEvent, telemetry: Telemetry): String = {
-    telemetry.sendTelemetryEvent("LAMBDA_START_TranscoderComplete", Map())
     (for {
       executionId <- data.detail.userMetadata
         .get("executionId")

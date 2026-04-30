@@ -16,8 +16,6 @@ class MultipartCopyChunkInS3
     with S3Access
     with Logging {
   override def handle(upload: Upload, telemetry: Telemetry): Upload = {
-    val tags = telemetry.createTags(upload)
-    telemetry.sendTelemetryEvent("LAMBDA_START_MultipartCopyChunkInS3", tags)
     val uploaded = upload.copy(
       progress = upload.progress.copy(
         copyProgress = Some(upload.progress.copyProgress match {
@@ -26,7 +24,6 @@ class MultipartCopyChunkInS3
         })
       )
     )
-    telemetry.sendTelemetryEvent("LAMBDA_END_MultipartCopyChunkInS3", tags)
     uploaded
   }
 

@@ -53,8 +53,6 @@ class AddAssetToAtom
   )
 
   override def handle(upload: Upload, telemetry: Telemetry): Upload = {
-    val tags = telemetry.createTags(upload)
-    telemetry.sendTelemetryEvent("LAMBDA_START_AddAssetToAtom", tags)
     val atomId = upload.metadata.pluto.atomId
     val before = getAtom(atomId)
     val user = getUser(upload.metadata.user)
@@ -80,7 +78,6 @@ class AddAssetToAtom
       "media-atom-pipeline",
       Some(s"Added video asset")
     ).logMessage()
-    telemetry.sendTelemetryEvent("LAMBDA_END_AddAssetToAtom", tags)
     upload
   }
 

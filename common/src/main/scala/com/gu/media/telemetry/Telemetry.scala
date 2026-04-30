@@ -66,11 +66,6 @@ object SecretsManager {
 }
 
 class HMACClient(secretArn: String) extends HMACHeaders {
-  val secretTry = SecretsManager.getSecret(secretArn)
-
-  if (secretTry.isFailure) {
-    secretTry.fold(t => throw t, identity)
-  }
   lazy val secret =
     SecretsManager.getSecret(secretArn) getOrElse (throw new Exception(
       s"Could not retrieve $secretArn from secrets manager"

@@ -52,8 +52,6 @@ class AddSubtitlesToMP4
   }
 
   override def handle(upload: Upload, telemetry: Telemetry): Upload = {
-    val tags = telemetry.createTags(upload)
-    telemetry.sendTelemetryEvent("LAMBDA_START_AddSubtitlesToMP4", tags)
     for (
       selfHostedUploadMetadata <- condOpt(upload.metadata.runtime) {
         case metadata: SelfHostedUploadMetadata =>

@@ -12,8 +12,6 @@ class GetChunkFromS3
     with S3Access
     with DynamoAccess {
   override def handle(upload: Upload, telemetry: Telemetry): Upload = {
-    val tags = telemetry.createTags(upload)
-    telemetry.sendTelemetryEvent("LAMBDA_START_GetChunkFromS3", tags)
     val chunk = upload.parts(upload.progress.chunksInS3)
 
     def objectExists(bucket: String, key: String): Boolean = try {
@@ -33,7 +31,6 @@ class GetChunkFromS3
       } else {
         retry(upload, chunk)
       }
-    telemetry.sendTelemetryEvent("LAMBDA_END_GetChunkFromS3", tags)
     updated
   }
 

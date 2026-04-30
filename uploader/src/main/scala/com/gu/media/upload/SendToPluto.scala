@@ -21,8 +21,6 @@ class SendToPluto
   private val mailer = new Mailer(this)
 
   override def handle(upload: Upload, telemetry: Telemetry): Upload = {
-    val tags = telemetry.createTags(upload)
-    telemetry.sendTelemetryEvent("LAMBDA_START_SendToPluto", tags)
     pluto.sendToPluto(upload.metadata.pluto)
     iconik.sendMessage(
       AssetUploadedToAtomMessage(
@@ -53,7 +51,6 @@ class SendToPluto
         plutoData.user
       )
     }
-    telemetry.sendTelemetryEvent("LAMBDA_END_SendToPluto", tags)
     upload
   }
 }

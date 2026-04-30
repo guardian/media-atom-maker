@@ -22,8 +22,6 @@ class UploadChunkToYouTube
   private val uploader = new YouTubeUploader(this, this.s3Client)
 
   override def handle(upload: Upload, telemetry: Telemetry): Upload = {
-    val tags = telemetry.createTags(upload)
-    telemetry.sendTelemetryEvent("LAMBDA_START_UploadChunkToYouTube", tags)
     val chunk = upload.parts(upload.progress.chunksInS3 - 1)
     val (uploadUri, runtimeMetadata) = getUploadUri(upload)
 
@@ -35,7 +33,6 @@ class UploadChunkToYouTube
         upload.progress.chunksInYouTube + 1
       )
     )
-    telemetry.sendTelemetryEvent("LAMBDA_START_UploadChunkToYouTube", tags)
 
     updated
   }

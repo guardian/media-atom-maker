@@ -23,8 +23,6 @@ class SendToTranscoderV2
     with S3Helpers
     with Logging {
   override def handle(data: WaitOnUpload, telemetry: Telemetry): Upload = {
-    val tags = telemetry.createTags(data.input)
-    telemetry.sendTelemetryEvent("LAMBDA_START_SendToTranscoderV2", tags)
     val upload = data.input
     val videoInput = Upload.videoInputUri(upload)
     val maybeSubtitlesInput = Upload.subtitleInputUri(upload)
@@ -63,7 +61,6 @@ class SendToTranscoderV2
       )
     )
     upload.metadata.copy(runtime = SelfHostedUploadMetadata(Some(List(jobs))))
-    telemetry.sendTelemetryEvent("LAMBDA_END_SendToTranscoderV2", tags)
     upload.copy(
       metadata = metadata,
       progress = upload.progress.copy(fullyTranscoded = false)
