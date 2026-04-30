@@ -63,10 +63,10 @@ object SecretsManager {
 }
 
 class HMACClient(secretArn: String) extends HMACHeaders {
-  lazy val secret =
-    SecretsManager.getSecret(secretArn) getOrElse (throw new Exception(
-      s"Could not retrieve $secretArn from secrets manager"
-    ))
+  lazy val secret = "arn:aws:secretsmanager:eu-west-1:563563610310:secret:/CODE/flexible/event-api-lambda/hmacSecret-OVcnV0"
+//    SecretsManager.getSecret(secretArn) getOrElse (throw new Exception(
+//      s"Could not retrieve $secretArn from secrets manager"
+//    ))
   override def createHMACHeaderValues(uri: URI): HMACHeaderValues =
     super.createHMACHeaderValues(uri)
 }
