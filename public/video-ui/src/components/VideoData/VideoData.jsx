@@ -142,7 +142,7 @@ export default class VideoData extends React.Component {
               isRequired={canonicalVideoPageExists}
               inputPlaceholder="Search commissioning info (type '*' to show all)"
             >
-              <TagPicker disableTextInput />
+              <TagPicker disableTextInput tagSubType="commissioningdesk" />
             </ManagedField>
         }
         {

@@ -1,9 +1,10 @@
 import { apiRequest } from './apiRequest';
 import { getStore } from '../util/storeAccessor';
 
-export function getTagsByType(tagManagerUrl: string, query: string, types: string[]) {
+export function getTagsByType(tagManagerUrl: string, query: string, types: string[], subType?: string) {
+  const subTypeQuery = subType ? `&subType=${subType}` : '';
   return apiRequest({
-    url: `${tagManagerUrl}/hyper/tags?query=${query}&limit=150&type=${types.join(",")}`
+    url: `${tagManagerUrl}/hyper/tags?query=${query}&limit=150&type=${types.join(",")}${subTypeQuery}`
   });
 }
 
