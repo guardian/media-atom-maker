@@ -61,10 +61,10 @@ class SendToTranscoderV2
     )
 
     val metadata = upload.metadata.copy(
-        runtime = SelfHostedUploadMetadata(
-          jobs = Some(List(jobs))
-        )
+      runtime = SelfHostedUploadMetadata(
+        jobs = Some(List(jobs))
       )
+    )
     upload.metadata.copy(runtime = SelfHostedUploadMetadata(Some(List(jobs))))
     telemetry.sendTelemetryEvent("LAMBDA_END_SendToTranscoderV2", tags)
     upload.copy(
