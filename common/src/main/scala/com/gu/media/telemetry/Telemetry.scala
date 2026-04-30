@@ -59,14 +59,20 @@ object SecretsManager {
       GetSecretValueRequest.builder.secretId(secretId).build()
     Try(secretsManagerClient.getSecretValue(secretValueRequest))
       .map(_.secretString())
+
   }
 }
 
 class HMACClient(secretArn: String) extends HMACHeaders {
-  lazy val secret =
-    SecretsManager.getSecret(secretArn) getOrElse (throw new Exception(
+  val secretTry = SecretsManager.getSecret(secretArn)
+
+  if(secretTry.isFailure) {
+    secretTry.fold(t => throw t, identity)
+  }
+  lazy val secret = SecretsManager.getSecret(secretArn) getOrElse (throw new Exception(
       s"Could not retrieve $secretArn from secrets manager"
-    ))
+  ))
+
   override def createHMACHeaderValues(uri: URI): HMACHeaderValues =
     super.createHMACHeaderValues(uri)
 }
