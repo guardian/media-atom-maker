@@ -4,11 +4,8 @@ import software.amazon.awssdk.services.mediaconvert.model.CreateJobRequest
 import com.gu.media.aws.MediaConvertAccess
 import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
-<<<<<<< HEAD
 import com.gu.media.telemetry.Telemetry
-=======
 import com.gu.media.upload.FfMpeg.checkAudioExists
->>>>>>> main
 import com.gu.media.upload.mediaconvert.JobSettingsBuilder
 import com.gu.media.upload.model.{
   SelfHostedUploadMetadata,
