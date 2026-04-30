@@ -4,18 +4,17 @@ import com.gu.media.model.VideoSource
 import com.gu.media.upload.mediaconvert.OutputDefinition
 import com.gu.media.upload.mediaconvert.SharedCodecSettings.{
   aacAudioDescription,
-  h264Settings,
-  highBitrate
+  h264Settings
 }
 import software.amazon.awssdk.services.mediaconvert.model._
 
 object VideoOutput {
-  def apply(): OutputDefinition = OutputDefinition(
+  def apply(hasAudio: Boolean): OutputDefinition = OutputDefinition(
     mimeType = Some(VideoSource.mimeTypeM3u8),
     assetType =
       None, // Not currently used as an asset, as the m3u8 playlist which combines this and subtitles is used instead
-    output = () =>
-      Output
+    output = () => {
+      val outputBuilder = Output
         .builder()
         .containerSettings(
           ContainerSettings
@@ -47,13 +46,15 @@ object VideoOutput {
               VideoCodecSettings
                 .builder()
                 .codec(VideoCodec.H_264)
-                .h264Settings(h264Settings(highBitrate))
+                .h264Settings(h264Settings)
                 .build()
             )
             .build()
         )
-        .audioDescriptions(aacAudioDescription)
-        .build()
+
+      if (hasAudio) outputBuilder.audioDescriptions(aacAudioDescription).build()
+      else outputBuilder.build()
+    }
   )
 
 }

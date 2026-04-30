@@ -53,7 +53,9 @@ export default class VideoData extends React.Component {
   composerKeywordsToYouTube = () => {
     const { video, updateVideo } = this.props;
 
-    const fullTags = addOrDropBundlingTags(video.keywords, video.tags, video.blockAds);
+    const fullTags = addOrDropBundlingTags({
+      keywords: video.keywords, tags: video.tags, blockAds: video.blockAds
+    });
     const newVideo = Object.assign({}, video, { tags: fullTags });
     updateVideo(newVideo);
   };
@@ -140,7 +142,7 @@ export default class VideoData extends React.Component {
               isRequired={canonicalVideoPageExists}
               inputPlaceholder="Search commissioning info (type '*' to show all)"
             >
-              <TagPicker disableTextInput />
+              <TagPicker disableTextInput tagSubType="commissioningdesk" />
             </ManagedField>
         }
         {

@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 import PropTypes from 'prop-types';
 import DatePicker from '../FormFields/DatePicker';
 import Icon from '../Icon';
@@ -153,8 +154,10 @@ class ScheduledLaunch extends React.Component {
   /* Render functions */
 
   renderScheduleOptions = (video, videoEditOpen, scheduledLaunch, embargo) => {
-    const hasPreventedPublication = embargo && embargo >= impossiblyDistantDate;
-    // We don't currently allow setting of embargo dates
+    const hasPreventedPublication = embargo && moment(embargo).isSameOrAfter(impossiblyDistantDate);
+
+    const canSchedule = !this.getNoScheduleReason();
+
     return (
       <ul className="scheduleOptions">
         {!hasPreventedPublication && (
@@ -162,10 +165,12 @@ class ScheduledLaunch extends React.Component {
             <button
               className="btn btn--list-item"
               onClick={() => this.onSelectOption(datesProperties.selectedScheduleDate)}
-              disabled={!video || videoEditOpen}
+              disabled={!video || videoEditOpen || !canSchedule}
+              data-tip={this.getNoScheduleReason()}
             >
               {scheduledLaunch ? 'Edit scheduled date' : 'Schedule'}
             </button>
+            <ReactTooltip />
           </li>
         )}
         {!hasPreventedPublication && embargo && (
@@ -264,13 +269,9 @@ class ScheduledLaunch extends React.Component {
   );
 
   renderSchedulerButton = (showScheduleOptions) => {
-
-    const notAbleToScheduleReason = this.getNoScheduleReason();
-
     return (
-      <div data-tip={notAbleToScheduleReason}>
+      <div>
         <button
-          disabled={!!notAbleToScheduleReason}
           className="btn btn--list"
           onClick={() =>
             this.setState({
@@ -320,13 +321,13 @@ class ScheduledLaunch extends React.Component {
         {!showDatePicker && (
             <div className="scheduleOptionsWrapper">
             {this.renderSchedulerButton(showScheduleOptions)}
-              {showScheduleOptions &&
-                this.renderScheduleOptions(
-                  video,
-                  videoEditOpen,
-                  scheduledLaunch,
-                  embargo
-                )}
+            {showScheduleOptions &&
+              this.renderScheduleOptions(
+                video,
+                videoEditOpen,
+                scheduledLaunch,
+                embargo
+              )}
             </div>
           )}
         {showDatePicker && this.renderSaveButton(propertyName, selectedScheduleDate, selectedEmbargoDate, invalidDateError)}

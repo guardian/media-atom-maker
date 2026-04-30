@@ -67,10 +67,15 @@ class TranscoderComplete
         case metadata: SelfHostedUploadMetadata => metadata
       } getOrElse SelfHostedUploadMetadata()
 
+      hasAudio = data.detail.userMetadata
+        .get("hasAudio")
+        .flatMap(_.toBooleanOption)
+
       output = upload.copy(
         metadata = upload.metadata.copy(
           asset = updatedAsset,
-          runtime = existingMetadata.copy(completeEvent = Some(data))
+          runtime = existingMetadata.copy(completeEvent = Some(data)),
+          hasAudio = hasAudio
         ),
         progress = upload.progress.copy(retries = 0, fullyTranscoded = true)
       )

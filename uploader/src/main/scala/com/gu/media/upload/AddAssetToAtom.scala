@@ -111,7 +111,11 @@ class AddAssetToAtom
         assetsFromYoutubeEvent(asset, version)
 
       case (_, SelfHostedUploadMetadata(_, Some(completeEvent))) =>
-        assetsFromCompleteEvent(completeEvent, version)
+        assetsFromCompleteEvent(
+          completeEvent,
+          version,
+          upload.metadata.hasAudio.getOrElse(true)
+        )
 
       case _ =>
         throw new IllegalStateException("Missing asset")
@@ -132,19 +136,26 @@ class AddAssetToAtom
 
   private def assetsFromCompleteEvent(
       completeEvent: MediaConvertEvent,
-      version: Long
+      version: Long,
+      hasAudio: Boolean
   ): List[ThriftAsset] = {
-    val outputGroupsSettings = JobSettingsBuilder.outputGroups
+    val outputGroupsSettings = JobSettingsBuilder.getOutputGroups(hasAudio)
     val outputGroupsResults = completeEvent.detail.outputGroupDetails
 
-    outputGroupAssets(outputGroupsSettings, outputGroupsResults, version) ++
-      outputAssets(outputGroupsSettings, outputGroupsResults, version)
+    outputGroupAssets(
+      outputGroupsSettings,
+      outputGroupsResults,
+      version,
+      hasAudio
+    ) ++
+      outputAssets(outputGroupsSettings, outputGroupsResults, version, hasAudio)
   }
 
   private def outputGroupAssets(
       outputGroupsSettings: List[OutputGroupDefinition],
       outputGroupsResults: List[MediaConvertOutputGroupDetails],
-      version: Long
+      version: Long,
+      hasAudio: Boolean
   ) =
     for {
       (settings, results) <- outputGroupsSettings.zip(outputGroupsResults)
@@ -165,13 +176,19 @@ class AddAssetToAtom
       // HLS playlists can include multiple renditions with different resolutions, so we can't provide dimensions for the asset at this level
       dimensions = None,
       // HLS playlist videos may have different resolutions, but they should have the same aspect ratio.
-      ratio(results.outputDetails.head)
+      ratio(results.outputDetails.head),
+      duration = whenVideo(
+        assetType,
+        results.outputDetails.map(_.durationInMs / 1000).maxOption
+      ).flatten,
+      hasAudio = whenVideo(assetType, hasAudio)
     )
 
   private def outputAssets(
       outputGroupsSettings: List[OutputGroupDefinition],
       outputGroupsResults: List[MediaConvertOutputGroupDetails],
-      version: Long
+      version: Long,
+      hasAudio: Boolean
   ) =
     for {
       (outputGroupSettings, outputGroupResults) <- outputGroupsSettings.zip(
@@ -187,27 +204,25 @@ class AddAssetToAtom
       assetType,
       version,
       urlEncodeSource(
-        new URI(correctFilepath(filePath, mimeType)).getPath.drop(1),
+        new URI(filePath).getPath.drop(1),
         selfHostedOrigin
       ),
       ThriftPlatform.Url,
       Some(mimeType),
       dimensions(outputResults),
-      ratio(outputResults)
+      ratio(outputResults),
+      duration = whenVideo(assetType, outputResults.durationInMs / 1000),
+      hasAudio = whenVideo(assetType, hasAudio)
     )
+
+  private def whenVideo[T](assetType: AssetType, value: T): Option[T] =
+    Option.when(assetType == AssetType.Video)(value)
 
   private def first[T](collection: Option[List[T]]) =
     collection.flatMap(_.headOption)
 
   private def first[T](collection: List[T]) =
     collection.headOption
-
-  // MediaConvert events don't include the .vtt extension for subtitle files event even though the object in S3 has this extension
-  private def correctFilepath(filePath: String, mimeType: String) = {
-    if (mimeType == VideoSource.mimeTypeVtt && !filePath.endsWith(".vtt")) {
-      filePath + ".vtt"
-    } else filePath
-  }
 
   private def ratio(outputDetails: MediaConvertOutputDetails) =
     for {

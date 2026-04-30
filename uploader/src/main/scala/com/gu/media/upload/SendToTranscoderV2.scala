@@ -4,7 +4,11 @@ import software.amazon.awssdk.services.mediaconvert.model.CreateJobRequest
 import com.gu.media.aws.MediaConvertAccess
 import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
+<<<<<<< HEAD
 import com.gu.media.telemetry.Telemetry
+=======
+import com.gu.media.upload.FfMpeg.checkAudioExists
+>>>>>>> main
 import com.gu.media.upload.mediaconvert.JobSettingsBuilder
 import com.gu.media.upload.model.{
   SelfHostedUploadMetadata,
@@ -19,6 +23,7 @@ class SendToTranscoderV2
     extends LambdaWithParams[WaitOnUpload, Upload]
     with LambdaBase
     with MediaConvertAccess
+    with S3Helpers
     with Logging {
   override def handle(data: WaitOnUpload, telemetry: Telemetry): Upload = {
     val tags = telemetry.createTags(data.input)
@@ -26,6 +31,15 @@ class SendToTranscoderV2
     val upload = data.input
     val videoInput = Upload.videoInputUri(upload)
     val maybeSubtitlesInput = Upload.subtitleInputUri(upload)
+
+    // Presign a GET URL so ffmpeg can read the video directly over HTTPS
+    val presignedUrl = generatePresignedDownloadUrl(
+      bucket = videoInput.bucket,
+      key = videoInput.key
+    )
+
+    // validate audio boolean using:
+    val hasAudio = checkAudioExists(presignedUrl)
 
     val key = TranscoderOutputKey(
       upload.metadata.title,
@@ -42,11 +56,16 @@ class SendToTranscoderV2
       videoInput,
       maybeSubtitlesInput,
       data.executionId,
-      destination
+      destination,
+      hasAudio
     )
 
-    val metadata =
-      upload.metadata.copy(runtime = SelfHostedUploadMetadata(Some(List(jobs))))
+    val metadata = upload.metadata.copy(
+        runtime = SelfHostedUploadMetadata(
+          jobs = Some(List(jobs))
+        )
+      )
+    upload.metadata.copy(runtime = SelfHostedUploadMetadata(Some(List(jobs))))
     telemetry.sendTelemetryEvent("LAMBDA_END_SendToTranscoderV2", tags)
     upload.copy(
       metadata = metadata,
@@ -58,13 +77,15 @@ class SendToTranscoderV2
       videoInput: UploadUri,
       maybeSubtitlesInput: Option[UploadUri],
       executionId: String,
-      destination: String
+      destination: String,
+      hasAudio: Boolean
   ): String = {
 
     val jobSettings = JobSettingsBuilder.build(
       videoInput.toString,
       maybeSubtitlesInput.map(_.toString),
-      destination
+      destination,
+      hasAudio
     )
 
     val createJobRequest = CreateJobRequest
@@ -73,7 +94,8 @@ class SendToTranscoderV2
       .userMetadata(
         Map(
           "stage" -> stage,
-          "executionId" -> executionId
+          "executionId" -> executionId,
+          "hasAudio" -> hasAudio.toString
         ).asJava
       )
       .settings(jobSettings)

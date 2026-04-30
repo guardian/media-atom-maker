@@ -94,7 +94,7 @@ class TagPicker extends React.Component {
         searchResultTags: []
       });
     } else {
-      getTagsByType(this.props.tagManagerUrl, searchText, tagTypes)
+      getTagsByType(this.props.tagManagerUrl, searchText, tagTypes, this.props.tagSubType)
         .then(response => {
 
           const tags = response.data.reduce((tags, {data}) => {

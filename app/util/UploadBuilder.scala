@@ -43,7 +43,8 @@ object UploadBuilder {
       ),
       originalFilename = Some(request.filename),
       version = Some(assetVersion),
-      startTimestamp = currentTimestamp
+      startTimestamp = currentTimestamp,
+      hasAudio = None
     )
 
     val progress = UploadProgress(

@@ -6,6 +6,8 @@ import org.scanamo.DynamoFormat
 import org.scanamo.generic.semiauto._
 import play.api.libs.json._
 
+import java.time.LocalDateTime
+
 abstract class IconikItem {
   val id: String
   val title: String
@@ -69,7 +71,8 @@ case class IconikProject(
     status: String,
     workingGroupId: String,
     commissionId: String,
-    masterPlaceholderId: Option[String]
+    masterPlaceholderId: Option[String],
+    createdAt: Option[String]
 ) extends IconikItemWithParentId {
   val parentId: String = commissionId
 }
@@ -81,15 +84,36 @@ object IconikProject {
   implicit def dynamoFormat: DynamoFormat[IconikProject] =
     deriveDynamoFormat
 
-  def fromUpsertRequest(req: IconikUpsertRequest): IconikProject =
+  def fromUpsertRequest(
+      req: IconikUpsertRequest,
+      maybeExistingProject: Option[IconikProject] = None,
+      createdAtDateTimeOverride: Option[LocalDateTime] = None
+  ): IconikProject = {
+
+    val createdAt = createdAtDateTimeOverride
+      .map(_.format(java.time.format.DateTimeFormatter.ISO_DATE_TIME))
+      .getOrElse(
+        maybeExistingProject
+          .flatMap(_.createdAt)
+          .getOrElse(
+            LocalDateTime
+              .now()
+              .format(java.time.format.DateTimeFormatter.ISO_DATE_TIME)
+          )
+      )
+
     IconikProject(
       id = req.id,
       title = req.title,
       status = req.status,
       workingGroupId = req.workingGroupId,
       commissionId = req.commissionId,
-      masterPlaceholderId = req.masterPlaceholderId
+      masterPlaceholderId = req.masterPlaceholderId,
+      createdAt = Some(
+        createdAt
+      )
     )
+  }
 }
 
 // This represents the payload the `iconik-message-ingestion` lambda sends,

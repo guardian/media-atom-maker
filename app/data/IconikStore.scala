@@ -10,6 +10,8 @@ import com.gu.media.iconik.{
 }
 import com.gu.media.logging.Logging
 
+import java.time.LocalDateTime
+
 class IconikStore[E](
     projectStore: IconikDataStoreWithParentIndex[IconikProject, E],
     commissionStore: IconikDataStoreWithParentIndex[IconikCommission, E],
@@ -44,8 +46,37 @@ class IconikStore[E](
   def listWorkingGroups(): Either[E, List[IconikWorkingGroup]] =
     workingGroupStore.list
 
-  def upsertIconikData(request: IconikUpsertRequest): IconikProject = {
-    val project = IconikProject.fromUpsertRequest(request)
+  def localDateTimeOption(
+      dateTimeStr: String
+  ): Option[LocalDateTime] =
+    try {
+      Some(LocalDateTime.parse(dateTimeStr))
+    } catch {
+      case e: Exception =>
+        log.error(
+          s"Error parsing date time string '$dateTimeStr': ${e.getMessage}"
+        )
+        None
+    }
+
+  def upsertIconikData(
+      request: IconikUpsertRequest,
+      createdAtDateTimeOverride: Option[LocalDateTime] = None
+  ): IconikProject = {
+    val maybeExistingProject = projectStore.getById(request.id) match {
+      case Right(Some(project)) => Some(project)
+      case Right(None)          => None
+      case Left(err) =>
+        log.error(
+          s"Error checking for existing project with id ${request.id}: $err"
+        )
+        None
+    }
+    val project = IconikProject.fromUpsertRequest(
+      request,
+      maybeExistingProject,
+      createdAtDateTimeOverride
+    )
     projectStore.upsert(project)
     commissionStore.upsert(IconikCommission.fromUpsertRequest(request))
     workingGroupStore.upsert(IconikWorkingGroup.fromUpsertRequest(request))
