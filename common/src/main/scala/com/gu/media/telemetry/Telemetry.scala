@@ -12,6 +12,7 @@ import play.api.libs.ws.WSClient
 import software.amazon.awssdk.auth.credentials.{
   AwsCredentialsProvider,
   AwsCredentialsProviderChain,
+  DefaultCredentialsProvider,
   InstanceProfileCredentialsProvider,
   ProfileCredentialsProvider
 }
@@ -47,6 +48,7 @@ object SecretsManager {
       AwsCredentialsProviderChain
         .builder()
         .credentialsProviders(
+          DefaultCredentialsProvider.builder().build(),
           ProfileCredentialsProvider.create("media-service"),
           InstanceProfileCredentialsProvider.create()
         )
