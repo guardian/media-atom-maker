@@ -212,6 +212,7 @@ class Api(
 
     val taskEnteredMap = historyEvents.foldLeft(Map[String, Long]())({
       case (acc, h) =>
+        val ts = h.timestamp().toEpochMilli
         h.`type`() match {
           case HistoryEventType.TASK_STATE_ENTERED |
               HistoryEventType.WAIT_STATE_ENTERED |
@@ -219,18 +220,21 @@ class Api(
               HistoryEventType.CHOICE_STATE_ENTERED |
               HistoryEventType.PARALLEL_STATE_ENTERED |
               HistoryEventType.MAP_STATE_ENTERED =>
-            val ts = h.timestamp().toEpochMilli
+
             Option(h.stateEnteredEventDetails())
               .map(_.name())
               .fold(acc)(name => {
                 acc.updated(name, ts)
               })
+          case HistoryEventType.LAMBDA_FUNCTION_SCHEDULED =>
+            acc.updated("LAMBA_WARM_UP", ts)
           case _ => acc
         }
     })
 
     val durationsMap = historyEvents.foldLeft(Map[String, Long]())({
       case (acc, h) =>
+        val ts = h.timestamp().toEpochMilli
         h.`type`() match {
           case HistoryEventType.TASK_STATE_EXITED |
               HistoryEventType.WAIT_STATE_EXITED |
@@ -238,7 +242,7 @@ class Api(
               HistoryEventType.CHOICE_STATE_EXITED |
               HistoryEventType.PARALLEL_STATE_EXITED |
               HistoryEventType.MAP_STATE_EXITED =>
-            val ts = h.timestamp().toEpochMilli
+
             (for {
               eventDetails <- Option(h.stateExitedEventDetails())
               name = eventDetails.name()
@@ -247,6 +251,12 @@ class Api(
             } yield {
               acc.updated(name, duration)
             }).getOrElse(acc)
+
+          case HistoryEventType.LAMBDA_FUNCTION_STARTED =>  {
+            taskEnteredMap.get("LAMBA_WARM_UP").fold(acc)(start => {
+              acc.updated("LAMBA_WARM_UP", ts - start)
+            })
+          }
           case _ => acc
         }
     })
