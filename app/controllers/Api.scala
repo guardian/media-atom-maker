@@ -16,6 +16,11 @@ import util._
 import play.api.libs.json._
 import play.api.mvc._
 import com.gu.media.telemetry.Telemetry
+import software.amazon.awssdk.services.sfn.model.{
+  GetExecutionHistoryRequest,
+  HistoryEventType,
+  ListExecutionsRequest
+}
 
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
@@ -30,6 +35,7 @@ class Api(
     capi: Capi,
     thumbnailGenerator: ThumbnailGenerator,
     telemetry: Telemetry,
+    stepFunctions: StepFunctions,
     override val controllerComponents: ControllerComponents
 ) extends MediaAtomImplicits
     with AtomController
@@ -166,10 +172,87 @@ class Api(
       Ok(Json.toJson(atom))
     }
   }
+//  private def getLastStateInput[T](
+//                                    executionId: String
+//                                  )(implicit fjs: Reads[T]): Either[String, T] = {
+//    val historyRequest = GetExecutionHistoryRequest
+//      .builder()
+//      .executionArn(executionId)
+//      .reverseOrder(true)
+//      .build()
+//
+//    for {
+//      history <- CatchAWSError(
+//        stepFunctionsClient.getExecutionHistory(historyRequest)
+//      )
+//      events = history.events().asScala
+//      event <- events
+//        .find(_.`type` == HistoryEventType.TASK_SCHEDULED)
+//        .toRight(s"Could not find task scheduled event for $executionId")
+//    } yield {
+//      val parameters = event.taskScheduledEventDetails().parameters()
+//      val payload = Json.parse(parameters) \ "Payload"
+//      payload.as[T]
+//    }
+//  }
 
   def telemetryTest() = Action { req =>
+    val request = ListExecutionsRequest
+      .builder()
+      .stateMachineArn(awsConfig.pipelineArn)
+      .build()
+
+    val results = awsConfig.stepFunctionsClient
+      .listExecutions(request)
+      .executions()
+      .asScala
+      .headOption
+
+    val historyEvents = stepFunctions.getEventsInReverseOrder(results.get)
+
+    val taskEnteredMap = historyEvents.foldLeft(Map[String, Long]())({
+      case (acc, h) =>
+        h.`type`() match {
+          case HistoryEventType.TASK_STATE_ENTERED |
+              HistoryEventType.WAIT_STATE_ENTERED |
+              HistoryEventType.PASS_STATE_ENTERED |
+              HistoryEventType.CHOICE_STATE_ENTERED |
+              HistoryEventType.PARALLEL_STATE_ENTERED |
+              HistoryEventType.MAP_STATE_ENTERED =>
+            val ts = h.timestamp().toEpochMilli
+            Option(h.stateEnteredEventDetails())
+              .map(_.name())
+              .fold(acc)(name => {
+                acc.updated(name, ts)
+              })
+          case _ => acc
+        }
+    })
+
+    val durationsMap = historyEvents.foldLeft(Map[String, Long]())({
+      case (acc, h) =>
+        h.`type`() match {
+          case HistoryEventType.TASK_STATE_EXITED |
+              HistoryEventType.WAIT_STATE_EXITED |
+              HistoryEventType.PASS_STATE_EXITED |
+              HistoryEventType.CHOICE_STATE_EXITED |
+              HistoryEventType.PARALLEL_STATE_EXITED |
+              HistoryEventType.MAP_STATE_EXITED =>
+            val ts = h.timestamp().toEpochMilli
+            (for {
+              eventDetails <- Option(h.stateExitedEventDetails())
+              name = eventDetails.name()
+              start <- taskEnteredMap.get(name)
+              duration = ts - start
+            } yield {
+              acc.updated(name, duration)
+            }).getOrElse(acc)
+          case _ => acc
+        }
+    })
+
     telemetry
-      .sendTelemetryEvent("test", Map())
+      .sendTelemetryEvent("test", durationsMap.view.mapValues(_.toString).toMap)
 
     Ok("telemetry test")
 

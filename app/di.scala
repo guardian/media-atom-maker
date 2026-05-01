@@ -143,7 +143,7 @@ class MediaAtomMaker(context: Context)
   val client = HttpClient.newHttpClient()
 
   private val telemetry = new Telemetry(stage, secretArn, client)
-
+  private val stepFunctions = new StepFunctions(aws, telemetry)
   private val api = new Api(
     stores,
     configuration,
@@ -154,10 +154,10 @@ class MediaAtomMaker(context: Context)
     capi,
     thumbnailGenerator,
     telemetry,
+    stepFunctions,
     controllerComponents
   )
 
-  private val stepFunctions = new StepFunctions(aws, telemetry)
   private val uploads = new UploadController(
     hmacAuthActions,
     aws,
