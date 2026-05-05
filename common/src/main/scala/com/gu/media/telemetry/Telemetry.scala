@@ -1,16 +1,22 @@
 package com.gu.media.telemetry
 
 import com.gu.hmac.{HMACHeaderValues, HMACHeaders}
-import com.gu.media.Settings
 import com.gu.media.config.{Prod, Stage}
 import com.gu.media.upload.model.Upload
 import com.gu.pandahmac.HMACHeaderNames
-import com.gu.pandomainauth.model.User
 import play.api.Logging
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{
+  JsNumber,
+  JsObject,
+  JsString,
+  JsValue,
+  Json,
+  OFormat,
+  OWrites,
+  Writes
+}
 import play.api.libs.ws.WSClient
 import software.amazon.awssdk.auth.credentials.{
-  AwsCredentialsProvider,
   AwsCredentialsProviderChain,
   DefaultCredentialsProvider,
   InstanceProfileCredentialsProvider,
@@ -20,7 +26,6 @@ import software.amazon.awssdk.auth.credentials.{
 import java.net.URI
 import java.time.{ZoneOffset, ZonedDateTime}
 import java.time.format.DateTimeFormatter
-import scala.concurrent.{ExecutionContext, Future}
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest
 
@@ -28,17 +33,37 @@ import java.net.http.HttpRequest.BodyPublisher
 import java.net.http.{HttpClient, HttpRequest, HttpResponse}
 import scala.util.Try
 
+sealed trait TagValue
+
+case class TagString(value: String) extends TagValue
+case class TagNumber(value: Long) extends TagValue
+
 private case class TelemetryEvent(
     app: String,
     stage: String,
     `type`: String,
     value: Int,
     eventTime: String,
-    tags: Map[String, Long]
+    tags: Map[String, TagValue]
 )
 
 private object TelemetryEvent {
-  implicit val format: OFormat[TelemetryEvent] = Json.format
+  implicit val tagValueWrite: Writes[TagValue] = new Writes[TagValue] {
+    override def writes(tagValue: TagValue): JsValue = {
+      tagValue match {
+        case TagString(v) => JsString(v)
+        case TagNumber(v) => JsNumber(v)
+      }
+    }
+  }
+  implicit val tagMapValueWrite: Writes[Map[String, TagValue]] =
+    new Writes[Map[String, TagValue]] {
+
+      override def writes(tagMap: Map[String, TagValue]): JsValue = {
+        JsObject(tagMap.map({ case (k, v) => k -> Json.toJson(v) }))
+      }
+    }
+  implicit val writes: OWrites[TelemetryEvent] = Json.writes
 }
 
 object SecretsManager {
@@ -95,7 +120,7 @@ class Telemetry(stage: Stage, secretArn: String, httpClient: HttpClient)
 
   def sendTelemetryEvent(
       eventType: String,
-      tags: Map[String, Long],
+      tags: Map[String, TagValue],
       app: String = "media-atom-maker"
   ): Unit = {
 

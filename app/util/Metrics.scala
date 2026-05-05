@@ -1,6 +1,6 @@
 package util
 
-import com.gu.media.telemetry.Telemetry
+import com.gu.media.telemetry.{TagNumber, TagString, TagValue, Telemetry}
 import software.amazon.awssdk.services.sfn.model.{
   HistoryEvent,
   HistoryEventType,
@@ -63,19 +63,33 @@ class Metrics(telemetry: Telemetry, stepFunctions: StepFunctions) {
     })
   }
 
+  def getStepIdFromArn(arn: String) = {
+    arn.split(":").toList.reverse.headOption
+  }
+
   def run(): Unit = {
 
-    val executions = stepFunctions.getPreviousExecutions(1)
-    val historyEvents =
-      stepFunctions.getEventsInReverseOrder(executions.headOption.get)
-    val durationsMap = computeDurations(historyEvents.toList)
+    stepFunctions
+      .getPreviousExecutions(1)
+      .foreach(event => {
+        val arn = event.executionArn()
+        val runtime =
+          event.stopDate().toEpochMilli - event.startDate().toEpochMilli
+        val historyEvents =
+          stepFunctions.getAllHistoryEvents(event.executionArn())
+        val durationsMap = computeDurations(historyEvents.toList)
 
-    telemetry.sendTelemetryEvent(
-      "test",
-      Map("id" -> 4L) ++ durationsMap.map({ case (k, v) =>
-        (s"duration_${k}", v)
+        val stepId = getStepIdFromArn(arn).getOrElse(arn)
+        telemetry.sendTelemetryEvent(
+          "test",
+          Map(
+            "stepId" -> TagString(stepId),
+            "jobTime" -> TagNumber(runtime)
+          ) ++ durationsMap.map({ case (k, v) =>
+            (s"duration_${k}", TagNumber(v))
+          })
+        )
       })
-    )
-    println("Running the metrics class")
+
   }
 }
