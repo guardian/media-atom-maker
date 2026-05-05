@@ -70,7 +70,7 @@ class Metrics(telemetry: Telemetry, stepFunctions: StepFunctions) {
   def run(): Unit = {
 
     stepFunctions
-      .getPreviousExecutions(1)
+      .getPreviousExecutions(20)
       .foreach(event => {
         val arn = event.executionArn()
         val runtime =

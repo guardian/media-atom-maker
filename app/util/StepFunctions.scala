@@ -93,6 +93,7 @@ class StepFunctions(awsConfig: AWSConfig) {
       .builder()
       .stateMachineArn(awsConfig.pipelineArn)
       .maxResults(limit)
+      .statusFilter(ExecutionStatus.SUCCEEDED)
       .build()
 
     val results = awsConfig.stepFunctionsClient
