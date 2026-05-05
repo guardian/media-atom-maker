@@ -78,11 +78,12 @@ class Metrics(telemetry: Telemetry, stepFunctions: StepFunctions) {
         val historyEvents =
           stepFunctions.getAllHistoryEvents(event.executionArn())
         val durationsMap = computeDurations(historyEvents.toList)
-
+        val totalSubTimes = durationsMap.foldLeft(0L)({case (acc, (_, v)) => acc + v})
         val stepId = getStepIdFromArn(arn).getOrElse(arn)
         val tags = Map(
           "stepId" -> TagString(stepId),
-          "jobTime" -> TagNumber(runtime)
+          "jobTime" -> TagNumber(runtime),
+          "totalSubTimes" -> TagNumber(totalSubTimes),
         ) ++ durationsMap.map({ case (k, v) =>
           (s"duration_${k}", TagNumber(v))
         })
