@@ -144,7 +144,7 @@ class MediaAtomMaker(context: Context)
 
   private val telemetry = new Telemetry(stage, secretArn, client)
   private val stepFunctions = new StepFunctions(aws)
-  private val metrics = new Metrics(aws, telemetry, stepFunctions)
+  private val metrics = new Metrics(telemetry, stepFunctions)
   private val api = new Api(
     stores,
     configuration,
@@ -157,7 +157,7 @@ class MediaAtomMaker(context: Context)
     telemetry,
     stepFunctions,
     metrics,
-    controllerComponents,
+    controllerComponents
   )
 
   private val uploads = new UploadController(
