@@ -62,10 +62,10 @@ class StepFunctions(awsConfig: AWSConfig, telemetry: Telemetry) {
       .stateMachineArn(awsConfig.pipelineArn)
       .input(Json.stringify(Json.toJson(upload)))
       .build()
-    telemetry.sendTelemetryEvent(
-      "start",
-      Map("id" -> upload.id, "parts" -> upload.parts.length.toString)
-    )
+//    telemetry.sendTelemetryEvent(
+//      "start",
+//      Map("id" -> upload.id, "parts" -> upload.parts.length.toString)
+//    )
 
     awsConfig.stepFunctionsClient.startExecution(stepFunctionsRequest)
   }

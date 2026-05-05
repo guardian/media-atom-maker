@@ -172,29 +172,6 @@ class Api(
       Ok(Json.toJson(atom))
     }
   }
-//  private def getLastStateInput[T](
-//                                    executionId: String
-//                                  )(implicit fjs: Reads[T]): Either[String, T] = {
-//    val historyRequest = GetExecutionHistoryRequest
-//      .builder()
-//      .executionArn(executionId)
-//      .reverseOrder(true)
-//      .build()
-//
-//    for {
-//      history <- CatchAWSError(
-//        stepFunctionsClient.getExecutionHistory(historyRequest)
-//      )
-//      events = history.events().asScala
-//      event <- events
-//        .find(_.`type` == HistoryEventType.TASK_SCHEDULED)
-//        .toRight(s"Could not find task scheduled event for $executionId")
-//    } yield {
-//      val parameters = event.taskScheduledEventDetails().parameters()
-//      val payload = Json.parse(parameters) \ "Payload"
-//      payload.as[T]
-//    }
-//  }
 
   def telemetryTest() = Action { req =>
     val request = ListExecutionsRequest
@@ -260,10 +237,7 @@ class Api(
           case _ => acc
         }
     })
-
-    telemetry
-      .sendTelemetryEvent("test", durationsMap.view.mapValues(_.toString).toMap)
-
+    telemetry.sendTelemetryEvent("test", Map("id" -> 4L) ++ durationsMap.map({case (k, v) => (s"duration_${k}", v)}))
     Ok("telemetry test")
 
   }

@@ -34,7 +34,7 @@ private case class TelemetryEvent(
     `type`: String,
     value: Int,
     eventTime: String,
-    tags: Map[String, String]
+    tags: Map[String, Long]
 )
 
 private object TelemetryEvent {
@@ -95,7 +95,7 @@ class Telemetry(stage: Stage, secretArn: String, httpClient: HttpClient)
 
   def sendTelemetryEvent(
       eventType: String,
-      tags: Map[String, String],
+      tags: Map[String, Long],
       app: String = "media-atom-maker"
   ): Unit = {
 
