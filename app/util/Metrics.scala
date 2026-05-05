@@ -80,14 +80,15 @@ class Metrics(telemetry: Telemetry, stepFunctions: StepFunctions) {
         val durationsMap = computeDurations(historyEvents.toList)
 
         val stepId = getStepIdFromArn(arn).getOrElse(arn)
+        val tags = Map(
+          "stepId" -> TagString(stepId),
+          "jobTime" -> TagNumber(runtime)
+        ) ++ durationsMap.map({ case (k, v) =>
+          (s"duration_${k}", TagNumber(v))
+        })
         telemetry.sendTelemetryEvent(
           "test",
-          Map(
-            "stepId" -> TagString(stepId),
-            "jobTime" -> TagNumber(runtime)
-          ) ++ durationsMap.map({ case (k, v) =>
-            (s"duration_${k}", TagNumber(v))
-          })
+          tags
         )
       })
 
