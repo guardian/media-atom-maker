@@ -1,7 +1,9 @@
 package util
 
 import com.gu.media.telemetry.{TagInt, TagLong, TagString, TagValue, Telemetry}
+import com.gu.media.upload.model.Upload
 import software.amazon.awssdk.services.sfn.model.{
+  ExecutionListItem,
   HistoryEvent,
   HistoryEventType,
   ListExecutionsRequest
@@ -72,43 +74,49 @@ class Metrics(telemetry: Telemetry, stepFunctions: StepFunctions) {
 
   }
 
-  def getStepIdFromArn(arn: String) = {
-    arn.split(":").toList.reverse.headOption
+  def getRunTime(event: ExecutionListItem) = {
+    event.stopDate().toEpochMilli - event.startDate().toEpochMilli
   }
 
-  def executionArn(stepId: String) = {
-    s"arn:aws:states:eu-west-1:563563610310:execution:VideoPipelineDEV-PGZ5E0CNI0QG:$stepId"
+  def getStepId(event: ExecutionListItem) = {
+    event
+      .executionArn()
+      .split(":")
+      .toList
+      .reverse
+      .headOption
+      .getOrElse(event.executionArn())
   }
 
-  def generateMetrics(
-      executionArn: String,
+  def getMetricsFromEvent(event: ExecutionListItem): Map[String, TagValue] = {
+    Map(
+      "jobTime" -> TagLong(getRunTime(event)),
+      "stepId" -> TagString(getStepId(event))
+    )
+  }
+
+  def getMetricsFromHistory(
+      historyEvents: List[HistoryEvent],
       runTime: Long
   ): Map[String, TagValue] = {
-    val historyEvents =
-      stepFunctions.getAllHistoryEvents(executionArn)
-
-    val durationsMap = computeDurations(historyEvents.toList)
+    val durationsMap = computeDurations(historyEvents)
     val totalSubTimes = durationsMap.foldLeft(0L)({ case (acc, (_, v)) =>
       acc + v
     })
-    val stepId = getStepIdFromArn(executionArn).getOrElse(executionArn)
-    val metadata = stepFunctions
-      .getById(stepId)
-      .fold(Map[String, TagValue]())(u => {
-        val size = u.parts.sortBy(u => -u.end).headOption.fold(0L)(u => u.end)
-        Map(
-          "chunks" -> TagInt(u.parts.length),
-          "videoSize" -> TagLong(size)
-        )
-      })
     Map(
-      "stepId" -> TagString(stepId),
-      "jobTime" -> TagLong(runTime),
       "totalSubTimes" -> TagLong(totalSubTimes),
       "duration_unknown" -> TagLong(runTime - totalSubTimes)
     ) ++ durationsMap.map({ case (k, v) =>
       (s"duration_${k}", TagLong(v))
-    }) ++ metadata
+    })
+  }
+
+  def getMetricsFromUpload(upload: Upload) = {
+    val size = upload.parts.sortBy(u => -u.end).headOption.fold(0L)(u => u.end)
+    Map(
+      "chunks" -> TagInt(upload.parts.length),
+      "videoSize" -> TagLong(size)
+    )
   }
 
   def run(): Unit = {
@@ -116,16 +124,24 @@ class Metrics(telemetry: Telemetry, stepFunctions: StepFunctions) {
     stepFunctions
       .getPreviousExecutions(20)
       .foreach(event => {
+
         val executionArn = event.executionArn()
+        val metricsFromEvent = getMetricsFromEvent(event)
+        val historyEvents =
+          stepFunctions.getAllHistoryEvents(executionArn)
 
-        val runTime =
-          event.stopDate().toEpochMilli - event.startDate().toEpochMilli
+        val metricsFromHistory =
+          getMetricsFromHistory(historyEvents.toList, getRunTime(event))
 
-        val tags = generateMetrics(executionArn, runTime)
+        val uploadOpt = stepFunctions.getById(getStepId(event))
+        val metricsFromUploadData =
+          uploadOpt.fold(Map[String, TagValue]())(getMetricsFromUpload)
 
         telemetry.sendTelemetryEvent(
           "test",
-          tags
+          metricsFromEvent
+            ++ metricsFromHistory
+            ++ metricsFromUploadData
         )
       })
 
