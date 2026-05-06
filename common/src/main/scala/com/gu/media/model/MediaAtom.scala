@@ -50,6 +50,7 @@ abstract class MediaAtomBase {
   val tags: List[String]
   val byline: List[String]
   val commissioningDesks: List[String]
+  val atomTagIds: List[String]
   val legallySensitive: Option[Boolean]
   val sensitive: Option[Boolean]
   val optimisedForWeb: Option[Boolean]
@@ -87,6 +88,7 @@ case class MediaAtomBeforeCreation(
     tags: List[String],
     byline: List[String],
     commissioningDesks: List[String],
+    atomTagIds: List[String],
     legallySensitive: Option[Boolean],
     sensitive: Option[Boolean],
     optimisedForWeb: Option[Boolean],
@@ -148,7 +150,8 @@ case class MediaAtomBeforeCreation(
           blockAds = Some(blockAds),
           sensitive = sensitive
         )
-      )
+      ),
+      tagIds = atomTagIds,
     )
   }
 
@@ -187,6 +190,7 @@ case class MediaAtom(
     tags: List[String],
     byline: List[String],
     commissioningDesks: List[String],
+    atomTagIds: List[String],
     keywords: List[String],
     youtubeCategoryId: Option[String],
     license: Option[String],
@@ -257,7 +261,8 @@ case class MediaAtom(
           blockAds = Some(blockAds),
           sensitive = sensitive
         )
-      )
+      ),
+      tagIds = atomTagIds
     )
   }
 
@@ -307,6 +312,7 @@ object MediaAtom extends MediaAtomImplicits {
       tags = data.metadata.flatMap(_.tags.map(_.toList)).getOrElse(Nil),
       byline = data.byline.map(_.toList).getOrElse(Nil),
       commissioningDesks = data.commissioningDesks.map(_.toList).getOrElse(Nil),
+      atomTagIds = atom.tagIds.toList,
       keywords = data.keywords.map(_.toList).getOrElse(Nil),
       youtubeCategoryId = data.metadata.flatMap(_.categoryId),
       expiryDate = data.metadata.flatMap(_.expiryDate),

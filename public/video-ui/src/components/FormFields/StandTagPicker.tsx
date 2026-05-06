@@ -147,13 +147,13 @@ export const StandTagPicker = ({ tagManagerUrl, tagTypes, fieldName, fieldValue,
   useEffect(() => {
     if (fieldValue) {
       if (isFieldValueChanged(fieldValue, selectedTags)) {
-        videoTagsFromStringList(fieldValue)
+        videoTagsFromStringList(fieldValue, tagManagerUrl)
           .then(tags => {
             setSelectedTags(tags);
           });
         }
     }
-  }, [fieldValue]);
+  }, [fieldValue, tagManagerUrl]);
 
   return (
     <>

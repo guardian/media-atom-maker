@@ -259,7 +259,8 @@ object JsonConversions {
       (__ \ "labels").write[Seq[String]] and
       (__ \ "defaultHtml").write[String] and
       (__ \ "data").write[AtomData] and
-      (__ \ "contentChangeDetails").write[ContentChangeDetails]
+      (__ \ "contentChangeDetails").write[ContentChangeDetails] and
+      (__ \ "atomTagIds").write[Seq[String]]
   ) { atom: Atom =>
     (
       atom.id,
@@ -267,7 +268,8 @@ object JsonConversions {
       atom.labels.toSeq,
       atom.defaultHtml,
       atom.data,
-      atom.contentChangeDetails
+      atom.contentChangeDetails,
+      atom.tagIds.toSeq
     )
   }
 }

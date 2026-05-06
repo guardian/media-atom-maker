@@ -55,6 +55,7 @@ class MediaAtomTest extends AnyFunSuite with Matchers {
     tags = List.empty,
     byline = List.empty,
     commissioningDesks = List.empty,
+    atomTagIds = List.empty,
     legallySensitive = None,
     sensitive = None,
     optimisedForWeb = None,

@@ -103,6 +103,7 @@ export type Video = {
   tags: string[];
   byline: string[];
   commissioningDesks: string[];
+  atomTagIds: string[];
   keywords: string[];
   youtubeCategoryId?: string;
   license?: string;

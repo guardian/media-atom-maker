@@ -149,7 +149,7 @@ export default class VideoData extends React.Component {
         {
           canHaveComposerPage &&
             <ManagedField
-              fieldLocation="tags"
+              fieldLocation="atomTagIds"
               name="Tags"
               formRowClass="form__row__byline"
               isDesired={!canonicalVideoPageExists}
