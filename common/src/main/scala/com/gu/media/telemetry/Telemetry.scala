@@ -114,7 +114,8 @@ class Telemetry(stage: Stage, secretArn: String, httpClient: HttpClient)
   def sendTelemetryEvent(
       eventType: String,
       tags: Map[String, TagValue],
-      app: String = "media-atom-maker"
+      app: String = "media-atom-maker",
+      stage: String = "PROD"
   ): Unit = {
 
     val telemetryURI = new URI(telemetryUrl)
@@ -123,7 +124,7 @@ class Telemetry(stage: Stage, secretArn: String, httpClient: HttpClient)
     val parameters = List(
       TelemetryEvent(
         app = app,
-        stage = stage.name,
+        stage = stage,
         `type` = eventType,
         value = 1,
         eventTime = ZonedDateTime
