@@ -7,6 +7,40 @@ import TagTypes from '../../constants/TagTypes';
 
 let pseudoIdCounter = -100; // For generating unique IDs for tags that don't exist in the tag manager
 
+const theme = {
+  row: {
+    backgroundColor: '#00000000',
+    borderBottom: {
+      borderColor: '#BDBDBD',
+    },
+    backgroundHoverColor: '#000',
+    firstRowBackgroundColor: '#00000000',
+    firstRowBackgroundHoverColor: '#000',
+  },
+  cell: {
+    borderBetweenCells: {
+      borderColor: '#BDBDBD',
+    },
+  },
+  input: {
+    color: '#BDBDBD',
+    backgroundColor: '#393939',
+    borderColor: '#BDBDBD',
+    disabledBackgroundColor: '#393939',
+  },
+  listbox: {
+    backgroundColor: '#393939',
+    borderColor: '#BDBDBD',
+    item: {
+      color: '#BDBDBD',
+      backgroundHoverColor: '#393939',
+      colorHover: '#BDBDBD',
+      backgroundFocusedColor: '#393939',
+      colorFocused: '#BDBDBD',
+    },
+  },
+};
+
 const generatePseudoId = () => {
   pseudoIdCounter -= 1;
   return pseudoIdCounter;
@@ -25,6 +59,7 @@ interface StandTagPickerProps {
   tagTypes: string[];
   fieldName: string;
   fieldValue?: string[];
+  editable: boolean;
   onUpdateField: (newValue: string[]) => void | Promise<void>;
 }
 
@@ -89,7 +124,7 @@ const isFieldValueChanged = (fieldValue: string[], selectedTags: VideoTag[]) => 
 
 
 
-export const StandTagPicker = ({ tagManagerUrl, tagTypes, fieldName, fieldValue, onUpdateField }: StandTagPickerProps) => {
+export const StandTagPicker = ({ tagManagerUrl, tagTypes, fieldName, fieldValue, editable, onUpdateField }: StandTagPickerProps) => {
 
   const [selectedTags, setSelectedTags] = useState<VideoTag[]>([]);
   const [options, setOptions] = useState<VideoTag[]>([]);
@@ -162,25 +197,44 @@ export const StandTagPicker = ({ tagManagerUrl, tagTypes, fieldName, fieldValue,
           <label className="form__label">{fieldName}</label>
         </div>
       </div>
-      <TagAutocomplete
-        onTextInputChange={onTextInputChange}
-        options={options}
-        label="Tags"
-        addTag={onTagAdded}
-        loading={isLoading}
-        placeholder={''}
-        disabled={false}
-        value={value}
-      />
-      <TagTable
-        rows={selectedTags}
-        filterRows={() => true}
-        removeIcon={<BinSvg />}
-      	showTagType={true}
-		    showTagSectionName={true}
- 				onReorder={onUpdate}
-				removeAction={onTagRemoved}
-      />
+      {editable && (
+        <>
+          <TagAutocomplete
+            onTextInputChange={onTextInputChange}
+            options={options}
+            label="Tags"
+            addTag={onTagAdded}
+            loading={isLoading}
+            placeholder={''}
+            disabled={false}
+            value={value}
+            theme={theme}
+          />
+          <div className='stand-tag-table-container'>
+            <TagTable
+              rows={selectedTags}
+              filterRows={() => true}
+              removeIcon={<BinSvg color='#DCDCDC'/>}
+              showTagType={true}
+              showTagSectionName={true}
+              onReorder={onUpdate}
+              removeAction={onTagRemoved}
+              theme={theme}
+            />
+          </div>
+        </>
+      )}
+      {!editable && (
+        <div className='stand-tag-table-container'>
+          <TagTable
+            rows={selectedTags}
+            filterRows={() => true}
+            showTagType={true}
+            showTagSectionName={true}
+            theme={theme}
+          />
+        </div>
+      )}
     </>
   );
  };
@@ -188,6 +242,7 @@ export const StandTagPicker = ({ tagManagerUrl, tagTypes, fieldName, fieldValue,
 //REDUX CONNECTIONS
 import { connect } from 'react-redux';
 import { AppConfig } from '../../slices/config';
+import { css } from '@emotion/react';
 
 function mapStateToProps(state: {config: AppConfig}) {
   return {
