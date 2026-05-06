@@ -111,14 +111,6 @@ class Telemetry(stage: Stage, secretArn: String, httpClient: HttpClient)
 
   val hmacClient = new HMACClient(secretArn)
 
-  def createTags(upload: Upload) = {
-    Map(
-      "id" -> upload.id,
-      "parts" -> upload.parts.length.toString,
-      "atomId" -> upload.metadata.pluto.atomId
-    )
-  }
-
   def sendTelemetryEvent(
       eventType: String,
       tags: Map[String, TagValue],

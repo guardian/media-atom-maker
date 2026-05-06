@@ -138,7 +138,7 @@ class Metrics(telemetry: Telemetry, stepFunctions: StepFunctions) {
           uploadOpt.fold(Map[String, TagValue]())(getMetricsFromUpload)
 
         telemetry.sendTelemetryEvent(
-          "test",
+          "VIDEO_UPLOAD_BACKFILL",
           metricsFromEvent
             ++ metricsFromHistory
             ++ metricsFromUploadData
