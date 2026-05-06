@@ -1,6 +1,6 @@
 package util
 
-import com.gu.media.telemetry.{TagNumber, TagString, TagValue, Telemetry}
+import com.gu.media.telemetry.{TagInt, TagLong, TagString, TagValue, Telemetry}
 import software.amazon.awssdk.services.sfn.model.{
   HistoryEvent,
   HistoryEventType,
@@ -92,14 +92,23 @@ class Metrics(telemetry: Telemetry, stepFunctions: StepFunctions) {
       acc + v
     })
     val stepId = getStepIdFromArn(executionArn).getOrElse(executionArn)
+    val metadata = stepFunctions
+      .getById(stepId)
+      .fold(Map[String, TagValue]())(u => {
+        val size = u.parts.sortBy(u => -u.end).headOption.fold(0L)(u => u.end)
+        Map(
+          "chunks" -> TagInt(u.parts.length),
+          "videoSize" -> TagLong(size)
+        )
+      })
     Map(
       "stepId" -> TagString(stepId),
-      "jobTime" -> TagNumber(runTime),
-      "totalSubTimes" -> TagNumber(totalSubTimes),
-      "duration_unknown" -> TagNumber(runTime - totalSubTimes)
+      "jobTime" -> TagLong(runTime),
+      "totalSubTimes" -> TagLong(totalSubTimes),
+      "duration_unknown" -> TagLong(runTime - totalSubTimes)
     ) ++ durationsMap.map({ case (k, v) =>
-      (s"duration_${k}", TagNumber(v))
-    })
+      (s"duration_${k}", TagLong(v))
+    }) ++ metadata
   }
 
   def run(): Unit = {
@@ -107,12 +116,12 @@ class Metrics(telemetry: Telemetry, stepFunctions: StepFunctions) {
     stepFunctions
       .getPreviousExecutions(20)
       .foreach(event => {
-        val arn = event.executionArn()
+        val executionArn = event.executionArn()
 
         val runTime =
           event.stopDate().toEpochMilli - event.startDate().toEpochMilli
 
-        val tags = generateMetrics(arn, runTime)
+        val tags = generateMetrics(executionArn, runTime)
 
         telemetry.sendTelemetryEvent(
           "test",

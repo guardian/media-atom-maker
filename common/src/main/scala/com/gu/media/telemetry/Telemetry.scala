@@ -36,8 +36,8 @@ import scala.util.Try
 sealed trait TagValue
 
 case class TagString(value: String) extends TagValue
-case class TagNumber(value: Long) extends TagValue
-
+case class TagLong(value: Long) extends TagValue
+case class TagInt(value: Int) extends TagValue
 private case class TelemetryEvent(
     app: String,
     stage: String,
@@ -52,7 +52,8 @@ private object TelemetryEvent {
     override def writes(tagValue: TagValue): JsValue = {
       tagValue match {
         case TagString(v) => JsString(v)
-        case TagNumber(v) => JsNumber(v)
+        case TagLong(v)   => JsNumber(v)
+        case TagInt(v)    => JsNumber(v)
       }
     }
   }
