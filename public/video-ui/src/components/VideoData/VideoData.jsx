@@ -150,9 +150,8 @@ export default class VideoData extends React.Component {
           canHaveComposerPage &&
             <ManagedField
               fieldLocation="tags"
-              name="Tag"
+              name="Tags"
               formRowClass="form__row__byline"
-              tagTypes={[TagTypes.keyword]}
               isDesired={!canonicalVideoPageExists}
               isRequired={canonicalVideoPageExists}
               inputPlaceholder="Search tags (type '*' to show all)"
