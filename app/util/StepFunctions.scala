@@ -78,13 +78,23 @@ class StepFunctions(awsConfig: AWSConfig) {
   }
 
   def getAllHistoryEvents(executionArn: String) = {
-    val request = GetExecutionHistoryRequest
-      .builder()
-      .executionArn(executionArn)
-      .reverseOrder(true)
-      .build()
+    def getAllHistory(
+        nextToken: Option[String],
+        previousEvents: List[HistoryEvent]
+    ): List[HistoryEvent] = {
+      val request = GetExecutionHistoryRequest
+        .builder()
+        .executionArn(executionArn)
+        .nextToken(nextToken.orNull)
+        .build()
 
-    awsConfig.stepFunctionsClient.getExecutionHistory(request).events().asScala
+      val response = awsConfig.stepFunctionsClient.getExecutionHistory(request)
+      val allEvents = response.events().asScala.toList ::: previousEvents
+      if (response.nextToken() != null) {
+        getAllHistory(Some(response.nextToken()), allEvents)
+      } else allEvents
+    }
+    getAllHistory(None, Nil)
   }
 
   def getPreviousExecutions(limit: Int) = {
