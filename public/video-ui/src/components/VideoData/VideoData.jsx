@@ -7,6 +7,7 @@ import RichTextField from '../FormFields/RichTextField';
 import SelectBox from '../FormFields/SelectBox';
 import DatePicker from '../FormFields/DatePicker';
 import TagPicker from '../FormFields/TagPicker';
+import StandTagPicker from '../FormFields/StandTagPicker';
 import TagTypes from '../../constants/TagTypes';
 import { fieldLengths } from '../../constants/videoEditValidation';
 import { videoCategories } from '../../constants/videoCategories';
@@ -143,6 +144,20 @@ export default class VideoData extends React.Component {
               inputPlaceholder="Search commissioning info (type '*' to show all)"
             >
               <TagPicker disableTextInput tagSubType="commissioningdesk" />
+            </ManagedField>
+        }
+        {
+          canHaveComposerPage &&
+            <ManagedField
+              fieldLocation="tags"
+              name="Tag"
+              formRowClass="form__row__byline"
+              tagTypes={[TagTypes.keyword]}
+              isDesired={!canonicalVideoPageExists}
+              isRequired={canonicalVideoPageExists}
+              inputPlaceholder="Search tags (type '*' to show all)"
+            >
+              <StandTagPicker tagTypes={[TagTypes.keyword]} />
             </ManagedField>
         }
         {
