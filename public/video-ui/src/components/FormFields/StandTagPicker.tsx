@@ -3,11 +3,28 @@ import { TagAutocomplete, TagTable } from '@guardian/stand/tag-picker';
 import type { Tag } from '../../services/tagmanager';
 import { getTagByPath, getTagsByType } from '../../services/tagmanager';
 import BinSvg from "../../../images/bin.svg?react";
-import TagTypes from '../../constants/TagTypes';
+import FieldNotification from '../../constants/FieldNotification';
 
 let pseudoIdCounter = -100; // For generating unique IDs for tags that don't exist in the tag manager
 
-const theme = {
+const nonEditableTheme = {
+  row: {
+    backgroundColor: '#00000000',
+    borderBottom: {
+      borderColor: '#BDBDBD',
+    },
+    backgroundHoverColor: '#00000000',
+    firstRowBackgroundColor: '#00000000',
+    firstRowBackgroundHoverColor: '#00000000',
+  },
+  cell: {
+    borderBetweenCells: {
+      borderColor: '#BDBDBD',
+    },
+  },
+};
+
+const editableTheme = {
   row: {
     backgroundColor: '#00000000',
     borderBottom: {
@@ -57,10 +74,18 @@ type VideoTag = {
 interface StandTagPickerProps {
   tagManagerUrl?: string;
   tagTypes: string[];
+
+  // the following properties are passed down from the parent ManagedField
   fieldName: string;
   fieldValue?: string[];
   editable: boolean;
   onUpdateField: (newValue: string[]) => void | Promise<void>;
+  placeholder?: string;
+  hasError: (prop: {notification: FieldNotification | undefined}) => boolean;
+  hasWarning: (prop: {notification: FieldNotification | undefined}) => boolean;
+
+  // it is set by validation logic in the parent component
+  notification?: FieldNotification;
 }
 
 const videoTagFromTagManager = (data: Tag): VideoTag => {
@@ -124,7 +149,7 @@ const isFieldValueChanged = (fieldValue: string[], selectedTags: VideoTag[]) => 
 
 
 
-export const StandTagPicker = ({ tagManagerUrl, tagTypes, fieldName, fieldValue, editable, onUpdateField }: StandTagPickerProps) => {
+export const StandTagPicker = ({ tagManagerUrl, tagTypes, fieldName, fieldValue, editable, onUpdateField, placeholder, hasError, hasWarning, notification }: StandTagPickerProps) => {
 
   const [selectedTags, setSelectedTags] = useState<VideoTag[]>([]);
   const [options, setOptions] = useState<VideoTag[]>([]);
@@ -190,6 +215,29 @@ export const StandTagPicker = ({ tagManagerUrl, tagTypes, fieldName, fieldValue,
     }
   }, [fieldValue, tagManagerUrl]);
 
+  const renderReadOnly = () => {
+    if (selectedTags.length === 0) {
+      return (
+        <p className={'details-list__field details-list__empty'}>
+          {placeholder}
+        </p>
+      );
+    } else {
+      return (
+        <div className='stand-tag-table-container'>
+          <TagTable
+            rows={selectedTags}
+            filterRows={() => true}
+            showTagType={true}
+            showTagSectionName={true}
+            theme={nonEditableTheme}
+          />
+        </div>
+      );
+    }
+  };
+
+
   return (
     <>
       <div className="form__row">
@@ -208,7 +256,7 @@ export const StandTagPicker = ({ tagManagerUrl, tagTypes, fieldName, fieldValue,
             placeholder={''}
             disabled={false}
             value={value}
-            theme={theme}
+            theme={editableTheme}
           />
           <div className='stand-tag-table-container'>
             <TagTable
@@ -219,22 +267,22 @@ export const StandTagPicker = ({ tagManagerUrl, tagTypes, fieldName, fieldValue,
               showTagSectionName={true}
               onReorder={onUpdate}
               removeAction={onTagRemoved}
-              theme={theme}
+              theme={editableTheme}
             />
           </div>
         </>
       )}
-      {!editable && (
-        <div className='stand-tag-table-container'>
-          <TagTable
-            rows={selectedTags}
-            filterRows={() => true}
-            showTagType={true}
-            showTagSectionName={true}
-            theme={theme}
-          />
-        </div>
-      )}
+      {!editable && renderReadOnly()}
+      {hasWarning({notification})
+        ? <p className="form__message form__message--warning">
+          {notification?.message}
+          </p>
+        : ''}
+      {hasError({notification})
+        ? <p className="form__message form__message--error">
+          {notification?.message}
+        </p>
+        : ''}
     </>
   );
  };
@@ -242,7 +290,6 @@ export const StandTagPicker = ({ tagManagerUrl, tagTypes, fieldName, fieldValue,
 //REDUX CONNECTIONS
 import { connect } from 'react-redux';
 import { AppConfig } from '../../slices/config';
-import { css } from '@emotion/react';
 
 function mapStateToProps(state: {config: AppConfig}) {
   return {

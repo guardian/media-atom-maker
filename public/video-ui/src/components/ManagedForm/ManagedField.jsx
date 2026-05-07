@@ -7,6 +7,7 @@ import {getTextFromHtml} from '../../util/getTextFromHtml';
 import FieldNotification from '../../constants/FieldNotification';
 import {fieldsWithHtml} from '../../constants/fieldsWithHtml';
 import RequiredForComposer from '../../constants/requiredForComposer';
+import RequiredForDefaultVideo from '../../constants/requiredForDefaultVideo';
 
 export class ManagedField extends React.Component {
   static propTypes = {
@@ -54,6 +55,7 @@ export class ManagedField extends React.Component {
     }
 
     const composerValidation = RequiredForComposer.fields.includes(this.props.fieldLocation);
+    const defaultVideoValidation = RequiredForDefaultVideo.fields.includes(this.props.fieldLocation);
 
     const notification = validateField(
       value,
@@ -61,6 +63,7 @@ export class ManagedField extends React.Component {
       this.props.isDesired,
       this.props.customValidation,
       composerValidation,
+      defaultVideoValidation,
       this.props.maxLength
     );
 

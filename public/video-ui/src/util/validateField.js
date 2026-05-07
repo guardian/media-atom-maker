@@ -1,5 +1,6 @@
 import FieldNotification from '../constants/FieldNotification';
 import RequiredForComposer from '../constants/requiredForComposer';
+import RequiredForDefaultVideo from '../constants/requiredForDefaultVideo';
 
 const validateField = (
   fieldValue,
@@ -7,6 +8,7 @@ const validateField = (
   isDesired = false,
   customValidation = null,
   composerValidation = false,
+  defaultVideoValidation = false,
   maxLength
 ) => {
   if (customValidation) {
@@ -25,19 +27,25 @@ const validateField = (
     return false;
   }
 
+  const getMessage = () => {
+    if (composerValidation)
+      return {error: RequiredForComposer.error, warning: RequiredForComposer.warning};
+    if (defaultVideoValidation)
+      return {error: RequiredForDefaultVideo.error, warning: RequiredForDefaultVideo.warning};
+    return {error: 'This field is required', warning: 'This field is desired'};
+  };
+
   if (isRequired && fieldValueMissing()) {
     return new FieldNotification(
       'required',
-      composerValidation ? RequiredForComposer.error : 'This field is required',
+      getMessage().error,
       FieldNotification.error
     );
   }
   if (isDesired && fieldValueMissing()) {
     return new FieldNotification(
       'desired',
-      composerValidation
-        ? RequiredForComposer.warning
-        : 'This field is desired',
+      getMessage().warning,
       FieldNotification.warning
     );
   }

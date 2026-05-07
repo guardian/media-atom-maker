@@ -18,6 +18,7 @@ export const blankVideoData: Video = {
   labels: [],
   composerCommentsEnabled: false,
   commissioningDesks: [],
+  atomTagIds: [],
   contentChangeDetails: {
     revision: 0
   },

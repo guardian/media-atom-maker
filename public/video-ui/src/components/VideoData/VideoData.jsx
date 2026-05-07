@@ -74,6 +74,7 @@ export default class VideoData extends React.Component {
     const isCommercialType = VideoUtils.isCommercialType(video);
     const hasAssets = VideoUtils.hasAssets(video);
     const canHaveComposerPage = VideoUtils.canHaveComposerPage(video);
+    const mustHaveTags = VideoUtils.mustHaveTags(video);
 
     return (
       <ManagedForm
@@ -147,17 +148,16 @@ export default class VideoData extends React.Component {
             </ManagedField>
         }
         {
-          canHaveComposerPage &&
-            <ManagedField
-              fieldLocation="atomTagIds"
-              name="Tags"
-              formRowClass="form__row__byline"
-              isDesired={!canonicalVideoPageExists}
-              isRequired={canonicalVideoPageExists}
-              inputPlaceholder="Search tags (type '*' to show all)"
-            >
-              <StandTagPicker tagTypes={[TagTypes.keyword]} />
-            </ManagedField>
+          <ManagedField
+            fieldLocation="atomTagIds"
+            name="Tags"
+            formRowClass="form__row__byline"
+            isDesired={mustHaveTags}
+            isRequired={false}
+            inputPlaceholder="Search tags (type '*' to show all)"
+          >
+            <StandTagPicker tagTypes={[TagTypes.keyword]} />
+          </ManagedField>
         }
         {
           canHaveComposerPage &&
