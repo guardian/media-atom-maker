@@ -2,6 +2,7 @@ package util
 
 import com.gu.media.telemetry.{TagInt, TagLong, TagString, TagValue, Telemetry}
 import com.gu.media.upload.model.Upload
+import org.joda.time.DateTime
 import software.amazon.awssdk.services.sfn.model.{
   ExecutionListItem,
   HistoryEvent,
@@ -132,31 +133,37 @@ class Metrics(telemetry: Telemetry, stepFunctions: StepFunctions) {
   }
 
   def run(): Unit = {
-
     stepFunctions
-      .getPreviousExecutions(20)
-      .foreach(event => {
+      .getPreviousExecutions(500)
+      .grouped(20)
+      .foreach(events => {
+        events.foreach(event => {
+          val executionArn = event.executionArn()
 
-        val executionArn = event.executionArn()
+          val metricsFromEvent = getMetricsFromEvent(event)
+          val historyEvents =
+            stepFunctions.getAllHistoryEvents(executionArn)
 
-        val metricsFromEvent = getMetricsFromEvent(event)
-        val historyEvents =
-          stepFunctions.getAllHistoryEvents(executionArn)
+          val metricsFromHistory =
+            getMetricsFromHistory(historyEvents, getRunTime(event))
 
-        val metricsFromHistory =
-          getMetricsFromHistory(historyEvents, getRunTime(event))
+          val uploadOpt = stepFunctions.getById(getStepId(event))
+          val metricsFromUploadData =
+            uploadOpt.fold(Map[String, TagValue]())(getMetricsFromUpload)
 
-        val uploadOpt = stepFunctions.getById(getStepId(event))
-        val metricsFromUploadData =
-          uploadOpt.fold(Map[String, TagValue]())(getMetricsFromUpload)
+          telemetry.sendTelemetryEvent(
+            "VIDEO_UPLOAD_BACKFILL",
+            metricsFromEvent
+              ++ metricsFromHistory
+              ++ metricsFromUploadData
+          )
 
-        telemetry.sendTelemetryEvent(
-          "VIDEO_UPLOAD_BACKFILL",
-          metricsFromEvent
-            ++ metricsFromHistory
-            ++ metricsFromUploadData
-        )
+          Thread.sleep(1000)
+
+        })
+        println(s"setting a wait ${DateTime.now}")
+        Thread.sleep(5000)
+        println(s"finishing the wait ${DateTime.now}")
       })
-
   }
 }

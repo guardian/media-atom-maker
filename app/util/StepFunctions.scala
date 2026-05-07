@@ -4,6 +4,7 @@ import java.time.Instant
 import software.amazon.awssdk.services.sfn.model._
 import com.fasterxml.jackson.core.JsonParseException
 import com.gu.media.upload.model._
+import org.apache.pekko.http.scaladsl.model.DateTime
 import play.api.libs.json.{JsResultException, Json}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -111,7 +112,7 @@ class StepFunctions(awsConfig: AWSConfig) {
       .executions()
       .asScala
       .toList
-
+    println(s"RETRIEVED ${results.length}")
     results
 
   }
