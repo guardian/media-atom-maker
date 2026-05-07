@@ -76,13 +76,14 @@ export class ManagedField extends React.Component {
     }
 
     if (this.props.updateWarnings) {
-
-      if (notification && notification.type === FieldNotification.warning) {
+      // despite its general function name "updateWarnings", this function "updateWarnings" updates
+      // the slice "formFieldWarnings" in the store, which is used in the "Header" component to decide
+      // whether a composer page can be created. It assumes that all warnings in the slice come from
+      // composer related fields.
+      if (notification && notification.type === FieldNotification.warning && composerValidation) {
         this.props.updateWarnings(true, this.props.fieldLocation);
-
       } else {
         this.props.updateWarnings(false, this.props.fieldLocation);
-
       }
     }
 

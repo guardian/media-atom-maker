@@ -270,19 +270,19 @@ export const StandTagPicker = ({ tagManagerUrl, tagTypes, fieldName, fieldValue,
               theme={editableTheme}
             />
           </div>
+          {hasWarning({notification})
+            ? <p className="form__message form__message--warning">
+              {notification?.message}
+              </p>
+            : ''}
+          {hasError({notification})
+            ? <p className="form__message form__message--error">
+              {notification?.message}
+            </p>
+            : ''}
         </>
       )}
       {!editable && renderReadOnly()}
-      {hasWarning({notification})
-        ? <p className="form__message form__message--warning">
-          {notification?.message}
-          </p>
-        : ''}
-      {hasError({notification})
-        ? <p className="form__message form__message--error">
-          {notification?.message}
-        </p>
-        : ''}
     </>
   );
  };
