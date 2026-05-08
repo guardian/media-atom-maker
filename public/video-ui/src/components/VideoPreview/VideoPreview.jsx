@@ -3,7 +3,7 @@ import React from 'react';
 import { VideoEmbed } from '../utils/VideoEmbed';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 
-import { findSmallestAssetAboveWidth } from '../../util/imageHelpers';
+import { findAssetToUseAsThumbnail } from '../../util/imageHelpers';
 import { isSelfHostedSource } from '../../slices/s3Upload';
 
 
@@ -33,12 +33,12 @@ export const VideoPreview = ({ video }) => {
       };
     }).filter(s => isSelfHostedSource(s));
 
-    const maybeSmallestPosterImage = findSmallestAssetAboveWidth(
-      video.posterImage?.assets ?? []
-    );
+    const maybeThumbnailImage = video.posterImage ? findAssetToUseAsThumbnail(
+      video.posterImage
+    ) : undefined;
 
     return (
-      <VideoEmbed sources={sources} posterUrl={maybeSmallestPosterImage?.file} />
+      <VideoEmbed sources={sources} posterUrl={maybeThumbnailImage?.file} />
     );
   };
 

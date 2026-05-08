@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { findSmallestAssetAboveWidth } from '../../util/imageHelpers';
+import { findAssetToUseAsThumbnail } from '../../util/imageHelpers';
 
 export default class GridImage extends React.Component {
   static propTypes = {
@@ -8,9 +8,9 @@ export default class GridImage extends React.Component {
   };
 
   renderImage() {
-    const maybeImageAsset = findSmallestAssetAboveWidth(
-      this.props.image?.assets ?? []
-    );
+    const maybeImageAsset = this.props.image
+      ? findAssetToUseAsThumbnail(this.props.image)
+      : undefined;
 
     if (maybeImageAsset && maybeImageAsset.file) {
       return (

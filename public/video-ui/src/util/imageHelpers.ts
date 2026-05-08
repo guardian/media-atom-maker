@@ -1,6 +1,30 @@
-import type { ImageAsset } from '../services/VideosApi';
+import type { Image, ImageAsset } from '../services/VideosApi';
 
-function findSmallestAsset(assetsArray: ImageAsset[]): ImageAsset | undefined {
+export function findAssetToUseAsThumbnail(image: Image) {
+  const { assets, master } = image;
+  /**
+   * The partition function treats missing widths as below the threshold.
+   * In practice, we aren't expecting to have assets without widths, but
+   * it feels reasonable to put them in the "below threshold" bucket
+   * because we're giving the 'smallest asset above or equal to 250px'
+   * higher priority than the 'largest asset below 250px', and we probably
+   * wouldn't want to prioritise an asset with an unknown width.
+   */
+  const { aboveOrEqualToThreshold, belowThreshold } = partitionByWidth(
+    assets,
+    250
+  );
+
+  if (aboveOrEqualToThreshold.length > 0) {
+    return findSmallestAsset(aboveOrEqualToThreshold);
+  }
+  if (belowThreshold.length > 0) {
+    return findLargestAsset(belowThreshold);
+  }
+  return master;
+}
+
+function sortAssetsAscendingBySize(assetsArray: ImageAsset[]): ImageAsset[] {
   /**
    * Array.prototype.sort mutates the original array, so we create a copy of the array before sorting to avoid side effects.
    * `toSorted` is non-mutating but is only available in more recent versions of JS.
@@ -12,6 +36,11 @@ function findSmallestAsset(assetsArray: ImageAsset[]): ImageAsset | undefined {
     const bSize = b.size ?? Number.POSITIVE_INFINITY;
     return aSize - bSize;
   });
+  return assetsBySize;
+}
+
+function findSmallestAsset(assetsArray: ImageAsset[]): ImageAsset | undefined {
+  const assetsBySize = sortAssetsAscendingBySize(assetsArray);
 
   if (assetsBySize.length === 0) {
     return undefined;
@@ -20,16 +49,27 @@ function findSmallestAsset(assetsArray: ImageAsset[]): ImageAsset | undefined {
   return assetsBySize[0];
 }
 
-export function findSmallestAssetAboveWidth(
-  assetsArray: ImageAsset[],
-  minSize = 250
-) {
-  // Grid provides various versions of a crop
-  // their widths are fixed and typically 140, 500, 1000, 2000px
-  // use the first one that's above `minSize` in width
-  // as the resolution is usually good enough for a simple preview
-  const usefulAssets = assetsArray.filter(
-    asset => asset.dimensions?.width && asset.dimensions.width > minSize
-  );
-  return findSmallestAsset(usefulAssets);
+function findLargestAsset(assetsArray: ImageAsset[]): ImageAsset | undefined {
+  const assetsBySize = sortAssetsAscendingBySize(assetsArray);
+
+  if (assetsBySize.length === 0) {
+    return undefined;
+  }
+
+  return assetsBySize[assetsBySize.length - 1];
+}
+
+function partitionByWidth(assetsArray: ImageAsset[], widthThreshold: number) {
+  const aboveOrEqualToThreshold: ImageAsset[] = [];
+  const belowThreshold: ImageAsset[] = [];
+
+  for (const asset of assetsArray) {
+    if (asset.dimensions?.width && asset.dimensions.width >= widthThreshold) {
+      aboveOrEqualToThreshold.push(asset);
+    } else {
+      belowThreshold.push(asset);
+    }
+  }
+
+  return { aboveOrEqualToThreshold, belowThreshold };
 }
