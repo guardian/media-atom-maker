@@ -72,8 +72,10 @@ type VideoTag = {
 };
 
 interface StandTagPickerProps {
-  tagManagerUrl?: string;
   tagTypes: string[];
+
+  // it is passed by Redux connection
+  tagManagerUrl?: string;
 
   // the following properties are passed down from the parent ManagedField
   fieldName: string;
@@ -107,7 +109,7 @@ const fallbackVideoTagFromString = (tagPath: string): VideoTag => {
     id: generatePseudoId(),
     path: tagPath,
     name: tagPath,
-    type: '',
+    type: 'Unrecognised',
     sectionName: ''
   };
 };
@@ -147,16 +149,13 @@ const isFieldValueChanged = (fieldValue: string[], selectedTags: VideoTag[]) => 
   return false;
 }
 
-
-
-export const StandTagPicker = ({ tagManagerUrl, tagTypes, fieldName, fieldValue, editable, onUpdateField, placeholder, hasError, hasWarning, notification }: StandTagPickerProps) => {
+export const StandTagPicker = ({ tagTypes, tagManagerUrl, fieldName, fieldValue, editable, onUpdateField, placeholder, hasError, hasWarning, notification }: StandTagPickerProps) => {
 
   const [selectedTags, setSelectedTags] = useState<VideoTag[]>([]);
   const [options, setOptions] = useState<VideoTag[]>([]);
   const [value, setValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-
+  const [tagSearchError, setTagSearchError] = useState<boolean>(false);
 
   const onTextInputChange = (inputText: string) => {
     setValue(inputText);
@@ -172,9 +171,11 @@ export const StandTagPicker = ({ tagManagerUrl, tagTypes, fieldName, fieldValue,
             .map((tagItem) => tagItem.data)
             .map(videoTagFromTagManager)
             .filter((tag) => !selectedTags.some((selectedTag) => selectedTag.id === tag.id));
+          setTagSearchError(false);
           setOptions(tags);
         })
         .catch(() => {
+          setTagSearchError(true);
         })
         .finally(() => {
           setIsLoading(false);
@@ -189,14 +190,14 @@ export const StandTagPicker = ({ tagManagerUrl, tagTypes, fieldName, fieldValue,
   }
 
   const onTagAdded = (tag: VideoTag) => {
-    if (! selectedTags.some((t) => t.id === tag.id)) {
+    if (! selectedTags.some((t) => t.path === tag.path)) {
       const newTags = [...selectedTags, tag];
       onUpdate(newTags);
     }
   }
 
   const onTagRemoved = (tag: VideoTag) => {
-    const index = selectedTags.findIndex((t) => t.id === tag.id);
+    const index = selectedTags.findIndex((t) => t.path === tag.path);
     if (index !== -1) {
       const newTags = [...selectedTags];
       newTags.splice(index, 1);
@@ -237,7 +238,6 @@ export const StandTagPicker = ({ tagManagerUrl, tagTypes, fieldName, fieldValue,
     }
   };
 
-
   return (
     <>
       <div className="form__row">
@@ -247,6 +247,11 @@ export const StandTagPicker = ({ tagManagerUrl, tagTypes, fieldName, fieldValue,
       </div>
       {editable && (
         <>
+          {tagSearchError && (
+            <div className="form__field--external-error">
+              Tags are currently unavailable
+            </div>
+          )}
           <TagAutocomplete
             onTextInputChange={onTextInputChange}
             options={options}
