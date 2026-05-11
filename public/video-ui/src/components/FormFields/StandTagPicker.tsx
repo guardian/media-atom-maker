@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { TagAutocomplete, TagTable } from '@guardian/stand/tag-picker';
 import type { Tag } from '../../services/tagmanager';
 import { getTagByPath, getTagsByType } from '../../services/tagmanager';
 import BinSvg from "../../../images/bin.svg?react";
 import FieldNotification from '../../constants/FieldNotification';
+import debounce from "lodash/debounce";
 
 type VideoTag = {
   id: number;
@@ -165,12 +166,7 @@ export const StandTagPicker = ({ tagTypes, tagManagerUrl, fieldName, fieldValue,
   const [isLoading, setIsLoading] = useState(false);
   const [tagSearchError, setTagSearchError] = useState<boolean>(false);
 
-  const onTextInputChange = (inputText: string) => {
-    setValue(inputText);
-    if (inputText === '') {
-      setOptions([]);
-      return;
-    }
+  const searchTags = useCallback((inputText: string, selectedTags: VideoTag[]) => {
     if (tagManagerUrl) {
       setIsLoading(true);
       getTagsByType(tagManagerUrl, inputText, tagTypes)
@@ -188,7 +184,18 @@ export const StandTagPicker = ({ tagTypes, tagManagerUrl, fieldName, fieldValue,
         .finally(() => {
           setIsLoading(false);
         });
-      }
+    }
+  }, [tagManagerUrl, tagTypes, setIsLoading, setTagSearchError, setOptions]);
+
+  const debouncedSearchTags = useMemo(() => debounce(searchTags, 500), [searchTags]);
+
+  const onTextInputChange = (inputText: string) => {
+    setValue(inputText);
+    if (inputText === '') {
+      setOptions([]);
+      return;
+    }
+    debouncedSearchTags(inputText, selectedTags);
   };
 
   const onUpdate = (newTags: VideoTag[]) => {
@@ -271,18 +278,20 @@ export const StandTagPicker = ({ tagTypes, tagManagerUrl, fieldName, fieldValue,
             value={value}
             theme={editableUiTheme}
           />
-          <div className="stand-tag-table-container">
-            <TagTable
-              rows={selectedTags}
-              filterRows={() => true}
-              removeIcon={<BinSvg color="#DCDCDC"/>}
-              showTagType={true}
-              showTagSectionName={true}
-              onReorder={onUpdate}
-              removeAction={onTagRemoved}
-              theme={editableUiTheme}
-            />
-          </div>
+          {selectedTags.length > 0 && (
+            <div className="stand-tag-table-container">
+              <TagTable
+                rows={selectedTags}
+                filterRows={() => true}
+                removeIcon={<BinSvg color="#DCDCDC"/>}
+                showTagType={true}
+                showTagSectionName={true}
+                onReorder={onUpdate}
+                removeAction={onTagRemoved}
+                theme={editableUiTheme}
+              />
+            </div>
+          )}
           {hasWarning({notification})
             ? <p className="form__message form__message--warning">
               {notification?.message}
