@@ -151,7 +151,7 @@ case class MediaAtomBeforeCreation(
           sensitive = sensitive
         )
       ),
-      tagIds = atomTagIds,
+      tagIds = atomTagIds
     )
   }
 
