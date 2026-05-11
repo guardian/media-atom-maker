@@ -130,8 +130,8 @@ const Videos = ({ videos, total, search: {searchTerm, shouldUseCreatedDateForSor
       <div className="grid">
         {videos.length ? <ul className="grid__list">
           {videos.map(video => (
-            <ErrorBoundary key={video.id}>
-              <VideoItem  video={video} presences={getPresencesForVideo(video.id)} />
+            <ErrorBoundary key={video.id} fallback={<p>error fallback</p>}>
+              <VideoItem video={video} presences={getPresencesForVideo(video.id)} />
             </ErrorBoundary>
           ))}
         </ul> : <p className="grid__message">No videos found</p>
