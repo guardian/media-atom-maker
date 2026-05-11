@@ -19,7 +19,7 @@ export function findSmallestAsset(assetsArray: Image[]) {
   });
 }
 
-export function findSmallestAssetAboveWidth(assetsArray: Image[], minSize = 250) {
+export function findSmallestAssetAboveWidth(assetsArray: Image[], minSize = 200) {
   // Grid provides various versions of a crop
   // their widths are fixed and typically 140, 500, 1000, 2000px
   // use the first one that's above `minSize` in width
