@@ -220,9 +220,9 @@ export const StandTagPicker = ({ tagTypes, tagManagerUrl, fieldName, fieldValue,
           .then(tags => {
             setSelectedTags(tags);
           });
-        }
+      }
     }
-  }, [fieldValue, tagManagerUrl]);
+  }, [fieldValue, selectedTags,tagManagerUrl]);
 
   const renderReadOnly = () => {
     if (selectedTags.length === 0) {
