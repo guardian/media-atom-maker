@@ -130,7 +130,9 @@ const Videos = ({ videos, total, search: {searchTerm, shouldUseCreatedDateForSor
       <div className="grid">
         {videos.length ? <ul className="grid__list">
           {videos.map(video => (
-            <VideoItem key={video.id} video={video} presences={getPresencesForVideo(video.id)} />
+            <ErrorBoundary key={video.id}>
+              <VideoItem  video={video} presences={getPresencesForVideo(video.id)} />
+            </ErrorBoundary>
           ))}
         </ul> : <p className="grid__message">No videos found</p>
         }
@@ -148,6 +150,7 @@ import * as reportPresenceClientError from '../../actions/PresenceActions/report
 import { fetchVideos } from '../../slices/videos';
 import { AppDispatch } from "../../util/setupStore";
 import { Search } from "../../slices/search";
+import { ErrorBoundary } from '../../components/ErrorBoundary/ErrorBoundary';
 
 function mapStateToProps(state: { videos: { entries: number, total: number, limit: number }, search: Search}) {
   return {
