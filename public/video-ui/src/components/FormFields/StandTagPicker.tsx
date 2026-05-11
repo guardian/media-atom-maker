@@ -173,8 +173,9 @@ export const StandTagPicker = ({ tagTypes, tagManagerUrl, fieldName, fieldValue,
         .then(response => {
           const tags = response.data
             .map((tagItem) => tagItem.data)
+            .filter((tag) => !tag.deprecated)
             .map(videoTagFromTagManager)
-            .filter((tag) => !selectedTags.some((selectedTag) => selectedTag.id === tag.id));
+            .filter((tag) => !selectedTags.some((selectedTag) => selectedTag.path === tag.path));
           setTagSearchError(false);
           setOptions(tags);
         })

@@ -12,7 +12,6 @@ export type Tag = {
   "type": string,
   internalName: string,
   externalName: string,
-  hidden: boolean,
   deprecated: boolean,
   section: Section,
 };
