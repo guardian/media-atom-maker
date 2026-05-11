@@ -5,9 +5,76 @@ import { getTagByPath, getTagsByType } from '../../services/tagmanager';
 import BinSvg from "../../../images/bin.svg?react";
 import FieldNotification from '../../constants/FieldNotification';
 
+type VideoTag = {
+  id: number;
+  path: string;
+  name: string;
+  type: string;
+  sectionName: string;
+};
+
+const videoTagFromTagManager = (data: Tag): VideoTag => {
+  return {
+    id: data.id,
+    path: data.path,
+    name: data.internalName,
+    type: data.type,
+    sectionName: data.section.name,
+  };
+};
+
+const videoTagsToStringList = (tags: VideoTag[]) => {
+  return tags.map(tag => tag.path);
+};
+
 let pseudoIdCounter = -100; // For generating unique IDs for tags that don't exist in the tag manager
 
-const nonEditableTheme = {
+const generatePseudoId = () => {
+  // actually value doesn't matter as long as it's unique, so we can just decrement from a negative number
+  // to avoid conflicts with real tag IDs
+  pseudoIdCounter -= 1;
+  return pseudoIdCounter;
+}
+
+const fallbackVideoTagFromString = (tagPath: string): VideoTag => {
+  return {
+    id: generatePseudoId(),
+    path: tagPath,
+    name: tagPath,
+    type: 'Unrecognised',
+    sectionName: ''
+  };
+};
+
+const videoTagsFromStringList = (tagPaths: string[], tagManagerUrl?: string): Promise<VideoTag[]> => {
+  if (tagManagerUrl) {
+    return Promise.all(
+      tagPaths.map(tagPath => {
+        return getTagByPath(tagManagerUrl, tagPath)
+          .then(tag => {
+            if (tag) {
+              return videoTagFromTagManager(tag);
+            }
+            else {
+              // If the tag doesn't exist in the tag manager, we create a fallback VideoTag with the path as the name
+              // and a pseudo ID. This way we can still display the tag in the UI and keep the tag in
+              // the atom's tag list until users explicitly remove it.
+              return fallbackVideoTagFromString(tagPath);
+            }
+          });
+      })
+    );
+  }
+  else {
+    return Promise.resolve(
+      tagPaths.map(fallbackVideoTagFromString)
+    );
+  }
+};
+
+
+
+const nonEditableUiTheme = {
   row: {
     backgroundColor: '#00000000',
     borderBottom: {
@@ -24,7 +91,7 @@ const nonEditableTheme = {
   },
 };
 
-const editableTheme = {
+const editableUiTheme = {
   row: {
     backgroundColor: '#00000000',
     borderBottom: {
@@ -58,19 +125,6 @@ const editableTheme = {
   },
 };
 
-const generatePseudoId = () => {
-  pseudoIdCounter -= 1;
-  return pseudoIdCounter;
-}
-
-type VideoTag = {
-  id: number;
-  path: string;
-  name: string;
-  type: string;
-  sectionName: string;
-};
-
 interface StandTagPickerProps {
   tagTypes: string[];
 
@@ -90,52 +144,6 @@ interface StandTagPickerProps {
   notification?: FieldNotification;
 }
 
-const videoTagFromTagManager = (data: Tag): VideoTag => {
-  return {
-    id: data.id,
-    path: data.path,
-    name: data.internalName,
-    type: data.type,
-    sectionName: data.section.name,
-  };
-};
-
-const videoTagsToStringList = (tags: VideoTag[]) => {
-  return tags.map(tag => tag.path);
-};
-
-const fallbackVideoTagFromString = (tagPath: string): VideoTag => {
-  return {
-    id: generatePseudoId(),
-    path: tagPath,
-    name: tagPath,
-    type: 'Unrecognised',
-    sectionName: ''
-  };
-};
-
-const videoTagsFromStringList = (tagPaths: string[], tagManagerUrl?: string): Promise<VideoTag[]> => {
-  if (tagManagerUrl) {
-    return Promise.all(
-      tagPaths.map(tagPath => {
-        return getTagByPath(tagManagerUrl, tagPath)
-          .then(tag => {
-            if (tag) {
-              return videoTagFromTagManager(tag);
-            }
-            else {
-              return fallbackVideoTagFromString(tagPath);
-            }
-          });
-      })
-    );
-  }
-  else {
-    return Promise.resolve(
-      tagPaths.map(fallbackVideoTagFromString)
-    );
-  }
-};
 
 const isFieldValueChanged = (fieldValue: string[], selectedTags: VideoTag[]) => {
   if (fieldValue.length !== selectedTags.length) {
@@ -231,7 +239,7 @@ export const StandTagPicker = ({ tagTypes, tagManagerUrl, fieldName, fieldValue,
             filterRows={() => true}
             showTagType={true}
             showTagSectionName={true}
-            theme={nonEditableTheme}
+            theme={nonEditableUiTheme}
           />
         </div>
       );
@@ -261,7 +269,7 @@ export const StandTagPicker = ({ tagTypes, tagManagerUrl, fieldName, fieldValue,
             placeholder={''}
             disabled={false}
             value={value}
-            theme={editableTheme}
+            theme={editableUiTheme}
           />
           <div className='stand-tag-table-container'>
             <TagTable
@@ -272,7 +280,7 @@ export const StandTagPicker = ({ tagTypes, tagManagerUrl, fieldName, fieldValue,
               showTagSectionName={true}
               onReorder={onUpdate}
               removeAction={onTagRemoved}
-              theme={editableTheme}
+              theme={editableUiTheme}
             />
           </div>
           {hasWarning({notification})
