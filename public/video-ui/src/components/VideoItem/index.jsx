@@ -49,9 +49,6 @@ export default class VideoItem extends React.Component {
 
   render() {
     const video = this.props.video;
-    if(video.id === '2c11d9bb-920c-499a-81dc-df822ae8d8f0') {
-      throw Error("testing error boundary]");
-    }
     const platform = VideoUtils.getPlatformFromSummary(video);
     const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
     const scheduledLaunchMoment = moment(scheduledLaunch);
