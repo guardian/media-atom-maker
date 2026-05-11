@@ -19,7 +19,7 @@ const videoTagFromTagManager = (data: Tag): VideoTag => {
     path: data.path,
     name: data.internalName,
     type: data.type,
-    sectionName: data.section.name,
+    sectionName: data.section.name
   };
 };
 
@@ -34,7 +34,7 @@ const generatePseudoId = () => {
   // to avoid conflicts with real tag IDs
   pseudoIdCounter -= 1;
   return pseudoIdCounter;
-}
+};
 
 const fallbackVideoTagFromString = (tagPath: string): VideoTag => {
   return {
@@ -78,39 +78,39 @@ const nonEditableUiTheme = {
   row: {
     backgroundColor: '#00000000',
     borderBottom: {
-      borderColor: '#BDBDBD',
+      borderColor: '#BDBDBD'
     },
     backgroundHoverColor: '#00000000',
     firstRowBackgroundColor: '#00000000',
-    firstRowBackgroundHoverColor: '#00000000',
+    firstRowBackgroundHoverColor: '#00000000'
   },
   cell: {
     borderBetweenCells: {
-      borderColor: '#BDBDBD',
-    },
-  },
+      borderColor: '#BDBDBD'
+    }
+  }
 };
 
 const editableUiTheme = {
   row: {
     backgroundColor: '#00000000',
     borderBottom: {
-      borderColor: '#BDBDBD',
+      borderColor: '#BDBDBD'
     },
     backgroundHoverColor: '#000',
     firstRowBackgroundColor: '#00000000',
-    firstRowBackgroundHoverColor: '#000',
+    firstRowBackgroundHoverColor: '#000'
   },
   cell: {
     borderBetweenCells: {
-      borderColor: '#BDBDBD',
-    },
+      borderColor: '#BDBDBD'
+    }
   },
   input: {
     color: '#BDBDBD',
     backgroundColor: '#393939',
     borderColor: '#BDBDBD',
-    disabledBackgroundColor: '#393939',
+    disabledBackgroundColor: '#393939'
   },
   listbox: {
     backgroundColor: '#393939',
@@ -120,9 +120,9 @@ const editableUiTheme = {
       backgroundHoverColor: '#393939',
       colorHover: '#BDBDBD',
       backgroundFocusedColor: '#393939',
-      colorFocused: '#BDBDBD',
-    },
-  },
+      colorFocused: '#BDBDBD'
+    }
+  }
 };
 
 interface StandTagPickerProps {
@@ -155,7 +155,7 @@ const isFieldValueChanged = (fieldValue: string[], selectedTags: VideoTag[]) => 
     }
   }
   return false;
-}
+};
 
 export const StandTagPicker = ({ tagTypes, tagManagerUrl, fieldName, fieldValue, editable, onUpdateField, placeholder, hasError, hasWarning, notification }: StandTagPickerProps) => {
 
@@ -195,14 +195,14 @@ export const StandTagPicker = ({ tagTypes, tagManagerUrl, fieldName, fieldValue,
     setSelectedTags(newTags);
     const newValue = videoTagsToStringList(newTags);
     onUpdateField(newValue);
-  }
+  };
 
   const onTagAdded = (tag: VideoTag) => {
     if (! selectedTags.some((t) => t.path === tag.path)) {
       const newTags = [...selectedTags, tag];
       onUpdate(newTags);
     }
-  }
+  };
 
   const onTagRemoved = (tag: VideoTag) => {
     const index = selectedTags.findIndex((t) => t.path === tag.path);
@@ -233,7 +233,7 @@ export const StandTagPicker = ({ tagTypes, tagManagerUrl, fieldName, fieldValue,
       );
     } else {
       return (
-        <div className='stand-tag-table-container'>
+        <div className="stand-tag-table-container">
           <TagTable
             rows={selectedTags}
             filterRows={() => true}
@@ -271,11 +271,11 @@ export const StandTagPicker = ({ tagTypes, tagManagerUrl, fieldName, fieldValue,
             value={value}
             theme={editableUiTheme}
           />
-          <div className='stand-tag-table-container'>
+          <div className="stand-tag-table-container">
             <TagTable
               rows={selectedTags}
               filterRows={() => true}
-              removeIcon={<BinSvg color='#DCDCDC'/>}
+              removeIcon={<BinSvg color="#DCDCDC"/>}
               showTagType={true}
               showTagSectionName={true}
               onReorder={onUpdate}
