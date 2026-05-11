@@ -7,7 +7,7 @@ import com.gu.media.util.MediaAtomImplicits
 import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.model.User
 import data.DataStores
-import model.WorkflowMediaAtom
+import model.{FakeAtom, WorkflowMediaAtom}
 import model.commands.CommandExceptions._
 import model.commands._
 import net.logstash.logback.marker.{LogstashMarker, Markers}
@@ -15,7 +15,6 @@ import play.api.Configuration
 import util._
 import play.api.libs.json._
 import play.api.mvc._
-
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 
@@ -54,13 +53,15 @@ class Api(
       videoPlayerFormat: Option[String],
       orderByOldest: Boolean
   ) = APIAuthAction {
-    val atoms = stores.atomListStore.getAtoms(
+    val oldAtoms = stores.atomListStore.getAtoms(
       search,
       limit,
       shouldUseCreatedDateForSort,
       videoPlayerFormat,
       orderByOldest
     )
+
+    val atoms = oldAtoms.copy(atoms = List(FakeAtom("id", "banana")) ++ oldAtoms.atoms)
     Ok(Json.toJson(atoms))
   }
 
