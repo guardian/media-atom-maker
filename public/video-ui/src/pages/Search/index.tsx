@@ -3,6 +3,8 @@ import VideoItem from '../../components/VideoItem';
 import { frontPageSize } from '../../constants/frontPageSize';
 import { Presence, PresenceClient, PresenceConfig, PresenceData, safelyStartPresence } from '../../services/presence';
 import { getStore } from '../../util/storeAccessor';
+import { ErrorBoundary } from '../../components/ErrorBoundary/ErrorBoundary';
+import VideoItemError from '../../components/VideoItem/VideoItemError';
 
 type Video = {
   id: string
@@ -130,7 +132,7 @@ const Videos = ({ videos, total, search: {searchTerm, shouldUseCreatedDateForSor
       <div className="grid">
         {videos.length ? <ul className="grid__list">
           {videos.map(video => (
-            <ErrorBoundary key={video.id} fallback={<p>error fallback</p>}>
+            <ErrorBoundary key={video.id} fallback={<VideoItemError/>}>
               <VideoItem video={video} presences={getPresencesForVideo(video.id)} />
             </ErrorBoundary>
           ))}
@@ -150,7 +152,6 @@ import * as reportPresenceClientError from '../../actions/PresenceActions/report
 import { fetchVideos } from '../../slices/videos';
 import { AppDispatch } from "../../util/setupStore";
 import { Search } from "../../slices/search";
-import { ErrorBoundary } from '../../components/ErrorBoundary/ErrorBoundary';
 
 function mapStateToProps(state: { videos: { entries: number, total: number, limit: number }, search: Search}) {
   return {
