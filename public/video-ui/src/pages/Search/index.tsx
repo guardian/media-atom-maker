@@ -3,6 +3,8 @@ import VideoItem from '../../components/VideoItem';
 import { frontPageSize } from '../../constants/frontPageSize';
 import { Presence, PresenceClient, PresenceConfig, PresenceData, safelyStartPresence } from '../../services/presence';
 import { getStore } from '../../util/storeAccessor';
+import { ErrorBoundary } from '../../components/ErrorBoundary/ErrorBoundary';
+import VideoItemError from '../../components/VideoItem/VideoItemError';
 
 type Video = {
   id: string
@@ -130,7 +132,9 @@ const Videos = ({ videos, total, search: {searchTerm, shouldUseCreatedDateForSor
       <div className="grid">
         {videos.length ? <ul className="grid__list">
           {videos.map(video => (
-            <VideoItem key={video.id} video={video} presences={getPresencesForVideo(video.id)} />
+            <ErrorBoundary key={video.id} fallback={<VideoItemError/>}>
+              <VideoItem video={video} presences={getPresencesForVideo(video.id)} />
+            </ErrorBoundary>
           ))}
         </ul> : <p className="grid__message">No videos found</p>
         }
