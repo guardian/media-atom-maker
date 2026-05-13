@@ -1,6 +1,18 @@
 import type {Image} from "./imageHelpers";
+import { Video } from "../services/VideosApi";
+import { getAspectRatio } from "./getAspectRatio";
 
 export const getGridMediaId = (image: Image) => {
   const urlParts = image.mediaId.split('/');
   return urlParts[urlParts.length - 1];
+};
+
+export const getGridQueryParams = (cropType: string, video: Video) => {
+  if(cropType === "verticalVideo") return `cropType=${cropType}&customRatio=${cropType},9,16`;
+  if(cropType === "custom") {
+    const aspectRatio = getAspectRatio(video);
+    if(!aspectRatio) return `cropType=video`;
+    return `cropType=custom&customRatio=custom,${aspectRatio.replaceAll(':', ",")}`;
+  }
+  return `cropType=${cropType}`;
 };
