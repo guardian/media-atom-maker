@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router';
-import { findSmallestAssetAboveWidth } from '../../util/imageHelpers';
+import { findAssetToUseAsThumbnail } from '../../util/imageHelpers';
 import Icon from '../Icon';
 import ReactTooltip from 'react-tooltip';
 import VideoUtils from '../../util/video';
@@ -15,9 +15,7 @@ import NonYoutube from "../../../images/nonyoutube.svg?react";
 export default class VideoItem extends React.Component {
   renderPublishStatus() {
     if (VideoUtils.hasExpired(this.props.video)) {
-      return (
-        <span className="publish__label label__expired">Expired</span>
-      );
+      return <span className="publish__label label__expired">Expired</span>;
     }
 
     if (VideoUtils.isPublished(this.props.video)) {
@@ -36,12 +34,13 @@ export default class VideoItem extends React.Component {
   }
 
   renderItemImage() {
-    if (this.props.video.posterImage) {
-      const image = findSmallestAssetAboveWidth(
-        this.props.video.posterImage.assets
+    const maybeThumbnailImage = this.props.video.posterImage
+      ? findAssetToUseAsThumbnail(this.props.video.posterImage)
+      : undefined;
+    if (maybeThumbnailImage && maybeThumbnailImage.file) {
+      return (
+        <img src={maybeThumbnailImage.file} alt={this.props.video.title} />
       );
-
-      return <img src={image.file} alt={this.props.video.title} />;
     }
 
     return <div className="grid__image__placeholder">No Image</div>;
@@ -54,12 +53,13 @@ export default class VideoItem extends React.Component {
     const scheduledLaunchMoment = moment(scheduledLaunch);
     const embargo = VideoUtils.getEmbargo(video);
     const embargoMoment = moment(embargo);
-    const hasPreventedPublication = embargo && embargoMoment.valueOf() >= impossiblyDistantDate;
+    const hasPreventedPublication =
+      embargo && embargoMoment.valueOf() >= impossiblyDistantDate;
     const iconMap = {
-      Youtube: <Youtube/>,
-      Loop: <Loop/>,
-      Cinemagraph: <Cinemagraph/>,
-      Default: <NonYoutube/>
+      Youtube: <Youtube />,
+      Loop: <Loop />,
+      Cinemagraph: <Cinemagraph />,
+      Default: <NonYoutube />
     };
 
     return (
@@ -73,7 +73,11 @@ export default class VideoItem extends React.Component {
               const fullName = `${firstName} ${lastName}`;
 
               return (
-                <li key={id} className="presence-list__user presence-list-front__user" title={fullName}>
+                <li
+                  key={id}
+                  className="presence-list__user presence-list-front__user"
+                  title={fullName}
+                >
                   {initials}
                 </li>
               );
@@ -108,8 +112,9 @@ export default class VideoItem extends React.Component {
               )}
               {scheduledLaunch && (
                 <span
-                  data-tip={`Scheduled to launch ${
-                    scheduledLaunchMoment.format('Do MMM YYYY HH:mm')}`}
+                  data-tip={`Scheduled to launch ${scheduledLaunchMoment.format(
+                    'Do MMM YYYY HH:mm'
+                  )}`}
                   className="publish__label label__frontpage__scheduledLaunch label__frontpage__overlay"
                 >
                   <Icon textClass="always-show" icon="access_time">
@@ -120,11 +125,13 @@ export default class VideoItem extends React.Component {
             </div>
             <div className="platform__icons">
               <div className="platform__icon">
-                  {
-                    video.videoPlayerFormat ?
-                      iconMap[video.videoPlayerFormat] :
-                      iconMap[platform?.toLowerCase() === 'youtube' ? 'Youtube' : 'Default']
-                  }
+                {video.videoPlayerFormat
+                  ? iconMap[video.videoPlayerFormat]
+                  : iconMap[
+                      platform?.toLowerCase() === 'youtube'
+                        ? 'Youtube'
+                        : 'Default'
+                    ]}
               </div>
             </div>
             <div className="grid__item__footer">

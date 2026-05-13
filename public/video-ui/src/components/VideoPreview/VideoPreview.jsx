@@ -1,18 +1,19 @@
+// @ts-check
 import React from 'react';
-import PropTypes from 'prop-types';
 import { VideoEmbed } from '../utils/VideoEmbed';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 
-import { findSmallestAssetAboveWidth } from '../../util/imageHelpers';
+import { findAssetToUseAsThumbnail } from '../../util/imageHelpers';
+import { isSelfHostedSource } from '../../slices/s3Upload';
 
-export default class VideoPreview extends React.Component {
-  static propTypes = {
-    video: PropTypes.object.isRequired
-  };
 
-  renderPreview() {
-    const activeVersion = this.props.video.activeVersion;
-    const assets = this.props.video.assets || [];
+/**
+ * @param {{video: import('../../services/VideosApi').Video}} param0  
+ */
+export const VideoPreview = ({ video }) => {
+  const renderPreview = () => {
+    const activeVersion = video.activeVersion;
+    const assets = video.assets || [];
     const active = assets.filter(asset => asset.version === activeVersion);
 
     if (active.length === 0) {
@@ -30,29 +31,26 @@ export default class VideoPreview extends React.Component {
         height: asset.dimensions?.height ?? 0,
         width: asset.dimensions?.width ?? 0
       };
-    });
+    }).filter(s => isSelfHostedSource(s));
 
-    if (this.props.video.posterImage && this.props.video.posterImage.assets.length > 0) {
-      const poster = findSmallestAssetAboveWidth(
-        this.props.video.posterImage.assets
-      );
+    const maybeThumbnailImage = video.posterImage ? findAssetToUseAsThumbnail(
+      video.posterImage
+    ) : undefined;
 
-      return <VideoEmbed sources={sources} posterUrl={poster.file}/>;
-    }
-
-    return <VideoEmbed sources={sources}/>;
-  }
-
-  hasVerticalVideoTag() {
-    const tags = this.props.video.keywords || [];
-    return tags.includes('tone/vertical-video');
-  }
-
-  render() {
     return (
-      <div className={this.hasVerticalVideoTag() ? "nine-by-sixteen" : "sixteen-by-nine"}>
-        {this.renderPreview()}
-      </div>
+      <VideoEmbed sources={sources} posterUrl={maybeThumbnailImage?.file} />
     );
-  }
-}
+  };
+
+  const hasVerticalVideoTag = video.keywords?.includes('tone/vertical-video');
+
+  return (
+    <div
+      className={hasVerticalVideoTag ? 'nine-by-sixteen' : 'sixteen-by-nine'}
+    >
+      {renderPreview()}
+    </div>
+  );
+};
+
+export default VideoPreview;
