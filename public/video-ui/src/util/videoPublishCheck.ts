@@ -1,5 +1,5 @@
-import { Video } from "../../services/VideosApi";
-import { isTaggingSupported } from "../../util/config";
+import { Video } from "../services/VideosApi";
+import { isTaggingSupported } from "./config";
 
 export const checkVideoReadyToPublish = (video: Video): string[] => {
   if (isTaggingSupported()) {

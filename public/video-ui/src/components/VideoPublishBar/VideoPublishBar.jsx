@@ -4,7 +4,7 @@ import { hasUnpublishedChanges } from '../../util/hasUnpublishedChanges';
 import ScheduledLaunch from '../ScheduledLaunch/ScheduledLaunch';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 import VideoUtils from '../../util/video';
-import { checkVideoReadyToPublish } from './VideoPublishCheck';
+import { checkVideoReadyToPublish } from '../../util/videoPublishCheck';
 
 export default class VideoPublishBar extends React.Component {
   videoIsCurrentlyPublishing() {
