@@ -37,7 +37,8 @@ abstract class MediaAtomBase {
   val channelId: Option[String]
   val privacyStatus: Option[PrivacyStatus]
   val youtubeCategoryId: Option[String]
-  val keywords: List[String] // tags that are applied to the canonical Composer page
+  val keywords
+      : List[String] // tags that are applied to the canonical Composer page
   val license: Option[String]
   val blockAds: Boolean
   val expiryDate: Option[Long]
@@ -48,7 +49,9 @@ abstract class MediaAtomBase {
   // composer metadata
   val trailImage: Option[Image]
   val trailText: Option[String]
-  val tags: List[String] // tags for YouTube, not the same as tags we use for atoms and content
+  val tags: List[
+    String
+  ] // tags for YouTube, not the same as tags we use for atoms and content
   val byline: List[String]
   val commissioningDesks: List[String]
   val legallySensitive: Option[Boolean]
