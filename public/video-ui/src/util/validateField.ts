@@ -2,14 +2,14 @@ import FieldNotification from '../constants/FieldNotification';
 import RequiredForComposer from '../constants/requiredForComposer';
 import RequiredForDefaultVideo from '../constants/requiredForDefaultVideo';
 
-const validateField = (
-  fieldValue,
-  isRequired = false,
-  isDesired = false,
-  customValidation = null,
-  composerValidation = false,
-  defaultVideoValidation = false,
-  maxLength
+const validateField = <FieldValueType>(
+  fieldValue: FieldValueType,
+  isRequired: boolean = false,
+  isDesired: boolean = false,
+  customValidation: ((fieldValue: FieldValueType) => FieldNotification | null) | null = null,
+  composerValidation: boolean = false,
+  defaultVideoValidation: boolean = false,
+  maxLength?: number
 ) => {
   if (customValidation) {
     return customValidation(fieldValue);
@@ -51,7 +51,7 @@ const validateField = (
   }
 
   function fieldValueTooLong() {
-    if (fieldValue && fieldValue.length === maxLength) {
+    if (fieldValue && (fieldValue as any).length === maxLength) {
       return true;
     }
 
