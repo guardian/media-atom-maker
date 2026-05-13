@@ -26,14 +26,14 @@ export type TagManagerApiResponse = {
 
 export function getTagsByType(tagManagerUrl: string, query: string, types: string[], subType?: string): Promise<TagManagerApiResponse> {
   const subTypeQuery = subType ? `&subType=${subType}` : '';
-  return apiRequest({
+  return apiRequest<TagManagerApiResponse>({
     url: `${tagManagerUrl}/hyper/tags?query=${query}&limit=150&type=${types.join(",")}${subTypeQuery}`
-  }) as Promise<TagManagerApiResponse>;
+  });
 }
 
 export function getTagByPath(tagManagerUrl: string, path: string): Promise<Tag | undefined> {
-  const apiResponse = apiRequest({
+  const apiResponse = apiRequest<TagManagerApiResponse>({
     url: `${tagManagerUrl}/hyper/tags?query=${path}&limit=150&searchField=path`
-  }) as Promise<TagManagerApiResponse>;
+  });
   return apiResponse.then(response => response.data.find(item => item.data.path === path)?.data);
 }
