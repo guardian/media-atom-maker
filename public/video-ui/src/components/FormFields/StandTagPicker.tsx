@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { TagAutocomplete, TagTable } from '@guardian/stand/tag-picker';
 import type { Tag } from '../../services/tagmanager';
 import { getTagByPath, getTagsByType } from '../../services/tagmanager';
 import BinSvg from "../../../images/bin.svg?react";
 import FieldNotification from '../../constants/FieldNotification';
 import debounce from "lodash/debounce";
+import type { AppConfig } from '../../slices/config';
 
 type VideoTag = {
   id: number;
@@ -129,9 +131,6 @@ const editableUiTheme = {
 interface StandTagPickerProps {
   tagTypes: string[];
 
-  // it is passed by Redux connection
-  tagManagerUrl?: string;
-
   // the following properties are passed down from the parent ManagedField
   fieldName: string;
   fieldValue?: string[];
@@ -158,13 +157,14 @@ const isFieldValueChanged = (fieldValue: string[], selectedTags: VideoTag[]) => 
   return false;
 };
 
-export const StandTagPicker = ({ tagTypes, tagManagerUrl, fieldName, fieldValue, editable, onUpdateField, placeholder, hasError, hasWarning, notification }: StandTagPickerProps) => {
+const StandTagPicker = ({ tagTypes, fieldName, fieldValue, editable, onUpdateField, placeholder, hasError, hasWarning, notification }: StandTagPickerProps) => {
 
   const [selectedTags, setSelectedTags] = useState<VideoTag[]>([]);
   const [options, setOptions] = useState<VideoTag[]>([]);
   const [value, setValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [tagSearchError, setTagSearchError] = useState<boolean>(false);
+  const tagManagerUrl = useSelector((state: {config: AppConfig}) => state.config.tagManagerUrl);
 
   const searchTags = useCallback((inputText: string, selectedTags: VideoTag[]) => {
     if (tagManagerUrl) {
@@ -310,14 +310,4 @@ export const StandTagPicker = ({ tagTypes, tagManagerUrl, fieldName, fieldValue,
   );
  };
 
-//REDUX CONNECTIONS
-import { connect } from 'react-redux';
-import { AppConfig } from '../../slices/config';
-
-function mapStateToProps(state: {config: AppConfig}) {
-  return {
-    tagManagerUrl: state.config.tagManagerUrl
-  };
-}
-
-export default connect(mapStateToProps)(StandTagPicker);
+ export default StandTagPicker;
