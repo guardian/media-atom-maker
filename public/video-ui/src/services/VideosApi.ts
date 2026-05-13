@@ -24,6 +24,7 @@ export type Asset = {
   id: string;
   platform: Platform;
   mimeType?: string;
+  aspectRatio?: string;
 };
 
 export type User = {
