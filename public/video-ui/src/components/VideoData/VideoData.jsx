@@ -7,6 +7,7 @@ import RichTextField from '../FormFields/RichTextField';
 import SelectBox from '../FormFields/SelectBox';
 import DatePicker from '../FormFields/DatePicker';
 import TagPicker from '../FormFields/TagPicker';
+import StandTagPicker from '../FormFields/StandTagPicker';
 import TagTypes from '../../constants/TagTypes';
 import { fieldLengths } from '../../constants/videoEditValidation';
 import { videoCategories } from '../../constants/videoCategories';
@@ -16,6 +17,7 @@ import FieldNotification from "../../constants/FieldNotification";
 import { trailTextConfig, standfirstConfig } from "../FormFields/richtext/config";
 import { ExpireNowComponent } from "../FormFields/ExpireNow";
 import {addOrDropBundlingTags} from "../../services/KeywordsApi";
+import { isTaggingSupported } from '../../util/config';
 
 export default class VideoData extends React.Component {
   static propTypes = {
@@ -73,6 +75,7 @@ export default class VideoData extends React.Component {
     const isCommercialType = VideoUtils.isCommercialType(video);
     const hasAssets = VideoUtils.hasAssets(video);
     const canHaveComposerPage = VideoUtils.canHaveComposerPage(video);
+    const mustHaveTags = VideoUtils.mustHaveTags(video);
 
     return (
       <ManagedForm
@@ -144,6 +147,19 @@ export default class VideoData extends React.Component {
             >
               <TagPicker disableTextInput tagSubType="commissioningdesk" />
             </ManagedField>
+        }
+        {
+          isTaggingSupported() &&
+          <ManagedField
+            fieldLocation="atomTagIds"
+            name="Tags"
+            formRowClass="form__row__byline"
+            isDesired={mustHaveTags}
+            isRequired={false}
+            inputPlaceholder="Search tags (type '*' to show all)"
+          >
+            <StandTagPicker tagTypes={[TagTypes.keyword]} />
+          </ManagedField>
         }
         {
           canHaveComposerPage &&
