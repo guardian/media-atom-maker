@@ -191,3 +191,9 @@
 .video__images_description {
   color: $color500Grey;
 }
+
+.video__warning {
+  background-color: $color400Grey;
+  padding: 5px;
+  border: 1px solid $cRedB5;
+}

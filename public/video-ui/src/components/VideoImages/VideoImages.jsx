@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import GridImage from '../GridImage/GridImage';
 import GridImageSelect from '../utils/GridImageSelect';
 import { getGridMediaId, getGridQueryParams } from '../../util/getGridMediaId';
+import { isImageCropOutOfSync } from '../../util/getAspectRatio';
 
 export default class VideoImages extends React.Component {
   static propTypes = {
@@ -66,6 +67,11 @@ export default class VideoImages extends React.Component {
             />
           </div>
           <GridImage image={this.props.video.posterImage} />
+          { showImageCropWarning &&
+            <div className="video__warning error">
+              <p>Warning: The aspect ratio of the active video does not match the aspect ratio of this image. Please recrop the image to ensure the correct aspect ratios</p>
+            </div>
+          }
         </div>
         <div className="video__images">
           <div className="video__detailbox__header__container">
