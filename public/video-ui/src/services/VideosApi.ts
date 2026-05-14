@@ -1,3 +1,4 @@
+import type { VideoPlayerFormat } from '../constants/videoCreateOptions';
 import type { UsageData } from '../slices/usage';
 import { cleanVideoData } from '../util/cleanVideoData';
 import { getComposerData } from '../util/getComposerData';
@@ -5,7 +6,6 @@ import { ContentAtom, getVideoBlock } from '../util/getVideoBlock';
 import { getStore } from '../util/storeAccessor';
 import { apiRequest } from './apiRequest';
 import ContentApi, { CapiContent, CapiContentResponse, Stage } from './capi';
-import type {VideoPlayerFormat} from "../constants/videoCreateOptions";
 
 export type ComposerStage = 'live' | 'preview';
 
@@ -24,6 +24,11 @@ export type Asset = {
   id: string;
   platform: Platform;
   mimeType?: string;
+  dimensions?: {
+    width: number;
+    height: number;
+  };
+  duration?: number;
 };
 
 export type User = {
@@ -59,6 +64,24 @@ export type IconikData = {
   masterPlaceholderId?: string;
 };
 
+export type ImageAsset = {
+  mimeType?: string;
+  file: string;
+  dimensions?: {
+    width: number;
+    height: number;
+  };
+  size?: number;
+  aspectRatio?: string;
+};
+
+export type Image = {
+  mediaId: string;
+  assets: ImageAsset[];
+  master?: ImageAsset;
+  source?: string;
+};
+
 export type Video = {
   id: string;
   type?: string;
@@ -74,12 +97,13 @@ export type Video = {
   source?: string;
   description?: string;
   trailText?: string;
-  posterImage?: unknown;
+  posterImage?: Image;
   trailImage?: unknown;
   youtubeOverrideImage: unknown;
   tags: string[];
   byline: string[];
   commissioningDesks: string[];
+  atomTagIds: string[];
   keywords: string[];
   youtubeCategoryId?: string;
   license?: string;

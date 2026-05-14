@@ -93,6 +93,8 @@ case class AddAssetCommand(
 
     def ensureIsGuardianChannel(videoChannel: String) = {
       if (youTube.channels.exists(_.id == videoChannel)) Some(videoChannel)
+      else if (youTube.externalChannels.contains(videoChannel))
+        Some(videoChannel)
       else IncorrectYouTubeChannel
     }
 

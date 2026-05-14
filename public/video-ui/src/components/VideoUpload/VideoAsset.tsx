@@ -132,7 +132,7 @@ function AssetDisplay({
   sources: SelfHostedSource[];
 }) {
   const embed = id ? (
-    <YouTubeEmbed id={id} largePreview={true} className={undefined} />
+    <YouTubeEmbed id={id.toString()} largePreview={true} className={undefined} />
   ) : (
     <VideoEmbed sources={sources} posterUrl={undefined} />
   );

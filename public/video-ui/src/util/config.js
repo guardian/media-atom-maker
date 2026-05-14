@@ -1,3 +1,5 @@
+import { QUERY_PARAM_supportTagging } from "../constants/queryParams";
+
 export function extractConfigFromPage() {
   const configEl = document.getElementById('config');
 
@@ -17,4 +19,9 @@ export function getUserTelemetryClient(stage) {
     default:
       return 'https://user-telemetry.local.dev-gutools.co.uk';
   }
+}
+
+export function isTaggingSupported() {
+  const url = new URL(window.location.href);
+  return url.searchParams.has(QUERY_PARAM_supportTagging);
 }

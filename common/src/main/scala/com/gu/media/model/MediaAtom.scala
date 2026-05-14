@@ -31,12 +31,14 @@ abstract class MediaAtomBase {
   val category: Category
   val source: Option[String]
   val contentChangeDetails: ContentChangeDetails
+  val atomTagIds: List[String] // tags associated with the atom
 
   // youtube metadata
   val channelId: Option[String]
   val privacyStatus: Option[PrivacyStatus]
   val youtubeCategoryId: Option[String]
-  val keywords: List[String]
+  val keywords
+      : List[String] // tags that are applied to the canonical Composer page
   val license: Option[String]
   val blockAds: Boolean
   val expiryDate: Option[Long]
@@ -47,7 +49,9 @@ abstract class MediaAtomBase {
   // composer metadata
   val trailImage: Option[Image]
   val trailText: Option[String]
-  val tags: List[String]
+  val tags: List[
+    String
+  ] // tags for YouTube, not the same as tags we use for atoms and content
   val byline: List[String]
   val commissioningDesks: List[String]
   val legallySensitive: Option[Boolean]
@@ -87,6 +91,7 @@ case class MediaAtomBeforeCreation(
     tags: List[String],
     byline: List[String],
     commissioningDesks: List[String],
+    atomTagIds: List[String],
     legallySensitive: Option[Boolean],
     sensitive: Option[Boolean],
     optimisedForWeb: Option[Boolean],
@@ -148,7 +153,8 @@ case class MediaAtomBeforeCreation(
           blockAds = Some(blockAds),
           sensitive = sensitive
         )
-      )
+      ),
+      tagIds = atomTagIds
     )
   }
 
@@ -187,6 +193,7 @@ case class MediaAtom(
     tags: List[String],
     byline: List[String],
     commissioningDesks: List[String],
+    atomTagIds: List[String],
     keywords: List[String],
     youtubeCategoryId: Option[String],
     license: Option[String],
@@ -257,7 +264,8 @@ case class MediaAtom(
           blockAds = Some(blockAds),
           sensitive = sensitive
         )
-      )
+      ),
+      tagIds = atomTagIds
     )
   }
 
@@ -307,6 +315,7 @@ object MediaAtom extends MediaAtomImplicits {
       tags = data.metadata.flatMap(_.tags.map(_.toList)).getOrElse(Nil),
       byline = data.byline.map(_.toList).getOrElse(Nil),
       commissioningDesks = data.commissioningDesks.map(_.toList).getOrElse(Nil),
+      atomTagIds = atom.tagIds.toList,
       keywords = data.keywords.map(_.toList).getOrElse(Nil),
       youtubeCategoryId = data.metadata.flatMap(_.categoryId),
       expiryDate = data.metadata.flatMap(_.expiryDate),

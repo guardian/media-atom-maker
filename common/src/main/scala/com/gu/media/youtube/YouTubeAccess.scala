@@ -72,6 +72,11 @@ trait YouTubeAccess extends Settings with Logging {
   }.toSet
   val allChannels = channelConfig.keySet
 
+  // Youtube channels that aren't part of the Guardian's Youtube Content Management org,
+  // so we can't automatically manage metadata, thumbnails, rights, etc. but we are happy
+  // for eds to import videos as urls.
+  val externalChannels = getStringSet("youtube.channels.external")
+
   val disallowedVideos: Set[String] = getStringSet("youtube.videos.disallowed")
   val usePartnerApi: Boolean =
     getString("youtube.usePartnerApi").forall(_.toBoolean)

@@ -35,6 +35,7 @@ object TestHelpers {
     tags = List.empty,
     byline = List.empty,
     commissioningDesks = List.empty,
+    atomTagIds = List.empty,
     keywords = List.empty,
     youtubeCategoryId = None,
     license = None,

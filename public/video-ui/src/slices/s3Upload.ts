@@ -13,14 +13,19 @@ import { getUploads } from './uploads';
 export type YouTubeAsset = { id: string; sources?: undefined };
 export type SelfHostedSource = {
   src: string;
-  mimeType: string,
-  height?: number,
-  width?: number
+  mimeType: string;
+  height?: number;
+  width?: number;
 };
+export function isSelfHostedSource(source: unknown): source is SelfHostedSource {
+  return typeof (source as SelfHostedSource).src === 'string' && typeof (source as SelfHostedSource).mimeType === 'string';
+}
+
 export type SelfHostedAsset = {
   id?: undefined;
   sources: SelfHostedSource[];
 };
+
 
 export type VideoAsset = YouTubeAsset | SelfHostedAsset;
 
@@ -54,7 +59,7 @@ export type ClientAsset = {
     startTimestamp?: number;
     user: string;
   };
-}
+};
 
 export interface S3UploadState {
   id: string | null;

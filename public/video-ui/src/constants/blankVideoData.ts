@@ -1,4 +1,4 @@
-import { Video } from "../services/VideosApi";
+import { Video } from '../services/VideosApi';
 
 export const blankVideoData: Video = {
   id: '',
@@ -18,11 +18,13 @@ export const blankVideoData: Video = {
   labels: [],
   composerCommentsEnabled: false,
   commissioningDesks: [],
+  atomTagIds: [],
   contentChangeDetails: {
     revision: 0
   },
   blockAds: false,
   posterImage: {
+    mediaId: '',
     assets: []
   },
   trailImage: {

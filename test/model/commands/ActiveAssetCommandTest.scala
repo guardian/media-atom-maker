@@ -229,6 +229,7 @@ class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
     tags = Nil,
     byline = Nil,
     commissioningDesks = Nil,
+    atomTagIds = Nil,
     keywords = Nil,
     youtubeCategoryId = None,
     license = None,
