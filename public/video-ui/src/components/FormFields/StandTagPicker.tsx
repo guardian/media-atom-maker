@@ -120,9 +120,9 @@ const editableUiTheme = {
     borderColor: '#BDBDBD',
     item: {
       color: '#BDBDBD',
-      backgroundHoverColor: '#393939',
+      backgroundHoverColor: '#252525',
       colorHover: '#BDBDBD',
-      backgroundFocusedColor: '#393939',
+      backgroundFocusedColor: '#252525',
       colorFocused: '#BDBDBD'
     }
   }
