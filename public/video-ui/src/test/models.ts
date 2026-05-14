@@ -1,4 +1,5 @@
-import { Asset, Video } from "../services/VideosApi";
+import { Asset, Image, Video } from "../services/VideosApi";
+import { DEFAULT_VIDEO_RATIO } from "../util/getAspectRatio";
 
 export const emptyVideo: Video = {
     id: '',
@@ -83,7 +84,7 @@ export const audioAsset1: Asset = {
     id: 'id',
     platform: 'Youtube'
 };
-export const videoWithActiveAsset = {
+export const videoWithActiveAsset5by4 = {
     ...emptyVideo,
     activeVersion: 1,
     assets: [
@@ -92,4 +93,35 @@ export const videoWithActiveAsset = {
             aspectRatio: '5:4'
         }
     ]
+};
+
+export const emptyImage: Image = {
+    mediaId: "mediaId",
+    assets: []
+};
+export const imageWithAspectRatio5by3: Image = {
+    mediaId: "mediaId",
+    assets: [],
+    master: {
+        file: "file",
+        aspectRatio: "5:3"
+    }  
+};
+
+export const imageWithAspectRatio5by4: Image = {
+    mediaId: "mediaId",
+    assets: [],
+    master: {
+        file: "file",
+        aspectRatio: "5:4"
+    }  
+};
+
+export const imageWithDefaultVideoAspectRatio: Image = {
+    mediaId: "mediaId",
+    assets: [],
+    master: {
+        file: "file",
+        aspectRatio: DEFAULT_VIDEO_RATIO
+    }  
 };
