@@ -7,6 +7,7 @@ import com.gu.media.lambda.{
   LambdaYoutubeCredentials
 }
 import com.gu.media.logging.Logging
+import com.gu.media.telemetry.Telemetry
 import com.gu.media.upload.model.{Upload, YouTubeUploadMetadata}
 import com.gu.media.youtube.{YouTubeAccess, YouTubeUploader}
 
@@ -20,7 +21,7 @@ class UploadChunkToYouTube
     with DynamoAccess {
   private val uploader = new YouTubeUploader(this, this.s3Client)
 
-  override def handle(upload: Upload): Upload = {
+  override def handle(upload: Upload, telemetry: Telemetry): Upload = {
     val chunk = upload.parts(upload.progress.chunksInS3 - 1)
     val (uploadUri, runtimeMetadata) = getUploadUri(upload)
 

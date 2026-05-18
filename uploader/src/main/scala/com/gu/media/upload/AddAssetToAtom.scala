@@ -16,6 +16,7 @@ import com.gu.media.aws.{DynamoAccess, KinesisAccess, UploadAccess}
 import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
 import com.gu.media.model.{AuditMessage, VideoSource, YouTubeAsset}
+import com.gu.media.telemetry.Telemetry
 import com.gu.media.upload.mediaconvert.{
   JobSettingsBuilder,
   OutputGroupDefinition
@@ -51,7 +52,7 @@ class AddAssetToAtom
     crossAccountKinesisClient
   )
 
-  override def handle(upload: Upload): Upload = {
+  override def handle(upload: Upload, telemetry: Telemetry): Upload = {
     val atomId = upload.metadata.pluto.atomId
     val before = getAtom(atomId)
     val user = getUser(upload.metadata.user)
@@ -77,7 +78,6 @@ class AddAssetToAtom
       "media-atom-pipeline",
       Some(s"Added video asset")
     ).logMessage()
-
     upload
   }
 

@@ -1,12 +1,13 @@
 package util
 
 import java.time.Instant
-
 import software.amazon.awssdk.services.sfn.model._
 import com.fasterxml.jackson.core.JsonParseException
 import com.gu.media.upload.model._
+import org.apache.pekko.http.scaladsl.model.DateTime
 import play.api.libs.json.{JsResultException, Json}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.jdk.CollectionConverters._
 
 class StepFunctions(awsConfig: AWSConfig) {
@@ -61,7 +62,6 @@ class StepFunctions(awsConfig: AWSConfig) {
       .stateMachineArn(awsConfig.pipelineArn)
       .input(Json.stringify(Json.toJson(upload)))
       .build()
-
     awsConfig.stepFunctionsClient.startExecution(stepFunctionsRequest)
   }
 
@@ -78,6 +78,44 @@ class StepFunctions(awsConfig: AWSConfig) {
     awsConfig.stepFunctionsClient.getExecutionHistory(request).events().asScala
   }
 
+  def getAllHistoryEvents(executionArn: String) = {
+    def getAllHistory(
+        nextToken: Option[String],
+        previousEvents: List[HistoryEvent]
+    ): List[HistoryEvent] = {
+      val request = GetExecutionHistoryRequest
+        .builder()
+        .executionArn(executionArn)
+        .nextToken(nextToken.orNull)
+        .build()
+
+      val response = awsConfig.stepFunctionsClient.getExecutionHistory(request)
+      val allEvents = response.events().asScala.toList ::: previousEvents
+      if (response.nextToken() != null) {
+        getAllHistory(Some(response.nextToken()), allEvents)
+      } else allEvents
+    }
+    getAllHistory(None, Nil)
+  }
+
+  def getPreviousExecutions(limit: Int) = {
+
+    val request = ListExecutionsRequest
+      .builder()
+      .stateMachineArn(awsConfig.pipelineArn)
+      .maxResults(limit)
+      .statusFilter(ExecutionStatus.SUCCEEDED)
+      .build()
+
+    val results = awsConfig.stepFunctionsClient
+      .listExecutions(request)
+      .executions()
+      .asScala
+      .toList
+    println(s"RETRIEVED ${results.length}")
+    results
+
+  }
   private def getExecutions(
       atomId: String,
       filter: ExecutionStatus

@@ -3,6 +3,7 @@ package com.gu.media.upload
 import com.gu.media.aws.S3Access
 import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
+import com.gu.media.telemetry.Telemetry
 import com.gu.media.upload.model.{CopyETag, CopyProgress, Upload}
 import software.amazon.awssdk.services.s3.model.{
   CreateMultipartUploadRequest,
@@ -14,8 +15,8 @@ class MultipartCopyChunkInS3
     with LambdaBase
     with S3Access
     with Logging {
-  override def handle(upload: Upload): Upload = {
-    upload.copy(
+  override def handle(upload: Upload, telemetry: Telemetry): Upload = {
+    val uploaded = upload.copy(
       progress = upload.progress.copy(
         copyProgress = Some(upload.progress.copyProgress match {
           case Some(before) => uploadPart(upload, before)
@@ -23,6 +24,7 @@ class MultipartCopyChunkInS3
         })
       )
     )
+    uploaded
   }
 
   private def start(upload: Upload): CopyProgress = {

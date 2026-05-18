@@ -14,6 +14,7 @@ import com.gu.media.model.{
   VideoAsset,
   VideoSource
 }
+import com.gu.media.telemetry.Telemetry
 import com.gu.media.upload.model.{
   MediaConvertEvent,
   MediaConvertOutputGroupDetails,
@@ -45,7 +46,7 @@ class TranscoderComplete
   final override def readTag(tag: String) =
     sys.env.get(tag.toUpperCase(Locale.ENGLISH))
 
-  override def handle(data: MediaConvertEvent): String = {
+  override def handle(data: MediaConvertEvent, telemetry: Telemetry): String = {
     (for {
       executionId <- data.detail.userMetadata
         .get("executionId")
@@ -97,7 +98,7 @@ class TranscoderComplete
       case Right(executionId) =>
         log.info(s"Resumed state machine execution $executionId")
     }
-
+    telemetry.sendTelemetryEvent("LAMBDA_END_TranscoderComplete", Map())
     "Done"
   }
 
