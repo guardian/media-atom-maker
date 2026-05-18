@@ -50,6 +50,8 @@ export default class VideoImages extends React.Component {
     // mediaId is in fact the media _URI_; the ID will be the last field when string is split on /
     const mediaId = this.props.video?.trailImage?.mediaId?.split('/')?.pop();
 
+    const showImageCropWarning = isImageCropOutOfSync(this.props.video);
+
     return (
       <div className="video__imagebox">
         <div className="video__images">
