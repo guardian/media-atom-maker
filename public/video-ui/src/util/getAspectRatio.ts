@@ -1,6 +1,6 @@
 import { Video, Image } from "../services/VideosApi";
 
-export const DEFAULT_VIDEO_RATIO  = "9:16";
+export const DEFAULT_VIDEO_RATIO  = "16:9";
 
 export const getAspectRatioFromVideo = (video: Video): string | undefined => {
     if(!video.activeVersion) return undefined;
