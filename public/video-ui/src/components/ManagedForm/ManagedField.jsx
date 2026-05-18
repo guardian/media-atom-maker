@@ -7,6 +7,7 @@ import {getTextFromHtml} from '../../util/getTextFromHtml';
 import FieldNotification from '../../constants/FieldNotification';
 import {fieldsWithHtml} from '../../constants/fieldsWithHtml';
 import RequiredForComposer from '../../constants/requiredForComposer';
+import RequiredForDefaultVideo from '../../constants/requiredForDefaultVideo';
 
 export class ManagedField extends React.Component {
   static propTypes = {
@@ -54,6 +55,7 @@ export class ManagedField extends React.Component {
     }
 
     const composerValidation = RequiredForComposer.fields.includes(this.props.fieldLocation);
+    const defaultVideoValidation = RequiredForDefaultVideo.fields.includes(this.props.fieldLocation);
 
     const notification = validateField(
       value,
@@ -61,6 +63,7 @@ export class ManagedField extends React.Component {
       this.props.isDesired,
       this.props.customValidation,
       composerValidation,
+      defaultVideoValidation,
       this.props.maxLength
     );
 
@@ -73,13 +76,14 @@ export class ManagedField extends React.Component {
     }
 
     if (this.props.updateWarnings) {
-
-      if (notification && notification.type === FieldNotification.warning) {
+      // despite its general function name "updateWarnings", this function "updateWarnings" updates
+      // the slice "formFieldWarnings" in the store, which is used in the "Header" component to decide
+      // whether a composer page can be created. It assumes that all warnings in the slice come from
+      // composer related fields.
+      if (notification && notification.type === FieldNotification.warning && composerValidation) {
         this.props.updateWarnings(true, this.props.fieldLocation);
-
       } else {
         this.props.updateWarnings(false, this.props.fieldLocation);
-
       }
     }
 

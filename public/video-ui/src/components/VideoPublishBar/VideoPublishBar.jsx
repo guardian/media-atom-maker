@@ -4,6 +4,7 @@ import { hasUnpublishedChanges } from '../../util/hasUnpublishedChanges';
 import ScheduledLaunch from '../ScheduledLaunch/ScheduledLaunch';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 import VideoUtils from '../../util/video';
+import { checkVideoReadyToPublish } from '../../util/videoPublishCheck';
 
 export default class VideoPublishBar extends React.Component {
   videoIsCurrentlyPublishing() {
@@ -24,7 +25,8 @@ export default class VideoPublishBar extends React.Component {
       this.videoIsCurrentlyPublishing() ||
       this.props.videoEditOpen ||
       !this.videoHasUnpublishedChanges() ||
-      (canonicalVideoPageExists(this.props.usages) && this.props.requiredComposerFieldsMissing())
+      (canonicalVideoPageExists(this.props.usages) && this.props.requiredComposerFieldsMissing()) ||
+      checkVideoReadyToPublish(this.props.video).length > 0
     );
   }
 
@@ -72,6 +74,7 @@ export default class VideoPublishBar extends React.Component {
 
   renderPublishButton() {
     return (
+      <>
       <button
         type="button"
         className="btn"
@@ -80,7 +83,23 @@ export default class VideoPublishBar extends React.Component {
       >
         {this.renderPublishButtonText()}
       </button>
+      {this.renderRequiredFieldsMissingWarning()}
+      </>
     );
+  }
+
+  renderRequiredFieldsMissingWarning() {
+    const videoReadyToPublishErrors = checkVideoReadyToPublish(this.props.video);
+
+    if (videoReadyToPublishErrors.length === 0) {
+      return null;
+    } else {
+      return (
+        <div className="header__fields__missing__warning">
+          {videoReadyToPublishErrors[0]}
+        </div>
+      );
+    }
   }
 
   renderScheduler() {

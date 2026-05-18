@@ -126,4 +126,8 @@ export default class VideoUtils {
   static canHaveComposerPage(atom) {
     return atom.videoPlayerFormat !== 'Cinemagraph' && atom.videoPlayerFormat !== 'Loop';
   }
+
+  static mustHaveTags(atom) {
+    return atom.videoPlayerFormat === 'Default';
+  }
 }
