@@ -98,8 +98,8 @@ type VideoFromApi = {
   description?: string;
   trailText?: string;
   posterImage?: Image;
-  trailImage?: unknown;
-  youtubeOverrideImage: unknown;
+  trailImage?: Image;
+  youtubeOverrideImage: Image;
   tags: string[];
   byline: string[];
   commissioningDesks: string[];
@@ -108,16 +108,16 @@ type VideoFromApi = {
   youtubeCategoryId?: string;
   license?: string;
   channelId?: string;
-  legallySensitive?: Boolean;
-  sensitive?: Boolean;
+  legallySensitive?: boolean;
+  sensitive?: boolean;
   privacyStatus?: unknown;
   expiryDate?: number;
   youtubeTitle: string;
   youtubeDescription?: string;
-  blockAds: Boolean;
-  composerCommentsEnabled?: Boolean;
-  optimisedForWeb?: Boolean;
-  suppressRelatedContent?: Boolean;
+  blockAds: boolean;
+  composerCommentsEnabled?: boolean;
+  optimisedForWeb?: boolean;
+  suppressRelatedContent?: boolean;
   videoPlayerFormat?: VideoPlayerFormat;
   platform?: Platform;
 };
@@ -145,7 +145,7 @@ type AudioAsset = Asset & {
   assetType: 'Audio';
 };
 
-type MediaAtomAsset =
+export type MediaAtomAsset =
   | YoutubeVideoAsset
   | SelfHostedVideoAsset
   | SubtitlesAsset

@@ -1,17 +1,24 @@
 import moment from 'moment';
 
-import { getStore } from './storeAccessor';
 import PrivacyStates from '../constants/privacyStates';
+import { getStore } from './storeAccessor';
 
 export default class VideoUtils {
   static hasAssets({ assets }) {
     return assets.length > 0;
   }
 
+  /**
+   * @typedef {import('../services/VideosApi').Video} Video
+   * @typedef {import('../services/VideosApi').MediaAtomAsset} MediaAtomAsset
+   *
+   * @param {{assets: Video['assets'], activeVersion: Video['activeVersion']}} param0
+   * @returns {MediaAtomAsset[] | undefined}
+   */
   static getActiveAsset({ assets, activeVersion }) {
     if (activeVersion) {
       const active = assets.filter(_ => _.version === activeVersion);
-      return active.length === 1 ? active[0] : active;
+      return active;
     }
   }
 
@@ -86,15 +93,19 @@ export default class VideoUtils {
   }
 
   static getScheduledLaunch({ contentChangeDetails }) {
-    return contentChangeDetails &&
+    return (
+      contentChangeDetails &&
       contentChangeDetails.scheduledLaunch &&
-      contentChangeDetails.scheduledLaunch.date;
+      contentChangeDetails.scheduledLaunch.date
+    );
   }
 
   static getEmbargo({ contentChangeDetails }) {
-    return contentChangeDetails &&
+    return (
+      contentChangeDetails &&
       contentChangeDetails.embargo &&
-      contentChangeDetails.embargo.date;
+      contentChangeDetails.embargo.date
+    );
   }
 
   static getScheduledLaunchAsDate(video) {
@@ -112,7 +123,10 @@ export default class VideoUtils {
   }
 
   static hasExpired({ contentChangeDetails }) {
-    return !!contentChangeDetails.expiry && contentChangeDetails.expiry.date <= Date.now();
+    return (
+      !!contentChangeDetails.expiry &&
+      contentChangeDetails.expiry.date <= Date.now()
+    );
   }
 
   static getPlatformFromAtom(atom) {
@@ -124,7 +138,10 @@ export default class VideoUtils {
   }
 
   static canHaveComposerPage(atom) {
-    return atom.videoPlayerFormat !== 'Cinemagraph' && atom.videoPlayerFormat !== 'Loop';
+    return (
+      atom.videoPlayerFormat !== 'Cinemagraph' &&
+      atom.videoPlayerFormat !== 'Loop'
+    );
   }
 
   static mustHaveTags(atom) {
