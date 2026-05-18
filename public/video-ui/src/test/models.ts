@@ -64,7 +64,8 @@ export const emptyVideo: Video = {
     commissioningDesks: [],
     keywords: [],
     youtubeTitle: '',
-    blockAds: undefined
+    blockAds: undefined,
+    atomTagIds: []
 };
 export const videoAsset1: Asset = {
     assetType: 'Video',
