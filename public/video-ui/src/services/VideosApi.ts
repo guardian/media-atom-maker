@@ -82,7 +82,7 @@ export type Image = {
   source?: string;
 };
 
-export type Video = {
+type VideoFromApi = {
   id: string;
   type?: string;
   labels: string[];
@@ -120,6 +120,39 @@ export type Video = {
   suppressRelatedContent?: Boolean;
   videoPlayerFormat?: VideoPlayerFormat;
   platform?: Platform;
+};
+
+type VideoAsset = Asset & {
+  assetType: 'Video';
+};
+
+type YoutubeVideoAsset = VideoAsset & {
+  platform: 'Youtube';
+};
+
+type SelfHostedVideoAsset = VideoAsset & {
+  platform: 'Url';
+  mimeType: string;
+};
+
+type SubtitlesAsset = Asset & {
+  assetType: 'Subtitles';
+  platform: 'Url';
+  mimeType: 'text/vtt';
+};
+
+type AudioAsset = Asset & {
+  assetType: 'Audio';
+};
+
+type MediaAtomAsset =
+  | YoutubeVideoAsset
+  | SelfHostedVideoAsset
+  | SubtitlesAsset
+  | AudioAsset;
+
+export type Video = Omit<VideoFromApi, 'assets'> & {
+  assets: MediaAtomAsset[];
 };
 
 export type MediaAtomSummary = Pick<
