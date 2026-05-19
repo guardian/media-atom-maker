@@ -6,7 +6,7 @@ import { getTagByPath, getTagsByType } from '../../services/tagmanager';
 import BinSvg from "../../../images/bin.svg?react";
 import FieldNotification from '../../constants/FieldNotification';
 import debounce from "lodash/debounce";
-import type { AppConfig } from '../../slices/config';
+import { ConfigState } from '../../util/config';
 
 type VideoTag = {
   id: number;
@@ -164,7 +164,7 @@ const StandTagPicker = ({ tagTypes, fieldName, fieldValue, editable, onUpdateFie
   const [value, setValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [tagSearchError, setTagSearchError] = useState<boolean>(false);
-  const tagManagerUrl = useSelector((state: {config: AppConfig}) => state.config.tagManagerUrl);
+  const tagManagerUrl = useSelector((state: {config: ConfigState}) => state.config.tagManagerUrl);
 
   const searchTags = useCallback((inputText: string, selectedTags: VideoTag[]) => {
     if (tagManagerUrl) {
@@ -230,7 +230,7 @@ const StandTagPicker = ({ tagTypes, fieldName, fieldValue, editable, onUpdateFie
           });
       }
     }
-  }, [fieldValue, selectedTags,tagManagerUrl]);
+  }, [fieldValue, selectedTags, tagManagerUrl]);
 
   const renderReadOnly = () => {
     if (selectedTags.length === 0) {
