@@ -8,6 +8,7 @@ import SelectBox from '../FormFields/SelectBox';
 import DatePicker from '../FormFields/DatePicker';
 import TagPicker from '../FormFields/TagPicker';
 import StandTagPicker from '../FormFields/StandTagPicker';
+import { isTagAllowed, supportedTagFilters } from '../FormFields/tags/allowTags';
 import TagTypes from '../../constants/TagTypes';
 import { fieldLengths } from '../../constants/videoEditValidation';
 import { videoCategories } from '../../constants/videoCategories';
@@ -158,7 +159,10 @@ export default class VideoData extends React.Component {
             isRequired={false}
             inputPlaceholder="Search tags (type '*' to show all)"
           >
-            <StandTagPicker tagTypes={[TagTypes.keyword]} />
+            <StandTagPicker
+              tagTypes={[TagTypes.keyword, TagTypes.tracking, TagTypes.tone]}
+              allowTags={isTagAllowed}
+              filters={supportedTagFilters} />
           </ManagedField>
         }
         {

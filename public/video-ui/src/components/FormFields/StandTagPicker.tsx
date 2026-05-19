@@ -8,11 +8,18 @@ import FieldNotification from '../../constants/FieldNotification';
 import debounce from "lodash/debounce";
 import type { AppConfig } from '../../slices/config';
 
-type VideoTag = {
+export type StandTagPickerFilter = {
+  displayLabel: string;
+  tagTypes: string[];
+  tagSubType?: string;
+}
+
+export type VideoTag = {
   id: number;
   path: string;
   name: string;
   type: string;
+  subtype?: string;
   sectionName: string;
 };
 
@@ -22,7 +29,8 @@ const videoTagFromTagManager = (data: Tag): VideoTag => {
     path: data.path,
     name: data.internalName,
     type: data.type,
-    sectionName: data.section.name
+    sectionName: data.section.name,
+    subtype: data.subType
   };
 };
 
@@ -130,6 +138,8 @@ const editableUiTheme = {
 
 interface StandTagPickerProps {
   tagTypes: string[];
+  allowTags?: (tag: VideoTag) => boolean;
+  filters?: StandTagPickerFilter[];
 
   // the following properties are passed down from the parent ManagedField
   fieldName: string;
@@ -157,25 +167,32 @@ const isFieldValueChanged = (fieldValue: string[], selectedTags: VideoTag[]) => 
   return false;
 };
 
-const StandTagPicker = ({ tagTypes, fieldName, fieldValue, editable, onUpdateField, placeholder, hasError, hasWarning, notification }: StandTagPickerProps) => {
+const StandTagPicker = ({ tagTypes, allowTags, filters, fieldName, fieldValue, editable, onUpdateField, placeholder, hasError, hasWarning, notification }: StandTagPickerProps) => {
 
   const [selectedTags, setSelectedTags] = useState<VideoTag[]>([]);
   const [options, setOptions] = useState<VideoTag[]>([]);
   const [value, setValue] = useState('');
+  const [selectedFilter, setSelectedFilter] = useState<StandTagPickerFilter | undefined>(filters?.[0]);
   const [isLoading, setIsLoading] = useState(false);
   const [tagSearchError, setTagSearchError] = useState<boolean>(false);
   const tagManagerUrl = useSelector((state: {config: AppConfig}) => state.config.tagManagerUrl);
 
-  const searchTags = useCallback((inputText: string, selectedTags: VideoTag[]) => {
+  const searchTags = useCallback((inputText: string, selectedTags: VideoTag[], filter?: StandTagPickerFilter) => {
     if (tagManagerUrl) {
       setIsLoading(true);
-      getTagsByType(tagManagerUrl, inputText, tagTypes)
+      const activeTagTypes = filter?.tagTypes ?? tagTypes;
+      const activeSubType = filter?.tagSubType;
+      const filterTag = (tag: VideoTag) => (
+        (allowTags ? allowTags(tag) : true) &&
+        !selectedTags.some((selectedTag) => selectedTag.path === tag.path)
+      );
+      getTagsByType(tagManagerUrl, inputText, activeTagTypes, activeSubType)
         .then(response => {
           const tags = response.data
             .map((tagItem) => tagItem.data)
             .filter((tag) => !tag.deprecated)
             .map(videoTagFromTagManager)
-            .filter((tag) => !selectedTags.some((selectedTag) => selectedTag.path === tag.path));
+            .filter(filterTag);
           setTagSearchError(false);
           setOptions(tags);
         })
@@ -186,7 +203,7 @@ const StandTagPicker = ({ tagTypes, fieldName, fieldValue, editable, onUpdateFie
           setIsLoading(false);
         });
     }
-  }, [tagManagerUrl, tagTypes, setIsLoading, setTagSearchError, setOptions]);
+  }, [tagManagerUrl, tagTypes, allowTags, setIsLoading, setTagSearchError, setOptions]);
 
   const debouncedSearchTags = useMemo(() => debounce(searchTags, 500), [searchTags]);
 
@@ -196,7 +213,17 @@ const StandTagPicker = ({ tagTypes, fieldName, fieldValue, editable, onUpdateFie
       setOptions([]);
       return;
     }
-    debouncedSearchTags(inputText, selectedTags);
+    debouncedSearchTags(inputText, selectedTags, selectedFilter);
+  };
+
+  const onFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newFilter = filters?.[Number(e.target.value)];
+    setSelectedFilter(newFilter);
+    if (value !== '') {
+      debouncedSearchTags(value, selectedTags, newFilter);
+    } else {
+      setOptions([]);
+    }
   };
 
   const onUpdate = (newTags: VideoTag[]) => {
@@ -268,17 +295,28 @@ const StandTagPicker = ({ tagTypes, fieldName, fieldValue, editable, onUpdateFie
               Tags are currently unavailable
             </div>
           )}
-          <TagAutocomplete
-            onTextInputChange={onTextInputChange}
-            options={options}
-            label="Tags"
-            addTag={onTagAdded}
-            loading={isLoading}
-            placeholder={''}
-            disabled={false}
-            value={value}
-            theme={editableUiTheme}
-          />
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+            <div style={{ flex: 1 }}>
+              <TagAutocomplete
+                onTextInputChange={onTextInputChange}
+                options={options}
+                label="Tags"
+                addTag={onTagAdded}
+                loading={isLoading}
+                placeholder={''}
+                disabled={false}
+                value={value}
+                theme={editableUiTheme}
+              />
+            </div>
+            {filters && filters.length > 0 && (
+              <select onChange={onFilterChange}>
+                {filters.map((filter, index) => (
+                  <option key={filter.displayLabel} value={index}>{filter.displayLabel}</option>
+                ))}
+              </select>
+            )}
+          </div>
           {selectedTags.length > 0 && (
             <div className="stand-tag-table-container">
               <TagTable
