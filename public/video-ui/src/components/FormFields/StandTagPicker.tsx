@@ -187,7 +187,6 @@ const StandTagPicker = ({ tagTypes, allowTags, filters, fieldName, fieldValue, e
   };
   const searchTags = useCallback((inputText: string, selectedTags: VideoTag[], filter?: StandTagPickerFilter) => {
     if (tagManagerUrl) {
-      setIsLoading(true);
       const activeTagTypes = filter?.tagTypes ?? tagTypes;
       const activeSubType = filter?.tagSubType;
       const filterTag = (tag: VideoTag) => (
@@ -221,7 +220,13 @@ const StandTagPicker = ({ tagTypes, allowTags, filters, fieldName, fieldValue, e
       setOptions([]);
       return;
     }
-    debouncedSearchTags(inputText, selectedTags, selectedFilter);
+    if (tagManagerUrl) {
+      if (options.length === 0) {
+        // if there are no options currently shown, we want to show the loading state immediately when user starts typing
+        setIsLoading(true);
+      }
+      debouncedSearchTags(inputText, selectedTags, selectedFilter);
+    }
   };
 
   const onFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
