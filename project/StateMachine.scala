@@ -2,7 +2,11 @@ import sbt._
 import sbt.Keys._
 
 object StateMachine {
-  case class LambdaConfig(description: String, timeout: Int = 300)
+  case class LambdaConfig(
+    description: String,
+    timeout: Int = 300,
+    memory: Int = 2048,
+  )
 
   val lambdas = settingKey[Map[String, LambdaConfig]]("The lambdas to include in the state machine")
 
@@ -12,11 +16,12 @@ object StateMachine {
     val stateMachine = IO.read((Compile / resourceDirectory).value / "state-machine.json")
 
     val withLambdas = (Compile / lambdas).value.foldLeft(template) {
-      case (tmpl, (name, LambdaConfig(description, timeout))) =>
+      case (tmpl, (name, LambdaConfig(description, timeout, memory))) =>
         val instance = lambdaTemplate
           .replace("{{name}}", name)
           .replace("{{description}}", description)
           .replace("{{timeout}}", timeout.toString)
+          .replace("{{memory}}", memory.toString)
 
         replace(s"{{$name}}", instance, tmpl)
     }
