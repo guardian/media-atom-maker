@@ -27,11 +27,6 @@ const defaultProps = {
 };
 
 const store = setupStore();
-store.dispatch(
-  setConfig(Object.assign({}, {
-    tagManagerUrl: 'https://tagmanager.code.dev-gutools.co.uk'
-  }))
-);
 
 describe('TagPicker', () => {
 		it('searches for tags as user types', async () => {
