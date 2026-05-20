@@ -5,16 +5,17 @@ import GridImageSelect from '../utils/GridImageSelect';
 import { getGridMediaId, getGridQueryParams } from '../../util/getGridMediaId';
 import { isImageCropOutOfSync } from '../../util/getAspectRatio';
 
-export default class VideoImages extends React.Component {
+export default class mapStateToProps extends React.Component {
   static propTypes = {
     gridDomain: PropTypes.string.isRequired,
     video: PropTypes.object.isRequired,
     saveAndUpdateVideo: PropTypes.func.isRequired,
     updateVideo: PropTypes.func.isRequired,
     videoEditOpen: PropTypes.bool.isRequired,
-    updateErrors: PropTypes.func.isRequired
+    updateErrors: PropTypes.func.isRequired,
+    cropOptions: PropTypes.object.isRequired
   };
-
+  
   saveAndUpdateVideoImage = (image, location) => {
     const revertVideo = Object.assign({}, this.props.video);
     const newVideo = Object.assign({}, this.props.video, {

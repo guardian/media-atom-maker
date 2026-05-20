@@ -27,6 +27,7 @@ import { getVideo } from '../actions/VideoActions/getVideo';
 import { getPublishedVideo } from '../actions/VideoActions/getPublishedVideo';
 import { getUploads } from '../slices/uploads';
 import {createVideo} from "../actions/VideoActions/createVideo";
+import { fetchCropOptions } from '../slices/gridMetadata';
 
 export const ReactApp = (
   props: React.PropsWithChildren<{
@@ -74,6 +75,10 @@ export const ReactApp = (
       setFetchedVideoFor(props.params.id);
     }
   }, [props.params.id, video.id]);
+
+  useEffect(() => {
+    dispatch(fetchCropOptions());
+  }, [dispatch]);
 
   useEffect(() => {
     document.body.scrollIntoView({ block: 'start', behavior: 'smooth' });
