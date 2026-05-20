@@ -1,9 +1,4 @@
-import software.amazon.awssdk.auth.credentials.{
-  AwsCredentialsProvider,
-  AwsCredentialsProviderChain,
-  InstanceProfileCredentialsProvider,
-  ProfileCredentialsProvider
-}
+import software.amazon.awssdk.auth.credentials.{AwsCredentialsProvider, AwsCredentialsProviderChain, InstanceProfileCredentialsProvider, ProfileCredentialsProvider}
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.gu.atom.play.ReindexController
 import com.gu.media.aws.{AwsCredentials, S3Access}
@@ -13,19 +8,13 @@ import controllers._
 import data._
 import org.apache.pekko.actor.ActorSystem
 import play.api.ApplicationLoader.Context
-import play.api.{
-  Application,
-  ApplicationLoader,
-  BuiltInComponentsFromContext,
-  Configuration,
-  LoggerConfigurator,
-  Mode
-}
+import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext, Configuration, LoggerConfigurator, Mode}
 import play.api.libs.ws.WSClient
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.mvc.{ControllerComponents, EssentialFilter}
 import play.filters.HttpFiltersComponents
 import router.Routes
+import schedule.GridAPI
 import util._
 
 import java.io.FileInputStream
@@ -118,7 +107,7 @@ class MediaAtomMaker(context: Context)
 
   private val reindexer = buildReindexer()
 
-  private val gridApiScheduler = new GridAPIScheduler(
+  private val gridApiScheduler = new GridAPI(
     ActorSystem.create("gridApiScheduler"),
     MediaAtomMaker.this.wsClient
   )
@@ -147,6 +136,7 @@ class MediaAtomMaker(context: Context)
     permissions,
     capi,
     thumbnailGenerator,
+    gridApiScheduler,
     controllerComponents
   )
 
