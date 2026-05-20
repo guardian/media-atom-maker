@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import GridImage from '../GridImage/GridImage';
 import GridImageSelect from '../utils/GridImageSelect';
-import { getGridMediaId } from '../../util/getGridMediaId';
+import { getGridMediaId, getGridQueryParams } from '../../util/getGridMediaId';
+import { isImageCropOutOfSync } from '../../util/getAspectRatio';
 
 export default class VideoImages extends React.Component {
   static propTypes = {
@@ -24,11 +25,7 @@ export default class VideoImages extends React.Component {
 
   getGridUrl(cropType) {
     const posterImage = this.props.video.posterImage;
-
-    const queryParam = cropType == "verticalVideo" ?
-      `cropType=${cropType}&customRatio=${cropType},9,16` :
-      `cropType=${cropType}`;
-
+    const queryParam = getGridQueryParams(cropType, this.props.video);
     if (posterImage.assets.length > 0) {
       const imageGridId = getGridMediaId(posterImage);
 
@@ -53,6 +50,8 @@ export default class VideoImages extends React.Component {
     // mediaId is in fact the media _URI_; the ID will be the last field when string is split on /
     const mediaId = this.props.video?.trailImage?.mediaId?.split('/')?.pop();
 
+    const showImageCropWarning = isImageCropOutOfSync(this.props.video);
+
     return (
       <div className="video__imagebox">
         <div className="video__images">
@@ -62,7 +61,7 @@ export default class VideoImages extends React.Component {
             </header>
             <GridImageSelect
               image={this.props.video.posterImage}
-              gridUrl={this.hasVerticalVideoTag() ? this.getGridUrl('verticalVideo'): this.getGridUrl('video')}
+              gridUrl={this.hasVerticalVideoTag() ? this.getGridUrl('verticalVideo'): this.getGridUrl('custom')}
               gridDomain={this.props.gridDomain}
               disabled={this.props.videoEditOpen}
               updateVideo={this.saveAndUpdateVideoImage}
@@ -70,6 +69,11 @@ export default class VideoImages extends React.Component {
             />
           </div>
           <GridImage image={this.props.video.posterImage} />
+          { showImageCropWarning &&
+            <div className="video__warning error">
+              <p>Warning: The aspect ratio of the active video does not match the aspect ratio of this image. Please recrop the image to ensure the correct aspect ratios</p>
+            </div>
+          }
         </div>
         <div className="video__images">
           <div className="video__detailbox__header__container">
