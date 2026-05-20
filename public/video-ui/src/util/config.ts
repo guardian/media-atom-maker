@@ -50,10 +50,10 @@ export function extractEmbeddedModeFromUrl(): boolean {
   const maybeEmbeddedMode = new URLSearchParams(location.search).get(
     'embeddedMode'
   );
-  if (!maybeEmbeddedMode) {
+  if (!maybeEmbeddedMode || maybeEmbeddedMode === 'false') {
     return false;
   }
-  return maybeEmbeddedMode === 'true';
+  return true;
 }
 
 export type ConfigState = ClientConfig & { embeddedMode: boolean };
