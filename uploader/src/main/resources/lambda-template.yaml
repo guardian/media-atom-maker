@@ -24,7 +24,7 @@
           - { Stage: !Ref Stage }
         ATOM_TABLE_NAME: !Ref 'MediaAtomTable'
         MEDIA_CONVERT_ROLE: !GetAtt MediaConvertRole.Arn
-    MemorySize: 2048
+    MemorySize: {{memory}}
 # Architecture specified to match version of ffmpeg used to inject subtitles into mp4
     Architectures:
       - "x86_64"
