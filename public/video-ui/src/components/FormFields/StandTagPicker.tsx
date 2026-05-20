@@ -176,7 +176,15 @@ const StandTagPicker = ({ tagTypes, allowTags, filters, fieldName, fieldValue, e
   const [isLoading, setIsLoading] = useState(false);
   const [tagSearchError, setTagSearchError] = useState<boolean>(false);
   const tagManagerUrl = useSelector((state: {config: AppConfig}) => state.config.tagManagerUrl);
-
+  const tagPickerContainerStyle = { display: 'flex', alignItems: 'stretch', gap: '8px', marginBottom: '8px' };
+  const tagPickerDropdownStyle = {
+    border: "1px solid #BDBDBD",
+    backgroundColor: "#393939",
+    color: "inherit",
+    font: "inherit",
+    paddingLeft: "8px",
+    paddingRight: "8px"
+  };
   const searchTags = useCallback((inputText: string, selectedTags: VideoTag[], filter?: StandTagPickerFilter) => {
     if (tagManagerUrl) {
       setIsLoading(true);
@@ -295,7 +303,7 @@ const StandTagPicker = ({ tagTypes, allowTags, filters, fieldName, fieldValue, e
               Tags are currently unavailable
             </div>
           )}
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+          <div style={tagPickerContainerStyle}>
             <div style={{ flex: 1 }}>
               <TagAutocomplete
                 onTextInputChange={onTextInputChange}
@@ -310,7 +318,7 @@ const StandTagPicker = ({ tagTypes, allowTags, filters, fieldName, fieldValue, e
               />
             </div>
             {filters && filters.length > 0 && (
-              <select onChange={onFilterChange}>
+              <select style={tagPickerDropdownStyle} onChange={onFilterChange}>
                 {filters.map((filter, index) => (
                   <option key={filter.displayLabel} value={index}>{filter.displayLabel}</option>
                 ))}
