@@ -162,7 +162,7 @@ export default class VideoData extends React.Component {
             <StandTagPicker
               tagTypes={[TagTypes.keyword, TagTypes.tracking, TagTypes.tone]}
               allowTags={isTagAllowed}
-              filters={supportedTagFilters} />
+              filterOptions={supportedTagFilters} />
           </ManagedField>
         }
         {

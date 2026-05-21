@@ -136,10 +136,22 @@ const editableUiTheme = {
   }
 };
 
+const tagPickerContainerStyle = { display: 'flex', alignItems: 'stretch', gap: '8px', marginBottom: '8px' };
+
+const tagPickerDropdownStyle = {
+  border: "1px solid #BDBDBD",
+  backgroundColor: "#393939",
+  color: "inherit",
+  font: "inherit",
+  paddingLeft: "8px",
+  paddingRight: "8px"
+};
+
+
 interface StandTagPickerProps {
   tagTypes: string[];
   allowTags?: (tag: VideoTag) => boolean;
-  filters?: StandTagPickerFilter[];
+  filterOptions?: StandTagPickerFilter[];
 
   // the following properties are passed down from the parent ManagedField
   fieldName: string;
@@ -167,7 +179,7 @@ const isFieldValueChanged = (fieldValue: string[], selectedTags: VideoTag[]) => 
   return false;
 };
 
-const StandTagPicker = ({ tagTypes, allowTags, filters, fieldName, fieldValue, editable, onUpdateField, placeholder, hasError, hasWarning, notification }: StandTagPickerProps) => {
+const StandTagPicker = ({ tagTypes, allowTags, filterOptions: filters, fieldName, fieldValue, editable, onUpdateField, placeholder, hasError, hasWarning, notification }: StandTagPickerProps) => {
 
   const [selectedTags, setSelectedTags] = useState<VideoTag[]>([]);
   const [options, setOptions] = useState<VideoTag[]>([]);
@@ -176,15 +188,6 @@ const StandTagPicker = ({ tagTypes, allowTags, filters, fieldName, fieldValue, e
   const [isLoading, setIsLoading] = useState(false);
   const [tagSearchError, setTagSearchError] = useState<boolean>(false);
   const tagManagerUrl = useSelector((state: {config: AppConfig}) => state.config.tagManagerUrl);
-  const tagPickerContainerStyle = { display: 'flex', alignItems: 'stretch', gap: '8px', marginBottom: '8px' };
-  const tagPickerDropdownStyle = {
-    border: "1px solid #BDBDBD",
-    backgroundColor: "#393939",
-    color: "inherit",
-    font: "inherit",
-    paddingLeft: "8px",
-    paddingRight: "8px"
-  };
   const searchTags = useCallback((inputText: string, selectedTags: VideoTag[], filter?: StandTagPickerFilter) => {
     if (tagManagerUrl) {
       const activeTagTypes = filter?.tagTypes ?? tagTypes;
@@ -230,12 +233,15 @@ const StandTagPicker = ({ tagTypes, allowTags, filters, fieldName, fieldValue, e
   };
 
   const onFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newFilter = filters?.[Number(e.target.value)];
-    setSelectedFilter(newFilter);
-    if (value !== '') {
-      debouncedSearchTags(value, selectedTags, newFilter);
-    } else {
+    const index = parseInt(e.target.value);
+    if (filters && index >= 0 && index < filters.length) {
+      const newFilter = filters[index];
+      setSelectedFilter(newFilter);
       setOptions([]);
+      if (value !== '') {
+        setIsLoading(true);
+        debouncedSearchTags(value, selectedTags, newFilter);
+      }
     }
   };
 
@@ -270,7 +276,7 @@ const StandTagPicker = ({ tagTypes, allowTags, filters, fieldName, fieldValue, e
           });
       }
     }
-  }, [fieldValue, selectedTags,tagManagerUrl]);
+  }, [fieldValue, selectedTags, tagManagerUrl]);
 
   const renderReadOnly = () => {
     if (selectedTags.length === 0) {
