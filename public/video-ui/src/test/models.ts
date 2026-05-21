@@ -1,3 +1,4 @@
+import { CropOption } from "../services/GridMetadata";
 import { Asset, Image, Video } from "../services/VideosApi";
 import { DEFAULT_VIDEO_RATIO } from "../util/getAspectRatio";
 
@@ -125,4 +126,10 @@ export const imageWithDefaultVideoAspectRatio: Image = {
         file: "file",
         aspectRatio: DEFAULT_VIDEO_RATIO
     }  
+};
+
+export const cropOption5by4: CropOption = {
+    key: "landscape",
+    ratio: "5 / 4",
+    ratioString: "5:4"
 };

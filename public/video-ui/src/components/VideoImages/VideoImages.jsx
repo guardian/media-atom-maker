@@ -26,7 +26,7 @@ export default class mapStateToProps extends React.Component {
 
   getGridUrl(cropType) {
     const posterImage = this.props.video.posterImage;
-    const queryParam = getGridQueryParams(cropType, this.props.video);
+    const queryParam = getGridQueryParams(cropType, this.props.video, this.props.cropOptions);
     if (posterImage.assets.length > 0) {
       const imageGridId = getGridMediaId(posterImage);
 
