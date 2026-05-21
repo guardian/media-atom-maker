@@ -106,10 +106,12 @@ class MediaAtomMaker(context: Context)
   private val stores = new DataStores(aws, capi)
 
   private val reindexer = buildReindexer()
+  private lazy val gridApiUrl = configuration.get[String]("grid.api")
 
   private val gridApiScheduler = new GridAPI(
     ActorSystem.create("gridApiScheduler"),
-    MediaAtomMaker.this.wsClient
+    MediaAtomMaker.this.wsClient,
+    gridApiUrl
   )
 
   private def serviceAccountCertPath = aws.stage match {

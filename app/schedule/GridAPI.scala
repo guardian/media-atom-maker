@@ -12,7 +12,7 @@ import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
 @Singleton
-class GridAPI @Inject()(actorSystem: ActorSystem, ws: WSClient)(
+class GridAPI @Inject()(actorSystem: ActorSystem, ws: WSClient, gridApiUrl: String)(
     implicit ec: ExecutionContext
 ) extends Logging {
 
@@ -29,12 +29,7 @@ class GridAPI @Inject()(actorSystem: ActorSystem, ws: WSClient)(
 
   private def runJob(): Unit = {
     ws.url(
-      "https://api.media.test.dev-gutools.co.uk/configuration/crop-variations"
-    ).withHttpHeaders(
-      (
-        "X-Gu-Media-Key",
-        "media-atom-maker-vCClN4aOIL6qRRSVK42ikalzQwfLhfk2n4b4YSHw0tklq1pw"
-      )
+      s"$gridApiUrl/configuration/crop-variations"
     ).get() onComplete {
       case Success(value) =>
         value.json
