@@ -59,7 +59,8 @@ export function extractEmbeddedModeFromUrl(): boolean {
 export type ConfigState = ClientConfig & { embeddedMode: boolean };
 
 export function getAppConfig(): ConfigState {
-  const isTest = !!process.env.JEST_WORKER_ID;
+  const isTest =
+    typeof process !== 'undefined' && !!process.env?.JEST_WORKER_ID;
 
   if (isTest) {
     return {
