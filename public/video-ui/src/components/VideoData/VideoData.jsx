@@ -159,8 +159,9 @@ export default class VideoData extends React.Component {
             isRequired={false}
             inputPlaceholder="Search tags (type '*' to show all)"
           >
+            {/* tagTypes is not really used as we supply filterOptions */}
             <StandTagPicker
-              tagTypes={[TagTypes.keyword, TagTypes.tracking, TagTypes.tone]}
+              tagTypes={[]}
               allowTags={isTagAllowed}
               filterOptions={supportedTagFilters} />
           </ManagedField>
