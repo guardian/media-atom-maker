@@ -14,6 +14,7 @@ export type Tag = {
   externalName: string,
   deprecated: boolean,
   section: Section,
+  subType?: string
 };
 
 export type TagManagerItem = {
