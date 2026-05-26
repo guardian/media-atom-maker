@@ -255,7 +255,6 @@ Resources:
                   - "s3:Put*"
                 Resource:
                   - !Sub [ "arn:aws:s3:::${Bucket}/*", { "Bucket": !Ref DestinationBucketName } ]
-  
   TranscoderComplete:
     Type: "AWS::Lambda::Function"
     Properties:
@@ -284,6 +283,27 @@ Resources:
           MEDIA_CONVERT_ROLE: !GetAtt MediaConvertRole.Arn
       MemorySize: 2048
       Role: !GetAtt TranscoderCompleteLambdaExecutionRole.Arn
+      Runtime: "java21"
+      Timeout: 300
+
+  JobMetricsPublisher:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !Sub "${App}-JobMetricsPublisher-${Stage}"
+      Description: "Publishes metrics of a completed job to grafana"
+      Handler: "com.gu.media.upload.JobMetricsPublisher::handleRequest"
+      Code:
+        S3Bucket: !Ref BuildBucket
+        S3Key: !Sub
+          - "media-service/${Stage}/media-atom-upload-actions/media-atom-uploader.zip"
+          - { Stage: !Ref Stage }
+      Environment:
+        Variables:
+          REGION: !Ref AWS::Region
+          STACK: !Ref Stack
+          APP: !Ref App
+          STAGE: !Ref Stage
+      MemorySize: 2048
       Runtime: "java21"
       Timeout: 300
 
