@@ -304,6 +304,7 @@ Resources:
           APP: !Ref App
           STAGE: !Ref Stage
       MemorySize: 2048
+      Role: !GetAtt TranscoderCompleteLambdaExecutionRole.Arn
       Runtime: "java21"
       Timeout: 300
 
