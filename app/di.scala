@@ -1,4 +1,9 @@
-import software.amazon.awssdk.auth.credentials.{AwsCredentialsProvider, AwsCredentialsProviderChain, InstanceProfileCredentialsProvider, ProfileCredentialsProvider}
+import software.amazon.awssdk.auth.credentials.{
+  AwsCredentialsProvider,
+  AwsCredentialsProviderChain,
+  InstanceProfileCredentialsProvider,
+  ProfileCredentialsProvider
+}
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.gu.atom.play.ReindexController
 import com.gu.media.aws.{AwsCredentials, S3Access}
@@ -8,7 +13,14 @@ import controllers._
 import data._
 import org.apache.pekko.actor.ActorSystem
 import play.api.ApplicationLoader.Context
-import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext, Configuration, LoggerConfigurator, Mode}
+import play.api.{
+  Application,
+  ApplicationLoader,
+  BuiltInComponentsFromContext,
+  Configuration,
+  LoggerConfigurator,
+  Mode
+}
 import play.api.libs.ws.WSClient
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.mvc.{ControllerComponents, EssentialFilter}

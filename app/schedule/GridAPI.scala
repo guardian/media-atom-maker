@@ -12,8 +12,12 @@ import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
 @Singleton
-class GridAPI @Inject()(actorSystem: ActorSystem, ws: WSClient, gridApiUrl: String)(
-    implicit ec: ExecutionContext
+class GridAPI @Inject() (
+    actorSystem: ActorSystem,
+    ws: WSClient,
+    gridApiUrl: String
+)(implicit
+    ec: ExecutionContext
 ) extends Logging {
 
   actorSystem.scheduler.scheduleWithFixedDelay(
