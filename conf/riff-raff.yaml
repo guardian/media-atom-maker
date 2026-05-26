@@ -63,5 +63,6 @@ deployments:
         - "media-atom-pipeline-AddSubtitlesToMP4-"
         - "media-atom-pipeline-AddUploadDataToCache-"
         - "media-atom-pipeline-CompleteMultipartCopy-"
+        - "media-atom-pipeline-JobMetricsPublisher-"
     dependencies:
       - media-atom-pipeline-cloudformation
