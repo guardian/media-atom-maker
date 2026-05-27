@@ -133,6 +133,11 @@ Resources:
                 Condition:
                   StringEquals:
                     ses:FromAddress: !Ref 'NotificationEmailFrom'
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                  - secretsmanager:DescribeSecret
+                Resource: 'arn:aws:secretsmanager:eu-west-1:563563610310:secret:/CODE/flexible/event-api-lambda/hmacSecret-OVcnV0'
         - PolicyName: LambdaKinesisAccessPolicy
           PolicyDocument:
             Statement:
@@ -255,7 +260,7 @@ Resources:
                   - "s3:Put*"
                 Resource:
                   - !Sub [ "arn:aws:s3:::${Bucket}/*", { "Bucket": !Ref DestinationBucketName } ]
-  
+
   TranscoderComplete:
     Type: "AWS::Lambda::Function"
     Properties:

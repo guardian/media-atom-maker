@@ -3,6 +3,7 @@ package com.gu.media.upload
 import com.gu.media.aws.{MediaConvertAccess, S3Access}
 import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
+import com.gu.media.telemetry.Telemetry
 import com.gu.media.upload.model.{SelfHostedUploadMetadata, Upload}
 import software.amazon.awssdk.services.s3.model.{
   GetObjectRequest,
@@ -50,7 +51,7 @@ class AddSubtitlesToMP4
     s3Client.putObject(putObjectRequest, path)
   }
 
-  override def handle(upload: Upload): Upload = {
+  override def handle(upload: Upload, telemetry: Telemetry): Upload = {
     for (
       selfHostedUploadMetadata <- condOpt(upload.metadata.runtime) {
         case metadata: SelfHostedUploadMetadata =>

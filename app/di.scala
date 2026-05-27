@@ -7,6 +7,7 @@ import software.amazon.awssdk.auth.credentials.{
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.gu.atom.play.ReindexController
 import com.gu.media.aws.{AwsCredentials, S3Access}
+import com.gu.media.config.Stage
 import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider, Settings}
 import com.gu.pandomainauth.{PanDomainAuthSettingsRefresher, S3BucketLoader}
 import controllers._
@@ -25,9 +26,11 @@ import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.mvc.{ControllerComponents, EssentialFilter}
 import play.filters.HttpFiltersComponents
 import router.Routes
+import com.gu.media.telemetry.Telemetry
 import util._
 
 import java.io.FileInputStream
+import java.net.http.HttpClient
 import java.time.Duration
 
 class MediaAtomMakerLoader extends ApplicationLoader {
@@ -55,6 +58,9 @@ class MediaAtomMaker(context: Context)
     case Mode.Dev => AwsCredentials.dev(Settings(config))
     case _        => AwsCredentials.app(Settings(config))
   }
+
+  val stage = Stage(Settings(config).getMandatoryString("stage"))
+
   val profileName =
     configuration
       .getOptional[String]("panda.awsCredsProfile")
@@ -132,6 +138,13 @@ class MediaAtomMaker(context: Context)
     environment.getFile("conf/")
   )
 
+  val secretArn = configuration.get[String]("aws.secretsmanager.hmacSecret")
+
+  val client = HttpClient.newHttpClient()
+
+  private val telemetry = new Telemetry(stage, secretArn, client)
+  private val stepFunctions = new StepFunctions(aws)
+  private val metrics = new Metrics(telemetry, stepFunctions)
   private val api = new Api(
     stores,
     configuration,
@@ -141,10 +154,12 @@ class MediaAtomMaker(context: Context)
     permissions,
     capi,
     thumbnailGenerator,
+    telemetry,
+    stepFunctions,
+    metrics,
     controllerComponents
   )
 
-  private val stepFunctions = new StepFunctions(aws)
   private val uploads = new UploadController(
     hmacAuthActions,
     aws,

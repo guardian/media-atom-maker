@@ -4,6 +4,7 @@ import software.amazon.awssdk.services.mediaconvert.model.CreateJobRequest
 import com.gu.media.aws.MediaConvertAccess
 import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
+import com.gu.media.telemetry.Telemetry
 import com.gu.media.upload.FfMpeg.checkAudioExists
 import com.gu.media.upload.mediaconvert.JobSettingsBuilder
 import com.gu.media.upload.model.{
@@ -21,7 +22,7 @@ class SendToTranscoderV2
     with MediaConvertAccess
     with S3Helpers
     with Logging {
-  override def handle(data: WaitOnUpload): Upload = {
+  override def handle(data: WaitOnUpload, telemetry: Telemetry): Upload = {
     val upload = data.input
     val videoInput = Upload.videoInputUri(upload)
     val maybeSubtitlesInput = Upload.subtitleInputUri(upload)
@@ -54,13 +55,12 @@ class SendToTranscoderV2
       hasAudio
     )
 
-    val metadata =
-      upload.metadata.copy(
-        runtime = SelfHostedUploadMetadata(
-          jobs = Some(List(jobs))
-        )
+    val metadata = upload.metadata.copy(
+      runtime = SelfHostedUploadMetadata(
+        jobs = Some(List(jobs))
       )
-
+    )
+    upload.metadata.copy(runtime = SelfHostedUploadMetadata(Some(List(jobs))))
     upload.copy(
       metadata = metadata,
       progress = upload.progress.copy(fullyTranscoded = false)
