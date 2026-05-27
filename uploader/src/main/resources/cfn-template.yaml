@@ -437,7 +437,7 @@ Resources:
       Name: !Sub "step-function-complete-${Stage}"
       EventPattern:
         Fn::Sub: >-
-          {"source":["aws.states"],"detail-type":["Step Functions Execution Status Change"],"detail":{"status":["SUCCEEDED"],"userMetadata":{"stage":["${Stage}"]}}}
+          {"source":["aws.states"],"detail-type":["Step Functions Execution Status Change"],"detail":{"status":["SUCCEEDED"]}}
       State: ENABLED
       Description: ''
       EventBusName: default
