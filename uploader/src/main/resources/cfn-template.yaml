@@ -450,7 +450,7 @@ Resources:
               ],
               "stateMachineArn": [
                     {
-                      "Ref": !Sub "VideoPipeline${Stage}"
+                      "Ref": "VideoPipeline${Stage}"
                     }
                   ]
                 }
