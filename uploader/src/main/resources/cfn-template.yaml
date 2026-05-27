@@ -449,9 +449,7 @@ Resources:
                 "SUCCEEDED"
               ],
               "stateMachineArn": [
-                    {
-                      "Ref": "VideoPipeline${Stage}"
-                    }
+                    "VideoPipeline${Stage}"
                   ]
                 }
               ]
