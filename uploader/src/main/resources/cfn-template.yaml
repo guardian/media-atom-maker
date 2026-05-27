@@ -449,22 +449,8 @@ Resources:
                 "SUCCEEDED"
               ],
               "stateMachineArn": [
-                {
-                  "Fn::If": [
-                    "CreateProdResources",
                     {
-                      "Ref": "VideoPipelinePROD"
-                    },
-                    {
-                      "Fn::If": [
-                        "CreateCodeResources",
-                        {
-                          "Ref": "VideoPipelineCODE"
-                        },
-                        {
-                          "Ref": "VideoPipelineDEV"
-                        }
-                      ]
+                      "Ref": !Sub "VideoPipeline${Stage}"
                     }
                   ]
                 }
@@ -472,7 +458,7 @@ Resources:
             }
           }
       State: ENABLED
-      Description: ''
+      Description: 'Notify the jobs metrics publisher lambda when a step function has completed'
       EventBusName: default
       Targets:
         - Id: lambda
