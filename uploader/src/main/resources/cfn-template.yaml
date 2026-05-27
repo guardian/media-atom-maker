@@ -458,9 +458,6 @@ Resources:
               "stateMachineArn": [
                   {
                     "Ref": "VideoPipelineCODE"
-                  },
-                  {
-                    "Ref": "VideoPipelineDEV"
                   }
               ]
             }
