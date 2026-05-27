@@ -436,23 +436,36 @@ Resources:
     Properties:
       Name: !Sub "step-function-complete-${Stage}"
       EventPattern:
-        Fn::Sub: >-
+        "Fn::If": [
+          "CreateProdResources",
           {
-            "source": [
-              "aws.states"
-            ],
-            "detail-type": [
-              "Step Functions Execution Status Change"
-            ],
+            "source": [ "aws.states" ],
+            "detail-type": [ "Step Functions Execution Status Change" ],
             "detail": {
-              "status": [
-                "SUCCEEDED"
-              ],
+              "status": [ "SUCCEEDED" ],
               "stateMachineArn": [
-                 "VideoPipeline${Stage}"
+                {
+                  "Ref": "VideoPipelinePROD"
+                }
+              ]
+            }
+          },
+          {
+            "source": [ "aws.states" ],
+            "detail-type": [ "Step Functions Execution Status Change" ],
+            "detail": {
+              "status": [ "SUCCEEDED" ],
+              "stateMachineArn": [
+                  {
+                    "Ref": "VideoPipelineCODE"
+                  },
+                  {
+                    "Ref": "VideoPipelineDEV"
+                  }
               ]
             }
           }
+        ]
       State: ENABLED
       Description: 'Notify the jobs metrics publisher lambda when a step function has completed'
       EventBusName: default
