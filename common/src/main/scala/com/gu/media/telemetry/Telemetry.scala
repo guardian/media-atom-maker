@@ -74,9 +74,7 @@ object SecretsManager {
       AwsCredentialsProviderChain
         .builder()
         .credentialsProviders(
-//          DefaultCredentialsProvider.builder().build(),
-          ProfileCredentialsProvider.create("media-service"),
-          InstanceProfileCredentialsProvider.create()
+          DefaultCredentialsProvider.builder().build(),
         )
         .build()
     )
