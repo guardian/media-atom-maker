@@ -74,7 +74,7 @@ object SecretsManager {
       AwsCredentialsProviderChain
         .builder()
         .credentialsProviders(
-          DefaultCredentialsProvider.builder().build(),
+          DefaultCredentialsProvider.builder().build()
         )
         .build()
     )
