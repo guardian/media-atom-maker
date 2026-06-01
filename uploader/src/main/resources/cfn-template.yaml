@@ -110,7 +110,7 @@ Resources:
                 Action: [ "secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"]
                 Resource: !Ref HmacSecretArn
               - Effect: "Allow"
-                Action: [ "states:GetExecutionHistory", "states:ListExecutions" ]
+                Action: [ "states:GetExecutionHistory", "states:DescribeExecution" ]
                 Resource:
                   - !If [ CreateProdResources, !Ref VideoPipelinePROD, !If [ CreateCodeResources, !Ref VideoPipelineCODE, !Ref VideoPipelineDEV ] ]
                   - !Sub
