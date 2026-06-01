@@ -61,6 +61,13 @@ Conditions:
   CreateCodeResources: !Equals [!Ref "Stage", "CODE"]
   CreateDevResources:  !Equals [!Ref "Stage", "DEV"]
 
+Mappings:
+  StageToHmacSecretArn:
+    PROD:
+      HmacSecretArn: "arn:aws:secretsmanager:eu-west-1:563563610310:secret:/PROD/flexible/event-api-lambda/hmacSecret-U1xnLA"
+    CODE:
+      HmacSecretArn: "arn:aws:secretsmanager:eu-west-1:563563610310:secret:/CODE/flexible/event-api-lambda/hmacSecret-OVcnV0"
+
 Resources:
   TranscoderCompleteLambdaExecutionRole:
       Type: "AWS::IAM::Role"
@@ -343,7 +350,7 @@ Resources:
           STACK: !Ref Stack
           APP: !Ref App
           STAGE: !Ref Stage
-          HMAC_SECRET_ARN: !Ref HmacSecretArn
+          HMAC_SECRET_ARN: !FindInMap [StageToHmacSecretArn, !Ref Stage, HmacSecretArn]
       MemorySize: 2048
       Role: !GetAtt JobMetricsPublisherLambdaExecutionRole.Arn
       Runtime: "java21"
