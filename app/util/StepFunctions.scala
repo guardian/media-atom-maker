@@ -6,6 +6,7 @@ import play.api.libs.json.{JsResultException, Json}
 import software.amazon.awssdk.services.sfn.model._
 
 import java.time.Instant
+import scala.jdk.CollectionConverters.IterableHasAsScala
 
 class StepFunctions(awsConfig: AWSConfig) {
   def getById(id: String): Option[Upload] = {
