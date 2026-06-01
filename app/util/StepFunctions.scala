@@ -22,32 +22,6 @@ class StepFunctions(awsConfig: AWSConfig) {
     }
   }
 
-  def getByArn(executionArn: String) = {
-    val request =
-      DescribeExecutionRequest.builder().executionArn(executionArn).build()
-    awsConfig.stepFunctionsClient.describeExecution(request)
-  }
-
-  def getAllHistoryEvents(executionArn: String) = {
-    def getAllHistory(
-        nextToken: Option[String],
-        previousEvents: List[HistoryEvent]
-    ): List[HistoryEvent] = {
-      val request = GetExecutionHistoryRequest
-        .builder()
-        .executionArn(executionArn)
-        .nextToken(nextToken.orNull)
-        .build()
-
-      val response = awsConfig.stepFunctionsClient.getExecutionHistory(request)
-      val allEvents = response.events().asScala.toList ::: previousEvents
-      if (response.nextToken() != null) {
-        getAllHistory(Some(response.nextToken()), allEvents)
-      } else allEvents
-    }
-    getAllHistory(None, Nil)
-  }
-
   def getJobs(atomId: String): Iterable[ExecutionListItem] = {
     val runningJobs = getExecutions(atomId, ExecutionStatus.RUNNING)
     val failedJobs =

@@ -1,15 +1,20 @@
-package util
+package com.gu.media.util
 
 import com.gu.media.telemetry.{TagInt, TagLong, TagString, TagValue}
 import com.gu.media.upload.model.Upload
+import play.api.libs.json.Json
+import software.amazon.awssdk.services.sfn.SfnClient
 import software.amazon.awssdk.services.sfn.model.{
+  DescribeExecutionRequest,
   DescribeExecutionResponse,
-  ExecutionListItem,
+  GetExecutionHistoryRequest,
   HistoryEvent,
   HistoryEventType
 }
 
-class Metrics(stepFunctions: StepFunctions) {
+import scala.jdk.CollectionConverters.IterableHasAsScala
+
+class JobCompletedMetrics(stepFunctionsClient: SfnClient) {
   val LAMBA_WARM_UP = "LAMBA_WARM_UP"
   val UNKNOWN_JOB = "UNKNOWN_JOB"
   def computeDurations(historyEvents: List[HistoryEvent]) = {
@@ -122,16 +127,42 @@ class Metrics(stepFunctions: StepFunctions) {
     )
   }
 
-  def byExecutionArn(executionArn: String) = {
-    val runTime = getRunTime(stepFunctions.getByArn(executionArn))
+  def getExecutionResponse(executionArn: String) = {
+    val request =
+      DescribeExecutionRequest.builder().executionArn(executionArn).build()
+    stepFunctionsClient.describeExecution(request)
+  }
+
+  def getAllHistoryEvents(executionArn: String) = {
+    def getAllHistory(
+        nextToken: Option[String],
+        previousEvents: List[HistoryEvent]
+    ): List[HistoryEvent] = {
+      val request = GetExecutionHistoryRequest
+        .builder()
+        .executionArn(executionArn)
+        .nextToken(nextToken.orNull)
+        .build()
+
+      val response = stepFunctionsClient.getExecutionHistory(request)
+      val allEvents = response.events().asScala.toList ::: previousEvents
+      if (response.nextToken() != null) {
+        getAllHistory(Some(response.nextToken()), allEvents)
+      } else allEvents
+    }
+    getAllHistory(None, Nil)
+  }
+
+  def getMetricsForJobRun(executionArn: String) = {
+    val describeExecution = getExecutionResponse(executionArn)
+    val runTime = getRunTime(describeExecution)
     val stepId = extractStepId(executionArn)
 
-    val historyEvents =
-      stepFunctions.getAllHistoryEvents(executionArn)
+    val historyEvents = getAllHistoryEvents(executionArn)
     val metricsFromHistory =
       getMetricsFromHistory(historyEvents, runTime)
 
-    val uploadOpt = stepFunctions.getById(extractStepId(executionArn))
+    val uploadOpt = Json.parse(describeExecution.input()).validate[Upload].asOpt
     val metricsFromUploadData =
       uploadOpt.fold(Map[String, TagValue]())(getMetricsFromUpload)
 
