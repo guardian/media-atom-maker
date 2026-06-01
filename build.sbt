@@ -7,7 +7,7 @@ import scala.sys.process.*
 val scroogeVersion = "4.12.0"
 val awsV2Version = "2.44.4"
 val pandaVersion = "19.0.0"
-val atomMakerVersion = "11.0.0"
+val atomMakerVersion = "12.0.0-PREVIEW.anpageable-cancellable-atom-reindex.2026-05-29T1652.35adac95"
 val typesafeConfigVersion =
   "1.4.0" // to match what we get from Play transitively
 val scanamoVersion = "1.0.0-M28"

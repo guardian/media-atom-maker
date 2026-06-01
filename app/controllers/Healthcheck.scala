@@ -1,8 +1,8 @@
 package controllers
 
-import com.amazonaws.util.EC2MetadataUtils
 import com.gu.media.aws.{AwsAccess, KinesisAccess}
-import play.api.mvc.{Action, BaseController, ControllerComponents}
+import play.api.mvc.{BaseController, ControllerComponents}
+import software.amazon.awssdk.regions.internal.util.EC2MetadataUtils
 
 class Healthcheck(
     val kinesis: AwsAccess with KinesisAccess,

@@ -2,11 +2,11 @@ package util
 
 import software.amazon.awssdk.services.ec2.Ec2Client
 import software.amazon.awssdk.services.ec2.model.{DescribeTagsRequest, Filter}
-import com.amazonaws.util.EC2MetadataUtils
 import com.gu.media.Settings
 import com.gu.media.aws._
-import com.gu.media.logging.{Logging}
+import com.gu.media.logging.Logging
 import com.typesafe.config.Config
+import software.amazon.awssdk.regions.internal.util.EC2MetadataUtils
 
 import scala.jdk.CollectionConverters._
 
