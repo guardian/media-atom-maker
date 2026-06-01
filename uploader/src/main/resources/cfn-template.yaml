@@ -51,10 +51,6 @@ Parameters:
   IconikNotificationSQSQueueArn:
     Description: "ARN of the SQS queue to send Iconik notifications to"
     Type: "String"
-  HmacSecretArn:
-    Description: "ARN of the secret that holds the hmac machine auth for posting to telemetry"
-    Type: "String"
-    Default: "arn:aws:secretsmanager:eu-west-1:563563610310:secret:/CODE/flexible/event-api-lambda/hmacSecret-OVcnV0"
 
 Conditions:
   CreateProdResources: !Equals [!Ref "Stage", "PROD"]
