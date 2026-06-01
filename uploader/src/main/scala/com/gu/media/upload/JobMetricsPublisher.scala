@@ -17,7 +17,9 @@ class JobMetricsPublisher
     with StepFunctionsAccess {
 
   override def handle(input: StepFunctionEvent): String = {
-    log.info(input.detail.executionArn)
+    log.info(
+      s"Executing jobs metrics publisher lambda after ${input.detail.executionArn} has finished"
+    )
     val client = HttpClient.newHttpClient()
     val secretArn = sys.env("HMAC_SECRET_ARN")
     val telemetry = new Telemetry(Code, secretArn, client)
@@ -25,6 +27,7 @@ class JobMetricsPublisher
     val metrics = sfMetrics.getMetricsForJobRun(input.detail.executionArn)
     log.info("Sending telemetry event")
     telemetry.sendTelemetryEvent("VIDEO_UPLOAD_COMPLETE", metrics)
+    log.info("Completed jobs metrics publisher lambda")
     "Done"
   }
 }
