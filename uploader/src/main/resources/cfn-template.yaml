@@ -111,7 +111,7 @@ Resources:
                 Resource: "*"
               - Effect: "Allow"
                 Action: [ "secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"]
-                Resource: !Ref HmacSecretArn
+                Resource:  !FindInMap [StageToHmacSecretArn, !Ref Stage, HmacSecretArn]
               - Effect: "Allow"
                 Action: [ "states:GetExecutionHistory", "states:DescribeExecution" ]
                 Resource:
