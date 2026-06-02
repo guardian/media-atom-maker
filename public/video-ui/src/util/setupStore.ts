@@ -6,6 +6,7 @@ import config from '../slices/config';
 import videoEditOpen from '../slices/editState';
 import error from '../slices/error';
 import formFieldsWarning from '../slices/formFieldsWarning';
+import gridMetadata from '../slices/gridMetadata';
 import { iconikReducer } from '../slices/iconik';
 import path from '../slices/path';
 import pluto from '../slices/pluto';
@@ -40,6 +41,7 @@ export function setupStore() {
       pluto,
       workflow,
       targeting,
+      gridMetadata,
       iconik: iconikReducer
     },
     middleware: getDefaultMiddleware => {

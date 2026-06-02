@@ -6,6 +6,8 @@ GET            /api/atoms/:id                                   controllers.Api.
 PUT            /api/atoms/:id                                   controllers.Api.updateMediaAtom(id)
 DELETE         /api/atom/:id                                    controllers.Api.deleteAtom(id)
 
+GET             /api/grid/crop-variations                       controllers.Api.getCropOptionsForGrid()
+
 GET            /api/atoms/:id/published                         controllers.Api.getPublishedMediaAtom(id)
 PUT            /api/atom/:id/publish                            controllers.Api.publishMediaAtom(id)
 
