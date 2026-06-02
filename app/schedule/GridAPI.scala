@@ -22,7 +22,7 @@ class GridAPI @Inject() (
 
   actorSystem.scheduler.scheduleWithFixedDelay(
     initialDelay = 0.seconds,
-    delay = 24.hours
+    delay = 5.minutes
   ) { () =>
     runJob()
   }
