@@ -22,7 +22,8 @@ class AWSConfig(
     with KinesisAccess
     with SQSAccess
     with SNSAccess
-    with SESSettings {
+    with SESSettings
+    with SecretsManagerAccess {
 
   lazy val ec2Client = Ec2Client
     .builder()

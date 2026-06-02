@@ -1,6 +1,7 @@
 package com.gu.media.telemetry
 
 import com.gu.hmac.{HMACHeaderValues, HMACHeaders}
+import com.gu.media.aws.{AwsAccess, KinesisAccess, SecretsManagerAccess}
 import com.gu.media.config.{Prod, Stage}
 import com.gu.media.upload.model.Upload
 import com.gu.pandahmac.HMACHeaderNames
@@ -89,25 +90,18 @@ object SecretsManager {
   }
 }
 
-class HMACClient(secretArn: String) extends HMACHeaders {
-  lazy val secret =
-    SecretsManager.getSecret(secretArn) getOrElse (throw new Exception(
-      s"Could not retrieve $secretArn from secrets manager"
-    ))
-
+class HMACClient(val secret: String) extends HMACHeaders {
   override def createHMACHeaderValues(uri: URI): HMACHeaderValues =
     super.createHMACHeaderValues(uri)
 }
 
-class Telemetry(stage: Stage, secretArn: String, httpClient: HttpClient)
+class Telemetry(stage: Stage, hmacClient: HMACClient, httpClient: HttpClient)
     extends Logging {
   private val telemetryUrl =
     if (stage == Prod)
       "https://user-telemetry.gutools.co.uk/event"
     else
       "https://user-telemetry.code.dev-gutools.co.uk/event"
-
-  val hmacClient = new HMACClient(secretArn)
 
   def sendTelemetryEvent(
       eventType: String,
