@@ -1,8 +1,9 @@
-import { apiRequest } from './apiRequest';
-import { getStore } from '../util/storeAccessor';
-import VideoUtils from '../util/video';
 import moment, { Moment } from 'moment';
 import { impossiblyDistantDate } from '../constants/dates';
+import { getStore } from '../util/storeAccessor';
+import VideoUtils from '../util/video';
+import { apiRequest } from './apiRequest';
+import { Video } from './VideosApi';
 
 export type FlatStub<Priority, Date> = Omit<Stub<Priority, Date>, "externalData"> & ExternalData<Date>
 
@@ -58,23 +59,7 @@ export type Priority = {
 
 
 export type WorkflowDetails = {
-    video: {
-      id?: string,
-      title: string,
-      contentChangeDetails: {
-        published: {
-          date: string
-        },
-        lastModified: {
-          date: string
-        }
-      },
-      commentsEnabled?: boolean,
-      commissioningDesks: string[],
-      sensitive?: boolean,
-      legallySensitive?: boolean,
-      optimisedForWeb?: boolean,
-    },
+    video: Video,
     status: string,
     section: string,
     note: string,
@@ -215,7 +200,7 @@ export default class WorkflowApi {
       section,
       status,
       prodOffice,
-      commentable: video.commentsEnabled,
+      commentable: video.composerCommentsEnabled,
       commissioningDesks: video.commissioningDesks.join(),
       lastModified: lastModifiedDate,
       published: !!contentChangeDetails.published,
