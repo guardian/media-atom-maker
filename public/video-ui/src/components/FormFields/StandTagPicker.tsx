@@ -6,7 +6,7 @@ import { getTagByPath, getTagsByType } from '../../services/tagmanager';
 import BinSvg from "../../../images/bin.svg?react";
 import FieldNotification from '../../constants/FieldNotification';
 import debounce from "lodash/debounce";
-import type { AppConfig } from '../../slices/config';
+import { ConfigState } from '../../util/config';
 
 export type StandTagPickerFilter = {
   displayLabel: string;
@@ -187,7 +187,9 @@ const StandTagPicker = ({ tagTypes, allowTags, filterOptions: filters, fieldName
   const [selectedFilter, setSelectedFilter] = useState<StandTagPickerFilter | undefined>(filters?.[0]);
   const [isLoading, setIsLoading] = useState(false);
   const [tagSearchError, setTagSearchError] = useState<boolean>(false);
-  const tagManagerUrl = useSelector((state: {config: AppConfig}) => state.config.tagManagerUrl);
+
+  const tagManagerUrl = useSelector((state: {config: ConfigState}) => state.config.tagManagerUrl);
+
   const searchTags = useCallback((inputText: string, selectedTags: VideoTag[], filter?: StandTagPickerFilter) => {
     if (tagManagerUrl) {
       const activeTagTypes = filter?.tagTypes ?? tagTypes;
