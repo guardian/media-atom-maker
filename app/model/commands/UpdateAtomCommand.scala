@@ -13,6 +13,8 @@ import com.gu.media.iconik.{
   IconikUploadActions
 }
 import com.gu.media.logging.Logging
+import com.gu.media.model.AssetType.Video
+import com.gu.media.model.Platform.Youtube
 import com.gu.media.model.{
   AtomAssignedProjectMessage,
   AuditMessage,
@@ -211,6 +213,15 @@ object UpdateAtomCommand {
     ("legallySensitive", _.legallySensitive)
   )
 
+  private def countYoutubeVideos(atom: MediaAtom): Int = {
+    atom.assets.count(a => a.assetType == Video && a.platform == Youtube)
+  }
+  def hasAdditionalYoutubeAsset(
+      before: MediaAtom,
+      after: MediaAtom
+  ): Boolean = {
+    countYoutubeVideos(after) > countYoutubeVideos(before)
+  }
   // We don't use HTTP patch so diffing has to be done manually
   def createDiffString(before: MediaAtom, after: MediaAtom): String = {
     val changedFields = for {
