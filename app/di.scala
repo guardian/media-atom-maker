@@ -163,6 +163,7 @@ class MediaAtomMaker(context: Context)
     capi,
     thumbnailGenerator,
     gridApiScheduler,
+    telemetry,
     controllerComponents
   )
 

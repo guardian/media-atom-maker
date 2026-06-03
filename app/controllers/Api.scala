@@ -3,6 +3,7 @@ package controllers
 import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider}
 import com.gu.media.logging.Logging
 import com.gu.media.model.{Asset, MediaAtom, MediaAtomBeforeCreation}
+import com.gu.media.telemetry.Telemetry
 import com.gu.media.util.MediaAtomImplicits
 import com.gu.pandahmac.HMACAuthActions
 import com.gu.pandomainauth.model.User
@@ -30,6 +31,7 @@ class Api(
     capi: Capi,
     thumbnailGenerator: ThumbnailGenerator,
     gridAPIScheduler: GridAPI,
+    telemetry: Telemetry,
     override val controllerComponents: ControllerComponents
 ) extends MediaAtomImplicits
     with AtomController
@@ -162,7 +164,7 @@ class Api(
   def addAsset(atomId: String) = APIAuthAction { implicit req =>
     implicit val readCommand: Reads[AddAssetCommand] =
       (JsPath \ "uri").read[String].map { videoUri =>
-        AddAssetCommand(atomId, videoUri, stores, youtube, req.user, awsConfig)
+        AddAssetCommand(atomId, videoUri, stores, youtube, req.user, awsConfig, telemetry)
       }
 
     parse(req) { command: AddAssetCommand =>
