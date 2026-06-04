@@ -57,6 +57,8 @@ POST           /reindex-preview                                 com.gu.atom.play
 POST           /reindex-publish                                 com.gu.atom.play.ReindexController.newPublishedReindexJob()
 GET            /reindex-preview                                 com.gu.atom.play.ReindexController.previewReindexJobStatus()
 GET            /reindex-publish                                 com.gu.atom.play.ReindexController.publishedReindexJobStatus()
+DELETE         /reindex-preview                                 com.gu.atom.play.ReindexController.cancelPreviewReindexJob()
+DELETE         /reindex-publish                                 com.gu.atom.play.ReindexController.cancelPublishedReindexJob()
 
 #video specific react frontend
 GET            /                                                controllers.VideoUIApp.index(id = "")

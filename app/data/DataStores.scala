@@ -2,6 +2,7 @@ package data
 
 import com.gu.atom.data._
 import com.gu.atom.publish._
+import com.gu.atom.reindex._
 import com.gu.contentatom.thrift.Atom
 import com.gu.media.aws.SNSAccess
 import com.gu.media.iconik.{
@@ -65,16 +66,30 @@ class DataStores(aws: AWSConfig with SNSAccess, capi: CapiAccess) {
       )
   }
 
-  val reindexPreview: PreviewAtomReindexer =
+  val previewReindexStore = new DynamoReindexDataStoreV2(
+    aws.dynamoDbSdkV2,
+    aws.previewReindexTableName
+  )
+
+  val publishedReindexStore = new DynamoReindexDataStoreV2(
+    aws.dynamoDbSdkV2,
+    aws.publishedReindexTableName
+  )
+
+  val previewReindexer: PreviewAtomReindexer =
     new PreviewKinesisAtomReindexerV2(
-      aws.previewKinesisReindexStreamName,
-      aws.crossAccountKinesisClient
+      streamName = aws.previewKinesisReindexStreamName,
+      kinesis = aws.crossAccountKinesisClient,
+      atomDataStore = preview,
+      reindexDataStore = previewReindexStore
     )
 
-  val reindexPublished: PublishedKinesisAtomReindexerV2 =
+  val publishedReindexer: PublishedKinesisAtomReindexerV2 =
     new PublishedKinesisAtomReindexerV2(
-      aws.publishedKinesisReindexStreamName,
-      aws.crossAccountKinesisClient
+      streamName = aws.publishedKinesisReindexStreamName,
+      kinesis = aws.crossAccountKinesisClient,
+      atomDataStore = published,
+      reindexDataStore = publishedReindexStore
     )
 
   val plutoCommissionStore: PlutoCommissionDataStore =

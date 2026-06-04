@@ -93,7 +93,7 @@ Resources:
     Type: "AWS::IAM::AccessKey"
     Properties:
       UserName: {"Ref": "MediaAtomUser"}
-      Serial: 4
+      Serial: 5
   MediaAtomsDynamoTable:
     Type: "AWS::DynamoDB::Table"
     Properties:
@@ -118,6 +118,34 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: "10"
         WriteCapacityUnits: "5"
+
+  PreviewReindexDynamoTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: jobStatus
+          AttributeType: S
+      KeySchema:
+        - AttributeName: jobStatus
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        - Key: devx-backup-enabled
+          Value: false
+
+  PublishedReindexDynamoTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: jobStatus
+          AttributeType: S
+      KeySchema:
+        - AttributeName: jobStatus
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        - Key: devx-backup-enabled
+          Value: false
 
   PlutoProjectDynamoTable:
     Type: "AWS::DynamoDB::Table"

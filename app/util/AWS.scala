@@ -2,13 +2,14 @@ package util
 
 import software.amazon.awssdk.services.ec2.Ec2Client
 import software.amazon.awssdk.services.ec2.model.{DescribeTagsRequest, Filter}
-import com.amazonaws.util.EC2MetadataUtils
 import com.gu.media.Settings
 import com.gu.media.aws._
-import com.gu.media.logging.{Logging}
+import com.gu.media.logging.Logging
 import com.typesafe.config.Config
+import software.amazon.awssdk.regions.internal.util.EC2MetadataUtils
 
 import scala.jdk.CollectionConverters._
+import scala.util.Try
 
 class AWSConfig(
     override val config: Config,
@@ -51,21 +52,25 @@ class AWSConfig(
   final override def region = AwsAccess.regionFrom(this)
 
   final override def readTag(tagName: String) = {
-    val tagsResult = ec2Client.describeTags(
-      DescribeTagsRequest
-        .builder()
-        .filters(
-          Filter.builder().name("resource-type").values("instance").build(),
-          Filter
-            .builder()
-            .name("resource-id")
-            .values(EC2MetadataUtils.getInstanceId)
-            .build(),
-          Filter.builder().name("key").values(tagName).build()
-        )
-        .build()
-    )
+    val tagsResult = Try {
+      ec2Client.describeTags(
+        DescribeTagsRequest
+          .builder()
+          .filters(
+            Filter.builder().name("resource-type").values("instance").build(),
+            Filter
+              .builder()
+              .name("resource-id")
+              .values(EC2MetadataUtils.getInstanceId)
+              .build(),
+            Filter.builder().name("key").values(tagName).build()
+          )
+          .build()
+      )
+    }
 
-    tagsResult.tags().asScala.find(_.key == tagName).map(_.value)
+    tagsResult.toOption.flatMap(
+      _.tags().asScala.find(_.key == tagName).map(_.value)
+    )
   }
 }

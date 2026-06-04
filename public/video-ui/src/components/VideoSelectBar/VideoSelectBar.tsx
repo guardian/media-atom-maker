@@ -5,13 +5,7 @@ import { findAssetToUseAsThumbnail } from '../../util/imageHelpers';
 type VideoSelectBarProps = {
   video: Video;
   onSelectVideo: () => void;
-  /**
-   * It looks like embeddedMode is actually an optional string, but being treated
-   * here like a boolean. I don't want to mess with the business logic at the
-   * moment so leaving this as an explicity `any` as a prompt to come back to
-   * this when we hopefully have more time to do a more thorough refactor.
-   * */
-  embeddedMode: any;
+  embeddedMode: boolean;
 };
 
 export default class VideoSelectBar extends React.Component<VideoSelectBarProps> {

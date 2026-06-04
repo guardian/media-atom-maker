@@ -31,8 +31,7 @@ const defaultVideoAsset: VideoAsset = {
 const store = setupStore();
 store.dispatch(
   setConfig({
-    permissions: {},
-    youtubeEmbedUrl: 'https://www.youtube.com/embed/'
+    permissions: { deleteAtom: true, setVideosOnAllChannelsPublic: true, pinboard: true }
   })
 );
 store.dispatch(
