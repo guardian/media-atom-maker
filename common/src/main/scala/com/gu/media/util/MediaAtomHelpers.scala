@@ -31,6 +31,12 @@ object MediaAtomHelpers {
     )
   }
 
+  def extractAtomIdAndVersion(stepFunctionId: String): (String, String) = {
+    val atomId = stepFunctionId.take(stepFunctionId.length - 2)
+    val version = stepFunctionId.drop(stepFunctionId.length - 1)
+    (atomId, version)
+  }
+
   def getCurrentAssetVersion(mediaAtom: MediaAtom): Option[Long] = {
     if (mediaAtom.assets.isEmpty) {
       None
