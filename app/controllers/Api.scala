@@ -15,6 +15,7 @@ import play.api.Configuration
 import util._
 import play.api.libs.json._
 import play.api.mvc._
+import schedule.GridAPI
 
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
@@ -28,6 +29,7 @@ class Api(
     override val permissions: MediaAtomMakerPermissionsProvider,
     capi: Capi,
     thumbnailGenerator: ThumbnailGenerator,
+    gridAPIScheduler: GridAPI,
     override val controllerComponents: ControllerComponents
 ) extends MediaAtomImplicits
     with AtomController
@@ -76,6 +78,10 @@ class Api(
     } catch {
       commandExceptionAsResult
     }
+  }
+
+  def getCropOptionsForGrid = APIAuthAction { req =>
+    Ok(Json.toJson(gridAPIScheduler.getCropOptions))
   }
 
   def getPublishedMediaAtom(id: String) = APIAuthAction {

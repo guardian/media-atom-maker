@@ -11,6 +11,7 @@ import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider, Settings}
 import com.gu.pandomainauth.{PanDomainAuthSettingsRefresher, S3BucketLoader}
 import controllers._
 import data._
+import org.apache.pekko.actor.ActorSystem
 import play.api.ApplicationLoader.Context
 import play.api.{
   Application,
@@ -25,6 +26,7 @@ import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.mvc.{ControllerComponents, EssentialFilter}
 import play.filters.HttpFiltersComponents
 import router.Routes
+import schedule.GridAPI
 import util._
 
 import java.io.FileInputStream
@@ -116,6 +118,13 @@ class MediaAtomMaker(context: Context)
   private val stores = new DataStores(aws, capi)
 
   private val reindexer = buildReindexer()
+  private lazy val gridApiUrl = configuration.get[String]("grid.api")
+
+  private val gridApiScheduler = new GridAPI(
+    ActorSystem.create("gridApiScheduler"),
+    MediaAtomMaker.this.wsClient,
+    gridApiUrl
+  )
 
   private def serviceAccountCertPath = aws.stage match {
     case "PROD" | "CODE" => "/etc/gu/youtube-service-account.json"
@@ -141,6 +150,7 @@ class MediaAtomMaker(context: Context)
     permissions,
     capi,
     thumbnailGenerator,
+    gridApiScheduler,
     controllerComponents
   )
 

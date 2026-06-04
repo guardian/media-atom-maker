@@ -39,7 +39,6 @@ class VideoDisplay extends React.Component {
     this.getWorkflowState();
     this.getUsages();
   }
-
   iconMap = {
     Youtube: <Youtube/>,
     Loop: <Loop/>,
@@ -83,7 +82,6 @@ class VideoDisplay extends React.Component {
       <VideoPreview video={this.props.video || {}} />
     );
   };
-
   renderImages() {
     return (
       <VideoImages
@@ -93,6 +91,7 @@ class VideoDisplay extends React.Component {
         saveAndUpdateVideo={this.saveAndUpdateVideo}
         videoEditOpen={this.props.videoEditOpen}
         updateErrors={this.props.formErrorActions.updateFormErrors}
+        cropOptions={this.props.cropOptions}
       />
     );
   }
@@ -452,7 +451,8 @@ function mapStateToProps(state) {
     publishedVideo: selectPublishedVideo(state),
     videoEditOpen: state.videoEditOpen,
     checkedFormFields: state.checkedFormFields,
-    workflow: state.workflow
+    workflow: state.workflow,
+    cropOptions: state.gridMetadata.cropOptions
   };
 }
 
