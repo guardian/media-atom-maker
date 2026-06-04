@@ -1,12 +1,7 @@
 package com.gu.media.upload
 
-<<<<<<< HEAD
 import com.gu.media.aws.{SecretsManagerAccess, StepFunctionsAccess}
-import com.gu.media.config.Code
-=======
-import com.gu.media.aws.StepFunctionsAccess
 import com.gu.media.config.Stage
->>>>>>> ld / run -metrics
 import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
 import com.gu.media.telemetry.{HMACClient, Telemetry}

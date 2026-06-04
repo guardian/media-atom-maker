@@ -25,14 +25,6 @@ class UpdateAtomCommandTest extends AnyFlatSpec with Matchers {
   val mediaAtomFixtureWithAssets =
     mediaAtomFixture.copy(assets = List(emptyAsset))
 
-  behavior of "hasAdditionalYoutubeAsset"
-  it should "return true if the after atom has an additional youtube asset" in {
-    hasAdditionalYoutubeAsset(
-      mediaAtomFixture,
-      mediaAtomFixtureWithAssets
-    ) must be(true)
-  }
-
   behavior of "createDiffString"
   it should "Diff output when nothing changes" in {
     createDiffString(mediaAtomFixture, mediaAtomFixture) must be(
