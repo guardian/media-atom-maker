@@ -20,7 +20,7 @@ import com.gu.media.youtube.YouTubeVideos
 import com.gu.pandahmac.HMACAuthActions
 import data.{DataStores, UnpackedDataStores}
 import com.gu.ai.x.play.json.Jsonx
-import com.gu.media.telemetry.{TagString, Telemetry}
+import com.gu.media.telemetry.{TagLong, TagString, Telemetry}
 import model.commands.CommandExceptions.commandExceptionAsResult
 import model.commands.{SubtitleFileDeleteCommand, SubtitleFileUploadCommand}
 import org.scanamo.Table
@@ -108,7 +108,7 @@ class UploadController(
       )
       telemetry.sendTelemetryEvent(
         "VIDEO_CREATED",
-        Map("atomId" -> TagString(req.atomId))
+        Map("atomId" -> TagString(req.atomId), "videoSize" -> TagLong(req.size))
       )
       val thriftAtom = getPreviewAtom(req.atomId)
       val atom = MediaAtom.fromThrift(thriftAtom)

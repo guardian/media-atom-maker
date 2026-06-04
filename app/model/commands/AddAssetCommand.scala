@@ -14,7 +14,7 @@ import com.gu.media.util.{MAMLogger, MediaAtomImplicits, ThriftUtil}
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import com.gu.media.model.MediaAtom.fromThrift
-import com.gu.media.telemetry.{TagString, Telemetry}
+import com.gu.media.telemetry.{TagLong, TagString, Telemetry}
 import com.gu.media.youtube.YoutubeUrl
 import model.commands.CommandExceptions._
 import util.{AWSConfig, YouTube}
@@ -53,7 +53,8 @@ case class AddAssetCommand(
         telemetry.sendTelemetryEvent(
           "VIDEO_UPLOADED_VIA_YOUTUBE",
           Map(
-            "atomId" -> TagString(atomId)
+            "atomId" -> TagString(atomId),
+            "duration" -> TagLong(asset.duration.getOrElse(0L))
           )
         )
         asset
