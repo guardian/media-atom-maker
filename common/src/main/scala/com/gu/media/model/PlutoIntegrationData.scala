@@ -1,6 +1,5 @@
 package com.gu.media.model
 
-import com.amazonaws.services.s3.model.PutObjectRequest
 import com.gu.media.aws.{AwsAccess, UploadAccess}
 import com.gu.media.upload.CompleteUploadKey
 import com.gu.ai.x.play.json.Jsonx
@@ -43,29 +42,6 @@ object AtomAssignedProjectMessage {
       plutoData.projectId.get,
       atom.title,
       email
-    )
-  }
-}
-
-case class PacFileMessage(
-    `type`: String,
-    atomId: String,
-    s3Bucket: String,
-    s3Path: String
-) extends PlutoIntegrationMessage {
-  override def partitionKey: String = s3Path
-}
-
-object PacFileMessage {
-  implicit val format: Format[PacFileMessage] =
-    Jsonx.formatCaseClass[PacFileMessage]
-
-  def build(atom: MediaAtom, putRequest: PutObjectRequest): PacFileMessage = {
-    PacFileMessage(
-      "pac-file-upload",
-      atom.id,
-      putRequest.getBucketName,
-      putRequest.getKey
     )
   }
 }

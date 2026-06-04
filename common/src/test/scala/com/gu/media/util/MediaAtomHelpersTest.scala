@@ -179,6 +179,13 @@ class MediaAtomHelpersTest extends AnyFunSuite with Matchers {
     }
   }
 
+  test("extractAtomIdAndVersion should return an atom id and version number") {
+    extractAtomIdAndVersion("cc24ea8a-bd47-4113-ab6b-2ee9fa229d64-8") mustBe (
+      "cc24ea8a-bd47-4113-ab6b-2ee9fa229d64",
+      "8"
+    )
+  }
+
   private def assets(atom: Atom): Seq[Asset] = {
     atom.data.asInstanceOf[AtomData.Media].media.assets.toSeq
   }

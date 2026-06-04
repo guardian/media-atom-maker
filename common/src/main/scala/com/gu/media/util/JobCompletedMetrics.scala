@@ -1,7 +1,8 @@
 package com.gu.media.util
 
 import com.gu.media.telemetry.{TagInt, TagLong, TagString, TagValue}
-import com.gu.media.upload.model.Upload
+import com.gu.media.upload.model.{StepFunctionDetail, StepFunctionEvent, Upload}
+import com.gu.media.util.MediaAtomHelpers.extractAtomIdAndVersion
 import play.api.libs.json.Json
 import software.amazon.awssdk.services.sfn.SfnClient
 import software.amazon.awssdk.services.sfn.model.{
@@ -74,7 +75,7 @@ class JobCompletedMetrics(stepFunctionsClient: SfnClient) {
         val name = enteredEvents.headOption
           .flatMap(h =>
             h.`type`() match {
-              case HistoryEventType.LAMBDA_FUNCTION_STARTED =>
+              case HistoryEventType.LAMBDA_FUNCTION_SCHEDULED =>
                 Some(LAMBA_WARM_UP)
               case _ => Option(h.stateEnteredEventDetails()).map(_.name())
             }
@@ -88,19 +89,10 @@ class JobCompletedMetrics(stepFunctionsClient: SfnClient) {
 
   }
 
-  def getRunTime(describeExecution: DescribeExecutionResponse) = {
-    describeExecution.stopDate().toEpochMilli - describeExecution
-      .startDate()
-      .toEpochMilli
-  }
-
-  def extractStepId(executionArn: String) = {
-    executionArn
-      .split(":")
-      .toList
-      .reverse
-      .headOption
-      .getOrElse(executionArn)
+  def getRunTime(stepFunctionDetail: StepFunctionDetail) = {
+    stepFunctionDetail.stopDate
+      .map(d => d - stepFunctionDetail.startDate)
+      .getOrElse(0L)
   }
 
   def getMetricsFromHistory(
@@ -126,13 +118,6 @@ class JobCompletedMetrics(stepFunctionsClient: SfnClient) {
       "videoSize" -> TagLong(size)
     )
   }
-
-  def getExecutionResponse(executionArn: String) = {
-    val request =
-      DescribeExecutionRequest.builder().executionArn(executionArn).build()
-    stepFunctionsClient.describeExecution(request)
-  }
-
   def getAllHistoryEvents(executionArn: String) = {
     def getAllHistory(
         nextToken: Option[String],
@@ -153,23 +138,20 @@ class JobCompletedMetrics(stepFunctionsClient: SfnClient) {
     getAllHistory(None, Nil)
   }
 
-  def getMetricsForJobRun(executionArn: String) = {
-    val describeExecution = getExecutionResponse(executionArn)
-    val runTime = getRunTime(describeExecution)
-    val stepId = extractStepId(executionArn)
-
-    val historyEvents = getAllHistoryEvents(executionArn)
-    val metricsFromHistory =
-      getMetricsFromHistory(historyEvents, runTime)
-
-    val uploadOpt = Json.parse(describeExecution.input()).validate[Upload].asOpt
+  def getMetricsForJobRun(event: StepFunctionEvent) = {
+    val runTime = getRunTime(event.detail)
+    val historyEvents = getAllHistoryEvents(event.detail.executionArn)
+    val metricsFromHistory = getMetricsFromHistory(historyEvents, runTime)
+    val uploadOpt = Json.parse(event.detail.input).validate[Upload].asOpt
     val metricsFromUploadData =
       uploadOpt.fold(Map[String, TagValue]())(getMetricsFromUpload)
+    val (atomId, version) = extractAtomIdAndVersion(event.id)
 
     Map(
       "jobTime" -> TagLong(runTime),
-      "stepId" -> TagString(stepId)
+      "stepFunctionId" -> TagString(event.id),
+      "atomId" -> TagString(atomId),
+      "version" -> TagString(version)
     ) ++ metricsFromHistory ++ metricsFromUploadData
   }
-
 }

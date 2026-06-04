@@ -1,6 +1,5 @@
 package com.gu.media.aws
 
-import com.amazonaws.regions.Regions
 import software.amazon.awssdk.services.sns.SnsClient
 import com.gu.media.Settings
 

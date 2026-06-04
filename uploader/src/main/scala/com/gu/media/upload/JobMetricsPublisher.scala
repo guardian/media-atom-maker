@@ -1,7 +1,12 @@
 package com.gu.media.upload
 
+<<<<<<< HEAD
 import com.gu.media.aws.{SecretsManagerAccess, StepFunctionsAccess}
 import com.gu.media.config.Code
+=======
+import com.gu.media.aws.StepFunctionsAccess
+import com.gu.media.config.Stage
+>>>>>>> ld / run -metrics
 import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
 import com.gu.media.telemetry.{HMACClient, Telemetry}
@@ -27,9 +32,9 @@ class JobMetricsPublisher
       s"Could not retrieve $secretArn from secrets manager"
     ))
     val hmacClient = new HMACClient(secret)
-    val telemetry = new Telemetry(Code, hmacClient, client)
+    val telemetry = new Telemetry(Stage(stage), hmacClient, client)
     val sfMetrics = new JobCompletedMetrics(stepFunctionsClient)
-    val metrics = sfMetrics.getMetricsForJobRun(input.detail.executionArn)
+    val metrics = sfMetrics.getMetricsForJobRun(input)
     log.info("Sending telemetry event")
     telemetry.sendTelemetryEvent("VIDEO_UPLOAD_COMPLETE", metrics)
     log.info("Completed jobs metrics publisher lambda")

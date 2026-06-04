@@ -230,13 +230,11 @@ class MediaAtomMaker(context: Context)
   private def buildReindexer() = {
     // pass the parameters manually since the reindexer is part of the atom-maker lib
     new ReindexController(
-      stores.preview,
-      stores.published,
-      stores.reindexPreview,
-      stores.reindexPublished,
-      configuration,
-      controllerComponents,
-      actorSystem
+      previewReindexer = stores.previewReindexer,
+      publishedReindexer = stores.publishedReindexer,
+      config = configuration,
+      controllerComponents = controllerComponents,
+      system = actorSystem
     )
 
   }
