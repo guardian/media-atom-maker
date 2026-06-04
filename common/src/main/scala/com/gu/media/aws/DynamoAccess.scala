@@ -18,6 +18,13 @@ trait DynamoAccess { this: Settings with AwsAccess =>
     "aws.dynamo.publishedTableName"
   )
 
+  lazy val previewReindexTableName: String = getMandatoryString(
+    "aws.dynamo.previewReindexTableName"
+  )
+  lazy val publishedReindexTableName: String = getMandatoryString(
+    "aws.dynamo.publishedReindexTableName"
+  )
+
   private def getTableName(itemType: String, stage: String): String =
     s"$app-$stage-$itemType-table"
 

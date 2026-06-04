@@ -1,7 +1,6 @@
 package com.gu.media
 
 import software.amazon.awssdk.services.ses.SesClient
-import com.amazonaws.util.IOUtils
 import com.gu.contentatom.thrift.atom.media.PrivacyStatus
 import com.gu.media.expirer.ExpirerLambda
 import com.gu.media.model.{AdSettings, VideoUpdateError}
@@ -9,6 +8,8 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.{JsValue, Json}
 import org.mockito.MockitoSugar.{mock, when}
+
+import java.nio.charset.StandardCharsets
 
 class ExpirerLambdaTest extends AnyFunSuite with Matchers {
   test("Make YouTube assets private") {
@@ -94,6 +95,6 @@ class ExpirerLambdaTest extends AnyFunSuite with Matchers {
 
   private def capiResult(filename: String) = {
     val resource = getClass.getResourceAsStream('/' + filename)
-    IOUtils.toString(resource)
+    new String(resource.readAllBytes(), StandardCharsets.UTF_8)
   }
 }

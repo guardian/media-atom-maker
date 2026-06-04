@@ -119,6 +119,34 @@ Resources:
         ReadCapacityUnits: "10"
         WriteCapacityUnits: "5"
 
+  PreviewReindexDynamoTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: jobStatus
+          AttributeType: S
+      KeySchema:
+        - AttributeName: jobStatus
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        - Key: devx-backup-enabled
+          Value: false
+
+  PublishedReindexDynamoTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: jobStatus
+          AttributeType: S
+      KeySchema:
+        - AttributeName: jobStatus
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        - Key: devx-backup-enabled
+          Value: false
+
   PlutoProjectDynamoTable:
     Type: "AWS::DynamoDB::Table"
     Properties:
