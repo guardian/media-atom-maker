@@ -25,7 +25,7 @@ class JobCompletedMetricsTest extends AnyFunSuite with Matchers {
       .timestamp(Instant.ofEpochMilli(epochMilli))
       .build()
 
-  test("computeDurations calculates lambda warm-up duration") {
+  test("computeDurations calculates should use a custom name for the lambda warm up time") {
     val scheduled = event(1L, HistoryEventType.LAMBDA_FUNCTION_SCHEDULED, 1000L)
     val started = event(2L, HistoryEventType.LAMBDA_FUNCTION_STARTED, 1500L)
 

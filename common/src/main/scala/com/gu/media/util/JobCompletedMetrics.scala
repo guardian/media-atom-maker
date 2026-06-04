@@ -75,7 +75,7 @@ class JobCompletedMetrics(stepFunctionsClient: SfnClient) {
         val name = enteredEvents.headOption
           .flatMap(h =>
             h.`type`() match {
-              case HistoryEventType.LAMBDA_FUNCTION_STARTED =>
+              case HistoryEventType.LAMBDA_FUNCTION_SCHEDULED =>
                 Some(LAMBA_WARM_UP)
               case _ => Option(h.stateEnteredEventDetails()).map(_.name())
             }
