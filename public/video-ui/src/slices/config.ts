@@ -1,33 +1,11 @@
 import { Action, createSlice } from '@reduxjs/toolkit';
-
-export type AppConfig = {
-  permissions: Record<string, boolean>;
-  presence?: string;
-  youtubeEmbedUrl?: string;
-  youtubeThumbnailUrl?: string;
-  reauthUrl?: string;
-  gridUrl?: string;
-  capiProxyUrl?: string;
-  liveCapiProxyUrl?: string;
-  composerUrl?: string;
-  ravenUrl?: string;
-  stage?: string;
-  viewerUrl?: string;
-  minDurationForAds?: string;
-  isTrainingMode?: string;
-  workflowUrl?: string;
-  targetingUrl?: string;
-  embeddedMode?: string;
-  tagManagerUrl?: string;
-};
-
-export type ConfigState = AppConfig;
+import { ConfigState, getAppConfig } from '../util/config';
 
 type ConfigRecievedAction = Action<'config/setConfig'> & {
-  payload: AppConfig;
+  payload: Partial<ConfigState>;
 };
 
-const initialState: ConfigState = { permissions: {} };
+const initialState: ConfigState = getAppConfig();
 
 const config = createSlice({
   name: 'config',
