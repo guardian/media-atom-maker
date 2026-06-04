@@ -164,7 +164,15 @@ class Api(
   def addAsset(atomId: String) = APIAuthAction { implicit req =>
     implicit val readCommand: Reads[AddAssetCommand] =
       (JsPath \ "uri").read[String].map { videoUri =>
-        AddAssetCommand(atomId, videoUri, stores, youtube, req.user, awsConfig, telemetry)
+        AddAssetCommand(
+          atomId,
+          videoUri,
+          stores,
+          youtube,
+          req.user,
+          awsConfig,
+          telemetry
+        )
       }
 
     parse(req) { command: AddAssetCommand =>

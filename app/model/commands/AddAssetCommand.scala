@@ -1,7 +1,13 @@
 package model.commands
 
 import com.gu.contentatom.thrift.Atom
-import com.gu.contentatom.thrift.atom.media.{Asset, Metadata, Platform, Category => ThriftCategory, MediaAtom => ThriftMediaAtom}
+import com.gu.contentatom.thrift.atom.media.{
+  Asset,
+  Metadata,
+  Platform,
+  Category => ThriftCategory,
+  MediaAtom => ThriftMediaAtom
+}
 import com.gu.media.logging.Logging
 import com.gu.media.model.MediaAtom
 import com.gu.media.util.{MAMLogger, MediaAtomImplicits, ThriftUtil}
@@ -44,7 +50,10 @@ case class AddAssetCommand(
 
       case YouTubeId(videoId) =>
         val asset = addAsset(atom, mediaAtom, currentAssets, videoId)
-        telemetry.sendTelemetryEvent("VIDEO_UPLOADED_VIA_YOUTUBE", Map("atomId" -> TagString(atomId)))
+        telemetry.sendTelemetryEvent(
+          "VIDEO_UPLOADED_VIA_YOUTUBE",
+          Map("atomId" -> TagString(atomId))
+        )
         asset
 
       case _ =>
