@@ -5,7 +5,6 @@ import com.gu.media.TestHelpers.emptyAsset
 import com.gu.media.model.{Category, ContentChangeDetails, MediaAtom}
 import model.commands.UpdateAtomCommand.{
   createDiffString,
-  hasAdditionalYoutubeAsset,
   shouldNotifyThirdPartyServices
 }
 import org.scalatest.flatspec.AnyFlatSpec
