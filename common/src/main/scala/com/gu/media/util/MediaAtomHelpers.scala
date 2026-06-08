@@ -31,6 +31,14 @@ object MediaAtomHelpers {
     )
   }
 
+  def extractAtomIdAndVersion(stepFunctionId: String): (String, String) = {
+    val stepIdRegex =
+      "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})-(\\d+)$".r
+    stepFunctionId match {
+      case stepIdRegex(atomId, version) => (atomId, version)
+    }
+  }
+
   def getCurrentAssetVersion(mediaAtom: MediaAtom): Option[Long] = {
     if (mediaAtom.assets.isEmpty) {
       None
