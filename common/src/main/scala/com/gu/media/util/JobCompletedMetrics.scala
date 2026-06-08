@@ -6,8 +6,6 @@ import com.gu.media.util.MediaAtomHelpers.extractAtomIdAndVersion
 import play.api.libs.json.Json
 import software.amazon.awssdk.services.sfn.SfnClient
 import software.amazon.awssdk.services.sfn.model.{
-  DescribeExecutionRequest,
-  DescribeExecutionResponse,
   GetExecutionHistoryRequest,
   HistoryEvent,
   HistoryEventType
@@ -16,7 +14,7 @@ import software.amazon.awssdk.services.sfn.model.{
 import scala.jdk.CollectionConverters.IterableHasAsScala
 
 class JobCompletedMetrics(stepFunctionsClient: SfnClient) {
-  val LAMBA_WARM_UP = "LAMBA_WARM_UP"
+  val LAMBDA_WARM_UP = "LAMBA_WARM_UP"
   val UNKNOWN_JOB = "UNKNOWN_JOB"
   def computeDurations(historyEvents: List[HistoryEvent]) = {
     val taskEnteredMap =
@@ -35,7 +33,10 @@ class JobCompletedMetrics(stepFunctionsClient: SfnClient) {
                   acc.updated(name, h :: acc.getOrElse(name, Nil))
                 })
             case HistoryEventType.LAMBDA_FUNCTION_SCHEDULED =>
-              acc.updated(LAMBA_WARM_UP, h :: acc.getOrElse(LAMBA_WARM_UP, Nil))
+              acc.updated(
+                LAMBDA_WARM_UP,
+                h :: acc.getOrElse(LAMBDA_WARM_UP, Nil)
+              )
             case _ => acc
           }
       })
@@ -56,7 +57,7 @@ class JobCompletedMetrics(stepFunctionsClient: SfnClient) {
               })
 
           case HistoryEventType.LAMBDA_FUNCTION_STARTED =>
-            acc.updated(LAMBA_WARM_UP, h :: acc.getOrElse(LAMBA_WARM_UP, Nil))
+            acc.updated(LAMBDA_WARM_UP, h :: acc.getOrElse(LAMBDA_WARM_UP, Nil))
           case _ => acc
         }
     })
@@ -76,7 +77,7 @@ class JobCompletedMetrics(stepFunctionsClient: SfnClient) {
           .flatMap(h =>
             h.`type`() match {
               case HistoryEventType.LAMBDA_FUNCTION_SCHEDULED =>
-                Some(LAMBA_WARM_UP)
+                Some(LAMBDA_WARM_UP)
               case _ => Option(h.stateEnteredEventDetails()).map(_.name())
             }
           )
@@ -100,9 +101,7 @@ class JobCompletedMetrics(stepFunctionsClient: SfnClient) {
       runTime: Long
   ): Map[String, TagValue] = {
     val durationsMap = computeDurations(historyEvents)
-    val totalSubTimes = durationsMap.foldLeft(0L)({ case (acc, (_, v)) =>
-      acc + v
-    })
+    val totalSubTimes = durationsMap.values.sum
     Map(
       "totalSubTimes" -> TagLong(totalSubTimes),
       "duration_unknown" -> TagLong(runTime - totalSubTimes)

@@ -1,27 +1,11 @@
 package com.gu.media.telemetry
 
-import com.gu.hmac.{HMACHeaderValues, HMACHeaders}
+import com.gu.hmac.HMACHeaders
 import com.gu.media.config.{Prod, Stage}
-import com.gu.media.upload.model.Upload
 import com.gu.pandahmac.HMACHeaderNames
 import play.api.Logging
-import play.api.libs.json.{
-  JsNumber,
-  JsObject,
-  JsString,
-  JsValue,
-  Json,
-  OFormat,
-  OWrites,
-  Writes
-}
-import play.api.libs.ws.WSClient
-import software.amazon.awssdk.auth.credentials.{
-  AwsCredentialsProviderChain,
-  DefaultCredentialsProvider,
-  InstanceProfileCredentialsProvider,
-  ProfileCredentialsProvider
-}
+import play.api.libs.json.{JsNumber, JsString, JsValue, Json, OWrites, Writes}
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 
 import java.net.URI
 import java.time.{ZoneOffset, ZonedDateTime}
@@ -29,7 +13,6 @@ import java.time.format.DateTimeFormatter
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest
 
-import java.net.http.HttpRequest.BodyPublisher
 import java.net.http.{HttpClient, HttpRequest, HttpResponse}
 import scala.util.Try
 
@@ -57,13 +40,6 @@ private object TelemetryEvent {
       }
     }
   }
-  implicit val tagMapValueWrite: Writes[Map[String, TagValue]] =
-    new Writes[Map[String, TagValue]] {
-
-      override def writes(tagMap: Map[String, TagValue]): JsValue = {
-        JsObject(tagMap.map({ case (k, v) => k -> Json.toJson(v) }))
-      }
-    }
   implicit val writes: OWrites[TelemetryEvent] = Json.writes
 }
 
@@ -71,12 +47,7 @@ object SecretsManager {
   val secretsManagerClient = SecretsManagerClient
     .builder()
     .credentialsProvider(
-      AwsCredentialsProviderChain
-        .builder()
-        .credentialsProviders(
-          DefaultCredentialsProvider.builder().build()
-        )
-        .build()
+      DefaultCredentialsProvider.builder().build()
     )
     .build()
 
@@ -94,9 +65,6 @@ class HMACClient(secretArn: String) extends HMACHeaders {
     SecretsManager.getSecret(secretArn) getOrElse (throw new Exception(
       s"Could not retrieve $secretArn from secrets manager"
     ))
-
-  override def createHMACHeaderValues(uri: URI): HMACHeaderValues =
-    super.createHMACHeaderValues(uri)
 }
 
 class Telemetry(stage: Stage, secretArn: String, httpClient: HttpClient)
