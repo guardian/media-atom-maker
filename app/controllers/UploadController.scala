@@ -108,7 +108,11 @@ class UploadController(
       )
       telemetry.sendTelemetryEvent(
         "VIDEO_CREATED",
-        Map("atomId" -> TagString(req.atomId), "videoSize" -> TagLong(req.size))
+        Map(
+          "atomId" -> TagString(req.atomId),
+          "videoSize" -> TagLong(req.size),
+          "uploadedBy" -> TagString("MAM")
+        )
       )
       val thriftAtom = getPreviewAtom(req.atomId)
       val atom = MediaAtom.fromThrift(thriftAtom)

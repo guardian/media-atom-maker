@@ -51,11 +51,12 @@ case class AddAssetCommand(
       case YouTubeId(videoId) =>
         val asset = addAsset(atom, mediaAtom, currentAssets, videoId)
         telemetry.sendTelemetryEvent(
-          "VIDEO_UPLOADED_VIA_YOUTUBE",
+          "VIDEO_CREATED",
           Map(
             "atomId" -> TagString(atomId),
-            "duration" -> TagLong(asset.duration.getOrElse(0L))
+            "uploadedBy" -> TagString("YouTube")
           )
+            ++ asset.duration.map(l => ("duration", TagLong(l)))
         )
         asset
 
