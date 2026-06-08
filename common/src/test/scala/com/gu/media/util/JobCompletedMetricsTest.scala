@@ -33,6 +33,6 @@ class JobCompletedMetricsTest extends AnyFunSuite with Matchers {
 
     val result = metrics.computeDurations(List(scheduled, started))
 
-    result must contain(metrics.LAMBA_WARM_UP -> 500L)
+    result must contain(metrics.LAMBDA_WARM_UP -> 500L)
   }
 }

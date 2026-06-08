@@ -18,7 +18,6 @@ import FieldNotification from "../../constants/FieldNotification";
 import { trailTextConfig, standfirstConfig } from "../FormFields/richtext/config";
 import { ExpireNowComponent } from "../FormFields/ExpireNow";
 import {addOrDropBundlingTags} from "../../services/KeywordsApi";
-import { isTaggingSupported } from '../../util/config';
 
 export default class VideoData extends React.Component {
   static propTypes = {
@@ -150,7 +149,6 @@ export default class VideoData extends React.Component {
             </ManagedField>
         }
         {
-          isTaggingSupported() &&
           <ManagedField
             fieldLocation="atomTagIds"
             name="Tags"

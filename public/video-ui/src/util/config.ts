@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { QUERY_PARAM_supportTagging } from '../constants/queryParams';
 
 const PresenceSchema = z.object({
   domain: z.string(),
@@ -102,9 +101,4 @@ export function getUserTelemetryClient(stage: string): string {
     default:
       return 'https://user-telemetry.local.dev-gutools.co.uk';
   }
-}
-
-export function isTaggingSupported(): boolean {
-  const url = new URL(window.location.href);
-  return url.searchParams.has(QUERY_PARAM_supportTagging);
 }
