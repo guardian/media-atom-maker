@@ -6,7 +6,9 @@ import software.amazon.awssdk.auth.credentials.{
 }
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.gu.atom.play.ReindexController
-import com.gu.media.aws.{AwsCredentials, S3Access}
+import com.gu.media.aws.{AwsCredentials, S3Access, SecretsManagerAccess}
+import com.gu.media.config.{Code, Stage}
+import com.gu.media.telemetry.{Telemetry, HMACClient}
 import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider, Settings}
 import com.gu.pandomainauth.{PanDomainAuthSettingsRefresher, S3BucketLoader}
 import controllers._
@@ -30,6 +32,7 @@ import schedule.GridAPI
 import util._
 
 import java.io.FileInputStream
+import java.net.http.HttpClient
 import java.time.Duration
 
 class MediaAtomMakerLoader extends ApplicationLoader {
@@ -140,6 +143,15 @@ class MediaAtomMaker(context: Context)
   private val thumbnailGenerator = ThumbnailGenerator(
     environment.getFile("conf/")
   )
+  val httpClient = HttpClient.newHttpClient()
+  val secretArn = configuration.get[String]("aws.secretsmanager.hmacSecret")
+  val stage = Stage(Settings(config).getMandatoryString("stage"))
+  lazy val secret: String =
+    aws.getSecret(secretArn) getOrElse (throw new Exception(
+      s"Could not retrieve $secretArn from secrets manager"
+    ))
+  val hmacClient = new HMACClient(secret)
+  private val telemetry = new Telemetry(stage, hmacClient, httpClient)
 
   private val api = new Api(
     stores,
@@ -151,6 +163,7 @@ class MediaAtomMaker(context: Context)
     capi,
     thumbnailGenerator,
     gridApiScheduler,
+    telemetry,
     controllerComponents
   )
 
@@ -162,6 +175,7 @@ class MediaAtomMaker(context: Context)
     stores,
     permissions,
     youTube,
+    telemetry,
     controllerComponents
   )
 

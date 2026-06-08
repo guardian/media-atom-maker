@@ -7,6 +7,7 @@ import software.amazon.awssdk.services.sfn.model.{
 import com.gu.atom.data.{DataStoreResultUtil, PreviewDynamoDataStoreV2}
 import com.gu.media.{MediaAtomMakerPermissionsProvider, TestHelpers}
 import com.gu.media.model._
+import com.gu.media.telemetry.Telemetry
 import com.gu.media.upload.model.{Upload, UploadMetadata, UploadProgress}
 import com.gu.media.youtube.YouTubeVideos
 import com.gu.pandahmac.HMACAuthActions
@@ -34,6 +35,7 @@ class UploadControllerTest extends AnyFlatSpec with Matchers {
   val stubControllerComponents = Helpers.stubControllerComponents()
   val mockPreviewDataStore = mock[PreviewDynamoDataStoreV2]
   val mockScanamo = mock[Scanamo]
+  val mockTelemetry = mock[Telemetry]
 
   when(mockDataStores.preview).thenReturn(mockPreviewDataStore)
   when(mackAwsConfig.scanamo).thenReturn(mockScanamo)
@@ -49,6 +51,7 @@ class UploadControllerTest extends AnyFlatSpec with Matchers {
     mockDataStores,
     mockPermissions,
     mockYouTube,
+    mockTelemetry,
     stubControllerComponents
   )
 

@@ -1,7 +1,10 @@
 package com.gu.media
 
+import com.gu.media.model.AssetType.{Audio, Video}
+import com.gu.media.model.Platform.Youtube
 import com.gu.media.model.{
   ContentChangeDetails,
+  Asset => AppAsset,
   Category => AppCategory,
   MediaAtom => AppMediaAtom
 }
@@ -50,5 +53,17 @@ object TestHelpers {
     optimisedForWeb = None,
     suppressRelatedContent = None,
     iconikData = None
+  )
+
+  val emptyAsset = AppAsset(
+    Video,
+    1L,
+    "id",
+    Youtube,
+    None,
+    None,
+    None,
+    None,
+    None
   )
 }
