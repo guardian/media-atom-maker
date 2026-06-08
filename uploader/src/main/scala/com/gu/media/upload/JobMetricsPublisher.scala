@@ -19,7 +19,7 @@ class JobMetricsPublisher
 
   override def handle(input: StepFunctionEvent): String = {
     log.info(
-      s"Executing jobs metrics publisher lambda after ${input.detail.executionArn} has finished"
+      s"Executing jobs metrics publisher lambda after ${input.detail.executionArn} has finished, with stepFunctionId ${input.id}"
     )
     val client = HttpClient.newHttpClient()
     val secretArn = sys.env("HMAC_SECRET_ARN")
