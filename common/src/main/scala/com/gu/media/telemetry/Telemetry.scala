@@ -4,7 +4,15 @@ import com.gu.hmac.{HMACHeaderValues, HMACHeaders}
 import com.gu.media.config.{Prod, Stage}
 import com.gu.pandahmac.HMACHeaderNames
 import play.api.Logging
-import play.api.libs.json.{JsNumber, JsString, JsValue, Json, OWrites, Writes}
+import play.api.libs.json.{
+  JsBoolean,
+  JsNumber,
+  JsString,
+  JsValue,
+  Json,
+  OWrites,
+  Writes
+}
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 
 import java.net.URI
@@ -21,6 +29,7 @@ sealed trait TagValue
 case class TagString(value: String) extends TagValue
 case class TagLong(value: Long) extends TagValue
 case class TagInt(value: Int) extends TagValue
+case class TagBool(value: Boolean) extends TagValue
 private case class TelemetryEvent(
     app: String,
     stage: String,
@@ -37,6 +46,7 @@ private object TelemetryEvent {
         case TagString(v) => JsString(v)
         case TagLong(v)   => JsNumber(v)
         case TagInt(v)    => JsNumber(v)
+        case TagBool(v)   => JsBoolean(v)
       }
     }
   }
