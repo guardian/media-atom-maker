@@ -24,7 +24,7 @@ class JobMetricsPublisher
     val secretArn = sys.env("HMAC_SECRET_ARN")
     val telemetry = new Telemetry(Stage(stage), secretArn, client)
     val sfMetrics = new JobCompletedMetrics(stepFunctionsClient)
-    val metrics = sfMetrics.getMetricsForJobRun(input)
+    val metrics = sfMetrics.getMetricsForJobRun(input.detail)
     log.info("Sending telemetry event")
     telemetry.sendTelemetryEvent("VIDEO_UPLOAD_COMPLETE", metrics)
     log.info("Completed jobs metrics publisher lambda")
