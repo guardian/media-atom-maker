@@ -1,5 +1,9 @@
 package com.gu.media.youtube
 
+import com.gu.media.Settings
+import com.gu.media.aws.{AwsAccess, S3Access}
+import com.gu.media.lambda.{LambdaBase, LambdaYoutubeCredentials}
+
 import java.io.InputStream
 import com.gu.media.logging.{
   Logging,
@@ -19,6 +23,27 @@ import com.squareup.okhttp.{MediaType, OkHttpClient, Request, RequestBody}
 import play.api.libs.json.{JsObject, JsString, Json}
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.GetObjectRequest
+
+object RunYouTubeUploader
+    extends App
+    with LambdaBase
+    with LambdaYoutubeCredentials
+    with AwsAccess
+    with S3Access
+    with YouTubeAccess
+    with Settings {
+  private val uploader = new YouTubeUploader(this, this.s3Client)
+
+  val response = uploader.startUpload(
+    "test",
+    trainingChannels.head,
+    "UC-pCzg7zq1Nahs0lENOqyiw",
+    20L
+  )
+  println("*****")
+  println(response)
+  println("*****")
+}
 
 class YouTubeUploader(youTube: YouTubeAccess, s3: S3Client) extends Logging {
   private val JSON = MediaType.parse("application/json; charset=utf-8")

@@ -13,7 +13,8 @@ trait LambdaBase extends Settings with AwsAccess with HMACSettings {
   final override def readTag(tag: String) =
     sys.env.get(tag.toUpperCase(Locale.ENGLISH))
 
-  final override val credentials: AwsCredentials = AwsCredentials.lambda()
+  final override val credentials: AwsCredentials =
+    AwsCredentials.profile("media-service")
 
   private val remoteConfig = downloadConfig()
   private val mergedConfig = remoteConfig.withFallback(ConfigFactory.load())
