@@ -33,16 +33,21 @@ object RunYouTubeUploader
     with YouTubeAccess
     with Settings {
   private val uploader = new YouTubeUploader(this, this.s3Client)
-
-  val response = uploader.startUpload(
+  val size = 3153418L
+  val uploadUri = uploader.startUpload(
     "test",
     trainingChannels.head,
     "UC-pCzg7zq1Nahs0lENOqyiw",
-    20L
+    size
   )
-  println("*****")
-  println(response)
-  println("*****")
+
+  uploader.uploadFull(
+    "media-atom-maker-upload-code",
+    "uploads/cc24ea8a-bd47-4113-ab6b-2ee9fa229d64-12/complete",
+    uploadUri,
+    size
+  )
+
 }
 
 class YouTubeUploader(youTube: YouTubeAccess, s3: S3Client) extends Logging {
@@ -105,6 +110,25 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: S3Client) extends Logging {
         s"${response.code()} when starting YouTube upload: ${response.body().string()}"
       )
     }
+  }
+
+  def uploadFull(bucket: String, key: String, uploadUri: String, size: Long) = {
+    val input = s3.getObject(
+      GetObjectRequest.builder().bucket(bucket).key(key).build()
+    )
+
+    val body = new InputStreamRequestBody(VIDEO, input, size)
+
+    val request = new Request.Builder()
+      .url(uploadUri)
+      .addHeader("Authorization", "Bearer " + youTube.accessToken())
+      .addHeader("Content-Length", size.toString)
+      .post(body)
+      .build()
+
+    val response = http.newCall(request).execute()
+    Json.parse(response.body().string())
+
   }
 
   def uploadPart(
