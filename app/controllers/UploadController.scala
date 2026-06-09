@@ -20,6 +20,7 @@ import com.gu.media.youtube.YouTubeVideos
 import com.gu.pandahmac.HMACAuthActions
 import data.{DataStores, UnpackedDataStores}
 import com.gu.ai.x.play.json.Jsonx
+import com.gu.media.telemetry.{TagLong, TagString, Telemetry}
 import model.commands.CommandExceptions.commandExceptionAsResult
 import model.commands.{SubtitleFileDeleteCommand, SubtitleFileUploadCommand}
 import org.scanamo.Table
@@ -45,6 +46,7 @@ class UploadController(
     override val stores: DataStores,
     override val permissions: MediaAtomMakerPermissionsProvider,
     youTube: YouTubeVideos,
+    telemetry: Telemetry,
     override val controllerComponents: ControllerComponents
 ) extends AtomController
     with Logging
@@ -104,7 +106,14 @@ class UploadController(
       log.info(
         s"Request for upload under atom ${req.atomId}. filename=${req.filename}. size=${req.size}, selfHosted=${req.selfHost}"
       )
-
+      telemetry.sendTelemetryEvent(
+        "VIDEO_CREATED",
+        Map(
+          "atomId" -> TagString(req.atomId),
+          "videoSize" -> TagLong(req.size),
+          "uploadedBy" -> TagString("MAM")
+        )
+      )
       val thriftAtom = getPreviewAtom(req.atomId)
       val atom = MediaAtom.fromThrift(thriftAtom)
       val assetVersion =

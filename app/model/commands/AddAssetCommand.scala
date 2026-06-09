@@ -14,6 +14,7 @@ import com.gu.media.util.{MAMLogger, MediaAtomImplicits, ThriftUtil}
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import com.gu.media.model.MediaAtom.fromThrift
+import com.gu.media.telemetry.{TagBool, TagLong, TagString, Telemetry}
 import com.gu.media.youtube.YoutubeUrl
 import model.commands.CommandExceptions._
 import util.{AWSConfig, YouTube}
@@ -26,7 +27,8 @@ case class AddAssetCommand(
     override val stores: DataStores,
     youTube: YouTube,
     user: PandaUser,
-    awsConfig: AWSConfig
+    awsConfig: AWSConfig,
+    telemetry: Telemetry
 ) extends Command
     with MediaAtomImplicits
     with Logging {
@@ -47,7 +49,17 @@ case class AddAssetCommand(
         AssetAlreadyAdded
 
       case YouTubeId(videoId) =>
-        addAsset(atom, mediaAtom, currentAssets, videoId)
+        val asset = addAsset(atom, mediaAtom, currentAssets, videoId)
+        telemetry.sendTelemetryEvent(
+          "VIDEO_CREATED",
+          Map(
+            "atomId" -> TagString(atomId),
+            "uploadedBy" -> TagString("YouTube"),
+            "isLivestream" -> TagBool(videoUri.contains("/live/"))
+          )
+            ++ asset.duration.map(l => ("duration", TagLong(l)))
+        )
+        asset
 
       case _ =>
         NotYoutubeAsset
