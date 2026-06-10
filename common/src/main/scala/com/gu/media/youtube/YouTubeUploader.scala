@@ -19,7 +19,6 @@ import com.gu.media.upload.model.{
   UploadProgress
 }
 import com.gu.media.util.InputStreamRequestBody
-import com.gu.media.youtube.RunYouTubeUploader.trainingChannels
 import com.gu.media.youtube.YouTubeUploader.{
   MoveToNextChunk,
   UploadError,
@@ -31,39 +30,6 @@ import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.GetObjectRequest
 
 import java.util.UUID
-
-object RunYouTubeUploader
-    extends App
-    with LambdaBase
-    with LambdaYoutubeCredentials
-    with Logging
-    with AwsAccess
-    with S3Access
-    with YouTubeAccess
-    with Settings {
-
-  YouTubeUpload.runUploadToYouTube(
-    Upload(
-      s"ace3fcf6-1378-41db-9d21-f3fc07072ab2",
-      List(UploadPart("key", 0L, 1000L)),
-      UploadMetadata(
-        "jo.blogs@guardian.co.uk",
-        "bucket",
-        "region",
-        "title",
-        PlutoSyncMetadataMessage("", None, "key", "", "", "", None),
-        iconikData = None,
-        null,
-        originalFilename = Some(""),
-        subtitleSource = None,
-        subtitleVersion = None,
-        startTimestamp = 1L,
-        selfHost = true
-      ),
-      UploadProgress(1, 0, true, true, 0)
-    )
-  )
-}
 object YouTubeUpload
     extends LambdaBase
     with LambdaYoutubeCredentials
@@ -73,6 +39,7 @@ object YouTubeUpload
     with YouTubeAccess
     with Settings {
   def runUploadToYouTube(upload: Upload) = {
+    log.info("running upload to youtube v2")
     val uploader = new YouTubeUploader(this, this.s3Client)
     val size = upload.parts.last.end
     val bucket = upload.metadata.bucket
@@ -84,6 +51,7 @@ object YouTubeUpload
       UUID.randomUUID().toString,
       size
     )
+    log.info("Retrieved an upload uri. Uploading to youtube...")
     val response = uploader.uploadFull(
       bucket,
       s3Key,
