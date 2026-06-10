@@ -24,7 +24,7 @@ object YouTubeUploadV2
     val size = upload.parts.last.end
     val bucket = upload.metadata.bucket
     val s3Key = upload.metadata.pluto.s3Key
-    log.info(s"running upload to youtube v2 with ${s3Key}")
+    log.info(s"running upload to youtube v2 with $s3Key and size $size")
     val uploadUri = uploader.startUpload(
       "test",
       trainingChannels.head,
