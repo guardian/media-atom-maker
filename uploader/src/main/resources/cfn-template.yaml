@@ -57,6 +57,13 @@ Conditions:
   CreateCodeResources: !Equals [!Ref "Stage", "CODE"]
   CreateDevResources:  !Equals [!Ref "Stage", "DEV"]
 
+Mappings:
+  StageToHmacSecretArn:
+    PROD:
+      HmacSecretArn: "arn:aws:secretsmanager:eu-west-1:563563610310:secret:/PROD/flexible/event-api-lambda/hmacSecret-U1xnLA"
+    CODE:
+      HmacSecretArn: "arn:aws:secretsmanager:eu-west-1:563563610310:secret:/CODE/flexible/event-api-lambda/hmacSecret-OVcnV0"
+
 Resources:
   TranscoderCompleteLambdaExecutionRole:
       Type: "AWS::IAM::Role"
@@ -84,6 +91,34 @@ Resources:
                       - "arn:aws:states:${AWS::Region}:${AWS::AccountId}:execution:${stateMachineName}:*"
                       - stateMachineName: !Select [ 6, !Split [ ":", !If [ CreateProdResources, !Ref VideoPipelinePROD, !If [ CreateCodeResources, !Ref VideoPipelineCODE, !Ref VideoPipelineDEV ] ] ] ]
 
+  JobMetricsPublisherLambdaExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: "JobMetricsPublisherLambdaExecutionPolicy"
+          PolicyDocument:
+            Statement:
+              - Effect: "Allow"
+                Action: [ "logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents" ]
+                Resource: "*"
+              - Effect: "Allow"
+                Action: [ "secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"]
+                Resource:  !FindInMap [StageToHmacSecretArn, !Ref Stage, HmacSecretArn]
+              - Effect: "Allow"
+                Action: [ "states:GetExecutionHistory", "states:DescribeExecution" ]
+                Resource:
+                  - !If [ CreateProdResources, !Ref VideoPipelinePROD, !If [ CreateCodeResources, !Ref VideoPipelineCODE, !Ref VideoPipelineDEV ] ]
+                  - !Sub
+                    - "arn:aws:states:${AWS::Region}:${AWS::AccountId}:execution:${stateMachineName}:*"
+                    - stateMachineName: !Select [ 6, !Split [ ":", !If [ CreateProdResources, !Ref VideoPipelinePROD, !If [ CreateCodeResources, !Ref VideoPipelineCODE, !Ref VideoPipelineDEV ] ] ] ]
   LambdaExecutionRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -226,6 +261,14 @@ Resources:
                 Action:
                   - "lambda:InvokeFunction"
                 Resource: !GetAtt [ TranscoderComplete, Arn ]
+        - PolicyName: ExecuteJobMetricsPublisherLambda
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "lambda:InvokeFunction"
+                Resource: !GetAtt [ JobMetricsPublisher, Arn ]
 
   MediaConvertRole:
     Type: "AWS::IAM::Role"
@@ -255,7 +298,6 @@ Resources:
                   - "s3:Put*"
                 Resource:
                   - !Sub [ "arn:aws:s3:::${Bucket}/*", { "Bucket": !Ref DestinationBucketName } ]
-  
   TranscoderComplete:
     Type: "AWS::Lambda::Function"
     Properties:
@@ -284,6 +326,29 @@ Resources:
           MEDIA_CONVERT_ROLE: !GetAtt MediaConvertRole.Arn
       MemorySize: 2048
       Role: !GetAtt TranscoderCompleteLambdaExecutionRole.Arn
+      Runtime: "java21"
+      Timeout: 300
+
+  JobMetricsPublisher:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !Sub "${App}-JobMetricsPublisher-${Stage}"
+      Description: "Publishes metrics of a completed job to grafana"
+      Handler: "com.gu.media.upload.JobMetricsPublisher::handleRequest"
+      Code:
+        S3Bucket: !Ref BuildBucket
+        S3Key: !Sub
+          - "media-service/${Stage}/media-atom-upload-actions/media-atom-uploader.zip"
+          - { Stage: !Ref Stage }
+      Environment:
+        Variables:
+          REGION: !Ref AWS::Region
+          STACK: !Ref Stack
+          APP: !Ref App
+          STAGE: !Ref Stage
+          HMAC_SECRET_ARN: !FindInMap [StageToHmacSecretArn, !Ref Stage, HmacSecretArn]
+      MemorySize: 2048
+      Role: !GetAtt JobMetricsPublisherLambdaExecutionRole.Arn
       Runtime: "java21"
       Timeout: 300
 
@@ -376,6 +441,46 @@ Resources:
       - Id: lambda
         Arn: !GetAtt [ TranscoderComplete, Arn ]
         RoleArn: !GetAtt [ EventBridgeExecutionRole, Arn ]
+
+  StepFunctionCompleteRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub "step-function-complete-${Stage}"
+      EventPattern:
+        "Fn::If": [
+          "CreateProdResources",
+          {
+            "source": [ "aws.states" ],
+            "detail-type": [ "Step Functions Execution Status Change" ],
+            "detail": {
+              "status": [ "SUCCEEDED" ],
+              "stateMachineArn": [
+                {
+                  "Ref": "VideoPipelinePROD"
+                }
+              ]
+            }
+          },
+          {
+            "source": [ "aws.states" ],
+            "detail-type": [ "Step Functions Execution Status Change" ],
+            "detail": {
+              "status": [ "SUCCEEDED" ],
+              "stateMachineArn": [
+                  {
+                    "Ref": "VideoPipelineCODE"
+                  }
+              ]
+            }
+          }
+        ]
+      State: ENABLED
+      Description: 'Notify the jobs metrics publisher lambda when a step function has completed'
+      EventBusName: default
+      Targets:
+        - Id: lambda
+          Arn: !GetAtt [ JobMetricsPublisher, Arn ]
+          RoleArn: !GetAtt [ EventBridgeExecutionRole, Arn ]
 
   AlertTopic:
     Type: AWS::SNS::Topic
