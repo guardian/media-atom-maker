@@ -20,26 +20,27 @@ object YouTubeUploadV2
     with Settings {
 
   def run(upload: Upload) = {
-    log.info("running upload to youtube v2")
+
     val uploader = new YouTubeUploader(this, this.s3Client)
     val size = upload.parts.last.end
     val bucket = upload.metadata.bucket
     val s3Key = upload.metadata.pluto.s3Key
-
+    log.info(s"running upload to youtube v2 with ${s3Key}")
     val uploadUri = uploader.startUpload(
       "test",
       trainingChannels.head,
       UUID.randomUUID().toString,
       size
     )
+    log.info(s"received upload uri from youtube ${uploadUri}. Uploading...")
     log.info(uploadUri)
-    //    val response = uploader.uploadFull(
-    //      bucket,
-    //      s3Key,
-    //      uploadUri,
-    //      size
-    //    )
-    //    response
+    val response = uploader.uploadFull(
+      bucket,
+      s3Key,
+      uploadUri,
+      size
+    )
+    response
   }
 
 }

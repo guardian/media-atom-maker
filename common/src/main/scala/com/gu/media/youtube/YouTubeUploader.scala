@@ -125,13 +125,13 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: S3Client) extends Logging {
   }
 
   def uploadFull(bucket: String, key: String, uploadUri: String, size: Long) = {
-    log.info("GETTING FROM S3")
+    log.info("retrieving video from s3")
     val input = s3.getObject(
       GetObjectRequest.builder().bucket(bucket).key(key).build()
     )
 
     val body = new InputStreamRequestBody(VIDEO, input, size)
-    log.info("UPLOADING TO YOUTUBE")
+    log.info("uploading to youtube")
     val request = new Request.Builder()
       .url(uploadUri)
       .addHeader("Authorization", "Bearer " + youTube.accessToken())
