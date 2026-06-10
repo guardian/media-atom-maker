@@ -64,5 +64,6 @@ deployments:
         - "media-atom-pipeline-AddUploadDataToCache-"
         - "media-atom-pipeline-CompleteMultipartCopy-"
         - "media-atom-pipeline-JobMetricsPublisher-"
+        - "media-atom-pipeline-YouTubeUploadV2-"
     dependencies:
       - media-atom-pipeline-cloudformation
