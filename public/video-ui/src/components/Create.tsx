@@ -58,7 +58,7 @@ export default class Create extends React.Component {
     Default: <NonYoutube/>
   };
 
-  renderVideoCreateOption(videoCreateOptionDetails: VideoCreateOptionDetails) {
+  renderVideoCreateOption(videoCreateOptionDetails: VideoCreateOptionDetails, disabled: boolean = false) {
     const isSelected = this.state.videoCreateOption === videoCreateOptionDetails.id;
     const inputRef = createRef<HTMLInputElement>();
 
@@ -67,12 +67,16 @@ export default class Create extends React.Component {
         key={videoCreateOptionDetails.id}
         className={
           "create-form__option " +
-          (isSelected ? 'create-form__option--selected ' : '')
+          (isSelected ? 'create-form__option--selected ' : '') +
+          (disabled ? 'create-form__option--disabled ' : '')
         }
         onClick={() => {
-          this.setState({ videoCreateOption: videoCreateOptionDetails.id });
-          inputRef?.current?.focus();
-        }}>
+          if (!disabled) {
+            this.setState({ videoCreateOption: videoCreateOptionDetails.id });
+            inputRef?.current?.focus();
+          }
+        }}
+        >
         <div className="create-form__option-controls">
           <div className="create-form__option-radio-summary">
             <div className="create-form__option-radio-label-and-icon">
@@ -88,9 +92,10 @@ export default class Create extends React.Component {
             </div>
             <div className="create-form__option-radio-description">
               {videoCreateOptionDetails.description}
+              { disabled ? '. Contact Central Production if you need to use this video format.' : ''}
             </div>
           </div>
-          <input
+          {!disabled && <input
             type="radio"
             className="create-form__option-radio"
             id={videoCreateOptionDetails.id}
@@ -99,7 +104,7 @@ export default class Create extends React.Component {
             checked={isSelected}
             onChange={() => this.setState({ videoCreateOption: videoCreateOptionDetails.id })}
             ref={inputRef}
-          />
+          />}
         </div>
         {
           <div className={
@@ -162,9 +167,8 @@ export default class Create extends React.Component {
                   {videoCreateOptions.offPlatform.map((videoCreateOptionDetails) => (
                     this.renderVideoCreateOption(videoCreateOptionDetails)
                   ))}
-                  {videoCreateOptions.selfHosted.filter((videoCreateOptionDetails) => videoCreateOptionDetails.id !== 'Default' || this.selfHostedAllowed)
-                    .map((videoCreateOptionDetails) => (
-                    this.renderVideoCreateOption(videoCreateOptionDetails)
+                  {videoCreateOptions.selfHosted.map((videoCreateOptionDetails) => (
+                    this.renderVideoCreateOption(videoCreateOptionDetails, videoCreateOptionDetails.id === 'Default' && !this.selfHostedAllowed)
                   ))}
               </div>
             </div>
