@@ -12,13 +12,19 @@ import Youtube from "../../images/youtube.svg?react";
 import Cinemagraph from "../../images/cinemagraph.svg?react";
 import NonYoutube from "../../images/nonyoutube.svg?react";
 import {fieldLengths} from "../constants/videoEditValidation";
+import { getStore } from '../util/storeAccessor';
 
 export default class Create extends React.Component {
   props: React.PropsWithChildren<{
-    createVideo: (video: VideoWithoutId) => (dispatch: AppDispatch) => Promise<void>
-    inModal: boolean
+    createVideo: (video: VideoWithoutId) => (dispatch: AppDispatch) => Promise<void>;
+    inModal: boolean;
     closeCreateModal?: () => void;
   }>;
+
+  // this permission is not validated on the server-side because we are only hiding the option
+  // to discourage use of this feature
+  permissions = getStore().getState().config.permissions;
+  selfHostedAllowed = this.permissions.addSelfHostedAsset;
 
   state: { title: string; videoCreateOption: VideoCreateOption } = {
     title: "",
@@ -156,7 +162,8 @@ export default class Create extends React.Component {
                   {videoCreateOptions.offPlatform.map((videoCreateOptionDetails) => (
                     this.renderVideoCreateOption(videoCreateOptionDetails)
                   ))}
-                  {videoCreateOptions.selfHosted.map((videoCreateOptionDetails) => (
+                  {videoCreateOptions.selfHosted.filter((videoCreateOptionDetails) => videoCreateOptionDetails.id !== 'Default' || this.selfHostedAllowed)
+                    .map((videoCreateOptionDetails) => (
                     this.renderVideoCreateOption(videoCreateOptionDetails)
                   ))}
               </div>

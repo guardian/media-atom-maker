@@ -10,7 +10,8 @@ const PresenceSchema = z.object({
 const PermissionsSchema = z.object({
   deleteAtom: z.boolean().default(false),
   setVideosOnAllChannelsPublic: z.boolean().default(false),
-  pinboard: z.boolean().default(false)
+  pinboard: z.boolean().default(false),
+  addSelfHostedAsset: z.boolean().default(false)
 });
 
 export const ClientConfigSchema = z.object({
@@ -76,7 +77,8 @@ export function getAppConfig(): ConfigState {
       permissions: {
         deleteAtom: false,
         setVideosOnAllChannelsPublic: false,
-        pinboard: false
+        pinboard: false,
+        addSelfHostedAsset: false
       },
       minDurationForAds: 0,
       isTrainingMode: false,
