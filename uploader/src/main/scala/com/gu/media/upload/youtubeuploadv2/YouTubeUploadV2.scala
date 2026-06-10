@@ -6,7 +6,6 @@ import com.gu.media.lambda.{LambdaBase, LambdaYoutubeCredentials}
 import com.gu.media.logging.Logging
 import com.gu.media.upload.model.Upload
 import com.gu.media.youtube.{YouTubeAccess, YouTubeUploader}
-import com.gu.media.youtube.YouTubeUpload.{log, trainingChannels}
 
 import java.util.UUID
 
@@ -33,7 +32,6 @@ object YouTubeUploadV2
       size
     )
     log.info(s"received upload uri from youtube ${uploadUri}. Uploading...")
-    log.info(uploadUri)
     val response = uploader.uploadFull(
       bucket,
       s3Key,
