@@ -11,6 +11,7 @@ trait SecretsManagerAccess { this: Settings with AwsAccess =>
   val secretsManagerClient = SecretsManagerClient
     .builder()
     .credentialsProvider(credentials.instance.awsV2Creds)
+    .region(region)
     .build()
 
   def getSecret(secretId: String) = {
