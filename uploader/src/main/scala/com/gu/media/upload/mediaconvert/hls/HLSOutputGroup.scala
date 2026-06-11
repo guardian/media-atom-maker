@@ -3,7 +3,12 @@ package com.gu.media.upload.mediaconvert.hls
 import com.gu.contentatom.thrift.atom.media.AssetType
 import com.gu.media.model.VideoSource
 import com.gu.media.upload.mediaconvert.{EncodingConfigs, OutputGroupDefinition}
-import software.amazon.awssdk.services.mediaconvert.model.{HlsGroupSettings, OutputGroup, OutputGroupSettings, OutputGroupType}
+import software.amazon.awssdk.services.mediaconvert.model.{
+  HlsGroupSettings,
+  OutputGroup,
+  OutputGroupSettings,
+  OutputGroupType
+}
 
 object HLSOutputGroup {
   def apply(hasAudio: Boolean): OutputGroupDefinition = {
