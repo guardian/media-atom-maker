@@ -216,7 +216,8 @@ lazy val uploader = (project in file("uploader"))
           "Checks to see if a chunk of video has been uploaded to S3"
       ),
       "UploadChunkToYouTube" -> LambdaConfig(
-        description = "Uploads a chunk of video to YouTube"
+        description = "Uploads a chunk of video to YouTube",
+        memory = 8192,
       ),
       "MultipartCopyChunkInS3" -> LambdaConfig(
         description =
