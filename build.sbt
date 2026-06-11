@@ -5,7 +5,7 @@ import scala.collection.immutable.Seq
 import scala.sys.process.*
 
 val scroogeVersion = "4.12.0"
-val awsV2Version = "2.44.4"
+val awsV2Version = "2.46.8"
 val pandaVersion = "19.0.0"
 val atomMakerVersion = "12.0.0"
 val typesafeConfigVersion =
