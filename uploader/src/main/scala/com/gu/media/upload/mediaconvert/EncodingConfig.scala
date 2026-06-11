@@ -32,4 +32,16 @@ object EncodingConfigs {
     val nameModifier = "_480w_q6"
     val qualityLevel = 6
   }
+
+  case object VeryLowQuality extends EncodingConfig {
+    val dimensions = Dimensions(None, Some(720))
+    val nameModifier = "_720h_q4"
+    val qualityLevel = 4
+  }
+
+  case object VeryLowQualityMobileWidth extends EncodingConfig {
+    val dimensions = Dimensions(Some(480), None)
+    val nameModifier = "_480w_q4"
+    val qualityLevel = 4
+  }
 }

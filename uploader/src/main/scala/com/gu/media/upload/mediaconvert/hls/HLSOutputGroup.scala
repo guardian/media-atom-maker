@@ -12,6 +12,8 @@ object HLSOutputGroup {
       VideoOutput(EncodingConfigs.Default, hasAudio),
       VideoOutput(EncodingConfigs.LowQuality, hasAudio),
       VideoOutput(EncodingConfigs.LowQualityMobileWidth, hasAudio),
+      VideoOutput(EncodingConfigs.VeryLowQuality, hasAudio),
+      VideoOutput(EncodingConfigs.VeryLowQualityMobileWidth, hasAudio),
       CaptionsOutput()
     )
     OutputGroupDefinition(
