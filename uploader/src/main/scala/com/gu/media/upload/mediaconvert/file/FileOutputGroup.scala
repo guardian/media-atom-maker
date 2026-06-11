@@ -1,5 +1,5 @@
 package com.gu.media.upload.mediaconvert.file
-import com.gu.media.upload.mediaconvert.Resolution
+import com.gu.media.upload.mediaconvert.EncodingConfigs
 import com.gu.media.upload.mediaconvert.OutputGroupDefinition
 import software.amazon.awssdk.services.mediaconvert.model.{
   FileGroupSettings,
@@ -12,8 +12,8 @@ object FileOutputGroup {
   def apply(hasAudio: Boolean): OutputGroupDefinition = {
     val outputs =
       List(
-        MP4Output(Resolution.Low, hasAudio),
-        MP4Output(Resolution.High, hasAudio),
+        MP4Output(EncodingConfigs.MobileWidth, hasAudio),
+        MP4Output(EncodingConfigs.Default, hasAudio),
         JPEGOutput(),
         WebVTTOutput()
       )

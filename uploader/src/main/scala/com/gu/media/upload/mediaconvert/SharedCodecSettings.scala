@@ -10,7 +10,7 @@ object SharedCodecSettings {
   /** Migrated from Elastic Transcoder */
   val bitrate: BitrateSetting = BitrateSetting(4_800_000, 2_400_000);
 
-  def h264Settings: H264Settings =
+  def h264Settings(qualityLevel: Int = 8): H264Settings =
     H264Settings
       .builder()
       .rateControlMode(H264RateControlMode.QVBR) // Best quality
@@ -22,7 +22,7 @@ object SharedCodecSettings {
           .maxAverageBitrate(
             bitrate.maxAverage
           ) // Twice average to give room for encoder's decisions
-          .qvbrQualityLevel(8) // 1-10, 10 is best quality
+          .qvbrQualityLevel(qualityLevel) // 1-10, 10 is best quality
           .qvbrQualityLevelFineTune(
             0
           ) // 8.0 outputs just shy of our bitrate maximums for 16:9 video at 720p. Videos that are larger than 1280x720 will probably fail to achieve this desired quality due to the bitrate cap.
