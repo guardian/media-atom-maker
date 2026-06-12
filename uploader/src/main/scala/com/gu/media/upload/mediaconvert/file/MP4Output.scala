@@ -8,11 +8,11 @@ import com.gu.media.upload.mediaconvert.SharedCodecSettings.{
   h264Settings
 }
 import software.amazon.awssdk.services.mediaconvert.model._
-import com.gu.media.upload.mediaconvert.ResolutionConfig
+import com.gu.media.upload.mediaconvert.EncodingConfig
 
 object MP4Output {
 
-  def apply(config: ResolutionConfig, hasAudio: Boolean): OutputDefinition = {
+  def apply(config: EncodingConfig, hasAudio: Boolean): OutputDefinition = {
     OutputDefinition(
       mimeType = Some(VideoSource.mimeTypeMp4),
       assetType = Some(AssetType.Video),
@@ -37,7 +37,7 @@ object MP4Output {
                 VideoCodecSettings
                   .builder()
                   .codec(VideoCodec.H_264)
-                  .h264Settings(h264Settings)
+                  .h264Settings(h264Settings(config.qualityLevel))
                   .build()
               )
               .build()
