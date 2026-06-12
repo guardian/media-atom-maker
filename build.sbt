@@ -200,9 +200,9 @@ lazy val uploader = (project in file("uploader"))
         log.info("Downloading statically compiled FFmpeg binary")
         IO.createDirectory(ffmpegFolder)
         import scala.sys.process.*
-        val archive = target.value / "ffmpeg" / "ffmpeg-release-amd64-static.tar.xz"
-        s"wget -nv https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -O $archive".!!
-        (s"tar xOf $archive ffmpeg-7.0.2-amd64-static/ffmpeg" #> binary).!!
+        val archive = target.value / "ffmpeg" / "ffmpeg-release-arm64-static.tar.xz"
+        s"wget -nv https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz -O $archive".!!
+        (s"tar xOf $archive ffmpeg-7.0.2-arm64-static/ffmpeg" #> binary).!!
       }
 
       binary -> "bin/ffmpeg"
