@@ -1,11 +1,6 @@
 package model
 
-import com.gu.media.model.{
-  ContentChangeDetails,
-  Image,
-  Platform,
-  VideoPlayerFormat
-}
+import com.gu.media.model.{ContentChangeDetails, IconikData, Image, Platform, VideoPlayerFormat}
 import com.gu.ai.x.play.json.Encoders._
 import com.gu.ai.x.play.json.Jsonx
 import play.api.libs.json.Format
@@ -18,7 +13,8 @@ case class MediaAtomSummary(
     posterImage: Option[Image],
     contentChangeDetails: ContentChangeDetails,
     platform: Platform,
-    videoPlayerFormat: Option[VideoPlayerFormat]
+    videoPlayerFormat: Option[VideoPlayerFormat],
+    iconikData: Option[IconikData]
 )
 
 object MediaAtomList {
