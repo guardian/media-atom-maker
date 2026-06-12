@@ -131,12 +131,9 @@ export default class VideoUtils {
     return atom.videoPlayerFormat === 'Default';
   }
 
-  static getWorkingGroupName({ iconikData }) {
+  static getWorkingGroupName({ iconikData }, workingGroups) {
     const workingGroupId = iconikData?.workingGroupId;
     if (!workingGroupId) return null;
-
-    const state = getStore().getState();
-    const workingGroups = state.iconik?.workingGroups ?? [];
     return workingGroups.find(wg => wg.id === workingGroupId)?.title ?? null;
   }
 }

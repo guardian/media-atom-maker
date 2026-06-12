@@ -10,9 +10,10 @@ import Youtube from "../../../images/youtube.svg?react";
 import Loop from "../../../images/loop.svg?react";
 import Cinemagraph from "../../../images/cinemagraph.svg?react";
 import NonYoutube from "../../../images/nonyoutube.svg?react";
+import { connect } from 'react-redux';
 
 
-export default class VideoItem extends React.Component {
+class VideoItem extends React.Component {
   renderPublishStatus() {
     if (VideoUtils.hasExpired(this.props.video)) {
       return <span className="publish__label label__expired">Expired</span>;
@@ -48,7 +49,7 @@ export default class VideoItem extends React.Component {
 
   render() {
     const video = this.props.video;
-    const workingGroupName = VideoUtils.getWorkingGroupName(video);
+    const workingGroupName = VideoUtils.getWorkingGroupName(video, this.props.workingGroups);
     const platform = VideoUtils.getPlatformFromSummary(video);
     const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
     const scheduledLaunchMoment = moment(scheduledLaunch);
@@ -149,3 +150,9 @@ export default class VideoItem extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  workingGroups: state.iconik?.workingGroups ?? []
+});
+
+export default connect(mapStateToProps)(VideoItem);
