@@ -48,6 +48,7 @@ export default class VideoItem extends React.Component {
 
   render() {
     const video = this.props.video;
+    const workingGroupName = VideoUtils.getWorkingGroupName(video);
     const platform = VideoUtils.getPlatformFromSummary(video);
     const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
     const scheduledLaunchMoment = moment(scheduledLaunch);
@@ -89,6 +90,11 @@ export default class VideoItem extends React.Component {
             <div className="grid__image sixteen-by-nine">
               {this.renderItemImage()}
             </div>
+            {workingGroupName && (
+              <div className="iconik__group__overlay">
+                <div className="iconik__label label__working-group">{workingGroupName}</div>
+              </div>
+            )}
             <div className="grid__status__overlay">
               <ReactTooltip />
               {this.renderPublishStatus()}
