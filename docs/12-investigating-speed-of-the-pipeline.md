@@ -5,7 +5,7 @@
 Media Atom Maker supports video uploads. In the majority of cases the videos that get uploaded are pretty small
 and don't take much time to upload. However, we also have examples of videos taking a long time to upload when
 videos are a larger size. This can be a frustrating user experience, especially since a user needs to keep the
-tab open until the video upload has happened. The use case for large video uploads are expected to increase
+tab open until the video upload has happened. The use cases for large video uploads are expected to increase
 as there are plans to publish more long form video podcasts.
 
 ## Metrics
