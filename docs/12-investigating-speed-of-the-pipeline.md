@@ -10,7 +10,7 @@ as there are plans to publish more long form video podcasts.
 
 ## Metrics
 
-The following charts shows a sample of videos that were uploaded to PROD that took longer than 5 minutes to load
+The following charts show a sample of videos that were uploaded to PROD that took longer than 5 minutes to load
 
 **This chart shows the video size by the time taken for the pipeline to complete**
 ![sizebyuploadtime](images/sizebyuploadtime.png)
