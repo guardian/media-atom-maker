@@ -121,7 +121,8 @@ class UploadTest
     runtime = SelfHostedUploadMetadata(Some(Nil)),
     subtitleVersion = Some(12),
     subtitleSource =
-      Some(VideoSource("uploads/123xyz-1/subtitles.srt", "video/mp4"))
+      Some(VideoSource("uploads/123xyz-1/subtitles.srt", "video/mp4")),
+    version = 1L
   )
 
   private def metadataWithoutSubtitle = UploadMetadata(
@@ -132,6 +133,7 @@ class UploadTest
     pluto = plutoMessage,
     iconikData = None,
     startTimestamp = 123456789L,
-    runtime = SelfHostedUploadMetadata(Some(Nil))
+    runtime = SelfHostedUploadMetadata(Some(Nil)),
+    version = 1L
   )
 }

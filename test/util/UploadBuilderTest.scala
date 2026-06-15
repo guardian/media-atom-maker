@@ -95,7 +95,7 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
         upload.metadata.runtime shouldBe SelfHostedUploadMetadata(jobs =
           Some(List())
         )
-        upload.metadata.version should contain(2L)
+        upload.metadata.version shouldBe 2L
         upload.metadata.selfHost shouldBe true
         upload.metadata.asset shouldBe Some(
           SelfHostedAsset(sources =

@@ -451,7 +451,8 @@ class UploadControllerTest extends AnyFlatSpec with Matchers {
         subtitleVersion =
           if (subtitleVersion > 0) Some(subtitleVersion) else None,
         startTimestamp = millis(started),
-        selfHost = true
+        selfHost = true,
+        version = videoVersion
       ),
       UploadProgress(1, 0, true, true, 0)
     )
