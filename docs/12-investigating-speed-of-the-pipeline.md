@@ -42,7 +42,7 @@ However, the advice from the docs states:
 ```This approach is rarely necessary and is actually discouraged because it requires additional requests, which have performance implications. However, it might be useful if you are trying to display a progress indicator on a very unstable network.```
 
 In order to validate whether the approach we are using to upload to YouTube is significantly more time consuming
-than the recommended way of using the API without chunks an experiment was run in the CODE environment.
+than the recommended way, we ran an experiment in the CODE environment.
 
 This was done by adding an extra step to the step function which uploads to YouTube without chunking.
 
