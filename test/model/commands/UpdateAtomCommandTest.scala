@@ -1,6 +1,7 @@
 package model.commands
 
 import com.gu.media.TestHelpers
+import com.gu.media.TestHelpers.emptyAsset
 import com.gu.media.model.{Category, ContentChangeDetails, MediaAtom}
 import model.commands.UpdateAtomCommand.{
   createDiffString,
@@ -19,6 +20,9 @@ class UpdateAtomCommandTest extends AnyFlatSpec with Matchers {
     source = Some("source"),
     youtubeTitle = "title"
   )
+
+  val mediaAtomFixtureWithAssets =
+    mediaAtomFixture.copy(assets = List(emptyAsset))
 
   behavior of "createDiffString"
   it should "Diff output when nothing changes" in {

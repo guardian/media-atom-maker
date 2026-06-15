@@ -1,10 +1,10 @@
 package com.gu.media.upload
 
-import com.gu.media.aws.StepFunctionsAccess
+import com.gu.media.aws.{SecretsManagerAccess, StepFunctionsAccess}
 import com.gu.media.config.Stage
 import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
-import com.gu.media.telemetry.Telemetry
+import com.gu.media.telemetry.{HMACClient, Telemetry}
 import com.gu.media.upload.model.StepFunctionEvent
 import com.gu.media.util.JobCompletedMetrics
 
@@ -14,7 +14,8 @@ class JobMetricsPublisher
     extends LambdaWithParams[StepFunctionEvent, String]
     with LambdaBase
     with Logging
-    with StepFunctionsAccess {
+    with StepFunctionsAccess
+    with SecretsManagerAccess {
 
   override def handle(input: StepFunctionEvent): String = {
     log.info(
@@ -22,9 +23,13 @@ class JobMetricsPublisher
     )
     val client = HttpClient.newHttpClient()
     val secretArn = sys.env("HMAC_SECRET_ARN")
-    val telemetry = new Telemetry(Stage(stage), secretArn, client)
+    val secret = getSecret(secretArn) getOrElse (throw new Exception(
+      s"Could not retrieve $secretArn from secrets manager"
+    ))
+    val hmacClient = new HMACClient(secret)
+    val telemetry = new Telemetry(Stage(stage), hmacClient, client)
     val sfMetrics = new JobCompletedMetrics(stepFunctionsClient)
-    val metrics = sfMetrics.getMetricsForJobRun(input)
+    val metrics = sfMetrics.getMetricsForJobRun(input.detail)
     log.info("Sending telemetry event")
     telemetry.sendTelemetryEvent("VIDEO_UPLOAD_COMPLETE", metrics)
     log.info("Completed jobs metrics publisher lambda")

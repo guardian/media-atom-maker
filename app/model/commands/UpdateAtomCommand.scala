@@ -13,6 +13,8 @@ import com.gu.media.iconik.{
   IconikUploadActions
 }
 import com.gu.media.logging.Logging
+import com.gu.media.model.AssetType.Video
+import com.gu.media.model.Platform.Youtube
 import com.gu.media.model.{
   AtomAssignedProjectMessage,
   AuditMessage,

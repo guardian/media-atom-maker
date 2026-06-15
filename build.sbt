@@ -5,7 +5,7 @@ import scala.collection.immutable.Seq
 import scala.sys.process.*
 
 val scroogeVersion = "4.12.0"
-val awsV2Version = "2.44.4"
+val awsV2Version = "2.46.8"
 val pandaVersion = "19.0.0"
 val atomMakerVersion = "12.0.0"
 val typesafeConfigVersion =
@@ -23,7 +23,7 @@ val scalaXmlVersion = "2.2.0"
 val scalaCheckVersion = "1.18.0" // to match ScalaTest version
 
 val awsLambdaCoreVersion = "1.1.0"
-val awsLambdaEventsVersion = "1.3.0"
+val awsLambdaEventsVersion = "3.16.1"
 
 val logbackClassicVersion = "1.5.18"
 val logstashLogbackEncoderVersion = "4.8"
@@ -200,9 +200,9 @@ lazy val uploader = (project in file("uploader"))
         log.info("Downloading statically compiled FFmpeg binary")
         IO.createDirectory(ffmpegFolder)
         import scala.sys.process.*
-        val archive = target.value / "ffmpeg" / "ffmpeg-release-amd64-static.tar.xz"
-        s"wget -nv https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -O $archive".!!
-        (s"tar xOf $archive ffmpeg-7.0.2-amd64-static/ffmpeg" #> binary).!!
+        val archive = target.value / "ffmpeg" / "ffmpeg-release-arm64-static.tar.xz"
+        s"wget -nv https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz -O $archive".!!
+        (s"tar xOf $archive ffmpeg-7.0.2-arm64-static/ffmpeg" #> binary).!!
       }
 
       binary -> "bin/ffmpeg"
@@ -216,7 +216,8 @@ lazy val uploader = (project in file("uploader"))
           "Checks to see if a chunk of video has been uploaded to S3"
       ),
       "UploadChunkToYouTube" -> LambdaConfig(
-        description = "Uploads a chunk of video to YouTube"
+        description = "Uploads a chunk of video to YouTube",
+        memory = 8192,
       ),
       "MultipartCopyChunkInS3" -> LambdaConfig(
         description =

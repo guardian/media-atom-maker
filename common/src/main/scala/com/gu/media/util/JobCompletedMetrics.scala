@@ -137,18 +137,27 @@ class JobCompletedMetrics(stepFunctionsClient: SfnClient) {
     getAllHistory(None, Nil)
   }
 
-  def getMetricsForJobRun(event: StepFunctionEvent) = {
-    val runTime = getRunTime(event.detail)
-    val historyEvents = getAllHistoryEvents(event.detail.executionArn)
+  def getStepFunctionId(executionArn: String) = {
+    executionArn
+      .split(":")
+      .toList
+      .last
+  }
+  def getMetricsForJobRun(detail: StepFunctionDetail) = {
+    val executionArn = detail.executionArn
+    val runTime = getRunTime(detail)
+    val historyEvents = getAllHistoryEvents(executionArn)
     val metricsFromHistory = getMetricsFromHistory(historyEvents, runTime)
-    val uploadOpt = Json.parse(event.detail.input).validate[Upload].asOpt
+    val uploadOpt = Json.parse(detail.input).validate[Upload].asOpt
     val metricsFromUploadData =
       uploadOpt.fold(Map[String, TagValue]())(getMetricsFromUpload)
-    val (atomId, version) = extractAtomIdAndVersion(event.id)
+
+    val stepFunctionId = getStepFunctionId(executionArn)
+    val (atomId, version) = extractAtomIdAndVersion(stepFunctionId)
 
     Map(
       "jobTime" -> TagLong(runTime),
-      "stepFunctionId" -> TagString(event.id),
+      "stepFunctionId" -> TagString(stepFunctionId),
       "atomId" -> TagString(atomId),
       "version" -> TagString(version)
     ) ++ metricsFromHistory ++ metricsFromUploadData

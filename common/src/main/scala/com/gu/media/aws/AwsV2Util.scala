@@ -5,7 +5,7 @@ import software.amazon.awssdk.awscore.client.builder.{
   AwsClientBuilder,
   AwsSyncClientBuilder
 }
-import software.amazon.awssdk.http.apache.ApacheHttpClient
+import software.amazon.awssdk.http.apache5.Apache5HttpClient
 import software.amazon.awssdk.regions.Region
 
 object AwsV2Util {
@@ -14,7 +14,7 @@ object AwsV2Util {
       creds: AwsCredentialsProvider,
       region: Region
   ): T = builder
-    .httpClientBuilder(ApacheHttpClient.builder())
+    .httpClientBuilder(Apache5HttpClient.builder())
     .credentialsProvider(creds)
     .region(region)
     .build()
