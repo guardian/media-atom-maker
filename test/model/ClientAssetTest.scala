@@ -135,7 +135,8 @@ class ClientAssetTest extends AnyFunSuite with Matchers {
       iconikData = None,
       null,
       originalFilename = Some("test.mp4"),
-      startTimestamp = 0L
+      startTimestamp = 0L,
+      version = 1L
     )
     val upload = Upload("test", parts, metadata, progress)
 

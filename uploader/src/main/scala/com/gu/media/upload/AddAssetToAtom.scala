@@ -57,9 +57,7 @@ class AddAssetToAtom
     val user = getUser(upload.metadata.user)
 
     val after = updateAtom(before, user) { mediaAtom =>
-      val assetVersion = upload.metadata.version.getOrElse(
-        getNextAssetVersion(mediaAtom)
-      )
+      val assetVersion = upload.metadata.version
 
       val asset = getAsset(upload, assetVersion)
 

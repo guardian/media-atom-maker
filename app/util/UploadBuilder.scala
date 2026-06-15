@@ -42,7 +42,7 @@ object UploadBuilder {
         startTimestamp = Instant.ofEpochMilli(currentTimestamp)
       ),
       originalFilename = Some(request.filename),
-      version = Some(assetVersion),
+      version = assetVersion,
       startTimestamp = currentTimestamp,
       hasAudio = None
     )
@@ -69,7 +69,7 @@ object UploadBuilder {
       upload: Upload,
       newSubtitleSource: Option[VideoSource]
   ): Upload = {
-    val assetVersion = upload.metadata.version.getOrElse(1L)
+    val assetVersion = upload.metadata.version
     val subtitleVersion = Upload.getNextSubtitleVersion(upload)
     val updatedAsset = getAsset(
       upload.metadata.selfHost,
