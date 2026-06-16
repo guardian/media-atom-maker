@@ -3,7 +3,11 @@ package com.gu.media.upload
 import com.gu.media.aws.{MediaConvertAccess, S3Access}
 import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
-import com.gu.media.upload.model.{SelfHostedUploadMetadata, Upload}
+import com.gu.media.upload.model.{
+  SelfHostedUploadMetadata,
+  Upload,
+  MediaConvertOutputGroupDetails
+}
 import software.amazon.awssdk.services.s3.model.{
   GetObjectRequest,
   PutObjectRequest
@@ -13,6 +17,7 @@ import java.net.URI
 import java.nio.file.{Files, Path}
 import scala.PartialFunction.condOpt
 import scala.util.Random
+import scala.jdk.CollectionConverters._
 
 class AddSubtitlesToMP4
     extends LambdaWithParams[Upload, Upload]
@@ -50,6 +55,15 @@ class AddSubtitlesToMP4
     s3Client.putObject(putObjectRequest, path)
   }
 
+  private def getVttOutput(
+      outputGroupDetails: MediaConvertOutputGroupDetails
+  ): Option[String] = {
+    val vttOutputDetails = outputGroupDetails.outputDetails.find(
+      _.outputFilePaths.exists(_.endsWith(".vtt"))
+    )
+    vttOutputDetails.flatMap(_.outputFilePaths.find(_.endsWith(".vtt")))
+  }
+
   override def handle(upload: Upload): Upload = {
     for (
       selfHostedUploadMetadata <- condOpt(upload.metadata.runtime) {
@@ -58,7 +72,9 @@ class AddSubtitlesToMP4
       }.toList;
       event <- selfHostedUploadMetadata.completeEvent.toList;
       outputGroupDetails <- event.detail.outputGroupDetails;
+      outputVttPath <- getVttOutput(outputGroupDetails);
       outputDetails <- outputGroupDetails.outputDetails;
+      // we don't need the subtitle source, but just meant to check if it exists
       subtitleSource <- upload.metadata.subtitleSource;
       // todo: use the mime type from the OutputDefinition instead of checking the file extension
       path <- outputDetails.outputFilePaths.headOption if path.endsWith(".mp4")
@@ -72,8 +88,13 @@ class AddSubtitlesToMP4
       val key = uri.getPath.drop(
         1
       ) // drop the leading slash from the path to fit with S3 conventions
+      val vttUri = new URI(outputVttPath)
+      val vttBucketName = vttUri.getHost
+      val vttKey = vttUri.getPath.drop(
+        1
+      ) // drop the leading slash from the path to fit with S3 conventions
       s3Download(bucketName, key, videoFile)
-      s3Download(upload.metadata.bucket, subtitleSource.src, subtitlesFile)
+      s3Download(vttBucketName, vttKey, subtitlesFile)
       FfMpeg.addSubtitlesToMP4(videoFile, subtitlesFile, updatedVideo)
       s3Upload(bucketName, key, updatedVideo)
     }
