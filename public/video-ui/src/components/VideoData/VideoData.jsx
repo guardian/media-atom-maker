@@ -151,7 +151,7 @@ export default class VideoData extends React.Component {
         {
           <ManagedField
             fieldLocation="atomTagIds"
-            name="Tags"
+            name="Tags (self-hosted video)"
             formRowClass="form__row__byline"
             isDesired={mustHaveTags}
             isRequired={false}
