@@ -11,7 +11,8 @@ import com.gu.permissions.PermissionDefinition
 case class Permissions(
     deleteAtom: Boolean = false,
     setVideosOnAllChannelsPublic: Boolean = false,
-    pinboard: Boolean = false
+    pinboard: Boolean = false,
+    addSelfHostedAsset: Boolean = false
 )
 object Permissions {
   implicit val format: Format[Permissions] = Jsonx.formatCaseClass[Permissions]
@@ -21,6 +22,8 @@ object Permissions {
   val deleteAtom = PermissionDefinition("delete_atom", app)
   val setVideosOnAllChannelsPublic =
     PermissionDefinition("set_videos_on_all_channels_public", app)
+  val addSelfHostedAsset =
+    PermissionDefinition("add_self_hosted_asset", app)
   val pinboard = PermissionDefinition("pinboard", "pinboard")
 }
 
@@ -39,7 +42,8 @@ class MediaAtomMakerPermissionsProvider(
     deleteAtom = hasPermission(deleteAtom, user),
     setVideosOnAllChannelsPublic =
       hasPermission(setVideosOnAllChannelsPublic, user),
-    pinboard = hasPermission(pinboard, user)
+    pinboard = hasPermission(pinboard, user),
+    addSelfHostedAsset = hasPermission(addSelfHostedAsset, user)
   )
 
   def getStatusPermissions(user: PandaUser): Permissions =
