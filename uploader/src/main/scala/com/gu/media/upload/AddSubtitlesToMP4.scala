@@ -58,10 +58,8 @@ class AddSubtitlesToMP4
   private def getVttOutput(
       outputGroupDetails: MediaConvertOutputGroupDetails
   ): Option[String] = {
-    val vttOutputDetails = outputGroupDetails.outputDetails.find(
-      _.outputFilePaths.exists(_.endsWith(".vtt"))
-    )
-    vttOutputDetails.flatMap(_.outputFilePaths.find(_.endsWith(".vtt")))
+    // todo: use the mime type from the OutputDefinition instead of checking the file extension
+    outputGroupDetails.outputDetails.view.flatMap(_.outputFilePaths.find(_.endsWith(".vtt"))).headOption
   }
 
   override def handle(upload: Upload): Upload = {
@@ -72,10 +70,8 @@ class AddSubtitlesToMP4
       }.toList;
       event <- selfHostedUploadMetadata.completeEvent.toList;
       outputGroupDetails <- event.detail.outputGroupDetails;
-      outputVttPath <- getVttOutput(outputGroupDetails);
+      outputVttPath <- getVttOutput(outputGroupDetails) if upload.metadata.subtitleSource.isDefined;
       outputDetails <- outputGroupDetails.outputDetails;
-      // we don't need the subtitle source, but just meant to check if it exists
-      subtitleSource <- upload.metadata.subtitleSource;
       // todo: use the mime type from the OutputDefinition instead of checking the file extension
       path <- outputDetails.outputFilePaths.headOption if path.endsWith(".mp4")
     ) {
