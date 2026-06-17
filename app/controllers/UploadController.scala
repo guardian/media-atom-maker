@@ -1,10 +1,7 @@
 package controllers
 
 import com.gu.ai.x.play.json.Encoders._
-import software.amazon.awssdk.services.sfn.model.{
-  ExecutionAlreadyExistsException,
-  ExecutionListItem
-}
+import software.amazon.awssdk.services.sfn.model.ExecutionListItem
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
 import com.gu.media.model.{
@@ -23,8 +20,9 @@ import com.gu.ai.x.play.json.Jsonx
 import com.gu.media.telemetry.{TagLong, TagString, Telemetry}
 import model.commands.CommandExceptions.commandExceptionAsResult
 import model.commands.{SubtitleFileDeleteCommand, SubtitleFileUploadCommand}
-import org.scanamo.Table
+import org.scanamo.{ConditionNotMet, Table}
 import org.scanamo.generic.auto._
+import org.scanamo.syntax._
 import play.api.libs.Files
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.{
@@ -227,14 +225,25 @@ class UploadController(
       email: String,
       req: UploadRequest,
       assetVersion: Long
-  ): Upload = try {
+  ): Upload = {
     val upload = UploadBuilder.build(atom, email, assetVersion, req, awsConfig)
-    stepFunctions.start(upload)
+    val table = Table[Upload](awsConfig.cacheTableName)
+    val result = awsConfig.scanamo.exec(
+      table.when(attributeNotExists("id")).put(upload)
+    )
 
-    upload
-  } catch {
-    case _: ExecutionAlreadyExistsException =>
-      start(atom, email, req, assetVersion + 1)
+    result match {
+      case Right(_) =>
+        stepFunctions.start(upload)
+        upload
+      case Left(ConditionNotMet(_)) =>
+        start(atom, email, req, assetVersion + 1)
+      case Left(_) =>
+        log.warn(
+          s"Encountered unexpected error when saving upload ${upload.id} to DynamoDB. Retrying with next asset version."
+        )
+        start(atom, email, req, assetVersion + 1)
+    }
   }
 
   /** re-run an existing upload through the state machine to reprocess the video
