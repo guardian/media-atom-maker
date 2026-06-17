@@ -25,7 +25,7 @@ import model.commands.CommandExceptions._
 import org.scanamo.{ConditionNotMet, Table}
 import org.scanamo.generic.auto._
 import org.scanamo.syntax._
-import util.{AWSConfig, YouTube}
+import util.{AWSConfig, AssetVersionManager, YouTube}
 
 import scala.annotation.tailrec
 import scala.util.control.NonFatal
@@ -43,6 +43,8 @@ case class AddAssetCommand(
     with Logging {
 
   type T = MediaAtom
+
+  private val assetVersionManager = new AssetVersionManager(awsConfig)
 
   def process(): MediaAtom = {
     log.info(s"Request to add new asset $videoUri to $atomId")
@@ -82,7 +84,10 @@ case class AddAssetCommand(
       videoId: String
   ) = {
     val version =
-      MediaAtomHelpers.getNextAssetVersion(mediaAtom)
+      assetVersionManager.claimThisOrNextAvailableVersion(
+        atom.id,
+        MediaAtomHelpers.getNextAssetVersion(mediaAtom)
+      )
 
     val newAsset = ThriftUtil
       .parseAsset(uri = videoUri, version = version, mimeType = None)
