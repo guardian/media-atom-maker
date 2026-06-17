@@ -22,12 +22,8 @@ import com.gu.media.model.MediaAtom.fromThrift
 import com.gu.media.telemetry.{TagBool, TagLong, TagString, Telemetry}
 import com.gu.media.youtube.YoutubeUrl
 import model.commands.CommandExceptions._
-import org.scanamo.{ConditionNotMet, Table}
-import org.scanamo.generic.auto._
-import org.scanamo.syntax._
-import util.{AWSConfig, AssetVersionManager, YouTube}
+import util.{AWSConfig, AssetClaimSource, AssetVersionManager, YouTube}
 
-import scala.annotation.tailrec
 import scala.util.control.NonFatal
 
 case class AddAssetCommand(
@@ -44,7 +40,8 @@ case class AddAssetCommand(
 
   type T = MediaAtom
 
-  private val assetVersionManager = new AssetVersionManager(awsConfig)
+  private val assetVersionManager =
+    new AssetVersionManager(awsConfig, AssetClaimSource.PreexistingAssetURL)
 
   def process(): MediaAtom = {
     log.info(s"Request to add new asset $videoUri to $atomId")
