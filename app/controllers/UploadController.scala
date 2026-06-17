@@ -1,7 +1,10 @@
 package controllers
 
 import com.gu.ai.x.play.json.Encoders._
-import software.amazon.awssdk.services.sfn.model.ExecutionListItem
+import software.amazon.awssdk.services.sfn.model.{
+  ExecutionAlreadyExistsException,
+  ExecutionListItem
+}
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.logging.Logging
 import com.gu.media.model.{
@@ -56,6 +59,7 @@ class UploadController(
 
   private val credsGenerator = new CredentialsGenerator(awsConfig)
   private val uploadDecorator = new UploadDecorator(awsConfig, stepFunctions)
+  private val assetVersionManager = new AssetVersionManager(awsConfig)
 
   /** prepares a list of ClientAssets that represent the multiple versioned
     * assets for the atom to be displayed in the client. The list is made up of
@@ -114,8 +118,10 @@ class UploadController(
       )
       val thriftAtom = getPreviewAtom(req.atomId)
       val atom = MediaAtom.fromThrift(thriftAtom)
-      val assetVersion =
-        MediaAtomHelpers.getNextAssetVersion(thriftAtom.tdata)
+      val assetVersion = assetVersionManager.claimNextVersion(
+        atom.id,
+        MediaAtomHelpers.getCurrentAssetVersion(thriftAtom.tdata).getOrElse(1L)
+      )
 
       val upload = start(atom, raw.user.email, req, assetVersion)
 
@@ -225,25 +231,19 @@ class UploadController(
       email: String,
       req: UploadRequest,
       assetVersion: Long
-  ): Upload = {
+  ): Upload = try {
     val upload = UploadBuilder.build(atom, email, assetVersion, req, awsConfig)
-    val table = Table[Upload](awsConfig.cacheTableName)
-    val result = awsConfig.scanamo.exec(
-      table.when(attributeNotExists("id")).put(upload)
-    )
+    stepFunctions.start(upload)
 
-    result match {
-      case Right(_) =>
-        stepFunctions.start(upload)
-        upload
-      case Left(ConditionNotMet(_)) =>
-        start(atom, email, req, assetVersion + 1)
-      case Left(_) =>
-        log.warn(
-          s"Encountered unexpected error when saving upload ${upload.id} to DynamoDB. Retrying with next asset version."
-        )
-        start(atom, email, req, assetVersion + 1)
-    }
+    upload
+  } catch {
+    case _: ExecutionAlreadyExistsException =>
+      start(
+        atom,
+        email,
+        req,
+        assetVersionManager.claimNextVersion(atom.id, assetVersion)
+      )
   }
 
   /** re-run an existing upload through the state machine to reprocess the video
