@@ -9,7 +9,7 @@ import scala.annotation.tailrec
 
 class AssetVersionManager(awsConfig: AWSConfig) extends Logging {
 
-  case class VersionClaim(assetId: String)
+  case class VersionClaim(id: String)
 
   object VersionClaim {
     def fromAtomIdAndVersionNumber(
