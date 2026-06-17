@@ -21,9 +21,13 @@ class AssetVersionManager(awsConfig: AWSConfig) extends Logging {
   }
 
   @tailrec
-  final def claimNextVersion(atomId: String, version: Long): Long = {
+  final def claimThisOrNextAvailableVersion(
+      atomId: String,
+      version: Long
+  ): Long = {
     val assetsTable = Table[VersionClaim](awsConfig.assetsTableName)
-    val claim = VersionClaim.fromAtomIdAndVersionNumber(atomId, version)
+    val claim =
+      VersionClaim.fromAtomIdAndVersionNumber(atomId, version)
     val assetsResult = awsConfig.scanamo.exec(
       assetsTable.when(attributeNotExists("id")).put(claim)
     )
@@ -31,12 +35,12 @@ class AssetVersionManager(awsConfig: AWSConfig) extends Logging {
     assetsResult match {
       case Right(_) => version
       case Left(ConditionNotMet(_)) =>
-        claimNextVersion(atomId, version + 1)
+        claimThisOrNextAvailableVersion(atomId, version + 1)
       case Left(_) =>
         log.warn(
           s"Unexpected error claiming version $version for atom $atomId. Retrying with next version."
         )
-        claimNextVersion(atomId, version + 1)
+        claimThisOrNextAvailableVersion(atomId, version + 1)
     }
   }
 

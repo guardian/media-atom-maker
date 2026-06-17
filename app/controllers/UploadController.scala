@@ -118,9 +118,9 @@ class UploadController(
       )
       val thriftAtom = getPreviewAtom(req.atomId)
       val atom = MediaAtom.fromThrift(thriftAtom)
-      val assetVersion = assetVersionManager.claimNextVersion(
+      val assetVersion = assetVersionManager.claimThisOrNextAvailableVersion(
         atom.id,
-        MediaAtomHelpers.getCurrentAssetVersion(thriftAtom.tdata).getOrElse(1L)
+        MediaAtomHelpers.getNextAssetVersion(thriftAtom.tdata)
       )
 
       val upload = start(atom, raw.user.email, req, assetVersion)
@@ -242,7 +242,10 @@ class UploadController(
         atom,
         email,
         req,
-        assetVersionManager.claimNextVersion(atom.id, assetVersion)
+        assetVersionManager.claimThisOrNextAvailableVersion(
+          atom.id,
+          assetVersion
+        )
       )
   }
 
