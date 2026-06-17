@@ -59,7 +59,8 @@ class UploadController(
 
   private val credsGenerator = new CredentialsGenerator(awsConfig)
   private val uploadDecorator = new UploadDecorator(awsConfig, stepFunctions)
-  private val assetVersionManager = new AssetVersionManager(awsConfig)
+  private val assetVersionManager =
+    new AssetVersionManager(awsConfig, AssetClaimSource.UploadPipeline)
 
   /** prepares a list of ClientAssets that represent the multiple versioned
     * assets for the atom to be displayed in the client. The list is made up of
