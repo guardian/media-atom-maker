@@ -59,7 +59,9 @@ class AddSubtitlesToMP4
       outputGroupDetails: MediaConvertOutputGroupDetails
   ): Option[String] = {
     // todo: use the mime type from the OutputDefinition instead of checking the file extension
-    outputGroupDetails.outputDetails.view.flatMap(_.outputFilePaths.find(_.endsWith(".vtt"))).headOption
+    outputGroupDetails.outputDetails.view
+      .flatMap(_.outputFilePaths.find(_.endsWith(".vtt")))
+      .headOption
   }
 
   override def handle(upload: Upload): Upload = {
@@ -70,7 +72,8 @@ class AddSubtitlesToMP4
       }.toList;
       event <- selfHostedUploadMetadata.completeEvent.toList;
       outputGroupDetails <- event.detail.outputGroupDetails;
-      outputVttPath <- getVttOutput(outputGroupDetails) if upload.metadata.subtitleSource.isDefined;
+      outputVttPath <- getVttOutput(outputGroupDetails)
+      if upload.metadata.subtitleSource.isDefined;
       outputDetails <- outputGroupDetails.outputDetails;
       // todo: use the mime type from the OutputDefinition instead of checking the file extension
       path <- outputDetails.outputFilePaths.headOption if path.endsWith(".mp4")
