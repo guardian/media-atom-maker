@@ -1,5 +1,7 @@
 package com.gu.media.util
 
+import scala.collection.Set
+
 import com.gu.contentatom.thrift._
 import com.gu.contentatom.thrift.atom.media._
 import play.api.libs.functional.syntax._
@@ -58,7 +60,8 @@ object JsonConversions {
       (__ \ "dimensions").writeNullable[ImageAssetDimensions] and
       (__ \ "aspectRatio").writeNullable[String] and
       (__ \ "duration").writeNullable[Long] and
-      (__ \ "hasAudio").writeNullable[Boolean]
+      (__ \ "hasAudio").writeNullable[Boolean] and
+      (__ \ "codecs").writeNullable[Set[String]]
   ) { asset: Asset =>
     asset match {
       case Asset(
@@ -70,7 +73,8 @@ object JsonConversions {
             dimensions,
             aspectRatio,
             duration,
-            hasAudio
+            hasAudio,
+            codecs
           ) =>
         (
           id,
@@ -81,7 +85,8 @@ object JsonConversions {
           dimensions,
           aspectRatio,
           duration,
-          hasAudio
+          hasAudio,
+          codecs
         )
     }
   }
