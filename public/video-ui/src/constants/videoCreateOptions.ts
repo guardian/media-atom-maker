@@ -94,25 +94,25 @@ export const videoCreateOptions: {
         {
           id: "Default",
           title: "Non-YouTube",
-          description: "Use in limited circumstances (eg avoiding age restriction on platform)",
+          description: "Use for on-platform self-hosted videos (i.e vertical ‘shorts’)",
           specifications: {
             positive: [
-              "Manual play",
+              "Autoplay on Fronts",
+              "Manual play in article",
               "Optional dedicated video page",
               "Play / pause controls",
               "Progress bar and timeline scrubber",
               "Audio track and mute controls",
-              "Fullscreen controls"
+              "Fullscreen controls",
+              "Subtitles support"
             ],
             negative: [
-              "No subtitles support",
               "No share button",
               "No support for livestreaming"
             ],
             info: [
-              "Can be used in Articles only",
-              "Self-hosted",
-              "Different browsers (eg Firefox, Chrome) will use their own player to render these videos"
+              "Can be used in Articles and Fronts",
+              "Self-hosted"
             ]
           }
         }
