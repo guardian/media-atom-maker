@@ -1,0 +1,44 @@
+package com.gu.media.upload.youtubeuploadv2
+
+import com.gu.media.Settings
+import com.gu.media.aws.{AwsAccess, S3Access}
+import com.gu.media.lambda.{LambdaBase, LambdaYoutubeCredentials}
+import com.gu.media.logging.Logging
+import com.gu.media.upload.model.Upload
+import com.gu.media.youtube.{YouTubeAccess, YouTubeUploader}
+
+import java.util.UUID
+
+object YouTubeUploadV2
+    extends LambdaBase
+    with LambdaYoutubeCredentials
+    with Logging
+    with AwsAccess
+    with S3Access
+    with YouTubeAccess
+    with Settings {
+
+  def run(upload: Upload) = {
+
+    val uploader = new YouTubeUploader(this, this.s3Client)
+    val size = upload.parts.last.end
+    val bucket = upload.metadata.bucket
+    val s3Key = upload.metadata.pluto.s3Key
+    log.info(s"running upload to youtube v2 with $s3Key and size $size")
+    val uploadUri = uploader.startUpload(
+      "test",
+      trainingChannels.head,
+      UUID.randomUUID().toString,
+      size
+    )
+    log.info(s"received upload uri from youtube ${uploadUri}. Uploading...")
+    val response = uploader.uploadFull(
+      bucket,
+      s3Key,
+      uploadUri,
+      size
+    )
+    response
+  }
+
+}

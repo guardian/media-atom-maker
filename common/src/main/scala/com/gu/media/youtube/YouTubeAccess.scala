@@ -35,7 +35,6 @@ case class ChannelSettings(
 trait YouTubeAccess extends Settings with Logging {
   def appName: String = getMandatoryString("name")
   def contentOwner: String = getMandatoryString("youtube.contentOwner")
-
   val channelConfig: Map[String, ChannelSettings] =
     if (!config.hasPath("youtube.channels.list")) Map.empty
     else

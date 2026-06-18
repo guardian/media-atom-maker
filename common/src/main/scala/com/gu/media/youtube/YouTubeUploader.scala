@@ -1,5 +1,9 @@
 package com.gu.media.youtube
 
+import com.gu.media.Settings
+import com.gu.media.aws.{AwsAccess, S3Access}
+import com.gu.media.lambda.{LambdaBase, LambdaYoutubeCredentials}
+
 import java.io.InputStream
 import com.gu.media.logging.{
   Logging,
@@ -7,8 +11,13 @@ import com.gu.media.logging.{
   YoutubeRequestLogger,
   YoutubeRequestType
 }
-import com.gu.media.model.YouTubeAsset
-import com.gu.media.upload.model.{Upload, UploadPart}
+import com.gu.media.model.{PlutoSyncMetadataMessage, VideoSource, YouTubeAsset}
+import com.gu.media.upload.model.{
+  Upload,
+  UploadMetadata,
+  UploadPart,
+  UploadProgress
+}
 import com.gu.media.util.InputStreamRequestBody
 import com.gu.media.youtube.YouTubeUploader.{
   MoveToNextChunk,
@@ -19,6 +28,39 @@ import com.squareup.okhttp.{MediaType, OkHttpClient, Request, RequestBody}
 import play.api.libs.json.{JsObject, JsString, Json}
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.GetObjectRequest
+
+import java.util.UUID
+object YouTubeUpload
+    extends LambdaBase
+    with LambdaYoutubeCredentials
+    with Logging
+    with AwsAccess
+    with S3Access
+    with YouTubeAccess
+    with Settings {
+  def runUploadToYouTube(upload: Upload) = {
+    log.info("running upload to youtube v2")
+    val uploader = new YouTubeUploader(this, this.s3Client)
+    val size = upload.parts.last.end
+    val bucket = upload.metadata.bucket
+    val s3Key = upload.metadata.pluto.s3Key
+
+    val uploadUri = uploader.startUpload(
+      "test",
+      trainingChannels.head,
+      UUID.randomUUID().toString,
+      size
+    )
+    log.info("Retrieved an upload uri. Uploading to youtube...")
+    val response = uploader.uploadFull(
+      bucket,
+      s3Key,
+      uploadUri,
+      size
+    )
+    response
+  }
+}
 
 class YouTubeUploader(youTube: YouTubeAccess, s3: S3Client) extends Logging {
   private val JSON = MediaType.parse("application/json; charset=utf-8")
@@ -75,6 +117,32 @@ class YouTubeUploader(youTube: YouTubeAccess, s3: S3Client) extends Logging {
 
     if (response.code() == 200) {
       response.header("Location")
+    } else {
+      throw new IllegalStateException(
+        s"${response.code()} when starting YouTube upload: ${response.body().string()}"
+      )
+    }
+  }
+
+  def uploadFull(bucket: String, key: String, uploadUri: String, size: Long) = {
+    log.info("retrieving video from s3")
+    val input = s3.getObject(
+      GetObjectRequest.builder().bucket(bucket).key(key).build()
+    )
+
+    val body = new InputStreamRequestBody(VIDEO, input, size)
+    log.info("uploading to youtube")
+    val request = new Request.Builder()
+      .url(uploadUri)
+      .addHeader("Authorization", "Bearer " + youTube.accessToken())
+      .addHeader("Content-Length", size.toString)
+      .post(body)
+      .build()
+
+    val response = http.newCall(request).execute()
+
+    if (response.code() == 200) {
+      Json.parse(response.body().string())
     } else {
       throw new IllegalStateException(
         s"${response.code()} when starting YouTube upload: ${response.body().string()}"
