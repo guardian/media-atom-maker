@@ -19,13 +19,23 @@ object AssetClaimSource {
   }
 
   private val all: Map[String, AssetClaimSource] =
-    Map("UploadPipeline" -> UploadPipeline, "PreexistingAssetURL" -> PreexistingAssetURL)
+    Map(
+      "UploadPipeline" -> UploadPipeline,
+      "PreexistingAssetURL" -> PreexistingAssetURL
+    )
 
   implicit val dynamoFormat: DynamoFormat[AssetClaimSource] =
-    DynamoFormat.coercedXmap[AssetClaimSource, String, IllegalArgumentException](
-      name => all.getOrElse(name, throw new IllegalArgumentException(s"Unknown AssetClaimSource: $name")),
-      _.name
-    )
+    DynamoFormat
+      .coercedXmap[AssetClaimSource, String, IllegalArgumentException](
+        name =>
+          all.getOrElse(
+            name,
+            throw new IllegalArgumentException(
+              s"Unknown AssetClaimSource: $name"
+            )
+          ),
+        _.name
+      )
 }
 
 class AssetVersionManager(
