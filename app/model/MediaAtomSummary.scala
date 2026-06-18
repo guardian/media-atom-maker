@@ -2,6 +2,7 @@ package model
 
 import com.gu.media.model.{
   ContentChangeDetails,
+  IconikData,
   Image,
   Platform,
   VideoPlayerFormat
@@ -18,7 +19,8 @@ case class MediaAtomSummary(
     posterImage: Option[Image],
     contentChangeDetails: ContentChangeDetails,
     platform: Platform,
-    videoPlayerFormat: Option[VideoPlayerFormat]
+    videoPlayerFormat: Option[VideoPlayerFormat],
+    iconikData: Option[IconikData]
 )
 
 object MediaAtomList {

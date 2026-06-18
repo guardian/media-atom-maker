@@ -3,7 +3,13 @@ package data
 import com.gu.media.CapiAccess
 import com.gu.media.model.Platform.{Url, Youtube}
 import com.gu.media.model.VideoPlayerFormat.Loop
-import com.gu.media.model.{ChangeRecord, ContentChangeDetails, Image, User}
+import com.gu.media.model.{
+  ChangeRecord,
+  ContentChangeDetails,
+  IconikData,
+  Image,
+  User
+}
 import model.MediaAtomSummary
 import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers.any
@@ -153,7 +159,8 @@ class CapiBackedAtomListStoreSpec
         None
       ),
       platform = Url,
-      videoPlayerFormat = Some(Loop)
+      videoPlayerFormat = Some(Loop),
+      iconikData = None
     ),
     MediaAtomSummary(
       id = "0de596fb-bca3-48f9-846b-3f843508f772",
@@ -179,7 +186,15 @@ class CapiBackedAtomListStoreSpec
         None
       ),
       platform = Url,
-      videoPlayerFormat = Some(Loop)
+      videoPlayerFormat = Some(Loop),
+      iconikData = Some(
+        IconikData(
+          workingGroupId = Some("wg-123"),
+          commissionId = Some("comm-456"),
+          projectId = Some("proj-789"),
+          masterPlaceholderId = Some("pl-123")
+        )
+      )
     )
   )
 
@@ -287,7 +302,13 @@ class CapiBackedAtomListStoreSpec
       |            "commissioningDesks": [],
       |            "keywords": [],
       |            "commentsEnabled": false,
-      |            "platform": "url"
+      |            "platform": "url",
+      |            "iconikData": {
+      |              "workingGroupId": "wg-123",
+      |              "commissionId": "comm-456",
+      |              "projectId": "proj-789",
+      |              "masterPlaceholderId": "pl-123"
+      |            }
       |          }
       |        },
       |        "contentChangeDetails": {

@@ -6,6 +6,7 @@ import com.gu.media.model.Platform.{Url, Youtube}
 import com.gu.media.model.VideoPlayerFormat.{Loop, videoPlayerFormat}
 import com.gu.media.model.{
   ContentChangeDetails,
+  IconikData,
   Image,
   MediaAtom,
   Platform,
@@ -180,6 +181,10 @@ class CapiBackedAtomListStore(capi: CapiAccess)
           .asOpt[VideoPlayerFormat]
           .orElse(if (platform == Url) Some(Loop) else None)
 
+      val iconikData =
+        (atom \ "iconikData")
+          .asOpt[IconikData]
+
       Some(
         MediaAtomSummary(
           id,
@@ -187,7 +192,8 @@ class CapiBackedAtomListStore(capi: CapiAccess)
           posterImage,
           contentChangeDetails,
           platform,
-          videoPlayerFormat
+          videoPlayerFormat,
+          iconikData
         )
       )
     }
@@ -267,7 +273,8 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStoreV2)
       atom.posterImage,
       atom.contentChangeDetails,
       atom.platform.getOrElse(Youtube),
-      atom.videoPlayerFormat
+      atom.videoPlayerFormat,
+      atom.iconikData
     )
   }
 }

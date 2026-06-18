@@ -127,6 +127,10 @@ const Videos = ({ videos, total, search: {searchTerm, shouldUseCreatedDateForSor
     dispatch(fetchVideos({search: searchTerm, limit, shouldUseCreatedDateForSort, videoPlayerFormatFilter}));
   }, [shouldUseCreatedDateForSort, videoPlayerFormatFilter]);
 
+  useEffect(() => {
+    dispatch(fetchIconikWorkingGroups());
+  }, [dispatch]);
+
   return (
     <div>
       <div className="grid">
@@ -150,6 +154,7 @@ import { connect, useDispatch } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as reportPresenceClientError from '../../actions/PresenceActions/reportError';
 import { fetchVideos } from '../../slices/videos';
+import { fetchIconikWorkingGroups } from '../../slices/iconik';
 import { AppDispatch } from "../../util/setupStore";
 import { Search } from "../../slices/search";
 

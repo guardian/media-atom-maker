@@ -1,5 +1,5 @@
-.publish__label {
-  min-width: 60px;
+.publish__label, .iconik__label {
+  min-width: 80px;
   height: 30px;
   color: $color800Grey;
   border-radius: 25px;
@@ -9,6 +9,14 @@
   font-weight: bold;
   font-size:12px;
   margin-right: 1px;
+  border: 2px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.label__working-group {
+  background-color: $color100Grey;
 }
 
 .label__live {

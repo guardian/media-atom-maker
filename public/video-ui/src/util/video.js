@@ -130,4 +130,10 @@ export default class VideoUtils {
   static mustHaveTags(atom) {
     return atom.videoPlayerFormat === 'Default';
   }
+
+  static getWorkingGroupName({ iconikData }, workingGroups) {
+    const workingGroupId = iconikData?.workingGroupId;
+    if (!workingGroupId) return null;
+    return workingGroups.find(wg => wg.id === workingGroupId)?.title ?? null;
+  }
 }
