@@ -1,7 +1,7 @@
 package com.gu.media.upload.mediaconvert.hls
 
 import com.gu.media.model.VideoSource
-import com.gu.media.upload.mediaconvert.OutputDefinition
+import com.gu.media.upload.mediaconvert.{AudioCodecWrapper, OutputDefinition}
 import com.gu.media.upload.mediaconvert.SharedCodecSettings.aacAudioDescription
 import software.amazon.awssdk.services.mediaconvert.model._
 
@@ -11,6 +11,7 @@ object AudioOutput {
       mimeType = Some(VideoSource.mimeTypeM3u8),
       assetType =
         None, // Not currently used as an asset, as the m3u8 playlist is used instead
+      codec = AudioCodecWrapper(aacAudioDescription.codecSettings().codec()),
       output = () => {
         val outputBuilder = Output
           .builder()
