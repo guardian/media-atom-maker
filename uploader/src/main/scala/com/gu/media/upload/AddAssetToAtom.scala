@@ -156,9 +156,9 @@ class AddAssetToAtom
   ) =
     for {
       (settings, results) <- outputGroupsSettings.zip(outputGroupsResults)
-      assetType <- settings.assetType
-      mimeType <- settings.mimeType
-      playlistFilePath <- first(results.playlistFilePaths)
+      assetType <- settings.assetType.toList
+      mimeType <- settings.mimeType.toList
+      playlistFilePath <- results.playlistFilePaths.getOrElse(Nil)
     } yield ThriftAsset(
       assetType,
       version,
