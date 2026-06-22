@@ -10,14 +10,19 @@ import com.gu.contentatom.thrift.atom.media.{
 }
 import com.gu.media.logging.Logging
 import com.gu.media.model.MediaAtom
-import com.gu.media.util.{MAMLogger, MediaAtomImplicits, ThriftUtil}
+import com.gu.media.util.{
+  MAMLogger,
+  MediaAtomHelpers,
+  MediaAtomImplicits,
+  ThriftUtil
+}
 import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import com.gu.media.model.MediaAtom.fromThrift
 import com.gu.media.telemetry.{TagBool, TagLong, TagString, Telemetry}
 import com.gu.media.youtube.YoutubeUrl
 import model.commands.CommandExceptions._
-import util.{AWSConfig, YouTube}
+import util.{AWSConfig, AssetClaimSource, AssetVersionManager, YouTube}
 
 import scala.util.control.NonFatal
 
@@ -34,6 +39,9 @@ case class AddAssetCommand(
     with Logging {
 
   type T = MediaAtom
+
+  private val assetVersionManager =
+    new AssetVersionManager(awsConfig, AssetClaimSource.PreexistingAssetURL)
 
   def process(): MediaAtom = {
     log.info(s"Request to add new asset $videoUri to $atomId")
@@ -72,7 +80,11 @@ case class AddAssetCommand(
       currentAssets: Seq[Asset],
       videoId: String
   ) = {
-    val version = getNextAssetVersionNumber(currentAssets)
+    val version =
+      assetVersionManager.claimThisOrNextAvailableVersion(
+        atom.id,
+        MediaAtomHelpers.getNextAssetVersion(mediaAtom)
+      )
 
     val newAsset = ThriftUtil
       .parseAsset(uri = videoUri, version = version, mimeType = None)
@@ -159,14 +171,6 @@ case class AddAssetCommand(
             e
           )
           existingChannel
-      }
-    }
-  }
-
-  private def getNextAssetVersionNumber(currentAssets: Seq[Asset]): Long = {
-    currentAssets.foldLeft(1L) { (acc, asset) =>
-      {
-        if (asset.version >= acc) asset.version + 1 else acc
       }
     }
   }

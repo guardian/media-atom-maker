@@ -23,8 +23,9 @@ import com.gu.ai.x.play.json.Jsonx
 import com.gu.media.telemetry.{TagLong, TagString, Telemetry}
 import model.commands.CommandExceptions.commandExceptionAsResult
 import model.commands.{SubtitleFileDeleteCommand, SubtitleFileUploadCommand}
-import org.scanamo.Table
+import org.scanamo.{ConditionNotMet, Table}
 import org.scanamo.generic.auto._
+import org.scanamo.syntax._
 import play.api.libs.Files
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.{
@@ -58,6 +59,8 @@ class UploadController(
 
   private val credsGenerator = new CredentialsGenerator(awsConfig)
   private val uploadDecorator = new UploadDecorator(awsConfig, stepFunctions)
+  private val assetVersionManager =
+    new AssetVersionManager(awsConfig, AssetClaimSource.UploadPipeline)
 
   /** prepares a list of ClientAssets that represent the multiple versioned
     * assets for the atom to be displayed in the client. The list is made up of
@@ -116,8 +119,10 @@ class UploadController(
       )
       val thriftAtom = getPreviewAtom(req.atomId)
       val atom = MediaAtom.fromThrift(thriftAtom)
-      val assetVersion =
+      val assetVersion = assetVersionManager.claimThisOrNextAvailableVersion(
+        atom.id,
         MediaAtomHelpers.getNextAssetVersion(thriftAtom.tdata)
+      )
 
       val upload = start(atom, raw.user.email, req, assetVersion)
 
@@ -234,7 +239,15 @@ class UploadController(
     upload
   } catch {
     case _: ExecutionAlreadyExistsException =>
-      start(atom, email, req, assetVersion + 1)
+      start(
+        atom,
+        email,
+        req,
+        assetVersionManager.claimThisOrNextAvailableVersion(
+          atom.id,
+          assetVersion
+        )
+      )
   }
 
   /** re-run an existing upload through the state machine to reprocess the video
