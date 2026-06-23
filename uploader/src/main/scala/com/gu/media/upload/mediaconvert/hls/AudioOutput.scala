@@ -8,7 +8,7 @@ import software.amazon.awssdk.services.mediaconvert.model._
 object AudioOutput {
   def apply(): OutputDefinition =
     OutputDefinition(
-      mimeType = Some(VideoSource.mimeTypeM3u8),
+      mimeType = None,
       assetType =
         None, // Not currently used as an asset, as the m3u8 playlist is used instead
       output = () => {
