@@ -48,8 +48,7 @@ class StepFunctions(awsConfig: AWSConfig) {
         } catch {
           case _: NullPointerException =>
             Some("Execution failed but no error message was provided")
-          case _: JsonParseException | _: JsResultException |
-              _: NullPointerException =>
+          case _: JsonParseException | _: JsResultException =>
             Some(cause)
         }
     }
