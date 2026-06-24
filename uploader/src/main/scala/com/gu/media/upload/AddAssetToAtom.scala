@@ -12,10 +12,11 @@ import com.gu.contentatom.thrift.{
   ImageAssetDimensions => ThriftImageAssetDimensions
 }
 import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
-import com.gu.media.aws.{DynamoAccess, KinesisAccess, UploadAccess}
+import com.gu.media.aws.{DynamoAccess, KinesisAccess, S3Access, UploadAccess}
 import com.gu.media.lambda.{LambdaBase, LambdaWithParams}
 import com.gu.media.logging.Logging
 import com.gu.media.model.{AuditMessage, VideoSource, YouTubeAsset}
+import com.gu.media.upload.m3u8.Codecs
 import com.gu.media.upload.mediaconvert.{
   JobSettingsBuilder,
   OutputGroupDefinition
@@ -29,8 +30,10 @@ import com.gu.media.upload.model.{
 }
 import com.gu.media.util.AspectRatio
 import com.gu.media.util.MediaAtomHelpers._
+import software.amazon.awssdk.services.s3.model.GetObjectRequest
 
 import java.net.URI
+import scala.util.Try
 import scala.util.control.NonFatal
 
 class AddAssetToAtom
@@ -39,6 +42,7 @@ class AddAssetToAtom
     with DynamoAccess
     with KinesisAccess
     with UploadAccess
+    with S3Access
     with Logging {
   private val selfHostedOrigin: String = getMandatoryString(
     "aws.upload.selfHostedOrigin"
@@ -148,6 +152,19 @@ class AddAssetToAtom
       outputAssets(outputGroupsSettings, outputGroupsResults, version, hasAudio)
   }
 
+  private def playlistCodecs(playlistFilePath: String): Option[Set[String]] =
+    Try {
+      val uri = new URI(playlistFilePath)
+      val bucketName = uri.getHost
+      val key = uri.getPath.drop(
+        1
+      ) // drop the leading slash from the path to fit with S3 conventions
+      val stream = s3Client.getObject(
+        GetObjectRequest.builder().bucket(bucketName).key(key).build()
+      )
+      Codecs.extractCodecs(stream)
+    }.toOption.filter(_.nonEmpty)
+
   private def outputGroupAssets(
       outputGroupsSettings: List[OutputGroupDefinition],
       outputGroupsResults: List[MediaConvertOutputGroupDetails],
@@ -178,7 +195,8 @@ class AddAssetToAtom
         assetType,
         results.outputDetails.map(_.durationInMs / 1000).maxOption
       ).flatten,
-      hasAudio = whenVideo(assetType, hasAudio)
+      hasAudio = whenVideo(assetType, hasAudio),
+      codecs = playlistCodecs(playlistFilePath)
     )
 
   private def outputAssets(
