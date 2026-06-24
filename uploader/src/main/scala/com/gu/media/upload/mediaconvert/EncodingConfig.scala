@@ -1,47 +1,54 @@
 package com.gu.media.upload.mediaconvert
 
+import com.gu.media.upload.mediaconvert.SharedCodecSettings.{
+  av1Settings,
+  h264Settings
+}
+import software.amazon.awssdk.services.mediaconvert.model.{
+  VideoCodec,
+  VideoCodecSettings
+}
+
 case class Dimensions(width: Option[Int], height: Option[Int])
 
 sealed trait EncodingConfig {
   def dimensions: Dimensions
-  def nameModifier: String
+  def nameModifier: String = {
+    val dimensionPart = List(
+      dimensions.width.map(w => s"${w}w"),
+      dimensions.height.map(h => s"${h}h")
+    ).flatten.mkString("_")
+
+    s"_${dimensionPart}_q${qualityLevel}_${codecSettings.codecAsString.replace("_", "").toLowerCase}"
+  }
   def qualityLevel: Int
+  def codecSettings: VideoCodecSettings
+}
+
+case class H264EncodingConfig(
+    dimensions: Dimensions,
+    qualityLevel: Int
+) extends EncodingConfig {
+  override def codecSettings: VideoCodecSettings = VideoCodecSettings
+    .builder()
+    .codec(VideoCodec.H_264)
+    .h264Settings(h264Settings(qualityLevel))
+    .build()
+}
+
+case class AV1EncodingConfig(
+    dimensions: Dimensions,
+    qualityLevel: Int
+) extends EncodingConfig {
+  override def codecSettings: VideoCodecSettings = VideoCodecSettings
+    .builder()
+    .codec(VideoCodec.AV1)
+    .av1Settings(av1Settings(qualityLevel))
+    .build()
 }
 
 object EncodingConfigs {
-  case object Default extends EncodingConfig {
-    val dimensions = Dimensions(None, Some(720))
-    val nameModifier = "_720h"
-    val qualityLevel = 8
-  }
+  val Default = H264EncodingConfig(Dimensions(None, Some(720)), 8)
 
-  case object MobileWidth extends EncodingConfig {
-    val dimensions = Dimensions(Some(480), None)
-    val nameModifier = "_480w"
-    val qualityLevel = 8
-  }
-
-  case object LowQuality extends EncodingConfig {
-    val dimensions = Dimensions(None, Some(720))
-    val nameModifier = "_720h_q6"
-    val qualityLevel = 6
-  }
-
-  case object LowQualityMobileWidth extends EncodingConfig {
-    val dimensions = Dimensions(Some(480), None)
-    val nameModifier = "_480w_q6"
-    val qualityLevel = 6
-  }
-
-  case object VeryLowQuality extends EncodingConfig {
-    val dimensions = Dimensions(None, Some(720))
-    val nameModifier = "_720h_q4"
-    val qualityLevel = 4
-  }
-
-  case object VeryLowQualityMobileWidth extends EncodingConfig {
-    val dimensions = Dimensions(Some(480), None)
-    val nameModifier = "_480w_q4"
-    val qualityLevel = 4
-  }
+  val MobileWidth = H264EncodingConfig(Dimensions(Some(480), None), 8)
 }

@@ -1,7 +1,11 @@
 package com.gu.media.upload.mediaconvert.hls
 
 import com.gu.media.model.VideoSource
-import com.gu.media.upload.mediaconvert.{OutputDefinition, SelectorNames}
+import com.gu.media.upload.mediaconvert.{
+  CaptionsCodecWrapper,
+  OutputDefinition,
+  SelectorNames
+}
 import software.amazon.awssdk.services.mediaconvert.model._
 
 object CaptionsOutput {
@@ -9,17 +13,18 @@ object CaptionsOutput {
     mimeType = Some(VideoSource.mimeTypeM3u8),
     assetType =
       None, // Not currently used as an asset, as the m3u8 playlist which combines this and video is used instead
+    codec = CaptionsCodecWrapper(CaptionDestinationType.WEBVTT),
     output = () =>
       Output
         .builder()
         .containerSettings(
           ContainerSettings
             .builder()
-            .container(ContainerType.M3_U8)
-            .m3u8Settings(M3u8Settings.builder().build())
+            .container(ContainerType.CMFC)
+            .cmfcSettings(CmfcSettings.builder().build())
             .build()
         )
-        .nameModifier("captions")
+        .nameModifier("_captions")
         .captionDescriptions(
           CaptionDescription
             .builder()
