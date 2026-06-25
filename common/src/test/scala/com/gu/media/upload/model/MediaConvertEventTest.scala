@@ -218,4 +218,218 @@ class MediaConvertEventTest extends AnyFlatSpec with Matchers {
     val parsedJson = Json.parse(json)
     Json.toJson(parsedJson.as[MediaConvertEvent]) shouldBe parsedJson
   }
+
+  "MediaConvertEvent" should "transparently deserialise and serialise CMAF event which does not have outputFilePaths" in {
+    val json =
+      """{
+        |  "version": "0",
+        |  "id": "20b3a8db-8153-b68c-824e-6c970c8565c4",
+        |  "detail-type": "MediaConvert Job State Change",
+        |  "source": "aws.mediaconvert",
+        |  "account": "563563610310",
+        |  "time": "2026-06-16T15:26:14Z",
+        |  "region": "eu-west-1",
+        |  "resources": [
+        |    "arn:aws:mediaconvert:eu-west-1:563563610310:jobs/1781623407306-4bov8h"
+        |  ],
+        |  "detail": {
+        |    "timestamp": 1781623574418,
+        |    "accountId": "563563610310",
+        |    "queue": "arn:aws:mediaconvert:eu-west-1:563563610310:queues/Default",
+        |    "jobId": "1781623407306-4bov8h",
+        |    "status": "COMPLETE",
+        |    "userMetadata": {
+        |      "stage": "DEV",
+        |      "executionId": "arn:aws:states:eu-west-1:563563610310:execution:VideoPipelineDEV-PGZ5E0CNI0QG:7da36eb3-442f-4b56-a411-0031956343d7-8",
+        |      "hasAudio": "true"
+        |    },
+        |    "outputGroupDetails": [
+        |      {
+        |        "outputDetails": [
+        |          {
+        |            "outputFilePaths": [
+        |              "s3://uploads-origin.code.dev-guim.co.uk/2026/06/16/WS_Change_tags_label--7da36eb3-442f-4b56-a411-0031956343d7-8.0_480w_q8_h264.mp4"
+        |            ],
+        |            "durationInMs": 84360,
+        |            "videoDetails": {
+        |              "widthInPx": 480,
+        |              "heightInPx": 854,
+        |              "averageBitrate": 1676481,
+        |              "qvbrAvgQuality": 8.0,
+        |              "qvbrMinQuality": 8.0,
+        |              "qvbrMaxQuality": 8.0,
+        |              "qvbrMinQualityLocation": 0,
+        |              "qvbrMaxQualityLocation": 0
+        |            }
+        |          },
+        |          {
+        |            "outputFilePaths": [
+        |              "s3://uploads-origin.code.dev-guim.co.uk/2026/06/16/WS_Change_tags_label--7da36eb3-442f-4b56-a411-0031956343d7-8.0_720h_q8_h264.mp4"
+        |            ],
+        |            "durationInMs": 84360,
+        |            "videoDetails": {
+        |              "widthInPx": 406,
+        |              "heightInPx": 720,
+        |              "averageBitrate": 1297659,
+        |              "qvbrAvgQuality": 8.0,
+        |              "qvbrMinQuality": 8.0,
+        |              "qvbrMaxQuality": 8.0,
+        |              "qvbrMinQualityLocation": 0,
+        |              "qvbrMaxQualityLocation": 0
+        |            }
+        |          },
+        |          {
+        |            "outputFilePaths": [
+        |              "s3://uploads-origin.code.dev-guim.co.uk/2026/06/16/WS_Change_tags_label--7da36eb3-442f-4b56-a411-0031956343d7-8.0.0000000.jpg"
+        |            ],
+        |            "durationInMs": 1000,
+        |            "videoDetails": {
+        |              "widthInPx": 1080,
+        |              "heightInPx": 1920,
+        |              "averageBitrate": 467499
+        |            }
+        |          },
+        |          {
+        |            "outputFilePaths": [
+        |              "s3://uploads-origin.code.dev-guim.co.uk/2026/06/16/WS_Change_tags_label--7da36eb3-442f-4b56-a411-0031956343d7-8.0.vtt"
+        |            ],
+        |            "durationInMs": 0
+        |          }
+        |        ],
+        |        "type": "FILE_GROUP"
+        |      },
+        |      {
+        |        "outputDetails": [
+        |          {
+        |            "durationInMs": 84360,
+        |            "videoDetails": {
+        |              "widthInPx": 480,
+        |              "heightInPx": 854,
+        |              "averageBitrate": 1689527,
+        |              "qvbrAvgQuality": 8.0,
+        |              "qvbrMinQuality": 8.0,
+        |              "qvbrMaxQuality": 8.0,
+        |              "qvbrMinQualityLocation": 0,
+        |              "qvbrMaxQualityLocation": 0
+        |            }
+        |          },
+        |          {
+        |            "durationInMs": 84360,
+        |            "videoDetails": {
+        |              "widthInPx": 406,
+        |              "heightInPx": 720,
+        |              "averageBitrate": 1306322,
+        |              "qvbrAvgQuality": 8.0,
+        |              "qvbrMinQuality": 8.0,
+        |              "qvbrMaxQuality": 8.0,
+        |              "qvbrMinQualityLocation": 0,
+        |              "qvbrMaxQualityLocation": 0
+        |            }
+        |          },
+        |          {
+        |            "durationInMs": 84360,
+        |            "videoDetails": {
+        |              "widthInPx": 480,
+        |              "heightInPx": 854,
+        |              "averageBitrate": 607638,
+        |              "qvbrAvgQuality": 8.0,
+        |              "qvbrMinQuality": 7.86,
+        |              "qvbrMaxQuality": 8.0,
+        |              "qvbrMinQualityLocation": 79320,
+        |              "qvbrMaxQualityLocation": 0
+        |            }
+        |          },
+        |          {
+        |            "durationInMs": 84360,
+        |            "videoDetails": {
+        |              "widthInPx": 406,
+        |              "heightInPx": 720,
+        |              "averageBitrate": 479797,
+        |              "qvbrAvgQuality": 8.0,
+        |              "qvbrMinQuality": 7.86,
+        |              "qvbrMaxQuality": 8.0,
+        |              "qvbrMinQualityLocation": 41800,
+        |              "qvbrMaxQualityLocation": 0
+        |            }
+        |          },
+        |          {
+        |            "durationInMs": 84360,
+        |            "videoDetails": {
+        |              "widthInPx": 406,
+        |              "heightInPx": 720,
+        |              "averageBitrate": 572952,
+        |              "qvbrAvgQuality": 6.0,
+        |              "qvbrMinQuality": 6.0,
+        |              "qvbrMaxQuality": 6.0,
+        |              "qvbrMinQualityLocation": 0,
+        |              "qvbrMaxQualityLocation": 0
+        |            }
+        |          },
+        |          {
+        |            "durationInMs": 84360,
+        |            "videoDetails": {
+        |              "widthInPx": 480,
+        |              "heightInPx": 854,
+        |              "averageBitrate": 715475,
+        |              "qvbrAvgQuality": 6.0,
+        |              "qvbrMinQuality": 6.0,
+        |              "qvbrMaxQuality": 6.0,
+        |              "qvbrMinQualityLocation": 0,
+        |              "qvbrMaxQualityLocation": 0
+        |            }
+        |          },
+        |          {
+        |            "durationInMs": 84360,
+        |            "videoDetails": {
+        |              "widthInPx": 406,
+        |              "heightInPx": 720,
+        |              "averageBitrate": 262457,
+        |              "qvbrAvgQuality": 4.0,
+        |              "qvbrMinQuality": 4.0,
+        |              "qvbrMaxQuality": 4.0,
+        |              "qvbrMinQualityLocation": 0,
+        |              "qvbrMaxQualityLocation": 0
+        |            }
+        |          },
+        |          {
+        |            "durationInMs": 84360,
+        |            "videoDetails": {
+        |              "widthInPx": 480,
+        |              "heightInPx": 854,
+        |              "averageBitrate": 323519,
+        |              "qvbrAvgQuality": 4.0,
+        |              "qvbrMinQuality": 4.0,
+        |              "qvbrMaxQuality": 4.0,
+        |              "qvbrMinQualityLocation": 0,
+        |              "qvbrMaxQualityLocation": 0
+        |            }
+        |          },
+        |          {
+        |            "durationInMs": 0
+        |          },
+        |          {
+        |            "durationInMs": 84358
+        |          }
+        |        ],
+        |        "playlistFilePaths": [
+        |          "s3://uploads-origin.code.dev-guim.co.uk/2026/06/16/WS_Change_tags_label--7da36eb3-442f-4b56-a411-0031956343d7-8.0.mpd",
+        |          "s3://uploads-origin.code.dev-guim.co.uk/2026/06/16/WS_Change_tags_label--7da36eb3-442f-4b56-a411-0031956343d7-8.0.m3u8"
+        |        ],
+        |        "type": "CMAF_GROUP"
+        |      }
+        |    ],
+        |    "paddingInserted": 0,
+        |    "blackVideoDetected": 0,
+        |    "warnings": [
+        |      {
+        |        "code": 250003,
+        |        "count": 1
+        |      }
+        |    ]
+        |  }
+        |}
+        |""".stripMargin
+    val parsedJson = Json.parse(json)
+    Json.toJson(parsedJson.as[MediaConvertEvent]) shouldBe parsedJson
+  }
 }

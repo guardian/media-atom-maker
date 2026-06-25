@@ -60,7 +60,7 @@ class AddSubtitlesToMP4
   ): Option[String] = {
     // todo: use the mime type from the OutputDefinition instead of checking the file extension
     outputGroupDetails.outputDetails.view
-      .flatMap(_.outputFilePaths.find(_.endsWith(".vtt")))
+      .flatMap(_.outputFilePaths.flatMap(_.find(_.endsWith(".vtt"))))
       .headOption
   }
 
@@ -76,7 +76,8 @@ class AddSubtitlesToMP4
       if upload.metadata.subtitleSource.isDefined;
       outputDetails <- outputGroupDetails.outputDetails;
       // todo: use the mime type from the OutputDefinition instead of checking the file extension
-      path <- outputDetails.outputFilePaths.headOption if path.endsWith(".mp4")
+      path <- outputDetails.outputFilePaths.flatMap(_.headOption)
+      if path.endsWith(".mp4")
     ) {
       val subtitlesFile = createTempPath("input-subtitles-", ".srt")
       val videoFile = createTempPath("input-video-", ".mp4")
