@@ -83,7 +83,7 @@ object MediaConvertVideoDetails {
 }
 
 case class MediaConvertOutputDetails(
-    outputFilePaths: Option[List[String]],
+    outputFilePaths: List[String],
     durationInMs: Long,
     videoDetails: Option[MediaConvertVideoDetails]
 )
