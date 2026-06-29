@@ -139,7 +139,7 @@ class TranscoderComplete
     (for {
       group <- outputGroups
       output <- group.outputDetails
-      filename <- output.outputFilePaths.flatMap(_.headOption)
+      filename <- output.outputFilePaths.headOption
       videoDetails <- output.videoDetails
       extension <- filename.split('.').lastOption
     } yield {

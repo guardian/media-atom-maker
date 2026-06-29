@@ -15,11 +15,11 @@ object CaptionsOutput {
         .containerSettings(
           ContainerSettings
             .builder()
-            .container(ContainerType.CMFC)
-            .cmfcSettings(CmfcSettings.builder().build())
+            .container(ContainerType.M3_U8)
+            .m3u8Settings(M3u8Settings.builder().build())
             .build()
         )
-        .nameModifier("_captions")
+        .nameModifier("captions")
         .captionDescriptions(
           CaptionDescription
             .builder()
