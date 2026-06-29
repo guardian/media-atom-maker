@@ -7,7 +7,7 @@ import scala.sys.process.*
 val scroogeVersion = "4.12.0"
 val awsV2Version = "2.46.8"
 val pandaVersion = "19.0.0"
-val atomMakerVersion = "12.0.0"
+val atomMakerVersion = "13.0.0"
 val typesafeConfigVersion =
   "1.4.0" // to match what we get from Play transitively
 val scanamoVersion = "1.0.0-M28"
@@ -42,7 +42,7 @@ val jsoupVersion = "1.16.1"
 
 val enumeratumVersion = "1.5.15"
 
-lazy val jacksonVersion = "2.21.1"
+lazy val jacksonVersion = "2.21.4"
 lazy val jacksonAnnotationsVersion = "2.21"
 
 lazy val commonSettings = Seq(
