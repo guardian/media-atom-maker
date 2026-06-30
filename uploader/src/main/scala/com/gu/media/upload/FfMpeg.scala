@@ -23,9 +23,9 @@ object FfMpeg extends Logging {
   private val AWSLambdaFfmpegPath = "/var/task/bin/ffmpeg"
 
   private case class FfMpegSubprocessCrashedException(
-      exitCode: Int,
-      stderr: String
-  ) extends Exception(s"Exit code: $exitCode: ${stderr}")
+                                                       exitCode: Int,
+                                                       stderr: String
+                                                     ) extends Exception(s"Exit code: $exitCode: ${stderr}")
 
   def addSubtitlesToMP4(video: Path, subtitles: Path, output: Path): Path = {
     val ffMpegStdErrLogger = new BasicStdErrLogger()
@@ -49,9 +49,9 @@ object FfMpeg extends Logging {
   }
 
   def checkAudioExists(
-      video: String,
-      ffmpegPath: String = AWSLambdaFfmpegPath
-  ): Boolean = {
+                        video: String,
+                        ffmpegPath: String = AWSLambdaFfmpegPath
+                      ): Boolean = {
 
     /* @see https://aws.amazon.com/blogs/media/detect-silent-audio-tracks-in-vod-content-with-aws-elemental-mediaconvert/ */
     val SILENT_THRESHOLD = -50
@@ -87,13 +87,18 @@ object FfMpeg extends Logging {
           case (Some(db), _, _) =>
             db > SILENT_THRESHOLD /* We treat near-silence as no audio */
           case (None, None, Some(video)) =>
-            false /* Couldn't parse volume, audio streams are absent, but video streams are present. We assume from this that the video is silent */
+            false /* No volume reading and no audio stream, but a video stream is present. Treat as silent (no AudioOutput added to HLS group) */
           case (None, _, _) =>
-            true /* Couldn't parse volume and there are no audio or video streams, so we return true for safety*/
-        }
+            false /* No volume reading and no audio/video streams detected. Default to false so no empty AudioOutput is added to the HLS group */        }
       case _ =>
         log.error("FfMpeg audio detection failed")
-        true /* Audio detection failure is not a critical error, so we return true rather than throwing an exception */
+        /*
+        * Default to false on detection failure (rather than throwing).
+        * `hasAudio` decides whether an AudioOutput is added to the HLSOutputGroup
+        * (see HLSOutputGroup.scala).
+        * Default to false so no empty AudioOutput is added to the HLS group *
+        */
+        false
     }
   }
 
