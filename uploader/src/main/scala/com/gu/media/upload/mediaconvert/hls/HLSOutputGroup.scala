@@ -4,7 +4,8 @@ import com.gu.contentatom.thrift.atom.media.AssetType
 import com.gu.media.model.VideoSource
 import com.gu.media.upload.mediaconvert.{EncodingConfigs, OutputGroupDefinition}
 import software.amazon.awssdk.services.mediaconvert.model.{
-  HlsGroupSettings,
+  CmafGroupSettings,
+  CmafWriteDASHManifest,
   OutputGroup,
   OutputGroupSettings,
   OutputGroupType
@@ -13,14 +14,14 @@ import software.amazon.awssdk.services.mediaconvert.model.{
 object HLSOutputGroup {
   def apply(hasAudio: Boolean): OutputGroupDefinition = {
     val outputs = List(
-      VideoOutput(EncodingConfigs.MobileWidth, hasAudio),
-      VideoOutput(EncodingConfigs.Default, hasAudio),
-      VideoOutput(EncodingConfigs.LowQuality, hasAudio),
-      VideoOutput(EncodingConfigs.LowQualityMobileWidth, hasAudio),
-      VideoOutput(EncodingConfigs.VeryLowQuality, hasAudio),
-      VideoOutput(EncodingConfigs.VeryLowQualityMobileWidth, hasAudio),
+      VideoOutput(EncodingConfigs.MobileWidth),
+      VideoOutput(EncodingConfigs.Default),
+      VideoOutput(EncodingConfigs.LowQuality),
+      VideoOutput(EncodingConfigs.LowQualityMobileWidth),
+      VideoOutput(EncodingConfigs.VeryLowQuality),
+      VideoOutput(EncodingConfigs.VeryLowQualityMobileWidth),
       CaptionsOutput()
-    )
+    ) ++ (if (hasAudio) List(AudioOutput()) else Nil)
     OutputGroupDefinition(
       mimeType = Some(VideoSource.mimeTypeM3u8),
       assetType = Some(
@@ -30,17 +31,18 @@ object HLSOutputGroup {
       outputGroup = (destination: String) =>
         OutputGroup
           .builder()
-          .name("Apple HLS")
+          .name("CMAF HLS")
           .outputs(outputs.map(_.output()): _*)
           .outputGroupSettings(
             OutputGroupSettings
               .builder()
-              .`type`(OutputGroupType.HLS_GROUP_SETTINGS)
-              .hlsGroupSettings(
-                HlsGroupSettings
+              .`type`(OutputGroupType.CMAF_GROUP_SETTINGS)
+              .cmafGroupSettings(
+                CmafGroupSettings
                   .builder()
+                  .writeDashManifest(CmafWriteDASHManifest.DISABLED)
                   .segmentLength(10)
-                  .minSegmentLength(0)
+                  .fragmentLength(2)
                   .destination(destination)
                   .build()
               )

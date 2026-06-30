@@ -1,31 +1,27 @@
 package com.gu.media.upload.mediaconvert.hls
 
 import com.gu.media.model.VideoSource
-import com.gu.media.upload.mediaconvert.OutputDefinition
-import com.gu.media.upload.mediaconvert.SharedCodecSettings.{
-  aacAudioDescription,
-  h264Settings
-}
+import com.gu.media.upload.mediaconvert.SharedCodecSettings.h264Settings
+import com.gu.media.upload.mediaconvert.{EncodingConfig, OutputDefinition}
 import software.amazon.awssdk.services.mediaconvert.model._
-import com.gu.media.upload.mediaconvert.EncodingConfig
 
 object VideoOutput {
-  def apply(config: EncodingConfig, hasAudio: Boolean): OutputDefinition =
+  def apply(config: EncodingConfig): OutputDefinition =
     OutputDefinition(
       mimeType = Some(VideoSource.mimeTypeM3u8),
       assetType =
         None, // Not currently used as an asset, as the m3u8 playlist which combines this and subtitles is used instead
       output = () => {
-        val outputBuilder = Output
+        Output
           .builder()
           .containerSettings(
             ContainerSettings
               .builder()
-              .container(ContainerType.M3_U8)
-              .m3u8Settings(M3u8Settings.builder().build())
+              .container(ContainerType.CMFC)
+              .cmfcSettings(CmfcSettings.builder().build())
               .build()
           )
-          .nameModifier(s"hls${config.nameModifier}")
+          .nameModifier(config.nameModifier)
           .videoDescription(
             VideoDescription
               .builder()
@@ -54,11 +50,7 @@ object VideoOutput {
               )
               .build()
           )
-
-        if (hasAudio)
-          outputBuilder.audioDescriptions(aacAudioDescription).build()
-        else outputBuilder.build()
+          .build()
       }
     )
-
 }
