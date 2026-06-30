@@ -60,6 +60,7 @@ object FfMpeg extends Logging {
 
     val cmd =
       s"${ffmpegPath} -seekable 1 -i \"$video\" -filter:a volumedetect -f null /dev/null"
+    log.info(s"Running FfMpeg audio detection with command: $cmd")
     val exitCode = Process(cmd, cwd = None).!(
       ProcessLogger(stdout.append(_), ffMpegStdErrLogger.append)
     )
@@ -82,6 +83,11 @@ object FfMpeg extends Logging {
         val audioStream = findRegexMatch(audioStreamRegex, output)
         val videoStream = findRegexMatch(videoStreamRegex, output)
 
+        log.info(
+          s"FfMpeg audio detection succeeded. maxVolume=${maxVolume
+              .getOrElse("not found")}, audioStreamPresent=${audioStream.isDefined}, videoStreamPresent=${videoStream.isDefined}"
+        )
+
         (maxVolume, audioStream, videoStream) match {
 
           case (Some(db), _, _) =>
@@ -92,7 +98,9 @@ object FfMpeg extends Logging {
             true /* Couldn't parse volume and there are no audio or video streams, so we return true for safety*/
         }
       case _ =>
-        log.error("FfMpeg audio detection failed")
+        log.error(
+          s"FfMpeg audio detection failed (exit code: $exitCode). FfMpeg output:\n${ffMpegStdErrLogger.getOutput}"
+        )
         true /* Audio detection failure is not a critical error, so we return true rather than throwing an exception */
     }
   }
