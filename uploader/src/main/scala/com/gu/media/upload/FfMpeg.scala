@@ -85,11 +85,11 @@ object FfMpeg extends Logging {
         (maxVolume, audioStream, videoStream) match {
 
           case (Some(db), _, _) =>
-            db > SILENT_THRESHOLD /* We treat near-silence as no audio */
+            true
           case (None, None, Some(video)) =>
-            false /* No volume reading and no audio stream, but a video stream is present. Treat as silent (no AudioOutput added to HLS group) */
+            true
           case (None, _, _) =>
-            false /* No volume reading and no audio/video streams detected. Default to false so no empty AudioOutput is added to the HLS group */
+            true
         }
       case _ =>
         log.error("FfMpeg audio detection failed")
@@ -99,7 +99,7 @@ object FfMpeg extends Logging {
          * (see HLSOutputGroup.scala).
          * Default to false so no empty AudioOutput is added to the HLS group *
          */
-        false
+        true
     }
   }
 
