@@ -18,7 +18,7 @@ case class UploadMetadata(
     pluto: PlutoSyncMetadataMessage,
     iconikData: Option[IconikData],
     runtime: RuntimeUploadMetadata,
-    version: Option[Long] = None,
+    version: Long,
     selfHost: Boolean = false,
     asset: Option[VideoAsset] = None,
     originalFilename: Option[String] = None,
