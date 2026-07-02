@@ -61,6 +61,13 @@ class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
     command.firstFrameImageName(mp4Name) shouldBe expected
   }
 
+  "firstFrameImageName" should "return the name of the first frame image associated with an mp4 video that has a _480w & quality suffix" in {
+    val mp4Name =
+      "How_Trump_is_making_America_s_birthday_all_about_himself___video_--d5093b44-eecf-4a42-a2f5-fc187be09be7-2.1_480w_q8.mp4"
+    val expected =
+      "How_Trump_is_making_America_s_birthday_all_about_himself___video_--d5093b44-eecf-4a42-a2f5-fc187be09be7-2.1.0000000.jpg"
+    command.firstFrameImageName(mp4Name) shouldBe expected
+  }
   "autoFirstFrameImage" should "return the first frame of the requested video version, when there is no active video" in {
     val atom = mediaAtom(activeVersion = None)
     val newVersion: Long = 2L
