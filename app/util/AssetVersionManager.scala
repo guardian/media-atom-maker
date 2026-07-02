@@ -43,25 +43,29 @@ class AssetVersionManager(
     assetClaimSource: AssetClaimSource
 ) extends Logging {
 
-  case class VersionClaim(id: String, claimSource: AssetClaimSource)
-
-  object VersionClaim {
-    def fromAtomIdAndVersionNumber(
-        atomId: String,
-        version: Long
-    ): VersionClaim = {
-      VersionClaim(s"$atomId-$version", assetClaimSource)
-    }
-  }
+  case class VersionClaim(
+      id: String,
+      claimSource: AssetClaimSource,
+      claimedAtTimestamp: Long, // Unix timestamp in milliseconds
+      claimedByUser: String,
+      originalFilename: Option[String]
+  )
 
   @tailrec
   final def claimThisOrNextAvailableVersion(
       atomId: String,
-      version: Long
+      version: Long,
+      userEmail: String,
+      originalFilename: Option[String]
   ): Long = {
     val assetsTable = Table[VersionClaim](awsConfig.assetsTableName)
-    val claim =
-      VersionClaim.fromAtomIdAndVersionNumber(atomId, version)
+    val claim = VersionClaim(
+      id = s"$atomId-$version",
+      claimSource = assetClaimSource,
+      claimedAtTimestamp = System.currentTimeMillis(),
+      claimedByUser = userEmail,
+      originalFilename = originalFilename
+    )
     val assetsResult = awsConfig.scanamo.exec(
       assetsTable.when(attributeNotExists("id")).put(claim)
     )
@@ -69,12 +73,22 @@ class AssetVersionManager(
     assetsResult match {
       case Right(_) => version
       case Left(ConditionNotMet(_)) =>
-        claimThisOrNextAvailableVersion(atomId, version + 1)
+        claimThisOrNextAvailableVersion(
+          atomId = atomId,
+          version = version + 1,
+          userEmail = userEmail,
+          originalFilename = originalFilename
+        )
       case Left(_) =>
         log.warn(
           s"Unexpected error claiming version $version for atom $atomId. Retrying with next version."
         )
-        claimThisOrNextAvailableVersion(atomId, version + 1)
+        claimThisOrNextAvailableVersion(
+          atomId = atomId,
+          version = version + 1,
+          userEmail = userEmail,
+          originalFilename = originalFilename
+        )
     }
   }
 

@@ -119,12 +119,17 @@ class UploadController(
       )
       val thriftAtom = getPreviewAtom(req.atomId)
       val atom = MediaAtom.fromThrift(thriftAtom)
+
+      val userEmail = raw.user.email
+
       val assetVersion = assetVersionManager.claimThisOrNextAvailableVersion(
-        atom.id,
-        MediaAtomHelpers.getNextAssetVersion(thriftAtom.tdata)
+        atomId = atom.id,
+        version = MediaAtomHelpers.getNextAssetVersion(thriftAtom.tdata),
+        userEmail = userEmail,
+        originalFilename = Some(req.filename)
       )
 
-      val upload = start(atom, raw.user.email, req, assetVersion)
+      val upload = start(atom, userEmail, req, assetVersion)
 
       log.info(
         s"Upload created under atom ${req.atomId}. upload=${upload.id}. parts=${upload.parts.size}, selfHosted=${upload.metadata.selfHost}"
@@ -238,16 +243,28 @@ class UploadController(
 
     upload
   } catch {
-    case _: ExecutionAlreadyExistsException =>
+    /** @todo
+      *   once the new asset version claim mechanism has been live long enough
+      *   for any existing executions to have been flushed through, we should be
+      *   able to remove this path, and then `start()` will no longer need to be
+      *   recursive.
+      */
+    case _: ExecutionAlreadyExistsException => {
+      log.warn(
+        s"Execution already exists for atom ${atom.id} version ${assetVersion}. Trying next available version. NB. This should not happen unless the backfill script has failed, or an upload was started during the backfill process."
+      )
       start(
         atom,
         email,
         req,
         assetVersionManager.claimThisOrNextAvailableVersion(
           atom.id,
-          assetVersion
+          assetVersion,
+          userEmail = email,
+          originalFilename = Some(req.filename)
         )
       )
+    }
   }
 
   /** re-run an existing upload through the state machine to reprocess the video

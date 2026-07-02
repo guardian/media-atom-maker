@@ -56,6 +56,7 @@ fi
 
 CACHE_TABLE="media-atom-pipeline-cache-${STAGE}"
 ASSETS_TABLE="media-atom-maker-${STAGE}-atom-assets"
+NOW_MS=$(( $(date +%s) * 1000 ))
 
 echo "Cache table:  ${CACHE_TABLE}"
 echo "Assets table: ${ASSETS_TABLE}"
@@ -141,10 +142,27 @@ process_page() {
       continue
     fi
 
+    local original_filename
+    original_filename=$(echo "$page_json" | jq -r ".Items[$i].metadata.M.originalFilename.S // empty")
+
+    local start_timestamp
+    start_timestamp=$(echo "$page_json" | jq -r ".Items[$i].metadata.M.startTimestamp.N // empty")
+    local claim_timestamp=${start_timestamp:-$NOW_MS}
+
     # Build item JSON safely with jq to prevent injection
     local item_json
-    item_json=$(jq -n --arg id "$claim_id" \
-      '{PutRequest:{Item:{id:{S:$id},claimSource:{S:"UploadPipeline"}}}}')
+    item_json=$(jq -n \
+      --arg id "$claim_id" \
+      --argjson ts "$claim_timestamp" \
+      --arg fn "$original_filename" \
+      '{
+        PutRequest: {
+          Item: (
+            {id:{S:$id}, claimSource:{S:"UploadPipeline"}, claimedAtTimestamp:{N:($ts|tostring)}, claimedByUser:{S:"backfill"}}
+            | if $fn != "" then . + {originalFilename:{S:$fn}} else . end
+          )
+        }
+      }')
     batch_items+=("$item_json")
 
     if [[ ${#batch_items[@]} -ge $BATCH_SIZE ]]; then
@@ -188,7 +206,8 @@ while true; do
     --table-name "$CACHE_TABLE"
     --region "$REGION"
     --profile "$PROFILE"
-    --projection-expression "id"
+    --projection-expression "id, #m.originalFilename, #m.startTimestamp"
+    --expression-attribute-names '{"#m":"metadata"}'
     --page-size "$PAGE_SIZE"
     --max-items "$PAGE_SIZE"
   )

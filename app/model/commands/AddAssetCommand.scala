@@ -82,8 +82,10 @@ case class AddAssetCommand(
   ) = {
     val version =
       assetVersionManager.claimThisOrNextAvailableVersion(
-        atom.id,
-        MediaAtomHelpers.getNextAssetVersion(mediaAtom)
+        atomId = atom.id,
+        version = MediaAtomHelpers.getNextAssetVersion(mediaAtom),
+        userEmail = user.email,
+        originalFilename = None
       )
 
     val newAsset = ThriftUtil
