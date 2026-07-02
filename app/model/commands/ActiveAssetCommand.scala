@@ -75,8 +75,7 @@ case class ActiveAssetCommand(
     val baseName =
       mp4Name
         .stripSuffix(".mp4")
-        .replaceAll("_(\\d+)(h|w)$", "")
-
+        .replaceAll("_(\\d+)(h|w)(_q\\d+)?$", "")
     baseName + VideoSource.firstFrameImageSuffix
   }
 
