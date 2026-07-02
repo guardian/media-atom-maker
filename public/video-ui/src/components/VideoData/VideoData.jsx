@@ -149,9 +149,9 @@ export default class VideoData extends React.Component {
             </ManagedField>
         }
         {
-          <ManagedField
+          video.platform !== 'Youtube' && <ManagedField
             fieldLocation="atomTagIds"
-            name="Tags (self-hosted video)"
+            name="Tags"
             formRowClass="form__row__byline"
             isDesired={mustHaveTags}
             isRequired={false}
