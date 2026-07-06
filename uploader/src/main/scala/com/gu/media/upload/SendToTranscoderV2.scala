@@ -38,7 +38,7 @@ class SendToTranscoderV2
     val key = TranscoderOutputKey(
       upload.metadata.title,
       upload.metadata.pluto.atomId,
-      upload.metadata.version.getOrElse(1L),
+      upload.metadata.version,
       upload.metadata.subtitleVersion.getOrElse(0L),
       None,
       Instant.ofEpochMilli(upload.metadata.startTimestamp)
