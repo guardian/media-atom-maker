@@ -149,16 +149,20 @@ process_page() {
     start_timestamp=$(echo "$page_json" | jq -r ".Items[$i].metadata.M.startTimestamp.N // empty")
     local claim_timestamp=${start_timestamp:-$NOW_MS}
 
+    local claimed_by_user
+    claimed_by_user=$(echo "$page_json" | jq -r ".Items[$i].metadata.M.user.S // empty")
+
     # Build item JSON safely with jq to prevent injection
     local item_json
     item_json=$(jq -n \
       --arg id "$claim_id" \
       --argjson ts "$claim_timestamp" \
       --arg fn "$original_filename" \
+      --arg claimed_by_user "$claimed_by_user" \
       '{
         PutRequest: {
           Item: (
-            {id:{S:$id}, claimSource:{S:"UploadPipeline"}, claimedAtTimestamp:{N:($ts|tostring)}, claimedByUser:{S:"backfill"}}
+            {id:{S:$id}, claimSource:{S:"UploadPipeline"}, claimedAtTimestamp:{N:($ts|tostring)}, claimedByUser:{S:$claimed_by_user}}
             | if $fn != "" then . + {originalFilename:{S:$fn}} else . end
           )
         }
@@ -206,8 +210,8 @@ while true; do
     --table-name "$CACHE_TABLE"
     --region "$REGION"
     --profile "$PROFILE"
-    --projection-expression "id, #m.originalFilename, #m.startTimestamp"
-    --expression-attribute-names '{"#m":"metadata"}'
+    --projection-expression "id, #m.originalFilename, #m.startTimestamp, #m.#u"
+    --expression-attribute-names '{"#m":"metadata","#u":"user"}'
     --page-size "$PAGE_SIZE"
     --max-items "$PAGE_SIZE"
   )
