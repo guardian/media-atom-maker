@@ -9,7 +9,7 @@ import {
 } from '../../slices/s3Upload';
 import { selectVideo } from '../../slices/video';
 import { AppDispatch } from '../../util/setupStore';
-import DeleteButton from '../DeleteButton';
+import { DeleteButton } from '../DeleteButton';
 import Icon, { SubtitlesIcon } from '../Icon';
 import { VideoEmbed } from '../utils/VideoEmbed';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
