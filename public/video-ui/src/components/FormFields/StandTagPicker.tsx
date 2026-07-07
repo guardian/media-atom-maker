@@ -3,16 +3,16 @@ import { useSelector } from 'react-redux';
 import { TagAutocomplete, TagTable } from '@guardian/stand/tag-picker';
 import type { Tag } from '../../services/tagmanager';
 import { getTagByPath, getTagsByType } from '../../services/tagmanager';
-import BinSvg from "../../../images/bin.svg?react";
+import BinSvg from '../../../images/bin.svg?react';
 import FieldNotification from '../../constants/FieldNotification';
-import debounce from "lodash/debounce";
+import debounce from 'lodash/debounce';
 import { ConfigState } from '../../util/config';
 
 export type StandTagPickerFilter = {
   displayLabel: string;
   tagTypes: string[];
   tagSubType?: string;
-}
+};
 
 export type VideoTag = {
   id: number;
@@ -57,33 +57,29 @@ const fallbackVideoTagFromString = (tagPath: string): VideoTag => {
   };
 };
 
-const videoTagsFromStringList = (tagPaths: string[], tagManagerUrl?: string): Promise<VideoTag[]> => {
+const videoTagsFromStringList = (
+  tagPaths: string[],
+  tagManagerUrl?: string
+): Promise<VideoTag[]> => {
   if (tagManagerUrl) {
     return Promise.all(
       tagPaths.map(tagPath => {
-        return getTagByPath(tagManagerUrl, tagPath)
-          .then(tag => {
-            if (tag) {
-              return videoTagFromTagManager(tag);
-            }
-            else {
-              // If the tag doesn't exist in the tag manager, we create a fallback VideoTag with the path as the name
-              // and a pseudo ID. This way we can still display the tag in the UI and keep the tag in
-              // the atom's tag list until users explicitly remove it.
-              return fallbackVideoTagFromString(tagPath);
-            }
-          });
+        return getTagByPath(tagManagerUrl, tagPath).then(tag => {
+          if (tag) {
+            return videoTagFromTagManager(tag);
+          } else {
+            // If the tag doesn't exist in the tag manager, we create a fallback VideoTag with the path as the name
+            // and a pseudo ID. This way we can still display the tag in the UI and keep the tag in
+            // the atom's tag list until users explicitly remove it.
+            return fallbackVideoTagFromString(tagPath);
+          }
+        });
       })
     );
-  }
-  else {
-    return Promise.resolve(
-      tagPaths.map(fallbackVideoTagFromString)
-    );
+  } else {
+    return Promise.resolve(tagPaths.map(fallbackVideoTagFromString));
   }
 };
-
-
 
 const nonEditableUiTheme = {
   row: {
@@ -136,17 +132,21 @@ const editableUiTheme = {
   }
 };
 
-const tagPickerContainerStyle = { display: 'flex', alignItems: 'stretch', gap: '8px', marginBottom: '8px' };
-
-const tagPickerDropdownStyle = {
-  border: "1px solid #BDBDBD",
-  backgroundColor: "#393939",
-  color: "inherit",
-  font: "inherit",
-  paddingLeft: "8px",
-  paddingRight: "8px"
+const tagPickerContainerStyle = {
+  display: 'flex',
+  alignItems: 'stretch',
+  gap: '8px',
+  marginBottom: '8px'
 };
 
+const tagPickerDropdownStyle = {
+  border: '1px solid #BDBDBD',
+  backgroundColor: '#393939',
+  color: 'inherit',
+  font: 'inherit',
+  paddingLeft: '8px',
+  paddingRight: '8px'
+};
 
 interface StandTagPickerProps {
   tagTypes: string[];
@@ -159,15 +159,19 @@ interface StandTagPickerProps {
   editable: boolean;
   onUpdateField: (newValue: string[]) => void | Promise<void>;
   placeholder?: string;
-  hasError: (prop: {notification: FieldNotification | undefined}) => boolean;
-  hasWarning: (prop: {notification: FieldNotification | undefined}) => boolean;
+  hasError: (prop: { notification: FieldNotification | undefined }) => boolean;
+  hasWarning: (prop: {
+    notification: FieldNotification | undefined;
+  }) => boolean;
 
   // it is set by validation logic in the parent component
   notification?: FieldNotification;
 }
 
-
-const isFieldValueChanged = (fieldValue: string[], selectedTags: VideoTag[]) => {
+const isFieldValueChanged = (
+  fieldValue: string[],
+  selectedTags: VideoTag[]
+) => {
   if (fieldValue.length !== selectedTags.length) {
     return true;
   }
@@ -179,45 +183,76 @@ const isFieldValueChanged = (fieldValue: string[], selectedTags: VideoTag[]) => 
   return false;
 };
 
-const StandTagPicker = ({ tagTypes, allowTags, filterOptions: filters, fieldName, fieldValue, editable, onUpdateField, placeholder, hasError, hasWarning, notification }: StandTagPickerProps) => {
-
+const StandTagPicker = ({
+  tagTypes,
+  allowTags,
+  filterOptions: filters,
+  fieldName,
+  fieldValue,
+  editable,
+  onUpdateField,
+  placeholder,
+  hasError,
+  hasWarning,
+  notification
+}: StandTagPickerProps) => {
   const [selectedTags, setSelectedTags] = useState<VideoTag[]>([]);
   const [options, setOptions] = useState<VideoTag[]>([]);
   const [value, setValue] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState<StandTagPickerFilter | undefined>(filters?.[0]);
+  const [selectedFilter, setSelectedFilter] = useState<
+    StandTagPickerFilter | undefined
+  >(filters?.[0]);
   const [isLoading, setIsLoading] = useState(false);
   const [tagSearchError, setTagSearchError] = useState<boolean>(false);
 
-  const tagManagerUrl = useSelector((state: {config: ConfigState}) => state.config.tagManagerUrl);
+  const tagManagerUrl = useSelector(
+    (state: { config: ConfigState }) => state.config.tagManagerUrl
+  );
 
-  const searchTags = useCallback((inputText: string, selectedTags: VideoTag[], filter?: StandTagPickerFilter) => {
-    if (tagManagerUrl) {
-      const activeTagTypes = filter?.tagTypes ?? tagTypes;
-      const activeSubType = filter?.tagSubType;
-      const filterTag = (tag: VideoTag) => (
-        (allowTags ? allowTags(tag) : true) &&
-        !selectedTags.some((selectedTag) => selectedTag.path === tag.path)
-      );
-      getTagsByType(tagManagerUrl, inputText, activeTagTypes, activeSubType)
-        .then(response => {
-          const tags = response.data
-            .map((tagItem) => tagItem.data)
-            .filter((tag) => !tag.deprecated)
-            .map(videoTagFromTagManager)
-            .filter(filterTag);
-          setTagSearchError(false);
-          setOptions(tags);
-        })
-        .catch(() => {
-          setTagSearchError(true);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }
-  }, [tagManagerUrl, tagTypes, allowTags, setIsLoading, setTagSearchError, setOptions]);
+  const searchTags = useCallback(
+    (
+      inputText: string,
+      selectedTags: VideoTag[],
+      filter?: StandTagPickerFilter
+    ) => {
+      if (tagManagerUrl) {
+        const activeTagTypes = filter?.tagTypes ?? tagTypes;
+        const activeSubType = filter?.tagSubType;
+        const filterTag = (tag: VideoTag) =>
+          (allowTags ? allowTags(tag) : true) &&
+          !selectedTags.some(selectedTag => selectedTag.path === tag.path);
+        getTagsByType(tagManagerUrl, inputText, activeTagTypes, activeSubType)
+          .then(response => {
+            const tags = response.data
+              .map(tagItem => tagItem.data)
+              .filter(tag => !tag.deprecated)
+              .map(videoTagFromTagManager)
+              .filter(filterTag);
+            setTagSearchError(false);
+            setOptions(tags);
+          })
+          .catch(() => {
+            setTagSearchError(true);
+          })
+          .finally(() => {
+            setIsLoading(false);
+          });
+      }
+    },
+    [
+      tagManagerUrl,
+      tagTypes,
+      allowTags,
+      setIsLoading,
+      setTagSearchError,
+      setOptions
+    ]
+  );
 
-  const debouncedSearchTags = useMemo(() => debounce(searchTags, 500), [searchTags]);
+  const debouncedSearchTags = useMemo(
+    () => debounce(searchTags, 500),
+    [searchTags]
+  );
 
   const onTextInputChange = (inputText: string) => {
     setValue(inputText);
@@ -254,14 +289,14 @@ const StandTagPicker = ({ tagTypes, allowTags, filterOptions: filters, fieldName
   };
 
   const onTagAdded = (tag: VideoTag) => {
-    if (! selectedTags.some((t) => t.path === tag.path)) {
+    if (!selectedTags.some(t => t.path === tag.path)) {
       const newTags = [...selectedTags, tag];
       onUpdate(newTags);
     }
   };
 
   const onTagRemoved = (tag: VideoTag) => {
-    const index = selectedTags.findIndex((t) => t.path === tag.path);
+    const index = selectedTags.findIndex(t => t.path === tag.path);
     if (index !== -1) {
       const newTags = [...selectedTags];
       newTags.splice(index, 1);
@@ -272,10 +307,9 @@ const StandTagPicker = ({ tagTypes, allowTags, filterOptions: filters, fieldName
   useEffect(() => {
     if (fieldValue) {
       if (isFieldValueChanged(fieldValue, selectedTags)) {
-        videoTagsFromStringList(fieldValue, tagManagerUrl)
-          .then(tags => {
-            setSelectedTags(tags);
-          });
+        videoTagsFromStringList(fieldValue, tagManagerUrl).then(tags => {
+          setSelectedTags(tags);
+        });
       }
     }
   }, [fieldValue, selectedTags, tagManagerUrl]);
@@ -333,7 +367,9 @@ const StandTagPicker = ({ tagTypes, allowTags, filterOptions: filters, fieldName
             {filters && filters.length > 0 && (
               <select style={tagPickerDropdownStyle} onChange={onFilterChange}>
                 {filters.map((filter, index) => (
-                  <option key={filter.displayLabel} value={index}>{filter.displayLabel}</option>
+                  <option key={filter.displayLabel} value={index}>
+                    {filter.displayLabel}
+                  </option>
                 ))}
               </select>
             )}
@@ -343,7 +379,7 @@ const StandTagPicker = ({ tagTypes, allowTags, filterOptions: filters, fieldName
               <TagTable
                 rows={selectedTags}
                 filterRows={() => true}
-                removeIcon={<BinSvg color="#DCDCDC"/>}
+                removeIcon={<BinSvg color="#DCDCDC" />}
                 showTagType={true}
                 showTagSectionName={true}
                 onReorder={onUpdate}
@@ -352,21 +388,25 @@ const StandTagPicker = ({ tagTypes, allowTags, filterOptions: filters, fieldName
               />
             </div>
           )}
-          {hasWarning({notification})
-            ? <p className="form__message form__message--warning">
-              {notification?.message}
-              </p>
-            : ''}
-          {hasError({notification})
-            ? <p className="form__message form__message--error">
+          {hasWarning({ notification }) ? (
+            <p className="form__message form__message--warning">
               {notification?.message}
             </p>
-            : ''}
+          ) : (
+            ''
+          )}
+          {hasError({ notification }) ? (
+            <p className="form__message form__message--error">
+              {notification?.message}
+            </p>
+          ) : (
+            ''
+          )}
         </>
       )}
       {!editable && renderReadOnly()}
     </>
   );
- };
+};
 
- export default StandTagPicker;
+export default StandTagPicker;

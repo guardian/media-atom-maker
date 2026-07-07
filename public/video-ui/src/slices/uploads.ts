@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import {ClientAsset, Upload} from './s3Upload';
+import { ClientAsset, Upload } from './s3Upload';
 import * as UploadsApi from '../services/UploadsApi';
 import { showError } from './error';
 import { errorDetails } from '../util/errorDetails';

@@ -1,8 +1,8 @@
 import VideosApi from '../../services/VideosApi';
 import { getVideo } from './getVideo';
-import {setAddingAsset, setAssets} from "../../slices/video";
-import { showError } from "../../slices/error";
-import { getUploads } from "../../slices/uploads";
+import { setAddingAsset, setAssets } from '../../slices/video';
+import { showError } from '../../slices/error';
+import { getUploads } from '../../slices/uploads';
 
 export function createAsset(asset, video) {
   return dispatch => {
@@ -14,6 +14,8 @@ export function createAsset(asset, video) {
         dispatch(getUploads(video.id));
         dispatch(getVideo(video.id));
       })
-      .catch(error => dispatch(showError(`Could not create asset. ${error.response}`, error)));
+      .catch(error =>
+        dispatch(showError(`Could not create asset. ${error.response}`, error))
+      );
   };
 }

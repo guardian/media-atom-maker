@@ -31,7 +31,11 @@ const defaultVideoAsset: VideoAsset = {
 const store = setupStore();
 store.dispatch(
   setConfig({
-    permissions: { deleteAtom: true, setVideosOnAllChannelsPublic: true, pinboard: true }
+    permissions: {
+      deleteAtom: true,
+      setVideosOnAllChannelsPublic: true,
+      pinboard: true
+    }
   })
 );
 store.dispatch(

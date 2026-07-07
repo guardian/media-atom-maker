@@ -3,7 +3,8 @@ import React from 'react';
 export default class CheckBox extends React.Component {
   renderCheckbox() {
     const checked =
-      !!this.props.fieldValue && this.props.fieldValue !== this.props.placeholder;
+      !!this.props.fieldValue &&
+      this.props.fieldValue !== this.props.placeholder;
 
     return (
       <div>
@@ -23,7 +24,10 @@ export default class CheckBox extends React.Component {
 
   render() {
     return (
-      <div data-tip={this.props.editable ? this.props.tooltip : ""} data-place="top">
+      <div
+        data-tip={this.props.editable ? this.props.tooltip : ''}
+        data-place="top"
+      >
         <p className="details-list__title">{this.props.fieldName}</p>
         <div className="details-list__labeled-filter">
           {this.renderCheckbox()}

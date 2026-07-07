@@ -9,11 +9,7 @@ export class WorkflowTab extends React.Component {
   static tabsRole = Tab.tabsRole;
 
   render() {
-    return (
-      <Tab {...this.props}>
-        Workflow
-      </Tab>
-    );
+    return <Tab {...this.props}>Workflow</Tab>;
   }
 }
 

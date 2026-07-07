@@ -29,7 +29,10 @@ class EditSaveCancel extends React.Component {
 
     return (
       <button onClick={onSave} disabled={!canSave()}>
-        <Icon icon="save" className={`icon__done ${canSave() ? '' : 'disabled'}`}>
+        <Icon
+          icon="save"
+          className={`icon__done ${canSave() ? '' : 'disabled'}`}
+        >
           Save changes
         </Icon>
       </button>
@@ -41,7 +44,12 @@ class EditSaveCancel extends React.Component {
 
     return (
       <button onClick={onCancel} disabled={canCancel ? !canCancel() : false}>
-        <Icon icon="cancel" className={`icon__cancel ${canCancel ? (canCancel() ? '' : 'disabled') : ''}`}>Cancel</Icon>
+        <Icon
+          icon="cancel"
+          className={`icon__cancel ${canCancel ? (canCancel() ? '' : 'disabled') : ''}`}
+        >
+          Cancel
+        </Icon>
       </button>
     );
   }

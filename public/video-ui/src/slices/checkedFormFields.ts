@@ -1,19 +1,25 @@
-import { createSlice,  PayloadAction } from '@reduxjs/toolkit';
-import FieldNotification from "../constants/FieldNotification";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import FieldNotification from '../constants/FieldNotification';
 
-export type CheckedFormFieldsState = Record<string, Record<string, FieldNotification>>;
+export type CheckedFormFieldsState = Record<
+  string,
+  Record<string, FieldNotification>
+>;
 
-type UpdateCheckedFormFieldsAction = PayloadAction<CheckedFormFieldsState>
+type UpdateCheckedFormFieldsAction = PayloadAction<CheckedFormFieldsState>;
 
-const initialState : CheckedFormFieldsState = {};
+const initialState: CheckedFormFieldsState = {};
 const checkedFormFields = createSlice({
   name: 'checkedFormFields',
   initialState,
   reducers: {
-    updateFormErrors(state: CheckedFormFieldsState, action: UpdateCheckedFormFieldsAction) {
+    updateFormErrors(
+      state: CheckedFormFieldsState,
+      action: UpdateCheckedFormFieldsAction
+    ) {
       const formName = Object.keys(action.payload)[0];
       const newFormErrors = action.payload[formName];
-      const currentFormErrors =  state[formName] || {};
+      const currentFormErrors = state[formName] || {};
       state[formName] = { ...currentFormErrors, ...newFormErrors };
     }
   }

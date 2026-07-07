@@ -94,13 +94,11 @@ export const VideoUpload = (props: { params: { id: string } }) => {
                 <PlutoProjectPicker video={store.video} />
               </div>
             </div>
-            {
-              /*
+            {/*
                 Note for legacy videos where the platform is not set at the atom level,
                 we will show both upload options.
-              */
-            }
-            {store.video.platform !== 'Url' &&
+              */}
+            {store.video.platform !== 'Url' && (
               <>
                 <YoutubeUpload
                   video={store.video}
@@ -115,14 +113,14 @@ export const VideoUpload = (props: { params: { id: string } }) => {
                   createAsset={bindActionCreators(createAsset, dispatch)}
                 />
               </>
-            }
-            {store.video.platform !== 'Youtube' &&
+            )}
+            {store.video.platform !== 'Youtube' && (
               <AddSelfHostedAsset
                 video={store.video}
                 isUploading={isUploading}
                 startUpload={bindActionCreators(startVideoUpload, dispatch)}
               />
-            }
+            )}
           </div>
           <VideoTrail
             video={store.video}

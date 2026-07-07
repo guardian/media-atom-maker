@@ -1,8 +1,7 @@
-import {apiRequest} from './apiRequest';
-import {errorDetails} from '../util/errorDetails';
-import {S3} from '@aws-sdk/client-s3';
-import { XhrHttpHandler } from "@aws-sdk/xhr-http-handler";
-
+import { apiRequest } from './apiRequest';
+import { errorDetails } from '../util/errorDetails';
+import { S3 } from '@aws-sdk/client-s3';
+import { XhrHttpHandler } from '@aws-sdk/xhr-http-handler';
 
 // TO DO - convert to typescript, use definition of `Upload` at public/video-ui/src/components/VideoUpload/VideoAsset.tsx
 
@@ -88,17 +87,16 @@ function uploadPart(upload, part, file, progressFn) {
   const slice = file.slice(part.start, part.end);
 
   return getCredentials(upload.id, part.key).then(credentials => {
-    const s3 = getS3(
-      upload.metadata.region,
-      credentials
-    );
+    const s3 = getS3(upload.metadata.region, credentials);
 
-    const request = slice.arrayBuffer().then(body => s3.putObject({
-      Bucket: upload.metadata.bucket,
-      Key: part.key,
-      Metadata: { original: file.name },
-      Body: body
-    }));
+    const request = slice.arrayBuffer().then(body =>
+      s3.putObject({
+        Bucket: upload.metadata.bucket,
+        Key: part.key,
+        Metadata: { original: file.name },
+        Body: body
+      })
+    );
 
     request.then(() => {
       progressFn(part.end);

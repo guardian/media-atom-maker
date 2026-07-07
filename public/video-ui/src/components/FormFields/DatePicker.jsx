@@ -93,8 +93,9 @@ function Editor({ date, onChange, fieldName, canCancel, dayOnly }) {
   return (
     <div>
       {fieldName && <label className="form__label">{fieldName}</label>}
-      <p className="form__message form__message--display" >
-        Expiring the video will make it private for viewing in Youtube, so it will not be available in the video page.
+      <p className="form__message form__message--display">
+        Expiring the video will make it private for viewing in Youtube, so it
+        will not be available in the video page.
       </p>
       <div className="expiry-date-picker">
         <div className="expiry-date-picker__date">
@@ -124,7 +125,9 @@ function Editor({ date, onChange, fieldName, canCancel, dayOnly }) {
 
 function Display({ date, placeholder, fieldName }) {
   const dateMoment = moment(date);
-  const displayString = date ? dateMoment.format(MOMENT_DATETIME_FORMAT) : placeholder;
+  const displayString = date
+    ? dateMoment.format(MOMENT_DATETIME_FORMAT)
+    : placeholder;
   const fieldClassName = () =>
     'details-list__field' + (!date ? ' details-list__empty' : '');
 
@@ -146,7 +149,9 @@ export default function CustomDatePicker({
   canCancel = true
 }) {
   const date =
-    fieldValue && fieldValue !== placeholder ? moment(fieldValue).valueOf() : null;
+    fieldValue && fieldValue !== placeholder
+      ? moment(fieldValue).valueOf()
+      : null;
   if (editable) {
     return (
       <Editor

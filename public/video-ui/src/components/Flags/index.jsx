@@ -4,7 +4,7 @@ import { ManagedField, ManagedForm } from '../ManagedForm';
 import CheckBox from '../FormFields/CheckBox';
 import VideoUtils from '../../util/video';
 import { formNames } from '../../constants/formNames';
-import {addOrDropBundlingTags} from "../../services/KeywordsApi";
+import { addOrDropBundlingTags } from '../../services/KeywordsApi';
 
 class Flags extends React.Component {
   static propTypes = {
@@ -19,20 +19,17 @@ class Flags extends React.Component {
     const { video, updateVideo } = this.props;
 
     const fullTags = addOrDropBundlingTags({
-      keywords: video.keywords, tags: video.tags, blockAds: video.blockAds
+      keywords: video.keywords,
+      tags: video.tags,
+      blockAds: video.blockAds
     });
     const newVideo = Object.assign({}, video, { tags: fullTags });
     updateVideo(newVideo);
   };
 
   render() {
-    const {
-      video,
-      editable,
-      updateVideo,
-      updateErrors,
-      updateWarnings
-    } = this.props;
+    const { video, editable, updateVideo, updateErrors, updateWarnings } =
+      this.props;
 
     const isCommercialType = VideoUtils.isCommercialType(video);
     const isEligibleForAds = VideoUtils.isEligibleForAds(video);
@@ -49,8 +46,7 @@ class Flags extends React.Component {
         formName={formNames.flags}
         formClass="atom__edit__form"
       >
-        {
-          canHaveComposerPage &&
+        {canHaveComposerPage && (
           <ManagedField
             fieldLocation="blockAds"
             name="Block ads"
@@ -64,10 +60,10 @@ class Flags extends React.Component {
             tooltip={!isEligibleForAds ? `Not eligible for pre-roll.` : ''}
           >
             {/* use a different field identifier to `fieldLocation` to ensure ad blockers don't remove it from the DOM */}
-            <CheckBox fieldId="what-a-time-to-be-alive"/>
+            <CheckBox fieldId="what-a-time-to-be-alive" />
           </ManagedField>
-        }
-        { canHaveComposerPage &&
+        )}
+        {canHaveComposerPage && (
           <ManagedField
             fieldLocation="composerCommentsEnabled"
             name="Comments"
@@ -75,8 +71,8 @@ class Flags extends React.Component {
           >
             <CheckBox />
           </ManagedField>
-        }
-        { canHaveComposerPage &&
+        )}
+        {canHaveComposerPage && (
           <ManagedField
             fieldLocation="optimisedForWeb"
             name="Optimised for Web"
@@ -84,7 +80,7 @@ class Flags extends React.Component {
           >
             <CheckBox />
           </ManagedField>
-        }
+        )}
         <ManagedField
           fieldLocation="sensitive"
           name="Sensitive"
@@ -99,7 +95,7 @@ class Flags extends React.Component {
         >
           <CheckBox />
         </ManagedField>
-        { canHaveComposerPage &&
+        {canHaveComposerPage && (
           <ManagedField
             fieldLocation="suppressRelatedContent"
             name="Suppress related content"
@@ -107,7 +103,7 @@ class Flags extends React.Component {
           >
             <CheckBox />
           </ManagedField>
-        }
+        )}
       </ManagedForm>
     );
   }

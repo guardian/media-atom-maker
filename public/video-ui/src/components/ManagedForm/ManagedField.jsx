@@ -3,9 +3,9 @@ import { PropTypes } from 'prop-types';
 import _get from 'lodash/fp/get';
 import _set from 'lodash/fp/set';
 import validateField from '../../util/validateField';
-import {getTextFromHtml} from '../../util/getTextFromHtml';
+import { getTextFromHtml } from '../../util/getTextFromHtml';
 import FieldNotification from '../../constants/FieldNotification';
-import {fieldsWithHtml} from '../../constants/fieldsWithHtml';
+import { fieldsWithHtml } from '../../constants/fieldsWithHtml';
 import RequiredForComposer from '../../constants/requiredForComposer';
 import RequiredForDefaultVideo from '../../constants/requiredForDefaultVideo';
 
@@ -49,13 +49,16 @@ export class ManagedField extends React.Component {
   }
 
   checkErrorsAndWarnings(value) {
-
     if (value && fieldsWithHtml.includes(this.props.fieldLocation)) {
       value = getTextFromHtml(value);
     }
 
-    const composerValidation = RequiredForComposer.fields.includes(this.props.fieldLocation);
-    const defaultVideoValidation = RequiredForDefaultVideo.fields.includes(this.props.fieldLocation);
+    const composerValidation = RequiredForComposer.fields.includes(
+      this.props.fieldLocation
+    );
+    const defaultVideoValidation = RequiredForDefaultVideo.fields.includes(
+      this.props.fieldLocation
+    );
 
     const notification = validateField(
       value,
@@ -80,7 +83,11 @@ export class ManagedField extends React.Component {
       // the slice "formFieldWarnings" in the store, which is used in the "Header" component to decide
       // whether a composer page can be created. It assumes that all warnings in the slice come from
       // composer related fields.
-      if (notification && notification.type === FieldNotification.warning && composerValidation) {
+      if (
+        notification &&
+        notification.type === FieldNotification.warning &&
+        composerValidation
+      ) {
         this.props.updateWarnings(true, this.props.fieldLocation);
       } else {
         this.props.updateWarnings(false, this.props.fieldLocation);
@@ -99,13 +106,19 @@ export class ManagedField extends React.Component {
 
     this.checkErrorsAndWarnings(newValue);
 
-    return this.props.updateData(
-      _set(this.props.fieldLocation, newValue === '' ? null : newValue, this.props.data)
-    ).then(() => {
-      if (this.props.updateSideEffects) {
-        return this.props.updateSideEffects(this.props.data);
-      }
-    });
+    return this.props
+      .updateData(
+        _set(
+          this.props.fieldLocation,
+          newValue === '' ? null : newValue,
+          this.props.data
+        )
+      )
+      .then(() => {
+        if (this.props.updateSideEffects) {
+          return this.props.updateSideEffects(this.props.data);
+        }
+      });
   };
 
   getFieldValue(value) {

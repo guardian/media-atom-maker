@@ -1,4 +1,4 @@
-import { Store } from "./setupStore";
+import { Store } from './setupStore';
 
 let savedStore: Store;
 

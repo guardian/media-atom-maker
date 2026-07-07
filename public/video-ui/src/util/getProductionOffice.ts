@@ -1,6 +1,14 @@
 import moment from 'moment';
 
-const isBetween = ({ value, lower, upper }: {value: number, lower: number, upper: number}) => {
+const isBetween = ({
+  value,
+  lower,
+  upper
+}: {
+  value: number;
+  lower: number;
+  upper: number;
+}) => {
   return value >= lower && value <= upper;
 };
 

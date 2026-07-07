@@ -42,11 +42,10 @@ export default class AddSelfHostedAsset extends React.Component {
                   id: video.id,
                   file: this.state.file,
                   selfHost: true
-                })}
+                })
+              }
             >
-              <Icon icon="backup">
-                Upload
-              </Icon>
+              <Icon icon="backup">Upload</Icon>
             </button>
           </div>
         </div>

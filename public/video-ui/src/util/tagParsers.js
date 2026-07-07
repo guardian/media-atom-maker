@@ -12,8 +12,9 @@ export function tagsFromStringList(savedTags, tagType) {
         (tagType !== TagTypes.contributor && tagType !== TagTypes.youtube) ||
         element.match('^profile/')
       ) {
-        return ContentApi.getLivePage(element)
-          .then(({ response }) => response.tag);
+        return ContentApi.getLivePage(element).then(
+          ({ response }) => response.tag
+        );
       }
 
       if (tagType === TagTypes.youtube) {

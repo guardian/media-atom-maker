@@ -86,15 +86,19 @@ export default class VideoUtils {
   }
 
   static getScheduledLaunch({ contentChangeDetails }) {
-    return contentChangeDetails &&
+    return (
+      contentChangeDetails &&
       contentChangeDetails.scheduledLaunch &&
-      contentChangeDetails.scheduledLaunch.date;
+      contentChangeDetails.scheduledLaunch.date
+    );
   }
 
   static getEmbargo({ contentChangeDetails }) {
-    return contentChangeDetails &&
+    return (
+      contentChangeDetails &&
       contentChangeDetails.embargo &&
-      contentChangeDetails.embargo.date;
+      contentChangeDetails.embargo.date
+    );
   }
 
   static getScheduledLaunchAsDate(video) {
@@ -112,7 +116,10 @@ export default class VideoUtils {
   }
 
   static hasExpired({ contentChangeDetails }) {
-    return !!contentChangeDetails.expiry && contentChangeDetails.expiry.date <= Date.now();
+    return (
+      !!contentChangeDetails.expiry &&
+      contentChangeDetails.expiry.date <= Date.now()
+    );
   }
 
   static getPlatformFromAtom(atom) {
@@ -124,7 +131,10 @@ export default class VideoUtils {
   }
 
   static canHaveComposerPage(atom) {
-    return atom.videoPlayerFormat !== 'Cinemagraph' && atom.videoPlayerFormat !== 'Loop';
+    return (
+      atom.videoPlayerFormat !== 'Cinemagraph' &&
+      atom.videoPlayerFormat !== 'Loop'
+    );
   }
 
   static mustHaveTags(atom) {

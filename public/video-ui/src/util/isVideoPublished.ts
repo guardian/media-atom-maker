@@ -1,4 +1,4 @@
-import { Video } from "../services/VideosApi";
+import { Video } from '../services/VideosApi';
 
 export function isVideoPublished(video: Video) {
   if (!video) {

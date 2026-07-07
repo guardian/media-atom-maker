@@ -6,11 +6,10 @@ import ReactTooltip from 'react-tooltip';
 import VideoUtils from '../../util/video';
 import { impossiblyDistantDate } from '../../constants/dates';
 import moment from 'moment';
-import Youtube from "../../../images/youtube.svg?react";
-import Loop from "../../../images/loop.svg?react";
-import Cinemagraph from "../../../images/cinemagraph.svg?react";
-import NonYoutube from "../../../images/nonyoutube.svg?react";
-
+import Youtube from '../../../images/youtube.svg?react';
+import Loop from '../../../images/loop.svg?react';
+import Cinemagraph from '../../../images/cinemagraph.svg?react';
+import NonYoutube from '../../../images/nonyoutube.svg?react';
 
 export default class VideoItem extends React.Component {
   renderPublishStatus() {

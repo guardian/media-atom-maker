@@ -7,11 +7,7 @@ export class UsageTab extends React.Component {
   static tabsRole = Tab.tabsRole;
 
   render() {
-    return (
-      <Tab {...this.props}>
-        Usages
-      </Tab>
-    );
+    return <Tab {...this.props}>Usages</Tab>;
   }
 }
 

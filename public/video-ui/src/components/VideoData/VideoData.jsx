@@ -8,16 +8,22 @@ import SelectBox from '../FormFields/SelectBox';
 import DatePicker from '../FormFields/DatePicker';
 import TagPicker from '../FormFields/TagPicker';
 import StandTagPicker from '../FormFields/StandTagPicker';
-import { isTagAllowed, supportedTagFilters } from '../FormFields/tags/allowTags';
+import {
+  isTagAllowed,
+  supportedTagFilters
+} from '../FormFields/tags/allowTags';
 import TagTypes from '../../constants/TagTypes';
 import { fieldLengths } from '../../constants/videoEditValidation';
 import { videoCategories } from '../../constants/videoCategories';
 import VideoUtils from '../../util/video';
-import {formNames} from "../../constants/formNames";
-import FieldNotification from "../../constants/FieldNotification";
-import { trailTextConfig, standfirstConfig } from "../FormFields/richtext/config";
-import { ExpireNowComponent } from "../FormFields/ExpireNow";
-import {addOrDropBundlingTags} from "../../services/KeywordsApi";
+import { formNames } from '../../constants/formNames';
+import FieldNotification from '../../constants/FieldNotification';
+import {
+  trailTextConfig,
+  standfirstConfig
+} from '../FormFields/richtext/config';
+import { ExpireNowComponent } from '../FormFields/ExpireNow';
+import { addOrDropBundlingTags } from '../../services/KeywordsApi';
 
 export default class VideoData extends React.Component {
   static propTypes = {
@@ -30,7 +36,8 @@ export default class VideoData extends React.Component {
   };
 
   validateKeywords = keywords => {
-    if (!Array.isArray(keywords) ||
+    if (
+      !Array.isArray(keywords) ||
       keywords.length === 0 ||
       keywords.every(keyword => {
         return keyword.match(/^tone/);
@@ -56,7 +63,9 @@ export default class VideoData extends React.Component {
     const { video, updateVideo } = this.props;
 
     const fullTags = addOrDropBundlingTags({
-      keywords: video.keywords, tags: video.tags, blockAds: video.blockAds
+      keywords: video.keywords,
+      tags: video.tags,
+      blockAds: video.blockAds
     });
     const newVideo = Object.assign({}, video, { tags: fullTags });
     updateVideo(newVideo);
@@ -89,25 +98,23 @@ export default class VideoData extends React.Component {
       >
         <ManagedField
           fieldLocation="title"
-          name={canHaveComposerPage ? "Headline" : "Title"}
+          name={canHaveComposerPage ? 'Headline' : 'Title'}
           maxLength={fieldLengths.title}
           isRequired={true}
         >
           <TextInput />
         </ManagedField>
-        { canHaveComposerPage &&
+        {canHaveComposerPage && (
           <ManagedField
-          fieldLocation="description"
-          name="Standfirst"
-          maxLength={fieldLengths.description.charMax}
-          maxWordLength={fieldLengths.description.max}
-        >
-          <RichTextField
-            config={standfirstConfig}
-          />
-        </ManagedField>
-        }
-        { canHaveComposerPage &&
+            fieldLocation="description"
+            name="Standfirst"
+            maxLength={fieldLengths.description.charMax}
+            maxWordLength={fieldLengths.description.max}
+          >
+            <RichTextField config={standfirstConfig} />
+          </ManagedField>
+        )}
+        {canHaveComposerPage && (
           <ManagedField
             fieldLocation="trailText"
             derivedFrom={video.description}
@@ -123,8 +130,8 @@ export default class VideoData extends React.Component {
               config={trailTextConfig}
             />
           </ManagedField>
-        }
-        { canHaveComposerPage &&
+        )}
+        {canHaveComposerPage && (
           <ManagedField
             fieldLocation="byline"
             name="Byline"
@@ -133,23 +140,22 @@ export default class VideoData extends React.Component {
           >
             <TagPicker />
           </ManagedField>
-        }
-        {
-          canHaveComposerPage &&
-            <ManagedField
-              fieldLocation="commissioningDesks"
-              name="Commissioning Desks"
-              formRowClass="form__row__byline"
-              tagType={TagTypes.tracking}
-              isDesired={!canonicalVideoPageExists}
-              isRequired={canonicalVideoPageExists}
-              inputPlaceholder="Search commissioning info (type '*' to show all)"
-            >
-              <TagPicker disableTextInput tagSubType="commissioningdesk" />
-            </ManagedField>
-        }
-        {
-          video.platform !== 'Youtube' && <ManagedField
+        )}
+        {canHaveComposerPage && (
+          <ManagedField
+            fieldLocation="commissioningDesks"
+            name="Commissioning Desks"
+            formRowClass="form__row__byline"
+            tagType={TagTypes.tracking}
+            isDesired={!canonicalVideoPageExists}
+            isRequired={canonicalVideoPageExists}
+            inputPlaceholder="Search commissioning info (type '*' to show all)"
+          >
+            <TagPicker disableTextInput tagSubType="commissioningdesk" />
+          </ManagedField>
+        )}
+        {video.platform !== 'Youtube' && (
+          <ManagedField
             fieldLocation="atomTagIds"
             name="Tags"
             formRowClass="form__row__byline"
@@ -161,30 +167,35 @@ export default class VideoData extends React.Component {
             <StandTagPicker
               tagTypes={[]}
               allowTags={isTagAllowed}
-              filterOptions={supportedTagFilters} />
+              filterOptions={supportedTagFilters}
+            />
           </ManagedField>
-        }
-        {
-          canHaveComposerPage &&
-            <ManagedField
-              fieldLocation="keywords"
-              name="Composer Keywords"
-              formRowClass="form__row__byline"
-              tagType={isCommercialType ? TagTypes.commercial : TagTypes.keyword}
-              isDesired={true}
-              inputPlaceholder="Search keywords (type '*' to show all)"
-              customValidation={this.validateKeywords}
-              updateSideEffects={this.composerKeywordsToYouTube}
-            >
-              <TagPicker disableTextInput />
-            </ManagedField>
-        }
+        )}
+        {canHaveComposerPage && (
+          <ManagedField
+            fieldLocation="keywords"
+            name="Composer Keywords"
+            formRowClass="form__row__byline"
+            tagType={isCommercialType ? TagTypes.commercial : TagTypes.keyword}
+            isDesired={true}
+            inputPlaceholder="Search keywords (type '*' to show all)"
+            customValidation={this.validateKeywords}
+            updateSideEffects={this.composerKeywordsToYouTube}
+          >
+            <TagPicker disableTextInput />
+          </ManagedField>
+        )}
         <ManagedField fieldLocation="source" name="Video Source">
           <TextInput />
         </ManagedField>
         <ManagedField fieldLocation="expiryDate" name="Expiry Date">
           <DatePicker />
-          <ExpireNowComponent fieldName={video.fieldName} editable={editable} onUpdateField={video.onUpdateField} fieldValue={video.fieldValue} />
+          <ExpireNowComponent
+            fieldName={video.fieldName}
+            editable={editable}
+            onUpdateField={video.onUpdateField}
+            fieldValue={video.fieldValue}
+          />
         </ManagedField>
         <ManagedField
           fieldLocation="category"

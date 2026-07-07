@@ -26,7 +26,7 @@ import { saveVideo } from '../actions/VideoActions/saveVideo';
 import { getVideo } from '../actions/VideoActions/getVideo';
 import { getPublishedVideo } from '../actions/VideoActions/getPublishedVideo';
 import { getUploads } from '../slices/uploads';
-import {createVideo} from "../actions/VideoActions/createVideo";
+import { createVideo } from '../actions/VideoActions/createVideo';
 import { fetchCropOptions } from '../slices/gridMetadata';
 
 export const ReactApp = (
@@ -41,14 +41,14 @@ export const ReactApp = (
 
   const store = useSelector(
     ({
-       config,
-       error,
-       formFieldsWarning,
-       search,
-       s3Upload,
-       usage,
-       videoEditOpen
-     }: RootState) => ({
+      config,
+      error,
+      formFieldsWarning,
+      search,
+      s3Upload,
+      usage,
+      videoEditOpen
+    }: RootState) => ({
       config,
       error,
       formFieldsWarning,
