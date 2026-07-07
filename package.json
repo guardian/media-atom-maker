@@ -7,7 +7,8 @@
     "lint": "eslint public/video-ui/src/**/** --no-error-on-unmatched-pattern",
     "lint:fix": "eslint public/video-ui/src/**/** --fix --no-error-on-unmatched-pattern",
     "test": "jest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write public/video-ui/src/**/**"
   },
   "jest": {
     "roots": [

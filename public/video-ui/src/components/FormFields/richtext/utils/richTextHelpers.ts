@@ -1,10 +1,10 @@
 export const paragraphToWhitespace = (string: string): string => {
   // Only the first paragraph tag
-  string = string.replace("<p>","");
+  string = string.replace('<p>', '');
   // Replace subsequent paragraph tags with hard breaks
-  string = string.replace(/<p>/g,"<br>");
+  string = string.replace(/<p>/g, '<br>');
   // Remove all paragraph closing tags
-  string = string.replace(/<\/p>/g,"");
+  string = string.replace(/<\/p>/g, '');
   return string;
 };
 
@@ -23,7 +23,5 @@ export const getWords = (text: string): string[] => {
 
 export const isTooLong = (value: string, maxWordLength: number): boolean => {
   const wordLength = getWords(value).length;
-  return (
-    wordLength > maxWordLength
-  );
+  return wordLength > maxWordLength;
 };

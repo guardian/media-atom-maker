@@ -18,7 +18,7 @@ export default class VideoSearch extends React.Component {
           aria-label="search"
           className={
             'form__field' +
-              (this.searchInProgress() ? ' form__field--loading' : '')
+            (this.searchInProgress() ? ' form__field--loading' : '')
           }
           type="search"
           value={this.props.search.searchTerm || ''}

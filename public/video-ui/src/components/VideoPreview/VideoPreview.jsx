@@ -6,9 +6,8 @@ import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 import { findAssetToUseAsThumbnail } from '../../util/imageHelpers';
 import { isSelfHostedSource } from '../../slices/s3Upload';
 
-
 /**
- * @param {{video: import('../../services/VideosApi').Video}} param0  
+ * @param {{video: import('../../services/VideosApi').Video}} param0
  */
 export const VideoPreview = ({ video }) => {
   const renderPreview = () => {
@@ -24,18 +23,20 @@ export const VideoPreview = ({ video }) => {
       return <YouTubeEmbed id={active[0].id} />;
     }
 
-    const sources = active.map(asset => {
-      return {
-        src: asset.id,
-        mimeType: asset.mimeType,
-        height: asset.dimensions?.height ?? 0,
-        width: asset.dimensions?.width ?? 0
-      };
-    }).filter(s => isSelfHostedSource(s));
+    const sources = active
+      .map(asset => {
+        return {
+          src: asset.id,
+          mimeType: asset.mimeType,
+          height: asset.dimensions?.height ?? 0,
+          width: asset.dimensions?.width ?? 0
+        };
+      })
+      .filter(s => isSelfHostedSource(s));
 
-    const maybeThumbnailImage = video.posterImage ? findAssetToUseAsThumbnail(
-      video.posterImage
-    ) : undefined;
+    const maybeThumbnailImage = video.posterImage
+      ? findAssetToUseAsThumbnail(video.posterImage)
+      : undefined;
 
     return (
       <VideoEmbed sources={sources} posterUrl={maybeThumbnailImage?.file} />

@@ -42,7 +42,9 @@ export default class Help extends React.Component {
     return (
       <ul>
         <li>
-          <Link className="button__secondary" to={'/training'}>Training</Link>
+          <Link className="button__secondary" to={'/training'}>
+            Training
+          </Link>
         </li>
         {this.helpPages.map(page => (
           <li key={page.url}>{this.renderLink(page)}</li>

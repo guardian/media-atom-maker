@@ -31,7 +31,6 @@ class PureTagPicker extends React.Component {
   }
 
   updateInput = e => {
-
     const searchText = e.target.value;
     this.props.fetchTags(searchText);
     this.setState({
@@ -39,17 +38,15 @@ class PureTagPicker extends React.Component {
     });
   };
 
-  selectNewTag = (newFieldValue) => {
+  selectNewTag = newFieldValue => {
+    this.setState({
+      inputString: ''
+    });
 
-      this.setState({
-        inputString: ''
-      });
-
-      this.props.onUpdate(newFieldValue);
+    this.props.onUpdate(newFieldValue);
   };
 
   render() {
-
     return (
       <div>
         <input
@@ -60,7 +57,6 @@ class PureTagPicker extends React.Component {
           value={this.state.inputString}
         />
 
-
         <TagSearch
           searchResultTags={this.props.searchResultTags}
           showTags={this.props.showTags}
@@ -70,7 +66,6 @@ class PureTagPicker extends React.Component {
           removeDupes={removeTagDuplicates}
           selectedTagIndex={this.props.selectedTagIndex}
         />
-
       </div>
     );
   }

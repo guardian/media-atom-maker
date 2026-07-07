@@ -1,4 +1,4 @@
-import { Video } from "../services/VideosApi";
+import { Video } from '../services/VideosApi';
 
 export const checkVideoReadyToPublish = (video: Video): string[] => {
   if (video.videoPlayerFormat === 'Default') {

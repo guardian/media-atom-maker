@@ -16,7 +16,9 @@ export default class WorkflowLink extends React.Component {
         rel="noopener noreferrer"
         href={WorkflowApi.workflowItemLink(this.props.video)}
       >
-        <Icon icon="open_in_new" className="icon__edit">Open in Workflow</Icon>
+        <Icon icon="open_in_new" className="icon__edit">
+          Open in Workflow
+        </Icon>
       </a>
     );
   }

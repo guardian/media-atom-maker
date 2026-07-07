@@ -6,7 +6,9 @@ const validateField = <FieldValueType>(
   fieldValue: FieldValueType,
   isRequired: boolean = false,
   isDesired: boolean = false,
-  customValidation: ((fieldValue: FieldValueType) => FieldNotification | null) | null = null,
+  customValidation:
+    | ((fieldValue: FieldValueType) => FieldNotification | null)
+    | null = null,
   composerValidation: boolean = false,
   defaultVideoValidation: boolean = false,
   maxLength?: number
@@ -29,10 +31,19 @@ const validateField = <FieldValueType>(
 
   const getMessage = () => {
     if (composerValidation)
-      return {error: RequiredForComposer.error, warning: RequiredForComposer.warning};
+      return {
+        error: RequiredForComposer.error,
+        warning: RequiredForComposer.warning
+      };
     if (defaultVideoValidation)
-      return {error: RequiredForDefaultVideo.error, warning: RequiredForDefaultVideo.warning};
-    return {error: 'This field is required', warning: 'This field is desired'};
+      return {
+        error: RequiredForDefaultVideo.error,
+        warning: RequiredForDefaultVideo.warning
+      };
+    return {
+      error: 'This field is required',
+      warning: 'This field is desired'
+    };
   };
 
   if (isRequired && fieldValueMissing()) {

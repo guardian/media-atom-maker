@@ -1,22 +1,30 @@
-import React, {createRef} from 'react';
-import {VideoCreateOptionDetails, videoCreateOptions} from "../constants/videoCreateOptions";
-import type {VideoPlayerFormat, VideoCreateOption} from "../constants/videoCreateOptions";
-import {blankVideoData} from "../constants/blankVideoData";
-import {AppDispatch} from "../util/setupStore";
-import {Platform, VideoWithoutId} from "../services/VideosApi";
-import Checkmark from "../../images/checkmark.svg?react";
-import Cross from "../../images/cross.svg?react";
-import Info from "../../images/info.svg?react";
-import Loop from "../../images/loop.svg?react";
-import Youtube from "../../images/youtube.svg?react";
-import Cinemagraph from "../../images/cinemagraph.svg?react";
-import NonYoutube from "../../images/nonyoutube.svg?react";
-import {fieldLengths} from "../constants/videoEditValidation";
+import React, { createRef } from 'react';
+import {
+  VideoCreateOptionDetails,
+  videoCreateOptions
+} from '../constants/videoCreateOptions';
+import type {
+  VideoPlayerFormat,
+  VideoCreateOption
+} from '../constants/videoCreateOptions';
+import { blankVideoData } from '../constants/blankVideoData';
+import { AppDispatch } from '../util/setupStore';
+import { Platform, VideoWithoutId } from '../services/VideosApi';
+import Checkmark from '../../images/checkmark.svg?react';
+import Cross from '../../images/cross.svg?react';
+import Info from '../../images/info.svg?react';
+import Loop from '../../images/loop.svg?react';
+import Youtube from '../../images/youtube.svg?react';
+import Cinemagraph from '../../images/cinemagraph.svg?react';
+import NonYoutube from '../../images/nonyoutube.svg?react';
+import { fieldLengths } from '../constants/videoEditValidation';
 import { getStore } from '../util/storeAccessor';
 
 export default class Create extends React.Component {
   props: React.PropsWithChildren<{
-    createVideo: (video: VideoWithoutId) => (dispatch: AppDispatch) => Promise<void>;
+    createVideo: (
+      video: VideoWithoutId
+    ) => (dispatch: AppDispatch) => Promise<void>;
     inModal: boolean;
     closeCreateModal?: () => void;
   }>;
@@ -27,15 +35,19 @@ export default class Create extends React.Component {
   selfHostedAllowed = this.permissions.addSelfHostedAsset;
 
   state: { title: string; videoCreateOption: VideoCreateOption } = {
-    title: "",
-    videoCreateOption: "Youtube"
+    title: '',
+    videoCreateOption: 'Youtube'
   };
 
   createVideo = () => {
     const title = this.state.title;
 
-    const videoPlayerFormat: VideoPlayerFormat | undefined = this.state.videoCreateOption !== "Youtube" ? this.state.videoCreateOption : undefined;
-    const platform: Platform = this.state.videoCreateOption === "Youtube" ? "Youtube" : "Url";
+    const videoPlayerFormat: VideoPlayerFormat | undefined =
+      this.state.videoCreateOption !== 'Youtube'
+        ? this.state.videoCreateOption
+        : undefined;
+    const platform: Platform =
+      this.state.videoCreateOption === 'Youtube' ? 'Youtube' : 'Url';
 
     const videoData = {
       ...blankVideoData,
@@ -48,25 +60,33 @@ export default class Create extends React.Component {
   };
 
   isFormValid() {
-    return !!this.state.title && this.state.title.length <= fieldLengths.title && !!this.state.videoCreateOption;
+    return (
+      !!this.state.title &&
+      this.state.title.length <= fieldLengths.title &&
+      !!this.state.videoCreateOption
+    );
   }
 
   iconMap = {
-    Youtube: <Youtube/>,
-    Loop: <Loop/>,
-    Cinemagraph: <Cinemagraph/>,
-    Default: <NonYoutube/>
+    Youtube: <Youtube />,
+    Loop: <Loop />,
+    Cinemagraph: <Cinemagraph />,
+    Default: <NonYoutube />
   };
 
-  renderVideoCreateOption(videoCreateOptionDetails: VideoCreateOptionDetails, disabled: boolean = false) {
-    const isSelected = this.state.videoCreateOption === videoCreateOptionDetails.id;
+  renderVideoCreateOption(
+    videoCreateOptionDetails: VideoCreateOptionDetails,
+    disabled: boolean = false
+  ) {
+    const isSelected =
+      this.state.videoCreateOption === videoCreateOptionDetails.id;
     const inputRef = createRef<HTMLInputElement>();
 
     return (
       <div
         key={videoCreateOptionDetails.id}
         className={
-          "create-form__option " +
+          'create-form__option ' +
           (isSelected ? 'create-form__option--selected ' : '') +
           (disabled ? 'create-form__option--disabled ' : '')
         }
@@ -76,7 +96,7 @@ export default class Create extends React.Component {
             inputRef?.current?.focus();
           }
         }}
-        >
+      >
         <div className="create-form__option-controls">
           <div className="create-form__option-radio-summary">
             <div className="create-form__option-radio-label-and-icon">
@@ -92,48 +112,73 @@ export default class Create extends React.Component {
             </div>
             <div className="create-form__option-radio-description">
               {videoCreateOptionDetails.description}
-              { disabled ? '. Contact Central Production if you need to use this video format.' : ''}
+              {disabled
+                ? '. Contact Central Production if you need to use this video format.'
+                : ''}
             </div>
           </div>
-          {!disabled && <input
-            type="radio"
-            className="create-form__option-radio"
-            id={videoCreateOptionDetails.id}
-            name="videoPlayerFormat"
-            value={videoCreateOptionDetails.id}
-            checked={isSelected}
-            onChange={() => this.setState({ videoCreateOption: videoCreateOptionDetails.id })}
-            ref={inputRef}
-          />}
+          {!disabled && (
+            <input
+              type="radio"
+              className="create-form__option-radio"
+              id={videoCreateOptionDetails.id}
+              name="videoPlayerFormat"
+              value={videoCreateOptionDetails.id}
+              checked={isSelected}
+              onChange={() =>
+                this.setState({
+                  videoCreateOption: videoCreateOptionDetails.id
+                })
+              }
+              ref={inputRef}
+            />
+          )}
         </div>
         {
-          <div className={
-            "create-form__option-specifications " +
-            (isSelected ? 'create-form__option-specifications--visible' : '')
-          }>
+          <div
+            className={
+              'create-form__option-specifications ' +
+              (isSelected ? 'create-form__option-specifications--visible' : '')
+            }
+          >
             <ul aria-label="positives">
-              {videoCreateOptionDetails.specifications.positive.map(positiveSpecification => (
-                <li key={positiveSpecification} className="create-form__list-item--specification">
-                  {positiveSpecification}
-                  <Checkmark/>
-                </li>
-              ))}
+              {videoCreateOptionDetails.specifications.positive.map(
+                positiveSpecification => (
+                  <li
+                    key={positiveSpecification}
+                    className="create-form__list-item--specification"
+                  >
+                    {positiveSpecification}
+                    <Checkmark />
+                  </li>
+                )
+              )}
             </ul>
             <ul aria-label="negatives">
-              {videoCreateOptionDetails.specifications.negative.map(negativeSpecifiation => (
-                <li key={negativeSpecifiation} className="create-form__list-item--specification">
-                  {negativeSpecifiation}
-                  <Cross/>
-                </li>
-              ))}
+              {videoCreateOptionDetails.specifications.negative.map(
+                negativeSpecifiation => (
+                  <li
+                    key={negativeSpecifiation}
+                    className="create-form__list-item--specification"
+                  >
+                    {negativeSpecifiation}
+                    <Cross />
+                  </li>
+                )
+              )}
             </ul>
             <ul aria-label="other information">
-              {videoCreateOptionDetails.specifications.info.map(infoSpecification => (
-                <li key={infoSpecification} className="create-form__list-item--specification">
-                  {infoSpecification}
-                  <Info/>
-                </li>
-              ))}
+              {videoCreateOptionDetails.specifications.info.map(
+                infoSpecification => (
+                  <li
+                    key={infoSpecification}
+                    className="create-form__list-item--specification"
+                  >
+                    {infoSpecification}
+                    <Info />
+                  </li>
+                )
+              )}
             </ul>
           </div>
         }
@@ -143,17 +188,21 @@ export default class Create extends React.Component {
 
   render() {
     return (
-      <div className={'create-form ' + (this.props.inModal ? 'create-form--modal' : '')}>
-        <h2 className="create-form__heading--level-2">
-          Create New Video
-        </h2>
+      <div
+        className={
+          'create-form ' + (this.props.inModal ? 'create-form--modal' : '')
+        }
+      >
+        <h2 className="create-form__heading--level-2">Create New Video</h2>
         <div className="create-form__contents">
           <div className="create-form__title">
-            <label className="create-form__label" htmlFor="title">Title</label>
+            <label className="create-form__label" htmlFor="title">
+              Title
+            </label>
             <input
               id="title"
               name="Title"
-              onChange={(event) => this.setState({ title: event.target.value })}
+              onChange={event => this.setState({ title: event.target.value })}
               value={this.state.title}
               className="form__field"
             />
@@ -164,33 +213,45 @@ export default class Create extends React.Component {
             </h3>
             <div className="create-form__options">
               <div>
-                  {videoCreateOptions.offPlatform.map((videoCreateOptionDetails) => (
-                    this.renderVideoCreateOption(videoCreateOptionDetails)
-                  ))}
-                  {videoCreateOptions.selfHosted.map((videoCreateOptionDetails) => (
-                    this.renderVideoCreateOption(videoCreateOptionDetails, videoCreateOptionDetails.id === 'Default' && !this.selfHostedAllowed)
-                  ))}
+                {videoCreateOptions.offPlatform.map(videoCreateOptionDetails =>
+                  this.renderVideoCreateOption(videoCreateOptionDetails)
+                )}
+                {videoCreateOptions.selfHosted.map(videoCreateOptionDetails =>
+                  this.renderVideoCreateOption(
+                    videoCreateOptionDetails,
+                    videoCreateOptionDetails.id === 'Default' &&
+                      !this.selfHostedAllowed
+                  )
+                )}
               </div>
             </div>
           </div>
           <div className="create-form__action-buttons-outer">
-            {!this.state.title &&
+            {!this.state.title && (
               <div className="create-form__action-buttons--validation-warning">
                 You need to add a Title to create a video.
               </div>
-            }
-            {this.state.title?.length > fieldLengths.title &&
+            )}
+            {this.state.title?.length > fieldLengths.title && (
               <div className="create-form__action-buttons--validation-warning">
-                Video titles must be at most 100 characters (currently {this.state.title.length}/100)
+                Video titles must be at most 100 characters (currently{' '}
+                {this.state.title.length}/100)
               </div>
-            }
+            )}
             <div className="create-form__action-buttons">
-              {this.props.inModal &&
-                <button className="button__secondary" onClick={this.props.closeCreateModal} >
+              {this.props.inModal && (
+                <button
+                  className="button__secondary"
+                  onClick={this.props.closeCreateModal}
+                >
                   Cancel
                 </button>
-              }
-              <button className="btn" onClick={this.createVideo} disabled={!this.isFormValid()}>
+              )}
+              <button
+                className="btn"
+                onClick={this.createVideo}
+                disabled={!this.isFormValid()}
+              >
                 Continue
               </button>
             </div>

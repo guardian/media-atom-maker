@@ -8,11 +8,7 @@ export class YoutubeFurnitureTab extends React.Component {
   static tabsRole = Tab.tabsRole;
 
   render() {
-    return (
-      <Tab {...this.props}>
-        YouTube Furniture
-      </Tab>
-    );
+    return <Tab {...this.props}>YouTube Furniture</Tab>;
   }
 }
 

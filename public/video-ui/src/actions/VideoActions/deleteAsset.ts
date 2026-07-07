@@ -1,8 +1,8 @@
 import VideosApi, { Video } from '../../services/VideosApi';
-import { setVideo } from "../../slices/video";
-import { showError } from "../../slices/error";
-import { AppDispatch } from "../../util/setupStore";
-import { getUploads } from "../../slices/uploads";
+import { setVideo } from '../../slices/video';
+import { showError } from '../../slices/error';
+import { AppDispatch } from '../../util/setupStore';
+import { getUploads } from '../../slices/uploads';
 
 function requestAssetDelete(assetId: string) {
   return {
@@ -31,7 +31,7 @@ export function deleteAsset(video: Video, assetId: string) {
 
 export function deleteAssets(video: Video, assetIds: string[]) {
   return (dispatch: AppDispatch) => {
-    assetIds.forEach((assetId) => {
+    assetIds.forEach(assetId => {
       dispatch(requestAssetDelete(assetId));
     });
 

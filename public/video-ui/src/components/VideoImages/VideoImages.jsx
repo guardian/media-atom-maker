@@ -15,18 +15,24 @@ export default class mapStateToProps extends React.Component {
     updateErrors: PropTypes.func.isRequired,
     cropOptions: PropTypes.object.isRequired
   };
-  
+
   saveAndUpdateVideoImage = (image, location) => {
     const revertVideo = Object.assign({}, this.props.video);
     const newVideo = Object.assign({}, this.props.video, {
       [location]: image
     });
-    this.props.saveAndUpdateVideo(newVideo).catch(() => this.props.updateVideo(revertVideo));
+    this.props
+      .saveAndUpdateVideo(newVideo)
+      .catch(() => this.props.updateVideo(revertVideo));
   };
 
   getGridUrl(cropType) {
     const posterImage = this.props.video.posterImage;
-    const queryParam = getGridQueryParams(cropType, this.props.video, this.props.cropOptions);
+    const queryParam = getGridQueryParams(
+      cropType,
+      this.props.video,
+      this.props.cropOptions
+    );
     if (posterImage.assets.length > 0) {
       const imageGridId = getGridMediaId(posterImage);
 
@@ -62,7 +68,11 @@ export default class mapStateToProps extends React.Component {
             </header>
             <GridImageSelect
               image={this.props.video.posterImage}
-              gridUrl={this.hasVerticalVideoTag() ? this.getGridUrl('verticalVideo'): this.getGridUrl('custom')}
+              gridUrl={
+                this.hasVerticalVideoTag()
+                  ? this.getGridUrl('verticalVideo')
+                  : this.getGridUrl('custom')
+              }
               gridDomain={this.props.gridDomain}
               disabled={this.props.videoEditOpen}
               updateVideo={this.saveAndUpdateVideoImage}
@@ -70,11 +80,15 @@ export default class mapStateToProps extends React.Component {
             />
           </div>
           <GridImage image={this.props.video.posterImage} />
-          { showImageCropWarning &&
+          {showImageCropWarning && (
             <div className="video__warning error">
-              <p>Warning: The aspect ratio of the active video does not match the aspect ratio of this image. Please recrop the image to ensure the correct aspect ratios</p>
+              <p>
+                Warning: The aspect ratio of the active video does not match the
+                aspect ratio of this image. Please recrop the image to ensure
+                the correct aspect ratios
+              </p>
             </div>
-          }
+          )}
         </div>
         <div className="video__images">
           <div className="video__detailbox__header__container">
@@ -91,27 +105,32 @@ export default class mapStateToProps extends React.Component {
             />
           </div>
           <GridImage image={this.props.video.trailImage} />
-          <pinboard-suggest-alternate-crops data-media-id={mediaId}></pinboard-suggest-alternate-crops>
+          <pinboard-suggest-alternate-crops
+            data-media-id={mediaId}
+          ></pinboard-suggest-alternate-crops>
         </div>
-        {
-          this.props.video.platform !== 'Url' &&
-            <div className="video__images">
-              <div className="video__detailbox__header__container">
-                <header className="video__detailbox__header">
-                  Youtube Video Thumbnail Image
-                </header>
-                <GridImageSelect
-                  image={this.props.video.youtubeOverrideImage}
-                  gridUrl={this.hasVerticalVideoTag() ? this.getGridUrl('verticalVideo'): this.getGridUrl('video')}
-                  gridDomain={this.props.gridDomain}
-                  disabled={this.props.videoEditOpen}
-                  updateVideo={this.saveAndUpdateVideoImage}
-                  fieldLocation="youtubeOverrideImage"
-                />
-              </div>
-              <GridImage image={this.props.video.youtubeOverrideImage} />
+        {this.props.video.platform !== 'Url' && (
+          <div className="video__images">
+            <div className="video__detailbox__header__container">
+              <header className="video__detailbox__header">
+                Youtube Video Thumbnail Image
+              </header>
+              <GridImageSelect
+                image={this.props.video.youtubeOverrideImage}
+                gridUrl={
+                  this.hasVerticalVideoTag()
+                    ? this.getGridUrl('verticalVideo')
+                    : this.getGridUrl('video')
+                }
+                gridDomain={this.props.gridDomain}
+                disabled={this.props.videoEditOpen}
+                updateVideo={this.saveAndUpdateVideoImage}
+                fieldLocation="youtubeOverrideImage"
+              />
             </div>
-        }
+            <GridImage image={this.props.video.youtubeOverrideImage} />
+          </div>
+        )}
       </div>
     );
   }

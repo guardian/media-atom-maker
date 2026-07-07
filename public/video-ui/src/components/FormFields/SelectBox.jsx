@@ -1,6 +1,6 @@
 import React from 'react';
 
-const pleaseSelect = "Please select...";
+const pleaseSelect = 'Please select...';
 
 export default class SelectBox extends React.Component {
   getClassName = () => {
@@ -13,9 +13,7 @@ export default class SelectBox extends React.Component {
   renderDefaultOption = () => {
     if (this.props.displayDefault || !this.props.fieldValue) {
       return (
-        <option value={null}>
-          {this.props.defaultOption || pleaseSelect}
-        </option>
+        <option value={null}>{this.props.defaultOption || pleaseSelect}</option>
       );
     }
   };
@@ -28,7 +26,6 @@ export default class SelectBox extends React.Component {
     );
 
     if (!this.props.editable) {
-
       const displayValue = matchingValues.length
         ? matchingValues[0].title
         : this.props.fieldValue;
@@ -45,9 +42,7 @@ export default class SelectBox extends React.Component {
       return (
         <div>
           <p className="details-list__title">{this.props.fieldName}</p>
-          <p className={fieldClassName()}>
-            {displayValue}
-          </p>
+          <p className={fieldClassName()}>{displayValue}</p>
         </div>
       );
     }
@@ -68,32 +63,35 @@ export default class SelectBox extends React.Component {
             this.props.onUpdateField(e.target.value);
           }}
         >
-          {this.props.fieldValue && matchingValues.length===0 && (
-            <option value={this.props.fieldValue.id} key={this.props.fieldValue.id}>
+          {this.props.fieldValue && matchingValues.length === 0 && (
+            <option
+              value={this.props.fieldValue.id}
+              key={this.props.fieldValue.id}
+            >
               {pleaseSelect}
             </option>
           )}
           {this.renderDefaultOption()}
           {this.props.selectValues.map(function (value) {
             return (
-              <option value={value.id} key={value.id}>{value.title}</option>
+              <option value={value.id} key={value.id}>
+                {value.title}
+              </option>
             );
           })}
         </select>
-        {hasError
-          ? <p className="form__message form__message--error">
+        {hasError ? (
+          <p className="form__message form__message--error">
             {this.props.notification.message}
           </p>
-          : ''}
+        ) : (
+          ''
+        )}
       </div>
     );
   };
 
   render() {
-    return (
-      <div>
-        {this.renderField()}
-      </div>
-    );
+    return <div>{this.renderField()}</div>;
   }
 }

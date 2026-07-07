@@ -1,7 +1,6 @@
- import React from 'react';
+import React from 'react';
 
- export default class TagUnavailable extends React.Component {
-
+export default class TagUnavailable extends React.Component {
   render() {
     if (this.props.capiUnavailable) {
       return (
@@ -13,5 +12,4 @@
 
     return null;
   }
-
- }
+}

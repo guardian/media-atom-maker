@@ -4,7 +4,10 @@ export default class Modal extends React.Component {
   props: React.PropsWithChildren<{
     onCloseModal?: () => void;
   }>;
-  state: { dialogRef : React.RefObject<HTMLDialogElement> | undefined, isOpen: boolean } = {
+  state: {
+    dialogRef: React.RefObject<HTMLDialogElement> | undefined;
+    isOpen: boolean;
+  } = {
     dialogRef: undefined,
     isOpen: false
   };
@@ -29,25 +32,36 @@ export default class Modal extends React.Component {
   };
 
   componentDidMount() {
-    this.state.dialogRef.current.addEventListener("close", this.handleCloseEvent);
+    this.state.dialogRef.current.addEventListener(
+      'close',
+      this.handleCloseEvent
+    );
   }
   componentWillUnmount() {
-    this.state.dialogRef.current.removeEventListener("close", this.handleCloseEvent);
+    this.state.dialogRef.current.removeEventListener(
+      'close',
+      this.handleCloseEvent
+    );
   }
 
   render() {
     return (
-      <dialog className="modal" ref={this.state.dialogRef} onClick={() => this.close()}>
-        {this.state.isOpen &&
-            <div
-                className="modal__content"
-                onClick={(e) => {
-                  // Prevent clicks on modal content from closing the modal
-                  e.stopPropagation();
-                }}>
-              {this.props.children}
-            </div>
-        }
+      <dialog
+        className="modal"
+        ref={this.state.dialogRef}
+        onClick={() => this.close()}
+      >
+        {this.state.isOpen && (
+          <div
+            className="modal__content"
+            onClick={e => {
+              // Prevent clicks on modal content from closing the modal
+              e.stopPropagation();
+            }}
+          >
+            {this.props.children}
+          </div>
+        )}
         <div className="modal__content__header">
           <button
             className="i-cross button__secondary modal__dismiss"

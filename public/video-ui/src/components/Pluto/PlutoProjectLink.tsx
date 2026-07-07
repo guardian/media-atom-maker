@@ -4,7 +4,7 @@ import Icon from '../Icon';
 import { getPlutoProjectLink } from '../../services/PlutoApi';
 
 interface Props {
-  projectId: string
+  projectId: string;
 }
 
 export default class PlutoProjectLink extends React.Component<Props> {
@@ -20,7 +20,9 @@ export default class PlutoProjectLink extends React.Component<Props> {
         rel="noopener noreferrer"
         href={getPlutoProjectLink(this.props.projectId)}
       >
-        <Icon icon="open_in_new" className="icon__edit">Open Pluto Project</Icon>
+        <Icon icon="open_in_new" className="icon__edit">
+          Open Pluto Project
+        </Icon>
       </a>
     );
   }

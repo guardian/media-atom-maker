@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import {appUpdatedFields} from '../constants/appUpdatedFields';
-import {imageFields} from '../constants/imageFields';
-import {Video} from "../services/VideosApi";
+import { appUpdatedFields } from '../constants/appUpdatedFields';
+import { imageFields } from '../constants/imageFields';
+import { Video } from '../services/VideosApi';
 
 export function hasUnpublishedChanges(
   previewVideo: Video,
@@ -15,5 +15,8 @@ export function hasUnpublishedChanges(
     return true;
   }
 
-  return previewVideo.contentChangeDetails?.revision > publishedVideo.contentChangeDetails?.revision;
+  return (
+    previewVideo.contentChangeDetails?.revision >
+    publishedVideo.contentChangeDetails?.revision
+  );
 }

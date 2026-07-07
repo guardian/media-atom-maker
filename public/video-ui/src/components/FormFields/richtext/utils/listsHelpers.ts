@@ -1,24 +1,15 @@
-import { NodeType, Schema } from "prosemirror-model";
-import { liftListItem, wrapInList } from "prosemirror-schema-list";
-import { Command, EditorState, Transaction } from "prosemirror-state";
-import { EditorView } from "prosemirror-view";
+import { NodeType, Schema } from 'prosemirror-model';
+import { liftListItem, wrapInList } from 'prosemirror-schema-list';
+import { Command, EditorState, Transaction } from 'prosemirror-state';
+import { EditorView } from 'prosemirror-view';
 
+export const toggleBulletListCommand = (schema: Schema) =>
+  createListToggleCommand(schema.nodes.list_item, schema.nodes.bullet_list);
 
-export const toggleBulletListCommand = (schema: Schema) => createListToggleCommand(
-  schema.nodes.list_item,
-  schema.nodes.bullet_list
-);
-
-export function isInNode(
-  state: EditorState,
-  nodeType: NodeType
-) {
+export function isInNode(state: EditorState, nodeType: NodeType) {
   const { $from, $to } = state.selection;
   const types = [nodeType];
-  const range = $from.blockRange(
-      $to,
-      (node) => types.indexOf(node.type) !== -1
-  );
+  const range = $from.blockRange($to, node => types.indexOf(node.type) !== -1);
   return !!range && range.parent.type === nodeType;
 }
 
@@ -28,16 +19,19 @@ export function createListToggleCommand(
 ): Command {
   const wrapCommand = wrapInList(listNodeType);
   const unwrapCommand = liftListItem(listItemNodeType);
-  return (state: EditorState,  dispatch: (tr: Transaction) => void, view: EditorView) => {
-      const shouldUnwrap = isInNode(state, listNodeType);
+  return (
+    state: EditorState,
+    dispatch: (tr: Transaction) => void,
+    view: EditorView
+  ) => {
+    const shouldUnwrap = isInNode(state, listNodeType);
 
-      if(shouldUnwrap){
-          return unwrapCommand(state, dispatch);
-      }
-      else{
-          const unwrap = unwrapCommand(state, dispatch);
-          const wrap = wrapCommand(view && view.state || state, dispatch);
-          return unwrap || wrap;
-      }
+    if (shouldUnwrap) {
+      return unwrapCommand(state, dispatch);
+    } else {
+      const unwrap = unwrapCommand(state, dispatch);
+      const wrap = wrapCommand((view && view.state) || state, dispatch);
+      return unwrap || wrap;
+    }
   };
 }

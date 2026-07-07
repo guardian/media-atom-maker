@@ -1,6 +1,6 @@
 import { parseComposerDataFromImage } from './parseGridMetadata';
 import { getStore } from './storeAccessor';
-import { impossiblyDistantDate }  from '../constants/dates';
+import { impossiblyDistantDate } from '../constants/dates';
 import VideoUtils from './video';
 import moment from 'moment';
 
@@ -8,21 +8,22 @@ import moment from 'moment';
  * @param {string | undefined} date
  * @returns {number | undefined}
  */
-export const getDateAsNumber = (date) => {
-  if (typeof date === "string"){
+export const getDateAsNumber = date => {
+  if (typeof date === 'string') {
     return moment(date).valueOf();
   }
 };
 
 export function getComposerData(video) {
-
   const isTrainingMode = getStore().getState().config.isTrainingMode;
   const expiryDate = video?.contentChangeDetails?.expiry?.date;
   const cleanedExpiryDate = getDateAsNumber(expiryDate);
   const scheduledLaunch = getDateAsNumber(VideoUtils.getScheduledLaunch(video));
   const embargo = getDateAsNumber(VideoUtils.getEmbargo(video));
-  const isEmbargoedIndefinitely = isTrainingMode || (embargo && embargo >= impossiblyDistantDate);
-  const embargoedUntil = embargo && embargo < impossiblyDistantDate ? embargo : null;
+  const isEmbargoedIndefinitely =
+    isTrainingMode || (embargo && embargo >= impossiblyDistantDate);
+  const embargoedUntil =
+    embargo && embargo < impossiblyDistantDate ? embargo : null;
 
   return {
     headline: video.title,
@@ -38,9 +39,10 @@ export function getComposerData(video) {
     commissioningDesks: video.commissioningDesks.join('|'),
     byline: video.byline.join('|'),
     keywords: video.keywords.join('|'),
-    thumbnail: video.trailImage && video.trailImage.assets.length > 0
-      ? parseComposerDataFromImage(video.trailImage, video.trailText)
-      : null,
+    thumbnail:
+      video.trailImage && video.trailImage.assets.length > 0
+        ? parseComposerDataFromImage(video.trailImage, video.trailText)
+        : null,
     expiryDate: cleanedExpiryDate ? cleanedExpiryDate : null,
     scheduledLaunch: scheduledLaunch,
     requestedScheduledLaunch: scheduledLaunch,
@@ -56,8 +58,7 @@ export function getComposerId() {
   const videoPages = [...usages.preview.video, ...usages.published.video];
   if (videoPages.length !== 0) {
     return videoPages[0].fields.internalComposerCode;
-  }
-  else {
-    console.log("Could not find composer id");
+  } else {
+    console.log('Could not find composer id');
   }
 }

@@ -46,7 +46,9 @@ export default class AdvancedActions extends React.Component {
             onClick={doDelete}
             disabled={disabled}
           >
-            <Icon icon={this.state.deleteDoubleCheck ? 'delete_forever' : 'delete'}>
+            <Icon
+              icon={this.state.deleteDoubleCheck ? 'delete_forever' : 'delete'}
+            >
               {deleteMsg}
             </Icon>
           </button>
@@ -62,9 +64,7 @@ export default class AdvancedActions extends React.Component {
 
     return (
       <div>
-        <ul className="action-list">
-          {this.renderDelete()}
-        </ul>
+        <ul className="action-list">{this.renderDelete()}</ul>
       </div>
     );
   }

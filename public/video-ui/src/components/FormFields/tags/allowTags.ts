@@ -1,5 +1,5 @@
-import TagTypes from "../../../constants/TagTypes";
-import type { StandTagPickerFilter, VideoTag } from "../StandTagPicker";
+import TagTypes from '../../../constants/TagTypes';
+import type { StandTagPickerFilter, VideoTag } from '../StandTagPicker';
 
 export const isTagAllowed = (tag: VideoTag): boolean => {
   if (tag.type === 'Keyword') {
@@ -15,7 +15,12 @@ export const isTagAllowed = (tag: VideoTag): boolean => {
 export const supportedTagFilters: StandTagPickerFilter[] = [
   {
     displayLabel: 'All',
-    tagTypes: [TagTypes.keyword, TagTypes.tracking, TagTypes.tone, TagTypes.contentType]
+    tagTypes: [
+      TagTypes.keyword,
+      TagTypes.tracking,
+      TagTypes.tone,
+      TagTypes.contentType
+    ]
   },
   {
     displayLabel: 'Keywords',

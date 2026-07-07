@@ -45,7 +45,7 @@ export class Presence extends React.Component {
     const component = this;
 
     safelyStartPresence(
-      (presenceClient) => {
+      presenceClient => {
         presenceClient.startConnection();
 
         presenceClient.on('connection.open', () => {
@@ -99,11 +99,14 @@ export class Presence extends React.Component {
             })}
           </ul>
         </div>
-        {multipleVisitors
-          ? <div className="presence-section presence-warning">
-            There are multiple people in this Atom. Your changes may be overwritten!
+        {multipleVisitors ? (
+          <div className="presence-section presence-warning">
+            There are multiple people in this Atom. Your changes may be
+            overwritten!
           </div>
-          : ''}
+        ) : (
+          ''
+        )}
       </section>
     );
   }

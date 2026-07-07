@@ -32,7 +32,10 @@ const search = createSlice({
     ) => {
       state.shouldUseCreatedDateForSort = payload;
     },
-    updateVideoPlayerFormatFilter: (state, { payload }: PayloadAction<string>) => {
+    updateVideoPlayerFormatFilter: (
+      state,
+      { payload }: PayloadAction<string>
+    ) => {
       state.videoPlayerFormatFilter = payload;
     }
   }

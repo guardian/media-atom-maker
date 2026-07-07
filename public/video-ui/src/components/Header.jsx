@@ -1,17 +1,20 @@
 import React from 'react';
-import {Link} from 'react-router';
+import { Link } from 'react-router';
 import VideoSearch from './VideoSearch/VideoSearch';
 import VideoPublishBar from './VideoPublishBar/VideoPublishBar';
 import VideoPublishState from './VideoPublishState/VideoPublishState';
 import AdvancedActions from './Videos/AdvancedActions';
 import ComposerPageCreate from './Videos/ComposerPageCreate';
 import Icon from './Icon';
-import {Presence} from './Presence';
-import {canonicalVideoPageExists} from '../util/canonicalVideoPageExists';
+import { Presence } from './Presence';
+import { canonicalVideoPageExists } from '../util/canonicalVideoPageExists';
 import VideoUtils from '../util/video';
-import {QUERY_PARAM_videoPlayerFormatFilter, QUERY_PARAM_shouldUseCreatedDateForSort} from "../constants/queryParams";
-import Modal from "./utils/Modal";
-import Create from "./Create";
+import {
+  QUERY_PARAM_videoPlayerFormatFilter,
+  QUERY_PARAM_shouldUseCreatedDateForSort
+} from '../constants/queryParams';
+import Modal from './utils/Modal';
+import Create from './Create';
 
 export default class Header extends React.Component {
   state = {
@@ -92,7 +95,10 @@ export default class Header extends React.Component {
 
             const url = new URL(window.location.href);
             if (videoPlayerFormatFilter) {
-              url.searchParams.set(QUERY_PARAM_videoPlayerFormatFilter, videoPlayerFormatFilter);
+              url.searchParams.set(
+                QUERY_PARAM_videoPlayerFormatFilter,
+                videoPlayerFormatFilter
+              );
             } else {
               url.searchParams.delete(QUERY_PARAM_videoPlayerFormatFilter);
             }
@@ -120,13 +126,18 @@ export default class Header extends React.Component {
         <select
           value={this.props.search.shouldUseCreatedDateForSort?.toString()}
           onChange={event => {
-            const shouldUseCreatedDateForSort = event.target.value === "true";
+            const shouldUseCreatedDateForSort = event.target.value === 'true';
 
-            this.props.updateShouldUseCreatedDateForSort(shouldUseCreatedDateForSort);
+            this.props.updateShouldUseCreatedDateForSort(
+              shouldUseCreatedDateForSort
+            );
 
             const url = new URL(window.location.href);
             if (shouldUseCreatedDateForSort) {
-              url.searchParams.set(QUERY_PARAM_shouldUseCreatedDateForSort, "true");
+              url.searchParams.set(
+                QUERY_PARAM_shouldUseCreatedDateForSort,
+                'true'
+              );
             } else {
               url.searchParams.delete(QUERY_PARAM_shouldUseCreatedDateForSort);
             }
@@ -176,7 +187,11 @@ export default class Header extends React.Component {
           <Icon icon="add">Create</Icon>
         </button>
         <Modal ref={this.state.dialogRef}>
-          <Create createVideo={this.props.createVideo} inModal={true} closeCreateModal={this.closeCreateModal}/>
+          <Create
+            createVideo={this.props.createVideo}
+            inModal={true}
+            closeCreateModal={this.closeCreateModal}
+          />
         </Modal>
       </nav>
     );
@@ -226,7 +241,9 @@ export default class Header extends React.Component {
   }
 
   render() {
-    const canHaveComposerPage = VideoUtils.canHaveComposerPage(this.props.video);
+    const canHaveComposerPage = VideoUtils.canHaveComposerPage(
+      this.props.video
+    );
 
     const className = this.props.isTrainingMode
       ? 'topbar topbar--training-mode flex-container'
@@ -300,23 +317,22 @@ export default class Header extends React.Component {
             usages={this.props.usages}
             deleteVideo={this.props.deleteVideo}
           />
-          {canHaveComposerPage &&
+          {canHaveComposerPage && (
             <>
               <ComposerPageCreate
                 videoEditOpen={this.props.videoEditOpen}
                 video={this.props.video || {}}
                 createVideoPage={this.props.createVideoPage}
-                requiredComposerFieldsMissing={this.requiredComposerFieldsMissing}
+                requiredComposerFieldsMissing={
+                  this.requiredComposerFieldsMissing
+                }
                 usages={this.props.usages}
                 error={this.props.error}
               />
               {this.renderComposerMissingWarning()}
             </>
-          }
-          <div className="flex-container">
-            {this.renderHelpLink()}
-          </div>
-
+          )}
+          <div className="flex-container">{this.renderHelpLink()}</div>
         </header>
       );
     }

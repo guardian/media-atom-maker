@@ -56,14 +56,12 @@ const isEdToolsDomain = (rawLink: string) => {
     'viewer.gutools.co.uk'
   ];
 
-  return (
-    edToolsDomains.some(domain => rawLink.includes(domain))
-  );
+  return edToolsDomains.some(domain => rawLink.includes(domain));
 };
 
 export const linkValidator = (rawLink: string) => {
-  if (!rawLink){
-    return {valid: false, message: "Empty URL provided", link: rawLink};
+  if (!rawLink) {
+    return { valid: false, message: 'Empty URL provided', link: rawLink };
   }
   if (isEdToolsDomain(rawLink)) {
     return {
@@ -77,15 +75,23 @@ export const linkValidator = (rawLink: string) => {
   if (rawLink === 'dashboard.ophan.co.uk') {
     return {
       valid: false,
-      message:
-        'This link can only be accessed by Guardian staff, not readers.',
+      message: 'This link can only be accessed by Guardian staff, not readers.',
       link: rawLink
     };
   }
-  if (isUri(rawLink)){
-    return {valid: true};
+  if (isUri(rawLink)) {
+    return { valid: true };
   } else {
-    if (isUri(`https://${rawLink}`)) return {valid: false, message: `A valid URL should start with 'https://' or 'http://'.`, link: rawLink};
-    return {valid: false, message: `The link you entered was invalid.`, link: rawLink};
+    if (isUri(`https://${rawLink}`))
+      return {
+        valid: false,
+        message: `A valid URL should start with 'https://' or 'http://'.`,
+        link: rawLink
+      };
+    return {
+      valid: false,
+      message: `The link you entered was invalid.`,
+      link: rawLink
+    };
   }
 };

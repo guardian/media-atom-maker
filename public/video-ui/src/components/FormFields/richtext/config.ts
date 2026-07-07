@@ -7,26 +7,13 @@ export type EditorConfig = {
 };
 
 export const trailTextConfig = {
-  allowedNodes: [ "text", "hard_break"],
-  allowedMarks: [
-      "strong",
-      "strike",
-      "subscript",
-      "superscript",
-      "em"
-  ],
+  allowedNodes: ['text', 'hard_break'],
+  allowedMarks: ['strong', 'strike', 'subscript', 'superscript', 'em'],
   inlineOnly: true
 };
 
 export const standfirstConfig = {
-  allowedNodes: [ "text", "paragraph", "hard_break", "bullet_list", "list_item"],
-  allowedMarks: [
-      "strong",
-      "strike",
-      "subscript",
-      "superscript",
-      "em",
-      "link"
-  ],
+  allowedNodes: ['text', 'paragraph', 'hard_break', 'bullet_list', 'list_item'],
+  allowedMarks: ['strong', 'strike', 'subscript', 'superscript', 'em', 'link'],
   inlineOnly: false
 };

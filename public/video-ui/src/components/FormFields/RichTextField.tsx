@@ -7,7 +7,7 @@ import { RichTextEditor } from './RichTextEditor';
 type EditorState = {
   wordCount: number;
   isTooLong?: boolean;
-}
+};
 type EditorProps = {
   fieldValue: string;
   derivedFrom: string;
@@ -20,9 +20,12 @@ type EditorProps = {
   placeholder: string;
   isDesired?: boolean;
   isRequired?: boolean;
-}
+};
 
-export default class RichTextField extends React.Component<EditorProps, EditorState> {
+export default class RichTextField extends React.Component<
+  EditorProps,
+  EditorState
+> {
   state: EditorState = {
     wordCount: 0
   };
@@ -65,33 +68,37 @@ export default class RichTextField extends React.Component<EditorProps, EditorSt
     }
 
     return (
-        <button
-          type="button"
-          disabled={!this.props.derivedFrom}
-          className="btn form__label__button form__label__copy-button"
-          onClick={this.updateValueFromCopy}
-          data-tip="Copy trail text from description"
-          data-place="top"
-        >
-          Copy from standfirst
-        </button>
-        );
+      <button
+        type="button"
+        disabled={!this.props.derivedFrom}
+        className="btn form__label__button form__label__copy-button"
+        onClick={this.updateValueFromCopy}
+        data-tip="Copy trail text from description"
+        data-place="top"
+      >
+        Copy from standfirst
+      </button>
+    );
   };
 
   renderLimitWarning = () => {
     return (
       <div>
-        {this.state.isTooLong
-          ? <span className="form__message__text--error">
-              {' '}(This text is too long: updates will not get saved)
-            </span>
-          : false}
+        {this.state.isTooLong ? (
+          <span className="form__message__text--error">
+            {' '}
+            (This text is too long: updates will not get saved)
+          </span>
+        ) : (
+          false
+        )}
       </div>
     );
   };
 
   renderField() {
-    const requiresValidation = this.state.wordCount === 0  && this.props.fieldLocation === 'trailText';
+    const requiresValidation =
+      this.state.wordCount === 0 && this.props.fieldLocation === 'trailText';
     const hasWarning = requiresValidation && this.props.isDesired;
     const hasError = requiresValidation && this.props.isRequired;
     if (!this.props.editable) {
@@ -112,9 +119,7 @@ export default class RichTextField extends React.Component<EditorProps, EditorSt
 
     return (
       <div>
-        <div
-          className={'form__row editor__row'}
-        >
+        <div className={'form__row editor__row'}>
           <RichTextEditor
             value={this.props.fieldValue}
             onUpdate={this.updateFieldValue}
@@ -123,16 +128,20 @@ export default class RichTextField extends React.Component<EditorProps, EditorSt
           />
           {this.renderLimitWarning()}
         </div>
-        {hasWarning
-          ? <p className="form__message form__message--warning">
+        {hasWarning ? (
+          <p className="form__message form__message--warning">
             {RequiredForComposer.warning}
-            </p>
-          : ''}
-        {hasError
-          ? <p className="form__message form__message--error">
+          </p>
+        ) : (
+          ''
+        )}
+        {hasError ? (
+          <p className="form__message form__message--error">
             {RequiredForComposer.error}
-            </p>
-          : ''}
+          </p>
+        ) : (
+          ''
+        )}
       </div>
     );
   }

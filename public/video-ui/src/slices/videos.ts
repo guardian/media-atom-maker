@@ -17,16 +17,27 @@ const initialState: VideoState = {
 
 export const fetchVideos = createAsyncThunk<
   { total: number; atoms: MediaAtomSummary[] },
-  { search: string; limit: number; shouldUseCreatedDateForSort: boolean; videoPlayerFormatFilter: string; }
+  {
+    search: string;
+    limit: number;
+    shouldUseCreatedDateForSort: boolean;
+    videoPlayerFormatFilter: string;
+  }
 >(
   'videos/fetchVideos',
-  ({ search, limit, shouldUseCreatedDateForSort, videoPlayerFormatFilter }, { dispatch }) =>
-    VideosApi.fetchVideos(search, limit, shouldUseCreatedDateForSort, videoPlayerFormatFilter).catch(
-      (error: unknown) => {
-        dispatch(showError('Could not get videos', error));
-        throw error;
-      }
-    )
+  (
+    { search, limit, shouldUseCreatedDateForSort, videoPlayerFormatFilter },
+    { dispatch }
+  ) =>
+    VideosApi.fetchVideos(
+      search,
+      limit,
+      shouldUseCreatedDateForSort,
+      videoPlayerFormatFilter
+    ).catch((error: unknown) => {
+      dispatch(showError('Could not get videos', error));
+      throw error;
+    })
 );
 
 const videos = createSlice({

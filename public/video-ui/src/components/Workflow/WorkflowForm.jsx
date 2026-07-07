@@ -34,31 +34,35 @@ export default class WorkflowForm extends React.Component {
         <ManagedField
           fieldLocation="section"
           name="Section"
-          disabled={!this.props.editable || this.props.workflowStatus.isTrackedInWorkflow}>
+          disabled={
+            !this.props.editable ||
+            this.props.workflowStatus.isTrackedInWorkflow
+          }
+        >
           <SelectBox selectValues={this.props.workflowSections} />
         </ManagedField>
         <ManagedField
           fieldLocation="note"
           name="Note"
-          disabled={!this.props.editable}>
+          disabled={!this.props.editable}
+        >
           <TextAreaInput />
         </ManagedField>
         <ManagedField
           fieldLocation="status"
           name="Status"
-          disabled={!this.props.editable}>
+          disabled={!this.props.editable}
+        >
           <SelectBox selectValues={this.props.workflowStatuses} />
         </ManagedField>
         <ManagedField
           fieldLocation="priority"
           name="Priority"
-          disabled={!this.props.editable}>
-          <SelectBox selectValues={this.props.workflowPriorities}
-          />
+          disabled={!this.props.editable}
+        >
+          <SelectBox selectValues={this.props.workflowPriorities} />
         </ManagedField>
       </ManagedForm>
     );
   }
 }
-
-

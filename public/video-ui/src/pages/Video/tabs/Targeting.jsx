@@ -7,11 +7,7 @@ export class TargetingTab extends React.Component {
   static tabsRole = Tab.tabsRole;
 
   render() {
-    return (
-      <Tab {...this.props}>
-        Targeting
-      </Tab>
-    );
+    return <Tab {...this.props}>Targeting</Tab>;
   }
 }
 

@@ -20,9 +20,8 @@ const gridMetadata = createSlice({
   initialState,
   reducers: {},
   extraReducers(builder) {
-    builder
-      .addCase(fetchCropOptions.fulfilled, (state, action) => {
-        state.cropOptions = action.payload;
+    builder.addCase(fetchCropOptions.fulfilled, (state, action) => {
+      state.cropOptions = action.payload;
     });
   }
 });

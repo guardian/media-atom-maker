@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { deleteAssets } from '../../actions/VideoActions/deleteAsset';
 import { getVideo } from '../../actions/VideoActions/getVideo';
 import { Video } from '../../services/VideosApi';
-import {ClientAsset} from '../../slices/s3Upload';
+import { ClientAsset } from '../../slices/s3Upload';
 import { getUploads } from '../../slices/uploads';
 import { AppDispatch } from '../../util/setupStore';
 import { Asset } from './VideoAsset';

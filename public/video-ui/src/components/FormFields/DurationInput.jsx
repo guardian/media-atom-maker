@@ -82,7 +82,10 @@ class DurationInput extends React.Component {
         <input
           type="text"
           size="3"
-          className={'form__field form__field--inline ' + (hasError ? 'form__field--error' : '')}
+          className={
+            'form__field form__field--inline ' +
+            (hasError ? 'form__field--error' : '')
+          }
           value={this.state.mins}
           onChange={e => {
             this.updateMins(e.target.value);
@@ -92,7 +95,10 @@ class DurationInput extends React.Component {
         <input
           type="text"
           size="3"
-          className={'form__field form__field--inline ' + (hasError ? 'form__field--error' : '')}
+          className={
+            'form__field form__field--inline ' +
+            (hasError ? 'form__field--error' : '')
+          }
           value={this.state.secs}
           onChange={e => {
             this.updateSecs(e.target.value);

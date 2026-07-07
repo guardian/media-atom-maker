@@ -8,11 +8,7 @@ export class ManagementTab extends React.Component {
   static tabsRole = Tab.tabsRole;
 
   render() {
-    return (
-      <Tab {...this.props}>
-        Management
-      </Tab>
-    );
+    return <Tab {...this.props}>Management</Tab>;
   }
 }
 

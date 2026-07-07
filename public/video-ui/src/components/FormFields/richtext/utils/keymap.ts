@@ -1,4 +1,11 @@
-import { chainCommands, createParagraphNear, liftEmptyBlock, newlineInCode, splitBlockKeepMarks, toggleMark } from 'prosemirror-commands';
+import {
+  chainCommands,
+  createParagraphNear,
+  liftEmptyBlock,
+  newlineInCode,
+  splitBlockKeepMarks,
+  toggleMark
+} from 'prosemirror-commands';
 import { linkItemCommand, unlinkItemCommand } from './command-helpers';
 import { Schema } from 'prosemirror-model';
 import { undo, redo } from 'prosemirror-history';
@@ -13,21 +20,25 @@ interface MapObject {
 const mac =
   typeof navigator !== undefined ? /Mac/.test(navigator.platform) : false;
 
-const createAddHardBreak = (schema: Schema) => (
-  state: EditorState,
-  dispatch?: (tr: Transaction) => void
-) => {
-  if (dispatch) {
-    dispatch(
-      state.tr
-        .replaceSelectionWith(schema.nodes.hard_break.create())
-        .scrollIntoView()
-    );
-  }
-  return true;
-};
+const createAddHardBreak =
+  (schema: Schema) =>
+  (state: EditorState, dispatch?: (tr: Transaction) => void) => {
+    if (dispatch) {
+      dispatch(
+        state.tr
+          .replaceSelectionWith(schema.nodes.hard_break.create())
+          .scrollIntoView()
+      );
+    }
+    return true;
+  };
 
-export const buildKeymap = (schema: Schema, init = {}, mapKeys: MapObject, config: EditorConfig) => {
+export const buildKeymap = (
+  schema: Schema,
+  init = {},
+  mapKeys: MapObject,
+  config: EditorConfig
+) => {
   const keys: MapObject = init;
   const bind = (key: string, cmd: any) => {
     if (mapKeys) {
@@ -49,13 +60,10 @@ export const buildKeymap = (schema: Schema, init = {}, mapKeys: MapObject, confi
     bind('Mod-y', redo);
   }
 
-  if (config.inlineOnly === true){
+  if (config.inlineOnly === true) {
     bind('Enter', createAddHardBreak(schema));
   } else {
-    bind(
-      "Enter",
-      splitListItem(schema.nodes.list_item)
-  );
+    bind('Enter', splitListItem(schema.nodes.list_item));
   }
 
   if (schema.marks.strong) {

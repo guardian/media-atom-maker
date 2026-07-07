@@ -5,64 +5,83 @@ import { EditorView } from 'prosemirror-view';
 
 // These prosemirror-helper functions are a simplified version of what we use in Composer, and have been lifted and shifted from that repo
 
-export const unlinkItemCommand = (mark: MarkType) => (
-  state: EditorState,
-  dispatch: (tr: Transaction) => void
-) => {
-  if (!markEnabled(state, mark)) {
-    return false;
-  }
+export const unlinkItemCommand =
+  (mark: MarkType) =>
+  (state: EditorState, dispatch: (tr: Transaction) => void) => {
+    if (!markEnabled(state, mark)) {
+      return false;
+    }
 
-  if (!dispatch) {
-    return true;
-  }
+    if (!dispatch) {
+      return true;
+    }
 
-  const { from, to } = state.selection
-    ? getExpandedSelectionForMark(state, mark)
-    : state.selection;
+    const { from, to } = state.selection
+      ? getExpandedSelectionForMark(state, mark)
+      : state.selection;
 
-  dispatch(state.tr.removeMark(from, to, mark));
-};
+    dispatch(state.tr.removeMark(from, to, mark));
+  };
 
 export const markActive = (state: EditorState, markType: MarkType) => {
-  const {from, $from, to, empty} = state.selection;
+  const { from, $from, to, empty } = state.selection;
   if (empty) return markType.isInSet(state.storedMarks || $from.marks());
   else return state.doc.rangeHasMark(from, to, markType);
 };
 
-export const linkItemCommand = (markType: MarkType, customPrompt?: string, defaultValue?: string): Command => (
-  state: EditorState,
-  dispatch: (tr: Transaction) => void
-) => {
-  const maybeUrlResult = promptForLink(state, markType, customPrompt, defaultValue);
+export const linkItemCommand =
+  (markType: MarkType, customPrompt?: string, defaultValue?: string): Command =>
+  (state: EditorState, dispatch: (tr: Transaction) => void) => {
+    const maybeUrlResult = promptForLink(
+      state,
+      markType,
+      customPrompt,
+      defaultValue
+    );
 
-  if (maybeUrlResult && maybeUrlResult.from !== undefined && maybeUrlResult.to !== undefined) {
-    const { from, to, url } = maybeUrlResult;
-    const { valid, message, link } = linkValidator(url);
-    if (valid) {
-      const parsedUrl = parseURL(url);
-      dispatch(
-        state.tr.addMark(from, to, markType.create({ href: parsedUrl }))
-      );
-    } else {
-      console.log(`Retry link item: ${message}`);
-      return linkItemCommand(markType, `${message} - please check your link and try again.`, link)(state, dispatch);
+    if (
+      maybeUrlResult &&
+      maybeUrlResult.from !== undefined &&
+      maybeUrlResult.to !== undefined
+    ) {
+      const { from, to, url } = maybeUrlResult;
+      const { valid, message, link } = linkValidator(url);
+      if (valid) {
+        const parsedUrl = parseURL(url);
+        dispatch(
+          state.tr.addMark(from, to, markType.create({ href: parsedUrl }))
+        );
+      } else {
+        console.log(`Retry link item: ${message}`);
+        return linkItemCommand(
+          markType,
+          `${message} - please check your link and try again.`,
+          link
+        )(state, dispatch);
+      }
     }
-  }
 
-  return false;
-};
+    return false;
+  };
 
-const promptForLink = (state: EditorState, markType: MarkType, customPrompt?: string, defaultValue?: string): {from: number, to: number, url: string} | undefined => {
+const promptForLink = (
+  state: EditorState,
+  markType: MarkType,
+  customPrompt?: string,
+  defaultValue?: string
+): { from: number; to: number; url: string } | undefined => {
   const { from, to, href } = getCurrentHrefAndEditRange(state, markType);
 
   if (from === to && !href) {
     return undefined;
   }
 
-  const url = window.prompt(customPrompt || 'Enter a link', href || defaultValue || '');
+  const url = window.prompt(
+    customPrompt || 'Enter a link',
+    href || defaultValue || ''
+  );
 
-  if(url === null){
+  if (url === null) {
     return undefined;
   }
 

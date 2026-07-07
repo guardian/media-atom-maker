@@ -9,11 +9,7 @@ export class FurnitureTab extends React.Component {
   static tabsRole = Tab.tabsRole;
 
   render() {
-    return (
-      <Tab {...this.props}>
-        Furniture
-      </Tab>
-    );
+    return <Tab {...this.props}>Furniture</Tab>;
   }
 }
 

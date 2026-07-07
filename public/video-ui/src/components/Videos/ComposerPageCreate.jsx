@@ -19,9 +19,8 @@ export default class ComposerPageCreate extends React.Component {
     const videoPages = [...usages.preview.video, ...usages.published.video];
     if (videoPages.length !== 0) {
       return videoPages[0].fields.internalComposerCode;
-    }
-    else {
-      console.log("Could not find composer id");
+    } else {
+      console.log('Could not find composer id');
     }
   };
 
@@ -33,7 +32,8 @@ export default class ComposerPageCreate extends React.Component {
     return this.props.error === ErrorMessages.usages;
   };
 
-  getComposerLink = () => `${this.getComposerUrl()}/content/${this.getComposerId()}`;
+  getComposerLink = () =>
+    `${this.getComposerUrl()}/content/${this.getComposerId()}`;
 
   pageCreate = () => {
     this.setState({
@@ -54,26 +54,37 @@ export default class ComposerPageCreate extends React.Component {
   };
 
   render() {
-
     const { usages, videoEditOpen, requiredComposerFieldsMissing } = this.props;
 
     if (canonicalVideoPageExists(usages)) {
       return (
-        <a className="button__secondary" href={this.getComposerLink()} target="_blank" rel="noreferrer">
+        <a
+          className="button__secondary"
+          href={this.getComposerLink()}
+          target="_blank"
+          rel="noreferrer"
+        >
           <Icon icon="pageview">Open in Composer</Icon>
         </a>
       );
     } else if (this.isHosted()) {
       return null;
     } else {
-      const helpMsg = this.usageErrorsExist() ? 'Cannot create a video page because of errors in fetching video usages' : '';
+      const helpMsg = this.usageErrorsExist()
+        ? 'Cannot create a video page because of errors in fetching video usages'
+        : '';
 
       return (
         <span data-tip={helpMsg}>
           <button
             className="button__secondary"
             onClick={this.pageCreate}
-            disabled={videoEditOpen || this.state.composerUpdateInProgress || requiredComposerFieldsMissing() || this.usageErrorsExist()}
+            disabled={
+              videoEditOpen ||
+              this.state.composerUpdateInProgress ||
+              requiredComposerFieldsMissing() ||
+              this.usageErrorsExist()
+            }
           >
             <Icon icon="add_to_queue">Create Video Page</Icon>
           </button>
