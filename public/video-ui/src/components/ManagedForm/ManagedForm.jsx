@@ -38,9 +38,9 @@ export class ManagedForm extends React.Component {
 
   getFormClass = () => {
     if (
-      React.Children
-        .toArray(this.props.children)
-        .some(child => child.type.componentType === 'managedSection')
+      React.Children.toArray(this.props.children).some(
+        child => child.type.componentType === 'managedSection'
+      )
     ) {
       return 'atom__section__form';
     }
@@ -61,7 +61,7 @@ export class ManagedForm extends React.Component {
               editable: this.props.editable
             })
           : child
-    );
+      );
 
     return <div className={this.getFormClass()}>{hydratedChildren}</div>;
   }

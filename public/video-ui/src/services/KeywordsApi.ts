@@ -1,59 +1,69 @@
 const contentBundlingMap: Record<string, string> = {
-  "uk": "gdnpfpnewsuk",
-  "us": "gdnpfpnewsus",
-  "au": "gdnpfpnewsau",
-  "world": "gdnpfpnewsworld",
-  "politics": "gdnpfpnewspolitics",
-  "opinion": "gdnpfpnewsopinion",
-  "football": "gdnpfpsportfootball",
-  "cricket": "gdnpfpsportcricket",
-  "rugby-union": "gdnpfpsportrugbyunion",
-  "rugby-league": "gdnpfpsportrugbyleague",
-  "f1": "gdnpfpsportf1",
-  "tennis": "gdnpfpsporttennis",
-  "golf": "gdnpfpsportgolf",
-  "cycling": "gdnpfpsportcycling",
-  "boxing": "gdnpfpsportboxing",
-  "racing": "gdnpfpsportracing",
-  "us-sport": "gdnpfpsportus",
-  "sport": "gdnpfpsportother",
-  "culture": "gdnpfpculture",
-  "film": "gdnpfpculturefilm",
-  "music": "gdnpfpculturemusic",
-  "lifestyle": "gdnpfplifestyle",
-  "food": "gdnpfplifestylefood",
-  "health-and-wellbeing": "gdnpfplifestylehealthfitness",
-  "business": "gdnpfpbusiness",
-  "money": "gdnpfpmoney",
-  "fashion": "gdnpfpfashion",
-  "environment": "gdnpfpenvironment",
-  "technology": "gdnpfptechnology",
-  "travel": "gdnpfptravel",
-  "science": "gdnpfpscience",
-  "athletics": "gdnpfpsportother",
-  "basketball": "gdnpfpsportus",
-  "sport-2-0": "gdnpfpsport20",
-  "full-story-podcast": "gdnpfpausfullstorypodcast"
+  uk: 'gdnpfpnewsuk',
+  us: 'gdnpfpnewsus',
+  au: 'gdnpfpnewsau',
+  world: 'gdnpfpnewsworld',
+  politics: 'gdnpfpnewspolitics',
+  opinion: 'gdnpfpnewsopinion',
+  football: 'gdnpfpsportfootball',
+  cricket: 'gdnpfpsportcricket',
+  'rugby-union': 'gdnpfpsportrugbyunion',
+  'rugby-league': 'gdnpfpsportrugbyleague',
+  f1: 'gdnpfpsportf1',
+  tennis: 'gdnpfpsporttennis',
+  golf: 'gdnpfpsportgolf',
+  cycling: 'gdnpfpsportcycling',
+  boxing: 'gdnpfpsportboxing',
+  racing: 'gdnpfpsportracing',
+  'us-sport': 'gdnpfpsportus',
+  sport: 'gdnpfpsportother',
+  culture: 'gdnpfpculture',
+  film: 'gdnpfpculturefilm',
+  music: 'gdnpfpculturemusic',
+  lifestyle: 'gdnpfplifestyle',
+  food: 'gdnpfplifestylefood',
+  'health-and-wellbeing': 'gdnpfplifestylehealthfitness',
+  business: 'gdnpfpbusiness',
+  money: 'gdnpfpmoney',
+  fashion: 'gdnpfpfashion',
+  environment: 'gdnpfpenvironment',
+  technology: 'gdnpfptechnology',
+  travel: 'gdnpfptravel',
+  science: 'gdnpfpscience',
+  athletics: 'gdnpfpsportother',
+  basketball: 'gdnpfpsportus',
+  'sport-2-0': 'gdnpfpsport20',
+  'full-story-podcast': 'gdnpfpausfullstorypodcast'
 };
 
 const contentBundlingTags = new Set(Object.values(contentBundlingMap));
 
 /**
-  * Takes the current list of composer keywords, youtube tags, and the blockAds setting,
-  * and returns the list of tags which should be applied to the piece; either adding
-  * bundling tags where there is a match, or removing them if their matching keyword/tag
-  * has been removed or the blockAds setting enabled.
-  * @param params - the function parameters
-  * @param params.keywords - the list of *composer* tags (should be the tag's id/path, eg. `sport/cycling`)
-  * @param params.tags - the list of *youtube* tags added in the Youtube furniture panel
-  * @param params.blockAds
-  * @returns an updated list of *youtube* tags
-  */
-export const addOrDropBundlingTags = ({ keywords, tags, blockAds }: { keywords: string[], tags: string[], blockAds: boolean }) => {
+ * Takes the current list of composer keywords, youtube tags, and the blockAds setting,
+ * and returns the list of tags which should be applied to the piece; either adding
+ * bundling tags where there is a match, or removing them if their matching keyword/tag
+ * has been removed or the blockAds setting enabled.
+ * @param params - the function parameters
+ * @param params.keywords - the list of *composer* tags (should be the tag's id/path, eg. `sport/cycling`)
+ * @param params.tags - the list of *youtube* tags added in the Youtube furniture panel
+ * @param params.blockAds
+ * @returns an updated list of *youtube* tags
+ */
+export const addOrDropBundlingTags = ({
+  keywords,
+  tags,
+  blockAds
+}: {
+  keywords: string[];
+  tags: string[];
+  blockAds: boolean;
+}) => {
   // strip all gdnpfp... tags. If the composer keyword which caused them to be added
   // is still around, they'll come back, but if it's been removed or blockAds has been
   // turned on, then they'll be stripped out.
-  const tagsWithoutBundlingTags = tags.filter(tag => !contentBundlingTags.has(tag));
+  const tagsWithoutBundlingTags = tags.filter(
+    tag => !contentBundlingTags.has(tag)
+  );
   const tagSet = new Set(tagsWithoutBundlingTags);
 
   // If we are preventing ads for this video, then no need to add bundling tags
@@ -78,7 +88,9 @@ export const addOrDropBundlingTags = ({ keywords, tags, blockAds }: { keywords: 
       // `politics/education` Composer tag - `education` isn't a recognised bundle tag, so we fall back to the first
       // element `politics` instead and add `gdnpfpnewspolitics`.
       const parts = keyword.split('/');
-      const matchingBundlingTag = parts.reverse().find(part => contentBundlingMap[part]);
+      const matchingBundlingTag = parts
+        .reverse()
+        .find(part => contentBundlingMap[part]);
       if (matchingBundlingTag) {
         tagSet.add(matchingBundlingTag);
         tagSet.add(contentBundlingMap[matchingBundlingTag]);

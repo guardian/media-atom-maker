@@ -3,16 +3,17 @@ import React, { ChangeEventHandler, ReactNode } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   ClientAsset,
-  deleteSubtitle, SelfHostedSource,
+  deleteSubtitle,
+  SelfHostedSource,
   startSubtitleFileUpload
 } from '../../slices/s3Upload';
 import { selectVideo } from '../../slices/video';
 import { AppDispatch } from '../../util/setupStore';
-import DeleteButton from '../DeleteButton';
+import { DeleteButton } from '../DeleteButton';
 import Icon, { SubtitlesIcon } from '../Icon';
 import { VideoEmbed } from '../utils/VideoEmbed';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
-import type {VideoPlayerFormat} from "../../constants/videoCreateOptions";
+import type { VideoPlayerFormat } from '../../constants/videoCreateOptions';
 
 function presenceInitials(email: string) {
   if (!email) return;
@@ -132,7 +133,11 @@ function AssetDisplay({
   sources: SelfHostedSource[];
 }) {
   const embed = id ? (
-    <YouTubeEmbed id={id.toString()} largePreview={true} className={undefined} />
+    <YouTubeEmbed
+      id={id.toString()}
+      largePreview={true}
+      className={undefined}
+    />
   ) : (
     <VideoEmbed sources={sources} posterUrl={undefined} />
   );
@@ -273,7 +278,7 @@ export function Asset({
   selectAsset: { (): void };
   deleteAsset: { (): void };
   activatingAssetNumber: number;
-  videoPlayerFormat?: VideoPlayerFormat
+  videoPlayerFormat?: VideoPlayerFormat;
 }) {
   const dispatch = useDispatch<AppDispatch>();
 
@@ -291,8 +296,12 @@ export function Asset({
    *
    * We can't simply check for videoPlayerFormat === 'Loop' or 'Default' here as videoPlayerFormat is undefined on videos
    * created before videoPlayerFormat was introduced.
-  **/
-  const videoSupportsSubtitles = isSelfHosted && (videoPlayerFormat === 'Loop' || videoPlayerFormat === 'Default' || videoPlayerFormat === undefined);
+   **/
+  const videoSupportsSubtitles =
+    isSelfHosted &&
+    (videoPlayerFormat === 'Loop' ||
+      videoPlayerFormat === 'Default' ||
+      videoPlayerFormat === undefined);
 
   const subtitlePanel = videoSupportsSubtitles && (
     <div className="video-trail__item__subtitles">

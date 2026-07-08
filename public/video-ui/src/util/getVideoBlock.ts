@@ -11,9 +11,13 @@ export type ContentAtom = {
     source: string;
   };
   assets: unknown[];
-}
+};
 
-export function getVideoBlock(id: string, title: string, source: string): { elements: ContentAtom[] } {
+export function getVideoBlock(
+  id: string,
+  title: string,
+  source: string
+): { elements: ContentAtom[] } {
   return {
     elements: [
       {

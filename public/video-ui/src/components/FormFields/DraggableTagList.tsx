@@ -30,13 +30,8 @@ const SortableTag = ({
   tag: Tag;
   removeFn: (t: Tag) => void;
 }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition
-  } = useSortable({ id: tag.id });
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: tag.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -68,8 +63,8 @@ const TagElement = ({
       data-no-dnd="true"
       className="form__field__tag__remove"
       onClick={() => removeFn(tag)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter"){
+      onKeyDown={e => {
+        if (e.key === 'Enter') {
           removeFn(tag);
         }
       }}

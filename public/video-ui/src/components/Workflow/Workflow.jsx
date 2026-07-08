@@ -47,7 +47,10 @@ class Workflow extends React.Component {
         workflowSections={this.props.workflow.sections || []}
         workflowStatuses={this.props.workflow.statuses || []}
         workflowPriorities={
-          this.props.workflow.priorities.map(({ name, value }) => ({ id: value, title: name })) || []
+          this.props.workflow.priorities.map(({ name, value }) => ({
+            id: value,
+            title: name
+          })) || []
         }
         workflowStatus={this.props.workflow.status}
         workflowProductionOffices={[
@@ -63,7 +66,13 @@ class Workflow extends React.Component {
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getPriorities, getSections, getStatus, getStatuses, localUpdateWorkflowData } from '../../slices/workflow';
+import {
+  getPriorities,
+  getSections,
+  getStatus,
+  getStatuses,
+  localUpdateWorkflowData
+} from '../../slices/workflow';
 
 function mapStateToProps(state) {
   return {

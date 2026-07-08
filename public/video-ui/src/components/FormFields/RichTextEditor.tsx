@@ -7,7 +7,6 @@ import { DOMParser as parseDOM, Node } from 'prosemirror-model';
 import { EditorConfig } from './richtext/config';
 import { paragraphToWhitespace } from './richtext/utils/richTextHelpers';
 
-
 interface RichTextEditorProps {
   value: string;
   onUpdate: (str: string) => void;
@@ -16,14 +15,23 @@ interface RichTextEditorProps {
   shouldAcceptCopiedText: boolean;
 }
 
-export const RichTextEditor = ({ value, onUpdate, config, label, shouldAcceptCopiedText = false }: RichTextEditorProps) => {
+export const RichTextEditor = ({
+  value,
+  onUpdate,
+  config,
+  label,
+  shouldAcceptCopiedText = false
+}: RichTextEditorProps) => {
   const schema = createSchema(config);
 
   const editorEl = useRef<HTMLDivElement>(null);
-  const localOnUpdate = useCallback((str: string) => {
-    setLocalValue(str);
-    onUpdate(str);
-  }, [onUpdate]);
+  const localOnUpdate = useCallback(
+    (str: string) => {
+      setLocalValue(str);
+      onUpdate(str);
+    },
+    [onUpdate]
+  );
 
   const [localValue, setLocalValue] = useState<string>(value);
   const [editorView, setEditorView] = useState<EditorView | undefined>(
@@ -34,18 +42,30 @@ export const RichTextEditor = ({ value, onUpdate, config, label, shouldAcceptCop
     // Editor view takes an HTML Node therefore this string value needs to be converted into a node by placing in a div
     const contentNode = document.createElement('div');
     contentNode.innerHTML = value;
-    const edView = createEditorView(localOnUpdate, editorEl, contentNode, schema, config);
+    const edView = createEditorView(
+      localOnUpdate,
+      editorEl,
+      contentNode,
+      schema,
+      config
+    );
     setEditorView(edView);
   }, []);
 
   useEffect(() => {
     const shouldUpdateFromIncomingValue = value !== localValue;
-    if (!editorView || !shouldAcceptCopiedText || !shouldUpdateFromIncomingValue) {
+    if (
+      !editorView ||
+      !shouldAcceptCopiedText ||
+      !shouldUpdateFromIncomingValue
+    ) {
       return;
     }
 
     // Clear the current document
-    const selectAll = editorView.state.tr.setSelection(new AllSelection(editorView.state.doc));
+    const selectAll = editorView.state.tr.setSelection(
+      new AllSelection(editorView.state.doc)
+    );
     editorView.dispatch(selectAll);
 
     const valueWithParagraphsAsHardBreaks = paragraphToWhitespace(value);

@@ -40,10 +40,10 @@ class YoutubeFurniture extends React.Component {
   validateYouTubeDescription = description => {
     return description && description.match(/<|>/)
       ? new FieldNotification(
-        'required',
-        `'<' and '>' are not allowed in YouTube descriptions`,
-        FieldNotification.error
-      )
+          'required',
+          `'<' and '>' are not allowed in YouTube descriptions`,
+          FieldNotification.error
+        )
       : null;
   };
 
@@ -54,10 +54,10 @@ class YoutubeFurniture extends React.Component {
 
     return characterCountExceeded
       ? new FieldNotification(
-        'required',
-        `Maximum characters allowed in YouTube keywords is ${charLimit}.`,
-        FieldNotification.error
-      )
+          'required',
+          `Maximum characters allowed in YouTube keywords is ${charLimit}.`,
+          FieldNotification.error
+        )
       : null;
   };
 
@@ -65,27 +65,25 @@ class YoutubeFurniture extends React.Component {
     const { video, updateVideo } = this.props;
 
     const fullTags = addOrDropBundlingTags({
-      keywords: video.keywords, tags: video.tags, blockAds: video.blockAds
+      keywords: video.keywords,
+      tags: video.tags,
+      blockAds: video.blockAds
     });
     const newVideo = Object.assign({}, video, { tags: fullTags });
     updateVideo(newVideo);
   };
 
   render() {
-    const {
-      video,
-      editable,
-      updateVideo,
-      updateErrors,
-      updateWarnings
-    } = this.props;
+    const { video, editable, updateVideo, updateErrors, updateWarnings } =
+      this.props;
 
     const { categories } = this.props.youtube;
 
     const availableChannels = VideoUtils.getAvailableChannels(video);
     const availablePrivacyStates = VideoUtils.getAvailablePrivacyStates(video);
     const hasYoutubeWriteAccess = VideoUtils.hasYoutubeWriteAccess(video);
-    const isChannelSelectionDisabled = VideoUtils.hasAssets(video) && video.channelId;
+    const isChannelSelectionDisabled =
+      VideoUtils.hasAssets(video) && video.channelId;
     const platform = VideoUtils.getPlatformFromAtom(video);
 
     return (
@@ -98,7 +96,11 @@ class YoutubeFurniture extends React.Component {
         formName={formNames.youtubeFurniture}
         formClass="atom__edit__form"
       >
-        <ManagedField fieldLocation="channelId" name="Channel" disabled={isChannelSelectionDisabled}>
+        <ManagedField
+          fieldLocation="channelId"
+          name="Channel"
+          disabled={isChannelSelectionDisabled}
+        >
           <SelectBox selectValues={availableChannels} />
         </ManagedField>
         <ManagedField
@@ -150,7 +152,7 @@ class YoutubeFurniture extends React.Component {
 //REDUX CONNECTIONS
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { fetchCategories, fetchChannels } from "../../slices/youtube";
+import { fetchCategories, fetchChannels } from '../../slices/youtube';
 
 function mapStateToProps(state) {
   return {

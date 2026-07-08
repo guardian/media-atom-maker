@@ -17,15 +17,19 @@ export type SelfHostedSource = {
   height?: number;
   width?: number;
 };
-export function isSelfHostedSource(source: unknown): source is SelfHostedSource {
-  return typeof (source as SelfHostedSource).src === 'string' && typeof (source as SelfHostedSource).mimeType === 'string';
+export function isSelfHostedSource(
+  source: unknown
+): source is SelfHostedSource {
+  return (
+    typeof (source as SelfHostedSource).src === 'string' &&
+    typeof (source as SelfHostedSource).mimeType === 'string'
+  );
 }
 
 export type SelfHostedAsset = {
   id?: undefined;
   sources: SelfHostedSource[];
 };
-
 
 export type VideoAsset = YouTubeAsset | SelfHostedAsset;
 

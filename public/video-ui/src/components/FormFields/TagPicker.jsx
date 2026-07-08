@@ -14,7 +14,7 @@ import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
 import ReactTooltip from 'react-tooltip';
 import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
 import YouTubeKeywords from '../../constants/youTubeKeywords';
-import debounce from "lodash/debounce";
+import debounce from 'lodash/debounce';
 
 class TagPicker extends React.Component {
   constructor(props) {
@@ -94,10 +94,14 @@ class TagPicker extends React.Component {
         searchResultTags: []
       });
     } else {
-      getTagsByType(this.props.tagManagerUrl, searchText, tagTypes, this.props.tagSubType)
+      getTagsByType(
+        this.props.tagManagerUrl,
+        searchText,
+        tagTypes,
+        this.props.tagSubType
+      )
         .then(response => {
-
-          const tags = response.data.reduce((tags, {data}) => {
+          const tags = response.data.reduce((tags, { data }) => {
             return tags.concat(this.getTagFromTagManager(data));
           }, []);
 
@@ -120,16 +124,14 @@ class TagPicker extends React.Component {
     this.setState({
       tagValue: newValue
     });
-    return this.props.onUpdateField(tagsToStringList(newValue))
-    .then(() => {
-
+    return this.props.onUpdateField(tagsToStringList(newValue)).then(() => {
       return this.setState({
         searchResultTags: []
       });
     });
   };
 
-  removeFn = (tag) => {
+  removeFn = tag => {
     const newFieldValue = this.state.tagValue.filter(oldField => {
       return tag.id !== oldField.id;
     });
@@ -137,9 +139,7 @@ class TagPicker extends React.Component {
     this.onUpdate(newFieldValue);
   };
 
-
-  hideTagResults = (e) => {
-
+  hideTagResults = e => {
     //First we need to make sure to set the selectedTagIndex back to null
 
     if (this.state.selectedTagIndex !== null) {
@@ -177,21 +177,24 @@ class TagPicker extends React.Component {
     });
   };
 
-  onKeyDown = (e) => {
-
+  onKeyDown = e => {
     this.setState({
       showTags: true
     });
 
     if (e.keyCode === keyCodes.down) {
-      if (this.state.selectedTagIndex === null && this.state.searchResultTags.length > 0) {
-
+      if (
+        this.state.selectedTagIndex === null &&
+        this.state.searchResultTags.length > 0
+      ) {
         this.setState({
           selectedTagIndex: 0
         });
-
-    } else {
-        if (this.state.selectedTagIndex < this.state.searchResultTags.length - 1) {
+      } else {
+        if (
+          this.state.selectedTagIndex <
+          this.state.searchResultTags.length - 1
+        ) {
           this.setState({
             selectedTagIndex: this.state.selectedTagIndex + 1
           });
@@ -203,16 +206,17 @@ class TagPicker extends React.Component {
       if (this.state.selectedTagIndex && this.state.selectedTagIndex !== 0) {
         this.setState({
           selectedTagIndex: this.state.selectedTagIndex - 1
-          });
+        });
       }
     }
 
     if (e.keyCode === keyCodes.enter && this.state.selectedTagIndex !== null) {
       const newTag = this.state.searchResultTags[this.state.selectedTagIndex];
 
-      const valueWithoutDupes = this.props.tagType === TagTypes.contributor ?
-        removeStringTagDuplicates(newTag, this.state.tagValue) :
-        removeTagDuplicates(newTag, this.state.tagValue);
+      const valueWithoutDupes =
+        this.props.tagType === TagTypes.contributor
+          ? removeStringTagDuplicates(newTag, this.state.tagValue)
+          : removeTagDuplicates(newTag, this.state.tagValue);
 
       const newFieldValue = valueWithoutDupes.concat([newTag]);
 
@@ -226,10 +230,9 @@ class TagPicker extends React.Component {
   };
 
   renderSelectedTags = () => {
-
     if (this.props.tagType !== TagTypes.keyword) {
-      return (
-          this.state.tagValue.map((tag, index) => this.renderTag(tag, index))
+      return this.state.tagValue.map((tag, index) =>
+        this.renderTag(tag, index)
       );
     }
 
@@ -244,43 +247,36 @@ class TagPicker extends React.Component {
 
   renderTag = (tag, index) => {
     return (
-      <div
-        key={`${tag.id}-${index}`}
-        className="form__field__selected__tag"
-      >
-        <span>
-          {tag.detailedTitle}
-        </span>
+      <div key={`${tag.id}-${index}`} className="form__field__selected__tag">
+        <span>{tag.detailedTitle}</span>
         <span
           className="form__field__tag__remove"
-          onClick={() => this.removeFn(tag)}>
-        </span>
+          onClick={() => this.removeFn(tag)}
+        ></span>
       </div>
     );
   };
 
   renderTagPicker() {
-
-    if (this.props.tagType === TagTypes.contributor ||
-        this.props.tagType === TagTypes.youtube) {
+    if (
+      this.props.tagType === TagTypes.contributor ||
+      this.props.tagType === TagTypes.youtube
+    ) {
       return (
-          <TextInputTagPicker
-            tagValue={this.state.tagValue}
-            onUpdate={this.onUpdate}
-            fetchTags={this.debouncedFetchTags}
-            searchResultTags={this.state.searchResultTags}
-            tagsToVisible={this.tagsToVisible}
-            showTags={this.state.showTags}
-            hideTagResults={this.hideTagResults}
-            removeFn={this.removeFn}
-            selectedTagIndex={this.state.selectedTagIndex}
-            inputClearCount={this.state.inputClearCount}
-
-            {...this.props}
-          />
-
+        <TextInputTagPicker
+          tagValue={this.state.tagValue}
+          onUpdate={this.onUpdate}
+          fetchTags={this.debouncedFetchTags}
+          searchResultTags={this.state.searchResultTags}
+          tagsToVisible={this.tagsToVisible}
+          showTags={this.state.showTags}
+          hideTagResults={this.hideTagResults}
+          removeFn={this.removeFn}
+          selectedTagIndex={this.state.selectedTagIndex}
+          inputClearCount={this.state.inputClearCount}
+          {...this.props}
+        />
       );
-
     }
 
     return (
@@ -294,24 +290,23 @@ class TagPicker extends React.Component {
         hideTagResults={this.hideTagResults}
         selectedTagIndex={this.state.selectedTagIndex}
         inputClearCount={this.state.inputClearCount}
-
         {...this.props}
       />
     );
   }
 
   renderAddedTags() {
-
     if (this.state.tagValue.length !== 0) {
-      if (this.props.tagType === TagTypes.contributor ||
-          this.props.tagType === TagTypes.youtube) {
+      if (
+        this.props.tagType === TagTypes.contributor ||
+        this.props.tagType === TagTypes.youtube
+      ) {
         return (
           <TagFieldValue
             tagValue={this.state.tagValue}
             tagType={this.props.tagType}
           />
         );
-
       }
       return (
         <div className="form__field__tag__list">
@@ -360,8 +355,9 @@ class TagPicker extends React.Component {
   }
 
   render() {
-
-    const hasWarning = this.props.hasWarning(this.props) && this.state.searchResultTags.length === 0;
+    const hasWarning =
+      this.props.hasWarning(this.props) &&
+      this.state.searchResultTags.length === 0;
     const hasError = this.props.hasError(this.props);
 
     if (!this.props.editable) {
@@ -380,18 +376,21 @@ class TagPicker extends React.Component {
           <p className="details-list__title">{this.props.fieldName}</p>
           <TagUnavailable capiUnavailable={this.state.capiUnavailable} />
           <p className="details-list__field ">
-            <TagFieldValue tagValue={this.state.tagValue} tagType={this.props.tagType}/>
+            <TagFieldValue
+              tagValue={this.state.tagValue}
+              tagType={this.props.tagType}
+            />
           </p>
         </div>
       );
     }
 
     return (
-      <div className="form__row"
+      <div
+        className="form__row"
         onBlur={this.hideTagResults}
         onKeyDown={this.onKeyDown}
       >
-
         <div className="form__label__layout">
           <label className="form__label">{this.props.fieldName}</label>
           {this.renderBylineInstructions()}
@@ -402,16 +401,20 @@ class TagPicker extends React.Component {
         <TagUnavailable capiUnavailable={this.state.capiUnavailable} />
         {this.renderTagPicker()}
         {this.renderAddedTags()}
-        {hasWarning
-          ? <p className="form__message form__message--warning">
-          {this.props.notification.message}
+        {hasWarning ? (
+          <p className="form__message form__message--warning">
+            {this.props.notification.message}
           </p>
-            : ''}
-        {hasError
-          ? <p className="form__message form__message--error">
-          {this.props.notification.message}
+        ) : (
+          ''
+        )}
+        {hasError ? (
+          <p className="form__message form__message--error">
+            {this.props.notification.message}
           </p>
-            : ''}
+        ) : (
+          ''
+        )}
       </div>
     );
   }

@@ -1,8 +1,17 @@
-import React, {DetailedHTMLProps, VideoHTMLAttributes} from 'react';
-import { SelfHostedSource } from "../../slices/s3Upload";
+import React, { DetailedHTMLProps, VideoHTMLAttributes } from 'react';
+import { SelfHostedSource } from '../../slices/s3Upload';
 
-export function VideoEmbed({ sources, posterUrl }: { sources: SelfHostedSource[]; posterUrl?: string }) {
-  const props: DetailedHTMLProps<VideoHTMLAttributes<HTMLVideoElement>, HTMLVideoElement> = {
+export function VideoEmbed({
+  sources,
+  posterUrl
+}: {
+  sources: SelfHostedSource[];
+  posterUrl?: string;
+}) {
+  const props: DetailedHTMLProps<
+    VideoHTMLAttributes<HTMLVideoElement>,
+    HTMLVideoElement
+  > = {
     className: 'video-player',
     controls: true,
     preload: 'metadata',
@@ -22,33 +31,35 @@ export function VideoEmbed({ sources, posterUrl }: { sources: SelfHostedSource[]
       <video {...props}>
         {videoSources.map(source => {
           return (
-            <source key={source.src} src={source.src} type={source.mimeType}/>
+            <source key={source.src} src={source.src} type={source.mimeType} />
           );
         })}
 
-        {sources.filter(source => source.mimeType === "text/vtt").map((source, index) => {
-          return (<track
-            key={source.src}
-            default={index === 0}
-            kind="subtitles"
-            src={source.src}
-          />);
-        })}
+        {sources
+          .filter(source => source.mimeType === 'text/vtt')
+          .map((source, index) => {
+            return (
+              <track
+                key={source.src}
+                default={index === 0}
+                kind="subtitles"
+                src={source.src}
+              />
+            );
+          })}
       </video>
     );
   }
 }
 
 /**
-* Order is important here - the browser will use the first type it supports.
-*/
+ * Order is important here - the browser will use the first type it supports.
+ */
 export const supportedVideoFileTypes = [
   'video/mp4', // MP4 format
   'application/x-mpegURL', // HLS format
   'application/vnd.apple.mpegurl' // Alternative HLS format
 ] as const;
-
-
 
 /**
  * Ensure sources are ordered by the order that MIME types are specified in
@@ -56,19 +67,14 @@ export const supportedVideoFileTypes = [
  */
 
 function orderSources(sources: SelfHostedSource[]) {
-  return supportedVideoFileTypes
-    .reduce<SelfHostedSource[]>((acc, type) => {
-      const sourcesByType = sources.filter(
-        ({ mimeType }) => mimeType === type
+  return supportedVideoFileTypes.reduce<SelfHostedSource[]>((acc, type) => {
+    const sourcesByType = sources.filter(({ mimeType }) => mimeType === type);
+    if (sourcesByType.length) {
+      const sourcesOrderedByWidthDescending = sourcesByType.sort(
+        (a, b) => Number(b.width ?? 0) - Number(a.width ?? 0)
       );
-      if (sourcesByType.length) {
-        const sourcesOrderedByWidthDescending = sourcesByType.sort(
-          (a, b) =>
-            Number(b.width ?? 0) -
-            Number(a.width ?? 0)
-        );
-        acc.push(...sourcesOrderedByWidthDescending);
-      }
-      return acc;
-    }, []);
+      acc.push(...sourcesOrderedByWidthDescending);
+    }
+    return acc;
+  }, []);
 }

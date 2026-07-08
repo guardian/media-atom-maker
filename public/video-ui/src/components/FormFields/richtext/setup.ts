@@ -15,7 +15,7 @@ const createBasePlugins = (schema: Schema, config: EditorConfig) => {
     keymap(buildKeymap(schema, {}, {}, config)),
     keymap(baseKeymap),
     history({ depth: 100, newGroupDelay: 500 }),
-    menuBar({content: buildMenuItems(schema)})
+    menuBar({ content: buildMenuItems(schema) })
   ];
   return plugins;
 };

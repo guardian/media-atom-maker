@@ -3,3 +3,6 @@
 
 # run scalafmtAll on whole project
 6377a6551890ad9a1a4e8620e70974bcbd7533c5
+
+# run prettier on client side code
+fa5a36d1838bc1da3b46792c7c4e863233125ca2

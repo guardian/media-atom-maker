@@ -1,8 +1,8 @@
 import { browserHistory } from 'react-router';
-import VideosApi, {VideoWithoutId} from '../../services/VideosApi';
+import VideosApi, { VideoWithoutId } from '../../services/VideosApi';
 import { showError } from '../../slices/error';
 import { AppDispatch } from '../../util/setupStore';
-import {setVideo, setSaving} from '../../slices/video';
+import { setVideo, setSaving } from '../../slices/video';
 
 export function createVideo(video: VideoWithoutId) {
   return (dispatch: AppDispatch) => {

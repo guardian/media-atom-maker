@@ -73,7 +73,7 @@ class ScheduledLaunch extends React.Component {
       this.setState({ invalidDateError: 'Date must be in the future!' });
     } else {
       this.setState({ invalidDateError: null });
-    };
+    }
   };
 
   onSelectOption = propertyName => {
@@ -127,7 +127,10 @@ class ScheduledLaunch extends React.Component {
   };
 
   removeDate = propertyName => {
-    const key = propertyName === datesProperties.selectedScheduleDate ? 'scheduledLaunch' : 'embargo';
+    const key =
+      propertyName === datesProperties.selectedScheduleDate
+        ? 'scheduledLaunch'
+        : 'embargo';
     const video = this.props.video;
     this.props.saveVideo(
       Object.assign({}, video, {
@@ -154,7 +157,8 @@ class ScheduledLaunch extends React.Component {
   /* Render functions */
 
   renderScheduleOptions = (video, videoEditOpen, scheduledLaunch, embargo) => {
-    const hasPreventedPublication = embargo && moment(embargo).isSameOrAfter(impossiblyDistantDate);
+    const hasPreventedPublication =
+      embargo && moment(embargo).isSameOrAfter(impossiblyDistantDate);
 
     const canSchedule = !this.getNoScheduleReason();
 
@@ -164,7 +168,9 @@ class ScheduledLaunch extends React.Component {
           <li>
             <button
               className="btn btn--list-item"
-              onClick={() => this.onSelectOption(datesProperties.selectedScheduleDate)}
+              onClick={() =>
+                this.onSelectOption(datesProperties.selectedScheduleDate)
+              }
               disabled={!video || videoEditOpen || !canSchedule}
               data-tip={this.getNoScheduleReason()}
             >
@@ -177,25 +183,26 @@ class ScheduledLaunch extends React.Component {
           <li>
             <button
               className="btn btn--list-item"
-              onClick={() => this.onSelectOption(datesProperties.selectedEmbargoDate)}
+              onClick={() =>
+                this.onSelectOption(datesProperties.selectedEmbargoDate)
+              }
               disabled={!video || videoEditOpen}
             >
               Edit embargo
             </button>
           </li>
         )}
-        {!embargo &&
-          !scheduledLaunch && (
-            <li>
-              <button
-                className="btn btn--list-item"
-                onClick={() => this.preventPublication()}
-                disabled={!video || videoEditOpen}
-              >
-                Prevent publication
-              </button>
-            </li>
-          )}
+        {!embargo && !scheduledLaunch && (
+          <li>
+            <button
+              className="btn btn--list-item"
+              onClick={() => this.preventPublication()}
+              disabled={!video || videoEditOpen}
+            >
+              Prevent publication
+            </button>
+          </li>
+        )}
         {hasPreventedPublication && (
           <li>
             <button
@@ -219,27 +226,39 @@ class ScheduledLaunch extends React.Component {
       <span className="topbar__alert">{invalidDateError}</span>
     );
 
-  renderDatePicker = (showDatePicker, propertyName, selectedScheduleDate, selectedEmbargoDate) => (
-    showDatePicker &&
-    <DatePicker
-      editable={true}
-      onUpdateField={date => this.setDate(date, propertyName)}
-      fieldValue={
-        propertyName === datesProperties.selectedScheduleDate
-          ? selectedScheduleDate
-          : selectedEmbargoDate
-      }
-    />
-  );
+  renderDatePicker = (
+    showDatePicker,
+    propertyName,
+    selectedScheduleDate,
+    selectedEmbargoDate
+  ) =>
+    showDatePicker && (
+      <DatePicker
+        editable={true}
+        onUpdateField={date => this.setDate(date, propertyName)}
+        fieldValue={
+          propertyName === datesProperties.selectedScheduleDate
+            ? selectedScheduleDate
+            : selectedEmbargoDate
+        }
+      />
+    );
 
-  renderSaveButton = (propertyName, selectedScheduleDate, selectedEmbargoDate, invalidDateError) => (
+  renderSaveButton = (
+    propertyName,
+    selectedScheduleDate,
+    selectedEmbargoDate,
+    invalidDateError
+  ) => (
     <button
       className="button__secondary--confirm"
       onClick={() => this.saveDate(propertyName)}
       disabled={
         invalidDateError ||
-        ((propertyName === datesProperties.selectedScheduleDate && !selectedScheduleDate) ||
-          (propertyName === datesProperties.selectedEmbargoDate && !selectedEmbargoDate))
+        (propertyName === datesProperties.selectedScheduleDate &&
+          !selectedScheduleDate) ||
+        (propertyName === datesProperties.selectedEmbargoDate &&
+          !selectedEmbargoDate)
       }
     >
       Save
@@ -268,7 +287,7 @@ class ScheduledLaunch extends React.Component {
     </button>
   );
 
-  renderSchedulerButton = (showScheduleOptions) => {
+  renderSchedulerButton = showScheduleOptions => {
     return (
       <div>
         <button
@@ -289,11 +308,7 @@ class ScheduledLaunch extends React.Component {
   };
 
   render() {
-    const {
-      video,
-      videoEditOpen,
-      hasPublishedVideoPageUsages
-    } = this.props;
+    const { video, videoEditOpen, hasPublishedVideoPageUsages } = this.props;
     const {
       selectedScheduleDate,
       selectedEmbargoDate,
@@ -308,18 +323,22 @@ class ScheduledLaunch extends React.Component {
 
     return (
       <div className="flex-container topbar__scheduler">
-        {(scheduledLaunch || embargo) &&
-          !showDatePicker && (
-            <ScheduleRecap
-              scheduledLaunch={scheduledLaunch}
-              embargo={embargo}
-              hasPreventedPublication={hasPreventedPublication}
-            />
-          )}
-        {this.renderDatePicker(showDatePicker, propertyName, selectedScheduleDate, selectedEmbargoDate)}
+        {(scheduledLaunch || embargo) && !showDatePicker && (
+          <ScheduleRecap
+            scheduledLaunch={scheduledLaunch}
+            embargo={embargo}
+            hasPreventedPublication={hasPreventedPublication}
+          />
+        )}
+        {this.renderDatePicker(
+          showDatePicker,
+          propertyName,
+          selectedScheduleDate,
+          selectedEmbargoDate
+        )}
         {showDatePicker && this.renderAlert(invalidDateError)}
         {!showDatePicker && (
-            <div className="scheduleOptionsWrapper">
+          <div className="scheduleOptionsWrapper">
             {this.renderSchedulerButton(showScheduleOptions)}
             {showScheduleOptions &&
               this.renderScheduleOptions(
@@ -328,12 +347,20 @@ class ScheduledLaunch extends React.Component {
                 scheduledLaunch,
                 embargo
               )}
-            </div>
+          </div>
+        )}
+        {showDatePicker &&
+          this.renderSaveButton(
+            propertyName,
+            selectedScheduleDate,
+            selectedEmbargoDate,
+            invalidDateError
           )}
-        {showDatePicker && this.renderSaveButton(propertyName, selectedScheduleDate, selectedEmbargoDate, invalidDateError)}
-        {((propertyName === datesProperties.selectedScheduleDate && scheduledLaunch) ||
+        {((propertyName === datesProperties.selectedScheduleDate &&
+          scheduledLaunch) ||
           (propertyName === datesProperties.selectedEmbargoDate && embargo)) &&
-          showDatePicker && this.renderRemoveButton(propertyName)}
+          showDatePicker &&
+          this.renderRemoveButton(propertyName)}
         {showDatePicker && this.renderCancelButton()}
         <ReactTooltip />
       </div>

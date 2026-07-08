@@ -1,28 +1,28 @@
-import OrderedMap from "orderedmap";
-import { MarkSpec, NodeSpec, Schema } from "prosemirror-model";
-import { schema } from "prosemirror-schema-basic";
-import { addListNodes, bulletList, listItem } from "prosemirror-schema-list";
+import OrderedMap from 'orderedmap';
+import { MarkSpec, NodeSpec, Schema } from 'prosemirror-model';
+import { schema } from 'prosemirror-schema-basic';
+import { addListNodes, bulletList, listItem } from 'prosemirror-schema-list';
 import _ from 'lodash';
-import { EditorConfig } from "./config";
+import { EditorConfig } from './config';
 
 const BaseInlineEditorNodeSpec = OrderedMap.from<NodeSpec>({
   doc: {
-      content: "inline*",
-      toDOM: () => ["div", 0]
+    content: 'inline*',
+    toDOM: () => ['div', 0]
   },
   text: schema.nodes.text
 });
 
 const BaseBlockEditorNodeSpec = OrderedMap.from<NodeSpec>({
   doc: {
-      content: "block+",
-      toDOM: () => ["div", 0]
+    content: 'block+',
+    toDOM: () => ['div', 0]
   },
   text: schema.nodes.text
 });
 
 export const basicSchemaWithLists = new Schema({
-  nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
+  nodes: addListNodes(schema.spec.nodes, 'paragraph block*', 'block'),
   marks: schema.spec.marks
 });
 
@@ -32,9 +32,9 @@ const filterNodes = (
 ): OrderedMap<NodeSpec> => {
   let map = OrderedMap.from<NodeSpec>({});
   nodes.forEach((key, node) => {
-      if (allowedNodes.includes(key)) {
-          map = map.addToEnd(key, node);
-      }
+    if (allowedNodes.includes(key)) {
+      map = map.addToEnd(key, node);
+    }
   });
   return map;
 };
@@ -45,9 +45,9 @@ const filterMarks = (
 ): OrderedMap<MarkSpec> => {
   let map = OrderedMap.from<MarkSpec>({});
   marks.forEach((key, mark) => {
-      if (allowedMarks.includes(key)) {
-          map = map.addToEnd(key, mark);
-      }
+    if (allowedMarks.includes(key)) {
+      map = map.addToEnd(key, mark);
+    }
   });
   return map;
 };
@@ -61,9 +61,14 @@ export const createSchema = <Config extends EditorConfig>(
     ? BaseInlineEditorNodeSpec
     : BaseBlockEditorNodeSpec;
 
-  const filteredNodeSpec = nodes.append(filterNodes(basicSchemaWithLists.spec.nodes, allowedNodes));
+  const filteredNodeSpec = nodes.append(
+    filterNodes(basicSchemaWithLists.spec.nodes, allowedNodes)
+  );
 
-  const markSpec: MarkSpec = filterMarks(basicSchemaWithLists.spec.marks, allowedMarks);
+  const markSpec: MarkSpec = filterMarks(
+    basicSchemaWithLists.spec.marks,
+    allowedMarks
+  );
 
   const schema = new Schema({
     nodes: filteredNodeSpec,

@@ -36,25 +36,30 @@ export default class YoutubeUpload extends React.Component {
               disabled={!canUploadToYouTube || this.props.isUploading}
               accept="video/*,.mxf"
             />
-            { !canUploadToYouTube ?
+            {!canUploadToYouTube ? (
               <p className="form__message form__message--warning">
-              A YouTube channel, category and privacy status are needed before uploading a video. Please set these in the YouTube furniture tab.
-              </p> : null
-            }
+                A YouTube channel, category and privacy status are needed before
+                uploading a video. Please set these in the YouTube furniture
+                tab.
+              </p>
+            ) : null}
             <button
               type="button"
               className="btn button__secondary__assets"
-              disabled={!canUploadToYouTube || this.props.isUploading || !this.state.file}
+              disabled={
+                !canUploadToYouTube ||
+                this.props.isUploading ||
+                !this.state.file
+              }
               onClick={() =>
                 startUpload({
                   id: video.id,
                   file: this.state.file,
                   selfHost: false
-                })}
+                })
+              }
             >
-              <Icon icon="backup">
-                Upload To YouTube
-              </Icon>
+              <Icon icon="backup">Upload To YouTube</Icon>
             </button>
           </div>
         </div>

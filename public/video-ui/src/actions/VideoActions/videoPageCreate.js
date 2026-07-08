@@ -3,7 +3,6 @@ import ContentApi from '../../services/capi';
 import { showError } from '../../slices/error';
 import { addNewlyCreatedVideoUsage } from '../../slices/usage';
 
-
 function requestVideoPageCreate() {
   return {
     type: 'VIDEO_PAGE_CREATE_POST_REQUEST',
@@ -16,10 +15,16 @@ export function createVideoPage(id, video, isTrainingMode) {
     dispatch(requestVideoPageCreate());
 
     // Do a last minute check to see if a video page has shown up when we weren't looking
-    const existingUsages = await VideosApi.getVideoUsages(id).then(res => res.preview.video.length > 0);
+    const existingUsages = await VideosApi.getVideoUsages(id).then(
+      res => res.preview.video.length > 0
+    );
 
     if (existingUsages) {
-      return dispatch(showError('Video page already exists, please refresh this page to get latest data'));
+      return dispatch(
+        showError(
+          'Video page already exists, please refresh this page to get latest data'
+        )
+      );
     }
     return VideosApi.createComposerPage(id, video)
       .then(res => {

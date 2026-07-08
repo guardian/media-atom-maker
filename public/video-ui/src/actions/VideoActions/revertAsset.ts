@@ -1,7 +1,7 @@
 import { Dispatch } from 'redux';
 import { browserHistory } from 'react-router';
 import VideosApi, { Video } from '../../services/VideosApi';
-import {setActivatingAssetNumber, setActiveAsset} from '../../slices/video';
+import { setActivatingAssetNumber, setActiveAsset } from '../../slices/video';
 import { showError } from '../../slices/error';
 
 function receiveRevertAsset(video: Video) {

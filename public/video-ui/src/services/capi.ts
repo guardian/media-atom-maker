@@ -1,7 +1,7 @@
 import { apiRequest } from './apiRequest';
 import { getStore } from '../util/storeAccessor';
 
-export type Stage = 'published' | 'preview'
+export type Stage = 'published' | 'preview';
 
 export type CapiResponse<TContent> = {
   content: TContent | undefined;
@@ -20,8 +20,8 @@ export type CapiContent = {
 };
 
 type ApiReponse<T> = {
-  response: T
-}
+  response: T;
+};
 
 export default class ContentApi {
   static get published(): Stage {
@@ -54,7 +54,10 @@ export default class ContentApi {
     });
   }
 
-  static getByPath(path: string, retry = false): Promise<ApiReponse<CapiContentResponse>> {
+  static getByPath(
+    path: string,
+    retry = false
+  ): Promise<ApiReponse<CapiContentResponse>> {
     const retryTimeout = retry ? 10 * 1000 : 0; // retry up to 10 seconds
 
     return apiRequest(

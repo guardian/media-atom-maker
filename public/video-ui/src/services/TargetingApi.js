@@ -1,4 +1,4 @@
-import {getStore} from '../util/storeAccessor';
+import { getStore } from '../util/storeAccessor';
 import { apiRequest } from './apiRequest';
 import moment from 'moment';
 
@@ -9,11 +9,11 @@ export default class TargetingApi {
     return getStore().getState().config.targetingUrl;
   }
 
-  static createTarget({id, title, expiryDate}) {
+  static createTarget({ id, title, expiryDate }) {
     const data = {
       title,
       tagPaths: [],
-      url : `/atom/media/${id}`,
+      url: `/atom/media/${id}`,
       activeUntil: expiryDate || getFortnight()
     };
 
@@ -40,7 +40,7 @@ export default class TargetingApi {
     return apiRequest(params);
   }
 
-  static deleteTarget({id}) {
+  static deleteTarget({ id }) {
     const params = {
       method: 'delete',
       url: `${TargetingApi.targetingUrl}/api/suggestions/${id}`,
@@ -51,7 +51,7 @@ export default class TargetingApi {
     return apiRequest(params);
   }
 
-  static getTargets({id}) {
+  static getTargets({ id }) {
     const params = {
       url: `${TargetingApi.targetingUrl}/api/suggestions/search?url=/atom/media/${id}`,
       crossOrigin: true,

@@ -2,17 +2,17 @@ import { apiRequest } from './apiRequest';
 
 export type YouTubeVideoCategory = {
   id: number;
-  title: string
+  title: string;
 };
 
-type YouTubePrivacyStatus = "Private" | "Unlisted" | "Public"
+type YouTubePrivacyStatus = 'Private' | 'Unlisted' | 'Public';
 
 export type YouTubeChannelWithData = {
   id: string;
   title: string;
-  privacyStates: YouTubePrivacyStatus[],
-  isCommercial: boolean
-}
+  privacyStates: YouTubePrivacyStatus[];
+  isCommercial: boolean;
+};
 
 export function getYoutubeCategories() {
   return apiRequest<YouTubeVideoCategory[]>({

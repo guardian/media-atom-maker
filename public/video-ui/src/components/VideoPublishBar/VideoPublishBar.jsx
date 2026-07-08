@@ -12,10 +12,7 @@ export default class VideoPublishBar extends React.Component {
   }
 
   videoHasUnpublishedChanges() {
-    return hasUnpublishedChanges(
-      this.props.video,
-      this.props.publishedVideo
-    );
+    return hasUnpublishedChanges(this.props.video, this.props.publishedVideo);
   }
 
   isPublishingDisabled() {
@@ -25,24 +22,24 @@ export default class VideoPublishBar extends React.Component {
       this.videoIsCurrentlyPublishing() ||
       this.props.videoEditOpen ||
       !this.videoHasUnpublishedChanges() ||
-      (canonicalVideoPageExists(this.props.usages) && this.props.requiredComposerFieldsMissing()) ||
+      (canonicalVideoPageExists(this.props.usages) &&
+        this.props.requiredComposerFieldsMissing()) ||
       checkVideoReadyToPublish(this.props.video).length > 0
     );
   }
 
   publishedCanonicalVideoPageExists() {
-    return this.props.usages &&
+    return (
+      this.props.usages &&
       this.props.usages.data &&
       this.props.usages.data.published &&
       this.props.usages.data.published.video &&
-      this.props.usages.data.published.video.length > 0;
-
+      this.props.usages.data.published.video.length > 0
+    );
   }
 
   publishVideo = () => {
-
     if (this.publishedCanonicalVideoPageExists()) {
-
       this.props.updateVideoPage(
         this.props.video,
         this.props.usages.data,
@@ -61,7 +58,7 @@ export default class VideoPublishBar extends React.Component {
       return <span>Publishing</span>;
     }
 
-    if (isVideoPublished(this.props.publishedVideo)){
+    if (isVideoPublished(this.props.publishedVideo)) {
       if (this.videoHasUnpublishedChanges()) {
         return <span>Save and launch</span>;
       }
@@ -75,21 +72,23 @@ export default class VideoPublishBar extends React.Component {
   renderPublishButton() {
     return (
       <>
-      <button
-        type="button"
-        className="btn"
-        disabled={this.isPublishingDisabled()}
-        onClick={this.publishVideo}
-      >
-        {this.renderPublishButtonText()}
-      </button>
-      {this.renderRequiredFieldsMissingWarning()}
+        <button
+          type="button"
+          className="btn"
+          disabled={this.isPublishingDisabled()}
+          onClick={this.publishVideo}
+        >
+          {this.renderPublishButtonText()}
+        </button>
+        {this.renderRequiredFieldsMissingWarning()}
       </>
     );
   }
 
   renderRequiredFieldsMissingWarning() {
-    const videoReadyToPublishErrors = checkVideoReadyToPublish(this.props.video);
+    const videoReadyToPublishErrors = checkVideoReadyToPublish(
+      this.props.video
+    );
 
     if (videoReadyToPublishErrors.length === 0) {
       return null;

@@ -1,7 +1,6 @@
 import React from 'react';
 
 export default class TextInput extends React.Component {
-
   // Not ideal, but fixes an obscure bug which was causing the cursor to scroll
   // to the bottom on character input
   shouldComponentUpdate(nextProps) {
@@ -23,15 +22,16 @@ export default class TextInput extends React.Component {
           <p
             className={
               'details-list__field ' +
-                (this.props.displayPlaceholder(
-                  this.props.placeholder,
-                  this.props.fieldValue
-                )
-                  ? 'details-list__empty'
-                  : '')
+              (this.props.displayPlaceholder(
+                this.props.placeholder,
+                this.props.fieldValue
+              )
+                ? 'details-list__empty'
+                : '')
             }
           >
-            {' '}{this.props.fieldValue}
+            {' '}
+            {this.props.fieldValue}
           </p>
         </div>
       );
@@ -52,20 +52,18 @@ export default class TextInput extends React.Component {
             this.props.onUpdateField(e.target.value);
           }}
         />
-        {hasError
-          ? <p className="form__message form__message--error">
-              {this.props.notification.message}
-            </p>
-          : ''}
+        {hasError ? (
+          <p className="form__message form__message--error">
+            {this.props.notification.message}
+          </p>
+        ) : (
+          ''
+        )}
       </div>
     );
   };
 
   render() {
-    return (
-      <div>
-        {this.renderField()}
-      </div>
-    );
+    return <div>{this.renderField()}</div>;
   }
 }
