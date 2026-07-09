@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Tab, TabPanel } from 'react-tabs';
-import EditSaveCancel from '../../../components/EditSaveCancel';
+import { EditSaveCancel } from '../../../components/EditSaveCancel';
 import Workflow from '../../../components/Workflow/Workflow';
 import WorkflowLink from '../../../components/Workflow/WorkflowLink';
 
@@ -21,7 +21,8 @@ export class WorkflowTabPanel extends React.Component {
     onEdit: PropTypes.func.isRequired,
     onSave: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
-    canSave: PropTypes.func.isRequired,
+    canCancel: PropTypes.bool.isRequired,
+    canSave: PropTypes.bool.isRequired,
     video: PropTypes.object.isRequired,
     isTrackedInWorkflow: PropTypes.bool.isRequired
   };
