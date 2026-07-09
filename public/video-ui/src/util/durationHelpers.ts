@@ -14,7 +14,7 @@ function padNumber(num: number, minLength: number = 2): string {
 
 function durationToMinAndSecs(num: string): DurationInMinsAndSecondsObject {
   // During refactor we were unsure if this might sometimes come through as a string
-  const definetlyANumber = Math.floor(parseInt(num || '0', 10));
+  const definitelyANumber = Math.floor(parseInt(num || '0', 10));
   return {
     mins: definetlyANumber / 60,
     secs: definetlyANumber % 60
