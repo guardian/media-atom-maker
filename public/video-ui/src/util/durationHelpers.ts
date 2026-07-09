@@ -16,8 +16,8 @@ function durationToMinAndSecs(num: string): DurationInMinsAndSecondsObject {
   // During refactor we were unsure if this might sometimes come through as a string
   const definitelyANumber = Math.floor(parseInt(num || '0', 10));
   return {
-    mins: definetlyANumber / 60,
-    secs: definetlyANumber % 60
+    mins: definitelyANumber / 60,
+    secs: definitelyANumber % 60
   };
 }
 
