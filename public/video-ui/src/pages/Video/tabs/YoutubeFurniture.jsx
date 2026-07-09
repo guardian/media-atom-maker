@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Tab, TabPanel } from 'react-tabs';
-import EditSaveCancel from '../../../components/EditSaveCancel';
+import { EditSaveCancel } from '../../../components/EditSaveCancel';
 import YoutubeFurniture from '../../../components/YoutubeFurniture';
 
 export class YoutubeFurnitureTab extends React.Component {
@@ -20,8 +20,8 @@ export class YoutubeFurnitureTabPanel extends React.Component {
     onEdit: PropTypes.func.isRequired,
     onSave: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
-    canSave: PropTypes.func.isRequired,
-    canCancel: PropTypes.func.isRequired,
+    canSave: PropTypes.bool.isRequired,
+    canCancel: PropTypes.bool.isRequired,
     video: PropTypes.object.isRequired,
     updateVideo: PropTypes.func.isRequired,
     updateErrors: PropTypes.func.isRequired,

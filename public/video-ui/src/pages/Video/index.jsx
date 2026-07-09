@@ -339,10 +339,10 @@ class VideoDisplay extends React.Component {
                 // Error handling is done in the saveVideo action
               });
           }}
-          canSave={() =>
+          canSave={
             !this.formHasErrors(formNames.videoData) && !this.props.isSaving
           }
-          canCancel={() => !this.props.isSaving}
+          canCancel={!this.props.isSaving}
           video={video}
           updateVideo={this.updateVideo}
           updateErrors={this.props.formErrorActions.updateFormErrors}
@@ -378,11 +378,11 @@ class VideoDisplay extends React.Component {
                   // Error handling is done in the saveVideo action
                 });
             }}
-            canSave={() =>
+            canSave={
               !this.formHasErrors(formNames.youtubeFurniture) &&
               !this.props.isSaving
             }
-            canCancel={() => !this.props.isSaving}
+            canCancel={!this.props.isSaving}
             video={video}
             updateVideo={this.updateVideo}
             updateErrors={this.props.formErrorActions.updateFormErrors}
@@ -411,12 +411,12 @@ class VideoDisplay extends React.Component {
                 // Error handling should be implemented in workflow actions
               });
           }}
-          canSave={() =>
+          canSave={
             workflow.status.section &&
             workflow.status.status &&
             !this.props.isSaving
           }
-          canCancel={() => !this.props.isSaving}
+          canCancel={!this.props.isSaving}
           video={video}
           isTrackedInWorkflow={workflow.status.isTrackedInWorkflow || false}
         />
