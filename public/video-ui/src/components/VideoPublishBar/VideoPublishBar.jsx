@@ -1,7 +1,7 @@
 import React from 'react';
 import { isVideoPublished } from '../../util/isVideoPublished';
 import { hasUnpublishedChanges } from '../../util/hasUnpublishedChanges';
-import ScheduledLaunch from '../ScheduledLaunch/ScheduledLaunch';
+import { ScheduledLaunch } from '../ScheduledLaunch';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 import VideoUtils from '../../util/video';
 import { checkVideoReadyToPublish } from '../../util/videoPublishCheck';
