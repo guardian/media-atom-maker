@@ -39,6 +39,10 @@ export default class TagFieldValue extends React.Component<Props> {
       return titleToRender;
     }
 
+    if (typeof value !== 'string') {
+      return value.id;
+    }
+
     if (index === 0 || value === ',') {
       return value;
     }
