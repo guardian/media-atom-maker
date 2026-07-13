@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import VideoItem from '../../components/VideoItem';
+import VideoItem from '../../components/VideoItem/VideoItem';
 import { frontPageSize } from '../../constants/frontPageSize';
 import {
   Presence,
