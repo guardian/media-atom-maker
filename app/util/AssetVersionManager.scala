@@ -9,11 +9,10 @@ import scala.annotation.tailrec
 
 case class AssetVersionClaimError(
     atomId: String,
-    version: Long,
-    cause: ScanamoError
+    version: Long
 ) {
   def message: String =
-    s"atom $atomId, version $version: $cause"
+    s"atom $atomId, version $version could not be claimed due to a DynamoDB error"
 }
 
 sealed trait AssetClaimSource {
@@ -89,10 +88,10 @@ class AssetVersionManager(
           originalFilename = originalFilename
         )
       case Left(error) =>
-        log.warn(
+        log.error(
           s"Unexpected error claiming version $version for atom $atomId: $error"
         )
-        Left(AssetVersionClaimError(atomId, version, error))
+        Left(AssetVersionClaimError(atomId, version))
     }
   }
 

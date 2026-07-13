@@ -261,18 +261,21 @@ class UploadController(
       log.warn(
         s"Execution already exists for atom ${atom.id} version ${assetVersion}. Trying next available version. NB. This should not happen unless the backfill script has failed, or an upload was started during the backfill process."
       )
-      assetVersionManager.claimThisOrNextAvailableVersion(
-        atom.id,
-        assetVersion,
-        userEmail = email,
-        originalFilename = Some(req.filename)
-      ) match {
-        case Right(nextVersion) =>
-          start(atom, email, req, nextVersion)
-        case Left(error) =>
-          log.error(error.message)
-          AssetVersionClaimFailed(error.message)
-      }
+      val nextVersion = assetVersionManager
+        .claimThisOrNextAvailableVersion(
+          atom.id,
+          assetVersion,
+          userEmail = email,
+          originalFilename = Some(req.filename)
+        )
+        .fold(
+          error => {
+            log.error(error.message)
+            AssetVersionClaimFailed(error.message)
+          },
+          identity
+        )
+      start(atom, email, req, nextVersion)
     }
   }
 

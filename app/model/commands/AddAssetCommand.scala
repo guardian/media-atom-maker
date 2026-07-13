@@ -81,17 +81,20 @@ case class AddAssetCommand(
       videoId: String
   ) = {
     val version =
-      assetVersionManager.claimThisOrNextAvailableVersion(
-        atomId = atom.id,
-        version = MediaAtomHelpers.getNextAssetVersion(mediaAtom),
-        userEmail = user.email,
-        originalFilename = None
-      ) match {
-        case Right(claimedVersion) => claimedVersion
-        case Left(error) =>
-          log.error(error.message)
-          AssetVersionClaimFailed(error.message)
-      }
+      assetVersionManager
+        .claimThisOrNextAvailableVersion(
+          atomId = atom.id,
+          version = MediaAtomHelpers.getNextAssetVersion(mediaAtom),
+          userEmail = user.email,
+          originalFilename = None
+        )
+        .fold(
+          error => {
+            log.error(error.message)
+            AssetVersionClaimFailed(error.message)
+          },
+          identity
+        )
 
     val newAsset = ThriftUtil
       .parseAsset(uri = videoUri, version = version, mimeType = None)
