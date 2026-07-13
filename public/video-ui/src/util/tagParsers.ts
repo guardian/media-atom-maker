@@ -1,12 +1,6 @@
 import ContentApi from '../services/capi';
 import TagTypes from '../constants/TagTypes';
-import { DisplayTag, ParsedTag } from '../types/tags';
-
-type CapiTagResponse = {
-  response?: {
-    tag?: DisplayTag;
-  };
-};
+import { DisplayTag, ParsedTag, CapiTagResponse } from '../types/tags';
 
 const isCapiTagResponse = (value: unknown): value is CapiTagResponse => {
   if (!value || typeof value !== 'object') {
