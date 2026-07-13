@@ -13,7 +13,7 @@ type DelayPublicationOption = 'scheduledLaunch' | 'embargo';
 
 type ScheduledLaunchProps = {
   video: Video;
-  saveVideo: (video: Video) => void;
+  saveVideo: (video: Video) => Promise<void>;
   videoEditOpen: boolean;
   hasPublishedVideoPageUsages: () => boolean;
 };
@@ -36,7 +36,11 @@ export const ScheduledLaunch = ({
   const [invalidDateError, setInvalidDateError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const validateDate = (date: number) => {
+  const validateDate = (date: number | null) => {
+    if (!date) {
+      return;
+    }
+
     if (
       selectedDelayPublicationOption === 'embargo' &&
       scheduledLaunchDate &&
@@ -63,10 +67,10 @@ export const ScheduledLaunch = ({
     setShowMenu(false);
   };
 
-  const handleIndefiniteEmbargoClick = () => {
+  const handleIndefiniteEmbargoClick = async () => {
     setIsLoading(true);
 
-    saveVideo({
+    await saveVideo({
       ...video,
       contentChangeDetails: {
         ...video.contentChangeDetails,
@@ -77,23 +81,22 @@ export const ScheduledLaunch = ({
       }
     });
 
-    setIsLoading(false);
-    setShowMenu(false);
+    reset();
   };
 
-  const handleDateChange = (date: number) => {
+  const handleDateChange = (date: number | null) => {
     setSelectedDate(date);
     validateDate(date);
   };
 
-  const saveDate = () => {
+  const saveDate = async () => {
     if (!selectedDelayPublicationOption || !selectedDate) {
       return;
     }
 
     setIsLoading(true);
 
-    saveVideo({
+    await saveVideo({
       ...video,
       contentChangeDetails: {
         ...video.contentChangeDetails,
@@ -104,14 +107,13 @@ export const ScheduledLaunch = ({
       }
     });
 
-    setSelectedDelayPublicationOption(null);
-    setIsLoading(false);
+    reset();
   };
 
-  const removeDate = (delayPublicationOption: DelayPublicationOption) => {
+  const removeDate = async (delayPublicationOption: DelayPublicationOption) => {
     setIsLoading(true);
 
-    saveVideo({
+    await saveVideo({
       ...video,
       contentChangeDetails: {
         ...video.contentChangeDetails,
@@ -119,13 +121,10 @@ export const ScheduledLaunch = ({
       }
     });
 
-    setSelectedDelayPublicationOption(null);
-    setSelectedDate(null);
-    setShowMenu(false);
-    setIsLoading(false);
+    reset();
   };
 
-  const getNoScheduleReason = (): string | null => {
+  const getNoScheduleReason = () => {
     if (!video.title) {
       return 'You must add a title before scheduling';
     }
@@ -137,15 +136,18 @@ export const ScheduledLaunch = ({
     return null;
   };
 
-  const handleCancelClick = () => {
+  const reset = () => {
     setSelectedDelayPublicationOption(null);
+    setShowMenu(false);
     setSelectedDate(null);
+    setIsLoading(false);
+    setInvalidDateError(null);
   };
 
   const hasIndefiniteEmbargo = !!(
     embargoDate && moment(embargoDate).isSameOrAfter(impossiblyDistantDate)
   );
-  const canSchedule = !getNoScheduleReason();
+  const noScheduleReason = getNoScheduleReason();
   const canShowScheduleRecap =
     (scheduledLaunchDate || embargoDate) && !selectedDelayPublicationOption;
   const canRemoveDate =
@@ -206,9 +208,9 @@ export const ScheduledLaunch = ({
                     className="btn btn--list-item"
                     onClick={() => handleSelectOption('scheduledLaunch')}
                     disabled={
-                      !video || videoEditOpen || !canSchedule || isLoading
+                      !video || videoEditOpen || !!noScheduleReason || isLoading
                     }
-                    data-tip={getNoScheduleReason() ?? undefined}
+                    data-tip={noScheduleReason}
                   >
                     {scheduledLaunchDate ? 'Edit scheduled date' : 'Schedule'}
                   </button>
@@ -283,7 +285,7 @@ export const ScheduledLaunch = ({
           <button
             className="button__secondary--cancel"
             disabled={isLoading}
-            onClick={handleCancelClick}
+            onClick={reset}
           >
             Cancel
           </button>
