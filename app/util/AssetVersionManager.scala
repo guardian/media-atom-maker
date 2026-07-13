@@ -1,11 +1,20 @@
 package util
 
-import org.scanamo.{ConditionNotMet, DynamoFormat, Table}
+import org.scanamo.{ConditionNotMet, DynamoFormat, ScanamoError, Table}
 import org.scanamo.syntax.attributeNotExists
 import org.scanamo.generic.auto._
 import com.gu.media.logging.Logging
 
 import scala.annotation.tailrec
+
+case class AssetVersionClaimError(
+    atomId: String,
+    version: Long,
+    cause: ScanamoError
+) {
+  def message: String =
+    s"atom $atomId, version $version: $cause"
+}
 
 sealed trait AssetClaimSource {
   def name: String
@@ -57,7 +66,7 @@ class AssetVersionManager(
       version: Long,
       userEmail: String,
       originalFilename: Option[String]
-  ): Long = {
+  ): Either[AssetVersionClaimError, Long] = {
     val assetsTable = Table[VersionClaim](awsConfig.assetsTableName)
     val claim = VersionClaim(
       id = s"$atomId-$version",
@@ -71,7 +80,7 @@ class AssetVersionManager(
     )
 
     assetsResult match {
-      case Right(_) => version
+      case Right(_) => Right(version)
       case Left(ConditionNotMet(_)) =>
         claimThisOrNextAvailableVersion(
           atomId = atomId,
@@ -79,16 +88,11 @@ class AssetVersionManager(
           userEmail = userEmail,
           originalFilename = originalFilename
         )
-      case Left(_) =>
+      case Left(error) =>
         log.warn(
-          s"Unexpected error claiming version $version for atom $atomId. Retrying with next version."
+          s"Unexpected error claiming version $version for atom $atomId: $error"
         )
-        claimThisOrNextAvailableVersion(
-          atomId = atomId,
-          version = version + 1,
-          userEmail = userEmail,
-          originalFilename = originalFilename
-        )
+        Left(AssetVersionClaimError(atomId, version, error))
     }
   }
 

@@ -86,7 +86,12 @@ case class AddAssetCommand(
         version = MediaAtomHelpers.getNextAssetVersion(mediaAtom),
         userEmail = user.email,
         originalFilename = None
-      )
+      ) match {
+        case Right(claimedVersion) => claimedVersion
+        case Left(error) =>
+          log.error(error.message)
+          AssetVersionClaimFailed(error.message)
+      }
 
     val newAsset = ThriftUtil
       .parseAsset(uri = videoUri, version = version, mimeType = None)

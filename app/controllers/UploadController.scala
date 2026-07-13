@@ -21,7 +21,10 @@ import com.gu.pandahmac.HMACAuthActions
 import data.{DataStores, UnpackedDataStores}
 import com.gu.ai.x.play.json.Jsonx
 import com.gu.media.telemetry.{TagLong, TagString, Telemetry}
-import model.commands.CommandExceptions.commandExceptionAsResult
+import model.commands.CommandExceptions.{
+  AssetVersionClaimFailed,
+  commandExceptionAsResult
+}
 import model.commands.{SubtitleFileDeleteCommand, SubtitleFileUploadCommand}
 import org.scanamo.{ConditionNotMet, Table}
 import org.scanamo.generic.auto._
@@ -127,7 +130,12 @@ class UploadController(
         version = MediaAtomHelpers.getNextAssetVersion(thriftAtom.tdata),
         userEmail = userEmail,
         originalFilename = Some(req.filename)
-      )
+      ) match {
+        case Right(claimedVersion) => claimedVersion
+        case Left(error) =>
+          log.error(error.message)
+          AssetVersionClaimFailed(error.message)
+      }
 
       val upload = start(atom, userEmail, req, assetVersion)
 
@@ -253,17 +261,18 @@ class UploadController(
       log.warn(
         s"Execution already exists for atom ${atom.id} version ${assetVersion}. Trying next available version. NB. This should not happen unless the backfill script has failed, or an upload was started during the backfill process."
       )
-      start(
-        atom,
-        email,
-        req,
-        assetVersionManager.claimThisOrNextAvailableVersion(
-          atom.id,
-          assetVersion,
-          userEmail = email,
-          originalFilename = Some(req.filename)
-        )
-      )
+      assetVersionManager.claimThisOrNextAvailableVersion(
+        atom.id,
+        assetVersion,
+        userEmail = email,
+        originalFilename = Some(req.filename)
+      ) match {
+        case Right(nextVersion) =>
+          start(atom, email, req, nextVersion)
+        case Left(error) =>
+          log.error(error.message)
+          AssetVersionClaimFailed(error.message)
+      }
     }
   }
 
