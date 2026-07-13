@@ -2,7 +2,7 @@ import { DisplayTag } from '../types/tags';
 
 type ExistingTagValue = string | { id: string };
 
-export default function removeStringTagDuplicates(
+export function removeStringTagDuplicates(
   tag: DisplayTag,
   tagValue: ExistingTagValue[]
 ): ExistingTagValue[] {
