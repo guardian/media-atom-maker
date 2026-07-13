@@ -1,5 +1,14 @@
 import React from 'react';
 
+type IconProps = {
+  children?: React.ReactNode;
+  className?: string;
+  disabled?: boolean;
+  icon?: React.ReactNode;
+  onClick?: React.MouseEventHandler<HTMLElement>;
+  textClass?: string;
+};
+
 export function GuardianLogo() {
   return (
     <svg
@@ -94,8 +103,8 @@ export class SubtitlesIcon extends React.Component {
   }
 }
 
-export default class Icon extends React.Component {
-  renderText() {
+export default class Icon extends React.Component<IconProps> {
+  renderText(): React.ReactNode {
     if (this.props.children) {
       return (
         <span
@@ -107,11 +116,13 @@ export default class Icon extends React.Component {
         </span>
       );
     }
+
+    return null;
   }
 
   render() {
     if (!this.props.icon) {
-      return;
+      return null;
     }
 
     const props = Object.assign({}, this.props);
