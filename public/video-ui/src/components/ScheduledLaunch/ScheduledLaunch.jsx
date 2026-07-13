@@ -123,7 +123,10 @@ class ScheduledLaunch extends React.Component {
         })
       })
     );
-    this.setState({ showDatePicker: false, [propertyName]: null });
+    this.setState({
+      showDatePicker: false,
+      [propertyName]: null
+    });
   };
 
   removeDate = propertyName => {
@@ -139,7 +142,10 @@ class ScheduledLaunch extends React.Component {
         })
       })
     );
-    this.setState({ showDatePicker: false, [propertyName]: null });
+    this.setState({
+      showDatePicker: false,
+      [propertyName]: null
+    });
   };
 
   getNoScheduleReason = () => {
@@ -308,7 +314,7 @@ class ScheduledLaunch extends React.Component {
   };
 
   render() {
-    const { video, videoEditOpen, hasPublishedVideoPageUsages } = this.props;
+    const { video, videoEditOpen } = this.props;
     const {
       selectedScheduleDate,
       selectedEmbargoDate,

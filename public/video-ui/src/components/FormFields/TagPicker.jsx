@@ -10,7 +10,7 @@ import TagFieldValue from '../Tags/TagFieldValue';
 import TagUnavailable from '../TagSearch/TagUnavailable';
 import { DraggableTagList } from './DraggableTagList';
 import removeTagDuplicates from '../../util/removeTagDuplicates';
-import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
+import { removeStringTagDuplicates } from '../../util/removeStringTagDuplicates';
 import ReactTooltip from 'react-tooltip';
 import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
 import YouTubeKeywords from '../../constants/youTubeKeywords';
