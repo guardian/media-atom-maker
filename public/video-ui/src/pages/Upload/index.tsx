@@ -13,7 +13,10 @@ import AddSelfHostedAsset from '../../components/VideoUpload/AddSelfHostedAsset'
 import { VideoTrail } from '../../components/VideoUpload/VideoTrail';
 import YoutubeUpload from '../../components/VideoUpload/YoutubeUpload';
 import { startVideoUpload } from '../../slices/s3Upload';
-import { fetchCategories, fetchChannels } from '../../slices/youtube';
+import {
+  fetchCategories as fetchYoutubeCategories,
+  fetchChannels as fetchYoutubeChannels
+} from '../../slices/youtube';
 import { AppDispatch, RootState } from '../../util/setupStore';
 
 export const VideoUpload = (props: { params: { id: string } }) => {
@@ -48,17 +51,24 @@ export const VideoUpload = (props: { params: { id: string } }) => {
 
   useEffect(() => {
     dispatch(getVideo(props.params.id));
-    if (store.youtube.categories.length === 0) {
-      dispatch(fetchCategories());
+    if (
+      store.video.platform === 'Youtube' &&
+      store.youtube.categories.length === 0
+    ) {
+      dispatch(fetchYoutubeCategories());
     }
-    if (store.youtube.channels.length === 0) {
-      dispatch(fetchChannels());
+    if (
+      store.video.platform === 'Youtube' &&
+      store.youtube.channels.length === 0
+    ) {
+      dispatch(fetchYoutubeChannels());
     }
   }, [
     dispatch,
     props.params.id,
     store.youtube.categories,
-    store.youtube.channels
+    store.youtube.channels,
+    store.video.platform
   ]);
 
   const isUploading = store.s3Upload.status === 'uploading';
