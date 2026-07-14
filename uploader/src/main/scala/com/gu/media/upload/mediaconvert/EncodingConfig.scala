@@ -1,6 +1,9 @@
 package com.gu.media.upload.mediaconvert
 
-import com.gu.media.upload.mediaconvert.SharedCodecSettings.{h264Settings}
+import com.gu.media.upload.mediaconvert.SharedCodecSettings.{
+  av1Settings,
+  h264Settings
+}
 import software.amazon.awssdk.services.mediaconvert.model.{
   VideoCodec,
   VideoCodecSettings
@@ -16,7 +19,7 @@ sealed trait EncodingConfig {
       dimensions.height.map(h => s"${h}h")
     ).flatten.mkString("_")
 
-    s"_${dimensionPart}_q${qualityLevel}"
+    s"_${dimensionPart}_q${qualityLevel}_${codecSettings.codecAsString.replace("_", "").toLowerCase}"
   }
   def qualityLevel: Int
   def codecSettings: VideoCodecSettings
@@ -30,6 +33,17 @@ case class H264EncodingConfig(
     .builder()
     .codec(VideoCodec.H_264)
     .h264Settings(h264Settings(qualityLevel))
+    .build()
+}
+
+case class AV1EncodingConfig(
+    dimensions: Dimensions,
+    qualityLevel: Int
+) extends EncodingConfig {
+  override def codecSettings: VideoCodecSettings = VideoCodecSettings
+    .builder()
+    .codec(VideoCodec.AV1)
+    .av1Settings(av1Settings(qualityLevel))
     .build()
 }
 
