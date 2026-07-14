@@ -1,13 +1,12 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import Icon from '../Icon';
 import WorkflowApi from '../../services/WorkflowApi';
 
-export default class WorkflowLink extends React.Component {
-  static propTypes = {
-    video: PropTypes.object.isRequired
-  };
+type Props = {
+  video: { id: string };
+};
 
+export default class WorkflowLink extends React.Component<Props> {
   render() {
     return (
       <a
