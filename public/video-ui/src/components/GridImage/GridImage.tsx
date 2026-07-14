@@ -1,12 +1,12 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import { findAssetToUseAsThumbnail } from '../../util/imageHelpers';
+import type { Image } from '../../services/VideosApi';
 
-export default class GridImage extends React.Component {
-  static propTypes = {
-    image: PropTypes.object.isRequired
-  };
+type Props = {
+  image: Image;
+};
 
+export default class GridImage extends React.Component<Props> {
   renderImage() {
     const maybeImageAsset = this.props.image
       ? findAssetToUseAsThumbnail(this.props.image)
