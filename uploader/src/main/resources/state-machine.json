@@ -170,6 +170,11 @@
     "AddCompleteUploadDataToCache": {
       "Type": "Task",
       "Resource": "${AddUploadDataToCache.Arn}",
+      "Next": "UploadToYouTubeV2"
+    },
+    "UploadToYouTubeV2": {
+      "Type": "Task",
+      "Resource": "${YouTubeUploadV2.Arn}",
       "Next": "Complete"
     },
     "Complete": {

@@ -372,6 +372,7 @@ Resources:
 
   {{AddUploadDataToCache}}
 
+  {{YouTubeUploadV2}}
   # Remembers completed uploads since the data is deleted if the pipeline definition is updated
   VideoPipelineCache:
     Type: "AWS::DynamoDB::Table"

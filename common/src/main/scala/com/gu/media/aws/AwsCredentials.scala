@@ -21,6 +21,11 @@ object AwsCredentials {
 
     AwsCredentials(instance, crossAccount, upload)
   }
+  def profile(profile: String): AwsCredentials = AwsCredentials(
+    CredentialsForAws.profile(profile),
+    CredentialsForAws.profile(profile),
+    CredentialsForAws.profile(profile)
+  )
 
   def app(settings: Settings): AwsCredentials = {
     val instance = CredentialsForAws.instance()

@@ -243,7 +243,12 @@ lazy val uploader = (project in file("uploader"))
       "AddUploadDataToCache" -> LambdaConfig(
         description =
           "Adds the upload information to a Dynamo table so it is preserved even if the pipeline changes"
-      )
+      ),
+      "YouTubeUploadV2" -> LambdaConfig(
+        description =
+          "Runs an upload of the same video using a different implementation of the YouTube API to see if that is quicker",
+        timeout = 900
+      ),
     ),
     Compile / resourceGenerators += compileTemplate.taskValue
   )
