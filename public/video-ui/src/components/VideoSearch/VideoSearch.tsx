@@ -1,8 +1,15 @@
 import React from 'react';
 import Icon from '../Icon';
+import type { Search } from '../../slices/search';
 
-export default class VideoSearch extends React.Component {
-  onSearch = e => {
+type Props = {
+  saving: boolean;
+  search: Search;
+  updateSearchTerm: (term: string) => void;
+};
+
+export default class VideoSearch extends React.Component<Props> {
+  onSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     this.props.updateSearchTerm(e.target.value);
   };
 
