@@ -96,6 +96,7 @@ $topbarHeight: 50px;
   align-self: flex-start;
   padding: 0 10px;
   background: $color700Grey;
+  z-index: 1;
 }
 
 .topbar__scheduler {
