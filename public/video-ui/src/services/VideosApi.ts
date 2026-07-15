@@ -39,7 +39,7 @@ export type User = {
 };
 
 export type ChangeRecord = {
-  date: string; // UNIX timestamp, ms
+  date: number; // UNIX timestamp, ms
   user?: User;
 };
 
