@@ -42,7 +42,8 @@ class IconikDataStoreSpec extends AnyFlatSpec with Matchers {
         workingGroupId = "wg1",
         workingGroupTitle = "Working Group 1",
         status = "active",
-        masterPlaceholderId = Some("mp1")
+        masterPlaceholderId = Some("mp1"),
+        yearName = Some("2026")
       ),
       createdAtDateTimeOverride = Some(createdAt)
     )
@@ -61,7 +62,8 @@ class IconikDataStoreSpec extends AnyFlatSpec with Matchers {
     commissionStore.store.head shouldEqual IconikCommission(
       workingGroupId = "wg1",
       id = "comm1",
-      title = "Commission 1"
+      title = "Commission 1",
+      year = Some("2026")
     )
     workingGroupStore.store should have size 1
     workingGroupStore.store.head shouldEqual IconikWorkingGroup(
@@ -78,7 +80,8 @@ class IconikDataStoreSpec extends AnyFlatSpec with Matchers {
         workingGroupId = "wg1",
         workingGroupTitle = "Working Group 1-updated",
         status = "active",
-        masterPlaceholderId = Some("mp1-updated")
+        masterPlaceholderId = Some("mp1-updated"),
+        yearName = Some("2026")
       )
     )
 
@@ -97,7 +100,8 @@ class IconikDataStoreSpec extends AnyFlatSpec with Matchers {
     commissionStore.store.head shouldEqual IconikCommission(
       workingGroupId = "wg1",
       id = "comm1",
-      title = "Commission 1-updated"
+      title = "Commission 1-updated",
+      year = Some("2026")
     )
     workingGroupStore.store should have size 1
     workingGroupStore.store.head shouldEqual IconikWorkingGroup(
