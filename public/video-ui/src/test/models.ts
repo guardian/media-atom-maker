@@ -7,7 +7,7 @@ export const emptyVideo: Video = {
   labels: [],
   contentChangeDetails: {
     lastModified: {
-      date: '',
+      date: 0,
       user: {
         email: '',
         firstName: '',
@@ -15,7 +15,7 @@ export const emptyVideo: Video = {
       }
     },
     created: {
-      date: '',
+      date: 0,
       user: {
         email: '',
         firstName: '',
@@ -23,7 +23,7 @@ export const emptyVideo: Video = {
       }
     },
     published: {
-      date: '',
+      date: 0,
       user: {
         email: '',
         firstName: '',
@@ -32,7 +32,7 @@ export const emptyVideo: Video = {
     },
     revision: 0,
     scheduledLaunch: {
-      date: '',
+      date: 0,
       user: {
         email: '',
         firstName: '',
@@ -40,7 +40,7 @@ export const emptyVideo: Video = {
       }
     },
     embargo: {
-      date: '',
+      date: 0,
       user: {
         email: '',
         firstName: '',
@@ -48,7 +48,7 @@ export const emptyVideo: Video = {
       }
     },
     expiry: {
-      date: '',
+      date: 0,
       user: {
         email: '',
         firstName: '',
