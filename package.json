@@ -61,7 +61,7 @@
     "hoconjs": "github:yellowblood/hocon-js",
     "jest": "^30.3.0",
     "jest-environment-jsdom": "^30.3.0",
-    "lodash": "4.17.21",
+    "lodash": "4.18.1",
     "prettier": "3.3.3",
     "ts-jest": "^29.4.6",
     "typescript": "5.9.3",
