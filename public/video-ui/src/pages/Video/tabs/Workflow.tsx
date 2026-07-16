@@ -2,7 +2,7 @@ import React from 'react';
 import { Tab, TabPanel } from 'react-tabs';
 import { EditSaveCancel } from '../../../components/EditSaveCancel';
 import Workflow from '../../../components/Workflow/Workflow';
-import WorkflowLink from '../../../components/Workflow/WorkflowLink';
+import { WorkflowLink } from '../../../components/Workflow/WorkflowLink';
 import type { Video } from '../../../services/VideosApi';
 
 type TabComponent = ((

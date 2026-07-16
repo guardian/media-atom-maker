@@ -6,19 +6,15 @@ type Props = {
   video: { id: string };
 };
 
-export default class WorkflowLink extends React.Component<Props> {
-  render() {
-    return (
-      <a
-        className="button inline-block"
-        target="_blank"
-        rel="noopener noreferrer"
-        href={WorkflowApi.workflowItemLink(this.props.video)}
-      >
-        <Icon icon="open_in_new" className="icon__edit">
-          Open in Workflow
-        </Icon>
-      </a>
-    );
-  }
-}
+export const WorkflowLink = ({ video }: Props) => (
+  <a
+    className="button inline-block"
+    target="_blank"
+    rel="noopener noreferrer"
+    href={WorkflowApi.workflowItemLink(video)}
+  >
+    <Icon icon="open_in_new" className="icon__edit">
+      Open in Workflow
+    </Icon>
+  </a>
+);
