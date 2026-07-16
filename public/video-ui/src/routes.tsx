@@ -9,7 +9,7 @@ import {
 
 import { RouterState } from 'react-router/lib/Router';
 import { ReactApp } from './components/ReactApp';
-import Help from './pages/Help';
+import Help from './pages/Help/HelpPages';
 import Search from './pages/Search';
 import Training from './pages/Training';
 import { VideoUpload } from './pages/Upload';
