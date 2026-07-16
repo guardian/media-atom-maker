@@ -3,7 +3,7 @@ import Icon from '../Icon';
 import WorkflowApi from '../../services/WorkflowApi';
 
 type Props = {
-  video: { id: string };
+  video: Pick<Video, 'id'>;
 };
 
 export const WorkflowLink = ({ video }: Props) => (
