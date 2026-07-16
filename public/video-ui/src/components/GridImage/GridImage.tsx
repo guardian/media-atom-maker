@@ -7,9 +7,7 @@ type Props = {
 };
 
 export const GridImage = ({ image }: Props) => {
-  const maybeImageAsset = image
-    ? findAssetToUseAsThumbnail(image)
-    : undefined;
+  const maybeImageAsset = image ? findAssetToUseAsThumbnail(image) : undefined;
 
   const renderImage = () => {
     if (maybeImageAsset && maybeImageAsset.file) {
