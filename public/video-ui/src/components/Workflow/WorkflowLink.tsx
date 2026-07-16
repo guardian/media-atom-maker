@@ -1,6 +1,7 @@
 import React from 'react';
 import Icon from '../Icon';
 import WorkflowApi from '../../services/WorkflowApi';
+import type { Video } from '../../services/VideosApi';
 
 type Props = {
   video: Pick<Video, 'id'>;
