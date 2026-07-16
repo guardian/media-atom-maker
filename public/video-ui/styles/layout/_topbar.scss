@@ -13,11 +13,11 @@ $topbarHeight: 50px;
 
   &--training-mode {
     background: repeating-linear-gradient(
-        -45deg,
-        $color500Grey,
-        $color500Grey 10px,
-        $color800Grey 10px,
-        $color800Grey 20px
+      -45deg,
+      $color500Grey,
+      $color500Grey 10px,
+      $color800Grey 10px,
+      $color800Grey 20px
     );
 
     .topbar__search {
@@ -83,13 +83,20 @@ $topbarHeight: 50px;
   align-items: center;
   width: 100%;
   height: 2px;
-  top: 49px // covering 1px border, otherwise would be 50px :)
+  top: 49px; // covering 1px border, otherwise would be 50px :)
 }
 
 .topbar__back-link {
   width: $topbarHeight;
   height: $topbarHeight;
   margin-right: 0;
+}
+
+.topbar__date-picker {
+  align-self: flex-start;
+  padding: 0 10px;
+  background: $color700Grey;
+  z-index: 1;
 }
 
 .topbar__scheduler {
