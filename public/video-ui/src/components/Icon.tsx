@@ -111,7 +111,9 @@ export default function Icon({
     return null;
   }
 
-  const responsiveClassName = className ? `${className} responsive` : 'responsive';
+  const responsiveClassName = className
+    ? `${className} responsive`
+    : 'responsive';
 
   return (
     <span className={`${responsiveClassName} ${disabled ? 'disabled' : ''}`}>
