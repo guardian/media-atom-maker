@@ -6,12 +6,12 @@ type Props = {
   image: Image;
 };
 
-export default class GridImage extends React.Component<Props> {
-  renderImage() {
-    const maybeImageAsset = this.props.image
-      ? findAssetToUseAsThumbnail(this.props.image)
-      : undefined;
+export const GridImage = ({ image }: Props) => {
+  const maybeImageAsset = image
+    ? findAssetToUseAsThumbnail(image)
+    : undefined;
 
+  const renderImage = () => {
     if (maybeImageAsset && maybeImageAsset.file) {
       return (
         <div className="form__image">
@@ -21,13 +21,11 @@ export default class GridImage extends React.Component<Props> {
     }
 
     return <div>no image</div>;
-  }
+  };
 
-  render() {
-    return (
-      <div className="form__row">
-        <div className="form__imageselect">{this.renderImage()}</div>
-      </div>
-    );
-  }
-}
+  return (
+    <div className="form__row">
+      <div className="form__imageselect">{renderImage()}</div>
+    </div>
+  );
+};
