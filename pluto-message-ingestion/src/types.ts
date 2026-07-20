@@ -70,7 +70,8 @@ const iconikUpsertMessageSchema = z.looseObject({
   commissionTitle: z.string(),
   workingGroupId: z.string(),
   workingGroupTitle: z.string(),
-  masterPlaceholderId: z.string().optional()
+  masterPlaceholderId: z.string().optional(),
+  yearName: z.string().optional()
 });
 
 export type IconikUpsertMessage = z.infer<typeof iconikUpsertMessageSchema>;
