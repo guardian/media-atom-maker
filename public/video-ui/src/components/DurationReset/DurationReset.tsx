@@ -1,13 +1,14 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import VideosApi from '../../services/VideosApi';
+import type { Video } from '../../services/VideosApi';
 import Icon from '../Icon';
 
-class DurationReset extends React.Component {
-  static propTypes = {
-    video: PropTypes.object.isRequired,
-    updateVideo: PropTypes.func.isRequired
-  };
+type DurationResetProps = {
+  video?: Video;
+  updateVideo: (video: Video) => void;
+};
+
+class DurationReset extends React.Component<DurationResetProps> {
 
   render() {
     const { video, updateVideo } = this.props;
@@ -23,8 +24,8 @@ class DurationReset extends React.Component {
         disabled={!video.hasOwnProperty('activeVersion')}
         data-tip="Refresh video duration from active YouTube video"
         onClick={() => {
-          VideosApi.resetDurationFromActive(video.id).then(video => {
-            updateVideo(video);
+          VideosApi.resetDurationFromActive(video.id).then(updatedVideo => {
+            updateVideo(updatedVideo);
           });
         }}
       >

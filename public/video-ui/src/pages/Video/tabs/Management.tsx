@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tab, TabPanel } from 'react-tabs';
 import ContentChangeDetails from '../../../components/ContentChangeDetails';
-import DurationReset from '../../../components/DurationReset';
+import DurationReset from '../../../components/DurationReset/DurationReset';
 import type { Video } from '../../../services/VideosApi';
 
 type ManagementTabPanelProps = Omit<
