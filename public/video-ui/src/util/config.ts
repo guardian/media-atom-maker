@@ -60,7 +60,7 @@ export type ConfigState = ClientConfig & { embeddedMode: boolean };
 
 export function getAppConfig(): ConfigState {
   const isTest =
-    typeof process !== 'undefined' && !!process.env?.JEST_WORKER_ID;
+    typeof process !== 'undefined' && !!process.env?.VITEST_WORKER_ID;
 
   if (isTest) {
     return {

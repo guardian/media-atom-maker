@@ -1,8 +1,9 @@
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import React from 'react';
 import { Provider } from 'react-redux';
+
 import type { Video, Asset as VideoAsset } from '../../services/VideosApi';
 import { setConfig } from '../../slices/config';
 import { setVideo } from '../../slices/video';
@@ -13,10 +14,10 @@ import { Asset } from './VideoAsset';
 const defaultProps = {
   videoId: 'test-video-id',
   isActive: false,
-  selectAsset: jest.fn(),
-  deleteAsset: jest.fn(),
-  startSubtitleFileUpload: jest.fn(),
-  deleteSubtitle: jest.fn(),
+  selectAsset: vi.fn(),
+  deleteAsset: vi.fn(),
+  startSubtitleFileUpload: vi.fn(),
+  deleteSubtitle: vi.fn(),
   activatingAssetNumber: undefined as number
 };
 
@@ -54,7 +55,7 @@ setStore(store);
 
 describe('VideoAsset', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Asset with completed upload', () => {

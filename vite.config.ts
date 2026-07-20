@@ -1,13 +1,13 @@
-import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
-import svgr from "vite-plugin-svgr";
+import svgr from 'vite-plugin-svgr';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   base: '',
   plugins: [react(), svgr()],
   publicDir: false, // This feature is deactivated because the 'public' dir also has a special meaning for the Play framework
   build: {
-    sourcemap: "inline",
+    sourcemap: 'inline',
     manifest: true,
     rollupOptions: {
       input: './public/video-ui/src/app.tsx',
@@ -17,7 +17,7 @@ export default defineConfig({
         assetFileNames: `[name].[ext]`
       }
     },
-    outDir: "./public/video-ui/build",
+    outDir: './public/video-ui/build',
     emptyOutDir: true
   },
   server: {
@@ -30,5 +30,10 @@ export default defineConfig({
     fs: {
       allow: ['/public/video-ui/fonts', './']
     }
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    include: ['public/video-ui/src/**/*.{test,spec}.{ts,tsx,js,jsx}']
   }
 });

@@ -1,17 +1,18 @@
+import '@testing-library/jest-dom/vitest';
+import { render, screen } from '@testing-library/react';
+import { userEvent } from '@testing-library/user-event';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { userEvent } from '@testing-library/user-event';
 import { setupStore } from '../../util/setupStore';
-import { setConfig } from '../../slices/config';
+import TagPicker from './TagPicker';
 
-const mockedGetTagsByType = jest.fn();
-jest.mock('../../services/tagmanager', () => ({
+const { mockedGetTagsByType } = vi.hoisted(() => ({
+  mockedGetTagsByType: vi.fn()
+}));
+vi.mock('../../services/tagmanager', () => ({
   __esModule: true,
   getTagsByType: mockedGetTagsByType
 }));
-import TagPicker from './TagPicker';
 
 const defaultProps = {
   fieldName: 'Tags',
@@ -19,7 +20,7 @@ const defaultProps = {
   placeholder: 'Add a tag',
   tagType: 'keyword',
   editable: true,
-  onUpdateField: jest.fn().mockResolvedValue(),
+  onUpdateField: vi.fn().mockResolvedValue(),
   hasWarning: () => false,
   hasError: () => false,
   notification: { message: '' },

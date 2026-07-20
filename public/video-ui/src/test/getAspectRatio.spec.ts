@@ -3,6 +3,7 @@ import {
   getAspectRatioFromVideo,
   isImageCropOutOfSync
 } from '../util/getAspectRatio';
+
 import {
   audioAsset1,
   emptyImage,
