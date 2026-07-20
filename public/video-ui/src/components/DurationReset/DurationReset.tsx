@@ -9,7 +9,6 @@ type DurationResetProps = {
 };
 
 class DurationReset extends React.Component<DurationResetProps> {
-
   render() {
     const { video, updateVideo } = this.props;
 
