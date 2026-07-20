@@ -1,9 +1,9 @@
 export default class PrivacyStates {
-  static get defaultStates() {
+  static get defaultStates(): string[] {
     return ['Unlisted'];
   }
 
-  static forForm(states) {
+  static forForm(states: string[]): { id: string; title: string }[] {
     return states
       .filter(_ => _ !== 'Private')
       .map(state => {
