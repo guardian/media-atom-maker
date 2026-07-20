@@ -8,8 +8,18 @@ type TagFieldValueItem =
       webTitle?: string;
     };
 
+type TagType =
+  | 'contributor'
+  | 'tracking'
+  | 'keyword'
+  | 'series'
+  | 'youtube'
+  | 'tone'
+  | 'paidContent'
+  | 'contenttype';
+
 type Props = {
-  tagType?: string;
+  tagType?: TagType;
   tagValue: TagFieldValueItem[];
 };
 
