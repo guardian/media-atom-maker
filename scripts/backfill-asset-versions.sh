@@ -162,7 +162,7 @@ process_page() {
       '{
         PutRequest: {
           Item: (
-            {id:{S:$id}, claimSource:{S:"UploadPipeline"}, claimedAtTimestamp:{N:($ts|tostring)}, claimedByUser:{S:$claimed_by_user}}
+            {id:{S:$id}, claimSource:{S:"UploadPipeline"}, claimedAtTimestamp:{N:($ts|tostring)}, claimedByUser:{S:$claimed_by_user}, fromBackfill:{BOOL:true}}
             | if $fn != "" then . + {originalFilename:{S:$fn}} else . end
           )
         }
