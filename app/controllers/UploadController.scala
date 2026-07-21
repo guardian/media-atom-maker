@@ -259,7 +259,7 @@ class UploadController(
       */
     case _: ExecutionAlreadyExistsException => {
       log.warn(
-        s"Execution already exists for atom ${atom.id} version ${assetVersion}. Trying next available version. NB. This should not happen unless the backfill script has failed, or an upload was started during the backfill process."
+        s"Execution already exists for atom ${atom.id} version ${assetVersion}. Trying next available version from claims table."
       )
       val nextVersion = assetVersionManager
         .claimThisOrNextAvailableVersion(
