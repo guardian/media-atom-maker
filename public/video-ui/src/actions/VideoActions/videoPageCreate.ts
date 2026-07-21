@@ -1,4 +1,5 @@
-import VideosApi from '../../services/VideosApi';
+import { AnyAction } from 'redux';
+import VideosApi, { VideoWithoutId } from '../../services/VideosApi';
 import ContentApi from '../../services/capi';
 import { showError } from '../../slices/error';
 import { addNewlyCreatedVideoUsage } from '../../slices/usage';
@@ -10,8 +11,12 @@ function requestVideoPageCreate() {
   };
 }
 
-export function createVideoPage(id, video, isTrainingMode) {
-  return async dispatch => {
+export function createVideoPage(
+  id: string,
+  video: VideoWithoutId,
+  isTrainingMode: any
+) {
+  return async (dispatch: any) => {
     dispatch(requestVideoPageCreate());
 
     // Do a last minute check to see if a video page has shown up when we weren't looking
@@ -28,8 +33,8 @@ export function createVideoPage(id, video, isTrainingMode) {
     }
     return VideosApi.createComposerPage(id, video)
       .then(res => {
-        const composerId = res.data.id;
-        const pagePath = res.data.identifiers.path.data;
+        const composerId = (res as any).data.id;
+        const pagePath = (res as any).data.identifiers.path.data;
 
         const addVideo = VideosApi.addVideoToComposerPage({
           composerId,

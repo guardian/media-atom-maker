@@ -136,13 +136,13 @@ export const ScheduledLaunch = ({
     return null;
   };
 
-  const reset = () => {
+  function reset() {
     setSelectedDelayPublicationOption(null);
     setShowMenu(false);
     setSelectedDate(null);
     setIsLoading(false);
     setInvalidDateError(null);
-  };
+  }
 
   const hasIndefiniteEmbargo = !!(
     embargoDate && moment(embargoDate).isSameOrAfter(impossiblyDistantDate)
@@ -167,6 +167,7 @@ export const ScheduledLaunch = ({
 
       {selectedDelayPublicationOption && (
         <div className="topbar__date-picker">
+          {/* @ts-expect-error TS(2741): Property 'canCancel' is missing in type '{ editabl... Remove this comment to see the full error message */}
           <DatePicker
             editable={true}
             onUpdateField={handleDateChange}

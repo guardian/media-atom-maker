@@ -3,9 +3,10 @@ import { getVideo } from './getVideo';
 import { setAddingAsset, setAssets } from '../../slices/video';
 import { showError } from '../../slices/error';
 import { getUploads } from '../../slices/uploads';
+import { AnyAction } from 'redux';
 
-export function createAsset(asset, video) {
-  return dispatch => {
+export function createAsset(asset: { uri: string }, video: { id: string }) {
+  return (dispatch: any) => {
     dispatch(setAddingAsset(true));
     return VideosApi.createAsset(asset, video.id)
       .then(res => {

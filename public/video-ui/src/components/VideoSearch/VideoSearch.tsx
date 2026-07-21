@@ -2,12 +2,12 @@ import React from 'react';
 import Icon from '../Icon';
 
 export default class VideoSearch extends React.Component {
-  onSearch = e => {
-    this.props.updateSearchTerm(e.target.value);
+  onSearch = (e: { target: { value: any } }) => {
+    (this.props as any).updateSearchTerm(e.target.value);
   };
 
   searchInProgress = () => {
-    return this.props.saving;
+    return (this.props as any).saving;
   };
 
   render() {
@@ -21,7 +21,7 @@ export default class VideoSearch extends React.Component {
             (this.searchInProgress() ? ' form__field--loading' : '')
           }
           type="search"
-          value={this.props.search.searchTerm || ''}
+          value={(this.props as any).search.searchTerm || ''}
           onChange={this.onSearch}
           placeholder={'Search for videos...'}
         />

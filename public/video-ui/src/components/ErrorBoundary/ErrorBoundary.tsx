@@ -1,10 +1,14 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
-export class ErrorBoundary extends React.Component {
-  static propTypes = {
-    fallback: PropTypes.object.isRequired
-  };
-  constructor(props) {
+
+type Props = {
+  fallback: Element;
+};
+
+type State = {
+  hasError: boolean;
+};
+export class ErrorBoundary extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
     this.state = { hasError: false };
   }
@@ -16,6 +20,6 @@ export class ErrorBoundary extends React.Component {
       return this.props.fallback;
     }
 
-    return this.props.children;
+    return (this.props as any).children;
   }
 }

@@ -1,14 +1,13 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import VideosApi from '../../services/VideosApi';
+import VideosApi, { Video } from '../../services/VideosApi';
 import Icon from '../Icon';
 
-class DurationReset extends React.Component {
-  static propTypes = {
-    video: PropTypes.object.isRequired,
-    updateVideo: PropTypes.func.isRequired
-  };
+type Props = {
+  video: Video;
+  updateVideo: (...args: any[]) => any;
+};
 
+class DurationReset extends React.Component<Props> {
   render() {
     const { video, updateVideo } = this.props;
 

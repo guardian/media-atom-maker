@@ -182,6 +182,7 @@ const Videos = ({
         {videos.length ? (
           <ul className="grid__list">
             {videos.map(video => (
+              // @ts-expect-error TS(2740): Type 'ReactElement<any, any>' is missing the follo... Remove this comment to see the full error message
               <ErrorBoundary key={video.id} fallback={<VideoItemError />}>
                 <VideoItem
                   video={video}
@@ -203,7 +204,7 @@ const Videos = ({
 
 //REDUX CONNECTIONS
 import { connect, useDispatch } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { AnyAction, bindActionCreators, Dispatch } from 'redux';
 import * as reportPresenceClientError from '../../actions/PresenceActions/reportError';
 import { fetchVideos } from '../../slices/videos';
 import { AppDispatch } from '../../util/setupStore';
@@ -221,8 +222,7 @@ function mapStateToProps(state: {
   };
 }
 
-// @ts-ignore
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch: Dispatch<AnyAction>) {
   return {
     presenceActions: bindActionCreators(
       Object.assign({}, reportPresenceClientError),
@@ -231,5 +231,5 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-// @ts-ignore
+// @ts-expect-error TS(2345): Argument of type 'MemoExoticComponent<({ videos, t... Remove this comment to see the full error message
 export default connect(mapStateToProps, mapDispatchToProps)(React.memo(Videos));

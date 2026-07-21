@@ -10,8 +10,15 @@ import Youtube from '../../../images/youtube.svg?react';
 import Loop from '../../../images/loop.svg?react';
 import Cinemagraph from '../../../images/cinemagraph.svg?react';
 import NonYoutube from '../../../images/nonyoutube.svg?react';
+import { Presence } from '../../services/presence';
 
-export default class VideoItem extends React.Component {
+type Props = {
+  // @ts-expect-error TS(2304): Cannot find name 'Video'.
+  video: Video;
+  presences: Presence[];
+};
+
+export default class VideoItem extends React.Component<Props> {
   renderPublishStatus() {
     if (VideoUtils.hasExpired(this.props.video)) {
       return <span className="publish__label label__expired">Expired</span>;
@@ -125,7 +132,8 @@ export default class VideoItem extends React.Component {
             <div className="platform__icons">
               <div className="platform__icon">
                 {video.videoPlayerFormat
-                  ? iconMap[video.videoPlayerFormat]
+                  ? // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+                    iconMap[video.videoPlayerFormat]
                   : iconMap[
                       platform?.toLowerCase() === 'youtube'
                         ? 'Youtube'

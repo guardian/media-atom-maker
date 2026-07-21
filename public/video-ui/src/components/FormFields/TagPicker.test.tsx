@@ -15,10 +15,12 @@ import TagPicker from './TagPicker';
 
 const defaultProps = {
   fieldName: 'Tags',
+  // @ts-expect-error TS(7018): Object literal's property 'fieldValue' implicitly ... Remove this comment to see the full error message
   fieldValue: [],
   placeholder: 'Add a tag',
   tagType: 'keyword',
   editable: true,
+  // @ts-expect-error TS(2554): Expected 1 arguments, but got 0.
   onUpdateField: jest.fn().mockResolvedValue(),
   hasWarning: () => false,
   hasError: () => false,
@@ -52,6 +54,7 @@ describe('TagPicker', () => {
     const user = userEvent.setup();
     render(
       <Provider store={store}>
+        {/* @ts-expect-error TS(2559): Type '{ fieldName: string; fieldValue: any[]; plac... Remove this comment to see the full error message */}
         <TagPicker {...defaultProps} />
       </Provider>
     );
@@ -81,6 +84,7 @@ describe('TagPicker', () => {
     const user = userEvent.setup();
     render(
       <Provider store={store}>
+        {/* @ts-expect-error TS(2559): Type '{ fieldName: string; fieldValue: any[]; plac... Remove this comment to see the full error message */}
         <TagPicker {...defaultProps} />
       </Provider>
     );
@@ -104,6 +108,7 @@ describe('TagPicker', () => {
     const user = userEvent.setup();
     render(
       <Provider store={store}>
+        {/* @ts-expect-error TS(2559): Type '{ fieldName: string; fieldValue: any[]; plac... Remove this comment to see the full error message */}
         <TagPicker {...defaultProps} />
       </Provider>
     );

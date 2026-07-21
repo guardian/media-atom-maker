@@ -1,11 +1,10 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import TagPicker from '../FormFields/TagPicker';
 import CustomDatePicker from '../FormFields/DatePicker';
 import TagTypes from '../../constants/TagTypes';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { AnyAction, bindActionCreators, Dispatch } from 'redux';
 import Icon from '../Icon';
 import {
   getTargets,
@@ -13,10 +12,18 @@ import {
   updateTarget,
   deleteTarget
 } from '../../slices/targeting';
+import { Video } from '../../services/VideosApi';
 
-const isDeleting = (target, deleting) => deleting.indexOf(target.id) > -1;
+const isDeleting = (target: { id: any }, deleting: string | any[]) =>
+  deleting.indexOf(target.id) > -1;
 
-const TargetPrefix = ({ targetIndex, targetCount }) =>
+const TargetPrefix = ({
+  targetIndex,
+  targetCount
+}: {
+  targetIndex: any;
+  targetCount: any;
+}) =>
   targetIndex === 0 ? (
     <span>{targetCount > targetIndex + 1 ? 'Either an ' : 'An '}</span>
   ) : (
@@ -25,11 +32,17 @@ const TargetPrefix = ({ targetIndex, targetCount }) =>
     </span>
   );
 
-const TargetSuffix = ({ targetIndex, targetCount }) => (
-  <span>{targetCount > targetIndex + 1 ? ' ...' : '.'}</span>
-);
+const TargetSuffix = ({
+  targetIndex,
+  targetCount
+}: {
+  targetIndex: any;
+  targetCount: any;
+}) => <span>{targetCount > targetIndex + 1 ? ' ...' : '.'}</span>;
 
-const TargetDescription = props => (
+const TargetDescription = (
+  props: React.JSX.IntrinsicAttributes & { targetIndex: any; targetCount: any }
+) => (
   <p>
     <TargetPrefix {...props} /> article must match
     <strong className="highlight"> all </strong>
@@ -38,41 +51,42 @@ const TargetDescription = props => (
   </p>
 );
 
-class Targeting extends React.Component {
-  constructor(props) {
+type TargetingProps = {
+  video: Video;
+};
+
+class Targeting extends React.Component<TargetingProps> {
+  constructor(props: TargetingProps) {
     super(props);
-    this.props.targetingActions.getTargets(this.props.video);
+    (this.props as any).targetingActions.getTargets(this.props.video);
   }
 
-  static propTypes = {
-    video: PropTypes.object.isRequired
-  };
-
   createTarget = () => {
-    this.props.targetingActions.createTarget(this.props.video);
+    (this.props as any).targetingActions.createTarget(this.props.video);
   };
 
-  updateTarget = target => {
-    this.props.targetingActions.updateTarget(target);
+  updateTarget = (target: any) => {
+    (this.props as any).targetingActions.updateTarget(target);
     return Promise.resolve(target);
   };
 
-  deleteTarget = target => {
-    this.props.targetingActions.deleteTarget(target);
+  deleteTarget = (target: any) => {
+    (this.props as any).targetingActions.deleteTarget(target);
   };
 
   render() {
     return (
       <div>
-        {this.props.targetsLoaded && (
+        {(this.props as any).targetsLoaded && (
           <div>
             <p>
               A targeting rule will allow this video to be suggested for certain
               articles.
             </p>
-            {this.props.targets.map((target, index) => (
+            {(this.props as any).targets.map((target: any, index: any) => (
               <div key={target.id} className="targeting__form">
-                {!isDeleting(target, this.props.deleting) && (
+                {/* @ts-expect-error TS(2769): No overload matches this call. */}
+                {!isDeleting(target, (this.props as any).deleting) && (
                   <ManagedForm
                     data={target}
                     updateData={this.updateTarget}
@@ -81,8 +95,9 @@ class Targeting extends React.Component {
                   >
                     <TargetDescription
                       targetIndex={index}
-                      targetCount={this.props.targets.length}
+                      targetCount={(this.props as any).targets.length}
                     />
+                    {/* @ts-expect-error TS(2769): No overload matches this call. */}
                     <ManagedField
                       fieldLocation="tagPaths"
                       name="Targeting tags"
@@ -92,17 +107,20 @@ class Targeting extends React.Component {
                       isRequired={false}
                       inputPlaceholder="Target these tags (type '*' to show all)"
                     >
+                      {/* @ts-expect-error TS(2322): Type '{ disableTextInput: true; }' is not assignab... Remove this comment to see the full error message */}
                       <TagPicker disableTextInput />
                     </ManagedField>
+                    {/* @ts-expect-error TS(2769): No overload matches this call. */}
                     <ManagedField
                       fieldLocation="activeUntil"
                       name="Active until"
                     >
+                      {/* @ts-expect-error TS(2739): Type '{ canCancel: false; dayOnly: true; }' is mis... Remove this comment to see the full error message */}
                       <CustomDatePicker canCancel={false} dayOnly />
                     </ManagedField>
                   </ManagedForm>
                 )}
-                {!isDeleting(target, this.props.deleting) && (
+                {!isDeleting(target, (this.props as any).deleting) && (
                   <button
                     className="button__secondary--cancel"
                     onClick={() => this.deleteTarget(target)}
@@ -122,7 +140,9 @@ class Targeting extends React.Component {
   }
 }
 
-function mapStateToProps(state) {
+function mapStateToProps(state: {
+  targeting: { targets: any; deleting: any };
+}) {
   const {
     targeting: { targets: currentTargets, deleting }
   } = state;
@@ -135,7 +155,7 @@ function mapStateToProps(state) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch: Dispatch<AnyAction>) {
   return {
     targetingActions: bindActionCreators(
       { getTargets, createTarget, deleteTarget, updateTarget },

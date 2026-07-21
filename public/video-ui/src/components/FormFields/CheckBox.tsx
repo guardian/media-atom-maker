@@ -1,6 +1,18 @@
 import React from 'react';
 
-export default class CheckBox extends React.Component {
+type Props = {
+  fieldValue: any;
+  placeholder: any;
+  fieldId?: string;
+  fieldLocation: any;
+  editable: any;
+  onUpdateField: any;
+  tooltip: any;
+  fieldName: any;
+  fieldDetails: any;
+};
+
+export default class CheckBox extends React.Component<Props> {
   renderCheckbox() {
     const checked =
       !!this.props.fieldValue &&

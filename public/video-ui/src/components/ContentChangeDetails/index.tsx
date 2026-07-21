@@ -1,23 +1,27 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { ManagedField, ManagedForm, ManagedSection } from '../ManagedForm';
 import TextInput from '../FormFields/TextInput';
 import DatePicker from '../FormFields/DatePicker';
 import { isVideoPublished } from '../../util/isVideoPublished';
+import { Video } from '../../services/VideosApi';
 
-class ContentChangeDetails extends React.Component {
-  static propTypes = {
-    video: PropTypes.object.isRequired
-  };
+type Props = {
+  video: Video;
+};
 
-  getTextField = (path, caption) => (
+class ContentChangeDetails extends React.Component<Props> {
+  getTextField = (path: string, caption: string) => (
+    // @ts-expect-error TS(2769): No overload matches this call.
     <ManagedField fieldLocation={path} name={caption}>
+      {/* @ts-expect-error TS(2769): No overload matches this call. */}
       <TextInput />
     </ManagedField>
   );
 
-  getDateField = (path, caption) => (
+  getDateField = (path: string, caption: string) => (
+    // @ts-expect-error TS(2769): No overload matches this call.
     <ManagedField fieldLocation={path} name={caption} className="unhide">
+      {/* @ts-expect-error TS(2740): Type '{}' is missing the following properties from... Remove this comment to see the full error message */}
       <DatePicker />
     </ManagedField>
   );
@@ -28,7 +32,9 @@ class ContentChangeDetails extends React.Component {
     const isPublished = isVideoPublished(video);
 
     return (
+      // @ts-expect-error TS(2769): No overload matches this call.
       <ManagedForm data={video}>
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
         <ManagedSection>
           {this.getDateField('contentChangeDetails.created.date', 'Created at')}
           {this.getDateField(
@@ -41,6 +47,7 @@ class ContentChangeDetails extends React.Component {
               'Last published at'
             )}
         </ManagedSection>
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
         <ManagedSection>
           {this.getTextField(
             'contentChangeDetails.created.user.email',

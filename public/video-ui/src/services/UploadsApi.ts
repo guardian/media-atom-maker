@@ -2,6 +2,7 @@ import { apiRequest } from './apiRequest';
 import { errorDetails } from '../util/errorDetails';
 import { S3 } from '@aws-sdk/client-s3';
 import { XhrHttpHandler } from '@aws-sdk/xhr-http-handler';
+import { Upload } from '../slices/s3Upload';
 
 // TO DO - convert to typescript, use definition of `Upload` at public/video-ui/src/components/VideoUpload/VideoAsset.tsx
 
@@ -10,7 +11,7 @@ import { XhrHttpHandler } from '@aws-sdk/xhr-http-handler';
  * @param atomId {string}
  * @returns {Promise<unknown>}
  */
-export function getUploads(atomId) {
+export function getUploads(atomId: string) {
   return apiRequest({
     url: `/api/uploads?atomId=${atomId}`
   });
@@ -23,12 +24,12 @@ export function getUploads(atomId) {
  * @param selfHost {boolean}
  * @returns {Promise<unknown>}
  */
-export function createUpload(atomId, file, selfHost) {
+export function createUpload(atomId: string, file: File, selfHost: boolean) {
   return apiRequest({
     url: `/api/uploads`,
     method: 'post',
     headers: {
-      'Csrf-Token': window.guardian.csrf.token
+      'Csrf-Token': (window as any).guardian.csrf.token
     },
     data: {
       atomId: atomId,
@@ -39,12 +40,12 @@ export function createUpload(atomId, file, selfHost) {
   });
 }
 
-function getCredentials(id, key) {
+function getCredentials(id: any, key: any) {
   return apiRequest({
     url: `/api/uploads/${id}/credentials?key=${key}`,
     method: 'post',
     headers: {
-      'Csrf-Token': window.guardian.csrf.token
+      'Csrf-Token': (window as any).guardian.csrf.token
     }
   });
 }
@@ -55,7 +56,14 @@ function getCredentials(id, key) {
  * @param credentials {any}
  * @returns {S3}
  */
-function getS3(region, credentials) {
+function getS3(
+  region: any,
+  credentials: {
+    temporaryAccessId: any;
+    temporarySecretKey: any;
+    sessionToken: any;
+  }
+) {
   const { temporaryAccessId, temporarySecretKey, sessionToken } = credentials;
 
   const awsCredentials = {
@@ -83,13 +91,19 @@ function getS3(region, credentials) {
  * @param progressFn {(completed: number) => any}
  * @returns {Promise<unknown>}
  */
-function uploadPart(upload, part, file, progressFn) {
+function uploadPart(
+  upload: { id: any; metadata: { region: any; bucket: any } },
+  part: { start: any; end: any; key: any },
+  file: { slice: (arg0: any, arg1: any) => any; name: any },
+  progressFn: (arg0: any) => void
+) {
   const slice = file.slice(part.start, part.end);
 
   return getCredentials(upload.id, part.key).then(credentials => {
+    // @ts-expect-error TS(2345): Argument of type 'unknown' is not assignable to pa... Remove this comment to see the full error message
     const s3 = getS3(upload.metadata.region, credentials);
 
-    const request = slice.arrayBuffer().then(body =>
+    const request = slice.arrayBuffer().then((body: any) =>
       s3.putObject({
         Bucket: upload.metadata.bucket,
         Key: part.key,
@@ -115,9 +129,17 @@ function uploadPart(upload, part, file, progressFn) {
  * @param progressFn {(completed: number) => any}
  * @returns {Promise<boolean>}
  */
-export function uploadParts(upload, parts, file, progressFn) {
+export function uploadParts(
+  upload: Upload,
+  parts: { end: number; key: string; start: number }[],
+  file: File,
+  progressFn: (completed: number) => {
+    payload: number;
+    type: 's3Upload/s3UploadProgress';
+  }
+) {
   return new Promise((resolve, reject) => {
-    function uploadPartRecursive(parts) {
+    function uploadPartRecursive(parts: string | any[]) {
       if (parts.length === 0) {
         resolve(true);
       } else {
@@ -145,7 +167,15 @@ export function uploadParts(upload, parts, file, progressFn) {
  * @param file - the local file to upload
  * @returns {Promise}
  */
-export function uploadSubtitleFile({ id, version, file }) {
+export function uploadSubtitleFile({
+  id,
+  version,
+  file
+}: {
+  id: string;
+  version: string;
+  file: File;
+}) {
   const formData = new FormData();
   formData.append('subtitle-file', file);
 
@@ -153,20 +183,28 @@ export function uploadSubtitleFile({ id, version, file }) {
     url: `/api/uploads/${id}/${version}/subtitle-file`,
     method: 'post',
     headers: {
-      'Csrf-Token': window.guardian.csrf.token
+      'Csrf-Token': (window as any).guardian.csrf.token
     },
+    // @ts-expect-error TS(2322): Type 'FormData' is not assignable to type 'string'... Remove this comment to see the full error message
     body: formData,
     processData: false
   });
 }
 
-export function deleteSubtitleFile({ id, version }) {
+export function deleteSubtitleFile({
+  id,
+  version
+}: {
+  id: string;
+  version: string;
+}) {
   return apiRequest({
     url: `/api/uploads/${id}/${version}/subtitle-file`,
     method: 'delete',
     headers: {
-      'Csrf-Token': window.guardian.csrf.token
+      'Csrf-Token': (window as any).guardian.csrf.token
     },
+    // @ts-expect-error TS(2353): Object literal may only specify known properties, ... Remove this comment to see the full error message
     processData: false
   });
 }

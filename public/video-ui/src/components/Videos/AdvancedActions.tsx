@@ -1,15 +1,20 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { getStore } from '../../util/storeAccessor';
 import Icon from '../Icon';
+import { UsageState } from '../../slices/usage';
+import { deleteVideo } from '../../actions/VideoActions/deleteVideo';
 
-export default class AdvancedActions extends React.Component {
-  static propTypes = {
-    video: PropTypes.object.isRequired,
-    usages: PropTypes.object.isRequired,
-    deleteVideo: PropTypes.func.isRequired
-  };
+type Props = {
+  video: any;
+  usages: UsageState;
+  deleteVideo: (...args: any[]) => any;
+};
 
+type State = {
+  deleteDoubleCheck: boolean;
+};
+
+export default class AdvancedActions extends React.Component<Props, State> {
   // the permissions are also validated on the server-side for each request
   permissions = getStore().getState().config.permissions;
   showActions = this.permissions.deleteAtom;

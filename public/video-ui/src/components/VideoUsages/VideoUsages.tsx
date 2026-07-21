@@ -1,12 +1,19 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import moment from 'moment';
 import { getStore } from '../../util/storeAccessor';
 import { FrontendIcon, ComposerIcon, ViewerIcon } from '../Icon';
 
 import ContentApi from '../../services/capi';
+import { UsageState } from '../../slices/usage';
+import { Video } from '../../services/VideosApi';
 
-export default class VideoUsages extends React.Component {
+type Props = {
+  usages: UsageState;
+  video: Video;
+  publishedVideo: Video;
+};
+
+export default class VideoUsages extends React.Component<Props> {
   getComposerUrl = () => {
     return getStore().getState().config.composerUrl;
   };
@@ -15,7 +22,7 @@ export default class VideoUsages extends React.Component {
     return getStore().getState().config.viewerUrl;
   };
 
-  renderUsage = ({ usage, state }) => {
+  renderUsage = ({ usage, state }: any) => {
     const composerLink = `${this.getComposerUrl()}/content/${usage.fields.internalComposerCode}`;
     const viewerLink = `${this.getViewerUrl()}/preview/${usage.id}`;
     const websiteLink = `https://www.theguardian.com/${usage.id}`;
@@ -76,6 +83,7 @@ export default class VideoUsages extends React.Component {
 
     return Object.keys(usages).map(state => {
       const totalUsages =
+        // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         usages[state].video.length + usages[state].other.length;
 
       return (
@@ -85,10 +93,12 @@ export default class VideoUsages extends React.Component {
             <p className="usage--none details-list__field">{`No ${state} usages found`}</p>
           ) : (
             <ul className="detail__list">
-              {usages[state].video.map(usage =>
+              {/* @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message */}
+              {usages[state].video.map((usage: any) =>
                 this.renderUsage({ usage, state })
               )}
-              {usages[state].other.map(usage =>
+              {/* @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message */}
+              {usages[state].other.map((usage: any) =>
                 this.renderUsage({ usage, state })
               )}
             </ul>
@@ -102,9 +112,3 @@ export default class VideoUsages extends React.Component {
     return <div className="usage">{this.renderUsages()}</div>;
   }
 }
-
-VideoUsages.propTypes = {
-  usages: PropTypes.object.isRequired,
-  video: PropTypes.object.isRequired,
-  publishedVideo: PropTypes.object.isRequired
-};

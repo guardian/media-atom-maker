@@ -21,6 +21,7 @@ export const VideoPreview = ({ video }: Props) => {
     }
 
     if (active.length === 1 && active[0].platform === 'Youtube') {
+      // @ts-expect-error TS(2739): Type '{ id: string; }' is missing the following pr... Remove this comment to see the full error message
       return <YouTubeEmbed id={active[0].id} />;
     }
 

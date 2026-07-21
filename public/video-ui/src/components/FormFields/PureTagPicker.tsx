@@ -1,28 +1,31 @@
 import React from 'react';
-import { PropTypes } from 'prop-types';
 import TagSearch from '../TagSearch/TagSearch';
 import removeTagDuplicates from '../../util/removeTagDuplicates';
 
-class PureTagPicker extends React.Component {
-  static propTypes = {
-    tagValue: PropTypes.array.isRequired,
-    fetchTags: PropTypes.func.isRequired,
-    onUpdate: PropTypes.func.isRequired,
-    searchResultTags: PropTypes.array.isRequired,
-    tagsToVisible: PropTypes.func.isRequired,
-    showTags: PropTypes.bool.isRequired,
-    hideTagResults: PropTypes.func.isRequired,
-    selectedTagIndex: PropTypes.number,
-    inputClearCount: PropTypes.number.isRequired,
-    inputPlaceholder: PropTypes.string.isRequired,
-    updateSideEffects: PropTypes.func
-  };
+type Props = {
+  tagValue: any[];
+  fetchTags: (...args: any[]) => any;
+  onUpdate: (...args: any[]) => any;
+  searchResultTags: any[];
+  tagsToVisible: (...args: any[]) => any;
+  showTags: boolean;
+  hideTagResults: (...args: any[]) => any;
+  selectedTagIndex?: number;
+  inputClearCount: number;
+  inputPlaceholder: string;
+  updateSideEffects?: (...args: any[]) => any;
+};
 
+type State = {
+  inputString: string;
+};
+
+class PureTagPicker extends React.Component<Props, State> {
   state = {
     inputString: ''
   };
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     if (prevProps.inputClearCount !== this.props.inputClearCount) {
       this.setState({
         inputString: ''
@@ -30,7 +33,7 @@ class PureTagPicker extends React.Component {
     }
   }
 
-  updateInput = e => {
+  updateInput = (e: { target: { value: any } }) => {
     const searchText = e.target.value;
     this.props.fetchTags(searchText);
     this.setState({
@@ -38,7 +41,7 @@ class PureTagPicker extends React.Component {
     });
   };
 
-  selectNewTag = newFieldValue => {
+  selectNewTag = (newFieldValue: any) => {
     this.setState({
       inputString: ''
     });

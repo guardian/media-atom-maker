@@ -1,29 +1,29 @@
-import React from 'react';
+import React, { RefObject } from 'react';
 import Modal from './Modal';
-import PropTypes from 'prop-types';
 import { parseImageFromGridCrop } from '../../util/parseGridMetadata';
 import Logger from '../../logger';
 import Icon from '../Icon';
 
-export default class GridImageSelect extends React.Component {
-  static propTypes = {
-    image: PropTypes.object.isRequired,
-    gridUrl: PropTypes.string.isRequired,
-    gridDomain: PropTypes.string.isRequired,
-    disabled: PropTypes.bool.isRequired,
-    updateVideo: PropTypes.func.isRequired,
-    fieldLocation: PropTypes.oneOf([
-      'posterImage',
-      'trailImage',
-      'youtubeOverrideImage'
-    ])
-  };
+type Props = {
+  image: any;
+  gridUrl: string;
+  gridDomain: string;
+  disabled: boolean;
+  updateVideo: (...args: any[]) => any;
+  fieldLocation?: 'posterImage' | 'trailImage' | 'youtubeOverrideImage';
+};
 
+type State = {
+  dialogRef: undefined | RefObject<unknown>;
+};
+
+export default class GridImageSelect extends React.Component<Props, State> {
   state = {
+    // @ts-expect-error TS(7018): Object literal's property 'dialogRef' implicitly h... Remove this comment to see the full error message
     dialogRef: undefined
   };
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this.state.dialogRef = React.createRef();
   }
@@ -38,17 +38,17 @@ export default class GridImageSelect extends React.Component {
     window.removeEventListener('message', this.onMessage, false);
   };
 
-  onUpdatePosterImage = (cropData, imageData) => {
+  onUpdatePosterImage = (cropData: any, imageData: any) => {
     const image = parseImageFromGridCrop(cropData, imageData);
 
     this.props.updateVideo(image, this.props.fieldLocation);
   };
 
-  validMessage(data) {
+  validMessage(data: { crop: { data: any }; image: { data: any } }) {
     return data && data.crop && data.crop.data && data.image && data.image.data;
   }
 
-  onMessage = event => {
+  onMessage = (event: { origin: string; data: any }) => {
     if (event.origin !== this.props.gridDomain) {
       Logger.log("didn't come from the grid");
       return;

@@ -4,7 +4,7 @@ import {
   secondsToDurationStr
 } from '../../util/durationHelpers';
 
-const getStateFromProps = props => {
+const getStateFromProps = (props: Readonly<DurationInputProps>) => {
   const dur = props.rawFieldValue || 0;
 
   const { mins, secs } = durationToMinAndSecs(dur);
@@ -15,8 +15,28 @@ const getStateFromProps = props => {
   };
 };
 
-class DurationInput extends React.Component {
-  constructor(props) {
+type DurationInputProps = {
+  onUpdateField: any;
+  editable: any;
+  fieldName: any;
+  displayPlaceholder: any;
+  placeholder: any;
+  fieldValue: any;
+  rawFieldValue: any;
+  hasError: any;
+  notification: any;
+};
+
+type DurationInputState = {
+  mins: string;
+  secs: string;
+};
+
+class DurationInput extends React.Component<
+  DurationInputProps,
+  DurationInputState
+> {
+  constructor(props: DurationInputProps) {
     super(props);
     this.state = getStateFromProps(this.props);
   }
@@ -27,7 +47,7 @@ class DurationInput extends React.Component {
     this.props.onUpdateField(minsInt * 60 + secsInt);
   }
 
-  updateMins(mins) {
+  updateMins(mins: string) {
     this.setState(
       {
         mins
@@ -36,7 +56,7 @@ class DurationInput extends React.Component {
     );
   }
 
-  updateSecs(secs) {
+  updateSecs(secs: string) {
     this.setState(
       {
         secs: secs ? `${Math.min(parseInt(secs, 10), 59)}` : '' // limit seconds to 59
@@ -81,6 +101,7 @@ class DurationInput extends React.Component {
         </span>
         <input
           type="text"
+          // @ts-expect-error TS(2322): Type 'string' is not assignable to type 'number'.
           size="3"
           className={
             'form__field form__field--inline ' +
@@ -94,6 +115,7 @@ class DurationInput extends React.Component {
         <span style={{ margin: '0 5px' }}>mins</span>
         <input
           type="text"
+          // @ts-expect-error TS(2322): Type 'string' is not assignable to type 'number'.
           size="3"
           className={
             'form__field form__field--inline ' +

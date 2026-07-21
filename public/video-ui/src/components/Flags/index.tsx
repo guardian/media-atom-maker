@@ -1,20 +1,20 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { ManagedField, ManagedForm } from '../ManagedForm';
 import CheckBox from '../FormFields/CheckBox';
 import VideoUtils from '../../util/video';
 import { formNames } from '../../constants/formNames';
 import { addOrDropBundlingTags } from '../../services/KeywordsApi';
+import { Video } from '../../services/VideosApi';
 
-class Flags extends React.Component {
-  static propTypes = {
-    video: PropTypes.object.isRequired,
-    editable: PropTypes.bool.isRequired,
-    updateVideo: PropTypes.func.isRequired,
-    updateErrors: PropTypes.func.isRequired,
-    updateWarnings: PropTypes.func.isRequired
-  };
+type Props = {
+  video: Video;
+  editable: boolean;
+  updateVideo: (...args: any[]) => any;
+  updateErrors: (...args: any[]) => any;
+  updateWarnings: (...args: any[]) => any;
+};
 
+class Flags extends React.Component<Props> {
   composerKeywordsToYouTube = () => {
     const { video, updateVideo } = this.props;
 
@@ -34,9 +34,11 @@ class Flags extends React.Component {
     const isCommercialType = VideoUtils.isCommercialType(video);
     const isEligibleForAds = VideoUtils.isEligibleForAds(video);
     const canHaveComposerPage = VideoUtils.canHaveComposerPage(video);
+    // @ts-expect-error TS(2345): Argument of type 'Video' is not assignable to para... Remove this comment to see the full error message
     const platform = VideoUtils.getPlatformFromAtom(video);
 
     return (
+      // @ts-expect-error TS(2769): No overload matches this call.
       <ManagedForm
         data={video}
         updateData={updateVideo}
@@ -47,6 +49,7 @@ class Flags extends React.Component {
         formClass="atom__edit__form"
       >
         {canHaveComposerPage && (
+          // @ts-expect-error TS(2769): No overload matches this call.
           <ManagedField
             fieldLocation="blockAds"
             name="Block ads"
@@ -60,47 +63,58 @@ class Flags extends React.Component {
             tooltip={!isEligibleForAds ? `Not eligible for pre-roll.` : ''}
           >
             {/* use a different field identifier to `fieldLocation` to ensure ad blockers don't remove it from the DOM */}
+            {/* @ts-expect-error TS(2769): No overload matches this call. */}
             <CheckBox fieldId="what-a-time-to-be-alive" />
           </ManagedField>
         )}
         {canHaveComposerPage && (
+          // @ts-expect-error TS(2769): No overload matches this call.
           <ManagedField
             fieldLocation="composerCommentsEnabled"
             name="Comments"
             fieldDetails="Allow comments on Guardian video page (does not change YouTube)"
           >
+            {/* @ts-expect-error TS(2769): No overload matches this call. */}
             <CheckBox />
           </ManagedField>
         )}
         {canHaveComposerPage && (
+          // @ts-expect-error TS(2769): No overload matches this call.
           <ManagedField
             fieldLocation="optimisedForWeb"
             name="Optimised for Web"
             fieldDetails="Optimised for Web"
           >
+            {/* @ts-expect-error TS(2769): No overload matches this call. */}
             <CheckBox />
           </ManagedField>
         )}
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
         <ManagedField
           fieldLocation="sensitive"
           name="Sensitive"
           fieldDetails="Contains sensitive content"
         >
+          {/* @ts-expect-error TS(2769): No overload matches this call. */}
           <CheckBox />
         </ManagedField>
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
         <ManagedField
           fieldLocation="legallySensitive"
           name="Legally Sensitive"
           fieldDetails="This content involves active criminal proceedings"
         >
+          {/* @ts-expect-error TS(2769): No overload matches this call. */}
           <CheckBox />
         </ManagedField>
         {canHaveComposerPage && (
+          // @ts-expect-error TS(2769): No overload matches this call.
           <ManagedField
             fieldLocation="suppressRelatedContent"
             name="Suppress related content"
             fieldDetails="Suppress related content"
           >
+            {/* @ts-expect-error TS(2769): No overload matches this call. */}
             <CheckBox />
           </ManagedField>
         )}

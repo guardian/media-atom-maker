@@ -135,6 +135,7 @@ export const ReactApp = (
         updateVideo={bindActionCreators(updateVideo, dispatch)}
         saveVideo={bindActionCreators(saveVideo, dispatch)}
         query={props.location.query}
+        // @ts-expect-error TS(2741): Property 'name' is missing in type 'Error' but req... Remove this comment to see the full error message
         error={store.error}
       />
       {store.error.message ? (

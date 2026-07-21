@@ -1,12 +1,23 @@
 import React from 'react';
 
-class TagSearch extends React.Component {
-  constructor(props) {
+type Props = {
+  selectedTagIndex: number;
+  removeDupes: any;
+  tagValue: any[];
+  selectNewTag: any;
+  searchResultTags: any[];
+  showTags: boolean;
+  tagsToVisible: any;
+};
+
+class TagSearch extends React.Component<Props> {
+  listNodeRef: any;
+  constructor(props: Props) {
     super(props);
     this.listNodeRef = React.createRef();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     const nextProps = this.props;
 
     if (
@@ -24,7 +35,19 @@ class TagSearch extends React.Component {
     }
   }
 
-  renderTags(tag, index) {
+  renderTags(
+    tag: {
+      id: string;
+      detailedTitle:
+        | string
+        | number
+        | boolean
+        | React.ReactElement<any, string | React.JSXElementConstructor<any>>
+        | Iterable<React.ReactNode>
+        | React.ReactPortal;
+    },
+    index: number
+  ) {
     const getTagClassName = () => {
       return (
         'form__field__tags' +

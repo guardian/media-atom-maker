@@ -3,18 +3,19 @@ import { getStore } from './storeAccessor';
 import { impossiblyDistantDate } from '../constants/dates';
 import VideoUtils from './video';
 import moment from 'moment';
+import { VideoWithoutId } from '../services/VideosApi';
 
 /**
  * @param {string | undefined} date
  * @returns {number | undefined}
  */
-export const getDateAsNumber = date => {
+export const getDateAsNumber = (date: moment.MomentInput) => {
   if (typeof date === 'string') {
     return moment(date).valueOf();
   }
 };
 
-export function getComposerData(video) {
+export function getComposerData(video: any) {
   const isTrainingMode = getStore().getState().config.isTrainingMode;
   const expiryDate = video?.contentChangeDetails?.expiry?.date;
   const cleanedExpiryDate = getDateAsNumber(expiryDate);

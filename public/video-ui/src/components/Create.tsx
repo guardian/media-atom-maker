@@ -20,7 +20,12 @@ import NonYoutube from '../../images/nonyoutube.svg?react';
 import { fieldLengths } from '../constants/videoEditValidation';
 import { getStore } from '../util/storeAccessor';
 
-export default class Create extends React.Component {
+type State = {
+  title: string;
+  videoCreateOption: string | VideoCreateOption;
+};
+
+export default class Create extends React.Component<object, State> {
   props: React.PropsWithChildren<{
     createVideo: (
       video: VideoWithoutId

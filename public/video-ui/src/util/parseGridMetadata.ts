@@ -1,7 +1,7 @@
 import { getGridMediaId } from './getGridMediaId';
 import { getTextFromHtml } from './getTextFromHtml';
 
-function parseMimeType(mimeType) {
+function parseMimeType(mimeType: any) {
   //Normalise Mime Types coming from the grid.
   switch (mimeType) {
     case 'jpg':
@@ -13,7 +13,15 @@ function parseMimeType(mimeType) {
   return mimeType;
 }
 
-function parseAsset(asset, aspectRatio) {
+function parseAsset(
+  asset: {
+    secureUrl: any;
+    mimeType: any;
+    size: any;
+    dimensions: { width: any; height: any };
+  },
+  aspectRatio: any
+) {
   return {
     file: asset.secureUrl,
     mimeType: parseMimeType(asset.mimeType),
@@ -26,7 +34,14 @@ function parseAsset(asset, aspectRatio) {
   };
 }
 
-export function parseImageFromGridCrop(cropData, imageData) {
+export function parseImageFromGridCrop(
+  cropData: {
+    specification: { aspectRatio: any; uri: any };
+    assets: any[];
+    master: any;
+  },
+  imageData: { data: { metadata: { credit: any } } }
+) {
   const aspectRatio = cropData.specification.aspectRatio;
   return {
     assets: cropData.assets.map(asset => parseAsset(asset, aspectRatio)),
@@ -36,10 +51,21 @@ export function parseImageFromGridCrop(cropData, imageData) {
   };
 }
 
-export function parseComposerDataFromImage(image, trail) {
+export function parseComposerDataFromImage(
+  image: { master: any; assets: any; mediaId: any; source: any },
+  trail: string
+) {
   const mediaId = getGridMediaId(image);
 
-  function getComposerAsset(asset) {
+  function getComposerAsset(asset: {
+    mimeType: any;
+    file: any;
+    dimensions: {
+      width: { toString: () => any };
+      height: { toString: () => any };
+    };
+    aspectRatio: any;
+  }) {
     return {
       assetType: 'image',
       mimeType: asset.mimeType,
@@ -52,9 +78,9 @@ export function parseComposerDataFromImage(image, trail) {
     };
   }
 
-  function getComposerMasterAsset(asset) {
+  function getComposerMasterAsset(asset: any) {
     const composerAsset = getComposerAsset(asset);
-    composerAsset.isMaster = 'true';
+    (composerAsset as any).isMaster = 'true';
     return composerAsset;
   }
 

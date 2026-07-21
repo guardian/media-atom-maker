@@ -5,8 +5,27 @@ import { ScheduledLaunch } from '../ScheduledLaunch';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 import VideoUtils from '../../util/video';
 import { checkVideoReadyToPublish } from '../../util/videoPublishCheck';
+import { updateVideoPage } from '../../actions/VideoActions/videoPageUpdate';
+import { UsageState } from '../../slices/usage';
+import { updateVideo } from '../../actions/VideoActions/updateVideo';
 
-export default class VideoPublishBar extends React.Component {
+type Props = {
+  isPublishing: boolean;
+  video: any;
+  publishedVideo: any;
+  videoEditOpen: boolean;
+  usages: UsageState;
+  requiredComposerFieldsMissing: any;
+  updateVideoPage: typeof updateVideoPage;
+  publishVideo: any;
+  saveVideo: any;
+  className: string;
+  formFieldsWarning: Record<string, boolean>;
+  updateVideo: typeof updateVideo;
+  query: unknown;
+};
+
+export default class VideoPublishBar extends React.Component<Props> {
   videoIsCurrentlyPublishing() {
     return this.props.isPublishing;
   }

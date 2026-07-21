@@ -25,7 +25,7 @@ export default class Help extends React.Component {
     }
   ];
 
-  renderLink({ url, text }) {
+  renderLink({ url, text }: any) {
     return (
       <a
         className="button__secondary"

@@ -1,9 +1,23 @@
 import React from 'react';
-import { safelyStartPresence } from '../services/presence';
+import { PresenceConfig, safelyStartPresence } from '../services/presence';
+import { reportPresenceClientError } from '../actions/PresenceActions/reportError';
 
-export class Presence extends React.Component {
+type Props = {
+  video: any;
+  config: any;
+  reportPresenceClientError: typeof reportPresenceClientError;
+};
+
+type State = {
+  client: null;
+  visitors: any[];
+};
+
+export class Presence extends React.Component<Props, State> {
   state = {
+    // @ts-expect-error TS(7018): Object literal's property 'client' implicitly has ... Remove this comment to see the full error message
     client: null,
+    // @ts-expect-error TS(7018): Object literal's property 'visitors' implicitly ha... Remove this comment to see the full error message
     visitors: []
   };
 
@@ -13,7 +27,7 @@ export class Presence extends React.Component {
     }
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     const current = this.props.video.id;
     const previous = prevProps.video.id;
 
@@ -40,7 +54,7 @@ export class Presence extends React.Component {
     }
   }
 
-  startPresence = (atom, presenceConfig) => {
+  startPresence = (atom: any, presenceConfig: PresenceConfig) => {
     const subscriptionId = `media-${atom}`;
     const component = this;
 
@@ -49,8 +63,9 @@ export class Presence extends React.Component {
         presenceClient.startConnection();
 
         presenceClient.on('connection.open', () => {
+          // @ts-expect-error TS(2345): Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
           presenceClient.subscribe(subscriptionId);
-          presenceClient.enter(subscriptionId, 'document');
+          (presenceClient as any).enter(subscriptionId, 'document');
         });
 
         presenceClient.on('visitor-list-updated', data => {

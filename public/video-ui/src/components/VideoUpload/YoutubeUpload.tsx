@@ -1,11 +1,31 @@
 import React from 'react';
 import Icon from '../Icon';
 import VideoUtils from '../../util/video';
+import { Video } from '../../services/VideosApi';
+import { AsyncThunk, AsyncThunkConfig } from '@reduxjs/toolkit';
+import {
+  YouTubeVideoCategory,
+  YouTubeChannelWithData
+} from '../../services/YoutubeApi';
 
-export default class YoutubeUpload extends React.Component {
+type Props = {
+  video: Video;
+  startUpload: AsyncThunk<unknown, any, AsyncThunkConfig>;
+  isUploading: boolean;
+  categories: YouTubeVideoCategory[];
+  channels: YouTubeChannelWithData[];
+  saveVideo: any;
+};
+
+type State = {
+  file: null;
+};
+
+export default class YoutubeUpload extends React.Component<Props, State> {
+  // @ts-expect-error TS(7018): Object literal's property 'file' implicitly has an... Remove this comment to see the full error message
   state = { file: null };
 
-  setFile = event => {
+  setFile = (event: { target: { files: string | any[] } }) => {
     if (!this.props.video) {
       return;
     }
@@ -32,6 +52,7 @@ export default class YoutubeUpload extends React.Component {
             <input
               className="form__field__file"
               type="file"
+              // @ts-expect-error TS(2322): Type '(event: { target: { files: string | any[]; }... Remove this comment to see the full error message
               onChange={this.setFile}
               disabled={!canUploadToYouTube || this.props.isUploading}
               accept="video/*,.mxf"

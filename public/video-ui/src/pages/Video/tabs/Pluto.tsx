@@ -1,10 +1,13 @@
-import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import { Tab, TabPanel } from 'react-tabs';
 import PlutoProjectLink from '../../../components/Pluto/PlutoProjectLink';
 import { getPlutoItemById } from '../../../services/PlutoApi';
 
-export class PlutoTab extends React.Component {
+type PlutoTabProps = {
+  disabled: any;
+};
+
+export class PlutoTab extends React.Component<PlutoTabProps> {
   static tabsRole = Tab.tabsRole;
 
   render() {
@@ -12,15 +15,15 @@ export class PlutoTab extends React.Component {
   }
 }
 
-export class PlutoTabPanel extends React.Component {
+type PlutoTabPanelProps = {
+  video: any;
+};
+
+export class PlutoTabPanel extends React.Component<PlutoTabPanelProps> {
   static tabsRole = TabPanel.tabsRole;
 
-  static propTypes = {
-    video: PropTypes.object.isRequired
-  };
-
   render() {
-    const { video, updateVideo, ...rest } = this.props;
+    const { video, updateVideo, ...rest }: any = this.props;
 
     return (
       <TabPanel {...rest}>
@@ -51,7 +54,7 @@ export class PlutoTabPanel extends React.Component {
  * @param {{id: string, itemType: import('../../../services/PlutoApi').PlutoItemType}} param0
  * @returns
  */
-const ReadOnlyPlutoItem = ({ id, itemType }) => {
+function ReadOnlyPlutoItem({ id, itemType }: any) {
   const [title, setTitle] = useState(id ? 'Loading...' : '');
 
   useEffect(() => {
@@ -67,4 +70,4 @@ const ReadOnlyPlutoItem = ({ id, itemType }) => {
   }, [id, itemType]);
 
   return <p className="details-list__field">{title}</p>;
-};
+}

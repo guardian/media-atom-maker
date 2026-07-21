@@ -2,7 +2,23 @@ import React from 'react';
 
 const pleaseSelect = 'Please select...';
 
-export default class SelectBox extends React.Component {
+type Props = {
+  displayDefault: any;
+  fieldValue: any;
+  defaultOption: any;
+  selectValues: any;
+  editable: any;
+  displayPlaceholder: any;
+  placeholder: any;
+  fieldName: any;
+  hasError: any;
+  input: any;
+  onUpdateField: any;
+  notification: any;
+};
+
+export default class SelectBox extends React.Component<Props> {
+  hasError: any;
   getClassName = () => {
     return (
       'form__field form__field--select ' +
@@ -20,7 +36,7 @@ export default class SelectBox extends React.Component {
 
   renderField = () => {
     const matchingValues = this.props.selectValues.filter(
-      fieldValue =>
+      (fieldValue: any) =>
         this.props.fieldValue &&
         fieldValue.id.toString() === this.props.fieldValue.toString()
     );
@@ -72,7 +88,7 @@ export default class SelectBox extends React.Component {
             </option>
           )}
           {this.renderDefaultOption()}
-          {this.props.selectValues.map(function (value) {
+          {this.props.selectValues.map(function (value: any) {
             return (
               <option value={value.id} key={value.id}>
                 {value.title}

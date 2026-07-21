@@ -26,8 +26,30 @@ import {
   YoutubeFurnitureTabPanel
 } from './tabs/YoutubeFurniture';
 
-class VideoDisplay extends React.Component {
-  constructor(props) {
+type Props = {
+  videoActions: any;
+  params: any;
+  workflowActions: any;
+  video: any;
+  videoEditOpen: any;
+  config: any;
+  formErrorActions: any;
+  cropOptions: any;
+  publishedVideo: any;
+  workflow: any;
+  checkedFormFields: any;
+  usages: any;
+  isSaving: any;
+};
+
+type State = {
+  editingFurniture: boolean;
+  editingYoutubeFurniture: boolean;
+  editingWorkflow: boolean;
+};
+
+class VideoDisplay extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
     this.state = {
       editingFurniture: false,
@@ -58,11 +80,11 @@ class VideoDisplay extends React.Component {
     this.props.videoActions.fetchUsages(this.props.params.id);
   }
 
-  saveAndUpdateVideo = video => {
+  saveAndUpdateVideo = (video: any) => {
     return this.props.videoActions.saveVideo(video);
   };
 
-  updateVideo = video => {
+  updateVideo = (video: any) => {
     this.props.videoActions.updateVideo(video);
     return Promise.resolve();
   };
@@ -71,7 +93,7 @@ class VideoDisplay extends React.Component {
     window.parent.postMessage({ atomId: this.props.video.id }, '*');
   };
 
-  handleAssetClick = e => {
+  handleAssetClick = (e: React.MouseEvent<any, MouseEvent>) => {
     if (this.props.videoEditOpen) {
       e.preventDefault();
     }
@@ -155,6 +177,7 @@ class VideoDisplay extends React.Component {
               )}
               {this.props.video.videoPlayerFormat && (
                 <div className="video__detailbox__header__format">
+                  {/* @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message */}
                   {this.iconMap[this.props.video.videoPlayerFormat]}
                   <span>
                     {
@@ -179,6 +202,7 @@ class VideoDisplay extends React.Component {
               </p>
             )}
           </header>
+          {/* @ts-expect-error TS(2339): Property 'asset-handle' does not exist on type 'JS... Remove this comment to see the full error message */}
           <asset-handle
             data-source="mam"
             data-source-type="video"
@@ -190,6 +214,7 @@ class VideoDisplay extends React.Component {
               )
             }
             data-embeddable-url={window.location.href}
+            // @ts-expect-error TS(2339): Property 'asset-handle' does not exist on type 'JS... Remove this comment to see the full error message
           ></asset-handle>
           <Link
             className={'button ' + (this.props.videoEditOpen ? 'disabled' : '')}
@@ -215,7 +240,7 @@ class VideoDisplay extends React.Component {
     );
   }
 
-  renderSelectBar(video) {
+  renderSelectBar(video: any) {
     const videoToSelect = isVideoPublished(this.props.video)
       ? this.props.publishedVideo
       : this.props.video;
@@ -250,7 +275,7 @@ class VideoDisplay extends React.Component {
     const createWorkflowItem = () =>
       trackInWorkflow({
         video: video,
-        section: sections.find(_ => _.id === section),
+        section: sections.find((_: { id: any }) => _.id === section),
         status: status,
         note: note,
         prodOffice: prodOffice,
@@ -267,12 +292,13 @@ class VideoDisplay extends React.Component {
     return wfPromise.unwrap().then(() => getStatus(video));
   }
 
-  updateEditingState({ key, editing }) {
+  updateEditingState({ key, editing }: any) {
+    // @ts-expect-error TS(2345): Argument of type '{ [x: number]: any; }' is not as... Remove this comment to see the full error message
     this.setState({ [key]: editing });
     this.props.videoActions.updateVideoEditState(editing);
   }
 
-  formHasErrors = formName => {
+  formHasErrors = (formName: string) => {
     const errors = this.props.checkedFormFields[formName]
       ? this.props.checkedFormFields[formName]
       : {};
@@ -446,9 +472,11 @@ class VideoDisplay extends React.Component {
     return (
       <div>
         {this.renderSelectBar(video)}
+        {/* @ts-expect-error TS(2339): Property 'pinboard-preselect' does not exist on ty... Remove this comment to see the full error message */}
         <pinboard-preselect
           data-composer-id={getComposerId() ?? 'unknown'}
           data-tool="media-atom-maker"
+          // @ts-expect-error TS(2339): Property 'pinboard-preselect' does not exist on ty... Remove this comment to see the full error message
         ></pinboard-preselect>
 
         <div className="video">
@@ -467,7 +495,7 @@ class VideoDisplay extends React.Component {
 
 //REDUX CONNECTIONS
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { AnyAction, bindActionCreators, Dispatch } from 'redux';
 import * as createVideo from '../../actions/VideoActions/createVideo';
 import * as getPublishedVideo from '../../actions/VideoActions/getPublishedVideo';
 import * as getVideo from '../../actions/VideoActions/getVideo';
@@ -475,7 +503,10 @@ import * as saveVideo from '../../actions/VideoActions/saveVideo';
 import * as updateVideo from '../../actions/VideoActions/updateVideo';
 import * as videoPageUpdate from '../../actions/VideoActions/videoPageUpdate';
 import { getYouTubeEmbedUrl } from '../../components/utils/YouTubeEmbed';
-import { videoCreateOptions } from '../../constants/videoCreateOptions';
+import {
+  videoCreateOptions,
+  VideoPlayerFormat
+} from '../../constants/videoCreateOptions';
 import { updateFormErrors } from '../../slices/checkedFormFields';
 import { updateVideoEditState } from '../../slices/editState';
 import { updateFormWarnings } from '../../slices/formFieldsWarning';
@@ -491,8 +522,9 @@ import {
   updateWorkflowData
 } from '../../slices/workflow';
 import { getComposerId } from '../../util/getComposerData';
+import { AssetType, Platform } from '../../services/VideosApi';
 
-function mapStateToProps(state) {
+function mapStateToProps(state: any) {
   return {
     video: selectVideo(state),
     isSaving: selectIsSaving(state),
@@ -506,7 +538,7 @@ function mapStateToProps(state) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch: Dispatch<AnyAction>) {
   return {
     videoActions: bindActionCreators(
       {

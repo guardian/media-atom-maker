@@ -1,7 +1,12 @@
 import React from 'react';
 
-export default class TagFieldValue extends React.Component {
-  renderFieldValue(value, index, array) {
+type Props = {
+  tagType?: any;
+  tagValue: any;
+};
+
+export default class TagFieldValue extends React.Component<Props> {
+  renderFieldValue(value: any, index: any, array: any) {
     // Add a trailing comma if it's a youtube keyword field and it's not the last keyword in the array
     const shouldAddComma =
       this?.props?.tagType === 'youtube' && index !== array.length - 1;
@@ -28,7 +33,7 @@ export default class TagFieldValue extends React.Component {
     return ` ${value}`;
   }
   getRenderedValues() {
-    return this.props.tagValue.map((tagValue, index, array) =>
+    return this.props.tagValue.map((tagValue: any, index: any, array: any) =>
       this.renderFieldValue(tagValue, index, array)
     );
   }

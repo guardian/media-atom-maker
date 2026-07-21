@@ -1,22 +1,21 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { GridImage } from '../GridImage/GridImage';
 import GridImageSelect from '../utils/GridImageSelect';
 import { getGridMediaId, getGridQueryParams } from '../../util/getGridMediaId';
 import { isImageCropOutOfSync } from '../../util/getAspectRatio';
 
-export default class mapStateToProps extends React.Component {
-  static propTypes = {
-    gridDomain: PropTypes.string.isRequired,
-    video: PropTypes.object.isRequired,
-    saveAndUpdateVideo: PropTypes.func.isRequired,
-    updateVideo: PropTypes.func.isRequired,
-    videoEditOpen: PropTypes.bool.isRequired,
-    updateErrors: PropTypes.func.isRequired,
-    cropOptions: PropTypes.object.isRequired
-  };
+type Props = {
+  gridDomain: string;
+  video: any;
+  saveAndUpdateVideo: (...args: any[]) => any;
+  updateVideo: (...args: any[]) => any;
+  videoEditOpen: boolean;
+  updateErrors: (...args: any[]) => any;
+  cropOptions: any;
+};
 
-  saveAndUpdateVideoImage = (image, location) => {
+export default class mapStateToProps extends React.Component<Props> {
+  saveAndUpdateVideoImage = (image: any, location: any) => {
     const revertVideo = Object.assign({}, this.props.video);
     const newVideo = Object.assign({}, this.props.video, {
       [location]: image
@@ -26,7 +25,7 @@ export default class mapStateToProps extends React.Component {
       .catch(() => this.props.updateVideo(revertVideo));
   };
 
-  getGridUrl(cropType) {
+  getGridUrl(cropType: string) {
     const posterImage = this.props.video.posterImage;
     const queryParam = getGridQueryParams(
       cropType,
@@ -105,8 +104,10 @@ export default class mapStateToProps extends React.Component {
             />
           </div>
           <GridImage image={this.props.video.trailImage} />
+          {/* @ts-expect-error TS(2339): Property 'pinboard-suggest-alternate-crops' does n... Remove this comment to see the full error message */}
           <pinboard-suggest-alternate-crops
             data-media-id={mediaId}
+            // @ts-expect-error TS(2339): Property 'pinboard-suggest-alternate-crops' does n... Remove this comment to see the full error message
           ></pinboard-suggest-alternate-crops>
         </div>
         {this.props.video.platform !== 'Url' && (

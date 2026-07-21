@@ -1,3 +1,4 @@
+import { AnyAction } from 'redux';
 import VideosApi from '../../services/VideosApi';
 import { showError } from '../../slices/error';
 import {
@@ -7,8 +8,8 @@ import {
 } from '../../slices/iconik';
 import { setSaving, setVideo } from '../../slices/video';
 
-export function getVideo(id) {
-  return dispatch => {
+export function getVideo(id: string) {
+  return (dispatch: any) => {
     dispatch(setSaving(true));
     return VideosApi.fetchVideo(id)
       .then(res => {

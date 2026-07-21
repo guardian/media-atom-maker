@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { ManagedField, ManagedForm } from '../ManagedForm';
 import VideoUtils from '../../util/video';
 import TagTypes from '../../constants/TagTypes';
@@ -15,29 +14,29 @@ import { fieldLengths } from '../../constants/videoEditValidation';
 import TextInput from '../FormFields/TextInput';
 import TextAreaInput from '../FormFields/TextAreaInput';
 
-class YoutubeFurniture extends React.Component {
-  constructor(props) {
+type Props = {
+  video: Video;
+  editable: boolean;
+  updateVideo: (...args: any[]) => any;
+  updateErrors: (...args: any[]) => any;
+  updateWarnings: (...args: any[]) => any;
+};
+
+class YoutubeFurniture extends React.Component<Props> {
+  constructor(props: Props) {
     super(props);
     if (!this.hasCategories()) {
-      this.props.youtubeActions.fetchCategories();
+      (this.props as any).youtubeActions.fetchCategories();
     }
     if (!this.hasChannels()) {
-      this.props.youtubeActions.fetchChannels();
+      (this.props as any).youtubeActions.fetchChannels();
     }
   }
 
-  static propTypes = {
-    video: PropTypes.object.isRequired,
-    editable: PropTypes.bool.isRequired,
-    updateVideo: PropTypes.func.isRequired,
-    updateErrors: PropTypes.func.isRequired,
-    updateWarnings: PropTypes.func.isRequired
-  };
+  hasCategories = () => (this.props as any).youtube.categories.length !== 0;
+  hasChannels = () => (this.props as any).youtube.channels.length !== 0;
 
-  hasCategories = () => this.props.youtube.categories.length !== 0;
-  hasChannels = () => this.props.youtube.channels.length !== 0;
-
-  validateYouTubeDescription = description => {
+  validateYouTubeDescription = (description: string) => {
     return description && description.match(/<|>/)
       ? new FieldNotification(
           'required',
@@ -47,7 +46,7 @@ class YoutubeFurniture extends React.Component {
       : null;
   };
 
-  validateYouTubeKeywords = youTubeKeywords => {
+  validateYouTubeKeywords = (youTubeKeywords: string[]) => {
     const charLimit = YouTubeKeywords.maxCharacters;
     const numberOfChars = getYouTubeTagCharCount(youTubeKeywords);
     const characterCountExceeded = numberOfChars > charLimit;
@@ -77,16 +76,18 @@ class YoutubeFurniture extends React.Component {
     const { video, editable, updateVideo, updateErrors, updateWarnings } =
       this.props;
 
-    const { categories } = this.props.youtube;
+    const { categories } = (this.props as any).youtube;
 
     const availableChannels = VideoUtils.getAvailableChannels(video);
     const availablePrivacyStates = VideoUtils.getAvailablePrivacyStates(video);
     const hasYoutubeWriteAccess = VideoUtils.hasYoutubeWriteAccess(video);
     const isChannelSelectionDisabled =
       VideoUtils.hasAssets(video) && video.channelId;
+    // @ts-expect-error TS(2345): Argument of type 'Video' is not assignable to para... Remove this comment to see the full error message
     const platform = VideoUtils.getPlatformFromAtom(video);
 
     return (
+      // @ts-expect-error TS(2769): No overload matches this call.
       <ManagedForm
         data={video}
         updateData={updateVideo}
@@ -99,30 +100,39 @@ class YoutubeFurniture extends React.Component {
         <ManagedField
           fieldLocation="channelId"
           name="Channel"
+          // @ts-expect-error TS(2769): No overload matches this call.
           disabled={isChannelSelectionDisabled}
         >
+          {/* @ts-expect-error TS(2769): No overload matches this call. */}
           <SelectBox selectValues={availableChannels} />
         </ManagedField>
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
         <ManagedField
           fieldLocation="privacyStatus"
           name="Privacy Status"
           disabled={platform !== 'youtube' || !hasYoutubeWriteAccess}
         >
+          {/* @ts-expect-error TS(2769): No overload matches this call. */}
           <SelectBox
             selectValues={PrivacyStates.forForm(availablePrivacyStates)}
           />
         </ManagedField>
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
         <ManagedField fieldLocation="youtubeCategoryId" name="Category">
+          {/* @ts-expect-error TS(2769): No overload matches this call. */}
           <SelectBox selectValues={categories} />
         </ManagedField>
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
         <ManagedField
           fieldLocation="youtubeTitle"
           name="Title"
           maxLength={fieldLengths.title}
           isRequired={true}
         >
+          {/* @ts-expect-error TS(2769): No overload matches this call. */}
           <TextInput />
         </ManagedField>
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
         <ManagedField
           fieldLocation="youtubeDescription"
           name="Description"
@@ -131,8 +141,10 @@ class YoutubeFurniture extends React.Component {
           isRequired={false}
           customValidation={this.validateYouTubeDescription}
         >
+          {/* @ts-expect-error TS(2769): No overload matches this call. */}
           <TextAreaInput />
         </ManagedField>
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
         <ManagedField
           fieldLocation="tags"
           name="Keywords"
@@ -142,6 +154,7 @@ class YoutubeFurniture extends React.Component {
           customValidation={this.validateYouTubeKeywords}
           updateSideEffects={this.composerKeywordsToYouTube}
         >
+          {/* @ts-expect-error TS(2322): Type '{ disableCapiTags: true; }' is not assignabl... Remove this comment to see the full error message */}
           <TagPicker disableCapiTags />
         </ManagedField>
       </ManagedForm>
@@ -151,16 +164,17 @@ class YoutubeFurniture extends React.Component {
 
 //REDUX CONNECTIONS
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { AnyAction, bindActionCreators, Dispatch } from 'redux';
 import { fetchCategories, fetchChannels } from '../../slices/youtube';
+import { Video } from '../../services/VideosApi';
 
-function mapStateToProps(state) {
+function mapStateToProps(state: { youtube: any }) {
   return {
     youtube: state.youtube
   };
 }
 
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch: Dispatch<AnyAction>) {
   return {
     youtubeActions: bindActionCreators(
       { fetchChannels, fetchCategories },

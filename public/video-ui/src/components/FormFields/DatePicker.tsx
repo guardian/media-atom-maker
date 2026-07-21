@@ -1,4 +1,5 @@
 import React from 'react';
+// @ts-expect-error TS(7016): Could not find a declaration file for module 'reac... Remove this comment to see the full error message
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -15,12 +16,12 @@ const HOURS = [...new Array(24).keys()].map(hour =>
 );
 const EMPTY = [' '];
 
-function Selector({ values, value, disabled, onChange }) {
-  const handler = e => {
+function Selector({ values, value, disabled, onChange }: any) {
+  const handler = (e: any) => {
     onChange(e.target.value);
   };
 
-  const options = values.map(value => {
+  const options = values.map((value: any) => {
     return (
       <option key={value} value={value}>
         {value}
@@ -38,31 +39,49 @@ function Selector({ values, value, disabled, onChange }) {
   return <select {...params}>{options}</select>;
 }
 
-function HourSelector({ date, onChange }) {
+function HourSelector({
+  date,
+  onChange
+}: {
+  date: number;
+  onChange: (newDate: any) => void;
+}) {
   const dateMoment = moment(date);
   const params = {
     values: date ? HOURS : EMPTY,
     value: date ? dateMoment.format('HH') : ' ',
     disabled: !date,
-    onChange: newHour => onChange(dateMoment.hours(newHour))
+    onChange: (newHour: number) => onChange(dateMoment.hours(newHour))
   };
 
   return <Selector {...params} />;
 }
 
-function MinuteSelector({ date, onChange }) {
+function MinuteSelector({
+  date,
+  onChange
+}: {
+  date: number;
+  onChange: (newDate: any) => void;
+}) {
   const dateMoment = moment(date);
   const params = {
     values: date ? MINUTES : EMPTY,
     value: date ? dateMoment.format('mm') : ' ',
     disabled: !date,
-    onChange: newMinute => onChange(dateMoment.minutes(newMinute))
+    onChange: (newMinute: number) => onChange(dateMoment.minutes(newMinute))
   };
 
   return <Selector {...params} />;
 }
 
-function DateSelector({ date, onChange }) {
+function DateSelector({
+  date,
+  onChange
+}: {
+  date: number;
+  onChange: (newDate: any) => void;
+}) {
   const minDate = moment().toDate();
   const dateMoment = moment(date);
   const datePickerParams = {
@@ -71,7 +90,7 @@ function DateSelector({ date, onChange }) {
     minDate,
     dateFormat: REACT_DATEPICKER_DATE_FORMAT,
     readOnly: false,
-    onChange: newDate => {
+    onChange: (newDate: moment.MomentInput) => {
       const base = date ? dateMoment : moment().hours(0).minutes(0);
       const onChangeDate = moment(newDate)
         .hours(base.hours())
@@ -85,7 +104,19 @@ function DateSelector({ date, onChange }) {
   return <DatePicker {...datePickerParams} />;
 }
 
-function Editor({ date, onChange, fieldName, canCancel, dayOnly }) {
+function Editor({
+  date,
+  onChange,
+  fieldName,
+  canCancel,
+  dayOnly
+}: {
+  date: number;
+  onChange: (newDate: any) => void;
+  fieldName: any;
+  canCancel: boolean;
+  dayOnly: any;
+}) {
   function reset() {
     onChange(null);
   }
@@ -123,7 +154,15 @@ function Editor({ date, onChange, fieldName, canCancel, dayOnly }) {
   );
 }
 
-function Display({ date, placeholder, fieldName }) {
+function Display({
+  date,
+  placeholder,
+  fieldName
+}: {
+  date: number;
+  placeholder: any;
+  fieldName: any;
+}) {
   const dateMoment = moment(date);
   const displayString = date
     ? dateMoment.format(MOMENT_DATETIME_FORMAT)
@@ -147,6 +186,14 @@ export default function CustomDatePicker({
   fieldName,
   dayOnly,
   canCancel = true
+}: {
+  editable: boolean;
+  onUpdateField: (date: number) => void;
+  fieldValue: number;
+  placeholder: null;
+  fieldName: string;
+  dayOnly: boolean;
+  canCancel: boolean;
 }) {
   const date =
     fieldValue && fieldValue !== placeholder
@@ -157,10 +204,11 @@ export default function CustomDatePicker({
       <Editor
         fieldName={fieldName}
         date={date}
+        // @ts-expect-error TS(2322): Type '{ fieldName: string; date: number; placehold... Remove this comment to see the full error message
         placeholder={placeholder}
         canCancel={canCancel}
         dayOnly={dayOnly}
-        onChange={newDate => {
+        onChange={(newDate: { valueOf: () => any }) => {
           if (newDate) {
             onUpdateField(newDate.valueOf());
           } else {

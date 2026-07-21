@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { RefObject } from 'react';
 import { Link } from 'react-router';
 import VideoSearch from './VideoSearch/VideoSearch';
 import VideoPublishBar from './VideoPublishBar/VideoPublishBar';
@@ -15,14 +15,71 @@ import {
 } from '../constants/queryParams';
 import Modal from './utils/Modal';
 import Create from './Create';
+import { createVideo } from '../actions/VideoActions/createVideo';
+import { reportPresenceClientError } from '../actions/PresenceActions/reportError';
+import { publishVideo } from '../actions/VideoActions/publishVideo';
+import { updateVideoPage } from '../actions/VideoActions/videoPageUpdate';
+import { createVideoPage } from '../actions/VideoActions/videoPageCreate';
+import { deleteVideo } from '../actions/VideoActions/deleteVideo';
+import { updateVideo } from '../actions/VideoActions/updateVideo';
+import { Video } from '../services/VideosApi';
+import { S3UploadState } from '../slices/s3Upload';
+import { Search } from '../slices/search';
+import { ActionCreatorWithOptionalPayload } from '@reduxjs/toolkit';
+import { UsageState } from '../slices/usage';
 
-export default class Header extends React.Component {
+type Props = {
+  publishVideo: typeof publishVideo;
+  video: Video | any;
+  formFieldsWarning: Record<string, boolean>;
+  s3Upload: S3UploadState;
+  search: Search;
+  updateVideoPlayerFormatFilter: ActionCreatorWithOptionalPayload<
+    string,
+    'search/updateVideoPlayerFormatFilter'
+  >;
+  updateShouldUseCreatedDateForSort: ActionCreatorWithOptionalPayload<
+    boolean,
+    'search/updateShouldUseCreatedDateForSort'
+  >;
+  createVideo: typeof createVideo;
+  presenceConfig: any;
+  reportPresenceClientError: typeof reportPresenceClientError;
+  usages: UsageState;
+  isTrainingMode: boolean;
+  currentPath: unknown;
+  showPublishedState: string;
+  publishedVideo: Video | any;
+  isPublishing: boolean;
+  videoEditOpen: boolean;
+  updateVideoPage: typeof updateVideoPage;
+  updateVideo: typeof updateVideo;
+  saveVideo: any;
+  query: unknown;
+  deleteVideo: typeof deleteVideo;
+  createVideoPage: typeof createVideoPage;
+  error: Error;
+  shouldUseCreatedDateForSort: boolean;
+  updateSearchTerm: ActionCreatorWithOptionalPayload<
+    string,
+    'search/updateSearchTerm'
+  >;
+};
+
+type State = {
+  presence: null;
+  dialogRef: undefined | RefObject<unknown>;
+};
+
+export default class Header extends React.Component<Props, State> {
   state = {
+    // @ts-expect-error TS(7018): Object literal's property 'presence' implicitly ha... Remove this comment to see the full error message
     presence: null,
+    // @ts-expect-error TS(7018): Object literal's property 'dialogRef' implicitly h... Remove this comment to see the full error message
     dialogRef: undefined
   };
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this.state.dialogRef = React.createRef();
   }
@@ -249,7 +306,7 @@ export default class Header extends React.Component {
       ? 'topbar topbar--training-mode flex-container'
       : 'topbar flex-container';
 
-    if (this.props.currentPath.endsWith('/upload')) {
+    if ((this.props.currentPath as any).endsWith('/upload')) {
       return (
         <header className={className}>
           {this.renderProgress()}
@@ -259,7 +316,7 @@ export default class Header extends React.Component {
       );
     }
 
-    if (this.props.currentPath.endsWith('/create')) {
+    if ((this.props.currentPath as any).endsWith('/create')) {
       return (
         <header className={className}>
           {this.renderHome()}
