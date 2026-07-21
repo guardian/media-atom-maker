@@ -20,8 +20,7 @@ const defaultProps = {
   placeholder: 'Add a tag',
   tagType: 'keyword',
   editable: true,
-  // @ts-expect-error TS(2554): Expected 1 arguments, but got 0.
-  onUpdateField: jest.fn().mockResolvedValue(),
+  onUpdateField: jest.fn().mockResolvedValue(undefined),
   hasWarning: () => false,
   hasError: () => false,
   notification: { message: '' },

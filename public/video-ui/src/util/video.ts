@@ -2,6 +2,7 @@ import moment from 'moment';
 
 import { getStore } from './storeAccessor';
 import PrivacyStates from '../constants/privacyStates';
+import { Video } from '../services/VideosApi';
 
 export default class VideoUtils {
   static hasAssets({ assets }: any) {
@@ -128,46 +129,7 @@ export default class VideoUtils {
     );
   }
 
-  // @ts-expect-error TS(2304): Cannot find name 'ContentChangeDetails'.
-  static getPlatformFromAtom(atom: {
-    id?: string;
-    type?: string;
-    labels?: string[];
-    contentChangeDetails?: ContentChangeDetails;
-    assets?: Asset[];
-    activeVersion?: number;
-    title?: string;
-    category?: unknown;
-    plutoData?: PlutoData;
-    iconikData?: IconikData;
-    duration?: number;
-    source?: string;
-    description?: string;
-    trailText?: string;
-    posterImage?: Image;
-    trailImage?: unknown;
-    youtubeOverrideImage?: unknown;
-    tags?: string[];
-    byline?: string[];
-    commissioningDesks?: string[];
-    atomTagIds?: string[];
-    keywords?: string[];
-    youtubeCategoryId?: string;
-    license?: string;
-    channelId?: string;
-    legallySensitive?: boolean;
-    sensitive?: boolean;
-    privacyStatus?: unknown;
-    expiryDate?: number;
-    youtubeTitle?: string;
-    youtubeDescription?: string;
-    blockAds?: boolean;
-    composerCommentsEnabled?: boolean;
-    optimisedForWeb?: boolean;
-    suppressRelatedContent?: boolean;
-    videoPlayerFormat?: VideoPlayerFormat;
-    platform: any;
-  }) {
+  static getPlatformFromAtom(atom: Video) {
     return atom?.platform?.toLowerCase() || null;
   }
 

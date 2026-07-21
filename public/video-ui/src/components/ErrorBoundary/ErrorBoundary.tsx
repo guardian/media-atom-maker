@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 type Props = {
-  fallback: Element;
+  fallback: React.ReactNode;
 };
 
 type State = {
