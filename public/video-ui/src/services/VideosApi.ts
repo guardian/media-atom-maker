@@ -6,6 +6,7 @@ import { ContentAtom, getVideoBlock } from '../util/getVideoBlock';
 import { getStore } from '../util/storeAccessor';
 import { apiRequest } from './apiRequest';
 import ContentApi, { CapiContent, CapiContentResponse, Stage } from './capi';
+import moment from 'moment';
 
 export type ComposerStage = 'live' | 'preview';
 
@@ -38,20 +39,22 @@ export type User = {
   lastName?: string;
 };
 
-export type ChangeRecord = {
-  date: number; // UNIX timestamp, ms
+type ChangeRecord<T> = {
+  date: T; // UNIX timestamp, ms or ISO 8601 string
   user?: User;
 };
 
-export type ContentChangeDetails = {
-  lastModified?: ChangeRecord;
-  created?: ChangeRecord;
-  published?: ChangeRecord;
+type ContentChangeDetailsBuilder<T> = {
+  lastModified?: ChangeRecord<string>;
+  created?: ChangeRecord<string>;
+  published?: ChangeRecord<string>;
   revision: number;
-  scheduledLaunch?: ChangeRecord;
-  embargo?: ChangeRecord;
-  expiry?: ChangeRecord;
+  scheduledLaunch?: ChangeRecord<T>;
+  embargo?: ChangeRecord<T>;
+  expiry?: ChangeRecord<T>;
 };
+
+export type ContentChangeDetails = ContentChangeDetailsBuilder<number>;
 
 export type PlutoData = {
   commissionId?: string;
@@ -123,10 +126,18 @@ export type Video = {
   platform?: Platform;
 };
 
+type VideoServer = Omit<Video, 'contentChangeDetails'> & {
+  contentChangeDetails: ContentChangeDetailsBuilder<string>;
+};
+
 export type MediaAtomSummary = Pick<
   Video,
   'id' | 'title' | 'contentChangeDetails' | 'posterImage'
 >;
+
+type MediaAtomSummaryServer = Omit<MediaAtomSummary, 'contentChangeDetails'> & {
+  contentChangeDetails: ContentChangeDetailsBuilder<string>;
+};
 
 export type VideoWithoutId = Omit<Video, 'id'>;
 
@@ -180,13 +191,56 @@ function splitUsages({ usages }: { usages: CapiContent[] }) {
   );
 }
 
+function dateAsMillis(d: string | undefined): number | undefined {
+  if (d) {
+    const result = moment(d).valueOf();
+    return Number.isNaN(result) ? undefined : result;
+  } else {
+    return undefined;
+  }
+}
+
+function clientVideoFromServerVideo<
+  T extends { contentChangeDetails: ContentChangeDetailsBuilder<string> }
+>(
+  serverVideo: T
+): Omit<T, 'contentChangeDetails'> & {
+  contentChangeDetails: ContentChangeDetails;
+} {
+  // We and downstream consumers expect the scheduled launch to be an integer, but our API provides a string representation
+  const { contentChangeDetails } = serverVideo;
+  const scheduledLaunch = dateAsMillis(
+    contentChangeDetails.scheduledLaunch?.date
+  );
+  const embargo = dateAsMillis(contentChangeDetails.embargo?.date);
+  const expiry = dateAsMillis(contentChangeDetails.expiry?.date);
+  return {
+    ...serverVideo,
+    contentChangeDetails: {
+      ...contentChangeDetails,
+      scheduledLaunch:
+        scheduledLaunch !== undefined
+          ? { ...contentChangeDetails.scheduledLaunch, date: scheduledLaunch }
+          : undefined,
+      embargo:
+        embargo !== undefined
+          ? { ...contentChangeDetails.embargo, date: embargo }
+          : undefined,
+      expiry:
+        expiry !== undefined
+          ? { ...contentChangeDetails.expiry, date: expiry }
+          : undefined
+    }
+  };
+}
+
 export default {
   fetchVideos: (
     search: string,
     limit: number,
     shouldUseCreatedDateForSort: boolean,
     videoPlayerFormatFilter: string
-  ) => {
+  ): Promise<{ total: number; atoms: MediaAtomSummary[] }> => {
     let url = `/api/atoms?limit=${limit}`;
     if (search) {
       url += `&search=${search}`;
@@ -198,85 +252,88 @@ export default {
       url += `&videoPlayerFormat=${videoPlayerFormatFilter}`;
     }
 
-    return apiRequest<{ total: number; atoms: MediaAtomSummary[] }>({
+    return apiRequest<{ total: number; atoms: MediaAtomSummaryServer[] }>({
       url: url
-    });
+    }).then(response => ({
+      total: response.total,
+      atoms: response.atoms.map(clientVideoFromServerVideo)
+    }));
   },
 
   fetchVideo: (videoId: string) => {
-    return apiRequest<Video>({
+    return apiRequest<VideoServer>({
       url: '/api/atoms/' + videoId
-    });
+    }).then(clientVideoFromServerVideo);
   },
 
   fetchPublishedVideo: (videoId: string) => {
-    return apiRequest<Video>({
+    return apiRequest<VideoServer>({
       url: '/api/atoms/' + videoId + '/published'
-    });
+    }).then(clientVideoFromServerVideo);
   },
 
   createVideo: (video: VideoWithoutId) => {
-    return apiRequest<Video>({
+    return apiRequest<VideoServer>({
       url: '/api/atoms',
       method: 'post',
       headers: {
         'Csrf-Token': (window as any).guardian.csrf.token
       },
       data: cleanVideoData(video)
-    });
+    }).then(clientVideoFromServerVideo);
   },
 
   publishVideo: (videoId: string) => {
-    return apiRequest<Video>({
+    return apiRequest<VideoServer>({
       url: '/api/atom/' + videoId + '/publish',
       method: 'put',
       headers: {
         'Csrf-Token': (window as any).guardian.csrf.token
       }
-    });
+    }).then(clientVideoFromServerVideo);
   },
 
   createAsset: (asset: { uri: string }, videoId: string) => {
-    return apiRequest<Video, { uri: string }>({
+    return apiRequest<VideoServer, { uri: string }>({
       url: '/api/atoms/' + videoId + '/assets',
       method: 'post',
       headers: {
         'Csrf-Token': (window as any).guardian.csrf.token
       },
       data: asset
-    });
+    }).then(clientVideoFromServerVideo);
   },
 
   revertAsset: (atomId: string, version: number) => {
-    return apiRequest<Video, { atomId: string; version: number }>({
+    return apiRequest<VideoServer, { atomId: string; version: number }>({
       url: '/api/atom/' + atomId + '/asset-active',
       method: 'put',
       headers: {
         'Csrf-Token': (window as any).guardian.csrf.token
       },
       data: { atomId, version }
-    });
+    }).then(clientVideoFromServerVideo);
   },
 
   saveVideo: (videoId: string, video: VideoWithoutId) => {
-    return apiRequest<Video>({
+    return apiRequest<VideoServer>({
       url: '/api/atoms/' + videoId,
       method: 'put',
       headers: {
         'Csrf-Token': (window as any).guardian.csrf.token
       },
       data: cleanVideoData(video)
-    });
+    }).then(clientVideoFromServerVideo);
   },
 
   resetDurationFromActive: (videoId: string) =>
-    apiRequest<Video>({
+    apiRequest<VideoServer>({
       url: `/api/atom/${videoId}/reset-duration-from-active`,
       method: 'put',
       headers: {
         'Csrf-Token': (window as any).guardian.csrf.token
       }
-    }),
+    }).then(clientVideoFromServerVideo),
 
   getVideoUsages: (videoId: string): Promise<UsageData> => {
     return Promise.all([
@@ -313,25 +370,25 @@ export default {
   },
 
   deleteAsset(video: Video, asset: Asset) {
-    return apiRequest<Video, Asset>({
+    return apiRequest<VideoServer, Asset>({
       url: `/api/atoms/${video.id}/assets`,
       method: 'delete',
       headers: {
         'Csrf-Token': (window as any).guardian.csrf.token
       },
       data: asset
-    });
+    }).then(clientVideoFromServerVideo);
   },
 
   deleteAssetList(video: Video, assets: Asset[]) {
-    return apiRequest<Video, Asset[]>({
+    return apiRequest<VideoServer, Asset[]>({
       url: `/api/atoms/${video.id}/asset-list`,
       method: 'delete',
       headers: {
         'Csrf-Token': (window as any).guardian.csrf.token
       },
       data: assets
-    });
+    }).then(clientVideoFromServerVideo);
   },
 
   updateCanonicalPages(video: Video, usageData: UsageData, updatesTo: Stage) {
