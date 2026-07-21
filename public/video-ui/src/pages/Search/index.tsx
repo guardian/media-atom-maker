@@ -182,7 +182,6 @@ const Videos = ({
         {videos.length ? (
           <ul className="grid__list">
             {videos.map(video => (
-              // @ts-expect-error TS(2740): Type 'ReactElement<any, any>' is missing the follo... Remove this comment to see the full error message
               <ErrorBoundary key={video.id} fallback={<VideoItemError />}>
                 <VideoItem
                   video={video}
