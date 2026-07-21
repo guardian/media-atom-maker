@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import VideoItem from '../../components/VideoItem';
+import VideoItem from '../../components/VideoItem/VideoItem';
 import { frontPageSize } from '../../constants/frontPageSize';
 import {
   Presence,
@@ -8,16 +8,13 @@ import {
   PresenceData,
   safelyStartPresence
 } from '../../services/presence';
+import type { MediaAtomSummary } from '../../services/VideosApi';
 import { getStore } from '../../util/storeAccessor';
 import { ErrorBoundary } from '../../components/ErrorBoundary/ErrorBoundary';
 import VideoItemError from '../../components/VideoItem/VideoItemError';
 
-type Video = {
-  id: string;
-};
-
 type VideosProps = {
-  videos: Video[];
+  videos: MediaAtomSummary[];
   total: number;
   presenceActions: {
     reportPresenceClientError: (err: unknown) => void;

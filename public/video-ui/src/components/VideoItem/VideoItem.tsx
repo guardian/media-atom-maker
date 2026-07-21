@@ -10,9 +10,21 @@ import Youtube from '../../../images/youtube.svg?react';
 import Loop from '../../../images/loop.svg?react';
 import Cinemagraph from '../../../images/cinemagraph.svg?react';
 import NonYoutube from '../../../images/nonyoutube.svg?react';
+import type { Presence } from '../../services/presence';
+import type { MediaAtomSummary, Video } from '../../services/VideosApi';
 
-export default class VideoItem extends React.Component {
-  renderPublishStatus() {
+type VideoItemVideo = MediaAtomSummary &
+  Pick<Partial<Video>, 'videoPlayerFormat' | 'platform'>;
+
+type Props = {
+  video: VideoItemVideo;
+  presences: Presence[];
+};
+
+type IconMapKey = 'Youtube' | 'Loop' | 'Cinemagraph' | 'Default';
+
+export default class VideoItem extends React.Component<Props> {
+  renderPublishStatus(): React.ReactNode {
     if (VideoUtils.hasExpired(this.props.video)) {
       return <span className="publish__label label__expired">Expired</span>;
     }
@@ -32,7 +44,7 @@ export default class VideoItem extends React.Component {
     }
   }
 
-  renderItemImage() {
+  renderItemImage(): React.ReactNode {
     const maybeThumbnailImage = this.props.video.posterImage
       ? findAssetToUseAsThumbnail(this.props.video.posterImage)
       : undefined;
@@ -54,12 +66,18 @@ export default class VideoItem extends React.Component {
     const embargoMoment = moment(embargo);
     const hasPreventedPublication =
       embargo && embargoMoment.valueOf() >= impossiblyDistantDate;
-    const iconMap = {
+    const iconMap: Record<IconMapKey, React.ReactNode> = {
       Youtube: <Youtube />,
       Loop: <Loop />,
       Cinemagraph: <Cinemagraph />,
       Default: <NonYoutube />
     };
+
+    const iconKey: IconMapKey = video.videoPlayerFormat
+      ? video.videoPlayerFormat
+      : platform?.toLowerCase() === 'youtube'
+        ? 'Youtube'
+        : 'Default';
 
     return (
       <li className="grid__item">
@@ -123,15 +141,7 @@ export default class VideoItem extends React.Component {
               )}
             </div>
             <div className="platform__icons">
-              <div className="platform__icon">
-                {video.videoPlayerFormat
-                  ? iconMap[video.videoPlayerFormat]
-                  : iconMap[
-                      platform?.toLowerCase() === 'youtube'
-                        ? 'Youtube'
-                        : 'Default'
-                    ]}
-              </div>
+              <div className="platform__icon">{iconMap[iconKey]}</div>
             </div>
             <div className="grid__item__footer">
               <span className="grid__item__title">{video.title}</span>
