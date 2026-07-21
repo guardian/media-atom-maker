@@ -83,7 +83,6 @@ class YoutubeFurniture extends React.Component<Props> {
     const hasYoutubeWriteAccess = VideoUtils.hasYoutubeWriteAccess(video);
     const isChannelSelectionDisabled =
       VideoUtils.hasAssets(video) && video.channelId;
-    // @ts-expect-error TS(2345): Argument of type 'Video' is not assignable to para... Remove this comment to see the full error message
     const platform = VideoUtils.getPlatformFromAtom(video);
 
     return (

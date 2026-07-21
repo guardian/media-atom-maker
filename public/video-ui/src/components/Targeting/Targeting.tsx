@@ -85,8 +85,8 @@ class Targeting extends React.Component<TargetingProps> {
             </p>
             {(this.props as any).targets.map((target: any, index: any) => (
               <div key={target.id} className="targeting__form">
-                {/* @ts-expect-error TS(2769): No overload matches this call. */}
                 {!isDeleting(target, (this.props as any).deleting) && (
+                  // @ts-expect-error TS(2769): No overload matches this call.
                   <ManagedForm
                     data={target}
                     updateData={this.updateTarget}

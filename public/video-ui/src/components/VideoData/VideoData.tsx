@@ -86,8 +86,8 @@ export default class VideoData extends React.Component<Props> {
     const canHaveComposerPage = VideoUtils.canHaveComposerPage(video);
     const mustHaveTags = VideoUtils.mustHaveTags(video);
 
-    // @ts-expect-error TS(2769): No overload matches this call.
     return (
+      // @ts-expect-error TS(2769): No overload matches this call.
       <ManagedForm
         data={video}
         updateData={updateVideo}
@@ -107,8 +107,8 @@ export default class VideoData extends React.Component<Props> {
           {/* @ts-expect-error TS(2769): No overload matches this call. */}
           <TextInput />
         </ManagedField>
-        {/* @ts-expect-error TS(2769): No overload matches this call. */}
         {canHaveComposerPage && (
+          // @ts-expect-error TS(2769): No overload matches this call.
           <ManagedField
             fieldLocation="description"
             name="Standfirst"
@@ -119,8 +119,8 @@ export default class VideoData extends React.Component<Props> {
             <RichTextField config={standfirstConfig} />
           </ManagedField>
         )}
-        {/* @ts-expect-error TS(2769): No overload matches this call. */}
         {canHaveComposerPage && (
+          // @ts-expect-error TS(2769): No overload matches this call.
           <ManagedField
             fieldLocation="trailText"
             derivedFrom={video.description}
@@ -138,8 +138,8 @@ export default class VideoData extends React.Component<Props> {
             />
           </ManagedField>
         )}
-        {/* @ts-expect-error TS(2769): No overload matches this call. */}
         {canHaveComposerPage && (
+          // @ts-expect-error TS(2769): No overload matches this call.
           <ManagedField
             fieldLocation="byline"
             name="Byline"
@@ -149,8 +149,8 @@ export default class VideoData extends React.Component<Props> {
             <TagPicker />
           </ManagedField>
         )}
-        {/* @ts-expect-error TS(2769): No overload matches this call. */}
         {canHaveComposerPage && (
+          // @ts-expect-error TS(2769): No overload matches this call.
           <ManagedField
             fieldLocation="commissioningDesks"
             name="Commissioning Desks"
@@ -164,8 +164,8 @@ export default class VideoData extends React.Component<Props> {
             <TagPicker disableTextInput tagSubType="commissioningdesk" />
           </ManagedField>
         )}
-        {/* @ts-expect-error TS(2769): No overload matches this call. */}
         {video.platform !== 'Youtube' && (
+          // @ts-expect-error TS(2769): No overload matches this call.
           <ManagedField
             fieldLocation="atomTagIds"
             name="Tags"
@@ -183,8 +183,8 @@ export default class VideoData extends React.Component<Props> {
             />
           </ManagedField>
         )}
-        {/* @ts-expect-error TS(2769): No overload matches this call. */}
         {canHaveComposerPage && (
+          // @ts-expect-error TS(2769): No overload matches this call.
           <ManagedField
             fieldLocation="keywords"
             name="Composer Keywords"
