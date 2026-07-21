@@ -17,6 +17,8 @@ trait UploadAccess { this: Settings with AwsAccess =>
 
   val cacheTableName: String = s"media-atom-pipeline-cache-$stage"
 
+  val assetsTableName: String = s"media-atom-maker-$stage-atom-assets"
+
   lazy val uploadSTSClient = createUploadSTSClient()
 
   lazy val stepFunctionsClient = SfnClient
