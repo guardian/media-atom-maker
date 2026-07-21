@@ -1,21 +1,36 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
 import TextAreaInput from '../FormFields/TextAreaInput';
+import type { Video } from '../../services/VideosApi';
 
-export default class WorkflowForm extends React.Component {
-  static propTypes = {
-    editable: PropTypes.bool.isRequired,
-    video: PropTypes.object.isRequired,
-    workflowSections: PropTypes.array.isRequired,
-    workflowStatuses: PropTypes.array.isRequired,
-    workflowPriorities: PropTypes.array.isRequired,
-    workflowStatus: PropTypes.object.isRequired,
-    workflowProductionOffices: PropTypes.array.isRequired,
-    updateData: PropTypes.func.isRequired
-  };
+type SelectValue = {
+  id: string | number;
+  title: string;
+};
 
+type WorkflowStatusFormData = {
+  isTrackedInWorkflow?: boolean;
+  prodOffice?: string;
+  section?: string;
+  note?: string;
+  status?: string;
+  priority?: string | number;
+  [key: string]: unknown;
+};
+
+type Props = {
+  editable: boolean;
+  video: Video;
+  workflowSections: SelectValue[];
+  workflowStatuses: SelectValue[];
+  workflowPriorities: SelectValue[];
+  workflowStatus: WorkflowStatusFormData;
+  workflowProductionOffices: SelectValue[];
+  updateData: (data: WorkflowStatusFormData) => Promise<unknown> | unknown;
+};
+
+export default class WorkflowForm extends React.Component<Props> {
   render() {
     return (
       <ManagedForm
