@@ -38,15 +38,21 @@ export const IconikProjectPicker = ({ video }: Props) => {
   const [workingGroup, setWorkingGroup] = React.useState<string | undefined>(
     () => video.iconikData?.workingGroupId
   );
-  const [commissionYear, setCommissionYear] = React.useState<
+
+  const [selectedCommissionYear, setSelectedCommissionYear] = React.useState<
     string | undefined
-  >(existingCommission?.year ?? commissionYearOptions[0]?.id);
+  >();
   const [commission, setCommission] = React.useState<string | undefined>(
     () => video.iconikData?.commissionId
   );
   const [project, setProject] = React.useState<string | undefined>(
     () => video.iconikData?.projectId
   );
+
+  const commissionYear =
+    selectedCommissionYear ??
+    existingCommission?.year ??
+    commissionYearOptions[0]?.id;
 
   const filteredCommissions =
     commissionYear && commissionYear !== ALL_COMMISSION_YEARS_OPTION
@@ -59,12 +65,15 @@ export const IconikProjectPicker = ({ video }: Props) => {
     } else {
       dispatch(resetCommissions());
     }
+  }, [dispatch, workingGroup]);
+
+  useEffect(() => {
     if (commission) {
       dispatch(fetchIconikProjects(commission));
     } else {
       dispatch(resetProjects());
     }
-  }, [commission, dispatch, workingGroup]);
+  }, [dispatch, commission]);
 
   const hasBeenEdited =
     video.iconikData?.workingGroupId !== workingGroup ||
@@ -79,14 +88,10 @@ export const IconikProjectPicker = ({ video }: Props) => {
     [dispatch, video]
   );
 
-  useEffect(() => {
-    setCommissionYear(commissionYearOptions[0]?.id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [commissions]);
-
   const onWorkingGroupChange = useCallback(
     (selectedWorkingGroupId: string | undefined) => {
       setWorkingGroup(selectedWorkingGroupId);
+      setSelectedCommissionYear(undefined);
       setCommission(undefined);
       setProject(undefined);
     },
@@ -95,7 +100,7 @@ export const IconikProjectPicker = ({ video }: Props) => {
 
   const onCommissionYearChange = useCallback(
     (selectedCommissionYear: string | undefined) => {
-      setCommissionYear(selectedCommissionYear);
+      setSelectedCommissionYear(selectedCommissionYear);
       setCommission(undefined);
       setProject(undefined);
     },
@@ -119,14 +124,13 @@ export const IconikProjectPicker = ({ video }: Props) => {
 
   const restoreToSavedState = useCallback(() => {
     setWorkingGroup(video.iconikData?.workingGroupId);
-    setCommissionYear(existingCommission?.year);
+    setSelectedCommissionYear(undefined);
     setCommission(video.iconikData?.commissionId);
     setProject(video.iconikData?.projectId);
   }, [
     video.iconikData?.commissionId,
     video.iconikData?.projectId,
-    video.iconikData?.workingGroupId,
-    existingCommission?.year
+    video.iconikData?.workingGroupId
   ]);
 
   const deleteIconikDataFromStore = useCallback(() => {
@@ -136,6 +140,7 @@ export const IconikProjectPicker = ({ video }: Props) => {
       projectId: undefined
     });
     setWorkingGroup(undefined);
+    setSelectedCommissionYear(undefined);
     setCommission(undefined);
     setProject(undefined);
   }, [saveVideoUpdate]);
