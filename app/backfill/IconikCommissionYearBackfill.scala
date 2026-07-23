@@ -7,6 +7,8 @@ import com.gu.media.iconik.{
   IndexConfig
 }
 import com.typesafe.config.ConfigFactory
+import org.scanamo.{DynamoReadError, Scanamo, Table}
+import org.scanamo.syntax._
 import util.AWSConfig
 
 object IconikCommissionYearBackfill {
@@ -48,23 +50,53 @@ object IconikCommissionYearBackfill {
         IndexConfig("working-group-index", "workingGroupId")
       )
 
+    // Scoped here rather than added to the shared IconikDynamoStore, since
+    // partial-attribute updates are specific to this one-off migration.
+    val scanamo: Scanamo = awsConfig.scanamo
+    val commissionsTable: Table[IconikCommission] = Table[IconikCommission](
+      tableName
+    )
+
+    def updateYear(
+        commissionId: String,
+        year: String
+    ): Either[DynamoReadError, IconikCommission] =
+      scanamo.exec(
+        commissionsTable.update(
+          "id" === commissionId,
+          set("year" -> Some(year))
+        )
+      )
+
     commissionStore.list match {
       case Left(err) =>
         Console.err.println(s"[error] failed to list commissions: $err")
 
       case Right(commissions) =>
-        val missingYear = commissions.filter(_.year.isEmpty)
+        // Treat a blank/whitespace-only string the same as a missing year
+        def isMissingYear(commission: IconikCommission): Boolean =
+          commission.year.forall(_.trim.isEmpty)
 
-        missingYear.foreach { commission =>
+        val missingYear = commissions.filter(isMissingYear)
+        val missingYearCount = missingYear.length
+
+        missingYear.zipWithIndex.foreach { case (commission, index) =>
+          val progress = s"(${index + 1} of $missingYearCount)"
           if (cliArgs.dryRun) {
             println(
-              s"[dry-run] would update commissionId=${commission.id} year=$DefaultYear"
+              s"[dry-run] $progress would update commissionId=${commission.id} year=$DefaultYear"
             )
           } else {
-            commissionStore.upsert(commission.copy(year = Some(DefaultYear)))
-            println(
-              s"[updated] commissionId=${commission.id} year=$DefaultYear"
-            )
+            updateYear(commission.id, DefaultYear) match {
+              case Right(_) =>
+                println(
+                  s"[updated] $progress commissionId=${commission.id} year=$DefaultYear"
+                )
+              case Left(err) =>
+                Console.err.println(
+                  s"[error] $progress failed to update commissionId=${commission.id}: $err"
+                )
+            }
           }
         }
 
@@ -72,7 +104,7 @@ object IconikCommissionYearBackfill {
         println("Backfill summary")
         println(s"  stage:                   ${cliArgs.stage}")
         println(s"  total commissions:       ${commissions.length}")
-        println(s"  missing year (to fill):  ${missingYear.length}")
+        println(s"  commissions missing year (to fill):  ${missingYearCount}")
         println(
           s"  mode:                    ${if (cliArgs.dryRun) "dry-run"
             else "write"}"
