@@ -5,7 +5,6 @@ import { ScheduledLaunch } from '../ScheduledLaunch';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 import VideoUtils from '../../util/video';
 import { checkVideoReadyToPublish } from '../../util/videoPublishCheck';
-import { hasIconikProject } from '../../util/hasIconikProject';
 
 export default class VideoPublishBar extends React.Component {
   videoIsCurrentlyPublishing() {
@@ -82,7 +81,6 @@ export default class VideoPublishBar extends React.Component {
           {this.renderPublishButtonText()}
         </button>
         {this.renderRequiredFieldsMissingWarning()}
-        {this.renderIconikProjectMissingWarning()}
       </>
     );
   }
@@ -98,20 +96,6 @@ export default class VideoPublishBar extends React.Component {
       return (
         <div className="header__fields__missing__warning">
           {videoReadyToPublishErrors[0]}
-        </div>
-      );
-    }
-  }
-
-  renderIconikProjectMissingWarning() {
-    const videoHasIconikProject = hasIconikProject(this.props.video);
-
-    if (videoHasIconikProject) {
-      return null;
-    } else {
-      return (
-        <div className="header__fields__missing__warning">
-          Click &quot;Edit Assets&quot; to add missing Iconik data
         </div>
       );
     }
