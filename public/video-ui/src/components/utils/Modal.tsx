@@ -1,6 +1,16 @@
-import React from 'react';
+import React, { RefObject } from 'react';
 
-export default class Modal extends React.Component {
+type Props = {
+  onCloseModal?: any;
+  children?: React.ReactNode;
+};
+
+type State = {
+  dialogRef: undefined | RefObject<HTMLDialogElement>;
+  isOpen: boolean;
+};
+
+export default class Modal extends React.Component<Props, State> {
   props: React.PropsWithChildren<{
     onCloseModal?: () => void;
   }>;
@@ -12,7 +22,7 @@ export default class Modal extends React.Component {
     isOpen: false
   };
 
-  constructor(props: React.PropsWithChildren) {
+  constructor(props: Props) {
     super(props);
     this.state.dialogRef = React.createRef<HTMLDialogElement>();
   }

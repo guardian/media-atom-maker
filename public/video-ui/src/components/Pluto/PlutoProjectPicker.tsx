@@ -56,6 +56,7 @@ export const PlutoProjectPicker = ({ video }: Props) => {
   }, [video]);
 
   return (
+    // @ts-expect-error TS(2769): No overload matches this call.
     <ManagedForm
       data={video}
       updateData={dispatchSaveVideo}
@@ -63,19 +64,23 @@ export const PlutoProjectPicker = ({ video }: Props) => {
       formName="Pluto"
     >
       <header className="video__detailbox__header">Pluto</header>
+      {/* @ts-expect-error TS(2769): No overload matches this call. */}
       <ManagedField
         fieldLocation="plutoData.commissionId"
         name="Commission"
         isRequired={false}
         updateSideEffects={onCommissionSelection}
       >
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
         <SelectBox selectValues={commissions} />
       </ManagedField>
+      {/* @ts-expect-error TS(2769): No overload matches this call. */}
       <ManagedField
         fieldLocation="plutoData.projectId"
         name="Project"
         isRequired={false}
       >
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
         <SelectBox selectValues={projects} />
       </ManagedField>
     </ManagedForm>

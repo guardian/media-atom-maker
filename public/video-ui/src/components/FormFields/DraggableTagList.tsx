@@ -44,32 +44,34 @@ const SortableTag = ({
   );
 };
 
-const TagElement = ({
+function TagElement({
   tag,
   removeFn
 }: {
   tag: Tag;
   removeFn: (tag: Tag) => void;
-}) => (
-  <div
-    key={`${tag.id}`}
-    className="form__field__selected__tag form__field__selected__tag__draggable"
-  >
-    <span>{tag.detailedTitle}</span>
-    <span
-      tabIndex={0}
-      role="button"
-      data-no-dnd="true"
-      className="form__field__tag__remove"
-      onClick={() => removeFn(tag)}
-      onKeyDown={e => {
-        if (e.key === 'Enter') {
-          removeFn(tag);
-        }
-      }}
-    ></span>
-  </div>
-);
+}) {
+  return (
+    <div
+      key={`${tag.id}`}
+      className="form__field__selected__tag form__field__selected__tag__draggable"
+    >
+      <span>{tag.detailedTitle}</span>
+      <span
+        tabIndex={0}
+        role="button"
+        data-no-dnd="true"
+        className="form__field__tag__remove"
+        onClick={() => removeFn(tag)}
+        onKeyDown={e => {
+          if (e.key === 'Enter') {
+            removeFn(tag);
+          }
+        }}
+      ></span>
+    </div>
+  );
+}
 
 const shouldHandleEvent = (element: HTMLElement) => {
   let cur = element;
