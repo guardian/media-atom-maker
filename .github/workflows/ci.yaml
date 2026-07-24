@@ -23,7 +23,7 @@ jobs:
       - name: Setup Java and sbt
         uses: guardian/setup-scala@v1
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version-file: ".nvmrc"
 
