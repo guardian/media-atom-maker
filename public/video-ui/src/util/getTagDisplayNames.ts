@@ -1,7 +1,23 @@
 import TagTypes from '../constants/TagTypes';
 
+type TagType = string;
+
+type Tag = {
+  id: string;
+  webTitle: string;
+  sectionName?: string;
+  type: TagType;
+  internalName?: string;
+};
+
+type DisplayTag = {
+  id: string;
+  webTitle: string;
+  detailedTitle: string;
+};
+
 // Logic from before CAPI returned internal names for tags
-function getLegacyDetailedTitle(tag) {
+function getLegacyDetailedTitle(tag: Tag): string {
   const tagType = tag.type;
 
   if (tagType === TagTypes.keyword) {
@@ -23,7 +39,9 @@ function getLegacyDetailedTitle(tag) {
   }
 }
 
-export default function getTagDisplayNames(tags) {
+export default function getTagDisplayNames(
+  tags: Array<Tag | string>
+): Array<DisplayTag | string> {
   return tags.map(tag => {
     if (typeof tag === 'string') {
       return tag;
