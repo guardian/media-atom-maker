@@ -1,10 +1,18 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
-export class ErrorBoundary extends React.Component {
-  static propTypes = {
-    fallback: PropTypes.object.isRequired
-  };
-  constructor(props) {
+type ErrorBoundaryProps = {
+  fallback: React.ReactNode;
+  children?: React.ReactNode;
+};
+
+type ErrorBoundaryState = {
+  hasError: boolean;
+};
+
+export class ErrorBoundary extends React.Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
+  constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
   }
