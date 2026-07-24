@@ -62,7 +62,8 @@
   cursor: pointer;
   flex-wrap: wrap;
   min-height: 36px;
-  .form__field__tag--container, .form__field__tag--container input {
+  .form__field__tag--container,
+  .form__field__tag--container input {
     flex-grow: 1;
   }
 }
@@ -97,7 +98,7 @@
       padding: 5px 7px;
       margin-right: 8px;
       border: none;
-      &:hover{
+      &:hover {
         background-color: $color300Grey;
         cursor: pointer;
       }
@@ -119,7 +120,8 @@
     color: $textColor;
   }
 
-  ::-moz-placeholder {  /* Firefox 19+ */
+  ::-moz-placeholder {
+    /* Firefox 19+ */
     color: $textColor;
   }
 
@@ -129,13 +131,14 @@
 
   // Because select elements are THE WORST
   &--select {
-    background: url(../images/arrow.png) $color650Grey no-repeat right 10px center;
+    background: url(../images/arrow.png) $color650Grey no-repeat right 10px
+      center;
     background-size: 10px 10px;
     margin-right: 40px;
     -webkit-appearance: none;
     -moz-appearance: none;
     border-radius: 0;
-    text-indent: .01px;
+    text-indent: 0.01px;
     text-overflow: '';
     &:hover {
       cursor: pointer;
@@ -167,7 +170,6 @@
 
   &--pluto {
     margin: 5px 0px 5px 0px !important;
-
   }
 
   &--textarea {
@@ -179,6 +181,19 @@
     display: inline-block;
     width: auto;
   }
+}
+
+.form__autocomplete__container {
+  position: relative;
+}
+
+.form__autocomplete__clear-button {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
 }
 
 .form__description {
@@ -211,8 +226,8 @@
   gap: 12px;
 }
 
-.form__label__layout__expire-now-button{
-  display:inline-flex;
+.form__label__layout__expire-now-button {
+  display: inline-flex;
   align-items: center;
   gap: 12px;
 }
@@ -232,7 +247,6 @@
   &--display {
     color: $color300Grey;
   }
-
 }
 
 .form__image {
@@ -241,14 +255,12 @@
   background-color: inherit;
 }
 
-
-
 .form__image img {
   max-width: 100%;
   max-height: 250px;
 }
 
-.form-checkbox{
+.form-checkbox {
   &:hover {
     filter: brightness(90%);
     cursor: pointer;
@@ -302,7 +314,6 @@
   }
 }
 
-
 .form__field__tag__display {
   text-decoration: underline $textColor;
   padding-left: 3px;
@@ -327,7 +338,7 @@
   &__options {
     background: $color200Grey;
     border: 1px solid $color300Grey;
-    box-shadow: 2px 2px 2px 0px rgba(0,0,0,0.1);
+    box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.1);
     position: absolute;
     top: 48px;
     left: 0;
@@ -343,7 +354,7 @@
 
     &:not(:last-child) {
       border-bottom: 1px solid $color300Grey;
-    };
+    }
 
     &:hover {
       background: $color650Grey;
@@ -360,7 +371,6 @@
     font-weight: bold;
     cursor: pointer;
     flex-shrink: 0;
-
   }
 }
 
@@ -378,7 +388,6 @@
   padding-right: 2px;
   padding-top: 2px;
 }
-
 
 .form__field--multistring__last {
   margin-top: 2px;
@@ -470,7 +479,7 @@
     height: auto;
   }
 
-   &.create-form__option--disabled {
+  &.create-form__option--disabled {
     cursor: not-allowed;
     opacity: 0.5;
   }
@@ -621,5 +630,5 @@ progress::-moz-progress-bar {
 }
 
 .stand-tag-table-container {
-  border: 1px solid #DCDCDC;
+  border: 1px solid #dcdcdc;
 }
