@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { Action, AnyAction } from 'redux';
-import Raven from 'raven-js';
+import * as Sentry from '@sentry/browser';
 import { setActiveAsset } from './video';
 
 const SHOW_ERROR = 'SHOW_ERROR' as const;
@@ -10,8 +10,11 @@ export const showError: (message: string, error?: unknown) => ShowError = (
   message,
   error = undefined
 ) => {
-  if (error && error instanceof Error) {
-    Raven.captureException(error, { tags: { message } });
+  if (error) {
+    Sentry.withScope(scope => {
+      scope.setTag('message', message);
+      Sentry.captureException(error);
+    });
   }
 
   return {

@@ -1,4 +1,4 @@
-import Raven from 'raven-js';
+import * as Sentry from '@sentry/browser';
 import React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
@@ -16,8 +16,15 @@ const store = setupStore();
 syncHistoryWithStore(browserHistory, store);
 const { stage, ravenUrl } = getAppConfig();
 
-// publish uncaught errors to sentry.io
-if (stage !== 'DEV') Raven.config(ravenUrl).install();
+// Publish uncaught errors to Sentry in non-local environments.
+const sentryEnabled = stage !== 'DEV' && !!ravenUrl;
+if (sentryEnabled) {
+  Sentry.init({
+    dsn: ravenUrl,
+    environment: stage,
+    attachStacktrace: true
+  });
+}
 
 setStore(store);
 

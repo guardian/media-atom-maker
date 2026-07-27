@@ -8,6 +8,7 @@
     "lint:fix": "eslint public/video-ui/src/**/** --fix --no-error-on-unmatched-pattern",
     "test": "jest",
     "typecheck": "tsc --noEmit",
+    "typecheck:app": "tsc -p tsconfig.app.json --noEmit",
     "format": "prettier --write public/video-ui/src/**/**",
     "format:check": "prettier --check public/video-ui/src/**/**"
   },
@@ -78,6 +79,7 @@
     "@emotion/react": "^11.11.4",
     "@guardian/stand": "^0.0.31",
     "@reduxjs/toolkit": "^2.8.2",
+    "@sentry/browser": "^7.120.3",
     "@vitejs/plugin-react-swc": "^3.7.1",
     "fast-check": "^3.6.3",
     "moment": "^2.29.4",
@@ -93,7 +95,6 @@
     "prosemirror-schema-list": "^1.2.2",
     "prosemirror-state": "^1.4.2",
     "prosemirror-view": "^1.42.0",
-    "raven-js": "^3.9.1",
     "react": "^16.14.0",
     "react-aria-components": "^1.13.0",
     "react-datepicker": "^3.1.3",
