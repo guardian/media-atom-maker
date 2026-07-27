@@ -79,7 +79,7 @@
     "@emotion/react": "^11.11.4",
     "@guardian/stand": "^0.0.31",
     "@reduxjs/toolkit": "^2.8.2",
-    "@sentry/browser": "^7.120.3",
+    "@sentry/browser": "^10.68.0",
     "@vitejs/plugin-react-swc": "^3.7.1",
     "fast-check": "^3.6.3",
     "moment": "^2.29.4",
