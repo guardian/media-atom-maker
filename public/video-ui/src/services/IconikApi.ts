@@ -11,6 +11,7 @@ export type IconikCommission = {
   id: string;
   title: string;
   workingGroupId: string;
+  year?: string;
 };
 
 export type IconikProject = {
