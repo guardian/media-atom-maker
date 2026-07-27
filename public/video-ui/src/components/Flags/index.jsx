@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ManagedField, ManagedForm } from '../ManagedForm';
-import CheckBox from '../FormFields/CheckBox';
+import { CheckBox } from '../FormFields/CheckBox';
 import VideoUtils from '../../util/video';
 import { formNames } from '../../constants/formNames';
 import { addOrDropBundlingTags } from '../../services/KeywordsApi';

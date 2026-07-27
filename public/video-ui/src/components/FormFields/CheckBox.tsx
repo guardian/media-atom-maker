@@ -12,7 +12,7 @@ type CheckBoxProps = {
   tooltip?: string;
 };
 
-export default class CheckBox extends React.Component<CheckBoxProps> {
+export class CheckBox extends React.Component<CheckBoxProps> {
   renderCheckbox() {
     const checked =
       !!this.props.fieldValue &&
