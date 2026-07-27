@@ -21,10 +21,14 @@ import com.gu.pandahmac.HMACAuthActions
 import data.{DataStores, UnpackedDataStores}
 import com.gu.ai.x.play.json.Jsonx
 import com.gu.media.telemetry.{TagLong, TagString, Telemetry}
-import model.commands.CommandExceptions.commandExceptionAsResult
+import model.commands.CommandExceptions.{
+  AssetVersionClaimFailed,
+  commandExceptionAsResult
+}
 import model.commands.{SubtitleFileDeleteCommand, SubtitleFileUploadCommand}
-import org.scanamo.Table
+import org.scanamo.{ConditionNotMet, Table}
 import org.scanamo.generic.auto._
+import org.scanamo.syntax._
 import play.api.libs.Files
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.{
@@ -58,6 +62,8 @@ class UploadController(
 
   private val credsGenerator = new CredentialsGenerator(awsConfig)
   private val uploadDecorator = new UploadDecorator(awsConfig, stepFunctions)
+  private val assetVersionManager =
+    new AssetVersionManager(awsConfig, AssetClaimSource.UploadPipeline)
 
   /** prepares a list of ClientAssets that represent the multiple versioned
     * assets for the atom to be displayed in the client. The list is made up of
@@ -116,10 +122,22 @@ class UploadController(
       )
       val thriftAtom = getPreviewAtom(req.atomId)
       val atom = MediaAtom.fromThrift(thriftAtom)
-      val assetVersion =
-        MediaAtomHelpers.getNextAssetVersion(thriftAtom.tdata)
 
-      val upload = start(atom, raw.user.email, req, assetVersion)
+      val userEmail = raw.user.email
+
+      val assetVersion = assetVersionManager.claimThisOrNextAvailableVersion(
+        atomId = atom.id,
+        version = MediaAtomHelpers.getNextAssetVersion(thriftAtom.tdata),
+        userEmail = userEmail,
+        originalFilename = Some(req.filename)
+      ) match {
+        case Right(claimedVersion) => claimedVersion
+        case Left(error) =>
+          log.error(error.message)
+          AssetVersionClaimFailed(error.message)
+      }
+
+      val upload = start(atom, userEmail, req, assetVersion)
 
       log.info(
         s"Upload created under atom ${req.atomId}. upload=${upload.id}. parts=${upload.parts.size}, selfHosted=${upload.metadata.selfHost}"
@@ -233,8 +251,32 @@ class UploadController(
 
     upload
   } catch {
-    case _: ExecutionAlreadyExistsException =>
-      start(atom, email, req, assetVersion + 1)
+    /** @todo
+      *   once the new asset version claim mechanism has been live long enough
+      *   for any existing executions to have been flushed through, we should be
+      *   able to remove this path, and then `start()` will no longer need to be
+      *   recursive.
+      */
+    case _: ExecutionAlreadyExistsException => {
+      log.warn(
+        s"Execution already exists for atom ${atom.id} version ${assetVersion}. Trying next available version from claims table."
+      )
+      val nextVersion = assetVersionManager
+        .claimThisOrNextAvailableVersion(
+          atom.id,
+          assetVersion,
+          userEmail = email,
+          originalFilename = Some(req.filename)
+        )
+        .fold(
+          error => {
+            log.error(error.message)
+            AssetVersionClaimFailed(error.message)
+          },
+          identity
+        )
+      start(atom, email, req, nextVersion)
+    }
   }
 
   /** re-run an existing upload through the state machine to reprocess the video

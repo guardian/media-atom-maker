@@ -44,7 +44,8 @@ object IconikWorkingGroup {
 case class IconikCommission(
     workingGroupId: String,
     id: String,
-    title: String
+    title: String,
+    year: Option[String] = None
 ) extends IconikItemWithParentId {
   val parentId: String = workingGroupId
 }
@@ -60,7 +61,8 @@ object IconikCommission {
     IconikCommission(
       id = req.commissionId,
       title = req.commissionTitle,
-      workingGroupId = req.workingGroupId
+      workingGroupId = req.workingGroupId,
+      year = req.yearName
     )
   }
 }
@@ -126,7 +128,8 @@ case class IconikUpsertRequest(
     commissionTitle: String,
     workingGroupId: String,
     workingGroupTitle: String,
-    masterPlaceholderId: Option[String]
+    masterPlaceholderId: Option[String],
+    yearName: Option[String]
 //    productionOffice: String, // don't know if we need this in Iconik world?
 )
 
