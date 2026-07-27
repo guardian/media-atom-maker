@@ -1,4 +1,4 @@
-import { uniqueId } from 'lodash';
+import { orderBy, uniqueId, uniq } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getVideo } from '../../actions/VideoActions/getVideo';
@@ -30,9 +30,18 @@ export const IconikProjectPicker = ({ video }: Props) => {
     IconikState
   >(({ iconik }) => iconik);
 
+  const commissionYearOptions = getCommissionYearOptions(commissions);
+  const existingCommission = commissions.find(
+    commission => commission.id === video.iconikData?.commissionId
+  );
+
   const [workingGroup, setWorkingGroup] = React.useState<string | undefined>(
     () => video.iconikData?.workingGroupId
   );
+
+  const [selectedCommissionYear, setSelectedCommissionYear] = React.useState<
+    string | undefined
+  >();
   const [commission, setCommission] = React.useState<string | undefined>(
     () => video.iconikData?.commissionId
   );
@@ -40,18 +49,31 @@ export const IconikProjectPicker = ({ video }: Props) => {
     () => video.iconikData?.projectId
   );
 
+  const commissionYear =
+    selectedCommissionYear ??
+    existingCommission?.year ??
+    commissionYearOptions[0]?.id;
+
+  const filteredCommissions =
+    commissionYear && commissionYear !== ALL_COMMISSION_YEARS_OPTION
+      ? commissions.filter(commission => commission.year === commissionYear)
+      : commissions;
+
   useEffect(() => {
     if (workingGroup) {
       dispatch(fetchIconikCommissions(workingGroup));
     } else {
       dispatch(resetCommissions());
     }
+  }, [dispatch, workingGroup]);
+
+  useEffect(() => {
     if (commission) {
       dispatch(fetchIconikProjects(commission));
     } else {
       dispatch(resetProjects());
     }
-  }, [commission, dispatch, workingGroup]);
+  }, [dispatch, commission]);
 
   const hasBeenEdited =
     video.iconikData?.workingGroupId !== workingGroup ||
@@ -69,6 +91,16 @@ export const IconikProjectPicker = ({ video }: Props) => {
   const onWorkingGroupChange = useCallback(
     (selectedWorkingGroupId: string | undefined) => {
       setWorkingGroup(selectedWorkingGroupId);
+      setSelectedCommissionYear(undefined);
+      setCommission(undefined);
+      setProject(undefined);
+    },
+    []
+  );
+
+  const onCommissionYearChange = useCallback(
+    (selectedCommissionYear: string | undefined) => {
+      setSelectedCommissionYear(selectedCommissionYear);
       setCommission(undefined);
       setProject(undefined);
     },
@@ -92,6 +124,7 @@ export const IconikProjectPicker = ({ video }: Props) => {
 
   const restoreToSavedState = useCallback(() => {
     setWorkingGroup(video.iconikData?.workingGroupId);
+    setSelectedCommissionYear(undefined);
     setCommission(video.iconikData?.commissionId);
     setProject(video.iconikData?.projectId);
   }, [
@@ -107,6 +140,7 @@ export const IconikProjectPicker = ({ video }: Props) => {
       projectId: undefined
     });
     setWorkingGroup(undefined);
+    setSelectedCommissionYear(undefined);
     setCommission(undefined);
     setProject(undefined);
   }, [saveVideoUpdate]);
@@ -120,21 +154,28 @@ export const IconikProjectPicker = ({ video }: Props) => {
         selectOptions={sortProjects(workingGroups)}
         notification={null}
         onUpdateField={onWorkingGroupChange}
-      ></Select>
+      />
+      <Select
+        fieldName={'Commission Year'}
+        fieldValue={commissionYear}
+        selectOptions={commissionYearOptions}
+        notification={null}
+        onUpdateField={onCommissionYearChange}
+      />
       <Select
         fieldName={'Iconik Commission'}
         fieldValue={commission}
-        selectOptions={sortProjects(commissions)}
+        selectOptions={sortProjects(filteredCommissions)}
         notification={null}
         onUpdateField={onCommissionChange}
-      ></Select>
+      />
       <Select
         fieldName={'Iconik Project'}
         fieldValue={project}
         selectOptions={sortProjects(projects)}
         notification={null}
         onUpdateField={onProjectChange}
-      ></Select>
+      />
       {workingGroup && (!commission || !project) && (
         <p className="form__message form__message--error">
           Please select a project in order to save.
@@ -190,6 +231,27 @@ function sortProjects(
   return [
     ...startWithNumber.sort((a, b) => b.title.localeCompare(a.title)),
     ...rest.sort((a, b) => a.title.localeCompare(b.title))
+  ];
+}
+
+const ALL_COMMISSION_YEARS_OPTION = 'all-commission-years';
+function getCommissionYearOptions(commissions: IconikCommission[]) {
+  const commissionYears = orderBy(
+    uniq(
+      commissions
+        .map(commission => commission.year)
+        .filter((year): year is string => !!year)
+    ),
+    [year => year],
+    ['desc']
+  );
+  const commissionYearOptions = commissionYears.map(year => ({
+    id: year,
+    title: year
+  }));
+  return [
+    ...commissionYearOptions,
+    { id: ALL_COMMISSION_YEARS_OPTION, title: 'View all' }
   ];
 }
 
