@@ -34,7 +34,9 @@ class UploadDecorator(
   }
 
   def getUpload(id: String): Option[Upload] =
-    aws.scanamo.exec(table.get("id" === id)).flatMap(_.toOption) orElse {
+    aws.scanamo
+      .exec(table.get("id" === id))
+      .flatMap(res => res.toOption) orElse {
       stepFunctions.getById(id)
     }
 }
