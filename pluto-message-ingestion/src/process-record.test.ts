@@ -122,7 +122,8 @@ describe('processRecord', () => {
       commissionTitle: 'Iconik Commission',
       workingGroupId: 'wg-1',
       workingGroupTitle: 'Working Group 1',
-      masterPlaceholderId: 'mp-1'
+      masterPlaceholderId: 'mp-1',
+      yearName: '2026'
     };
 
     const record = {
