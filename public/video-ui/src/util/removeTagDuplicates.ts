@@ -1,6 +1,6 @@
 type Tag = { id: string };
 
-export default function removeTagDuplicates<T extends Tag>(
+export function removeTagDuplicates<T extends Tag>(
   tag: Tag,
   tagValue: T[]
 ): T[] {
