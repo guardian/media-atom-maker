@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "types": ["vite-plugin-svgr/client", "node"]
+  },
+  "include": ["public/video-ui/src/**/*"],
+  "exclude": ["public/video-ui/build/**/*"]
+}
