@@ -1,7 +1,7 @@
 import React from 'react';
 import { PropTypes } from 'prop-types';
 import TagSearch from '../TagSearch/TagSearch';
-import removeTagDuplicates from '../../util/removeTagDuplicates';
+import { removeTagDuplicates } from '../../util/removeTagDuplicates';
 
 class PureTagPicker extends React.Component {
   static propTypes = {
