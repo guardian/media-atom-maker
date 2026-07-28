@@ -5,7 +5,7 @@ import Icon from '../Icon';
 
 type DurationResetProps = {
   video?: Video;
-  updateVideo: (video: Video) => void;
+  updateVideo: (video?: Video) => void;
 };
 
 class DurationReset extends React.Component<DurationResetProps> {
