@@ -1,5 +1,5 @@
 import TagTypes from '../constants/TagTypes';
-
+import type { DisplayTag } from '../types/tags';
 
 type Tag = {
   id: string;
@@ -9,9 +9,7 @@ type Tag = {
   internalName?: string;
 };
 
-type DisplayTag = {
-  id: string;
-  webTitle: string;
+type DetailedDisplayTag = DisplayTag & {
   detailedTitle: string;
 };
 
@@ -40,7 +38,7 @@ function getLegacyDetailedTitle(tag: Tag): string {
 
 export function getTagDisplayNames(
   tags: Array<Tag | string>
-): Array<DisplayTag | string> {
+): Array<DetailedDisplayTag | string> {
   return tags.map(tag => {
     if (typeof tag === 'string') {
       return tag;
