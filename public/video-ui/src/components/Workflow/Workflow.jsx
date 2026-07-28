@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import WorkflowForm from './WorkflowForm';
+import { WorkflowForm } from './WorkflowForm';
 
 class Workflow extends React.Component {
   static propTypes = {

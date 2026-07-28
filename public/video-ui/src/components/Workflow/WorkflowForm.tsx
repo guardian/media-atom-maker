@@ -30,7 +30,7 @@ type Props = {
   updateData: (data: WorkflowStatusFormData) => Promise<unknown> | unknown;
 };
 
-export default class WorkflowForm extends React.Component<Props> {
+export class WorkflowForm extends React.Component<Props> {
   render() {
     return (
       <ManagedForm
