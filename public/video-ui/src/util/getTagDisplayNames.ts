@@ -39,7 +39,7 @@ function getLegacyDetailedTitle(tag: Tag): string {
   }
 }
 
-export default function getTagDisplayNames(
+export function getTagDisplayNames(
   tags: Array<Tag | string>
 ): Array<DisplayTag | string> {
   return tags.map(tag => {
