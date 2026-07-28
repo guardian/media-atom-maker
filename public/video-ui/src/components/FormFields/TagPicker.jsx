@@ -3,7 +3,7 @@ import { getTagsByType } from '../../services/tagmanager';
 import { tagsFromStringList, tagsToStringList } from '../../util/tagParsers';
 import { keyCodes } from '../../constants/keyCodes';
 import TagTypes from '../../constants/TagTypes';
-import getTagDisplayNames from '../../util/getTagDisplayNames';
+import { getTagDisplayNames } from '../../util/getTagDisplayNames';
 import TextInputTagPicker from './TextInputTagPicker';
 import PureTagPicker from './PureTagPicker';
 import TagFieldValue from '../Tags/TagFieldValue';
