@@ -1,6 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { TagAutocomplete, TagTable } from '@guardian/stand/tag-picker';
+import {
+  tagTableTheme,
+  tagAutocompleteTheme
+} from '../../constants/themeOverrides';
 import type { Tag } from '../../services/tagmanager';
 import { getTagByPath, getTagsByType } from '../../services/tagmanager';
 import BinSvg from '../../../images/bin.svg?react';
@@ -81,57 +85,6 @@ const videoTagsFromStringList = (
   }
 };
 
-const nonEditableUiTheme = {
-  row: {
-    backgroundColor: '#00000000',
-    borderBottom: {
-      borderColor: '#BDBDBD'
-    },
-    backgroundHoverColor: '#00000000',
-    firstRowBackgroundColor: '#00000000',
-    firstRowBackgroundHoverColor: '#00000000'
-  },
-  cell: {
-    borderBetweenCells: {
-      borderColor: '#BDBDBD'
-    }
-  }
-};
-
-const editableUiTheme = {
-  row: {
-    backgroundColor: '#00000000',
-    borderBottom: {
-      borderColor: '#BDBDBD'
-    },
-    backgroundHoverColor: '#000',
-    firstRowBackgroundColor: '#00000000',
-    firstRowBackgroundHoverColor: '#000'
-  },
-  cell: {
-    borderBetweenCells: {
-      borderColor: '#BDBDBD'
-    }
-  },
-  input: {
-    color: '#BDBDBD',
-    backgroundColor: '#393939',
-    borderColor: '#BDBDBD',
-    disabledBackgroundColor: '#393939'
-  },
-  listbox: {
-    backgroundColor: '#393939',
-    borderColor: '#BDBDBD',
-    item: {
-      color: '#BDBDBD',
-      backgroundHoverColor: '#252525',
-      colorHover: '#BDBDBD',
-      backgroundFocusedColor: '#252525',
-      colorFocused: '#BDBDBD'
-    }
-  }
-};
-
 const tagPickerContainerStyle = {
   display: 'flex',
   alignItems: 'stretch',
@@ -140,7 +93,7 @@ const tagPickerContainerStyle = {
 };
 
 const tagPickerDropdownStyle = {
-  border: '1px solid #BDBDBD',
+  border: '1px solid #898984',
   backgroundColor: '#393939',
   color: 'inherit',
   font: 'inherit',
@@ -329,7 +282,7 @@ const StandTagPicker = ({
             filterRows={() => true}
             showTagType={true}
             showTagSectionName={true}
-            theme={nonEditableUiTheme}
+            theme={tagTableTheme}
           />
         </div>
       );
@@ -361,7 +314,7 @@ const StandTagPicker = ({
                 placeholder={''}
                 disabled={false}
                 value={value}
-                theme={editableUiTheme}
+                theme={tagAutocompleteTheme}
               />
             </div>
             {filters && filters.length > 0 && (
@@ -384,7 +337,7 @@ const StandTagPicker = ({
                 showTagSectionName={true}
                 onReorder={onUpdate}
                 removeAction={onTagRemoved}
-                theme={editableUiTheme}
+                theme={tagTableTheme}
               />
             </div>
           )}
