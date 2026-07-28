@@ -4,7 +4,7 @@ import type { Video } from '../../services/VideosApi';
 import Icon from '../Icon';
 
 type DurationResetProps = {
-  video?: Video;
+  video: Video;
   updateVideo: (video?: Video) => void;
 };
 
@@ -12,7 +12,7 @@ class DurationReset extends React.Component<DurationResetProps> {
   render() {
     const { video, updateVideo } = this.props;
 
-    if (!video || !video.id) {
+    if (!video.id) {
       return null;
     }
 
