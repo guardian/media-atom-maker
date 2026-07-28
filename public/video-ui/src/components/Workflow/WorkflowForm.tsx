@@ -3,21 +3,14 @@ import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
 import TextAreaInput from '../FormFields/TextAreaInput';
 import type { Video } from '../../services/VideosApi';
+import type { WorkflowState } from '../../slices/workflow';
 
 type SelectValue = {
   id: string | number;
   title: string;
 };
 
-type WorkflowStatusFormData = {
-  isTrackedInWorkflow?: boolean;
-  prodOffice?: string;
-  section?: string;
-  note?: string;
-  status?: string;
-  priority?: string | number;
-  [key: string]: unknown;
-};
+type WorkflowStatusFormData = WorkflowState['status'];
 
 type Props = {
   editable: boolean;
@@ -32,6 +25,10 @@ type Props = {
 
 export class WorkflowForm extends React.Component<Props> {
   render() {
+    const isTrackedInWorkflow =
+      'isTrackedInWorkflow' in this.props.workflowStatus &&
+      this.props.workflowStatus.isTrackedInWorkflow;
+
     return (
       <ManagedForm
         data={this.props.workflowStatus}
@@ -51,7 +48,7 @@ export class WorkflowForm extends React.Component<Props> {
           name="Section"
           disabled={
             !this.props.editable ||
-            this.props.workflowStatus.isTrackedInWorkflow
+            isTrackedInWorkflow
           }
         >
           <SelectBox selectValues={this.props.workflowSections} />
