@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router';
-import VideoSearch from './VideoSearch/VideoSearch';
+import { VideoSearch } from './VideoSearch/VideoSearch';
 import VideoPublishBar from './VideoPublishBar/VideoPublishBar';
 import VideoPublishState from './VideoPublishState/VideoPublishState';
 import AdvancedActions from './Videos/AdvancedActions';
@@ -77,7 +77,11 @@ export default class Header extends React.Component {
   renderSearch() {
     return (
       <div className="flex-container topbar__global">
-        <VideoSearch {...this.props} />
+        <VideoSearch
+          saving={this.props.saving}
+          search={this.props.search}
+          updateSearchTerm={this.props.updateSearchTerm}
+        />
       </div>
     );
   }
