@@ -513,7 +513,7 @@ import {
   trackInWorkflow,
   updateWorkflowData
 } from '../../slices/workflow';
-import { showWarning, clearError } from '../../slices/error';
+import { showWarning } from '../../slices/error';
 import { getComposerId } from '../../util/getComposerData';
 
 function mapStateToProps(state) {
@@ -553,7 +553,7 @@ function mapDispatchToProps(dispatch) {
       { getStatus, trackInWorkflow, updateWorkflowData },
       dispatch
     ),
-    warningActions: bindActionCreators({ showWarning, clearError }, dispatch)
+    warningActions: bindActionCreators({ showWarning }, dispatch)
   };
 }
 

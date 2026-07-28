@@ -30,9 +30,10 @@ export const showWarning: (message: string) => ShowWarning = message => {
   };
 };
 
-export const clearError: () => Action<'CLEAR_ERROR'> = () => ({
-  type: 'CLEAR_ERROR'
-});
+export const clearErrorAndWarning: () => Action<'CLEAR_ERROR_AND_WARNING'> =
+  () => ({
+    type: 'CLEAR_ERROR_AND_WARNING'
+  });
 
 interface Error {
   message: false | string;
@@ -70,7 +71,7 @@ const error = createSlice({
         state.warningKey++;
       }
     ),
-    clearError: builder.addCase('CLEAR_ERROR', state => {
+    clearErrorAndWarning: builder.addCase('CLEAR_ERROR_AND_WARNING', state => {
       state.message = false;
       state.warningMessage = false;
     }),
