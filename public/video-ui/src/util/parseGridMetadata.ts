@@ -1,7 +1,76 @@
 import { getGridMediaId } from './getGridMediaId';
 import { getTextFromHtml } from './getTextFromHtml';
 
-function parseMimeType(mimeType) {
+type GridAssetInput = {
+  secureUrl: string;
+  mimeType: string;
+  size: number;
+  dimensions: {
+    width: number;
+    height: number;
+  };
+};
+
+type ParsedAsset = {
+  file: string;
+  mimeType: string;
+  size: number;
+  aspectRatio: string;
+  dimensions: {
+    width: number;
+    height: number;
+  };
+};
+
+type GridCropData = {
+  assets: GridAssetInput[];
+  master: GridAssetInput;
+  specification: {
+    aspectRatio: string;
+    uri: string;
+  };
+};
+
+type GridImageData = {
+  data: {
+    metadata: {
+      credit: string;
+    };
+  };
+};
+
+type ParsedImage = {
+  assets: ParsedAsset[];
+  master: ParsedAsset;
+  mediaId: string;
+  source: string;
+};
+
+type ComposerAsset = {
+  assetType: 'image';
+  mimeType: string;
+  url: string;
+  fields: {
+    width: string;
+    height: string;
+    aspectRatio: string;
+  };
+  isMaster?: 'true';
+};
+
+type ComposerImageData = {
+  assets: ComposerAsset[];
+  fields: {
+    alt: string;
+    imageType: 'Photograph';
+    isMandatory: 'true';
+    mediaApiUrl: string;
+    mediaId: string;
+    source: string;
+  };
+};
+
+function parseMimeType(mimeType: string): string {
   //Normalise Mime Types coming from the grid.
   switch (mimeType) {
     case 'jpg':
@@ -13,7 +82,7 @@ function parseMimeType(mimeType) {
   return mimeType;
 }
 
-function parseAsset(asset, aspectRatio) {
+function parseAsset(asset: GridAssetInput, aspectRatio: string): ParsedAsset {
   return {
     file: asset.secureUrl,
     mimeType: parseMimeType(asset.mimeType),
@@ -26,7 +95,10 @@ function parseAsset(asset, aspectRatio) {
   };
 }
 
-export function parseImageFromGridCrop(cropData, imageData) {
+export function parseImageFromGridCrop(
+  cropData: GridCropData,
+  imageData: GridImageData
+): ParsedImage {
   const aspectRatio = cropData.specification.aspectRatio;
   return {
     assets: cropData.assets.map(asset => parseAsset(asset, aspectRatio)),
@@ -36,10 +108,13 @@ export function parseImageFromGridCrop(cropData, imageData) {
   };
 }
 
-export function parseComposerDataFromImage(image, trail) {
+export function parseComposerDataFromImage(
+  image: ParsedImage,
+  trail: string
+): ComposerImageData {
   const mediaId = getGridMediaId(image);
 
-  function getComposerAsset(asset) {
+  function getComposerAsset(asset: ParsedAsset): ComposerAsset {
     return {
       assetType: 'image',
       mimeType: asset.mimeType,
@@ -52,7 +127,7 @@ export function parseComposerDataFromImage(image, trail) {
     };
   }
 
-  function getComposerMasterAsset(asset) {
+  function getComposerMasterAsset(asset: ParsedAsset): ComposerAsset {
     const composerAsset = getComposerAsset(asset);
     composerAsset.isMaster = 'true';
     return composerAsset;
