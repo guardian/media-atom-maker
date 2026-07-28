@@ -1,12 +1,11 @@
 import TagTypes from '../constants/TagTypes';
 
-type TagType = string;
 
 type Tag = {
   id: string;
   webTitle: string;
   sectionName?: string;
-  type: TagType;
+  type: string;
   internalName?: string;
 };
 
