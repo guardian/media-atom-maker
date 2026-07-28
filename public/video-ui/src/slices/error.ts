@@ -4,7 +4,10 @@ import Raven from 'raven-js';
 import { setActiveAsset } from './video';
 
 const SHOW_ERROR = 'SHOW_ERROR' as const;
+const SHOW_WARNING = 'SHOW_WARNING' as const;
+
 type ShowError = AnyAction & { type: typeof SHOW_ERROR; message: string };
+type ShowWarning = AnyAction & { type: typeof SHOW_WARNING; message: string };
 
 export const showError: (message: string, error?: unknown) => ShowError = (
   message,
@@ -16,6 +19,13 @@ export const showError: (message: string, error?: unknown) => ShowError = (
 
   return {
     type: SHOW_ERROR,
+    message
+  };
+};
+
+export const showWarning: (message: string) => ShowWarning = message => {
+  return {
+    type: SHOW_WARNING,
     message
   };
 };
@@ -51,6 +61,13 @@ const error = createSlice({
       (state, { message }: ShowError) => {
         state.message = message;
         state.key++;
+      }
+    ),
+    showWarning: builder.addCase<'SHOW_WARNING', ShowWarning>(
+      'SHOW_WARNING',
+      (state, { message }: ShowWarning) => {
+        state.warningMessage = message;
+        state.warningKey++;
       }
     ),
     clearError: builder.addCase('CLEAR_ERROR', state => {

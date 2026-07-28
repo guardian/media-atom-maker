@@ -26,7 +26,6 @@ import { getPublishedVideo } from '../actions/VideoActions/getPublishedVideo';
 import { getUploads } from '../slices/uploads';
 import { createVideo } from '../actions/VideoActions/createVideo';
 import { fetchCropOptions } from '../slices/gridMetadata';
-import { hasIconikOrPlutoProject } from '../util/hasIconikOrPlutoProject';
 
 export const ReactApp = (
   props: React.PropsWithChildren<{
@@ -61,15 +60,6 @@ export const ReactApp = (
   const video = useSelector(selectVideo);
   const publishedVideo = useSelector(selectPublishedVideo);
   const isPublishing = useSelector(selectIsPublishing);
-  const currentPath = String(props.location.pathname);
-  const isVideoDetailPage =
-    Boolean(props.params.id) && !currentPath.endsWith('/upload');
-  const hasLoadedCurrentVideo =
-    Boolean(props.params.id) && video.id === props.params.id;
-  const showMissingIconikDataWarning =
-    isVideoDetailPage &&
-    hasLoadedCurrentVideo &&
-    !hasIconikOrPlutoProject(video);
 
   useEffect(() => {
     if (
@@ -156,11 +146,6 @@ export const ReactApp = (
           className={'error-bar--warning error-bar--animate'}
         >
           {store.error.warningMessage}
-        </div>
-      ) : null}
-      {showMissingIconikDataWarning ? (
-        <div className={'error-bar--warning error-bar--animate'}>
-          Click &quot;Edit Assets&quot; to add missing Iconik data
         </div>
       ) : null}
       <div>{props.children}</div>
