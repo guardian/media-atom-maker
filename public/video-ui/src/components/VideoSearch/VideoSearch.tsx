@@ -8,7 +8,7 @@ type Props = {
   updateSearchTerm: (term: string) => void;
 };
 
-export default class VideoSearch extends React.Component<Props> {
+export class VideoSearch extends React.Component<Props> {
   onSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     this.props.updateSearchTerm(e.target.value);
   };
