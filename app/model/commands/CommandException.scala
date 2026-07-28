@@ -25,6 +25,8 @@ object CommandExceptions extends Results {
     throw new CommandException("Asset is not a youtube video", 400)
   def AssetVersionConflict =
     throw new CommandException("Asset version conflict", 400)
+  def AssetVersionClaimFailed(err: String) =
+    throw new CommandException(s"Failed to claim asset version: $err", 500)
   def AssetAlreadyAdded =
     throw new CommandException("Asset has already been added to this atom", 400)
   def AssetParseFailed =
