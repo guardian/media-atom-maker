@@ -1,13 +1,17 @@
-import { uniqueId } from 'lodash';
-import React, { useCallback, useEffect, useState } from 'react';
+import { orderBy, uniq } from 'lodash';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { css } from '@emotion/react';
+import { Autocomplete } from '@guardian/stand/tag-picker';
 import { getVideo } from '../../actions/VideoActions/getVideo';
 import { saveVideo } from '../../actions/VideoActions/saveVideo';
-import {
-  IconikCommission,
-  IconikProject,
-  IconikWorkingGroup
-} from '../../services/IconikApi';
+import { IconikCommission } from '../../services/IconikApi';
 import { IconikData, Video } from '../../services/VideosApi';
 import {
   fetchIconikCommissions,
@@ -16,7 +20,9 @@ import {
   resetCommissions,
   resetProjects
 } from '../../slices/iconik';
+import { tagAutocompleteTheme } from '../../constants/themeOverrides';
 import { AppDispatch, RootState } from '../../util/setupStore';
+import Icon from '../Icon';
 
 type Props = {
   video: Video;
@@ -30,9 +36,18 @@ export const IconikProjectPicker = ({ video }: Props) => {
     IconikState
   >(({ iconik }) => iconik);
 
+  const commissionYearOptions = getCommissionYearOptions(commissions);
+  const existingCommission = commissions.find(
+    commission => commission.id === video.iconikData?.commissionId
+  );
+
   const [workingGroup, setWorkingGroup] = React.useState<string | undefined>(
     () => video.iconikData?.workingGroupId
   );
+
+  const [selectedCommissionYear, setSelectedCommissionYear] = React.useState<
+    string | undefined
+  >();
   const [commission, setCommission] = React.useState<string | undefined>(
     () => video.iconikData?.commissionId
   );
@@ -40,18 +55,31 @@ export const IconikProjectPicker = ({ video }: Props) => {
     () => video.iconikData?.projectId
   );
 
+  const commissionYear =
+    selectedCommissionYear ??
+    existingCommission?.year ??
+    commissionYearOptions[0]?.id;
+
+  const filteredCommissions =
+    commissionYear && commissionYear !== ALL_COMMISSION_YEARS_OPTION
+      ? commissions.filter(commission => commission.year === commissionYear)
+      : commissions;
+
   useEffect(() => {
     if (workingGroup) {
       dispatch(fetchIconikCommissions(workingGroup));
     } else {
       dispatch(resetCommissions());
     }
+  }, [dispatch, workingGroup]);
+
+  useEffect(() => {
     if (commission) {
       dispatch(fetchIconikProjects(commission));
     } else {
       dispatch(resetProjects());
     }
-  }, [commission, dispatch, workingGroup]);
+  }, [dispatch, commission]);
 
   const hasBeenEdited =
     video.iconikData?.workingGroupId !== workingGroup ||
@@ -69,6 +97,16 @@ export const IconikProjectPicker = ({ video }: Props) => {
   const onWorkingGroupChange = useCallback(
     (selectedWorkingGroupId: string | undefined) => {
       setWorkingGroup(selectedWorkingGroupId);
+      setSelectedCommissionYear(undefined);
+      setCommission(undefined);
+      setProject(undefined);
+    },
+    []
+  );
+
+  const onCommissionYearChange = useCallback(
+    (selectedCommissionYear: string | undefined) => {
+      setSelectedCommissionYear(selectedCommissionYear);
       setCommission(undefined);
       setProject(undefined);
     },
@@ -92,6 +130,7 @@ export const IconikProjectPicker = ({ video }: Props) => {
 
   const restoreToSavedState = useCallback(() => {
     setWorkingGroup(video.iconikData?.workingGroupId);
+    setSelectedCommissionYear(undefined);
     setCommission(video.iconikData?.commissionId);
     setProject(video.iconikData?.projectId);
   }, [
@@ -107,6 +146,7 @@ export const IconikProjectPicker = ({ video }: Props) => {
       projectId: undefined
     });
     setWorkingGroup(undefined);
+    setSelectedCommissionYear(undefined);
     setCommission(undefined);
     setProject(undefined);
   }, [saveVideoUpdate]);
@@ -114,27 +154,30 @@ export const IconikProjectPicker = ({ video }: Props) => {
   return (
     <div className="form__group">
       <header className="video__detailbox__header">Iconik</header>
-      <Select
-        fieldName={'Iconik Working Group'}
-        fieldValue={workingGroup}
-        selectOptions={sortProjects(workingGroups)}
-        notification={null}
-        onUpdateField={onWorkingGroupChange}
-      ></Select>
-      <Select
-        fieldName={'Iconik Commission'}
-        fieldValue={commission}
-        selectOptions={sortProjects(commissions)}
-        notification={null}
-        onUpdateField={onCommissionChange}
-      ></Select>
-      <Select
-        fieldName={'Iconik Project'}
-        fieldValue={project}
-        selectOptions={sortProjects(projects)}
-        notification={null}
-        onUpdateField={onProjectChange}
-      ></Select>
+      <IconikAutocomplete
+        label="Iconik Working Group"
+        items={workingGroups}
+        selectedId={workingGroup}
+        onSelect={onWorkingGroupChange}
+      />
+      <IconikAutocomplete
+        label="Commission Year"
+        items={commissionYearOptions}
+        selectedId={commissionYear}
+        onSelect={onCommissionYearChange}
+      />
+      <IconikAutocomplete
+        label="Iconik Commission"
+        items={filteredCommissions}
+        selectedId={commission}
+        onSelect={onCommissionChange}
+      />
+      <IconikAutocomplete
+        label="Iconik Project"
+        items={projects}
+        selectedId={project}
+        onSelect={onProjectChange}
+      />
       {workingGroup && (!commission || !project) && (
         <p className="form__message form__message--error">
           Please select a project in order to save.
@@ -180,91 +223,136 @@ function startsWithNumber(str: string) {
   return /^\d/.test(str);
 }
 
-function sortProjects(
-  projects: Array<IconikWorkingGroup | IconikCommission | IconikProject>
-) {
-  const startWithNumber = projects.filter(project =>
-    startsWithNumber(project.title)
-  );
-  const rest = projects.filter(project => !startsWithNumber(project.title));
+function sortOptions<T extends { title: string }>(items: T[]): T[] {
+  const startWithNumber = items.filter(item => startsWithNumber(item.title));
+  const rest = items.filter(item => !startsWithNumber(item.title));
   return [
     ...startWithNumber.sort((a, b) => b.title.localeCompare(a.title)),
     ...rest.sort((a, b) => a.title.localeCompare(b.title))
   ];
 }
 
-type SelectProps = {
-  fieldName: string;
-  fieldValue: string | undefined;
-  selectOptions: { id: string; title: string }[];
-  notification: {
-    type: 'error' | 'info' | 'warning'; // we aren't doing anything with info or warning, but preserving this for now, for compatibility with pre-existing SelectBox component.
-    message: string;
-  } | null;
-  onUpdateField: (newValue: string | undefined) => void;
-  id?: string;
+type IconikAutocompleteItem = { id: string; title: string };
+
+type IconikAutocompleteProps = {
+  label: string;
+  items: IconikAutocompleteItem[];
+  selectedId: string | undefined;
+  onSelect: (id: string | undefined) => void;
 };
 
-function Select({
-  fieldName,
-  fieldValue,
-  selectOptions,
-  notification,
-  onUpdateField,
-  id
-}: SelectProps) {
-  /**
-   * @todo replace with useId when we upgrade to React 18+
-   */
-  const [elementId] = useState(id ?? uniqueId('select-box-'));
+function IconikAutocomplete({
+  label,
+  items,
+  selectedId,
+  onSelect
+}: IconikAutocompleteProps) {
+  const selectedItem = items.find(item => item.id === selectedId);
 
-  const matchingValues =
-    fieldValue === undefined
-      ? []
-      : selectOptions.filter(option => option.id === fieldValue);
+  const [inputValue, setInputValue] = useState<string>(
+    selectedItem?.title ?? ''
+  );
 
-  const hasError = notification && notification.type === 'error';
+  // The underlying combobox calls `onTextInputChange('')` itself right
+  // after a selection is made (see addSelection below). We want to ignore
+  // that one forced call so the selected item's name stays visible in the
+  // input, instead of immediately being blanked out again.
+  const justSelectedRef = useRef(false);
+
+  // Keep the input text in sync when the selection changes externally -
+  // e.g. initial load, restore, or the underlying list being replaced
+  // after a parent selection (working group/commission) changes.
+  useEffect(() => {
+    setInputValue(selectedItem?.title ?? '');
+  }, [selectedItem?.title]);
+
+  const visibleOptions = useMemo(() => {
+    const query = inputValue.trim().toLowerCase();
+    const matches = query
+      ? items.filter(item => item.title.toLowerCase().includes(query))
+      : items;
+    return sortOptions(matches).map(item => ({
+      id: item.id,
+      name: item.title
+    }));
+  }, [items, inputValue]);
+
+  const handleTextInputChange = (text: string) => {
+    if (justSelectedRef.current) {
+      justSelectedRef.current = false;
+      if (text === '') {
+        return;
+      }
+    }
+    setInputValue(text);
+  };
+
+  const handleAddSelection = (selection: {
+    id: string | number;
+    name: string;
+  }) => {
+    onSelect(String(selection.id));
+    justSelectedRef.current = true;
+    setInputValue(selection.name);
+  };
 
   return (
     <div className="form-element">
-      <div>
-        <div className="form__row">
-          <label className="form__label" htmlFor={elementId}>
-            {fieldName}
-          </label>
-          <select
-            className={
-              'form__field form__field--select ' +
-              (hasError ? 'form__field--error' : '')
-            }
-            value={fieldValue ?? ''}
-            onChange={e => {
-              if (e.target.value === '') {
-                onUpdateField(undefined);
-                return;
+      <div className="form__row">
+        <label className="form__label">{label}</label>
+        <div className="form__autocomplete__container">
+          <Autocomplete
+            onTextInputChange={handleTextInputChange}
+            options={visibleOptions}
+            label={label}
+            addSelection={handleAddSelection}
+            loading={false}
+            placeholder={`Search ${label}`}
+            disabled={false}
+            value={inputValue}
+            cssOverrides={css`
+              input {
+                padding-right: 40px;
               }
-              onUpdateField(e.target.value);
-            }}
-            id={elementId}
-          >
-            {(fieldValue === undefined || matchingValues.length === 0) && (
-              <option value={''}>Please select...</option>
-            )}
-            {selectOptions.map(function (option) {
-              return (
-                <option value={option.id} key={option.id}>
-                  {option.title}
-                </option>
-              );
-            })}
-          </select>
-          {hasError ? (
-            <p className="form__message form__message--error">
-              {notification.message}
-            </p>
-          ) : undefined}
+            `}
+            theme={tagAutocompleteTheme}
+          />
+          {Boolean(selectedId && inputValue) && (
+            <button
+              type="button"
+              className="form__autocomplete__clear-button"
+              aria-label={`Clear ${label}`}
+              onClick={() => {
+                onSelect(undefined);
+                setInputValue('');
+              }}
+            >
+              <Icon icon="cancel" className="icon__edit" />
+            </button>
+          )}
         </div>
       </div>
     </div>
   );
+}
+
+const ALL_COMMISSION_YEARS_OPTION = 'all-commission-years';
+function getCommissionYearOptions(commissions: IconikCommission[]) {
+  const commissionYears = orderBy(
+    uniq(
+      commissions
+        .map(commission => commission.year)
+        .filter((year): year is string => !!year)
+    ),
+    [year => year],
+    ['desc']
+  );
+  const commissionYearOptions = commissionYears.map(year => ({
+    id: year,
+    title: year
+  }));
+  return [
+    ...commissionYearOptions,
+    { id: ALL_COMMISSION_YEARS_OPTION, title: 'View all' }
+  ];
 }
