@@ -45,27 +45,6 @@ export default class Header extends React.Component {
     });
   };
 
-  renderProgress() {
-    if (this.props.s3Upload.status === 'uploading') {
-      // Start prompting the user about reloading the page
-      window.onbeforeunload = () => {
-        return false;
-      };
-
-      return (
-        <progress
-          className="topbar__progress"
-          max={this.props.s3Upload.total}
-          value={this.props.s3Upload.progress}
-        />
-      );
-    } else {
-      // Stop prompting the user. The upload continues server-side
-      window.onbeforeunload = undefined;
-      return false;
-    }
-  }
-
   renderHome() {
     return (
       <div className="flex-container topbar__global">
@@ -256,7 +235,6 @@ export default class Header extends React.Component {
     if (this.props.currentPath.endsWith('/upload')) {
       return (
         <header className={className}>
-          {this.renderProgress()}
           {this.renderHeaderBack()}
           {this.renderPresence()}
         </header>
@@ -276,8 +254,6 @@ export default class Header extends React.Component {
     if (!this.props.showPublishedState) {
       return (
         <header className={className}>
-          {this.renderProgress()}
-
           {this.renderHome()}
           {this.renderSearch()}
           {this.renderPresence()}
@@ -296,7 +272,6 @@ export default class Header extends React.Component {
     } else {
       return (
         <header className={className}>
-          {this.renderProgress()}
           {this.renderHome()}
           <VideoPublishState video={this.props.publishedVideo} />
           {this.renderPresence()}
