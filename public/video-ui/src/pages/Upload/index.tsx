@@ -73,7 +73,7 @@ export const VideoUpload = (props: { params: { id: string } }) => {
   ]);
 
   const isUploading =
-    store.addingAsset ||
+    store.s3Upload.status === 'starting' ||
     store.s3Upload.status === 'uploading';
 
   const projectId = store.video.plutoData?.projectId;
@@ -87,6 +87,12 @@ export const VideoUpload = (props: { params: { id: string } }) => {
     },
     [dispatch, store.video.id, store.activatingAssetNumber]
   );
+
+  const showPendingUpload =
+    store.addingAsset ||
+    store.s3Upload.status == 'starting' ||
+    (store.s3Upload.status === 'uploading' &&
+      !store.uploads.some(u => u.id === store.s3Upload.id));
 
   // Prevent rendering until the correct video is loaded
   if (store.video.id !== props.params.id) {
@@ -141,6 +147,7 @@ export const VideoUpload = (props: { params: { id: string } }) => {
             uploads={store.uploads}
             setAsset={setAsset}
             activatingAssetNumber={store.activatingAssetNumber}
+            showPendingUpload={showPendingUpload}
           />
         </div>
       </div>
