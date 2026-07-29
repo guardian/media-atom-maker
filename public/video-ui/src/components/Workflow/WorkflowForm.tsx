@@ -20,7 +20,9 @@ type Props = {
   workflowPriorities: SelectValue[];
   workflowStatus: WorkflowStatusFormData;
   workflowProductionOffices: SelectValue[];
-  updateData: (data: WorkflowStatusFormData) => Promise<WorkflowStatusFormData> | unknown;
+  updateData: (
+    data: WorkflowStatusFormData
+  ) => Promise<WorkflowStatusFormData> | unknown;
 };
 
 export class WorkflowForm extends React.Component<Props> {
@@ -46,10 +48,7 @@ export class WorkflowForm extends React.Component<Props> {
         <ManagedField
           fieldLocation="section"
           name="Section"
-          disabled={
-            !this.props.editable ||
-            isTrackedInWorkflow
-          }
+          disabled={!this.props.editable || isTrackedInWorkflow}
         >
           <SelectBox selectValues={this.props.workflowSections} />
         </ManagedField>
