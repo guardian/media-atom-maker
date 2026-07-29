@@ -58,7 +58,15 @@ class VideoDisplay extends React.Component {
         ? prevProps.video
         : undefined;
 
-    if (video === prevVideo || !video) {
+    if (!video) {
+      return;
+    }
+
+    const statusChanged =
+      !prevVideo ||
+      hasIconikOrPlutoProject(video) !== hasIconikOrPlutoProject(prevVideo);
+
+    if (!statusChanged) {
       return;
     }
 
