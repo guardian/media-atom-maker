@@ -1,5 +1,6 @@
 import { getGridMediaId } from './getGridMediaId';
 import { getTextFromHtml } from './getTextFromHtml';
+import type { Image, ImageAsset } from '../services/VideosApi';
 
 type GridAssetInput = {
   secureUrl: string;
@@ -11,8 +12,7 @@ type GridAssetInput = {
   };
 };
 
-type ParsedAsset = {
-  file: string;
+type ParsedAsset = ImageAsset & {
   mimeType: string;
   size: number;
   aspectRatio: string;
@@ -39,10 +39,9 @@ type GridImageData = {
   };
 };
 
-type ParsedImage = {
+type ParsedImage = Image & {
   assets: ParsedAsset[];
   master: ParsedAsset;
-  mediaId: string;
   source: string;
 };
 
@@ -113,6 +112,10 @@ export function parseComposerDataFromImage(
   trail: string
 ): ComposerImageData {
   const mediaId = getGridMediaId(image);
+
+  if (!mediaId) {
+    throw new Error('Could not derive Grid media ID from parsed image');
+  }
 
   function getComposerAsset(asset: ParsedAsset): ComposerAsset {
     return {
