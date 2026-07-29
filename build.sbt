@@ -232,10 +232,12 @@ lazy val uploader = (project in file("uploader"))
       ),
       "SendToTranscoderV2" -> LambdaConfig(
         description =
-          "Sends a complete video to the AWS MediaConvert transcoder"
+          "Sends a complete video to the AWS MediaConvert transcoder",
+        architecture = Architecture.x64,
       ),
       "AddSubtitlesToMP4" -> LambdaConfig(
-        description = "Adds subtitles to an MP4 video using ffmpeg"
+        description = "Adds subtitles to an MP4 video using ffmpeg",
+        architecture = Architecture.x64,
       ),
       "AddAssetToAtom" -> LambdaConfig(
         description = "Adds the resulting asset to the atom"

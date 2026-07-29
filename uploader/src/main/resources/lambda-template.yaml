@@ -27,7 +27,7 @@
     MemorySize: {{memory}}
 # Architecture specified to match version of ffmpeg used to inject subtitles into mp4
     Architectures:
-      - "x86_64"
+      - {{architecture}}
     Role: !GetAtt LambdaExecutionRole.Arn
     Runtime: "java21"
     Timeout: {{timeout}}
