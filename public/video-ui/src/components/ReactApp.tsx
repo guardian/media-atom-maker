@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 
 import Header from './Header';
-import { useDispatch, useSelector, useStore } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../util/setupStore';
 import {
-  selectIsActivatingAssetNumber,
   selectIsPublishing,
-  selectIsSaving,
   selectPublishedVideo,
   selectVideo
 } from '../slices/video';
