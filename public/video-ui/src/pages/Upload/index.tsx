@@ -45,7 +45,8 @@ export const VideoUpload = (props: { params: { id: string } }) => {
       youtube,
       video: video.video,
       uploads,
-      activatingAssetNumber: video.activatingAssetNumber
+      activatingAssetNumber: video.activatingAssetNumber,
+      addingAsset: video.addingAsset
     })
   );
 
@@ -71,7 +72,9 @@ export const VideoUpload = (props: { params: { id: string } }) => {
     store.video.platform
   ]);
 
-  const isUploading = store.s3Upload.status === 'uploading';
+  const isUploading =
+    store.addingAsset ||
+    store.s3Upload.status === 'uploading';
 
   const projectId = store.video.plutoData?.projectId;
 
@@ -120,6 +123,7 @@ export const VideoUpload = (props: { params: { id: string } }) => {
                 />
                 <AddAssetFromURL
                   video={store.video}
+                  isAdding={store.addingAsset}
                   createAsset={bindActionCreators(createAsset, dispatch)}
                 />
               </>
