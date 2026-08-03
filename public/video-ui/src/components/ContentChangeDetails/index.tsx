@@ -5,7 +5,9 @@ import DatePicker from '../FormFields/DatePicker';
 import { isVideoPublished } from '../../util/isVideoPublished';
 import type { Video } from '../../services/VideosApi';
 
-const ManagedDatePicker = DatePicker as React.ComponentType<Record<string, unknown>>;
+const ManagedDatePicker = DatePicker as React.ComponentType<
+  Record<string, unknown>
+>;
 
 type Props = {
   video: Video;
