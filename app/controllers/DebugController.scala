@@ -11,7 +11,9 @@ class DebugController(
 ) extends BaseController {
 
   private val faultInjectionEnabled =
-    configuration.getOptional[Boolean]("faultInjection.enabled").getOrElse(false)
+    configuration
+      .getOptional[Boolean]("faultInjection.enabled")
+      .getOrElse(false)
 
   def throwSyncException(): Action[AnyContent] = Action {
     if (!faultInjectionEnabled) {
