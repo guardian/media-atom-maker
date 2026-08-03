@@ -4,7 +4,10 @@ import Raven from 'raven-js';
 import { setActiveAsset } from './video';
 
 const SHOW_ERROR = 'SHOW_ERROR' as const;
+const SHOW_WARNING = 'SHOW_WARNING' as const;
+
 type ShowError = AnyAction & { type: typeof SHOW_ERROR; message: string };
+type ShowWarning = AnyAction & { type: typeof SHOW_WARNING; message: string };
 
 export const showError: (message: string, error?: unknown) => ShowError = (
   message,
@@ -20,9 +23,17 @@ export const showError: (message: string, error?: unknown) => ShowError = (
   };
 };
 
-export const clearError: () => Action<'CLEAR_ERROR'> = () => ({
-  type: 'CLEAR_ERROR'
-});
+export const showWarning: (message: string) => ShowWarning = message => {
+  return {
+    type: SHOW_WARNING,
+    message
+  };
+};
+
+export const clearErrorAndWarning: () => Action<'CLEAR_ERROR_AND_WARNING'> =
+  () => ({
+    type: 'CLEAR_ERROR_AND_WARNING'
+  });
 
 interface Error {
   message: false | string;
@@ -53,7 +64,14 @@ const error = createSlice({
         state.key++;
       }
     ),
-    clearError: builder.addCase('CLEAR_ERROR', state => {
+    showWarning: builder.addCase<'SHOW_WARNING', ShowWarning>(
+      'SHOW_WARNING',
+      (state, { message }: ShowWarning) => {
+        state.warningMessage = message;
+        state.warningKey++;
+      }
+    ),
+    clearErrorAndWarning: builder.addCase('CLEAR_ERROR_AND_WARNING', state => {
       state.message = false;
       state.warningMessage = false;
     }),
