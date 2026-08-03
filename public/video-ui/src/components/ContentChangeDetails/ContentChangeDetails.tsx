@@ -14,7 +14,6 @@ type Props = {
 };
 
 class ContentChangeDetails extends React.Component<Props> {
-
   getTextField = (path: string, caption: string) => (
     <ManagedField fieldLocation={path} name={caption}>
       <TextInput />
