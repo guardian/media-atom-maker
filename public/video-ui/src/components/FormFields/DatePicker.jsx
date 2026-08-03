@@ -141,7 +141,7 @@ function Display({ date, placeholder, fieldName }) {
 
 export default function CustomDatePicker({
   editable = false,
-  onUpdateField = (_newDate = null) => {},
+  onUpdateField = null,
   fieldValue = null,
   placeholder = '',
   fieldName = '',
@@ -152,7 +152,8 @@ export default function CustomDatePicker({
     fieldValue && fieldValue !== placeholder
       ? moment(fieldValue).valueOf()
       : null;
-  if (editable) {
+  const isEditable = editable && typeof onUpdateField === 'function';
+  if (isEditable) {
     return (
       <Editor
         fieldName={fieldName}
