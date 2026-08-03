@@ -25,9 +25,7 @@ type Props = {
   workflowPriorities: WorkflowPrioritySelectValue[];
   workflowStatus: WorkflowStatusFormData;
   workflowProductionOffices: WorkflowProductionOfficeSelectValue[];
-  updateData: (
-    data: WorkflowStatusFormData
-  ) => Promise<WorkflowStatusFormData>;
+  updateData: (data: WorkflowStatusFormData) => Promise<WorkflowStatusFormData>;
 };
 
 export class WorkflowForm extends React.Component<Props> {
