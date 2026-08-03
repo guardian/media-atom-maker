@@ -13,7 +13,7 @@ type Props = {
   uploads: ClientAsset[];
   setAsset: (version: number) => void;
   activatingAssetNumber: number;
-  showPendingUpload: boolean;
+  hasPendingUpload: boolean;
 };
 
 export const VideoTrail = ({
@@ -21,7 +21,7 @@ export const VideoTrail = ({
   uploads,
   setAsset,
   activatingAssetNumber,
-  showPendingUpload
+  hasPendingUpload
 }: Props) => {
   const dispatch = useDispatch<AppDispatch>();
 
@@ -70,7 +70,7 @@ export const VideoTrail = ({
       </div>
       <div className="grid">
         <div className="grid__list grid__list__trail grid__list__wrap">
-          {showPendingUpload && (
+          {hasPendingUpload && (
             <div className="video-trail__item">
               <div className="video-trail__upload">
                 <span className="loader" />
