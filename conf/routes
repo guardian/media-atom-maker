@@ -80,6 +80,8 @@ GET            /oauthCallback                                   controllers.Logi
 GET            /reauth                                          controllers.Login.reauth
 
 GET            /healthcheck                                     controllers.Healthcheck.healthcheck()
+GET            /debug/throw-exception/sync                      controllers.DebugController.throwSyncException()
+GET            /debug/throw-exception/async                     controllers.DebugController.throwAsyncException()
 
 #static assets
 GET            /assets/*file                                    controllers.Assets.versioned(path="/public", file: Asset)

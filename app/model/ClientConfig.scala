@@ -34,6 +34,7 @@ case class ClientConfig(
     permissions: Permissions,
     minDurationForAds: Long,
     isTrainingMode: Boolean,
+    faultInjectionEnabled: Boolean,
     workflowUrl: String,
     targetingUrl: String,
     tagManagerUrl: String

@@ -64,6 +64,8 @@ class VideoUIApp(
       permissions,
       minDurationForAds = youtube.minDurationForAds,
       isTrainingMode = isTrainingMode,
+      faultInjectionEnabled =
+        conf.getOptional[Boolean]("faultInjection.enabled").getOrElse(false),
       workflowUrl = awsConfig.workflowUrl,
       targetingUrl = awsConfig.targetingUrl,
       tagManagerUrl = awsConfig.tagManagerUrl
