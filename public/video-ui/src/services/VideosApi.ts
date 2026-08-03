@@ -125,7 +125,12 @@ export type Video = {
 
 export type MediaAtomSummary = Pick<
   Video,
-  'id' | 'title' | 'contentChangeDetails' | 'posterImage'
+  | 'id'
+  | 'title'
+  | 'contentChangeDetails'
+  | 'posterImage'
+  | 'platform'
+  | 'videoPlayerFormat'
 >;
 
 export type VideoWithoutId = Omit<Video, 'id'>;
