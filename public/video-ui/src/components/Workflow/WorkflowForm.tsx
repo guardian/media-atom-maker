@@ -22,7 +22,7 @@ type Props = {
   workflowProductionOffices: SelectValue[];
   updateData: (
     data: WorkflowStatusFormData
-  ) => Promise<WorkflowStatusFormData> | unknown;
+  ) => Promise<WorkflowStatusFormData>;
 };
 
 export class WorkflowForm extends React.Component<Props> {
