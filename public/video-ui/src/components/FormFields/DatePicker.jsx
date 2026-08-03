@@ -141,7 +141,7 @@ function Display({ date, placeholder, fieldName }) {
 
 export default function CustomDatePicker({
   editable = false,
-  onUpdateField = () => {},
+  onUpdateField = (_newDate = null) => {},
   fieldValue = null,
   placeholder = '',
   fieldName = '',
