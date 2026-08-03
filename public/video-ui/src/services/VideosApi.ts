@@ -102,8 +102,8 @@ export type Video = {
   description?: string;
   trailText?: string;
   posterImage?: Image;
-  trailImage?: unknown;
-  youtubeOverrideImage: unknown;
+  trailImage?: Omit<Image, 'mediaId'> & { mediaId?: string };
+  youtubeOverrideImage?: Omit<Image, 'mediaId'> & { mediaId?: string };
   tags: string[];
   byline: string[];
   commissioningDesks: string[];
