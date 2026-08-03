@@ -45,7 +45,8 @@ export const VideoUpload = (props: { params: { id: string } }) => {
       youtube,
       video: video.video,
       uploads,
-      activatingAssetNumber: video.activatingAssetNumber
+      activatingAssetNumber: video.activatingAssetNumber,
+      addingAsset: video.addingAsset
     })
   );
 
@@ -71,7 +72,9 @@ export const VideoUpload = (props: { params: { id: string } }) => {
     store.video.platform
   ]);
 
-  const isUploading = store.s3Upload.status === 'uploading';
+  const isUploading =
+    store.s3Upload.status === 'starting' ||
+    store.s3Upload.status === 'uploading';
 
   const projectId = store.video.plutoData?.projectId;
 
@@ -84,6 +87,12 @@ export const VideoUpload = (props: { params: { id: string } }) => {
     },
     [dispatch, store.video.id, store.activatingAssetNumber]
   );
+
+  const hasPendingUpload =
+    store.addingAsset ||
+    store.s3Upload.status == 'starting' ||
+    (store.s3Upload.status === 'uploading' &&
+      !store.uploads.some(u => u.id === store.s3Upload.id));
 
   // Prevent rendering until the correct video is loaded
   if (store.video.id !== props.params.id) {
@@ -120,6 +129,7 @@ export const VideoUpload = (props: { params: { id: string } }) => {
                 />
                 <AddAssetFromURL
                   video={store.video}
+                  isAdding={store.addingAsset}
                   createAsset={bindActionCreators(createAsset, dispatch)}
                 />
               </>
@@ -137,6 +147,7 @@ export const VideoUpload = (props: { params: { id: string } }) => {
             uploads={store.uploads}
             setAsset={setAsset}
             activatingAssetNumber={store.activatingAssetNumber}
+            hasPendingUpload={hasPendingUpload}
           />
         </div>
       </div>

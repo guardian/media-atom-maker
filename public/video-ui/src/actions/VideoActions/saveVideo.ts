@@ -11,14 +11,13 @@ import { AppDispatch } from '../../util/setupStore';
 const errorMessages = {
   saveVideoDefault: 'Could not save video',
   saveVideoConflict:
-    'Could not save video as another user (or tab) is currently editing this video',
+    'Could not save video as another user (or tab) has made changes to this video. Please refresh the page and try again.',
   fetchUsagesRejected: 'Could not fetch usages to update canonical page',
   canonicalPageUpdate: 'Could not update canonical page'
 };
 
 export const saveVideo = (video: Video) => async (dispatch: AppDispatch) => {
   dispatch(setSaving(true));
-  dispatch(setVideo(video));
 
   const savedVideo: Video = await VideosApi.saveVideo(video.id, video).catch(
     error => {

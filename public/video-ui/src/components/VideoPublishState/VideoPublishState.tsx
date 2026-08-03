@@ -1,12 +1,12 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { isVideoPublished, hasVideoExpired } from '../../util/isVideoPublished';
+import type { Video } from '../../services/VideosApi';
 
-export default class VideoPublishState extends React.Component {
-  static propTypes = {
-    video: PropTypes.object.isRequired
-  };
+type Props = {
+  video: Video;
+};
 
+export default class VideoPublishState extends React.Component<Props> {
   render() {
     if (hasVideoExpired(this.props.video)) {
       return <div className="publish__label label__expired">Expired</div>;

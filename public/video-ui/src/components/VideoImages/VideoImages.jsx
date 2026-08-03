@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import GridImage from '../GridImage/GridImage';
+import { GridImage } from '../GridImage/GridImage';
 import GridImageSelect from '../utils/GridImageSelect';
 import { getGridMediaId, getGridQueryParams } from '../../util/getGridMediaId';
 import { isImageCropOutOfSync } from '../../util/getAspectRatio';

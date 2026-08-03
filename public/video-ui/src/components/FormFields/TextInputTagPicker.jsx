@@ -3,7 +3,7 @@ import React from 'react';
 import { keyCodes } from '../../constants/keyCodes';
 import TagTypes from '../../constants/TagTypes';
 import UserActions from '../../constants/UserActions';
-import removeStringTagDuplicates from '../../util/removeStringTagDuplicates';
+import { removeStringTagDuplicates } from '../../util/removeStringTagDuplicates';
 import TagSearch from '../TagSearch/TagSearch';
 
 export default class TextInputTagPicker extends React.Component {
