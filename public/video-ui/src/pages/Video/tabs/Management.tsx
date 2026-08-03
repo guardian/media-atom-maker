@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tab, TabPanel } from 'react-tabs';
-import ContentChangeDetails from '../../../components/ContentChangeDetails';
+import ContentChangeDetails from '../../../components/ContentChangeDetails/ContentChangeDetails';
 import DurationReset from '../../../components/DurationReset';
 import type { Video } from '../../../services/VideosApi';
 
