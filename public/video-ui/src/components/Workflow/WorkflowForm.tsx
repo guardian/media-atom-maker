@@ -5,21 +5,26 @@ import TextAreaInput from '../FormFields/TextAreaInput';
 import type { Video } from '../../services/VideosApi';
 import type { WorkflowState } from '../../slices/workflow';
 
-type SelectValue = {
-  id: string | number;
+type WorkflowStatusFormData = WorkflowState['status'];
+type WorkflowSectionSelectValue = WorkflowState['sections'][number];
+type WorkflowStatusSelectValue = WorkflowState['statuses'][number];
+type WorkflowPrioritySelectValue = {
+  id: WorkflowState['priorities'][number]['value'];
+  title: WorkflowState['priorities'][number]['name'];
+};
+type WorkflowProductionOfficeSelectValue = {
+  id: string;
   title: string;
 };
-
-type WorkflowStatusFormData = WorkflowState['status'];
 
 type Props = {
   editable: boolean;
   video: Video;
-  workflowSections: SelectValue[];
-  workflowStatuses: SelectValue[];
-  workflowPriorities: SelectValue[];
+  workflowSections: WorkflowSectionSelectValue[];
+  workflowStatuses: WorkflowStatusSelectValue[];
+  workflowPriorities: WorkflowPrioritySelectValue[];
   workflowStatus: WorkflowStatusFormData;
-  workflowProductionOffices: SelectValue[];
+  workflowProductionOffices: WorkflowProductionOfficeSelectValue[];
   updateData: (
     data: WorkflowStatusFormData
   ) => Promise<WorkflowStatusFormData>;
