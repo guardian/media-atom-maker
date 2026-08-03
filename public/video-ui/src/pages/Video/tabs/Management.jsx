@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Tab, TabPanel } from 'react-tabs';
-import ContentChangeDetails from '../../../components/ContentChangeDetails';
+import ContentChangeDetails from '../../../components/ContentChangeDetails/ContentChangeDetails';
 import DurationReset from '../../../components/DurationReset';
 
 export class ManagementTab extends React.Component {
