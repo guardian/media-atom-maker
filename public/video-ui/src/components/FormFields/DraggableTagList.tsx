@@ -16,11 +16,10 @@ import {
 } from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { DisplayTag } from '../../types/tags';
 
-type Tag = {
-  id: string;
+type Tag = DisplayTag & {
   detailedTitle: string;
-  webTitle: string;
 };
 
 const SortableTag = ({

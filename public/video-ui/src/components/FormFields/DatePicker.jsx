@@ -91,8 +91,8 @@ function Editor({ date, onChange, fieldName, canCancel, dayOnly }) {
   }
 
   return (
-    <div>
-      {fieldName && <label className="form__label">{fieldName}</label>}
+    <fieldset>
+      {fieldName && <legend className="form__label">{fieldName}</legend>}
       <p className="form__message form__message--display">
         Expiring the video will make it private for viewing in Youtube, so it
         will not be available in the video page.
@@ -119,7 +119,7 @@ function Editor({ date, onChange, fieldName, canCancel, dayOnly }) {
           />
         )}
       </div>
-    </div>
+    </fieldset>
   );
 }
 

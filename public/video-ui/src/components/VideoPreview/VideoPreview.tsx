@@ -1,15 +1,16 @@
-// @ts-check
 import React from 'react';
 import { VideoEmbed } from '../utils/VideoEmbed';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 
 import { findAssetToUseAsThumbnail } from '../../util/imageHelpers';
 import { isSelfHostedSource } from '../../slices/s3Upload';
+import type { Video } from '../../services/VideosApi';
 
-/**
- * @param {{video: import('../../services/VideosApi').Video}} param0
- */
-export const VideoPreview = ({ video }) => {
+type Props = {
+  video: Partial<Video>;
+};
+
+export const VideoPreview = ({ video }: Props) => {
   const renderPreview = () => {
     const activeVersion = video.activeVersion;
     const assets = video.assets || [];

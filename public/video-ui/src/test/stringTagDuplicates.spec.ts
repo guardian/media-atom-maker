@@ -1,4 +1,4 @@
-import removeStringTagDuplicates from '../util/removeStringTagDuplicates';
+import { removeStringTagDuplicates } from '../util/removeStringTagDuplicates';
 
 const simpleTag = { id: 'tag', webTitle: 'tag' };
 
