@@ -140,14 +140,14 @@ function Display({ date, placeholder, fieldName }) {
 }
 
 export default function CustomDatePicker({
-  editable,
-  onUpdateField,
-  fieldValue,
-  placeholder,
-  fieldName,
-  dayOnly,
+  editable = false,
+  onUpdateField = () => {},
+  fieldValue = null,
+  placeholder = '',
+  fieldName = '',
+  dayOnly = false,
   canCancel = true
-}) {
+} = {}) {
   const date =
     fieldValue && fieldValue !== placeholder
       ? moment(fieldValue).valueOf()

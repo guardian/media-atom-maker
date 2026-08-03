@@ -5,6 +5,8 @@ import DatePicker from '../FormFields/DatePicker';
 import { isVideoPublished } from '../../util/isVideoPublished';
 import type { Video } from '../../services/VideosApi';
 
+const ManagedDatePicker = DatePicker as React.ComponentType<Record<string, unknown>>;
+
 type Props = {
   video: Video;
 };
@@ -18,7 +20,7 @@ class ContentChangeDetails extends React.Component<Props> {
 
   getDateField = (path: string, caption: string) => (
     <ManagedField fieldLocation={path} name={caption} className="unhide">
-      <DatePicker />
+      <ManagedDatePicker />
     </ManagedField>
   );
 
