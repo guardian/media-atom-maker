@@ -23,7 +23,7 @@ export const ClientConfigSchema = z.object({
   capiProxyUrl: z.string(),
   liveCapiProxyUrl: z.string(),
   composerUrl: z.string(),
-  ravenUrl: z.string(),
+  sentryDsn: z.string(),
   stage: z.string(),
   viewerUrl: z.string(),
   permissions: PermissionsSchema,
@@ -72,7 +72,7 @@ export function getAppConfig(): ConfigState {
       capiProxyUrl: '',
       liveCapiProxyUrl: '',
       composerUrl: '',
-      ravenUrl: '',
+      sentryDsn: '',
       stage: 'TEST',
       viewerUrl: '',
       permissions: {

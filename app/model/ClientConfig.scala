@@ -27,7 +27,7 @@ case class ClientConfig(
     capiProxyUrl: String,
     liveCapiProxyUrl: String,
     composerUrl: String,
-    ravenUrl: String,
+    sentryDsn: String,
     stage: String,
     viewerUrl: String,
     // permissions also validated server-side on every request

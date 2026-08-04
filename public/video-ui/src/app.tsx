@@ -14,7 +14,7 @@ import '../styles/main.scss';
 
 const store = setupStore();
 syncHistoryWithStore(browserHistory, store);
-const { stage, ravenUrl, sentryLocalEnabled } = getAppConfig();
+const { stage, sentryDsn, sentryLocalEnabled } = getAppConfig();
 const sentryEnvironment = stage.toLowerCase();
 
 // publish uncaught errors to sentry.io
@@ -23,7 +23,7 @@ if (
   sentryEnvironment === 'prod' ||
   (sentryEnvironment === 'dev' && sentryLocalEnabled)
 ) {
-  Sentry.init({ dsn: ravenUrl, environment: sentryEnvironment });
+  Sentry.init({ dsn: sentryDsn, environment: sentryEnvironment });
 }
 
 setStore(store);
