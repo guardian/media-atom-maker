@@ -16,24 +16,3 @@ For example:
 ```
 
 You can then [setup IntelliJ with a remote run configuration] on this port and add breakpoints, step through code etc.
-
-## Fault injection
-
-The app includes a guarded fault injection mode for deliberately triggering exceptions in DEV or other non-production environments.
-
-Enable it with:
-
-```bash
-export FAULT_INJECTION_ENABLED=true
-```
-
-Backend triggers:
-
-- `GET /debug/throw-exception/sync`
-- `GET /debug/throw-exception/async`
-
-Frontend trigger:
-
-- append `?throwClientException=1` to a UI route such as `/videos?throwClientException=1`
-
-When `faultInjection.enabled` is disabled, the backend endpoints return `404` and the frontend trigger is ignored.

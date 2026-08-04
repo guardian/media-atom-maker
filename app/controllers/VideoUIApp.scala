@@ -64,8 +64,6 @@ class VideoUIApp(
       permissions,
       minDurationForAds = youtube.minDurationForAds,
       isTrainingMode = isTrainingMode,
-      faultInjectionEnabled =
-        conf.getOptional[Boolean]("faultInjection.enabled").getOrElse(false),
       sentryLocalEnabled =
         conf.getOptional[Boolean]("sentry.local.enabled").getOrElse(false),
       workflowUrl = awsConfig.workflowUrl,

@@ -34,7 +34,6 @@ case class ClientConfig(
     permissions: Permissions,
     minDurationForAds: Long,
     isTrainingMode: Boolean,
-    faultInjectionEnabled: Boolean,
     sentryLocalEnabled: Boolean,
     workflowUrl: String,
     targetingUrl: String,

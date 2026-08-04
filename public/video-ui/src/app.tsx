@@ -14,8 +14,7 @@ import '../styles/main.scss';
 
 const store = setupStore();
 syncHistoryWithStore(browserHistory, store);
-const { stage, ravenUrl, faultInjectionEnabled, sentryLocalEnabled } =
-  getAppConfig();
+const { stage, ravenUrl, sentryLocalEnabled } = getAppConfig();
 const sentryEnvironment = stage.toLowerCase();
 
 // publish uncaught errors to sentry.io
@@ -35,13 +34,3 @@ render(
   <Provider store={store}>{routes}</Provider>,
   document.getElementById('react-mount')
 );
-
-const shouldThrowClientException =
-  faultInjectionEnabled &&
-  new URLSearchParams(location.search).get('throwClientException') === '1';
-
-if (shouldThrowClientException) {
-  setTimeout(() => {
-    throw new Error('Intentional client test exception');
-  }, 0);
-}

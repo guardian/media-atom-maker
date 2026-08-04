@@ -222,8 +222,6 @@ class MediaAtomMaker(context: Context)
 
   private val login = new Login(hmacAuthActions, controllerComponents)
   private val healthcheck = new Healthcheck(aws, controllerComponents)
-  private val debugController =
-    new DebugController(configuration, controllerComponents)
   override lazy val assets = new Assets(httpErrorHandler, assetsMetadata)
 
   override val router = new Routes(
@@ -238,7 +236,6 @@ class MediaAtomMaker(context: Context)
     support,
     login,
     healthcheck,
-    debugController,
     assets
   )
 
