@@ -14,11 +14,16 @@ import '../styles/main.scss';
 
 const store = setupStore();
 syncHistoryWithStore(browserHistory, store);
-const { stage, ravenUrl, faultInjectionEnabled } = getAppConfig();
+const { stage, ravenUrl, faultInjectionEnabled, sentryLocalEnabled } =
+  getAppConfig();
 const sentryEnvironment = stage.toLowerCase();
 
 // publish uncaught errors to sentry.io
-if (sentryEnvironment === 'code' || sentryEnvironment === 'prod') {
+if (
+  sentryEnvironment === 'code' ||
+  sentryEnvironment === 'prod' ||
+  (sentryEnvironment === 'dev' && sentryLocalEnabled)
+) {
   Sentry.init({ dsn: ravenUrl, environment: sentryEnvironment });
 }
 

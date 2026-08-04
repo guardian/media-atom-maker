@@ -30,6 +30,7 @@ export const ClientConfigSchema = z.object({
   minDurationForAds: z.number(),
   isTrainingMode: z.boolean(),
   faultInjectionEnabled: z.boolean(),
+  sentryLocalEnabled: z.boolean(),
   workflowUrl: z.string(),
   targetingUrl: z.string(),
   tagManagerUrl: z.string()
@@ -84,6 +85,7 @@ export function getAppConfig(): ConfigState {
       minDurationForAds: 0,
       isTrainingMode: false,
       faultInjectionEnabled: false,
+      sentryLocalEnabled: false,
       workflowUrl: '',
       targetingUrl: '',
       tagManagerUrl: '',

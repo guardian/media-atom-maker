@@ -35,6 +35,7 @@ case class ClientConfig(
     minDurationForAds: Long,
     isTrainingMode: Boolean,
     faultInjectionEnabled: Boolean,
+    sentryLocalEnabled: Boolean,
     workflowUrl: String,
     targetingUrl: String,
     tagManagerUrl: String

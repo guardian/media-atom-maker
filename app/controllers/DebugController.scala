@@ -2,7 +2,6 @@ package controllers
 
 import play.api.Configuration
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
-
 import scala.concurrent.Future
 
 class DebugController(
