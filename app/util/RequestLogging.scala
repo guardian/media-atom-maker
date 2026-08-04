@@ -34,10 +34,10 @@ class RequestLogging @Inject() (
     })
   }
 
-  override def onProdServerError(
+  private def captureInSentry(
       request: RequestHeader,
-      exception: UsefulException
-  ): Future[Result] = {
+      exception: Throwable
+  ): Unit = {
     if (sentryEnabled) {
       Sentry.withScope(scope => {
         scope.setTag("http.method", request.method)
@@ -62,7 +62,33 @@ class RequestLogging @Inject() (
         Sentry.captureException(exception)
       })
     }
+  }
+
+  private def captureAndLogServerError(
+      request: RequestHeader,
+      exception: UsefulException
+  ): Unit = {
+    captureInSentry(request, exception)
     super.logServerError(request, exception)
+  }
+
+  override def onServerError(
+      request: RequestHeader,
+      exception: Throwable
+  ): Future[Result] = {
+    captureInSentry(request, exception)
+    log.error(
+      s"Server error for (${request.method}) [${request.uri}]",
+      exception
+    )
+    super.onServerError(request, exception)
+  }
+
+  override def onProdServerError(
+      request: RequestHeader,
+      exception: UsefulException
+  ): Future[Result] = {
+    captureAndLogServerError(request, exception)
     super.onProdServerError(request, exception)
   }
 
