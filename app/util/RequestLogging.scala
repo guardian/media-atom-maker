@@ -34,7 +34,12 @@ class RequestLogging @Inject() (
       val uri = URI.create(sentryDsn)
       val host = Option(uri.getHost).getOrElse("unknown-host")
       val projectId =
-        Option(uri.getPath).getOrElse("").split('/').filter(_.nonEmpty).lastOption.getOrElse("unknown-project")
+        Option(uri.getPath)
+          .getOrElse("")
+          .split('/')
+          .filter(_.nonEmpty)
+          .lastOption
+          .getOrElse("unknown-project")
       s"$host/$projectId"
     } catch {
       case _: Throwable => "unparseable-dsn"
