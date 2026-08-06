@@ -1,22 +1,39 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
 import TextAreaInput from '../FormFields/TextAreaInput';
+import type { Video } from '../../services/VideosApi';
+import type { WorkflowState } from '../../slices/workflow';
 
-export default class WorkflowForm extends React.Component {
-  static propTypes = {
-    editable: PropTypes.bool.isRequired,
-    video: PropTypes.object.isRequired,
-    workflowSections: PropTypes.array.isRequired,
-    workflowStatuses: PropTypes.array.isRequired,
-    workflowPriorities: PropTypes.array.isRequired,
-    workflowStatus: PropTypes.object.isRequired,
-    workflowProductionOffices: PropTypes.array.isRequired,
-    updateData: PropTypes.func.isRequired
-  };
+type WorkflowStatusFormData = WorkflowState['status'];
+type WorkflowSectionSelectValue = WorkflowState['sections'][number];
+type WorkflowStatusSelectValue = WorkflowState['statuses'][number];
+type WorkflowPrioritySelectValue = {
+  id: WorkflowState['priorities'][number]['value'];
+  title: WorkflowState['priorities'][number]['name'];
+};
+type WorkflowProductionOfficeSelectValue = {
+  id: string;
+  title: string;
+};
 
+type Props = {
+  editable: boolean;
+  video: Video;
+  workflowSections: WorkflowSectionSelectValue[];
+  workflowStatuses: WorkflowStatusSelectValue[];
+  workflowPriorities: WorkflowPrioritySelectValue[];
+  workflowStatus: WorkflowStatusFormData;
+  workflowProductionOffices: WorkflowProductionOfficeSelectValue[];
+  updateData: (data: WorkflowStatusFormData) => Promise<WorkflowStatusFormData>;
+};
+
+export class WorkflowForm extends React.Component<Props> {
   render() {
+    const isTrackedInWorkflow =
+      'isTrackedInWorkflow' in this.props.workflowStatus &&
+      this.props.workflowStatus.isTrackedInWorkflow;
+
     return (
       <ManagedForm
         data={this.props.workflowStatus}
@@ -34,10 +51,7 @@ export default class WorkflowForm extends React.Component {
         <ManagedField
           fieldLocation="section"
           name="Section"
-          disabled={
-            !this.props.editable ||
-            this.props.workflowStatus.isTrackedInWorkflow
-          }
+          disabled={!this.props.editable || isTrackedInWorkflow}
         >
           <SelectBox selectValues={this.props.workflowSections} />
         </ManagedField>
