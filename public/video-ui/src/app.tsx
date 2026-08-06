@@ -23,7 +23,21 @@ if (
   sentryEnvironment === 'prod' ||
   (sentryEnvironment === 'dev' && sentryLocalEnabled)
 ) {
-  Sentry.init({ dsn: sentryDsn, environment: sentryEnvironment });
+  Sentry.init({ 
+    dsn: sentryDsn, 
+    environment: sentryEnvironment,
+    integrations: [
+      Sentry.browserTracingIntegration(),
+      Sentry.browserProfilingIntegration(),
+      Sentry.replayIntegration(),
+    ],
+    tracesSampleRate: 1.0,
+    // Capture Replay for 10% of all sessions,
+    // plus for 100% of sessions with an error
+    replaysSessionSampleRate: 0.1,
+    replaysOnErrorSampleRate: 1.0,
+ });
+
 }
 
 setStore(store);
