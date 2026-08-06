@@ -204,7 +204,21 @@ Resources:
             AllowedOrigins:
               -
                 !Join [ "", [ "https://", { "Ref": "Domain"} ]]
-
+  AtomAssetsTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName:
+        !Sub "${App}-${Stage}-atom-assets"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+      - AttributeName: id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: id
+        KeyType: HASH
+      Tags:
+        - Key: devx-backup-enabled
+          Value: true
   LimitedUploadRole:
     Type: "AWS::IAM::Role"
     Properties:

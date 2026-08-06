@@ -9,7 +9,7 @@ import WorkflowApi, {
 } from '../services/WorkflowApi';
 import { showError } from './error';
 
-type WorkflowState = {
+export type WorkflowState = {
   sections: Section[];
   statuses: ExpandedStatus[];
   status: (FlatStub<string, string> & { isTrackedInWorkflow: boolean }) | {};
@@ -18,15 +18,19 @@ type WorkflowState = {
 
 export const getSections = createAsyncThunk<Section[]>(
   'workflow/getSections',
-  (_, { dispatch }) =>
-    WorkflowApi.getSections().catch((error: unknown): undefined => {
-      return void dispatch(
+  async (_, { dispatch }) => {
+    try {
+      return (await WorkflowApi.getSections()) ?? [];
+    } catch (error) {
+      dispatch(
         showError(
           `Could not get Workflow sections. <a href="${WorkflowApi.workflowUrl}" target="_blank" rel="noopener">Open Workflow to get a cookie.</a>`,
           error
         )
       );
-    })
+      throw error;
+    }
+  }
 );
 
 export const getStatus = createAsyncThunk<
@@ -60,30 +64,36 @@ export const getStatus = createAsyncThunk<
 
 export const getStatuses = createAsyncThunk<ExpandedStatus[]>(
   'workflow/getStatuses',
-  (_, { dispatch }) =>
-    WorkflowApi.getStatuses().catch(
-      (err: unknown): undefined =>
-        void dispatch(
-          showError(
-            `Could not get Workflow statuses. <a href="${WorkflowApi.workflowUrl}" target="_blank" rel="noopener">Open Workflow to get a cookie.</a>`,
-            err
-          )
+  async (_, { dispatch }) => {
+    try {
+      return (await WorkflowApi.getStatuses()) ?? [];
+    } catch (err) {
+      dispatch(
+        showError(
+          `Could not get Workflow statuses. <a href="${WorkflowApi.workflowUrl}" target="_blank" rel="noopener">Open Workflow to get a cookie.</a>`,
+          err
         )
-    )
+      );
+      throw err;
+    }
+  }
 );
 
 export const getPriorities = createAsyncThunk<Priority[]>(
   'workflow/getPriorities',
-  (_, { dispatch }) =>
-    WorkflowApi.getPriorities().catch(
-      (err: unknown): undefined =>
-        void dispatch(
-          showError(
-            `Could not get Workflow priorities. <a href="${WorkflowApi.workflowUrl}" target="_blank" rel="noopener">Open Workflow to get a cookie.</a>`,
-            err
-          )
+  async (_, { dispatch }) => {
+    try {
+      return (await WorkflowApi.getPriorities()) ?? [];
+    } catch (err) {
+      dispatch(
+        showError(
+          `Could not get Workflow priorities. <a href="${WorkflowApi.workflowUrl}" target="_blank" rel="noopener">Open Workflow to get a cookie.</a>`,
+          err
         )
-    )
+      );
+      throw err;
+    }
+  }
 );
 
 export const trackInWorkflow = createAsyncThunk<unknown, WorkflowDetails>(

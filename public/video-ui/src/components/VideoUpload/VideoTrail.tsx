@@ -13,13 +13,15 @@ type Props = {
   uploads: ClientAsset[];
   setAsset: (version: number) => void;
   activatingAssetNumber: number;
+  hasPendingUpload: boolean;
 };
 
 export const VideoTrail = ({
   video,
   uploads,
   setAsset,
-  activatingAssetNumber
+  activatingAssetNumber,
+  hasPendingUpload
 }: Props) => {
   const dispatch = useDispatch<AppDispatch>();
 
@@ -68,6 +70,14 @@ export const VideoTrail = ({
       </div>
       <div className="grid">
         <div className="grid__list grid__list__trail grid__list__wrap">
+          {hasPendingUpload && (
+            <div className="video-trail__item">
+              <div className="video-trail__upload">
+                <span className="loader" />
+                <div>Uploading…</div>
+              </div>
+            </div>
+          )}
           {uploads.map(upload => (
             <Asset
               key={upload.id}
