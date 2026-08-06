@@ -1,4 +1,4 @@
-import { clearError } from '../slices/error';
+import { clearErrorAndWarning } from '../slices/error';
 import { updatePath } from '../slices/path';
 import { setVideoBlank } from '../slices/video';
 import { Middleware } from 'redux';
@@ -20,7 +20,7 @@ export const storeMiddleware: Middleware =
 
       dispatch(setUsageToBlank());
 
-      dispatch(clearError());
+      dispatch(clearErrorAndWarning());
 
       dispatch(updateVideoEditState(false));
     }
