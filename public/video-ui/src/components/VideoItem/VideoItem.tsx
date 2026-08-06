@@ -10,8 +10,15 @@ import Youtube from '../../../images/youtube.svg?react';
 import Loop from '../../../images/loop.svg?react';
 import Cinemagraph from '../../../images/cinemagraph.svg?react';
 import NonYoutube from '../../../images/nonyoutube.svg?react';
+import type { Presence } from '../../services/presence';
+import type { MediaAtomSummary } from '../../services/VideosApi';
 
-export default class VideoItem extends React.Component {
+type VideoItemProps = {
+  video: MediaAtomSummary;
+  presences: Presence[];
+};
+
+export class VideoItem extends React.Component<VideoItemProps> {
   renderPublishStatus() {
     if (VideoUtils.hasExpired(this.props.video)) {
       return <span className="publish__label label__expired">Expired</span>;
@@ -33,12 +40,14 @@ export default class VideoItem extends React.Component {
   }
 
   renderItemImage() {
-    const maybeThumbnailImage = this.props.video.posterImage
-      ? findAssetToUseAsThumbnail(this.props.video.posterImage)
+    const { video } = this.props;
+    const maybeThumbnailImage = video.posterImage
+      ? findAssetToUseAsThumbnail(video.posterImage)
       : undefined;
-    if (maybeThumbnailImage && maybeThumbnailImage.file) {
+
+    if (maybeThumbnailImage?.file) {
       return (
-        <img src={maybeThumbnailImage.file} alt={this.props.video.title} />
+        <img src={maybeThumbnailImage.file} alt={video.title ?? 'Video'} />
       );
     }
 
@@ -46,7 +55,7 @@ export default class VideoItem extends React.Component {
   }
 
   render() {
-    const video = this.props.video;
+    const { video, presences } = this.props;
     const platform = VideoUtils.getPlatformFromSummary(video);
     const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
     const scheduledLaunchMoment = moment(scheduledLaunch);
@@ -54,18 +63,28 @@ export default class VideoItem extends React.Component {
     const embargoMoment = moment(embargo);
     const hasPreventedPublication =
       embargo && embargoMoment.valueOf() >= impossiblyDistantDate;
-    const iconMap = {
+
+    const iconMap: Record<string, React.ReactNode> = {
       Youtube: <Youtube />,
       Loop: <Loop />,
       Cinemagraph: <Cinemagraph />,
       Default: <NonYoutube />
     };
 
+    const isYoutubePlatform =
+      typeof platform === 'string' && platform.toLowerCase() === 'youtube';
+    const iconKey =
+      video.videoPlayerFormat && iconMap[video.videoPlayerFormat]
+        ? video.videoPlayerFormat
+        : isYoutubePlatform
+          ? 'Youtube'
+          : 'Default';
+
     return (
       <li className="grid__item">
         <div className="presence-section presence-section-front">
           <ul className="presence-list presence-list-front">
-            {this.props.presences.map(presence => {
+            {presences.map(presence => {
               const id = presence.clientId.connId;
               const { firstName, lastName } = presence.clientId.person;
               const initials = `${firstName.slice(0, 1)}${lastName.slice(0, 1)}`;
@@ -96,9 +115,7 @@ export default class VideoItem extends React.Component {
                   data-tip={
                     hasPreventedPublication
                       ? 'This video has been embargoed indefinitely'
-                      : `Embargoed until ${embargoMoment.format(
-                          'Do MMM YYYY HH:mm'
-                        )}`
+                      : `Embargoed until ${embargoMoment.format('Do MMM YYYY HH:mm')}`
                   }
                   className="publish__label label__frontpage__embargo label__frontpage__overlay"
                 >
@@ -111,9 +128,7 @@ export default class VideoItem extends React.Component {
               )}
               {scheduledLaunch && (
                 <span
-                  data-tip={`Scheduled to launch ${scheduledLaunchMoment.format(
-                    'Do MMM YYYY HH:mm'
-                  )}`}
+                  data-tip={`Scheduled to launch ${scheduledLaunchMoment.format('Do MMM YYYY HH:mm')}`}
                   className="publish__label label__frontpage__scheduledLaunch label__frontpage__overlay"
                 >
                   <Icon textClass="always-show" icon="access_time">
@@ -123,15 +138,7 @@ export default class VideoItem extends React.Component {
               )}
             </div>
             <div className="platform__icons">
-              <div className="platform__icon">
-                {video.videoPlayerFormat
-                  ? iconMap[video.videoPlayerFormat]
-                  : iconMap[
-                      platform?.toLowerCase() === 'youtube'
-                        ? 'Youtube'
-                        : 'Default'
-                    ]}
-              </div>
+              <div className="platform__icon">{iconMap[iconKey]}</div>
             </div>
             <div className="grid__item__footer">
               <span className="grid__item__title">{video.title}</span>

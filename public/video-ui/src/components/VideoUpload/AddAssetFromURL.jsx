@@ -46,7 +46,7 @@ export default class AddAssetFromURL extends React.Component {
                 className="btn"
                 type="button"
                 onClick={this.addAsset}
-                disabled={disabled}
+                disabled={disabled || this.props.isAdding}
               >
                 Add
               </button>

@@ -25,6 +25,7 @@ import {
   YoutubeFurnitureTab,
   YoutubeFurnitureTabPanel
 } from './tabs/YoutubeFurniture';
+import { hasIconikOrPlutoProject } from '../../util/hasIconikOrPlutoProject';
 
 class VideoDisplay extends React.Component {
   constructor(props) {
@@ -45,6 +46,36 @@ class VideoDisplay extends React.Component {
     Cinemagraph: <Cinemagraph />,
     Default: <NonYoutube />
   };
+
+  componentDidUpdate(prevProps) {
+    const video =
+      this.props.video && this.props.params.id === this.props.video.id
+        ? this.props.video
+        : undefined;
+
+    const prevVideo =
+      prevProps.video && prevProps.params.id === prevProps.video.id
+        ? prevProps.video
+        : undefined;
+
+    if (!video) {
+      return;
+    }
+
+    const statusChanged =
+      !prevVideo ||
+      hasIconikOrPlutoProject(video) !== hasIconikOrPlutoProject(prevVideo);
+
+    if (!statusChanged) {
+      return;
+    }
+
+    if (!hasIconikOrPlutoProject(video)) {
+      this.props.warningActions.showWarning(
+        'Click "Edit Assets" to add missing Iconik data'
+      );
+    }
+  }
 
   getVideo() {
     this.props.videoActions.getVideo(this.props.params.id);
@@ -490,6 +521,7 @@ import {
   trackInWorkflow,
   updateWorkflowData
 } from '../../slices/workflow';
+import { showWarning } from '../../slices/error';
 import { getComposerId } from '../../util/getComposerData';
 
 function mapStateToProps(state) {
@@ -528,7 +560,8 @@ function mapDispatchToProps(dispatch) {
     workflowActions: bindActionCreators(
       { getStatus, trackInWorkflow, updateWorkflowData },
       dispatch
-    )
+    ),
+    warningActions: bindActionCreators({ showWarning }, dispatch)
   };
 }
 
