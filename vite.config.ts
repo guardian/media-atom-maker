@@ -1,13 +1,21 @@
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
-import svgr from "vite-plugin-svgr";
+import svgr from 'vite-plugin-svgr';
 
 export default defineConfig({
   base: '',
-  plugins: [react(), svgr()],
+  plugins: [
+    react(),
+    svgr(),
+    sentryVitePlugin({
+      org: 'the-guardian',
+      project: 'media-atom-maker-dev'
+    })
+  ],
   publicDir: false, // This feature is deactivated because the 'public' dir also has a special meaning for the Play framework
   build: {
-    sourcemap: "inline",
+    sourcemap: true,
     manifest: true,
     rollupOptions: {
       input: './public/video-ui/src/app.tsx',
@@ -17,7 +25,7 @@ export default defineConfig({
         assetFileNames: `[name].[ext]`
       }
     },
-    outDir: "./public/video-ui/build",
+    outDir: './public/video-ui/build',
     emptyOutDir: true
   },
   server: {
