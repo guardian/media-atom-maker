@@ -69,13 +69,14 @@ export interface S3UploadState {
   id: string | null;
   progress: number;
   total: number;
-  status: 'idle' | 'uploading' | 'complete' | 'error';
+  status: 'idle' | 'starting' | 'uploading' | 'complete' | 'error';
 }
 
 export const startVideoUpload = createAsyncThunk<
   unknown,
   { id: string; file: File; selfHost?: boolean }
 >('s3Upload/startVideoUpload', ({ id, file, selfHost }, { dispatch }) => {
+  dispatch(setS3UploadStatusToStarting());
   return createUpload(id, file, selfHost)
     .then((upload: Upload) => {
       dispatch(s3UploadStarted(upload));
@@ -84,9 +85,9 @@ export const startVideoUpload = createAsyncThunk<
         dispatch(s3UploadProgress(completed));
 
       return uploadParts(upload, upload.parts, file, progress)
-        .then(() => {
+        .then(async () => {
+          await dispatch(getUploads(id));
           dispatch(setS3UploadStatusToComplete());
-          dispatch(getUploads(id));
           dispatch(getVideo(id));
         })
         .catch(err => {
@@ -158,6 +159,9 @@ const s3Upload = createSlice({
     setS3UploadStatusToError: state => {
       state.status = 'error';
     },
+    setS3UploadStatusToStarting: state => {
+      state.status = 'starting';
+    },
     resetS3UploadState: () => ({
       ...initialState
     })
@@ -171,5 +175,6 @@ export const {
   s3UploadProgress,
   setS3UploadStatusToComplete,
   setS3UploadStatusToError,
+  setS3UploadStatusToStarting,
   resetS3UploadState
 } = s3Upload.actions;

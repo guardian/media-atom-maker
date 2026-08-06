@@ -1,24 +1,28 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { ManagedField, ManagedForm, ManagedSection } from '../ManagedForm';
 import TextInput from '../FormFields/TextInput';
 import DatePicker from '../FormFields/DatePicker';
 import { isVideoPublished } from '../../util/isVideoPublished';
+import type { Video } from '../../services/VideosApi';
 
-class ContentChangeDetails extends React.Component {
-  static propTypes = {
-    video: PropTypes.object.isRequired
-  };
+const ManagedDatePicker = DatePicker as React.ComponentType<
+  Record<string, unknown>
+>;
 
-  getTextField = (path, caption) => (
+type Props = {
+  video: Video;
+};
+
+class ContentChangeDetails extends React.Component<Props> {
+  getTextField = (path: string, caption: string) => (
     <ManagedField fieldLocation={path} name={caption}>
       <TextInput />
     </ManagedField>
   );
 
-  getDateField = (path, caption) => (
+  getDateField = (path: string, caption: string) => (
     <ManagedField fieldLocation={path} name={caption} className="unhide">
-      <DatePicker />
+      <ManagedDatePicker />
     </ManagedField>
   );
 

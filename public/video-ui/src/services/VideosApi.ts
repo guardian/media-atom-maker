@@ -39,7 +39,7 @@ export type User = {
 };
 
 export type ChangeRecord = {
-  date: string; // UNIX timestamp, ms
+  date: number; // UNIX timestamp, ms
   user?: User;
 };
 
@@ -125,7 +125,12 @@ export type Video = {
 
 export type MediaAtomSummary = Pick<
   Video,
-  'id' | 'title' | 'contentChangeDetails' | 'posterImage'
+  | 'id'
+  | 'title'
+  | 'contentChangeDetails'
+  | 'posterImage'
+  | 'platform'
+  | 'videoPlayerFormat'
 >;
 
 export type VideoWithoutId = Omit<Video, 'id'>;
