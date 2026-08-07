@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { Action, AnyAction } from 'redux';
-import Raven from 'raven-js';
+import * as Sentry from '@sentry/browser';
 import { setActiveAsset } from './video';
 
 const SHOW_ERROR = 'SHOW_ERROR' as const;
@@ -9,12 +9,58 @@ const SHOW_WARNING = 'SHOW_WARNING' as const;
 type ShowError = AnyAction & { type: typeof SHOW_ERROR; message: string };
 type ShowWarning = AnyAction & { type: typeof SHOW_WARNING; message: string };
 
+function isResponseLike(value: unknown): value is {
+  status?: number;
+  statusText?: string;
+  url?: string;
+  headers?: { get(name: string): string | null };
+} {
+  return typeof value === 'object' && value !== null && 'status' in value;
+}
+
+function normaliseErrorForSentry(
+  message: string,
+  error: unknown
+): globalThis.Error {
+  if (error instanceof globalThis.Error) {
+    return error;
+  }
+
+  if (isResponseLike(error)) {
+    const status = error.status ?? 'unknown';
+    const statusText = error.statusText ?? 'unknown';
+    return new globalThis.Error(`${message} (HTTP ${status} ${statusText})`);
+  }
+
+  if (typeof error === 'string') {
+    return new globalThis.Error(`${message}: ${error}`);
+  }
+
+  return new globalThis.Error(message);
+}
+
 export const showError: (message: string, error?: unknown) => ShowError = (
   message,
   error = undefined
 ) => {
-  if (error && error instanceof Error) {
-    Raven.captureException(error, { tags: { message } });
+  if (error) {
+    const sentryError = normaliseErrorForSentry(message, error);
+
+    Sentry.withScope(scope => {
+      scope.setTag('message', message);
+
+      if (isResponseLike(error)) {
+        scope.setExtra('http.status', error.status ?? null);
+        scope.setExtra('http.statusText', error.statusText ?? null);
+        scope.setExtra('http.url', error.url ?? null);
+        scope.setExtra(
+          'http.retryAfter',
+          error.headers?.get('retry-after') ?? null
+        );
+      }
+
+      Sentry.captureException(sentryError);
+    });
   }
 
   return {

@@ -58,12 +58,14 @@ class VideoUIApp(
       capiProxyUrl = "/support/previewCapi",
       liveCapiProxyUrl = "/support/liveCapi",
       composerUrl = composerUrl,
-      ravenUrl = conf.get[String]("raven.url"),
+      sentryDsn = conf.get[String]("raven.url"),
       stage = conf.get[String]("stage"),
       viewerUrl = awsConfig.viewerUrl,
       permissions,
       minDurationForAds = youtube.minDurationForAds,
       isTrainingMode = isTrainingMode,
+      sentryLocalEnabled =
+        conf.getOptional[Boolean]("sentry.local.enabled").getOrElse(false),
       workflowUrl = awsConfig.workflowUrl,
       targetingUrl = awsConfig.targetingUrl,
       tagManagerUrl = awsConfig.tagManagerUrl
@@ -80,7 +82,7 @@ class VideoUIApp(
         isHotReloading,
         CSRF.getToken.value
       )
-    )
+    ).withHeaders("Document-Policy" -> "js-profiling")
   }
 
   def training(inTraining: Boolean): Action[AnyContent] = AuthAction { req =>

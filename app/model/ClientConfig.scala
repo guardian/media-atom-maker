@@ -27,13 +27,14 @@ case class ClientConfig(
     capiProxyUrl: String,
     liveCapiProxyUrl: String,
     composerUrl: String,
-    ravenUrl: String,
+    sentryDsn: String,
     stage: String,
     viewerUrl: String,
     // permissions also validated server-side on every request
     permissions: Permissions,
     minDurationForAds: Long,
     isTrainingMode: Boolean,
+    sentryLocalEnabled: Boolean,
     workflowUrl: String,
     targetingUrl: String,
     tagManagerUrl: String
