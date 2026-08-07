@@ -82,7 +82,7 @@ class VideoUIApp(
         isHotReloading,
         CSRF.getToken.value
       )
-    )
+    ).withHeaders("Document-Policy" -> "js-profiling")
   }
 
   def training(inTraining: Boolean): Action[AnyContent] = AuthAction { req =>

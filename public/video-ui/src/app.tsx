@@ -36,6 +36,15 @@ if (
     // plus for 100% of sessions with an error
     replaysSessionSampleRate: 0.1,
     replaysOnErrorSampleRate: 1.0,
+
+    // Set `tracePropagationTargets` to control for which URLs distributed tracing should be enabled
+    // tracePropagationTargets: ["localhost", /^https:\/\/yourserver\.io\/api/],
+    dataCollection: {
+      // To disable sending user data and HTTP bodies, uncomment the lines below. For more info visit:
+      // https://docs.sentry.io/platforms/javascript/configuration/options/#dataCollection
+      // userInfo: false,
+      // httpBodies: [],
+    },
  });
 
 }
