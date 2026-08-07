@@ -29,7 +29,7 @@ if (
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.browserProfilingIntegration(),
-      Sentry.replayIntegration(),
+      Sentry.replayIntegration()
     ],
     tracesSampleRate: 1.0,
     // Capture Replay for 10% of all sessions,
