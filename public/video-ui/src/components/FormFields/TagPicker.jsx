@@ -7,7 +7,7 @@ import { getTagDisplayNames } from '../../util/getTagDisplayNames';
 import TextInputTagPicker from './TextInputTagPicker';
 import PureTagPicker from './PureTagPicker';
 import TagFieldValue from '../Tags/TagFieldValue';
-import TagUnavailable from '../TagSearch/TagUnavailable';
+import { TagUnavailable } from '../TagSearch/TagUnavailable';
 import { DraggableTagList } from './DraggableTagList';
 import { removeTagDuplicates } from '../../util/removeTagDuplicates';
 import { removeStringTagDuplicates } from '../../util/removeStringTagDuplicates';
@@ -22,7 +22,7 @@ class TagPicker extends React.Component {
     this.state = {
       searchResultTags: [],
       tagValue: [],
-      capiUnavailable: false,
+      capiError: null,
       showTags: true,
       tagsVisible: false,
       selectedTagIndex: null,
@@ -38,7 +38,7 @@ class TagPicker extends React.Component {
         tagsFromStringList(nextProps.fieldValue, prevProps.tagType).then(
           result => {
             this.setState({
-              tagValue: result
+              tagValue: result.tags
             });
           }
         );
@@ -51,15 +51,20 @@ class TagPicker extends React.Component {
     if (this.props.fieldValue !== this.props.placeholder) {
       tagsFromStringList(this.props.fieldValue, this.props.tagType)
         .then(result => {
+          if (result.missingTagIds.length > 0) {
+            this.setState({
+              capiError: `Tag not found: ${result.missingTagIds.join(', ')}`
+            });
+          }
           this.setState({
-            tagValue: getTagDisplayNames(result)
+            tagValue: getTagDisplayNames(result.tags)
           });
         })
         .catch(() => {
           // capi is unavailable and we cannot get webtitles for tags
           this.setState({
             tagValue: this.props.fieldValue.slice(),
-            capiUnavailable: true
+            capiError: 'Tags are currently unavailable'
           });
         });
     }
@@ -112,7 +117,7 @@ class TagPicker extends React.Component {
         .catch(() => {
           this.setState({
             searchResultTags: [],
-            capiUnavailable: true
+            capiError: 'Tags are currently unavailable'
           });
         });
     }
@@ -374,7 +379,7 @@ class TagPicker extends React.Component {
       return (
         <div>
           <p className="details-list__title">{this.props.fieldName}</p>
-          <TagUnavailable capiUnavailable={this.state.capiUnavailable} />
+          <TagUnavailable capiError={this.state.capiError} />
           <p className="details-list__field ">
             <TagFieldValue
               tagValue={this.state.tagValue}
@@ -398,7 +403,7 @@ class TagPicker extends React.Component {
           {this.renderCharCount()}
         </div>
 
-        <TagUnavailable capiUnavailable={this.state.capiUnavailable} />
+        <TagUnavailable capiError={this.state.capiError} />
         {this.renderTagPicker()}
         {this.renderAddedTags()}
         {hasWarning ? (

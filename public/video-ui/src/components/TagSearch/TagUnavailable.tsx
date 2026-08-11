@@ -1,19 +1,13 @@
 import React from 'react';
 
 type Props = {
-  capiUnavailable: boolean;
+  capiError: string;
 };
 
-export default class TagUnavailable extends React.Component<Props> {
-  render() {
-    if (this.props.capiUnavailable) {
-      return (
-        <div className="form__field--external-error">
-          Tags are currently unavailable
-        </div>
-      );
-    }
-
-    return null;
+export const TagUnavailable = ({ capiError }: Props) => {
+  if (capiError) {
+    return <div className="form__field--external-error">{capiError}</div>;
   }
-}
+
+  return null;
+};

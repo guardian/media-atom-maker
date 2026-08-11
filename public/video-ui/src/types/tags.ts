@@ -9,4 +9,11 @@ export type CapiTagResponse = {
   };
 };
 
+export type CapiTagNotFoundResponse = {
+  response?: {
+    status?: string;
+    message?: string;
+  };
+};
+
 export type ParsedTag = string | DisplayTag;
