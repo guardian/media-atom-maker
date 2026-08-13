@@ -49,7 +49,7 @@ function AssetControls({
   selectAsset: { (): void };
   deleteAsset: { (): void };
   children: ReactNode;
-  activatingAssetNumber: number;
+  activatingAssetNumber?: number;
   isActivating: boolean;
   isUploadInProgress?: boolean;
 }) {
@@ -166,7 +166,11 @@ function AssetDisplay({
   );
 }
 
-function AssetProgress({ failed, current, total }: ClientAsset['processing']) {
+function AssetProgress({
+  failed,
+  current,
+  total
+}: NonNullable<ClientAsset['processing']>) {
   if (failed) {
     return (
       <div>
@@ -202,11 +206,11 @@ function SubtitleActions({
   onUpload: { (file: File): void };
   onDelete: { (): void };
 }) {
-  const fileInputRef = React.useRef();
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleFileChange: ChangeEventHandler<HTMLInputElement> = event => {
     const input = event.target;
-    const file = event.target.files[0];
+    const file = event.target.files?.[0];
 
     if (!file) return;
     const isSRT =
@@ -220,7 +224,7 @@ function SubtitleActions({
 
     const reader = new FileReader();
     reader.onload = function (e) {
-      const text = e.target.result as string;
+      const text = e.target?.result as string;
 
       const isSRTFormat =
         /\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}/.test(text);
@@ -239,7 +243,7 @@ function SubtitleActions({
   };
 
   const handleClick = () => {
-    (fileInputRef.current as HTMLInputElement)?.click();
+    fileInputRef.current?.click();
   };
 
   return (
@@ -277,7 +281,7 @@ export function Asset({
   isActive: boolean;
   selectAsset: { (): void };
   deleteAsset: { (): void };
-  activatingAssetNumber: number;
+  activatingAssetNumber?: number;
   videoPlayerFormat?: VideoPlayerFormat;
 }) {
   const dispatch = useDispatch<AppDispatch>();
@@ -289,7 +293,7 @@ export function Asset({
   const timestamp = metadata?.startTimestamp || false;
 
   const isSelfHosted = asset && asset.sources;
-  const subtitleFilename = metadata?.subtitleFilename;
+  const subtitleFilename = metadata?.subtitleFilename ?? '';
 
   /**
    * We support subtitles on Loops and NonYoutube videos, but not Cinemagraphs (designed to be silent and decorative).
@@ -380,7 +384,7 @@ export function Asset({
         <AssetDisplay
           isActive={isActive}
           id={asset.id}
-          sources={asset.sources}
+          sources={asset.sources ?? []}
         />
         <div className="video-trail__item__details">
           <AssetControls
