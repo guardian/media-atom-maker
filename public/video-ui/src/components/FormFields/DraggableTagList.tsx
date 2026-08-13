@@ -72,7 +72,7 @@ const TagElement = ({
 );
 
 const shouldHandleEvent = (element: HTMLElement) => {
-  let cur = element;
+  let cur: HTMLElement | null = element;
 
   while (cur) {
     if (cur.dataset && cur.dataset.noDnd) {
@@ -115,7 +115,7 @@ export const DraggableTagList = ({
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    if (active.id !== over.id) {
+    if (over && active.id !== over.id) {
       const oldIndex = tags.findIndex(tag => active.id === tag.id);
       const newIndex = tags.findIndex(tag => over.id === tag.id);
       const newTags = arrayMove(tags, oldIndex, newIndex);
