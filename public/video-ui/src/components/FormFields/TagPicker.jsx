@@ -30,6 +30,28 @@ class TagPicker extends React.Component {
     };
   }
 
+  formatMissingTagError = missingTagIds => {
+    if (!missingTagIds || missingTagIds.length === 0) {
+      return null;
+    }
+
+    return `Tag not found: ${missingTagIds.join(', ')}`;
+  };
+
+  revalidateSavedTags = savedTagIds => {
+    return tagsFromStringList(savedTagIds, this.props.tagType)
+      .then(result => {
+        this.setState({
+          capiError: this.formatMissingTagError(result.missingTagIds)
+        });
+      })
+      .catch(() => {
+        this.setState({
+          capiError: 'Tags are currently unavailable'
+        });
+      });
+  };
+
   componentDidUpdate(prevProps) {
     const nextProps = this.props;
 
@@ -53,7 +75,7 @@ class TagPicker extends React.Component {
         .then(result => {
           if (result.missingTagIds.length > 0) {
             this.setState({
-              capiError: `Tag not found: ${result.missingTagIds.join(', ')}`
+              capiError: this.formatMissingTagError(result.missingTagIds)
             });
           }
           this.setState({
@@ -126,13 +148,18 @@ class TagPicker extends React.Component {
   debouncedFetchTags = debounce(this.fetchTags, 500);
 
   onUpdate = newValue => {
+    const savedTagsList = tagsToStringList(newValue);
+
     this.setState({
       tagValue: newValue
     });
-    return this.props.onUpdateField(tagsToStringList(newValue)).then(() => {
-      return this.setState({
+
+    return this.props.onUpdateField(savedTagsList).then(() => {
+      this.setState({
         searchResultTags: []
       });
+
+      return this.revalidateSavedTags(savedTagsList);
     });
   };
 
