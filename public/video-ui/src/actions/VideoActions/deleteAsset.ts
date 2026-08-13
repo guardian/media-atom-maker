@@ -18,6 +18,10 @@ export function deleteAsset(video: Video, assetId: string) {
 
     const asset = video.assets.find(_ => _.id === assetId);
 
+    if (!asset) {
+      return Promise.resolve();
+    }
+
     return VideosApi.deleteAsset(video, asset)
       .then(res => {
         dispatch(setVideo(res));
