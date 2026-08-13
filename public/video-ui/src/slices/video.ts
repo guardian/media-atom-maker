@@ -4,7 +4,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface VideoState {
   video: Video;
-  publishedVideo: Video;
+  publishedVideo: Video | null;
   saving: boolean;
   publishing: boolean;
   addingAsset: boolean;
