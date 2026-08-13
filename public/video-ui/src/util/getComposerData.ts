@@ -31,7 +31,7 @@ export function getComposerData(video: VideoWithoutId) {
     keywords: video.keywords.join('|'),
     thumbnail:
       video.trailImage && video.trailImage.assets.length > 0
-        ? parseComposerDataFromImage(video.trailImage, video.trailText)
+        ? parseComposerDataFromImage(video.trailImage, video.trailText ?? '')
         : null,
     expiryDate: cleanedExpiryDate ? cleanedExpiryDate : null,
     scheduledLaunch: scheduledLaunch,
