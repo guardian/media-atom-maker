@@ -12,7 +12,7 @@ type Props = {
   video: Video;
   uploads: ClientAsset[];
   setAsset: (version: number) => void;
-  activatingAssetNumber: number;
+  activatingAssetNumber?: number;
   hasPendingUpload: boolean;
 };
 
@@ -46,6 +46,9 @@ export const VideoTrail = ({
   }, [dispatch, uploads, video.id]);
 
   const deleteAssetsInUpload = async (asset: ClientAsset['asset']) => {
+    if (!asset) {
+      return;
+    }
     if (asset.id) {
       // if "asset.id" property exists, it should be a Youtube video asset.
       // There should be one asset for Youtube video and we can delete
@@ -56,8 +59,8 @@ export const VideoTrail = ({
       // video asset.  There may be multiple assets for a self-hosted video.
       // We can extract the asset IDs from the "src" property of each member
       // of the "sources" property.
-      const assetsToDelete = asset?.sources?.map(source => source.src);
-      if (assetsToDelete?.length > 0) {
+      const assetsToDelete = asset.sources?.map(source => source.src);
+      if (assetsToDelete && assetsToDelete.length > 0) {
         dispatch(deleteAssets(video, assetsToDelete));
       }
     }
