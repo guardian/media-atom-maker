@@ -155,7 +155,8 @@ function getUsages({
     return Promise.all(usagePaths.map(path => ContentApi.getByPath(path))).then(
       capiResponse => {
         const usages = capiResponse.reduce((all: CapiContent[], item) => {
-          return [...all, item.response.content];
+          const content = item.response.content;
+          return content ? [...all, content] : all;
         }, []);
 
         // sort by article creation date DESC
@@ -172,7 +173,7 @@ function getUsages({
 }
 
 function splitUsages({ usages }: { usages: CapiContent[] }) {
-  return usages.reduce(
+  return usages.reduce<{ video: CapiContent[]; other: CapiContent[] }>(
     (all, usage) => {
       if (usage.type === 'video') {
         all.video = [...all.video, usage];
@@ -342,7 +343,7 @@ export default {
   updateCanonicalPages(video: Video, usageData: UsageData, updatesTo: Stage) {
     const composerData = getComposerData(video);
     const composerUrlBase = getComposerUrl();
-    const videoBlock = getVideoBlock(video.id, video.title, video.source);
+    const videoBlock = getVideoBlock(video.id, video.title, video.source ?? '');
 
     return Promise.all(
       (Object.keys(usageData) as Stage[]).map(stage => {

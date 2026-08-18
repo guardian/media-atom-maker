@@ -143,7 +143,8 @@ const s3Upload = createSlice({
   initialState,
   reducers: {
     s3UploadStarted: (state, action: PayloadAction<Upload>) => {
-      const total = action.payload.parts[action.payload.parts.length - 1].end;
+      const parts = action.payload.parts;
+      const total = parts && parts.length > 0 ? parts[parts.length - 1].end : 0;
       Object.assign(state, {
         id: action.payload.id,
         total: total,

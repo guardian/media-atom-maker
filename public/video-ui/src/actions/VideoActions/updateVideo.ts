@@ -2,6 +2,6 @@
 import { setVideo } from '../../slices/video';
 import { Video } from '../../services/VideosApi';
 
-export function updateVideo(video?: Video) {
+export function updateVideo(video: Video) {
   return setVideo(video);
 }

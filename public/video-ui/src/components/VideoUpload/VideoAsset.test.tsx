@@ -17,7 +17,7 @@ const defaultProps = {
   deleteAsset: jest.fn(),
   startSubtitleFileUpload: jest.fn(),
   deleteSubtitle: jest.fn(),
-  activatingAssetNumber: undefined as number
+  activatingAssetNumber: undefined
 };
 
 const defaultVideoAsset: VideoAsset = {
@@ -34,7 +34,8 @@ store.dispatch(
     permissions: {
       deleteAtom: true,
       setVideosOnAllChannelsPublic: true,
-      pinboard: true
+      pinboard: true,
+      addSelfHostedAsset: true
     }
   })
 );

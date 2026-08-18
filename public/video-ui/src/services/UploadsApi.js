@@ -20,7 +20,7 @@ export function getUploads(atomId) {
  *
  * @param atomId {string}
  * @param file {File}
- * @param selfHost {boolean}
+ * @param selfHost {boolean=}
  * @returns {Promise<unknown>}
  */
 export function createUpload(atomId, file, selfHost) {
