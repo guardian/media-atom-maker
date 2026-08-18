@@ -346,7 +346,7 @@ export default {
     const videoBlock = getVideoBlock(video.id, video.title, video.source ?? '');
 
     return Promise.all(
-      (Object.keys(usageData) as Stage[]).map(stage => {
+      (Object.keys(usageData) as Stage[]).flatMap(stage => {
         const videoPageUsages: CapiContent[] = usageData[stage].video;
 
         return videoPageUsages.map(usage => {
