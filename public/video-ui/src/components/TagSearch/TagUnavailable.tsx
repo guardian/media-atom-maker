@@ -1,7 +1,7 @@
 import React from 'react';
 
 type Props = {
-  capiError: string;
+  capiError: string | null;
 };
 
 export const TagUnavailable = ({ capiError }: Props) => {
