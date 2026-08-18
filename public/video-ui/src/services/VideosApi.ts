@@ -173,7 +173,7 @@ function getUsages({
 }
 
 function splitUsages({ usages }: { usages: CapiContent[] }) {
-  return usages.reduce(
+  return usages.reduce<{ video: CapiContent[]; other: CapiContent[] }>(
     (all, usage) => {
       if (usage.type === 'video') {
         all.video = [...all.video, usage];
@@ -182,7 +182,7 @@ function splitUsages({ usages }: { usages: CapiContent[] }) {
       }
       return all;
     },
-    { video: [] as CapiContent[], other: [] as CapiContent[] }
+    { video: [], other: [] }
   );
 }
 
