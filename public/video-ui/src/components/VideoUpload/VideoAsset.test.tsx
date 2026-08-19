@@ -79,7 +79,7 @@ describe('VideoAsset', () => {
       );
 
       // Check that activate button is present and enabled
-      const activateButton = screen.getByRole('button', { name: 'Activate' });
+      const activateButton = screen.getByTestId('activate-button');
       expect(activateButton).toBeInTheDocument();
       expect(activateButton).not.toBeDisabled();
 
@@ -95,7 +95,7 @@ describe('VideoAsset', () => {
         </Provider>
       );
 
-      const activateButton = screen.getByRole('button', { name: 'Activate' });
+      const activateButton = screen.getByTestId('activate-button');
       await user.click(activateButton);
 
       expect(defaultProps.selectAsset).toHaveBeenCalledTimes(1);
@@ -108,9 +108,7 @@ describe('VideoAsset', () => {
         </Provider>
       );
 
-      expect(
-        screen.queryByRole('button', { name: 'Activate' })
-      ).not.toBeInTheDocument();
+      expect(screen.queryByTestId('activate-button')).not.toBeInTheDocument();
       expect(screen.getByText('Active')).toBeInTheDocument();
     });
 
@@ -124,6 +122,88 @@ describe('VideoAsset', () => {
       const deleteButton = screen.getByTestId('delete-button');
       expect(deleteButton).toBeInTheDocument();
       expect(deleteButton).not.toBeDisabled();
+    });
+  });
+
+  describe('Asset is not the active asset', () => {
+    const storeWithActiveAsset = setupStore();
+    storeWithActiveAsset.dispatch(
+      setConfig({
+        permissions: {
+          deleteAtom: true,
+          setVideosOnAllChannelsPublic: true,
+          pinboard: true,
+          addSelfHostedAsset: true
+        }
+      })
+    );
+    storeWithActiveAsset.dispatch(
+      setVideo({
+        id: 'test-video-id',
+        assets: [
+          {
+            ...defaultVideoAsset,
+            version: 1,
+            id: 'AAAAAAAAAAA'
+          },
+          {
+            ...defaultVideoAsset,
+            version: 2,
+            id: 'BBBBBBBBBBB'
+          }
+        ],
+        activeVersion: 2
+      } as Video)
+    );
+    setStore(storeWithActiveAsset);
+
+    const inactiveAsset = {
+      id: '1',
+      asset: {
+        id: 'AAAAAAAAAAA'
+      },
+      metadata: {
+        originalFilename: 'test.mov',
+        startTimestamp: 1758557285850,
+        user: 'a.person@example.co.uk'
+      }
+    };
+
+    it('does not call selectAsset when activate button is clicked once', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <Provider store={storeWithActiveAsset}>
+          <Asset {...defaultProps} upload={inactiveAsset} />
+        </Provider>
+      );
+
+      const activateButton = screen.getByTestId('activate-button');
+      await user.click(activateButton);
+
+      expect(defaultProps.selectAsset).not.toHaveBeenCalled();
+    });
+
+    it('calls selectAsset when user clicks activate button and confirm activate', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <Provider store={storeWithActiveAsset}>
+          <Asset {...defaultProps} upload={inactiveAsset} />
+        </Provider>
+      );
+
+      const activateButton = screen.getByTestId('activate-button');
+      await user.click(activateButton);
+
+      expect(defaultProps.selectAsset).not.toHaveBeenCalled();
+
+      const confirmButton = await screen.findByRole('button', {
+        name: /confirm activate/i
+      });
+      await user.click(confirmButton);
+
+      expect(defaultProps.selectAsset).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -157,14 +237,12 @@ describe('VideoAsset', () => {
       expect(progress).toHaveAttribute('max', '1');
 
       // Check that activate button is present but disabled
-      const activateButton = screen.getByRole('button', { name: 'Activate' });
+      const activateButton = screen.getByTestId('activate-button');
       expect(activateButton).toBeInTheDocument();
       expect(activateButton).toBeDisabled();
 
       // Check that delete button is present but disabled
-      const deleteButton = screen.getByRole('button', {
-        name: 'delete Delete'
-      });
+      const deleteButton = screen.getByTestId('delete-button');
       expect(deleteButton).toBeInTheDocument();
       expect(deleteButton).toBeDisabled();
 
@@ -182,7 +260,7 @@ describe('VideoAsset', () => {
         </Provider>
       );
 
-      const activateButton = screen.getByRole('button', { name: 'Activate' });
+      const activateButton = screen.getByTestId('activate-button');
       await user.click(activateButton);
 
       // Should not be called because button is disabled
@@ -200,7 +278,7 @@ describe('VideoAsset', () => {
         </Provider>
       );
 
-      const activateButton = screen.getByRole('button', { name: 'Activate' });
+      const activateButton = screen.getByTestId('activate-button');
       expect(activateButton).toHaveClass('btn--loading');
     });
 
@@ -221,7 +299,7 @@ describe('VideoAsset', () => {
 
       expect(screen.getByText('Upload Failed')).toBeInTheDocument();
 
-      const activateButton = screen.getByRole('button', { name: 'Activate' });
+      const activateButton = screen.getByTestId('activate-button');
       expect(activateButton).toBeDisabled();
     });
 
@@ -243,7 +321,7 @@ describe('VideoAsset', () => {
       // Should show spinner (loader class)
       expect(document.querySelector('.loader')).toBeInTheDocument();
 
-      const activateButton = screen.getByRole('button', { name: 'Activate' });
+      const activateButton = screen.getByTestId('activate-button');
       expect(activateButton).toBeDisabled();
     });
   });
@@ -286,7 +364,7 @@ describe('VideoAsset', () => {
       expect(document.querySelector('.loader')).toBeInTheDocument();
 
       // Check that activate button is present but disabled
-      const activateButton = screen.getByRole('button', { name: 'Activate' });
+      const activateButton = screen.getByTestId('activate-button');
       expect(activateButton).toBeInTheDocument();
       expect(activateButton).not.toBeDisabled();
 
