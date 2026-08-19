@@ -7,7 +7,6 @@ import { getTagDisplayNames } from '../../util/getTagDisplayNames';
 import TextInputTagPicker from './TextInputTagPicker';
 import PureTagPicker from './PureTagPicker';
 import TagFieldValue from '../Tags/TagFieldValue';
-import { TagUnavailable } from '../TagSearch/TagUnavailable';
 import { DraggableTagList } from './DraggableTagList';
 import { removeTagDuplicates } from '../../util/removeTagDuplicates';
 import { removeStringTagDuplicates } from '../../util/removeStringTagDuplicates';
@@ -406,7 +405,13 @@ class TagPicker extends React.Component {
       return (
         <div>
           <p className="details-list__title">{this.props.fieldName}</p>
-          <TagUnavailable capiError={this.state.capiError} />
+          {this.state.capiError ? (
+            <div className="form__field--external-error">
+              {this.state.capiError}
+            </div>
+          ) : (
+            ''
+          )}
           <p className="details-list__field ">
             <TagFieldValue
               tagValue={this.state.tagValue}
@@ -430,7 +435,13 @@ class TagPicker extends React.Component {
           {this.renderCharCount()}
         </div>
 
-        <TagUnavailable capiError={this.state.capiError} />
+        {this.state.capiError ? (
+          <div className="form__field--external-error">
+            {this.state.capiError}
+          </div>
+        ) : (
+          ''
+        )}
         {this.renderTagPicker()}
         {this.renderAddedTags()}
         {hasWarning ? (
