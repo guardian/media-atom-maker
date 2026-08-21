@@ -3,12 +3,13 @@ import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import React from 'react';
 import { Provider } from 'react-redux';
-import type { Video, Asset as VideoAsset } from '../../services/VideosApi';
+import type { Asset as VideoAsset } from '../../services/VideosApi';
 import { setConfig } from '../../slices/config';
 import { setVideo } from '../../slices/video';
 import { setupStore } from '../../util/setupStore';
 import { setStore } from '../../util/storeAccessor';
 import { Asset } from './VideoAsset';
+import { blankVideoData } from '../../constants/blankVideoData';
 
 const defaultProps = {
   videoId: 'test-video-id',
@@ -41,6 +42,7 @@ store.dispatch(
 );
 store.dispatch(
   setVideo({
+    ...blankVideoData,
     id: 'test-video-id',
     assets: [
       {
@@ -49,7 +51,7 @@ store.dispatch(
         id: 'AAAAAAAAAAA'
       }
     ]
-  } as Video)
+  })
 );
 setStore(store);
 
@@ -139,6 +141,7 @@ describe('VideoAsset', () => {
     );
     storeWithActiveAsset.dispatch(
       setVideo({
+        ...blankVideoData,
         id: 'test-video-id',
         assets: [
           {
@@ -153,7 +156,7 @@ describe('VideoAsset', () => {
           }
         ],
         activeVersion: 2
-      } as Video)
+      })
     );
     setStore(storeWithActiveAsset);
 
