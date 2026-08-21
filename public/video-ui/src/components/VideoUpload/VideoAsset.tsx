@@ -57,7 +57,9 @@ function AssetControls({
   const className = isActivating ? 'btn btn--loading' : 'btn';
 
   const video = useSelector(selectVideo);
-  const videoHasActiveAsset = Boolean(video.activeVersion);
+  const confirmAssetActivation = Boolean(
+    video.activeVersion && video.contentChangeDetails.published
+  );
 
   const cannotActivateAsset =
     typeof activatingAssetNumber === 'number' || isUploadInProgress;
@@ -77,7 +79,7 @@ function AssetControls({
       className={className}
       disabled={cannotActivateAsset}
       onActivate={selectAsset}
-      videoHasActiveAsset={videoHasActiveAsset}
+      confirmAssetActivation={confirmAssetActivation}
     />
   );
 

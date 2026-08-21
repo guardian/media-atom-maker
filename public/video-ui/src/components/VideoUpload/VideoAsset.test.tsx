@@ -127,7 +127,7 @@ describe('VideoAsset', () => {
     });
   });
 
-  describe('Asset is not the active asset', () => {
+  describe('Asset is not the active asset and video is published', () => {
     const storeWithActiveAsset = setupStore();
     storeWithActiveAsset.dispatch(
       setConfig({
@@ -155,7 +155,13 @@ describe('VideoAsset', () => {
             id: 'BBBBBBBBBBB'
           }
         ],
-        activeVersion: 2
+        activeVersion: 2,
+        contentChangeDetails: {
+          revision: 1,
+          published: {
+            date: 1787309822
+          }
+        }
       })
     );
     setStore(storeWithActiveAsset);

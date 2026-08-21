@@ -5,14 +5,14 @@ type ActivateButtonProps = {
   className: string;
   onActivate: () => void;
   disabled?: boolean;
-  videoHasActiveAsset: boolean;
+  confirmAssetActivation: boolean;
 };
 
 export const ActivateButton = ({
   className,
   onActivate,
   disabled,
-  videoHasActiveAsset
+  confirmAssetActivation
 }: ActivateButtonProps) => {
   const [confirmActivate, setConfirmActivate] = useState(false);
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -59,7 +59,7 @@ export const ActivateButton = ({
     <>
       <button
         className={className}
-        onClick={videoHasActiveAsset ? handleClick : onActivate}
+        onClick={confirmAssetActivation ? handleClick : onActivate}
         data-testid="activate-button"
         disabled={disabled}
       >
