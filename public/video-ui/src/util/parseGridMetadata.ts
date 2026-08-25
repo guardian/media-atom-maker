@@ -135,9 +135,9 @@ export function parseComposerDataFromImage(
   }
 
   function getComposerMasterAsset(
-    asset?: ImageAsset
+    asset: ImageAsset
   ): ComposerAsset | undefined {
-    const composerAsset = asset && getComposerAsset(asset);
+    const composerAsset = getComposerAsset(asset);
     if (composerAsset) {
       return {
         ...composerAsset,
@@ -151,7 +151,7 @@ export function parseComposerDataFromImage(
   const alt = getTextFromHtml(trail);
 
   return {
-    assets: [getComposerMasterAsset(image.master)]
+    assets: [image.master ? getComposerMasterAsset(image.master) : undefined]
       .concat(image.assets.map(getComposerAsset))
       .filter((asset): asset is ComposerAsset => asset !== undefined),
     fields: {
