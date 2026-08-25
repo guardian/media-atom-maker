@@ -272,10 +272,18 @@ export default {
     }).then(clientVideoFromServerVideo);
   },
 
-  fetchPublishedVideo: (videoId: string) => {
-    return apiRequest<VideoServer>({
+  fetchPublishedVideo: (videoId: string): Promise<Partial<Video>> => {
+    return apiRequest<Partial<VideoServer>>({
+      // API returns {} instead of 404
       url: '/api/atoms/' + videoId + '/published'
-    }).then(clientVideoFromServerVideo);
+    }).then(video => {
+      const { contentChangeDetails, ...others } = video;
+      if (contentChangeDetails) {
+        return clientVideoFromServerVideo({ contentChangeDetails, ...others });
+      } else {
+        return others;
+      }
+    });
   },
 
   createVideo: (video: VideoWithoutId) => {
