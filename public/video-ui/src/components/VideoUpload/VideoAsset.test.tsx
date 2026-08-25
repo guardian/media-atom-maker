@@ -3,56 +3,27 @@ import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import React from 'react';
 import { Provider } from 'react-redux';
-import type { Asset as VideoAsset } from '../../services/VideosApi';
 import { setConfig } from '../../slices/config';
 import { setVideo } from '../../slices/video';
 import { setupStore } from '../../util/setupStore';
 import { setStore } from '../../util/storeAccessor';
 import { Asset } from './VideoAsset';
-import { blankVideoData } from '../../constants/blankVideoData';
-
-const defaultProps = {
-  videoId: 'test-video-id',
-  isActive: false,
-  selectAsset: jest.fn(),
-  deleteAsset: jest.fn(),
-  startSubtitleFileUpload: jest.fn(),
-  deleteSubtitle: jest.fn(),
-  activatingAssetNumber: undefined
-};
-
-const defaultVideoAsset: VideoAsset = {
-  version: 1,
-  id: 'AAAAAAAAAAA',
-  assetType: 'Video',
-  mimeType: 'video/youtube',
-  platform: 'Youtube'
-};
+import {
+  completedUpload,
+  defaultProps,
+  defaultStoreConfig,
+  emptyUpload,
+  failedUpload,
+  processingUpload,
+  publishedVideo,
+  reprocessingUpload,
+  unknownProgressUpload,
+  unpublishedVideo
+} from './VideoAsset.fixtures';
 
 const store = setupStore();
-store.dispatch(
-  setConfig({
-    permissions: {
-      deleteAtom: true,
-      setVideosOnAllChannelsPublic: true,
-      pinboard: true,
-      addSelfHostedAsset: true
-    }
-  })
-);
-store.dispatch(
-  setVideo({
-    ...blankVideoData,
-    id: 'test-video-id',
-    assets: [
-      {
-        ...defaultVideoAsset,
-        version: 1,
-        id: 'AAAAAAAAAAA'
-      }
-    ]
-  })
-);
+store.dispatch(setConfig(defaultStoreConfig));
+store.dispatch(setVideo(unpublishedVideo));
 setStore(store);
 
 describe('VideoAsset', () => {
@@ -60,19 +31,7 @@ describe('VideoAsset', () => {
     jest.clearAllMocks();
   });
 
-  describe('Asset with completed upload', () => {
-    const completedUpload = {
-      id: '1',
-      asset: {
-        id: 'AAAAAAAAAAA'
-      },
-      metadata: {
-        originalFilename: 'test.mov',
-        startTimestamp: 1758557285850,
-        user: 'a.person@example.co.uk'
-      }
-    };
-
+  describe('Asset with completed upload is inactive and video is unpublished', () => {
     it('renders completed asset with activate button enabled', () => {
       render(
         <Provider store={store}>
@@ -129,61 +88,16 @@ describe('VideoAsset', () => {
 
   describe('Asset is not the active asset and video is published', () => {
     const storeWithActiveAsset = setupStore();
-    storeWithActiveAsset.dispatch(
-      setConfig({
-        permissions: {
-          deleteAtom: true,
-          setVideosOnAllChannelsPublic: true,
-          pinboard: true,
-          addSelfHostedAsset: true
-        }
-      })
-    );
-    storeWithActiveAsset.dispatch(
-      setVideo({
-        ...blankVideoData,
-        id: 'test-video-id',
-        assets: [
-          {
-            ...defaultVideoAsset,
-            version: 1,
-            id: 'AAAAAAAAAAA'
-          },
-          {
-            ...defaultVideoAsset,
-            version: 2,
-            id: 'BBBBBBBBBBB'
-          }
-        ],
-        activeVersion: 2,
-        contentChangeDetails: {
-          revision: 1,
-          published: {
-            date: 1787309822
-          }
-        }
-      })
-    );
+    storeWithActiveAsset.dispatch(setConfig(defaultStoreConfig));
+    storeWithActiveAsset.dispatch(setVideo(publishedVideo));
     setStore(storeWithActiveAsset);
-
-    const inactiveAsset = {
-      id: '1',
-      asset: {
-        id: 'AAAAAAAAAAA'
-      },
-      metadata: {
-        originalFilename: 'test.mov',
-        startTimestamp: 1758557285850,
-        user: 'a.person@example.co.uk'
-      }
-    };
 
     it('does not call selectAsset when activate button is clicked once', async () => {
       const user = userEvent.setup();
 
       render(
         <Provider store={storeWithActiveAsset}>
-          <Asset {...defaultProps} upload={inactiveAsset} />
+          <Asset {...defaultProps} upload={completedUpload} />
         </Provider>
       );
 
@@ -198,18 +112,19 @@ describe('VideoAsset', () => {
 
       render(
         <Provider store={storeWithActiveAsset}>
-          <Asset {...defaultProps} upload={inactiveAsset} />
+          <Asset {...defaultProps} upload={completedUpload} />
         </Provider>
       );
 
       const activateButton = screen.getByTestId('activate-button');
       await user.click(activateButton);
+      const confirmButton = await screen.findByTestId(
+        'confirm-activate-button'
+      );
 
-      expect(defaultProps.selectAsset).not.toHaveBeenCalled();
+      // Only the confirm button should be visible
+      expect(activateButton).not.toBeInTheDocument();
 
-      const confirmButton = await screen.findByRole('button', {
-        name: /confirm activate/i
-      });
       await user.click(confirmButton);
 
       expect(defaultProps.selectAsset).toHaveBeenCalledTimes(1);
@@ -217,21 +132,6 @@ describe('VideoAsset', () => {
   });
 
   describe('Asset with processing upload', () => {
-    const processingUpload = {
-      id: '2',
-      processing: {
-        status: 'Uploading to YouTube',
-        failed: false,
-        current: 0,
-        total: 1
-      },
-      metadata: {
-        originalFilename: 'test.mov',
-        startTimestamp: 1758612923498,
-        user: 'a.person@example.co.uk'
-      }
-    };
-
     it('renders processing asset with activate and delete buttons disabled', () => {
       render(
         <Provider store={store}>
@@ -292,14 +192,6 @@ describe('VideoAsset', () => {
     });
 
     it('shows failed upload state', () => {
-      const failedUpload = {
-        ...processingUpload,
-        processing: {
-          status: 'Upload failed',
-          failed: true
-        }
-      };
-
       render(
         <Provider store={store}>
           <Asset {...defaultProps} upload={failedUpload} />
@@ -313,14 +205,6 @@ describe('VideoAsset', () => {
     });
 
     it('shows loading spinner when no progress information is available', () => {
-      const unknownProgressUpload = {
-        ...processingUpload,
-        processing: {
-          status: 'Processing...',
-          failed: false
-        }
-      };
-
       render(
         <Provider store={store}>
           <Asset {...defaultProps} upload={unknownProgressUpload} />
@@ -336,32 +220,6 @@ describe('VideoAsset', () => {
   });
 
   describe('Self-hosted asset with reprocessing subtitles', () => {
-    const reprocessingUpload = {
-      id: '2',
-      asset: {
-        sources: [
-          {
-            src: 'https://uploads.gu.com/test--264ef95d-ecb0-472e-9030-9e5ef678bf16-2.0.mp4',
-            mimeType: 'video/mp4'
-          },
-          {
-            src: 'https://uploads.gu.com/test--264ef95d-ecb0-472e-9030-9e5ef678bf16-2.1.m3u8',
-            mimeType: 'application/vnd.apple.mpegurl'
-          }
-        ]
-      },
-      processing: {
-        status: 'SendToTranscoderV2',
-        failed: false
-      },
-      metadata: {
-        originalFilename: 'Video.mp4',
-        startTimestamp: 1759499181730,
-        subtitleFilename: 'subtitle.srt',
-        user: 'a.person@example.co.uk'
-      }
-    };
-
     it('renders reprocessing asset with activate button disabled', () => {
       render(
         <Provider store={store}>
@@ -386,13 +244,6 @@ describe('VideoAsset', () => {
   });
 
   it('returns null when upload has no asset or processing state', () => {
-    const emptyUpload = {
-      id: '3',
-      metadata: {
-        user: 'a.person@example.co.uk'
-      }
-    };
-
     const { container } = render(
       <Provider store={store}>
         <Asset {...defaultProps} upload={emptyUpload} />

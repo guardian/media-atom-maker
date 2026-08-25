@@ -46,7 +46,7 @@ export const ActivateButton = ({
           className={className}
           onClick={onActivate}
           data-tip="There is already an active asset. Continue activating?"
-          data-testid="activate-button"
+          data-testid="confirm-activate-button"
           disabled={disabled}
         >
           Confirm activate
