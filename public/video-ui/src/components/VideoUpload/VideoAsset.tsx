@@ -14,6 +14,7 @@ import Icon, { SubtitlesIcon } from '../Icon';
 import { VideoEmbed } from '../utils/VideoEmbed';
 import { YouTubeEmbed } from '../utils/YouTubeEmbed';
 import type { VideoPlayerFormat } from '../../constants/videoCreateOptions';
+import { ActivateButton } from '../ActivateButton';
 
 function presenceInitials(email: string) {
   if (!email) return;
@@ -56,6 +57,9 @@ function AssetControls({
   const className = isActivating ? 'btn btn--loading' : 'btn';
 
   const video = useSelector(selectVideo);
+  const confirmAssetActivation = Boolean(
+    video.activeVersion && video.contentChangeDetails.published
+  );
 
   const cannotActivateAsset =
     typeof activatingAssetNumber === 'number' || isUploadInProgress;
@@ -71,14 +75,12 @@ function AssetControls({
   );
 
   const activateButton = (
-    <button
+    <ActivateButton
       className={className}
-      style={{ paddingRight: 20 }}
       disabled={cannotActivateAsset}
-      onClick={selectAsset}
-    >
-      Activate
-    </button>
+      onActivate={selectAsset}
+      confirmAssetActivation={confirmAssetActivation}
+    />
   );
 
   const deleteButton = (
