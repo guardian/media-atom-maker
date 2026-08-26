@@ -9,58 +9,53 @@ const SHOW_WARNING = 'SHOW_WARNING' as const;
 type ShowError = AnyAction & { type: typeof SHOW_ERROR; message: string };
 type ShowWarning = AnyAction & { type: typeof SHOW_WARNING; message: string };
 
-function isResponseLike(value: unknown): value is {
-  status?: number;
-  statusText?: string;
-  url?: string;
-  headers?: { get(name: string): string | null };
-} {
-  return typeof value === 'object' && value !== null && 'status' in value;
-}
-
-function normaliseErrorForSentry(
-  message: string,
-  error: unknown
-): globalThis.Error {
-  if (error instanceof globalThis.Error) {
-    return error;
+function reportToSentry(message: string, error: unknown): void {
+  // A real Error carries a meaningful stack, so let Sentry group on it as-is.
+  if (error instanceof Error) {
+    Sentry.captureException(error, { extra: { message } });
+    return;
   }
 
-  if (isResponseLike(error)) {
-    const status = error.status ?? 'unknown';
-    const statusText = error.statusText ?? 'unknown';
-    return new globalThis.Error(`${message} (HTTP ${status} ${statusText})`);
-  }
+  // `apiRequest` throws the raw Response for any non-2xx, so a large share of
+  // the values arriving here are Responses rather than Errors. The `typeof`
+  // check is required because jsdom does not define Response, so a bare
+  // `instanceof` would throw a ReferenceError under Jest.
+  const isResponse =
+    typeof Response !== 'undefined' && error instanceof Response;
 
-  if (typeof error === 'string') {
-    return new globalThis.Error(`${message}: ${error}`);
-  }
+  const synthetic = new Error(
+    isResponse
+      ? `${message} (HTTP ${error.status} ${error.statusText})`
+      : message,
+    { cause: error }
+  );
 
-  return new globalThis.Error(message);
+  Sentry.captureException(synthetic, {
+    // Every synthetic Error is constructed on the line above, so they all share
+    // an identical stack trace. Sentry's default grouping keys on the stack
+    // rather than the message, so without an explicit fingerprint unrelated
+    // failures would collapse into a single issue.
+    fingerprint: ['showError', message],
+    extra: { message },
+    contexts: isResponse
+      ? {
+          response: {
+            status: error.status,
+            statusText: error.statusText,
+            url: error.url,
+            retryAfter: error.headers.get('retry-after')
+          }
+        }
+      : undefined
+  });
 }
 
 export const showError: (message: string, error?: unknown) => ShowError = (
   message,
   error = undefined
 ) => {
-  if (error) {
-    const sentryError = normaliseErrorForSentry(message, error);
-
-    Sentry.withScope(scope => {
-      scope.setTag('message', message);
-
-      if (isResponseLike(error)) {
-        scope.setExtra('http.status', error.status ?? null);
-        scope.setExtra('http.statusText', error.statusText ?? null);
-        scope.setExtra('http.url', error.url ?? null);
-        scope.setExtra(
-          'http.retryAfter',
-          error.headers?.get('retry-after') ?? null
-        );
-      }
-
-      Sentry.captureException(sentryError);
-    });
+  if (error !== undefined && error !== null) {
+    reportToSentry(message, error);
   }
 
   return {
@@ -81,14 +76,14 @@ export const clearErrorAndWarning: () => Action<'CLEAR_ERROR_AND_WARNING'> =
     type: 'CLEAR_ERROR_AND_WARNING'
   });
 
-interface Error {
+interface ErrorState {
   message: false | string;
   key: number;
   warningMessage: false | string;
   warningKey: number;
 }
 
-const initialState: Error = {
+const initialState: ErrorState = {
   message: false,
   key: 0,
   warningMessage: false,

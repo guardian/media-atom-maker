@@ -29,7 +29,7 @@ export const ClientConfigSchema = z.object({
   permissions: PermissionsSchema,
   minDurationForAds: z.number(),
   isTrainingMode: z.boolean(),
-  sentryLocalEnabled: z.boolean(),
+  sentryEnabled: z.boolean(),
   workflowUrl: z.string(),
   targetingUrl: z.string(),
   tagManagerUrl: z.string()
@@ -83,7 +83,7 @@ export function getAppConfig(): ConfigState {
       },
       minDurationForAds: 0,
       isTrainingMode: false,
-      sentryLocalEnabled: false,
+      sentryEnabled: false,
       workflowUrl: '',
       targetingUrl: '',
       tagManagerUrl: '',

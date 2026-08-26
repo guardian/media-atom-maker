@@ -34,7 +34,7 @@ case class ClientConfig(
     permissions: Permissions,
     minDurationForAds: Long,
     isTrainingMode: Boolean,
-    sentryLocalEnabled: Boolean,
+    sentryEnabled: Boolean,
     workflowUrl: String,
     targetingUrl: String,
     tagManagerUrl: String

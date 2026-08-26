@@ -2,7 +2,6 @@ package util
 
 import com.gu.media.logging.Logging
 import io.sentry.Sentry
-import java.net.URI
 
 import javax.inject.{Inject, Provider, Singleton}
 import play.api.http.DefaultHttpErrorHandler
@@ -18,68 +17,25 @@ class RequestLogging @Inject() (
     env: Environment,
     config: Configuration,
     sourceMapper: OptionalSourceMapper,
-    router: Provider[Router]
+    router: Provider[Router],
+    sentry: SentryConfig
 ) extends DefaultHttpErrorHandler(env, config, sourceMapper, router)
     with Logging {
-
-  private val stage = config.getOptional[String]("stage").getOrElse("DEV")
-  private val sentryDsn = config.getOptional[String]("raven.url").getOrElse("")
-  private val sentryLocalEnabled =
-    config.getOptional[Boolean]("sentry.local.enabled").getOrElse(false)
-  private val sentryEnabled =
-    sentryDsn.nonEmpty && (stage != "DEV" || sentryLocalEnabled)
-
-  private val sentryTarget = {
-    try {
-      val uri = URI.create(sentryDsn)
-      val host = Option(uri.getHost).getOrElse("unknown-host")
-      val projectId =
-        Option(uri.getPath)
-          .getOrElse("")
-          .split('/')
-          .filter(_.nonEmpty)
-          .lastOption
-          .getOrElse("unknown-project")
-      s"$host/$projectId"
-    } catch {
-      case _: Throwable => "unparseable-dsn"
-    }
-  }
-
-  private val sentryDisabledReason = {
-    if (sentryDsn.isEmpty) {
-      "raven.url is not configured"
-    } else if (stage == "DEV" && !sentryLocalEnabled) {
-      "stage is DEV and sentry.local.enabled is false"
-    } else {
-      "unknown"
-    }
-  }
-
-  if (sentryEnabled) {
-    Sentry.init(options => {
-      options.setDsn(sentryDsn)
-      options.setEnvironment(stage)
-      options.setAttachStacktrace(true)
-    })
-    log.info(
-      s"Sentry enabled for stage=$stage targeting=$sentryTarget"
-    )
-  } else {
-    log.warn(s"Sentry disabled: $sentryDisabledReason")
-  }
 
   private def captureInSentry(
       request: RequestHeader,
       exception: Throwable
   ): Unit = {
-    if (sentryEnabled) {
+    if (sentry.enabled) {
       Sentry.withScope(scope => {
         scope.setTag("http.method", request.method)
-        scope.setTag("http.path", request.path)
         scope.setTag("http.host", request.host)
-        scope.setTag("http.status_code", "500")
-        scope.setTag("stage", stage)
+        // The route pattern (e.g. /api/atoms/:id) rather than request.path,
+        // which embeds atom ids. Tags are indexed for search and degrade badly
+        // at high cardinality; the concrete path is in request.uri below.
+        request.attrs
+          .get(Router.Attrs.HandlerDef)
+          .foreach(handler => scope.setTag("http.route", handler.path))
         scope.setExtra("request.uri", request.uri)
         scope.setExtra("request.queryString", request.rawQueryString)
         scope.setExtra("request.remoteAddress", request.remoteAddress)
@@ -89,47 +45,24 @@ class RequestLogging @Inject() (
         )
         scope.setExtra(
           "request.id",
-          request.headers
-            .get("X-Request-Id")
-            .orElse(request.headers.get("x-request-id"))
-            .getOrElse("")
+          request.headers.get("X-Request-Id").getOrElse("")
         )
-        val eventId = Sentry.captureException(exception)
-        // Flush so local one-off test exceptions are sent before request teardown.
-        val flushed = Sentry.flush(2000)
-        log.info(
-          s"Sentry capture attempted for ${request.method} ${request.uri}, eventId=$eventId, flushed=$flushed"
-        )
+        Sentry.captureException(exception)
       })
     }
   }
 
-  private def captureAndLogServerError(
+  /** `DefaultHttpErrorHandler.onServerError` calls this exactly once per server
+    * error, in every mode, before dispatching to `onProdServerError` /
+    * `onDevServerError`. Hooking here (rather than the `on*ServerError` methods)
+    * guarantees a single Sentry event and a single log line per error.
+    */
+  override protected def logServerError(
       request: RequestHeader,
-      exception: UsefulException
+      usefulException: UsefulException
   ): Unit = {
-    captureInSentry(request, exception)
-    super.logServerError(request, exception)
-  }
-
-  override def onServerError(
-      request: RequestHeader,
-      exception: Throwable
-  ): Future[Result] = {
-    captureInSentry(request, exception)
-    log.error(
-      s"Server error for (${request.method}) [${request.uri}]",
-      exception
-    )
-    super.onServerError(request, exception)
-  }
-
-  override def onProdServerError(
-      request: RequestHeader,
-      exception: UsefulException
-  ): Future[Result] = {
-    captureAndLogServerError(request, exception)
-    super.onProdServerError(request, exception)
+    captureInSentry(request, usefulException)
+    super.logServerError(request, usefulException)
   }
 
   override def onClientError(

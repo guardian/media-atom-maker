@@ -27,7 +27,6 @@ import play.api.{
 import play.api.libs.ws.WSClient
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.mvc.{ControllerComponents, EssentialFilter}
-import play.api.routing.Router
 import play.filters.HttpFiltersComponents
 import router.Routes
 import schedule.GridAPI
@@ -36,7 +35,6 @@ import util._
 import java.io.FileInputStream
 import java.net.http.HttpClient
 import java.time.Duration
-import javax.inject.Provider
 
 class MediaAtomMakerLoader extends ApplicationLoader {
   override def load(context: Context): Application = new MediaAtomMaker(
@@ -54,16 +52,20 @@ class MediaAtomMaker(context: Context)
   LoggerConfigurator(context.environment.classLoader)
     .foreach(_.configure(context.environment))
 
+  // Constructed eagerly: initialising the Sentry SDK must happen before anything
+  // that might capture an event.
+  val sentryConfig = new SentryConfig(configuration)
+
   override lazy val httpFilters: Seq[EssentialFilter] =
-    super.httpFilters.filterNot(_ == allowedHostsFilter)
+    new SentryTracingFilter(sentryConfig)(executionContext) +:
+      super.httpFilters.filterNot(_ == allowedHostsFilter)
 
   override lazy val httpErrorHandler = new RequestLogging(
     environment,
     configuration,
-    new OptionalSourceMapper(sourceMapper),
-    new Provider[Router] {
-      override def get(): Router = router
-    }
+    new OptionalSourceMapper(devContext.map(_.sourceMapper)),
+    () => router,
+    sentryConfig
   )
 
   private val config = configuration.underlying
@@ -217,7 +219,8 @@ class MediaAtomMaker(context: Context)
     aws,
     permissions,
     youTube,
-    controllerComponents
+    controllerComponents,
+    sentryConfig
   )
 
   private val login = new Login(hmacAuthActions, controllerComponents)
