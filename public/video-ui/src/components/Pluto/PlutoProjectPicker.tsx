@@ -39,7 +39,7 @@ export const PlutoProjectPicker = ({ video }: Props) => {
   useEffect(() => {
     const commissionId = video.plutoData?.commissionId;
     if (commissionId) {
-      dispatch(fetchProjects(video.plutoData.commissionId));
+      dispatch(fetchProjects(commissionId));
     }
   }, [video.plutoData?.commissionId]);
 

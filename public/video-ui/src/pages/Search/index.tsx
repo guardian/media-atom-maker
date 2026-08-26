@@ -47,8 +47,10 @@ const Videos = ({
 }: VideosProps) => {
   const [mediaIds, setMediaIds] = useState<string[]>([]);
   const [videoPresences, setVideoPresences] = useState<VideoPresences[]>([]);
-  const [client, setClient] = useState<PresenceClient>(null);
-  const [presencesQueue, setPresencesQueue] = useState<PresenceData>(null);
+  const [client, setClient] = useState<PresenceClient | null>(null);
+  const [presencesQueue, setPresencesQueue] = useState<PresenceData | null>(
+    null
+  );
   const [prevSearch, setPrevSearch] = useState('');
 
   const dispatch = useDispatch<AppDispatch>();
@@ -69,8 +71,9 @@ const Videos = ({
       presenceClient => {
         presenceClient.startConnection();
         presenceClient.on('visitor-list-subscribe', visitorData => {
-          if (visitorData.data.subscribedTo) {
-            const initialState = visitorData.data.subscribedTo
+          const subscribedTo = visitorData?.data?.subscribedTo;
+          if (subscribedTo) {
+            const initialState = subscribedTo
               .map(subscribedTo => {
                 return {
                   mediaId: subscribedTo.subscriptionId,
@@ -82,7 +85,7 @@ const Videos = ({
           }
         });
         presenceClient.on('visitor-list-updated', data => {
-          if (data.subscriptionId && data.currentState) {
+          if (data?.subscriptionId && data?.currentState) {
             // We dump the data to a queue (which is picked up by a useEffect rather than directly modifying videoPresences
             // so we don't need to depend on videoPresences, which led to some cyclicality
             setPresencesQueue(data);
@@ -142,7 +145,7 @@ const Videos = ({
         {
           mediaId: presencesQueue.subscriptionId,
           presences: presencesQueue.currentState
-        }
+        } as VideoPresences
       ]);
       setPresencesQueue(null);
     }

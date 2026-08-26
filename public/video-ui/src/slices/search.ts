@@ -16,7 +16,8 @@ const initialState: Search = {
   searchTerm: '',
   shouldUseCreatedDateForSort:
     searchParams.get(QUERY_PARAM_shouldUseCreatedDateForSort) === 'true',
-  videoPlayerFormatFilter: searchParams.get(QUERY_PARAM_videoPlayerFormatFilter)
+  videoPlayerFormatFilter:
+    searchParams.get(QUERY_PARAM_videoPlayerFormatFilter) ?? ''
 };
 
 const search = createSlice({

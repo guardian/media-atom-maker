@@ -11,6 +11,17 @@ jest.mock('../../services/tagmanager', () => ({
   __esModule: true,
   getTagsByType: mockedGetTagsByType
 }));
+
+const mockedTagsFromStringList = jest.fn();
+jest.mock('../../util/tagParsers', () => {
+  const actual = jest.requireActual('../../util/tagParsers');
+  return {
+    __esModule: true,
+    ...actual,
+    tagsFromStringList: (...args) => mockedTagsFromStringList(...args)
+  };
+});
+
 import TagPicker from './TagPicker';
 
 const defaultProps = {
@@ -29,6 +40,16 @@ const defaultProps = {
 const store = setupStore();
 
 describe('TagPicker', () => {
+  beforeEach(() => {
+    mockedGetTagsByType.mockReset();
+    mockedTagsFromStringList.mockReset();
+    mockedTagsFromStringList.mockResolvedValue({
+      tags: [],
+      missingTagIds: []
+    });
+    defaultProps.onUpdateField.mockClear();
+  });
+
   it('searches for tags as user types', async () => {
     mockedGetTagsByType.mockResolvedValue({
       data: [
@@ -117,5 +138,22 @@ describe('TagPicker', () => {
     expect(
       await screen.queryByText('Tags are currently unavailable')
     ).not.toBeInTheDocument();
+  });
+
+  it('shows an error message when a tag is not found', async () => {
+    mockedTagsFromStringList.mockResolvedValueOnce({
+      tags: [{ id: 'keyword/missing-tag', webTitle: 'keyword/missing-tag' }],
+      missingTagIds: ['keyword/missing-tag']
+    });
+
+    render(
+      <Provider store={store}>
+        <TagPicker {...defaultProps} />
+      </Provider>
+    );
+
+    expect(
+      await screen.findByText('Tag not found: keyword/missing-tag')
+    ).toBeInTheDocument();
   });
 });

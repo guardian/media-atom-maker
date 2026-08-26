@@ -18,12 +18,12 @@ export default class Modal extends React.Component {
   }
 
   showModal() {
-    this.state.dialogRef.current?.showModal();
+    this.state.dialogRef?.current?.showModal();
     this.setState({ isOpen: true });
   }
 
   close() {
-    this.state.dialogRef.current?.close();
+    this.state.dialogRef?.current?.close();
   }
 
   handleCloseEvent = () => {
@@ -32,13 +32,13 @@ export default class Modal extends React.Component {
   };
 
   componentDidMount() {
-    this.state.dialogRef.current.addEventListener(
+    this.state.dialogRef?.current?.addEventListener(
       'close',
       this.handleCloseEvent
     );
   }
   componentWillUnmount() {
-    this.state.dialogRef.current.removeEventListener(
+    this.state.dialogRef?.current?.removeEventListener(
       'close',
       this.handleCloseEvent
     );

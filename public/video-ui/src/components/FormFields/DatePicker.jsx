@@ -139,6 +139,16 @@ function Display({ date, placeholder, fieldName }) {
   );
 }
 
+/**
+ * @param {object} [props]
+ * @param {boolean} [props.editable]
+ * @param {((date: number | null) => void) | null} [props.onUpdateField]
+ * @param {number | string | null} [props.fieldValue]
+ * @param {string | null} [props.placeholder]
+ * @param {string} [props.fieldName]
+ * @param {boolean} [props.dayOnly]
+ * @param {boolean} [props.canCancel]
+ */
 export default function CustomDatePicker({
   editable = false,
   onUpdateField = null,
