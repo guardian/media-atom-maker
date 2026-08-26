@@ -34,7 +34,11 @@ install_deps_and_build() {
 main() {
   check_node_version
   install_yarn
+  if [ "$USER" = "vscode" ]; then
+    echo "Running in VS Code dev container, skipping nginx setup"
+  else
   setup_nginx
+  fi
   install_deps_and_build
   printf "\n\rDone.\n\r\n\r"
 }
