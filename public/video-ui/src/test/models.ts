@@ -7,7 +7,7 @@ export const emptyVideo: Video = {
   labels: [],
   contentChangeDetails: {
     lastModified: {
-      date: 0,
+      date: '2026-07-13T09:08:40.292Z',
       user: {
         email: '',
         firstName: '',
@@ -15,7 +15,7 @@ export const emptyVideo: Video = {
       }
     },
     created: {
-      date: 0,
+      date: '2026-07-13T09:08:40.292Z',
       user: {
         email: '',
         firstName: '',
@@ -23,7 +23,7 @@ export const emptyVideo: Video = {
       }
     },
     published: {
-      date: 0,
+      date: '2026-07-13T09:08:40.292Z',
       user: {
         email: '',
         firstName: '',

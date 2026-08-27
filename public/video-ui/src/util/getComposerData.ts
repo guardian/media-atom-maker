@@ -2,24 +2,14 @@ import { parseComposerDataFromImage } from './parseGridMetadata';
 import { getStore } from './storeAccessor';
 import { impossiblyDistantDate } from '../constants/dates';
 import VideoUtils from './video';
-import moment from 'moment';
+import { VideoWithoutId } from '../services/VideosApi';
 
-/**
- * @param {string | undefined} date
- * @returns {number | undefined}
- */
-export const getDateAsNumber = date => {
-  if (typeof date === 'string') {
-    return moment(date).valueOf();
-  }
-};
-
-export function getComposerData(video) {
+export function getComposerData(video: VideoWithoutId) {
   const isTrainingMode = getStore().getState().config.isTrainingMode;
   const expiryDate = video?.contentChangeDetails?.expiry?.date;
-  const cleanedExpiryDate = getDateAsNumber(expiryDate);
-  const scheduledLaunch = getDateAsNumber(VideoUtils.getScheduledLaunch(video));
-  const embargo = getDateAsNumber(VideoUtils.getEmbargo(video));
+  const cleanedExpiryDate = expiryDate;
+  const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
+  const embargo = VideoUtils.getEmbargo(video);
   const isEmbargoedIndefinitely =
     isTrainingMode || (embargo && embargo >= impossiblyDistantDate);
   const embargoedUntil =
@@ -41,7 +31,7 @@ export function getComposerData(video) {
     keywords: video.keywords.join('|'),
     thumbnail:
       video.trailImage && video.trailImage.assets.length > 0
-        ? parseComposerDataFromImage(video.trailImage, video.trailText)
+        ? parseComposerDataFromImage(video.trailImage, video.trailText ?? '')
         : null,
     expiryDate: cleanedExpiryDate ? cleanedExpiryDate : null,
     scheduledLaunch: scheduledLaunch,
