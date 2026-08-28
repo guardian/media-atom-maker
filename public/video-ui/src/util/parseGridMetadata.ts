@@ -50,9 +50,9 @@ type ComposerAsset = {
   mimeType: string;
   url: string;
   fields: {
-    width: string;
-    height: string;
-    aspectRatio: string;
+    width?: string;
+    height?: string;
+    aspectRatio?: string;
   };
   isMaster?: 'true';
 };
@@ -65,7 +65,7 @@ type ComposerImageData = {
     isMandatory: 'true';
     mediaApiUrl: string;
     mediaId: string;
-    source: string;
+    source?: string;
   };
 };
 
@@ -108,7 +108,7 @@ export function parseImageFromGridCrop(
 }
 
 export function parseComposerDataFromImage(
-  image: ParsedImage,
+  image: Image,
   trail: string
 ): ComposerImageData {
   const mediaId = getGridMediaId(image);
@@ -117,31 +117,43 @@ export function parseComposerDataFromImage(
     throw new Error('Could not derive Grid media ID from parsed image');
   }
 
-  function getComposerAsset(asset: ParsedAsset): ComposerAsset {
-    return {
-      assetType: 'image',
-      mimeType: asset.mimeType,
-      url: asset.file,
-      fields: {
-        width: asset.dimensions.width.toString(),
-        height: asset.dimensions.height.toString(),
-        aspectRatio: asset.aspectRatio
-      }
-    };
+  function getComposerAsset(asset: ImageAsset): ComposerAsset | undefined {
+    if (asset.mimeType) {
+      return {
+        assetType: 'image',
+        mimeType: asset.mimeType,
+        url: asset.file,
+        fields: {
+          width: asset.dimensions?.width.toString(),
+          height: asset.dimensions?.height.toString(),
+          aspectRatio: asset.aspectRatio
+        }
+      };
+    } else {
+      return undefined;
+    }
   }
 
-  function getComposerMasterAsset(asset: ParsedAsset): ComposerAsset {
+  function getComposerMasterAsset(
+    asset: ImageAsset
+  ): ComposerAsset | undefined {
     const composerAsset = getComposerAsset(asset);
-    composerAsset.isMaster = 'true';
-    return composerAsset;
+    if (composerAsset) {
+      return {
+        ...composerAsset,
+        isMaster: 'true'
+      };
+    } else {
+      return undefined;
+    }
   }
 
   const alt = getTextFromHtml(trail);
 
   return {
-    assets: [getComposerMasterAsset(image.master)].concat(
-      image.assets.map(getComposerAsset)
-    ),
+    assets: [image.master ? getComposerMasterAsset(image.master) : undefined]
+      .concat(image.assets.map(getComposerAsset))
+      .filter((asset): asset is ComposerAsset => asset !== undefined),
     fields: {
       alt: alt,
       imageType: 'Photograph',

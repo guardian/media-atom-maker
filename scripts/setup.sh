@@ -37,7 +37,7 @@ main() {
   if [ "$USER" = "vscode" ]; then
     echo "Running in VS Code dev container, skipping nginx setup"
   else
-  setup_nginx
+    setup_nginx
   fi
   install_deps_and_build
   printf "\n\rDone.\n\r\n\r"
