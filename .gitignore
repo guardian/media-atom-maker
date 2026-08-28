@@ -17,6 +17,3 @@ metals.sbt
 .java-version
 **/manifest.json
 .vite
-
-# Sentry Config File
-.env.sentry-build-plugin

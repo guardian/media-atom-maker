@@ -41,10 +41,6 @@ if (sentryEnabled) {
     // No session replays; buffer in memory and only upload when an error occurs.
     replaysSessionSampleRate: 0,
     replaysOnErrorSampleRate: 1.0
-    // Deliberately left on the v10 defaults, which attach user info and HTTP
-    // bodies. This is an internal editorial tool behind pan-domain auth, and
-    // that context is what makes production errors diagnosable. Revisit if
-    // Sentry access ever widens beyond the team.
   });
 }
 

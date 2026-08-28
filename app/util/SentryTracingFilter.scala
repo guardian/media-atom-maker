@@ -12,6 +12,7 @@ import play.api.mvc.{EssentialAction, EssentialFilter, RequestHeader}
 import play.api.routing.Router
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 
 /** Opens a Sentry transaction per request so server-side performance data lines
@@ -28,8 +29,7 @@ class SentryTracingFilter(sentry: SentryConfig)(implicit
   private val Operation = "http.server"
 
   /** The load balancer polls `/healthcheck` continuously, and every page load
-    * pulls many static assets. Tracing either produces a high volume of billed
-    * transactions with no diagnostic value.
+    * pulls many static assets. Disable tracing for these routes.
     */
   private def shouldTrace(request: RequestHeader): Boolean =
     request.path != "/healthcheck" && !request.path.startsWith("/assets/")
@@ -41,16 +41,22 @@ class SentryTracingFilter(sentry: SentryConfig)(implicit
       } else {
         val transaction = startTransaction(request)
 
-        next(request).map { result =>
-          transaction.setStatus(
-            SpanStatus.fromHttpStatusCode(
-              result.header.status,
-              SpanStatus.UNKNOWN_ERROR
+        next(request)
+          .map { result =>
+            transaction.setStatus(
+              SpanStatus.fromHttpStatusCode(
+                result.header.status,
+                SpanStatus.UNKNOWN_ERROR
+              )
             )
-          )
-          transaction.finish()
-          result
-        }
+            transaction.finish()
+            result
+          }
+          .recoverWith { case error =>
+            transaction.setStatus(SpanStatus.INTERNAL_ERROR)
+            transaction.finish()
+            Future.failed(error)
+          }
       }
     }
 
