@@ -7,8 +7,8 @@ import javax.inject.{Inject, Singleton}
 import play.api.Configuration
 
 /** Single source of truth for Sentry setup. Initialises the SDK once at
-  * startup; the error handler, the tracing filter and the client-side config all
-  * read `enabled` from here so server and browser can never disagree about
+  * startup; the error handler, the tracing filter and the client-side config
+  * all read `enabled` from here so server and browser can never disagree about
   * whether Sentry is on.
   */
 @Singleton

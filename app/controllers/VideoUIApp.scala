@@ -82,7 +82,7 @@ class VideoUIApp(
         isHotReloading,
         CSRF.getToken.value
       )
-    // This header is needed for Sentry browser profiling to work. See: https://docs.sentry.io/platforms/javascript/profiling/
+      // This header is needed for Sentry browser profiling to work. See: https://docs.sentry.io/platforms/javascript/profiling/
     ).withHeaders("Document-Policy" -> "js-profiling")
   }
 

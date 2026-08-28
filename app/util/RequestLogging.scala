@@ -26,7 +26,7 @@ class RequestLogging @Inject() (
       request: RequestHeader,
       exception: Throwable
   ): Unit = {
-    
+
     Sentry.withScope(scope => {
       scope.setTag("http.method", request.method)
       scope.setTag("http.host", request.host)
