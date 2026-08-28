@@ -27,7 +27,7 @@
         <!-- Connect directly to Vite dev server in development -->
         <!-- See https://vitejs.dev/guide/backend-integration.html -->
       <script type="module">
-        import RefreshRuntime from 'http://localhost:5173/@@react-refresh'
+        import RefreshRuntime from 'http://localhost:5189/@@react-refresh'
 
         RefreshRuntime.injectIntoGlobalHook(window)
         window.$RefreshReg$ = () => {
@@ -35,8 +35,8 @@
         window.$RefreshSig$ = () => (type) => type
         window.__vite_plugin_react_preamble_installed__ = true
       </script>
-      <script type="module" src="http://localhost:5173/@@vite/client"></script>
-      <script type="module" src="http://localhost:5173/public/video-ui/src/app.tsx"></script>
+      <script type="module" src="http://localhost:5189/@@vite/client"></script>
+      <script type="module" src="http://localhost:5189/public/video-ui/src/app.tsx"></script>
     } else {
       <link rel="stylesheet" type="text/css" href="/build/app.css">
       <script type="module" src="@jsFileLocation"></script>

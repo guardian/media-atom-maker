@@ -14,7 +14,7 @@ name: "media-atom-maker"
 # To disable, comment out or remove items from this list
 modules:
   - mise
-  - docker-in-docker
+#  - docker-in-docker
   - scala
   - node
   - github-copilot
@@ -22,7 +22,7 @@ modules:
 # Optional: Ports to forward
 forwardPorts:
   - 9001
-  - 5173
+  - 5189
 
 # Optional: Mount directories from host to container
 # mounts:
