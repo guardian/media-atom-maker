@@ -22,6 +22,8 @@ export default defineConfig({
   },
   server: {
     origin: 'http://localhost:5173',
+    host: true,
+    port: 5173,
     cors: {
       origin: 'https://video.local.dev-gutools.co.uk'
     },
