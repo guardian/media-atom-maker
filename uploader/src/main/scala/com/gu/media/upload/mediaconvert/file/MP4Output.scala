@@ -2,13 +2,13 @@ package com.gu.media.upload.mediaconvert.file
 
 import com.gu.contentatom.thrift.atom.media.AssetType
 import com.gu.media.model.VideoSource
-import com.gu.media.upload.mediaconvert.OutputDefinition
-import com.gu.media.upload.mediaconvert.SharedCodecSettings.{
-  aacAudioDescription,
-  h264Settings
+import com.gu.media.upload.mediaconvert.{
+  EncodingConfig,
+  OutputDefinition,
+  VideoCodecWrapper
 }
+import com.gu.media.upload.mediaconvert.SharedCodecSettings.aacAudioDescription
 import software.amazon.awssdk.services.mediaconvert.model._
-import com.gu.media.upload.mediaconvert.EncodingConfig
 
 object MP4Output {
 
@@ -34,11 +34,7 @@ object MP4Output {
               .width(config.dimensions.width.map(Integer.valueOf).orNull)
               .sharpness(100) // Sharpest possible
               .codecSettings(
-                VideoCodecSettings
-                  .builder()
-                  .codec(VideoCodec.H_264)
-                  .h264Settings(h264Settings(config.qualityLevel))
-                  .build()
+                config.codecSettings
               )
               .build()
           )
@@ -46,7 +42,8 @@ object MP4Output {
         if (hasAudio)
           outputBuilder.audioDescriptions(aacAudioDescription).build()
         else outputBuilder.build()
-      }
+      },
+      codec = VideoCodecWrapper(config.codecSettings.codec())
     )
   }
 }
