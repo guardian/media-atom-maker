@@ -3,21 +3,21 @@ import moment from 'moment';
 import { getStore } from './storeAccessor';
 import PrivacyStates from '../constants/privacyStates';
 import { VideoPlayerFormat } from "../constants/videoCreateOptions";
-import { ContentChangeDetails, PlutoData, IconikData, Image, Platform, Asset, MediaAtomSummary } from "../services/VideosApi";
+import { Asset, MediaAtomSummary, Video } from "../services/VideosApi";
 
 export default class VideoUtils {
-  static hasAssets({ assets }: any) {
+  static hasAssets({ assets }: Pick<Video, 'assets'>) {
     return assets.length > 0;
   }
 
-  static getActiveAsset({ assets, activeVersion }: any) {
+  static getActiveAsset({ assets, activeVersion }: Pick<Video, 'assets' | 'activeVersion'>) {
     if (activeVersion) {
-      const active = assets.filter((_: { version: any; }) => _.version === activeVersion);
+      const active = assets.filter((_: Asset) => _.version === activeVersion);
       return active.length === 1 ? active[0] : active;
     }
   }
 
-  static getYoutubeChannel({ channelId }: any) {
+  static getYoutubeChannel({ channelId }: Pick<Video, 'channelId'>) {
     if (!channelId) {
       return false;
     }
@@ -27,7 +27,7 @@ export default class VideoUtils {
     return stateChannels.find(_ => _.id === channelId);
   }
 
-  static hasYoutubeWriteAccess({ channelId, privacyStatus }: any) {
+  static hasYoutubeWriteAccess({ channelId, privacyStatus }: Pick<Video, 'channelId' | 'privacyStatus'>) {
     const availablePrivacyStates = VideoUtils.getAvailablePrivacyStates({
       channelId
     });
@@ -35,38 +35,38 @@ export default class VideoUtils {
     if (
       !!privacyStatus &&
       availablePrivacyStates &&
-      !availablePrivacyStates.includes(privacyStatus)
+      !availablePrivacyStates.includes(privacyStatus as string)
     ) {
       return false;
     }
     return !!VideoUtils.getYoutubeChannel({ channelId });
   }
 
-  static getAvailableChannels({ category }: any) {
+  static getAvailableChannels({ category }: Pick<Video, 'category'>) {
     const state = getStore().getState();
     const stateChannels = state.youtube.channels;
     const isCommercialType = VideoUtils.isCommercialType({ category });
     return stateChannels.filter(_ => _.isCommercial === isCommercialType);
   }
 
-  static getAvailablePrivacyStates({ channelId }: any) {
+  static getAvailablePrivacyStates({ channelId }: Pick<Video, 'channelId'>) {
     const channel = VideoUtils.getYoutubeChannel({ channelId });
     return channel ? channel.privacyStates : PrivacyStates.defaultStates;
   }
 
-  static isCommercialType({ category }: any) {
-    return ['Hosted', 'Paid'].includes(category);
+  static isCommercialType({ category }: Pick<Video, 'category'>) {
+    return ['Hosted', 'Paid'].includes(category as string);
   }
 
-  static isLiveStream({ category }: any) {
+  static isLiveStream({ category }: Pick<Video, 'category'>) {
     return category === 'Livestream';
   }
 
-  static isHosted({ category }: any) {
+  static isHosted({ category }: Pick<Video, 'category'>) {
     return category === 'Hosted';
   }
 
-  static isEligibleForAds(atom: any) {
+  static isEligibleForAds(atom: Pick<Video, 'assets' | 'category' | 'duration'>) {
     if (!VideoUtils.hasAssets(atom)) {
       return true;
     }
@@ -80,14 +80,14 @@ export default class VideoUtils {
     }
 
     const minDurationForAds = getStore().getState().config.minDurationForAds;
-    return atom.duration > 0 && atom.duration >= minDurationForAds;
+    return atom.duration != null && atom.duration > 0 && atom.duration >= minDurationForAds;
   }
 
-  static canUploadToYouTube({ youtubeCategoryId, channelId, privacyStatus }: any) {
+  static canUploadToYouTube({ youtubeCategoryId, channelId, privacyStatus }: Pick<Video, 'youtubeCategoryId' | 'channelId' | 'privacyStatus'>) {
     return !!youtubeCategoryId && !!channelId && !!privacyStatus;
   }
 
-  static getScheduledLaunch({ contentChangeDetails }: any) {
+  static getScheduledLaunch({ contentChangeDetails }: Pick<Video, 'contentChangeDetails'>) {
     return (
       contentChangeDetails &&
       contentChangeDetails.scheduledLaunch &&
@@ -95,7 +95,7 @@ export default class VideoUtils {
     );
   }
 
-  static getEmbargo({ contentChangeDetails }: any) {
+  static getEmbargo({ contentChangeDetails }: Pick<Video, 'contentChangeDetails'>) {
     return (
       contentChangeDetails &&
       contentChangeDetails.embargo &&
@@ -103,28 +103,28 @@ export default class VideoUtils {
     );
   }
 
-  static getScheduledLaunchAsDate(video: { id?: string; type?: string | undefined; labels?: string[]; contentChangeDetails: any; assets?: Asset[]; activeVersion?: number | undefined; title?: string; category?: unknown; plutoData?: PlutoData | undefined; iconikData?: IconikData | undefined; duration?: number | undefined; source?: string | undefined; description?: string | undefined; trailText?: string | undefined; posterImage?: Image | undefined; trailImage?: Image | undefined; youtubeOverrideImage?: Image | undefined; tags?: string[]; byline?: string[]; commissioningDesks?: string[]; atomTagIds?: string[]; keywords?: string[]; youtubeCategoryId?: string | undefined; license?: string | undefined; channelId?: string | undefined; legallySensitive?: boolean | undefined; sensitive?: boolean | undefined; privacyStatus?: unknown; expiryDate?: number | undefined; youtubeTitle?: string; youtubeDescription?: string | undefined; blockAds?: boolean; composerCommentsEnabled?: boolean | undefined; optimisedForWeb?: boolean | undefined; suppressRelatedContent?: boolean | undefined; videoPlayerFormat?: VideoPlayerFormat | undefined; platform?: Platform | undefined; }) {
+  static getScheduledLaunchAsDate(video: Pick<Video, 'contentChangeDetails'>) {
     const scheduledLaunch = VideoUtils.getScheduledLaunch(video);
     return scheduledLaunch ? moment(scheduledLaunch) : null;
   }
 
-  static getEmbargoAsDate(video: { id?: string; type?: string | undefined; labels?: string[]; contentChangeDetails: any; assets?: Asset[]; activeVersion?: number | undefined; title?: string; category?: unknown; plutoData?: PlutoData | undefined; iconikData?: IconikData | undefined; duration?: number | undefined; source?: string | undefined; description?: string | undefined; trailText?: string | undefined; posterImage?: Image | undefined; trailImage?: Image | undefined; youtubeOverrideImage?: Image | undefined; tags?: string[]; byline?: string[]; commissioningDesks?: string[]; atomTagIds?: string[]; keywords?: string[]; youtubeCategoryId?: string | undefined; license?: string | undefined; channelId?: string | undefined; legallySensitive?: boolean | undefined; sensitive?: boolean | undefined; privacyStatus?: unknown; expiryDate?: number | undefined; youtubeTitle?: string; youtubeDescription?: string | undefined; blockAds?: boolean; composerCommentsEnabled?: boolean | undefined; optimisedForWeb?: boolean | undefined; suppressRelatedContent?: boolean | undefined; videoPlayerFormat?: VideoPlayerFormat | undefined; platform?: Platform | undefined; }) {
+  static getEmbargoAsDate(video: Pick<Video, 'contentChangeDetails'>) {
     const embargo = VideoUtils.getEmbargo(video);
     return embargo ? moment(embargo) : null;
   }
 
-  static isPublished({ contentChangeDetails }: any) {
+  static isPublished({ contentChangeDetails }: Pick<Video, 'contentChangeDetails'>) {
     return !!contentChangeDetails.published;
   }
 
-  static hasExpired({ contentChangeDetails }: any) {
+  static hasExpired({ contentChangeDetails }: Pick<Video, 'contentChangeDetails'>) {
     return (
       !!contentChangeDetails.expiry &&
       contentChangeDetails.expiry.date <= Date.now()
     );
   }
 
-  static getPlatformFromAtom(atom: { id?: string; type?: string | undefined; labels?: string[]; contentChangeDetails?: ContentChangeDetails; assets?: Asset[]; activeVersion?: number | undefined; title?: string; category?: unknown; plutoData?: PlutoData | undefined; iconikData?: IconikData | undefined; duration?: number | undefined; source?: string | undefined; description?: string | undefined; trailText?: string | undefined; posterImage?: Image | undefined; trailImage?: Image | undefined; youtubeOverrideImage?: Image | undefined; tags?: string[]; byline?: string[]; commissioningDesks?: string[]; atomTagIds?: string[]; keywords?: string[]; youtubeCategoryId?: string | undefined; license?: string | undefined; channelId?: string | undefined; legallySensitive?: boolean | undefined; sensitive?: boolean | undefined; privacyStatus?: unknown; expiryDate?: number | undefined; youtubeTitle?: string; youtubeDescription?: string | undefined; blockAds?: boolean; composerCommentsEnabled?: boolean | undefined; optimisedForWeb?: boolean | undefined; suppressRelatedContent?: boolean | undefined; videoPlayerFormat?: VideoPlayerFormat | undefined; platform: any; }) {
+  static getPlatformFromAtom(atom: Pick<Video, 'platform'>) {
     return atom?.platform?.toLowerCase() || null;
   }
 
@@ -132,14 +132,14 @@ export default class VideoUtils {
     return atomSummary?.platform?.toLowerCase() || null;
   }
 
-  static canHaveComposerPage(atom: { id?: string; type?: string | undefined; labels?: string[]; contentChangeDetails?: ContentChangeDetails; assets?: Asset[]; activeVersion?: number | undefined; title?: string; category?: unknown; plutoData?: PlutoData | undefined; iconikData?: IconikData | undefined; duration?: number | undefined; source?: string | undefined; description?: string | undefined; trailText?: string | undefined; posterImage?: Image | undefined; trailImage?: Image | undefined; youtubeOverrideImage?: Image | undefined; tags?: string[]; byline?: string[]; commissioningDesks?: string[]; atomTagIds?: string[]; keywords?: string[]; youtubeCategoryId?: string | undefined; license?: string | undefined; channelId?: string | undefined; legallySensitive?: boolean | undefined; sensitive?: boolean | undefined; privacyStatus?: unknown; expiryDate?: number | undefined; youtubeTitle?: string; youtubeDescription?: string | undefined; blockAds?: boolean; composerCommentsEnabled?: boolean | undefined; optimisedForWeb?: boolean | undefined; suppressRelatedContent?: boolean | undefined; videoPlayerFormat: any; platform?: Platform | undefined; }) {
+  static canHaveComposerPage(atom: Pick<Video, 'videoPlayerFormat'>) {
     return (
       atom.videoPlayerFormat !== 'Cinemagraph' &&
       atom.videoPlayerFormat !== 'Loop'
     );
   }
 
-  static mustHaveTags(atom: { id?: string; type?: string | undefined; labels?: string[]; contentChangeDetails?: ContentChangeDetails; assets?: Asset[]; activeVersion?: number | undefined; title?: string; category?: unknown; plutoData?: PlutoData | undefined; iconikData?: IconikData | undefined; duration?: number | undefined; source?: string | undefined; description?: string | undefined; trailText?: string | undefined; posterImage?: Image | undefined; trailImage?: Image | undefined; youtubeOverrideImage?: Image | undefined; tags?: string[]; byline?: string[]; commissioningDesks?: string[]; atomTagIds?: string[]; keywords?: string[]; youtubeCategoryId?: string | undefined; license?: string | undefined; channelId?: string | undefined; legallySensitive?: boolean | undefined; sensitive?: boolean | undefined; privacyStatus?: unknown; expiryDate?: number | undefined; youtubeTitle?: string; youtubeDescription?: string | undefined; blockAds?: boolean; composerCommentsEnabled?: boolean | undefined; optimisedForWeb?: boolean | undefined; suppressRelatedContent?: boolean | undefined; videoPlayerFormat: any; platform?: Platform | undefined; }) {
+  static mustHaveTags(atom: Pick<Video, 'videoPlayerFormat'>) {
     return atom.videoPlayerFormat === 'Default';
   }
 }
