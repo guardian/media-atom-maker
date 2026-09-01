@@ -2,6 +2,7 @@ import { apiRequest } from './apiRequest';
 import { errorDetails } from '../util/errorDetails';
 import { S3 } from '@aws-sdk/client-s3';
 import { XhrHttpHandler } from '@aws-sdk/xhr-http-handler';
+import { Upload } from '../slices/s3Upload';
 
 // TO DO - convert to typescript, use definition of `Upload` at public/video-ui/src/components/VideoUpload/VideoAsset.tsx
 
@@ -10,7 +11,7 @@ import { XhrHttpHandler } from '@aws-sdk/xhr-http-handler';
  * @param atomId {string}
  * @returns {Promise<unknown>}
  */
-export function getUploads(atomId) {
+export function getUploads(atomId: string) {
   return apiRequest({
     url: `/api/uploads?atomId=${atomId}`
   });
@@ -23,7 +24,7 @@ export function getUploads(atomId) {
  * @param selfHost {boolean=}
  * @returns {Promise<unknown>}
  */
-export function createUpload(atomId, file, selfHost) {
+export function createUpload(atomId: string, file: File, selfHost?: boolean) {
   return apiRequest({
     url: `/api/uploads`,
     method: 'post',
@@ -39,7 +40,7 @@ export function createUpload(atomId, file, selfHost) {
   });
 }
 
-function getCredentials(id, key) {
+function getCredentials(id: string, key: any) {
   return apiRequest({
     url: `/api/uploads/${id}/credentials?key=${key}`,
     method: 'post',
@@ -55,7 +56,7 @@ function getCredentials(id, key) {
  * @param credentials {any}
  * @returns {S3}
  */
-function getS3(region, credentials) {
+function getS3(region: string, credentials: any) {
   const { temporaryAccessId, temporarySecretKey, sessionToken } = credentials;
 
   const awsCredentials = {
@@ -83,7 +84,8 @@ function getS3(region, credentials) {
  * @param progressFn {(completed: number) => any}
  * @returns {Promise<unknown>}
  */
-function uploadPart(upload, part, file, progressFn) {
+// @ts-expect-error TS(2693): 'Upload' only refers to a type, but is being used ... Remove this comment to see the full error message
+function uploadPart(upload: Upload, part: typeof Upload['parts'][number], file: File, progressFn: (completed: number) => any) {
   const slice = file.slice(part.start, part.end);
 
   return getCredentials(upload.id, part.key).then(credentials => {
@@ -94,6 +96,7 @@ function uploadPart(upload, part, file, progressFn) {
         Bucket: upload.metadata.bucket,
         Key: part.key,
         Metadata: { original: file.name },
+        // @ts-expect-error TS(2322): Type 'ArrayBuffer' is not assignable to type 'Stre... Remove this comment to see the full error message
         Body: body
       })
     );
@@ -115,9 +118,10 @@ function uploadPart(upload, part, file, progressFn) {
  * @param progressFn {(completed: number) => any}
  * @returns {Promise<boolean>}
  */
-export function uploadParts(upload, parts, file, progressFn) {
+// @ts-expect-error TS(2693): 'Upload' only refers to a type, but is being used ... Remove this comment to see the full error message
+export function uploadParts(upload: Upload, parts: typeof Upload['parts'], file: File, progressFn: (completed: number) => any) {
   return new Promise((resolve, reject) => {
-    function uploadPartRecursive(parts) {
+    function uploadPartRecursive(parts: string | any[]) {
       if (parts.length === 0) {
         resolve(true);
       } else {
@@ -145,7 +149,11 @@ export function uploadParts(upload, parts, file, progressFn) {
  * @param file - the local file to upload
  * @returns {Promise}
  */
-export function uploadSubtitleFile({ id, version, file }) {
+export function uploadSubtitleFile({ id, version, file }: {
+    id?: any;
+    version?: any;
+    file?: any;
+}) {
   const formData = new FormData();
   formData.append('subtitle-file', file);
 
@@ -155,18 +163,20 @@ export function uploadSubtitleFile({ id, version, file }) {
     headers: {
       'Csrf-Token': window.guardian.csrf.token
     },
+    // @ts-expect-error TS(2322): Type 'FormData' is not assignable to type 'string'... Remove this comment to see the full error message
     body: formData,
     processData: false
   });
 }
 
-export function deleteSubtitleFile({ id, version }) {
+export function deleteSubtitleFile({ id, version }: any) {
   return apiRequest({
     url: `/api/uploads/${id}/${version}/subtitle-file`,
     method: 'delete',
     headers: {
       'Csrf-Token': window.guardian.csrf.token
     },
+    // @ts-expect-error TS(2353): Object literal may only specify known properties, ... Remove this comment to see the full error message
     processData: false
   });
 }

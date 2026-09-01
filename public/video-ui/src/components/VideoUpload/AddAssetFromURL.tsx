@@ -1,7 +1,19 @@
 import React from 'react';
+import { createAsset } from "../../actions/VideoActions/createAsset";
+import { Video } from "../../services/VideosApi";
 
-export default class AddAssetFromURL extends React.Component {
-  constructor(props) {
+type Props = {
+    createAsset: typeof createAsset;
+    video: Video;
+    isAdding: boolean;
+};
+
+type State = {
+    uri: any;
+};
+
+export default class AddAssetFromURL extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
     this.state = { uri: null };
   }
@@ -12,7 +24,7 @@ export default class AddAssetFromURL extends React.Component {
     }
   };
 
-  onChange = e => {
+  onChange = (e: { target: { value: any; }; }) => {
     this.setState({ uri: e.target.value });
   };
 

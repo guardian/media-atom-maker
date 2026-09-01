@@ -9,7 +9,7 @@ export default class TargetingApi {
     return getStore().getState().config.targetingUrl;
   }
 
-  static createTarget({ id, title, expiryDate }) {
+  static createTarget({ id, title, expiryDate }: any) {
     const data = {
       title,
       tagPaths: [],
@@ -28,7 +28,7 @@ export default class TargetingApi {
     return apiRequest(params);
   }
 
-  static updateTarget({ id, ...data }) {
+  static updateTarget({ id, ...data }: any) {
     const params = {
       url: `${TargetingApi.targetingUrl}/api/suggestions/${id}`,
       method: 'put',
@@ -40,7 +40,7 @@ export default class TargetingApi {
     return apiRequest(params);
   }
 
-  static deleteTarget({ id }) {
+  static deleteTarget({ id }: any) {
     const params = {
       method: 'delete',
       url: `${TargetingApi.targetingUrl}/api/suggestions/${id}`,
@@ -51,7 +51,7 @@ export default class TargetingApi {
     return apiRequest(params);
   }
 
-  static getTargets({ id }) {
+  static getTargets({ id }: any) {
     const params = {
       url: `${TargetingApi.targetingUrl}/api/suggestions/search?url=/atom/media/${id}`,
       crossOrigin: true,

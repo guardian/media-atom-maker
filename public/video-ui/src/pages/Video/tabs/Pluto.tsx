@@ -1,10 +1,14 @@
-import PropTypes from 'prop-types';
+
 import React, { useEffect, useState } from 'react';
 import { Tab, TabPanel } from 'react-tabs';
 import PlutoProjectLink from '../../../components/Pluto/PlutoProjectLink';
 import { getPlutoItemById } from '../../../services/PlutoApi';
 
-export class PlutoTab extends React.Component {
+type PlutoTabProps = {
+    disabled: any;
+};
+
+export class PlutoTab extends React.Component<PlutoTabProps> {
   static tabsRole = Tab.tabsRole;
 
   render() {
@@ -12,14 +16,15 @@ export class PlutoTab extends React.Component {
   }
 }
 
-export class PlutoTabPanel extends React.Component {
+type PlutoTabPanelProps = {
+    video: any;
+};
+
+export class PlutoTabPanel extends React.Component<PlutoTabPanelProps> {
   static tabsRole = TabPanel.tabsRole;
 
-  static propTypes = {
-    video: PropTypes.object.isRequired
-  };
-
   render() {
+    // @ts-expect-error TS(2339): Property 'updateVideo' does not exist on type 'Rea... Remove this comment to see the full error message
     const { video, updateVideo, ...rest } = this.props;
 
     return (
@@ -51,7 +56,8 @@ export class PlutoTabPanel extends React.Component {
  * @param {{id: string, itemType: import('../../../services/PlutoApi').PlutoItemType}} param0
  * @returns
  */
-const ReadOnlyPlutoItem = ({ id, itemType }) => {
+// @ts-expect-error TS(2694): Namespace '"/Users/david_furey/code/media-atom-mak... Remove this comment to see the full error message
+function ReadOnlyPlutoItem({ id, itemType }: { id: string; itemType: import('../../../services/PlutoApi').PlutoItemType; }) {
   const [title, setTitle] = useState(id ? 'Loading...' : '');
 
   useEffect(() => {
@@ -67,4 +73,4 @@ const ReadOnlyPlutoItem = ({ id, itemType }) => {
   }, [id, itemType]);
 
   return <p className="details-list__field">{title}</p>;
-};
+}

@@ -1,12 +1,20 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import moment from 'moment';
 import { getStore } from '../../util/storeAccessor';
 import { FrontendIcon, ComposerIcon, ViewerIcon } from '../Icon';
 
 import ContentApi from '../../services/capi';
+import { Video } from "../../services/VideosApi";
+import { UsageState } from "../../slices/usage";
 
-export default class VideoUsages extends React.Component {
+type Props = {
+    usages: UsageState;
+    video: Video;
+    publishedVideo: Video;
+};
+
+export default class VideoUsages extends React.Component<Props> {
+
   getComposerUrl = () => {
     return getStore().getState().config.composerUrl;
   };
@@ -15,7 +23,7 @@ export default class VideoUsages extends React.Component {
     return getStore().getState().config.viewerUrl;
   };
 
-  renderUsage = ({ usage, state }) => {
+  renderUsage = ({ usage, state }: any) => {
     const composerLink = `${this.getComposerUrl()}/content/${usage.fields.internalComposerCode}`;
     const viewerLink = `${this.getViewerUrl()}/preview/${usage.id}`;
     const websiteLink = `https://www.theguardian.com/${usage.id}`;
@@ -75,26 +83,15 @@ export default class VideoUsages extends React.Component {
     const usages = this.props.usages.data;
 
     return Object.keys(usages).map(state => {
-      const totalUsages =
-        usages[state].video.length + usages[state].other.length;
+      const totalUsages = usages[state as keyof typeof usages].video.length + usages[state as keyof typeof usages].other.length;
 
-      return (
-        <div key={`${state}-usages`}>
+      return (<div key={`${state}-usages`}>
           <p className="details-list__title">{`${state.charAt(0).toUpperCase() + state.slice(1)} (Total: ${totalUsages})`}</p>
-          {totalUsages === 0 ? (
-            <p className="usage--none details-list__field">{`No ${state} usages found`}</p>
-          ) : (
-            <ul className="detail__list">
-              {usages[state].video.map(usage =>
-                this.renderUsage({ usage, state })
-              )}
-              {usages[state].other.map(usage =>
-                this.renderUsage({ usage, state })
-              )}
-            </ul>
-          )}
-        </div>
-      );
+          {totalUsages === 0 ? (<p className="usage--none details-list__field">{`No ${state} usages found`}</p>) : (<ul className="detail__list">
+              {usages[state as keyof typeof usages].video.map((usage: any) => this.renderUsage({ usage, state }))}
+              {usages[state as keyof typeof usages].other.map((usage: any) => this.renderUsage({ usage, state }))}
+            </ul>)}
+        </div>);
     });
   }
 
@@ -102,9 +99,3 @@ export default class VideoUsages extends React.Component {
     return <div className="usage">{this.renderUsages()}</div>;
   }
 }
-
-VideoUsages.propTypes = {
-  usages: PropTypes.object.isRequired,
-  video: PropTypes.object.isRequired,
-  publishedVideo: PropTypes.object.isRequired
-};

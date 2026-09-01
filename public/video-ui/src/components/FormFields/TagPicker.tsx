@@ -1,5 +1,5 @@
 import React from 'react';
-import { getTagsByType } from '../../services/tagmanager';
+import { getTagsByType, Section } from '../../services/tagmanager';
 import { tagsFromStringList, tagsToStringList } from '../../util/tagParsers';
 import { keyCodes } from '../../constants/keyCodes';
 import TagTypes from '../../constants/TagTypes';
@@ -15,8 +15,18 @@ import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
 import YouTubeKeywords from '../../constants/youTubeKeywords';
 import debounce from 'lodash/debounce';
 
-class TagPicker extends React.Component {
-  constructor(props) {
+type State = {
+    searchResultTags: any[] | never[];
+    tagValue: any[] | ParsedTag[] | any[];
+    capiError: string | null;
+    showTags: boolean;
+    tagsVisible: boolean;
+    selectedTagIndex: number;
+    inputClearCount: any;
+};
+
+class TagPicker extends React.Component<object & { disableTextInput?: boolean; disableCapiTags?: boolean } & { placeholder?: string; tagSubType?: string; editable?: boolean; fieldName?: string }, State> {
+  constructor(props: object) {
     super(props);
     this.state = {
       searchResultTags: [],
@@ -24,12 +34,13 @@ class TagPicker extends React.Component {
       capiError: null,
       showTags: true,
       tagsVisible: false,
+      // @ts-expect-error TS(2322): Type 'null' is not assignable to type 'number'.
       selectedTagIndex: null,
       inputClearCount: 0
     };
   }
 
-  formatMissingTagError = missingTagIds => {
+  formatMissingTagError = (missingTagIds: any) => {
     if (!missingTagIds || missingTagIds.length === 0) {
       return null;
     }
@@ -37,74 +48,73 @@ class TagPicker extends React.Component {
     return `Tag not found: ${missingTagIds.join(', ')}`;
   };
 
-  revalidateSavedTags = savedTagIds => {
-    return tagsFromStringList(savedTagIds, this.props.tagType)
-      .then(result => {
-        this.setState({
-          capiError: this.formatMissingTagError(result.missingTagIds)
-        });
-      })
-      .catch(() => {
-        this.setState({
-          capiError: 'Tags are currently unavailable'
-        });
-      });
+  revalidateSavedTags = (savedTagIds: string[]) => {
+    return tagsFromStringList(savedTagIds, (this.props as any).tagType)
+    .then(result => {
+    this.setState({
+        capiError: this.formatMissingTagError(result.missingTagIds)
+    });
+})
+    .catch(() => {
+    this.setState({
+        capiError: 'Tags are currently unavailable'
+    });
+});
   };
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: object) {
     const nextProps = this.props;
 
-    if (prevProps.tagType === TagTypes.youtube) {
-      if (prevProps.fieldValue.length !== nextProps.fieldValue.length) {
-        tagsFromStringList(nextProps.fieldValue, prevProps.tagType).then(
-          result => {
-            this.setState({
-              tagValue: result.tags
-            });
-          }
-        );
+    if ((prevProps as any).tagType === TagTypes.youtube) {
+      if ((prevProps as any).fieldValue.length !== (nextProps as any).fieldValue.length) {
+        tagsFromStringList((nextProps as any).fieldValue, (prevProps as any).tagType).then(result => {
+    this.setState({
+        tagValue: result.tags
+    });
+});
       }
     }
   }
 
   componentDidMount() {
     ReactTooltip.rebuild();
-    if (this.props.fieldValue !== this.props.placeholder) {
-      tagsFromStringList(this.props.fieldValue, this.props.tagType)
-        .then(result => {
-          if (result.missingTagIds.length > 0) {
-            this.setState({
-              capiError: this.formatMissingTagError(result.missingTagIds)
-            });
-          }
-          this.setState({
-            tagValue: getTagDisplayNames(result.tags)
-          });
-        })
-        .catch(() => {
-          // capi is unavailable and we cannot get webtitles for tags
-          this.setState({
-            tagValue: this.props.fieldValue.slice(),
-            capiError: 'Tags are currently unavailable'
-          });
+    if ((this.props as any).fieldValue !== this.props.placeholder) {
+      tagsFromStringList((this.props as any).fieldValue, (this.props as any).tagType)
+    .then(result => {
+    if (result.missingTagIds.length > 0) {
+        this.setState({
+            capiError: this.formatMissingTagError(result.missingTagIds)
         });
+    }
+    this.setState({
+        // @ts-expect-error TS(2345): Argument of type 'ParsedTag[]' is not assignable t... Remove this comment to see the full error message
+        tagValue: getTagDisplayNames(result.tags)
+    });
+})
+    .catch(() => {
+    // capi is unavailable and we cannot get webtitles for tags
+    this.setState({
+        tagValue: (this.props as any).fieldValue.slice(),
+        capiError: 'Tags are currently unavailable'
+    });
+});
     }
   }
 
   _getTagTypes() {
     const defaultTagTypes = [TagTypes.tone, TagTypes.series, TagTypes.keyword];
 
-    switch (this.props.tagType) {
+    switch ((this.props as any).tagType) {
       case TagTypes.keyword:
         return defaultTagTypes;
       case TagTypes.commercial:
         return [TagTypes.commercial, ...defaultTagTypes];
       default:
-        return [this.props.tagType];
+        return [(this.props as any).tagType];
     }
   }
 
-  getTagFromTagManager = tag => {
+  getTagFromTagManager = (tag: { id?: number; path: any; type?: string; internalName: any; externalName: any; deprecated?: boolean; section?: Section; subType?: string | undefined; }) => {
     return {
       id: tag.path,
       webTitle: tag.externalName,
@@ -112,7 +122,7 @@ class TagPicker extends React.Component {
     };
   };
 
-  fetchTags = searchText => {
+  fetchTags = (searchText: string) => {
     const tagTypes = this._getTagTypes();
 
     if (!searchText) {
@@ -120,49 +130,43 @@ class TagPicker extends React.Component {
         searchResultTags: []
       });
     } else {
-      getTagsByType(
-        this.props.tagManagerUrl,
-        searchText,
-        tagTypes,
-        this.props.tagSubType
-      )
-        .then(response => {
-          const tags = response.data.reduce((tags, { data }) => {
-            return tags.concat(this.getTagFromTagManager(data));
-          }, []);
-
-          this.setState({
-            searchResultTags: tags
-          });
-        })
-        .catch(() => {
-          this.setState({
-            searchResultTags: [],
-            capiError: 'Tags are currently unavailable'
-          });
-        });
+      getTagsByType((this.props as any).tagManagerUrl, searchText, tagTypes, this.props.tagSubType)
+    .then(response => {
+    const tags = response.data.reduce((tags, { data }) => {
+        // @ts-expect-error TS(2769): No overload matches this call.
+        return tags.concat(this.getTagFromTagManager(data));
+    }, []);
+    this.setState({
+        searchResultTags: tags
+    });
+})
+    .catch(() => {
+    this.setState({
+        searchResultTags: [],
+        capiError: 'Tags are currently unavailable'
+    });
+});
     }
   };
 
   debouncedFetchTags = debounce(this.fetchTags, 500);
 
-  onUpdate = newValue => {
+  onUpdate = (newValue: any) => {
     const savedTagsList = tagsToStringList(newValue);
 
     this.setState({
       tagValue: newValue
     });
 
-    return this.props.onUpdateField(savedTagsList).then(() => {
-      this.setState({
+    return (this.props as any).onUpdateField(savedTagsList).then(() => {
+    this.setState({
         searchResultTags: []
-      });
-
-      return this.revalidateSavedTags(savedTagsList);
     });
+    return this.revalidateSavedTags(savedTagsList);
+});
   };
 
-  removeFn = tag => {
+  removeFn = (tag: { id: any; }) => {
     const newFieldValue = this.state.tagValue.filter(oldField => {
       return tag.id !== oldField.id;
     });
@@ -170,11 +174,12 @@ class TagPicker extends React.Component {
     this.onUpdate(newFieldValue);
   };
 
-  hideTagResults = e => {
+  hideTagResults = (e: any) => {
     //First we need to make sure to set the selectedTagIndex back to null
 
     if (this.state.selectedTagIndex !== null) {
       this.setState({
+        // @ts-expect-error TS(2322): Type 'null' is not assignable to type 'number'.
         selectedTagIndex: null
       });
     }
@@ -208,7 +213,7 @@ class TagPicker extends React.Component {
     });
   };
 
-  onKeyDown = e => {
+  onKeyDown = (e: { keyCode: number; }) => {
     this.setState({
       showTags: true
     });
@@ -244,14 +249,14 @@ class TagPicker extends React.Component {
     if (e.keyCode === keyCodes.enter && this.state.selectedTagIndex !== null) {
       const newTag = this.state.searchResultTags[this.state.selectedTagIndex];
 
-      const valueWithoutDupes =
-        this.props.tagType === TagTypes.contributor
-          ? removeStringTagDuplicates(newTag, this.state.tagValue)
-          : removeTagDuplicates(newTag, this.state.tagValue);
+      const valueWithoutDupes = (this.props as any).tagType === TagTypes.contributor
+    ? removeStringTagDuplicates(newTag, this.state.tagValue)
+    : removeTagDuplicates(newTag, this.state.tagValue);
 
       const newFieldValue = valueWithoutDupes.concat([newTag]);
 
       this.setState({
+        // @ts-expect-error TS(2322): Type 'null' is not assignable to type 'number'.
         selectedTagIndex: null,
         inputClearCount: this.state.inputClearCount + 1
       });
@@ -261,7 +266,7 @@ class TagPicker extends React.Component {
   };
 
   renderSelectedTags = () => {
-    if (this.props.tagType !== TagTypes.keyword) {
+    if ((this.props as any).tagType !== TagTypes.keyword) {
       return this.state.tagValue.map((tag, index) =>
         this.renderTag(tag, index)
       );
@@ -269,6 +274,7 @@ class TagPicker extends React.Component {
 
     return (
       <DraggableTagList
+        // @ts-expect-error TS(2322): Type 'any[] | ParsedTag[]' is not assignable to ty... Remove this comment to see the full error message
         tags={this.state.tagValue}
         setTags={this.onUpdate}
         removeFn={this.removeFn}
@@ -276,7 +282,7 @@ class TagPicker extends React.Component {
     );
   };
 
-  renderTag = (tag, index) => {
+  renderTag = (tag: { id: any; detailedTitle: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; }, index: number) => {
     return (
       <div key={`${tag.id}-${index}`} className="form__field__selected__tag">
         <span>{tag.detailedTitle}</span>
@@ -290,8 +296,8 @@ class TagPicker extends React.Component {
 
   renderTagPicker() {
     if (
-      this.props.tagType === TagTypes.contributor ||
-      this.props.tagType === TagTypes.youtube
+      (this.props as any).tagType === TagTypes.contributor ||
+    (this.props as any).tagType === TagTypes.youtube
     ) {
       return (
         <TextInputTagPicker
@@ -311,6 +317,7 @@ class TagPicker extends React.Component {
     }
 
     return (
+      // @ts-expect-error TS(2741): Property 'inputPlaceholder' is missing in type '{ ... Remove this comment to see the full error message
       <PureTagPicker
         tagValue={this.state.tagValue}
         onUpdate={this.onUpdate}
@@ -329,15 +336,10 @@ class TagPicker extends React.Component {
   renderAddedTags() {
     if (this.state.tagValue.length !== 0) {
       if (
-        this.props.tagType === TagTypes.contributor ||
-        this.props.tagType === TagTypes.youtube
+        (this.props as any).tagType === TagTypes.contributor ||
+    (this.props as any).tagType === TagTypes.youtube
       ) {
-        return (
-          <TagFieldValue
-            tagValue={this.state.tagValue}
-            tagType={this.props.tagType}
-          />
-        );
+        return (<TagFieldValue tagValue={this.state.tagValue} tagType={(this.props as any).tagType}/>);
       }
       return (
         <div className="form__field__tag__list">
@@ -349,7 +351,7 @@ class TagPicker extends React.Component {
   }
 
   renderBylineInstructions() {
-    if (this.props.tagType === TagTypes.contributor) {
+    if ((this.props as any).tagType === TagTypes.contributor) {
       return (
         <span className="form__field__instructions">
           Press enter to add byline as text
@@ -359,8 +361,8 @@ class TagPicker extends React.Component {
   }
 
   renderCharCount() {
-    if (this.props.tagType === TagTypes.youtube) {
-      const charCount = getYouTubeTagCharCount(this.props.fieldValue);
+    if ((this.props as any).tagType === TagTypes.youtube) {
+      const charCount = getYouTubeTagCharCount((this.props as any).fieldValue);
       return (
         <span>
           Character count: {charCount} / {YouTubeKeywords.maxCharacters}
@@ -370,26 +372,17 @@ class TagPicker extends React.Component {
   }
 
   renderCopyButton() {
-    if (this.props.updateSideEffects) {
-      return (
-        <button
-          type="button"
-          className="btn form__label__button"
-          onClick={this.props.updateSideEffects}
-          data-tip="Copy composer keywords to youtube keywords"
-          data-place="top"
-        >
+    if ((this.props as any).updateSideEffects) {
+      return (<button type="button" className="btn form__label__button" onClick={(this.props as any).updateSideEffects} data-tip="Copy composer keywords to youtube keywords" data-place="top">
           <i className="icon">edit</i>
-        </button>
-      );
+        </button>);
     }
   }
 
   render() {
-    const hasWarning =
-      this.props.hasWarning(this.props) &&
-      this.state.searchResultTags.length === 0;
-    const hasError = this.props.hasError(this.props);
+    const hasWarning = (this.props as any).hasWarning(this.props) &&
+    this.state.searchResultTags.length === 0;
+    const hasError = (this.props as any).hasError(this.props);
 
     if (!this.props.editable) {
       if (!this.state.tagValue || this.state.tagValue.length === 0) {
@@ -402,32 +395,18 @@ class TagPicker extends React.Component {
           </div>
         );
       }
-      return (
-        <div>
+      return (<div>
           <p className="details-list__title">{this.props.fieldName}</p>
-          {this.state.capiError ? (
-            <div className="form__field--external-error">
+          {this.state.capiError ? (<div className="form__field--external-error">
               {this.state.capiError}
-            </div>
-          ) : (
-            ''
-          )}
+            </div>) : ('')}
           <p className="details-list__field ">
-            <TagFieldValue
-              tagValue={this.state.tagValue}
-              tagType={this.props.tagType}
-            />
+            <TagFieldValue tagValue={this.state.tagValue} tagType={(this.props as any).tagType}/>
           </p>
-        </div>
-      );
+        </div>);
     }
 
-    return (
-      <div
-        className="form__row"
-        onBlur={this.hideTagResults}
-        onKeyDown={this.onKeyDown}
-      >
+    return (<div className="form__row" onBlur={this.hideTagResults} onKeyDown={this.onKeyDown}>
         <div className="form__label__layout">
           <label className="form__label">{this.props.fieldName}</label>
           {this.renderBylineInstructions()}
@@ -435,38 +414,26 @@ class TagPicker extends React.Component {
           {this.renderCharCount()}
         </div>
 
-        {this.state.capiError ? (
-          <div className="form__field--external-error">
+        {this.state.capiError ? (<div className="form__field--external-error">
             {this.state.capiError}
-          </div>
-        ) : (
-          ''
-        )}
+          </div>) : ('')}
         {this.renderTagPicker()}
         {this.renderAddedTags()}
-        {hasWarning ? (
-          <p className="form__message form__message--warning">
-            {this.props.notification.message}
-          </p>
-        ) : (
-          ''
-        )}
-        {hasError ? (
-          <p className="form__message form__message--error">
-            {this.props.notification.message}
-          </p>
-        ) : (
-          ''
-        )}
-      </div>
-    );
+        {hasWarning ? (<p className="form__message form__message--warning">
+            {(this.props as any).notification.message}
+          </p>) : ('')}
+        {hasError ? (<p className="form__message form__message--error">
+            {(this.props as any).notification.message}
+          </p>) : ('')}
+      </div>);
   }
 }
 
 //REDUX CONNECTIONS
 import { connect } from 'react-redux';
+import { ParsedTag } from "../../types/tags";
 
-function mapStateToProps(state) {
+function mapStateToProps(state: { config: { tagManagerUrl: any; }; }) {
   return {
     tagManagerUrl: state.config.tagManagerUrl
   };

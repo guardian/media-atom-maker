@@ -15,12 +15,19 @@ const HOURS = [...new Array(24).keys()].map(hour =>
 );
 const EMPTY = [' '];
 
-function Selector({ values, value, disabled, onChange }) {
-  const handler = e => {
+type SelectorProps = {
+    values?: any;
+    value?: any;
+    disabled?: any;
+    onChange?: any;
+};
+
+function Selector({ values, value, disabled, onChange }: SelectorProps) {
+  const handler = (e: { target: { value: any; }; }) => {
     onChange(e.target.value);
   };
 
-  const options = values.map(value => {
+  const options = values.map((value: any) => {
     return (
       <option key={value} value={value}>
         {value}
@@ -38,31 +45,46 @@ function Selector({ values, value, disabled, onChange }) {
   return <select {...params}>{options}</select>;
 }
 
-function HourSelector({ date, onChange }) {
+type HourSelectorProps = {
+    date?: any;
+    onChange?: any;
+};
+
+function HourSelector({ date, onChange }: HourSelectorProps) {
   const dateMoment = moment(date);
   const params = {
     values: date ? HOURS : EMPTY,
     value: date ? dateMoment.format('HH') : ' ',
     disabled: !date,
-    onChange: newHour => onChange(dateMoment.hours(newHour))
+    onChange: (newHour: number) => onChange(dateMoment.hours(newHour))
   };
 
   return <Selector {...params} />;
 }
 
-function MinuteSelector({ date, onChange }) {
+type MinuteSelectorProps = {
+    date?: any;
+    onChange?: any;
+};
+
+function MinuteSelector({ date, onChange }: MinuteSelectorProps) {
   const dateMoment = moment(date);
   const params = {
     values: date ? MINUTES : EMPTY,
     value: date ? dateMoment.format('mm') : ' ',
     disabled: !date,
-    onChange: newMinute => onChange(dateMoment.minutes(newMinute))
+    onChange: (newMinute: number) => onChange(dateMoment.minutes(newMinute))
   };
 
   return <Selector {...params} />;
 }
 
-function DateSelector({ date, onChange }) {
+type DateSelectorProps = {
+    date?: any;
+    onChange?: any;
+};
+
+function DateSelector({ date, onChange }: DateSelectorProps) {
   const minDate = moment().toDate();
   const dateMoment = moment(date);
   const datePickerParams = {
@@ -71,7 +93,7 @@ function DateSelector({ date, onChange }) {
     minDate,
     dateFormat: REACT_DATEPICKER_DATE_FORMAT,
     readOnly: false,
-    onChange: newDate => {
+    onChange: (newDate: moment.MomentInput) => {
       const base = date ? dateMoment : moment().hours(0).minutes(0);
       const onChangeDate = moment(newDate)
         .hours(base.hours())
@@ -85,7 +107,15 @@ function DateSelector({ date, onChange }) {
   return <DatePicker {...datePickerParams} />;
 }
 
-function Editor({ date, onChange, fieldName, canCancel, dayOnly }) {
+type EditorProps = {
+    date?: number | null;
+    onChange?: any;
+    fieldName?: string;
+    canCancel?: boolean;
+    dayOnly?: boolean;
+};
+
+function Editor({ date, onChange, fieldName, canCancel, dayOnly }: EditorProps & { placeholder?: null | string }) {
   function reset() {
     onChange(null);
   }
@@ -123,7 +153,13 @@ function Editor({ date, onChange, fieldName, canCancel, dayOnly }) {
   );
 }
 
-function Display({ date, placeholder, fieldName }) {
+type DisplayProps = {
+    date?: number | null;
+    placeholder?: string | null;
+    fieldName?: string;
+};
+
+function Display({ date, placeholder, fieldName }: DisplayProps) {
   const dateMoment = moment(date);
   const displayString = date
     ? dateMoment.format(MOMENT_DATETIME_FORMAT)
@@ -149,14 +185,14 @@ function Display({ date, placeholder, fieldName }) {
  * @param {boolean} [props.dayOnly]
  * @param {boolean} [props.canCancel]
  */
-export default function CustomDatePicker({
-  editable = false,
-  onUpdateField = null,
-  fieldValue = null,
-  placeholder = '',
-  fieldName = '',
-  dayOnly = false,
-  canCancel = true
+export default function CustomDatePicker({ editable = false, onUpdateField = null, fieldValue = null, placeholder = '', fieldName = '', dayOnly = false, canCancel = true }: {
+    editable?: boolean;
+    onUpdateField?: ((date: number | null) => void) | null;
+    fieldValue?: number | string | null;
+    placeholder?: string | null;
+    fieldName?: string;
+    dayOnly?: boolean;
+    canCancel?: boolean;
 } = {}) {
   const date =
     fieldValue && fieldValue !== placeholder
@@ -171,7 +207,7 @@ export default function CustomDatePicker({
         placeholder={placeholder}
         canCancel={canCancel}
         dayOnly={dayOnly}
-        onChange={newDate => {
+        onChange={(newDate: number) => {
           if (newDate) {
             onUpdateField(newDate.valueOf());
           } else {

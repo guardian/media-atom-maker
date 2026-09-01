@@ -1,12 +1,23 @@
 import React from 'react';
 
-class TagSearch extends React.Component {
-  constructor(props) {
+type Props = {
+    selectedTagIndex: number | undefined;
+    removeDupes: any[] | any[];
+    tagValue: any[];
+    selectNewTag: any;
+    searchResultTags: any[];
+    showTags: boolean;
+    tagsToVisible: any;
+};
+
+class TagSearch extends React.Component<Props> {
+  listNodeRef: any;
+  constructor(props: Props) {
     super(props);
     this.listNodeRef = React.createRef();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     const nextProps = this.props;
 
     if (
@@ -19,12 +30,13 @@ class TagSearch extends React.Component {
           elementHeight *
           (nextProps.selectedTagIndex === 0
             ? 0
-            : nextProps.selectedTagIndex - 1);
+            : // @ts-expect-error TS(18048): 'nextProps.selectedTagIndex' is possibly 'undefine... Remove this comment to see the full error message
+              nextProps.selectedTagIndex - 1);
       }
     }
   }
 
-  renderTags(tag, index) {
+  renderTags(tag: any, index: any) {
     const getTagClassName = () => {
       return (
         'form__field__tags' +
@@ -35,6 +47,7 @@ class TagSearch extends React.Component {
     };
 
     const addTag = () => {
+      // @ts-expect-error TS(2349): This expression is not callable.
       const valueWithoutStringDupes = this.props.removeDupes(
         tag,
         this.props.tagValue

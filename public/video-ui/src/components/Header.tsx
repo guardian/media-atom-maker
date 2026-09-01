@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { RefObject } from 'react';
 import { Link } from 'react-router';
 import { VideoSearch } from './VideoSearch/VideoSearch';
 import VideoPublishBar from './VideoPublishBar/VideoPublishBar';
@@ -15,24 +15,72 @@ import {
 } from '../constants/queryParams';
 import Modal from './utils/Modal';
 import Create from './Create';
+import { createVideo } from "../actions/VideoActions/createVideo";
+import { reportPresenceClientError } from "../actions/PresenceActions/reportError";
+import { publishVideo } from "../actions/VideoActions/publishVideo";
+import { updateVideoPage } from "../actions/VideoActions/videoPageUpdate";
+import { createVideoPage } from "../actions/VideoActions/videoPageCreate";
+import { deleteVideo } from "../actions/VideoActions/deleteVideo";
+import { updateVideo } from "../actions/VideoActions/updateVideo";
+import { Video } from "../services/VideosApi";
+import { Search } from "../slices/search";
+import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
+import { UsageState } from "../slices/usage";
+import { S3UploadState } from "../slices/s3Upload";
 
-export default class Header extends React.Component {
-  state = {
+type Props = {
+    publishVideo: typeof publishVideo;
+    video: Video;
+    formFieldsWarning: Record<string, boolean>;
+    saving: any;
+    search: Search;
+    updateSearchTerm: ActionCreatorWithPayload<string, "search/updateSearchTerm">;
+    updateVideoPlayerFormatFilter: ActionCreatorWithPayload<string, "search/updateVideoPlayerFormatFilter">;
+    updateShouldUseCreatedDateForSort: ActionCreatorWithPayload<boolean, "search/updateShouldUseCreatedDateForSort">;
+    createVideo: typeof createVideo;
+    presenceConfig: any;
+    reportPresenceClientError: typeof reportPresenceClientError;
+    usages: UsageState;
+    isTrainingMode: boolean;
+    currentPath: unknown;
+    showPublishedState: string;
+    publishedVideo: any;
+    isPublishing: boolean;
+    videoEditOpen: boolean;
+    updateVideoPage: typeof updateVideoPage;
+    updateVideo: typeof updateVideo;
+    saveVideo: any;
+    query: unknown;
+    deleteVideo: typeof deleteVideo;
+    createVideoPage: typeof createVideoPage;
+    error: Error;
+    shouldUseCreatedDateForSort: boolean;
+    s3Upload: S3UploadState;
+};
+
+type State = {
+    presence: any;
+    dialogRef: RefObject<unknown>;
+};
+
+export default class Header extends React.Component<Props, State> {
+  state: State = {
     presence: null,
+    // @ts-expect-error TS(2322): Type 'undefined' is not assignable to type 'RefObj... Remove this comment to see the full error message
     dialogRef: undefined
   };
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this.state.dialogRef = React.createRef();
   }
 
   openCreateModal = () => {
-    this.state.dialogRef.current?.showModal();
+    (this.state.dialogRef.current as any)?.showModal();
   };
 
   closeCreateModal = () => {
-    this.state.dialogRef.current?.close();
+    (this.state.dialogRef.current as any)?.close();
   };
 
   publishVideo = () => {
@@ -74,6 +122,7 @@ export default class Header extends React.Component {
           onChange={event => {
             const videoPlayerFormatFilter = event.target.value || null;
 
+            // @ts-expect-error TS(2345): Argument of type 'string | null' is not assignable... Remove this comment to see the full error message
             this.props.updateVideoPlayerFormatFilter(videoPlayerFormatFilter);
 
             const url = new URL(window.location.href);
@@ -169,6 +218,7 @@ export default class Header extends React.Component {
         <button className="btn" onClick={this.openCreateModal}>
           <Icon icon="add">Create</Icon>
         </button>
+        {/* @ts-expect-error TS(2322): Type 'RefObject<unknown>' is not assignable to typ... Remove this comment to see the full error message */}
         <Modal ref={this.state.dialogRef}>
           <Create
             createVideo={this.props.createVideo}
@@ -225,6 +275,7 @@ export default class Header extends React.Component {
 
   render() {
     const canHaveComposerPage = VideoUtils.canHaveComposerPage(
+      // @ts-expect-error TS(2345): Argument of type 'Video' is not assignable to para... Remove this comment to see the full error message
       this.props.video
     );
 
@@ -232,7 +283,7 @@ export default class Header extends React.Component {
       ? 'topbar topbar--training-mode flex-container'
       : 'topbar flex-container';
 
-    if (this.props.currentPath.endsWith('/upload')) {
+    if ((this as any).props.currentPath.endsWith('/upload')) {
       return (
         <header className={className}>
           {this.renderHeaderBack()}
@@ -241,7 +292,7 @@ export default class Header extends React.Component {
       );
     }
 
-    if (this.props.currentPath.endsWith('/create')) {
+    if ((this as any).props.currentPath.endsWith('/create')) {
       return (
         <header className={className}>
           {this.renderHome()}

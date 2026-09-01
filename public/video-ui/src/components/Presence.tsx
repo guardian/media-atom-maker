@@ -1,7 +1,17 @@
 import React from 'react';
-import { safelyStartPresence } from '../services/presence';
+import { PresenceConfig, safelyStartPresence } from '../services/presence';
+import { Video } from "../services/VideosApi";
+import { reportPresenceClientError } from "../actions/PresenceActions/reportError";
 
-export class Presence extends React.Component {
+type Props = {
+    video: Video;
+    config: any;
+    reportPresenceClientError: typeof reportPresenceClientError;
+};
+
+type State = any;
+
+export class Presence extends React.Component<Props, State> {
   state = {
     client: null,
     visitors: []
@@ -13,13 +23,13 @@ export class Presence extends React.Component {
     }
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     const current = this.props.video.id;
     const previous = prevProps.video.id;
 
     if (current !== previous) {
       if (this.state.client) {
-        this.state.client.closeConnection();
+        (this.state.client as any).closeConnection();
         this.setState(
           Object.assign({}, this.state, {
             client: null,
@@ -36,11 +46,11 @@ export class Presence extends React.Component {
 
   componentWillUnmount() {
     if (this.state.client) {
-      this.state.client.closeConnection();
+      (this.state.client as any).closeConnection();
     }
   }
 
-  startPresence = (atom, presenceConfig) => {
+  startPresence = (atom: string, presenceConfig: PresenceConfig) => {
     const subscriptionId = `media-${atom}`;
     const component = this;
 
@@ -49,14 +59,17 @@ export class Presence extends React.Component {
         presenceClient.startConnection();
 
         presenceClient.on('connection.open', () => {
+          // @ts-expect-error TS(2345): Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
           presenceClient.subscribe(subscriptionId);
-          presenceClient.enter(subscriptionId, 'document');
+          (presenceClient as any).enter(subscriptionId, 'document');
         });
 
         presenceClient.on('visitor-list-updated', data => {
+          // @ts-expect-error TS(18048): 'data' is possibly 'undefined'.
           if (data.subscriptionId === subscriptionId) {
             component.setState(
               Object.assign({}, component.state, {
+                // @ts-expect-error TS(18048): 'data' is possibly 'undefined'.
                 visitors: data.currentState
               })
             );
@@ -75,9 +88,7 @@ export class Presence extends React.Component {
   };
 
   render() {
-    const visitorsInThisArea = this.state.visitors.filter(
-      state => state.location === 'document'
-    );
+    const visitorsInThisArea = this.state.visitors.filter(state => (state as any).location === 'document');
 
     const multipleVisitors = visitorsInThisArea.length > 1;
 
@@ -86,8 +97,8 @@ export class Presence extends React.Component {
         <div className="presence-section">
           <ul className="presence-list">
             {visitorsInThisArea.map(visitor => {
-              const id = visitor.clientId.connId;
-              const { firstName, lastName } = visitor.clientId.person;
+              const id = (visitor as any).clientId.connId;
+              const { firstName, lastName } = (visitor as any).clientId.person;
               const initials = `${firstName.slice(0, 1)}${lastName.slice(0, 1)}`;
               const fullName = `${firstName} ${lastName}`;
 

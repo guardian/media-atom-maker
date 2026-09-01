@@ -1,7 +1,8 @@
-import VideosApi from '../../services/VideosApi';
+import VideosApi, { VideoWithoutId } from '../../services/VideosApi';
 import ContentApi from '../../services/capi';
 import { showError } from '../../slices/error';
 import { addNewlyCreatedVideoUsage } from '../../slices/usage';
+import { AppDispatch } from '../../util/setupStore';
 
 function requestVideoPageCreate() {
   return {
@@ -10,8 +11,8 @@ function requestVideoPageCreate() {
   };
 }
 
-export function createVideoPage(id, video, isTrainingMode) {
-  return async dispatch => {
+export function createVideoPage(id: string, video: VideoWithoutId, isTrainingMode: any) {
+  return async (dispatch: AppDispatch) => {
     dispatch(requestVideoPageCreate());
 
     // Do a last minute check to see if a video page has shown up when we weren't looking
@@ -28,8 +29,8 @@ export function createVideoPage(id, video, isTrainingMode) {
     }
     return VideosApi.createComposerPage(id, video)
       .then(res => {
-        const composerId = res.data.id;
-        const pagePath = res.data.identifiers.path.data;
+        const composerId = (res as any).data.id;
+        const pagePath = (res as any).data.identifiers.path.data;
 
         const addVideo = VideosApi.addVideoToComposerPage({
           composerId,
@@ -45,6 +46,7 @@ export function createVideoPage(id, video, isTrainingMode) {
           // so keep trying until success or timeout
           return ContentApi.getByPath(pagePath, true).then(capiResponse => {
             return dispatch(
+              // @ts-expect-error TS(2345): Argument of type 'CapiContent | undefined' is not ... Remove this comment to see the full error message
               addNewlyCreatedVideoUsage(capiResponse.response.content)
             );
           });

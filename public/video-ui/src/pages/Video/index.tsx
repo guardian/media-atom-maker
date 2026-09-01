@@ -27,8 +27,27 @@ import {
 } from './tabs/YoutubeFurniture';
 import { hasIconikOrPlutoProject } from '../../util/hasIconikOrPlutoProject';
 
-class VideoDisplay extends React.Component {
-  constructor(props) {
+type Props = {
+    video?: any;
+    params: any;
+    warningActions: any;
+    videoActions: any;
+    workflowActions: any;
+    videoEditOpen: any;
+    config: any;
+    formErrorActions: any;
+    cropOptions: any;
+    publishedVideo: any;
+    workflow: any;
+    checkedFormFields: any;
+    usages: any;
+    isSaving: any;
+};
+
+type State = any;
+
+class VideoDisplay extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
     this.state = {
       editingFurniture: false,
@@ -47,7 +66,7 @@ class VideoDisplay extends React.Component {
     Default: <NonYoutube />
   };
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     const video =
       this.props.video && this.props.params.id === this.props.video.id
         ? this.props.video
@@ -89,11 +108,11 @@ class VideoDisplay extends React.Component {
     this.props.videoActions.fetchUsages(this.props.params.id);
   }
 
-  saveAndUpdateVideo = video => {
+  saveAndUpdateVideo = (video: any) => {
     return this.props.videoActions.saveVideo(video);
   };
 
-  updateVideo = video => {
+  updateVideo = (video: any) => {
     this.props.videoActions.updateVideo(video);
     return Promise.resolve();
   };
@@ -102,7 +121,7 @@ class VideoDisplay extends React.Component {
     window.parent.postMessage({ atomId: this.props.video.id }, '*');
   };
 
-  handleAssetClick = e => {
+  handleAssetClick = (e: React.MouseEvent<any, MouseEvent>) => {
     if (this.props.videoEditOpen) {
       e.preventDefault();
     }
@@ -172,69 +191,39 @@ class VideoDisplay extends React.Component {
     const activeAsset = VideoUtils.getActiveAsset(this.props.video);
     const youtubeAsset = platform === 'youtube' && activeAsset;
 
-    return (
-      <div className="video__detailbox">
+    return (<div className="video__detailbox">
         <div className="video__detailbox__header__container">
           <header className="video__detailbox__header">
             <div>
               <h3>Video Preview</h3>
-              {platform === 'youtube' && (
-                <div className="video__detailbox__header__format video__detailbox__header__format--youtube">
+              {platform === 'youtube' && (<div className="video__detailbox__header__format video__detailbox__header__format--youtube">
                   {this.iconMap['Youtube']}
                   <span>YouTube</span>
-                </div>
-              )}
-              {this.props.video.videoPlayerFormat && (
-                <div className="video__detailbox__header__format">
-                  {this.iconMap[this.props.video.videoPlayerFormat]}
+                </div>)}
+              {this.props.video.videoPlayerFormat && (<div className="video__detailbox__header__format">
+                  {(this.iconMap as any)[this.props.video.videoPlayerFormat]}
                   <span>
-                    {
-                      Object.values(videoCreateOptions)
-                        .flat()
-                        .find(
-                          format =>
-                            format.id === this.props.video.videoPlayerFormat
-                        )?.title
-                    }
+                    {Object.values(videoCreateOptions)
+            .flat()
+            .find(format => format.id === this.props.video.videoPlayerFormat)?.title}
                   </span>
-                </div>
-              )}
+                </div>)}
             </div>
 
-            {youtubeAsset && (
-              <p className="video-asset">
+            {youtubeAsset && (<p className="video-asset">
                 <span className="video-asset-number">
                   Asset {activeAsset.version}:
                 </span>
                 <span>({youtubeAsset.id})</span>
-              </p>
-            )}
+              </p>)}
           </header>
-          <asset-handle
-            data-source="mam"
-            data-source-type="video"
-            data-thumbnail={this.props.video?.posterImage?.assets?.[0]?.file}
-            data-external-url={
-              platform === 'youtube' &&
-              getYouTubeEmbedUrl(
-                VideoUtils.getActiveAsset(this.props.video)?.id
-              )
-            }
-            data-embeddable-url={window.location.href}
-          ></asset-handle>
-          <Link
-            className={'button ' + (this.props.videoEditOpen ? 'disabled' : '')}
-            to={`/videos/${this.props.video.id}/upload`}
-            onClick={e => this.handleAssetClick(e)}
-            data-tip="Edit Assets"
-          >
-            <Icon
-              className={
-                'icon__edit' +
-                (this.props.videoEditOpen ? ' icon__edit__disabled' : '')
-              }
-              icon="edit"
-            />
+          {/* @ts-expect-error TS(2339): Property 'asset-handle' does not exist on type 'JS... Remove this comment to see the full error message */}
+          <asset-handle data-source="mam" data-source-type="video" data-thumbnail={this.props.video?.posterImage?.assets?.[0]?.file} data-external-url={platform === 'youtube' &&
+        // @ts-expect-error TS(2339): Property 'asset-handle' does not exist on type 'JS... Remove this comment to see the full error message
+        getYouTubeEmbedUrl(VideoUtils.getActiveAsset(this.props.video)?.id)} data-embeddable-url={window.location.href}></asset-handle>
+          <Link className={'button ' + (this.props.videoEditOpen ? 'disabled' : '')} to={`/videos/${this.props.video.id}/upload`} onClick={e => this.handleAssetClick(e)} data-tip="Edit Assets">
+            <Icon className={'icon__edit' +
+        (this.props.videoEditOpen ? ' icon__edit__disabled' : '')} icon="edit"/>
           </Link>
         </div>
         <div className="video-preview">
@@ -242,11 +231,10 @@ class VideoDisplay extends React.Component {
           {this.renderImages()}
           {this.renderDescription()}
         </div>
-      </div>
-    );
+      </div>);
   }
 
-  renderSelectBar(video) {
+  renderSelectBar(video: any) {
     const videoToSelect = isVideoPublished(this.props.video)
       ? this.props.publishedVideo
       : this.props.video;
@@ -281,7 +269,7 @@ class VideoDisplay extends React.Component {
     const createWorkflowItem = () =>
       trackInWorkflow({
         video: video,
-        section: sections.find(_ => _.id === section),
+        section: sections.find((_: { id: any; }) => _.id === section),
         status: status,
         note: note,
         prodOffice: prodOffice,
@@ -298,12 +286,12 @@ class VideoDisplay extends React.Component {
     return wfPromise.unwrap().then(() => getStatus(video));
   }
 
-  updateEditingState({ key, editing }) {
+  updateEditingState({ key, editing }: any) {
     this.setState({ [key]: editing });
     this.props.videoActions.updateVideoEditState(editing);
   }
 
-  formHasErrors = formName => {
+  formHasErrors = (formName: string) => {
     const errors = this.props.checkedFormFields[formName]
       ? this.props.checkedFormFields[formName]
       : {};
@@ -477,9 +465,11 @@ class VideoDisplay extends React.Component {
     return (
       <div>
         {this.renderSelectBar(video)}
+        {/* @ts-expect-error TS(2339): Property 'pinboard-preselect' does not exist on ty... Remove this comment to see the full error message */}
         <pinboard-preselect
           data-composer-id={getComposerId() ?? 'unknown'}
           data-tool="media-atom-maker"
+        // @ts-expect-error TS(2339): Property 'pinboard-preselect' does not exist on ty... Remove this comment to see the full error message
         ></pinboard-preselect>
 
         <div className="video">
@@ -498,7 +488,7 @@ class VideoDisplay extends React.Component {
 
 //REDUX CONNECTIONS
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { bindActionCreators, AnyAction, Dispatch } from 'redux';
 import * as createVideo from '../../actions/VideoActions/createVideo';
 import * as getPublishedVideo from '../../actions/VideoActions/getPublishedVideo';
 import * as getVideo from '../../actions/VideoActions/getVideo';
@@ -524,7 +514,7 @@ import {
 import { showWarning } from '../../slices/error';
 import { getComposerId } from '../../util/getComposerData';
 
-function mapStateToProps(state) {
+function mapStateToProps(state: any) {
   return {
     video: selectVideo(state),
     isSaving: selectIsSaving(state),
@@ -538,7 +528,7 @@ function mapStateToProps(state) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch: Dispatch<AnyAction>) {
   return {
     videoActions: bindActionCreators(
       {

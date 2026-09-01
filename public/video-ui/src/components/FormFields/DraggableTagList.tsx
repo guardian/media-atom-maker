@@ -44,13 +44,14 @@ const SortableTag = ({
   );
 };
 
-const TagElement = ({
+function TagElement({
   tag,
   removeFn
 }: {
   tag: Tag;
   removeFn: (tag: Tag) => void;
-}) => (
+}) {
+  return (
   <div
     key={`${tag.id}`}
     className="form__field__selected__tag form__field__selected__tag__draggable"
@@ -70,6 +71,7 @@ const TagElement = ({
     ></span>
   </div>
 );
+}
 
 const shouldHandleEvent = (element: HTMLElement) => {
   let cur: HTMLElement | null = element;

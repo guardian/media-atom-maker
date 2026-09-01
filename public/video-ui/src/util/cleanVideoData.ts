@@ -1,4 +1,4 @@
-export function cleanVideoData(data) {
+export function cleanVideoData(data: any) {
   const cleanedData = Object.assign({}, data);
 
   Object.keys(cleanedData).forEach(key => {

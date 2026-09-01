@@ -4,9 +4,25 @@ import Icon from '../Icon';
 import { getStore } from '../../util/storeAccessor';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 import ErrorMessages from '../../constants/ErrorMessages';
+import { Video } from "../../services/VideosApi";
+import { createVideoPage } from "../../actions/VideoActions/videoPageCreate";
+import { UsageState } from "../../slices/usage";
 
-export default class ComposerPageCreate extends React.Component {
-  state = {
+type Props = {
+    video: Video;
+    error: Error;
+    createVideoPage: typeof createVideoPage;
+    usages: UsageState;
+    videoEditOpen: boolean;
+    requiredComposerFieldsMissing: any;
+};
+
+type State = {
+    composerUpdateInProgress: boolean;
+};
+
+export default class ComposerPageCreate extends React.Component<Props, State> {
+  state: State = {
     composerUpdateInProgress: false
   };
 
@@ -29,6 +45,7 @@ export default class ComposerPageCreate extends React.Component {
   };
 
   usageErrorsExist = () => {
+    // @ts-expect-error TS(2367): This comparison appears to be unintentional becaus... Remove this comment to see the full error message
     return this.props.error === ErrorMessages.usages;
   };
 
@@ -40,17 +57,12 @@ export default class ComposerPageCreate extends React.Component {
       composerUpdateInProgress: true
     });
 
-    return this.props
-      .createVideoPage(
-        this.props.video.id,
-        this.props.video,
-        getStore().getState().config.isTrainingMode
-      )
-      .then(() => {
-        this.setState({
-          composerUpdateInProgress: false
-        });
-      });
+    return (this.props
+    .createVideoPage(this.props.video.id, this.props.video, getStore().getState().config.isTrainingMode) as any).then(() => {
+    this.setState({
+        composerUpdateInProgress: false
+    });
+});
   };
 
   render() {

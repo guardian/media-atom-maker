@@ -1,5 +1,4 @@
 import React from 'react';
-import { PropTypes } from 'prop-types';
 import _get from 'lodash/fp/get';
 import _set from 'lodash/fp/set';
 import validateField from '../../util/validateField';
@@ -9,32 +8,35 @@ import { fieldsWithHtml } from '../../constants/fieldsWithHtml';
 import RequiredForComposer from '../../constants/requiredForComposer';
 import RequiredForDefaultVideo from '../../constants/requiredForDefaultVideo';
 
-export class ManagedField extends React.Component {
-  static propTypes = {
-    fieldLocation: PropTypes.string.isRequired,
-    children: PropTypes.oneOfType([
-      PropTypes.node,
-      PropTypes.arrayOf(PropTypes.node)
-    ]),
-    updateData: PropTypes.func,
-    updateFormErrors: PropTypes.func,
-    updateWarnings: PropTypes.func,
-    customValidation: PropTypes.func,
-    data: PropTypes.object,
-    fieldName: PropTypes.string,
-    isRequired: PropTypes.bool,
-    isDesired: PropTypes.bool,
-    disabled: PropTypes.bool,
-    editable: PropTypes.bool,
-    maxLength: PropTypes.number,
-    fieldDetails: PropTypes.string,
-    tagType: PropTypes.string,
-    inputPlaceholder: PropTypes.string,
-    tooltip: PropTypes.string,
-    updateSideEffects: PropTypes.func
-  };
+type Props = {
+    fieldLocation: string;
+    updateData?: (...args: any[]) => any;
+    updateFormErrors?: (...args: any[]) => any;
+    updateWarnings?: (...args: any[]) => any;
+    customValidation?: (...args: any[]) => any;
+    data?: any;
+    fieldName?: string;
+    isRequired?: boolean;
+    isDesired?: boolean;
+    disabled?: boolean;
+    editable?: boolean;
+    maxLength?: number;
+    fieldDetails?: string;
+    tagType?: string;
+    inputPlaceholder?: string;
+    tooltip?: string;
+    updateSideEffects?: (...args: any[]) => any;
+};
 
-  state = {
+type State = {
+    fieldNotification: FieldNotification | null;
+    touched: boolean;
+};
+
+export class ManagedField extends React.Component<Props & { derivedFrom?: string }, State> {
+  placeholder: any;
+
+  state: State = {
     fieldNotification: null,
     touched: false
   };
@@ -45,10 +47,10 @@ export class ManagedField extends React.Component {
       : null;
     this.checkErrorsAndWarnings(value);
 
-    this.placeholder = 'No ' + this.props.name.split('(')[0];
+    this.placeholder = 'No ' + (this.props as any).name.split('(')[0];
   }
 
-  checkErrorsAndWarnings(value) {
+  checkErrorsAndWarnings(value: string) {
     if (value && fieldsWithHtml.includes(this.props.fieldLocation)) {
       value = getTextFromHtml(value);
     }
@@ -99,13 +101,14 @@ export class ManagedField extends React.Component {
     });
   }
 
-  updateFn = newValue => {
+  updateFn = (newValue: string) => {
     this.setState({
       touched: true
     });
 
     this.checkErrorsAndWarnings(newValue);
 
+    // @ts-expect-error TS(2722): Cannot invoke an object which is possibly 'undefin... Remove this comment to see the full error message
     return this.props
       .updateData(
         _set(
@@ -121,7 +124,7 @@ export class ManagedField extends React.Component {
       });
   };
 
-  getFieldValue(value) {
+  getFieldValue(value: any) {
     if (!this.props.editable && !value) {
       return this.placeholder;
     }
@@ -133,20 +136,20 @@ export class ManagedField extends React.Component {
     return value;
   }
 
-  hasError(props) {
+  hasError(props: { notification: { type: string; }; }) {
     return (
       props.notification && props.notification.type === FieldNotification.error
     );
   }
 
-  hasWarning(props) {
+  hasWarning(props: { notification: { type: string; }; }) {
     return (
       props.notification &&
       props.notification.type === FieldNotification.warning
     );
   }
 
-  displayPlaceholder(placeholder, fieldValue) {
+  displayPlaceholder(placeholder: any, fieldValue: any) {
     return placeholder && placeholder === fieldValue;
   }
 
@@ -159,12 +162,10 @@ export class ManagedField extends React.Component {
       className += ' form-element--hidden';
     }
 
-    const hydratedChildren = React.Children.map(this.props.children, child => {
-      return React.cloneElement(child, {
-        fieldName: this.props.name,
-        fieldValue: this.getFieldValue(
-          _get(this.props.fieldLocation, this.props.data)
-        ),
+    const hydratedChildren = React.Children.map((this.props as any).children, child => {
+    return React.cloneElement(child, {
+        fieldName: (this.props as any).name,
+        fieldValue: this.getFieldValue(_get(this.props.fieldLocation, this.props.data)),
         rawFieldValue: _get(this.props.fieldLocation, this.props.data),
         onUpdateField: this.updateFn,
         editable,
@@ -177,14 +178,15 @@ export class ManagedField extends React.Component {
         hasWarning: this.hasWarning,
         displayPlaceholder: this.displayPlaceholder,
         derivedFrom: this.props.derivedFrom,
+        // @ts-expect-error TS(2551): Property 'maxWordLength' does not exist on type 'R... Remove this comment to see the full error message
         maxWordLength: this.props.maxWordLength,
         tagType: this.props.tagType,
         inputPlaceholder: this.props.inputPlaceholder,
         tooltip: this.props.tooltip,
         fieldLocation: this.props.fieldLocation,
         updateSideEffects: this.props.updateSideEffects
-      });
     });
+});
     return <div className={className}>{hydratedChildren}</div>;
   }
 }

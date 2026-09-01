@@ -1,4 +1,4 @@
-import { PropTypes } from 'prop-types';
+
 import React from 'react';
 import { keyCodes } from '../../constants/keyCodes';
 import TagTypes from '../../constants/TagTypes';
@@ -6,29 +6,35 @@ import UserActions from '../../constants/UserActions';
 import { removeStringTagDuplicates } from '../../util/removeStringTagDuplicates';
 import TagSearch from '../TagSearch/TagSearch';
 
-export default class TextInputTagPicker extends React.Component {
-  static propTypes = {
-    tagValue: PropTypes.array.isRequired,
-    onUpdate: PropTypes.func.isRequired,
-    fetchTags: PropTypes.func.isRequired,
-    removeFn: PropTypes.func.isRequired,
-    searchResultTags: PropTypes.array.isRequired,
-    tagsToVisible: PropTypes.func.isRequired,
-    showTags: PropTypes.bool.isRequired,
-    hideTagResults: PropTypes.func.isRequired,
-    selectedTagIndex: PropTypes.number,
-    inputClearCount: PropTypes.number.isRequired,
-    disableCapiTags: PropTypes.bool,
-    tagType: PropTypes.string,
-    fieldName: PropTypes.string
-  };
+type Props = {
+    tagValue: any[];
+    onUpdate: (...args: any[]) => any;
+    fetchTags: (...args: any[]) => any;
+    removeFn: (...args: any[]) => any;
+    searchResultTags: any[];
+    tagsToVisible: (...args: any[]) => any;
+    showTags: boolean;
+    hideTagResults: (...args: any[]) => any;
+    selectedTagIndex?: number;
+    inputClearCount: number;
+    disableCapiTags?: boolean;
+    tagType?: string;
+    fieldName?: string;
+};
 
-  state = {
+type State = {
+    inputString: any;
+    lastAction: string;
+};
+
+export default class TextInputTagPicker extends React.Component<Props, State> {
+
+  state: State = {
     inputString: '',
     lastAction: UserActions.other
   };
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps: Props) {
     if (this.props.inputClearCount !== nextProps.inputClearCount) {
       this.setState({
         inputString: ''
@@ -36,7 +42,7 @@ export default class TextInputTagPicker extends React.Component {
     }
   }
 
-  selectNewTag = newFieldValue => {
+  selectNewTag = (newFieldValue: any) => {
     this.setState({
       inputString: ''
     });
@@ -50,9 +56,9 @@ export default class TextInputTagPicker extends React.Component {
 
     return this.state.inputString
       .split(',')
-      .filter(candidate => candidate.length !== 0)
-      .map(candidate => candidate.trim())
-      .reduce((acc, candidate) => {
+      .filter((candidate: string | any[]) => candidate.length !== 0)
+      .map((candidate: string) => candidate.trim())
+      .reduce((acc: any, candidate: any) => {
         const lowerCaseCandidate = candidate.toLowerCase();
         const isNewValue =
           !existingValueSet.has(lowerCaseCandidate) &&
@@ -67,7 +73,7 @@ export default class TextInputTagPicker extends React.Component {
       }, []);
   };
 
-  updateInput = e => {
+  updateInput = (e?: any) => {
     // If the user did not add new text input, we update the tag search
     if (this.state.lastAction === UserActions.delete) {
       const length = this.props.tagValue.length;
@@ -96,7 +102,7 @@ export default class TextInputTagPicker extends React.Component {
     }
   };
 
-  processTagInput = e => {
+  processTagInput = (e: { keyCode: number; }) => {
     if (e.keyCode === keyCodes.enter) {
       if (this.props.selectedTagIndex === null) {
         const onlyWhitespace = !/\S/.test(this.state.inputString);
@@ -138,7 +144,7 @@ export default class TextInputTagPicker extends React.Component {
     }
   };
 
-  renderValue = (field, i, isLastInput = false) => {
+  renderValue = (field: any, i: any, isLastInput = false) => {
     if (field.id) {
       return (
         <span
@@ -165,7 +171,7 @@ export default class TextInputTagPicker extends React.Component {
     );
   };
 
-  renderTextInputElement(lastElement) {
+  renderTextInputElement(lastElement: any) {
     return (
       <span className="form__field__tag--container">
         {lastElement && this.renderValue(lastElement, 0, true)}
@@ -188,24 +194,18 @@ export default class TextInputTagPicker extends React.Component {
         ? null
         : this.props.tagValue[valueLength - 1];
 
-    return (
-      <div
-        className={
-          'form__field__tag--selector ' +
-          (this.props.hasError(this.props) ? 'form__field--error' : '')
-        }
-      >
+    return (<div className={'form__field__tag--selector ' +
+        ((this.props as any).hasError(this.props) ? 'form__field--error' : '')}>
         {valueLength
-          ? this.props.tagValue.map((value, i) => {
-              if (i < valueLength - 1) {
+        ? this.props.tagValue.map((value, i) => {
+            if (i < valueLength - 1) {
                 return this.renderValue(value, i);
-              }
-            })
-          : ''}
+            }
+        })
+        : ''}
 
         {this.renderTextInputElement(lastElement)}
-      </div>
-    );
+      </div>);
   }
 
   render() {
@@ -219,6 +219,7 @@ export default class TextInputTagPicker extends React.Component {
           tagsToVisible={this.props.tagsToVisible}
           selectNewTag={this.selectNewTag}
           tagValue={this.props.tagValue}
+          // @ts-expect-error TS(2322): Type '(tag: DisplayTag, tagValue: ExistingTagValue... Remove this comment to see the full error message
           removeDupes={removeStringTagDuplicates}
           selectedTagIndex={this.props.selectedTagIndex}
         />

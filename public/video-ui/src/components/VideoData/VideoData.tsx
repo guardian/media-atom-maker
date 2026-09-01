@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import TextInput from '../FormFields/TextInput';
 import DurationInput from '../FormFields/DurationInput';
@@ -24,18 +23,20 @@ import {
 } from '../FormFields/richtext/config';
 import { ExpireNowComponent } from '../FormFields/ExpireNow';
 import { addOrDropBundlingTags } from '../../services/KeywordsApi';
+import { Video } from "../../services/VideosApi";
 
-export default class VideoData extends React.Component {
-  static propTypes = {
-    video: PropTypes.object.isRequired,
-    updateVideo: PropTypes.func.isRequired,
-    editable: PropTypes.bool.isRequired,
-    updateErrors: PropTypes.func.isRequired,
-    updateWarnings: PropTypes.func.isRequired,
-    canonicalVideoPageExists: PropTypes.bool.isRequired
-  };
+type Props = {
+    video: Video;
+    updateVideo: (...args: any[]) => any;
+    editable: boolean;
+    updateErrors: (...args: any[]) => any;
+    updateWarnings: (...args: any[]) => any;
+    canonicalVideoPageExists: boolean;
+};
 
-  validateKeywords = keywords => {
+export default class VideoData extends React.Component<Props> {
+
+  validateKeywords = (keywords: any) => {
     if (
       !Array.isArray(keywords) ||
       keywords.length === 0 ||
@@ -83,131 +84,68 @@ export default class VideoData extends React.Component {
 
     const isCommercialType = VideoUtils.isCommercialType(video);
     const hasAssets = VideoUtils.hasAssets(video);
+    // @ts-expect-error TS(2345): Argument of type 'Video' is not assignable to para... Remove this comment to see the full error message
     const canHaveComposerPage = VideoUtils.canHaveComposerPage(video);
+    // @ts-expect-error TS(2345): Argument of type 'Video' is not assignable to para... Remove this comment to see the full error message
     const mustHaveTags = VideoUtils.mustHaveTags(video);
 
-    return (
-      <ManagedForm
-        data={video}
-        updateData={updateVideo}
-        editable={editable}
-        updateErrors={updateErrors}
-        updateWarnings={updateWarnings}
-        formName={formNames.videoData}
-        formClass="atom__edit__form"
-      >
-        <ManagedField
-          fieldLocation="title"
-          name={canHaveComposerPage ? 'Headline' : 'Title'}
-          maxLength={fieldLengths.title}
-          isRequired={true}
-        >
+    // @ts-expect-error TS(2769): No overload matches this call.
+    return (<ManagedForm data={video} updateData={updateVideo} editable={editable} updateErrors={updateErrors} updateWarnings={updateWarnings} formName={formNames.videoData} formClass="atom__edit__form">
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
+        <ManagedField fieldLocation="title" name={canHaveComposerPage ? 'Headline' : 'Title'} maxLength={fieldLengths.title} isRequired={true}>
+          {/* @ts-expect-error TS(2769): No overload matches this call. */}
           <TextInput />
         </ManagedField>
-        {canHaveComposerPage && (
-          <ManagedField
-            fieldLocation="description"
-            name="Standfirst"
-            maxLength={fieldLengths.description.charMax}
-            maxWordLength={fieldLengths.description.max}
-          >
-            <RichTextField config={standfirstConfig} />
-          </ManagedField>
-        )}
-        {canHaveComposerPage && (
-          <ManagedField
-            fieldLocation="trailText"
-            derivedFrom={video.description}
-            name="Trail Text"
-            maxLength={fieldLengths.description.charMax}
-            maxWordLength={fieldLengths.description.max}
-            isDesired={!canonicalVideoPageExists}
-            isRequired={canonicalVideoPageExists}
-          >
-            <RichTextField
-              isDesired={!canonicalVideoPageExists}
-              isRequired={canonicalVideoPageExists}
-              config={trailTextConfig}
-            />
-          </ManagedField>
-        )}
-        {canHaveComposerPage && (
-          <ManagedField
-            fieldLocation="byline"
-            name="Byline"
-            formRowClass="form__row__byline"
-            tagType={TagTypes.contributor}
-          >
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
+        {canHaveComposerPage && (<ManagedField fieldLocation="description" name="Standfirst" maxLength={fieldLengths.description.charMax} maxWordLength={fieldLengths.description.max}>
+            {/* @ts-expect-error TS(2769): No overload matches this call. */}
+            <RichTextField config={standfirstConfig}/>
+          </ManagedField>)}
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
+        {canHaveComposerPage && (<ManagedField fieldLocation="trailText" derivedFrom={video.description} name="Trail Text" maxLength={fieldLengths.description.charMax} maxWordLength={fieldLengths.description.max} isDesired={!canonicalVideoPageExists} isRequired={canonicalVideoPageExists}>
+            {/* @ts-expect-error TS(2769): No overload matches this call. */}
+            <RichTextField isDesired={!canonicalVideoPageExists} isRequired={canonicalVideoPageExists} config={trailTextConfig}/>
+          </ManagedField>)}
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
+        {canHaveComposerPage && (<ManagedField fieldLocation="byline" name="Byline" formRowClass="form__row__byline" tagType={TagTypes.contributor}>
             <TagPicker />
-          </ManagedField>
-        )}
-        {canHaveComposerPage && (
-          <ManagedField
-            fieldLocation="commissioningDesks"
-            name="Commissioning Desks"
-            formRowClass="form__row__byline"
-            tagType={TagTypes.tracking}
-            isDesired={!canonicalVideoPageExists}
-            isRequired={canonicalVideoPageExists}
-            inputPlaceholder="Search commissioning info (type '*' to show all)"
-          >
-            <TagPicker disableTextInput tagSubType="commissioningdesk" />
-          </ManagedField>
-        )}
-        {video.platform !== 'Youtube' && (
-          <ManagedField
-            fieldLocation="atomTagIds"
-            name="Tags"
-            formRowClass="form__row__byline"
-            isDesired={mustHaveTags}
-            isRequired={false}
-            inputPlaceholder="Search tags (type '*' to show all)"
-          >
+          </ManagedField>)}
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
+        {canHaveComposerPage && (<ManagedField fieldLocation="commissioningDesks" name="Commissioning Desks" formRowClass="form__row__byline" tagType={TagTypes.tracking} isDesired={!canonicalVideoPageExists} isRequired={canonicalVideoPageExists} inputPlaceholder="Search commissioning info (type '*' to show all)">
+            {/* @ts-expect-error TS(2322): Type '{ disableTextInput: true; tagSubType: string... Remove this comment to see the full error message */}
+            <TagPicker disableTextInput tagSubType="commissioningdesk"/>
+          </ManagedField>)}
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
+        {video.platform !== 'Youtube' && (<ManagedField fieldLocation="atomTagIds" name="Tags" formRowClass="form__row__byline" isDesired={mustHaveTags} isRequired={false} inputPlaceholder="Search tags (type '*' to show all)">
             {/* tagTypes is not really used as we supply filterOptions */}
-            <StandTagPicker
-              tagTypes={[]}
-              allowTags={isTagAllowed}
-              filterOptions={supportedTagFilters}
-            />
-          </ManagedField>
-        )}
-        {canHaveComposerPage && (
-          <ManagedField
-            fieldLocation="keywords"
-            name="Composer Keywords"
-            formRowClass="form__row__byline"
-            tagType={isCommercialType ? TagTypes.commercial : TagTypes.keyword}
-            isDesired={true}
-            inputPlaceholder="Search keywords (type '*' to show all)"
-            customValidation={this.validateKeywords}
-            updateSideEffects={this.composerKeywordsToYouTube}
-          >
-            <TagPicker disableTextInput />
-          </ManagedField>
-        )}
+            {/* @ts-expect-error TS(2739): Type '{ tagTypes: never[]; allowTags: (tag: VideoT... Remove this comment to see the full error message */}
+            <StandTagPicker tagTypes={[]} allowTags={isTagAllowed} filterOptions={supportedTagFilters}/>
+          </ManagedField>)}
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
+        {canHaveComposerPage && (<ManagedField fieldLocation="keywords" name="Composer Keywords" formRowClass="form__row__byline" tagType={isCommercialType ? TagTypes.commercial : TagTypes.keyword} isDesired={true} inputPlaceholder="Search keywords (type '*' to show all)" customValidation={this.validateKeywords} updateSideEffects={this.composerKeywordsToYouTube}>
+            {/* @ts-expect-error TS(2322): Type '{ disableTextInput: true; }' is not assignab... Remove this comment to see the full error message */}
+            <TagPicker disableTextInput/>
+          </ManagedField>)}
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
         <ManagedField fieldLocation="source" name="Video Source">
+          {/* @ts-expect-error TS(2769): No overload matches this call. */}
           <TextInput />
         </ManagedField>
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
         <ManagedField fieldLocation="expiryDate" name="Expiry Date">
           <DatePicker />
-          <ExpireNowComponent
-            fieldName={video.fieldName}
-            editable={editable}
-            onUpdateField={video.onUpdateField}
-            fieldValue={video.fieldValue}
-          />
+          <ExpireNowComponent fieldName={(video as any).fieldName} editable={editable} onUpdateField={(video as any).onUpdateField} fieldValue={(video as any).fieldValue}/>
         </ManagedField>
-        <ManagedField
-          fieldLocation="category"
-          name="Category"
-          disabled={hasAssets}
-        >
-          <SelectBox selectValues={videoCategories} />
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
+        <ManagedField fieldLocation="category" name="Category" disabled={hasAssets}>
+          {/* @ts-expect-error TS(2769): No overload matches this call. */}
+          <SelectBox selectValues={videoCategories}/>
         </ManagedField>
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
         <ManagedField fieldLocation="duration" name="Video Duration (mm:ss)">
+          {/* @ts-expect-error TS(2740): Type '{}' is missing the following properties from... Remove this comment to see the full error message */}
           <DurationInput />
         </ManagedField>
-      </ManagedForm>
-    );
+      </ManagedForm>);
   }
 }

@@ -1,11 +1,27 @@
 import React from 'react';
 import Icon from '../Icon';
 import VideoUtils from '../../util/video';
+import { Video } from "../../services/VideosApi";
+import { AsyncThunk, AsyncThunkConfig } from "@reduxjs/toolkit";
+import { YouTubeVideoCategory, YouTubeChannelWithData } from "../../services/YoutubeApi";
 
-export default class YoutubeUpload extends React.Component {
-  state = { file: null };
+type Props = {
+    video: Video;
+    startUpload: AsyncThunk<unknown, any, AsyncThunkConfig>;
+    isUploading: boolean;
+    categories: YouTubeVideoCategory[];
+    channels: YouTubeChannelWithData[];
+    saveVideo: any;
+};
 
-  setFile = event => {
+type State = {
+    file: any;
+};
+
+export default class YoutubeUpload extends React.Component<Props, State> {
+  state: State = { file: null };
+
+  setFile = (event: { target: { files: string | any[]; }; }) => {
     if (!this.props.video) {
       return;
     }
@@ -32,6 +48,7 @@ export default class YoutubeUpload extends React.Component {
             <input
               className="form__field__file"
               type="file"
+              // @ts-expect-error TS(2322): Type '(event: { target: { files: string | any[]; }... Remove this comment to see the full error message
               onChange={this.setFile}
               disabled={!canUploadToYouTube || this.props.isUploading}
               accept="video/*,.mxf"

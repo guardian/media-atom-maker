@@ -1,10 +1,22 @@
 import React from 'react';
 import Icon from '../Icon';
+import { Video } from "../../services/VideosApi";
+import { AsyncThunk, AsyncThunkConfig } from "@reduxjs/toolkit";
 
-export default class AddSelfHostedAsset extends React.Component {
-  state = { file: null };
+type Props = {
+    video: Video;
+    isUploading: boolean;
+    startUpload: AsyncThunk<unknown, any, AsyncThunkConfig>;
+};
 
-  setFile = event => {
+type State = {
+    file: any;
+};
+
+export default class AddSelfHostedAsset extends React.Component<Props, State> {
+  state: State = { file: null };
+
+  setFile = (event: { target: { files: string | any[]; }; }) => {
     if (!this.props.video) {
       return;
     }
@@ -29,6 +41,7 @@ export default class AddSelfHostedAsset extends React.Component {
             <input
               className="form__field__file"
               type="file"
+              // @ts-expect-error TS(2322): Type '(event: { target: { files: string | any[]; }... Remove this comment to see the full error message
               onChange={this.setFile}
               disabled={isUploading}
               accept="video/*,.mxf"

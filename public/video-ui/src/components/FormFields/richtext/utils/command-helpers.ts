@@ -64,12 +64,12 @@ export const linkItemCommand =
     return false;
   };
 
-const promptForLink = (
+function promptForLink(
   state: EditorState,
   markType: MarkType,
   customPrompt?: string,
   defaultValue?: string
-): { from: number; to: number; url: string } | undefined => {
+): { from: number; to: number; url: string } | undefined {
   const { from, to, href } = getCurrentHrefAndEditRange(state, markType);
 
   if (from === to && !href) {
@@ -90,7 +90,7 @@ const promptForLink = (
     to,
     url
   };
-};
+}
 
 /**
  * Expand the given selection to include all contiguous characters with the
@@ -100,7 +100,7 @@ const promptForLink = (
  * end of the selection rightwards - it doesn't check for contiguous marks within
  * the selection. It will behave oddly if this isn't the case.
  */
-const getExpandedSelectionForMark = (state: EditorState, currentMark: any) => {
+function getExpandedSelectionForMark(state: EditorState, currentMark: any) {
   if (!currentMark) {
     return { from: state.selection.from, to: state.selection.to, href: null };
   }
@@ -133,17 +133,17 @@ const getExpandedSelectionForMark = (state: EditorState, currentMark: any) => {
   const href = currentMark.attrs ? currentMark.attrs.href : null;
 
   return { from: startPos, to: endPos, href };
-};
+}
 
 // if not in a link this will return the selection on `from` and `to` and a null
 // on `href` on the return object, otherwise it will return the href and the
 // max extent to which this link is applied in the document in `from` and `to`
-const getCurrentHrefAndEditRange = (state: EditorState, markType: MarkType) => {
+function getCurrentHrefAndEditRange(state: EditorState, markType: MarkType) {
   const currentMark = areMarksEqualForSelection(state, markType);
   return getExpandedSelectionForMark(state, currentMark);
-};
+}
 
-const markEnabled = (state: EditorState, type: MarkType) => {
+function markEnabled(state: EditorState, type: MarkType) {
   const { from, $from, to, empty } = state.selection;
 
   if (empty) {
@@ -151,9 +151,9 @@ const markEnabled = (state: EditorState, type: MarkType) => {
   } else {
     return state.doc.rangeHasMark(from, to, type);
   }
-};
+}
 
-const areMarksEqualForSelection = (state: EditorState, type: MarkType) => {
+function areMarksEqualForSelection(state: EditorState, type: MarkType) {
   const { from, to, empty } = state.selection;
   const mark = type.isInSet(
     state.storedMarks || state.doc.resolve(from + 1).marks()
@@ -168,4 +168,4 @@ const areMarksEqualForSelection = (state: EditorState, type: MarkType) => {
     }
   }
   return mark;
-};
+}

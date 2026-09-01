@@ -6,9 +6,10 @@ import {
   fetchIconikWorkingGroups
 } from '../../slices/iconik';
 import { setSaving, setVideo } from '../../slices/video';
+import { AppDispatch } from '../../util/setupStore';
 
-export function getVideo(id) {
-  return dispatch => {
+export function getVideo(id: string) {
+  return (dispatch: AppDispatch) => {
     dispatch(setSaving(true));
     return VideosApi.fetchVideo(id)
       .then(res => {
