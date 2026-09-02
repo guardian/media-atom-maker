@@ -33,9 +33,7 @@ class Flags extends React.Component<Props> {
 
     const isCommercialType = VideoUtils.isCommercialType(video);
     const isEligibleForAds = VideoUtils.isEligibleForAds(video);
-    // @ts-expect-error TS(2345): Argument of type 'Video' is not assignable to para... Remove this comment to see the full error message
     const canHaveComposerPage = VideoUtils.canHaveComposerPage(video);
-    // @ts-expect-error TS(2345): Argument of type 'Video' is not assignable to para... Remove this comment to see the full error message
     const platform = VideoUtils.getPlatformFromAtom(video);
 
     return (

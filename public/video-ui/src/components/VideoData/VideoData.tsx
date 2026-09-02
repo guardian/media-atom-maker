@@ -83,9 +83,7 @@ export default class VideoData extends React.Component<Props> {
 
     const isCommercialType = VideoUtils.isCommercialType(video);
     const hasAssets = VideoUtils.hasAssets(video);
-    // @ts-expect-error TS(2345): Argument of type 'Video' is not assignable to para... Remove this comment to see the full error message
     const canHaveComposerPage = VideoUtils.canHaveComposerPage(video);
-    // @ts-expect-error TS(2345): Argument of type 'Video' is not assignable to para... Remove this comment to see the full error message
     const mustHaveTags = VideoUtils.mustHaveTags(video);
 
     return (

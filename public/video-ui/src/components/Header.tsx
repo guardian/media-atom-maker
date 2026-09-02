@@ -281,7 +281,6 @@ export default class Header extends React.Component<Props, State> {
 
   render() {
     const canHaveComposerPage = VideoUtils.canHaveComposerPage(
-      // @ts-expect-error TS(2345): Argument of type 'Video' is not assignable to para... Remove this comment to see the full error message
       this.props.video
     );
 
