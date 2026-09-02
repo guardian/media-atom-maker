@@ -4,18 +4,17 @@ import { CheckBox } from '../FormFields/CheckBox';
 import VideoUtils from '../../util/video';
 import { formNames } from '../../constants/formNames';
 import { addOrDropBundlingTags } from '../../services/KeywordsApi';
-import { Video } from "../../services/VideosApi";
+import { Video } from '../../services/VideosApi';
 
 type Props = {
-    video: Video;
-    editable: boolean;
-    updateVideo: (...args: any[]) => any;
-    updateErrors: (...args: any[]) => any;
-    updateWarnings: (...args: any[]) => any;
+  video: Video;
+  editable: boolean;
+  updateVideo: (...args: any[]) => any;
+  updateErrors: (...args: any[]) => any;
+  updateWarnings: (...args: any[]) => any;
 };
 
 class Flags extends React.Component<Props> {
-
   composerKeywordsToYouTube = () => {
     const { video, updateVideo } = this.props;
 

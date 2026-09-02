@@ -10,7 +10,15 @@ export const getYouTubeEmbedUrl = (id: string) => {
  * @param {{id: string, className?: string, largePreview?: boolean}} param0
  * @returns
  */
-export function YouTubeEmbed({ id, className, largePreview }: { id: string; className?: string; largePreview?: boolean; }) {
+export function YouTubeEmbed({
+  id,
+  className,
+  largePreview
+}: {
+  id: string;
+  className?: string;
+  largePreview?: boolean;
+}) {
   return (
     <iframe
       // @ts-expect-error TS(2322): Type '{ type: string; className: string | undefine... Remove this comment to see the full error message

@@ -2,15 +2,18 @@ import moment from 'moment';
 
 import { getStore } from './storeAccessor';
 import PrivacyStates from '../constants/privacyStates';
-import { VideoPlayerFormat } from "../constants/videoCreateOptions";
-import { Asset, MediaAtomSummary, Video } from "../services/VideosApi";
+import { VideoPlayerFormat } from '../constants/videoCreateOptions';
+import { Asset, MediaAtomSummary, Video } from '../services/VideosApi';
 
 export default class VideoUtils {
   static hasAssets({ assets }: Pick<Video, 'assets'>) {
     return assets.length > 0;
   }
 
-  static getActiveAsset({ assets, activeVersion }: Pick<Video, 'assets' | 'activeVersion'>) {
+  static getActiveAsset({
+    assets,
+    activeVersion
+  }: Pick<Video, 'assets' | 'activeVersion'>) {
     if (activeVersion) {
       const active = assets.filter((_: Asset) => _.version === activeVersion);
       return active.length === 1 ? active[0] : active;
@@ -27,7 +30,10 @@ export default class VideoUtils {
     return stateChannels.find(_ => _.id === channelId);
   }
 
-  static hasYoutubeWriteAccess({ channelId, privacyStatus }: Pick<Video, 'channelId' | 'privacyStatus'>) {
+  static hasYoutubeWriteAccess({
+    channelId,
+    privacyStatus
+  }: Pick<Video, 'channelId' | 'privacyStatus'>) {
     const availablePrivacyStates = VideoUtils.getAvailablePrivacyStates({
       channelId
     });
@@ -66,7 +72,9 @@ export default class VideoUtils {
     return category === 'Hosted';
   }
 
-  static isEligibleForAds(atom: Pick<Video, 'assets' | 'category' | 'duration'>) {
+  static isEligibleForAds(
+    atom: Pick<Video, 'assets' | 'category' | 'duration'>
+  ) {
     if (!VideoUtils.hasAssets(atom)) {
       return true;
     }
@@ -80,14 +88,24 @@ export default class VideoUtils {
     }
 
     const minDurationForAds = getStore().getState().config.minDurationForAds;
-    return atom.duration != null && atom.duration > 0 && atom.duration >= minDurationForAds;
+    return (
+      atom.duration != null &&
+      atom.duration > 0 &&
+      atom.duration >= minDurationForAds
+    );
   }
 
-  static canUploadToYouTube({ youtubeCategoryId, channelId, privacyStatus }: Pick<Video, 'youtubeCategoryId' | 'channelId' | 'privacyStatus'>) {
+  static canUploadToYouTube({
+    youtubeCategoryId,
+    channelId,
+    privacyStatus
+  }: Pick<Video, 'youtubeCategoryId' | 'channelId' | 'privacyStatus'>) {
     return !!youtubeCategoryId && !!channelId && !!privacyStatus;
   }
 
-  static getScheduledLaunch({ contentChangeDetails }: Pick<Video, 'contentChangeDetails'>) {
+  static getScheduledLaunch({
+    contentChangeDetails
+  }: Pick<Video, 'contentChangeDetails'>) {
     return (
       contentChangeDetails &&
       contentChangeDetails.scheduledLaunch &&
@@ -95,7 +113,9 @@ export default class VideoUtils {
     );
   }
 
-  static getEmbargo({ contentChangeDetails }: Pick<Video, 'contentChangeDetails'>) {
+  static getEmbargo({
+    contentChangeDetails
+  }: Pick<Video, 'contentChangeDetails'>) {
     return (
       contentChangeDetails &&
       contentChangeDetails.embargo &&
@@ -113,11 +133,15 @@ export default class VideoUtils {
     return embargo ? moment(embargo) : null;
   }
 
-  static isPublished({ contentChangeDetails }: Pick<Video, 'contentChangeDetails'>) {
+  static isPublished({
+    contentChangeDetails
+  }: Pick<Video, 'contentChangeDetails'>) {
     return !!contentChangeDetails.published;
   }
 
-  static hasExpired({ contentChangeDetails }: Pick<Video, 'contentChangeDetails'>) {
+  static hasExpired({
+    contentChangeDetails
+  }: Pick<Video, 'contentChangeDetails'>) {
     return (
       !!contentChangeDetails.expiry &&
       contentChangeDetails.expiry.date <= Date.now()

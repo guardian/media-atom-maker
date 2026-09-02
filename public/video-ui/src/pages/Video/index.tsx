@@ -28,20 +28,20 @@ import {
 import { hasIconikOrPlutoProject } from '../../util/hasIconikOrPlutoProject';
 
 type Props = {
-    video?: any;
-    params: any;
-    warningActions: any;
-    videoActions: any;
-    workflowActions: any;
-    videoEditOpen: any;
-    config: any;
-    formErrorActions: any;
-    cropOptions: any;
-    publishedVideo: any;
-    workflow: any;
-    checkedFormFields: any;
-    usages: any;
-    isSaving: any;
+  video?: any;
+  params: any;
+  warningActions: any;
+  videoActions: any;
+  workflowActions: any;
+  videoEditOpen: any;
+  config: any;
+  formErrorActions: any;
+  cropOptions: any;
+  publishedVideo: any;
+  workflow: any;
+  checkedFormFields: any;
+  usages: any;
+  isSaving: any;
 };
 
 type State = any;
@@ -191,39 +191,71 @@ class VideoDisplay extends React.Component<Props, State> {
     const activeAsset = VideoUtils.getActiveAsset(this.props.video);
     const youtubeAsset = platform === 'youtube' && activeAsset;
 
-    return (<div className="video__detailbox">
+    return (
+      <div className="video__detailbox">
         <div className="video__detailbox__header__container">
           <header className="video__detailbox__header">
             <div>
               <h3>Video Preview</h3>
-              {platform === 'youtube' && (<div className="video__detailbox__header__format video__detailbox__header__format--youtube">
+              {platform === 'youtube' && (
+                <div className="video__detailbox__header__format video__detailbox__header__format--youtube">
                   {this.iconMap['Youtube']}
                   <span>YouTube</span>
-                </div>)}
-              {this.props.video.videoPlayerFormat && (<div className="video__detailbox__header__format">
+                </div>
+              )}
+              {this.props.video.videoPlayerFormat && (
+                <div className="video__detailbox__header__format">
                   {(this.iconMap as any)[this.props.video.videoPlayerFormat]}
                   <span>
-                    {Object.values(videoCreateOptions)
-            .flat()
-            .find(format => format.id === this.props.video.videoPlayerFormat)?.title}
+                    {
+                      Object.values(videoCreateOptions)
+                        .flat()
+                        .find(
+                          format =>
+                            format.id === this.props.video.videoPlayerFormat
+                        )?.title
+                    }
                   </span>
-                </div>)}
+                </div>
+              )}
             </div>
 
-            {youtubeAsset && (<p className="video-asset">
+            {youtubeAsset && (
+              <p className="video-asset">
                 <span className="video-asset-number">
                   Asset {activeAsset.version}:
                 </span>
                 <span>({youtubeAsset.id})</span>
-              </p>)}
+              </p>
+            )}
           </header>
           {/* @ts-expect-error TS(2339): Property 'asset-handle' does not exist on type 'JS... Remove this comment to see the full error message */}
-          <asset-handle data-source="mam" data-source-type="video" data-thumbnail={this.props.video?.posterImage?.assets?.[0]?.file} data-external-url={platform === 'youtube' &&
-        // @ts-expect-error TS(2339): Property 'asset-handle' does not exist on type 'JS... Remove this comment to see the full error message
-        getYouTubeEmbedUrl(VideoUtils.getActiveAsset(this.props.video)?.id)} data-embeddable-url={window.location.href}></asset-handle>
-          <Link className={'button ' + (this.props.videoEditOpen ? 'disabled' : '')} to={`/videos/${this.props.video.id}/upload`} onClick={e => this.handleAssetClick(e)} data-tip="Edit Assets">
-            <Icon className={'icon__edit' +
-        (this.props.videoEditOpen ? ' icon__edit__disabled' : '')} icon="edit"/>
+          <asset-handle
+            data-source="mam"
+            data-source-type="video"
+            data-thumbnail={this.props.video?.posterImage?.assets?.[0]?.file}
+            data-external-url={
+              platform === 'youtube' &&
+              getYouTubeEmbedUrl(
+                VideoUtils.getActiveAsset(this.props.video)?.id
+              )
+            }
+            data-embeddable-url={window.location.href}
+            // @ts-expect-error TS(2339): Property 'asset-handle' does not exist on type 'JS... Remove this comment to see the full error message
+          ></asset-handle>
+          <Link
+            className={'button ' + (this.props.videoEditOpen ? 'disabled' : '')}
+            to={`/videos/${this.props.video.id}/upload`}
+            onClick={e => this.handleAssetClick(e)}
+            data-tip="Edit Assets"
+          >
+            <Icon
+              className={
+                'icon__edit' +
+                (this.props.videoEditOpen ? ' icon__edit__disabled' : '')
+              }
+              icon="edit"
+            />
           </Link>
         </div>
         <div className="video-preview">
@@ -231,7 +263,8 @@ class VideoDisplay extends React.Component<Props, State> {
           {this.renderImages()}
           {this.renderDescription()}
         </div>
-      </div>);
+      </div>
+    );
   }
 
   renderSelectBar(video: any) {
@@ -269,7 +302,7 @@ class VideoDisplay extends React.Component<Props, State> {
     const createWorkflowItem = () =>
       trackInWorkflow({
         video: video,
-        section: sections.find((_: { id: any; }) => _.id === section),
+        section: sections.find((_: { id: any }) => _.id === section),
         status: status,
         note: note,
         prodOffice: prodOffice,
@@ -469,7 +502,7 @@ class VideoDisplay extends React.Component<Props, State> {
         <pinboard-preselect
           data-composer-id={getComposerId() ?? 'unknown'}
           data-tool="media-atom-maker"
-        // @ts-expect-error TS(2339): Property 'pinboard-preselect' does not exist on ty... Remove this comment to see the full error message
+          // @ts-expect-error TS(2339): Property 'pinboard-preselect' does not exist on ty... Remove this comment to see the full error message
         ></pinboard-preselect>
 
         <div className="video">

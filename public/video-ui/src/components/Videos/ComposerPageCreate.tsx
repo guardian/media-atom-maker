@@ -4,21 +4,21 @@ import Icon from '../Icon';
 import { getStore } from '../../util/storeAccessor';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 import ErrorMessages from '../../constants/ErrorMessages';
-import { Video } from "../../services/VideosApi";
-import { createVideoPage } from "../../actions/VideoActions/videoPageCreate";
-import { UsageState } from "../../slices/usage";
+import { Video } from '../../services/VideosApi';
+import { createVideoPage } from '../../actions/VideoActions/videoPageCreate';
+import { UsageState } from '../../slices/usage';
 
 type Props = {
-    video: Video;
-    error: Error;
-    createVideoPage: typeof createVideoPage;
-    usages: UsageState;
-    videoEditOpen: boolean;
-    requiredComposerFieldsMissing: any;
+  video: Video;
+  error: Error;
+  createVideoPage: typeof createVideoPage;
+  usages: UsageState;
+  videoEditOpen: boolean;
+  requiredComposerFieldsMissing: any;
 };
 
 type State = {
-    composerUpdateInProgress: boolean;
+  composerUpdateInProgress: boolean;
 };
 
 export default class ComposerPageCreate extends React.Component<Props, State> {
@@ -57,12 +57,17 @@ export default class ComposerPageCreate extends React.Component<Props, State> {
       composerUpdateInProgress: true
     });
 
-    return (this.props
-    .createVideoPage(this.props.video.id, this.props.video, getStore().getState().config.isTrainingMode) as any).then(() => {
-    this.setState({
+    return (
+      this.props.createVideoPage(
+        this.props.video.id,
+        this.props.video,
+        getStore().getState().config.isTrainingMode
+      ) as any
+    ).then(() => {
+      this.setState({
         composerUpdateInProgress: false
+      });
     });
-});
   };
 
   render() {

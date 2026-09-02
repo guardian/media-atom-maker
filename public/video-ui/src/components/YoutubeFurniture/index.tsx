@@ -15,11 +15,11 @@ import TextInput from '../FormFields/TextInput';
 import TextAreaInput from '../FormFields/TextAreaInput';
 
 type Props = {
-    video: Video;
-    editable: boolean;
-    updateVideo: (...args: any[]) => any;
-    updateErrors: (...args: any[]) => any;
-    updateWarnings: (...args: any[]) => any;
+  video: Video;
+  editable: boolean;
+  updateVideo: (...args: any[]) => any;
+  updateErrors: (...args: any[]) => any;
+  updateWarnings: (...args: any[]) => any;
 };
 
 class YoutubeFurniture extends React.Component<Props> {
@@ -166,9 +166,9 @@ class YoutubeFurniture extends React.Component<Props> {
 import { connect } from 'react-redux';
 import { AnyAction, bindActionCreators, Dispatch } from 'redux';
 import { fetchCategories, fetchChannels } from '../../slices/youtube';
-import { Video } from "../../services/VideosApi";
+import { Video } from '../../services/VideosApi';
 
-function mapStateToProps(state: { youtube: any; }) {
+function mapStateToProps(state: { youtube: any }) {
   return {
     youtube: state.youtube
   };

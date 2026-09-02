@@ -5,7 +5,7 @@ import { showError } from '../../slices/error';
 import { getUploads } from '../../slices/uploads';
 import { AppDispatch } from '../../util/setupStore';
 
-export function createAsset(asset: { uri: string; }, video: { id: string; }) {
+export function createAsset(asset: { uri: string }, video: { id: string }) {
   return (dispatch: AppDispatch) => {
     dispatch(setAddingAsset(true));
     return VideosApi.createAsset(asset, video.id)

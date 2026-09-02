@@ -9,31 +9,34 @@ import RequiredForComposer from '../../constants/requiredForComposer';
 import RequiredForDefaultVideo from '../../constants/requiredForDefaultVideo';
 
 type Props = {
-    fieldLocation: string;
-    updateData?: (...args: any[]) => any;
-    updateFormErrors?: (...args: any[]) => any;
-    updateWarnings?: (...args: any[]) => any;
-    customValidation?: (...args: any[]) => any;
-    data?: any;
-    fieldName?: string;
-    isRequired?: boolean;
-    isDesired?: boolean;
-    disabled?: boolean;
-    editable?: boolean;
-    maxLength?: number;
-    fieldDetails?: string;
-    tagType?: string;
-    inputPlaceholder?: string;
-    tooltip?: string;
-    updateSideEffects?: (...args: any[]) => any;
+  fieldLocation: string;
+  updateData?: (...args: any[]) => any;
+  updateFormErrors?: (...args: any[]) => any;
+  updateWarnings?: (...args: any[]) => any;
+  customValidation?: (...args: any[]) => any;
+  data?: any;
+  fieldName?: string;
+  isRequired?: boolean;
+  isDesired?: boolean;
+  disabled?: boolean;
+  editable?: boolean;
+  maxLength?: number;
+  fieldDetails?: string;
+  tagType?: string;
+  inputPlaceholder?: string;
+  tooltip?: string;
+  updateSideEffects?: (...args: any[]) => any;
 };
 
 type State = {
-    fieldNotification: FieldNotification | null;
-    touched: boolean;
+  fieldNotification: FieldNotification | null;
+  touched: boolean;
 };
 
-export class ManagedField extends React.Component<Props & { derivedFrom?: string }, State> {
+export class ManagedField extends React.Component<
+  Props & { derivedFrom?: string },
+  State
+> {
   placeholder: any;
 
   state: State = {
@@ -136,13 +139,13 @@ export class ManagedField extends React.Component<Props & { derivedFrom?: string
     return value;
   }
 
-  hasError(props: { notification: { type: string; }; }) {
+  hasError(props: { notification: { type: string } }) {
     return (
       props.notification && props.notification.type === FieldNotification.error
     );
   }
 
-  hasWarning(props: { notification: { type: string; }; }) {
+  hasWarning(props: { notification: { type: string } }) {
     return (
       props.notification &&
       props.notification.type === FieldNotification.warning
@@ -162,31 +165,36 @@ export class ManagedField extends React.Component<Props & { derivedFrom?: string
       className += ' form-element--hidden';
     }
 
-    const hydratedChildren = React.Children.map((this.props as any).children, child => {
-    return React.cloneElement(child, {
-        fieldName: (this.props as any).name,
-        fieldValue: this.getFieldValue(_get(this.props.fieldLocation, this.props.data)),
-        rawFieldValue: _get(this.props.fieldLocation, this.props.data),
-        onUpdateField: this.updateFn,
-        editable,
-        maxLength: this.props.maxLength,
-        notification: this.state.fieldNotification,
-        placeholder: this.placeholder,
-        touched: this.state.touched,
-        fieldDetails: this.props.fieldDetails,
-        hasError: this.hasError,
-        hasWarning: this.hasWarning,
-        displayPlaceholder: this.displayPlaceholder,
-        derivedFrom: this.props.derivedFrom,
-        // @ts-expect-error TS(2551): Property 'maxWordLength' does not exist on type 'R... Remove this comment to see the full error message
-        maxWordLength: this.props.maxWordLength,
-        tagType: this.props.tagType,
-        inputPlaceholder: this.props.inputPlaceholder,
-        tooltip: this.props.tooltip,
-        fieldLocation: this.props.fieldLocation,
-        updateSideEffects: this.props.updateSideEffects
-    });
-});
+    const hydratedChildren = React.Children.map(
+      (this.props as any).children,
+      child => {
+        return React.cloneElement(child, {
+          fieldName: (this.props as any).name,
+          fieldValue: this.getFieldValue(
+            _get(this.props.fieldLocation, this.props.data)
+          ),
+          rawFieldValue: _get(this.props.fieldLocation, this.props.data),
+          onUpdateField: this.updateFn,
+          editable,
+          maxLength: this.props.maxLength,
+          notification: this.state.fieldNotification,
+          placeholder: this.placeholder,
+          touched: this.state.touched,
+          fieldDetails: this.props.fieldDetails,
+          hasError: this.hasError,
+          hasWarning: this.hasWarning,
+          displayPlaceholder: this.displayPlaceholder,
+          derivedFrom: this.props.derivedFrom,
+          // @ts-expect-error TS(2551): Property 'maxWordLength' does not exist on type 'R... Remove this comment to see the full error message
+          maxWordLength: this.props.maxWordLength,
+          tagType: this.props.tagType,
+          inputPlaceholder: this.props.inputPlaceholder,
+          tooltip: this.props.tooltip,
+          fieldLocation: this.props.fieldLocation,
+          updateSideEffects: this.props.updateSideEffects
+        });
+      }
+    );
     return <div className={className}>{hydratedChildren}</div>;
   }
 }

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { keyCodes } from '../../constants/keyCodes';
 import TagTypes from '../../constants/TagTypes';
@@ -7,28 +6,27 @@ import { removeStringTagDuplicates } from '../../util/removeStringTagDuplicates'
 import TagSearch from '../TagSearch/TagSearch';
 
 type Props = {
-    tagValue: any[];
-    onUpdate: (...args: any[]) => any;
-    fetchTags: (...args: any[]) => any;
-    removeFn: (...args: any[]) => any;
-    searchResultTags: any[];
-    tagsToVisible: (...args: any[]) => any;
-    showTags: boolean;
-    hideTagResults: (...args: any[]) => any;
-    selectedTagIndex?: number;
-    inputClearCount: number;
-    disableCapiTags?: boolean;
-    tagType?: string;
-    fieldName?: string;
+  tagValue: any[];
+  onUpdate: (...args: any[]) => any;
+  fetchTags: (...args: any[]) => any;
+  removeFn: (...args: any[]) => any;
+  searchResultTags: any[];
+  tagsToVisible: (...args: any[]) => any;
+  showTags: boolean;
+  hideTagResults: (...args: any[]) => any;
+  selectedTagIndex?: number;
+  inputClearCount: number;
+  disableCapiTags?: boolean;
+  tagType?: string;
+  fieldName?: string;
 };
 
 type State = {
-    inputString: any;
-    lastAction: string;
+  inputString: any;
+  lastAction: string;
 };
 
 export default class TextInputTagPicker extends React.Component<Props, State> {
-
   state: State = {
     inputString: '',
     lastAction: UserActions.other
@@ -102,7 +100,7 @@ export default class TextInputTagPicker extends React.Component<Props, State> {
     }
   };
 
-  processTagInput = (e: { keyCode: number; }) => {
+  processTagInput = (e: { keyCode: number }) => {
     if (e.keyCode === keyCodes.enter) {
       if (this.props.selectedTagIndex === null) {
         const onlyWhitespace = !/\S/.test(this.state.inputString);
@@ -194,18 +192,24 @@ export default class TextInputTagPicker extends React.Component<Props, State> {
         ? null
         : this.props.tagValue[valueLength - 1];
 
-    return (<div className={'form__field__tag--selector ' +
-        ((this.props as any).hasError(this.props) ? 'form__field--error' : '')}>
+    return (
+      <div
+        className={
+          'form__field__tag--selector ' +
+          ((this.props as any).hasError(this.props) ? 'form__field--error' : '')
+        }
+      >
         {valueLength
-        ? this.props.tagValue.map((value, i) => {
-            if (i < valueLength - 1) {
+          ? this.props.tagValue.map((value, i) => {
+              if (i < valueLength - 1) {
                 return this.renderValue(value, i);
-            }
-        })
-        : ''}
+              }
+            })
+          : ''}
 
         {this.renderTextInputElement(lastElement)}
-      </div>);
+      </div>
+    );
   }
 
   render() {

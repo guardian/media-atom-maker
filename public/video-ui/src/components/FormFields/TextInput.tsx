@@ -1,16 +1,16 @@
 import React from 'react';
 
 type Props = {
-    fieldValue: any;
-    editable: any;
-    fieldName: any;
-    maxLength: any;
-    notification: any;
-    placeholder: any;
-    displayPlaceholder: any;
-    hasError: any;
-    input: any;
-    onUpdateField: any;
+  fieldValue: any;
+  editable: any;
+  fieldName: any;
+  maxLength: any;
+  notification: any;
+  placeholder: any;
+  displayPlaceholder: any;
+  hasError: any;
+  input: any;
+  onUpdateField: any;
 };
 
 export default class TextInput extends React.Component<Props> {

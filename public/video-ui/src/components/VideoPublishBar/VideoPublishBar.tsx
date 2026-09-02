@@ -5,25 +5,25 @@ import { ScheduledLaunch } from '../ScheduledLaunch';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 import VideoUtils from '../../util/video';
 import { checkVideoReadyToPublish } from '../../util/videoPublishCheck';
-import { Video } from "../../services/VideosApi";
-import { updateVideoPage } from "../../actions/VideoActions/videoPageUpdate";
-import { UsageState } from "../../slices/usage";
-import { updateVideo } from "../../actions/VideoActions/updateVideo";
+import { Video } from '../../services/VideosApi';
+import { updateVideoPage } from '../../actions/VideoActions/videoPageUpdate';
+import { UsageState } from '../../slices/usage';
+import { updateVideo } from '../../actions/VideoActions/updateVideo';
 
 type Props = {
-    isPublishing: boolean;
-    video: Video;
-    publishedVideo: any;
-    videoEditOpen: boolean;
-    usages: UsageState;
-    requiredComposerFieldsMissing: any;
-    updateVideoPage: typeof updateVideoPage;
-    publishVideo: any;
-    saveVideo: any;
-    className: string;
-    formFieldsWarning: Record<string, boolean>;
-    updateVideo: typeof updateVideo;
-    query: unknown;
+  isPublishing: boolean;
+  video: Video;
+  publishedVideo: any;
+  videoEditOpen: boolean;
+  usages: UsageState;
+  requiredComposerFieldsMissing: any;
+  updateVideoPage: typeof updateVideoPage;
+  publishVideo: any;
+  saveVideo: any;
+  className: string;
+  formFieldsWarning: Record<string, boolean>;
+  updateVideo: typeof updateVideo;
+  query: unknown;
 };
 
 export default class VideoPublishBar extends React.Component<Props> {

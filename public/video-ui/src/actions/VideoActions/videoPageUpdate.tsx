@@ -13,7 +13,11 @@ function requestVideoPageUpdate() {
 const UNKNOWN_ERROR =
   'An unknown error occurred. Please contact the Developers';
 
-export function updateVideoPage(video: any, usages: UsageData, updatesTo: string) {
+export function updateVideoPage(
+  video: any,
+  usages: UsageData,
+  updatesTo: string
+) {
   return (dispatch: AppDispatch) => {
     dispatch(requestVideoPageUpdate());
 

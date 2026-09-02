@@ -2,12 +2,11 @@ import React from 'react';
 import { WorkflowForm } from './WorkflowForm';
 
 type Props = {
-    video: Video;
-    editable: boolean;
+  video: Video;
+  editable: boolean;
 };
 
 class Workflow extends React.Component<Props> {
-
   state = {
     editing: false
   };
@@ -40,14 +39,29 @@ class Workflow extends React.Component<Props> {
   render() {
     const { editable, video } = this.props;
 
-    return (<WorkflowForm editable={editable} video={video} workflowSections={(this.props as any).workflow.sections || []} workflowStatuses={(this.props as any).workflow.statuses || []} workflowPriorities={(this.props as any).workflow.priorities.map(({ name, value }: any) => ({
-        id: value,
-        title: name
-    })) || []} workflowStatus={(this.props as any).workflow.status} workflowProductionOffices={[
-        { id: 'UK', title: 'UK' },
-        { id: 'US', title: 'US' },
-        { id: 'AU', title: 'AU' }
-    ]} updateData={this.updateLocalData}/>);
+    return (
+      <WorkflowForm
+        editable={editable}
+        video={video}
+        workflowSections={(this.props as any).workflow.sections || []}
+        workflowStatuses={(this.props as any).workflow.statuses || []}
+        workflowPriorities={
+          (this.props as any).workflow.priorities.map(
+            ({ name, value }: any) => ({
+              id: value,
+              title: name
+            })
+          ) || []
+        }
+        workflowStatus={(this.props as any).workflow.status}
+        workflowProductionOffices={[
+          { id: 'UK', title: 'UK' },
+          { id: 'US', title: 'US' },
+          { id: 'AU', title: 'AU' }
+        ]}
+        updateData={this.updateLocalData}
+      />
+    );
   }
 }
 
@@ -60,9 +74,9 @@ import {
   getStatuses,
   localUpdateWorkflowData
 } from '../../slices/workflow';
-import { Video } from "../../services/VideosApi";
+import { Video } from '../../services/VideosApi';
 
-function mapStateToProps(state: { workflow: any; }) {
+function mapStateToProps(state: { workflow: any }) {
   return {
     workflow: state.workflow
   };

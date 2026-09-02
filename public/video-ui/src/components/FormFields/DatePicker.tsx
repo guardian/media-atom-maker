@@ -16,10 +16,10 @@ const HOURS = [...new Array(24).keys()].map(hour =>
 const EMPTY = [' '];
 
 type SelectorProps = {
-    values: string[];
-    value: string;
-    disabled: boolean;
-    onChange: (value: string) => void;
+  values: string[];
+  value: string;
+  disabled: boolean;
+  onChange: (value: string) => void;
 };
 
 function Selector({ values, value, disabled, onChange }: SelectorProps) {
@@ -46,8 +46,8 @@ function Selector({ values, value, disabled, onChange }: SelectorProps) {
 }
 
 type HourSelectorProps = {
-    date?: number | null;
-    onChange: (date: moment.Moment) => void;
+  date?: number | null;
+  onChange: (date: moment.Moment) => void;
 };
 
 function HourSelector({ date, onChange }: HourSelectorProps) {
@@ -63,8 +63,8 @@ function HourSelector({ date, onChange }: HourSelectorProps) {
 }
 
 type MinuteSelectorProps = {
-    date?: number | null;
-    onChange: (date: moment.Moment) => void;
+  date?: number | null;
+  onChange: (date: moment.Moment) => void;
 };
 
 function MinuteSelector({ date, onChange }: MinuteSelectorProps) {
@@ -73,15 +73,16 @@ function MinuteSelector({ date, onChange }: MinuteSelectorProps) {
     values: date ? MINUTES : EMPTY,
     value: date ? dateMoment.format('mm') : ' ',
     disabled: !date,
-    onChange: (newMinute: string) => onChange(dateMoment.minutes(Number(newMinute)))
+    onChange: (newMinute: string) =>
+      onChange(dateMoment.minutes(Number(newMinute)))
   };
 
   return <Selector {...params} />;
 }
 
 type DateSelectorProps = {
-    date?: number | null;
-    onChange: (date: moment.Moment) => void;
+  date?: number | null;
+  onChange: (date: moment.Moment) => void;
 };
 
 function DateSelector({ date, onChange }: DateSelectorProps) {
@@ -108,14 +109,20 @@ function DateSelector({ date, onChange }: DateSelectorProps) {
 }
 
 type EditorProps = {
-    date?: number | null;
-    onChange: (date: moment.Moment | null) => void;
-    fieldName?: string;
-    canCancel?: boolean;
-    dayOnly?: boolean;
+  date?: number | null;
+  onChange: (date: moment.Moment | null) => void;
+  fieldName?: string;
+  canCancel?: boolean;
+  dayOnly?: boolean;
 };
 
-function Editor({ date, onChange, fieldName, canCancel, dayOnly }: EditorProps & { placeholder?: null | string }) {
+function Editor({
+  date,
+  onChange,
+  fieldName,
+  canCancel,
+  dayOnly
+}: EditorProps & { placeholder?: null | string }) {
   function reset() {
     onChange(null);
   }
@@ -154,9 +161,9 @@ function Editor({ date, onChange, fieldName, canCancel, dayOnly }: EditorProps &
 }
 
 type DisplayProps = {
-    date?: number | null;
-    placeholder?: string | null;
-    fieldName?: string;
+  date?: number | null;
+  placeholder?: string | null;
+  fieldName?: string;
 };
 
 function Display({ date, placeholder, fieldName }: DisplayProps) {
@@ -185,14 +192,22 @@ function Display({ date, placeholder, fieldName }: DisplayProps) {
  * @param {boolean} [props.dayOnly]
  * @param {boolean} [props.canCancel]
  */
-export default function CustomDatePicker({ editable = false, onUpdateField = null, fieldValue = null, placeholder = '', fieldName = '', dayOnly = false, canCancel = true }: {
-    editable?: boolean;
-    onUpdateField?: ((date: number | null) => void) | null;
-    fieldValue?: number | string | null;
-    placeholder?: string | null;
-    fieldName?: string;
-    dayOnly?: boolean;
-    canCancel?: boolean;
+export default function CustomDatePicker({
+  editable = false,
+  onUpdateField = null,
+  fieldValue = null,
+  placeholder = '',
+  fieldName = '',
+  dayOnly = false,
+  canCancel = true
+}: {
+  editable?: boolean;
+  onUpdateField?: ((date: number | null) => void) | null;
+  fieldValue?: number | string | null;
+  placeholder?: string | null;
+  fieldName?: string;
+  dayOnly?: boolean;
+  canCancel?: boolean;
 } = {}) {
   const date =
     fieldValue && fieldValue !== placeholder

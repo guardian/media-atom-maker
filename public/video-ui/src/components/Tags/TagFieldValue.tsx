@@ -1,8 +1,8 @@
 import React from 'react';
 
 type Props = {
-    tagType: any;
-    tagValue: any;
+  tagType: any;
+  tagValue: any;
 };
 
 export default class TagFieldValue extends React.Component<Props> {

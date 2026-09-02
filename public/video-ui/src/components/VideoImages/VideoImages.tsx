@@ -5,17 +5,16 @@ import { getGridMediaId, getGridQueryParams } from '../../util/getGridMediaId';
 import { isImageCropOutOfSync } from '../../util/getAspectRatio';
 
 type Props = {
-    gridDomain: string;
-    video: any;
-    saveAndUpdateVideo: (...args: any[]) => any;
-    updateVideo: (...args: any[]) => any;
-    videoEditOpen: boolean;
-    updateErrors: (...args: any[]) => any;
-    cropOptions: any;
+  gridDomain: string;
+  video: any;
+  saveAndUpdateVideo: (...args: any[]) => any;
+  updateVideo: (...args: any[]) => any;
+  videoEditOpen: boolean;
+  updateErrors: (...args: any[]) => any;
+  cropOptions: any;
 };
 
 export default class mapStateToProps extends React.Component<Props> {
-
   saveAndUpdateVideoImage = (image: any, location: any) => {
     const revertVideo = Object.assign({}, this.props.video);
     const newVideo = Object.assign({}, this.props.video, {
@@ -108,7 +107,7 @@ export default class mapStateToProps extends React.Component<Props> {
           {/* @ts-expect-error TS(2339): Property 'pinboard-suggest-alternate-crops' does n... Remove this comment to see the full error message */}
           <pinboard-suggest-alternate-crops
             data-media-id={mediaId}
-          // @ts-expect-error TS(2339): Property 'pinboard-suggest-alternate-crops' does n... Remove this comment to see the full error message
+            // @ts-expect-error TS(2339): Property 'pinboard-suggest-alternate-crops' does n... Remove this comment to see the full error message
           ></pinboard-suggest-alternate-crops>
         </div>
         {this.props.video.platform !== 'Url' && (

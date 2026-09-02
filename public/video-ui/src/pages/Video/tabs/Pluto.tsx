@@ -1,11 +1,10 @@
-
 import React, { useEffect, useState } from 'react';
 import { Tab, TabPanel } from 'react-tabs';
 import PlutoProjectLink from '../../../components/Pluto/PlutoProjectLink';
 import { getPlutoItemById } from '../../../services/PlutoApi';
 
 type PlutoTabProps = {
-    disabled: any;
+  disabled: any;
 };
 
 export class PlutoTab extends React.Component<PlutoTabProps> {
@@ -17,7 +16,7 @@ export class PlutoTab extends React.Component<PlutoTabProps> {
 }
 
 type PlutoTabPanelProps = {
-    video: any;
+  video: any;
 };
 
 export class PlutoTabPanel extends React.Component<PlutoTabPanelProps> {
@@ -56,8 +55,14 @@ export class PlutoTabPanel extends React.Component<PlutoTabPanelProps> {
  * @param {{id: string, itemType: import('../../../services/PlutoApi').PlutoItemType}} param0
  * @returns
  */
-// @ts-expect-error TS(2694): Namespace '"/Users/david_furey/code/media-atom-mak... Remove this comment to see the full error message
-function ReadOnlyPlutoItem({ id, itemType }: { id: string; itemType: import('../../../services/PlutoApi').PlutoItemType; }) {
+function ReadOnlyPlutoItem({
+  id,
+  itemType
+}: {
+  id: string;
+  // @ts-expect-error TS(2694): Namespace '"/Users/david_furey/code/media-atom-mak... Remove this comment to see the full error message
+  itemType: import('../../../services/PlutoApi').PlutoItemType;
+}) {
   const [title, setTitle] = useState(id ? 'Loading...' : '');
 
   useEffect(() => {

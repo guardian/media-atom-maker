@@ -1,13 +1,13 @@
 import React, { RefObject } from 'react';
 
 type Props = {
-    onCloseModal?: any;
-    children?: React.ReactNode;
+  onCloseModal?: any;
+  children?: React.ReactNode;
 };
 
 type State = {
-    dialogRef: RefObject<HTMLDialogElement>;
-    isOpen: boolean;
+  dialogRef: RefObject<HTMLDialogElement>;
+  isOpen: boolean;
 };
 
 export default class Modal extends React.Component<Props, State> {

@@ -4,17 +4,16 @@ import { getStore } from '../../util/storeAccessor';
 import { FrontendIcon, ComposerIcon, ViewerIcon } from '../Icon';
 
 import ContentApi from '../../services/capi';
-import { Video } from "../../services/VideosApi";
-import { UsageState } from "../../slices/usage";
+import { Video } from '../../services/VideosApi';
+import { UsageState } from '../../slices/usage';
 
 type Props = {
-    usages: UsageState;
-    video: Video;
-    publishedVideo: Video;
+  usages: UsageState;
+  video: Video;
+  publishedVideo: Video;
 };
 
 export default class VideoUsages extends React.Component<Props> {
-
   getComposerUrl = () => {
     return getStore().getState().config.composerUrl;
   };
@@ -83,15 +82,27 @@ export default class VideoUsages extends React.Component<Props> {
     const usages = this.props.usages.data;
 
     return Object.keys(usages).map(state => {
-      const totalUsages = usages[state as keyof typeof usages].video.length + usages[state as keyof typeof usages].other.length;
+      const totalUsages =
+        usages[state as keyof typeof usages].video.length +
+        usages[state as keyof typeof usages].other.length;
 
-      return (<div key={`${state}-usages`}>
+      return (
+        <div key={`${state}-usages`}>
           <p className="details-list__title">{`${state.charAt(0).toUpperCase() + state.slice(1)} (Total: ${totalUsages})`}</p>
-          {totalUsages === 0 ? (<p className="usage--none details-list__field">{`No ${state} usages found`}</p>) : (<ul className="detail__list">
-              {usages[state as keyof typeof usages].video.map((usage: any) => this.renderUsage({ usage, state }))}
-              {usages[state as keyof typeof usages].other.map((usage: any) => this.renderUsage({ usage, state }))}
-            </ul>)}
-        </div>);
+          {totalUsages === 0 ? (
+            <p className="usage--none details-list__field">{`No ${state} usages found`}</p>
+          ) : (
+            <ul className="detail__list">
+              {usages[state as keyof typeof usages].video.map((usage: any) =>
+                this.renderUsage({ usage, state })
+              )}
+              {usages[state as keyof typeof usages].other.map((usage: any) =>
+                this.renderUsage({ usage, state })
+              )}
+            </ul>
+          )}
+        </div>
+      );
     });
   }
 

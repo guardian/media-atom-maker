@@ -1,15 +1,15 @@
 import React from 'react';
-import { createAsset } from "../../actions/VideoActions/createAsset";
-import { Video } from "../../services/VideosApi";
+import { createAsset } from '../../actions/VideoActions/createAsset';
+import { Video } from '../../services/VideosApi';
 
 type Props = {
-    createAsset: typeof createAsset;
-    video: Video;
-    isAdding: boolean;
+  createAsset: typeof createAsset;
+  video: Video;
+  isAdding: boolean;
 };
 
 type State = {
-    uri: any;
+  uri: any;
 };
 
 export default class AddAssetFromURL extends React.Component<Props, State> {
@@ -24,7 +24,7 @@ export default class AddAssetFromURL extends React.Component<Props, State> {
     }
   };
 
-  onChange = (e: { target: { value: any; }; }) => {
+  onChange = (e: { target: { value: any } }) => {
     this.setState({ uri: e.target.value });
   };
 

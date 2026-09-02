@@ -85,7 +85,12 @@ function getS3(region: string, credentials: any) {
  * @returns {Promise<unknown>}
  */
 // @ts-expect-error TS(2693): 'Upload' only refers to a type, but is being used ... Remove this comment to see the full error message
-function uploadPart(upload: Upload, part: typeof Upload['parts'][number], file: File, progressFn: (completed: number) => any) {
+function uploadPart(
+  upload: Upload,
+  part: (typeof Upload)['parts'][number],
+  file: File,
+  progressFn: (completed: number) => any
+) {
   const slice = file.slice(part.start, part.end);
 
   return getCredentials(upload.id, part.key).then(credentials => {
@@ -119,7 +124,12 @@ function uploadPart(upload: Upload, part: typeof Upload['parts'][number], file: 
  * @returns {Promise<boolean>}
  */
 // @ts-expect-error TS(2693): 'Upload' only refers to a type, but is being used ... Remove this comment to see the full error message
-export function uploadParts(upload: Upload, parts: typeof Upload['parts'], file: File, progressFn: (completed: number) => any) {
+export function uploadParts(
+  upload: Upload,
+  parts: (typeof Upload)['parts'],
+  file: File,
+  progressFn: (completed: number) => any
+) {
   return new Promise((resolve, reject) => {
     function uploadPartRecursive(parts: string | any[]) {
       if (parts.length === 0) {
@@ -149,10 +159,14 @@ export function uploadParts(upload: Upload, parts: typeof Upload['parts'], file:
  * @param file - the local file to upload
  * @returns {Promise}
  */
-export function uploadSubtitleFile({ id, version, file }: {
-    id?: any;
-    version?: any;
-    file?: any;
+export function uploadSubtitleFile({
+  id,
+  version,
+  file
+}: {
+  id?: any;
+  version?: any;
+  file?: any;
 }) {
   const formData = new FormData();
   formData.append('subtitle-file', file);

@@ -3,18 +3,18 @@ import React from 'react';
 const pleaseSelect = 'Please select...';
 
 type Props = {
-    displayDefault: any;
-    fieldValue: any;
-    defaultOption: any;
-    selectValues: any;
-    editable: any;
-    displayPlaceholder: any;
-    placeholder: any;
-    fieldName: any;
-    hasError: any;
-    input: any;
-    onUpdateField: any;
-    notification: any;
+  displayDefault: any;
+  fieldValue: any;
+  defaultOption: any;
+  selectValues: any;
+  editable: any;
+  displayPlaceholder: any;
+  placeholder: any;
+  fieldName: any;
+  hasError: any;
+  input: any;
+  onUpdateField: any;
+  notification: any;
 };
 
 export default class SelectBox extends React.Component<Props> {

@@ -1,27 +1,30 @@
 import React from 'react';
 import Icon from '../Icon';
 import VideoUtils from '../../util/video';
-import { Video } from "../../services/VideosApi";
-import { AsyncThunk, AsyncThunkConfig } from "@reduxjs/toolkit";
-import { YouTubeVideoCategory, YouTubeChannelWithData } from "../../services/YoutubeApi";
+import { Video } from '../../services/VideosApi';
+import { AsyncThunk, AsyncThunkConfig } from '@reduxjs/toolkit';
+import {
+  YouTubeVideoCategory,
+  YouTubeChannelWithData
+} from '../../services/YoutubeApi';
 
 type Props = {
-    video: Video;
-    startUpload: AsyncThunk<unknown, any, AsyncThunkConfig>;
-    isUploading: boolean;
-    categories: YouTubeVideoCategory[];
-    channels: YouTubeChannelWithData[];
-    saveVideo: any;
+  video: Video;
+  startUpload: AsyncThunk<unknown, any, AsyncThunkConfig>;
+  isUploading: boolean;
+  categories: YouTubeVideoCategory[];
+  channels: YouTubeChannelWithData[];
+  saveVideo: any;
 };
 
 type State = {
-    file: any;
+  file: any;
 };
 
 export default class YoutubeUpload extends React.Component<Props, State> {
   state: State = { file: null };
 
-  setFile = (event: { target: { files: string | any[]; }; }) => {
+  setFile = (event: { target: { files: string | any[] } }) => {
     if (!this.props.video) {
       return;
     }

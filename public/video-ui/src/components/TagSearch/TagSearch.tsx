@@ -1,13 +1,13 @@
 import React from 'react';
 
 type Props = {
-    selectedTagIndex: number | undefined;
-    removeDupes: any[] | any[];
-    tagValue: any[];
-    selectNewTag: any;
-    searchResultTags: any[];
-    showTags: boolean;
-    tagsToVisible: any;
+  selectedTagIndex: number | undefined;
+  removeDupes: any[] | any[];
+  tagValue: any[];
+  selectNewTag: any;
+  searchResultTags: any[];
+  showTags: boolean;
+  tagsToVisible: any;
 };
 
 class TagSearch extends React.Component<Props> {

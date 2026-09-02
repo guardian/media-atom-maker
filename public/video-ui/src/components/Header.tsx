@@ -15,52 +15,58 @@ import {
 } from '../constants/queryParams';
 import Modal from './utils/Modal';
 import Create from './Create';
-import { createVideo } from "../actions/VideoActions/createVideo";
-import { reportPresenceClientError } from "../actions/PresenceActions/reportError";
-import { publishVideo } from "../actions/VideoActions/publishVideo";
-import { updateVideoPage } from "../actions/VideoActions/videoPageUpdate";
-import { createVideoPage } from "../actions/VideoActions/videoPageCreate";
-import { deleteVideo } from "../actions/VideoActions/deleteVideo";
-import { updateVideo } from "../actions/VideoActions/updateVideo";
-import { Video } from "../services/VideosApi";
-import { Search } from "../slices/search";
-import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
-import { UsageState } from "../slices/usage";
-import { S3UploadState } from "../slices/s3Upload";
+import { createVideo } from '../actions/VideoActions/createVideo';
+import { reportPresenceClientError } from '../actions/PresenceActions/reportError';
+import { publishVideo } from '../actions/VideoActions/publishVideo';
+import { updateVideoPage } from '../actions/VideoActions/videoPageUpdate';
+import { createVideoPage } from '../actions/VideoActions/videoPageCreate';
+import { deleteVideo } from '../actions/VideoActions/deleteVideo';
+import { updateVideo } from '../actions/VideoActions/updateVideo';
+import { Video } from '../services/VideosApi';
+import { Search } from '../slices/search';
+import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
+import { UsageState } from '../slices/usage';
+import { S3UploadState } from '../slices/s3Upload';
 
 type Props = {
-    publishVideo: typeof publishVideo;
-    video: Video;
-    formFieldsWarning: Record<string, boolean>;
-    saving: any;
-    search: Search;
-    updateSearchTerm: ActionCreatorWithPayload<string, "search/updateSearchTerm">;
-    updateVideoPlayerFormatFilter: ActionCreatorWithPayload<string, "search/updateVideoPlayerFormatFilter">;
-    updateShouldUseCreatedDateForSort: ActionCreatorWithPayload<boolean, "search/updateShouldUseCreatedDateForSort">;
-    createVideo: typeof createVideo;
-    presenceConfig: any;
-    reportPresenceClientError: typeof reportPresenceClientError;
-    usages: UsageState;
-    isTrainingMode: boolean;
-    currentPath: unknown;
-    showPublishedState: string;
-    publishedVideo: any;
-    isPublishing: boolean;
-    videoEditOpen: boolean;
-    updateVideoPage: typeof updateVideoPage;
-    updateVideo: typeof updateVideo;
-    saveVideo: any;
-    query: unknown;
-    deleteVideo: typeof deleteVideo;
-    createVideoPage: typeof createVideoPage;
-    error: Error;
-    shouldUseCreatedDateForSort: boolean;
-    s3Upload: S3UploadState;
+  publishVideo: typeof publishVideo;
+  video: Video;
+  formFieldsWarning: Record<string, boolean>;
+  saving: any;
+  search: Search;
+  updateSearchTerm: ActionCreatorWithPayload<string, 'search/updateSearchTerm'>;
+  updateVideoPlayerFormatFilter: ActionCreatorWithPayload<
+    string,
+    'search/updateVideoPlayerFormatFilter'
+  >;
+  updateShouldUseCreatedDateForSort: ActionCreatorWithPayload<
+    boolean,
+    'search/updateShouldUseCreatedDateForSort'
+  >;
+  createVideo: typeof createVideo;
+  presenceConfig: any;
+  reportPresenceClientError: typeof reportPresenceClientError;
+  usages: UsageState;
+  isTrainingMode: boolean;
+  currentPath: unknown;
+  showPublishedState: string;
+  publishedVideo: any;
+  isPublishing: boolean;
+  videoEditOpen: boolean;
+  updateVideoPage: typeof updateVideoPage;
+  updateVideo: typeof updateVideo;
+  saveVideo: any;
+  query: unknown;
+  deleteVideo: typeof deleteVideo;
+  createVideoPage: typeof createVideoPage;
+  error: Error;
+  shouldUseCreatedDateForSort: boolean;
+  s3Upload: S3UploadState;
 };
 
 type State = {
-    presence: any;
-    dialogRef: RefObject<unknown>;
+  presence: any;
+  dialogRef: RefObject<unknown>;
 };
 
 export default class Header extends React.Component<Props, State> {

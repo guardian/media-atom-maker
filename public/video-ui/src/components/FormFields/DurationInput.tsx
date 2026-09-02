@@ -16,20 +16,20 @@ const getStateFromProps = (props: Readonly<Props>) => {
 };
 
 type Props = {
-    onUpdateField: any;
-    editable: any;
-    fieldName: any;
-    displayPlaceholder: any;
-    placeholder: any;
-    fieldValue: any;
-    rawFieldValue: any;
-    hasError: any;
-    notification: any;
+  onUpdateField: any;
+  editable: any;
+  fieldName: any;
+  displayPlaceholder: any;
+  placeholder: any;
+  fieldValue: any;
+  rawFieldValue: any;
+  hasError: any;
+  notification: any;
 };
 
 type State = {
-    mins: string;
-    secs: string;
+  mins: string;
+  secs: string;
 };
 
 class DurationInput extends React.Component<Props, State> {

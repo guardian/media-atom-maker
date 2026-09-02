@@ -21,8 +21,8 @@ import { fieldLengths } from '../constants/videoEditValidation';
 import { getStore } from '../util/storeAccessor';
 
 type State = {
-    title: string;
-    videoCreateOption: string;
+  title: string;
+  videoCreateOption: string;
 };
 
 export default class Create extends React.Component<object, State> {

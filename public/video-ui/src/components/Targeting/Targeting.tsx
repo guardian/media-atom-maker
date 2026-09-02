@@ -12,13 +12,14 @@ import {
   updateTarget,
   deleteTarget
 } from '../../slices/targeting';
-import { Video } from "../../services/VideosApi";
+import { Video } from '../../services/VideosApi';
 
-const isDeleting = (target: { id: any; }, deleting: string | any[]) => deleting.indexOf(target.id) > -1;
+const isDeleting = (target: { id: any }, deleting: string | any[]) =>
+  deleting.indexOf(target.id) > -1;
 
 type TargetPrefixProps = {
-    targetIndex?: any;
-    targetCount?: any;
+  targetIndex?: any;
+  targetCount?: any;
 };
 
 const TargetPrefix = ({ targetIndex, targetCount }: TargetPrefixProps) =>
@@ -31,15 +32,17 @@ const TargetPrefix = ({ targetIndex, targetCount }: TargetPrefixProps) =>
   );
 
 type TargetSuffixProps = {
-    targetIndex?: any;
-    targetCount?: any;
+  targetIndex?: any;
+  targetCount?: any;
 };
 
 const TargetSuffix = ({ targetIndex, targetCount }: TargetSuffixProps) => (
   <span>{targetCount > targetIndex + 1 ? ' ...' : '.'}</span>
 );
 
-const TargetDescription = (props: React.JSX.IntrinsicAttributes & TargetPrefixProps) => (
+const TargetDescription = (
+  props: React.JSX.IntrinsicAttributes & TargetPrefixProps
+) => (
   <p>
     <TargetPrefix {...props} /> article must match
     <strong className="highlight"> all </strong>
@@ -49,7 +52,7 @@ const TargetDescription = (props: React.JSX.IntrinsicAttributes & TargetPrefixPr
 );
 
 type TargetingProps = {
-    video: Video;
+  video: Video;
 };
 
 class Targeting extends React.Component<TargetingProps> {
@@ -72,39 +75,73 @@ class Targeting extends React.Component<TargetingProps> {
   };
 
   render() {
-    return (<div>
-        {(this.props as any).targetsLoaded && (<div>
+    return (
+      <div>
+        {(this.props as any).targetsLoaded && (
+          <div>
             <p>
               A targeting rule will allow this video to be suggested for certain
               articles.
             </p>
-            {(this.props as any).targets.map((target: any, index: any) => (<div key={target.id} className="targeting__form">
-                {/* @ts-expect-error TS(2769): No overload matches this call. */}
-                {!isDeleting(target, (this.props as any).deleting) && (<ManagedForm data={target} updateData={this.updateTarget} editable={true} formName="TargetingForm">
-                    <TargetDescription targetIndex={index} targetCount={(this.props as any).targets.length}/>
+            {(this.props as any).targets.map((target: any, index: any) => (
+              <div key={target.id} className="targeting__form">
+                {!isDeleting(target, (this.props as any).deleting) && (
+                  /* @ts-expect-error TS(2769): No overload matches this call. */
+                  <ManagedForm
+                    data={target}
+                    updateData={this.updateTarget}
+                    editable={true}
+                    formName="TargetingForm"
+                  >
+                    <TargetDescription
+                      targetIndex={index}
+                      targetCount={(this.props as any).targets.length}
+                    />
                     {/* @ts-expect-error TS(2769): No overload matches this call. */}
-                    <ManagedField fieldLocation="tagPaths" name="Targeting tags" formRowClass="form__row__byline" tagType={TagTypes.keyword} isDesired={false} isRequired={false} inputPlaceholder="Target these tags (type '*' to show all)">
+                    <ManagedField
+                      fieldLocation="tagPaths"
+                      name="Targeting tags"
+                      formRowClass="form__row__byline"
+                      tagType={TagTypes.keyword}
+                      isDesired={false}
+                      isRequired={false}
+                      inputPlaceholder="Target these tags (type '*' to show all)"
+                    >
                       {/* @ts-expect-error TS(2322): Type '{ disableTextInput: true; }' is not assignab... Remove this comment to see the full error message */}
-                      <TagPicker disableTextInput/>
+                      <TagPicker disableTextInput />
                     </ManagedField>
                     {/* @ts-expect-error TS(2769): No overload matches this call. */}
-                    <ManagedField fieldLocation="activeUntil" name="Active until">
-                      <CustomDatePicker canCancel={false} dayOnly/>
+                    <ManagedField
+                      fieldLocation="activeUntil"
+                      name="Active until"
+                    >
+                      <CustomDatePicker canCancel={false} dayOnly />
                     </ManagedField>
-                  </ManagedForm>)}
-                {!isDeleting(target, (this.props as any).deleting) && (<button className="button__secondary--cancel" onClick={() => this.deleteTarget(target)}>
-                    <Icon icon="delete"/> Delete
-                  </button>)}
-              </div>))}
+                  </ManagedForm>
+                )}
+                {!isDeleting(target, (this.props as any).deleting) && (
+                  <button
+                    className="button__secondary--cancel"
+                    onClick={() => this.deleteTarget(target)}
+                  >
+                    <Icon icon="delete" /> Delete
+                  </button>
+                )}
+              </div>
+            ))}
             <button className="btn" onClick={this.createTarget}>
-              <Icon icon="add"/> Add targeting rule
+              <Icon icon="add" /> Add targeting rule
             </button>
-          </div>)}
-      </div>);
+          </div>
+        )}
+      </div>
+    );
   }
 }
 
-function mapStateToProps(state: { targeting: { targets: any; deleting: any; }; }) {
+function mapStateToProps(state: {
+  targeting: { targets: any; deleting: any };
+}) {
   const {
     targeting: { targets: currentTargets, deleting }
   } = state;

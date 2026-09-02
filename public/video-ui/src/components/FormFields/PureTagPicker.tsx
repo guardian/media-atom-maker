@@ -3,25 +3,24 @@ import TagSearch from '../TagSearch/TagSearch';
 import { removeTagDuplicates } from '../../util/removeTagDuplicates';
 
 type Props = {
-    tagValue: any[];
-    fetchTags: (...args: any[]) => any;
-    onUpdate: (...args: any[]) => any;
-    searchResultTags: any[];
-    tagsToVisible: (...args: any[]) => any;
-    showTags: boolean;
-    hideTagResults: (...args: any[]) => any;
-    selectedTagIndex?: number;
-    inputClearCount: number;
-    inputPlaceholder: string;
-    updateSideEffects?: (...args: any[]) => any;
+  tagValue: any[];
+  fetchTags: (...args: any[]) => any;
+  onUpdate: (...args: any[]) => any;
+  searchResultTags: any[];
+  tagsToVisible: (...args: any[]) => any;
+  showTags: boolean;
+  hideTagResults: (...args: any[]) => any;
+  selectedTagIndex?: number;
+  inputClearCount: number;
+  inputPlaceholder: string;
+  updateSideEffects?: (...args: any[]) => any;
 };
 
 type State = {
-    inputString: any;
+  inputString: any;
 };
 
 class PureTagPicker extends React.Component<Props, State> {
-
   state: State = {
     inputString: ''
   };
@@ -34,7 +33,7 @@ class PureTagPicker extends React.Component<Props, State> {
     }
   }
 
-  updateInput = (e: { target: { value: any; }; }) => {
+  updateInput = (e: { target: { value: any } }) => {
     const searchText = e.target.value;
     this.props.fetchTags(searchText);
     this.setState({

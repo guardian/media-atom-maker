@@ -16,16 +16,24 @@ import YouTubeKeywords from '../../constants/youTubeKeywords';
 import debounce from 'lodash/debounce';
 
 type State = {
-    searchResultTags: any[] | never[];
-    tagValue: any[] | ParsedTag[] | any[];
-    capiError: string | null;
-    showTags: boolean;
-    tagsVisible: boolean;
-    selectedTagIndex: number;
-    inputClearCount: any;
+  searchResultTags: any[] | never[];
+  tagValue: any[] | ParsedTag[] | any[];
+  capiError: string | null;
+  showTags: boolean;
+  tagsVisible: boolean;
+  selectedTagIndex: number;
+  inputClearCount: any;
 };
 
-class TagPicker extends React.Component<object & { disableTextInput?: boolean; disableCapiTags?: boolean } & { placeholder?: string; tagSubType?: string; editable?: boolean; fieldName?: string }, State> {
+class TagPicker extends React.Component<
+  object & { disableTextInput?: boolean; disableCapiTags?: boolean } & {
+    placeholder?: string;
+    tagSubType?: string;
+    editable?: boolean;
+    fieldName?: string;
+  },
+  State
+> {
   constructor(props: object) {
     super(props);
     this.state = {
@@ -50,28 +58,34 @@ class TagPicker extends React.Component<object & { disableTextInput?: boolean; d
 
   revalidateSavedTags = (savedTagIds: string[]) => {
     return tagsFromStringList(savedTagIds, (this.props as any).tagType)
-    .then(result => {
-    this.setState({
-        capiError: this.formatMissingTagError(result.missingTagIds)
-    });
-})
-    .catch(() => {
-    this.setState({
-        capiError: 'Tags are currently unavailable'
-    });
-});
+      .then(result => {
+        this.setState({
+          capiError: this.formatMissingTagError(result.missingTagIds)
+        });
+      })
+      .catch(() => {
+        this.setState({
+          capiError: 'Tags are currently unavailable'
+        });
+      });
   };
 
   componentDidUpdate(prevProps: object) {
     const nextProps = this.props;
 
     if ((prevProps as any).tagType === TagTypes.youtube) {
-      if ((prevProps as any).fieldValue.length !== (nextProps as any).fieldValue.length) {
-        tagsFromStringList((nextProps as any).fieldValue, (prevProps as any).tagType).then(result => {
-    this.setState({
-        tagValue: result.tags
-    });
-});
+      if (
+        (prevProps as any).fieldValue.length !==
+        (nextProps as any).fieldValue.length
+      ) {
+        tagsFromStringList(
+          (nextProps as any).fieldValue,
+          (prevProps as any).tagType
+        ).then(result => {
+          this.setState({
+            tagValue: result.tags
+          });
+        });
       }
     }
   }
@@ -79,25 +93,28 @@ class TagPicker extends React.Component<object & { disableTextInput?: boolean; d
   componentDidMount() {
     ReactTooltip.rebuild();
     if ((this.props as any).fieldValue !== this.props.placeholder) {
-      tagsFromStringList((this.props as any).fieldValue, (this.props as any).tagType)
-    .then(result => {
-    if (result.missingTagIds.length > 0) {
-        this.setState({
-            capiError: this.formatMissingTagError(result.missingTagIds)
+      tagsFromStringList(
+        (this.props as any).fieldValue,
+        (this.props as any).tagType
+      )
+        .then(result => {
+          if (result.missingTagIds.length > 0) {
+            this.setState({
+              capiError: this.formatMissingTagError(result.missingTagIds)
+            });
+          }
+          this.setState({
+            // @ts-expect-error TS(2345): Argument of type 'ParsedTag[]' is not assignable t... Remove this comment to see the full error message
+            tagValue: getTagDisplayNames(result.tags)
+          });
+        })
+        .catch(() => {
+          // capi is unavailable and we cannot get webtitles for tags
+          this.setState({
+            tagValue: (this.props as any).fieldValue.slice(),
+            capiError: 'Tags are currently unavailable'
+          });
         });
-    }
-    this.setState({
-        // @ts-expect-error TS(2345): Argument of type 'ParsedTag[]' is not assignable t... Remove this comment to see the full error message
-        tagValue: getTagDisplayNames(result.tags)
-    });
-})
-    .catch(() => {
-    // capi is unavailable and we cannot get webtitles for tags
-    this.setState({
-        tagValue: (this.props as any).fieldValue.slice(),
-        capiError: 'Tags are currently unavailable'
-    });
-});
     }
   }
 
@@ -114,7 +131,16 @@ class TagPicker extends React.Component<object & { disableTextInput?: boolean; d
     }
   }
 
-  getTagFromTagManager = (tag: { id?: number; path: any; type?: string; internalName: any; externalName: any; deprecated?: boolean; section?: Section; subType?: string | undefined; }) => {
+  getTagFromTagManager = (tag: {
+    id?: number;
+    path: any;
+    type?: string;
+    internalName: any;
+    externalName: any;
+    deprecated?: boolean;
+    section?: Section;
+    subType?: string | undefined;
+  }) => {
     return {
       id: tag.path,
       webTitle: tag.externalName,
@@ -130,22 +156,27 @@ class TagPicker extends React.Component<object & { disableTextInput?: boolean; d
         searchResultTags: []
       });
     } else {
-      getTagsByType((this.props as any).tagManagerUrl, searchText, tagTypes, this.props.tagSubType)
-    .then(response => {
-    const tags = response.data.reduce((tags, { data }) => {
-        // @ts-expect-error TS(2769): No overload matches this call.
-        return tags.concat(this.getTagFromTagManager(data));
-    }, []);
-    this.setState({
-        searchResultTags: tags
-    });
-})
-    .catch(() => {
-    this.setState({
-        searchResultTags: [],
-        capiError: 'Tags are currently unavailable'
-    });
-});
+      getTagsByType(
+        (this.props as any).tagManagerUrl,
+        searchText,
+        tagTypes,
+        this.props.tagSubType
+      )
+        .then(response => {
+          const tags = response.data.reduce((tags, { data }) => {
+            // @ts-expect-error TS(2769): No overload matches this call.
+            return tags.concat(this.getTagFromTagManager(data));
+          }, []);
+          this.setState({
+            searchResultTags: tags
+          });
+        })
+        .catch(() => {
+          this.setState({
+            searchResultTags: [],
+            capiError: 'Tags are currently unavailable'
+          });
+        });
     }
   };
 
@@ -159,14 +190,14 @@ class TagPicker extends React.Component<object & { disableTextInput?: boolean; d
     });
 
     return (this.props as any).onUpdateField(savedTagsList).then(() => {
-    this.setState({
+      this.setState({
         searchResultTags: []
+      });
+      return this.revalidateSavedTags(savedTagsList);
     });
-    return this.revalidateSavedTags(savedTagsList);
-});
   };
 
-  removeFn = (tag: { id: any; }) => {
+  removeFn = (tag: { id: any }) => {
     const newFieldValue = this.state.tagValue.filter(oldField => {
       return tag.id !== oldField.id;
     });
@@ -213,7 +244,7 @@ class TagPicker extends React.Component<object & { disableTextInput?: boolean; d
     });
   };
 
-  onKeyDown = (e: { keyCode: number; }) => {
+  onKeyDown = (e: { keyCode: number }) => {
     this.setState({
       showTags: true
     });
@@ -249,9 +280,10 @@ class TagPicker extends React.Component<object & { disableTextInput?: boolean; d
     if (e.keyCode === keyCodes.enter && this.state.selectedTagIndex !== null) {
       const newTag = this.state.searchResultTags[this.state.selectedTagIndex];
 
-      const valueWithoutDupes = (this.props as any).tagType === TagTypes.contributor
-    ? removeStringTagDuplicates(newTag, this.state.tagValue)
-    : removeTagDuplicates(newTag, this.state.tagValue);
+      const valueWithoutDupes =
+        (this.props as any).tagType === TagTypes.contributor
+          ? removeStringTagDuplicates(newTag, this.state.tagValue)
+          : removeTagDuplicates(newTag, this.state.tagValue);
 
       const newFieldValue = valueWithoutDupes.concat([newTag]);
 
@@ -282,7 +314,21 @@ class TagPicker extends React.Component<object & { disableTextInput?: boolean; d
     );
   };
 
-  renderTag = (tag: { id: any; detailedTitle: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; }, index: number) => {
+  renderTag = (
+    tag: {
+      id: any;
+      detailedTitle:
+        | string
+        | number
+        | boolean
+        | React.ReactElement<any, string | React.JSXElementConstructor<any>>
+        | Iterable<React.ReactNode>
+        | React.ReactPortal
+        | null
+        | undefined;
+    },
+    index: number
+  ) => {
     return (
       <div key={`${tag.id}-${index}`} className="form__field__selected__tag">
         <span>{tag.detailedTitle}</span>
@@ -297,7 +343,7 @@ class TagPicker extends React.Component<object & { disableTextInput?: boolean; d
   renderTagPicker() {
     if (
       (this.props as any).tagType === TagTypes.contributor ||
-    (this.props as any).tagType === TagTypes.youtube
+      (this.props as any).tagType === TagTypes.youtube
     ) {
       return (
         <TextInputTagPicker
@@ -337,9 +383,14 @@ class TagPicker extends React.Component<object & { disableTextInput?: boolean; d
     if (this.state.tagValue.length !== 0) {
       if (
         (this.props as any).tagType === TagTypes.contributor ||
-    (this.props as any).tagType === TagTypes.youtube
+        (this.props as any).tagType === TagTypes.youtube
       ) {
-        return (<TagFieldValue tagValue={this.state.tagValue} tagType={(this.props as any).tagType}/>);
+        return (
+          <TagFieldValue
+            tagValue={this.state.tagValue}
+            tagType={(this.props as any).tagType}
+          />
+        );
       }
       return (
         <div className="form__field__tag__list">
@@ -373,15 +424,24 @@ class TagPicker extends React.Component<object & { disableTextInput?: boolean; d
 
   renderCopyButton() {
     if ((this.props as any).updateSideEffects) {
-      return (<button type="button" className="btn form__label__button" onClick={(this.props as any).updateSideEffects} data-tip="Copy composer keywords to youtube keywords" data-place="top">
+      return (
+        <button
+          type="button"
+          className="btn form__label__button"
+          onClick={(this.props as any).updateSideEffects}
+          data-tip="Copy composer keywords to youtube keywords"
+          data-place="top"
+        >
           <i className="icon">edit</i>
-        </button>);
+        </button>
+      );
     }
   }
 
   render() {
-    const hasWarning = (this.props as any).hasWarning(this.props) &&
-    this.state.searchResultTags.length === 0;
+    const hasWarning =
+      (this.props as any).hasWarning(this.props) &&
+      this.state.searchResultTags.length === 0;
     const hasError = (this.props as any).hasError(this.props);
 
     if (!this.props.editable) {
@@ -395,18 +455,32 @@ class TagPicker extends React.Component<object & { disableTextInput?: boolean; d
           </div>
         );
       }
-      return (<div>
+      return (
+        <div>
           <p className="details-list__title">{this.props.fieldName}</p>
-          {this.state.capiError ? (<div className="form__field--external-error">
+          {this.state.capiError ? (
+            <div className="form__field--external-error">
               {this.state.capiError}
-            </div>) : ('')}
+            </div>
+          ) : (
+            ''
+          )}
           <p className="details-list__field ">
-            <TagFieldValue tagValue={this.state.tagValue} tagType={(this.props as any).tagType}/>
+            <TagFieldValue
+              tagValue={this.state.tagValue}
+              tagType={(this.props as any).tagType}
+            />
           </p>
-        </div>);
+        </div>
+      );
     }
 
-    return (<div className="form__row" onBlur={this.hideTagResults} onKeyDown={this.onKeyDown}>
+    return (
+      <div
+        className="form__row"
+        onBlur={this.hideTagResults}
+        onKeyDown={this.onKeyDown}
+      >
         <div className="form__label__layout">
           <label className="form__label">{this.props.fieldName}</label>
           {this.renderBylineInstructions()}
@@ -414,26 +488,39 @@ class TagPicker extends React.Component<object & { disableTextInput?: boolean; d
           {this.renderCharCount()}
         </div>
 
-        {this.state.capiError ? (<div className="form__field--external-error">
+        {this.state.capiError ? (
+          <div className="form__field--external-error">
             {this.state.capiError}
-          </div>) : ('')}
+          </div>
+        ) : (
+          ''
+        )}
         {this.renderTagPicker()}
         {this.renderAddedTags()}
-        {hasWarning ? (<p className="form__message form__message--warning">
+        {hasWarning ? (
+          <p className="form__message form__message--warning">
             {(this.props as any).notification.message}
-          </p>) : ('')}
-        {hasError ? (<p className="form__message form__message--error">
+          </p>
+        ) : (
+          ''
+        )}
+        {hasError ? (
+          <p className="form__message form__message--error">
             {(this.props as any).notification.message}
-          </p>) : ('')}
-      </div>);
+          </p>
+        ) : (
+          ''
+        )}
+      </div>
+    );
   }
 }
 
 //REDUX CONNECTIONS
 import { connect } from 'react-redux';
-import { ParsedTag } from "../../types/tags";
+import { ParsedTag } from '../../types/tags';
 
-function mapStateToProps(state: { config: { tagManagerUrl: any; }; }) {
+function mapStateToProps(state: { config: { tagManagerUrl: any } }) {
   return {
     tagManagerUrl: state.config.tagManagerUrl
   };

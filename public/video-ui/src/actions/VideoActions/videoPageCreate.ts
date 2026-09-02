@@ -11,7 +11,11 @@ function requestVideoPageCreate() {
   };
 }
 
-export function createVideoPage(id: string, video: VideoWithoutId, isTrainingMode: any) {
+export function createVideoPage(
+  id: string,
+  video: VideoWithoutId,
+  isTrainingMode: any
+) {
   return async (dispatch: AppDispatch) => {
     dispatch(requestVideoPageCreate());
 

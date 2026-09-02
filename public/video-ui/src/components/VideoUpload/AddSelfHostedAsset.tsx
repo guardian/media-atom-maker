@@ -1,22 +1,22 @@
 import React from 'react';
 import Icon from '../Icon';
-import { Video } from "../../services/VideosApi";
-import { AsyncThunk, AsyncThunkConfig } from "@reduxjs/toolkit";
+import { Video } from '../../services/VideosApi';
+import { AsyncThunk, AsyncThunkConfig } from '@reduxjs/toolkit';
 
 type Props = {
-    video: Video;
-    isUploading: boolean;
-    startUpload: AsyncThunk<unknown, any, AsyncThunkConfig>;
+  video: Video;
+  isUploading: boolean;
+  startUpload: AsyncThunk<unknown, any, AsyncThunkConfig>;
 };
 
 type State = {
-    file: any;
+  file: any;
 };
 
 export default class AddSelfHostedAsset extends React.Component<Props, State> {
   state: State = { file: null };
 
-  setFile = (event: { target: { files: string | any[]; }; }) => {
+  setFile = (event: { target: { files: string | any[] } }) => {
     if (!this.props.video) {
       return;
     }

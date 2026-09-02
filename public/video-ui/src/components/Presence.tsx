@@ -1,12 +1,12 @@
 import React from 'react';
 import { PresenceConfig, safelyStartPresence } from '../services/presence';
-import { Video } from "../services/VideosApi";
-import { reportPresenceClientError } from "../actions/PresenceActions/reportError";
+import { Video } from '../services/VideosApi';
+import { reportPresenceClientError } from '../actions/PresenceActions/reportError';
 
 type Props = {
-    video: Video;
-    config: any;
-    reportPresenceClientError: typeof reportPresenceClientError;
+  video: Video;
+  config: any;
+  reportPresenceClientError: typeof reportPresenceClientError;
 };
 
 type State = any;
@@ -88,7 +88,9 @@ export class Presence extends React.Component<Props, State> {
   };
 
   render() {
-    const visitorsInThisArea = this.state.visitors.filter(state => (state as any).location === 'document');
+    const visitorsInThisArea = this.state.visitors.filter(
+      state => (state as any).location === 'document'
+    );
 
     const multipleVisitors = visitorsInThisArea.length > 1;
 
