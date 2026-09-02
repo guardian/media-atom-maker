@@ -25,7 +25,7 @@ export function getUploads(atomId: string) {
  * @returns {Promise<unknown>}
  */
 export function createUpload(atomId: string, file: File, selfHost?: boolean) {
-  return apiRequest({
+  return apiRequest<Upload>({
     url: `/api/uploads`,
     method: 'post',
     headers: {
@@ -84,10 +84,9 @@ function getS3(region: string, credentials: any) {
  * @param progressFn {(completed: number) => any}
  * @returns {Promise<unknown>}
  */
-// @ts-expect-error TS(2693): 'Upload' only refers to a type, but is being used ... Remove this comment to see the full error message
 function uploadPart(
   upload: Upload,
-  part: (typeof Upload)['parts'][number],
+  part: Upload['parts'][number],
   file: File,
   progressFn: (completed: number) => any
 ) {
@@ -123,10 +122,9 @@ function uploadPart(
  * @param progressFn {(completed: number) => any}
  * @returns {Promise<boolean>}
  */
-// @ts-expect-error TS(2693): 'Upload' only refers to a type, but is being used ... Remove this comment to see the full error message
 export function uploadParts(
   upload: Upload,
-  parts: (typeof Upload)['parts'],
+  parts: Upload['parts'],
   file: File,
   progressFn: (completed: number) => any
 ) {
