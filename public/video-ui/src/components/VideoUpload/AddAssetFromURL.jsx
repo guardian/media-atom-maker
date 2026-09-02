@@ -34,7 +34,7 @@ export default class AddAssetFromURL extends React.Component {
               <p className="form__message form__message--warning">
                 Using an Asset URL from an existing YouTube video will not pass
                 video data to our video commissioning and syndication tool,
-                Pluto.
+                Iconik.
               </p>
               <input
                 className="form__field"
