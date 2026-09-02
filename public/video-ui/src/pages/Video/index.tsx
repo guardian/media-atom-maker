@@ -189,7 +189,10 @@ class VideoDisplay extends React.Component<Props, State> {
   renderPreviewAndImages() {
     const platform = VideoUtils.getPlatformFromAtom(this.props.video);
     const activeAsset = VideoUtils.getActiveAsset(this.props.video);
-    const youtubeAsset = platform === 'youtube' && activeAsset;
+    // It shouldn't be possible for a youtube asset to have multiple versions but this isn't encoded in the types
+    const youtubeAsset =
+      platform === 'youtube' &&
+      (Array.isArray(activeAsset) ? activeAsset[0] : activeAsset);
 
     return (
       <div className="video__detailbox">
@@ -223,7 +226,7 @@ class VideoDisplay extends React.Component<Props, State> {
             {youtubeAsset && (
               <p className="video-asset">
                 <span className="video-asset-number">
-                  Asset {activeAsset.version}:
+                  Asset {youtubeAsset.version}:
                 </span>
                 <span>({youtubeAsset.id})</span>
               </p>
@@ -236,9 +239,8 @@ class VideoDisplay extends React.Component<Props, State> {
             data-thumbnail={this.props.video?.posterImage?.assets?.[0]?.file}
             data-external-url={
               platform === 'youtube' &&
-              getYouTubeEmbedUrl(
-                VideoUtils.getActiveAsset(this.props.video)?.id
-              )
+              youtubeAsset &&
+              getYouTubeEmbedUrl(youtubeAsset.id)
             }
             data-embeddable-url={window.location.href}
             // @ts-expect-error TS(2339): Property 'asset-handle' does not exist on type 'JS... Remove this comment to see the full error message
