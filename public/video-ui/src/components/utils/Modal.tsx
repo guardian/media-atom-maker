@@ -1,9 +1,21 @@
-import React from 'react';
+import React, { RefObject } from 'react';
 
-export default class Modal extends React.Component {
+type Props = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onCloseModal?: any;
+  children?: React.ReactNode;
+};
+
+type State = {
+  dialogRef: RefObject<HTMLDialogElement>;
+  isOpen: boolean;
+};
+
+export default class Modal extends React.Component<Props, State> {
   props: React.PropsWithChildren<{
     onCloseModal?: () => void;
   }>;
+  // @ts-expect-error TS(2416): Property 'state' in type 'Modal' is not assignable... Remove this comment to see the full error message
   state: {
     dialogRef: React.RefObject<HTMLDialogElement> | undefined;
     isOpen: boolean;
@@ -12,7 +24,7 @@ export default class Modal extends React.Component {
     isOpen: false
   };
 
-  constructor(props: React.PropsWithChildren) {
+  constructor(props: Props) {
     super(props);
     this.state.dialogRef = React.createRef<HTMLDialogElement>();
   }

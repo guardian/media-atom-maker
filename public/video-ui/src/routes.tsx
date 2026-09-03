@@ -15,16 +15,15 @@ import Training from './pages/Training';
 import { VideoUpload } from './pages/Upload';
 import Video from './pages/Video';
 import { extractConfigFromPage, getUserTelemetryClient } from './util/config';
-import Create from "./components/Create";
-import {bindActionCreators} from "redux";
-import {createVideo} from "./actions/VideoActions/createVideo";
-import {useDispatch} from "react-redux";
-import {AppDispatch} from "./util/setupStore";
+import Create from './components/Create';
+import { bindActionCreators } from 'redux';
+import { createVideo } from './actions/VideoActions/createVideo';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from './util/setupStore';
 
 const telemetryClientUrl = getUserTelemetryClient(
   extractConfigFromPage().stage
 );
-
 
 function loadTrackingPixel(clientUrl: string, path: string) {
   const image = new Image();
@@ -36,7 +35,8 @@ function sendTelemetry(state: RouterState) {
   return state;
 }
 
-const CreateWrapper: React.FC<any> = (props) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const CreateWrapper: React.FC<any> = props => {
   const dispatch = useDispatch<AppDispatch>();
   const createVideoBound = bindActionCreators(createVideo, dispatch);
   return <Create {...props} inModal={false} createVideo={createVideoBound} />;
@@ -54,11 +54,7 @@ export const routes = (
         component={VideoUpload}
         onEnter={sendTelemetry}
       />
-      <Route
-        path="/create"
-        component={CreateWrapper}
-        onEnter={sendTelemetry}
-      />
+      <Route path="/create" component={CreateWrapper} onEnter={sendTelemetry} />
       <Route path="/help" component={Help} onEnter={sendTelemetry} />
       <Route path="/training" component={Training} onEnter={sendTelemetry} />
     </Route>

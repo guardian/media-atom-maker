@@ -15,12 +15,15 @@ type Props = {
 
 class ContentChangeDetails extends React.Component<Props> {
   getTextField = (path: string, caption: string) => (
+    // @ts-expect-error TS(2769): No overload matches this call.
     <ManagedField fieldLocation={path} name={caption}>
+      {/* @ts-expect-error TS(2769): No overload matches this call. */}
       <TextInput />
     </ManagedField>
   );
 
   getDateField = (path: string, caption: string) => (
+    // @ts-expect-error TS(2769): No overload matches this call.
     <ManagedField fieldLocation={path} name={caption} className="unhide">
       <ManagedDatePicker />
     </ManagedField>
@@ -32,7 +35,9 @@ class ContentChangeDetails extends React.Component<Props> {
     const isPublished = isVideoPublished(video);
 
     return (
+      // @ts-expect-error TS(2769): No overload matches this call.
       <ManagedForm data={video}>
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
         <ManagedSection>
           {this.getDateField('contentChangeDetails.created.date', 'Created at')}
           {this.getDateField(
@@ -45,6 +50,7 @@ class ContentChangeDetails extends React.Component<Props> {
               'Last published at'
             )}
         </ManagedSection>
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
         <ManagedSection>
           {this.getTextField(
             'contentChangeDetails.created.user.email',

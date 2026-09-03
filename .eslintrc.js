@@ -9,8 +9,9 @@ module.exports = {
       jsx: true
     }
   },
-  plugins: ['react', 'react-hooks', 'prettier'],
+  plugins: ['react', 'react-hooks', 'prettier', '@typescript-eslint'],
   rules: {
+    '@typescript-eslint/no-explicit-any': 'error',
     'react/prop-types': 'off',
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'warn',

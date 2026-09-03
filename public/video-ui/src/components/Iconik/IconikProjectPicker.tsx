@@ -28,6 +28,8 @@ type Props = {
   video: Video;
 };
 
+const ALL_COMMISSION_YEARS_OPTION = 'all-commission-years';
+
 export const IconikProjectPicker = ({ video }: Props) => {
   const dispatch = useDispatch<AppDispatch>();
 
@@ -336,7 +338,6 @@ function IconikAutocomplete({
   );
 }
 
-const ALL_COMMISSION_YEARS_OPTION = 'all-commission-years';
 function getCommissionYearOptions(commissions: IconikCommission[]) {
   const commissionYears = orderBy(
     uniq(

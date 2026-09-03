@@ -1,0 +1,250 @@
+import React from 'react';
+import { keyCodes } from '../../constants/keyCodes';
+import TagTypes from '../../constants/TagTypes';
+import UserActions from '../../constants/UserActions';
+import { removeStringTagDuplicates } from '../../util/removeStringTagDuplicates';
+import TagSearch from '../TagSearch/TagSearch';
+
+type Props = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  tagValue: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onUpdate: (...args: any[]) => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  fetchTags: (...args: any[]) => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  removeFn: (...args: any[]) => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  searchResultTags: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  tagsToVisible: (...args: any[]) => any;
+  showTags: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  hideTagResults: (...args: any[]) => any;
+  selectedTagIndex?: number;
+  inputClearCount: number;
+  disableCapiTags?: boolean;
+  tagType?: string;
+  fieldName?: string;
+};
+
+type State = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  inputString: any;
+  lastAction: string;
+};
+
+export default class TextInputTagPicker extends React.Component<Props, State> {
+  state: State = {
+    inputString: '',
+    lastAction: UserActions.other
+  };
+
+  UNSAFE_componentWillReceiveProps(nextProps: Props) {
+    if (this.props.inputClearCount !== nextProps.inputClearCount) {
+      this.setState({
+        inputString: ''
+      });
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  selectNewTag = (newFieldValue: any) => {
+    this.setState({
+      inputString: ''
+    });
+
+    this.props.onUpdate(newFieldValue);
+  };
+
+  getYoutubeInputValue = () => {
+    const existingValueSet = new Set(this.props.tagValue.map(_ => _.id));
+    const newValueSet = new Set();
+
+    return (
+      this.state.inputString
+        .split(',')
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .filter((candidate: string | any[]) => candidate.length !== 0)
+        .map((candidate: string) => candidate.trim())
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .reduce((acc: any, candidate: any) => {
+          const lowerCaseCandidate = candidate.toLowerCase();
+          const isNewValue =
+            !existingValueSet.has(lowerCaseCandidate) &&
+            !newValueSet.has(lowerCaseCandidate);
+
+          if (isNewValue) {
+            acc.push({ id: candidate, webTitle: candidate });
+          }
+
+          newValueSet.add(candidate);
+          return acc;
+        }, [])
+    );
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  updateInput = (e?: any) => {
+    // If the user did not add new text input, we update the tag search
+    if (this.state.lastAction === UserActions.delete) {
+      const length = this.props.tagValue.length;
+      const lastInput = this.props.tagValue[length - 1];
+
+      this.setState({
+        inputString: lastInput,
+        lastAction: UserActions.other
+      });
+
+      const newValue = this.props.tagValue.slice(
+        0,
+        this.props.tagValue.length - 1
+      );
+      this.props.onUpdate(newValue);
+    } else {
+      this.setState({
+        inputString: e.target.value
+      });
+
+      if (!this.props.disableCapiTags) {
+        const searchText = e.target.value;
+
+        this.props.fetchTags(searchText);
+      }
+    }
+  };
+
+  processTagInput = (e: { keyCode: number }) => {
+    if (e.keyCode === keyCodes.enter) {
+      if (this.props.selectedTagIndex === null) {
+        const onlyWhitespace = !/\S/.test(this.state.inputString);
+        if (!onlyWhitespace) {
+          const newInput =
+            this.props.tagType === TagTypes.youtube
+              ? this.getYoutubeInputValue()
+              : [this.state.inputString.trim()];
+
+          const newFieldValue = this.props.tagValue.concat(newInput);
+
+          this.props.onUpdate(newFieldValue).then(() => {
+            this.setState({
+              inputString: ''
+            });
+          });
+        }
+      }
+    } else if (e.keyCode === keyCodes.backspace) {
+      if (this.state.inputString.length === 0) {
+        const lastInput = this.props.tagValue[this.props.tagValue.length - 1];
+
+        if (typeof lastInput === 'string') {
+          //User is trying to delete a string input
+          this.setState(
+            {
+              lastAction: UserActions.delete
+            },
+            () => {
+              this.updateInput();
+            }
+          );
+        }
+      }
+    } else {
+      this.setState({
+        lastAction: UserActions.other
+      });
+    }
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  renderValue = (field: any, i: any, isLastInput = false) => {
+    if (field.id) {
+      return (
+        <span
+          className="form__field--multiselect__value form__field__tag__remove"
+          key={`${field.id}-${i}`}
+          onClick={tag => this.props.removeFn(field)}
+        >
+          {field.webTitle}{' '}
+        </span>
+      );
+    }
+    return (
+      <span
+        className={
+          !isLastInput
+            ? 'form__field--multistring__value'
+            : 'form__field--multistring__last'
+        }
+        key={`${field.id}-${i}`}
+      >
+        {' '}
+        {field}{' '}
+      </span>
+    );
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  renderTextInputElement(lastElement: any) {
+    return (
+      <span className="form__field__tag--container">
+        {lastElement && this.renderValue(lastElement, 0, true)}
+        <input
+          type="text"
+          className="form__field__tag--input"
+          id={this.props.fieldName}
+          onKeyDown={this.processTagInput}
+          onChange={this.updateInput}
+          value={this.state.inputString}
+        />
+      </span>
+    );
+  }
+
+  renderInputElements() {
+    const valueLength = this.props.tagValue.length;
+    const lastElement =
+      !valueLength || valueLength === 0
+        ? null
+        : this.props.tagValue[valueLength - 1];
+
+    return (
+      <div
+        className={
+          'form__field__tag--selector ' +
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ((this.props as any).hasError(this.props) ? 'form__field--error' : '')
+        }
+      >
+        {valueLength
+          ? this.props.tagValue.map((value, i) => {
+              if (i < valueLength - 1) {
+                return this.renderValue(value, i);
+              }
+            })
+          : ''}
+
+        {this.renderTextInputElement(lastElement)}
+      </div>
+    );
+  }
+
+  render() {
+    return (
+      <div>
+        {this.renderInputElements()}
+
+        <TagSearch
+          searchResultTags={this.props.searchResultTags}
+          showTags={this.props.showTags}
+          tagsToVisible={this.props.tagsToVisible}
+          selectNewTag={this.selectNewTag}
+          tagValue={this.props.tagValue}
+          // @ts-expect-error TS(2322): Type '(tag: DisplayTag, tagValue: ExistingTagValue... Remove this comment to see the full error message
+          removeDupes={removeStringTagDuplicates}
+          selectedTagIndex={this.props.selectedTagIndex}
+        />
+      </div>
+    );
+  }
+}
