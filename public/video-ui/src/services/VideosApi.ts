@@ -291,6 +291,7 @@ export default {
       url: '/api/atoms',
       method: 'post',
       headers: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'Csrf-Token': (window as any).guardian.csrf.token
       },
       data: cleanVideoData(video)
@@ -302,6 +303,7 @@ export default {
       url: '/api/atom/' + videoId + '/publish',
       method: 'put',
       headers: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'Csrf-Token': (window as any).guardian.csrf.token
       }
     }).then(clientVideoFromServerVideo);
@@ -312,6 +314,7 @@ export default {
       url: '/api/atoms/' + videoId + '/assets',
       method: 'post',
       headers: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'Csrf-Token': (window as any).guardian.csrf.token
       },
       data: asset
@@ -323,6 +326,7 @@ export default {
       url: '/api/atom/' + atomId + '/asset-active',
       method: 'put',
       headers: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'Csrf-Token': (window as any).guardian.csrf.token
       },
       data: { atomId, version }
@@ -334,6 +338,7 @@ export default {
       url: '/api/atoms/' + videoId,
       method: 'put',
       headers: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'Csrf-Token': (window as any).guardian.csrf.token
       },
       data: cleanVideoData(video)
@@ -345,6 +350,7 @@ export default {
       url: `/api/atom/${videoId}/reset-duration-from-active`,
       method: 'put',
       headers: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'Csrf-Token': (window as any).guardian.csrf.token
       }
     }).then(clientVideoFromServerVideo),
@@ -377,6 +383,7 @@ export default {
     return apiRequest<string>({
       url: '/api/atom/' + videoId,
       headers: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'Csrf-Token': (window as any).guardian.csrf.token
       },
       method: 'delete'
@@ -388,6 +395,7 @@ export default {
       url: `/api/atoms/${video.id}/assets`,
       method: 'delete',
       headers: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'Csrf-Token': (window as any).guardian.csrf.token
       },
       data: asset
@@ -399,6 +407,7 @@ export default {
       url: `/api/atoms/${video.id}/asset-list`,
       method: 'delete',
       headers: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'Csrf-Token': (window as any).guardian.csrf.token
       },
       data: assets
@@ -460,6 +469,7 @@ export default {
     video
   }: {
     composerId: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     video: any;
   }) {
     const composerUrlBase = getComposerUrl();
@@ -470,6 +480,7 @@ export default {
       stage: ComposerStage,
       data: { elements: ContentAtom[] }
     ) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return apiRequest<{ data: { block: any } }>({
         url: `${composerUrlBase}/api/content/${composerId}/${stage}/mainblock`,
         method: 'post',

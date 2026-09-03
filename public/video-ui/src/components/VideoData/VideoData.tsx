@@ -27,14 +27,18 @@ import { Video } from '../../services/VideosApi';
 
 type Props = {
   video: Video;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateVideo: (...args: any[]) => any;
   editable: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateErrors: (...args: any[]) => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateWarnings: (...args: any[]) => any;
   canonicalVideoPageExists: boolean;
 };
 
 export default class VideoData extends React.Component<Props> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   validateKeywords = (keywords: any) => {
     if (
       !Array.isArray(keywords) ||
@@ -208,9 +212,12 @@ export default class VideoData extends React.Component<Props> {
         <ManagedField fieldLocation="expiryDate" name="Expiry Date">
           <DatePicker />
           <ExpireNowComponent
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             fieldName={(video as any).fieldName}
             editable={editable}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             onUpdateField={(video as any).onUpdateField}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             fieldValue={(video as any).fieldValue}
           />
         </ManagedField>

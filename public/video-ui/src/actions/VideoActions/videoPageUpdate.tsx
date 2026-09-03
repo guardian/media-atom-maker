@@ -14,6 +14,7 @@ const UNKNOWN_ERROR =
   'An unknown error occurred. Please contact the Developers';
 
 export function updateVideoPage(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   video: any,
   usages: UsageData,
   updatesTo: string

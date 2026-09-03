@@ -22,6 +22,7 @@ export default class VideoUsages extends React.Component<Props> {
     return getStore().getState().config.viewerUrl;
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderUsage = ({ usage, state }: any) => {
     const composerLink = `${this.getComposerUrl()}/content/${usage.fields.internalComposerCode}`;
     const viewerLink = `${this.getViewerUrl()}/preview/${usage.id}`;
@@ -93,9 +94,11 @@ export default class VideoUsages extends React.Component<Props> {
             <p className="usage--none details-list__field">{`No ${state} usages found`}</p>
           ) : (
             <ul className="detail__list">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {usages[state as keyof typeof usages].video.map((usage: any) =>
                 this.renderUsage({ usage, state })
               )}
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {usages[state as keyof typeof usages].other.map((usage: any) =>
                 this.renderUsage({ usage, state })
               )}

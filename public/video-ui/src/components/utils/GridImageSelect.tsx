@@ -5,10 +5,12 @@ import Logger from '../../logger';
 import Icon from '../Icon';
 
 type Props = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   image: any;
   gridUrl: string;
   gridDomain: string;
   disabled: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateVideo: (...args: any[]) => any;
   fieldLocation?: 'posterImage' | 'trailImage' | 'youtubeOverrideImage';
 };
@@ -30,10 +32,12 @@ export default class GridImageSelect extends React.Component<Props, State> {
 
   openGridModal = () => {
     window.addEventListener('message', this.onMessage, false);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (this.state.dialogRef.current as any)?.showModal();
   };
 
   closeGridModal = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (this.state.dialogRef.current as any)?.close();
     window.removeEventListener('message', this.onMessage, false);
   };
@@ -61,10 +65,12 @@ export default class GridImageSelect extends React.Component<Props, State> {
     this.props.updateVideo(image, this.props.fieldLocation);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   validMessage(data: { crop: { data: any }; image: { data: any } }) {
     return data && data.crop && data.crop.data && data.image && data.image.data;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onMessage = (event: { origin: string; data: any }) => {
     if (event.origin !== this.props.gridDomain) {
       Logger.log("didn't come from the grid");

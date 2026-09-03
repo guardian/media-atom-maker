@@ -10,10 +10,15 @@ import RequiredForDefaultVideo from '../../constants/requiredForDefaultVideo';
 
 type Props = {
   fieldLocation: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateData?: (...args: any[]) => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateFormErrors?: (...args: any[]) => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateWarnings?: (...args: any[]) => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   customValidation?: (...args: any[]) => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: any;
   fieldName?: string;
   isRequired?: boolean;
@@ -25,6 +30,7 @@ type Props = {
   tagType?: string;
   inputPlaceholder?: string;
   tooltip?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateSideEffects?: (...args: any[]) => any;
 };
 
@@ -37,6 +43,7 @@ export class ManagedField extends React.Component<
   Props & { derivedFrom?: string },
   State
 > {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   placeholder: any;
 
   state: State = {
@@ -50,6 +57,7 @@ export class ManagedField extends React.Component<
       : null;
     this.checkErrorsAndWarnings(value);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.placeholder = 'No ' + (this.props as any).name.split('(')[0];
   }
 
@@ -127,6 +135,7 @@ export class ManagedField extends React.Component<
       });
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getFieldValue(value: any) {
     if (!this.props.editable && !value) {
       return this.placeholder;
@@ -152,6 +161,7 @@ export class ManagedField extends React.Component<
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   displayPlaceholder(placeholder: any, fieldValue: any) {
     return placeholder && placeholder === fieldValue;
   }
@@ -166,9 +176,11 @@ export class ManagedField extends React.Component<
     }
 
     const hydratedChildren = React.Children.map(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (this.props as any).children,
       child => {
         return React.cloneElement(child, {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           fieldName: (this.props as any).name,
           fieldValue: this.getFieldValue(
             _get(this.props.fieldLocation, this.props.data)

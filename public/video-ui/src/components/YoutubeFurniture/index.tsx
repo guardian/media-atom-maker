@@ -17,8 +17,11 @@ import TextAreaInput from '../FormFields/TextAreaInput';
 type Props = {
   video: Video;
   editable: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateVideo: (...args: any[]) => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateErrors: (...args: any[]) => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateWarnings: (...args: any[]) => any;
 };
 
@@ -26,14 +29,18 @@ class YoutubeFurniture extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
     if (!this.hasCategories()) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (this.props as any).youtubeActions.fetchCategories();
     }
     if (!this.hasChannels()) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (this.props as any).youtubeActions.fetchChannels();
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hasCategories = () => (this.props as any).youtube.categories.length !== 0;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hasChannels = () => (this.props as any).youtube.channels.length !== 0;
 
   validateYouTubeDescription = (description: string) => {
@@ -76,6 +83,7 @@ class YoutubeFurniture extends React.Component<Props> {
     const { video, editable, updateVideo, updateErrors, updateWarnings } =
       this.props;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { categories } = (this.props as any).youtube;
 
     const availableChannels = VideoUtils.getAvailableChannels(video);
@@ -167,6 +175,7 @@ import { AnyAction, bindActionCreators, Dispatch } from 'redux';
 import { fetchCategories, fetchChannels } from '../../slices/youtube';
 import { Video } from '../../services/VideosApi';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapStateToProps(state: { youtube: any }) {
   return {
     youtube: state.youtube

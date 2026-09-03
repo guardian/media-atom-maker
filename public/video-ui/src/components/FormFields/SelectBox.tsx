@@ -3,21 +3,34 @@ import React from 'react';
 const pleaseSelect = 'Please select...';
 
 type Props = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   displayDefault: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fieldValue: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultOption: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   selectValues: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editable: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   displayPlaceholder: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   placeholder: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fieldName: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hasError: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   input: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onUpdateField: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   notification: any;
 };
 
 export default class SelectBox extends React.Component<Props> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hasError: any;
   getClassName = () => {
     return (
@@ -37,6 +50,7 @@ export default class SelectBox extends React.Component<Props> {
 
   renderField = () => {
     const matchingValues = this.props.selectValues.filter(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (fieldValue: any) =>
         this.props.fieldValue &&
         fieldValue.id.toString() === this.props.fieldValue.toString()
@@ -89,6 +103,7 @@ export default class SelectBox extends React.Component<Props> {
             </option>
           )}
           {this.renderDefaultOption()}
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {this.props.selectValues.map(function (value: any) {
             return (
               <option value={value.id} key={value.id}>

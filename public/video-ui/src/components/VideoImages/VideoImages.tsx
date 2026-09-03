@@ -6,15 +6,21 @@ import { isImageCropOutOfSync } from '../../util/getAspectRatio';
 
 type Props = {
   gridDomain: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   video: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   saveAndUpdateVideo: (...args: any[]) => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateVideo: (...args: any[]) => any;
   videoEditOpen: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateErrors: (...args: any[]) => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   cropOptions: any;
 };
 
 export default class mapStateToProps extends React.Component<Props> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   saveAndUpdateVideoImage = (image: any, location: any) => {
     const revertVideo = Object.assign({}, this.props.video);
     const newVideo = Object.assign({}, this.props.video, {

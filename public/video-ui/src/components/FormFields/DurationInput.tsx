@@ -16,14 +16,23 @@ const getStateFromProps = (props: Readonly<Props>) => {
 };
 
 type Props = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onUpdateField: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editable: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fieldName: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   displayPlaceholder: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   placeholder: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fieldValue: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rawFieldValue: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hasError: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   notification: any;
 };
 

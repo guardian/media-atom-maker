@@ -14,11 +14,14 @@ import {
 } from '../../slices/targeting';
 import { Video } from '../../services/VideosApi';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isDeleting = (target: { id: any }, deleting: string | any[]) =>
   deleting.indexOf(target.id) > -1;
 
 type TargetPrefixProps = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   targetIndex?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   targetCount?: any;
 };
 
@@ -32,7 +35,9 @@ const TargetPrefix = ({ targetIndex, targetCount }: TargetPrefixProps) =>
   );
 
 type TargetSuffixProps = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   targetIndex?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   targetCount?: any;
 };
 
@@ -58,33 +63,42 @@ type TargetingProps = {
 class Targeting extends React.Component<TargetingProps> {
   constructor(props: TargetingProps) {
     super(props);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (this.props as any).targetingActions.getTargets(this.props.video);
   }
 
   createTarget = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (this.props as any).targetingActions.createTarget(this.props.video);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateTarget = (target: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (this.props as any).targetingActions.updateTarget(target);
     return Promise.resolve(target);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   deleteTarget = (target: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (this.props as any).targetingActions.deleteTarget(target);
   };
 
   render() {
     return (
       <div>
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         {(this.props as any).targetsLoaded && (
           <div>
             <p>
               A targeting rule will allow this video to be suggested for certain
               articles.
             </p>
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {(this.props as any).targets.map((target: any, index: any) => (
               <div key={target.id} className="targeting__form">
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {!isDeleting(target, (this.props as any).deleting) && (
                   /* @ts-expect-error TS(2769): No overload matches this call. */
                   <ManagedForm
@@ -95,6 +109,7 @@ class Targeting extends React.Component<TargetingProps> {
                   >
                     <TargetDescription
                       targetIndex={index}
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       targetCount={(this.props as any).targets.length}
                     />
                     {/* @ts-expect-error TS(2769): No overload matches this call. */}
@@ -119,6 +134,7 @@ class Targeting extends React.Component<TargetingProps> {
                     </ManagedField>
                   </ManagedForm>
                 )}
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {!isDeleting(target, (this.props as any).deleting) && (
                   <button
                     className="button__secondary--cancel"
@@ -140,6 +156,7 @@ class Targeting extends React.Component<TargetingProps> {
 }
 
 function mapStateToProps(state: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   targeting: { targets: any; deleting: any };
 }) {
   const {

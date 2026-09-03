@@ -6,16 +6,19 @@ import { AsyncThunk, AsyncThunkConfig } from '@reduxjs/toolkit';
 type Props = {
   video: Video;
   isUploading: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   startUpload: AsyncThunk<unknown, any, AsyncThunkConfig>;
 };
 
 type State = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   file: any;
 };
 
 export default class AddSelfHostedAsset extends React.Component<Props, State> {
   state: State = { file: null };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setFile = (event: { target: { files: string | any[] } }) => {
     if (!this.props.video) {
       return;

@@ -5,10 +5,12 @@ import { reportPresenceClientError } from '../actions/PresenceActions/reportErro
 
 type Props = {
   video: Video;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config: any;
   reportPresenceClientError: typeof reportPresenceClientError;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type State = any;
 
 export class Presence extends React.Component<Props, State> {
@@ -29,6 +31,7 @@ export class Presence extends React.Component<Props, State> {
 
     if (current !== previous) {
       if (this.state.client) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (this.state.client as any).closeConnection();
         this.setState(
           Object.assign({}, this.state, {
@@ -46,6 +49,7 @@ export class Presence extends React.Component<Props, State> {
 
   componentWillUnmount() {
     if (this.state.client) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (this.state.client as any).closeConnection();
     }
   }
@@ -61,6 +65,7 @@ export class Presence extends React.Component<Props, State> {
         presenceClient.on('connection.open', () => {
           // @ts-expect-error TS(2345): Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
           presenceClient.subscribe(subscriptionId);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (presenceClient as any).enter(subscriptionId, 'document');
         });
 
@@ -89,6 +94,7 @@ export class Presence extends React.Component<Props, State> {
 
   render() {
     const visitorsInThisArea = this.state.visitors.filter(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       state => (state as any).location === 'document'
     );
 
@@ -99,7 +105,9 @@ export class Presence extends React.Component<Props, State> {
         <div className="presence-section">
           <ul className="presence-list">
             {visitorsInThisArea.map(visitor => {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const id = (visitor as any).clientId.connId;
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const { firstName, lastName } = (visitor as any).clientId.person;
               const initials = `${firstName.slice(0, 1)}${lastName.slice(0, 1)}`;
               const fullName = `${firstName} ${lastName}`;

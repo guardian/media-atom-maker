@@ -3,20 +3,28 @@ import TagSearch from '../TagSearch/TagSearch';
 import { removeTagDuplicates } from '../../util/removeTagDuplicates';
 
 type Props = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tagValue: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fetchTags: (...args: any[]) => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onUpdate: (...args: any[]) => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   searchResultTags: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tagsToVisible: (...args: any[]) => any;
   showTags: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hideTagResults: (...args: any[]) => any;
   selectedTagIndex?: number;
   inputClearCount: number;
   inputPlaceholder: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateSideEffects?: (...args: any[]) => any;
 };
 
 type State = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   inputString: any;
 };
 
@@ -33,6 +41,7 @@ class PureTagPicker extends React.Component<Props, State> {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateInput = (e: { target: { value: any } }) => {
     const searchText = e.target.value;
     this.props.fetchTags(searchText);
@@ -41,6 +50,7 @@ class PureTagPicker extends React.Component<Props, State> {
     });
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   selectNewTag = (newFieldValue: any) => {
     this.setState({
       inputString: ''

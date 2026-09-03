@@ -32,6 +32,7 @@ type Props = {
   publishVideo: typeof publishVideo;
   video: Video;
   formFieldsWarning: Record<string, boolean>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   saving: any;
   search: Search;
   updateSearchTerm: ActionCreatorWithPayload<string, 'search/updateSearchTerm'>;
@@ -44,17 +45,20 @@ type Props = {
     'search/updateShouldUseCreatedDateForSort'
   >;
   createVideo: typeof createVideo;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   presenceConfig: any;
   reportPresenceClientError: typeof reportPresenceClientError;
   usages: UsageState;
   isTrainingMode: boolean;
   currentPath: unknown;
   showPublishedState: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   publishedVideo: any;
   isPublishing: boolean;
   videoEditOpen: boolean;
   updateVideoPage: typeof updateVideoPage;
   updateVideo: typeof updateVideo;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   saveVideo: any;
   query: unknown;
   deleteVideo: typeof deleteVideo;
@@ -65,6 +69,7 @@ type Props = {
 };
 
 type State = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   presence: any;
   dialogRef: RefObject<unknown>;
 };
@@ -82,10 +87,12 @@ export default class Header extends React.Component<Props, State> {
   }
 
   openCreateModal = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (this.state.dialogRef.current as any)?.showModal();
   };
 
   closeCreateModal = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (this.state.dialogRef.current as any)?.close();
   };
 
@@ -288,6 +295,7 @@ export default class Header extends React.Component<Props, State> {
       ? 'topbar topbar--training-mode flex-container'
       : 'topbar flex-container';
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((this as any).props.currentPath.endsWith('/upload')) {
       return (
         <header className={className}>
@@ -297,6 +305,7 @@ export default class Header extends React.Component<Props, State> {
       );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((this as any).props.currentPath.endsWith('/create')) {
       return (
         <header className={className}>

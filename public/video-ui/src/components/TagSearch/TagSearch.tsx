@@ -2,15 +2,21 @@ import React from 'react';
 
 type Props = {
   selectedTagIndex: number | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   removeDupes: any[] | any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tagValue: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   selectNewTag: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   searchResultTags: any[];
   showTags: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tagsToVisible: any;
 };
 
 class TagSearch extends React.Component<Props> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   listNodeRef: any;
   constructor(props: Props) {
     super(props);
@@ -36,6 +42,7 @@ class TagSearch extends React.Component<Props> {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderTags(tag: any, index: any) {
     const getTagClassName = () => {
       return (

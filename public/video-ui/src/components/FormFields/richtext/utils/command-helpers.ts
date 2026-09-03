@@ -100,6 +100,7 @@ function promptForLink(
  * end of the selection rightwards - it doesn't check for contiguous marks within
  * the selection. It will behave oddly if this isn't the case.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getExpandedSelectionForMark(state: EditorState, currentMark: any) {
   if (!currentMark) {
     return { from: state.selection.from, to: state.selection.to, href: null };

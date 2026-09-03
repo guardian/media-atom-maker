@@ -16,12 +16,15 @@ import YouTubeKeywords from '../../constants/youTubeKeywords';
 import debounce from 'lodash/debounce';
 
 type State = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   searchResultTags: any[] | never[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tagValue: any[] | ParsedTag[] | any[];
   capiError: string | null;
   showTags: boolean;
   tagsVisible: boolean;
   selectedTagIndex: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   inputClearCount: any;
 };
 
@@ -48,6 +51,7 @@ class TagPicker extends React.Component<
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formatMissingTagError = (missingTagIds: any) => {
     if (!missingTagIds || missingTagIds.length === 0) {
       return null;
@@ -57,6 +61,7 @@ class TagPicker extends React.Component<
   };
 
   revalidateSavedTags = (savedTagIds: string[]) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return tagsFromStringList(savedTagIds, (this.props as any).tagType)
       .then(result => {
         this.setState({
@@ -73,13 +78,18 @@ class TagPicker extends React.Component<
   componentDidUpdate(prevProps: object) {
     const nextProps = this.props;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((prevProps as any).tagType === TagTypes.youtube) {
       if (
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (prevProps as any).fieldValue.length !==
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (nextProps as any).fieldValue.length
       ) {
         tagsFromStringList(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (nextProps as any).fieldValue,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (prevProps as any).tagType
         ).then(result => {
           this.setState({
@@ -92,9 +102,12 @@ class TagPicker extends React.Component<
 
   componentDidMount() {
     ReactTooltip.rebuild();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((this.props as any).fieldValue !== this.props.placeholder) {
       tagsFromStringList(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (this.props as any).fieldValue,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (this.props as any).tagType
       )
         .then(result => {
@@ -111,6 +124,7 @@ class TagPicker extends React.Component<
         .catch(() => {
           // capi is unavailable and we cannot get webtitles for tags
           this.setState({
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             tagValue: (this.props as any).fieldValue.slice(),
             capiError: 'Tags are currently unavailable'
           });
@@ -121,21 +135,26 @@ class TagPicker extends React.Component<
   _getTagTypes() {
     const defaultTagTypes = [TagTypes.tone, TagTypes.series, TagTypes.keyword];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     switch ((this.props as any).tagType) {
       case TagTypes.keyword:
         return defaultTagTypes;
       case TagTypes.commercial:
         return [TagTypes.commercial, ...defaultTagTypes];
       default:
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return [(this.props as any).tagType];
     }
   }
 
   getTagFromTagManager = (tag: {
     id?: number;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     path: any;
     type?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     internalName: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     externalName: any;
     deprecated?: boolean;
     section?: Section;
@@ -157,6 +176,7 @@ class TagPicker extends React.Component<
       });
     } else {
       getTagsByType(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (this.props as any).tagManagerUrl,
         searchText,
         tagTypes,
@@ -182,6 +202,7 @@ class TagPicker extends React.Component<
 
   debouncedFetchTags = debounce(this.fetchTags, 500);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onUpdate = (newValue: any) => {
     const savedTagsList = tagsToStringList(newValue);
 
@@ -189,6 +210,7 @@ class TagPicker extends React.Component<
       tagValue: newValue
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (this.props as any).onUpdateField(savedTagsList).then(() => {
       this.setState({
         searchResultTags: []
@@ -197,6 +219,7 @@ class TagPicker extends React.Component<
     });
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   removeFn = (tag: { id: any }) => {
     const newFieldValue = this.state.tagValue.filter(oldField => {
       return tag.id !== oldField.id;
@@ -205,6 +228,7 @@ class TagPicker extends React.Component<
     this.onUpdate(newFieldValue);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hideTagResults = (e: any) => {
     //First we need to make sure to set the selectedTagIndex back to null
 
@@ -281,6 +305,7 @@ class TagPicker extends React.Component<
       const newTag = this.state.searchResultTags[this.state.selectedTagIndex];
 
       const valueWithoutDupes =
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (this.props as any).tagType === TagTypes.contributor
           ? removeStringTagDuplicates(newTag, this.state.tagValue)
           : removeTagDuplicates(newTag, this.state.tagValue);
@@ -298,6 +323,7 @@ class TagPicker extends React.Component<
   };
 
   renderSelectedTags = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((this.props as any).tagType !== TagTypes.keyword) {
       return this.state.tagValue.map((tag, index) =>
         this.renderTag(tag, index)
@@ -316,11 +342,13 @@ class TagPicker extends React.Component<
 
   renderTag = (
     tag: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       id: any;
       detailedTitle:
         | string
         | number
         | boolean
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         | React.ReactElement<any, string | React.JSXElementConstructor<any>>
         | Iterable<React.ReactNode>
         | React.ReactPortal
@@ -342,7 +370,9 @@ class TagPicker extends React.Component<
 
   renderTagPicker() {
     if (
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (this.props as any).tagType === TagTypes.contributor ||
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (this.props as any).tagType === TagTypes.youtube
     ) {
       return (
@@ -382,12 +412,15 @@ class TagPicker extends React.Component<
   renderAddedTags() {
     if (this.state.tagValue.length !== 0) {
       if (
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (this.props as any).tagType === TagTypes.contributor ||
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (this.props as any).tagType === TagTypes.youtube
       ) {
         return (
           <TagFieldValue
             tagValue={this.state.tagValue}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             tagType={(this.props as any).tagType}
           />
         );
@@ -402,6 +435,7 @@ class TagPicker extends React.Component<
   }
 
   renderBylineInstructions() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((this.props as any).tagType === TagTypes.contributor) {
       return (
         <span className="form__field__instructions">
@@ -412,7 +446,9 @@ class TagPicker extends React.Component<
   }
 
   renderCharCount() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((this.props as any).tagType === TagTypes.youtube) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const charCount = getYouTubeTagCharCount((this.props as any).fieldValue);
       return (
         <span>
@@ -423,11 +459,13 @@ class TagPicker extends React.Component<
   }
 
   renderCopyButton() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((this.props as any).updateSideEffects) {
       return (
         <button
           type="button"
           className="btn form__label__button"
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onClick={(this.props as any).updateSideEffects}
           data-tip="Copy composer keywords to youtube keywords"
           data-place="top"
@@ -440,8 +478,10 @@ class TagPicker extends React.Component<
 
   render() {
     const hasWarning =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (this.props as any).hasWarning(this.props) &&
       this.state.searchResultTags.length === 0;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const hasError = (this.props as any).hasError(this.props);
 
     if (!this.props.editable) {
@@ -468,6 +508,7 @@ class TagPicker extends React.Component<
           <p className="details-list__field ">
             <TagFieldValue
               tagValue={this.state.tagValue}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               tagType={(this.props as any).tagType}
             />
           </p>
@@ -499,6 +540,7 @@ class TagPicker extends React.Component<
         {this.renderAddedTags()}
         {hasWarning ? (
           <p className="form__message form__message--warning">
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {(this.props as any).notification.message}
           </p>
         ) : (
@@ -506,6 +548,7 @@ class TagPicker extends React.Component<
         )}
         {hasError ? (
           <p className="form__message form__message--error">
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {(this.props as any).notification.message}
           </p>
         ) : (
@@ -520,6 +563,7 @@ class TagPicker extends React.Component<
 import { connect } from 'react-redux';
 import { ParsedTag } from '../../types/tags';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapStateToProps(state: { config: { tagManagerUrl: any } }) {
   return {
     tagManagerUrl: state.config.tagManagerUrl

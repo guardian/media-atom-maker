@@ -14,6 +14,7 @@ type Props = {
   createVideoPage: typeof createVideoPage;
   usages: UsageState;
   videoEditOpen: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   requiredComposerFieldsMissing: any;
 };
 
@@ -62,6 +63,7 @@ export default class ComposerPageCreate extends React.Component<Props, State> {
         this.props.video.id,
         this.props.video,
         getStore().getState().config.isTrainingMode
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ) as any
     ).then(() => {
       this.setState({

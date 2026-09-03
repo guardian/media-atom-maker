@@ -14,6 +14,7 @@ function requestVideoPageCreate() {
 export function createVideoPage(
   id: string,
   video: VideoWithoutId,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isTrainingMode: any
 ) {
   return async (dispatch: AppDispatch) => {
@@ -33,7 +34,9 @@ export function createVideoPage(
     }
     return VideosApi.createComposerPage(id, video)
       .then(res => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const composerId = (res as any).data.id;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const pagePath = (res as any).data.identifiers.path.data;
 
         const addVideo = VideosApi.addVideoToComposerPage({

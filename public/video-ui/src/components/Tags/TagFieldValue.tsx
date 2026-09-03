@@ -1,11 +1,14 @@
 import React from 'react';
 
 type Props = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tagType: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tagValue: any;
 };
 
 export default class TagFieldValue extends React.Component<Props> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderFieldValue(value: any, index: any, array: any) {
     // Add a trailing comma if it's a youtube keyword field and it's not the last keyword in the array
     const shouldAddComma =
@@ -33,6 +36,7 @@ export default class TagFieldValue extends React.Component<Props> {
     return ` ${value}`;
   }
   getRenderedValues() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return this.props.tagValue.map((tagValue: any, index: any, array: any) =>
       this.renderFieldValue(tagValue, index, array)
     );

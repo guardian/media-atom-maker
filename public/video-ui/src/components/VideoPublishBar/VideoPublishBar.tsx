@@ -13,12 +13,16 @@ import { updateVideo } from '../../actions/VideoActions/updateVideo';
 type Props = {
   isPublishing: boolean;
   video: Video;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   publishedVideo: any;
   videoEditOpen: boolean;
   usages: UsageState;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   requiredComposerFieldsMissing: any;
   updateVideoPage: typeof updateVideoPage;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   publishVideo: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   saveVideo: any;
   className: string;
   formFieldsWarning: Record<string, boolean>;

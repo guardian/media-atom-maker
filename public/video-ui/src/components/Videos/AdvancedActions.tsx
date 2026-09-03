@@ -8,6 +8,7 @@ import { deleteVideo } from '../../actions/VideoActions/deleteVideo';
 type Props = {
   video: Video;
   usages: UsageState;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   deleteVideo: (...args: any[]) => any;
 };
 

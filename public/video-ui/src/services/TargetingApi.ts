@@ -9,6 +9,7 @@ export default class TargetingApi {
     return getStore().getState().config.targetingUrl;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static createTarget({ id, title, expiryDate }: any) {
     const data = {
       title,
@@ -28,6 +29,7 @@ export default class TargetingApi {
     return apiRequest(params);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static updateTarget({ id, ...data }: any) {
     const params = {
       url: `${TargetingApi.targetingUrl}/api/suggestions/${id}`,
@@ -40,6 +42,7 @@ export default class TargetingApi {
     return apiRequest(params);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static deleteTarget({ id }: any) {
     const params = {
       method: 'delete',
@@ -51,6 +54,7 @@ export default class TargetingApi {
     return apiRequest(params);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getTargets({ id }: any) {
     const params = {
       url: `${TargetingApi.targetingUrl}/api/suggestions/search?url=/atom/media/${id}`,

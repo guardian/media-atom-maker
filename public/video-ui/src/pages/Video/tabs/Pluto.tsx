@@ -4,6 +4,7 @@ import PlutoProjectLink from '../../../components/Pluto/PlutoProjectLink';
 import { getPlutoItemById } from '../../../services/PlutoApi';
 
 type PlutoTabProps = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   disabled: any;
 };
 
@@ -16,6 +17,7 @@ export class PlutoTab extends React.Component<PlutoTabProps> {
 }
 
 type PlutoTabPanelProps = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   video: any;
 };
 

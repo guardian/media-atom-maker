@@ -40,6 +40,7 @@ export function createUpload(atomId: string, file: File, selfHost?: boolean) {
   });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getCredentials(id: string, key: any) {
   return apiRequest({
     url: `/api/uploads/${id}/credentials?key=${key}`,
@@ -56,6 +57,7 @@ function getCredentials(id: string, key: any) {
  * @param credentials {any}
  * @returns {S3}
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getS3(region: string, credentials: any) {
   const { temporaryAccessId, temporarySecretKey, sessionToken } = credentials;
 
@@ -88,6 +90,7 @@ function uploadPart(
   upload: Upload,
   part: Upload['parts'][number],
   file: File,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   progressFn: (completed: number) => any
 ) {
   const slice = file.slice(part.start, part.end);
@@ -126,9 +129,11 @@ export function uploadParts(
   upload: Upload,
   parts: Upload['parts'],
   file: File,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   progressFn: (completed: number) => any
 ) {
   return new Promise((resolve, reject) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     function uploadPartRecursive(parts: string | any[]) {
       if (parts.length === 0) {
         resolve(true);
@@ -162,8 +167,11 @@ export function uploadSubtitleFile({
   version,
   file
 }: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   id?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   version?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   file?: any;
 }) {
   const formData = new FormData();
@@ -181,6 +189,7 @@ export function uploadSubtitleFile({
   });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function deleteSubtitleFile({ id, version }: any) {
   return apiRequest({
     url: `/api/uploads/${id}/${version}/subtitle-file`,

@@ -18,6 +18,7 @@ jest.mock('../../util/tagParsers', () => {
   return {
     __esModule: true,
     ...actual,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tagsFromStringList: (...args: any[]) => mockedTagsFromStringList(...args)
   };
 });

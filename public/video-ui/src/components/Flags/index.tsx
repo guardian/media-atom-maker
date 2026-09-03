@@ -9,8 +9,11 @@ import { Video } from '../../services/VideosApi';
 type Props = {
   video: Video;
   editable: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateVideo: (...args: any[]) => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateErrors: (...args: any[]) => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateWarnings: (...args: any[]) => any;
 };
 

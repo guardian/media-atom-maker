@@ -9,6 +9,7 @@ type Props = {
 };
 
 type State = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   uri: any;
 };
 
@@ -24,6 +25,7 @@ export default class AddAssetFromURL extends React.Component<Props, State> {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChange = (e: { target: { value: any } }) => {
     this.setState({ uri: e.target.value });
   };

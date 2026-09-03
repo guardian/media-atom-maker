@@ -10,20 +10,24 @@ import {
 
 type Props = {
   video: Video;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   startUpload: AsyncThunk<unknown, any, AsyncThunkConfig>;
   isUploading: boolean;
   categories: YouTubeVideoCategory[];
   channels: YouTubeChannelWithData[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   saveVideo: any;
 };
 
 type State = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   file: any;
 };
 
 export default class YoutubeUpload extends React.Component<Props, State> {
   state: State = { file: null };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setFile = (event: { target: { files: string | any[] } }) => {
     if (!this.props.video) {
       return;

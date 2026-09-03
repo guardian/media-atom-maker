@@ -28,22 +28,37 @@ import {
 import { hasIconikOrPlutoProject } from '../../util/hasIconikOrPlutoProject';
 
 type Props = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   video?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   warningActions: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   videoActions: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   workflowActions: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   videoEditOpen: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formErrorActions: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   cropOptions: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   publishedVideo: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   workflow: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   checkedFormFields: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   usages: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isSaving: any;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type State = any;
 
 class VideoDisplay extends React.Component<Props, State> {
@@ -108,10 +123,12 @@ class VideoDisplay extends React.Component<Props, State> {
     this.props.videoActions.fetchUsages(this.props.params.id);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   saveAndUpdateVideo = (video: any) => {
     return this.props.videoActions.saveVideo(video);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateVideo = (video: any) => {
     this.props.videoActions.updateVideo(video);
     return Promise.resolve();
@@ -121,6 +138,7 @@ class VideoDisplay extends React.Component<Props, State> {
     window.parent.postMessage({ atomId: this.props.video.id }, '*');
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleAssetClick = (e: React.MouseEvent<any, MouseEvent>) => {
     if (this.props.videoEditOpen) {
       e.preventDefault();
@@ -208,6 +226,7 @@ class VideoDisplay extends React.Component<Props, State> {
               )}
               {this.props.video.videoPlayerFormat && (
                 <div className="video__detailbox__header__format">
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   {(this.iconMap as any)[this.props.video.videoPlayerFormat]}
                   <span>
                     {
@@ -269,6 +288,7 @@ class VideoDisplay extends React.Component<Props, State> {
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderSelectBar(video: any) {
     const videoToSelect = isVideoPublished(this.props.video)
       ? this.props.publishedVideo
@@ -304,6 +324,7 @@ class VideoDisplay extends React.Component<Props, State> {
     const createWorkflowItem = () =>
       trackInWorkflow({
         video: video,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         section: sections.find((_: { id: any }) => _.id === section),
         status: status,
         note: note,
@@ -321,6 +342,7 @@ class VideoDisplay extends React.Component<Props, State> {
     return wfPromise.unwrap().then(() => getStatus(video));
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateEditingState({ key, editing }: any) {
     this.setState({ [key]: editing });
     this.props.videoActions.updateVideoEditState(editing);
@@ -549,6 +571,7 @@ import {
 import { showWarning } from '../../slices/error';
 import { getComposerId } from '../../util/getComposerData';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapStateToProps(state: any) {
   return {
     video: selectVideo(state),
