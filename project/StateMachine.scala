@@ -2,10 +2,23 @@ import sbt._
 import sbt.Keys._
 
 object StateMachine {
+  sealed trait Architecture {
+    val name: String
+  }
+  object Architecture {
+    object x64 extends Architecture {
+      override val name: String = "x86_64"
+    }
+
+    object arm64 extends Architecture {
+      override val name: String = "arm64"
+    }
+  }
   case class LambdaConfig(
     description: String,
     timeout: Int = 300,
     memory: Int = 2048,
+    architecture: Architecture = Architecture.arm64,
   )
 
   val lambdas = settingKey[Map[String, LambdaConfig]]("The lambdas to include in the state machine")
@@ -16,12 +29,13 @@ object StateMachine {
     val stateMachine = IO.read((Compile / resourceDirectory).value / "state-machine.json")
 
     val withLambdas = (Compile / lambdas).value.foldLeft(template) {
-      case (tmpl, (name, LambdaConfig(description, timeout, memory))) =>
+      case (tmpl, (name, LambdaConfig(description, timeout, memory, architecture))) =>
         val instance = lambdaTemplate
           .replace("{{name}}", name)
           .replace("{{description}}", description)
           .replace("{{timeout}}", timeout.toString)
           .replace("{{memory}}", memory.toString)
+          .replace("{{architecture}}", architecture.name)
 
         replace(s"{{$name}}", instance, tmpl)
     }
