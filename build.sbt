@@ -202,6 +202,10 @@ lazy val uploader = (project in file("uploader"))
         import scala.sys.process.*
         val archive = target.value / "ffmpeg" / "ffmpeg-release-amd64-static.tar.xz"
         s"wget -nv https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -O $archive".!!
+        // if downloaded file is under 10kB, it is likely an error page. Use hexdump to log its contents
+        if (archive.length() < 10240) {
+          s"hexdump -C $archive".!!
+        }
         (s"tar xOf $archive ffmpeg-7.0.2-amd64-static/ffmpeg" #> binary).!!
       }
 
