@@ -5,11 +5,14 @@ Ensure you have the following installed:
 - awscli
 - Java (version specified in .tool-versions)
 - nginx
-- node (version specified in .nvmrc)
+- node (version specified in .nvmrc and .tool-versions)
 - npm
 - yarn
 - nvm
+- mise
 - [dev-nginx](https://github.com/guardian/dev-nginx#installation)
+
+Run `mise install`.
 
 You'll also need Janus credentials to the `media-service` account.
 
@@ -30,3 +33,13 @@ Next, setup nginx and install client side requirements by running:
 ```bash
 ./scripts/setup.sh
 ```
+
+## Dev container setup
+
+To create `.devcontainer/user/devcontainer.json`, which is needed to run the app in a dev container, run:
+```
+devenv generate
+```
+
+Once inside the dev container, open a terminal and paste in `media-service` Janus credentials. Then run the two setup
+commands again (see above).
