@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { Action, AnyAction } from 'redux';
-import Raven from 'raven-js';
+import * as Sentry from '@sentry/browser';
 import { setActiveAsset } from './video';
 
 const SHOW_ERROR = 'SHOW_ERROR' as const;
@@ -9,12 +9,53 @@ const SHOW_WARNING = 'SHOW_WARNING' as const;
 type ShowError = AnyAction & { type: typeof SHOW_ERROR; message: string };
 type ShowWarning = AnyAction & { type: typeof SHOW_WARNING; message: string };
 
+function reportToSentry(message: string, error: unknown): void {
+  // A real Error carries a meaningful stack, so let Sentry group on it as-is.
+  if (error instanceof Error) {
+    Sentry.captureException(error, { extra: { message } });
+    return;
+  }
+
+  // `apiRequest` throws the raw Response for any non-2xx, so a large share of
+  // the values arriving here are Responses rather than Errors. The `typeof`
+  // check is required because jsdom does not define Response, so a bare
+  // `instanceof` would throw a ReferenceError under Jest.
+  const isResponse =
+    typeof Response !== 'undefined' && error instanceof Response;
+
+  const synthetic = new Error(
+    isResponse
+      ? `${message} (HTTP ${error.status} ${error.statusText})`
+      : message,
+    { cause: error }
+  );
+
+  Sentry.captureException(synthetic, {
+    // Every synthetic Error is constructed on the line above, so they all share
+    // an identical stack trace. Sentry's default grouping keys on the stack
+    // rather than the message, so without an explicit fingerprint unrelated
+    // failures would collapse into a single issue.
+    fingerprint: ['showError', message],
+    extra: { message },
+    contexts: isResponse
+      ? {
+          response: {
+            status: error.status,
+            statusText: error.statusText,
+            url: error.url,
+            retryAfter: error.headers.get('retry-after')
+          }
+        }
+      : undefined
+  });
+}
+
 export const showError: (message: string, error?: unknown) => ShowError = (
   message,
   error = undefined
 ) => {
-  if (error && error instanceof Error) {
-    Raven.captureException(error, { tags: { message } });
+  if (error !== undefined && error !== null) {
+    reportToSentry(message, error);
   }
 
   return {
@@ -35,14 +76,14 @@ export const clearErrorAndWarning: () => Action<'CLEAR_ERROR_AND_WARNING'> =
     type: 'CLEAR_ERROR_AND_WARNING'
   });
 
-interface Error {
+interface ErrorState {
   message: false | string;
   key: number;
   warningMessage: false | string;
   warningKey: number;
 }
 
-const initialState: Error = {
+const initialState: ErrorState = {
   message: false,
   key: 0,
   warningMessage: false,

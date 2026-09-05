@@ -1,4 +1,4 @@
-import Raven from 'raven-js';
+import * as Sentry from '@sentry/browser';
 import React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
@@ -14,10 +14,35 @@ import '../styles/main.scss';
 
 const store = setupStore();
 syncHistoryWithStore(browserHistory, store);
-const { stage, ravenUrl } = getAppConfig();
+const { stage, sentryDsn, sentryEnabled } = getAppConfig();
+const sentryEnvironment = stage.toLowerCase();
 
-// publish uncaught errors to sentry.io
-if (stage !== 'DEV') Raven.config(ravenUrl).install();
+// publish uncaught errors to sentry.io. Whether Sentry is on is decided
+// server-side (see util.SentryConfig) so the two can't disagree.
+if (sentryEnabled) {
+  Sentry.init({
+    dsn: sentryDsn,
+    environment: sentryEnvironment,
+    integrations: [
+      Sentry.browserTracingIntegration(),
+      Sentry.browserProfilingIntegration(),
+      Sentry.replayIntegration()
+    ],
+    // Sample down in PROD to control span volume; full sampling elsewhere.
+    // Mirrors SentryConfig.tracesSampleRate on the server.
+    tracesSampleRate: sentryEnvironment === 'prod' ? 0.1 : 1.0,
+    // NB: `tracePropagationTargets` is deliberately unset. The SDK default is
+    // already "same origin only", which is what SentryTracingFilter
+    // needs, and the default correctly excludes protocol-relative URLs.
+    // Profile automatically alongside sampled traces, so profiling volume
+    // is bounded by tracesSampleRate above.
+    profileSessionSampleRate: 1.0,
+    profileLifecycle: 'trace',
+    // No session replays; buffer in memory and only upload when an error occurs.
+    replaysSessionSampleRate: 0,
+    replaysOnErrorSampleRate: 1.0
+  });
+}
 
 setStore(store);
 

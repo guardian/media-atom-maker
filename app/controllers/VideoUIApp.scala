@@ -15,7 +15,7 @@ import play.api.mvc.{
   ControllerComponents,
   Cookie
 }
-import util.{AWSConfig, TrainingMode}
+import util.{AWSConfig, SentryConfig, TrainingMode}
 import views.html.helper.CSRF
 
 import scala.concurrent.ExecutionContext
@@ -26,7 +26,8 @@ class VideoUIApp(
     awsConfig: AWSConfig,
     permissionsProvider: MediaAtomMakerPermissionsProvider,
     youtube: YouTubeAccess,
-    val controllerComponents: ControllerComponents
+    val controllerComponents: ControllerComponents,
+    sentry: SentryConfig
 ) extends BaseController
     with Logging
     with TrainingMode {
@@ -58,12 +59,13 @@ class VideoUIApp(
       capiProxyUrl = "/support/previewCapi",
       liveCapiProxyUrl = "/support/liveCapi",
       composerUrl = composerUrl,
-      ravenUrl = conf.get[String]("raven.url"),
+      sentryDsn = sentry.dsn,
       stage = conf.get[String]("stage"),
       viewerUrl = awsConfig.viewerUrl,
       permissions,
       minDurationForAds = youtube.minDurationForAds,
       isTrainingMode = isTrainingMode,
+      sentryEnabled = sentry.enabled,
       workflowUrl = awsConfig.workflowUrl,
       targetingUrl = awsConfig.targetingUrl,
       tagManagerUrl = awsConfig.tagManagerUrl
@@ -80,7 +82,8 @@ class VideoUIApp(
         isHotReloading,
         CSRF.getToken.value
       )
-    )
+      // This header is needed for Sentry browser profiling to work. See: https://docs.sentry.io/platforms/javascript/profiling/
+    ).withHeaders("Document-Policy" -> "js-profiling")
   }
 
   def training(inTraining: Boolean): Action[AnyContent] = AuthAction { req =>

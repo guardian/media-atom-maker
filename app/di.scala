@@ -21,7 +21,8 @@ import play.api.{
   BuiltInComponentsFromContext,
   Configuration,
   LoggerConfigurator,
-  Mode
+  Mode,
+  OptionalSourceMapper
 }
 import play.api.libs.ws.WSClient
 import play.api.libs.ws.ahc.AhcWSComponents
@@ -51,8 +52,21 @@ class MediaAtomMaker(context: Context)
   LoggerConfigurator(context.environment.classLoader)
     .foreach(_.configure(context.environment))
 
+  // Constructed eagerly: initialising the Sentry SDK must happen before anything
+  // that might capture an event.
+  val sentryConfig = new SentryConfig(configuration)
+
   override lazy val httpFilters: Seq[EssentialFilter] =
-    super.httpFilters.filterNot(_ == allowedHostsFilter)
+    new SentryTracingFilter(sentryConfig)(executionContext) +:
+      super.httpFilters.filterNot(_ == allowedHostsFilter)
+
+  override lazy val httpErrorHandler = new RequestLogging(
+    environment,
+    configuration,
+    new OptionalSourceMapper(devContext.map(_.sourceMapper)),
+    () => router,
+    sentryConfig
+  )
 
   private val config = configuration.underlying
 
@@ -205,7 +219,8 @@ class MediaAtomMaker(context: Context)
     aws,
     permissions,
     youTube,
-    controllerComponents
+    controllerComponents,
+    sentryConfig
   )
 
   private val login = new Login(hmacAuthActions, controllerComponents)
