@@ -36,7 +36,7 @@ Next, setup nginx and install client side requirements by running:
 
 ## Dev container setup
 
-To create `.devcontainer/user/devcontainer.json`, which is needed to run the app in a dev container, run:
+We use [devenv](https://github.com/guardian/devenv) to manage dev container configuration. To create [.devcontainer/user/devcontainer.json](../.devcontainer/user/devcontainer.json), which is needed to run the app in a dev container, run:
 ```
 devenv generate
 ```
