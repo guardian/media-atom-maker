@@ -15,7 +15,7 @@ import '../styles/main.scss';
 const store = setupStore();
 syncHistoryWithStore(browserHistory, store);
 const { stage, sentryDsn, sentryEnabled } = getAppConfig();
-const sentryEnvironment = stage.toLowerCase();
+const sentryEnvironment = stage;
 
 // publish uncaught errors to sentry.io. Whether Sentry is on is decided
 // server-side (see util.SentryConfig) so the two can't disagree.

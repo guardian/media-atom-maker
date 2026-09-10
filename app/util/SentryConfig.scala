@@ -16,23 +16,17 @@ class SentryConfig @Inject() (config: Configuration) extends Logging {
 
   val stage: String = config.getOptional[String]("stage").getOrElse("DEV")
 
-  /** Sentry treats environment names as case sensitive, so "PROD" and "prod"
-    * would appear as two separate environments. app.tsx lowercases the stage,
-    * so the server must too or browser and server events are split apart.
-    */
-  val environment: String = stage.toLowerCase
-
   /** Renamed from the legacy `raven.url`. That key is still set by the private
     * conf in S3 and points at the old per-stage project; by reading a different
     * key we ignore it entirely, so there is no precedence race while that dead
     * entry is cleaned up.
     */
-  val dsn: String = config.getOptional[String]("sentry.dsn").getOrElse("")
+  val dsn: Option[String] = config.getOptional[String]("sentry.dsn")
 
   private val localEnabled: Boolean =
     config.getOptional[Boolean]("sentry.local.enabled").getOrElse(false)
 
-  val enabled: Boolean = dsn.nonEmpty && (stage != "DEV" || localEnabled)
+  val enabled: Boolean = dsn.isDefined && (stage != "DEV" || localEnabled)
 
   /** Spans are billed individually and the browser SDK already emits a lot of
     * them, so PROD is sampled down. Mirrors the rate used in app.tsx.
@@ -51,8 +45,8 @@ class SentryConfig @Inject() (config: Configuration) extends Logging {
 
   if (enabled) {
     Sentry.init(options => {
-      options.setDsn(dsn)
-      options.setEnvironment(environment)
+      options.setDsn(dsn.get)
+      options.setEnvironment(stage)
       options.setAttachStacktrace(true)
       options.setTracesSampleRate(tracesSampleRate)
       release.foreach(options.setRelease)
@@ -66,7 +60,7 @@ class SentryConfig @Inject() (config: Configuration) extends Logging {
       s"Sentry disabled for stage=$stage (set sentry.local.enabled=true to enable)"
     )
   } else {
-    // A deployed stage with no DSN means we are running blind. Log at error so
+    // A deployed stage with no DSN means we are running blind. Log as error so
     // this surfaces rather than sitting unnoticed in a startup warning.
     log.error(
       s"Sentry is DISABLED on stage=$stage - no `sentry.dsn` configured, so no " +
