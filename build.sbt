@@ -200,8 +200,57 @@ lazy val uploader = (project in file("uploader"))
         log.info("Downloading statically compiled FFmpeg binary")
         IO.createDirectory(ffmpegFolder)
         import scala.sys.process.*
+        import scala.util.Try
         val archive = target.value / "ffmpeg" / "ffmpeg-release-amd64-static.tar.xz"
-        s"wget -nv https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -O $archive".!!
+        val archiveUrl =
+          "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz"
+
+        val downloadedWithCurl = Try {
+          Seq(
+            "curl",
+            "-fL",
+            "--retry",
+            "5",
+            "--retry-delay",
+            "2",
+            "-o",
+            archive.getAbsolutePath,
+            archiveUrl
+          ).!
+        }.getOrElse(-1) == 0
+
+        val downloadedWithWget =
+          if (downloadedWithCurl) {
+            false
+          } else {
+            log.warn(
+              "curl download failed or unavailable, falling back to wget"
+            )
+            Try {
+              Seq(
+                "wget",
+                "-nv",
+                "--tries=5",
+                "--waitretry=2",
+                "-O",
+                archive.getAbsolutePath,
+                archiveUrl
+              ).!
+            }.getOrElse(-1) == 0
+          }
+
+        if (!downloadedWithCurl && !downloadedWithWget) {
+          throw new RuntimeException(
+            "Could not download FFmpeg archive: curl and wget both failed"
+          )
+        }
+
+        if (downloadedWithCurl) {
+          log.info("Downloaded FFmpeg archive with curl")
+        } else {
+          log.info("Downloaded FFmpeg archive with wget")
+        }
+
         (s"tar xOf $archive ffmpeg-7.0.2-amd64-static/ffmpeg" #> binary).!!
       }
 
