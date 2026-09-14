@@ -1,5 +1,5 @@
-export function errorDetails(error: Error) {
-  if (error instanceof XMLHttpRequest) {
+export function errorDetails(error: unknown): string {
+  if (typeof XMLHttpRequest !== 'undefined' && error instanceof XMLHttpRequest) {
     let text = `${error.status}`;
 
     try {
@@ -9,7 +9,11 @@ export function errorDetails(error: Error) {
     }
 
     return text;
-  } else {
-    return `${error}`;
   }
+
+  if (typeof Response !== 'undefined' && error instanceof Response) {
+    return `HTTP ${error.status} ${error.statusText}`;
+  }
+
+  return error instanceof Error ? error.message : String(error);
 }

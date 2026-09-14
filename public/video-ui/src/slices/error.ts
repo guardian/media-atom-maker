@@ -22,21 +22,25 @@ function reportToSentry(message: string, error: unknown): void {
   // `instanceof` would throw a ReferenceError under Jest.
   const isResponse =
     typeof Response !== 'undefined' && error instanceof Response;
+  const responseDetails = isResponse
+    ? `HTTP ${error.status} ${error.statusText}`
+    : '';
+  const errorMessage =
+    isResponse && message === '[object Response]'
+      ? responseDetails
+      : isResponse
+        ? `${message} (${responseDetails})`
+        : message;
 
-  const synthetic = new Error(
-    isResponse
-      ? `${message} (HTTP ${error.status} ${error.statusText})`
-      : message,
-    { cause: error }
-  );
+  const synthetic = new Error(errorMessage, { cause: error });
 
   Sentry.captureException(synthetic, {
     // Every synthetic Error is constructed on the line above, so they all share
     // an identical stack trace. Sentry's default grouping keys on the stack
     // rather than the message, so without an explicit fingerprint unrelated
     // failures would collapse into a single issue.
-    fingerprint: ['showError', message],
-    extra: { message },
+    fingerprint: ['showError', errorMessage],
+    extra: { message: errorMessage },
     contexts: isResponse
       ? {
           response: {
