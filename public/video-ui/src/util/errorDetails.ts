@@ -1,5 +1,8 @@
 export function errorDetails(error: unknown): string {
-  if (typeof XMLHttpRequest !== 'undefined' && error instanceof XMLHttpRequest) {
+  if (
+    typeof XMLHttpRequest !== 'undefined' &&
+    error instanceof XMLHttpRequest
+  ) {
     let text = `${error.status}`;
 
     try {
