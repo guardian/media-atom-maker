@@ -6,6 +6,7 @@ import svgr from 'vite-plugin-svgr';
 // Play serves the contents of public/ directly, so any .map file left on disk
 // after the build would be publicly downloadable.
 const sourceMapGlob = './public/video-ui/build/**/*.map';
+const sourceAssetGlob = './public/video-ui/build/**/*.js';
 
 export default defineConfig(({ command }) => ({
   base: '',
@@ -23,7 +24,11 @@ export default defineConfig(({ command }) => ({
             // [STAGE].public.conf files; stages are separated by `environment`
             // rather than by project. Overridable for one-off builds.
             project: process.env.SENTRY_PROJECT ?? 'media-atom-maker',
+            release: {
+              name: process.env.SENTRY_RELEASE
+            },
             sourcemaps: {
+              assets: [sourceAssetGlob, sourceMapGlob],
               filesToDeleteAfterUpload: [sourceMapGlob]
             }
           })
