@@ -22,15 +22,20 @@ function reportToSentry(message: string, error: unknown): void {
   // `instanceof` would throw a ReferenceError under Jest.
   const isResponse =
     typeof Response !== 'undefined' && error instanceof Response;
-  const responseDetails = isResponse
-    ? `HTTP ${error.status} ${error.statusText}`
-    : '';
-  const errorMessage =
-    isResponse && message === '[object Response]'
-      ? responseDetails
-      : isResponse
-        ? `${message} (${responseDetails})`
-        : message;
+
+  let errorMessage = message;
+
+  if (isResponse) {
+    const responseDetails = `HTTP ${error.status} ${error.statusText}`;
+
+    if (message === '[object Response]') {
+      // The caller passed the raw Response straight through as the message.
+      errorMessage = responseDetails;
+    } else if (!message.includes(responseDetails)) {
+      // Callers using `errorDetails` already produce this suffix themselves.
+      errorMessage = `${message} (${responseDetails})`;
+    }
+  }
 
   const synthetic = new Error(errorMessage, { cause: error });
 
