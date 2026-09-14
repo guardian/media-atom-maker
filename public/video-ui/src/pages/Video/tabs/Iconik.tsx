@@ -67,7 +67,7 @@ export const IconikTabPanel = ({ video, ...rest }: { video: Video }) => {
 
 IconikTabPanel.tabsRole = TabPanel.tabsRole;
 
-const ReadOnlyIconikItem = ({
+function ReadOnlyIconikItem({
   label,
   itemType,
   id
@@ -75,7 +75,7 @@ const ReadOnlyIconikItem = ({
   label: string;
   itemType: IconikItemType;
   id?: string;
-}) => {
+}) {
   const [title, setTitle] = useState(id ? 'Loading...' : 'Not set');
 
   useEffect(() => {
@@ -96,4 +96,4 @@ const ReadOnlyIconikItem = ({
       <p className="details-list__field">{title}</p>
     </div>
   );
-};
+}

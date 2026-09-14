@@ -48,7 +48,9 @@ export default defineConfig(({ command }) => ({
     emptyOutDir: true
   },
   server: {
-    origin: 'http://localhost:5173',
+    origin: 'http://localhost:5189',
+    host: true,
+    port:5189,
     cors: {
       origin: 'https://video.local.dev-gutools.co.uk'
     },

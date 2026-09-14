@@ -50,7 +50,7 @@ export const publishedVideo: Video = {
   contentChangeDetails: {
     revision: 1,
     published: {
-      date: 1787309822
+      date: '2026-08-21T11:57:02.000Z'
     }
   }
 };

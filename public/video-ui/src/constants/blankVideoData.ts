@@ -27,10 +27,6 @@ export const blankVideoData: Video = {
     mediaId: '',
     assets: []
   },
-  trailImage: {
-    assets: []
-  },
-  youtubeOverrideImage: {
-    assets: []
-  }
+  trailImage: undefined,
+  youtubeOverrideImage: undefined
 };

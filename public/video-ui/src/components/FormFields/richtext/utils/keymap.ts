@@ -15,6 +15,7 @@ import { splitListItem } from 'prosemirror-schema-list';
 import { EditorConfig } from '../config';
 
 interface MapObject {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 const mac =
@@ -40,6 +41,7 @@ export const buildKeymap = (
   config: EditorConfig
 ) => {
   const keys: MapObject = init;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const bind = (key: string, cmd: any) => {
     if (mapKeys) {
       const mapped = mapKeys[key];

@@ -62,6 +62,7 @@ const validateField = <FieldValueType>(
   }
 
   function fieldValueTooLong() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (fieldValue && (fieldValue as any).length === maxLength) {
       return true;
     }

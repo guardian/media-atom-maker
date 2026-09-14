@@ -59,7 +59,7 @@ class VideoUIApp(
       capiProxyUrl = "/support/previewCapi",
       liveCapiProxyUrl = "/support/liveCapi",
       composerUrl = composerUrl,
-      sentryDsn = sentry.dsn,
+      sentryDsn = sentry.dsn.getOrElse(""),
       stage = conf.get[String]("stage"),
       viewerUrl = awsConfig.viewerUrl,
       permissions,

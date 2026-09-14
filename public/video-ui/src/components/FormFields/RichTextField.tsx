@@ -11,6 +11,7 @@ type EditorState = {
 type EditorProps = {
   fieldValue: string;
   derivedFrom: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onUpdateField: (string: string) => any;
   maxWordLength: number;
   editable: boolean;

@@ -136,13 +136,13 @@ export const ScheduledLaunch = ({
     return null;
   };
 
-  const reset = () => {
+  function reset() {
     setSelectedDelayPublicationOption(null);
     setShowMenu(false);
     setSelectedDate(null);
     setIsLoading(false);
     setInvalidDateError(null);
-  };
+  }
 
   const hasIndefiniteEmbargo = !!(
     embargoDate && moment(embargoDate).isSameOrAfter(impossiblyDistantDate)

@@ -20,6 +20,8 @@
   },
   "include": [
       "public/video-ui/src/**/*",
+      "./types/ts-migrate-globals.d.ts",
+      "./types/ts-migrate-modules.d.ts",
   ],
   "exclude": [
       "public/video-ui/build/**/*"

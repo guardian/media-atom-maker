@@ -3,5 +3,6 @@
  */
 
 // @TODO: More strictly type errors object when moving ManagedForm to ts
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type UpdateErrors = (errors: Record<string, any>) => void;
 export type UpdateWarnings = (warnings: Record<string, boolean>) => void;

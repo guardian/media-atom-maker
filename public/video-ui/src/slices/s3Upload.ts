@@ -35,7 +35,7 @@ export type VideoAsset = YouTubeAsset | SelfHostedAsset;
 
 export type Upload = {
   id: string;
-  parts?: { end: number; key: string; start: number }[];
+  parts: { end: number; key: string; start: number }[];
   metadata: {
     user: string;
     bucket: string;
@@ -78,7 +78,7 @@ export const startVideoUpload = createAsyncThunk<
 >('s3Upload/startVideoUpload', ({ id, file, selfHost }, { dispatch }) => {
   dispatch(setS3UploadStatusToStarting());
   return createUpload(id, file, selfHost)
-    .then((upload: Upload) => {
+    .then(upload => {
       dispatch(s3UploadStarted(upload));
 
       const progress = (completed: number) =>

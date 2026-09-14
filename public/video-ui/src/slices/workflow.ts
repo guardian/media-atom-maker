@@ -38,6 +38,7 @@ export const getStatus = createAsyncThunk<
   { id: string }
 >('workflow/getStatus', (video, { dispatch }) =>
   WorkflowApi.getAtomInWorkflow(video).catch(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (error: Response | any): Promise<never> => {
       if (error instanceof Response && error.status === 404) {
         try {
@@ -46,7 +47,9 @@ export const getStatus = createAsyncThunk<
             typeof errorBody === 'object' &&
             errorBody !== null &&
             'errors' in errorBody &&
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             'message' in (errorBody as any).errors &&
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (errorBody as any).errors.message === 'ContentNotFound'
           ) {
             dispatch(statusNotFound(defaultWorkflowStatusData()));

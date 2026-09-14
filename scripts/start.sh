@@ -12,6 +12,7 @@ for arg in "$@"; do
 done
 
 "${DIR}/check-node-version.sh"
+"${DIR}/check-credentials.sh"
 yarn run client-dev &
 
 if [ "$IS_DEBUG" == 1 ]; then

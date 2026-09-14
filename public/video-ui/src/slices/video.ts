@@ -25,7 +25,7 @@ const video = createSlice({
     setVideo: (state, { payload }: PayloadAction<Video>) => {
       state.video = { ...blankVideoData, ...payload };
     },
-    setPublishedVideo: (state, { payload }: PayloadAction<Video>) => {
+    setPublishedVideo: (state, { payload }: PayloadAction<Partial<Video>>) => {
       state.publishedVideo = { ...blankVideoData, ...payload };
     },
     setVideoAndPublishedVideo: (state, { payload }: PayloadAction<Video>) => {
