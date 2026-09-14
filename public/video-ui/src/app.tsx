@@ -30,7 +30,7 @@ if (sentryEnabled) {
     ],
     // Sample down in PROD to control span volume; full sampling elsewhere.
     // Mirrors SentryConfig.tracesSampleRate on the server.
-    tracesSampleRate: sentryEnvironment === 'prod' ? 0.1 : 1.0,
+    tracesSampleRate: sentryEnvironment.toUpperCase() === 'PROD' ? 0.1 : 1.0,
     // NB: `tracePropagationTargets` is deliberately unset. The SDK default is
     // already "same origin only", which is what SentryTracingFilter
     // needs, and the default correctly excludes protocol-relative URLs.
