@@ -77,9 +77,12 @@ class UploadController(
     * @return
     */
   def list(atomId: String): Action[AnyContent] = APIAuthAction { req =>
-    val clientAssets = clientAssetsForAtom(atomId)
-
-    Ok(Json.toJson(clientAssets))
+    try {
+      val clientAssets = clientAssetsForAtom(atomId)
+      Ok(Json.toJson(clientAssets))
+    } catch {
+      commandExceptionAsResult
+    }
   }
 
   private[controllers] def clientAssetsForAtom(
