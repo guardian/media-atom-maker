@@ -1,6 +1,8 @@
 package util
 
 import com.gu.media.logging.Logging
+import io.sentry.Sentry
+import io.sentry.protocol.{Request => SentryRequest}
 
 import javax.inject.{Inject, Provider, Singleton}
 import play.api.http.DefaultHttpErrorHandler
@@ -16,16 +18,69 @@ class RequestLogging @Inject() (
     env: Environment,
     config: Configuration,
     sourceMapper: OptionalSourceMapper,
-    router: Provider[Router]
+    router: Provider[Router],
+    sentry: SentryConfig
 ) extends DefaultHttpErrorHandler(env, config, sourceMapper, router)
     with Logging {
 
-  override def onProdServerError(
+  private def captureInSentry(
       request: RequestHeader,
-      exception: UsefulException
-  ): Future[Result] = {
-    super.logServerError(request, exception)
-    super.onProdServerError(request, exception)
+      exception: Throwable
+  ): Unit = {
+
+    Sentry.withScope(scope => {
+      scope.setTransaction(SentryTracingFilter.transactionName(request))
+      scope.setRequest(sentryRequest(request))
+      scope.setTag("http.method", request.method)
+      scope.setTag("http.host", request.host)
+      // We dont want query string params in the tags so we use the route pattern
+      request.attrs
+        .get(Router.Attrs.HandlerDef)
+        .foreach(handler => scope.setTag("http.route", handler.path))
+      scope.setExtra("request.remoteAddress", request.remoteAddress)
+      scope.setExtra(
+        "request.userAgent",
+        request.headers.get("User-Agent").getOrElse("")
+      )
+      scope.setExtra(
+        "request.id",
+        request.headers.get("X-Request-Id").getOrElse("")
+      )
+      Sentry.captureException(exception)
+    })
+  }
+
+  private def sentryRequest(request: RequestHeader): SentryRequest = {
+    val sentry = new SentryRequest()
+
+    sentry.setMethod(request.method)
+    // Query string is kept out of the URL so ids don't fragment grouping.
+    sentry.setUrl(s"${scheme(request)}://${request.host}${request.path}")
+    sentry.setQueryString(request.rawQueryString)
+    sentry
+  }
+
+  /** TLS terminates at the load balancer, so `request.secure` is false for
+    * requests users made over HTTPS. Play only honours `X-Forwarded-Proto` for
+    * proxies listed in `play.http.forwarded.trustedProxies`, which this app
+    * does not configure, so read it directly. The header is client-controllable
+    * and ends up in a Sentry URL, hence the allow-list.
+    */
+  private def scheme(request: RequestHeader): String =
+    request.headers
+      .get("X-Forwarded-Proto")
+      .map(_.split(',').head.trim.toLowerCase)
+      .filter(value => value == "http" || value == "https")
+      .getOrElse(if (request.secure) "https" else "http")
+
+  override protected def logServerError(
+      request: RequestHeader,
+      usefulException: UsefulException
+  ): Unit = {
+    if (sentry.enabled) {
+      captureInSentry(request, usefulException)
+    }
+    super.logServerError(request, usefulException)
   }
 
   override def onClientError(
