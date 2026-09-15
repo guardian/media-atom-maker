@@ -6,6 +6,7 @@ import { browserHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 import { routes } from './routes';
 import { updatePath } from './slices/path';
+import { NETWORK_FAILURE_MESSAGE } from './slices/error';
 import { getAppConfig } from './util/config';
 import { setupStore } from './util/setupStore';
 import { setStore } from './util/storeAccessor';
@@ -16,6 +17,23 @@ const store = setupStore();
 syncHistoryWithStore(browserHistory, store);
 const { stage, sentryDsn, sentryEnabled, userEmail } = getAppConfig();
 const sentryEnvironment = stage;
+
+// `pagehide` rather than `beforeunload` so it also fires on bfcache navigation.
+let pageIsUnloading = false;
+window.addEventListener('pagehide', () => {
+  pageIsUnloading = true;
+});
+
+/** In-flight requests abort when the user navigates away, and every request
+ * fails while the browser is offline. Both surface as fetch failures that no
+ * one can act on, and they drown out genuine API outages. */
+const isUnactionableNetworkFailure = (event: Sentry.ErrorEvent): boolean =>
+  (pageIsUnloading || navigator.onLine === false) &&
+  (event.exception?.values ?? []).some(
+    value =>
+      value.type === 'TypeError' &&
+      NETWORK_FAILURE_MESSAGE.test(value.value ?? '')
+  );
 
 // publish uncaught errors to sentry.io. Whether Sentry is on is decided
 // server-side (see util.SentryConfig) so the two can't disagree.
@@ -40,7 +58,8 @@ if (sentryEnabled) {
     profileLifecycle: 'trace',
     // No session replays; buffer in memory and only upload when an error occurs.
     replaysSessionSampleRate: 0,
-    replaysOnErrorSampleRate: 1.0
+    replaysOnErrorSampleRate: 1.0,
+    beforeSend: event => (isUnactionableNetworkFailure(event) ? null : event)
   });
 
   // Staff-only tool, so the pan-domain email is the useful identifier when

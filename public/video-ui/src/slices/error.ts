@@ -9,7 +9,33 @@ const SHOW_WARNING = 'SHOW_WARNING' as const;
 type ShowError = AnyAction & { type: typeof SHOW_ERROR; message: string };
 type ShowWarning = AnyAction & { type: typeof SHOW_WARNING; message: string };
 
+/** Chrome, Firefox and Safari each word a failed `fetch` differently. */
+export const NETWORK_FAILURE_MESSAGE =
+  /failed to fetch|networkerror when attempting to fetch|load failed/i;
+
+function isNetworkFailure(error: unknown): boolean {
+  return (
+    error instanceof TypeError && NETWORK_FAILURE_MESSAGE.test(error.message)
+  );
+}
+
 function reportToSentry(message: string, error: unknown): void {
+  // Every network failure has the same message and a near-identical stack, so
+  // by default they become one indistinguishable issue per call site. Re-title
+  // and group by operation instead; the original is kept as `cause` so Sentry
+  // still shows its stack as a chained exception.
+  if (isNetworkFailure(error)) {
+    Sentry.captureException(
+      new Error(`${message} (network request failed)`, { cause: error }),
+      {
+        fingerprint: ['network-failure', message],
+        tags: { errorSource: 'network' },
+        extra: { message }
+      }
+    );
+    return;
+  }
+
   // A real Error carries a meaningful stack, so let Sentry group on it as-is.
   if (error instanceof Error) {
     Sentry.captureException(error, { extra: { message } });
