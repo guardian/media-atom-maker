@@ -14,7 +14,7 @@ import '../styles/main.scss';
 
 const store = setupStore();
 syncHistoryWithStore(browserHistory, store);
-const { stage, sentryDsn, sentryEnabled } = getAppConfig();
+const { stage, sentryDsn, sentryEnabled, userEmail } = getAppConfig();
 const sentryEnvironment = stage;
 
 // publish uncaught errors to sentry.io. Whether Sentry is on is decided
@@ -42,6 +42,10 @@ if (sentryEnabled) {
     replaysSessionSampleRate: 0,
     replaysOnErrorSampleRate: 1.0
   });
+
+  // Staff-only tool, so the pan-domain email is the useful identifier when
+  // triaging. No other user fields are sent.
+  Sentry.setUser({ email: userEmail });
 }
 
 setStore(store);

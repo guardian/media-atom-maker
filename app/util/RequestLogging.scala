@@ -2,6 +2,7 @@ package util
 
 import com.gu.media.logging.Logging
 import io.sentry.Sentry
+import io.sentry.protocol.{Request => SentryRequest}
 
 import javax.inject.{Inject, Provider, Singleton}
 import play.api.http.DefaultHttpErrorHandler
@@ -28,14 +29,14 @@ class RequestLogging @Inject() (
   ): Unit = {
 
     Sentry.withScope(scope => {
+      scope.setTransaction(SentryTracingFilter.transactionName(request))
+      scope.setRequest(sentryRequest(request))
       scope.setTag("http.method", request.method)
       scope.setTag("http.host", request.host)
       // We dont want query string params in the tags so we use the route pattern
       request.attrs
         .get(Router.Attrs.HandlerDef)
         .foreach(handler => scope.setTag("http.route", handler.path))
-      scope.setExtra("request.uri", request.uri)
-      scope.setExtra("request.queryString", request.rawQueryString)
       scope.setExtra("request.remoteAddress", request.remoteAddress)
       scope.setExtra(
         "request.userAgent",
@@ -47,6 +48,17 @@ class RequestLogging @Inject() (
       )
       Sentry.captureException(exception)
     })
+  }
+
+  private def sentryRequest(request: RequestHeader): SentryRequest = {
+    val sentry = new SentryRequest()
+    val scheme = if (request.secure) "https" else "http"
+
+    sentry.setMethod(request.method)
+    // Query string is kept out of the URL so ids don't fragment grouping.
+    sentry.setUrl(s"$scheme://${request.host}${request.path}")
+    sentry.setQueryString(request.rawQueryString)
+    sentry
   }
 
   override protected def logServerError(

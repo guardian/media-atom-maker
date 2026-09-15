@@ -37,7 +37,8 @@ case class ClientConfig(
     sentryEnabled: Boolean,
     workflowUrl: String,
     targetingUrl: String,
-    tagManagerUrl: String
+    tagManagerUrl: String,
+    userEmail: String
 )
 
 object ClientConfig {

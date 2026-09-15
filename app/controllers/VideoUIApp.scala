@@ -68,7 +68,8 @@ class VideoUIApp(
       sentryEnabled = sentry.enabled,
       workflowUrl = awsConfig.workflowUrl,
       targetingUrl = awsConfig.targetingUrl,
-      tagManagerUrl = awsConfig.tagManagerUrl
+      tagManagerUrl = awsConfig.tagManagerUrl,
+      userEmail = req.user.email
     )
 
     Ok(

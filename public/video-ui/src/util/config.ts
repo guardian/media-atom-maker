@@ -32,7 +32,8 @@ export const ClientConfigSchema = z.object({
   sentryEnabled: z.boolean(),
   workflowUrl: z.string(),
   targetingUrl: z.string(),
-  tagManagerUrl: z.string()
+  tagManagerUrl: z.string(),
+  userEmail: z.string()
 });
 
 export type ClientConfig = z.infer<typeof ClientConfigSchema>;
@@ -87,6 +88,7 @@ export function getAppConfig(): ConfigState {
       workflowUrl: '',
       targetingUrl: '',
       tagManagerUrl: '',
+      userEmail: '',
       embeddedMode: false
     };
   }

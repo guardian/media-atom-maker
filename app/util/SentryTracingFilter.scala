@@ -64,14 +64,8 @@ class SentryTracingFilter(sentry: SentryConfig)(implicit
     * path, otherwise every distinct id becomes its own transaction name and
     * Sentry's grouping is useless.
     */
-  private def transactionName(request: RequestHeader): String =
-    request.attrs
-      .get(Router.Attrs.HandlerDef)
-      .map(handler => s"${request.method} ${handler.path}")
-      .getOrElse(s"${request.method} <unrouted>")
-
   private def startTransaction(request: RequestHeader) = {
-    val name = transactionName(request)
+    val name = SentryTracingFilter.transactionName(request)
 
     val context = Option(
       Sentry.continueTrace(
@@ -89,4 +83,16 @@ class SentryTracingFilter(sentry: SentryConfig)(implicit
     // thread and could capture unrelated events.
     Sentry.startTransaction(context, new TransactionOptions())
   }
+}
+
+object SentryTracingFilter {
+
+  /** Shared with [[RequestLogging]] so a transaction and an error raised by the
+    * same request carry the same name.
+    */
+  def transactionName(request: RequestHeader): String =
+    request.attrs
+      .get(Router.Attrs.HandlerDef)
+      .map(handler => s"${request.method} ${handler.path}")
+      .getOrElse(s"${request.method} <unrouted>")
 }
