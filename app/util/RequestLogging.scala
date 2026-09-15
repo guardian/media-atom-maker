@@ -52,14 +52,26 @@ class RequestLogging @Inject() (
 
   private def sentryRequest(request: RequestHeader): SentryRequest = {
     val sentry = new SentryRequest()
-    val scheme = if (request.secure) "https" else "http"
 
     sentry.setMethod(request.method)
     // Query string is kept out of the URL so ids don't fragment grouping.
-    sentry.setUrl(s"$scheme://${request.host}${request.path}")
+    sentry.setUrl(s"${scheme(request)}://${request.host}${request.path}")
     sentry.setQueryString(request.rawQueryString)
     sentry
   }
+
+  /** TLS terminates at the load balancer, so `request.secure` is false for
+    * requests users made over HTTPS. Play only honours `X-Forwarded-Proto` for
+    * proxies listed in `play.http.forwarded.trustedProxies`, which this app
+    * does not configure, so read it directly. The header is client-controllable
+    * and ends up in a Sentry URL, hence the allow-list.
+    */
+  private def scheme(request: RequestHeader): String =
+    request.headers
+      .get("X-Forwarded-Proto")
+      .map(_.split(',').head.trim.toLowerCase)
+      .filter(value => value == "http" || value == "https")
+      .getOrElse(if (request.secure) "https" else "http")
 
   override protected def logServerError(
       request: RequestHeader,
