@@ -19,6 +19,14 @@ function isNetworkFailure(error: unknown): boolean {
   );
 }
 
+/** Marks an Error we built ourselves, so Sentry knows the leading frames are
+ * this file's reporting code rather than the failure site. */
+const SYNTHETIC_MECHANISM = {
+  type: 'generic',
+  handled: true,
+  synthetic: true
+} as const;
+
 function reportToSentry(message: string, error: unknown): void {
   // Every network failure has the same message and a near-identical stack, so
   // by default they become one indistinguishable issue per call site. Re-title
@@ -28,9 +36,12 @@ function reportToSentry(message: string, error: unknown): void {
     Sentry.captureException(
       new Error(`${message} (network request failed)`, { cause: error }),
       {
-        fingerprint: ['network-failure', message],
-        tags: { errorSource: 'network' },
-        extra: { message }
+        mechanism: SYNTHETIC_MECHANISM,
+        captureContext: {
+          fingerprint: ['network-failure', message],
+          tags: { errorSource: 'network' },
+          extra: { message }
+        }
       }
     );
     return;
@@ -66,22 +77,25 @@ function reportToSentry(message: string, error: unknown): void {
   const synthetic = new Error(errorMessage, { cause: error });
 
   Sentry.captureException(synthetic, {
-    // Every synthetic Error is constructed on the line above, so they all share
-    // an identical stack trace. Sentry's default grouping keys on the stack
-    // rather than the message, so without an explicit fingerprint unrelated
-    // failures would collapse into a single issue.
-    fingerprint: ['showError', errorMessage],
-    extra: { message: errorMessage },
-    contexts: isResponse
-      ? {
-          response: {
-            status: error.status,
-            statusText: error.statusText,
-            url: error.url,
-            retryAfter: error.headers.get('retry-after')
+    mechanism: SYNTHETIC_MECHANISM,
+    captureContext: {
+      // Every synthetic Error is constructed on the line above, so they all
+      // share an identical stack trace. Sentry's default grouping keys on the
+      // stack rather than the message, so without an explicit fingerprint
+      // unrelated failures would collapse into a single issue.
+      fingerprint: ['showError', errorMessage],
+      extra: { message: errorMessage },
+      contexts: isResponse
+        ? {
+            response: {
+              status: error.status,
+              statusText: error.statusText,
+              url: error.url,
+              retryAfter: error.headers.get('retry-after')
+            }
           }
-        }
-      : undefined
+        : undefined
+    }
   });
 }
 
