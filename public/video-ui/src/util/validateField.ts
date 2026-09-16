@@ -7,8 +7,7 @@ const validateField = <FieldValueType>(
   isRequired: boolean = false,
   isDesired: boolean = false,
   customValidation:
-    | ((fieldValue: FieldValueType) => FieldNotification | null)
-    | null = null,
+    ((fieldValue: FieldValueType) => FieldNotification | null) | null = null,
   composerValidation: boolean = false,
   defaultVideoValidation: boolean = false,
   maxLength?: number
