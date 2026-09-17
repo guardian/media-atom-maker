@@ -145,6 +145,7 @@ lazy val app = (project in file("."))
     name := "media-atom-maker",
     libraryDependencies ++= Seq(
       ehcache,
+      "io.sentry" % "sentry" % "8.22.0",
       "software.amazon.awssdk" % "sts" % awsV2Version,
       "software.amazon.awssdk" % "ec2" % awsV2Version,
       "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestPlusPlayVersion % "test",

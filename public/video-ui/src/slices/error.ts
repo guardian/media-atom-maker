@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { Action, AnyAction } from 'redux';
-import Raven from 'raven-js';
+import * as Sentry from '@sentry/browser';
 import { setActiveAsset } from './video';
 
 const SHOW_ERROR = 'SHOW_ERROR' as const;
@@ -9,12 +9,102 @@ const SHOW_WARNING = 'SHOW_WARNING' as const;
 type ShowError = AnyAction & { type: typeof SHOW_ERROR; message: string };
 type ShowWarning = AnyAction & { type: typeof SHOW_WARNING; message: string };
 
+/** Chrome, Firefox and Safari each word a failed `fetch` differently. */
+export const NETWORK_FAILURE_MESSAGE =
+  /failed to fetch|networkerror when attempting to fetch|load failed/i;
+
+function isNetworkFailure(error: unknown): boolean {
+  return (
+    error instanceof TypeError && NETWORK_FAILURE_MESSAGE.test(error.message)
+  );
+}
+
+/** Marks an Error we built ourselves, so Sentry knows the leading frames are
+ * this file's reporting code rather than the failure site. */
+const SYNTHETIC_MECHANISM = {
+  type: 'generic',
+  handled: true,
+  synthetic: true
+} as const;
+
+function reportToSentry(message: string, error: unknown): void {
+  // Every network failure has the same message and a near-identical stack, so
+  // by default they become one indistinguishable issue per call site. Re-title
+  // and group by operation instead; the original is kept as `cause` so Sentry
+  // still shows its stack as a chained exception.
+  if (isNetworkFailure(error)) {
+    Sentry.captureException(
+      new Error(`${message} (network request failed)`, { cause: error }),
+      {
+        mechanism: SYNTHETIC_MECHANISM,
+        captureContext: {
+          fingerprint: ['network-failure', message],
+          tags: { errorSource: 'network' },
+          extra: { message }
+        }
+      }
+    );
+    return;
+  }
+
+  // A real Error carries a meaningful stack, so let Sentry group on it as-is.
+  if (error instanceof Error) {
+    Sentry.captureException(error, { extra: { message } });
+    return;
+  }
+
+  // `apiRequest` throws the raw Response for any non-2xx, so a large share of
+  // the values arriving here are Responses rather than Errors. The `typeof`
+  // check is required because jsdom does not define Response, so a bare
+  // `instanceof` would throw a ReferenceError under Jest.
+  const isResponse =
+    typeof Response !== 'undefined' && error instanceof Response;
+
+  let errorMessage = message;
+
+  if (isResponse) {
+    const responseDetails = `HTTP ${error.status} ${error.statusText}`;
+
+    if (message === '[object Response]') {
+      // The caller passed the raw Response straight through as the message.
+      errorMessage = responseDetails;
+    } else if (!message.includes(responseDetails)) {
+      // Callers using `errorDetails` already produce this suffix themselves.
+      errorMessage = `${message} (${responseDetails})`;
+    }
+  }
+
+  const synthetic = new Error(errorMessage, { cause: error });
+
+  Sentry.captureException(synthetic, {
+    mechanism: SYNTHETIC_MECHANISM,
+    captureContext: {
+      // Every synthetic Error is constructed on the line above, so they all
+      // share an identical stack trace. Sentry's default grouping keys on the
+      // stack rather than the message, so without an explicit fingerprint
+      // unrelated failures would collapse into a single issue.
+      fingerprint: ['showError', errorMessage],
+      extra: { message: errorMessage },
+      contexts: isResponse
+        ? {
+            response: {
+              status: error.status,
+              statusText: error.statusText,
+              url: error.url,
+              retryAfter: error.headers.get('retry-after')
+            }
+          }
+        : undefined
+    }
+  });
+}
+
 export const showError: (message: string, error?: unknown) => ShowError = (
   message,
   error = undefined
 ) => {
-  if (error && error instanceof Error) {
-    Raven.captureException(error, { tags: { message } });
+  if (error !== undefined && error !== null) {
+    reportToSentry(message, error);
   }
 
   return {
@@ -35,14 +125,14 @@ export const clearErrorAndWarning: () => Action<'CLEAR_ERROR_AND_WARNING'> =
     type: 'CLEAR_ERROR_AND_WARNING'
   });
 
-interface Error {
+interface ErrorState {
   message: false | string;
   key: number;
   warningMessage: false | string;
   warningKey: number;
 }
 
-const initialState: Error = {
+const initialState: ErrorState = {
   message: false,
   key: 0,
   warningMessage: false,
