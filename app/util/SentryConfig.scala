@@ -29,9 +29,25 @@ class SentryConfig @Inject() (config: Configuration) extends Logging {
   val enabled: Boolean = dsn.isDefined && (stage != "DEV" || localEnabled)
 
   /** Spans are billed individually and the browser SDK already emits a lot of
-    * them, so PROD is sampled down. Mirrors the rate used in app.tsx.
+    * them, so PROD is sampled down. SENTRY_TRACES_SAMPLE_RATE overrides the
+    * stage default for controlled cost tuning.
     */
-  val tracesSampleRate: Double = if (stage == "PROD") 0.1d else 1.0d
+  val tracesSampleRate: Double = {
+    val defaultRate = if (stage.equalsIgnoreCase("PROD")) 0.1d else 1.0d
+    val rate = config
+      .getOptional[Double]("sentry.traces.sample-rate")
+      .getOrElse(defaultRate)
+    require(
+      rate >= 0.0d && rate <= 1.0d,
+      "sentry.traces.sample-rate must be between 0.0 and 1.0"
+    )
+    rate
+  }
+
+  /** Session replays are disabled by default; when enabled, only replays
+    * attached to error events are uploaded. */
+  val replayEnabled: Boolean =
+    config.getOptional[Boolean]("sentry.replay.enabled").getOrElse(false)
 
   /** Ties server events to the same release as the browser bundle, which the
     * Sentry Vite plugin stamps from the commit SHA at build time. CI sets

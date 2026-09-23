@@ -66,6 +66,8 @@ class VideoUIApp(
       minDurationForAds = youtube.minDurationForAds,
       isTrainingMode = isTrainingMode,
       sentryEnabled = sentry.enabled,
+      sentryTracesSampleRate = sentry.tracesSampleRate,
+      sentryReplayEnabled = sentry.replayEnabled,
       workflowUrl = awsConfig.workflowUrl,
       targetingUrl = awsConfig.targetingUrl,
       tagManagerUrl = awsConfig.tagManagerUrl,

@@ -15,7 +15,14 @@ import '../styles/main.scss';
 
 const store = setupStore();
 syncHistoryWithStore(browserHistory, store);
-const { stage, sentryDsn, sentryEnabled, userEmail } = getAppConfig();
+const {
+  stage,
+  sentryDsn,
+  sentryEnabled,
+  sentryTracesSampleRate,
+  sentryReplayEnabled,
+  userEmail
+} = getAppConfig();
 const sentryEnvironment = stage;
 
 // `pagehide` rather than `beforeunload` so it also fires on bfcache navigation.
@@ -46,9 +53,8 @@ if (sentryEnabled) {
       Sentry.browserProfilingIntegration(),
       Sentry.replayIntegration()
     ],
-    // Sample down in PROD to control span volume; full sampling elsewhere.
-    // Mirrors SentryConfig.tracesSampleRate on the server.
-    tracesSampleRate: sentryEnvironment.toUpperCase() === 'PROD' ? 0.1 : 1.0,
+    // Server-owned value keeps browser and server trace sampling aligned.
+    tracesSampleRate: sentryTracesSampleRate,
     // NB: `tracePropagationTargets` is deliberately unset. The SDK default is
     // already "same origin only", which is what SentryTracingFilter
     // needs, and the default correctly excludes protocol-relative URLs.
@@ -58,7 +64,7 @@ if (sentryEnabled) {
     profileLifecycle: 'trace',
     // No session replays; buffer in memory and only upload when an error occurs.
     replaysSessionSampleRate: 0,
-    replaysOnErrorSampleRate: 1.0,
+    replaysOnErrorSampleRate: sentryReplayEnabled ? 1.0 : 0,
     beforeSend: event => (isUnactionableNetworkFailure(event) ? null : event)
   });
 

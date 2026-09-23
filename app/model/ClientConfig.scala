@@ -35,6 +35,8 @@ case class ClientConfig(
     minDurationForAds: Long,
     isTrainingMode: Boolean,
     sentryEnabled: Boolean,
+    sentryTracesSampleRate: Double,
+    sentryReplayEnabled: Boolean,
     workflowUrl: String,
     targetingUrl: String,
     tagManagerUrl: String,
