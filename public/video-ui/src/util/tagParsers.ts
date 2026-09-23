@@ -30,7 +30,7 @@ const isCapiTagNotFoundResponse = (
   const response = (value as CapiTagNotFoundResponse).response;
   return Boolean(
     response?.status === 'error' &&
-      response?.message?.includes('could not be found')
+    response?.message?.includes('could not be found')
   );
 };
 
