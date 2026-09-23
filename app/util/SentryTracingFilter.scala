@@ -2,6 +2,7 @@ package util
 
 import io.sentry.{
   BaggageHeader,
+  ITransaction,
   Sentry,
   SentryTraceHeader,
   SpanStatus,
@@ -40,8 +41,12 @@ class SentryTracingFilter(sentry: SentryConfig)(implicit
         next(request)
       } else {
         val transaction = startTransaction(request)
+        val requestWithTransaction = request.addAttr(
+          SentryTracingFilter.transactionKey,
+          transaction
+        )
 
-        next(request)
+        next(requestWithTransaction)
           .map { result =>
             transaction.setStatus(
               SpanStatus.fromHttpStatusCode(
@@ -53,6 +58,7 @@ class SentryTracingFilter(sentry: SentryConfig)(implicit
             result
           }
           .recoverWith { case error =>
+            transaction.setThrowable(error)
             transaction.setStatus(SpanStatus.INTERNAL_ERROR)
             transaction.finish()
             Future.failed(error)
@@ -77,15 +83,17 @@ class SentryTracingFilter(sentry: SentryConfig)(implicit
     context.setName(name)
     context.setOperation(Operation)
 
-    // Deliberately not bound to the scope. Sentry's scope storage is
-    // thread-local, but Play starts the request on one thread and completes it
-    // on another, so a bound transaction would be left behind on the starting
-    // thread and could capture unrelated events.
+    // Deliberately not bound to the global scope. Play may resume a Future on a
+    // different thread, so the transaction is carried explicitly on the
+    // immutable request instead.
     Sentry.startTransaction(context, new TransactionOptions())
   }
 }
 
 object SentryTracingFilter {
+
+  val transactionKey =
+    play.api.libs.typedmap.TypedKey[ITransaction]("sentry.transaction")
 
   /** Shared with [[RequestLogging]] so a transaction and an error raised by the
     * same request carry the same name.

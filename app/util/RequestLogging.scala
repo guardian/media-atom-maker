@@ -29,7 +29,14 @@ class RequestLogging @Inject() (
   ): Unit = {
 
     Sentry.withScope(scope => {
-      scope.setTransaction(SentryTracingFilter.transactionName(request))
+      request.attrs
+        .get(SentryTracingFilter.transactionKey)
+        .fold(
+          scope.setTransaction(SentryTracingFilter.transactionName(request))
+        ) { transaction =>
+          transaction.setThrowable(exception)
+          scope.setTransaction(transaction)
+        }
       scope.setRequest(sentryRequest(request))
       scope.setTag("http.method", request.method)
       scope.setTag("http.host", request.host)
