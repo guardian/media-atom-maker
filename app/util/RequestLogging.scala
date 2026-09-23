@@ -33,7 +33,7 @@ class RequestLogging @Inject() (
       scope.setRequest(sentryRequest(request))
       scope.setTag("http.method", request.method)
       scope.setTag("http.host", request.host)
-      // We dont want query string params in the tags so we use the route pattern
+      // We don't want query string params in the tags so we use the route pattern
       request.attrs
         .get(Router.Attrs.HandlerDef)
         .foreach(handler => scope.setTag("http.route", handler.path))
