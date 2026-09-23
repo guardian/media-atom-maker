@@ -45,7 +45,8 @@ class SentryConfig @Inject() (config: Configuration) extends Logging {
   }
 
   /** Session replays are disabled by default; when enabled, only replays
-    * attached to error events are uploaded. */
+    * attached to error events are uploaded.
+    */
   val replayEnabled: Boolean =
     config.getOptional[Boolean]("sentry.replay.enabled").getOrElse(false)
 
