@@ -65,7 +65,7 @@ function reportToSentry(message: string, error: unknown): void {
   if (isResponse) {
     const responseDetails = `HTTP ${error.status} ${error.statusText}`;
 
-    if (message === '[object Response]') {
+    if (!message || message === '[object Response]') {
       // The caller passed the raw Response straight through as the message.
       errorMessage = responseDetails;
     } else if (!message.includes(responseDetails)) {
