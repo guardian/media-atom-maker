@@ -30,6 +30,9 @@ let pageIsUnloading = false;
 window.addEventListener('pagehide', () => {
   pageIsUnloading = true;
 });
+window.addEventListener('pageshow', () => {
+  pageIsUnloading = false;
+});
 
 /** In-flight requests abort when the user navigates away, and every request
  * fails while the browser is offline. Both surface as fetch failures that no
