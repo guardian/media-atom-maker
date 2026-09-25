@@ -148,6 +148,7 @@ export const VideoUpload = (props: { params: { id: string } }) => {
             setAsset={setAsset}
             activatingAssetNumber={store.activatingAssetNumber}
             hasPendingUpload={hasPendingUpload}
+            s3UploadState={store.s3Upload}
           />
         </div>
       </div>
