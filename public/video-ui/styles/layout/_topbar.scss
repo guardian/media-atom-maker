@@ -78,14 +78,6 @@ $topbarHeight: 50px;
   }
 }
 
-.topbar__progress {
-  position: absolute;
-  align-items: center;
-  width: 100%;
-  height: 2px;
-  top: 49px; // covering 1px border, otherwise would be 50px :)
-}
-
 .topbar__back-link {
   width: $topbarHeight;
   height: $topbarHeight;
