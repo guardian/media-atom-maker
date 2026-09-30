@@ -152,7 +152,7 @@ const s3Upload = createSlice({
       });
     },
     s3UploadProgress: (state, action: PayloadAction<number>) => {
-      (state.progress = action.payload), (state.status = 'uploading');
+      ((state.progress = action.payload), (state.status = 'uploading'));
     },
     setS3UploadStatusToComplete: () => ({
       ...initialState

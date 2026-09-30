@@ -23,15 +23,19 @@ export const ClientConfigSchema = z.object({
   capiProxyUrl: z.string(),
   liveCapiProxyUrl: z.string(),
   composerUrl: z.string(),
-  ravenUrl: z.string(),
+  sentryDsn: z.string(),
   stage: z.string(),
   viewerUrl: z.string(),
   permissions: PermissionsSchema,
   minDurationForAds: z.number(),
   isTrainingMode: z.boolean(),
+  sentryEnabled: z.boolean(),
+  sentryTracesSampleRate: z.number(),
+  sentryReplayEnabled: z.boolean(),
   workflowUrl: z.string(),
   targetingUrl: z.string(),
-  tagManagerUrl: z.string()
+  tagManagerUrl: z.string(),
+  userEmail: z.string()
 });
 
 export type ClientConfig = z.infer<typeof ClientConfigSchema>;
@@ -71,7 +75,7 @@ export function getAppConfig(): ConfigState {
       capiProxyUrl: '',
       liveCapiProxyUrl: '',
       composerUrl: '',
-      ravenUrl: '',
+      sentryDsn: '',
       stage: 'TEST',
       viewerUrl: '',
       permissions: {
@@ -82,9 +86,13 @@ export function getAppConfig(): ConfigState {
       },
       minDurationForAds: 0,
       isTrainingMode: false,
+      sentryEnabled: false,
+      sentryTracesSampleRate: 0,
+      sentryReplayEnabled: false,
       workflowUrl: '',
       targetingUrl: '',
       tagManagerUrl: '',
+      userEmail: '',
       embeddedMode: false
     };
   }

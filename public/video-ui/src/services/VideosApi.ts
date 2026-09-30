@@ -13,11 +13,7 @@ export type ComposerStage = 'live' | 'preview';
 export type AssetType = 'Audio' | 'Video' | 'Subtitles';
 
 export type Platform =
-  | 'Youtube'
-  | 'Facebook'
-  | 'Dailymotion'
-  | 'Mainstream'
-  | 'Url';
+  'Youtube' | 'Facebook' | 'Dailymotion' | 'Mainstream' | 'Url';
 
 export type Asset = {
   assetType: AssetType;

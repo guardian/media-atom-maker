@@ -26,7 +26,6 @@ import { Video } from '../services/VideosApi';
 import { Search } from '../slices/search';
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import { UsageState } from '../slices/usage';
-import { S3UploadState } from '../slices/s3Upload';
 
 type Props = {
   publishVideo: typeof publishVideo;
@@ -65,7 +64,6 @@ type Props = {
   createVideoPage: typeof createVideoPage;
   error: Error;
   shouldUseCreatedDateForSort: boolean;
-  s3Upload: S3UploadState;
 };
 
 type State = {
