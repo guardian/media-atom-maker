@@ -4,7 +4,6 @@ import com.gu.atom.data.{PreviewDynamoDataStoreV2, PublishedDynamoDataStoreV2}
 import com.gu.atom.play.ReindexController
 import com.gu.atom.publish.AtomPublisher
 import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
-import com.gu.hmac.HMACDate.DateTimeOps
 import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider, Permissions}
 import com.gu.media.model.{MediaAtom, User => AtomUser}
 import com.gu.media.telemetry.Telemetry
@@ -19,7 +18,6 @@ import com.gu.pandomainauth.model.{
 import com.gu.pandomainauth.service.{CryptoConf, KeyPair}
 import com.typesafe.config.ConfigFactory
 import data.DataStores
-import org.joda.time.DateTime
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.MockitoSugar.{mock, verify, verifyZeroInteractions, when}
@@ -52,8 +50,9 @@ import util.{AWSConfig, ThumbnailGenerator, YouTube}
 
 import java.nio.charset.StandardCharsets.UTF_8
 import java.security.KeyPairGenerator
-import java.time.Instant
-import java.util.{Base64, UUID}
+import java.time.{Clock, Instant, LocalDate, ZoneOffset}
+import java.time.format.DateTimeFormatter
+import java.util.{Base64, Locale, UUID}
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import scala.util.Success
@@ -61,6 +60,12 @@ import scala.util.Success
 class ApiCreationTest extends AnyFlatSpec with Matchers {
   private val secret = "synthetic-mam-hmac-secret"
   private val serviceName = "test-draft-creator"
+  private val hmacInstant = Instant.parse("2026-09-20T15:00:00Z")
+  private val septemberDate = "Sun, 20 Sep 2026 15:00:00 GMT"
+  private val legacySeptemberDate = "Sun, 20 Sept 2026 15:00:00 GMT"
+  private val httpDateFormatter = DateTimeFormatter
+    .ofPattern("EEE, dd MMM uuuu HH:mm:ss 'GMT'", Locale.US)
+    .withZone(ZoneOffset.UTC)
   private val browserUser =
     User("Test", "Editor", "test.editor@guardian.co.uk", None)
   private val payload = Json.obj(
@@ -85,14 +90,15 @@ class ApiCreationTest extends AnyFlatSpec with Matchers {
     FakeRequest(POST, "/api/atoms").withBody[JsValue](payload)
 
   private def hmacHeaders(
-      signingSecret: String = secret
+      signingSecret: String = secret,
+      date: String = septemberDate,
+      path: String = "/api/atoms"
   ): Seq[(String, String)] = {
-    val date = DateTime.now().toRfc7231String
     val mac = Mac.getInstance("HmacSHA256")
     mac.init(new SecretKeySpec(signingSecret.getBytes(UTF_8), "HmacSHA256"))
     val signature =
       Base64.getEncoder.encodeToString(
-        mac.doFinal(s"$date\n/api/atoms".getBytes(UTF_8))
+        mac.doFinal(s"$date\n$path".getBytes(UTF_8))
       )
     Seq(
       "X-Gu-Tools-HMAC-Date" -> date,
@@ -101,7 +107,7 @@ class ApiCreationTest extends AnyFlatSpec with Matchers {
     )
   }
 
-  private class TestComponents
+  private class TestComponents(hmacNow: Instant)
       extends BuiltInComponentsFromContext(
         ApplicationLoader.Context(
           environment = Environment.simple(mode = Mode.Test),
@@ -167,6 +173,8 @@ class ApiCreationTest extends AnyFlatSpec with Matchers {
     )
 
     val auth = new PanDomainAuthActions {
+      override protected val clock: Clock =
+        Clock.fixed(hmacNow, ZoneOffset.UTC)
       override def conf: Configuration = TestComponents.this.configuration
       override def wsClient: WSClient = ws
       override def controllerComponents: ControllerComponents =
@@ -299,8 +307,11 @@ class ApiCreationTest extends AnyFlatSpec with Matchers {
     }
   }
 
-  private def withApp(test: TestComponents => Unit): Unit = {
-    val components = new TestComponents
+  private def withApp(test: TestComponents => Unit): Unit =
+    withApp(hmacInstant)(test)
+
+  private def withApp(hmacNow: Instant)(test: TestComponents => Unit): Unit = {
+    val components = new TestComponents(hmacNow)
     running(components.application) {
       test(components)
     }
@@ -313,6 +324,108 @@ class ApiCreationTest extends AnyFlatSpec with Matchers {
         AtomUser(serviceName, None, None)
       )
       verifyZeroInteractions(app.permissions)
+  }
+
+  it should "accept a legacy English Sept date signed exactly as sent" in withApp {
+    app =>
+      app.assertCreated(
+        request.withHeaders(hmacHeaders(date = legacySeptemberDate): _*),
+        AtomUser(serviceName, None, None)
+      )
+  }
+
+  for (month <- 1 to 12) {
+    val now =
+      LocalDate.of(2026, month, 1).atStartOfDay(ZoneOffset.UTC).toInstant
+    val date = httpDateFormatter.format(now)
+    it should s"accept the English HTTP date $date regardless of the JVM locale" in withApp(
+      now
+    ) { app =>
+      app.assertCreated(
+        request.withHeaders(hmacHeaders(date = date): _*),
+        AtomUser(serviceName, None, None)
+      )
+    }
+  }
+
+  for (
+    (signedDate, sentDate) <- Seq(
+      septemberDate -> legacySeptemberDate,
+      legacySeptemberDate -> septemberDate
+    )
+  ) {
+    it should s"reject changing $signedDate to $sentDate without re-signing" in withApp {
+      app =>
+        app.assertRejected(
+          request
+            .withHeaders(hmacHeaders(date = signedDate): _*)
+            .withHeaders("X-Gu-Tools-HMAC-Date" -> sentDate),
+          UNAUTHORIZED
+        )
+    }
+  }
+
+  for (offset <- Seq(-300, 300)) {
+    it should s"accept a signed date at the $offset second validity boundary" in withApp {
+      app =>
+        app.assertCreated(
+          request.withHeaders(
+            hmacHeaders(
+              date = httpDateFormatter.format(hmacInstant.plusSeconds(offset))
+            ): _*
+          ),
+          AtomUser(serviceName, None, None)
+        )
+    }
+  }
+
+  for (offset <- Seq(-301, 301)) {
+    it should s"reject a signed date $offset seconds away from the clock" in withApp {
+      app =>
+        app.assertRejected(
+          request.withHeaders(
+            hmacHeaders(
+              date = httpDateFormatter.format(hmacInstant.plusSeconds(offset))
+            ): _*
+          ),
+          UNAUTHORIZED
+        )
+    }
+  }
+
+  for (
+    date <- Seq(
+      "not-a-date",
+      "Thu, 31 Sep 2026 15:00:00 GMT",
+      "Mon, 20 Sep 2026 15:00:00 GMT",
+      "Sun, 20 Sep 2026 15:00:00 PST",
+      "dim., 20 sept. 2026 15:00:00 GMT",
+      "So., 20 Sept. 2026 15:00:00 GMT"
+    )
+  ) {
+    it should s"reject the invalid or non-English HTTP date $date" in withApp {
+      app =>
+        app.assertRejected(
+          request.withHeaders(hmacHeaders(date = date): _*),
+          UNAUTHORIZED
+        )
+    }
+  }
+
+  it should "reject a malformed HMAC token" in withApp { app =>
+    app.assertRejected(
+      request
+        .withHeaders(hmacHeaders(): _*)
+        .withHeaders("X-Gu-Tools-HMAC-Token" -> "not-an-hmac-token"),
+      UNAUTHORIZED
+    )
+  }
+
+  it should "reject a signature for a different path" in withApp { app =>
+    app.assertRejected(
+      request.withHeaders(hmacHeaders(path = "/api/pluto/projects"): _*),
+      UNAUTHORIZED
+    )
   }
 
   it should "reject an invalid HMAC without creating an atom" in withApp {

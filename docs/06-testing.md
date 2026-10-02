@@ -25,18 +25,31 @@ Persistence, publishing and external clients are mocked; no credentials or live
 infrastructure are needed.
 
 The fixture deliberately does not load `application.conf` or its private config
-include, or boot the production dependency wiring. It uses the HMAC dependency's
-date formatter when signing synthetic requests. Deployed configuration overrides,
-client/server locale interoperability, network access, OAuth login and real
-AWS/YouTube integrations are not covered.
+include, or boot the production dependency wiring. Deployed configuration
+overrides, network access, OAuth login and real AWS/YouTube integrations are not
+covered.
 
-The existing HMAC dependency uses the JVM default locale for HTTP dates. On
-Java 21 with `en_GB`, its September abbreviation is `Sept`, and a standard HTTP
-date containing `Sep` is rejected. This was observed during local testing; the
-suite uses the dependency's formatter to remain compatible with its verifier.
-Verify the deployed JVM locale against the future client's HTTP-date format
-before rollout. Changing the dependency or production locale is outside this
-authentication-only change.
+HMAC tests sign the original HTTP-date header independently of the dependency's
+locale-sensitive formatter, using a fixed verifier clock. They cover standard
+English `Sep` and legacy English `Sept`, every month and weekday, the five-minute
+past/future validity boundaries, malformed dates/tokens and rejection if the
+date spelling or request path changes without re-signing. Non-English HTTP dates
+are rejected; English dates work regardless of the server's JVM locale.
+
+`PanDomainAuthActions` overrides the dependency's per-secret verification with
+explicit English date parsing. Only the freshness check normalizes `Sept` to
+`Sep`; signature verification uses the exact original header text. This applies
+to all existing HMAC actions, while retaining key selection and browser fallback.
+It does not change the JVM locale or upgrade dependencies.
+
+To exercise locale independence in separate JVMs without changing global locale
+state inside parallel tests:
+
+```bash
+sbt -Duser.language=en -Duser.country=GB 'app/testOnly controllers.ApiCreationTest'
+sbt -Duser.language=fr -Duser.country=FR 'app/testOnly controllers.ApiCreationTest'
+sbt -Duser.language=de -Duser.country=DE 'app/testOnly controllers.ApiCreationTest'
+```
 
 ## Blackbox tests
 To run the blackbox tests against a deployed environment, first download the config:
