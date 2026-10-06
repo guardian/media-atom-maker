@@ -219,6 +219,21 @@ Resources:
       Tags:
         - Key: devx-backup-enabled
           Value: true
+  MediaAtomPublishSettingsTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName:
+        !Sub "${App}-${Stage}-media-atom-publish-settings"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+      - AttributeName: atomId
+        AttributeType: S
+      KeySchema:
+      - AttributeName: atomId
+        KeyType: HASH
+      Tags:
+        - Key: devx-backup-enabled
+          Value: true
   LimitedUploadRole:
     Type: "AWS::IAM::Role"
     Properties:
