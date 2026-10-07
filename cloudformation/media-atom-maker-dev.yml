@@ -223,7 +223,7 @@ Resources:
     Type: "AWS::DynamoDB::Table"
     Properties:
       TableName:
-        !Sub "${App}-${Stage}-media-atom-publish-settings"
+        !Sub "${App}-${Stage}-media-atom-publish-settings-table"
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
       - AttributeName: atomId
