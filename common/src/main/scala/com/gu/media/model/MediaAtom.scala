@@ -209,10 +209,7 @@ case class MediaAtom(
     optimisedForWeb: Option[Boolean] = Some(false),
     suppressRelatedContent: Option[Boolean] = Some(false),
     videoPlayerFormat: Option[VideoPlayerFormat] = None,
-    platform: Option[Platform] = None,
-    // Not part of the Thrift atom - persisted separately via MediaAtomPublishSettingsStore
-    // and merged in/out at the specific call sites that need it.
-    retainYoutubeFurniture: Boolean = false
+    platform: Option[Platform] = None
 ) extends MediaAtomBase {
 
   def asThrift = {
