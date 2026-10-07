@@ -55,7 +55,7 @@ lazy val commonSettings = Seq(
   // https://github.com/sbt/sbt/issues/2405
   Global / onLoad := (Global / onLoad).value andThen (Command
     .process("project root", _)),
-  dependencyOverrides ++= jacksonOverrides
+  dependencyOverrides ++= jacksonOverrides :+ ("org.typelevel" %% "jawn-parser" % "[1.7.0,)")
 )
 
 val jacksonOverrides = Seq(
