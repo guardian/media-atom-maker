@@ -19,8 +19,7 @@ import com.gu.media.model.{
   AtomAssignedProjectMessage,
   AuditMessage,
   ChangeRecord,
-  MediaAtom,
-  MediaAtomPublishSettings
+  MediaAtom
 }
 import com.gu.media.upload.PlutoUploadActions
 import com.gu.media.util.MediaAtomImplicits
@@ -140,26 +139,7 @@ case class UpdateAtomCommand(
             case Success(_) => {
 
               val existingMediaAtom = MediaAtom.fromThrift(existingAtom)
-
-              // retainYoutubeFurniture only has an effect on first publish, so there's no
-              // need to keep persisting changes to it once the atom has already been published
-              val retainYoutubeFurniture = if (atomIsPublished.isEmpty) {
-                stores.mediaAtomPublishSettingsStore.put(
-                  MediaAtomPublishSettings(
-                    atom.id,
-                    atom.retainYoutubeFurniture
-                  )
-                )
-                atom.retainYoutubeFurniture
-              } else {
-                stores.mediaAtomPublishSettingsStore
-                  .get(atom.id)
-                  .retainYoutubeFurniture
-              }
-
-              val updatedMediaAtom = MediaAtom
-                .fromThrift(thrift)
-                .copy(retainYoutubeFurniture = retainYoutubeFurniture)
+              val updatedMediaAtom = MediaAtom.fromThrift(thrift)
               updateThirdPaties(existingMediaAtom, updatedMediaAtom)
               AuditMessage(
                 atom.id,

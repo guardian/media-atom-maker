@@ -36,10 +36,7 @@ case class PublishAtomCommand(
     log.info(s"Request to publish atom $id")
 
     val thriftPreviewAtom = getPreviewAtom(id)
-    val publishSettings = stores.mediaAtomPublishSettingsStore.get(id)
-    val previewAtom = MediaAtom
-      .fromThrift(thriftPreviewAtom)
-      .copy(retainYoutubeFurniture = publishSettings.retainYoutubeFurniture)
+    val previewAtom = MediaAtom.fromThrift(thriftPreviewAtom)
 
     if (previewAtom.privacyStatus.contains(PrivacyStatus.Private)) {
       log.error(
@@ -93,25 +90,22 @@ case class PublishAtomCommand(
             )
             val status = getResultingPrivacyStatus(previewAtom, publishedAtom)
 
-            val updatedPreviewAtom =
-              if (
-                publishedAtom.isDefined || previewAtom.retainYoutubeFurniture
-              ) {
-                previewAtom.copy(
-                  blockAds = adSettings.blockAds,
-                  privacyStatus = Some(status)
-                )
-              } else {
-                // On first publish, set YouTube title and description to that of the Atom unless retainYoutubeFurniture is explicitly set to true.
-                // This is because there's no guarantee that the YouTube furniture gets subbed before publication and can result in draft furniture being used
-                previewAtom.copy(
-                  blockAds = adSettings.blockAds,
-                  privacyStatus = Some(status),
-                  youtubeTitle = previewAtom.title,
-                  youtubeDescription =
-                    YoutubeDescription.clean(previewAtom.description)
-                )
-              }
+            val updatedPreviewAtom = if (publishedAtom.isDefined) {
+              previewAtom.copy(
+                blockAds = adSettings.blockAds,
+                privacyStatus = Some(status)
+              )
+            } else {
+              // on first publish, set YouTube title and description to that of the Atom
+              // this is because there's no guarantee that the YouTube furniture gets subbed before publication and can result in draft furniture being used
+              previewAtom.copy(
+                blockAds = adSettings.blockAds,
+                privacyStatus = Some(status),
+                youtubeTitle = previewAtom.title,
+                youtubeDescription =
+                  YoutubeDescription.clean(previewAtom.description)
+              )
+            }
 
             updateYouTube(publishedAtom, updatedPreviewAtom, asset).map {
               atomWithYoutubeUpdates =>

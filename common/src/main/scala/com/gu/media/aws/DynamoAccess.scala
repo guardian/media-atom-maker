@@ -47,8 +47,6 @@ trait DynamoAccess { this: Settings with AwsAccess =>
         "iconik-projects",
         stage = if (stage == "DEV") "CODE" else stage
       )}-v2"
-  lazy val mediaAtomPublishSettingsTableName: String =
-    s"${getTableName("media-atom-publish-settings", stage = stage)}"
 
   lazy val dynamoDbSdkV2: DynamoDbClient =
     buildSync[DynamoDbClient, DynamoDbClientBuilder](
