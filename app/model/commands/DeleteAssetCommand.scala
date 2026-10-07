@@ -23,7 +23,8 @@ case class DeleteAssetCommand(
 
   def process(): T = {
     val atom = getPreviewAtom(atomId)
-    val mediaAtom = MediaAtom.fromThrift(atom)
+    val publishSettings = stores.mediaAtomPublishSettingsStore.get(atomId)
+    val mediaAtom = MediaAtom.fromThrift(atom, publishSettings)
 
     val assetsToDelete: Option[Asset] = mediaAtom.assets.find(_.id == asset.id)
 

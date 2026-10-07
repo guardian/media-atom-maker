@@ -37,9 +37,11 @@ case class PublishAtomCommand(
 
     val thriftPreviewAtom = getPreviewAtom(id)
     val publishSettings = stores.mediaAtomPublishSettingsStore.get(id)
-    val previewAtom = MediaAtom
-      .fromThrift(thriftPreviewAtom)
-      .copy(retainYoutubeFurniture = publishSettings.retainYoutubeFurniture)
+    val previewAtom =
+      MediaAtom.fromThrift(
+        thriftPreviewAtom,
+        publishSettings
+      )
 
     if (previewAtom.privacyStatus.contains(PrivacyStatus.Private)) {
       log.error(
@@ -95,7 +97,7 @@ case class PublishAtomCommand(
 
             val updatedPreviewAtom =
               if (
-                publishedAtom.isDefined || previewAtom.retainYoutubeFurniture
+                publishedAtom.isDefined || previewAtom.publishSettings.retainYoutubeFurniture
               ) {
                 previewAtom.copy(
                   blockAds = adSettings.blockAds,
@@ -114,8 +116,7 @@ case class PublishAtomCommand(
               }
 
             updateYouTube(publishedAtom, updatedPreviewAtom, asset).map {
-              atomWithYoutubeUpdates =>
-                publish(atomWithYoutubeUpdates, user)
+              atomWithYoutubeUpdates => publish(atomWithYoutubeUpdates, user)
             }
           case _ => Future.successful(publish(previewAtom, user))
         }
@@ -126,7 +127,9 @@ case class PublishAtomCommand(
   private def getPublishedAtom(): Option[MediaAtom] = {
     try {
       val thriftPublishedAtom = getPublishedAtom(id)
-      Some(MediaAtom.fromThrift(thriftPublishedAtom))
+      Some(
+        MediaAtom.fromThrift(thriftPublishedAtom, MediaAtomPublishSettings(id))
+      )
     } catch {
       case _: Throwable => None
     }
@@ -154,7 +157,6 @@ case class PublishAtomCommand(
 
   private def publish(atom: MediaAtom, user: PandaUser): MediaAtom = {
     log.info(s"Publishing atom $id")
-
     val changeRecord = Some(ChangeRecord.now(user))
 
     val updatedAtom = atom.copy(
@@ -186,7 +188,9 @@ case class PublishAtomCommand(
             log.info(
               s"Successfully published atom: ${id} (revision ${atom.contentChangeDetails.revision})"
             )
-            MediaAtom.fromThrift(atom)
+            // retainYoutubeFurniture isn't part of the Thrift atom schema, so it doesn't
+            // survive the asThrift/fromThrift round-trip above unless re-applied here.
+            MediaAtom.fromThrift(atom, mediaAtom.publishSettings)
           }
           case Left(err) =>
             log.error("Unable to update datastore after publish", err)

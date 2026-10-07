@@ -120,6 +120,9 @@ export type Video = {
   suppressRelatedContent?: boolean;
   videoPlayerFormat?: VideoPlayerFormat;
   platform?: Platform;
+  publishSettings?: {
+    retainYoutubeFurniture?: boolean;
+  };
 };
 
 type VideoServer = Omit<Video, 'contentChangeDetails'> & {

@@ -13,6 +13,7 @@ import { addOrDropBundlingTags } from '../../services/KeywordsApi';
 import { fieldLengths } from '../../constants/videoEditValidation';
 import TextInput from '../FormFields/TextInput';
 import TextAreaInput from '../FormFields/TextAreaInput';
+import { CheckBox } from '../FormFields/CheckBox';
 
 type Props = {
   video: Video;
@@ -150,6 +151,17 @@ class YoutubeFurniture extends React.Component<Props> {
         >
           {/* @ts-expect-error TS(2769): No overload matches this call. */}
           <TextAreaInput />
+        </ManagedField>
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
+        <ManagedField
+          fieldLocation="publishSettings.retainYoutubeFurniture"
+          name="Furniture settings"
+          fieldDetails="Title and description have been reviewed and are ready to publish for YouTube. (By confirming this, these fields will not be overwritten by atom headline and standfirst on publish.)"
+          disabled={VideoUtils.isPublished(video)}
+          tooltip="This only applies before first publish and cannot be changed afterwards."
+        >
+          {/* @ts-expect-error TS(2769): No overload matches this call. */}
+          <CheckBox />
         </ManagedField>
         {/* @ts-expect-error TS(2769): No overload matches this call. */}
         <ManagedField

@@ -19,8 +19,7 @@ import com.gu.media.model.{
   AtomAssignedProjectMessage,
   AuditMessage,
   ChangeRecord,
-  MediaAtom,
-  MediaAtomPublishSettings
+  MediaAtom
 }
 import com.gu.media.upload.PlutoUploadActions
 import com.gu.media.util.MediaAtomImplicits
@@ -65,8 +64,13 @@ case class UpdateAtomCommand(
     }
 
     val existingAtom = getPreviewAtom(atom.id)
+    val existingPublishSettings =
+      stores.mediaAtomPublishSettingsStore.get(atom.id)
 
-    val diffString = createDiffString(MediaAtom.fromThrift(existingAtom), atom)
+    val diffString = createDiffString(
+      MediaAtom.fromThrift(existingAtom, existingPublishSettings),
+      atom
+    )
     log.info(s"Update atom changes ${atom.id}: $diffString")
 
     val changeRecord = ChangeRecord.now(user)
@@ -139,27 +143,20 @@ case class UpdateAtomCommand(
           previewPublisher.publishAtomEvent(event) match {
             case Success(_) => {
 
-              val existingMediaAtom = MediaAtom.fromThrift(existingAtom)
+              val existingMediaAtom =
+                MediaAtom.fromThrift(existingAtom, existingPublishSettings)
 
-              // retainYoutubeFurniture only has an effect on first publish, so there's no
-              // need to keep persisting changes to it once the atom has already been published
-              val retainYoutubeFurniture = if (atomIsPublished.isEmpty) {
-                stores.mediaAtomPublishSettingsStore.put(
-                  MediaAtomPublishSettings(
-                    atom.id,
-                    atom.retainYoutubeFurniture
-                  )
-                )
-                atom.retainYoutubeFurniture
+              // publishSettings only have an effect on first publish, so there's no
+              // need to keep persisting changes to them once the atom has already been published
+              val publishSettings = if (atomIsPublished.isEmpty) {
+                stores.mediaAtomPublishSettingsStore.put(atom.publishSettings)
+                atom.publishSettings
               } else {
-                stores.mediaAtomPublishSettingsStore
-                  .get(atom.id)
-                  .retainYoutubeFurniture
+                existingPublishSettings
               }
 
-              val updatedMediaAtom = MediaAtom
-                .fromThrift(thrift)
-                .copy(retainYoutubeFurniture = retainYoutubeFurniture)
+              val updatedMediaAtom =
+                MediaAtom.fromThrift(thrift, publishSettings)
               updateThirdPaties(existingMediaAtom, updatedMediaAtom)
               AuditMessage(
                 atom.id,

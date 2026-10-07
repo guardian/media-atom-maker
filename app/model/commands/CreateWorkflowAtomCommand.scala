@@ -22,7 +22,12 @@ import com.gu.pandomainauth.model.{User => PandaUser}
 import data.DataStores
 import model.commands.CommandExceptions._
 import model.WorkflowMediaAtom
-import com.gu.media.model.{ChangeRecord, MediaAtom, AuditMessage}
+import com.gu.media.model.{
+  ChangeRecord,
+  MediaAtom,
+  AuditMessage,
+  MediaAtomPublishSettings
+}
 
 import scala.util.{Failure, Success}
 
@@ -106,7 +111,7 @@ case class CreateWorkflowAtomCommand(
               log.info(
                 s"New atom published to preview $atomId [${workflowMediaAtom.title}]"
               )
-              MediaAtom.fromThrift(atom)
+              MediaAtom.fromThrift(atom, MediaAtomPublishSettings(atomId))
 
             case Failure(err) =>
               log.error(
