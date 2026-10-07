@@ -357,7 +357,7 @@ trait YouTubePartnerApi { this: YouTubeAccess with Logging =>
       adSettings: AdSettings
   ): Either[VideoUpdateError, String] = {
     try {
-      if (!adSettings.blockAds) {
+      if (!adSettings.blockAds && adSettings.manageAds) {
         updateTheVideoAdvertisingOptions(
           videoId,
           atomId,
