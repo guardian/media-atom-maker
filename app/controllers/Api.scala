@@ -73,7 +73,11 @@ class Api(
       val maybeCorsValue =
         req.headers.get("Origin").filter(_.endsWith("gutools.co.uk"))
       val atom = getPreviewAtom(id)
-      Ok(Json.toJson(MediaAtom.fromThrift(atom))).withHeaders(
+      val publishSettings = stores.mediaAtomPublishSettingsStore.get(id)
+      val mediaAtom = MediaAtom
+        .fromThrift(atom)
+        .copy(retainYoutubeFurniture = publishSettings.retainYoutubeFurniture)
+      Ok(Json.toJson(mediaAtom)).withHeaders(
         "Access-Control-Allow-Origin" -> maybeCorsValue.getOrElse(""),
         "Access-Control-Allow-Credentials" -> maybeCorsValue.isDefined.toString
       )
