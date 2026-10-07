@@ -1,6 +1,6 @@
 package com.gu.media.model
 
-case class AdSettings(blockAds: Boolean, enableMidroll: Boolean)
+case class AdSettings(blockAds: Boolean, enableMidroll: Boolean, manageAds: Boolean)
 
 object AdSettings {
   def NONE: AdSettings = AdSettings(blockAds = true, enableMidroll = false)
@@ -25,7 +25,8 @@ object AdSettings {
           } else {
             AdSettings(
               blockAds = false,
-              enableMidroll = duration >= minDurationForMidroll
+              enableMidroll = duration >= minDurationForMidroll,
+              manageAds = !previewAtom.tags.contains("podcast")
             )
           }
         }
