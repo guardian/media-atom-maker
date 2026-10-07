@@ -122,6 +122,8 @@ class DataStores(aws: AWSConfig with SNSAccess, capi: CapiAccess) {
 
   val atomListStore = AtomListStore(aws.stage, capi, preview)
 
+  val mediaAtomPublishSettingsStore = new MediaAtomPublishSettingsStore(aws)
+
 }
 
 trait UnpackedDataStores {
