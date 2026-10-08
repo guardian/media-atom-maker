@@ -165,6 +165,17 @@ class YoutubeFurniture extends React.Component<Props> {
         </ManagedField>
         {/* @ts-expect-error TS(2769): No overload matches this call. */}
         <ManagedField
+          fieldLocation="publishSettings.retainYoutubeAds"
+          name="Ads settings"
+          fieldDetails="YouTube ads will not be changed by Media Atom Maker on future publishes. Use this when ads have been set manually."
+          disabled={video.publishSettings?.retainYoutubeAds}
+          tooltip="Once enabled, this cannot be turned off."
+        >
+          {/* @ts-expect-error TS(2769): No overload matches this call. */}
+          <CheckBox />
+        </ManagedField>
+        {/* @ts-expect-error TS(2769): No overload matches this call. */}
+        <ManagedField
           fieldLocation="tags"
           name="Keywords"
           placeholder="No keywords"

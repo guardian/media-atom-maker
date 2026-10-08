@@ -51,7 +51,7 @@ class AdSettingsTest extends AnyFunSuite with Matchers {
     val previewAtom =
       initialAtom.copy(blockAds = false, duration = Some(5 * 60L))
     AdSettings(minDurationForAds, minDurationForMidroll, previewAtom) must be(
-      AdSettings(blockAds = false, enableMidroll = false, manageAds = true)
+      AdSettings(blockAds = false, enableMidroll = false)
     )
   }
 
@@ -63,18 +63,7 @@ class AdSettingsTest extends AnyFunSuite with Matchers {
       duration = Some(minDurationForMidroll + 10)
     )
     AdSettings(minDurationForAds, minDurationForMidroll, previewAtom) must be(
-      AdSettings(blockAds = false, enableMidroll = true, manageAds = true)
-    )
-  }
-
-  test("creation of AdSettings does not manage ads for podcast-tagged videos") {
-    val previewAtom = initialAtom.copy(
-      blockAds = false,
-      duration = Some(5 * 60L),
-      tags = List("podcast")
-    )
-    AdSettings(minDurationForAds, minDurationForMidroll, previewAtom) must be(
-      AdSettings(blockAds = false, enableMidroll = false, manageAds = false)
+      AdSettings(blockAds = false, enableMidroll = true)
     )
   }
 
