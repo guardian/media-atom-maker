@@ -167,9 +167,9 @@ class YoutubeFurniture extends React.Component<Props> {
         <ManagedField
           fieldLocation="publishSettings.retainYoutubeAds"
           name="Ads settings"
-          fieldDetails="YouTube ads will not be changed by Media Atom Maker on future publishes. Use this when ads have been set manually."
+          fieldDetails="Manage adverts in YouTube."
           disabled={video.publishSettings?.retainYoutubeAds}
-          tooltip="Once enabled, please use YouTube Studio to manage adverts."
+          tooltip="Once enabled, adverts for this video can only be managed in YouTube."
         >
           {/* @ts-expect-error TS(2769): No overload matches this call. */}
           <CheckBox />
