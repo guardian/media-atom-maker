@@ -18,6 +18,7 @@ import com.gu.media.Settings
 import com.gu.media.aws.{AwsAccess, AwsCredentials, UploadAccess}
 import com.gu.media.model.{
   MediaAtom,
+  MediaAtomPublishSettings,
   PlutoSyncMetadataMessage,
   SelfHostedAsset,
   VideoSource
@@ -63,7 +64,7 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
         )
 
         val upload = UploadBuilder.build(
-          MediaAtom.fromThrift(atom),
+          MediaAtom.fromThrift(atom, MediaAtomPublishSettings(atom.id)),
           "jo.blogs@guardian.co.uk",
           2L,
           selfHostVideoRequest,
@@ -143,7 +144,7 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
         )
 
         val videoUpload = UploadBuilder.build(
-          MediaAtom.fromThrift(atom),
+          MediaAtom.fromThrift(atom, MediaAtomPublishSettings(atom.id)),
           "jo.blogs@guardian.co.uk",
           2L,
           selfHostVideoRequest,
@@ -216,7 +217,7 @@ class UploadBuilderTest extends AnyFlatSpec with Matchers {
         )
 
         val videoUpload = UploadBuilder.build(
-          MediaAtom.fromThrift(atom),
+          MediaAtom.fromThrift(atom, MediaAtomPublishSettings(atom.id)),
           "jo.blogs@guardian.co.uk",
           2L,
           selfHostVideoRequest,

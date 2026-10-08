@@ -74,9 +74,8 @@ class Api(
         req.headers.get("Origin").filter(_.endsWith("gutools.co.uk"))
       val atom = getPreviewAtom(id)
       val publishSettings = stores.mediaAtomPublishSettingsStore.get(id)
-      val mediaAtom = MediaAtom
-        .fromThrift(atom)
-        .copy(retainYoutubeFurniture = publishSettings.retainYoutubeFurniture)
+      val mediaAtom =
+        MediaAtom.fromThrift(atom, publishSettings)
       Ok(Json.toJson(mediaAtom)).withHeaders(
         "Access-Control-Allow-Origin" -> maybeCorsValue.getOrElse(""),
         "Access-Control-Allow-Credentials" -> maybeCorsValue.isDefined.toString
@@ -93,7 +92,12 @@ class Api(
   def getPublishedMediaAtom(id: String) = APIAuthAction {
     try {
       val atom = getPublishedAtom(id)
-      Ok(Json.toJson(MediaAtom.fromThrift(atom)))
+      val publishSettings = stores.mediaAtomPublishSettingsStore.get(id)
+      Ok(
+        Json.toJson(
+          MediaAtom.fromThrift(atom, publishSettings)
+        )
+      )
     } catch {
       case CommandException(_, 404) =>
         Ok(Json.obj())
@@ -104,7 +108,11 @@ class Api(
   }
 
   def resetDurationFromActive(id: String) = APIAuthAction { implicit req =>
-    val previewAtom = MediaAtom.fromThrift(getPreviewAtom(id))
+    val publishSettings = stores.mediaAtomPublishSettingsStore.get(id)
+    val previewAtom = MediaAtom.fromThrift(
+      getPreviewAtom(id),
+      publishSettings
+    )
     val updatedAtom = previewAtom
       .getActiveYouTubeAsset()
       .flatMap(asset => youtube.getDuration(asset.id))

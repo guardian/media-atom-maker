@@ -212,7 +212,7 @@ case class MediaAtom(
     platform: Option[Platform] = None,
     // Not part of the Thrift atom - persisted separately via MediaAtomPublishSettingsStore
     // and merged in/out at the specific call sites that need it.
-    retainYoutubeFurniture: Boolean = false
+    publishSettings: MediaAtomPublishSettings
 ) extends MediaAtomBase {
 
   def asThrift = {
@@ -288,7 +288,10 @@ object MediaAtom extends MediaAtomImplicits {
   implicit val mediaAtomFormat: OFormat[MediaAtom] =
     Jsonx.formatCaseClass[MediaAtom]
 
-  def fromThrift(atom: ThriftAtom) = {
+  def fromThrift(
+      atom: ThriftAtom,
+      publishSettings: MediaAtomPublishSettings
+  ): MediaAtom = {
     val data = atom.tdata
 
     val assets = data.assets.map(Asset.fromThrift).toList
@@ -337,7 +340,8 @@ object MediaAtom extends MediaAtomImplicits {
         data.metadata.flatMap(_.youtube).map(_.title).getOrElse(data.title),
       youtubeDescription = youtubeDescription,
       videoPlayerFormat = getVideoPlayerFormat(data.metadata, platform),
-      platform = platform
+      platform = platform,
+      publishSettings = publishSettings
     )
   }
 

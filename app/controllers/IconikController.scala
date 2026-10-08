@@ -3,7 +3,7 @@ package controllers
 import com.gu.atom.data.IDNotFound
 import com.gu.media.logging.Logging
 import com.gu.media.iconik.IconikUpsertRequest
-import com.gu.media.model.MediaAtom
+import com.gu.media.model.{MediaAtom, MediaAtomPublishSettings}
 import com.gu.pandahmac.HMACAuthActions
 import com.typesafe.config.Config
 import data.{DataStores, UnpackedDataStores}
@@ -153,7 +153,10 @@ class IconikController(
           InternalServerError("Error when trying to lookup atom status")
         case Right(atom) =>
           val iconikProjectId =
-            MediaAtom.fromThrift(atom).iconikData.flatMap(_.projectId)
+            MediaAtom
+              .fromThrift(atom, MediaAtomPublishSettings(atomId))
+              .iconikData
+              .flatMap(_.projectId)
           iconikProjectId match {
             case Some(projectId) =>
               SeeOther(s"https://app.iconik.io/collection/$projectId")

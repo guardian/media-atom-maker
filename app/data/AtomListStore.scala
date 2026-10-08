@@ -8,6 +8,7 @@ import com.gu.media.model.{
   ContentChangeDetails,
   Image,
   MediaAtom,
+  MediaAtomPublishSettings,
   Platform,
   VideoPlayerFormat
 }
@@ -217,7 +218,9 @@ class DynamoBackedAtomListStore(store: PreviewDynamoDataStoreV2)
             atom.contentChangeDetails.lastModified
 
         val mediaAtoms = atoms
-          .map(MediaAtom.fromThrift)
+          .map(atom =>
+            MediaAtom.fromThrift(atom, MediaAtomPublishSettings(atom.id))
+          )
           .toList
           .sortBy(sortField(_).map(_.date.getMillis))
 

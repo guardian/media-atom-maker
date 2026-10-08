@@ -16,6 +16,7 @@ import play.api.mvc.{BaseController, ControllerComponents}
 import com.gu.media.model.{
   MediaAtom,
   MediaAtomBeforeCreation,
+  MediaAtomPublishSettings,
   PlutoResyncMetadataMessage
 }
 import com.typesafe.config.{Config, ConfigFactory}
@@ -90,7 +91,7 @@ class PlutoController(
   def resendAtomMessage(id: String) = APIHMACAuthAction {
     try {
       val atomContent = getPreviewAtom(id)
-      val atom = MediaAtom.fromThrift(atomContent)
+      val atom = MediaAtom.fromThrift(atomContent, MediaAtomPublishSettings(id))
 
       (MediaAtomHelpers.getCurrentAssetVersion(atom), atom.plutoData) match {
         case (None, _) =>

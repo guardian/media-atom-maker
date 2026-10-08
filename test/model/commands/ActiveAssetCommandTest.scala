@@ -246,7 +246,8 @@ class ActiveAssetCommandTest extends AnyFlatSpec with Matchers {
     privacyStatus = None,
     expiryDate = None,
     youtubeTitle = "",
-    youtubeDescription = None
+    youtubeDescription = None,
+    publishSettings = MediaAtomPublishSettings(id)
   )
 
   private def selfHostedAssets(): List[Asset] = List(

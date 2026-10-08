@@ -5,7 +5,13 @@ import com.gu.atom.play.AtomAPIActions
 import com.gu.contentatom.thrift.atom.media.PrivacyStatus
 import com.gu.contentatom.thrift.{ContentAtomEvent, EventType}
 import com.gu.media.logging.Logging
-import com.gu.media.model.{AdSettings, Asset, MediaAtom, VideoUpdateError}
+import com.gu.media.model.{
+  AdSettings,
+  Asset,
+  MediaAtom,
+  MediaAtomPublishSettings,
+  VideoUpdateError
+}
 import data.DataStores
 import com.gu.media.model.Platform.Youtube
 import model.YouTubeMessage
@@ -22,7 +28,7 @@ case class DeleteCommand(
 
   override def process(): Unit = {
     val atom = getPreviewAtom(id)
-    val mediaAtom = MediaAtom.fromThrift(atom)
+    val mediaAtom = MediaAtom.fromThrift(atom, MediaAtomPublishSettings(id))
 
     makeYouTubeVideosPrivate(mediaAtom.assets)
 
