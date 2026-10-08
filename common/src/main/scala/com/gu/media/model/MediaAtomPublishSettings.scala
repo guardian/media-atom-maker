@@ -1,6 +1,6 @@
 package com.gu.media.model
 
-import play.api.libs.json._
+import play.api.libs.json.{Json, OFormat}
 
 case class MediaAtomPublishSettings(
     atomId: String,
@@ -11,28 +11,5 @@ case class MediaAtomPublishSettings(
 
 object MediaAtomPublishSettings {
   implicit val format: OFormat[MediaAtomPublishSettings] =
-    new OFormat[MediaAtomPublishSettings] {
-      override def reads(json: JsValue): JsResult[MediaAtomPublishSettings] =
-        for {
-          atomId <- (json \ "atomId").validate[String]
-          retainYoutubeFurniture <- (json \ "retainYoutubeFurniture")
-            .validateOpt[Boolean]
-            .map(_.getOrElse(false))
-          retainYoutubeAds <- (json \ "retainYoutubeAds")
-            .validateOpt[Boolean]
-            .map(_.getOrElse(false))
-        } yield MediaAtomPublishSettings(
-          atomId,
-          retainYoutubeFurniture,
-          retainYoutubeAds
-        )
-
-      override def writes(
-          settings: MediaAtomPublishSettings
-      ): JsObject = Json.obj(
-        "atomId" -> settings.atomId,
-        "retainYoutubeFurniture" -> settings.retainYoutubeFurniture,
-        "retainYoutubeAds" -> settings.retainYoutubeAds
-      )
-    }
+    Json.using[Json.WithDefaultValues].format[MediaAtomPublishSettings]
 }
