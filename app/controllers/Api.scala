@@ -144,7 +144,7 @@ class Api(
       }) recover commandExceptionAsResult
   }
 
-  def createMediaAtom = APIAuthAction { implicit req =>
+  def createMediaAtom = APIHMACAuthAction { implicit req =>
     parse(req) { data: MediaAtomBeforeCreation =>
       val command = CreateAtomCommand(data, stores, req.user)
       val atom = command.process()

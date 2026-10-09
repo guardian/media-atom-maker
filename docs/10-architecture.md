@@ -94,6 +94,43 @@ The application has several cloudformation stacks:
 
 ## Integrations
 
+### Machine-created drafts
+
+`POST /api/atoms` accepts the same HMAC authentication as the Pluto ingestion
+endpoints. Without HMAC headers it retains Pan-Domain browser authentication,
+including Guardian email domain, MFA, basic-access permission and CSRF checks.
+Cookie-free machine requests do not need a browser session or CSRF token.
+
+Send a JSON `MediaAtomBeforeCreation` body with `Content-Type: application/json`.
+Sign the UTC HTTP date, a newline and the URL pathname (`/api/atoms`) with
+HMAC-SHA256 using an accepted shared secret, then Base64-encode the signature.
+Supply `X-Gu-Tools-HMAC-Date`, `X-Gu-Tools-HMAC-Token: HMAC <signature>` and a
+descriptive `X-Gu-Tools-Service-Name` audit label. The existing
+[Pluto request helper](../pluto-message-ingestion/src/hmac-request.ts) illustrates
+the signing protocol.
+
+Successful creation returns `201 Created`, the complete MediaAtom JSON with a
+generated UUID in top-level `id`, and `Location: /atom/<id>`. The Location contract
+is unchanged; the editor UI is at `/videos/<id>`. An unscheduled metadata-only
+request creates revision 1 with no published change record, assets, active
+version or duration. It saves to the preview store and publishes a preview update,
+not a live publication, upload or YouTube operation.
+
+Access is granted to holders of any secret accepted by the configured HMAC
+verifier; this is **not a create-only credential**. The service-name header is
+caller-supplied attribution, not a verified service identity or permission
+boundary. Multiple accepted keys support rotation, not endpoint-specific access.
+
+Creation is **not idempotent**: every request generates a new UUID. Persistence
+precedes preview event publication, so publication failure can return an error
+after saving an Atom. A timeout can also leave the result uncertain. Automatic
+retries may create duplicates; event-driven clients need an idempotency or
+reconciliation strategy.
+
+A future Lambda needs a stage-matched MAM hostname and accepted secret, Secrets
+Manager IAM/KMS permissions, and network access to MAM and Secrets Manager.
+This endpoint change does not provision those prerequisites.
+
 ### Pluto
 
 Pluto is the Guardian's media asset management system, confusingly also referred to as MAM. Its taxonomy consists of
