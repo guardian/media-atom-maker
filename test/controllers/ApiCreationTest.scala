@@ -5,7 +5,11 @@ import com.gu.atom.play.ReindexController
 import com.gu.atom.publish.AtomPublisher
 import com.gu.contentatom.thrift.{Atom, ContentAtomEvent, EventType}
 import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider, Permissions}
-import com.gu.media.model.{MediaAtom, User => AtomUser}
+import com.gu.media.model.{
+  MediaAtom,
+  MediaAtomPublishSettings,
+  User => AtomUser
+}
 import com.gu.media.telemetry.Telemetry
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.pandomainauth.model.{
@@ -291,7 +295,10 @@ class ApiCreationTest extends AnyFlatSpec with Matchers {
       event.getValue.eventType shouldBe EventType.Update
 
       val atom = json.as[MediaAtom]
-      atom shouldBe MediaAtom.fromThrift(saved.getValue)
+      atom shouldBe MediaAtom.fromThrift(
+        saved.getValue,
+        MediaAtomPublishSettings(id)
+      )
       atom.title shouldBe "Test draft"
       atom.contentChangeDetails.revision shouldBe 1L
       atom.contentChangeDetails.published shouldBe None
