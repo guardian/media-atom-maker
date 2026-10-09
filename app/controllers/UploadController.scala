@@ -11,6 +11,7 @@ import com.gu.media.model.{
   ClientAsset,
   ClientAssetProcessing,
   MediaAtom,
+  MediaAtomPublishSettings,
   VideoSource,
   YouTubeAsset
 }
@@ -77,15 +78,21 @@ class UploadController(
     * @return
     */
   def list(atomId: String): Action[AnyContent] = APIAuthAction { req =>
-    val clientAssets = clientAssetsForAtom(atomId)
-
-    Ok(Json.toJson(clientAssets))
+    try {
+      val clientAssets = clientAssetsForAtom(atomId)
+      Ok(Json.toJson(clientAssets))
+    } catch {
+      commandExceptionAsResult
+    }
   }
 
   private[controllers] def clientAssetsForAtom(
       atomId: String
   ): List[ClientAsset] = {
-    val atom = MediaAtom.fromThrift(getPreviewAtom(atomId))
+    val atom = MediaAtom.fromThrift(
+      getPreviewAtom(atomId),
+      MediaAtomPublishSettings(atomId)
+    )
     val withStatus = ClientAsset.fromAssets(atom.assets).map(addYouTubeStatus)
     val atomAssets = withStatus.map { asset =>
       uploadDecorator.addMetadata(atom.id, asset)
@@ -121,7 +128,8 @@ class UploadController(
         )
       )
       val thriftAtom = getPreviewAtom(req.atomId)
-      val atom = MediaAtom.fromThrift(thriftAtom)
+      val atom =
+        MediaAtom.fromThrift(thriftAtom, MediaAtomPublishSettings(req.atomId))
 
       val userEmail = raw.user.email
 

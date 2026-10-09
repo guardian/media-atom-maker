@@ -64,8 +64,13 @@ case class UpdateAtomCommand(
     }
 
     val existingAtom = getPreviewAtom(atom.id)
+    val existingPublishSettings =
+      stores.mediaAtomPublishSettingsStore.get(atom.id)
 
-    val diffString = createDiffString(MediaAtom.fromThrift(existingAtom), atom)
+    val diffString = createDiffString(
+      MediaAtom.fromThrift(existingAtom, existingPublishSettings),
+      atom
+    )
     log.info(s"Update atom changes ${atom.id}: $diffString")
 
     val changeRecord = ChangeRecord.now(user)
@@ -138,8 +143,20 @@ case class UpdateAtomCommand(
           previewPublisher.publishAtomEvent(event) match {
             case Success(_) => {
 
-              val existingMediaAtom = MediaAtom.fromThrift(existingAtom)
-              val updatedMediaAtom = MediaAtom.fromThrift(thrift)
+              val existingMediaAtom =
+                MediaAtom.fromThrift(existingAtom, existingPublishSettings)
+
+              // publishSettings only have an effect on first publish, so there's no
+              // need to keep persisting changes to them once the atom has already been published
+              val publishSettings = if (atomIsPublished.isEmpty) {
+                stores.mediaAtomPublishSettingsStore.put(atom.publishSettings)
+                atom.publishSettings
+              } else {
+                existingPublishSettings
+              }
+
+              val updatedMediaAtom =
+                MediaAtom.fromThrift(thrift, publishSettings)
               updateThirdPaties(existingMediaAtom, updatedMediaAtom)
               AuditMessage(
                 atom.id,

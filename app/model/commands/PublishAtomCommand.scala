@@ -36,7 +36,12 @@ case class PublishAtomCommand(
     log.info(s"Request to publish atom $id")
 
     val thriftPreviewAtom = getPreviewAtom(id)
-    val previewAtom = MediaAtom.fromThrift(thriftPreviewAtom)
+    val publishSettings = stores.mediaAtomPublishSettingsStore.get(id)
+    val previewAtom =
+      MediaAtom.fromThrift(
+        thriftPreviewAtom,
+        publishSettings
+      )
 
     if (previewAtom.privacyStatus.contains(PrivacyStatus.Private)) {
       log.error(
@@ -90,26 +95,28 @@ case class PublishAtomCommand(
             )
             val status = getResultingPrivacyStatus(previewAtom, publishedAtom)
 
-            val updatedPreviewAtom = if (publishedAtom.isDefined) {
-              previewAtom.copy(
-                blockAds = adSettings.blockAds,
-                privacyStatus = Some(status)
-              )
-            } else {
-              // on first publish, set YouTube title and description to that of the Atom
-              // this is because there's no guarantee that the YouTube furniture gets subbed before publication and can result in draft furniture being used
-              previewAtom.copy(
-                blockAds = adSettings.blockAds,
-                privacyStatus = Some(status),
-                youtubeTitle = previewAtom.title,
-                youtubeDescription =
-                  YoutubeDescription.clean(previewAtom.description)
-              )
-            }
+            val updatedPreviewAtom =
+              if (
+                publishedAtom.isDefined || previewAtom.publishSettings.retainYoutubeFurniture
+              ) {
+                previewAtom.copy(
+                  blockAds = adSettings.blockAds,
+                  privacyStatus = Some(status)
+                )
+              } else {
+                // On first publish, set YouTube title and description to that of the Atom unless retainYoutubeFurniture is explicitly set to true.
+                // This is because there's no guarantee that the YouTube furniture gets subbed before publication and can result in draft furniture being used
+                previewAtom.copy(
+                  blockAds = adSettings.blockAds,
+                  privacyStatus = Some(status),
+                  youtubeTitle = previewAtom.title,
+                  youtubeDescription =
+                    YoutubeDescription.clean(previewAtom.description)
+                )
+              }
 
             updateYouTube(publishedAtom, updatedPreviewAtom, asset).map {
-              atomWithYoutubeUpdates =>
-                publish(atomWithYoutubeUpdates, user)
+              atomWithYoutubeUpdates => publish(atomWithYoutubeUpdates, user)
             }
           case _ => Future.successful(publish(previewAtom, user))
         }
@@ -120,7 +127,9 @@ case class PublishAtomCommand(
   private def getPublishedAtom(): Option[MediaAtom] = {
     try {
       val thriftPublishedAtom = getPublishedAtom(id)
-      Some(MediaAtom.fromThrift(thriftPublishedAtom))
+      Some(
+        MediaAtom.fromThrift(thriftPublishedAtom, MediaAtomPublishSettings(id))
+      )
     } catch {
       case _: Throwable => None
     }
@@ -148,7 +157,6 @@ case class PublishAtomCommand(
 
   private def publish(atom: MediaAtom, user: PandaUser): MediaAtom = {
     log.info(s"Publishing atom $id")
-
     val changeRecord = Some(ChangeRecord.now(user))
 
     val updatedAtom = atom.copy(
@@ -180,7 +188,9 @@ case class PublishAtomCommand(
             log.info(
               s"Successfully published atom: ${id} (revision ${atom.contentChangeDetails.revision})"
             )
-            MediaAtom.fromThrift(atom)
+            // retainYoutubeFurniture isn't part of the Thrift atom schema, so it doesn't
+            // survive the asThrift/fromThrift round-trip above unless re-applied here.
+            MediaAtom.fromThrift(atom, mediaAtom.publishSettings)
           }
           case Left(err) =>
             log.error("Unable to update datastore after publish", err)

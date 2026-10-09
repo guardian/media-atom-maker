@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { deleteAssets } from '../../actions/VideoActions/deleteAsset';
 import { getVideo } from '../../actions/VideoActions/getVideo';
 import { Video } from '../../services/VideosApi';
-import { ClientAsset } from '../../slices/s3Upload';
+import { ClientAsset, S3UploadState } from '../../slices/s3Upload';
 import { getUploads } from '../../slices/uploads';
 import { AppDispatch } from '../../util/setupStore';
 import { Asset } from './VideoAsset';
@@ -14,14 +14,44 @@ type Props = {
   setAsset: (version: number) => void;
   activatingAssetNumber?: number;
   hasPendingUpload: boolean;
+  s3UploadState: S3UploadState;
 };
+
+function UploadProgress({
+  status,
+  progress,
+  total
+}: NonNullable<S3UploadState>) {
+  if (status === 'error') {
+    return (
+      <div>
+        <p>
+          <strong>Upload Failed</strong>
+        </p>
+      </div>
+    );
+  }
+
+  if (status === 'uploading' && total > 0) {
+    return (
+      <progress
+        aria-label="Upload progress"
+        className="progress"
+        value={progress}
+        max={total}
+      />
+    );
+  }
+  return <span className="loader" />;
+}
 
 export const VideoTrail = ({
   video,
   uploads,
   setAsset,
   activatingAssetNumber,
-  hasPendingUpload
+  hasPendingUpload,
+  s3UploadState
 }: Props) => {
   const dispatch = useDispatch<AppDispatch>();
 
@@ -76,8 +106,8 @@ export const VideoTrail = ({
           {hasPendingUpload && (
             <div className="video-trail__item">
               <div className="video-trail__upload">
-                <span className="loader" />
                 <div>Uploading…</div>
+                <UploadProgress {...s3UploadState} />
               </div>
             </div>
           )}

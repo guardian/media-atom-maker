@@ -38,7 +38,8 @@ case class ActiveAssetCommand(
     }
 
     val atom = getPreviewAtom(atomId)
-    val mediaAtom = MediaAtom.fromThrift(atom)
+    val publishSettings = stores.mediaAtomPublishSettingsStore.get(atomId)
+    val mediaAtom = MediaAtom.fromThrift(atom, publishSettings)
 
     val assetsToActivate =
       mediaAtom.assets.filter(_.version == activateAssetRequest.version)

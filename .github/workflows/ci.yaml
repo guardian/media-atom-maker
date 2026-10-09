@@ -31,9 +31,21 @@ jobs:
         run: |
           ./scripts/pluto-ci.sh
       - name: Build Media Atom Maker
+        env:
+          # Enables source map upload in vite.config.ts. Without this the bundle
+          # still builds, but Sentry stack traces stay minified.
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          # Names the Sentry release. The plugin also injects this into the
+          # bundle, so browser events are tagged with it automatically.
+          SENTRY_RELEASE: ${{ github.sha }}
         run: |
           ./scripts/app-ci.sh
       - name: Compile Scala and upload artifacts to RiffRaff
+        env:
+          # Consumed by buildInfoKeys in build.sbt as `gitCommitId`, which
+          # util.SentryConfig reports as the server-side Sentry release. Must
+          # match SENTRY_RELEASE above so both sides land on one release.
+          BUILD_VCS_NUMBER: ${{ github.sha }}
         run: sbt ciCommands # see alias defined in build.sbt
 
       - name: Upload to Riff-Raff

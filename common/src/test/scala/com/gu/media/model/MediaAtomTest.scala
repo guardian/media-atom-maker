@@ -108,7 +108,8 @@ class MediaAtomTest extends AnyFunSuite with Matchers {
       contentChangeDetails = ThriftContentChangeDetails(revision = 1L)
     )
 
-    val mediaAtom = MediaAtom.fromThrift(thriftAtom)
+    val mediaAtom =
+      MediaAtom.fromThrift(thriftAtom, MediaAtomPublishSettings(thriftAtom.id))
 
     val expected = "a title"
 
@@ -131,7 +132,8 @@ class MediaAtomTest extends AnyFunSuite with Matchers {
       contentChangeDetails = ThriftContentChangeDetails(revision = 1L)
     )
 
-    val mediaAtom = MediaAtom.fromThrift(thriftAtom)
+    val mediaAtom =
+      MediaAtom.fromThrift(thriftAtom, MediaAtomPublishSettings(thriftAtom.id))
 
     val expected = Some(youtubeDescription)
 
@@ -164,7 +166,8 @@ class MediaAtomTest extends AnyFunSuite with Matchers {
       contentChangeDetails = ThriftContentChangeDetails(revision = 1L)
     )
 
-    val mediaAtom = MediaAtom.fromThrift(thriftAtom)
+    val mediaAtom =
+      MediaAtom.fromThrift(thriftAtom, MediaAtomPublishSettings(thriftAtom.id))
 
     val expected = Some("a custom description for youtube")
 

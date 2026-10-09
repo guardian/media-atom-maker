@@ -13,7 +13,12 @@ import data.DataStores
 import model.commands.CommandExceptions._
 import com.gu.ai.x.play.json.Jsonx
 import play.api.libs.json.Format
-import com.gu.media.model.{ChangeRecord, MediaAtom, MediaAtomBeforeCreation}
+import com.gu.media.model.{
+  ChangeRecord,
+  MediaAtom,
+  MediaAtomBeforeCreation,
+  MediaAtomPublishSettings
+}
 import com.gu.media.model.AuditMessage
 
 import scala.util.{Failure, Success}
@@ -79,7 +84,7 @@ case class CreateAtomCommand(
           previewPublisher.publishAtomEvent(event) match {
             case Success(_) =>
               log.info(s"New atom published to preview $atomId [${data.title}]")
-              MediaAtom.fromThrift(atom)
+              MediaAtom.fromThrift(atom, MediaAtomPublishSettings(atomId))
 
             case Failure(err) =>
               log.error(

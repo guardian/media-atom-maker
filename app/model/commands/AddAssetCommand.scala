@@ -114,8 +114,15 @@ case class AddAssetCommand(
 
     log.info(s"Adding new asset $videoUri to $atomId")
 
-    UpdateAtomCommand(atomId, fromThrift(updatedAtom), stores, user, awsConfig)
-      .process()
+    val publishSettings = stores.mediaAtomPublishSettingsStore.get(atomId)
+
+    UpdateAtomCommand(
+      atomId,
+      fromThrift(updatedAtom, publishSettings),
+      stores,
+      user,
+      awsConfig
+    ).process()
   }
 
   private def getYouTubeChannel(
