@@ -136,14 +136,19 @@ export const ReactApp = (
         // @ts-expect-error TS(2741): Property 'name' is missing in type 'Error' but req... Remove this comment to see the full error message
         error={store.error}
       />
+      {/* Prefixes keep the error/warning keys unique as siblings; the raw
+          counters can hold the same value and collide otherwise. */}
       {store.error.message ? (
-        <div key={store.error.key} className={'error-bar error-bar--animate'}>
+        <div
+          key={`error-${store.error.key}`}
+          className={'error-bar error-bar--animate'}
+        >
           {store.error.message}
         </div>
       ) : null}
       {store.error.warningMessage ? (
         <div
-          key={store.error.warningKey}
+          key={`warning-${store.error.warningKey}`}
           className={'error-bar--warning error-bar--animate'}
         >
           {store.error.warningMessage}
