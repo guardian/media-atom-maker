@@ -38,11 +38,11 @@ val apacheHttpCoreVersion = "4.0.1"
 val googleApiClientVersion = "2.2.0"
 val youTubeApiClientVersion = "v3-rev20230123-2.0.0"
 
-val jsoupVersion = "1.16.1"
+val jsoupVersion = "1.23.2"
 
 val enumeratumVersion = "1.5.15"
 
-lazy val jacksonVersion = "2.21.6"
+lazy val jacksonVersion = "2.21.7"
 lazy val jacksonAnnotationsVersion = "2.21"
 
 lazy val commonSettings = Seq(
@@ -125,7 +125,9 @@ lazy val common = (project in file("common"))
       "org.scalatestplus" %% "scalacheck-1-18" % scalaTestPlusVersion % "test",
       "org.jsoup" % "jsoup" % jsoupVersion,
       "com.beachape" %% "enumeratum" % enumeratumVersion,
-      "net.logstash.logback" % "logstash-logback-encoder" % "6.6"
+      "net.logstash.logback" % "logstash-logback-encoder" % "6.6",
+      // A transient dependency added to evict vulnerable versions
+      "at.yawk.lz4" % "lz4-java" % "1.11.4"
     )
   )
 
