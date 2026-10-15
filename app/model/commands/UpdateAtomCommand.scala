@@ -146,14 +146,12 @@ case class UpdateAtomCommand(
               val existingMediaAtom =
                 MediaAtom.fromThrift(existingAtom, existingPublishSettings)
 
-              // publishSettings only have an effect on first publish, so there's no
-              // need to keep persisting changes to them once the atom has already been published
-              val publishSettings = if (atomIsPublished.isEmpty) {
-                stores.mediaAtomPublishSettingsStore.put(atom.publishSettings)
-                atom.publishSettings
-              } else {
-                existingPublishSettings
-              }
+              val basePublishSettings = atomIsPublished
+                .fold(atom.publishSettings)(_ => existingPublishSettings)
+              val publishSettings = basePublishSettings.copy(
+                retainYoutubeAds = atom.publishSettings.retainYoutubeAds
+              )
+              stores.mediaAtomPublishSettingsStore.put(publishSettings)
 
               val updatedMediaAtom =
                 MediaAtom.fromThrift(thrift, publishSettings)

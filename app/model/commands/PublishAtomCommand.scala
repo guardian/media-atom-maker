@@ -209,7 +209,9 @@ case class PublishAtomCommand(
   ): Future[MediaAtom] = {
     previewAtom.channelId match {
       case Some(channel) if youtube.allChannels.contains(channel) =>
-        if (youtube.usePartnerApi) {
+        if (
+          youtube.usePartnerApi && !previewAtom.publishSettings.retainYoutubeAds
+        ) {
           createOrUpdateYoutubeClaim(publishedAtom, previewAtom, asset)
         }
         updateYoutubeMetadata(previewAtom, asset)

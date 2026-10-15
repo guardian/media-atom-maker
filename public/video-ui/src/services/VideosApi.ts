@@ -122,6 +122,7 @@ export type Video = {
   platform?: Platform;
   publishSettings?: {
     retainYoutubeFurniture?: boolean;
+    retainYoutubeAds?: boolean;
   };
 };
 
