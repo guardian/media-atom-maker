@@ -212,6 +212,13 @@ class MediaAtomMaker(context: Context)
     stores,
     controllerComponents
   )
+  private val iconikValidationController = new IconikValidationController(
+    hmacAuthActions,
+    stores,
+    aws,
+    wsClient,
+    controllerComponents
+  )
 
   private val videoApp = new VideoUIApp(
     hmacAuthActions,
@@ -232,6 +239,7 @@ class MediaAtomMaker(context: Context)
     api,
     plutoController,
     iconikController,
+    iconikValidationController,
     uploads,
     youTubeController,
     reindexer,
