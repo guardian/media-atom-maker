@@ -1,10 +1,16 @@
 package com.gu.media.iconik
 
+import scala.concurrent.{ExecutionContext, Future}
+
 abstract class IconikDataStore[Model <: IconikItem, ErrorType] {
 
   def getById(id: String): Either[ErrorType, Option[Model]]
 
   def list: Either[ErrorType, List[Model]]
+
+  def listAsync()(implicit
+      executionContext: ExecutionContext
+  ): Future[Either[ErrorType, List[Model]]]
 
   def upsert(item: Model): Unit
 

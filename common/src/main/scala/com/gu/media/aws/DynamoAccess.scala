@@ -4,6 +4,7 @@ import com.gu.media.Settings
 import com.gu.media.aws.AwsV2Util.buildSync
 import org.scanamo.Scanamo
 import software.amazon.awssdk.services.dynamodb.{
+  DynamoDbAsyncClient,
   DynamoDbClient,
   DynamoDbClientBuilder
 }
@@ -56,6 +57,13 @@ trait DynamoAccess { this: Settings with AwsAccess =>
       credentials.instance.awsV2Creds,
       awsV2Region
     )
+
+  lazy val dynamoDbAsyncSdkV2: DynamoDbAsyncClient =
+    DynamoDbAsyncClient
+      .builder()
+      .credentialsProvider(credentials.instance.awsV2Creds)
+      .region(awsV2Region)
+      .build()
 
   lazy val scanamo: Scanamo = Scanamo(dynamoDbSdkV2)
 }
