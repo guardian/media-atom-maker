@@ -46,7 +46,7 @@ class IconikValidationController(
   private val iconikApiUrl = "https://app.iconik.io"
   private val maxConcurrentIconikRequests = 10
 
-  private def iconikCredentials: Either[String, IconikCredentials] =
+  private val iconikCredentials: Either[String, IconikCredentials] =
     awsConfig.getString("aws.secretsmanager.iconikCredentials") match {
       case None =>
         Left(
@@ -89,41 +89,52 @@ class IconikValidationController(
         }
     }
 
-  private def cachedEntities: Either[String, List[CachedIconikEntity]] =
+  private def cachedEntities
+      : Future[Either[String, List[CachedIconikEntity]]] = {
+    val projects =
+      stores.iconikDataStore.listProjectsAsync().map(_.left.map(_.toString))
+    val commissions =
+      stores.iconikDataStore.listCommissionsAsync().map(_.left.map(_.toString))
+    val workingGroups =
+      stores.iconikDataStore
+        .listWorkingGroupsAsync()
+        .map(_.left.map(_.toString))
+
     for {
-      projects <- stores.iconikDataStore.listProjects().left.map(_.toString)
-      commissions <- stores.iconikDataStore
-        .listCommissions()
-        .left
-        .map(_.toString)
-      workingGroups <- stores.iconikDataStore
-        .listWorkingGroups()
-        .left
-        .map(_.toString)
+      projectResult <- projects
+      commissionResult <- commissions
+      workingGroupResult <- workingGroups
     } yield {
-      projects.map(project =>
-        CachedIconikEntity(
-          "project",
-          project.id,
-          project.title,
-          Some(project.commissionId)
+      for {
+        projects <- projectResult
+        commissions <- commissionResult
+        workingGroups <- workingGroupResult
+      } yield {
+        projects.map(project =>
+          CachedIconikEntity(
+            "project",
+            project.id,
+            project.title,
+            Some(project.commissionId)
+          )
+        ) ++ commissions.map(commission =>
+          CachedIconikEntity(
+            "commission",
+            commission.id,
+            commission.title,
+            Some(commission.workingGroupId)
+          )
+        ) ++ workingGroups.map(workingGroup =>
+          CachedIconikEntity(
+            "working_group",
+            workingGroup.id,
+            workingGroup.title,
+            None
+          )
         )
-      ) ++ commissions.map(commission =>
-        CachedIconikEntity(
-          "commission",
-          commission.id,
-          commission.title,
-          Some(commission.workingGroupId)
-        )
-      ) ++ workingGroups.map(workingGroup =>
-        CachedIconikEntity(
-          "working_group",
-          workingGroup.id,
-          workingGroup.title,
-          None
-        )
-      )
+      }
     }
+  }
 
   private def checkEntity(
       entity: CachedIconikEntity,
@@ -167,7 +178,10 @@ class IconikValidationController(
                   )
               }
             val parentMatches: JsValue =
-              JsBoolean(iconikParentId == entity.parentId)
+              IconikValidationController.parentMatches(
+                entity.parentId,
+                iconikParentId
+              )
             val iconikParentValue: JsValue =
               iconikParentId.map(JsString(_)).getOrElse(JsNull)
 
@@ -210,52 +224,70 @@ class IconikValidationController(
       case Left(error) =>
         Future.successful(ServiceUnavailable(Json.obj("error" -> error)))
       case Right(credentials) =>
-        cachedEntities match {
-          case Left(error) =>
-            log.error(s"failed to list cached iconik entities: $error")
-            Future.successful(
-              ServiceUnavailable(
-                Json.obj("error" -> "Failed to read cached Iconik entities")
+        cachedEntities
+          .flatMap {
+            case Left(error) =>
+              log.error(s"failed to list cached iconik entities: $error")
+              Future.successful(
+                ServiceUnavailable(
+                  Json.obj("error" -> "Failed to read cached Iconik entities")
+                )
               )
-            )
-          case Right(entities) =>
-            checkEntities(entities, credentials.appId, credentials.token)
-              .map { results =>
-                val report = JsArray(results)
-                Ok(
-                  Json.obj(
-                    "entities" -> report,
-                    "summary" -> Json.obj(
-                      "total" -> results.size,
-                      "missing" -> results.count(result =>
-                        (result \ "exists").asOpt[Boolean].contains(false)
-                      ),
-                      "nameMismatches" -> results.count(result =>
-                        (result \ "nameMatches")
-                          .asOpt[Boolean]
-                          .contains(false)
-                      ),
-                      "parentMismatches" -> results.count(result =>
-                        (result \ "parentMatches")
-                          .asOpt[Boolean]
-                          .contains(false)
+            case Right(entities) =>
+              checkEntities(entities, credentials.appId, credentials.token)
+                .map { results =>
+                  val report = JsArray(results)
+                  Ok(
+                    Json.obj(
+                      "entities" -> report,
+                      "summary" -> Json.obj(
+                        "total" -> results.size,
+                        "missing" -> results.count(result =>
+                          (result \ "exists").asOpt[Boolean].contains(false)
+                        ),
+                        "nameMismatches" -> results.count(result =>
+                          (result \ "nameMatches")
+                            .asOpt[Boolean]
+                            .contains(false)
+                        ),
+                        "parentMismatches" -> results.count(result =>
+                          (result \ "parentMatches")
+                            .asOpt[Boolean]
+                            .contains(false)
+                        )
                       )
                     )
                   )
-                )
-              }
-              .recover { case NonFatal(error) =>
-                log.error(
-                  "failed to validate cached Iconik entities",
-                  error
-                )
-                BadGateway(
-                  Json.obj(
-                    "error" -> "Failed to validate entities with Iconik"
+                }
+                .recover { case NonFatal(error) =>
+                  log.error(
+                    "failed to validate cached Iconik entities",
+                    error
                   )
-                )
-              }
-        }
+                  BadGateway(
+                    Json.obj(
+                      "error" -> "Failed to validate entities with Iconik"
+                    )
+                  )
+                }
+          }
+          .recover { case NonFatal(error) =>
+            log.error("failed to read cached Iconik entities", error)
+            ServiceUnavailable(
+              Json.obj("error" -> "Failed to read cached Iconik entities")
+            )
+          }
     }
   }
+}
+
+private[controllers] object IconikValidationController {
+  def parentMatches(
+      expectedParentId: Option[String],
+      iconikParentId: Option[String]
+  ): JsValue =
+    expectedParentId match {
+      case Some(expected) => JsBoolean(iconikParentId.contains(expected))
+      case None           => JsNull
+    }
 }

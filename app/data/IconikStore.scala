@@ -11,6 +11,7 @@ import com.gu.media.iconik.{
 import com.gu.media.logging.Logging
 
 import java.time.LocalDateTime
+import scala.concurrent.{ExecutionContext, Future}
 
 class IconikStore[E](
     projectStore: IconikDataStoreWithParentIndex[IconikProject, E],
@@ -45,6 +46,18 @@ class IconikStore[E](
     commissionStore.list
   def listWorkingGroups(): Either[E, List[IconikWorkingGroup]] =
     workingGroupStore.list
+  def listProjectsAsync()(implicit
+      ec: ExecutionContext
+  ): Future[Either[E, List[IconikProject]]] =
+    projectStore.listAsync()
+  def listCommissionsAsync()(implicit
+      ec: ExecutionContext
+  ): Future[Either[E, List[IconikCommission]]] =
+    commissionStore.listAsync()
+  def listWorkingGroupsAsync()(implicit
+      ec: ExecutionContext
+  ): Future[Either[E, List[IconikWorkingGroup]]] =
+    workingGroupStore.listAsync()
 
   def localDateTimeOption(
       dateTimeStr: String

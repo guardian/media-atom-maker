@@ -35,6 +35,7 @@ import util._
 import java.io.FileInputStream
 import java.net.http.HttpClient
 import java.time.Duration
+import scala.concurrent.Future
 
 class MediaAtomMakerLoader extends ApplicationLoader {
   override def load(context: Context): Application = new MediaAtomMaker(
@@ -104,6 +105,11 @@ class MediaAtomMaker(context: Context)
   )
 
   private val aws = new AWSConfig(config, credentials)
+  private val iconikDynamoDbAsyncClient = aws.dynamoDbAsyncSdkV2
+  applicationLifecycle.addStopHook { () =>
+    iconikDynamoDbAsyncClient.close()
+    Future.successful(())
+  }
 
   private val permissionsStage = aws.stage match {
     case "PROD" => "PROD"
