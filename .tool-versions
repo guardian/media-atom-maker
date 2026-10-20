@@ -3,4 +3,4 @@ nodejs 22.15.0
 npm:yarn 1.22.22
 sbt 1
 aqua:aws/aws-cli 2
-github:guardian/devenv 20260721-123412
+github:guardian/devenv 20260930-111347
