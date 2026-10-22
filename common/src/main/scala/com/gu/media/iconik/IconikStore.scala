@@ -1,13 +1,5 @@
-package data
+package com.gu.media.iconik
 
-import com.gu.media.iconik.{
-  IconikCommission,
-  IconikDataStore,
-  IconikDataStoreWithParentIndex,
-  IconikProject,
-  IconikUpsertRequest,
-  IconikWorkingGroup
-}
 import com.gu.media.logging.Logging
 
 import java.time.LocalDateTime
