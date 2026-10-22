@@ -47,33 +47,32 @@ class IconikValidationService(
 
   private def cachedEntities
       : Future[Either[IconikValidationError, List[IconikEntity]]] = {
-    val projects = cachedList(iconikStore.listProjectsAsync())(
-      project =>
-        IconikEntity(
-          "project",
-          project.id,
-          project.title,
-          Some(project.commissionId)
-        )
+    val projects = cachedList(iconikStore.listProjectsAsync())(project =>
+      IconikEntity(
+        "project",
+        project.id,
+        project.title,
+        Some(project.commissionId)
+      )
     )
-    val commissions = cachedList(iconikStore.listCommissionsAsync())(
-      commission =>
+    val commissions =
+      cachedList(iconikStore.listCommissionsAsync())(commission =>
         IconikEntity(
           "commission",
           commission.id,
           commission.title,
           Some(commission.workingGroupId)
         )
-    )
-    val workingGroups = cachedList(iconikStore.listWorkingGroupsAsync())(
-      workingGroup =>
+      )
+    val workingGroups =
+      cachedList(iconikStore.listWorkingGroupsAsync())(workingGroup =>
         IconikEntity(
           "working_group",
           workingGroup.id,
           workingGroup.title,
           None
         )
-    )
+      )
 
     for {
       projectResult <- projects
@@ -97,7 +96,8 @@ class IconikValidationService(
 
   private def cachedList[A](
       result: Future[Either[DynamoReadError, List[A]]]
-  )(toEntity: A => IconikEntity
+  )(
+      toEntity: A => IconikEntity
   ): Future[Either[IconikValidationError, List[IconikEntity]]] =
     result.map {
       case Left(error) =>
@@ -112,23 +112,21 @@ class IconikValidationService(
       .grouped(maxConcurrentRequests)
       .foldLeft(
         Future.successful(
-          Right(List.empty[IconikEntityValidationResult])
-            : Either[
-              IconikValidationError,
-              List[IconikEntityValidationResult]
-            ]
+          Right(List.empty[IconikEntityValidationResult]): Either[
+            IconikValidationError,
+            List[IconikEntityValidationResult]
+          ]
         )
-      ) {
-        case (validated, batch) =>
-          validated.flatMap {
-            case Left(error) => Future.successful(Left(error))
-            case Right(previousResults) =>
-              Future
-                .traverse(batch)(validateEntity)
-                .map { batchResults =>
-                  sequence(batchResults).map(previousResults ++ _)
-                }
-          }
+      ) { case (validated, batch) =>
+        validated.flatMap {
+          case Left(error) => Future.successful(Left(error))
+          case Right(previousResults) =>
+            Future
+              .traverse(batch)(validateEntity)
+              .map { batchResults =>
+                sequence(batchResults).map(previousResults ++ _)
+              }
+        }
       }
 
   private def validateEntity(
@@ -157,8 +155,7 @@ class IconikValidationService(
             id = entity.id,
             exists = true,
             nameMatches = Some(entity.name == collection.title),
-            parentMatches =
-              entity.parentId.map(collection.parentId.contains),
+            parentMatches = entity.parentId.map(collection.parentId.contains),
             expectedName = entity.name,
             iconikName = Some(collection.title),
             expectedParentId = entity.parentId,

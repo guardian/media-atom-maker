@@ -56,11 +56,22 @@ class IconikApiClientTest extends AnyFlatSpec with Matchers {
 
     val client = new IconikApiClient(wsClient)
 
-    Await.result(client.getCollection("existing", credentials), 5.seconds) shouldBe
+    Await.result(
+      client.getCollection("existing", credentials),
+      5.seconds
+    ) shouldBe
       Right(Some(IconikCollection("Collection", Some("parent"))))
-    Await.result(client.getCollection("missing", credentials), 5.seconds) shouldBe
+    Await.result(
+      client.getCollection("missing", credentials),
+      5.seconds
+    ) shouldBe
       Right(None)
-    Await.result(client.getCollection("failed", credentials), 5.seconds) shouldBe
-      Left(IconikRequestFailure("Iconik returned HTTP 500 for collection failed"))
+    Await.result(
+      client.getCollection("failed", credentials),
+      5.seconds
+    ) shouldBe
+      Left(
+        IconikRequestFailure("Iconik returned HTTP 500 for collection failed")
+      )
   }
 }
