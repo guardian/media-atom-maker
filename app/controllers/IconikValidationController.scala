@@ -12,7 +12,7 @@ import play.api.libs.json.{
   JsValue,
   Json
 }
-import play.api.libs.ws.WSClient
+import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 import util.AWSConfig
 
@@ -150,11 +150,11 @@ class IconikValidationController(
     }
   }
 
-  private def checkEntity(
+  private def fetchIconikEntity(
       entity: CachedIconikEntity,
       appId: String,
       apiToken: String
-  ): Future[JsObject] =
+  ): Future[WSResponse] =
     wsClient
       .url(s"$iconikApiUrl/API/assets/v1/collections/${entity.id}/")
       .addHttpHeaders(
@@ -163,59 +163,71 @@ class IconikValidationController(
         "Accept" -> "application/json"
       )
       .get()
-      .map { response =>
-        val expectedParentId: JsValue =
-          entity.parentId.map(JsString(_)).getOrElse(JsNull)
-        response.status match {
-          case NOT_FOUND =>
-            Json.obj(
-              "entityType" -> entity.entityType,
-              "id" -> entity.id,
-              "exists" -> false,
-              "nameMatches" -> JsNull,
-              "parentMatches" -> JsNull,
-              "expectedName" -> entity.name,
-              "iconikName" -> JsNull,
-              "expectedParentId" -> expectedParentId,
-              "iconikParentId" -> JsNull
-            )
-          case OK =>
-            val iconikCollection = response.json
-            val iconikName = (iconikCollection \ "title").as[String]
-            val iconikParentId =
-              (iconikCollection \ "parent_id").toOption match {
-                case None | Some(JsNull)   => None
-                case Some(JsString(value)) => Some(value)
-                case _ =>
-                  throw new IllegalStateException(
-                    s"Iconik returned an invalid parent_id for ${entity.id}"
-                  )
-              }
-            val parentMatches: JsValue =
-              IconikValidationController.parentMatches(
-                entity.parentId,
-                iconikParentId
-              )
-            val iconikParentValue: JsValue =
-              iconikParentId.map(JsString(_)).getOrElse(JsNull)
 
-            Json.obj(
-              "entityType" -> entity.entityType,
-              "id" -> entity.id,
-              "exists" -> true,
-              "nameMatches" -> (entity.name == iconikName),
-              "parentMatches" -> parentMatches,
-              "expectedName" -> entity.name,
-              "iconikName" -> iconikName,
-              "expectedParentId" -> expectedParentId,
-              "iconikParentId" -> iconikParentValue
-            )
-          case status =>
-            throw new IllegalStateException(
-              s"Iconik returned HTTP $status for ${entity.entityType} ${entity.id}"
-            )
-        }
-      }
+  private def checkIconikResponse(
+      entity: CachedIconikEntity,
+      response: WSResponse
+  ): JsObject = {
+    val expectedParentId: JsValue =
+      entity.parentId.map(JsString(_)).getOrElse(JsNull)
+    response.status match {
+      case NOT_FOUND =>
+        Json.obj(
+          "entityType" -> entity.entityType,
+          "id" -> entity.id,
+          "exists" -> false,
+          "nameMatches" -> JsNull,
+          "parentMatches" -> JsNull,
+          "expectedName" -> entity.name,
+          "iconikName" -> JsNull,
+          "expectedParentId" -> expectedParentId,
+          "iconikParentId" -> JsNull
+        )
+      case OK =>
+        val iconikCollection = response.json
+        val iconikName = (iconikCollection \ "title").as[String]
+        val iconikParentId =
+          (iconikCollection \ "parent_id").toOption match {
+            case None | Some(JsNull)   => None
+            case Some(JsString(value)) => Some(value)
+            case _ =>
+              throw new IllegalStateException(
+                s"Iconik returned an invalid parent_id for ${entity.id}"
+              )
+          }
+        val parentMatches: JsValue =
+          IconikValidationController.parentMatches(
+            entity.parentId,
+            iconikParentId
+          )
+        val iconikParentValue: JsValue =
+          iconikParentId.map(JsString(_)).getOrElse(JsNull)
+
+        Json.obj(
+          "entityType" -> entity.entityType,
+          "id" -> entity.id,
+          "exists" -> true,
+          "nameMatches" -> (entity.name == iconikName),
+          "parentMatches" -> parentMatches,
+          "expectedName" -> entity.name,
+          "iconikName" -> iconikName,
+          "expectedParentId" -> expectedParentId,
+          "iconikParentId" -> iconikParentValue
+        )
+      case status =>
+        throw new IllegalStateException(
+          s"Iconik returned HTTP $status for ${entity.entityType} ${entity.id}"
+        )
+    }
+  }
+
+  private def checkEntity(
+      entity: CachedIconikEntity,
+      appId: String,
+      apiToken: String
+  ): Future[JsObject] =
+    fetchIconikEntity(entity, appId, apiToken)
+      .map(response => checkIconikResponse(entity, response))
 
   private def checkEntities(
       entities: List[CachedIconikEntity],
