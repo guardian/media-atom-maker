@@ -17,8 +17,8 @@ import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 import util.AWSConfig
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 import scala.util.control.NonFatal
-import scala.util.Try
 
 private case class CachedIconikEntity(
     entityType: String,
@@ -46,48 +46,62 @@ class IconikValidationController(
   private val iconikApiUrl = "https://app.iconik.io"
   private val maxConcurrentIconikRequests = 10
 
-  private val iconikCredentials: Either[String, IconikCredentials] =
-    awsConfig.getString("aws.secretsmanager.iconikCredentials") match {
-      case None =>
-        Left(
+  private val iconikCredentials: IconikCredentials = {
+    val secretArn = awsConfig
+      .getString("aws.secretsmanager.iconikCredentials")
+      .getOrElse(
+        throw new IllegalStateException(
           "aws.secretsmanager.iconikCredentials must contain the Secrets Manager ARN"
         )
-      case Some(secretArn) =>
-        awsConfig.getSecret(secretArn).toEither match {
-          case Left(error) =>
-            log.error(
-              s"failed to retrieve Iconik credentials from Secrets Manager secret $secretArn",
-              error
-            )
-            Left("Failed to retrieve Iconik credentials from Secrets Manager")
-          case Right(secretValue)
-              if secretValue != null && secretValue.nonEmpty =>
-            Try(Json.parse(secretValue)).toEither.left
-              .map { error =>
-                log.error(
-                  s"Iconik credentials secret $secretArn is not valid JSON",
-                  error
-                )
-                "Iconik credentials secret is not valid JSON"
-              }
-              .flatMap {
-                case credentials: JsObject =>
-                  for {
-                    appId <- (credentials \ "app-id")
-                      .asOpt[String]
-                      .filter(_.nonEmpty)
-                      .toRight("Iconik credentials secret is missing app-id")
-                    token <- (credentials \ "token")
-                      .asOpt[String]
-                      .filter(_.nonEmpty)
-                      .toRight("Iconik credentials secret is missing token")
-                  } yield IconikCredentials(appId, token)
-                case _ =>
-                  Left("Iconik credentials secret must be a JSON object")
-              }
-          case Right(_) => Left("Iconik credentials secret is empty")
-        }
+      )
+    val secretValue = awsConfig.getSecret(secretArn) match {
+      case Success(value) if value != null && value.nonEmpty => value
+      case Success(_) =>
+        throw new IllegalStateException(
+          "Iconik credentials secret is empty"
+        )
+      case Failure(error) =>
+        log.error(
+          s"failed to retrieve Iconik credentials from Secrets Manager secret $secretArn",
+          error
+        )
+        throw new IllegalStateException(
+          "Failed to retrieve Iconik credentials from Secrets Manager",
+          error
+        )
     }
+    val credentials = Try(Json.parse(secretValue)) match {
+      case Success(value: JsObject) => value
+      case Success(_) =>
+        throw new IllegalStateException(
+          "Iconik credentials secret must be a JSON object"
+        )
+      case Failure(error) =>
+        log.error(
+          s"Iconik credentials secret $secretArn is not valid JSON",
+          error
+        )
+        throw new IllegalStateException(
+          "Iconik credentials secret is not valid JSON",
+          error
+        )
+    }
+
+    def requiredCredential(name: String): String =
+      (credentials \ name)
+        .asOpt[String]
+        .filter(_.nonEmpty)
+        .getOrElse(
+          throw new IllegalStateException(
+            s"Iconik credentials secret is missing $name"
+          )
+        )
+
+    IconikCredentials(
+      requiredCredential("app-id"),
+      requiredCredential("token")
+    )
+  }
 
   private def cachedEntities
       : Future[Either[String, List[CachedIconikEntity]]] = {
@@ -220,64 +234,59 @@ class IconikValidationController(
       }
 
   def validateEntities: Action[AnyContent] = AuthAction.async { _ =>
-    iconikCredentials match {
-      case Left(error) =>
-        Future.successful(ServiceUnavailable(Json.obj("error" -> error)))
-      case Right(credentials) =>
-        cachedEntities
-          .flatMap {
-            case Left(error) =>
-              log.error(s"failed to list cached iconik entities: $error")
-              Future.successful(
-                ServiceUnavailable(
-                  Json.obj("error" -> "Failed to read cached Iconik entities")
-                )
-              )
-            case Right(entities) =>
-              checkEntities(entities, credentials.appId, credentials.token)
-                .map { results =>
-                  val report = JsArray(results)
-                  Ok(
-                    Json.obj(
-                      "entities" -> report,
-                      "summary" -> Json.obj(
-                        "total" -> results.size,
-                        "missing" -> results.count(result =>
-                          (result \ "exists").asOpt[Boolean].contains(false)
-                        ),
-                        "nameMismatches" -> results.count(result =>
-                          (result \ "nameMatches")
-                            .asOpt[Boolean]
-                            .contains(false)
-                        ),
-                        "parentMismatches" -> results.count(result =>
-                          (result \ "parentMatches")
-                            .asOpt[Boolean]
-                            .contains(false)
-                        )
-                      )
-                    )
-                  )
-                }
-                .recover { case NonFatal(error) =>
-                  log.error(
-                    "failed to validate cached Iconik entities",
-                    error
-                  )
-                  BadGateway(
-                    Json.obj(
-                      "error" -> "Failed to validate entities with Iconik"
-                    )
-                  )
-                }
-          }
-          .recover { case NonFatal(error) =>
-            log.error("failed to read cached Iconik entities", error)
+    cachedEntities
+      .flatMap {
+        case Left(error) =>
+          log.error(s"failed to list cached iconik entities: $error")
+          Future.successful(
             ServiceUnavailable(
               Json.obj("error" -> "Failed to read cached Iconik entities")
             )
-          }
-    }
+          )
+        case Right(entities) =>
+          checkEntities(entities, iconikCredentials.appId, iconikCredentials.token)
+            .map { results =>
+              val report = JsArray(results)
+              Ok(
+                Json.obj(
+                  "entities" -> report,
+                  "summary" -> Json.obj(
+                    "total" -> results.size,
+                    "missing" -> results.count(result =>
+                      (result \ "exists").asOpt[Boolean].contains(false)
+                    ),
+                    "nameMismatches" -> results.count(result =>
+                      (result \ "nameMatches")
+                        .asOpt[Boolean]
+                        .contains(false)
+                    ),
+                    "parentMismatches" -> results.count(result =>
+                      (result \ "parentMatches")
+                        .asOpt[Boolean]
+                        .contains(false)
+                    )
+                  )
+                )
+              )
+            }
+            .recover { case NonFatal(error) =>
+              log.error(
+                "failed to validate cached Iconik entities",
+                error
+              )
+              BadGateway(
+                Json.obj(
+                  "error" -> "Failed to validate entities with Iconik"
+                )
+              )
+            }
+      }
+      .recover { case NonFatal(error) =>
+        log.error("failed to read cached Iconik entities", error)
+        ServiceUnavailable(
+          Json.obj("error" -> "Failed to read cached Iconik entities")
+        )
+      }
   }
 }
 
